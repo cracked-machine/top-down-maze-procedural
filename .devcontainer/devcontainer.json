@@ -1,0 +1,32 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
+{
+    "name": "RENAME ME!!!!",
+    "build": { "dockerfile": "Dockerfile" },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "llvm-vs-code-extensions.vscode-clangd",
+                "ms-vscode.cpptools",
+                "twxs.cmake",
+                "xaver.clang-format",
+                "ms-vscode.hexeditor",
+                "cschlosser.doxdocgen"
+
+            ],
+            "settings": {
+                "clangd.path": "/usr/bin/clangd",
+                "clangd.arguments": [
+                    "-background-index",
+                    "-compile-commands-dir=build"
+                    
+                ],
+                "C_Cpp.intelliSenseEngine": "disabled"
+            }
+        }
+    },
+    "remoteUser": "user",
+    "containerUser": "user"
+    
+    
+}

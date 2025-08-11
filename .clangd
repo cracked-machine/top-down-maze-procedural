@@ -1,0 +1,5 @@
+# clangd doesn't support features from 'cxx_std_20' or higher
+CompileFlags:
+  Add: -Wno-unknown-warning-option
+  Remove: [-m*, -f*]
+  
