@@ -65,7 +65,7 @@ public:
         {
             m_event_handler.handler(m_window, m_reg);
             m_render_sys->render();         
-            m_collsion_sys->check(m_window);
+            m_collsion_sys->check();
         }
         return false;   
     }
