@@ -4,7 +4,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <components/random.hpp>
 
-namespace RENAME_THIS_NAMESPACE::Components {
+namespace ProceduralMaze::Components {
 
 class RandomCoord {
 public:
@@ -25,6 +25,6 @@ private:
     Random m_y;
 };
 
-} // namespace RENAME_THIS_NAMESPACE::Components
+} // namespace ProceduralMaze::Components
 
 #endif // __COMPONENTS_RANDOM_COORD_HPP__

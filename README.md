@@ -6,3 +6,19 @@ This is a samba error. The dirty workaround is to restart the samba server after
 ```
 sudo systemctl restart smb
 ```
+
+
+```mermaid
+sequenceDiagram
+
+actor User
+participant Engine
+participant RenderSystem
+participant CollisionSystem
+
+
+activate Engine
+User->>Engine: keyboard
+deactivate Engine
+
+```

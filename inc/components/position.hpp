@@ -4,7 +4,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <base.hpp>
 
-namespace RENAME_THIS_NAMESPACE::Components {
+namespace ProceduralMaze::Components {
 
 class Position : public sf::Vector2f, Components::Base {
 public:
@@ -19,6 +19,6 @@ public:
     }
 };
 
-} // namespace RENAME_THIS_NAMESPACE::Components
+} // namespace ProceduralMaze::Components
 
 #endif // __COMPONENTS_POSITION_HPP__

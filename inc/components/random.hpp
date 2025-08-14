@@ -4,7 +4,7 @@
 #include <random>
 #include <base.hpp>
 
-namespace RENAME_THIS_NAMESPACE::Components {
+namespace ProceduralMaze::Components {
 
 class Random : public Components::Base {
 public:
@@ -17,6 +17,6 @@ private:
     std::uniform_int_distribution<> m_intdist;
 };
 
-} // namespace RENAME_THIS_NAMESPACE::Components
+} // namespace ProceduralMaze::Components
 
 #endif // __COMPONENTS_RANDOM_HPP__

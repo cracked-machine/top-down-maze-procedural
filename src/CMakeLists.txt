@@ -1,4 +1,4 @@
-set(TARGET RENAME_THIS_CMAKE_TARGET)
+set(TARGET ProceduralMaze)
 add_executable(${TARGET} 
     ${CMAKE_SOURCE_DIR}/src/main.cpp
     ${CMAKE_SOURCE_DIR}/src/components/base.cpp
@@ -15,7 +15,9 @@ target_include_directories(${TARGET} SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/inc
     ${CMAKE_SOURCE_DIR}/inc/systems
     ${CMAKE_SOURCE_DIR}/inc/components
+    ${CMAKE_SOURCE_DIR}/inc/sprites
     ${CMAKE_SOURCE_DIR}/inc/logging
     /usr/x86_64-w64-mingw32/include/GL/
 )
+# target_compile_definitions(${TARGET} PUBLIC ENTT_DISABLE_ASSERT)
 

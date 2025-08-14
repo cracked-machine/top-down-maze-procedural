@@ -4,13 +4,13 @@
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
 
-namespace RENAME_THIS_NAMESPACE::Components {
+namespace ProceduralMaze::Components {
 
 class Base {
 public:
 
 };
 
-} // namespace RENAME_THIS_NAMESPACE::Components
+} // namespace ProceduralMaze::Components
 
 #endif // __COMPONENTS_BASE_HPP__

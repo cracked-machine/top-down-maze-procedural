@@ -5,7 +5,7 @@
 #include <SFML/Graphics/Font.hpp>
 #include <base.hpp>
 
-namespace RENAME_THIS_NAMESPACE::Components {
+namespace ProceduralMaze::Components {
 
 class Font : public sf::Font, Components::Base {
 public:
@@ -19,6 +19,6 @@ public:
 
 };
 
-} // namespace RENAME_THIS_NAMESPACE::Components
+} // namespace ProceduralMaze::Components
 
 #endif // __COMPONENTS_FONT_HPP__

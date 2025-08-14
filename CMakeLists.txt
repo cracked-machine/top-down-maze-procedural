@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(RENAME_THIS_CMAKE_PROJECT LANGUAGES CXX)
+project(ProceduralMazeProject LANGUAGES CXX)
 
 include(FetchContent)
 FetchContent_Declare(SFML

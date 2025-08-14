@@ -4,7 +4,7 @@
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
 
-namespace RENAME_THIS_NAMESPACE::Systems {
+namespace ProceduralMaze::Systems {
 
 class BaseSystem {
 public:
@@ -12,6 +12,6 @@ public:
     ~BaseSystem() = default;
 };
 
-} // namespace RENAME_THIS_NAMESPACE::Systems
+} // namespace ProceduralMaze::Systems
 
 #endif // __SYSTEMS_BASE_SYSTEM_HPP__

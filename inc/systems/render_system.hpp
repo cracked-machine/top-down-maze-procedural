@@ -2,50 +2,70 @@
 #define __SYSTEMS_RENDER_SYSTEM_HPP__
 
 #include <SFML/Graphics/CircleShape.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>
+
+#include <collision.hpp>
 #include <font.hpp>
 #include <memory>
+
+#include <obstacle.hpp>
+#include <pc.hpp>
 #include <position.hpp>
+#include <sprites/brick.hpp>
+#include <sprites/player.hpp>
 #include <systems/base_system.hpp>
 #include <spdlog/spdlog.h>
 
-namespace RENAME_THIS_NAMESPACE::Systems {
+namespace ProceduralMaze::Systems {
 
 class RenderSystem : public Systems::BaseSystem {
 public:
-    RenderSystem(std::shared_ptr<sf::RenderWindow> win) : m_window(win) 
-    { SPDLOG_DEBUG("RenderSystem()"); }
-    ~RenderSystem() { SPDLOG_DEBUG("~RenderSystem()"); } 
-
-    // this listens for changes to Position component
-    void update_cb( entt::registry &reg, entt::entity entt )
-    {
-        SPDLOG_DEBUG("RenderSystem::update_cb()");
-    
-            // we have a font entity!!
-            if( reg.all_of<Components::Font>( entt ) )
-            {
-                sf::Text text( reg.get<Components::Font>(entt), "Hello" );
-                text.setPosition( reg.get<Components::Position>(entt) );
-                text.setCharacterSize( 24 );  
-                text.setFillColor( sf::Color::Red );
-                text.setStyle( sf::Text::Bold | sf::Text::Underlined );
-                m_window->draw( text );
-            }
-            // a non-font entity
-            else
-            {
-                sf::CircleShape dot( 20 );
-                dot.setPosition( reg.get<Components::Position>(entt) );         
-                m_window->draw( dot );       
-            }
-        
+    RenderSystem(
+        std::shared_ptr<sf::RenderWindow> win
+    ) : 
+        m_window( win )
+    { 
+        SPDLOG_DEBUG("RenderSystem()"); 
     }
+    
+    ~RenderSystem() { SPDLOG_DEBUG("~RenderSystem()"); } 
+    
+    void render()
+    {
+        using namespace Components;
+        using namespace Sprites;
+        m_window->clear();
+
+            for( auto [entity, _pc, _pos]: m_position_updates.view<PlayableCharacter, Position>().each() ) {
+                m_window->draw(  Player(_pos) );
+            }
+
+            for( auto [entity, _ob, _pos]: m_position_updates.view<Obstacle, Position>().each() ) {
+                if( _ob.visible )
+                    m_window->draw(  Brick(_pos) );
+            }
+
+            for( auto [entity, _collision]: m_position_updates.view<Collision>().each() ) {
+                auto intersect = sf::RectangleShape(_collision.get()->size);
+                intersect.setPosition(_collision.get()->position);
+                intersect.setFillColor(sf::Color::Blue);
+                m_window->draw(intersect);
+            }
+
+        m_window->display();
+    }
+
+    entt::reactive_mixin<entt::storage<void>> m_position_updates;
+    entt::reactive_mixin<entt::storage<void>> m_collision_updates;
+
 private:
     std::shared_ptr<sf::RenderWindow> m_window;
+
 };
 
-} // namespace RENAME_THIS_NAMESPACE::Systems
+} // namespace ProceduralMaze::Systems
 
 #endif // __SYSTEMS_RENDER_SYSTEM_HPP__

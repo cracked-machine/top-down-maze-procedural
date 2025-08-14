@@ -7,10 +7,18 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics.hpp>
 
+
+#include <collision.hpp>
+#include <collision_system.hpp>
+#include <memory>
+
+#include <components/obstacle.hpp>
+#include <components/pc.hpp>
+
 #include <random.hpp>
 #include <random_coord.hpp>
 #include <spdlog/spdlog.h>
-
+#include <event_handler.hpp>
 #include <entt/entity/registry.hpp>
 
 #include <components/position.hpp>
@@ -18,56 +26,46 @@
 #include <systems/render_system.hpp>
 
 
-namespace RENAME_THIS_NAMESPACE {
+namespace ProceduralMaze {
 
 class Engine {
 public:
     Engine() {
-        
+        using namespace Systems;
+        using namespace Components;
         m_window->setFramerateLimit(60);
 
-        // independent of framerate
-        m_render_period = sf::milliseconds(500);
+        m_render_sys->m_position_updates.bind(m_reg);
+        m_render_sys->m_position_updates
+            .on_update<Position>()
+            .on_construct<Position>();
 
-        // register system listeners
-        m_registry.on_update<Components::Position>().connect<&Systems::RenderSystem::update_cb>(m_render_sys);
+        m_render_sys->m_collision_updates.bind(m_reg);
+        m_render_sys->m_collision_updates
+            .on_update<Collision>()
+            .on_construct<Collision>();
+
+        m_collsion_sys->m_position_updates.bind(m_reg);
+        m_collsion_sys->m_position_updates
+            .on_update<Position>()
+            .on_construct<Position>();
     
-        add_shape();
-        add_text();
+        add_brick( sf::Vector2f{100, 100} );
+        add_player( sf::Vector2f{10, 100} );
 
         SPDLOG_INFO("Engine Init");
     }
 
     bool run()
     {
+        using namespace Components;
         sf::Clock clock;
-       
-        bool init = true;
-
+        
         while (m_window->isOpen())
         {
-            while (const std::optional event = m_window->pollEvent())
-            {
-                if (event->is<sf::Event::Closed>()) { m_window->close(); }
-            }
-            
-            // set the updates independent of the framerate
-            if( ( clock.getElapsedTime() >=  m_render_period  ) || (init) )
-            {
-                m_window->clear();
-                // get a view of all entitys that have a Positon and Random component
-                for( auto [ _entt,  _pos, _randcoords] : 
-                    m_registry.view<Components::Position, Components::RandomCoord>().each() )
-                {
-                    // set entity position to new random coords...
-                    // RenderSystem is listening for updates, RenderSystem::update_cb() calls sfml::draw()
-                    m_registry.patch<Components::Position>(_entt, [&](auto &_pos) { _pos = _randcoords.gen(); });
-                    SPDLOG_DEBUG("Updating entity #{} position", entt::entt_traits<entt::entity>::to_entity(_entt));
-                }
-                m_window->display();
-                clock.restart();
-                init = false;
-            }
+            m_event_handler.handler(m_window, m_reg);
+            m_render_sys->render();         
+            m_collsion_sys->check(m_window);
         }
         return false;   
     }
@@ -75,35 +73,49 @@ public:
 private:
     // SFML Window
     std::shared_ptr<sf::RenderWindow> m_window = std::make_shared<sf::RenderWindow>(
-        sf::VideoMode({1920u, 1080u}), "RENAME_THIS_SFML_WINDOW");
+        sf::VideoMode({600u, 480u}), "RENAME_THIS_SFML_WINDOW");
     
     // ECS Registry
-    entt::basic_registry<entt::entity> m_registry;
+    entt::basic_registry<entt::entity> m_reg;
 
     //  ECS Systems
     std::unique_ptr<Systems::RenderSystem> m_render_sys = 
         std::make_unique<Systems::RenderSystem> (m_window);
+    
+    std::unique_ptr<Systems::CollisionSystem> m_collsion_sys =
+        std::make_unique<Systems::CollisionSystem> ();
+    
+
+    ProceduralMaze::InputEventHandler m_event_handler;
 
     sf::Time m_render_period;
 
     void add_text()
     {
-        // add position component
-        auto entity = m_registry.create();
-        m_registry.emplace<Components::Position>(entity, sf::Vector2{0.f, 0.f}); 
-        m_registry.emplace<Components::Font>(entity, "res/tuffy.ttf"); 
-        m_registry.emplace<Components::RandomCoord>(entity, sf::Vector2f{m_window->getSize()});
+        using namespace Components;
+        auto entity = m_reg.create();
+        m_reg.emplace<Position>(entity, sf::Vector2{0.f, 0.f}); 
+        m_reg.emplace<Font>(entity, "res/tuffy.ttf"); 
+        m_reg.emplace<RandomCoord>(entity, sf::Vector2f{m_window->getSize()});
     }
-    void add_shape()
-    {
-        // add position component
-        auto entity = m_registry.create();
-        m_registry.emplace<Components::Position>(entity, sf::Vector2{0.f, 0.f}); 
-        m_registry.emplace<Components::RandomCoord>(entity, sf::Vector2f{m_window->getSize()});
 
+    void add_player(const sf::Vector2f &pos)
+    {
+        using namespace Components;
+        auto entity = m_reg.create();
+        m_reg.emplace<Position>(entity, pos); 
+        m_reg.emplace<PlayableCharacter>(entity );
+    }
+
+    void add_brick(const sf::Vector2f &pos)
+    {
+        using namespace Components;
+        auto entity = m_reg.create();
+        m_reg.emplace<Position>(entity, pos); 
+        m_reg.emplace<Obstacle>(entity );
     }
 };
 
-} //namespace RENAME_THIS_NAMESPACE
+} //namespace ProceduralMaze
 
 #endif // __ENGINE_HPP__

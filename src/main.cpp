@@ -3,7 +3,7 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Text.hpp>
 
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
 #include <basic_log_controller.hpp>
 #include <components/position.hpp>
 #include <engine.hpp>
@@ -14,13 +14,13 @@ int main()
     // logging: make sure errors - exceptions and failed asserts - go to log file
     fclose(stderr);
 
-    using Logger = RENAME_THIS_NAMESPACE::Logging::BasicLogController;
+    using Logger = ProceduralMaze::Logging::BasicLogController;
     std::unique_ptr<Logger> logger{ std::make_unique<Logger>("logger", "log.txt") };
     spdlog::set_level(spdlog::level::trace);
 
     SPDLOG_INFO("Init");
 
-    RENAME_THIS_NAMESPACE::Engine engine;
+    ProceduralMaze::Engine engine;
     engine.run();
 
 }
