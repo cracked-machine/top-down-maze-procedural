@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -41,6 +42,11 @@ public:
 
             for( auto [entity, _pc, _pos]: m_position_updates.view<PlayableCharacter, Position>().each() ) {
                 m_window->draw(  Player(_pos) );
+                std::array vector {
+                sf::Vertex{sf::Vector2f( sf::FloatRect(_pos, Player::SIZE).getCenter() )},
+                sf::Vertex{sf::FloatRect(_pos, Player::SIZE).getCenter().normalized()}
+                };
+                m_window->draw(vector.data(), vector.size(), sf::PrimitiveType::Lines);
             }
 
             for( auto [entity, _ob, _pos]: m_position_updates.view<Obstacle, Position>().each() ) {

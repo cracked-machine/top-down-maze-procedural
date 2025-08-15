@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
-#include <spdlog/spdlog.h>
+#include <SFML/System/Vector2.hpp>
 
 namespace ProceduralMaze::Sprites {
 
@@ -23,9 +23,7 @@ public:
     constexpr static const float HALFWIDTH{WIDTH/2};
     constexpr static const float HEIGHT{32};
     constexpr static const float HALFHEIGHT{HEIGHT/2};
-
-    ~Player() { SPDLOG_TRACE("~Player()"); }
-
+    constexpr static const sf::Vector2f SIZE{WIDTH, HEIGHT};
 
 
 private:

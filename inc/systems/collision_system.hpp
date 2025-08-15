@@ -6,6 +6,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
 
 
@@ -29,13 +30,18 @@ public:
 
      entt::reactive_mixin<entt::storage<void>> m_position_updates;
 
+    sf::Vector2f getCenter(sf::Vector2f pos, sf::Vector2f size)
+    {
+        return sf::FloatRect(pos, size).getCenter();
+    }
+
     void check()
     {
         using namespace Components;
-        for( auto [entity, _pc,  _pc_pos]: 
+        for( auto [_pc_entt, _pc,  _pc_pos]: 
             m_position_updates.view<PlayableCharacter, Position>().each() ) {
         
-            for( auto [entity, _ob,  _ob_pos]: 
+            for( auto [_ob_entt, _ob,  _ob_pos]: 
                 m_position_updates.view<Obstacle, Position>().each() ) {
 
                 auto has_collision = 
@@ -43,45 +49,44 @@ public:
                 
                 while( has_collision ) 
                 {
-                    if (has_collision) SPDLOG_INFO("Collision at {},{}", has_collision->position.x, has_collision->position.y);
+                    if (has_collision) SPDLOG_DEBUG("Collision at {},{}", has_collision->position.x, has_collision->position.y);
           
-                    m_position_updates.registry().emplace_or_replace<Collision>(entity, has_collision);
+                    m_position_updates.registry().emplace_or_replace<Collision>(_pc_entt, has_collision);
 
-                    auto playerCenter = sf::FloatRect({_pc_pos.x, _pc_pos.y}, {Sprites::Player::WIDTH, Sprites::Player::HEIGHT}).getCenter();
-                    auto brickCenter = sf::FloatRect({_ob_pos.x, _ob_pos.y}, {Sprites::Brick::WIDTH, Sprites::Brick::HEIGHT}).getCenter();
+                    auto playerCenter = getCenter(_pc_pos, Sprites::Player::SIZE);
+                    auto brickCenter = getCenter(_ob_pos, Sprites::Brick::SIZE);
                     auto diffX = playerCenter.x - brickCenter.x;
                     auto diffY = playerCenter.y - brickCenter.y;
                     auto minXDist = Sprites::Player::HALFWIDTH + Sprites::Brick::HALFWIDTH;
                     auto minYDist = Sprites::Player::HALFHEIGHT + Sprites::Brick::HALFHEIGHT;
                     auto depthX = diffX > 0 ? minXDist - diffX : -minXDist - diffX;
                     auto depthY = diffY > 0 ? minYDist - diffY : -minYDist - diffY;
-
-                    if (depthX != 0 && depthY != 0) {
-                        if (abs(depthX) < abs(depthY)) {
-                            // Collision along the X axis. React accordingly
-                            if (depthX > 0) {
-                                SPDLOG_INFO("left side collision");
-                                has_collision = Sprites::Player({_pc_pos.x -= 1, _pc_pos.y} ).getGlobalBounds().findIntersection(Sprites::Brick(_ob_pos).getGlobalBounds());
-                            } 
-                            else {
-                                SPDLOG_INFO("right side collision");
-                                has_collision = Sprites::Player({_pc_pos.x += 1, _pc_pos.y} ).getGlobalBounds().findIntersection(Sprites::Brick(_ob_pos).getGlobalBounds()); 
-                            }
+                    SPDLOG_INFO("depthX:{} ({}), depthY:{} ({})", depthX, abs(depthX), depthY,  abs(depthY));
+                    
+                    if (abs(depthX) < abs(depthY)) {
+                        // Collision along the X axis. React accordingly
+                        if (depthX >= 0) {
+                            SPDLOG_INFO("left side collision");
+                            has_collision = Sprites::Player({_pc_pos.x -= 1, _pc_pos.y} ).getGlobalBounds().findIntersection(Sprites::Brick(_ob_pos).getGlobalBounds());
                         } 
                         else {
-                            // Collision along the Y axis.
-                            if (depthY > 0) {
-                                SPDLOG_INFO("top side collision");
-                                has_collision = Sprites::Player({_pc_pos.x, _pc_pos.y -= 1} ).getGlobalBounds().findIntersection(Sprites::Brick(_ob_pos).getGlobalBounds());
-                            } else {
-                                SPDLOG_INFO("bottom side collision");
-                                has_collision = Sprites::Player({_pc_pos.x, _pc_pos.y += 1} ).getGlobalBounds().findIntersection(Sprites::Brick(_ob_pos).getGlobalBounds());
-                            }
+                            SPDLOG_INFO("right side collision");
+                            has_collision = Sprites::Player({_pc_pos.x += 1, _pc_pos.y} ).getGlobalBounds().findIntersection(Sprites::Brick(_ob_pos).getGlobalBounds()); 
+                        }
+                    } 
+                    else {
+                        // Collision along the Y axis.
+                        if (depthY >= 0) {
+                            SPDLOG_INFO("top side collision");
+                            has_collision = Sprites::Player({_pc_pos.x, _pc_pos.y -= 1} ).getGlobalBounds().findIntersection(Sprites::Brick(_ob_pos).getGlobalBounds());
+                        } else {
+                            SPDLOG_INFO("bottom side collision");
+                            has_collision = Sprites::Player({_pc_pos.x, _pc_pos.y += 1} ).getGlobalBounds().findIntersection(Sprites::Brick(_ob_pos).getGlobalBounds());
                         }
                     }
-               
-                    if (has_collision) SPDLOG_INFO("FAILED: {},{}", _pc_pos.x, _pc_pos.y);
-                    else SPDLOG_INFO("SUCCESS: {},{}", _pc_pos.x, _pc_pos.y);
+
+                    if (has_collision) SPDLOG_DEBUG("FAILED: {},{}", _pc_pos.x, _pc_pos.y);
+                    else SPDLOG_DEBUG("SUCCESS: {},{}", _pc_pos.x, _pc_pos.y);
                 }
                 
             }

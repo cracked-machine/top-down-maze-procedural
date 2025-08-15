@@ -19,10 +19,11 @@ public:
         setOutlineThickness(3);
     };
 
-    constexpr static const float WIDTH{32};
+    constexpr static const float WIDTH{20};
     constexpr static const float HALFWIDTH{WIDTH/2};
-    constexpr static const float HEIGHT{32};
+    constexpr static const float HEIGHT{20};
     constexpr static const float HALFHEIGHT{HEIGHT/2};
+    constexpr static const sf::Vector2f SIZE{WIDTH, HEIGHT};
 };
 
 } // namespace ProceduralMaze::Sprites
