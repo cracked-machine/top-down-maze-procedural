@@ -8,6 +8,7 @@
 
 namespace ProceduralMaze::Sprites {
 
+// player graphic
 class Player : public sf::RectangleShape {
 public:
 

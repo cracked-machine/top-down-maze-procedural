@@ -6,6 +6,7 @@
 
 namespace ProceduralMaze::Components {
 
+// Obstacle concept
 class Obstacle {
 public:
     bool visible{true};

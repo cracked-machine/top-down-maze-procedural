@@ -7,18 +7,10 @@ This is a samba error. The dirty workaround is to restart the samba server after
 sudo systemctl restart smb
 ```
 
+# Collision Detection
 
-```mermaid
-sequenceDiagram
+To avoid the dreaded "sticky corners" problem, two seperate bounding boxes are used in a cross formation. A horrizontal box that is slightly wider than the player sprite for the x-axis collision detection, and a vertical box that is slightly higher than the player sprite for the y-axis collision detection:
 
-actor User
-participant Engine
-participant RenderSystem
-participant CollisionSystem
+![](cross_bounding_box.svg)
 
-
-activate Engine
-User->>Engine: keyboard
-deactivate Engine
-
-```
+You must ensure that player movement delta is equal or larger than the corner overlaps of the bounding boxes, otherwise the sticky problem may still occur.

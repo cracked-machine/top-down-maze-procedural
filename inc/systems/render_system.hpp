@@ -19,6 +19,8 @@
 #include <sprites/player.hpp>
 #include <systems/base_system.hpp>
 #include <spdlog/spdlog.h>
+#include <xbb.hpp>
+#include <ybb.hpp>
 
 namespace ProceduralMaze::Systems {
 
@@ -40,13 +42,13 @@ public:
         using namespace Sprites;
         m_window->clear();
 
-            for( auto [entity, _pc, _pos]: m_position_updates.view<PlayableCharacter, Position>().each() ) {
+            for( auto [entity, _pc, _pos, _xbb, _ybb]: 
+                m_position_updates.view<PlayableCharacter, Position, Xbb, Ybb>().each() ) 
+            {
                 m_window->draw(  Player(_pos) );
-                std::array vector {
-                sf::Vertex{sf::Vector2f( sf::FloatRect(_pos, Player::SIZE).getCenter() )},
-                sf::Vertex{sf::FloatRect(_pos, Player::SIZE).getCenter().normalized()}
-                };
-                m_window->draw(vector.data(), vector.size(), sf::PrimitiveType::Lines);
+                m_window->draw(_xbb.drawable());
+                m_window->draw(_ybb.drawable());
+                
             }
 
             for( auto [entity, _ob, _pos]: m_position_updates.view<Obstacle, Position>().each() ) {

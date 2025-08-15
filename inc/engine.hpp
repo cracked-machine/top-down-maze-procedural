@@ -24,6 +24,7 @@
 #include <components/position.hpp>
 #include <components/font.hpp>
 #include <systems/render_system.hpp>
+#include <ybb.hpp>
 
 
 namespace ProceduralMaze {
@@ -50,8 +51,12 @@ public:
             .on_update<Position>()
             .on_construct<Position>();
     
-        add_brick( sf::Vector2f{100, 100} );
         add_player( sf::Vector2f{10, 100} );
+        add_brick( sf::Vector2f{100, 100} );
+        add_brick( sf::Vector2f{120, 100} );
+        add_brick( sf::Vector2f{140, 100} );
+        add_brick( sf::Vector2f{100, 120} );
+        add_brick( sf::Vector2f{100, 140} );
 
         SPDLOG_INFO("Engine Init");
     }
@@ -73,7 +78,7 @@ public:
 private:
     // SFML Window
     std::shared_ptr<sf::RenderWindow> m_window = std::make_shared<sf::RenderWindow>(
-        sf::VideoMode({600u, 480u}), "RENAME_THIS_SFML_WINDOW");
+        sf::VideoMode({600u, 480u}), "ProceduralMaze");
     
     // ECS Registry
     entt::basic_registry<entt::entity> m_reg;
@@ -84,7 +89,6 @@ private:
     
     std::unique_ptr<Systems::CollisionSystem> m_collsion_sys =
         std::make_unique<Systems::CollisionSystem> ();
-    
 
     ProceduralMaze::InputEventHandler m_event_handler;
 
@@ -102,9 +106,25 @@ private:
     void add_player(const sf::Vector2f &pos)
     {
         using namespace Components;
+
+        // To prevent possible sticky corners issue,
+        // these should less than/equal to EventHandler::move_delta
+        auto xbb_extra_width = 1.f;
+        auto ybb_extra_height = 1.f;
+
         auto entity = m_reg.create();
         m_reg.emplace<Position>(entity, pos); 
         m_reg.emplace<PlayableCharacter>(entity );
+        m_reg.emplace<Xbb>(
+            entity, 
+            sf::Vector2f(pos.x - (xbb_extra_width / 2), pos.y), 
+            sf::Vector2f(Sprites::Player::WIDTH + xbb_extra_width, Sprites::Player::HEIGHT) 
+        );
+        m_reg.emplace<Ybb>(
+            entity, 
+            sf::Vector2f(pos.x, pos.y - (ybb_extra_height / 2)), 
+            sf::Vector2f(Sprites::Player::WIDTH, Sprites::Player::HEIGHT + ybb_extra_height) 
+        );
     }
 
     void add_brick(const sf::Vector2f &pos)

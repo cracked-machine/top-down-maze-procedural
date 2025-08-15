@@ -6,6 +6,7 @@
 
 namespace ProceduralMaze::Components {
 
+// player concept
 class PlayableCharacter {
 public:
     bool alive{true};

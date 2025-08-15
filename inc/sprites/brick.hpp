@@ -6,6 +6,7 @@
 
 namespace ProceduralMaze::Sprites {
 
+// brick graphic
 class Brick : public sf::RectangleShape {
 public:
 
