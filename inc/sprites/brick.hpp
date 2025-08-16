@@ -15,16 +15,21 @@ public:
         sf::RectangleShape(sf::Vector2f(WIDTH, HEIGHT)) 
     {
         setPosition(pos);
-        setFillColor(sf::Color{245, 73, 39});
-        setOutlineColor(sf::Color{254, 243, 198});
-        setOutlineThickness(3);
+        setFillColor(FILLCOLOUR);
+        setOutlineColor(LINECOLOUR);
+        setOutlineThickness(LINEWIDTH);
     };
 
-    constexpr static const float WIDTH{20};
+    // so we can query the attributes without having to 
+    // store each brick geometry before they are drawn
+    constexpr static const float WIDTH{40};
     constexpr static const float HALFWIDTH{WIDTH/2};
-    constexpr static const float HEIGHT{20};
+    constexpr static const float HEIGHT{40};
     constexpr static const float HALFHEIGHT{HEIGHT/2};
     constexpr static const sf::Vector2f SIZE{WIDTH, HEIGHT};
+    constexpr static const float LINEWIDTH{3};
+    constexpr static const sf::Color FILLCOLOUR{245, 73, 39};
+    constexpr static const sf::Color LINECOLOUR{254, 243, 198};
 };
 
 } // namespace ProceduralMaze::Sprites

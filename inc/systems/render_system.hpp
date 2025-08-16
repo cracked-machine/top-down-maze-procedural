@@ -22,9 +22,9 @@
 #include <xbb.hpp>
 #include <ybb.hpp>
 
-namespace ProceduralMaze::Systems {
+namespace ProceduralMaze::Sys {
 
-class RenderSystem : public Systems::BaseSystem {
+class RenderSystem : public BaseSystem {
 public:
     RenderSystem(
         std::shared_ptr<sf::RenderWindow> win
@@ -38,25 +38,24 @@ public:
     
     void render()
     {
-        using namespace Components;
         using namespace Sprites;
         m_window->clear();
 
             for( auto [entity, _pc, _pos, _xbb, _ybb]: 
-                m_position_updates.view<PlayableCharacter, Position, Xbb, Ybb>().each() ) 
+                m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() ) 
             {
                 m_window->draw(  Player(_pos) );
                 m_window->draw(_xbb.drawable());
                 m_window->draw(_ybb.drawable());
-                
             }
 
-            for( auto [entity, _ob, _pos]: m_position_updates.view<Obstacle, Position>().each() ) {
-                if( _ob.visible )
-                    m_window->draw(  Brick(_pos) );
+            for( auto [entity, _ob, _pos]: m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each() ) {
+                if( _ob.m_visible ) {
+                    m_window->draw(  Brick(_pos) ); 
+                }
             }
 
-            for( auto [entity, _collision]: m_position_updates.view<Collision>().each() ) {
+            for( auto [entity, _collision]: m_position_updates.view<Cmp::Collision>().each() ) {
                 auto intersect = sf::RectangleShape(_collision.get()->size);
                 intersect.setPosition(_collision.get()->position);
                 intersect.setFillColor(sf::Color::Blue);

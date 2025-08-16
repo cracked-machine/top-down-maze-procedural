@@ -5,9 +5,9 @@
 #include <SFML/Graphics/Font.hpp>
 #include <base.hpp>
 
-namespace ProceduralMaze::Components {
+namespace ProceduralMaze::Cmp {
 
-class Font : public sf::Font, Components::Base {
+class Font : public sf::Font, Cmp::Base {
 public:
     Font(std::string font_path)
     { 
@@ -19,6 +19,6 @@ public:
 
 };
 
-} // namespace ProceduralMaze::Components
+} // namespace ProceduralMaze::Cmp
 
 #endif // __COMPONENTS_FONT_HPP__

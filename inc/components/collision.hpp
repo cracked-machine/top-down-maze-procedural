@@ -6,7 +6,7 @@
 #include <optional>
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Components {
+namespace ProceduralMaze::Cmp {
 
 // This component always returns true. 
 // It should be assigned to entity when collsion has occurred.
@@ -25,6 +25,6 @@ private:
     std::optional<sf::Rect<float>> m_rect;
 };
 
-} // namespace ProceduralMaze::Components
+} // namespace ProceduralMaze::Cmp
 
 #endif // __COMPONENTS_COLLISION_HPP__

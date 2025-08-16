@@ -4,9 +4,9 @@
 #include <random>
 #include <base.hpp>
 
-namespace ProceduralMaze::Components {
+namespace ProceduralMaze::Cmp {
 
-class Random : public Components::Base {
+class Random : public Cmp::Base {
 public:
     Random(int min, int max) : m_intdist(min, max) { SPDLOG_DEBUG("Random()"); }
     ~Random() { SPDLOG_DEBUG("~Random()"); }
@@ -17,6 +17,6 @@ private:
     std::uniform_int_distribution<> m_intdist;
 };
 
-} // namespace ProceduralMaze::Components
+} // namespace ProceduralMaze::Cmp
 
 #endif // __COMPONENTS_RANDOM_HPP__

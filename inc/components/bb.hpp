@@ -7,7 +7,7 @@
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Components {
+namespace ProceduralMaze::Cmp {
 
 // Base class Bounding Box for Collision detection
 class BoundingBox : public sf::FloatRect {
@@ -35,6 +35,6 @@ public:
     sf::Color m_line_colour{sf::Color::White};
 };
 
-} // namespace ProceduralMaze::Components
+} // namespace ProceduralMaze::Cmp
 
 #endif // __COMPONENTS_BOUNDINGBOX_HPP__

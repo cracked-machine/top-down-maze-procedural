@@ -20,12 +20,13 @@ public:
     InputEventHandler() = default;
     const float move_delta{1.f};
 
-    void handler(const std::shared_ptr<sf::RenderWindow> window, 
-        entt::basic_registry<entt::entity> &m_reg)
+    void handler(
+        const std::shared_ptr<sf::RenderWindow> window, 
+        entt::basic_registry<entt::entity> &m_reg
+    )
     {
       
         using namespace sf::Keyboard;
-        using namespace Components;
         while (const std::optional event = window->pollEvent())
         {
             if (event->is<sf::Event::Closed>()) { window->close(); }
@@ -35,9 +36,9 @@ public:
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
         {
             for( auto [ _entt, _, _current_pos, _xbb, _ybb] : 
-                m_reg.view<PlayableCharacter, Position, Xbb, Ybb>().each() )
+                m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
             {
-                m_reg.patch<Position>(_entt, [&](auto &_pos) { 
+                m_reg.patch<Cmp::Position>(_entt, [&](auto &_pos) { 
                     _pos.y -= move_delta; 
                     _xbb.position.y -= move_delta;
                     _ybb.position.y -= move_delta;
@@ -48,9 +49,9 @@ public:
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
         {
             for( auto [ _entt, _, _current_pos, _xbb, _ybb] : 
-                m_reg.view<PlayableCharacter, Position, Xbb, Ybb>().each() )
+                m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
             {
-                m_reg.patch<Position>(_entt, [&](auto &_pos) { 
+                m_reg.patch<Cmp::Position>(_entt, [&](auto &_pos) { 
                     _pos.x -= move_delta; 
                     _xbb.position.x -= move_delta;
                     _ybb.position.x -= move_delta;
@@ -61,9 +62,9 @@ public:
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
         {
             for( auto [ _entt, _, _current_pos, _xbb, _ybb] : 
-                m_reg.view<PlayableCharacter, Position, Xbb, Ybb>().each() )
+                m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
             {
-                m_reg.patch<Position>(_entt, [&](auto &_pos) { 
+                m_reg.patch<Cmp::Position>(_entt, [&](auto &_pos) { 
                     _pos.x += move_delta; 
                     _xbb.position.x += move_delta;
                     _ybb.position.x += move_delta;
@@ -74,9 +75,9 @@ public:
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
         {
             for( auto [ _entt, _, _current_pos, _xbb, _ybb] : 
-                m_reg.view<PlayableCharacter, Position, Xbb, Ybb>().each() )
+                m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
             {
-                m_reg.patch<Position>(_entt, [&](auto &_pos) { 
+                m_reg.patch<Cmp::Position>(_entt, [&](auto &_pos) { 
                     _pos.y += move_delta; 
                     _xbb.position.y += move_delta;
                     _ybb.position.y += move_delta;                    

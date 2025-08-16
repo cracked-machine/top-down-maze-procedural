@@ -4,7 +4,7 @@
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Components {
+namespace ProceduralMaze::Cmp {
 
 // player concept
 class PlayableCharacter {
@@ -12,6 +12,6 @@ public:
     bool alive{true};
 };
 
-} // namespace ProceduralMaze::Components
+} // namespace ProceduralMaze::Cmp
 
 #endif // __COMPONENTS_PLAYABLECHARACTER_HPP__

@@ -7,10 +7,10 @@
 #include <SFML/System/Vector2.hpp>
 #include <base.hpp>
 
-namespace ProceduralMaze::Components {
+namespace ProceduralMaze::Cmp {
 
 // Coordinate
-class Position : public sf::Vector2f, Components::Base {
+class Position : public sf::Vector2f, Cmp::Base {
 public:
     Position(const sf::Vector2f& pos) 
     : 
@@ -61,6 +61,6 @@ public:
     
 };
 
-} // namespace ProceduralMaze::Components
+} // namespace ProceduralMaze::Cmp
 
 #endif // __COMPONENTS_POSITION_HPP__

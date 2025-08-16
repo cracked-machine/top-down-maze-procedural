@@ -7,7 +7,7 @@
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Components {
+namespace ProceduralMaze::Cmp {
 
 // Derived class Bounding Box for X-axis Collision detection
 class Xbb : public BoundingBox {
@@ -19,6 +19,6 @@ public:
     }
 };
 
-} // namespace ProceduralMaze::Components
+} // namespace ProceduralMaze::Cmp
 
 #endif // __COMPONENTS_XBB_HPP__

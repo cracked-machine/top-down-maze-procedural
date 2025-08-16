@@ -23,7 +23,7 @@
 #include <xbb.hpp>
 #include <ybb.hpp>
 
-namespace ProceduralMaze::Systems {
+namespace ProceduralMaze::Sys {
 
 class CollisionSystem : public BaseSystem {
 public:
@@ -39,14 +39,14 @@ public:
 
     void check_xbb()
     {
-        using namespace Components;
         for( auto [_pc_entt, _pc,  _pc_pos, _xbb, _ybb]: 
-            m_position_updates.view<PlayableCharacter, Position, Xbb, Ybb>().each() )
+            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
         {
 
             for( auto [_ob_entt, _ob,  _ob_pos]: 
-                m_position_updates.view<Obstacle, Position>().each() ) 
+                m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each() ) 
             {
+                if( not _ob.m_enabled ) { continue; }
 
                 auto has_collision = 
                     _xbb.findIntersection(Sprites::Brick(_ob_pos).getGlobalBounds());
@@ -79,15 +79,15 @@ public:
 
     void check_ybb()
     {
-        using namespace Components;
         for( auto [_pc_entt, _pc,  _pc_pos, _xbb, _ybb]: 
-            m_position_updates.view<PlayableCharacter, Position, Xbb, Ybb>().each() )
+            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
         {
 
             for( auto [_ob_entt, _ob,  _ob_pos]: 
-                m_position_updates.view<Obstacle, Position>().each() ) 
+                m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each() ) 
             {
-
+                if( not _ob.m_enabled ) { continue; }
+                
                 auto has_collision = 
                     _ybb.findIntersection(Sprites::Brick(_ob_pos).getGlobalBounds());
                 

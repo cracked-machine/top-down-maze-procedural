@@ -4,13 +4,13 @@
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Components {
+namespace ProceduralMaze::Cmp {
 
 class Base {
 public:
 
 };
 
-} // namespace ProceduralMaze::Components
+} // namespace ProceduralMaze::Cmp
 
 #endif // __COMPONENTS_BASE_HPP__

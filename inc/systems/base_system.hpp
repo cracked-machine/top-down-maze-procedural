@@ -4,7 +4,7 @@
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Systems {
+namespace ProceduralMaze::Sys {
 
 class BaseSystem {
 public:
