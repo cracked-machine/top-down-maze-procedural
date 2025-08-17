@@ -2,7 +2,9 @@
 #define __INPUT_EVENT_HANDLER_HPP__
 
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Window.hpp>
+#include <components/system.hpp>
 #include <optional>
 
 #include <components/pc.hpp>
@@ -30,6 +32,19 @@ public:
         while (const std::optional event = window->pollEvent())
         {
             if (event->is<sf::Event::Closed>()) { window->close(); }
+            else if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
+            {
+                if (keyReleased->scancode == sf::Keyboard::Scancode::M)
+                {
+                    SPDLOG_INFO("Pressed M");
+                    for( auto [ _entt, _sys] :
+                        m_reg.view<Cmp::System>().each() )
+                    {
+                        _sys.local_view = not _sys.local_view;
+                        SPDLOG_INFO("Set _sys.local_view to {}", _sys.local_view);
+                    }
+                }
+            }
         }
 
         // move player up

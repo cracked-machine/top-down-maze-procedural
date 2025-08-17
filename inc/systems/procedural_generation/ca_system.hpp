@@ -6,7 +6,7 @@
 #include <iterator>
 #include <obstacle.hpp>
 #include <position.hpp>
-#include <procedural_generation/random_system.hpp>
+#include <procedural_generation/RandomSystem.hpp>
 #include <spdlog/spdlog.h>
 
 #include <sprites/brick.hpp>

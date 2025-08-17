@@ -15,10 +15,11 @@
 #include <obstacle.hpp>
 #include <pc.hpp>
 #include <position.hpp>
-#include <procedural_generation/random_system.hpp>
+#include <procedural_generation/RandomSystem.hpp>
 #include <settings.hpp>
 #include <sprites/brick.hpp>
 #include <sprites/player.hpp>
+#include <system.hpp>
 #include <systems/base_system.hpp>
 #include <spdlog/spdlog.h>
 #include <tile_map.hpp>
@@ -35,7 +36,11 @@ public:
         m_window( win )
     { 
         using namespace ProceduralMaze::Settings;
-        Sys::ProcGen::RandomSystem floortile_randsys(MAP_GRID_SIZE, ProceduralMaze::Settings::MAP_GRID_OFFSET, {0, 3});
+        Sys::ProcGen::RandomSystem floortile_randsys(
+            MAP_GRID_SIZE, 
+            ProceduralMaze::Settings::MAP_GRID_OFFSET, 
+            {0, 4});
+
         floortile_randsys.gen(0);
         auto tile_file = "res/floor_tiles_10x10.png";
         // for(auto v: floortile_randsys) { SPDLOG_INFO(v); }
@@ -99,15 +104,25 @@ public:
             }
 
         m_window->display();
-        m_window->setView(m_current_view);
+
+        for( auto [entity, _sys]: 
+            m_system_updates.view<Cmp::System>().each() ) 
+        {
+            SPDLOG_INFO("read _sys.local_view as {}", _sys.local_view);
+            if( _sys.local_view ) m_window->setView(m_current_view);
+            else  m_window->setView(m_window->getDefaultView());
+        }
+        
     }
 
     entt::reactive_mixin<entt::storage<void>> m_position_updates;
+    entt::reactive_mixin<entt::storage<void>> m_system_updates;
     sf::View m_current_view;
 private:
     std::shared_ptr<sf::RenderWindow> m_window;
 
     Sprites::Containers::TileMap m_floormap;
+    
 
 };
 

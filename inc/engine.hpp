@@ -8,16 +8,17 @@
 #include <SFML/Graphics.hpp>
 
 
-#include <brick.hpp>
+#include <sprites/brick.hpp>
 #include <collision.hpp>
 #include <collision_system.hpp>
+#include <components/system.hpp>
 #include <memory>
 
 #include <components/obstacle.hpp>
 #include <components/pc.hpp>
 
 #include <procedural_generation/ca_system.hpp>
-#include <procedural_generation/random_system.hpp>
+#include <procedural_generation/RandomSystem.hpp>
 #include <random.hpp>
 #include <random_coord.hpp>
 #include <spdlog/spdlog.h>
@@ -26,6 +27,7 @@
 
 #include <components/position.hpp>
 #include <components/font.hpp>
+#include <system.hpp>
 #include <systems/render_system.hpp>
 #include <tile_map.hpp>
 #include <xbb.hpp>
@@ -41,44 +43,35 @@ public:
         using namespace ProceduralMaze::Settings;
         m_window->setFramerateLimit(144);
 
-        // render systems reactive storage for player position updates
-        m_render_sys->m_position_updates.bind(m_reg);
-        m_render_sys->m_position_updates
-            .on_update<Cmp::Position>()
-            .on_construct<Cmp::Position>();
-
-        // render systems reactive storage for obstacle updates
-        m_render_sys->m_position_updates.bind(m_reg);
-        m_render_sys->m_position_updates
-            .on_update<Cmp::Obstacle>()
-            .on_construct<Cmp::Obstacle>();
-
-        // Collision systems reactive storage for player position updates
-        m_collsion_sys->m_position_updates.bind(m_reg);
-        m_collsion_sys->m_position_updates
-            .on_update<Cmp::Position>()
-            .on_construct<Cmp::Position>();
+        register_reactive_storage();
     
-        add_player( PLAYER_START_POS );
+        add_system_entity();
+        add_player_entity( PLAYER_START_POS );
         
         // add a border
         for(int x = 0; x < DISPLAY_SIZE.x / Sprites::Brick::WIDTH; x++)
         {
-            add_bedrock({
+            // top edge
+            add_bedrock_entity({
                 x * (Sprites::Brick::WIDTH + (Sprites::Brick::LINEWIDTH * 2)), 
                 MAP_GRID_OFFSET.y - (Sprites::Brick::HEIGHT + Sprites::Brick::LINEWIDTH + Sprites::Brick::LINEWIDTH)
             });
-            add_bedrock({
+            // bottom edge
+            add_bedrock_entity({
                 x * (Sprites::Brick::WIDTH + (Sprites::Brick::LINEWIDTH * 2)), 
                 MAP_GRID_OFFSET.y + (MAP_GRID_SIZE.y * (Sprites::Brick::HEIGHT + Sprites::Brick::LINEWIDTH) ) + Sprites::Brick::LINEWIDTH
             });
         }
+        for( float y = 0; y < DISPLAY_SIZE.y; y += (Sprites::Brick::HEIGHT + (Sprites::Brick::LINEWIDTH*2)))
+        {
+            // left edge 
+            add_bedrock_entity({0, y});
+            add_bedrock_entity({static_cast<float>(DISPLAY_SIZE.x), y});
+
+        }
 
         m_render_sys->m_current_view = sf::View(PLAYER_START_POS, {300.f, 200.f});
 
-
-
-        
         SPDLOG_INFO("Engine Init");
     }
 
@@ -105,8 +98,6 @@ public:
             m_event_handler.handler(m_window, m_reg);
             m_collsion_sys->check();
             m_render_sys->render();   
-
-            m_window->setView(m_render_sys->m_current_view);
         
         }
         return false;   
@@ -129,9 +120,13 @@ private:
 
     ProceduralMaze::InputEventHandler m_event_handler;
 
+    void add_system_entity()
+    {
+        auto entity = m_reg.create();
+        m_reg.emplace<Cmp::System>(entity); 
+    }
 
-
-    void add_text()
+    void add_text_entity()
     {
         auto entity = m_reg.create();
         m_reg.emplace<Cmp::Position>(entity, sf::Vector2{0.f, 0.f}); 
@@ -139,7 +134,7 @@ private:
         m_reg.emplace<Cmp::RandomCoord>(entity, sf::Vector2f{m_window->getSize()});
     }
 
-    void add_player(const sf::Vector2f &pos)
+    void add_player_entity(const sf::Vector2f &pos)
     {
         auto entity = m_reg.create();
         m_reg.emplace<Cmp::Position>(entity, pos); 
@@ -156,12 +151,40 @@ private:
         );
     }
 
-    void add_bedrock(const sf::Vector2f &pos)
+    void add_bedrock_entity(const sf::Vector2f &pos)
     {
         auto entity = m_reg.create();
         m_reg.emplace<Cmp::Position>(entity, pos); 
         m_reg.emplace<Cmp::Obstacle>(entity, Cmp::Obstacle::Type::BEDROCK, true, true );
     }
+
+    void register_reactive_storage()
+    {
+
+        m_render_sys->m_system_updates.bind(m_reg);
+        m_render_sys->m_system_updates
+            .on_update<Cmp::System>()
+            .on_construct<Cmp::System>();
+
+        // render systems reactive storage for player position updates
+        m_render_sys->m_position_updates.bind(m_reg);
+        m_render_sys->m_position_updates
+            .on_update<Cmp::Position>()
+            .on_construct<Cmp::Position>();
+
+        // render systems reactive storage for obstacle updates
+        m_render_sys->m_position_updates.bind(m_reg);
+        m_render_sys->m_position_updates
+            .on_update<Cmp::Obstacle>()
+            .on_construct<Cmp::Obstacle>();
+
+        // Collision systems reactive storage for player position updates
+        m_collsion_sys->m_position_updates.bind(m_reg);
+        m_collsion_sys->m_position_updates
+            .on_update<Cmp::Position>()
+            .on_construct<Cmp::Position>();
+    }
+
 };
 
 } //namespace ProceduralMaze
