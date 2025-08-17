@@ -30,7 +30,7 @@
 #include <ybb.hpp>
 
 const sf::Vector2u DISPLAY_SIZE{1920, 1024};
-const sf::Vector2u MAP_GRID_SIZE{140u,25u};
+const sf::Vector2u MAP_GRID_SIZE{140u,70u};
 const sf::Vector2f MAP_GRID_OFFSET{ 50.f,90.f};
 
 namespace ProceduralMaze {
