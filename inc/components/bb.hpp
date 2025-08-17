@@ -22,6 +22,7 @@ public:
     {
     }
     
+    // get a drawable repr of this hitbox
     sf::RectangleShape drawable() 
     {
         auto r = sf::RectangleShape(this->size);
