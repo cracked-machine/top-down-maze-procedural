@@ -43,12 +43,10 @@ public:
 
         floortile_randsys.gen(0);
         auto tile_file = "res/floor_tiles_10x10.png";
-        // for(auto v: floortile_randsys) { SPDLOG_INFO(v); }
         SPDLOG_INFO("size: {}", floortile_randsys.size());
         if (!m_floormap.load(tile_file, {10,10}, floortile_randsys.data(), MAP_GRID_SIZE.x, MAP_GRID_SIZE.y))
         {
             SPDLOG_CRITICAL("Unable to load tile map {}", tile_file);
-            // std::terminate();
         }
         SPDLOG_DEBUG("RenderSystem()"); 
     }
@@ -61,6 +59,7 @@ public:
         auto f = Cmp::Font("res/tuffy.ttf");
         m_window->clear();
             
+            m_floormap.setPosition(Settings::MAP_GRID_OFFSET);
             m_window->draw(m_floormap);
 
             // bricks

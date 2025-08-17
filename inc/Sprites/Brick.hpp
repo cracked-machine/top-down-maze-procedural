@@ -17,7 +17,7 @@ public:
         setPosition(pos);
         setFillColor(fill_colour);
         setOutlineColor(line_colour);
-        setOutlineThickness(LINEWIDTH);
+        setOutlineThickness(LINETHICKNESS);
     };
 
     // so we can query the attributes without having to 
@@ -27,7 +27,9 @@ public:
     constexpr static const float HEIGHT{10};
     constexpr static const float HALFHEIGHT{HEIGHT/2};
     constexpr static const sf::Vector2f SIZE{WIDTH, HEIGHT};
-    constexpr static const float LINEWIDTH{3};
+    constexpr static const float LINETHICKNESS{3};
+    constexpr static const float FULLWIDTH{WIDTH + (LINETHICKNESS*2)};
+    constexpr static const float FULLHEIGHT{HEIGHT + (LINETHICKNESS*2)};
     constexpr static const sf::Color BRICK_FILLCOLOUR{110, 30, 18};
     constexpr static const sf::Color BRICK_LINECOLOUR{69, 28, 20};
     constexpr static const sf::Color BEDROCK_FILLCOLOUR{124,124,124};

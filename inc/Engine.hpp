@@ -36,6 +36,8 @@
 
 namespace ProceduralMaze {
 
+
+    
 class Engine {
 public:
     Engine() {
@@ -47,27 +49,7 @@ public:
         add_system_entity();
         add_player_entity( PLAYER_START_POS );
         
-        // add a border
-        for(int x = 0; x < DISPLAY_SIZE.x / Sprites::Brick::WIDTH; x++)
-        {
-            // top edge
-            add_bedrock_entity({
-                x * (Sprites::Brick::WIDTH + (Sprites::Brick::LINEWIDTH * 2)), 
-                MAP_GRID_OFFSET.y - (Sprites::Brick::HEIGHT + Sprites::Brick::LINEWIDTH + Sprites::Brick::LINEWIDTH)
-            });
-            // bottom edge
-            add_bedrock_entity({
-                x * (Sprites::Brick::WIDTH + (Sprites::Brick::LINEWIDTH * 2)), 
-                MAP_GRID_OFFSET.y + (MAP_GRID_SIZE.y * (Sprites::Brick::HEIGHT + Sprites::Brick::LINEWIDTH) ) + Sprites::Brick::LINEWIDTH
-            });
-        }
-        for( float y = 0; y < DISPLAY_SIZE.y; y += (Sprites::Brick::HEIGHT + (Sprites::Brick::LINEWIDTH*2)))
-        {
-            // left edge 
-            add_bedrock_entity({0, y});
-            add_bedrock_entity({static_cast<float>(DISPLAY_SIZE.x), y});
-
-        }
+        add_border();
 
         m_render_sys->m_current_view = sf::View(PLAYER_START_POS, {300.f, 200.f});
 
@@ -118,6 +100,33 @@ private:
         std::make_unique<Sys::CollisionSystem> ();
 
     ProceduralMaze::InputEventHandler m_event_handler;
+
+    void add_border()
+    {
+        using namespace ProceduralMaze::Settings;
+
+        for(float x = MAP_GRID_OFFSET.x - (Sprites::Brick::FULLWIDTH * 3) ; x < DISPLAY_SIZE.x; x += Sprites::Brick::FULLWIDTH)
+        {
+            // top edge
+            add_bedrock_entity({
+                x, 
+                MAP_GRID_OFFSET.y - Sprites::Brick::FULLHEIGHT
+            });
+            // bottom edge
+            add_bedrock_entity({
+                x, 
+                MAP_GRID_OFFSET.y + (MAP_GRID_SIZE.y * (Sprites::Brick::HEIGHT + Sprites::Brick::LINETHICKNESS) ) + Sprites::Brick::LINETHICKNESS
+            });
+        }
+        for( float y = MAP_GRID_OFFSET.y; y < DISPLAY_SIZE.y; y += Sprites::Brick::FULLHEIGHT)
+        {
+            // left edge 
+            add_bedrock_entity({0, y});
+            // right edge
+            add_bedrock_entity({static_cast<float>(DISPLAY_SIZE.x), y});
+        }
+
+    }
 
     void add_system_entity()
     {

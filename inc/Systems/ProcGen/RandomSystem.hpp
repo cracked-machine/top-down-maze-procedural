@@ -13,7 +13,6 @@
 
 namespace ProceduralMaze::Sys::ProcGen {
 
-
 class RandomSystem {
 public:
     RandomSystem(
@@ -52,8 +51,8 @@ public:
                 reg.emplace<Cmp::Position>( 
                     entity, 
                     sf::Vector2f{
-                        x * (Sprites::Brick::WIDTH + Sprites::Brick::LINEWIDTH)  + m_grid_offset.x, 
-                        y * (Sprites::Brick::HEIGHT + Sprites::Brick::LINEWIDTH) + m_grid_offset.y
+                        x * (Sprites::Brick::WIDTH + Sprites::Brick::LINETHICKNESS)  + m_grid_offset.x, 
+                        y * (Sprites::Brick::HEIGHT + Sprites::Brick::LINETHICKNESS) + m_grid_offset.y
                     } 
                 ); 
 
