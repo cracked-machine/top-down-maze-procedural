@@ -13,8 +13,8 @@ public:
     enum class Type
     {
         NONE = 0,
-        BRICK = 1,
-        BEDROCK = 2
+        BRICK,
+        BEDROCK
     };
 
     Obstacle(Type type = Type::BRICK, bool visible = true, bool enabled = true)

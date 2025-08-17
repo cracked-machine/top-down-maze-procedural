@@ -27,33 +27,33 @@
 #include <components/position.hpp>
 #include <components/font.hpp>
 #include <systems/render_system.hpp>
+#include <tile_map.hpp>
 #include <xbb.hpp>
 #include <ybb.hpp>
 
-const sf::Vector2u DISPLAY_SIZE{1920, 1024};
-const sf::Vector2u MAP_GRID_SIZE{140u,74u};
-const sf::Vector2f MAP_GRID_OFFSET{ 50.f,25.f};
-const sf::Vector2f PLAYER_START_POS{10, 100};
+#include <settings.hpp>
 
 namespace ProceduralMaze {
 
 class Engine {
 public:
-
-    
     Engine() {
+        using namespace ProceduralMaze::Settings;
         m_window->setFramerateLimit(144);
 
+        // render systems reactive storage for player position updates
         m_render_sys->m_position_updates.bind(m_reg);
         m_render_sys->m_position_updates
             .on_update<Cmp::Position>()
             .on_construct<Cmp::Position>();
 
+        // render systems reactive storage for obstacle updates
         m_render_sys->m_position_updates.bind(m_reg);
         m_render_sys->m_position_updates
             .on_update<Cmp::Obstacle>()
             .on_construct<Cmp::Obstacle>();
 
+        // Collision systems reactive storage for player position updates
         m_collsion_sys->m_position_updates.bind(m_reg);
         m_collsion_sys->m_position_updates
             .on_update<Cmp::Position>()
@@ -76,38 +76,36 @@ public:
 
         m_render_sys->m_current_view = sf::View(PLAYER_START_POS, {300.f, 200.f});
 
+
+
+        
         SPDLOG_INFO("Engine Init");
     }
 
     bool run()
     {
-        Sys::ProcGen::RandomSystem randsys(MAP_GRID_SIZE, MAP_GRID_OFFSET);
-        randsys.gen(m_reg, 0);
-        Sys::ProcGen::CellAutomataSystem ca_level{randsys};
+        using namespace ProceduralMaze::Settings;
+
+        // procedurally generate the level
+        Sys::ProcGen::RandomSystem obstacle_randsys(MAP_GRID_SIZE, MAP_GRID_OFFSET);
+        obstacle_randsys.gen(m_reg, 0);
+        Sys::ProcGen::CellAutomataSystem ca_level{obstacle_randsys};
 
         sf::Clock clock;
         int level_gen_iteration_max = 5;
         for( int i = 0; i < level_gen_iteration_max; i++)
         {
             ca_level.iterate_linear(m_reg);
+            SPDLOG_INFO("Level Iteration #{} took {} ms", i, clock.restart().asMilliseconds());
         }
-        SPDLOG_INFO("Level Iteration #{} took {} ms", level_gen_iteration_max, clock.getElapsedTime().asMilliseconds());
-        
-        
         
         while (m_window->isOpen())
         {
-            auto elapsed_time = clock.getElapsedTime().asMilliseconds();
-            if(elapsed_time > 10)
-            {
-            
-                m_event_handler.handler(m_window, m_reg);
-                clock.restart();
-            }
-            
+
+            m_event_handler.handler(m_window, m_reg);
             m_collsion_sys->check();
             m_render_sys->render();   
-            
+
             m_window->setView(m_render_sys->m_current_view);
         
         }
@@ -117,7 +115,7 @@ public:
 private:
     // SFML Window
     std::shared_ptr<sf::RenderWindow> m_window = std::make_shared<sf::RenderWindow>(
-        sf::VideoMode(DISPLAY_SIZE), "ProceduralMaze");
+        sf::VideoMode(ProceduralMaze::Settings::DISPLAY_SIZE), "ProceduralMaze");
     
     // ECS Registry
     entt::basic_registry<entt::entity> m_reg;
@@ -131,7 +129,7 @@ private:
 
     ProceduralMaze::InputEventHandler m_event_handler;
 
-    
+
 
     void add_text()
     {

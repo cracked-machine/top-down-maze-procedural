@@ -15,10 +15,13 @@
 #include <obstacle.hpp>
 #include <pc.hpp>
 #include <position.hpp>
+#include <procedural_generation/random_system.hpp>
+#include <settings.hpp>
 #include <sprites/brick.hpp>
 #include <sprites/player.hpp>
 #include <systems/base_system.hpp>
 #include <spdlog/spdlog.h>
+#include <tile_map.hpp>
 #include <xbb.hpp>
 #include <ybb.hpp>
 
@@ -31,6 +34,16 @@ public:
     ) : 
         m_window( win )
     { 
+        using namespace ProceduralMaze::Settings;
+        Sys::ProcGen::RandomSystem floortile_randsys(MAP_GRID_SIZE, ProceduralMaze::Settings::MAP_GRID_OFFSET, {0, 3});
+        floortile_randsys.gen(0);
+        // for(auto v: floortile_randsys) { SPDLOG_INFO(v); }
+        SPDLOG_INFO("size: {}", floortile_randsys.size());
+        if (!m_floormap.load("res/floor_tiles.png", {32,32}, floortile_randsys.data(), MAP_GRID_SIZE.x, MAP_GRID_SIZE.y))
+        {
+            SPDLOG_CRITICAL("Unable to load tile map 'res/floor_tiles.png'");
+            // std::terminate();
+        }
         SPDLOG_DEBUG("RenderSystem()"); 
     }
     
@@ -41,19 +54,23 @@ public:
         using namespace Sprites;
         auto f = Cmp::Font("res/tuffy.ttf");
         m_window->clear();
+            
+            m_window->draw(m_floormap);
 
             // bricks
             for( auto [entity, _ob, _pos]: m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each() ) {
                 
-                if( _ob.m_enabled ) {
-                    if( _ob.m_type == Cmp::Obstacle::Type::BRICK ) {
-                        m_window->draw( Brick(_pos, Sprites::Brick::BRICK_FILLCOLOUR, Sprites::Brick::BRICK_LINECOLOUR) ); 
-                    }
-                    else
-                    {
-                        m_window->draw( Brick(_pos, Sprites::Brick::BEDROCK_FILLCOLOUR, Sprites::Brick::BEDROCK_LINECOLOUR) ); 
-                    }
+                if( not _ob.m_enabled ) { continue; }
+                
+                if( _ob.m_type == Cmp::Obstacle::Type::BRICK ) 
+                {
+                    m_window->draw( Brick(_pos, Sprites::Brick::BRICK_FILLCOLOUR, Sprites::Brick::BRICK_LINECOLOUR) ); 
                 }
+                else
+                {
+                    m_window->draw( Brick(_pos, Sprites::Brick::BEDROCK_FILLCOLOUR, Sprites::Brick::BEDROCK_LINECOLOUR) ); 
+                }
+            
 
                 #ifdef SHOW_BRICK_ENTITY_ID
                 auto t = sf::Text(
@@ -88,6 +105,8 @@ public:
     sf::View m_current_view;
 private:
     std::shared_ptr<sf::RenderWindow> m_window;
+
+    Sprites::Containers::TileMap m_floormap;
 
 };
 

@@ -4,7 +4,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
-#include <map>
+#include <optional>
 #include <obstacle.hpp>
 #include <position.hpp>
 #include <spdlog/spdlog.h>
@@ -14,16 +14,31 @@
 
 namespace ProceduralMaze::Sys::ProcGen {
 
+
 class RandomSystem {
 public:
     RandomSystem(
         const sf::Vector2u &grid_size,
-        const sf::Vector2f &grid_offset = sf::Vector2f{0,0}
+        const sf::Vector2f &grid_offset = sf::Vector2f{0,0},
+        const std::pair<unsigned int, unsigned int> &range = {0,1}
     )
     : 
         m_grid_size(grid_size),
-        m_grid_offset(grid_offset)
+        m_grid_offset(grid_offset),
+        m_rng(range.first, range.second)
     {
+    }
+
+    void gen(unsigned long seed = 0)
+    {
+        if (seed) Cmp::Random::seed(seed);
+        for(int x = 0; x < m_grid_size.x; x++)
+        {
+            for(int y = 0; y < m_grid_size.y; y++)
+            {
+                m_data.push_back(m_rng.gen());
+            }
+        }
     }
 
     void gen(entt::basic_registry<entt::entity> &reg, unsigned long seed = 0)
@@ -43,8 +58,8 @@ public:
                     } 
                 ); 
 
-                m_neighbourhood.push_back(entity_trait::to_entity(entity));
-                if(rng.gen())
+                m_data.push_back(entity_trait::to_entity(entity));
+                if(m_rng.gen())
                 {
                     reg.emplace<Cmp::Obstacle>(entity, Cmp::Obstacle::Type::BRICK, true, true );                    
                 }
@@ -58,16 +73,21 @@ public:
 
     ~RandomSystem() = default;
 
-    uint32_t get_nb(std::size_t idx) { return m_neighbourhood.at(idx); }
-    auto begin() { return m_neighbourhood.begin(); }
-    auto end() { return m_neighbourhood.end(); }
-    auto size() { return m_neighbourhood.size(); }
+    std::optional<uint32_t> at(std::size_t idx) 
+    { 
+        if( idx > m_data.size() ) return std::nullopt ;
+        else return m_data.at(idx); 
+    }
+    auto data() { return m_data.data(); }
+    auto begin() { return m_data.begin(); }
+    auto end() { return m_data.end(); }
+    auto size() { return m_data.size(); }
     
     const sf::Vector2u m_grid_size;
     const sf::Vector2f m_grid_offset;
 private:
-    std::vector<uint32_t> m_neighbourhood;
-    Cmp::Random rng{0, 1};
+    std::vector<uint32_t> m_data;
+    Cmp::Random m_rng;
 };
 
 } // namespace ProceduralMaze::Systems

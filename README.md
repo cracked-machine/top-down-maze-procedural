@@ -14,3 +14,14 @@ To avoid the dreaded "sticky corners" problem, two seperate bounding boxes are u
 ![](cross_bounding_box.svg)
 
 You must ensure that player movement delta is equal or larger than the corner overlaps of the bounding boxes, otherwise the sticky problem may still occur.
+
+
+# TODO
+
+- add player movement velocity
+- Add bombs
+- add rising water
+- add quick restart (r key)
+- add minimap
+- add floor tiles
+- add left/right edges to level
