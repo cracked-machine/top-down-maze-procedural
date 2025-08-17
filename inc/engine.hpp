@@ -82,7 +82,7 @@ public:
     bool run()
     {
         Sys::ProcGen::RandomSystem randsys(MAP_GRID_SIZE, MAP_GRID_OFFSET);
-        randsys.gen(m_reg, 123456789);
+        randsys.gen(m_reg, 0);
         Sys::ProcGen::CellAutomataSystem ca_level{randsys};
 
         sf::Clock clock;
