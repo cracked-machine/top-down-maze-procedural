@@ -22,7 +22,7 @@ public:
     {
 
     }
-
+    // BROKEN and V SLOW!!
     // Iterate through every node and check its geometric distance to every other element.
     // This is O(n^2) but we optimize by skipping the current==neighbour node and any disabled nodes.
     // We don't navigate any containers so this algo has additional benefit of not requiring bounds checking!
@@ -42,8 +42,8 @@ public:
                 
                 auto nb_dist = _pos - _pos_nb;
                 if( not _ob_nb.m_enabled ) { continue; }
-                if( static_cast<int>(abs(nb_dist.x)) < static_cast<int>((Sprites::Brick::WIDTH + Sprites::Brick::HALFWIDTH)) and
-                    static_cast<int>(abs(nb_dist.y)) < static_cast<int>((Sprites::Brick::HEIGHT + Sprites::Brick::HALFHEIGHT))
+                if( static_cast<int>(abs(nb_dist.x)) < static_cast<int>((Sprites::Brick::WIDTH + (Sprites::Brick::LINEWIDTH*2))) and
+                    static_cast<int>(abs(nb_dist.y)) < static_cast<int>((Sprites::Brick::HEIGHT + (Sprites::Brick::LINEWIDTH*2)))
                 ) 
                 {
                     count++;
@@ -54,7 +54,8 @@ public:
 
         // 2. apply rules
         for( auto [_entt, _ob, _pos]: reg.view<Cmp::Obstacle, Cmp::Position>().each() ) {
-            // SPDLOG_DEBUG("Entity {} has {} neighbours", entity_trait::to_entity(_entt), _ob.neighbours);
+            if( _ob.m_type == Cmp::Obstacle::Type::BEDROCK) { continue; }
+            SPDLOG_INFO("Entity {} has {} neighbours", entity_trait::to_entity(_entt), _ob.neighbours);
             if      ( _ob.neighbours == 0)                          { _ob.m_enabled = true; }
             else if ( _ob.neighbours > 0 and _ob.neighbours < 5 )   { _ob.m_enabled = false; }
             else                                                    { _ob.m_enabled = true; }
@@ -93,22 +94,21 @@ public:
         int count = 0;
 
         // 1. find neighbours
-        // for( auto [_entt, _ob, _pos]: reg.view<Cmp::Obstacle, Cmp::Position>().each() ) {
         for(auto it = m_randsys.begin(); it != m_randsys.end(); it++) {
             
             auto _ob = reg.get<Cmp::Obstacle>( entt::entity(*it) );
             reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours = 0; });
                     
             count++;
-            SPDLOG_DEBUG("");
+            SPDLOG_TRACE("");
             const int idx = std::distance(m_randsys.begin(), it);
-            SPDLOG_DEBUG("max x is {}, idx is {}", m_size.x, idx);
+            SPDLOG_TRACE("max x is {}, idx is {}", m_size.x, idx);
             
             bool has_left_map_edge = not ( (idx) % m_randsys.m_grid_size.x );
             bool has_right_map_edge = not ( (idx + 1) % m_randsys.m_grid_size.x );
             
-            SPDLOG_DEBUG("Entity {} has left map edge: {}", (*it), has_left_map_edge);                
-            SPDLOG_DEBUG("Entity {} has right map edge: {}",(*it), has_right_map_edge);  
+            SPDLOG_TRACE("Entity {} has left map edge: {}", (*it), has_left_map_edge);                
+            SPDLOG_TRACE("Entity {} has right map edge: {}",(*it), has_right_map_edge);  
 
             // -----------------------------------------
             // |           |       |           |        |
@@ -122,28 +122,28 @@ public:
             if(std::prev(it) >= m_randsys.begin()) {
                 if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it))).m_enabled && not has_left_map_edge ) { 
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-                    SPDLOG_DEBUG("N - 1:{}", *(std::prev(it)) ); 
+                    SPDLOG_TRACE("N - 1:{}", *(std::prev(it)) ); 
                 }
             }
             // N - (x - 1)
             if( std::prev(it, (m_randsys.m_grid_size.x + 1)) >= m_randsys.begin() ) {
                 if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, m_randsys.m_grid_size.x + 1))).m_enabled && not has_left_map_edge)  {
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-                    SPDLOG_DEBUG("N - (x - 1):{}", *(std::prev(it, m_size.x + 1))); 
+                    SPDLOG_TRACE("N - (x - 1):{}", *(std::prev(it, m_size.x + 1))); 
                 }
             }
             // N - x
             if( std::prev(it, m_randsys.m_grid_size.x) >= m_randsys.begin() ) {
                 if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, m_randsys.m_grid_size.x))).m_enabled ) {
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-                    SPDLOG_DEBUG("N - x:{}", *(std::prev(it, m_size.x))); 
+                    SPDLOG_TRACE("N - x:{}", *(std::prev(it, m_size.x))); 
                 }
             }
             // N - (x + 1)
             if( (std::prev(it, (m_randsys.m_grid_size.x - 1))) >= m_randsys.begin() ) {
                 if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, m_randsys.m_grid_size.x - 1))).m_enabled && not has_right_map_edge) { 
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-                    SPDLOG_DEBUG("N - (x + 1):{}", *(std::prev(it, m_size.x - 1)) ); 
+                    SPDLOG_TRACE("N - (x + 1):{}", *(std::prev(it, m_size.x - 1)) ); 
                 }
             }
 
@@ -160,28 +160,28 @@ public:
             if( std::next(it, (m_randsys.m_grid_size.x - 1)) < m_randsys.end()) {
                 if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, m_randsys.m_grid_size.x - 1))).m_enabled && not has_left_map_edge) { 
                    reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-                   SPDLOG_DEBUG("N + (x - 1):{}", (*std::next(it, m_size.x - 1)) ); 
+                   SPDLOG_TRACE("N + (x - 1):{}", (*std::next(it, m_size.x - 1)) ); 
                 }
             }
             // N + x
             if( m_randsys.m_grid_size.x < m_randsys.size() && std::next(it, m_randsys.m_grid_size.x) < m_randsys.end()) {
                 if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, m_randsys.m_grid_size.x))).m_enabled ) { 
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-                    SPDLOG_DEBUG("N + x:{}",  (*std::next(it, m_size.x))); 
+                    SPDLOG_TRACE("N + x:{}",  (*std::next(it, m_size.x))); 
                 }
             }
             // N + (x + 1)
             if( (m_randsys.m_grid_size.x + 1) < m_randsys.size() && std::next(it, (m_randsys.m_grid_size.x + 1)) < m_randsys.end()) {
                 if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, (m_randsys.m_grid_size.x + 1)))).m_enabled && not has_right_map_edge ) { 
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-                    SPDLOG_DEBUG("N + (x + 1):{}", (*std::next(it, m_size.x + 1)) ); 
+                    SPDLOG_TRACE("N + (x + 1):{}", (*std::next(it, m_size.x + 1)) ); 
                 }
             }
             // N + 1
             if( std::next(it) < m_randsys.end() ) {
                 if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it))).m_enabled && not has_right_map_edge ) { 
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-                     SPDLOG_DEBUG("N + 1:{}",  (*std::next(it))); 
+                     SPDLOG_TRACE("N + 1:{}",  (*std::next(it))); 
                 }
             }
                 
@@ -191,8 +191,9 @@ public:
         // 2. apply rules
 
         for( auto [_entt, _ob, _pos]: reg.view<Cmp::Obstacle, Cmp::Position>().each() ) {
-            // SPDLOG_DEBUG("Entity {} has {} neighbours", entity_trait::to_entity(_entt), _ob.neighbours);
-            if      ( _ob.neighbours == 0)                          { _ob.m_enabled = true; }
+            if( _ob.m_type == Cmp::Obstacle::Type::BEDROCK) { continue; }
+            SPDLOG_DEBUG("Entity {} has {} neighbours", entity_trait::to_entity(_entt), _ob.neighbours);
+            if      ( _ob.neighbours <= 0)                          { _ob.m_enabled = true; }
             else if ( _ob.neighbours > 0 and _ob.neighbours < 5 )   { _ob.m_enabled = false; }
             else                                                    { _ob.m_enabled = true; }
         }

@@ -12,6 +12,7 @@ namespace ProceduralMaze::Cmp {
 // Coordinate
 class Position : public sf::Vector2f, Cmp::Base {
 public:
+    
     Position(const sf::Vector2f& pos) 
     : 
         sf::Vector2f(pos)

@@ -54,7 +54,8 @@ public:
                         m_window->draw( Brick(_pos, Sprites::Brick::BEDROCK_FILLCOLOUR, Sprites::Brick::BEDROCK_LINECOLOUR) ); 
                     }
                 }
-#ifdef SHOW_BRICK_ENTITY_ID
+
+                #ifdef SHOW_BRICK_ENTITY_ID
                 auto t = sf::Text(
                     f, 
                     std::to_string(entt::entt_traits<entt::entity>::to_entity(entity)),
@@ -62,7 +63,7 @@ public:
                 );
                 t.setPosition({_pos.x, _pos.y});
                 m_window->draw( t );
-#endif // SHOW_BRICK_ENTITY_ID
+                #endif // SHOW_BRICK_ENTITY_ID
             }
 
             // player           
@@ -70,17 +71,21 @@ public:
                 m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() ) 
             {
                 m_window->draw(  Player(_pos) );
-#ifdef SHOW_PLAYER_BOUNDING_BOX
+
+                #ifdef SHOW_PLAYER_BOUNDING_BOX
                 m_window->draw(_xbb.drawable());
                 m_window->draw(_ybb.drawable());
-#endif
+                #endif
+
+                m_current_view.setCenter(_pos);
             }
 
         m_window->display();
+        m_window->setView(m_current_view);
     }
 
     entt::reactive_mixin<entt::storage<void>> m_position_updates;
-
+    sf::View m_current_view;
 private:
     std::shared_ptr<sf::RenderWindow> m_window;
 

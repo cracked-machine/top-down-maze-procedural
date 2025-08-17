@@ -10,7 +10,7 @@ namespace ProceduralMaze::Cmp {
 class PlayableCharacter {
 public:
     bool alive{true};
-    constexpr static const float MOVE_DELTA{1.f};
+    constexpr static const float MOVE_DIST{1.f};
 };
 
 } // namespace ProceduralMaze::Cmp

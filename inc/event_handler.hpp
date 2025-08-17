@@ -18,7 +18,6 @@ class InputEventHandler
 {
 public:
     InputEventHandler() = default;
-    
 
     void handler(
         const std::shared_ptr<sf::RenderWindow> window, 
@@ -39,9 +38,9 @@ public:
                 m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
             {
                 m_reg.patch<Cmp::Position>(_entt, [&](auto &_pos) { 
-                    _pos.y -= Cmp::PlayableCharacter::MOVE_DELTA; 
-                    _xbb.position.y -= Cmp::PlayableCharacter::MOVE_DELTA;
-                    _ybb.position.y -= Cmp::PlayableCharacter::MOVE_DELTA;
+                    _pos.y -= Cmp::PlayableCharacter::MOVE_DIST; 
+                    _xbb.position.y -= Cmp::PlayableCharacter::MOVE_DIST;
+                    _ybb.position.y -= Cmp::PlayableCharacter::MOVE_DIST;
                 });
             }
         }
@@ -52,9 +51,9 @@ public:
                 m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
             {
                 m_reg.patch<Cmp::Position>(_entt, [&](auto &_pos) { 
-                    _pos.x -= Cmp::PlayableCharacter::MOVE_DELTA; 
-                    _xbb.position.x -= Cmp::PlayableCharacter::MOVE_DELTA;
-                    _ybb.position.x -= Cmp::PlayableCharacter::MOVE_DELTA;
+                    _pos.x -= Cmp::PlayableCharacter::MOVE_DIST; 
+                    _xbb.position.x -= Cmp::PlayableCharacter::MOVE_DIST;
+                    _ybb.position.x -= Cmp::PlayableCharacter::MOVE_DIST;
                 });
             }
         }
@@ -65,9 +64,9 @@ public:
                 m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
             {
                 m_reg.patch<Cmp::Position>(_entt, [&](auto &_pos) { 
-                    _pos.x += Cmp::PlayableCharacter::MOVE_DELTA; 
-                    _xbb.position.x += Cmp::PlayableCharacter::MOVE_DELTA;
-                    _ybb.position.x += Cmp::PlayableCharacter::MOVE_DELTA;
+                    _pos.x += Cmp::PlayableCharacter::MOVE_DIST; 
+                    _xbb.position.x += Cmp::PlayableCharacter::MOVE_DIST;
+                    _ybb.position.x += Cmp::PlayableCharacter::MOVE_DIST;
                 });
             }
         }
@@ -78,12 +77,13 @@ public:
                 m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
             {
                 m_reg.patch<Cmp::Position>(_entt, [&](auto &_pos) { 
-                    _pos.y += Cmp::PlayableCharacter::MOVE_DELTA; 
-                    _xbb.position.y += Cmp::PlayableCharacter::MOVE_DELTA;
-                    _ybb.position.y += Cmp::PlayableCharacter::MOVE_DELTA;                    
+                    _pos.y += Cmp::PlayableCharacter::MOVE_DIST; 
+                    _xbb.position.y += Cmp::PlayableCharacter::MOVE_DIST;
+                    _ybb.position.y += Cmp::PlayableCharacter::MOVE_DIST;                    
                 });
             }
         }
+
     }
 };
 

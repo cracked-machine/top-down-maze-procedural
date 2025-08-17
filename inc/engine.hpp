@@ -30,8 +30,9 @@
 #include <ybb.hpp>
 
 const sf::Vector2u DISPLAY_SIZE{1920, 1024};
-const sf::Vector2u MAP_GRID_SIZE{10u,10u};
-const sf::Vector2f MAP_GRID_OFFSET{ 50.f,90.f};
+const sf::Vector2u MAP_GRID_SIZE{140u,74u};
+const sf::Vector2f MAP_GRID_OFFSET{ 50.f,25.f};
+const sf::Vector2f PLAYER_START_POS{10, 100};
 
 namespace ProceduralMaze {
 
@@ -57,7 +58,7 @@ public:
             .on_update<Cmp::Position>()
             .on_construct<Cmp::Position>();
     
-        add_player( sf::Vector2f{10, 100} );
+        add_player( PLAYER_START_POS );
         
         // add a border
         for(int x = 0; x < DISPLAY_SIZE.x / Sprites::Brick::WIDTH; x++)
@@ -68,9 +69,11 @@ public:
             });
             add_bedrock({
                 x * (Sprites::Brick::WIDTH + (Sprites::Brick::LINEWIDTH * 2)), 
-                MAP_GRID_OFFSET.y + (MAP_GRID_SIZE.y * (Sprites::Brick::HEIGHT + Sprites::Brick::LINEWIDTH) )
+                MAP_GRID_OFFSET.y + (MAP_GRID_SIZE.y * (Sprites::Brick::HEIGHT + Sprites::Brick::LINEWIDTH) ) + Sprites::Brick::LINEWIDTH
             });
         }
+
+        m_render_sys->m_current_view = sf::View(PLAYER_START_POS, {300.f, 200.f});
 
         SPDLOG_INFO("Engine Init");
     }
@@ -81,25 +84,30 @@ public:
         randsys.gen(m_reg, 123456789);
         Sys::ProcGen::CellAutomataSystem ca_level{randsys};
 
-        int ca_count = 0;
-        
         sf::Clock clock;
+        int level_gen_iteration_max = 5;
+        for( int i = 0; i < level_gen_iteration_max; i++)
+        {
+            ca_level.iterate_linear(m_reg);
+        }
+        SPDLOG_INFO("Level Iteration #{} took {} ms", level_gen_iteration_max, clock.getElapsedTime().asMilliseconds());
+        
+        
         
         while (m_window->isOpen())
         {
             auto elapsed_time = clock.getElapsedTime().asMilliseconds();
-            if(elapsed_time > 10 and ca_count < 5)
+            if(elapsed_time > 10)
             {
-                ca_level.iterate_linear(m_reg);
-                // ca_level.iterate_quadratic(m_reg);
-                ca_count++;
-                SPDLOG_INFO("Level Iteration #{} took {} ms", ca_count, elapsed_time);
+            
+                m_event_handler.handler(m_window, m_reg);
                 clock.restart();
             }
-        
-            m_event_handler.handler(m_window, m_reg);
-            m_render_sys->render();         
+            
             m_collsion_sys->check();
+            m_render_sys->render();   
+            
+            m_window->setView(m_render_sys->m_current_view);
         
         }
         return false;   
@@ -122,6 +130,7 @@ private:
 
     ProceduralMaze::InputEventHandler m_event_handler;
 
+    
 
     void add_text()
     {

@@ -53,7 +53,6 @@ public:
                 
                 while( has_collision ) 
                 {
-                    
                     auto brickCenter = getCenter(_ob_pos, Sprites::Brick::SIZE);
                     auto diffX = _xbb.getCenter().x - brickCenter.x;
                     auto minXDist = (_xbb.size.x / 2) + Sprites::Brick::HALFWIDTH;
@@ -63,7 +62,7 @@ public:
                         SPDLOG_INFO("left side collision");
                         has_collision = Sprites::Player({_pc_pos.x -= 1, _pc_pos.y} ).getGlobalBounds().findIntersection(Sprites::Brick(_ob_pos).getGlobalBounds());
                         _xbb.position.x -= 1;
-                        _ybb.position.x -= 1;                        
+                        _ybb.position.x -= 1;      
                     } 
                     else {
                         SPDLOG_INFO("right side collision");
@@ -79,6 +78,7 @@ public:
 
     void check_ybb()
     {
+        bool collision_processed = false;
         for( auto [_pc_entt, _pc,  _pc_pos, _xbb, _ybb]: 
             m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
         {
@@ -93,7 +93,6 @@ public:
                 
                 while( has_collision ) 
                 {
-                    
                     auto brickCenter = getCenter(_ob_pos, Sprites::Brick::SIZE);
                     auto diffY = _ybb.getCenter().y - brickCenter.y;
                     auto minYDist = (_ybb.size.y / 2) + Sprites::Brick::HALFHEIGHT;
@@ -110,7 +109,6 @@ public:
                         _xbb.position.y += 1;
                         _ybb.position.y += 1; 
                     }
-                
                 }
             }   
                 
