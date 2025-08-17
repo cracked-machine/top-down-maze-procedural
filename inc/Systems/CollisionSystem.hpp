@@ -10,18 +10,18 @@
 #include <SFML/Window/Window.hpp>
 
 
-#include <collision.hpp>
-#include <obstacle.hpp>
-#include <pc.hpp>
-#include <position.hpp>
+#include <Collision.hpp>
+#include <Obstacle.hpp>
+#include <PlayableCharacter.hpp>
+#include <Position.hpp>
 #include <spdlog/spdlog.h>
 
 
-#include <sprites/brick.hpp>
-#include <sprites/player.hpp>
-#include <systems/base_system.hpp>
-#include <xbb.hpp>
-#include <ybb.hpp>
+#include <Sprites/Brick.hpp>
+#include <Sprites/Player.hpp>
+#include <Systems/BaseSystem.hpp>
+#include <XAxisHitBox.hpp>
+#include <YAxisHitBox.hpp>
 
 namespace ProceduralMaze::Sys {
 

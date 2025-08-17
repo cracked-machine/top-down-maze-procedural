@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Font.hpp>
-#include <base.hpp>
+#include <Base.hpp>
 
 namespace ProceduralMaze::Cmp {
 

@@ -2,7 +2,7 @@
 #define __COMPONENTS_RANDOM_COORD_HPP__
 
 #include <SFML/System/Vector2.hpp>
-#include <components/random.hpp>
+#include <Components/Random.hpp>
 
 namespace ProceduralMaze::Cmp {
 

@@ -4,14 +4,14 @@
 #include <SFML/Graphics/Text.hpp>
 
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
-#include <basic_log_controller.hpp>
-#include <components/position.hpp>
-#include <engine.hpp>
-#include <systems/render_system.hpp>
+#include <Logging/BasicLogController.hpp>
+#include <Components/Position.hpp>
+#include <Engine.hpp>
+#include <Systems/RenderSystem.hpp>
 
 int main()
 {
-    // logging: make sure errors - exceptions and failed asserts - go to log file
+    // Logging: make sure errors - exceptions and failed asserts - go to log file
     fclose(stderr);
 
     using Logger = ProceduralMaze::Logging::BasicLogController;

@@ -4,15 +4,15 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Window.hpp>
-#include <components/system.hpp>
+#include <Components/System.hpp>
 #include <optional>
 
-#include <components/pc.hpp>
-#include <components/position.hpp>
+#include <Components/PlayableCharacter.hpp>
+#include <Components/Position.hpp>
 
 #include <spdlog/spdlog.h>
-#include <xbb.hpp>
-#include <ybb.hpp>
+#include <XAxisHitBox.hpp>
+#include <YAxisHitBox.hpp>
 
 namespace ProceduralMaze {
 

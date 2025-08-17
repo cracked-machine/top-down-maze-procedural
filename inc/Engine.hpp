@@ -7,33 +7,32 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics.hpp>
 
+#include <entt/entity/registry.hpp>
+#include <spdlog/spdlog.h>
 
-#include <sprites/brick.hpp>
-#include <collision.hpp>
-#include <collision_system.hpp>
-#include <components/system.hpp>
 #include <memory>
 
-#include <components/obstacle.hpp>
-#include <components/pc.hpp>
+#include <Sprites/Brick.hpp>
+#include <Sprites/TileMap.hpp>
+#include <Components/Collision.hpp>
+#include <Components/System.hpp>
+#include <Components/Obstacle.hpp>
+#include <Components/PlayableCharacter.hpp>
+#include <Components/Random.hpp>
+#include <Components/RandomCoord.hpp>
+#include <Components/Position.hpp>
+#include <Components/Font.hpp>
+#include <Components/System.hpp>
+#include <Components/XAxisHitBox.hpp>
+#include <Components/YAxisHitBox.hpp>
 
-#include <procedural_generation/ca_system.hpp>
-#include <procedural_generation/RandomSystem.hpp>
-#include <random.hpp>
-#include <random_coord.hpp>
-#include <spdlog/spdlog.h>
-#include <event_handler.hpp>
-#include <entt/entity/registry.hpp>
+#include <Systems/CollisionSystem.hpp>
+#include <Systems/RenderSystem.hpp>
+#include <Systems/ProcGen/CellAutomataSystem.hpp>
+#include <Systems/ProcGen/RandomSystem.hpp>
 
-#include <components/position.hpp>
-#include <components/font.hpp>
-#include <system.hpp>
-#include <systems/render_system.hpp>
-#include <tile_map.hpp>
-#include <xbb.hpp>
-#include <ybb.hpp>
-
-#include <settings.hpp>
+#include <EventHandler.hpp>
+#include <Settings.hpp>
 
 namespace ProceduralMaze {
 

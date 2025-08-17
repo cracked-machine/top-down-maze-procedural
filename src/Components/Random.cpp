@@ -1,4 +1,4 @@
-#include <components/random.hpp>
+#include <Components/Random.hpp>
 
 namespace ProceduralMaze::Cmp {
 

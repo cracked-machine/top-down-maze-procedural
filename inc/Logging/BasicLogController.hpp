@@ -9,7 +9,7 @@
 
 // Usage:
 //
-// #include <basic_log_controller.hpp>
+// #include <BasicLogController.hpp>
 // std::unique_ptr<Test::Logging::BasicLogController> logger{
 //      std::make_unique<Test::Logging::BasicLogController>("logger", "log.txt")
 // };
@@ -46,12 +46,12 @@ private:
     std::string m_log_name{};
     std::string m_log_path{};
 
-    // sink for logging to stdout
+    // sink for Logging to stdout
     std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> m_console_sink {
         std::make_shared<spdlog::sinks::stdout_color_sink_mt>()
     };
 
-    // sink for logging to file
+    // sink for Logging to file
     std::shared_ptr<spdlog::sinks::basic_file_sink_mt> m_file_sink {
         std::make_shared<spdlog::sinks::basic_file_sink_mt>( m_log_path, true )
     };

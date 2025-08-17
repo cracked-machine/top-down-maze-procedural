@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <bb.hpp>
+#include <HitBox.hpp>
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
 

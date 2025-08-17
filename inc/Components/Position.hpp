@@ -5,7 +5,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <base.hpp>
+#include <Base.hpp>
 
 namespace ProceduralMaze::Cmp {
 

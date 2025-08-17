@@ -8,23 +8,23 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>
 
-#include <collision.hpp>
-#include <font.hpp>
+#include <Collision.hpp>
+#include <Font.hpp>
 #include <memory>
 
-#include <obstacle.hpp>
-#include <pc.hpp>
-#include <position.hpp>
-#include <procedural_generation/RandomSystem.hpp>
-#include <settings.hpp>
-#include <sprites/brick.hpp>
-#include <sprites/player.hpp>
-#include <system.hpp>
-#include <systems/base_system.hpp>
+#include <Obstacle.hpp>
+#include <PlayableCharacter.hpp>
+#include <Position.hpp>
+#include <ProcGen/RandomSystem.hpp>
+#include <Settings.hpp>
+#include <Sprites/Brick.hpp>
+#include <Sprites/Player.hpp>
+#include <System.hpp>
+#include <Systems/BaseSystem.hpp>
 #include <spdlog/spdlog.h>
-#include <tile_map.hpp>
-#include <xbb.hpp>
-#include <ybb.hpp>
+#include <TileMap.hpp>
+#include <XAxisHitBox.hpp>
+#include <YAxisHitBox.hpp>
 
 namespace ProceduralMaze::Sys {
 

@@ -2,7 +2,7 @@
 #define __COMPONENTS_RANDOM_HPP__
 
 #include <random>
-#include <base.hpp>
+#include <Base.hpp>
 
 namespace ProceduralMaze::Cmp {
 

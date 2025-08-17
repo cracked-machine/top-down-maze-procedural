@@ -5,12 +5,11 @@
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
 #include <optional>
-#include <obstacle.hpp>
-#include <position.hpp>
 #include <spdlog/spdlog.h>
-
-#include <sprites/brick.hpp>
-#include <components/random.hpp>
+#include <Components/Obstacle.hpp>
+#include <Components/Position.hpp>
+#include <Components/Random.hpp>
+#include <Sprites/Brick.hpp>
 
 namespace ProceduralMaze::Sys::ProcGen {
 

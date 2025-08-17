@@ -4,13 +4,13 @@
 #include <SFML/System/Vector2.hpp>
 #include <entt/entity/registry.hpp>
 #include <iterator>
-#include <obstacle.hpp>
-#include <position.hpp>
-#include <procedural_generation/RandomSystem.hpp>
+#include <Components/Obstacle.hpp>
+#include <Components/Position.hpp>
+#include <Systems/ProcGen/RandomSystem.hpp>
 #include <spdlog/spdlog.h>
 
-#include <sprites/brick.hpp>
-#include <components/random.hpp>
+#include <Sprites/Brick.hpp>
+#include <Components/Random.hpp>
 
 namespace ProceduralMaze::Sys::ProcGen {
 
