@@ -13,7 +13,8 @@ public:
     enum class Type
     {
         NONE = 0,
-        BRICK = 1
+        BRICK = 1,
+        BEDROCK = 2
     };
 
     Obstacle(Type type = Type::BRICK, bool visible = true, bool enabled = true)
@@ -26,6 +27,7 @@ public:
     bool m_visible{true};
     bool m_enabled{true};
     Type m_type;
+    uint8_t neighbours{0};
 };
 
 } // namespace ProceduralMaze::Cmp

@@ -18,7 +18,7 @@ public:
         const sf::Color &line_colour)
     : 
         sf::FloatRect(pos, size),
-        m_line_colour(m_visible ? line_colour: sf::Color::Transparent)
+        m_line_colour(line_colour)
     {
     }
     
@@ -31,7 +31,6 @@ public:
         r.setOutlineThickness(2);
         return r;
     }
-    const bool m_visible{false};
     sf::Color m_line_colour{sf::Color::White};
 };
 

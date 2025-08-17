@@ -39,34 +39,47 @@ public:
     void render()
     {
         using namespace Sprites;
+        auto f = Cmp::Font("res/tuffy.ttf");
         m_window->clear();
 
+            // bricks
+            for( auto [entity, _ob, _pos]: m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each() ) {
+                
+                if( _ob.m_enabled ) {
+                    if( _ob.m_type == Cmp::Obstacle::Type::BRICK ) {
+                        m_window->draw( Brick(_pos, Sprites::Brick::BRICK_FILLCOLOUR, Sprites::Brick::BRICK_LINECOLOUR) ); 
+                    }
+                    else
+                    {
+                        m_window->draw( Brick(_pos, Sprites::Brick::BEDROCK_FILLCOLOUR, Sprites::Brick::BEDROCK_LINECOLOUR) ); 
+                    }
+                }
+#ifdef SHOW_BRICK_ENTITY_ID
+                auto t = sf::Text(
+                    f, 
+                    std::to_string(entt::entt_traits<entt::entity>::to_entity(entity)),
+                    Sprites::Brick::HALFHEIGHT
+                );
+                t.setPosition({_pos.x, _pos.y});
+                m_window->draw( t );
+#endif // SHOW_BRICK_ENTITY_ID
+            }
+
+            // player           
             for( auto [entity, _pc, _pos, _xbb, _ybb]: 
                 m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() ) 
             {
                 m_window->draw(  Player(_pos) );
+#ifdef SHOW_PLAYER_BOUNDING_BOX
                 m_window->draw(_xbb.drawable());
                 m_window->draw(_ybb.drawable());
-            }
-
-            for( auto [entity, _ob, _pos]: m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each() ) {
-                if( _ob.m_visible ) {
-                    m_window->draw(  Brick(_pos) ); 
-                }
-            }
-
-            for( auto [entity, _collision]: m_position_updates.view<Cmp::Collision>().each() ) {
-                auto intersect = sf::RectangleShape(_collision.get()->size);
-                intersect.setPosition(_collision.get()->position);
-                intersect.setFillColor(sf::Color::Blue);
-                m_window->draw(intersect);
+#endif
             }
 
         m_window->display();
     }
 
     entt::reactive_mixin<entt::storage<void>> m_position_updates;
-    entt::reactive_mixin<entt::storage<void>> m_collision_updates;
 
 private:
     std::shared_ptr<sf::RenderWindow> m_window;

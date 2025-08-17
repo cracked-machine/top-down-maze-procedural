@@ -8,6 +8,7 @@
 #include <SFML/Graphics.hpp>
 
 
+#include <brick.hpp>
 #include <collision.hpp>
 #include <collision_system.hpp>
 #include <memory>
@@ -15,6 +16,7 @@
 #include <components/obstacle.hpp>
 #include <components/pc.hpp>
 
+#include <procedural_generation/ca_system.hpp>
 #include <procedural_generation/random_system.hpp>
 #include <random.hpp>
 #include <random_coord.hpp>
@@ -27,11 +29,16 @@
 #include <systems/render_system.hpp>
 #include <ybb.hpp>
 
+const sf::Vector2u DISPLAY_SIZE{1920, 1024};
+const sf::Vector2u MAP_GRID_SIZE{140u,25u};
+const sf::Vector2f MAP_GRID_OFFSET{ 50.f,90.f};
 
 namespace ProceduralMaze {
 
 class Engine {
 public:
+
+    
     Engine() {
         m_window->setFramerateLimit(60);
 
@@ -40,10 +47,10 @@ public:
             .on_update<Cmp::Position>()
             .on_construct<Cmp::Position>();
 
-        m_render_sys->m_collision_updates.bind(m_reg);
-        m_render_sys->m_collision_updates
-            .on_update<Cmp::Collision>()
-            .on_construct<Cmp::Collision>();
+        m_render_sys->m_position_updates.bind(m_reg);
+        m_render_sys->m_position_updates
+            .on_update<Cmp::Obstacle>()
+            .on_construct<Cmp::Obstacle>();
 
         m_collsion_sys->m_position_updates.bind(m_reg);
         m_collsion_sys->m_position_updates
@@ -51,30 +58,46 @@ public:
             .on_construct<Cmp::Position>();
     
         add_player( sf::Vector2f{10, 100} );
-        Sys::ProcGen::RandomSystem random_level{
-            sf::Vector2u(10,10), 
-            m_reg,
-            sf::Vector2f{50, 50}
-        };
-        // add_brick( sf::Vector2f{100, 100} );
-        // add_brick( sf::Vector2f{120, 100} );
-        // add_brick( sf::Vector2f{140, 100} );
-        // add_brick( sf::Vector2f{100, 120} );
-        // add_brick( sf::Vector2f{100, 140} );
-
+        
+        // add a border
+        for(int x = 0; x < DISPLAY_SIZE.x / Sprites::Brick::WIDTH; x++)
+        {
+            add_bedrock({
+                x * (Sprites::Brick::WIDTH + (Sprites::Brick::LINEWIDTH * 2)), 
+                MAP_GRID_OFFSET.y - (Sprites::Brick::HEIGHT + Sprites::Brick::LINEWIDTH + Sprites::Brick::LINEWIDTH)
+            });
+            add_bedrock({
+                x * (Sprites::Brick::WIDTH + (Sprites::Brick::LINEWIDTH * 2)), 
+                MAP_GRID_OFFSET.y + (MAP_GRID_SIZE.y * (Sprites::Brick::HEIGHT + Sprites::Brick::LINEWIDTH) )
+            });
+        }
 
         SPDLOG_INFO("Engine Init");
     }
 
     bool run()
     {
+        Sys::ProcGen::CellAutomataSystem ca_level{MAP_GRID_SIZE, m_reg, MAP_GRID_OFFSET};
+        int ca_count = 0;
+        
         sf::Clock clock;
         
         while (m_window->isOpen())
         {
+            auto elapsed_time = clock.getElapsedTime().asMilliseconds();
+            if(elapsed_time > 10 and ca_count < 20)
+            {
+                ca_level.iterate_linear(m_reg);
+                // ca_level.iterate_quadratic(m_reg);
+                ca_count++;
+                SPDLOG_INFO("Level Iteration #{} took {} ms", ca_count, elapsed_time);
+                clock.restart();
+            }
+        
             m_event_handler.handler(m_window, m_reg);
             m_render_sys->render();         
             m_collsion_sys->check();
+        
         }
         return false;   
     }
@@ -82,7 +105,7 @@ public:
 private:
     // SFML Window
     std::shared_ptr<sf::RenderWindow> m_window = std::make_shared<sf::RenderWindow>(
-        sf::VideoMode({550u, 550u}), "ProceduralMaze");
+        sf::VideoMode(DISPLAY_SIZE), "ProceduralMaze");
     
     // ECS Registry
     entt::basic_registry<entt::entity> m_reg;
@@ -95,8 +118,6 @@ private:
         std::make_unique<Sys::CollisionSystem> ();
 
     ProceduralMaze::InputEventHandler m_event_handler;
-
-    
 
 
     void add_text()
@@ -112,8 +133,8 @@ private:
 
         // To prevent possible sticky corners issue,
         // these should less than/equal to EventHandler::move_delta
-        auto xbb_extra_width = 1.f;
-        auto ybb_extra_height = 1.f;
+        auto xbb_extra_width = 0.05f;
+        auto ybb_extra_height = 0.05f;
 
         auto entity = m_reg.create();
         m_reg.emplace<Cmp::Position>(entity, pos); 
@@ -130,11 +151,11 @@ private:
         );
     }
 
-    void add_brick(const sf::Vector2f &pos)
+    void add_bedrock(const sf::Vector2f &pos)
     {
         auto entity = m_reg.create();
         m_reg.emplace<Cmp::Position>(entity, pos); 
-        m_reg.emplace<Cmp::Obstacle>(entity );
+        m_reg.emplace<Cmp::Obstacle>(entity, Cmp::Obstacle::Type::BEDROCK, true, true );
     }
 };
 

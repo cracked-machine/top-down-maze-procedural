@@ -17,12 +17,12 @@ public:
         sf::RectangleShape(sf::Vector2f(WIDTH, HEIGHT))
     {
         setPosition(pos);
-        setFillColor(sf::Color::White);
+        setFillColor(sf::Color::Blue);
     }
 
-    constexpr static const float WIDTH{32};
+    constexpr static const float WIDTH{8};
     constexpr static const float HALFWIDTH{WIDTH/2};
-    constexpr static const float HEIGHT{32};
+    constexpr static const float HEIGHT{18};
     constexpr static const float HALFHEIGHT{HEIGHT/2};
     constexpr static const sf::Vector2f SIZE{WIDTH, HEIGHT};
 

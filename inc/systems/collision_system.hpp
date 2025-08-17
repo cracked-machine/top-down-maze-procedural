@@ -99,7 +99,6 @@ public:
                     auto minYDist = (_ybb.size.y / 2) + Sprites::Brick::HALFHEIGHT;
                     auto depthY = diffY > 0 ? minYDist - diffY : -minYDist - diffY;
 
-                    // Collision along the Y axis.
                     if (depthY >= 0) {
                         SPDLOG_INFO("top side collision");
                         has_collision = Sprites::Player({_pc_pos.x, _pc_pos.y -= 1} ).getGlobalBounds().findIntersection(Sprites::Brick(_ob_pos).getGlobalBounds());
