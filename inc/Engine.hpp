@@ -59,7 +59,7 @@ public:
         using namespace ProceduralMaze::Settings;
 
         // procedurally generate the level
-        Sys::ProcGen::RandomSystem obstacle_randsys(MAP_GRID_SIZE, MAP_GRID_OFFSET);
+        Sys::ProcGen::RandomSystem obstacle_randsys;
         obstacle_randsys.gen(m_reg, 0);
         Sys::ProcGen::CellAutomataSystem ca_level{obstacle_randsys};
 

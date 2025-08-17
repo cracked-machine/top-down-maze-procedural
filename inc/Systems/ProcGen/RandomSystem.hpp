@@ -2,6 +2,7 @@
 #define __SYSTEMS_PROCGEN_RANDOM_SYSTEM_HPP__
 
 #include <SFML/System/Vector2.hpp>
+#include <Settings.hpp>
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
 #include <optional>
@@ -16,13 +17,9 @@ namespace ProceduralMaze::Sys::ProcGen {
 class RandomSystem {
 public:
     RandomSystem(
-        const sf::Vector2u &grid_size,
-        const sf::Vector2f &grid_offset = sf::Vector2f{0,0},
         const std::pair<unsigned int, unsigned int> &range = {0,1}
     )
     : 
-        m_grid_size(grid_size),
-        m_grid_offset(grid_offset),
         m_rng(range.first, range.second)
     {
     }
@@ -30,9 +27,9 @@ public:
     void gen(unsigned long seed = 0)
     {
         if (seed) Cmp::Random::seed(seed);
-        for(int x = 0; x < m_grid_size.x; x++)
+        for(int x = 0; x < ProceduralMaze::Settings::MAP_GRID_SIZE.x; x++)
         {
-            for(int y = 0; y < m_grid_size.y; y++)
+            for(int y = 0; y < ProceduralMaze::Settings::MAP_GRID_SIZE.y; y++)
             {
                 m_data.push_back(m_rng.gen());
             }
@@ -43,16 +40,16 @@ public:
     {
         if (seed) Cmp::Random::seed(seed);
         using entity_trait = entt::entt_traits<entt::entity>;
-        for(int x = 0; x < m_grid_size.x; x++)
+        for(int x = 0; x < ProceduralMaze::Settings::MAP_GRID_SIZE.x; x++)
         {
-            for(int y = 0; y < m_grid_size.y; y++)
+            for(int y = 0; y < ProceduralMaze::Settings::MAP_GRID_SIZE.y; y++)
             {
                 auto entity = reg.create();
                 reg.emplace<Cmp::Position>( 
                     entity, 
                     sf::Vector2f{
-                        x * (Sprites::Brick::WIDTH + Sprites::Brick::LINETHICKNESS)  + m_grid_offset.x, 
-                        y * (Sprites::Brick::HEIGHT + Sprites::Brick::LINETHICKNESS) + m_grid_offset.y
+                        (x * Sprites::Brick::FULLWIDTH)  + (ProceduralMaze::Settings::MAP_GRID_OFFSET.x * Sprites::Brick::FULLWIDTH), 
+                        (y * Sprites::Brick::FULLHEIGHT)  + (ProceduralMaze::Settings::MAP_GRID_OFFSET.y * Sprites::Brick::FULLHEIGHT)
                     } 
                 ); 
 
@@ -81,8 +78,6 @@ public:
     auto end() { return m_data.end(); }
     auto size() { return m_data.size(); }
     
-    const sf::Vector2u m_grid_size;
-    const sf::Vector2f m_grid_offset;
 private:
     std::vector<uint32_t> m_data;
     Cmp::Random m_rng;

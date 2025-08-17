@@ -27,7 +27,7 @@ public:
     constexpr static const float HEIGHT{10};
     constexpr static const float HALFHEIGHT{HEIGHT/2};
     constexpr static const sf::Vector2f SIZE{WIDTH, HEIGHT};
-    constexpr static const float LINETHICKNESS{3};
+    constexpr static const float LINETHICKNESS{2};
     constexpr static const float FULLWIDTH{WIDTH + (LINETHICKNESS*2)};
     constexpr static const float FULLHEIGHT{HEIGHT + (LINETHICKNESS*2)};
     constexpr static const sf::Color BRICK_FILLCOLOUR{110, 30, 18};

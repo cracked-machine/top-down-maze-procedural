@@ -14,6 +14,7 @@
 #include <Obstacle.hpp>
 #include <PlayableCharacter.hpp>
 #include <Position.hpp>
+#include <Settings.hpp>
 #include <spdlog/spdlog.h>
 
 
@@ -39,6 +40,7 @@ public:
 
     void check_xbb()
     {
+        int stuck_loop = 0;
         for( auto [_pc_entt, _pc,  _pc_pos, _xbb, _ybb]: 
             m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
         {
@@ -53,23 +55,34 @@ public:
                 
                 while( has_collision ) 
                 {
-                    auto brickCenter = getCenter(_ob_pos, Sprites::Brick::SIZE);
+                    if(stuck_loop > 10 ) 
+                    { 
+                        _pc_pos = ProceduralMaze::Settings::PLAYER_START_POS;
+                        _xbb.position = ProceduralMaze::Settings::PLAYER_START_POS;
+                        _ybb.position = ProceduralMaze::Settings::PLAYER_START_POS;
+                        return;
+                    }
+                    auto brickCenter = getCenter(_ob_pos,  Sprites::Brick({0,0}).getSize());
                     auto diffX = _xbb.getCenter().x - brickCenter.x;
-                    auto minXDist = (_xbb.size.x / 2) + Sprites::Brick::HALFWIDTH;
+                    auto minXDist = (_xbb.size.x / 2) + (Sprites::Brick({0,0}).getSize().x / 2);
                     auto depthX = diffX > 0 ? minXDist - diffX : -minXDist - diffX;
                     
                     if (depthX >= 0) {
                         SPDLOG_INFO("left side collision");
-                        has_collision = Sprites::Player({_pc_pos.x -= 1, _pc_pos.y} ).getGlobalBounds().findIntersection(Sprites::Brick(_ob_pos).getGlobalBounds());
+                        has_collision = Sprites::Player({_pc_pos.x -= 1, _pc_pos.y} ).getGlobalBounds().findIntersection(
+                            Sprites::Brick(_ob_pos).getGlobalBounds());
                         _xbb.position.x -= 1;
-                        _ybb.position.x -= 1;      
+                        _ybb.position.x -= 1;
                     } 
-                    else {
+                    else 
+                    {
                         SPDLOG_INFO("right side collision");
-                        has_collision = Sprites::Player({_pc_pos.x += 1, _pc_pos.y} ).getGlobalBounds().findIntersection(Sprites::Brick(_ob_pos).getGlobalBounds()); 
+                        has_collision = Sprites::Player({_pc_pos.x += 1, _pc_pos.y} ).getGlobalBounds().findIntersection(
+                            Sprites::Brick(_ob_pos).getGlobalBounds()); 
                         _xbb.position.x += 1;
                         _ybb.position.x += 1;
                     }
+                    stuck_loop++;
                 }
             }   
                 
@@ -78,7 +91,7 @@ public:
 
     void check_ybb()
     {
-        bool collision_processed = false;
+        int stuck_loop = 0;
         for( auto [_pc_entt, _pc,  _pc_pos, _xbb, _ybb]: 
             m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
         {
@@ -93,22 +106,33 @@ public:
                 
                 while( has_collision ) 
                 {
-                    auto brickCenter = getCenter(_ob_pos, Sprites::Brick::SIZE);
+                    if(stuck_loop > 10 ) 
+                    { 
+                        _pc_pos = ProceduralMaze::Settings::PLAYER_START_POS;
+                        _xbb.position = ProceduralMaze::Settings::PLAYER_START_POS;
+                        _ybb.position = ProceduralMaze::Settings::PLAYER_START_POS;
+                        return;
+                    }
+                    auto brickCenter = getCenter(_ob_pos, Sprites::Brick({0,0}).getSize() );
                     auto diffY = _ybb.getCenter().y - brickCenter.y;
-                    auto minYDist = (_ybb.size.y / 2) + Sprites::Brick::HALFHEIGHT;
+                    auto minYDist = (_ybb.size.y / 2) + (Sprites::Brick({0,0}).getSize().x / 2);
                     auto depthY = diffY > 0 ? minYDist - diffY : -minYDist - diffY;
 
                     if (depthY >= 0) {
                         SPDLOG_INFO("top side collision");
-                        has_collision = Sprites::Player({_pc_pos.x, _pc_pos.y -= 1} ).getGlobalBounds().findIntersection(Sprites::Brick(_ob_pos).getGlobalBounds());
+                        has_collision = Sprites::Player({_pc_pos.x, _pc_pos.y -= 1} ).getGlobalBounds().findIntersection(
+                            Sprites::Brick(_ob_pos).getGlobalBounds());
                         _xbb.position.y -= 1;
                         _ybb.position.y -= 1; 
-                    } else {
+                    } else 
+                    {
                         SPDLOG_INFO("bottom side collision");
-                        has_collision = Sprites::Player({_pc_pos.x, _pc_pos.y += 1} ).getGlobalBounds().findIntersection(Sprites::Brick(_ob_pos).getGlobalBounds());
+                        has_collision = Sprites::Player({_pc_pos.x, _pc_pos.y += 1} ).getGlobalBounds().findIntersection(
+                            Sprites::Brick(_ob_pos).getGlobalBounds());
                         _xbb.position.y += 1;
                         _ybb.position.y += 1; 
                     }
+                    stuck_loop++;
                 }
             }   
                 

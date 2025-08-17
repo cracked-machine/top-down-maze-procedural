@@ -104,8 +104,8 @@ public:
             const int idx = std::distance(m_randsys.begin(), it);
             SPDLOG_TRACE("max x is {}, idx is {}", m_size.x, idx);
             
-            bool has_left_map_edge = not ( (idx) % m_randsys.m_grid_size.x );
-            bool has_right_map_edge = not ( (idx + 1) % m_randsys.m_grid_size.x );
+            bool has_left_map_edge = not ( (idx) % ProceduralMaze::Settings::MAP_GRID_SIZE.x );
+            bool has_right_map_edge = not ( (idx + 1) % ProceduralMaze::Settings::MAP_GRID_SIZE.x );
             
             SPDLOG_TRACE("Entity {} has left map edge: {}", (*it), has_left_map_edge);                
             SPDLOG_TRACE("Entity {} has right map edge: {}",(*it), has_right_map_edge);  
@@ -126,22 +126,22 @@ public:
                 }
             }
             // N - (x - 1)
-            if( std::prev(it, (m_randsys.m_grid_size.x + 1)) >= m_randsys.begin() ) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, m_randsys.m_grid_size.x + 1))).m_enabled && not has_left_map_edge)  {
+            if( std::prev(it, (ProceduralMaze::Settings::MAP_GRID_SIZE.x + 1)) >= m_randsys.begin() ) {
+                if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, ProceduralMaze::Settings::MAP_GRID_SIZE.x + 1))).m_enabled && not has_left_map_edge)  {
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
                     SPDLOG_TRACE("N - (x - 1):{}", *(std::prev(it, m_size.x + 1))); 
                 }
             }
             // N - x
-            if( std::prev(it, m_randsys.m_grid_size.x) >= m_randsys.begin() ) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, m_randsys.m_grid_size.x))).m_enabled ) {
+            if( std::prev(it, ProceduralMaze::Settings::MAP_GRID_SIZE.x) >= m_randsys.begin() ) {
+                if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, ProceduralMaze::Settings::MAP_GRID_SIZE.x))).m_enabled ) {
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
                     SPDLOG_TRACE("N - x:{}", *(std::prev(it, m_size.x))); 
                 }
             }
             // N - (x + 1)
-            if( (std::prev(it, (m_randsys.m_grid_size.x - 1))) >= m_randsys.begin() ) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, m_randsys.m_grid_size.x - 1))).m_enabled && not has_right_map_edge) { 
+            if( (std::prev(it, (ProceduralMaze::Settings::MAP_GRID_SIZE.x - 1))) >= m_randsys.begin() ) {
+                if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, ProceduralMaze::Settings::MAP_GRID_SIZE.x - 1))).m_enabled && not has_right_map_edge) { 
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
                     SPDLOG_TRACE("N - (x + 1):{}", *(std::prev(it, m_size.x - 1)) ); 
                 }
@@ -157,22 +157,22 @@ public:
             // where N is iterator, x is row length
             
             // N + (x - 1) 
-            if( std::next(it, (m_randsys.m_grid_size.x - 1)) < m_randsys.end()) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, m_randsys.m_grid_size.x - 1))).m_enabled && not has_left_map_edge) { 
+            if( std::next(it, (ProceduralMaze::Settings::MAP_GRID_SIZE.x - 1)) < m_randsys.end()) {
+                if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, ProceduralMaze::Settings::MAP_GRID_SIZE.x - 1))).m_enabled && not has_left_map_edge) { 
                    reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
                    SPDLOG_TRACE("N + (x - 1):{}", (*std::next(it, m_size.x - 1)) ); 
                 }
             }
             // N + x
-            if( m_randsys.m_grid_size.x < m_randsys.size() && std::next(it, m_randsys.m_grid_size.x) < m_randsys.end()) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, m_randsys.m_grid_size.x))).m_enabled ) { 
+            if( ProceduralMaze::Settings::MAP_GRID_SIZE.x < m_randsys.size() && std::next(it, ProceduralMaze::Settings::MAP_GRID_SIZE.x) < m_randsys.end()) {
+                if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, ProceduralMaze::Settings::MAP_GRID_SIZE.x))).m_enabled ) { 
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
                     SPDLOG_TRACE("N + x:{}",  (*std::next(it, m_size.x))); 
                 }
             }
             // N + (x + 1)
-            if( (m_randsys.m_grid_size.x + 1) < m_randsys.size() && std::next(it, (m_randsys.m_grid_size.x + 1)) < m_randsys.end()) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, (m_randsys.m_grid_size.x + 1)))).m_enabled && not has_right_map_edge ) { 
+            if( (ProceduralMaze::Settings::MAP_GRID_SIZE.x + 1) < m_randsys.size() && std::next(it, (ProceduralMaze::Settings::MAP_GRID_SIZE.x + 1)) < m_randsys.end()) {
+                if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, (ProceduralMaze::Settings::MAP_GRID_SIZE.x + 1)))).m_enabled && not has_right_map_edge ) { 
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
                     SPDLOG_TRACE("N + (x + 1):{}", (*std::next(it, m_size.x + 1)) ); 
                 }
