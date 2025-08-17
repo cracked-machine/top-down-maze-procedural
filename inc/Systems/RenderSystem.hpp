@@ -107,7 +107,7 @@ public:
         for( auto [entity, _sys]: 
             m_system_updates.view<Cmp::System>().each() ) 
         {
-            SPDLOG_INFO("read _sys.local_view as {}", _sys.local_view);
+            // SPDLOG_INFO("read _sys.local_view as {}", _sys.local_view);
             if( _sys.local_view ) m_window->setView(m_current_view);
             else  m_window->setView(m_window->getDefaultView());
         }

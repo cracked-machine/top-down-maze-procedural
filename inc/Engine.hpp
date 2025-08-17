@@ -36,8 +36,6 @@
 
 namespace ProceduralMaze {
 
-
-    
 class Engine {
 public:
     Engine() {
@@ -77,6 +75,8 @@ public:
         {
 
             m_event_handler.handler(m_window, m_reg);
+            process_movement();
+
             m_collsion_sys->check();
             m_render_sys->render();   
         
@@ -100,6 +100,21 @@ private:
         std::make_unique<Sys::CollisionSystem> ();
 
     ProceduralMaze::InputEventHandler m_event_handler;
+    
+    void process_movement()
+    {
+        if( m_event_handler.empty() ) { return; }
+
+        auto new_direction = m_event_handler.next();
+        for( auto [ _entt, _pc, _current_pos, _xbb, _ybb] : 
+            m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
+        {
+            _current_pos += new_direction;
+            _xbb.position += new_direction;
+            _ybb.position += new_direction;
+        }
+        
+    }
 
     void add_border()
     {

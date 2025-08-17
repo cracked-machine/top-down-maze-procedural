@@ -2,6 +2,7 @@
 #define __INPUT_EVENT_HANDLER_HPP__
 
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Window.hpp>
 #include <Components/System.hpp>
@@ -14,18 +15,18 @@
 #include <XAxisHitBox.hpp>
 #include <YAxisHitBox.hpp>
 
+#include <queue>
+
 namespace ProceduralMaze {
 
 class InputEventHandler
 {
 public:
     InputEventHandler() = default;
-
-    // move player/hit boxes to new position on key event
-    void handler(
-        const std::shared_ptr<sf::RenderWindow> window, 
-        entt::basic_registry<entt::entity> &m_reg
-    )
+    
+    // set a new direction vector on key press
+    void handler(const std::shared_ptr<sf::RenderWindow> window, 
+                 entt::basic_registry<entt::entity> &m_reg)
     {
       
         using namespace sf::Keyboard;
@@ -36,62 +37,36 @@ public:
             {
                 if (keyReleased->scancode == sf::Keyboard::Scancode::M)
                 {
-                    SPDLOG_INFO("Pressed M");
+                    // SPDLOG_INFO("Pressed M");
                     for( auto [ _entt, _sys] :
                         m_reg.view<Cmp::System>().each() )
                     {
                         _sys.local_view = not _sys.local_view;
-                        SPDLOG_INFO("Set _sys.local_view to {}", _sys.local_view);
+                        // SPDLOG_INFO("Set _sys.local_view to {}", _sys.local_view);
                     }
                 }
             }
         }
 
-        // move player up
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-        {
-            for( auto [ _entt, _pc, _current_pos, _xbb, _ybb] : 
-                m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
-            {
-                _current_pos.y -= Cmp::PlayableCharacter::MOVE_DIST; 
-                _xbb.position.y -= Cmp::PlayableCharacter::MOVE_DIST;
-                _ybb.position.y -= Cmp::PlayableCharacter::MOVE_DIST;
-            }
-        }
-        // move player left
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-        {
-            for( auto [ _entt, _pc, _current_pos, _xbb, _ybb] : 
-                m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
-            {
-                _current_pos.x -= Cmp::PlayableCharacter::MOVE_DIST; 
-                _xbb.position.x -= Cmp::PlayableCharacter::MOVE_DIST;
-                _ybb.position.x -= Cmp::PlayableCharacter::MOVE_DIST;
-            }
-        }
-        // move player right
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-        {
-            for( auto [ _entt, _pc, _current_pos, _xbb, _ybb] : 
-                m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
-            {
-                _current_pos.x += Cmp::PlayableCharacter::MOVE_DIST; 
-                _xbb.position.x += Cmp::PlayableCharacter::MOVE_DIST;
-                _ybb.position.x += Cmp::PlayableCharacter::MOVE_DIST;
-            }
-        }
-        // move player down
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-        {
-            for( auto [ _entt, _pc, _current_pos, _xbb, _ybb] : 
-                m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
-            {
-                _current_pos.y += Cmp::PlayableCharacter::MOVE_DIST; 
-                _xbb.position.y += Cmp::PlayableCharacter::MOVE_DIST;
-                _ybb.position.y += Cmp::PlayableCharacter::MOVE_DIST;                    
-            }
-        }
+        // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
+        sf::Vector2f new_direction{0,0};
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) { new_direction.y = -1; } // move player up
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) { new_direction.x = -1; } // move player left
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) { new_direction.x = 1; } // move player right
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) { new_direction.y = 1; } // move player down
+        m_direction_queue.push(new_direction);
+
     }
+
+    sf::Vector2f next() { 
+        auto d = m_direction_queue.front();
+        m_direction_queue.pop();
+        return d;
+    }
+
+    auto empty() { return m_direction_queue.empty(); }
+private:
+    std::queue<sf::Vector2f> m_direction_queue{};
 };
 
 } // namespace ProceduralMaze
