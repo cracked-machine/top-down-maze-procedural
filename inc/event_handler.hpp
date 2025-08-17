@@ -19,6 +19,7 @@ class InputEventHandler
 public:
     InputEventHandler() = default;
 
+    // move player/hit boxes to new position on key event
     void handler(
         const std::shared_ptr<sf::RenderWindow> window, 
         entt::basic_registry<entt::entity> &m_reg
@@ -37,11 +38,9 @@ public:
             for( auto [ _entt, _pc, _current_pos, _xbb, _ybb] : 
                 m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
             {
-                m_reg.patch<Cmp::Position>(_entt, [&](auto &_pos) { 
-                    _pos.y -= Cmp::PlayableCharacter::MOVE_DIST; 
-                    _xbb.position.y -= Cmp::PlayableCharacter::MOVE_DIST;
-                    _ybb.position.y -= Cmp::PlayableCharacter::MOVE_DIST;
-                });
+                _current_pos.y -= Cmp::PlayableCharacter::MOVE_DIST; 
+                _xbb.position.y -= Cmp::PlayableCharacter::MOVE_DIST;
+                _ybb.position.y -= Cmp::PlayableCharacter::MOVE_DIST;
             }
         }
         // move player left
@@ -50,11 +49,9 @@ public:
             for( auto [ _entt, _pc, _current_pos, _xbb, _ybb] : 
                 m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
             {
-                m_reg.patch<Cmp::Position>(_entt, [&](auto &_pos) { 
-                    _pos.x -= Cmp::PlayableCharacter::MOVE_DIST; 
-                    _xbb.position.x -= Cmp::PlayableCharacter::MOVE_DIST;
-                    _ybb.position.x -= Cmp::PlayableCharacter::MOVE_DIST;
-                });
+                _current_pos.x -= Cmp::PlayableCharacter::MOVE_DIST; 
+                _xbb.position.x -= Cmp::PlayableCharacter::MOVE_DIST;
+                _ybb.position.x -= Cmp::PlayableCharacter::MOVE_DIST;
             }
         }
         // move player right
@@ -63,11 +60,9 @@ public:
             for( auto [ _entt, _pc, _current_pos, _xbb, _ybb] : 
                 m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
             {
-                m_reg.patch<Cmp::Position>(_entt, [&](auto &_pos) { 
-                    _pos.x += Cmp::PlayableCharacter::MOVE_DIST; 
-                    _xbb.position.x += Cmp::PlayableCharacter::MOVE_DIST;
-                    _ybb.position.x += Cmp::PlayableCharacter::MOVE_DIST;
-                });
+                _current_pos.x += Cmp::PlayableCharacter::MOVE_DIST; 
+                _xbb.position.x += Cmp::PlayableCharacter::MOVE_DIST;
+                _ybb.position.x += Cmp::PlayableCharacter::MOVE_DIST;
             }
         }
         // move player down
@@ -76,17 +71,13 @@ public:
             for( auto [ _entt, _pc, _current_pos, _xbb, _ybb] : 
                 m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
             {
-                m_reg.patch<Cmp::Position>(_entt, [&](auto &_pos) { 
-                    _pos.y += Cmp::PlayableCharacter::MOVE_DIST; 
-                    _xbb.position.y += Cmp::PlayableCharacter::MOVE_DIST;
-                    _ybb.position.y += Cmp::PlayableCharacter::MOVE_DIST;                    
-                });
+                _current_pos.y += Cmp::PlayableCharacter::MOVE_DIST; 
+                _xbb.position.y += Cmp::PlayableCharacter::MOVE_DIST;
+                _ybb.position.y += Cmp::PlayableCharacter::MOVE_DIST;                    
             }
         }
-
     }
 };
-
 
 } // namespace ProceduralMaze
 
