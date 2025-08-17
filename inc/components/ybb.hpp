@@ -17,6 +17,10 @@ public:
         BoundingBox(pos, size, sf::Color::Red)
     {
     }
+
+    // The ammount the hitbox protudes on the y-axis from the player graphic.
+    // Keep this small to prevent sticky corner issues    
+    constexpr static float EXTRA_HEIGHT = 0.05f;
 };
 
 } // namespace ProceduralMaze::Cmp

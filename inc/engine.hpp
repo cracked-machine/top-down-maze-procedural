@@ -27,6 +27,7 @@
 #include <components/position.hpp>
 #include <components/font.hpp>
 #include <systems/render_system.hpp>
+#include <xbb.hpp>
 #include <ybb.hpp>
 
 const sf::Vector2u DISPLAY_SIZE{1920, 1024};
@@ -142,24 +143,18 @@ private:
 
     void add_player(const sf::Vector2f &pos)
     {
-
-        // To prevent possible sticky corners issue,
-        // these should less than/equal to EventHandler::move_delta
-        auto xbb_extra_width = 0.05f;
-        auto ybb_extra_height = 0.05f;
-
         auto entity = m_reg.create();
         m_reg.emplace<Cmp::Position>(entity, pos); 
         m_reg.emplace<Cmp::PlayableCharacter>(entity );
         m_reg.emplace<Cmp::Xbb>(
             entity, 
-            sf::Vector2f(pos.x - (xbb_extra_width / 2), pos.y), 
-            sf::Vector2f(Sprites::Player::WIDTH + xbb_extra_width, Sprites::Player::HEIGHT) 
+            sf::Vector2f(pos.x - (Cmp::Xbb::EXTRA_WIDTH / 2), pos.y), 
+            sf::Vector2f(Sprites::Player::WIDTH + Cmp::Xbb::EXTRA_WIDTH, Sprites::Player::HEIGHT) 
         );
         m_reg.emplace<Cmp::Ybb>(
             entity, 
-            sf::Vector2f(pos.x, pos.y - (ybb_extra_height / 2)), 
-            sf::Vector2f(Sprites::Player::WIDTH, Sprites::Player::HEIGHT + ybb_extra_height) 
+            sf::Vector2f(pos.x, pos.y - (Cmp::Ybb::EXTRA_HEIGHT / 2)), 
+            sf::Vector2f(Sprites::Player::WIDTH, Sprites::Player::HEIGHT + Cmp::Ybb::EXTRA_HEIGHT) 
         );
     }
 
