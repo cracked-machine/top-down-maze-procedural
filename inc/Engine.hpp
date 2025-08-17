@@ -1,6 +1,7 @@
 #ifndef __ENGINE_HPP__
 #define __ENGINE_HPP__
 
+#include <EntityFactory.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
@@ -44,12 +45,11 @@ public:
 
         register_reactive_storage();
     
-        add_system_entity();
-        add_player_entity( PLAYER_START_POS );
-        
-        add_border();
+        EntityFactory::add_system_entity( m_reg );
+        EntityFactory::add_player_entity( m_reg, PLAYER_START_POS );
+        EntityFactory::add_border( m_reg );
 
-        m_render_sys->m_current_view = sf::View(PLAYER_START_POS, {300.f, 200.f});
+        m_render_sys->m_local_view = sf::View(PLAYER_START_POS, {300.f, 200.f});
 
         SPDLOG_INFO("Engine Init");
     }
@@ -114,71 +114,6 @@ private:
             _ybb.position += new_direction;
         }
         
-    }
-
-    void add_border()
-    {
-        using namespace ProceduralMaze::Settings;
-
-        for(float x = MAP_GRID_OFFSET.x - (Sprites::Brick::FULLWIDTH * 3) ; x < DISPLAY_SIZE.x; x += Sprites::Brick::FULLWIDTH)
-        {
-            // top edge
-            add_bedrock_entity({
-                x, 
-                MAP_GRID_OFFSET.y - Sprites::Brick::FULLHEIGHT
-            });
-            // bottom edge
-            add_bedrock_entity({
-                x, 
-                MAP_GRID_OFFSET.y + (MAP_GRID_SIZE.y * (Sprites::Brick::HEIGHT + Sprites::Brick::LINETHICKNESS) ) + Sprites::Brick::LINETHICKNESS
-            });
-        }
-        for( float y = MAP_GRID_OFFSET.y; y < DISPLAY_SIZE.y; y += Sprites::Brick::FULLHEIGHT)
-        {
-            // left edge 
-            add_bedrock_entity({0, y});
-            // right edge
-            add_bedrock_entity({static_cast<float>(DISPLAY_SIZE.x), y});
-        }
-
-    }
-
-    void add_system_entity()
-    {
-        auto entity = m_reg.create();
-        m_reg.emplace<Cmp::System>(entity); 
-    }
-
-    void add_text_entity()
-    {
-        auto entity = m_reg.create();
-        m_reg.emplace<Cmp::Position>(entity, sf::Vector2{0.f, 0.f}); 
-        m_reg.emplace<Cmp::Font>(entity, "res/tuffy.ttf"); 
-        m_reg.emplace<Cmp::RandomCoord>(entity, sf::Vector2f{m_window->getSize()});
-    }
-
-    void add_player_entity(const sf::Vector2f &pos)
-    {
-        auto entity = m_reg.create();
-        m_reg.emplace<Cmp::Position>(entity, pos); 
-        m_reg.emplace<Cmp::PlayableCharacter>(entity );
-        m_reg.emplace<Cmp::Xbb>(
-            entity, 
-            sf::Vector2f(pos.x - (Cmp::Xbb::EXTRA_WIDTH / 2), pos.y), 
-            sf::Vector2f(Sprites::Player::WIDTH + Cmp::Xbb::EXTRA_WIDTH, Sprites::Player::HEIGHT) 
-        );
-        m_reg.emplace<Cmp::Ybb>(
-            entity, 
-            sf::Vector2f(pos.x, pos.y - (Cmp::Ybb::EXTRA_HEIGHT / 2)), 
-            sf::Vector2f(Sprites::Player::WIDTH, Sprites::Player::HEIGHT + Cmp::Ybb::EXTRA_HEIGHT) 
-        );
-    }
-
-    void add_bedrock_entity(const sf::Vector2f &pos)
-    {
-        auto entity = m_reg.create();
-        m_reg.emplace<Cmp::Position>(entity, pos); 
-        m_reg.emplace<Cmp::Obstacle>(entity, Cmp::Obstacle::Type::BEDROCK, true, true );
     }
 
     void register_reactive_storage()

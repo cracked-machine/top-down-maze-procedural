@@ -99,16 +99,16 @@ public:
                 m_window->draw(_ybb.drawable());
                 #endif
 
-                m_current_view.setCenter(_pos);
+                m_local_view.setCenter(_pos);
             }
 
         m_window->display();
 
+        // toggle between local view and global view (default)
         for( auto [entity, _sys]: 
             m_system_updates.view<Cmp::System>().each() ) 
         {
-            // SPDLOG_INFO("read _sys.local_view as {}", _sys.local_view);
-            if( _sys.local_view ) m_window->setView(m_current_view);
+            if( _sys.local_view ) m_window->setView(m_local_view);
             else  m_window->setView(m_window->getDefaultView());
         }
         
@@ -116,13 +116,10 @@ public:
 
     entt::reactive_mixin<entt::storage<void>> m_position_updates;
     entt::reactive_mixin<entt::storage<void>> m_system_updates;
-    sf::View m_current_view;
+    sf::View m_local_view;
 private:
     std::shared_ptr<sf::RenderWindow> m_window;
-
     Sprites::Containers::TileMap m_floormap;
-    
-
 };
 
 } // namespace ProceduralMaze::Systems
