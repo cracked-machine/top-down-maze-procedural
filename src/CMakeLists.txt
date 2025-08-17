@@ -2,6 +2,7 @@ set(TARGET ProceduralMaze)
 add_executable(${TARGET} 
     ${CMAKE_SOURCE_DIR}/src/main.cpp
     ${CMAKE_SOURCE_DIR}/src/components/base.cpp
+    ${CMAKE_SOURCE_DIR}/src/components/random.cpp
     ${CMAKE_SOURCE_DIR}/src/systems/base_system.cpp
 )
 target_compile_features(${TARGET} PRIVATE cxx_std_20

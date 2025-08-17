@@ -30,7 +30,7 @@
 #include <ybb.hpp>
 
 const sf::Vector2u DISPLAY_SIZE{1920, 1024};
-const sf::Vector2u MAP_GRID_SIZE{140u,70u};
+const sf::Vector2u MAP_GRID_SIZE{10u,10u};
 const sf::Vector2f MAP_GRID_OFFSET{ 50.f,90.f};
 
 namespace ProceduralMaze {
@@ -40,7 +40,7 @@ public:
 
     
     Engine() {
-        m_window->setFramerateLimit(60);
+        m_window->setFramerateLimit(144);
 
         m_render_sys->m_position_updates.bind(m_reg);
         m_render_sys->m_position_updates
@@ -77,7 +77,10 @@ public:
 
     bool run()
     {
-        Sys::ProcGen::CellAutomataSystem ca_level{MAP_GRID_SIZE, m_reg, MAP_GRID_OFFSET};
+        Sys::ProcGen::RandomSystem randsys(MAP_GRID_SIZE, MAP_GRID_OFFSET);
+        randsys.gen(m_reg, 123456789);
+        Sys::ProcGen::CellAutomataSystem ca_level{randsys};
+
         int ca_count = 0;
         
         sf::Clock clock;
@@ -85,7 +88,7 @@ public:
         while (m_window->isOpen())
         {
             auto elapsed_time = clock.getElapsedTime().asMilliseconds();
-            if(elapsed_time > 10 and ca_count < 20)
+            if(elapsed_time > 10 and ca_count < 5)
             {
                 ca_level.iterate_linear(m_reg);
                 // ca_level.iterate_quadratic(m_reg);

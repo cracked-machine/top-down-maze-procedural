@@ -22,9 +22,9 @@ public:
 
     // so we can query the attributes without having to 
     // store each brick geometry before they are drawn
-    constexpr static const float WIDTH{10};
+    constexpr static const float WIDTH{40};
     constexpr static const float HALFWIDTH{WIDTH/2};
-    constexpr static const float HEIGHT{10};
+    constexpr static const float HEIGHT{40};
     constexpr static const float HALFHEIGHT{HEIGHT/2};
     constexpr static const sf::Vector2f SIZE{WIDTH, HEIGHT};
     constexpr static const float LINEWIDTH{3};

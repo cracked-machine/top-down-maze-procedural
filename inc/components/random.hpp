@@ -12,10 +12,18 @@ public:
     ~Random() { SPDLOG_DEBUG("~Random()"); }
     int gen() { return m_intdist( m_randgen ); }
 
+    static void seed(unsigned long s) 
+    {
+        m_seed = s;
+        m_randgen = std::mt19937(s);
+    }
+    static unsigned long seed() { return m_seed; }
 private:
+    static unsigned long m_seed;
     static inline std::mt19937 m_randgen{std::random_device{}()};
     std::uniform_int_distribution<> m_intdist;
 };
+
 
 } // namespace ProceduralMaze::Cmp
 

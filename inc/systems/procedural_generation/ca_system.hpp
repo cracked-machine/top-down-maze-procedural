@@ -14,15 +14,11 @@
 
 namespace ProceduralMaze::Sys::ProcGen {
 
-class CellAutomataSystem : public RandomSystem {
+class CellAutomataSystem {
 public:
-    CellAutomataSystem(
-        const sf::Vector2u &size,
-        entt::basic_registry<entt::entity> &reg,
-        const sf::Vector2f &offset = sf::Vector2f{0,0}
-    )
-    :
-        RandomSystem(size, reg, offset)
+    CellAutomataSystem(const RandomSystem &rs)
+    : 
+        m_randsys(rs)
     {
 
     }
@@ -98,18 +94,18 @@ public:
 
         // 1. find neighbours
         // for( auto [_entt, _ob, _pos]: reg.view<Cmp::Obstacle, Cmp::Position>().each() ) {
-        for(auto it = m_neighbourhood.begin(); it != m_neighbourhood.end(); it++) {
+        for(auto it = m_randsys.begin(); it != m_randsys.end(); it++) {
             
             auto _ob = reg.get<Cmp::Obstacle>( entt::entity(*it) );
             reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours = 0; });
                     
             count++;
             SPDLOG_DEBUG("");
-            const int idx = std::distance(m_neighbourhood.begin(), it);
+            const int idx = std::distance(m_randsys.begin(), it);
             SPDLOG_DEBUG("max x is {}, idx is {}", m_size.x, idx);
             
-            bool has_left_map_edge = not ( (idx) % m_size.x );
-            bool has_right_map_edge = not ( (idx + 1) % m_size.x );
+            bool has_left_map_edge = not ( (idx) % m_randsys.m_grid_size.x );
+            bool has_right_map_edge = not ( (idx + 1) % m_randsys.m_grid_size.x );
             
             SPDLOG_DEBUG("Entity {} has left map edge: {}", (*it), has_left_map_edge);                
             SPDLOG_DEBUG("Entity {} has right map edge: {}",(*it), has_right_map_edge);  
@@ -123,29 +119,29 @@ public:
             // ------------------------------------------
             // where N is iterator, x is row length
             // N - 1
-            if(std::prev(it) >= m_neighbourhood.begin()) {
+            if(std::prev(it) >= m_randsys.begin()) {
                 if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it))).m_enabled && not has_left_map_edge ) { 
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
                     SPDLOG_DEBUG("N - 1:{}", *(std::prev(it)) ); 
                 }
             }
             // N - (x - 1)
-            if( std::prev(it, (m_size.x + 1)) >= m_neighbourhood.begin() ) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, m_size.x + 1))).m_enabled && not has_left_map_edge)  {
+            if( std::prev(it, (m_randsys.m_grid_size.x + 1)) >= m_randsys.begin() ) {
+                if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, m_randsys.m_grid_size.x + 1))).m_enabled && not has_left_map_edge)  {
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
                     SPDLOG_DEBUG("N - (x - 1):{}", *(std::prev(it, m_size.x + 1))); 
                 }
             }
             // N - x
-            if( std::prev(it, m_size.x) >= m_neighbourhood.begin() ) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, m_size.x))).m_enabled ) {
+            if( std::prev(it, m_randsys.m_grid_size.x) >= m_randsys.begin() ) {
+                if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, m_randsys.m_grid_size.x))).m_enabled ) {
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
                     SPDLOG_DEBUG("N - x:{}", *(std::prev(it, m_size.x))); 
                 }
             }
             // N - (x + 1)
-            if( (std::prev(it, (m_size.x - 1))) >= m_neighbourhood.begin() ) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, m_size.x - 1))).m_enabled && not has_right_map_edge) { 
+            if( (std::prev(it, (m_randsys.m_grid_size.x - 1))) >= m_randsys.begin() ) {
+                if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, m_randsys.m_grid_size.x - 1))).m_enabled && not has_right_map_edge) { 
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
                     SPDLOG_DEBUG("N - (x + 1):{}", *(std::prev(it, m_size.x - 1)) ); 
                 }
@@ -161,28 +157,28 @@ public:
             // where N is iterator, x is row length
             
             // N + (x - 1) 
-            if( std::next(it, (m_size.x - 1)) < m_neighbourhood.end()) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, m_size.x - 1))).m_enabled && not has_left_map_edge) { 
+            if( std::next(it, (m_randsys.m_grid_size.x - 1)) < m_randsys.end()) {
+                if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, m_randsys.m_grid_size.x - 1))).m_enabled && not has_left_map_edge) { 
                    reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
                    SPDLOG_DEBUG("N + (x - 1):{}", (*std::next(it, m_size.x - 1)) ); 
                 }
             }
             // N + x
-            if( m_size.x < m_neighbourhood.size() && std::next(it, m_size.x) < m_neighbourhood.end()) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, m_size.x))).m_enabled ) { 
+            if( m_randsys.m_grid_size.x < m_randsys.size() && std::next(it, m_randsys.m_grid_size.x) < m_randsys.end()) {
+                if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, m_randsys.m_grid_size.x))).m_enabled ) { 
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
                     SPDLOG_DEBUG("N + x:{}",  (*std::next(it, m_size.x))); 
                 }
             }
             // N + (x + 1)
-            if( (m_size.x + 1) < m_neighbourhood.size() && std::next(it, (m_size.x + 1)) < m_neighbourhood.end()) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, (m_size.x + 1)))).m_enabled && not has_right_map_edge ) { 
+            if( (m_randsys.m_grid_size.x + 1) < m_randsys.size() && std::next(it, (m_randsys.m_grid_size.x + 1)) < m_randsys.end()) {
+                if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, (m_randsys.m_grid_size.x + 1)))).m_enabled && not has_right_map_edge ) { 
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
                     SPDLOG_DEBUG("N + (x + 1):{}", (*std::next(it, m_size.x + 1)) ); 
                 }
             }
             // N + 1
-            if( std::next(it) < m_neighbourhood.end() ) {
+            if( std::next(it) < m_randsys.end() ) {
                 if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it))).m_enabled && not has_right_map_edge ) { 
                     reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
                      SPDLOG_DEBUG("N + 1:{}",  (*std::next(it))); 
@@ -208,6 +204,7 @@ public:
 
 private:
     Cmp::Random rng{0, 1};
+    RandomSystem m_randsys;
 };
 
 } // namespace ProceduralMaze::Systems::ProcGen
