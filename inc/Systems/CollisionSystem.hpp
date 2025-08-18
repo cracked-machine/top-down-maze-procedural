@@ -126,7 +126,7 @@ public:
                     if (depthY >= 0) {
                         SPDLOG_INFO("top side collision - depthX: {}, diffX: {}, minXDist: {}", depthY, diffY, minYDist);
 
-                        has_collision = Cmp::Xbb( {_ybb.position.x, _ybb.position.y += abs(depthY)}, _ybb.size ).findIntersection(
+                        has_collision = Cmp::Ybb( {_ybb.position.x, _ybb.position.y += abs(depthY)}, _ybb.size ).findIntersection(
                             Sprites::Brick(_ob_pos).getGlobalBounds());
                         
                         _pc_pos.y += abs(depthY);
@@ -137,7 +137,7 @@ public:
                     {
                         SPDLOG_INFO("bottom side collision - depthX: {}, diffX: {}, minXDist: {}", depthY, diffY, minYDist);
 
-                        has_collision = Cmp::Xbb( {_ybb.position.x, _ybb.position.y -= abs(depthY)}, _ybb.size ).findIntersection(
+                        has_collision = Cmp::Ybb( {_ybb.position.x, _ybb.position.y -= abs(depthY)}, _ybb.size ).findIntersection(
                             Sprites::Brick(_ob_pos).getGlobalBounds());
                         
                         _pc_pos.y -= abs(depthY);
