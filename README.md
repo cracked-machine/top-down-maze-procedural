@@ -23,8 +23,8 @@ You must ensure that player movement delta is equal or larger than the corner ov
 - [ ] add rising water
 - [ ] add quick restart (r key)
 - [ ] add minimap
-- [ ] add floor tiles
+- [x] add floor tiles
 - [x] add level borders
-- [ ] refeactor random system class
+- [ ] refactor random system class
 - [ ] start screen
-- [ ] hitbox intersection using rectangle fill size not outline
+- [x] fix collision detection to work with rectangle outlines = 0

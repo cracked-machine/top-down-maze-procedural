@@ -39,10 +39,10 @@ public:
 
         Sys::ProcGen::RandomSystem floortile_randsys({0, 4});
 
-        floortile_randsys.gen({200, 97});
+        floortile_randsys.gen({200, 98});
         auto tile_file = "res/floor_tiles_10x10.png";
         SPDLOG_INFO("size: {}", floortile_randsys.size());
-        if (!m_floormap.load(tile_file, {10,10}, floortile_randsys.data(), 200, 97))
+        if (!m_floormap.load(tile_file, {10,10}, floortile_randsys.data(), 200, 98))
         {
             SPDLOG_CRITICAL("Unable to load tile map {}", tile_file);
         }
