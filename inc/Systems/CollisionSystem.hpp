@@ -69,17 +69,17 @@ public:
                     
                     if (depthX >= 0) {
                         SPDLOG_INFO("left side collision");
-                        has_collision = Sprites::Player({_pc_pos.x -= 1, _pc_pos.y} ).getGlobalBounds().findIntersection(
+                        has_collision = Cmp::Xbb( {_xbb.position.x -= 1, _xbb.position.y}, _xbb.size ).findIntersection(
                             Sprites::Brick(_ob_pos).getGlobalBounds());
-                        _xbb.position.x -= 1;
+                        _pc_pos.x -= 1;
                         _ybb.position.x -= 1;
                     } 
                     else 
                     {
                         SPDLOG_INFO("right side collision");
-                        has_collision = Sprites::Player({_pc_pos.x += 1, _pc_pos.y} ).getGlobalBounds().findIntersection(
-                            Sprites::Brick(_ob_pos).getGlobalBounds()); 
-                        _xbb.position.x += 1;
+                        has_collision = Cmp::Xbb( {_xbb.position.x += 1, _xbb.position.y}, _xbb.size ).findIntersection(
+                            Sprites::Brick(_ob_pos).getGlobalBounds());
+                        _pc_pos.x += 1;
                         _ybb.position.x += 1;
                     }
                     stuck_loop++;
@@ -120,17 +120,20 @@ public:
 
                     if (depthY >= 0) {
                         SPDLOG_INFO("top side collision");
-                        has_collision = Sprites::Player({_pc_pos.x, _pc_pos.y -= 1} ).getGlobalBounds().findIntersection(
+                        has_collision = Cmp::Xbb( {_ybb.position.x, _ybb.position.y -= 1}, _ybb.size ).findIntersection(
                             Sprites::Brick(_ob_pos).getGlobalBounds());
-                        _xbb.position.y -= 1;
-                        _ybb.position.y -= 1; 
-                    } else 
+                        
+                        _pc_pos.y -= 1;
+                        _xbb.position.y -= 1; 
+                    } 
+                    else 
                     {
                         SPDLOG_INFO("bottom side collision");
-                        has_collision = Sprites::Player({_pc_pos.x, _pc_pos.y += 1} ).getGlobalBounds().findIntersection(
+                        has_collision = Cmp::Xbb( {_ybb.position.x, _ybb.position.y += 1}, _ybb.size ).findIntersection(
                             Sprites::Brick(_ob_pos).getGlobalBounds());
+                        
+                        _pc_pos.y += 1;
                         _xbb.position.y += 1;
-                        _ybb.position.y += 1; 
                     }
                     stuck_loop++;
                 }
