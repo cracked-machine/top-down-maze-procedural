@@ -24,12 +24,12 @@ public:
     {
     }
 
-    void gen(unsigned long seed = 0)
+    void gen(const sf::Vector2u &grid_size, unsigned long seed = 0)
     {
         if (seed) Cmp::Random::seed(seed);
-        for(int x = 0; x < ProceduralMaze::Settings::MAP_GRID_SIZE.x; x++)
+        for(int x = 0; x < grid_size.x; x++)
         {
-            for(int y = 0; y < ProceduralMaze::Settings::MAP_GRID_SIZE.y; y++)
+            for(int y = 0; y < grid_size.y; y++)
             {
                 m_data.push_back(m_rng.gen());
             }

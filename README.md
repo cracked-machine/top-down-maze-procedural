@@ -18,10 +18,10 @@ You must ensure that player movement delta is equal or larger than the corner ov
 
 # TODO
 
-- add player movement velocity
-- Add bombs
-- add rising water
-- add quick restart (r key)
-- add minimap
-- add floor tiles
-- add left/right edges to level
+- [ ] add player movement velocity
+- [ ] Add bombs
+- [ ] add rising water
+- [ ] add quick restart (r key)
+- [ ] add minimap
+- [ ] add floor tiles
+- [x] add level borders
