@@ -42,8 +42,8 @@ public:
                 
                 auto nb_dist = _pos - _pos_nb;
                 if( not _ob_nb.m_enabled ) { continue; }
-                if( static_cast<int>(abs(nb_dist.x)) < static_cast<int>((Sprites::Brick::WIDTH + (Sprites::Brick::LINETHICKNESS*2))) and
-                    static_cast<int>(abs(nb_dist.y)) < static_cast<int>((Sprites::Brick::HEIGHT + (Sprites::Brick::LINETHICKNESS*2)))
+                if( static_cast<int>(abs(nb_dist.x)) < static_cast<int>((Sprites::Brick::WIDTH)) and
+                    static_cast<int>(abs(nb_dist.y)) < static_cast<int>((Sprites::Brick::HEIGHT))
                 ) 
                 {
                     count++;

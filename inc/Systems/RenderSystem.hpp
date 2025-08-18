@@ -58,7 +58,7 @@ public:
         auto f = Cmp::Font("res/tuffy.ttf");
         m_window->clear();
             
-            m_floormap.setPosition({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::FULLHEIGHT});
+            m_floormap.setPosition({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
             m_window->draw(m_floormap);
 
             // bricks

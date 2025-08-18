@@ -42,25 +42,25 @@ public:
     {
         using namespace ProceduralMaze::Settings;
 
-        for(float x = 0 ; x < DISPLAY_SIZE.x; x += Sprites::Brick::FULLWIDTH)
+        for(float x = 0 ; x < DISPLAY_SIZE.x; x += Sprites::Brick::WIDTH)
         {
             // top edge
             EntityFactory::add_bedrock_entity(m_reg, {
                 x, 
-                (MAP_GRID_OFFSET.y - 1) * Sprites::Brick::FULLHEIGHT
+                (MAP_GRID_OFFSET.y - 1) * Sprites::Brick::HEIGHT
             });
             // bottom edge
             EntityFactory::add_bedrock_entity(m_reg, {
                 x, 
-                MAP_GRID_OFFSET.y + ((MAP_GRID_SIZE.y + 2) * Sprites::Brick::FULLHEIGHT) - 2
+                MAP_GRID_OFFSET.y + ((MAP_GRID_SIZE.y + 2) * Sprites::Brick::HEIGHT) - 2
             });
         }
-        for( float y = 0; y < DISPLAY_SIZE.y; y += Sprites::Brick::FULLHEIGHT)
+        for( float y = 0; y < DISPLAY_SIZE.y; y += Sprites::Brick::HEIGHT)
         {
             // left edge 
             EntityFactory::add_bedrock_entity( m_reg, {0, y} );
             // right edge
-            EntityFactory::add_bedrock_entity( m_reg,{static_cast<float>(DISPLAY_SIZE.x) -  Sprites::Brick::FULLWIDTH, y} );
+            EntityFactory::add_bedrock_entity( m_reg,{static_cast<float>(DISPLAY_SIZE.x) -  Sprites::Brick::WIDTH, y} );
         }
 
     }

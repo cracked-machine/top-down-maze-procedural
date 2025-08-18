@@ -48,8 +48,8 @@ public:
                 reg.emplace<Cmp::Position>( 
                     entity, 
                     sf::Vector2f{
-                        (x * Sprites::Brick::FULLWIDTH)  + (ProceduralMaze::Settings::MAP_GRID_OFFSET.x * Sprites::Brick::FULLWIDTH), 
-                        (y * Sprites::Brick::FULLHEIGHT)  + (ProceduralMaze::Settings::MAP_GRID_OFFSET.y * Sprites::Brick::FULLHEIGHT)
+                        (x * Sprites::Brick::WIDTH)  + (ProceduralMaze::Settings::MAP_GRID_OFFSET.x * Sprites::Brick::WIDTH), 
+                        (y * Sprites::Brick::HEIGHT)  + (ProceduralMaze::Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT)
                     } 
                 ); 
 

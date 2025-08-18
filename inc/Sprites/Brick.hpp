@@ -17,7 +17,6 @@ public:
         setPosition(pos);
         setFillColor(fill_colour);
         setOutlineColor(line_colour);
-        setOutlineThickness(LINETHICKNESS);
     };
 
     // so we can query the attributes without having to 
@@ -25,12 +24,6 @@ public:
     constexpr static const float WIDTH{10};
     constexpr static const float HEIGHT{10};
     constexpr static const sf::Vector2f SIZE{WIDTH, HEIGHT};
-
-    constexpr static const float LINETHICKNESS{0};
-    
-    constexpr static const float FULLWIDTH{WIDTH + (LINETHICKNESS*2)};
-    constexpr static const float FULLHEIGHT{HEIGHT + (LINETHICKNESS*2)};
-    constexpr static const sf::Vector2f FULLSIZE{FULLWIDTH, FULLHEIGHT};
     
     constexpr static const float HALFWIDTH{WIDTH/2};
     constexpr static const float HALFHEIGHT{HEIGHT/2};
