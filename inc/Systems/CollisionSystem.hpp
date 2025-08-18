@@ -69,21 +69,21 @@ public:
 
                     auto adjustX = 1;
                     if (depthX >= 0) {
-                        SPDLOG_INFO("left side collision - depthX: {}, diffX: {}, minXDist: {}", depthX, diffX, minXDist);
+                        SPDLOG_DEBUG("left side collision - depthX: {}, diffX: {}, minXDist: {}", depthX, diffX, minXDist);
                         has_collision = Cmp::Xbb( {_xbb.position.x += adjustX, _xbb.position.y}, _xbb.size ).findIntersection(
                             Sprites::Brick(_ob_pos).getGlobalBounds());
                         _pc_pos.x += adjustX;
                         _ybb.position.x += adjustX;
-                        SPDLOG_INFO("new pos:{},{}", _pc_pos.x, _pc_pos.y);
+                        SPDLOG_DEBUG("new pos:{},{}", _pc_pos.x, _pc_pos.y);
                     } 
                     else 
                     {
-                        SPDLOG_INFO("right side collision - depthX: {}, diffX: {}, minXDist: {}", depthX, diffX, minXDist);
+                        SPDLOG_DEBUG("right side collision - depthX: {}, diffX: {}, minXDist: {}", depthX, diffX, minXDist);
                         has_collision = Cmp::Xbb( {_xbb.position.x -= adjustX, _xbb.position.y}, _xbb.size ).findIntersection(
                             Sprites::Brick(_ob_pos).getGlobalBounds());
                         _pc_pos.x -= adjustX;
                         _ybb.position.x -= adjustX;
-                        SPDLOG_INFO("new pos:{},{}", _pc_pos.x, _pc_pos.y);
+                        SPDLOG_DEBUG("new pos:{},{}", _pc_pos.x, _pc_pos.y);
                     }
                     stuck_loop++;
                 }
@@ -124,25 +124,25 @@ public:
                     auto depthY = diffY > 0 ? minYDist - diffY : -minYDist - diffY;
 
                     if (depthY >= 0) {
-                        SPDLOG_INFO("top side collision - depthX: {}, diffX: {}, minXDist: {}", depthY, diffY, minYDist);
+                        SPDLOG_DEBUG("top side collision - depthX: {}, diffX: {}, minXDist: {}", depthY, diffY, minYDist);
 
                         has_collision = Cmp::Ybb( {_ybb.position.x, _ybb.position.y += abs(depthY)}, _ybb.size ).findIntersection(
                             Sprites::Brick(_ob_pos).getGlobalBounds());
                         
                         _pc_pos.y += abs(depthY);
                         _xbb.position.y += abs(depthY); 
-                        SPDLOG_INFO("new pos:{},{}", _pc_pos.x, _pc_pos.y);
+                        SPDLOG_DEBUG("new pos:{},{}", _pc_pos.x, _pc_pos.y);
                     } 
                     else 
                     {
-                        SPDLOG_INFO("bottom side collision - depthX: {}, diffX: {}, minXDist: {}", depthY, diffY, minYDist);
+                        SPDLOG_DEBUG("bottom side collision - depthX: {}, diffX: {}, minXDist: {}", depthY, diffY, minYDist);
 
                         has_collision = Cmp::Ybb( {_ybb.position.x, _ybb.position.y -= abs(depthY)}, _ybb.size ).findIntersection(
                             Sprites::Brick(_ob_pos).getGlobalBounds());
                         
                         _pc_pos.y -= abs(depthY);
                         _xbb.position.y -= abs(depthY);
-                        SPDLOG_INFO("new pos:{},{}", _pc_pos.x, _pc_pos.y);
+                        SPDLOG_DEBUG("new pos:{},{}", _pc_pos.x, _pc_pos.y);
                     }
                     stuck_loop++;
                 }
