@@ -29,7 +29,7 @@ public:
         r.setPosition(this->position);
         r.setFillColor(sf::Color::Transparent);
         r.setOutlineColor(m_line_colour);
-        r.setOutlineThickness(2);
+        r.setOutlineThickness(0);
         return r;
     }
     sf::Color m_line_colour{sf::Color::White};

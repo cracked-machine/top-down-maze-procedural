@@ -25,3 +25,6 @@ You must ensure that player movement delta is equal or larger than the corner ov
 - [ ] add minimap
 - [ ] add floor tiles
 - [x] add level borders
+- [ ] refeactor random system class
+- [ ] start screen
+- [ ] hitbox intersection using rectangle fill size not outline

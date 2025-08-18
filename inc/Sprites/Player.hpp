@@ -1,6 +1,7 @@
 #ifndef __SPRITES_PLAYER_HPP__
 #define __SPRITES_PLAYER_HPP__
 
+#include "ISprite.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -9,14 +10,13 @@
 namespace ProceduralMaze::Sprites {
 
 // player graphic
-class Player : public sf::RectangleShape {
+class Player : public ISprite {
 public:
 
     Player(sf::Vector2f pos) 
     : 
-        sf::RectangleShape(sf::Vector2f(WIDTH, HEIGHT))
+        ISprite(pos,sf::Vector2f(WIDTH, HEIGHT))
     {
-        setPosition(pos);
         setFillColor(sf::Color::Blue);
     }
 
