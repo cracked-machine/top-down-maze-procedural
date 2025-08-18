@@ -22,9 +22,11 @@ You must ensure that player movement delta is equal or larger than the corner ov
 - [ ] Add bombs
 - [ ] add rising water
 - [ ] add quick restart (r key)
-- [ ] add minimap
+- [x] God mode (toggle collsision)
+- [x] add minimap
 - [x] add floor tiles
 - [x] add level borders
+- [ ] add texture for wall tiles
 - [ ] refactor random system class
 - [ ] start screen
 - [x] fix collision detection to work with rectangle outlines = 0

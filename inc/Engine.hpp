@@ -49,7 +49,19 @@ public:
         EntityFactory::add_player_entity( m_reg, PLAYER_START_POS );
         EntityFactory::add_border( m_reg );
 
-        m_render_sys->m_local_view = sf::View(PLAYER_START_POS, {300.f, 200.f});
+        // local view
+        m_render_sys->m_local_view = sf::View( 
+            { Settings::LOCAL_MAP_VIEW_SIZE.x * 0.5f, Settings::DISPLAY_SIZE.y * 0.5f}, 
+            Settings::LOCAL_MAP_VIEW_SIZE 
+        );
+        m_render_sys->m_local_view.setViewport( sf::FloatRect({0.f, 0.f}, {1.f, 1.f}) );
+
+        // minimap view of entire level
+        m_render_sys->m_minimap_view = sf::View( 
+            { Settings::MINI_MAP_VIEW_SIZE.x * 0.5f, Settings::DISPLAY_SIZE.y * 0.5f}, 
+            Settings::MINI_MAP_VIEW_SIZE 
+        );
+        m_render_sys->m_minimap_view.setViewport( sf::FloatRect({0.75f, 0.f}, {0.25f, 0.25f}) );
 
         SPDLOG_INFO("Engine Init");
     }
@@ -77,7 +89,10 @@ public:
             m_event_handler.handler(m_window, m_reg);
             process_movement();
 
-            m_collsion_sys->check();
+            for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
+                if( _sys.collisions_enabled ) m_collsion_sys->check();
+            }
+            
             m_render_sys->render();   
         
         }
@@ -100,6 +115,8 @@ private:
         std::make_unique<Sys::CollisionSystem> ();
 
     ProceduralMaze::InputEventHandler m_event_handler;
+
+    entt::reactive_mixin<entt::storage<void>> m_system_updates;
     
     void process_movement()
     {
@@ -119,8 +136,8 @@ private:
     void register_reactive_storage()
     {
 
-        m_render_sys->m_system_updates.bind(m_reg);
-        m_render_sys->m_system_updates
+        m_system_updates.bind(m_reg);
+        m_system_updates
             .on_update<Cmp::System>()
             .on_construct<Cmp::System>();
 

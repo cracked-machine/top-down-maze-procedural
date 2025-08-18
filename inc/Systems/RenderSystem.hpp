@@ -51,71 +51,115 @@ public:
     }
     
     ~RenderSystem() { SPDLOG_DEBUG("~RenderSystem()"); } 
-    
+
     void render()
     {
         using namespace Sprites;
         auto f = Cmp::Font("res/tuffy.ttf");
         m_window->clear();
-            
-            m_floormap.setPosition({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
-            m_window->draw(m_floormap);
-
-            // bricks
-            for( auto [entity, _ob, _pos]: m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each() ) {
-                
-                if( not _ob.m_enabled ) { continue; }
-                
-                if( _ob.m_type == Cmp::Obstacle::Type::BRICK ) 
-                {
-                    m_window->draw( Brick(_pos, Sprites::Brick::BRICK_FILLCOLOUR, Sprites::Brick::BRICK_LINECOLOUR) ); 
-                }
-                else
-                {
-                    m_window->draw( Brick(_pos, Sprites::Brick::BEDROCK_FILLCOLOUR, Sprites::Brick::BEDROCK_LINECOLOUR) ); 
-                }
-            
-
-                #ifdef SHOW_BRICK_ENTITY_ID
-                auto t = sf::Text(
-                    f, 
-                    std::to_string(entt::entt_traits<entt::entity>::to_entity(entity)),
-                    Sprites::Brick::HALFHEIGHT
-                );
-                t.setPosition({_pos.x, _pos.y});
-                m_window->draw( t );
-                #endif // SHOW_BRICK_ENTITY_ID
-            }
-
-            // player           
-            for( auto [entity, _pc, _pos, _xbb, _ybb]: 
-                m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() ) 
-            {
-                m_window->draw(  Player(_pos) );
-
-                #ifdef SHOW_PLAYER_BOUNDING_BOX
-                m_window->draw(_xbb.drawable());
-                m_window->draw(_ybb.drawable());
-                #endif
-
-                m_local_view.setCenter(_pos);
-            }
-
-        m_window->display();
-
-        // toggle between local view and global view (default)
-        for( auto [entity, _sys]: 
-            m_system_updates.view<Cmp::System>().each() ) 
         {
-            if( _sys.local_view ) m_window->setView(m_local_view);
-            else  m_window->setView(m_window->getDefaultView());
-        }
-        
+            // local view
+            m_window->setView(m_local_view);
+            {   
+                render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
+                render_bricks();
+                render_player(m_local_view);
+            } // end of local view
+            
+            // minimap view
+            m_window->setView(m_minimap_view);
+            {
+                render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
+                render_bricks();
+                render_player(m_minimap_view);
+            } // end of minimap view
+
+            // UI Overlays
+            m_window->setView(m_window->getDefaultView());
+            {  
+                auto minimap_border = sf::RectangleShape(
+                    {Settings::MINI_MAP_VIEW_SIZE.x, Settings::MINI_MAP_VIEW_SIZE.y}
+                );
+                minimap_border.setPosition(
+                    {Settings::DISPLAY_SIZE.x - Settings::MINI_MAP_VIEW_SIZE.x, 0.f}
+                );
+                minimap_border.setFillColor(sf::Color::Transparent);
+                minimap_border.setOutlineColor(sf::Color::White);
+                minimap_border.setOutlineThickness(2.f);
+                m_window->draw(minimap_border);       
+            } // end of UI overlays
+
+        } // end of main render
+        m_window->display();
     }
 
+    void render_floormap(const sf::Vector2f &offset = {0.f, 0.f})
+    {
+        m_floormap.setPosition(offset);
+        m_window->draw(m_floormap);
+    }
+
+    void render_bricks()
+    {
+        for( auto [entity, _ob, _pos]: m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each() ) {
+            if( not _ob.m_enabled ) { continue; }
+            
+            if( _ob.m_type == Cmp::Obstacle::Type::BRICK ) 
+            {
+                m_window->draw( Sprites::Brick(_pos, Sprites::Brick::BRICK_FILLCOLOUR, Sprites::Brick::BRICK_LINECOLOUR) ); 
+            }
+            else
+            {
+                m_window->draw( Sprites::Brick(_pos, Sprites::Brick::BEDROCK_FILLCOLOUR, Sprites::Brick::BEDROCK_LINECOLOUR) ); 
+            }
+            #ifdef SHOW_BRICK_ENTITY_ID
+            auto t = sf::Text(
+                f, 
+                std::to_string(entt::entt_traits<entt::entity>::to_entity(entity)),
+                Sprites::Brick::HALFHEIGHT
+            );
+            t.setPosition({_pos.x, _pos.y});
+            m_window->draw( t );
+            #endif // SHOW_BRICK_ENTITY_ID            
+        }
+    }
+
+    void render_player(sf::View &view)
+    {
+        for( auto [entity, _pc, _pos, _xbb, _ybb]: 
+            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() ) 
+        {
+            m_window->draw( Sprites::Player(_pos) );
+
+            #ifdef SHOW_PLAYER_BOUNDING_BOX
+            m_window->draw(_xbb.drawable());
+            m_window->draw(_ybb.drawable());
+            #endif
+           
+            update_view_center(view, _pos);
+        }
+    }
+
+    void update_view_center(sf::View &view, Cmp::Position &player_pos)
+    {
+            const float MAP_HALF_WIDTH = view.getSize().x * 0.5f;
+            const float MAP_HALF_HEIGHT = view.getSize().y * 0.5f;
+
+            if( ( player_pos.x > MAP_HALF_WIDTH && player_pos.x <  Settings::DISPLAY_SIZE.x - MAP_HALF_WIDTH )
+            ) {
+                view.setCenter({player_pos.x, view.getCenter().y});
+            }
+            if( player_pos.y > MAP_HALF_HEIGHT && player_pos.y < Settings::DISPLAY_SIZE.y - MAP_HALF_HEIGHT)
+            {
+                view.setCenter({view.getCenter().x, player_pos.y});
+            }            
+    }
+    
+
+
     entt::reactive_mixin<entt::storage<void>> m_position_updates;
-    entt::reactive_mixin<entt::storage<void>> m_system_updates;
     sf::View m_local_view;
+    sf::View m_minimap_view;
 private:
     std::shared_ptr<sf::RenderWindow> m_window;
     Sprites::Containers::TileMap m_floormap;

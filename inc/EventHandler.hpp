@@ -33,15 +33,21 @@ public:
         while (const std::optional event = window->pollEvent())
         {
             if (event->is<sf::Event::Closed>()) { window->close(); }
+            else if (const auto* resized = event->getIf<sf::Event::Resized>())
+            {
+                // update the view to the new size of the window
+                sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized->size));
+                window->setView(sf::View(visibleArea));
+            }
             else if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
             {
-                if (keyReleased->scancode == sf::Keyboard::Scancode::M)
+                if (keyReleased->scancode == sf::Keyboard::Scancode::F1)
                 {
                     // SPDLOG_INFO("Pressed M");
                     for( auto [ _entt, _sys] :
                         m_reg.view<Cmp::System>().each() )
                     {
-                        _sys.local_view = not _sys.local_view;
+                        _sys.collisions_enabled = not _sys.collisions_enabled;
                         // SPDLOG_INFO("Set _sys.local_view to {}", _sys.local_view);
                     }
                 }

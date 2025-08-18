@@ -8,7 +8,7 @@ namespace ProceduralMaze::Cmp {
 
 class System {
 public:
-    bool local_view = false;
+    bool collisions_enabled = true;
 };
 
 } // namespace ProceduralMaze::Cmp
