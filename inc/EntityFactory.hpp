@@ -40,12 +40,12 @@ public:
         m_reg.emplace<Cmp::Xbb>(
             entity, 
             sf::Vector2f(pos.x - (Cmp::Xbb::EXTRA_WIDTH / 2), pos.y), 
-            sf::Vector2f(Sprites::Player::WIDTH + Cmp::Xbb::EXTRA_WIDTH, Sprites::Player::HEIGHT) 
+            sf::Vector2f((Settings::PLAYER_SIZE.x - 2) + Cmp::Xbb::EXTRA_WIDTH, (Settings::PLAYER_SIZE.y - 2)) 
         );
         m_reg.emplace<Cmp::Ybb>(
             entity, 
             sf::Vector2f(pos.x, pos.y - (Cmp::Ybb::EXTRA_HEIGHT / 2)), 
-            sf::Vector2f(Sprites::Player::WIDTH, Sprites::Player::HEIGHT + Cmp::Ybb::EXTRA_HEIGHT) 
+            sf::Vector2f((Settings::PLAYER_SIZE.x - 2), (Settings::PLAYER_SIZE.y - 2) + Cmp::Ybb::EXTRA_HEIGHT) 
         );
     }
 

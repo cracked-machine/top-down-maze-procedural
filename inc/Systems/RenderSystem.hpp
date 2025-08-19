@@ -144,9 +144,12 @@ public:
         for( auto [entity, _pc, _pos, _xbb, _ybb]: 
             m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() ) 
         {
-            m_window->draw( Sprites::Player(_pos) );
+            m_player_sprite.setPosition(_pos);
+            m_player_sprite.pick(0);
+            m_window->draw(m_player_sprite);
+            // m_window->draw( Sprites::Player(_pos) );
 
-            #ifdef SHOW_PLAYER_BOUNDING_BOX
+            #ifdef SHOW_PLAYER_HIT_BOXES
             m_window->draw(_xbb.drawable());
             m_window->draw(_ybb.drawable());
             #endif
@@ -180,13 +183,19 @@ private:
     // Sprites::BasicSprite wall_sprite{"res/kenney_tiny-dungeon/Tiles/tile_0041.png"};
     // Sprites::BasicSprite border_sprite{"res/kenney_tiny-dungeon/Tiles/tile_0040.png"};
     Sprites::MultiSprite m_wall_sprite{
-        "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png",
+        Settings::WALL_TILESET_PATH,
         Settings::WALL_TILE_POOL
     };
 
     Sprites::MultiSprite m_border_sprite{
-        "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png",
+        Settings::BORDER_TILESET_PATH,
         Settings::BORDER_TILE_POOL
+    };
+
+    Sprites::MultiSprite m_player_sprite{
+        Settings::PLAYER_TILESET_PATH,
+        Settings::PLAYER_TILE_POOL,
+        Settings::PLAYER_SIZE
     };
 // 
 };

@@ -17,16 +17,31 @@ You must ensure that player movement delta is equal or larger than the corner ov
 
 
 # TODO
-
-- [ ] add player movement velocity
-- [ ] Add bombs
-- [ ] add rising water
-- [ ] add quick restart (r key)
-- [x] God mode (toggle collsision)
-- [x] add minimap
+## Graphics
+- [ ] Add weight to tile pool to affect probability
 - [x] add floor tiles
 - [x] add level borders
-- [ ] add texture for wall tiles
-- [ ] refactor random system class
-- [ ] start screen
+- [x] add texture for wall tiles
+## Gameplay
+- [ ] Add bombs
+    - Add new Component: Neighbours. Contains 8 uint32 slots for entity ids of neighbouring blocks 
+    - Update CA to use the new component
+    - Add new Component: Explosive. Has count down timer
+    - When key is pressed/released, the occupied block becomes "explosive"
+    - When the timer expires, the neighbours are all disabled and not rendered. i.e destroyed.
+- [ ] add rising water
+    - Add blue texture with display dimensions and 50% alpha 
+    - Add collision detection with player
+    - Set initial position to {0, DISPLAY.y}
+    - Subtract Y position at intervals
+    - End game when texture collides with player
+- [x] add minimap
+## Physics
+- [ ] add player movement velocity
 - [x] fix collision detection to work with rectangle outlines = 0
+## General
+- [ ] Add "idle" state. i.e. game not running, blank screen with "press any key to start" message"
+- [ ] Add death i.e. allow game to end
+- [ ] add quick restart (r key)
+- [x] God mode (toggle collsision)
+- [x] refactor random system class

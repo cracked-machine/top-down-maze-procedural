@@ -18,15 +18,14 @@ class MultiSprite : public sf::Drawable, public sf::Transformable
 public:
     MultiSprite(
         const std::string &tilemap_path, 
-        const std::vector<unsigned int> &tilemap_picks
+        const std::vector<unsigned int> &tilemap_picks,
+        const sf::Vector2u &tileSize = sf::Vector2u{16, 16}
     )
         : m_tilemap_picks(tilemap_picks)
     {
         if (!m_tilemap_texture.loadFromFile(tilemap_path)) {
             SPDLOG_CRITICAL("Unable to load tile map {}", tilemap_path);
         }
-
-        sf::Vector2u tileSize(16, 16); // Assuming tile size is 16x16 pixels
 
         for (const auto &tile_idx : tilemap_picks) {
 

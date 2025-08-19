@@ -3,6 +3,7 @@
 
 #include <Brick.hpp>
 #include <SFML/Graphics.hpp>
+#include <string>
 
 namespace ProceduralMaze::Settings {
 
@@ -17,10 +18,29 @@ const sf::Vector2f PLAYER_START_POS{ 20, static_cast<float>(DISPLAY_SIZE.y) / 2 
 const sf::Vector2f LOCAL_MAP_VIEW_SIZE{ 300.f, 200.f };
 const sf::Vector2f MINI_MAP_VIEW_SIZE{ DISPLAY_SIZE.x * 0.25f, DISPLAY_SIZE.y * 0.25f };
 
-const std::vector<unsigned int> WALL_TILE_POOL = {41, 64, 65};
-const std::vector<unsigned int> BORDER_TILE_POOL = {28,40};
+const std::string WALL_TILESET_PATH = "res/Pixel Lands Dungeons/objects.png";
+const std::vector<unsigned int> WALL_TILE_POOL = {
+    147, 147, 147, 147, 147, 147, 147, 147,      // rock pile #1
+    148, 148, 148, 148, 148, 148, 148, 148,      // rock pile #2
+
+    339,                                // brown pot
+    270,                                // skull and bones
+    271                                 // bones
+};
+
+const std::string BORDER_TILESET_PATH = "res/Pixel Lands Dungeons/objects.png";
+const std::vector<unsigned int> BORDER_TILE_POOL = {    
+    247                                // stone column square top
+    // 249                              // stone column circle top};
+};
+
 const std::vector<unsigned int> FLOOR_TILE_POOL {42,48,49};
 
+const sf::Vector2u PLAYER_SIZE(16, 32);
+const std::string PLAYER_TILESET_PATH = "res/players.png";
+const std::vector<unsigned int> PLAYER_TILE_POOL = {    
+    0, 1, 2
+};
 }
 
 #endif // __SETTINGS_HPP__
