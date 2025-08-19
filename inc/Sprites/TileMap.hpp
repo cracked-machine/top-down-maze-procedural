@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
+
 namespace ProceduralMaze::Sprites::Containers {
 
 class TileMap : public sf::Drawable, public sf::Transformable
@@ -25,7 +26,7 @@ public:
             {
                 // get the current tile number
                 const int tileNumber = tiles[i + j * width];
-
+                
                 // find its position in the tileset texture
                 const int tu = tileNumber % (m_tileset.getSize().x / tileSize.x);
                 const int tv = tileNumber / (m_tileset.getSize().x / tileSize.x);

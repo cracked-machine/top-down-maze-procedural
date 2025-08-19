@@ -10,7 +10,7 @@ const sf::Vector2u DISPLAY_SIZE{ 1920, 1024 };
 
 // MAP_GRID_OFFSET and MAP_GRID_SIZE are in blocks, not pixels
 const sf::Vector2f MAP_GRID_OFFSET{ 10.f,2.f };  
-const sf::Vector2u MAP_GRID_SIZE{ 170u, 98u }; 
+const sf::Vector2u MAP_GRID_SIZE{ 120u, 54u }; 
 const sf::Vector2f PLAYER_START_POS{ 20, static_cast<float>(DISPLAY_SIZE.y) / 2 };
 
 // SFML views

@@ -1,6 +1,7 @@
 #ifndef __SYSTEMS_RENDER_SYSTEM_HPP__
 #define __SYSTEMS_RENDER_SYSTEM_HPP__
 
+#include <BasicSprite.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -37,12 +38,13 @@ public:
     { 
         using namespace ProceduralMaze::Settings;
 
-        Sys::ProcGen::RandomSystem floortile_randsys({0, 4});
+        Sys::ProcGen::RandomSystem floortile_randsys({48, 49});
 
         floortile_randsys.gen({200, 98});
-        auto tile_file = "res/floor_tiles_10x10.png";
+        // auto tile_file = "res/floor_tiles_10x10.png";
+        auto tile_file = "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png";
         SPDLOG_INFO("size: {}", floortile_randsys.size());
-        if (!m_floormap.load(tile_file, {10,10}, floortile_randsys.data(), 200, 98))
+        if (!m_floormap.load(tile_file, {16,16}, floortile_randsys.data(), 200, 98))
         {
             SPDLOG_CRITICAL("Unable to load tile map {}", tile_file);
         }
@@ -56,25 +58,29 @@ public:
     {
         using namespace Sprites;
         auto f = Cmp::Font("res/tuffy.ttf");
+
+        // main render begin
         m_window->clear();
         {
-            // local view
+            // local view begin
             m_window->setView(m_local_view);
             {   
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
                 render_bricks();
                 render_player(m_local_view);
-            } // end of local view
+            } 
+            // local view end
             
-            // minimap view
+            // minimap view begin
             m_window->setView(m_minimap_view);
             {
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
                 render_bricks();
                 render_player(m_minimap_view);
-            } // end of minimap view
+            } 
+            // minimap view end
 
-            // UI Overlays
+            // UI Overlays begin
             m_window->setView(m_window->getDefaultView());
             {  
                 auto minimap_border = sf::RectangleShape(
@@ -87,10 +93,12 @@ public:
                 minimap_border.setOutlineColor(sf::Color::White);
                 minimap_border.setOutlineThickness(2.f);
                 m_window->draw(minimap_border);       
-            } // end of UI overlays
+            } 
+            // UI overlays end
 
-        } // end of main render
+        } 
         m_window->display();
+        // main render end
     }
 
     void render_floormap(const sf::Vector2f &offset = {0.f, 0.f})
@@ -106,11 +114,13 @@ public:
             
             if( _ob.m_type == Cmp::Obstacle::Type::BRICK ) 
             {
-                m_window->draw( Sprites::Brick(_pos, Sprites::Brick::BRICK_FILLCOLOUR, Sprites::Brick::BRICK_LINECOLOUR) ); 
+                // m_window->draw( Sprites::Brick(_pos, Sprites::Brick::BRICK_FILLCOLOUR, Sprites::Brick::BRICK_LINECOLOUR) ); 
+                m_window->draw( wall_sprite.get_sprite(_pos) ); 
             }
             else
             {
-                m_window->draw( Sprites::Brick(_pos, Sprites::Brick::BEDROCK_FILLCOLOUR, Sprites::Brick::BEDROCK_LINECOLOUR) ); 
+                // m_window->draw( Sprites::Brick(_pos, Sprites::Brick::BEDROCK_FILLCOLOUR, Sprites::Brick::BEDROCK_LINECOLOUR) ); 
+                m_window->draw( border_sprite.get_sprite(_pos) );
             }
             #ifdef SHOW_BRICK_ENTITY_ID
             auto t = sf::Text(
@@ -155,14 +165,16 @@ public:
             }            
     }
     
-
-
     entt::reactive_mixin<entt::storage<void>> m_position_updates;
     sf::View m_local_view;
     sf::View m_minimap_view;
 private:
     std::shared_ptr<sf::RenderWindow> m_window;
     Sprites::Containers::TileMap m_floormap;
+    // Sprites::BasicSprite wall_sprite{"res/wall.png"};
+    Sprites::BasicSprite wall_sprite{"res/kenney_tiny-dungeon/Tiles/tile_0041.png"};
+    Sprites::BasicSprite border_sprite{"res/kenney_tiny-dungeon/Tiles/tile_0040.png"};
+// 
 };
 
 } // namespace ProceduralMaze::Systems

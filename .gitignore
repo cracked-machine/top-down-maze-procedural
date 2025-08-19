@@ -1,2 +1,7 @@
 build
 .cache
+res/kenney_tiny-dungeon/*.txt
+res/kenney_tiny-dungeon/*.png
+res/kenney_tiny-dungeon/*.url
+res/kenney_tiny-dungeon/Tiled/
+res/kenney_tiny-dungeon/Tiles/tile_***.png
