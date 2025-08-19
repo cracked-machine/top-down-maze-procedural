@@ -10,7 +10,7 @@ namespace ProceduralMaze::Sprites {
 
 class BasicSprite {
 public:
-    BasicSprite(std::string texture_path) 
+    BasicSprite(const std::string &texture_path) 
     {
         if (! m_texture.loadFromFile(texture_path) ) {
             SPDLOG_CRITICAL("Unable to load tile map {}", texture_path);
@@ -24,7 +24,7 @@ public:
         sprite.setPosition(pos);
         return sprite;
     }
-private:
+protected:
     sf::Texture m_texture;   
 };
 

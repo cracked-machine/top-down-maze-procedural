@@ -1,7 +1,5 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
-#include <SFML/Graphics/Font.hpp>
-#include <SFML/Graphics/Text.hpp>
 
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 #include <Logging/BasicLogController.hpp>

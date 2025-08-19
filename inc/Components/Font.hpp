@@ -2,7 +2,6 @@
 #define __COMPONENTS_FONT_HPP__
 
 #include <SFML/Graphics/Font.hpp>
-#include <SFML/Graphics/Font.hpp>
 #include <Base.hpp>
 
 namespace ProceduralMaze::Cmp {
