@@ -22,46 +22,6 @@ public:
     {
 
     }
-    // BROKEN and V SLOW!!
-    // Iterate through every node and check its geometric distance to every other element.
-    // This is O(n^2) but we optimize by skipping the current==neighbour node and any disabled nodes.
-    // We don't navigate any containers so this algo has additional benefit of not requiring bounds checking!
-    void iterate_quadratic(entt::basic_registry<entt::entity> &reg) 
-    {
-        // 1. find neighbours
-        int count = 0;
-        using entity_trait = entt::entt_traits<entt::entity>;
-        for( auto [_entt, _ob, _pos]: reg.view<Cmp::Obstacle, Cmp::Position>().each() ) {
-
-            _ob.neighbours = 0;
-            if( _ob.m_type == Cmp::Obstacle::Type::BEDROCK) { continue; }
-            for( auto [_entt_nb, _ob_nb, _pos_nb]: reg.view<Cmp::Obstacle, Cmp::Position>().each() ) {
-                
-                // you can't be your own neighbour!
-                if( _entt == _entt_nb ) { continue; }
-                
-                auto nb_dist = _pos - _pos_nb;
-                if( not _ob_nb.m_enabled ) { continue; }
-                if( static_cast<int>(abs(nb_dist.x)) < static_cast<int>((Sprites::Brick::WIDTH)) and
-                    static_cast<int>(abs(nb_dist.y)) < static_cast<int>((Sprites::Brick::HEIGHT))
-                ) 
-                {
-                    count++;
-                    _ob.neighbours++;
-                }
-            }
-        }
-
-        // 2. apply rules
-        for( auto [_entt, _ob, _pos]: reg.view<Cmp::Obstacle, Cmp::Position>().each() ) {
-            if( _ob.m_type == Cmp::Obstacle::Type::BEDROCK) { continue; }
-            SPDLOG_INFO("Entity {} has {} neighbours", entity_trait::to_entity(_entt), _ob.neighbours);
-            if      ( _ob.neighbours == 0)                          { _ob.m_enabled = true; }
-            else if ( _ob.neighbours > 0 and _ob.neighbours < 5 )   { _ob.m_enabled = false; }
-            else                                                    { _ob.m_enabled = true; }
-        }
-        SPDLOG_INFO("Total Iterations: {}", count);
-    }
 
     
     //  1 0 1 1 0 1 1 0 1 1
@@ -86,8 +46,6 @@ public:
     //      }
     //      if n + (10 + 1) { }
     // }
-
-
     void iterate_linear(entt::basic_registry<entt::entity> &reg)
     {
         using entity_trait = entt::entt_traits<entt::entity>;
@@ -155,7 +113,7 @@ public:
             // |        |           |       |           |
             // ------------------------------------------
             // where N is iterator, x is row length
-            
+
             // N + (x - 1) 
             if( std::next(it, (ProceduralMaze::Settings::MAP_GRID_SIZE.x - 1)) < m_randsys.end()) {
                 if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, ProceduralMaze::Settings::MAP_GRID_SIZE.x - 1))).m_enabled && not has_left_map_edge) { 
@@ -198,6 +156,73 @@ public:
             else                                                    { _ob.m_enabled = true; }
         }
         SPDLOG_INFO("Total Iterations: {}", count);
+  
+
+    }
+
+    // "Optimized" by claude sonnet 3.5. Might be cleaner looking.
+    // Actually runs slightly slower than the original iterate_linear!
+    void iterate_linear_optimized(entt::basic_registry<entt::entity> &reg)
+    {
+        using entity_trait = entt::entt_traits<entt::entity>;
+        const int width = ProceduralMaze::Settings::MAP_GRID_SIZE.x;
+        
+        // Pre-calculate neighbor offsets
+        static const std::array<int, 8> neighbor_offsets = {
+            -1,                  // left
+            1,                   // right
+            -width,             // up
+            width,              // down
+            -(width + 1),       // up-left
+            -(width - 1),       // up-right
+            (width - 1),        // down-left
+            (width + 1)         // down-right
+        };
+
+        // First pass: count neighbors
+        std::vector<int> neighbor_counts(m_randsys.size(), 0);
+        int idx = 0;
+        int count = 0;
+        
+        for(auto it = m_randsys.begin(); it != m_randsys.end(); ++it, ++idx, ++count) {
+            const bool has_left_edge = (idx % width) == 0;
+            const bool has_right_edge = ((idx + 1) % width) == 0;
+            
+            const auto current_entity = entt::entity(*it);
+            
+            for(size_t n = 0; n < neighbor_offsets.size(); ++n) {
+                // Skip edge cases
+                if((has_left_edge && (n == 0 || n == 4 || n == 6)) ||
+                   (has_right_edge && (n == 1 || n == 5 || n == 7)))
+                    continue;
+                    
+                const int neighbor_idx = idx + neighbor_offsets[n];
+                if(neighbor_idx >= 0 && neighbor_idx < static_cast<int>(m_randsys.size())) {
+                    auto neighbor_it = m_randsys.begin() + neighbor_idx;
+                    if(reg.get<Cmp::Obstacle>(entt::entity(*neighbor_it)).m_enabled) {
+                        neighbor_counts[idx]++;
+                    }
+                }
+            }
+        }
+
+        // Second pass: apply rules
+        idx = 0;
+        for(auto it = m_randsys.begin(); it != m_randsys.end(); ++it, ++idx) {
+            auto &obstacle = reg.get<Cmp::Obstacle>(entt::entity(*it));
+            if(obstacle.m_type == Cmp::Obstacle::Type::BEDROCK) continue;
+            
+            const int neighbors = neighbor_counts[idx];
+            obstacle.neighbours = neighbors; // Update neighbor count
+            
+            // Apply cellular automata rules
+            obstacle.m_enabled = (neighbors <= 0 || neighbors >= 5);
+        }
+        SPDLOG_INFO("Total Iterations: {}", count);
+
+#ifdef _DEBUG
+        SPDLOG_INFO("Total cells processed: {}", m_randsys.size());
+#endif
   
 
     }
