@@ -31,39 +31,6 @@ public:
         m_reg.emplace<Cmp::System>(entity); 
     }
 
-    static void add_bedrock_entity(entt::basic_registry<entt::entity> &m_reg, const sf::Vector2f &pos)
-    {
-        auto entity = m_reg.create();
-        m_reg.emplace<Cmp::Position>(entity, pos); 
-        m_reg.emplace<Cmp::Obstacle>(entity, Settings::BORDER_TILE_PICKS, Cmp::Obstacle::Type::BEDROCK, true, true );
-    }
-
-    static void add_border(entt::basic_registry<entt::entity> &m_reg)
-    {
-        using namespace ProceduralMaze::Settings;
-
-        for(float x = 0 ; x < DISPLAY_SIZE.x; x += Sprites::Brick::WIDTH)
-        {
-            // top edge
-            EntityFactory::add_bedrock_entity(m_reg, {
-                x, 
-                (MAP_GRID_OFFSET.y - 1) * Sprites::Brick::HEIGHT
-            });
-            // bottom edge
-            EntityFactory::add_bedrock_entity(m_reg, {
-                x, 
-                MAP_GRID_OFFSET.y + ((MAP_GRID_SIZE.y + 2) * Sprites::Brick::HEIGHT) - 2
-            });
-        }
-        for( float y = 0; y < DISPLAY_SIZE.y; y += Sprites::Brick::HEIGHT)
-        {
-            // left edge 
-            EntityFactory::add_bedrock_entity( m_reg, {0, y} );
-            // right edge
-            EntityFactory::add_bedrock_entity( m_reg,{static_cast<float>(DISPLAY_SIZE.x) -  Sprites::Brick::WIDTH, y} );
-        }
-
-    }
     
     static void add_player_entity(entt::basic_registry<entt::entity> &m_reg, const sf::Vector2f &pos)
     {

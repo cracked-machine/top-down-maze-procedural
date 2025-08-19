@@ -19,19 +19,18 @@ public:
     };
 
     Obstacle(
-        const std::vector<unsigned int> &tile_picks, 
+        unsigned int tile_pick,
         Type type = Type::BRICK, 
         bool visible = true, 
         bool enabled = true
     )
         :
-        m_random_tile_picker(0, tile_picks.size() - 1),
+        m_tile_pick(tile_pick),
         m_visible(visible),
         m_enabled(enabled),
         m_type(type)
     {
         // pick a random tile from the provided possible choices `tile_picks`
-        m_tile_pick = tile_picks[m_random_tile_picker.gen()];
     }
 
     bool m_visible{true};
@@ -41,7 +40,6 @@ public:
     unsigned int m_tile_pick{0};
 
 private:
-    Cmp::Random m_random_tile_picker;
 };
 
 } // namespace ProceduralMaze::Cmp

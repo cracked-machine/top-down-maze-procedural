@@ -17,8 +17,9 @@ const sf::Vector2f PLAYER_START_POS{ 20, static_cast<float>(DISPLAY_SIZE.y) / 2 
 const sf::Vector2f LOCAL_MAP_VIEW_SIZE{ 300.f, 200.f };
 const sf::Vector2f MINI_MAP_VIEW_SIZE{ DISPLAY_SIZE.x * 0.25f, DISPLAY_SIZE.y * 0.25f };
 
-const std::vector<unsigned int> WALL_TILE_PICKS = {41, 64, 65};
-const std::vector<unsigned int> BORDER_TILE_PICKS = {28,40};
+const std::vector<unsigned int> WALL_TILE_POOL = {41, 64, 65};
+const std::vector<unsigned int> BORDER_TILE_POOL = {28,40};
+const std::vector<unsigned int> FLOOR_TILE_POOL {42,48,49};
 
 }
 

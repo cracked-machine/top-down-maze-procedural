@@ -16,7 +16,6 @@
 #include <Obstacle.hpp>
 #include <PlayableCharacter.hpp>
 #include <Position.hpp>
-#include <ProcGen/RandomSystem.hpp>
 #include <Settings.hpp>
 #include <Sprites/Brick.hpp>
 #include <Sprites/Player.hpp>
@@ -39,16 +38,18 @@ public:
     { 
         using namespace ProceduralMaze::Settings;
 
-        Sys::ProcGen::RandomSystem floortile_randsys({48, 49});
-
-        floortile_randsys.gen({200, 98});
-        // auto tile_file = "res/floor_tiles_10x10.png";
+        // setup the floortile background texture
+        // TODO move this to a separate system
+        Cmp::Random floortile_picker(0, FLOOR_TILE_POOL.size() - 1);
+        std::vector<uint32_t> floortile_choices;
+        for(int x = 0; x < 200; x++) 
+            for(int y = 0; y < 98; y++) 
+                floortile_choices.push_back(FLOOR_TILE_POOL[floortile_picker.gen()]); 
+        
         auto tile_file = "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png";
-        SPDLOG_INFO("size: {}", floortile_randsys.size());
-        if (!m_floormap.load(tile_file, {16,16}, floortile_randsys.data(), 200, 98))
-        {
+        if (!m_floormap.load(tile_file, {16,16}, floortile_choices.data(), 200, 98))
             SPDLOG_CRITICAL("Unable to load tile map {}", tile_file);
-        }
+        
 
         SPDLOG_DEBUG("RenderSystem()"); 
     }
@@ -180,12 +181,12 @@ private:
     // Sprites::BasicSprite border_sprite{"res/kenney_tiny-dungeon/Tiles/tile_0040.png"};
     Sprites::MultiSprite m_wall_sprite{
         "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png",
-        Settings::WALL_TILE_PICKS
+        Settings::WALL_TILE_POOL
     };
 
     Sprites::MultiSprite m_border_sprite{
         "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png",
-        Settings::BORDER_TILE_PICKS
+        Settings::BORDER_TILE_POOL
     };
 // 
 };

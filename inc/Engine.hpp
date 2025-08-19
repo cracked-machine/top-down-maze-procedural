@@ -2,6 +2,7 @@
 #define __ENGINE_HPP__
 
 #include <EntityFactory.hpp>
+#include <ProcGen/RandomObstacleGenerator.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
@@ -30,7 +31,6 @@
 #include <Systems/CollisionSystem.hpp>
 #include <Systems/RenderSystem.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
-#include <Systems/ProcGen/RandomSystem.hpp>
 
 #include <EventHandler.hpp>
 #include <Settings.hpp>
@@ -47,7 +47,7 @@ public:
     
         EntityFactory::add_system_entity( m_reg );
         EntityFactory::add_player_entity( m_reg, PLAYER_START_POS );
-        EntityFactory::add_border( m_reg );
+        
 
         // local view
         m_render_sys->m_local_view = sf::View( 
@@ -71,15 +71,20 @@ public:
         using namespace ProceduralMaze::Settings;
 
         // procedurally generate the level
-        Sys::ProcGen::RandomSystem obstacle_randsys;
-        obstacle_randsys.gen(m_reg, 0);
-        Sys::ProcGen::CellAutomataSystem ca_level{obstacle_randsys};
+        Sys::ProcGen::RandomObstacleGenerator obstacle_generator(
+            Settings::WALL_TILE_POOL,
+            Settings::BORDER_TILE_POOL
+        );
+        obstacle_generator.gen_walls(m_reg);
+        obstacle_generator.gen_border(m_reg);
+        obstacle_generator.stats(m_reg);
+        Sys::ProcGen::CellAutomataSystem cellauto_parser{obstacle_generator};
 
         sf::Clock clock;
         int level_gen_iteration_max = 5;
         for( int i = 0; i < level_gen_iteration_max; i++)
         {
-            ca_level.iterate_linear(m_reg);
+            cellauto_parser.iterate_linear(m_reg);
             SPDLOG_INFO("Level Iteration #{} took {} ms", i, clock.restart().asMilliseconds());
         }
         
