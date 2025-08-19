@@ -88,6 +88,7 @@ public:
             SPDLOG_INFO("Level Iteration #{} took {} ms", i, clock.restart().asMilliseconds());
         }
         
+        /// MAIN LOOP BEGINS
         while (m_window->isOpen())
         {
 
@@ -101,6 +102,7 @@ public:
             m_render_sys->render();   
         
         }
+        /// MAIN LOOP ENDS
         return false;   
     }
 
@@ -143,6 +145,11 @@ private:
 
         m_system_updates.bind(m_reg);
         m_system_updates
+            .on_update<Cmp::System>()
+            .on_construct<Cmp::System>();
+
+        m_render_sys->m_system_updates.bind(m_reg);
+        m_render_sys->m_system_updates
             .on_update<Cmp::System>()
             .on_construct<Cmp::System>();
 

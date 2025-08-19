@@ -43,12 +43,26 @@ public:
             {
                 if (keyReleased->scancode == sf::Keyboard::Scancode::F1)
                 {
-                    // SPDLOG_INFO("Pressed M");
                     for( auto [ _entt, _sys] :
                         m_reg.view<Cmp::System>().each() )
                     {
                         _sys.collisions_enabled = not _sys.collisions_enabled;
-                        // SPDLOG_INFO("Set _sys.local_view to {}", _sys.local_view);
+                    }
+                }
+                else if (keyReleased->scancode == sf::Keyboard::Scancode::F2)
+                {
+                    for( auto [ _entt, _sys] :
+                        m_reg.view<Cmp::System>().each() )
+                    {
+                        _sys.show_player_hitboxes = not _sys.show_player_hitboxes;
+                    }
+                }
+                else if (keyReleased->scancode == sf::Keyboard::Scancode::F3)
+                {
+                    for( auto [ _entt, _sys] :
+                        m_reg.view<Cmp::System>().each() )
+                    {
+                        _sys.show_obstacle_entity_id = not _sys.show_obstacle_entity_id;
                     }
                 }
             }

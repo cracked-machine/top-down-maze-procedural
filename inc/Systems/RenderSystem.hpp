@@ -59,7 +59,7 @@ public:
     void render()
     {
         using namespace Sprites;
-        auto f = Cmp::Font("res/tuffy.ttf");
+        
 
         // main render begin
         m_window->clear();
@@ -111,31 +111,51 @@ public:
 
     void render_bricks()
     {
+        bool show_obstacle_entity_id = false;
+        for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
+            if( _sys.show_obstacle_entity_id ) show_obstacle_entity_id = true;
+        }
+
         for( auto [entity, _ob, _pos]: m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each() ) {
             if( not _ob.m_enabled ) { continue; }
             
-            if( _ob.m_type == Cmp::Obstacle::Type::BRICK ) 
+
+            
+            if( show_obstacle_entity_id )
             {
-                m_wall_sprite.setPosition(_pos);  
-                m_wall_sprite.pick(_ob.m_tile_pick);
-                m_window->draw( m_wall_sprite ); 
+                auto generic_brick = Sprites::Brick(
+                    _pos, 
+                    Sprites::Brick::BEDROCK_FILLCOLOUR, 
+                    Sprites::Brick::BEDROCK_LINECOLOUR
+                );
+                m_window->draw(generic_brick);
+
+                auto t = sf::Text(
+                    m_font, 
+                    std::to_string(entt::entt_traits<entt::entity>::to_entity(entity)),
+                    Sprites::Brick::HALFHEIGHT
+                );
+                t.setPosition({_pos.x, _pos.y});
+                t.setFillColor(sf::Color::Black);
+                m_window->draw( t );
             }
-            else
+            else 
             {
-                // m_window->draw( Sprites::Brick(_pos, Sprites::Brick::BEDROCK_FILLCOLOUR, Sprites::Brick::BEDROCK_LINECOLOUR) ); 
-                m_border_sprite.setPosition(_pos);  
-                m_border_sprite.pick(_ob.m_tile_pick);
-                m_window->draw( m_border_sprite ); 
+                if( _ob.m_type == Cmp::Obstacle::Type::BRICK ) 
+                {
+                    m_wall_sprite.setPosition(_pos);  
+                    m_wall_sprite.pick(_ob.m_tile_pick);
+                    m_window->draw( m_wall_sprite ); 
+                }
+                else
+                {
+                    // m_window->draw( Sprites::Brick(_pos, Sprites::Brick::BEDROCK_FILLCOLOUR, Sprites::Brick::BEDROCK_LINECOLOUR) ); 
+                    m_border_sprite.setPosition(_pos);  
+                    m_border_sprite.pick(_ob.m_tile_pick);
+                    m_window->draw( m_border_sprite ); 
+                }
             }
-            #ifdef SHOW_BRICK_ENTITY_ID
-            auto t = sf::Text(
-                f, 
-                std::to_string(entt::entt_traits<entt::entity>::to_entity(entity)),
-                Sprites::Brick::HALFHEIGHT
-            );
-            t.setPosition({_pos.x, _pos.y});
-            m_window->draw( t );
-            #endif // SHOW_BRICK_ENTITY_ID            
+                 
         }
     }
 
@@ -149,11 +169,13 @@ public:
             m_window->draw(m_player_sprite);
             // m_window->draw( Sprites::Player(_pos) );
 
-            #ifdef SHOW_PLAYER_HIT_BOXES
-            m_window->draw(_xbb.drawable());
-            m_window->draw(_ybb.drawable());
-            #endif
-           
+            for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
+                if( _sys.show_player_hitboxes ) {
+                    m_window->draw(_xbb.drawable());
+                    m_window->draw(_ybb.drawable());
+                }
+            }
+                   
             update_view_center(view, _pos);
         }
     }
@@ -174,6 +196,8 @@ public:
     }
     
     entt::reactive_mixin<entt::storage<void>> m_position_updates;
+    entt::reactive_mixin<entt::storage<void>> m_system_updates;
+
     sf::View m_local_view;
     sf::View m_minimap_view;
 private:
@@ -197,6 +221,8 @@ private:
         Settings::PLAYER_TILE_POOL,
         Settings::PLAYER_SIZE
     };
+
+    Cmp::Font m_font = Cmp::Font("res/tuffy.ttf");
 // 
 };
 
