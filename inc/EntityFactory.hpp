@@ -35,7 +35,7 @@ public:
     {
         auto entity = m_reg.create();
         m_reg.emplace<Cmp::Position>(entity, pos); 
-        m_reg.emplace<Cmp::Obstacle>(entity, Cmp::Obstacle::Type::BEDROCK, true, true );
+        m_reg.emplace<Cmp::Obstacle>(entity, Settings::BORDER_TILE_PICKS, Cmp::Obstacle::Type::BEDROCK, true, true );
     }
 
     static void add_border(entt::basic_registry<entt::entity> &m_reg)

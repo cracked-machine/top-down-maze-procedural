@@ -26,6 +26,7 @@
 #include <TileMap.hpp>
 #include <XAxisHitBox.hpp>
 #include <YAxisHitBox.hpp>
+#include <MultiSprite.hpp>
 
 namespace ProceduralMaze::Sys {
 
@@ -114,13 +115,16 @@ public:
             
             if( _ob.m_type == Cmp::Obstacle::Type::BRICK ) 
             {
-                // m_window->draw( Sprites::Brick(_pos, Sprites::Brick::BRICK_FILLCOLOUR, Sprites::Brick::BRICK_LINECOLOUR) ); 
-                m_window->draw( wall_sprite.get_sprite(_pos) ); 
+                m_wall_sprite.setPosition(_pos);  
+                m_wall_sprite.pick(_ob.m_tile_pick);
+                m_window->draw( m_wall_sprite ); 
             }
             else
             {
                 // m_window->draw( Sprites::Brick(_pos, Sprites::Brick::BEDROCK_FILLCOLOUR, Sprites::Brick::BEDROCK_LINECOLOUR) ); 
-                m_window->draw( border_sprite.get_sprite(_pos) );
+                m_border_sprite.setPosition(_pos);  
+                m_border_sprite.pick(_ob.m_tile_pick);
+                m_window->draw( m_border_sprite ); 
             }
             #ifdef SHOW_BRICK_ENTITY_ID
             auto t = sf::Text(
@@ -172,8 +176,17 @@ private:
     std::shared_ptr<sf::RenderWindow> m_window;
     Sprites::Containers::TileMap m_floormap;
     // Sprites::BasicSprite wall_sprite{"res/wall.png"};
-    Sprites::BasicSprite wall_sprite{"res/kenney_tiny-dungeon/Tiles/tile_0041.png"};
-    Sprites::BasicSprite border_sprite{"res/kenney_tiny-dungeon/Tiles/tile_0040.png"};
+    // Sprites::BasicSprite wall_sprite{"res/kenney_tiny-dungeon/Tiles/tile_0041.png"};
+    // Sprites::BasicSprite border_sprite{"res/kenney_tiny-dungeon/Tiles/tile_0040.png"};
+    Sprites::MultiSprite m_wall_sprite{
+        "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png",
+        Settings::WALL_TILE_PICKS
+    };
+
+    Sprites::MultiSprite m_border_sprite{
+        "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png",
+        Settings::BORDER_TILE_PICKS
+    };
 // 
 };
 

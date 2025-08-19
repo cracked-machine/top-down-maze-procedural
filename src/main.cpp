@@ -6,6 +6,7 @@
 #include <Components/Position.hpp>
 #include <Engine.hpp>
 #include <Systems/RenderSystem.hpp>
+#include <Components/Random.hpp>
 
 int main()
 {
@@ -17,6 +18,7 @@ int main()
     spdlog::set_level(spdlog::level::trace);
 
     SPDLOG_INFO("Init");
+
 
     ProceduralMaze::Engine engine;
     engine.run();

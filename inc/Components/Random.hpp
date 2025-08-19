@@ -3,13 +3,14 @@
 
 #include <random>
 #include <Base.hpp>
+#include <algorithm>
 
 namespace ProceduralMaze::Cmp {
 
 class Random : public Cmp::Base {
 public:
     // set the rng range
-    Random(int min, int max) : m_intdist(min, max) { SPDLOG_DEBUG("Random()"); }
+    Random(int min, int max) : m_intdist(min, max) {  }
     ~Random() { SPDLOG_DEBUG("~Random()"); }
 
     // get the next random number

@@ -5,6 +5,7 @@
 #include <Settings.hpp>
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
+#include <map>
 #include <optional>
 #include <spdlog/spdlog.h>
 #include <Components/Obstacle.hpp>
@@ -56,13 +57,23 @@ public:
                 m_data.push_back(entity_trait::to_entity(entity));
                 if(m_rng.gen())
                 {
-                    reg.emplace<Cmp::Obstacle>(entity, Cmp::Obstacle::Type::BRICK, true, true );                    
+                    reg.emplace<Cmp::Obstacle>(entity, Settings::WALL_TILE_PICKS, Cmp::Obstacle::Type::BRICK, true, true );                    
                 }
                 else
                 {
-                    reg.emplace<Cmp::Obstacle>(entity, Cmp::Obstacle::Type::BRICK, true, false );
+                    reg.emplace<Cmp::Obstacle>(entity, Settings::WALL_TILE_PICKS, Cmp::Obstacle::Type::BRICK, true, false );
                 }
             }
+        }
+
+        std::map<int, int> results;
+        for(auto [entity, _pos, _ob]: reg.view<Cmp::Position, Cmp::Obstacle>().each()) {
+            results[_ob.m_tile_pick]++;
+        }
+        SPDLOG_INFO("Obstacle Tile Pick distribution:");
+        for(auto [bin,freq]: results)
+        {
+            SPDLOG_INFO("[{}]:{}", bin, freq);
         }
     }
 
