@@ -17,6 +17,7 @@
 #include <Settings.hpp>
 #include <spdlog/spdlog.h>
 #include <Components/System.hpp>
+#include <Components/Movement.hpp>
 
 
 #include <Sprites/Brick.hpp>
@@ -43,12 +44,15 @@ public:
     {
         const float PUSH_FACTOR = 1.1f;  // Push slightly more than minimum to avoid floating point issues
         
-        for (auto [_pc_entt, _pc, _pc_pos] :
-            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each())
+        for (auto [_pc_entt, _pc, _pc_pos, _movement] :
+            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>().each())
         {
             sf::Vector2f starting_pos = {_pc_pos.x, _pc_pos.y};
             int stuck_loop = 0;
             bool had_collision = false;
+            
+            // Reset collision flag at start of frame
+            _movement.is_colliding = false;
 
             for (auto [_ob_entt, _ob, _ob_pos] :
                 m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each())
@@ -108,11 +112,37 @@ public:
                 {
                     // Push out along X axis
                     _pc_pos.x += depthX * PUSH_FACTOR;
+                    
+                    // Calculate speed-based friction coefficient
+                    float speed_ratio = std::abs(_movement.velocity.y) / _movement.max_speed;
+                    float dynamic_friction = _movement.friction_coefficient * 
+                        (1.0f - (_movement.friction_falloff * speed_ratio));
+                    
+                    // Apply friction to Y velocity with smooth falloff
+                    _movement.velocity.y *= (1.0f - dynamic_friction);
+                    
+                    // Check if Y velocity is below minimum
+                    if (std::abs(_movement.velocity.y) < _movement.min_velocity) {
+                        _movement.velocity.y = 0.0f;
+                    }
                 }
                 else
                 {
                     // Push out along Y axis
                     _pc_pos.y += depthY * PUSH_FACTOR;
+                    
+                    // Calculate speed-based friction coefficient
+                    float speed_ratio = std::abs(_movement.velocity.x) / _movement.max_speed;
+                    float dynamic_friction = _movement.friction_coefficient * 
+                        (1.0f - (_movement.friction_falloff * speed_ratio));
+                    
+                    // Apply friction to X velocity with smooth falloff
+                    _movement.velocity.x *= (1.0f - dynamic_friction);
+                    
+                    // Check if X velocity is below minimum
+                    if (std::abs(_movement.velocity.x) < _movement.min_velocity) {
+                        _movement.velocity.x = 0.0f;
+                    }
                 }
 
                 // Verify the resolution worked
@@ -124,12 +154,17 @@ public:
                     if (std::abs(depthX) < std::abs(depthY))
                     {
                         _pc_pos.y += depthY * PUSH_FACTOR;
+                        _movement.velocity.x *= (1.0f - _movement.friction_coefficient);
                     }
                     else
                     {
                         _pc_pos.x += depthX * PUSH_FACTOR;
+                        _movement.velocity.y *= (1.0f - _movement.friction_coefficient);
                     }
                 }
+                
+                // Mark that we're colliding for this frame
+                _movement.is_colliding = true;
 
                 SPDLOG_DEBUG("Collision resolved - new pos: {},{}", _pc_pos.x, _pc_pos.y);
             }

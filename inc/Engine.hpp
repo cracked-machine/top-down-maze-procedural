@@ -156,9 +156,17 @@ private:
             // Update velocity
             _movement.velocity += _movement.acceleration * dt;
 
-            // Clamp velocity to max speed
-            if (_movement.velocity.length() > _movement.max_speed) 
-            {
+            // Get current velocity magnitude
+            float speed = std::sqrt(_movement.velocity.x * _movement.velocity.x + 
+                                  _movement.velocity.y * _movement.velocity.y);
+
+            // Stop completely if current velocity magnitude is below minimum velocity
+            if (_movement.velocity.length() < _movement.min_velocity) {
+                _movement.velocity = sf::Vector2f(0.0f, 0.0f);
+                _movement.acceleration = sf::Vector2f(0.0f, 0.0f);
+            }
+            // Clamp velocity to max speed if current velocity magnitude exceeds max speed
+            else if (_movement.velocity.length() > _movement.max_speed) {
                 _movement.velocity = (_movement.velocity / _movement.velocity.length()) * _movement.max_speed;
             }
 
