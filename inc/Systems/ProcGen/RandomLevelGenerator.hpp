@@ -1,6 +1,7 @@
 #ifndef __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 #define __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 
+#include <Neighbours.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Settings.hpp>
 #include <entt/entity/fwd.hpp>
@@ -15,9 +16,9 @@
 
 namespace ProceduralMaze::Sys::ProcGen {
 
-class RandomTilePlacer {
+class RandomLevelGenerator {
 public:
-    RandomTilePlacer(
+    RandomLevelGenerator(
         entt::basic_registry<entt::entity> &reg,
         const std::vector<unsigned int> &WALL_TILE_POOL,
         const std::vector<unsigned int> &BORDER_TILE_POOL,
@@ -30,14 +31,14 @@ public:
                 m_activation_selector(0,1)
     {
         if (seed) Cmp::Random::seed(seed);
-        gen_walls(reg);
+        gen_objects(reg);
         gen_border(reg);
         stats(reg);
     }
 
     // These obstacles in the game map area.
     // The enabled status and texture of each one is picked randomly
-    void gen_walls(entt::basic_registry<entt::entity> &reg)
+    void gen_objects(entt::basic_registry<entt::entity> &reg)
     {
 
         using entity_trait = entt::entt_traits<entt::entity>;
@@ -57,7 +58,8 @@ public:
                 m_data.push_back(entity_trait::to_entity(entity));
 
                 auto tile_pick = m_wall_tile_choices[m_random_wall_tile_picker.gen()];
-                reg.emplace<Cmp::Obstacle>(entity, tile_pick, Cmp::Obstacle::Type::BRICK, true, m_activation_selector.gen() );                               
+                reg.emplace<Cmp::Obstacle>(entity, tile_pick, Cmp::Obstacle::Type::BRICK, true, m_activation_selector.gen() );  
+                reg.emplace<Cmp::Neighbours>(entity);                             
             }
         }
     }

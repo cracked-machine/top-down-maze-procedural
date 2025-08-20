@@ -40,6 +40,48 @@ public:
         return sf::FloatRect(pos, size).getCenter();
     }
 
+    void track_path(entt::basic_registry<entt::entity> &reg)
+    {
+        for (auto [_pc_entt, _pc, _pc_pos] :
+            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each())
+        {
+            for (auto [_ob_entt, _ob, _ob_pos] :
+                m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each())
+            {
+                auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y},  Settings::PLAYER_SIZE_2F);
+                
+                // reduce the size of the hitbox and center it 
+                player_hitbox.size.x /= 2.f;
+                player_hitbox.size.y /= 2.f;
+                player_hitbox.position.x += 4.f;
+                player_hitbox.position.y += 4.f;
+
+                auto brick_hitbox = sf::FloatRect(_ob_pos, Settings::OBSTACLE_SIZE_2F);     
+
+                // arm the occupied  tile if the player doesn't have an active bomb
+                if( player_hitbox.findIntersection(brick_hitbox) ) {
+                    if( not _pc.has_active_bomb )
+                    {
+                        _ob.m_armed = true;
+                        _ob.m_bomb_timer.restart();
+                        _pc.has_active_bomb = true;
+                    }
+                }
+                // detonate the bomb if it has timed out
+                if( _ob.m_armed && _ob.m_bomb_timer.getElapsedTime().asSeconds() > Settings::MAX_BOMB_TIME ) 
+                {
+                    // reset the occupied state
+                    _ob.m_armed = false;
+                    _ob.m_bomb_timer.reset();
+                    _pc.has_active_bomb = false;
+                }
+
+            }
+
+        }
+        
+    }
+
     void check(entt::basic_registry<entt::entity> &reg)
     {
         const float PUSH_FACTOR = 1.1f;  // Push slightly more than minimum to avoid floating point issues
@@ -57,6 +99,7 @@ public:
             for (auto [_ob_entt, _ob, _ob_pos] :
                 m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each())
             {
+                
                 if (not _ob.m_enabled) { continue; }
 
                 auto player_floatrect = sf::FloatRect({ _pc_pos.x, _pc_pos.y }, Settings::PLAYER_SIZE_2F);
@@ -64,6 +107,7 @@ public:
 
                 auto collision = player_floatrect.findIntersection(brick_floatRect);
                 if (!collision) continue;
+
 
                 had_collision = true;
                 stuck_loop++;

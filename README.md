@@ -25,11 +25,11 @@ You must ensure that player movement delta is equal or larger than the corner ov
 - [ ] experiment with shaders
 ## Gameplay
 - [ ] Add bombs
-    - Add new Component: Neighbours. Contains 8 uint32 slots for entity ids of neighbouring blocks 
-    - Update CA to use the new component
-    - Add new Component: Explosive. Has count down timer
-    - When key is pressed/released, the occupied block becomes "explosive"
-    - When the timer expires, the neighbours are all disabled and not rendered. i.e destroyed.
+    - [x] Add new Component: Neighbours. Contains 8 uint32 slots for entity ids of neighbouring blocks 
+    - [x] Update CA to use the new component
+    - [ ] Add new Component: Explosive. Has count down timer
+    - [ ] When key is pressed/released, the occupied block becomes "explosive"
+    - [ ] When the timer expires, the neighbours are all disabled and not rendered. i.e destroyed.
 - [ ] extra bomb pickups
 - [ ] add rising water
     - Add blue texture with display dimensions and 50% alpha 
@@ -40,7 +40,7 @@ You must ensure that player movement delta is equal or larger than the corner ov
 - [x] add minimap
 ## Physics
 - [x] add player movement velocity
-- [ ] add player movement acceleration
+- [x] add player movement acceleration
 - [x] fix collision detection to work with rectangle outlines = 0
 
 ## General

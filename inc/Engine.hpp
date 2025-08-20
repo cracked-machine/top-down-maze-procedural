@@ -2,7 +2,7 @@
 #define __ENGINE_HPP__
 
 #include <EntityFactory.hpp>
-#include <ProcGen/RandomObstacleGenerator.hpp>
+#include <ProcGen/RandomLevelGenerator.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
@@ -59,22 +59,17 @@ public:
 
         SPDLOG_INFO("Engine Init");
 
+        Cmp::Random::seed(123456789); // for troubleshooting purposes
+
         // procedurally generate the level
-        Sys::ProcGen::RandomTilePlacer tile_placer(
+        Sys::ProcGen::RandomLevelGenerator random_level(
             m_reg,
             Settings::WALL_TILE_POOL,
             Settings::BORDER_TILE_POOL
         );
 
-        Sys::ProcGen::CellAutomataSystem cellauto_parser{tile_placer};
-        for( int i = 0; i < 5; i++)
-        {
-            SPDLOG_INFO(
-                "Level Iteration #{} took {} ms", 
-                i, 
-                cellauto_parser.iterate_linear(m_reg).asMilliseconds()
-            );
-        }
+        Sys::ProcGen::CellAutomataSystem cellauto_parser{random_level};
+        cellauto_parser.iterate(m_reg, 5);
     }
 
     bool run()
@@ -88,12 +83,13 @@ public:
             
             m_event_handler.handler(m_window, m_reg);
             process_movement(deltaTime);
+            m_collsion_sys->track_path(m_reg);
 
             for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
                 if( _sys.collisions_enabled ) m_collsion_sys->check(m_reg);
             }
             
-            m_render_sys->render();   
+            m_render_sys->render(m_reg);   
         }
         /// MAIN LOOP ENDS
 
@@ -173,19 +169,19 @@ private:
             // Apply velocity to position
             _current_pos += _movement.velocity * dt;
 
-            if(_current_pos.y < Settings::MAP_GRID_OFFSET.y || 
-               _current_pos.y > Settings::MAP_GRID_OFFSET.y + (Settings::MAP_GRID_SIZE.y * Settings::OBSTACLE_SIZE.y) ||
-               _current_pos.x < 0 || 
-               _current_pos.x > Settings::MAP_GRID_OFFSET.x + (Settings::MAP_GRID_SIZE.x * Settings::OBSTACLE_SIZE.x))
-            {
-                // Reset position to starting point if player goes out of bounds
-                _current_pos = Settings::PLAYER_START_POS;
-                for (auto [_entt, _sys] : m_reg.view<Cmp::System>().each())
-                {
-                    _sys.player_stuck = true;
-                }
-                return;
-            }
+            // if(_current_pos.y < Settings::MAP_GRID_OFFSET.y || 
+            //    _current_pos.y > Settings::MAP_GRID_OFFSET.y + (Settings::MAP_GRID_SIZE.y * Settings::OBSTACLE_SIZE.y) ||
+            //    _current_pos.x < 0 || 
+            //    _current_pos.x > Settings::MAP_GRID_OFFSET.x + (Settings::MAP_GRID_SIZE.x * Settings::OBSTACLE_SIZE.x))
+            // {
+            //     // Reset position to starting point if player goes out of bounds
+            //     _current_pos = Settings::PLAYER_START_POS;
+            //     for (auto [_entt, _sys] : m_reg.view<Cmp::System>().each())
+            //     {
+            //         _sys.player_stuck = true;
+            //     }
+            //     return;
+            // }
         }
     }
 

@@ -1,7 +1,9 @@
 #ifndef __SYSTEMS_PROCGEN_CELLAUTO_SYSTEM_HPP__
 #define __SYSTEMS_PROCGEN_CELLAUTO_SYSTEM_HPP__
 
-#include <ProcGen/RandomObstacleGenerator.hpp>
+#include <Neighbours.hpp>
+#include <ProcGen/RandomLevelGenerator.hpp>
+#include <SFML/System/Clock.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <entt/entity/registry.hpp>
 #include <iterator>
@@ -16,14 +18,10 @@ namespace ProceduralMaze::Sys::ProcGen {
 
 class CellAutomataSystem {
 public:
-    CellAutomataSystem(const RandomTilePlacer &rs)
-    : 
-        m_obs_gen(rs)
-    {
+    CellAutomataSystem(const RandomLevelGenerator &rs)
+    : m_random_level(rs)
+    {}
 
-    }
-
-    
     //  1 0 1 1 0 1 1 0 1 1
     //  1 1 0 1 1 0 1 1 1 1
     //  0 1 1 0 1 1 0 0 1 1
@@ -45,29 +43,163 @@ public:
     //          n + (10 - 1)
     //      }
     //      if n + (10 + 1) { }
-    sf::Time iterate_linear(entt::basic_registry<entt::entity> &reg)
+    // sf::Time iterate_linear(entt::basic_registry<entt::entity> &reg)
+    // {
+    //     sf::Clock ca_timer;
+    //     using entity_trait = entt::entt_traits<entt::entity>;
+    //     int count = 0;
+
+    //     // 1. find neighbours
+    //     for(auto it = m_random_level.begin(); it != m_random_level.end(); it++) {
+            
+    //         auto _ob = reg.get<Cmp::Obstacle>( entt::entity(*it) );
+    //         reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours = 0; });
+                    
+    //         count++;
+    //         SPDLOG_TRACE("");
+    //         const int idx = std::distance(m_random_level.begin(), it);
+    //         SPDLOG_TRACE("max x is {}, idx is {}", m_size.x, idx);
+            
+    //         bool has_left_map_edge = not ( (idx) % Settings::MAP_GRID_SIZE.x );
+    //         bool has_right_map_edge = not ( (idx + 1) % Settings::MAP_GRID_SIZE.x );
+            
+    //         SPDLOG_TRACE("Entity {} has left map edge: {}", (*it), has_left_map_edge);                
+    //         SPDLOG_TRACE("Entity {} has right map edge: {}",(*it), has_right_map_edge);  
+
+    //         // -----------------------------------------
+    //         // |           |       |           |        |
+    //         // ------------------------------------------
+    //         // |   N - 1   |   N   |           |        |
+    //         // ------------------------------------------
+    //         // | N - (x-1) | N - x | N - (x+1) |        |
+    //         // ------------------------------------------
+    //         // where N is iterator, x is row length
+    //         // N - 1
+    //         if(std::prev(it) >= m_random_level.begin()) {
+    //             if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it))).m_enabled && not has_left_map_edge ) { 
+    //                 reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
+    //                 SPDLOG_TRACE("N - 1:{}", *(std::prev(it)) ); 
+    //             }
+    //         }
+    //         // N - (x - 1)
+    //         if( std::prev(it, (Settings::MAP_GRID_SIZE.x + 1)) >= m_random_level.begin() ) {
+    //             if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.x + 1))).m_enabled && not has_left_map_edge)  {
+    //                 reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
+    //                 SPDLOG_TRACE("N - (x - 1):{}", *(std::prev(it, m_size.x + 1))); 
+    //             }
+    //         }
+    //         // N - x
+    //         if( std::prev(it, Settings::MAP_GRID_SIZE.x) >= m_random_level.begin() ) {
+    //             if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.x))).m_enabled ) {
+    //                 reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
+    //                 SPDLOG_TRACE("N - x:{}", *(std::prev(it, m_size.x))); 
+    //             }
+    //         }
+    //         // N - (x + 1)
+    //         if( (std::prev(it, (Settings::MAP_GRID_SIZE.x - 1))) >= m_random_level.begin() ) {
+    //             if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.x - 1))).m_enabled && not has_right_map_edge) { 
+    //                 reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
+    //                 SPDLOG_TRACE("N - (x + 1):{}", *(std::prev(it, m_size.x - 1)) ); 
+    //             }
+    //         }
+
+    //         // ------------------------------------------
+    //         // |        | N + (x-1) | N + x | N + (x+1) |
+    //         // ------------------------------------------ 
+    //         // |        |           |   N   |   N + 1   |
+    //         // ------------------------------------------ 
+    //         // |        |           |       |           |
+    //         // ------------------------------------------
+    //         // where N is iterator, x is row length
+
+    //         // N + (x - 1) 
+    //         if( std::next(it, (Settings::MAP_GRID_SIZE.x - 1)) < m_random_level.end()) {
+    //             if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, Settings::MAP_GRID_SIZE.x - 1))).m_enabled && not has_left_map_edge) { 
+    //                reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
+    //                SPDLOG_TRACE("N + (x - 1):{}", (*std::next(it, m_size.x - 1)) ); 
+    //             }
+    //         }
+    //         // N + x
+    //         if( Settings::MAP_GRID_SIZE.x < m_random_level.size() && std::next(it, Settings::MAP_GRID_SIZE.x) < m_random_level.end()) {
+    //             if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, Settings::MAP_GRID_SIZE.x))).m_enabled ) { 
+    //                 reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
+    //                 SPDLOG_TRACE("N + x:{}",  (*std::next(it, m_size.x))); 
+    //             }
+    //         }
+    //         // N + (x + 1)
+    //         if( (Settings::MAP_GRID_SIZE.x + 1) < m_random_level.size() && std::next(it, (Settings::MAP_GRID_SIZE.x + 1)) < m_random_level.end()) {
+    //             if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, (Settings::MAP_GRID_SIZE.x + 1)))).m_enabled && not has_right_map_edge ) { 
+    //                 reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
+    //                 SPDLOG_TRACE("N + (x + 1):{}", (*std::next(it, m_size.x + 1)) ); 
+    //             }
+    //         }
+    //         // N + 1
+    //         if( std::next(it) < m_random_level.end() ) {
+    //             if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it))).m_enabled && not has_right_map_edge ) { 
+    //                 reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
+    //                  SPDLOG_TRACE("N + 1:{}",  (*std::next(it))); 
+    //             }
+    //         }
+                
+            
+    //         SPDLOG_DEBUG("Entity {} has {} neighbours", *it, _ob.neighbours);
+    //     }
+    //     // 2. apply rules
+
+    //     for( auto [_entt, _ob, _pos]: reg.view<Cmp::Obstacle, Cmp::Position>().each() ) {
+    //         if( _ob.m_type == Cmp::Obstacle::Type::BEDROCK) { continue; }
+    //         SPDLOG_DEBUG("Entity {} has {} neighbours", entity_trait::to_entity(_entt), _ob.neighbours);
+    //         if      ( _ob.neighbours <= 0)                          { _ob.m_enabled = true; }
+    //         else if ( _ob.neighbours > 0 and _ob.neighbours < 5 )   { _ob.m_enabled = false; }
+    //         else                                                    { _ob.m_enabled = true; }
+    //     }
+    //     SPDLOG_INFO("Total Iterations: {}", count);
+        
+    //     return ca_timer.getElapsedTime();
+
+    // }
+
+    void iterate(entt::basic_registry<entt::entity> &reg, unsigned int iterations)
     {
-        sf::Clock ca_timer;
+        sf::Clock iteration_timer;
+        for(int i = 0; i < iterations; i++)
+        {
+            find_neighbours(reg);
+            apply_rules(reg);
+            SPDLOG_INFO("#{} took {}ms", i, iteration_timer.restart().asMilliseconds());
+        }
+
+        // run one last time to get the latest neighbour data
+        find_neighbours(reg);
+        
+        SPDLOG_INFO("Total Iterations: {}", iterations);
+        
+    }
+
+private:
+
+    void find_neighbours(entt::basic_registry<entt::entity> &reg)
+    {
+    
         using entity_trait = entt::entt_traits<entt::entity>;
         int count = 0;
 
         // 1. find neighbours
-        for(auto it = m_obs_gen.begin(); it != m_obs_gen.end(); it++) {
+        for(auto it = m_random_level.begin(); it != m_random_level.end(); it++) {
             
             auto _ob = reg.get<Cmp::Obstacle>( entt::entity(*it) );
-            reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours = 0; });
+            reg.patch<Cmp::Neighbours>(entt::entity(*it), [](auto &_nb_update){ _nb_update.clear(); });
                     
             count++;
             SPDLOG_TRACE("");
-            const int idx = std::distance(m_obs_gen.begin(), it);
-            SPDLOG_TRACE("max x is {}, idx is {}", m_size.x, idx);
+            const int idx = std::distance(m_random_level.begin(), it);
             
-            bool has_left_map_edge = not ( (idx) % ProceduralMaze::Settings::MAP_GRID_SIZE.x );
-            bool has_right_map_edge = not ( (idx + 1) % ProceduralMaze::Settings::MAP_GRID_SIZE.x );
+            bool has_left_map_edge = not ( (idx) % Settings::MAP_GRID_SIZE.x );
+            bool has_right_map_edge = not ( (idx + 1) % Settings::MAP_GRID_SIZE.x );
             
             SPDLOG_TRACE("Entity {} has left map edge: {}", (*it), has_left_map_edge);                
             SPDLOG_TRACE("Entity {} has right map edge: {}",(*it), has_right_map_edge);  
-
+            auto current_entity = entt::entity(*it);
             // -----------------------------------------
             // |           |       |           |        |
             // ------------------------------------------
@@ -77,31 +209,53 @@ public:
             // ------------------------------------------
             // where N is iterator, x is row length
             // N - 1
-            if(std::prev(it) >= m_obs_gen.begin()) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it))).m_enabled && not has_left_map_edge ) { 
-                    reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
+            
+            if(std::prev(it) >= m_random_level.begin()) 
+            {
+                auto left_entt = entt::entity(*std::prev(it));
+                if( reg.get<Cmp::Obstacle>( left_entt ).m_enabled && not has_left_map_edge ) 
+                { 
+                    reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
+                    { 
+                        _nb_update.set( reg, Cmp::Neighbours::Dir::LEFT, left_entt ); 
+                    });
                     SPDLOG_TRACE("N - 1:{}", *(std::prev(it)) ); 
                 }
             }
             // N - (x - 1)
-            if( std::prev(it, (ProceduralMaze::Settings::MAP_GRID_SIZE.x + 1)) >= m_obs_gen.begin() ) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, ProceduralMaze::Settings::MAP_GRID_SIZE.x + 1))).m_enabled && not has_left_map_edge)  {
-                    reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-                    SPDLOG_TRACE("N - (x - 1):{}", *(std::prev(it, m_size.x + 1))); 
+            if( std::prev(it, (Settings::MAP_GRID_SIZE.x + 1)) >= m_random_level.begin() ) 
+            {
+                auto down_left_entt = entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.x + 1));
+                if( reg.get<Cmp::Obstacle>( down_left_entt ).m_enabled && not has_left_map_edge)  
+                {
+                    reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update){ 
+                        _nb_update.set( reg, Cmp::Neighbours::Dir::DOWN_LEFT, down_left_entt ); 
+                    });
                 }
             }
             // N - x
-            if( std::prev(it, ProceduralMaze::Settings::MAP_GRID_SIZE.x) >= m_obs_gen.begin() ) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, ProceduralMaze::Settings::MAP_GRID_SIZE.x))).m_enabled ) {
-                    reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
+            if( std::prev(it, Settings::MAP_GRID_SIZE.x) >= m_random_level.begin() ) 
+            {
+                auto down_entt = entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.x));
+                if( reg.get<Cmp::Obstacle>( down_entt ).m_enabled ) 
+                {
+                    reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
+                    { 
+                        _nb_update.set( reg, Cmp::Neighbours::Dir::DOWN, down_entt );
+                    });
                     SPDLOG_TRACE("N - x:{}", *(std::prev(it, m_size.x))); 
                 }
             }
             // N - (x + 1)
-            if( (std::prev(it, (ProceduralMaze::Settings::MAP_GRID_SIZE.x - 1))) >= m_obs_gen.begin() ) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, ProceduralMaze::Settings::MAP_GRID_SIZE.x - 1))).m_enabled && not has_right_map_edge) { 
-                    reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-                    SPDLOG_TRACE("N - (x + 1):{}", *(std::prev(it, m_size.x - 1)) ); 
+            if( (std::prev(it, (Settings::MAP_GRID_SIZE.x - 1))) >= m_random_level.begin() ) 
+            {
+                auto down_right_entt = entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.x - 1));
+                if( reg.get<Cmp::Obstacle>( down_right_entt ).m_enabled && not has_right_map_edge) 
+                { 
+                    reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
+                    { 
+                        _nb_update.set( reg, Cmp::Neighbours::Dir::DOWN_RIGHT, down_right_entt ); 
+                    });
                 }
             }
 
@@ -115,123 +269,93 @@ public:
             // where N is iterator, x is row length
 
             // N + (x - 1) 
-            if( std::next(it, (ProceduralMaze::Settings::MAP_GRID_SIZE.x - 1)) < m_obs_gen.end()) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, ProceduralMaze::Settings::MAP_GRID_SIZE.x - 1))).m_enabled && not has_left_map_edge) { 
-                   reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-                   SPDLOG_TRACE("N + (x - 1):{}", (*std::next(it, m_size.x - 1)) ); 
+            if( std::next(it, (Settings::MAP_GRID_SIZE.x - 1)) < m_random_level.end()) 
+            {
+                auto top_left_entt = entt::entity(*std::next(it, Settings::MAP_GRID_SIZE.x - 1));
+                if( reg.get<Cmp::Obstacle>( top_left_entt ).m_enabled && not has_left_map_edge) 
+                { 
+                    reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update) 
+                    { 
+                        _nb_update.set( reg, Cmp::Neighbours::Dir::UP_LEFT, top_left_entt ); 
+                    });
                 }
             }
             // N + x
-            if( ProceduralMaze::Settings::MAP_GRID_SIZE.x < m_obs_gen.size() && std::next(it, ProceduralMaze::Settings::MAP_GRID_SIZE.x) < m_obs_gen.end()) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, ProceduralMaze::Settings::MAP_GRID_SIZE.x))).m_enabled ) { 
-                    reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-                    SPDLOG_TRACE("N + x:{}",  (*std::next(it, m_size.x))); 
+            if( Settings::MAP_GRID_SIZE.x < m_random_level.size() && std::next(it, Settings::MAP_GRID_SIZE.x) < m_random_level.end()) 
+            {
+                auto top_entt = entt::entity(*std::next(it, Settings::MAP_GRID_SIZE.x));
+                if( reg.get<Cmp::Obstacle>(  top_entt ).m_enabled ) 
+                { 
+                    reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
+                    { 
+                        _nb_update.set( reg, Cmp::Neighbours::Dir::UP, top_entt ); 
+                    });
                 }
             }
             // N + (x + 1)
-            if( (ProceduralMaze::Settings::MAP_GRID_SIZE.x + 1) < m_obs_gen.size() && std::next(it, (ProceduralMaze::Settings::MAP_GRID_SIZE.x + 1)) < m_obs_gen.end()) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, (ProceduralMaze::Settings::MAP_GRID_SIZE.x + 1)))).m_enabled && not has_right_map_edge ) { 
-                    reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-                    SPDLOG_TRACE("N + (x + 1):{}", (*std::next(it, m_size.x + 1)) ); 
+            if( (Settings::MAP_GRID_SIZE.x + 1) < m_random_level.size() && std::next(it, (Settings::MAP_GRID_SIZE.x + 1)) < m_random_level.end()) 
+            {
+                auto top_right_entt = entt::entity(*std::next(it, (Settings::MAP_GRID_SIZE.x + 1)));
+                if( reg.get<Cmp::Obstacle>( top_right_entt ).m_enabled && not has_right_map_edge ) 
+                { 
+                    reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
+                    { 
+                        _nb_update.set( reg, Cmp::Neighbours::Dir::UP_RIGHT, top_right_entt ); 
+                    });
                 }
             }
             // N + 1
-            if( std::next(it) < m_obs_gen.end() ) {
-                if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it))).m_enabled && not has_right_map_edge ) { 
-                    reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-                     SPDLOG_TRACE("N + 1:{}",  (*std::next(it))); 
+            if( std::next(it) < m_random_level.end() ) 
+            {
+                auto right_entt = entt::entity(*std::next(it));
+                if( reg.get<Cmp::Obstacle>( right_entt ).m_enabled && not has_right_map_edge )
+                { 
+                    reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
+                    { 
+                        _nb_update.set( reg, Cmp::Neighbours::Dir::RIGHT, right_entt ); 
+                    });
                 }
             }
-                
-            
-            SPDLOG_DEBUG("Entity {} has {} neighbours", *it, _ob.neighbours);
+                    
         }
+        SPDLOG_INFO("Processed neighbours for {} entities.", m_random_level.size());
+        
+#ifdef NDEBUG
+        for( auto [_entt, _ob, _pos, _nb]: reg.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() ) {
+            // SPDLOG_INFO("Entity {} has {} neighbours", entity_trait::to_entity(_entt), _nb.count());
+            std::string msg = 
+                std::to_string(entity_trait::to_entity(_entt)) 
+                + "("
+                + std::to_string(_nb.count())
+                + ") = ";
+
+            for( auto [_dir, _nb_entt] : _nb) 
+            {
+                msg += "[" 
+                    + _nb.to_string(_dir) 
+                    + ":" 
+                    + std::to_string(entity_trait::to_entity(_nb_entt)) + "] ";
+            }
+            SPDLOG_TRACE(msg);
+        }
+#endif
+
+    }
+
+    void apply_rules(entt::basic_registry<entt::entity> &reg)
+    {
         // 2. apply rules
 
-        for( auto [_entt, _ob, _pos]: reg.view<Cmp::Obstacle, Cmp::Position>().each() ) {
+        for( auto [_entt, _ob, _pos, _nb]: reg.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() ) {
             if( _ob.m_type == Cmp::Obstacle::Type::BEDROCK) { continue; }
-            SPDLOG_DEBUG("Entity {} has {} neighbours", entity_trait::to_entity(_entt), _ob.neighbours);
-            if      ( _ob.neighbours <= 0)                          { _ob.m_enabled = true; }
-            else if ( _ob.neighbours > 0 and _ob.neighbours < 5 )   { _ob.m_enabled = false; }
-            else                                                    { _ob.m_enabled = true; }
+            if      ( _nb.count() <= 0)                     { _ob.m_enabled = true; }
+            else if ( _nb.count() > 0 and _nb.count() < 5 ) { _ob.m_enabled = false; }
+            else                                            { _ob.m_enabled = true; }
         }
-        SPDLOG_INFO("Total Iterations: {}", count);
-        
-        return ca_timer.getElapsedTime();
-
+        SPDLOG_INFO("Finished applying Cellular Automata rules!");
     }
 
-    // "Optimized" by claude sonnet 3.5. Might be cleaner looking.
-    // Actually runs slightly slower than the original iterate_linear!
-    void iterate_linear_optimized(entt::basic_registry<entt::entity> &reg)
-    {
-        using entity_trait = entt::entt_traits<entt::entity>;
-        const int width = ProceduralMaze::Settings::MAP_GRID_SIZE.x;
-        
-        // Pre-calculate neighbor offsets
-        static const std::array<int, 8> neighbor_offsets = {
-            -1,                  // left
-            1,                   // right
-            -width,             // up
-            width,              // down
-            -(width + 1),       // up-left
-            -(width - 1),       // up-right
-            (width - 1),        // down-left
-            (width + 1)         // down-right
-        };
-
-        // First pass: count neighbors
-        std::vector<int> neighbor_counts(m_obs_gen.size(), 0);
-        int idx = 0;
-        int count = 0;
-        
-        for(auto it = m_obs_gen.begin(); it != m_obs_gen.end(); ++it, ++idx, ++count) {
-            const bool has_left_edge = (idx % width) == 0;
-            const bool has_right_edge = ((idx + 1) % width) == 0;
-            
-            const auto current_entity = entt::entity(*it);
-            
-            for(size_t n = 0; n < neighbor_offsets.size(); ++n) {
-                // Skip edge cases
-                if((has_left_edge && (n == 0 || n == 4 || n == 6)) ||
-                   (has_right_edge && (n == 1 || n == 5 || n == 7)))
-                    continue;
-                    
-                const int neighbor_idx = idx + neighbor_offsets[n];
-                if(neighbor_idx >= 0 && neighbor_idx < static_cast<int>(m_obs_gen.size())) {
-                    auto neighbor_it = m_obs_gen.begin() + neighbor_idx;
-                    if(reg.get<Cmp::Obstacle>(entt::entity(*neighbor_it)).m_enabled) {
-                        neighbor_counts[idx]++;
-                    }
-                }
-            }
-        }
-
-        // Second pass: apply rules
-        idx = 0;
-        for(auto it = m_obs_gen.begin(); it != m_obs_gen.end(); ++it, ++idx) {
-            auto &obstacle = reg.get<Cmp::Obstacle>(entt::entity(*it));
-            if(obstacle.m_type == Cmp::Obstacle::Type::BEDROCK) continue;
-            
-            const int neighbors = neighbor_counts[idx];
-            obstacle.neighbours = neighbors; // Update neighbor count
-            
-            // Apply cellular automata rules
-            obstacle.m_enabled = (neighbors <= 0 || neighbors >= 5);
-        }
-        SPDLOG_INFO("Total Iterations: {}", count);
-
-#ifdef _DEBUG
-        SPDLOG_INFO("Total cells processed: {}", m_obs_gen.size());
-#endif
-  
-
-    }
-    ~CellAutomataSystem() = default;
-
-private:
-    Cmp::Random rng{0, 1};
-    RandomTilePlacer m_obs_gen;
+    RandomLevelGenerator m_random_level;
 };
 
 } // namespace ProceduralMaze::Systems::ProcGen

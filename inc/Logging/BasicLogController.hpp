@@ -34,10 +34,12 @@ public:
     :   m_log_name(log_name), m_log_path(log_path)
     {
         m_console_sink->set_level(spdlog::level::trace);
-        m_console_sink->set_pattern("[%c] [%^%l%$] %s:%v");
+        // m_console_sink->set_pattern("[%c] [%^%l%$] %s:%v");
+        m_console_sink->set_pattern("%s:%v");
 
         m_file_sink->set_level(spdlog::level::trace);
-        m_console_sink->set_pattern("[%c] [%^%l%$] %s:%v");
+        // m_file_sink->set_pattern("[%c] [%^%l%$] %s:%v");
+        m_file_sink->set_pattern("%s:%v");
 
         spdlog::set_default_logger(m_logger);
         spdlog::flush_on(spdlog::level::trace); 
