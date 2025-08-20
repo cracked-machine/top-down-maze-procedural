@@ -172,6 +172,20 @@ private:
 
             // Apply velocity to position
             _current_pos += _movement.velocity * dt;
+
+            if(_current_pos.y < Settings::MAP_GRID_OFFSET.y || 
+               _current_pos.y > Settings::MAP_GRID_OFFSET.y + (Settings::MAP_GRID_SIZE.y * Settings::OBSTACLE_SIZE.y) ||
+               _current_pos.x < 0 || 
+               _current_pos.x > Settings::MAP_GRID_OFFSET.x + (Settings::MAP_GRID_SIZE.x * Settings::OBSTACLE_SIZE.x))
+            {
+                // Reset position to starting point if player goes out of bounds
+                _current_pos = Settings::PLAYER_START_POS;
+                for (auto [_entt, _sys] : m_reg.view<Cmp::System>().each())
+                {
+                    _sys.player_stuck = true;
+                }
+                return;
+            }
         }
     }
 

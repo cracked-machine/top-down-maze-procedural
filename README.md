@@ -49,4 +49,4 @@ You must ensure that player movement delta is equal or larger than the corner ov
 - [ ] add quick restart (r key)
 - [x] God mode (toggle collsision)
 - [x] refactor random system class
-- [ ] warp player back to spawn if they leave the play area
+- [x] warp player back to spawn if they leave the play area
