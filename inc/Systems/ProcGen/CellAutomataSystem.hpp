@@ -22,143 +22,6 @@ public:
     : m_random_level(rs)
     {}
 
-    //  1 0 1 1 0 1 1 0 1 1
-    //  1 1 0 1 1 0 1 1 1 1
-    //  0 1 1 0 1 1 0 0 1 1
-
-    // if n - 1
-    // {
-    //      if n - 10
-    //      {
-    //          // always true
-    //          n - (10 + 1) 
-    //      }
-    //      if n - (10 - 1) { }
-    // }
-    // if n + 1
-    // {
-    //      if n + 10
-    //      {
-    //          // always true
-    //          n + (10 - 1)
-    //      }
-    //      if n + (10 + 1) { }
-    // sf::Time iterate_linear(entt::basic_registry<entt::entity> &reg)
-    // {
-    //     sf::Clock ca_timer;
-    //     using entity_trait = entt::entt_traits<entt::entity>;
-    //     int count = 0;
-
-    //     // 1. find neighbours
-    //     for(auto it = m_random_level.begin(); it != m_random_level.end(); it++) {
-            
-    //         auto _ob = reg.get<Cmp::Obstacle>( entt::entity(*it) );
-    //         reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours = 0; });
-                    
-    //         count++;
-    //         SPDLOG_TRACE("");
-    //         const int idx = std::distance(m_random_level.begin(), it);
-    //         SPDLOG_TRACE("max x is {}, idx is {}", m_size.x, idx);
-            
-    //         bool has_left_map_edge = not ( (idx) % Settings::MAP_GRID_SIZE.x );
-    //         bool has_right_map_edge = not ( (idx + 1) % Settings::MAP_GRID_SIZE.x );
-            
-    //         SPDLOG_TRACE("Entity {} has left map edge: {}", (*it), has_left_map_edge);                
-    //         SPDLOG_TRACE("Entity {} has right map edge: {}",(*it), has_right_map_edge);  
-
-    //         // -----------------------------------------
-    //         // |           |       |           |        |
-    //         // ------------------------------------------
-    //         // |   N - 1   |   N   |           |        |
-    //         // ------------------------------------------
-    //         // | N - (x-1) | N - x | N - (x+1) |        |
-    //         // ------------------------------------------
-    //         // where N is iterator, x is row length
-    //         // N - 1
-    //         if(std::prev(it) >= m_random_level.begin()) {
-    //             if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it))).m_enabled && not has_left_map_edge ) { 
-    //                 reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-    //                 SPDLOG_TRACE("N - 1:{}", *(std::prev(it)) ); 
-    //             }
-    //         }
-    //         // N - (x - 1)
-    //         if( std::prev(it, (Settings::MAP_GRID_SIZE.x + 1)) >= m_random_level.begin() ) {
-    //             if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.x + 1))).m_enabled && not has_left_map_edge)  {
-    //                 reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-    //                 SPDLOG_TRACE("N - (x - 1):{}", *(std::prev(it, m_size.x + 1))); 
-    //             }
-    //         }
-    //         // N - x
-    //         if( std::prev(it, Settings::MAP_GRID_SIZE.x) >= m_random_level.begin() ) {
-    //             if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.x))).m_enabled ) {
-    //                 reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-    //                 SPDLOG_TRACE("N - x:{}", *(std::prev(it, m_size.x))); 
-    //             }
-    //         }
-    //         // N - (x + 1)
-    //         if( (std::prev(it, (Settings::MAP_GRID_SIZE.x - 1))) >= m_random_level.begin() ) {
-    //             if( reg.get<Cmp::Obstacle>( entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.x - 1))).m_enabled && not has_right_map_edge) { 
-    //                 reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-    //                 SPDLOG_TRACE("N - (x + 1):{}", *(std::prev(it, m_size.x - 1)) ); 
-    //             }
-    //         }
-
-    //         // ------------------------------------------
-    //         // |        | N + (x-1) | N + x | N + (x+1) |
-    //         // ------------------------------------------ 
-    //         // |        |           |   N   |   N + 1   |
-    //         // ------------------------------------------ 
-    //         // |        |           |       |           |
-    //         // ------------------------------------------
-    //         // where N is iterator, x is row length
-
-    //         // N + (x - 1) 
-    //         if( std::next(it, (Settings::MAP_GRID_SIZE.x - 1)) < m_random_level.end()) {
-    //             if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, Settings::MAP_GRID_SIZE.x - 1))).m_enabled && not has_left_map_edge) { 
-    //                reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-    //                SPDLOG_TRACE("N + (x - 1):{}", (*std::next(it, m_size.x - 1)) ); 
-    //             }
-    //         }
-    //         // N + x
-    //         if( Settings::MAP_GRID_SIZE.x < m_random_level.size() && std::next(it, Settings::MAP_GRID_SIZE.x) < m_random_level.end()) {
-    //             if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, Settings::MAP_GRID_SIZE.x))).m_enabled ) { 
-    //                 reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-    //                 SPDLOG_TRACE("N + x:{}",  (*std::next(it, m_size.x))); 
-    //             }
-    //         }
-    //         // N + (x + 1)
-    //         if( (Settings::MAP_GRID_SIZE.x + 1) < m_random_level.size() && std::next(it, (Settings::MAP_GRID_SIZE.x + 1)) < m_random_level.end()) {
-    //             if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it, (Settings::MAP_GRID_SIZE.x + 1)))).m_enabled && not has_right_map_edge ) { 
-    //                 reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-    //                 SPDLOG_TRACE("N + (x + 1):{}", (*std::next(it, m_size.x + 1)) ); 
-    //             }
-    //         }
-    //         // N + 1
-    //         if( std::next(it) < m_random_level.end() ) {
-    //             if( reg.get<Cmp::Obstacle>( entt::entity(*std::next(it))).m_enabled && not has_right_map_edge ) { 
-    //                 reg.patch<Cmp::Obstacle>(entt::entity(*it), [](auto &_ob_update){ _ob_update.neighbours++; });
-    //                  SPDLOG_TRACE("N + 1:{}",  (*std::next(it))); 
-    //             }
-    //         }
-                
-            
-    //         SPDLOG_DEBUG("Entity {} has {} neighbours", *it, _ob.neighbours);
-    //     }
-    //     // 2. apply rules
-
-    //     for( auto [_entt, _ob, _pos]: reg.view<Cmp::Obstacle, Cmp::Position>().each() ) {
-    //         if( _ob.m_type == Cmp::Obstacle::Type::BEDROCK) { continue; }
-    //         SPDLOG_DEBUG("Entity {} has {} neighbours", entity_trait::to_entity(_entt), _ob.neighbours);
-    //         if      ( _ob.neighbours <= 0)                          { _ob.m_enabled = true; }
-    //         else if ( _ob.neighbours > 0 and _ob.neighbours < 5 )   { _ob.m_enabled = false; }
-    //         else                                                    { _ob.m_enabled = true; }
-    //     }
-    //     SPDLOG_INFO("Total Iterations: {}", count);
-        
-    //     return ca_timer.getElapsedTime();
-
-    // }
-
     void iterate(entt::basic_registry<entt::entity> &reg, unsigned int iterations)
     {
         sf::Clock iteration_timer;
@@ -194,22 +57,24 @@ private:
             SPDLOG_TRACE("");
             const int idx = std::distance(m_random_level.begin(), it);
             
-            bool has_left_map_edge = not ( (idx) % Settings::MAP_GRID_SIZE.x );
-            bool has_right_map_edge = not ( (idx + 1) % Settings::MAP_GRID_SIZE.x );
+            bool has_left_map_edge = not ( (idx) % Settings::MAP_GRID_SIZE.y );
+            bool has_right_map_edge = not ( (idx + 1) % Settings::MAP_GRID_SIZE.y );
             
             SPDLOG_TRACE("Entity {} has left map edge: {}", (*it), has_left_map_edge);                
             SPDLOG_TRACE("Entity {} has right map edge: {}",(*it), has_right_map_edge);  
             auto current_entity = entt::entity(*it);
-            // -----------------------------------------
-            // |           |       |           |        |
-            // ------------------------------------------
-            // |   N - 1   |   N   |           |        |
-            // ------------------------------------------
-            // | N - (x-1) | N - x | N - (x+1) |        |
-            // ------------------------------------------
-            // where N is iterator, x is row length
+
+            //   Columns
+            // ---------------------------------------
+            // |  N - (y-1) |   N - 1   |            |  Rows
+            // ---------------------------------------
+            // |   N - y    |     N     |            |
+            // ---------------------------------------
+            // | N - (y+1)  |           |            |
+            // ---------------------------------------
+            // where N is iterator, y is column length
+
             // N - 1
-            
             if(std::prev(it) >= m_random_level.begin()) 
             {
                 auto left_entt = entt::entity(*std::prev(it));
@@ -222,10 +87,10 @@ private:
                     SPDLOG_TRACE("N - 1:{}", *(std::prev(it)) ); 
                 }
             }
-            // N - (x - 1)
-            if( std::prev(it, (Settings::MAP_GRID_SIZE.x + 1)) >= m_random_level.begin() ) 
+            // N - (y - 1)
+            if( std::prev(it, (Settings::MAP_GRID_SIZE.y + 1)) >= m_random_level.begin() ) 
             {
-                auto down_left_entt = entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.x + 1));
+                auto down_left_entt = entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.y + 1));
                 if( reg.get<Cmp::Obstacle>( down_left_entt ).m_enabled && not has_left_map_edge)  
                 {
                     reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update){ 
@@ -233,10 +98,10 @@ private:
                     });
                 }
             }
-            // N - x
-            if( std::prev(it, Settings::MAP_GRID_SIZE.x) >= m_random_level.begin() ) 
+            // N - y
+            if( std::prev(it, Settings::MAP_GRID_SIZE.y) >= m_random_level.begin() ) 
             {
-                auto down_entt = entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.x));
+                auto down_entt = entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.y));
                 if( reg.get<Cmp::Obstacle>( down_entt ).m_enabled ) 
                 {
                     reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
@@ -246,10 +111,10 @@ private:
                     SPDLOG_TRACE("N - x:{}", *(std::prev(it, m_size.x))); 
                 }
             }
-            // N - (x + 1)
-            if( (std::prev(it, (Settings::MAP_GRID_SIZE.x - 1))) >= m_random_level.begin() ) 
+            // N - (y + 1)
+            if( (std::prev(it, (Settings::MAP_GRID_SIZE.y - 1))) >= m_random_level.begin() ) 
             {
-                auto down_right_entt = entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.x - 1));
+                auto down_right_entt = entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.y - 1));
                 if( reg.get<Cmp::Obstacle>( down_right_entt ).m_enabled && not has_right_map_edge) 
                 { 
                     reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
@@ -259,19 +124,21 @@ private:
                 }
             }
 
-            // ------------------------------------------
-            // |        | N + (x-1) | N + x | N + (x+1) |
-            // ------------------------------------------ 
-            // |        |           |   N   |   N + 1   |
-            // ------------------------------------------ 
-            // |        |           |       |           |
-            // ------------------------------------------
-            // where N is iterator, x is row length
+            //   Columns
+            // ---------------------------------------
+            // |            |           |  N + (y-1) |  Rows
+            // ---------------------------------------
+            // |            |     N     |    N + y   |
+            // ---------------------------------------
+            // |            |   N + 1   | N + (y+1)  |
+            // ---------------------------------------
 
-            // N + (x - 1) 
-            if( std::next(it, (Settings::MAP_GRID_SIZE.x - 1)) < m_random_level.end()) 
+            // where N is iterator, y is column length
+
+            // N + (y - 1) 
+            if( std::next(it, (Settings::MAP_GRID_SIZE.y - 1)) < m_random_level.end()) 
             {
-                auto top_left_entt = entt::entity(*std::next(it, Settings::MAP_GRID_SIZE.x - 1));
+                auto top_left_entt = entt::entity(*std::next(it, Settings::MAP_GRID_SIZE.y - 1));
                 if( reg.get<Cmp::Obstacle>( top_left_entt ).m_enabled && not has_left_map_edge) 
                 { 
                     reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update) 
@@ -280,10 +147,10 @@ private:
                     });
                 }
             }
-            // N + x
-            if( Settings::MAP_GRID_SIZE.x < m_random_level.size() && std::next(it, Settings::MAP_GRID_SIZE.x) < m_random_level.end()) 
+            // N + y
+            if( Settings::MAP_GRID_SIZE.y < m_random_level.size() && std::next(it, Settings::MAP_GRID_SIZE.y) < m_random_level.end()) 
             {
-                auto top_entt = entt::entity(*std::next(it, Settings::MAP_GRID_SIZE.x));
+                auto top_entt = entt::entity(*std::next(it, Settings::MAP_GRID_SIZE.y));
                 if( reg.get<Cmp::Obstacle>(  top_entt ).m_enabled ) 
                 { 
                     reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
@@ -292,10 +159,10 @@ private:
                     });
                 }
             }
-            // N + (x + 1)
-            if( (Settings::MAP_GRID_SIZE.x + 1) < m_random_level.size() && std::next(it, (Settings::MAP_GRID_SIZE.x + 1)) < m_random_level.end()) 
+            // N + (y + 1)
+            if( (Settings::MAP_GRID_SIZE.y + 1) < m_random_level.size() && std::next(it, (Settings::MAP_GRID_SIZE.y + 1)) < m_random_level.end()) 
             {
-                auto top_right_entt = entt::entity(*std::next(it, (Settings::MAP_GRID_SIZE.x + 1)));
+                auto top_right_entt = entt::entity(*std::next(it, (Settings::MAP_GRID_SIZE.y + 1)));
                 if( reg.get<Cmp::Obstacle>( top_right_entt ).m_enabled && not has_right_map_edge ) 
                 { 
                     reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
