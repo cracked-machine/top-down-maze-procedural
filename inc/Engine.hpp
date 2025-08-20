@@ -35,6 +35,10 @@
 #include <EventHandler.hpp>
 #include <Settings.hpp>
 
+#ifdef _WIN32
+    #include <windows.h>
+#endif 
+
 namespace ProceduralMaze {
 
 class Engine {
@@ -42,6 +46,10 @@ public:
     Engine() {
 
         m_window->setFramerateLimit(144);
+
+#ifdef _WIN32
+        ::ShowWindow(m_window->getNativeHandle(), SW_MAXIMIZE);
+#endif 
 
         register_reactive_storage();
     
@@ -70,8 +78,9 @@ public:
 
     bool run()
     {
-        /// MAIN LOOP BEGINS
         sf::Clock deltaClock;
+
+        /// MAIN LOOP BEGINS
         while (m_window->isOpen())
         {
             sf::Time deltaTime = deltaClock.restart();
@@ -86,6 +95,7 @@ public:
             m_render_sys->render();   
         }
         /// MAIN LOOP ENDS
+
         return false;   
     }
 
