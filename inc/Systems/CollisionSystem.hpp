@@ -41,7 +41,7 @@ public:
 
     void check(entt::basic_registry<entt::entity> &reg)
     {
-        const float PUSH_FACTOR = 1.75f;  // Push slightly more than minimum to avoid floating point issues
+        const float PUSH_FACTOR = 1.1f;  // Push slightly more than minimum to avoid floating point issues
         
         for (auto [_pc_entt, _pc, _pc_pos] :
             m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each())
@@ -64,7 +64,7 @@ public:
                 had_collision = true;
                 stuck_loop++;
 
-                if (stuck_loop > 3) // Reduced threshold, but we'll be smarter about resolution
+                if (stuck_loop > 5) // Reduced threshold, but we'll be smarter about resolution
                 {
                     // First try moving back to starting position
                     _pc_pos.x = starting_pos.x;
