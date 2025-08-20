@@ -40,54 +40,36 @@ namespace ProceduralMaze {
 class Engine {
 public:
     Engine() {
-        using namespace ProceduralMaze::Settings;
+
         m_window->setFramerateLimit(144);
 
         register_reactive_storage();
     
         EntityFactory::add_system_entity( m_reg );
-        EntityFactory::add_player_entity( m_reg, PLAYER_START_POS );
-        
-
-        // local view
-        m_render_sys->m_local_view = sf::View( 
-            { Settings::LOCAL_MAP_VIEW_SIZE.x * 0.5f, Settings::DISPLAY_SIZE.y * 0.5f}, 
-            Settings::LOCAL_MAP_VIEW_SIZE 
-        );
-        m_render_sys->m_local_view.setViewport( sf::FloatRect({0.f, 0.f}, {1.f, 1.f}) );
-
-        // minimap view of entire level
-        m_render_sys->m_minimap_view = sf::View( 
-            { Settings::MINI_MAP_VIEW_SIZE.x * 0.5f, Settings::DISPLAY_SIZE.y * 0.5f}, 
-            Settings::MINI_MAP_VIEW_SIZE 
-        );
-        m_render_sys->m_minimap_view.setViewport( sf::FloatRect({0.75f, 0.f}, {0.25f, 0.25f}) );
+        EntityFactory::add_player_entity( m_reg );
 
         SPDLOG_INFO("Engine Init");
+
+        // procedurally generate the level
+        Sys::ProcGen::RandomTilePlacer tile_placer(
+            m_reg,
+            Settings::WALL_TILE_POOL,
+            Settings::BORDER_TILE_POOL
+        );
+
+        Sys::ProcGen::CellAutomataSystem cellauto_parser{tile_placer};
+        for( int i = 0; i < 5; i++)
+        {
+            SPDLOG_INFO(
+                "Level Iteration #{} took {} ms", 
+                i, 
+                cellauto_parser.iterate_linear(m_reg).asMilliseconds()
+            );
+        }
     }
 
     bool run()
     {
-        using namespace ProceduralMaze::Settings;
-
-        // procedurally generate the level
-        Sys::ProcGen::RandomObstacleGenerator obstacle_generator(
-            Settings::WALL_TILE_POOL,
-            Settings::BORDER_TILE_POOL
-        );
-        obstacle_generator.gen_walls(m_reg);
-        obstacle_generator.gen_border(m_reg);
-        obstacle_generator.stats(m_reg);
-        Sys::ProcGen::CellAutomataSystem cellauto_parser{obstacle_generator};
-
-        sf::Clock clock;
-        int level_gen_iteration_max = 5;
-        for( int i = 0; i < level_gen_iteration_max; i++)
-        {
-            cellauto_parser.iterate_linear(m_reg);
-            SPDLOG_INFO("Level Iteration #{} took {} ms", i, clock.restart().asMilliseconds());
-        }
-        
         /// MAIN LOOP BEGINS
         sf::Clock deltaClock;
         while (m_window->isOpen())
@@ -110,22 +92,24 @@ public:
 private:
     // SFML Window
     std::shared_ptr<sf::RenderWindow> m_window = std::make_shared<sf::RenderWindow>(
-        sf::VideoMode(ProceduralMaze::Settings::DISPLAY_SIZE), "ProceduralMaze");
+        sf::VideoMode(Settings::DISPLAY_SIZE), 
+        "ProceduralMaze"
+    );
     
     // ECS Registry
     entt::basic_registry<entt::entity> m_reg;
 
     //  ECS Systems
-    std::unique_ptr<Sys::RenderSystem> m_render_sys = 
-        std::make_unique<Sys::RenderSystem> (m_window);
-    
-    std::unique_ptr<Sys::CollisionSystem> m_collsion_sys =
-        std::make_unique<Sys::CollisionSystem> ();
+    std::unique_ptr<Sys::RenderSystem> m_render_sys = std::make_unique<Sys::RenderSystem> (m_window);
+    std::unique_ptr<Sys::CollisionSystem> m_collsion_sys = std::make_unique<Sys::CollisionSystem>();
 
+    // SFML keyboard/mouse event handler
     ProceduralMaze::InputEventHandler m_event_handler;
 
+    // pool for System component updates from the registry
     entt::reactive_mixin<entt::storage<void>> m_system_updates;
     
+    // move the player according to direction and delta time
     void process_movement(sf::Time deltaTime)
     {
         if( m_event_handler.empty() ) { return; }
@@ -134,39 +118,43 @@ private:
         auto new_direction = m_event_handler.next();
         auto scaled_movement = new_direction * movement_speed * deltaTime.asSeconds();
         
-        for( auto [ _entt, _pc, _current_pos/*, _xbb, _ybb*/] : 
-            m_reg.view<Cmp::PlayableCharacter, Cmp::Position/*, Cmp::Xbb, Cmp::Ybb*/>().each() )
+        for( auto [ _entt, _pc, _current_pos] : 
+            m_reg.view<Cmp::PlayableCharacter, Cmp::Position>().each() )
         {
             _current_pos += scaled_movement;
         }
     }
 
+    // Register the systems to use their reactive storage
+    // This allows the systems to react to changes in the registry
+    // such as when a component is added or updated
     void register_reactive_storage()
     {
-
+        // Register this Engine's pool for System comnponent updates
         m_system_updates.bind(m_reg);
         m_system_updates
             .on_update<Cmp::System>()
             .on_construct<Cmp::System>();
 
+        // Register the RenderSystem's pool for System comnponent updates
         m_render_sys->m_system_updates.bind(m_reg);
         m_render_sys->m_system_updates
             .on_update<Cmp::System>()
             .on_construct<Cmp::System>();
 
-        // render systems reactive storage for player position updates
+        // Register the RenderSystem's pool for Position comnponent updates
         m_render_sys->m_position_updates.bind(m_reg);
         m_render_sys->m_position_updates
             .on_update<Cmp::Position>()
             .on_construct<Cmp::Position>();
 
-        // render systems reactive storage for obstacle updates
+        // Register the RenderSystem's pool for Obstacle comnponent updates
         m_render_sys->m_position_updates.bind(m_reg);
         m_render_sys->m_position_updates
             .on_update<Cmp::Obstacle>()
             .on_construct<Cmp::Obstacle>();
 
-        // Collision systems reactive storage for player position updates
+        // Register the CollisionSystem's pool for Position comnponent updates
         m_collsion_sys->m_position_updates.bind(m_reg);
         m_collsion_sys->m_position_updates
             .on_update<Cmp::Position>()

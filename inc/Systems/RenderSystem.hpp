@@ -50,6 +50,19 @@ public:
         if (!m_floormap.load(tile_file, {16,16}, floortile_choices.data(), 200, 98))
             SPDLOG_CRITICAL("Unable to load tile map {}", tile_file);
         
+        // local view
+        m_local_view = sf::View( 
+            { Settings::LOCAL_MAP_VIEW_SIZE.x * 0.5f, Settings::DISPLAY_SIZE.y * 0.5f}, 
+            Settings::LOCAL_MAP_VIEW_SIZE 
+        );
+        m_local_view.setViewport( sf::FloatRect({0.f, 0.f}, {1.f, 1.f}) );
+
+        // minimap view of entire level
+        m_minimap_view = sf::View( 
+            { Settings::MINI_MAP_VIEW_SIZE.x * 0.5f, Settings::DISPLAY_SIZE.y * 0.5f}, 
+            Settings::MINI_MAP_VIEW_SIZE 
+        );
+        m_minimap_view.setViewport( sf::FloatRect({0.75f, 0.f}, {0.25f, 0.25f}) );
 
         SPDLOG_DEBUG("RenderSystem()"); 
     }
@@ -79,8 +92,8 @@ public:
                         _sys.player_stuck = false;  
                     }
                     else {
-                        for( auto [entity, _pc, _pos/*, _xbb, _ybb*/]: 
-                            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position/*, Cmp::Xbb, Cmp::Ybb*/>().each() ) 
+                        for( auto [entity, _pc, _pos]: 
+                            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each() ) 
                         {
                             update_view_center(m_local_view, _pos);
                         }
@@ -105,8 +118,8 @@ public:
                         m_minimap_view.setCenter({Settings::MINI_MAP_VIEW_SIZE.x * 0.5f, Settings::MINI_MAP_VIEW_SIZE.y * 0.5f});
                         _sys.player_stuck = false;  
                     } else {
-                        for( auto [entity, _pc, _pos/*, _xbb, _ybb*/]: 
-                            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position/*, Cmp::Xbb, Cmp::Ybb*/>().each() ) 
+                        for( auto [entity, _pc, _pos]: 
+                            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each() ) 
                         {
                             update_view_center(m_minimap_view, _pos);
                         }
@@ -183,7 +196,6 @@ public:
                 }
                 else
                 {
-                    // m_window->draw( Sprites::Brick(_pos, Sprites::Brick::BEDROCK_FILLCOLOUR, Sprites::Brick::BEDROCK_LINECOLOUR) ); 
                     m_border_sprite.setPosition(_pos);  
                     m_border_sprite.pick(_ob.m_tile_pick);
                     m_window->draw( m_border_sprite ); 
@@ -195,8 +207,8 @@ public:
 
     void render_player()
     {
-        for( auto [entity, _pc, _pos/*, _xbb, _ybb*/]: 
-            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position/*, Cmp::Xbb, Cmp::Ybb*/>().each() ) 
+        for( auto [entity, _pc, _pos]: 
+            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each() ) 
         {
             m_player_sprite.setPosition(_pos);
             m_player_sprite.pick(0);
@@ -235,9 +247,6 @@ public:
 private:
     std::shared_ptr<sf::RenderWindow> m_window;
     Sprites::Containers::TileMap m_floormap;
-    // Sprites::BasicSprite wall_sprite{"res/wall.png"};
-    // Sprites::BasicSprite wall_sprite{"res/kenney_tiny-dungeon/Tiles/tile_0041.png"};
-    // Sprites::BasicSprite border_sprite{"res/kenney_tiny-dungeon/Tiles/tile_0040.png"};
     Sprites::MultiSprite m_wall_sprite{
         Settings::WALL_TILESET_PATH,
         Settings::WALL_TILE_POOL,

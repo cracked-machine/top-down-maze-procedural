@@ -15,9 +15,10 @@
 
 namespace ProceduralMaze::Sys::ProcGen {
 
-class RandomObstacleGenerator {
+class RandomTilePlacer {
 public:
-    RandomObstacleGenerator(
+    RandomTilePlacer(
+        entt::basic_registry<entt::entity> &reg,
         const std::vector<unsigned int> &WALL_TILE_POOL,
         const std::vector<unsigned int> &BORDER_TILE_POOL,
         unsigned long seed = 0
@@ -29,7 +30,9 @@ public:
                 m_activation_selector(0,1)
     {
         if (seed) Cmp::Random::seed(seed);
-        
+        gen_walls(reg);
+        gen_border(reg);
+        stats(reg);
     }
 
     // These obstacles in the game map area.

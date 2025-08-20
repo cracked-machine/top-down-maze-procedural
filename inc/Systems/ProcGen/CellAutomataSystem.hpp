@@ -16,7 +16,7 @@ namespace ProceduralMaze::Sys::ProcGen {
 
 class CellAutomataSystem {
 public:
-    CellAutomataSystem(const RandomObstacleGenerator &rs)
+    CellAutomataSystem(const RandomTilePlacer &rs)
     : 
         m_obs_gen(rs)
     {
@@ -45,9 +45,9 @@ public:
     //          n + (10 - 1)
     //      }
     //      if n + (10 + 1) { }
-    // }
-    void iterate_linear(entt::basic_registry<entt::entity> &reg)
+    sf::Time iterate_linear(entt::basic_registry<entt::entity> &reg)
     {
+        sf::Clock ca_timer;
         using entity_trait = entt::entt_traits<entt::entity>;
         int count = 0;
 
@@ -156,7 +156,8 @@ public:
             else                                                    { _ob.m_enabled = true; }
         }
         SPDLOG_INFO("Total Iterations: {}", count);
-  
+        
+        return ca_timer.getElapsedTime();
 
     }
 
@@ -230,7 +231,7 @@ public:
 
 private:
     Cmp::Random rng{0, 1};
-    RandomObstacleGenerator m_obs_gen;
+    RandomTilePlacer m_obs_gen;
 };
 
 } // namespace ProceduralMaze::Systems::ProcGen

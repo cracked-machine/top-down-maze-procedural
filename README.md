@@ -42,9 +42,11 @@ You must ensure that player movement delta is equal or larger than the corner ov
 - [x] add player movement velocity
 - [ ] add player movement acceleration
 - [x] fix collision detection to work with rectangle outlines = 0
+
 ## General
 - [ ] Add "idle" state. i.e. game not running, blank screen with "press any key to start" message"
 - [ ] Add death i.e. allow game to end
 - [ ] add quick restart (r key)
 - [x] God mode (toggle collsision)
 - [x] refactor random system class
+- [ ] warp player back to spawn if they leave the play area

@@ -32,21 +32,11 @@ public:
     }
 
     
-    static void add_player_entity(entt::basic_registry<entt::entity> &m_reg, const sf::Vector2f &pos)
+    static void add_player_entity(entt::basic_registry<entt::entity> &m_reg)
     {
         auto entity = m_reg.create();
-        m_reg.emplace<Cmp::Position>(entity, pos); 
+        m_reg.emplace<Cmp::Position>(entity, Settings::PLAYER_START_POS); 
         m_reg.emplace<Cmp::PlayableCharacter>(entity );
-        // m_reg.emplace<Cmp::Xbb>(
-        //     entity, 
-        //     sf::Vector2f(pos.x - 1, pos.y), 
-        //     sf::Vector2f(18, 32) 
-        // );
-        // m_reg.emplace<Cmp::Ybb>(
-        //     entity, 
-        //     sf::Vector2f(pos.x, pos.y - 1), 
-        //     sf::Vector2f(16, 34) 
-        // );
     }
 
 private:
