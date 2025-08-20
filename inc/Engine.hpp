@@ -27,6 +27,7 @@
 #include <Components/System.hpp>
 #include <Components/XAxisHitBox.hpp>
 #include <Components/YAxisHitBox.hpp>
+#include <Components/Movement.hpp>
 
 #include <Systems/CollisionSystem.hpp>
 #include <Systems/RenderSystem.hpp>
@@ -119,19 +120,50 @@ private:
     // pool for System component updates from the registry
     entt::reactive_mixin<entt::storage<void>> m_system_updates;
     
-    // move the player according to direction and delta time
+    // move the player according to direction and delta time with acceleration
     void process_movement(sf::Time deltaTime)
     {
-        if( m_event_handler.empty() ) { return; }
-
-        const float movement_speed = 100.0f; // pixels per second
-        auto new_direction = m_event_handler.next();
-        auto scaled_movement = new_direction * movement_speed * deltaTime.asSeconds();
+        const float dt = deltaTime.asSeconds();
         
-        for( auto [ _entt, _pc, _current_pos] : 
-            m_reg.view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+        for(auto [_entt, _pc, _current_pos, _movement] : 
+            m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>().each())
         {
-            _current_pos += scaled_movement;
+            // Get input direction if available
+            sf::Vector2f desired_direction(0.0f, 0.0f);
+            if ( not m_event_handler.empty()) 
+            {
+                desired_direction = m_event_handler.pop();
+            }
+
+            // Apply acceleration in the desired direction
+            if (desired_direction != sf::Vector2f(0.0f, 0.0f)) 
+            {
+                _movement.acceleration = desired_direction * _movement.acceleration_rate;
+            } 
+            else 
+            {
+                // Apply deceleration when no input
+                if (_movement.velocity != sf::Vector2f(0.0f, 0.0f)) 
+                {
+                    _movement.acceleration = -_movement.velocity.normalized() * _movement.deceleration_rate;
+                } 
+                else 
+                {
+                    _movement.acceleration = sf::Vector2f(0.0f, 0.0f);
+                }
+            }
+
+            // Update velocity
+            _movement.velocity += _movement.acceleration * dt;
+
+            // Clamp velocity to max speed
+            if (_movement.velocity.length() > _movement.max_speed) 
+            {
+                _movement.velocity = (_movement.velocity / _movement.velocity.length()) * _movement.max_speed;
+            }
+
+            // Apply velocity to position
+            _current_pos += _movement.velocity * dt;
         }
     }
 

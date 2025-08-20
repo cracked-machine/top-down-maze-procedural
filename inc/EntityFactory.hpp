@@ -13,6 +13,7 @@
 #include <Components/Obstacle.hpp>
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
+#include <Components/Movement.hpp>
 
 #include <Sprites/Brick.hpp>
 #include <Sprites/Player.hpp>
@@ -36,7 +37,8 @@ public:
     {
         auto entity = m_reg.create();
         m_reg.emplace<Cmp::Position>(entity, Settings::PLAYER_START_POS); 
-        m_reg.emplace<Cmp::PlayableCharacter>(entity );
+        m_reg.emplace<Cmp::PlayableCharacter>(entity);
+        m_reg.emplace<Cmp::Movement>(entity);
     }
 
 private:

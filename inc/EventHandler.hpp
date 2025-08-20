@@ -77,7 +77,7 @@ public:
 
     }
 
-    sf::Vector2f next() { 
+    sf::Vector2f pop() { 
         auto d = m_direction_queue.front();
         m_direction_queue.pop();
         return d;
