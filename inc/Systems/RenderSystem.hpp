@@ -69,7 +69,25 @@ public:
             {   
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
                 render_bricks();
-                render_player(m_local_view);
+                render_player();
+
+                // update the minimap view center based on player position
+                // reset the center if player is stuck
+                for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
+                    if( _sys.player_stuck ) {
+                        m_local_view.setCenter({Settings::LOCAL_MAP_VIEW_SIZE.x * 0.5f, Settings::DISPLAY_SIZE.y * 0.5f});
+                        _sys.player_stuck = false;  
+                    }
+                    else {
+                        for( auto [entity, _pc, _pos/*, _xbb, _ybb*/]: 
+                            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position/*, Cmp::Xbb, Cmp::Ybb*/>().each() ) 
+                        {
+                            update_view_center(m_local_view, _pos);
+                        }
+                    }
+                }                
+
+
             } 
             // local view end
             
@@ -78,7 +96,23 @@ public:
             {
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
                 render_bricks();
-                render_player(m_minimap_view);
+                render_player();
+
+                // update the minimap view center based on player position
+                // reset the center if player is stuck
+                for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
+                    if( _sys.player_stuck ) {
+                        m_minimap_view.setCenter({Settings::MINI_MAP_VIEW_SIZE.x * 0.5f, Settings::MINI_MAP_VIEW_SIZE.y * 0.5f});
+                        _sys.player_stuck = false;  
+                    } else {
+                        for( auto [entity, _pc, _pos/*, _xbb, _ybb*/]: 
+                            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position/*, Cmp::Xbb, Cmp::Ybb*/>().each() ) 
+                        {
+                            update_view_center(m_minimap_view, _pos);
+                        }
+                    }
+                }
+
             } 
             // minimap view end
 
@@ -159,40 +193,38 @@ public:
         }
     }
 
-    void render_player(sf::View &view)
+    void render_player()
     {
-        for( auto [entity, _pc, _pos, _xbb, _ybb]: 
-            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() ) 
+        for( auto [entity, _pc, _pos/*, _xbb, _ybb*/]: 
+            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position/*, Cmp::Xbb, Cmp::Ybb*/>().each() ) 
         {
             m_player_sprite.setPosition(_pos);
             m_player_sprite.pick(0);
             m_window->draw(m_player_sprite);
-            // m_window->draw( Sprites::Player(_pos) );
-
-            for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
-                if( _sys.show_player_hitboxes ) {
-                    m_window->draw(_xbb.drawable());
-                    m_window->draw(_ybb.drawable());
-                }
-            }
-                   
-            update_view_center(view, _pos);
         }
     }
 
     void update_view_center(sf::View &view, Cmp::Position &player_pos)
     {
-            const float MAP_HALF_WIDTH = view.getSize().x * 0.5f;
-            const float MAP_HALF_HEIGHT = view.getSize().y * 0.5f;
-
-            if( ( player_pos.x > MAP_HALF_WIDTH && player_pos.x <  Settings::DISPLAY_SIZE.x - MAP_HALF_WIDTH )
-            ) {
-                view.setCenter({player_pos.x, view.getCenter().y});
-            }
-            if( player_pos.y > MAP_HALF_HEIGHT && player_pos.y < Settings::DISPLAY_SIZE.y - MAP_HALF_HEIGHT)
-            {
-                view.setCenter({view.getCenter().x, player_pos.y});
-            }            
+        const float MAP_HALF_WIDTH = view.getSize().x * 0.5f;
+        const float MAP_HALF_HEIGHT = view.getSize().y * 0.5f;
+        
+        // Calculate the maximum allowed camera positions
+        float maxX = Settings::DISPLAY_SIZE.x - MAP_HALF_WIDTH;
+        float maxY = Settings::DISPLAY_SIZE.y - MAP_HALF_HEIGHT;
+        
+        // Calculate new camera position
+        float newX = std::clamp(player_pos.x, MAP_HALF_WIDTH, maxX);
+        float newY = std::clamp(player_pos.y, MAP_HALF_HEIGHT, maxY);
+        
+        // Smoothly interpolate to the new position
+        sf::Vector2f currentCenter = view.getCenter();
+        float smoothFactor = 0.1f; // Adjust this value to change how quickly the camera follows
+        
+        view.setCenter({
+            currentCenter.x + (newX - currentCenter.x) * smoothFactor,
+            currentCenter.y + (newY - currentCenter.y) * smoothFactor
+        });
     }
     
     entt::reactive_mixin<entt::storage<void>> m_position_updates;
@@ -208,12 +240,14 @@ private:
     // Sprites::BasicSprite border_sprite{"res/kenney_tiny-dungeon/Tiles/tile_0040.png"};
     Sprites::MultiSprite m_wall_sprite{
         Settings::WALL_TILESET_PATH,
-        Settings::WALL_TILE_POOL
+        Settings::WALL_TILE_POOL,
+        Settings::OBSTACLE_SIZE
     };
 
     Sprites::MultiSprite m_border_sprite{
         Settings::BORDER_TILESET_PATH,
-        Settings::BORDER_TILE_POOL
+        Settings::BORDER_TILE_POOL,
+        Settings::OBSTACLE_SIZE
     };
 
     Sprites::MultiSprite m_player_sprite{

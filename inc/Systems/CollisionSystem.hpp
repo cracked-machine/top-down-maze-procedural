@@ -8,7 +8,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
-
+#include <entt/entity/registry.hpp>
 
 #include <Collision.hpp>
 #include <Obstacle.hpp>
@@ -16,6 +16,7 @@
 #include <Position.hpp>
 #include <Settings.hpp>
 #include <spdlog/spdlog.h>
+#include <Components/System.hpp>
 
 
 #include <Sprites/Brick.hpp>
@@ -38,127 +39,102 @@ public:
         return sf::FloatRect(pos, size).getCenter();
     }
 
-    void check_xbb()
+    void check(entt::basic_registry<entt::entity> &reg)
     {
-        int stuck_loop = 0;
-        for( auto [_pc_entt, _pc,  _pc_pos, _xbb, _ybb]: 
-            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
+        const float PUSH_FACTOR = 1.75f;  // Push slightly more than minimum to avoid floating point issues
+        
+        for (auto [_pc_entt, _pc, _pc_pos] :
+            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each())
         {
+            sf::Vector2f starting_pos = {_pc_pos.x, _pc_pos.y};
+            int stuck_loop = 0;
+            bool had_collision = false;
 
-            for( auto [_ob_entt, _ob,  _ob_pos]: 
-                m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each() ) 
+            for (auto [_ob_entt, _ob, _ob_pos] :
+                m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each())
             {
-                if( not _ob.m_enabled ) { continue; }
+                if (not _ob.m_enabled) { continue; }
 
-                auto has_collision = 
-                    _xbb.findIntersection(Sprites::Brick(_ob_pos).getGlobalBounds());
-                
-                while( has_collision ) 
+                auto player_floatrect = sf::FloatRect({ _pc_pos.x, _pc_pos.y }, Settings::PLAYER_SIZE_2F);
+                auto brick_floatRect = sf::FloatRect(_ob_pos, Settings::OBSTACLE_SIZE_2F);
+
+                auto collision = player_floatrect.findIntersection(brick_floatRect);
+                if (!collision) continue;
+
+                had_collision = true;
+                stuck_loop++;
+
+                if (stuck_loop > 3) // Reduced threshold, but we'll be smarter about resolution
                 {
-                    if(stuck_loop > 10 ) 
-                    { 
-                        _pc_pos = ProceduralMaze::Settings::PLAYER_START_POS;
-                        _xbb.position = ProceduralMaze::Settings::PLAYER_START_POS;
-                        _ybb.position = ProceduralMaze::Settings::PLAYER_START_POS;
-                        return;
-                    }
-                    auto brickCenter = Sprites::Brick(_ob_pos).getGlobalBounds().getCenter();
-                    auto diffX = _xbb.getCenter().x - brickCenter.x;
-                    auto minXDist = (_xbb.size.x / 2) + (Sprites::Brick(_ob_pos).getGlobalBounds().size.x / 2);
-                    auto depthX = diffX > 0 ? minXDist - diffX : -minXDist - diffX;
-
-                    auto adjustX = 1;
-                    if (depthX >= 0) {
-                        SPDLOG_DEBUG("left side collision - depthX: {}, diffX: {}, minXDist: {}", depthX, diffX, minXDist);
-                        has_collision = Cmp::Xbb( {_xbb.position.x += adjustX, _xbb.position.y}, _xbb.size ).findIntersection(
-                            Sprites::Brick(_ob_pos).getGlobalBounds());
-                        _pc_pos.x += adjustX;
-                        _ybb.position.x += adjustX;
-                        SPDLOG_DEBUG("new pos:{},{}", _pc_pos.x, _pc_pos.y);
-                    } 
-                    else 
+                    // First try moving back to starting position
+                    _pc_pos.x = starting_pos.x;
+                    _pc_pos.y = starting_pos.y;
+                    
+                    player_floatrect = sf::FloatRect({ _pc_pos.x, _pc_pos.y }, Settings::PLAYER_SIZE_2F);
+                    if (!player_floatrect.findIntersection(brick_floatRect))
                     {
-                        SPDLOG_DEBUG("right side collision - depthX: {}, diffX: {}, minXDist: {}", depthX, diffX, minXDist);
-                        has_collision = Cmp::Xbb( {_xbb.position.x -= adjustX, _xbb.position.y}, _xbb.size ).findIntersection(
-                            Sprites::Brick(_ob_pos).getGlobalBounds());
-                        _pc_pos.x -= adjustX;
-                        _ybb.position.x -= adjustX;
-                        SPDLOG_DEBUG("new pos:{},{}", _pc_pos.x, _pc_pos.y);
+                        SPDLOG_INFO("Recovered by reverting to start position");
+                        continue;
                     }
-                    stuck_loop++;
+
+                    // If still stuck, reset to spawn
+                    SPDLOG_INFO("Could not recover, resetting to spawn");
+                    _pc_pos = ProceduralMaze::Settings::PLAYER_START_POS;
+                    for (auto [_entt, _sys] : reg.view<Cmp::System>().each())
+                    {
+                        _sys.player_stuck = true;
+                    }
+                    return;
                 }
-            }   
+
+                auto brickCenter = brick_floatRect.getCenter();
+                auto playerCenter = player_floatrect.getCenter();
                 
+                auto diffX = playerCenter.x - brickCenter.x;
+                auto diffY = playerCenter.y - brickCenter.y;
+                
+                auto minXDist = (player_floatrect.size.x / 2.0f) + (brick_floatRect.size.x / 2.0f);
+                auto minYDist = (player_floatrect.size.y / 2.0f) + (brick_floatRect.size.y / 2.0f);
+
+                // Calculate signed penetration depths
+                float depthX = (diffX > 0 ? 1.0f : -1.0f) * (minXDist - std::abs(diffX));
+                float depthY = (diffY > 0 ? 1.0f : -1.0f) * (minYDist - std::abs(diffY));
+
+                // Store current position in case we need to revert
+                sf::Vector2f pre_resolve_pos = {_pc_pos.x, _pc_pos.y};
+
+                // Always resolve along the axis of least penetration
+                if (std::abs(depthX) < std::abs(depthY))
+                {
+                    // Push out along X axis
+                    _pc_pos.x += depthX * PUSH_FACTOR;
+                }
+                else
+                {
+                    // Push out along Y axis
+                    _pc_pos.y += depthY * PUSH_FACTOR;
+                }
+
+                // Verify the resolution worked
+                player_floatrect = sf::FloatRect({ _pc_pos.x, _pc_pos.y }, Settings::PLAYER_SIZE_2F);
+                if (player_floatrect.findIntersection(brick_floatRect))
+                {
+                    // If resolution failed, try reverting and using the other axis
+                    _pc_pos = pre_resolve_pos;
+                    if (std::abs(depthX) < std::abs(depthY))
+                    {
+                        _pc_pos.y += depthY * PUSH_FACTOR;
+                    }
+                    else
+                    {
+                        _pc_pos.x += depthX * PUSH_FACTOR;
+                    }
+                }
+
+                SPDLOG_DEBUG("Collision resolved - new pos: {},{}", _pc_pos.x, _pc_pos.y);
+            }
         }
     }
-
-    void check_ybb()
-    {
-        int stuck_loop = 0;
-        for( auto [_pc_entt, _pc,  _pc_pos, _xbb, _ybb]: 
-            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
-        {
-
-            for( auto [_ob_entt, _ob,  _ob_pos]: 
-                m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each() ) 
-            {
-                if( not _ob.m_enabled ) { continue; }
-                
-                auto has_collision = 
-                    _ybb.findIntersection(
-                        Sprites::Brick(_ob_pos).getGlobalBounds()
-                    );
-                
-                while( has_collision ) 
-                {
-                    if(stuck_loop > 10 ) 
-                    { 
-                        _pc_pos = ProceduralMaze::Settings::PLAYER_START_POS;
-                        _xbb.position = ProceduralMaze::Settings::PLAYER_START_POS;
-                        _ybb.position = ProceduralMaze::Settings::PLAYER_START_POS;
-                        return;
-                    }
-                    auto brickCenter = Sprites::Brick(_ob_pos).getGlobalBounds().getCenter();
-                    auto diffY = _ybb.getCenter().y - brickCenter.y;
-                    auto minYDist = (_ybb.size.y / 2) + (Sprites::Brick(_ob_pos).getGlobalBounds().size.y / 2);
-                    auto depthY = diffY > 0 ? minYDist - diffY : -minYDist - diffY;
-
-                    if (depthY >= 0) {
-                        SPDLOG_DEBUG("top side collision - depthX: {}, diffX: {}, minXDist: {}", depthY, diffY, minYDist);
-
-                        has_collision = Cmp::Ybb( {_ybb.position.x, _ybb.position.y += abs(depthY)}, _ybb.size ).findIntersection(
-                            Sprites::Brick(_ob_pos).getGlobalBounds());
-                        
-                        _pc_pos.y += abs(depthY);
-                        _xbb.position.y += abs(depthY); 
-                        SPDLOG_DEBUG("new pos:{},{}", _pc_pos.x, _pc_pos.y);
-                    } 
-                    else 
-                    {
-                        SPDLOG_DEBUG("bottom side collision - depthX: {}, diffX: {}, minXDist: {}", depthY, diffY, minYDist);
-
-                        has_collision = Cmp::Ybb( {_ybb.position.x, _ybb.position.y -= abs(depthY)}, _ybb.size ).findIntersection(
-                            Sprites::Brick(_ob_pos).getGlobalBounds());
-                        
-                        _pc_pos.y -= abs(depthY);
-                        _xbb.position.y -= abs(depthY);
-                        SPDLOG_DEBUG("new pos:{},{}", _pc_pos.x, _pc_pos.y);
-                    }
-                    stuck_loop++;
-                }
-            }   
-                
-        }
-    }
-
-    void check()
-    {
-        check_ybb();
-        check_xbb();
-    }
-    
-
-
 };
 
 } // namespace ProceduralMaze::Systems

@@ -18,6 +18,8 @@ const sf::Vector2f PLAYER_START_POS{ 20, static_cast<float>(DISPLAY_SIZE.y) / 2 
 const sf::Vector2f LOCAL_MAP_VIEW_SIZE{ 300.f, 200.f };
 const sf::Vector2f MINI_MAP_VIEW_SIZE{ DISPLAY_SIZE.x * 0.25f, DISPLAY_SIZE.y * 0.25f };
 
+const sf::Vector2u OBSTACLE_SIZE(16, 16);
+const sf::Vector2f OBSTACLE_SIZE_2F(OBSTACLE_SIZE.x, OBSTACLE_SIZE.y);
 const std::string WALL_TILESET_PATH = "res/Pixel Lands Dungeons/objects.png";
 const std::vector<unsigned int> WALL_TILE_POOL = {
     147, 147, 147, 147, 147, 147, 147, 147,      // rock pile #1
@@ -37,6 +39,7 @@ const std::vector<unsigned int> BORDER_TILE_POOL = {
 const std::vector<unsigned int> FLOOR_TILE_POOL {42,48,49};
 
 const sf::Vector2u PLAYER_SIZE(16, 32);
+const sf::Vector2f PLAYER_SIZE_2F(PLAYER_SIZE.x, PLAYER_SIZE.y);
 const std::string PLAYER_TILESET_PATH = "res/players.png";
 const std::vector<unsigned int> PLAYER_TILE_POOL = {    
     0, 1, 2

@@ -43,8 +43,7 @@ public:
             {
                 if (keyReleased->scancode == sf::Keyboard::Scancode::F1)
                 {
-                    for( auto [ _entt, _sys] :
-                        m_reg.view<Cmp::System>().each() )
+                    for( auto [ _entt, _sys] : m_reg.view<Cmp::System>().each() )
                     {
                         _sys.collisions_enabled = not _sys.collisions_enabled;
                     }

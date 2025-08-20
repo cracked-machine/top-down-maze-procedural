@@ -29,6 +29,7 @@ You must ensure that player movement delta is equal or larger than the corner ov
     - Add new Component: Explosive. Has count down timer
     - When key is pressed/released, the occupied block becomes "explosive"
     - When the timer expires, the neighbours are all disabled and not rendered. i.e destroyed.
+- [ ] extra bomb pickups
 - [ ] add rising water
     - Add blue texture with display dimensions and 50% alpha 
     - Add collision detection with player

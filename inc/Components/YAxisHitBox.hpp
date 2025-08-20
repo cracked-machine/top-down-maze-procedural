@@ -18,9 +18,6 @@ public:
     {
     }
 
-    // The ammount the hitbox protudes on the y-axis from the player graphic.
-    // Keep this small to prevent sticky corner issues    
-    constexpr static float EXTRA_HEIGHT = 1.f;
 };
 
 } // namespace ProceduralMaze::Cmp

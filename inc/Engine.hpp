@@ -89,18 +89,19 @@ public:
         }
         
         /// MAIN LOOP BEGINS
+        sf::Clock deltaClock;
         while (m_window->isOpen())
         {
-
+            sf::Time deltaTime = deltaClock.restart();
+            
             m_event_handler.handler(m_window, m_reg);
-            process_movement();
+            process_movement(deltaTime);
 
             for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
-                if( _sys.collisions_enabled ) m_collsion_sys->check();
+                if( _sys.collisions_enabled ) m_collsion_sys->check(m_reg);
             }
             
             m_render_sys->render();   
-        
         }
         /// MAIN LOOP ENDS
         return false;   
@@ -125,19 +126,19 @@ private:
 
     entt::reactive_mixin<entt::storage<void>> m_system_updates;
     
-    void process_movement()
+    void process_movement(sf::Time deltaTime)
     {
         if( m_event_handler.empty() ) { return; }
 
+        const float movement_speed = 100.0f; // pixels per second
         auto new_direction = m_event_handler.next();
-        for( auto [ _entt, _pc, _current_pos, _xbb, _ybb] : 
-            m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Xbb, Cmp::Ybb>().each() )
-        {
-            _current_pos += new_direction;
-            _xbb.position += new_direction;
-            _ybb.position += new_direction;
-        }
+        auto scaled_movement = new_direction * movement_speed * deltaTime.asSeconds();
         
+        for( auto [ _entt, _pc, _current_pos/*, _xbb, _ybb*/] : 
+            m_reg.view<Cmp::PlayableCharacter, Cmp::Position/*, Cmp::Xbb, Cmp::Ybb*/>().each() )
+        {
+            _current_pos += scaled_movement;
+        }
     }
 
     void register_reactive_storage()
