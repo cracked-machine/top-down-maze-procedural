@@ -22,6 +22,7 @@ You must ensure that player movement delta is equal or larger than the corner ov
 - [x] add floor tiles
 - [x] add level borders
 - [x] add texture for wall tiles
+- [ ] experiment with shaders
 ## Gameplay
 - [ ] Add bombs
     - Add new Component: Neighbours. Contains 8 uint32 slots for entity ids of neighbouring blocks 
@@ -38,7 +39,8 @@ You must ensure that player movement delta is equal or larger than the corner ov
     - End game when texture collides with player
 - [x] add minimap
 ## Physics
-- [ ] add player movement velocity
+- [x] add player movement velocity
+- [ ] add player movement acceleration
 - [x] fix collision detection to work with rectangle outlines = 0
 ## General
 - [ ] Add "idle" state. i.e. game not running, blank screen with "press any key to start" message"
