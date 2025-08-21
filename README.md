@@ -22,6 +22,11 @@ You must ensure that player movement delta is equal or larger than the corner ov
 - [x] add level borders
 - [x] add texture for wall tiles
 - [ ] experiment with shaders
+- [ ] add explosion animation
+## Sound
+- [ ] Add walking FX
+- [ ] add explosion sound
+
 ## Gameplay
 - [x] Add bombs
     - [x] Add new Component: Neighbours. Contains 8 uint32 slots for entity ids of neighbouring blocks 
@@ -43,6 +48,7 @@ You must ensure that player movement delta is equal or larger than the corner ov
 - [x] finish game area (add proper finish area)
 - [ ] win game when player reaches goal (right side of map)
 - [ ] support other resolutions (only 1920 x1024 atm)
+- [ ] tweak proc gen of level (too many gaps, add difficulty setting)
 ## Physics
 - [x] add player movement velocity
 - [x] add player movement acceleration
@@ -57,3 +63,4 @@ You must ensure that player movement delta is equal or larger than the corner ov
 - [x] warp player back to spawn if they leave the play area
 - [ ] Tidy up settings
 - [ ] enable settings.toml 
+- [ ] use separate thread for render system class?

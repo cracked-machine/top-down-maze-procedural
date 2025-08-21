@@ -54,22 +54,12 @@ public:
 
         register_reactive_storage();
     
-        EntityFactory::add_system_entity( m_reg );
-        EntityFactory::add_player_entity( m_reg );
-
-        SPDLOG_INFO("Engine Init");
+        SPDLOG_INFO("Engine Initiliasing: ");
+        SPDLOG_INFO("{} system events pending",  m_event_handler.m_system_action_queue.size());
+        SPDLOG_INFO("{} direction events pending", m_event_handler.m_direction_queue.size());
+        SPDLOG_INFO("{} action events pending", m_event_handler.m_action_queue.size());
 
         // Cmp::Random::seed(123456789); // for troubleshooting purposes
-
-        // procedurally generate the level
-        Sys::ProcGen::RandomLevelGenerator random_level(
-            m_reg,
-            Settings::OBJECT_TILE_POOL,
-            Settings::BORDER_TILE_POOL
-        );
-
-        Sys::ProcGen::CellAutomataSystem cellauto_parser{random_level};
-        cellauto_parser.iterate(m_reg, 5);
     }
 
     bool run()
@@ -80,17 +70,98 @@ public:
         while (m_window->isOpen())
         {
             sf::Time deltaTime = deltaClock.restart();
-            
-            m_event_handler.handler(m_window, m_reg);
-            process_direction_queue(deltaTime);
+            m_event_handler.handler(m_window, m_reg, m_game_state);
 
-            process_action_queue();            
+            switch(m_game_state)
+            {
+         
+                case Settings::GameState::MENU:
+                    SPDLOG_INFO("{} system events pending",  m_event_handler.m_system_action_queue.size());
+                    SPDLOG_INFO("{} direction events pending", m_event_handler.m_direction_queue.size());
+                    SPDLOG_INFO("{} action events pending", m_event_handler.m_action_queue.size());                           
+                    if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::START_GAME)
+                    {
+                        SPDLOG_INFO("Entering game....");
+                        m_event_handler.m_system_action_queue.pop();
+                        m_game_state = Settings::GameState::PLAYING;
 
-            for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
-                if( _sys.collisions_enabled ) m_collision_sys->check(m_reg);
+                        EntityFactory::add_system_entity( m_reg );
+                        EntityFactory::add_player_entity( m_reg );
+
+                        // procedurally generate the level
+                        Sys::ProcGen::RandomLevelGenerator random_level(
+                            m_reg,
+                            Settings::OBJECT_TILE_POOL,
+                            Settings::BORDER_TILE_POOL
+                        );
+
+                        Sys::ProcGen::CellAutomataSystem cellauto_parser{random_level};
+                        cellauto_parser.iterate(m_reg, 5);
+                    }
+                    break;
+
+                case Settings::GameState::PLAYING:
+                    
+                    if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::PAUSE_GAME)
+                    {
+                        m_event_handler.m_system_action_queue.pop();
+                        m_game_state = Settings::GameState::PAUSED;
+                    }
+                    if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::QUIT_GAME)
+                    {
+                        m_event_handler.m_system_action_queue.pop();
+                        m_game_state = Settings::GameState::MENU;
+                        SPDLOG_INFO("Tearing down....");
+                        m_reg.clear();
+                        
+                        SPDLOG_INFO("Entering menu....");
+                        break;
+                    }
+
+
+                    // if( m_event_handler.m_direction_queue.empty() && 
+                    //     m_event_handler.m_action_queue.empty() ) 
+                    // {
+                    //     // no input, skip processing
+                    //     // SPDLOG_INFO("idle....");
+                    //     continue;
+                    // }
+
+                    process_direction_queue(deltaTime);
+                    process_action_queue();            
+                
+                    for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
+                        if( _sys.collisions_enabled ) m_collision_sys->check(m_reg);
+                    }                   
+                    break;
+
+                case Settings::GameState::PAUSED:
+                    SPDLOG_INFO("Game Paused....");
+                    if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::RESUME_GAME)
+                    {
+                        m_event_handler.m_system_action_queue.pop();
+                        m_game_state = Settings::GameState::PLAYING;
+                        SPDLOG_INFO("Resuming Game....");
+                    }
+                    break;
+                case Settings::GameState::GAME_OVER:
+                    
+                    if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::QUIT_GAME)
+                    {
+                        SPDLOG_INFO("Game Over....");
+                        m_event_handler.m_system_action_queue.pop();
+                        m_game_state = Settings::GameState::MENU;
+                        SPDLOG_INFO("Tearing down....");
+                        m_reg.clear();
+                        
+                        SPDLOG_INFO("Entering menu....");
+                        break;
+                    }
+                    break;
             }
             
-            m_render_sys->render(m_reg);   
+            m_render_sys->render(m_reg, m_game_state);
+
         }
         /// MAIN LOOP ENDS
 
@@ -116,11 +187,13 @@ private:
 
     // pool for System component updates from the registry
     entt::reactive_mixin<entt::storage<void>> m_system_updates;
-    
+
+    Settings::GameState m_game_state = Settings::GameState::MENU;
+
     void process_action_queue()
     {
         bool place_bomb = false;
-        if( m_event_handler.m_action_queue.front() == InputEventHandler::Actions::DROP_BOMB )
+        if( m_event_handler.m_action_queue.front() == InputEventHandler::GameActions::DROP_BOMB )
         {
             m_event_handler.m_action_queue.pop();
             place_bomb = true;

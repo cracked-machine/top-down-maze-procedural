@@ -8,6 +8,13 @@
 
 namespace ProceduralMaze::Settings {
 
+enum class GameState {
+    MENU,
+    PLAYING,
+    PAUSED,
+    GAME_OVER
+};
+
 const sf::Vector2u DISPLAY_SIZE{ 1920, 1024 };
 
 // MAP_GRID_OFFSET and MAP_GRID_SIZE are in blocks, not pixels

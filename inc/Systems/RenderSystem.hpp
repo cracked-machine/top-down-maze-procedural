@@ -51,14 +51,14 @@ public:
         if (!m_floormap.load(tile_file, {16,16}, floortile_choices.data(), 200, 98))
             SPDLOG_CRITICAL("Unable to load tile map {}", tile_file);
         
-        // local view
+        // init local view dimensions
         m_local_view = sf::View( 
             { Settings::LOCAL_MAP_VIEW_SIZE.x * 0.5f, Settings::DISPLAY_SIZE.y * 0.5f}, 
             Settings::LOCAL_MAP_VIEW_SIZE 
         );
         m_local_view.setViewport( sf::FloatRect({0.f, 0.f}, {1.f, 1.f}) );
 
-        // minimap view of entire level
+        // init minimap view dimensions
         m_minimap_view = sf::View( 
             { Settings::MINI_MAP_VIEW_SIZE.x * 0.5f, Settings::DISPLAY_SIZE.y * 0.5f}, 
             Settings::MINI_MAP_VIEW_SIZE 
@@ -70,7 +70,86 @@ public:
     
     ~RenderSystem() { SPDLOG_DEBUG("~RenderSystem()"); } 
 
-    void render(entt::basic_registry<entt::entity> &reg)
+    void render(entt::basic_registry<entt::entity> &reg, Settings::GameState &game_state)
+    {
+        switch(game_state)
+        {
+            case Settings::GameState::MENU:
+                // Render the menu
+                render_menu();
+                break;
+            case Settings::GameState::PLAYING:
+                // Render the game
+                render_game(reg);
+                break;
+            case Settings::GameState::PAUSED:
+                render_paused();
+                break;
+            case Settings::GameState::GAME_OVER:
+                render_deathscreen();
+                break;
+        }
+    }
+
+    void render_menu()
+    {
+        // main render begin
+        m_window->clear();
+        {
+            sf::Text title_text(m_font, "Procedural Maze Game", 96);
+            title_text.setFillColor(sf::Color::White);
+            title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
+            m_window->draw(title_text);
+
+            sf::Text start_text(m_font, "Press any key to start", 48);
+            start_text.setFillColor(sf::Color::White);
+            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
+            m_window->draw(start_text);
+        }
+        m_window->display();
+        // main render end
+    }
+
+    void render_deathscreen()
+    {
+        // main render begin
+        m_window->clear();
+        {
+            sf::Text title_text(m_font, "You died!", 96);
+            title_text.setFillColor(sf::Color::White);
+            title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
+            m_window->draw(title_text);
+
+            sf::Text start_text(m_font, "Press any key to continue", 48);
+            start_text.setFillColor(sf::Color::White);
+            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
+            m_window->draw(start_text);
+        }
+        m_window->display();
+        // main render end
+    }
+
+    void render_paused()
+    {
+        // main render begin
+        m_window->clear();
+        {
+            sf::Text title_text(m_font, "Paused", 96);
+            title_text.setFillColor(sf::Color::White);
+            title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
+            m_window->draw(title_text);
+
+            sf::Text start_text(m_font, "Press P to continue", 48);
+            start_text.setFillColor(sf::Color::White);
+            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
+            m_window->draw(start_text);
+        }
+        m_window->display();
+        // main render end
+    }
+
+    
+    void render_game(entt::basic_registry<entt::entity> &reg)
     {
         using namespace Sprites;
 
