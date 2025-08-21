@@ -3,6 +3,7 @@
 
 #include <Brick.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Rect.hpp>
 #include <string>
 
 namespace ProceduralMaze::Settings {
@@ -10,9 +11,10 @@ namespace ProceduralMaze::Settings {
 const sf::Vector2u DISPLAY_SIZE{ 1920, 1024 };
 
 // MAP_GRID_OFFSET and MAP_GRID_SIZE are in blocks, not pixels
-const sf::Vector2f MAP_GRID_OFFSET{ 10.f,2.f };  
-const sf::Vector2u MAP_GRID_SIZE{ 120u, 120u }; 
+const sf::Vector2f MAP_GRID_OFFSET{ 10.f,1.f };  
+const sf::Vector2u MAP_GRID_SIZE{ 100u, 61u }; 
 const sf::Vector2f PLAYER_START_POS{ 20, static_cast<float>(DISPLAY_SIZE.y) / 2 };
+const sf::FloatRect PLAYER_END_ZONE{{DISPLAY_SIZE.x - 8.f, MAP_GRID_OFFSET.y}, {8, static_cast<float>(MAP_GRID_SIZE.y)}};
 // const sf::Vector2u MAP_GRID_SIZE{ 10u, 10u }; // for troubleshooting ProceduralGeneration
 // const sf::Vector2f PLAYER_START_POS{ 20, MAP_GRID_OFFSET.y + 32 };
 

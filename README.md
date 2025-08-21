@@ -40,8 +40,9 @@ You must ensure that player movement delta is equal or larger than the corner ov
     - Subtract Y position at intervals
     - End game when texture collides with player
 - [x] add minimap
-- [ ] finish game area (add proper finish area)
+- [x] finish game area (add proper finish area)
 - [ ] win game when player reaches goal (right side of map)
+- [ ] support other resolutions (only 1920 x1024 atm)
 ## Physics
 - [x] add player movement velocity
 - [x] add player movement acceleration
@@ -54,3 +55,5 @@ You must ensure that player movement delta is equal or larger than the corner ov
 - [x] God mode (toggle collsision)
 - [x] refactor random system class
 - [x] warp player back to spawn if they leave the play area
+- [ ] Tidy up settings
+- [ ] enable settings.toml 
