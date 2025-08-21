@@ -80,16 +80,15 @@ public:
 
                     // Get all the neighbour obstacle components of this obstacle 
                     // and mark each one as broken
+                    SPDLOG_INFO("Bomb timer expired. Detonating {} neighbours!", _ob_nb.count());
                     for( auto [_dir, _nb_entt] : _ob_nb) 
                     {
-                        if( reg.valid(_nb_entt) ) {
-                            auto &nb_obstacle = reg.get<Cmp::Obstacle>(_nb_entt);
-                            if( nb_obstacle.m_enabled && not nb_obstacle.m_broken )
-                            {
-                                nb_obstacle.m_broken = true;
-                                nb_obstacle.m_enabled = false;
-                                SPDLOG_INFO("Detonated neighbour: {}", entt::entt_traits<entt::entity>::to_entity(_nb_entt));
-                            }
+                        auto &nb_obstacle = reg.get<Cmp::Obstacle>(_nb_entt);
+                        if( nb_obstacle.m_enabled && not nb_obstacle.m_broken )
+                        {
+                            nb_obstacle.m_broken = true;
+                            nb_obstacle.m_enabled = false;
+                            SPDLOG_INFO("Detonated neighbour: {}", entt::entt_traits<entt::entity>::to_entity(_nb_entt));
                         }
                     }
                                     

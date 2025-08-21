@@ -76,9 +76,7 @@ public:
             {
          
             case Settings::GameState::MENU:
-                SPDLOG_INFO("{} system events pending",  m_event_handler.m_system_action_queue.size());
-                SPDLOG_INFO("{} direction events pending", m_event_handler.m_direction_queue.size());
-                SPDLOG_INFO("{} action events pending", m_event_handler.m_action_queue.size());                           
+                         
                 if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::START_GAME)
                 {
                     SPDLOG_INFO("Entering game....");
@@ -113,9 +111,14 @@ public:
                 {
                     m_event_handler.m_system_action_queue.pop();
                     m_game_state = Settings::GameState::MENU;
+
                     SPDLOG_INFO("Tearing down....");
                     m_reg.clear();
-                    
+                    SPDLOG_INFO("Cleared registry, {} entities", m_reg.view<Cmp::Position>().size());
+                    m_event_handler.m_direction_queue = {};
+                    m_event_handler.m_action_queue = {};
+                    m_event_handler.m_system_action_queue = {};
+                
                     SPDLOG_INFO("Entering menu....");
                     break;
                 }
@@ -148,8 +151,12 @@ public:
                     SPDLOG_INFO("Game Over....");
                     m_event_handler.m_system_action_queue.pop();
                     m_game_state = Settings::GameState::MENU;
+
                     SPDLOG_INFO("Tearing down....");
                     m_reg.clear();
+                    m_event_handler.m_direction_queue = {};
+                    m_event_handler.m_action_queue = {};
+                    m_event_handler.m_system_action_queue = {};
                     
                     SPDLOG_INFO("Entering menu....");
                     break;
