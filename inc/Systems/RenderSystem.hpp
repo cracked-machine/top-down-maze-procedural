@@ -70,27 +70,6 @@ public:
     
     ~RenderSystem() { SPDLOG_DEBUG("~RenderSystem()"); } 
 
-    void render(entt::basic_registry<entt::entity> &reg, Settings::GameState &game_state)
-    {
-        switch(game_state)
-        {
-            case Settings::GameState::MENU:
-                // Render the menu
-                render_menu();
-                break;
-            case Settings::GameState::PLAYING:
-                // Render the game
-                render_game(reg);
-                break;
-            case Settings::GameState::PAUSED:
-                render_paused();
-                break;
-            case Settings::GameState::GAME_OVER:
-                render_deathscreen();
-                break;
-        }
-    }
-
     void render_menu()
     {
         // main render begin
