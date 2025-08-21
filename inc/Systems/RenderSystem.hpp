@@ -194,9 +194,9 @@ public:
 
                 if( _ob.m_type == Cmp::Obstacle::Type::BRICK && _ob.m_enabled) 
                 {
-                    m_wall_sprite.setPosition(_pos);  
-                    m_wall_sprite.pick(_ob.m_tile_pick);
-                    m_window->draw( m_wall_sprite ); 
+                    m_object_sprite.setPosition(_pos);  
+                    m_object_sprite.pick(_ob.m_tile_pick);
+                    m_window->draw( m_object_sprite ); 
                 }
 
             }
@@ -280,9 +280,9 @@ public:
 private:
     std::shared_ptr<sf::RenderWindow> m_window;
     Sprites::Containers::TileMap m_floormap;
-    Sprites::MultiSprite m_wall_sprite{
-        Settings::WALL_TILESET_PATH,
-        Settings::WALL_TILE_POOL,
+    Sprites::MultiSprite m_object_sprite{
+        Settings::OBJECT_TILESET_PATH,
+        Settings::OBJECT_TILE_POOL,
         Settings::OBSTACLE_SIZE
     };
 

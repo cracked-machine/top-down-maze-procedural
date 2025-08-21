@@ -11,7 +11,7 @@ const sf::Vector2u DISPLAY_SIZE{ 1920, 1024 };
 
 // MAP_GRID_OFFSET and MAP_GRID_SIZE are in blocks, not pixels
 const sf::Vector2f MAP_GRID_OFFSET{ 10.f,2.f };  
-const sf::Vector2u MAP_GRID_SIZE{ 120u, 54u }; 
+const sf::Vector2u MAP_GRID_SIZE{ 120u, 120u }; 
 const sf::Vector2f PLAYER_START_POS{ 20, static_cast<float>(DISPLAY_SIZE.y) / 2 };
 // const sf::Vector2u MAP_GRID_SIZE{ 10u, 10u }; // for troubleshooting ProceduralGeneration
 // const sf::Vector2f PLAYER_START_POS{ 20, MAP_GRID_OFFSET.y + 32 };
@@ -22,8 +22,8 @@ const sf::Vector2f MINI_MAP_VIEW_SIZE{ DISPLAY_SIZE.x * 0.25f, DISPLAY_SIZE.y * 
 
 const sf::Vector2u OBSTACLE_SIZE(16, 16);
 const sf::Vector2f OBSTACLE_SIZE_2F(OBSTACLE_SIZE.x, OBSTACLE_SIZE.y);
-const std::string WALL_TILESET_PATH = "res/Pixel Lands Dungeons/objects.png";
-const std::vector<unsigned int> WALL_TILE_POOL = {
+const std::string OBJECT_TILESET_PATH = "res/Pixel Lands Dungeons/objects.png";
+const std::vector<unsigned int> OBJECT_TILE_POOL = {
     147, 147, 147, 147, 147, 147, 147, 147,      // rock pile #1
     148, 148, 148, 148, 148, 148, 148, 148,      // rock pile #2
 
@@ -38,14 +38,18 @@ const std::vector<unsigned int> BORDER_TILE_POOL = {
     // 249                              // stone column circle top};
 };
 
-const std::vector<unsigned int> FLOOR_TILE_POOL {42,48,49};
+const std::vector<unsigned int> FLOOR_TILE_POOL {   // res/Pixel Lands Dungeons/objects.png
+    48,48,48,48,48,48,
+    49
+};    
+const std::vector<unsigned int> BROKEN_OBJECT_TILE_POOL {42};   // res/Pixel Lands Dungeons/objects.png
 
 const sf::Vector2u PLAYER_SIZE(16, 16);
 const sf::Vector2f PLAYER_SIZE_2F(PLAYER_SIZE.x, PLAYER_SIZE.y);
 const sf::Vector2u PLAYER_SPRITE_SIZE(16, 32);
 const std::string PLAYER_TILESET_PATH = "res/players.png";
 const std::vector<unsigned int> PLAYER_TILE_POOL = {    
-    0, 1, 2
+    0, 1, 2     // res/players.png
 };
 
 const float MAX_BOMB_TIME = 3.0f; // seconds

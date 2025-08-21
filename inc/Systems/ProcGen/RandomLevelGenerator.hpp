@@ -20,14 +20,14 @@ class RandomLevelGenerator {
 public:
     RandomLevelGenerator(
         entt::basic_registry<entt::entity> &reg,
-        const std::vector<unsigned int> &WALL_TILE_POOL,
-        const std::vector<unsigned int> &BORDER_TILE_POOL,
+        const std::vector<unsigned int> &object_tile_pool,
+        const std::vector<unsigned int> &border_tile_pool,
         unsigned long seed = 0
     )
-        :       m_random_wall_tile_picker(0, WALL_TILE_POOL.size() - 1),
-                m_wall_tile_choices(WALL_TILE_POOL),
-                m_random_border_tile_picker(0, BORDER_TILE_POOL.size() - 1),
-                m_border_tile_choices(BORDER_TILE_POOL),
+        :       m_random_object_tile_picker(0, object_tile_pool.size() - 1),
+                m_object_tile_choices(object_tile_pool),
+                m_random_border_tile_picker(0, border_tile_pool.size() - 1),
+                m_border_tile_choices(border_tile_pool),
                 m_activation_selector(0,1)
     {
         if (seed) Cmp::Random::seed(seed);
@@ -57,7 +57,7 @@ public:
                 // track the contiguous creation order of the entity so we can easily find its neighbours later
                 m_data.push_back(entity_trait::to_entity(entity));
 
-                auto tile_pick = m_wall_tile_choices[m_random_wall_tile_picker.gen()];
+                auto tile_pick = m_object_tile_choices[m_random_object_tile_picker.gen()];
                 reg.emplace<Cmp::Obstacle>(entity, tile_pick, Cmp::Obstacle::Type::BRICK, true, m_activation_selector.gen() );  
                 reg.emplace<Cmp::Neighbours>(entity);                             
             }
@@ -128,8 +128,8 @@ private:
     std::vector<uint32_t> m_data;
     Cmp::Random m_activation_selector;
 
-    const std::vector<unsigned int> m_wall_tile_choices;
-    Cmp::Random m_random_wall_tile_picker;
+    const std::vector<unsigned int> m_object_tile_choices;
+    Cmp::Random m_random_object_tile_picker;
     
     const std::vector<unsigned int> m_border_tile_choices;
     Cmp::Random m_random_border_tile_picker;

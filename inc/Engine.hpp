@@ -64,7 +64,7 @@ public:
         // procedurally generate the level
         Sys::ProcGen::RandomLevelGenerator random_level(
             m_reg,
-            Settings::WALL_TILE_POOL,
+            Settings::OBJECT_TILE_POOL,
             Settings::BORDER_TILE_POOL
         );
 
