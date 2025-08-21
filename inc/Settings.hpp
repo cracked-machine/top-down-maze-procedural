@@ -42,6 +42,7 @@ const std::vector<unsigned int> FLOOR_TILE_POOL {   // res/Pixel Lands Dungeons/
     48,48,48,48,48,48,
     49
 };    
+const std::string BROKEN_OBJECT_TILE_PATH = "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png";
 const std::vector<unsigned int> BROKEN_OBJECT_TILE_POOL {42};   // res/Pixel Lands Dungeons/objects.png
 
 const sf::Vector2u PLAYER_SIZE(16, 16);

@@ -38,6 +38,8 @@ public:
 
     bool m_visible{true};
     bool m_enabled{true};
+    bool m_broken{false};
+    
     Type m_type;
     // uint8_t neighbours{0};
     bool m_armed{false}; // has an active bomb

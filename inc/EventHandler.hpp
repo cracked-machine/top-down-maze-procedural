@@ -23,6 +23,10 @@ class InputEventHandler
 {
 public:
     InputEventHandler() = default;
+
+    enum class Actions {
+        DROP_BOMB
+    };
     
     // set a new direction vector on key press
     void handler(const std::shared_ptr<sf::RenderWindow> window, 
@@ -64,6 +68,10 @@ public:
                         _sys.show_obstacle_entity_id = not _sys.show_obstacle_entity_id;
                     }
                 }
+                else if (keyReleased->scancode == sf::Keyboard::Scancode::Space)
+                {
+                    m_action_queue.push(Actions::DROP_BOMB);
+                }
             }
         }
 
@@ -77,15 +85,10 @@ public:
 
     }
 
-    sf::Vector2f pop() { 
-        auto d = m_direction_queue.front();
-        m_direction_queue.pop();
-        return d;
-    }
 
-    auto empty() { return m_direction_queue.empty(); }
-private:
     std::queue<sf::Vector2f> m_direction_queue{};
+    std::queue<Actions> m_action_queue{};
+private:
 };
 
 } // namespace ProceduralMaze

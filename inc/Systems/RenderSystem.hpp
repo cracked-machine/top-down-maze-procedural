@@ -194,14 +194,22 @@ public:
 
                 if( _ob.m_type == Cmp::Obstacle::Type::BRICK && _ob.m_enabled) 
                 {
-                    m_object_sprite.setPosition(_pos);  
-                    m_object_sprite.pick(_ob.m_tile_pick);
-                    m_window->draw( m_object_sprite ); 
-                }
 
+                    m_object_sprite.setPosition(_pos);
+                    m_object_sprite.pick(_ob.m_tile_pick);
+                    m_window->draw(m_object_sprite);
+
+                }
+                if( _ob.m_type == Cmp::Obstacle::Type::BRICK && _ob.m_broken) 
+                {
+                    m_broken_object_sprite.setPosition(_pos);
+                    m_broken_object_sprite.pick(42);
+                    m_window->draw(m_broken_object_sprite);
+                }
             }
 
-            
+
+
             if( _ob.m_armed )
             {
                 // Draw a red square around the occupied brick
@@ -211,6 +219,10 @@ public:
                 temp_square.setOutlineColor(sf::Color::Red);
                 temp_square.setOutlineThickness(1.f);
                 m_window->draw(temp_square);
+
+                m_bomb_sprite.setPosition(_pos);
+                m_bomb_sprite.pick(0);
+                m_window->draw(m_bomb_sprite);
 
                 for( auto [_dir, _nb_entt] : _nb) 
                 {
@@ -280,9 +292,16 @@ public:
 private:
     std::shared_ptr<sf::RenderWindow> m_window;
     Sprites::Containers::TileMap m_floormap;
+
     Sprites::MultiSprite m_object_sprite{
         Settings::OBJECT_TILESET_PATH,
         Settings::OBJECT_TILE_POOL,
+        Settings::OBSTACLE_SIZE
+    };
+
+    Sprites::MultiSprite m_broken_object_sprite{
+        Settings::BROKEN_OBJECT_TILE_PATH,
+        Settings::BROKEN_OBJECT_TILE_POOL,
         Settings::OBSTACLE_SIZE
     };
 
@@ -296,6 +315,12 @@ private:
         Settings::PLAYER_TILESET_PATH,
         Settings::PLAYER_TILE_POOL,
         Settings::PLAYER_SPRITE_SIZE
+    };
+
+    Sprites::MultiSprite m_bomb_sprite{
+        "res/bomb.png",
+        {0}, // No specific tile pool, just one sprite
+        {16,16}
     };
 
     Cmp::Font m_font = Cmp::Font("res/tuffy.ttf");

@@ -57,9 +57,10 @@ public:
         }
         
     }
-    void pick(unsigned int tile_pick) 
+    // use the index from the `tilemap_picks` vector to select a loaded tile from the map
+    void pick(unsigned int tile_key) 
     {
-        m_selected_vertices = m_vertex_map[tile_pick];
+        m_selected_vertices = m_vertex_map[tile_key];
     }
 private:
 

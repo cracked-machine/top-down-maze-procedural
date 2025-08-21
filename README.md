@@ -18,20 +18,20 @@ You must ensure that player movement delta is equal or larger than the corner ov
 
 # TODO
 ## Graphics
-- [ ] Add weight to tile pool to affect probability
 - [x] add floor tiles
 - [x] add level borders
 - [x] add texture for wall tiles
 - [ ] experiment with shaders
 ## Gameplay
-- [ ] Add bombs
+- [x] Add bombs
     - [x] Add new Component: Neighbours. Contains 8 uint32 slots for entity ids of neighbouring blocks 
     - [x] Update CA to use the new component
     - [x] the occupied block becomes "explosive"
-    - [ ] activated when key is pressed/released,
-    - [ ] Add new Sprite: Explosive that can be placed when block is armed
+    - [x] activated when key is pressed/released,
+    - [x] Add new Sprite: Explosive that can be placed when block is armed
     - [x] When the timer expires, the neighbours are identified
-    - [ ] disable the identified neighbours in reaction to the explosion
+    - [x] disable the identified neighbours in reaction to the explosion
+
 - [ ] extra bomb pickups
 - [ ] add rising water
     - Add blue texture with display dimensions and 50% alpha 
@@ -40,6 +40,8 @@ You must ensure that player movement delta is equal or larger than the corner ov
     - Subtract Y position at intervals
     - End game when texture collides with player
 - [x] add minimap
+- [ ] finish game area (add proper finish area)
+- [ ] win game when player reaches goal (right side of map)
 ## Physics
 - [x] add player movement velocity
 - [x] add player movement acceleration

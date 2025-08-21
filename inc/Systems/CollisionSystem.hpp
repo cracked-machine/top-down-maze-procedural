@@ -1,6 +1,7 @@
 #ifndef __SYSTEMS_COLLISION_SYSTEM_HPP__
 #define __SYSTEMS_COLLISION_SYSTEM_HPP__
 
+#include <Neighbours.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -8,6 +9,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
+#include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 
 #include <Collision.hpp>
@@ -33,20 +35,20 @@ public:
     CollisionSystem() {}
     ~CollisionSystem() = default;
 
-     entt::reactive_mixin<entt::storage<void>> m_position_updates;
+     entt::reactive_mixin<entt::storage<void>> m_collision_updates;
 
     sf::Vector2f getCenter(sf::Vector2f pos, sf::Vector2f size)
     {
         return sf::FloatRect(pos, size).getCenter();
     }
 
-    void track_path(entt::basic_registry<entt::entity> &reg)
+    void track_path(entt::basic_registry<entt::entity> &reg, bool place_bomb)
     {
         for (auto [_pc_entt, _pc, _pc_pos] :
-            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each())
+            m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each())
         {
-            for (auto [_ob_entt, _ob, _ob_pos] :
-                m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each())
+            for (auto [_ob_entt, _ob, _ob_pos, _ob_nb] :
+                m_collision_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each())
             {
                 auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y},  Settings::PLAYER_SIZE_2F);
                 
@@ -59,7 +61,7 @@ public:
                 auto brick_hitbox = sf::FloatRect(_ob_pos, Settings::OBSTACLE_SIZE_2F);     
 
                 // arm the occupied  tile if the player doesn't have an active bomb
-                if( player_hitbox.findIntersection(brick_hitbox) ) {
+                if( player_hitbox.findIntersection(brick_hitbox) && place_bomb ) {
                     if( not _pc.has_active_bomb )
                     {
                         _ob.m_armed = true;
@@ -72,8 +74,25 @@ public:
                 {
                     // reset the occupied state
                     _ob.m_armed = false;
+                    
                     _ob.m_bomb_timer.reset();
                     _pc.has_active_bomb = false;
+
+                    // Get all the neighbour obstacle components of this obstacle 
+                    // and mark each one as broken
+                    for( auto [_dir, _nb_entt] : _ob_nb) 
+                    {
+                        if( reg.valid(_nb_entt) ) {
+                            auto &nb_obstacle = reg.get<Cmp::Obstacle>(_nb_entt);
+                            if( nb_obstacle.m_enabled && not nb_obstacle.m_broken )
+                            {
+                                nb_obstacle.m_broken = true;
+                                nb_obstacle.m_enabled = false;
+                                SPDLOG_INFO("Detonated neighbour: {}", entt::entt_traits<entt::entity>::to_entity(_nb_entt));
+                            }
+                        }
+                    }
+                                    
                 }
 
             }
@@ -87,7 +106,7 @@ public:
         const float PUSH_FACTOR = 1.1f;  // Push slightly more than minimum to avoid floating point issues
         
         for (auto [_pc_entt, _pc, _pc_pos, _movement] :
-            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>().each())
+            m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>().each())
         {
             sf::Vector2f starting_pos = {_pc_pos.x, _pc_pos.y};
             int stuck_loop = 0;
@@ -97,7 +116,7 @@ public:
             _movement.is_colliding = false;
 
             for (auto [_ob_entt, _ob, _ob_pos] :
-                m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each())
+                m_collision_updates.view<Cmp::Obstacle, Cmp::Position>().each())
             {
                 
                 if (not _ob.m_enabled) { continue; }

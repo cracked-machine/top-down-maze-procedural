@@ -59,7 +59,7 @@ public:
 
         SPDLOG_INFO("Engine Init");
 
-        Cmp::Random::seed(123456789); // for troubleshooting purposes
+        // Cmp::Random::seed(123456789); // for troubleshooting purposes
 
         // procedurally generate the level
         Sys::ProcGen::RandomLevelGenerator random_level(
@@ -82,11 +82,12 @@ public:
             sf::Time deltaTime = deltaClock.restart();
             
             m_event_handler.handler(m_window, m_reg);
-            process_movement(deltaTime);
-            m_collsion_sys->track_path(m_reg);
+            process_direction_queue(deltaTime);
+
+            process_action_queue();            
 
             for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
-                if( _sys.collisions_enabled ) m_collsion_sys->check(m_reg);
+                if( _sys.collisions_enabled ) m_collision_sys->check(m_reg);
             }
             
             m_render_sys->render(m_reg);   
@@ -108,7 +109,7 @@ private:
 
     //  ECS Systems
     std::unique_ptr<Sys::RenderSystem> m_render_sys = std::make_unique<Sys::RenderSystem> (m_window);
-    std::unique_ptr<Sys::CollisionSystem> m_collsion_sys = std::make_unique<Sys::CollisionSystem>();
+    std::unique_ptr<Sys::CollisionSystem> m_collision_sys = std::make_unique<Sys::CollisionSystem>();
 
     // SFML keyboard/mouse event handler
     ProceduralMaze::InputEventHandler m_event_handler;
@@ -116,8 +117,19 @@ private:
     // pool for System component updates from the registry
     entt::reactive_mixin<entt::storage<void>> m_system_updates;
     
+    void process_action_queue()
+    {
+        bool place_bomb = false;
+        if( m_event_handler.m_action_queue.front() == InputEventHandler::Actions::DROP_BOMB )
+        {
+            m_event_handler.m_action_queue.pop();
+            place_bomb = true;
+        }
+        m_collision_sys->track_path(m_reg, place_bomb);    
+    }
+
     // move the player according to direction and delta time with acceleration
-    void process_movement(sf::Time deltaTime)
+    void process_direction_queue(sf::Time deltaTime)
     {
         const float dt = deltaTime.asSeconds();
         
@@ -126,9 +138,10 @@ private:
         {
             // Get input direction if available
             sf::Vector2f desired_direction(0.0f, 0.0f);
-            if ( not m_event_handler.empty()) 
+            if ( not m_event_handler.m_direction_queue.empty()) 
             {
-                desired_direction = m_event_handler.pop();
+                desired_direction = m_event_handler.m_direction_queue.front();
+                m_event_handler.m_direction_queue.pop();
             }
 
             // Apply acceleration in the desired direction
@@ -203,6 +216,7 @@ private:
             .on_construct<Cmp::System>();
 
         // Register the RenderSystem's pool for Position comnponent updates
+        // basically every entity...
         m_render_sys->m_position_updates.bind(m_reg);
         m_render_sys->m_position_updates
             .on_update<Cmp::Position>()
@@ -215,8 +229,9 @@ private:
             .on_construct<Cmp::Obstacle>();
 
         // Register the CollisionSystem's pool for Position comnponent updates
-        m_collsion_sys->m_position_updates.bind(m_reg);
-        m_collsion_sys->m_position_updates
+        // basically every entity...
+        m_collision_sys->m_collision_updates.bind(m_reg);
+        m_collision_sys->m_collision_updates
             .on_update<Cmp::Position>()
             .on_construct<Cmp::Position>();
     }
