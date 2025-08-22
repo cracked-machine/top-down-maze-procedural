@@ -40,7 +40,7 @@ public:
             for(auto [entity, _wl]: m_reg->view<Cmp::WaterLevel>().each()) 
             {
                 _wl.m_level -= (dt * m_flood_velocity);                
-                SPDLOG_INFO("Updating flood water levels to: {}", _wl.m_level);
+                SPDLOG_TRACE("Updating flood water levels to: {}", _wl.m_level);
 
                 // is player drowning
                 for(auto [_, _pc, _pos]: m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each()) 
@@ -48,7 +48,7 @@ public:
                     if ( _wl.m_level < (_pos.y - 16) )
                     {
                         _pc.health -= 5;
-                        SPDLOG_INFO("Updating playable character health to: {}", _pc.health);  
+                        SPDLOG_TRACE("Updating playable character health to: {}", _pc.health);  
                     }
                     if (_pc.health == 0) {
                         _pc.alive = false;

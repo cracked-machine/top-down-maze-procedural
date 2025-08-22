@@ -92,10 +92,13 @@ private:
             if(std::prev(it) >= m_random_level->begin()) 
             {
                 auto left_entt = entt::entity(*std::prev(it));
-                if( m_reg->get<Cmp::Obstacle>( left_entt ).m_enabled && not has_left_map_edge ) 
-                { 
-                    m_reg->patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
-                    { 
+                Cmp::Obstacle* left_entt_ob = m_reg->try_get<Cmp::Obstacle>( left_entt );
+                if( not left_entt_ob ) {
+                    SPDLOG_WARN("No Obstacle component found on left entity [N - 1] neighbour: {}", entity_trait::to_integral(left_entt));
+                    assert(false && "No Obstacle component found on left entity [N - 1] neighbour: " && entity_trait::to_integral(left_entt));
+                }
+                else if( left_entt_ob && left_entt_ob->m_enabled && not has_left_map_edge ) { 
+                    m_reg->patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update) { 
                         _nb_update.set( Cmp::Neighbours::Dir::LEFT, left_entt ); 
                     });
                 }
@@ -104,7 +107,13 @@ private:
             if( std::prev(it, (Settings::MAP_GRID_SIZE.y + 1)) >= m_random_level->begin() ) 
             {
                 auto down_left_entt = entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.y + 1));
-                if( m_reg->get<Cmp::Obstacle>( down_left_entt ).m_enabled && not has_left_map_edge)  
+                Cmp::Obstacle* down_left_entt_ob = m_reg->try_get<Cmp::Obstacle>( down_left_entt );
+                if( not down_left_entt_ob )
+                {
+                    SPDLOG_WARN("No Obstacle component found on down left entity [N - (y - 1)] neighbour: {}", entity_trait::to_integral(down_left_entt));
+                    assert(false && "No Obstacle component found on down left entity [N - (y - 1)] neighbour: " && entity_trait::to_integral(down_left_entt));
+                }
+                else if( down_left_entt_ob->m_enabled && not has_left_map_edge)  
                 {
                     m_reg->patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update){ 
                         _nb_update.set( Cmp::Neighbours::Dir::DOWN_LEFT, down_left_entt ); 
@@ -115,7 +124,12 @@ private:
             if( std::prev(it, Settings::MAP_GRID_SIZE.y) >= m_random_level->begin() ) 
             {
                 auto down_entt = entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.y));
-                if( m_reg->get<Cmp::Obstacle>( down_entt ).m_enabled ) 
+                Cmp::Obstacle* down_entt_ob = m_reg->try_get<Cmp::Obstacle>( down_entt );
+                if( not down_entt_ob ) {
+                    SPDLOG_WARN("No Obstacle component found on down entity [N - y] neighbour: {}", entity_trait::to_integral(down_entt));
+                    assert(false && "No Obstacle component found on down entity [N - y] neighbour: " && entity_trait::to_integral(down_entt));
+                }
+                else if( down_entt_ob->m_enabled ) 
                 {
                     m_reg->patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
                     { 
@@ -127,7 +141,12 @@ private:
             if( (std::prev(it, (Settings::MAP_GRID_SIZE.y - 1))) >= m_random_level->begin() ) 
             {
                 auto down_right_entt = entt::entity(*std::prev(it, Settings::MAP_GRID_SIZE.y - 1));
-                if( m_reg->get<Cmp::Obstacle>( down_right_entt ).m_enabled && not has_right_map_edge) 
+                Cmp::Obstacle* down_right_entt_ob = m_reg->try_get<Cmp::Obstacle>( down_right_entt );
+                if( not down_right_entt_ob ) {
+                    SPDLOG_WARN("No Obstacle component found on down right entity [N - (y + 1)] neighbour: {}", entity_trait::to_integral(down_right_entt));
+                    assert(false && "No Obstacle component found on down right entity [N - (y + 1)] neighbour: " && entity_trait::to_integral(down_right_entt));
+                }
+                else if( down_right_entt_ob->m_enabled && not has_right_map_edge) 
                 { 
                     m_reg->patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
                     { 
@@ -151,7 +170,12 @@ private:
             if( std::next(it, (Settings::MAP_GRID_SIZE.y - 1)) < m_random_level->end()) 
             {
                 auto top_left_entt = entt::entity(*std::next(it, Settings::MAP_GRID_SIZE.y - 1));
-                if( m_reg->get<Cmp::Obstacle>( top_left_entt ).m_enabled && not has_left_map_edge) 
+                Cmp::Obstacle* top_left_entt_ob = m_reg->try_get<Cmp::Obstacle>( top_left_entt );
+                if( not top_left_entt_ob ) {
+                    SPDLOG_WARN("No Obstacle component found on top left entity [N + (y - 1)] neighbour: {}", entity_trait::to_integral(top_left_entt));
+                    assert(false && "No Obstacle component found on top left entity [N + (y - 1)] neighbour: " && entity_trait::to_integral(top_left_entt));
+                }
+                else if( top_left_entt_ob->m_enabled && not has_left_map_edge) 
                 { 
                     m_reg->patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update) 
                     { 
@@ -163,7 +187,12 @@ private:
             if( Settings::MAP_GRID_SIZE.y < m_random_level->size() && std::next(it, Settings::MAP_GRID_SIZE.y) < m_random_level->end()) 
             {
                 auto top_entt = entt::entity(*std::next(it, Settings::MAP_GRID_SIZE.y));
-                if( m_reg->get<Cmp::Obstacle>(  top_entt ).m_enabled ) 
+                Cmp::Obstacle* top_entt_ob = m_reg->try_get<Cmp::Obstacle>( top_entt );
+                if( not top_entt_ob ) {
+                    SPDLOG_WARN("No Obstacle component found on top entity [N + y] neighbour: {}", entity_trait::to_integral(top_entt));
+                    assert(false && "No Obstacle component found on top entity [N + y] neighbour: " && entity_trait::to_integral(top_entt));
+                }
+                else if( top_entt_ob->m_enabled ) 
                 { 
                     m_reg->patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
                     { 
@@ -175,7 +204,12 @@ private:
             if( (Settings::MAP_GRID_SIZE.y + 1) < m_random_level->size() && std::next(it, (Settings::MAP_GRID_SIZE.y + 1)) < m_random_level->end()) 
             {
                 auto top_right_entt = entt::entity(*std::next(it, (Settings::MAP_GRID_SIZE.y + 1)));
-                if( m_reg->get<Cmp::Obstacle>( top_right_entt ).m_enabled && not has_right_map_edge ) 
+                Cmp::Obstacle* top_right_entt_ob = m_reg->try_get<Cmp::Obstacle>( top_right_entt );
+                if( not top_right_entt_ob ) {
+                    SPDLOG_WARN("No Obstacle component found on top right entity [N + (y + 1)] neighbour: {}", entity_trait::to_integral(top_right_entt));
+                    assert(false && "No Obstacle component found on top right entity [N + (y + 1)] neighbour: " && entity_trait::to_integral(top_right_entt));
+                }
+                else if( top_right_entt_ob->m_enabled && not has_right_map_edge ) 
                 { 
                     m_reg->patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
                     { 
@@ -187,7 +221,12 @@ private:
             if( std::next(it) < m_random_level->end() ) 
             {
                 auto right_entt = entt::entity(*std::next(it));
-                if( m_reg->get<Cmp::Obstacle>( right_entt ).m_enabled && not has_right_map_edge )
+                Cmp::Obstacle* right_entt_ob = m_reg->try_get<Cmp::Obstacle>( right_entt );
+                if( not right_entt_ob ) {
+                    SPDLOG_WARN("No Obstacle component found on right entity [N + 1] neighbour: {}", entity_trait::to_integral(right_entt));
+                    assert(false && "No Obstacle component found on right entity [N + 1] neighbour: " && entity_trait::to_integral(right_entt));
+                }
+                else if( right_entt_ob->m_enabled && not has_right_map_edge )
                 { 
                     m_reg->patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
                     { 

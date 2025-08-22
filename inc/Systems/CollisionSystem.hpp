@@ -9,6 +9,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
+#include <cassert>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 
@@ -17,6 +18,7 @@
 #include <PlayableCharacter.hpp>
 #include <Position.hpp>
 #include <Settings.hpp>
+#include <memory>
 #include <spdlog/spdlog.h>
 #include <Components/System.hpp>
 #include <Components/Movement.hpp>
@@ -27,6 +29,9 @@
 #include <Systems/BaseSystem.hpp>
 #include <XAxisHitBox.hpp>
 #include <YAxisHitBox.hpp>
+
+#include <cassert>
+#define assertm(exp, msg) assert((void(msg), exp))
 
 namespace ProceduralMaze::Sys {
 
@@ -46,6 +51,8 @@ public:
 
     void track_path(bool place_bomb)
     {
+        using entt_traits = entt::entt_traits<entt::entity>;
+
         for (auto [_pc_entt, _pc, _pc_pos] :
             m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each())
         {
@@ -70,6 +77,9 @@ public:
                         _ob.m_bomb_timer.restart();
                         _pc.has_active_bomb = true;
                     }
+                    else {
+                        SPDLOG_WARN("Player attempted to arm bomb on occupied tile: {}", entt_traits::to_integral(_ob_entt));
+                    }
                 }
                 // detonate the bomb if it has timed out
                 if( _ob.m_armed && _ob.m_bomb_timer.getElapsedTime().asSeconds() > Settings::MAX_BOMB_TIME ) 
@@ -82,24 +92,35 @@ public:
 
                     // Iterate list of neighbours from the current obstacle 
                     // and mark each one as broken
-                    for( auto [_dir, _nb_entt] : _ob_nb_list) 
+                    for( auto [_, _nb_entt] : _ob_nb_list) 
                     {
-                        // TODO why doesn't this work?
-                        if( m_reg->valid(entt::entity(_nb_entt)) ) {
-                            auto &nb_obstacle = m_reg->get<Cmp::Obstacle>(_nb_entt);
-                            if( nb_obstacle.m_enabled && not nb_obstacle.m_broken )
-                            {
-                                nb_obstacle.m_broken = true;
-                                nb_obstacle.m_enabled = false;
-                                SPDLOG_INFO("Detonated neighbour: {}", entt::entt_traits<entt::entity>::to_integral(_nb_entt));
-                            }
-                        }
-                        else
+                        if( not m_reg->valid(entt::entity(_nb_entt)) ) 
                         {
-                            SPDLOG_WARN("Invalid neighbour entity: {}", entt::entt_traits<entt::entity>::to_integral(_nb_entt));
+                            SPDLOG_WARN("List provided invalid neighbour entity: {}", 
+                                entt_traits::to_integral(_nb_entt));
+                            assert(m_reg->valid(entt::entity(_nb_entt)) 
+                                && "List provided invalid neighbour entity: " 
+                                && entt_traits::to_integral(_nb_entt));
+                            continue;
+                        }
+                        
+                        Cmp::Obstacle* nb_obstacle = m_reg->try_get<Cmp::Obstacle>(_nb_entt);
+                        
+                        if( not nb_obstacle )
+                        {
+                            SPDLOG_WARN("Unable to find Obstacle component for entity: {}", 
+                                entt_traits::to_integral(_nb_entt));
+                            assert(nb_obstacle && "Unable to find Obstacle component for entity: " 
+                                && entt_traits::to_integral(_nb_entt));
+                            continue;
+                        }
+                        if (nb_obstacle->m_enabled && not nb_obstacle->m_broken )
+                        {
+                            nb_obstacle->m_broken = true;
+                            nb_obstacle->m_enabled = false;
+                            SPDLOG_INFO("Detonated neighbour: {}", entt_traits::to_integral(_nb_entt));
                         }
                     }
-                                    
                 }
 
             }

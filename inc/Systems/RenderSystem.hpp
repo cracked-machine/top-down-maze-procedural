@@ -230,7 +230,7 @@ public:
 
 
 
-        for( auto [entity, _ob, _pos, _nb]: 
+        for( auto [entity, _ob, _pos, _ob_nb_list]: 
             m_position_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() ) {
             
             // debug mode
@@ -277,7 +277,7 @@ public:
 
             if( _ob.m_armed )
             {
-                // Draw a red square around the occupied brick
+                // Draw a red square around the obstacle we are stand   ing on
                 sf::RectangleShape temp_square(Settings::OBSTACLE_SIZE_2F);
                 temp_square.setPosition(_pos);
                 temp_square.setFillColor(sf::Color::Transparent);
@@ -289,10 +289,25 @@ public:
                 m_bomb_sprite.pick(0);
                 m_window->draw(m_bomb_sprite);
 
-                for( auto [_dir, _nb_entt] : _nb) 
+                // get each neighbour entity from the current obstacles neighbour list
+                // and draw a blue square around it
+                for( auto [_dir, _nb_entt] : _ob_nb_list) 
                 {
                     sf::RectangleShape nb_square(Settings::OBSTACLE_SIZE_2F);
-                    nb_square.setPosition(m_reg->get<Cmp::Position>( entt::entity(_nb_entt) ));                  
+
+                    using entt_traits = entt::entt_traits<entt::entity>;
+                    Cmp::Position* _nb_entt_pos = m_reg->try_get<Cmp::Position>( entt::entity(_nb_entt) );
+
+                    if( not _nb_entt_pos )
+                    {
+                        SPDLOG_WARN("Unable to find Position component for entity: {}", 
+                            entt_traits::to_integral(_nb_entt));
+                        assert(_nb_entt_pos && "Unable to find Position component for entity" 
+                            && entt_traits::to_integral(_nb_entt));
+                        continue;
+                    }
+
+                    nb_square.setPosition(*_nb_entt_pos);                  
                     nb_square.setFillColor(sf::Color::Transparent);
                     nb_square.setOutlineColor(sf::Color::Blue); 
                     nb_square.setOutlineThickness(1.f); 
