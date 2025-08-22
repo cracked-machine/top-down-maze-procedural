@@ -110,8 +110,13 @@ public:
 
                 process_direction_queue(deltaTime);
                 process_action_queue();       
-                m_flood_sys->update();     
-            
+                m_flood_sys->update();  
+                
+                // did the player drown? Then end the game
+                if( not m_reg->try_get<Cmp::PlayableCharacter>(m_reg->view<Cmp::PlayableCharacter>().front())->alive ) {
+                    m_game_state = Settings::GameState::GAME_OVER;
+                }
+
                 for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
                     if( _sys.collisions_enabled ) m_collision_sys->check();
                 }              

@@ -11,6 +11,7 @@ namespace ProceduralMaze::Cmp {
 class PlayableCharacter {
 public:
     bool alive{true};
+    uint8_t health{100};
     constexpr static const float MOVE_DIST{1.f};
     bool has_active_bomb{false}; // if the player has placed a bomb and it is active
 };
