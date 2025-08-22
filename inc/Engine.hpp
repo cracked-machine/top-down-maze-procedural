@@ -52,7 +52,7 @@ public:
         ::ShowWindow(m_window->getNativeHandle(), SW_MAXIMIZE);
 #endif 
 
-        register_reactive_storage();
+        
     
         SPDLOG_INFO("Engine Initiliasing: ");
         SPDLOG_INFO("{} system events pending",  m_event_handler.m_system_action_queue.size());
@@ -76,15 +76,14 @@ public:
             {
          
             case Settings::GameState::MENU:
-                SPDLOG_INFO("{} system events pending",  m_event_handler.m_system_action_queue.size());
-                SPDLOG_INFO("{} direction events pending", m_event_handler.m_direction_queue.size());
-                SPDLOG_INFO("{} action events pending", m_event_handler.m_action_queue.size());                           
+                          
                 if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::START_GAME)
                 {
                     SPDLOG_INFO("Entering game....");
                     m_event_handler.m_system_action_queue.pop();
                     m_game_state = Settings::GameState::PLAYING;
 
+                    setup();
                     EntityFactory::add_system_entity( m_reg );
                     EntityFactory::add_player_entity( m_reg );
 
@@ -113,8 +112,8 @@ public:
                 {
                     m_event_handler.m_system_action_queue.pop();
                     m_game_state = Settings::GameState::MENU;
-                    SPDLOG_INFO("Tearing down....");
-                    m_reg.clear();
+                    teardown();
+                    queueinfo();
                     
                     SPDLOG_INFO("Entering menu....");
                     break;
@@ -148,8 +147,8 @@ public:
                     SPDLOG_INFO("Game Over....");
                     m_event_handler.m_system_action_queue.pop();
                     m_game_state = Settings::GameState::MENU;
-                    SPDLOG_INFO("Tearing down....");
-                    m_reg.clear();
+                    teardown();
+                    queueinfo();
                     
                     SPDLOG_INFO("Entering menu....");
                     break;
@@ -183,6 +182,73 @@ private:
     entt::reactive_mixin<entt::storage<void>> m_system_updates;
 
     Settings::GameState m_game_state = Settings::GameState::MENU;
+
+    // Register reactive storage containers to the registry
+    void setup()
+    {
+        // Register this Engine's pool for System comnponent updates
+        m_system_updates.bind(m_reg);
+        m_system_updates
+            .on_update<Cmp::System>()
+            .on_construct<Cmp::System>();
+
+        // Register the RenderSystem's pool for System comnponent updates
+        m_render_sys->m_system_updates.bind(m_reg);
+        m_render_sys->m_system_updates
+            .on_update<Cmp::System>()
+            .on_construct<Cmp::System>();
+
+        // Register the RenderSystem's pool for Position comnponent updates
+        // basically every entity...
+        m_render_sys->m_position_updates.bind(m_reg);
+        m_render_sys->m_position_updates
+            .on_update<Cmp::Position>()
+            .on_construct<Cmp::Position>();
+
+        // Register the RenderSystem's pool for Obstacle comnponent updates
+        m_render_sys->m_position_updates.bind(m_reg);
+        m_render_sys->m_position_updates
+            .on_update<Cmp::Obstacle>()
+            .on_construct<Cmp::Obstacle>();
+
+        // Register the CollisionSystem's pool for Position comnponent updates
+        // basically every entity...
+        m_collision_sys->m_collision_updates.bind(m_reg);
+        m_collision_sys->m_collision_updates
+            .on_update<Cmp::Position>()
+            .on_construct<Cmp::Position>();
+    }
+
+    // Teardown the engine and clear all event queues
+    // This is called when the game is over or the engine is shutting down
+    // It clears all reactive storage, resets their connection to the registry 
+    // and finally clears the registry
+    void teardown()
+    {
+        SPDLOG_INFO("Tearing down....");
+        m_event_handler.m_direction_queue = {};
+        m_event_handler.m_action_queue = {};
+        m_event_handler.m_system_action_queue = {};     
+
+        m_system_updates.clear();
+        m_system_updates.reset();
+        m_render_sys->m_system_updates.clear();
+        m_render_sys->m_system_updates.reset();
+        m_render_sys->m_position_updates.clear();
+        m_render_sys->m_position_updates.reset();
+        m_collision_sys->m_collision_updates.clear();
+        m_collision_sys->m_collision_updates.reset();
+
+        m_reg.clear();
+
+    }
+
+    void queueinfo()
+    {
+        SPDLOG_INFO("{} system events pending",  m_event_handler.m_system_action_queue.size());
+        SPDLOG_INFO("{} direction events pending", m_event_handler.m_direction_queue.size());
+        SPDLOG_INFO("{} action events pending", m_event_handler.m_action_queue.size()); 
+    }
 
     void process_action_queue()
     {
@@ -263,44 +329,6 @@ private:
             //     return;
             // }
         }
-    }
-
-    // Register the systems to use their reactive storage
-    // This allows the systems to react to changes in the registry
-    // such as when a component is added or updated
-    void register_reactive_storage()
-    {
-        // Register this Engine's pool for System comnponent updates
-        m_system_updates.bind(m_reg);
-        m_system_updates
-            .on_update<Cmp::System>()
-            .on_construct<Cmp::System>();
-
-        // Register the RenderSystem's pool for System comnponent updates
-        m_render_sys->m_system_updates.bind(m_reg);
-        m_render_sys->m_system_updates
-            .on_update<Cmp::System>()
-            .on_construct<Cmp::System>();
-
-        // Register the RenderSystem's pool for Position comnponent updates
-        // basically every entity...
-        m_render_sys->m_position_updates.bind(m_reg);
-        m_render_sys->m_position_updates
-            .on_update<Cmp::Position>()
-            .on_construct<Cmp::Position>();
-
-        // Register the RenderSystem's pool for Obstacle comnponent updates
-        m_render_sys->m_position_updates.bind(m_reg);
-        m_render_sys->m_position_updates
-            .on_update<Cmp::Obstacle>()
-            .on_construct<Cmp::Obstacle>();
-
-        // Register the CollisionSystem's pool for Position comnponent updates
-        // basically every entity...
-        m_collision_sys->m_collision_updates.bind(m_reg);
-        m_collision_sys->m_collision_updates
-            .on_update<Cmp::Position>()
-            .on_construct<Cmp::Position>();
     }
 
 };
