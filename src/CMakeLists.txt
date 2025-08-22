@@ -20,5 +20,17 @@ target_include_directories(${TARGET} SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/inc/Logging
     /usr/x86_64-w64-mingw32/include/GL/
 )
-target_compile_definitions(${TARGET} PUBLIC ENTT_DISABLE_ASSERT)
+
+target_compile_options(${TARGET} PRIVATE 
+    $<$<COMPILE_LANGUAGE:CXX>:
+        -std=c++23
+        -Werror                         # treat warnings as errors
+        -Wpedantic                      # enable all warnings demanded by ISO C++ standard
+        -Wall                           # enable all warnings
+        -Wextra                         # enable extra warnings
+        -ftrivial-auto-var-init=zero    # initialize all automatic variables to zero
+    >
+)
+
+# target_compile_definitions(${TARGET} PUBLIC ENTT_DISABLE_ASSERT)
 

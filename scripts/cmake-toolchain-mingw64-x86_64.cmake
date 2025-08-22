@@ -13,12 +13,3 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
-add_compile_options(
-    -ftrivial-auto-var-init=zero    # initialize all automatic variables to zero
-    -Werror                         # treat warnings as errors
-    # -Wpedantic                      # enable all warnings demanded by ISO C++ standard
-    # -Wall                           # enable all warnings
-    # -Wextra                         # enable extra warnings
-    # -Wno-dangling-pointer           # disable -Wdangling-pointer (bug in freetype library)
-
-)
