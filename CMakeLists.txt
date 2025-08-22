@@ -26,9 +26,6 @@ FetchContent_MakeAvailable(
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# add_compile_definitions(SHOW_BRICK_ENTITY_ID)
-add_compile_definitions(SHOW_PLAYER_HIT_BOXES)
-
 add_subdirectory( ${CMAKE_SOURCE_DIR}/src )
 
 # runtime deps for mingw

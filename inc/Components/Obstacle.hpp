@@ -27,10 +27,10 @@ public:
         bool enabled = true
     )
         :
-        m_tile_pick(tile_pick),
         m_visible(visible),
         m_enabled(enabled),
-        m_type(type)
+        m_type(type),
+        m_tile_pick(tile_pick)
     {
         // pick a random tile from the provided possible choices `tile_picks`
         m_bomb_timer.stop();

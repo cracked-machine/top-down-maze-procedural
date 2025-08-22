@@ -38,7 +38,9 @@ public:
         m_console_sink->set_pattern("%s:%# - %v");
 
         m_file_sink->set_level(spdlog::level::trace);
-        m_file_sink->set_pattern("[%c] [%^%l%$] %s:%v");
+        // m_file_sink->set_pattern("[%c] [%^%l%$] %s:%v");
+        m_file_sink->set_pattern("%s:%# - %v");
+
 
 
         spdlog::set_default_logger(m_logger);

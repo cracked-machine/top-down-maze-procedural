@@ -5,6 +5,7 @@
 #include <ProcGen/RandomLevelGenerator.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
 #include <iterator>
 #include <Components/Obstacle.hpp>
@@ -16,16 +17,22 @@
 
 namespace ProceduralMaze::Sys::ProcGen {
 
+// This class processes random level generation using cellular automata
+// The goal is to create a more organic and less grid-like layout
+// It takes a RandomLevelGenerator object as input, but acts on entities/components in the registry
+// It is safe to let this object go out of scope after use
 class CellAutomataSystem {
 public:
     CellAutomataSystem(const RandomLevelGenerator &rs)
     : m_random_level(rs)
-    {}
+    { SPDLOG_INFO("Initializing CellAutomataSystem"); }
+
+    ~CellAutomataSystem() = default;
 
     void iterate(entt::basic_registry<entt::entity> &reg, unsigned int iterations)
     {
         sf::Clock iteration_timer;
-        for(int i = 0; i < iterations; i++)
+        for(unsigned int i = 0; i < iterations; i++)
         {
             find_neighbours(reg);
             apply_rules(reg);
@@ -43,17 +50,46 @@ private:
 
     void find_neighbours(entt::basic_registry<entt::entity> &reg)
     {
-    
+        SPDLOG_INFO("Starting find_neighbours with {} entities in m_random_level", m_random_level.size());
         using entity_trait = entt::entt_traits<entt::entity>;
-        int count = 0;
-
-        // 1. find neighbours
-        for(auto it = m_random_level.begin(); it != m_random_level.end(); it++) {
+        SPDLOG_INFO("find_neighbours: iterating all entities:");
+        for(auto [entity, _pos, _ob]: reg.view<Cmp::Position, Cmp::Obstacle>().each()) {
             
-            auto _ob = reg.get<Cmp::Obstacle>( entt::entity(*it) );
+            SPDLOG_INFO("Checking entity {} - valid in registry: {}, has Obstacle: {}, has Position: {}, has Neighbours: {}", 
+                entity_trait::to_entity(entity),
+                reg.valid(entity),
+                reg.all_of<Cmp::Obstacle>(entity),
+                reg.all_of<Cmp::Position>(entity),
+                reg.all_of<Cmp::Neighbours>(entity));
+
+           
+        }
+
+        for(auto it = m_random_level.begin(); it != m_random_level.end(); it++) {
+           
+            auto test_entity = entt::entity(3);
+            auto testp = reg.get<Cmp::Position>(test_entity);
+            SPDLOG_INFO("Position of test entity {}: {}, {}", entity_trait::to_entity(test_entity), testp.x, testp.y);
+
+            
+            auto entity = entt::entity(*it);
+
+            
+            // SPDLOG_INFO("Checking entity {} - valid in registry: {}, has Obstacle: {}, has Position: {}, has Neighbours: {}", 
+            //            entity_trait::to_entity(entity),
+            //            reg.valid(entity),
+            //            reg.all_of<Cmp::Obstacle>(entity),
+            //            reg.all_of<Cmp::Position>(entity),
+            //            reg.all_of<Cmp::Neighbours>(entity));
+
+            if (!reg.valid(entity)) { 
+                SPDLOG_ERROR("Entity {} is invalid in registry", entity_trait::to_entity(entity)); 
+                continue; 
+            }
+
             reg.patch<Cmp::Neighbours>(entt::entity(*it), [](auto &_nb_update){ _nb_update.clear(); });
-                    
-            count++;
+
+            // count++;
             SPDLOG_TRACE("");
             const int idx = std::distance(m_random_level.begin(), it);
             
@@ -82,7 +118,7 @@ private:
                 { 
                     reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
                     { 
-                        _nb_update.set( reg, Cmp::Neighbours::Dir::LEFT, left_entt ); 
+                        _nb_update.set( Cmp::Neighbours::Dir::LEFT, left_entt ); 
                     });
                     SPDLOG_TRACE("N - 1:{}", *(std::prev(it)) ); 
                 }
@@ -94,7 +130,7 @@ private:
                 if( reg.get<Cmp::Obstacle>( down_left_entt ).m_enabled && not has_left_map_edge)  
                 {
                     reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update){ 
-                        _nb_update.set( reg, Cmp::Neighbours::Dir::DOWN_LEFT, down_left_entt ); 
+                        _nb_update.set( Cmp::Neighbours::Dir::DOWN_LEFT, down_left_entt ); 
                     });
                 }
             }
@@ -106,9 +142,8 @@ private:
                 {
                     reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
                     { 
-                        _nb_update.set( reg, Cmp::Neighbours::Dir::DOWN, down_entt );
+                        _nb_update.set( Cmp::Neighbours::Dir::DOWN, down_entt );
                     });
-                    SPDLOG_TRACE("N - x:{}", *(std::prev(it, m_size.x))); 
                 }
             }
             // N - (y + 1)
@@ -119,7 +154,7 @@ private:
                 { 
                     reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
                     { 
-                        _nb_update.set( reg, Cmp::Neighbours::Dir::DOWN_RIGHT, down_right_entt ); 
+                        _nb_update.set( Cmp::Neighbours::Dir::DOWN_RIGHT, down_right_entt ); 
                     });
                 }
             }
@@ -143,7 +178,7 @@ private:
                 { 
                     reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update) 
                     { 
-                        _nb_update.set( reg, Cmp::Neighbours::Dir::UP_LEFT, top_left_entt ); 
+                        _nb_update.set( Cmp::Neighbours::Dir::UP_LEFT, top_left_entt ); 
                     });
                 }
             }
@@ -155,7 +190,7 @@ private:
                 { 
                     reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
                     { 
-                        _nb_update.set( reg, Cmp::Neighbours::Dir::UP, top_entt ); 
+                        _nb_update.set( Cmp::Neighbours::Dir::UP, top_entt ); 
                     });
                 }
             }
@@ -167,7 +202,7 @@ private:
                 { 
                     reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
                     { 
-                        _nb_update.set( reg, Cmp::Neighbours::Dir::UP_RIGHT, top_right_entt ); 
+                        _nb_update.set( Cmp::Neighbours::Dir::UP_RIGHT, top_right_entt ); 
                     });
                 }
             }
@@ -179,7 +214,7 @@ private:
                 { 
                     reg.patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
                     { 
-                        _nb_update.set( reg, Cmp::Neighbours::Dir::RIGHT, right_entt ); 
+                        _nb_update.set( Cmp::Neighbours::Dir::RIGHT, right_entt ); 
                     });
                 }
             }
@@ -187,7 +222,8 @@ private:
         }
         SPDLOG_INFO("Processed neighbours for {} entities.", m_random_level.size());
         
-#ifdef NDEBUG
+#ifndef NDEBUG
+        using entity_trait = entt::entt_traits<entt::entity>;
         for( auto [_entt, _ob, _pos, _nb]: reg.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() ) {
             // SPDLOG_INFO("Entity {} has {} neighbours", entity_trait::to_entity(_entt), _nb.count());
             std::string msg = 
@@ -222,7 +258,7 @@ private:
         SPDLOG_INFO("Finished applying Cellular Automata rules!");
     }
 
-    RandomLevelGenerator m_random_level;
+    const RandomLevelGenerator& m_random_level;
 };
 
 } // namespace ProceduralMaze::Systems::ProcGen

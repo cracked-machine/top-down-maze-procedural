@@ -23,12 +23,12 @@ public:
         DOWN_RIGHT
     };
 
-    void set(entt::basic_registry<entt::entity> &reg, Dir dir, entt::entity entity)
+    void set(Dir dir, entt::entity entity)
     {
         m_entities[dir] = entity;
     }
 
-    std::optional<entt::entity> get(entt::basic_registry<entt::entity> &reg, Dir dir)
+    std::optional<entt::entity> get(Dir dir)
     {
         if (m_entities.find(dir) != m_entities.end()) 
         {
@@ -59,7 +59,7 @@ public:
         m_entities.clear();
     }
 
-    void remove(entt::basic_registry<entt::entity> &reg, Dir dir)
+    void remove(Dir dir)
     {
         if (m_entities.find(dir) != m_entities.end()) 
         {

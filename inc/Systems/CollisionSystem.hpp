@@ -9,6 +9,8 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
+#include <WaterLevel.hpp>
+#include <chrono>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 
@@ -17,6 +19,7 @@
 #include <PlayableCharacter.hpp>
 #include <Position.hpp>
 #include <Settings.hpp>
+#include <spdlog/common.h>
 #include <spdlog/spdlog.h>
 #include <Components/System.hpp>
 #include <Components/Movement.hpp>
@@ -40,6 +43,29 @@ public:
     sf::Vector2f getCenter(sf::Vector2f pos, sf::Vector2f size)
     {
         return sf::FloatRect(pos, size).getCenter();
+    }
+
+    void check_drowning(entt::basic_registry<entt::entity> &reg)
+    {
+        for (auto [_pc_entt, _pc, _pc_pos] : reg.view<Cmp::PlayableCharacter, Cmp::Position>().each())
+        {
+            for (auto [_entt, _water_level] : reg.view<Cmp::WaterLevel>().each())
+            {
+                SPDLOG_TRACE("Water level: {}, player position: {}", _water_level.get_level(), _pc_pos.y);
+                if (_water_level.get_level() < (_pc_pos.y - 16))  // player sprite is actually 16x32
+                {
+                    _pc.health -= 1;
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                    // SPDLOG_INFO("Player drowning!: health={}", _pc.health);
+
+                    if (_pc.health == 0) {
+                        _pc.alive = false;
+                        SPDLOG_INFO("Player drowned!");
+
+                    }
+                }
+            }
+        }
     }
 
     void track_path(entt::basic_registry<entt::entity> &reg, bool place_bomb)
@@ -109,7 +135,6 @@ public:
         {
             sf::Vector2f starting_pos = {_pc_pos.x, _pc_pos.y};
             int stuck_loop = 0;
-            bool had_collision = false;
             
             // Reset collision flag at start of frame
             _movement.is_colliding = false;
@@ -126,8 +151,6 @@ public:
                 auto collision = player_floatrect.findIntersection(brick_floatRect);
                 if (!collision) continue;
 
-
-                had_collision = true;
                 stuck_loop++;
 
                 if (stuck_loop > 5) // Reduced threshold, but we'll be smarter about resolution

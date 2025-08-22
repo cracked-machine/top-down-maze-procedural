@@ -14,8 +14,13 @@
 #include <Components/Random.hpp>
 #include <Sprites/Brick.hpp>
 
+#include <fstream>
+
 namespace ProceduralMaze::Sys::ProcGen {
 
+// Generates a random game area of objects and puts them into the registry
+// This object can be passed to the CellAutomataSystem for further processing
+// It is safe to let this object go out of scope after use
 class RandomLevelGenerator {
 public:
     RandomLevelGenerator(
@@ -24,11 +29,11 @@ public:
         const std::vector<unsigned int> &border_tile_pool,
         unsigned long seed = 0
     )
-        :       m_random_object_tile_picker(0, object_tile_pool.size() - 1),
+        :       m_activation_selector(0,1),
                 m_object_tile_choices(object_tile_pool),
-                m_random_border_tile_picker(0, border_tile_pool.size() - 1),
+                m_random_object_tile_picker(0, object_tile_pool.size() - 1),
                 m_border_tile_choices(border_tile_pool),
-                m_activation_selector(0,1)
+                m_random_border_tile_picker(0, border_tile_pool.size() - 1)
     {
         if (seed) Cmp::Random::seed(seed);
         gen_objects(reg);
@@ -36,15 +41,17 @@ public:
         stats(reg);
     }
 
+    // ~RandomLevelGenerator() { m_data.clear(); }
+
     // These obstacles in the game map area.
     // The enabled status and texture of each one is picked randomly
     void gen_objects(entt::basic_registry<entt::entity> &reg)
     {
 
         using entity_trait = entt::entt_traits<entt::entity>;
-        for(int x = 0; x < ProceduralMaze::Settings::MAP_GRID_SIZE.x; x++)
+        for(unsigned int x = 0; x < ProceduralMaze::Settings::MAP_GRID_SIZE.x; x++)
         {
-            for(int y = 0; y < ProceduralMaze::Settings::MAP_GRID_SIZE.y; y++)
+            for(unsigned int y = 0; y < ProceduralMaze::Settings::MAP_GRID_SIZE.y; y++)
             {
                 auto entity = reg.create();
                 reg.emplace<Cmp::Position>( 
@@ -54,12 +61,14 @@ public:
                         (y * Sprites::Brick::HEIGHT)  + (ProceduralMaze::Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT)
                     } 
                 ); 
-                // track the contiguous creation order of the entity so we can easily find its neighbours later
-                m_data.push_back(entity_trait::to_entity(entity));
-
+                
                 auto tile_pick = m_object_tile_choices[m_random_object_tile_picker.gen()];
                 reg.emplace<Cmp::Obstacle>(entity, tile_pick, Cmp::Obstacle::Type::BRICK, true, m_activation_selector.gen() );  
                 reg.emplace<Cmp::Neighbours>(entity);                             
+                // add entity to contiguous container so we can determine its neighbours later
+                auto raw_entity = entity_trait::to_entity(entity);
+                SPDLOG_INFO("Generated entity {} at position ({}, {})", raw_entity, x, y);
+                m_data.push_back(raw_entity);
             }
         }
     }
@@ -114,16 +123,17 @@ public:
         }
     }
 
-    std::optional<uint32_t> at(std::size_t idx) 
+    std::optional<uint32_t> at(std::size_t idx) const
     { 
         if( idx > m_data.size() ) return std::nullopt ;
         else return m_data.at(idx); 
     }
-    auto data() { return m_data.data(); }
-    auto begin() { return m_data.begin(); }
-    auto end() { return m_data.end(); }
-    auto size() { return m_data.size(); }
-    
+    auto data() const { return m_data.data(); }
+    auto begin() const { return m_data.begin(); }
+    auto end() const { return m_data.end(); }
+    auto size() const { return m_data.size(); }
+    auto clear() { m_data.clear(); }
+
 private:
     std::vector<uint32_t> m_data;
     Cmp::Random m_activation_selector;

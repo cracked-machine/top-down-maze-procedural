@@ -12,6 +12,9 @@
 
 #include <Collision.hpp>
 #include <Font.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <FloodWater.hpp>
+#include <WaterLevel.hpp>
 #include <memory>
 
 #include <Obstacle.hpp>
@@ -50,7 +53,8 @@ public:
         auto tile_file = "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png";
         if (!m_floormap.load(tile_file, {16,16}, floortile_choices.data(), 200, 98))
             SPDLOG_CRITICAL("Unable to load tile map {}", tile_file);
-        
+                
+
         // init local view dimensions
         m_local_view = sf::View( 
             { Settings::LOCAL_MAP_VIEW_SIZE.x * 0.5f, Settings::DISPLAY_SIZE.y * 0.5f}, 
@@ -131,7 +135,7 @@ public:
     void render_game(entt::basic_registry<entt::entity> &reg)
     {
         using namespace Sprites;
-
+       
         // main render begin
         m_window->clear();
         {
@@ -141,6 +145,11 @@ public:
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
                 render_bricks(reg);
                 render_player();
+
+                
+                reg.get<Cmp::WaterLevel>(reg.view<Cmp::WaterLevel>().front()).update();
+                auto &water_level = reg.get<Cmp::WaterLevel>(reg.view<Cmp::WaterLevel>().front());
+                m_window->draw(FloodWaters{sf::Vector2f{Settings::DISPLAY_SIZE},{0, water_level.get_level()}});
 
                 // update the minimap view center based on player position
                 // reset the center if player is stuck
@@ -156,7 +165,8 @@ public:
                             update_view_center(m_local_view, _pos);
                         }
                     }
-                }                
+                }             
+                
 
 
             } 
@@ -168,6 +178,7 @@ public:
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
                 render_bricks(reg);
                 render_player();
+                m_window->draw(m_flood);
 
                 // update the minimap view center based on player position
                 // reset the center if player is stuck
@@ -379,6 +390,11 @@ private:
         "res/bomb.png",
         {0}, // No specific tile pool, just one sprite
         {16,16}
+    };
+
+    Sprites::FloodWaters m_flood{
+        sf::Vector2f{Settings::DISPLAY_SIZE}, 
+        sf::Vector2f{0, Settings::DISPLAY_SIZE.y * 1.f}
     };
 
     Cmp::Font m_font = Cmp::Font("res/tuffy.ttf");

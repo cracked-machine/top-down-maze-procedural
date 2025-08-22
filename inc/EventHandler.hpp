@@ -52,23 +52,22 @@ public:
         {
 
             case Settings::GameState::MENU:
-                menu_state_handler(window, reg);
+                menu_state_handler(window);
                 break;
             case Settings::GameState::PLAYING:
                 game_state_handler(window, reg);
                 break;
             case Settings::GameState::PAUSED:
-                paused_state_handler(window, reg);
+                paused_state_handler(window);
                 break;
             case Settings::GameState::GAME_OVER:
-                game_over_state_handler(window, reg);
+                game_over_state_handler(window);
                 break;
         }
     }
 
     void menu_state_handler(
-        const std::shared_ptr<sf::RenderWindow> window, 
-        entt::basic_registry<entt::entity> &m_reg)
+        const std::shared_ptr<sf::RenderWindow> window)
     {
         using namespace sf::Keyboard;
         while (const std::optional event = window->pollEvent())
@@ -161,8 +160,7 @@ public:
     }
 
     void paused_state_handler(
-        const std::shared_ptr<sf::RenderWindow> window, 
-        entt::basic_registry<entt::entity> &m_reg)
+        const std::shared_ptr<sf::RenderWindow> window)
     {
         using namespace sf::Keyboard;
         while (const std::optional event = window->pollEvent())
@@ -186,8 +184,7 @@ public:
     }
 
     void game_over_state_handler(
-        const std::shared_ptr<sf::RenderWindow> window, 
-        entt::basic_registry<entt::entity> &m_reg)
+        const std::shared_ptr<sf::RenderWindow> window)
     {
         using namespace sf::Keyboard;
         while (const std::optional event = window->pollEvent())

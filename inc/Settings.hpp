@@ -19,11 +19,11 @@ const sf::Vector2u DISPLAY_SIZE{ 1920, 1024 };
 
 // MAP_GRID_OFFSET and MAP_GRID_SIZE are in blocks, not pixels
 const sf::Vector2f MAP_GRID_OFFSET{ 10.f,1.f };  
-const sf::Vector2u MAP_GRID_SIZE{ 100u, 61u }; 
-const sf::Vector2f PLAYER_START_POS{ 20, static_cast<float>(DISPLAY_SIZE.y) / 2 };
-const sf::FloatRect PLAYER_END_ZONE{{DISPLAY_SIZE.x - 8.f, MAP_GRID_OFFSET.y}, {8, static_cast<float>(MAP_GRID_SIZE.y)}};
-// const sf::Vector2u MAP_GRID_SIZE{ 10u, 10u }; // for troubleshooting ProceduralGeneration
-// const sf::Vector2f PLAYER_START_POS{ 20, MAP_GRID_OFFSET.y + 32 };
+// const sf::Vector2u MAP_GRID_SIZE{ 100u, 61u }; 
+// const sf::Vector2f PLAYER_START_POS{ 20, static_cast<float>(DISPLAY_SIZE.y) / 2 };
+// const sf::FloatRect PLAYER_END_ZONE{{DISPLAY_SIZE.x - 8.f, MAP_GRID_OFFSET.y}, {8, static_cast<float>(MAP_GRID_SIZE.y)}};
+const sf::Vector2u MAP_GRID_SIZE{ 4u, 4u }; // for troubleshooting ProceduralGeneration
+const sf::Vector2f PLAYER_START_POS{ 20, MAP_GRID_OFFSET.y + 32 };
 
 // SFML views
 const sf::Vector2f LOCAL_MAP_VIEW_SIZE{ 300.f, 200.f };
@@ -57,6 +57,7 @@ const std::vector<unsigned int> BROKEN_OBJECT_TILE_POOL {42};   // res/Pixel Lan
 const sf::Vector2u PLAYER_SIZE(16, 16);
 const sf::Vector2f PLAYER_SIZE_2F(PLAYER_SIZE.x, PLAYER_SIZE.y);
 const sf::Vector2u PLAYER_SPRITE_SIZE(16, 32);
+const sf::Vector2f PLAYER_SPRITE_SIZE_2F(PLAYER_SPRITE_SIZE.x, PLAYER_SPRITE_SIZE.y);
 const std::string PLAYER_TILESET_PATH = "res/players.png";
 const std::vector<unsigned int> PLAYER_TILE_POOL = {    
     0, 1, 2     // res/players.png

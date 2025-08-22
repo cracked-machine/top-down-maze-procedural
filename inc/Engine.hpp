@@ -51,15 +51,14 @@ public:
 #ifdef _WIN32
         ::ShowWindow(m_window->getNativeHandle(), SW_MAXIMIZE);
 #endif 
+        // Cmp::Random::seed(123456789); // for troubleshooting purposes
 
         register_reactive_storage();
     
         SPDLOG_INFO("Engine Initiliasing: ");
         SPDLOG_INFO("{} system events pending",  m_event_handler.m_system_action_queue.size());
         SPDLOG_INFO("{} direction events pending", m_event_handler.m_direction_queue.size());
-        SPDLOG_INFO("{} action events pending", m_event_handler.m_action_queue.size());
-
-        // Cmp::Random::seed(123456789); // for troubleshooting purposes
+        SPDLOG_INFO("{} action events pending", m_event_handler.m_action_queue.size());          
     }
 
     bool run()
@@ -79,22 +78,39 @@ public:
                          
                 if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::START_GAME)
                 {
-                    SPDLOG_INFO("Entering game....");
                     m_event_handler.m_system_action_queue.pop();
-                    m_game_state = Settings::GameState::PLAYING;
-
+                    m_event_handler.m_system_action_queue = {};
+                    SPDLOG_INFO("Setting up game....");
+                  
+                    
                     EntityFactory::add_system_entity( m_reg );
                     EntityFactory::add_player_entity( m_reg );
-
+                    EntityFactory::add_flood_water_entity(m_reg);
+                    
                     // procedurally generate the level
-                    Sys::ProcGen::RandomLevelGenerator random_level(
+                    std::size_t initial_count = 0;
+                    for([[maybe_unused]] auto entity: m_reg.view<entt::entity>()) { ++initial_count; }
+                    SPDLOG_INFO("Registry state before level generation - entity count: {}", initial_count);
+                    
+                    auto random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>(
                         m_reg,
                         Settings::OBJECT_TILE_POOL,
                         Settings::BORDER_TILE_POOL
                     );
+                    
+                    std::size_t after_gen_count = 0;
+                    for([[maybe_unused]] auto entity: m_reg.view<entt::entity>()) { ++after_gen_count; }
+                    SPDLOG_INFO("Registry state after level generation - entity count: {}", after_gen_count);
+                    
+                    auto cellauto_parser = std::make_unique<Sys::ProcGen::CellAutomataSystem>(*random_level);
+                    cellauto_parser->iterate(m_reg, 1);
 
-                    Sys::ProcGen::CellAutomataSystem cellauto_parser{random_level};
-                    cellauto_parser.iterate(m_reg, 5);
+                    std::size_t final_count = 0;
+                    for([[maybe_unused]] auto entity: m_reg.view<entt::entity>()) { ++final_count; }
+                    SPDLOG_INFO("Registry state after cellular automata - entity count: {}, grid size: {}x{}", 
+                        final_count, Settings::MAP_GRID_SIZE.x, Settings::MAP_GRID_SIZE.y);
+                        
+                    m_game_state = Settings::GameState::PLAYING;
                 }
 
                 m_render_sys->render_menu();
@@ -110,25 +126,25 @@ public:
                 if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::QUIT_GAME)
                 {
                     m_event_handler.m_system_action_queue.pop();
-                    m_game_state = Settings::GameState::MENU;
+                    tear_down();
 
-                    SPDLOG_INFO("Tearing down....");
-                    m_reg.clear();
-                    SPDLOG_INFO("Cleared registry, {} entities", m_reg.view<Cmp::Position>().size());
-                    m_event_handler.m_direction_queue = {};
-                    m_event_handler.m_action_queue = {};
-                    m_event_handler.m_system_action_queue = {};
-                
+                    m_game_state = Settings::GameState::MENU;
                     SPDLOG_INFO("Entering menu....");
                     break;
                 }
 
                 process_direction_queue(deltaTime);
-                process_action_queue();            
+                process_action_queue();          
+                m_collision_sys->check_drowning(m_reg);  
             
                 for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
                     if( _sys.collisions_enabled ) m_collision_sys->check(m_reg);
                 }              
+
+                // did the player drown? Then end the game
+                if( not m_reg.get<Cmp::PlayableCharacter>(m_reg.view<Cmp::PlayableCharacter>().front()).alive ) {
+                    m_game_state = Settings::GameState::GAME_OVER;
+                }
 
                 m_render_sys->render_game(m_reg);     
                 break;
@@ -148,17 +164,13 @@ public:
 
                 if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::QUIT_GAME)
                 {
-                    SPDLOG_INFO("Game Over....");
                     m_event_handler.m_system_action_queue.pop();
-                    m_game_state = Settings::GameState::MENU;
-
-                    SPDLOG_INFO("Tearing down....");
-                    m_reg.clear();
-                    m_event_handler.m_direction_queue = {};
-                    m_event_handler.m_action_queue = {};
-                    m_event_handler.m_system_action_queue = {};
+                    SPDLOG_INFO("Game Over....");
+                    
+                    tear_down();
                     
                     SPDLOG_INFO("Entering menu....");
+                    m_game_state = Settings::GameState::MENU;
                     break;
                 }
                 break;
@@ -190,6 +202,34 @@ private:
     entt::reactive_mixin<entt::storage<void>> m_system_updates;
 
     Settings::GameState m_game_state = Settings::GameState::MENU;
+
+    void tear_down()
+    {
+        SPDLOG_INFO("Tearing down....");
+
+        std::size_t pre_teardown_count = 0;
+        for([[maybe_unused]] auto entity: m_reg.view<entt::entity>()) { ++pre_teardown_count; }
+        SPDLOG_INFO("Clearing registry - entity count: {}, grid size: {}x{}", 
+            pre_teardown_count, Settings::MAP_GRID_SIZE.x, Settings::MAP_GRID_SIZE.y);
+
+        unregister_reactive_storage();
+        m_system_updates.clear();
+        m_render_sys->m_system_updates.clear();
+        m_render_sys->m_position_updates.clear();
+        m_collision_sys->m_collision_updates.clear();
+        m_reg.clear();
+
+        register_reactive_storage();
+
+        std::size_t post_teardown_count = 0;
+        for([[maybe_unused]] auto entity: m_reg.view<entt::entity>()) { ++post_teardown_count; }
+        SPDLOG_INFO("Cleared registry - entity count: {}, grid size: {}x{}", 
+            post_teardown_count, Settings::MAP_GRID_SIZE.x, Settings::MAP_GRID_SIZE.y);
+
+        m_event_handler.m_direction_queue = {};
+        m_event_handler.m_action_queue = {};
+        m_event_handler.m_system_action_queue = {};
+    }
 
     void process_action_queue()
     {
@@ -238,10 +278,6 @@ private:
 
             // Update velocity
             _movement.velocity += _movement.acceleration * dt;
-
-            // Get current velocity magnitude
-            float speed = std::sqrt(_movement.velocity.x * _movement.velocity.x + 
-                                  _movement.velocity.y * _movement.velocity.y);
 
             // Stop completely if current velocity magnitude is below minimum velocity
             if (_movement.velocity.length() < _movement.min_velocity) {
@@ -310,6 +346,29 @@ private:
             .on_construct<Cmp::Position>();
     }
 
+    void unregister_reactive_storage()
+    {
+        // disconnect this Engine's reactive storage for System components
+        m_reg.on_construct<Cmp::System>().disconnect(&m_system_updates);
+        m_reg.on_update<Cmp::System>().disconnect(&m_system_updates);
+
+        // disconnect the RenderSystem's pool for System components
+        m_reg.on_construct<Cmp::System>().disconnect(&m_render_sys->m_system_updates);
+        m_reg.on_update<Cmp::System>().disconnect(&m_render_sys->m_system_updates);
+
+        // disconnect the RenderSystem's pool for Position components
+        m_reg.on_construct<Cmp::Position>().disconnect(&m_render_sys->m_position_updates);
+        m_reg.on_update<Cmp::Position>().disconnect(&m_render_sys->m_position_updates);
+
+        // disconnect the RenderSystem's pool for Obstacle components
+        m_reg.on_construct<Cmp::Obstacle>().disconnect(&m_render_sys->m_position_updates);
+        m_reg.on_update<Cmp::Obstacle>().disconnect(&m_render_sys->m_position_updates);
+
+        // disconnect the CollisionSystem's pool for Position components
+        m_reg.on_construct<Cmp::Position>().disconnect(&m_collision_sys->m_collision_updates);
+        m_reg.on_update<Cmp::Position>().disconnect(&m_collision_sys->m_collision_updates);
+
+    }
 };
 
 } //namespace ProceduralMaze
