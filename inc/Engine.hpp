@@ -54,7 +54,7 @@ public:
 #endif 
 
         SPDLOG_INFO("Engine Initiliasing: ");
-        setup();
+
 
         // Cmp::Random::seed(123456789); // for troubleshooting purposes
     }
