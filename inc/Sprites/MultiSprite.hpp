@@ -53,10 +53,9 @@ public:
             m_vertex_map[tile_idx] = current_va;
         }
 
-        SPDLOG_INFO("Loaded texture {}: Requested {} tiles, created {} sprites", 
-            tilemap_path, 
+        SPDLOG_INFO("Requested {} tiles ... Created {} sprites from texture {}: ", 
             std::distance(m_tilemap_picks.begin(), std::unique(m_tilemap_picks.begin(), m_tilemap_picks.end())), 
-            m_vertex_map.size());
+            m_vertex_map.size(), tilemap_path);
 
     }
     // use the index from the `tilemap_picks` vector to select a loaded tile from the map
