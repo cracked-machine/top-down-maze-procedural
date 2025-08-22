@@ -26,21 +26,21 @@ public:
     EntityFactory(EntityFactory const&) = delete;
     EntityFactory operator=(EntityFactory const&) = delete;
 
-    static void add_system_entity(entt::basic_registry<entt::entity> &m_reg)
+    static void add_system_entity(std::shared_ptr<entt::basic_registry<entt::entity>> reg)
     {
         SPDLOG_INFO("Creating system entity");
-        auto entity = m_reg.create();
-        m_reg.emplace<Cmp::System>(entity); 
+        auto entity = reg->create();
+        reg->emplace<Cmp::System>(entity);
     }
 
-    
-    static void add_player_entity(entt::basic_registry<entt::entity> &m_reg)
+
+    static void add_player_entity(std::shared_ptr<entt::basic_registry<entt::entity>> reg)
     {
         SPDLOG_INFO("Creating player entity");
-        auto entity = m_reg.create();
-        m_reg.emplace<Cmp::Position>(entity, Settings::PLAYER_START_POS); 
-        m_reg.emplace<Cmp::PlayableCharacter>(entity);
-        m_reg.emplace<Cmp::Movement>(entity);
+        auto entity = reg->create();
+        reg->emplace<Cmp::Position>(entity, Settings::PLAYER_START_POS);
+        reg->emplace<Cmp::PlayableCharacter>(entity);
+        reg->emplace<Cmp::Movement>(entity);
     }
 
 private:

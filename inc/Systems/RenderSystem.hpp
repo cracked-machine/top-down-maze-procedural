@@ -33,8 +33,10 @@ namespace ProceduralMaze::Sys {
 class RenderSystem : public BaseSystem {
 public:
     RenderSystem(
+        std::shared_ptr<entt::basic_registry<entt::entity>> reg,
         std::shared_ptr<sf::RenderWindow> win
     ) : 
+        m_reg( reg ),
         m_window( win )
     { 
         using namespace ProceduralMaze::Settings;
@@ -128,7 +130,7 @@ public:
     }
 
     
-    void render_game(entt::basic_registry<entt::entity> &reg)
+    void render_game()
     {
         using namespace Sprites;
 
@@ -139,7 +141,7 @@ public:
             m_window->setView(m_local_view);
             {   
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
-                render_bricks(reg);
+                render_bricks();
                 render_player();
 
                 // update the minimap view center based on player position
@@ -166,7 +168,7 @@ public:
             m_window->setView(m_minimap_view);
             {
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
-                render_bricks(reg);
+                render_bricks();
                 render_player();
 
                 // update the minimap view center based on player position
@@ -214,7 +216,7 @@ public:
         m_window->draw(m_floormap);
     }
 
-    void render_bricks(entt::basic_registry<entt::entity> &reg)
+    void render_bricks()
     {
         bool show_obstacle_entity_id = false;
         for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
@@ -285,7 +287,7 @@ public:
                 for( auto [_dir, _nb_entt] : _nb) 
                 {
                     sf::RectangleShape nb_square(Settings::OBSTACLE_SIZE_2F);
-                    nb_square.setPosition(reg.get<Cmp::Position>( entt::entity(_nb_entt) ));                  
+                    nb_square.setPosition(m_reg->get<Cmp::Position>( entt::entity(_nb_entt) ));                  
                     nb_square.setFillColor(sf::Color::Transparent);
                     nb_square.setOutlineColor(sf::Color::Blue); 
                     nb_square.setOutlineThickness(1.f); 
@@ -348,7 +350,9 @@ public:
     sf::View m_local_view;
     sf::View m_minimap_view;
 private:
+    std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
     std::shared_ptr<sf::RenderWindow> m_window;
+
     Sprites::Containers::TileMap m_floormap;
 
     Sprites::MultiSprite m_object_sprite{

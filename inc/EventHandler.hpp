@@ -23,7 +23,7 @@ namespace ProceduralMaze {
 class InputEventHandler
 {
 public:
-    InputEventHandler() = default;
+    InputEventHandler(std::shared_ptr<entt::basic_registry<entt::entity>> reg) : m_reg(reg) {}
 
     enum class GameActions {
         DROP_BOMB
@@ -39,7 +39,6 @@ public:
     // set a new direction vector on key press
     void handler(
         const std::shared_ptr<sf::RenderWindow> window, 
-        entt::basic_registry<entt::entity> &reg,
         Settings::GameState &game_state
     )
     {
@@ -52,23 +51,21 @@ public:
         {
 
             case Settings::GameState::MENU:
-                menu_state_handler(window, reg);
+                menu_state_handler(window);
                 break;
             case Settings::GameState::PLAYING:
-                game_state_handler(window, reg);
+                game_state_handler(window);
                 break;
             case Settings::GameState::PAUSED:
-                paused_state_handler(window, reg);
+                paused_state_handler(window);
                 break;
             case Settings::GameState::GAME_OVER:
-                game_over_state_handler(window, reg);
+                game_over_state_handler(window);
                 break;
         }
     }
 
-    void menu_state_handler(
-        const std::shared_ptr<sf::RenderWindow> window, 
-        entt::basic_registry<entt::entity> &m_reg)
+    void menu_state_handler(const std::shared_ptr<sf::RenderWindow> window)
     {
         using namespace sf::Keyboard;
         while (const std::optional event = window->pollEvent())
@@ -88,9 +85,7 @@ public:
         }    
     }
 
-    void game_state_handler(
-        const std::shared_ptr<sf::RenderWindow> window, 
-        entt::basic_registry<entt::entity> &m_reg)
+    void game_state_handler(const std::shared_ptr<sf::RenderWindow> window)
     {
         using namespace sf::Keyboard;
         while (const std::optional event = window->pollEvent())
@@ -107,7 +102,7 @@ public:
             {
                 if (keyReleased->scancode == sf::Keyboard::Scancode::F1)
                 {
-                    for( auto [ _entt, _sys] : m_reg.view<Cmp::System>().each() )
+                    for( auto [ _entt, _sys] : m_reg->view<Cmp::System>().each() )
                     {
                         _sys.collisions_enabled = not _sys.collisions_enabled;
                     }
@@ -115,7 +110,7 @@ public:
                 else if (keyReleased->scancode == sf::Keyboard::Scancode::F2)
                 {
                     for( auto [ _entt, _sys] :
-                        m_reg.view<Cmp::System>().each() )
+                        m_reg->view<Cmp::System>().each() )
                     {
                         _sys.show_player_hitboxes = not _sys.show_player_hitboxes;
                     }
@@ -123,7 +118,7 @@ public:
                 else if (keyReleased->scancode == sf::Keyboard::Scancode::F3)
                 {
                     for( auto [ _entt, _sys] :
-                        m_reg.view<Cmp::System>().each() )
+                        m_reg->view<Cmp::System>().each() )
                     {
                         _sys.show_obstacle_entity_id = not _sys.show_obstacle_entity_id;
                     }
@@ -160,9 +155,7 @@ public:
 
     }
 
-    void paused_state_handler(
-        const std::shared_ptr<sf::RenderWindow> window, 
-        entt::basic_registry<entt::entity> &m_reg)
+    void paused_state_handler(const std::shared_ptr<sf::RenderWindow> window)
     {
         using namespace sf::Keyboard;
         while (const std::optional event = window->pollEvent())
@@ -185,9 +178,7 @@ public:
         }
     }
 
-    void game_over_state_handler(
-        const std::shared_ptr<sf::RenderWindow> window, 
-        entt::basic_registry<entt::entity> &m_reg)
+    void game_over_state_handler(const std::shared_ptr<sf::RenderWindow> window)
     {
         using namespace sf::Keyboard;
         while (const std::optional event = window->pollEvent())
@@ -212,6 +203,8 @@ public:
     std::queue<GameActions> m_action_queue{};
     std::queue<SystemActions> m_system_action_queue{};
 private:
+
+    std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
 };
 
 } // namespace ProceduralMaze

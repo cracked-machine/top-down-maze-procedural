@@ -67,7 +67,7 @@ public:
         while (m_window->isOpen())
         {
             sf::Time deltaTime = deltaClock.restart();
-            m_event_handler.handler(m_window, m_reg, m_game_state);
+            m_event_handler.handler(m_window, m_game_state);
 
             switch(m_game_state)
             {
@@ -107,10 +107,10 @@ public:
                 process_action_queue();            
             
                 for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
-                    if( _sys.collisions_enabled ) m_collision_sys->check(m_reg);
+                    if( _sys.collisions_enabled ) m_collision_sys->check();
                 }              
 
-                m_render_sys->render_game(m_reg);     
+                m_render_sys->render_game();     
                 break;
 
             case Settings::GameState::PAUSED:
@@ -152,14 +152,16 @@ private:
     );
     
     // ECS Registry
-    entt::basic_registry<entt::entity> m_reg;
+    // entt::basic_registry<entt::entity> m_reg;
+    std::shared_ptr<entt::basic_registry<entt::entity>> m_reg = 
+        std::make_shared<entt::basic_registry<entt::entity>>(entt::basic_registry<entt::entity>{});
 
     //  ECS Systems
-    std::unique_ptr<Sys::RenderSystem> m_render_sys = std::make_unique<Sys::RenderSystem> (m_window);
-    std::unique_ptr<Sys::CollisionSystem> m_collision_sys = std::make_unique<Sys::CollisionSystem>();
+    std::unique_ptr<Sys::CollisionSystem> m_collision_sys = std::make_unique<Sys::CollisionSystem>(m_reg);
+    std::unique_ptr<Sys::RenderSystem> m_render_sys = std::make_unique<Sys::RenderSystem> (m_reg, m_window);
 
     // SFML keyboard/mouse event handler
-    ProceduralMaze::InputEventHandler m_event_handler;
+    ProceduralMaze::InputEventHandler m_event_handler{m_reg};
 
     // pool for System component updates from the registry
     entt::reactive_mixin<entt::storage<void>> m_system_updates;
@@ -173,33 +175,33 @@ private:
         // 1. Register reactive storage containers to the registry
 
         // Register this Engine's pool for System comnponent updates
-        m_system_updates.bind(m_reg);
+        m_system_updates.bind(*m_reg);
         m_system_updates
             .on_update<Cmp::System>()
             .on_construct<Cmp::System>();
 
         // Register the RenderSystem's pool for System comnponent updates
-        m_render_sys->m_system_updates.bind(m_reg);
+        m_render_sys->m_system_updates.bind(*m_reg);
         m_render_sys->m_system_updates
             .on_update<Cmp::System>()
             .on_construct<Cmp::System>();
 
         // Register the RenderSystem's pool for Position comnponent updates
         // basically every entity...
-        m_render_sys->m_position_updates.bind(m_reg);
+        m_render_sys->m_position_updates.bind(*m_reg);
         m_render_sys->m_position_updates
             .on_update<Cmp::Position>()
             .on_construct<Cmp::Position>();
 
         // Register the RenderSystem's pool for Obstacle comnponent updates
-        m_render_sys->m_position_updates.bind(m_reg);
+        m_render_sys->m_position_updates.bind(*m_reg);
         m_render_sys->m_position_updates
             .on_update<Cmp::Obstacle>()
             .on_construct<Cmp::Obstacle>();
 
         // Register the CollisionSystem's pool for Position comnponent updates
         // basically every entity...
-        m_collision_sys->m_collision_updates.bind(m_reg);
+        m_collision_sys->m_collision_updates.bind(*m_reg);
         m_collision_sys->m_collision_updates
             .on_update<Cmp::Position>()
             .on_construct<Cmp::Position>();
@@ -209,14 +211,14 @@ private:
         EntityFactory::add_player_entity( m_reg );
 
         // procedurally generate the level
-        Sys::ProcGen::RandomLevelGenerator random_level(
+        std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>(
             m_reg,
             Settings::OBJECT_TILE_POOL,
             Settings::BORDER_TILE_POOL
         );
 
-        Sys::ProcGen::CellAutomataSystem cellauto_parser{random_level};
-        cellauto_parser.iterate(m_reg, 5);
+        Sys::ProcGen::CellAutomataSystem cellauto_parser{m_reg, std::move(random_level)};
+        cellauto_parser.iterate(5);
 
         reginfo("Post-setup");
         queueinfo();
@@ -244,7 +246,7 @@ private:
         m_collision_sys->m_collision_updates.clear();
         m_collision_sys->m_collision_updates.reset();
 
-        m_reg.clear();
+        m_reg->clear();
         reginfo("Post-teardown");
         queueinfo();
     }
@@ -252,7 +254,7 @@ private:
     void reginfo(std::string msg = "")
     {
         std::size_t entity_count = 0;
-        for([[maybe_unused]] auto entity: m_reg.view<entt::entity>()) { ++entity_count; }
+        for([[maybe_unused]] auto entity: m_reg->view<entt::entity>()) { ++entity_count; }
         SPDLOG_INFO("Registry Count - {}: {}", msg, entity_count);
     }
 
@@ -271,7 +273,7 @@ private:
             m_event_handler.m_action_queue.pop();
             place_bomb = true;
         }
-        m_collision_sys->track_path(m_reg, place_bomb);    
+        m_collision_sys->track_path(place_bomb);    
     }
 
     // move the player according to direction and delta time with acceleration
@@ -280,7 +282,7 @@ private:
         const float dt = deltaTime.asSeconds();
         
         for(auto [_entt, _pc, _current_pos, _movement] : 
-            m_reg.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>().each())
+            m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>().each())
         {
             // Get input direction if available
             sf::Vector2f desired_direction(0.0f, 0.0f);

@@ -32,22 +32,24 @@ namespace ProceduralMaze::Sys {
 
 class CollisionSystem : public BaseSystem {
 public:
-    CollisionSystem() {}
+    CollisionSystem(std::shared_ptr<entt::basic_registry<entt::entity>> reg) : m_reg(reg) {}
     ~CollisionSystem() = default;
 
-     entt::reactive_mixin<entt::storage<void>> m_collision_updates;
+    std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
+
+    entt::reactive_mixin<entt::storage<void>> m_collision_updates;
 
     sf::Vector2f getCenter(sf::Vector2f pos, sf::Vector2f size)
     {
         return sf::FloatRect(pos, size).getCenter();
     }
 
-    void track_path(entt::basic_registry<entt::entity> &reg, bool place_bomb)
+    void track_path(bool place_bomb)
     {
         for (auto [_pc_entt, _pc, _pc_pos] :
             m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each())
         {
-            for (auto [_ob_entt, _ob, _ob_pos, _ob_nb] :
+            for (auto [_ob_entt, _ob, _ob_pos, _ob_nb_list] :
                 m_collision_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each())
             {
                 auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y},  Settings::PLAYER_SIZE_2F);
@@ -78,9 +80,9 @@ public:
                     _ob.m_bomb_timer.reset();
                     _pc.has_active_bomb = false;
 
-                    // Get all the neighbour obstacle components of this obstacle 
+                    // Iterate list of neighbours from the current obstacle 
                     // and mark each one as broken
-                    for( auto [_dir, _nb_entt] : _ob_nb) 
+                    for( auto [_dir, _nb_entt] : _ob_nb_list) 
                     {
                         // TODO why doesn't this work?
                         // if( m_reg->valid(entt::entity(_nb_entt)) ) {
@@ -106,7 +108,7 @@ public:
         
     }
 
-    void check(entt::basic_registry<entt::entity> &reg)
+    void check()
     {
         const float PUSH_FACTOR = 1.1f;  // Push slightly more than minimum to avoid floating point issues
         
@@ -152,7 +154,7 @@ public:
                     // If still stuck, reset to spawn
                     SPDLOG_INFO("Could not recover, resetting to spawn");
                     _pc_pos = ProceduralMaze::Settings::PLAYER_START_POS;
-                    for (auto [_entt, _sys] : reg.view<Cmp::System>().each())
+                    for (auto [_entt, _sys] : m_reg->view<Cmp::System>().each())
                     {
                         _sys.player_stuck = true;
                     }
