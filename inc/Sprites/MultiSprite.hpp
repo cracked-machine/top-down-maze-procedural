@@ -7,6 +7,8 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <algorithm>
+#include <iterator>
 #include <spdlog/spdlog.h>
 #include <vector>
 #include <map>
@@ -51,11 +53,11 @@ public:
             m_vertex_map[tile_idx] = current_va;
         }
 
-        SPDLOG_INFO("MultiSprite() with {} tiles", m_tilemap_picks.size());
-        for(auto [bin,va]: m_vertex_map) {
-            SPDLOG_INFO("Tile #{} has {} vertices", bin, va.getVertexCount());
-        }
-        
+        SPDLOG_INFO("Loaded texture {}: Requested {} tiles, created {} sprites", 
+            tilemap_path, 
+            std::distance(m_tilemap_picks.begin(), std::unique(m_tilemap_picks.begin(), m_tilemap_picks.end())), 
+            m_vertex_map.size());
+
     }
     // use the index from the `tilemap_picks` vector to select a loaded tile from the map
     void pick(unsigned int tile_key) 
