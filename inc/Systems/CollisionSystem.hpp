@@ -85,19 +85,19 @@ public:
                     for( auto [_dir, _nb_entt] : _ob_nb_list) 
                     {
                         // TODO why doesn't this work?
-                        // if( m_reg->valid(entt::entity(_nb_entt)) ) {
+                        if( m_reg->valid(entt::entity(_nb_entt)) ) {
                             auto &nb_obstacle = m_reg->get<Cmp::Obstacle>(_nb_entt);
                             if( nb_obstacle.m_enabled && not nb_obstacle.m_broken )
                             {
                                 nb_obstacle.m_broken = true;
                                 nb_obstacle.m_enabled = false;
-                                SPDLOG_INFO("Detonated neighbour: {}", entt::entt_traits<entt::entity>::to_entity(_nb_entt));
+                                SPDLOG_INFO("Detonated neighbour: {}", entt::entt_traits<entt::entity>::to_integral(_nb_entt));
                             }
-                        // }
-                        // else
-                        // {
-                        //     SPDLOG_WARN("Invalid neighbour entity: {}", entt::entt_traits<entt::entity>::to_entity(_nb_entt));
-                        // }
+                        }
+                        else
+                        {
+                            SPDLOG_WARN("Invalid neighbour entity: {}", entt::entt_traits<entt::entity>::to_integral(_nb_entt));
+                        }
                     }
                                     
                 }

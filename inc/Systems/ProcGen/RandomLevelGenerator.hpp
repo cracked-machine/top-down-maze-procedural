@@ -58,7 +58,7 @@ public:
                     } 
                 ); 
                 // track the contiguous creation order of the entity so we can easily find its neighbours later
-                m_data.push_back(entity_trait::to_entity(entity));
+                m_data.push_back(entity_trait::to_integral(entity));
 
                 auto tile_pick = m_object_tile_choices[m_random_object_tile_picker.gen()];
                 m_reg->emplace<Cmp::Obstacle>(entity, tile_pick, Cmp::Obstacle::Type::BRICK, true, m_activation_selector.gen() );  

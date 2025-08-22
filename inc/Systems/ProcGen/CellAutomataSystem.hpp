@@ -59,7 +59,7 @@ private:
                 SPDLOG_WARN("Entity {} is not valid! Valid entities are:", (*it));
                 std::string valid_entities;
                 for([[maybe_unused]] auto entity: m_reg->view<entt::entity>()) { 
-                    valid_entities += " " + std::to_string(entity_trait::to_entity(entity)); }
+                    valid_entities += " " + std::to_string(entity_trait::to_integral(entity)); }
                 SPDLOG_WARN("{}", valid_entities); 
             }
 
@@ -201,9 +201,9 @@ private:
 #ifdef NDEBUG
         
         for( auto [_entt, _ob, _pos, _nb]: m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() ) {
-            // SPDLOG_INFO("Entity {} has {} neighbours", entity_trait::to_entity(_entt), _nb.count());
+            // SPDLOG_INFO("Entity {} has {} neighbours", entity_trait::to_integral(_entt), _nb.count());
             std::string msg = 
-                std::to_string(entity_trait::to_entity(_entt)) 
+                std::to_string(entity_trait::to_integral(_entt)) 
                 + "("
                 + std::to_string(_nb.count())
                 + ") = ";
@@ -213,7 +213,7 @@ private:
                 msg += "[" 
                     + _nb.to_string(_dir) 
                     + ":" 
-                    + std::to_string(entity_trait::to_entity(_nb_entt)) + "] ";
+                    + std::to_string(entity_trait::to_integral(_nb_entt)) + "] ";
             }
             SPDLOG_TRACE(msg);
         }

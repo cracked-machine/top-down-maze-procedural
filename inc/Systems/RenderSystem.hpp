@@ -242,7 +242,7 @@ public:
                 }
                 auto t = sf::Text(
                     m_font, 
-                    std::to_string(entt::entt_traits<entt::entity>::to_entity(entity)),
+                    std::to_string(entt::entt_traits<entt::entity>::to_integral(entity)),
                     Sprites::Brick::HALFHEIGHT
                 );
                 t.setPosition({_pos.x, _pos.y});
