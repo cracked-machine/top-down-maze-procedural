@@ -84,18 +84,6 @@ public:
                     m_game_state = Settings::GameState::PLAYING;
 
                     setup();
-                    EntityFactory::add_system_entity( m_reg );
-                    EntityFactory::add_player_entity( m_reg );
-
-                    // procedurally generate the level
-                    Sys::ProcGen::RandomLevelGenerator random_level(
-                        m_reg,
-                        Settings::OBJECT_TILE_POOL,
-                        Settings::BORDER_TILE_POOL
-                    );
-
-                    Sys::ProcGen::CellAutomataSystem cellauto_parser{random_level};
-                    cellauto_parser.iterate(m_reg, 5);
                 }
 
                 m_render_sys->render_menu();
