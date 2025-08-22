@@ -82,7 +82,7 @@ public:
             title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
             m_window->draw(title_text);
 
-            sf::Text start_text(m_font, "Press any key to start", 48);
+            sf::Text start_text(m_font, "Press <Enter> key to start", 48);
             start_text.setFillColor(sf::Color::White);
             start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
             m_window->draw(start_text);

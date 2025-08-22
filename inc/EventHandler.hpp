@@ -77,10 +77,13 @@ public:
                 sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized->size));
                 window->setView(sf::View(visibleArea));
             }
-            // press any key to start (more options can be added later)
-            else if (event->is<sf::Event::KeyReleased>())
+            // press Enter key to start (more options can be added later)
+            else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
             {
-                m_system_action_queue.push(SystemActions::START_GAME);
+                if (keyPressed->scancode == sf::Keyboard::Scancode::Enter)
+                {
+                    m_system_action_queue.push(SystemActions::START_GAME);
+                }
             }
         }    
     }
