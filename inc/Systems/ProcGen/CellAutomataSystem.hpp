@@ -49,13 +49,22 @@ private:
     std::unique_ptr<RandomLevelGenerator> m_random_level;
 
     void find_neighbours()
-    {
-    
+    {  
         using entity_trait = entt::entt_traits<entt::entity>;
 
         // 1. find neighbours
         for(auto it = m_random_level->begin(); it != m_random_level->end(); it++) {
+            if (!m_reg->valid(entt::entity(*it))) 
+            {
+                SPDLOG_WARN("Entity {} is not valid! Valid entities are:", (*it));
+                std::string valid_entities;
+                for([[maybe_unused]] auto entity: m_reg->view<entt::entity>()) { 
+                    valid_entities += " " + std::to_string(entity_trait::to_entity(entity)); }
+                SPDLOG_WARN("{}", valid_entities); 
+            }
 
+
+            SPDLOG_TRACE("Entity {} has neighbours:", (*it));
             m_reg->patch<Cmp::Neighbours>(entt::entity(*it), [](auto &_nb_update){ _nb_update.clear(); });
 
             SPDLOG_TRACE("");
@@ -88,7 +97,6 @@ private:
                     { 
                         _nb_update.set( Cmp::Neighbours::Dir::LEFT, left_entt ); 
                     });
-                    SPDLOG_TRACE("N - 1:{}", *(std::prev(it)) ); 
                 }
             }
             // N - (y - 1)
@@ -112,7 +120,6 @@ private:
                     { 
                         _nb_update.set( Cmp::Neighbours::Dir::DOWN, down_entt );
                     });
-                    SPDLOG_TRACE("N - x:{}", *(std::prev(it, m_size.x))); 
                 }
             }
             // N - (y + 1)
@@ -192,6 +199,7 @@ private:
         SPDLOG_INFO("Processed neighbours for {} entities.", m_random_level->size());
         
 #ifdef NDEBUG
+        
         for( auto [_entt, _ob, _pos, _nb]: m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() ) {
             // SPDLOG_INFO("Entity {} has {} neighbours", entity_trait::to_entity(_entt), _nb.count());
             std::string msg = 
