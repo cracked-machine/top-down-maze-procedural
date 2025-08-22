@@ -28,6 +28,7 @@ public:
 
     static void add_system_entity(entt::basic_registry<entt::entity> &m_reg)
     {
+        SPDLOG_INFO("Creating system entity");
         auto entity = m_reg.create();
         m_reg.emplace<Cmp::System>(entity); 
     }
@@ -35,6 +36,7 @@ public:
     
     static void add_player_entity(entt::basic_registry<entt::entity> &m_reg)
     {
+        SPDLOG_INFO("Creating player entity");
         auto entity = m_reg.create();
         m_reg.emplace<Cmp::Position>(entity, Settings::PLAYER_START_POS); 
         m_reg.emplace<Cmp::PlayableCharacter>(entity);
