@@ -2,6 +2,7 @@
 #define __SYSTEMS_RENDER_SYSTEM_HPP__
 
 #include <BasicSprite.hpp>
+#include <FloodWater.hpp>
 #include <Neighbours.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -12,6 +13,7 @@
 
 #include <Collision.hpp>
 #include <Font.hpp>
+#include <WaterLevel.hpp>
 #include <memory>
 
 #include <Obstacle.hpp>
@@ -30,7 +32,7 @@
 
 namespace ProceduralMaze::Sys {
 
-class RenderSystem : public BaseSystem {
+class RenderSystem  {
 public:
     RenderSystem(
         std::shared_ptr<entt::basic_registry<entt::entity>> reg,
@@ -143,6 +145,8 @@ public:
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
                 render_bricks();
                 render_player();
+                render_flood_waters();
+
 
                 // update the minimap view center based on player position
                 // reset the center if player is stuck
@@ -170,6 +174,7 @@ public:
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
                 render_bricks();
                 render_player();
+                render_flood_waters();
 
                 // update the minimap view center based on player position
                 // reset the center if player is stuck
@@ -310,6 +315,17 @@ public:
         }
     }
 
+    void render_flood_waters()
+    {
+        for( auto [_, _wl]: m_flood_updates.view<Cmp::WaterLevel>().each() ) 
+        {
+            m_window->draw(Sprites::FloodWaters{
+                sf::Vector2f{Settings::DISPLAY_SIZE},
+                {0, _wl.m_level}
+            });
+        }
+    }
+
     void render_player()
     {
         for( auto [entity, _pc, _pos]: 
@@ -346,6 +362,7 @@ public:
     
     entt::reactive_mixin<entt::storage<void>> m_position_updates;
     entt::reactive_mixin<entt::storage<void>> m_system_updates;
+    entt::reactive_mixin<entt::storage<void>> m_flood_updates;
 
     sf::View m_local_view;
     sf::View m_minimap_view;

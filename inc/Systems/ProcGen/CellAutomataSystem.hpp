@@ -1,6 +1,7 @@
 #ifndef __SYSTEMS_PROCGEN_CELLAUTO_SYSTEM_HPP__
 #define __SYSTEMS_PROCGEN_CELLAUTO_SYSTEM_HPP__
 
+#include <BaseSystem.hpp>
 #include <Neighbours.hpp>
 #include <ProcGen/RandomLevelGenerator.hpp>
 #include <SFML/System/Clock.hpp>

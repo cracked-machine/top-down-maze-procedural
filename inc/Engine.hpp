@@ -2,6 +2,7 @@
 #define __ENGINE_HPP__
 
 #include <EntityFactory.hpp>
+#include <FloodSystem.hpp>
 #include <ProcGen/RandomLevelGenerator.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Clock.hpp>
@@ -9,6 +10,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics.hpp>
 
+#include <WaterLevel.hpp>
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
 
@@ -77,7 +79,8 @@ public:
                 if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::START_GAME)
                 {
                     SPDLOG_INFO("Entering game....");
-                    m_event_handler.m_system_action_queue.pop();
+                    if(! m_event_handler.m_system_action_queue.empty()) 
+                        m_event_handler.m_system_action_queue.pop();
                     m_game_state = Settings::GameState::PLAYING;
 
                     setup();
@@ -90,12 +93,14 @@ public:
                 
                 if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::PAUSE_GAME)
                 {
-                    m_event_handler.m_system_action_queue.pop();
+                    if(! m_event_handler.m_system_action_queue.empty()) 
+                        m_event_handler.m_system_action_queue.pop();
                     m_game_state = Settings::GameState::PAUSED;
                 }
                 if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::QUIT_GAME)
                 {
-                    m_event_handler.m_system_action_queue.pop();
+                    if(! m_event_handler.m_system_action_queue.empty()) 
+                        m_event_handler.m_system_action_queue.pop();
                     m_game_state = Settings::GameState::MENU;
                     teardown();
                     
@@ -104,7 +109,8 @@ public:
                 }
 
                 process_direction_queue(deltaTime);
-                process_action_queue();            
+                process_action_queue();       
+                m_flood_sys->update();     
             
                 for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
                     if( _sys.collisions_enabled ) m_collision_sys->check();
@@ -118,7 +124,8 @@ public:
                 m_render_sys->render_paused();
                 if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::RESUME_GAME)
                 {
-                    m_event_handler.m_system_action_queue.pop();
+                    if(! m_event_handler.m_system_action_queue.empty())
+                        m_event_handler.m_system_action_queue.pop();
                     m_game_state = Settings::GameState::PLAYING;
                     SPDLOG_INFO("Resuming Game....");
                 }
@@ -129,7 +136,8 @@ public:
                 if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::QUIT_GAME)
                 {
                     SPDLOG_INFO("Game Over....");
-                    m_event_handler.m_system_action_queue.pop();
+                    if(! m_event_handler.m_system_action_queue.empty()) 
+                        m_event_handler.m_system_action_queue.pop();
                     m_game_state = Settings::GameState::MENU;
                     teardown();
                     
@@ -159,6 +167,7 @@ private:
     //  ECS Systems
     std::unique_ptr<Sys::CollisionSystem> m_collision_sys = std::make_unique<Sys::CollisionSystem>(m_reg);
     std::unique_ptr<Sys::RenderSystem> m_render_sys = std::make_unique<Sys::RenderSystem> (m_reg, m_window);
+    std::unique_ptr<Sys::FloodSystem> m_flood_sys = std::make_unique<Sys::FloodSystem> (m_reg, 5.f);
 
     // SFML keyboard/mouse event handler
     ProceduralMaze::InputEventHandler m_event_handler{m_reg};
@@ -193,6 +202,11 @@ private:
             .on_update<Cmp::Position>()
             .on_construct<Cmp::Position>();
 
+        m_render_sys->m_flood_updates.bind(*m_reg);
+        m_render_sys->m_flood_updates
+            .on_update<Cmp::WaterLevel>()
+            .on_construct<Cmp::WaterLevel>();
+
         // Register the RenderSystem's pool for Obstacle comnponent updates
         m_render_sys->m_position_updates.bind(*m_reg);
         m_render_sys->m_position_updates
@@ -209,7 +223,7 @@ private:
         // 2. setup new entities and generate the level
         EntityFactory::add_system_entity( m_reg );
         EntityFactory::add_player_entity( m_reg );
-
+        m_flood_sys->add_flood_water_entity();
 
         // procedurally generate the level
         std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>(
@@ -244,6 +258,8 @@ private:
         m_render_sys->m_system_updates.reset();
         m_render_sys->m_position_updates.clear();
         m_render_sys->m_position_updates.reset();
+        m_render_sys->m_flood_updates.clear();
+        m_render_sys->m_flood_updates.reset();
         m_collision_sys->m_collision_updates.clear();
         m_collision_sys->m_collision_updates.reset();
 

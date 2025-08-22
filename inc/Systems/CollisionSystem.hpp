@@ -30,7 +30,7 @@
 
 namespace ProceduralMaze::Sys {
 
-class CollisionSystem : public BaseSystem {
+class CollisionSystem {
 public:
     CollisionSystem(std::shared_ptr<entt::basic_registry<entt::entity>> reg) : m_reg(reg) {}
     ~CollisionSystem() = default;

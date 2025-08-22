@@ -10,6 +10,8 @@ class BaseSystem {
 public:
     BaseSystem() = default;
     ~BaseSystem() = default;
+protected:
+
 };
 
 } // namespace ProceduralMaze::Systems
