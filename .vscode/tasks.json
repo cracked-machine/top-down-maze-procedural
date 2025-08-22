@@ -7,8 +7,20 @@
             "label": "Build",
             "type": "shell",
             "command": [
-                "./scripts/build.sh"
+                "./scripts/build.sh ${input:buildType}"
             ]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "buildType",
+            "type": "pickString",
+            "description": "Select build type",
+            "options": [
+                "Debug",
+                "Release"
+            ],
+            "default": "Debug"
         }
     ]
 }
