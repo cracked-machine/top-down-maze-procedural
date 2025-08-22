@@ -32,5 +32,7 @@ target_compile_options(${TARGET} PRIVATE
     >
 )
 
+# Already be disabled with release
+# May add some performance benefit with debug but has obvious disadvantages
 # target_compile_definitions(${TARGET} PUBLIC ENTT_DISABLE_ASSERT)
 
