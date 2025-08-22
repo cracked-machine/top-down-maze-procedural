@@ -210,6 +210,7 @@ private:
         EntityFactory::add_system_entity( m_reg );
         EntityFactory::add_player_entity( m_reg );
 
+
         // procedurally generate the level
         std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>(
             m_reg,
@@ -312,10 +313,6 @@ private:
 
             // Update velocity
             _movement.velocity += _movement.acceleration * dt;
-
-            // Get current velocity magnitude
-            float speed = std::sqrt(_movement.velocity.x * _movement.velocity.x + 
-                                  _movement.velocity.y * _movement.velocity.y);
 
             // Stop completely if current velocity magnitude is below minimum velocity
             if (_movement.velocity.length() < _movement.min_velocity) {

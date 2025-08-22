@@ -1,6 +1,7 @@
 #ifndef __ENTITY_FACTORY_HPP__
 #define __ENTITY_FACTORY_HPP__
 
+#include <WaterLevel.hpp>
 #include <entt/entity/registry.hpp>
 
 #include <Settings.hpp>
@@ -41,6 +42,16 @@ public:
         reg->emplace<Cmp::Position>(entity, Settings::PLAYER_START_POS);
         reg->emplace<Cmp::PlayableCharacter>(entity);
         reg->emplace<Cmp::Movement>(entity);
+    }
+
+    static void add_flood_water_entity(entt::basic_registry<entt::entity> &m_reg)
+    {
+        SPDLOG_INFO("Creating flood water entity");
+        auto entity = m_reg.create();
+        m_reg.emplace_or_replace<Cmp::WaterLevel>(entity, 
+            Settings::DISPLAY_SIZE.y - 1,               // initial level
+            5.f                                         // flood velocity (pixels per second)
+        );
     }
 
 private:

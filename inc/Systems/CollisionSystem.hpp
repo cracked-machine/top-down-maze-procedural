@@ -117,7 +117,7 @@ public:
         {
             sf::Vector2f starting_pos = {_pc_pos.x, _pc_pos.y};
             int stuck_loop = 0;
-            bool had_collision = false;
+         
             
             // Reset collision flag at start of frame
             _movement.is_colliding = false;
@@ -134,8 +134,6 @@ public:
                 auto collision = player_floatrect.findIntersection(brick_floatRect);
                 if (!collision) continue;
 
-
-                had_collision = true;
                 stuck_loop++;
 
                 if (stuck_loop > 5) // Reduced threshold, but we'll be smarter about resolution

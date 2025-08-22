@@ -30,7 +30,7 @@ public:
     void iterate(unsigned int iterations)
     {
         sf::Clock iteration_timer;
-        for(int i = 0; i < iterations; i++)
+        for(unsigned int i = 0; i < iterations; i++)
         {
             find_neighbours();
             apply_rules();
@@ -52,15 +52,12 @@ private:
     {
     
         using entity_trait = entt::entt_traits<entt::entity>;
-        int count = 0;
 
         // 1. find neighbours
         for(auto it = m_random_level->begin(); it != m_random_level->end(); it++) {
 
-            auto _ob = m_reg->get<Cmp::Obstacle>( entt::entity(*it) );
             m_reg->patch<Cmp::Neighbours>(entt::entity(*it), [](auto &_nb_update){ _nb_update.clear(); });
 
-            count++;
             SPDLOG_TRACE("");
             const int idx = std::distance(m_random_level->begin(), it);
             

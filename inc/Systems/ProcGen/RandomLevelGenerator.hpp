@@ -25,11 +25,11 @@ public:
         unsigned long seed = 0
     )
         :       m_reg(reg),
-                m_random_object_tile_picker(0, object_tile_pool.size() - 1),
+                m_activation_selector(0,1),
                 m_object_tile_choices(object_tile_pool),
-                m_random_border_tile_picker(0, border_tile_pool.size() - 1),
+                m_random_object_tile_picker(0, object_tile_pool.size() - 1),
                 m_border_tile_choices(border_tile_pool),
-                m_activation_selector(0,1)
+                m_random_border_tile_picker(0, border_tile_pool.size() - 1)
     {
         if (seed) Cmp::Random::seed(seed);
         gen_objects();
@@ -45,9 +45,9 @@ public:
     {
 
         using entity_trait = entt::entt_traits<entt::entity>;
-        for(int x = 0; x < ProceduralMaze::Settings::MAP_GRID_SIZE.x; x++)
+        for(unsigned int x = 0; x < ProceduralMaze::Settings::MAP_GRID_SIZE.x; x++)
         {
-            for(int y = 0; y < ProceduralMaze::Settings::MAP_GRID_SIZE.y; y++)
+            for(unsigned int y = 0; y < ProceduralMaze::Settings::MAP_GRID_SIZE.y; y++)
             {
                 auto entity = m_reg->create();
                 m_reg->emplace<Cmp::Position>( 
