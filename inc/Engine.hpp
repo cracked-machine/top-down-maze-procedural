@@ -35,6 +35,7 @@
 
 #include <EventHandler.hpp>
 #include <Settings.hpp>
+#include <string>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -52,12 +53,8 @@ public:
         ::ShowWindow(m_window->getNativeHandle(), SW_MAXIMIZE);
 #endif 
 
-        
-    
         SPDLOG_INFO("Engine Initiliasing: ");
-        SPDLOG_INFO("{} system events pending",  m_event_handler.m_system_action_queue.size());
-        SPDLOG_INFO("{} direction events pending", m_event_handler.m_direction_queue.size());
-        SPDLOG_INFO("{} action events pending", m_event_handler.m_action_queue.size());
+        setup();
 
         // Cmp::Random::seed(123456789); // for troubleshooting purposes
     }
@@ -101,7 +98,6 @@ public:
                     m_event_handler.m_system_action_queue.pop();
                     m_game_state = Settings::GameState::MENU;
                     teardown();
-                    queueinfo();
                     
                     SPDLOG_INFO("Entering menu....");
                     break;
@@ -136,7 +132,6 @@ public:
                     m_event_handler.m_system_action_queue.pop();
                     m_game_state = Settings::GameState::MENU;
                     teardown();
-                    queueinfo();
                     
                     SPDLOG_INFO("Entering menu....");
                     break;
@@ -171,9 +166,12 @@ private:
 
     Settings::GameState m_game_state = Settings::GameState::MENU;
 
-    // Register reactive storage containers to the registry
+    
     void setup()
     {
+        reginfo("Pre-setup");
+        // 1. Register reactive storage containers to the registry
+
         // Register this Engine's pool for System comnponent updates
         m_system_updates.bind(m_reg);
         m_system_updates
@@ -205,6 +203,24 @@ private:
         m_collision_sys->m_collision_updates
             .on_update<Cmp::Position>()
             .on_construct<Cmp::Position>();
+
+        // 2. setup new entities and generate the level
+        EntityFactory::add_system_entity( m_reg );
+        EntityFactory::add_player_entity( m_reg );
+        EntityFactory::add_flood_water_entity( m_reg );
+
+        // procedurally generate the level
+        Sys::ProcGen::RandomLevelGenerator random_level(
+            m_reg,
+            Settings::OBJECT_TILE_POOL,
+            Settings::BORDER_TILE_POOL
+        );
+
+        Sys::ProcGen::CellAutomataSystem cellauto_parser{random_level};
+        cellauto_parser.iterate(m_reg, 5);
+
+        reginfo("Post-setup");
+        queueinfo();
     }
 
     // Teardown the engine and clear all event queues
@@ -214,6 +230,8 @@ private:
     void teardown()
     {
         SPDLOG_INFO("Tearing down....");
+        reginfo("Pre-teardown");
+
         m_event_handler.m_direction_queue = {};
         m_event_handler.m_action_queue = {};
         m_event_handler.m_system_action_queue = {};     
@@ -228,7 +246,15 @@ private:
         m_collision_sys->m_collision_updates.reset();
 
         m_reg.clear();
+        reginfo("Post-teardown");
+        queueinfo();
+    }
 
+    void reginfo(std::string msg = "")
+    {
+        std::size_t entity_count = 0;
+        for([[maybe_unused]] auto entity: m_reg.view<entt::entity>()) { ++entity_count; }
+        SPDLOG_INFO("Registry Count - {}: {}", msg, entity_count);
     }
 
     void queueinfo()
