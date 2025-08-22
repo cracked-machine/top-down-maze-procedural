@@ -207,7 +207,6 @@ private:
         // 2. setup new entities and generate the level
         EntityFactory::add_system_entity( m_reg );
         EntityFactory::add_player_entity( m_reg );
-        EntityFactory::add_flood_water_entity( m_reg );
 
         // procedurally generate the level
         Sys::ProcGen::RandomLevelGenerator random_level(
