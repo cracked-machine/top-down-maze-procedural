@@ -4,6 +4,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Components/Base.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Random.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/BaseSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Debug/AssertHandler.cpp
 )
 target_compile_features(${TARGET} PRIVATE cxx_std_20
 )
@@ -11,6 +12,7 @@ target_link_libraries(${TARGET} PRIVATE
     SFML::Graphics 
     spdlog::spdlog
     EnTT
+    $<$<PLATFORM_ID:Windows>:dbghelp>
 )
 target_include_directories(${TARGET} SYSTEM PRIVATE 
     ${CMAKE_SOURCE_DIR}/inc

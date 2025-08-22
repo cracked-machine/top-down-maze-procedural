@@ -1,3 +1,5 @@
+#include "Debug/AssertHandler.hpp"  // Include this first for custom assertions
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 

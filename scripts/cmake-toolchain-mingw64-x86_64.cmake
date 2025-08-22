@@ -13,3 +13,9 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
+# Add Windows system libraries path
+set(CMAKE_SYSTEM_LIBRARY_PATH /usr/x86_64-w64-mingw32/lib)
+set(CMAKE_SYSTEM_INCLUDE_PATH /usr/x86_64-w64-mingw32/include)
+
+# Ensure dbghelp is available
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -ldbghelp")
