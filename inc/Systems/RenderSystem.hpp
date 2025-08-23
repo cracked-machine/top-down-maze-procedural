@@ -56,8 +56,6 @@ public:
         if (!m_floormap.load(tile_file, {16,16}, floortile_choices.data(), 200, 98))
             SPDLOG_CRITICAL("Unable to load tile map {}", tile_file);
         
-
-
         // init local view dimensions
         m_local_view = sf::View( 
             { Settings::LOCAL_MAP_VIEW_SIZE.x * 0.5f, Settings::DISPLAY_SIZE.y * 0.5f}, 
@@ -134,7 +132,6 @@ public:
         // main render end
     }
 
-    
     void render_game()
     {
         using namespace Sprites;
@@ -176,8 +173,6 @@ public:
                     // s.setPosition({10, 10}); // Fixed position in screen coordinates
                     m_window->draw(s);
                 }                
-
-
             } 
             // local view end
 
@@ -223,7 +218,6 @@ public:
             } 
             // UI Overlays end
 
-
         } 
         m_window->display();
         // main render end
@@ -253,8 +247,6 @@ public:
                     temp_square.setOutlineThickness(1.f);
                     m_window->draw(temp_square);
                 }
-
-                
             }
             else 
             {
@@ -274,8 +266,6 @@ public:
                     m_window->draw(m_broken_object_sprite);
                 }
             }
-
-
 
             if( _ob.m_armed )
             {
@@ -316,7 +306,6 @@ public:
                     m_window->draw(nb_square);
                 } 
             }            
-                 
         }
 
         // we need a separate view for "bedrock" because it must not have any Neighbours component
@@ -395,6 +384,7 @@ public:
 
     sf::View m_local_view;
     sf::View m_minimap_view;
+    
 private:
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
     std::shared_ptr<sf::RenderWindow> m_window;
