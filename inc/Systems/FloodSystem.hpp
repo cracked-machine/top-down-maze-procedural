@@ -8,10 +8,20 @@
 #include <entt/entity/registry.hpp>
 #include <memory>
 #include <spdlog/spdlog.h>
+#include <unordered_map>
 
 namespace ProceduralMaze::Sys {
 
 class FloodSystem {
+private:
+    static constexpr float FIXED_TIMESTEP = 1.0f/30.0f; // Reduce to 30 FPS to decrease CPU load
+    static constexpr float DAMAGE_COOLDOWN = 1.0f; // 1 second between damage applications
+    float m_accumulator = 0.0f;
+    sf::Clock m_clock;
+    
+    // Track last damage time for each player
+    std::unordered_map<entt::entity, float> m_last_damage_time;
+
 public:
     FloodSystem(
         std::shared_ptr<entt::basic_registry<entt::entity>> reg,
@@ -32,44 +42,70 @@ public:
         );
     }
 
-    void update() 
-    {   
-        // update the water level is timer has elapsed
-        if( m_clock.getElapsedTime() > sf::seconds(dt) )
-        {
-            for(auto [entity, _wl]: m_reg->view<Cmp::WaterLevel>().each()) 
+    void update() {
+        float frameTime = m_clock.restart().asSeconds();
+        
+        // Clamp frame time to prevent spiral of death
+        frameTime = std::min(frameTime, 0.25f);
+        
+        m_accumulator += frameTime;
+        
+        // Process fixed timesteps
+        while(m_accumulator >= FIXED_TIMESTEP) {
+            updateFlood(FIXED_TIMESTEP);
+            m_accumulator -= FIXED_TIMESTEP;
+        }
+    }
+    
+private:
+    void updateFlood(float dt) {
+        static float total_time = 0.0f;
+        total_time += dt;
+        
+        // Cache views once - better performance since entities always exist
+        auto water_view = m_reg->view<Cmp::WaterLevel>();
+        auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
+        
+        // Separate water level updates from collision checks for better performance
+        for(auto [_, water_level]: water_view.each()) {
+            water_level.m_level -= (dt * m_flood_velocity);
+        }
+        
+        // Check drowning - fixed logic: player drowns when water level is ABOVE player
+        for(auto [_, water_level]: water_view.each()) {
+            for(auto [player_entity, player_char, position]: player_view.each()) 
             {
-                _wl.m_level -= (dt * m_flood_velocity);                
-                SPDLOG_TRACE("Updating flood water levels to: {}", _wl.m_level);
-
-                // is player drowning
-                for(auto [_, _pc, _pos]: m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each()) 
+                if(water_level.m_level <= (position.y - 16)) // Water drowns player when water level is at or above player position
                 {
-                    if ( _wl.m_level < (_pos.y - 16) )
+                    // Check if enough time has passed since last damage
+                    auto it = m_last_damage_time.find(player_entity);
+                    if(it == m_last_damage_time.end() || 
+                       (total_time - it->second) >= DAMAGE_COOLDOWN) 
                     {
-                        _pc.health -= 5;
-                        SPDLOG_TRACE("Updating playable character health to: {}", _pc.health);  
-                    }
-                    if (_pc.health == 0) {
-                        _pc.alive = false;
-                        SPDLOG_INFO("Player drowned!");
-
+                        player_char.health -= 5;
+                        SPDLOG_TRACE("player health {}", player_char.health);
+                        m_last_damage_time[player_entity] = total_time;
+                        
+                        if(player_char.health <= 0) {
+                            player_char.alive = false;
+                            SPDLOG_TRACE("Player has drowned!");
+                        }
                     }
                 }
-
-                m_clock.restart();
+                else 
+                {
+                    // Player is out of water, remove from damage tracking
+                    m_last_damage_time.erase(player_entity);
+                }
             }
         }
     }
 
 private:
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
-    sf::Clock m_clock;
-    float dt = 1.0f;
     float m_flood_velocity; // pixels per second
-
 };
 
-} // namespace ProceduralMaze::Systems
+} // namespace ProceduralMaze::Sys
 
 #endif // __SYSTEMS_WATER_SYSTEM_HPP__
