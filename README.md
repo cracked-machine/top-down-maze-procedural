@@ -14,11 +14,18 @@ This lets you create a share on the Linux build host and run the executable from
         browseable = yes
         read only = no
         writeable = yes
+        # Disable oplocks entirely for better executable performance
         oplocks = no
         level2 oplocks = no
         kernel oplocks = no
         strict locking = no
         posix locking = no
+        map archive = no
+        map hidden = no
+        map system = no
+        # Add these for better performance
+        socket options = TCP_NODELAY IPTOS_LOWDELAY SO_RCVBUF=131072 SO_SNDBUF=131072
+        min receivefile size = 16384
 ```
 
 Note we are disabling oplocks to prevent errors - `the parameter is incorrect` - when you rebuild the executable.  (see https://www.samba.org/samba/docs/current/man-html/smb.conf.5.html)
