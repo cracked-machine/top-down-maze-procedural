@@ -251,6 +251,8 @@ private:
         Sys::ProcGen::CellAutomataSystem cellauto_parser{m_reg, std::move(random_level)};
         cellauto_parser.iterate(5);
 
+        m_render_sys->create_debug_id_texture();
+
         reginfo("Post-setup");
         queueinfo();
     }

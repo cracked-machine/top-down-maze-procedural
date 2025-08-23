@@ -12,7 +12,6 @@ public:
     { 
         SPDLOG_DEBUG("Font()"); 
         if (!openFromFile(font_path)) { SPDLOG_ERROR("Unable to load {}", font_path); }
-        
     }
     ~Font() { SPDLOG_DEBUG("~Font()"); }
 

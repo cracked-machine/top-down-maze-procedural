@@ -2,6 +2,7 @@
 #define __SYSTEMS_RENDER_SYSTEM_HPP__
 
 #include <BasicSprite.hpp>
+#include <DebugEntityIds.hpp>
 #include <FloodWater.hpp>
 #include <Neighbours.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
@@ -55,6 +56,8 @@ public:
         if (!m_floormap.load(tile_file, {16,16}, floortile_choices.data(), 200, 98))
             SPDLOG_CRITICAL("Unable to load tile map {}", tile_file);
         
+
+
         // init local view dimensions
         m_local_view = sf::View( 
             { Settings::LOCAL_MAP_VIEW_SIZE.x * 0.5f, Settings::DISPLAY_SIZE.y * 0.5f}, 
@@ -136,10 +139,14 @@ public:
     {
         using namespace Sprites;
 
+        for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
+            m_show_obstacle_debug = _sys.show_obstacle_entity_id;
+        }                  
+
         // main render begin
         m_window->clear();
         {
-            // local view begin
+            // local view begin - this shows only a `Settings::LOCAL_MAP_VIEW_SIZE` of the game world
             m_window->setView(m_local_view);
             {   
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
@@ -147,8 +154,7 @@ public:
                 render_player();
                 render_flood_waters();
 
-
-                // update the minimap view center based on player position
+                // move the local view position to equal the player position
                 // reset the center if player is stuck
                 for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
                     if( _sys.player_stuck ) {
@@ -162,13 +168,20 @@ public:
                             update_view_center(m_local_view, _pos);
                         }
                     }
+                }              
+
+                // In render_game(), add this to the UI Overlays section
+                if( m_show_obstacle_debug ) {
+                    auto s = m_debug_mode_entity_text.getSprite();
+                    // s.setPosition({10, 10}); // Fixed position in screen coordinates
+                    m_window->draw(s);
                 }                
 
 
             } 
             // local view end
-            
-            // minimap view begin
+
+            // minimap view begin - this show a quarter of the game world but in a much smaller scale
             m_window->setView(m_minimap_view);
             {
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
@@ -206,9 +219,10 @@ public:
                 minimap_border.setFillColor(sf::Color::Transparent);
                 minimap_border.setOutlineColor(sf::Color::White);
                 minimap_border.setOutlineThickness(2.f);
-                m_window->draw(minimap_border);       
+                m_window->draw(minimap_border);           
             } 
-            // UI overlays end
+            // UI Overlays end
+
 
         } 
         m_window->display();
@@ -223,36 +237,24 @@ public:
 
     void render_bricks()
     {
-        bool show_obstacle_entity_id = false;
-        for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
-            if( _sys.show_obstacle_entity_id ) show_obstacle_entity_id = true;
-        }
-
-
 
         for( auto [entity, _ob, _pos, _ob_nb_list]: 
             m_position_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() ) {
             
             // debug mode
-            if( show_obstacle_entity_id )
+            if( m_show_obstacle_debug )
             {
                 if( _ob.m_enabled ) 
                 {
-                    auto generic_brick = Sprites::Brick(
-                        _pos, 
-                        Sprites::Brick::BEDROCK_FILLCOLOUR, 
-                        Sprites::Brick::BEDROCK_LINECOLOUR
-                    );
-                    m_window->draw(generic_brick);
+                    sf::RectangleShape temp_square(Settings::OBSTACLE_SIZE_2F);
+                    temp_square.setPosition(_pos);
+                    temp_square.setFillColor(sf::Color::Transparent);
+                    temp_square.setOutlineColor(sf::Color::White);
+                    temp_square.setOutlineThickness(1.f);
+                    m_window->draw(temp_square);
                 }
-                auto t = sf::Text(
-                    m_font, 
-                    std::to_string(entt::entt_traits<entt::entity>::to_integral(entity)),
-                    Sprites::Brick::HALFHEIGHT
-                );
-                t.setPosition({_pos.x, _pos.y});
-                t.setFillColor(sf::Color::Black);
-                m_window->draw( t );
+
+                
             }
             else 
             {
@@ -374,7 +376,19 @@ public:
             currentCenter.y + (newY - currentCenter.y) * smoothFactor
         });
     }
-    
+
+    void create_debug_id_texture()
+    {
+        for( auto [_entt, _ob, _pos]: 
+            m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each() )
+        {
+            m_debug_mode_entity_text.addEntity(
+                entt::entt_traits<entt::entity>::to_integral(_entt),
+                sf::Vector2f{_pos.x, _pos.y}
+            );
+        }
+    }
+
     entt::reactive_mixin<entt::storage<void>> m_position_updates;
     entt::reactive_mixin<entt::storage<void>> m_system_updates;
     entt::reactive_mixin<entt::storage<void>> m_flood_updates;
@@ -387,6 +401,8 @@ private:
 
     Sprites::Containers::TileMap m_floormap;
 
+    Sprites::Containers::DebugEntityIds m_debug_mode_entity_text{m_font};
+    bool m_show_obstacle_debug = false;
     Sprites::MultiSprite m_object_sprite{
         Settings::OBJECT_TILESET_PATH,
         Settings::OBJECT_TILE_POOL,
