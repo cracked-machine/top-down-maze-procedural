@@ -9,6 +9,13 @@
             "command": [
                 "./scripts/build.sh ${input:buildType}"
             ]
+        },
+        {
+            "label": "List Available CMake Targets",
+            "type": "shell",
+            "command": [
+                "cmake --build build --target help"
+            ]
         }
     ],
     "inputs": [
@@ -18,7 +25,9 @@
             "description": "Select build type",
             "options": [
                 "Debug",
-                "Release"
+                "Release",
+                "RelWithDebInfo",
+                "MinSizeRel"
             ],
             "default": "Debug"
         }
