@@ -133,11 +133,8 @@ public:
             }
             else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
             {
-                if (keyPressed->scancode == sf::Keyboard::Scancode::Space)
-                {
-                     m_action_queue.push(GameActions::DROP_BOMB);
-                }
-                else if (keyPressed->scancode == sf::Keyboard::Scancode::P)
+
+                if (keyPressed->scancode == sf::Keyboard::Scancode::P)
                 {
                     using namespace std::chrono_literals;
                     m_system_action_queue.push(SystemActions::PAUSE_GAME);
@@ -154,8 +151,9 @@ public:
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) { new_direction.x = 1; } // move player right
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) { new_direction.y = 1; } // move player down
         m_direction_queue.push(new_direction);
-        
 
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) { m_action_queue.push(GameActions::DROP_BOMB); } 
+    
     }
 
     void paused_state_handler(const std::shared_ptr<sf::RenderWindow> window)
