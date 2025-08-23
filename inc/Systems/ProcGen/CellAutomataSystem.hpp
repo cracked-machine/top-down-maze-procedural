@@ -267,8 +267,8 @@ private:
 
         for( auto [_entt, _ob, _pos, _nb]: m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() ) {
             if( _ob.m_type == Cmp::Obstacle::Type::BEDROCK) { continue; }
-            if      ( _nb.count() <= 0)                     { _ob.m_enabled = true; }
-            else if ( _nb.count() > 0 and _nb.count() < 5 ) { _ob.m_enabled = false; }
+            if      ( _nb.count() <= 2)                     { _ob.m_enabled = true; }
+            else if ( _nb.count() > 2 and _nb.count() < 5 ) { _ob.m_enabled = false; }
             else                                            { _ob.m_enabled = true; }
         }
         SPDLOG_INFO("Finished applying Cellular Automata rules!");
