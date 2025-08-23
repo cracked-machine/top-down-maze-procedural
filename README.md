@@ -1,28 +1,47 @@
+# Build System
 
-Note, if you are using Samba to access the .exe, you may get errors after subsequent builds, i.e. `the parameter is incorrect`.
+This project is setup to build on a linux system but cross-compile for a windows target via MinGW.
 
-This is a samba error. The dirty workaround is to restart the samba server after each build
+You can use the VSCode project with the remote containers extension to build the project on a remote linux build host from a local windows client.  Theres nothing to stop you using Linux for both host and client, but obviously you need somewhere to run the windows executable.
+
+## Samba
+
+This lets you create a share on the Linux build host and run the executable from Windows explorer. Your `/etc/samba/smb.conf` should look like this:
+
+```
+[projects]
+        path = /home/chris/projects
+        browseable = yes
+        read only = no
+        writeable = yes
+        oplocks = no
+        level2 oplocks = no
+        kernel oplocks = no
+        strict locking = no
+        posix locking = no
+```
+
+Note we are disabling oplocks to prevent errors - `the parameter is incorrect` - when you rebuild the executable.  (see https://www.samba.org/samba/docs/current/man-html/smb.conf.5.html)
+
+
+If you still see this error, the last resort is to ssh into the build host and restart the samba server after each build(!)
 
 ```
 sudo systemctl restart smb
 ```
 
-# Debug
+## Running the build in a debugger
+
+In theory you can get windows to create a crash dump, but trying to use this windows-only crash dump with MinGW gcc symbols is a PITA. Much simpler is to run the executable in GDB directly and observe the debugger when it crashes. Obviously this isn't much help after the fact.  
 
 1. install mingw and gdb on windows via msys
 2. change to the samba mapped directory - `cd X:\\path\\to\\build\\bin\\`
 3. Run gdb with the exe - ` gdb X:\\cpp\\games\\temp\\build\\bin\\ProceduralMaze.exe`
 4. Type `run` to start the game.
 
-# Collision Detection
+# Design 
 
-To avoid the dreaded "sticky corners" problem, two seperate bounding boxes are used in a cross formation. A horrizontal box that is slightly wider than the player sprite for the x-axis collision detection, and a vertical box that is slightly higher than the player sprite for the y-axis collision detection:
-
-![](cross_bounding_box.svg)
-
-You must ensure that player movement delta is equal or larger than the corner overlaps of the bounding boxes, otherwise the sticky problem may still occur.
-
-# Finding the nearest neighbours
+## Finding the nearest neighbours
 
 We need to find the neighbour of a given obstacle block. This is useful for our Cellular Autonomy algorithm but is also useful when we want to destroy neighbouring blocks (placing a bomb or using a pickaxe, for example)
 
@@ -51,9 +70,12 @@ Always use `to_integral` for serialization, logging, or storing entity IDs outsi
 - [ ] add explosion animation
 - [ ] add health bar
 ## Sound
-- [ ] Add walking FX
-- [ ] add explosion sound
-
+- [ ] Add audio FX
+    - [ ] walking on dirt
+    - [ ] walking underwater
+    - [ ] lit fuse
+    - [ ] bomb detonation
+    
 ## Gameplay
 - [x] Add bombs
     - [x] Add new Component: Neighbours. Contains 8 uint32 slots for entity ids of neighbouring blocks 
@@ -64,8 +86,8 @@ Always use `to_integral` for serialization, logging, or storing entity IDs outsi
     - [x] When the timer expires, the neighbours are identified
     - [x] disable the identified neighbours in reaction to the explosion
 
-- [ ] extra bomb pickups
-- [ ] add rising water
+- [ ] limit number of bombs and add extra bomb pickups to the game area
+- [x] add rising water
     - Add blue texture with display dimensions and 50% alpha 
     - Add collision detection with player
     - Set initial position to {0, DISPLAY.y}
@@ -80,6 +102,11 @@ Always use `to_integral` for serialization, logging, or storing entity IDs outsi
 - [x] add player movement velocity
 - [x] add player movement acceleration
 - [x] fix collision detection to work with rectangle outlines = 0
+- [ ] fix movement jank
+    - [ ] release
+    - [ ] relwithdbginfo
+    - [ ] debug
+- [ ] player floats when underwater
 
 ## General
 - [x] Add game states: menu, playing, paused, dead, etc..
@@ -88,6 +115,6 @@ Always use `to_integral` for serialization, logging, or storing entity IDs outsi
 - [x] God mode (toggle collsision)
 - [x] refactor random system class
 - [x] warp player back to spawn if they leave the play area
-- [ ] Tidy up settings
+- [ ] Tidy up settings, move to components
 - [ ] enable settings.toml 
 - [ ] use separate thread for render system class?
