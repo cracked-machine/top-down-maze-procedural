@@ -1,12 +1,11 @@
 # action.yml
 name: build
 description: 'Build the project'
-strategy:
-  matrix:
-    build_type: [debug, release, RelWithDebInfo, MinSizeRel]
-
 runs:
   using: 'docker'
   image: 'Dockerfile'
+  strategy:
+    matrix:
+      build_type: [debug, release, RelWithDebInfo, MinSizeRel]
   args:
     - ${{ github.workspace }}/scripts/build.sh ${{ matrix.build_type }}
