@@ -5,12 +5,14 @@ runs:
   image: 'Dockerfile'
 jobs:
   build:
-    strategy:
-      matrix:
-        build_type: [debug, release, RelWithDebInfo, MinSizeRel]
     steps:
-      - name: Build
-        run: |
-          chmod +x ${{ github.workspace }}/scripts/build.sh
-          ${{ github.workspace }}/scripts/build.sh ${{ matrix.build_type }}
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Build docker images
+        run: docker build -t local < .devcontainer/Dockerfile
+      - name: Run tests
+        strategy:
+          matrix:
+            build_type: [debug, release, RelWithDebInfo, MinSizeRel]
+        run: docker run -it -v $PWD:/srv -w/srv local ${{ github.workspace }}/scripts/build.sh ${{ matrix.build_type }}
 
