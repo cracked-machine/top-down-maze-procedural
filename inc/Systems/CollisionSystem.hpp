@@ -71,7 +71,11 @@ public:
                 // arm the occupied  tile if the player doesn't have an active bomb
                 if( player_hitbox.findIntersection(obstacle_hitbox) )
                 {
-                   m_reg->emplace_or_replace<Cmp::Armed>(entt::entity(_ob_entt));
+                    if( _pc.m_bombdeploycooldowntimer.getElapsedTime() >= _pc.m_bombdeploydelay ) 
+                    {
+                        m_reg->emplace_or_replace<Cmp::Armed>(entt::entity(_ob_entt));
+                        _pc.m_bombdeploycooldowntimer.restart();
+                    }
                 }
             }
         }
