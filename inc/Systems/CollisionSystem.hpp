@@ -1,6 +1,7 @@
 #ifndef __SYSTEMS_COLLISION_SYSTEM_HPP__
 #define __SYSTEMS_COLLISION_SYSTEM_HPP__
 
+#include <Armed.hpp>
 #include <Neighbours.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -49,14 +50,12 @@ public:
         return sf::FloatRect(pos, size).getCenter();
     }
 
-    void track_path(bool place_bomb)
+    void arm_occupied_location()
     {
-        using entt_traits = entt::entt_traits<entt::entity>;
-
         for (auto [_pc_entt, _pc, _pc_pos] :
             m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each())
         {
-            for (auto [_ob_entt, _ob, _ob_pos, _ob_nb_list] :
+            for (auto [_ob_entt, _obstacle_cmp, _ob_pos_cmp, _ob_nb_list] :
                 m_collision_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each())
             {
                 auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y},  Settings::PLAYER_SIZE_2F);
@@ -67,69 +66,18 @@ public:
                 player_hitbox.position.x += 4.f;
                 player_hitbox.position.y += 4.f;
 
-                auto brick_hitbox = sf::FloatRect(_ob_pos, Settings::OBSTACLE_SIZE_2F);     
+                auto obstacle_hitbox = sf::FloatRect(_ob_pos_cmp, Settings::OBSTACLE_SIZE_2F);     
 
                 // arm the occupied  tile if the player doesn't have an active bomb
-                if( player_hitbox.findIntersection(brick_hitbox) && place_bomb ) {
-                    if( not _pc.has_active_bomb )
-                    {
-                        _ob.m_armed = true;
-                        _ob.m_bomb_timer.restart();
-                        _pc.has_active_bomb = true;
-                    }
-                    else {
-                        SPDLOG_WARN("Player attempted to arm bomb on occupied tile: {}", entt_traits::to_integral(_ob_entt));
-                    }
-                }
-                // detonate the bomb if it has timed out
-                if( _ob.m_armed && _ob.m_bomb_timer.getElapsedTime().asSeconds() > Settings::MAX_BOMB_TIME ) 
+                if( player_hitbox.findIntersection(obstacle_hitbox) )
                 {
-                    // reset the occupied state
-                    _ob.m_armed = false;
-                    
-                    _ob.m_bomb_timer.reset();
-                    _pc.has_active_bomb = false;
-
-                    // Iterate list of neighbours from the current obstacle 
-                    // and mark each one as broken
-                    for( auto [_, _nb_entt] : _ob_nb_list) 
-                    {
-                        if( not m_reg->valid(entt::entity(_nb_entt)) ) 
-                        {
-                            SPDLOG_WARN("List provided invalid neighbour entity: {}", 
-                                entt_traits::to_integral(_nb_entt));
-                            assert(m_reg->valid(entt::entity(_nb_entt)) 
-                                && "List provided invalid neighbour entity: " 
-                                && entt_traits::to_integral(_nb_entt));
-                            continue;
-                        }
-                        
-                        Cmp::Obstacle* nb_obstacle = m_reg->try_get<Cmp::Obstacle>(_nb_entt);
-                        
-                        if( not nb_obstacle )
-                        {
-                            SPDLOG_WARN("Unable to find Obstacle component for entity: {}", 
-                                entt_traits::to_integral(_nb_entt));
-                            assert(nb_obstacle && "Unable to find Obstacle component for entity: " 
-                                && entt_traits::to_integral(_nb_entt));
-                            continue;
-                        }
-                        if (nb_obstacle->m_enabled && not nb_obstacle->m_broken )
-                        {
-                            nb_obstacle->m_broken = true;
-                            nb_obstacle->m_enabled = false;
-                            SPDLOG_INFO("Detonated neighbour: {}", entt_traits::to_integral(_nb_entt));
-                        }
-                    }
+                   m_reg->emplace_or_replace<Cmp::Armed>(entt::entity(_ob_entt));
                 }
-
             }
-
         }
-        
     }
 
-    void check()
+    void check_collision()
     {
         const float PUSH_FACTOR = 1.1f;  // Push slightly more than minimum to avoid floating point issues
         

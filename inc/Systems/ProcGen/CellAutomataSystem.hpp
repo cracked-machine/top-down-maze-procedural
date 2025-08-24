@@ -99,7 +99,7 @@ private:
                 }
                 else if( left_entt_ob && left_entt_ob->m_enabled && not has_left_map_edge ) { 
                     m_reg->patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update) { 
-                        _nb_update.set( Cmp::Neighbours::Dir::LEFT, left_entt ); 
+                        _nb_update.set( Cmp::Neighbours::Dir::LEFT, entity_trait::to_integral(left_entt) ); 
                     });
                 }
             }
@@ -116,7 +116,7 @@ private:
                 else if( down_left_entt_ob->m_enabled && not has_left_map_edge)  
                 {
                     m_reg->patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update){ 
-                        _nb_update.set( Cmp::Neighbours::Dir::DOWN_LEFT, down_left_entt ); 
+                        _nb_update.set( Cmp::Neighbours::Dir::DOWN_LEFT,  entity_trait::to_integral(down_left_entt)  ); 
                     });
                 }
             }
@@ -133,7 +133,7 @@ private:
                 {
                     m_reg->patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
                     { 
-                        _nb_update.set( Cmp::Neighbours::Dir::DOWN, down_entt );
+                        _nb_update.set( Cmp::Neighbours::Dir::DOWN,  entity_trait::to_integral(down_entt) );
                     });
                 }
             }
@@ -150,7 +150,7 @@ private:
                 { 
                     m_reg->patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
                     { 
-                        _nb_update.set( Cmp::Neighbours::Dir::DOWN_RIGHT, down_right_entt ); 
+                        _nb_update.set( Cmp::Neighbours::Dir::DOWN_RIGHT, entity_trait::to_integral(down_right_entt) ); 
                     });
                 }
             }
@@ -179,7 +179,7 @@ private:
                 { 
                     m_reg->patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update) 
                     { 
-                        _nb_update.set( Cmp::Neighbours::Dir::UP_LEFT, top_left_entt ); 
+                        _nb_update.set( Cmp::Neighbours::Dir::UP_LEFT, entity_trait::to_integral(top_left_entt) ); 
                     });
                 }
             }
@@ -196,7 +196,7 @@ private:
                 { 
                     m_reg->patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
                     { 
-                        _nb_update.set( Cmp::Neighbours::Dir::UP, top_entt ); 
+                        _nb_update.set( Cmp::Neighbours::Dir::UP, entity_trait::to_integral(top_entt) ); 
                     });
                 }
             }
@@ -213,7 +213,7 @@ private:
                 { 
                     m_reg->patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
                     { 
-                        _nb_update.set( Cmp::Neighbours::Dir::UP_RIGHT, top_right_entt ); 
+                        _nb_update.set( Cmp::Neighbours::Dir::UP_RIGHT, entity_trait::to_integral(top_right_entt) ); 
                     });
                 }
             }
@@ -230,7 +230,7 @@ private:
                 { 
                     m_reg->patch<Cmp::Neighbours>(current_entity, [&](auto &_nb_update)
                     { 
-                        _nb_update.set( Cmp::Neighbours::Dir::RIGHT, right_entt ); 
+                        _nb_update.set( Cmp::Neighbours::Dir::RIGHT, entity_trait::to_integral(right_entt) ); 
                     });
                 }
             }
@@ -253,7 +253,7 @@ private:
                 msg += "[" 
                     + _nb.to_string(_dir) 
                     + ":" 
-                    + std::to_string(entity_trait::to_integral(_nb_entt)) + "] ";
+                    + std::to_string(_nb_entt) + "] ";
             }
             SPDLOG_TRACE(msg);
         }

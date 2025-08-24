@@ -1,6 +1,7 @@
 #ifndef __ENGINE_HPP__
 #define __ENGINE_HPP__
 
+#include <BombSystem.hpp>
 #include <EntityFactory.hpp>
 #include <FloodSystem.hpp>
 #include <ProcGen/RandomLevelGenerator.hpp>
@@ -114,6 +115,7 @@ public:
                     process_direction_queue(deltaTime);
                     process_action_queue();       
                     m_flood_sys->update();  
+                    m_bomb_sys->update();
                     
                     // did the player drown? Then end the game
                     for(auto [_, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {
@@ -123,7 +125,7 @@ public:
                     }
 
                     for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
-                        if( _sys.collisions_enabled ) m_collision_sys->check();
+                        if( _sys.collisions_enabled ) m_collision_sys->check_collision();
                     }              
 
                     m_render_sys->render_game();     
@@ -184,6 +186,7 @@ private:
     std::unique_ptr<Sys::CollisionSystem> m_collision_sys = std::make_unique<Sys::CollisionSystem>(m_reg);
     std::unique_ptr<Sys::RenderSystem> m_render_sys = std::make_unique<Sys::RenderSystem> (m_reg, m_window);
     std::unique_ptr<Sys::FloodSystem> m_flood_sys = std::make_unique<Sys::FloodSystem> (m_reg, 5.f);
+    std::unique_ptr<Sys::BombSystem> m_bomb_sys = std::make_unique<Sys::BombSystem> (m_reg);
 
     // SFML keyboard/mouse event handler
     ProceduralMaze::InputEventHandler m_event_handler{m_reg};
@@ -302,13 +305,11 @@ private:
 
     void process_action_queue()
     {
-        bool place_bomb = false;
         if( m_event_handler.m_action_queue.front() == InputEventHandler::GameActions::DROP_BOMB )
         {
-            m_event_handler.m_action_queue.pop();
-            place_bomb = true;
+            if( not m_event_handler.m_action_queue.empty() ) m_event_handler.m_action_queue.pop();
+            m_collision_sys->arm_occupied_location();
         }
-        m_collision_sys->track_path(place_bomb);    
     }
 
     // move the player according to direction and delta time with acceleration

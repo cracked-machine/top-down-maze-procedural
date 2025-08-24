@@ -1,6 +1,7 @@
 #ifndef __SYSTEMS_RENDER_SYSTEM_HPP__
 #define __SYSTEMS_RENDER_SYSTEM_HPP__
 
+#include <Armed.hpp>
 #include <BasicSprite.hpp>
 #include <DebugEntityIds.hpp>
 #include <FloodWater.hpp>
@@ -266,46 +267,46 @@ public:
                     m_window->draw(m_broken_object_sprite);
                 }
             }
+        }
 
-            if( _ob.m_armed )
+        // render armed obstacles with debug outlines
+        for( auto [entity, _ob, _armed, _pos, _ob_nb_list]: 
+            m_position_updates.view<Cmp::Obstacle, Cmp::Armed, Cmp::Position, Cmp::Neighbours>().each() ) {
+
+            // Draw a red square around the obstacle we are standing on
+            sf::RectangleShape temp_square(Settings::OBSTACLE_SIZE_2F);
+            temp_square.setPosition(_pos);
+            temp_square.setFillColor(sf::Color::Transparent);
+            temp_square.setOutlineColor(sf::Color::Red);
+            temp_square.setOutlineThickness(1.f);
+            m_window->draw(temp_square);
+
+            m_bomb_sprite.setPosition(_pos);
+            m_bomb_sprite.pick(0);
+            m_window->draw(m_bomb_sprite);
+
+            // get each neighbour entity from the current obstacles neighbour list
+            // and draw a blue square around it
+            for( auto [_dir, _nb_entt] : _ob_nb_list) 
             {
-                // Draw a red square around the obstacle we are stand   ing on
-                sf::RectangleShape temp_square(Settings::OBSTACLE_SIZE_2F);
-                temp_square.setPosition(_pos);
-                temp_square.setFillColor(sf::Color::Transparent);
-                temp_square.setOutlineColor(sf::Color::Red);
-                temp_square.setOutlineThickness(1.f);
-                m_window->draw(temp_square);
+                sf::RectangleShape nb_square(Settings::OBSTACLE_SIZE_2F);
 
-                m_bomb_sprite.setPosition(_pos);
-                m_bomb_sprite.pick(0);
-                m_window->draw(m_bomb_sprite);
+                Cmp::Position* _nb_entt_pos = m_reg->try_get<Cmp::Position>( entt::entity(_nb_entt) );
 
-                // get each neighbour entity from the current obstacles neighbour list
-                // and draw a blue square around it
-                for( auto [_dir, _nb_entt] : _ob_nb_list) 
+                if( not _nb_entt_pos )
                 {
-                    sf::RectangleShape nb_square(Settings::OBSTACLE_SIZE_2F);
+                    SPDLOG_WARN("Unable to find Position component for entity: {}", _nb_entt);
+                    assert(_nb_entt_pos && "Unable to find Position component for entity" && _nb_entt);
+                    continue;
+                }
 
-                    using entt_traits = entt::entt_traits<entt::entity>;
-                    Cmp::Position* _nb_entt_pos = m_reg->try_get<Cmp::Position>( entt::entity(_nb_entt) );
-
-                    if( not _nb_entt_pos )
-                    {
-                        SPDLOG_WARN("Unable to find Position component for entity: {}", 
-                            entt_traits::to_integral(_nb_entt));
-                        assert(_nb_entt_pos && "Unable to find Position component for entity" 
-                            && entt_traits::to_integral(_nb_entt));
-                        continue;
-                    }
-
-                    nb_square.setPosition(*_nb_entt_pos);                  
-                    nb_square.setFillColor(sf::Color::Transparent);
-                    nb_square.setOutlineColor(sf::Color::Blue); 
-                    nb_square.setOutlineThickness(1.f); 
-                    m_window->draw(nb_square);
-                } 
-            }            
+                nb_square.setPosition(*_nb_entt_pos);                  
+                nb_square.setFillColor(sf::Color::Transparent);
+                nb_square.setOutlineColor(sf::Color::Blue); 
+                nb_square.setOutlineThickness(1.f); 
+                m_window->draw(nb_square);
+            }
+                    
         }
 
         // we need a separate view for "bedrock" because it must not have any Neighbours component
