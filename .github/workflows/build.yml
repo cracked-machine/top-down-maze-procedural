@@ -1,10 +1,10 @@
 # action.yml
 name: build
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
 jobs:
   build:
-    runs-on:
-      using: 'docker'
-      image: 'Dockerfile'
     strategy:
       matrix:
         build_type: [debug, release, RelWithDebInfo, MinSizeRel]
