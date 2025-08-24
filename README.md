@@ -43,8 +43,7 @@ In theory you can get windows to create a crash dump, but trying to use this win
 
 1. install mingw and gdb on windows via msys
 2. change to the samba mapped directory - `cd X:\\path\\to\\build\\bin\\`
-3. Run gdb with the exe - ` gdb X:\\cpp\\games\\temp\\build\\bin\\ProceduralMaze.exe`
-4. Type `run` to start the game.
+3. Run gdb with the exe - ` gdb X:\\cpp\\games\\temp\\build\\bin\\ProceduralMaze.exe -ex run`
 
 # Design 
 
