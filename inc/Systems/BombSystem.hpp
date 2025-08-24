@@ -22,7 +22,7 @@ public:
         auto armed_view = m_reg->view<Cmp::Armed, Cmp::Obstacle, Cmp::Neighbours>();
         for( auto [_entt, _armed_cmp, _obstacle_cmp, _neighbours_cmp]: armed_view.each() ) 
         {
-            if (_armed_cmp.getElapsedTime() < detonation_delay) return;
+            if (_armed_cmp.getElapsedTime() < detonation_delay) continue;
 
             for( auto [dir, neighbour_entity_u32] : _neighbours_cmp) 
             {
