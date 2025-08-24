@@ -14,6 +14,7 @@
 #include <SFML/Graphics/Text.hpp>
 
 #include <Font.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <WaterLevel.hpp>
 #include <memory>
 
@@ -165,12 +166,13 @@ public:
                     }
                 }              
 
-                // In render_game(), add this to the UI Overlays section
+                // show debug entity id text
                 if( m_show_obstacle_debug ) {
                     auto s = m_debug_mode_entity_text.getSprite();
                     // s.setPosition({10, 10}); // Fixed position in screen coordinates
                     m_window->draw(s);
                 }                
+
             } 
             // local view end
 
@@ -200,7 +202,7 @@ public:
             } 
             // minimap view end
 
-            // UI Overlays begin
+            // UI Overlays begin (these will always be displayed no matter where the player moves)
             m_window->setView(m_window->getDefaultView());
             {  
                 auto minimap_border = sf::RectangleShape(
@@ -213,6 +215,11 @@ public:
                 minimap_border.setOutlineColor(sf::Color::White);
                 minimap_border.setOutlineThickness(2.f);
                 m_window->draw(minimap_border);           
+
+                for(auto [_entt, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {
+                    render_health_overlay(_pc.health, {20.f, 20.f},  {200.f, 20.f});
+                }
+
             } 
             // UI Overlays end
 
@@ -220,6 +227,21 @@ public:
         m_window->display();
         // main render end
     }
+
+    void render_health_overlay(float health_value, sf::Vector2f pos, sf::Vector2f size)
+    {
+        auto healthbar = sf::RectangleShape({((size.x / 100) * health_value), size.y});
+        healthbar.setPosition(pos);
+        healthbar.setFillColor(sf::Color::Red);
+        m_window->draw(healthbar);
+        auto healthbar_border = sf::RectangleShape(size);
+        healthbar_border.setPosition(pos);
+        healthbar_border.setFillColor(sf::Color::Transparent);
+        healthbar_border.setOutlineColor(sf::Color::Black);
+        healthbar_border.setOutlineThickness(5.f);
+        m_window->draw(healthbar_border);
+    }
+
 
     void render_floormap(const sf::Vector2f &offset = {0.f, 0.f})
     {
