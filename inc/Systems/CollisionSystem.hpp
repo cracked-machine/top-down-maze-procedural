@@ -14,7 +14,6 @@
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 
-#include <Collision.hpp>
 #include <Obstacle.hpp>
 #include <PlayableCharacter.hpp>
 #include <Position.hpp>
@@ -28,8 +27,6 @@
 #include <Sprites/Brick.hpp>
 #include <Sprites/Player.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <XAxisHitBox.hpp>
-#include <YAxisHitBox.hpp>
 
 #include <cassert>
 #define assertm(exp, msg) assert((void(msg), exp))

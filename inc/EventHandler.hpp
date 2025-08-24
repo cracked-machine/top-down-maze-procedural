@@ -13,8 +13,6 @@
 #include <Components/Position.hpp>
 
 #include <spdlog/spdlog.h>
-#include <XAxisHitBox.hpp>
-#include <YAxisHitBox.hpp>
 
 #include <queue>
 

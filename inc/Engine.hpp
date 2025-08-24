@@ -19,7 +19,6 @@
 
 #include <Sprites/Brick.hpp>
 #include <Sprites/TileMap.hpp>
-#include <Components/Collision.hpp>
 #include <Components/System.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/PlayableCharacter.hpp>
@@ -28,8 +27,6 @@
 #include <Components/Position.hpp>
 #include <Components/Font.hpp>
 #include <Components/System.hpp>
-#include <Components/XAxisHitBox.hpp>
-#include <Components/YAxisHitBox.hpp>
 #include <Components/Movement.hpp>
 
 #include <Systems/CollisionSystem.hpp>

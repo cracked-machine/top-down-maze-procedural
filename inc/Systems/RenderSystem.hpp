@@ -13,7 +13,6 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>
 
-#include <Collision.hpp>
 #include <Font.hpp>
 #include <WaterLevel.hpp>
 #include <memory>
@@ -28,8 +27,6 @@
 #include <Systems/BaseSystem.hpp>
 #include <spdlog/spdlog.h>
 #include <TileMap.hpp>
-#include <XAxisHitBox.hpp>
-#include <YAxisHitBox.hpp>
 #include <MultiSprite.hpp>
 
 namespace ProceduralMaze::Sys {

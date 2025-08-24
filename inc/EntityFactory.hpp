@@ -8,8 +8,6 @@
 
 #include <Components/Font.hpp>
 #include <Components/RandomCoord.hpp>
-#include <Components/XAxisHitBox.hpp>
-#include <Components/YAxisHitBox.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Position.hpp>
