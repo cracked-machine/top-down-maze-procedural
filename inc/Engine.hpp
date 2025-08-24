@@ -305,7 +305,9 @@ private:
 
     void process_action_queue()
     {
-        if( m_event_handler.m_action_queue.front() == InputEventHandler::GameActions::DROP_BOMB )
+        if (m_event_handler.m_action_queue.empty()) return;
+
+        if (m_event_handler.m_action_queue.front() == InputEventHandler::GameActions::DROP_BOMB)
         {
             if( not m_event_handler.m_action_queue.empty() ) m_event_handler.m_action_queue.pop();
             m_collision_sys->arm_occupied_location();
@@ -315,6 +317,7 @@ private:
     // move the player according to direction and delta time with acceleration
     void process_direction_queue(sf::Time deltaTime)
     {
+        if (m_event_handler.m_direction_queue.empty()) return;
         const float dt = deltaTime.asSeconds();
         
         for(auto [_entt, _pc, _current_pos, _movement] : 
