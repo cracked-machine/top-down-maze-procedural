@@ -6,6 +6,7 @@
 #include <Obstacle.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
+#include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
 
@@ -14,8 +15,7 @@ namespace ProceduralMaze::Sys {
 // this currently only supports one bomb at a time
 class BombSystem {
 public:
-    BombSystem(std::shared_ptr<entt::basic_registry<entt::entity>> reg)
-        : m_reg(reg) { }
+    BombSystem(std::shared_ptr<entt::basic_registry<entt::entity>> reg) : m_reg(reg) { }
 
     void update()
     {
@@ -24,21 +24,21 @@ public:
         {
             if (_armed_cmp.getElapsedTime() < detonation_delay) continue;
 
-            for( auto [dir, neighbour_entity_u32] : _neighbours_cmp) 
+            for( auto [dir, neighbour_entity] : _neighbours_cmp) 
             {
-                if( not m_reg->valid(entt::entity(neighbour_entity_u32)) ) 
+                if( not m_reg->valid(entt::entity(neighbour_entity)) ) 
                 {
-                    SPDLOG_WARN("List provided invalid neighbour entity: {}", neighbour_entity_u32);
-                    assert(m_reg->valid(entt::entity(neighbour_entity_u32)) && "List provided invalid neighbour entity: " 
-                        && neighbour_entity_u32);
+                    SPDLOG_WARN("List provided invalid neighbour entity: {}", entt::to_integral(neighbour_entity));
+                    assert(m_reg->valid(entt::entity(neighbour_entity)) && "List provided invalid neighbour entity: " 
+                        && entt::to_integral(neighbour_entity));
                     continue;
                 }
 
-                Cmp::Obstacle* nb_obstacle = m_reg->try_get<Cmp::Obstacle>(entt::entity(neighbour_entity_u32));
+                Cmp::Obstacle* nb_obstacle = m_reg->try_get<Cmp::Obstacle>(entt::entity(neighbour_entity));
                 if( not nb_obstacle )
                 {
-                    SPDLOG_WARN("Unable to find Obstacle component for entity: {}", neighbour_entity_u32);
-                    assert(nb_obstacle && "Unable to find Obstacle component for entity: "  && neighbour_entity_u32);
+                    SPDLOG_WARN("Unable to find Obstacle component for entity: {}", entt::to_integral(neighbour_entity));
+                    assert(nb_obstacle && "Unable to find Obstacle component for entity: "  && entt::to_integral(neighbour_entity));
                     continue;
                 }
                 if (nb_obstacle->m_enabled && not nb_obstacle->m_broken)
@@ -51,11 +51,8 @@ public:
 
             // if we got this far then the bomb detonated, we can destroy the armed component
             m_reg->erase<Cmp::Armed>(_entt);
-
         }
-
     }
-
 
 private:
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;

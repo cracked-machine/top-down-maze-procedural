@@ -23,12 +23,12 @@ public:
         DOWN_RIGHT
     };
 
-    void set(Dir dir, uint32_t entity_u32)
+    void set(Dir dir, entt::entity entity_u32)
     {
         m_entities[dir] = entity_u32;
     }
 
-    std::optional<uint32_t> get(Dir dir)
+    std::optional<entt::entity> get(Dir dir)
     {
         if (m_entities.find(dir) != m_entities.end()) 
         {
@@ -81,7 +81,7 @@ public:
 
 private:
     // map of neighbour entity IDs and their relative direction
-    std::map<Dir, uint32_t> m_entities;
+    std::map<Dir, entt::entity> m_entities;
     
 
 };

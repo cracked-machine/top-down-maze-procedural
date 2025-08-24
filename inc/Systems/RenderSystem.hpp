@@ -295,8 +295,8 @@ public:
 
                 if( not _nb_entt_pos )
                 {
-                    SPDLOG_WARN("Unable to find Position component for entity: {}", _nb_entt);
-                    assert(_nb_entt_pos && "Unable to find Position component for entity" && _nb_entt);
+                    SPDLOG_WARN("Unable to find Position component for entity: {}", entt::to_integral(_nb_entt));
+                    assert(_nb_entt_pos && "Unable to find Position component for entity" && entt::to_integral(_nb_entt));
                     continue;
                 }
 

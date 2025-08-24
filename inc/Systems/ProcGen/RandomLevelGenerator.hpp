@@ -43,8 +43,6 @@ public:
     // The enabled status and texture of each one is picked randomly
     void gen_objects()
     {
-
-        using entity_trait = entt::entt_traits<entt::entity>;
         for(unsigned int x = 0; x < ProceduralMaze::Settings::MAP_GRID_SIZE.x; x++)
         {
             for(unsigned int y = 0; y < ProceduralMaze::Settings::MAP_GRID_SIZE.y; y++)
@@ -58,7 +56,7 @@ public:
                     } 
                 ); 
                 // track the contiguous creation order of the entity so we can easily find its neighbours later
-                m_data.push_back(entity_trait::to_integral(entity));
+                m_data.push_back(entity);
 
                 auto tile_pick = m_object_tile_choices[m_random_object_tile_picker.gen()];
                 m_reg->emplace<Cmp::Obstacle>(entity, tile_pick, Cmp::Obstacle::Type::BRICK, true, m_activation_selector.gen() );  
@@ -117,7 +115,7 @@ public:
         }
     }
 
-    std::optional<uint32_t> at(std::size_t idx) 
+    std::optional<entt::entity> at(std::size_t idx) 
     { 
         if( idx > m_data.size() ) return std::nullopt ;
         else return m_data.at(idx); 
@@ -130,7 +128,7 @@ public:
 private:
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
 
-    std::vector<uint32_t> m_data;
+    std::vector<entt::entity> m_data;
     Cmp::Random m_activation_selector;
 
     const std::vector<unsigned int> m_object_tile_choices;
