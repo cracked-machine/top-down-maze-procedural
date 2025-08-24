@@ -71,17 +71,12 @@ public:
 
             switch(m_game_state)
             {
-         
-                case Settings::GameState::MENU:
-                {
-                            
+                case Settings::GameState::MENU: {                            
                     if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::START_GAME)
                     {
                         SPDLOG_INFO("Entering game....");
-                        if(! m_event_handler.m_system_action_queue.empty()) 
-                            m_event_handler.m_system_action_queue.pop();
+                        if(! m_event_handler.m_system_action_queue.empty()) m_event_handler.m_system_action_queue.pop();
                         m_game_state = Settings::GameState::PLAYING;
-
                         setup();
                     }
 
@@ -89,19 +84,15 @@ public:
                     break;
                 } // case MENU
                 
-                case Settings::GameState::PLAYING:
-                {
-                    
+                case Settings::GameState::PLAYING: {                    
                     if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::PAUSE_GAME)
                     {
-                        if(! m_event_handler.m_system_action_queue.empty()) 
-                            m_event_handler.m_system_action_queue.pop();
+                        if(! m_event_handler.m_system_action_queue.empty()) m_event_handler.m_system_action_queue.pop();
                         m_game_state = Settings::GameState::PAUSED;
                     }
                     if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::QUIT_GAME)
                     {
-                        if(! m_event_handler.m_system_action_queue.empty()) 
-                            m_event_handler.m_system_action_queue.pop();
+                        if(! m_event_handler.m_system_action_queue.empty()) m_event_handler.m_system_action_queue.pop();
                         m_game_state = Settings::GameState::MENU;
                         teardown();
                         
@@ -129,29 +120,25 @@ public:
                     break;
                 } // case PLAYING
 
-                case Settings::GameState::PAUSED:
-                {
+                case Settings::GameState::PAUSED: {
                     SPDLOG_INFO("Game Paused....");
                     m_render_sys->render_paused();
                     if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::RESUME_GAME)
                     {
-                        if(! m_event_handler.m_system_action_queue.empty())
-                            m_event_handler.m_system_action_queue.pop();
+                        if(! m_event_handler.m_system_action_queue.empty()) m_event_handler.m_system_action_queue.pop();
                         m_game_state = Settings::GameState::PLAYING;
                         SPDLOG_INFO("Resuming Game....");
                     }
                     break;
                 } // case PAUSED
 
-                case Settings::GameState::GAME_OVER:
-                {
+                case Settings::GameState::GAME_OVER: {
                     m_render_sys->render_deathscreen();
 
                     if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::QUIT_GAME)
                     {
                         SPDLOG_INFO("Game Over....");
-                        if(! m_event_handler.m_system_action_queue.empty()) 
-                            m_event_handler.m_system_action_queue.pop();
+                        if(! m_event_handler.m_system_action_queue.empty()) m_event_handler.m_system_action_queue.pop();
                         m_game_state = Settings::GameState::MENU;
                         teardown();
                         
