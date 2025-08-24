@@ -46,7 +46,6 @@ public:
                     // tell the render system to draw detonated obstacle differently
                     nb_obstacle->m_broken = true;
                     nb_obstacle->m_enabled = false;
-                    SPDLOG_INFO("Detonated neighbour: {}", neighbour_entity_u32);
                 }
             }
 
