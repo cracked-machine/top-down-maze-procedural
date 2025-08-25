@@ -105,7 +105,7 @@ public:
         // main render end
     }
 
-    void render_deathscreen()
+    void render_defeat_screen()
     {
         // main render begin
         m_window->clear();
@@ -119,6 +119,20 @@ public:
             start_text.setFillColor(sf::Color::White);
             start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
             m_window->draw(start_text);
+        }
+        m_window->display();
+        // main render end
+    }
+
+    void render_victory_screen()
+    {
+        // main render begin
+        m_window->clear();
+        {
+            sf::Text title_text(m_font, "You won!", 96);
+            title_text.setFillColor(sf::Color::White);
+            title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
+            m_window->draw(title_text);
         }
         m_window->display();
         // main render end
@@ -381,12 +395,10 @@ public:
         for( auto [entity, _ob, _pos]: 
             m_position_updates.view<Cmp::Obstacle, Cmp::Position>(entt::exclude<Cmp::Neighbours>).each() ) {
 
-            if( _ob.m_enabled) 
-            {
-                m_wall_ms->pick(0, "wall");
+                m_wall_ms->pick(_ob.m_tile_index, "wall");
                 m_wall_ms->setPosition(_pos);
                 m_window->draw(*m_wall_ms);
-            }            
+         
         }
     }
 

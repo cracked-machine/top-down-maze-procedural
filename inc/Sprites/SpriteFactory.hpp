@@ -84,7 +84,7 @@ private:
 
     // Metadata object list
     std::vector<SpriteFactory::MetaData> m_metadata_list = {
-        {SpriteFactory::Type::WALL,     "WALL",  "res/Pixel Lands Dungeons/objects.png", {247}, DEFAULT_SPRITE_SIZE},
+        {SpriteFactory::Type::WALL,     "WALL",  "res/walls_and_doors.png", {0,1,2,3,4, 5, 6}, DEFAULT_SPRITE_SIZE},
         {SpriteFactory::Type::ROCK,     "ROCK",  "res/Pixel Lands Dungeons/objects.png", {147,148}, DEFAULT_SPRITE_SIZE, 40.f,},
         {SpriteFactory::Type::POT,      "POT",   "res/Pixel Lands Dungeons/objects.png", {337, 339, 341}, DEFAULT_SPRITE_SIZE, 1.f},
         {SpriteFactory::Type::BONES,    "BONES", "res/Pixel Lands Dungeons/objects.png", {270, 271}, DEFAULT_SPRITE_SIZE, 1.f},

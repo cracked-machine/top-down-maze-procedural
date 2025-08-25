@@ -37,8 +37,6 @@ public:
     bool m_enabled{true};
     bool m_broken{false};
 
-
-private:
 };
 
 } // namespace ProceduralMaze::Cmp

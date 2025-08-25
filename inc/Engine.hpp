@@ -103,7 +103,8 @@ public:
                     process_action_queue();       
                     m_flood_sys->update();  
                     m_bomb_sys->update();
-                    
+                    m_collision_sys->check_end_zone_collision();
+
                     // did the player drown? Then end the game
                     for(auto [_, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {
                         if ( not _pc.alive ) {
@@ -113,7 +114,14 @@ public:
 
                     for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
                         if( _sys.collisions_enabled ) m_collision_sys->check_collision();
-                    }              
+                        if( _sys.level_complete )
+                        {
+                            SPDLOG_INFO("Level complete!");
+                            m_game_state = Settings::GameState::GAME_OVER;
+                            player_won = true;
+                            teardown();
+                        }
+                    }
 
                     m_render_sys->render_game();     
                     break;
@@ -132,18 +140,29 @@ public:
                 } // case PAUSED
 
                 case Settings::GameState::GAME_OVER: {
-                    m_render_sys->render_deathscreen();
-
-                    if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::QUIT_GAME)
+                    
+         
+                    if( player_won )
                     {
-                        SPDLOG_INFO("Game Over....");
-                        if(! m_event_handler.m_system_action_queue.empty()) m_event_handler.m_system_action_queue.pop();
-                        m_game_state = Settings::GameState::MENU;
-                        teardown();
-                        
-                        SPDLOG_INFO("Entering menu....");
-                        break;
+                        m_render_sys->render_victory_screen();
                     }
+                    else {
+                        m_render_sys->render_defeat_screen();
+                        if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::QUIT_GAME)
+                        {
+                            SPDLOG_INFO("Game Over....");
+                            if(! m_event_handler.m_system_action_queue.empty()) m_event_handler.m_system_action_queue.pop();
+                            m_game_state = Settings::GameState::MENU;
+                            teardown();
+                            
+                            SPDLOG_INFO("Entering menu....");
+                            break;
+                        }
+                    }
+                    
+                    
+
+
                     break;
                 } // case GAME_OVER
             }
@@ -171,7 +190,7 @@ private:
     std::unique_ptr<Sys::FloodSystem> m_flood_sys = std::make_unique<Sys::FloodSystem> (m_reg, 5.f);
     std::unique_ptr<Sys::BombSystem> m_bomb_sys = std::make_unique<Sys::BombSystem> (m_reg);
 
-    
+    bool player_won = false;
 
     // SFML keyboard/mouse event handler
     ProceduralMaze::InputEventHandler m_event_handler{m_reg};

@@ -74,36 +74,55 @@ public:
     {
         using namespace ProceduralMaze::Settings;
 
+        std::size_t texture_index = 0;
+        bool enabled = true;
         for(float x = 0 ; x < DISPLAY_SIZE.x; x += m_sprite_factory->DEFAULT_SPRITE_SIZE.x)
         {
+            if (x == 0 || x == DISPLAY_SIZE.x - m_sprite_factory->DEFAULT_SPRITE_SIZE.x) texture_index = 2;
+            else texture_index = 1;
             // top edge
-            add_border_entity({
-                x, 
-                (MAP_GRID_OFFSET.y - 1) * m_sprite_factory->DEFAULT_SPRITE_SIZE.y
-            });
+            add_border_entity(
+                { x, (MAP_GRID_OFFSET.y - 1) * m_sprite_factory->DEFAULT_SPRITE_SIZE.y },
+                texture_index
+            );
             // bottom edge
-            add_border_entity({
-                x, 
-                MAP_GRID_OFFSET.y + ((MAP_GRID_SIZE.y + 2) * m_sprite_factory->DEFAULT_SPRITE_SIZE.y) - 2
-            });
+            add_border_entity(
+                { x, MAP_GRID_OFFSET.y + ((MAP_GRID_SIZE.y + 2) * m_sprite_factory->DEFAULT_SPRITE_SIZE.y) - 2 },
+                texture_index
+            );
         }
         for( float y = 0; y < DISPLAY_SIZE.y; y += m_sprite_factory->DEFAULT_SPRITE_SIZE.y)
         {
-            // left edge 
-            add_border_entity({0, y});
+            if (y == 0 || y == DISPLAY_SIZE.y - 1) texture_index = 2;
+            else if ( y == (DISPLAY_SIZE.y / 2.f) - m_sprite_factory->DEFAULT_SPRITE_SIZE.y) texture_index = 3;
+            else if ( y == (DISPLAY_SIZE.y / 2.f) ) texture_index = 5; // closed door entrance
+            else if ( y == (DISPLAY_SIZE.y / 2.f) + m_sprite_factory->DEFAULT_SPRITE_SIZE.y) texture_index = 4;
+            else texture_index = 0;
+            // left edge
+            add_border_entity(
+                {0, y},
+                texture_index
+            );
+            if ( y == (DISPLAY_SIZE.y / 2.f) ) { texture_index = 6; enabled = false; } // open door exit
             // right edge
-            add_border_entity({static_cast<float>(DISPLAY_SIZE.x) -  m_sprite_factory->DEFAULT_SPRITE_SIZE.x, y});
+            add_border_entity(
+                {static_cast<float>(DISPLAY_SIZE.x) -  m_sprite_factory->DEFAULT_SPRITE_SIZE.x, y },
+                texture_index,
+                enabled
+            );
+            enabled = true;
         }
 
     }
 
-    void add_border_entity(const sf::Vector2f &pos)
+    void add_border_entity(const sf::Vector2f &pos, std::size_t texture_index, bool enabled = true)
     {
         auto entity = m_reg->create();
         m_reg->emplace<Cmp::Position>(entity, pos);
         auto wall_ms = m_sprite_factory->get_metadata_by_type(Sprites::SpriteFactory::Type::WALL);
         if( not wall_ms ) { SPDLOG_CRITICAL("Unable to get WALL multisprite from SpriteFactory"); std::get_terminate(); }
-        m_reg->emplace<Cmp::Obstacle>(entity, Sprites::SpriteFactory::Type::WALL, wall_ms->pick_random_texture_index(), true, true);
+
+        m_reg->emplace<Cmp::Obstacle>(entity, Sprites::SpriteFactory::Type::WALL, texture_index, true, enabled);
     }
 
     void stats()

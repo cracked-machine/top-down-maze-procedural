@@ -78,6 +78,22 @@ public:
         }
     }
 
+    void check_end_zone_collision()
+    {
+        for (auto [_entt, _pc, _pc_pos] : m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each())
+        {
+            auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y}, Settings::PLAYER_SIZE_2F);
+            if (player_hitbox.findIntersection(m_end_zone))
+            {
+                SPDLOG_INFO("Player reached the end zone!");
+                for (auto [_entt, _sys] : m_reg->view<Cmp::System>().each())
+                {
+                    _sys.level_complete = true;
+                }
+            }
+        }
+    }
+
     void check_collision()
     {
         const float PUSH_FACTOR = 1.1f;  // Push slightly more than minimum to avoid floating point issues
@@ -208,6 +224,13 @@ public:
             }
         }
     }
+
+private:
+
+    sf::FloatRect m_end_zone{
+        {Settings::DISPLAY_SIZE.x * 1.f, 0}, 
+        {500.f, Settings::DISPLAY_SIZE.y * 1.f}
+    };
 };
 
 } // namespace ProceduralMaze::Systems
