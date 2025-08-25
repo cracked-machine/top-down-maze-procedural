@@ -50,6 +50,7 @@ public:
         for (auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each())
         {
             if( _pc.has_active_bomb ) continue; // skip if player already placed a bomb
+            if( _pc.bomb_inventory == 0 ) continue; // skip if player has no bombs left
             
             auto obstacle_collision_view = m_collision_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>();
             for (auto [_ob_entt, _obstacle_cmp, _ob_pos_cmp, _ob_nb_list] : obstacle_collision_view.each())
@@ -72,6 +73,7 @@ public:
                         m_reg->emplace_or_replace<Cmp::Armed>(entt::entity(_ob_entt));
                         _pc.m_bombdeploycooldowntimer.restart();
                         _pc.has_active_bomb = true;
+                        _pc.bomb_inventory = (_pc.bomb_inventory > 0) ? _pc.bomb_inventory - 1 : 0;
                     }
                 }
             }

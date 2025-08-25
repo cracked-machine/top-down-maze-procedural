@@ -17,6 +17,7 @@ public:
     sf::Clock m_bombdeploycooldowntimer;
     sf::Time m_bombdeploydelay{sf::seconds(0.5)};
     bool has_active_bomb{false};
+    unsigned int bomb_inventory{10};
 };
 
 } // namespace ProceduralMaze::Cmp

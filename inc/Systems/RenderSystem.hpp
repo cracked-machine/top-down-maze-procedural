@@ -244,6 +244,7 @@ public:
 
                 for(auto [_entt, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {
                     render_health_overlay(_pc.health, {40.f, 20.f},  {200.f, 20.f});
+                    render_bomb_overlay(_pc.bomb_inventory, {40.f, 120.f});
                 }
 
                 for(auto [_entt, water_level]: m_reg->view<Cmp::WaterLevel>().each()) {
@@ -256,6 +257,24 @@ public:
         } 
         m_window->display();
         // main render end
+    }
+
+    void render_bomb_overlay(unsigned int bomb_count, sf::Vector2f pos)
+    {
+        // text
+        bomb_inventory_text.setPosition(pos);
+        bomb_inventory_text.setFillColor(sf::Color::White);
+        bomb_inventory_text.setOutlineColor(sf::Color::Black);
+        bomb_inventory_text.setOutlineThickness(2.f);
+        m_window->draw(bomb_inventory_text);
+
+        // text
+        sf::Text bomb_count_text{m_font, " x " + std::to_string(bomb_count), 30};
+        bomb_count_text.setPosition(pos + sf::Vector2f(100.f, 0.f));
+        bomb_count_text.setFillColor(sf::Color::White);
+        bomb_count_text.setOutlineColor(sf::Color::Black);
+        bomb_count_text.setOutlineThickness(2.f);
+        m_window->draw(bomb_count_text);
     }
 
     void render_health_overlay(float health_value, sf::Vector2f pos, sf::Vector2f size)
@@ -541,6 +560,7 @@ private:
     Cmp::Font m_font = Cmp::Font("res/tuffy.ttf");
     sf::Text healthlvl_meter_text{m_font,   "Health:", 30};
     sf::Text waterlvl_meter_text{m_font,    "Flood:", 30};
+    sf::Text bomb_inventory_text{m_font,    "Bombs:", 30};
 
     
 };
