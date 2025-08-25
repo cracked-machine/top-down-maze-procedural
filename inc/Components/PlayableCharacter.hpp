@@ -16,6 +16,7 @@ public:
     constexpr static const float MOVE_DIST{1.f};
     sf::Clock m_bombdeploycooldowntimer;
     sf::Time m_bombdeploydelay{sf::seconds(0.5)};
+    bool has_active_bomb{false};
 };
 
 } // namespace ProceduralMaze::Cmp

@@ -49,6 +49,7 @@ public:
         for (auto [_pc_entt, _pc, _pc_pos] :
             m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each())
         {
+            if( _pc.has_active_bomb ) continue; // skip if player already placed a bomb
             for (auto [_ob_entt, _obstacle_cmp, _ob_pos_cmp, _ob_nb_list] :
                 m_collision_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each())
             {
@@ -62,13 +63,14 @@ public:
 
                 auto obstacle_hitbox = sf::FloatRect(_ob_pos_cmp, Settings::OBSTACLE_SIZE_2F);     
 
-                // arm the occupied  tile if the player doesn't have an active bomb
+                // arm the occupied  tile 
                 if( player_hitbox.findIntersection(obstacle_hitbox) )
                 {
                     if( _pc.m_bombdeploycooldowntimer.getElapsedTime() >= _pc.m_bombdeploydelay ) 
                     {
                         m_reg->emplace_or_replace<Cmp::Armed>(entt::entity(_ob_entt));
                         _pc.m_bombdeploycooldowntimer.restart();
+                        _pc.has_active_bomb = true;
                     }
                 }
             }

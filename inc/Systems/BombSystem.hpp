@@ -4,6 +4,7 @@
 #include <Armed.hpp>
 #include <Neighbours.hpp>
 #include <Obstacle.hpp>
+#include <PlayableCharacter.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 #include <entt/entity/entity.hpp>
@@ -23,7 +24,8 @@ public:
         for( auto [_entt, _armed_cmp, _obstacle_cmp, _neighbours_cmp]: armed_view.each() ) 
         {
             if (_armed_cmp.getElapsedTime() < detonation_delay) continue;
-
+            
+            // detonate the neighbour obstacles!
             for( auto [dir, neighbour_entity] : _neighbours_cmp) 
             {
                 if( not m_reg->valid(entt::entity(neighbour_entity)) ) 
@@ -51,6 +53,12 @@ public:
 
             // if we got this far then the bomb detonated, we can destroy the armed component
             m_reg->erase<Cmp::Armed>(_entt);
+
+            // allow player to place next bomb
+            for (auto [_pc_entt, _pc] :m_reg->view<Cmp::PlayableCharacter>().each())
+            {
+                _pc.has_active_bomb = false;
+            }
         }
     }
 
