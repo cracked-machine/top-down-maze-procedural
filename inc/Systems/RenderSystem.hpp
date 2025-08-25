@@ -266,7 +266,7 @@ public:
         // main render end
     }
 
-    void render_bomb_overlay(unsigned int bomb_count, sf::Vector2f pos)
+    void render_bomb_overlay(int bomb_count, sf::Vector2f pos)
     {
         // text
         bomb_inventory_text.setPosition(pos);
@@ -276,7 +276,9 @@ public:
         m_window->draw(bomb_inventory_text);
 
         // text
-        sf::Text bomb_count_text{m_font, " x " + std::to_string(bomb_count), 30};
+        sf::Text bomb_count_text(m_font, "", 30);
+        if (bomb_count < 0) bomb_count_text.setString(" INFINITE ");
+        else bomb_count_text.setString(" x " + std::to_string(bomb_count));
         bomb_count_text.setPosition(pos + sf::Vector2f(100.f, 0.f));
         bomb_count_text.setFillColor(sf::Color::White);
         bomb_count_text.setOutlineColor(sf::Color::Black);

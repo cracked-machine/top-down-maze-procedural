@@ -104,6 +104,7 @@ public:
                     m_flood_sys->update();  
                     m_bomb_sys->update();
                     m_collision_sys->check_end_zone_collision();
+                    m_collision_sys->check_loot_collision();
 
                     // did the player drown? Then end the game
                     for(auto [_, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {

@@ -2,6 +2,7 @@
 #define __SYSTEMS_COLLISION_SYSTEM_HPP__
 
 #include <Armed.hpp>
+#include <Loot.hpp>
 #include <Neighbours.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -10,6 +11,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
+#include <WaterLevel.hpp>
 #include <cassert>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
@@ -50,7 +52,7 @@ public:
         for (auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each())
         {
             if( _pc.has_active_bomb ) continue; // skip if player already placed a bomb
-            if( _pc.bomb_inventory == 0 ) continue; // skip if player has no bombs left
+            if( _pc.bomb_inventory == 0 ) continue; // skip if player has no bombs left, -1 is infini bombs
             
             auto obstacle_collision_view = m_collision_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>();
             for (auto [_ob_entt, _obstacle_cmp, _ob_pos_cmp, _ob_nb_list] : obstacle_collision_view.each())
@@ -73,8 +75,58 @@ public:
                         m_reg->emplace_or_replace<Cmp::Armed>(entt::entity(_ob_entt));
                         _pc.m_bombdeploycooldowntimer.restart();
                         _pc.has_active_bomb = true;
-                        _pc.bomb_inventory = (_pc.bomb_inventory > 0) ? _pc.bomb_inventory - 1 : 0;
+                        _pc.bomb_inventory = (_pc.bomb_inventory > 0) ? _pc.bomb_inventory - 1 : _pc.bomb_inventory;
                     }
+                }
+            }
+        }
+    }
+
+    void check_loot_collision()
+    {
+        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>();
+        for (auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each())
+        {
+            auto loot_collision_view = m_collision_updates.view<Cmp::Loot, Cmp::Position>();
+            for (auto [_loot_entt, _loot, _loot_pos] : loot_collision_view.each())
+            {
+                auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y}, Settings::PLAYER_SIZE_2F);
+                auto loot_hitbox = sf::FloatRect(_loot_pos, Settings::OBSTACLE_SIZE_2F);
+                if (player_hitbox.findIntersection(loot_hitbox))
+                {
+                    if(_loot.m_type == Sprites::SpriteFactory::Type::EXTRA_HEALTH)
+                    {
+                        _pc.health = std::min(_pc.health + 10, 100); // max health is 100
+                        m_reg->erase<Cmp::Loot>(_loot_entt);
+                    }
+                    else if (_loot.m_type == Sprites::SpriteFactory::Type::EXTRA_BOMBS)
+                    {
+                        // Only give more bombs if they don't have INFINI BOMBS perk
+                        if( _pc.bomb_inventory >= 0 ) _pc.bomb_inventory += 5; 
+                        m_reg->erase<Cmp::Loot>(_loot_entt);
+                    }
+                    else if (_loot.m_type == Sprites::SpriteFactory::Type::INFINI_BOMBS)
+                    {
+                        _pc.bomb_inventory = -1; // Give infinite bombs
+                        m_reg->erase<Cmp::Loot>(_loot_entt);
+                    }
+                    else if (_loot.m_type == Sprites::SpriteFactory::Type::CHAIN_BOMBS)
+                    {
+                        _pc.chain_bombs = true; // Enable chain bombs
+                        m_reg->erase<Cmp::Loot>(_loot_entt);
+                    }
+                    else if (_loot.m_type == Sprites::SpriteFactory::Type::LOWER_WATER)
+                    {
+                        for (auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each())
+                        {
+                            // Adjust water level by 100... The FloodWater rectangle rolls in from display size height down to 0 (fully flooded).
+                            // So increasing the value actually lowers the water level!
+                            water_level.m_level = std::min(water_level.m_level + 100.f, static_cast<float>(Settings::DISPLAY_SIZE.y));
+                        }
+                        m_reg->erase<Cmp::Loot>(_loot_entt);
+                    
+                    }
+
                 }
             }
         }
