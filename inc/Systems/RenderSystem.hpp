@@ -27,7 +27,6 @@
 #include <PlayableCharacter.hpp>
 #include <Position.hpp>
 #include <Settings.hpp>
-#include <Sprites/Player.hpp>
 #include <System.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <spdlog/spdlog.h>

@@ -14,8 +14,6 @@
 #include <Components/System.hpp>
 #include <Components/Movement.hpp>
 
-#include <Sprites/Player.hpp>
-
 namespace ProceduralMaze {
 
 class EntityFactory

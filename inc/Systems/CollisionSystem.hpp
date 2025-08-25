@@ -23,7 +23,6 @@
 #include <Components/System.hpp>
 #include <Components/Movement.hpp>
 
-#include <Sprites/Player.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <cassert>
