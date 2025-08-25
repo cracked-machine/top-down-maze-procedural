@@ -11,7 +11,6 @@
 #include <SFML/System/Vector2.hpp>
 
 #include <algorithm>
-#include <cstddef>
 #include <cstdint>
 #include <filesystem>
 

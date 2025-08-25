@@ -6,7 +6,6 @@
 #include <SFML/System/Vector2.hpp>
 #include <Settings.hpp>
 #include <SpriteFactory.hpp>
-#include <cstdint>
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
 #include <map>

@@ -8,8 +8,10 @@
 
 #include <Sprites/MultiSprite.hpp>
 #include <Components/Random.hpp>
+#include <Components/RandomFloat.hpp>
 #include <Settings.hpp>
 
+#include <numeric>
 #include <vector>
 #include <string>
 
@@ -31,13 +33,27 @@ public:
         BOMB = 6
     };
 
+    const sf::Vector2u PLAYER_SPRITE_SIZE = {16, 32};
+    const sf::Vector2u DEFAULT_SPRITE_SIZE = {16, 16};
+
 private:
     // This holds sprite type, tilemap texture path and tilemap indices in a single place
     class MetaData {
     public:
-        MetaData(Type type, const std::string& type2string, const std::string& texture_path, const std::vector<std::uint32_t>& texture_index_choices,
-            const sf::Vector2u &tileSize = sf::Vector2u(16, 16))
-            : m_type(type), m_type2string(type2string), m_texture_path(texture_path), m_texture_index_choices(texture_index_choices) 
+        MetaData(
+            Type type, 
+            const std::string& type2string, 
+            const std::string& texture_path, 
+            const std::vector<std::uint32_t>& texture_index_choices,
+            const sf::Vector2u &tileSize = sf::Vector2u(16, 16),
+            float weight = 1.0f
+        )
+        : 
+            m_texture_index_choices(texture_index_choices), 
+            m_type(type), 
+            m_type2string(type2string), 
+            m_texture_path(texture_path), 
+            m_weight(weight) 
         {
             m_multisprite.add_sprite(texture_path, texture_index_choices, tileSize, get_type_string());
         }
@@ -45,6 +61,7 @@ private:
         Type get_type() const { return m_type; }
         std::string get_type_string() const { return m_type2string; }
         Sprites::MultiSprite get_multisprite() const { return m_multisprite; }
+        float get_weight() const { return m_weight; }
 
         // Get random value from `m_texture_index_choices`.
         // Use this when emplacing components into the registry.
@@ -62,33 +79,65 @@ private:
         std::string m_type2string;
         ProceduralMaze::Sprites::MultiSprite m_multisprite{};
         std::string m_texture_path; 
+        float m_weight{1.0f}; // Default weight of 1.0
     };
 
     // Metadata object list
     std::vector<SpriteFactory::MetaData> m_metadata_list = {
-        {SpriteFactory::Type::WALL,     "WALL",  "res/Pixel Lands Dungeons/objects.png", {247}},
-        {SpriteFactory::Type::ROCK,     "ROCK",  "res/Pixel Lands Dungeons/objects.png", {147,148}},
-        {SpriteFactory::Type::POT,      "POT",   "res/Pixel Lands Dungeons/objects.png", {337, 339, 341}},
-        {SpriteFactory::Type::BONES,    "BONES", "res/Pixel Lands Dungeons/objects.png", {270, 271}},
-        {SpriteFactory::Type::DETONATED, "DETONATED", "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", {42}},
-        {SpriteFactory::Type::PLAYER,    "PLAYER", "res/players.png", {0, 1, 2}, Settings::PLAYER_SPRITE_SIZE},
-        {SpriteFactory::Type::BOMB,      "BOMB",   "res/bomb.png", {0}}
+        {SpriteFactory::Type::WALL,     "WALL",  "res/Pixel Lands Dungeons/objects.png", {247}, DEFAULT_SPRITE_SIZE},
+        {SpriteFactory::Type::ROCK,     "ROCK",  "res/Pixel Lands Dungeons/objects.png", {147,148}, DEFAULT_SPRITE_SIZE, 40.f,},
+        {SpriteFactory::Type::POT,      "POT",   "res/Pixel Lands Dungeons/objects.png", {337, 339, 341}, DEFAULT_SPRITE_SIZE, 1.f},
+        {SpriteFactory::Type::BONES,    "BONES", "res/Pixel Lands Dungeons/objects.png", {270, 271}, DEFAULT_SPRITE_SIZE, 1.f},
+        {SpriteFactory::Type::DETONATED, "DETONATED", "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", {42}, DEFAULT_SPRITE_SIZE},
+        {SpriteFactory::Type::PLAYER,    "PLAYER", "res/players.png", {0, 1, 2}, PLAYER_SPRITE_SIZE},
+        {SpriteFactory::Type::BOMB,      "BOMB",   "res/bomb.png", {0}, DEFAULT_SPRITE_SIZE}
     };
 
 
 public:
 
-
-    // pick a random metadata object from a list of types
-    std::optional<SpriteFactory::MetaData> get_random_metadata(std::vector<Type> type_list) const
+    // Pick a random metadata object from a list of types using a "roulette wheel selection" method:
+    // We get a random number between 0 and total weights.
+    // We then iterate through the weights, accumulating them until we find the weight for the corresponding type
+    std::optional<SpriteFactory::MetaData> get_random_metadata(std::vector<Type> type_list, std::vector<float> weights = {}) const
     {
         if (type_list.empty()) { SPDLOG_WARN("Type list is empty");  return std::nullopt; }
 
-        Cmp::Random random_picker(0, type_list.size() - 1);
-        auto random_index = random_picker.gen();
-        auto type = type_list[random_index];
+        // If weights aren't provided, use weights from metadata
+        if (weights.empty()) {
+            weights.reserve(type_list.size());
+            for (auto type : type_list) {
+                auto meta = get_metadata_by_type(type);
+                if (meta) {
+                    weights.push_back(meta->get_weight());
+                } else {
+                    weights.push_back(1.0f); // Default weight
+                }
+            }
+        }
+        
+        // Ensure weights and type_list have same size
+        if (weights.size() != type_list.size()) {
+            weights.resize(type_list.size(), 1.0f);
+        }
 
-        return get_metadata_by_type(type).value();
+        float total_weight = std::accumulate(weights.begin(), weights.end(), 0.0f);
+
+        // Generate random value between 0 and total weight
+        Cmp::RandomFloat random_float(0.0f, total_weight);
+        float random_val = random_float.gen();
+
+        // Select based on weights
+        float cumulative_weight = 0.0f;
+        for (size_t i = 0; i < type_list.size(); ++i) {
+            cumulative_weight += weights[i];
+            if (random_val <= cumulative_weight) {
+                return get_metadata_by_type(type_list[i]);
+            }
+        }
+
+        // Fallback (shouldn't reach here normally)
+        return get_metadata_by_type(type_list.back());
     }
 
     // get metadata by type
