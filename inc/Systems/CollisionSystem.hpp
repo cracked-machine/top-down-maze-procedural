@@ -84,50 +84,77 @@ public:
 
     void check_loot_collision()
     {
+        // Store loot effects to be applied after collision detection
+        struct LootEffect {
+            entt::entity loot_entity;
+            Sprites::SpriteFactory::Type type;
+        };
+        
+        std::vector<LootEffect> loot_effects;
+
+        // First pass: detect collisions and gather effects to apply
         auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>();
+        auto loot_collision_view = m_collision_updates.view<Cmp::Loot, Cmp::Position>();
+
         for (auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each())
         {
-            auto loot_collision_view = m_collision_updates.view<Cmp::Loot, Cmp::Position>();
+            auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y}, Settings::PLAYER_SIZE_2F);
+            
             for (auto [_loot_entt, _loot, _loot_pos] : loot_collision_view.each())
             {
-                auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y}, Settings::PLAYER_SIZE_2F);
                 auto loot_hitbox = sf::FloatRect(_loot_pos, Settings::OBSTACLE_SIZE_2F);
                 if (player_hitbox.findIntersection(loot_hitbox))
                 {
-                    if(_loot.m_type == Sprites::SpriteFactory::Type::EXTRA_HEALTH)
-                    {
+                    // Store effect to apply after collision detection
+                    loot_effects.push_back({_loot_entt, _loot.m_type});
+                }
+            }
+        }
+        
+        // Second pass: apply effects and remove loots
+        for (const auto& effect : loot_effects)
+        {
+            // Apply loot effect to all players that might have collided
+            for (auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each())
+            {
+                switch (effect.type)
+                {
+                    case Sprites::SpriteFactory::Type::EXTRA_HEALTH:
                         _pc.health = std::min(_pc.health + 10, 100); // max health is 100
-                        m_reg->erase<Cmp::Loot>(_loot_entt);
-                    }
-                    else if (_loot.m_type == Sprites::SpriteFactory::Type::EXTRA_BOMBS)
-                    {
+                        break;
+
+                    case Sprites::SpriteFactory::Type::EXTRA_BOMBS:
                         // Only give more bombs if they don't have INFINI BOMBS perk
-                        if( _pc.bomb_inventory >= 0 ) _pc.bomb_inventory += 5; 
-                        m_reg->erase<Cmp::Loot>(_loot_entt);
-                    }
-                    else if (_loot.m_type == Sprites::SpriteFactory::Type::INFINI_BOMBS)
-                    {
-                        _pc.bomb_inventory = -1; // Give infinite bombs
-                        m_reg->erase<Cmp::Loot>(_loot_entt);
-                    }
-                    else if (_loot.m_type == Sprites::SpriteFactory::Type::CHAIN_BOMBS)
-                    {
-                        _pc.chain_bombs = true; // Enable chain bombs
-                        m_reg->erase<Cmp::Loot>(_loot_entt);
-                    }
-                    else if (_loot.m_type == Sprites::SpriteFactory::Type::LOWER_WATER)
-                    {
+                        if (_pc.bomb_inventory >= 0) _pc.bomb_inventory += 5; 
+                        break;
+
+                    case Sprites::SpriteFactory::Type::LOWER_WATER:
                         for (auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each())
                         {
                             // Adjust water level by 100... The FloodWater rectangle rolls in from display size height down to 0 (fully flooded).
                             // So increasing the value actually lowers the water level!
                             water_level.m_level = std::min(water_level.m_level + 100.f, static_cast<float>(Settings::DISPLAY_SIZE.y));
+                            break; // Only adjust the first water level component
                         }
-                        m_reg->erase<Cmp::Loot>(_loot_entt);
-                    
-                    }
+                        break; // Missing break statement was here!
 
+                    case Sprites::SpriteFactory::Type::INFINI_BOMBS:
+                        _pc.bomb_inventory = -1; // Give infinite bombs
+                        break;
+                        
+                    case Sprites::SpriteFactory::Type::CHAIN_BOMBS:
+                        _pc.chain_bombs = true; // Enable chain bombs
+                        break;
+
+                    default:
+                        // Non-loot SpriteFactory type
+                        break;
                 }
+            }
+            
+            // Remove the loot entity after processing
+            if (m_reg->valid(effect.loot_entity)) {
+                m_reg->erase<Cmp::Loot>(effect.loot_entity);
             }
         }
     }
