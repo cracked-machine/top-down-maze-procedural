@@ -16,8 +16,8 @@ class Obstacle {
 public:
     
     Obstacle(
-        SpriteFactory::Type type, 
-        uint32_t tile_index = 0,
+        Sprites::SpriteFactory::Type type, 
+        std::size_t tile_index = 0,
         bool visible = true, 
         bool enabled = true
     )
@@ -30,7 +30,7 @@ public:
         
     }
 
-    SpriteFactory::Type m_type;
+    Sprites::SpriteFactory::Type m_type;
     uint32_t m_tile_index{0};
 
     bool m_visible{true};

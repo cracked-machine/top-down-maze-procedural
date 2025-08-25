@@ -5,6 +5,7 @@
 #include <Neighbours.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Settings.hpp>
+#include <SpriteFactory.hpp>
 #include <cstdint>
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
@@ -23,7 +24,7 @@ class RandomLevelGenerator {
 public:
     RandomLevelGenerator(
         std::shared_ptr<entt::basic_registry<entt::entity>> reg,
-        std::shared_ptr<SpriteFactory> sprite_factory
+        std::shared_ptr<Sprites::SpriteFactory> sprite_factory
     )
     : m_reg(reg),
       m_sprite_factory(sprite_factory)
@@ -54,11 +55,14 @@ public:
                 // track the contiguous creation order of the entity so we can easily find its neighbours later
                 m_data.push_back(entity);
 
-                auto metadata_tuple = m_sprite_factory->get_random_meta_obstacle();
-                auto obstacle_metadata = std::get<0>(metadata_tuple).get_type();
-                auto random_obstacle_texture_index = std::get<1>(metadata_tuple);
-                // SPDLOG_INFO("Generated obstacle of type {} with texture index {}", static_cast<uint32_t>(obstacle_metadata), random_obstacle_texture_index);
-                m_reg->emplace<Cmp::Obstacle>(entity, obstacle_metadata, random_obstacle_texture_index, true, m_activation_selector.gen());
+                auto obstacle_metadata = m_sprite_factory->get_random_metadata(
+                    {Sprites::SpriteFactory::Type::ROCK, Sprites::SpriteFactory::Type::POT, Sprites::SpriteFactory::Type::BONES});
+                if (!obstacle_metadata) {
+                    SPDLOG_WARN("Failed to get random obstacle metadata");
+                    continue;
+                }
+                auto random_obstacle_texture_index = obstacle_metadata->pick_random_texture_index();
+                m_reg->emplace<Cmp::Obstacle>(entity, obstacle_metadata->get_type(), random_obstacle_texture_index, true, m_activation_selector.gen());
 
                 m_reg->emplace<Cmp::Neighbours>(entity);
             }
@@ -98,7 +102,9 @@ public:
     {
         auto entity = m_reg->create();
         m_reg->emplace<Cmp::Position>(entity, pos);
-        m_reg->emplace<Cmp::Obstacle>(entity, m_sprite_factory->get_wall_obstacle().get_type(), true, true);
+        auto wall_ms = m_sprite_factory->get_metadata_by_type(Sprites::SpriteFactory::Type::WALL);
+        if( not wall_ms ) { SPDLOG_CRITICAL("Unable to get WALL multisprite from SpriteFactory"); std::get_terminate(); }
+        m_reg->emplace<Cmp::Obstacle>(entity, Sprites::SpriteFactory::Type::WALL, wall_ms->pick_random_texture_index(), true, true);
     }
 
     void stats()
@@ -114,8 +120,6 @@ public:
         }
     }
 
-
-
     std::optional<entt::entity> at(std::size_t idx) 
     { 
         if( idx > m_data.size() ) return std::nullopt ;
@@ -128,16 +132,10 @@ public:
 
 private:
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
-    std::shared_ptr<SpriteFactory> m_sprite_factory;
+    std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory;
 
     std::vector<entt::entity> m_data;
     Cmp::Random m_activation_selector{0,1};
-    
-    // const std::vector<unsigned int> m_object_tile_choices;
-    // Cmp::Random m_random_object_tile_picker;
-    
-    // const std::vector<unsigned int> m_border_tile_choices;
-    // Cmp::Random m_random_border_tile_picker;
 
 };
 

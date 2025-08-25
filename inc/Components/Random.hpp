@@ -1,6 +1,7 @@
 #ifndef __COMPONENTS_RANDOM_HPP__
 #define __COMPONENTS_RANDOM_HPP__
 
+#include <cstddef>
 #include <random>
 #include <Base.hpp>
 #include <algorithm>

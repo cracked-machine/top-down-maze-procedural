@@ -21,6 +21,7 @@
 #include <WaterLevel.hpp>
 #include <cstddef>
 #include <entt/entity/fwd.hpp>
+#include <exception>
 #include <memory>
 
 #include <Obstacle.hpp>
@@ -71,19 +72,16 @@ public:
         );
         m_minimap_view.setViewport( sf::FloatRect({0.75f, 0.f}, {0.25f, 0.25f}) );
 
+        // we should ensure these member variables are initialized
+        if( not m_rock_ms ) { SPDLOG_CRITICAL("Unable to get ROCK multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_pot_ms ) { SPDLOG_CRITICAL("Unable to get POT multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_bone_ms ) { SPDLOG_CRITICAL("Unable to get BONE multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_player_ms ) { SPDLOG_CRITICAL("Unable to get PLAYER multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_bomb_ms ) { SPDLOG_CRITICAL("Unable to get BOMB multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_detonation_ms ) { SPDLOG_CRITICAL("Unable to get DETONATION multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_wall_ms ) { SPDLOG_CRITICAL("Unable to get WALL multisprite from SpriteFactory"); std::get_terminate(); }
 
-        m_multi_sprites = m_sprite_factory->create_multisprites_list();
-
-        rocksprite = m_multi_sprites[static_cast<uint32_t>(SpriteFactory::Type::ROCK)];
-        potsprite = m_multi_sprites[static_cast<uint32_t>(SpriteFactory::Type::POT)];
-        bonesprite = m_multi_sprites[static_cast<uint32_t>(SpriteFactory::Type::BONES)];
-        playersprite = m_multi_sprites[static_cast<uint32_t>(SpriteFactory::Type::PLAYER)];
-        bombsprite = m_multi_sprites[static_cast<uint32_t>(SpriteFactory::Type::BOMB)];
-        detonationsprite = m_multi_sprites[static_cast<uint32_t>(SpriteFactory::Type::DETONATED)];
-        wallsprite = m_multi_sprites[static_cast<uint32_t>(SpriteFactory::Type::WALL)];
-
-
-        SPDLOG_DEBUG("RenderSystem()"); 
+        SPDLOG_INFO("RenderSystem initialised..."); 
     }
     
     ~RenderSystem() { SPDLOG_DEBUG("~RenderSystem()"); } 
@@ -294,13 +292,13 @@ public:
             } else {
                 if(_ob.m_enabled) {
                     switch(_ob.m_type) {
-                        case SpriteFactory::Type::ROCK:
+                        case Sprites::SpriteFactory::Type::ROCK:
                             rockPositions.emplace_back(_pos, _ob.m_tile_index);
                             break;
-                        case SpriteFactory::Type::POT:
+                        case Sprites::SpriteFactory::Type::POT:
                             potPositions.emplace_back(_pos, _ob.m_tile_index);
                             break;
-                        case SpriteFactory::Type::BONES:
+                        case Sprites::SpriteFactory::Type::BONES:
                             bonePositions.emplace_back(_pos, _ob.m_tile_index);
                             break;
                         default:
@@ -315,28 +313,28 @@ public:
         
         // Now draw each type in batches
         for(const auto& [pos, idx]: rockPositions) {
-            rocksprite.pick(idx, "Obstacle");
-            rocksprite.setPosition(pos);
-            m_window->draw(rocksprite);
+            m_rock_ms->pick(idx, "Obstacle");
+            m_rock_ms->setPosition(pos);
+            m_window->draw(*m_rock_ms);
         }
         
         for(const auto& [pos, idx]: potPositions) {
-            potsprite.pick(idx, "Obstacle");
-            potsprite.setPosition(pos);
-            m_window->draw(potsprite);
+            m_pot_ms->pick(idx, "Obstacle");
+            m_pot_ms->setPosition(pos);
+            m_window->draw(*m_pot_ms);
         }
         
         for(const auto& [pos, idx]: bonePositions) {
-            bonesprite.pick(idx, "Obstacle");
-            bonesprite.setPosition(pos);
-            m_window->draw(bonesprite);
+            m_bone_ms->pick(idx, "Obstacle");
+            m_bone_ms->setPosition(pos);
+            m_window->draw(*m_bone_ms);
         }
         
         // "empty" sprite for detonated objects
         for(const auto& pos: detonationPositions) {
-            detonationsprite.setPosition(pos);
-            detonationsprite.pick(0, "Detonated");
-            m_window->draw(detonationsprite);
+            m_detonation_ms->setPosition(pos);
+            m_detonation_ms->pick(0, "Detonated");
+            m_window->draw(*m_detonation_ms);
         }
 
         // render armed obstacles with debug outlines
@@ -351,9 +349,9 @@ public:
             temp_square.setOutlineThickness(1.f);
             m_window->draw(temp_square);
 
-            bombsprite.setPosition(_pos);
-            bombsprite.pick(0, "Bomb");
-            m_window->draw(bombsprite);
+            m_bomb_ms->setPosition(_pos);
+            m_bomb_ms->pick(0, "Bomb");
+            m_window->draw(*m_bomb_ms);
 
             // get each neighbour entity from the current obstacles neighbour list
             // and draw a blue square around it
@@ -385,9 +383,9 @@ public:
 
             if( _ob.m_enabled) 
             {
-                wallsprite.pick(0, "wall");
-                wallsprite.setPosition(_pos);
-                m_window->draw(wallsprite);
+                m_wall_ms->pick(0, "wall");
+                m_wall_ms->setPosition(_pos);
+                m_window->draw(*m_wall_ms);
             }            
         }
     }
@@ -408,9 +406,9 @@ public:
         for( auto [entity, _pc, _pos]: 
             m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each() ) 
         {
-            playersprite.setPosition({_pos.x, _pos.y - (Settings::PLAYER_SPRITE_SIZE.y / 2.f)});
-            playersprite.pick(1, "player");
-            m_window->draw(playersprite);
+            m_player_ms->setPosition({_pos.x, _pos.y - (Settings::PLAYER_SPRITE_SIZE.y / 2.f)});
+            m_player_ms->pick(1, "player");
+            m_window->draw(*m_player_ms);
         }
     }
 
@@ -457,22 +455,21 @@ public:
     sf::View m_minimap_view;
 
     // creates and manages MultiSprite resources
-    std::shared_ptr<SpriteFactory> m_sprite_factory = std::make_shared<SpriteFactory>();
+    std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory = std::make_shared<Sprites::SpriteFactory>();
 
 private:
     
     // Entity registry
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
     
-    // list of multi sprite objects returned by SpriteFactory
-    std::vector<Sprites::MultiSprite> m_multi_sprites;
-    Sprites::MultiSprite rocksprite;
-    Sprites::MultiSprite potsprite;
-    Sprites::MultiSprite bonesprite;
-    Sprites::MultiSprite detonationsprite;
-    Sprites::MultiSprite bombsprite;
-    Sprites::MultiSprite playersprite;
-    Sprites::MultiSprite wallsprite;
+    // cached multi sprite objects created by SpriteFactory
+    std::optional<Sprites::MultiSprite> m_rock_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::ROCK);
+    std::optional<Sprites::MultiSprite> m_pot_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::POT);
+    std::optional<Sprites::MultiSprite> m_bone_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::BONES);
+    std::optional<Sprites::MultiSprite> m_detonation_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::DETONATED);
+    std::optional<Sprites::MultiSprite> m_bomb_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::BOMB);
+    std::optional<Sprites::MultiSprite> m_wall_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::WALL);
+    std::optional<Sprites::MultiSprite> m_player_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::PLAYER);
 
     // SFML window handle
     std::shared_ptr<sf::RenderWindow> m_window;

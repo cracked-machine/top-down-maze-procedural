@@ -42,7 +42,6 @@ const sf::Vector2f PLAYER_SIZE_2F(PLAYER_SIZE.x, PLAYER_SIZE.y);
 const sf::Vector2u PLAYER_SPRITE_SIZE(16, 32);
 
 
-const float MAX_BOMB_TIME = 3.0f; // seconds
 }
 
 #endif // __SETTINGS_HPP__

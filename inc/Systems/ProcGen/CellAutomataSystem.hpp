@@ -265,7 +265,7 @@ private:
         // 2. apply rules
 
         for( auto [_entt, _ob, _pos, _nb]: m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() ) {
-            if( _ob.m_type == SpriteFactory::Type::WALL) { continue; }
+            if( _ob.m_type == Sprites::SpriteFactory::Type::WALL) { continue; }
             if      ( _nb.count() <= 2)                     { _ob.m_enabled = true; }
             else if ( _nb.count() > 2 and _nb.count() < 5 ) { _ob.m_enabled = false; }
             else                                            { _ob.m_enabled = true; }
