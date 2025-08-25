@@ -265,12 +265,25 @@ public:
         m_window->draw(m_floormap);
     }
 
+    bool isInView(const sf::View& view, const sf::Vector2f& position, const sf::Vector2f& size) {
+        sf::FloatRect viewBounds(
+            view.getCenter() - view.getSize() / 2.f,
+            view.getSize()
+        );
+        sf::FloatRect objectBounds(position, size);
+        
+        return viewBounds.findIntersection(objectBounds) ? true : false;
+    }
+
     void render_obstacles()
     {
 
         for( auto [entity, _ob, _pos, _ob_nb_list]: 
             m_position_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() ) {
-            
+            // Skip rendering objects outside the view
+            if(!isInView(m_window->getView(), _pos, Settings::OBSTACLE_SIZE_2F)) {
+                continue;
+            }            
             // debug mode
             if( m_show_obstacle_debug )
             {
@@ -441,7 +454,7 @@ public:
     // creates and manages MultiSprite resources
     std::shared_ptr<SpriteFactory> m_sprite_factory = std::make_shared<SpriteFactory>();
 
-    private:
+private:
     
     // Entity registry
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
@@ -456,15 +469,11 @@ public:
     Sprites::MultiSprite playersprite;
     Sprites::MultiSprite wallsprite;
 
-
-
     // SFML window handle
     std::shared_ptr<sf::RenderWindow> m_window;
 
     // background tile map
     Sprites::Containers::TileMap m_floormap;
-
-
 
     Sprites::Containers::DebugEntityIds m_debug_mode_entity_text{m_font};
     bool m_show_obstacle_debug = false;
