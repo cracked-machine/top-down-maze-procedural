@@ -157,7 +157,7 @@ public:
             // local view begin - this shows only a `Settings::LOCAL_MAP_VIEW_SIZE` of the game world
             m_window->setView(m_local_view);
             {   
-                render_floormap({0, Settings::MAP_GRID_OFFSET.y * Settings::OBSTACLE_SIZE.y});
+                render_floormap({0, Settings::MAP_GRID_OFFSET.y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y});
                 render_obstacles();
                 render_player();
                 render_flood_waters();
@@ -191,7 +191,7 @@ public:
             // minimap view begin - this show a quarter of the game world but in a much smaller scale
             m_window->setView(m_minimap_view);
             {
-                render_floormap({0, Settings::MAP_GRID_OFFSET.y * Settings::OBSTACLE_SIZE.y});
+                render_floormap({0, Settings::MAP_GRID_OFFSET.y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y});
                 render_obstacles();
                 render_player();
                 render_flood_waters();
@@ -342,7 +342,7 @@ public:
             m_position_updates.view<Cmp::Obstacle, Cmp::Armed, Cmp::Position, Cmp::Neighbours>().each() ) {
 
             // Draw a red square around the obstacle we are standing on
-            sf::RectangleShape temp_square(Settings::OBSTACLE_SIZE_2F);
+            sf::RectangleShape temp_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
             temp_square.setPosition(_pos);
             temp_square.setFillColor(sf::Color::Transparent);
             temp_square.setOutlineColor(sf::Color::Red);
@@ -357,7 +357,7 @@ public:
             // and draw a blue square around it
             for( auto [_dir, _nb_entt] : _ob_nb_list) 
             {
-                sf::RectangleShape nb_square(Settings::OBSTACLE_SIZE_2F);
+                sf::RectangleShape nb_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
 
                 Cmp::Position* _nb_entt_pos = m_reg->try_get<Cmp::Position>( entt::entity(_nb_entt) );
 
@@ -406,7 +406,7 @@ public:
         for( auto [entity, _pc, _pos]: 
             m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each() ) 
         {
-            m_player_ms->setPosition({_pos.x, _pos.y - (Settings::PLAYER_SPRITE_SIZE.y / 2.f)});
+            m_player_ms->setPosition({_pos.x, _pos.y - (m_sprite_factory->PLAYER_SPRITE_SIZE.y / 2.f)});
             m_player_ms->pick(1, "player");
             m_window->draw(*m_player_ms);
         }

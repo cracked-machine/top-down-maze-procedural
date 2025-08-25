@@ -46,12 +46,13 @@ public:
 
     void arm_occupied_location()
     {
-        for (auto [_pc_entt, _pc, _pc_pos] :
-            m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each())
+        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>();
+        for (auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each())
         {
             if( _pc.has_active_bomb ) continue; // skip if player already placed a bomb
-            for (auto [_ob_entt, _obstacle_cmp, _ob_pos_cmp, _ob_nb_list] :
-                m_collision_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each())
+            
+            auto obstacle_collision_view = m_collision_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>();
+            for (auto [_ob_entt, _obstacle_cmp, _ob_pos_cmp, _ob_nb_list] : obstacle_collision_view.each())
             {
                 auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y},  Settings::PLAYER_SIZE_2F);
                 

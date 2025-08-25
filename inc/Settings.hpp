@@ -39,7 +39,7 @@ const std::vector<unsigned int> FLOOR_TILE_POOL {   // res/Pixel Lands Dungeons/
 
 const sf::Vector2u PLAYER_SIZE(16, 16);
 const sf::Vector2f PLAYER_SIZE_2F(PLAYER_SIZE.x, PLAYER_SIZE.y);
-const sf::Vector2u PLAYER_SPRITE_SIZE(16, 32);
+
 
 
 }

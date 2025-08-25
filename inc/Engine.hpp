@@ -354,9 +354,9 @@ private:
             _current_pos += _movement.velocity * dt;
 
             // if(_current_pos.y < Settings::MAP_GRID_OFFSET.y || 
-            //    _current_pos.y > Settings::MAP_GRID_OFFSET.y + (Settings::MAP_GRID_SIZE.y * Settings::OBSTACLE_SIZE.y) ||
+            //    _current_pos.y > Settings::MAP_GRID_OFFSET.y + (Settings::MAP_GRID_SIZE.y * m_render_sys->m_sprite_factory->DEFAULT_SPRITE_SIZE.y) ||
             //    _current_pos.x < 0 || 
-            //    _current_pos.x > Settings::MAP_GRID_OFFSET.x + (Settings::MAP_GRID_SIZE.x * Settings::OBSTACLE_SIZE.x))
+            //    _current_pos.x > Settings::MAP_GRID_OFFSET.x + (Settings::MAP_GRID_SIZE.x * m_render_sys->m_sprite_factory->DEFAULT_SPRITE_SIZE.x))
             // {
             //     // Reset position to starting point if player goes out of bounds
             //     _current_pos = Settings::PLAYER_START_POS;

@@ -47,8 +47,8 @@ public:
                 m_reg->emplace<Cmp::Position>( 
                     entity, 
                     sf::Vector2f{
-                        (x * Settings::OBSTACLE_SIZE.x)  + (ProceduralMaze::Settings::MAP_GRID_OFFSET.x * Settings::OBSTACLE_SIZE.x), 
-                        (y * Settings::OBSTACLE_SIZE.y)  + (ProceduralMaze::Settings::MAP_GRID_OFFSET.y * Settings::OBSTACLE_SIZE.y)
+                        (x * m_sprite_factory->DEFAULT_SPRITE_SIZE.x)  + (ProceduralMaze::Settings::MAP_GRID_OFFSET.x * m_sprite_factory->DEFAULT_SPRITE_SIZE.x), 
+                        (y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y)  + (ProceduralMaze::Settings::MAP_GRID_OFFSET.y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y)
                     } 
                 ); 
                 // track the contiguous creation order of the entity so we can easily find its neighbours later
@@ -74,25 +74,25 @@ public:
     {
         using namespace ProceduralMaze::Settings;
 
-        for(float x = 0 ; x < DISPLAY_SIZE.x; x += Settings::OBSTACLE_SIZE.x)
+        for(float x = 0 ; x < DISPLAY_SIZE.x; x += m_sprite_factory->DEFAULT_SPRITE_SIZE.x)
         {
             // top edge
             add_border_entity({
                 x, 
-                (MAP_GRID_OFFSET.y - 1) * Settings::OBSTACLE_SIZE.y
+                (MAP_GRID_OFFSET.y - 1) * m_sprite_factory->DEFAULT_SPRITE_SIZE.y
             });
             // bottom edge
             add_border_entity({
                 x, 
-                MAP_GRID_OFFSET.y + ((MAP_GRID_SIZE.y + 2) * Settings::OBSTACLE_SIZE.y) - 2
+                MAP_GRID_OFFSET.y + ((MAP_GRID_SIZE.y + 2) * m_sprite_factory->DEFAULT_SPRITE_SIZE.y) - 2
             });
         }
-        for( float y = 0; y < DISPLAY_SIZE.y; y += Settings::OBSTACLE_SIZE.y)
+        for( float y = 0; y < DISPLAY_SIZE.y; y += m_sprite_factory->DEFAULT_SPRITE_SIZE.y)
         {
             // left edge 
             add_border_entity({0, y});
             // right edge
-            add_border_entity({static_cast<float>(DISPLAY_SIZE.x) -  Settings::OBSTACLE_SIZE.x, y});
+            add_border_entity({static_cast<float>(DISPLAY_SIZE.x) -  m_sprite_factory->DEFAULT_SPRITE_SIZE.x, y});
         }
 
     }
