@@ -71,11 +71,11 @@ private:
             water_level.m_level -= (dt * m_flood_velocity);
         }
         
-        // Check drowning - fixed logic: player drowns when water level is ABOVE player
+        // Check drowning - {0,0} is top-left so player drowns when water level is BELOW player position
         for(auto [_, water_level]: water_view.each()) {
             for(auto [player_entity, player_char, position]: player_view.each()) 
             {
-                if(water_level.m_level <= (position.y - 16)) // Water drowns player when water level is at or above player position
+                if(water_level.m_level <= position.y) // Water drowns player when water level is at or above player position
                 {
                     // Check if enough time has passed since last damage
                     auto it = m_last_damage_time.find(player_entity);

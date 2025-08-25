@@ -243,7 +243,11 @@ public:
                 m_window->draw(minimap_border);           
 
                 for(auto [_entt, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {
-                    render_health_overlay(_pc.health, {20.f, 20.f},  {200.f, 20.f});
+                    render_health_overlay(_pc.health, {40.f, 20.f},  {200.f, 20.f});
+                }
+
+                for(auto [_entt, water_level]: m_reg->view<Cmp::WaterLevel>().each()) {
+                    render_water_level_meter_overlay(water_level.m_level, {40.f, 70.f},  {200.f, 20.f});
                 }
 
             } 
@@ -256,16 +260,55 @@ public:
 
     void render_health_overlay(float health_value, sf::Vector2f pos, sf::Vector2f size)
     {
+        // text
+        healthlvl_meter_text.setPosition(pos);
+        healthlvl_meter_text.setFillColor(sf::Color::White);
+        healthlvl_meter_text.setOutlineColor(sf::Color::Black);
+        healthlvl_meter_text.setOutlineThickness(2.f);
+        m_window->draw(healthlvl_meter_text);
+
+        // bar fill
+        sf::Vector2f healthbar_offset{100.f, 10.f};
         auto healthbar = sf::RectangleShape({((size.x / 100) * health_value), size.y});
-        healthbar.setPosition(pos);
+        healthbar.setPosition(pos + healthbar_offset);
         healthbar.setFillColor(sf::Color::Red);
         m_window->draw(healthbar);
+
+        // bar outline
         auto healthbar_border = sf::RectangleShape(size);
-        healthbar_border.setPosition(pos);
+        healthbar_border.setPosition(pos + healthbar_offset);
         healthbar_border.setFillColor(sf::Color::Transparent);
         healthbar_border.setOutlineColor(sf::Color::Black);
         healthbar_border.setOutlineThickness(5.f);
         m_window->draw(healthbar_border);
+    }
+
+    void render_water_level_meter_overlay(float water_level, sf::Vector2f pos, sf::Vector2f size)
+    {
+        // text 
+        waterlvl_meter_text.setPosition(pos);
+        waterlvl_meter_text.setFillColor(sf::Color::White);
+        waterlvl_meter_text.setOutlineColor(sf::Color::Black);
+        waterlvl_meter_text.setOutlineThickness(2.f);
+        m_window->draw(waterlvl_meter_text);
+
+        // bar fill
+        sf::Vector2f waterlvl_meter_offset{100.f, 10.f};
+        // water meter level is represented as a percentage (0-100) of the screen display y-axis
+        // note: {0,0} is top left so we need to invert the Y position
+        float meter_meter_level = size.x - ((size.x / Settings::DISPLAY_SIZE.y) * water_level);
+        auto waterlvlbar = sf::RectangleShape({ meter_meter_level, size.y});
+        waterlvlbar.setPosition(pos + waterlvl_meter_offset);
+        waterlvlbar.setFillColor(sf::Color::Blue);
+        m_window->draw(waterlvlbar);
+
+        // bar outline
+        auto waterlvlbar_border = sf::RectangleShape(size);
+        waterlvlbar_border.setPosition(pos + waterlvl_meter_offset);
+        waterlvlbar_border.setFillColor(sf::Color::Transparent);
+        waterlvlbar_border.setOutlineColor(sf::Color::Black);
+        waterlvlbar_border.setOutlineThickness(5.f);
+        m_window->draw(waterlvlbar_border);
     }
 
 
@@ -406,10 +449,13 @@ public:
     {
         for( auto [_, _wl]: m_flood_updates.view<Cmp::WaterLevel>().each() ) 
         {
-            m_window->draw(Sprites::FloodWaters{
-                sf::Vector2f{Settings::DISPLAY_SIZE},
-                {0, _wl.m_level}
-            });
+            if( _wl.m_level > 0 )
+            {
+                m_window->draw(Sprites::FloodWaters{
+                    sf::Vector2f{Settings::DISPLAY_SIZE},
+                    {0, _wl.m_level}
+                });
+            }
         }
     }
 
@@ -418,8 +464,8 @@ public:
         for( auto [entity, _pc, _pos]: 
             m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each() ) 
         {
-            m_player_ms->setPosition({_pos.x, _pos.y - (m_sprite_factory->PLAYER_SPRITE_SIZE.y / 2.f)});
-            m_player_ms->pick(1, "player");
+            m_player_ms->setPosition({_pos.x, _pos.y});
+            m_player_ms->pick(0, "player");
             m_window->draw(*m_player_ms);
         }
     }
@@ -491,9 +537,12 @@ private:
 
     Sprites::Containers::DebugEntityIds m_debug_mode_entity_text{m_font};
     bool m_show_obstacle_debug = false;
-
+    
     Cmp::Font m_font = Cmp::Font("res/tuffy.ttf");
-// 
+    sf::Text healthlvl_meter_text{m_font,   "Health:", 30};
+    sf::Text waterlvl_meter_text{m_font,    "Flood:", 30};
+
+    
 };
 
 } // namespace ProceduralMaze::Systems

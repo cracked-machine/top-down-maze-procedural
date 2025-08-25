@@ -16,7 +16,7 @@ public:
     : sf::RectangleShape(size)
     {
         sf::RectangleShape::setPosition(pos);
-        sf::RectangleShape::setFillColor(sf::Color(0,0,255, 100));
+        sf::RectangleShape::setFillColor(sf::Color(64,160,255, 100));
     }
     
 };

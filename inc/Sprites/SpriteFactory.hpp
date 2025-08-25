@@ -33,7 +33,7 @@ public:
         BOMB = 6
     };
 
-    const sf::Vector2u PLAYER_SPRITE_SIZE = {16, 32};
+    const sf::Vector2u PLAYER_SPRITE_SIZE = {16, 16};
     const sf::Vector2u DEFAULT_SPRITE_SIZE = {16, 16};
 
 private:
@@ -89,7 +89,8 @@ private:
         {SpriteFactory::Type::POT,      "POT",   "res/Pixel Lands Dungeons/objects.png", {337, 339, 341}, DEFAULT_SPRITE_SIZE, 1.f},
         {SpriteFactory::Type::BONES,    "BONES", "res/Pixel Lands Dungeons/objects.png", {270, 271}, DEFAULT_SPRITE_SIZE, 1.f},
         {SpriteFactory::Type::DETONATED, "DETONATED", "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", {42}, DEFAULT_SPRITE_SIZE},
-        {SpriteFactory::Type::PLAYER,    "PLAYER", "res/players.png", {0, 1, 2}, PLAYER_SPRITE_SIZE},
+        // {SpriteFactory::Type::PLAYER,    "PLAYER", "res/players.png", {0, 1, 2}, PLAYER_SPRITE_SIZE},
+        {SpriteFactory::Type::PLAYER,    "PLAYER", "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", {84, 85,86,87,88,96,97,98,99,100}, PLAYER_SPRITE_SIZE},
         {SpriteFactory::Type::BOMB,      "BOMB",   "res/bomb.png", {0}, DEFAULT_SPRITE_SIZE}
     };
 
