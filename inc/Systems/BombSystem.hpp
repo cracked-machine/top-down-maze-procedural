@@ -2,6 +2,7 @@
 #define __COMPONENTS_BOMB_SYSTEM_HPP__
 
 #include <Armed.hpp>
+#include <Loot.hpp>
 #include <Neighbours.hpp>
 #include <Obstacle.hpp>
 #include <PlayableCharacter.hpp>
@@ -10,6 +11,7 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Settings.hpp>
+#include <SpriteFactory.hpp>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
@@ -21,7 +23,15 @@ namespace ProceduralMaze::Sys {
 // this currently only supports one bomb at a time
 class BombSystem {
 public:
-    BombSystem(std::shared_ptr<entt::basic_registry<entt::entity>> reg) : m_reg(reg) { }
+    BombSystem(
+        std::shared_ptr<entt::basic_registry<entt::entity>> reg,
+        std::shared_ptr<Sprites::SpriteFactory> sprite_factory
+    ) 
+    : 
+        m_reg(reg),
+        m_sprite_factory(sprite_factory)
+    {
+    }
 
     void update()
     {
@@ -62,7 +72,24 @@ public:
                     // tell the render system to draw detonated obstacle differently
                     nb_obstacle->m_broken = true;
                     nb_obstacle->m_enabled = false;
+
+                    // add loot to any broken pot neighbour entities
+                    if( nb_obstacle->m_type == Sprites::SpriteFactory::Type::POT)
+                    {
+                        auto random_selected_loot_metadata = m_sprite_factory->get_random_metadata(std::vector<Sprites::SpriteFactory::Type>{
+                                Sprites::SpriteFactory::Type::EXTRA_HEALTH,
+                                Sprites::SpriteFactory::Type::EXTRA_BOMBS,
+                                Sprites::SpriteFactory::Type::INFINI_BOMBS,
+                                Sprites::SpriteFactory::Type::CHAIN_BOMBS,
+                                Sprites::SpriteFactory::Type::LOWER_WATER
+                            });
+                        m_reg->emplace<Cmp::Loot>(neighbour_entity,
+                            random_selected_loot_metadata->get_type(),
+                            random_selected_loot_metadata->pick_random_texture_index()
+                        );
+                    }
                 }
+
             }
             // SPDLOG_INFO("Explosion zone is {},{} {},{}", explosion_zone.position.x, explosion_zone.position.y, explosion_zone.size.x, explosion_zone.size.y);
             // Check if any player is in the explosion area and damage them
@@ -101,6 +128,7 @@ public:
 
 private:
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
+    std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory;
     sf::Time detonation_delay{sf::seconds(3)};
     int player_damage = 10; // Amount of damage to deal to the player when hit by explosion
     const sf::Vector2f max_explosion_zone_size{Settings::OBSTACLE_SIZE.x * 3.f, Settings::OBSTACLE_SIZE.y * 3.f};

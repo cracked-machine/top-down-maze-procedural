@@ -5,6 +5,7 @@
 #include <BasicSprite.hpp>
 #include <DebugEntityIds.hpp>
 #include <FloodWater.hpp>
+#include <Loot.hpp>
 #include <MultiSprite.hpp>
 #include <Neighbours.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
@@ -72,7 +73,7 @@ public:
         );
         m_minimap_view.setViewport( sf::FloatRect({0.75f, 0.f}, {0.25f, 0.25f}) );
 
-        // we should ensure these member variables are initialized
+        // we should ensure these MultiSprites are initialized before continuing
         if( not m_rock_ms ) { SPDLOG_CRITICAL("Unable to get ROCK multisprite from SpriteFactory"); std::get_terminate(); }
         if( not m_pot_ms ) { SPDLOG_CRITICAL("Unable to get POT multisprite from SpriteFactory"); std::get_terminate(); }
         if( not m_bone_ms ) { SPDLOG_CRITICAL("Unable to get BONE multisprite from SpriteFactory"); std::get_terminate(); }
@@ -80,6 +81,12 @@ public:
         if( not m_bomb_ms ) { SPDLOG_CRITICAL("Unable to get BOMB multisprite from SpriteFactory"); std::get_terminate(); }
         if( not m_detonation_ms ) { SPDLOG_CRITICAL("Unable to get DETONATION multisprite from SpriteFactory"); std::get_terminate(); }
         if( not m_wall_ms ) { SPDLOG_CRITICAL("Unable to get WALL multisprite from SpriteFactory"); std::get_terminate(); }
+
+        if( not m_extra_health_ms ) { SPDLOG_CRITICAL("Unable to get EXTRA_HEALTH multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_extra_bombs_ms ) { SPDLOG_CRITICAL("Unable to get EXTRA_BOMBS multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_infinite_bombs_ms ) { SPDLOG_CRITICAL("Unable to get INFINI_BOMBS multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_chain_bombs_ms ) { SPDLOG_CRITICAL("Unable to get CHAIN_BOMBS multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_lower_water_ms ) { SPDLOG_CRITICAL("Unable to get LOWER_WATER multisprite from SpriteFactory"); std::get_terminate(); }
 
         SPDLOG_INFO("RenderSystem initialised..."); 
     }
@@ -413,6 +420,40 @@ public:
             m_window->draw(*m_detonation_ms);
         }
 
+        auto loot_view = m_position_updates.view<Cmp::Obstacle, Cmp::Loot, Cmp::Position>();
+        for( auto [entity, obstacles, loot, position] : loot_view.each() ) 
+        {    
+            switch( loot.m_type ) 
+            {
+                case ProceduralMaze::Sprites::SpriteFactory::Type::EXTRA_HEALTH:
+                    m_extra_health_ms->setPosition(position);
+                    m_extra_health_ms->pick(loot.m_tile_index, "EXTRA_HEALTH");
+                    m_window->draw(*m_extra_health_ms);
+                    break;
+                case ProceduralMaze::Sprites::SpriteFactory::Type::EXTRA_BOMBS:
+                    m_extra_bombs_ms->setPosition(position);
+                    m_extra_bombs_ms->pick(loot.m_tile_index, "EXTRA_BOMBS");
+                    m_window->draw(*m_extra_bombs_ms);
+                    break;
+                case ProceduralMaze::Sprites::SpriteFactory::Type::INFINI_BOMBS:
+                    m_infinite_bombs_ms->setPosition(position);
+                    m_infinite_bombs_ms->pick(loot.m_tile_index, "INFINI_BOMBS");
+                    m_window->draw(*m_infinite_bombs_ms);
+                    break;                        
+                case ProceduralMaze::Sprites::SpriteFactory::Type::CHAIN_BOMBS:
+                    m_chain_bombs_ms->setPosition(position);
+                    m_chain_bombs_ms->pick(loot.m_tile_index, "CHAIN_BOMBS");
+                    m_window->draw(*m_chain_bombs_ms);
+                    break;                        
+                case ProceduralMaze::Sprites::SpriteFactory::Type::LOWER_WATER:
+                    m_lower_water_ms->setPosition(position);
+                    m_lower_water_ms->pick(loot.m_tile_index, "LOWER_WATER");
+                    m_window->draw(*m_lower_water_ms);
+                    break;                        
+                default:
+                    break;
+            }
+        }
         // render armed obstacles with debug outlines
         for( auto [entity, _ob, _armed, _pos, _ob_nb_list]: 
             m_position_updates.view<Cmp::Obstacle, Cmp::Armed, Cmp::Position, Cmp::Neighbours>().each() ) {
@@ -547,6 +588,12 @@ private:
     std::optional<Sprites::MultiSprite> m_bomb_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::BOMB);
     std::optional<Sprites::MultiSprite> m_wall_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::WALL);
     std::optional<Sprites::MultiSprite> m_player_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::PLAYER);
+
+    std::optional<Sprites::MultiSprite> m_extra_health_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::EXTRA_HEALTH);
+    std::optional<Sprites::MultiSprite> m_extra_bombs_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::EXTRA_BOMBS);
+    std::optional<Sprites::MultiSprite> m_infinite_bombs_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::INFINI_BOMBS);
+    std::optional<Sprites::MultiSprite> m_chain_bombs_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::CHAIN_BOMBS);
+    std::optional<Sprites::MultiSprite> m_lower_water_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::LOWER_WATER);
 
     // SFML window handle
     std::shared_ptr<sf::RenderWindow> m_window;

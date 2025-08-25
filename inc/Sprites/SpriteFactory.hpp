@@ -30,7 +30,12 @@ public:
         BONES = 3,
         DETONATED = 4,
         PLAYER = 5,
-        BOMB = 6
+        BOMB = 6,
+        EXTRA_HEALTH = 7,
+        EXTRA_BOMBS = 8,
+        INFINI_BOMBS = 9,
+        CHAIN_BOMBS = 10,
+        LOWER_WATER = 11
     };
 
     const sf::Vector2u PLAYER_SPRITE_SIZE = {16, 16};
@@ -84,22 +89,25 @@ private:
 
     // Metadata object list
     std::vector<SpriteFactory::MetaData> m_metadata_list = {
-        {SpriteFactory::Type::WALL,     "WALL",  "res/walls_and_doors.png", {0,1,2,3,4, 5, 6}, DEFAULT_SPRITE_SIZE},
-        {SpriteFactory::Type::ROCK,     "ROCK",  "res/Pixel Lands Dungeons/objects.png", {147,148}, DEFAULT_SPRITE_SIZE, 40.f,},
-        {SpriteFactory::Type::POT,      "POT",   "res/Pixel Lands Dungeons/objects.png", {337, 339, 341}, DEFAULT_SPRITE_SIZE, 1.f},
-        {SpriteFactory::Type::BONES,    "BONES", "res/Pixel Lands Dungeons/objects.png", {270, 271}, DEFAULT_SPRITE_SIZE, 1.f},
-        {SpriteFactory::Type::DETONATED, "DETONATED", "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", {42}, DEFAULT_SPRITE_SIZE},
-        // {SpriteFactory::Type::PLAYER,    "PLAYER", "res/players.png", {0, 1, 2}, PLAYER_SPRITE_SIZE},
-        {SpriteFactory::Type::PLAYER,    "PLAYER", "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", {84, 85,86,87,88,96,97,98,99,100}, PLAYER_SPRITE_SIZE},
-        {SpriteFactory::Type::BOMB,      "BOMB",   "res/bomb.png", {0}, DEFAULT_SPRITE_SIZE}
+        {SpriteFactory::Type::WALL,           "WALL",  "res/walls_and_doors.png", {0,1,2,3,4, 5, 6}, DEFAULT_SPRITE_SIZE},
+        {SpriteFactory::Type::ROCK,           "ROCK",  "res/Pixel Lands Dungeons/objects.png", {147,148}, DEFAULT_SPRITE_SIZE, 40.f,},
+        {SpriteFactory::Type::POT,            "POT",   "res/Pixel Lands Dungeons/objects.png", {337, 339, 341}, DEFAULT_SPRITE_SIZE, 1.f},
+        {SpriteFactory::Type::BONES,          "BONES", "res/Pixel Lands Dungeons/objects.png", {270, 271}, DEFAULT_SPRITE_SIZE, 1.f},
+        {SpriteFactory::Type::DETONATED,      "DETONATED", "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", {42}, DEFAULT_SPRITE_SIZE},
+        {SpriteFactory::Type::PLAYER,         "PLAYER", "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", {84, 85,86,87,88,96,97,98,99,100}, PLAYER_SPRITE_SIZE},
+        {SpriteFactory::Type::BOMB,           "BOMB",   "res/bomb.png", {0}, DEFAULT_SPRITE_SIZE},
+        {SpriteFactory::Type::EXTRA_HEALTH,   "EXTRA_HEALTH",   "res/Pixel Lands Dungeons/objects.png", {32}, DEFAULT_SPRITE_SIZE, 10.f},
+        {SpriteFactory::Type::EXTRA_BOMBS,    "EXTRA_BOMBS",   "res/Pixel Lands Dungeons/objects.png", {67 }, DEFAULT_SPRITE_SIZE, 20.f},
+        {SpriteFactory::Type::INFINI_BOMBS,   "INFINI_BOMBS",   "res/Pixel Lands Dungeons/objects.png", {35 }, DEFAULT_SPRITE_SIZE, 1.f},
+        {SpriteFactory::Type::CHAIN_BOMBS,   "CHAIN_BOMBS",   "res/Pixel Lands Dungeons/objects.png", {34 }, DEFAULT_SPRITE_SIZE, 1.f},
+        {SpriteFactory::Type::LOWER_WATER,   "LOWER_WATER",   "res/Pixel Lands Dungeons/objects.png", {33 }, DEFAULT_SPRITE_SIZE, 10.f}
     };
-
 
 public:
 
     // Pick a random metadata object from a list of types using a "roulette wheel selection" method:
-    // We get a random number between 0 and total weights.
-    // We then iterate through the weights, accumulating them until we find the weight for the corresponding type
+    // Each Type has an associated weight. We get a random number between 0 and total weights.
+    // We then accumulate the weights in turn comparing it against the random number
     std::optional<SpriteFactory::MetaData> get_random_metadata(std::vector<Type> type_list, std::vector<float> weights = {}) const
     {
         if (type_list.empty()) { SPDLOG_WARN("Type list is empty");  return std::nullopt; }
