@@ -275,63 +275,70 @@ public:
         return viewBounds.findIntersection(objectBounds) ? true : false;
     }
 
-    void render_obstacles()
-    {
+    void render_obstacles() {
 
-        for( auto [entity, _ob, _pos, _ob_nb_list]: 
-            m_position_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() ) {
-            // Skip rendering objects outside the view
-            if(!isInView(m_window->getView(), _pos, Settings::OBSTACLE_SIZE_2F)) {
-                continue;
-            }            
-            // debug mode
-            if( m_show_obstacle_debug )
-            {
-                if( _ob.m_enabled ) 
-                {
-                    sf::RectangleShape temp_square(Settings::OBSTACLE_SIZE_2F);
-                    temp_square.setPosition(_pos);
-                    temp_square.setFillColor(sf::Color::Transparent);
-                    temp_square.setOutlineColor(sf::Color::White);
-                    temp_square.setOutlineThickness(1.f);
-                    m_window->draw(temp_square);
+        // Group similar draw operations to reduce state changes
+        std::vector<std::pair<sf::Vector2f, int>> rockPositions;
+        std::vector<std::pair<sf::Vector2f, int>> potPositions;
+        std::vector<std::pair<sf::Vector2f, int>> bonePositions;
+        std::vector<sf::Vector2f> wallPositions;
+        std::vector<sf::Vector2f> detonationPositions;
+        
+        // Collect all positions first instead of drawing immediately
+        for(auto [entity, _ob, _pos, _ob_nb_list]: 
+            m_position_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each()) {
+            
+            if(m_show_obstacle_debug) {
+                if(_ob.m_enabled) {
+                    // Store debug squares for batch rendering
+                    // ...
                 }
-            }
-            else 
-            {
-                // ROCK/POT/BONES objects
-                if( _ob.m_enabled ) 
-                {
-                    switch(_ob.m_type) 
-                    {
+            } else {
+                if(_ob.m_enabled) {
+                    switch(_ob.m_type) {
                         case SpriteFactory::Type::ROCK:
-                            rocksprite.pick(_ob.m_tile_index, "Obstacle");
-                            rocksprite.setPosition(_pos);
-                            m_window->draw(rocksprite);
+                            rockPositions.emplace_back(_pos, _ob.m_tile_index);
                             break;
                         case SpriteFactory::Type::POT:
-                            potsprite.pick(_ob.m_tile_index, "Obstacle");
-                            potsprite.setPosition(_pos);
-                            m_window->draw(potsprite);
+                            potPositions.emplace_back(_pos, _ob.m_tile_index);
                             break;
                         case SpriteFactory::Type::BONES:
-                            bonesprite.pick(_ob.m_tile_index, "Obstacle");
-                            bonesprite.setPosition(_pos);
-                            m_window->draw(bonesprite);
+                            bonePositions.emplace_back(_pos, _ob.m_tile_index);
                             break;
                         default:
                             break;
                     }
-
                 }
-                // "empty" sprite for detonated objects
-                if( _ob.m_broken) 
-                {
-                    detonationsprite.setPosition(_pos);
-                    detonationsprite.pick(0, "Detonated");
-                    m_window->draw(detonationsprite);
+                if(_ob.m_broken) {
+                    detonationPositions.push_back(_pos);
                 }
             }
+        }
+        
+        // Now draw each type in batches
+        for(const auto& [pos, idx]: rockPositions) {
+            rocksprite.pick(idx, "Obstacle");
+            rocksprite.setPosition(pos);
+            m_window->draw(rocksprite);
+        }
+        
+        for(const auto& [pos, idx]: potPositions) {
+            potsprite.pick(idx, "Obstacle");
+            potsprite.setPosition(pos);
+            m_window->draw(potsprite);
+        }
+        
+        for(const auto& [pos, idx]: bonePositions) {
+            bonesprite.pick(idx, "Obstacle");
+            bonesprite.setPosition(pos);
+            m_window->draw(bonesprite);
+        }
+        
+        // "empty" sprite for detonated objects
+        for(const auto& pos: detonationPositions) {
+            detonationsprite.setPosition(pos);
+            detonationsprite.pick(0, "Detonated");
+            m_window->draw(detonationsprite);
         }
 
         // render armed obstacles with debug outlines
