@@ -1,7 +1,6 @@
 #ifndef __SETTINGS_HPP__
 #define __SETTINGS_HPP__
 
-#include <Brick.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <string>

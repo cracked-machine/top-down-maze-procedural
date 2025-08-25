@@ -17,7 +17,6 @@
 
 #include <memory>
 
-#include <Sprites/Brick.hpp>
 #include <Sprites/TileMap.hpp>
 #include <Components/System.hpp>
 #include <Components/Obstacle.hpp>

@@ -27,7 +27,6 @@
 #include <PlayableCharacter.hpp>
 #include <Position.hpp>
 #include <Settings.hpp>
-#include <Sprites/Brick.hpp>
 #include <Sprites/Player.hpp>
 #include <System.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -161,7 +160,7 @@ public:
             // local view begin - this shows only a `Settings::LOCAL_MAP_VIEW_SIZE` of the game world
             m_window->setView(m_local_view);
             {   
-                render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
+                render_floormap({0, Settings::MAP_GRID_OFFSET.y * Settings::OBSTACLE_SIZE.y});
                 render_obstacles();
                 render_player();
                 render_flood_waters();
@@ -195,7 +194,7 @@ public:
             // minimap view begin - this show a quarter of the game world but in a much smaller scale
             m_window->setView(m_minimap_view);
             {
-                render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
+                render_floormap({0, Settings::MAP_GRID_OFFSET.y * Settings::OBSTACLE_SIZE.y});
                 render_obstacles();
                 render_player();
                 render_flood_waters();

@@ -14,7 +14,6 @@
 #include <Components/System.hpp>
 #include <Components/Movement.hpp>
 
-#include <Sprites/Brick.hpp>
 #include <Sprites/Player.hpp>
 
 namespace ProceduralMaze {

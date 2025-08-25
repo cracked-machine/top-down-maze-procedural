@@ -13,8 +13,6 @@
 #include <Components/Position.hpp>
 #include <memory>
 #include <spdlog/spdlog.h>
-
-#include <Sprites/Brick.hpp>
 #include <Components/Random.hpp>
 
 namespace ProceduralMaze::Sys::ProcGen {

@@ -2,7 +2,6 @@
 #define __SPRITES_DEBUG_ENTITY_IDS_HPP__
 
 #include <SFML/Graphics.hpp>
-#include "Brick.hpp"
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System/Angle.hpp>
 #include <Settings.hpp>

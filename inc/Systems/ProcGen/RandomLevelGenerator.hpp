@@ -15,7 +15,7 @@
 #include <Components/Obstacle.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
-#include <Sprites/Brick.hpp>
+
 
 namespace ProceduralMaze::Sys::ProcGen {
 
@@ -47,8 +47,8 @@ public:
                 m_reg->emplace<Cmp::Position>( 
                     entity, 
                     sf::Vector2f{
-                        (x * Sprites::Brick::WIDTH)  + (ProceduralMaze::Settings::MAP_GRID_OFFSET.x * Sprites::Brick::WIDTH), 
-                        (y * Sprites::Brick::HEIGHT)  + (ProceduralMaze::Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT)
+                        (x * Settings::OBSTACLE_SIZE.x)  + (ProceduralMaze::Settings::MAP_GRID_OFFSET.x * Settings::OBSTACLE_SIZE.x), 
+                        (y * Settings::OBSTACLE_SIZE.y)  + (ProceduralMaze::Settings::MAP_GRID_OFFSET.y * Settings::OBSTACLE_SIZE.y)
                     } 
                 ); 
                 // track the contiguous creation order of the entity so we can easily find its neighbours later
@@ -71,25 +71,25 @@ public:
     {
         using namespace ProceduralMaze::Settings;
 
-        for(float x = 0 ; x < DISPLAY_SIZE.x; x += Sprites::Brick::WIDTH)
+        for(float x = 0 ; x < DISPLAY_SIZE.x; x += Settings::OBSTACLE_SIZE.x)
         {
             // top edge
             add_border_entity({
                 x, 
-                (MAP_GRID_OFFSET.y - 1) * Sprites::Brick::HEIGHT
+                (MAP_GRID_OFFSET.y - 1) * Settings::OBSTACLE_SIZE.y
             });
             // bottom edge
             add_border_entity({
                 x, 
-                MAP_GRID_OFFSET.y + ((MAP_GRID_SIZE.y + 2) * Sprites::Brick::HEIGHT) - 2
+                MAP_GRID_OFFSET.y + ((MAP_GRID_SIZE.y + 2) * Settings::OBSTACLE_SIZE.y) - 2
             });
         }
-        for( float y = 0; y < DISPLAY_SIZE.y; y += Sprites::Brick::HEIGHT)
+        for( float y = 0; y < DISPLAY_SIZE.y; y += Settings::OBSTACLE_SIZE.y)
         {
             // left edge 
             add_border_entity({0, y});
             // right edge
-            add_border_entity({static_cast<float>(DISPLAY_SIZE.x) -  Sprites::Brick::WIDTH, y});
+            add_border_entity({static_cast<float>(DISPLAY_SIZE.x) -  Settings::OBSTACLE_SIZE.x, y});
         }
 
     }
