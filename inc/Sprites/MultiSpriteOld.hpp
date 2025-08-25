@@ -1,24 +1,17 @@
-#ifndef __SPRITES_MULTISPRITE2_HPP__
-#define __SPRITES_MULTISPRITE2_HPP__    
+#ifndef __SPRITES_MULTISPRITE_HPP__
+#define __SPRITES_MULTISPRITE_HPP__    
 
-// #include <Components/Random.hpp>
+#include <Random.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include <SFML/Graphics/Transform.hpp>
-#include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/System/Vector2.hpp>
-
 #include <algorithm>
-#include <cstddef>
-#include <cstdint>
-#include <filesystem>
-
+#include <iterator>
 #include <spdlog/spdlog.h>
-#include <string>
 #include <vector>
-
+#include <map>
 
 namespace ProceduralMaze::Sprites {
 
@@ -26,20 +19,16 @@ class MultiSprite : public sf::Drawable, public sf::Transformable
 {
 public:
 
-    MultiSprite() = default;
-
-    void add_sprite(
-        const std::filesystem::path &tilemap_path,
-        std::vector<uint32_t> tilemap_picks,
-        const sf::Vector2u &tileSize = sf::Vector2u{16, 16},
-        std::string name = ""
+    MultiSprite(
+        const std::string &tilemap_path, 
+        const std::vector<unsigned int> &tilemap_picks,
+        const sf::Vector2u &tileSize = sf::Vector2u{16, 16}
     )
+        : m_tilemap_picks(tilemap_picks)
     {
         if (!m_tilemap_texture.loadFromFile(tilemap_path)) {
-            SPDLOG_CRITICAL("Unable to load tile map {}", tilemap_path.string()); std::terminate();
+            SPDLOG_CRITICAL("Unable to load tile map {}", tilemap_path);
         }
-
-        SPDLOG_INFO("Processing multisprite for {}", name);
 
         for (const auto &tile_idx : tilemap_picks) {
 
@@ -61,39 +50,24 @@ public:
             current_va[3].texCoords = sf::Vector2f(tu * tileSize.x, (tv + 1) * tileSize.y);
             current_va[4].texCoords = sf::Vector2f((tu + 1) * tileSize.x, tv * tileSize.y);
             current_va[5].texCoords = sf::Vector2f((tu + 1) * tileSize.x, (tv + 1) * tileSize.y);
-            SPDLOG_INFO("  - Added tile index {} (tu={},tv={})", tile_idx, tu, tv);
 
-            m_va_list.push_back(current_va);
-
+            m_vertex_map[tile_idx] = current_va;
         }
+
         SPDLOG_INFO("Requested {} tiles ... Created {} sprites from texture {}: ", 
-            std::distance(tilemap_picks.begin(), std::unique(tilemap_picks.begin(), 
-            tilemap_picks.end())), 
-            m_va_list.size(), tilemap_path.string());
+            std::distance(m_tilemap_picks.begin(), std::unique(m_tilemap_picks.begin(), m_tilemap_picks.end())), 
+            m_vertex_map.size(), tilemap_path);
+
     }
-  
-    void pick(unsigned int idx, std::string caller)
+    // use the index from the `tilemap_picks` vector to select a loaded tile from the map
+    void pick(unsigned int tile_key) 
     {
-        if (m_va_list.empty()) {
-            SPDLOG_WARN("pick() called on empty sprite list");
-            return;
-        }
-        
-        if (idx > m_va_list.size() - 1) {
-            m_selected_vertices = m_va_list[0];
-            SPDLOG_WARN("{}: pick() index {} out of range, selecting index 0 instead. m_va_list size is {}", caller, idx, m_va_list.size());
-        }
-        else {
-            m_selected_vertices = m_va_list[idx];
-        }
-        
+        m_selected_vertices = m_vertex_map[tile_key];
     }
- 
-    sf::Texture m_tilemap_texture;
 private:
+
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override
     {
-        if (m_selected_vertices.getVertexCount() == 0) { SPDLOG_CRITICAL("No vertex array selected. Use pick() to select one."); std::terminate(); }
         // apply the transform
         states.transform *= getTransform();
 
@@ -103,15 +77,14 @@ private:
         // draw the vertex array
         target.draw(m_selected_vertices, states);
     }
-private:
-
-    std::vector<sf::VertexArray> m_va_list;
-    // select the first vertex array by default
-    sf::VertexArray m_selected_vertices;
+    std::vector<unsigned int> m_tilemap_picks;
+    sf::VertexArray m_selected_vertices{};
+    sf::Texture m_tilemap_texture;
+    std::map<unsigned int, sf::VertexArray> m_vertex_map;
 
 };
 
 } // namespace ProceduralMaze::Sprites
 
 
-#endif // __SPRITES_MULTISPRITE2_HPP__
+#endif // __SPRITES_MULTISPRITE_HPP__

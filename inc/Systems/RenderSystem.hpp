@@ -5,17 +5,22 @@
 #include <BasicSprite.hpp>
 #include <DebugEntityIds.hpp>
 #include <FloodWater.hpp>
+#include <MultiSprite.hpp>
 #include <Neighbours.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 
 #include <Font.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <SpriteFactory.hpp>
 #include <WaterLevel.hpp>
+#include <cstddef>
+#include <entt/entity/fwd.hpp>
 #include <memory>
 
 #include <Obstacle.hpp>
@@ -28,7 +33,6 @@
 #include <Systems/BaseSystem.hpp>
 #include <spdlog/spdlog.h>
 #include <TileMap.hpp>
-#include <MultiSprite.hpp>
 
 namespace ProceduralMaze::Sys {
 
@@ -68,6 +72,18 @@ public:
             Settings::MINI_MAP_VIEW_SIZE 
         );
         m_minimap_view.setViewport( sf::FloatRect({0.75f, 0.f}, {0.25f, 0.25f}) );
+
+
+        m_multi_sprites = m_sprite_factory->create_multisprites_list();
+
+        rocksprite = m_multi_sprites[static_cast<uint32_t>(SpriteFactory::Type::ROCK)];
+        potsprite = m_multi_sprites[static_cast<uint32_t>(SpriteFactory::Type::POT)];
+        bonesprite = m_multi_sprites[static_cast<uint32_t>(SpriteFactory::Type::BONES)];
+        playersprite = m_multi_sprites[static_cast<uint32_t>(SpriteFactory::Type::PLAYER)];
+        bombsprite = m_multi_sprites[static_cast<uint32_t>(SpriteFactory::Type::BOMB)];
+        detonationsprite = m_multi_sprites[static_cast<uint32_t>(SpriteFactory::Type::DETONATED)];
+        wallsprite = m_multi_sprites[static_cast<uint32_t>(SpriteFactory::Type::WALL)];
+
 
         SPDLOG_DEBUG("RenderSystem()"); 
     }
@@ -146,7 +162,7 @@ public:
             m_window->setView(m_local_view);
             {   
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
-                render_bricks();
+                render_obstacles();
                 render_player();
                 render_flood_waters();
 
@@ -180,7 +196,7 @@ public:
             m_window->setView(m_minimap_view);
             {
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
-                render_bricks();
+                render_obstacles();
                 render_player();
                 render_flood_waters();
 
@@ -249,7 +265,7 @@ public:
         m_window->draw(m_floormap);
     }
 
-    void render_bricks()
+    void render_obstacles()
     {
 
         for( auto [entity, _ob, _pos, _ob_nb_list]: 
@@ -270,20 +286,37 @@ public:
             }
             else 
             {
-
-                if( _ob.m_type == Cmp::Obstacle::Type::BRICK && _ob.m_enabled) 
+                // ROCK/POT/BONES objects
+                if( _ob.m_enabled ) 
                 {
-
-                    m_object_sprite.setPosition(_pos);
-                    m_object_sprite.pick(_ob.m_tile_pick);
-                    m_window->draw(m_object_sprite);
+                    switch(_ob.m_type) 
+                    {
+                        case SpriteFactory::Type::ROCK:
+                            rocksprite.pick(_ob.m_tile_index, "Obstacle");
+                            rocksprite.setPosition(_pos);
+                            m_window->draw(rocksprite);
+                            break;
+                        case SpriteFactory::Type::POT:
+                            potsprite.pick(_ob.m_tile_index, "Obstacle");
+                            potsprite.setPosition(_pos);
+                            m_window->draw(potsprite);
+                            break;
+                        case SpriteFactory::Type::BONES:
+                            bonesprite.pick(_ob.m_tile_index, "Obstacle");
+                            bonesprite.setPosition(_pos);
+                            m_window->draw(bonesprite);
+                            break;
+                        default:
+                            break;
+                    }
 
                 }
-                if( _ob.m_type == Cmp::Obstacle::Type::BRICK && _ob.m_broken) 
+                // "empty" sprite for detonated objects
+                if( _ob.m_broken) 
                 {
-                    m_broken_object_sprite.setPosition(_pos);
-                    m_broken_object_sprite.pick(42);
-                    m_window->draw(m_broken_object_sprite);
+                    detonationsprite.setPosition(_pos);
+                    detonationsprite.pick(0, "Detonated");
+                    m_window->draw(detonationsprite);
                 }
             }
         }
@@ -300,9 +333,9 @@ public:
             temp_square.setOutlineThickness(1.f);
             m_window->draw(temp_square);
 
-            m_bomb_sprite.setPosition(_pos);
-            m_bomb_sprite.pick(0);
-            m_window->draw(m_bomb_sprite);
+            bombsprite.setPosition(_pos);
+            bombsprite.pick(0, "Bomb");
+            m_window->draw(bombsprite);
 
             // get each neighbour entity from the current obstacles neighbour list
             // and draw a blue square around it
@@ -328,15 +361,15 @@ public:
                     
         }
 
-        // we need a separate view for "bedrock" because it must not have any Neighbours component
+        // Render textures for "WALL" entities - filtered out because they don't own neighbour components
         for( auto [entity, _ob, _pos]: 
-            m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each() ) {
-            
-            if( _ob.m_type == Cmp::Obstacle::Type::BEDROCK && _ob.m_enabled) 
+            m_position_updates.view<Cmp::Obstacle, Cmp::Position>(entt::exclude<Cmp::Neighbours>).each() ) {
+
+            if( _ob.m_enabled) 
             {
-                m_border_sprite.setPosition(_pos);  
-                m_border_sprite.pick(_ob.m_tile_pick);
-                m_window->draw( m_border_sprite ); 
+                wallsprite.pick(0, "wall");
+                wallsprite.setPosition(_pos);
+                m_window->draw(wallsprite);
             }            
         }
     }
@@ -357,9 +390,9 @@ public:
         for( auto [entity, _pc, _pos]: 
             m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each() ) 
         {
-            m_player_sprite.setPosition({_pos.x, _pos.y - (Settings::PLAYER_SPRITE_SIZE.y / 2.f)});
-            m_player_sprite.pick(0);
-            m_window->draw(m_player_sprite);
+            playersprite.setPosition({_pos.x, _pos.y - (Settings::PLAYER_SPRITE_SIZE.y / 2.f)});
+            playersprite.pick(1, "player");
+            m_window->draw(playersprite);
         }
     }
 
@@ -392,7 +425,7 @@ public:
             m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each() )
         {
             m_debug_mode_entity_text.addEntity(
-                entt::entt_traits<entt::entity>::to_integral(_entt),
+                _ob.m_tile_index,
                 sf::Vector2f{_pos.x, _pos.y}
             );
         }
@@ -404,44 +437,37 @@ public:
 
     sf::View m_local_view;
     sf::View m_minimap_view;
+
+    // creates and manages MultiSprite resources
+    std::shared_ptr<SpriteFactory> m_sprite_factory = std::make_shared<SpriteFactory>();
+
+    private:
     
-private:
+    // Entity registry
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
+    
+    // list of multi sprite objects returned by SpriteFactory
+    std::vector<Sprites::MultiSprite> m_multi_sprites;
+    Sprites::MultiSprite rocksprite;
+    Sprites::MultiSprite potsprite;
+    Sprites::MultiSprite bonesprite;
+    Sprites::MultiSprite detonationsprite;
+    Sprites::MultiSprite bombsprite;
+    Sprites::MultiSprite playersprite;
+    Sprites::MultiSprite wallsprite;
+
+
+
+    // SFML window handle
     std::shared_ptr<sf::RenderWindow> m_window;
 
+    // background tile map
     Sprites::Containers::TileMap m_floormap;
+
+
 
     Sprites::Containers::DebugEntityIds m_debug_mode_entity_text{m_font};
     bool m_show_obstacle_debug = false;
-    Sprites::MultiSprite m_object_sprite{
-        Settings::OBJECT_TILESET_PATH,
-        Settings::OBJECT_TILE_POOL,
-        Settings::OBSTACLE_SIZE
-    };
-
-    Sprites::MultiSprite m_broken_object_sprite{
-        Settings::BROKEN_OBJECT_TILE_PATH,
-        Settings::BROKEN_OBJECT_TILE_POOL,
-        Settings::OBSTACLE_SIZE
-    };
-
-    Sprites::MultiSprite m_border_sprite{
-        Settings::BORDER_TILESET_PATH,
-        Settings::BORDER_TILE_POOL,
-        Settings::OBSTACLE_SIZE
-    };
-
-    Sprites::MultiSprite m_player_sprite{
-        Settings::PLAYER_TILESET_PATH,
-        Settings::PLAYER_TILE_POOL,
-        Settings::PLAYER_SPRITE_SIZE
-    };
-
-    Sprites::MultiSprite m_bomb_sprite{
-        "res/bomb.png",
-        {0}, // No specific tile pool, just one sprite
-        {16,16}
-    };
 
     Cmp::Font m_font = Cmp::Font("res/tuffy.ttf");
 // 

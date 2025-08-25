@@ -1,12 +1,15 @@
 #ifndef __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 #define __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 
+#include <MultiSprite.hpp>
 #include <Neighbours.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Settings.hpp>
+#include <cstdint>
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
 #include <map>
+#include <memory>
 #include <optional>
 #include <spdlog/spdlog.h>
 #include <Components/Obstacle.hpp>
@@ -20,18 +23,11 @@ class RandomLevelGenerator {
 public:
     RandomLevelGenerator(
         std::shared_ptr<entt::basic_registry<entt::entity>> reg,
-        const std::vector<unsigned int> &object_tile_pool,
-        const std::vector<unsigned int> &border_tile_pool,
-        unsigned long seed = 0
+        std::shared_ptr<SpriteFactory> sprite_factory
     )
-        :       m_reg(reg),
-                m_activation_selector(0,1),
-                m_object_tile_choices(object_tile_pool),
-                m_random_object_tile_picker(0, object_tile_pool.size() - 1),
-                m_border_tile_choices(border_tile_pool),
-                m_random_border_tile_picker(0, border_tile_pool.size() - 1)
+    : m_reg(reg),
+      m_sprite_factory(sprite_factory)
     {
-        if (seed) Cmp::Random::seed(seed);
         gen_objects();
         gen_border();
         stats();
@@ -58,9 +54,13 @@ public:
                 // track the contiguous creation order of the entity so we can easily find its neighbours later
                 m_data.push_back(entity);
 
-                auto tile_pick = m_object_tile_choices[m_random_object_tile_picker.gen()];
-                m_reg->emplace<Cmp::Obstacle>(entity, tile_pick, Cmp::Obstacle::Type::BRICK, true, m_activation_selector.gen() );  
-                m_reg->emplace<Cmp::Neighbours>(entity);                             
+                auto metadata_tuple = m_sprite_factory->get_random_meta_obstacle();
+                auto obstacle_metadata = std::get<0>(metadata_tuple).get_type();
+                auto random_obstacle_texture_index = std::get<1>(metadata_tuple);
+                // SPDLOG_INFO("Generated obstacle of type {} with texture index {}", static_cast<uint32_t>(obstacle_metadata), random_obstacle_texture_index);
+                m_reg->emplace<Cmp::Obstacle>(entity, obstacle_metadata, random_obstacle_texture_index, true, m_activation_selector.gen());
+
+                m_reg->emplace<Cmp::Neighbours>(entity);
             }
         }
     }
@@ -97,23 +97,24 @@ public:
     void add_border_entity(const sf::Vector2f &pos)
     {
         auto entity = m_reg->create();
-        m_reg->emplace<Cmp::Position>(entity, pos); 
-        auto tile_pick = m_border_tile_choices[m_random_border_tile_picker.gen()];
-        m_reg->emplace<Cmp::Obstacle>(entity, tile_pick, Cmp::Obstacle::Type::BEDROCK, true, true );
+        m_reg->emplace<Cmp::Position>(entity, pos);
+        m_reg->emplace<Cmp::Obstacle>(entity, m_sprite_factory->get_wall_obstacle().get_type(), true, true);
     }
 
     void stats()
     {
-        std::map<int, int> results;
+        std::map<std::string, int> results;
         for(auto [entity, _pos, _ob]: m_reg->view<Cmp::Position, Cmp::Obstacle>().each()) {
-            results[_ob.m_tile_pick]++;
+            results[m_sprite_factory->get_metadata_type_string(_ob.m_type)]++;
         }
-        SPDLOG_INFO("Obstacle Tile Pick distribution:");
+        SPDLOG_INFO("Obstacle Pick distribution:");
         for(auto [bin,freq]: results)
         {
             SPDLOG_INFO("[{}]:{}", bin, freq);
         }
     }
+
+
 
     std::optional<entt::entity> at(std::size_t idx) 
     { 
@@ -124,18 +125,20 @@ public:
     auto begin() { return m_data.begin(); }
     auto end() { return m_data.end(); }
     auto size() { return m_data.size(); }
-    
+
 private:
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
+    std::shared_ptr<SpriteFactory> m_sprite_factory;
 
     std::vector<entt::entity> m_data;
-    Cmp::Random m_activation_selector;
-
-    const std::vector<unsigned int> m_object_tile_choices;
-    Cmp::Random m_random_object_tile_picker;
+    Cmp::Random m_activation_selector{0,1};
     
-    const std::vector<unsigned int> m_border_tile_choices;
-    Cmp::Random m_random_border_tile_picker;
+    // const std::vector<unsigned int> m_object_tile_choices;
+    // Cmp::Random m_random_object_tile_picker;
+    
+    // const std::vector<unsigned int> m_border_tile_choices;
+    // Cmp::Random m_random_border_tile_picker;
+
 };
 
 } // namespace ProceduralMaze::Systems

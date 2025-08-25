@@ -172,6 +172,8 @@ private:
     std::unique_ptr<Sys::FloodSystem> m_flood_sys = std::make_unique<Sys::FloodSystem> (m_reg, 5.f);
     std::unique_ptr<Sys::BombSystem> m_bomb_sys = std::make_unique<Sys::BombSystem> (m_reg);
 
+    
+
     // SFML keyboard/mouse event handler
     ProceduralMaze::InputEventHandler m_event_handler{m_reg};
 
@@ -228,13 +230,16 @@ private:
         EntityFactory::add_player_entity( m_reg );
         m_flood_sys->add_flood_water_entity();
 
-        // procedurally generate the level
+        // create initial random game area with the required sprites
         std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>(
             m_reg,
-            Settings::OBJECT_TILE_POOL,
-            Settings::BORDER_TILE_POOL
+            m_render_sys->m_sprite_factory
         );
 
+        // get a persistent copy of the multisprites vector
+        // m_render_sys->m_multi_sprites = random_level->get_multisprites();
+
+        // procedurally generate the game area from the initial random layout
         Sys::ProcGen::CellAutomataSystem cellauto_parser{m_reg, std::move(random_level)};
         cellauto_parser.iterate(5);
 
