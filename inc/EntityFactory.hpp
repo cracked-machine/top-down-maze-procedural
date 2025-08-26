@@ -1,6 +1,7 @@
 #ifndef __ENTITY_FACTORY_HPP__
 #define __ENTITY_FACTORY_HPP__
 
+#include <Direction.hpp>
 #include <WaterLevel.hpp>
 #include <entt/entity/registry.hpp>
 
@@ -46,6 +47,7 @@ public:
         reg->emplace<Cmp::Position>(entity, Settings::PLAYER_START_POS);
         reg->emplace<Cmp::PlayableCharacter>(entity);
         reg->emplace<Cmp::Movement>(entity);
+        reg->emplace<Cmp::Direction>(entity, sf::Vector2f{0,0});
     }
 
     static void add_game_state_entity(std::shared_ptr<entt::basic_registry<entt::entity>> reg)
@@ -56,8 +58,7 @@ public:
         }
         SPDLOG_INFO("Creating game state entity");
         auto entity = reg->create();
-        // there should only ever be one
-        reg->emplace_or_replace<Cmp::GameState>(entity);
+        reg->emplace<Cmp::GameState>(entity);
     }
 
 

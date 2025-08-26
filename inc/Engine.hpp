@@ -2,6 +2,7 @@
 #define __ENGINE_HPP__
 
 #include <BombSystem.hpp>
+#include <Direction.hpp>
 #include <EntityFactory.hpp>
 #include <FloodSystem.hpp>
 #include <GameState.hpp>
@@ -55,7 +56,7 @@ public:
 
         SPDLOG_INFO("Engine Initiliasing: ");
         bootstrap();
-        // Cmp::Random::seed(123456789); // for troubleshooting purposes
+        // Cmp::Random::seed(123456789); // testing purposes
     }
 
     bool run()
@@ -66,9 +67,6 @@ public:
         while (m_window->isOpen())
         {
             sf::Time deltaTime = deltaClock.restart();
-
-            // check for keyboard/window events
-            // m_event_handler.handler(m_window);
 
             auto gamestate_view = m_reg->view<Cmp::GameState>();
             for(auto [entity, game_state]: gamestate_view.each()) 
@@ -195,7 +193,6 @@ private:
     );
     
     // ECS Registry
-    // entt::basic_registry<entt::entity> m_reg;
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg = 
         std::make_shared<entt::basic_registry<entt::entity>>(entt::basic_registry<entt::entity>{});
 
@@ -293,9 +290,6 @@ private:
             m_render_sys->m_sprite_factory
         );
 
-        // get a persistent copy of the multisprites vector
-        // m_render_sys->m_multi_sprites = random_level->get_multisprites();
-
         // procedurally generate the game area from the initial random layout
         Sys::ProcGen::CellAutomataSystem cellauto_parser{m_reg, std::move(random_level)};
         cellauto_parser.iterate(5);
@@ -316,7 +310,6 @@ private:
         SPDLOG_INFO("Tearing down....");
         reginfo("Pre-teardown");
 
-        m_event_handler.m_direction_queue = {};
         m_event_handler.m_action_queue = {};    
 
         m_system_updates.clear();
@@ -348,7 +341,6 @@ private:
 
     void queueinfo()
     {
-        SPDLOG_INFO("{} direction events pending", m_event_handler.m_direction_queue.size());
         SPDLOG_INFO("{} action events pending", m_event_handler.m_action_queue.size()); 
     }
 
@@ -366,24 +358,15 @@ private:
     // move the player according to direction and delta time with acceleration
     void process_direction_queue(sf::Time deltaTime)
     {
-        if (m_event_handler.m_direction_queue.empty()) return;
         const float dt = deltaTime.asSeconds();
-        
-        for(auto [_entt, _pc, _current_pos, _movement] : 
-            m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>().each())
-        {
-            // Get input direction if available
-            sf::Vector2f desired_direction(0.0f, 0.0f);
-            if ( not m_event_handler.m_direction_queue.empty()) 
-            {
-                desired_direction = m_event_handler.m_direction_queue.front();
-                m_event_handler.m_direction_queue.pop();
-            }
 
+        for(auto [_entt, _pc, _current_pos, _movement, _direction] : 
+            m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction>().each())
+        {
             // Apply acceleration in the desired direction
-            if (desired_direction != sf::Vector2f(0.0f, 0.0f)) 
+            if (_direction != sf::Vector2f(0.0f, 0.0f)) 
             {
-                _movement.acceleration = desired_direction * _movement.acceleration_rate;
+                _movement.acceleration = _direction * _movement.acceleration_rate;
             } 
             else 
             {

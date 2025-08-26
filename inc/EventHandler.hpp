@@ -1,6 +1,7 @@
 #ifndef __INPUT_EVENT_HANDLER_HPP__
 #define __INPUT_EVENT_HANDLER_HPP__
 
+#include <Direction.hpp>
 #include <GameState.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -129,12 +130,15 @@ public:
             }    
 
             // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
-            sf::Vector2f new_direction{0,0};
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) { new_direction.y = -1; } // move player up
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) { new_direction.x = -1; } // move player left
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) { new_direction.x = 1; } // move player right
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) { new_direction.y = 1; } // move player down
-            m_direction_queue.push(new_direction);
+            auto player_direction_view =  m_reg->view<Cmp::PlayableCharacter,Cmp::Direction>();
+            for( auto [entity, player, direction] : player_direction_view.each() )
+            {
+                direction.x = 0; direction.y = 0;
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) { direction.y = -1; } // move player up
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) { direction.x = -1; } // move player left
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) { direction.x = 1; } // move player right
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) { direction.y = 1; } // move player down
+            }
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) { m_action_queue.push(GameActions::DROP_BOMB); } 
         }
@@ -191,7 +195,6 @@ public:
     }
 
     entt::reactive_mixin<entt::storage<void>> m_gamestate_updates;
-    std::queue<sf::Vector2f> m_direction_queue{};
     std::queue<GameActions> m_action_queue{};
 private:
 
