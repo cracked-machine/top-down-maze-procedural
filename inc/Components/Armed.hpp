@@ -11,8 +11,8 @@ class Armed {
 public:
     Armed() { m_clock.restart(); }
     sf::Time getElapsedTime() const { return m_clock.getElapsedTime(); }
-private:
     sf::Clock m_clock;
+private:
 };
 
 } // namespace ProceduralMaze::Cmp

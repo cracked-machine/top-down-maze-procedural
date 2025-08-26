@@ -46,6 +46,23 @@ public:
         return sf::FloatRect(pos, size).getCenter();
     }
 
+    void suspend() 
+    { 
+        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter>();
+        for (auto [_pc_entt, player] : player_collision_view.each())
+        {
+            if( player.m_bombdeploycooldowntimer.isRunning()) player.m_bombdeploycooldowntimer.stop(); 
+        }
+    }
+    void resume() 
+    { 
+        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter>();
+        for (auto [_pc_entt, player] : player_collision_view.each())
+        {
+            if( not player.m_bombdeploycooldowntimer.isRunning()) player.m_bombdeploycooldowntimer.start();
+        }
+    }
+
     void arm_occupied_location()
     {
         auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>();

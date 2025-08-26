@@ -28,156 +28,138 @@ public:
         DROP_BOMB
     };
 
-    enum class SystemActions {
-        START_GAME,
-        PAUSE_GAME,
-        RESUME_GAME,
-        QUIT_GAME
-    };
-    
-    // set a new direction vector on key press
-    void handler(
-        const std::shared_ptr<sf::RenderWindow> window
-    )
+    void menu_state_handler(const std::shared_ptr<sf::RenderWindow> window)
     {
-      
-        using namespace sf::Keyboard;
-
         auto gamestate_view = m_reg->view<Cmp::GameState>();
         for(auto [entity, game_state]: gamestate_view.each()) 
         {
-
-            switch(game_state.current_state)
+            using namespace sf::Keyboard;
+            while (const std::optional event = window->pollEvent())
             {
-
-                case Cmp::GameState::State::MENU:
-                    menu_state_handler(window);
-                    break;
-                case Cmp::GameState::State::PLAYING:
-                    game_state_handler(window);
-                    break;
-                case Cmp::GameState::State::PAUSED:
-                    paused_state_handler(window);
-                    break;
-                case Cmp::GameState::State::GAME_OVER:
-                    game_over_state_handler(window);
-                    break;
-                case Cmp::GameState::State::VICTORY: 
-                    victory_state_handler(window);
-                    break;  
-                }
-        }
-    }
-
-    void menu_state_handler(const std::shared_ptr<sf::RenderWindow> window)
-    {
-        using namespace sf::Keyboard;
-        while (const std::optional event = window->pollEvent())
-        {
-            if (event->is<sf::Event::Closed>()) { window->close(); }
-            else if (const auto* resized = event->getIf<sf::Event::Resized>())
-            {
-                // update the view to the new size of the window
-                sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized->size));
-                window->setView(sf::View(visibleArea));
-            }
-            // press Enter key to start (more options can be added later)
-            else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
-            {
-                if (keyPressed->scancode == sf::Keyboard::Scancode::Enter)
+                if (event->is<sf::Event::Closed>()) { game_state.current_state = Cmp::GameState::State::EXITING; }
+                else if (const auto* resized = event->getIf<sf::Event::Resized>())
                 {
-                    m_system_action_queue.push(SystemActions::START_GAME);
+                    sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized->size));
+                    window->setView(sf::View(visibleArea));
                 }
-            }
-        }    
+                else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+                {
+                    if (keyPressed->scancode == sf::Keyboard::Scancode::Enter)
+                    {
+                        game_state.current_state = Cmp::GameState::State::LOADING;
+                    }
+                    else if (keyPressed->scancode == sf::Keyboard::Scancode::Q)
+                    {
+                        game_state.current_state = Cmp::GameState::State::EXITING;
+                    }
+                }
+            }    
+        }
     }
 
     void game_state_handler(const std::shared_ptr<sf::RenderWindow> window)
     {
-        using namespace sf::Keyboard;
-        while (const std::optional event = window->pollEvent())
+        auto gamestate_view = m_reg->view<Cmp::GameState>();
+        for(auto [entity, game_state]: gamestate_view.each()) 
         {
-            // allow basic window events regardless of the game state
-            if (event->is<sf::Event::Closed>()) { window->close(); }
-            else if (const auto* resized = event->getIf<sf::Event::Resized>())
+            using namespace sf::Keyboard;
+            while (const std::optional event = window->pollEvent())
             {
-                // update the view to the new size of the window
-                sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized->size));
-                window->setView(sf::View(visibleArea));
-            }
-            else if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
-            {
-                if (keyReleased->scancode == sf::Keyboard::Scancode::F1)
+                if (event->is<sf::Event::Closed>()) { game_state.current_state = Cmp::GameState::State::EXITING; }
+                else if (const auto* resized = event->getIf<sf::Event::Resized>())
                 {
-                    for( auto [ _entt, _sys] : m_reg->view<Cmp::System>().each() )
+                    sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized->size));
+                    window->setView(sf::View(visibleArea));
+                }
+                else if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
+                {
+                    if (keyReleased->scancode == sf::Keyboard::Scancode::F1)
                     {
-                        _sys.collisions_enabled = not _sys.collisions_enabled;
+                        for( auto [ _entt, _sys] : m_reg->view<Cmp::System>().each() )
+                        {
+                            _sys.collisions_enabled = not _sys.collisions_enabled;
+                        }
+                    }
+                    else if (keyReleased->scancode == sf::Keyboard::Scancode::F2)
+                    {
+                        for( auto [ _entt, _sys] :
+                            m_reg->view<Cmp::System>().each() )
+                        {
+                            _sys.show_player_hitboxes = not _sys.show_player_hitboxes;
+                        }
+                    }
+                    else if (keyReleased->scancode == sf::Keyboard::Scancode::F3)
+                    {
+                        for( auto [ _entt, _sys] :
+                            m_reg->view<Cmp::System>().each() )
+                        {
+                            _sys.show_obstacle_entity_id = not _sys.show_obstacle_entity_id;
+                        }
+                    }
+
+                    else if (keyReleased->scancode == sf::Keyboard::Scancode::F11)
+                    {
+                        for(auto [_, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {
+                            _pc.alive = false;
+                        }
+                    }
+                    else if (keyReleased->scancode == sf::Keyboard::Scancode::F12)
+                    {
+                        for(auto [_ent, _sys]: m_reg->view<Cmp::System>().each()) {
+                            _sys.level_complete = true;
+                        }
+                    }
+                    else if (keyReleased->scancode == sf::Keyboard::Scancode::Escape)
+                    {
+                        game_state.current_state = Cmp::GameState::State::UNLOADING;
+                    }
+
+                }
+                else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+                {
+
+                    if (keyPressed->scancode == sf::Keyboard::Scancode::P)
+                    {
+                        using namespace std::chrono_literals;
+                        game_state.current_state = Cmp::GameState::State::PAUSED;
+                        SPDLOG_INFO("Pausing game....");
+                        std::this_thread::sleep_for(200ms);
                     }
                 }
-                else if (keyReleased->scancode == sf::Keyboard::Scancode::F2)
-                {
-                    for( auto [ _entt, _sys] :
-                        m_reg->view<Cmp::System>().each() )
-                    {
-                        _sys.show_player_hitboxes = not _sys.show_player_hitboxes;
-                    }
-                }
-                else if (keyReleased->scancode == sf::Keyboard::Scancode::F3)
-                {
-                    for( auto [ _entt, _sys] :
-                        m_reg->view<Cmp::System>().each() )
-                    {
-                        _sys.show_obstacle_entity_id = not _sys.show_obstacle_entity_id;
-                    }
-                }
-                else if (keyReleased->scancode == sf::Keyboard::Scancode::Escape)
-                {
-                    m_system_action_queue.push(SystemActions::QUIT_GAME);
-                }
-            }
-            else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
-            {
+            }    
 
-                if (keyPressed->scancode == sf::Keyboard::Scancode::P)
-                {
-                    using namespace std::chrono_literals;
-                    m_system_action_queue.push(SystemActions::PAUSE_GAME);
-                    SPDLOG_INFO("Pausing game....");
-                    std::this_thread::sleep_for(200ms);
-                }
-            }
-        }    
+            // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
+            sf::Vector2f new_direction{0,0};
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) { new_direction.y = -1; } // move player up
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) { new_direction.x = -1; } // move player left
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) { new_direction.x = 1; } // move player right
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) { new_direction.y = 1; } // move player down
+            m_direction_queue.push(new_direction);
 
-        // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
-        sf::Vector2f new_direction{0,0};
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) { new_direction.y = -1; } // move player up
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) { new_direction.x = -1; } // move player left
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) { new_direction.x = 1; } // move player right
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) { new_direction.y = 1; } // move player down
-        m_direction_queue.push(new_direction);
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) { m_action_queue.push(GameActions::DROP_BOMB); } 
-    
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) { m_action_queue.push(GameActions::DROP_BOMB); } 
+        }
     }
 
     void paused_state_handler(const std::shared_ptr<sf::RenderWindow> window)
     {
-        using namespace sf::Keyboard;
-        while (const std::optional event = window->pollEvent())
+        auto gamestate_view = m_reg->view<Cmp::GameState>();
+        for(auto [entity, game_state]: gamestate_view.each()) 
         {
-            // allow basic window events regardless of the game state
-            if (event->is<sf::Event::Closed>()) { window->close(); }
-            else if (const auto* resized = event->getIf<sf::Event::Resized>())
+            using namespace sf::Keyboard;
+            while (const std::optional event = window->pollEvent())
             {
-                // update the view to the new size of the window
-                sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized->size));
-                window->setView(sf::View(visibleArea));
-            }
-            else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
-            {
-                if (keyPressed->scancode == sf::Keyboard::Scancode::P)
+                if (event->is<sf::Event::Closed>()) { game_state.current_state = Cmp::GameState::State::EXITING; }
+                else if (const auto* resized = event->getIf<sf::Event::Resized>())
                 {
-                     m_system_action_queue.push(SystemActions::RESUME_GAME);
+                    sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized->size));
+                    window->setView(sf::View(visibleArea));
+                }
+                else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+                {
+                    if (keyPressed->scancode == sf::Keyboard::Scancode::P)
+                    {
+                        game_state.current_state = Cmp::GameState::State::PLAYING;
+                    }
                 }
             }
         }
@@ -185,45 +167,32 @@ public:
 
     void game_over_state_handler(const std::shared_ptr<sf::RenderWindow> window)
     {
-        using namespace sf::Keyboard;
-        while (const std::optional event = window->pollEvent())
+        auto gamestate_view = m_reg->view<Cmp::GameState>();
+        for(auto [entity, game_state]: gamestate_view.each()) 
         {
-            // allow basic window events regardless of the game state
-            if (event->is<sf::Event::Closed>()) { window->close(); }
-            else if (const auto* resized = event->getIf<sf::Event::Resized>())
+            using namespace sf::Keyboard;
+            while (const std::optional event = window->pollEvent())
             {
-                // update the view to the new size of the window
-                sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized->size));
-                window->setView(sf::View(visibleArea));
-            }
-            // press any key to start (more options can be added later)
-            else if (event->is<sf::Event::KeyReleased>())
-            {
-                m_system_action_queue.push(SystemActions::QUIT_GAME);
-            }
-        }           
-    }
-
-    void victory_state_handler(const std::shared_ptr<sf::RenderWindow> window)
-    {
-        using namespace sf::Keyboard;
-        while (const std::optional event = window->pollEvent())
-        {
-            // allow basic window events regardless of the game state
-            if (event->is<sf::Event::Closed>()) { window->close(); }
-            else if (const auto* resized = event->getIf<sf::Event::Resized>())
-            {
-                // update the view to the new size of the window
-                sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized->size));
-                window->setView(sf::View(visibleArea));
-            }
-        }           
+                if (event->is<sf::Event::Closed>()) { game_state.current_state = Cmp::GameState::State::EXITING; }
+                else if (const auto* resized = event->getIf<sf::Event::Resized>())
+                {
+                    sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized->size));
+                    window->setView(sf::View(visibleArea));
+                }
+                else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+                {
+                    if (keyPressed->scancode == sf::Keyboard::Scancode::R)
+                    {
+                        game_state.current_state = Cmp::GameState::State::UNLOADING;
+                    }
+                }
+            }           
+        }
     }
 
     entt::reactive_mixin<entt::storage<void>> m_gamestate_updates;
     std::queue<sf::Vector2f> m_direction_queue{};
     std::queue<GameActions> m_action_queue{};
-    std::queue<SystemActions> m_system_action_queue{};
 private:
 
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;

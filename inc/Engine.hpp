@@ -4,6 +4,7 @@
 #include <BombSystem.hpp>
 #include <EntityFactory.hpp>
 #include <FloodSystem.hpp>
+#include <GameState.hpp>
 #include <ProcGen/RandomLevelGenerator.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Clock.hpp>
@@ -67,7 +68,7 @@ public:
             sf::Time deltaTime = deltaClock.restart();
 
             // check for keyboard/window events
-            m_event_handler.handler(m_window);
+            // m_event_handler.handler(m_window);
 
             auto gamestate_view = m_reg->view<Cmp::GameState>();
             for(auto [entity, game_state]: gamestate_view.each()) 
@@ -78,36 +79,32 @@ public:
 
                     case Cmp::GameState::State::MENU:
                     {
-                        if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::START_GAME)
-                        {
-                            SPDLOG_INFO("Entering game....");
-                            if(! m_event_handler.m_system_action_queue.empty()) m_event_handler.m_system_action_queue.pop();
-                            game_state.current_state = Cmp::GameState::State::PLAYING;
-                            setup();
-                        }
-
                         m_render_sys->render_menu();
+                        m_event_handler.menu_state_handler(m_window);
                         break;
                     } // case MENU end
 
+                    case Cmp::GameState::State::LOADING:
+                    {
+                        setup();
+                        game_state.current_state = Cmp::GameState::State::PLAYING;
+                        SPDLOG_INFO("Loading game....");
+                        break;
+                    }
+
+                    case Cmp::GameState::State::UNLOADING:
+                    {
+                        teardown();
+                        bootstrap();
+                        game_state.current_state = Cmp::GameState::State::MENU;
+                        SPDLOG_INFO("Unloading game....");
+                        break;
+                    }
+
                     case Cmp::GameState::State::PLAYING:
                     {
-                        if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::PAUSE_GAME)
-                        {
-                            if(! m_event_handler.m_system_action_queue.empty()) m_event_handler.m_system_action_queue.pop();
-                            game_state.current_state = Cmp::GameState::State::PAUSED;
-                        }
-                        if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::QUIT_GAME)
-                        {
-                            if(! m_event_handler.m_system_action_queue.empty()) m_event_handler.m_system_action_queue.pop();
-                            game_state.current_state = Cmp::GameState::State::MENU;
-                            teardown();
-                            bootstrap();
-
-                            SPDLOG_INFO("Entering menu....");
-                            break;
-                        }
-
+                        m_event_handler.game_state_handler(m_window);
+        
                         process_direction_queue(deltaTime);
                         process_action_queue();       
                         m_flood_sys->update();  
@@ -118,7 +115,7 @@ public:
                         // did the player drown? Then end the game
                         for(auto [_, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {
                             if ( not _pc.alive ) {
-                                game_state.current_state = Cmp::GameState::State::GAME_OVER;
+                                game_state.current_state = Cmp::GameState::State::GAMEOVER;
                             }
                         }
 
@@ -127,7 +124,7 @@ public:
                             if( _sys.level_complete )
                             {
                                 SPDLOG_INFO("Level complete!");
-                                game_state.current_state = Cmp::GameState::State::VICTORY;
+                                game_state.current_state = Cmp::GameState::State::GAMEOVER;
                             }
                         }
 
@@ -137,43 +134,53 @@ public:
 
                     case Cmp::GameState::State::PAUSED:
                     {
-                        SPDLOG_INFO("Game Paused....");
-                        m_render_sys->render_paused();
-                        if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::RESUME_GAME)
+                        m_flood_sys->suspend();
+                        m_collision_sys->suspend();
+                        m_bomb_sys->suspend();
+
+                        // m_event_handler.paused_state_handler(m_window);
+
+                        while( (Cmp::GameState::State::PAUSED == game_state.current_state) and m_window->isOpen())
                         {
-                            if(! m_event_handler.m_system_action_queue.empty()) m_event_handler.m_system_action_queue.pop();
-                            game_state.current_state = Cmp::GameState::State::PLAYING;
-                            SPDLOG_INFO("Resuming Game....");
-                        }   
+                            m_render_sys->render_paused();
+                            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+                            // check for keyboard/window events to keep window responsive
+                            m_event_handler.paused_state_handler(m_window);
+                        }
+
+                        m_flood_sys->resume();
+                        m_collision_sys->resume();
+                        m_bomb_sys->resume();
+           
                         break;
                     } // case PAUSED end
 
-                    case ProceduralMaze::Cmp::GameState::State::VICTORY:
+                    case Cmp::GameState::State::GAMEOVER:
                     {
-                        SPDLOG_INFO("Player Won!");
-                        m_render_sys->render_victory_screen();
-                        break;
-                    }
-
-                    case Cmp::GameState::State::GAME_OVER:
-                    {
-                    
-                        m_render_sys->render_defeat_screen();
-                        if (m_event_handler.m_system_action_queue.front() == InputEventHandler::SystemActions::QUIT_GAME)
-                        {
-                            SPDLOG_INFO("Game Over....");
-                            if(! m_event_handler.m_system_action_queue.empty()) m_event_handler.m_system_action_queue.pop();
-                            game_state.current_state = Cmp::GameState::State::MENU;
-                            teardown();
-                            bootstrap();
-                            
-                            SPDLOG_INFO("Entering menu....");
-                            break;
+                        for(auto [_, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {
+                            if ( not _pc.alive ) {      
+                                m_render_sys->render_defeat_screen();
+                            }
+                            else {
+                                m_render_sys->render_victory_screen();
+                            }                  
                         }
-                    
+                        std::this_thread::sleep_for(std::chrono::seconds(1));
+                        m_event_handler.game_over_state_handler(m_window);
+
                         break;
                     } // case GAME_OVER end
-                }
+
+                    case Cmp::GameState::State::EXITING:
+                    {
+                        SPDLOG_INFO("Terminating Game....");
+         
+                        teardown();
+                        m_window->close();
+                        std::terminate();
+                    }
+     
+                    }
             } // gamestate_view end
         } /// MAIN LOOP ENDS
 
@@ -208,6 +215,7 @@ private:
     entt::reactive_mixin<entt::storage<void>> m_system_updates;
     entt::reactive_mixin<entt::storage<void>> m_gamestate_updates;
 
+    // sets up ECS just enough to let the statemachine work
     void bootstrap()
     {
         // Register this Engine's pool for GameState component updates
@@ -225,6 +233,7 @@ private:
         EntityFactory::add_game_state_entity( m_reg );
     }
 
+    // Sets up ECS for the rest of the game
     void setup()
     {
         reginfo("Pre-setup");
@@ -297,18 +306,18 @@ private:
         queueinfo();
     }
 
-    // Teardown the engine and clear all event queues
-    // This is called when the game is over or the engine is shutting down
+    // Teardown the engine and clear all event queues.
     // It clears all reactive storage, resets their connection to the registry 
-    // and finally clears the registry
+    // and finally clears the registry.
+    // If you need to restart the game, you should call bootstrap() immediately
+    // after calling this function.
     void teardown()
     {
         SPDLOG_INFO("Tearing down....");
         reginfo("Pre-teardown");
 
         m_event_handler.m_direction_queue = {};
-        m_event_handler.m_action_queue = {};
-        m_event_handler.m_system_action_queue = {};     
+        m_event_handler.m_action_queue = {};    
 
         m_system_updates.clear();
         m_system_updates.reset();
@@ -339,7 +348,6 @@ private:
 
     void queueinfo()
     {
-        SPDLOG_INFO("{} system events pending",  m_event_handler.m_system_action_queue.size());
         SPDLOG_INFO("{} direction events pending", m_event_handler.m_direction_queue.size());
         SPDLOG_INFO("{} action events pending", m_event_handler.m_action_queue.size()); 
     }

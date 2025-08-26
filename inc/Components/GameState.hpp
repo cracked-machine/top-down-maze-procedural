@@ -10,10 +10,12 @@ public:
 
     enum class State {
         MENU,
+        LOADING,
         PLAYING,
         PAUSED,
-        GAME_OVER,
-        VICTORY
+        GAMEOVER,
+        UNLOADING,
+        EXITING
     };
 
     State current_state = State::MENU;

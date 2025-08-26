@@ -105,8 +105,13 @@ public:
 
             sf::Text start_text(m_font, "Press <Enter> key to start", 48);
             start_text.setFillColor(sf::Color::White);
-            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
+            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 300.f});
             m_window->draw(start_text);
+
+            sf::Text quit_text(m_font, "Press <Q> key to quit", 48);
+            quit_text.setFillColor(sf::Color::White);
+            quit_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 350.f});
+            m_window->draw(quit_text);
         }
         m_window->display();
         // main render end
@@ -122,7 +127,7 @@ public:
             title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
             m_window->draw(title_text);
 
-            sf::Text start_text(m_font, "Press any key to continue", 48);
+            sf::Text start_text(m_font, "Press <R> key to continue", 48);
             start_text.setFillColor(sf::Color::White);
             start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
             m_window->draw(start_text);
@@ -140,6 +145,11 @@ public:
             title_text.setFillColor(sf::Color::White);
             title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
             m_window->draw(title_text);
+
+            sf::Text start_text(m_font, "Press <R> key to continue", 48);
+            start_text.setFillColor(sf::Color::White);
+            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
+            m_window->draw(start_text);
         }
         m_window->display();
         // main render end

@@ -33,6 +33,24 @@ public:
     {
     }
 
+
+    void suspend() 
+    { 
+        auto player_collision_view = m_reg->view<Cmp::Armed>();
+        for (auto [_pc_entt, armed] : player_collision_view.each())
+        {
+            if( armed.m_clock.isRunning()) armed.m_clock.stop(); 
+        }
+    }
+    void resume() 
+    { 
+        auto player_collision_view = m_reg->view<Cmp::Armed>();
+        for (auto [_pc_entt, armed] : player_collision_view.each())
+        {
+            if( not armed.m_clock.isRunning()) armed.m_clock.start();
+        }
+    }
+
     void update()
     {
         auto explosion_zone = sf::FloatRect(); // tbd

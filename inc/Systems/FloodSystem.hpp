@@ -32,6 +32,8 @@ public:
     }
 
     ~FloodSystem() = default;
+    void suspend() { if( m_clock.isRunning()) m_clock.stop(); }
+    void resume() { if( not m_clock.isRunning()) m_clock.start(); }
     
     void add_flood_water_entity()
     {
