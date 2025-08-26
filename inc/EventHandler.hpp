@@ -1,6 +1,7 @@
 #ifndef __INPUT_EVENT_HANDLER_HPP__
 #define __INPUT_EVENT_HANDLER_HPP__
 
+#include <GameState.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -36,30 +37,35 @@ public:
     
     // set a new direction vector on key press
     void handler(
-        const std::shared_ptr<sf::RenderWindow> window, 
-        Settings::GameState &game_state
+        const std::shared_ptr<sf::RenderWindow> window
     )
     {
       
         using namespace sf::Keyboard;
 
-
-        
-        switch(game_state)
+        auto gamestate_view = m_reg->view<Cmp::GameState>();
+        for(auto [entity, game_state]: gamestate_view.each()) 
         {
 
-            case Settings::GameState::MENU:
-                menu_state_handler(window);
-                break;
-            case Settings::GameState::PLAYING:
-                game_state_handler(window);
-                break;
-            case Settings::GameState::PAUSED:
-                paused_state_handler(window);
-                break;
-            case Settings::GameState::GAME_OVER:
-                game_over_state_handler(window);
-                break;
+            switch(game_state.current_state)
+            {
+
+                case Cmp::GameState::State::MENU:
+                    menu_state_handler(window);
+                    break;
+                case Cmp::GameState::State::PLAYING:
+                    game_state_handler(window);
+                    break;
+                case Cmp::GameState::State::PAUSED:
+                    paused_state_handler(window);
+                    break;
+                case Cmp::GameState::State::GAME_OVER:
+                    game_over_state_handler(window);
+                    break;
+                case Cmp::GameState::State::VICTORY: 
+                    victory_state_handler(window);
+                    break;  
+                }
         }
     }
 
@@ -198,6 +204,23 @@ public:
         }           
     }
 
+    void victory_state_handler(const std::shared_ptr<sf::RenderWindow> window)
+    {
+        using namespace sf::Keyboard;
+        while (const std::optional event = window->pollEvent())
+        {
+            // allow basic window events regardless of the game state
+            if (event->is<sf::Event::Closed>()) { window->close(); }
+            else if (const auto* resized = event->getIf<sf::Event::Resized>())
+            {
+                // update the view to the new size of the window
+                sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized->size));
+                window->setView(sf::View(visibleArea));
+            }
+        }           
+    }
+
+    entt::reactive_mixin<entt::storage<void>> m_gamestate_updates;
     std::queue<sf::Vector2f> m_direction_queue{};
     std::queue<GameActions> m_action_queue{};
     std::queue<SystemActions> m_system_action_queue{};

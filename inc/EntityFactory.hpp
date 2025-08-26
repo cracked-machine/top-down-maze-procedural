@@ -13,6 +13,7 @@
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
 #include <Components/Movement.hpp>
+#include <Components/GameState.hpp>
 
 namespace ProceduralMaze {
 
@@ -24,6 +25,10 @@ public:
 
     static void add_system_entity(std::shared_ptr<entt::basic_registry<entt::entity>> reg)
     {
+        if( not reg->view<Cmp::System>()->empty()) {
+            SPDLOG_WARN("System entity already exists, skipping creation");
+            return;
+        }
         SPDLOG_INFO("Creating system entity");
         auto entity = reg->create();
         reg->emplace<Cmp::System>(entity);
@@ -32,11 +37,27 @@ public:
 
     static void add_player_entity(std::shared_ptr<entt::basic_registry<entt::entity>> reg)
     {
+        if( not reg->view<Cmp::PlayableCharacter>()->empty()) {
+            SPDLOG_WARN("Player entity already exists, skipping creation");
+            return;
+        }
         SPDLOG_INFO("Creating player entity");
         auto entity = reg->create();
         reg->emplace<Cmp::Position>(entity, Settings::PLAYER_START_POS);
         reg->emplace<Cmp::PlayableCharacter>(entity);
         reg->emplace<Cmp::Movement>(entity);
+    }
+
+    static void add_game_state_entity(std::shared_ptr<entt::basic_registry<entt::entity>> reg)
+    {
+        if( not reg->view<Cmp::GameState>()->empty()) {
+            SPDLOG_WARN("Game state entity already exists, skipping creation");
+            return;
+        }
+        SPDLOG_INFO("Creating game state entity");
+        auto entity = reg->create();
+        // there should only ever be one
+        reg->emplace_or_replace<Cmp::GameState>(entity);
     }
 
 
