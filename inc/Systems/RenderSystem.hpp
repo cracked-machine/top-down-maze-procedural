@@ -5,6 +5,7 @@
 #include <BasicSprite.hpp>
 #include <DebugEntityIds.hpp>
 #include <FloodWater.hpp>
+#include <FloodWaterShader.hpp>
 #include <Loot.hpp>
 #include <MultiSprite.hpp>
 #include <Neighbours.hpp>
@@ -88,10 +89,23 @@ public:
         if( not m_chain_bombs_ms ) { SPDLOG_CRITICAL("Unable to get CHAIN_BOMBS multisprite from SpriteFactory"); std::get_terminate(); }
         if( not m_lower_water_ms ) { SPDLOG_CRITICAL("Unable to get LOWER_WATER multisprite from SpriteFactory"); std::get_terminate(); }
 
+        // initWaterShader();
         SPDLOG_INFO("RenderSystem initialised..."); 
     }
     
     ~RenderSystem() { SPDLOG_DEBUG("~RenderSystem()"); } 
+
+    void render_flood_waters()
+    {
+        for( auto [_, _wl]: m_flood_updates.view<Cmp::WaterLevel>().each() ) 
+        {
+            if( _wl.m_level > 0 )
+            {
+                m_water_shader.update(_wl.m_level);
+                m_window->draw(m_water_shader);
+            }
+        }
+    }
 
     void render_menu()
     {
@@ -517,19 +531,7 @@ public:
         }
     }
 
-    void render_flood_waters()
-    {
-        for( auto [_, _wl]: m_flood_updates.view<Cmp::WaterLevel>().each() ) 
-        {
-            if( _wl.m_level > 0 )
-            {
-                m_window->draw(Sprites::FloodWaters{
-                    sf::Vector2f{Settings::DISPLAY_SIZE},
-                    {0, _wl.m_level}
-                });
-            }
-        }
-    }
+
 
     void render_player()
     {
@@ -588,7 +590,7 @@ public:
     std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory = std::make_shared<Sprites::SpriteFactory>();
 
 private:
-    
+    Sprites::FloodWaterShader m_water_shader{"res/FloodWater.glsl"};
     // Entity registry
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
     
