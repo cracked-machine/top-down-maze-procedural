@@ -7,6 +7,8 @@
 #include <FloodSystem.hpp>
 #include <GameState.hpp>
 #include <ProcGen/RandomLevelGenerator.hpp>
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
@@ -209,6 +211,64 @@ private:
     entt::reactive_mixin<entt::storage<void>> m_system_updates;
     entt::reactive_mixin<entt::storage<void>> m_gamestate_updates;
 
+
+
+    void process_action_queue()
+    {
+        if (m_event_handler.m_action_queue.empty()) return;
+
+        if (m_event_handler.m_action_queue.front() == InputEventHandler::GameActions::DROP_BOMB)
+        {
+            if( not m_event_handler.m_action_queue.empty() ) m_event_handler.m_action_queue.pop();
+            m_bomb_sys->arm_occupied_location();
+        }
+    }
+
+    // move the player according to direction and delta time with acceleration
+    void update_character_movement(sf::Time deltaTime)
+    {
+        const float dt = deltaTime.asSeconds();
+
+        for(auto [ entity, pc_cmp, pos_cmp, move_cmp, dir_cmp] : 
+            m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction>().each())
+        {
+            // Apply acceleration in the desired dir_cmp
+            if (dir_cmp != sf::Vector2f(0.0f, 0.0f)) 
+            {
+                move_cmp.acceleration = dir_cmp * move_cmp.acceleration_rate;
+            } 
+            else 
+            {
+                // Apply deceleration when no input
+                if (move_cmp.velocity != sf::Vector2f(0.0f, 0.0f)) 
+                {
+                    move_cmp.acceleration = -move_cmp.velocity.normalized() * move_cmp.deceleration_rate;
+                } 
+                else 
+                {
+                    move_cmp.acceleration = sf::Vector2f(0.0f, 0.0f);
+                }
+            }
+
+            // Update velocity (change in velocity = acceleration * dt)
+            move_cmp.velocity += move_cmp.acceleration * dt;
+
+            // Stop completely if current velocity magnitude is below minimum velocity
+            if (move_cmp.velocity.length() < move_cmp.min_velocity) {
+                move_cmp.velocity = sf::Vector2f(0.0f, 0.0f);
+                move_cmp.acceleration = sf::Vector2f(0.0f, 0.0f);
+            }
+            // Clamp velocity to max speed if current velocity magnitude exceeds max speed
+            else if (move_cmp.velocity.length() > move_cmp.max_speed) {
+                move_cmp.velocity = (move_cmp.velocity / move_cmp.velocity.length()) * move_cmp.max_speed;
+            }
+
+            // Apply velocity to position (change in position = velocity * dt)
+            pos_cmp += move_cmp.velocity * dt;
+    
+        }
+    }
+
     // sets up ECS just enough to let the statemachine work
     void bootstrap()
     {
@@ -339,61 +399,6 @@ private:
     void queueinfo()
     {
         SPDLOG_INFO("{} action events pending", m_event_handler.m_action_queue.size()); 
-    }
-
-    void process_action_queue()
-    {
-        if (m_event_handler.m_action_queue.empty()) return;
-
-        if (m_event_handler.m_action_queue.front() == InputEventHandler::GameActions::DROP_BOMB)
-        {
-            if( not m_event_handler.m_action_queue.empty() ) m_event_handler.m_action_queue.pop();
-            m_bomb_sys->arm_occupied_location();
-        }
-    }
-
-    // move the player according to direction and delta time with acceleration
-    void update_character_movement(sf::Time deltaTime)
-    {
-        const float dt = deltaTime.asSeconds();
-
-        for(auto [ entity, pc_cmp, pos_cmp, move_cmp, dir_cmp] : 
-            m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction>().each())
-        {
-            // Apply acceleration in the desired dir_cmp
-            if (dir_cmp != sf::Vector2f(0.0f, 0.0f)) 
-            {
-                move_cmp.acceleration = dir_cmp * move_cmp.acceleration_rate;
-            } 
-            else 
-            {
-                // Apply deceleration when no input
-                if (move_cmp.velocity != sf::Vector2f(0.0f, 0.0f)) 
-                {
-                    move_cmp.acceleration = -move_cmp.velocity.normalized() * move_cmp.deceleration_rate;
-                } 
-                else 
-                {
-                    move_cmp.acceleration = sf::Vector2f(0.0f, 0.0f);
-                }
-            }
-
-            // Update velocity (change in velocity = acceleration * dt)
-            move_cmp.velocity += move_cmp.acceleration * dt;
-
-            // Stop completely if current velocity magnitude is below minimum velocity
-            if (move_cmp.velocity.length() < move_cmp.min_velocity) {
-                move_cmp.velocity = sf::Vector2f(0.0f, 0.0f);
-                move_cmp.acceleration = sf::Vector2f(0.0f, 0.0f);
-            }
-            // Clamp velocity to max speed if current velocity magnitude exceeds max speed
-            else if (move_cmp.velocity.length() > move_cmp.max_speed) {
-                move_cmp.velocity = (move_cmp.velocity / move_cmp.velocity.length()) * move_cmp.max_speed;
-            }
-
-            // Apply velocity to position (change in position = velocity * dt)
-            pos_cmp += move_cmp.velocity * dt;
-        }
     }
 
 };

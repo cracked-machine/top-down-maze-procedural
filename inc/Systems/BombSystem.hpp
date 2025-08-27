@@ -8,6 +8,8 @@
 #include <Obstacle.hpp>
 #include <PlayableCharacter.hpp>
 #include <Position.hpp>
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -82,6 +84,7 @@ public:
                     // has the bomb spamming cooldown expired?
                     if( _pc.m_bombdeploycooldowntimer.getElapsedTime() >= _pc.m_bombdeploydelay ) 
                     {
+                        if(m_fuse_sound_player.getStatus() != sf::Sound::Status::Playing) m_fuse_sound_player.play();
                         // arm the current tile (center of the bomb)
                         m_reg->emplace_or_replace<Cmp::Armed>(entt::entity(_ob_entt_lvl1), sf::seconds(3), true, sf::Color::Blue);
                         
@@ -122,9 +125,9 @@ public:
                             if (distance > 0 && distance <= BLAST_RADIUS) {
                                 // Determine color and delay based on distance
                                 sf::Color color = (distance == 1) ? sf::Color::Green : sf::Color::Yellow;
-                                sf::Time delay = sf::seconds(3 + (distance * 0.1));
+                                sf::Time delay = sf::seconds(3 + (distance * 0.3));
                                 
-                                m_reg->emplace<Cmp::Armed>(entity, delay, false, color);
+                                m_reg->emplace<Cmp::Armed>(entity, delay, true, color);
                             }
                         }
 
@@ -169,6 +172,7 @@ public:
             // tell the render system to draw detonated obstacle differently
             nb_obstacle->m_broken = true;
             nb_obstacle->m_enabled = false;
+            m_detonate_sound_player.play();
 
             // add loot to any broken pot neighbour entities
             if( nb_obstacle->m_type == Sprites::SpriteFactory::Type::POT)
@@ -215,22 +219,6 @@ public:
             for( auto [dir, neighbour_entity] : _neighbours_cmp) 
             {
                 detonate_neighbour_entity(neighbour_entity);
-                // auto neighbour_level2 = m_reg->try_get<Cmp::Neighbours>(entt::entity(neighbour_entity));
-                // if(neighbour_level2)
-                // {
-                //     for( auto [dir2, neighbour_entity2] : *neighbour_level2) 
-                //     {
-                //         detonate_neighbour_entity(neighbour_entity2);
-                //         auto neighbour_level3 = m_reg->try_get<Cmp::Neighbours>(entt::entity(neighbour_entity2));
-                //         if(neighbour_level3)
-                //         {
-                //             for( auto [dir3, neighbour_entity3] : *neighbour_level3) 
-                //             {
-                //                 detonate_neighbour_entity(neighbour_entity3);
-                //             }
-                //         }   
-                //     }
-                // }   
             }
             // SPDLOG_INFO("Explosion zone is {},{} {},{}", explosion_zone.position.x, explosion_zone.position.y, explosion_zone.size.x, explosion_zone.size.y);
             // Check if any player is in the explosion area and damage them
@@ -259,6 +247,9 @@ public:
             // if we got this far then the bomb detonated, we can destroy the armed component
             m_reg->erase<Cmp::Armed>(_entt);
 
+            if(m_fuse_sound_player.getStatus() == sf::Sound::Status::Playing) m_fuse_sound_player.stop();
+            if(m_detonate_sound_player.getStatus() != sf::Sound::Status::Playing) m_detonate_sound_player.play();
+
             // allow player to place next bomb
             for (auto [_pc_entt, _pc] :m_reg->view<Cmp::PlayableCharacter>().each())
             {
@@ -273,6 +264,11 @@ private:
     
     int player_damage = 10; // Amount of damage to deal to the player when hit by explosion
     const sf::Vector2f max_explosion_zone_size{Settings::OBSTACLE_SIZE.x * 3.f, Settings::OBSTACLE_SIZE.y * 3.f};
+
+    sf::SoundBuffer m_fuse_sound_buffer{"res/audio/fuse.wav"};
+    sf::Sound m_fuse_sound_player{m_fuse_sound_buffer};
+    sf::SoundBuffer m_detonate_sound_buffer{"res/audio/detonate.wav"};
+    sf::Sound m_detonate_sound_player{m_detonate_sound_buffer};
 };
 
 } // namespace ProceduralMaze::Sys

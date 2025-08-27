@@ -1,9 +1,13 @@
 #ifndef __SYSTEMS_WATER_SYSTEM_HPP__
 #define __SYSTEMS_WATER_SYSTEM_HPP__
 
+#include <Direction.hpp>
 #include <Movement.hpp>
 #include <PlayableCharacter.hpp>
 #include <Position.hpp>
+#include <SFML/Audio/Music.hpp>
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Settings.hpp>
 #include <WaterLevel.hpp>
@@ -68,8 +72,8 @@ private:
         
         // Cache views once - better performance since entities always exist
         auto water_view = m_reg->view<Cmp::WaterLevel>();
-        auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>();
-        
+        auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction>();
+
         // Separate water level updates from collision checks for better performance
         for(auto [_, water_level]: water_view.each()) {
             water_level.m_level -= (dt * m_flood_velocity);
@@ -77,10 +81,13 @@ private:
         
         // Check drowning - {0,0} is top-left so player drowns when water level is BELOW player position
         for(auto [_, water_level]: water_view.each()) {
-            for(auto [player_entity, player_char, position, move_cmp]: player_view.each()) 
+            for(auto [player_entity, player_char, position, move_cmp, dir_cmp]: player_view.each()) 
             {
                 if(water_level.m_level <= position.y) // Water drowns player when water level is at or above player position
                 {
+                    if(m_abovewater_sound_player.getStatus() == sf::Sound::Status::Playing) m_abovewater_sound_player.stop();
+                    if(m_underwater_music.getStatus() != sf::Music::Status::Playing) m_underwater_music.play();
+
                     // its hard to move under water ;)
                     move_cmp.acceleration_rate = move_cmp.DEFAULT_ACCELERATION_RATE * 0.5f;
                     move_cmp.deceleration_rate = move_cmp.DEFAULT_DECELERATION_RATE * 0.15f;
@@ -100,6 +107,7 @@ private:
                             SPDLOG_TRACE("Player has drowned!");
                         }
                     }
+
                 }
                 else 
                 {
@@ -110,6 +118,16 @@ private:
                     move_cmp.acceleration_rate = move_cmp.DEFAULT_ACCELERATION_RATE;
                     move_cmp.deceleration_rate = move_cmp.DEFAULT_DECELERATION_RATE;
                     move_cmp.max_speed = move_cmp.DEFAULT_MAX_SPEED;
+
+                    if(m_underwater_music.getStatus() == sf::Music::Status::Playing) m_underwater_music.stop();
+
+                    if(dir_cmp.x != 0.0f || dir_cmp.y != 0.0f) {
+                        if(m_abovewater_sound_player.getStatus() != sf::Sound::Status::Playing) {
+                            m_abovewater_sound_player.play();
+                        }
+                    } else {
+                        m_abovewater_sound_player.stop();
+                    }
                 }
             }
         }
@@ -118,6 +136,11 @@ private:
 private:
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
     float m_flood_velocity; // pixels per second
+
+    sf::SoundBuffer m_abovewater_sound_buffer{"res/audio/footsteps.mp3"};
+    sf::Sound m_abovewater_sound_player{m_abovewater_sound_buffer};
+    sf::Music m_underwater_music{"res/audio/underwater.wav"};
+    
 };
 
 } // namespace ProceduralMaze::Sys

@@ -10,6 +10,7 @@ target_compile_features(${TARGET} PRIVATE cxx_std_20
 )
 target_link_libraries(${TARGET} PRIVATE 
     SFML::Graphics 
+    SFML::Audio
     spdlog::spdlog
     EnTT
     $<$<PLATFORM_ID:Windows>:dbghelp>
