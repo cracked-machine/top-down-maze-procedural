@@ -71,10 +71,8 @@ public:
             auto gamestate_view = m_reg->view<Cmp::GameState>();
             for(auto [entity, game_state]: gamestate_view.each()) 
             {
-
                 switch(game_state.current_state)
                 {
-
                     case Cmp::GameState::State::MENU:
                     {
                         m_render_sys->render_menu();
@@ -181,7 +179,6 @@ public:
                     }
             } // gamestate_view end
         } /// MAIN LOOP ENDS
-
         return false;   
     }
 
