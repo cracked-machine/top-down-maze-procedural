@@ -1,8 +1,10 @@
 #ifndef __SYSTEMS_WATER_SYSTEM_HPP__
 #define __SYSTEMS_WATER_SYSTEM_HPP__
 
+#include <Movement.hpp>
 #include <PlayableCharacter.hpp>
 #include <Position.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <Settings.hpp>
 #include <WaterLevel.hpp>
 #include <entt/entity/registry.hpp>
@@ -66,7 +68,7 @@ private:
         
         // Cache views once - better performance since entities always exist
         auto water_view = m_reg->view<Cmp::WaterLevel>();
-        auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
+        auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>();
         
         // Separate water level updates from collision checks for better performance
         for(auto [_, water_level]: water_view.each()) {
@@ -75,10 +77,15 @@ private:
         
         // Check drowning - {0,0} is top-left so player drowns when water level is BELOW player position
         for(auto [_, water_level]: water_view.each()) {
-            for(auto [player_entity, player_char, position]: player_view.each()) 
+            for(auto [player_entity, player_char, position, move_cmp]: player_view.each()) 
             {
                 if(water_level.m_level <= position.y) // Water drowns player when water level is at or above player position
                 {
+                    // its hard to move under water ;)
+                    move_cmp.acceleration_rate = move_cmp.DEFAULT_ACCELERATION_RATE * 0.5f;
+                    move_cmp.deceleration_rate = move_cmp.DEFAULT_DECELERATION_RATE * 0.15f;
+                    move_cmp.max_speed = move_cmp.DEFAULT_MAX_SPEED * 0.5f;
+
                     // Check if enough time has passed since last damage
                     auto it = m_last_damage_time.find(player_entity);
                     if(it == m_last_damage_time.end() || 
@@ -98,6 +105,11 @@ private:
                 {
                     // Player is out of water, remove from damage tracking
                     m_last_damage_time.erase(player_entity);
+                    
+                    // Restore above water movement physics
+                    move_cmp.acceleration_rate = move_cmp.DEFAULT_ACCELERATION_RATE;
+                    move_cmp.deceleration_rate = move_cmp.DEFAULT_DECELERATION_RATE;
+                    move_cmp.max_speed = move_cmp.DEFAULT_MAX_SPEED;
                 }
             }
         }

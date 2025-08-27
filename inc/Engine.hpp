@@ -101,7 +101,7 @@ public:
                     {
                         m_event_handler.game_state_handler(m_window);
         
-                        process_direction_queue(deltaTime);
+                        update_character_movement(deltaTime);
                         process_action_queue();       
                         m_flood_sys->update();  
                         m_bomb_sys->update();
@@ -353,60 +353,46 @@ private:
     }
 
     // move the player according to direction and delta time with acceleration
-    void process_direction_queue(sf::Time deltaTime)
+    void update_character_movement(sf::Time deltaTime)
     {
         const float dt = deltaTime.asSeconds();
 
-        for(auto [_entt, _pc, _current_pos, _movement, _direction] : 
+        for(auto [ entity, pc_cmp, pos_cmp, move_cmp, dir_cmp] : 
             m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction>().each())
         {
-            // Apply acceleration in the desired direction
-            if (_direction != sf::Vector2f(0.0f, 0.0f)) 
+            // Apply acceleration in the desired dir_cmp
+            if (dir_cmp != sf::Vector2f(0.0f, 0.0f)) 
             {
-                _movement.acceleration = _direction * _movement.acceleration_rate;
+                move_cmp.acceleration = dir_cmp * move_cmp.acceleration_rate;
             } 
             else 
             {
                 // Apply deceleration when no input
-                if (_movement.velocity != sf::Vector2f(0.0f, 0.0f)) 
+                if (move_cmp.velocity != sf::Vector2f(0.0f, 0.0f)) 
                 {
-                    _movement.acceleration = -_movement.velocity.normalized() * _movement.deceleration_rate;
+                    move_cmp.acceleration = -move_cmp.velocity.normalized() * move_cmp.deceleration_rate;
                 } 
                 else 
                 {
-                    _movement.acceleration = sf::Vector2f(0.0f, 0.0f);
+                    move_cmp.acceleration = sf::Vector2f(0.0f, 0.0f);
                 }
             }
 
-            // Update velocity
-            _movement.velocity += _movement.acceleration * dt;
+            // Update velocity (change in velocity = acceleration * dt)
+            move_cmp.velocity += move_cmp.acceleration * dt;
 
             // Stop completely if current velocity magnitude is below minimum velocity
-            if (_movement.velocity.length() < _movement.min_velocity) {
-                _movement.velocity = sf::Vector2f(0.0f, 0.0f);
-                _movement.acceleration = sf::Vector2f(0.0f, 0.0f);
+            if (move_cmp.velocity.length() < move_cmp.min_velocity) {
+                move_cmp.velocity = sf::Vector2f(0.0f, 0.0f);
+                move_cmp.acceleration = sf::Vector2f(0.0f, 0.0f);
             }
             // Clamp velocity to max speed if current velocity magnitude exceeds max speed
-            else if (_movement.velocity.length() > _movement.max_speed) {
-                _movement.velocity = (_movement.velocity / _movement.velocity.length()) * _movement.max_speed;
+            else if (move_cmp.velocity.length() > move_cmp.max_speed) {
+                move_cmp.velocity = (move_cmp.velocity / move_cmp.velocity.length()) * move_cmp.max_speed;
             }
 
-            // Apply velocity to position
-            _current_pos += _movement.velocity * dt;
-
-            // if(_current_pos.y < Settings::MAP_GRID_OFFSET.y || 
-            //    _current_pos.y > Settings::MAP_GRID_OFFSET.y + (Settings::MAP_GRID_SIZE.y * m_render_sys->m_sprite_factory->DEFAULT_SPRITE_SIZE.y) ||
-            //    _current_pos.x < 0 || 
-            //    _current_pos.x > Settings::MAP_GRID_OFFSET.x + (Settings::MAP_GRID_SIZE.x * m_render_sys->m_sprite_factory->DEFAULT_SPRITE_SIZE.x))
-            // {
-            //     // Reset position to starting point if player goes out of bounds
-            //     _current_pos = Settings::PLAYER_START_POS;
-            //     for (auto [_entt, _sys] : m_reg.view<Cmp::System>().each())
-            //     {
-            //         _sys.player_stuck = true;
-            //     }
-            //     return;
-            // }
+            // Apply velocity to position (change in position = velocity * dt)
+            pos_cmp += move_cmp.velocity * dt;
         }
     }
 
