@@ -4,6 +4,7 @@
 #include <Armed.hpp>
 #include <BasicSprite.hpp>
 #include <DebugEntityIds.hpp>
+#include <Direction.hpp>
 #include <FloodWater.hpp>
 #include <FloodWaterShader.hpp>
 #include <Loot.hpp>
@@ -556,10 +557,31 @@ public:
 
     void render_player()
     {
-        for( auto [entity, _pc, _pos]: 
-            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each() ) 
+        for( auto [entity, player, position, direction]: 
+            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction>().each() ) 
         {
-            m_player_ms->setPosition({_pos.x, _pos.y});
+
+            // flip and x-axis offset the sprite depending on the direction
+            if( direction.x == 1 )
+            {
+                direction.x_scale = 1.f;
+                direction.x_offset = 0.f;
+            }
+            else if ( direction.x == -1 ) 
+            {
+                direction.x_scale = -1.f;
+                direction.x_offset = m_sprite_factory->DEFAULT_SPRITE_SIZE.x;
+            }
+            else 
+            {
+                direction.x_scale =  direction.x_scale; // keep last known direction
+                direction.x_offset = direction.x_offset;
+            }
+
+            m_player_ms->setScale({direction.x_scale, 1.f});
+            m_player_ms->setPosition({position.x + direction.x_offset, position.y});
+
+
             m_player_ms->pick(0, "player");
             m_window->draw(*m_player_ms);
         }

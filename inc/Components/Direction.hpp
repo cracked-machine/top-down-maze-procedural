@@ -21,6 +21,14 @@ public:
     
     ~Direction() { SPDLOG_DEBUG("~Direction()"); }
 
+    // used for sprite flipping: 
+    // 1.f for moving right, -1.f for moving left
+    // default: 1.f otherwise we get no sprite until we move
+    float x_scale = 1.f;
+    // used for sprite positioning after flip: 
+    // 0 for moving right, m_sprite_factory->DEFAULT_SPRITE_SIZE.x for moving left
+    float x_offset = 0.f;
+
 };
 
 } // namespace ProceduralMaze::Cmp
