@@ -24,10 +24,14 @@ FetchContent_MakeAvailable(
     EnTT
 )
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+# Workaround for [-Werror=clobbered] in SPDLog
+# spdlog-src/include/spdlog/logger.h:317:10: error: 
+# variable 'args' might be clobbered by 'longjmp' or 'vfork' 
+# 
+target_compile_options(spdlog INTERFACE -Wno-clobbered)
 
-# add_compile_definitions(SHOW_BRICK_ENTITY_ID)
-add_compile_definitions(SHOW_PLAYER_HIT_BOXES)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_subdirectory( ${CMAKE_SOURCE_DIR}/src )
 

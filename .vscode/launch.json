@@ -19,14 +19,14 @@
     "type": "cppdbg",
     "request": "launch",
     // samba network share path to project and binary 
-    "cwd": "X:\\cpp\\games\\top-down-maze-procedural\\build\\bin",
-    "program": "X:\\cpp\\games\\top-down-maze-procedural\\build\\bin\\ProceduralMaze.exe",
+    "cwd": "X:\\cpp\\games\\temp\\build\\bin",
+    "program": "X:\\cpp\\games\\temp\\build\\bin\\ProceduralMaze.exe",
     "MIMode": "gdb",
     // local target (windows) install of gdb (w64devkit/msys)
     "miDebuggerPath": "C:\\msys64\\mingw64\\bin\\gdb.exe",
     "sourceFileMap":{
       // maps the host docker source path to samba network share source path
-      "\\workspaces\\games\\celestial_bodies\\src": "X:\\cpp\\games\\top-down-maze-procedural\\src"
+      "\\workspaces\\games\\celestial_bodies\\src": "X:\\cpp\\games\\temp\\src"
     }
 
   }

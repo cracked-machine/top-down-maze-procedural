@@ -23,12 +23,12 @@ public:
         DOWN_RIGHT
     };
 
-    void set(entt::basic_registry<entt::entity> &reg, Dir dir, entt::entity entity)
+    void set(Dir dir, entt::entity entity_u32)
     {
-        m_entities[dir] = entity;
+        m_entities[dir] = entity_u32;
     }
 
-    std::optional<entt::entity> get(entt::basic_registry<entt::entity> &reg, Dir dir)
+    std::optional<entt::entity> get(Dir dir)
     {
         if (m_entities.find(dir) != m_entities.end()) 
         {
@@ -59,7 +59,7 @@ public:
         m_entities.clear();
     }
 
-    void remove(entt::basic_registry<entt::entity> &reg, Dir dir)
+    void remove(Dir dir)
     {
         if (m_entities.find(dir) != m_entities.end()) 
         {
@@ -80,6 +80,7 @@ public:
     auto end() { return m_entities.end(); }
 
 private:
+    // map of neighbour entity IDs and their relative direction
     std::map<Dir, entt::entity> m_entities;
     
 

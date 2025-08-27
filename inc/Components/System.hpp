@@ -12,6 +12,7 @@ public:
     bool show_player_hitboxes = false;
     bool show_obstacle_entity_id = false;
     bool player_stuck = false;
+    bool level_complete = false;
 };
 
 } // namespace ProceduralMaze::Cmp

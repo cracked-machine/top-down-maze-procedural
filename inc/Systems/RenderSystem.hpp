@@ -1,40 +1,49 @@
 #ifndef __SYSTEMS_RENDER_SYSTEM_HPP__
 #define __SYSTEMS_RENDER_SYSTEM_HPP__
 
+#include <Armed.hpp>
 #include <BasicSprite.hpp>
+#include <DebugEntityIds.hpp>
+#include <FloodWater.hpp>
+#include <FloodWaterShader.hpp>
+#include <Loot.hpp>
+#include <MultiSprite.hpp>
 #include <Neighbours.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 
-#include <Collision.hpp>
 #include <Font.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <SpriteFactory.hpp>
+#include <WaterLevel.hpp>
+#include <cstddef>
+#include <entt/entity/fwd.hpp>
+#include <exception>
 #include <memory>
 
 #include <Obstacle.hpp>
 #include <PlayableCharacter.hpp>
 #include <Position.hpp>
 #include <Settings.hpp>
-#include <Sprites/Brick.hpp>
-#include <Sprites/Player.hpp>
 #include <System.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <spdlog/spdlog.h>
 #include <TileMap.hpp>
-#include <XAxisHitBox.hpp>
-#include <YAxisHitBox.hpp>
-#include <MultiSprite.hpp>
 
 namespace ProceduralMaze::Sys {
 
-class RenderSystem : public BaseSystem {
+class RenderSystem  {
 public:
     RenderSystem(
+        std::shared_ptr<entt::basic_registry<entt::entity>> reg,
         std::shared_ptr<sf::RenderWindow> win
     ) : 
+        m_reg( reg ),
         m_window( win )
     { 
         using namespace ProceduralMaze::Settings;
@@ -65,10 +74,38 @@ public:
         );
         m_minimap_view.setViewport( sf::FloatRect({0.75f, 0.f}, {0.25f, 0.25f}) );
 
-        SPDLOG_DEBUG("RenderSystem()"); 
+        // we should ensure these MultiSprites are initialized before continuing
+        if( not m_rock_ms ) { SPDLOG_CRITICAL("Unable to get ROCK multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_pot_ms ) { SPDLOG_CRITICAL("Unable to get POT multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_bone_ms ) { SPDLOG_CRITICAL("Unable to get BONE multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_player_ms ) { SPDLOG_CRITICAL("Unable to get PLAYER multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_bomb_ms ) { SPDLOG_CRITICAL("Unable to get BOMB multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_detonation_ms ) { SPDLOG_CRITICAL("Unable to get DETONATION multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_wall_ms ) { SPDLOG_CRITICAL("Unable to get WALL multisprite from SpriteFactory"); std::get_terminate(); }
+
+        if( not m_extra_health_ms ) { SPDLOG_CRITICAL("Unable to get EXTRA_HEALTH multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_extra_bombs_ms ) { SPDLOG_CRITICAL("Unable to get EXTRA_BOMBS multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_infinite_bombs_ms ) { SPDLOG_CRITICAL("Unable to get INFINI_BOMBS multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_chain_bombs_ms ) { SPDLOG_CRITICAL("Unable to get CHAIN_BOMBS multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_lower_water_ms ) { SPDLOG_CRITICAL("Unable to get LOWER_WATER multisprite from SpriteFactory"); std::get_terminate(); }
+
+        // initWaterShader();
+        SPDLOG_INFO("RenderSystem initialised..."); 
     }
     
     ~RenderSystem() { SPDLOG_DEBUG("~RenderSystem()"); } 
+
+    void render_flood_waters()
+    {
+        for( auto [_, _wl]: m_flood_updates.view<Cmp::WaterLevel>().each() ) 
+        {
+            if( _wl.m_level > 0 )
+            {
+                m_water_shader.update(_wl.m_level);
+                m_window->draw(m_water_shader);
+            }
+        }
+    }
 
     void render_menu()
     {
@@ -80,16 +117,21 @@ public:
             title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
             m_window->draw(title_text);
 
-            sf::Text start_text(m_font, "Press any key to start", 48);
+            sf::Text start_text(m_font, "Press <Enter> key to start", 48);
             start_text.setFillColor(sf::Color::White);
-            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
+            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 300.f});
             m_window->draw(start_text);
+
+            sf::Text quit_text(m_font, "Press <Q> key to quit", 48);
+            quit_text.setFillColor(sf::Color::White);
+            quit_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 350.f});
+            m_window->draw(quit_text);
         }
         m_window->display();
         // main render end
     }
 
-    void render_deathscreen()
+    void render_defeat_screen()
     {
         // main render begin
         m_window->clear();
@@ -99,7 +141,26 @@ public:
             title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
             m_window->draw(title_text);
 
-            sf::Text start_text(m_font, "Press any key to continue", 48);
+            sf::Text start_text(m_font, "Press <R> key to continue", 48);
+            start_text.setFillColor(sf::Color::White);
+            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
+            m_window->draw(start_text);
+        }
+        m_window->display();
+        // main render end
+    }
+
+    void render_victory_screen()
+    {
+        // main render begin
+        m_window->clear();
+        {
+            sf::Text title_text(m_font, "You won!", 96);
+            title_text.setFillColor(sf::Color::White);
+            title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
+            m_window->draw(title_text);
+
+            sf::Text start_text(m_font, "Press <R> key to continue", 48);
             start_text.setFillColor(sf::Color::White);
             start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
             m_window->draw(start_text);
@@ -127,22 +188,26 @@ public:
         // main render end
     }
 
-    
-    void render_game(entt::basic_registry<entt::entity> &reg)
+    void render_game()
     {
         using namespace Sprites;
+
+        for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
+            m_show_obstacle_debug = _sys.show_obstacle_entity_id;
+        }                  
 
         // main render begin
         m_window->clear();
         {
-            // local view begin
+            // local view begin - this shows only a `Settings::LOCAL_MAP_VIEW_SIZE` of the game world
             m_window->setView(m_local_view);
             {   
-                render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
-                render_bricks(reg);
+                render_floormap({0, Settings::MAP_GRID_OFFSET.y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y});
+                render_obstacles();
                 render_player();
+                render_flood_waters();
 
-                // update the minimap view center based on player position
+                // move the local view position to equal the player position
                 // reset the center if player is stuck
                 for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
                     if( _sys.player_stuck ) {
@@ -156,18 +221,25 @@ public:
                             update_view_center(m_local_view, _pos);
                         }
                     }
-                }                
+                }              
 
+                // show debug entity id text
+                if( m_show_obstacle_debug ) {
+                    auto s = m_debug_mode_entity_text.getSprite();
+                    // s.setPosition({10, 10}); // Fixed position in screen coordinates
+                    m_window->draw(s);
+                }                
 
             } 
             // local view end
-            
-            // minimap view begin
+
+            // minimap view begin - this show a quarter of the game world but in a much smaller scale
             m_window->setView(m_minimap_view);
             {
-                render_floormap({0, Settings::MAP_GRID_OFFSET.y * Sprites::Brick::HEIGHT});
-                render_bricks(reg);
+                render_floormap({0, Settings::MAP_GRID_OFFSET.y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y});
+                render_obstacles();
                 render_player();
+                render_flood_waters();
 
                 // update the minimap view center based on player position
                 // reset the center if player is stuck
@@ -187,7 +259,7 @@ public:
             } 
             // minimap view end
 
-            // UI Overlays begin
+            // UI Overlays begin (these will always be displayed no matter where the player moves)
             m_window->setView(m_window->getDefaultView());
             {  
                 auto minimap_border = sf::RectangleShape(
@@ -199,14 +271,98 @@ public:
                 minimap_border.setFillColor(sf::Color::Transparent);
                 minimap_border.setOutlineColor(sf::Color::White);
                 minimap_border.setOutlineThickness(2.f);
-                m_window->draw(minimap_border);       
+                m_window->draw(minimap_border);           
+
+                for(auto [_entt, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {
+                    render_health_overlay(_pc.health, {40.f, 20.f},  {200.f, 20.f});
+                    render_bomb_overlay(_pc.bomb_inventory, {40.f, 120.f});
+                }
+
+                for(auto [_entt, water_level]: m_reg->view<Cmp::WaterLevel>().each()) {
+                    render_water_level_meter_overlay(water_level.m_level, {40.f, 70.f},  {200.f, 20.f});
+                }
+
             } 
-            // UI overlays end
+            // UI Overlays end
 
         } 
         m_window->display();
         // main render end
     }
+
+    void render_bomb_overlay(int bomb_count, sf::Vector2f pos)
+    {
+        // text
+        bomb_inventory_text.setPosition(pos);
+        bomb_inventory_text.setFillColor(sf::Color::White);
+        bomb_inventory_text.setOutlineColor(sf::Color::Black);
+        bomb_inventory_text.setOutlineThickness(2.f);
+        m_window->draw(bomb_inventory_text);
+
+        // text
+        sf::Text bomb_count_text(m_font, "", 30);
+        if (bomb_count < 0) bomb_count_text.setString(" INFINITE ");
+        else bomb_count_text.setString(" x " + std::to_string(bomb_count));
+        bomb_count_text.setPosition(pos + sf::Vector2f(100.f, 0.f));
+        bomb_count_text.setFillColor(sf::Color::White);
+        bomb_count_text.setOutlineColor(sf::Color::Black);
+        bomb_count_text.setOutlineThickness(2.f);
+        m_window->draw(bomb_count_text);
+    }
+
+    void render_health_overlay(float health_value, sf::Vector2f pos, sf::Vector2f size)
+    {
+        // text
+        healthlvl_meter_text.setPosition(pos);
+        healthlvl_meter_text.setFillColor(sf::Color::White);
+        healthlvl_meter_text.setOutlineColor(sf::Color::Black);
+        healthlvl_meter_text.setOutlineThickness(2.f);
+        m_window->draw(healthlvl_meter_text);
+
+        // bar fill
+        sf::Vector2f healthbar_offset{100.f, 10.f};
+        auto healthbar = sf::RectangleShape({((size.x / 100) * health_value), size.y});
+        healthbar.setPosition(pos + healthbar_offset);
+        healthbar.setFillColor(sf::Color::Red);
+        m_window->draw(healthbar);
+
+        // bar outline
+        auto healthbar_border = sf::RectangleShape(size);
+        healthbar_border.setPosition(pos + healthbar_offset);
+        healthbar_border.setFillColor(sf::Color::Transparent);
+        healthbar_border.setOutlineColor(sf::Color::Black);
+        healthbar_border.setOutlineThickness(5.f);
+        m_window->draw(healthbar_border);
+    }
+
+    void render_water_level_meter_overlay(float water_level, sf::Vector2f pos, sf::Vector2f size)
+    {
+        // text 
+        waterlvl_meter_text.setPosition(pos);
+        waterlvl_meter_text.setFillColor(sf::Color::White);
+        waterlvl_meter_text.setOutlineColor(sf::Color::Black);
+        waterlvl_meter_text.setOutlineThickness(2.f);
+        m_window->draw(waterlvl_meter_text);
+
+        // bar fill
+        sf::Vector2f waterlvl_meter_offset{100.f, 10.f};
+        // water meter level is represented as a percentage (0-100) of the screen display y-axis
+        // note: {0,0} is top left so we need to invert the Y position
+        float meter_meter_level = size.x - ((size.x / Settings::DISPLAY_SIZE.y) * water_level);
+        auto waterlvlbar = sf::RectangleShape({ meter_meter_level, size.y});
+        waterlvlbar.setPosition(pos + waterlvl_meter_offset);
+        waterlvlbar.setFillColor(sf::Color::Blue);
+        m_window->draw(waterlvlbar);
+
+        // bar outline
+        auto waterlvlbar_border = sf::RectangleShape(size);
+        waterlvlbar_border.setPosition(pos + waterlvl_meter_offset);
+        waterlvlbar_border.setFillColor(sf::Color::Transparent);
+        waterlvlbar_border.setOutlineColor(sf::Color::Black);
+        waterlvlbar_border.setOutlineThickness(5.f);
+        m_window->draw(waterlvlbar_border);
+    }
+
 
     void render_floormap(const sf::Vector2f &offset = {0.f, 0.f})
     {
@@ -214,108 +370,177 @@ public:
         m_window->draw(m_floormap);
     }
 
-    void render_bricks(entt::basic_registry<entt::entity> &reg)
-    {
-        bool show_obstacle_entity_id = false;
-        for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
-            if( _sys.show_obstacle_entity_id ) show_obstacle_entity_id = true;
-        }
+    bool isInView(const sf::View& view, const sf::Vector2f& position, const sf::Vector2f& size) {
+        sf::FloatRect viewBounds(
+            view.getCenter() - view.getSize() / 2.f,
+            view.getSize()
+        );
+        sf::FloatRect objectBounds(position, size);
+        
+        return viewBounds.findIntersection(objectBounds) ? true : false;
+    }
 
+    void render_obstacles() {
 
-
-        for( auto [entity, _ob, _pos, _nb]: 
-            m_position_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() ) {
+        // Group similar draw operations to reduce state changes
+        std::vector<std::pair<sf::Vector2f, int>> rockPositions;
+        std::vector<std::pair<sf::Vector2f, int>> potPositions;
+        std::vector<std::pair<sf::Vector2f, int>> bonePositions;
+        std::vector<sf::Vector2f> wallPositions;
+        std::vector<sf::Vector2f> detonationPositions;
+        
+        // Collect all positions first instead of drawing immediately
+        for(auto [entity, _ob, _pos, _ob_nb_list]: 
+            m_position_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each()) {
             
-            // debug mode
-            if( show_obstacle_entity_id )
-            {
-                if( _ob.m_enabled ) 
-                {
-                    auto generic_brick = Sprites::Brick(
-                        _pos, 
-                        Sprites::Brick::BEDROCK_FILLCOLOUR, 
-                        Sprites::Brick::BEDROCK_LINECOLOUR
-                    );
-                    m_window->draw(generic_brick);
+            if(m_show_obstacle_debug) {
+                if(_ob.m_enabled) {
+                    // Store debug squares for batch rendering
+                    // ...
                 }
-                auto t = sf::Text(
-                    m_font, 
-                    std::to_string(entt::entt_traits<entt::entity>::to_entity(entity)),
-                    Sprites::Brick::HALFHEIGHT
-                );
-                t.setPosition({_pos.x, _pos.y});
-                t.setFillColor(sf::Color::Black);
-                m_window->draw( t );
-            }
-            else 
-            {
-
-                if( _ob.m_type == Cmp::Obstacle::Type::BRICK && _ob.m_enabled) 
-                {
-
-                    m_object_sprite.setPosition(_pos);
-                    m_object_sprite.pick(_ob.m_tile_pick);
-                    m_window->draw(m_object_sprite);
-
+            } else {
+                if(_ob.m_enabled) {
+                    switch(_ob.m_type) {
+                        case Sprites::SpriteFactory::Type::ROCK:
+                            rockPositions.emplace_back(_pos, _ob.m_tile_index);
+                            break;
+                        case Sprites::SpriteFactory::Type::POT:
+                            potPositions.emplace_back(_pos, _ob.m_tile_index);
+                            break;
+                        case Sprites::SpriteFactory::Type::BONES:
+                            bonePositions.emplace_back(_pos, _ob.m_tile_index);
+                            break;
+                        default:
+                            break;
+                    }
                 }
-                if( _ob.m_type == Cmp::Obstacle::Type::BRICK && _ob.m_broken) 
-                {
-                    m_broken_object_sprite.setPosition(_pos);
-                    m_broken_object_sprite.pick(42);
-                    m_window->draw(m_broken_object_sprite);
+                if(_ob.m_broken) {
+                    detonationPositions.push_back(_pos);
                 }
             }
-
-
-
-            if( _ob.m_armed )
-            {
-                // Draw a red square around the occupied brick
-                sf::RectangleShape temp_square(Settings::OBSTACLE_SIZE_2F);
-                temp_square.setPosition(_pos);
-                temp_square.setFillColor(sf::Color::Transparent);
-                temp_square.setOutlineColor(sf::Color::Red);
-                temp_square.setOutlineThickness(1.f);
-                m_window->draw(temp_square);
-
-                m_bomb_sprite.setPosition(_pos);
-                m_bomb_sprite.pick(0);
-                m_window->draw(m_bomb_sprite);
-
-                for( auto [_dir, _nb_entt] : _nb) 
-                {
-                    sf::RectangleShape nb_square(Settings::OBSTACLE_SIZE_2F);
-                    nb_square.setPosition(reg.get<Cmp::Position>( entt::entity(_nb_entt) ));                  
-                    nb_square.setFillColor(sf::Color::Transparent);
-                    nb_square.setOutlineColor(sf::Color::Blue); 
-                    nb_square.setOutlineThickness(1.f); 
-                    m_window->draw(nb_square);
-                } 
-            }            
-                 
+        }
+        
+        // Now draw each type in batches
+        for(const auto& [pos, idx]: rockPositions) {
+            m_rock_ms->pick(idx, "Obstacle");
+            m_rock_ms->setPosition(pos);
+            m_window->draw(*m_rock_ms);
+        }
+        
+        for(const auto& [pos, idx]: potPositions) {
+            m_pot_ms->pick(idx, "Obstacle");
+            m_pot_ms->setPosition(pos);
+            m_window->draw(*m_pot_ms);
+        }
+        
+        for(const auto& [pos, idx]: bonePositions) {
+            m_bone_ms->pick(idx, "Obstacle");
+            m_bone_ms->setPosition(pos);
+            m_window->draw(*m_bone_ms);
+        }
+        
+        // "empty" sprite for detonated objects
+        for(const auto& pos: detonationPositions) {
+            m_detonation_ms->setPosition(pos);
+            m_detonation_ms->pick(0, "Detonated");
+            m_window->draw(*m_detonation_ms);
         }
 
-        // we need a separate view for "bedrock" because it must not have any Neighbours component
+        auto loot_view = m_position_updates.view<Cmp::Obstacle, Cmp::Loot, Cmp::Position>();
+        for( auto [entity, obstacles, loot, position] : loot_view.each() ) 
+        {    
+            switch( loot.m_type ) 
+            {
+                case ProceduralMaze::Sprites::SpriteFactory::Type::EXTRA_HEALTH:
+                    m_extra_health_ms->setPosition(position);
+                    m_extra_health_ms->pick(loot.m_tile_index, "EXTRA_HEALTH");
+                    m_window->draw(*m_extra_health_ms);
+                    break;
+                case ProceduralMaze::Sprites::SpriteFactory::Type::EXTRA_BOMBS:
+                    m_extra_bombs_ms->setPosition(position);
+                    m_extra_bombs_ms->pick(loot.m_tile_index, "EXTRA_BOMBS");
+                    m_window->draw(*m_extra_bombs_ms);
+                    break;
+                case ProceduralMaze::Sprites::SpriteFactory::Type::INFINI_BOMBS:
+                    m_infinite_bombs_ms->setPosition(position);
+                    m_infinite_bombs_ms->pick(loot.m_tile_index, "INFINI_BOMBS");
+                    m_window->draw(*m_infinite_bombs_ms);
+                    break;                        
+                case ProceduralMaze::Sprites::SpriteFactory::Type::CHAIN_BOMBS:
+                    m_chain_bombs_ms->setPosition(position);
+                    m_chain_bombs_ms->pick(loot.m_tile_index, "CHAIN_BOMBS");
+                    m_window->draw(*m_chain_bombs_ms);
+                    break;                        
+                case ProceduralMaze::Sprites::SpriteFactory::Type::LOWER_WATER:
+                    m_lower_water_ms->setPosition(position);
+                    m_lower_water_ms->pick(loot.m_tile_index, "LOWER_WATER");
+                    m_window->draw(*m_lower_water_ms);
+                    break;                        
+                default:
+                    break;
+            }
+        }
+        // render armed obstacles with debug outlines
+        for( auto [entity, _ob, _armed, _pos, _ob_nb_list]: 
+            m_position_updates.view<Cmp::Obstacle, Cmp::Armed, Cmp::Position, Cmp::Neighbours>().each() ) {
+
+            // Draw a red square around the obstacle we are standing on
+            sf::RectangleShape temp_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
+            temp_square.setPosition(_pos);
+            temp_square.setFillColor(sf::Color::Transparent);
+            temp_square.setOutlineColor(sf::Color::Red);
+            temp_square.setOutlineThickness(1.f);
+            m_window->draw(temp_square);
+
+            m_bomb_ms->setPosition(_pos);
+            m_bomb_ms->pick(0, "Bomb");
+            m_window->draw(*m_bomb_ms);
+
+            // get each neighbour entity from the current obstacles neighbour list
+            // and draw a blue square around it
+            for( auto [_dir, _nb_entt] : _ob_nb_list) 
+            {
+                sf::RectangleShape nb_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
+
+                Cmp::Position* _nb_entt_pos = m_reg->try_get<Cmp::Position>( entt::entity(_nb_entt) );
+
+                if( not _nb_entt_pos )
+                {
+                    SPDLOG_WARN("Unable to find Position component for entity: {}", entt::to_integral(_nb_entt));
+                    assert(_nb_entt_pos && "Unable to find Position component for entity" && entt::to_integral(_nb_entt));
+                    continue;
+                }
+
+                nb_square.setPosition(*_nb_entt_pos);                  
+                nb_square.setFillColor(sf::Color::Transparent);
+                nb_square.setOutlineColor(sf::Color::Blue); 
+                nb_square.setOutlineThickness(1.f); 
+                m_window->draw(nb_square);
+            }
+                    
+        }
+
+        // Render textures for "WALL" entities - filtered out because they don't own neighbour components
         for( auto [entity, _ob, _pos]: 
-            m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each() ) {
-            
-            if( _ob.m_type == Cmp::Obstacle::Type::BEDROCK && _ob.m_enabled) 
-            {
-                m_border_sprite.setPosition(_pos);  
-                m_border_sprite.pick(_ob.m_tile_pick);
-                m_window->draw( m_border_sprite ); 
-            }            
+            m_position_updates.view<Cmp::Obstacle, Cmp::Position>(entt::exclude<Cmp::Neighbours>).each() ) {
+
+                m_wall_ms->pick(_ob.m_tile_index, "wall");
+                m_wall_ms->setPosition(_pos);
+                m_window->draw(*m_wall_ms);
+         
         }
     }
+
+
 
     void render_player()
     {
         for( auto [entity, _pc, _pos]: 
             m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each() ) 
         {
-            m_player_sprite.setPosition({_pos.x, _pos.y - (Settings::PLAYER_SPRITE_SIZE.y / 2.f)});
-            m_player_sprite.pick(0);
-            m_window->draw(m_player_sprite);
+            m_player_ms->setPosition({_pos.x, _pos.y});
+            m_player_ms->pick(0, "player");
+            m_window->draw(*m_player_ms);
         }
     }
 
@@ -341,48 +566,64 @@ public:
             currentCenter.y + (newY - currentCenter.y) * smoothFactor
         });
     }
-    
+
+    void create_debug_id_texture()
+    {
+        for( auto [_entt, _ob, _pos]: 
+            m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each() )
+        {
+            m_debug_mode_entity_text.addEntity(
+                _ob.m_tile_index,
+                sf::Vector2f{_pos.x, _pos.y}
+            );
+        }
+    }
+
     entt::reactive_mixin<entt::storage<void>> m_position_updates;
     entt::reactive_mixin<entt::storage<void>> m_system_updates;
+    entt::reactive_mixin<entt::storage<void>> m_flood_updates;
 
     sf::View m_local_view;
     sf::View m_minimap_view;
+
+    // creates and manages MultiSprite resources
+    std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory = std::make_shared<Sprites::SpriteFactory>();
+
 private:
+    Sprites::FloodWaterShader m_water_shader{"res/FloodWater.glsl"};
+    // Entity registry
+    std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
+    
+    // cached multi sprite objects created by SpriteFactory
+    std::optional<Sprites::MultiSprite> m_rock_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::ROCK);
+    std::optional<Sprites::MultiSprite> m_pot_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::POT);
+    std::optional<Sprites::MultiSprite> m_bone_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::BONES);
+    std::optional<Sprites::MultiSprite> m_detonation_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::DETONATED);
+    std::optional<Sprites::MultiSprite> m_bomb_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::BOMB);
+    std::optional<Sprites::MultiSprite> m_wall_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::WALL);
+    std::optional<Sprites::MultiSprite> m_player_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::PLAYER);
+
+    std::optional<Sprites::MultiSprite> m_extra_health_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::EXTRA_HEALTH);
+    std::optional<Sprites::MultiSprite> m_extra_bombs_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::EXTRA_BOMBS);
+    std::optional<Sprites::MultiSprite> m_infinite_bombs_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::INFINI_BOMBS);
+    std::optional<Sprites::MultiSprite> m_chain_bombs_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::CHAIN_BOMBS);
+    std::optional<Sprites::MultiSprite> m_lower_water_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::LOWER_WATER);
+
+    // SFML window handle
     std::shared_ptr<sf::RenderWindow> m_window;
+
+    // background tile map
     Sprites::Containers::TileMap m_floormap;
 
-    Sprites::MultiSprite m_object_sprite{
-        Settings::OBJECT_TILESET_PATH,
-        Settings::OBJECT_TILE_POOL,
-        Settings::OBSTACLE_SIZE
-    };
-
-    Sprites::MultiSprite m_broken_object_sprite{
-        Settings::BROKEN_OBJECT_TILE_PATH,
-        Settings::BROKEN_OBJECT_TILE_POOL,
-        Settings::OBSTACLE_SIZE
-    };
-
-    Sprites::MultiSprite m_border_sprite{
-        Settings::BORDER_TILESET_PATH,
-        Settings::BORDER_TILE_POOL,
-        Settings::OBSTACLE_SIZE
-    };
-
-    Sprites::MultiSprite m_player_sprite{
-        Settings::PLAYER_TILESET_PATH,
-        Settings::PLAYER_TILE_POOL,
-        Settings::PLAYER_SPRITE_SIZE
-    };
-
-    Sprites::MultiSprite m_bomb_sprite{
-        "res/bomb.png",
-        {0}, // No specific tile pool, just one sprite
-        {16,16}
-    };
-
+    Sprites::Containers::DebugEntityIds m_debug_mode_entity_text{m_font};
+    bool m_show_obstacle_debug = false;
+    
     Cmp::Font m_font = Cmp::Font("res/tuffy.ttf");
-// 
+    sf::Text healthlvl_meter_text{m_font,   "Health:", 30};
+    sf::Text waterlvl_meter_text{m_font,    "Flood:", 30};
+    sf::Text bomb_inventory_text{m_font,    "Bombs:", 30};
+
+    
 };
 
 } // namespace ProceduralMaze::Systems

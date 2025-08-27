@@ -1,6 +1,8 @@
 #ifndef __SYSTEMS_COLLISION_SYSTEM_HPP__
 #define __SYSTEMS_COLLISION_SYSTEM_HPP__
 
+#include <Armed.hpp>
+#include <Loot.hpp>
 #include <Neighbours.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -9,46 +11,68 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
+#include <WaterLevel.hpp>
+#include <cassert>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 
-#include <Collision.hpp>
 #include <Obstacle.hpp>
 #include <PlayableCharacter.hpp>
 #include <Position.hpp>
 #include <Settings.hpp>
+#include <memory>
 #include <spdlog/spdlog.h>
 #include <Components/System.hpp>
 #include <Components/Movement.hpp>
 
-
-#include <Sprites/Brick.hpp>
-#include <Sprites/Player.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <XAxisHitBox.hpp>
-#include <YAxisHitBox.hpp>
+
+#include <cassert>
+#define assertm(exp, msg) assert((void(msg), exp))
 
 namespace ProceduralMaze::Sys {
 
-class CollisionSystem : public BaseSystem {
+class CollisionSystem {
 public:
-    CollisionSystem() {}
+    CollisionSystem(std::shared_ptr<entt::basic_registry<entt::entity>> reg) : m_reg(reg) {}
     ~CollisionSystem() = default;
 
-     entt::reactive_mixin<entt::storage<void>> m_collision_updates;
+    std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
+
+    entt::reactive_mixin<entt::storage<void>> m_collision_updates;
 
     sf::Vector2f getCenter(sf::Vector2f pos, sf::Vector2f size)
     {
         return sf::FloatRect(pos, size).getCenter();
     }
 
-    void track_path(entt::basic_registry<entt::entity> &reg, bool place_bomb)
-    {
-        for (auto [_pc_entt, _pc, _pc_pos] :
-            m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each())
+    void suspend() 
+    { 
+        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter>();
+        for (auto [_pc_entt, player] : player_collision_view.each())
         {
-            for (auto [_ob_entt, _ob, _ob_pos, _ob_nb] :
-                m_collision_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each())
+            if( player.m_bombdeploycooldowntimer.isRunning()) player.m_bombdeploycooldowntimer.stop(); 
+        }
+    }
+    void resume() 
+    { 
+        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter>();
+        for (auto [_pc_entt, player] : player_collision_view.each())
+        {
+            if( not player.m_bombdeploycooldowntimer.isRunning()) player.m_bombdeploycooldowntimer.start();
+        }
+    }
+
+    void arm_occupied_location()
+    {
+        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>();
+        for (auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each())
+        {
+            if( _pc.has_active_bomb ) continue; // skip if player already placed a bomb
+            if( _pc.bomb_inventory == 0 ) continue; // skip if player has no bombs left, -1 is infini bombs
+            
+            auto obstacle_collision_view = m_collision_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>();
+            for (auto [_ob_entt, _obstacle_cmp, _ob_pos_cmp, _ob_nb_list] : obstacle_collision_view.each())
             {
                 auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y},  Settings::PLAYER_SIZE_2F);
                 
@@ -58,49 +82,117 @@ public:
                 player_hitbox.position.x += 4.f;
                 player_hitbox.position.y += 4.f;
 
-                auto brick_hitbox = sf::FloatRect(_ob_pos, Settings::OBSTACLE_SIZE_2F);     
+                auto obstacle_hitbox = sf::FloatRect(_ob_pos_cmp, Settings::OBSTACLE_SIZE_2F);     
 
-                // arm the occupied  tile if the player doesn't have an active bomb
-                if( player_hitbox.findIntersection(brick_hitbox) && place_bomb ) {
-                    if( not _pc.has_active_bomb )
-                    {
-                        _ob.m_armed = true;
-                        _ob.m_bomb_timer.restart();
-                        _pc.has_active_bomb = true;
-                    }
-                }
-                // detonate the bomb if it has timed out
-                if( _ob.m_armed && _ob.m_bomb_timer.getElapsedTime().asSeconds() > Settings::MAX_BOMB_TIME ) 
+                // arm the occupied  tile 
+                if( player_hitbox.findIntersection(obstacle_hitbox) )
                 {
-                    // reset the occupied state
-                    _ob.m_armed = false;
-                    
-                    _ob.m_bomb_timer.reset();
-                    _pc.has_active_bomb = false;
-
-                    // Get all the neighbour obstacle components of this obstacle 
-                    // and mark each one as broken
-                    SPDLOG_INFO("Bomb timer expired. Detonating {} neighbours!", _ob_nb.count());
-                    for( auto [_dir, _nb_entt] : _ob_nb) 
+                    if( _pc.m_bombdeploycooldowntimer.getElapsedTime() >= _pc.m_bombdeploydelay ) 
                     {
-                        auto &nb_obstacle = reg.get<Cmp::Obstacle>(_nb_entt);
-                        if( nb_obstacle.m_enabled && not nb_obstacle.m_broken )
-                        {
-                            nb_obstacle.m_broken = true;
-                            nb_obstacle.m_enabled = false;
-                            SPDLOG_INFO("Detonated neighbour: {}", entt::entt_traits<entt::entity>::to_entity(_nb_entt));
-                        }
+                        m_reg->emplace_or_replace<Cmp::Armed>(entt::entity(_ob_entt));
+                        _pc.m_bombdeploycooldowntimer.restart();
+                        _pc.has_active_bomb = true;
+                        _pc.bomb_inventory = (_pc.bomb_inventory > 0) ? _pc.bomb_inventory - 1 : _pc.bomb_inventory;
                     }
-                                    
                 }
-
             }
-
         }
-        
     }
 
-    void check(entt::basic_registry<entt::entity> &reg)
+    void check_loot_collision()
+    {
+        // Store loot effects to be applied after collision detection
+        struct LootEffect {
+            entt::entity loot_entity;
+            Sprites::SpriteFactory::Type type;
+        };
+        
+        std::vector<LootEffect> loot_effects;
+
+        // First pass: detect collisions and gather effects to apply
+        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>();
+        auto loot_collision_view = m_collision_updates.view<Cmp::Loot, Cmp::Position>();
+
+        for (auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each())
+        {
+            auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y}, Settings::PLAYER_SIZE_2F);
+            
+            for (auto [_loot_entt, _loot, _loot_pos] : loot_collision_view.each())
+            {
+                auto loot_hitbox = sf::FloatRect(_loot_pos, Settings::OBSTACLE_SIZE_2F);
+                if (player_hitbox.findIntersection(loot_hitbox))
+                {
+                    // Store effect to apply after collision detection
+                    loot_effects.push_back({_loot_entt, _loot.m_type});
+                }
+            }
+        }
+        
+        // Second pass: apply effects and remove loots
+        for (const auto& effect : loot_effects)
+        {
+            // Apply loot effect to all players that might have collided
+            for (auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each())
+            {
+                switch (effect.type)
+                {
+                    case Sprites::SpriteFactory::Type::EXTRA_HEALTH:
+                        _pc.health = std::min(_pc.health + 10, 100); // max health is 100
+                        break;
+
+                    case Sprites::SpriteFactory::Type::EXTRA_BOMBS:
+                        // Only give more bombs if they don't have INFINI BOMBS perk
+                        if (_pc.bomb_inventory >= 0) _pc.bomb_inventory += 5; 
+                        break;
+
+                    case Sprites::SpriteFactory::Type::LOWER_WATER:
+                        for (auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each())
+                        {
+                            // Adjust water level by 100... The FloodWater rectangle rolls in from display size height down to 0 (fully flooded).
+                            // So increasing the value actually lowers the water level!
+                            water_level.m_level = std::min(water_level.m_level + 100.f, static_cast<float>(Settings::DISPLAY_SIZE.y));
+                            break; // Only adjust the first water level component
+                        }
+                        break; // Missing break statement was here!
+
+                    case Sprites::SpriteFactory::Type::INFINI_BOMBS:
+                        _pc.bomb_inventory = -1; // Give infinite bombs
+                        break;
+                        
+                    case Sprites::SpriteFactory::Type::CHAIN_BOMBS:
+                        _pc.chain_bombs = true; // Enable chain bombs
+                        break;
+
+                    default:
+                        // Non-loot SpriteFactory type
+                        break;
+                }
+            }
+            
+            // Remove the loot entity after processing
+            if (m_reg->valid(effect.loot_entity)) {
+                m_reg->erase<Cmp::Loot>(effect.loot_entity);
+            }
+        }
+    }
+
+    void check_end_zone_collision()
+    {
+        for (auto [_entt, _pc, _pc_pos] : m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each())
+        {
+            auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y}, Settings::PLAYER_SIZE_2F);
+            if (player_hitbox.findIntersection(m_end_zone))
+            {
+                SPDLOG_INFO("Player reached the end zone!");
+                for (auto [_entt, _sys] : m_reg->view<Cmp::System>().each())
+                {
+                    _sys.level_complete = true;
+                }
+            }
+        }
+    }
+
+    void check_collision()
     {
         const float PUSH_FACTOR = 1.1f;  // Push slightly more than minimum to avoid floating point issues
         
@@ -109,7 +201,7 @@ public:
         {
             sf::Vector2f starting_pos = {_pc_pos.x, _pc_pos.y};
             int stuck_loop = 0;
-            bool had_collision = false;
+         
             
             // Reset collision flag at start of frame
             _movement.is_colliding = false;
@@ -126,8 +218,6 @@ public:
                 auto collision = player_floatrect.findIntersection(brick_floatRect);
                 if (!collision) continue;
 
-
-                had_collision = true;
                 stuck_loop++;
 
                 if (stuck_loop > 5) // Reduced threshold, but we'll be smarter about resolution
@@ -146,7 +236,7 @@ public:
                     // If still stuck, reset to spawn
                     SPDLOG_INFO("Could not recover, resetting to spawn");
                     _pc_pos = ProceduralMaze::Settings::PLAYER_START_POS;
-                    for (auto [_entt, _sys] : reg.view<Cmp::System>().each())
+                    for (auto [_entt, _sys] : m_reg->view<Cmp::System>().each())
                     {
                         _sys.player_stuck = true;
                     }
@@ -232,6 +322,13 @@ public:
             }
         }
     }
+
+private:
+
+    sf::FloatRect m_end_zone{
+        {Settings::DISPLAY_SIZE.x * 1.f, 0}, 
+        {500.f, Settings::DISPLAY_SIZE.y * 1.f}
+    };
 };
 
 } // namespace ProceduralMaze::Systems

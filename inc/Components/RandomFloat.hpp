@@ -1,21 +1,19 @@
-#ifndef __COMPONENTS_RANDOM_HPP__
-#define __COMPONENTS_RANDOM_HPP__
+#ifndef __COMPONENTS_RANDOM_FLOAT_HPP__
+#define __COMPONENTS_RANDOM_FLOAT_HPP__
 
-#include <cstddef>
 #include <random>
 #include <Base.hpp>
-#include <algorithm>
 
 namespace ProceduralMaze::Cmp {
 
-class Random : public Cmp::Base {
+class RandomFloat : public Cmp::Base {
 public:
     // set the rng range
-    Random(int min, int max) : m_intdist(min, max) {  }
-    ~Random() { SPDLOG_DEBUG("~Random()"); }
+    RandomFloat(float min, float max) : m_floatdist(min, max) {  }
+    ~RandomFloat() { SPDLOG_DEBUG("~RandomFloat()"); }
 
     // get the next random number
-    int gen() { return m_intdist( m_randgen ); }
+    float gen() { return m_floatdist(m_randgen); }
 
     // set the seed for random generator
     static void seed(unsigned long s) 
@@ -30,10 +28,10 @@ public:
 private:
     static unsigned long m_seed;
     static inline std::mt19937 m_randgen{std::random_device{}()};
-    std::uniform_int_distribution<> m_intdist;
+    std::uniform_real_distribution<> m_floatdist;
 };
 
 
 } // namespace ProceduralMaze::Cmp
 
-#endif // __COMPONENTS_RANDOM_HPP__
+#endif // __COMPONENTS_RANDOM_FLOAT_HPP__
