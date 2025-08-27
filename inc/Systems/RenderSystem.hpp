@@ -590,7 +590,7 @@ public:
     std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory = std::make_shared<Sprites::SpriteFactory>();
 
 private:
-    Sprites::FloodWaterShader m_water_shader{"res/FloodWater.glsl"};
+    Sprites::FloodWaterShader m_water_shader{"res/FloodWater2.glsl"};
     // Entity registry
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
     
