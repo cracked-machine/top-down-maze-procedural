@@ -180,14 +180,12 @@ public:
             sf::Vector2f starting_pos = {_pc_pos.x, _pc_pos.y};
             int stuck_loop = 0;
          
-            
             // Reset collision flag at start of frame
             _movement.is_colliding = false;
 
             for (auto [_ob_entt, _ob, _ob_pos] :
                 m_collision_updates.view<Cmp::Obstacle, Cmp::Position>().each())
             {
-                
                 if (not _ob.m_enabled) { continue; }
 
                 auto player_floatrect = sf::FloatRect({ _pc_pos.x, _pc_pos.y }, Settings::PLAYER_SIZE_2F);
@@ -197,6 +195,9 @@ public:
                 if (!collision) continue;
 
                 stuck_loop++;
+
+                // We'll keep track if we're near the top wall for special handling
+                bool near_top_wall = (_pc_pos.y < Settings::MAP_GRID_OFFSET.y * 16.f);
 
                 if (stuck_loop > 5) // Reduced threshold, but we'll be smarter about resolution
                 {
@@ -236,6 +237,13 @@ public:
 
                 // Store current position in case we need to revert
                 sf::Vector2f pre_resolve_pos = {_pc_pos.x, _pc_pos.y};
+
+                // Near top wall: Slightly bias vertical resolution but don't force it
+                if (near_top_wall && depthY > 0) {
+                    // If pushing down would resolve collision and we're at the top wall,
+                    // slightly prefer vertical resolution (by reducing the X penetration)
+                    depthX *= 1.2f;  // Makes horizontal resolution slightly less likely
+                }
 
                 // Always resolve along the axis of least penetration
                 if (std::abs(depthX) < std::abs(depthY))
@@ -292,10 +300,20 @@ public:
                         _movement.velocity.y *= (1.0f - _movement.friction_coefficient);
                     }
                 }
+
+                // Special case for top wall: prevent any upward movement
+                if (near_top_wall && _pc_pos.y < Settings::MAP_GRID_OFFSET.y * 16.f + 4.0f) {
+                    _movement.velocity.y = std::max(0.0f, _movement.velocity.y);
+                }
                 
                 // Mark that we're colliding for this frame
                 _movement.is_colliding = true;
 
+                // Extra safety for top wall
+                if (near_top_wall && _pc_pos.y < Settings::MAP_GRID_OFFSET.y * 16.f) {
+                    _pc_pos.y = Settings::MAP_GRID_OFFSET.y * 16.f + 1.0f;
+                }
+                
                 SPDLOG_DEBUG("Collision resolved - new pos: {},{}", _pc_pos.x, _pc_pos.y);
             }
         }
