@@ -99,7 +99,7 @@ private:
         {SpriteFactory::Type::EXTRA_HEALTH,   "EXTRA_HEALTH",  "res/Pixel Lands Dungeons/objects.png", {32}, DEFAULT_SPRITE_SIZE, 30.f},
         {SpriteFactory::Type::EXTRA_BOMBS,    "EXTRA_BOMBS",   "res/Pixel Lands Dungeons/objects.png", {67 }, DEFAULT_SPRITE_SIZE, 40.f},
         {SpriteFactory::Type::INFINI_BOMBS,   "INFINI_BOMBS",  "res/Pixel Lands Dungeons/objects.png", {35 }, DEFAULT_SPRITE_SIZE, 1.f},
-        {SpriteFactory::Type::CHAIN_BOMBS,   "CHAIN_BOMBS",   "res/Pixel Lands Dungeons/objects.png", {34 }, DEFAULT_SPRITE_SIZE, 1.f},
+        {SpriteFactory::Type::CHAIN_BOMBS,   "CHAIN_BOMBS",   "res/Pixel Lands Dungeons/objects.png", {34 }, DEFAULT_SPRITE_SIZE, 30.f},
         {SpriteFactory::Type::LOWER_WATER,   "LOWER_WATER",   "res/Pixel Lands Dungeons/objects.png", {33 }, DEFAULT_SPRITE_SIZE, 40.f}
     };
 

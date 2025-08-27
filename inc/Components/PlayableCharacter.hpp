@@ -26,7 +26,7 @@ public:
     // 0 is no bombs, -1 is infinite bombs
     int bomb_inventory{10}; 
     // not implemented
-    bool chain_bombs{false};  
+    int blast_radius = 0;  
 };
 
 } // namespace ProceduralMaze::Cmp

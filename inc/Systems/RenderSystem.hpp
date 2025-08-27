@@ -275,6 +275,7 @@ public:
                 for(auto [_entt, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {
                     render_health_overlay(_pc.health, {40.f, 20.f},  {200.f, 20.f});
                     render_bomb_overlay(_pc.bomb_inventory, {40.f, 120.f});
+                    render_bomb_radius_overlay(_pc.blast_radius, {40.f, 150.f});
                 }
 
                 for(auto [_entt, water_level]: m_reg->view<Cmp::WaterLevel>().each()) {
@@ -287,6 +288,25 @@ public:
         } 
         m_window->display();
         // main render end
+    }
+
+    void render_bomb_radius_overlay(int radius_value, sf::Vector2f pos)
+    {
+        // text
+        bomb_radius_text.setPosition(pos);
+        bomb_radius_text.setFillColor(sf::Color::White);
+        bomb_radius_text.setOutlineColor(sf::Color::Black);
+        bomb_radius_text.setOutlineThickness(2.f);
+        m_window->draw(bomb_radius_text);
+
+        // text
+        sf::Text bomb_radius_value_text(m_font, "", 30);
+        bomb_radius_value_text.setString(std::to_string(radius_value));
+        bomb_radius_value_text.setPosition(pos + sf::Vector2f(180.f, 0.f));
+        bomb_radius_value_text.setFillColor(sf::Color::White);
+        bomb_radius_value_text.setOutlineColor(sf::Color::Black);
+        bomb_radius_value_text.setOutlineThickness(2.f);
+        m_window->draw(bomb_radius_value_text);
     }
 
     void render_bomb_overlay(int bomb_count, sf::Vector2f pos)
@@ -490,10 +510,12 @@ public:
             temp_square.setOutlineColor(sf::Color::Red);
             temp_square.setOutlineThickness(1.f);
             m_window->draw(temp_square);
-
-            m_bomb_ms->setPosition(_pos);
-            m_bomb_ms->pick(0, "Bomb");
-            m_window->draw(*m_bomb_ms);
+            
+            if(_armed.m_display_bomb_sprite) {
+                m_bomb_ms->pick(0, "Bomb");
+                m_bomb_ms->setPosition(_pos);
+                m_window->draw(*m_bomb_ms);
+            }
 
             // get each neighbour entity from the current obstacles neighbour list
             // and draw a blue square around it
@@ -512,7 +534,7 @@ public:
 
                 nb_square.setPosition(*_nb_entt_pos);                  
                 nb_square.setFillColor(sf::Color::Transparent);
-                nb_square.setOutlineColor(sf::Color::Blue); 
+                nb_square.setOutlineColor(_armed.m_armed_color); 
                 nb_square.setOutlineThickness(1.f); 
                 m_window->draw(nb_square);
             }
@@ -621,6 +643,7 @@ private:
     sf::Text healthlvl_meter_text{m_font,   "Health:", 30};
     sf::Text waterlvl_meter_text{m_font,    "Flood:", 30};
     sf::Text bomb_inventory_text{m_font,    "Bombs:", 30};
+    sf::Text bomb_radius_text{m_font,    "Blast Radius:", 30};
 
     
 };

@@ -9,9 +9,11 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
 #include <WaterLevel.hpp>
+#include <algorithm>
 #include <cassert>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
@@ -71,8 +73,8 @@ public:
             if( _pc.has_active_bomb ) continue; // skip if player already placed a bomb
             if( _pc.bomb_inventory == 0 ) continue; // skip if player has no bombs left, -1 is infini bombs
             
-            auto obstacle_collision_view = m_collision_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>();
-            for (auto [_ob_entt, _obstacle_cmp, _ob_pos_cmp, _ob_nb_list] : obstacle_collision_view.each())
+            auto obstacle_collision_view = m_collision_updates.view<Cmp::Obstacle, Cmp::Position>();
+            for (auto [_ob_entt_lvl1, _obstacle_cmp_lvl1, _ob_pos_cmp_lvl1] : obstacle_collision_view.each())
             {
                 auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y},  Settings::PLAYER_SIZE_2F);
                 
@@ -82,14 +84,60 @@ public:
                 player_hitbox.position.x += 4.f;
                 player_hitbox.position.y += 4.f;
 
-                auto obstacle_hitbox = sf::FloatRect(_ob_pos_cmp, Settings::OBSTACLE_SIZE_2F);     
+                auto obstacle_hitbox = sf::FloatRect(_ob_pos_cmp_lvl1, Settings::OBSTACLE_SIZE_2F);     
 
-                // arm the occupied  tile 
+                // are we standing on this tile?
                 if( player_hitbox.findIntersection(obstacle_hitbox) )
                 {
+                    // has the bomb spamming cooldown expired?
                     if( _pc.m_bombdeploycooldowntimer.getElapsedTime() >= _pc.m_bombdeploydelay ) 
                     {
-                        m_reg->emplace_or_replace<Cmp::Armed>(entt::entity(_ob_entt));
+                        // arm the current tile (center of the bomb)
+                        m_reg->emplace_or_replace<Cmp::Armed>(entt::entity(_ob_entt_lvl1), sf::seconds(3), true, sf::Color::Blue);
+                        
+                        // Calculate tile coordinates for the center (bomb location)
+                        // (convert from pixel position to grid position)
+                        sf::Vector2i centerTile = {
+                            static_cast<int>(_ob_pos_cmp_lvl1.x / Settings::OBSTACLE_SIZE_2F.x),
+                            static_cast<int>(_ob_pos_cmp_lvl1.y / Settings::OBSTACLE_SIZE_2F.y)
+                        };
+
+                        // Define blast radius (0 = adjacent tiles, 1 = one tiles out, 2 = two tiles out, etc.)
+                        const int BLAST_RADIUS = _pc.blast_radius;
+                        
+                        // Get all obstacles with positions for the blast pattern
+                        auto all_obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
+                        
+                        // Create a square blast pattern by calculating Manhattan distance
+                        for (auto [entity, obstacle, pos] : all_obstacle_view.each()) {
+                            // Skip the center tile (already armed)
+                            if (entity == _ob_entt_lvl1) continue;
+                            
+                            // Skip already armed obstacles
+                            if (m_reg->any_of<Cmp::Armed>(entity)) continue;
+                            
+                            // Calculate this obstacle's grid position
+                            sf::Vector2i obstacleTile = {
+                                static_cast<int>(pos.x / Settings::OBSTACLE_SIZE_2F.x),
+                                static_cast<int>(pos.y / Settings::OBSTACLE_SIZE_2F.y)
+                            };
+                            
+                            // Calculate Manhattan distance (creates diamond pattern)
+                            int dx = std::abs(obstacleTile.x - centerTile.x);
+                            int dy = std::abs(obstacleTile.y - centerTile.y);
+                            int distance = dx + dy; // Manhattan distance
+                            // int distance = std::max(dx, dy); // square pattern
+                            
+                            // If within blast radius, arm it
+                            if (distance > 0 && distance <= BLAST_RADIUS) {
+                                // Determine color and delay based on distance
+                                sf::Color color = (distance == 1) ? sf::Color::Green : sf::Color::Yellow;
+                                sf::Time delay = sf::seconds(3 + (distance * 0.1));
+                                
+                                m_reg->emplace<Cmp::Armed>(entity, delay, false, color);
+                            }
+                        }
+
                         _pc.m_bombdeploycooldowntimer.restart();
                         _pc.has_active_bomb = true;
                         _pc.bomb_inventory = (_pc.bomb_inventory > 0) ? _pc.bomb_inventory - 1 : _pc.bomb_inventory;
@@ -160,7 +208,7 @@ public:
                         break;
                         
                     case Sprites::SpriteFactory::Type::CHAIN_BOMBS:
-                        _pc.chain_bombs = true; // Enable chain bombs
+                        _pc.blast_radius = std::clamp(_pc.blast_radius + 1, 0, 2); // Enable chain bombs
                         break;
 
                     default:
