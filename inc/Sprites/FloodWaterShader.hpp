@@ -7,8 +7,9 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
+#include <Settings.hpp>
 #include <string>
-#include <string_view>
+#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sprites {
 

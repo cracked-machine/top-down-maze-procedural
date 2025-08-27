@@ -21,7 +21,6 @@
 #include <SFML/System/Vector2.hpp>
 #include <SpriteFactory.hpp>
 #include <WaterLevel.hpp>
-#include <cstddef>
 #include <entt/entity/fwd.hpp>
 #include <exception>
 #include <memory>
