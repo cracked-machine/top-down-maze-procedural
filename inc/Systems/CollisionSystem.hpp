@@ -67,11 +67,14 @@ public:
 
     void arm_occupied_location()
     {
-        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>();
-        for (auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each())
+        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>();
+        for (auto [_pc_entt, _pc, _pc_pos, _movement] : player_collision_view.each())
         {
             if( _pc.has_active_bomb ) continue; // skip if player already placed a bomb
             if( _pc.bomb_inventory == 0 ) continue; // skip if player has no bombs left, -1 is infini bombs
+            
+            // Store movement velocity before bomb placement
+            sf::Vector2f original_velocity = _movement.velocity;
             
             auto obstacle_collision_view = m_collision_updates.view<Cmp::Obstacle, Cmp::Position>();
             for (auto [_ob_entt_lvl1, _obstacle_cmp_lvl1, _ob_pos_cmp_lvl1] : obstacle_collision_view.each())
@@ -102,7 +105,7 @@ public:
                             static_cast<int>(_ob_pos_cmp_lvl1.y / Settings::OBSTACLE_SIZE_2F.y)
                         };
 
-                        // Define blast radius (0 = adjacent tiles, 1 = one tiles out, 2 = two tiles out, etc.)
+                        // Define blast radius
                         const int BLAST_RADIUS = _pc.blast_radius;
                         
                         // Get all obstacles with positions for the blast pattern
@@ -141,6 +144,9 @@ public:
                         _pc.m_bombdeploycooldowntimer.restart();
                         _pc.has_active_bomb = true;
                         _pc.bomb_inventory = (_pc.bomb_inventory > 0) ? _pc.bomb_inventory - 1 : _pc.bomb_inventory;
+                        
+                        // Restore original velocity to prevent movement interruption
+                        _movement.velocity = original_velocity;
                     }
                 }
             }
@@ -149,19 +155,21 @@ public:
 
     void check_loot_collision()
     {
-        // Store loot effects to be applied after collision detection
+        // Store both loot effects and the player velocities
         struct LootEffect {
             entt::entity loot_entity;
             Sprites::SpriteFactory::Type type;
+            entt::entity player_entity;
+            sf::Vector2f original_velocity;
         };
         
         std::vector<LootEffect> loot_effects;
 
         // First pass: detect collisions and gather effects to apply
-        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>();
+        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>();
         auto loot_collision_view = m_collision_updates.view<Cmp::Loot, Cmp::Position>();
 
-        for (auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each())
+        for (auto [_pc_entt, _pc, _pc_pos, _movement] : player_collision_view.each())
         {
             auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y}, Settings::PLAYER_SIZE_2F);
             
@@ -170,8 +178,13 @@ public:
                 auto loot_hitbox = sf::FloatRect(_loot_pos, Settings::OBSTACLE_SIZE_2F);
                 if (player_hitbox.findIntersection(loot_hitbox))
                 {
-                    // Store effect to apply after collision detection
-                    loot_effects.push_back({_loot_entt, _loot.m_type});
+                    // Store effect to apply after collision detection, along with original velocity
+                    loot_effects.push_back({
+                        _loot_entt, 
+                        _loot.m_type, 
+                        _pc_entt,
+                        _movement.velocity
+                    });
                 }
             }
         }
@@ -179,45 +192,48 @@ public:
         // Second pass: apply effects and remove loots
         for (const auto& effect : loot_effects)
         {
-            // Apply loot effect to all players that might have collided
-            for (auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each())
+            if (!m_reg->valid(effect.player_entity)) continue;
+            
+            auto& _pc = m_reg->get<Cmp::PlayableCharacter>(effect.player_entity);
+            
+            // Apply the effect
+            switch (effect.type)
             {
-                switch (effect.type)
-                {
-                    case Sprites::SpriteFactory::Type::EXTRA_HEALTH:
-                        _pc.health = std::min(_pc.health + 10, 100); // max health is 100
-                        break;
+                case Sprites::SpriteFactory::Type::EXTRA_HEALTH:
+                    _pc.health = std::min(_pc.health + 10, 100);
+                    break;
 
-                    case Sprites::SpriteFactory::Type::EXTRA_BOMBS:
-                        // Only give more bombs if they don't have INFINI BOMBS perk
-                        if (_pc.bomb_inventory >= 0) _pc.bomb_inventory += 5; 
-                        break;
+                case Sprites::SpriteFactory::Type::EXTRA_BOMBS:
+                    if (_pc.bomb_inventory >= 0) _pc.bomb_inventory += 5;
+                    break;
 
-                    case Sprites::SpriteFactory::Type::LOWER_WATER:
-                        for (auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each())
-                        {
-                            // Adjust water level by 100... The FloodWater rectangle rolls in from display size height down to 0 (fully flooded).
-                            // So increasing the value actually lowers the water level!
-                            water_level.m_level = std::min(water_level.m_level + 100.f, static_cast<float>(Settings::DISPLAY_SIZE.y));
-                            break; // Only adjust the first water level component
-                        }
-                        break; // Missing break statement was here!
+                case Sprites::SpriteFactory::Type::LOWER_WATER:
+                    for (auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each())
+                    {
+                        water_level.m_level = std::min(water_level.m_level + 100.f, static_cast<float>(Settings::DISPLAY_SIZE.y));
+                        break;
+                    }
+                    break;
 
-                    case Sprites::SpriteFactory::Type::INFINI_BOMBS:
-                        _pc.bomb_inventory = -1; // Give infinite bombs
-                        break;
-                        
-                    case Sprites::SpriteFactory::Type::CHAIN_BOMBS:
-                        _pc.blast_radius = std::clamp(_pc.blast_radius + 1, 0, 2); // Enable chain bombs
-                        break;
+                case Sprites::SpriteFactory::Type::INFINI_BOMBS:
+                    _pc.bomb_inventory = -1;
+                    break;
+                    
+                case Sprites::SpriteFactory::Type::CHAIN_BOMBS:
+                    _pc.blast_radius = std::clamp(_pc.blast_radius + 1, 0, 2);
+                    break;
 
-                    default:
-                        // Non-loot SpriteFactory type
-                        break;
-                }
+                default:
+                    break;
             }
             
-            // Remove the loot entity after processing
+            // Restore original movement velocity
+            if (m_reg->valid(effect.player_entity) && m_reg->all_of<Cmp::Movement>(effect.player_entity)) {
+                auto& movement = m_reg->get<Cmp::Movement>(effect.player_entity);
+                movement.velocity = effect.original_velocity;
+            }
+            
+            // Remove the loot entity
             if (m_reg->valid(effect.loot_entity)) {
                 m_reg->erase<Cmp::Loot>(effect.loot_entity);
             }
