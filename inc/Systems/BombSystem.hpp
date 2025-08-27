@@ -17,8 +17,6 @@
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
-#include <type_traits>
-#include <unordered_set>
 
 namespace ProceduralMaze::Sys {
 
@@ -134,8 +132,21 @@ public:
                         _pc.has_active_bomb = true;
                         _pc.bomb_inventory = (_pc.bomb_inventory > 0) ? _pc.bomb_inventory - 1 : _pc.bomb_inventory;
                         
-                        // Restore original velocity to prevent movement interruption
-                        _movement.velocity = original_velocity;
+                        // Apply a smooth velocity transition instead of abrupt restoration
+                        // This will blend the current velocity with the original to prevent jumping
+                        sf::Vector2f current_velocity = _movement.velocity;
+                        float blend_factor = 0.3f; // Adjust for smoothness (0 = full original, 1 = no change)
+                        
+                        _movement.velocity = sf::Vector2f(
+                            current_velocity.x * blend_factor + original_velocity.x * (1.0f - blend_factor),
+                            current_velocity.y * blend_factor + original_velocity.y * (1.0f - blend_factor)
+                        );
+                        
+                        // Cap the restored velocity to avoid sudden bursts
+                        const float max_restore_speed = _movement.max_speed * 0.5f;
+                        if (_movement.velocity.length() > max_restore_speed) {
+                            _movement.velocity = (_movement.velocity / _movement.velocity.length()) * max_restore_speed;
+                        }
                     }
                 }
             }
