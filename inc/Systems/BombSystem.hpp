@@ -3,6 +3,7 @@
 
 #include <Armed.hpp>
 #include <Loot.hpp>
+#include <Movement.hpp>
 #include <Neighbours.hpp>
 #include <Obstacle.hpp>
 #include <PlayableCharacter.hpp>
@@ -13,6 +14,7 @@
 #include <Settings.hpp>
 #include <SpriteFactory.hpp>
 #include <entt/entity/entity.hpp>
+#include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
 #include <type_traits>
@@ -48,6 +50,95 @@ public:
         for (auto [_pc_entt, armed] : player_collision_view.each())
         {
             if( not armed.m_clock.isRunning()) armed.m_clock.start();
+        }
+    }
+
+
+    void arm_occupied_location()
+    {
+        auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>();
+        for (auto [_pc_entt, _pc, _pc_pos, _movement] : player_collision_view.each())
+        {
+            if( _pc.has_active_bomb ) continue; // skip if player already placed a bomb
+            if( _pc.bomb_inventory == 0 ) continue; // skip if player has no bombs left, -1 is infini bombs
+            
+            // Store movement velocity before bomb placement
+            sf::Vector2f original_velocity = _movement.velocity;
+
+            auto obstacle_collision_view =  m_reg->view<Cmp::Obstacle, Cmp::Position>(entt::exclude<typename Cmp::Armed>);
+            for (auto [_ob_entt_lvl1, _obstacle_cmp_lvl1, _ob_pos_cmp_lvl1] : obstacle_collision_view.each())
+            {
+                auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y},  Settings::PLAYER_SIZE_2F);
+                
+                // reduce the size of the hitbox and center it 
+                player_hitbox.size.x /= 2.f;
+                player_hitbox.size.y /= 2.f;
+                player_hitbox.position.x += 4.f;
+                player_hitbox.position.y += 4.f;
+
+                auto obstacle_hitbox = sf::FloatRect(_ob_pos_cmp_lvl1, Settings::OBSTACLE_SIZE_2F);     
+
+                // are we standing on this tile?
+                if( player_hitbox.findIntersection(obstacle_hitbox) )
+                {
+                    // has the bomb spamming cooldown expired?
+                    if( _pc.m_bombdeploycooldowntimer.getElapsedTime() >= _pc.m_bombdeploydelay ) 
+                    {
+                        // arm the current tile (center of the bomb)
+                        m_reg->emplace_or_replace<Cmp::Armed>(entt::entity(_ob_entt_lvl1), sf::seconds(3), true, sf::Color::Blue);
+                        
+                        // Calculate tile coordinates for the center (bomb location)
+                        // (convert from pixel position to grid position)
+                        sf::Vector2i centerTile = {
+                            static_cast<int>(_ob_pos_cmp_lvl1.x / Settings::OBSTACLE_SIZE_2F.x),
+                            static_cast<int>(_ob_pos_cmp_lvl1.y / Settings::OBSTACLE_SIZE_2F.y)
+                        };
+
+                        // Define blast radius
+                        const int BLAST_RADIUS = _pc.blast_radius;
+                        
+                        // Get all obstacles with positions for the blast pattern
+                        auto all_obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
+                        
+                        // Create a square blast pattern by calculating Manhattan distance
+                        for (auto [entity, obstacle, pos] : all_obstacle_view.each()) {
+                            // Skip the center tile (already armed)
+                            if (entity == _ob_entt_lvl1) continue;
+                            
+                            // Skip already armed obstacles
+                            if (m_reg->any_of<Cmp::Armed>(entity)) continue;
+                            
+                            // Calculate this obstacle's grid position
+                            sf::Vector2i obstacleTile = {
+                                static_cast<int>(pos.x / Settings::OBSTACLE_SIZE_2F.x),
+                                static_cast<int>(pos.y / Settings::OBSTACLE_SIZE_2F.y)
+                            };
+                            
+                            // Calculate Manhattan distance (creates diamond pattern)
+                            int dx = std::abs(obstacleTile.x - centerTile.x);
+                            int dy = std::abs(obstacleTile.y - centerTile.y);
+                            int distance = dx + dy; // Manhattan distance
+                            // int distance = std::max(dx, dy); // square pattern
+                            
+                            // If within blast radius, arm it
+                            if (distance > 0 && distance <= BLAST_RADIUS) {
+                                // Determine color and delay based on distance
+                                sf::Color color = (distance == 1) ? sf::Color::Green : sf::Color::Yellow;
+                                sf::Time delay = sf::seconds(3 + (distance * 0.1));
+                                
+                                m_reg->emplace<Cmp::Armed>(entity, delay, false, color);
+                            }
+                        }
+
+                        _pc.m_bombdeploycooldowntimer.restart();
+                        _pc.has_active_bomb = true;
+                        _pc.bomb_inventory = (_pc.bomb_inventory > 0) ? _pc.bomb_inventory - 1 : _pc.bomb_inventory;
+                        
+                        // Restore original velocity to prevent movement interruption
+                        _movement.velocity = original_velocity;
+                    }
+                }
+            }
         }
     }
 

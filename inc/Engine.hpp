@@ -348,7 +348,7 @@ private:
         if (m_event_handler.m_action_queue.front() == InputEventHandler::GameActions::DROP_BOMB)
         {
             if( not m_event_handler.m_action_queue.empty() ) m_event_handler.m_action_queue.pop();
-            m_collision_sys->arm_occupied_location();
+            m_bomb_sys->arm_occupied_location();
         }
     }
 
