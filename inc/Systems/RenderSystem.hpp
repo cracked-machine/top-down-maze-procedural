@@ -102,8 +102,8 @@ public:
             if( _wl.m_level > 0 )
             {
                 m_water_shader.update(_wl.m_level);
-                m_window->draw(m_water_shader);
             }
+            m_window->draw(m_water_shader);
         }
     }
 
