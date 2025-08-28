@@ -86,7 +86,7 @@ public:
                         for( auto [ _entt, _sys] :
                             m_reg->view<Cmp::System>().each() )
                         {
-                            _sys.show_player_hitboxes = not _sys.show_player_hitboxes;
+                            _sys.show_armed_obstacles = not _sys.show_armed_obstacles;
                         }
                     }
                     else if (keyReleased->scancode == sf::Keyboard::Scancode::F3)

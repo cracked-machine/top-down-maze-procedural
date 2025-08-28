@@ -408,7 +408,11 @@ public:
         std::vector<std::pair<sf::Vector2f, int>> bonePositions;
         std::vector<sf::Vector2f> wallPositions;
         std::vector<sf::Vector2f> detonationPositions;
-        
+
+        bool show_armed_obstacles = false;
+        for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
+            show_armed_obstacles = _sys.show_armed_obstacles;
+        }
         // Collect all positions first instead of drawing immediately
         for(auto [entity, _ob, _pos, _ob_nb_list]: 
             m_position_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each()) {
@@ -503,43 +507,46 @@ public:
         // render armed obstacles with debug outlines
         for( auto [entity, _ob, _armed, _pos, _ob_nb_list]: 
             m_position_updates.view<Cmp::Obstacle, Cmp::Armed, Cmp::Position, Cmp::Neighbours>().each() ) {
-
-            // Draw a red square around the obstacle we are standing on
-            sf::RectangleShape temp_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
-            temp_square.setPosition(_pos);
-            temp_square.setFillColor(sf::Color::Transparent);
-            temp_square.setOutlineColor(sf::Color::Red);
-            temp_square.setOutlineThickness(1.f);
-            m_window->draw(temp_square);
-            
+                
             if(_armed.m_display_bomb_sprite) {
                 m_bomb_ms->pick(0, "Bomb");
                 m_bomb_ms->setPosition(_pos);
                 m_window->draw(*m_bomb_ms);
             }
 
-            // get each neighbour entity from the current obstacles neighbour list
-            // and draw a blue square around it
-            for( auto [_dir, _nb_entt] : _ob_nb_list) 
+            if (show_armed_obstacles)
             {
-                sf::RectangleShape nb_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
+                // Draw a red square around the obstacle we are standing on
+                sf::RectangleShape temp_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
+                temp_square.setPosition(_pos);
+                temp_square.setFillColor(sf::Color::Transparent);
+                temp_square.setOutlineColor(sf::Color::Red);
+                temp_square.setOutlineThickness(1.f);
+                m_window->draw(temp_square);
+                
 
-                Cmp::Position* _nb_entt_pos = m_reg->try_get<Cmp::Position>( entt::entity(_nb_entt) );
-
-                if( not _nb_entt_pos )
+                // get each neighbour entity from the current obstacles neighbour list
+                // and draw a blue square around it
+                for( auto [_dir, _nb_entt] : _ob_nb_list) 
                 {
-                    SPDLOG_WARN("Unable to find Position component for entity: {}", entt::to_integral(_nb_entt));
-                    assert(_nb_entt_pos && "Unable to find Position component for entity" && entt::to_integral(_nb_entt));
-                    continue;
-                }
+                    sf::RectangleShape nb_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
 
-                nb_square.setPosition(*_nb_entt_pos);                  
-                nb_square.setFillColor(sf::Color::Transparent);
-                nb_square.setOutlineColor(_armed.m_armed_color); 
-                nb_square.setOutlineThickness(1.f); 
-                m_window->draw(nb_square);
-            }
-                    
+                    Cmp::Position* _nb_entt_pos = m_reg->try_get<Cmp::Position>( entt::entity(_nb_entt) );
+
+                    if( not _nb_entt_pos )
+                    {
+                        SPDLOG_WARN("Unable to find Position component for entity: {}", entt::to_integral(_nb_entt));
+                        assert(_nb_entt_pos && "Unable to find Position component for entity" && entt::to_integral(_nb_entt));
+                        continue;
+                    }
+
+                    nb_square.setPosition(*_nb_entt_pos);                  
+                    nb_square.setFillColor(sf::Color::Transparent);
+                    nb_square.setOutlineColor(_armed.m_armed_color); 
+                    nb_square.setOutlineThickness(1.f); 
+                    m_window->draw(nb_square);
+                }
+            }                    
         }
 
         // Render textures for "WALL" entities - filtered out because they don't own neighbour components
