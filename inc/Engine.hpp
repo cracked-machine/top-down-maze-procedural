@@ -129,10 +129,10 @@ public:
                             }
                         }
 
-                        // auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
-                        // for(auto [npc_entity, _npc]: m_reg->view<Cmp::NPC>().each()) {
-                        //     m_path_find_sys->findPath(npc_entity, player_entity);
-                        // }
+                        auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
+                        for(auto [npc_entity, _npc]: m_reg->view<Cmp::NPC>().each()) {
+                            m_path_find_sys->findPath(npc_entity, player_entity);
+                        }
 
                         m_render_sys->render_game();
                         break;

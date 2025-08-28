@@ -312,8 +312,11 @@ public:
         for (auto [_entt, _dijkstra_distance, _position] : m_reg->view<Cmp::DijkstraDistance, Cmp::Position>().each())
         {
             sf::Text distance_text(m_font, "", 10);
-            if( _dijkstra_distance.distance == std::numeric_limits<unsigned int>::max() ) continue;
-            else distance_text.setString(std::to_string(_dijkstra_distance.distance));
+            if( _dijkstra_distance.distance == std::numeric_limits<unsigned int>::max() ) {
+                continue;
+            } else {
+                distance_text.setString(std::to_string(_dijkstra_distance.distance));
+            }
 
             distance_text.setPosition(_position);
             distance_text.setFillColor(sf::Color::White);
@@ -499,13 +502,6 @@ public:
             m_bone_ms->pick(idx, "Obstacle");
             m_bone_ms->setPosition(pos);
             m_window->draw(*m_bone_ms);
-
-            sf::RectangleShape temp_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
-            temp_square.setPosition(pos);
-            temp_square.setFillColor(sf::Color::Transparent);
-            temp_square.setOutlineColor(sf::Color::Magenta);
-            temp_square.setOutlineThickness(1.f);
-            m_window->draw(temp_square);
         }
 
         // "empty" sprite for detonated objects

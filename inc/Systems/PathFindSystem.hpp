@@ -2,10 +2,12 @@
 #define __SYS_PATHFINDSYSTEM_HPP__
 
 #include <DijkstraDistance.hpp>
+#include <NPC.hpp>
 #include <Obstacle.hpp>
 #include <Position.hpp>
 #include <PlayableCharacter.hpp>
 #include <VisitedNode.hpp>
+#include <cstdlib>
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
 #include <queue>
@@ -31,24 +33,47 @@ public:
         m_start_entity = start_entity;
         m_end_entity = end_entity;
 
-
-        // SPDLOG_INFO("Start entity {}, End entity {}", static_cast<uint32_t>(m_start_entity), static_cast<uint32_t>(m_end_entity));
-        for( auto [entity, _pos]: m_reg->view<Cmp::Position>().each() )
+        // reset distances of all non-NPC entities
+        for( auto [entity, _pos]: m_reg->view<Cmp::Position>(entt::exclude<Cmp::NPC>).each() ) 
         {
-            if (entity == start_entity) {
-                m_reg->emplace_or_replace<Cmp::DijkstraDistance>(entity, 0);
-                
-            } else {
-                m_reg->emplace_or_replace<Cmp::DijkstraDistance>(entity, std::numeric_limits<unsigned int>::max());
+            m_reg->emplace_or_replace<Cmp::DijkstraDistance>(entity, DIJKSTRA_MAX_DISTANCE);
+        }
+
+        // Handle all NPC entities
+        for (auto [entity, _pos, _npc]: m_reg->view<Cmp::Position, Cmp::NPC>().each())
+        {
+            auto start_end_entity_distance = getManhattenDistance(getGridPosition(entity), getGridPosition(m_end_entity));
+            
+            auto dijkstra_component = m_reg->try_get<Cmp::DijkstraDistance>(entity);
+            if (dijkstra_component) 
+            {
+                if (start_end_entity_distance < AGGRO_DISTANCE) 
+                {
+                    m_reg->patch<Cmp::DijkstraDistance>(entity, [](auto & dijkstra_component) { 
+                        dijkstra_component.distance = 0; 
+                    });
+
+                    // Update distances for nearby non-NPC entities
+                    for (auto [next_entity, next_pos]: m_reg->view<Cmp::Position>(entt::exclude<Cmp::NPC>).each())
+                    {
+                        auto possible_obstacle = m_reg->try_get<Cmp::Obstacle>(next_entity);
+                        if(possible_obstacle && possible_obstacle->m_enabled) continue;
+
+                        int distance = getManhattenDistance(getGridPosition(entity), getGridPosition(next_entity));
+                        if (distance <= SCAN_DISTANCE)
+                        {
+                            m_reg->emplace_or_replace<Cmp::DijkstraDistance>(next_entity, distance);
+                        }
+                    }
+                } 
+                else 
+                {
+                    m_reg->patch<Cmp::DijkstraDistance>(entity, [this](auto & dijkstra_component) { 
+                        dijkstra_component.distance = DIJKSTRA_MAX_DISTANCE; 
+                    });
+                }
             }
         }
-        if(getManhattenDistance(getGridPosition(m_start_entity), getGridPosition(m_end_entity)) > AGGRO_DISTANCE) 
-        {
-            // m_reg->clear<Cmp::DijkstraDistance>();   
-            return;
-        }
-        m_priority_queue.push({0, m_start_entity});
-        check_unvisited_set();
     }
 
     void check_unvisited_set()
@@ -63,10 +88,7 @@ public:
 
             int distance = getManhattenDistance(getGridPosition(this_node.second),  getGridPosition(next_entity));
             if (distance > SCAN_DISTANCE) continue;
-            else m_reg->emplace_or_replace<Cmp::DijkstraDistance>(
-                next_entity, 
-                distance
-            );
+            else m_reg->emplace_or_replace<Cmp::DijkstraDistance>( next_entity, distance );
 
         }
     
@@ -113,6 +135,7 @@ private:
 
     const int SCAN_DISTANCE{5};
     const int AGGRO_DISTANCE{5};
+    const unsigned int DIJKSTRA_MAX_DISTANCE{std::numeric_limits<unsigned int>::max()};
 };
 
 } // namespace ProceduralMaze::Sys
