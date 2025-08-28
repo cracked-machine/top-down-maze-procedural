@@ -2,6 +2,8 @@
 #define __ENTITY_FACTORY_HPP__
 
 #include <Direction.hpp>
+#include <NPC.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <WaterLevel.hpp>
 #include <entt/entity/registry.hpp>
 
@@ -46,6 +48,17 @@ public:
         auto entity = reg->create();
         reg->emplace<Cmp::Position>(entity, Settings::PLAYER_START_POS);
         reg->emplace<Cmp::PlayableCharacter>(entity);
+        reg->emplace<Cmp::Movement>(entity);
+        reg->emplace<Cmp::Direction>(entity, sf::Vector2f{0,0});
+    }
+
+
+    static void add_npc_entity(std::shared_ptr<entt::basic_registry<entt::entity>> reg, sf::Vector2f position)
+    {
+        SPDLOG_INFO("Creating NPC entity");
+        auto entity = reg->create();
+        reg->emplace<Cmp::Position>(entity, position);
+        reg->emplace<Cmp::NPC>(entity, true);
         reg->emplace<Cmp::Movement>(entity);
         reg->emplace<Cmp::Direction>(entity, sf::Vector2f{0,0});
     }

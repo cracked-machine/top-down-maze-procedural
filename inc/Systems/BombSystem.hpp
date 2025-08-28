@@ -4,6 +4,7 @@
 #include <Armed.hpp>
 #include <Loot.hpp>
 #include <Movement.hpp>
+#include <NPC.hpp>
 #include <Neighbours.hpp>
 #include <Obstacle.hpp>
 #include <PlayableCharacter.hpp>
@@ -172,25 +173,31 @@ public:
             // tell the render system to draw detonated obstacle differently
             nb_obstacle->m_broken = true;
             nb_obstacle->m_enabled = false;
-            m_detonate_sound_player.play();
-
+            
             // add loot to any broken pot neighbour entities
             if( nb_obstacle->m_type == Sprites::SpriteFactory::Type::POT)
             {
                 auto random_selected_loot_metadata = m_sprite_factory->get_random_metadata(std::vector<Sprites::SpriteFactory::Type>{
-                        Sprites::SpriteFactory::Type::EXTRA_HEALTH,
-                        Sprites::SpriteFactory::Type::EXTRA_BOMBS,
-                        Sprites::SpriteFactory::Type::INFINI_BOMBS,
-                        Sprites::SpriteFactory::Type::CHAIN_BOMBS,
-                        Sprites::SpriteFactory::Type::LOWER_WATER
-                    });
+                    Sprites::SpriteFactory::Type::EXTRA_HEALTH,
+                    Sprites::SpriteFactory::Type::EXTRA_BOMBS,
+                    Sprites::SpriteFactory::Type::INFINI_BOMBS,
+                    Sprites::SpriteFactory::Type::CHAIN_BOMBS,
+                    Sprites::SpriteFactory::Type::LOWER_WATER
+                });
                 m_reg->emplace<Cmp::Loot>(neighbour_entity,
                     random_selected_loot_metadata->get_type(),
                     random_selected_loot_metadata->pick_random_texture_index()
                 );
             }
         }
-
+        
+        Cmp::NPC* npc = m_reg->try_get<Cmp::NPC>(neighbour_entity);
+        if (npc)
+        {
+            m_reg->remove<Cmp::NPC>(neighbour_entity);
+        }
+        m_detonate_sound_player.play();
+        
     }
 
     void update()

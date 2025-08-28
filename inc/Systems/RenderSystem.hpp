@@ -3,13 +3,17 @@
 
 #include <Armed.hpp>
 #include <BasicSprite.hpp>
+#include <DebugDijkstraDistances.hpp>
 #include <DebugEntityIds.hpp>
+#include <DijkstraDistance.hpp>
 #include <Direction.hpp>
 #include <FloodWater.hpp>
 #include <FloodWaterShader.hpp>
 #include <Loot.hpp>
 #include <MultiSprite.hpp>
+#include <NPC.hpp>
 #include <Neighbours.hpp>
+#include <PathFindSystem.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -41,10 +45,12 @@ class RenderSystem  {
 public:
     RenderSystem(
         std::shared_ptr<entt::basic_registry<entt::entity>> reg,
-        std::shared_ptr<sf::RenderWindow> win
+        std::shared_ptr<sf::RenderWindow> win,
+        std::shared_ptr<Sys::PathFindSystem> path_find_sys
     ) : 
         m_reg( reg ),
-        m_window( win )
+        m_window( win ),
+        m_path_find_sys( path_find_sys )
     { 
         using namespace ProceduralMaze::Settings;
 
@@ -82,6 +88,7 @@ public:
         if( not m_bomb_ms ) { SPDLOG_CRITICAL("Unable to get BOMB multisprite from SpriteFactory"); std::get_terminate(); }
         if( not m_detonation_ms ) { SPDLOG_CRITICAL("Unable to get DETONATION multisprite from SpriteFactory"); std::get_terminate(); }
         if( not m_wall_ms ) { SPDLOG_CRITICAL("Unable to get WALL multisprite from SpriteFactory"); std::get_terminate(); }
+        if( not m_npc_ms ) { SPDLOG_CRITICAL("Unable to get NPC multisprite from SpriteFactory"); std::get_terminate(); }
 
         if( not m_extra_health_ms ) { SPDLOG_CRITICAL("Unable to get EXTRA_HEALTH multisprite from SpriteFactory"); std::get_terminate(); }
         if( not m_extra_bombs_ms ) { SPDLOG_CRITICAL("Unable to get EXTRA_BOMBS multisprite from SpriteFactory"); std::get_terminate(); }
@@ -194,6 +201,7 @@ public:
 
         for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
             m_show_obstacle_debug = _sys.show_obstacle_entity_id;
+            m_show_dijkstra_distance = _sys.show_dijkstra_distance;
         }                  
 
         // main render begin
@@ -205,7 +213,9 @@ public:
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y});
                 render_obstacles();
                 render_player();
+                render_npc();
                 render_flood_waters();
+                render_dijkstra_distances();
 
                 // move the local view position to equal the player position
                 // reset the center if player is stuck
@@ -239,6 +249,7 @@ public:
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y});
                 render_obstacles();
                 render_player();
+                render_npc();
                 render_flood_waters();
 
                 // update the minimap view center based on player position
@@ -289,6 +300,28 @@ public:
         } 
         m_window->display();
         // main render end
+    }
+
+    void render_dijkstra_distances()
+    {
+        if (!m_show_dijkstra_distance) return;
+
+        // create_debug_dijkstra_texture();
+        // m_window->draw(m_debug_mode_dijkstra_text.getSprite());
+        // Render Dijkstra distances
+        for (auto [_entt, _dijkstra_distance, _position] : m_reg->view<Cmp::DijkstraDistance, Cmp::Position>().each())
+        {
+            sf::Text distance_text(m_font, "", 10);
+            if( _dijkstra_distance.distance == std::numeric_limits<unsigned int>::max() ) continue;
+            else distance_text.setString(std::to_string(_dijkstra_distance.distance));
+
+            distance_text.setPosition(_position);
+            distance_text.setFillColor(sf::Color::White);
+            distance_text.setOutlineColor(sf::Color::Black);
+            distance_text.setOutlineThickness(2.f);
+            m_window->draw(distance_text);
+
+        }
     }
 
     void render_bomb_radius_overlay(int radius_value, sf::Vector2f pos)
@@ -406,12 +439,17 @@ public:
         std::vector<std::pair<sf::Vector2f, int>> rockPositions;
         std::vector<std::pair<sf::Vector2f, int>> potPositions;
         std::vector<std::pair<sf::Vector2f, int>> bonePositions;
+        std::vector<std::pair<sf::Vector2f, int>> npcPositions;
         std::vector<sf::Vector2f> wallPositions;
         std::vector<sf::Vector2f> detonationPositions;
 
         bool show_armed_obstacles = false;
+        bool show_pathfinding = false;
+        std::vector<entt::entity> path_entities;
+
         for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
             show_armed_obstacles = _sys.show_armed_obstacles;
+            show_pathfinding = _sys.show_pathfinding;
         }
         // Collect all positions first instead of drawing immediately
         for(auto [entity, _ob, _pos, _ob_nb_list]: 
@@ -443,7 +481,7 @@ public:
                 }
             }
         }
-        
+
         // Now draw each type in batches
         for(const auto& [pos, idx]: rockPositions) {
             m_rock_ms->pick(idx, "Obstacle");
@@ -461,13 +499,38 @@ public:
             m_bone_ms->pick(idx, "Obstacle");
             m_bone_ms->setPosition(pos);
             m_window->draw(*m_bone_ms);
+
+            sf::RectangleShape temp_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
+            temp_square.setPosition(pos);
+            temp_square.setFillColor(sf::Color::Transparent);
+            temp_square.setOutlineColor(sf::Color::Magenta);
+            temp_square.setOutlineThickness(1.f);
+            m_window->draw(temp_square);
         }
-        
+
         // "empty" sprite for detonated objects
         for(const auto& pos: detonationPositions) {
             m_detonation_ms->setPosition(pos);
             m_detonation_ms->pick(0, "Detonated");
             m_window->draw(*m_detonation_ms);
+        }
+
+        if(show_pathfinding)
+        {
+            path_entities = m_path_find_sys->getPath();
+            for( auto entity: path_entities)
+            {
+                auto position = m_reg->try_get<Cmp::Position>(entity);
+                if(position)
+                {
+                    sf::RectangleShape temp_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
+                    temp_square.setPosition(*position);
+                    temp_square.setFillColor(sf::Color::Transparent);
+                    temp_square.setOutlineColor(sf::Color::Magenta);
+                    temp_square.setOutlineThickness(1.f);
+                    m_window->draw(temp_square);
+                }
+            }
         }
 
         auto loot_view = m_position_updates.view<Cmp::Obstacle, Cmp::Loot, Cmp::Position>();
@@ -560,7 +623,17 @@ public:
         }
     }
 
+    void render_npc()
+    {
+        for( auto [entity, npc, pos]: 
+            m_position_updates.view<Cmp::NPC, Cmp::Position>().each() )
+        {
+            m_npc_ms->setPosition(pos);
 
+            m_npc_ms->pick(0, "npc");
+            m_window->draw(*m_npc_ms);
+        }
+    }
 
     void render_player()
     {
@@ -619,11 +692,25 @@ public:
 
     void create_debug_id_texture()
     {
-        for( auto [_entt, _ob, _pos]: 
-            m_position_updates.view<Cmp::Obstacle, Cmp::Position>().each() )
+        for( auto [_entt, _pos, _dist]: 
+            m_position_updates.view<Cmp::Position, Cmp::DijkstraDistance>().each() )
         {
             m_debug_mode_entity_text.addEntity(
-                _ob.m_tile_index,
+                _dist.distance,
+                sf::Vector2f{_pos.x, _pos.y}
+            );
+        }
+    }
+
+    void create_debug_dijkstra_texture()
+    {
+        m_debug_mode_dijkstra_text.clear();
+        for( auto [_entt, _pos, _dist]: 
+            m_position_updates.view<Cmp::Position, Cmp::DijkstraDistance>().each() )
+        {
+            if( _dist.distance == std::numeric_limits<unsigned int>::max() ) continue;
+            m_debug_mode_dijkstra_text.addDistance(
+                _dist.distance,
                 sf::Vector2f{_pos.x, _pos.y}
             );
         }
@@ -643,6 +730,10 @@ private:
     Sprites::FloodWaterShader m_water_shader{"res/FloodWater2.glsl"};
     // Entity registry
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
+    // SFML window handle
+    std::shared_ptr<sf::RenderWindow> m_window;
+    // path finding system handle
+    std::shared_ptr<Sys::PathFindSystem> m_path_find_sys;
     
     // cached multi sprite objects created by SpriteFactory
     std::optional<Sprites::MultiSprite> m_rock_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::ROCK);
@@ -652,6 +743,7 @@ private:
     std::optional<Sprites::MultiSprite> m_bomb_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::BOMB);
     std::optional<Sprites::MultiSprite> m_wall_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::WALL);
     std::optional<Sprites::MultiSprite> m_player_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::PLAYER);
+    std::optional<Sprites::MultiSprite> m_npc_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::NPC);
 
     std::optional<Sprites::MultiSprite> m_extra_health_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::EXTRA_HEALTH);
     std::optional<Sprites::MultiSprite> m_extra_bombs_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::EXTRA_BOMBS);
@@ -659,15 +751,16 @@ private:
     std::optional<Sprites::MultiSprite> m_chain_bombs_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::CHAIN_BOMBS);
     std::optional<Sprites::MultiSprite> m_lower_water_ms = m_sprite_factory->get_multisprite_by_type(Sprites::SpriteFactory::Type::LOWER_WATER);
 
-    // SFML window handle
-    std::shared_ptr<sf::RenderWindow> m_window;
 
     // background tile map
     Sprites::Containers::TileMap m_floormap;
 
     Sprites::Containers::DebugEntityIds m_debug_mode_entity_text{m_font};
+    Sprites::Containers::DebugDijkstraDistances m_debug_mode_dijkstra_text{m_font};
+
     bool m_show_obstacle_debug = false;
-    
+    bool m_show_dijkstra_distance = false;
+
     Cmp::Font m_font = Cmp::Font("res/tuffy.ttf");
     sf::Text healthlvl_meter_text{m_font,   "Health:", 30};
     sf::Text waterlvl_meter_text{m_font,    "Flood:", 30};

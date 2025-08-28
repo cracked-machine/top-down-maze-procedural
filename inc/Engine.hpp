@@ -6,6 +6,7 @@
 #include <EntityFactory.hpp>
 #include <FloodSystem.hpp>
 #include <GameState.hpp>
+#include <PathFindSystem.hpp>
 #include <ProcGen/RandomLevelGenerator.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
@@ -109,6 +110,8 @@ public:
                         m_bomb_sys->update();
                         m_collision_sys->check_end_zone_collision();
                         m_collision_sys->check_loot_collision();
+                        m_collision_sys->check_bones_reanimation();
+                        m_collision_sys->check_npc_collision();
 
                         // did the player drown? Then end the game
                         for(auto [_, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {
@@ -126,7 +129,12 @@ public:
                             }
                         }
 
-                        m_render_sys->render_game();   
+                        // auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
+                        // for(auto [npc_entity, _npc]: m_reg->view<Cmp::NPC>().each()) {
+                        //     m_path_find_sys->findPath(npc_entity, player_entity);
+                        // }
+
+                        m_render_sys->render_game();
                         break;
                     } // case PLAYING end
 
@@ -196,8 +204,9 @@ private:
         std::make_shared<entt::basic_registry<entt::entity>>(entt::basic_registry<entt::entity>{});
 
     //  ECS Systems
+    std::shared_ptr<Sys::PathFindSystem> m_path_find_sys = std::make_shared<Sys::PathFindSystem>(m_reg);
     std::unique_ptr<Sys::CollisionSystem> m_collision_sys = std::make_unique<Sys::CollisionSystem>(m_reg);
-    std::unique_ptr<Sys::RenderSystem> m_render_sys = std::make_unique<Sys::RenderSystem> (m_reg, m_window);
+    std::unique_ptr<Sys::RenderSystem> m_render_sys = std::make_unique<Sys::RenderSystem> (m_reg, m_window, m_path_find_sys);
     std::unique_ptr<Sys::FloodSystem> m_flood_sys = std::make_unique<Sys::FloodSystem> (m_reg, 5.f);
     std::unique_ptr<Sys::BombSystem> m_bomb_sys = std::make_unique<Sys::BombSystem> (
         m_reg, 
@@ -339,6 +348,7 @@ private:
         // 2. setup new entities and generate the level
         EntityFactory::add_system_entity( m_reg );
         EntityFactory::add_player_entity( m_reg );
+        // EntityFactory::add_npc_entity( m_reg, {100.f, 100.f} );
         m_flood_sys->add_flood_water_entity();
 
         // create initial random game area with the required sprites

@@ -11,6 +11,8 @@ public:
     bool collisions_enabled = true;
     bool show_armed_obstacles = false;
     bool show_obstacle_entity_id = false;
+    bool show_pathfinding = false;
+    bool show_dijkstra_distance = false;
     bool player_stuck = false;
     bool level_complete = false;
 };

@@ -35,7 +35,8 @@ public:
         EXTRA_BOMBS = 8,
         INFINI_BOMBS = 9,
         CHAIN_BOMBS = 10,
-        LOWER_WATER = 11
+        LOWER_WATER = 11,
+        NPC = 12
     };
 
     const sf::Vector2u PLAYER_SPRITE_SIZE = {16, 16};
@@ -93,12 +94,14 @@ private:
         {SpriteFactory::Type::ROCK,           "ROCK",  "res/Pixel Lands Dungeons/objects.png", {147,148}, DEFAULT_SPRITE_SIZE, 40.f,},
         {SpriteFactory::Type::POT,            "POT",   "res/Pixel Lands Dungeons/objects.png", {337, 339, 341}, DEFAULT_SPRITE_SIZE, 1.f},
         {SpriteFactory::Type::BONES,          "BONES", "res/Pixel Lands Dungeons/objects.png", {270, 271}, DEFAULT_SPRITE_SIZE, 1.f},
+        {SpriteFactory::Type::NPC,            "NPC",           "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", {121}, DEFAULT_SPRITE_SIZE, 1.f},
         {SpriteFactory::Type::DETONATED,      "DETONATED", "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", {42}, DEFAULT_SPRITE_SIZE},
-        {SpriteFactory::Type::PLAYER,         "PLAYER", "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", {84, 85,86,87,88,96,97,98,99,100}, PLAYER_SPRITE_SIZE},
+        {SpriteFactory::Type::PLAYER,         "PLAYER", "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", 
+            {84, 85,86,87,88,96,97,98,99,100}, PLAYER_SPRITE_SIZE},
         {SpriteFactory::Type::BOMB,           "BOMB",   "res/bomb.png", {0}, DEFAULT_SPRITE_SIZE},
         {SpriteFactory::Type::EXTRA_HEALTH,   "EXTRA_HEALTH",  "res/Pixel Lands Dungeons/objects.png", {32}, DEFAULT_SPRITE_SIZE, 30.f},
         {SpriteFactory::Type::EXTRA_BOMBS,    "EXTRA_BOMBS",   "res/Pixel Lands Dungeons/objects.png", {67 }, DEFAULT_SPRITE_SIZE, 40.f},
-        {SpriteFactory::Type::INFINI_BOMBS,   "INFINI_BOMBS",  "res/Pixel Lands Dungeons/objects.png", {35 }, DEFAULT_SPRITE_SIZE, 1.f},
+        {SpriteFactory::Type::INFINI_BOMBS,  "INFINI_BOMBS",  "res/Pixel Lands Dungeons/objects.png", {35 }, DEFAULT_SPRITE_SIZE, 1.f},
         {SpriteFactory::Type::CHAIN_BOMBS,   "CHAIN_BOMBS",   "res/Pixel Lands Dungeons/objects.png", {34 }, DEFAULT_SPRITE_SIZE, 30.f},
         {SpriteFactory::Type::LOWER_WATER,   "LOWER_WATER",   "res/Pixel Lands Dungeons/objects.png", {33 }, DEFAULT_SPRITE_SIZE, 40.f}
     };

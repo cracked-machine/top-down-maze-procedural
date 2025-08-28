@@ -60,7 +60,7 @@ public:
             current_va[3].texCoords = sf::Vector2f(tu * tileSize.x, (tv + 1) * tileSize.y);
             current_va[4].texCoords = sf::Vector2f((tu + 1) * tileSize.x, tv * tileSize.y);
             current_va[5].texCoords = sf::Vector2f((tu + 1) * tileSize.x, (tv + 1) * tileSize.y);
-            SPDLOG_INFO("  - Added tile index {} (tu={},tv={})", tile_idx, tu, tv);
+            SPDLOG_TRACE("  - Added tile index {} (tu={},tv={})", tile_idx, tu, tv);
 
             m_va_list.push_back(current_va);
 

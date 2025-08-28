@@ -1,6 +1,7 @@
 #ifndef __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 #define __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 
+#include <Exit.hpp>
 #include <MultiSprite.hpp>
 #include <Neighbours.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -123,6 +124,7 @@ public:
         if( not wall_ms ) { SPDLOG_CRITICAL("Unable to get WALL multisprite from SpriteFactory"); std::get_terminate(); }
 
         m_reg->emplace<Cmp::Obstacle>(entity, Sprites::SpriteFactory::Type::WALL, texture_index, true, enabled);
+        m_reg->emplace<Cmp::Exit>(entity);
     }
 
     void stats()

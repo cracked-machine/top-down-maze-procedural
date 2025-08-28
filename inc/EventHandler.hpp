@@ -79,6 +79,7 @@ public:
                         for( auto [ _entt, _sys] : m_reg->view<Cmp::System>().each() )
                         {
                             _sys.collisions_enabled = not _sys.collisions_enabled;
+                            SPDLOG_INFO("Collisions are now {}", _sys.collisions_enabled ? "ENABLED" : "DISABLED");
                         }
                     }
                     else if (keyReleased->scancode == sf::Keyboard::Scancode::F2)
@@ -87,6 +88,7 @@ public:
                             m_reg->view<Cmp::System>().each() )
                         {
                             _sys.show_armed_obstacles = not _sys.show_armed_obstacles;
+                            SPDLOG_INFO("Show armed obstacles is now {}", _sys.show_armed_obstacles ? "ENABLED" : "DISABLED");
                         }
                     }
                     else if (keyReleased->scancode == sf::Keyboard::Scancode::F3)
@@ -95,6 +97,25 @@ public:
                             m_reg->view<Cmp::System>().each() )
                         {
                             _sys.show_obstacle_entity_id = not _sys.show_obstacle_entity_id;
+                            SPDLOG_INFO("Show obstacle entity ID is now {}", _sys.show_obstacle_entity_id ? "ENABLED" : "DISABLED");
+                        }
+                    }
+                    else if (keyReleased->scancode == sf::Keyboard::Scancode::F4)
+                    {
+                        for( auto [ _entt, _sys] :
+                            m_reg->view<Cmp::System>().each() )
+                        {
+                            _sys.show_pathfinding = not _sys.show_pathfinding;
+                            SPDLOG_INFO("Show pathfinding is now {}", _sys.show_pathfinding ? "ENABLED" : "DISABLED");
+                        }
+                    }
+                    else if (keyReleased->scancode == sf::Keyboard::Scancode::F5)
+                    {
+                        for( auto [ _entt, _sys] :
+                            m_reg->view<Cmp::System>().each() )
+                        {
+                            _sys.show_dijkstra_distance = not _sys.show_dijkstra_distance;
+                            SPDLOG_INFO("Show Dijkstra distance is now {}", _sys.show_dijkstra_distance ? "ENABLED" : "DISABLED");
                         }
                     }
 
@@ -102,12 +123,14 @@ public:
                     {
                         for(auto [_, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {
                             _pc.alive = false;
+                            SPDLOG_INFO("Player committed suicide");
                         }
                     }
                     else if (keyReleased->scancode == sf::Keyboard::Scancode::F12)
                     {
                         for(auto [_ent, _sys]: m_reg->view<Cmp::System>().each()) {
                             _sys.level_complete = true;
+                            SPDLOG_INFO("Level complete (player cheated)");
                         }
                     }
                     else if (keyReleased->scancode == sf::Keyboard::Scancode::Escape)

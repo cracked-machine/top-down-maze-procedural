@@ -2,7 +2,9 @@
 #define __SYSTEMS_COLLISION_SYSTEM_HPP__
 
 #include <Armed.hpp>
+#include <Direction.hpp>
 #include <Loot.hpp>
+#include <NPC.hpp>
 #include <Neighbours.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -12,6 +14,7 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
+#include <SpriteFactory.hpp>
 #include <WaterLevel.hpp>
 #include <algorithm>
 #include <cassert>
@@ -65,7 +68,67 @@ public:
         }
     }
 
+    void check_bones_reanimation()
+    {
+        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>();
+        auto obstacle_collision_view = m_collision_updates.view<Cmp::Obstacle, Cmp::Position>();
+        for (auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each())
+        {
+            auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y}, Settings::PLAYER_SIZE_2F);
+            for (auto [_obstacle_entt, _obstacle, _obstacle_pos] : obstacle_collision_view.each())
+            {
+                if( _obstacle.m_type != Sprites::SpriteFactory::Type::BONES || not _obstacle.m_enabled || not _obstacle.m_visible ) continue;
+                
+                auto obstacle_hitbox = sf::FloatRect({_obstacle_pos.x, _obstacle_pos.y}, Settings::OBSTACLE_SIZE_2F);
+                obstacle_hitbox.size *= 2.f;
+                obstacle_hitbox.position.x -= Settings::OBSTACLE_SIZE_2F.x * 0.5f;
+                obstacle_hitbox.position.y -= Settings::OBSTACLE_SIZE_2F.y * 0.5f;
+                
+                if (player_hitbox.findIntersection(obstacle_hitbox))
+                {
+                    m_reg->remove<Cmp::Obstacle>(_obstacle_entt);
+                    m_reg->emplace<Cmp::NPC>(_obstacle_entt, true);
+                }
+            }
+        }
+    }
 
+    void check_npc_collision()
+    {
+        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::Movement>();
+        auto npc_collision_view = m_collision_updates.view<Cmp::NPC, Cmp::Position>();
+        for (auto [_pc_entt, _pc, _pc_pos, _direction, _movement] : player_collision_view.each())
+        {
+            sf::Vector2f starting_pos = {_pc_pos.x, _pc_pos.y};
+            auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y}, Settings::PLAYER_SIZE_2F);
+            for (auto [_npc_entt, _npc, _npc_pos] : npc_collision_view.each())
+            {
+
+                auto npc_hitbox = sf::FloatRect({_npc_pos.x, _npc_pos.y}, Settings::OBSTACLE_SIZE_2F);
+
+                if (player_hitbox.findIntersection(npc_hitbox))
+                {
+                    _pc.health -= 10;
+                    // Check if player is moving
+                    if (_direction.x != 0.f || _direction.y != 0.f) {
+                        // Push back in opposite direction of travel
+                        _pc_pos -= _direction.normalized() * 20.f;
+                    } else {
+                        // If not moving, use the distance as a direction of travel
+                        sf::Vector2f push_dir = { _pc_pos.x - _npc_pos.x, _pc_pos.y - _npc_pos.y };
+                        _pc_pos += push_dir.normalized() * 20.f;
+                    }
+                }
+
+                if (_pc.health <= 0)
+                {
+                    _pc.alive = false;
+                }
+
+            }
+        }
+
+    }
 
     void check_loot_collision()
     {
