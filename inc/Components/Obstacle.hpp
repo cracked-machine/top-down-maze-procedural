@@ -34,6 +34,7 @@ public:
     uint32_t m_tile_index{0};
 
     bool m_visible{true};
+    // if true this obstacle will be considered impassable
     bool m_enabled{true};
     bool m_broken{false};
 

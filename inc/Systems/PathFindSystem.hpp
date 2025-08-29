@@ -49,7 +49,7 @@ public:
             {
                 // skip any impassible obstacles
                 auto possible_obstacle = m_reg->try_get<Cmp::Obstacle>(obstacle_entity);
-                if(possible_obstacle && possible_obstacle->m_enabled) continue;
+                if(not possible_obstacle || possible_obstacle->m_enabled) continue;
 
                 // Use manhattan distance to skip diagonal distances. 
                 // This prevents NPC from going between diagonal obstacle gaps.
