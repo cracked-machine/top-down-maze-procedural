@@ -2,7 +2,7 @@
 #define __SYSTEMS_COLLISION_SYSTEM_HPP__
 
 #include <Armed.hpp>
-#include <DijkstraDistance.hpp>
+#include <PlayerDistance.hpp>
 #include <Direction.hpp>
 #include <Loot.hpp>
 #include <NPC.hpp>
@@ -89,7 +89,7 @@ public:
                 {
                     m_reg->remove<Cmp::Obstacle>(_obstacle_entt);
                     m_reg->emplace<Cmp::NPC>(_obstacle_entt, true);
-                    m_reg->emplace_or_replace<Cmp::DijkstraDistance>(_obstacle_entt, std::numeric_limits<unsigned int>::max());
+                    m_reg->emplace_or_replace<Cmp::PlayerDistance>(_obstacle_entt, std::numeric_limits<unsigned int>::max());
                 }
             }
         }

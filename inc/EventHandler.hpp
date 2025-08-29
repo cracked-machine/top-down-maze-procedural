@@ -87,8 +87,8 @@ public:
                         for( auto [ _entt, _sys] :
                             m_reg->view<Cmp::System>().each() )
                         {
-                            _sys.show_armed_obstacles = not _sys.show_armed_obstacles;
-                            SPDLOG_INFO("Show armed obstacles is now {}", _sys.show_armed_obstacles ? "ENABLED" : "DISABLED");
+                            _sys.pause_flood = not _sys.pause_flood;
+                            SPDLOG_INFO("Pause flood is now {}", _sys.pause_flood ? "ENABLED" : "DISABLED");
                         }
                     }
                     else if (keyReleased->scancode == sf::Keyboard::Scancode::F3)
@@ -96,8 +96,8 @@ public:
                         for( auto [ _entt, _sys] :
                             m_reg->view<Cmp::System>().each() )
                         {
-                            _sys.show_obstacle_entity_id = not _sys.show_obstacle_entity_id;
-                            SPDLOG_INFO("Show obstacle entity ID is now {}", _sys.show_obstacle_entity_id ? "ENABLED" : "DISABLED");
+                            _sys.show_path_distances = not _sys.show_path_distances;
+                            SPDLOG_INFO("Show Dijkstra distance is now {}", _sys.show_path_distances ? "ENABLED" : "DISABLED");
                         }
                     }
                     else if (keyReleased->scancode == sf::Keyboard::Scancode::F4)
@@ -105,28 +105,10 @@ public:
                         for( auto [ _entt, _sys] :
                             m_reg->view<Cmp::System>().each() )
                         {
-                            _sys.show_pathfinding = not _sys.show_pathfinding;
-                            SPDLOG_INFO("Show pathfinding is now {}", _sys.show_pathfinding ? "ENABLED" : "DISABLED");
+                            _sys.show_armed_obstacles = not _sys.show_armed_obstacles;
+                            SPDLOG_INFO("Show armed obstacles is now {}", _sys.show_armed_obstacles ? "ENABLED" : "DISABLED");
                         }
-                    }
-                    else if (keyReleased->scancode == sf::Keyboard::Scancode::F5)
-                    {
-                        for( auto [ _entt, _sys] :
-                            m_reg->view<Cmp::System>().each() )
-                        {
-                            _sys.show_dijkstra_distance = not _sys.show_dijkstra_distance;
-                            SPDLOG_INFO("Show Dijkstra distance is now {}", _sys.show_dijkstra_distance ? "ENABLED" : "DISABLED");
-                        }
-                    }
-                    else if (keyReleased->scancode == sf::Keyboard::Scancode::F6)
-                    {
-                        for( auto [ _entt, _sys] :
-                            m_reg->view<Cmp::System>().each() )
-                        {
-                            _sys.pause_flood = not _sys.pause_flood;
-                            SPDLOG_INFO("Pause flood is now {}", _sys.pause_flood ? "ENABLED" : "DISABLED");
-                        }
-                    }
+                    }                    
                     else if (keyReleased->scancode == sf::Keyboard::Scancode::F11)
                     {
                         for(auto [_, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {

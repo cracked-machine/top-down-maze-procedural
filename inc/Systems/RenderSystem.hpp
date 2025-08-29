@@ -5,7 +5,8 @@
 #include <BasicSprite.hpp>
 #include <DebugDijkstraDistances.hpp>
 #include <DebugEntityIds.hpp>
-#include <DijkstraDistance.hpp>
+#include <NPCDistance.hpp>
+#include <PlayerDistance.hpp>
 #include <Direction.hpp>
 #include <FloodWater.hpp>
 #include <FloodWaterShader.hpp>
@@ -38,6 +39,7 @@
 #include <Systems/BaseSystem.hpp>
 #include <spdlog/spdlog.h>
 #include <TileMap.hpp>
+#include <sstream>
 
 namespace ProceduralMaze::Sys {
 
@@ -102,17 +104,7 @@ public:
     
     ~RenderSystem() { SPDLOG_DEBUG("~RenderSystem()"); } 
 
-    void render_flood_waters()
-    {
-        for( auto [_, _wl]: m_flood_updates.view<Cmp::WaterLevel>().each() ) 
-        {
-            if( _wl.m_level > 0 )
-            {
-                m_water_shader.update(_wl.m_level);
-            }
-            m_window->draw(m_water_shader);
-        }
-    }
+
 
     void render_menu()
     {
@@ -138,71 +130,14 @@ public:
         // main render end
     }
 
-    void render_defeat_screen()
-    {
-        // main render begin
-        m_window->clear();
-        {
-            sf::Text title_text(m_font, "You died!", 96);
-            title_text.setFillColor(sf::Color::White);
-            title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
-            m_window->draw(title_text);
-
-            sf::Text start_text(m_font, "Press <R> key to continue", 48);
-            start_text.setFillColor(sf::Color::White);
-            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
-            m_window->draw(start_text);
-        }
-        m_window->display();
-        // main render end
-    }
-
-    void render_victory_screen()
-    {
-        // main render begin
-        m_window->clear();
-        {
-            sf::Text title_text(m_font, "You won!", 96);
-            title_text.setFillColor(sf::Color::White);
-            title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
-            m_window->draw(title_text);
-
-            sf::Text start_text(m_font, "Press <R> key to continue", 48);
-            start_text.setFillColor(sf::Color::White);
-            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
-            m_window->draw(start_text);
-        }
-        m_window->display();
-        // main render end
-    }
-
-    void render_paused()
-    {
-        // main render begin
-        m_window->clear();
-        {
-            sf::Text title_text(m_font, "Paused", 96);
-            title_text.setFillColor(sf::Color::White);
-            title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
-            m_window->draw(title_text);
-
-            sf::Text start_text(m_font, "Press P to continue", 48);
-            start_text.setFillColor(sf::Color::White);
-            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
-            m_window->draw(start_text);
-        }
-        m_window->display();
-        // main render end
-    }
-
     void render_game()
     {
         using namespace Sprites;
 
         for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
-            m_show_obstacle_debug = _sys.show_obstacle_entity_id;
-            m_show_dijkstra_distance = _sys.show_dijkstra_distance;
-        }                  
+            m_show_path_distances = _sys.show_path_distances;
+            m_show_armed_obstacles = _sys.show_armed_obstacles;
+        }
 
         // main render begin
         m_window->clear();
@@ -212,11 +147,14 @@ public:
             {   
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y});
                 render_obstacles();
+                render_armed();
+                render_loot();
+                render_walls();
                 render_player();
                 render_npc();
                 render_flood_waters();
-                render_dijkstra_distances();
-                
+                render_player_distances_on_npc();
+                render_npc_distances_on_obstacles();                
 
                 // move the local view position to equal the player position
                 // reset the center if player is stuck
@@ -232,15 +170,7 @@ public:
                             update_view_center(m_local_view, _pos);
                         }
                     }
-                }              
-
-                // show debug entity id text
-                if( m_show_obstacle_debug ) {
-                    auto s = m_debug_mode_entity_text.getSprite();
-                    // s.setPosition({10, 10}); // Fixed position in screen coordinates
-                    m_window->draw(s);
-                }                
-
+                }             
             } 
             // local view end
 
@@ -249,6 +179,9 @@ public:
             {
                 render_floormap({0, Settings::MAP_GRID_OFFSET.y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y});
                 render_obstacles();
+                render_armed();
+                render_loot();
+                render_walls();
                 render_player();
                 render_npc();
                 render_flood_waters();
@@ -295,7 +228,7 @@ public:
                     render_water_level_meter_overlay(water_level.m_level, {40.f, 70.f},  {200.f, 20.f});
                 }
 
-                render_entt_distance_priority_queue_overlay();
+                render_entt_distance_set_overlay({40.f, 300.f});
 
             } 
             // UI Overlays end
@@ -305,76 +238,420 @@ public:
         // main render end
     }
 
-    void render_dijkstra_distances()
+    void render_paused()
     {
-        if (!m_show_dijkstra_distance) return;
-
-        // create_debug_dijkstra_texture();
-        // m_window->draw(m_debug_mode_dijkstra_text.getSprite());
-        // Render Dijkstra distances
-        for (auto [_entt, _dijkstra_distance, _position] : m_reg->view<Cmp::DijkstraDistance, Cmp::Position>().each())
+        // main render begin
+        m_window->clear();
         {
-            sf::Text distance_text(m_font, "", 10);
-            if( _dijkstra_distance.distance == std::numeric_limits<unsigned int>::max() ) {
-                continue;
-            } else {
-                distance_text.setString(std::to_string(_dijkstra_distance.distance));
+            sf::Text title_text(m_font, "Paused", 96);
+            title_text.setFillColor(sf::Color::White);
+            title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
+            m_window->draw(title_text);
+
+            sf::Text start_text(m_font, "Press P to continue", 48);
+            start_text.setFillColor(sf::Color::White);
+            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
+            m_window->draw(start_text);
+        }
+        m_window->display();
+        // main render end
+    }
+
+
+    void render_defeat_screen()
+    {
+        // main render begin
+        m_window->clear();
+        {
+            sf::Text title_text(m_font, "You died!", 96);
+            title_text.setFillColor(sf::Color::White);
+            title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
+            m_window->draw(title_text);
+
+            sf::Text start_text(m_font, "Press <R> key to continue", 48);
+            start_text.setFillColor(sf::Color::White);
+            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
+            m_window->draw(start_text);
+        }
+        m_window->display();
+        // main render end
+    }
+
+    void render_victory_screen()
+    {
+        // main render begin
+        m_window->clear();
+        {
+            sf::Text title_text(m_font, "You won!", 96);
+            title_text.setFillColor(sf::Color::White);
+            title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
+            m_window->draw(title_text);
+
+            sf::Text start_text(m_font, "Press <R> key to continue", 48);
+            start_text.setFillColor(sf::Color::White);
+            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
+            m_window->draw(start_text);
+        }
+        m_window->display();
+        // main render end
+    }
+
+    entt::reactive_mixin<entt::storage<void>> m_position_updates;
+    entt::reactive_mixin<entt::storage<void>> m_system_updates;
+    entt::reactive_mixin<entt::storage<void>> m_flood_updates;
+
+    sf::View m_local_view;
+    sf::View m_minimap_view;
+
+    // creates and manages MultiSprite resources
+    std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory = std::make_shared<Sprites::SpriteFactory>();
+
+private:
+    /////////////////////////
+    // GAME RENDER FUNCTIONS
+    /////////////////////////
+
+    void render_floormap(const sf::Vector2f &offset = {0.f, 0.f})
+    {
+        m_floormap.setPosition(offset);
+        m_window->draw(m_floormap);
+    }
+
+    void render_obstacles() {
+
+        // Group similar draw operations to reduce state changes
+        std::vector<std::pair<sf::Vector2f, int>> rockPositions;
+        std::vector<std::pair<sf::Vector2f, int>> potPositions;
+        std::vector<std::pair<sf::Vector2f, int>> bonePositions;
+        std::vector<std::pair<sf::Vector2f, int>> npcPositions;
+        std::vector<sf::Vector2f> detonationPositions;
+
+        // Collect all positions first instead of drawing immediately
+        for(auto [entity, _ob, _pos, _ob_nb_list]: 
+            m_position_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each()) {
+            
+            if(_ob.m_enabled) {
+                switch(_ob.m_type) {
+                    case Sprites::SpriteFactory::Type::ROCK:
+                        rockPositions.emplace_back(_pos, _ob.m_tile_index);
+                        break;
+                    case Sprites::SpriteFactory::Type::POT:
+                        potPositions.emplace_back(_pos, _ob.m_tile_index);
+                        break;
+                    case Sprites::SpriteFactory::Type::BONES:
+                        bonePositions.emplace_back(_pos, _ob.m_tile_index);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if(_ob.m_broken) {
+                detonationPositions.push_back(_pos);
+            }  
+        }
+
+        // Now draw each type in batches
+        for(const auto& [pos, idx]: rockPositions) {
+            m_rock_ms->pick(idx, "Obstacle");
+            m_rock_ms->setPosition(pos);
+            m_window->draw(*m_rock_ms);
+        }
+        
+        for(const auto& [pos, idx]: potPositions) {
+            m_pot_ms->pick(idx, "Obstacle");
+            m_pot_ms->setPosition(pos);
+            m_window->draw(*m_pot_ms);
+        }
+        
+        for(const auto& [pos, idx]: bonePositions) {
+            m_bone_ms->pick(idx, "Obstacle");
+            m_bone_ms->setPosition(pos);
+            m_window->draw(*m_bone_ms);
+        }
+
+        // "empty" sprite for detonated objects
+        for(const auto& pos: detonationPositions) {
+            m_detonation_ms->setPosition(pos);
+            m_detonation_ms->pick(0, "Detonated");
+            m_window->draw(*m_detonation_ms);
+        }
+    }
+
+    void render_armed()
+    {
+        // render armed obstacles with debug outlines
+        for( auto [entity, _ob, _armed, _pos, _ob_nb_list]: 
+            m_position_updates.view<Cmp::Obstacle, Cmp::Armed, Cmp::Position, Cmp::Neighbours>().each() ) {
+                
+            if(_armed.m_display_bomb_sprite) {
+                m_bomb_ms->pick(0, "Bomb");
+                m_bomb_ms->setPosition(_pos);
+                m_window->draw(*m_bomb_ms);
             }
 
-            distance_text.setPosition(_position + sf::Vector2f{5.f, 0.f});
+            // debug - F4
+            if (m_show_armed_obstacles)
+            {
+                // Draw a red square around the obstacle we are standing on
+                sf::RectangleShape temp_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
+                temp_square.setPosition(_pos);
+                temp_square.setFillColor(sf::Color::Transparent);
+                temp_square.setOutlineColor(sf::Color::Red);
+                temp_square.setOutlineThickness(1.f);
+                m_window->draw(temp_square);
+                
+
+                // get each neighbour entity from the current obstacles neighbour list
+                // and draw a blue square around it
+                for( auto [_dir, _nb_entt] : _ob_nb_list) 
+                {
+                    sf::RectangleShape nb_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
+
+                    Cmp::Position* _nb_entt_pos = m_reg->try_get<Cmp::Position>( entt::entity(_nb_entt) );
+
+                    if( not _nb_entt_pos )
+                    {
+                        SPDLOG_WARN("Unable to find Position component for entity: {}", entt::to_integral(_nb_entt));
+                        assert(_nb_entt_pos && "Unable to find Position component for entity" && entt::to_integral(_nb_entt));
+                        continue;
+                    }
+
+                    nb_square.setPosition(*_nb_entt_pos);                  
+                    nb_square.setFillColor(sf::Color::Transparent);
+                    nb_square.setOutlineColor(_armed.m_armed_color); 
+                    nb_square.setOutlineThickness(1.f); 
+                    m_window->draw(nb_square);
+                }
+            }                    
+        }
+
+    }
+
+    void render_loot()
+    {
+        auto loot_view = m_position_updates.view<Cmp::Obstacle, Cmp::Loot, Cmp::Position>();
+        for( auto [entity, obstacles, loot, position] : loot_view.each() ) 
+        {    
+            switch( loot.m_type ) 
+            {
+                case ProceduralMaze::Sprites::SpriteFactory::Type::EXTRA_HEALTH:
+                    m_extra_health_ms->setPosition(position);
+                    m_extra_health_ms->pick(loot.m_tile_index, "EXTRA_HEALTH");
+                    m_window->draw(*m_extra_health_ms);
+                    break;
+                case ProceduralMaze::Sprites::SpriteFactory::Type::EXTRA_BOMBS:
+                    m_extra_bombs_ms->setPosition(position);
+                    m_extra_bombs_ms->pick(loot.m_tile_index, "EXTRA_BOMBS");
+                    m_window->draw(*m_extra_bombs_ms);
+                    break;
+                case ProceduralMaze::Sprites::SpriteFactory::Type::INFINI_BOMBS:
+                    m_infinite_bombs_ms->setPosition(position);
+                    m_infinite_bombs_ms->pick(loot.m_tile_index, "INFINI_BOMBS");
+                    m_window->draw(*m_infinite_bombs_ms);
+                    break;                        
+                case ProceduralMaze::Sprites::SpriteFactory::Type::CHAIN_BOMBS:
+                    m_chain_bombs_ms->setPosition(position);
+                    m_chain_bombs_ms->pick(loot.m_tile_index, "CHAIN_BOMBS");
+                    m_window->draw(*m_chain_bombs_ms);
+                    break;                        
+                case ProceduralMaze::Sprites::SpriteFactory::Type::LOWER_WATER:
+                    m_lower_water_ms->setPosition(position);
+                    m_lower_water_ms->pick(loot.m_tile_index, "LOWER_WATER");
+                    m_window->draw(*m_lower_water_ms);
+                    break;                        
+                default:
+                    break;
+            }
+        }
+    }
+
+    void render_walls()
+    {
+        // Render textures for "WALL" entities - filtered out because they don't own neighbour components
+        for( auto [entity, _ob, _pos]: 
+            m_position_updates.view<Cmp::Obstacle, Cmp::Position>(entt::exclude<Cmp::Neighbours>).each() ) {
+
+                m_wall_ms->pick(_ob.m_tile_index, "wall");
+                m_wall_ms->setPosition(_pos);
+                m_window->draw(*m_wall_ms);
+            
+        }
+    }
+
+    void render_player()
+    {
+        for( auto [entity, player, position, direction]: 
+            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction>().each() ) 
+        {
+
+            // flip and x-axis offset the sprite depending on the direction
+            if( direction.x == 1 )
+            {
+                direction.x_scale = 1.f;
+                direction.x_offset = 0.f;
+            }
+            else if ( direction.x == -1 ) 
+            {
+                direction.x_scale = -1.f;
+                direction.x_offset = m_sprite_factory->DEFAULT_SPRITE_SIZE.x;
+            }
+            else 
+            {
+                direction.x_scale =  direction.x_scale; // keep last known direction
+                direction.x_offset = direction.x_offset;
+            }
+
+            m_player_ms->setScale({direction.x_scale, 1.f});
+            m_player_ms->setPosition({position.x + direction.x_offset, position.y});
+
+
+            m_player_ms->pick(0, "player");
+            m_window->draw(*m_player_ms);
+        }
+    }
+
+    void render_npc()
+    {
+        for( auto [entity, npc, pos]: 
+            m_position_updates.view<Cmp::NPC, Cmp::Position>().each() )
+        {
+            m_npc_ms->setPosition(pos);
+
+            m_npc_ms->pick(0, "npc");
+            m_window->draw(*m_npc_ms);
+        }
+    }
+
+    void render_flood_waters()
+    {
+        for( auto [_, _wl]: m_flood_updates.view<Cmp::WaterLevel>().each() ) 
+        {
+            if( _wl.m_level > 0 )
+            {
+                m_water_shader.update(_wl.m_level);
+            }
+            m_window->draw(m_water_shader);
+        }
+    }
+
+    void render_player_distances_on_npc()
+    {
+        if (!m_show_path_distances) return;
+
+        for (auto [entt, player_distance_to_npc, npc_position] : m_reg->view<Cmp::PlayerDistance, Cmp::Position>().each())
+        {
+            sf::Text distance_text(m_font, "", 10);
+            if( player_distance_to_npc.distance == std::numeric_limits<unsigned int>::max() ) {
+                continue;
+            } else {
+                distance_text.setString(std::to_string(player_distance_to_npc.distance));
+            }
+
+            distance_text.setPosition(npc_position + sf::Vector2f{5.f, 0.f});
             distance_text.setFillColor(sf::Color::White);
             distance_text.setOutlineColor(sf::Color::Black);
             distance_text.setOutlineThickness(2.f);
             m_window->draw(distance_text);
 
         }
+    }
 
-        auto entt_distance_priority_queue_view = m_reg->view<Cmp::EnttDistancePriorityQueue>();
-        for( auto [e,distance_queue] : entt_distance_priority_queue_view.each())
+    void render_npc_distances_on_obstacles()
+    {
+        if (!m_show_path_distances) return;
+
+        for (auto [entt, npc_distance_to_obstacle, obstacle_position] : m_reg->view<Cmp::NPCDistance, Cmp::Position>().each())
         {
-            if( distance_queue.empty() ) { continue; } 
-            else {
-                auto position = m_reg->try_get<Cmp::Position>(distance_queue.top().second);
-                if(position) {
-                    sf::RectangleShape sq({16,16});
-                    sq.setPosition(*position);
-                    sq.setFillColor(sf::Color::Transparent);
-                    sq.setOutlineColor(sf::Color::Red);
-                    sq.setOutlineThickness(2.f);
-                    m_window->draw(sq);
-                }
+            sf::Text distance_text(m_font, "", 10);
+            if( npc_distance_to_obstacle.distance == std::numeric_limits<unsigned int>::max() ) {
+                continue;
+            } else {
+                distance_text.setString(std::to_string(npc_distance_to_obstacle.distance));
             }
+
+            distance_text.setPosition(obstacle_position + sf::Vector2f{5.f, 0.f});
+            distance_text.setFillColor(sf::Color::White);
+            distance_text.setOutlineColor(sf::Color::Black);
+            distance_text.setOutlineThickness(2.f);
+            m_window->draw(distance_text);
 
         }
     }
 
-    void render_entt_distance_priority_queue_overlay()
-    {
-        if (!m_show_dijkstra_distance) return;
+    ////////////////////////
+    // MISC FUNCTIONS
+    ////////////////////////
+
+
+    bool isInView(const sf::View& view, const sf::Vector2f& position, const sf::Vector2f& size) {
+        sf::FloatRect viewBounds(
+            view.getCenter() - view.getSize() / 2.f,
+            view.getSize()
+        );
+        sf::FloatRect objectBounds(position, size);
         
-        auto entt_distance_priority_queue_view = m_reg->view<Cmp::EnttDistancePriorityQueue>();
-        for( auto [e,distance_queue] : entt_distance_priority_queue_view.each())
+        return viewBounds.findIntersection(objectBounds) ? true : false;
+    }
+
+    void update_view_center(sf::View &view, Cmp::Position &player_pos)
+    {
+        const float MAP_HALF_WIDTH = view.getSize().x * 0.5f;
+        const float MAP_HALF_HEIGHT = view.getSize().y * 0.5f;
+        
+        // Calculate the maximum allowed camera positions
+        float maxX = Settings::DISPLAY_SIZE.x - MAP_HALF_WIDTH;
+        float maxY = Settings::DISPLAY_SIZE.y - MAP_HALF_HEIGHT;
+        
+        // Calculate new camera position
+        float newX = std::clamp(player_pos.x, MAP_HALF_WIDTH, maxX);
+        float newY = std::clamp(player_pos.y, MAP_HALF_HEIGHT, maxY);
+        
+        // Smoothly interpolate to the new position
+        sf::Vector2f currentCenter = view.getCenter();
+        float smoothFactor = 0.1f; // Adjust this value to change how quickly the camera follows
+        
+        view.setCenter({
+            currentCenter.x + (newX - currentCenter.x) * smoothFactor,
+            currentCenter.y + (newY - currentCenter.y) * smoothFactor
+        });
+    }
+
+    ////// Overlay Functions
+
+    void render_entt_distance_set_overlay(sf::Vector2f pos)
+    {
+        if (!m_show_path_distances) return;
+        
+        auto entt_distance_set_view = m_reg->view<Cmp::EnttDistanceSet>();
+        int entt_distance_set = 0;
+        for( auto [e,distance_set] : entt_distance_set_view.each())
         {
+
             sf::Text distance_text(m_font, "", 30);
             distance_text.setFillColor(sf::Color::White);
             distance_text.setOutlineColor(sf::Color::Black);
             distance_text.setOutlineThickness(2.f);
 
-            if( distance_queue.empty() ) {
+            if( distance_set.empty() ) {
                 continue;
             } else {
 
-                distance_text.setString("Priority Queue Size: " + std::to_string(distance_queue.size()));
-                distance_text.setPosition({100 , 500});
-                m_window->draw(distance_text);
+                std::stringstream ss;
+                ss << "NPC Entity #" << entt::to_integral(e) << " - ";
+                distance_text.setPosition( pos + sf::Vector2f{0 , entt_distance_set * 30.f} );
 
-                distance_text.setString("Shortest - Entity: " + std::to_string(entt::to_integral(distance_queue.top().second))
-                     + ", Distance: " + std::to_string(distance_queue.top().first)
-                );
-                distance_text.setPosition({100 , 530});
+                for(auto it = distance_set.begin(); it != distance_set.end(); ++it)
+                {
+                    ss  << " " 
+                        << entt::to_integral(*it)
+                        << ",";
+
+                }
+
+                distance_text.setString(ss.str());
                 m_window->draw(distance_text);
             }
-
+            entt_distance_set++;
         }
     }
 
@@ -471,307 +748,6 @@ public:
     }
 
 
-    void render_floormap(const sf::Vector2f &offset = {0.f, 0.f})
-    {
-        m_floormap.setPosition(offset);
-        m_window->draw(m_floormap);
-    }
-
-    bool isInView(const sf::View& view, const sf::Vector2f& position, const sf::Vector2f& size) {
-        sf::FloatRect viewBounds(
-            view.getCenter() - view.getSize() / 2.f,
-            view.getSize()
-        );
-        sf::FloatRect objectBounds(position, size);
-        
-        return viewBounds.findIntersection(objectBounds) ? true : false;
-    }
-
-    void render_obstacles() {
-
-        // Group similar draw operations to reduce state changes
-        std::vector<std::pair<sf::Vector2f, int>> rockPositions;
-        std::vector<std::pair<sf::Vector2f, int>> potPositions;
-        std::vector<std::pair<sf::Vector2f, int>> bonePositions;
-        std::vector<std::pair<sf::Vector2f, int>> npcPositions;
-        std::vector<sf::Vector2f> wallPositions;
-        std::vector<sf::Vector2f> detonationPositions;
-
-        bool show_armed_obstacles = false;
-        bool show_pathfinding = false;
-        std::vector<entt::entity> path_entities;
-
-        for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
-            show_armed_obstacles = _sys.show_armed_obstacles;
-            show_pathfinding = _sys.show_pathfinding;
-        }
-        // Collect all positions first instead of drawing immediately
-        for(auto [entity, _ob, _pos, _ob_nb_list]: 
-            m_position_updates.view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each()) {
-            
-            if(m_show_obstacle_debug) {
-                if(_ob.m_enabled) {
-                    // Store debug squares for batch rendering
-                    // ...
-                }
-            } else {
-                if(_ob.m_enabled) {
-                    switch(_ob.m_type) {
-                        case Sprites::SpriteFactory::Type::ROCK:
-                            rockPositions.emplace_back(_pos, _ob.m_tile_index);
-                            break;
-                        case Sprites::SpriteFactory::Type::POT:
-                            potPositions.emplace_back(_pos, _ob.m_tile_index);
-                            break;
-                        case Sprites::SpriteFactory::Type::BONES:
-                            bonePositions.emplace_back(_pos, _ob.m_tile_index);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                if(_ob.m_broken) {
-                    detonationPositions.push_back(_pos);
-                }
-            }
-        }
-
-        // Now draw each type in batches
-        for(const auto& [pos, idx]: rockPositions) {
-            m_rock_ms->pick(idx, "Obstacle");
-            m_rock_ms->setPosition(pos);
-            m_window->draw(*m_rock_ms);
-        }
-        
-        for(const auto& [pos, idx]: potPositions) {
-            m_pot_ms->pick(idx, "Obstacle");
-            m_pot_ms->setPosition(pos);
-            m_window->draw(*m_pot_ms);
-        }
-        
-        for(const auto& [pos, idx]: bonePositions) {
-            m_bone_ms->pick(idx, "Obstacle");
-            m_bone_ms->setPosition(pos);
-            m_window->draw(*m_bone_ms);
-        }
-
-        // "empty" sprite for detonated objects
-        for(const auto& pos: detonationPositions) {
-            m_detonation_ms->setPosition(pos);
-            m_detonation_ms->pick(0, "Detonated");
-            m_window->draw(*m_detonation_ms);
-        }
-
-        if(show_pathfinding)
-        {
-            path_entities = m_path_find_sys->getPath();
-            for( auto entity: path_entities)
-            {
-                auto position = m_reg->try_get<Cmp::Position>(entity);
-                if(position)
-                {
-                    sf::RectangleShape temp_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
-                    temp_square.setPosition(*position);
-                    temp_square.setFillColor(sf::Color::Transparent);
-                    temp_square.setOutlineColor(sf::Color::Magenta);
-                    temp_square.setOutlineThickness(1.f);
-                    m_window->draw(temp_square);
-                }
-            }
-        }
-
-        auto loot_view = m_position_updates.view<Cmp::Obstacle, Cmp::Loot, Cmp::Position>();
-        for( auto [entity, obstacles, loot, position] : loot_view.each() ) 
-        {    
-            switch( loot.m_type ) 
-            {
-                case ProceduralMaze::Sprites::SpriteFactory::Type::EXTRA_HEALTH:
-                    m_extra_health_ms->setPosition(position);
-                    m_extra_health_ms->pick(loot.m_tile_index, "EXTRA_HEALTH");
-                    m_window->draw(*m_extra_health_ms);
-                    break;
-                case ProceduralMaze::Sprites::SpriteFactory::Type::EXTRA_BOMBS:
-                    m_extra_bombs_ms->setPosition(position);
-                    m_extra_bombs_ms->pick(loot.m_tile_index, "EXTRA_BOMBS");
-                    m_window->draw(*m_extra_bombs_ms);
-                    break;
-                case ProceduralMaze::Sprites::SpriteFactory::Type::INFINI_BOMBS:
-                    m_infinite_bombs_ms->setPosition(position);
-                    m_infinite_bombs_ms->pick(loot.m_tile_index, "INFINI_BOMBS");
-                    m_window->draw(*m_infinite_bombs_ms);
-                    break;                        
-                case ProceduralMaze::Sprites::SpriteFactory::Type::CHAIN_BOMBS:
-                    m_chain_bombs_ms->setPosition(position);
-                    m_chain_bombs_ms->pick(loot.m_tile_index, "CHAIN_BOMBS");
-                    m_window->draw(*m_chain_bombs_ms);
-                    break;                        
-                case ProceduralMaze::Sprites::SpriteFactory::Type::LOWER_WATER:
-                    m_lower_water_ms->setPosition(position);
-                    m_lower_water_ms->pick(loot.m_tile_index, "LOWER_WATER");
-                    m_window->draw(*m_lower_water_ms);
-                    break;                        
-                default:
-                    break;
-            }
-        }
-        // render armed obstacles with debug outlines
-        for( auto [entity, _ob, _armed, _pos, _ob_nb_list]: 
-            m_position_updates.view<Cmp::Obstacle, Cmp::Armed, Cmp::Position, Cmp::Neighbours>().each() ) {
-                
-            if(_armed.m_display_bomb_sprite) {
-                m_bomb_ms->pick(0, "Bomb");
-                m_bomb_ms->setPosition(_pos);
-                m_window->draw(*m_bomb_ms);
-            }
-
-            if (show_armed_obstacles)
-            {
-                // Draw a red square around the obstacle we are standing on
-                sf::RectangleShape temp_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
-                temp_square.setPosition(_pos);
-                temp_square.setFillColor(sf::Color::Transparent);
-                temp_square.setOutlineColor(sf::Color::Red);
-                temp_square.setOutlineThickness(1.f);
-                m_window->draw(temp_square);
-                
-
-                // get each neighbour entity from the current obstacles neighbour list
-                // and draw a blue square around it
-                for( auto [_dir, _nb_entt] : _ob_nb_list) 
-                {
-                    sf::RectangleShape nb_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
-
-                    Cmp::Position* _nb_entt_pos = m_reg->try_get<Cmp::Position>( entt::entity(_nb_entt) );
-
-                    if( not _nb_entt_pos )
-                    {
-                        SPDLOG_WARN("Unable to find Position component for entity: {}", entt::to_integral(_nb_entt));
-                        assert(_nb_entt_pos && "Unable to find Position component for entity" && entt::to_integral(_nb_entt));
-                        continue;
-                    }
-
-                    nb_square.setPosition(*_nb_entt_pos);                  
-                    nb_square.setFillColor(sf::Color::Transparent);
-                    nb_square.setOutlineColor(_armed.m_armed_color); 
-                    nb_square.setOutlineThickness(1.f); 
-                    m_window->draw(nb_square);
-                }
-            }                    
-        }
-
-        // Render textures for "WALL" entities - filtered out because they don't own neighbour components
-        for( auto [entity, _ob, _pos]: 
-            m_position_updates.view<Cmp::Obstacle, Cmp::Position>(entt::exclude<Cmp::Neighbours>).each() ) {
-
-                m_wall_ms->pick(_ob.m_tile_index, "wall");
-                m_wall_ms->setPosition(_pos);
-                m_window->draw(*m_wall_ms);
-         
-        }
-    }
-
-    void render_npc()
-    {
-        for( auto [entity, npc, pos]: 
-            m_position_updates.view<Cmp::NPC, Cmp::Position>().each() )
-        {
-            m_npc_ms->setPosition(pos);
-
-            m_npc_ms->pick(0, "npc");
-            m_window->draw(*m_npc_ms);
-        }
-    }
-
-    void render_player()
-    {
-        for( auto [entity, player, position, direction]: 
-            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction>().each() ) 
-        {
-
-            // flip and x-axis offset the sprite depending on the direction
-            if( direction.x == 1 )
-            {
-                direction.x_scale = 1.f;
-                direction.x_offset = 0.f;
-            }
-            else if ( direction.x == -1 ) 
-            {
-                direction.x_scale = -1.f;
-                direction.x_offset = m_sprite_factory->DEFAULT_SPRITE_SIZE.x;
-            }
-            else 
-            {
-                direction.x_scale =  direction.x_scale; // keep last known direction
-                direction.x_offset = direction.x_offset;
-            }
-
-            m_player_ms->setScale({direction.x_scale, 1.f});
-            m_player_ms->setPosition({position.x + direction.x_offset, position.y});
-
-
-            m_player_ms->pick(0, "player");
-            m_window->draw(*m_player_ms);
-        }
-    }
-
-    void update_view_center(sf::View &view, Cmp::Position &player_pos)
-    {
-        const float MAP_HALF_WIDTH = view.getSize().x * 0.5f;
-        const float MAP_HALF_HEIGHT = view.getSize().y * 0.5f;
-        
-        // Calculate the maximum allowed camera positions
-        float maxX = Settings::DISPLAY_SIZE.x - MAP_HALF_WIDTH;
-        float maxY = Settings::DISPLAY_SIZE.y - MAP_HALF_HEIGHT;
-        
-        // Calculate new camera position
-        float newX = std::clamp(player_pos.x, MAP_HALF_WIDTH, maxX);
-        float newY = std::clamp(player_pos.y, MAP_HALF_HEIGHT, maxY);
-        
-        // Smoothly interpolate to the new position
-        sf::Vector2f currentCenter = view.getCenter();
-        float smoothFactor = 0.1f; // Adjust this value to change how quickly the camera follows
-        
-        view.setCenter({
-            currentCenter.x + (newX - currentCenter.x) * smoothFactor,
-            currentCenter.y + (newY - currentCenter.y) * smoothFactor
-        });
-    }
-
-    void create_debug_id_texture()
-    {
-        for( auto [_entt, _pos, _dist]: 
-            m_position_updates.view<Cmp::Position, Cmp::DijkstraDistance>().each() )
-        {
-            m_debug_mode_entity_text.addEntity(
-                _dist.distance,
-                sf::Vector2f{_pos.x, _pos.y}
-            );
-        }
-    }
-
-    void create_debug_dijkstra_texture()
-    {
-        m_debug_mode_dijkstra_text.clear();
-        for( auto [_entt, _pos, _dist]: 
-            m_position_updates.view<Cmp::Position, Cmp::DijkstraDistance>().each() )
-        {
-            if( _dist.distance == std::numeric_limits<unsigned int>::max() ) continue;
-            m_debug_mode_dijkstra_text.addDistance(
-                _dist.distance,
-                sf::Vector2f{_pos.x, _pos.y}
-            );
-        }
-    }
-
-    entt::reactive_mixin<entt::storage<void>> m_position_updates;
-    entt::reactive_mixin<entt::storage<void>> m_system_updates;
-    entt::reactive_mixin<entt::storage<void>> m_flood_updates;
-
-    sf::View m_local_view;
-    sf::View m_minimap_view;
-
-    // creates and manages MultiSprite resources
-    std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory = std::make_shared<Sprites::SpriteFactory>();
 
 private:
     Sprites::FloodWaterShader m_water_shader{"res/FloodWater2.glsl"};
@@ -802,11 +778,8 @@ private:
     // background tile map
     Sprites::Containers::TileMap m_floormap;
 
-    Sprites::Containers::DebugEntityIds m_debug_mode_entity_text{m_font};
-    Sprites::Containers::DebugDijkstraDistances m_debug_mode_dijkstra_text{m_font};
-
-    bool m_show_obstacle_debug = false;
-    bool m_show_dijkstra_distance = false;
+    bool m_show_path_distances = false;
+    bool m_show_armed_obstacles = false;
 
     Cmp::Font m_font = Cmp::Font("res/tuffy.ttf");
     sf::Text healthlvl_meter_text{m_font,   "Health:", 30};
