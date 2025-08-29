@@ -38,7 +38,7 @@ public:
             SPDLOG_CRITICAL("Unable to load tile map {}", tilemap_path.string()); std::terminate();
         }
 
-        SPDLOG_INFO("Processing multisprite for {}", name);
+        SPDLOG_DEBUG("Processing multisprite for {}", name);
 
         for (const auto &tile_idx : tilemap_picks) {
 
@@ -65,7 +65,7 @@ public:
             m_va_list.push_back(current_va);
 
         }
-        SPDLOG_INFO("Requested {} tiles ... Created {} sprites from texture {}: ", 
+        SPDLOG_DEBUG("Requested {} tiles ... Created {} sprites from texture {}: ", 
             std::distance(tilemap_picks.begin(), std::unique(tilemap_picks.begin(), 
             tilemap_picks.end())), 
             m_va_list.size(), tilemap_path.string());
