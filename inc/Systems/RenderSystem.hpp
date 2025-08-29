@@ -408,13 +408,7 @@ private:
                     sf::RectangleShape nb_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
 
                     Cmp::Position* _nb_entt_pos = m_reg->try_get<Cmp::Position>( entt::entity(_nb_entt) );
-
-                    if( not _nb_entt_pos )
-                    {
-                        SPDLOG_WARN("Unable to find Position component for entity: {}", entt::to_integral(_nb_entt));
-                        assert(_nb_entt_pos && "Unable to find Position component for entity" && entt::to_integral(_nb_entt));
-                        continue;
-                    }
+                    if( not _nb_entt_pos ) continue;
 
                     nb_square.setPosition(*_nb_entt_pos);                  
                     nb_square.setFillColor(sf::Color::Transparent);
