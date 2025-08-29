@@ -318,7 +318,7 @@ public:
                 distance_text.setString(std::to_string(_dijkstra_distance.distance));
             }
 
-            distance_text.setPosition(_position + sf::Vector2f{5.f, 3.f});
+            distance_text.setPosition(_position + sf::Vector2f{5.f, 0.f});
             distance_text.setFillColor(sf::Color::White);
             distance_text.setOutlineColor(sf::Color::Black);
             distance_text.setOutlineThickness(2.f);
