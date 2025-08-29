@@ -17,7 +17,6 @@
 #include <cmath> // for std::sqrt
 #include <limits> // for std::numeric_limits
 #include <array>
-#include <unordered_map>
 #include <spdlog/spdlog.h>
 #include <Settings.hpp>
 
@@ -40,65 +39,40 @@ public:
         }
 
         // Handle all NPC entities
-        for (auto [entity, _pos, _npc]: m_reg->view<Cmp::Position, Cmp::NPC>().each())
+        for (auto [entity, pos_comp, npc_cmp, dijkstra_cmp]: m_reg->view<Cmp::Position, Cmp::NPC, Cmp::DijkstraDistance>().each())
         {
             auto start_end_entity_distance = getManhattenDistance(getGridPosition(entity), getGridPosition(m_end_entity));
-            
-            auto dijkstra_component = m_reg->try_get<Cmp::DijkstraDistance>(entity);
-            if (dijkstra_component) 
+            if (start_end_entity_distance < AGGRO_DISTANCE) 
             {
-                if (start_end_entity_distance < AGGRO_DISTANCE) 
-                {
-                    m_reg->patch<Cmp::DijkstraDistance>(entity, [](auto & dijkstra_component) { 
-                        dijkstra_component.distance = 0; 
-                    });
+                dijkstra_cmp.distance = 0; 
 
-                    // Update distances for nearby non-NPC entities
-                    for (auto [next_entity, next_pos]: m_reg->view<Cmp::Position>(entt::exclude<Cmp::NPC>).each())
+                // Update distances for nearby non-NPC entities
+                for (auto [next_entity, next_pos]: m_reg->view<Cmp::Position>(entt::exclude<Cmp::NPC>).each())
+                {
+                    auto possible_obstacle = m_reg->try_get<Cmp::Obstacle>(next_entity);
+                    if(possible_obstacle && possible_obstacle->m_enabled) continue;
+
+                    int distance = getManhattenDistance(getGridPosition(entity), getGridPosition(next_entity));
+                    if (distance <= SCAN_DISTANCE)
                     {
-                        auto possible_obstacle = m_reg->try_get<Cmp::Obstacle>(next_entity);
-                        if(possible_obstacle && possible_obstacle->m_enabled) continue;
-
-                        int distance = getManhattenDistance(getGridPosition(entity), getGridPosition(next_entity));
-                        if (distance <= SCAN_DISTANCE)
-                        {
-                            m_reg->emplace_or_replace<Cmp::DijkstraDistance>(next_entity, distance);
-                        }
+                        m_reg->emplace_or_replace<Cmp::DijkstraDistance>(next_entity, distance);
                     }
-                } 
-                else 
-                {
-                    m_reg->patch<Cmp::DijkstraDistance>(entity, [this](auto & dijkstra_component) { 
-                        dijkstra_component.distance = DIJKSTRA_MAX_DISTANCE; 
-                    });
                 }
+            } 
+            else 
+            {
+                dijkstra_cmp.distance = DIJKSTRA_MAX_DISTANCE; 
             }
+            
         }
     }
 
-    void check_unvisited_set()
-    {
-        std::pair<int, entt::entity> this_node = m_priority_queue.top();
 
-        for (auto [next_entity, next_pos]: m_reg->view<Cmp::Position>(entt::exclude<Cmp::VisitedNode>).each())
-        {
-            // disregard any obstacles that are collidable
-            auto possible_obstacle = m_reg->try_get<Cmp::Obstacle>(next_entity);
-            if(possible_obstacle && possible_obstacle->m_enabled) continue;
-
-            int distance = getManhattenDistance(getGridPosition(this_node.second),  getGridPosition(next_entity));
-            if (distance > SCAN_DISTANCE) continue;
-            else m_reg->emplace_or_replace<Cmp::DijkstraDistance>( next_entity, distance );
-
-        }
-    
-    }
 
     std::vector<entt::entity> getPath()
     {
         // Reconstruct the path by following decreasing distances from end to start
         std::vector<entt::entity> path;
-
         return path;
     }
 
