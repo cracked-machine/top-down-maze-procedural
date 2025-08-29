@@ -191,11 +191,6 @@ public:
             }
         }
         
-        Cmp::NPC* npc = m_reg->try_get<Cmp::NPC>(neighbour_entity);
-        if (npc)
-        {
-            m_reg->remove<Cmp::NPC>(neighbour_entity);
-        }
         m_detonate_sound_player.play();
         
     }
@@ -250,6 +245,18 @@ public:
                 }
                 
             }
+
+            for(auto [npc_entt, npc_cmp, npc_pos_cmp] : m_reg->view<Cmp::NPC, Cmp::Position>().each())
+            {
+                auto npc_bounding_box = sf::FloatRect{ npc_pos_cmp, sf::Vector2f{ Settings::OBSTACLE_SIZE_2F } };
+                // Check if the NPC is within the explosion zone
+                if(explosion_zone.findIntersection(npc_bounding_box))
+                {
+                    // kill npc
+                    m_reg->destroy(npc_entt);
+                }
+
+            }   
 
             // if we got this far then the bomb detonated, we can destroy the armed component
             m_reg->erase<Cmp::Armed>(_entt);
