@@ -71,18 +71,27 @@ public:
             // now for each candidate in NPCs Cmp::EnttDistanceSet, check if one moves us closer to the player
             for(auto move_candidate: distance_set)
             {
-                // Use a square distance because this is "as the crow flies"
-                auto potential_move_distance = getSquareDistance(getGridPosition(move_candidate), getGridPosition(player_entity));
-           
+                // Get grid positions for comparison
+                auto candidate_pos = getGridPosition(move_candidate);
+                auto player_pos = getGridPosition(player_entity);
+                auto npc_pos = getGridPosition(npc_entity);
 
-                // Check if move brings us closer to player, ignore directional restrictions
-                if (potential_move_distance < player_distance_cmp->distance)
+                // Calculate distances
+                auto current_distance = getManhattanDistance(npc_pos, player_pos);
+                auto new_distance = getManhattanDistance(candidate_pos, player_pos);
+
+                // Move if this position gets us closer to the player
+                if (new_distance < current_distance)
                 {
                     auto npc_cmp = m_reg->try_get<Cmp::NPC>(npc_entity);
                     if(npc_cmp) {
+                        // prevent the NPC from moving too fast
                         if(npc_cmp->m_move_cooldown.getElapsedTime() < npc_cmp->MOVE_DELAY) continue;
                         m_reg->emplace_or_replace<Cmp::Position>(npc_entity, getPixelPosition(move_candidate));
                         npc_cmp->m_move_cooldown.restart();
+                        // Update the stored distance
+                        m_reg->emplace_or_replace<Cmp::PlayerDistance>(npc_entity, new_distance);
+                        break; // Take the first better move we find
                     }
                 }
             }
