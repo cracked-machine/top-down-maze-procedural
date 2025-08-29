@@ -114,11 +114,11 @@ public:
                     // Check if player is moving
                     if (_direction.x != 0.f || _direction.y != 0.f) {
                         // Push back in opposite direction of travel
-                        _pc_pos -= _direction.normalized() * 20.f;
+                        _pc_pos -= _direction.normalized() * 8.f;
                     } else {
                         // If not moving, use the distance as a direction of travel
                         sf::Vector2f push_dir = { _pc_pos.x - _npc_pos.x, _pc_pos.y - _npc_pos.y };
-                        _pc_pos += push_dir.normalized() * 20.f;
+                        _pc_pos += push_dir.normalized() * 8.f;
                     }
                 }
 
