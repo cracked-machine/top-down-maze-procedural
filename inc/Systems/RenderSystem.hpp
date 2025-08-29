@@ -216,6 +216,7 @@ public:
                 render_npc();
                 render_flood_waters();
                 render_dijkstra_distances();
+                
 
                 // move the local view position to equal the player position
                 // reset the center if player is stuck
@@ -294,6 +295,8 @@ public:
                     render_water_level_meter_overlay(water_level.m_level, {40.f, 70.f},  {200.f, 20.f});
                 }
 
+                render_entt_distance_priority_queue_overlay();
+
             } 
             // UI Overlays end
 
@@ -323,6 +326,54 @@ public:
             distance_text.setOutlineColor(sf::Color::Black);
             distance_text.setOutlineThickness(2.f);
             m_window->draw(distance_text);
+
+        }
+
+        auto entt_distance_priority_queue_view = m_reg->view<Cmp::EnttDistancePriorityQueue>();
+        for( auto [e,distance_queue] : entt_distance_priority_queue_view.each())
+        {
+            if( distance_queue.empty() ) { continue; } 
+            else {
+                auto position = m_reg->try_get<Cmp::Position>(distance_queue.top().second);
+                if(position) {
+                    sf::RectangleShape sq({16,16});
+                    sq.setPosition(*position);
+                    sq.setFillColor(sf::Color::Transparent);
+                    sq.setOutlineColor(sf::Color::Red);
+                    sq.setOutlineThickness(2.f);
+                    m_window->draw(sq);
+                }
+            }
+
+        }
+    }
+
+    void render_entt_distance_priority_queue_overlay()
+    {
+        if (!m_show_dijkstra_distance) return;
+        
+        auto entt_distance_priority_queue_view = m_reg->view<Cmp::EnttDistancePriorityQueue>();
+        for( auto [e,distance_queue] : entt_distance_priority_queue_view.each())
+        {
+            sf::Text distance_text(m_font, "", 30);
+            distance_text.setFillColor(sf::Color::White);
+            distance_text.setOutlineColor(sf::Color::Black);
+            distance_text.setOutlineThickness(2.f);
+
+            if( distance_queue.empty() ) {
+                continue;
+            } else {
+
+                distance_text.setString("Priority Queue Size: " + std::to_string(distance_queue.size()));
+                distance_text.setPosition({100 , 500});
+                m_window->draw(distance_text);
+
+                distance_text.setString("Shortest - Entity: " + std::to_string(entt::to_integral(distance_queue.top().second))
+                     + ", Distance: " + std::to_string(distance_queue.top().first)
+                );
+                distance_text.setPosition({100 , 530});
+                m_window->draw(distance_text);
+            }
 
         }
     }

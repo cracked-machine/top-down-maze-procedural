@@ -2,6 +2,7 @@
 #define __ENTITY_FACTORY_HPP__
 
 #include <Direction.hpp>
+#include <EnttDistancePriorityQueue.hpp>
 #include <NPC.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <WaterLevel.hpp>
@@ -74,6 +75,16 @@ public:
         reg->emplace<Cmp::GameState>(entity);
     }
 
+    static void add_entt_distance_priority_queue(std::shared_ptr<entt::basic_registry<entt::entity>> reg)
+    {
+        if( not reg->view<Cmp::EnttDistancePriorityQueue>()->empty()) {
+            SPDLOG_WARN("EnttDistancePriorityQueue entity already exists, skipping creation");
+            return;
+        }
+        SPDLOG_INFO("Creating EnttDistancePriorityQueue entity");
+        auto entity = reg->create();
+        reg->emplace<Cmp::EnttDistancePriorityQueue>(entity);
+    }
 
 private:
     EntityFactory() {}

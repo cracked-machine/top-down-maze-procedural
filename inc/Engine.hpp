@@ -130,9 +130,8 @@ public:
                         }
 
                         auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
-                        for(auto [npc_entity, _npc]: m_reg->view<Cmp::NPC>().each()) {
-                            m_path_find_sys->findPath(npc_entity, player_entity);
-                        }
+                        m_path_find_sys->findPath(player_entity);
+                        
 
                         m_render_sys->render_game();
                         break;
@@ -348,7 +347,7 @@ private:
         // 2. setup new entities and generate the level
         EntityFactory::add_system_entity( m_reg );
         EntityFactory::add_player_entity( m_reg );
-        // EntityFactory::add_npc_entity( m_reg, {100.f, 100.f} );
+        EntityFactory::add_entt_distance_priority_queue( m_reg );
         m_flood_sys->add_flood_water_entity();
 
         // create initial random game area with the required sprites
