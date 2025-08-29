@@ -13,6 +13,7 @@ public:
     bool show_obstacle_entity_id = false;
     bool show_pathfinding = false;
     bool show_dijkstra_distance = false;
+    bool pause_flood = false;
     bool player_stuck = false;
     bool level_complete = false;
 };

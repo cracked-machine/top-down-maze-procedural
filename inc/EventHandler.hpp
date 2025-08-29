@@ -118,7 +118,15 @@ public:
                             SPDLOG_INFO("Show Dijkstra distance is now {}", _sys.show_dijkstra_distance ? "ENABLED" : "DISABLED");
                         }
                     }
-
+                    else if (keyReleased->scancode == sf::Keyboard::Scancode::F6)
+                    {
+                        for( auto [ _entt, _sys] :
+                            m_reg->view<Cmp::System>().each() )
+                        {
+                            _sys.pause_flood = not _sys.pause_flood;
+                            SPDLOG_INFO("Pause flood is now {}", _sys.pause_flood ? "ENABLED" : "DISABLED");
+                        }
+                    }
                     else if (keyReleased->scancode == sf::Keyboard::Scancode::F11)
                     {
                         for(auto [_, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {

@@ -1,19 +1,24 @@
 #ifndef __SYSTEMS_WATER_SYSTEM_HPP__
 #define __SYSTEMS_WATER_SYSTEM_HPP__
 
-#include <Direction.hpp>
-#include <Movement.hpp>
-#include <PlayableCharacter.hpp>
-#include <Position.hpp>
+#include <Components/Direction.hpp>
+#include <Components/Movement.hpp>
+#include <Components/System.hpp>
+#include <Components/PlayableCharacter.hpp>
+#include <Components/Position.hpp>
+#include <Components/WaterLevel.hpp>
+#include <Settings.hpp>
+
 #include <SFML/Audio/Music.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <Settings.hpp>
-#include <WaterLevel.hpp>
+
 #include <entt/entity/registry.hpp>
-#include <memory>
+
 #include <spdlog/spdlog.h>
+
+#include <memory>
 #include <unordered_map>
 
 namespace ProceduralMaze::Sys {
@@ -73,6 +78,11 @@ private:
         // Cache views once - better performance since entities always exist
         auto water_view = m_reg->view<Cmp::WaterLevel>();
         auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction>();
+
+        // abort if flood is paused
+        for(auto [_, sys]: m_reg->view<Cmp::System>().each()) {
+            if(sys.pause_flood) return;
+        }
 
         // Separate water level updates from collision checks for better performance
         for(auto [_, water_level]: water_view.each()) {
