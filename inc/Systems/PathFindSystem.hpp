@@ -64,13 +64,15 @@ public:
             // Add the obstacle distance set to the NPC - this is mostly so we can display it on the screen later
             m_reg->emplace_or_replace<Cmp::EnttDistanceSet>(npc_entity, distance_set);
 
-            // Now we need to find the player distance from the NPCs
+            // Get the known player distance (Cmp::PlayerDistance) stored in the NPCs entity
             auto player_distance_cmp = m_reg->try_get<Cmp::PlayerDistance>(npc_entity);
             if( not player_distance_cmp) return;
+
+            // now for each candidate in NPCs Cmp::EnttDistanceSet, check if one moves us closer to the player
             for(auto move_candidate: distance_set)
             {
                 // Use a square distance because this is "as the crow flies"
-                auto potential_move_distance = getSquareDistance(getGridPosition(move_candidate), getGridPosition(npc_entity));
+                auto potential_move_distance = getSquareDistance(getGridPosition(move_candidate), getGridPosition(player_entity));
            
 
                 // Check if move brings us closer to player, ignore directional restrictions
