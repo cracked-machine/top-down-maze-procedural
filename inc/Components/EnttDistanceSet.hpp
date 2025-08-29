@@ -23,8 +23,8 @@ public:
     std::size_t size() const { return m_set.size(); }
     std::size_t empty() const { return m_set.empty(); }
     void clear() { m_set.clear(); }
-    auto begin() { return m_set.begin(); }
-    auto end() { return m_set.end(); }
+    auto begin() const { return m_set.begin(); } 
+    auto end() const { return m_set.end(); }
 
 private:
     std::unordered_set<entt::entity> m_set;

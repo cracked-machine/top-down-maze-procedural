@@ -110,7 +110,9 @@ public:
 
                 if (player_hitbox.findIntersection(npc_hitbox))
                 {
+                    if( _npc.m_damage_cooldown.getElapsedTime() < _npc.DAMAGE_DELAY ) continue;
                     _pc.health -= 10;
+                    _npc.m_damage_cooldown.restart();
                     // Check if player is moving
                     if (_direction.x != 0.f || _direction.y != 0.f) {
                         // Push back in opposite direction of travel

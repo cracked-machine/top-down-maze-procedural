@@ -29,44 +29,52 @@ public:
 
     void findPath(entt::entity player_entity)
     {
-
         resetNonNpcDistances();
-        for (auto [npc_entity, npc_cmp, npc_dijkstra_cmp]: m_reg->view<Cmp::NPC, Cmp::PlayerDistance>().each())
+        for (auto [npc_entity, npc_cmp, player_distance_from_npc]: m_reg->view<Cmp::NPC, Cmp::PlayerDistance>().each())
         {
             updatePlayerDistanceFrom(npc_entity, 5);
-            getDistancesFrom(npc_entity, player_entity);
+            updateDistancesFrom(npc_entity, player_entity);
         }
     }
 
-    void getDistancesFrom(entt::entity npc_entity, entt::entity player_entity)
+    void updateDistancesFrom(entt::entity npc_entity, entt::entity player_entity)
     {
-
         // only continue if we are within aggro distance
-        auto start_end_entity_distance = getManhattenDistance(getGridPosition(npc_entity), getGridPosition(player_entity));
+        auto start_end_entity_distance = getSquareDistance(getGridPosition(npc_entity), getGridPosition(player_entity));
         if (start_end_entity_distance < AGGRO_DISTANCE) 
         {
+            // first update the obstacles with their NPC distances
             Cmp::EnttDistanceSet distance_set;
-            for (auto [next_entity, next_pos]: m_reg->view<Cmp::Position>(entt::exclude<Cmp::NPC, Cmp::PlayableCharacter>).each())
+            for (auto [obstacle_entity, next_pos]: m_reg->view<Cmp::Position>(entt::exclude<Cmp::NPC, Cmp::PlayableCharacter>).each())
             {
-                // skip any impassible tiles
-                auto possible_obstacle = m_reg->try_get<Cmp::Obstacle>(next_entity);
+                // skip any impassible obstacles
+                auto possible_obstacle = m_reg->try_get<Cmp::Obstacle>(obstacle_entity);
                 if(possible_obstacle && possible_obstacle->m_enabled) continue;
 
-                // record entity for disabled obstacles that are only 1 block distance
-                int distance = getManhattenDistance(getGridPosition(npc_entity), getGridPosition(next_entity));
+                // Use manhattan distance to skip diagonal distances. 
+                // This prevents NPC from going between diagonal obstacle gaps.
+                int distance = getManhattanDistance(getGridPosition(npc_entity), getGridPosition(obstacle_entity));
                 if (distance == 1)
                 {
-                    m_reg->emplace_or_replace<Cmp::NPCDistance>(next_entity, 1);
-                    distance_set.set(next_entity);
+                    m_reg->emplace_or_replace<Cmp::NPCDistance>(obstacle_entity, 1);
+                    distance_set.set(obstacle_entity);
                 }
             }
+
+            // Add the obstacle distance set to the NPC - this is mostly so we can display it on the screen later
             m_reg->emplace_or_replace<Cmp::EnttDistanceSet>(npc_entity, distance_set);
 
+            // Now we need to find the player distance from the NPCs
             auto player_distance_cmp = m_reg->try_get<Cmp::PlayerDistance>(npc_entity);
             if( not player_distance_cmp) return;
             for(auto move_candidate: distance_set)
             {
-                if( getManhattenDistance(getGridPosition(npc_entity), getGridPosition(move_candidate)) < player_distance_cmp->distance)
+                // Use a square distance because this is "as the crow flies"
+                auto potential_move_distance = getSquareDistance(getGridPosition(move_candidate), getGridPosition(npc_entity));
+           
+
+                // Check if move brings us closer to player, ignore directional restrictions
+                if (potential_move_distance < player_distance_cmp->distance)
                 {
                     auto npc_cmp = m_reg->try_get<Cmp::NPC>(npc_entity);
                     if(npc_cmp) {
@@ -82,8 +90,6 @@ public:
             // now NPC is out of aggro range, remove their pathing data
             m_reg->remove<Cmp::EnttDistanceSet>(npc_entity);
         }
-        
-        
     }
 
     void updatePlayerDistanceFrom(entt::entity npc_entity, int aggro_distance)
@@ -91,7 +97,7 @@ public:
         auto player_only_view = m_reg->view<Cmp::Position, Cmp::PlayableCharacter>();
         for (auto [player_entity, player_pos ,player]: player_only_view.each())
         {
-            int distance = getManhattenDistance(getGridPosition(npc_entity), getGridPosition(player_entity));
+            int distance = getSquareDistance(getGridPosition(npc_entity), getGridPosition(player_entity));
             if(distance < aggro_distance) {
                 m_reg->emplace_or_replace<Cmp::PlayerDistance>(npc_entity, distance);
             }
@@ -123,9 +129,16 @@ public:
         return { -1, -1 }; // Invalid position
     }
 
-    unsigned int getManhattenDistance(sf::Vector2i posA, sf::Vector2i posB ) const
+    // sum( (posA.x - posB.x) + (posA.y - posB.y) )
+    unsigned int getManhattanDistance(sf::Vector2i posA, sf::Vector2i posB ) const
     {
         return std::abs(posA.x - posB.x) + std::abs(posA.y - posB.y);
+    }
+
+    // max( (posA.x - posB.x), (posA.y - posB.y) )
+    unsigned int getSquareDistance(sf::Vector2i posA, sf::Vector2i posB ) const
+    {
+        return std::max(std::abs(posA.x - posB.x), std::abs(posA.y - posB.y));
     }
 
 private:
