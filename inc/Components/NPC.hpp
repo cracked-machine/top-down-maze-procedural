@@ -12,7 +12,7 @@ public:
     NPC(bool npc) : m_is_npc(npc) {}
     [[maybe_unused]] bool m_is_npc{true};
     sf::Clock m_move_cooldown;
-    const sf::Time MOVE_DELAY{sf::seconds(2.f)}; // NPC moves every 2 seconds
+    const sf::Time MOVE_DELAY{sf::seconds(0.2f)}; // NPC moves every 2 seconds
     
     sf::Clock m_damage_cooldown;
     const sf::Time DAMAGE_DELAY{sf::seconds(2.f)}; // NPC takes damage every 2 seconds

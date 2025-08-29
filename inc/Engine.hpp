@@ -6,6 +6,7 @@
 #include <EntityFactory.hpp>
 #include <FloodSystem.hpp>
 #include <GameState.hpp>
+#include <NpcSystem.hpp>
 #include <PathFindSystem.hpp>
 #include <ProcGen/RandomLevelGenerator.hpp>
 #include <SFML/Audio/Sound.hpp>
@@ -105,13 +106,14 @@ public:
                         m_event_handler.game_state_handler(m_window);
         
                         update_character_movement(deltaTime);
-                        process_action_queue();       
-                        m_flood_sys->update();  
+                        m_npc_sys->update_positions(deltaTime);
+                        process_action_queue();
+                        m_flood_sys->update();
                         m_bomb_sys->update();
                         m_collision_sys->check_end_zone_collision();
                         m_collision_sys->check_loot_collision();
                         m_collision_sys->check_bones_reanimation();
-                        m_collision_sys->check_npc_collision();
+                        m_collision_sys->check_player_npc_collision();
 
                         // did the player drown? Then end the game
                         for(auto [_, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {
@@ -121,13 +123,15 @@ public:
                         }
 
                         for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
-                            if( _sys.collisions_enabled ) m_collision_sys->check_collision();
+                            if( _sys.collisions_enabled ) m_collision_sys->check_player_collision();
                             if( _sys.level_complete )
                             {
                                 SPDLOG_INFO("Level complete!");
                                 game_state.current_state = Cmp::GameState::State::GAMEOVER;
                             }
                         }
+
+                        m_collision_sys->check_npc_obstacle_collision();
 
                         auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
                         m_path_find_sys->findPath(player_entity);
@@ -203,8 +207,9 @@ private:
         std::make_shared<entt::basic_registry<entt::entity>>(entt::basic_registry<entt::entity>{});
 
     //  ECS Systems
-    std::shared_ptr<Sys::PathFindSystem> m_path_find_sys = std::make_shared<Sys::PathFindSystem>(m_reg);
-    std::unique_ptr<Sys::CollisionSystem> m_collision_sys = std::make_unique<Sys::CollisionSystem>(m_reg);
+    std::shared_ptr<Sys::NpcSystem> m_npc_sys = std::make_shared<Sys::NpcSystem>(m_reg);
+    std::shared_ptr<Sys::PathFindSystem> m_path_find_sys = std::make_shared<Sys::PathFindSystem>(m_reg, m_npc_sys);
+    std::unique_ptr<Sys::CollisionSystem> m_collision_sys = std::make_unique<Sys::CollisionSystem>(m_reg, m_npc_sys);
     std::unique_ptr<Sys::RenderSystem> m_render_sys = std::make_unique<Sys::RenderSystem> (m_reg, m_window, m_path_find_sys);
     std::unique_ptr<Sys::FloodSystem> m_flood_sys = std::make_unique<Sys::FloodSystem> (m_reg, 5.f);
     std::unique_ptr<Sys::BombSystem> m_bomb_sys = std::make_unique<Sys::BombSystem> (

@@ -2,6 +2,8 @@
 #define __SYSTEMS_COLLISION_SYSTEM_HPP__
 
 #include <Armed.hpp>
+#include <EnttDistanceSet.hpp>
+#include <NpcSystem.hpp>
 #include <PlayerDistance.hpp>
 #include <Direction.hpp>
 #include <Loot.hpp>
@@ -40,10 +42,18 @@ namespace ProceduralMaze::Sys {
 
 class CollisionSystem {
 public:
-    CollisionSystem(std::shared_ptr<entt::basic_registry<entt::entity>> reg) : m_reg(reg) {}
+    CollisionSystem(
+        std::shared_ptr<entt::basic_registry<entt::entity>> reg,
+        std::shared_ptr<Sys::NpcSystem> npc_sys
+    ) : 
+        m_reg(reg), 
+        m_npc_sys(npc_sys) 
+    {}
+
     ~CollisionSystem() = default;
 
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
+    std::shared_ptr<Sys::NpcSystem> m_npc_sys;
 
     entt::reactive_mixin<entt::storage<void>> m_collision_updates;
 
@@ -89,13 +99,14 @@ public:
                 {
                     m_reg->remove<Cmp::Obstacle>(_obstacle_entt);
                     m_reg->emplace<Cmp::NPC>(_obstacle_entt, true);
+                    m_reg->emplace_or_replace<Cmp::Movement>(_obstacle_entt);
                     m_reg->emplace_or_replace<Cmp::PlayerDistance>(_obstacle_entt, std::numeric_limits<unsigned int>::max());
                 }
             }
         }
     }
 
-    void check_npc_collision()
+    void check_player_npc_collision()
     {
         auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::Movement>();
         auto npc_collision_view = m_collision_updates.view<Cmp::NPC, Cmp::Position>();
@@ -237,7 +248,7 @@ public:
         }
     }
 
-    void check_collision()
+    void check_player_collision()
     {
         const float PUSH_FACTOR = 1.1f;  // Push slightly more than minimum to avoid floating point issues
         
@@ -382,6 +393,157 @@ public:
                 }
                 
                 SPDLOG_DEBUG("Collision resolved - new pos: {},{}", _pc_pos.x, _pc_pos.y);
+            }
+        }
+    }
+
+    void check_npc_obstacle_collision()
+    {
+        const float PUSH_FACTOR = 1.1f;  // Push slightly more than minimum to avoid floating point issues
+
+        for (auto [_npc_entt, _npc, _npc_pos, _movement] :
+            m_collision_updates.view<Cmp::NPC, Cmp::Position, Cmp::Movement>().each())
+        {
+            sf::Vector2f starting_pos = {_npc_pos.x, _npc_pos.y};
+            int stuck_loop = 0;
+         
+            // Reset collision flag at start of frame
+            _movement.is_colliding = false;
+
+            for (auto [_ob_entt, _ob, _ob_pos] :
+                m_collision_updates.view<Cmp::Obstacle, Cmp::Position>().each())
+            {
+                if (not _ob.m_enabled) { continue; }
+
+                auto player_floatrect = sf::FloatRect({ _npc_pos.x, _npc_pos.y }, Settings::PLAYER_SIZE_2F - sf::Vector2f(1.f, 1.f));
+                auto brick_floatRect = sf::FloatRect(_ob_pos, Settings::OBSTACLE_SIZE_2F);
+
+                auto collision = player_floatrect.findIntersection(brick_floatRect);
+                if (!collision) continue;
+
+                m_npc_sys->update_paths(_npc_entt);
+
+                stuck_loop++;
+
+                // We'll keep track if we're near the top wall for special handling
+                bool near_top_wall = (_npc_pos.y < Settings::MAP_GRID_OFFSET.y * 16.f);
+
+                // if (stuck_loop > 10) // Reduced threshold, but we'll be smarter about resolution
+                // {
+                //     // First try moving back to starting position
+                //     _npc_pos.x = starting_pos.x;
+                //     _npc_pos.y = starting_pos.y;
+
+                //     player_floatrect = sf::FloatRect({ _npc_pos.x, _npc_pos.y }, Settings::PLAYER_SIZE_2F);
+                //     if (!player_floatrect.findIntersection(brick_floatRect))
+                //     {
+                //         SPDLOG_INFO("Recovered by reverting to start position");
+                //         continue;
+                //     }
+
+                //     // // If still stuck, reset to spawn
+                //     // SPDLOG_INFO("Could not recover, resetting to spawn");
+                //     // _npc_pos = ProceduralMaze::Settings::PLAYER_START_POS;
+                //     // for (auto [_entt, _sys] : m_reg->view<Cmp::System>().each())
+                //     // {
+                //     //     _sys.player_stuck = true;
+                //     // }
+                //     // return;
+                // }
+
+                auto brickCenter = brick_floatRect.getCenter();
+                auto playerCenter = player_floatrect.getCenter();
+                
+                auto diffX = playerCenter.x - brickCenter.x;
+                auto diffY = playerCenter.y - brickCenter.y;
+                
+                auto minXDist = (player_floatrect.size.x / 2.0f) + (brick_floatRect.size.x / 2.0f);
+                auto minYDist = (player_floatrect.size.y / 2.0f) + (brick_floatRect.size.y / 2.0f);
+
+                // Calculate signed penetration depths
+                float depthX = (diffX > 0 ? 1.0f : -1.0f) * (minXDist - std::abs(diffX));
+                float depthY = (diffY > 0 ? 1.0f : -1.0f) * (minYDist - std::abs(diffY));
+
+                // Store current position in case we need to revert
+                sf::Vector2f pre_resolve_pos = {_npc_pos.x, _npc_pos.y};
+
+                // Near top wall: Slightly bias vertical resolution but don't force it
+                if (near_top_wall && depthY > 0) {
+                    // If pushing down would resolve collision and we're at the top wall,
+                    // slightly prefer vertical resolution (by reducing the X penetration)
+                    depthX *= 1.2f;  // Makes horizontal resolution slightly less likely
+                }
+
+                // Always resolve along the axis of least penetration
+                if (std::abs(depthX) < std::abs(depthY))
+                {
+                    // Push out along X axis
+                    _npc_pos.x += depthX * PUSH_FACTOR;
+
+                    // Calculate speed-based friction coefficient
+                    float speed_ratio = std::abs(_movement.velocity.y) / _movement.max_speed;
+                    float dynamic_friction = _movement.friction_coefficient * 
+                        (1.0f - (_movement.friction_falloff * speed_ratio));
+                    
+                    // Apply friction to Y velocity with smooth falloff
+                    _movement.velocity.y *= (1.0f - dynamic_friction);
+                    
+                    // Check if Y velocity is below minimum
+                    if (std::abs(_movement.velocity.y) < _movement.min_velocity) {
+                        _movement.velocity.y = 0.0f;
+                    }
+                }
+                else
+                {
+                    // Push out along Y axis
+                    _npc_pos.y += depthY * PUSH_FACTOR;
+
+                    // Calculate speed-based friction coefficient
+                    float speed_ratio = std::abs(_movement.velocity.x) / _movement.max_speed;
+                    float dynamic_friction = _movement.friction_coefficient * 
+                        (1.0f - (_movement.friction_falloff * speed_ratio));
+                    
+                    // Apply friction to X velocity with smooth falloff
+                    _movement.velocity.x *= (1.0f - dynamic_friction);
+                    
+                    // Check if X velocity is below minimum
+                    if (std::abs(_movement.velocity.x) < _movement.min_velocity) {
+                        _movement.velocity.x = 0.0f;
+                    }
+                }
+
+                // Verify the resolution worked
+                player_floatrect = sf::FloatRect({ _npc_pos.x, _npc_pos.y }, Settings::PLAYER_SIZE_2F);
+                if (player_floatrect.findIntersection(brick_floatRect))
+                {
+                    // If resolution failed, try reverting and using the other axis
+                    _npc_pos = pre_resolve_pos;
+                    if (std::abs(depthX) < std::abs(depthY))
+                    {
+                        _npc_pos.y += depthY * PUSH_FACTOR;
+                        _movement.velocity.x *= (1.0f - _movement.friction_coefficient);
+                    }
+                    else
+                    {
+                        _npc_pos.x += depthX * PUSH_FACTOR;
+                        _movement.velocity.y *= (1.0f - _movement.friction_coefficient);
+                    }
+                }
+
+                // Special case for top wall: prevent any upward movement
+                if (near_top_wall && _npc_pos.y < Settings::MAP_GRID_OFFSET.y * 16.f + 4.0f) {
+                    _movement.velocity.y = std::max(0.0f, _movement.velocity.y);
+                }
+                
+                // Mark that we're colliding for this frame
+                _movement.is_colliding = true;
+
+                // Extra safety for top wall
+                if (near_top_wall && _npc_pos.y < Settings::MAP_GRID_OFFSET.y * 16.f) {
+                    _npc_pos.y = Settings::MAP_GRID_OFFSET.y * 16.f + 1.0f;
+                }
+
+                SPDLOG_DEBUG("Collision resolved - new pos: {},{}", _npc_pos.x, _npc_pos.y);
             }
         }
     }

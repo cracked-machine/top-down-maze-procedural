@@ -20,6 +20,7 @@ public:
         }
         return std::nullopt;
     }
+    void erase(const entt::entity& entity) { m_set.erase(entity); }
     std::size_t size() const { return m_set.size(); }
     std::size_t empty() const { return m_set.empty(); }
     void clear() { m_set.clear(); }

@@ -18,9 +18,10 @@ struct Movement {
     float friction_falloff = 0.5f;      // How quickly friction decreases with speed (0-1)
     float min_velocity = 1.f;          // Minimum velocity before stopping completely
     bool is_colliding = false;          // Flag to track if entity is currently colliding
-    const float DEFAULT_ACCELERATION_RATE = 500.0f; // Default acceleration rate
-    const float DEFAULT_DECELERATION_RATE = 600.0f; // Default deceleration rate
-    const float DEFAULT_MAX_SPEED = 100.0f; // Default maximum speed
+    constexpr static const float DEFAULT_ACCELERATION_RATE = 500.0f; // Default acceleration rate
+    constexpr static const float DEFAULT_DECELERATION_RATE = 600.0f; // Default deceleration rate
+    constexpr static const float DEFAULT_MAX_SPEED = 100.0f; // Default maximum speed
+
 };
 
 } // namespace Cmp
