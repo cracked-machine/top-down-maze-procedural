@@ -40,7 +40,7 @@ public:
     void updateDistancesFrom(entt::entity npc_entity, entt::entity player_entity)
     {
         // only continue if we are within aggro distance
-        auto start_end_entity_distance = getSquareDistance(getGridPosition(npc_entity), getGridPosition(player_entity));
+        auto start_end_entity_distance = getChebyshevDistance(getGridPosition(npc_entity), getGridPosition(player_entity));
         if (start_end_entity_distance < AGGRO_DISTANCE) 
         {
             // first update the obstacles with their NPC distances
@@ -108,7 +108,7 @@ public:
         auto player_only_view = m_reg->view<Cmp::Position, Cmp::PlayableCharacter>();
         for (auto [player_entity, player_pos ,player]: player_only_view.each())
         {
-            int distance = getSquareDistance(getGridPosition(npc_entity), getGridPosition(player_entity));
+            int distance = getChebyshevDistance(getGridPosition(npc_entity), getGridPosition(player_entity));
             if(distance < aggro_distance) {
                 m_reg->emplace_or_replace<Cmp::PlayerDistance>(npc_entity, distance);
             }
@@ -141,13 +141,15 @@ public:
     }
 
     // sum( (posA.x - posB.x) + (posA.y - posB.y) )
+    // cardinal directions only
     unsigned int getManhattanDistance(sf::Vector2i posA, sf::Vector2i posB ) const
     {
         return std::abs(posA.x - posB.x) + std::abs(posA.y - posB.y);
     }
 
     // max( (posA.x - posB.x), (posA.y - posB.y) )
-    unsigned int getSquareDistance(sf::Vector2i posA, sf::Vector2i posB ) const
+    // cardinal and diagonal directions
+    unsigned int getChebyshevDistance(sf::Vector2i posA, sf::Vector2i posB ) const
     {
         return std::max(std::abs(posA.x - posB.x), std::abs(posA.y - posB.y));
     }
