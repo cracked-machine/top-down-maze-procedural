@@ -381,19 +381,19 @@ private:
             m_window->draw(*m_detonation_ms);
         }
 
-        for(const auto& [pos, type]: disabledPositions) {
-            // sf::Text text(m_font, "", 12);
-            // text.setString(m_sprite_factory->get_metadata_type_string(type));
-            // text.setPosition(pos);
-            // m_window->draw(text);
+        // for(const auto& [pos, type]: disabledPositions) {
+        //     sf::Text text(m_font, "", 12);
+        //     text.setString(m_sprite_factory->get_metadata_type_string(type));
+        //     text.setPosition(pos);
+        //     m_window->draw(text);
 
-            // sf::RectangleShape temp_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
-            // temp_square.setPosition(pos);
-            // temp_square.setFillColor(sf::Color::Transparent);
-            // temp_square.setOutlineColor(sf::Color::Red);
-            // temp_square.setOutlineThickness(1.f);
-            // m_window->draw(temp_square);
-        }
+        //     sf::RectangleShape temp_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
+        //     temp_square.setPosition(pos);
+        //     temp_square.setFillColor(sf::Color::Transparent);
+        //     temp_square.setOutlineColor(sf::Color::Red);
+        //     temp_square.setOutlineThickness(1.f);
+        //     m_window->draw(temp_square);
+        // }
     }
 
     void render_armed()
