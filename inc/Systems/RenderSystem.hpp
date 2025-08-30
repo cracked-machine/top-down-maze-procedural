@@ -325,6 +325,7 @@ private:
         std::vector<std::pair<sf::Vector2f, int>> potPositions;
         std::vector<std::pair<sf::Vector2f, int>> bonePositions;
         std::vector<std::pair<sf::Vector2f, int>> npcPositions;
+        std::vector<std::pair<sf::Vector2f, Sprites::SpriteFactory::Type>> disabledPositions;
         std::vector<sf::Vector2f> detonationPositions;
 
         // Collect all positions first instead of drawing immediately
@@ -346,6 +347,9 @@ private:
                         break;
                 }
             }
+            // else {
+            //     disabledPositions.emplace_back(_pos, _ob.m_type);
+            // }
             if(_ob.m_broken) {
                 detonationPositions.push_back(_pos);
             }  
@@ -375,6 +379,20 @@ private:
             m_detonation_ms->setPosition(pos);
             m_detonation_ms->pick(0, "Detonated");
             m_window->draw(*m_detonation_ms);
+        }
+
+        for(const auto& [pos, type]: disabledPositions) {
+            // sf::Text text(m_font, "", 12);
+            // text.setString(m_sprite_factory->get_metadata_type_string(type));
+            // text.setPosition(pos);
+            // m_window->draw(text);
+
+            // sf::RectangleShape temp_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
+            // temp_square.setPosition(pos);
+            // temp_square.setFillColor(sf::Color::Transparent);
+            // temp_square.setOutlineColor(sf::Color::Red);
+            // temp_square.setOutlineThickness(1.f);
+            // m_window->draw(temp_square);
         }
     }
 

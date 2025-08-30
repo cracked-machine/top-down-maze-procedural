@@ -87,15 +87,19 @@ public:
                 
                 if (player_hitbox.findIntersection(obstacle_hitbox))
                 {
-                    m_reg->remove<Cmp::Obstacle>(_obstacle_entt);
-                    m_reg->emplace<Cmp::NPC>(_obstacle_entt, true);
-                    m_reg->emplace_or_replace<Cmp::PlayerDistance>(_obstacle_entt, std::numeric_limits<unsigned int>::max());
+                    // dont really care what obstacle this is now as long as its disabled.
+                    m_reg->emplace_or_replace<Cmp::Obstacle>(_obstacle_entt, Sprites::SpriteFactory::Type::BONES , 0, false, false);
+                    // create a new NPC entity and put an NPC there
+                    auto new_npc_entity = m_reg->create();
+                    m_reg->emplace<Cmp::NPC>(new_npc_entity, true);
+                    m_reg->emplace<Cmp::Position>(new_npc_entity, _obstacle_pos);
+                    m_reg->emplace_or_replace<Cmp::PlayerDistance>(new_npc_entity, std::numeric_limits<unsigned int>::max());
                 }
             }
         }
     }
 
-    void check_npc_collision()
+    void check_player_to_npc_collision()
     {
         auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::Movement>();
         auto npc_collision_view = m_collision_updates.view<Cmp::NPC, Cmp::Position>();
@@ -128,10 +132,8 @@ public:
                 {
                     _pc.alive = false;
                 }
-
             }
         }
-
     }
 
     void check_loot_collision()

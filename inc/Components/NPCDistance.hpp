@@ -4,7 +4,7 @@
 #include <entt/entity/fwd.hpp>
 
 namespace ProceduralMaze::Cmp {
-
+// Component to store the distance from NPCs to obstacles
 struct NPCDistance {
     unsigned int distance = std::numeric_limits<unsigned int>::max();
 };

@@ -112,7 +112,7 @@ public:
                         m_collision_sys->check_end_zone_collision();
                         m_collision_sys->check_loot_collision();
                         m_collision_sys->check_bones_reanimation();
-                        m_collision_sys->check_npc_collision();
+                        m_collision_sys->check_player_to_npc_collision();
                         m_lerp_sys->update(deltaTime);
 
                         // did the player drown? Then end the game
