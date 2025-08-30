@@ -11,7 +11,7 @@
 #include <Components/PlayableCharacter.hpp>
 #include <Settings.hpp>
 
-#include <TargetPosition.hpp>
+#include <LerpPosition.hpp>
 #include <cstdlib>
 
 #include <entt/entity/fwd.hpp>
@@ -69,9 +69,9 @@ public:
                 if( not npc_entity_grid_pos || not obstacle_entity_grid_pos) continue;
                 int distance = getManhattanDistance(npc_entity_grid_pos.value(), obstacle_entity_grid_pos.value());
 
-                if (distance == 1)
+                if (distance == SCAN_DISTANCE)
                 {
-                    m_reg->emplace_or_replace<Cmp::NPCDistance>(obstacle_entity, 1);
+                    m_reg->emplace_or_replace<Cmp::NPCDistance>(obstacle_entity, distance);
                     distance_set.set(obstacle_entity);
                 }
             }
@@ -108,7 +108,7 @@ public:
 
                         // Set target position instead of directly moving
                         // Start lerp factor at 0   
-                        m_reg->emplace_or_replace<Cmp::TargetPosition>(npc_entity, move_candidate_pixel_pos.value(), 0.0f);
+                        m_reg->emplace_or_replace<Cmp::LerpPosition>(npc_entity, move_candidate_pixel_pos.value(), 0.0f);
 
                         npc_cmp->m_move_cooldown.restart();
 
@@ -166,8 +166,8 @@ private:
 
 
 
-    // const int SCAN_DISTANCE{5};
-    const unsigned int AGGRO_DISTANCE{5};
+    const int SCAN_DISTANCE{1};
+    const unsigned int AGGRO_DISTANCE{10};
     const unsigned int MAX_DISTANCE{std::numeric_limits<unsigned int>::max()};
 };
 

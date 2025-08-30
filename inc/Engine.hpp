@@ -6,7 +6,7 @@
 #include <EntityFactory.hpp>
 #include <FloodSystem.hpp>
 #include <GameState.hpp>
-#include <MovementSystem.hpp>
+#include <LerpSystem.hpp>
 #include <PathFindSystem.hpp>
 #include <ProcGen/RandomLevelGenerator.hpp>
 #include <SFML/Audio/Sound.hpp>
@@ -113,7 +113,7 @@ public:
                         m_collision_sys->check_loot_collision();
                         m_collision_sys->check_bones_reanimation();
                         m_collision_sys->check_npc_collision();
-                        m_movement_sys->update(deltaTime);
+                        m_lerp_sys->update(deltaTime);
 
                         // did the player drown? Then end the game
                         for(auto [_, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {
@@ -213,7 +213,7 @@ private:
         m_reg, 
         m_render_sys->m_sprite_factory
     );
-    std::unique_ptr<Sys::MovementSystem> m_movement_sys = std::make_unique<Sys::MovementSystem>(m_reg);
+    std::unique_ptr<Sys::LerpSystem> m_lerp_sys = std::make_unique<Sys::LerpSystem>(m_reg);
 
     // SFML keyboard/mouse event handler
     ProceduralMaze::InputEventHandler m_event_handler{m_reg};

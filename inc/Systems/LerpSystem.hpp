@@ -1,19 +1,19 @@
-#ifndef __SYS_MOVEMENTSYSTEM_HPP__
-#define __SYS_MOVEMENTSYSTEM_HPP__
+#ifndef __SYS_LERPSYSTEM_HPP__
+#define __SYS_LERPSYSTEM_HPP__
 
 #include <Systems/BaseSystem.hpp>
 #include <Components/Position.hpp>
-#include <Components/TargetPosition.hpp>
+#include <Components/LerpPosition.hpp>
 
 namespace ProceduralMaze::Sys {
 
-class MovementSystem : public BaseSystem {
+class LerpSystem : public BaseSystem {
 public:
-    MovementSystem(std::shared_ptr<entt::basic_registry<entt::entity>> reg) 
+    LerpSystem(std::shared_ptr<entt::basic_registry<entt::entity>> reg) 
         : BaseSystem(reg) {}
 
     void update(sf::Time dt) {
-        auto view = m_reg->view<Cmp::Position, Cmp::TargetPosition>();
+        auto view = m_reg->view<Cmp::Position, Cmp::LerpPosition>();
         
         for (auto [entity, pos, target] : view.each()) {
             // Update lerp factor
@@ -22,7 +22,7 @@ public:
             if (target.m_lerp_factor >= 1.0f) {
                 // Movement complete - snap to final position
                 pos = target.m_target;
-                m_reg->remove<Cmp::TargetPosition>(entity);
+                m_reg->remove<Cmp::LerpPosition>(entity);
             } else {
                 // Interpolate position
                 pos = lerp(pos, target.m_target, target.m_lerp_factor);
@@ -40,4 +40,4 @@ private:
 
 } // namespace ProceduralMaze::Sys
 
-#endif // __SYS_MOVEMENTSYSTEM_HPP__
+#endif // __SYS_LERPSYSTEM_HPP__
