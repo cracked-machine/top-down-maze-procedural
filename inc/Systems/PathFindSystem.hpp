@@ -67,9 +67,10 @@ public:
                 auto npc_entity_grid_pos = getGridPosition(npc_entity);
                 auto obstacle_entity_grid_pos = getGridPosition(obstacle_entity);
                 if( not npc_entity_grid_pos || not obstacle_entity_grid_pos) continue;
-                int distance = getManhattanDistance(npc_entity_grid_pos.value(), obstacle_entity_grid_pos.value());
 
-                if (distance == SCAN_DISTANCE)
+                // chebychev will allow NPC to scan for possible diagonal movement but we limit it so that it doesnt scan over walls
+                int distance = getChebyshevDistance(npc_entity_grid_pos.value(), obstacle_entity_grid_pos.value());
+                if (distance <= SCAN_DISTANCE)
                 {
                     m_reg->emplace_or_replace<Cmp::NPCDistance>(obstacle_entity, distance);
                     distance_set.set(obstacle_entity);
@@ -92,7 +93,7 @@ public:
                 auto npc_grid_pos = getGridPosition(npc_entity);
                 if( not candidate_grid_pos || not player_grid_pos || not npc_grid_pos) continue;
 
-                // Calculate distances
+                // Use Manhattan distance when actually moving to prevent jumping over walls
                 auto current_distance = getManhattanDistance(npc_grid_pos.value(), player_grid_pos.value());
                 auto new_distance = getManhattanDistance(candidate_grid_pos.value(), player_grid_pos.value());
 
