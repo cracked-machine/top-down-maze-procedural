@@ -2,29 +2,26 @@
 #define __SYS_PATHFINDSYSTEM_HPP__
 
 #include <Systems/BaseSystem.hpp>
-#include <Components/NPCDistance.hpp>
 #include <Components/PlayerDistance.hpp>
-#include <Components/EnttDistanceSet.hpp>
+#include <Components/EnttDistanceMap.hpp>
 #include <Components/NPC.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Position.hpp>
 #include <Components/PlayableCharacter.hpp>
+#include <Components/LerpPosition.hpp>
 #include <Settings.hpp>
 
-#include <LerpPosition.hpp>
 #include <cstdlib>
 
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
 
-#include <cmath> // for std::sqrt
-#include <limits> // for std::numeric_limits
+#include <cmath>
 #include <array>
 
 #include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
-
 
 class PathFindSystem : public BaseSystem {
 public:
@@ -36,7 +33,6 @@ public:
 
     void findPath(entt::entity player_entity)
     {
-        resetNonNpcDistances();
         for (auto [npc_entity, npc_cmp, player_distance_from_npc]: m_reg->view<Cmp::NPC, Cmp::PlayerDistance>().each())
         {
             updatePlayerDistanceFrom(npc_entity, 5);
@@ -55,7 +51,7 @@ public:
         if (start_end_entity_distance < AGGRO_DISTANCE) 
         {
             // first update the obstacles with their NPC distances
-            Cmp::EnttDistanceSet distance_set;
+            Cmp::EnttDistanceMap distance_map;
             for (auto [obstacle_entity, next_pos]: m_reg->view<Cmp::Position>(entt::exclude<Cmp::NPC, Cmp::PlayableCharacter>).each())
             {
                 // skip any impassible obstacles
@@ -72,20 +68,19 @@ public:
                 int distance = getChebyshevDistance(npc_entity_grid_pos.value(), obstacle_entity_grid_pos.value());
                 if (distance <= SCAN_DISTANCE)
                 {
-                    m_reg->emplace_or_replace<Cmp::NPCDistance>(obstacle_entity, distance);
-                    distance_set.set(obstacle_entity);
+                    distance_map.set(obstacle_entity, distance);
                 }
             }
 
-            // Add the obstacle distance set to the NPC - this is mostly so we can display it on the screen later
-            m_reg->emplace_or_replace<Cmp::EnttDistanceSet>(npc_entity, distance_set);
+            // Add the obstacle distance map to the NPC - this is mostly so we can display it on the screen later
+            m_reg->emplace_or_replace<Cmp::EnttDistanceMap>(npc_entity, distance_map);
 
             // Get the known player distance (Cmp::PlayerDistance) stored in the NPCs entity
             auto player_distance_cmp = m_reg->try_get<Cmp::PlayerDistance>(npc_entity);
             if( not player_distance_cmp) return;
 
-            // now for each candidate in NPCs Cmp::EnttDistanceSet, check if one moves us closer to the player
-            for(auto move_candidate: distance_set)
+            // now for each candidate in NPCs Cmp::EnttDistanceMap, check if one moves us closer to the player
+            for(auto [move_candidate, distance]: distance_map)
             {
                 // Get grid positions for comparison
                 auto candidate_grid_pos = getGridPosition(move_candidate);
@@ -123,7 +118,7 @@ public:
         else
         {
             // now NPC is out of aggro range, remove their pathing data
-            m_reg->remove<Cmp::EnttDistanceSet>(npc_entity);
+            m_reg->remove<Cmp::EnttDistanceMap>(npc_entity);
         }
     }
 
@@ -143,17 +138,8 @@ public:
         }
     }
 
-    // reset distances of all non-NPC entities
-    void resetNonNpcDistances()
-    {
-        for( auto [entity, _pos]: m_reg->view<Cmp::Position>().each() ) 
-        {
-            m_reg->emplace_or_replace<Cmp::NPCDistance>(entity, MAX_DISTANCE);
-        }
-    }
 
 private:
-
 
     // Define possible movement directions (up, right, down, left)
     const std::array<sf::Vector2f, 4> m_directions = {
@@ -163,13 +149,11 @@ private:
         sf::Vector2f(-Settings::OBSTACLE_SIZE.x, 0.f)   // Left
     };
 
-    // entt::entity m_start_entity, m_end_entity;
-
-
-
+    // the limit for finding potential paths
     const int SCAN_DISTANCE{1};
+    // the activation distance for NPCs
     const unsigned int AGGRO_DISTANCE{10};
-    const unsigned int MAX_DISTANCE{std::numeric_limits<unsigned int>::max()};
+
 };
 
 } // namespace ProceduralMaze::Sys

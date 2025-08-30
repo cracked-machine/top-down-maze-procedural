@@ -5,7 +5,6 @@
 #include <Components/Direction.hpp>
 #include <Components/Font.hpp>
 #include <Components/Loot.hpp>
-#include <Components/NPCDistance.hpp>
 #include <Components/Neighbours.hpp>
 #include <Components/NPC.hpp>
 #include <Components/Obstacle.hpp>
@@ -573,21 +572,25 @@ private:
     {
         if (!m_show_path_distances) return;
 
-        for (auto [entt, npc_distance_to_obstacle, obstacle_position] : m_reg->view<Cmp::NPCDistance, Cmp::Position>().each())
+        auto entt_distance_map_view = m_reg->view<Cmp::EnttDistanceMap>();
+
+        for( auto [npc_entt,distance_map] : entt_distance_map_view.each())
         {
-            sf::Text distance_text(m_font, "", 10);
-            if( npc_distance_to_obstacle.distance == std::numeric_limits<unsigned int>::max() ) {
-                continue;
-            } else {
-                distance_text.setString(std::to_string(npc_distance_to_obstacle.distance));
+            for (auto [obstacle_entt, distance] : distance_map)
+            {
+                auto obstacle_position = m_reg->try_get<Cmp::Position>(obstacle_entt);
+                if( not obstacle_position ) continue;
+
+                sf::Text distance_text(m_font, "", 10);
+
+                distance_text.setString(std::to_string(distance));
+
+                distance_text.setPosition(*obstacle_position);
+                distance_text.setFillColor(sf::Color::White);
+                distance_text.setOutlineColor(sf::Color::Black);
+                distance_text.setOutlineThickness(2.f);
+                m_window->draw(distance_text);
             }
-
-            distance_text.setPosition(obstacle_position + sf::Vector2f{5.f, 0.f});
-            distance_text.setFillColor(sf::Color::White);
-            distance_text.setOutlineColor(sf::Color::Black);
-            distance_text.setOutlineThickness(2.f);
-            m_window->draw(distance_text);
-
         }
     }
 
@@ -634,10 +637,10 @@ private:
     void render_entt_distance_set_overlay(sf::Vector2f pos)
     {
         if (!m_show_path_distances) return;
-        
-        auto entt_distance_set_view = m_reg->view<Cmp::EnttDistanceSet>();
+
+        auto entt_distance_map_view = m_reg->view<Cmp::EnttDistanceMap>();
         int entt_distance_set = 0;
-        for( auto [e,distance_set] : entt_distance_set_view.each())
+        for( auto [e,distance_map] : entt_distance_map_view.each())
         {
 
             sf::Text distance_text(m_font, "", 30);
@@ -645,7 +648,7 @@ private:
             distance_text.setOutlineColor(sf::Color::Black);
             distance_text.setOutlineThickness(2.f);
 
-            if( distance_set.empty() ) {
+            if( distance_map.empty() ) {
                 continue;
             } else {
 
@@ -653,10 +656,11 @@ private:
                 ss << "NPC Entity #" << entt::to_integral(e) << " - ";
                 distance_text.setPosition( pos + sf::Vector2f{0 , entt_distance_set * 30.f} );
 
-                for(auto it = distance_set.begin(); it != distance_set.end(); ++it)
+                for(auto it = distance_map.begin(); it != distance_map.end(); ++it)
                 {
                     ss  << " " 
-                        << entt::to_integral(*it)
+                        << entt::to_integral(it->first)
+                        << ":" << it->second
                         << ",";
 
                 }
