@@ -11,6 +11,7 @@
 #include <Components/PlayableCharacter.hpp>
 #include <Settings.hpp>
 
+#include <TargetPosition.hpp>
 #include <cstdlib>
 
 #include <entt/entity/fwd.hpp>
@@ -59,7 +60,7 @@ public:
             {
                 // skip any impassible obstacles
                 auto possible_obstacle = m_reg->try_get<Cmp::Obstacle>(obstacle_entity);
-                if(not possible_obstacle || possible_obstacle->m_enabled) continue;
+                if(not possible_obstacle || possible_obstacle->m_enabled) continue;         
 
                 // Use manhattan distance to skip diagonal distances. 
                 // This prevents NPC from going between diagonal obstacle gaps.
@@ -104,8 +105,11 @@ public:
                         if(npc_cmp->m_move_cooldown.getElapsedTime() < npc_cmp->MOVE_DELAY) continue;
                         auto move_candidate_pixel_pos = getPixelPosition(move_candidate);
                         if (not move_candidate_pixel_pos) continue;
-                        // now move the NPC a whole grid position
-                        m_reg->emplace_or_replace<Cmp::Position>(npc_entity, move_candidate_pixel_pos.value());
+
+                        // Set target position instead of directly moving
+                        // Start lerp factor at 0   
+                        m_reg->emplace_or_replace<Cmp::TargetPosition>(npc_entity, move_candidate_pixel_pos.value(), 0.0f);
+
                         npc_cmp->m_move_cooldown.restart();
 
                         // Update the stored distance
