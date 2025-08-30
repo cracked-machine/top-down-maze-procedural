@@ -15,7 +15,6 @@
 #include <Components/System.hpp>
 #include <Components/WaterLevel.hpp>
 #include <Sprites/BasicSprite.hpp>
-#include <Sprites/DebugDijkstraDistances.hpp>
 #include <Sprites/DebugEntityIds.hpp>
 #include <Sprites/FloodWater.hpp>
 #include <Sprites/FloodWaterShader.hpp>
