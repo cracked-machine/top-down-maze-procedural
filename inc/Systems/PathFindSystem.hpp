@@ -86,14 +86,14 @@ public:
             for(auto move_candidate: distance_set)
             {
                 // Get grid positions for comparison
-                auto candidate_pos = getGridPosition(move_candidate);
-                auto player_pos = getGridPosition(player_entity);
-                auto npc_pos = getGridPosition(npc_entity);
-                if( not candidate_pos || not player_pos || not npc_pos) continue;
+                auto candidate_grid_pos = getGridPosition(move_candidate);
+                auto player_grid_pos = getGridPosition(player_entity);
+                auto npc_grid_pos = getGridPosition(npc_entity);
+                if( not candidate_grid_pos || not player_grid_pos || not npc_grid_pos) continue;
 
                 // Calculate distances
-                auto current_distance = getManhattanDistance(npc_pos.value(), player_pos.value());
-                auto new_distance = getManhattanDistance(candidate_pos.value(), player_pos.value());
+                auto current_distance = getManhattanDistance(npc_grid_pos.value(), player_grid_pos.value());
+                auto new_distance = getManhattanDistance(candidate_grid_pos.value(), player_grid_pos.value());
 
                 // Move if this position gets us closer to the player
                 if (new_distance < current_distance)
@@ -104,6 +104,7 @@ public:
                         if(npc_cmp->m_move_cooldown.getElapsedTime() < npc_cmp->MOVE_DELAY) continue;
                         auto move_candidate_pixel_pos = getPixelPosition(move_candidate);
                         if (not move_candidate_pixel_pos) continue;
+                        // now move the NPC a whole grid position
                         m_reg->emplace_or_replace<Cmp::Position>(npc_entity, move_candidate_pixel_pos.value());
                         npc_cmp->m_move_cooldown.restart();
 
