@@ -1,32 +1,36 @@
 #ifndef __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 #define __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 
-#include <Exit.hpp>
-#include <MultiSprite.hpp>
-#include <Neighbours.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <Settings.hpp>
-#include <SpriteFactory.hpp>
+
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
-#include <map>
-#include <memory>
-#include <optional>
+
 #include <spdlog/spdlog.h>
+
+#include <Settings.hpp>
+#include <Systems/BaseSystem.hpp>
+#include <Sprites/SpriteFactory.hpp>
+#include <Sprites/MultiSprite.hpp>
+#include <Components/Exit.hpp>
+#include <Components/Neighbours.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 
+#include <map>
+#include <memory>
+#include <optional>
 
 namespace ProceduralMaze::Sys::ProcGen {
 
-class RandomLevelGenerator {
+class RandomLevelGenerator : public BaseSystem {
 public:
     RandomLevelGenerator(
         std::shared_ptr<entt::basic_registry<entt::entity>> reg,
         std::shared_ptr<Sprites::SpriteFactory> sprite_factory
     )
-    : m_reg(reg),
+    : BaseSystem(reg),
       m_sprite_factory(sprite_factory)
     {
         gen_objects();
@@ -151,7 +155,6 @@ public:
     auto size() { return m_data.size(); }
 
 private:
-    std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
     std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory;
 
     std::vector<entt::entity> m_data;

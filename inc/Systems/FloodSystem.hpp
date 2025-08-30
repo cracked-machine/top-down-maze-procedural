@@ -1,6 +1,7 @@
 #ifndef __SYSTEMS_WATER_SYSTEM_HPP__
 #define __SYSTEMS_WATER_SYSTEM_HPP__
 
+#include <Systems/BaseSystem.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Movement.hpp>
 #include <Components/System.hpp>
@@ -23,7 +24,7 @@
 
 namespace ProceduralMaze::Sys {
 
-class FloodSystem {
+class FloodSystem : public BaseSystem {
 private:
     static constexpr float FIXED_TIMESTEP = 1.0f/30.0f; // Reduce to 30 FPS to decrease CPU load
     static constexpr float DAMAGE_COOLDOWN = 1.0f; // 1 second between damage applications
@@ -37,8 +38,8 @@ public:
     FloodSystem(
         std::shared_ptr<entt::basic_registry<entt::entity>> reg,
         float flood_velocity
-    ) :   
-        m_reg(reg), m_flood_velocity(flood_velocity) 
+    ) : BaseSystem(reg),
+        m_flood_velocity(flood_velocity) 
     {
     }
 
@@ -144,7 +145,6 @@ private:
     }
 
 private:
-    std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
     float m_flood_velocity; // pixels per second
 
     sf::SoundBuffer m_abovewater_sound_buffer{"res/audio/footsteps.mp3"};

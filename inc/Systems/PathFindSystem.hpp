@@ -1,30 +1,36 @@
 #ifndef __SYS_PATHFINDSYSTEM_HPP__
 #define __SYS_PATHFINDSYSTEM_HPP__
 
-#include <NPCDistance.hpp>
-#include <PlayerDistance.hpp>
-#include <EnttDistanceSet.hpp>
-#include <NPC.hpp>
-#include <Obstacle.hpp>
-#include <Position.hpp>
-#include <PlayableCharacter.hpp>
+#include <Systems/BaseSystem.hpp>
+#include <Components/NPCDistance.hpp>
+#include <Components/PlayerDistance.hpp>
+#include <Components/EnttDistanceSet.hpp>
+#include <Components/NPC.hpp>
+#include <Components/Obstacle.hpp>
+#include <Components/Position.hpp>
+#include <Components/PlayableCharacter.hpp>
+#include <Settings.hpp>
+
 #include <cstdlib>
+
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
-#include <utility> // for std::pair
+
 #include <cmath> // for std::sqrt
 #include <limits> // for std::numeric_limits
 #include <array>
+
 #include <spdlog/spdlog.h>
-#include <Settings.hpp>
-#include <Components/EnttDistancePriorityQueue.hpp>
 
 namespace ProceduralMaze::Sys {
 
 
-class PathFindSystem {
+class PathFindSystem : public BaseSystem {
 public:
-    PathFindSystem(std::shared_ptr<entt::basic_registry<entt::entity>> reg) : m_reg(std::move(reg)) {}
+    PathFindSystem(
+        std::shared_ptr<entt::basic_registry<entt::entity>> reg
+    ) : BaseSystem(reg) 
+    {}
     ~PathFindSystem() = default;
 
     void findPath(entt::entity player_entity)
@@ -40,7 +46,11 @@ public:
     void updateDistancesFrom(entt::entity npc_entity, entt::entity player_entity)
     {
         // only continue if we are within aggro distance
-        auto start_end_entity_distance = getChebyshevDistance(getGridPosition(npc_entity), getGridPosition(player_entity));
+        auto npc_entity_grid_pos = getGridPosition(npc_entity);
+        auto player_entity_grid_pos = getGridPosition(player_entity);
+        if (not npc_entity_grid_pos || not player_entity_grid_pos) return;
+        auto start_end_entity_distance = getChebyshevDistance(npc_entity_grid_pos.value(), player_entity_grid_pos.value());
+        
         if (start_end_entity_distance < AGGRO_DISTANCE) 
         {
             // first update the obstacles with their NPC distances
@@ -53,7 +63,11 @@ public:
 
                 // Use manhattan distance to skip diagonal distances. 
                 // This prevents NPC from going between diagonal obstacle gaps.
-                int distance = getManhattanDistance(getGridPosition(npc_entity), getGridPosition(obstacle_entity));
+                auto npc_entity_grid_pos = getGridPosition(npc_entity);
+                auto obstacle_entity_grid_pos = getGridPosition(obstacle_entity);
+                if( not npc_entity_grid_pos || not obstacle_entity_grid_pos) continue;
+                int distance = getManhattanDistance(npc_entity_grid_pos.value(), obstacle_entity_grid_pos.value());
+
                 if (distance == 1)
                 {
                     m_reg->emplace_or_replace<Cmp::NPCDistance>(obstacle_entity, 1);
@@ -75,10 +89,11 @@ public:
                 auto candidate_pos = getGridPosition(move_candidate);
                 auto player_pos = getGridPosition(player_entity);
                 auto npc_pos = getGridPosition(npc_entity);
+                if( not candidate_pos || not player_pos || not npc_pos) continue;
 
                 // Calculate distances
-                auto current_distance = getManhattanDistance(npc_pos, player_pos);
-                auto new_distance = getManhattanDistance(candidate_pos, player_pos);
+                auto current_distance = getManhattanDistance(npc_pos.value(), player_pos.value());
+                auto new_distance = getManhattanDistance(candidate_pos.value(), player_pos.value());
 
                 // Move if this position gets us closer to the player
                 if (new_distance < current_distance)
@@ -87,8 +102,11 @@ public:
                     if(npc_cmp) {
                         // prevent the NPC from moving too fast
                         if(npc_cmp->m_move_cooldown.getElapsedTime() < npc_cmp->MOVE_DELAY) continue;
-                        m_reg->emplace_or_replace<Cmp::Position>(npc_entity, getPixelPosition(move_candidate));
+                        auto move_candidate_pixel_pos = getPixelPosition(move_candidate);
+                        if (not move_candidate_pixel_pos) continue;
+                        m_reg->emplace_or_replace<Cmp::Position>(npc_entity, move_candidate_pixel_pos.value());
                         npc_cmp->m_move_cooldown.restart();
+
                         // Update the stored distance
                         m_reg->emplace_or_replace<Cmp::PlayerDistance>(npc_entity, new_distance);
                         break; // Take the first better move we find
@@ -108,7 +126,11 @@ public:
         auto player_only_view = m_reg->view<Cmp::Position, Cmp::PlayableCharacter>();
         for (auto [player_entity, player_pos ,player]: player_only_view.each())
         {
-            int distance = getChebyshevDistance(getGridPosition(npc_entity), getGridPosition(player_entity));
+            auto npc_entity_grid_pos = getGridPosition(npc_entity);
+            auto player_entity_grid_pos = getGridPosition(player_entity);
+            if( not npc_entity_grid_pos || not player_entity_grid_pos) continue;
+
+            int distance = getChebyshevDistance(npc_entity_grid_pos.value(), player_entity_grid_pos.value());
             if(distance < aggro_distance) {
                 m_reg->emplace_or_replace<Cmp::PlayerDistance>(npc_entity, distance);
             }
@@ -124,38 +146,8 @@ public:
         }
     }
 
-    sf::Vector2i getGridPosition(entt::entity entity) const
-    {
-        auto pos = m_reg->try_get<Cmp::Position>(entity);
-        if (pos) {
-            return { static_cast<int>(pos->x / Settings::OBSTACLE_SIZE_2F.x), static_cast<int>(pos->y / Settings::OBSTACLE_SIZE_2F.y) };
-        }
-        return { -1, -1 }; // Invalid position
-    }
-
-    sf::Vector2f getPixelPosition(entt::entity entity) const
-    {
-        auto pos = m_reg->try_get<Cmp::Position>(entity);
-        if (pos) { return *pos; }
-        return { -1, -1 }; // Invalid position
-    }
-
-    // sum( (posA.x - posB.x) + (posA.y - posB.y) )
-    // cardinal directions only
-    unsigned int getManhattanDistance(sf::Vector2i posA, sf::Vector2i posB ) const
-    {
-        return std::abs(posA.x - posB.x) + std::abs(posA.y - posB.y);
-    }
-
-    // max( (posA.x - posB.x), (posA.y - posB.y) )
-    // cardinal and diagonal directions
-    unsigned int getChebyshevDistance(sf::Vector2i posA, sf::Vector2i posB ) const
-    {
-        return std::max(std::abs(posA.x - posB.x), std::abs(posA.y - posB.y));
-    }
-
 private:
-    std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
+
 
     // Define possible movement directions (up, right, down, left)
     const std::array<sf::Vector2f, 4> m_directions = {

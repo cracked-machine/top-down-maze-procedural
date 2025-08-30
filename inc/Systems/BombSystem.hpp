@@ -1,37 +1,41 @@
 #ifndef __COMPONENTS_BOMB_SYSTEM_HPP__
 #define __COMPONENTS_BOMB_SYSTEM_HPP__
 
-#include <Armed.hpp>
-#include <Loot.hpp>
-#include <Movement.hpp>
-#include <NPC.hpp>
-#include <Neighbours.hpp>
-#include <Obstacle.hpp>
-#include <PlayableCharacter.hpp>
-#include <Position.hpp>
+#include <Components/Armed.hpp>
+#include <Components/Loot.hpp>
+#include <Systems/BaseSystem.hpp>
+#include <Components/Movement.hpp>
+#include <Components/NPC.hpp>
+#include <Components/Neighbours.hpp>
+#include <Components/Obstacle.hpp>
+#include <Components/PlayableCharacter.hpp>
+#include <Components/Position.hpp>
+#include <Sprites/SpriteFactory.hpp>
+#include <Settings.hpp>
+
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <Settings.hpp>
-#include <SpriteFactory.hpp>
+
 #include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
+
 #include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
 
 // this currently only supports one bomb at a time
-class BombSystem {
+class BombSystem : public BaseSystem {
 public:
     BombSystem(
         std::shared_ptr<entt::basic_registry<entt::entity>> reg,
         std::shared_ptr<Sprites::SpriteFactory> sprite_factory
     ) 
     : 
-        m_reg(reg),
+        BaseSystem(reg),
         m_sprite_factory(sprite_factory)
     {
     }
@@ -273,7 +277,6 @@ public:
     }
 
 private:
-    std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
     std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory;
     
     int player_damage = 10; // Amount of damage to deal to the player when hit by explosion

@@ -1,30 +1,33 @@
 #ifndef __SYSTEMS_PROCGEN_CELLAUTO_SYSTEM_HPP__
 #define __SYSTEMS_PROCGEN_CELLAUTO_SYSTEM_HPP__
 
-#include <BaseSystem.hpp>
-#include <Neighbours.hpp>
-#include <ProcGen/RandomLevelGenerator.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Vector2.hpp>
+
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
-#include <iterator>
+
+#include <spdlog/spdlog.h>
+
+#include <Components/Neighbours.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Position.hpp>
-#include <memory>
-#include <spdlog/spdlog.h>
 #include <Components/Random.hpp>
+#include <Systems/BaseSystem.hpp>
+#include <Systems/ProcGen/RandomLevelGenerator.hpp>
+
+#include <iterator>
+#include <memory>
 
 namespace ProceduralMaze::Sys::ProcGen {
 
-class CellAutomataSystem {
+class CellAutomataSystem : public BaseSystem {
 public:
     CellAutomataSystem(
         std::shared_ptr<entt::basic_registry<entt::entity>> reg,
         std::unique_ptr<RandomLevelGenerator> random_level)
-    : 
-        m_reg(reg),
-        m_random_level(std::move(random_level))
+    : BaseSystem(reg),
+      m_random_level(std::move(random_level))
     {}
 
     void iterate(unsigned int iterations)
@@ -45,7 +48,6 @@ public:
     }
     
 private:
-    std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
     std::unique_ptr<RandomLevelGenerator> m_random_level;
 
     void find_neighbours()

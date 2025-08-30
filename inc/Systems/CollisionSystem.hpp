@@ -1,12 +1,22 @@
 #ifndef __SYSTEMS_COLLISION_SYSTEM_HPP__
 #define __SYSTEMS_COLLISION_SYSTEM_HPP__
 
-#include <Armed.hpp>
-#include <PlayerDistance.hpp>
-#include <Direction.hpp>
-#include <Loot.hpp>
-#include <NPC.hpp>
-#include <Neighbours.hpp>
+#include <Components/Armed.hpp>
+#include <Components/PlayerDistance.hpp>
+#include <Components/Direction.hpp>
+#include <Components/Loot.hpp>
+#include <Components/NPC.hpp>
+#include <Components/Neighbours.hpp>
+#include <Components/WaterLevel.hpp>
+#include <Components/Obstacle.hpp>
+#include <Components/PlayableCharacter.hpp>
+#include <Components/Position.hpp>
+#include <Components/System.hpp>
+#include <Components/Movement.hpp>
+#include <Settings.hpp>
+#include <Systems/BaseSystem.hpp>
+#include <Sprites/SpriteFactory.hpp>
+
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -15,35 +25,25 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
-#include <SpriteFactory.hpp>
-#include <WaterLevel.hpp>
+
 #include <algorithm>
 #include <cassert>
+#include <memory>
+
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 
-#include <Obstacle.hpp>
-#include <PlayableCharacter.hpp>
-#include <Position.hpp>
-#include <Settings.hpp>
-#include <memory>
 #include <spdlog/spdlog.h>
-#include <Components/System.hpp>
-#include <Components/Movement.hpp>
 
-#include <Systems/BaseSystem.hpp>
 
-#include <cassert>
 #define assertm(exp, msg) assert((void(msg), exp))
 
 namespace ProceduralMaze::Sys {
 
-class CollisionSystem {
+class CollisionSystem : public BaseSystem {
 public:
-    CollisionSystem(std::shared_ptr<entt::basic_registry<entt::entity>> reg) : m_reg(reg) {}
+    CollisionSystem(std::shared_ptr<entt::basic_registry<entt::entity>> reg) : BaseSystem   (reg) {}
     ~CollisionSystem() = default;
-
-    std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
 
     entt::reactive_mixin<entt::storage<void>> m_collision_updates;
 

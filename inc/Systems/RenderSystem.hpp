@@ -1,20 +1,31 @@
 #ifndef __SYSTEMS_RENDER_SYSTEM_HPP__
 #define __SYSTEMS_RENDER_SYSTEM_HPP__
 
-#include <Armed.hpp>
-#include <BasicSprite.hpp>
-#include <DebugDijkstraDistances.hpp>
-#include <DebugEntityIds.hpp>
-#include <NPCDistance.hpp>
-#include <PlayerDistance.hpp>
-#include <Direction.hpp>
-#include <FloodWater.hpp>
-#include <FloodWaterShader.hpp>
-#include <Loot.hpp>
-#include <MultiSprite.hpp>
-#include <NPC.hpp>
-#include <Neighbours.hpp>
-#include <PathFindSystem.hpp>
+#include <Components/Armed.hpp>
+#include <Components/Direction.hpp>
+#include <Components/Font.hpp>
+#include <Components/Loot.hpp>
+#include <Components/NPCDistance.hpp>
+#include <Components/Neighbours.hpp>
+#include <Components/NPC.hpp>
+#include <Components/Obstacle.hpp>
+#include <Components/PlayerDistance.hpp>
+#include <Components/PlayableCharacter.hpp>
+#include <Components/Position.hpp>
+#include <Components/System.hpp>
+#include <Components/WaterLevel.hpp>
+#include <Sprites/BasicSprite.hpp>
+#include <Sprites/DebugDijkstraDistances.hpp>
+#include <Sprites/DebugEntityIds.hpp>
+#include <Sprites/FloodWater.hpp>
+#include <Sprites/FloodWaterShader.hpp>
+#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteFactory.hpp>
+#include <Sprites/TileMap.hpp>
+#include <Systems/BaseSystem.hpp>
+#include <Systems/PathFindSystem.hpp>
+#include <Settings.hpp>
+
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -23,34 +34,25 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 
-#include <Font.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <SpriteFactory.hpp>
-#include <WaterLevel.hpp>
 #include <entt/entity/fwd.hpp>
+
 #include <exception>
 #include <memory>
-
-#include <Obstacle.hpp>
-#include <PlayableCharacter.hpp>
-#include <Position.hpp>
-#include <Settings.hpp>
-#include <System.hpp>
-#include <Systems/BaseSystem.hpp>
-#include <spdlog/spdlog.h>
-#include <TileMap.hpp>
 #include <sstream>
+
+#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
 
-class RenderSystem  {
+class RenderSystem : public BaseSystem {
 public:
     RenderSystem(
         std::shared_ptr<entt::basic_registry<entt::entity>> reg,
         std::shared_ptr<sf::RenderWindow> win,
         std::shared_ptr<Sys::PathFindSystem> path_find_sys
     ) : 
-        m_reg( reg ),
+        BaseSystem( reg ),
         m_window( win ),
         m_path_find_sys( path_find_sys )
     { 
@@ -745,8 +747,6 @@ private:
 
 private:
     Sprites::FloodWaterShader m_water_shader{"res/FloodWater2.glsl"};
-    // Entity registry
-    std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
     // SFML window handle
     std::shared_ptr<sf::RenderWindow> m_window;
     // path finding system handle
