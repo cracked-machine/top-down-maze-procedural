@@ -294,15 +294,6 @@ private:
             .on_update<Cmp::Obstacle>()
             .on_construct<Cmp::Obstacle>();
 
-        // COLLISIONSYSTEM
-        //
-        // Register the CollisionSystem's pool for Position comnponent updates
-        // basically every entity...
-        m_collision_sys->m_collision_updates.bind(*m_reg);
-        m_collision_sys->m_collision_updates
-            .on_update<Cmp::Position>()
-            .on_construct<Cmp::Position>();
-
         // 2. setup new entities and generate the level
         EntityFactory::add_system_entity( m_reg );
         EntityFactory::add_player_entity( m_reg );
@@ -347,8 +338,6 @@ private:
         m_render_sys->m_position_updates.reset();
         m_render_sys->m_flood_updates.clear();
         m_render_sys->m_flood_updates.reset();
-        m_collision_sys->m_collision_updates.clear();
-        m_collision_sys->m_collision_updates.reset();
 
         m_reg->clear();
         reginfo("Post-teardown");

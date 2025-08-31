@@ -45,10 +45,8 @@ namespace ProceduralMaze::Sys {
 
 class CollisionSystem : public BaseSystem {
 public:
-    CollisionSystem(std::shared_ptr<entt::basic_registry<entt::entity>> reg) : BaseSystem   (reg) {}
+    CollisionSystem(std::shared_ptr<entt::basic_registry<entt::entity>> reg) : BaseSystem (reg) {}
     ~CollisionSystem() = default;
-
-    entt::reactive_mixin<entt::storage<void>> m_collision_updates;
 
     sf::Vector2f getCenter(sf::Vector2f pos, sf::Vector2f size)
     {
@@ -57,7 +55,7 @@ public:
 
     void suspend() 
     { 
-        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter>();
+        auto player_collision_view = m_reg->view<Cmp::PlayableCharacter>();
         for (auto [_pc_entt, player] : player_collision_view.each())
         {
             if( player.m_bombdeploycooldowntimer.isRunning()) player.m_bombdeploycooldowntimer.stop(); 
@@ -65,7 +63,7 @@ public:
     }
     void resume() 
     { 
-        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter>();
+        auto player_collision_view = m_reg->view<Cmp::PlayableCharacter>();
         for (auto [_pc_entt, player] : player_collision_view.each())
         {
             if( not player.m_bombdeploycooldowntimer.isRunning()) player.m_bombdeploycooldowntimer.start();
@@ -74,8 +72,8 @@ public:
 
     void check_bones_reanimation()
     {
-        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>();
-        auto obstacle_collision_view = m_collision_updates.view<Cmp::Obstacle, Cmp::Position>();
+        auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
+        auto obstacle_collision_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
         for (auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each())
         {
             auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y}, Settings::PLAYER_SIZE_2F);
@@ -104,8 +102,8 @@ public:
 
     void check_player_to_npc_collision()
     {
-        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::Movement>();
-        auto npc_collision_view = m_collision_updates.view<Cmp::NPC, Cmp::Position>();
+        auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::Movement>();
+        auto npc_collision_view = m_reg->view<Cmp::NPC, Cmp::Position>();
         for (auto [_pc_entt, _pc, _pc_pos, _direction, _movement] : player_collision_view.each())
         {
             sf::Vector2f starting_pos = {_pc_pos.x, _pc_pos.y};
@@ -152,8 +150,8 @@ public:
         std::vector<LootEffect> loot_effects;
 
         // First pass: detect collisions and gather effects to apply
-        auto player_collision_view = m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>();
-        auto loot_collision_view = m_collision_updates.view<Cmp::Loot, Cmp::Position>();
+        auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>();
+        auto loot_collision_view = m_reg->view<Cmp::Loot, Cmp::Position>();
 
         for (auto [_pc_entt, _pc, _pc_pos, _movement] : player_collision_view.each())
         {
@@ -228,7 +226,7 @@ public:
 
     void check_end_zone_collision()
     {
-        for (auto [_entt, _pc, _pc_pos] : m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position>().each())
+        for (auto [_entt, _pc, _pc_pos] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each())
         {
             auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y}, Settings::PLAYER_SIZE_2F);
             if (player_hitbox.findIntersection(m_end_zone))
