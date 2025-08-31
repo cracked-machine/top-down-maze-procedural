@@ -1,6 +1,7 @@
 #ifndef __SYS_PATHFINDSYSTEM_HPP__
 #define __SYS_PATHFINDSYSTEM_HPP__
 
+#include <Direction.hpp>
 #include <NPCScanBounds.hpp>
 #include <PCDetectionBounds.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -84,7 +85,13 @@ public:
                 }
                 else 
                 {
-                    // Otherwise set target position for lerp. This will get updated in the main engine loop via LerpSystems  
+                    auto npc_pos = m_reg->try_get<Cmp::Position>(npc_entity);
+                    auto player_pos = m_reg->try_get<Cmp::Position>(player_entity);
+                    if(!npc_pos || !player_pos) return;
+                    auto distance = *player_pos - *npc_pos;
+                    m_reg->emplace_or_replace<Cmp::Direction>(npc_entity, distance.normalized());
+
+                    // Otherwise set target position for lerp. This will get updated in the main engine loop via LerpSystems
                     auto move_candidate_pixel_pos = getPixelPosition(nearest_obstacle.second);
                     if (not move_candidate_pixel_pos) return;
                     m_reg->emplace_or_replace<Cmp::LerpPosition>(npc_entity, move_candidate_pixel_pos.value(), 0.0f);

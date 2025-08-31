@@ -94,7 +94,7 @@ private:
         {SpriteFactory::Type::ROCK,           "ROCK",  "res/Pixel Lands Dungeons/objects.png", {147,148}, DEFAULT_SPRITE_SIZE, 40.f,},
         {SpriteFactory::Type::POT,            "POT",   "res/Pixel Lands Dungeons/objects.png", {337, 339, 341}, DEFAULT_SPRITE_SIZE, 1.f},
         {SpriteFactory::Type::BONES,          "BONES", "res/Pixel Lands Dungeons/objects.png", {270, 271}, DEFAULT_SPRITE_SIZE, 1.f},
-        {SpriteFactory::Type::NPC,            "NPC",           "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", {121}, DEFAULT_SPRITE_SIZE, 1.f},
+        {SpriteFactory::Type::NPC,            "NPC",           "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", {108, 121, 111}, DEFAULT_SPRITE_SIZE, 1.f},
         {SpriteFactory::Type::DETONATED,      "DETONATED", "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", {42}, DEFAULT_SPRITE_SIZE},
         {SpriteFactory::Type::PLAYER,         "PLAYER", "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", 
             {84, 85,86,87,88,96,97,98,99,100}, PLAYER_SPRITE_SIZE},

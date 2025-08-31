@@ -536,13 +536,32 @@ private:
 
     void render_npc()
     {
-        for( auto [entity, npc, pos, npc_scan_bounds]: 
-            m_position_updates.view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds>().each() )
+        for( auto [entity, npc, pos, npc_scan_bounds, direction]: 
+            m_position_updates.view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds, Cmp::Direction>().each() )
         {
-            m_npc_ms->setPosition(pos);
-            m_npc_ms->pick(0, "npc");
+            // flip and x-axis offset the sprite depending on the direction
+            if( direction.x > 0 )
+            {
+                direction.x_scale = 1.f;
+                direction.x_offset = 0.f;
+            }
+            else if ( direction.x < 0 )
+            {
+                direction.x_scale = -1.f;
+                direction.x_offset = m_sprite_factory->DEFAULT_SPRITE_SIZE.x;
+            }
+            else 
+            {
+                direction.x_scale =  direction.x_scale; // keep last known direction
+                direction.x_offset = direction.x_offset;
+            }
+            
+            m_npc_ms->setScale({direction.x_scale, 1.f});
+            m_npc_ms->setPosition({pos.x + direction.x_offset, pos.y});
+            
+            m_npc_ms->pick(2, "npc");
             m_window->draw(*m_npc_ms);
-
+            
             // show npc scan distance
             if (m_show_path_distances)
             {
