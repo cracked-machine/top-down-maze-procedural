@@ -4,6 +4,7 @@
 #include <Direction.hpp>
 #include <EnttDistancePriorityQueue.hpp>
 #include <NPC.hpp>
+#include <PCDetectionBounds.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <WaterLevel.hpp>
 #include <entt/entity/registry.hpp>
@@ -51,6 +52,7 @@ public:
         reg->emplace<Cmp::PlayableCharacter>(entity);
         reg->emplace<Cmp::Movement>(entity);
         reg->emplace<Cmp::Direction>(entity, sf::Vector2f{0,0});
+        reg->emplace<Cmp::PCDetectionBounds>(entity, Settings::PLAYER_START_POS, Settings::OBSTACLE_SIZE_2F);
     }
 
 

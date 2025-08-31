@@ -41,9 +41,23 @@ public:
         return std::abs(posA.x - posB.x) + std::abs(posA.y - posB.y);
     }
 
+    // sum( (posA.x - posB.x) + (posA.y - posB.y) )
+    // cardinal directions only
+    float getManhattanDistance(sf::Vector2f posA, sf::Vector2f posB ) const
+    {
+        return std::abs(posA.x - posB.x) + std::abs(posA.y - posB.y);
+    }
+
     // max( (posA.x - posB.x), (posA.y - posB.y) )
     // cardinal and diagonal directions
     unsigned int getChebyshevDistance(sf::Vector2i posA, sf::Vector2i posB ) const
+    {
+        return std::max(std::abs(posA.x - posB.x), std::abs(posA.y - posB.y));
+    }
+
+    // max( (posA.x - posB.x), (posA.y - posB.y) )
+    // cardinal and diagonal directions
+    float getChebyshevDistance(sf::Vector2f posA, sf::Vector2f posB ) const
     {
         return std::max(std::abs(posA.x - posB.x), std::abs(posA.y - posB.y));
     }

@@ -13,6 +13,8 @@
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
 #include <Components/WaterLevel.hpp>
+#include <NPCScanBounds.hpp>
+#include <PCDetectionBounds.hpp>
 #include <Sprites/BasicSprite.hpp>
 #include <Sprites/DebugEntityIds.hpp>
 #include <Sprites/FloodWater.hpp>
@@ -154,7 +156,8 @@ public:
                 render_npc();
                 render_flood_waters();
                 render_player_distances_on_npc();
-                render_npc_distances_on_obstacles();                
+                // render_npc_distances_on_obstacles();      
+                render_player_distances_on_obstacles();          
 
                 // move the local view position to equal the player position
                 // reset the center if player is stuck
@@ -492,8 +495,8 @@ private:
 
     void render_player()
     {
-        for( auto [entity, player, position, direction]: 
-            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction>().each() ) 
+        for( auto [entity, player, position, direction, pc_detection_bounds]: 
+            m_position_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds>().each() ) 
         {
 
             // flip and x-axis offset the sprite depending on the direction
@@ -519,18 +522,37 @@ private:
 
             m_player_ms->pick(0, "player");
             m_window->draw(*m_player_ms);
+            if (m_show_path_distances)
+            {
+                sf::RectangleShape pc_square(pc_detection_bounds.size());
+                pc_square.setFillColor(sf::Color::Transparent);
+                pc_square.setOutlineColor(sf::Color::Green);
+                pc_square.setOutlineThickness(1.f);
+                pc_square.setPosition(pc_detection_bounds.position());
+                m_window->draw(pc_square);
+            }
         }
     }
 
     void render_npc()
     {
-        for( auto [entity, npc, pos]: 
-            m_position_updates.view<Cmp::NPC, Cmp::Position>().each() )
+        for( auto [entity, npc, pos, npc_scan_bounds]: 
+            m_position_updates.view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds>().each() )
         {
             m_npc_ms->setPosition(pos);
-
             m_npc_ms->pick(0, "npc");
             m_window->draw(*m_npc_ms);
+
+            // show npc scan distance
+            if (m_show_path_distances)
+            {
+                sf::RectangleShape npc_square(npc_scan_bounds.size());
+                npc_square.setFillColor(sf::Color::Transparent);
+                npc_square.setOutlineColor(sf::Color::Red);
+                npc_square.setOutlineThickness(1.f);
+                npc_square.setPosition(npc_scan_bounds.position());
+                m_window->draw(npc_square); 
+            }
         }
     }
 
@@ -550,21 +572,37 @@ private:
     {
         if (!m_show_path_distances) return;
 
-        for (auto [entt, player_distance_to_npc, npc_position] : m_reg->view<Cmp::PlayerDistance, Cmp::Position>().each())
+        // for (auto [entt, npc_position] : m_reg->view<Cmp::Position>().each())
+        // {
+        //     // sf::Text distance_text(m_font, "", 10);
+        //     // if( player_distance_to_npc.distance == std::numeric_limits<unsigned int>::max() ) {
+        //     //     continue;
+        //     // } else {
+        //     //     distance_text.setString(std::to_string(player_distance_to_npc.distance));
+        //     // }
+
+        //     // distance_text.setPosition(npc_position + sf::Vector2f{5.f, 0.f});
+        //     // distance_text.setFillColor(sf::Color::White);
+        //     // distance_text.setOutlineColor(sf::Color::Black);
+        //     // distance_text.setOutlineThickness(2.f);
+        //     // m_window->draw(distance_text);
+
+        // }
+    }
+
+    void render_player_distances_on_obstacles()
+    {
+        if( !m_show_path_distances) return;
+        auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::PlayerDistance>();
+        for (auto [_ob_entt, _ob, _ob_pos, _player_distance] : obstacle_view.each())
         {
             sf::Text distance_text(m_font, "", 10);
-            if( player_distance_to_npc.distance == std::numeric_limits<unsigned int>::max() ) {
-                continue;
-            } else {
-                distance_text.setString(std::to_string(player_distance_to_npc.distance));
-            }
-
-            distance_text.setPosition(npc_position + sf::Vector2f{5.f, 0.f});
+            distance_text.setString(std::to_string(_player_distance.distance));
+            distance_text.setPosition(_ob_pos + sf::Vector2f{5.f, 0.f});
             distance_text.setFillColor(sf::Color::White);
             distance_text.setOutlineColor(sf::Color::Black);
             distance_text.setOutlineThickness(2.f);
             m_window->draw(distance_text);
-
         }
     }
 
@@ -583,7 +621,7 @@ private:
 
                 sf::Text distance_text(m_font, "", 10);
 
-                distance_text.setString(std::to_string(distance));
+                distance_text.setString("+");
 
                 distance_text.setPosition(*obstacle_position);
                 distance_text.setFillColor(sf::Color::White);

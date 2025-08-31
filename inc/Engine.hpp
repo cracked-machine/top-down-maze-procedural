@@ -113,15 +113,9 @@ public:
                         m_collision_sys->check_loot_collision();
                         m_collision_sys->check_bones_reanimation();
                         m_collision_sys->check_player_to_npc_collision();
-                        m_lerp_sys->update(deltaTime);
+                        m_collision_sys->update_obstacle_distances();
 
-                        // did the player drown? Then end the game
-                        for(auto [_, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {
-                            if ( not _pc.alive ) {
-                                game_state.current_state = Cmp::GameState::State::GAMEOVER;
-                            }
-                        }
-
+                        auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
                         for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
                             if( _sys.collisions_enabled ) m_collision_sys->check_collision();
                             if( _sys.level_complete )
@@ -131,9 +125,16 @@ public:
                             }
                         }
 
-                        auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
                         m_path_find_sys->findPath(player_entity);
-                        
+                        m_lerp_sys->update(deltaTime);
+
+                        // did the player drown? Then end the game
+                        for(auto [_, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {
+                            if ( not _pc.alive ) {
+                                game_state.current_state = Cmp::GameState::State::GAMEOVER;
+                            }
+                        }
+
 
                         m_render_sys->render_game();
                         break;
@@ -240,8 +241,8 @@ private:
     {
         const float dt = deltaTime.asSeconds();
 
-        for(auto [ entity, pc_cmp, pos_cmp, move_cmp, dir_cmp] : 
-            m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction>().each())
+        for(auto [ entity, pc_cmp, pos_cmp, move_cmp, dir_cmp, pc_bounds] : 
+            m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction, Cmp::PCDetectionBounds>().each())
         {
             // Apply acceleration in the desired dir_cmp
             if (dir_cmp != sf::Vector2f(0.0f, 0.0f)) 
@@ -276,7 +277,8 @@ private:
 
             // Apply velocity to position (change in position = velocity * dt)
             pos_cmp += move_cmp.velocity * dt;
-    
+            pc_bounds.position(pos_cmp);
+
         }
     }
 

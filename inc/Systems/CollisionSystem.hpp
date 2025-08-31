@@ -13,6 +13,8 @@
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
 #include <Components/Movement.hpp>
+#include <NPCScanBounds.hpp>
+#include <PCDetectionBounds.hpp>
 #include <Settings.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Sprites/SpriteFactory.hpp>
@@ -28,6 +30,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <memory>
 
 #include <entt/entity/entity.hpp>
@@ -93,7 +96,7 @@ public:
                     auto new_npc_entity = m_reg->create();
                     m_reg->emplace<Cmp::NPC>(new_npc_entity, true);
                     m_reg->emplace<Cmp::Position>(new_npc_entity, _obstacle_pos);
-                    m_reg->emplace_or_replace<Cmp::PlayerDistance>(new_npc_entity, std::numeric_limits<unsigned int>::max());
+                    m_reg->emplace<Cmp::NPCScanBounds>(new_npc_entity, _obstacle_pos, Settings::OBSTACLE_SIZE_2F);
                 }
             }
         }
@@ -239,12 +242,33 @@ public:
         }
     }
 
+    void update_obstacle_distances()
+    {
+        auto player_view =  m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::PCDetectionBounds>();
+        for (auto [_pc_entt, _pc, _pc_pos, _movement, pc_detection_bounds] : player_view.each())
+        {
+
+            auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
+            for (auto [_ob_entt, _ob, _ob_pos] : obstacle_view.each())
+            {
+                // while we are here calculate the obstacle/player distance for any traversable obstacles
+                if(not _ob.m_enabled && pc_detection_bounds.findIntersection(sf::FloatRect(_ob_pos, Settings::OBSTACLE_SIZE_2F))) {
+                    auto distance = std::floor(getChebyshevDistance(_pc_pos, _ob_pos));
+                    m_reg->emplace_or_replace<Cmp::PlayerDistance>(_ob_entt, distance);
+                }
+                else {
+                    m_reg->remove<Cmp::PlayerDistance>(_ob_entt);
+                }
+            }
+        }
+
+    }
+
     void check_collision()
     {
         const float PUSH_FACTOR = 1.1f;  // Push slightly more than minimum to avoid floating point issues
-        
-        for (auto [_pc_entt, _pc, _pc_pos, _movement] :
-            m_collision_updates.view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>().each())
+        auto player_view =  m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>();
+        for (auto [_pc_entt, _pc, _pc_pos, _movement] : player_view.each())
         {
             sf::Vector2f starting_pos = {_pc_pos.x, _pc_pos.y};
             int stuck_loop = 0;
@@ -252,9 +276,11 @@ public:
             // Reset collision flag at start of frame
             _movement.is_colliding = false;
 
-            for (auto [_ob_entt, _ob, _ob_pos] :
-                m_collision_updates.view<Cmp::Obstacle, Cmp::Position>().each())
+            auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
+            for (auto [_ob_entt, _ob, _ob_pos] : obstacle_view.each())
             {
+
+                // otherwise we are not interested in collision detection on traversable obstacles
                 if (not _ob.m_enabled) { continue; }
 
                 auto player_floatrect = sf::FloatRect({ _pc_pos.x, _pc_pos.y }, Settings::PLAYER_SIZE_2F);
