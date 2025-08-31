@@ -80,7 +80,7 @@ public:
                 else 
                 {
                     // prevent the NPC from moving too fast
-                    if(npc_cmp->m_move_cooldown.getElapsedTime() < npc_cmp->MOVE_DELAY) return;
+                    // if(npc_cmp->m_move_cooldown.getElapsedTime() < npc_cmp->MOVE_DELAY) return;
                     auto move_candidate_pixel_pos = getPixelPosition(nearest_obstacle.second);
                     if (not move_candidate_pixel_pos) return;
 
@@ -88,7 +88,7 @@ public:
                     // Start lerp factor at 0   
                     m_reg->emplace_or_replace<Cmp::LerpPosition>(npc_entity, move_candidate_pixel_pos.value(), 0.0f);
                     // m_reg->emplace_or_replace<Cmp::Position>(npc_entity, move_candidate_pixel_pos.value());
-                    npc_cmp->m_move_cooldown.restart();
+                    // npc_cmp->m_move_cooldown.restart();
 
                     // m_reg->patch<Cmp::NPCScanBounds>(npc_entity, [&](auto &npc_scan_bounds){ npc_scan_bounds.position(move_candidate_pixel_pos.value()); });
                 }
