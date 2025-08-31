@@ -8,6 +8,7 @@
 #include <GameState.hpp>
 #include <LerpSystem.hpp>
 #include <PathFindSystem.hpp>
+#include <PlayerSystem.hpp>
 #include <ProcGen/RandomLevelGenerator.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
@@ -105,7 +106,7 @@ public:
                     {
                         m_event_handler.game_state_handler(m_window);
         
-                        update_character_movement(deltaTime);
+                        m_player_sys->update(deltaTime);
                         process_action_queue();       
                         m_flood_sys->update();  
                         m_bomb_sys->update();
@@ -206,6 +207,7 @@ private:
         std::make_shared<entt::basic_registry<entt::entity>>(entt::basic_registry<entt::entity>{});
 
     //  ECS Systems
+    std::unique_ptr<Sys::PlayerSystem> m_player_sys = std::make_unique<Sys::PlayerSystem>(m_reg);
     std::shared_ptr<Sys::PathFindSystem> m_path_find_sys = std::make_shared<Sys::PathFindSystem>(m_reg);
     std::unique_ptr<Sys::CollisionSystem> m_collision_sys = std::make_unique<Sys::CollisionSystem>(m_reg);
     std::unique_ptr<Sys::RenderSystem> m_render_sys = std::make_unique<Sys::RenderSystem> (m_reg, m_window, m_path_find_sys);
@@ -223,8 +225,6 @@ private:
     entt::reactive_mixin<entt::storage<void>> m_system_updates;
     entt::reactive_mixin<entt::storage<void>> m_gamestate_updates;
 
-
-
     void process_action_queue()
     {
         if (m_event_handler.m_action_queue.empty()) return;
@@ -233,52 +233,6 @@ private:
         {
             if( not m_event_handler.m_action_queue.empty() ) m_event_handler.m_action_queue.pop();
             m_bomb_sys->arm_occupied_location();
-        }
-    }
-
-    // move the player according to direction and delta time with acceleration
-    void update_character_movement(sf::Time deltaTime)
-    {
-        const float dt = deltaTime.asSeconds();
-
-        for(auto [ entity, pc_cmp, pos_cmp, move_cmp, dir_cmp, pc_bounds] : 
-            m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction, Cmp::PCDetectionBounds>().each())
-        {
-            // Apply acceleration in the desired dir_cmp
-            if (dir_cmp != sf::Vector2f(0.0f, 0.0f)) 
-            {
-                move_cmp.acceleration = dir_cmp * move_cmp.acceleration_rate;
-            } 
-            else 
-            {
-                // Apply deceleration when no input
-                if (move_cmp.velocity != sf::Vector2f(0.0f, 0.0f)) 
-                {
-                    move_cmp.acceleration = -move_cmp.velocity.normalized() * move_cmp.deceleration_rate;
-                } 
-                else 
-                {
-                    move_cmp.acceleration = sf::Vector2f(0.0f, 0.0f);
-                }
-            }
-
-            // Update velocity (change in velocity = acceleration * dt)
-            move_cmp.velocity += move_cmp.acceleration * dt;
-
-            // Stop completely if current velocity magnitude is below minimum velocity
-            if (move_cmp.velocity.length() < move_cmp.min_velocity) {
-                move_cmp.velocity = sf::Vector2f(0.0f, 0.0f);
-                move_cmp.acceleration = sf::Vector2f(0.0f, 0.0f);
-            }
-            // Clamp velocity to max speed if current velocity magnitude exceeds max speed
-            else if (move_cmp.velocity.length() > move_cmp.max_speed) {
-                move_cmp.velocity = (move_cmp.velocity / move_cmp.velocity.length()) * move_cmp.max_speed;
-            }
-
-            // Apply velocity to position (change in position = velocity * dt)
-            pos_cmp += move_cmp.velocity * dt;
-            pc_bounds.position(pos_cmp);
-
         }
     }
 
