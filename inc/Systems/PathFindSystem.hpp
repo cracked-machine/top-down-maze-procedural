@@ -41,11 +41,11 @@ public:
     {
         for (auto [npc_entity, npc_cmp]: m_reg->view<Cmp::NPC>().each())
         {
-            updateDistancesFrom(npc_entity, player_entity);
+            scanForPlayers(npc_entity, player_entity);
         }
     }
 
-    void updateDistancesFrom(entt::entity npc_entity, entt::entity player_entity)
+    void scanForPlayers(entt::entity npc_entity, entt::entity player_entity)
     {
         auto npc_scan_bounds = m_reg->try_get<Cmp::NPCScanBounds>(npc_entity); 
         auto pc_detection_bounds = m_reg->try_get<Cmp::PCDetectionBounds>(player_entity);
