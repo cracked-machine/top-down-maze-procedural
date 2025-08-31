@@ -82,13 +82,14 @@ private:
 
         // abort if flood is paused
         for(auto [_, sys]: m_reg->view<Cmp::System>().each()) {
-            if(sys.pause_flood) return;
+            if(not sys.pause_flood) {
+                // Separate water level updates from collision checks for better performance
+                for(auto [_, water_level]: water_view.each()) {
+                    water_level.m_level -= (dt * m_flood_velocity);
+                }
+            }
         }
 
-        // Separate water level updates from collision checks for better performance
-        for(auto [_, water_level]: water_view.each()) {
-            water_level.m_level -= (dt * m_flood_velocity);
-        }
         
         // Check drowning - {0,0} is top-left so player drowns when water level is BELOW player position
         for(auto [_, water_level]: water_view.each()) {
