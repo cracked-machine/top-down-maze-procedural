@@ -3,6 +3,7 @@
 
 #include <Components/Armed.hpp>
 #include <Components/Loot.hpp>
+#include <NPCScanBounds.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Components/Movement.hpp>
 #include <Components/NPC.hpp>
@@ -257,7 +258,9 @@ public:
                 if(explosion_zone.findIntersection(npc_bounding_box))
                 {
                     // kill npc
-                    m_reg->destroy(npc_entt);
+                    m_reg->remove<Cmp::NPC>(npc_entt);
+                    m_reg->remove<Cmp::Position>(npc_entt);
+                    m_reg->remove<Cmp::NPCScanBounds>(npc_entt);
                 }
 
             }   
