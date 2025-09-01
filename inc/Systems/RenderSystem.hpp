@@ -402,45 +402,56 @@ private:
     void render_armed()
     {
         // render armed obstacles with debug outlines
-        for( auto [entity, _ob, _armed, _pos, _ob_nb_list]: 
-            m_position_updates.view<Cmp::Obstacle, Cmp::Armed, Cmp::Position, Cmp::Neighbours>().each() ) {
-                
-            if(_armed.m_display_bomb_sprite) {
+        auto all_armed_obstacles_view = m_reg->view<Cmp::Obstacle, Cmp::Armed, Cmp::Position>();
+        for( auto [entity, obstacle_cmp, armed_cmp, pos_cmp]: all_armed_obstacles_view.each() ) 
+        {
+            if(armed_cmp.m_display_bomb_sprite) 
+            {
                 m_bomb_ms->pick(0, "Bomb");
-                m_bomb_ms->setPosition(_pos);
+                m_bomb_ms->setPosition(pos_cmp);
                 m_window->draw(*m_bomb_ms);
             }
-
             // debug - F4
             if (m_show_armed_obstacles)
             {
                 // Draw a red square around the obstacle we are standing on
                 sf::RectangleShape temp_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
-                temp_square.setPosition(_pos);
+                temp_square.setPosition(pos_cmp);
                 temp_square.setFillColor(sf::Color::Transparent);
-                temp_square.setOutlineColor(sf::Color::Red);
+                temp_square.setOutlineColor(armed_cmp.m_armed_color);
                 temp_square.setOutlineThickness(1.f);
                 m_window->draw(temp_square);
-                
 
-                // get each neighbour entity from the current obstacles neighbour list
-                // and draw a blue square around it
-                for( auto [_dir, _nb_entt] : _ob_nb_list) 
-                {
-                    sf::RectangleShape nb_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
-
-                    Cmp::Position* _nb_entt_pos = m_reg->try_get<Cmp::Position>( entt::entity(_nb_entt) );
-                    if( not _nb_entt_pos ) continue;
-
-                    nb_square.setPosition(*_nb_entt_pos);                  
-                    nb_square.setFillColor(sf::Color::Transparent);
-                    nb_square.setOutlineColor(_armed.m_armed_color); 
-                    nb_square.setOutlineThickness(1.f); 
-                    m_window->draw(nb_square);
-                }
-            }                    
+                sf::Text text(m_font, "", 12);
+                text.setString(std::to_string(armed_cmp.m_index));
+                text.setPosition(pos_cmp);
+                m_window->draw(text);
+            }
         }
 
+        //  // debug - F4
+        // if (m_show_armed_obstacles)
+        // {
+        //     auto armed_neighbour_obstacles_view = m_reg->view<Cmp::Obstacle, Cmp::Armed, Cmp::Neighbours>();
+        //     for( auto [entity, ob_cmp, armed_cmp, neighbours_cmp]: armed_neighbour_obstacles_view.each() ) 
+        //     {
+        //         // get each neighbour entity from the current obstacles neighbour list
+        //         // and draw a blue square around it
+        //         for( auto [neighbour_direction, neighbour_entt] : neighbours_cmp) 
+        //         {
+        //             sf::RectangleShape nb_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
+
+        //             Cmp::Position* _nb_entt_pos = m_reg->try_get<Cmp::Position>( entt::entity(neighbour_entt) );
+        //             if( not _nb_entt_pos ) continue;
+
+        //             nb_square.setPosition(*_nb_entt_pos);                  
+        //             nb_square.setFillColor(sf::Color::Transparent);
+        //             nb_square.setOutlineColor(armed_cmp.m_armed_color); 
+        //             nb_square.setOutlineThickness(1.f); 
+        //             m_window->draw(nb_square);
+        //         }
+        //     }               
+        // }
     }
 
     void render_loot()
