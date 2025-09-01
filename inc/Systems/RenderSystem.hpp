@@ -17,7 +17,6 @@
 #include <PCDetectionBounds.hpp>
 #include <Sprites/BasicSprite.hpp>
 #include <Sprites/DebugEntityIds.hpp>
-#include <Sprites/FloodWater.hpp>
 #include <Sprites/FloodWaterShader.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
@@ -57,6 +56,8 @@ public:
         m_path_find_sys( path_find_sys )
     { 
         using namespace ProceduralMaze::Settings;
+
+        SPDLOG_INFO("RenderSystem initialisation starting..."); 
 
         // setup the floortile background texture
         // TODO move this to a separate system
@@ -101,7 +102,7 @@ public:
         if( not m_lower_water_ms ) { SPDLOG_CRITICAL("Unable to get LOWER_WATER multisprite from SpriteFactory"); std::get_terminate(); }
 
         // initWaterShader();
-        SPDLOG_INFO("RenderSystem initialised..."); 
+        SPDLOG_INFO("RenderSystem initialisation finished"); 
     }
     
     ~RenderSystem() { SPDLOG_DEBUG("~RenderSystem()"); } 
@@ -824,7 +825,7 @@ private:
 
 
 private:
-    Sprites::FloodWaterShader m_water_shader{"res/FloodWater2.glsl"};
+    Sprites::FloodWaterShader m_water_shader;
     // SFML window handle
     std::shared_ptr<sf::RenderWindow> m_window;
     // path finding system handle
