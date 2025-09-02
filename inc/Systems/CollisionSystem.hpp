@@ -204,7 +204,7 @@ public:
                     break;
                     
                 case Sprites::SpriteFactory::Type::CHAIN_BOMBS:
-                    _pc.blast_radius = std::clamp(_pc.blast_radius + 1, 0, 2);
+                    _pc.blast_radius = std::clamp(_pc.blast_radius + 1, 0, 3);
                     break;
 
                 default:

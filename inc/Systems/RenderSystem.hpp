@@ -414,9 +414,13 @@ private:
             
             sf::RectangleShape temp_square(sf::Vector2f{m_sprite_factory->DEFAULT_SPRITE_SIZE});
             temp_square.setPosition(pos_cmp);
-            temp_square.setFillColor(sf::Color::Transparent);
             temp_square.setOutlineColor(sf::Color::Transparent);
-            if(armed_cmp.getElapsedWarningTime() > armed_cmp.m_warning_delay) temp_square.setOutlineColor(armed_cmp.m_armed_color);
+            temp_square.setFillColor(sf::Color::Transparent);
+            if(armed_cmp.getElapsedWarningTime() > armed_cmp.m_warning_delay) 
+            {
+                temp_square.setOutlineColor(armed_cmp.m_armed_color );
+                temp_square.setFillColor(armed_cmp.m_armed_color );
+            }
             temp_square.setOutlineThickness(1.f);
             m_window->draw(temp_square);
             

@@ -126,14 +126,14 @@ public:
     {
         // arm the current tile (center of the bomb)
         m_reg->emplace_or_replace<Cmp::Armed>(epicenter_entity, 
-            sf::seconds(3), true, sf::Color::Blue, -1);
+            sf::seconds(3), sf::Time::Zero, true, sf::Color::Blue, -1);
 
         sf::Vector2i centerTile = getGridPosition(epicenter_entity).value();
 
         // Define initial settings
         float base_delay = 3.0f;
-        float delay_increment = 0.1f;
-        float delay__warning_increment = 0.05f;
+        float fuse_delay_increment = 0.025f;
+        float warning_delay_increment = 0.1f;
         int sequence_counter = 0;
 
         // First arm the center tile
@@ -161,24 +161,23 @@ public:
             // Sort entities in clockwise order
             std::sort(layer_entities.begin(), layer_entities.end(), [centerTile](const auto& a, const auto& b) {
                     // Calculate angles from center to points
-                    float angleA = std::atan2(a.second.y - centerTile.y, 
-                                            a.second.x - centerTile.x);
-                    float angleB = std::atan2(b.second.y - centerTile.y, 
-                                            b.second.x - centerTile.x);
+                    float angleA = std::atan2(a.second.y - centerTile.y, a.second.x - centerTile.x);
+                    float angleB = std::atan2(b.second.y - centerTile.y, b.second.x - centerTile.x);
                     return angleA < angleB;
                 });
 
             // Arm each entity in the layer in clockwise order
             for (const auto& [entity, pos] : layer_entities) {
                 sf::Color color = sf::Color(
-                    100 + (sequence_counter * 10) % 155, // B
-                    100 + (sequence_counter * 10) % 155, // G
-                    255                           // R
+                    255,
+                    100 + (sequence_counter * 10) % 155, 
+                    255,
+                    64  
                 );
                 
                 m_reg->emplace_or_replace<Cmp::Armed>(entity, 
-                    sf::seconds(base_delay + (sequence_counter * delay_increment)), 
-                    sf::seconds((sequence_counter * delay__warning_increment)), 
+                    sf::seconds(base_delay + (sequence_counter * fuse_delay_increment)), 
+                    sf::seconds((sequence_counter * warning_delay_increment)), 
                     false, 
                     color, 
                     sequence_counter);
@@ -187,107 +186,60 @@ public:
         }
     }
 
-    void detonate_neighbour_entity(entt::entity &neighbour_entity)
-    {
-        if( not m_reg->valid(entt::entity(neighbour_entity)) ) 
-        {
-            SPDLOG_WARN("List provided invalid neighbour entity: {}", entt::to_integral(neighbour_entity));
-            assert(m_reg->valid(entt::entity(neighbour_entity)) && "List provided invalid neighbour entity: " 
-                && entt::to_integral(neighbour_entity));
-            return;
-        }
-
-        Cmp::Obstacle* nb_obstacle = m_reg->try_get<Cmp::Obstacle>(entt::entity(neighbour_entity));
-        if ( nb_obstacle && nb_obstacle->m_enabled && not nb_obstacle->m_broken)
-        {
-            // tell the render system to draw detonated obstacle differently
-            nb_obstacle->m_broken = true;
-            nb_obstacle->m_enabled = false;
-            
-            // add loot to any broken pot neighbour entities
-            if( nb_obstacle->m_type == Sprites::SpriteFactory::Type::POT)
-            {
-                auto random_selected_loot_metadata = m_sprite_factory->get_random_metadata(std::vector<Sprites::SpriteFactory::Type>{
-                    Sprites::SpriteFactory::Type::EXTRA_HEALTH,
-                    Sprites::SpriteFactory::Type::EXTRA_BOMBS,
-                    Sprites::SpriteFactory::Type::INFINI_BOMBS,
-                    Sprites::SpriteFactory::Type::CHAIN_BOMBS,
-                    Sprites::SpriteFactory::Type::LOWER_WATER
-                });
-                m_reg->emplace<Cmp::Loot>(neighbour_entity,
-                    random_selected_loot_metadata->get_type(),
-                    random_selected_loot_metadata->pick_random_texture_index()
-                );
-            }
-        }
-        
-        // m_detonate_sound_player.play();
-        
-    }
-
     void update()
     {
-        auto explosion_zone = sf::FloatRect(); // tbd
-        explosion_zone.size = max_explosion_zone_size;
-
         auto armed_view = m_reg->view<Cmp::Armed, Cmp::Obstacle, Cmp::Neighbours, Cmp::Position>();
         for( auto [_entt, _armed_cmp, _obstacle_cmp, _neighbours_cmp, _ob_pos_comp]: armed_view.each() ) 
         {
             if (_armed_cmp.getElapsedFuseTime() < _armed_cmp.m_fuse_delay) continue;
-
-            // The `_ob_pos_comp` position component is the position of the explosion center block (marked with C), 
-            // so move back up/left one obstacle size to the uptmost top-left corner (marked with X):
-            //
-            // X---|---|---|
-            // |   |   |   |
-            // |---C---|---|
-            // |   |   |   |
-            // |---|---|---|
-            // |   |   |   |
-            // |---|---|---|
-            explosion_zone.position = _ob_pos_comp - sf::Vector2f{Settings::OBSTACLE_SIZE};
-
-            // detonate the neighbour obstacles!
-            for( auto [dir, neighbour_entity] : _neighbours_cmp) 
+            if ( _obstacle_cmp.m_enabled && not _obstacle_cmp.m_broken)
             {
-                detonate_neighbour_entity(neighbour_entity);
+                // tell the render system to draw detonated obstacle differently
+                _obstacle_cmp.m_broken = true;
+                _obstacle_cmp.m_enabled = false;
+
+                // add loot to any broken pot neighbour entities
+                if( _obstacle_cmp.m_type == Sprites::SpriteFactory::Type::POT)
+                {
+                    auto random_selected_loot_metadata = m_sprite_factory->get_random_metadata(std::vector<Sprites::SpriteFactory::Type>{
+                        Sprites::SpriteFactory::Type::EXTRA_HEALTH,
+                        Sprites::SpriteFactory::Type::EXTRA_BOMBS,
+                        Sprites::SpriteFactory::Type::INFINI_BOMBS,
+                        Sprites::SpriteFactory::Type::CHAIN_BOMBS,
+                        Sprites::SpriteFactory::Type::LOWER_WATER
+                    });
+                    m_reg->emplace_or_replace<Cmp::Loot>(_entt,
+                        random_selected_loot_metadata->get_type(),
+                        random_selected_loot_metadata->pick_random_texture_index()
+                    );
+                }
             }
-            // SPDLOG_INFO("Explosion zone is {},{} {},{}", explosion_zone.position.x, explosion_zone.position.y, explosion_zone.size.x, explosion_zone.size.y);
-            // Check if any player is in the explosion area and damage them
+           
+            // Check player explosion damage
+            auto obstacle_explosion_zone = sf::FloatRect(_ob_pos_comp, sf::Vector2f{ Settings::PLAYER_SIZE });
             auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
             for (auto [player_entt, player, player_position] : player_view.each())
             {
                 auto player_bounding_box = sf::FloatRect{ player_position, sf::Vector2f{ Settings::PLAYER_SIZE } };
-                if(player_bounding_box.findIntersection(explosion_zone))
+                if(player_bounding_box.findIntersection(obstacle_explosion_zone)) 
                 {
-          
-                    // Damage the player
                     player.health -= player_damage;
-                    // SPDLOG_INFO("Player hit by explosion! Health reduced to {}", player.health);
+                    if (player.health <= 0) { player.alive = false; }
                 }
-
-                // You can add additional logic for player death if health reaches 0
-                if (player.health <= 0)
-                {
-                    // SPDLOG_INFO("Player died from explosion!");
-                    player.alive = false;
-                    // Add any player death handling here
-                }
-                
+                player.has_active_bomb = false;
             }
 
+            // Check NPC explosion damage
             for(auto [npc_entt, npc_cmp, npc_pos_cmp] : m_reg->view<Cmp::NPC, Cmp::Position>().each())
             {
                 auto npc_bounding_box = sf::FloatRect{ npc_pos_cmp, sf::Vector2f{ Settings::OBSTACLE_SIZE_2F } };
-                // Check if the NPC is within the explosion zone
-                if(explosion_zone.findIntersection(npc_bounding_box))
+                if(npc_bounding_box.findIntersection(obstacle_explosion_zone))
                 {
                     // kill npc
                     m_reg->remove<Cmp::NPC>(npc_entt);
                     m_reg->remove<Cmp::Position>(npc_entt);
                     m_reg->remove<Cmp::NPCScanBounds>(npc_entt);
                 }
-
             }   
 
             // if we got this far then the bomb detonated, we can destroy the armed component
@@ -295,12 +247,6 @@ public:
 
             if(m_fuse_sound_player.getStatus() == sf::Sound::Status::Playing) m_fuse_sound_player.stop();
             if(m_detonate_sound_player.getStatus() != sf::Sound::Status::Playing) m_detonate_sound_player.play();
-
-            // allow player to place next bomb
-            for (auto [_pc_entt, _pc] :m_reg->view<Cmp::PlayableCharacter>().each())
-            {
-                _pc.has_active_bomb = false;
-            }
         }
     }
 
