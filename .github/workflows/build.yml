@@ -35,3 +35,9 @@ jobs:
       - name: Run build with ${{ matrix.build_type }}
         run: |
           docker run --rm -v ${{ github.workspace }}:/srv -w /srv local /srv/scripts/build.sh ${{ matrix.build_type }}
+      - name: Archive Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: {{ matrix.build_type }}
+          path: build/bin/*
+          retention-days: 7
