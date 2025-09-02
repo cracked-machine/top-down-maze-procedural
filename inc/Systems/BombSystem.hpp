@@ -47,7 +47,8 @@ public:
         auto player_collision_view = m_reg->view<Cmp::Armed>();
         for (auto [_pc_entt, armed] : player_collision_view.each())
         {
-            if( armed.m_clock.isRunning()) armed.m_clock.stop(); 
+            if( armed.m_fuse_delay_clock.isRunning()) armed.m_fuse_delay_clock.stop(); 
+            if( armed.m_warning_delay_clock.isRunning()) armed.m_warning_delay_clock.stop(); 
         }
     }
     void resume() 
@@ -55,7 +56,8 @@ public:
         auto player_collision_view = m_reg->view<Cmp::Armed>();
         for (auto [_pc_entt, armed] : player_collision_view.each())
         {
-            if( not armed.m_clock.isRunning()) armed.m_clock.start();
+            if( not armed.m_fuse_delay_clock.isRunning()) armed.m_fuse_delay_clock.start();
+            if( not armed.m_warning_delay_clock.isRunning()) armed.m_warning_delay_clock.start();
         }
     }
 
@@ -131,11 +133,12 @@ public:
         // Define initial settings
         float base_delay = 3.0f;
         float delay_increment = 0.1f;
+        float delay__warning_increment = 0.05f;
         int sequence_counter = 0;
 
         // First arm the center tile
         m_reg->emplace_or_replace<Cmp::Armed>(epicenter_entity, 
-            sf::seconds(base_delay), true, sf::Color::Blue, sequence_counter++);
+            sf::seconds(base_delay), sf::Time::Zero,true, sf::Color::Transparent, sequence_counter++);
 
         auto all_obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
 
@@ -168,14 +171,15 @@ public:
             // Arm each entity in the layer in clockwise order
             for (const auto& [entity, pos] : layer_entities) {
                 sf::Color color = sf::Color(
-                    255,                           // R
+                    100 + (sequence_counter * 10) % 155, // B
                     100 + (sequence_counter * 10) % 155, // G
-                    100 + (sequence_counter * 10) % 155  // B
+                    255                           // R
                 );
                 
                 m_reg->emplace_or_replace<Cmp::Armed>(entity, 
                     sf::seconds(base_delay + (sequence_counter * delay_increment)), 
-                    true, 
+                    sf::seconds((sequence_counter * delay__warning_increment)), 
+                    false, 
                     color, 
                     sequence_counter);
                 sequence_counter++;
@@ -217,7 +221,7 @@ public:
             }
         }
         
-        m_detonate_sound_player.play();
+        // m_detonate_sound_player.play();
         
     }
 
@@ -229,7 +233,7 @@ public:
         auto armed_view = m_reg->view<Cmp::Armed, Cmp::Obstacle, Cmp::Neighbours, Cmp::Position>();
         for( auto [_entt, _armed_cmp, _obstacle_cmp, _neighbours_cmp, _ob_pos_comp]: armed_view.each() ) 
         {
-            if (_armed_cmp.getElapsedTime() < _armed_cmp.m_detonation_delay) continue;
+            if (_armed_cmp.getElapsedFuseTime() < _armed_cmp.m_fuse_delay) continue;
 
             // The `_ob_pos_comp` position component is the position of the explosion center block (marked with C), 
             // so move back up/left one obstacle size to the uptmost top-left corner (marked with X):
