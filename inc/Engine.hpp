@@ -6,7 +6,7 @@
 #include <EntityFactory.hpp>
 #include <FloodSystem.hpp>
 #include <GameState.hpp>
-#include <LerpSystem.hpp>
+#include <NpcSystem.hpp>
 #include <PathFindSystem.hpp>
 #include <PlayerSystem.hpp>
 #include <ProcGen/RandomLevelGenerator.hpp>
@@ -127,7 +127,7 @@ public:
                         }
 
                         m_path_find_sys->findPath(player_entity);
-                        m_lerp_sys->update(deltaTime);
+                        m_npc_sys->lerp_movement(deltaTime);
 
                         // did the player drown? Then end the game
                         for(auto [_, _pc]: m_reg->view<Cmp::PlayableCharacter>().each()) {
@@ -208,15 +208,16 @@ private:
 
     //  ECS Systems
     std::unique_ptr<Sys::PlayerSystem> m_player_sys = std::make_unique<Sys::PlayerSystem>(m_reg);
+    std::shared_ptr<Sys::NpcSystem> m_npc_sys = std::make_shared<Sys::NpcSystem>(m_reg);
     std::shared_ptr<Sys::PathFindSystem> m_path_find_sys = std::make_shared<Sys::PathFindSystem>(m_reg);
-    std::unique_ptr<Sys::CollisionSystem> m_collision_sys = std::make_unique<Sys::CollisionSystem>(m_reg);
+    std::unique_ptr<Sys::CollisionSystem> m_collision_sys = std::make_unique<Sys::CollisionSystem>(m_reg, m_npc_sys );
     std::unique_ptr<Sys::RenderSystem> m_render_sys = std::make_unique<Sys::RenderSystem> (m_reg, m_window, m_path_find_sys);
     std::unique_ptr<Sys::FloodSystem> m_flood_sys = std::make_unique<Sys::FloodSystem> (m_reg, 4.f);
     std::unique_ptr<Sys::BombSystem> m_bomb_sys = std::make_unique<Sys::BombSystem> (
         m_reg, 
-        m_render_sys->m_sprite_factory
+        m_render_sys->m_sprite_factory,
+        m_npc_sys
     );
-    std::unique_ptr<Sys::LerpSystem> m_lerp_sys = std::make_unique<Sys::LerpSystem>(m_reg);
 
     // SFML keyboard/mouse event handler
     ProceduralMaze::InputEventHandler m_event_handler{m_reg};

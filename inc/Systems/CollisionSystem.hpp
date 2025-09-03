@@ -14,6 +14,7 @@
 #include <Components/System.hpp>
 #include <Components/Movement.hpp>
 #include <NPCScanBounds.hpp>
+#include <NpcSystem.hpp>
 #include <PCDetectionBounds.hpp>
 #include <Settings.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -45,7 +46,16 @@ namespace ProceduralMaze::Sys {
 
 class CollisionSystem : public BaseSystem {
 public:
-    CollisionSystem(std::shared_ptr<entt::basic_registry<entt::entity>> reg) : BaseSystem (reg) {}
+    CollisionSystem(
+        std::shared_ptr<entt::basic_registry<entt::entity>> reg,
+        std::shared_ptr<Sys::NpcSystem> npc_system
+    )
+    :   BaseSystem (reg), 
+        m_npc_sys(npc_system) 
+    {
+        
+    }
+
     ~CollisionSystem() = default;
 
     sf::Vector2f getCenter(sf::Vector2f pos, sf::Vector2f size)
@@ -91,10 +101,7 @@ public:
                     // dont really care what obstacle this is now as long as its disabled.
                     m_reg->emplace_or_replace<Cmp::Obstacle>(_obstacle_entt, Sprites::SpriteFactory::Type::BONES , 0, false, false);
                     // create a new NPC entity and put an NPC there
-                    auto new_npc_entity = m_reg->create();
-                    m_reg->emplace<Cmp::NPC>(new_npc_entity, true);
-                    m_reg->emplace<Cmp::Position>(new_npc_entity, _obstacle_pos);
-                    m_reg->emplace<Cmp::NPCScanBounds>(new_npc_entity, _obstacle_pos, Settings::OBSTACLE_SIZE_2F);
+                    m_npc_sys->add_npc_entity(_obstacle_pos);
                 }
             }
         }
@@ -413,7 +420,7 @@ public:
     }
 
 private:
-
+    std::shared_ptr<Sys::NpcSystem> m_npc_sys;
     sf::FloatRect m_end_zone{
         {Settings::DISPLAY_SIZE.x * 1.f, 0}, 
         {500.f, Settings::DISPLAY_SIZE.y * 1.f}

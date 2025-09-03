@@ -1,22 +1,39 @@
-#ifndef __SYS_LERPSYSTEM_HPP__
-#define __SYS_LERPSYSTEM_HPP__
+#ifndef __SYS_NPCSYSTEM_HPP__
+#define __SYS_NPCSYSTEM_HPP__
 
+#include <Direction.hpp>
+#include <LerpPosition.hpp>
+#include <Movement.hpp>
+#include <NPC.hpp>
 #include <NPCScanBounds.hpp>
-#include <Settings.hpp>
-#include <Systems/BaseSystem.hpp>
-#include <Components/Position.hpp>
-#include <Components/LerpPosition.hpp>
-#include <algorithm>
-#include <cmath>
+#include <Position.hpp>
+#include <entt/entity/registry.hpp>
+#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
 
-class LerpSystem : public BaseSystem {
+class NpcSystem {
 public:
-    LerpSystem(std::shared_ptr<entt::basic_registry<entt::entity>> reg) 
-        : BaseSystem(reg) {}
+    NpcSystem(std::shared_ptr<entt::basic_registry<entt::entity>> reg)
+        : m_reg(reg) {}
 
-    void update(sf::Time dt) {
+    void add_npc_entity(sf::Vector2f position)
+    {
+        auto new_npc_entity = m_reg->create();
+        m_reg->emplace<Cmp::NPC>(new_npc_entity, true);
+        m_reg->emplace<Cmp::Position>(new_npc_entity, position);
+        m_reg->emplace<Cmp::NPCScanBounds>(new_npc_entity, position, Settings::OBSTACLE_SIZE_2F);
+    }
+
+    void remove_npc_entity(entt::entity npc_entity)
+    {
+        // kill npc
+        m_reg->remove<Cmp::NPC>(npc_entity);
+        m_reg->remove<Cmp::Position>(npc_entity);
+        m_reg->remove<Cmp::NPCScanBounds>(npc_entity);
+    }
+
+    void lerp_movement(sf::Time dt) {
         auto view = m_reg->view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds>();
 
         for (auto [entity, pos, target, npc_scan_bounds] : view.each()) {
@@ -43,14 +60,9 @@ public:
     }
 
 private:
-    
-    // sf::Vector2f lerp(const sf::Vector2f& start, const sf::Vector2f& end, float factor) {
-    //     return start + (end - start) * factor;
-    //     // Result = (1 - factor) * start + factor * end
-    //     // Result = start + factor * (end - start)
-    // }
+    std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Sys
 
-#endif // __SYS_LERPSYSTEM_HPP__
+#endif // __SYS_NPCSYSTEM_HPP__

@@ -4,6 +4,7 @@
 #include <Components/Armed.hpp>
 #include <Components/Loot.hpp>
 #include <NPCScanBounds.hpp>
+#include <NpcSystem.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Components/Movement.hpp>
 #include <Components/NPC.hpp>
@@ -33,11 +34,13 @@ class BombSystem : public BaseSystem {
 public:
     BombSystem(
         std::shared_ptr<entt::basic_registry<entt::entity>> reg,
-        std::shared_ptr<Sprites::SpriteFactory> sprite_factory
+        std::shared_ptr<Sprites::SpriteFactory> sprite_factory,
+        std::shared_ptr<Sys::NpcSystem> npc_system
     ) 
     : 
         BaseSystem(reg),
-        m_sprite_factory(sprite_factory)
+        m_sprite_factory(sprite_factory),
+        m_npc_sys(npc_system)
     {
     }
 
@@ -236,9 +239,7 @@ public:
                 if(npc_bounding_box.findIntersection(obstacle_explosion_zone))
                 {
                     // kill npc
-                    m_reg->remove<Cmp::NPC>(npc_entt);
-                    m_reg->remove<Cmp::Position>(npc_entt);
-                    m_reg->remove<Cmp::NPCScanBounds>(npc_entt);
+                    m_npc_sys->remove_npc_entity(npc_entt);
                 }
             }   
 
@@ -252,6 +253,7 @@ public:
 
 private:
     std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory;
+    std::shared_ptr<Sys::NpcSystem> m_npc_sys;
     
     int player_damage = 10; // Amount of damage to deal to the player when hit by explosion
     const sf::Vector2f max_explosion_zone_size{Settings::OBSTACLE_SIZE.x * 3.f, Settings::OBSTACLE_SIZE.y * 3.f};

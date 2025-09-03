@@ -38,16 +38,6 @@ public:
         reg->emplace<Cmp::System>(entity);
     }
 
-    static void add_npc_entity(std::shared_ptr<entt::basic_registry<entt::entity>> reg, sf::Vector2f position)
-    {
-        SPDLOG_INFO("Creating NPC entity");
-        auto entity = reg->create();
-        reg->emplace<Cmp::Position>(entity, position);
-        reg->emplace<Cmp::NPC>(entity, true);
-        reg->emplace<Cmp::Movement>(entity);
-        reg->emplace<Cmp::Direction>(entity, sf::Vector2f{0,0});
-    }
-
     static void add_game_state_entity(std::shared_ptr<entt::basic_registry<entt::entity>> reg)
     {
         if( not reg->view<Cmp::GameState>()->empty()) {
