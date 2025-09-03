@@ -58,18 +58,6 @@ public:
         using namespace ProceduralMaze::Settings;
 
         SPDLOG_INFO("RenderSystem initialisation starting..."); 
-
-        // setup the floortile background texture
-        // TODO move this to a separate system
-        Cmp::Random floortile_picker(0, FLOOR_TILE_POOL.size() - 1);
-        std::vector<uint32_t> floortile_choices;
-        for(int x = 0; x < 200; x++) 
-            for(int y = 0; y < 98; y++) 
-                floortile_choices.push_back(FLOOR_TILE_POOL[floortile_picker.gen()]); 
-        
-        auto tile_file = "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png";
-        if (!m_floormap.load(tile_file, {16,16}, floortile_choices.data(), 200, 98))
-            SPDLOG_CRITICAL("Unable to load tile map {}", tile_file);
         
         // init local view dimensions
         m_local_view = sf::View( 

@@ -1,7 +1,10 @@
 #ifndef __SPRITES_TILEMAP_HPP__
 #define __SPRITES_TILEMAP_HPP__
 
+#include <Random.hpp>
 #include <SFML/Graphics.hpp>
+#include <exception>
+#include <spdlog/spdlog.h>
 
 
 namespace ProceduralMaze::Sprites::Containers {
@@ -9,6 +12,19 @@ namespace ProceduralMaze::Sprites::Containers {
 class TileMap : public sf::Drawable, public sf::Transformable
 {
 public:
+    TileMap() {
+
+        for(int x = 0; x < 200; x++) 
+            for(int y = 0; y < 98; y++) 
+                m_floortile_choices.push_back(FLOOR_TILE_POOL[m_floortile_picker.gen()]); 
+
+        if (!load(m_tile_file.string(), {16,16}, m_floortile_choices.data(), 200, 98))
+        {
+            SPDLOG_CRITICAL("Unable to load tile map {}", m_tile_file.string());
+            std::terminate();
+        }
+
+    }
     bool load(const std::filesystem::path& tileset, sf::Vector2u tileSize, const unsigned int* tiles, unsigned int width, unsigned int height)
     {
         // load the tileset texture
@@ -70,6 +86,16 @@ private:
 
     sf::VertexArray m_vertices;
     sf::Texture     m_tileset;
+
+    const std::vector<unsigned int> FLOOR_TILE_POOL {   // res/Pixel Lands Dungeons/objects.png
+        48,48,48,48,48,48,49
+    };
+
+    Cmp::Random m_floortile_picker{0, static_cast<int>(FLOOR_TILE_POOL.size() - 1)};
+
+    std::vector<uint32_t> m_floortile_choices;
+
+    std::filesystem::path m_tile_file {"res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png"};
 };
 
 } // namespace ProceduralMaze::Sprites::Containers
