@@ -13,8 +13,7 @@ const sf::Vector2f MAP_GRID_OFFSET{ 10.f,1.f };
 const sf::Vector2u MAP_GRID_SIZE{ 100u, 61u }; 
 
 // SFML views
-const sf::Vector2f LOCAL_MAP_VIEW_SIZE{ 300.f, 200.f };
-const sf::Vector2f MINI_MAP_VIEW_SIZE{ DISPLAY_SIZE.x * 0.25f, DISPLAY_SIZE.y * 0.25f };
+
 
 }
 
