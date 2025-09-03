@@ -86,16 +86,16 @@ public:
         auto obstacle_collision_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
         for (auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each())
         {
-            auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y}, Settings::PLAYER_SIZE_2F);
+            auto player_hitbox = get_hitbox(_pc_pos);
             for (auto [_obstacle_entt, _obstacle, _obstacle_pos] : obstacle_collision_view.each())
             {
                 if( _obstacle.m_type != Sprites::SpriteFactory::Type::BONES || not _obstacle.m_enabled || not _obstacle.m_visible ) continue;
-                
-                auto obstacle_hitbox = sf::FloatRect({_obstacle_pos.x, _obstacle_pos.y}, Settings::OBSTACLE_SIZE_2F);
+
+                auto obstacle_hitbox = get_hitbox(_obstacle_pos);
                 obstacle_hitbox.size *= 2.f;
-                obstacle_hitbox.position.x -= Settings::OBSTACLE_SIZE_2F.x * 0.5f;
-                obstacle_hitbox.position.y -= Settings::OBSTACLE_SIZE_2F.y * 0.5f;
-                
+                obstacle_hitbox.position.x -= Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x * 0.5f;
+                obstacle_hitbox.position.y -= Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y * 0.5f;
+
                 if (player_hitbox.findIntersection(obstacle_hitbox))
                 {
                     // dont really care what obstacle this is now as long as its disabled.
@@ -114,11 +114,11 @@ public:
         for (auto [_pc_entt, _pc, _pc_pos, _direction, _movement] : player_collision_view.each())
         {
             sf::Vector2f starting_pos = {_pc_pos.x, _pc_pos.y};
-            auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y}, Settings::PLAYER_SIZE_2F);
+            auto player_hitbox = get_hitbox(_pc_pos);
             for (auto [_npc_entt, _npc, _npc_pos] : npc_collision_view.each())
             {
 
-                auto npc_hitbox = sf::FloatRect({_npc_pos.x, _npc_pos.y}, Settings::OBSTACLE_SIZE_2F);
+                auto npc_hitbox = get_hitbox(_npc_pos);
 
                 if (player_hitbox.findIntersection(npc_hitbox))
                 {
@@ -162,11 +162,11 @@ public:
 
         for (auto [_pc_entt, _pc, _pc_pos, _movement] : player_collision_view.each())
         {
-            auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y}, Settings::PLAYER_SIZE_2F);
-            
+            auto player_hitbox = get_hitbox(_pc_pos);
+
             for (auto [_loot_entt, _loot, _loot_pos] : loot_collision_view.each())
             {
-                auto loot_hitbox = sf::FloatRect(_loot_pos, Settings::OBSTACLE_SIZE_2F);
+                auto loot_hitbox = get_hitbox(_loot_pos);
                 if (player_hitbox.findIntersection(loot_hitbox))
                 {
                     // Store effect to apply after collision detection, along with original velocity
@@ -235,7 +235,7 @@ public:
     {
         for (auto [_entt, _pc, _pc_pos] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each())
         {
-            auto player_hitbox = sf::FloatRect({_pc_pos.x, _pc_pos.y}, Settings::PLAYER_SIZE_2F);
+            auto player_hitbox = get_hitbox(_pc_pos);
             if (player_hitbox.findIntersection(m_end_zone))
             {
                 SPDLOG_INFO("Player reached the end zone!");
@@ -257,7 +257,7 @@ public:
             for (auto [_ob_entt, _ob, _ob_pos] : obstacle_view.each())
             {
                 // while we are here calculate the obstacle/player distance for any traversable obstacles
-                if(not _ob.m_enabled && pc_detection_bounds.findIntersection(sf::FloatRect(_ob_pos, Settings::OBSTACLE_SIZE_2F))) {
+                if(not _ob.m_enabled && pc_detection_bounds.findIntersection(get_hitbox(_ob_pos))) {
                     auto distance = std::floor(getChebyshevDistance(_pc_pos, _ob_pos));
                     m_reg->emplace_or_replace<Cmp::PlayerDistance>(_ob_entt, distance);
                 }
@@ -288,8 +288,8 @@ public:
                 // otherwise we are not interested in collision detection on traversable obstacles
                 if (not _ob.m_enabled) { continue; }
 
-                auto player_floatrect = sf::FloatRect({ _pc_pos.x, _pc_pos.y }, Settings::PLAYER_SIZE_2F);
-                auto brick_floatRect = sf::FloatRect(_ob_pos, Settings::OBSTACLE_SIZE_2F);
+                auto player_floatrect = get_hitbox(_pc_pos);
+                auto brick_floatRect = get_hitbox(_ob_pos);
 
                 auto collision = player_floatrect.findIntersection(brick_floatRect);
                 if (!collision) continue;
@@ -304,8 +304,11 @@ public:
                     // First try moving back to starting position
                     _pc_pos.x = starting_pos.x;
                     _pc_pos.y = starting_pos.y;
-                    
-                    player_floatrect = sf::FloatRect({ _pc_pos.x, _pc_pos.y }, Settings::PLAYER_SIZE_2F);
+
+                    player_floatrect = sf::FloatRect(
+                        { _pc_pos.x, _pc_pos.y }, 
+                        sf::Vector2f{Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE}
+                    );
                     if (!player_floatrect.findIntersection(brick_floatRect))
                     {
                         SPDLOG_INFO("Recovered by reverting to start position");
@@ -314,7 +317,7 @@ public:
 
                     // If still stuck, reset to spawn
                     SPDLOG_INFO("Could not recover, resetting to spawn");
-                    _pc_pos = ProceduralMaze::Settings::PLAYER_START_POS;
+                    _pc_pos = Cmp::PlayableCharacter::PLAYER_START_POS;
                     for (auto [_entt, _sys] : m_reg->view<Cmp::System>().each())
                     {
                         _sys.player_stuck = true;
@@ -384,7 +387,7 @@ public:
                 }
 
                 // Verify the resolution worked
-                player_floatrect = sf::FloatRect({ _pc_pos.x, _pc_pos.y }, Settings::PLAYER_SIZE_2F);
+                player_floatrect = get_hitbox(_pc_pos);
                 if (player_floatrect.findIntersection(brick_floatRect))
                 {
                     // If resolution failed, try reverting and using the other axis

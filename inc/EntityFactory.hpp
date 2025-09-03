@@ -7,9 +7,6 @@
 #include <SFML/System/Vector2.hpp>
 #include <WaterLevel.hpp>
 #include <entt/entity/registry.hpp>
-
-#include <Settings.hpp>
-
 #include <Components/Font.hpp>
 #include <Components/RandomCoord.hpp>
 #include <Components/PlayableCharacter.hpp>

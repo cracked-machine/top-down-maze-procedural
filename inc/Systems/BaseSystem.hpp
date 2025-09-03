@@ -3,9 +3,9 @@
 
 #include <Position.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <Settings.hpp>
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
+#include <Sprites/SpriteFactory.hpp>
 
 namespace ProceduralMaze::Sys {
 
@@ -21,7 +21,10 @@ public:
     {
         auto pos = m_reg->try_get<Cmp::Position>(entity);
         if (pos) {
-            return std::optional<sf::Vector2i>{ {static_cast<int>(pos->x / Settings::OBSTACLE_SIZE_2F.x), static_cast<int>(pos->y / Settings::OBSTACLE_SIZE_2F.y)} };
+            return std::optional<sf::Vector2i>{{
+                static_cast<int>(pos->x / Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x), 
+                static_cast<int>(pos->y / Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y)
+            }};
         }
         return std::nullopt; 
     }
@@ -60,6 +63,14 @@ public:
     float getChebyshevDistance(sf::Vector2f posA, sf::Vector2f posB ) const
     {
         return std::max(std::abs(posA.x - posB.x), std::abs(posA.y - posB.y));
+    }
+
+    sf::FloatRect get_hitbox(sf::Vector2f pos)
+    {
+        return sf::FloatRect(
+            { pos.x, pos.y }, 
+            sf::Vector2f{Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE}
+        );
     }
 
 protected:

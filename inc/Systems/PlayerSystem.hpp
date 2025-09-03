@@ -25,11 +25,14 @@ public:
         }
         SPDLOG_INFO("Creating player entity");
         auto entity = m_reg->create();
-        m_reg->emplace<Cmp::Position>(entity, Settings::PLAYER_START_POS);
+        m_reg->emplace<Cmp::Position>(entity, Cmp::PlayableCharacter::PLAYER_START_POS);
         m_reg->emplace<Cmp::PlayableCharacter>(entity);
         m_reg->emplace<Cmp::Movement>(entity);
         m_reg->emplace<Cmp::Direction>(entity, sf::Vector2f{0,0});
-        m_reg->emplace<Cmp::PCDetectionBounds>(entity, Settings::PLAYER_START_POS, Settings::OBSTACLE_SIZE_2F);
+        m_reg->emplace<Cmp::PCDetectionBounds>(entity, 
+            sf::Vector2f{Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE}, 
+            sf::Vector2f{Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE}
+        );
     }
 
     void update(sf::Time deltaTime) {

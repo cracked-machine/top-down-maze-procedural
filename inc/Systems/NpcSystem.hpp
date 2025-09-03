@@ -9,6 +9,7 @@
 #include <Position.hpp>
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
+#include <Sprites/SpriteFactory.hpp>
 
 namespace ProceduralMaze::Sys {
 
@@ -22,7 +23,10 @@ public:
         auto new_npc_entity = m_reg->create();
         m_reg->emplace<Cmp::NPC>(new_npc_entity, true);
         m_reg->emplace<Cmp::Position>(new_npc_entity, position);
-        m_reg->emplace<Cmp::NPCScanBounds>(new_npc_entity, position, Settings::OBSTACLE_SIZE_2F);
+        m_reg->emplace<Cmp::NPCScanBounds>(new_npc_entity, 
+            position, 
+            sf::Vector2f{Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE}
+        );
     }
 
     void remove_npc_entity(entt::entity npc_entity)

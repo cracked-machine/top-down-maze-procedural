@@ -7,7 +7,6 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <Settings.hpp>
 #include <filesystem>
 
 #include <spdlog/spdlog.h>

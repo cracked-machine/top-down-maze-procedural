@@ -13,7 +13,6 @@
 #include <Components/Position.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/LerpPosition.hpp>
-#include <Settings.hpp>
 
 #include <cstdlib>
 
@@ -65,7 +64,7 @@ public:
             auto obstacle_view = m_reg->view<Cmp::Position, Cmp::PlayerDistance>(entt::exclude<Cmp::NPC, Cmp::PlayableCharacter>);
             for (auto [obstacle_entity, next_pos, player_distance]: obstacle_view.each())
             {
-                if(npc_scan_bounds->findIntersection(sf::FloatRect(next_pos, Settings::OBSTACLE_SIZE_2F)))
+                if(npc_scan_bounds->findIntersection(get_hitbox(next_pos)))
                 {
                     distance_queue.push({player_distance.distance, obstacle_entity});
                 }
@@ -105,10 +104,10 @@ private:
 
     // Define possible movement directions (up, right, down, left)
     const std::array<sf::Vector2f, 4> m_directions = {
-        sf::Vector2f(0.f, -Settings::OBSTACLE_SIZE.y),  // Up
-        sf::Vector2f(Settings::OBSTACLE_SIZE.x, 0.f),   // Right
-        sf::Vector2f(0.f, Settings::OBSTACLE_SIZE.y),   // Down
-        sf::Vector2f(-Settings::OBSTACLE_SIZE.x, 0.f)   // Left
+        sf::Vector2f(0.f, -Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y),  // Up
+        sf::Vector2f(Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x, 0.f),   // Right
+        sf::Vector2f(0.f, Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y),   // Down
+        sf::Vector2f(-Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x, 0.f)   // Left
     };
 
     // the limit for finding potential paths

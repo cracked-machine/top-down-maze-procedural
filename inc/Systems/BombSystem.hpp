@@ -13,7 +13,6 @@
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Sprites/SpriteFactory.hpp>
-#include <Settings.hpp>
 
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
@@ -79,16 +78,16 @@ public:
             auto obstacle_collision_view =  m_reg->view<Cmp::Obstacle, Cmp::Position>(entt::exclude<typename Cmp::Armed>);
             for (auto [obstacle_entity, obstacle_cmp, obstacle_pos_cmp] : obstacle_collision_view.each())
             {
-                auto player_hitbox = sf::FloatRect({pc_pos_cmp.x, pc_pos_cmp.y},  Settings::PLAYER_SIZE_2F);
-                
-                // reduce/center the player hitbox to avoid 
-                // arming a neighbouring location 
+                auto player_hitbox = get_hitbox(pc_pos_cmp);
+
+                // reduce/center the player hitbox to avoid
+                // arming a neighbouring location
                 player_hitbox.size.x /= 2.f;
                 player_hitbox.size.y /= 2.f;
                 player_hitbox.position.x += 4.f;
                 player_hitbox.position.y += 4.f;
 
-                auto obstacle_hitbox = sf::FloatRect(obstacle_pos_cmp, Settings::OBSTACLE_SIZE_2F);     
+                auto obstacle_hitbox = get_hitbox(obstacle_pos_cmp);
 
                 // are we standing on this tile?
                 if( player_hitbox.findIntersection(obstacle_hitbox) )
@@ -219,11 +218,11 @@ public:
             }
            
             // Check player explosion damage
-            auto obstacle_explosion_zone = sf::FloatRect(_ob_pos_comp, sf::Vector2f{ Settings::PLAYER_SIZE });
+            auto obstacle_explosion_zone = get_hitbox(_ob_pos_comp);
             auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
             for (auto [player_entt, player, player_position] : player_view.each())
             {
-                auto player_bounding_box = sf::FloatRect{ player_position, sf::Vector2f{ Settings::PLAYER_SIZE } };
+                auto player_bounding_box = get_hitbox(player_position);
                 if(player_bounding_box.findIntersection(obstacle_explosion_zone)) 
                 {
                     player.health -= player_damage;
@@ -235,7 +234,7 @@ public:
             // Check NPC explosion damage
             for(auto [npc_entt, npc_cmp, npc_pos_cmp] : m_reg->view<Cmp::NPC, Cmp::Position>().each())
             {
-                auto npc_bounding_box = sf::FloatRect{ npc_pos_cmp, sf::Vector2f{ Settings::OBSTACLE_SIZE_2F } };
+                auto npc_bounding_box = get_hitbox(npc_pos_cmp);
                 if(npc_bounding_box.findIntersection(obstacle_explosion_zone))
                 {
                     // kill npc
@@ -256,7 +255,7 @@ private:
     std::shared_ptr<Sys::NpcSystem> m_npc_sys;
     
     int player_damage = 10; // Amount of damage to deal to the player when hit by explosion
-    const sf::Vector2f max_explosion_zone_size{Settings::OBSTACLE_SIZE.x * 3.f, Settings::OBSTACLE_SIZE.y * 3.f};
+    const sf::Vector2f max_explosion_zone_size{Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x * 3.f, Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y * 3.f};
 
     sf::SoundBuffer m_fuse_sound_buffer{"res/audio/fuse.wav"};
     sf::Sound m_fuse_sound_player{m_fuse_sound_buffer};

@@ -3,6 +3,8 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/main.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Base.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Random.cpp
+    ${CMAKE_SOURCE_DIR}/src/Components/PlayableCharacter.cpp
+    ${CMAKE_SOURCE_DIR}/src/Sprites/SpriteFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/BaseSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Debug/AssertHandler.cpp
 )

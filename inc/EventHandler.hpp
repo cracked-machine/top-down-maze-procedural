@@ -8,7 +8,6 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Window.hpp>
 #include <Components/System.hpp>
-#include <Settings.hpp>
 #include <optional>
 
 #include <Components/PlayableCharacter.hpp>
