@@ -34,13 +34,14 @@
 #include <Components/Font.hpp>
 #include <Components/System.hpp>
 #include <Components/Movement.hpp>
+#include <Components/GameState.hpp>
+#include <Components/DisplaySize.hpp>
 
 #include <Systems/CollisionSystem.hpp>
 #include <Systems/RenderSystem.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
 
 #include <EventHandler.hpp>
-#include <Settings.hpp>
 #include <string>
 
 #ifdef _WIN32
@@ -198,7 +199,7 @@ public:
 private:
     // SFML Window
     std::shared_ptr<sf::RenderWindow> m_window = std::make_shared<sf::RenderWindow>(
-        sf::VideoMode(Settings::DISPLAY_SIZE), 
+        sf::VideoMode(Sys::BaseSystem::DISPLAY_SIZE), 
         "ProceduralMaze"
     );
     
@@ -299,6 +300,7 @@ private:
         EntityFactory::add_system_entity( m_reg );
         m_player_sys->add_player_entity();
         m_flood_sys->add_flood_water_entity();
+        add_display_size(sf::Vector2u{1920, 1024});
 
         // create initial random game area with the required sprites
         std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>(
@@ -354,6 +356,17 @@ private:
     void queueinfo()
     {
         SPDLOG_INFO("{} action events pending", m_event_handler.m_action_queue.size()); 
+    }
+
+    void add_display_size(const sf::Vector2u& size)
+    {
+        if( not m_reg->view<Cmp::DisplaySize>()->empty()) {
+            SPDLOG_WARN("Display size entity already exists, skipping creation");
+            return;
+        }
+        SPDLOG_INFO("Creating display size entity");
+        auto entity = m_reg->create();
+        m_reg->emplace<Cmp::DisplaySize>(entity, size);
     }
 
 };

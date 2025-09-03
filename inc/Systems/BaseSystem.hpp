@@ -73,9 +73,16 @@ public:
         );
     }
 
+    static const sf::Vector2u DISPLAY_SIZE;
+    
+    // MAP_GRID_OFFSET and MAP_GRID_SIZE are in blocks, not pixels
+    const sf::Vector2f MAP_GRID_OFFSET{ 10.f, 1.f };
+    const sf::Vector2u MAP_GRID_SIZE{ 100u, 61u };
 protected:
     // Entity registry
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
+    sf::Vector2f PLAYER_START_POS{ 20, static_cast<float>(Sys::BaseSystem::DISPLAY_SIZE.y) / 2 };
+
 
 };
 

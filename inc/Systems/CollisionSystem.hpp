@@ -16,7 +16,6 @@
 #include <NPCScanBounds.hpp>
 #include <NpcSystem.hpp>
 #include <PCDetectionBounds.hpp>
-#include <Settings.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Sprites/SpriteFactory.hpp>
 
@@ -201,7 +200,7 @@ public:
                 case Sprites::SpriteFactory::Type::LOWER_WATER:
                     for (auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each())
                     {
-                        water_level.m_level = std::min(water_level.m_level + 100.f, static_cast<float>(Settings::DISPLAY_SIZE.y));
+                        water_level.m_level = std::min(water_level.m_level + 100.f, static_cast<float>(DISPLAY_SIZE.y));
                         break;
                     }
                     break;
@@ -297,7 +296,7 @@ public:
                 stuck_loop++;
 
                 // We'll keep track if we're near the top wall for special handling
-                bool near_top_wall = (_pc_pos.y < Settings::MAP_GRID_OFFSET.y * 16.f);
+                bool near_top_wall = (_pc_pos.y < MAP_GRID_OFFSET.y * 16.f);
 
                 if (stuck_loop > 5) // Reduced threshold, but we'll be smarter about resolution
                 {
@@ -317,7 +316,7 @@ public:
 
                     // If still stuck, reset to spawn
                     SPDLOG_INFO("Could not recover, resetting to spawn");
-                    _pc_pos = Cmp::PlayableCharacter::PLAYER_START_POS;
+                    _pc_pos = PLAYER_START_POS;
                     for (auto [_entt, _sys] : m_reg->view<Cmp::System>().each())
                     {
                         _sys.player_stuck = true;
@@ -405,7 +404,7 @@ public:
                 }
 
                 // Special case for top wall: prevent any upward movement
-                if (near_top_wall && _pc_pos.y < Settings::MAP_GRID_OFFSET.y * 16.f + 4.0f) {
+                if (near_top_wall && _pc_pos.y < MAP_GRID_OFFSET.y * 16.f + 4.0f) {
                     _movement.velocity.y = std::max(0.0f, _movement.velocity.y);
                 }
                 
@@ -413,8 +412,8 @@ public:
                 _movement.is_colliding = true;
 
                 // Extra safety for top wall
-                if (near_top_wall && _pc_pos.y < Settings::MAP_GRID_OFFSET.y * 16.f) {
-                    _pc_pos.y = Settings::MAP_GRID_OFFSET.y * 16.f + 1.0f;
+                if (near_top_wall && _pc_pos.y < MAP_GRID_OFFSET.y * 16.f) {
+                    _pc_pos.y = MAP_GRID_OFFSET.y * 16.f + 1.0f;
                 }
                 
                 SPDLOG_DEBUG("Collision resolved - new pos: {},{}", _pc_pos.x, _pc_pos.y);
@@ -425,8 +424,8 @@ public:
 private:
     std::shared_ptr<Sys::NpcSystem> m_npc_sys;
     sf::FloatRect m_end_zone{
-        {Settings::DISPLAY_SIZE.x * 1.f, 0}, 
-        {500.f, Settings::DISPLAY_SIZE.y * 1.f}
+        {DISPLAY_SIZE.x * 1.f, 0}, 
+        {500.f, DISPLAY_SIZE.y * 1.f}
     };
 };
 

@@ -8,7 +8,6 @@
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Components/WaterLevel.hpp>
-#include <Settings.hpp>
 
 #include <SFML/Audio/Music.hpp>
 #include <SFML/Audio/Sound.hpp>
@@ -51,8 +50,8 @@ public:
     {
         SPDLOG_INFO("Creating flood water entity");
         auto entity = m_reg->create();
-        m_reg->emplace<Cmp::WaterLevel>(entity,
-            Settings::DISPLAY_SIZE.y - 1               // initial level
+        m_reg->emplace<Cmp::WaterLevel>(entity, 
+            DISPLAY_SIZE.y - 1               // initial level
         );
     }
 

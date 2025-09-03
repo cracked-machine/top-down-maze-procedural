@@ -29,11 +29,7 @@ public:
     int bomb_inventory{10}; 
     // blast radius for bomb explosions
     int blast_radius{1};  
-
-    static sf::Vector2f PLAYER_START_POS;
 };
-
-
 
 } // namespace ProceduralMaze::Cmp
 

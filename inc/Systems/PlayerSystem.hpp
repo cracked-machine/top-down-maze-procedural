@@ -25,7 +25,7 @@ public:
         }
         SPDLOG_INFO("Creating player entity");
         auto entity = m_reg->create();
-        m_reg->emplace<Cmp::Position>(entity, Cmp::PlayableCharacter::PLAYER_START_POS);
+        m_reg->emplace<Cmp::Position>(entity, PLAYER_START_POS);
         m_reg->emplace<Cmp::PlayableCharacter>(entity);
         m_reg->emplace<Cmp::Movement>(entity);
         m_reg->emplace<Cmp::Direction>(entity, sf::Vector2f{0,0});

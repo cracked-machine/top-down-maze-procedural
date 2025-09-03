@@ -16,14 +16,12 @@
 #include <NPCScanBounds.hpp>
 #include <PCDetectionBounds.hpp>
 #include <Sprites/BasicSprite.hpp>
-#include <Sprites/DebugEntityIds.hpp>
 #include <Sprites/FloodWaterShader.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Sprites/TileMap.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PathFindSystem.hpp>
-#include <Settings.hpp>
 
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -55,7 +53,6 @@ public:
         m_window( win ),
         m_path_find_sys( path_find_sys )
     { 
-        using namespace ProceduralMaze::Settings;
 
         SPDLOG_INFO("RenderSystem initialisation starting..."); 
         
@@ -104,17 +101,17 @@ public:
         {
             sf::Text title_text(m_font, "Procedural Maze Game", 96);
             title_text.setFillColor(sf::Color::White);
-            title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
+            title_text.setPosition({DISPLAY_SIZE.x / 4.f, 100.f});
             m_window->draw(title_text);
 
             sf::Text start_text(m_font, "Press <Enter> key to start", 48);
             start_text.setFillColor(sf::Color::White);
-            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 300.f});
+            start_text.setPosition({DISPLAY_SIZE.x / 4.f, 300.f});
             m_window->draw(start_text);
 
             sf::Text quit_text(m_font, "Press <Q> key to quit", 48);
             quit_text.setFillColor(sf::Color::White);
-            quit_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 350.f});
+            quit_text.setPosition({DISPLAY_SIZE.x / 4.f, 350.f});
             m_window->draw(quit_text);
         }
         m_window->display();
@@ -133,10 +130,10 @@ public:
         // main render begin
         m_window->clear();
         {
-            // local view begin - this shows only a `Settings::LOCAL_MAP_VIEW_SIZE` of the game world
+            // local view begin - this shows only a `LOCAL_MAP_VIEW_SIZE` of the game world
             m_window->setView(m_local_view);
             {   
-                render_floormap({0, Settings::MAP_GRID_OFFSET.y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y});
+                render_floormap({0, MAP_GRID_OFFSET.y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y});
                 render_obstacles();
                 render_armed();
                 render_loot();
@@ -152,7 +149,7 @@ public:
                 // reset the center if player is stuck
                 for(auto [_ent, _sys]: m_system_updates.view<Cmp::System>().each()) {
                     if( _sys.player_stuck ) {
-                        m_local_view.setCenter({LOCAL_MAP_VIEW_SIZE.x * 0.5f, Settings::DISPLAY_SIZE.y * 0.5f});
+                        m_local_view.setCenter({LOCAL_MAP_VIEW_SIZE.x * 0.5f, DISPLAY_SIZE.y * 0.5f});
                         _sys.player_stuck = false;  
                     }
                     else {
@@ -169,7 +166,7 @@ public:
             // minimap view begin - this show a quarter of the game world but in a much smaller scale
             m_window->setView(m_minimap_view);
             {
-                render_floormap({0, Settings::MAP_GRID_OFFSET.y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y});
+                render_floormap({0, MAP_GRID_OFFSET.y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y});
                 render_obstacles();
                 render_armed();
                 render_loot();
@@ -203,7 +200,7 @@ public:
                     {MINI_MAP_VIEW_SIZE.x, MINI_MAP_VIEW_SIZE.y}
                 );
                 minimap_border.setPosition(
-                    {Settings::DISPLAY_SIZE.x - MINI_MAP_VIEW_SIZE.x, 0.f}
+                    {DISPLAY_SIZE.x - MINI_MAP_VIEW_SIZE.x, 0.f}
                 );
                 minimap_border.setFillColor(sf::Color::Transparent);
                 minimap_border.setOutlineColor(sf::Color::White);
@@ -237,12 +234,12 @@ public:
         {
             sf::Text title_text(m_font, "Paused", 96);
             title_text.setFillColor(sf::Color::White);
-            title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
+            title_text.setPosition({DISPLAY_SIZE.x / 4.f, 100.f});
             m_window->draw(title_text);
 
             sf::Text start_text(m_font, "Press P to continue", 48);
             start_text.setFillColor(sf::Color::White);
-            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
+            start_text.setPosition({DISPLAY_SIZE.x / 4.f, 200.f});
             m_window->draw(start_text);
         }
         m_window->display();
@@ -257,12 +254,12 @@ public:
         {
             sf::Text title_text(m_font, "You died!", 96);
             title_text.setFillColor(sf::Color::White);
-            title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
+            title_text.setPosition({DISPLAY_SIZE.x / 4.f, 100.f});
             m_window->draw(title_text);
 
             sf::Text start_text(m_font, "Press <R> key to continue", 48);
             start_text.setFillColor(sf::Color::White);
-            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
+            start_text.setPosition({DISPLAY_SIZE.x / 4.f, 200.f});
             m_window->draw(start_text);
         }
         m_window->display();
@@ -276,12 +273,12 @@ public:
         {
             sf::Text title_text(m_font, "You won!", 96);
             title_text.setFillColor(sf::Color::White);
-            title_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 100.f});
+            title_text.setPosition({DISPLAY_SIZE.x / 4.f, 100.f});
             m_window->draw(title_text);
 
             sf::Text start_text(m_font, "Press <R> key to continue", 48);
             start_text.setFillColor(sf::Color::White);
-            start_text.setPosition({Settings::DISPLAY_SIZE.x / 4.f, 200.f});
+            start_text.setPosition({DISPLAY_SIZE.x / 4.f, 200.f});
             m_window->draw(start_text);
         }
         m_window->display();
@@ -654,8 +651,8 @@ private:
         const float MAP_HALF_HEIGHT = view.getSize().y * 0.5f;
         
         // Calculate the maximum allowed camera positions
-        float maxX = Settings::DISPLAY_SIZE.x - MAP_HALF_WIDTH;
-        float maxY = Settings::DISPLAY_SIZE.y - MAP_HALF_HEIGHT;
+        float maxX = DISPLAY_SIZE.x - MAP_HALF_WIDTH;
+        float maxY = DISPLAY_SIZE.y - MAP_HALF_HEIGHT;
         
         // Calculate new camera position
         float newX = std::clamp(player_pos.x, MAP_HALF_WIDTH, maxX);
@@ -788,7 +785,7 @@ private:
         sf::Vector2f waterlvl_meter_offset{100.f, 10.f};
         // water meter level is represented as a percentage (0-100) of the screen display y-axis
         // note: {0,0} is top left so we need to invert the Y position
-        float meter_meter_level = size.x - ((size.x / Settings::DISPLAY_SIZE.y) * water_level);
+        float meter_meter_level = size.x - ((size.x / DISPLAY_SIZE.y) * water_level);
         auto waterlvlbar = sf::RectangleShape({ meter_meter_level, size.y});
         waterlvlbar.setPosition(pos + waterlvl_meter_offset);
         waterlvlbar.setFillColor(sf::Color::Blue);
@@ -806,7 +803,7 @@ private:
 
 
 private:
-    Sprites::FloodWaterShader m_water_shader;
+    Sprites::FloodWaterShader m_water_shader{"res/FloodWater2.glsl", DISPLAY_SIZE};
     // SFML window handle
     std::shared_ptr<sf::RenderWindow> m_window;
     // path finding system handle
@@ -842,7 +839,7 @@ private:
     sf::Text bomb_radius_text{m_font,    "Blast Radius:", 30};
 
     const sf::Vector2f LOCAL_MAP_VIEW_SIZE{ 300.f, 200.f };
-    const sf::Vector2f MINI_MAP_VIEW_SIZE{ Settings::DISPLAY_SIZE.x * 0.25f, Settings::DISPLAY_SIZE.y * 0.25f };
+    const sf::Vector2f MINI_MAP_VIEW_SIZE{ DISPLAY_SIZE.x * 0.25f, DISPLAY_SIZE.y * 0.25f };
 
 };
 

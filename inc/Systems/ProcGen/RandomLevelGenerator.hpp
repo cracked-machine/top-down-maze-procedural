@@ -8,7 +8,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include <Settings.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Sprites/MultiSprite.hpp>
@@ -44,16 +43,16 @@ public:
     // The enabled status and texture of each one is picked randomly
     void gen_objects()
     {
-        for(unsigned int x = 0; x < ProceduralMaze::Settings::MAP_GRID_SIZE.x; x++)
+        for(unsigned int x = 0; x < Sys::BaseSystem::MAP_GRID_SIZE.x; x++)
         {
-            for(unsigned int y = 0; y < ProceduralMaze::Settings::MAP_GRID_SIZE.y; y++)
+            for(unsigned int y = 0; y < Sys::BaseSystem::MAP_GRID_SIZE.y; y++)
             {
                 auto entity = m_reg->create();
                 m_reg->emplace<Cmp::Position>( 
                     entity, 
                     sf::Vector2f{
-                        (x * m_sprite_factory->DEFAULT_SPRITE_SIZE.x)  + (ProceduralMaze::Settings::MAP_GRID_OFFSET.x * m_sprite_factory->DEFAULT_SPRITE_SIZE.x), 
-                        (y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y)  + (ProceduralMaze::Settings::MAP_GRID_OFFSET.y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y)
+                        (x * m_sprite_factory->DEFAULT_SPRITE_SIZE.x)  + (Sys::BaseSystem::MAP_GRID_OFFSET.x * m_sprite_factory->DEFAULT_SPRITE_SIZE.x), 
+                        (y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y)  + (Sys::BaseSystem::MAP_GRID_OFFSET.y * m_sprite_factory->DEFAULT_SPRITE_SIZE.y)
                     } 
                 ); 
                 // track the contiguous creation order of the entity so we can easily find its neighbours later
@@ -77,8 +76,6 @@ public:
     // The textures are picked randomly, but their positions are fixed
     void gen_border()
     {
-        using namespace ProceduralMaze::Settings;
-
         std::size_t texture_index = 0;
         bool enabled = true;
         for(float x = 0 ; x < DISPLAY_SIZE.x; x += m_sprite_factory->DEFAULT_SPRITE_SIZE.x)
