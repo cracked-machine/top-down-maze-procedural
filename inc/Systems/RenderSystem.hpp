@@ -46,11 +46,9 @@ class RenderSystem : public BaseSystem {
 public:
     RenderSystem(
         std::shared_ptr<entt::basic_registry<entt::entity>> reg,
-        std::shared_ptr<sf::RenderWindow> win,
         std::shared_ptr<Sys::PathFindSystem> path_find_sys
     ) : 
         BaseSystem( reg ),
-        m_window( win ),
         m_path_find_sys( path_find_sys )
     { 
 
@@ -294,6 +292,8 @@ public:
 
     // creates and manages MultiSprite resources
     std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory = std::make_shared<Sprites::SpriteFactory>();
+
+    sf::RenderWindow& window() { return *m_window; }
 
 private:
     /////////////////////////
@@ -800,12 +800,13 @@ private:
         m_window->draw(waterlvlbar_border);
     }
 
-
-
 private:
+    std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>(
+        sf::VideoMode(DISPLAY_SIZE), 
+        "ProceduralMaze"
+    );
+
     Sprites::FloodWaterShader m_water_shader{"res/FloodWater2.glsl", DISPLAY_SIZE};
-    // SFML window handle
-    std::shared_ptr<sf::RenderWindow> m_window;
     // path finding system handle
     std::shared_ptr<Sys::PathFindSystem> m_path_find_sys;
     

@@ -28,19 +28,19 @@ public:
         DROP_BOMB
     };
 
-    void menu_state_handler(const std::shared_ptr<sf::RenderWindow> window)
+    void menu_state_handler(sf::RenderWindow &window)
     {
         auto gamestate_view = m_reg->view<Cmp::GameState>();
         for(auto [entity, game_state]: gamestate_view.each()) 
         {
             using namespace sf::Keyboard;
-            while (const std::optional event = window->pollEvent())
+            while (const std::optional event = window.pollEvent())
             {
                 if (event->is<sf::Event::Closed>()) { game_state.current_state = Cmp::GameState::State::EXITING; }
                 else if (const auto* resized = event->getIf<sf::Event::Resized>())
                 {
                     sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized->size));
-                    window->setView(sf::View(visibleArea));
+                    window.setView(sf::View(visibleArea));
                 }
                 else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
                 {
@@ -57,19 +57,19 @@ public:
         }
     }
 
-    void game_state_handler(const std::shared_ptr<sf::RenderWindow> window)
+    void game_state_handler(sf::RenderWindow &window)
     {
         auto gamestate_view = m_reg->view<Cmp::GameState>();
         for(auto [entity, game_state]: gamestate_view.each()) 
         {
             using namespace sf::Keyboard;
-            while (const std::optional event = window->pollEvent())
+            while (const std::optional event = window.pollEvent())
             {
                 if (event->is<sf::Event::Closed>()) { game_state.current_state = Cmp::GameState::State::EXITING; }
                 else if (const auto* resized = event->getIf<sf::Event::Resized>())
                 {
                     sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized->size));
-                    window->setView(sf::View(visibleArea));
+                    window.setView(sf::View(visibleArea));
                 }
                 else if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
                 {
@@ -156,19 +156,19 @@ public:
         }
     }
 
-    void paused_state_handler(const std::shared_ptr<sf::RenderWindow> window)
+    void paused_state_handler(sf::RenderWindow &window)
     {
         auto gamestate_view = m_reg->view<Cmp::GameState>();
         for(auto [entity, game_state]: gamestate_view.each()) 
         {
             using namespace sf::Keyboard;
-            while (const std::optional event = window->pollEvent())
+            while (const std::optional event = window.pollEvent())
             {
                 if (event->is<sf::Event::Closed>()) { game_state.current_state = Cmp::GameState::State::EXITING; }
                 else if (const auto* resized = event->getIf<sf::Event::Resized>())
                 {
                     sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized->size));
-                    window->setView(sf::View(visibleArea));
+                    window.setView(sf::View(visibleArea));
                 }
                 else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
                 {
@@ -181,19 +181,19 @@ public:
         }
     }
 
-    void game_over_state_handler(const std::shared_ptr<sf::RenderWindow> window)
+    void game_over_state_handler(sf::RenderWindow &window)
     {
         auto gamestate_view = m_reg->view<Cmp::GameState>();
         for(auto [entity, game_state]: gamestate_view.each()) 
         {
             using namespace sf::Keyboard;
-            while (const std::optional event = window->pollEvent())
+            while (const std::optional event = window.pollEvent())
             {
                 if (event->is<sf::Event::Closed>()) { game_state.current_state = Cmp::GameState::State::EXITING; }
                 else if (const auto* resized = event->getIf<sf::Event::Resized>())
                 {
                     sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized->size));
-                    window->setView(sf::View(visibleArea));
+                    window.setView(sf::View(visibleArea));
                 }
                 else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
                 {

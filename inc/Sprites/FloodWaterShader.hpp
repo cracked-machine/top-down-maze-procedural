@@ -18,11 +18,11 @@ public:
 
     void pre_setup_texture() override {
         m_texture.clear(sf::Color(64, 128, 255));
-        std::ignore = m_texture.resize(Sys::BaseSystem::DISPLAY_SIZE);
+        // std::ignore = m_texture.resize(texture_size);
     }
 
     void post_setup_shader() override {
-        m_shader.setUniform("resolution", sf::Vector2f(Sys::BaseSystem::DISPLAY_SIZE));
+        m_shader.setUniform("resolution", sf::Vector2f{m_texture.getSize()});
     }
 
     void update(float waterLevel) {

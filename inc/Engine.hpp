@@ -54,10 +54,10 @@ class Engine {
 public:
     Engine() {
 
-        m_window->setFramerateLimit(144);
+        m_render_sys->window().setFramerateLimit(144);
 
 #ifdef _WIN32
-        ::ShowWindow(m_window->getNativeHandle(), SW_MAXIMIZE);
+        ::ShowWindow(m_render_sys->window().getNativeHandle(), SW_MAXIMIZE);
 #endif 
 
         SPDLOG_INFO("Engine Initiliasing: ");
@@ -70,7 +70,7 @@ public:
         sf::Clock deltaClock;
 
         /// MAIN LOOP BEGINS
-        while (m_window->isOpen())
+        while (m_render_sys->window().isOpen())
         {
             sf::Time deltaTime = deltaClock.restart();
 
@@ -82,7 +82,7 @@ public:
                     case Cmp::GameState::State::MENU:
                     {
                         m_render_sys->render_menu();
-                        m_event_handler.menu_state_handler(m_window);
+                        m_event_handler.menu_state_handler(m_render_sys->window());
                         break;
                     } // case MENU end
 
@@ -105,7 +105,7 @@ public:
 
                     case Cmp::GameState::State::PLAYING:
                     {
-                        m_event_handler.game_state_handler(m_window);
+                        m_event_handler.game_state_handler(m_render_sys->window());
         
                         m_player_sys->update(deltaTime);
                         process_action_queue();       
@@ -148,14 +148,14 @@ public:
                         m_collision_sys->suspend();
                         m_bomb_sys->suspend();
 
-                        // m_event_handler.paused_state_handler(m_window);
+                        // m_event_handler.paused_state_handler(m_render_sys->m_window);
 
-                        while( (Cmp::GameState::State::PAUSED == game_state.current_state) and m_window->isOpen())
+                        while( (Cmp::GameState::State::PAUSED == game_state.current_state) and m_render_sys->window().isOpen())
                         {
                             m_render_sys->render_paused();
                             std::this_thread::sleep_for(std::chrono::milliseconds(200));
                             // check for keyboard/window events to keep window responsive
-                            m_event_handler.paused_state_handler(m_window);
+                            m_event_handler.paused_state_handler(m_render_sys->window());
                         }
 
                         m_flood_sys->resume();
@@ -176,7 +176,7 @@ public:
                             }                  
                         }
                         std::this_thread::sleep_for(std::chrono::seconds(1));
-                        m_event_handler.game_over_state_handler(m_window);
+                        m_event_handler.game_over_state_handler(m_render_sys->window());
 
                         break;
                     } // case GAME_OVER end
@@ -186,7 +186,7 @@ public:
                         SPDLOG_INFO("Terminating Game....");
          
                         teardown();
-                        m_window->close();
+                        m_render_sys->window().close();
                         std::terminate();
                     }
      
@@ -197,11 +197,6 @@ public:
     }
 
 private:
-    // SFML Window
-    std::shared_ptr<sf::RenderWindow> m_window = std::make_shared<sf::RenderWindow>(
-        sf::VideoMode(Sys::BaseSystem::DISPLAY_SIZE), 
-        "ProceduralMaze"
-    );
     
     // ECS Registry
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg = 
@@ -212,7 +207,7 @@ private:
     std::shared_ptr<Sys::NpcSystem> m_npc_sys = std::make_shared<Sys::NpcSystem>(m_reg);
     std::shared_ptr<Sys::PathFindSystem> m_path_find_sys = std::make_shared<Sys::PathFindSystem>(m_reg);
     std::unique_ptr<Sys::CollisionSystem> m_collision_sys = std::make_unique<Sys::CollisionSystem>(m_reg, m_npc_sys );
-    std::unique_ptr<Sys::RenderSystem> m_render_sys = std::make_unique<Sys::RenderSystem> (m_reg, m_window, m_path_find_sys);
+    std::unique_ptr<Sys::RenderSystem> m_render_sys = std::make_unique<Sys::RenderSystem> (m_reg, m_path_find_sys);
     std::unique_ptr<Sys::FloodSystem> m_flood_sys = std::make_unique<Sys::FloodSystem> (m_reg, 4.f);
     std::unique_ptr<Sys::BombSystem> m_bomb_sys = std::make_unique<Sys::BombSystem> (
         m_reg, 

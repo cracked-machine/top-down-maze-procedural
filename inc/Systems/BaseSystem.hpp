@@ -2,6 +2,7 @@
 #define __SYSTEMS_BASE_SYSTEM_HPP__
 
 #include <Position.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
@@ -73,15 +74,18 @@ public:
         );
     }
 
-    static const sf::Vector2u DISPLAY_SIZE;
+    const sf::Vector2u DISPLAY_SIZE{ 1920, 1024 };
     
     // MAP_GRID_OFFSET and MAP_GRID_SIZE are in blocks, not pixels
     const sf::Vector2f MAP_GRID_OFFSET{ 10.f, 1.f };
     const sf::Vector2u MAP_GRID_SIZE{ 100u, 61u };
+
+    
 protected:
     // Entity registry
     std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
-    sf::Vector2f PLAYER_START_POS{ 20, static_cast<float>(Sys::BaseSystem::DISPLAY_SIZE.y) / 2 };
+
+    sf::Vector2f PLAYER_START_POS{ 20, static_cast<float>(DISPLAY_SIZE.y) / 2 };
 
 
 };
