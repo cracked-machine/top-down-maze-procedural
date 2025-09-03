@@ -6,6 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # general stuff plus mingw cross compiler
 RUN apt update -y && apt install -y \
     clangd \
+    clang-format \
     sudo \
     locales \
     gcc-mingw-w64-x86-64 \
