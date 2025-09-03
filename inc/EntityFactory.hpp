@@ -38,23 +38,6 @@ public:
         reg->emplace<Cmp::System>(entity);
     }
 
-
-    static void add_player_entity(std::shared_ptr<entt::basic_registry<entt::entity>> reg)
-    {
-        if( not reg->view<Cmp::PlayableCharacter>()->empty()) {
-            SPDLOG_WARN("Player entity already exists, skipping creation");
-            return;
-        }
-        SPDLOG_INFO("Creating player entity");
-        auto entity = reg->create();
-        reg->emplace<Cmp::Position>(entity, Settings::PLAYER_START_POS);
-        reg->emplace<Cmp::PlayableCharacter>(entity);
-        reg->emplace<Cmp::Movement>(entity);
-        reg->emplace<Cmp::Direction>(entity, sf::Vector2f{0,0});
-        reg->emplace<Cmp::PCDetectionBounds>(entity, Settings::PLAYER_START_POS, Settings::OBSTACLE_SIZE_2F);
-    }
-
-
     static void add_npc_entity(std::shared_ptr<entt::basic_registry<entt::entity>> reg, sf::Vector2f position)
     {
         SPDLOG_INFO("Creating NPC entity");

@@ -16,6 +16,22 @@ public:
     PlayerSystem(std::shared_ptr<entt::basic_registry<entt::entity>> registry)
         : BaseSystem(registry) {}
 
+
+    void add_player_entity()
+    {
+        if( not m_reg->view<Cmp::PlayableCharacter>()->empty()) {
+            SPDLOG_WARN("Player entity already exists, skipping creation");
+            return;
+        }
+        SPDLOG_INFO("Creating player entity");
+        auto entity = m_reg->create();
+        m_reg->emplace<Cmp::Position>(entity, Settings::PLAYER_START_POS);
+        m_reg->emplace<Cmp::PlayableCharacter>(entity);
+        m_reg->emplace<Cmp::Movement>(entity);
+        m_reg->emplace<Cmp::Direction>(entity, sf::Vector2f{0,0});
+        m_reg->emplace<Cmp::PCDetectionBounds>(entity, Settings::PLAYER_START_POS, Settings::OBSTACLE_SIZE_2F);
+    }
+
     void update(sf::Time deltaTime) {
         const float dt = deltaTime.asSeconds();
 

@@ -296,7 +296,7 @@ private:
 
         // 2. setup new entities and generate the level
         EntityFactory::add_system_entity( m_reg );
-        EntityFactory::add_player_entity( m_reg );
+        m_player_sys->add_player_entity();
         m_flood_sys->add_flood_water_entity();
 
         // create initial random game area with the required sprites
