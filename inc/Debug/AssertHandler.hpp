@@ -1,8 +1,8 @@
 #ifndef DEBUG_ASSERT_HANDLER_HPP
 #define DEBUG_ASSERT_HANDLER_HPP
 
-#include <cstdlib>
 #include <csignal>
+#include <cstdlib>
 
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 #include <spdlog/spdlog.h>
@@ -16,43 +16,41 @@ namespace Debug {
 
 void stack_trace();
 
-[[noreturn]] inline void assert_handler(const char* condition, 
-                                      const char* message,
-                                      const char* file,
-                                      const int line) {
-    SPDLOG_CRITICAL("\n");
-    SPDLOG_CRITICAL("=== Assertion Failed ===");
-    SPDLOG_CRITICAL("Condition: {}", condition);
-    SPDLOG_CRITICAL("Message: {}", message);
-    SPDLOG_CRITICAL("Location: {}:{}", file, line);
-    SPDLOG_CRITICAL("========================");
-    
-    #ifdef _WIN32
-        // Break into debugger if attached (Windows)
-        if (IsDebuggerPresent()) {
-            DebugBreak();
-        }
-    #elif defined(__unix__)
-        // Break into debugger if attached (Unix)
-        if (std::getenv("UNDER_GDB") || std::getenv("UNDER_LLDB")) {
-            raise(SIGTRAP);
-        }
-    #endif
-    
-    Debug::stack_trace();
+[[noreturn]] inline void assert_handler(const char *condition,
+                                        const char *message, const char *file,
+                                        const int line) {
+  SPDLOG_CRITICAL("\n");
+  SPDLOG_CRITICAL("=== Assertion Failed ===");
+  SPDLOG_CRITICAL("Condition: {}", condition);
+  SPDLOG_CRITICAL("Message: {}", message);
+  SPDLOG_CRITICAL("Location: {}:{}", file, line);
+  SPDLOG_CRITICAL("========================");
 
+#ifdef _WIN32
+  // Break into debugger if attached (Windows)
+  if (IsDebuggerPresent()) {
+    DebugBreak();
+  }
+#elif defined(__unix__)
+  // Break into debugger if attached (Unix)
+  if (std::getenv("UNDER_GDB") || std::getenv("UNDER_LLDB")) {
+    raise(SIGTRAP);
+  }
+#endif
 
-    std::abort();
+  Debug::stack_trace();
+
+  std::abort();
 }
 
 } // namespace Debug
 
 // Define our custom assertion macro before including any EnTT headers
-#define ENTT_ASSERT(condition, msg) \
-    do { \
-        if(!(condition)) { \
-            ::Debug::assert_handler(#condition, msg, __FILE__, __LINE__); \
-        } \
-    } while(0)
+#define ENTT_ASSERT(condition, msg)                                            \
+  do {                                                                         \
+    if (!(condition)) {                                                        \
+      ::Debug::assert_handler(#condition, msg, __FILE__, __LINE__);            \
+    }                                                                          \
+  } while (0)
 
 #endif // DEBUG_ASSERT_HANDLER_HPP

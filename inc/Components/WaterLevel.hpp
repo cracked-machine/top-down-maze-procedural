@@ -11,9 +11,9 @@ namespace ProceduralMaze::Cmp {
 
 class WaterLevel {
 public:
-    WaterLevel(unsigned int level) : m_level(level) {}
-    ~WaterLevel() = default;
-    float m_level;
+  WaterLevel(unsigned int level) : m_level(level) {}
+  ~WaterLevel() = default;
+  float m_level;
 };
 
 } // namespace ProceduralMaze::Cmp

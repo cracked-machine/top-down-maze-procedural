@@ -13,22 +13,22 @@ namespace ProceduralMaze::Cmp {
 // player concept
 class PlayableCharacter {
 public:
-    // the source of all truthiness
-    bool alive{true};
-    // player health, zero means game over, man!
-    uint8_t health{100};
-    // unit movement
-    constexpr static const float MOVE_DIST{1.f};
-    // prevent bomb spamming
-    sf::Clock m_bombdeploycooldowntimer;
-    // prevent bomb spamming
-    sf::Time m_bombdeploydelay{sf::seconds(0.5)};
-    // prevent placing more than one bomb at a time
-    bool has_active_bomb{false};
-    // 0 is no bombs, -1 is infinite bombs
-    int bomb_inventory{10}; 
-    // blast radius for bomb explosions
-    int blast_radius{1};  
+  // the source of all truthiness
+  bool alive{true};
+  // player health, zero means game over, man!
+  uint8_t health{100};
+  // unit movement
+  constexpr static const float MOVE_DIST{1.f};
+  // prevent bomb spamming
+  sf::Clock m_bombdeploycooldowntimer;
+  // prevent bomb spamming
+  sf::Time m_bombdeploydelay{sf::seconds(0.5)};
+  // prevent placing more than one bomb at a time
+  bool has_active_bomb{false};
+  // 0 is no bombs, -1 is infinite bombs
+  int bomb_inventory{10};
+  // blast radius for bomb explosions
+  int blast_radius{1};
 };
 
 } // namespace ProceduralMaze::Cmp

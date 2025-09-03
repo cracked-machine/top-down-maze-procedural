@@ -7,10 +7,11 @@ namespace ProceduralMaze::Cmp {
 
 class Exit {
 public:
-    Exit() = default;
+  Exit() = default;
+
 private:
-    // This is redundant but ENTT requires components have at least one member
-    [[maybe_unused]] static const bool m_is_exit{true};
+  // This is redundant but ENTT requires components have at least one member
+  [[maybe_unused]] static const bool m_is_exit{true};
 };
 
 } // namespace ProceduralMaze::Cmp

@@ -6,7 +6,7 @@
 namespace ProceduralMaze::Cmp {
 
 struct PlayerDistance {
-    unsigned int distance = std::numeric_limits<unsigned int>::max();
+  unsigned int distance = std::numeric_limits<unsigned int>::max();
 };
 
 } // namespace ProceduralMaze::Cmp

@@ -5,20 +5,20 @@ namespace ProceduralMaze::Cmp {
 
 class GameState {
 public:
-    GameState() = default;
-    ~GameState() = default;
+  GameState() = default;
+  ~GameState() = default;
 
-    enum class State {
-        MENU,
-        LOADING,
-        PLAYING,
-        PAUSED,
-        GAMEOVER,
-        UNLOADING,
-        EXITING
-    };
+  enum class State {
+    MENU,
+    LOADING,
+    PLAYING,
+    PAUSED,
+    GAMEOVER,
+    UNLOADING,
+    EXITING
+  };
 
-    State current_state = State::MENU;
+  State current_state = State::MENU;
 };
 
 } // namespace ProceduralMaze::Cmp

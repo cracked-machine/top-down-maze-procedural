@@ -8,7 +8,6 @@ namespace ProceduralMaze::Cmp {
 
 class Base {
 public:
-
 };
 
 } // namespace ProceduralMaze::Cmp

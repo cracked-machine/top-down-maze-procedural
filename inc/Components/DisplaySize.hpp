@@ -6,7 +6,7 @@
 namespace ProceduralMaze::Cmp {
 
 struct DisplaySize {
-    sf::Vector2u m_size;
+  sf::Vector2u m_size;
 };
 
 } // namespace ProceduralMaze::Cmp
