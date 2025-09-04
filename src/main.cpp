@@ -10,15 +10,16 @@
 #include <Logging/BasicLogController.hpp>
 #include <Systems/RenderSystem.hpp>
 
-int main() {
+int main()
+{
   // Logging: make sure errors - exceptions and failed asserts - go to log file
-  fclose(stderr);
+  fclose( stderr );
 
   using Logger = ProceduralMaze::Logging::BasicLogController;
-  std::unique_ptr<Logger> logger{std::make_unique<Logger>("logger", "log.txt")};
-  spdlog::set_level(spdlog::level::trace);
+  std::unique_ptr<Logger> logger{ std::make_unique<Logger>( "logger", "log.txt" ) };
+  spdlog::set_level( spdlog::level::trace );
 
-  SPDLOG_INFO("Init");
+  SPDLOG_INFO( "Init" );
 
   ProceduralMaze::Engine engine;
   engine.run();

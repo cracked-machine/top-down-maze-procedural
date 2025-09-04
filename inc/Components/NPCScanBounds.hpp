@@ -7,10 +7,10 @@
 
 namespace ProceduralMaze::Cmp {
 
-class NPCScanBounds : public RectBounds {
+class NPCScanBounds : public RectBounds
+{
 public:
-  NPCScanBounds(sf::Vector2f position, sf::Vector2f size)
-      : RectBounds(position, size, 2.5f) {}
+  NPCScanBounds( sf::Vector2f position, sf::Vector2f size ) : RectBounds( position, size, 2.5f ) {}
 };
 
 } // namespace ProceduralMaze::Cmp

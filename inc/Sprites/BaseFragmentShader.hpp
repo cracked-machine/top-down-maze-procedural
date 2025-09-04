@@ -25,11 +25,13 @@ namespace ProceduralMaze::Sprites {
 // function so you must call it
 //                  from your game loop. Add more functions to your derived
 //                  class if you need them.
-class BaseFragmentShader : public sf::Drawable, public sf::Transformable {
+class BaseFragmentShader : public sf::Drawable, public sf::Transformable
+{
 public:
-  BaseFragmentShader(std::filesystem::path shader_path,
-                     sf::Vector2u texture_size)
-      : m_texture(texture_size), m_shader_path(shader_path) {}
+  BaseFragmentShader( std::filesystem::path shader_path, sf::Vector2u texture_size )
+      : m_texture( texture_size ), m_shader_path( shader_path )
+  {
+  }
 
   virtual ~BaseFragmentShader() = default;
 
@@ -45,7 +47,8 @@ public:
   // 2. m_texture.display()
   // 4. setup_shader()
   // 3. post_setup_shader()
-  void setup() {
+  void setup()
+  {
     pre_setup_texture();
     m_texture.display();
     setup_shader();
@@ -53,34 +56,36 @@ public:
   }
 
   // set the Sprite position
-  void set_position(sf::Vector2f position) { m_sprite.setPosition(position); }
+  void set_position( sf::Vector2f position ) { m_sprite.setPosition( position ); }
 
-  void draw(sf::RenderTarget &target,
-            [[maybe_unused]] sf::RenderStates states) const override {
-    target.draw(m_sprite, &m_shader);
+  void draw( sf::RenderTarget &target, [[maybe_unused]] sf::RenderStates states ) const override
+  {
+    target.draw( m_sprite, &m_shader );
   }
 
 protected:
   sf::RenderTexture m_texture;
-  sf::Sprite m_sprite{m_texture.getTexture()};
+  sf::Sprite m_sprite{ m_texture.getTexture() };
   sf::Shader m_shader;
   sf::Clock m_clock{};
 
 private:
   std::filesystem::path m_shader_path{};
 
-  void setup_shader() {
-    if (!std::filesystem::exists(m_shader_path)) {
-      SPDLOG_CRITICAL("Shader file does not exist: {}", m_shader_path.string());
+  void setup_shader()
+  {
+    if ( !std::filesystem::exists( m_shader_path ) )
+    {
+      SPDLOG_CRITICAL( "Shader file does not exist: {}", m_shader_path.string() );
       std::get_terminate();
     }
-    SPDLOG_INFO("Loading shader from {}", m_shader_path.string());
-    if (!m_shader.loadFromFile(m_shader_path.string(),
-                               sf::Shader::Type::Fragment)) {
-      SPDLOG_CRITICAL("Failed to load shader {}", m_shader_path.string());
+    SPDLOG_INFO( "Loading shader from {}", m_shader_path.string() );
+    if ( !m_shader.loadFromFile( m_shader_path.string(), sf::Shader::Type::Fragment ) )
+    {
+      SPDLOG_CRITICAL( "Failed to load shader {}", m_shader_path.string() );
       std::get_terminate();
     }
-    SPDLOG_INFO("Shader loaded successfully");
+    SPDLOG_INFO( "Shader loaded successfully" );
   }
 };
 

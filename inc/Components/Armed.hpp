@@ -8,13 +8,16 @@
 
 namespace ProceduralMaze::Cmp {
 
-class Armed {
+class Armed
+{
 public:
-  Armed(sf::Time fuse_delay, sf::Time warning_delay, bool display_bomb_sprite,
-        sf::Color armed_color, int index)
-      : m_fuse_delay(fuse_delay), m_warning_delay(warning_delay),
-        m_display_bomb_sprite(display_bomb_sprite), m_armed_color(armed_color),
-        m_index(index) {
+  Armed(
+      sf::Time fuse_delay, sf::Time warning_delay, bool display_bomb_sprite, sf::Color armed_color,
+      int index
+  )
+      : m_fuse_delay( fuse_delay ), m_warning_delay( warning_delay ),
+        m_display_bomb_sprite( display_bomb_sprite ), m_armed_color( armed_color ), m_index( index )
+  {
     m_fuse_delay_clock.restart();
     m_warning_delay_clock.restart();
   }
@@ -25,13 +28,9 @@ public:
   sf::Color m_armed_color;
   int m_index;
 
-  sf::Time getElapsedFuseTime() const {
-    return m_fuse_delay_clock.getElapsedTime();
-  }
+  sf::Time getElapsedFuseTime() const { return m_fuse_delay_clock.getElapsedTime(); }
   sf::Clock m_fuse_delay_clock;
-  sf::Time getElapsedWarningTime() const {
-    return m_warning_delay_clock.getElapsedTime();
-  }
+  sf::Time getElapsedWarningTime() const { return m_warning_delay_clock.getElapsedTime(); }
   sf::Clock m_warning_delay_clock;
 
 private:

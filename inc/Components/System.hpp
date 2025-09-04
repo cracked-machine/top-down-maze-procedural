@@ -6,7 +6,8 @@
 
 namespace ProceduralMaze::Cmp {
 
-class System {
+class System
+{
 public:
   bool collisions_enabled = true;    // F1
   bool pause_flood = false;          // F2

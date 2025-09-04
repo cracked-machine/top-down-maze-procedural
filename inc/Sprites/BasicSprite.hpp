@@ -8,18 +8,22 @@
 
 namespace ProceduralMaze::Sprites {
 
-class BasicSprite {
+class BasicSprite
+{
 public:
-  BasicSprite(const std::string &texture_path) {
-    if (!m_texture.loadFromFile(texture_path)) {
-      SPDLOG_CRITICAL("Unable to load tile map {}", texture_path);
+  BasicSprite( const std::string &texture_path )
+  {
+    if ( !m_texture.loadFromFile( texture_path ) )
+    {
+      SPDLOG_CRITICAL( "Unable to load tile map {}", texture_path );
     }
-    m_texture.setSmooth(true);
+    m_texture.setSmooth( true );
   }
 
-  sf::Sprite get_sprite(sf::Vector2f pos) const {
-    sf::Sprite sprite(m_texture);
-    sprite.setPosition(pos);
+  sf::Sprite get_sprite( sf::Vector2f pos ) const
+  {
+    sf::Sprite sprite( m_texture );
+    sprite.setPosition( pos );
     return sprite;
   }
 

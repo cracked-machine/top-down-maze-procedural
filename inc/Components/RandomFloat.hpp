@@ -6,19 +6,21 @@
 
 namespace ProceduralMaze::Cmp {
 
-class RandomFloat : public Cmp::Base {
+class RandomFloat : public Cmp::Base
+{
 public:
   // set the rng range
-  RandomFloat(float min, float max) : m_floatdist(min, max) {}
-  ~RandomFloat() { SPDLOG_DEBUG("~RandomFloat()"); }
+  RandomFloat( float min, float max ) : m_floatdist( min, max ) {}
+  ~RandomFloat() { SPDLOG_DEBUG( "~RandomFloat()" ); }
 
   // get the next random number
-  float gen() { return m_floatdist(m_randgen); }
+  float gen() { return m_floatdist( m_randgen ); }
 
   // set the seed for random generator
-  static void seed(unsigned long s) {
+  static void seed( unsigned long s )
+  {
     m_seed = s;
-    m_randgen = std::mt19937(s);
+    m_randgen = std::mt19937( s );
   }
 
   // get the seed for random generator
@@ -26,7 +28,7 @@ public:
 
 private:
   static unsigned long m_seed;
-  static inline std::mt19937 m_randgen{std::random_device{}()};
+  static inline std::mt19937 m_randgen{ std::random_device{}() };
   std::uniform_real_distribution<> m_floatdist;
 };
 

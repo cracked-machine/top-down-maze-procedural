@@ -10,13 +10,12 @@
 namespace ProceduralMaze::Cmp {
 
 // Coordinate
-class Direction : public sf::Vector2f, Cmp::Base {
+class Direction : public sf::Vector2f, Cmp::Base
+{
 public:
-  Direction(const sf::Vector2f &dir) : sf::Vector2f(dir) {
-    SPDLOG_DEBUG("Direction()");
-  }
+  Direction( const sf::Vector2f &dir ) : sf::Vector2f( dir ) { SPDLOG_DEBUG( "Direction()" ); }
 
-  ~Direction() { SPDLOG_DEBUG("~Direction()"); }
+  ~Direction() { SPDLOG_DEBUG( "~Direction()" ); }
 
   // used for sprite flipping:
   // 1.f for moving right, -1.f for moving left

@@ -8,14 +8,14 @@
 namespace ProceduralMaze::Cmp {
 
 // contains the entities that are within a certain distance, i.e. one grid
-class EnttDistanceMap {
+class EnttDistanceMap
+{
 
 public:
-  void set(const entt::entity &entity, int value) { m_map[entity] = value; }
-  std::optional<int> get(const entt::entity &entity) const {
-    if (m_map.find(entity) != m_map.end()) {
-      return m_map.at(entity);
-    }
+  void set( const entt::entity &entity, int value ) { m_map[entity] = value; }
+  std::optional<int> get( const entt::entity &entity ) const
+  {
+    if ( m_map.find( entity ) != m_map.end() ) { return m_map.at( entity ); }
     return std::nullopt;
   }
   std::size_t size() const { return m_map.size(); }

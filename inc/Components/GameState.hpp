@@ -3,12 +3,14 @@
 
 namespace ProceduralMaze::Cmp {
 
-class GameState {
+class GameState
+{
 public:
   GameState() = default;
   ~GameState() = default;
 
-  enum class State {
+  enum class State
+  {
     MENU,
     LOADING,
     PLAYING,

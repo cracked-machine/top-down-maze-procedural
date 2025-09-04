@@ -6,7 +6,8 @@
 
 namespace ProceduralMaze::Cmp {
 
-class Base {
+class Base
+{
 public:
 };
 
