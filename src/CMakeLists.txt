@@ -16,6 +16,7 @@ target_link_libraries(${TARGET} PRIVATE
     spdlog::spdlog
     EnTT
     $<$<PLATFORM_ID:Windows>:dbghelp>
+    ImGui-SFML::ImGui-SFML
 )
 target_include_directories(${TARGET} SYSTEM PRIVATE 
     ${CMAKE_SOURCE_DIR}/inc
@@ -23,6 +24,7 @@ target_include_directories(${TARGET} SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/inc/Components
     ${CMAKE_SOURCE_DIR}/inc/Sprites
     ${CMAKE_SOURCE_DIR}/inc/Logging
+    ${FETCHCONTENT_BASE_DIR}/imgui-src
     /usr/x86_64-w64-mingw32/include/GL/
 )
 

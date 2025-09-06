@@ -18,10 +18,26 @@ FetchContent_Declare(EnTT
     EXCLUDE_FROM_ALL SYSTEM
 )
 
+FetchContent_Declare(ImGUI
+    GIT_REPOSITORY https://github.com/ocornut/imgui.git
+    GIT_TAG v1.91.1
+    GIT_SHALLOW ON EXCLUDE_FROM_ALL SYSTEM
+)
+
+FetchContent_Declare(imgui-sfml
+  GIT_REPOSITORY https://github.com/SFML/imgui-sfml.git
+  GIT_TAG        v3.0
+)
+
+set(IMGUI_DIR ${FETCHCONTENT_BASE_DIR}/imgui-src)
+option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" OFF)
+option(IMGUI_SFML_IMGUI_DEMO "Build imgui_demo.cpp" ON)
 FetchContent_MakeAvailable(
     SFML 
     SPDLog
     EnTT
+    ImGUI
+    imgui-sfml
 )
 
 # Workaround for [-Werror=clobbered] in SPDLog
