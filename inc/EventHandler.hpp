@@ -15,6 +15,8 @@
 
 #include <spdlog/spdlog.h>
 
+#include <imgui-SFML.h>
+
 #include <queue>
 
 namespace ProceduralMaze {
@@ -37,6 +39,7 @@ public:
       using namespace sf::Keyboard;
       while ( const std::optional event = window.pollEvent() )
       {
+        ImGui::SFML::ProcessEvent( window, *event );
         if ( event->is<sf::Event::Closed>() )
         {
           game_state.current_state = Cmp::GameState::State::EXITING;
@@ -56,6 +59,39 @@ public:
           {
             game_state.current_state = Cmp::GameState::State::EXITING;
           }
+          else if ( keyPressed->scancode == sf::Keyboard::Scancode::S )
+          {
+            game_state.current_state = Cmp::GameState::State::SETTINGS;
+          }
+        }
+      }
+    }
+  }
+
+  void settings_state_handler( sf::RenderWindow &window )
+  {
+    auto gamestate_view = m_reg->view<Cmp::GameState>();
+    for ( auto [entity, game_state] : gamestate_view.each() )
+    {
+      using namespace sf::Keyboard;
+      while ( const std::optional event = window.pollEvent() )
+      {
+        ImGui::SFML::ProcessEvent( window, *event );
+        if ( event->is<sf::Event::Closed>() )
+        {
+          game_state.current_state = Cmp::GameState::State::EXITING;
+        }
+        else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
+        {
+          sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
+          window.setView( sf::View( visibleArea ) );
+        }
+        else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
+        {
+          if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape )
+          {
+            game_state.current_state = Cmp::GameState::State::MENU;
+          }
         }
       }
     }
@@ -69,6 +105,7 @@ public:
       using namespace sf::Keyboard;
       while ( const std::optional event = window.pollEvent() )
       {
+        ImGui::SFML::ProcessEvent( window, *event );
         if ( event->is<sf::Event::Closed>() )
         {
           game_state.current_state = Cmp::GameState::State::EXITING;
@@ -194,6 +231,7 @@ public:
       using namespace sf::Keyboard;
       while ( const std::optional event = window.pollEvent() )
       {
+        ImGui::SFML::ProcessEvent( window, *event );
         if ( event->is<sf::Event::Closed>() )
         {
           game_state.current_state = Cmp::GameState::State::EXITING;
@@ -222,6 +260,7 @@ public:
       using namespace sf::Keyboard;
       while ( const std::optional event = window.pollEvent() )
       {
+        ImGui::SFML::ProcessEvent( window, *event );
         if ( event->is<sf::Event::Closed>() )
         {
           game_state.current_state = Cmp::GameState::State::EXITING;

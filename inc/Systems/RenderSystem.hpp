@@ -35,8 +35,11 @@
 #include <entt/entity/fwd.hpp>
 
 #include <exception>
+#include <imgui.h>
 #include <memory>
 #include <sstream>
+
+#include <imgui-SFML.h>
 
 #include <spdlog/spdlog.h>
 
@@ -159,7 +162,38 @@ public:
       quit_text.setFillColor( sf::Color::White );
       quit_text.setPosition( { DISPLAY_SIZE.x / 4.f, 350.f } );
       m_window->draw( quit_text );
+
+      sf::Text settings_text( m_font, "Press <S> key for settings", 48 );
+      settings_text.setFillColor( sf::Color::White );
+      settings_text.setPosition( { DISPLAY_SIZE.x / 4.f, 400.f } );
+      m_window->draw( settings_text );
     }
+
+    m_window->display();
+    // main render end
+  }
+
+  void render_settings()
+  {
+    // settings render begin
+
+    ImGui::Begin( "Settings" );
+    ImGui::Button( "Look at this pretty button" );
+    ImGui::End();
+    m_window->clear();
+    {
+      sf::Text title_text( m_font, "Settings", 96 );
+      title_text.setFillColor( sf::Color::White );
+      title_text.setPosition( { DISPLAY_SIZE.x / 4.f, 100.f } );
+      m_window->draw( title_text );
+
+      sf::Text start_text( m_font, "Press <Esc> key to go back", 48 );
+      start_text.setFillColor( sf::Color::White );
+      start_text.setPosition( { DISPLAY_SIZE.x / 4.f, 300.f } );
+      m_window->draw( start_text );
+    }
+
+    ImGui::SFML::Render( *m_window );
     m_window->display();
     // main render end
   }
@@ -276,6 +310,7 @@ public:
       }
       // UI Overlays end
     }
+
     m_window->display();
     // main render end
   }
@@ -295,6 +330,7 @@ public:
       start_text.setPosition( { DISPLAY_SIZE.x / 4.f, 200.f } );
       m_window->draw( start_text );
     }
+
     m_window->display();
     // main render end
   }
@@ -314,6 +350,7 @@ public:
       start_text.setPosition( { DISPLAY_SIZE.x / 4.f, 200.f } );
       m_window->draw( start_text );
     }
+
     m_window->display();
     // main render end
   }
@@ -333,6 +370,7 @@ public:
       start_text.setPosition( { DISPLAY_SIZE.x / 4.f, 200.f } );
       m_window->draw( start_text );
     }
+
     m_window->display();
     // main render end
   }

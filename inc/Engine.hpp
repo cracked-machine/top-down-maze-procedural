@@ -16,6 +16,7 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <imgui-SFML.h>
 
 #include <WaterLevel.hpp>
 #include <entt/entity/registry.hpp>
@@ -68,11 +69,13 @@ public:
   bool run()
   {
     sf::Clock deltaClock;
+    std::ignore = ImGui::SFML::Init( m_render_sys->window() );
 
     /// MAIN LOOP BEGINS
     while ( m_render_sys->window().isOpen() )
     {
       sf::Time deltaTime = deltaClock.restart();
+      ImGui::SFML::Update( m_render_sys->window(), deltaTime );
 
       auto gamestate_view = m_reg->view<Cmp::GameState>();
       for ( auto [entity, game_state] : gamestate_view.each() )
@@ -84,6 +87,12 @@ public:
           m_event_handler.menu_state_handler( m_render_sys->window() );
           break;
         } // case MENU end
+
+        case Cmp::GameState::State::SETTINGS: {
+          m_render_sys->render_settings();
+          m_event_handler.settings_state_handler( m_render_sys->window() );
+          break;
+        } // case SETTINGS end
 
         case Cmp::GameState::State::LOADING: {
           setup();

@@ -12,6 +12,7 @@ public:
   enum class State
   {
     MENU,
+    SETTINGS,
     LOADING,
     PLAYING,
     PAUSED,
