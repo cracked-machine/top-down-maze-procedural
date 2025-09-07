@@ -9,6 +9,7 @@
 #include <Components/Obstacle.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
+#include <Events/NpcDeathEvent.hpp>
 #include <NPCScanBounds.hpp>
 #include <NpcSystem.hpp>
 #include <Sprites/SpriteFactory.hpp>
@@ -192,7 +193,7 @@ public:
     }
   }
 
-  void update( Sys::NpcSystem &npc_sys )
+  void update()
   {
     auto armed_view = m_reg->view<Cmp::Armed, Cmp::Obstacle, Cmp::Neighbours, Cmp::Position>();
     for ( auto [_entt, _armed_cmp, _obstacle_cmp, _neighbours_cmp, _ob_pos_comp] :
@@ -244,9 +245,7 @@ public:
         auto npc_bounding_box = get_hitbox( npc_pos_cmp );
         if ( npc_bounding_box.findIntersection( obstacle_explosion_zone ) )
         {
-          // kill npc
-          // TODO use event here to callback to NpcSystem to remove npc?
-          npc_sys.remove_npc_entity( npc_entt );
+          getEventDispatcher().trigger( Events::NpcDeathEvent( npc_entt ) );
         }
       }
 

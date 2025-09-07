@@ -72,7 +72,7 @@ public:
     }
   }
 
-  void check_bones_reanimation( Sys::NpcSystem &npc_sys )
+  void check_bones_reanimation()
   {
     auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
     auto obstacle_collision_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
@@ -92,13 +92,11 @@ public:
 
         if ( player_hitbox.findIntersection( obstacle_hitbox ) )
         {
-          // dont really care what obstacle this is now as long as its disabled.
+          // dont really care what obstacle this becomes as long as its disabled.
           m_reg->emplace_or_replace<Cmp::Obstacle>(
               _obstacle_entt, Sprites::SpriteFactory::Type::BONES, 0, false, false
           );
-          // create a new NPC entity and put an NPC there
-          // TODO use event here to callback to NpcSystem to add npc?
-          npc_sys.add_npc_entity( _obstacle_pos );
+          getEventDispatcher().trigger( Events::NpcCreationEvent( _obstacle_pos ) );
         }
       }
     }

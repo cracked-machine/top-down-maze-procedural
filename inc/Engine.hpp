@@ -1,6 +1,7 @@
 #ifndef __ENGINE_HPP__
 #define __ENGINE_HPP__
 
+#include <BaseSystem.hpp>
 #include <BombSystem.hpp>
 #include <Direction.hpp>
 #include <FloodSystem.hpp>
@@ -69,6 +70,14 @@ public:
 
     SPDLOG_INFO( "Engine Initiliasing: " );
     bootstrap();
+
+    // Subscribe to NPC creation/death events
+    std::ignore = Sys::BaseSystem::getEventDispatcher()
+                      .sink<Events::NpcCreationEvent>()
+                      .connect<&Sys::NpcSystem::on_npc_creation>( m_npc_sys );
+    std::ignore = Sys::BaseSystem::getEventDispatcher()
+                      .sink<Events::NpcDeathEvent>()
+                      .connect<&Sys::NpcSystem::on_npc_death>( m_npc_sys );
     // Cmp::Random::seed(123456789); // testing purposes
   }
 
@@ -121,10 +130,10 @@ public:
           m_player_sys.update( deltaTime );
           process_action_queue();
           m_flood_sys.update();
-          m_bomb_sys.update( m_npc_sys );
+          m_bomb_sys.update();
           m_collision_sys.check_end_zone_collision();
           m_collision_sys.check_loot_collision();
-          m_collision_sys.check_bones_reanimation( m_npc_sys );
+          m_collision_sys.check_bones_reanimation();
           m_collision_sys.check_player_to_npc_collision();
           m_collision_sys.update_obstacle_distances();
 
@@ -196,6 +205,10 @@ public:
         }
         }
       } // gamestate_view end
+
+      // Update event dispatcher at end of frame
+      Sys::BaseSystem::getEventDispatcher().update();
+
     } /// MAIN LOOP ENDS
     return false;
   }

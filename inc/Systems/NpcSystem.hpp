@@ -1,7 +1,10 @@
 #ifndef __SYS_NPCSYSTEM_HPP__
 #define __SYS_NPCSYSTEM_HPP__
 
+#include <BaseSystem.hpp>
 #include <Direction.hpp>
+#include <Events/NpcCreationEvent.hpp>
+#include <Events/NpcDeathEvent.hpp>
 #include <LerpPosition.hpp>
 #include <Movement.hpp>
 #include <NPC.hpp>
@@ -9,14 +12,15 @@
 #include <Position.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <entt/entity/registry.hpp>
+#include <entt/signal/dispatcher.hpp>
 #include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
 
-class NpcSystem
+class NpcSystem : public BaseSystem
 {
 public:
-  NpcSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : m_reg( reg ) {}
+  NpcSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : BaseSystem( reg ) {}
 
   void add_npc_entity( sf::Vector2f position )
   {
@@ -65,8 +69,16 @@ public:
     }
   }
 
-private:
-  std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
+  void on_npc_death( const Events::NpcDeathEvent &event )
+  {
+    SPDLOG_INFO( "NPC Death Event received" );
+    remove_npc_entity( event.npc_entity );
+  }
+  void on_npc_creation( const Events::NpcCreationEvent &event )
+  {
+    SPDLOG_INFO( "NPC Creation Event received" );
+    add_npc_entity( event.position );
+  }
 };
 
 } // namespace ProceduralMaze::Sys
