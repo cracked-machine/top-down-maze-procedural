@@ -2,13 +2,11 @@
 #define __COMPONENTS_RANDOM_HPP__
 
 #include <Base.hpp>
-#include <algorithm>
-#include <cstddef>
 #include <random>
 
 namespace ProceduralMaze::Cmp {
 
-class Random : public Cmp::Base
+class Random
 {
 public:
   // set the rng range
