@@ -15,6 +15,7 @@
 #include <Components/WaterLevel.hpp>
 #include <NPCScanBounds.hpp>
 #include <PCDetectionBounds.hpp>
+#include <PlayerSystem.hpp>
 #include <Sprites/BasicSprite.hpp>
 #include <Sprites/FloodWaterShader.hpp>
 #include <Sprites/MultiSprite.hpp>
@@ -173,12 +174,14 @@ public:
     // main render end
   }
 
-  void render_settings()
+  // Display the widgets for various fields in SettingsSystem
+  void render_settings( PlayerSystem &m_settings_sys )
   {
     // settings render begin
 
     ImGui::Begin( "Settings" );
-    ImGui::Button( "Look at this pretty button" );
+    ImGui::InputInt( "Bomb Inventory", &m_settings_sys.m_player_settings.bomb_inventory );
+    ImGui::InputInt( "Blast Radius", &m_settings_sys.m_player_settings.blast_radius );
     ImGui::End();
     m_window->clear();
     {

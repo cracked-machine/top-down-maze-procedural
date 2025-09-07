@@ -19,6 +19,15 @@ public:
   {
   }
 
+  struct Settings
+  {
+    int bomb_inventory{ 10 };
+    int blast_radius{ 1 };
+  };
+
+  PlayerSystem::Settings m_player_settings;
+
+  // These arguments should be fetched from SettingsSystem
   void add_player_entity()
   {
     if ( not m_reg->view<Cmp::PlayableCharacter>()->empty() )
@@ -29,7 +38,11 @@ public:
     SPDLOG_INFO( "Creating player entity" );
     auto entity = m_reg->create();
     m_reg->emplace<Cmp::Position>( entity, PLAYER_START_POS );
-    m_reg->emplace<Cmp::PlayableCharacter>( entity );
+
+    m_reg->emplace<Cmp::PlayableCharacter>(
+        entity, m_player_settings.bomb_inventory, m_player_settings.blast_radius
+    );
+
     m_reg->emplace<Cmp::Movement>( entity );
     m_reg->emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
     m_reg->emplace<Cmp::PCDetectionBounds>(

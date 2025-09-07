@@ -1,6 +1,7 @@
 #ifndef __COMPONENTS_PLAYABLECHARACTER_HPP__
 #define __COMPONENTS_PLAYABLECHARACTER_HPP__
 
+#include <Base.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -10,10 +11,15 @@
 
 namespace ProceduralMaze::Cmp {
 
-// player concept
+// See PlayerSystem.hpp for initilization values
 class PlayableCharacter
 {
 public:
+  // 0 is no bombs, -1 is infinite bombs
+  int bomb_inventory{};
+  // blast radius for bomb explosions
+  int blast_radius{};
+
   // the source of all truthiness
   bool alive{ true };
   // player health, zero means game over, man!
@@ -26,10 +32,6 @@ public:
   sf::Time m_bombdeploydelay{ sf::seconds( 0.5 ) };
   // prevent placing more than one bomb at a time
   bool has_active_bomb{ false };
-  // 0 is no bombs, -1 is infinite bombs
-  int bomb_inventory{ 10 };
-  // blast radius for bomb explosions
-  int blast_radius{ 1 };
 };
 
 } // namespace ProceduralMaze::Cmp
