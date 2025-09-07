@@ -16,7 +16,6 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <imgui-SFML.h>
 
 #include <WaterLevel.hpp>
 #include <entt/entity/registry.hpp>
@@ -69,7 +68,15 @@ public:
   bool run()
   {
     sf::Clock deltaClock;
-    std::ignore = ImGui::SFML::Init( m_render_sys->window() );
+    // ImGuiIO &io = ImGui::GetIO();
+    // io.Fonts->AddFontDefault(); // Keep default
+    // ImFont *bigFont = io.Fonts->AddFontFromFileTTF( "res/tuffy.ttf", 24.0f ); // 24px font
+    // auto init_result = ImGui::SFML::Init( m_render_sys->window() );
+    // SPDLOG_INFO( " ImGui-SFML Init result: {}", init_result );
+    // auto update_font_result =
+    //     ImGui::SFML::UpdateFontTexture(); // Important: Update font texture after adding new
+    // //     fonts
+    // SPDLOG_INFO( " ImGui-SFML UpdateFontTexture result: {}", update_font_result );
 
     /// MAIN LOOP BEGINS
     while ( m_render_sys->window().isOpen() )

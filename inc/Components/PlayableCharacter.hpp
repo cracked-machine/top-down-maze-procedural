@@ -29,7 +29,7 @@ public:
   // prevent bomb spamming
   sf::Clock m_bombdeploycooldowntimer;
   // prevent bomb spamming
-  sf::Time m_bombdeploydelay{ sf::seconds( 0.5 ) };
+  const sf::Time m_bombdeploydelay{ sf::seconds( 0.5 ) };
   // prevent placing more than one bomb at a time
   bool has_active_bomb{ false };
 };

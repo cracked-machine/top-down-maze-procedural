@@ -23,6 +23,12 @@ public:
   {
     int bomb_inventory{ 10 };
     int blast_radius{ 1 };
+    // Maximum speed in pixels per second
+    float max_speed{ 100.f };
+    // Base friction coefficient when colliding
+    float friction_coefficient{ 0.02f };
+    // How quickly friction decreases with speed (0-1)
+    float friction_falloff{ 0.5f };
   };
 
   PlayerSystem::Settings m_player_settings;
@@ -43,7 +49,10 @@ public:
         entity, m_player_settings.bomb_inventory, m_player_settings.blast_radius
     );
 
-    m_reg->emplace<Cmp::Movement>( entity );
+    m_reg->emplace<Cmp::Movement>(
+        entity, m_player_settings.max_speed, m_player_settings.friction_coefficient,
+        m_player_settings.friction_falloff
+    );
     m_reg->emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
     m_reg->emplace<Cmp::PCDetectionBounds>(
         entity, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE },

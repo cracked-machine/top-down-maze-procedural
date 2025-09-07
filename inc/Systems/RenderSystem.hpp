@@ -31,8 +31,9 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
-
 #include <SFML/System/Vector2.hpp>
+#include <imgui-SFML.h>
+
 #include <entt/entity/fwd.hpp>
 
 #include <exception>
@@ -70,75 +71,18 @@ public:
     );
     m_minimap_view.setViewport( sf::FloatRect( { 0.75f, 0.f }, { 0.25f, 0.25f } ) );
 
-    // we should ensure these MultiSprites are initialized before continuing
-    if ( not m_rock_ms )
-    {
-      SPDLOG_CRITICAL( "Unable to get ROCK multisprite from SpriteFactory" );
-      std::get_terminate();
-    }
-    if ( not m_pot_ms )
-    {
-      SPDLOG_CRITICAL( "Unable to get POT multisprite from SpriteFactory" );
-      std::get_terminate();
-    }
-    if ( not m_bone_ms )
-    {
-      SPDLOG_CRITICAL( "Unable to get BONE multisprite from SpriteFactory" );
-      std::get_terminate();
-    }
-    if ( not m_player_ms )
-    {
-      SPDLOG_CRITICAL( "Unable to get PLAYER multisprite from SpriteFactory" );
-      std::get_terminate();
-    }
-    if ( not m_bomb_ms )
-    {
-      SPDLOG_CRITICAL( "Unable to get BOMB multisprite from SpriteFactory" );
-      std::get_terminate();
-    }
-    if ( not m_detonation_ms )
-    {
-      SPDLOG_CRITICAL( "Unable to get DETONATION multisprite from SpriteFactory" );
-      std::get_terminate();
-    }
-    if ( not m_wall_ms )
-    {
-      SPDLOG_CRITICAL( "Unable to get WALL multisprite from SpriteFactory" );
-      std::get_terminate();
-    }
-    if ( not m_npc_ms )
-    {
-      SPDLOG_CRITICAL( "Unable to get NPC multisprite from SpriteFactory" );
-      std::get_terminate();
-    }
+    void check_sprites_loaded();
 
-    if ( not m_extra_health_ms )
+    if ( not ImGui::SFML::Init( *m_window ) )
     {
-      SPDLOG_CRITICAL( "Unable to get EXTRA_HEALTH multisprite from SpriteFactory" );
+      SPDLOG_CRITICAL( "ImGui-SFML initialization failed" );
       std::get_terminate();
     }
-    if ( not m_extra_bombs_ms )
-    {
-      SPDLOG_CRITICAL( "Unable to get EXTRA_BOMBS multisprite from SpriteFactory" );
-      std::get_terminate();
-    }
-    if ( not m_infinite_bombs_ms )
-    {
-      SPDLOG_CRITICAL( "Unable to get INFINI_BOMBS multisprite from SpriteFactory" );
-      std::get_terminate();
-    }
-    if ( not m_chain_bombs_ms )
-    {
-      SPDLOG_CRITICAL( "Unable to get CHAIN_BOMBS multisprite from SpriteFactory" );
-      std::get_terminate();
-    }
-    if ( not m_lower_water_ms )
-    {
-      SPDLOG_CRITICAL( "Unable to get LOWER_WATER multisprite from SpriteFactory" );
-      std::get_terminate();
-    }
+    ImGuiIO &io = ImGui::GetIO();
+    io.FontGlobalScale = 1.5f;
+    io.IniFilename = "res/imgui.ini"; // store settings in the res folder
+    std::ignore = ImGui::SFML::UpdateFontTexture();
 
-    // initWaterShader();
     SPDLOG_INFO( "RenderSystem initialisation finished" );
   }
 
@@ -174,25 +118,40 @@ public:
     // main render end
   }
 
-  // Display the widgets for various fields in SettingsSystem
+  // Display the widgets for various settings.  See the comments below for details
   void render_settings( PlayerSystem &m_settings_sys )
   {
     // settings render begin
-
-    ImGui::Begin( "Settings" );
+    ImGui::Begin(
+        "Settings", nullptr, ImGuiWindowFlags_NoTitleBar
+        // | ImGuiWindowFlags_NoResize
+        // | ImGuiWindowFlags_NoMove
+    );
+    // See PlayerSystem::Settings for details of which Components these are set
     ImGui::InputInt( "Bomb Inventory", &m_settings_sys.m_player_settings.bomb_inventory );
-    ImGui::InputInt( "Blast Radius", &m_settings_sys.m_player_settings.blast_radius );
+    ImGui::SliderInt( "Blast Radius", &m_settings_sys.m_player_settings.blast_radius, 1, 3 );
+    ImGui::InputFloat(
+        "Max Speed", &m_settings_sys.m_player_settings.max_speed, 1.0f, 10.0f, "%.1f pixels/second"
+    );
+    ImGui::SliderFloat(
+        "Friction Coefficient", &m_settings_sys.m_player_settings.friction_coefficient, 0.01f, 1.f,
+        "%.2f"
+    );
+    ImGui::SliderFloat(
+        "Friction Falloff", &m_settings_sys.m_player_settings.friction_falloff, 0.01f, 1.f, "%.2f"
+    );
     ImGui::End();
+
     m_window->clear();
     {
-      sf::Text title_text( m_font, "Settings", 96 );
+      sf::Text title_text( m_font, "Settings", 64 );
       title_text.setFillColor( sf::Color::White );
-      title_text.setPosition( { DISPLAY_SIZE.x / 4.f, 100.f } );
+      title_text.setPosition( { 100.f, 50.f } );
       m_window->draw( title_text );
 
-      sf::Text start_text( m_font, "Press <Esc> key to go back", 48 );
+      sf::Text start_text( m_font, "Press <Esc> key to go back", 24 );
       start_text.setFillColor( sf::Color::White );
-      start_text.setPosition( { DISPLAY_SIZE.x / 4.f, 300.f } );
+      start_text.setPosition( { 400.f, 95.f } );
       m_window->draw( start_text );
     }
 
@@ -768,6 +727,77 @@ private:
         { currentCenter.x + ( newX - currentCenter.x ) * smoothFactor,
           currentCenter.y + ( newY - currentCenter.y ) * smoothFactor }
     );
+  }
+
+  void check_sprites_loaded()
+  {
+    // we should ensure these MultiSprites are initialized before continuing
+    if ( not m_rock_ms )
+    {
+      SPDLOG_CRITICAL( "Unable to get ROCK multisprite from SpriteFactory" );
+      std::get_terminate();
+    }
+    if ( not m_pot_ms )
+    {
+      SPDLOG_CRITICAL( "Unable to get POT multisprite from SpriteFactory" );
+      std::get_terminate();
+    }
+    if ( not m_bone_ms )
+    {
+      SPDLOG_CRITICAL( "Unable to get BONE multisprite from SpriteFactory" );
+      std::get_terminate();
+    }
+    if ( not m_player_ms )
+    {
+      SPDLOG_CRITICAL( "Unable to get PLAYER multisprite from SpriteFactory" );
+      std::get_terminate();
+    }
+    if ( not m_bomb_ms )
+    {
+      SPDLOG_CRITICAL( "Unable to get BOMB multisprite from SpriteFactory" );
+      std::get_terminate();
+    }
+    if ( not m_detonation_ms )
+    {
+      SPDLOG_CRITICAL( "Unable to get DETONATION multisprite from SpriteFactory" );
+      std::get_terminate();
+    }
+    if ( not m_wall_ms )
+    {
+      SPDLOG_CRITICAL( "Unable to get WALL multisprite from SpriteFactory" );
+      std::get_terminate();
+    }
+    if ( not m_npc_ms )
+    {
+      SPDLOG_CRITICAL( "Unable to get NPC multisprite from SpriteFactory" );
+      std::get_terminate();
+    }
+
+    if ( not m_extra_health_ms )
+    {
+      SPDLOG_CRITICAL( "Unable to get EXTRA_HEALTH multisprite from SpriteFactory" );
+      std::get_terminate();
+    }
+    if ( not m_extra_bombs_ms )
+    {
+      SPDLOG_CRITICAL( "Unable to get EXTRA_BOMBS multisprite from SpriteFactory" );
+      std::get_terminate();
+    }
+    if ( not m_infinite_bombs_ms )
+    {
+      SPDLOG_CRITICAL( "Unable to get INFINI_BOMBS multisprite from SpriteFactory" );
+      std::get_terminate();
+    }
+    if ( not m_chain_bombs_ms )
+    {
+      SPDLOG_CRITICAL( "Unable to get CHAIN_BOMBS multisprite from SpriteFactory" );
+      std::get_terminate();
+    }
+    if ( not m_lower_water_ms )
+    {
+      SPDLOG_CRITICAL( "Unable to get LOWER_WATER multisprite from SpriteFactory" );
+      std::get_terminate();
+    }
   }
 
   ////// Overlay Functions

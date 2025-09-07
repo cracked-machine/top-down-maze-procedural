@@ -8,16 +8,20 @@ namespace Cmp {
 
 struct Movement
 {
+  // Maximum speed in pixels per second
+  float max_speed{};
+  // Base friction coefficient when colliding
+  float friction_coefficient{};
+  // How quickly friction decreases with speed (0-1)
+  float friction_falloff{};
+
   // Change in velocity = acceleration * dt.
   // Change in position = velocity * dt.
   sf::Vector2f velocity{ 0.0f, 0.0f };
   sf::Vector2f acceleration{ 0.0f, 0.0f };
-  float max_speed = 100.0f;                            // Maximum speed in pixels per second
   float acceleration_rate = DEFAULT_ACCELERATION_RATE; // Acceleration in pixels per second squared
   float deceleration_rate = DEFAULT_DECELERATION_RATE; // Deceleration when no input in pixels per
                                                        // second squared
-  float friction_coefficient = 0.02f;                  // Base friction coefficient when colliding
-  float friction_falloff = 0.5f;                  // How quickly friction decreases with speed (0-1)
   float min_velocity = 1.f;                       // Minimum velocity before stopping completely
   bool is_colliding = false;                      // Flag to track if entity is currently colliding
   const float DEFAULT_ACCELERATION_RATE = 500.0f; // Default acceleration rate
