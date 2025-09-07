@@ -74,7 +74,7 @@ public:
     );
   }
 
-  const sf::Vector2u DISPLAY_SIZE{ 1920, 1024 };
+  constexpr static const sf::Vector2u DISPLAY_SIZE{ 1920, 1024 };
 
   // MAP_GRID_OFFSET and MAP_GRID_SIZE are in blocks, not pixels
   const sf::Vector2f MAP_GRID_OFFSET{ 10.f, 1.f };

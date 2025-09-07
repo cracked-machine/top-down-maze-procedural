@@ -32,13 +32,7 @@ namespace ProceduralMaze::Sys {
 class BombSystem : public BaseSystem
 {
 public:
-  BombSystem(
-      std::shared_ptr<entt::basic_registry<entt::entity>> reg,
-      std::shared_ptr<Sprites::SpriteFactory> sprite_factory
-  )
-      : BaseSystem( reg ), m_sprite_factory( sprite_factory )
-  {
-  }
+  BombSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : BaseSystem( reg ) {}
 
   void suspend()
   {
@@ -214,8 +208,9 @@ public:
         // add loot to any broken pot neighbour entities
         if ( _obstacle_cmp.m_type == Sprites::SpriteFactory::Type::POT )
         {
+          auto &sprite_factory = m_reg->ctx().get<std::shared_ptr<Sprites::SpriteFactory>>();
           auto random_selected_loot_metadata =
-              m_sprite_factory->get_random_metadata( std::vector<Sprites::SpriteFactory::Type>{
+              sprite_factory->get_random_metadata( std::vector<Sprites::SpriteFactory::Type>{
                   Sprites::SpriteFactory::Type::EXTRA_HEALTH,
                   Sprites::SpriteFactory::Type::EXTRA_BOMBS,
                   Sprites::SpriteFactory::Type::INFINI_BOMBS,
@@ -267,8 +262,6 @@ public:
   }
 
 private:
-  std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory;
-
   int player_damage = 10; // Amount of damage to deal to the player when hit by explosion
   const sf::Vector2f max_explosion_zone_size{
       Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x * 3.f,

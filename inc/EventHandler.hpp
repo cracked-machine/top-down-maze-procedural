@@ -281,7 +281,6 @@ public:
     }
   }
 
-  entt::reactive_mixin<entt::storage<void>> m_gamestate_updates;
   std::queue<GameActions> m_action_queue{};
 
 private:

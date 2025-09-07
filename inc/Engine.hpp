@@ -9,6 +9,8 @@
 #include <PathFindSystem.hpp>
 #include <PlayerSystem.hpp>
 #include <ProcGen/RandomLevelGenerator.hpp>
+#include <RenderGameSystem.hpp>
+#include <RenderMenuSystem.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Graphics.hpp>
@@ -51,13 +53,18 @@ namespace ProceduralMaze {
 class Engine
 {
 public:
-  Engine()
+  explicit Engine( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
+      : m_reg( std::move( registry ) ),
+        m_sprite_factory( std::make_shared<Sprites::SpriteFactory>() ), m_player_sys( m_reg ),
+        m_flood_sys( m_reg ), m_path_find_sys( m_reg ), m_npc_sys( m_reg ),
+        m_collision_sys( m_reg ), m_render_game_sys( m_reg ), m_render_menu_sys( m_reg ),
+        m_bomb_sys( m_reg ), m_event_handler( m_reg )
   {
 
-    m_render_sys.window().setFramerateLimit( 144 );
+    m_render_game_sys.window().setFramerateLimit( 144 );
 
 #ifdef _WIN32
-    ::ShowWindow( m_render_sys.window().getNativeHandle(), SW_MAXIMIZE );
+    ::ShowWindow( m_render_game_sys.window().getNativeHandle(), SW_MAXIMIZE );
 #endif
 
     SPDLOG_INFO( "Engine Initiliasing: " );
@@ -70,10 +77,10 @@ public:
     sf::Clock deltaClock;
 
     /// MAIN LOOP BEGINS
-    while ( m_render_sys.window().isOpen() )
+    while ( m_render_game_sys.window().isOpen() )
     {
       sf::Time deltaTime = deltaClock.restart();
-      ImGui::SFML::Update( m_render_sys.window(), deltaTime );
+      ImGui::SFML::Update( m_render_game_sys.window(), deltaTime );
 
       auto gamestate_view = m_reg->view<Cmp::GameState>();
       for ( auto [entity, game_state] : gamestate_view.each() )
@@ -82,14 +89,14 @@ public:
         {
         case Cmp::GameState::State::MENU: {
 
-          m_render_sys.render_menu();
-          m_event_handler.menu_state_handler( m_render_sys.window() );
+          m_render_menu_sys.render_menu();
+          m_event_handler.menu_state_handler( m_render_game_sys.window() );
           break;
         } // case MENU end
 
         case Cmp::GameState::State::SETTINGS: {
-          m_render_sys.render_settings( m_player_sys, m_flood_sys );
-          m_event_handler.settings_state_handler( m_render_sys.window() );
+          m_render_menu_sys.render_settings( m_player_sys, m_flood_sys );
+          m_event_handler.settings_state_handler( m_render_game_sys.window() );
           break;
         } // case SETTINGS end
 
@@ -109,7 +116,7 @@ public:
         }
 
         case Cmp::GameState::State::PLAYING: {
-          m_event_handler.game_state_handler( m_render_sys.window() );
+          m_event_handler.game_state_handler( m_render_game_sys.window() );
 
           m_player_sys.update( deltaTime );
           process_action_queue();
@@ -122,7 +129,7 @@ public:
           m_collision_sys.update_obstacle_distances();
 
           auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
-          for ( auto [_ent, _sys] : m_system_updates.view<Cmp::System>().each() )
+          for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
           {
             if ( _sys.collisions_enabled ) m_collision_sys.check_collision();
             if ( _sys.level_complete )
@@ -141,7 +148,7 @@ public:
             if ( not _pc.alive ) { game_state.current_state = Cmp::GameState::State::GAMEOVER; }
           }
 
-          m_render_sys.render_game();
+          m_render_game_sys.render_game();
           break;
         } // case PLAYING end
 
@@ -150,15 +157,15 @@ public:
           m_collision_sys.suspend();
           m_bomb_sys.suspend();
 
-          // m_event_handler.paused_state_handler(m_render_sys.m_window);
+          // m_event_handler.paused_state_handler(m_render_game_sys.m_window);
 
           while ( ( Cmp::GameState::State::PAUSED == game_state.current_state ) and
-                  m_render_sys.window().isOpen() )
+                  m_render_game_sys.window().isOpen() )
           {
-            m_render_sys.render_paused();
+            m_render_menu_sys.render_paused();
             std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
             // check for keyboard/window events to keep window responsive
-            m_event_handler.paused_state_handler( m_render_sys.window() );
+            m_event_handler.paused_state_handler( m_render_game_sys.window() );
           }
 
           m_flood_sys.resume();
@@ -171,11 +178,11 @@ public:
         case Cmp::GameState::State::GAMEOVER: {
           for ( auto [_, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
           {
-            if ( not _pc.alive ) { m_render_sys.render_defeat_screen(); }
-            else { m_render_sys.render_victory_screen(); }
+            if ( not _pc.alive ) { m_render_menu_sys.render_defeat_screen(); }
+            else { m_render_menu_sys.render_victory_screen(); }
           }
           std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
-          m_event_handler.game_over_state_handler( m_render_sys.window() );
+          m_event_handler.game_over_state_handler( m_render_game_sys.window() );
 
           break;
         } // case GAME_OVER end
@@ -184,7 +191,7 @@ public:
           SPDLOG_INFO( "Terminating Game...." );
 
           teardown();
-          m_render_sys.window().close();
+          m_render_game_sys.window().close();
           std::terminate();
         }
         }
@@ -194,25 +201,24 @@ public:
   }
 
 private:
-  // ECS Registry
-  std::shared_ptr<entt::basic_registry<entt::entity>> m_reg =
-      std::make_shared<entt::basic_registry<entt::entity>>( entt::basic_registry<entt::entity>{} );
+  // ECS registry
+  std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
+
+  // creates and manages MultiSprite resources
+  std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory;
 
   //  ECS Systems
-  Sys::PlayerSystem m_player_sys{ m_reg };
-  Sys::FloodSystem m_flood_sys{ m_reg };
-  Sys::PathFindSystem m_path_find_sys{ m_reg };
-  Sys::NpcSystem m_npc_sys{ m_reg };
-  Sys::CollisionSystem m_collision_sys{ m_reg };
-  Sys::RenderSystem m_render_sys{ m_reg };
-  Sys::BombSystem m_bomb_sys{ m_reg, m_render_sys.m_sprite_factory };
+  Sys::PlayerSystem m_player_sys;
+  Sys::FloodSystem m_flood_sys;
+  Sys::PathFindSystem m_path_find_sys;
+  Sys::NpcSystem m_npc_sys;
+  Sys::CollisionSystem m_collision_sys;
+  Sys::RenderGameSystem m_render_game_sys;
+  Sys::RenderMenuSystem m_render_menu_sys;
+  Sys::BombSystem m_bomb_sys;
 
   // SFML keyboard/mouse event handler
   ProceduralMaze::InputEventHandler m_event_handler{ m_reg };
-
-  // pool for System component updates from the registry
-  entt::reactive_mixin<entt::storage<void>> m_system_updates;
-  entt::reactive_mixin<entt::storage<void>> m_gamestate_updates;
 
   void process_action_queue()
   {
@@ -228,46 +234,17 @@ private:
   // sets up ECS just enough to let the statemachine work
   void bootstrap()
   {
-    // Register this Engine's pool for GameState component updates
-    m_gamestate_updates.bind( *m_reg );
-    m_gamestate_updates.on_update<Cmp::GameState>().on_construct<Cmp::GameState>();
-
-    // Register the EventHandler's pool for GameState component updates
-    m_event_handler.m_gamestate_updates.bind( *m_reg );
-    m_event_handler.m_gamestate_updates.on_update<Cmp::GameState>().on_construct<Cmp::GameState>();
-
     add_game_state_entity();
+    // we must have a sprite factory in the registry context
+    // before it can be used by other systems that need it
+    m_reg->ctx().emplace<std::shared_ptr<Sprites::SpriteFactory>>( m_sprite_factory );
+    m_render_game_sys.load_multisprites();
   }
 
   // Sets up ECS for the rest of the game
   void setup()
   {
     reginfo( "Pre-setup" );
-    // 1. Register reactive storage containers to the registry
-
-    // ENGINE
-    //
-    // Register this Engine's pool for System comnponent updates
-    m_system_updates.bind( *m_reg );
-    m_system_updates.on_update<Cmp::System>().on_construct<Cmp::System>();
-
-    // RENDERSYSTEM
-    //
-    // Register the RenderSystem's pool for System comnponent updates
-    m_render_sys.m_system_updates.bind( *m_reg );
-    m_render_sys.m_system_updates.on_update<Cmp::System>().on_construct<Cmp::System>();
-
-    // Register the RenderSystem's pool for Position comnponent updates
-    // basically every entity...
-    m_render_sys.m_position_updates.bind( *m_reg );
-    m_render_sys.m_position_updates.on_update<Cmp::Position>().on_construct<Cmp::Position>();
-
-    m_render_sys.m_flood_updates.bind( *m_reg );
-    m_render_sys.m_flood_updates.on_update<Cmp::WaterLevel>().on_construct<Cmp::WaterLevel>();
-
-    // Register the RenderSystem's pool for Obstacle comnponent updates
-    m_render_sys.m_position_updates.bind( *m_reg );
-    m_render_sys.m_position_updates.on_update<Cmp::Obstacle>().on_construct<Cmp::Obstacle>();
 
     // 2. setup new entities and generate the level
     add_system_entity();
@@ -277,9 +254,7 @@ private:
 
     // create initial random game area with the required sprites
     std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level =
-        std::make_unique<Sys::ProcGen::RandomLevelGenerator>(
-            m_reg, m_render_sys.m_sprite_factory
-        );
+        std::make_unique<Sys::ProcGen::RandomLevelGenerator>( m_reg );
 
     // procedurally generate the game area from the initial random layout
     Sys::ProcGen::CellAutomataSystem cellauto_parser{ m_reg, std::move( random_level ) };
@@ -300,19 +275,6 @@ private:
     reginfo( "Pre-teardown" );
 
     m_event_handler.m_action_queue = {};
-
-    m_system_updates.clear();
-    m_system_updates.reset();
-    m_gamestate_updates.clear();
-    m_gamestate_updates.reset();
-    m_event_handler.m_gamestate_updates.clear();
-    m_event_handler.m_gamestate_updates.reset();
-    m_render_sys.m_system_updates.clear();
-    m_render_sys.m_system_updates.reset();
-    m_render_sys.m_position_updates.clear();
-    m_render_sys.m_position_updates.reset();
-    m_render_sys.m_flood_updates.clear();
-    m_render_sys.m_flood_updates.reset();
 
     m_reg->clear();
     reginfo( "Post-teardown" );

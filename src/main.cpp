@@ -21,6 +21,7 @@ int main()
 
   SPDLOG_INFO( "Init" );
 
-  ProceduralMaze::Engine engine;
+  auto registry = std::make_shared<entt::basic_registry<entt::entity>>();
+  ProceduralMaze::Engine engine( registry );
   engine.run();
 }
