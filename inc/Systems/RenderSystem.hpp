@@ -13,6 +13,7 @@
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
 #include <Components/WaterLevel.hpp>
+#include <FloodSystem.hpp>
 #include <NPCScanBounds.hpp>
 #include <PCDetectionBounds.hpp>
 #include <PlayerSystem.hpp>
@@ -119,7 +120,7 @@ public:
   }
 
   // Display the widgets for various settings.  See the comments below for details
-  void render_settings( PlayerSystem &m_settings_sys )
+  void render_settings( PlayerSystem &m_settings_sys, FloodSystem &m_flood_sys )
   {
     // settings render begin
     ImGui::Begin(
@@ -139,6 +140,30 @@ public:
     );
     ImGui::SliderFloat(
         "Friction Falloff", &m_settings_sys.m_player_settings.friction_falloff, 0.01f, 1.f, "%.2f"
+    );
+    ImGui::SliderFloat(
+        "Above Water Acceleration Rate",
+        &m_settings_sys.m_player_settings.above_water_default_acceleration_rate, 100.f, 1000.f,
+        "%.1f pixels/second²"
+    );
+    ImGui::SliderFloat(
+        "Above Water Deceleration Rate",
+        &m_settings_sys.m_player_settings.above_water_default_deceleration_rate, 100.f, 1000.f,
+        "%.1f pixels/second²"
+    );
+    ImGui::SliderFloat(
+        "Under Water Acceleration Rate",
+        &m_settings_sys.m_player_settings.under_water_default_acceleration_rate, 50.f, 500.f,
+        "%.1f pixels/second²"
+    );
+    ImGui::SliderFloat(
+        "Under Water Deceleration Rate",
+        &m_settings_sys.m_player_settings.under_water_default_deceleration_rate, 50.f, 500.f,
+        "%.1f pixels/second²"
+    );
+    ImGui::Separator();
+    ImGui::SliderFloat(
+        "Flood Velocity", &m_flood_sys.flood_velocity(), 1.f, 10.f, "%.1f pixels/second"
     );
     ImGui::End();
 

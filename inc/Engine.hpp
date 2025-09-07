@@ -68,15 +68,6 @@ public:
   bool run()
   {
     sf::Clock deltaClock;
-    // ImGuiIO &io = ImGui::GetIO();
-    // io.Fonts->AddFontDefault(); // Keep default
-    // ImFont *bigFont = io.Fonts->AddFontFromFileTTF( "res/tuffy.ttf", 24.0f ); // 24px font
-    // auto init_result = ImGui::SFML::Init( m_render_sys->window() );
-    // SPDLOG_INFO( " ImGui-SFML Init result: {}", init_result );
-    // auto update_font_result =
-    //     ImGui::SFML::UpdateFontTexture(); // Important: Update font texture after adding new
-    // //     fonts
-    // SPDLOG_INFO( " ImGui-SFML UpdateFontTexture result: {}", update_font_result );
 
     /// MAIN LOOP BEGINS
     while ( m_render_sys->window().isOpen() )
@@ -97,7 +88,7 @@ public:
         } // case MENU end
 
         case Cmp::GameState::State::SETTINGS: {
-          m_render_sys->render_settings( m_player_sys );
+          m_render_sys->render_settings( m_player_sys, m_flood_sys );
           m_event_handler.settings_state_handler( m_render_sys->window() );
           break;
         } // case SETTINGS end
@@ -122,7 +113,7 @@ public:
 
           m_player_sys.update( deltaTime );
           process_action_queue();
-          m_flood_sys->update();
+          m_flood_sys.update();
           m_bomb_sys->update();
           m_collision_sys->check_end_zone_collision();
           m_collision_sys->check_loot_collision();
@@ -155,7 +146,7 @@ public:
         } // case PLAYING end
 
         case Cmp::GameState::State::PAUSED: {
-          m_flood_sys->suspend();
+          m_flood_sys.suspend();
           m_collision_sys->suspend();
           m_bomb_sys->suspend();
 
@@ -170,7 +161,7 @@ public:
             m_event_handler.paused_state_handler( m_render_sys->window() );
           }
 
-          m_flood_sys->resume();
+          m_flood_sys.resume();
           m_collision_sys->resume();
           m_bomb_sys->resume();
 
@@ -209,6 +200,8 @@ private:
 
   //  ECS Systems
   Sys::PlayerSystem m_player_sys{ m_reg };
+  Sys::FloodSystem m_flood_sys{ m_reg };
+
   std::shared_ptr<Sys::NpcSystem> m_npc_sys = std::make_shared<Sys::NpcSystem>( m_reg );
   std::shared_ptr<Sys::PathFindSystem> m_path_find_sys =
       std::make_shared<Sys::PathFindSystem>( m_reg );
@@ -216,7 +209,6 @@ private:
       std::make_unique<Sys::CollisionSystem>( m_reg, m_npc_sys );
   std::unique_ptr<Sys::RenderSystem> m_render_sys =
       std::make_unique<Sys::RenderSystem>( m_reg, m_path_find_sys );
-  std::unique_ptr<Sys::FloodSystem> m_flood_sys = std::make_unique<Sys::FloodSystem>( m_reg, 4.f );
   std::unique_ptr<Sys::BombSystem> m_bomb_sys =
       std::make_unique<Sys::BombSystem>( m_reg, m_render_sys->m_sprite_factory, m_npc_sys );
 
@@ -285,7 +277,7 @@ private:
     // 2. setup new entities and generate the level
     add_system_entity();
     m_player_sys.add_player_entity();
-    m_flood_sys->add_flood_water_entity();
+    m_flood_sys.add_flood_water_entity();
     add_display_size( sf::Vector2u{ 1920, 1024 } );
 
     // create initial random game area with the required sprites

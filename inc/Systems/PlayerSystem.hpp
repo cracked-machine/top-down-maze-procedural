@@ -29,6 +29,14 @@ public:
     float friction_coefficient{ 0.02f };
     // How quickly friction decreases with speed (0-1)
     float friction_falloff{ 0.5f };
+    // Above Water acceleration rate
+    float above_water_default_acceleration_rate{ 500.0f };
+    // Above Water deceleration rate
+    float above_water_default_deceleration_rate{ 600.0f };
+    // Under Water acceleration rate
+    float under_water_default_acceleration_rate{ 250.0f };
+    // Under Water deceleration rate
+    float under_water_default_deceleration_rate{ 90.0f };
   };
 
   PlayerSystem::Settings m_player_settings;
@@ -51,7 +59,10 @@ public:
 
     m_reg->emplace<Cmp::Movement>(
         entity, m_player_settings.max_speed, m_player_settings.friction_coefficient,
-        m_player_settings.friction_falloff
+        m_player_settings.friction_falloff, m_player_settings.above_water_default_acceleration_rate,
+        m_player_settings.above_water_default_deceleration_rate,
+        m_player_settings.under_water_default_acceleration_rate,
+        m_player_settings.under_water_default_deceleration_rate
     );
     m_reg->emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
     m_reg->emplace<Cmp::PCDetectionBounds>(
