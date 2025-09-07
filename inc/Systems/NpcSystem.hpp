@@ -71,12 +71,12 @@ public:
 
   void on_npc_death( const Events::NpcDeathEvent &event )
   {
-    SPDLOG_INFO( "NPC Death Event received" );
+    SPDLOG_DEBUG( "NPC Death Event received" );
     remove_npc_entity( event.npc_entity );
   }
   void on_npc_creation( const Events::NpcCreationEvent &event )
   {
-    SPDLOG_INFO( "NPC Creation Event received" );
+    SPDLOG_DEBUG( "NPC Creation Event received" );
     add_npc_entity( event.position );
   }
 };
