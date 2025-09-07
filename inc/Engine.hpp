@@ -132,7 +132,7 @@ public:
             }
           }
 
-          m_path_find_sys->findPath( player_entity );
+          m_path_find_sys.findPath( player_entity );
           m_npc_sys->lerp_movement( deltaTime );
 
           // did the player drown? Then end the game
@@ -201,14 +201,12 @@ private:
   //  ECS Systems
   Sys::PlayerSystem m_player_sys{ m_reg };
   Sys::FloodSystem m_flood_sys{ m_reg };
+  Sys::PathFindSystem m_path_find_sys{ m_reg };
 
   std::shared_ptr<Sys::NpcSystem> m_npc_sys = std::make_shared<Sys::NpcSystem>( m_reg );
-  std::shared_ptr<Sys::PathFindSystem> m_path_find_sys =
-      std::make_shared<Sys::PathFindSystem>( m_reg );
   std::unique_ptr<Sys::CollisionSystem> m_collision_sys =
       std::make_unique<Sys::CollisionSystem>( m_reg, m_npc_sys );
-  std::unique_ptr<Sys::RenderSystem> m_render_sys =
-      std::make_unique<Sys::RenderSystem>( m_reg, m_path_find_sys );
+  std::unique_ptr<Sys::RenderSystem> m_render_sys = std::make_unique<Sys::RenderSystem>( m_reg );
   std::unique_ptr<Sys::BombSystem> m_bomb_sys =
       std::make_unique<Sys::BombSystem>( m_reg, m_render_sys->m_sprite_factory, m_npc_sys );
 

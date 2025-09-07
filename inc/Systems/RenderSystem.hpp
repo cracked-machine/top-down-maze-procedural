@@ -51,11 +51,7 @@ namespace ProceduralMaze::Sys {
 class RenderSystem : public BaseSystem
 {
 public:
-  RenderSystem(
-      std::shared_ptr<entt::basic_registry<entt::entity>> reg,
-      std::shared_ptr<Sys::PathFindSystem> path_find_sys
-  )
-      : BaseSystem( reg ), m_path_find_sys( path_find_sys )
+  RenderSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : BaseSystem( reg )
   {
 
     SPDLOG_INFO( "RenderSystem initialisation starting..." );
@@ -961,8 +957,6 @@ private:
       std::make_unique<sf::RenderWindow>( sf::VideoMode( DISPLAY_SIZE ), "ProceduralMaze" );
 
   Sprites::FloodWaterShader m_water_shader{ "res/FloodWater2.glsl", DISPLAY_SIZE };
-  // path finding system handle
-  std::shared_ptr<Sys::PathFindSystem> m_path_find_sys;
 
   // cached multi sprite objects created by SpriteFactory
   std::optional<Sprites::MultiSprite> m_rock_ms =
