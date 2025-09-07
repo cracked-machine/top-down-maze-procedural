@@ -114,10 +114,10 @@ public:
           m_player_sys.update( deltaTime );
           process_action_queue();
           m_flood_sys.update();
-          m_bomb_sys->update();
+          m_bomb_sys->update( m_npc_sys );
           m_collision_sys->check_end_zone_collision();
           m_collision_sys->check_loot_collision();
-          m_collision_sys->check_bones_reanimation();
+          m_collision_sys->check_bones_reanimation( m_npc_sys );
           m_collision_sys->check_player_to_npc_collision();
           m_collision_sys->update_obstacle_distances();
 
@@ -133,7 +133,7 @@ public:
           }
 
           m_path_find_sys.findPath( player_entity );
-          m_npc_sys->lerp_movement( deltaTime );
+          m_npc_sys.lerp_movement( deltaTime );
 
           // did the player drown? Then end the game
           for ( auto [_, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
@@ -202,13 +202,13 @@ private:
   Sys::PlayerSystem m_player_sys{ m_reg };
   Sys::FloodSystem m_flood_sys{ m_reg };
   Sys::PathFindSystem m_path_find_sys{ m_reg };
+  Sys::NpcSystem m_npc_sys{ m_reg };
 
-  std::shared_ptr<Sys::NpcSystem> m_npc_sys = std::make_shared<Sys::NpcSystem>( m_reg );
   std::unique_ptr<Sys::CollisionSystem> m_collision_sys =
-      std::make_unique<Sys::CollisionSystem>( m_reg, m_npc_sys );
+      std::make_unique<Sys::CollisionSystem>( m_reg );
   std::unique_ptr<Sys::RenderSystem> m_render_sys = std::make_unique<Sys::RenderSystem>( m_reg );
   std::unique_ptr<Sys::BombSystem> m_bomb_sys =
-      std::make_unique<Sys::BombSystem>( m_reg, m_render_sys->m_sprite_factory, m_npc_sys );
+      std::make_unique<Sys::BombSystem>( m_reg, m_render_sys->m_sprite_factory );
 
   // SFML keyboard/mouse event handler
   ProceduralMaze::InputEventHandler m_event_handler{ m_reg };

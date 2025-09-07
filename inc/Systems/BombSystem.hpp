@@ -34,10 +34,9 @@ class BombSystem : public BaseSystem
 public:
   BombSystem(
       std::shared_ptr<entt::basic_registry<entt::entity>> reg,
-      std::shared_ptr<Sprites::SpriteFactory> sprite_factory,
-      std::shared_ptr<Sys::NpcSystem> npc_system
+      std::shared_ptr<Sprites::SpriteFactory> sprite_factory
   )
-      : BaseSystem( reg ), m_sprite_factory( sprite_factory ), m_npc_sys( npc_system )
+      : BaseSystem( reg ), m_sprite_factory( sprite_factory )
   {
   }
 
@@ -199,7 +198,7 @@ public:
     }
   }
 
-  void update()
+  void update( Sys::NpcSystem &npc_sys )
   {
     auto armed_view = m_reg->view<Cmp::Armed, Cmp::Obstacle, Cmp::Neighbours, Cmp::Position>();
     for ( auto [_entt, _armed_cmp, _obstacle_cmp, _neighbours_cmp, _ob_pos_comp] :
@@ -251,7 +250,8 @@ public:
         if ( npc_bounding_box.findIntersection( obstacle_explosion_zone ) )
         {
           // kill npc
-          m_npc_sys->remove_npc_entity( npc_entt );
+          // TODO use event here to callback to NpcSystem to remove npc?
+          npc_sys.remove_npc_entity( npc_entt );
         }
       }
 
@@ -268,7 +268,6 @@ public:
 
 private:
   std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory;
-  std::shared_ptr<Sys::NpcSystem> m_npc_sys;
 
   int player_damage = 10; // Amount of damage to deal to the player when hit by explosion
   const sf::Vector2f max_explosion_zone_size{

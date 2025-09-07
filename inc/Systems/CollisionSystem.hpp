@@ -45,13 +45,7 @@ namespace ProceduralMaze::Sys {
 class CollisionSystem : public BaseSystem
 {
 public:
-  CollisionSystem(
-      std::shared_ptr<entt::basic_registry<entt::entity>> reg,
-      std::shared_ptr<Sys::NpcSystem> npc_system
-  )
-      : BaseSystem( reg ), m_npc_sys( npc_system )
-  {
-  }
+  CollisionSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : BaseSystem( reg ) {}
 
   ~CollisionSystem() = default;
 
@@ -78,7 +72,7 @@ public:
     }
   }
 
-  void check_bones_reanimation()
+  void check_bones_reanimation( Sys::NpcSystem &npc_sys )
   {
     auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
     auto obstacle_collision_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
@@ -103,7 +97,8 @@ public:
               _obstacle_entt, Sprites::SpriteFactory::Type::BONES, 0, false, false
           );
           // create a new NPC entity and put an NPC there
-          m_npc_sys->add_npc_entity( _obstacle_pos );
+          // TODO use event here to callback to NpcSystem to add npc?
+          npc_sys.add_npc_entity( _obstacle_pos );
         }
       }
     }
@@ -431,7 +426,6 @@ public:
   }
 
 private:
-  std::shared_ptr<Sys::NpcSystem> m_npc_sys;
   sf::FloatRect m_end_zone{ { DISPLAY_SIZE.x * 1.f, 0 }, { 500.f, DISPLAY_SIZE.y * 1.f } };
 };
 
