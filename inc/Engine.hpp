@@ -78,6 +78,10 @@ public:
     std::ignore = Sys::BaseSystem::getEventDispatcher()
                       .sink<Events::NpcDeathEvent>()
                       .connect<&Sys::NpcSystem::on_npc_death>( m_npc_sys );
+    std::ignore = Sys::BaseSystem::getEventDispatcher()
+                      .sink<Events::PlayerActionEvent>()
+                      .connect<&Sys::BombSystem::on_player_action>( m_bomb_sys );
+
     // Cmp::Random::seed(123456789); // testing purposes
   }
 
@@ -128,7 +132,6 @@ public:
           m_event_handler.game_state_handler( m_render_game_sys.window() );
 
           m_player_sys.update( deltaTime );
-          process_action_queue();
           m_flood_sys.update();
           m_bomb_sys.update();
           m_collision_sys.check_end_zone_collision();
@@ -165,8 +168,6 @@ public:
           m_flood_sys.suspend();
           m_collision_sys.suspend();
           m_bomb_sys.suspend();
-
-          // m_event_handler.paused_state_handler(m_render_game_sys.m_window);
 
           while ( ( Cmp::GameState::State::PAUSED == game_state.current_state ) and
                   m_render_game_sys.window().isOpen() )
@@ -233,17 +234,6 @@ private:
   // SFML keyboard/mouse event handler
   ProceduralMaze::InputEventHandler m_event_handler{ m_reg };
 
-  void process_action_queue()
-  {
-    if ( m_event_handler.m_action_queue.empty() ) return;
-
-    if ( m_event_handler.m_action_queue.front() == InputEventHandler::GameActions::DROP_BOMB )
-    {
-      if ( not m_event_handler.m_action_queue.empty() ) m_event_handler.m_action_queue.pop();
-      m_bomb_sys.arm_occupied_location();
-    }
-  }
-
   // sets up ECS just enough to let the statemachine work
   void bootstrap()
   {
@@ -274,7 +264,6 @@ private:
     cellauto_parser.iterate( 5 );
 
     reginfo( "Post-setup" );
-    queueinfo();
   }
 
   // Teardown the engine and clear all event queues.
@@ -286,12 +275,8 @@ private:
   {
     SPDLOG_INFO( "Tearing down...." );
     reginfo( "Pre-teardown" );
-
-    m_event_handler.m_action_queue = {};
-
     m_reg->clear();
     reginfo( "Post-teardown" );
-    queueinfo();
   }
 
   void reginfo( std::string msg = "" )
@@ -302,11 +287,6 @@ private:
       ++entity_count;
     }
     SPDLOG_INFO( "Registry Count - {}: {}", msg, entity_count );
-  }
-
-  void queueinfo()
-  {
-    SPDLOG_INFO( "{} action events pending", m_event_handler.m_action_queue.size() );
   }
 
   void add_display_size( const sf::Vector2u &size )

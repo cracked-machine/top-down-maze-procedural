@@ -10,6 +10,7 @@
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Events/NpcDeathEvent.hpp>
+#include <Events/PlayerActionEvent.hpp>
 #include <NPCScanBounds.hpp>
 #include <NpcSystem.hpp>
 #include <Sprites/SpriteFactory.hpp>
@@ -257,6 +258,16 @@ public:
         m_fuse_sound_player.stop();
       if ( m_detonate_sound_player.getStatus() != sf::Sound::Status::Playing )
         m_detonate_sound_player.play();
+    }
+  }
+
+  /// EVENTS
+  void on_player_action( const Events::PlayerActionEvent &event )
+  {
+    SPDLOG_DEBUG( "Player Action Event received" );
+    if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB )
+    {
+      arm_occupied_location();
     }
   }
 

@@ -1,8 +1,10 @@
 #ifndef __INPUT_EVENT_HANDLER_HPP__
 #define __INPUT_EVENT_HANDLER_HPP__
 
+#include <BaseSystem.hpp>
 #include <Components/System.hpp>
 #include <Direction.hpp>
+#include <Events/PlayerActionEvent.hpp>
 #include <GameState.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -17,19 +19,15 @@
 
 #include <imgui-SFML.h>
 
-#include <queue>
-
 namespace ProceduralMaze {
 
-class InputEventHandler
+class InputEventHandler : public Sys::BaseSystem
 {
 public:
-  InputEventHandler( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : m_reg( reg ) {}
-
-  enum class GameActions
+  InputEventHandler( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+      : Sys::BaseSystem( reg )
   {
-    DROP_BOMB
-  };
+  }
 
   void menu_state_handler( sf::RenderWindow &window )
   {
@@ -218,7 +216,9 @@ public:
 
       if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Space ) )
       {
-        m_action_queue.push( GameActions::DROP_BOMB );
+        getEventDispatcher().trigger(
+            Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB )
+        );
       }
     }
   }
@@ -280,11 +280,6 @@ public:
       }
     }
   }
-
-  std::queue<GameActions> m_action_queue{};
-
-private:
-  std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
 };
 
 } // namespace ProceduralMaze
