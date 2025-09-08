@@ -32,69 +32,62 @@ void RenderMenuSystem::render_menu()
   // main render end
 }
 
-void RenderMenuSystem::render_settings( PlayerSystem &m_settings_sys, FloodSystem &m_flood_sys )
+void RenderMenuSystem::render_settings( PlayerSystem &psys, FloodSystem &fsys, sf::Time deltaTime )
 {
-  // settings render begin
-  ImGui::Begin(
-      "Settings", nullptr, ImGuiWindowFlags_NoTitleBar
-      // | ImGuiWindowFlags_NoResize
-      // | ImGuiWindowFlags_NoMove
-  );
+  getWindow().clear();
+
+  sf::Text title_text( m_font, "Settings", 64 );
+  title_text.setFillColor( sf::Color::White );
+  title_text.setPosition( { 100.f, 50.f } );
+  getWindow().draw( title_text );
+
+  sf::Text start_text( m_font, "Press <Esc> key to go back", 24 );
+  start_text.setFillColor( sf::Color::White );
+  start_text.setPosition( { 400.f, 95.f } );
+  getWindow().draw( start_text );
+
+  // ImGUI should be rendered before window.display() or SFML wipes the display buffer prematurely
+  render_settings_widgets( psys, fsys, deltaTime );
+
+  getWindow().display();
+}
+
+void RenderMenuSystem::render_settings_widgets(
+    PlayerSystem &psys, FloodSystem &fsys, sf::Time deltaTime
+)
+{
+  // need to make sure we call Update() and Render() every frame
+  ImGui::SFML::Update( getWindow(), deltaTime );
+
+  ImGui::Begin( "Settings", nullptr, kImGuiWindowOptions );
   // See PlayerSystem::Settings for details of which Components these are set
-  ImGui::InputInt( "Bomb Inventory", &m_settings_sys.m_player_settings.bomb_inventory );
-  ImGui::SliderInt( "Blast Radius", &m_settings_sys.m_player_settings.blast_radius, 1, 3 );
-  ImGui::InputFloat(
-      "Max Speed", &m_settings_sys.m_player_settings.max_speed, 1.0f, 10.0f, "%.1f pixels/second"
+  ImGui::InputInt( "Bomb Inventory", &psys.m_settings.bomb_inventory );
+  ImGui::SliderInt( "Blast Radius", &psys.m_settings.blast_radius, 1, 3 );
+  ImGui::InputFloat( "Max Speed", &psys.m_settings.max_speed, 1.0f, 10.0f, "%.1f pixels/second" );
+  ImGui::SliderFloat(
+      "Friction Coefficient", &psys.m_settings.friction_coefficient, 0.01f, 1.f, "%.2f"
+  );
+  ImGui::SliderFloat( "Friction Falloff", &psys.m_settings.friction_falloff, 0.01f, 1.f, "%.2f" );
+  ImGui::SliderFloat(
+      "Above Water Acceleration Rate", &psys.m_settings.above_water_default_acceleration_rate,
+      100.f, 1000.f, "%.1f pixels/second²"
   );
   ImGui::SliderFloat(
-      "Friction Coefficient", &m_settings_sys.m_player_settings.friction_coefficient, 0.01f, 1.f,
-      "%.2f"
+      "Above Water Deceleration Rate", &psys.m_settings.above_water_default_deceleration_rate,
+      100.f, 1000.f, "%.1f pixels/second²"
   );
   ImGui::SliderFloat(
-      "Friction Falloff", &m_settings_sys.m_player_settings.friction_falloff, 0.01f, 1.f, "%.2f"
+      "Under Water Acceleration Rate", &psys.m_settings.under_water_default_acceleration_rate, 50.f,
+      500.f, "%.1f pixels/second²"
   );
   ImGui::SliderFloat(
-      "Above Water Acceleration Rate",
-      &m_settings_sys.m_player_settings.above_water_default_acceleration_rate, 100.f, 1000.f,
-      "%.1f pixels/second²"
-  );
-  ImGui::SliderFloat(
-      "Above Water Deceleration Rate",
-      &m_settings_sys.m_player_settings.above_water_default_deceleration_rate, 100.f, 1000.f,
-      "%.1f pixels/second²"
-  );
-  ImGui::SliderFloat(
-      "Under Water Acceleration Rate",
-      &m_settings_sys.m_player_settings.under_water_default_acceleration_rate, 50.f, 500.f,
-      "%.1f pixels/second²"
-  );
-  ImGui::SliderFloat(
-      "Under Water Deceleration Rate",
-      &m_settings_sys.m_player_settings.under_water_default_deceleration_rate, 50.f, 500.f,
-      "%.1f pixels/second²"
+      "Under Water Deceleration Rate", &psys.m_settings.under_water_default_deceleration_rate, 50.f,
+      500.f, "%.1f pixels/second²"
   );
   ImGui::Separator();
-  ImGui::SliderFloat(
-      "Flood Velocity", &m_flood_sys.flood_velocity(), 1.f, 10.f, "%.1f pixels/second"
-  );
+  ImGui::SliderFloat( "Flood Velocity", &fsys.flood_velocity(), 1.f, 10.f, "%.1f pixels/second" );
   ImGui::End();
-
-  getWindow().clear();
-  {
-    sf::Text title_text( m_font, "Settings", 64 );
-    title_text.setFillColor( sf::Color::White );
-    title_text.setPosition( { 100.f, 50.f } );
-    getWindow().draw( title_text );
-
-    sf::Text start_text( m_font, "Press <Esc> key to go back", 24 );
-    start_text.setFillColor( sf::Color::White );
-    start_text.setPosition( { 400.f, 95.f } );
-    getWindow().draw( start_text );
-  }
-
   ImGui::SFML::Render( getWindow() );
-  getWindow().display();
-  // main render end
 }
 
 void RenderMenuSystem::render_paused()

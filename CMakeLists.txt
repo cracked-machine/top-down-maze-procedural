@@ -40,11 +40,13 @@ FetchContent_MakeAvailable(
     imgui-sfml
 )
 
-# Workaround for [-Werror=clobbered] in SPDLog
-# spdlog-src/include/spdlog/logger.h:317:10: error: 
+# ThirdParty Lib warning Supression:
+# 1. spdlog-src/include/spdlog/logger.h:317:10: error: 
 # variable 'args' might be clobbered by 'longjmp' or 'vfork' 
-# 
 target_compile_options(spdlog INTERFACE -Wno-clobbered)
+# 2. flac-src/src/share/win_utf8_io/win_utf8_io.c:132:29: warning: 
+# "cast between incompatible function types from 'FARPROC' to int" 
+target_compile_options(FLAC PRIVATE -Wno-cast-function-type)
 
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

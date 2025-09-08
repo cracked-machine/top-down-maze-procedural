@@ -39,7 +39,7 @@ public:
     float under_water_default_deceleration_rate{ 90.0f };
   };
 
-  PlayerSystem::Settings m_player_settings;
+  PlayerSystem::Settings m_settings;
 
   // These arguments should be fetched from SettingsSystem
   void add_player_entity()
@@ -54,15 +54,15 @@ public:
     m_reg->emplace<Cmp::Position>( entity, PLAYER_START_POS );
 
     m_reg->emplace<Cmp::PlayableCharacter>(
-        entity, m_player_settings.bomb_inventory, m_player_settings.blast_radius
+        entity, m_settings.bomb_inventory, m_settings.blast_radius
     );
 
     m_reg->emplace<Cmp::Movement>(
-        entity, m_player_settings.max_speed, m_player_settings.friction_coefficient,
-        m_player_settings.friction_falloff, m_player_settings.above_water_default_acceleration_rate,
-        m_player_settings.above_water_default_deceleration_rate,
-        m_player_settings.under_water_default_acceleration_rate,
-        m_player_settings.under_water_default_deceleration_rate
+        entity, m_settings.max_speed, m_settings.friction_coefficient, m_settings.friction_falloff,
+        m_settings.above_water_default_acceleration_rate,
+        m_settings.above_water_default_deceleration_rate,
+        m_settings.under_water_default_acceleration_rate,
+        m_settings.under_water_default_deceleration_rate
     );
     m_reg->emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
     m_reg->emplace<Cmp::PCDetectionBounds>(

@@ -93,7 +93,6 @@ public:
     while ( m_render_game_sys.window().isOpen() )
     {
       sf::Time deltaTime = deltaClock.restart();
-      ImGui::SFML::Update( m_render_game_sys.window(), deltaTime );
 
       auto gamestate_view = m_reg->view<Cmp::GameState>();
       for ( auto [entity, game_state] : gamestate_view.each() )
@@ -108,7 +107,7 @@ public:
         } // case MENU end
 
         case Cmp::GameState::State::SETTINGS: {
-          m_render_menu_sys.render_settings( m_player_sys, m_flood_sys );
+          m_render_menu_sys.render_settings( m_player_sys, m_flood_sys, deltaTime );
           m_event_handler.settings_state_handler( m_render_game_sys.window() );
           break;
         } // case SETTINGS end
@@ -237,11 +236,17 @@ private:
   // sets up ECS just enough to let the statemachine work
   void bootstrap()
   {
+    SPDLOG_INFO( "bootstrap - start" );
     add_game_state_entity();
+    SPDLOG_INFO( "bootstrap - game state entity added" );
+
     // we must have a sprite factory in the registry context
     // before it can be used by other systems that need it
     m_reg->ctx().emplace<std::shared_ptr<Sprites::SpriteFactory>>( m_sprite_factory );
+    SPDLOG_INFO( "bootstrap - sprite factory added to context" );
+
     m_render_game_sys.load_multisprites();
+    SPDLOG_INFO( "bootstrap - complete" );
   }
 
   // Sets up ECS for the rest of the game

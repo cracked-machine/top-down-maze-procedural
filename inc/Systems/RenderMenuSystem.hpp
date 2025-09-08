@@ -1,6 +1,7 @@
 #ifndef __SYS_RENDERMENUSYSTEM_HPP__
 #define __SYS_RENDERMENUSYSTEM_HPP__
 
+#include <SFML/System/Time.hpp>
 #include <Systems/RenderSystem.hpp>
 
 namespace ProceduralMaze::Sys {
@@ -15,7 +16,8 @@ public:
   ~RenderMenuSystem() = default;
 
   void render_menu();
-  void render_settings( PlayerSystem &m_settings_sys, FloodSystem &m_flood_sys );
+  void render_settings_widgets( PlayerSystem &psys, FloodSystem &fsys, sf::Time deltaTime );
+  void render_settings( PlayerSystem &psys, FloodSystem &fsys, sf::Time deltaTime );
   void render_paused();
   void render_defeat_screen();
   void render_victory_screen();

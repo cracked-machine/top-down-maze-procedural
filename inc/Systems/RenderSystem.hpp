@@ -40,7 +40,6 @@
 #include <exception>
 #include <imgui.h>
 #include <memory>
-#include <sstream>
 
 #include <imgui-SFML.h>
 
@@ -59,11 +58,13 @@ public:
     if ( not ImGui::SFML::Init( getWindow() ) )
     {
       SPDLOG_CRITICAL( "ImGui-SFML initialization failed" );
-      std::get_terminate();
+      throw std::runtime_error( "ImGui-SFML initialization failed" );
     }
+
+    // Set ImGui style
     ImGuiIO &io = ImGui::GetIO();
     io.FontGlobalScale = 1.5f;
-    io.IniFilename = "res/imgui.ini"; // store settings in the res folder
+    io.IniFilename = "res/imgui.ini";
     std::ignore = ImGui::SFML::UpdateFontTexture();
 
     SPDLOG_INFO( "RenderSystem initialisation finished" );
@@ -78,12 +79,12 @@ protected:
   // Derived class accessor for the static window instance
   static sf::RenderWindow &getWindow()
   {
-    if ( !m_window )
+    if ( !RenderSystem::m_window )
     {
-      m_window =
+      RenderSystem::m_window =
           std::make_unique<sf::RenderWindow>( sf::VideoMode( DISPLAY_SIZE ), "ProceduralMaze" );
     }
-    return *m_window;
+    return *RenderSystem::m_window;
   }
 
   // Font for rendering text
@@ -91,6 +92,11 @@ protected:
 
   bool m_show_path_distances = false;
   bool m_show_armed_obstacles = false;
+
+  const int kImGuiWindowOptions = ImGuiWindowFlags_NoTitleBar
+      // | ImGuiWindowFlags_NoResize
+      // | ImGuiWindowFlags_NoMove
+      ;
 
 private:
   // Static to prevent multiple windows being created
