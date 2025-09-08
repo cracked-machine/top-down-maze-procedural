@@ -182,7 +182,7 @@ public:
       // Arm each entity in the layer in clockwise order
       for ( const auto &[entity, pos] : layer_entities )
       {
-        sf::Color color = sf::Color( 255, 100 + ( sequence_counter * 10 ) % 155, 255, 64 );
+        sf::Color color = sf::Color( 255, 10 + ( sequence_counter * 10 ) % 155, 255, 64 );
 
         m_reg->emplace_or_replace<Cmp::Armed>(
             entity, sf::seconds( base_delay + ( sequence_counter * fuse_delay_increment ) ),
