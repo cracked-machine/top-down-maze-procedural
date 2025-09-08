@@ -13,8 +13,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/RenderOverlaySystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Debug/AssertHandler.cpp
 )
-target_compile_features(${TARGET} PRIVATE cxx_std_20
-)
+
 target_link_libraries(${TARGET} PRIVATE 
     SFML::Graphics 
     SFML::Audio
@@ -41,6 +40,7 @@ target_compile_options(${TARGET} PRIVATE
         -Wall                           # enable all warnings
         -Wextra                         # enable extra warnings
         -ftrivial-auto-var-init=zero    # initialize all automatic variables to zero
+        -Wa,-mbig-obj                   # support large object files (fixes 'file too big' error)
     >
 )
 

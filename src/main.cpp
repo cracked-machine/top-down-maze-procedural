@@ -1,14 +1,9 @@
 #include "Debug/AssertHandler.hpp" // Include this first for custom assertions
 
-#include <SFML/Graphics.hpp>
-#include <SFML/Graphics/CircleShape.hpp>
-
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
-#include <Components/Position.hpp>
-#include <Components/Random.hpp>
-#include <Engine.hpp>
 #include <Logging/BasicLogController.hpp>
-#include <Systems/RenderSystem.hpp>
+
+#include <Engine.hpp>
 
 int main()
 {
