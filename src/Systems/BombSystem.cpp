@@ -1,5 +1,6 @@
 #include <BombSystem.hpp>
 #include <Persistent/ArmedOffDelay.hpp>
+#include <Persistent/BombDamage.hpp>
 
 namespace ProceduralMaze::Sys {
 
@@ -175,8 +176,8 @@ void BombSystem::update()
       auto player_bounding_box = get_hitbox( player_position );
       if ( player_bounding_box.findIntersection( obstacle_explosion_zone ) )
       {
-        auto &player_damage = m_reg->ctx().get<Cmp::Persistent::PlayerDamage>();
-        player.health -= player_damage();
+        auto &bomb_damage = m_reg->ctx().get<Cmp::Persistent::BombDamage>();
+        player.health -= bomb_damage();
         if ( player.health <= 0 ) { player.alive = false; }
       }
       player.has_active_bomb = false;

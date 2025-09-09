@@ -1,6 +1,13 @@
 #include <BombSystem.hpp>
 #include <Persistent/ArmedOnDelay.hpp>
+#include <Persistent/BombBonus.hpp>
+#include <Persistent/BombDamage.hpp>
 #include <Persistent/FuseDelay.hpp>
+#include <Persistent/HealthBonus.hpp>
+#include <Persistent/NpcDamage.hpp>
+#include <Persistent/NpcPushBack.hpp>
+#include <Persistent/ObstaclePushBack.hpp>
+#include <Persistent/WaterBonus.hpp>
 #include <Systems/RenderMenuSystem.hpp>
 #include <imgui.h>
 
@@ -92,8 +99,11 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   ImGui::SliderFloat( "Flood Velocity", &flood_speed(), 1.f, 10.f, "%.1f pixels/second" );
   ImGui::Separator();
 
-  auto &player_damage = m_reg->ctx().get<Cmp::Persistent::PlayerDamage>();
-  ImGui::SliderInt( "Bomb Damage", &player_damage(), 1, 50 );
+  auto &npc_damage = m_reg->ctx().get<Cmp::Persistent::NpcDamage>();
+  ImGui::SliderInt( "NPC Damage", &npc_damage(), 1, 50 );
+
+  auto &bomb_damage = m_reg->ctx().get<Cmp::Persistent::BombDamage>();
+  ImGui::SliderInt( "Bomb Damage", &bomb_damage(), 1, 50 );
 
   auto &fuse_delay = m_reg->ctx().get<Cmp::Persistent::FuseDelay>();
   ImGui::SliderFloat( "Fuse Delay", &fuse_delay(), 1.f, 10.f, "%.1f seconds" );
@@ -108,6 +118,27 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   {
     armed_off_delay() = std::clamp( armed_off_delay(), 0.001f, 0.5f );
   }
+
+  ImGui::Separator();
+
+  auto &health_bonus = m_reg->ctx().get<Cmp::Persistent::HealthBonus>();
+  ImGui::SliderInt( "Health Bonus", &health_bonus(), 1, 50 );
+  auto &bomb_bonus = m_reg->ctx().get<Cmp::Persistent::BombBonus>();
+  ImGui::SliderInt( "Bomb Bonus", &bomb_bonus(), 1, 20 );
+  auto &water_bonus = m_reg->ctx().get<Cmp::Persistent::WaterBonus>();
+  ImGui::SliderFloat( "Water Bonus", &water_bonus(), 10.f, 500.f, "%.1f units" );
+
+  auto &obstacle_push_back = m_reg->ctx().get<Cmp::Persistent::ObstaclePushBack>();
+  if ( ImGui::InputFloat( "Obstacle Push Back Factor", &obstacle_push_back(), 0.1f, 0.1f, "%.2f" ) )
+  {
+    obstacle_push_back() = std::clamp( obstacle_push_back(), 1.0f, 5.0f );
+  }
+  auto &npc_push_back = m_reg->ctx().get<Cmp::Persistent::NpcPushBack>();
+  if ( ImGui::InputFloat( "NPC Push Back Distance", &npc_push_back(), 0.1f, 0.1f, "%.2f pixels" ) )
+  {
+    npc_push_back() = std::clamp( npc_push_back(), 1.0f, 50.0f );
+  }
+
   ImGui::End();
   ImGui::SFML::Render( getWindow() );
 }

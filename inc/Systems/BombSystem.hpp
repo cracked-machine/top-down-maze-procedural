@@ -16,7 +16,7 @@
 #include <NpcSystem.hpp>
 #include <Persistent/ArmedOffDelay.hpp>
 #include <Persistent/ArmedOnDelay.hpp>
-#include <Persistent/PlayerDamage.hpp>
+#include <Persistent/BombDamage.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -43,10 +43,10 @@ public:
   // Create context variables by Cmp::Persistent type (if they don't already exist)
   void init_context()
   {
-    if ( m_reg->view<Cmp::Persistent::FuseDelay>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::FuseDelay>(); }
-    if ( m_reg->view<Cmp::Persistent::PlayerDamage>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::PlayerDamage>(); }
-    if ( m_reg->view<Cmp::Persistent::ArmedOffDelay>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::ArmedOffDelay>(); }
-    if ( m_reg->view<Cmp::Persistent::ArmedOnDelay>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::ArmedOnDelay>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::FuseDelay>() ) { m_reg->ctx().emplace<Cmp::Persistent::FuseDelay>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::BombDamage>() ) { m_reg->ctx().emplace<Cmp::Persistent::BombDamage>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::ArmedOffDelay>() ) { m_reg->ctx().emplace<Cmp::Persistent::ArmedOffDelay>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::ArmedOnDelay>() ) { m_reg->ctx().emplace<Cmp::Persistent::ArmedOnDelay>(); }
   }
 
   void suspend();

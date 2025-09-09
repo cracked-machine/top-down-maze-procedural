@@ -235,6 +235,8 @@ private:
     m_bomb_sys.init_context();
     m_player_sys.init_context();
     m_flood_sys.init_context();
+    m_collision_sys.init_context();
+    
 
     // we must have a sprite factory in the registry context
     // before it can be used by other systems that need it

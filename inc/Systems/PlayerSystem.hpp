@@ -25,17 +25,18 @@ class PlayerSystem : public BaseSystem
 public:
   PlayerSystem( std::shared_ptr<entt::basic_registry<entt::entity>> registry ) : BaseSystem( registry ) {}
 
+  // Create context variables by Cmp::Persistent type (if they don't already exist)
   void init_context()
   {
-    if ( m_reg->view<Cmp::Persistent::BombInventory>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::BombInventory>(); }
-    if ( m_reg->view<Cmp::Persistent::BlastRadius>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::BlastRadius>(); }
-    if ( m_reg->view<Cmp::Persistent::PlayerMaxSpeed>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::PlayerMaxSpeed>(); }
-    if ( m_reg->view<Cmp::Persistent::FrictionCoefficient>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::FrictionCoefficient>(); }
-    if ( m_reg->view<Cmp::Persistent::FrictionFalloff>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::FrictionFalloff>(); }
-    if ( m_reg->view<Cmp::Persistent::LandAcceleration>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::LandAcceleration>(); }
-    if ( m_reg->view<Cmp::Persistent::LandDeceleration>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::LandDeceleration>(); }
-    if ( m_reg->view<Cmp::Persistent::WaterAcceleration>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::WaterAcceleration>(); }
-    if ( m_reg->view<Cmp::Persistent::WaterDeceleration>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::WaterDeceleration>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::BombInventory>() ) { m_reg->ctx().emplace<Cmp::Persistent::BombInventory>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::BlastRadius>() ) { m_reg->ctx().emplace<Cmp::Persistent::BlastRadius>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::PlayerMaxSpeed>() ) { m_reg->ctx().emplace<Cmp::Persistent::PlayerMaxSpeed>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::FrictionCoefficient>() ) { m_reg->ctx().emplace<Cmp::Persistent::FrictionCoefficient>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::FrictionFalloff>() ) { m_reg->ctx().emplace<Cmp::Persistent::FrictionFalloff>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::LandAcceleration>() ) { m_reg->ctx().emplace<Cmp::Persistent::LandAcceleration>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::LandDeceleration>() ) { m_reg->ctx().emplace<Cmp::Persistent::LandDeceleration>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::WaterAcceleration>() ) { m_reg->ctx().emplace<Cmp::Persistent::WaterAcceleration>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::WaterDeceleration>() ) { m_reg->ctx().emplace<Cmp::Persistent::WaterDeceleration>(); }
   }
 
   // These arguments should be fetched from SettingsSystem

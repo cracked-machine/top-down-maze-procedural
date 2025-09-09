@@ -32,9 +32,9 @@ public:
 
   ~FloodSystem() = default;
 
+  // Create context variables by Cmp::Persistent type (if they don't already exist)
   void init_context()
   {
-    // add flood settings to registry context if not already present
     if ( not m_reg->ctx().contains<Cmp::Persistent::FloodSpeed>() ) { m_reg->ctx().emplace<Cmp::Persistent::FloodSpeed>(); }
   }
 
