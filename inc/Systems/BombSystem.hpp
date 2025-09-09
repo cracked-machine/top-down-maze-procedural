@@ -47,10 +47,7 @@ public:
   void on_player_action( const Events::PlayerActionEvent &event )
   {
     SPDLOG_DEBUG( "Player Action Event received" );
-    if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB )
-    {
-      arm_occupied_location();
-    }
+    if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB ) { arm_occupied_location(); }
   }
 
 private:
@@ -58,13 +55,12 @@ private:
   {
     float base_fuse_delay = 3.0f;
     float armed_detonation_delay_increment = 0.025f;
-    float armed_warning_delay_increment = 0.75f;
+    float armed_warning_delay_increment = 0.075f;
     int player_damage = 10; // Amount of damage to deal to the player when hit by explosion
   };
 
   const sf::Vector2f max_explosion_zone_size{
-      Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x * 3.f,
-      Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y * 3.f
+      Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x * 3.f, Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y * 3.f
   };
 
   sf::SoundBuffer m_fuse_sound_buffer{ "res/audio/fuse.wav" };
