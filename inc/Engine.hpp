@@ -100,7 +100,7 @@ public:
         } // case MENU end
 
         case Cmp::GameState::State::SETTINGS: {
-          m_render_menu_sys.render_settings( m_flood_sys, deltaTime );
+          m_render_menu_sys.render_settings( deltaTime );
           m_event_handler.settings_state_handler( m_render_game_sys.window() );
           break;
         } // case SETTINGS end
@@ -234,6 +234,7 @@ private:
 
     m_bomb_sys.init_context();
     m_player_sys.init_context();
+    m_flood_sys.init_context();
 
     // we must have a sprite factory in the registry context
     // before it can be used by other systems that need it

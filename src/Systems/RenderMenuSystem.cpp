@@ -36,7 +36,7 @@ void RenderMenuSystem::render_menu()
   // main render end
 }
 
-void RenderMenuSystem::render_settings( FloodSystem &fsys, sf::Time deltaTime )
+void RenderMenuSystem::render_settings( sf::Time deltaTime )
 {
   getWindow().clear();
 
@@ -51,12 +51,12 @@ void RenderMenuSystem::render_settings( FloodSystem &fsys, sf::Time deltaTime )
   getWindow().draw( start_text );
 
   // ImGUI should be rendered before window.display() or SFML wipes the display buffer prematurely
-  render_settings_widgets( fsys, deltaTime );
+  render_settings_widgets( deltaTime );
 
   getWindow().display();
 }
 
-void RenderMenuSystem::render_settings_widgets( FloodSystem &fsys, sf::Time deltaTime )
+void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
 {
   // need to make sure we call Update() and Render() every frame
   ImGui::SFML::Update( getWindow(), deltaTime );
@@ -88,7 +88,8 @@ void RenderMenuSystem::render_settings_widgets( FloodSystem &fsys, sf::Time delt
   auto &water_deceleration = m_reg->ctx().get<Cmp::Persistent::WaterDeceleration>();
   ImGui::SliderFloat( "Under Water Deceleration Rate", &water_deceleration(), 50.f, 500.f, "%.1f pixels/second²" );
   ImGui::Separator();
-  ImGui::SliderFloat( "Flood Velocity", &fsys.flood_velocity(), 1.f, 10.f, "%.1f pixels/second" );
+  auto &flood_speed = m_reg->ctx().get<Cmp::Persistent::FloodSpeed>();
+  ImGui::SliderFloat( "Flood Velocity", &flood_speed(), 1.f, 10.f, "%.1f pixels/second" );
   ImGui::Separator();
 
   auto &player_damage = m_reg->ctx().get<Cmp::Persistent::PlayerDamage>();
