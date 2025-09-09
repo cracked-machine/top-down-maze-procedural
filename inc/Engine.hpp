@@ -8,6 +8,7 @@
 #include <GameState.hpp>
 #include <NpcSystem.hpp>
 #include <PathFindSystem.hpp>
+#include <Persistent/FuseDelay.hpp>
 #include <PlayerSystem.hpp>
 #include <ProcGen/RandomLevelGenerator.hpp>
 #include <RenderGameSystem.hpp>
@@ -55,10 +56,8 @@ class Engine
 {
 public:
   explicit Engine( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
-      : m_reg( std::move( registry ) ),
-        m_sprite_factory( std::make_shared<Sprites::SpriteFactory>() ), m_player_sys( m_reg ),
-        m_flood_sys( m_reg ), m_path_find_sys( m_reg ), m_npc_sys( m_reg ),
-        m_collision_sys( m_reg ), m_render_game_sys( m_reg ), m_render_menu_sys( m_reg ),
+      : m_reg( std::move( registry ) ), m_sprite_factory( std::make_shared<Sprites::SpriteFactory>() ), m_player_sys( m_reg ), m_flood_sys( m_reg ),
+        m_path_find_sys( m_reg ), m_npc_sys( m_reg ), m_collision_sys( m_reg ), m_render_game_sys( m_reg ), m_render_menu_sys( m_reg ),
         m_bomb_sys( m_reg ), m_event_handler( m_reg )
   {
 
@@ -72,15 +71,9 @@ public:
     bootstrap();
 
     // Subscribe to NPC creation/death events
-    std::ignore = Sys::BaseSystem::getEventDispatcher()
-                      .sink<Events::NpcCreationEvent>()
-                      .connect<&Sys::NpcSystem::on_npc_creation>( m_npc_sys );
-    std::ignore = Sys::BaseSystem::getEventDispatcher()
-                      .sink<Events::NpcDeathEvent>()
-                      .connect<&Sys::NpcSystem::on_npc_death>( m_npc_sys );
-    std::ignore = Sys::BaseSystem::getEventDispatcher()
-                      .sink<Events::PlayerActionEvent>()
-                      .connect<&Sys::BombSystem::on_player_action>( m_bomb_sys );
+    std::ignore = Sys::BaseSystem::getEventDispatcher().sink<Events::NpcCreationEvent>().connect<&Sys::NpcSystem::on_npc_creation>( m_npc_sys );
+    std::ignore = Sys::BaseSystem::getEventDispatcher().sink<Events::NpcDeathEvent>().connect<&Sys::NpcSystem::on_npc_death>( m_npc_sys );
+    std::ignore = Sys::BaseSystem::getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>( m_bomb_sys );
 
     // Cmp::Random::seed(123456789); // testing purposes
   }
@@ -107,7 +100,7 @@ public:
         } // case MENU end
 
         case Cmp::GameState::State::SETTINGS: {
-          m_render_menu_sys.render_settings( m_player_sys, m_flood_sys, m_bomb_sys, deltaTime );
+          m_render_menu_sys.render_settings( m_player_sys, m_flood_sys, deltaTime );
           m_event_handler.settings_state_handler( m_render_game_sys.window() );
           break;
         } // case SETTINGS end
@@ -168,8 +161,7 @@ public:
           m_collision_sys.suspend();
           m_bomb_sys.suspend();
 
-          while ( ( Cmp::GameState::State::PAUSED == game_state.current_state ) and
-                  m_render_game_sys.window().isOpen() )
+          while ( ( Cmp::GameState::State::PAUSED == game_state.current_state ) and m_render_game_sys.window().isOpen() )
           {
             m_render_menu_sys.render_paused();
             std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
@@ -240,6 +232,8 @@ private:
     add_game_state_entity();
     SPDLOG_INFO( "bootstrap - game state entity added" );
 
+    m_bomb_sys.init_context();
+
     // we must have a sprite factory in the registry context
     // before it can be used by other systems that need it
     m_reg->ctx().emplace<std::shared_ptr<Sprites::SpriteFactory>>( m_sprite_factory );
@@ -261,8 +255,7 @@ private:
     add_display_size( sf::Vector2u{ 1920, 1024 } );
 
     // create initial random game area with the required sprites
-    std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level =
-        std::make_unique<Sys::ProcGen::RandomLevelGenerator>( m_reg );
+    std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>( m_reg );
 
     // procedurally generate the game area from the initial random layout
     Sys::ProcGen::CellAutomataSystem cellauto_parser{ m_reg, std::move( random_level ) };
@@ -271,11 +264,7 @@ private:
     reginfo( "Post-setup" );
   }
 
-  // Teardown the engine and clear all event queues.
-  // It clears all reactive storage, resets their connection to the registry
-  // and finally clears the registry.
-  // If you need to restart the game, you should call bootstrap() immediately
-  // after calling this function.
+  // Teardown the engine
   void teardown()
   {
     SPDLOG_INFO( "Tearing down...." );

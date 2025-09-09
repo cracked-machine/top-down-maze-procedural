@@ -1,4 +1,6 @@
 #include <BombSystem.hpp>
+#include <Persistent/ArmedOnDelay.hpp>
+#include <Persistent/FuseDelay.hpp>
 #include <Systems/RenderMenuSystem.hpp>
 #include <imgui.h>
 
@@ -34,7 +36,7 @@ void RenderMenuSystem::render_menu()
   // main render end
 }
 
-void RenderMenuSystem::render_settings( PlayerSystem &psys, FloodSystem &fsys, BombSystem &bsys, sf::Time deltaTime )
+void RenderMenuSystem::render_settings( PlayerSystem &psys, FloodSystem &fsys, sf::Time deltaTime )
 {
   getWindow().clear();
 
@@ -49,12 +51,12 @@ void RenderMenuSystem::render_settings( PlayerSystem &psys, FloodSystem &fsys, B
   getWindow().draw( start_text );
 
   // ImGUI should be rendered before window.display() or SFML wipes the display buffer prematurely
-  render_settings_widgets( psys, fsys, bsys, deltaTime );
+  render_settings_widgets( psys, fsys, deltaTime );
 
   getWindow().display();
 }
 
-void RenderMenuSystem::render_settings_widgets( PlayerSystem &psys, FloodSystem &fsys, BombSystem &bsys, sf::Time deltaTime )
+void RenderMenuSystem::render_settings_widgets( PlayerSystem &psys, FloodSystem &fsys, sf::Time deltaTime )
 {
   // need to make sure we call Update() and Render() every frame
   ImGui::SFML::Update( getWindow(), deltaTime );
@@ -79,15 +81,22 @@ void RenderMenuSystem::render_settings_widgets( PlayerSystem &psys, FloodSystem 
   ImGui::Separator();
   ImGui::SliderFloat( "Flood Velocity", &fsys.flood_velocity(), 1.f, 10.f, "%.1f pixels/second" );
   ImGui::Separator();
-  ImGui::SliderInt( "Bomb Damage", &bsys.m_settings.player_damage, 1, 50 );
-  ImGui::SliderFloat( "Fuse Delay", &bsys.m_settings.base_fuse_delay, 1.f, 10.f, "%.1f seconds" );
-  if ( ImGui::InputFloat( "Armed Detonation Delay Increment", &bsys.m_settings.armed_detonation_delay_increment, 0.001f, 0.001f ) )
+
+  auto &player_damage = m_reg->ctx().get<Cmp::Persistent::PlayerDamage>();
+  ImGui::SliderInt( "Bomb Damage", &player_damage(), 1, 50 );
+
+  auto &fuse_delay = m_reg->ctx().get<Cmp::Persistent::FuseDelay>();
+  ImGui::SliderFloat( "Fuse Delay", &fuse_delay(), 1.f, 10.f, "%.1f seconds" );
+
+  auto &armed_on_delay = m_reg->ctx().get<Cmp::Persistent::ArmedOnDelay>();
+  if ( ImGui::InputFloat( "Armed Detonation Delay Increment", &armed_on_delay(), 0.001f, 0.001f ) )
   {
-    bsys.m_settings.armed_detonation_delay_increment = std::clamp( bsys.m_settings.armed_detonation_delay_increment, 0.001f, 0.5f );
+    armed_on_delay() = std::clamp( armed_on_delay(), 0.001f, 0.5f );
   }
-  if ( ImGui::InputFloat( "Armed Warning Delay Increment", &bsys.m_settings.armed_warning_delay_increment, 0.001f, 0.001f ) )
+  auto &armed_off_delay = m_reg->ctx().get<Cmp::Persistent::ArmedOffDelay>();
+  if ( ImGui::InputFloat( "Armed Off Delay", &armed_off_delay(), 0.001f, 0.001f ) )
   {
-    bsys.m_settings.armed_warning_delay_increment = std::clamp( bsys.m_settings.armed_warning_delay_increment, 0.001f, 0.5f );
+    armed_off_delay() = std::clamp( armed_off_delay(), 0.001f, 0.5f );
   }
   ImGui::End();
   ImGui::SFML::Render( getWindow() );

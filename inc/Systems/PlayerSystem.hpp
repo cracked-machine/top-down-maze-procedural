@@ -14,10 +14,7 @@ namespace ProceduralMaze::Sys {
 class PlayerSystem : public BaseSystem
 {
 public:
-  PlayerSystem( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
-      : BaseSystem( registry )
-  {
-  }
+  PlayerSystem( std::shared_ptr<entt::basic_registry<entt::entity>> registry ) : BaseSystem( registry ) {}
 
   struct Settings
   {
@@ -44,30 +41,20 @@ public:
   // These arguments should be fetched from SettingsSystem
   void add_player_entity()
   {
-    if ( not m_reg->view<Cmp::PlayableCharacter>()->empty() )
-    {
-      SPDLOG_WARN( "Player entity already exists, skipping creation" );
-      return;
-    }
     SPDLOG_INFO( "Creating player entity" );
     auto entity = m_reg->create();
     m_reg->emplace<Cmp::Position>( entity, PLAYER_START_POS );
 
-    m_reg->emplace<Cmp::PlayableCharacter>(
-        entity, m_settings.bomb_inventory, m_settings.blast_radius
-    );
+    m_reg->emplace<Cmp::PlayableCharacter>( entity, m_settings.bomb_inventory, m_settings.blast_radius );
 
     m_reg->emplace<Cmp::Movement>(
-        entity, m_settings.max_speed, m_settings.friction_coefficient, m_settings.friction_falloff,
-        m_settings.above_water_default_acceleration_rate,
-        m_settings.above_water_default_deceleration_rate,
-        m_settings.under_water_default_acceleration_rate,
+        entity, m_settings.max_speed, m_settings.friction_coefficient, m_settings.friction_falloff, m_settings.above_water_default_acceleration_rate,
+        m_settings.above_water_default_deceleration_rate, m_settings.under_water_default_acceleration_rate,
         m_settings.under_water_default_deceleration_rate
     );
     m_reg->emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
     m_reg->emplace<Cmp::PCDetectionBounds>(
-        entity, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE },
-        sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE }
+        entity, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE }, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE }
     );
   }
 
@@ -76,17 +63,10 @@ public:
     const float dt = deltaTime.asSeconds();
 
     for ( auto [entity, pc_cmp, pos_cmp, move_cmp, dir_cmp, pc_bounds] :
-          m_reg
-              ->view<
-                  Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction,
-                  Cmp::PCDetectionBounds>()
-              .each() )
+          m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction, Cmp::PCDetectionBounds>().each() )
     {
       // Apply acceleration in the desired dir_cmp
-      if ( dir_cmp != sf::Vector2f( 0.0f, 0.0f ) )
-      {
-        move_cmp.acceleration = dir_cmp * move_cmp.acceleration_rate;
-      }
+      if ( dir_cmp != sf::Vector2f( 0.0f, 0.0f ) ) { move_cmp.acceleration = dir_cmp * move_cmp.acceleration_rate; }
       else
       {
         // Apply deceleration when no input

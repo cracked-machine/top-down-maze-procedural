@@ -5,14 +5,18 @@
 #include <Components/Loot.hpp>
 #include <Components/Movement.hpp>
 #include <Components/NPC.hpp>
+#include <Components/NPCScanBounds.hpp>
 #include <Components/Neighbours.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/Persistent/FuseDelay.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Events/NpcDeathEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
-#include <NPCScanBounds.hpp>
 #include <NpcSystem.hpp>
+#include <Persistent/ArmedOffDelay.hpp>
+#include <Persistent/ArmedOnDelay.hpp>
+#include <Persistent/PlayerDamage.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -36,6 +40,15 @@ class BombSystem : public BaseSystem
 public:
   BombSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : BaseSystem( reg ) {}
 
+  // Create context variables by Cmp::Persistent type (if they don't already exist)
+  void init_context()
+  {
+    if ( m_reg->view<Cmp::Persistent::FuseDelay>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::FuseDelay>(); }
+    if ( m_reg->view<Cmp::Persistent::PlayerDamage>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::PlayerDamage>(); }
+    if ( m_reg->view<Cmp::Persistent::ArmedOffDelay>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::ArmedOffDelay>(); }
+    if ( m_reg->view<Cmp::Persistent::ArmedOnDelay>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::ArmedOnDelay>(); }
+  }
+
   void suspend();
   void resume();
 
@@ -51,14 +64,6 @@ public:
   }
 
 private:
-  struct Settings
-  {
-    float base_fuse_delay = 3.0f;
-    float armed_detonation_delay_increment = 0.025f;
-    float armed_warning_delay_increment = 0.075f;
-    int player_damage = 10; // Amount of damage to deal to the player when hit by explosion
-  };
-
   const sf::Vector2f max_explosion_zone_size{
       Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x * 3.f, Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y * 3.f
   };
@@ -67,9 +72,6 @@ private:
   sf::Sound m_fuse_sound_player{ m_fuse_sound_buffer };
   sf::SoundBuffer m_detonate_sound_buffer{ "res/audio/detonate.wav" };
   sf::Sound m_detonate_sound_player{ m_detonate_sound_buffer };
-
-public:
-  BombSystem::Settings m_settings;
 };
 
 } // namespace ProceduralMaze::Sys
