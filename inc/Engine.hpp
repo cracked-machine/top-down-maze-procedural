@@ -107,7 +107,7 @@ public:
         } // case MENU end
 
         case Cmp::GameState::State::SETTINGS: {
-          m_render_menu_sys.render_settings( m_player_sys, m_flood_sys, deltaTime );
+          m_render_menu_sys.render_settings( m_player_sys, m_flood_sys, m_bomb_sys, deltaTime );
           m_event_handler.settings_state_handler( m_render_game_sys.window() );
           break;
         } // case SETTINGS end

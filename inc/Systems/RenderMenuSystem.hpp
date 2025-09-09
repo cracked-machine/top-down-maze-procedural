@@ -1,6 +1,7 @@
 #ifndef __SYS_RENDERMENUSYSTEM_HPP__
 #define __SYS_RENDERMENUSYSTEM_HPP__
 
+#include <BombSystem.hpp>
 #include <SFML/System/Time.hpp>
 #include <Systems/RenderSystem.hpp>
 
@@ -16,8 +17,11 @@ public:
   ~RenderMenuSystem() = default;
 
   void render_menu();
-  void render_settings_widgets( PlayerSystem &psys, FloodSystem &fsys, sf::Time deltaTime );
-  void render_settings( PlayerSystem &psys, FloodSystem &fsys, sf::Time deltaTime );
+  void render_settings_widgets(
+      PlayerSystem &psys, FloodSystem &fsys, BombSystem &bsys, sf::Time deltaTime
+  );
+  void
+  render_settings( PlayerSystem &psys, FloodSystem &fsys, BombSystem &bsys, sf::Time deltaTime );
   void render_paused();
   void render_defeat_screen();
   void render_victory_screen();
