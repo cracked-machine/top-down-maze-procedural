@@ -5,6 +5,15 @@
 #include <Components/Position.hpp>
 #include <Direction.hpp>
 #include <PCDetectionBounds.hpp>
+#include <Persistent/BlastRadius.hpp>
+#include <Persistent/BombInventory.hpp>
+#include <Persistent/FrictionCoefficient.hpp>
+#include <Persistent/FrictionFalloff.hpp>
+#include <Persistent/LandAcceleration.hpp>
+#include <Persistent/LandDeacceleration.hpp>
+#include <Persistent/PlayerMaxSpeed.hpp>
+#include <Persistent/WaterAcceleration.hpp>
+#include <Persistent/WaterDeacceleration.hpp>
 #include <PlayableCharacter.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <entt/entity/registry.hpp>
@@ -16,27 +25,18 @@ class PlayerSystem : public BaseSystem
 public:
   PlayerSystem( std::shared_ptr<entt::basic_registry<entt::entity>> registry ) : BaseSystem( registry ) {}
 
-  struct Settings
+  void init_context()
   {
-    int bomb_inventory{ 10 };
-    int blast_radius{ 1 };
-    // Maximum speed in pixels per second
-    float max_speed{ 100.f };
-    // Base friction coefficient when colliding
-    float friction_coefficient{ 0.02f };
-    // How quickly friction decreases with speed (0-1)
-    float friction_falloff{ 0.5f };
-    // Above Water acceleration rate
-    float above_water_default_acceleration_rate{ 500.0f };
-    // Above Water deceleration rate
-    float above_water_default_deceleration_rate{ 600.0f };
-    // Under Water acceleration rate
-    float under_water_default_acceleration_rate{ 250.0f };
-    // Under Water deceleration rate
-    float under_water_default_deceleration_rate{ 90.0f };
-  };
-
-  PlayerSystem::Settings m_settings;
+    if ( m_reg->view<Cmp::Persistent::BombInventory>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::BombInventory>(); }
+    if ( m_reg->view<Cmp::Persistent::BlastRadius>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::BlastRadius>(); }
+    if ( m_reg->view<Cmp::Persistent::PlayerMaxSpeed>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::PlayerMaxSpeed>(); }
+    if ( m_reg->view<Cmp::Persistent::FrictionCoefficient>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::FrictionCoefficient>(); }
+    if ( m_reg->view<Cmp::Persistent::FrictionFalloff>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::FrictionFalloff>(); }
+    if ( m_reg->view<Cmp::Persistent::LandAcceleration>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::LandAcceleration>(); }
+    if ( m_reg->view<Cmp::Persistent::LandDeceleration>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::LandDeceleration>(); }
+    if ( m_reg->view<Cmp::Persistent::WaterAcceleration>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::WaterAcceleration>(); }
+    if ( m_reg->view<Cmp::Persistent::WaterDeceleration>()->empty() ) { m_reg->ctx().emplace<Cmp::Persistent::WaterDeceleration>(); }
+  }
 
   // These arguments should be fetched from SettingsSystem
   void add_player_entity()
@@ -45,13 +45,23 @@ public:
     auto entity = m_reg->create();
     m_reg->emplace<Cmp::Position>( entity, PLAYER_START_POS );
 
-    m_reg->emplace<Cmp::PlayableCharacter>( entity, m_settings.bomb_inventory, m_settings.blast_radius );
+    auto &bomb_inventory = m_reg->ctx().get<Cmp::Persistent::BombInventory>();
+    auto &blast_radius = m_reg->ctx().get<Cmp::Persistent::BlastRadius>();
+    m_reg->emplace<Cmp::PlayableCharacter>( entity, bomb_inventory(), blast_radius() );
+
+    auto &max_speed = m_reg->ctx().get<Cmp::Persistent::PlayerMaxSpeed>();
+    auto &friction_coefficient = m_reg->ctx().get<Cmp::Persistent::FrictionCoefficient>();
+    auto &friction_falloff = m_reg->ctx().get<Cmp::Persistent::FrictionFalloff>();
+    auto &land_acceleration = m_reg->ctx().get<Cmp::Persistent::LandAcceleration>();
+    auto &land_deceleration = m_reg->ctx().get<Cmp::Persistent::LandDeceleration>();
+    auto &water_acceleration = m_reg->ctx().get<Cmp::Persistent::WaterAcceleration>();
+    auto &water_deceleration = m_reg->ctx().get<Cmp::Persistent::WaterDeceleration>();
 
     m_reg->emplace<Cmp::Movement>(
-        entity, m_settings.max_speed, m_settings.friction_coefficient, m_settings.friction_falloff, m_settings.above_water_default_acceleration_rate,
-        m_settings.above_water_default_deceleration_rate, m_settings.under_water_default_acceleration_rate,
-        m_settings.under_water_default_deceleration_rate
+        entity, max_speed(), friction_coefficient(), friction_falloff(), land_acceleration(), land_deceleration(), water_acceleration(),
+        water_deceleration()
     );
+
     m_reg->emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
     m_reg->emplace<Cmp::PCDetectionBounds>(
         entity, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE }, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE }

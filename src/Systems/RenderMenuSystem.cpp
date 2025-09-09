@@ -36,7 +36,7 @@ void RenderMenuSystem::render_menu()
   // main render end
 }
 
-void RenderMenuSystem::render_settings( PlayerSystem &psys, FloodSystem &fsys, sf::Time deltaTime )
+void RenderMenuSystem::render_settings( FloodSystem &fsys, sf::Time deltaTime )
 {
   getWindow().clear();
 
@@ -51,33 +51,42 @@ void RenderMenuSystem::render_settings( PlayerSystem &psys, FloodSystem &fsys, s
   getWindow().draw( start_text );
 
   // ImGUI should be rendered before window.display() or SFML wipes the display buffer prematurely
-  render_settings_widgets( psys, fsys, deltaTime );
+  render_settings_widgets( fsys, deltaTime );
 
   getWindow().display();
 }
 
-void RenderMenuSystem::render_settings_widgets( PlayerSystem &psys, FloodSystem &fsys, sf::Time deltaTime )
+void RenderMenuSystem::render_settings_widgets( FloodSystem &fsys, sf::Time deltaTime )
 {
   // need to make sure we call Update() and Render() every frame
   ImGui::SFML::Update( getWindow(), deltaTime );
 
   ImGui::Begin( "Settings", nullptr, kImGuiWindowOptions );
   // See PlayerSystem::Settings for details of which Components these are set
-  if ( ImGui::InputInt( "Bomb Inventory", &psys.m_settings.bomb_inventory ) )
-  {
-    psys.m_settings.bomb_inventory = std::clamp( psys.m_settings.bomb_inventory, -1, 100 );
-  }
-  ImGui::SliderInt( "Blast Radius", &psys.m_settings.blast_radius, 1, 3 );
-  if ( ImGui::InputFloat( "Max Speed", &psys.m_settings.max_speed, 1.0f, 10.0f, "%.1f pixels/second" ) )
-  {
-    psys.m_settings.max_speed = std::clamp( psys.m_settings.max_speed, 50.f, 100.f );
-  }
-  ImGui::SliderFloat( "Friction Coefficient", &psys.m_settings.friction_coefficient, 0.01f, 1.f, "%.2f" );
-  ImGui::SliderFloat( "Friction Falloff", &psys.m_settings.friction_falloff, 0.01f, 1.f, "%.2f" );
-  ImGui::SliderFloat( "Above Water Acceleration Rate", &psys.m_settings.above_water_default_acceleration_rate, 100.f, 1000.f, "%.1f pixels/second²" );
-  ImGui::SliderFloat( "Above Water Deceleration Rate", &psys.m_settings.above_water_default_deceleration_rate, 100.f, 1000.f, "%.1f pixels/second²" );
-  ImGui::SliderFloat( "Under Water Acceleration Rate", &psys.m_settings.under_water_default_acceleration_rate, 50.f, 500.f, "%.1f pixels/second²" );
-  ImGui::SliderFloat( "Under Water Deceleration Rate", &psys.m_settings.under_water_default_deceleration_rate, 50.f, 500.f, "%.1f pixels/second²" );
+
+  auto &bomb_inventory = m_reg->ctx().get<Cmp::Persistent::BombInventory>();
+  if ( ImGui::InputInt( "Bomb Inventory", &bomb_inventory() ) ) { bomb_inventory() = std::clamp( bomb_inventory(), -1, 100 ); }
+
+  auto &blast_radius = m_reg->ctx().get<Cmp::Persistent::BlastRadius>();
+  ImGui::SliderInt( "Blast Radius", &blast_radius(), 1, 3 );
+
+  auto &max_speed = m_reg->ctx().get<Cmp::Persistent::PlayerMaxSpeed>();
+  if ( ImGui::InputFloat( "Max Speed", &max_speed(), 1.0f, 10.0f, "%.1f pixels/second" ) ) { max_speed() = std::clamp( max_speed(), 50.f, 100.f ); }
+
+  auto &friction_coefficient = m_reg->ctx().get<Cmp::Persistent::FrictionCoefficient>();
+  ImGui::SliderFloat( "Friction Coefficient", &friction_coefficient(), 0.01f, 1.f, "%.2f" );
+
+  auto &friction_falloff = m_reg->ctx().get<Cmp::Persistent::FrictionFalloff>();
+  ImGui::SliderFloat( "Friction Falloff", &friction_falloff(), 0.01f, 1.f, "%.2f" );
+
+  auto &land_acceleration = m_reg->ctx().get<Cmp::Persistent::LandAcceleration>();
+  ImGui::SliderFloat( "Above Water Acceleration Rate", &land_acceleration(), 100.f, 1000.f, "%.1f pixels/second²" );
+  auto &land_deceleration = m_reg->ctx().get<Cmp::Persistent::LandDeceleration>();
+  ImGui::SliderFloat( "Above Water Deceleration Rate", &land_deceleration(), 100.f, 1000.f, "%.1f pixels/second²" );
+  auto &water_acceleration = m_reg->ctx().get<Cmp::Persistent::WaterAcceleration>();
+  ImGui::SliderFloat( "Under Water Acceleration Rate", &water_acceleration(), 50.f, 500.f, "%.1f pixels/second²" );
+  auto &water_deceleration = m_reg->ctx().get<Cmp::Persistent::WaterDeceleration>();
+  ImGui::SliderFloat( "Under Water Deceleration Rate", &water_deceleration(), 50.f, 500.f, "%.1f pixels/second²" );
   ImGui::Separator();
   ImGui::SliderFloat( "Flood Velocity", &fsys.flood_velocity(), 1.f, 10.f, "%.1f pixels/second" );
   ImGui::Separator();

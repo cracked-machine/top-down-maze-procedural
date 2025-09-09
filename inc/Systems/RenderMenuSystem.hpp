@@ -14,8 +14,8 @@ public:
   ~RenderMenuSystem() = default;
 
   void render_menu();
-  void render_settings_widgets( PlayerSystem &psys, FloodSystem &fsys, sf::Time deltaTime );
-  void render_settings( PlayerSystem &psys, FloodSystem &fsys, sf::Time deltaTime );
+  void render_settings_widgets( FloodSystem &fsys, sf::Time deltaTime );
+  void render_settings( FloodSystem &fsys, sf::Time deltaTime );
   void render_paused();
   void render_defeat_screen();
   void render_victory_screen();
