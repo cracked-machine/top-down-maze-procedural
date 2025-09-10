@@ -1,15 +1,13 @@
 #ifndef __CMP_BLASTRADIUS_HPP__
 #define __CMP_BLASTRADIUS_HPP__
 
+#include <Persistent/BasePersistent.hpp>
 namespace ProceduralMaze::Cmp::Persistent {
 
-class BlastRadius
+class BlastRadius : public BasePersistent<int>
 {
 public:
-  int &operator()() { return blast_radius; }
-
-private:
-  int blast_radius = 1;
+  BlastRadius() : BasePersistent<int>( 1 ) {}
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

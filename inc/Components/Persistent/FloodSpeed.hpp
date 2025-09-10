@@ -1,15 +1,13 @@
 #ifndef __CMP_FLOODSPEED_HPP__
 #define __CMP_FLOODSPEED_HPP__
 
+#include <Persistent/BasePersistent.hpp>
 namespace ProceduralMaze::Cmp::Persistent {
 
-class FloodSpeed
+class FloodSpeed : public BasePersistent<float>
 {
 public:
-  float &operator()() { return speed; }
-
-private:
-  float speed{ 4.f };
+  FloodSpeed() : BasePersistent<float>( 4.f ) {}
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

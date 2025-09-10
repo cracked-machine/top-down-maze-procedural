@@ -1,15 +1,13 @@
 #ifndef __CMP_WATERDEACCELERATION_HPP__
 #define __CMP_WATERDEACCELERATION_HPP__
 
+#include <Persistent/BasePersistent.hpp>
 namespace ProceduralMaze::Cmp::Persistent {
 
-class WaterDeceleration
+class WaterDeceleration : public BasePersistent<float>
 {
 public:
-  float &operator()() { return water_deceleration; }
-
-private:
-  float water_deceleration = 90.0f;
+  WaterDeceleration() : BasePersistent<float>( 90.0f ) {}
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

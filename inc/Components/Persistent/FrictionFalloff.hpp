@@ -1,15 +1,13 @@
 #ifndef __CMP_FRICTIONFALLOFF_HPP__
 #define __CMP_FRICTIONFALLOFF_HPP__
 
+#include <Persistent/BasePersistent.hpp>
 namespace ProceduralMaze::Cmp::Persistent {
 
-class FrictionFalloff
+class FrictionFalloff : public BasePersistent<float>
 {
 public:
-  float &operator()() { return friction_falloff; }
-
-private:
-  float friction_falloff = 0.5f;
+  FrictionFalloff() : BasePersistent<float>( 0.5f ) {}
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

@@ -1,15 +1,13 @@
 #ifndef __CMP_NPCPUSHBACK_HPP__
 #define __CMP_NPCPUSHBACK_HPP__
 
+#include <Persistent/BasePersistent.hpp>
 namespace ProceduralMaze::Cmp::Persistent {
 
-class NpcPushBack
+class NpcPushBack : public BasePersistent<float>
 {
 public:
-  float &operator()() { return value; }
-
-private:
-  float value = 8.0f;
+  NpcPushBack() : BasePersistent<float>( 8.0f ) {}
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

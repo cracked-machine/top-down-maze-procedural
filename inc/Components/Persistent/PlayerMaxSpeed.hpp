@@ -1,15 +1,13 @@
 #ifndef __CMP_PLAYERMAXSPEED_HPP__
 #define __CMP_PLAYERMAXSPEED_HPP__
 
+#include <Persistent/BasePersistent.hpp>
 namespace ProceduralMaze::Cmp::Persistent {
 
-class PlayerMaxSpeed
+class PlayerMaxSpeed : public BasePersistent<float>
 {
 public:
-  float &operator()() { return max_speed; }
-
-private:
-  float max_speed = 100.f;
+  PlayerMaxSpeed() : BasePersistent<float>( 100.f ) {}
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

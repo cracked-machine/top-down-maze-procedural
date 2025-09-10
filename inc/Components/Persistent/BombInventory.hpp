@@ -1,15 +1,13 @@
 #ifndef __CMP_BOMBINVENTORY_HPP__
 #define __CMP_BOMBINVENTORY_HPP__
 
+#include <Persistent/BasePersistent.hpp>
 namespace ProceduralMaze::Cmp::Persistent {
 
-class BombInventory
+class BombInventory : public BasePersistent<int>
 {
 public:
-  int &operator()() { return bomb_count; }
-
-private:
-  int bomb_count = 10;
+  BombInventory() : BasePersistent<int>( 10 ) {}
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

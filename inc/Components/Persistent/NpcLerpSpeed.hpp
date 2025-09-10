@@ -1,15 +1,13 @@
 #ifndef __CMP_NPC_LERP_SPEED_HPP__
 #define __CMP_NPC_LERP_SPEED_HPP__
 
+#include <Persistent/BasePersistent.hpp>
 namespace ProceduralMaze::Cmp::Persistent {
 
-class NpcLerpSpeed
+class NpcLerpSpeed : public BasePersistent<float>
 {
 public:
-  float &operator()() { return value; }
-
-private:
-  float value{ 1.f };
+  NpcLerpSpeed() : BasePersistent<float>( 1.f ) {}
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

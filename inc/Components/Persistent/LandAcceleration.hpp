@@ -1,15 +1,13 @@
 #ifndef __CMP_LANDACCELERATION_HPP__
 #define __CMP_LANDACCELERATION_HPP__
 
+#include <Persistent/BasePersistent.hpp>
 namespace ProceduralMaze::Cmp::Persistent {
 
-class LandAcceleration
+class LandAcceleration : public BasePersistent<float>
 {
 public:
-  float &operator()() { return land_acceleration; }
-
-private:
-  float land_acceleration = 500.0f;
+  LandAcceleration() : BasePersistent<float>( 500.0f ) {}
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

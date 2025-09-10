@@ -1,15 +1,13 @@
 #ifndef __CMP_NPC_SCAN_SCALE_HPP__
 #define __CMP_NPC_SCAN_SCALE_HPP__
 
+#include <Persistent/BasePersistent.hpp>
 namespace ProceduralMaze::Cmp::Persistent {
 
-class NPCScanScale
+class NPCScanScale : public BasePersistent<float>
 {
 public:
-  float &operator()() { return value; }
-
-private:
-  float value{ 2.5f };
+  NPCScanScale() : BasePersistent<float>( 2.5f ) {}
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

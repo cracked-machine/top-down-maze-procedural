@@ -2,7 +2,6 @@
 #define __CMP_NPC_DAMAGE_DELAY_HPP__
 
 #include <Persistent/BasePersistent.hpp>
-
 namespace ProceduralMaze::Cmp::Persistent {
 
 class NpcDamageDelay : public BasePersistent<float>

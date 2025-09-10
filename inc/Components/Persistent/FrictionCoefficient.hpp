@@ -1,15 +1,13 @@
 #ifndef __CMP_FRICTIONCOEFFICIENT_HPP__
 #define __CMP_FRICTIONCOEFFICIENT_HPP__
 
+#include <Persistent/BasePersistent.hpp>
 namespace ProceduralMaze::Cmp::Persistent {
 
-class FrictionCoefficient
+class FrictionCoefficient : public BasePersistent<float>
 {
 public:
-  float &operator()() { return friction_coefficient; }
-
-private:
-  float friction_coefficient = 0.02f;
+  FrictionCoefficient() : BasePersistent<float>( 0.02f ) {}
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

@@ -1,15 +1,13 @@
 #ifndef __CMP_BOMBBONUS_HPP__
 #define __CMP_BOMBBONUS_HPP__
 
+#include <Persistent/BasePersistent.hpp>
 namespace ProceduralMaze::Cmp::Persistent {
 
-class BombBonus
+class BombBonus : public BasePersistent<int>
 {
 public:
-  int &operator()() { return value; }
-
-private:
-  int value = 5;
+  BombBonus() : BasePersistent<int>( 5 ) {}
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

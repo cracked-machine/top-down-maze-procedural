@@ -1,15 +1,13 @@
 #ifndef __CMP_OBSTACLEPUSHBACK_HPP__
 #define __CMP_OBSTACLEPUSHBACK_HPP__
 
+#include <Persistent/BasePersistent.hpp>
 namespace ProceduralMaze::Cmp::Persistent {
 
-class ObstaclePushBack
+class ObstaclePushBack : public BasePersistent<float>
 {
 public:
-  float &operator()() { return value; }
-
-private:
-  float value = 1.1f;
+  ObstaclePushBack() : BasePersistent<float>( 1.1f ) {}
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

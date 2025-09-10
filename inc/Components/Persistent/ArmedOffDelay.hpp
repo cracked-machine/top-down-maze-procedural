@@ -1,16 +1,15 @@
 #ifndef __CMP__ARMEDOFFDELAY_HPP__
 #define __CMP__ARMEDOFFDELAY_HPP__
 
+#include <Persistent/BasePersistent.hpp>
 namespace ProceduralMaze::Cmp::Persistent {
 
 // Delay between each concentric obstacle in bomb pattern being disarmed...violently
-class ArmedOffDelay
+class ArmedOffDelay : public BasePersistent<float>
 {
-public:
-  float &operator()() { return delay; }
 
-private:
-  float delay = 0.075f;
+public:
+  ArmedOffDelay() : BasePersistent<float>( 0.075f ) {}
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

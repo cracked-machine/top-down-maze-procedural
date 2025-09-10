@@ -1,19 +1,16 @@
 #ifndef __CMP_FUSEDELAY_HPP__
 #define __CMP_FUSEDELAY_HPP__
 
+#include <Persistent/BasePersistent.hpp>
 #include <SFML/System/Time.hpp>
 
 namespace ProceduralMaze::Cmp::Persistent {
 
-class FuseDelay
+class FuseDelay : public BasePersistent<float>
 {
 public:
-  float &operator()() { return delay; }
-
-private:
-  float delay = 3.f;
+  FuseDelay() : BasePersistent<float>( 3.f ) {}
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent
-
 #endif // __CMP_FUSEDELAY_HPP__
