@@ -7,6 +7,7 @@
 #include <Persistent/NPCActivateScale.hpp>
 #include <Persistent/NPCScanScale.hpp>
 #include <Persistent/NpcDamage.hpp>
+#include <Persistent/NpcDamageDelay.hpp>
 #include <Persistent/NpcPushBack.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
 #include <Persistent/WaterBonus.hpp>
@@ -150,6 +151,9 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
 
   auto &npc_lerp_speed = m_reg->ctx().get<Cmp::Persistent::NpcLerpSpeed>();
   ImGui::SliderFloat( "NPC Speed", &npc_lerp_speed(), 0.1f, 3.f, "%.1f" );
+
+  auto &npc_damage_cooldown = m_reg->ctx().get<Cmp::Persistent::NpcDamageDelay>();
+  ImGui::SliderFloat( "NPC Damage Cooldown", &npc_damage_cooldown(), 0.1f, 2.f, "%.1f seconds" );
 
   ImGui::End();
   ImGui::SFML::Render( getWindow() );

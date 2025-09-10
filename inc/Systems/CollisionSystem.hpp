@@ -20,6 +20,7 @@
 #include <Persistent/HealthBonus.hpp>
 #include <Persistent/NPCActivateScale.hpp>
 #include <Persistent/NpcDamage.hpp>
+#include <Persistent/NpcDamageDelay.hpp>
 #include <Persistent/NpcPushBack.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
 #include <Persistent/WaterBonus.hpp>
@@ -65,6 +66,7 @@ public:
     if ( not m_reg->ctx().contains<Cmp::Persistent::ObstaclePushBack>() ) { m_reg->ctx().emplace<Cmp::Persistent::ObstaclePushBack>(); }
     if ( not m_reg->ctx().contains<Cmp::Persistent::NpcPushBack>() ) { m_reg->ctx().emplace<Cmp::Persistent::NpcPushBack>(); }
     if ( not m_reg->ctx().contains<Cmp::Persistent::NPCActivateScale>() ) { m_reg->ctx().emplace<Cmp::Persistent::NPCActivateScale>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::NpcDamageDelay>() ) { m_reg->ctx().emplace<Cmp::Persistent::NpcDamageDelay>(); }
   }
 
   sf::Vector2f getCenter( sf::Vector2f pos, sf::Vector2f size ) { return sf::FloatRect( pos, size ).getCenter(); }
@@ -132,7 +134,8 @@ public:
 
         if ( player_hitbox.findIntersection( npc_hitbox ) )
         {
-          if ( _npc.m_damage_cooldown.getElapsedTime() < _npc.DAMAGE_DELAY ) continue;
+          auto &npc_damage_cooldown = m_reg->ctx().get<Cmp::Persistent::NpcDamageDelay>();
+          if ( _npc.m_damage_cooldown.getElapsedTime().asSeconds() < npc_damage_cooldown() ) continue;
 
           auto &npc_damage = m_reg->ctx().get<Cmp::Persistent::NpcDamage>();
           _pc.health -= npc_damage();
