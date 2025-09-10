@@ -18,6 +18,7 @@
 #include <PCDetectionBounds.hpp>
 #include <Persistent/BombBonus.hpp>
 #include <Persistent/HealthBonus.hpp>
+#include <Persistent/NPCActivateScale.hpp>
 #include <Persistent/NpcDamage.hpp>
 #include <Persistent/NpcPushBack.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
@@ -63,6 +64,7 @@ public:
     if ( not m_reg->ctx().contains<Cmp::Persistent::NpcDamage>() ) { m_reg->ctx().emplace<Cmp::Persistent::NpcDamage>(); }
     if ( not m_reg->ctx().contains<Cmp::Persistent::ObstaclePushBack>() ) { m_reg->ctx().emplace<Cmp::Persistent::ObstaclePushBack>(); }
     if ( not m_reg->ctx().contains<Cmp::Persistent::NpcPushBack>() ) { m_reg->ctx().emplace<Cmp::Persistent::NpcPushBack>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::NPCActivateScale>() ) { m_reg->ctx().emplace<Cmp::Persistent::NPCActivateScale>(); }
   }
 
   sf::Vector2f getCenter( sf::Vector2f pos, sf::Vector2f size ) { return sf::FloatRect( pos, size ).getCenter(); }
@@ -95,12 +97,17 @@ public:
       {
         if ( _obstacle.m_type != Sprites::SpriteFactory::Type::BONES || not _obstacle.m_enabled || not _obstacle.m_visible ) continue;
 
-        auto obstacle_hitbox = get_hitbox( _obstacle_pos );
-        obstacle_hitbox.size *= 2.f;
-        obstacle_hitbox.position.x -= Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x * 0.5f;
-        obstacle_hitbox.position.y -= Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y * 0.5f;
+        auto &npc_activate_scale = m_reg->ctx().get<Cmp::Persistent::NPCActivateScale>();
+        // we just create a temporary RectBounds here instead of a component
+        // because we only need it for this one comparison and it already contains the needed scaling logic
+        auto npc_activate_bounds =
+            Cmp::RectBounds( _obstacle_pos, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE }, npc_activate_scale() );
+        // auto obstacle_hitbox = get_hitbox( _obstacle_pos );
+        // obstacle_hitbox.size *= npc_activate_scale();
+        // obstacle_hitbox.position.x -= Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x * 0.5f;
+        // obstacle_hitbox.position.y -= Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y * 0.5f;
 
-        if ( player_hitbox.findIntersection( obstacle_hitbox ) )
+        if ( player_hitbox.findIntersection( npc_activate_bounds.getBounds() ) )
         {
           // dont really care what obstacle this becomes as long as its disabled.
           m_reg->emplace_or_replace<Cmp::Obstacle>( _obstacle_entt, Sprites::SpriteFactory::Type::BONES, 0, false, false );

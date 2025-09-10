@@ -27,9 +27,8 @@
 
 namespace ProceduralMaze::Sys {
 
-using PlayerDistanceQueue = std::priority_queue<
-    std::pair<int, entt::entity>, std::vector<std::pair<int, entt::entity>>,
-    std::greater<std::pair<int, entt::entity>>>;
+using PlayerDistanceQueue =
+    std::priority_queue<std::pair<int, entt::entity>, std::vector<std::pair<int, entt::entity>>, std::greater<std::pair<int, entt::entity>>>;
 
 class PathFindSystem : public BaseSystem
 {
@@ -62,14 +61,10 @@ public:
     {
       // gather up any PlayerDistance components from within range obstacles
       PlayerDistanceQueue distance_queue;
-      auto obstacle_view = m_reg->view<
-          Cmp::Position, Cmp::PlayerDistance>( entt::exclude<Cmp::NPC, Cmp::PlayableCharacter> );
+      auto obstacle_view = m_reg->view<Cmp::Position, Cmp::PlayerDistance>( entt::exclude<Cmp::NPC, Cmp::PlayableCharacter> );
       for ( auto [obstacle_entity, next_pos, player_distance] : obstacle_view.each() )
       {
-        if ( npc_scan_bounds->findIntersection( get_hitbox( next_pos ) ) )
-        {
-          distance_queue.push( { player_distance.distance, obstacle_entity } );
-        }
+        if ( npc_scan_bounds->findIntersection( get_hitbox( next_pos ) ) ) { distance_queue.push( { player_distance.distance, obstacle_entity } ); }
       }
 
       // Our priority queue auto-sorts with the nearest PlayerDistance component
@@ -98,9 +93,7 @@ public:
           // the main engine loop via LerpSystems
           auto move_candidate_pixel_pos = getPixelPosition( nearest_obstacle.second );
           if ( not move_candidate_pixel_pos ) return;
-          m_reg->emplace_or_replace<Cmp::LerpPosition>(
-              npc_entity, move_candidate_pixel_pos.value(), 0.0f
-          );
+          m_reg->emplace_or_replace<Cmp::LerpPosition>( npc_entity, move_candidate_pixel_pos.value(), 0.0f );
         }
       }
     }

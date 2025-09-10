@@ -9,6 +9,7 @@
 #include <Movement.hpp>
 #include <NPC.hpp>
 #include <NPCScanBounds.hpp>
+#include <Persistent/NPCScanScale.hpp>
 #include <Position.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <entt/entity/registry.hpp>
@@ -22,14 +23,18 @@ class NpcSystem : public BaseSystem
 public:
   NpcSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : BaseSystem( reg ) {}
 
+  void init_context()
+  {
+    if ( not m_reg->ctx().contains<Cmp::Persistent::NPCScanScale>() ) { m_reg->ctx().emplace<Cmp::Persistent::NPCScanScale>(); }
+  }
+
   void add_npc_entity( sf::Vector2f position )
   {
     auto new_npc_entity = m_reg->create();
     m_reg->emplace<Cmp::NPC>( new_npc_entity, true );
     m_reg->emplace<Cmp::Position>( new_npc_entity, position );
-    m_reg->emplace<Cmp::NPCScanBounds>(
-        new_npc_entity, position, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE }
-    );
+    auto &npc_scan_scale = m_reg->ctx().get<Cmp::Persistent::NPCScanScale>();
+    m_reg->emplace<Cmp::NPCScanBounds>( new_npc_entity, position, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE }, npc_scan_scale() );
   }
 
   void remove_npc_entity( entt::entity npc_entity )
@@ -63,9 +68,7 @@ public:
         pos.y = std::lerp( target.m_start.y, target.m_target.y, target.m_lerp_factor );
       }
 
-      m_reg->patch<Cmp::NPCScanBounds>( entity, [&]( auto &npc_scan_bounds ) {
-        npc_scan_bounds.position( pos );
-      } );
+      m_reg->patch<Cmp::NPCScanBounds>( entity, [&]( auto &npc_scan_bounds ) { npc_scan_bounds.position( pos ); } );
     }
   }
 

@@ -4,6 +4,8 @@
 #include <Persistent/BombDamage.hpp>
 #include <Persistent/FuseDelay.hpp>
 #include <Persistent/HealthBonus.hpp>
+#include <Persistent/NPCActivateScale.hpp>
+#include <Persistent/NPCScanScale.hpp>
 #include <Persistent/NpcDamage.hpp>
 #include <Persistent/NpcPushBack.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
@@ -139,6 +141,12 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
     npc_push_back() = std::clamp( npc_push_back(), 1.0f, 50.0f );
   }
 
+  auto &npc_activate_scale = m_reg->ctx().get<Cmp::Persistent::NPCActivateScale>();
+  ImGui::SliderFloat( "NPC Activation Bounding Box Scale Factor", &npc_activate_scale(), 1.f, 20.f, "%.1f pixels" );
+  auto &npc_scan_scale = m_reg->ctx().get<Cmp::Persistent::NPCScanScale>();
+  ImGui::SliderFloat( "NPC Scan Bounding Box Scale Factor", &npc_scan_scale(), 1.f, 3.f, "%.1f pixels" );
+  auto &pc_detection_scale = m_reg->ctx().get<Cmp::Persistent::PCDetectionScale>();
+  ImGui::SliderFloat( "PC Detection Bounding Box Scale Factor", &pc_detection_scale(), 1.f, 20.f, "%.1f pixels" );
   ImGui::End();
   ImGui::SFML::Render( getWindow() );
 }
