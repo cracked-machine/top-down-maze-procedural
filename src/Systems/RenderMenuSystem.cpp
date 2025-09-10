@@ -147,6 +147,10 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   ImGui::SliderFloat( "NPC Scan Bounding Box Scale Factor", &npc_scan_scale(), 1.f, 3.f, "%.1f pixels" );
   auto &pc_detection_scale = m_reg->ctx().get<Cmp::Persistent::PCDetectionScale>();
   ImGui::SliderFloat( "PC Detection Bounding Box Scale Factor", &pc_detection_scale(), 1.f, 20.f, "%.1f pixels" );
+
+  auto &npc_lerp_speed = m_reg->ctx().get<Cmp::Persistent::NpcLerpSpeed>();
+  ImGui::SliderFloat( "NPC Speed", &npc_lerp_speed(), 0.1f, 3.f, "%.1f" );
+
   ImGui::End();
   ImGui::SFML::Render( getWindow() );
 }

@@ -237,6 +237,7 @@ private:
     m_flood_sys.init_context();
     m_collision_sys.init_context();
     m_npc_sys.init_context();
+    m_path_find_sys.init_context();
 
     // we must have a sprite factory in the registry context
     // before it can be used by other systems that need it

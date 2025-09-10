@@ -11,6 +11,7 @@
 #include <Direction.hpp>
 #include <NPCScanBounds.hpp>
 #include <PCDetectionBounds.hpp>
+#include <Persistent/NpcLerpSpeed.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -35,6 +36,11 @@ class PathFindSystem : public BaseSystem
 public:
   PathFindSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : BaseSystem( reg ) {}
   ~PathFindSystem() = default;
+
+  void init_context()
+  {
+    if ( not m_reg->ctx().contains<Cmp::Persistent::NpcLerpSpeed>() ) { m_reg->ctx().emplace<Cmp::Persistent::NpcLerpSpeed>(); }
+  }
 
   void findPath( entt::entity player_entity )
   {
@@ -93,7 +99,8 @@ public:
           // the main engine loop via LerpSystems
           auto move_candidate_pixel_pos = getPixelPosition( nearest_obstacle.second );
           if ( not move_candidate_pixel_pos ) return;
-          m_reg->emplace_or_replace<Cmp::LerpPosition>( npc_entity, move_candidate_pixel_pos.value(), 0.0f );
+          auto npc_lerp_speed = m_reg->ctx().get<Cmp::Persistent::NpcLerpSpeed>();
+          m_reg->emplace_or_replace<Cmp::LerpPosition>( npc_entity, move_candidate_pixel_pos.value(), 0.0f, npc_lerp_speed() );
         }
       }
     }
