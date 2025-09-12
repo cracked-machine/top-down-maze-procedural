@@ -6,7 +6,7 @@
 
 namespace ProceduralMaze::Cmp {
 
-class Font : public sf::Font, Cmp::Base
+class Font : public sf::Font
 {
 public:
   Font( std::string font_path )

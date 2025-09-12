@@ -3,6 +3,7 @@
 
 #include <Components/Direction.hpp>
 #include <Components/Movement.hpp>
+#include <Components/Persistent/FloodSpeed.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
@@ -25,29 +26,16 @@ namespace ProceduralMaze::Sys {
 
 class FloodSystem : public BaseSystem
 {
-private:
-  static constexpr float FIXED_TIMESTEP = 1.0f / 30.0f; // Reduce to 30 FPS to decrease CPU load
-  static constexpr float DAMAGE_COOLDOWN = 1.0f;        // 1 second between damage applications
-  float m_accumulator = 0.0f;
-  sf::Clock m_clock;
-
-  // Track last damage time for each player
-  std::unordered_map<entt::entity, float> m_last_damage_time;
 
 public:
-  FloodSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg, float flood_velocity )
-      : BaseSystem( reg ), m_flood_velocity( flood_velocity )
-  {
-  }
+  FloodSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : BaseSystem( reg ) {}
 
   ~FloodSystem() = default;
-  void suspend()
+
+  // Create context variables by Cmp::Persistent type (if they don't already exist)
+  void init_context()
   {
-    if ( m_clock.isRunning() ) m_clock.stop();
-  }
-  void resume()
-  {
-    if ( not m_clock.isRunning() ) m_clock.start();
+    if ( not m_reg->ctx().contains<Cmp::Persistent::FloodSpeed>() ) { m_reg->ctx().emplace<Cmp::Persistent::FloodSpeed>(); }
   }
 
   void add_flood_water_entity()
@@ -85,8 +73,7 @@ private:
 
     // Cache views once - better performance since entities always exist
     auto water_view = m_reg->view<Cmp::WaterLevel>();
-    auto player_view =
-        m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction>();
+    auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction>();
 
     // abort if flood is paused
     for ( auto [_, sys] : m_reg->view<Cmp::System>().each() )
@@ -97,7 +84,8 @@ private:
         // performance
         for ( auto [_, water_level] : water_view.each() )
         {
-          water_level.m_level -= ( dt * m_flood_velocity );
+          auto &flood_speed = m_reg->ctx().get<Cmp::Persistent::FloodSpeed>();
+          water_level.m_level -= ( dt * flood_speed() );
         }
       }
     }
@@ -111,14 +99,12 @@ private:
         if ( water_level.m_level <= position.y ) // Water drowns player when water level is at or
                                                  // above player position
         {
-          if ( m_abovewater_sound_player.getStatus() == sf::Sound::Status::Playing )
-            m_abovewater_sound_player.stop();
-          if ( m_underwater_music.getStatus() != sf::Music::Status::Playing )
-            m_underwater_music.play();
+          if ( m_abovewater_sound_player.getStatus() == sf::Sound::Status::Playing ) m_abovewater_sound_player.stop();
+          if ( m_underwater_music.getStatus() != sf::Music::Status::Playing ) m_underwater_music.play();
 
           // its hard to move under water ;)
-          move_cmp.acceleration_rate = move_cmp.DEFAULT_ACCELERATION_RATE * 0.5f;
-          move_cmp.deceleration_rate = move_cmp.DEFAULT_DECELERATION_RATE * 0.15f;
+          move_cmp.acceleration_rate = move_cmp.under_water_default_acceleration_rate;
+          move_cmp.deceleration_rate = move_cmp.under_water_default_deceleration_rate;
           move_cmp.max_speed = move_cmp.DEFAULT_MAX_SPEED * 0.5f;
 
           // Check if enough time has passed since last damage
@@ -142,19 +128,15 @@ private:
           m_last_damage_time.erase( player_entity );
 
           // Restore above water movement physics
-          move_cmp.acceleration_rate = move_cmp.DEFAULT_ACCELERATION_RATE;
-          move_cmp.deceleration_rate = move_cmp.DEFAULT_DECELERATION_RATE;
+          move_cmp.acceleration_rate = move_cmp.above_water_default_acceleration_rate;
+          move_cmp.deceleration_rate = move_cmp.above_water_default_deceleration_rate;
           move_cmp.max_speed = move_cmp.DEFAULT_MAX_SPEED;
 
-          if ( m_underwater_music.getStatus() == sf::Music::Status::Playing )
-            m_underwater_music.stop();
+          if ( m_underwater_music.getStatus() == sf::Music::Status::Playing ) m_underwater_music.stop();
 
           if ( dir_cmp.x != 0.0f || dir_cmp.y != 0.0f )
           {
-            if ( m_abovewater_sound_player.getStatus() != sf::Sound::Status::Playing )
-            {
-              m_abovewater_sound_player.play();
-            }
+            if ( m_abovewater_sound_player.getStatus() != sf::Sound::Status::Playing ) { m_abovewater_sound_player.play(); }
           }
           else { m_abovewater_sound_player.stop(); }
         }
@@ -163,11 +145,27 @@ private:
   }
 
 private:
-  float m_flood_velocity; // pixels per second
+  static constexpr float FIXED_TIMESTEP = 1.0f / 30.0f; // Reduce to 30 FPS to decrease CPU load
+  static constexpr float DAMAGE_COOLDOWN = 1.0f;        // 1 second between damage applications
+  float m_accumulator = 0.0f;
+  sf::Clock m_clock;
+
+  // Track last damage time for each player
+  std::unordered_map<entt::entity, float> m_last_damage_time;
 
   sf::SoundBuffer m_abovewater_sound_buffer{ "res/audio/footsteps.mp3" };
   sf::Sound m_abovewater_sound_player{ m_abovewater_sound_buffer };
   sf::Music m_underwater_music{ "res/audio/underwater.wav" };
+
+public:
+  void suspend()
+  {
+    if ( m_clock.isRunning() ) m_clock.stop();
+  }
+  void resume()
+  {
+    if ( not m_clock.isRunning() ) m_clock.start();
+  }
 };
 
 } // namespace ProceduralMaze::Sys

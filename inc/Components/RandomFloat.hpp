@@ -6,7 +6,7 @@
 
 namespace ProceduralMaze::Cmp {
 
-class RandomFloat : public Cmp::Base
+class RandomFloat
 {
 public:
   // set the rng range

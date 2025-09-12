@@ -16,6 +16,14 @@
 #include <NPCScanBounds.hpp>
 #include <NpcSystem.hpp>
 #include <PCDetectionBounds.hpp>
+#include <Persistent/BombBonus.hpp>
+#include <Persistent/HealthBonus.hpp>
+#include <Persistent/NPCActivateScale.hpp>
+#include <Persistent/NpcDamage.hpp>
+#include <Persistent/NpcDamageDelay.hpp>
+#include <Persistent/NpcPushBack.hpp>
+#include <Persistent/ObstaclePushBack.hpp>
+#include <Persistent/WaterBonus.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -45,20 +53,23 @@ namespace ProceduralMaze::Sys {
 class CollisionSystem : public BaseSystem
 {
 public:
-  CollisionSystem(
-      std::shared_ptr<entt::basic_registry<entt::entity>> reg,
-      std::shared_ptr<Sys::NpcSystem> npc_system
-  )
-      : BaseSystem( reg ), m_npc_sys( npc_system )
-  {
-  }
+  CollisionSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : BaseSystem( reg ) {}
 
   ~CollisionSystem() = default;
 
-  sf::Vector2f getCenter( sf::Vector2f pos, sf::Vector2f size )
+  void init_context()
   {
-    return sf::FloatRect( pos, size ).getCenter();
+    if ( not m_reg->ctx().contains<Cmp::Persistent::HealthBonus>() ) { m_reg->ctx().emplace<Cmp::Persistent::HealthBonus>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::BombBonus>() ) { m_reg->ctx().emplace<Cmp::Persistent::BombBonus>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::WaterBonus>() ) { m_reg->ctx().emplace<Cmp::Persistent::WaterBonus>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::NpcDamage>() ) { m_reg->ctx().emplace<Cmp::Persistent::NpcDamage>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::ObstaclePushBack>() ) { m_reg->ctx().emplace<Cmp::Persistent::ObstaclePushBack>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::NpcPushBack>() ) { m_reg->ctx().emplace<Cmp::Persistent::NpcPushBack>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::NPCActivateScale>() ) { m_reg->ctx().emplace<Cmp::Persistent::NPCActivateScale>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::NpcDamageDelay>() ) { m_reg->ctx().emplace<Cmp::Persistent::NpcDamageDelay>(); }
   }
+
+  sf::Vector2f getCenter( sf::Vector2f pos, sf::Vector2f size ) { return sf::FloatRect( pos, size ).getCenter(); }
 
   void suspend()
   {
@@ -73,8 +84,7 @@ public:
     auto player_collision_view = m_reg->view<Cmp::PlayableCharacter>();
     for ( auto [_pc_entt, player] : player_collision_view.each() )
     {
-      if ( not player.m_bombdeploycooldowntimer.isRunning() )
-        player.m_bombdeploycooldowntimer.start();
+      if ( not player.m_bombdeploycooldowntimer.isRunning() ) player.m_bombdeploycooldowntimer.start();
     }
   }
 
@@ -87,23 +97,23 @@ public:
       auto player_hitbox = get_hitbox( _pc_pos );
       for ( auto [_obstacle_entt, _obstacle, _obstacle_pos] : obstacle_collision_view.each() )
       {
-        if ( _obstacle.m_type != Sprites::SpriteFactory::Type::BONES || not _obstacle.m_enabled ||
-             not _obstacle.m_visible )
-          continue;
+        if ( _obstacle.m_type != Sprites::SpriteFactory::Type::BONES || not _obstacle.m_enabled || not _obstacle.m_visible ) continue;
 
-        auto obstacle_hitbox = get_hitbox( _obstacle_pos );
-        obstacle_hitbox.size *= 2.f;
-        obstacle_hitbox.position.x -= Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x * 0.5f;
-        obstacle_hitbox.position.y -= Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y * 0.5f;
+        auto &npc_activate_scale = m_reg->ctx().get<Cmp::Persistent::NPCActivateScale>();
+        // we just create a temporary RectBounds here instead of a component
+        // because we only need it for this one comparison and it already contains the needed scaling logic
+        auto npc_activate_bounds =
+            Cmp::RectBounds( _obstacle_pos, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE }, npc_activate_scale() );
+        // auto obstacle_hitbox = get_hitbox( _obstacle_pos );
+        // obstacle_hitbox.size *= npc_activate_scale();
+        // obstacle_hitbox.position.x -= Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x * 0.5f;
+        // obstacle_hitbox.position.y -= Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y * 0.5f;
 
-        if ( player_hitbox.findIntersection( obstacle_hitbox ) )
+        if ( player_hitbox.findIntersection( npc_activate_bounds.getBounds() ) )
         {
-          // dont really care what obstacle this is now as long as its disabled.
-          m_reg->emplace_or_replace<Cmp::Obstacle>(
-              _obstacle_entt, Sprites::SpriteFactory::Type::BONES, 0, false, false
-          );
-          // create a new NPC entity and put an NPC there
-          m_npc_sys->add_npc_entity( _obstacle_pos );
+          // dont really care what obstacle this becomes as long as its disabled.
+          m_reg->emplace_or_replace<Cmp::Obstacle>( _obstacle_entt, Sprites::SpriteFactory::Type::BONES, 0, false, false );
+          getEventDispatcher().trigger( Events::NpcCreationEvent( _obstacle_pos ) );
         }
       }
     }
@@ -111,8 +121,7 @@ public:
 
   void check_player_to_npc_collision()
   {
-    auto player_collision_view =
-        m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::Movement>();
+    auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::Movement>();
     auto npc_collision_view = m_reg->view<Cmp::NPC, Cmp::Position>();
     for ( auto [_pc_entt, _pc, _pc_pos, _direction, _movement] : player_collision_view.each() )
     {
@@ -125,14 +134,19 @@ public:
 
         if ( player_hitbox.findIntersection( npc_hitbox ) )
         {
-          if ( _npc.m_damage_cooldown.getElapsedTime() < _npc.DAMAGE_DELAY ) continue;
-          _pc.health -= 10;
+          auto &npc_damage_cooldown = m_reg->ctx().get<Cmp::Persistent::NpcDamageDelay>();
+          if ( _npc.m_damage_cooldown.getElapsedTime().asSeconds() < npc_damage_cooldown() ) continue;
+
+          auto &npc_damage = m_reg->ctx().get<Cmp::Persistent::NpcDamage>();
+          _pc.health -= npc_damage();
+
           _npc.m_damage_cooldown.restart();
           // Check if player is moving
           if ( _direction.x != 0.f || _direction.y != 0.f )
           {
             // Push back in opposite direction of travel
-            _pc_pos -= _direction.normalized() * 8.f;
+            auto &npc_push_back = m_reg->ctx().get<Cmp::Persistent::NpcPushBack>();
+            _pc_pos -= _direction.normalized() * npc_push_back();
           }
           else
           {
@@ -161,8 +175,7 @@ public:
     std::vector<LootEffect> loot_effects;
 
     // First pass: detect collisions and gather effects to apply
-    auto player_collision_view =
-        m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>();
+    auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>();
     auto loot_collision_view = m_reg->view<Cmp::Loot, Cmp::Position>();
 
     for ( auto [_pc_entt, _pc, _pc_pos, _movement] : player_collision_view.each() )
@@ -191,23 +204,25 @@ public:
       // Apply the effect
       switch ( effect.type )
       {
-      case Sprites::SpriteFactory::Type::EXTRA_HEALTH:
-        _pc.health = std::min( _pc.health + 10, 100 );
+      case Sprites::SpriteFactory::Type::EXTRA_HEALTH: {
+        auto &health_bonus = m_reg->ctx().get<Cmp::Persistent::HealthBonus>();
+        _pc.health = std::min( _pc.health + health_bonus(), 100 );
         break;
-
-      case Sprites::SpriteFactory::Type::EXTRA_BOMBS:
-        if ( _pc.bomb_inventory >= 0 ) _pc.bomb_inventory += 5;
+      }
+      case Sprites::SpriteFactory::Type::EXTRA_BOMBS: {
+        auto &bomb_bonus = m_reg->ctx().get<Cmp::Persistent::BombBonus>();
+        if ( _pc.bomb_inventory >= 0 ) _pc.bomb_inventory += bomb_bonus();
         break;
-
-      case Sprites::SpriteFactory::Type::LOWER_WATER:
+      }
+      case Sprites::SpriteFactory::Type::LOWER_WATER: {
+        auto &water_bonus = m_reg->ctx().get<Cmp::Persistent::WaterBonus>();
         for ( auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each() )
         {
-          water_level.m_level =
-              std::min( water_level.m_level + 100.f, static_cast<float>( DISPLAY_SIZE.y ) );
+          water_level.m_level = std::min( water_level.m_level + water_bonus(), static_cast<float>( DISPLAY_SIZE.y ) );
           break;
         }
         break;
-
+      }
       case Sprites::SpriteFactory::Type::INFINI_BOMBS:
         _pc.bomb_inventory = -1;
         break;
@@ -221,8 +236,7 @@ public:
       }
 
       // Restore original movement velocity
-      if ( m_reg->valid( effect.player_entity ) &&
-           m_reg->all_of<Cmp::Movement>( effect.player_entity ) )
+      if ( m_reg->valid( effect.player_entity ) && m_reg->all_of<Cmp::Movement>( effect.player_entity ) )
       {
         auto &movement = m_reg->get<Cmp::Movement>( effect.player_entity );
         movement.velocity = effect.original_velocity;
@@ -251,8 +265,7 @@ public:
 
   void update_obstacle_distances()
   {
-    auto player_view =
-        m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::PCDetectionBounds>();
+    auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::PCDetectionBounds>();
     for ( auto [_pc_entt, _pc, _pc_pos, _movement, pc_detection_bounds] : player_view.each() )
     {
 
@@ -273,8 +286,7 @@ public:
 
   void check_collision()
   {
-    const float PUSH_FACTOR =
-        1.1f; // Push slightly more than minimum to avoid floating point issues
+    // const float PUSH_FACTOR = 1.1f; // Push slightly more than minimum to avoid floating point issues
     auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>();
     for ( auto [_pc_entt, _pc, _pc_pos, _movement] : player_view.each() )
     {
@@ -309,9 +321,7 @@ public:
           _pc_pos.x = starting_pos.x;
           _pc_pos.y = starting_pos.y;
 
-          player_floatrect = sf::FloatRect(
-              { _pc_pos.x, _pc_pos.y }, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE }
-          );
+          player_floatrect = sf::FloatRect( { _pc_pos.x, _pc_pos.y }, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE } );
           if ( !player_floatrect.findIntersection( brick_floatRect ) )
           {
             SPDLOG_INFO( "Recovered by reverting to start position" );
@@ -356,40 +366,32 @@ public:
         if ( std::abs( depthX ) < std::abs( depthY ) )
         {
           // Push out along X axis
-          _pc_pos.x += depthX * PUSH_FACTOR;
+          _pc_pos.x += depthX * m_reg->ctx().get<Cmp::Persistent::ObstaclePushBack>()();
 
           // Calculate speed-based friction coefficient
           float speed_ratio = std::abs( _movement.velocity.y ) / _movement.max_speed;
-          float dynamic_friction = _movement.friction_coefficient *
-                                   ( 1.0f - ( _movement.friction_falloff * speed_ratio ) );
+          float dynamic_friction = _movement.friction_coefficient * ( 1.0f - ( _movement.friction_falloff * speed_ratio ) );
 
           // Apply friction to Y velocity with smooth falloff
           _movement.velocity.y *= ( 1.0f - dynamic_friction );
 
           // Check if Y velocity is below minimum
-          if ( std::abs( _movement.velocity.y ) < _movement.min_velocity )
-          {
-            _movement.velocity.y = 0.0f;
-          }
+          if ( std::abs( _movement.velocity.y ) < _movement.min_velocity ) { _movement.velocity.y = 0.0f; }
         }
         else
         {
           // Push out along Y axis
-          _pc_pos.y += depthY * PUSH_FACTOR;
+          _pc_pos.y += depthY * m_reg->ctx().get<Cmp::Persistent::ObstaclePushBack>()();
 
           // Calculate speed-based friction coefficient
           float speed_ratio = std::abs( _movement.velocity.x ) / _movement.max_speed;
-          float dynamic_friction = _movement.friction_coefficient *
-                                   ( 1.0f - ( _movement.friction_falloff * speed_ratio ) );
+          float dynamic_friction = _movement.friction_coefficient * ( 1.0f - ( _movement.friction_falloff * speed_ratio ) );
 
           // Apply friction to X velocity with smooth falloff
           _movement.velocity.x *= ( 1.0f - dynamic_friction );
 
           // Check if X velocity is below minimum
-          if ( std::abs( _movement.velocity.x ) < _movement.min_velocity )
-          {
-            _movement.velocity.x = 0.0f;
-          }
+          if ( std::abs( _movement.velocity.x ) < _movement.min_velocity ) { _movement.velocity.x = 0.0f; }
         }
 
         // Verify the resolution worked
@@ -400,30 +402,24 @@ public:
           _pc_pos = pre_resolve_pos;
           if ( std::abs( depthX ) < std::abs( depthY ) )
           {
-            _pc_pos.y += depthY * PUSH_FACTOR;
+            _pc_pos.y += depthY * m_reg->ctx().get<Cmp::Persistent::ObstaclePushBack>()();
             _movement.velocity.x *= ( 1.0f - _movement.friction_coefficient );
           }
           else
           {
-            _pc_pos.x += depthX * PUSH_FACTOR;
+            _pc_pos.x += depthX * m_reg->ctx().get<Cmp::Persistent::ObstaclePushBack>()();
             _movement.velocity.y *= ( 1.0f - _movement.friction_coefficient );
           }
         }
 
         // Special case for top wall: prevent any upward movement
-        if ( near_top_wall && _pc_pos.y < MAP_GRID_OFFSET.y * 16.f + 4.0f )
-        {
-          _movement.velocity.y = std::max( 0.0f, _movement.velocity.y );
-        }
+        if ( near_top_wall && _pc_pos.y < MAP_GRID_OFFSET.y * 16.f + 4.0f ) { _movement.velocity.y = std::max( 0.0f, _movement.velocity.y ); }
 
         // Mark that we're colliding for this frame
         _movement.is_colliding = true;
 
         // Extra safety for top wall
-        if ( near_top_wall && _pc_pos.y < MAP_GRID_OFFSET.y * 16.f )
-        {
-          _pc_pos.y = MAP_GRID_OFFSET.y * 16.f + 1.0f;
-        }
+        if ( near_top_wall && _pc_pos.y < MAP_GRID_OFFSET.y * 16.f ) { _pc_pos.y = MAP_GRID_OFFSET.y * 16.f + 1.0f; }
 
         SPDLOG_DEBUG( "Collision resolved - new pos: {},{}", _pc_pos.x, _pc_pos.y );
       }
@@ -431,7 +427,6 @@ public:
   }
 
 private:
-  std::shared_ptr<Sys::NpcSystem> m_npc_sys;
   sf::FloatRect m_end_zone{ { DISPLAY_SIZE.x * 1.f, 0 }, { 500.f, DISPLAY_SIZE.y * 1.f } };
 };
 

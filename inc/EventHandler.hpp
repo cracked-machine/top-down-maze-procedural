@@ -1,8 +1,10 @@
 #ifndef __INPUT_EVENT_HANDLER_HPP__
 #define __INPUT_EVENT_HANDLER_HPP__
 
+#include <BaseSystem.hpp>
 #include <Components/System.hpp>
 #include <Direction.hpp>
+#include <Events/PlayerActionEvent.hpp>
 #include <GameState.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -15,19 +17,17 @@
 
 #include <spdlog/spdlog.h>
 
-#include <queue>
+#include <imgui-SFML.h>
 
 namespace ProceduralMaze {
 
-class InputEventHandler
+class InputEventHandler : public Sys::BaseSystem
 {
 public:
-  InputEventHandler( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : m_reg( reg ) {}
-
-  enum class GameActions
+  InputEventHandler( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+      : Sys::BaseSystem( reg )
   {
-    DROP_BOMB
-  };
+  }
 
   void menu_state_handler( sf::RenderWindow &window )
   {
@@ -37,6 +37,7 @@ public:
       using namespace sf::Keyboard;
       while ( const std::optional event = window.pollEvent() )
       {
+        ImGui::SFML::ProcessEvent( window, *event );
         if ( event->is<sf::Event::Closed>() )
         {
           game_state.current_state = Cmp::GameState::State::EXITING;
@@ -56,6 +57,39 @@ public:
           {
             game_state.current_state = Cmp::GameState::State::EXITING;
           }
+          else if ( keyPressed->scancode == sf::Keyboard::Scancode::S )
+          {
+            game_state.current_state = Cmp::GameState::State::SETTINGS;
+          }
+        }
+      }
+    }
+  }
+
+  void settings_state_handler( sf::RenderWindow &window )
+  {
+    auto gamestate_view = m_reg->view<Cmp::GameState>();
+    for ( auto [entity, game_state] : gamestate_view.each() )
+    {
+      using namespace sf::Keyboard;
+      while ( const std::optional event = window.pollEvent() )
+      {
+        ImGui::SFML::ProcessEvent( window, *event );
+        if ( event->is<sf::Event::Closed>() )
+        {
+          game_state.current_state = Cmp::GameState::State::EXITING;
+        }
+        else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
+        {
+          sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
+          window.setView( sf::View( visibleArea ) );
+        }
+        else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
+        {
+          if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape )
+          {
+            game_state.current_state = Cmp::GameState::State::MENU;
+          }
         }
       }
     }
@@ -69,6 +103,7 @@ public:
       using namespace sf::Keyboard;
       while ( const std::optional event = window.pollEvent() )
       {
+        ImGui::SFML::ProcessEvent( window, *event );
         if ( event->is<sf::Event::Closed>() )
         {
           game_state.current_state = Cmp::GameState::State::EXITING;
@@ -181,7 +216,9 @@ public:
 
       if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Space ) )
       {
-        m_action_queue.push( GameActions::DROP_BOMB );
+        getEventDispatcher().trigger(
+            Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB )
+        );
       }
     }
   }
@@ -194,6 +231,7 @@ public:
       using namespace sf::Keyboard;
       while ( const std::optional event = window.pollEvent() )
       {
+        ImGui::SFML::ProcessEvent( window, *event );
         if ( event->is<sf::Event::Closed>() )
         {
           game_state.current_state = Cmp::GameState::State::EXITING;
@@ -222,6 +260,7 @@ public:
       using namespace sf::Keyboard;
       while ( const std::optional event = window.pollEvent() )
       {
+        ImGui::SFML::ProcessEvent( window, *event );
         if ( event->is<sf::Event::Closed>() )
         {
           game_state.current_state = Cmp::GameState::State::EXITING;
@@ -241,12 +280,6 @@ public:
       }
     }
   }
-
-  entt::reactive_mixin<entt::storage<void>> m_gamestate_updates;
-  std::queue<GameActions> m_action_queue{};
-
-private:
-  std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
 };
 
 } // namespace ProceduralMaze

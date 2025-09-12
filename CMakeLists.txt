@@ -18,17 +18,35 @@ FetchContent_Declare(EnTT
     EXCLUDE_FROM_ALL SYSTEM
 )
 
+FetchContent_Declare(ImGUI
+    GIT_REPOSITORY https://github.com/ocornut/imgui.git
+    GIT_TAG v1.91.1
+    GIT_SHALLOW ON EXCLUDE_FROM_ALL SYSTEM
+)
+
+FetchContent_Declare(imgui-sfml
+  GIT_REPOSITORY https://github.com/SFML/imgui-sfml.git
+  GIT_TAG        v3.0
+)
+
+set(IMGUI_DIR ${FETCHCONTENT_BASE_DIR}/imgui-src)
+option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" OFF)
+option(IMGUI_SFML_IMGUI_DEMO "Build imgui_demo.cpp" ON)
 FetchContent_MakeAvailable(
     SFML 
     SPDLog
     EnTT
+    ImGUI
+    imgui-sfml
 )
 
-# Workaround for [-Werror=clobbered] in SPDLog
-# spdlog-src/include/spdlog/logger.h:317:10: error: 
+# ThirdParty Lib warning Supression:
+# 1. spdlog-src/include/spdlog/logger.h:317:10: error: 
 # variable 'args' might be clobbered by 'longjmp' or 'vfork' 
-# 
 target_compile_options(spdlog INTERFACE -Wno-clobbered)
+# 2. flac-src/src/share/win_utf8_io/win_utf8_io.c:132:29: warning: 
+# "cast between incompatible function types from 'FARPROC' to int" 
+target_compile_options(FLAC PRIVATE -Wno-cast-function-type)
 
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

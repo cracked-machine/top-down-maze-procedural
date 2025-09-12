@@ -1,0 +1,15 @@
+#ifndef __CMP_HEALTHBONUS_HPP__
+#define __CMP_HEALTHBONUS_HPP__
+
+#include <Persistent/BasePersistent.hpp>
+namespace ProceduralMaze::Cmp::Persistent {
+
+class HealthBonus : public BasePersistent<int>
+{
+public:
+  HealthBonus() : BasePersistent<int>( 10 ) {}
+};
+
+} // namespace ProceduralMaze::Cmp::Persistent
+
+#endif // __CMP_HEALTHBONUS_HPP__

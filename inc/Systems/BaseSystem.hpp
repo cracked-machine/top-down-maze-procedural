@@ -8,6 +8,8 @@
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
 
+#include <entt/signal/dispatcher.hpp>
+
 namespace ProceduralMaze::Sys {
 
 class BaseSystem
@@ -74,17 +76,27 @@ public:
     );
   }
 
-  const sf::Vector2u DISPLAY_SIZE{ 1920, 1024 };
+  constexpr static const sf::Vector2u DISPLAY_SIZE{ 1920, 1024 };
 
   // MAP_GRID_OFFSET and MAP_GRID_SIZE are in blocks, not pixels
   const sf::Vector2f MAP_GRID_OFFSET{ 10.f, 1.f };
   const sf::Vector2u MAP_GRID_SIZE{ 100u, 61u };
 
+  // singleton event dispatcher
+  static entt::dispatcher &getEventDispatcher()
+  {
+    if ( !m_event_dispatcher ) { m_event_dispatcher = std::make_unique<entt::dispatcher>(); }
+    return *m_event_dispatcher;
+  }
+
 protected:
   // Entity registry
   std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
-
   sf::Vector2f PLAYER_START_POS{ 20, static_cast<float>( DISPLAY_SIZE.y ) / 2 };
+
+private:
+  // Prevent access to uninitialised dispatcher - use getEventDispatcher()
+  static std::unique_ptr<entt::dispatcher> m_event_dispatcher;
 };
 
 } // namespace ProceduralMaze::Sys
