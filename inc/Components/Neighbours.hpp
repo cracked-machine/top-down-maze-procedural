@@ -60,12 +60,7 @@ public:
   void remove( Dir dir )
   {
     if ( m_entities.find( dir ) != m_entities.end() ) { m_entities.erase( dir ); }
-    else
-    {
-      SPDLOG_WARN(
-          "Attempted to remove non-existent entity in direction: {}", static_cast<int>( dir )
-      );
-    }
+    else { SPDLOG_WARN( "Attempted to remove non-existent entity in direction: {}", static_cast<int>( dir ) ); }
   }
 
   int count() const { return m_entities.size(); }

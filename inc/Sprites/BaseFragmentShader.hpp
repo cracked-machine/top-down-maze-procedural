@@ -28,10 +28,7 @@ namespace ProceduralMaze::Sprites {
 class BaseFragmentShader : public sf::Drawable, public sf::Transformable
 {
 public:
-  BaseFragmentShader( std::filesystem::path shader_path, sf::Vector2u texture_size )
-      : m_texture( texture_size ), m_shader_path( shader_path )
-  {
-  }
+  BaseFragmentShader( std::filesystem::path shader_path, sf::Vector2u texture_size ) : m_texture( texture_size ), m_shader_path( shader_path ) {}
 
   virtual ~BaseFragmentShader() = default;
 
@@ -58,10 +55,7 @@ public:
   // set the Sprite position
   void set_position( sf::Vector2f position ) { m_sprite.setPosition( position ); }
 
-  void draw( sf::RenderTarget &target, [[maybe_unused]] sf::RenderStates states ) const override
-  {
-    target.draw( m_sprite, &m_shader );
-  }
+  void draw( sf::RenderTarget &target, [[maybe_unused]] sf::RenderStates states ) const override { target.draw( m_sprite, &m_shader ); }
 
 protected:
   sf::RenderTexture m_texture;

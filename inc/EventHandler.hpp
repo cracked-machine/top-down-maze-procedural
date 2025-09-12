@@ -24,10 +24,7 @@ namespace ProceduralMaze {
 class InputEventHandler : public Sys::BaseSystem
 {
 public:
-  InputEventHandler( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
-      : Sys::BaseSystem( reg )
-  {
-  }
+  InputEventHandler( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : Sys::BaseSystem( reg ) {}
 
   void menu_state_handler( sf::RenderWindow &window )
   {
@@ -38,10 +35,7 @@ public:
       while ( const std::optional event = window.pollEvent() )
       {
         ImGui::SFML::ProcessEvent( window, *event );
-        if ( event->is<sf::Event::Closed>() )
-        {
-          game_state.current_state = Cmp::GameState::State::EXITING;
-        }
+        if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::GameState::State::EXITING; }
         else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
         {
           sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
@@ -49,18 +43,9 @@ public:
         }
         else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
         {
-          if ( keyPressed->scancode == sf::Keyboard::Scancode::Enter )
-          {
-            game_state.current_state = Cmp::GameState::State::LOADING;
-          }
-          else if ( keyPressed->scancode == sf::Keyboard::Scancode::Q )
-          {
-            game_state.current_state = Cmp::GameState::State::EXITING;
-          }
-          else if ( keyPressed->scancode == sf::Keyboard::Scancode::S )
-          {
-            game_state.current_state = Cmp::GameState::State::SETTINGS;
-          }
+          if ( keyPressed->scancode == sf::Keyboard::Scancode::Enter ) { game_state.current_state = Cmp::GameState::State::LOADING; }
+          else if ( keyPressed->scancode == sf::Keyboard::Scancode::Q ) { game_state.current_state = Cmp::GameState::State::EXITING; }
+          else if ( keyPressed->scancode == sf::Keyboard::Scancode::S ) { game_state.current_state = Cmp::GameState::State::SETTINGS; }
         }
       }
     }
@@ -75,10 +60,7 @@ public:
       while ( const std::optional event = window.pollEvent() )
       {
         ImGui::SFML::ProcessEvent( window, *event );
-        if ( event->is<sf::Event::Closed>() )
-        {
-          game_state.current_state = Cmp::GameState::State::EXITING;
-        }
+        if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::GameState::State::EXITING; }
         else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
         {
           sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
@@ -86,10 +68,7 @@ public:
         }
         else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
         {
-          if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape )
-          {
-            game_state.current_state = Cmp::GameState::State::MENU;
-          }
+          if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape ) { game_state.current_state = Cmp::GameState::State::MENU; }
         }
       }
     }
@@ -104,10 +83,7 @@ public:
       while ( const std::optional event = window.pollEvent() )
       {
         ImGui::SFML::ProcessEvent( window, *event );
-        if ( event->is<sf::Event::Closed>() )
-        {
-          game_state.current_state = Cmp::GameState::State::EXITING;
-        }
+        if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::GameState::State::EXITING; }
         else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
         {
           sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
@@ -120,9 +96,7 @@ public:
             for ( auto [_entt, _sys] : m_reg->view<Cmp::System>().each() )
             {
               _sys.collisions_enabled = not _sys.collisions_enabled;
-              SPDLOG_INFO(
-                  "Collisions are now {}", _sys.collisions_enabled ? "ENABLED" : "DISABLED"
-              );
+              SPDLOG_INFO( "Collisions are now {}", _sys.collisions_enabled ? "ENABLED" : "DISABLED" );
             }
           }
           else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
@@ -138,10 +112,7 @@ public:
             for ( auto [_entt, _sys] : m_reg->view<Cmp::System>().each() )
             {
               _sys.show_path_distances = not _sys.show_path_distances;
-              SPDLOG_INFO(
-                  "Show Dijkstra distance is now {}",
-                  _sys.show_path_distances ? "ENABLED" : "DISABLED"
-              );
+              SPDLOG_INFO( "Show Dijkstra distance is now {}", _sys.show_path_distances ? "ENABLED" : "DISABLED" );
             }
           }
           else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 )
@@ -149,10 +120,7 @@ public:
             for ( auto [_entt, _sys] : m_reg->view<Cmp::System>().each() )
             {
               _sys.show_armed_obstacles = not _sys.show_armed_obstacles;
-              SPDLOG_INFO(
-                  "Show armed obstacles is now {}",
-                  _sys.show_armed_obstacles ? "ENABLED" : "DISABLED"
-              );
+              SPDLOG_INFO( "Show armed obstacles is now {}", _sys.show_armed_obstacles ? "ENABLED" : "DISABLED" );
             }
           }
           else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
@@ -171,10 +139,7 @@ public:
               SPDLOG_INFO( "Level complete (player cheated)" );
             }
           }
-          else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
-          {
-            game_state.current_state = Cmp::GameState::State::UNLOADING;
-          }
+          else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { game_state.current_state = Cmp::GameState::State::UNLOADING; }
         }
         else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
         {
@@ -196,29 +161,15 @@ public:
       {
         direction.x = 0;
         direction.y = 0;
-        if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) )
-        {
-          direction.y = -1;
-        } // move player up
-        if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) )
-        {
-          direction.x = -1;
-        } // move player left
-        if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) )
-        {
-          direction.x = 1;
-        } // move player right
-        if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) )
-        {
-          direction.y = 1;
-        } // move player down
+        if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) ) { direction.y = -1; } // move player up
+        if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) ) { direction.x = -1; } // move player left
+        if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; } // move player right
+        if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; } // move player down
       }
 
       if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Space ) )
       {
-        getEventDispatcher().trigger(
-            Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB )
-        );
+        getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
       }
     }
   }
@@ -232,10 +183,7 @@ public:
       while ( const std::optional event = window.pollEvent() )
       {
         ImGui::SFML::ProcessEvent( window, *event );
-        if ( event->is<sf::Event::Closed>() )
-        {
-          game_state.current_state = Cmp::GameState::State::EXITING;
-        }
+        if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::GameState::State::EXITING; }
         else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
         {
           sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
@@ -243,10 +191,7 @@ public:
         }
         else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
         {
-          if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
-          {
-            game_state.current_state = Cmp::GameState::State::PLAYING;
-          }
+          if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { game_state.current_state = Cmp::GameState::State::PLAYING; }
         }
       }
     }
@@ -261,10 +206,7 @@ public:
       while ( const std::optional event = window.pollEvent() )
       {
         ImGui::SFML::ProcessEvent( window, *event );
-        if ( event->is<sf::Event::Closed>() )
-        {
-          game_state.current_state = Cmp::GameState::State::EXITING;
-        }
+        if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::GameState::State::EXITING; }
         else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
         {
           sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
@@ -272,10 +214,7 @@ public:
         }
         else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
         {
-          if ( keyPressed->scancode == sf::Keyboard::Scancode::R )
-          {
-            game_state.current_state = Cmp::GameState::State::UNLOADING;
-          }
+          if ( keyPressed->scancode == sf::Keyboard::Scancode::R ) { game_state.current_state = Cmp::GameState::State::UNLOADING; }
         }
       }
     }

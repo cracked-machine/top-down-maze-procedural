@@ -77,9 +77,7 @@ void RenderOverlaySystem::render_bomb_overlay( int bomb_count, sf::Vector2f pos 
   getWindow().draw( bomb_count_text );
 }
 
-void RenderOverlaySystem::render_health_overlay(
-    float health_value, sf::Vector2f pos, sf::Vector2f size
-)
+void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2f pos, sf::Vector2f size )
 {
   // text
   healthlvl_meter_text.setPosition( pos );
@@ -104,9 +102,7 @@ void RenderOverlaySystem::render_health_overlay(
   getWindow().draw( healthbar_border );
 }
 
-void RenderOverlaySystem::render_water_level_meter_overlay(
-    float water_level, sf::Vector2f pos, sf::Vector2f size
-)
+void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size )
 {
   // text
   waterlvl_meter_text.setPosition( pos );

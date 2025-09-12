@@ -79,11 +79,7 @@ protected:
   // Derived class accessor for the static window instance
   static sf::RenderWindow &getWindow()
   {
-    if ( !RenderSystem::m_window )
-    {
-      RenderSystem::m_window =
-          std::make_unique<sf::RenderWindow>( sf::VideoMode( DISPLAY_SIZE ), "ProceduralMaze" );
-    }
+    if ( !RenderSystem::m_window ) { RenderSystem::m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( DISPLAY_SIZE ), "ProceduralMaze" ); }
     return *RenderSystem::m_window;
   }
 

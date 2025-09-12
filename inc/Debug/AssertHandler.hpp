@@ -16,8 +16,7 @@ namespace Debug {
 
 void stack_trace();
 
-[[noreturn]] inline void
-assert_handler( const char *condition, const char *message, const char *file, const int line )
+[[noreturn]] inline void assert_handler( const char *condition, const char *message, const char *file, const int line )
 {
   SPDLOG_CRITICAL( "\n" );
   SPDLOG_CRITICAL( "=== Assertion Failed ===" );
@@ -42,10 +41,10 @@ assert_handler( const char *condition, const char *message, const char *file, co
 } // namespace Debug
 
 // Define our custom assertion macro before including any EnTT headers
-#define ENTT_ASSERT( condition, msg )                                                              \
-  do                                                                                               \
-  {                                                                                                \
-    if ( !( condition ) ) { ::Debug::assert_handler( #condition, msg, __FILE__, __LINE__ ); }      \
+#define ENTT_ASSERT( condition, msg )                                                                                                                \
+  do                                                                                                                                                 \
+  {                                                                                                                                                  \
+    if ( !( condition ) ) { ::Debug::assert_handler( #condition, msg, __FILE__, __LINE__ ); }                                                        \
   } while ( 0 )
 
 #endif // DEBUG_ASSERT_HANDLER_HPP

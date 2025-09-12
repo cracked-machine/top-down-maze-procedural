@@ -24,10 +24,7 @@ public:
       std::terminate();
     }
   }
-  bool load(
-      const std::filesystem::path &tileset, sf::Vector2u tileSize, const unsigned int *tiles,
-      unsigned int width, unsigned int height
-  )
+  bool load( const std::filesystem::path &tileset, sf::Vector2u tileSize, const unsigned int *tiles, unsigned int width, unsigned int height )
   {
     // load the tileset texture
     if ( !m_tileset.loadFromFile( tileset ) ) return false;

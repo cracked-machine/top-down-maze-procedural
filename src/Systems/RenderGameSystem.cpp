@@ -5,14 +5,11 @@
 
 namespace ProceduralMaze::Sys {
 
-RenderGameSystem::RenderGameSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
-    : RenderSystem( reg )
+RenderGameSystem::RenderGameSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : RenderSystem( reg )
 {
 
   // init local view dimensions
-  m_local_view = sf::View(
-      { LOCAL_MAP_VIEW_SIZE.x * 0.5f, LOCAL_MAP_VIEW_SIZE.y * 0.5f }, LOCAL_MAP_VIEW_SIZE
-  );
+  m_local_view = sf::View( { LOCAL_MAP_VIEW_SIZE.x * 0.5f, LOCAL_MAP_VIEW_SIZE.y * 0.5f }, LOCAL_MAP_VIEW_SIZE );
   m_local_view.setViewport( sf::FloatRect( { 0.f, 0.f }, { 1.f, 1.f } ) );
 
   for ( auto [e, p] : m_reg->view<Cmp::GameState>().each() )
@@ -21,8 +18,7 @@ RenderGameSystem::RenderGameSystem( std::shared_ptr<entt::basic_registry<entt::e
   }
 
   // init minimap view dimensions
-  m_minimap_view =
-      sf::View( { MINI_MAP_VIEW_SIZE.x * 0.5f, MINI_MAP_VIEW_SIZE.y * 0.5f }, MINI_MAP_VIEW_SIZE );
+  m_minimap_view = sf::View( { MINI_MAP_VIEW_SIZE.x * 0.5f, MINI_MAP_VIEW_SIZE.y * 0.5f }, MINI_MAP_VIEW_SIZE );
   m_minimap_view.setViewport( sf::FloatRect( { 0.75f, 0.f }, { 0.25f, 0.25f } ) );
 }
 
@@ -67,8 +63,7 @@ void RenderGameSystem::render_game()
         }
         else
         {
-          for ( auto [entity, _pc, _pos] :
-                m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+          for ( auto [entity, _pc, _pos] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
           {
             update_view_center( m_local_view, _pos );
           }
@@ -101,8 +96,7 @@ void RenderGameSystem::render_game()
         }
         else
         {
-          for ( auto [entity, _pc, _pos] :
-                m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+          for ( auto [entity, _pc, _pos] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
           {
             update_view_center( m_minimap_view, _pos );
           }
@@ -131,9 +125,7 @@ void RenderGameSystem::render_game()
 
       for ( auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each() )
       {
-        m_overlay_sys.render_water_level_meter_overlay(
-            water_level.m_level, { 40.f, 70.f }, { 200.f, 20.f }
-        );
+        m_overlay_sys.render_water_level_meter_overlay( water_level.m_level, { 40.f, 70.f }, { 200.f, 20.f } );
       }
 
       m_overlay_sys.render_entt_distance_set_overlay( { 40.f, 300.f } );
@@ -163,8 +155,7 @@ void RenderGameSystem::render_obstacles()
   std::vector<sf::Vector2f> detonationPositions;
 
   // Collect all positions first instead of drawing immediately
-  for ( auto [entity, _ob, _pos, _ob_nb_list] :
-        m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() )
+  for ( auto [entity, _ob, _pos, _ob_nb_list] : m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() )
   {
 
     if ( _ob.m_enabled )
@@ -314,8 +305,7 @@ void RenderGameSystem::render_walls()
 {
   // Render textures for "WALL" entities - filtered out because they don't own
   // neighbour components
-  for ( auto [entity, _ob, _pos] :
-        m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::Neighbours> ).each() )
+  for ( auto [entity, _ob, _pos] : m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::Neighbours> ).each() )
   {
 
     m_wall_ms->pick( _ob.m_tile_index, "wall" );
@@ -327,8 +317,7 @@ void RenderGameSystem::render_walls()
 void RenderGameSystem::render_player()
 {
   for ( auto [entity, player, position, direction, pc_detection_bounds] :
-        m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds>()
-            .each() )
+        m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds>().each() )
   {
 
     // flip and x-axis offset the sprite depending on the direction
@@ -367,8 +356,7 @@ void RenderGameSystem::render_player()
 
 void RenderGameSystem::render_npc()
 {
-  for ( auto [entity, npc, pos, npc_scan_bounds, direction] :
-        m_reg->view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds, Cmp::Direction>().each() )
+  for ( auto [entity, npc, pos, npc_scan_bounds, direction] : m_reg->view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds, Cmp::Direction>().each() )
   {
     // flip and x-axis offset the sprite depending on the direction
     if ( direction.x > 0 )
@@ -539,9 +527,6 @@ void RenderGameSystem::update_view_center( sf::View &view, Cmp::Position &player
   sf::Vector2f currentCenter = view.getCenter();
   float smoothFactor = 0.1f; // Adjust this value to change how quickly the camera follows
 
-  view.setCenter(
-      { currentCenter.x + ( newX - currentCenter.x ) * smoothFactor,
-        currentCenter.y + ( newY - currentCenter.y ) * smoothFactor }
-  );
+  view.setCenter( { currentCenter.x + ( newX - currentCenter.x ) * smoothFactor, currentCenter.y + ( newY - currentCenter.y ) * smoothFactor } );
 }
 }; // namespace ProceduralMaze::Sys

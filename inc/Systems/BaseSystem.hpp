@@ -50,10 +50,7 @@ public:
 
   // sum( (posA.x - posB.x) + (posA.y - posB.y) )
   // cardinal directions only
-  float getManhattanDistance( sf::Vector2f posA, sf::Vector2f posB ) const
-  {
-    return std::abs( posA.x - posB.x ) + std::abs( posA.y - posB.y );
-  }
+  float getManhattanDistance( sf::Vector2f posA, sf::Vector2f posB ) const { return std::abs( posA.x - posB.x ) + std::abs( posA.y - posB.y ); }
 
   // max( (posA.x - posB.x), (posA.y - posB.y) )
   // cardinal and diagonal directions
@@ -71,9 +68,7 @@ public:
 
   sf::FloatRect get_hitbox( sf::Vector2f pos )
   {
-    return sf::FloatRect(
-        { pos.x, pos.y }, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE }
-    );
+    return sf::FloatRect( { pos.x, pos.y }, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE } );
   }
 
   constexpr static const sf::Vector2u DISPLAY_SIZE{ 1920, 1024 };

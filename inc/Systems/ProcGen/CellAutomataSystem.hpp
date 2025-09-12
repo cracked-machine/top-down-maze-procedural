@@ -24,10 +24,7 @@ namespace ProceduralMaze::Sys::ProcGen {
 class CellAutomataSystem : public BaseSystem
 {
 public:
-  CellAutomataSystem(
-      std::shared_ptr<entt::basic_registry<entt::entity>> reg,
-      std::unique_ptr<RandomLevelGenerator> random_level
-  )
+  CellAutomataSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg, std::unique_ptr<RandomLevelGenerator> random_level )
       : BaseSystem( reg ), m_random_level( std::move( random_level ) )
   {
   }
@@ -69,9 +66,7 @@ private:
       }
 
       SPDLOG_TRACE( "Entity {} has neighbours:", entt::to_integral( *it ) );
-      m_reg->patch<Cmp::Neighbours>( entt::entity( *it ), []( auto &_nb_update ) {
-        _nb_update.clear();
-      } );
+      m_reg->patch<Cmp::Neighbours>( entt::entity( *it ), []( auto &_nb_update ) { _nb_update.clear(); } );
 
       SPDLOG_TRACE( "" );
       const int idx = std::distance( m_random_level->begin(), it );
@@ -79,12 +74,8 @@ private:
       bool has_left_map_edge = not( ( idx ) % MAP_GRID_SIZE.y );
       bool has_right_map_edge = not( ( idx + 1 ) % MAP_GRID_SIZE.y );
 
-      SPDLOG_TRACE(
-          "Entity {} has left map edge: {}", entt::to_integral( *it ), has_left_map_edge
-      );
-      SPDLOG_TRACE(
-          "Entity {} has right map edge: {}", entt::to_integral( *it ), has_right_map_edge
-      );
+      SPDLOG_TRACE( "Entity {} has left map edge: {}", entt::to_integral( *it ), has_left_map_edge );
+      SPDLOG_TRACE( "Entity {} has right map edge: {}", entt::to_integral( *it ), has_right_map_edge );
       auto current_entity = entt::entity( *it );
 
       //   Columns
@@ -118,9 +109,7 @@ private:
         }
         else if ( left_entt_ob && left_entt_ob->m_enabled && not has_left_map_edge )
         {
-          m_reg->patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update ) {
-            _nb_update.set( Cmp::Neighbours::Dir::LEFT, left_entt );
-          } );
+          m_reg->patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::LEFT, left_entt ); } );
         }
       }
       // N - (y - 1)
@@ -170,9 +159,7 @@ private:
         }
         else if ( down_entt_ob->m_enabled )
         {
-          m_reg->patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update ) {
-            _nb_update.set( Cmp::Neighbours::Dir::DOWN, down_entt );
-          } );
+          m_reg->patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::DOWN, down_entt ); } );
         }
       }
       // N - (y + 1)
@@ -240,32 +227,22 @@ private:
         }
       }
       // N + y
-      if ( MAP_GRID_SIZE.y < m_random_level->size() &&
-           std::next( it, MAP_GRID_SIZE.y ) < m_random_level->end() )
+      if ( MAP_GRID_SIZE.y < m_random_level->size() && std::next( it, MAP_GRID_SIZE.y ) < m_random_level->end() )
       {
         auto top_entt = entt::entity( *std::next( it, MAP_GRID_SIZE.y ) );
         Cmp::Obstacle *top_entt_ob = m_reg->try_get<Cmp::Obstacle>( top_entt );
         if ( not top_entt_ob )
         {
-          SPDLOG_WARN(
-              "No Obstacle component found on top entity [N + y] neighbour: {}",
-              entt::to_integral( top_entt )
-          );
-          assert(
-              false && "No Obstacle component found on top entity [N + y] neighbour: " &&
-              entt::to_integral( top_entt )
-          );
+          SPDLOG_WARN( "No Obstacle component found on top entity [N + y] neighbour: {}", entt::to_integral( top_entt ) );
+          assert( false && "No Obstacle component found on top entity [N + y] neighbour: " && entt::to_integral( top_entt ) );
         }
         else if ( top_entt_ob->m_enabled )
         {
-          m_reg->patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update ) {
-            _nb_update.set( Cmp::Neighbours::Dir::UP, top_entt );
-          } );
+          m_reg->patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::UP, top_entt ); } );
         }
       }
       // N + (y + 1)
-      if ( ( MAP_GRID_SIZE.y + 1 ) < m_random_level->size() &&
-           std::next( it, ( MAP_GRID_SIZE.y + 1 ) ) < m_random_level->end() )
+      if ( ( MAP_GRID_SIZE.y + 1 ) < m_random_level->size() && std::next( it, ( MAP_GRID_SIZE.y + 1 ) ) < m_random_level->end() )
       {
         auto top_right_entt = entt::entity( *std::next( it, ( MAP_GRID_SIZE.y + 1 ) ) );
         Cmp::Obstacle *top_right_entt_ob = m_reg->try_get<Cmp::Obstacle>( top_right_entt );
@@ -311,9 +288,7 @@ private:
         }
         else if ( right_entt_ob->m_enabled && not has_right_map_edge )
         {
-          m_reg->patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update ) {
-            _nb_update.set( Cmp::Neighbours::Dir::RIGHT, right_entt );
-          } );
+          m_reg->patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::RIGHT, right_entt ); } );
         }
       }
     }
@@ -321,18 +296,15 @@ private:
 
 #ifdef NDEBUG
 
-    for ( auto [_entt, _ob, _pos, _nb] :
-          m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() )
+    for ( auto [_entt, _ob, _pos, _nb] : m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() )
     {
       // SPDLOG_INFO("Entity {} has {} neighbours", entt::to_integral(_entt),
       // _nb.count());
-      std::string msg = std::to_string( entt::to_integral( _entt ) ) + "(" +
-                        std::to_string( _nb.count() ) + ") = ";
+      std::string msg = std::to_string( entt::to_integral( _entt ) ) + "(" + std::to_string( _nb.count() ) + ") = ";
 
       for ( auto [_dir, _nb_entt] : _nb )
       {
-        msg += "[" + _nb.to_string( _dir ) + ":" + std::to_string( entt::to_integral( _nb_entt ) ) +
-               "] ";
+        msg += "[" + _nb.to_string( _dir ) + ":" + std::to_string( entt::to_integral( _nb_entt ) ) + "] ";
       }
       SPDLOG_TRACE( msg );
     }
@@ -343,8 +315,7 @@ private:
   {
     // 2. apply rules
 
-    for ( auto [_entt, _ob, _pos, _nb] :
-          m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() )
+    for ( auto [_entt, _ob, _pos, _nb] : m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() )
     {
       if ( _ob.m_type == Sprites::SpriteFactory::Type::WALL ) { continue; }
       if ( _nb.count() <= 2 ) { _ob.m_enabled = true; }

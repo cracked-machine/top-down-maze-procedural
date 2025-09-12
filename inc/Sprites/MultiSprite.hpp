@@ -26,8 +26,8 @@ public:
   MultiSprite() = default;
 
   void add_sprite(
-      const std::filesystem::path &tilemap_path, std::vector<uint32_t> tilemap_picks,
-      const sf::Vector2u &tileSize = sf::Vector2u{ 16, 16 }, std::string name = ""
+      const std::filesystem::path &tilemap_path, std::vector<uint32_t> tilemap_picks, const sf::Vector2u &tileSize = sf::Vector2u{ 16, 16 },
+      std::string name = ""
   )
   {
     if ( !m_tilemap_texture.loadFromFile( tilemap_path ) )
@@ -65,10 +65,7 @@ public:
     }
     SPDLOG_DEBUG(
         "Requested {} tiles ... Created {} sprites from texture {}: ",
-        std::distance(
-            tilemap_picks.begin(), std::unique( tilemap_picks.begin(), tilemap_picks.end() )
-        ),
-        m_va_list.size(), tilemap_path.string()
+        std::distance( tilemap_picks.begin(), std::unique( tilemap_picks.begin(), tilemap_picks.end() ) ), m_va_list.size(), tilemap_path.string()
     );
   }
 

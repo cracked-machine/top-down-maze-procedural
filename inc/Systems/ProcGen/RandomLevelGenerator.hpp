@@ -26,8 +26,7 @@ namespace ProceduralMaze::Sys::ProcGen {
 class RandomLevelGenerator : public BaseSystem
 {
 public:
-  RandomLevelGenerator( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
-      : BaseSystem( reg )
+  RandomLevelGenerator( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : BaseSystem( reg )
   {
     gen_objects();
     gen_border();
@@ -49,11 +48,9 @@ public:
             entity,
             sf::Vector2f{
                 ( x * Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x ) +
-                    ( Sys::BaseSystem::MAP_GRID_OFFSET.x *
-                      Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x ),
+                    ( Sys::BaseSystem::MAP_GRID_OFFSET.x * Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x ),
                 ( y * Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y ) +
-                    ( Sys::BaseSystem::MAP_GRID_OFFSET.y *
-                      Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y )
+                    ( Sys::BaseSystem::MAP_GRID_OFFSET.y * Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y )
             }
         );
         // track the contiguous creation order of the entity so we can easily
@@ -66,8 +63,7 @@ public:
           std::get_terminate();
         }
         auto obstacle_metadata = sprite_factory->get_random_metadata(
-            { Sprites::SpriteFactory::Type::ROCK, Sprites::SpriteFactory::Type::POT,
-              Sprites::SpriteFactory::Type::BONES }
+            { Sprites::SpriteFactory::Type::ROCK, Sprites::SpriteFactory::Type::POT, Sprites::SpriteFactory::Type::BONES }
         );
         if ( !obstacle_metadata )
         {
@@ -75,10 +71,7 @@ public:
           continue;
         }
         auto random_obstacle_texture_index = obstacle_metadata->pick_random_texture_index();
-        m_reg->emplace<Cmp::Obstacle>(
-            entity, obstacle_metadata->get_type(), random_obstacle_texture_index, true,
-            m_activation_selector.gen()
-        );
+        m_reg->emplace<Cmp::Obstacle>( entity, obstacle_metadata->get_type(), random_obstacle_texture_index, true, m_activation_selector.gen() );
 
         m_reg->emplace<Cmp::Neighbours>( entity );
       }
@@ -98,17 +91,9 @@ public:
       else
         texture_index = 1;
       // top edge
-      add_border_entity(
-          { x, ( MAP_GRID_OFFSET.y - 1 ) * Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y },
-          texture_index
-      );
+      add_border_entity( { x, ( MAP_GRID_OFFSET.y - 1 ) * Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y }, texture_index );
       // bottom edge
-      add_border_entity(
-          { x, MAP_GRID_OFFSET.y +
-                   ( ( MAP_GRID_SIZE.y + 2 ) * Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y ) -
-                   2 },
-          texture_index
-      );
+      add_border_entity( { x, MAP_GRID_OFFSET.y + ( ( MAP_GRID_SIZE.y + 2 ) * Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y ) - 2 }, texture_index );
     }
     for ( float y = 0; y < DISPLAY_SIZE.y; y += Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y )
     {
@@ -130,11 +115,7 @@ public:
         enabled = false;
       } // open door exit
       // right edge
-      add_border_entity(
-          { static_cast<float>( DISPLAY_SIZE.x ) - Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x, y
-          },
-          texture_index, enabled
-      );
+      add_border_entity( { static_cast<float>( DISPLAY_SIZE.x ) - Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x, y }, texture_index, enabled );
       enabled = true;
     }
   }
@@ -156,9 +137,7 @@ public:
       std::get_terminate();
     }
 
-    m_reg->emplace<Cmp::Obstacle>(
-        entity, Sprites::SpriteFactory::Type::WALL, texture_index, true, enabled
-    );
+    m_reg->emplace<Cmp::Obstacle>( entity, Sprites::SpriteFactory::Type::WALL, texture_index, true, enabled );
     m_reg->emplace<Cmp::Exit>( entity );
   }
 
