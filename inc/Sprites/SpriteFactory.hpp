@@ -38,7 +38,8 @@ public:
     INFINI_BOMBS = 9,
     CHAIN_BOMBS = 10,
     LOWER_WATER = 11,
-    NPC = 12
+    NPC = 12,
+    EXPLOSION = 13
   };
 
 private:
@@ -67,7 +68,9 @@ private:
       { SpriteFactory::SpriteMetaType::EXTRA_BOMBS, "EXTRA_BOMBS", 40.f, MultiSprite{ "res/Pixel Lands Dungeons/objects.png", { 67 } } },
       { SpriteFactory::SpriteMetaType::INFINI_BOMBS, "INFINI_BOMBS", 1.f, MultiSprite{ "res/Pixel Lands Dungeons/objects.png", { 35 } } },
       { SpriteFactory::SpriteMetaType::CHAIN_BOMBS, "CHAIN_BOMBS", 20.f, MultiSprite{ "res/Pixel Lands Dungeons/objects.png", { 34 } } },
-      { SpriteFactory::SpriteMetaType::LOWER_WATER, "LOWER_WATER", 40.f, MultiSprite{ "res/Pixel Lands Dungeons/objects.png", { 33 } } }
+      { SpriteFactory::SpriteMetaType::LOWER_WATER, "LOWER_WATER", 40.f, MultiSprite{ "res/Pixel Lands Dungeons/objects.png", { 33 } } },
+      { SpriteFactory::SpriteMetaType::EXPLOSION, "EXPLOSION", 1.f, MultiSprite{ "res/fire_effect_and_bullet_16x16.png", { 66, 67, 68, 69, 70, 71 } }
+      }
   };
 
 public:

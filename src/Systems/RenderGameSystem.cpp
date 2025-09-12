@@ -1,4 +1,5 @@
 #include <GameState.hpp>
+#include <NpcDeathPosition.hpp>
 #include <RenderSystem.hpp>
 #include <Systems/RenderGameSystem.hpp>
 #include <string>
@@ -22,7 +23,7 @@ RenderGameSystem::RenderGameSystem( std::shared_ptr<entt::basic_registry<entt::e
   m_minimap_view.setViewport( sf::FloatRect( { 0.75f, 0.f }, { 0.25f, 0.25f } ) );
 }
 
-void RenderGameSystem::render_game()
+void RenderGameSystem::render_game( sf::Time deltaTime )
 {
   using namespace Sprites;
 
@@ -47,6 +48,7 @@ void RenderGameSystem::render_game()
       render_walls();
       render_player();
       render_npc();
+      render_explosions( deltaTime );
       render_flood_waters();
       render_player_distances_on_npc();
       // render_npc_distances_on_obstacles();
@@ -394,6 +396,41 @@ void RenderGameSystem::render_npc()
   }
 }
 
+void RenderGameSystem::render_explosions( sf::Time deltaTime )
+{
+  // TODO possibly add a persistent component here so it can be set ingame
+  const sf::Time kAnimFrameRate = sf::seconds( 0.05f );
+
+  auto explosion_view = m_reg->view<Cmp::NpcDeathPosition>();
+  for ( auto [entity, explosion_cmp] : explosion_view.each() )
+  {
+    SPDLOG_DEBUG( "Rendering {} active explosions", explosion_view.size() );
+
+    auto max_anim_frame = m_explosion_ms->get_sprite_count();
+    // have we completed the animation?
+    if ( explosion_cmp.current_anim_frame >= max_anim_frame )
+    {
+      m_reg->remove<Cmp::NpcDeathPosition>( entity );
+      SPDLOG_DEBUG( "Explosion animation complete, removing component from entity {}", static_cast<int>( entity ) );
+      continue;
+    }
+
+    // Always render the current frame
+    SPDLOG_DEBUG( "Rendering explosion frame {}/{} for entity {}", explosion_cmp.current_anim_frame, max_anim_frame, static_cast<int>( entity ) );
+    m_explosion_ms->pick( explosion_cmp.current_anim_frame, "explosion" );
+    m_explosion_ms->setPosition( explosion_cmp );
+    getWindow().draw( *m_explosion_ms );
+
+    // Accumulate time and advance frame when threshold is reached
+    explosion_cmp.elapsed_time += deltaTime;
+    if ( explosion_cmp.elapsed_time >= kAnimFrameRate )
+    {
+      explosion_cmp.current_anim_frame++;
+      explosion_cmp.elapsed_time = sf::Time::Zero; // Reset timer
+    }
+  }
+}
+
 void RenderGameSystem::render_flood_waters()
 {
   for ( auto [_, _wl] : m_reg->view<Cmp::WaterLevel>().each() )
@@ -486,6 +523,7 @@ void RenderGameSystem::load_multisprites()
   m_infinite_bombs_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::INFINI_BOMBS );
   m_chain_bombs_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::CHAIN_BOMBS );
   m_lower_water_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::LOWER_WATER );
+  m_explosion_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXPLOSION );
 
   // we should ensure these MultiSprites are initialized before continuing
   std::string err_msg;
@@ -502,6 +540,7 @@ void RenderGameSystem::load_multisprites()
   if ( !m_infinite_bombs_ms ) { err_msg = "Unable to get INFINI_BOMBS from SpriteFactory"; }
   if ( !m_chain_bombs_ms ) { err_msg = "Unable to get CHAIN_BOMBS from SpriteFactory"; }
   if ( !m_lower_water_ms ) { err_msg = "Unable to get LOWER_WATER from SpriteFactory"; }
+  if ( !m_explosion_ms ) { err_msg = "Unable to get EXPLOSION from SpriteFactory"; }
 
   if ( !err_msg.empty() )
   {

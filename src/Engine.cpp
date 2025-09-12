@@ -99,7 +99,7 @@ bool Engine::run()
           if ( not _pc.alive ) { game_state.current_state = Cmp::GameState::State::GAMEOVER; }
         }
 
-        m_render_game_sys.render_game();
+        m_render_game_sys.render_game( deltaTime );
         break;
       } // case PLAYING end
 

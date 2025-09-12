@@ -1,6 +1,8 @@
 #include <BombSystem.hpp>
+#include <NpcDeathPosition.hpp>
 #include <Persistent/ArmedOffDelay.hpp>
 #include <Persistent/BombDamage.hpp>
+#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
 
@@ -183,11 +185,17 @@ void BombSystem::update()
       player.has_active_bomb = false;
     }
 
-    // Check NPC explosion damage
+    // Check if NPC was killed by explosion
     for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : m_reg->view<Cmp::NPC, Cmp::Position>().each() )
     {
       auto npc_bounding_box = get_hitbox( npc_pos_cmp );
-      if ( npc_bounding_box.findIntersection( obstacle_explosion_zone ) ) { getEventDispatcher().trigger( Events::NpcDeathEvent( npc_entt ) ); }
+      // notify npc system of death
+      if ( npc_bounding_box.findIntersection( obstacle_explosion_zone ) )
+      {
+        m_reg->emplace_or_replace<Cmp::NpcDeathPosition>( npc_entt, npc_pos_cmp );
+        SPDLOG_DEBUG( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ), npc_pos_cmp.x, npc_pos_cmp.y );
+        getEventDispatcher().trigger( Events::NpcDeathEvent( npc_entt ) );
+      }
     }
 
     // if we got this far then the bomb detonated, we can destroy the armed

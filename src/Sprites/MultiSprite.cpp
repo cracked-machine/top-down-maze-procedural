@@ -60,10 +60,7 @@ bool MultiSprite::add_sprite( const std::filesystem::path &tilemap_path, const s
 
     m_va_list.push_back( current_va );
   }
-  SPDLOG_DEBUG(
-      "Requested {} tiles ... Created {} sprites from texture {}: ",
-      std::distance( tilemap_picks.begin(), std::unique( tilemap_picks.begin(), tilemap_picks.end() ) ), m_va_list.size(), tilemap_path.string()
-  );
+  SPDLOG_INFO( "Requested {} tiles ... Created {} sprites from texture {}: ", tilemap_picks.size(), m_va_list.size(), tilemap_path.string() );
   return true;
 }
 

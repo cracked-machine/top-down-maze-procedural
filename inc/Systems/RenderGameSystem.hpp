@@ -1,7 +1,9 @@
 #ifndef __SYS_RENDERGAMESYSTEM_HPP__
 #define __SYS_RENDERGAMESYSTEM_HPP__
 
+#include <MultiSprite.hpp>
 #include <RenderOverlaySystem.hpp>
+#include <SFML/System/Time.hpp>
 #include <Systems/RenderSystem.hpp>
 
 namespace ProceduralMaze::Sys {
@@ -12,7 +14,8 @@ public:
   RenderGameSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg );
   ~RenderGameSystem() = default;
 
-  void render_game();
+  // Entry point for class
+  void render_game( sf::Time deltaTime );
   void load_multisprites();
 
 private:
@@ -23,6 +26,7 @@ private:
   void render_walls();
   void render_player();
   void render_npc();
+  void render_explosions( sf::Time deltaTime );
   void render_flood_waters();
   void render_player_distances_on_npc();
   void render_player_distances_on_obstacles();
@@ -31,9 +35,6 @@ private:
   void update_view_center( sf::View &view, Cmp::Position &player_pos );
 
   RenderOverlaySystem m_overlay_sys{ m_reg };
-
-  // reactive mixin storage
-  //   entt::reactive_mixin<entt::storage<void>> m_position_updates;
 
   // Views
   const sf::Vector2f LOCAL_MAP_VIEW_SIZE{ 300.f, 200.f };
@@ -62,6 +63,7 @@ private:
   std::optional<Sprites::MultiSprite> m_infinite_bombs_ms;
   std::optional<Sprites::MultiSprite> m_chain_bombs_ms;
   std::optional<Sprites::MultiSprite> m_lower_water_ms;
+  std::optional<Sprites::MultiSprite> m_explosion_ms;
 };
 
 } // namespace ProceduralMaze::Sys

@@ -43,6 +43,7 @@ public:
     m_reg->remove<Cmp::NPC>( npc_entity );
     m_reg->remove<Cmp::Position>( npc_entity );
     m_reg->remove<Cmp::NPCScanBounds>( npc_entity );
+    SPDLOG_DEBUG( "NPC entity {} killed by explosion", static_cast<int>( npc_entity ) );
   }
 
   void lerp_movement( sf::Time dt )
