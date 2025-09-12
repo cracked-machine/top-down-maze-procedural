@@ -41,8 +41,6 @@ public:
     NPC = 12
   };
 
-  static const sf::Vector2u DEFAULT_SPRITE_SIZE;
-
 private:
   // This holds sprite type, tilemap texture path and tilemap indices in a
   // single place

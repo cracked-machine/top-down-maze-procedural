@@ -10,7 +10,6 @@
 #include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <algorithm>
 #include <cstdint>
 #include <filesystem>
 
@@ -33,13 +32,9 @@ public:
    * @param tilemap_picks Vector of tile indices to extract from the tilemap
    * @param tileSize Size of each individual tile in pixels (default: 16x16)
    */
-  MultiSprite( const std::filesystem::path &tilemap_path, std::vector<uint32_t> tilemap_picks, const sf::Vector2u &tileSize = sf::Vector2u{ 16, 16 } )
-  {
-    add_sprite( tilemap_path, tilemap_picks, tileSize );
-  }
+  MultiSprite( const std::filesystem::path &tilemap_path, std::vector<uint32_t> tilemap_picks ) { add_sprite( tilemap_path, tilemap_picks ); }
 
-  void
-  add_sprite( const std::filesystem::path &tilemap_path, std::vector<uint32_t> tilemap_picks, const sf::Vector2u &tileSize = sf::Vector2u{ 16, 16 } )
+  void add_sprite( const std::filesystem::path &tilemap_path, std::vector<uint32_t> tilemap_picks )
   {
     if ( !m_tilemap_texture.loadFromFile( tilemap_path ) )
     {
@@ -53,23 +48,23 @@ public:
     {
 
       sf::VertexArray current_va( sf::PrimitiveType::Triangles, 6 );
-      const int tu = tile_idx % ( m_tilemap_texture.getSize().x / tileSize.x );
-      const int tv = tile_idx / ( m_tilemap_texture.getSize().x / tileSize.x );
+      const int tu = tile_idx % ( m_tilemap_texture.getSize().x / DEFAULT_SPRITE_SIZE.x );
+      const int tv = tile_idx / ( m_tilemap_texture.getSize().x / DEFAULT_SPRITE_SIZE.x );
 
-      // draw the two triangles within local space using the `tileSize`
+      // draw the two triangles within local space using the `DEFAULT_SPRITE_SIZE`
       current_va[0].position = sf::Vector2f( 0, 0 );
-      current_va[1].position = sf::Vector2f( tileSize.x, 0 );
-      current_va[2].position = sf::Vector2f( 0, tileSize.y );
-      current_va[3].position = sf::Vector2f( 0, tileSize.y );
-      current_va[4].position = sf::Vector2f( tileSize.x, 0 );
-      current_va[5].position = sf::Vector2f( tileSize.x, tileSize.y );
+      current_va[1].position = sf::Vector2f( DEFAULT_SPRITE_SIZE.x, 0 );
+      current_va[2].position = sf::Vector2f( 0, DEFAULT_SPRITE_SIZE.y );
+      current_va[3].position = sf::Vector2f( 0, DEFAULT_SPRITE_SIZE.y );
+      current_va[4].position = sf::Vector2f( DEFAULT_SPRITE_SIZE.x, 0 );
+      current_va[5].position = sf::Vector2f( DEFAULT_SPRITE_SIZE.x, DEFAULT_SPRITE_SIZE.y );
 
-      current_va[0].texCoords = sf::Vector2f( tu * tileSize.x, tv * tileSize.y );
-      current_va[1].texCoords = sf::Vector2f( ( tu + 1 ) * tileSize.x, tv * tileSize.y );
-      current_va[2].texCoords = sf::Vector2f( tu * tileSize.x, ( tv + 1 ) * tileSize.y );
-      current_va[3].texCoords = sf::Vector2f( tu * tileSize.x, ( tv + 1 ) * tileSize.y );
-      current_va[4].texCoords = sf::Vector2f( ( tu + 1 ) * tileSize.x, tv * tileSize.y );
-      current_va[5].texCoords = sf::Vector2f( ( tu + 1 ) * tileSize.x, ( tv + 1 ) * tileSize.y );
+      current_va[0].texCoords = sf::Vector2f( tu * DEFAULT_SPRITE_SIZE.x, tv * DEFAULT_SPRITE_SIZE.y );
+      current_va[1].texCoords = sf::Vector2f( ( tu + 1 ) * DEFAULT_SPRITE_SIZE.x, tv * DEFAULT_SPRITE_SIZE.y );
+      current_va[2].texCoords = sf::Vector2f( tu * DEFAULT_SPRITE_SIZE.x, ( tv + 1 ) * DEFAULT_SPRITE_SIZE.y );
+      current_va[3].texCoords = sf::Vector2f( tu * DEFAULT_SPRITE_SIZE.x, ( tv + 1 ) * DEFAULT_SPRITE_SIZE.y );
+      current_va[4].texCoords = sf::Vector2f( ( tu + 1 ) * DEFAULT_SPRITE_SIZE.x, tv * DEFAULT_SPRITE_SIZE.y );
+      current_va[5].texCoords = sf::Vector2f( ( tu + 1 ) * DEFAULT_SPRITE_SIZE.x, ( tv + 1 ) * DEFAULT_SPRITE_SIZE.y );
       SPDLOG_TRACE( "  - Added tile index {} (tu={},tv={})", tile_idx, tu, tv );
 
       m_va_list.push_back( current_va );
@@ -103,6 +98,7 @@ public:
   sf::Texture m_tilemap_texture;
 
   std::size_t get_sprite_count() const { return m_va_list.size(); }
+  static const sf::Vector2u DEFAULT_SPRITE_SIZE;
 
 private:
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override
@@ -122,7 +118,6 @@ private:
     target.draw( m_selected_vertices, states );
   }
 
-private:
   std::vector<sf::VertexArray> m_va_list;
   // select the first vertex array by default
   sf::VertexArray m_selected_vertices;

@@ -102,12 +102,11 @@ public:
         auto &npc_activate_scale = m_reg->ctx().get<Cmp::Persistent::NPCActivateScale>();
         // we just create a temporary RectBounds here instead of a component
         // because we only need it for this one comparison and it already contains the needed scaling logic
-        auto npc_activate_bounds =
-            Cmp::RectBounds( _obstacle_pos, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE }, npc_activate_scale() );
+        auto npc_activate_bounds = Cmp::RectBounds( _obstacle_pos, sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE }, npc_activate_scale() );
         // auto obstacle_hitbox = get_hitbox( _obstacle_pos );
         // obstacle_hitbox.size *= npc_activate_scale();
-        // obstacle_hitbox.position.x -= Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x * 0.5f;
-        // obstacle_hitbox.position.y -= Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y * 0.5f;
+        // obstacle_hitbox.position.x -= Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x * 0.5f;
+        // obstacle_hitbox.position.y -= Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y * 0.5f;
 
         if ( player_hitbox.findIntersection( npc_activate_bounds.getBounds() ) )
         {
@@ -321,7 +320,7 @@ public:
           _pc_pos.x = starting_pos.x;
           _pc_pos.y = starting_pos.y;
 
-          player_floatrect = sf::FloatRect( { _pc_pos.x, _pc_pos.y }, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE } );
+          player_floatrect = sf::FloatRect( { _pc_pos.x, _pc_pos.y }, sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE } );
           if ( !player_floatrect.findIntersection( brick_floatRect ) )
           {
             SPDLOG_INFO( "Recovered by reverting to start position" );

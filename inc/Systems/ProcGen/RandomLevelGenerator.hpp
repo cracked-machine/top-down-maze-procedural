@@ -47,10 +47,10 @@ public:
         m_reg->emplace<Cmp::Position>(
             entity,
             sf::Vector2f{
-                ( x * Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x ) +
-                    ( Sys::BaseSystem::MAP_GRID_OFFSET.x * Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x ),
-                ( y * Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y ) +
-                    ( Sys::BaseSystem::MAP_GRID_OFFSET.y * Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y )
+                ( x * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x ) +
+                    ( Sys::BaseSystem::MAP_GRID_OFFSET.x * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x ),
+                ( y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y ) +
+                    ( Sys::BaseSystem::MAP_GRID_OFFSET.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y )
             }
         );
         // track the contiguous creation order of the entity so we can easily
@@ -80,26 +80,26 @@ public:
   {
     std::size_t texture_index = 0;
     bool enabled = true;
-    for ( float x = 0; x < DISPLAY_SIZE.x; x += Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x )
+    for ( float x = 0; x < DISPLAY_SIZE.x; x += Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x )
     {
-      if ( x == 0 || x == DISPLAY_SIZE.x - Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x )
+      if ( x == 0 || x == DISPLAY_SIZE.x - Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x )
         texture_index = 2;
       else
         texture_index = 1;
       // top edge
-      add_border_entity( { x, ( MAP_GRID_OFFSET.y - 1 ) * Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y }, texture_index );
+      add_border_entity( { x, ( MAP_GRID_OFFSET.y - 1 ) * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y }, texture_index );
       // bottom edge
-      add_border_entity( { x, MAP_GRID_OFFSET.y + ( ( MAP_GRID_SIZE.y + 2 ) * Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y ) - 2 }, texture_index );
+      add_border_entity( { x, MAP_GRID_OFFSET.y + ( ( MAP_GRID_SIZE.y + 2 ) * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y ) - 2 }, texture_index );
     }
-    for ( float y = 0; y < DISPLAY_SIZE.y; y += Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y )
+    for ( float y = 0; y < DISPLAY_SIZE.y; y += Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y )
     {
       if ( y == 0 || y == DISPLAY_SIZE.y - 1 )
         texture_index = 2;
-      else if ( y == ( DISPLAY_SIZE.y / 2.f ) - Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y )
+      else if ( y == ( DISPLAY_SIZE.y / 2.f ) - Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y )
         texture_index = 3;
       else if ( y == ( DISPLAY_SIZE.y / 2.f ) )
         texture_index = 5; // closed door entrance
-      else if ( y == ( DISPLAY_SIZE.y / 2.f ) + Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y )
+      else if ( y == ( DISPLAY_SIZE.y / 2.f ) + Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y )
         texture_index = 4;
       else
         texture_index = 0;
@@ -111,7 +111,7 @@ public:
         enabled = false;
       } // open door exit
       // right edge
-      add_border_entity( { static_cast<float>( DISPLAY_SIZE.x ) - Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x, y }, texture_index, enabled );
+      add_border_entity( { static_cast<float>( DISPLAY_SIZE.x ) - Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x, y }, texture_index, enabled );
       enabled = true;
     }
   }

@@ -40,7 +40,7 @@ void RenderGameSystem::render_game()
     // world
     getWindow().setView( m_local_view );
     {
-      render_floormap( { 0, MAP_GRID_OFFSET.y * Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y } );
+      render_floormap( { 0, MAP_GRID_OFFSET.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
       render_obstacles();
       render_armed();
       render_loot();
@@ -76,7 +76,7 @@ void RenderGameSystem::render_game()
     // much smaller scale
     getWindow().setView( m_minimap_view );
     {
-      render_floormap( { 0, MAP_GRID_OFFSET.y * Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y } );
+      render_floormap( { 0, MAP_GRID_OFFSET.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
       render_obstacles();
       render_armed();
       render_loot();
@@ -218,7 +218,7 @@ void RenderGameSystem::render_obstacles()
   //     getWindow().draw(text);
 
   //     sf::RectangleShape
-  //     temp_square(sf::Vector2f{Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE});
+  //     temp_square(sf::Vector2f{Sprites::MultiSprite::DEFAULT_SPRITE_SIZE});
   //     temp_square.setPosition(pos);
   //     temp_square.setFillColor(sf::Color::Transparent);
   //     temp_square.setOutlineColor(sf::Color::Red);
@@ -240,7 +240,7 @@ void RenderGameSystem::render_armed()
       getWindow().draw( *m_bomb_ms );
     }
 
-    sf::RectangleShape temp_square( sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE } );
+    sf::RectangleShape temp_square( sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE } );
     temp_square.setPosition( pos_cmp );
     temp_square.setOutlineColor( sf::Color::Transparent );
     temp_square.setFillColor( sf::Color::Transparent );
@@ -329,7 +329,7 @@ void RenderGameSystem::render_player()
     else if ( direction.x == -1 )
     {
       direction.x_scale = -1.f;
-      direction.x_offset = Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x;
+      direction.x_offset = Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x;
     }
     else
     {
@@ -367,7 +367,7 @@ void RenderGameSystem::render_npc()
     else if ( direction.x < 0 )
     {
       direction.x_scale = -1.f;
-      direction.x_offset = Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x;
+      direction.x_offset = Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x;
     }
     else
     {

@@ -6,6 +6,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Components/Random.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/PlayableCharacter.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/SpriteFactory.cpp
+    ${CMAKE_SOURCE_DIR}/src/Sprites/MultiSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/BaseSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/RenderSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/RenderGameSystem.cpp

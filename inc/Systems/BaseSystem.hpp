@@ -26,8 +26,8 @@ public:
     if ( pos )
     {
       return std::optional<sf::Vector2i>{
-          { static_cast<int>( pos->x / Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x ),
-            static_cast<int>( pos->y / Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y ) }
+          { static_cast<int>( pos->x / Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x ),
+            static_cast<int>( pos->y / Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y ) }
       };
     }
     return std::nullopt;
@@ -68,7 +68,7 @@ public:
 
   sf::FloatRect get_hitbox( sf::Vector2f pos )
   {
-    return sf::FloatRect( { pos.x, pos.y }, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE } );
+    return sf::FloatRect( { pos.x, pos.y }, sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE } );
   }
 
   constexpr static const sf::Vector2u DISPLAY_SIZE{ 1920, 1024 };

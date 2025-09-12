@@ -68,7 +68,7 @@ public:
     m_reg->emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
     auto &pc_detection_scale = m_reg->ctx().get<Cmp::Persistent::PCDetectionScale>();
     m_reg->emplace<Cmp::PCDetectionBounds>(
-        entity, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE }, sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE },
+        entity, sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE }, sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE },
         pc_detection_scale()
     );
   }

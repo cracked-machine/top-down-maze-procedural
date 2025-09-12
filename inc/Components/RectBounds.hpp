@@ -14,11 +14,11 @@ public:
   RectBounds( sf::Vector2f position, sf::Vector2f size, float ScaleFactor ) : m_scale_factor( ScaleFactor )
   {
     m_bounds.size = size * m_scale_factor;
-    m_bounds.position = position - sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE } * POSITION_OFFSET;
+    m_bounds.position = position - sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE } * POSITION_OFFSET;
   }
   void position( sf::Vector2f new_position )
   {
-    m_bounds.position = new_position - sf::Vector2f{ Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE } * POSITION_OFFSET;
+    m_bounds.position = new_position - sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE } * POSITION_OFFSET;
   }
   void size( sf::Vector2f new_size ) { m_bounds.size = new_size * m_scale_factor; }
   sf::Vector2f position() { return m_bounds.position; }

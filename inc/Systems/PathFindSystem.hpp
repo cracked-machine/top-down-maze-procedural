@@ -109,10 +109,10 @@ public:
 private:
   // Define possible movement directions (up, right, down, left)
   const std::array<sf::Vector2f, 4> m_directions = {
-      sf::Vector2f( 0.f, -Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y ), // Up
-      sf::Vector2f( Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x, 0.f ),  // Right
-      sf::Vector2f( 0.f, Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.y ),  // Down
-      sf::Vector2f( -Sprites::SpriteFactory::DEFAULT_SPRITE_SIZE.x, 0.f )  // Left
+      sf::Vector2f( 0.f, -Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y ), // Up
+      sf::Vector2f( Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x, 0.f ),  // Right
+      sf::Vector2f( 0.f, Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y ),  // Down
+      sf::Vector2f( -Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x, 0.f )  // Left
   };
 
   // the limit for finding potential paths

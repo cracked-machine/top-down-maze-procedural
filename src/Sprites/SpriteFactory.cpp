@@ -2,8 +2,6 @@
 
 namespace ProceduralMaze::Sprites {
 
-const sf::Vector2u SpriteFactory::DEFAULT_SPRITE_SIZE{ 16, 16 };
-
 std::optional<SpriteFactory::SpriteMetaData>
 SpriteFactory::get_random_spritedata( std::vector<SpriteFactory::SpriteMetaType> type_list, std::vector<float> weights ) const
 {
