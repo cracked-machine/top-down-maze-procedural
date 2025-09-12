@@ -32,6 +32,8 @@ public:
   const sf::Time m_bombdeploydelay{ sf::seconds( 0.5 ) };
   // prevent placing more than one bomb at a time
   bool has_active_bomb{ false };
+
+  bool underwater{ false };
 };
 
 } // namespace ProceduralMaze::Cmp

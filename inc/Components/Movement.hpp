@@ -11,8 +11,6 @@ struct Movement
 
   // Change in velocity = acceleration * dt.
   // Change in position = velocity * dt.
-  float acceleration_rate{};
-  float deceleration_rate{};
   sf::Vector2f velocity{ 0.0f, 0.0f };
   sf::Vector2f acceleration{ 0.0f, 0.0f };
   float min_velocity = 1.f;  // Minimum velocity before stopping completely

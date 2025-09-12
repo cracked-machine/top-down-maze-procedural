@@ -51,10 +51,7 @@ public:
     auto &bomb_inventory = m_reg->ctx().get<Cmp::Persistent::BombInventory>();
     auto &blast_radius = m_reg->ctx().get<Cmp::Persistent::BlastRadius>();
     m_reg->emplace<Cmp::PlayableCharacter>( entity, bomb_inventory(), blast_radius() );
-
-    auto &land_acceleration = m_reg->ctx().get<Cmp::Persistent::LandAcceleration>();
-    auto &land_deceleration = m_reg->ctx().get<Cmp::Persistent::LandDeceleration>();
-    m_reg->emplace<Cmp::Movement>( entity, land_acceleration(), land_deceleration() );
+    m_reg->emplace<Cmp::Movement>( entity );
 
     m_reg->emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
     auto &pc_detection_scale = m_reg->ctx().get<Cmp::Persistent::PCDetectionScale>();
@@ -71,14 +68,24 @@ public:
     for ( auto [entity, pc_cmp, pos_cmp, move_cmp, dir_cmp, pc_bounds] :
           m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction, Cmp::PCDetectionBounds>().each() )
     {
-      // Apply acceleration in the desired dir_cmp
-      if ( dir_cmp != sf::Vector2f( 0.0f, 0.0f ) ) { move_cmp.acceleration = dir_cmp * move_cmp.acceleration_rate; }
+      auto &land_acceleration = m_reg->ctx().get<Cmp::Persistent::LandAcceleration>();
+      auto &land_deceleration = m_reg->ctx().get<Cmp::Persistent::LandDeceleration>();
+      auto &water_acceleration = m_reg->ctx().get<Cmp::Persistent::WaterAcceleration>();
+      auto &water_deceleration = m_reg->ctx().get<Cmp::Persistent::WaterDeceleration>();
+
+      // Apply acceleration in the desired direction
+      if ( dir_cmp != sf::Vector2f( 0.0f, 0.0f ) )
+      {
+        if ( pc_cmp.underwater ) { move_cmp.acceleration = dir_cmp * water_acceleration(); }
+        else { move_cmp.acceleration = dir_cmp * land_acceleration(); }
+      }
       else
       {
         // Apply deceleration when no input
         if ( move_cmp.velocity != sf::Vector2f( 0.0f, 0.0f ) )
         {
-          move_cmp.acceleration = -move_cmp.velocity.normalized() * move_cmp.deceleration_rate;
+          if ( pc_cmp.underwater ) { move_cmp.acceleration = -move_cmp.velocity.normalized() * water_deceleration(); }
+          else { move_cmp.acceleration = -move_cmp.velocity.normalized() * land_deceleration(); }
         }
         else { move_cmp.acceleration = sf::Vector2f( 0.0f, 0.0f ); }
       }
