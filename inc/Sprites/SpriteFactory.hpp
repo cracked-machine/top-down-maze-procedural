@@ -10,18 +10,21 @@
 #include <Components/RandomFloat.hpp>
 #include <Sprites/MultiSprite.hpp>
 
-#include <numeric>
 #include <string>
 #include <vector>
 
 namespace ProceduralMaze::Sprites {
 
+// This class manages the creation MultiSprites objects in the game.
+// Contains logic for random selection of sprite types based on weights.
+// The MultiSprite objects are stored in `m_multisprite_list`.
+// TODO initialize `m_multisprite_list` from a JSON file
 class SpriteFactory
 {
 public:
   SpriteFactory() = default;
 
-  enum class Type
+  enum class SpriteMetaType
   {
     WALL = 0,
     ROCK = 1,
@@ -43,142 +46,98 @@ public:
 private:
   // This holds sprite type, tilemap texture path and tilemap indices in a
   // single place
-  class MetaData
+  struct SpriteMetaData
   {
-  public:
-    MetaData(
-        Type type, const std::string &type2string, const std::string &texture_path, const std::vector<std::uint32_t> &texture_index_choices,
-        const sf::Vector2u &tileSize = sf::Vector2u( 16, 16 ), float weight = 1.0f
-    )
-        : m_texture_index_choices( texture_index_choices ), m_type( type ), m_type2string( type2string ), m_texture_path( texture_path ),
-          m_weight( weight )
-    {
-      m_multisprite.add_sprite( texture_path, texture_index_choices, tileSize, get_type_string() );
-    }
-
-    Type get_type() const { return m_type; }
-    std::string get_type_string() const { return m_type2string; }
-    Sprites::MultiSprite get_multisprite() const { return m_multisprite; }
-    float get_weight() const { return m_weight; }
-
-    // Get random value from `m_texture_index_choices`.
-    // Use this when emplacing components into the registry.
-    // Dont use this when rendering.
-    std::size_t pick_random_texture_index() const
-    {
-      Cmp::Random random_picker( 0, m_texture_index_choices.size() - 1 );
-      return random_picker.gen();
-    }
-
-    std::vector<std::uint32_t> m_texture_index_choices;
-
-  private:
-    Type m_type;
-    std::string m_type2string;
+    SpriteMetaType type;
+    std::string name;
+    float weight;
     ProceduralMaze::Sprites::MultiSprite m_multisprite{};
-    std::string m_texture_path;
-    float m_weight{ 1.0f }; // Default weight of 1.0
   };
 
-  // Metadata object list
-  std::vector<SpriteFactory::MetaData> m_metadata_list = {
-      { SpriteFactory::Type::WALL, "WALL", "res/walls_and_doors.png", { 0, 1, 2, 3, 4, 5, 6 }, DEFAULT_SPRITE_SIZE },
-      {
-          SpriteFactory::Type::ROCK,
-          "ROCK",
-          "res/Pixel Lands Dungeons/objects.png",
-          { 147, 148 },
-          DEFAULT_SPRITE_SIZE,
-          40.f,
-      },
-      { SpriteFactory::Type::POT, "POT", "res/Pixel Lands Dungeons/objects.png", { 337, 339, 341 }, DEFAULT_SPRITE_SIZE, 1.f },
-      { SpriteFactory::Type::BONES, "BONES", "res/Pixel Lands Dungeons/objects.png", { 270, 271 }, DEFAULT_SPRITE_SIZE, 1.f },
-      { SpriteFactory::Type::NPC, "NPC", "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", { 108, 121, 111 }, DEFAULT_SPRITE_SIZE, 1.f },
-      { SpriteFactory::Type::DETONATED, "DETONATED", "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", { 42 }, DEFAULT_SPRITE_SIZE },
-      { SpriteFactory::Type::PLAYER,
-        "PLAYER",
-        "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png",
-        { 84, 85, 86, 87, 88, 96, 97, 98, 99, 100 },
-        DEFAULT_SPRITE_SIZE },
-      { SpriteFactory::Type::BOMB, "BOMB", "res/bomb.png", { 0 }, DEFAULT_SPRITE_SIZE },
-      { SpriteFactory::Type::EXTRA_HEALTH, "EXTRA_HEALTH", "res/Pixel Lands Dungeons/objects.png", { 32 }, DEFAULT_SPRITE_SIZE, 30.f },
-      { SpriteFactory::Type::EXTRA_BOMBS, "EXTRA_BOMBS", "res/Pixel Lands Dungeons/objects.png", { 67 }, DEFAULT_SPRITE_SIZE, 40.f },
-      { SpriteFactory::Type::INFINI_BOMBS, "INFINI_BOMBS", "res/Pixel Lands Dungeons/objects.png", { 35 }, DEFAULT_SPRITE_SIZE, 1.f },
-      { SpriteFactory::Type::CHAIN_BOMBS, "CHAIN_BOMBS", "res/Pixel Lands Dungeons/objects.png", { 34 }, DEFAULT_SPRITE_SIZE, 20.f },
-      { SpriteFactory::Type::LOWER_WATER, "LOWER_WATER", "res/Pixel Lands Dungeons/objects.png", { 33 }, DEFAULT_SPRITE_SIZE, 40.f }
+  // list declaring multisprite instance and their associated metadata
+  std::vector<SpriteMetaData> m_sprite_metadata_list = {
+      { SpriteFactory::SpriteMetaType::WALL, "WALL", 1.f, MultiSprite{ "res/walls_and_doors.png", { 0, 1, 2, 3, 4, 5, 6 } } },
+      { SpriteFactory::SpriteMetaType::ROCK, "ROCK", 40.f, MultiSprite{ "res/Pixel Lands Dungeons/objects.png", { 147, 148 } } },
+      { SpriteFactory::SpriteMetaType::POT, "POT", 1.f, MultiSprite{ "res/Pixel Lands Dungeons/objects.png", { 337, 339, 341 } } },
+      { SpriteFactory::SpriteMetaType::BONES, "BONES", 1.f, MultiSprite{ "res/Pixel Lands Dungeons/objects.png", { 270, 271 } } },
+      { SpriteFactory::SpriteMetaType::NPC, "NPC", 1.f, MultiSprite{ "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", { 108, 121, 111 } } },
+      { SpriteFactory::SpriteMetaType::DETONATED, "DETONATED", 1.f, MultiSprite{ "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", { 42 } } },
+      { SpriteFactory::SpriteMetaType::PLAYER, "PLAYER", 1.f,
+        MultiSprite{ "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png", { 84, 85, 86, 87, 88, 96, 97, 98, 99, 100 } } },
+      { SpriteFactory::SpriteMetaType::BOMB, "BOMB", 1.f, MultiSprite{ "res/bomb.png", { 0 } } },
+      { SpriteFactory::SpriteMetaType::EXTRA_HEALTH, "EXTRA_HEALTH", 30.f, MultiSprite{ "res/Pixel Lands Dungeons/objects.png", { 32 } } },
+      { SpriteFactory::SpriteMetaType::EXTRA_BOMBS, "EXTRA_BOMBS", 40.f, MultiSprite{ "res/Pixel Lands Dungeons/objects.png", { 67 } } },
+      { SpriteFactory::SpriteMetaType::INFINI_BOMBS, "INFINI_BOMBS", 1.f, MultiSprite{ "res/Pixel Lands Dungeons/objects.png", { 35 } } },
+      { SpriteFactory::SpriteMetaType::CHAIN_BOMBS, "CHAIN_BOMBS", 20.f, MultiSprite{ "res/Pixel Lands Dungeons/objects.png", { 34 } } },
+      { SpriteFactory::SpriteMetaType::LOWER_WATER, "LOWER_WATER", 40.f, MultiSprite{ "res/Pixel Lands Dungeons/objects.png", { 33 } } }
   };
 
 public:
-  // Pick a random metadata object from a list of types using a "roulette wheel
-  // selection" method: Each Type has an associated weight. We get a random
-  // number between 0 and total weights. We then accumulate the weights in turn
-  // comparing it against the random number
-  std::optional<SpriteFactory::MetaData> get_random_metadata( std::vector<Type> type_list, std::vector<float> weights = {} ) const
-  {
-    if ( type_list.empty() )
-    {
-      SPDLOG_WARN( "Type list is empty" );
-      return std::nullopt;
-    }
+  /**
+   * @brief Selects a random sprite type and texture index based on provided weights.
+   *
+   * This function randomly selects a sprite type from the given list of types and returns
+   * it along with a corresponding texture index. The selection can be weighted if weights
+   * are provided. If no weights are provided, weights are either taken from initial values
+   * or default to 1.0f.
+   *
+   * @param type_list A vector of SpriteMetaType values to choose from
+   * @param weights Optional vector of weights corresponding to each type in type_list.
+   *               If no weights are provided, weights are either taken from initial values
+   *               or default to 1.0f.
+   *
+   * @return A pair containing the selected SpriteMetaType and its associated texture index
+   *
+   * @throws std::invalid_argument if weights vector size doesn't match type_list size (when weights provided)
+   * @throws std::runtime_error if type_list is empty
+   */
+  std::pair<SpriteMetaType, std::size_t>
+  get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list, std::vector<float> weights = {} ) const;
 
-    // If weights aren't provided, use weights from metadata
-    if ( weights.empty() )
-    {
-      weights.reserve( type_list.size() );
-      for ( auto type : type_list )
-      {
-        auto meta = get_metadata_by_type( type );
-        if ( meta ) { weights.push_back( meta->get_weight() ); }
-        else
-        {
-          weights.push_back( 1.0f ); // Default weight
-        }
-      }
-    }
+  /**
+   * @brief Retrieves a MultiSprite object based on the specified sprite meta type.
+   *
+   * This method searches for and returns a MultiSprite that corresponds to the given
+   * SpriteMetaType. If no matching MultiSprite is found for the specified type,
+   * the method returns std::nullopt.
+   *
+   * @param type The SpriteMetaType to search for
+   * @return std::optional<Sprites::MultiSprite> The MultiSprite if found, std::nullopt otherwise
+   */
+  std::optional<Sprites::MultiSprite> get_multisprite_by_type( SpriteMetaType type ) const;
 
-    // Ensure weights and type_list have same size
-    if ( weights.size() != type_list.size() ) { weights.resize( type_list.size(), 1.0f ); }
+  /**
+   * @brief Converts a SpriteMetaType enumeration value to its corresponding string representation.
+   *
+   * This function takes a SpriteMetaType enumeration value and returns a human-readable
+   * string that represents the type of sprite data. This is useful for debugging,
+   * logging, or serialization purposes where the enum value needs to be displayed
+   * or stored as text.
+   *
+   * @param type The SpriteMetaType enumeration value to convert to string
+   * @return std::string The string representation of the sprite meta type
+   */
+  std::string get_spritedata_type_string( SpriteFactory::SpriteMetaType type ) const;
 
-    float total_weight = std::accumulate( weights.begin(), weights.end(), 0.0f );
-
-    // Generate random value between 0 and total weight
-    Cmp::RandomFloat random_float( 0.0f, total_weight );
-    float random_val = random_float.gen();
-
-    // Select based on weights
-    float cumulative_weight = 0.0f;
-    for ( size_t i = 0; i < type_list.size(); ++i )
-    {
-      cumulative_weight += weights[i];
-      if ( random_val <= cumulative_weight ) { return get_metadata_by_type( type_list[i] ); }
-    }
-
-    // Fallback (shouldn't reach here normally)
-    return get_metadata_by_type( type_list.back() );
-  }
-
+private:
   // get metadata by type
-  std::optional<SpriteFactory::MetaData> get_metadata_by_type( Type type ) const
-  {
-    auto it = std::find_if( m_metadata_list.begin(), m_metadata_list.end(), [type]( const MetaData &meta ) { return meta.get_type() == type; } );
-    if ( it != m_metadata_list.end() ) { return *it; }
-    return std::nullopt;
-  }
+  /**
+   * @brief Retrieves sprite metadata by sprite type
+   *
+   * Searches for and returns the sprite metadata associated with the specified
+   * sprite type. This method allows lookup of sprite configuration data such as
+   * texture coordinates, dimensions, and other properties based on the sprite type.
+   *
+   * @param type The sprite type to search for
+   * @return std::optional<SpriteMetaData> containing the sprite metadata if found,
+   *         or std::nullopt if no metadata exists for the given type
+   */
+  std::optional<SpriteMetaData> get_spritedata_by_type( SpriteMetaType type ) const;
 
-  // get multisprite by type
-  std::optional<Sprites::MultiSprite> get_multisprite_by_type( Type type ) const
-  {
-    if ( auto meta = get_metadata_by_type( type ) ) { return meta->get_multisprite(); }
-    return std::nullopt;
-  }
-
-  // get metadata type string
-  std::string get_metadata_type_string( SpriteFactory::Type type ) const
-  {
-    if ( auto meta = get_metadata_by_type( type ) ) { return meta->get_type_string(); }
-    return "NOTFOUND";
-  }
+  // Internal use function used by get_random_type_and_texture_index()
+  std::optional<SpriteMetaData> get_random_spritedata( std::vector<SpriteMetaType> type_list, std::vector<float> weights = {} ) const;
 };
 
 } // namespace ProceduralMaze::Sprites
+
 #endif // __SPRITES_SPRITE_FACTORY_HPP__

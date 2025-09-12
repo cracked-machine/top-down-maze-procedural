@@ -151,7 +151,7 @@ void RenderGameSystem::render_obstacles()
   std::vector<std::pair<sf::Vector2f, int>> potPositions;
   std::vector<std::pair<sf::Vector2f, int>> bonePositions;
   std::vector<std::pair<sf::Vector2f, int>> npcPositions;
-  std::vector<std::pair<sf::Vector2f, Sprites::SpriteFactory::Type>> disabledPositions;
+  std::vector<std::pair<sf::Vector2f, Sprites::SpriteFactory::SpriteMetaType>> disabledPositions;
   std::vector<sf::Vector2f> detonationPositions;
 
   // Collect all positions first instead of drawing immediately
@@ -162,13 +162,13 @@ void RenderGameSystem::render_obstacles()
     {
       switch ( _ob.m_type )
       {
-      case Sprites::SpriteFactory::Type::ROCK:
+      case Sprites::SpriteFactory::SpriteMetaType::ROCK:
         rockPositions.emplace_back( _pos, _ob.m_tile_index );
         break;
-      case Sprites::SpriteFactory::Type::POT:
+      case Sprites::SpriteFactory::SpriteMetaType::POT:
         potPositions.emplace_back( _pos, _ob.m_tile_index );
         break;
-      case Sprites::SpriteFactory::Type::BONES:
+      case Sprites::SpriteFactory::SpriteMetaType::BONES:
         bonePositions.emplace_back( _pos, _ob.m_tile_index );
         break;
       default:
@@ -270,27 +270,27 @@ void RenderGameSystem::render_loot()
   {
     switch ( loot.m_type )
     {
-    case ProceduralMaze::Sprites::SpriteFactory::Type::EXTRA_HEALTH:
+    case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::EXTRA_HEALTH:
       m_extra_health_ms->setPosition( position );
       m_extra_health_ms->pick( loot.m_tile_index, "EXTRA_HEALTH" );
       getWindow().draw( *m_extra_health_ms );
       break;
-    case ProceduralMaze::Sprites::SpriteFactory::Type::EXTRA_BOMBS:
+    case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::EXTRA_BOMBS:
       m_extra_bombs_ms->setPosition( position );
       m_extra_bombs_ms->pick( loot.m_tile_index, "EXTRA_BOMBS" );
       getWindow().draw( *m_extra_bombs_ms );
       break;
-    case ProceduralMaze::Sprites::SpriteFactory::Type::INFINI_BOMBS:
+    case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::INFINI_BOMBS:
       m_infinite_bombs_ms->setPosition( position );
       m_infinite_bombs_ms->pick( loot.m_tile_index, "INFINI_BOMBS" );
       getWindow().draw( *m_infinite_bombs_ms );
       break;
-    case ProceduralMaze::Sprites::SpriteFactory::Type::CHAIN_BOMBS:
+    case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::CHAIN_BOMBS:
       m_chain_bombs_ms->setPosition( position );
       m_chain_bombs_ms->pick( loot.m_tile_index, "CHAIN_BOMBS" );
       getWindow().draw( *m_chain_bombs_ms );
       break;
-    case ProceduralMaze::Sprites::SpriteFactory::Type::LOWER_WATER:
+    case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::LOWER_WATER:
       m_lower_water_ms->setPosition( position );
       m_lower_water_ms->pick( loot.m_tile_index, "LOWER_WATER" );
       getWindow().draw( *m_lower_water_ms );
@@ -473,19 +473,19 @@ void RenderGameSystem::load_multisprites()
 {
   using namespace Sprites;
   auto &factory = m_reg->ctx().get<std::shared_ptr<SpriteFactory>>();
-  m_rock_ms = factory->get_multisprite_by_type( SpriteFactory::Type::ROCK );
-  m_pot_ms = factory->get_multisprite_by_type( SpriteFactory::Type::POT );
-  m_bone_ms = factory->get_multisprite_by_type( SpriteFactory::Type::BONES );
-  m_detonation_ms = factory->get_multisprite_by_type( SpriteFactory::Type::DETONATED );
-  m_bomb_ms = factory->get_multisprite_by_type( SpriteFactory::Type::BOMB );
-  m_wall_ms = factory->get_multisprite_by_type( SpriteFactory::Type::WALL );
-  m_player_ms = factory->get_multisprite_by_type( SpriteFactory::Type::PLAYER );
-  m_npc_ms = factory->get_multisprite_by_type( SpriteFactory::Type::NPC );
-  m_extra_health_ms = factory->get_multisprite_by_type( SpriteFactory::Type::EXTRA_HEALTH );
-  m_extra_bombs_ms = factory->get_multisprite_by_type( SpriteFactory::Type::EXTRA_BOMBS );
-  m_infinite_bombs_ms = factory->get_multisprite_by_type( SpriteFactory::Type::INFINI_BOMBS );
-  m_chain_bombs_ms = factory->get_multisprite_by_type( SpriteFactory::Type::CHAIN_BOMBS );
-  m_lower_water_ms = factory->get_multisprite_by_type( SpriteFactory::Type::LOWER_WATER );
+  m_rock_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::ROCK );
+  m_pot_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::POT );
+  m_bone_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::BONES );
+  m_detonation_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::DETONATED );
+  m_bomb_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::BOMB );
+  m_wall_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::WALL );
+  m_player_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::PLAYER );
+  m_npc_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::NPC );
+  m_extra_health_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXTRA_HEALTH );
+  m_extra_bombs_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXTRA_BOMBS );
+  m_infinite_bombs_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::INFINI_BOMBS );
+  m_chain_bombs_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::CHAIN_BOMBS );
+  m_lower_water_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::LOWER_WATER );
 
   // we should ensure these MultiSprites are initialized before continuing
   std::string err_msg;

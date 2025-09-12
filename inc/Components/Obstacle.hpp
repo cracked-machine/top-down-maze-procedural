@@ -15,12 +15,12 @@ namespace ProceduralMaze::Cmp {
 class Obstacle
 {
 public:
-  Obstacle( Sprites::SpriteFactory::Type type, std::size_t tile_index = 0, bool visible = true, bool enabled = true )
+  Obstacle( Sprites::SpriteFactory::SpriteMetaType type, std::size_t tile_index = 0, bool visible = true, bool enabled = true )
       : m_type( type ), m_tile_index( tile_index ), m_visible( visible ), m_enabled( enabled )
   {
   }
 
-  Sprites::SpriteFactory::Type m_type;
+  Sprites::SpriteFactory::SpriteMetaType m_type;
   uint32_t m_tile_index{ 0 };
 
   bool m_visible{ true };

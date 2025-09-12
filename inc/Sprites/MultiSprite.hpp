@@ -23,12 +23,23 @@ namespace ProceduralMaze::Sprites {
 class MultiSprite : public sf::Drawable, public sf::Transformable
 {
 public:
+  // Used by SpriteFactory::SpriteMetaData struct declaration
   MultiSprite() = default;
 
-  void add_sprite(
-      const std::filesystem::path &tilemap_path, std::vector<uint32_t> tilemap_picks, const sf::Vector2u &tileSize = sf::Vector2u{ 16, 16 },
-      std::string name = ""
-  )
+  /**
+   * @brief Constructs a MultiSprite with a single tilemap.
+   *
+   * @param tilemap_path Path to the tilemap image file
+   * @param tilemap_picks Vector of tile indices to extract from the tilemap
+   * @param tileSize Size of each individual tile in pixels (default: 16x16)
+   */
+  MultiSprite( const std::filesystem::path &tilemap_path, std::vector<uint32_t> tilemap_picks, const sf::Vector2u &tileSize = sf::Vector2u{ 16, 16 } )
+  {
+    add_sprite( tilemap_path, tilemap_picks, tileSize );
+  }
+
+  void
+  add_sprite( const std::filesystem::path &tilemap_path, std::vector<uint32_t> tilemap_picks, const sf::Vector2u &tileSize = sf::Vector2u{ 16, 16 } )
   {
     if ( !m_tilemap_texture.loadFromFile( tilemap_path ) )
     {
@@ -90,6 +101,8 @@ public:
   }
 
   sf::Texture m_tilemap_texture;
+
+  std::size_t get_sprite_count() const { return m_va_list.size(); }
 
 private:
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override

@@ -97,7 +97,7 @@ public:
       auto player_hitbox = get_hitbox( _pc_pos );
       for ( auto [_obstacle_entt, _obstacle, _obstacle_pos] : obstacle_collision_view.each() )
       {
-        if ( _obstacle.m_type != Sprites::SpriteFactory::Type::BONES || not _obstacle.m_enabled || not _obstacle.m_visible ) continue;
+        if ( _obstacle.m_type != Sprites::SpriteFactory::SpriteMetaType::BONES || not _obstacle.m_enabled || not _obstacle.m_visible ) continue;
 
         auto &npc_activate_scale = m_reg->ctx().get<Cmp::Persistent::NPCActivateScale>();
         // we just create a temporary RectBounds here instead of a component
@@ -112,7 +112,7 @@ public:
         if ( player_hitbox.findIntersection( npc_activate_bounds.getBounds() ) )
         {
           // dont really care what obstacle this becomes as long as its disabled.
-          m_reg->emplace_or_replace<Cmp::Obstacle>( _obstacle_entt, Sprites::SpriteFactory::Type::BONES, 0, false, false );
+          m_reg->emplace_or_replace<Cmp::Obstacle>( _obstacle_entt, Sprites::SpriteFactory::SpriteMetaType::BONES, 0, false, false );
           getEventDispatcher().trigger( Events::NpcCreationEvent( _obstacle_pos ) );
         }
       }
@@ -167,7 +167,7 @@ public:
     struct LootEffect
     {
       entt::entity loot_entity;
-      Sprites::SpriteFactory::Type type;
+      Sprites::SpriteFactory::SpriteMetaType type;
       entt::entity player_entity;
       sf::Vector2f original_velocity;
     };
@@ -204,17 +204,17 @@ public:
       // Apply the effect
       switch ( effect.type )
       {
-      case Sprites::SpriteFactory::Type::EXTRA_HEALTH: {
+      case Sprites::SpriteFactory::SpriteMetaType::EXTRA_HEALTH: {
         auto &health_bonus = m_reg->ctx().get<Cmp::Persistent::HealthBonus>();
         _pc.health = std::min( _pc.health + health_bonus(), 100 );
         break;
       }
-      case Sprites::SpriteFactory::Type::EXTRA_BOMBS: {
+      case Sprites::SpriteFactory::SpriteMetaType::EXTRA_BOMBS: {
         auto &bomb_bonus = m_reg->ctx().get<Cmp::Persistent::BombBonus>();
         if ( _pc.bomb_inventory >= 0 ) _pc.bomb_inventory += bomb_bonus();
         break;
       }
-      case Sprites::SpriteFactory::Type::LOWER_WATER: {
+      case Sprites::SpriteFactory::SpriteMetaType::LOWER_WATER: {
         auto &water_bonus = m_reg->ctx().get<Cmp::Persistent::WaterBonus>();
         for ( auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each() )
         {
@@ -223,11 +223,11 @@ public:
         }
         break;
       }
-      case Sprites::SpriteFactory::Type::INFINI_BOMBS:
+      case Sprites::SpriteFactory::SpriteMetaType::INFINI_BOMBS:
         _pc.bomb_inventory = -1;
         break;
 
-      case Sprites::SpriteFactory::Type::CHAIN_BOMBS:
+      case Sprites::SpriteFactory::SpriteMetaType::CHAIN_BOMBS:
         _pc.blast_radius = std::clamp( _pc.blast_radius + 1, 0, 3 );
         break;
 

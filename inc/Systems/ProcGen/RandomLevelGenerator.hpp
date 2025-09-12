@@ -62,16 +62,12 @@ public:
           SPDLOG_CRITICAL( "SpriteFactory not found in registry context" );
           std::get_terminate();
         }
-        auto obstacle_metadata = sprite_factory->get_random_metadata(
-            { Sprites::SpriteFactory::Type::ROCK, Sprites::SpriteFactory::Type::POT, Sprites::SpriteFactory::Type::BONES }
+        // pick a random obstacle type and texture index
+        auto [obstacle_type, random_obstacle_texture_index] = sprite_factory->get_random_type_and_texture_index(
+            { Sprites::SpriteFactory::SpriteMetaType::ROCK, Sprites::SpriteFactory::SpriteMetaType::POT, Sprites::SpriteFactory::SpriteMetaType::BONES
+            }
         );
-        if ( !obstacle_metadata )
-        {
-          SPDLOG_WARN( "Failed to get random obstacle metadata" );
-          continue;
-        }
-        auto random_obstacle_texture_index = obstacle_metadata->pick_random_texture_index();
-        m_reg->emplace<Cmp::Obstacle>( entity, obstacle_metadata->get_type(), random_obstacle_texture_index, true, m_activation_selector.gen() );
+        m_reg->emplace<Cmp::Obstacle>( entity, obstacle_type, random_obstacle_texture_index, true, m_activation_selector.gen() );
 
         m_reg->emplace<Cmp::Neighbours>( entity );
       }
@@ -124,20 +120,7 @@ public:
   {
     auto entity = m_reg->create();
     m_reg->emplace<Cmp::Position>( entity, pos );
-    auto sprite_factory = m_reg->ctx().get<std::shared_ptr<Sprites::SpriteFactory>>();
-    if ( not sprite_factory )
-    {
-      SPDLOG_CRITICAL( "SpriteFactory not found in registry context" );
-      std::get_terminate();
-    }
-    auto wall_ms = sprite_factory->get_metadata_by_type( Sprites::SpriteFactory::Type::WALL );
-    if ( not wall_ms )
-    {
-      SPDLOG_CRITICAL( "Unable to get WALL multisprite from SpriteFactory" );
-      std::get_terminate();
-    }
-
-    m_reg->emplace<Cmp::Obstacle>( entity, Sprites::SpriteFactory::Type::WALL, texture_index, true, enabled );
+    m_reg->emplace<Cmp::Obstacle>( entity, Sprites::SpriteFactory::SpriteMetaType::WALL, texture_index, true, enabled );
     m_reg->emplace<Cmp::Exit>( entity );
   }
 
@@ -148,7 +131,7 @@ public:
     {
       auto sprite_factory = m_reg->ctx().get<std::shared_ptr<Sprites::SpriteFactory>>();
       if ( not sprite_factory ) continue;
-      results[sprite_factory->get_metadata_type_string( _ob.m_type )]++;
+      results[sprite_factory->get_spritedata_type_string( _ob.m_type )]++;
     }
     SPDLOG_INFO( "Obstacle Pick distribution:" );
     for ( auto [bin, freq] : results )

@@ -154,17 +154,17 @@ void BombSystem::update()
       _obstacle_cmp.m_broken = true;
       _obstacle_cmp.m_enabled = false;
 
-      // add loot to any broken pot neighbour entities
-      if ( _obstacle_cmp.m_type == Sprites::SpriteFactory::Type::POT )
+      // replace the broken pot neighbour entities with a random loot component/sprite
+      if ( _obstacle_cmp.m_type == Sprites::SpriteFactory::SpriteMetaType::POT )
       {
         auto &sprite_factory = m_reg->ctx().get<std::shared_ptr<Sprites::SpriteFactory>>();
-        auto random_selected_loot_metadata = sprite_factory->get_random_metadata( std::vector<Sprites::SpriteFactory::Type>{
-            Sprites::SpriteFactory::Type::EXTRA_HEALTH, Sprites::SpriteFactory::Type::EXTRA_BOMBS, Sprites::SpriteFactory::Type::INFINI_BOMBS,
-            Sprites::SpriteFactory::Type::CHAIN_BOMBS, Sprites::SpriteFactory::Type::LOWER_WATER
-        } );
-        m_reg->emplace_or_replace<Cmp::Loot>(
-            _entt, random_selected_loot_metadata->get_type(), random_selected_loot_metadata->pick_random_texture_index()
-        );
+        auto [obstacle_type, random_obstacle_texture_index] =
+            sprite_factory->get_random_type_and_texture_index( std::vector<Sprites::SpriteFactory::SpriteMetaType>{
+                Sprites::SpriteFactory::SpriteMetaType::EXTRA_HEALTH, Sprites::SpriteFactory::SpriteMetaType::EXTRA_BOMBS,
+                Sprites::SpriteFactory::SpriteMetaType::INFINI_BOMBS, Sprites::SpriteFactory::SpriteMetaType::CHAIN_BOMBS,
+                Sprites::SpriteFactory::SpriteMetaType::LOWER_WATER
+            } );
+        m_reg->emplace_or_replace<Cmp::Loot>( _entt, obstacle_type, random_obstacle_texture_index );
       }
     }
 
