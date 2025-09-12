@@ -8,6 +8,11 @@
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
 #include <Components/WaterLevel.hpp>
+#include <Persistent/LandAcceleration.hpp>
+#include <Persistent/LandDeacceleration.hpp>
+#include <Persistent/PlayerMaxSpeed.hpp>
+#include <Persistent/WaterAcceleration.hpp>
+#include <Persistent/WaterDeceleration.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <SFML/Audio/Music.hpp>
@@ -90,6 +95,12 @@ private:
       }
     }
 
+    auto &max_speed = m_reg->ctx().get<Cmp::Persistent::PlayerMaxSpeed>();
+    auto &land_acceleration = m_reg->ctx().get<Cmp::Persistent::LandAcceleration>();
+    auto &land_deceleration = m_reg->ctx().get<Cmp::Persistent::LandDeceleration>();
+    auto &water_acceleration = m_reg->ctx().get<Cmp::Persistent::WaterAcceleration>();
+    auto &water_deceleration = m_reg->ctx().get<Cmp::Persistent::WaterDeceleration>();
+
     // Check drowning - {0,0} is top-left so player drowns when water level is
     // BELOW player position
     for ( auto [_, water_level] : water_view.each() )
@@ -103,9 +114,9 @@ private:
           if ( m_underwater_music.getStatus() != sf::Music::Status::Playing ) m_underwater_music.play();
 
           // its hard to move under water ;)
-          move_cmp.acceleration_rate = move_cmp.under_water_default_acceleration_rate;
-          move_cmp.deceleration_rate = move_cmp.under_water_default_deceleration_rate;
-          move_cmp.max_speed = move_cmp.DEFAULT_MAX_SPEED * 0.5f;
+          move_cmp.acceleration_rate = water_acceleration();
+          move_cmp.deceleration_rate = water_deceleration();
+          max_speed() = move_cmp.DEFAULT_MAX_SPEED * 0.5f;
 
           // Check if enough time has passed since last damage
           auto it = m_last_damage_time.find( player_entity );
@@ -128,9 +139,9 @@ private:
           m_last_damage_time.erase( player_entity );
 
           // Restore above water movement physics
-          move_cmp.acceleration_rate = move_cmp.above_water_default_acceleration_rate;
-          move_cmp.deceleration_rate = move_cmp.above_water_default_deceleration_rate;
-          move_cmp.max_speed = move_cmp.DEFAULT_MAX_SPEED;
+          move_cmp.acceleration_rate = land_acceleration();
+          move_cmp.deceleration_rate = land_deceleration();
+          max_speed() = move_cmp.DEFAULT_MAX_SPEED;
 
           if ( m_underwater_music.getStatus() == sf::Music::Status::Playing ) m_underwater_music.stop();
 

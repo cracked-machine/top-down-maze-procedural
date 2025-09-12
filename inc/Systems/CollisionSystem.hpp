@@ -17,12 +17,15 @@
 #include <NpcSystem.hpp>
 #include <PCDetectionBounds.hpp>
 #include <Persistent/BombBonus.hpp>
+#include <Persistent/FrictionCoefficient.hpp>
+#include <Persistent/FrictionFalloff.hpp>
 #include <Persistent/HealthBonus.hpp>
 #include <Persistent/NPCActivateScale.hpp>
 #include <Persistent/NpcDamage.hpp>
 #include <Persistent/NpcDamageDelay.hpp>
 #include <Persistent/NpcPushBack.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
+#include <Persistent/PlayerMaxSpeed.hpp>
 #include <Persistent/WaterBonus.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -57,6 +60,7 @@ public:
 
   ~CollisionSystem() = default;
 
+  // Initialise persistent components as ECS context variables
   void init_context()
   {
     if ( not m_reg->ctx().contains<Cmp::Persistent::HealthBonus>() ) { m_reg->ctx().emplace<Cmp::Persistent::HealthBonus>(); }
@@ -361,6 +365,10 @@ public:
           depthX *= 1.2f; // Makes horizontal resolution slightly less likely
         }
 
+        auto &max_speed = m_reg->ctx().get<Cmp::Persistent::PlayerMaxSpeed>();
+        auto &friction_coefficient = m_reg->ctx().get<Cmp::Persistent::FrictionCoefficient>();
+        auto &friction_falloff = m_reg->ctx().get<Cmp::Persistent::FrictionFalloff>();
+
         // Always resolve along the axis of least penetration
         if ( std::abs( depthX ) < std::abs( depthY ) )
         {
@@ -368,8 +376,8 @@ public:
           _pc_pos.x += depthX * m_reg->ctx().get<Cmp::Persistent::ObstaclePushBack>()();
 
           // Calculate speed-based friction coefficient
-          float speed_ratio = std::abs( _movement.velocity.y ) / _movement.max_speed;
-          float dynamic_friction = _movement.friction_coefficient * ( 1.0f - ( _movement.friction_falloff * speed_ratio ) );
+          float speed_ratio = std::abs( _movement.velocity.y ) / max_speed();
+          float dynamic_friction = friction_coefficient() * ( 1.0f - ( friction_falloff() * speed_ratio ) );
 
           // Apply friction to Y velocity with smooth falloff
           _movement.velocity.y *= ( 1.0f - dynamic_friction );
@@ -383,8 +391,8 @@ public:
           _pc_pos.y += depthY * m_reg->ctx().get<Cmp::Persistent::ObstaclePushBack>()();
 
           // Calculate speed-based friction coefficient
-          float speed_ratio = std::abs( _movement.velocity.x ) / _movement.max_speed;
-          float dynamic_friction = _movement.friction_coefficient * ( 1.0f - ( _movement.friction_falloff * speed_ratio ) );
+          float speed_ratio = std::abs( _movement.velocity.x ) / max_speed();
+          float dynamic_friction = friction_coefficient() * ( 1.0f - ( friction_falloff() * speed_ratio ) );
 
           // Apply friction to X velocity with smooth falloff
           _movement.velocity.x *= ( 1.0f - dynamic_friction );
@@ -402,12 +410,12 @@ public:
           if ( std::abs( depthX ) < std::abs( depthY ) )
           {
             _pc_pos.y += depthY * m_reg->ctx().get<Cmp::Persistent::ObstaclePushBack>()();
-            _movement.velocity.x *= ( 1.0f - _movement.friction_coefficient );
+            _movement.velocity.x *= ( 1.0f - friction_coefficient() );
           }
           else
           {
             _pc_pos.x += depthX * m_reg->ctx().get<Cmp::Persistent::ObstaclePushBack>()();
-            _movement.velocity.y *= ( 1.0f - _movement.friction_coefficient );
+            _movement.velocity.y *= ( 1.0f - friction_coefficient() );
           }
         }
 

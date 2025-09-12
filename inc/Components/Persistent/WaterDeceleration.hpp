@@ -1,5 +1,5 @@
-#ifndef __CMP_WATERDEACCELERATION_HPP__
-#define __CMP_WATERDEACCELERATION_HPP__
+#ifndef __CMP_WATERDECELERATION_HPP__
+#define __CMP_WATERDECELERATION_HPP__
 
 #include <Persistent/BasePersistent.hpp>
 namespace ProceduralMaze::Cmp::Persistent {
@@ -12,4 +12,4 @@ public:
 
 } // namespace ProceduralMaze::Cmp::Persistent
 
-#endif // __CMP_WATERDEACCELERATION_HPP__
+#endif // __CMP_WATERDECELERATION_HPP__

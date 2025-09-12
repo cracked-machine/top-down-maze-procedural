@@ -14,7 +14,7 @@
 #include <Persistent/PCDetectionScale.hpp>
 #include <Persistent/PlayerMaxSpeed.hpp>
 #include <Persistent/WaterAcceleration.hpp>
-#include <Persistent/WaterDeacceleration.hpp>
+#include <Persistent/WaterDeceleration.hpp>
 #include <PlayableCharacter.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <entt/entity/registry.hpp>
@@ -52,18 +52,9 @@ public:
     auto &blast_radius = m_reg->ctx().get<Cmp::Persistent::BlastRadius>();
     m_reg->emplace<Cmp::PlayableCharacter>( entity, bomb_inventory(), blast_radius() );
 
-    auto &max_speed = m_reg->ctx().get<Cmp::Persistent::PlayerMaxSpeed>();
-    auto &friction_coefficient = m_reg->ctx().get<Cmp::Persistent::FrictionCoefficient>();
-    auto &friction_falloff = m_reg->ctx().get<Cmp::Persistent::FrictionFalloff>();
     auto &land_acceleration = m_reg->ctx().get<Cmp::Persistent::LandAcceleration>();
     auto &land_deceleration = m_reg->ctx().get<Cmp::Persistent::LandDeceleration>();
-    auto &water_acceleration = m_reg->ctx().get<Cmp::Persistent::WaterAcceleration>();
-    auto &water_deceleration = m_reg->ctx().get<Cmp::Persistent::WaterDeceleration>();
-
-    m_reg->emplace<Cmp::Movement>(
-        entity, max_speed(), friction_coefficient(), friction_falloff(), land_acceleration(), land_deceleration(), water_acceleration(),
-        water_deceleration()
-    );
+    m_reg->emplace<Cmp::Movement>( entity, land_acceleration(), land_deceleration() );
 
     m_reg->emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
     auto &pc_detection_scale = m_reg->ctx().get<Cmp::Persistent::PCDetectionScale>();
@@ -103,10 +94,8 @@ public:
       }
       // Clamp velocity to max speed if current velocity magnitude exceeds max
       // speed
-      else if ( move_cmp.velocity.length() > move_cmp.max_speed )
-      {
-        move_cmp.velocity = ( move_cmp.velocity / move_cmp.velocity.length() ) * move_cmp.max_speed;
-      }
+      auto &max_speed = m_reg->ctx().get<Cmp::Persistent::PlayerMaxSpeed>();
+      if ( move_cmp.velocity.length() > max_speed() ) { move_cmp.velocity = ( move_cmp.velocity / move_cmp.velocity.length() ) * max_speed(); }
 
       // Apply velocity to position (change in position = velocity * dt)
       pos_cmp += move_cmp.velocity * dt;

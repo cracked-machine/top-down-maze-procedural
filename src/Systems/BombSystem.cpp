@@ -2,6 +2,7 @@
 #include <NpcDeathPosition.hpp>
 #include <Persistent/ArmedOffDelay.hpp>
 #include <Persistent/BombDamage.hpp>
+#include <Persistent/PlayerMaxSpeed.hpp>
 #include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
@@ -77,7 +78,8 @@ void BombSystem::arm_occupied_location()
           );
 
           // Cap the restored velocity to avoid sudden bursts
-          const float max_restore_speed = movement_cmp.max_speed * 0.5f;
+          auto &max_speed = m_reg->ctx().get<Cmp::Persistent::PlayerMaxSpeed>();
+          const float max_restore_speed = max_speed() * 0.5f;
           if ( movement_cmp.velocity.length() > max_restore_speed )
           {
             movement_cmp.velocity = ( movement_cmp.velocity / movement_cmp.velocity.length() ) * max_restore_speed;
