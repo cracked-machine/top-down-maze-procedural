@@ -20,13 +20,14 @@
 #include <Persistent/FrictionCoefficient.hpp>
 #include <Persistent/FrictionFalloff.hpp>
 #include <Persistent/HealthBonus.hpp>
+#include <Persistent/LandMaxSpeed.hpp>
 #include <Persistent/NPCActivateScale.hpp>
 #include <Persistent/NpcDamage.hpp>
 #include <Persistent/NpcDamageDelay.hpp>
 #include <Persistent/NpcPushBack.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
-#include <Persistent/PlayerMaxSpeed.hpp>
 #include <Persistent/WaterBonus.hpp>
+#include <Persistent/WaterMaxSpeed.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -365,7 +366,8 @@ public:
           depthX *= 1.2f; // Makes horizontal resolution slightly less likely
         }
 
-        auto &max_speed = m_reg->ctx().get<Cmp::Persistent::PlayerMaxSpeed>();
+        auto &land_max_speed = m_reg->ctx().get<Cmp::Persistent::LandMaxSpeed>();
+        auto &water_max_speed = m_reg->ctx().get<Cmp::Persistent::WaterMaxSpeed>();
         auto &friction_coefficient = m_reg->ctx().get<Cmp::Persistent::FrictionCoefficient>();
         auto &friction_falloff = m_reg->ctx().get<Cmp::Persistent::FrictionFalloff>();
 
@@ -376,7 +378,9 @@ public:
           _pc_pos.x += depthX * m_reg->ctx().get<Cmp::Persistent::ObstaclePushBack>()();
 
           // Calculate speed-based friction coefficient
-          float speed_ratio = std::abs( _movement.velocity.y ) / max_speed();
+          float speed_ratio = 0.f;
+          if ( _pc.underwater ) { speed_ratio = std::abs( _movement.velocity.y ) / water_max_speed(); }
+          else { speed_ratio = std::abs( _movement.velocity.y ) / land_max_speed(); }
           float dynamic_friction = friction_coefficient() * ( 1.0f - ( friction_falloff() * speed_ratio ) );
 
           // Apply friction to Y velocity with smooth falloff
@@ -391,7 +395,9 @@ public:
           _pc_pos.y += depthY * m_reg->ctx().get<Cmp::Persistent::ObstaclePushBack>()();
 
           // Calculate speed-based friction coefficient
-          float speed_ratio = std::abs( _movement.velocity.x ) / max_speed();
+          float speed_ratio = 0.f;
+          if ( _pc.underwater ) { speed_ratio = std::abs( _movement.velocity.x ) / water_max_speed(); }
+          else { speed_ratio = std::abs( _movement.velocity.x ) / land_max_speed(); }
           float dynamic_friction = friction_coefficient() * ( 1.0f - ( friction_falloff() * speed_ratio ) );
 
           // Apply friction to X velocity with smooth falloff

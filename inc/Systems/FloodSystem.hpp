@@ -10,7 +10,6 @@
 #include <Components/WaterLevel.hpp>
 #include <Persistent/LandAcceleration.hpp>
 #include <Persistent/LandDeacceleration.hpp>
-#include <Persistent/PlayerMaxSpeed.hpp>
 #include <Persistent/WaterAcceleration.hpp>
 #include <Persistent/WaterDeceleration.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -95,8 +94,6 @@ private:
       }
     }
 
-    auto &max_speed = m_reg->ctx().get<Cmp::Persistent::PlayerMaxSpeed>();
-
     // Check drowning - {0,0} is top-left so player drowns when water level is
     // BELOW player position
     for ( auto [_, water_level] : water_view.each() )
@@ -109,9 +106,8 @@ private:
           if ( m_abovewater_sound_player.getStatus() == sf::Sound::Status::Playing ) m_abovewater_sound_player.stop();
           if ( m_underwater_music.getStatus() != sf::Music::Status::Playing ) m_underwater_music.play();
 
-          // its hard to move under water ;)
+          // Other systems will need to know which acceleration/deceleration/maxspeed to use
           player_char.underwater = true;
-          max_speed() = move_cmp.DEFAULT_MAX_SPEED * 0.5f;
 
           // Check if enough time has passed since last damage
           auto it = m_last_damage_time.find( player_entity );
@@ -133,9 +129,8 @@ private:
           // Player is out of water, remove from damage tracking
           m_last_damage_time.erase( player_entity );
 
-          // Restore above water movement physics
+          // Other systems will need to know which acceleration/deceleration/maxspeed to use
           player_char.underwater = false;
-          max_speed() = move_cmp.DEFAULT_MAX_SPEED;
 
           if ( m_underwater_music.getStatus() == sf::Music::Status::Playing ) m_underwater_music.stop();
 

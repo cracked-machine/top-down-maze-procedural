@@ -80,8 +80,10 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   auto &blast_radius = m_reg->ctx().get<Cmp::Persistent::BlastRadius>();
   ImGui::SliderInt( "Blast Radius", &blast_radius(), 1, 3 );
 
-  auto &max_speed = m_reg->ctx().get<Cmp::Persistent::PlayerMaxSpeed>();
-  if ( ImGui::InputFloat( "Max Speed", &max_speed(), 1.0f, 10.0f, "%.1f pixels/second" ) ) { max_speed() = std::clamp( max_speed(), 50.f, 100.f ); }
+  auto &land_max_speed = m_reg->ctx().get<Cmp::Persistent::LandMaxSpeed>();
+  ImGui::SliderFloat( "Land Max Speed", &land_max_speed(), 25.0f, 150.0f, "%.1f" );
+  auto &water_max_speed = m_reg->ctx().get<Cmp::Persistent::WaterMaxSpeed>();
+  ImGui::SliderFloat( "Water Max Speed", &water_max_speed(), 25.0f, 150.0f, "%.1f" );
 
   auto &friction_coefficient = m_reg->ctx().get<Cmp::Persistent::FrictionCoefficient>();
   ImGui::SliderFloat( "Friction Coefficient", &friction_coefficient(), 0.01f, 1.f, "%.2f" );

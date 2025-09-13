@@ -3,6 +3,10 @@
 
 namespace ProceduralMaze::Cmp::Persistent {
 
+// Base class for persistent settings
+// These types should be added to the registry as context variables
+// If you add them as components to entities, they will be destroyed on game reset
+// and lose their values
 template <typename T> class BasePersistent
 {
 public:

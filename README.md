@@ -42,8 +42,10 @@ sudo systemctl restart smb
 In theory you can get windows to create a crash dump, but trying to use this windows-only crash dump with MinGW gcc symbols is a PITA. Much simpler is to run the executable in GDB directly and observe the debugger when it crashes. Obviously this isn't much help after the fact.  
 
 1. install mingw and gdb on windows via msys
-2. change to the samba mapped directory - `cd X:\\path\\to\\build\\bin\\`
-3. Run gdb with the exe - ` gdb X:\\cpp\\games\\temp\\build\\bin\\ProceduralMaze.exe -ex run`
+1. change to the samba mapped directory - `cd X:\\path\\to\\build\\bin\\`
+1. Run gdb with the exe - `gdb X:\\cpp\\games\\temp\\build\\bin\\ProceduralMaze.exe -ex run`
+1. Or run with a breakpoint - `gdb /x/cpp/games/top-down-maze-procedural/build/bin/ProceduralMaze.exe -ex "break Engine.cpp:30" -ex "run" -ex "next" -ex "next"
+`
 
 # Design 
 

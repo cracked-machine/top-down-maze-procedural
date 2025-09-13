@@ -11,10 +11,11 @@
 #include <Persistent/FrictionFalloff.hpp>
 #include <Persistent/LandAcceleration.hpp>
 #include <Persistent/LandDeacceleration.hpp>
+#include <Persistent/LandMaxSpeed.hpp>
 #include <Persistent/PCDetectionScale.hpp>
-#include <Persistent/PlayerMaxSpeed.hpp>
 #include <Persistent/WaterAcceleration.hpp>
 #include <Persistent/WaterDeceleration.hpp>
+#include <Persistent/WaterMaxSpeed.hpp>
 #include <PlayableCharacter.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <entt/entity/registry.hpp>
@@ -31,7 +32,8 @@ public:
   {
     if ( not m_reg->ctx().contains<Cmp::Persistent::BombInventory>() ) { m_reg->ctx().emplace<Cmp::Persistent::BombInventory>(); }
     if ( not m_reg->ctx().contains<Cmp::Persistent::BlastRadius>() ) { m_reg->ctx().emplace<Cmp::Persistent::BlastRadius>(); }
-    if ( not m_reg->ctx().contains<Cmp::Persistent::PlayerMaxSpeed>() ) { m_reg->ctx().emplace<Cmp::Persistent::PlayerMaxSpeed>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::WaterMaxSpeed>() ) { m_reg->ctx().emplace<Cmp::Persistent::WaterMaxSpeed>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::LandMaxSpeed>() ) { m_reg->ctx().emplace<Cmp::Persistent::LandMaxSpeed>(); }
     if ( not m_reg->ctx().contains<Cmp::Persistent::FrictionCoefficient>() ) { m_reg->ctx().emplace<Cmp::Persistent::FrictionCoefficient>(); }
     if ( not m_reg->ctx().contains<Cmp::Persistent::FrictionFalloff>() ) { m_reg->ctx().emplace<Cmp::Persistent::FrictionFalloff>(); }
     if ( not m_reg->ctx().contains<Cmp::Persistent::LandAcceleration>() ) { m_reg->ctx().emplace<Cmp::Persistent::LandAcceleration>(); }
@@ -72,7 +74,8 @@ public:
       auto &land_deceleration = m_reg->ctx().get<Cmp::Persistent::LandDeceleration>();
       auto &water_acceleration = m_reg->ctx().get<Cmp::Persistent::WaterAcceleration>();
       auto &water_deceleration = m_reg->ctx().get<Cmp::Persistent::WaterDeceleration>();
-
+      auto &land_max_speed = m_reg->ctx().get<Cmp::Persistent::LandMaxSpeed>();
+      auto &water_max_speed = m_reg->ctx().get<Cmp::Persistent::WaterMaxSpeed>();
       // Apply acceleration in the desired direction
       if ( dir_cmp != sf::Vector2f( 0.0f, 0.0f ) )
       {
@@ -99,10 +102,17 @@ public:
         move_cmp.velocity = sf::Vector2f( 0.0f, 0.0f );
         move_cmp.acceleration = sf::Vector2f( 0.0f, 0.0f );
       }
-      // Clamp velocity to max speed if current velocity magnitude exceeds max
-      // speed
-      auto &max_speed = m_reg->ctx().get<Cmp::Persistent::PlayerMaxSpeed>();
-      if ( move_cmp.velocity.length() > max_speed() ) { move_cmp.velocity = ( move_cmp.velocity / move_cmp.velocity.length() ) * max_speed(); }
+      // Clamp velocity to max speed if current velocity magnitude exceeds max speed
+      // Make sure we dont try to divide by zero
+
+      if ( pc_cmp.underwater && move_cmp.velocity.length() > water_max_speed() )
+      {
+        move_cmp.velocity = ( move_cmp.velocity / move_cmp.velocity.length() ) * water_max_speed();
+      }
+      else if ( move_cmp.velocity.length() > land_max_speed() )
+      {
+        move_cmp.velocity = ( move_cmp.velocity / move_cmp.velocity.length() ) * land_max_speed();
+      }
 
       // Apply velocity to position (change in position = velocity * dt)
       pos_cmp += move_cmp.velocity * dt;
