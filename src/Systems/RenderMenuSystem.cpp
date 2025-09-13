@@ -10,6 +10,7 @@
 #include <Persistent/NpcDamageDelay.hpp>
 #include <Persistent/NpcPushBack.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
+#include <Persistent/PlayerMinVelocity.hpp>
 #include <Persistent/WaterBonus.hpp>
 #include <Systems/RenderMenuSystem.hpp>
 #include <imgui.h>
@@ -90,6 +91,9 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
 
   auto &friction_falloff = m_reg->ctx().get<Cmp::Persistent::FrictionFalloff>();
   ImGui::SliderFloat( "Friction Falloff", &friction_falloff(), 0.01f, 1.f, "%.2f" );
+
+  auto &player_min_velocity = m_reg->ctx().get<Cmp::Persistent::PlayerMinVelocity>();
+  ImGui::SliderFloat( "Player Min Velocity", &player_min_velocity(), 0.f, 5.f, "%.1f" );
 
   auto &land_acceleration = m_reg->ctx().get<Cmp::Persistent::LandAcceleration>();
   ImGui::SliderFloat( "Above Water Acceleration Rate", &land_acceleration(), 100.f, 1000.f, "%.1f pixels/second²" );

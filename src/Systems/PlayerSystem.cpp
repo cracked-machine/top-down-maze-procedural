@@ -1,3 +1,4 @@
+#include <Persistent/PlayerMinVelocity.hpp>
 #include <PlayerSystem.hpp>
 
 namespace ProceduralMaze::Sys {
@@ -15,6 +16,7 @@ void PlayerSystem::init_context()
   if ( not m_reg->ctx().contains<Cmp::Persistent::WaterAcceleration>() ) { m_reg->ctx().emplace<Cmp::Persistent::WaterAcceleration>(); }
   if ( not m_reg->ctx().contains<Cmp::Persistent::WaterDeceleration>() ) { m_reg->ctx().emplace<Cmp::Persistent::WaterDeceleration>(); }
   if ( not m_reg->ctx().contains<Cmp::Persistent::PCDetectionScale>() ) { m_reg->ctx().emplace<Cmp::Persistent::PCDetectionScale>(); }
+  if ( not m_reg->ctx().contains<Cmp::Persistent::PlayerMinVelocity>() ) { m_reg->ctx().emplace<Cmp::Persistent::PlayerMinVelocity>(); }
 }
 
 void PlayerSystem::add_player_entity()
@@ -50,6 +52,8 @@ void PlayerSystem::update( sf::Time deltaTime )
     auto &water_deceleration = m_reg->ctx().get<Cmp::Persistent::WaterDeceleration>();
     auto &land_max_speed = m_reg->ctx().get<Cmp::Persistent::LandMaxSpeed>();
     auto &water_max_speed = m_reg->ctx().get<Cmp::Persistent::WaterMaxSpeed>();
+    auto &player_min_velocity = m_reg->ctx().get<Cmp::Persistent::PlayerMinVelocity>();
+
     // Apply acceleration in the desired direction
     if ( dir_cmp != sf::Vector2f( 0.0f, 0.0f ) )
     {
@@ -71,7 +75,7 @@ void PlayerSystem::update( sf::Time deltaTime )
     move_cmp.velocity += move_cmp.acceleration * dt;
 
     // Stop completely if current velocity magnitude is below minimum velocity
-    if ( move_cmp.velocity.length() < move_cmp.min_velocity )
+    if ( move_cmp.velocity.length() < player_min_velocity() )
     {
       move_cmp.velocity = sf::Vector2f( 0.0f, 0.0f );
       move_cmp.acceleration = sf::Vector2f( 0.0f, 0.0f );

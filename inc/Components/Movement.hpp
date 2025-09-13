@@ -11,7 +11,6 @@ struct Movement
 
   sf::Vector2f velocity{ 0.0f, 0.0f };
   sf::Vector2f acceleration{ 0.0f, 0.0f };
-  float min_velocity = 1.f;  // Minimum velocity before stopping completely
   bool is_colliding = false; // Flag to track if entity is currently colliding
 };
 

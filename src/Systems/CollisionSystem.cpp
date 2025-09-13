@@ -1,4 +1,5 @@
 #include <CollisionSystem.hpp>
+#include <Persistent/PlayerMinVelocity.hpp>
 
 namespace ProceduralMaze::Sys {
 
@@ -300,6 +301,7 @@ void CollisionSystem::check_player_obstacle_collision()
       auto &water_max_speed = m_reg->ctx().get<Cmp::Persistent::WaterMaxSpeed>();
       auto &friction_coefficient = m_reg->ctx().get<Cmp::Persistent::FrictionCoefficient>();
       auto &friction_falloff = m_reg->ctx().get<Cmp::Persistent::FrictionFalloff>();
+      auto &player_min_velocity = m_reg->ctx().get<Cmp::Persistent::PlayerMinVelocity>();
 
       // Always resolve along the axis of least penetration
       if ( std::abs( depthX ) < std::abs( depthY ) )
@@ -317,7 +319,7 @@ void CollisionSystem::check_player_obstacle_collision()
         _movement.velocity.y *= ( 1.0f - dynamic_friction );
 
         // Check if Y velocity is below minimum
-        if ( std::abs( _movement.velocity.y ) < _movement.min_velocity ) { _movement.velocity.y = 0.0f; }
+        if ( std::abs( _movement.velocity.y ) < player_min_velocity() ) { _movement.velocity.y = 0.0f; }
       }
       else
       {
@@ -334,7 +336,7 @@ void CollisionSystem::check_player_obstacle_collision()
         _movement.velocity.x *= ( 1.0f - dynamic_friction );
 
         // Check if X velocity is below minimum
-        if ( std::abs( _movement.velocity.x ) < _movement.min_velocity ) { _movement.velocity.x = 0.0f; }
+        if ( std::abs( _movement.velocity.x ) < player_min_velocity() ) { _movement.velocity.x = 0.0f; }
       }
 
       // Verify the resolution worked
