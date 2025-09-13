@@ -82,7 +82,7 @@ bool Engine::run()
         auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
         for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
         {
-          if ( _sys.collisions_enabled ) m_collision_sys.check_collision();
+          if ( _sys.collisions_enabled ) m_collision_sys.check_player_obstacle_collision();
           if ( _sys.level_complete )
           {
             SPDLOG_INFO( "Level complete!" );
