@@ -90,7 +90,7 @@ public:
   void check_player_obstacle_collision();
 
 private:
-  sf::FloatRect m_end_zone{ { DISPLAY_SIZE.x * 1.f, 0 }, { 500.f, DISPLAY_SIZE.y * 1.f } };
+  sf::FloatRect m_end_zone{ { kDisplaySize.x * 1.f, 0 }, { 500.f, kDisplaySize.y * 1.f } };
 };
 
 } // namespace ProceduralMaze::Sys

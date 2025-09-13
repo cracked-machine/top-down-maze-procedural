@@ -18,6 +18,13 @@ public:
   void render_game( sf::Time deltaTime );
   void load_multisprites();
 
+  // Reset both views to the player start position
+  void reset_views()
+  {
+    update_view_center( m_local_view, Cmp::Position{ PLAYER_START_POS }, kStartGameSmoothFactor );
+    update_view_center( m_minimap_view, Cmp::Position{ PLAYER_START_POS }, kStartGameSmoothFactor );
+  }
+
 private:
   void render_floormap( const sf::Vector2f &offset = { 0.f, 0.f } );
   void render_obstacles();
@@ -32,18 +39,19 @@ private:
   void render_player_distances_on_obstacles();
   void render_npc_distances_on_obstacles();
 
-  void update_view_center( sf::View &view, Cmp::Position &player_pos );
+  void update_view_center( sf::View &view, const Cmp::Position &player_pos, float smoothFactor = 0.1f );
 
   RenderOverlaySystem m_overlay_sys{ m_reg };
 
   // Views
   const sf::Vector2f LOCAL_MAP_VIEW_SIZE{ 300.f, 200.f };
-  const sf::Vector2f MINI_MAP_VIEW_SIZE{ DISPLAY_SIZE.x * 0.25f, DISPLAY_SIZE.y * 0.25f };
+  const sf::Vector2f MINI_MAP_VIEW_SIZE{ kDisplaySize.x * 0.25f, kDisplaySize.y * 0.25f };
   sf::View m_local_view;
   sf::View m_minimap_view;
+  const float kStartGameSmoothFactor = 1.f; // instant centering on start
 
   // Shaders
-  Sprites::FloodWaterShader m_water_shader{ "res/FloodWater2.glsl", DISPLAY_SIZE };
+  Sprites::FloodWaterShader m_water_shader{ "res/FloodWater2.glsl", kDisplaySize };
 
   // Sprites
   Sprites::Containers::TileMap m_floormap;

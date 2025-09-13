@@ -71,8 +71,8 @@ private:
       SPDLOG_TRACE( "" );
       const int idx = std::distance( m_random_level->begin(), it );
 
-      bool has_left_map_edge = not( ( idx ) % MAP_GRID_SIZE.y );
-      bool has_right_map_edge = not( ( idx + 1 ) % MAP_GRID_SIZE.y );
+      bool has_left_map_edge = not( ( idx ) % kMapGridSize.y );
+      bool has_right_map_edge = not( ( idx + 1 ) % kMapGridSize.y );
 
       SPDLOG_TRACE( "Entity {} has left map edge: {}", entt::to_integral( *it ), has_left_map_edge );
       SPDLOG_TRACE( "Entity {} has right map edge: {}", entt::to_integral( *it ), has_right_map_edge );
@@ -113,9 +113,9 @@ private:
         }
       }
       // N - (y - 1)
-      if ( std::prev( it, ( MAP_GRID_SIZE.y + 1 ) ) >= m_random_level->begin() )
+      if ( std::prev( it, ( kMapGridSize.y + 1 ) ) >= m_random_level->begin() )
       {
-        auto down_left_entt = entt::entity( *std::prev( it, MAP_GRID_SIZE.y + 1 ) );
+        auto down_left_entt = entt::entity( *std::prev( it, kMapGridSize.y + 1 ) );
         Cmp::Obstacle *down_left_entt_ob = m_reg->try_get<Cmp::Obstacle>( down_left_entt );
         if ( not down_left_entt_ob )
         {
@@ -139,9 +139,9 @@ private:
         }
       }
       // N - y
-      if ( std::prev( it, MAP_GRID_SIZE.y ) >= m_random_level->begin() )
+      if ( std::prev( it, kMapGridSize.y ) >= m_random_level->begin() )
       {
-        auto down_entt = entt::entity( *std::prev( it, MAP_GRID_SIZE.y ) );
+        auto down_entt = entt::entity( *std::prev( it, kMapGridSize.y ) );
         Cmp::Obstacle *down_entt_ob = m_reg->try_get<Cmp::Obstacle>( down_entt );
         if ( not down_entt_ob )
         {
@@ -163,9 +163,9 @@ private:
         }
       }
       // N - (y + 1)
-      if ( ( std::prev( it, ( MAP_GRID_SIZE.y - 1 ) ) ) >= m_random_level->begin() )
+      if ( ( std::prev( it, ( kMapGridSize.y - 1 ) ) ) >= m_random_level->begin() )
       {
-        auto down_right_entt = entt::entity( *std::prev( it, MAP_GRID_SIZE.y - 1 ) );
+        auto down_right_entt = entt::entity( *std::prev( it, kMapGridSize.y - 1 ) );
         Cmp::Obstacle *down_right_entt_ob = m_reg->try_get<Cmp::Obstacle>( down_right_entt );
         if ( not down_right_entt_ob )
         {
@@ -201,9 +201,9 @@ private:
       // where N is iterator, y is column length
 
       // N + (y - 1)
-      if ( std::next( it, ( MAP_GRID_SIZE.y - 1 ) ) < m_random_level->end() )
+      if ( std::next( it, ( kMapGridSize.y - 1 ) ) < m_random_level->end() )
       {
-        auto top_left_entt = entt::entity( *std::next( it, MAP_GRID_SIZE.y - 1 ) );
+        auto top_left_entt = entt::entity( *std::next( it, kMapGridSize.y - 1 ) );
         Cmp::Obstacle *top_left_entt_ob = m_reg->try_get<Cmp::Obstacle>( top_left_entt );
         if ( not top_left_entt_ob )
         {
@@ -227,9 +227,9 @@ private:
         }
       }
       // N + y
-      if ( MAP_GRID_SIZE.y < m_random_level->size() && std::next( it, MAP_GRID_SIZE.y ) < m_random_level->end() )
+      if ( kMapGridSize.y < m_random_level->size() && std::next( it, kMapGridSize.y ) < m_random_level->end() )
       {
-        auto top_entt = entt::entity( *std::next( it, MAP_GRID_SIZE.y ) );
+        auto top_entt = entt::entity( *std::next( it, kMapGridSize.y ) );
         Cmp::Obstacle *top_entt_ob = m_reg->try_get<Cmp::Obstacle>( top_entt );
         if ( not top_entt_ob )
         {
@@ -242,9 +242,9 @@ private:
         }
       }
       // N + (y + 1)
-      if ( ( MAP_GRID_SIZE.y + 1 ) < m_random_level->size() && std::next( it, ( MAP_GRID_SIZE.y + 1 ) ) < m_random_level->end() )
+      if ( ( kMapGridSize.y + 1 ) < m_random_level->size() && std::next( it, ( kMapGridSize.y + 1 ) ) < m_random_level->end() )
       {
-        auto top_right_entt = entt::entity( *std::next( it, ( MAP_GRID_SIZE.y + 1 ) ) );
+        auto top_right_entt = entt::entity( *std::next( it, ( kMapGridSize.y + 1 ) ) );
         Cmp::Obstacle *top_right_entt_ob = m_reg->try_get<Cmp::Obstacle>( top_right_entt );
         if ( not top_right_entt_ob )
         {

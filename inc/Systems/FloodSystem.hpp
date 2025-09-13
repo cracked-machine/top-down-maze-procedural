@@ -48,7 +48,7 @@ public:
     auto entity = m_reg->create();
     m_reg->emplace<Cmp::WaterLevel>(
         entity,
-        DISPLAY_SIZE.y - 1 // initial level
+        kDisplaySize.y - 1 // initial level
     );
   }
 

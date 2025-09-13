@@ -193,6 +193,10 @@ void Engine::setup()
   Sys::ProcGen::CellAutomataSystem cellauto_parser{ m_reg, std::move( random_level ) };
   cellauto_parser.iterate( 5 );
 
+  // Reset the views early to prevent wild panning back to the start
+  // position when the game starts rendering
+  m_render_game_sys.reset_views();
+
   reginfo( "Post-setup" );
 }
 

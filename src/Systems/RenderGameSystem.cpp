@@ -1,5 +1,6 @@
 #include <GameState.hpp>
 #include <NpcDeathPosition.hpp>
+#include <Position.hpp>
 #include <RenderSystem.hpp>
 #include <Systems/RenderGameSystem.hpp>
 #include <string>
@@ -12,11 +13,6 @@ RenderGameSystem::RenderGameSystem( std::shared_ptr<entt::basic_registry<entt::e
   // init local view dimensions
   m_local_view = sf::View( { LOCAL_MAP_VIEW_SIZE.x * 0.5f, LOCAL_MAP_VIEW_SIZE.y * 0.5f }, LOCAL_MAP_VIEW_SIZE );
   m_local_view.setViewport( sf::FloatRect( { 0.f, 0.f }, { 1.f, 1.f } ) );
-
-  for ( auto [e, p] : m_reg->view<Cmp::GameState>().each() )
-  {
-    SPDLOG_INFO( "Player entity alive: {}", static_cast<int>( p.current_state ) );
-  }
 
   // init minimap view dimensions
   m_minimap_view = sf::View( { MINI_MAP_VIEW_SIZE.x * 0.5f, MINI_MAP_VIEW_SIZE.y * 0.5f }, MINI_MAP_VIEW_SIZE );
@@ -41,7 +37,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
     // world
     getWindow().setView( m_local_view );
     {
-      render_floormap( { 0, MAP_GRID_OFFSET.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
+      render_floormap( { 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
       render_obstacles();
       render_armed();
       render_loot();
@@ -60,7 +56,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
       {
         if ( _sys.player_stuck )
         {
-          m_local_view.setCenter( { LOCAL_MAP_VIEW_SIZE.x * 0.5f, DISPLAY_SIZE.y * 0.5f } );
+          m_local_view.setCenter( { LOCAL_MAP_VIEW_SIZE.x * 0.5f, kDisplaySize.y * 0.5f } );
           _sys.player_stuck = false;
         }
         else
@@ -78,7 +74,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
     // much smaller scale
     getWindow().setView( m_minimap_view );
     {
-      render_floormap( { 0, MAP_GRID_OFFSET.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
+      render_floormap( { 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
       render_obstacles();
       render_armed();
       render_loot();
@@ -112,7 +108,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
     getWindow().setView( getWindow().getDefaultView() );
     {
       auto minimap_border = sf::RectangleShape( { MINI_MAP_VIEW_SIZE.x, MINI_MAP_VIEW_SIZE.y } );
-      minimap_border.setPosition( { DISPLAY_SIZE.x - MINI_MAP_VIEW_SIZE.x, 0.f } );
+      minimap_border.setPosition( { kDisplaySize.x - MINI_MAP_VIEW_SIZE.x, 0.f } );
       minimap_border.setFillColor( sf::Color::Transparent );
       minimap_border.setOutlineColor( sf::Color::White );
       minimap_border.setOutlineThickness( 2.f );
@@ -549,22 +545,21 @@ void RenderGameSystem::load_multisprites()
   }
 }
 
-void RenderGameSystem::update_view_center( sf::View &view, Cmp::Position &player_pos )
+void RenderGameSystem::update_view_center( sf::View &view, const Cmp::Position &player_pos, float smoothFactor )
 {
-  const float MAP_HALF_WIDTH = view.getSize().x * 0.5f;
-  const float MAP_HALF_HEIGHT = view.getSize().y * 0.5f;
+  const float kHalfViewWidth = view.getSize().x * 0.5f;
+  const float kHalfViewHeight = view.getSize().y * 0.5f;
 
   // Calculate the maximum allowed camera positions
-  float maxX = DISPLAY_SIZE.x - MAP_HALF_WIDTH;
-  float maxY = DISPLAY_SIZE.y - MAP_HALF_HEIGHT;
+  float maxX = kDisplaySize.x - kHalfViewWidth;
+  float maxY = kDisplaySize.y - kHalfViewHeight;
 
   // Calculate new camera position
-  float newX = std::clamp( player_pos.x, MAP_HALF_WIDTH, maxX );
-  float newY = std::clamp( player_pos.y, MAP_HALF_HEIGHT, maxY );
+  float newX = std::clamp( player_pos.x, kHalfViewWidth, maxX );
+  float newY = std::clamp( player_pos.y, kHalfViewHeight, maxY );
 
   // Smoothly interpolate to the new position
   sf::Vector2f currentCenter = view.getCenter();
-  float smoothFactor = 0.1f; // Adjust this value to change how quickly the camera follows
 
   view.setCenter( { currentCenter.x + ( newX - currentCenter.x ) * smoothFactor, currentCenter.y + ( newY - currentCenter.y ) * smoothFactor } );
 }

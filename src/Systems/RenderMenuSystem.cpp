@@ -24,22 +24,22 @@ void RenderMenuSystem::render_menu()
   {
     sf::Text title_text( m_font, "Procedural Maze Game", 96 );
     title_text.setFillColor( sf::Color::White );
-    title_text.setPosition( { DISPLAY_SIZE.x / 4.f, 100.f } );
+    title_text.setPosition( { kDisplaySize.x / 4.f, 100.f } );
     getWindow().draw( title_text );
 
     sf::Text start_text( m_font, "Press <Enter> key to start", 48 );
     start_text.setFillColor( sf::Color::White );
-    start_text.setPosition( { DISPLAY_SIZE.x / 4.f, 300.f } );
+    start_text.setPosition( { kDisplaySize.x / 4.f, 300.f } );
     getWindow().draw( start_text );
 
     sf::Text quit_text( m_font, "Press <Q> key to quit", 48 );
     quit_text.setFillColor( sf::Color::White );
-    quit_text.setPosition( { DISPLAY_SIZE.x / 4.f, 350.f } );
+    quit_text.setPosition( { kDisplaySize.x / 4.f, 350.f } );
     getWindow().draw( quit_text );
 
     sf::Text settings_text( m_font, "Press <S> key for settings", 48 );
     settings_text.setFillColor( sf::Color::White );
-    settings_text.setPosition( { DISPLAY_SIZE.x / 4.f, 400.f } );
+    settings_text.setPosition( { kDisplaySize.x / 4.f, 400.f } );
     getWindow().draw( settings_text );
   }
 
@@ -172,12 +172,12 @@ void RenderMenuSystem::render_paused()
   {
     sf::Text title_text( m_font, "Paused", 96 );
     title_text.setFillColor( sf::Color::White );
-    title_text.setPosition( { DISPLAY_SIZE.x / 4.f, 100.f } );
+    title_text.setPosition( { kDisplaySize.x / 4.f, 100.f } );
     getWindow().draw( title_text );
 
     sf::Text start_text( m_font, "Press P to continue", 48 );
     start_text.setFillColor( sf::Color::White );
-    start_text.setPosition( { DISPLAY_SIZE.x / 4.f, 200.f } );
+    start_text.setPosition( { kDisplaySize.x / 4.f, 200.f } );
     getWindow().draw( start_text );
   }
 
@@ -192,12 +192,12 @@ void RenderMenuSystem::render_defeat_screen()
   {
     sf::Text title_text( m_font, "You died!", 96 );
     title_text.setFillColor( sf::Color::White );
-    title_text.setPosition( { DISPLAY_SIZE.x / 4.f, 100.f } );
+    title_text.setPosition( { kDisplaySize.x / 4.f, 100.f } );
     getWindow().draw( title_text );
 
     sf::Text start_text( m_font, "Press <R> key to continue", 48 );
     start_text.setFillColor( sf::Color::White );
-    start_text.setPosition( { DISPLAY_SIZE.x / 4.f, 200.f } );
+    start_text.setPosition( { kDisplaySize.x / 4.f, 200.f } );
     getWindow().draw( start_text );
   }
 
@@ -212,12 +212,12 @@ void RenderMenuSystem::render_victory_screen()
   {
     sf::Text title_text( m_font, "You won!", 96 );
     title_text.setFillColor( sf::Color::White );
-    title_text.setPosition( { DISPLAY_SIZE.x / 4.f, 100.f } );
+    title_text.setPosition( { kDisplaySize.x / 4.f, 100.f } );
     getWindow().draw( title_text );
 
     sf::Text start_text( m_font, "Press <R> key to continue", 48 );
     start_text.setFillColor( sf::Color::White );
-    start_text.setPosition( { DISPLAY_SIZE.x / 4.f, 200.f } );
+    start_text.setPosition( { kDisplaySize.x / 4.f, 200.f } );
     getWindow().draw( start_text );
   }
 
