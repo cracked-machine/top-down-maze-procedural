@@ -28,7 +28,12 @@ namespace ProceduralMaze::Sprites {
 class BaseFragmentShader : public sf::Drawable, public sf::Transformable
 {
 public:
-  BaseFragmentShader( std::filesystem::path shader_path, sf::Vector2u texture_size ) : m_texture( texture_size ), m_shader_path( shader_path ) {}
+  BaseFragmentShader( std::filesystem::path shader_path, sf::Vector2u texture_size );
+
+  BaseFragmentShader( const BaseFragmentShader & ) = delete;
+  BaseFragmentShader &operator=( const BaseFragmentShader & ) = delete;
+  BaseFragmentShader( BaseFragmentShader && ) = default;
+  BaseFragmentShader &operator=( BaseFragmentShader && ) = default;
 
   virtual ~BaseFragmentShader() = default;
 
@@ -42,20 +47,14 @@ public:
   // Call this function to setup the shader. Initialisation order:
   // 1. pre_setup_texture()
   // 2. m_texture.display()
-  // 4. setup_shader()
-  // 3. post_setup_shader()
-  void setup()
-  {
-    pre_setup_texture();
-    m_texture.display();
-    setup_shader();
-    post_setup_shader();
-  }
+  // 3. setup_shader()
+  // 4. post_setup_shader()
+  void setup();
 
   // set the Sprite position
-  void set_position( sf::Vector2f position ) { m_sprite.setPosition( position ); }
+  void set_position( const sf::Vector2f &position );
 
-  void draw( sf::RenderTarget &target, [[maybe_unused]] sf::RenderStates states ) const override { target.draw( m_sprite, &m_shader ); }
+  void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
 
 protected:
   sf::RenderTexture m_texture;
@@ -66,21 +65,7 @@ protected:
 private:
   std::filesystem::path m_shader_path{};
 
-  void setup_shader()
-  {
-    if ( !std::filesystem::exists( m_shader_path ) )
-    {
-      SPDLOG_CRITICAL( "Shader file does not exist: {}", m_shader_path.string() );
-      std::get_terminate();
-    }
-    SPDLOG_INFO( "Loading shader from {}", m_shader_path.string() );
-    if ( !m_shader.loadFromFile( m_shader_path.string(), sf::Shader::Type::Fragment ) )
-    {
-      SPDLOG_CRITICAL( "Failed to load shader {}", m_shader_path.string() );
-      std::get_terminate();
-    }
-    SPDLOG_INFO( "Shader loaded successfully" );
-  }
+  void setup_shader();
 };
 
 } // namespace ProceduralMaze::Sprites
