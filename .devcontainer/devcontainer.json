@@ -11,7 +11,8 @@
                 "twxs.cmake",
                 "xaver.clang-format",
                 "ms-vscode.hexeditor",
-                "cschlosser.doxdocgen"
+                "cschlosser.doxdocgen",
+                "slevesque.shader"
 
             ],
             "settings": {
