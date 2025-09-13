@@ -4,6 +4,8 @@
 #include <BombSystem.hpp>
 #include <SFML/System/Time.hpp>
 #include <Systems/RenderSystem.hpp>
+#include <TitleScreenShader.hpp>
+#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
 
@@ -19,6 +21,11 @@ public:
   void render_paused();
   void render_defeat_screen();
   void render_victory_screen();
+
+private:
+  // Shaders
+
+  Sprites::TitleScreenShader m_title_screen_shader{ "res/shaders/TitleScreen.frag", kDisplaySize };
 };
 
 } // namespace ProceduralMaze::Sys

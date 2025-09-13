@@ -22,6 +22,11 @@ void RenderMenuSystem::render_menu()
   // main render begin
   getWindow().clear();
   {
+    m_title_screen_shader.set_position( { 0, 0 } );
+    const auto mouse_pos = sf::Vector2f( sf::Mouse::getPosition( getWindow() ) ).componentWiseDiv( sf::Vector2f( getWindow().getSize() ) );
+    m_title_screen_shader.update( mouse_pos );
+    getWindow().draw( m_title_screen_shader );
+
     sf::Text title_text( m_font, "Procedural Maze Game", 96 );
     title_text.setFillColor( sf::Color::White );
     title_text.setPosition( { kDisplaySize.x / 4.f, 100.f } );
