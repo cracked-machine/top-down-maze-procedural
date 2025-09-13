@@ -103,6 +103,8 @@ private:
   void add_display_size( const sf::Vector2u &size );
   void add_system_entity();
   void add_game_state_entity();
+
+  sf::Music m_title_music{ "res/audio/title_music.wav" };
 };
 
 } // namespace ProceduralMaze

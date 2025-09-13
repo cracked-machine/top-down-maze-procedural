@@ -23,6 +23,7 @@ Engine::Engine( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
   std::ignore = Sys::BaseSystem::getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>( m_bomb_sys );
 
   // Cmp::Random::seed(123456789); // testing purposes
+  m_title_music.setLooping( true );
 }
 
 bool Engine::run()
@@ -41,6 +42,7 @@ bool Engine::run()
       {
       case Cmp::GameState::State::MENU: {
 
+        if ( m_title_music.getStatus() != sf::Music::Status::Playing ) { m_title_music.play(); }
         m_render_menu_sys.render_menu();
         m_event_handler.menu_state_handler( m_render_game_sys.window() );
         break;
@@ -68,6 +70,7 @@ bool Engine::run()
       }
 
       case Cmp::GameState::State::PLAYING: {
+        if ( m_title_music.getStatus() == sf::Music::Status::Playing ) { m_title_music.stop(); }
         m_event_handler.game_state_handler( m_render_game_sys.window() );
 
         m_player_sys.update( deltaTime );
