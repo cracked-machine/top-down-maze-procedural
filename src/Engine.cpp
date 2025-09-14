@@ -1,4 +1,5 @@
 #include <Engine.hpp>
+
 #include <Persistent/MusicVolume.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
 
@@ -7,7 +8,7 @@ namespace ProceduralMaze {
 Engine::Engine( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
     : m_reg( std::move( registry ) ), m_sprite_factory( std::make_shared<Sprites::SpriteFactory>() ), m_player_sys( m_reg ), m_flood_sys( m_reg ),
       m_path_find_sys( m_reg ), m_npc_sys( m_reg ), m_collision_sys( m_reg ), m_render_game_sys( m_reg ), m_render_menu_sys( m_reg ),
-      m_bomb_sys( m_reg ), m_event_handler( m_reg )
+      m_bomb_sys( m_reg ), m_title_music_sys( m_reg, "res/audio/title_music.mp3" ), m_event_handler( m_reg )
 {
 
   m_render_game_sys.window().setFramerateLimit( 144 );
@@ -25,9 +26,8 @@ Engine::Engine( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
   std::ignore = Sys::BaseSystem::getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>( m_bomb_sys );
 
   // Cmp::Random::seed(123456789); // testing purposes
-  // m_title_music.setLooping( true );
 
-  init_context();
+  m_title_music_sys.init_context();
   m_bomb_sys.init_context();
   m_player_sys.init_context();
   m_flood_sys.init_context();
@@ -44,6 +44,7 @@ bool Engine::run()
   while ( m_render_game_sys.window().isOpen() )
   {
     sf::Time deltaTime = deltaClock.restart();
+    m_title_music_sys.update_volume();
 
     auto gamestate_view = m_reg->view<Cmp::GameState>();
     for ( auto [entity, game_state] : gamestate_view.each() )
@@ -52,8 +53,8 @@ bool Engine::run()
       {
       case Cmp::GameState::State::MENU: {
 
-        if ( m_title_music.getStatus() != sf::Music::Status::Playing ) { m_title_music.play(); }
-        m_title_music.setVolume( m_reg->ctx().get<Cmp::Persistent::MusicVolume>()() );
+        // process music playback
+        m_title_music_sys.update_music_playback( Sys::MusicSystem::Function::PLAY );
 
         m_render_menu_sys.render_title();
         m_event_handler.menu_state_handler( m_render_game_sys.window() );
@@ -65,11 +66,20 @@ bool Engine::run()
         m_event_handler.settings_state_handler( m_render_game_sys.window() );
 
         // make volume changes immediately audible
-        m_title_music.setVolume( m_reg->ctx().get<Cmp::Persistent::MusicVolume>()() );
+
         break;
       } // case SETTINGS end
 
       case Cmp::GameState::State::LOADING: {
+
+        // wait for fade out to complete
+        m_title_music_sys.start_music_fade_out();
+        if ( m_title_music_sys.is_fading_out() )
+        {
+          m_title_music_sys.update_volume();
+          break;
+        }
+
         setup();
         game_state.current_state = Cmp::GameState::State::PLAYING;
         SPDLOG_INFO( "Loading game...." );
@@ -85,7 +95,7 @@ bool Engine::run()
       }
 
       case Cmp::GameState::State::PLAYING: {
-        if ( m_title_music.getStatus() == sf::Music::Status::Playing ) { m_title_music.stop(); }
+        m_title_music_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
         m_event_handler.game_state_handler( m_render_game_sys.window() );
 
         m_player_sys.update( deltaTime );
@@ -155,7 +165,15 @@ bool Engine::run()
 
       case Cmp::GameState::State::EXITING: {
         SPDLOG_INFO( "Terminating Game...." );
-        if ( m_title_music.getStatus() == sf::Music::Status::Playing ) { m_title_music.stop(); }
+
+        // wait for fade out to complete
+        m_title_music_sys.start_music_fade_out();
+        if ( m_title_music_sys.is_fading_out() )
+        {
+          m_title_music_sys.update_volume();
+          break;
+        }
+
         teardown();
         m_render_game_sys.window().close();
         std::terminate();
@@ -184,11 +202,6 @@ void Engine::bootstrap()
 
   m_render_game_sys.load_multisprites();
   SPDLOG_INFO( "bootstrap - complete" );
-}
-
-void Engine::init_context()
-{
-  if ( not m_reg->ctx().contains<Cmp::Persistent::MusicVolume>() ) { m_reg->ctx().emplace<Cmp::Persistent::MusicVolume>(); }
 }
 
 // Sets up ECS for the rest of the game

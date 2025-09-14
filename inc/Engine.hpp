@@ -6,6 +6,7 @@
 #include <Direction.hpp>
 #include <FloodSystem.hpp>
 #include <GameState.hpp>
+#include <MusicSystem.hpp>
 #include <NpcSystem.hpp>
 #include <PathFindSystem.hpp>
 #include <Persistent/FuseDelay.hpp>
@@ -86,14 +87,13 @@ private:
   Sys::RenderGameSystem m_render_game_sys;
   Sys::RenderMenuSystem m_render_menu_sys;
   Sys::BombSystem m_bomb_sys;
+  Sys::MusicSystem m_title_music_sys;
 
   // SFML keyboard/mouse event handler
   ProceduralMaze::InputEventHandler m_event_handler{ m_reg };
 
   // sets up ECS just enough to let the statemachine work
   void bootstrap();
-
-  void init_context();
 
   // Sets up ECS for the rest of the game
   void setup();
@@ -105,8 +105,6 @@ private:
   void add_display_size( const sf::Vector2u &size );
   void add_system_entity();
   void add_game_state_entity();
-
-  sf::Music m_title_music{ "res/audio/title_music.wav" };
 };
 
 } // namespace ProceduralMaze

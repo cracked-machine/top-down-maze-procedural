@@ -16,6 +16,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/BombSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/CollisionSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/PlayerSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/MusicSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Debug/AssertHandler.cpp
 )
 
