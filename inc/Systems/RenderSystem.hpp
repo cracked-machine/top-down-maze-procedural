@@ -57,7 +57,7 @@ public:
 
 protected:
   // Font for rendering text
-  Cmp::Font m_font = Cmp::Font( "res/tuffy.ttf" );
+  Cmp::Font m_font = Cmp::Font( "res/fonts/tuffy.ttf" );
 
   bool m_show_path_distances = false;
   bool m_show_armed_obstacles = false;

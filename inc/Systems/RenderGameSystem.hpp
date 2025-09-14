@@ -51,7 +51,7 @@ private:
   const float kStartGameSmoothFactor = 1.f; // instant centering on start
 
   // Shaders
-  Sprites::FloodWaterShader m_water_shader{ "res/FloodWater2.glsl", kDisplaySize };
+  Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", kDisplaySize };
 
   // Sprites
   Sprites::Containers::TileMap m_floormap;
