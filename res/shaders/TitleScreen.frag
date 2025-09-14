@@ -150,7 +150,8 @@ void main()
   // High contrast edges with circular influence
   brightness = smoothstep( 0.2 + sin( dist * 15.0 + t ) * 0.05, 0.8, brightness );
 
-  vec3 final_color = vec3( brightness );
+  vec3 base_color = vec3( 0.7, 0.7, 1.0 ); // Blue tint
+  vec3 final_color = base_color * brightness;
 
   gl_FragColor = vec4( final_color, 1.0 );
 }
