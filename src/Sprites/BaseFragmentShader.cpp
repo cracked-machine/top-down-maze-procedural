@@ -3,14 +3,14 @@
 namespace ProceduralMaze::Sprites {
 
 BaseFragmentShader::BaseFragmentShader( std::filesystem::path shader_path, sf::Vector2u texture_size )
-    : m_texture( texture_size ), m_shader_path( shader_path )
+    : m_render_texture( texture_size ), m_shader_path( shader_path )
 {
 }
 
 void BaseFragmentShader::setup()
 {
   pre_setup_texture();
-  m_texture.display();
+  m_render_texture.display();
   setup_shader();
   post_setup_shader();
 }

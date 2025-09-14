@@ -1,4 +1,3 @@
-
 #include <NpcDeathPosition.hpp>
 #include <Position.hpp>
 #include <RenderSystem.hpp>
@@ -137,9 +136,11 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
 
 void RenderGameSystem::render_floormap( const sf::Vector2f &offset )
 {
-  m_floormap.setPosition( offset );
-  m_floormap.update_shader();
-  getWindow().draw( m_floormap );
+  // Update sand shader with current parameters
+  m_floormap.update( 0.8f, kDisplaySize ); // Adjust intensity as needed
+
+  // Draw floormap with sand shader applied
+  m_floormap.drawWithShader( getWindow(), offset );
 }
 
 void RenderGameSystem::render_obstacles()

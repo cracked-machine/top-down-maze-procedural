@@ -21,7 +21,7 @@ public:
 
   void pre_setup_texture() override
   {
-    m_texture.clear( sf::Color( 128, 128, 128 ) );
+    m_render_texture.clear( sf::Color( 128, 128, 128 ) );
     // std::ignore = m_texture.resize(texture_size);
   }
 

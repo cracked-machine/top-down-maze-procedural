@@ -4,6 +4,7 @@
 #include <MultiSprite.hpp>
 #include <RenderOverlaySystem.hpp>
 #include <SFML/System/Time.hpp>
+
 #include <Systems/RenderSystem.hpp>
 
 namespace ProceduralMaze::Sys {

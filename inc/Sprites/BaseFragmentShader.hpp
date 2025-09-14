@@ -51,15 +51,20 @@ public:
   // 4. post_setup_shader()
   void setup();
 
-  // set the Sprite position
+  // Use this to set the position of the overall sprite (that contains the shader effect)
   void set_position( const sf::Vector2f &position );
 
+  // internal draw function called by SFML
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
 
 protected:
-  sf::RenderTexture m_texture;
-  sf::Sprite m_sprite{ m_texture.getTexture() };
+  // this is the pallette texture that the shader will be applied to
+  sf::RenderTexture m_render_texture;
+  // the sprite that uses the texture
+  sf::Sprite m_sprite{ m_render_texture.getTexture() };
+  // the shader to be applied to the sprite
   sf::Shader m_shader;
+  // clock for timing shader effects
   sf::Clock m_clock{};
 
 private:

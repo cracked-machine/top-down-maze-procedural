@@ -3,6 +3,7 @@
 
 #include <Random.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <exception>
 #include <spdlog/spdlog.h>
 
@@ -11,7 +12,7 @@ namespace ProceduralMaze::Sprites::Containers {
 class TileMap : public sf::Drawable, public sf::Transformable
 {
 public:
-  TileMap() : m_sand_intensity( 0.8f ) // Default sand intensity
+  TileMap()
   {
 
     for ( int x = 0; x < 200; x++ )
@@ -23,6 +24,9 @@ public:
       SPDLOG_CRITICAL( "Unable to load tile map {}", m_tile_file.string() );
       std::terminate();
     }
+
+    load_shader();
+    SPDLOG_INFO( "TileMap initialized with shader {}", m_shader_path.string() );
   }
 
   bool load( const std::filesystem::path &tileset, sf::Vector2u tileSize, const unsigned int *tiles, unsigned int width, unsigned int height )
@@ -67,6 +71,11 @@ public:
       }
     }
 
+    return true;
+  }
+
+  void load_shader()
+  {
     if ( !std::filesystem::exists( m_shader_path ) )
     {
       SPDLOG_CRITICAL( "Shader file does not exist: {}", m_shader_path.string() );
@@ -81,16 +90,27 @@ public:
       throw std::runtime_error( "Failed to load shader: " + m_shader_path.string() );
     }
     SPDLOG_INFO( "Shader {} loaded successfully", m_shader_path.string() );
-
-    return true;
   }
 
-  void update_shader()
+  void update( float intensity, sf::Vector2u windowSize )
   {
-    m_shader.setUniform( "texture", sf::Shader::CurrentTexture );
     m_shader.setUniform( "time", m_clock.getElapsedTime().asSeconds() );
-    m_shader.setUniform( "sandIntensity", m_sand_intensity );
-    // Removed textureSize uniform - not needed anymore
+    m_shader.setUniform( "sandIntensity", intensity );
+
+    // Pass the actual window size to the shader
+    m_shader.setUniform( "screenSize", sf::Vector2f( static_cast<float>( windowSize.x ), static_cast<float>( windowSize.y ) ) );
+  }
+
+  // New method to draw with shader
+  void drawWithShader( sf::RenderTarget &target, const sf::Vector2f &position = { 0.f, 0.f } ) const
+  {
+    sf::RenderStates states;
+    states.transform *= getTransform();
+    states.transform.translate( position );
+    states.texture = &m_tileset;
+    states.shader = &m_shader;
+
+    target.draw( m_vertices, states );
   }
 
 private:
@@ -101,7 +121,6 @@ private:
 
     // apply the tileset texture
     states.texture = &m_tileset;
-    states.shader = &m_shader;
 
     // draw the vertex array
     target.draw( m_vertices, states );
@@ -120,8 +139,8 @@ private:
 
   std::filesystem::path m_shader_path{ "res/shaders/ShiftingSand.frag" };
   sf::Shader m_shader;
+
   sf::Clock m_clock{};
-  float m_sand_intensity; // Controls sand shifting intensity (0.0 to 1.0)
 };
 
 } // namespace ProceduralMaze::Sprites::Containers

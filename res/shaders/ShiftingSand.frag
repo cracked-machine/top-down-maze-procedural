@@ -3,11 +3,12 @@
 uniform sampler2D texture;
 uniform float time;
 uniform float sandIntensity;
+uniform vec2 screenSize; // New uniform for actual screen dimensions
 
-// Simple noise function
+// pseudo-random noise using a hash function
 float noise( vec2 st ) { return fract( sin( dot( st.xy, vec2( 12.9898, 78.233 ) ) ) * 43758.5453123 ); }
 
-// Smooth noise with proper interpolation
+// Bilinear interpolation between noise values for smooth transitions
 float smoothNoise( vec2 st )
 {
   vec2 i = floor( st );
@@ -23,7 +24,7 @@ float smoothNoise( vec2 st )
   return mix( a, b, u.x ) + ( c - a ) * u.y * ( 1.0 - u.x ) + ( d - b ) * u.x * u.y;
 }
 
-// Multi-octave noise
+// Fractal Brownian Motion combining multiple octaves of noise
 float fbm( vec2 st )
 {
   float value = 0.0;
@@ -45,20 +46,19 @@ void main()
   // Sample the texture normally
   vec4 color = texture2D( texture, texCoord );
 
-  // Use pixel coordinates instead of texture coordinates to avoid tiling
-  // Convert texture coordinates to world pixel coordinates
-  vec2 pixelCoord = texCoord * vec2( 3200.0, 1568.0 ); // 200*16, 98*16 for actual pixel size
+  // Use actual screen size for consistent density across the entire display
+  vec2 pixelCoord = texCoord * screenSize;
 
-  // Scale down for noise generation (use prime numbers to avoid alignment)
+  // Scale to maintain same density as before (adjust 0.007 as needed)
   vec2 noiseCoord = pixelCoord * 0.007; // Use non-divisible scale
 
   // Time-based animation with slowly changing direction
-  float t = time * 0.5;
+  float t = time * 0.2;
 
   // Create slowly rotating wind direction
-  float windAngle1 = time * 0.1;        // Very slow rotation
-  float windAngle2 = time * 0.15 + 1.5; // Different rotation speed and offset
-  float windAngle3 = time * 0.08 + 3.0; // Another variation
+  float windAngle1 = time * 0.1;         // Very slow rotation
+  float windAngle2 = time * 0.15 + 10.5; // Different rotation speed and offset
+  float windAngle3 = time * 0.08 + 3.0;  // Another variation
 
   // Convert angles to direction vectors
   vec2 windDir1 = vec2( cos( windAngle1 ), sin( windAngle1 ) );
@@ -66,12 +66,12 @@ void main()
   vec2 windDir3 = vec2( cos( windAngle3 ), sin( windAngle3 ) );
 
   // Create flowing sand patterns with rotating wind directions
-  float wave1 = fbm( noiseCoord + vec2( 37.3, 73.7 ) + windDir1 * t );
+  float wave1 = fbm( noiseCoord + vec2( 37.3, 73.7 ) + windDir1 * t * 2.0 );
   float wave2 = fbm( noiseCoord * 1.31 + vec2( 19.4, 41.2 ) + windDir2 * t * 0.8 );
   float wave3 = fbm( noiseCoord * 0.73 + vec2( 67.1, 23.9 ) + windDir3 * t * 0.6 );
 
   // High frequency sand grain with rotating directions
-  float grain1 = smoothNoise( noiseCoord * 7.11 + vec2( 11.7, 29.3 ) + windDir1 * t * 3.0 );
+  float grain1 = smoothNoise( noiseCoord * 3.11 + vec2( 11.7, 29.3 ) + windDir1 * t * 3.0 );
   float grain2 = smoothNoise( noiseCoord * 11.37 + vec2( 47.2, 83.1 ) + windDir2 * t * 2.8 );
   float grain3 = smoothNoise( noiseCoord * 13.91 + vec2( 59.8, 17.4 ) + windDir3 * t * 2.5 );
 
