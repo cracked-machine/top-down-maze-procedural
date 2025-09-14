@@ -5,11 +5,11 @@
 #include <BombSystem.hpp>
 #include <Direction.hpp>
 #include <FloodSystem.hpp>
-#include <GameState.hpp>
 #include <MusicSystem.hpp>
 #include <NpcSystem.hpp>
 #include <PathFindSystem.hpp>
 #include <Persistent/FuseDelay.hpp>
+#include <Persistent/GameState.hpp>
 #include <PlayerSystem.hpp>
 #include <ProcGen/RandomLevelGenerator.hpp>
 #include <RenderGameSystem.hpp>
@@ -30,7 +30,6 @@
 
 #include <Components/DisplaySize.hpp>
 #include <Components/Font.hpp>
-#include <Components/GameState.hpp>
 #include <Components/Movement.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/PlayableCharacter.hpp>

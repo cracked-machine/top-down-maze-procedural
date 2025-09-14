@@ -1,7 +1,7 @@
 #ifndef __COMPONENTS_GAME_STATE_HPP__
 #define __COMPONENTS_GAME_STATE_HPP__
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp::Persistent {
 
 class GameState
 {
@@ -24,6 +24,6 @@ public:
   State current_state = State::MENU;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace ProceduralMaze::Cmp::Persistent
 
 #endif // __COMPONENTS_GAME_STATE_HPP__

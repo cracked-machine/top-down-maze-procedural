@@ -1,4 +1,4 @@
-#include <GameState.hpp>
+
 #include <NpcDeathPosition.hpp>
 #include <Position.hpp>
 #include <RenderSystem.hpp>

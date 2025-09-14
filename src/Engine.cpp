@@ -17,8 +17,7 @@ Engine::Engine( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
   ::ShowWindow( m_render_game_sys.window().getNativeHandle(), SW_MAXIMIZE );
 #endif
 
-  SPDLOG_INFO( "Engine Initiliasing: " );
-  bootstrap();
+  SPDLOG_INFO( "Engine Initiliasing... " );
 
   // Subscribe to NPC creation/death events
   std::ignore = Sys::BaseSystem::getEventDispatcher().sink<Events::NpcCreationEvent>().connect<&Sys::NpcSystem::on_npc_creation>( m_npc_sys );
@@ -26,7 +25,7 @@ Engine::Engine( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
   std::ignore = Sys::BaseSystem::getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>( m_bomb_sys );
 
   // Cmp::Random::seed(123456789); // testing purposes
-
+  m_event_handler.init_context();
   m_title_music_sys.init_context();
   m_bomb_sys.init_context();
   m_player_sys.init_context();
@@ -34,6 +33,11 @@ Engine::Engine( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
   m_collision_sys.init_context();
   m_npc_sys.init_context();
   m_path_find_sys.init_context();
+
+  m_reg->ctx().emplace<std::shared_ptr<Sprites::SpriteFactory>>( m_sprite_factory );
+  m_render_game_sys.load_multisprites();
+
+  SPDLOG_INFO( "Engine Initialisation Complete" );
 }
 
 bool Engine::run()
@@ -46,162 +50,142 @@ bool Engine::run()
     sf::Time deltaTime = deltaClock.restart();
     m_title_music_sys.update_volume();
 
-    auto gamestate_view = m_reg->view<Cmp::GameState>();
-    for ( auto [entity, game_state] : gamestate_view.each() )
+    auto &game_state = m_event_handler.get_game_state();
+
+    switch ( game_state.current_state )
     {
-      switch ( game_state.current_state )
+    case Cmp::Persistent::GameState::State::MENU: {
+
+      // process music playback
+      m_title_music_sys.update_music_playback( Sys::MusicSystem::Function::PLAY );
+
+      m_render_menu_sys.render_title();
+      m_event_handler.menu_state_handler( m_render_game_sys.window() );
+      break;
+    } // case MENU end
+
+    case Cmp::Persistent::GameState::State::SETTINGS: {
+      m_render_menu_sys.render_settings( deltaTime );
+      m_event_handler.settings_state_handler( m_render_game_sys.window() );
+
+      // make volume changes immediately audible
+
+      break;
+    } // case SETTINGS end
+
+    case Cmp::Persistent::GameState::State::LOADING: {
+
+      // wait for fade out to complete
+      m_title_music_sys.start_music_fade_out();
+      if ( m_title_music_sys.is_fading_out() )
       {
-      case Cmp::GameState::State::MENU: {
-
-        // process music playback
-        m_title_music_sys.update_music_playback( Sys::MusicSystem::Function::PLAY );
-
-        m_render_menu_sys.render_title();
-        m_event_handler.menu_state_handler( m_render_game_sys.window() );
-        break;
-      } // case MENU end
-
-      case Cmp::GameState::State::SETTINGS: {
-        m_render_menu_sys.render_settings( deltaTime );
-        m_event_handler.settings_state_handler( m_render_game_sys.window() );
-
-        // make volume changes immediately audible
-
-        break;
-      } // case SETTINGS end
-
-      case Cmp::GameState::State::LOADING: {
-
-        // wait for fade out to complete
-        m_title_music_sys.start_music_fade_out();
-        if ( m_title_music_sys.is_fading_out() )
-        {
-          m_title_music_sys.update_volume();
-          break;
-        }
-
-        setup();
-        game_state.current_state = Cmp::GameState::State::PLAYING;
-        SPDLOG_INFO( "Loading game...." );
+        m_title_music_sys.update_volume();
         break;
       }
 
-      case Cmp::GameState::State::UNLOADING: {
-        teardown();
-        bootstrap();
-        game_state.current_state = Cmp::GameState::State::MENU;
-        SPDLOG_INFO( "Unloading game...." );
-        break;
+      setup();
+      game_state.current_state = Cmp::Persistent::GameState::State::PLAYING;
+      SPDLOG_INFO( "Loading game...." );
+      break;
+    }
+
+    case Cmp::Persistent::GameState::State::UNLOADING: {
+      teardown();
+      game_state.current_state = Cmp::Persistent::GameState::State::MENU;
+      SPDLOG_INFO( "Unloading game...." );
+      break;
+    }
+
+    case Cmp::Persistent::GameState::State::PLAYING: {
+      m_title_music_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
+      m_event_handler.game_state_handler( m_render_game_sys.window() );
+
+      m_player_sys.update( deltaTime );
+      m_flood_sys.update();
+      m_bomb_sys.update();
+      m_collision_sys.check_end_zone_collision();
+      m_collision_sys.check_loot_collision();
+      m_collision_sys.check_bones_reanimation();
+      m_collision_sys.check_player_to_npc_collision();
+      m_collision_sys.update_obstacle_distances();
+
+      auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
+      for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
+      {
+        if ( _sys.collisions_enabled ) m_collision_sys.check_player_obstacle_collision();
+        if ( _sys.level_complete )
+        {
+          SPDLOG_INFO( "Level complete!" );
+          game_state.current_state = Cmp::Persistent::GameState::State::GAMEOVER;
+        }
       }
 
-      case Cmp::GameState::State::PLAYING: {
-        m_title_music_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
-        m_event_handler.game_state_handler( m_render_game_sys.window() );
+      m_path_find_sys.findPath( player_entity );
+      m_npc_sys.lerp_movement( deltaTime );
 
-        m_player_sys.update( deltaTime );
-        m_flood_sys.update();
-        m_bomb_sys.update();
-        m_collision_sys.check_end_zone_collision();
-        m_collision_sys.check_loot_collision();
-        m_collision_sys.check_bones_reanimation();
-        m_collision_sys.check_player_to_npc_collision();
-        m_collision_sys.update_obstacle_distances();
-
-        auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
-        for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
-        {
-          if ( _sys.collisions_enabled ) m_collision_sys.check_player_obstacle_collision();
-          if ( _sys.level_complete )
-          {
-            SPDLOG_INFO( "Level complete!" );
-            game_state.current_state = Cmp::GameState::State::GAMEOVER;
-          }
-        }
-
-        m_path_find_sys.findPath( player_entity );
-        m_npc_sys.lerp_movement( deltaTime );
-
-        // did the player drown? Then end the game
-        for ( auto [_, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
-        {
-          if ( not _pc.alive ) { game_state.current_state = Cmp::GameState::State::GAMEOVER; }
-        }
-
-        m_render_game_sys.render_game( deltaTime );
-        break;
-      } // case PLAYING end
-
-      case Cmp::GameState::State::PAUSED: {
-        m_flood_sys.suspend();
-        m_collision_sys.suspend();
-        m_bomb_sys.suspend();
-
-        while ( ( Cmp::GameState::State::PAUSED == game_state.current_state ) and m_render_game_sys.window().isOpen() )
-        {
-          m_render_menu_sys.render_paused();
-          std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
-          // check for keyboard/window events to keep window responsive
-          m_event_handler.paused_state_handler( m_render_game_sys.window() );
-        }
-
-        m_flood_sys.resume();
-        m_collision_sys.resume();
-        m_bomb_sys.resume();
-
-        break;
-      } // case PAUSED end
-
-      case Cmp::GameState::State::GAMEOVER: {
-        for ( auto [_, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
-        {
-          if ( not _pc.alive ) { m_render_menu_sys.render_defeat_screen(); }
-          else { m_render_menu_sys.render_victory_screen(); }
-        }
-        std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
-        m_event_handler.game_over_state_handler( m_render_game_sys.window() );
-
-        break;
-      } // case GAME_OVER end
-
-      case Cmp::GameState::State::EXITING: {
-        SPDLOG_INFO( "Terminating Game...." );
-
-        // wait for fade out to complete
-        m_title_music_sys.start_music_fade_out();
-        if ( m_title_music_sys.is_fading_out() )
-        {
-          m_title_music_sys.update_volume();
-          break;
-        }
-
-        teardown();
-        m_render_game_sys.window().close();
-        std::terminate();
+      // did the player drown? Then end the game
+      for ( auto [_, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
+      {
+        if ( not _pc.alive ) { game_state.current_state = Cmp::Persistent::GameState::State::GAMEOVER; }
       }
+
+      m_render_game_sys.render_game( deltaTime );
+      break;
+    } // case PLAYING end
+
+    case Cmp::Persistent::GameState::State::PAUSED: {
+      m_flood_sys.suspend();
+      m_collision_sys.suspend();
+      m_bomb_sys.suspend();
+
+      while ( ( Cmp::Persistent::GameState::State::PAUSED == game_state.current_state ) and m_render_game_sys.window().isOpen() )
+      {
+        m_render_menu_sys.render_paused();
+        std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
+        // check for keyboard/window events to keep window responsive
+        m_event_handler.paused_state_handler( m_render_game_sys.window() );
       }
-    } // gamestate_view end
+
+      m_flood_sys.resume();
+      m_collision_sys.resume();
+      m_bomb_sys.resume();
+
+      break;
+    } // case PAUSED end
+
+    case Cmp::Persistent::GameState::State::GAMEOVER: {
+      for ( auto [_, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
+      {
+        if ( not _pc.alive ) { m_render_menu_sys.render_defeat_screen(); }
+        else { m_render_menu_sys.render_victory_screen(); }
+      }
+      std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
+      m_event_handler.game_over_state_handler( m_render_game_sys.window() );
+
+      break;
+    } // case GAME_OVER end
+
+    case Cmp::Persistent::GameState::State::EXITING: {
+
+      // wait for fade out to complete
+      m_title_music_sys.start_music_fade_out();
+      if ( m_title_music_sys.is_fading_out() )
+      {
+        m_title_music_sys.update_volume();
+        break;
+      }
+      SPDLOG_INFO( "Terminating Game...." );
+      teardown();
+      m_render_game_sys.window().close();
+      std::terminate();
+    }
+    }
 
     // Update event dispatcher at end of frame
     Sys::BaseSystem::getEventDispatcher().update();
 
   } /// MAIN LOOP ENDS
   return false;
-}
-
-// sets up ECS just enough to let the statemachine work
-void Engine::bootstrap()
-{
-  SPDLOG_INFO( "bootstrap - start" );
-  add_game_state_entity();
-  SPDLOG_INFO( "bootstrap - game state entity added" );
-
-  // we must have a sprite factory in the registry context
-  // before it can be used by other systems that need it
-  m_reg->ctx().emplace<std::shared_ptr<Sprites::SpriteFactory>>( m_sprite_factory );
-  SPDLOG_INFO( "bootstrap - sprite factory added to context" );
-
-  m_render_game_sys.load_multisprites();
-  SPDLOG_INFO( "bootstrap - complete" );
 }
 
 // Sets up ECS for the rest of the game
@@ -274,14 +258,14 @@ void Engine::add_system_entity()
 
 void Engine::add_game_state_entity()
 {
-  if ( not m_reg->view<Cmp::GameState>()->empty() )
+  if ( not m_reg->view<Cmp::Persistent::GameState>()->empty() )
   {
     SPDLOG_WARN( "Game state entity already exists, skipping creation" );
     return;
   }
   SPDLOG_INFO( "Creating game state entity" );
   auto entity = m_reg->create();
-  m_reg->emplace<Cmp::GameState>( entity );
+  m_reg->emplace<Cmp::Persistent::GameState>( entity );
 }
 
 } // namespace ProceduralMaze
