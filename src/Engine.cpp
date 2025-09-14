@@ -1,4 +1,6 @@
 #include <Engine.hpp>
+#include <Persistent/MusicVolume.hpp>
+#include <Persistent/ObstaclePushBack.hpp>
 
 namespace ProceduralMaze {
 
@@ -23,7 +25,15 @@ Engine::Engine( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
   std::ignore = Sys::BaseSystem::getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>( m_bomb_sys );
 
   // Cmp::Random::seed(123456789); // testing purposes
-  m_title_music.setLooping( true );
+  // m_title_music.setLooping( true );
+
+  init_context();
+  m_bomb_sys.init_context();
+  m_player_sys.init_context();
+  m_flood_sys.init_context();
+  m_collision_sys.init_context();
+  m_npc_sys.init_context();
+  m_path_find_sys.init_context();
 }
 
 bool Engine::run()
@@ -43,7 +53,9 @@ bool Engine::run()
       case Cmp::GameState::State::MENU: {
 
         if ( m_title_music.getStatus() != sf::Music::Status::Playing ) { m_title_music.play(); }
-        m_render_menu_sys.render_menu();
+        m_title_music.setVolume( m_reg->ctx().get<Cmp::Persistent::MusicVolume>()() );
+
+        m_render_menu_sys.render_title();
         m_event_handler.menu_state_handler( m_render_game_sys.window() );
         break;
       } // case MENU end
@@ -51,6 +63,9 @@ bool Engine::run()
       case Cmp::GameState::State::SETTINGS: {
         m_render_menu_sys.render_settings( deltaTime );
         m_event_handler.settings_state_handler( m_render_game_sys.window() );
+
+        // make volume changes immediately audible
+        m_title_music.setVolume( m_reg->ctx().get<Cmp::Persistent::MusicVolume>()() );
         break;
       } // case SETTINGS end
 
@@ -140,7 +155,7 @@ bool Engine::run()
 
       case Cmp::GameState::State::EXITING: {
         SPDLOG_INFO( "Terminating Game...." );
-
+        if ( m_title_music.getStatus() == sf::Music::Status::Playing ) { m_title_music.stop(); }
         teardown();
         m_render_game_sys.window().close();
         std::terminate();
@@ -162,13 +177,6 @@ void Engine::bootstrap()
   add_game_state_entity();
   SPDLOG_INFO( "bootstrap - game state entity added" );
 
-  m_bomb_sys.init_context();
-  m_player_sys.init_context();
-  m_flood_sys.init_context();
-  m_collision_sys.init_context();
-  m_npc_sys.init_context();
-  m_path_find_sys.init_context();
-
   // we must have a sprite factory in the registry context
   // before it can be used by other systems that need it
   m_reg->ctx().emplace<std::shared_ptr<Sprites::SpriteFactory>>( m_sprite_factory );
@@ -176,6 +184,11 @@ void Engine::bootstrap()
 
   m_render_game_sys.load_multisprites();
   SPDLOG_INFO( "bootstrap - complete" );
+}
+
+void Engine::init_context()
+{
+  if ( not m_reg->ctx().contains<Cmp::Persistent::MusicVolume>() ) { m_reg->ctx().emplace<Cmp::Persistent::MusicVolume>(); }
 }
 
 // Sets up ECS for the rest of the game

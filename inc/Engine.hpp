@@ -93,6 +93,8 @@ private:
   // sets up ECS just enough to let the statemachine work
   void bootstrap();
 
+  void init_context();
+
   // Sets up ECS for the rest of the game
   void setup();
 

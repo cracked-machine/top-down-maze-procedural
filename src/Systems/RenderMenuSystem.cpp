@@ -4,6 +4,7 @@
 #include <Persistent/BombDamage.hpp>
 #include <Persistent/FuseDelay.hpp>
 #include <Persistent/HealthBonus.hpp>
+#include <Persistent/MusicVolume.hpp>
 #include <Persistent/NPCActivateScale.hpp>
 #include <Persistent/NPCScanScale.hpp>
 #include <Persistent/NpcDamage.hpp>
@@ -17,7 +18,7 @@
 
 namespace ProceduralMaze::Sys {
 
-void RenderMenuSystem::render_menu()
+void RenderMenuSystem::render_title()
 {
   // main render begin
   getWindow().clear();
@@ -27,25 +28,13 @@ void RenderMenuSystem::render_menu()
     m_title_screen_shader.update( mouse_pos );
     getWindow().draw( m_title_screen_shader );
 
-    sf::Text title_text( m_font, "Procedural Maze Game", 96 );
-    title_text.setFillColor( sf::Color::White );
-    title_text.setPosition( { kDisplaySize.x / 4.f, 100.f } );
-    getWindow().draw( title_text );
+    render_text( "Procedural Maze", 128, { kDisplaySize.x * 0.25f, 100.f }, Alignment::CENTER, 20.f, sf::Color::Black, sf::Color::White );
 
-    sf::Text start_text( m_font, "Press <Enter> key to start", 48 );
-    start_text.setFillColor( sf::Color::White );
-    start_text.setPosition( { kDisplaySize.x / 4.f, 300.f } );
-    getWindow().draw( start_text );
+    render_text( "Press <Enter> key to start", 48, { kDisplaySize.x * 0.25f, 300.f }, Alignment::CENTER, 15.f );
 
-    sf::Text quit_text( m_font, "Press <Q> key to quit", 48 );
-    quit_text.setFillColor( sf::Color::White );
-    quit_text.setPosition( { kDisplaySize.x / 4.f, 350.f } );
-    getWindow().draw( quit_text );
+    render_text( "Press <Q> key to quit", 48, { kDisplaySize.x * 0.25f, 400.f }, Alignment::CENTER, 15.f );
 
-    sf::Text settings_text( m_font, "Press <S> key for settings", 48 );
-    settings_text.setFillColor( sf::Color::White );
-    settings_text.setPosition( { kDisplaySize.x / 4.f, 400.f } );
-    getWindow().draw( settings_text );
+    render_text( "Press <S> key for settings", 48, { kDisplaySize.x * 0.25f, 500.f }, Alignment::CENTER, 15.f );
   }
 
   getWindow().display();
@@ -165,6 +154,9 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
 
   auto &npc_damage_cooldown = m_reg->ctx().get<Cmp::Persistent::NpcDamageDelay>();
   ImGui::SliderFloat( "NPC Damage Cooldown", &npc_damage_cooldown(), 0.1f, 2.f, "%.1f seconds" );
+
+  auto &music_volume = m_reg->ctx().get<Cmp::Persistent::MusicVolume>();
+  ImGui::SliderFloat( "Music Volume", &music_volume(), 0.f, 100.f, "%.1f" );
 
   ImGui::End();
   ImGui::SFML::Render( getWindow() );

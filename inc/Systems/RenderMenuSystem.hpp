@@ -15,7 +15,8 @@ public:
   RenderMenuSystem( std::shared_ptr<entt::basic_registry<entt::entity>> registry ) : RenderSystem( registry ) {}
   ~RenderMenuSystem() = default;
 
-  void render_menu();
+  void render_title();
+
   void render_settings_widgets( sf::Time deltaTime );
   void render_settings( sf::Time deltaTime );
   void render_paused();
@@ -23,8 +24,6 @@ public:
   void render_victory_screen();
 
 private:
-  // Shaders
-
   Sprites::TitleScreenShader m_title_screen_shader{ "res/shaders/TitleScreen.frag", kDisplaySize };
 };
 

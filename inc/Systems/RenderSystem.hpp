@@ -37,7 +37,6 @@
 
 #include <entt/entity/fwd.hpp>
 
-#include <exception>
 #include <imgui.h>
 #include <memory>
 
@@ -50,49 +49,54 @@ namespace ProceduralMaze::Sys {
 class RenderSystem : public BaseSystem
 {
 public:
-  RenderSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : BaseSystem( reg )
-  {
-
-    SPDLOG_INFO( "RenderSystem initialisation starting..." );
-
-    if ( not ImGui::SFML::Init( getWindow() ) )
-    {
-      SPDLOG_CRITICAL( "ImGui-SFML initialization failed" );
-      throw std::runtime_error( "ImGui-SFML initialization failed" );
-    }
-
-    // Set ImGui style
-    ImGuiIO &io = ImGui::GetIO();
-    io.FontGlobalScale = 1.5f;
-    io.IniFilename = "res/imgui.ini";
-    std::ignore = ImGui::SFML::UpdateFontTexture();
-
-    SPDLOG_INFO( "RenderSystem initialisation finished" );
-  }
-
-  ~RenderSystem() { SPDLOG_DEBUG( "~RenderSystem()" ); }
+  RenderSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg );
+  virtual ~RenderSystem() = default;
 
   // External access to the window
   sf::RenderWindow &window() { return getWindow(); }
 
 protected:
-  // Derived class accessor for the static window instance
-  static sf::RenderWindow &getWindow()
-  {
-    if ( !RenderSystem::m_window ) { RenderSystem::m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( kDisplaySize ), "ProceduralMaze" ); }
-    return *RenderSystem::m_window;
-  }
-
   // Font for rendering text
   Cmp::Font m_font = Cmp::Font( "res/tuffy.ttf" );
 
   bool m_show_path_distances = false;
   bool m_show_armed_obstacles = false;
 
+  // common window options for ImGui windows
   const int kImGuiWindowOptions = ImGuiWindowFlags_NoTitleBar
       // | ImGuiWindowFlags_NoResize
       // | ImGuiWindowFlags_NoMove
       ;
+
+  // Text alignment options
+  enum class Alignment
+  {
+    LEFT,
+    CENTER
+  };
+
+  /**
+   * @brief Renders text to the screen with specified formatting and alignment options.
+   *
+   * @param text The string content to be rendered
+   * @param size The font size for the text in pixels
+   * @param position The screen coordinates where the text should be positioned
+   * @param align The alignment mode for the text (left or center). Left will respect position.x, center will ignore it.
+   * @param padding Optional spacing around the text in pixels (default: 10.0f)
+   * @param fill_color Optional color for the text fill (default: White)
+   * @param outline_color Optional color for the text outline (default: Transparent). Outline thickness is 0.f if set to Transparent.
+   */
+  void render_text(
+      std::string text, unsigned int size, sf::Vector2f position, Alignment align, float padding = 10.f, sf::Color fill_color = sf::Color::White,
+      sf::Color outline_color = sf::Color::Transparent
+  );
+
+  // Derived class accessor for the static window instance
+  static sf::RenderWindow &getWindow()
+  {
+    if ( !RenderSystem::m_window ) { RenderSystem::m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( kDisplaySize ), "ProceduralMaze" ); }
+    return *RenderSystem::m_window;
+  }
 
 private:
   // Static to prevent multiple windows being created
