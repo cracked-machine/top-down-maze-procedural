@@ -138,6 +138,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
 void RenderGameSystem::render_floormap( const sf::Vector2f &offset )
 {
   m_floormap.setPosition( offset );
+  m_floormap.update_shader();
   getWindow().draw( m_floormap );
 }
 

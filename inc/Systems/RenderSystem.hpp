@@ -17,6 +17,7 @@
 #include <NPCScanBounds.hpp>
 #include <PCDetectionBounds.hpp>
 #include <PlayerSystem.hpp>
+#include <SFML/Window/WindowEnums.hpp>
 #include <Sprites/BasicSprite.hpp>
 #include <Sprites/FloodWaterShader.hpp>
 #include <Sprites/MultiSprite.hpp>
@@ -94,7 +95,10 @@ protected:
   // Derived class accessor for the static window instance
   static sf::RenderWindow &getWindow()
   {
-    if ( !RenderSystem::m_window ) { RenderSystem::m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( kDisplaySize ), "ProceduralMaze" ); }
+    if ( !RenderSystem::m_window )
+    {
+      RenderSystem::m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( kDisplaySize ), "ProceduralMaze", sf::State::Fullscreen );
+    }
     return *RenderSystem::m_window;
   }
 
