@@ -69,9 +69,10 @@ void PlayerSystem::add_player_entity()
   m_reg->emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
 
   auto &pc_detection_scale = m_reg->ctx().get<Cmp::Persistent::PCDetectionScale>();
-  m_reg->emplace<Cmp::PCDetectionBounds>(
-      entity, sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE },
-      sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE }, pc_detection_scale() );
+  m_reg->emplace<Cmp::PCDetectionBounds>( entity,
+                                          sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE },
+                                          sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE },
+                                          pc_detection_scale() );
 }
 
 void PlayerSystem::update( sf::Time deltaTime )
@@ -80,7 +81,10 @@ void PlayerSystem::update( sf::Time deltaTime )
 
   for ( auto [entity, pc_cmp, pos_cmp, move_cmp, dir_cmp, pc_bounds] :
         m_reg
-            ->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction,
+            ->view<Cmp::PlayableCharacter,
+                   Cmp::Position,
+                   Cmp::Movement,
+                   Cmp::Direction,
                    Cmp::PCDetectionBounds>()
             .each() )
   {

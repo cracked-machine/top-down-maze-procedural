@@ -20,4 +20,5 @@ SpacesInParentheses: true
 AllowShortIfStatementsOnASingleLine: true
 AllowShortBlocksOnASingleLine: true
 AllowShortEnumsOnASingleLine: true
-
+BinPackArguments : false
+BinPackParameters: false

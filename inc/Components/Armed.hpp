@@ -11,8 +11,11 @@ namespace ProceduralMaze::Cmp {
 class Armed
 {
 public:
-  Armed( sf::Time fuse_delay, sf::Time warning_delay, bool display_bomb_sprite,
-         sf::Color armed_color, int index )
+  Armed( sf::Time fuse_delay,
+         sf::Time warning_delay,
+         bool display_bomb_sprite,
+         sf::Color armed_color,
+         int index )
       : m_fuse_delay( fuse_delay ),
         m_warning_delay( warning_delay ),
         m_display_bomb_sprite( display_bomb_sprite ),

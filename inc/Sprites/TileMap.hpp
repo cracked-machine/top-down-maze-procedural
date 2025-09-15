@@ -29,8 +29,11 @@ public:
     SPDLOG_INFO( "TileMap initialized with shader {}", m_shader_path.string() );
   }
 
-  bool load( const std::filesystem::path &tileset, sf::Vector2u tileSize, const unsigned int *tiles,
-             unsigned int width, unsigned int height )
+  bool load( const std::filesystem::path &tileset,
+             sf::Vector2u tileSize,
+             const unsigned int *tiles,
+             unsigned int width,
+             unsigned int height )
   {
     // load the tileset texture
     if ( !m_tileset.loadFromFile( tileset ) ) return false;
@@ -81,7 +84,8 @@ public:
     {
       SPDLOG_CRITICAL( "Shader file does not exist: {}", m_shader_path.string() );
       throw std::filesystem::filesystem_error(
-          "Shader file does not exist", m_shader_path,
+          "Shader file does not exist",
+          m_shader_path,
           std::make_error_code( std::errc::no_such_file_or_directory ) );
     }
     SPDLOG_INFO( "Loading shader from {}", m_shader_path.string() );
@@ -99,8 +103,9 @@ public:
     m_shader.setUniform( "sandIntensity", intensity );
 
     // Pass the actual window size to the shader
-    m_shader.setUniform( "screenSize", sf::Vector2f( static_cast<float>( windowSize.x ),
-                                                     static_cast<float>( windowSize.y ) ) );
+    m_shader.setUniform(
+        "screenSize",
+        sf::Vector2f( static_cast<float>( windowSize.x ), static_cast<float>( windowSize.y ) ) );
   }
 
   // New method to draw with shader

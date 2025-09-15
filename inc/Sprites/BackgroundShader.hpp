@@ -26,12 +26,13 @@ public:
   void post_setup_shader() override {}
   void update() override { /* unused */ }
 
-  void update( sf::Vector2f kDisplaySize, sf::Vector2f kMapGridOffset )
+  void update( sf::Vector2f kDisplaySize, sf::Vector2f kMapGridOffset, float intensity )
   {
     m_shader.setUniform( "time", m_clock.getElapsedTime().asSeconds() );
-    m_shader.setUniform( "sandIntensity", 2.0f );
-    m_shader.setUniform( "screenSize", sf::Vector2f( static_cast<float>( kDisplaySize.x ),
-                                                     static_cast<float>( kDisplaySize.y ) ) );
+    m_shader.setUniform( "sandIntensity", intensity );
+    m_shader.setUniform( "screenSize",
+                         sf::Vector2f( static_cast<float>( kDisplaySize.x ),
+                                       static_cast<float>( kDisplaySize.y ) ) );
     m_shader.setUniform(
         "worldPosition",
         sf::Vector2f{ 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );

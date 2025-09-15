@@ -46,12 +46,13 @@ public:
       {
         auto entity = m_reg->create();
         m_reg->emplace<Cmp::Position>(
-            entity, sf::Vector2f{ ( x * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x ) +
-                                      ( Sys::BaseSystem::kMapGridOffset.x *
-                                        Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x ),
-                                  ( y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y ) +
-                                      ( Sys::BaseSystem::kMapGridOffset.y *
-                                        Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y ) } );
+            entity,
+            sf::Vector2f{ ( x * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x ) +
+                              ( Sys::BaseSystem::kMapGridOffset.x *
+                                Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x ),
+                          ( y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y ) +
+                              ( Sys::BaseSystem::kMapGridOffset.y *
+                                Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y ) } );
         // track the contiguous creation order of the entity so we can easily
         // find its neighbours later
         m_data.push_back( entity );
@@ -67,7 +68,10 @@ public:
                 { Sprites::SpriteFactory::SpriteMetaType::ROCK,
                   Sprites::SpriteFactory::SpriteMetaType::POT,
                   Sprites::SpriteFactory::SpriteMetaType::BONES } );
-        m_reg->emplace<Cmp::Obstacle>( entity, obstacle_type, random_obstacle_texture_index, true,
+        m_reg->emplace<Cmp::Obstacle>( entity,
+                                       obstacle_type,
+                                       random_obstacle_texture_index,
+                                       true,
                                        m_activation_selector.gen() );
 
         m_reg->emplace<Cmp::Neighbours>( entity );
@@ -93,8 +97,9 @@ public:
           texture_index );
       // bottom edge
       add_border_entity(
-          { x, kMapGridOffset.y +
-                   ( ( kMapGridSize.y + 2 ) * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y ) - 2 },
+          { x,
+            kMapGridOffset.y +
+                ( ( kMapGridSize.y + 2 ) * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y ) - 2 },
           texture_index );
     }
     for ( float y = 0; y < kDisplaySize.y; y += Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y )
@@ -119,7 +124,8 @@ public:
       // right edge
       add_border_entity(
           { static_cast<float>( kDisplaySize.x ) - Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x, y },
-          texture_index, enabled );
+          texture_index,
+          enabled );
       enabled = true;
     }
   }
@@ -128,8 +134,8 @@ public:
   {
     auto entity = m_reg->create();
     m_reg->emplace<Cmp::Position>( entity, pos );
-    m_reg->emplace<Cmp::Obstacle>( entity, Sprites::SpriteFactory::SpriteMetaType::WALL,
-                                   texture_index, true, enabled );
+    m_reg->emplace<Cmp::Obstacle>(
+        entity, Sprites::SpriteFactory::SpriteMetaType::WALL, texture_index, true, enabled );
     m_reg->emplace<Cmp::Exit>( entity );
   }
 

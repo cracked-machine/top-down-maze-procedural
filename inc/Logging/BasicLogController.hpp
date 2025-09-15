@@ -65,11 +65,13 @@ private:
       } ) };
 
   // initialise spdlog::logger with sinks
-  std::shared_ptr<spdlog::logger> m_logger{ std::make_shared<spdlog::logger>(
-      spdlog::logger( m_log_name, {
-                                      m_file_sink, m_console_sink,
-                                      m_callback_sink // DISABLE CALLBACK HERE
-                                  } ) ) };
+  std::shared_ptr<spdlog::logger> m_logger{
+      std::make_shared<spdlog::logger>( spdlog::logger( m_log_name,
+                                                        {
+                                                            m_file_sink,
+                                                            m_console_sink,
+                                                            m_callback_sink // DISABLE CALLBACK HERE
+                                                        } ) ) };
 };
 
 } // namespace ProceduralMaze::Logging

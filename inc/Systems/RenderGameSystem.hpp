@@ -41,8 +41,8 @@ private:
   void render_player_distances_on_obstacles();
   void render_npc_distances_on_obstacles();
 
-  void update_view_center( sf::View &view, const Cmp::Position &player_pos,
-                           float smoothFactor = 0.1f );
+  void
+  update_view_center( sf::View &view, const Cmp::Position &player_pos, float smoothFactor = 0.1f );
 
   RenderOverlaySystem m_overlay_sys{ m_reg };
 

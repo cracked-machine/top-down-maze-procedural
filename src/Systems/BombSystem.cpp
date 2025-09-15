@@ -103,8 +103,8 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity,
                                                 const int BLAST_RADIUS )
 {
   // arm the current tile (center of the bomb)
-  m_reg->emplace_or_replace<Cmp::Armed>( epicenter_entity, sf::seconds( 3 ), sf::Time::Zero, true,
-                                         sf::Color::Blue, -1 );
+  m_reg->emplace_or_replace<Cmp::Armed>(
+      epicenter_entity, sf::seconds( 3 ), sf::Time::Zero, true, sf::Color::Blue, -1 );
 
   sf::Vector2i centerTile = getGridPosition( epicenter_entity ).value();
 
@@ -112,8 +112,11 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity,
 
   // First arm the center tile
   auto &fuse_delay = m_reg->ctx().get<Cmp::Persistent::FuseDelay>();
-  m_reg->emplace_or_replace<Cmp::Armed>( epicenter_entity, sf::seconds( fuse_delay() ),
-                                         sf::Time::Zero, true, sf::Color::Transparent,
+  m_reg->emplace_or_replace<Cmp::Armed>( epicenter_entity,
+                                         sf::seconds( fuse_delay() ),
+                                         sf::Time::Zero,
+                                         true,
+                                         sf::Color::Transparent,
                                          sequence_counter++ );
 
   auto all_obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
@@ -139,13 +142,13 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity,
     }
 
     // Sort entities in clockwise order
-    std::sort( layer_entities.begin(), layer_entities.end(),
-               [centerTile]( const auto &a, const auto &b ) {
-                 // Calculate angles from center to points
-                 float angleA = std::atan2( a.second.y - centerTile.y, a.second.x - centerTile.x );
-                 float angleB = std::atan2( b.second.y - centerTile.y, b.second.x - centerTile.x );
-                 return angleA < angleB;
-               } );
+    std::sort(
+        layer_entities.begin(), layer_entities.end(), [centerTile]( const auto &a, const auto &b ) {
+          // Calculate angles from center to points
+          float angleA = std::atan2( a.second.y - centerTile.y, a.second.x - centerTile.x );
+          float angleB = std::atan2( b.second.y - centerTile.y, b.second.x - centerTile.x );
+          return angleA < angleB;
+        } );
 
     // Arm each entity in the layer in clockwise order
     for ( const auto &[entity, pos] : layer_entities )
@@ -157,8 +160,8 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity,
       auto new_fuse_delay = sf::seconds( fuse_delay() + ( sequence_counter * armed_on_delay() ) );
       auto new_warning_delay =
           sf::seconds( armed_off_delay() + ( sequence_counter * armed_off_delay() ) );
-      m_reg->emplace_or_replace<Cmp::Armed>( entity, new_fuse_delay, new_warning_delay, false,
-                                             color, sequence_counter );
+      m_reg->emplace_or_replace<Cmp::Armed>(
+          entity, new_fuse_delay, new_warning_delay, false, color, sequence_counter );
       sequence_counter++;
     }
   }
@@ -215,8 +218,10 @@ void BombSystem::update()
       if ( npc_bounding_box.findIntersection( obstacle_explosion_zone ) )
       {
         m_reg->emplace_or_replace<Cmp::NpcDeathPosition>( npc_entt, npc_pos_cmp );
-        SPDLOG_DEBUG( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ),
-                      npc_pos_cmp.x, npc_pos_cmp.y );
+        SPDLOG_DEBUG( "NPC entity {} exploded at {},{}",
+                      static_cast<int>( npc_entt ),
+                      npc_pos_cmp.x,
+                      npc_pos_cmp.y );
         getEventDispatcher().trigger( Events::NpcDeathEvent( npc_entt ) );
       }
     }

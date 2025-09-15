@@ -43,7 +43,8 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
       m_floormap.draw( m_sand_shader.get_render_texture(), sf::RenderStates::Default );
       m_sand_shader.update(
           sf::Vector2f{ kDisplaySize },
-          sf::Vector2f{ 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
+          sf::Vector2f{ 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y },
+          1.0f );
       getWindow().draw( m_sand_shader );
 
       render_obstacles();
@@ -133,8 +134,8 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
 
       for ( auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each() )
       {
-        m_overlay_sys.render_water_level_meter_overlay( water_level.m_level, { 40.f, 70.f },
-                                                        { 200.f, 20.f } );
+        m_overlay_sys.render_water_level_meter_overlay(
+            water_level.m_level, { 40.f, 70.f }, { 200.f, 20.f } );
       }
 
       m_overlay_sys.render_entt_distance_set_overlay( { 40.f, 300.f } );
@@ -430,8 +431,10 @@ void RenderGameSystem::render_explosions( sf::Time deltaTime )
     }
 
     // Always render the current frame
-    SPDLOG_DEBUG( "Rendering explosion frame {}/{} for entity {}", explosion_cmp.current_anim_frame,
-                  max_anim_frame, static_cast<int>( entity ) );
+    SPDLOG_DEBUG( "Rendering explosion frame {}/{} for entity {}",
+                  explosion_cmp.current_anim_frame,
+                  max_anim_frame,
+                  static_cast<int>( entity ) );
     m_explosion_ms->pick( explosion_cmp.current_anim_frame, "explosion" );
     m_explosion_ms->setPosition( explosion_cmp );
     getWindow().draw( *m_explosion_ms );
@@ -566,7 +569,8 @@ void RenderGameSystem::load_multisprites()
   }
 }
 
-void RenderGameSystem::update_view_center( sf::View &view, const Cmp::Position &player_pos,
+void RenderGameSystem::update_view_center( sf::View &view,
+                                           const Cmp::Position &player_pos,
                                            float smoothFactor )
 {
   const float kHalfViewWidth = view.getSize().x * 0.5f;

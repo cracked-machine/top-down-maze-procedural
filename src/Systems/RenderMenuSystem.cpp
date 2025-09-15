@@ -29,17 +29,28 @@ void RenderMenuSystem::render_title()
     m_title_screen_shader.update( mouse_pos );
     getWindow().draw( m_title_screen_shader );
 
-    render_text( "Procedural Maze", 128, { kDisplaySize.x * 0.25f, 100.f }, Alignment::CENTER, 20.f,
-                 sf::Color::Black, sf::Color::White );
+    render_text( "Procedural Maze",
+                 128,
+                 { kDisplaySize.x * 0.25f, 100.f },
+                 Alignment::CENTER,
+                 20.f,
+                 sf::Color::Black,
+                 sf::Color::White );
 
-    render_text( "Press <Enter> key to start", 48, { kDisplaySize.x * 0.25f, 300.f },
-                 Alignment::CENTER, 15.f );
-
-    render_text( "Press <Q> key to quit", 48, { kDisplaySize.x * 0.25f, 400.f }, Alignment::CENTER,
+    render_text( "Press <Enter> key to start",
+                 48,
+                 { kDisplaySize.x * 0.25f, 300.f },
+                 Alignment::CENTER,
                  15.f );
 
-    render_text( "Press <S> key for settings", 48, { kDisplaySize.x * 0.25f, 500.f },
-                 Alignment::CENTER, 15.f );
+    render_text(
+        "Press <Q> key to quit", 48, { kDisplaySize.x * 0.25f, 400.f }, Alignment::CENTER, 15.f );
+
+    render_text( "Press <S> key for settings",
+                 48,
+                 { kDisplaySize.x * 0.25f, 500.f },
+                 Alignment::CENTER,
+                 15.f );
   }
 
   getWindow().display();
@@ -98,17 +109,17 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   ImGui::SliderFloat( "Player Min Velocity", &player_min_velocity(), 0.f, 5.f, "%.1f" );
 
   auto &land_acceleration = m_reg->ctx().get<Cmp::Persistent::LandAcceleration>();
-  ImGui::SliderFloat( "Above Water Acceleration Rate", &land_acceleration(), 100.f, 1000.f,
-                      "%.1f pixels/second²" );
+  ImGui::SliderFloat(
+      "Above Water Acceleration Rate", &land_acceleration(), 100.f, 1000.f, "%.1f pixels/second²" );
   auto &land_deceleration = m_reg->ctx().get<Cmp::Persistent::LandDeceleration>();
-  ImGui::SliderFloat( "Above Water Deceleration Rate", &land_deceleration(), 100.f, 1000.f,
-                      "%.1f pixels/second²" );
+  ImGui::SliderFloat(
+      "Above Water Deceleration Rate", &land_deceleration(), 100.f, 1000.f, "%.1f pixels/second²" );
   auto &water_acceleration = m_reg->ctx().get<Cmp::Persistent::WaterAcceleration>();
-  ImGui::SliderFloat( "Under Water Acceleration Rate", &water_acceleration(), 50.f, 500.f,
-                      "%.1f pixels/second²" );
+  ImGui::SliderFloat(
+      "Under Water Acceleration Rate", &water_acceleration(), 50.f, 500.f, "%.1f pixels/second²" );
   auto &water_deceleration = m_reg->ctx().get<Cmp::Persistent::WaterDeceleration>();
-  ImGui::SliderFloat( "Under Water Deceleration Rate", &water_deceleration(), 50.f, 500.f,
-                      "%.1f pixels/second²" );
+  ImGui::SliderFloat(
+      "Under Water Deceleration Rate", &water_deceleration(), 50.f, 500.f, "%.1f pixels/second²" );
   ImGui::Separator();
   auto &flood_speed = m_reg->ctx().get<Cmp::Persistent::FloodSpeed>();
   ImGui::SliderFloat( "Flood Velocity", &flood_speed(), 1.f, 10.f, "%.1f pixels/second" );
@@ -155,14 +166,14 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   }
 
   auto &npc_activate_scale = m_reg->ctx().get<Cmp::Persistent::NPCActivateScale>();
-  ImGui::SliderFloat( "NPC Activation Bounding Box Scale Factor", &npc_activate_scale(), 1.f, 20.f,
-                      "%.1f pixels" );
+  ImGui::SliderFloat(
+      "NPC Activation Bounding Box Scale Factor", &npc_activate_scale(), 1.f, 20.f, "%.1f pixels" );
   auto &npc_scan_scale = m_reg->ctx().get<Cmp::Persistent::NPCScanScale>();
-  ImGui::SliderFloat( "NPC Scan Bounding Box Scale Factor", &npc_scan_scale(), 1.f, 3.f,
-                      "%.1f pixels" );
+  ImGui::SliderFloat(
+      "NPC Scan Bounding Box Scale Factor", &npc_scan_scale(), 1.f, 3.f, "%.1f pixels" );
   auto &pc_detection_scale = m_reg->ctx().get<Cmp::Persistent::PCDetectionScale>();
-  ImGui::SliderFloat( "PC Detection Bounding Box Scale Factor", &pc_detection_scale(), 1.f, 20.f,
-                      "%.1f pixels" );
+  ImGui::SliderFloat(
+      "PC Detection Bounding Box Scale Factor", &pc_detection_scale(), 1.f, 20.f, "%.1f pixels" );
 
   auto &npc_lerp_speed = m_reg->ctx().get<Cmp::Persistent::NpcLerpSpeed>();
   ImGui::SliderFloat( "NPC Speed", &npc_lerp_speed(), 0.1f, 3.f, "%.1f" );

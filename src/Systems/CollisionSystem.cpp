@@ -75,7 +75,8 @@ void CollisionSystem::check_bones_reanimation()
       // because we only need it for this one comparison and it already contains the needed scaling
       // logic
       auto npc_activate_bounds =
-          Cmp::RectBounds( _obstacle_pos, sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE },
+          Cmp::RectBounds( _obstacle_pos,
+                           sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE },
                            npc_activate_scale() );
       if ( player_hitbox.findIntersection( npc_activate_bounds.getBounds() ) )
       {

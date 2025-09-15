@@ -23,7 +23,8 @@ void BaseFragmentShader::setup_shader()
   {
     SPDLOG_CRITICAL( "Shader file does not exist: {}", m_shader_path.string() );
     throw std::filesystem::filesystem_error(
-        "Shader file does not exist", m_shader_path,
+        "Shader file does not exist",
+        m_shader_path,
         std::make_error_code( std::errc::no_such_file_or_directory ) );
   }
   SPDLOG_INFO( "Loading shader from {}", m_shader_path.string() );

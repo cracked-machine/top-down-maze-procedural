@@ -13,7 +13,9 @@ bool MultiSprite::pick( std::size_t idx, const std::string &caller )
 
   if ( idx >= m_va_list.size() )
   {
-    SPDLOG_WARN( "{}: pick() index {} out of range (size: {}), using index 0", caller, idx,
+    SPDLOG_WARN( "{}: pick() index {} out of range (size: {}), using index 0",
+                 caller,
+                 idx,
                  m_va_list.size() );
     idx = 0;
   }
@@ -68,8 +70,10 @@ bool MultiSprite::add_sprite( const std::filesystem::path &tilemap_path,
 
     m_va_list.push_back( current_va );
   }
-  SPDLOG_INFO( "Requested {} tiles ... Created {} sprites from texture {}: ", tilemap_picks.size(),
-               m_va_list.size(), tilemap_path.string() );
+  SPDLOG_INFO( "Requested {} tiles ... Created {} sprites from texture {}: ",
+               tilemap_picks.size(),
+               m_va_list.size(),
+               tilemap_path.string() );
   return true;
 }
 

@@ -28,9 +28,9 @@
 
 namespace ProceduralMaze::Sys {
 
-using PlayerDistanceQueue =
-    std::priority_queue<std::pair<int, entt::entity>, std::vector<std::pair<int, entt::entity>>,
-                        std::greater<std::pair<int, entt::entity>>>;
+using PlayerDistanceQueue = std::priority_queue<std::pair<int, entt::entity>,
+                                                std::vector<std::pair<int, entt::entity>>,
+                                                std::greater<std::pair<int, entt::entity>>>;
 
 class PathFindSystem : public BaseSystem
 {

@@ -16,8 +16,8 @@ namespace Debug {
 
 void stack_trace();
 
-[[noreturn]] inline void assert_handler( const char *condition, const char *message,
-                                         const char *file, const int line )
+[[noreturn]] inline void
+assert_handler( const char *condition, const char *message, const char *file, const int line )
 {
   SPDLOG_CRITICAL( "\n" );
   SPDLOG_CRITICAL( "=== Assertion Failed ===" );

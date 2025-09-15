@@ -77,10 +77,10 @@ private:
       bool has_left_map_edge = not( ( idx ) % kMapGridSize.y );
       bool has_right_map_edge = not( ( idx + 1 ) % kMapGridSize.y );
 
-      SPDLOG_TRACE( "Entity {} has left map edge: {}", entt::to_integral( *it ),
-                    has_left_map_edge );
-      SPDLOG_TRACE( "Entity {} has right map edge: {}", entt::to_integral( *it ),
-                    has_right_map_edge );
+      SPDLOG_TRACE(
+          "Entity {} has left map edge: {}", entt::to_integral( *it ), has_left_map_edge );
+      SPDLOG_TRACE(
+          "Entity {} has right map edge: {}", entt::to_integral( *it ), has_right_map_edge );
       auto current_entity = entt::entity( *it );
 
       //   Columns

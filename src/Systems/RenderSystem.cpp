@@ -24,8 +24,12 @@ RenderSystem::RenderSystem( std::shared_ptr<entt::basic_registry<entt::entity>> 
   SPDLOG_INFO( "RenderSystem initialisation finished" );
 }
 
-void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2f position,
-                                Alignment align, float padding, sf::Color fill_color,
+void RenderSystem::render_text( std::string text,
+                                unsigned int size,
+                                sf::Vector2f position,
+                                Alignment align,
+                                float padding,
+                                sf::Color fill_color,
                                 sf::Color outline_color )
 {
   sf::Text title_text( m_font, text, size );

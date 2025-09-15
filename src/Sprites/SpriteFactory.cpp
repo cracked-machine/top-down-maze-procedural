@@ -63,7 +63,8 @@ SpriteFactory::get_random_type_and_texture_index( std::vector<SpriteMetaType> ty
 std::optional<SpriteFactory::SpriteMetaData>
 SpriteFactory::get_spritedata_by_type( SpriteMetaType type ) const
 {
-  auto it = std::find_if( m_sprite_metadata_list.begin(), m_sprite_metadata_list.end(),
+  auto it = std::find_if( m_sprite_metadata_list.begin(),
+                          m_sprite_metadata_list.end(),
                           [type]( const SpriteMetaData &meta ) { return meta.type == type; } );
   if ( it != m_sprite_metadata_list.end() ) { return *it; }
   return std::nullopt;
