@@ -5,21 +5,32 @@
 
 namespace ProceduralMaze::Sys {
 
-MusicSystem::MusicSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg, std::filesystem::path music_path )
-    : BaseSystem( reg ), m_music_buffer( std::move( music_path ) )
+MusicSystem::MusicSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg,
+                          std::filesystem::path music_path )
+    : BaseSystem( reg ),
+      m_music_buffer( std::move( music_path ) )
 {
   m_music.setLooping( true );
 }
 
 void MusicSystem::init_context()
 {
-  if ( not m_reg->ctx().contains<Cmp::Persistent::MusicVolume>() ) { m_reg->ctx().emplace<Cmp::Persistent::MusicVolume>(); }
+  if ( not m_reg->ctx().contains<Cmp::Persistent::MusicVolume>() )
+  {
+    m_reg->ctx().emplace<Cmp::Persistent::MusicVolume>();
+  }
 }
 
 void MusicSystem::update_music_playback( Function func )
 {
-  if ( func == Function::PLAY && m_music.getStatus() != sf::Sound::Status::Playing ) { m_music.play(); }
-  else if ( func == Function::STOP && m_music.getStatus() == sf::Sound::Status::Playing ) { m_music.stop(); }
+  if ( func == Function::PLAY && m_music.getStatus() != sf::Sound::Status::Playing )
+  {
+    m_music.play();
+  }
+  else if ( func == Function::STOP && m_music.getStatus() == sf::Sound::Status::Playing )
+  {
+    m_music.stop();
+  }
 }
 
 void MusicSystem::start_music_fade_out()

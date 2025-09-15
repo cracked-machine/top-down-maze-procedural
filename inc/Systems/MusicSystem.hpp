@@ -11,7 +11,8 @@ class MusicSystem : public BaseSystem
 {
 
 public:
-  MusicSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg, std::filesystem::path music_path );
+  MusicSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg,
+               std::filesystem::path music_path );
 
   void init_context();
 
@@ -27,11 +28,13 @@ public:
   bool is_fading_out() const { return m_music_fading; }
 
 private:
-  // we're using sf::Sound instead of sf::Music because it guarantees smooth playback without stuttering
+  // we're using sf::Sound instead of sf::Music because it guarantees smooth playback without
+  // stuttering
   sf::SoundBuffer m_music_buffer{};
   sf::Sound m_music{ m_music_buffer };
 
-  // This is the volume that the fade starts at, it is captured from the current volume when the fade starts
+  // This is the volume that the fade starts at, it is captured from the current volume when the
+  // fade starts
   float m_prefade_volume{};
   // State for volume fade event
   bool m_music_fading = false;

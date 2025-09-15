@@ -38,15 +38,30 @@ namespace ProceduralMaze::Sys {
 class BombSystem : public BaseSystem
 {
 public:
-  BombSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : BaseSystem( reg ) {}
+  BombSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+      : BaseSystem( reg )
+  {
+  }
 
   // Create context variables by Cmp::Persistent type (if they don't already exist)
   void init_context()
   {
-    if ( not m_reg->ctx().contains<Cmp::Persistent::FuseDelay>() ) { m_reg->ctx().emplace<Cmp::Persistent::FuseDelay>(); }
-    if ( not m_reg->ctx().contains<Cmp::Persistent::BombDamage>() ) { m_reg->ctx().emplace<Cmp::Persistent::BombDamage>(); }
-    if ( not m_reg->ctx().contains<Cmp::Persistent::ArmedOffDelay>() ) { m_reg->ctx().emplace<Cmp::Persistent::ArmedOffDelay>(); }
-    if ( not m_reg->ctx().contains<Cmp::Persistent::ArmedOnDelay>() ) { m_reg->ctx().emplace<Cmp::Persistent::ArmedOnDelay>(); }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::FuseDelay>() )
+    {
+      m_reg->ctx().emplace<Cmp::Persistent::FuseDelay>();
+    }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::BombDamage>() )
+    {
+      m_reg->ctx().emplace<Cmp::Persistent::BombDamage>();
+    }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::ArmedOffDelay>() )
+    {
+      m_reg->ctx().emplace<Cmp::Persistent::ArmedOffDelay>();
+    }
+    if ( not m_reg->ctx().contains<Cmp::Persistent::ArmedOnDelay>() )
+    {
+      m_reg->ctx().emplace<Cmp::Persistent::ArmedOnDelay>();
+    }
   }
 
   void suspend();
@@ -60,11 +75,15 @@ public:
   void on_player_action( const Events::PlayerActionEvent &event )
   {
     SPDLOG_DEBUG( "Player Action Event received" );
-    if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB ) { arm_occupied_location(); }
+    if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB )
+    {
+      arm_occupied_location();
+    }
   }
 
 private:
-  const sf::Vector2f max_explosion_zone_size{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x * 3.f, Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y * 3.f };
+  const sf::Vector2f max_explosion_zone_size{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x * 3.f,
+                                              Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y * 3.f };
 
   sf::SoundBuffer m_fuse_sound_buffer{ "res/audio/fuse.wav" };
   sf::Sound m_fuse_sound_player{ m_fuse_sound_buffer };

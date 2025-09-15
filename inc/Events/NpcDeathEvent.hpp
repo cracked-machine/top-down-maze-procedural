@@ -8,7 +8,10 @@ namespace ProceduralMaze::Events {
 struct NpcDeathEvent
 {
   entt::entity npc_entity;
-  explicit NpcDeathEvent( entt::entity entity ) : npc_entity( entity ) {}
+  explicit NpcDeathEvent( entt::entity entity )
+      : npc_entity( entity )
+  {
+  }
 };
 
 } // namespace ProceduralMaze::Events

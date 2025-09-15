@@ -8,7 +8,8 @@ namespace ProceduralMaze::Sys {
 class RenderOverlaySystem : public RenderSystem
 {
 public:
-  RenderOverlaySystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : RenderSystem( reg ) {};
+  RenderOverlaySystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+      : RenderSystem( reg ) {};
 
   void render_entt_distance_set_overlay( sf::Vector2f pos );
   void render_bomb_radius_overlay( int radius_value, sf::Vector2f pos );

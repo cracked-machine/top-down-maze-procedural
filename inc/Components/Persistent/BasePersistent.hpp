@@ -10,7 +10,10 @@ namespace ProceduralMaze::Cmp::Persistent {
 template <typename T> class BasePersistent
 {
 public:
-  BasePersistent( T value_in ) : value( value_in ) {}
+  BasePersistent( T value_in )
+      : value( value_in )
+  {
+  }
   virtual ~BasePersistent() = default;
   T &operator()() { return value; };
 

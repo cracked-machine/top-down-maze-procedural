@@ -10,7 +10,10 @@ namespace ProceduralMaze::Cmp::Persistent {
 // See CollisionSystem.cpp and PlayerSystem.cpp for usage
 struct PlayerMinVelocity : public BasePersistent<float>
 {
-  PlayerMinVelocity() : BasePersistent<float>( 1.f ) {}
+  PlayerMinVelocity()
+      : BasePersistent<float>( 1.f )
+  {
+  }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

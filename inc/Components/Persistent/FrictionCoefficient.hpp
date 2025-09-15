@@ -7,7 +7,10 @@ namespace ProceduralMaze::Cmp::Persistent {
 class FrictionCoefficient : public BasePersistent<float>
 {
 public:
-  FrictionCoefficient() : BasePersistent<float>( 0.02f ) {}
+  FrictionCoefficient()
+      : BasePersistent<float>( 0.02f )
+  {
+  }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

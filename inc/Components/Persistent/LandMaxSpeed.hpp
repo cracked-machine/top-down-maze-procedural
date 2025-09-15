@@ -7,7 +7,10 @@ namespace ProceduralMaze::Cmp::Persistent {
 class LandMaxSpeed : public BasePersistent<float>
 {
 public:
-  LandMaxSpeed() : BasePersistent<float>( 100.0f ) {}
+  LandMaxSpeed()
+      : BasePersistent<float>( 100.0f )
+  {
+  }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

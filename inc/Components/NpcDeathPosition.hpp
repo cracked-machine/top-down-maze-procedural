@@ -9,7 +9,10 @@ namespace ProceduralMaze::Cmp {
 class NpcDeathPosition : public sf::Vector2f
 {
 public:
-  NpcDeathPosition( sf::Vector2f pos ) : sf::Vector2f( pos ) {}
+  NpcDeathPosition( sf::Vector2f pos )
+      : sf::Vector2f( pos )
+  {
+  }
   // keep track of animation frame for death animation;
   // use of this property is MultiSprite-dependent. See RenderGameSystem.cpp
   std::size_t current_anim_frame{ 0 };

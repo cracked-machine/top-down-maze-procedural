@@ -10,7 +10,10 @@ class RandomFloat
 {
 public:
   // set the rng range
-  RandomFloat( float min, float max ) : m_floatdist( min, max ) {}
+  RandomFloat( float min, float max )
+      : m_floatdist( min, max )
+  {
+  }
   ~RandomFloat() { SPDLOG_DEBUG( "~RandomFloat()" ); }
 
   // get the next random number

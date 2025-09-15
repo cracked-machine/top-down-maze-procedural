@@ -9,7 +9,10 @@ namespace ProceduralMaze::Cmp::Persistent {
 class FuseDelay : public BasePersistent<float>
 {
 public:
-  FuseDelay() : BasePersistent<float>( 3.f ) {}
+  FuseDelay()
+      : BasePersistent<float>( 3.f )
+  {
+  }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

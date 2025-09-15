@@ -10,7 +10,10 @@ class Random
 {
 public:
   // set the rng range
-  Random( int min, int max ) : m_intdist( min, max ) {}
+  Random( int min, int max )
+      : m_intdist( min, max )
+  {
+  }
   ~Random() { SPDLOG_DEBUG( "~Random()" ); }
 
   // get the next random number

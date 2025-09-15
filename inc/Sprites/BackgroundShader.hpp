@@ -13,7 +13,8 @@ namespace ProceduralMaze::Sprites {
 class BackgroundShader : public BaseFragmentShader
 {
 public:
-  BackgroundShader( std::filesystem::path shader_path, sf::Vector2u texture_size ) : BaseFragmentShader( shader_path, texture_size )
+  BackgroundShader( std::filesystem::path shader_path, sf::Vector2u texture_size )
+      : BaseFragmentShader( shader_path, texture_size )
   {
     setup();
     SPDLOG_INFO( "BackgroundShader initialized" );
@@ -29,8 +30,11 @@ public:
   {
     m_shader.setUniform( "time", m_clock.getElapsedTime().asSeconds() );
     m_shader.setUniform( "sandIntensity", 2.0f );
-    m_shader.setUniform( "screenSize", sf::Vector2f( static_cast<float>( kDisplaySize.x ), static_cast<float>( kDisplaySize.y ) ) );
-    m_shader.setUniform( "worldPosition", sf::Vector2f{ 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
+    m_shader.setUniform( "screenSize", sf::Vector2f( static_cast<float>( kDisplaySize.x ),
+                                                     static_cast<float>( kDisplaySize.y ) ) );
+    m_shader.setUniform(
+        "worldPosition",
+        sf::Vector2f{ 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
     m_shader.setUniform( "windDirection", sf::Vector2f{ 1.0f, 0.0f } ); // Example wind direction
     m_shader.setUniform( "windStrength", 1.0f );                        // Example wind strength
   }

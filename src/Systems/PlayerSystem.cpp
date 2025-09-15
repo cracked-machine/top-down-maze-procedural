@@ -5,18 +5,54 @@ namespace ProceduralMaze::Sys {
 
 void PlayerSystem::init_context()
 {
-  if ( not m_reg->ctx().contains<Cmp::Persistent::BombInventory>() ) { m_reg->ctx().emplace<Cmp::Persistent::BombInventory>(); }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::BlastRadius>() ) { m_reg->ctx().emplace<Cmp::Persistent::BlastRadius>(); }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::WaterMaxSpeed>() ) { m_reg->ctx().emplace<Cmp::Persistent::WaterMaxSpeed>(); }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::LandMaxSpeed>() ) { m_reg->ctx().emplace<Cmp::Persistent::LandMaxSpeed>(); }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::FrictionCoefficient>() ) { m_reg->ctx().emplace<Cmp::Persistent::FrictionCoefficient>(); }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::FrictionFalloff>() ) { m_reg->ctx().emplace<Cmp::Persistent::FrictionFalloff>(); }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::LandAcceleration>() ) { m_reg->ctx().emplace<Cmp::Persistent::LandAcceleration>(); }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::LandDeceleration>() ) { m_reg->ctx().emplace<Cmp::Persistent::LandDeceleration>(); }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::WaterAcceleration>() ) { m_reg->ctx().emplace<Cmp::Persistent::WaterAcceleration>(); }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::WaterDeceleration>() ) { m_reg->ctx().emplace<Cmp::Persistent::WaterDeceleration>(); }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::PCDetectionScale>() ) { m_reg->ctx().emplace<Cmp::Persistent::PCDetectionScale>(); }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::PlayerMinVelocity>() ) { m_reg->ctx().emplace<Cmp::Persistent::PlayerMinVelocity>(); }
+  if ( not m_reg->ctx().contains<Cmp::Persistent::BombInventory>() )
+  {
+    m_reg->ctx().emplace<Cmp::Persistent::BombInventory>();
+  }
+  if ( not m_reg->ctx().contains<Cmp::Persistent::BlastRadius>() )
+  {
+    m_reg->ctx().emplace<Cmp::Persistent::BlastRadius>();
+  }
+  if ( not m_reg->ctx().contains<Cmp::Persistent::WaterMaxSpeed>() )
+  {
+    m_reg->ctx().emplace<Cmp::Persistent::WaterMaxSpeed>();
+  }
+  if ( not m_reg->ctx().contains<Cmp::Persistent::LandMaxSpeed>() )
+  {
+    m_reg->ctx().emplace<Cmp::Persistent::LandMaxSpeed>();
+  }
+  if ( not m_reg->ctx().contains<Cmp::Persistent::FrictionCoefficient>() )
+  {
+    m_reg->ctx().emplace<Cmp::Persistent::FrictionCoefficient>();
+  }
+  if ( not m_reg->ctx().contains<Cmp::Persistent::FrictionFalloff>() )
+  {
+    m_reg->ctx().emplace<Cmp::Persistent::FrictionFalloff>();
+  }
+  if ( not m_reg->ctx().contains<Cmp::Persistent::LandAcceleration>() )
+  {
+    m_reg->ctx().emplace<Cmp::Persistent::LandAcceleration>();
+  }
+  if ( not m_reg->ctx().contains<Cmp::Persistent::LandDeceleration>() )
+  {
+    m_reg->ctx().emplace<Cmp::Persistent::LandDeceleration>();
+  }
+  if ( not m_reg->ctx().contains<Cmp::Persistent::WaterAcceleration>() )
+  {
+    m_reg->ctx().emplace<Cmp::Persistent::WaterAcceleration>();
+  }
+  if ( not m_reg->ctx().contains<Cmp::Persistent::WaterDeceleration>() )
+  {
+    m_reg->ctx().emplace<Cmp::Persistent::WaterDeceleration>();
+  }
+  if ( not m_reg->ctx().contains<Cmp::Persistent::PCDetectionScale>() )
+  {
+    m_reg->ctx().emplace<Cmp::Persistent::PCDetectionScale>();
+  }
+  if ( not m_reg->ctx().contains<Cmp::Persistent::PlayerMinVelocity>() )
+  {
+    m_reg->ctx().emplace<Cmp::Persistent::PlayerMinVelocity>();
+  }
 }
 
 void PlayerSystem::add_player_entity()
@@ -34,9 +70,8 @@ void PlayerSystem::add_player_entity()
 
   auto &pc_detection_scale = m_reg->ctx().get<Cmp::Persistent::PCDetectionScale>();
   m_reg->emplace<Cmp::PCDetectionBounds>(
-      entity, sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE }, sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE },
-      pc_detection_scale()
-  );
+      entity, sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE },
+      sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE }, pc_detection_scale() );
 }
 
 void PlayerSystem::update( sf::Time deltaTime )
@@ -44,7 +79,10 @@ void PlayerSystem::update( sf::Time deltaTime )
   const float dt = deltaTime.asSeconds();
 
   for ( auto [entity, pc_cmp, pos_cmp, move_cmp, dir_cmp, pc_bounds] :
-        m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction, Cmp::PCDetectionBounds>().each() )
+        m_reg
+            ->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction,
+                   Cmp::PCDetectionBounds>()
+            .each() )
   {
     auto &land_acceleration = m_reg->ctx().get<Cmp::Persistent::LandAcceleration>();
     auto &land_deceleration = m_reg->ctx().get<Cmp::Persistent::LandDeceleration>();
@@ -65,7 +103,10 @@ void PlayerSystem::update( sf::Time deltaTime )
       // Apply deceleration when no input
       if ( move_cmp.velocity != sf::Vector2f( 0.0f, 0.0f ) )
       {
-        if ( pc_cmp.underwater ) { move_cmp.acceleration = -move_cmp.velocity.normalized() * water_deceleration(); }
+        if ( pc_cmp.underwater )
+        {
+          move_cmp.acceleration = -move_cmp.velocity.normalized() * water_deceleration();
+        }
         else { move_cmp.acceleration = -move_cmp.velocity.normalized() * land_deceleration(); }
       }
       else { move_cmp.acceleration = sf::Vector2f( 0.0f, 0.0f ); }

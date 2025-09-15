@@ -12,7 +12,8 @@ namespace ProceduralMaze::Sprites {
 class TitleScreenShader : public BaseFragmentShader
 {
 public:
-  TitleScreenShader( std::filesystem::path shader_path, sf::Vector2u texture_size ) : BaseFragmentShader( shader_path, texture_size )
+  TitleScreenShader( std::filesystem::path shader_path, sf::Vector2u texture_size )
+      : BaseFragmentShader( shader_path, texture_size )
   {
     setup();
     SPDLOG_INFO( "TitleScreenShader initialized" );
@@ -25,7 +26,10 @@ public:
     // std::ignore = m_texture.resize(texture_size);
   }
 
-  void post_setup_shader() override { m_shader.setUniform( "texture", sf::Shader::CurrentTexture ); }
+  void post_setup_shader() override
+  {
+    m_shader.setUniform( "texture", sf::Shader::CurrentTexture );
+  }
 
   void update( sf::Vector2f mousePos )
   {

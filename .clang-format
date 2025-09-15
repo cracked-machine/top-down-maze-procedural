@@ -1,7 +1,9 @@
-ColumnLimit: 150
+ColumnLimit: 100
 BreakConstructorInitializers: BeforeColon
-AlignAfterOpenBracket: BlockIndent
+PackConstructorInitializers: Never
+AlignAfterOpenBracket: Align
 BreakBeforeBraces: Custom
+IndentCaseLabels  : true
 BraceWrapping:
   AfterClass: true
   AfterControlStatement: Always
@@ -18,3 +20,4 @@ SpacesInParentheses: true
 AllowShortIfStatementsOnASingleLine: true
 AllowShortBlocksOnASingleLine: true
 AllowShortEnumsOnASingleLine: true
+

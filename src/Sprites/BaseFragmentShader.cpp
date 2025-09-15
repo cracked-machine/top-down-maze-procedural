@@ -2,8 +2,10 @@
 
 namespace ProceduralMaze::Sprites {
 
-BaseFragmentShader::BaseFragmentShader( std::filesystem::path shader_path, sf::Vector2u texture_size )
-    : m_render_texture( texture_size ), m_shader_path( shader_path )
+BaseFragmentShader::BaseFragmentShader( std::filesystem::path shader_path,
+                                        sf::Vector2u texture_size )
+    : m_render_texture( texture_size ),
+      m_shader_path( shader_path )
 {
 }
 
@@ -21,8 +23,8 @@ void BaseFragmentShader::setup_shader()
   {
     SPDLOG_CRITICAL( "Shader file does not exist: {}", m_shader_path.string() );
     throw std::filesystem::filesystem_error(
-        "Shader file does not exist", m_shader_path, std::make_error_code( std::errc::no_such_file_or_directory )
-    );
+        "Shader file does not exist", m_shader_path,
+        std::make_error_code( std::errc::no_such_file_or_directory ) );
   }
   SPDLOG_INFO( "Loading shader from {}", m_shader_path.string() );
   if ( !m_shader.loadFromFile( m_shader_path.string(), sf::Shader::Type::Fragment ) )
@@ -34,7 +36,10 @@ void BaseFragmentShader::setup_shader()
 }
 
 // set the Sprite position
-void BaseFragmentShader::set_position( const sf::Vector2f &position ) { m_sprite.setPosition( position ); }
+void BaseFragmentShader::set_position( const sf::Vector2f &position )
+{
+  m_sprite.setPosition( position );
+}
 
 void BaseFragmentShader::draw( sf::RenderTarget &target, sf::RenderStates states ) const
 {

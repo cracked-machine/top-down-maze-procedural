@@ -7,7 +7,10 @@ namespace ProceduralMaze::Cmp::Persistent {
 class BlastRadius : public BasePersistent<int>
 {
 public:
-  BlastRadius() : BasePersistent<int>( 1 ) {}
+  BlastRadius()
+      : BasePersistent<int>( 1 )
+  {
+  }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

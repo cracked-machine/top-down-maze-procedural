@@ -24,7 +24,10 @@ namespace ProceduralMaze {
 class EventHandler : public Sys::BaseSystem
 {
 public:
-  EventHandler( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : Sys::BaseSystem( reg ) {}
+  EventHandler( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+      : Sys::BaseSystem( reg )
+  {
+  }
 
   void init_context();
   auto get_game_state() -> Cmp::Persistent::GameState &;

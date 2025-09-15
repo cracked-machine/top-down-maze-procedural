@@ -32,7 +32,10 @@ class FloodSystem : public BaseSystem
 {
 
 public:
-  FloodSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : BaseSystem( reg ) {}
+  FloodSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+      : BaseSystem( reg )
+  {
+  }
 
   ~FloodSystem() = default;
 

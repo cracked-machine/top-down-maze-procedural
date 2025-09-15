@@ -8,7 +8,10 @@ namespace ProceduralMaze::Cmp::Persistent {
 class PCDetectionScale : public BasePersistent<float>
 {
 public:
-  PCDetectionScale() : BasePersistent<float>( 7.f ) {}
+  PCDetectionScale()
+      : BasePersistent<float>( 7.f )
+  {
+  }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

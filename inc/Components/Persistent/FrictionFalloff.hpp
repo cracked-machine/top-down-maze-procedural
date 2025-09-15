@@ -7,7 +7,10 @@ namespace ProceduralMaze::Cmp::Persistent {
 class FrictionFalloff : public BasePersistent<float>
 {
 public:
-  FrictionFalloff() : BasePersistent<float>( 0.5f ) {}
+  FrictionFalloff()
+      : BasePersistent<float>( 0.5f )
+  {
+  }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

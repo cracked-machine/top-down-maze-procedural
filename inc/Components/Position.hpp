@@ -13,7 +13,11 @@ namespace ProceduralMaze::Cmp {
 class Position : public sf::Vector2f
 {
 public:
-  Position( const sf::Vector2f &pos ) : sf::Vector2f( pos ) { SPDLOG_DEBUG( "Position()" ); }
+  Position( const sf::Vector2f &pos )
+      : sf::Vector2f( pos )
+  {
+    SPDLOG_DEBUG( "Position()" );
+  }
 
   ~Position() { SPDLOG_DEBUG( "~Position()" ); }
 };

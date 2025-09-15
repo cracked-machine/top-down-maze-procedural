@@ -32,9 +32,13 @@ public:
    *
    * @throws std::runtime_error If the tilemap fails to load or is invalid
    */
-  explicit MultiSprite( const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks )
+  explicit MultiSprite( const std::filesystem::path &tilemap_path,
+                        const std::vector<uint32_t> &tilemap_picks )
   {
-    if ( !add_sprite( tilemap_path, tilemap_picks ) ) { throw std::runtime_error( "Failed to load tilemap: " + tilemap_path.string() ); }
+    if ( !add_sprite( tilemap_path, tilemap_picks ) )
+    {
+      throw std::runtime_error( "Failed to load tilemap: " + tilemap_path.string() );
+    }
   }
 
   MultiSprite( const MultiSprite & ) = default;
@@ -50,7 +54,8 @@ public:
   static const sf::Vector2u DEFAULT_SPRITE_SIZE;
 
 private:
-  bool add_sprite( const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks );
+  bool add_sprite( const std::filesystem::path &tilemap_path,
+                   const std::vector<uint32_t> &tilemap_picks );
 
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
 

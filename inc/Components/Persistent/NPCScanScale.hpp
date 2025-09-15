@@ -7,7 +7,10 @@ namespace ProceduralMaze::Cmp::Persistent {
 class NPCScanScale : public BasePersistent<float>
 {
 public:
-  NPCScanScale() : BasePersistent<float>( 2.5f ) {}
+  NPCScanScale()
+      : BasePersistent<float>( 2.5f )
+  {
+  }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

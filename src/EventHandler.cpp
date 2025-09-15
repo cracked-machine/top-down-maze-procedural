@@ -4,7 +4,10 @@ namespace ProceduralMaze {
 
 void EventHandler::init_context()
 {
-  if ( not m_reg->ctx().contains<Cmp::Persistent::GameState>() ) { m_reg->ctx().emplace<Cmp::Persistent::GameState>(); }
+  if ( not m_reg->ctx().contains<Cmp::Persistent::GameState>() )
+  {
+    m_reg->ctx().emplace<Cmp::Persistent::GameState>();
+  }
 }
 
 auto EventHandler::get_game_state() -> Cmp::Persistent::GameState &
@@ -25,7 +28,10 @@ void EventHandler::menu_state_handler( sf::RenderWindow &window )
   while ( const std::optional event = window.pollEvent() )
   {
     ImGui::SFML::ProcessEvent( window, *event );
-    if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::Persistent::GameState::State::EXITING; }
+    if ( event->is<sf::Event::Closed>() )
+    {
+      game_state.current_state = Cmp::Persistent::GameState::State::EXITING;
+    }
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
     {
       sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
@@ -33,9 +39,18 @@ void EventHandler::menu_state_handler( sf::RenderWindow &window )
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::Enter ) { game_state.current_state = Cmp::Persistent::GameState::State::LOADING; }
-      else if ( keyPressed->scancode == sf::Keyboard::Scancode::Q ) { game_state.current_state = Cmp::Persistent::GameState::State::EXITING; }
-      else if ( keyPressed->scancode == sf::Keyboard::Scancode::S ) { game_state.current_state = Cmp::Persistent::GameState::State::SETTINGS; }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::Enter )
+      {
+        game_state.current_state = Cmp::Persistent::GameState::State::LOADING;
+      }
+      else if ( keyPressed->scancode == sf::Keyboard::Scancode::Q )
+      {
+        game_state.current_state = Cmp::Persistent::GameState::State::EXITING;
+      }
+      else if ( keyPressed->scancode == sf::Keyboard::Scancode::S )
+      {
+        game_state.current_state = Cmp::Persistent::GameState::State::SETTINGS;
+      }
     }
   }
 }
@@ -47,7 +62,10 @@ void EventHandler::settings_state_handler( sf::RenderWindow &window )
   while ( const std::optional event = window.pollEvent() )
   {
     ImGui::SFML::ProcessEvent( window, *event );
-    if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::Persistent::GameState::State::EXITING; }
+    if ( event->is<sf::Event::Closed>() )
+    {
+      game_state.current_state = Cmp::Persistent::GameState::State::EXITING;
+    }
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
     {
       sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
@@ -55,7 +73,10 @@ void EventHandler::settings_state_handler( sf::RenderWindow &window )
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape ) { game_state.current_state = Cmp::Persistent::GameState::State::MENU; }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape )
+      {
+        game_state.current_state = Cmp::Persistent::GameState::State::MENU;
+      }
     }
   }
 }
@@ -67,7 +88,10 @@ void EventHandler::game_state_handler( sf::RenderWindow &window )
   while ( const std::optional event = window.pollEvent() )
   {
     ImGui::SFML::ProcessEvent( window, *event );
-    if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::Persistent::GameState::State::EXITING; }
+    if ( event->is<sf::Event::Closed>() )
+    {
+      game_state.current_state = Cmp::Persistent::GameState::State::EXITING;
+    }
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
     {
       sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
@@ -96,7 +120,8 @@ void EventHandler::game_state_handler( sf::RenderWindow &window )
         for ( auto [_entt, _sys] : m_reg->view<Cmp::System>().each() )
         {
           _sys.show_path_distances = not _sys.show_path_distances;
-          SPDLOG_INFO( "Show Dijkstra distance is now {}", _sys.show_path_distances ? "ENABLED" : "DISABLED" );
+          SPDLOG_INFO( "Show Dijkstra distance is now {}",
+                       _sys.show_path_distances ? "ENABLED" : "DISABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 )
@@ -104,7 +129,8 @@ void EventHandler::game_state_handler( sf::RenderWindow &window )
         for ( auto [_entt, _sys] : m_reg->view<Cmp::System>().each() )
         {
           _sys.show_armed_obstacles = not _sys.show_armed_obstacles;
-          SPDLOG_INFO( "Show armed obstacles is now {}", _sys.show_armed_obstacles ? "ENABLED" : "DISABLED" );
+          SPDLOG_INFO( "Show armed obstacles is now {}",
+                       _sys.show_armed_obstacles ? "ENABLED" : "DISABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
@@ -123,7 +149,10 @@ void EventHandler::game_state_handler( sf::RenderWindow &window )
           SPDLOG_INFO( "Level complete (player cheated)" );
         }
       }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { game_state.current_state = Cmp::Persistent::GameState::State::UNLOADING; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
+      {
+        game_state.current_state = Cmp::Persistent::GameState::State::UNLOADING;
+      }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
@@ -145,15 +174,28 @@ void EventHandler::game_state_handler( sf::RenderWindow &window )
   {
     direction.x = 0;
     direction.y = 0;
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) ) { direction.y = -1; } // move player up
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) ) { direction.x = -1; } // move player left
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; }  // move player right
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; }  // move player down
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) )
+    {
+      direction.y = -1;
+    } // move player up
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) )
+    {
+      direction.x = -1;
+    } // move player left
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) )
+    {
+      direction.x = 1;
+    } // move player right
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) )
+    {
+      direction.y = 1;
+    } // move player down
   }
 
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Space ) )
   {
-    getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
+    getEventDispatcher().trigger(
+        Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
   }
 }
 
@@ -164,7 +206,10 @@ void EventHandler::paused_state_handler( sf::RenderWindow &window )
   while ( const std::optional event = window.pollEvent() )
   {
     ImGui::SFML::ProcessEvent( window, *event );
-    if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::Persistent::GameState::State::EXITING; }
+    if ( event->is<sf::Event::Closed>() )
+    {
+      game_state.current_state = Cmp::Persistent::GameState::State::EXITING;
+    }
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
     {
       sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
@@ -172,7 +217,10 @@ void EventHandler::paused_state_handler( sf::RenderWindow &window )
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { game_state.current_state = Cmp::Persistent::GameState::State::PLAYING; }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
+      {
+        game_state.current_state = Cmp::Persistent::GameState::State::PLAYING;
+      }
     }
   }
 }
@@ -184,7 +232,10 @@ void EventHandler::game_over_state_handler( sf::RenderWindow &window )
   while ( const std::optional event = window.pollEvent() )
   {
     ImGui::SFML::ProcessEvent( window, *event );
-    if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::Persistent::GameState::State::EXITING; }
+    if ( event->is<sf::Event::Closed>() )
+    {
+      game_state.current_state = Cmp::Persistent::GameState::State::EXITING;
+    }
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
     {
       sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
@@ -192,7 +243,10 @@ void EventHandler::game_over_state_handler( sf::RenderWindow &window )
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::R ) { game_state.current_state = Cmp::Persistent::GameState::State::UNLOADING; }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::R )
+      {
+        game_state.current_state = Cmp::Persistent::GameState::State::UNLOADING;
+      }
     }
   }
 }

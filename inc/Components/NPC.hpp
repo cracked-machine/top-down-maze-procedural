@@ -10,7 +10,10 @@ namespace ProceduralMaze::Cmp {
 class NPC
 {
 public:
-  NPC( bool npc ) : m_is_npc( npc ) {}
+  NPC( bool npc )
+      : m_is_npc( npc )
+  {
+  }
   [[maybe_unused]] bool m_is_npc{ true };
   sf::Clock m_move_cooldown;
   // const sf::Time MOVE_DELAY{ sf::seconds( 2.f ) }; // NPC moves every 1 second

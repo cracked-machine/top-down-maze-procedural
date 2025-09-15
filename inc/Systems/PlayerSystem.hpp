@@ -25,11 +25,16 @@ namespace ProceduralMaze::Sys {
 class PlayerSystem : public BaseSystem
 {
 public:
-  PlayerSystem( std::shared_ptr<entt::basic_registry<entt::entity>> registry ) : BaseSystem( registry ) {}
+  PlayerSystem( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
+      : BaseSystem( registry )
+  {
+  }
 
   /**
-   * @brief Initializes the Components as context variables. These components are not owned by any entity.
-   * @details Call this before using any PlayerSystem functionality that relies on an initialized context.
+   * @brief Initializes the Components as context variables. These components are not owned by any
+   * entity.
+   * @details Call this before using any PlayerSystem functionality that relies on an initialized
+   * context.
    * @note Intended to be invoked once during system setup or scene load.
    */
   void init_context();

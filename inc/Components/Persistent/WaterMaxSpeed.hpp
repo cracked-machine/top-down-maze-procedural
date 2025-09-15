@@ -7,7 +7,10 @@ namespace ProceduralMaze::Cmp::Persistent {
 class WaterMaxSpeed : public BasePersistent<float>
 {
 public:
-  WaterMaxSpeed() : BasePersistent<float>( 50.0f ) {}
+  WaterMaxSpeed()
+      : BasePersistent<float>( 50.0f )
+  {
+  }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

@@ -7,7 +7,10 @@ namespace ProceduralMaze::Cmp::Persistent {
 class LandAcceleration : public BasePersistent<float>
 {
 public:
-  LandAcceleration() : BasePersistent<float>( 500.0f ) {}
+  LandAcceleration()
+      : BasePersistent<float>( 500.0f )
+  {
+  }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

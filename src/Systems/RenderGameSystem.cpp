@@ -7,15 +7,18 @@
 
 namespace ProceduralMaze::Sys {
 
-RenderGameSystem::RenderGameSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : RenderSystem( reg )
+RenderGameSystem::RenderGameSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+    : RenderSystem( reg )
 {
 
   // init local view dimensions
-  m_local_view = sf::View( { LOCAL_MAP_VIEW_SIZE.x * 0.5f, LOCAL_MAP_VIEW_SIZE.y * 0.5f }, LOCAL_MAP_VIEW_SIZE );
+  m_local_view = sf::View( { LOCAL_MAP_VIEW_SIZE.x * 0.5f, LOCAL_MAP_VIEW_SIZE.y * 0.5f },
+                           LOCAL_MAP_VIEW_SIZE );
   m_local_view.setViewport( sf::FloatRect( { 0.f, 0.f }, { 1.f, 1.f } ) );
 
   // init minimap view dimensions
-  m_minimap_view = sf::View( { MINI_MAP_VIEW_SIZE.x * 0.5f, MINI_MAP_VIEW_SIZE.y * 0.5f }, MINI_MAP_VIEW_SIZE );
+  m_minimap_view =
+      sf::View( { MINI_MAP_VIEW_SIZE.x * 0.5f, MINI_MAP_VIEW_SIZE.y * 0.5f }, MINI_MAP_VIEW_SIZE );
   m_minimap_view.setViewport( sf::FloatRect( { 0.75f, 0.f }, { 0.25f, 0.25f } ) );
 }
 
@@ -38,7 +41,9 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
     getWindow().setView( m_local_view );
     {
       m_floormap.draw( m_sand_shader.get_render_texture(), sf::RenderStates::Default );
-      m_sand_shader.update( sf::Vector2f{ kDisplaySize }, sf::Vector2f{ 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
+      m_sand_shader.update(
+          sf::Vector2f{ kDisplaySize },
+          sf::Vector2f{ 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
       getWindow().draw( m_sand_shader );
 
       render_obstacles();
@@ -64,7 +69,8 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
         }
         else
         {
-          for ( auto [entity, _pc, _pos] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+          for ( auto [entity, _pc, _pos] :
+                m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
           {
             update_view_center( m_local_view, _pos );
           }
@@ -97,7 +103,8 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
         }
         else
         {
-          for ( auto [entity, _pc, _pos] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+          for ( auto [entity, _pc, _pos] :
+                m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
           {
             update_view_center( m_minimap_view, _pos );
           }
@@ -126,7 +133,8 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
 
       for ( auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each() )
       {
-        m_overlay_sys.render_water_level_meter_overlay( water_level.m_level, { 40.f, 70.f }, { 200.f, 20.f } );
+        m_overlay_sys.render_water_level_meter_overlay( water_level.m_level, { 40.f, 70.f },
+                                                        { 200.f, 20.f } );
       }
 
       m_overlay_sys.render_entt_distance_set_overlay( { 40.f, 300.f } );
@@ -158,24 +166,25 @@ void RenderGameSystem::render_obstacles()
   std::vector<sf::Vector2f> detonationPositions;
 
   // Collect all positions first instead of drawing immediately
-  for ( auto [entity, _ob, _pos, _ob_nb_list] : m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() )
+  for ( auto [entity, _ob, _pos, _ob_nb_list] :
+        m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() )
   {
 
     if ( _ob.m_enabled )
     {
       switch ( _ob.m_type )
       {
-      case Sprites::SpriteFactory::SpriteMetaType::ROCK:
-        rockPositions.emplace_back( _pos, _ob.m_tile_index );
-        break;
-      case Sprites::SpriteFactory::SpriteMetaType::POT:
-        potPositions.emplace_back( _pos, _ob.m_tile_index );
-        break;
-      case Sprites::SpriteFactory::SpriteMetaType::BONES:
-        bonePositions.emplace_back( _pos, _ob.m_tile_index );
-        break;
-      default:
-        break;
+        case Sprites::SpriteFactory::SpriteMetaType::ROCK:
+          rockPositions.emplace_back( _pos, _ob.m_tile_index );
+          break;
+        case Sprites::SpriteFactory::SpriteMetaType::POT:
+          potPositions.emplace_back( _pos, _ob.m_tile_index );
+          break;
+        case Sprites::SpriteFactory::SpriteMetaType::BONES:
+          bonePositions.emplace_back( _pos, _ob.m_tile_index );
+          break;
+        default:
+          break;
       }
     }
     // else {
@@ -273,33 +282,33 @@ void RenderGameSystem::render_loot()
   {
     switch ( loot.m_type )
     {
-    case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::EXTRA_HEALTH:
-      m_extra_health_ms->setPosition( position );
-      m_extra_health_ms->pick( loot.m_tile_index, "EXTRA_HEALTH" );
-      getWindow().draw( *m_extra_health_ms );
-      break;
-    case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::EXTRA_BOMBS:
-      m_extra_bombs_ms->setPosition( position );
-      m_extra_bombs_ms->pick( loot.m_tile_index, "EXTRA_BOMBS" );
-      getWindow().draw( *m_extra_bombs_ms );
-      break;
-    case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::INFINI_BOMBS:
-      m_infinite_bombs_ms->setPosition( position );
-      m_infinite_bombs_ms->pick( loot.m_tile_index, "INFINI_BOMBS" );
-      getWindow().draw( *m_infinite_bombs_ms );
-      break;
-    case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::CHAIN_BOMBS:
-      m_chain_bombs_ms->setPosition( position );
-      m_chain_bombs_ms->pick( loot.m_tile_index, "CHAIN_BOMBS" );
-      getWindow().draw( *m_chain_bombs_ms );
-      break;
-    case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::LOWER_WATER:
-      m_lower_water_ms->setPosition( position );
-      m_lower_water_ms->pick( loot.m_tile_index, "LOWER_WATER" );
-      getWindow().draw( *m_lower_water_ms );
-      break;
-    default:
-      break;
+      case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::EXTRA_HEALTH:
+        m_extra_health_ms->setPosition( position );
+        m_extra_health_ms->pick( loot.m_tile_index, "EXTRA_HEALTH" );
+        getWindow().draw( *m_extra_health_ms );
+        break;
+      case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::EXTRA_BOMBS:
+        m_extra_bombs_ms->setPosition( position );
+        m_extra_bombs_ms->pick( loot.m_tile_index, "EXTRA_BOMBS" );
+        getWindow().draw( *m_extra_bombs_ms );
+        break;
+      case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::INFINI_BOMBS:
+        m_infinite_bombs_ms->setPosition( position );
+        m_infinite_bombs_ms->pick( loot.m_tile_index, "INFINI_BOMBS" );
+        getWindow().draw( *m_infinite_bombs_ms );
+        break;
+      case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::CHAIN_BOMBS:
+        m_chain_bombs_ms->setPosition( position );
+        m_chain_bombs_ms->pick( loot.m_tile_index, "CHAIN_BOMBS" );
+        getWindow().draw( *m_chain_bombs_ms );
+        break;
+      case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::LOWER_WATER:
+        m_lower_water_ms->setPosition( position );
+        m_lower_water_ms->pick( loot.m_tile_index, "LOWER_WATER" );
+        getWindow().draw( *m_lower_water_ms );
+        break;
+      default:
+        break;
     }
   }
 }
@@ -308,7 +317,8 @@ void RenderGameSystem::render_walls()
 {
   // Render textures for "WALL" entities - filtered out because they don't own
   // neighbour components
-  for ( auto [entity, _ob, _pos] : m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::Neighbours> ).each() )
+  for ( auto [entity, _ob, _pos] :
+        m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::Neighbours> ).each() )
   {
 
     m_wall_ms->pick( _ob.m_tile_index, "wall" );
@@ -320,7 +330,8 @@ void RenderGameSystem::render_walls()
 void RenderGameSystem::render_player()
 {
   for ( auto [entity, player, position, direction, pc_detection_bounds] :
-        m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds>().each() )
+        m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds>()
+            .each() )
   {
 
     // flip and x-axis offset the sprite depending on the direction
@@ -359,7 +370,8 @@ void RenderGameSystem::render_player()
 
 void RenderGameSystem::render_npc()
 {
-  for ( auto [entity, npc, pos, npc_scan_bounds, direction] : m_reg->view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds, Cmp::Direction>().each() )
+  for ( auto [entity, npc, pos, npc_scan_bounds, direction] :
+        m_reg->view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds, Cmp::Direction>().each() )
   {
     // flip and x-axis offset the sprite depending on the direction
     if ( direction.x > 0 )
@@ -412,12 +424,14 @@ void RenderGameSystem::render_explosions( sf::Time deltaTime )
     if ( explosion_cmp.current_anim_frame >= max_anim_frame )
     {
       m_reg->remove<Cmp::NpcDeathPosition>( entity );
-      SPDLOG_DEBUG( "Explosion animation complete, removing component from entity {}", static_cast<int>( entity ) );
+      SPDLOG_DEBUG( "Explosion animation complete, removing component from entity {}",
+                    static_cast<int>( entity ) );
       continue;
     }
 
     // Always render the current frame
-    SPDLOG_DEBUG( "Rendering explosion frame {}/{} for entity {}", explosion_cmp.current_anim_frame, max_anim_frame, static_cast<int>( entity ) );
+    SPDLOG_DEBUG( "Rendering explosion frame {}/{} for entity {}", explosion_cmp.current_anim_frame,
+                  max_anim_frame, static_cast<int>( entity ) );
     m_explosion_ms->pick( explosion_cmp.current_anim_frame, "explosion" );
     m_explosion_ms->setPosition( explosion_cmp );
     getWindow().draw( *m_explosion_ms );
@@ -519,9 +533,11 @@ void RenderGameSystem::load_multisprites()
   m_wall_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::WALL );
   m_player_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::PLAYER );
   m_npc_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::NPC );
-  m_extra_health_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXTRA_HEALTH );
+  m_extra_health_ms =
+      factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXTRA_HEALTH );
   m_extra_bombs_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXTRA_BOMBS );
-  m_infinite_bombs_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::INFINI_BOMBS );
+  m_infinite_bombs_ms =
+      factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::INFINI_BOMBS );
   m_chain_bombs_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::CHAIN_BOMBS );
   m_lower_water_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::LOWER_WATER );
   m_explosion_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXPLOSION );
@@ -550,7 +566,8 @@ void RenderGameSystem::load_multisprites()
   }
 }
 
-void RenderGameSystem::update_view_center( sf::View &view, const Cmp::Position &player_pos, float smoothFactor )
+void RenderGameSystem::update_view_center( sf::View &view, const Cmp::Position &player_pos,
+                                           float smoothFactor )
 {
   const float kHalfViewWidth = view.getSize().x * 0.5f;
   const float kHalfViewHeight = view.getSize().y * 0.5f;
@@ -566,7 +583,8 @@ void RenderGameSystem::update_view_center( sf::View &view, const Cmp::Position &
   // Smoothly interpolate to the new position
   sf::Vector2f currentCenter = view.getCenter();
 
-  view.setCenter( { currentCenter.x + ( newX - currentCenter.x ) * smoothFactor, currentCenter.y + ( newY - currentCenter.y ) * smoothFactor } );
+  view.setCenter( { currentCenter.x + ( newX - currentCenter.x ) * smoothFactor,
+                    currentCenter.y + ( newY - currentCenter.y ) * smoothFactor } );
 }
 
 } // namespace ProceduralMaze::Sys

@@ -3,7 +3,8 @@
 namespace ProceduralMaze::Sprites {
 
 std::optional<SpriteFactory::SpriteMetaData>
-SpriteFactory::get_random_spritedata( std::vector<SpriteFactory::SpriteMetaType> type_list, std::vector<float> weights ) const
+SpriteFactory::get_random_spritedata( std::vector<SpriteFactory::SpriteMetaType> type_list,
+                                      std::vector<float> weights ) const
 {
   if ( type_list.empty() )
   {
@@ -48,7 +49,8 @@ SpriteFactory::get_random_spritedata( std::vector<SpriteFactory::SpriteMetaType>
 }
 
 std::pair<SpriteFactory::SpriteMetaType, std::size_t>
-SpriteFactory::get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list, std::vector<float> weights ) const
+SpriteFactory::get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list,
+                                                  std::vector<float> weights ) const
 {
   if ( auto data = get_random_spritedata( type_list, weights ) )
   {
@@ -58,16 +60,17 @@ SpriteFactory::get_random_type_and_texture_index( std::vector<SpriteMetaType> ty
   return { SpriteMetaType::ROCK, 0 }; // Fallback
 }
 
-std::optional<SpriteFactory::SpriteMetaData> SpriteFactory::get_spritedata_by_type( SpriteMetaType type ) const
+std::optional<SpriteFactory::SpriteMetaData>
+SpriteFactory::get_spritedata_by_type( SpriteMetaType type ) const
 {
-  auto it = std::find_if( m_sprite_metadata_list.begin(), m_sprite_metadata_list.end(), [type]( const SpriteMetaData &meta ) {
-    return meta.type == type;
-  } );
+  auto it = std::find_if( m_sprite_metadata_list.begin(), m_sprite_metadata_list.end(),
+                          [type]( const SpriteMetaData &meta ) { return meta.type == type; } );
   if ( it != m_sprite_metadata_list.end() ) { return *it; }
   return std::nullopt;
 }
 
-std::optional<Sprites::MultiSprite> SpriteFactory::get_multisprite_by_type( SpriteMetaType type ) const
+std::optional<Sprites::MultiSprite>
+SpriteFactory::get_multisprite_by_type( SpriteMetaType type ) const
 {
   if ( auto data = get_spritedata_by_type( type ) ) { return data->m_multisprite; }
   return std::nullopt;

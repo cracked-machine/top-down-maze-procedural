@@ -9,7 +9,10 @@ namespace ProceduralMaze::Events {
 struct NpcCreationEvent
 {
   sf::Vector2f position;
-  explicit NpcCreationEvent( sf::Vector2f pos ) : position( pos ) {}
+  explicit NpcCreationEvent( sf::Vector2f pos )
+      : position( pos )
+  {
+  }
 };
 
 } // namespace ProceduralMaze::Events

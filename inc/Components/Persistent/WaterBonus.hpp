@@ -7,7 +7,10 @@ namespace ProceduralMaze::Cmp::Persistent {
 class WaterBonus : public BasePersistent<float>
 {
 public:
-  WaterBonus() : BasePersistent<float>( 100.0f ) {}
+  WaterBonus()
+      : BasePersistent<float>( 100.0f )
+  {
+  }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

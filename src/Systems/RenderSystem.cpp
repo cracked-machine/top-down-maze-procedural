@@ -3,7 +3,8 @@
 
 namespace ProceduralMaze::Sys {
 
-RenderSystem::RenderSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : BaseSystem( reg )
+RenderSystem::RenderSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+    : BaseSystem( reg )
 {
 
   SPDLOG_INFO( "RenderSystem initialisation starting..." );
@@ -23,9 +24,9 @@ RenderSystem::RenderSystem( std::shared_ptr<entt::basic_registry<entt::entity>> 
   SPDLOG_INFO( "RenderSystem initialisation finished" );
 }
 
-void RenderSystem::render_text(
-    std::string text, unsigned int size, sf::Vector2f position, Alignment align, float padding, sf::Color fill_color, sf::Color outline_color
-)
+void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2f position,
+                                Alignment align, float padding, sf::Color fill_color,
+                                sf::Color outline_color )
 {
   sf::Text title_text( m_font, text, size );
   title_text.setFillColor( fill_color );
@@ -48,7 +49,8 @@ void RenderSystem::render_text(
   sf::FloatRect title_bounds = title_text.getLocalBounds();
   title_bg.setSize( { title_bounds.size.x + padding * 2.f, title_bounds.size.y + padding * 2.f } );
   title_bg.setFillColor( sf::Color::Black );
-  title_bg.setPosition( { final_position.x + title_bounds.position.x - padding, final_position.y + title_bounds.position.y - padding } );
+  title_bg.setPosition( { final_position.x + title_bounds.position.x - padding,
+                          final_position.y + title_bounds.position.y - padding } );
 
   getWindow().draw( title_bg );
   getWindow().draw( title_text );

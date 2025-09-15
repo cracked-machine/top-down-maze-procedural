@@ -7,7 +7,10 @@ namespace ProceduralMaze::Cmp::Persistent {
 class FloodSpeed : public BasePersistent<float>
 {
 public:
-  FloodSpeed() : BasePersistent<float>( 4.f ) {}
+  FloodSpeed()
+      : BasePersistent<float>( 4.f )
+  {
+  }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

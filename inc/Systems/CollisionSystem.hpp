@@ -56,7 +56,10 @@ namespace ProceduralMaze::Sys {
 class CollisionSystem : public BaseSystem
 {
 public:
-  CollisionSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : BaseSystem( reg ) {}
+  CollisionSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+      : BaseSystem( reg )
+  {
+  }
 
   ~CollisionSystem() = default;
 

@@ -10,7 +10,10 @@ namespace ProceduralMaze::Cmp {
 class PCDetectionBounds : public RectBounds
 {
 public:
-  PCDetectionBounds( sf::Vector2f position, sf::Vector2f size, float scale_factor ) : RectBounds( position, size, scale_factor ) {}
+  PCDetectionBounds( sf::Vector2f position, sf::Vector2f size, float scale_factor )
+      : RectBounds( position, size, scale_factor )
+  {
+  }
 };
 
 } // namespace ProceduralMaze::Cmp

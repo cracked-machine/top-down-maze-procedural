@@ -41,7 +41,8 @@ private:
   void render_player_distances_on_obstacles();
   void render_npc_distances_on_obstacles();
 
-  void update_view_center( sf::View &view, const Cmp::Position &player_pos, float smoothFactor = 0.1f );
+  void update_view_center( sf::View &view, const Cmp::Position &player_pos,
+                           float smoothFactor = 0.1f );
 
   RenderOverlaySystem m_overlay_sys{ m_reg };
 
@@ -58,8 +59,8 @@ private:
   Sprites::BackgroundShader m_sand_shader2{ "res/shaders/ShiftingSand.frag", kDisplaySize };
 
   // Render texture for off-screen rendering
-  // sf::Shader m_sand_shader{ std::filesystem::path( "res/shaders/ShiftingSand.frag" ), sf::Shader::Type::Fragment };
-  // sf::RenderTexture m_render_texture{ getWindow().getSize() };
+  // sf::Shader m_sand_shader{ std::filesystem::path( "res/shaders/ShiftingSand.frag" ),
+  // sf::Shader::Type::Fragment }; sf::RenderTexture m_render_texture{ getWindow().getSize() };
   // sf::Sprite m_render_sprite{ m_render_texture.getTexture() };
   // bool m_render_texture_initialized = false;
 

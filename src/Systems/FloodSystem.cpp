@@ -4,16 +4,18 @@ namespace ProceduralMaze::Sys {
 
 void FloodSystem::init_context()
 {
-  if ( not m_reg->ctx().contains<Cmp::Persistent::FloodSpeed>() ) { m_reg->ctx().emplace<Cmp::Persistent::FloodSpeed>(); }
+  if ( not m_reg->ctx().contains<Cmp::Persistent::FloodSpeed>() )
+  {
+    m_reg->ctx().emplace<Cmp::Persistent::FloodSpeed>();
+  }
 }
 
 void FloodSystem::add_flood_water_entity()
 {
   SPDLOG_INFO( "Creating flood water entity" );
   auto entity = m_reg->create();
-  m_reg->emplace<Cmp::WaterLevel>(
-      entity,
-      kDisplaySize.y - 1 // initial level
+  m_reg->emplace<Cmp::WaterLevel>( entity,
+                                   kDisplaySize.y - 1 // initial level
   );
 }
 
@@ -41,7 +43,8 @@ void FloodSystem::updateFlood( float dt )
 
   // Cache views once - better performance since entities always exist
   auto water_view = m_reg->view<Cmp::WaterLevel>();
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction>();
+  auto player_view =
+      m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction>();
 
   // abort if flood is paused
   for ( auto [_, sys] : m_reg->view<Cmp::System>().each() )

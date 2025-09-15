@@ -14,7 +14,10 @@ struct PlayerActionEvent
   };
 
   GameActions action;
-  explicit PlayerActionEvent( GameActions act ) : action( act ) {}
+  explicit PlayerActionEvent( GameActions act )
+      : action( act )
+  {
+  }
 };
 
 } // namespace ProceduralMaze::Events

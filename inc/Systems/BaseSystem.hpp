@@ -15,7 +15,10 @@ namespace ProceduralMaze::Sys {
 class BaseSystem
 {
 public:
-  BaseSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg ) : m_reg( reg ) {}
+  BaseSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+      : m_reg( reg )
+  {
+  }
 
   ~BaseSystem() = default;
 
@@ -27,8 +30,7 @@ public:
     {
       return std::optional<sf::Vector2i>{
           { static_cast<int>( pos->x / Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x ),
-            static_cast<int>( pos->y / Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y ) }
-      };
+            static_cast<int>( pos->y / Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y ) } };
     }
     return std::nullopt;
   }
@@ -50,7 +52,10 @@ public:
 
   // sum( (posA.x - posB.x) + (posA.y - posB.y) )
   // cardinal directions only
-  float getManhattanDistance( sf::Vector2f posA, sf::Vector2f posB ) const { return std::abs( posA.x - posB.x ) + std::abs( posA.y - posB.y ); }
+  float getManhattanDistance( sf::Vector2f posA, sf::Vector2f posB ) const
+  {
+    return std::abs( posA.x - posB.x ) + std::abs( posA.y - posB.y );
+  }
 
   // max( (posA.x - posB.x), (posA.y - posB.y) )
   // cardinal and diagonal directions
@@ -68,7 +73,8 @@ public:
 
   sf::FloatRect get_hitbox( sf::Vector2f pos )
   {
-    return sf::FloatRect( { pos.x, pos.y }, sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE } );
+    return sf::FloatRect( { pos.x, pos.y },
+                          sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE } );
   }
 
   // The game display resolution inpixels

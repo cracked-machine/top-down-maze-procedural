@@ -13,7 +13,11 @@ namespace ProceduralMaze::Cmp {
 class Direction : public sf::Vector2f
 {
 public:
-  Direction( const sf::Vector2f &dir ) : sf::Vector2f( dir ) { SPDLOG_DEBUG( "Direction()" ); }
+  Direction( const sf::Vector2f &dir )
+      : sf::Vector2f( dir )
+  {
+    SPDLOG_DEBUG( "Direction()" );
+  }
 
   ~Direction() { SPDLOG_DEBUG( "~Direction()" ); }
 

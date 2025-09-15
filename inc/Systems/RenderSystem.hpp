@@ -82,22 +82,24 @@ protected:
    * @param text The string content to be rendered
    * @param size The font size for the text in pixels
    * @param position The screen coordinates where the text should be positioned
-   * @param align The alignment mode for the text (left or center). Left will respect position.x, center will ignore it.
+   * @param align The alignment mode for the text (left or center). Left will respect position.x,
+   * center will ignore it.
    * @param padding Optional spacing around the text in pixels (default: 10.0f)
    * @param fill_color Optional color for the text fill (default: White)
-   * @param outline_color Optional color for the text outline (default: Transparent). Outline thickness is 0.f if set to Transparent.
+   * @param outline_color Optional color for the text outline (default: Transparent). Outline
+   * thickness is 0.f if set to Transparent.
    */
-  void render_text(
-      std::string text, unsigned int size, sf::Vector2f position, Alignment align, float padding = 10.f, sf::Color fill_color = sf::Color::White,
-      sf::Color outline_color = sf::Color::Transparent
-  );
+  void render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align,
+                    float padding = 10.f, sf::Color fill_color = sf::Color::White,
+                    sf::Color outline_color = sf::Color::Transparent );
 
   // Derived class accessor for the static window instance
   static sf::RenderWindow &getWindow()
   {
     if ( !RenderSystem::m_window )
     {
-      RenderSystem::m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( kDisplaySize ), "ProceduralMaze", sf::State::Fullscreen );
+      RenderSystem::m_window = std::make_unique<sf::RenderWindow>(
+          sf::VideoMode( kDisplaySize ), "ProceduralMaze", sf::State::Fullscreen );
     }
     return *RenderSystem::m_window;
   }
