@@ -34,7 +34,7 @@ void main()
 
   // DEBUGGING: Add visible effect to confirm shader is working
   float pulse = sin( time * 2.0 ) * 0.5 + 0.5;
-  color.r += pulse * 0.2;
+  color.b += pulse * 0.2;
 
   // Simple noise that doesn't depend on worldPosition
   vec2 simpleCoord = texCoord * 50.0 + time * 0.1;

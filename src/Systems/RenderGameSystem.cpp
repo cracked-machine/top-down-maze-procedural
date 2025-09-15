@@ -1,6 +1,7 @@
 #include <NpcDeathPosition.hpp>
 #include <Position.hpp>
 #include <RenderSystem.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <Systems/RenderGameSystem.hpp>
 #include <string>
 
@@ -36,7 +37,11 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
     // world
     getWindow().setView( m_local_view );
     {
-      render_floormap( { 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
+      // render_floormap( { 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
+      m_floormap.draw( m_sand_shader.get_render_texture(), sf::RenderStates::Default );
+      m_sand_shader.update( sf::Vector2f{ kDisplaySize }, sf::Vector2f{ 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
+      getWindow().draw( m_sand_shader );
+
       render_obstacles();
       render_armed();
       render_loot();
@@ -138,9 +143,8 @@ void RenderGameSystem::render_floormap( const sf::Vector2f &offset )
 {
   // Update sand shader with current parameters
   m_floormap.update( 0.8f, kDisplaySize ); // Adjust intensity as needed
-
-  // Draw floormap with sand shader applied
-  m_floormap.drawWithShader( getWindow(), offset );
+  m_floormap.setPosition( offset );
+  getWindow().draw( m_floormap );
 }
 
 void RenderGameSystem::render_obstacles()
@@ -565,4 +569,5 @@ void RenderGameSystem::update_view_center( sf::View &view, const Cmp::Position &
 
   view.setCenter( { currentCenter.x + ( newX - currentCenter.x ) * smoothFactor, currentCenter.y + ( newY - currentCenter.y ) * smoothFactor } );
 }
-}; // namespace ProceduralMaze::Sys
+
+} // namespace ProceduralMaze::Sys

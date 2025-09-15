@@ -3,7 +3,6 @@
 uniform sampler2D texture;
 uniform float time;
 uniform float sandIntensity;
-uniform vec2 screenSize; // New uniform for actual screen dimensions
 
 // pseudo-random noise using a hash function
 float noise( vec2 st ) { return fract( sin( dot( st.xy, vec2( 12.9898, 78.233 ) ) ) * 43758.5453123 ); }
@@ -24,16 +23,19 @@ float smoothNoise( vec2 st )
   return mix( a, b, u.x ) + ( c - a ) * u.y * ( 1.0 - u.x ) + ( d - b ) * u.x * u.y;
 }
 
-// Fractal Brownian Motion combining multiple octaves of noise
+// Fractal Brownian Motion with domain warping to break repetition
 float fbm( vec2 st )
 {
   float value = 0.0;
   float amplitude = 0.5;
 
-  for ( int i = 0; i < 5; i++ )
+  // Add domain warping to break repetition
+  st += smoothNoise( st * 0.1 ) * 2.0;
+
+  for ( int i = 0; i < 4; i++ )
   {
     value += amplitude * smoothNoise( st );
-    st *= 2.0;
+    st *= 2.07; // Use non-power-of-2 scaling
     amplitude *= 0.5;
   }
   return value;
@@ -46,61 +48,62 @@ void main()
   // Sample the texture normally
   vec4 color = texture2D( texture, texCoord );
 
-  // Use actual screen size for consistent density across the entire display
-  vec2 pixelCoord = texCoord * screenSize;
+  // Use pixel coordinates with better scaling to reduce repetition
+  vec2 pixelCoord = texCoord * vec2( 3200.0, 1568.0 );
 
-  // Scale to maintain same density as before (adjust 0.007 as needed)
-  vec2 noiseCoord = pixelCoord * 0.007; // Use non-divisible scale
+  // Use multiple prime number scales to avoid alignment
+  vec2 noiseCoord1 = pixelCoord * 0.00723; // Prime-based scaling
+  vec2 noiseCoord2 = pixelCoord * 0.00541;
+  vec2 noiseCoord3 = pixelCoord * 0.00613;
 
-  // Time-based animation with slowly changing direction
-  float t = time * 0.2;
+  // Time-based animation
+  float t = time * 0.15;
 
-  // Create slowly rotating wind direction
-  float windAngle1 = time * 0.1;         // Very slow rotation
-  float windAngle2 = time * 0.15 + 10.5; // Different rotation speed and offset
-  float windAngle3 = time * 0.08 + 3.0;  // Another variation
+  // Create wind directions with different phases
+  float windAngle1 = time * 0.083 + 2.147;
+  float windAngle2 = time * 0.127 + 5.283;
 
-  // Convert angles to direction vectors
   vec2 windDir1 = vec2( cos( windAngle1 ), sin( windAngle1 ) );
   vec2 windDir2 = vec2( cos( windAngle2 ), sin( windAngle2 ) );
-  vec2 windDir3 = vec2( cos( windAngle3 ), sin( windAngle3 ) );
 
-  // Create flowing sand patterns with rotating wind directions
-  float wave1 = fbm( noiseCoord + vec2( 37.3, 73.7 ) + windDir1 * t * 2.0 );
-  float wave2 = fbm( noiseCoord * 1.31 + vec2( 19.4, 41.2 ) + windDir2 * t * 0.8 );
-  float wave3 = fbm( noiseCoord * 0.73 + vec2( 67.1, 23.9 ) + windDir3 * t * 0.6 );
+  // Domain warping coordinates to break repetition
+  vec2 warp1 = vec2( smoothNoise( noiseCoord1 * 0.3 + time * 0.02 ), smoothNoise( noiseCoord1 * 0.3 + time * 0.02 + 100.0 ) ) * 3.0;
+  vec2 warp2 = vec2( smoothNoise( noiseCoord2 * 0.2 + time * 0.015 ), smoothNoise( noiseCoord2 * 0.2 + time * 0.015 + 200.0 ) ) * 2.0;
 
-  // High frequency sand grain with rotating directions
-  float grain1 = smoothNoise( noiseCoord * 3.11 + vec2( 11.7, 29.3 ) + windDir1 * t * 3.0 );
-  float grain2 = smoothNoise( noiseCoord * 11.37 + vec2( 47.2, 83.1 ) + windDir2 * t * 2.8 );
-  float grain3 = smoothNoise( noiseCoord * 13.91 + vec2( 59.8, 17.4 ) + windDir3 * t * 2.5 );
+  // Create sand patterns with domain warping
+  float wave1 = fbm( noiseCoord1 + warp1 + windDir1 * t * 1.3 );
+  float wave2 = fbm( noiseCoord2 + warp2 + windDir2 * t * 0.7 );
 
-  // Combine all patterns
-  float sandPattern = ( wave1 + wave2 * 0.7 + wave3 * 0.5 ) / 2.2;
-  float sandGrain = ( grain1 + grain2 * 0.8 + grain3 * 0.6 ) / 2.4;
+  // MASSIVELY increased grain frequency for much smaller grains
+  float grain1 = smoothNoise( noiseCoord1 * 45.73 + warp1 * 0.5 + windDir1 * t * 2.1 ); // was 7.19
+  float grain2 = smoothNoise( noiseCoord2 * 78.41 + warp2 * 0.3 + windDir2 * t * 1.8 ); // was 11.73
+  float grain3 = smoothNoise( noiseCoord3 * 112.89 + windDir1 * t * 2.3 );              // was 13.41
 
-  // Create sand-like brightness variation
-  float brightness = 0.85 + sandPattern * 0.2 + sandGrain * 0.15;
+  // Add even finer grain details
+  float veryFineGrain1 = smoothNoise( noiseCoord1 * 156.23 + warp1 * 0.2 + windDir1 * t * 3.1 );
+  float veryFineGrain2 = smoothNoise( noiseCoord2 * 203.47 + warp2 * 0.15 + windDir2 * t * 2.9 );
+  float ultraFineGrain = smoothNoise( noiseCoord3 * 287.91 + windDir1 * t * 3.5 );
+
+  // Combine patterns with better weighting
+  float sandPattern = ( wave1 * 0.6 + wave2 * 0.4 );
+  float sandGrain = ( grain1 * 0.3 + grain2 * 0.25 + grain3 * 0.2 + veryFineGrain1 * 0.15 + veryFineGrain2 * 0.1 + ultraFineGrain * 0.05 );
+
+  // Create sand-like brightness variation with enhanced grain effect
+  float brightness = 0.88 + sandPattern * 0.15 + sandGrain * 0.25; // Increased grain influence
   color.rgb *= brightness;
 
-  // Sandy color variation with rotating direction
-  float colorNoise1 = fbm( noiseCoord * 0.11 + vec2( 31.5, 97.2 ) + windDir1 * time * 0.1 );
+  // Subtle color variation
+  float colorNoise = fbm( noiseCoord1 * 0.13 + windDir1 * time * 0.08 );
 
-  // Warm sandy color shifts
   vec3 sandColor =
-      vec3( 1.0 + colorNoise1 * 0.15 + sandGrain * 0.1, 1.0 + colorNoise1 * 0.08 + sandGrain * 0.05, 1.0 - colorNoise1 * 0.05 + sandGrain * 0.02 );
+      vec3( 1.0 + colorNoise * 0.08 + sandGrain * 0.12, 1.0 + colorNoise * 0.04 + sandGrain * 0.08, 1.0 - colorNoise * 0.02 + sandGrain * 0.04 );
 
-  // Apply sand coloring
-  color.rgb *= mix( vec3( 1.0 ), sandColor, sandIntensity * 0.5 );
+  // Apply effects with enhanced grain visibility
+  color.rgb *= mix( vec3( 1.0 ), sandColor, sandIntensity * 0.6 ); // Increased from 0.4
 
-  // Add sand grain overlay
-  float grainOverlay = 0.9 + sandGrain * 0.2;
-  color.rgb *= mix( vec3( 1.0 ), vec3( grainOverlay ), sandIntensity * 0.4 );
-
-  // Add sand particle details with rotating direction
-  float particleDetail = smoothNoise( noiseCoord * 17.43 + vec2( 71.6, 13.8 ) + windDir2 * time * 4.0 );
-  float shadows = mix( 1.0, 0.85 + particleDetail * 0.3, sandIntensity * 0.3 );
-  color.rgb *= shadows;
+  // Enhanced grain overlay for more visible texture
+  float grainOverlay = 0.88 + sandGrain * 0.35;                               // Increased grain effect
+  color.rgb *= mix( vec3( 1.0 ), vec3( grainOverlay ), sandIntensity * 0.5 ); // Increased from 0.3
 
   gl_FragColor = color;
 }

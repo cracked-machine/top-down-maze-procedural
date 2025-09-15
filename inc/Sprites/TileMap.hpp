@@ -113,7 +113,6 @@ public:
     target.draw( m_vertices, states );
   }
 
-private:
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override
   {
     // apply the transform
@@ -126,6 +125,7 @@ private:
     target.draw( m_vertices, states );
   }
 
+private:
   sf::VertexArray m_vertices;
   sf::Texture m_tileset;
 
