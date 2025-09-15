@@ -142,7 +142,7 @@ private:
 
   std::vector<uint32_t> m_floortile_choices;
 
-  std::filesystem::path m_tile_file{ "res/kenney_tiny-dungeon/Tilemap/tilemap_packed.png" };
+  std::filesystem::path m_tile_file{ "res/textures/tilemap_packed.png" };
 
   std::filesystem::path m_shader_path{ "res/shaders/ShiftingSand.frag" };
   sf::Shader m_shader;

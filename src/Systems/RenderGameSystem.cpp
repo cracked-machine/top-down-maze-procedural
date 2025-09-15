@@ -40,11 +40,16 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
     // world
     getWindow().setView( m_local_view );
     {
+
       m_floormap.draw( m_sand_shader.get_render_texture(), sf::RenderStates::Default );
       m_sand_shader.update(
           sf::Vector2f{ kDisplaySize },
           sf::Vector2f{ 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y },
-          1.0f );
+          1.0f,
+          0.01f,
+          3.0f,
+          1.0f ); // Add time scale parameter (0.2 = 5x slower)
+
       getWindow().draw( m_sand_shader );
 
       render_obstacles();

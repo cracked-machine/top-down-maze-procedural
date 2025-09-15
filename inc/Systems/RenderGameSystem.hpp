@@ -56,13 +56,6 @@ private:
   // Shaders
   Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", kDisplaySize };
   Sprites::BackgroundShader m_sand_shader{ "res/shaders/CellularSand.frag", kDisplaySize };
-  Sprites::BackgroundShader m_sand_shader2{ "res/shaders/ShiftingSand.frag", kDisplaySize };
-
-  // Render texture for off-screen rendering
-  // sf::Shader m_sand_shader{ std::filesystem::path( "res/shaders/ShiftingSand.frag" ),
-  // sf::Shader::Type::Fragment }; sf::RenderTexture m_render_texture{ getWindow().getSize() };
-  // sf::Sprite m_render_sprite{ m_render_texture.getTexture() };
-  // bool m_render_texture_initialized = false;
 
   // Sprites
   Sprites::Containers::TileMap m_floormap;

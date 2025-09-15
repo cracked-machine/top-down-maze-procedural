@@ -26,8 +26,14 @@ public:
   void post_setup_shader() override {}
   void update() override { /* unused */ }
 
-  void update( sf::Vector2f kDisplaySize, sf::Vector2f kMapGridOffset, float intensity )
+  void update( sf::Vector2f kDisplaySize,
+               sf::Vector2f kMapGridOffset,
+               float intensity,
+               float windStrength,
+               float waveAmplitude,
+               float timeScale )
   {
+
     m_shader.setUniform( "time", m_clock.getElapsedTime().asSeconds() );
     m_shader.setUniform( "sandIntensity", intensity );
     m_shader.setUniform( "screenSize",
@@ -37,8 +43,12 @@ public:
         "worldPosition",
         sf::Vector2f{ 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
     m_shader.setUniform( "windDirection", sf::Vector2f{ 1.0f, 0.0f } ); // Example wind direction
-    m_shader.setUniform( "windStrength", 1.0f );                        // Example wind strength
+    m_shader.setUniform( "windStrength", windStrength );                // Example wind strength
+    m_shader.setUniform( "waveAmplitude", waveAmplitude );              // Example wave amplitude
+    m_shader.setUniform( "timeScale", timeScale );                      // Example time scale
   }
+
+  sf::Time getElapsedTime() const { return m_clock.getElapsedTime(); }
 };
 
 } // namespace ProceduralMaze::Sprites
