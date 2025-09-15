@@ -67,8 +67,6 @@ void FloodSystem::updateFlood( float dt )
       if ( water_level.m_level <= position.y ) // Water drowns player when water level is at or
                                                // above player position
       {
-        if ( m_abovewater_sound_player.getStatus() == sf::Sound::Status::Playing ) m_abovewater_sound_player.stop();
-        if ( m_underwater_music.getStatus() != sf::Music::Status::Playing ) m_underwater_music.play();
 
         // Other systems will need to know which acceleration/deceleration/maxspeed to use
         player_char.underwater = true;
@@ -95,14 +93,6 @@ void FloodSystem::updateFlood( float dt )
 
         // Other systems will need to know which acceleration/deceleration/maxspeed to use
         player_char.underwater = false;
-
-        if ( m_underwater_music.getStatus() == sf::Music::Status::Playing ) m_underwater_music.stop();
-
-        if ( dir_cmp.x != 0.0f || dir_cmp.y != 0.0f )
-        {
-          if ( m_abovewater_sound_player.getStatus() != sf::Sound::Status::Playing ) { m_abovewater_sound_player.play(); }
-        }
-        else { m_abovewater_sound_player.stop(); }
       }
     }
   }

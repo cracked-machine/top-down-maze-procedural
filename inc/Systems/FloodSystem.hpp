@@ -54,10 +54,6 @@ private:
   // Track last damage time for each player
   std::unordered_map<entt::entity, float> m_last_damage_time;
 
-  sf::SoundBuffer m_abovewater_sound_buffer{ "res/audio/footsteps.mp3" };
-  sf::Sound m_abovewater_sound_player{ m_abovewater_sound_buffer };
-  sf::Music m_underwater_music{ "res/audio/underwater.wav" };
-
 public:
   void suspend()
   {

@@ -1,5 +1,6 @@
 #include <Engine.hpp>
 
+#include <MusicSystem.hpp>
 #include <Persistent/MusicVolume.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
 
@@ -8,7 +9,8 @@ namespace ProceduralMaze {
 Engine::Engine( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
     : m_reg( std::move( registry ) ), m_sprite_factory( std::make_shared<Sprites::SpriteFactory>() ), m_player_sys( m_reg ), m_flood_sys( m_reg ),
       m_path_find_sys( m_reg ), m_npc_sys( m_reg ), m_collision_sys( m_reg ), m_render_game_sys( m_reg ), m_render_menu_sys( m_reg ),
-      m_bomb_sys( m_reg ), m_title_music_sys( m_reg, "res/audio/title_music.mp3" ), m_event_handler( m_reg )
+      m_bomb_sys( m_reg ), m_title_music_sys( m_reg, "res/audio/title_music.mp3" ), m_underwater_sounds_sys( m_reg, "res/audio/underwater.wav" ),
+      m_abovewater_sounds_sys( m_reg, "res/audio/footsteps.mp3" ), m_event_handler( m_reg )
 {
 
   m_render_game_sys.window().setFramerateLimit( 144 );
@@ -98,6 +100,21 @@ bool Engine::run()
 
     case Cmp::Persistent::GameState::State::PLAYING: {
       m_title_music_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
+
+      // check if player is underwater to start/stop underwater sounds
+      auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Direction>();
+      for ( auto [_, pc, dir_cmp] : player_view.each() )
+      {
+        if ( pc.underwater ) { m_underwater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::PLAY ); }
+        else
+        {
+          m_underwater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
+          // play footsteps only when player is moving
+          if ( dir_cmp.x != 0.0f || dir_cmp.y != 0.0f ) { m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::PLAY ); }
+          else { m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP ); }
+        }
+      }
+
       m_event_handler.game_state_handler( m_render_game_sys.window() );
 
       m_player_sys.update( deltaTime );
@@ -174,7 +191,7 @@ bool Engine::run()
         m_title_music_sys.update_volume();
         break;
       }
-      SPDLOG_INFO( "Terminating Game...." );
+      SPDLOG_INFO( "Terminating application...." );
       teardown();
       m_render_game_sys.window().close();
       std::terminate();

@@ -86,7 +86,10 @@ private:
   Sys::RenderGameSystem m_render_game_sys;
   Sys::RenderMenuSystem m_render_menu_sys;
   Sys::BombSystem m_bomb_sys;
+
   Sys::MusicSystem m_title_music_sys;
+  Sys::MusicSystem m_underwater_sounds_sys;
+  Sys::MusicSystem m_abovewater_sounds_sys;
 
   // SFML keyboard/mouse event handler
   ProceduralMaze::EventHandler m_event_handler;
