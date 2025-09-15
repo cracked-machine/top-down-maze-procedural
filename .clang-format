@@ -22,3 +22,5 @@ AllowShortBlocksOnASingleLine: true
 AllowShortEnumsOnASingleLine: true
 BinPackArguments : false
 BinPackParameters: false
+IndentWidth: 2
+UseTab: Never
