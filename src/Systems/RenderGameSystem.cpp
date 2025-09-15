@@ -37,7 +37,6 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
     // world
     getWindow().setView( m_local_view );
     {
-      // render_floormap( { 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
       m_floormap.draw( m_sand_shader.get_render_texture(), sf::RenderStates::Default );
       m_sand_shader.update( sf::Vector2f{ kDisplaySize }, sf::Vector2f{ 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
       getWindow().draw( m_sand_shader );

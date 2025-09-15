@@ -89,7 +89,7 @@ private:
   Sys::MusicSystem m_title_music_sys;
 
   // SFML keyboard/mouse event handler
-  ProceduralMaze::InputEventHandler m_event_handler{ m_reg };
+  ProceduralMaze::EventHandler m_event_handler;
 
   // sets up ECS just enough to let the statemachine work
   void bootstrap();

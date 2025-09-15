@@ -2,6 +2,7 @@ set(TARGET ProceduralMaze)
 add_executable(${TARGET} 
     ${CMAKE_SOURCE_DIR}/src/main.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine.cpp
+    ${CMAKE_SOURCE_DIR}/src/EventHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Base.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Random.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/PlayableCharacter.cpp
