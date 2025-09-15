@@ -21,7 +21,7 @@
             "label": "Run clang-format on all source files",
             "type": "shell",
             "command": [
-                "find . -regex '.*\\.\\(cpp\\|hpp\\|cc\\|cxx\\)' -exec clang-format -style=file -i {} \\;"
+                "find . -not -path './build/*' -regex '.*\\.\\(cpp\\|hpp\\|cc\\|cxx\\)' -exec clang-format -style=file -i {} \\;"
             ]
         }
     ],
