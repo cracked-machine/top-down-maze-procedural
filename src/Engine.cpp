@@ -108,6 +108,8 @@ bool Engine::run()
       }
 
       case Cmp::Persistent::GameState::State::UNLOADING: {
+        m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
+        m_underwater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
         teardown();
         game_state.current_state = Cmp::Persistent::GameState::State::MENU;
         SPDLOG_INFO( "Unloading game...." );
@@ -124,6 +126,7 @@ bool Engine::run()
           if ( pc.underwater )
           {
             m_underwater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::PLAY );
+            m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
           }
           else
           {
@@ -200,6 +203,8 @@ bool Engine::run()
       } // case PAUSED end
 
       case Cmp::Persistent::GameState::State::GAMEOVER: {
+        m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
+        m_underwater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
         for ( auto [_, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
         {
           if ( not _pc.alive ) { m_render_menu_sys.render_defeat_screen(); }
