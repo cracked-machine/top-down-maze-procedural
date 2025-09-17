@@ -47,8 +47,9 @@ private:
   RenderOverlaySystem m_overlay_sys{ m_reg };
 
   // Views
-  const sf::Vector2f LOCAL_MAP_VIEW_SIZE{ 300.f, 200.f };
-  const sf::Vector2f MINI_MAP_VIEW_SIZE{ kDisplaySize.x * 0.25f, kDisplaySize.y * 0.25f };
+  const sf::Vector2f kLocalMapViewSize{ 300.f, 200.f };
+  const float kMiniMapViewZoomFactor = 0.25f;
+  // const sf::Vector2f MINI_MAP_VIEW_SIZE{ kDisplaySize.x * 0.25f, kDisplaySize.y * 0.25f };
   sf::View m_local_view;
   sf::View m_minimap_view;
   const float kStartGameSmoothFactor = 1.f; // instant centering on start

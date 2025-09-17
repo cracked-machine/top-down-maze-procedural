@@ -12,13 +12,14 @@ RenderGameSystem::RenderGameSystem( std::shared_ptr<entt::basic_registry<entt::e
 {
 
   // init local view dimensions
-  m_local_view = sf::View( { LOCAL_MAP_VIEW_SIZE.x * 0.5f, LOCAL_MAP_VIEW_SIZE.y * 0.5f },
-                           LOCAL_MAP_VIEW_SIZE );
+  m_local_view =
+      sf::View( { kLocalMapViewSize.x * 0.5f, kLocalMapViewSize.y * 0.5f }, kLocalMapViewSize );
   m_local_view.setViewport( sf::FloatRect( { 0.f, 0.f }, { 1.f, 1.f } ) );
 
   // init minimap view dimensions
-  m_minimap_view =
-      sf::View( { MINI_MAP_VIEW_SIZE.x * 0.5f, MINI_MAP_VIEW_SIZE.y * 0.5f }, MINI_MAP_VIEW_SIZE );
+  m_minimap_view = sf::View(
+      { kDisplaySize.x * 0.5f, kDisplaySize.y * 0.5f },
+      { kDisplaySize.x * kMiniMapViewZoomFactor, kDisplaySize.y * kMiniMapViewZoomFactor } );
   m_minimap_view.setViewport( sf::FloatRect( { 0.75f, 0.f }, { 0.25f, 0.25f } ) );
 }
 
@@ -70,7 +71,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
       {
         if ( _sys.player_stuck )
         {
-          m_local_view.setCenter( { LOCAL_MAP_VIEW_SIZE.x * 0.5f, kDisplaySize.y * 0.5f } );
+          m_local_view.setCenter( { kLocalMapViewSize.x * 0.5f, kDisplaySize.y * 0.5f } );
           _sys.player_stuck = false;
         }
         else
@@ -104,7 +105,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
       {
         if ( _sys.player_stuck )
         {
-          m_minimap_view.setCenter( { MINI_MAP_VIEW_SIZE.x * 0.5f, MINI_MAP_VIEW_SIZE.y * 0.5f } );
+          m_minimap_view.setCenter( { kDisplaySize.x * 0.5f, kDisplaySize.y * 0.5f } );
           _sys.player_stuck = false;
         }
         else
@@ -123,8 +124,13 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
     // player moves)
     getWindow().setView( getWindow().getDefaultView() );
     {
-      auto minimap_border = sf::RectangleShape( { MINI_MAP_VIEW_SIZE.x, MINI_MAP_VIEW_SIZE.y } );
-      minimap_border.setPosition( { kDisplaySize.x - MINI_MAP_VIEW_SIZE.x, 0.f } );
+
+      auto minimap_border = sf::RectangleShape( {
+          getWindow().getSize().x * kMiniMapViewZoomFactor, // 25% of screen width
+          getWindow().getSize().y * kMiniMapViewZoomFactor  // 25% of screen height
+      } );
+      minimap_border.setPosition( { getWindow().getSize().x - minimap_border.getSize().x, 0.f } );
+
       minimap_border.setFillColor( sf::Color::Transparent );
       minimap_border.setOutlineColor( sf::Color::White );
       minimap_border.setOutlineThickness( 2.f );
