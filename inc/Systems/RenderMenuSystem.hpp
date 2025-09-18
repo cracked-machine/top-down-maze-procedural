@@ -18,6 +18,7 @@ public:
   }
   ~RenderMenuSystem() = default;
 
+  void render_loading_screen( const std::string &status );
   void render_title();
 
   void render_settings_widgets( sf::Time deltaTime );

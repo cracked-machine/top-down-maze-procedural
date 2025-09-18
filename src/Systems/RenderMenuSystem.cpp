@@ -13,10 +13,37 @@
 #include <Persistent/ObstaclePushBack.hpp>
 #include <Persistent/PlayerMinVelocity.hpp>
 #include <Persistent/WaterBonus.hpp>
+#include <SFML/System/Angle.hpp>
 #include <Systems/RenderMenuSystem.hpp>
 #include <imgui.h>
 
 namespace ProceduralMaze::Sys {
+
+void RenderMenuSystem::render_loading_screen( const std::string &status )
+{
+  getWindow().clear();
+
+  // Background
+  sf::RectangleShape background( ( sf::Vector2f( kDisplaySize ) ) );
+  background.setFillColor( sf::Color::Black );
+  getWindow().draw( background );
+
+  // Loading text
+  render_text(
+      "Loading Game...", 64, { kDisplaySize.x * 0.5f, kDisplaySize.y * 0.4f }, Alignment::CENTER );
+  render_text( status, 32, { kDisplaySize.x * 0.5f, kDisplaySize.y * 0.6f }, Alignment::CENTER );
+
+  // Simple progress bar or spinner
+  static float rotation = 0.0f;
+  rotation += 5.0f;
+  sf::CircleShape spinner( 20.0f, 8 );
+  spinner.setPosition( { kDisplaySize.x * 0.5f - 20.0f, kDisplaySize.y * 0.7f } );
+  spinner.setFillColor( sf::Color::White );
+  spinner.setRotation( sf::degrees( rotation ) );
+  getWindow().draw( spinner );
+
+  getWindow().display();
+}
 
 void RenderMenuSystem::render_title()
 {

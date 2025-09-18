@@ -10,7 +10,10 @@ namespace ProceduralMaze::Sys {
 RenderGameSystem::RenderGameSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
     : RenderSystem( reg )
 {
+}
 
+void RenderGameSystem::init_views()
+{
   // init local view dimensions
   m_local_view =
       sf::View( { kLocalMapViewSize.x * 0.5f, kLocalMapViewSize.y * 0.5f }, kLocalMapViewSize );
@@ -21,6 +24,9 @@ RenderGameSystem::RenderGameSystem( std::shared_ptr<entt::basic_registry<entt::e
       { kDisplaySize.x * 0.5f, kDisplaySize.y * 0.5f },
       { kDisplaySize.x * kMiniMapViewZoomFactor, kDisplaySize.y * kMiniMapViewZoomFactor } );
   m_minimap_view.setViewport( sf::FloatRect( { 0.75f, 0.f }, { 0.25f, 0.25f } ) );
+
+  update_view_center( m_local_view, Cmp::Position{ PLAYER_START_POS }, kStartGameSmoothFactor );
+  update_view_center( m_minimap_view, Cmp::Position{ PLAYER_START_POS }, kStartGameSmoothFactor );
 }
 
 void RenderGameSystem::render_game( sf::Time deltaTime )

@@ -18,14 +18,8 @@ public:
 
   // Entry point for class
   void render_game( sf::Time deltaTime );
+  void init_views();
   void load_multisprites();
-
-  // Reset both views to the player start position
-  void reset_views()
-  {
-    update_view_center( m_local_view, Cmp::Position{ PLAYER_START_POS }, kStartGameSmoothFactor );
-    update_view_center( m_minimap_view, Cmp::Position{ PLAYER_START_POS }, kStartGameSmoothFactor );
-  }
 
 private:
   void render_floormap( const sf::Vector2f &offset = { 0.f, 0.f } );

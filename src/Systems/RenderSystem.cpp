@@ -9,18 +9,6 @@ RenderSystem::RenderSystem( std::shared_ptr<entt::basic_registry<entt::entity>> 
 
   SPDLOG_INFO( "RenderSystem initialisation starting..." );
 
-  if ( not ImGui::SFML::Init( getWindow() ) )
-  {
-    SPDLOG_CRITICAL( "ImGui-SFML initialization failed" );
-    throw std::runtime_error( "ImGui-SFML initialization failed" );
-  }
-
-  // Set ImGui style
-  ImGuiIO &io = ImGui::GetIO();
-  io.FontGlobalScale = 1.5f;
-  io.IniFilename = "res/imgui.ini";
-  std::ignore = ImGui::SFML::UpdateFontTexture();
-
   SPDLOG_INFO( "RenderSystem initialisation finished" );
 }
 

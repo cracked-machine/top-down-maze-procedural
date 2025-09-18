@@ -23,26 +23,15 @@ Engine::Engine( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
       m_event_handler( m_reg )
 {
 
+  SPDLOG_INFO( "Engine Initiliasing... " );
   m_render_game_sys.window().setFramerateLimit( 144 );
 
 #ifdef _WIN32
   ::ShowWindow( m_render_game_sys.window().getNativeHandle(), SW_MAXIMIZE );
 #endif
 
-  SPDLOG_INFO( "Engine Initiliasing... " );
-
-  // Subscribe to NPC creation/death events
-  std::ignore = Sys::BaseSystem::getEventDispatcher()
-                    .sink<Events::NpcCreationEvent>()
-                    .connect<&Sys::NpcSystem::on_npc_creation>( m_npc_sys );
-  std::ignore = Sys::BaseSystem::getEventDispatcher()
-                    .sink<Events::NpcDeathEvent>()
-                    .connect<&Sys::NpcSystem::on_npc_death>( m_npc_sys );
-  std::ignore = Sys::BaseSystem::getEventDispatcher()
-                    .sink<Events::PlayerActionEvent>()
-                    .connect<&Sys::BombSystem::on_player_action>( m_bomb_sys );
-
-  // Cmp::Random::seed(123456789); // testing purposes
+  // these need to be initialised by the time we get the
+  // Cmp::Persistent::GameState::State::SETTINGS state
   m_event_handler.init_context();
   m_title_music_sys.init_context();
   m_bomb_sys.init_context();
@@ -52,8 +41,18 @@ Engine::Engine( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
   m_npc_sys.init_context();
   m_path_find_sys.init_context();
 
-  m_reg->ctx().emplace<std::shared_ptr<Sprites::SpriteFactory>>( m_sprite_factory );
-  m_render_game_sys.load_multisprites();
+  // setup ImGui here rather than RenderSystem classes to reduce white screen init time
+  if ( not ImGui::SFML::Init( m_render_menu_sys.window() ) )
+  {
+    SPDLOG_CRITICAL( "ImGui-SFML initialization failed" );
+    throw std::runtime_error( "ImGui-SFML initialization failed" );
+  }
+
+  // Set ImGui style
+  ImGuiIO &io = ImGui::GetIO();
+  io.FontGlobalScale = 1.5f;
+  io.IniFilename = "res/imgui.ini";
+  std::ignore = ImGui::SFML::UpdateFontTexture();
 
   SPDLOG_INFO( "Engine Initialisation Complete" );
 }
@@ -75,7 +74,7 @@ bool Engine::run()
       case Cmp::Persistent::GameState::State::MENU: {
 
         // process music playback
-        m_title_music_sys.update_music_playback( Sys::MusicSystem::Function::PLAY );
+        // m_title_music_sys.update_music_playback( Sys::MusicSystem::Function::PLAY );
 
         m_render_menu_sys.render_title();
         m_event_handler.menu_state_handler( m_render_game_sys.window() );
@@ -244,7 +243,22 @@ void Engine::setup()
 {
   reginfo( "Pre-setup" );
 
-  // 2. setup new entities and generate the level
+  // Subscribe to NPC creation/death events
+  std::ignore = Sys::BaseSystem::getEventDispatcher()
+                    .sink<Events::NpcCreationEvent>()
+                    .connect<&Sys::NpcSystem::on_npc_creation>( m_npc_sys );
+  std::ignore = Sys::BaseSystem::getEventDispatcher()
+                    .sink<Events::NpcDeathEvent>()
+                    .connect<&Sys::NpcSystem::on_npc_death>( m_npc_sys );
+  std::ignore = Sys::BaseSystem::getEventDispatcher()
+                    .sink<Events::PlayerActionEvent>()
+                    .connect<&Sys::BombSystem::on_player_action>( m_bomb_sys );
+
+  // Cmp::Random::seed(123456789); // testing purposes
+
+  m_reg->ctx().emplace<std::shared_ptr<Sprites::SpriteFactory>>( m_sprite_factory );
+
+  m_render_game_sys.load_multisprites();
   add_system_entity();
   m_player_sys.add_player_entity();
   m_flood_sys.add_flood_water_entity();
@@ -260,7 +274,7 @@ void Engine::setup()
 
   // Reset the views early to prevent wild panning back to the start
   // position when the game starts rendering
-  m_render_game_sys.reset_views();
+  m_render_game_sys.init_views();
 
   reginfo( "Post-setup" );
 }
