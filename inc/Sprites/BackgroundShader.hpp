@@ -26,8 +26,7 @@ public:
   void post_setup_shader() override {}
   void update() override { /* unused */ }
 
-  void update( sf::Vector2f kDisplaySize,
-               sf::Vector2f kMapGridOffset,
+  void update( sf::Vector2f kMapGridOffset,
                float intensity,
                float windStrength,
                float waveAmplitude,
@@ -36,9 +35,10 @@ public:
 
     m_shader.setUniform( "time", m_clock.getElapsedTime().asSeconds() );
     m_shader.setUniform( "sandIntensity", intensity );
-    m_shader.setUniform( "screenSize",
-                         sf::Vector2f( static_cast<float>( kDisplaySize.x ),
-                                       static_cast<float>( kDisplaySize.y ) ) );
+    m_shader.setUniform(
+        "screenSize",
+        sf::Vector2f{
+            m_render_texture.getSize() } ); // Assuming m_render_texture is your render texture
     m_shader.setUniform(
         "worldPosition",
         sf::Vector2f{ 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );

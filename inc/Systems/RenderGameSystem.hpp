@@ -6,6 +6,7 @@
 #include <RenderOverlaySystem.hpp>
 #include <SFML/System/Time.hpp>
 
+#include <SFML/System/Vector2.hpp>
 #include <Systems/RenderSystem.hpp>
 
 namespace ProceduralMaze::Sys {
@@ -50,7 +51,8 @@ private:
 
   // Shaders
   Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", kDisplaySize };
-  Sprites::BackgroundShader m_sand_shader{ "res/shaders/CellularSand.frag", kDisplaySize };
+  Sprites::BackgroundShader m_sand_shader{ "res/shaders/CellularSand.frag",
+                                           sf::Vector2u{ kLocalMapViewSize } };
 
   // Sprites
   Sprites::Containers::TileMap m_floormap;

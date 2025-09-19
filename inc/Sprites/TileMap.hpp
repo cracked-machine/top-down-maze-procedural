@@ -120,6 +120,7 @@ public:
     target.draw( m_vertices, states );
   }
 
+  // Draw the tile map to the render target (with optional state for shader)
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override
   {
     // apply the transform

@@ -47,18 +47,47 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
     // world
     getWindow().setView( m_local_view );
     {
+      sf::Vector2f player_position{ 0.f, 0.f };
 
+      // move the local view position to equal the player position
+
+      for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
+      {
+        if ( _sys.player_stuck )
+        {
+          // reset the center if player is stuck
+          m_local_view.setCenter( { kLocalMapViewSize.x * 0.5f, kDisplaySize.y * 0.5f } );
+          _sys.player_stuck = false;
+        }
+        else
+        {
+          for ( auto [entity, _pc, _pos] :
+                m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+          {
+            player_position = _pos;
+            update_view_center( m_local_view, _pos );
+          }
+        }
+      }
+
+      // This is a bit confusing: (for performance reasons) we want the sand shader to only process
+      // the viewable area, not the entire game map. The steps to achieve this are:
+      // 1. set the shaders internal render texture view to match the local view
+      // 2. draw the floormap to the shader's render texture
+      // 3. update the shader with its uniform parameters for processing
+      // 4. set the shader sprite to match the local view relative to the player position
+      // and draw the shader to the main window
+      m_sand_shader.set_texture_view( m_local_view ); // Update the shader's render texture view
       m_floormap.draw( m_sand_shader.get_render_texture(), sf::RenderStates::Default );
-      m_sand_shader.update(
-          sf::Vector2f{ kDisplaySize },
-          sf::Vector2f{ 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y },
-          1.0f,
-          0.01f,
-          3.0f,
-          1.0f ); // Add time scale parameter (0.2 = 5x slower)
-
+      m_sand_shader.update( m_local_view.getCenter(),
+                            1.0f,
+                            0.01f,
+                            3.0f,
+                            1.0f ); // Add time scale parameter (0.2 = 5x slower)
+      m_sand_shader.set_position( m_local_view.getCenter() - kLocalMapViewSize * 0.5f );
       getWindow().draw( m_sand_shader );
 
+      // now draw everything else on top of the sand shader
       render_obstacles();
       render_armed();
       render_loot();
@@ -68,27 +97,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
       render_explosions( deltaTime );
       render_flood_waters();
       render_player_distances_on_npc();
-      // render_npc_distances_on_obstacles();
       render_player_distances_on_obstacles();
-
-      // move the local view position to equal the player position
-      // reset the center if player is stuck
-      for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
-      {
-        if ( _sys.player_stuck )
-        {
-          m_local_view.setCenter( { kLocalMapViewSize.x * 0.5f, kDisplaySize.y * 0.5f } );
-          _sys.player_stuck = false;
-        }
-        else
-        {
-          for ( auto [entity, _pc, _pos] :
-                m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
-          {
-            update_view_center( m_local_view, _pos );
-          }
-        }
-      }
     }
     // local view end
 
