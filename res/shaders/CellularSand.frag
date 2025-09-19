@@ -17,8 +17,8 @@
 
 uniform sampler2D texture;
 uniform float time;
-uniform float sandIntensity;
 uniform vec2 screenSize;
+uniform float sandIntensity;
 uniform float timeScale;     // Add this uniform
 uniform float waveAmplitude; // Wave influence amplitude
 

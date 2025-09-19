@@ -2,12 +2,12 @@
 
 uniform sampler2D texture;
 uniform float time;
-uniform float sandIntensity;
-uniform vec2 screenSize;
-uniform vec2 worldPosition; // New uniform for world position offset
 
 // pseudo-random noise using a hash function
-float noise( vec2 st ) { return fract( sin( dot( st.xy, vec2( 12.9898, 78.233 ) ) ) * 43758.5453123 ); }
+float noise( vec2 st )
+{
+  return fract( sin( dot( st.xy, vec2( 12.9898, 78.233 ) ) ) * 43758.5453123 );
+}
 
 // Bilinear interpolation between noise values for smooth transitions
 float smoothNoise( vec2 st )
@@ -36,7 +36,6 @@ void main()
   float pulse = sin( time * 2.0 ) * 0.5 + 0.5;
   color.b += pulse * 0.2;
 
-  // Simple noise that doesn't depend on worldPosition
   vec2 simpleCoord = texCoord * 50.0 + time * 0.1;
   float simpleNoise = noise( simpleCoord );
 

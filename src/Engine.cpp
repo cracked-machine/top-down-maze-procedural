@@ -24,7 +24,8 @@ Engine::Engine( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
 {
 
   SPDLOG_INFO( "Engine Initiliasing... " );
-  m_render_game_sys.window().setFramerateLimit( 144 );
+  m_render_game_sys.window().setVerticalSyncEnabled( true );
+  // m_render_game_sys.window().setFramerateLimit( 144 );
 
 #ifdef _WIN32
   ::ShowWindow( m_render_game_sys.window().getNativeHandle(), SW_MAXIMIZE );

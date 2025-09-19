@@ -1,3 +1,4 @@
+#include <MultiSprite.hpp>
 #include <NpcDeathPosition.hpp>
 #include <Position.hpp>
 #include <RenderSystem.hpp>
@@ -70,37 +71,22 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
         }
       }
 
-      // This is a bit confusing: (for performance reasons) we want the sand shader to only process
-      // the viewable area, not the entire game map. The steps to achieve this are:
-      // 1. set the shaders internal render texture view to match the local view
-      // 2. draw the floormap to the shader's render texture
-      // 3. update the shader with its uniform parameters for processing
-      // 4. set the shader sprite to match the local view relative to the player position
-      // and draw the shader to the main window
-      m_sand_shader.set_texture_view( m_local_view ); // Update the shader's render texture view
-      m_floormap.draw( m_sand_shader.get_render_texture(), sf::RenderStates::Default );
+      render_floormap( { 0, 0 } );
+
+      m_sand_storm_shader.update_shader_view_and_position( { 0, 0 },
+                                                           ViewFragmentShader::Align::TOPLEFT );
+      m_floormap.draw( m_sand_storm_shader.get_render_texture(), sf::RenderStates::Default );
 
       UniformBuilder builder;
-      builder.set( "time", m_sand_shader.getElapsedTime().asSeconds() )
-          .set( "screenSize", sf::Vector2f{ m_sand_shader.get_render_texture().getSize() } )
-          .set( "mapGridOffset", m_local_view.getCenter() )
+      builder.set( "time", m_sand_storm_shader.getElapsedTime().asSeconds() )
+          .set( "screenSize", sf::Vector2f{ m_sand_storm_shader.get_render_texture().getSize() } )
           .set( "sandIntensity", 1.0f )
           .set( "windStrength", 0.01f )
           .set( "waveAmplitude", 3.0f )
           .set( "timeScale", 1.0f );
+      m_sand_storm_shader.Sprites::BaseFragmentShader::update( builder );
 
-      m_sand_shader.Sprites::BaseFragmentShader::update( builder );
-      // m_sand_shader.Sprites::BaseFragmentShader::update(
-      //     { { "time", m_sand_shader.getElapsedTime().asSeconds() },
-      //       { "screenSize", sf::Vector2f{ m_sand_shader.get_render_texture().getSize() } },
-      //       { "mapGridOffset", m_local_view.getCenter() },
-      //       { "sandIntensity", 1.0f },
-      //       { "windStrength", 0.01f },
-      //       { "waveAmplitude", 3.0f },
-      //       { "timeScale", 1.0f } } );
-
-      m_sand_shader.set_position( m_local_view.getCenter() - kLocalMapViewSize * 0.5f );
-      getWindow().draw( m_sand_shader );
+      getWindow().draw( m_sand_storm_shader );
 
       // now draw everything else on top of the sand shader
       render_obstacles();
@@ -154,7 +140,6 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
     // player moves)
     getWindow().setView( getWindow().getDefaultView() );
     {
-
       auto minimap_border = sf::RectangleShape( {
           getWindow().getSize().x * kMiniMapViewZoomFactor, // 25% of screen width
           getWindow().getSize().y * kMiniMapViewZoomFactor  // 25% of screen height
@@ -190,8 +175,6 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
 
 void RenderGameSystem::render_floormap( const sf::Vector2f &offset )
 {
-  // Update sand shader with current parameters
-  m_floormap.update( 0.8f, kDisplaySize ); // Adjust intensity as needed
   m_floormap.setPosition( offset );
   getWindow().draw( m_floormap );
 }

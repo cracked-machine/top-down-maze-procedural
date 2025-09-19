@@ -2,8 +2,8 @@
 
 uniform sampler2D texture;
 uniform float time;
-uniform float sandIntensity;
 uniform vec2 screenSize;
+uniform float sandIntensity;
 uniform float timeScale;
 
 // Simple hash function
@@ -18,7 +18,7 @@ void main()
   vec4 originalColor = texture2D( texture, texCoord );
 
   // Simple grain pattern - much less computation
-  float grain = hash( floor( worldPos * 0.5 + time * timeScale ) );
+  float grain = hash( floor( worldPos + time * timeScale ) );
 
   // Simple color variation
   float brightness = 0.9 + grain * 0.2;

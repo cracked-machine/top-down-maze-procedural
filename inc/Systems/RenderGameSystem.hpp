@@ -8,6 +8,7 @@
 
 #include <SFML/System/Vector2.hpp>
 #include <Systems/RenderSystem.hpp>
+#include <ViewFragmentShader.hpp>
 
 namespace ProceduralMaze::Sys {
 
@@ -51,11 +52,8 @@ private:
 
   // Shaders
   Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", kDisplaySize };
-  Sprites::BackgroundShader m_sand_shader{ "res/shaders/CellularSand.frag",
-                                           sf::Vector2u{ kLocalMapViewSize } };
 
-  // Sprites::BackgroundShader m_sand_shader_simpler{ "res/shaders/SimplerSandShader.frag",
-  //                                                  sf::Vector2u{ kLocalMapViewSize } };
+  Sprites::ViewFragmentShader m_sand_storm_shader{ "res/shaders/CellularSand.frag", kDisplaySize };
 
   // Sprites
   Sprites::Containers::TileMap m_floormap;

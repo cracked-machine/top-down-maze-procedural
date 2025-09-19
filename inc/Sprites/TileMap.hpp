@@ -24,9 +24,6 @@ public:
       SPDLOG_CRITICAL( "Unable to load tile map {}", m_tile_file.string() );
       std::terminate();
     }
-
-    load_shader();
-    SPDLOG_INFO( "TileMap initialized with shader {}", m_shader_path.string() );
   }
 
   bool load( const std::filesystem::path &tileset,
@@ -78,36 +75,6 @@ public:
     return true;
   }
 
-  void load_shader()
-  {
-    if ( !std::filesystem::exists( m_shader_path ) )
-    {
-      SPDLOG_CRITICAL( "Shader file does not exist: {}", m_shader_path.string() );
-      throw std::filesystem::filesystem_error(
-          "Shader file does not exist",
-          m_shader_path,
-          std::make_error_code( std::errc::no_such_file_or_directory ) );
-    }
-    SPDLOG_INFO( "Loading shader from {}", m_shader_path.string() );
-    if ( !m_shader.loadFromFile( m_shader_path.string(), sf::Shader::Type::Fragment ) )
-    {
-      SPDLOG_CRITICAL( "Failed to load shader {}", m_shader_path.string() );
-      throw std::runtime_error( "Failed to load shader: " + m_shader_path.string() );
-    }
-    SPDLOG_INFO( "Shader {} loaded successfully", m_shader_path.string() );
-  }
-
-  void update( float intensity, sf::Vector2u windowSize )
-  {
-    m_shader.setUniform( "time", m_clock.getElapsedTime().asSeconds() );
-    m_shader.setUniform( "sandIntensity", intensity );
-
-    // Pass the actual window size to the shader
-    m_shader.setUniform(
-        "screenSize",
-        sf::Vector2f( static_cast<float>( windowSize.x ), static_cast<float>( windowSize.y ) ) );
-  }
-
   // New method to draw with shader
   void drawWithShader( sf::RenderTarget &target, const sf::Vector2f &position = { 0.f, 0.f } ) const
   {
@@ -115,7 +82,6 @@ public:
     states.transform *= getTransform();
     states.transform.translate( position );
     states.texture = &m_tileset;
-    states.shader = &m_shader;
 
     target.draw( m_vertices, states );
   }
@@ -144,9 +110,6 @@ private:
   std::vector<uint32_t> m_floortile_choices;
 
   std::filesystem::path m_tile_file{ "res/textures/tilemap_packed.png" };
-
-  std::filesystem::path m_shader_path{ "res/shaders/ShiftingSand.frag" };
-  sf::Shader m_shader;
 
   sf::Clock m_clock{};
 };
