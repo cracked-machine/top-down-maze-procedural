@@ -9,24 +9,71 @@
 #include <SFML/System/Vector2.hpp>
 #include <filesystem>
 
+#include <map>
 #include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sprites {
-// The shader draws to the render texture which is then applied to the sprite
-// When you call draw on this class it draws the sprite with the shader applied
-// to the given render target
-// Builder class that handles the setup and rendering of sprite shaders
-// You must override the following functions:
-// - `pre_setup`:     Handles texture pre-render initialization.
-//                  Extra arguments should be passed to the derived class
-//                  constructor and stored as members.
-// - `post_setup`:    Handles texture post-initialization.
-//                  Extra arguments should be passed to the derived class
-//                  constructor and stored as members.
-// - `update`:        Handles runtime updates. The base class does not call this
-// function so you must call it
-//                  from your game loop. Add more functions to your derived
-//                  class if you need them.
+
+/**
+ * @class UniformBuilder
+ * @brief A builder class for setting multiple shader uniforms in a chainable manner.
+ *
+ * The UniformBuilder class provides a fluent interface for setting shader uniforms
+ * before applying them all at once to an sf::Shader object. It supports various
+ * data types and provides special handling for sf::Color objects by converting
+ * them to normalized Vec4 values.
+ *
+ * @details The class uses a function composition pattern to build up a series
+ * of uniform assignments that are executed when apply() is called. Each call
+ * to set() chains the new uniform assignment with the previous ones.
+ *
+ * Special type handling:
+ * - sf::Color: Automatically converts RGBA values from 0-255 range to 0.0-1.0 range
+ * - Other types: Passed directly to sf::Shader::setUniform()
+ *
+ * @example
+ * UniformBuilder builder;
+ * builder.set("color", sf::Color::Red)
+ *        .set("time", 1.5f)
+ *        .set("position", sf::Vector2f(10.0f, 20.0f))
+ *        .apply(shader);
+ */
+class UniformBuilder
+{
+private:
+  std::function<void( sf::Shader & )> m_apply;
+
+public:
+  template <typename T> UniformBuilder &set( const std::string &name, const T &value )
+  {
+    auto oldApply = std::move( m_apply );
+
+    if constexpr ( std::is_same_v<T, sf::Color> )
+    {
+      m_apply = [oldApply, name, value]( sf::Shader &shader ) {
+        if ( oldApply ) oldApply( shader );
+        shader.setUniform(
+            name,
+            sf::Glsl::Vec4(
+                value.r / 255.0f, value.g / 255.0f, value.b / 255.0f, value.a / 255.0f ) );
+      };
+    }
+    else
+    {
+      m_apply = [oldApply, name, value]( sf::Shader &shader ) {
+        if ( oldApply ) oldApply( shader );
+        shader.setUniform( name, value );
+      };
+    }
+    return *this;
+  }
+
+  void apply( sf::Shader &shader )
+  {
+    if ( m_apply ) m_apply( shader );
+  }
+};
+
 /**
  * @brief Abstract base class for fragment shader-based drawable objects in SFML.
  *
@@ -104,6 +151,37 @@ public:
    */
   virtual void update() = 0;
 
+  void update( UniformBuilder &builder ) { builder.apply( m_shader ); }
+
+  using UniformValue = std::variant<float, int, sf::Vector2f, sf::Vector3f, sf::Color>;
+  void update( const std::map<std::string, UniformValue> &uniforms )
+  {
+    for ( const auto &[name, value] : uniforms )
+    {
+      std::visit(
+          [&]( const auto &val ) {
+            using T = std::decay_t<decltype( val )>;
+            if constexpr ( std::is_same_v<T, float> ) { m_shader.setUniform( name, val ); }
+            else if constexpr ( std::is_same_v<T, int> ) { m_shader.setUniform( name, val ); }
+            else if constexpr ( std::is_same_v<T, sf::Vector2f> )
+            {
+              m_shader.setUniform( name, val );
+            }
+            else if constexpr ( std::is_same_v<T, sf::Vector3f> )
+            {
+              m_shader.setUniform( name, val );
+            }
+            else if constexpr ( std::is_same_v<T, sf::Color> )
+            {
+              m_shader.setUniform(
+                  name,
+                  sf::Glsl::Vec4(
+                      val.r / 255.0f, val.g / 255.0f, val.b / 255.0f, val.a / 255.0f ) );
+            }
+          },
+          value );
+    }
+  }
   /**
    * @brief Initializes and configures the base fragment shader.
    *

@@ -54,6 +54,9 @@ private:
   Sprites::BackgroundShader m_sand_shader{ "res/shaders/CellularSand.frag",
                                            sf::Vector2u{ kLocalMapViewSize } };
 
+  // Sprites::BackgroundShader m_sand_shader_simpler{ "res/shaders/SimplerSandShader.frag",
+  //                                                  sf::Vector2u{ kLocalMapViewSize } };
+
   // Sprites
   Sprites::Containers::TileMap m_floormap;
 

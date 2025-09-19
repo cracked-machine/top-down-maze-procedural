@@ -79,11 +79,26 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
       // and draw the shader to the main window
       m_sand_shader.set_texture_view( m_local_view ); // Update the shader's render texture view
       m_floormap.draw( m_sand_shader.get_render_texture(), sf::RenderStates::Default );
-      m_sand_shader.update( m_local_view.getCenter(),
-                            1.0f,
-                            0.01f,
-                            3.0f,
-                            1.0f ); // Add time scale parameter (0.2 = 5x slower)
+
+      UniformBuilder builder;
+      builder.set( "time", m_sand_shader.getElapsedTime().asSeconds() )
+          .set( "screenSize", sf::Vector2f{ m_sand_shader.get_render_texture().getSize() } )
+          .set( "mapGridOffset", m_local_view.getCenter() )
+          .set( "sandIntensity", 1.0f )
+          .set( "windStrength", 0.01f )
+          .set( "waveAmplitude", 3.0f )
+          .set( "timeScale", 1.0f );
+
+      m_sand_shader.Sprites::BaseFragmentShader::update( builder );
+      // m_sand_shader.Sprites::BaseFragmentShader::update(
+      //     { { "time", m_sand_shader.getElapsedTime().asSeconds() },
+      //       { "screenSize", sf::Vector2f{ m_sand_shader.get_render_texture().getSize() } },
+      //       { "mapGridOffset", m_local_view.getCenter() },
+      //       { "sandIntensity", 1.0f },
+      //       { "windStrength", 0.01f },
+      //       { "waveAmplitude", 3.0f },
+      //       { "timeScale", 1.0f } } );
+
       m_sand_shader.set_position( m_local_view.getCenter() - kLocalMapViewSize * 0.5f );
       getWindow().draw( m_sand_shader );
 
