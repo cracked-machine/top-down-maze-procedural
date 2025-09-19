@@ -12,6 +12,44 @@
 
 namespace ProceduralMaze::Sprites {
 
+//  Usage example:
+//
+//  // create a ViewFragmentShader instance with a shader and view size of 64x64
+//  ViewFragmentShader view_shader("path/to/shader.frag", sf::Vector2u(64, 64));
+//
+//  // update the shader view and position to center at (400, 300)
+//  view_shader.update_shader_view_and_position(
+//      sf::Vector2f(400, 300),
+//      ViewFragmentShader::Align::CENTER);
+//
+//  // Draw something sf::Drawable to the shaders render texture to be post-processed.
+//  my_drawable_thing.draw(view_shader.get_render_texture(), sf::RenderStates::Default);
+//
+//  // finally draw the shader effect to the main window
+//  window.draw(view_shader);
+
+/**
+ * @class ViewFragmentShader
+ * @brief A fragment shader implementation that provides view-based rendering capabilities.
+ *
+ * ViewFragmentShader extends BaseFragmentShader to add view management functionality,
+ * allowing for dynamic positioning and alignment of shader effects within a texture.
+ * This class is particularly useful for rendering effects that need to be positioned
+ * relative to a specific view or camera in a 2D graphics application.
+ *
+ * The class maintains an internal sf::View object that can be updated with different
+ * positions and alignment modes, providing flexibility in how shader effects are
+ * applied to the render texture.
+ *
+ * Key features:
+ * - View-based positioning with CENTER and TOPLEFT alignment options
+ * - Automatic coordinate conversion between alignment modes
+ * - Access to elapsed time for time-based shader effects
+ * - Integration with SFML's view system for consistent rendering
+ *
+ * @note This class requires SFML graphics library and inherits from BaseFragmentShader.
+ * @see BaseFragmentShader
+ */
 class ViewFragmentShader : public BaseFragmentShader
 {
 public:
