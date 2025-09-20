@@ -89,21 +89,16 @@ protected:
    * @param outline_color Optional color for the text outline (default: Transparent). Outline
    * thickness is 0.f if set to Transparent.
    */
-  void render_text( std::string text,
-                    unsigned int size,
-                    sf::Vector2f position,
-                    Alignment align,
-                    float padding = 10.f,
-                    sf::Color fill_color = sf::Color::White,
-                    sf::Color outline_color = sf::Color::Transparent );
+  void render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align, float padding = 10.f,
+                    sf::Color fill_color = sf::Color::White, sf::Color outline_color = sf::Color::Transparent );
 
   // Derived class accessor for the static window instance
   static sf::RenderWindow &getWindow()
   {
     if ( !RenderSystem::m_window )
     {
-      RenderSystem::m_window = std::make_unique<sf::RenderWindow>(
-          sf::VideoMode( kDisplaySize ), "ProceduralMaze", sf::State::Fullscreen );
+      RenderSystem::m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( kDisplaySize ), "ProceduralMaze",
+                                                                   sf::State::Fullscreen );
     }
     return *RenderSystem::m_window;
   }

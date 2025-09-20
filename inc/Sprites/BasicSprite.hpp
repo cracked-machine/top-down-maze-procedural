@@ -13,10 +13,7 @@ class BasicSprite
 public:
   BasicSprite( const std::string &texture_path )
   {
-    if ( !m_texture.loadFromFile( texture_path ) )
-    {
-      SPDLOG_CRITICAL( "Unable to load tile map {}", texture_path );
-    }
+    if ( !m_texture.loadFromFile( texture_path ) ) { SPDLOG_CRITICAL( "Unable to load tile map {}", texture_path ); }
     m_texture.setSmooth( true );
   }
 

@@ -9,7 +9,7 @@
 
 namespace ProceduralMaze::Cmp {
 
-// Coordinate
+// {1,0} right, {-1,0} left, {0,-1} up, {0,1} down
 class Direction : public sf::Vector2f
 {
 public:

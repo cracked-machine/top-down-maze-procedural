@@ -11,8 +11,7 @@ class MusicSystem : public BaseSystem
 {
 
 public:
-  MusicSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg,
-               std::filesystem::path music_path );
+  MusicSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg, std::filesystem::path music_path );
 
   void init_context();
 

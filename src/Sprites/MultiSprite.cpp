@@ -13,10 +13,7 @@ bool MultiSprite::pick( std::size_t idx, const std::string &caller )
 
   if ( idx >= m_va_list.size() )
   {
-    SPDLOG_WARN( "{}: pick() index {} out of range (size: {}), using index 0",
-                 caller,
-                 idx,
-                 m_va_list.size() );
+    SPDLOG_WARN( "{}: pick() index {} out of range (size: {}), using index 0", caller, idx, m_va_list.size() );
     idx = 0;
   }
 
@@ -24,8 +21,7 @@ bool MultiSprite::pick( std::size_t idx, const std::string &caller )
   return true;
 }
 
-bool MultiSprite::add_sprite( const std::filesystem::path &tilemap_path,
-                              const std::vector<uint32_t> &tilemap_picks )
+bool MultiSprite::add_sprite( const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks )
 {
   if ( tilemap_picks.empty() )
   {
@@ -54,27 +50,25 @@ bool MultiSprite::add_sprite( const std::filesystem::path &tilemap_path,
     current_va[4].position = sf::Vector2f( DEFAULT_SPRITE_SIZE.x, 0 );
     current_va[5].position = sf::Vector2f( DEFAULT_SPRITE_SIZE.x, DEFAULT_SPRITE_SIZE.y );
 
-    current_va[0].texCoords =
-        sf::Vector2f( tu * DEFAULT_SPRITE_SIZE.x, tv * DEFAULT_SPRITE_SIZE.y );
-    current_va[1].texCoords =
-        sf::Vector2f( ( tu + 1 ) * DEFAULT_SPRITE_SIZE.x, tv * DEFAULT_SPRITE_SIZE.y );
-    current_va[2].texCoords =
-        sf::Vector2f( tu * DEFAULT_SPRITE_SIZE.x, ( tv + 1 ) * DEFAULT_SPRITE_SIZE.y );
-    current_va[3].texCoords =
-        sf::Vector2f( tu * DEFAULT_SPRITE_SIZE.x, ( tv + 1 ) * DEFAULT_SPRITE_SIZE.y );
-    current_va[4].texCoords =
-        sf::Vector2f( ( tu + 1 ) * DEFAULT_SPRITE_SIZE.x, tv * DEFAULT_SPRITE_SIZE.y );
-    current_va[5].texCoords =
-        sf::Vector2f( ( tu + 1 ) * DEFAULT_SPRITE_SIZE.x, ( tv + 1 ) * DEFAULT_SPRITE_SIZE.y );
+    current_va[0].texCoords = sf::Vector2f( tu * DEFAULT_SPRITE_SIZE.x, tv * DEFAULT_SPRITE_SIZE.y );
+    current_va[1].texCoords = sf::Vector2f( ( tu + 1 ) * DEFAULT_SPRITE_SIZE.x, tv * DEFAULT_SPRITE_SIZE.y );
+    current_va[2].texCoords = sf::Vector2f( tu * DEFAULT_SPRITE_SIZE.x, ( tv + 1 ) * DEFAULT_SPRITE_SIZE.y );
+    current_va[3].texCoords = sf::Vector2f( tu * DEFAULT_SPRITE_SIZE.x, ( tv + 1 ) * DEFAULT_SPRITE_SIZE.y );
+    current_va[4].texCoords = sf::Vector2f( ( tu + 1 ) * DEFAULT_SPRITE_SIZE.x, tv * DEFAULT_SPRITE_SIZE.y );
+    current_va[5].texCoords = sf::Vector2f( ( tu + 1 ) * DEFAULT_SPRITE_SIZE.x, ( tv + 1 ) * DEFAULT_SPRITE_SIZE.y );
     SPDLOG_TRACE( "  - Added tile index {} (tu={},tv={})", tile_idx, tu, tv );
 
     m_va_list.push_back( current_va );
   }
-  SPDLOG_INFO( "Requested {} tiles ... Created {} sprites from texture {}: ",
-               tilemap_picks.size(),
-               m_va_list.size(),
+  SPDLOG_INFO( "Requested {} tiles ... Created {} sprites from texture {}: ", tilemap_picks.size(), m_va_list.size(),
                tilemap_path.string() );
   return true;
+}
+
+void MultiSprite::set_pick_opacity( uint8_t alpha )
+{
+  for ( std::size_t idx = 0; idx < m_selected_vertices.getVertexCount(); ++idx )
+    m_selected_vertices[idx].color.a = alpha;
 }
 
 void MultiSprite::draw( sf::RenderTarget &target, sf::RenderStates states ) const

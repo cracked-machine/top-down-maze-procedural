@@ -136,10 +136,7 @@ bool Engine::run()
             {
               m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::PLAY );
             }
-            else
-            {
-              m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
-            }
+            else { m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP ); }
           }
         }
 
@@ -171,10 +168,7 @@ bool Engine::run()
         // did the player drown? Then end the game
         for ( auto [_, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
         {
-          if ( not _pc.alive )
-          {
-            game_state.current_state = Cmp::Persistent::GameState::State::GAMEOVER;
-          }
+          if ( not _pc.alive ) { game_state.current_state = Cmp::Persistent::GameState::State::GAMEOVER; }
         }
 
         m_render_game_sys.render_game( deltaTime );
@@ -266,8 +260,8 @@ void Engine::setup()
   add_display_size( sf::Vector2u{ 1920, 1024 } );
 
   // create initial random game area with the required sprites
-  std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level =
-      std::make_unique<Sys::ProcGen::RandomLevelGenerator>( m_reg );
+  std::unique_ptr<Sys::ProcGen::RandomLevelGenerator>
+      random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>( m_reg );
 
   // procedurally generate the game area from the initial random layout
   Sys::ProcGen::CellAutomataSystem cellauto_parser{ m_reg, std::move( random_level ) };

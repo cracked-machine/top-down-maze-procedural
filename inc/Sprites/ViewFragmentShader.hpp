@@ -47,7 +47,8 @@ namespace ProceduralMaze::Sprites {
  * - Access to elapsed time for time-based shader effects
  * - Integration with SFML's view system for consistent rendering
  *
- * @note ViewFragmentShader manages its own internal view. Therefore, your shader should:
+ * @note ViewFragmentShader manages its own internal view.
+ * Therefore, your shader should follow these rules:
  * 1. Always center at (0.5, 0.5) in texture coordinate space
  * 2. Convert from world units to texture coordinate units using a "screen size" uniform
  * 3. Work entirely in texture space rather than trying to use world coordinates

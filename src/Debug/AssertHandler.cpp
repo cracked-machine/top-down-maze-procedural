@@ -65,15 +65,8 @@ void stack_trace( void )
   for ( size_t i = 0; i < 25; i++ )
   {
 
-    BOOL result = StackWalk64( image,
-                               process,
-                               thread,
-                               &stackframe,
-                               &context,
-                               NULL,
-                               SymFunctionTableAccess64,
-                               SymGetModuleBase64,
-                               NULL );
+    BOOL result = StackWalk64( image, process, thread, &stackframe, &context, NULL, SymFunctionTableAccess64,
+                               SymGetModuleBase64, NULL );
 
     if ( !result ) { break; }
 

@@ -39,7 +39,8 @@ public:
     CHAIN_BOMBS = 10,
     LOWER_WATER = 11,
     NPC = 12,
-    EXPLOSION = 13
+    EXPLOSION = 13,
+    FOOTSTEPS = 14
   };
 
 private:
@@ -55,64 +56,32 @@ private:
 
   // list declaring multisprite instance and their associated metadata
   std::vector<SpriteMetaData> m_sprite_metadata_list = {
-      { SpriteFactory::SpriteMetaType::WALL,
-        "WALL",
-        1.f,
+      { SpriteFactory::SpriteMetaType::WALL, "WALL", 1.f,
         MultiSprite{ "res/textures/walls_and_doors.png", { 0, 1, 2, 3, 4, 5, 6 } } },
-      { SpriteFactory::SpriteMetaType::ROCK,
-        "ROCK",
-        40.f,
-        MultiSprite{ "res/textures/objects.png", { 147, 148 } } },
-      { SpriteFactory::SpriteMetaType::POT,
-        "POT",
-        1.f,
-        MultiSprite{ "res/textures/objects.png", { 337, 339, 341 } } },
-      { SpriteFactory::SpriteMetaType::BONES,
-        "BONES",
-        1.f,
-        MultiSprite{ "res/textures/objects.png", { 270, 271 } } },
-      { SpriteFactory::SpriteMetaType::NPC,
-        "NPC",
-        1.f,
+      { SpriteFactory::SpriteMetaType::ROCK, "ROCK", 40.f, MultiSprite{ "res/textures/objects.png", { 147, 148 } } },
+      { SpriteFactory::SpriteMetaType::POT, "POT", 1.f, MultiSprite{ "res/textures/objects.png", { 337, 339, 341 } } },
+      { SpriteFactory::SpriteMetaType::BONES, "BONES", 1.f, MultiSprite{ "res/textures/objects.png", { 270, 271 } } },
+      { SpriteFactory::SpriteMetaType::NPC, "NPC", 1.f,
         MultiSprite{ "res/textures/tilemap_packed.png", { 108, 121, 111 } } },
-      { SpriteFactory::SpriteMetaType::DETONATED,
-        "DETONATED",
-        1.f,
+      { SpriteFactory::SpriteMetaType::DETONATED, "DETONATED", 1.f,
         MultiSprite{ "res/textures/tilemap_packed.png", { 42 } } },
-      { SpriteFactory::SpriteMetaType::PLAYER,
-        "PLAYER",
-        1.f,
-        MultiSprite{ "res/textures/tilemap_packed.png",
-                     { 84, 85, 86, 87, 88, 96, 97, 98, 99, 100 } } },
-      { SpriteFactory::SpriteMetaType::BOMB,
-        "BOMB",
-        1.f,
-        MultiSprite{ "res/textures/bomb.png", { 0 } } },
-      { SpriteFactory::SpriteMetaType::EXTRA_HEALTH,
-        "EXTRA_HEALTH",
-        30.f,
+      { SpriteFactory::SpriteMetaType::PLAYER, "PLAYER", 1.f,
+        MultiSprite{ "res/textures/tilemap_packed.png", { 84, 85, 86, 87, 88, 96, 97, 98, 99, 100 } } },
+      { SpriteFactory::SpriteMetaType::BOMB, "BOMB", 1.f, MultiSprite{ "res/textures/bomb.png", { 0 } } },
+      { SpriteFactory::SpriteMetaType::EXTRA_HEALTH, "EXTRA_HEALTH", 30.f,
         MultiSprite{ "res/textures/objects.png", { 32 } } },
-      { SpriteFactory::SpriteMetaType::EXTRA_BOMBS,
-        "EXTRA_BOMBS",
-        40.f,
+      { SpriteFactory::SpriteMetaType::EXTRA_BOMBS, "EXTRA_BOMBS", 40.f,
         MultiSprite{ "res/textures/objects.png", { 67 } } },
-      { SpriteFactory::SpriteMetaType::INFINI_BOMBS,
-        "INFINI_BOMBS",
-        1.f,
+      { SpriteFactory::SpriteMetaType::INFINI_BOMBS, "INFINI_BOMBS", 1.f,
         MultiSprite{ "res/textures/objects.png", { 35 } } },
-      { SpriteFactory::SpriteMetaType::CHAIN_BOMBS,
-        "CHAIN_BOMBS",
-        20.f,
+      { SpriteFactory::SpriteMetaType::CHAIN_BOMBS, "CHAIN_BOMBS", 20.f,
         MultiSprite{ "res/textures/objects.png", { 34 } } },
-      { SpriteFactory::SpriteMetaType::LOWER_WATER,
-        "LOWER_WATER",
-        40.f,
+      { SpriteFactory::SpriteMetaType::LOWER_WATER, "LOWER_WATER", 40.f,
         MultiSprite{ "res/textures/objects.png", { 33 } } },
-      { SpriteFactory::SpriteMetaType::EXPLOSION,
-        "EXPLOSION",
-        1.f,
-        MultiSprite{ "res/textures/fire_effect_and_bullet_16x16.png",
-                     { 66, 67, 68, 69, 70, 71 } } } };
+      { SpriteFactory::SpriteMetaType::EXPLOSION, "EXPLOSION", 1.f,
+        MultiSprite{ "res/textures/fire_effect_and_bullet_16x16.png", { 66, 67, 68, 69, 70, 71 } } },
+      { SpriteFactory::SpriteMetaType::FOOTSTEPS, "FOOTSTEPS", 1.f,
+        MultiSprite{ "res/textures/footsteps.png", { 0 } } } };
 
 public:
   /**
@@ -134,9 +103,8 @@ public:
    * provided)
    * @throws std::runtime_error if type_list is empty
    */
-  std::pair<SpriteMetaType, std::size_t>
-  get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list,
-                                     std::vector<float> weights = {} ) const;
+  std::pair<SpriteMetaType, std::size_t> get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list,
+                                                                            std::vector<float> weights = {} ) const;
 
   /**
    * @brief Retrieves a MultiSprite object based on the specified sprite meta type.

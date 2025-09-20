@@ -1,7 +1,12 @@
+#include <FootStepAlpha.hpp>
+#include <FootStepTimer.hpp>
+#include <Movement.hpp>
 #include <MultiSprite.hpp>
 #include <NpcDeathPosition.hpp>
 #include <Position.hpp>
 #include <RenderSystem.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Systems/RenderGameSystem.hpp>
 #include <string>
@@ -16,14 +21,12 @@ RenderGameSystem::RenderGameSystem( std::shared_ptr<entt::basic_registry<entt::e
 void RenderGameSystem::init_views()
 {
   // init local view dimensions
-  m_local_view =
-      sf::View( { kLocalMapViewSize.x * 0.5f, kLocalMapViewSize.y * 0.5f }, kLocalMapViewSize );
+  m_local_view = sf::View( { kLocalMapViewSize.x * 0.5f, kLocalMapViewSize.y * 0.5f }, kLocalMapViewSize );
   m_local_view.setViewport( sf::FloatRect( { 0.f, 0.f }, { 1.f, 1.f } ) );
 
   // init minimap view dimensions
-  m_minimap_view = sf::View(
-      { kDisplaySize.x * 0.5f, kDisplaySize.y * 0.5f },
-      { kDisplaySize.x * kMiniMapViewZoomFactor, kDisplaySize.y * kMiniMapViewZoomFactor } );
+  m_minimap_view = sf::View( { kDisplaySize.x * 0.5f, kDisplaySize.y * 0.5f },
+                             { kDisplaySize.x * kMiniMapViewZoomFactor, kDisplaySize.y * kMiniMapViewZoomFactor } );
   m_minimap_view.setViewport( sf::FloatRect( { 0.75f, 0.f }, { 0.25f, 0.25f } ) );
 
   update_view_center( m_local_view, Cmp::Position{ PLAYER_START_POS }, kStartGameSmoothFactor );
@@ -62,8 +65,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
         }
         else
         {
-          for ( auto [entity, _pc, _pos] :
-                m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+          for ( auto [entity, _pc, _pos] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
           {
             player_position = _pos;
             update_view_center( m_local_view, _pos );
@@ -93,6 +95,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
       render_armed();
       render_loot();
       render_walls();
+      render_player_footsteps();
       render_player();
       render_npc();
       render_explosions( deltaTime );
@@ -126,8 +129,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
         }
         else
         {
-          for ( auto [entity, _pc, _pos] :
-                m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+          for ( auto [entity, _pc, _pos] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
           {
             update_view_center( m_minimap_view, _pos );
           }
@@ -160,8 +162,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
 
       for ( auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each() )
       {
-        m_overlay_sys.render_water_level_meter_overlay(
-            water_level.m_level, { 40.f, 70.f }, { 200.f, 20.f } );
+        m_overlay_sys.render_water_level_meter_overlay( water_level.m_level, { 40.f, 70.f }, { 200.f, 20.f } );
       }
 
       m_overlay_sys.render_entt_distance_set_overlay( { 40.f, 300.f } );
@@ -191,8 +192,7 @@ void RenderGameSystem::render_obstacles()
   std::vector<sf::Vector2f> detonationPositions;
 
   // Collect all positions first instead of drawing immediately
-  for ( auto [entity, _ob, _pos, _ob_nb_list] :
-        m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() )
+  for ( auto [entity, _ob, _pos, _ob_nb_list] : m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() )
   {
 
     if ( _ob.m_enabled )
@@ -342,8 +342,7 @@ void RenderGameSystem::render_walls()
 {
   // Render textures for "WALL" entities - filtered out because they don't own
   // neighbour components
-  for ( auto [entity, _ob, _pos] :
-        m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::Neighbours> ).each() )
+  for ( auto [entity, _ob, _pos] : m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::Neighbours> ).each() )
   {
 
     m_wall_ms->pick( _ob.m_tile_index, "wall" );
@@ -355,8 +354,7 @@ void RenderGameSystem::render_walls()
 void RenderGameSystem::render_player()
 {
   for ( auto [entity, player, position, direction, pc_detection_bounds] :
-        m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds>()
-            .each() )
+        m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds>().each() )
   {
 
     // flip and x-axis offset the sprite depending on the direction
@@ -390,6 +388,39 @@ void RenderGameSystem::render_player()
       pc_square.setPosition( pc_detection_bounds.position() );
       getWindow().draw( pc_square );
     }
+  }
+}
+
+void RenderGameSystem::render_player_footsteps()
+{
+  // add new footstep for player
+  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::Movement>();
+  for ( auto [entity, player, position, direction, movement] : player_view.each() )
+  {
+    if ( movement.velocity.x == 0.f && movement.velocity.y == 0.f ) { continue; }
+    m_footstep_sys.add_footstep( position, direction );
+  }
+
+  // update all footsteps (fade out and remove if alpha <= 0)
+  m_footstep_sys.update();
+
+  // render all footsteps
+  auto footstep_view = m_reg->view<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Position, Cmp::Direction>();
+  for ( auto [entity, timer, alpha, position, direction] : footstep_view.each() )
+  {
+    m_footsteps_ms->pick( 0, "FOOTSTEPS" );
+    m_footsteps_ms->set_pick_opacity( alpha.m_alpha );
+
+    // we're changing the origin to be the center of the sprite so that
+    // rotation happens around the center, this means we also need to
+    // offset the position by half the sprite size to keep it center-alligned
+    m_footsteps_ms->setOrigin(
+        { Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x / 2.f, Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y / 2.f } );
+    m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x / 2.f ),
+                                   position.y + ( Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y / 2.f ) } );
+    m_footsteps_ms->setRotation( direction.angle() );
+
+    getWindow().draw( *m_footsteps_ms );
   }
 }
 
@@ -449,15 +480,12 @@ void RenderGameSystem::render_explosions( sf::Time deltaTime )
     if ( explosion_cmp.current_anim_frame >= max_anim_frame )
     {
       m_reg->remove<Cmp::NpcDeathPosition>( entity );
-      SPDLOG_DEBUG( "Explosion animation complete, removing component from entity {}",
-                    static_cast<int>( entity ) );
+      SPDLOG_DEBUG( "Explosion animation complete, removing component from entity {}", static_cast<int>( entity ) );
       continue;
     }
 
     // Always render the current frame
-    SPDLOG_DEBUG( "Rendering explosion frame {}/{} for entity {}",
-                  explosion_cmp.current_anim_frame,
-                  max_anim_frame,
+    SPDLOG_DEBUG( "Rendering explosion frame {}/{} for entity {}", explosion_cmp.current_anim_frame, max_anim_frame,
                   static_cast<int>( entity ) );
     m_explosion_ms->pick( explosion_cmp.current_anim_frame, "explosion" );
     m_explosion_ms->setPosition( explosion_cmp );
@@ -560,14 +588,13 @@ void RenderGameSystem::load_multisprites()
   m_wall_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::WALL );
   m_player_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::PLAYER );
   m_npc_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::NPC );
-  m_extra_health_ms =
-      factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXTRA_HEALTH );
+  m_extra_health_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXTRA_HEALTH );
   m_extra_bombs_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXTRA_BOMBS );
-  m_infinite_bombs_ms =
-      factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::INFINI_BOMBS );
+  m_infinite_bombs_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::INFINI_BOMBS );
   m_chain_bombs_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::CHAIN_BOMBS );
   m_lower_water_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::LOWER_WATER );
   m_explosion_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXPLOSION );
+  m_footsteps_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::FOOTSTEPS );
 
   // we should ensure these MultiSprites are initialized before continuing
   std::string err_msg;
@@ -585,6 +612,7 @@ void RenderGameSystem::load_multisprites()
   if ( !m_chain_bombs_ms ) { err_msg = "Unable to get CHAIN_BOMBS from SpriteFactory"; }
   if ( !m_lower_water_ms ) { err_msg = "Unable to get LOWER_WATER from SpriteFactory"; }
   if ( !m_explosion_ms ) { err_msg = "Unable to get EXPLOSION from SpriteFactory"; }
+  if ( !m_footsteps_ms ) { err_msg = "Unable to get FOOTSTEPS from SpriteFactory"; }
 
   if ( !err_msg.empty() )
   {
@@ -593,9 +621,7 @@ void RenderGameSystem::load_multisprites()
   }
 }
 
-void RenderGameSystem::update_view_center( sf::View &view,
-                                           const Cmp::Position &player_pos,
-                                           float smoothFactor )
+void RenderGameSystem::update_view_center( sf::View &view, const Cmp::Position &player_pos, float smoothFactor )
 {
   const float kHalfViewWidth = view.getSize().x * 0.5f;
   const float kHalfViewHeight = view.getSize().y * 0.5f;

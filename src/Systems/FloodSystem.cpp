@@ -43,8 +43,7 @@ void FloodSystem::updateFlood( float dt )
 
   // Cache views once - better performance since entities always exist
   auto water_view = m_reg->view<Cmp::WaterLevel>();
-  auto player_view =
-      m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction>();
+  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction>();
 
   // abort if flood is paused
   for ( auto [_, sys] : m_reg->view<Cmp::System>().each() )

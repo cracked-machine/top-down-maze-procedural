@@ -26,10 +26,7 @@ public:
     }
   }
 
-  bool load( const std::filesystem::path &tileset,
-             sf::Vector2u tileSize,
-             const unsigned int *tiles,
-             unsigned int width,
+  bool load( const std::filesystem::path &tileset, sf::Vector2u tileSize, const unsigned int *tiles, unsigned int width,
              unsigned int height )
   {
     // load the tileset texture

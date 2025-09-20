@@ -69,8 +69,7 @@ void PlayerSystem::add_player_entity()
   m_reg->emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
 
   auto &pc_detection_scale = m_reg->ctx().get<Cmp::Persistent::PCDetectionScale>();
-  m_reg->emplace<Cmp::PCDetectionBounds>( entity,
-                                          sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE },
+  m_reg->emplace<Cmp::PCDetectionBounds>( entity, sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE },
                                           sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE },
                                           pc_detection_scale() );
 }
@@ -80,12 +79,7 @@ void PlayerSystem::update( sf::Time deltaTime )
   const float dt = deltaTime.asSeconds();
 
   for ( auto [entity, pc_cmp, pos_cmp, move_cmp, dir_cmp, pc_bounds] :
-        m_reg
-            ->view<Cmp::PlayableCharacter,
-                   Cmp::Position,
-                   Cmp::Movement,
-                   Cmp::Direction,
-                   Cmp::PCDetectionBounds>()
+        m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction, Cmp::PCDetectionBounds>()
             .each() )
   {
     auto &land_acceleration = m_reg->ctx().get<Cmp::Persistent::LandAcceleration>();
@@ -107,10 +101,7 @@ void PlayerSystem::update( sf::Time deltaTime )
       // Apply deceleration when no input
       if ( move_cmp.velocity != sf::Vector2f( 0.0f, 0.0f ) )
       {
-        if ( pc_cmp.underwater )
-        {
-          move_cmp.acceleration = -move_cmp.velocity.normalized() * water_deceleration();
-        }
+        if ( pc_cmp.underwater ) { move_cmp.acceleration = -move_cmp.velocity.normalized() * water_deceleration(); }
         else { move_cmp.acceleration = -move_cmp.velocity.normalized() * land_deceleration(); }
       }
       else { move_cmp.acceleration = sf::Vector2f( 0.0f, 0.0f ); }

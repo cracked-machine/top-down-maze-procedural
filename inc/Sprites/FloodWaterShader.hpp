@@ -25,10 +25,7 @@ public:
     // std::ignore = m_texture.resize(texture_size);
   }
 
-  void post_setup_shader() override
-  {
-    m_shader.setUniform( "resolution", sf::Vector2f{ m_render_texture.getSize() } );
-  }
+  void post_setup_shader() override { m_shader.setUniform( "resolution", sf::Vector2f{ m_render_texture.getSize() } ); }
 
   void update( float waterLevel )
   {

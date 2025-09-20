@@ -73,8 +73,7 @@ public:
 
   sf::FloatRect get_hitbox( sf::Vector2f pos )
   {
-    return sf::FloatRect( { pos.x, pos.y },
-                          sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE } );
+    return sf::FloatRect( { pos.x, pos.y }, sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE } );
   }
 
   // The game display resolution inpixels

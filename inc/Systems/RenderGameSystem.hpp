@@ -2,6 +2,7 @@
 #define __SYS_RENDERGAMESYSTEM_HPP__
 
 #include <BackgroundShader.hpp>
+#include <FootstepSystem.hpp>
 #include <MultiSprite.hpp>
 #include <RenderOverlaySystem.hpp>
 #include <SFML/System/Time.hpp>
@@ -30,6 +31,7 @@ private:
   void render_loot();
   void render_walls();
   void render_player();
+  void render_player_footsteps();
   void render_npc();
   void render_explosions( sf::Time deltaTime );
   void render_flood_waters();
@@ -37,10 +39,10 @@ private:
   void render_player_distances_on_obstacles();
   void render_npc_distances_on_obstacles();
 
-  void
-  update_view_center( sf::View &view, const Cmp::Position &player_pos, float smoothFactor = 0.1f );
+  void update_view_center( sf::View &view, const Cmp::Position &player_pos, float smoothFactor = 0.1f );
 
   RenderOverlaySystem m_overlay_sys{ m_reg };
+  FootstepSystem m_footstep_sys{ m_reg };
 
   // Views
   const sf::Vector2f kLocalMapViewSize{ 300.f, 200.f };
@@ -53,7 +55,7 @@ private:
   // Shaders
   Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", kDisplaySize };
 
-  Sprites::ViewFragmentShader m_sand_storm_shader{ "res/shaders/SpinningVortex.frag", { 64, 64 } };
+  Sprites::ViewFragmentShader m_sand_storm_shader{ "res/shaders/SimpleDistortionField.frag", { 64, 64 } };
 
   // Sprites
   Sprites::Containers::TileMap m_floormap;
@@ -74,6 +76,8 @@ private:
   std::optional<Sprites::MultiSprite> m_chain_bombs_ms;
   std::optional<Sprites::MultiSprite> m_lower_water_ms;
   std::optional<Sprites::MultiSprite> m_explosion_ms;
+
+  std::optional<Sprites::MultiSprite> m_footsteps_ms;
 };
 
 } // namespace ProceduralMaze::Sys

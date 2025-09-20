@@ -75,10 +75,7 @@ public:
   void on_player_action( const Events::PlayerActionEvent &event )
   {
     SPDLOG_DEBUG( "Player Action Event received" );
-    if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB )
-    {
-      arm_occupied_location();
-    }
+    if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB ) { arm_occupied_location(); }
   }
 
 private:

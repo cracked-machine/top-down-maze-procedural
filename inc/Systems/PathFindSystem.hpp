@@ -28,8 +28,7 @@
 
 namespace ProceduralMaze::Sys {
 
-using PlayerDistanceQueue = std::priority_queue<std::pair<int, entt::entity>,
-                                                std::vector<std::pair<int, entt::entity>>,
+using PlayerDistanceQueue = std::priority_queue<std::pair<int, entt::entity>, std::vector<std::pair<int, entt::entity>>,
                                                 std::greater<std::pair<int, entt::entity>>>;
 
 class PathFindSystem : public BaseSystem
@@ -111,8 +110,8 @@ public:
           auto move_candidate_pixel_pos = getPixelPosition( nearest_obstacle.second );
           if ( not move_candidate_pixel_pos ) return;
           auto npc_lerp_speed = m_reg->ctx().get<Cmp::Persistent::NpcLerpSpeed>();
-          m_reg->emplace_or_replace<Cmp::LerpPosition>(
-              npc_entity, move_candidate_pixel_pos.value(), 0.0f, npc_lerp_speed() );
+          m_reg->emplace_or_replace<Cmp::LerpPosition>( npc_entity, move_candidate_pixel_pos.value(), 0.0f,
+                                                        npc_lerp_speed() );
         }
       }
     }
