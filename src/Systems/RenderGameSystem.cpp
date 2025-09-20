@@ -71,22 +71,22 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
         }
       }
 
+      // draw the background
       render_floormap( { 0, 0 } );
 
-      m_sand_storm_shader.update_shader_view_and_position( { 0, 0 },
-                                                           ViewFragmentShader::Align::TOPLEFT );
-      m_floormap.draw( m_sand_storm_shader.get_render_texture(), sf::RenderStates::Default );
+      // // now post-process the floormap with the ViewFragmentShader
+      // m_sand_storm_shader.update_shader_view_and_position(
+      //     player_position + ( sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE } * 0.5f ),
+      //     ViewFragmentShader::Align::CENTER );
+      // m_floormap.draw( m_sand_storm_shader.get_render_texture(), sf::RenderStates::Default );
 
-      UniformBuilder builder;
-      builder.set( "time", m_sand_storm_shader.getElapsedTime().asSeconds() )
-          .set( "screenSize", sf::Vector2f{ m_sand_storm_shader.get_render_texture().getSize() } )
-          .set( "sandIntensity", 1.0f )
-          .set( "windStrength", 0.01f )
-          .set( "waveAmplitude", 3.0f )
-          .set( "timeScale", 1.0f );
-      m_sand_storm_shader.Sprites::BaseFragmentShader::update( builder );
+      // UniformBuilder builder;
+      // builder.set( "time", m_sand_storm_shader.getElapsedTime().asSeconds() )
+      //     .set( "screenSize", m_sand_storm_shader.get_view_size() )
+      //     .set( "centerPosition", m_sand_storm_shader.get_view_center() );
+      // m_sand_storm_shader.Sprites::BaseFragmentShader::update( builder );
 
-      getWindow().draw( m_sand_storm_shader );
+      // getWindow().draw( m_sand_storm_shader );
 
       // now draw everything else on top of the sand shader
       render_obstacles();

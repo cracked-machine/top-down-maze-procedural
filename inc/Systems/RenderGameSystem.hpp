@@ -53,7 +53,7 @@ private:
   // Shaders
   Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", kDisplaySize };
 
-  Sprites::ViewFragmentShader m_sand_storm_shader{ "res/shaders/CellularSand.frag", kDisplaySize };
+  Sprites::ViewFragmentShader m_sand_storm_shader{ "res/shaders/SpinningVortex.frag", { 64, 64 } };
 
   // Sprites
   Sprites::Containers::TileMap m_floormap;

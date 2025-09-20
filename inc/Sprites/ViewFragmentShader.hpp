@@ -47,7 +47,10 @@ namespace ProceduralMaze::Sprites {
  * - Access to elapsed time for time-based shader effects
  * - Integration with SFML's view system for consistent rendering
  *
- * @note This class requires SFML graphics library and inherits from BaseFragmentShader.
+ * @note ViewFragmentShader manages its own internal view. Therefore, your shader should:
+ * 1. Always center at (0.5, 0.5) in texture coordinate space
+ * 2. Convert from world units to texture coordinate units using a "screen size" uniform
+ * 3. Work entirely in texture space rather than trying to use world coordinates
  * @see BaseFragmentShader
  */
 class ViewFragmentShader : public BaseFragmentShader
@@ -75,6 +78,7 @@ public:
 
   sf::Time getElapsedTime() const { return m_clock.getElapsedTime(); }
   sf::Vector2f get_view_size() const { return m_shader_view.getSize(); }
+  sf::Vector2f get_view_center() const { return m_shader_view.getCenter(); }
 
   /**
    * @brief Updates the shader view and position based on the provided position and alignment.
