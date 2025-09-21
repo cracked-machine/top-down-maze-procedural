@@ -37,7 +37,7 @@ public:
   void add_npc_entity( sf::Vector2f position )
   {
     auto new_npc_entity = m_reg->create();
-    m_reg->emplace<Cmp::NPC>( new_npc_entity, true );
+    m_reg->emplace<Cmp::NPC>( new_npc_entity );
     m_reg->emplace<Cmp::Position>( new_npc_entity, position );
     auto &npc_scan_scale = m_reg->ctx().get<Cmp::Persistent::NPCScanScale>();
     m_reg->emplace<Cmp::NPCScanBounds>(
