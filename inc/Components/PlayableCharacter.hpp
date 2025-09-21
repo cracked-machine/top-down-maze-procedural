@@ -24,8 +24,7 @@ public:
   bool alive{ true };
   // player health, zero means game over, man!
   uint8_t health{ 100 };
-  // unit movement
-  constexpr static const float MOVE_DIST{ 1.f };
+
   // prevent bomb spamming
   sf::Clock m_bombdeploycooldowntimer;
   // prevent bomb spamming
