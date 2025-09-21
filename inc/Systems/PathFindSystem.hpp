@@ -34,7 +34,7 @@ using PlayerDistanceQueue = std::priority_queue<std::pair<int, entt::entity>, st
 class PathFindSystem : public BaseSystem
 {
 public:
-  PathFindSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+  PathFindSystem( ProceduralMaze::SharedEnttRegistry reg )
       : BaseSystem( reg )
   {
   }

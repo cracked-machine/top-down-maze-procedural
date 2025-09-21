@@ -6,7 +6,7 @@
 
 namespace ProceduralMaze {
 
-Engine::Engine( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
+Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
     : m_reg( std::move( registry ) ),
       m_sprite_factory( std::make_shared<Sprites::SpriteFactory>() ),
       m_player_sys( m_reg ),
@@ -17,6 +17,7 @@ Engine::Engine( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
       m_render_game_sys( m_reg ),
       m_render_menu_sys( m_reg ),
       m_bomb_sys( m_reg ),
+      m_sinkhole_sys( m_reg ),
       m_title_music_sys( m_reg, "res/audio/title_music.mp3" ),
       m_underwater_sounds_sys( m_reg, "res/audio/underwater.wav" ),
       m_abovewater_sounds_sys( m_reg, "res/audio/footsteps.mp3" ),
@@ -144,17 +145,24 @@ bool Engine::run()
 
         m_player_sys.update( deltaTime );
         m_flood_sys.update();
+        m_sinkhole_sys.update_sinkhole();
         m_bomb_sys.update();
+
         m_collision_sys.check_end_zone_collision();
         m_collision_sys.check_loot_collision();
         m_collision_sys.check_bones_reanimation();
-        m_collision_sys.check_player_to_npc_collision();
+
         m_collision_sys.update_obstacle_distances();
 
         auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
         for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
         {
-          if ( _sys.collisions_enabled ) m_collision_sys.check_player_obstacle_collision();
+          if ( _sys.collisions_enabled )
+          {
+            m_collision_sys.check_player_obstacle_collision();
+            m_collision_sys.check_player_sinkhole_collision();
+            m_collision_sys.check_player_to_npc_collision();
+          }
           if ( _sys.level_complete )
           {
             SPDLOG_INFO( "Level complete!" );
@@ -270,6 +278,7 @@ void Engine::setup()
   // Reset the views early to prevent wild panning back to the start
   // position when the game starts rendering
   m_render_game_sys.init_views();
+  m_sinkhole_sys.start_sinkhole();
 
   reginfo( "Post-setup" );
 }

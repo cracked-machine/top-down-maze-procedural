@@ -3,7 +3,7 @@
 
 namespace ProceduralMaze::Sys {
 
-RenderSystem::RenderSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+RenderSystem::RenderSystem( ProceduralMaze::SharedEnttRegistry reg )
     : BaseSystem( reg )
 {
 

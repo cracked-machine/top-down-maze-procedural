@@ -32,7 +32,7 @@ class FloodSystem : public BaseSystem
 {
 
 public:
-  FloodSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+  FloodSystem( ProceduralMaze::SharedEnttRegistry reg )
       : BaseSystem( reg )
   {
   }

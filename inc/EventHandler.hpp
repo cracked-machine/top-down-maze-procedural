@@ -24,7 +24,7 @@ namespace ProceduralMaze {
 class EventHandler : public Sys::BaseSystem
 {
 public:
-  EventHandler( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+  EventHandler( ProceduralMaze::SharedEnttRegistry reg )
       : Sys::BaseSystem( reg )
   {
   }

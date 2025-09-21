@@ -50,7 +50,7 @@ namespace ProceduralMaze::Sys {
 class RenderSystem : public BaseSystem
 {
 public:
-  RenderSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg );
+  RenderSystem( ProceduralMaze::SharedEnttRegistry reg );
   virtual ~RenderSystem() = default;
 
   // External access to the window

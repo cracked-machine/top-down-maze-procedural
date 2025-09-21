@@ -8,12 +8,13 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <SinkHole.hpp>
 #include <Systems/RenderGameSystem.hpp>
 #include <string>
 
 namespace ProceduralMaze::Sys {
 
-RenderGameSystem::RenderGameSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+RenderGameSystem::RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg )
     : RenderSystem( reg )
 {
 }
@@ -92,6 +93,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
 
       // now draw everything else on top of the sand shader
       render_obstacles();
+      render_sinkhole();
       render_armed();
       render_loot();
       render_walls();
@@ -111,6 +113,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
     {
       render_floormap( { 0, kMapGridOffset.y * Sprites::MultiSprite::kDefaultSpriteDimensions.y } );
       render_obstacles();
+      render_sinkhole();
       render_armed();
       render_loot();
       render_walls();
@@ -188,34 +191,32 @@ void RenderGameSystem::render_obstacles()
   std::vector<std::pair<sf::Vector2f, int>> potPositions;
   std::vector<std::pair<sf::Vector2f, int>> bonePositions;
   std::vector<std::pair<sf::Vector2f, int>> npcPositions;
-  std::vector<std::pair<sf::Vector2f, Sprites::SpriteFactory::SpriteMetaType>> disabledPositions;
+  std::vector<std::pair<sf::Vector2f, int>> disabledPositions;
   std::vector<sf::Vector2f> detonationPositions;
 
   // Collect all positions first instead of drawing immediately
-  for ( auto [entity, _ob, _pos, _ob_nb_list] : m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() )
+  for ( auto [entity, obstacle_cmp, position_cmp, _ob_nb_list] :
+        m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() )
   {
-
-    if ( _ob.m_enabled )
+    if ( obstacle_cmp.m_enabled )
     {
-      switch ( _ob.m_type )
+      switch ( obstacle_cmp.m_type )
       {
         case Sprites::SpriteFactory::SpriteMetaType::ROCK:
-          rockPositions.emplace_back( _pos, _ob.m_tile_index );
+          rockPositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index );
           break;
         case Sprites::SpriteFactory::SpriteMetaType::POT:
-          potPositions.emplace_back( _pos, _ob.m_tile_index );
+          potPositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index );
           break;
         case Sprites::SpriteFactory::SpriteMetaType::BONES:
-          bonePositions.emplace_back( _pos, _ob.m_tile_index );
+          bonePositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index );
           break;
         default:
           break;
       }
     }
-    // else {
-    //     disabledPositions.emplace_back(_pos, _ob.m_type);
-    // }
-    if ( _ob.m_broken ) { detonationPositions.push_back( _pos ); }
+
+    if ( obstacle_cmp.m_broken ) { detonationPositions.push_back( position_cmp ); }
   }
 
   // Now draw each type in batches
@@ -247,21 +248,32 @@ void RenderGameSystem::render_obstacles()
     m_detonation_ms->pick( 0, "Detonated" );
     getWindow().draw( *m_detonation_ms );
   }
+}
 
-  // for(const auto& [pos, type]: disabledPositions) {
-  //     sf::Text text(m_font, "", 12);
-  //     text.setString(m_sprite_factory->get_metadata_type_string(type));
-  //     text.setPosition(pos);
-  //     getWindow().draw(text);
+void RenderGameSystem::render_sinkhole()
+{
+  std::vector<std::pair<sf::Vector2f, bool>> sinkholePositions;
+  auto sinkhole_view = m_reg->view<Cmp::SinkHole, Cmp::Position>();
+  for ( auto [entity, sinkhole_cmp, position_cmp] : sinkhole_view.each() )
+  {
+    sinkholePositions.emplace_back( position_cmp, sinkhole_cmp.active );
+  }
 
-  //     sf::RectangleShape
-  //     temp_square(sf::Vector2f{Sprites::MultiSprite::kDefaultSpriteDimensions});
-  //     temp_square.setPosition(pos);
-  //     temp_square.setFillColor(sf::Color::Transparent);
-  //     temp_square.setOutlineColor(sf::Color::Red);
-  //     temp_square.setOutlineThickness(1.f);
-  //     getWindow().draw(temp_square);
-  // }
+  for ( const auto &[pos, active] : sinkholePositions )
+  {
+    m_sinkhole_ms->setPosition( pos );
+    m_sinkhole_ms->pick( 0, "Sinkhole" );
+    getWindow().draw( *m_sinkhole_ms );
+    if ( !active )
+    {
+      sf::RectangleShape active_outline( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+      active_outline.setPosition( pos );
+      active_outline.setFillColor( sf::Color::Transparent );
+      active_outline.setOutlineColor( sf::Color::Red );
+      active_outline.setOutlineThickness( 2.f );
+      getWindow().draw( active_outline );
+    }
+  }
 }
 
 void RenderGameSystem::render_armed()
@@ -340,8 +352,7 @@ void RenderGameSystem::render_loot()
 
 void RenderGameSystem::render_walls()
 {
-  // Render textures for "WALL" entities - filtered out because they don't own
-  // neighbour components
+  // Render textures for "WALL" entities - filtered out because they don't own neighbour components
   for ( auto [entity, _ob, _pos] : m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::Neighbours> ).each() )
   {
 
@@ -595,6 +606,7 @@ void RenderGameSystem::load_multisprites()
   m_lower_water_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::LOWER_WATER );
   m_explosion_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXPLOSION );
   m_footsteps_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::FOOTSTEPS );
+  m_sinkhole_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::SINKHOLE );
 
   // we should ensure these MultiSprites are initialized before continuing
   std::string err_msg;
@@ -613,6 +625,7 @@ void RenderGameSystem::load_multisprites()
   if ( !m_lower_water_ms ) { err_msg = "Unable to get LOWER_WATER from SpriteFactory"; }
   if ( !m_explosion_ms ) { err_msg = "Unable to get EXPLOSION from SpriteFactory"; }
   if ( !m_footsteps_ms ) { err_msg = "Unable to get FOOTSTEPS from SpriteFactory"; }
+  if ( !m_sinkhole_ms ) { err_msg = "Unable to get SINKHOLE from SpriteFactory"; }
 
   if ( !err_msg.empty() )
   {

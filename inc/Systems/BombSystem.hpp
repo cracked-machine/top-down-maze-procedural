@@ -38,7 +38,7 @@ namespace ProceduralMaze::Sys {
 class BombSystem : public BaseSystem
 {
 public:
-  BombSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+  BombSystem( ProceduralMaze::SharedEnttRegistry reg )
       : BaseSystem( reg )
   {
   }

@@ -8,7 +8,7 @@ namespace ProceduralMaze::Sys {
 class RenderOverlaySystem : public RenderSystem
 {
 public:
-  RenderOverlaySystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+  RenderOverlaySystem( ProceduralMaze::SharedEnttRegistry reg )
       : RenderSystem( reg ) {};
 
   void render_entt_distance_set_overlay( sf::Vector2f pos );

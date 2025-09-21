@@ -10,6 +10,8 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Sprites/MultiSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/BaseFragmentShader.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/BaseSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/ProcGen/RandomLevelGenerator.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/ProcGen/CellAutomataSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/RenderSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/RenderGameSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/RenderMenuSystem.cpp
@@ -20,6 +22,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/PlayerSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/MusicSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/FootstepSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/SinkholeSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Debug/AssertHandler.cpp
 )
 

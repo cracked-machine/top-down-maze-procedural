@@ -12,7 +12,7 @@ namespace ProceduralMaze::Sys {
 class FootstepSystem : public BaseSystem
 {
 public:
-  FootstepSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+  FootstepSystem( ProceduralMaze::SharedEnttRegistry reg )
       : BaseSystem( reg )
   {
   }

@@ -10,12 +10,15 @@
 
 #include <entt/signal/dispatcher.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze {
+using SharedEnttRegistry = std::shared_ptr<entt::basic_registry<entt::entity>>;
+
+namespace Sys {
 
 class BaseSystem
 {
 public:
-  BaseSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+  BaseSystem( ProceduralMaze::SharedEnttRegistry reg )
       : m_reg( reg )
   {
   }
@@ -76,13 +79,13 @@ public:
     return sf::FloatRect( { pos.x, pos.y }, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
   }
 
-  // The game display resolution inpixels
-  constexpr static const sf::Vector2u kDisplaySize{ 1920, 1024 };
+  // The game display resolution in pixels
+  static constexpr sf::Vector2u kDisplaySize{ 1920, 1024 };
 
   // The playable area size in blocks, not pixels
-  const sf::Vector2u kMapGridSize{ 100u, 61u };
+  static constexpr sf::Vector2u kMapGridSize{ 100u, 62u };
   // The playable area offset in blocks, not pixels
-  const sf::Vector2f kMapGridOffset{ 10.f, 1.f };
+  static constexpr sf::Vector2f kMapGridOffset{ 10.f, 1.f };
 
   // singleton event dispatcher
   static entt::dispatcher &getEventDispatcher()
@@ -93,7 +96,7 @@ public:
 
 protected:
   // Entity registry
-  std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
+  ProceduralMaze::SharedEnttRegistry m_reg;
   sf::Vector2f PLAYER_START_POS{ 20, static_cast<float>( kDisplaySize.y ) / 2 };
 
 private:
@@ -101,6 +104,7 @@ private:
   static std::unique_ptr<entt::dispatcher> m_event_dispatcher;
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Sys
+} // namespace ProceduralMaze
 
 #endif // __SYSTEMS_BASE_SYSTEM_HPP__

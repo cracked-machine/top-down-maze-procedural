@@ -61,7 +61,7 @@ namespace ProceduralMaze {
 class Engine
 {
 public:
-  explicit Engine( std::shared_ptr<entt::basic_registry<entt::entity>> registry );
+  explicit Engine( ProceduralMaze::SharedEnttRegistry registry );
 
   Engine( const Engine & ) = delete;
   Engine &operator=( const Engine & ) = delete;
@@ -72,7 +72,7 @@ public:
 
 private:
   // ECS registry
-  std::shared_ptr<entt::basic_registry<entt::entity>> m_reg;
+  ProceduralMaze::SharedEnttRegistry m_reg;
 
   // creates and manages MultiSprite resources
   std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory;
@@ -86,6 +86,7 @@ private:
   Sys::RenderGameSystem m_render_game_sys;
   Sys::RenderMenuSystem m_render_menu_sys;
   Sys::BombSystem m_bomb_sys;
+  Sys::SinkholeSystem m_sinkhole_sys;
 
   Sys::MusicSystem m_title_music_sys;
   Sys::MusicSystem m_underwater_sounds_sys;

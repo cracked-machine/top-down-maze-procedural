@@ -21,7 +21,7 @@ namespace ProceduralMaze::Sys {
 class NpcSystem : public BaseSystem
 {
 public:
-  NpcSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg )
+  NpcSystem( ProceduralMaze::SharedEnttRegistry reg )
       : BaseSystem( reg )
   {
   }

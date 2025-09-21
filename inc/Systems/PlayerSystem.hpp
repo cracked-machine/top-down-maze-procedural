@@ -25,7 +25,7 @@ namespace ProceduralMaze::Sys {
 class PlayerSystem : public BaseSystem
 {
 public:
-  PlayerSystem( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
+  PlayerSystem( ProceduralMaze::SharedEnttRegistry registry )
       : BaseSystem( registry )
   {
   }

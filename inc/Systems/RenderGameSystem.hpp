@@ -8,6 +8,7 @@
 #include <SFML/System/Time.hpp>
 
 #include <SFML/System/Vector2.hpp>
+#include <SinkholeSystem.hpp>
 #include <Systems/RenderSystem.hpp>
 #include <ViewFragmentShader.hpp>
 
@@ -16,7 +17,7 @@ namespace ProceduralMaze::Sys {
 class RenderGameSystem : public RenderSystem
 {
 public:
-  RenderGameSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg );
+  RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg );
   ~RenderGameSystem() = default;
 
   // Entry point for class
@@ -27,6 +28,7 @@ public:
 private:
   void render_floormap( const sf::Vector2f &offset = { 0.f, 0.f } );
   void render_obstacles();
+  void render_sinkhole();
   void render_armed();
   void render_loot();
   void render_walls();
@@ -78,6 +80,7 @@ private:
   std::optional<Sprites::MultiSprite> m_explosion_ms;
 
   std::optional<Sprites::MultiSprite> m_footsteps_ms;
+  std::optional<Sprites::MultiSprite> m_sinkhole_ms;
 };
 
 } // namespace ProceduralMaze::Sys

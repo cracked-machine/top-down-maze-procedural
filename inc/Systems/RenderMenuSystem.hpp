@@ -12,7 +12,7 @@ namespace ProceduralMaze::Sys {
 class RenderMenuSystem : public RenderSystem
 {
 public:
-  RenderMenuSystem( std::shared_ptr<entt::basic_registry<entt::entity>> registry )
+  RenderMenuSystem( ProceduralMaze::SharedEnttRegistry registry )
       : RenderSystem( registry )
   {
   }

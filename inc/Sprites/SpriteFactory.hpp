@@ -40,7 +40,8 @@ public:
     LOWER_WATER = 11,
     NPC = 12,
     EXPLOSION = 13,
-    FOOTSTEPS = 14
+    FOOTSTEPS = 14,
+    SINKHOLE = 15,
   };
 
 private:
@@ -81,7 +82,9 @@ private:
       { SpriteFactory::SpriteMetaType::EXPLOSION, "EXPLOSION", 1.f,
         MultiSprite{ "res/textures/fire_effect_and_bullet_16x16.png", { 66, 67, 68, 69, 70, 71 } } },
       { SpriteFactory::SpriteMetaType::FOOTSTEPS, "FOOTSTEPS", 1.f,
-        MultiSprite{ "res/textures/footsteps.png", { 0 } } } };
+        MultiSprite{ "res/textures/footsteps.png", { 0 } } },
+      { SpriteFactory::SpriteMetaType::SINKHOLE, "SINKHOLE", 1.f, MultiSprite{ "res/textures/sinkhole.png", { 0 } } },
+  };
 
 public:
   /**

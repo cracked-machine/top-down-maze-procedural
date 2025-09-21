@@ -5,7 +5,7 @@
 
 namespace ProceduralMaze::Sys {
 
-MusicSystem::MusicSystem( std::shared_ptr<entt::basic_registry<entt::entity>> reg, std::filesystem::path music_path )
+MusicSystem::MusicSystem( ProceduralMaze::SharedEnttRegistry reg, std::filesystem::path music_path )
     : BaseSystem( reg ),
       m_music_buffer( std::move( music_path ) )
 {
