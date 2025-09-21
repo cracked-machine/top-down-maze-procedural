@@ -68,7 +68,7 @@ void CollisionSystem::check_bones_reanimation()
       // because we only need it for this one comparison and it already contains the needed scaling
       // logic
       auto npc_activate_bounds = Cmp::RectBounds(
-          _obstacle_pos, sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE }, npc_activate_scale() );
+          _obstacle_pos, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions }, npc_activate_scale() );
       if ( player_hitbox.findIntersection( npc_activate_bounds.getBounds() ) )
       {
         // dont really care what obstacle this becomes as long as its disabled.
@@ -280,7 +280,7 @@ void CollisionSystem::check_player_obstacle_collision()
         _pc_pos.y = starting_pos.y;
 
         player_floatrect = sf::FloatRect( { _pc_pos.x, _pc_pos.y },
-                                          sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE } );
+                                          sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
         if ( !player_floatrect.findIntersection( brick_floatRect ) )
         {
           SPDLOG_INFO( "Recovered by reverting to start position" );

@@ -40,8 +40,8 @@ public:
     m_reg->emplace<Cmp::NPC>( new_npc_entity, true );
     m_reg->emplace<Cmp::Position>( new_npc_entity, position );
     auto &npc_scan_scale = m_reg->ctx().get<Cmp::Persistent::NPCScanScale>();
-    m_reg->emplace<Cmp::NPCScanBounds>( new_npc_entity, position,
-                                        sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE }, npc_scan_scale() );
+    m_reg->emplace<Cmp::NPCScanBounds>(
+        new_npc_entity, position, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions }, npc_scan_scale() );
   }
 
   void remove_npc_entity( entt::entity npc_entity )

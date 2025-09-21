@@ -1,7 +1,7 @@
 #include <MultiSprite.hpp>
 
 namespace ProceduralMaze::Sprites {
-const sf::Vector2u MultiSprite::DEFAULT_SPRITE_SIZE{ 16, 16 };
+const sf::Vector2u MultiSprite::kDefaultSpriteDimensions{ 16, 16 };
 
 bool MultiSprite::pick( std::size_t idx, const std::string &caller )
 {
@@ -39,23 +39,24 @@ bool MultiSprite::add_sprite( const std::filesystem::path &tilemap_path, const s
   {
 
     sf::VertexArray current_va( sf::PrimitiveType::Triangles, 6 );
-    const int tu = tile_idx % ( m_tilemap_texture.getSize().x / DEFAULT_SPRITE_SIZE.x );
-    const int tv = tile_idx / ( m_tilemap_texture.getSize().x / DEFAULT_SPRITE_SIZE.x );
+    const int tu = tile_idx % ( m_tilemap_texture.getSize().x / kDefaultSpriteDimensions.x );
+    const int tv = tile_idx / ( m_tilemap_texture.getSize().x / kDefaultSpriteDimensions.x );
 
-    // draw the two triangles within local space using the `DEFAULT_SPRITE_SIZE`
+    // draw the two triangles within local space using the `kDefaultSpriteDimensions`
     current_va[0].position = sf::Vector2f( 0, 0 );
-    current_va[1].position = sf::Vector2f( DEFAULT_SPRITE_SIZE.x, 0 );
-    current_va[2].position = sf::Vector2f( 0, DEFAULT_SPRITE_SIZE.y );
-    current_va[3].position = sf::Vector2f( 0, DEFAULT_SPRITE_SIZE.y );
-    current_va[4].position = sf::Vector2f( DEFAULT_SPRITE_SIZE.x, 0 );
-    current_va[5].position = sf::Vector2f( DEFAULT_SPRITE_SIZE.x, DEFAULT_SPRITE_SIZE.y );
+    current_va[1].position = sf::Vector2f( kDefaultSpriteDimensions.x, 0 );
+    current_va[2].position = sf::Vector2f( 0, kDefaultSpriteDimensions.y );
+    current_va[3].position = sf::Vector2f( 0, kDefaultSpriteDimensions.y );
+    current_va[4].position = sf::Vector2f( kDefaultSpriteDimensions.x, 0 );
+    current_va[5].position = sf::Vector2f( kDefaultSpriteDimensions.x, kDefaultSpriteDimensions.y );
 
-    current_va[0].texCoords = sf::Vector2f( tu * DEFAULT_SPRITE_SIZE.x, tv * DEFAULT_SPRITE_SIZE.y );
-    current_va[1].texCoords = sf::Vector2f( ( tu + 1 ) * DEFAULT_SPRITE_SIZE.x, tv * DEFAULT_SPRITE_SIZE.y );
-    current_va[2].texCoords = sf::Vector2f( tu * DEFAULT_SPRITE_SIZE.x, ( tv + 1 ) * DEFAULT_SPRITE_SIZE.y );
-    current_va[3].texCoords = sf::Vector2f( tu * DEFAULT_SPRITE_SIZE.x, ( tv + 1 ) * DEFAULT_SPRITE_SIZE.y );
-    current_va[4].texCoords = sf::Vector2f( ( tu + 1 ) * DEFAULT_SPRITE_SIZE.x, tv * DEFAULT_SPRITE_SIZE.y );
-    current_va[5].texCoords = sf::Vector2f( ( tu + 1 ) * DEFAULT_SPRITE_SIZE.x, ( tv + 1 ) * DEFAULT_SPRITE_SIZE.y );
+    current_va[0].texCoords = sf::Vector2f( tu * kDefaultSpriteDimensions.x, tv * kDefaultSpriteDimensions.y );
+    current_va[1].texCoords = sf::Vector2f( ( tu + 1 ) * kDefaultSpriteDimensions.x, tv * kDefaultSpriteDimensions.y );
+    current_va[2].texCoords = sf::Vector2f( tu * kDefaultSpriteDimensions.x, ( tv + 1 ) * kDefaultSpriteDimensions.y );
+    current_va[3].texCoords = sf::Vector2f( tu * kDefaultSpriteDimensions.x, ( tv + 1 ) * kDefaultSpriteDimensions.y );
+    current_va[4].texCoords = sf::Vector2f( ( tu + 1 ) * kDefaultSpriteDimensions.x, tv * kDefaultSpriteDimensions.y );
+    current_va[5].texCoords = sf::Vector2f( ( tu + 1 ) * kDefaultSpriteDimensions.x,
+                                            ( tv + 1 ) * kDefaultSpriteDimensions.y );
     SPDLOG_TRACE( "  - Added tile index {} (tu={},tv={})", tile_idx, tu, tv );
 
     m_va_list.push_back( current_va );

@@ -47,10 +47,11 @@ public:
         auto entity = m_reg->create();
         m_reg->emplace<Cmp::Position>(
             entity,
-            sf::Vector2f{ ( x * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x ) +
-                              ( Sys::BaseSystem::kMapGridOffset.x * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x ),
-                          ( y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y ) +
-                              ( Sys::BaseSystem::kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y ) } );
+            sf::Vector2f{
+                ( x * Sprites::MultiSprite::kDefaultSpriteDimensions.x ) +
+                    ( Sys::BaseSystem::kMapGridOffset.x * Sprites::MultiSprite::kDefaultSpriteDimensions.x ),
+                ( y * Sprites::MultiSprite::kDefaultSpriteDimensions.y ) +
+                    ( Sys::BaseSystem::kMapGridOffset.y * Sprites::MultiSprite::kDefaultSpriteDimensions.y ) } );
         // track the contiguous creation order of the entity so we can easily
         // find its neighbours later
         m_data.push_back( entity );
@@ -78,28 +79,29 @@ public:
   {
     std::size_t texture_index = 0;
     bool enabled = true;
-    for ( float x = 0; x < kDisplaySize.x; x += Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x )
+    for ( float x = 0; x < kDisplaySize.x; x += Sprites::MultiSprite::kDefaultSpriteDimensions.x )
     {
-      if ( x == 0 || x == kDisplaySize.x - Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x )
+      if ( x == 0 || x == kDisplaySize.x - Sprites::MultiSprite::kDefaultSpriteDimensions.x )
         texture_index = 2;
       else
         texture_index = 1;
       // top edge
-      add_border_entity( { x, ( kMapGridOffset.y - 1 ) * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y }, texture_index );
+      add_border_entity( { x, ( kMapGridOffset.y - 1 ) * Sprites::MultiSprite::kDefaultSpriteDimensions.y },
+                         texture_index );
       // bottom edge
       add_border_entity(
-          { x, kMapGridOffset.y + ( ( kMapGridSize.y + 2 ) * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y ) - 2 },
+          { x, kMapGridOffset.y + ( ( kMapGridSize.y + 2 ) * Sprites::MultiSprite::kDefaultSpriteDimensions.y ) - 2 },
           texture_index );
     }
-    for ( float y = 0; y < kDisplaySize.y; y += Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y )
+    for ( float y = 0; y < kDisplaySize.y; y += Sprites::MultiSprite::kDefaultSpriteDimensions.y )
     {
       if ( y == 0 || y == kDisplaySize.y - 1 )
         texture_index = 2;
-      else if ( y == ( kDisplaySize.y / 2.f ) - Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y )
+      else if ( y == ( kDisplaySize.y / 2.f ) - Sprites::MultiSprite::kDefaultSpriteDimensions.y )
         texture_index = 3;
       else if ( y == ( kDisplaySize.y / 2.f ) )
         texture_index = 5; // closed door entrance
-      else if ( y == ( kDisplaySize.y / 2.f ) + Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y )
+      else if ( y == ( kDisplaySize.y / 2.f ) + Sprites::MultiSprite::kDefaultSpriteDimensions.y )
         texture_index = 4;
       else
         texture_index = 0;
@@ -111,7 +113,7 @@ public:
         enabled = false;
       } // open door exit
       // right edge
-      add_border_entity( { static_cast<float>( kDisplaySize.x ) - Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x, y },
+      add_border_entity( { static_cast<float>( kDisplaySize.x ) - Sprites::MultiSprite::kDefaultSpriteDimensions.x, y },
                          texture_index, enabled );
       enabled = true;
     }

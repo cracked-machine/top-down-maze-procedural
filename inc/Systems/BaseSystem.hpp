@@ -29,8 +29,8 @@ public:
     if ( pos )
     {
       return std::optional<sf::Vector2i>{
-          { static_cast<int>( pos->x / Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x ),
-            static_cast<int>( pos->y / Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y ) } };
+          { static_cast<int>( pos->x / Sprites::MultiSprite::kDefaultSpriteDimensions.x ),
+            static_cast<int>( pos->y / Sprites::MultiSprite::kDefaultSpriteDimensions.y ) } };
     }
     return std::nullopt;
   }
@@ -73,7 +73,7 @@ public:
 
   sf::FloatRect get_hitbox( sf::Vector2f pos )
   {
-    return sf::FloatRect( { pos.x, pos.y }, sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE } );
+    return sf::FloatRect( { pos.x, pos.y }, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
   }
 
   // The game display resolution inpixels

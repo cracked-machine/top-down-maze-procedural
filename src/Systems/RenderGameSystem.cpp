@@ -78,7 +78,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
 
       // // now post-process the floormap with the ViewFragmentShader
       // m_sand_storm_shader.update_shader_view_and_position(
-      //     player_position + ( sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE } * 0.5f ),
+      //     player_position + ( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } * 0.5f ),
       //     ViewFragmentShader::Align::CENTER );
       // m_floormap.draw( m_sand_storm_shader.get_render_texture(), sf::RenderStates::Default );
 
@@ -109,7 +109,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
     // much smaller scale
     getWindow().setView( m_minimap_view );
     {
-      render_floormap( { 0, kMapGridOffset.y * Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y } );
+      render_floormap( { 0, kMapGridOffset.y * Sprites::MultiSprite::kDefaultSpriteDimensions.y } );
       render_obstacles();
       render_armed();
       render_loot();
@@ -255,7 +255,7 @@ void RenderGameSystem::render_obstacles()
   //     getWindow().draw(text);
 
   //     sf::RectangleShape
-  //     temp_square(sf::Vector2f{Sprites::MultiSprite::DEFAULT_SPRITE_SIZE});
+  //     temp_square(sf::Vector2f{Sprites::MultiSprite::kDefaultSpriteDimensions});
   //     temp_square.setPosition(pos);
   //     temp_square.setFillColor(sf::Color::Transparent);
   //     temp_square.setOutlineColor(sf::Color::Red);
@@ -277,7 +277,7 @@ void RenderGameSystem::render_armed()
       getWindow().draw( *m_bomb_ms );
     }
 
-    sf::RectangleShape temp_square( sf::Vector2f{ Sprites::MultiSprite::DEFAULT_SPRITE_SIZE } );
+    sf::RectangleShape temp_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
     temp_square.setPosition( pos_cmp );
     temp_square.setOutlineColor( sf::Color::Transparent );
     temp_square.setFillColor( sf::Color::Transparent );
@@ -366,7 +366,7 @@ void RenderGameSystem::render_player()
     else if ( direction.x == -1 )
     {
       direction.x_scale = -1.f;
-      direction.x_offset = Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x;
+      direction.x_offset = Sprites::MultiSprite::kDefaultSpriteDimensions.x;
     }
     else
     {
@@ -414,10 +414,10 @@ void RenderGameSystem::render_player_footsteps()
     // we're changing the origin to be the center of the sprite so that
     // rotation happens around the center, this means we also need to
     // offset the position by half the sprite size to keep it center-alligned
-    m_footsteps_ms->setOrigin(
-        { Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x / 2.f, Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y / 2.f } );
-    m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x / 2.f ),
-                                   position.y + ( Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.y / 2.f ) } );
+    m_footsteps_ms->setOrigin( { Sprites::MultiSprite::kDefaultSpriteDimensions.x / 2.f,
+                                 Sprites::MultiSprite::kDefaultSpriteDimensions.y / 2.f } );
+    m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x / 2.f ),
+                                   position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y / 2.f ) } );
     m_footsteps_ms->setRotation( direction.angle() );
 
     getWindow().draw( *m_footsteps_ms );
@@ -438,7 +438,7 @@ void RenderGameSystem::render_npc()
     else if ( direction.x < 0 )
     {
       direction.x_scale = -1.f;
-      direction.x_offset = Sprites::MultiSprite::DEFAULT_SPRITE_SIZE.x;
+      direction.x_offset = Sprites::MultiSprite::kDefaultSpriteDimensions.x;
     }
     else
     {
