@@ -68,7 +68,7 @@ public:
   void resume();
 
   void arm_occupied_location();
-  void place_concentric_bomb_pattern( entt::entity &epicenter_entity, const int BLAST_RADIUS );
+  void place_concentric_bomb_pattern( entt::entity &epicenter_entity, const int blast_radius );
   void update();
 
   /// EVENTS

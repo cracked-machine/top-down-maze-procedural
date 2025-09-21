@@ -125,11 +125,6 @@ private:
       sf::Vector2f( 0.f, Sprites::MultiSprite::kDefaultSpriteDimensions.y ),  // Down
       sf::Vector2f( -Sprites::MultiSprite::kDefaultSpriteDimensions.x, 0.f )  // Left
   };
-
-  // the limit for finding potential paths
-  // const int SCAN_DISTANCE{1};
-  // the activation distance for NPCs
-  // const unsigned int AGGRO_DISTANCE{5};
 };
 
 } // namespace ProceduralMaze::Sys

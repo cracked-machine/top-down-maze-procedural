@@ -94,7 +94,7 @@ void BombSystem::arm_occupied_location()
   }
 }
 
-void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, const int BLAST_RADIUS )
+void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, const int blast_radius )
 {
   // arm the current tile (center of the bomb)
   m_reg->emplace_or_replace<Cmp::Armed>( epicenter_entity, sf::seconds( 3 ), sf::Time::Zero, true, sf::Color::Blue,
@@ -112,7 +112,7 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
   auto all_obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
 
   // For each layer from 1 to BLAST_RADIUS
-  for ( int layer = 1; layer <= BLAST_RADIUS; layer++ )
+  for ( int layer = 1; layer <= blast_radius; layer++ )
   {
     std::vector<std::pair<entt::entity, sf::Vector2i>> layer_entities;
 
