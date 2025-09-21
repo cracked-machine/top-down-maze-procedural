@@ -11,7 +11,7 @@ void SinkholeSystem::start_sinkhole()
   auto sinkhole_view = m_reg->view<Cmp::SinkHole>();
   if ( std::distance( sinkhole_view.begin(), sinkhole_view.end() ) > 0 )
   {
-    SPDLOG_INFO( "Sinkhole already seeded." );
+    SPDLOG_DEBUG( "Sinkhole already seeded." );
     return;
   }
 
@@ -33,8 +33,8 @@ void SinkholeSystem::start_sinkhole()
   // For example, add SinkHole component to it:
   m_reg->emplace<Cmp::SinkHole>( random_entity );
   m_reg->remove<Cmp::Obstacle>( random_entity );
-  SPDLOG_INFO( "Sinkhole seeded at random obstacle index {} (entity {}).", random_index,
-               static_cast<uint32_t>( random_entity ) );
+  SPDLOG_DEBUG( "Sinkhole seeded at random obstacle index {} (entity {}).", random_index,
+                static_cast<uint32_t>( random_entity ) );
 }
 
 void SinkholeSystem::update_sinkhole()
@@ -70,7 +70,7 @@ void SinkholeSystem::update_sinkhole()
             // add sinkhole component to this obstacle
             m_reg->emplace<Cmp::SinkHole>( obstacle_entity );
             m_reg->remove<Cmp::Obstacle>( obstacle_entity );
-            SPDLOG_INFO( "New sinkhole created at entity {}", static_cast<uint32_t>( obstacle_entity ) );
+            SPDLOG_DEBUG( "New sinkhole created at entity {}", static_cast<uint32_t>( obstacle_entity ) );
             // only add one sinkhole per update
             return;
           }
@@ -90,7 +90,7 @@ void SinkholeSystem::update_sinkhole()
     {
       sinkhole_cmp.active = false;
 
-      SPDLOG_INFO( "Sinkhole at entity {} is now inactive (surrounded).", static_cast<uint32_t>( sinkhole_entity ) );
+      SPDLOG_DEBUG( "Sinkhole at entity {} is now inactive (surrounded).", static_cast<uint32_t>( sinkhole_entity ) );
     }
   }
 }

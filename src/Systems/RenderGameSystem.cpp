@@ -264,15 +264,15 @@ void RenderGameSystem::render_sinkhole()
     m_sinkhole_ms->setPosition( pos );
     m_sinkhole_ms->pick( 0, "Sinkhole" );
     getWindow().draw( *m_sinkhole_ms );
-    if ( !active )
-    {
-      sf::RectangleShape active_outline( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
-      active_outline.setPosition( pos );
-      active_outline.setFillColor( sf::Color::Transparent );
-      active_outline.setOutlineColor( sf::Color::Red );
-      active_outline.setOutlineThickness( 2.f );
-      getWindow().draw( active_outline );
-    }
+    // if ( !active )
+    // {
+    //   sf::RectangleShape active_outline( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+    //   active_outline.setPosition( pos );
+    //   active_outline.setFillColor( sf::Color::Transparent );
+    //   active_outline.setOutlineColor( sf::Color::Red );
+    //   active_outline.setOutlineThickness( 2.f );
+    //   getWindow().draw( active_outline );
+    // }
   }
 }
 

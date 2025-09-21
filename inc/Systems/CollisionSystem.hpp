@@ -93,6 +93,7 @@ public:
   void check_player_obstacle_collision();
 
   void check_player_sinkhole_collision();
+  void check_npc_sinkhole_collision();
 
 private:
   sf::FloatRect m_end_zone{ { kDisplaySize.x * 1.f, 0 }, { 500.f, kDisplaySize.y * 1.f } };

@@ -148,6 +148,7 @@ bool Engine::run()
         m_sinkhole_sys.update_sinkhole();
         m_bomb_sys.update();
 
+        m_collision_sys.check_npc_sinkhole_collision();
         m_collision_sys.check_end_zone_collision();
         m_collision_sys.check_loot_collision();
         m_collision_sys.check_bones_reanimation();
