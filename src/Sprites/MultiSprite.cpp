@@ -1,7 +1,6 @@
 #include <MultiSprite.hpp>
 
 namespace ProceduralMaze::Sprites {
-const sf::Vector2u MultiSprite::kDefaultSpriteDimensions{ 16, 16 };
 
 bool MultiSprite::pick( std::size_t idx, const std::string &caller )
 {

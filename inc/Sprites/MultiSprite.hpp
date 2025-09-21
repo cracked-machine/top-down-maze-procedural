@@ -66,7 +66,7 @@ public:
   void set_pick_opacity( uint8_t alpha );
 
   sf::Texture m_tilemap_texture;
-  static const sf::Vector2u kDefaultSpriteDimensions;
+  static constexpr sf::Vector2u kDefaultSpriteDimensions{ 16, 16 };
 
 private:
   bool add_sprite( const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks );
