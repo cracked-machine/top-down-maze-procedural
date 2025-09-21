@@ -17,7 +17,7 @@ public:
 
     for ( int x = 0; x < 200; x++ )
       for ( int y = 0; y < 98; y++ )
-        m_floortile_choices.push_back( FLOOR_TILE_POOL[m_floortile_picker.gen()] );
+        m_floortile_choices.push_back( kFloorTilePool[m_floortile_picker.gen()] );
 
     if ( !load( m_tile_file.string(), { 16, 16 }, m_floortile_choices.data(), 200, 98 ) )
     {
@@ -100,9 +100,9 @@ private:
   sf::VertexArray m_vertices;
   sf::Texture m_tileset;
 
-  const std::vector<unsigned int> FLOOR_TILE_POOL{ 48, 48, 48, 48, 48, 48, 49 };
+  const std::vector<unsigned int> kFloorTilePool{ 48, 48, 48, 48, 48, 48, 49 };
 
-  Cmp::Random m_floortile_picker{ 0, static_cast<int>( FLOOR_TILE_POOL.size() - 1 ) };
+  Cmp::Random m_floortile_picker{ 0, static_cast<int>( kFloorTilePool.size() - 1 ) };
 
   std::vector<uint32_t> m_floortile_choices;
 
