@@ -66,6 +66,14 @@ public:
   void set_pick_opacity( uint8_t alpha );
 
   sf::Texture m_tilemap_texture;
+
+  /**
+   * @brief Default dimensions for sprite frames in pixels.
+   *
+   * Defines the standard width and height (16x16 pixels) used for individual
+   * sprite frames within a multi-sprite texture. This constant provides a
+   * consistent default size for sprite rendering and frame calculations.
+   */
   static constexpr sf::Vector2u kDefaultSpriteDimensions{ 16, 16 };
 
 private:
