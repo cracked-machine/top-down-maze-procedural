@@ -87,7 +87,8 @@ private:
   Sys::RenderGameSystem m_render_game_sys;
   Sys::RenderMenuSystem m_render_menu_sys;
   Sys::BombSystem m_bomb_sys;
-  Sys::HazardFieldSystem m_sinkhole_sys;
+  Sys::SinkHoleHazardSystem m_sinkhole_sys;
+  Sys::CorruptionHazardSystem m_corruption_sys;
 
   Sys::MusicSystem m_title_music_sys;
   Sys::MusicSystem m_underwater_sounds_sys;

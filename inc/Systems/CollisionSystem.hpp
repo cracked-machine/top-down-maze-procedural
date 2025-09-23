@@ -13,10 +13,12 @@
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
 #include <Components/WaterLevel.hpp>
+#include <CorruptionCell.hpp>
 #include <NPCScanBounds.hpp>
 #include <NpcSystem.hpp>
 #include <PCDetectionBounds.hpp>
 #include <Persistent/BombBonus.hpp>
+#include <Persistent/CorruptionDamage.hpp>
 #include <Persistent/FrictionCoefficient.hpp>
 #include <Persistent/FrictionFalloff.hpp>
 #include <Persistent/HealthBonus.hpp>
@@ -28,6 +30,7 @@
 #include <Persistent/ObstaclePushBack.hpp>
 #include <Persistent/WaterBonus.hpp>
 #include <Persistent/WaterMaxSpeed.hpp>
+#include <SinkholeCell.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -92,8 +95,78 @@ public:
   // Check for player collision with obstacles. This is the main collision detection function
   void check_player_obstacle_collision();
 
-  void check_player_hazard_field_collision();
-  void check_npc_hazard_field_collision();
+  template <typename HazardType> void check_player_hazard_field_collision()
+  {
+    auto hazard_field_view = [this]() {
+      if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
+      {
+        return m_reg->view<Cmp::SinkholeCell, Cmp::Position>();
+      }
+      else if constexpr ( std::is_same_v<HazardType, Cmp::CorruptionCell> )
+      {
+        return m_reg->view<Cmp::CorruptionCell, Cmp::Position>();
+      }
+      else { return m_reg->view<HazardType>(); }
+    }();
+
+    auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
+
+    for ( auto [pc_entt, player_cmp, player_pos_cmp] : player_view.each() )
+    {
+      // reduce the player hitbox size to avoid unfair deaths
+      auto offset = sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } / 4.f;
+      auto player_hitbox = sf::FloatRect( player_pos_cmp + offset, offset * 1.5f );
+
+      for ( auto [hazard_field_entt, hazard_field_cmp, hazard_field_pos_cmp] : hazard_field_view.each() )
+      {
+        auto hazard_field_hitbox = get_hitbox( hazard_field_pos_cmp );
+        if ( player_hitbox.findIntersection( hazard_field_hitbox ) )
+        {
+          // Player falls into a sinkhole or gets damaged by corruption
+          if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> ) { player_cmp.alive = false; }
+          else { player_cmp.health -= m_reg->ctx().get<Cmp::Persistent::CorruptionDamage>()(); }
+          SPDLOG_INFO( "Player fell into a hazard field at position ({}, {})!", hazard_field_pos_cmp.x,
+                       hazard_field_pos_cmp.y );
+          return; // No need to check further if the player is already dead
+        }
+      }
+    }
+  }
+
+  template <typename HazardType> void check_npc_hazard_field_collision()
+  {
+    auto hazard_field_view = [this]() {
+      if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
+      {
+        return m_reg->view<Cmp::SinkholeCell, Cmp::Position>();
+      }
+      else if constexpr ( std::is_same_v<HazardType, Cmp::CorruptionCell> )
+      {
+        return m_reg->view<Cmp::CorruptionCell, Cmp::Position>();
+      }
+      else { return m_reg->view<HazardType>(); }
+    }();
+
+    auto npc_view = m_reg->view<Cmp::NPC, Cmp::Position>();
+
+    for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : npc_view.each() )
+    {
+      auto npc_hitbox = get_hitbox( npc_pos_cmp );
+
+      for ( auto [hazard_field_entt, hazard_field_cmp, hazard_field_pos_cmp] : hazard_field_view.each() )
+      {
+        auto hazard_field_hitbox = get_hitbox( hazard_field_pos_cmp );
+
+        if ( npc_hitbox.findIntersection( hazard_field_hitbox ) )
+        {
+          // NPC falls into the sinkhole
+          getEventDispatcher().trigger( Events::NpcDeathEvent( npc_entt ) );
+          SPDLOG_DEBUG( "NPC fell into a sinkhole at position ({}, {})!", sinkhole_pos_cmp.x, sinkhole_pos_cmp.y );
+          return; // No need to check further if the NPC is already dead
+        }
+      }
+    }
+  }
 
 private:
   sf::FloatRect m_end_zone{ { kDisplaySize.x * 1.f, 0 }, { 500.f, kDisplaySize.y * 1.f } };

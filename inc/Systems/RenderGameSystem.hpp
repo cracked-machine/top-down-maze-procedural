@@ -29,6 +29,7 @@ private:
   void render_floormap( const sf::Vector2f &offset = { 0.f, 0.f } );
   void render_obstacles();
   void render_sinkhole();
+  void render_corruption();
   void render_armed();
   void render_loot();
   void render_walls();
@@ -81,6 +82,7 @@ private:
 
   std::optional<Sprites::MultiSprite> m_footsteps_ms;
   std::optional<Sprites::MultiSprite> m_sinkhole_ms;
+  std::optional<Sprites::MultiSprite> m_corruption_ms;
 };
 
 } // namespace ProceduralMaze::Sys

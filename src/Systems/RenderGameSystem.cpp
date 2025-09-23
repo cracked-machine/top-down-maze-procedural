@@ -9,6 +9,7 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <SinkholeCell.hpp>
 #include <Systems/RenderGameSystem.hpp>
 #include <string>
 
@@ -94,6 +95,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
       // now draw everything else on top of the sand shader
       render_obstacles();
       render_sinkhole();
+      render_corruption();
       render_armed();
       render_loot();
       render_walls();
@@ -114,6 +116,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
       render_floormap( { 0, kMapGridOffset.y * Sprites::MultiSprite::kDefaultSpriteDimensions.y } );
       render_obstacles();
       render_sinkhole();
+      render_corruption();
       render_armed();
       render_loot();
       render_walls();
@@ -253,7 +256,7 @@ void RenderGameSystem::render_obstacles()
 void RenderGameSystem::render_sinkhole()
 {
   std::vector<std::pair<sf::Vector2f, bool>> sinkholePositions;
-  auto sinkhole_view = m_reg->view<Cmp::HazardFieldCell, Cmp::Position>();
+  auto sinkhole_view = m_reg->view<Cmp::SinkholeCell, Cmp::Position>();
   for ( auto [entity, sinkhole_cmp, position_cmp] : sinkhole_view.each() )
   {
     sinkholePositions.emplace_back( position_cmp, sinkhole_cmp.active );
@@ -264,15 +267,23 @@ void RenderGameSystem::render_sinkhole()
     m_sinkhole_ms->setPosition( pos );
     m_sinkhole_ms->pick( 0, "Sinkhole" );
     getWindow().draw( *m_sinkhole_ms );
-    // if ( !active )
-    // {
-    //   sf::RectangleShape active_outline( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
-    //   active_outline.setPosition( pos );
-    //   active_outline.setFillColor( sf::Color::Transparent );
-    //   active_outline.setOutlineColor( sf::Color::Red );
-    //   active_outline.setOutlineThickness( 2.f );
-    //   getWindow().draw( active_outline );
-    // }
+  }
+}
+
+void RenderGameSystem::render_corruption()
+{
+  std::vector<std::pair<sf::Vector2f, bool>> corruptionPositions;
+  auto corruption_view = m_reg->view<Cmp::CorruptionCell, Cmp::Position>();
+  for ( auto [entity, corruption_cmp, position_cmp] : corruption_view.each() )
+  {
+    corruptionPositions.emplace_back( position_cmp, corruption_cmp.active );
+  }
+
+  for ( const auto &[pos, active] : corruptionPositions )
+  {
+    m_corruption_ms->setPosition( pos );
+    m_corruption_ms->pick( 0, "Corruption" );
+    getWindow().draw( *m_corruption_ms );
   }
 }
 
@@ -607,6 +618,7 @@ void RenderGameSystem::load_multisprites()
   m_explosion_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXPLOSION );
   m_footsteps_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::FOOTSTEPS );
   m_sinkhole_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::SINKHOLE );
+  m_corruption_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::CORRUPTION );
 
   // we should ensure these MultiSprites are initialized before continuing
   std::string err_msg;
@@ -626,6 +638,7 @@ void RenderGameSystem::load_multisprites()
   if ( !m_explosion_ms ) { err_msg = "Unable to get EXPLOSION from SpriteFactory"; }
   if ( !m_footsteps_ms ) { err_msg = "Unable to get FOOTSTEPS from SpriteFactory"; }
   if ( !m_sinkhole_ms ) { err_msg = "Unable to get SINKHOLE from SpriteFactory"; }
+  if ( !m_corruption_ms ) { err_msg = "Unable to get CORRUPTION from SpriteFactory"; }
 
   if ( !err_msg.empty() )
   {

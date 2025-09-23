@@ -42,6 +42,7 @@ public:
     EXPLOSION = 13,
     FOOTSTEPS = 14,
     SINKHOLE = 15,
+    CORRUPTION = 16
   };
 
 private:
@@ -84,7 +85,8 @@ private:
       { SpriteFactory::SpriteMetaType::FOOTSTEPS, "FOOTSTEPS", 1.f,
         MultiSprite{ "res/textures/footsteps.png", { 0 } } },
       { SpriteFactory::SpriteMetaType::SINKHOLE, "SINKHOLE", 1.f, MultiSprite{ "res/textures/sinkhole.png", { 0 } } },
-  };
+      { SpriteFactory::SpriteMetaType::CORRUPTION, "CORRUPTION", 1.f,
+        MultiSprite{ "res/textures/corruption.png", { 0 } } } };
 
 public:
   /**
@@ -152,7 +154,7 @@ private:
   // Internal use function used by get_random_type_and_texture_index()
   std::optional<SpriteMetaData> get_random_spritedata( std::vector<SpriteMetaType> type_list,
                                                        std::vector<float> weights = {} ) const;
-};
+}; // namespace ProceduralMaze::Sprites
 
 } // namespace ProceduralMaze::Sprites
 

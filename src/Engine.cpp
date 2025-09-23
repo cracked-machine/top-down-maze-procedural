@@ -1,8 +1,10 @@
+#include <CorruptionCell.hpp>
 #include <Engine.hpp>
 
 #include <MusicSystem.hpp>
 #include <Persistent/MusicVolume.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
+#include <SinkholeCell.hpp>
 
 namespace ProceduralMaze {
 
@@ -18,6 +20,7 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
       m_render_menu_sys( m_reg ),
       m_bomb_sys( m_reg ),
       m_sinkhole_sys( m_reg ),
+      m_corruption_sys( m_reg ),
       m_title_music_sys( m_reg, "res/audio/title_music.mp3" ),
       m_underwater_sounds_sys( m_reg, "res/audio/underwater.wav" ),
       m_abovewater_sounds_sys( m_reg, "res/audio/footsteps.mp3" ),
@@ -146,9 +149,11 @@ bool Engine::run()
         m_player_sys.update( deltaTime );
         m_flood_sys.update();
         m_sinkhole_sys.update_hazard_field();
+        m_corruption_sys.update_hazard_field();
         m_bomb_sys.update();
 
-        m_collision_sys.check_npc_hazard_field_collision();
+        m_collision_sys.check_npc_hazard_field_collision<Cmp::SinkholeCell>();
+        m_collision_sys.check_npc_hazard_field_collision<Cmp::CorruptionCell>();
         m_collision_sys.check_end_zone_collision();
         m_collision_sys.check_loot_collision();
         m_collision_sys.check_bones_reanimation();
@@ -161,7 +166,8 @@ bool Engine::run()
           if ( _sys.collisions_enabled )
           {
             m_collision_sys.check_player_obstacle_collision();
-            m_collision_sys.check_player_hazard_field_collision();
+            m_collision_sys.check_player_hazard_field_collision<Cmp::SinkholeCell>();
+            m_collision_sys.check_player_hazard_field_collision<Cmp::CorruptionCell>();
             m_collision_sys.check_player_to_npc_collision();
           }
           if ( _sys.level_complete )
@@ -280,6 +286,7 @@ void Engine::setup()
   // position when the game starts rendering
   m_render_game_sys.init_views();
   m_sinkhole_sys.start_hazard_field();
+  m_corruption_sys.start_hazard_field();
 
   reginfo( "Post-setup" );
 }
