@@ -1,5 +1,6 @@
 #include <FootStepAlpha.hpp>
 #include <FootStepTimer.hpp>
+#include <HazardFieldCell.hpp>
 #include <Movement.hpp>
 #include <MultiSprite.hpp>
 #include <NpcDeathPosition.hpp>
@@ -8,7 +9,6 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <SinkHole.hpp>
 #include <Systems/RenderGameSystem.hpp>
 #include <string>
 
@@ -253,7 +253,7 @@ void RenderGameSystem::render_obstacles()
 void RenderGameSystem::render_sinkhole()
 {
   std::vector<std::pair<sf::Vector2f, bool>> sinkholePositions;
-  auto sinkhole_view = m_reg->view<Cmp::SinkHole, Cmp::Position>();
+  auto sinkhole_view = m_reg->view<Cmp::HazardFieldCell, Cmp::Position>();
   for ( auto [entity, sinkhole_cmp, position_cmp] : sinkhole_view.each() )
   {
     sinkholePositions.emplace_back( position_cmp, sinkhole_cmp.active );

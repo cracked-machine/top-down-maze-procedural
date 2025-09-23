@@ -1,6 +1,6 @@
 #include <CollisionSystem.hpp>
+#include <HazardFieldCell.hpp>
 #include <Persistent/PlayerMinVelocity.hpp>
-#include <SinkHole.hpp>
 
 namespace ProceduralMaze::Sys {
 
@@ -245,44 +245,45 @@ void CollisionSystem::update_obstacle_distances()
   }
 }
 
-void CollisionSystem::check_player_sinkhole_collision()
+void CollisionSystem::check_player_hazard_field_collision()
 {
-  auto sinkhole_view = m_reg->view<Cmp::SinkHole, Cmp::Position>();
+  auto hazard_field_view = m_reg->view<Cmp::HazardFieldCell, Cmp::Position>();
   auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
 
   for ( auto [pc_entt, player_cmp, player_pos_cmp] : player_view.each() )
   {
     auto player_hitbox = get_hitbox( player_pos_cmp );
 
-    for ( auto [sinkhole_entt, sinkhole_cmp, sinkhole_pos_cmp] : sinkhole_view.each() )
+    for ( auto [hazard_field_entt, hazard_field_cmp, hazard_field_pos_cmp] : hazard_field_view.each() )
     {
-      auto sinkhole_hitbox = get_hitbox( sinkhole_pos_cmp );
+      auto hazard_field_hitbox = get_hitbox( hazard_field_pos_cmp );
 
-      if ( player_hitbox.findIntersection( sinkhole_hitbox ) )
+      if ( player_hitbox.findIntersection( hazard_field_hitbox ) )
       {
-        // Player falls into the sinkhole
+        // Player falls into the hazard field
         player_cmp.alive = false;
-        SPDLOG_INFO( "Player fell into a sinkhole at position ({}, {})!", sinkhole_pos_cmp.x, sinkhole_pos_cmp.y );
+        SPDLOG_INFO( "Player fell into a hazard field at position ({}, {})!", hazard_field_pos_cmp.x,
+                     hazard_field_pos_cmp.y );
         return; // No need to check further if the player is already dead
       }
     }
   }
 }
 
-void CollisionSystem::check_npc_sinkhole_collision()
+void CollisionSystem::check_npc_hazard_field_collision()
 {
-  auto sinkhole_view = m_reg->view<Cmp::SinkHole, Cmp::Position>();
+  auto hazard_field_view = m_reg->view<Cmp::HazardFieldCell, Cmp::Position>();
   auto npc_view = m_reg->view<Cmp::NPC, Cmp::Position>();
 
   for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : npc_view.each() )
   {
     auto npc_hitbox = get_hitbox( npc_pos_cmp );
 
-    for ( auto [sinkhole_entt, sinkhole_cmp, sinkhole_pos_cmp] : sinkhole_view.each() )
+    for ( auto [hazard_field_entt, hazard_field_cmp, hazard_field_pos_cmp] : hazard_field_view.each() )
     {
-      auto sinkhole_hitbox = get_hitbox( sinkhole_pos_cmp );
+      auto hazard_field_hitbox = get_hitbox( hazard_field_pos_cmp );
 
-      if ( npc_hitbox.findIntersection( sinkhole_hitbox ) )
+      if ( npc_hitbox.findIntersection( hazard_field_hitbox ) )
       {
         // NPC falls into the sinkhole
         getEventDispatcher().trigger( Events::NpcDeathEvent( npc_entt ) );

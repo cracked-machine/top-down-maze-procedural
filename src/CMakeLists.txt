@@ -22,7 +22,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/PlayerSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/MusicSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/FootstepSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/SinkholeSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/HazardFieldSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Debug/AssertHandler.cpp
 )
 

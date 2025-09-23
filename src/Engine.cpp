@@ -145,10 +145,10 @@ bool Engine::run()
 
         m_player_sys.update( deltaTime );
         m_flood_sys.update();
-        m_sinkhole_sys.update_sinkhole();
+        m_sinkhole_sys.update_hazard_field();
         m_bomb_sys.update();
 
-        m_collision_sys.check_npc_sinkhole_collision();
+        m_collision_sys.check_npc_hazard_field_collision();
         m_collision_sys.check_end_zone_collision();
         m_collision_sys.check_loot_collision();
         m_collision_sys.check_bones_reanimation();
@@ -161,7 +161,7 @@ bool Engine::run()
           if ( _sys.collisions_enabled )
           {
             m_collision_sys.check_player_obstacle_collision();
-            m_collision_sys.check_player_sinkhole_collision();
+            m_collision_sys.check_player_hazard_field_collision();
             m_collision_sys.check_player_to_npc_collision();
           }
           if ( _sys.level_complete )
@@ -279,7 +279,7 @@ void Engine::setup()
   // Reset the views early to prevent wild panning back to the start
   // position when the game starts rendering
   m_render_game_sys.init_views();
-  m_sinkhole_sys.start_sinkhole();
+  m_sinkhole_sys.start_hazard_field();
 
   reginfo( "Post-setup" );
 }

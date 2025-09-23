@@ -92,8 +92,8 @@ public:
   // Check for player collision with obstacles. This is the main collision detection function
   void check_player_obstacle_collision();
 
-  void check_player_sinkhole_collision();
-  void check_npc_sinkhole_collision();
+  void check_player_hazard_field_collision();
+  void check_npc_hazard_field_collision();
 
 private:
   sf::FloatRect m_end_zone{ { kDisplaySize.x * 1.f, 0 }, { 500.f, kDisplaySize.y * 1.f } };
