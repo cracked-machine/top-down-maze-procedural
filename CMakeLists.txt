@@ -1,7 +1,14 @@
 cmake_minimum_required(VERSION 3.28)
 project(ProceduralMazeProject LANGUAGES CXX)
 
+message(STATUS "Building for architecture: ${TARGET_TRIPLET}")
+message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
+# message(STATUS "Loading toolchain file: ${CMAKE_SOURCE_DIR}/scripts/cmake-${TARGET_TRIPLET}.cmake")
+# include(${CMAKE_SOURCE_DIR}/scripts/cmake-${TARGET_TRIPLET}.cmake)
+
 include(FetchContent)
+
+set(SFML_USE_SYSTEM_DEPS OFF CACHE BOOL "Use system dependencies" FORCE)
 FetchContent_Declare(SFML
     GIT_REPOSITORY https://github.com/SFML/SFML.git
     GIT_TAG 016bea9491ccafc3529019fe1d403885a8b3a6ae    # v3.0.1
@@ -53,9 +60,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_subdirectory( ${CMAKE_SOURCE_DIR}/src )
 
-# runtime deps for mingw
-file(   COPY        /usr/lib/gcc/x86_64-w64-mingw32/14-win32/libstdc++-6.dll build/bin/libstdc++-6.dll
-                    /usr/lib/gcc/x86_64-w64-mingw32/14-win32/libgcc_s_seh-1.dll build/bin/libgcc_s_seh-1.dll
-        DESTINATION ${CMAKE_BINARY_DIR}/bin/ )
 
+
+# Copy resources to binary dir
 file(COPY ${CMAKE_SOURCE_DIR}/res DESTINATION ${CMAKE_BINARY_DIR}/bin )

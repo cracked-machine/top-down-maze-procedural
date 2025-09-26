@@ -1,4 +1,4 @@
-build
+build-*
 .cache
 res/kenney_tiny-dungeon/*.txt
 res/kenney_tiny-dungeon/*.png

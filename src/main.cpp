@@ -14,7 +14,7 @@ int main()
   std::unique_ptr<Logger> logger{ std::make_unique<Logger>( "logger", "log.txt" ) };
   spdlog::set_level( spdlog::level::trace );
 
-  SPDLOG_INFO( "Init" );
+  SPDLOG_INFO( "Entering Engines" );
 
   auto registry = std::make_shared<entt::basic_registry<entt::entity>>();
   ProceduralMaze::Engine engine( registry );

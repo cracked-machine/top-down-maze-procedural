@@ -36,7 +36,8 @@ public:
   {
     if ( !add_sprite( tilemap_path, tilemap_picks ) )
     {
-      throw std::runtime_error( "Failed to load tilemap: " + tilemap_path.string() );
+      SPDLOG_CRITICAL( "Failed to load tilemap: {}", tilemap_path.string() );
+      std::terminate();
     }
   }
 

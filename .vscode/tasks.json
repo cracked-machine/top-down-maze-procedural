@@ -7,14 +7,14 @@
             "label": "Build",
             "type": "shell",
             "command": [
-                "./scripts/build.sh ${input:buildType}"
+                "./scripts/build.sh ${input:buildType} ${input:buildarch}"
             ]
         },
         {
             "label": "List Available CMake Targets",
             "type": "shell",
             "command": [
-                "cmake --build build --target help"
+                "cmake --build build-${input:buildarch} --target help"
             ]
         },
         {
@@ -37,6 +37,16 @@
                 "MinSizeRel"
             ],
             "default": "Debug"
+        },
+        {
+            "id": "buildarch",
+            "type": "pickString",
+            "description": "Select build architecture",
+            "options": [
+                "x86_64-w64-mingw32",
+                "x86_64-linux-gnu"
+            ],
+            "default": "x86_64-w64-mingw32"
         }
     ]
 }

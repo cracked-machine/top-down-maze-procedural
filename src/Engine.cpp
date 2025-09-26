@@ -31,9 +31,9 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
   m_render_game_sys.window().setVerticalSyncEnabled( true );
   // m_render_game_sys.window().setFramerateLimit( 144 );
 
-#ifdef _WIN32
-  ::ShowWindow( m_render_game_sys.window().getNativeHandle(), SW_MAXIMIZE );
-#endif
+  // #ifdef _WIN32
+  //   ::ShowWindow( m_render_game_sys.window().getNativeHandle(), SW_MAXIMIZE );
+  // #endif
 
   // these need to be initialised by the time we get the
   // Cmp::Persistent::GameState::State::SETTINGS state
@@ -50,7 +50,7 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
   if ( not ImGui::SFML::Init( m_render_menu_sys.window() ) )
   {
     SPDLOG_CRITICAL( "ImGui-SFML initialization failed" );
-    throw std::runtime_error( "ImGui-SFML initialization failed" );
+    std::terminate();
   }
 
   // Set ImGui style

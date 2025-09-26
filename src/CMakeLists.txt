@@ -1,4 +1,5 @@
 set(TARGET ProceduralMaze)
+
 add_executable(${TARGET} 
     ${CMAKE_SOURCE_DIR}/src/main.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine.cpp
@@ -41,7 +42,7 @@ target_include_directories(${TARGET} SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/inc/Sprites
     ${CMAKE_SOURCE_DIR}/inc/Logging
     ${FETCHCONTENT_BASE_DIR}/imgui-src
-    /usr/x86_64-w64-mingw32/include/GL/
+    $<$<STREQUAL:$(TARGET_TRIPLET),x86_64-w64-mingw32>:/usr/x86_64-w64-mingw32/include/GL/>
 )
 
 target_compile_options(${TARGET} PRIVATE 
@@ -52,7 +53,8 @@ target_compile_options(${TARGET} PRIVATE
         -Wall                           # enable all warnings
         -Wextra                         # enable extra warnings
         -ftrivial-auto-var-init=zero    # initialize all automatic variables to zero
-        -Wa,-mbig-obj                   # support large object files (fixes 'file too big' error)
+        # mingw limits object data sizes so enable large object files (fixes 'file too big' error)
+        $<$<STREQUAL:$(TARGET_TRIPLET),x86_64-w64-mingw32>:-Wa,-mbig-obj>
     >
 )
 

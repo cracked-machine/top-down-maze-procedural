@@ -4,7 +4,9 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Sprites/SpriteFactory.hpp>
+#ifdef _WIN32
 #include <windows.h>
+#endif
 
 namespace ProceduralMaze::Cmp {
 

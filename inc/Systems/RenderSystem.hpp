@@ -99,6 +99,11 @@ protected:
     {
       RenderSystem::m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( kDisplaySize ), "ProceduralMaze",
                                                                    sf::State::Fullscreen );
+      if ( !RenderSystem::m_window->isOpen() )
+      {
+        SPDLOG_CRITICAL( "Failed to create SFML RenderWindow" );
+        std::terminate();
+      }
     }
     return *RenderSystem::m_window;
   }

@@ -11,7 +11,9 @@ RUN apt update -y && apt install -y \
     locales \
     gcc-mingw-w64-x86-64 \
     g++-mingw-w64-x86-64 \
-    doxygen
+    doxygen \
+    jq \
+    yq
     
 # SDL3 reqs
 RUN apt update -y && apt install -y \

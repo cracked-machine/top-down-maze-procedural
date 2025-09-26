@@ -118,7 +118,7 @@ void stack_trace( void )
 
 #else // For non-Windows platforms, we can use a placeholder or implement a
       // different stack trace mechanism
-
+#include <iostream>
 namespace Debug {
 void stack_trace( void )
 {
