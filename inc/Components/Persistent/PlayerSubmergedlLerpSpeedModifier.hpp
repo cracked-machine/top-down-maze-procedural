@@ -8,7 +8,7 @@ class PlayerSubmergedLerpSpeedModifier : public BasePersistent<float>
 {
 public:
   PlayerSubmergedLerpSpeedModifier()
-      : BasePersistent<float>( 0.707f )
+      : BasePersistent<float>( 0.3f )
   {
   }
 };
