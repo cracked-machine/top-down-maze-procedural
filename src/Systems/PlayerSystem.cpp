@@ -8,6 +8,7 @@
 #include <Persistent/PlayerMinVelocity.hpp>
 #include <Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Persistent/PlayerStartPosition.hpp>
+#include <Persistent/PlayerSubmergedlLerpSpeedModifier.hpp>
 #include <PlayableCharacter.hpp>
 #include <PlayerSystem.hpp>
 #include <Position.hpp>
@@ -34,6 +35,7 @@ void PlayerSystem::init_context()
   add_persistent_component<Cmp::Persistent::PlayerLerpSpeed>( *m_reg );
   add_persistent_component<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( *m_reg );
   add_persistent_component<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( *m_reg );
+  add_persistent_component<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>( *m_reg );
 }
 
 void PlayerSystem::add_player_entity()
@@ -82,6 +84,7 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
         auto &player_lerp_speed = m_reg->ctx().get<Cmp::Persistent::PlayerLerpSpeed>();
         auto &diagonal_lerp_speed_modifier = m_reg->ctx().get<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
         auto &shortcut_lerp_speed_modifier = m_reg->ctx().get<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
+        auto &submerged_lerp_speed_modifier = m_reg->ctx().get<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
 
         float speed_modifier = 1.0f;
         if ( diagonal_between_obstacles )
@@ -103,6 +106,8 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
         }
 
         float adjusted_speed = player_lerp_speed() * speed_modifier;
+        // add additional modifier if player is underwater
+        if ( pc_cmp.underwater ) { adjusted_speed *= submerged_lerp_speed_modifier(); }
 
         m_reg->emplace<Cmp::LerpPosition>( entity, target_pos, adjusted_speed );
         lerp_cmp = m_reg->try_get<Cmp::LerpPosition>( entity );
