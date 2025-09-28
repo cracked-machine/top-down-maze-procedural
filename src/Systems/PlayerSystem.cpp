@@ -79,7 +79,7 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
       auto target_pos = sf::Vector2f{ pos_cmp.x + ( dir_cmp.x * Sprites::MultiSprite::kDefaultSpriteDimensions.x ),
                                       pos_cmp.y + ( dir_cmp.y * Sprites::MultiSprite::kDefaultSpriteDimensions.y ) };
 
-      if ( isValidMove( target_pos ) || skip_collision_check )
+      if ( is_valid_move( target_pos ) || skip_collision_check )
       {
         auto &player_lerp_speed = m_reg->ctx().get<Cmp::Persistent::PlayerLerpSpeed>();
         auto &diagonal_lerp_speed_modifier = m_reg->ctx().get<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
@@ -159,25 +159,11 @@ bool PlayerSystem::isDiagonalMovementBetweenObstacles( const sf::Vector2f &curre
   sf::Vector2f vertical_check = sf::Vector2f{ current_pos.x, current_pos.y + ( direction.y * grid_size ) };
 
   // Check if both orthogonal positions have obstacles
-  bool horizontal_blocked = !isValidMove( horizontal_check );
-  bool vertical_blocked = !isValidMove( vertical_check );
+  bool horizontal_blocked = !is_valid_move( horizontal_check );
+  bool vertical_blocked = !is_valid_move( vertical_check );
 
   // If both orthogonal paths are blocked, diagonal movement is between obstacles
   return horizontal_blocked && vertical_blocked;
-}
-
-bool PlayerSystem::isValidMove( sf::Vector2f &target_position )
-{
-  auto target_hitbox = get_hitbox( target_position );
-
-  auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
-  for ( auto [entity, obs_cmp, pos_cmp] : obstacle_view.each() )
-  {
-    if ( obs_cmp.m_enabled == false ) continue;
-    auto obs_hitbox = get_hitbox( pos_cmp );
-    if ( obs_hitbox.findIntersection( target_hitbox ) ) return false;
-  }
-  return true;
 }
 
 } // namespace ProceduralMaze::Sys

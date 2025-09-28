@@ -72,50 +72,97 @@ void CollisionSystem::check_player_to_npc_collision()
 {
   auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction>();
   auto npc_collision_view = m_reg->view<Cmp::NPC, Cmp::Position>();
-  for ( auto [_pc_entt, _pc, _pc_pos, _direction] : player_collision_view.each() )
+  for ( auto [pc_entity, pc_cmp, pc_pos_cmp, dir_cmp] : player_collision_view.each() )
   {
-
-    auto player_hitbox = get_hitbox( _pc_pos );
-    for ( auto [_npc_entt, _npc, _npc_pos] : npc_collision_view.each() )
+    auto player_hitbox = get_hitbox( pc_pos_cmp );
+    for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_collision_view.each() )
     {
-
-      auto npc_hitbox = get_hitbox( _npc_pos );
+      auto npc_hitbox = get_hitbox( npc_pos_cmp );
 
       if ( player_hitbox.findIntersection( npc_hitbox ) )
       {
         auto &npc_damage_cooldown = m_reg->ctx().get<Cmp::Persistent::NpcDamageDelay>();
-        if ( _npc.m_damage_cooldown.getElapsedTime().asSeconds() < npc_damage_cooldown() ) continue;
+        if ( npc_cmp.m_damage_cooldown.getElapsedTime().asSeconds() < npc_damage_cooldown() ) continue;
 
         auto &npc_damage = m_reg->ctx().get<Cmp::Persistent::NpcDamage>();
-        _pc.health -= npc_damage();
+        pc_cmp.health -= npc_damage();
 
-        _npc.m_damage_cooldown.restart();
-        // Check if player is moving
-        if ( _direction != sf::Vector2f( 0.0f, 0.0f ) )
-        {
-          // Push back in opposite direction of travel
-          auto &npc_push_back = m_reg->ctx().get<Cmp::Persistent::NpcPushBack>();
-          _pc_pos -= _direction.normalized() * npc_push_back();
-        }
-        else
-        {
-          // If not moving, use the distance as a direction of travel
-          sf::Vector2f push_dir = { _pc_pos.x - _npc_pos.x, _pc_pos.y - _npc_pos.y };
-          if ( push_dir != sf::Vector2f( 0.0f, 0.0f ) )
-          {
-            _pc_pos += push_dir.normalized().componentWiseMul(
-                sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
-          }
-        }
+        npc_cmp.m_damage_cooldown.restart();
+
+        auto &npc_push_back = m_reg->ctx().get<Cmp::Persistent::NpcPushBack>();
+
+        // Find a valid pushback position by checking all 8 directions
+        sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp, npc_pos_cmp, dir_cmp,
+                                                                       npc_push_back() );
+
+        // Update player position if we found a valid pushback position
+        if ( target_push_back_pos != pc_pos_cmp ) { pc_pos_cmp = target_push_back_pos; }
       }
 
-      if ( _pc.health <= 0 )
+      if ( pc_cmp.health <= 0 )
       {
-        _pc.alive = false;
+        pc_cmp.alive = false;
         return;
       }
     }
   }
+}
+
+sf::Vector2f CollisionSystem::findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos,
+                                                         const sf::Vector2f &player_direction, float pushback_distance )
+{
+  // Define all 8 directions (N, NE, E, SE, S, SW, W, NW)
+  std::vector<sf::Vector2f> directions = {
+      { 0.0f, -1.0f }, // North
+      { 1.0f, -1.0f }, // North-East
+      { 1.0f, 0.0f },  // East
+      { 1.0f, 1.0f },  // South-East
+      { 0.0f, 1.0f },  // South
+      { -1.0f, 1.0f }, // South-West
+      { -1.0f, 0.0f }, // West
+      { -1.0f, -1.0f } // North-West
+  };
+
+  // Priority order for direction selection
+  std::vector<sf::Vector2f> preferred_directions;
+
+  if ( player_direction != sf::Vector2f( 0.0f, 0.0f ) )
+  {
+    // Player is moving - prefer pushing opposite to movement direction
+    sf::Vector2f opposite_dir = -player_direction.normalized();
+    preferred_directions.push_back( opposite_dir );
+
+    // Add perpendicular directions as secondary options
+    sf::Vector2f perp1 = sf::Vector2f( -opposite_dir.y, opposite_dir.x );
+    sf::Vector2f perp2 = sf::Vector2f( opposite_dir.y, -opposite_dir.x );
+    preferred_directions.push_back( perp1 );
+    preferred_directions.push_back( perp2 );
+  }
+  else
+  {
+    // Player is stationary - prefer pushing away from NPC
+    sf::Vector2f away_from_npc = player_pos - npc_pos;
+    if ( away_from_npc != sf::Vector2f( 0.0f, 0.0f ) ) { preferred_directions.push_back( away_from_npc.normalized() ); }
+  }
+
+  // Add all 8 directions to ensure we check everything
+  for ( const auto &dir : directions )
+  {
+    preferred_directions.push_back( dir );
+  }
+
+  // Try each direction in priority order
+  for ( const auto &push_dir : preferred_directions )
+  {
+    sf::Vector2f candidate_pos = player_pos + push_dir.normalized() * pushback_distance;
+    candidate_pos = snap_to_grid( candidate_pos );
+
+    // Check if this position is valid and different from current position
+    if ( candidate_pos != player_pos && is_valid_move( candidate_pos ) ) { return candidate_pos; }
+  }
+
+  // If no valid position found, return original position
+  return player_pos;
 }
 
 void CollisionSystem::check_loot_collision()

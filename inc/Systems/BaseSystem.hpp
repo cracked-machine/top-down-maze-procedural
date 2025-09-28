@@ -2,6 +2,7 @@
 #define __SYSTEMS_BASE_SYSTEM_HPP__
 
 #include <MultiSprite.hpp>
+#include <Obstacle.hpp>
 #include <Position.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -84,6 +85,25 @@ public:
   {
     return sf::FloatRect( { pos.x, pos.y }, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
   }
+
+  sf::Vector2f snap_to_grid( const sf::Vector2f &position )
+  {
+    float grid_size = Sprites::MultiSprite::kDefaultSpriteDimensions.x; // Assuming square grid
+
+    return sf::Vector2f( std::round( position.x / grid_size ) * grid_size,
+                         std::round( position.y / grid_size ) * grid_size );
+  }
+
+  /**
+   * @brief Checks if the player's movement to a given position is valid
+   *
+   * Validates whether the player can move to the specified position by checking
+   * for collisions with walls, boundaries, or other obstacles in the game world.
+   *
+   * @param player_position The target position to validate for player movement
+   * @return true if the movement is valid and allowed, false otherwise
+   */
+  bool is_valid_move( sf::Vector2f &player_position );
 
   // The game display resolution in pixels
   static constexpr sf::Vector2u kDisplaySize{ 1920, 1024 };

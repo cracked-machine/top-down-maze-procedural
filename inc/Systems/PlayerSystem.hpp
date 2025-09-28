@@ -78,17 +78,6 @@ public:
   bool isDiagonalMovementBetweenObstacles( const sf::Vector2f &current_pos, const sf::Vector2f &direction );
 
   /**
-   * @brief Checks if the player's movement to a given position is valid
-   *
-   * Validates whether the player can move to the specified position by checking
-   * for collisions with walls, boundaries, or other obstacles in the game world.
-   *
-   * @param player_position The target position to validate for player movement
-   * @return true if the movement is valid and allowed, false otherwise
-   */
-  bool isValidMove( sf::Vector2f &player_position );
-
-  /**
    * @brief Updates the player's animation based on the elapsed time.
    *
    * This function handles the progression of player animation frames,

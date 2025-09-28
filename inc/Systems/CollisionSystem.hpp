@@ -170,6 +170,10 @@ public:
 
 private:
   sf::FloatRect m_end_zone{ { kDisplaySize.x * 1.f, 0 }, { 500.f, kDisplaySize.y * 1.f } };
+  sf::Vector2f findValidPushbackPosition( const sf::Vector2f& player_pos, 
+                                          const sf::Vector2f& npc_pos,
+                                          const sf::Vector2f& player_direction,
+                                          float pushback_distance );
 };
 
 } // namespace ProceduralMaze::Sys
