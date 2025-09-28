@@ -68,7 +68,7 @@ public:
     auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
 
     auto obstacle_count = std::distance( obstacle_view.begin(), obstacle_view.end() );
-    SPDLOG_INFO( "Found {} obstacles in the maze.", obstacle_count );
+    SPDLOG_DEBUG( "Found {} obstacles in the maze.", obstacle_count );
 
     // Get random index and advance iterator to that position
     Cmp::Random sinkhole_seed_picker = Cmp::Random( 0, static_cast<int>( obstacle_count - 1 ) );
@@ -83,8 +83,8 @@ public:
     // For example, add HazardType component to it:
     m_reg->emplace<HazardType>( random_entity );
     m_reg->remove<Cmp::Obstacle>( random_entity );
-    SPDLOG_INFO( "Hazard field seeded at random obstacle index {} (entity {}).", random_index,
-                 static_cast<uint32_t>( random_entity ) );
+    SPDLOG_DEBUG( "Hazard field seeded at random obstacle index {} (entity {}).", random_index,
+                  static_cast<uint32_t>( random_entity ) );
   }
 
   // add an adjacent hazard field component if possible
@@ -124,7 +124,7 @@ public:
               // add hazard field component to this obstacle
               m_reg->emplace<HazardType>( obstacle_entity );
               m_reg->remove<Cmp::Obstacle>( obstacle_entity );
-              SPDLOG_INFO( "New hazard field created at entity {}", static_cast<uint32_t>( obstacle_entity ) );
+              SPDLOG_DEBUG( "New hazard field created at entity {}", static_cast<uint32_t>( obstacle_entity ) );
               // only add one hazard field per update
               return;
             }
@@ -144,8 +144,8 @@ public:
       {
         hazard_field_cmp.active = false;
 
-        SPDLOG_INFO( "Hazard field at entity {} is now inactive (surrounded).",
-                     static_cast<uint32_t>( hazard_field_entity ) );
+        SPDLOG_DEBUG( "Hazard field at entity {} is now inactive (surrounded).",
+                      static_cast<uint32_t>( hazard_field_entity ) );
       }
     }
   }

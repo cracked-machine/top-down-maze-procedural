@@ -4,6 +4,7 @@
 #include <Movement.hpp>
 #include <MultiSprite.hpp>
 #include <NpcDeathPosition.hpp>
+#include <Persistent/PlayerStartPosition.hpp>
 #include <Position.hpp>
 #include <RenderSystem.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -32,8 +33,9 @@ void RenderGameSystem::init_views()
                              { kDisplaySize.x * kMiniMapViewZoomFactor, kDisplaySize.y * kMiniMapViewZoomFactor } );
   m_minimap_view.setViewport( sf::FloatRect( { 0.75f, 0.f }, { 0.25f, 0.25f } ) );
 
-  update_view_center( m_local_view, Cmp::Position{ PLAYER_START_POS }, kStartGameSmoothFactor );
-  update_view_center( m_minimap_view, Cmp::Position{ PLAYER_START_POS }, kStartGameSmoothFactor );
+  auto start_pos = m_reg->ctx().get<Cmp::Persistent::PlayerStartPosition>();
+  update_view_center( m_local_view, start_pos, kStartGameSmoothFactor );
+  update_view_center( m_minimap_view, start_pos, kStartGameSmoothFactor );
 }
 
 void RenderGameSystem::render_game( sf::Time deltaTime )
@@ -229,6 +231,12 @@ void RenderGameSystem::render_obstacles()
     m_rock_ms->pick( idx, "Obstacle" );
     m_rock_ms->setPosition( pos );
     getWindow().draw( *m_rock_ms );
+    // sf::RectangleShape player_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+    // player_square.setFillColor( sf::Color::Transparent );
+    // player_square.setOutlineColor( sf::Color::Red );
+    // player_square.setOutlineThickness( 1.f );
+    // player_square.setPosition( pos );
+    // getWindow().draw( player_square );
   }
 
   for ( const auto &[pos, idx] : potPositions )
@@ -377,20 +385,20 @@ void RenderGameSystem::render_walls()
 void RenderGameSystem::render_player()
 {
   auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds,
-                                 Cmp::SpriteAnimation, Cmp::Movement>();
-  for ( auto [entity, player, position, direction, pc_detection_bounds, anim_cmp, move_cmp] : player_view.each() )
+                                 Cmp::SpriteAnimation>();
+  for ( auto [entity, player, position, direction, pc_detection_bounds, anim_cmp] : player_view.each() )
   {
     int sprite_index;
 
-    if ( move_cmp.velocity != sf::Vector2f( 0.0f, 0.0f ) )
-    {
-      // Use animated frame: base_frame + current_frame
-      sprite_index = anim_cmp.m_base_frame + anim_cmp.m_current_frame;
-    }
-    else
+    if ( direction == sf::Vector2f( 0.0f, 0.0f ) )
     {
       // Use static frame when not moving
       sprite_index = anim_cmp.m_base_frame;
+    }
+    else
+    {
+      // Use animated frame: base_frame + current_frame
+      sprite_index = anim_cmp.m_base_frame + anim_cmp.m_current_frame;
     }
 
     m_player_ms->pick( sprite_index, "player" );
@@ -406,17 +414,24 @@ void RenderGameSystem::render_player()
       pc_square.setPosition( pc_detection_bounds.position() );
       getWindow().draw( pc_square );
     }
+
+    // sf::RectangleShape player_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+    // player_square.setFillColor( sf::Color::Transparent );
+    // player_square.setOutlineColor( sf::Color::Green );
+    // player_square.setOutlineThickness( 1.f );
+    // player_square.setPosition( position );
+    // getWindow().draw( player_square );
   }
 }
 
 void RenderGameSystem::render_player_footsteps()
 {
   // add new footstep for player
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::Movement>();
-  for ( auto [entity, player, position, direction, movement] : player_view.each() )
+  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction>();
+  for ( auto [entity, player, pos_cmp, dir_cmp] : player_view.each() )
   {
-    if ( movement.velocity.x == 0.f && movement.velocity.y == 0.f ) { continue; }
-    m_footstep_sys.add_footstep( position, direction );
+    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { continue; }
+    m_footstep_sys.add_footstep( pos_cmp, dir_cmp );
   }
 
   // update all footsteps (fade out and remove if alpha <= 0)
@@ -481,6 +496,13 @@ void RenderGameSystem::render_npc()
       npc_square.setPosition( npc_scan_bounds.position() );
       getWindow().draw( npc_square );
     }
+
+    // sf::RectangleShape player_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+    // player_square.setFillColor( sf::Color::Transparent );
+    // player_square.setOutlineColor( sf::Color::Red );
+    // player_square.setOutlineThickness( 1.f );
+    // player_square.setPosition( pos );
+    // getWindow().draw( player_square );
   }
 }
 

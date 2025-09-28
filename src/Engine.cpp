@@ -33,16 +33,12 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
   m_render_game_sys.window().setVerticalSyncEnabled( true );
   // m_render_game_sys.window().setFramerateLimit( 144 );
 
-  // #ifdef _WIN32
-  //   ::ShowWindow( m_render_game_sys.window().getNativeHandle(), SW_MAXIMIZE );
-  // #endif
-
   // these need to be initialised by the time we get the
   // Cmp::Persistent::GameState::State::SETTINGS state
   m_event_handler.init_context();
+  m_player_sys.init_context();
   m_title_music_sys.init_context();
   m_bomb_sys.init_context();
-  m_player_sys.init_context();
   m_flood_sys.init_context();
   m_collision_sys.init_context();
   m_npc_sys.init_context();
@@ -126,8 +122,8 @@ bool Engine::run()
         m_title_music_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
 
         // check if player is underwater to start/stop underwater sounds
-        auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Movement>();
-        for ( auto [_, pc, move_cmp] : player_view.each() )
+        auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Direction>();
+        for ( auto [_, pc, dir_cmp] : player_view.each() )
         {
           if ( pc.underwater )
           {
@@ -139,7 +135,7 @@ bool Engine::run()
           {
             m_underwater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
             // play footsteps only when player is moving
-            if ( move_cmp.velocity == sf::Vector2f( 0.f, 0.f ) )
+            if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) )
             {
               m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
             }
@@ -149,7 +145,8 @@ bool Engine::run()
 
         m_event_handler.game_state_handler( m_render_game_sys.window() );
 
-        m_player_sys.update( deltaTime );
+        // m_player_sys.update( deltaTime );
+
         m_anim_sys.update( deltaTime );
         m_flood_sys.update();
         m_sinkhole_sys.update_hazard_field();
@@ -164,12 +161,13 @@ bool Engine::run()
 
         m_collision_sys.update_obstacle_distances();
 
-        auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
+        // enable/disable collision detection depending on Cmp::System settings
         for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
         {
+          m_player_sys.update_movement( deltaTime, !_sys.collisions_enabled );
           if ( _sys.collisions_enabled )
           {
-            m_collision_sys.check_player_obstacle_collision();
+            // m_collision_sys.check_player_obstacle_collision();
             m_collision_sys.check_player_hazard_field_collision<Cmp::SinkholeCell>();
             m_collision_sys.check_player_hazard_field_collision<Cmp::CorruptionCell>();
             m_collision_sys.check_player_to_npc_collision();
@@ -181,6 +179,7 @@ bool Engine::run()
           }
         }
 
+        auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
         m_path_find_sys.findPath( player_entity );
         m_npc_sys.lerp_movement( deltaTime );
 

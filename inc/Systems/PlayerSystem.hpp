@@ -49,16 +49,40 @@ public:
   void add_player_entity();
 
   /**
-   * @brief Updates the player system for the current frame
+   * @brief Updates the player's movement based on input and physics
    *
-   * This method is called once per frame to update the player's state,
-   * movement calculations, and any other player-related logic that needs to be updated over time.
+   * This function handles the player's movement logic, including position updates,
+   * velocity calculations, and collision detection. It processes user input and
+   * applies movement transformations over the given time delta.
    *
-   * @param deltaTime The time elapsed since the last frame update,
-   *                  used for frame-rate independent calculations
+   * @param deltaTime The time elapsed since the last frame update, used for
+   *                  frame-rate independent movement calculations
+   * @param skip_collision_check Optional parameter to bypass collision detection.
+   *                            Defaults to false. When true, the player can move
+   *                            through walls and other collision objects
    */
-  void update( sf::Time deltaTime );
+  void update_movement( sf::Time deltaTime, bool skip_collision_check = false );
 
+  /**
+   * @brief Checks if the player's movement to a given position is valid
+   *
+   * Validates whether the player can move to the specified position by checking
+   * for collisions with walls, boundaries, or other obstacles in the game world.
+   *
+   * @param player_position The target position to validate for player movement
+   * @return true if the movement is valid and allowed, false otherwise
+   */
+  bool isValidMove( sf::Vector2f &player_position );
+
+  /**
+   * @brief Updates the player's animation based on the elapsed time.
+   *
+   * This function handles the progression of player animation frames,
+   * updating sprite states, animation timers, and visual effects based
+   * on the player's current state and actions.
+   *
+   * @param deltaTime The time elapsed since the last frame update
+   */
   void update_player_animation( sf::Time deltaTime );
 };
 

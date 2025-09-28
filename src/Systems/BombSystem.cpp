@@ -29,14 +29,11 @@ void BombSystem::resume()
 
 void BombSystem::arm_occupied_location()
 {
-  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>();
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp, movement_cmp] : player_collision_view.each() )
+  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
+  for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
   {
     if ( pc_cmp.has_active_bomb ) continue;     // skip if player already placed a bomb
     if ( pc_cmp.bomb_inventory == 0 ) continue; // skip if player has no bombs left, -1 is infini bombs
-
-    // Store movement velocity before bomb placement
-    sf::Vector2f original_velocity = movement_cmp.velocity;
 
     auto obstacle_collision_view = m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<typename Cmp::Armed> );
     for ( auto [obstacle_entity, obstacle_cmp, obstacle_pos_cmp] : obstacle_collision_view.each() )
@@ -65,29 +62,6 @@ void BombSystem::arm_occupied_location()
           pc_cmp.m_bombdeploycooldowntimer.restart();
           pc_cmp.has_active_bomb = true;
           pc_cmp.bomb_inventory = ( pc_cmp.bomb_inventory > 0 ) ? pc_cmp.bomb_inventory - 1 : pc_cmp.bomb_inventory;
-
-          // Apply a smooth velocity transition instead of abrupt restoration
-          // This will blend the current velocity with the original to prevent
-          // jumping
-          sf::Vector2f current_velocity = movement_cmp.velocity;
-          float blend_factor = 0.5f; // Adjust for smoothness (0 = full
-                                     // original, 1 = no change)
-
-          movement_cmp.velocity = sf::Vector2f(
-              current_velocity.x * blend_factor + original_velocity.x * ( 1.0f - blend_factor ),
-              current_velocity.y * blend_factor + original_velocity.y * ( 1.0f - blend_factor ) );
-
-          float max_restore_speed = 0.f;
-          auto &land_max_speed = m_reg->ctx().get<Cmp::Persistent::LandMaxSpeed>();
-          auto &water_max_speed = m_reg->ctx().get<Cmp::Persistent::WaterMaxSpeed>();
-          if ( pc_cmp.underwater ) { max_restore_speed = water_max_speed() * 0.5f; }
-          else { max_restore_speed = land_max_speed() * 0.5f; }
-
-          // Cap the restored velocity to avoid sudden bursts
-          if ( movement_cmp.velocity.length() > max_restore_speed )
-          {
-            movement_cmp.velocity = ( movement_cmp.velocity / movement_cmp.velocity.length() ) * max_restore_speed;
-          }
         }
       }
     }

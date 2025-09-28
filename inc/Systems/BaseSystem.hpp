@@ -1,6 +1,7 @@
 #ifndef __SYSTEMS_BASE_SYSTEM_HPP__
 #define __SYSTEMS_BASE_SYSTEM_HPP__
 
+#include <MultiSprite.hpp>
 #include <Position.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -102,7 +103,6 @@ public:
 protected:
   // Entity registry
   ProceduralMaze::SharedEnttRegistry m_reg;
-  sf::Vector2f PLAYER_START_POS{ 20, static_cast<float>( kDisplaySize.y ) / 2 };
 
 private:
   // Prevent access to uninitialised dispatcher - use getEventDispatcher()

@@ -8,7 +8,7 @@ class NpcPushBack : public BasePersistent<float>
 {
 public:
   NpcPushBack()
-      : BasePersistent<float>( 8.0f )
+      : BasePersistent<float>( 16.0f )
   {
   }
 };

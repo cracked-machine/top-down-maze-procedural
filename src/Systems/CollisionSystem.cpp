@@ -3,6 +3,7 @@
 #include <HazardFieldCell.hpp>
 #include <Persistent/CorruptionDamage.hpp>
 #include <Persistent/PlayerMinVelocity.hpp>
+#include <Persistent/PlayerStartPosition.hpp>
 #include <SinkholeCell.hpp>
 
 namespace ProceduralMaze::Sys {
@@ -69,9 +70,9 @@ void CollisionSystem::check_bones_reanimation()
 
 void CollisionSystem::check_player_to_npc_collision()
 {
-  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::Movement>();
+  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction>();
   auto npc_collision_view = m_reg->view<Cmp::NPC, Cmp::Position>();
-  for ( auto [_pc_entt, _pc, _pc_pos, _direction, _movement] : player_collision_view.each() )
+  for ( auto [_pc_entt, _pc, _pc_pos, _direction] : player_collision_view.each() )
   {
 
     auto player_hitbox = get_hitbox( _pc_pos );
@@ -90,7 +91,7 @@ void CollisionSystem::check_player_to_npc_collision()
 
         _npc.m_damage_cooldown.restart();
         // Check if player is moving
-        if ( _direction.x != 0.f || _direction.y != 0.f )
+        if ( _direction != sf::Vector2f( 0.0f, 0.0f ) )
         {
           // Push back in opposite direction of travel
           auto &npc_push_back = m_reg->ctx().get<Cmp::Persistent::NpcPushBack>();
@@ -100,11 +101,19 @@ void CollisionSystem::check_player_to_npc_collision()
         {
           // If not moving, use the distance as a direction of travel
           sf::Vector2f push_dir = { _pc_pos.x - _npc_pos.x, _pc_pos.y - _npc_pos.y };
-          _pc_pos += push_dir.normalized() * 8.f;
+          if ( push_dir != sf::Vector2f( 0.0f, 0.0f ) )
+          {
+            _pc_pos += push_dir.normalized().componentWiseMul(
+                sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+          }
         }
       }
 
-      if ( _pc.health <= 0 ) { _pc.alive = false; }
+      if ( _pc.health <= 0 )
+      {
+        _pc.alive = false;
+        return;
+      }
     }
   }
 }
@@ -117,16 +126,15 @@ void CollisionSystem::check_loot_collision()
     entt::entity loot_entity;
     Sprites::SpriteFactory::SpriteMetaType type;
     entt::entity player_entity;
-    sf::Vector2f original_velocity;
   };
 
   std::vector<LootEffect> loot_effects;
 
   // First pass: detect collisions and gather effects to apply
-  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>();
+  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
   auto loot_collision_view = m_reg->view<Cmp::Loot, Cmp::Position>();
 
-  for ( auto [_pc_entt, _pc, _pc_pos, _movement] : player_collision_view.each() )
+  for ( auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each() )
   {
     auto player_hitbox = get_hitbox( _pc_pos );
 
@@ -135,9 +143,8 @@ void CollisionSystem::check_loot_collision()
       auto loot_hitbox = get_hitbox( _loot_pos );
       if ( player_hitbox.findIntersection( loot_hitbox ) )
       {
-        // Store effect to apply after collision detection, along with
-        // original velocity
-        loot_effects.push_back( { _loot_entt, _loot.m_type, _pc_entt, _movement.velocity } );
+        // Store effect to apply after collision detection
+        loot_effects.push_back( { _loot_entt, _loot.m_type, _pc_entt } );
       }
     }
   }
@@ -183,13 +190,6 @@ void CollisionSystem::check_loot_collision()
         break;
     }
 
-    // Restore original movement velocity
-    if ( m_reg->valid( effect.player_entity ) && m_reg->all_of<Cmp::Movement>( effect.player_entity ) )
-    {
-      auto &movement = m_reg->get<Cmp::Movement>( effect.player_entity );
-      movement.velocity = effect.original_velocity;
-    }
-
     // Remove the loot entity
     if ( m_reg->valid( effect.loot_entity ) ) { m_reg->erase<Cmp::Loot>( effect.loot_entity ); }
   }
@@ -213,8 +213,8 @@ void CollisionSystem::check_end_zone_collision()
 
 void CollisionSystem::update_obstacle_distances()
 {
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::PCDetectionBounds>();
-  for ( auto [_pc_entt, _pc, _pc_pos, _movement, pc_detection_bounds] : player_view.each() )
+  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PCDetectionBounds>();
+  for ( auto [_pc_entt, _pc, _pc_pos, pc_detection_bounds] : player_view.each() )
   {
 
     auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
@@ -227,160 +227,6 @@ void CollisionSystem::update_obstacle_distances()
         m_reg->emplace_or_replace<Cmp::PlayerDistance>( _ob_entt, distance );
       }
       else { m_reg->remove<Cmp::PlayerDistance>( _ob_entt ); }
-    }
-  }
-}
-
-void CollisionSystem::check_player_obstacle_collision()
-{
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement>();
-  for ( auto [_pc_entt, _pc, _pc_pos, _movement] : player_view.each() )
-  {
-    sf::Vector2f starting_pos = { _pc_pos.x, _pc_pos.y };
-    int stuck_loop = 0;
-
-    // Reset collision flag at start of frame
-    _movement.is_colliding = false;
-
-    auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
-    for ( auto [_ob_entt, _ob, _ob_pos] : obstacle_view.each() )
-    {
-
-      // otherwise we are not interested in collision detection on traversable obstacles
-      if ( not _ob.m_enabled ) { continue; }
-
-      auto player_floatrect = get_hitbox( _pc_pos );
-      auto brick_floatRect = get_hitbox( _ob_pos );
-
-      auto collision = player_floatrect.findIntersection( brick_floatRect );
-      if ( !collision ) continue;
-
-      stuck_loop++;
-
-      // We'll keep track if we're near the top wall for special handling
-      bool near_top_wall = ( _pc_pos.y < kMapGridOffset.y * 16.f );
-
-      if ( stuck_loop > 5 ) // Reduced threshold, but we'll be smarter about resolution
-      {
-        // First try moving back to starting position
-        _pc_pos.x = starting_pos.x;
-        _pc_pos.y = starting_pos.y;
-
-        player_floatrect = sf::FloatRect( { _pc_pos.x, _pc_pos.y },
-                                          sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
-        if ( !player_floatrect.findIntersection( brick_floatRect ) )
-        {
-          SPDLOG_INFO( "Recovered by reverting to start position" );
-          continue;
-        }
-
-        // If still stuck, reset to spawn
-        SPDLOG_INFO( "Could not recover, resetting to spawn" );
-        _pc_pos = PLAYER_START_POS;
-        for ( auto [_entt, _sys] : m_reg->view<Cmp::System>().each() )
-        {
-          _sys.player_stuck = true;
-        }
-        return;
-      }
-
-      auto brickCenter = brick_floatRect.getCenter();
-      auto playerCenter = player_floatrect.getCenter();
-
-      auto diffX = playerCenter.x - brickCenter.x;
-      auto diffY = playerCenter.y - brickCenter.y;
-
-      auto minXDist = ( player_floatrect.size.x / 2.0f ) + ( brick_floatRect.size.x / 2.0f );
-      auto minYDist = ( player_floatrect.size.y / 2.0f ) + ( brick_floatRect.size.y / 2.0f );
-
-      // Calculate signed penetration depths
-      float depthX = ( diffX > 0 ? 1.0f : -1.0f ) * ( minXDist - std::abs( diffX ) );
-      float depthY = ( diffY > 0 ? 1.0f : -1.0f ) * ( minYDist - std::abs( diffY ) );
-
-      // Store current position in case we need to revert
-      sf::Vector2f pre_resolve_pos = { _pc_pos.x, _pc_pos.y };
-
-      // Near top wall: Slightly bias vertical resolution but don't force it
-      if ( near_top_wall && depthY > 0 )
-      {
-        // If pushing down would resolve collision and we're at the top wall,
-        // slightly prefer vertical resolution (by reducing the X penetration)
-        depthX *= 1.2f; // Makes horizontal resolution slightly less likely
-      }
-
-      auto &land_max_speed = m_reg->ctx().get<Cmp::Persistent::LandMaxSpeed>();
-      auto &water_max_speed = m_reg->ctx().get<Cmp::Persistent::WaterMaxSpeed>();
-      auto &friction_coefficient = m_reg->ctx().get<Cmp::Persistent::FrictionCoefficient>();
-      auto &friction_falloff = m_reg->ctx().get<Cmp::Persistent::FrictionFalloff>();
-      auto &player_min_velocity = m_reg->ctx().get<Cmp::Persistent::PlayerMinVelocity>();
-
-      // Always resolve along the axis of least penetration
-      if ( std::abs( depthX ) < std::abs( depthY ) )
-      {
-        // Push out along X axis
-        _pc_pos.x += depthX * m_reg->ctx().get<Cmp::Persistent::ObstaclePushBack>()();
-
-        // Calculate speed-based friction coefficient
-        float speed_ratio = 0.f;
-        if ( _pc.underwater ) { speed_ratio = std::abs( _movement.velocity.y ) / water_max_speed(); }
-        else { speed_ratio = std::abs( _movement.velocity.y ) / land_max_speed(); }
-        float dynamic_friction = friction_coefficient() * ( 1.0f - ( friction_falloff() * speed_ratio ) );
-
-        // Apply friction to Y velocity with smooth falloff
-        _movement.velocity.y *= ( 1.0f - dynamic_friction );
-
-        // Check if Y velocity is below minimum
-        if ( std::abs( _movement.velocity.y ) < player_min_velocity() ) { _movement.velocity.y = 0.0f; }
-      }
-      else
-      {
-        // Push out along Y axis
-        _pc_pos.y += depthY * m_reg->ctx().get<Cmp::Persistent::ObstaclePushBack>()();
-
-        // Calculate speed-based friction coefficient
-        float speed_ratio = 0.f;
-        if ( _pc.underwater ) { speed_ratio = std::abs( _movement.velocity.x ) / water_max_speed(); }
-        else { speed_ratio = std::abs( _movement.velocity.x ) / land_max_speed(); }
-        float dynamic_friction = friction_coefficient() * ( 1.0f - ( friction_falloff() * speed_ratio ) );
-
-        // Apply friction to X velocity with smooth falloff
-        _movement.velocity.x *= ( 1.0f - dynamic_friction );
-
-        // Check if X velocity is below minimum
-        if ( std::abs( _movement.velocity.x ) < player_min_velocity() ) { _movement.velocity.x = 0.0f; }
-      }
-
-      // Verify the resolution worked
-      player_floatrect = get_hitbox( _pc_pos );
-      if ( player_floatrect.findIntersection( brick_floatRect ) )
-      {
-        // If resolution failed, try reverting and using the other axis
-        _pc_pos = pre_resolve_pos;
-        if ( std::abs( depthX ) < std::abs( depthY ) )
-        {
-          _pc_pos.y += depthY * m_reg->ctx().get<Cmp::Persistent::ObstaclePushBack>()();
-          _movement.velocity.x *= ( 1.0f - friction_coefficient() );
-        }
-        else
-        {
-          _pc_pos.x += depthX * m_reg->ctx().get<Cmp::Persistent::ObstaclePushBack>()();
-          _movement.velocity.y *= ( 1.0f - friction_coefficient() );
-        }
-      }
-
-      // Special case for top wall: prevent any upward movement
-      if ( near_top_wall && _pc_pos.y < kMapGridOffset.y * 16.f + 4.0f )
-      {
-        _movement.velocity.y = std::max( 0.0f, _movement.velocity.y );
-      }
-
-      // Mark that we're colliding for this frame
-      _movement.is_colliding = true;
-
-      // Extra safety for top wall
-      if ( near_top_wall && _pc_pos.y < kMapGridOffset.y * 16.f ) { _pc_pos.y = kMapGridOffset.y * 16.f + 1.0f; }
-
-      SPDLOG_DEBUG( "Collision resolved - new pos: {},{}", _pc_pos.x, _pc_pos.y );
     }
   }
 }

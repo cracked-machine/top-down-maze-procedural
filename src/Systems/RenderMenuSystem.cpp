@@ -11,6 +11,8 @@
 #include <Persistent/NpcDamageDelay.hpp>
 #include <Persistent/NpcPushBack.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
+#include <Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
+#include <Persistent/PlayerLerpSpeed.hpp>
 #include <Persistent/PlayerMinVelocity.hpp>
 #include <Persistent/WaterBonus.hpp>
 #include <SFML/System/Angle.hpp>
@@ -105,6 +107,13 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
 
   auto &blast_radius = m_reg->ctx().get<Cmp::Persistent::BlastRadius>();
   ImGui::SliderInt( "Blast Radius", &blast_radius(), 1, 3 );
+
+  auto &player_lerp_speed = m_reg->ctx().get<Cmp::Persistent::PlayerLerpSpeed>();
+  ImGui::SliderFloat( "Player Lerp Speed", &player_lerp_speed(), 3.f, 10.f, "%.1f" );
+
+  auto &player_diagonal_lerp_speed_modifier = m_reg->ctx().get<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
+  ImGui::SliderFloat( "Player Diagonal Lerp Speed Modifier", &player_diagonal_lerp_speed_modifier(), 0.001f, 1.f,
+                      "%.2f" );
 
   auto &land_max_speed = m_reg->ctx().get<Cmp::Persistent::LandMaxSpeed>();
   ImGui::SliderFloat( "Land Max Speed", &land_max_speed(), 25.0f, 150.0f, "%.1f" );

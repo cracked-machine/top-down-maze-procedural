@@ -37,7 +37,7 @@ void FloodSystem::updateFlood( float dt )
 
   // Cache views once - better performance since entities always exist
   auto water_view = m_reg->view<Cmp::WaterLevel>();
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction>();
+  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction>();
 
   // abort if flood is paused
   for ( auto [_, sys] : m_reg->view<Cmp::System>().each() )
@@ -58,7 +58,7 @@ void FloodSystem::updateFlood( float dt )
   // BELOW player position
   for ( auto [_, water_level] : water_view.each() )
   {
-    for ( auto [player_entity, player_char, position, move_cmp, dir_cmp] : player_view.each() )
+    for ( auto [player_entity, player_char, position, dir_cmp] : player_view.each() )
     {
       if ( water_level.m_level <= position.y ) // Water drowns player when water level is at or
                                                // above player position
