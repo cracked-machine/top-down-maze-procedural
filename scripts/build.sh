@@ -18,6 +18,7 @@ chmod 777 $BUILD_DIR/bin/*
 if [ -f ".clangd" ]; then
     yq -y --in-place ".CompileFlags.CompilationDatabase = \"$BUILD_DIR\"" .clangd
     echo "Switched .CompileFlags.CompilationDatabase to $BUILD_DIR"
+    echo "You may need to restart clangd server if this is a new value"
 fi
 
 # Update VS Code settings - we moved these settings to .clangd but leaving this here for future reference
@@ -30,8 +31,8 @@ fi
 
 # restart clangd server, vscode will restart it automatically
 # if you not using vscode you may need to restart it manually
-if pgrep -f "^/usr/bin/clangd" > /dev/null; then
-    echo "Stopping clangd..."
-    pkill -f "^/usr/bin/clangd"
-    sleep 1
-fi  
+# if pgrep -f "^/usr/bin/clangd" > /dev/null; then
+#     echo "Stopping clangd..."
+#     pkill -f "^/usr/bin/clangd"
+#     sleep 1
+# fi  

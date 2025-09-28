@@ -72,5 +72,8 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp"
-    }
+    },
+    "clangd.arguments": [
+        "--j 24"
+    ]
 }
