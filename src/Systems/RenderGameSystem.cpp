@@ -10,6 +10,7 @@
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SinkholeCell.hpp>
+#include <SpriteAnimation.hpp>
 #include <Systems/RenderGameSystem.hpp>
 #include <string>
 
@@ -375,32 +376,27 @@ void RenderGameSystem::render_walls()
 
 void RenderGameSystem::render_player()
 {
-  for ( auto [entity, player, position, direction, pc_detection_bounds] :
-        m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds>().each() )
+  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds,
+                                 Cmp::SpriteAnimation, Cmp::Movement>();
+  for ( auto [entity, player, position, direction, pc_detection_bounds, anim_cmp, move_cmp] : player_view.each() )
   {
+    int sprite_index;
 
-    // flip and x-axis offset the sprite depending on the direction
-    if ( direction.x == 1 )
+    if ( move_cmp.velocity != sf::Vector2f( 0.0f, 0.0f ) )
     {
-      direction.x_scale = 1.f;
-      direction.x_offset = 0.f;
-    }
-    else if ( direction.x == -1 )
-    {
-      direction.x_scale = -1.f;
-      direction.x_offset = Sprites::MultiSprite::kDefaultSpriteDimensions.x;
+      // Use animated frame: base_frame + current_frame
+      sprite_index = anim_cmp.m_base_frame + anim_cmp.m_current_frame;
     }
     else
     {
-      direction.x_scale = direction.x_scale; // keep last known direction
-      direction.x_offset = direction.x_offset;
+      // Use static frame when not moving
+      sprite_index = anim_cmp.m_base_frame;
     }
 
-    m_player_ms->setScale( { direction.x_scale, 1.f } );
+    m_player_ms->pick( sprite_index, "player" );
     m_player_ms->setPosition( { position.x + direction.x_offset, position.y } );
-
-    m_player_ms->pick( 0, "player" );
     getWindow().draw( *m_player_ms );
+
     if ( m_show_path_distances )
     {
       sf::RectangleShape pc_square( pc_detection_bounds.size() );

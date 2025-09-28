@@ -1,6 +1,7 @@
 #include <CorruptionCell.hpp>
 #include <Engine.hpp>
 
+#include <Events/AnimResetFrameEvent.hpp>
 #include <MusicSystem.hpp>
 #include <Persistent/MusicVolume.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
@@ -19,6 +20,7 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
       m_render_game_sys( m_reg ),
       m_render_menu_sys( m_reg ),
       m_bomb_sys( m_reg ),
+      m_anim_sys( m_reg ),
       m_sinkhole_sys( m_reg ),
       m_corruption_sys( m_reg ),
       m_title_music_sys( m_reg, "res/audio/title_music.mp3" ),
@@ -147,6 +149,7 @@ bool Engine::run()
         m_event_handler.game_state_handler( m_render_game_sys.window() );
 
         m_player_sys.update( deltaTime );
+        m_anim_sys.update( deltaTime );
         m_flood_sys.update();
         m_sinkhole_sys.update_hazard_field();
         m_corruption_sys.update_hazard_field();

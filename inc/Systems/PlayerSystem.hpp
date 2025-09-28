@@ -58,6 +58,8 @@ public:
    *                  used for frame-rate independent calculations
    */
   void update( sf::Time deltaTime );
+
+  void update_player_animation( sf::Time deltaTime );
 };
 
 } // namespace ProceduralMaze::Sys

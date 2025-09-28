@@ -1,5 +1,10 @@
+#include <Events/AnimDirectionChangeEvent.hpp>
+#include <Events/AnimResetFrameEvent.hpp>
 #include <Persistent/PlayerMinVelocity.hpp>
+#include <PlayableCharacter.hpp>
 #include <PlayerSystem.hpp>
+#include <SFML/System/Time.hpp>
+#include <SpriteAnimation.hpp>
 
 namespace ProceduralMaze::Sys {
 
@@ -72,15 +77,15 @@ void PlayerSystem::add_player_entity()
   m_reg->emplace<Cmp::PCDetectionBounds>( entity, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions },
                                           sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions },
                                           pc_detection_scale() );
+  m_reg->emplace<Cmp::SpriteAnimation>( entity, 3, sf::seconds( 0.1f ) );
 }
 
 void PlayerSystem::update( sf::Time deltaTime )
 {
   const float dt = deltaTime.asSeconds();
-
-  for ( auto [entity, pc_cmp, pos_cmp, move_cmp, dir_cmp, pc_bounds] :
-        m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction, Cmp::PCDetectionBounds>()
-            .each() )
+  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Movement, Cmp::Direction,
+                                 Cmp::PCDetectionBounds, Cmp::SpriteAnimation>();
+  for ( auto [entity, pc_cmp, pos_cmp, move_cmp, dir_cmp, pc_bounds, anim_cmp] : player_view.each() )
   {
     auto &land_acceleration = m_reg->ctx().get<Cmp::Persistent::LandAcceleration>();
     auto &land_deceleration = m_reg->ctx().get<Cmp::Persistent::LandDeceleration>();
@@ -95,6 +100,9 @@ void PlayerSystem::update( sf::Time deltaTime )
     {
       if ( pc_cmp.underwater ) { move_cmp.acceleration = dir_cmp * water_acceleration(); }
       else { move_cmp.acceleration = dir_cmp * land_acceleration(); }
+
+      // send direction change event
+      getEventDispatcher().trigger( Events::AnimDirectionChangeEvent( entity ) );
     }
     else
     {
@@ -115,6 +123,9 @@ void PlayerSystem::update( sf::Time deltaTime )
     {
       move_cmp.velocity = sf::Vector2f( 0.0f, 0.0f );
       move_cmp.acceleration = sf::Vector2f( 0.0f, 0.0f );
+
+      // reset animation frame when not moving
+      getEventDispatcher().trigger( Events::AnimResetFrameEvent( entity ) );
     }
     // Clamp velocity to max speed if current velocity magnitude exceeds max speed
     if ( pc_cmp.underwater && move_cmp.velocity.length() > water_max_speed() )
@@ -131,5 +142,22 @@ void PlayerSystem::update( sf::Time deltaTime )
     pc_bounds.position( pos_cmp );
   }
 }
+
+// void PlayerSystem::update_player_animation( sf::Time deltaTime )
+// {
+//   for ( auto [entity, move_cmp, anim_cmp] : m_reg->view<Cmp::Movement, Cmp::SpriteAnimation>().each() )
+//   {
+//     if ( move_cmp.velocity == sf::Vector2f( 0.0f, 0.0f ) ) continue;
+
+//     anim_cmp.m_elapsed_time += deltaTime;
+
+//     if ( anim_cmp.m_elapsed_time >= anim_cmp.m_frame_duration )
+//     {
+//       // Increment frame. Wrap around to zero at anim_cmp.m_frame_count
+//       anim_cmp.m_current_frame = ( anim_cmp.m_current_frame + 1 ) % anim_cmp.m_frame_count;
+//       anim_cmp.m_elapsed_time = sf::Time::Zero;
+//     }
+//   }
+// }
 
 } // namespace ProceduralMaze::Sys

@@ -1,6 +1,7 @@
 #ifndef __ENGINE_HPP__
 #define __ENGINE_HPP__
 
+#include <AnimSystem.hpp>
 #include <BaseSystem.hpp>
 #include <BombSystem.hpp>
 #include <Direction.hpp>
@@ -87,6 +88,7 @@ private:
   Sys::RenderGameSystem m_render_game_sys;
   Sys::RenderMenuSystem m_render_menu_sys;
   Sys::BombSystem m_bomb_sys;
+  Sys::AnimSystem m_anim_sys;
   Sys::SinkHoleHazardSystem m_sinkhole_sys;
   Sys::CorruptionHazardSystem m_corruption_sys;
 
