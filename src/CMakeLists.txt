@@ -17,6 +17,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/RenderGameSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/RenderMenuSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/RenderOverlaySystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/PathFindSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/BombSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/FloodSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/CollisionSystem.cpp
@@ -47,7 +48,6 @@ target_include_directories(${TARGET} SYSTEM PRIVATE
     $<$<STREQUAL:${TARGET_TRIPLET},x86_64-w64-mingw32>:/usr/x86_64-w64-mingw32/include/GL/>
 )
 
-message("TARGET_TRIPLET: ${TARGET_TRIPLET}")
 target_compile_options(${TARGET} PRIVATE 
     $<$<COMPILE_LANGUAGE:CXX>:
         -std=c++23
