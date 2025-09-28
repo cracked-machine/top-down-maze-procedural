@@ -436,7 +436,8 @@ void RenderGameSystem::render_player_footsteps()
                                  Sprites::MultiSprite::kDefaultSpriteDimensions.y / 2.f } );
     m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x / 2.f ),
                                    position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y / 2.f ) } );
-    m_footsteps_ms->setRotation( direction.angle() );
+    // only set rotation if direction is not zero vector
+    if ( direction != sf::Vector2f( 0.f, 0.f ) ) { m_footsteps_ms->setRotation( direction.angle() ); }
 
     getWindow().draw( *m_footsteps_ms );
   }
