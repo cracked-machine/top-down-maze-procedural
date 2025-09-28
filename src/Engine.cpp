@@ -126,23 +126,24 @@ bool Engine::run()
         m_title_music_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
 
         // check if player is underwater to start/stop underwater sounds
-        auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Direction>();
-        for ( auto [_, pc, dir_cmp] : player_view.each() )
+        auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Movement>();
+        for ( auto [_, pc, move_cmp] : player_view.each() )
         {
           if ( pc.underwater )
           {
-            m_underwater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::PLAY );
             m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
+            // under water should always be playing even if not moving
+            m_underwater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::PLAY );
           }
           else
           {
             m_underwater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
             // play footsteps only when player is moving
-            if ( dir_cmp.x != 0.0f || dir_cmp.y != 0.0f )
+            if ( move_cmp.velocity == sf::Vector2f( 0.f, 0.f ) )
             {
-              m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::PLAY );
+              m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
             }
-            else { m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP ); }
+            else { m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::PLAY ); }
           }
         }
 
