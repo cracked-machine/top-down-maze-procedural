@@ -25,6 +25,11 @@ public:
 
   ~BaseSystem() = default;
 
+  template <typename T> void add_persistent_component( entt::registry &reg )
+  {
+    if ( not reg.ctx().contains<T>() ) { reg.ctx().emplace<T>(); }
+  }
+
   // Get a grid position from an entity's Position component
   std::optional<sf::Vector2i> getGridPosition( entt::entity entity ) const
   {

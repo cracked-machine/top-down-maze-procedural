@@ -10,54 +10,18 @@ namespace ProceduralMaze::Sys {
 
 void PlayerSystem::init_context()
 {
-  if ( not m_reg->ctx().contains<Cmp::Persistent::BombInventory>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::BombInventory>();
-  }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::BlastRadius>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::BlastRadius>();
-  }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::WaterMaxSpeed>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::WaterMaxSpeed>();
-  }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::LandMaxSpeed>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::LandMaxSpeed>();
-  }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::FrictionCoefficient>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::FrictionCoefficient>();
-  }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::FrictionFalloff>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::FrictionFalloff>();
-  }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::LandAcceleration>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::LandAcceleration>();
-  }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::LandDeceleration>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::LandDeceleration>();
-  }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::WaterAcceleration>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::WaterAcceleration>();
-  }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::WaterDeceleration>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::WaterDeceleration>();
-  }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::PCDetectionScale>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::PCDetectionScale>();
-  }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::PlayerMinVelocity>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::PlayerMinVelocity>();
-  }
+  add_persistent_component<Cmp::Persistent::BombInventory>( *m_reg );
+  add_persistent_component<Cmp::Persistent::BlastRadius>( *m_reg );
+  add_persistent_component<Cmp::Persistent::WaterMaxSpeed>( *m_reg );
+  add_persistent_component<Cmp::Persistent::LandMaxSpeed>( *m_reg );
+  add_persistent_component<Cmp::Persistent::FrictionCoefficient>( *m_reg );
+  add_persistent_component<Cmp::Persistent::FrictionFalloff>( *m_reg );
+  add_persistent_component<Cmp::Persistent::LandAcceleration>( *m_reg );
+  add_persistent_component<Cmp::Persistent::LandDeceleration>( *m_reg );
+  add_persistent_component<Cmp::Persistent::WaterAcceleration>( *m_reg );
+  add_persistent_component<Cmp::Persistent::WaterDeceleration>( *m_reg );
+  add_persistent_component<Cmp::Persistent::PCDetectionScale>( *m_reg );
+  add_persistent_component<Cmp::Persistent::PlayerMinVelocity>( *m_reg );
 }
 
 void PlayerSystem::add_player_entity()

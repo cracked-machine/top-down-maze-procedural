@@ -40,13 +40,7 @@ public:
   }
   ~PathFindSystem() = default;
 
-  void init_context()
-  {
-    if ( not m_reg->ctx().contains<Cmp::Persistent::NpcLerpSpeed>() )
-    {
-      m_reg->ctx().emplace<Cmp::Persistent::NpcLerpSpeed>();
-    }
-  }
+  void init_context() { add_persistent_component<Cmp::Persistent::NpcLerpSpeed>( *m_reg ); }
 
   void findPath( entt::entity player_entity )
   {

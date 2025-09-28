@@ -2,13 +2,7 @@
 
 namespace ProceduralMaze::Sys {
 
-void FloodSystem::init_context()
-{
-  if ( not m_reg->ctx().contains<Cmp::Persistent::FloodSpeed>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::FloodSpeed>();
-  }
-}
+void FloodSystem::init_context() { add_persistent_component<Cmp::Persistent::FloodSpeed>( *m_reg ); }
 
 void FloodSystem::add_flood_water_entity()
 {

@@ -9,6 +9,7 @@
 #include <Movement.hpp>
 #include <NPC.hpp>
 #include <NPCScanBounds.hpp>
+#include <Persistent/NPCActivateScale.hpp>
 #include <Persistent/NPCScanScale.hpp>
 #include <Position.hpp>
 #include <Sprites/SpriteFactory.hpp>
@@ -32,13 +33,7 @@ public:
                       .connect<&Sys::NpcSystem::on_npc_death>( this );
   }
 
-  void init_context()
-  {
-    if ( not m_reg->ctx().contains<Cmp::Persistent::NPCScanScale>() )
-    {
-      m_reg->ctx().emplace<Cmp::Persistent::NPCScanScale>();
-    }
-  }
+  void init_context() { add_persistent_component<Cmp::Persistent::NPCScanScale>( *m_reg ); }
 
   void add_npc_entity( sf::Vector2f position )
   {

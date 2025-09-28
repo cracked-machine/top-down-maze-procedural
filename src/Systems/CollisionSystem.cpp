@@ -9,36 +9,15 @@ namespace ProceduralMaze::Sys {
 
 void CollisionSystem::init_context()
 {
-  if ( not m_reg->ctx().contains<Cmp::Persistent::HealthBonus>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::HealthBonus>();
-  }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::BombBonus>() ) { m_reg->ctx().emplace<Cmp::Persistent::BombBonus>(); }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::WaterBonus>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::WaterBonus>();
-  }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::NpcDamage>() ) { m_reg->ctx().emplace<Cmp::Persistent::NpcDamage>(); }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::ObstaclePushBack>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::ObstaclePushBack>();
-  }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::NpcPushBack>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::NpcPushBack>();
-  }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::NPCActivateScale>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::NPCActivateScale>();
-  }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::NpcDamageDelay>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::NpcDamageDelay>();
-  }
-  if ( not m_reg->ctx().contains<Cmp::Persistent::CorruptionDamage>() )
-  {
-    m_reg->ctx().emplace<Cmp::Persistent::CorruptionDamage>();
-  }
+  add_persistent_component<Cmp::Persistent::HealthBonus>( *m_reg );
+  add_persistent_component<Cmp::Persistent::BombBonus>( *m_reg );
+  add_persistent_component<Cmp::Persistent::WaterBonus>( *m_reg );
+  add_persistent_component<Cmp::Persistent::NpcDamage>( *m_reg );
+  add_persistent_component<Cmp::Persistent::ObstaclePushBack>( *m_reg );
+  add_persistent_component<Cmp::Persistent::NpcPushBack>( *m_reg );
+  add_persistent_component<Cmp::Persistent::NPCActivateScale>( *m_reg );
+  add_persistent_component<Cmp::Persistent::NpcDamageDelay>( *m_reg );
+  add_persistent_component<Cmp::Persistent::CorruptionDamage>( *m_reg );
 }
 
 void CollisionSystem::suspend()

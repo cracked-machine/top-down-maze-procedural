@@ -48,22 +48,10 @@ public:
   // Create context variables by Cmp::Persistent type (if they don't already exist)
   void init_context()
   {
-    if ( not m_reg->ctx().contains<Cmp::Persistent::FuseDelay>() )
-    {
-      m_reg->ctx().emplace<Cmp::Persistent::FuseDelay>();
-    }
-    if ( not m_reg->ctx().contains<Cmp::Persistent::BombDamage>() )
-    {
-      m_reg->ctx().emplace<Cmp::Persistent::BombDamage>();
-    }
-    if ( not m_reg->ctx().contains<Cmp::Persistent::ArmedOffDelay>() )
-    {
-      m_reg->ctx().emplace<Cmp::Persistent::ArmedOffDelay>();
-    }
-    if ( not m_reg->ctx().contains<Cmp::Persistent::ArmedOnDelay>() )
-    {
-      m_reg->ctx().emplace<Cmp::Persistent::ArmedOnDelay>();
-    }
+    add_persistent_component<Cmp::Persistent::FuseDelay>( *m_reg );
+    add_persistent_component<Cmp::Persistent::BombDamage>( *m_reg );
+    add_persistent_component<Cmp::Persistent::ArmedOffDelay>( *m_reg );
+    add_persistent_component<Cmp::Persistent::ArmedOnDelay>( *m_reg );
   }
 
   void suspend();

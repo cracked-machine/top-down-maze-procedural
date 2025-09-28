@@ -2,10 +2,7 @@
 
 namespace ProceduralMaze {
 
-void EventHandler::init_context()
-{
-  if ( not m_reg->ctx().contains<Cmp::Persistent::GameState>() ) { m_reg->ctx().emplace<Cmp::Persistent::GameState>(); }
-}
+void EventHandler::init_context() { add_persistent_component<Cmp::Persistent::GameState>( *m_reg ); }
 
 auto EventHandler::get_game_state() -> Cmp::Persistent::GameState &
 {
