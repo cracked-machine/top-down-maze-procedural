@@ -105,6 +105,20 @@ public:
    */
   bool is_valid_move( sf::Vector2f &player_position );
 
+  /**
+   * @brief Checks if a diagonal movement would pass between two obstacles.
+   *
+   * This function determines whether a diagonal movement from the current position
+   * in the specified direction would result in the player squeezing between two
+   * obstacles (e.g., moving diagonally through a corner where two walls meet).
+   * This is typically used to prevent unrealistic movement through tight spaces.
+   *
+   * @param current_pos The current position of the player as a 2D vector
+   * @param direction The direction vector representing the intended diagonal movement
+   * @return true if the diagonal movement would pass between obstacles, false otherwise
+   */
+  bool isDiagonalMovementBetweenObstacles( const sf::Vector2f &current_pos, const sf::Vector2f &direction );
+
   // The game display resolution in pixels
   static constexpr sf::Vector2u kDisplaySize{ 1920, 1024 };
 

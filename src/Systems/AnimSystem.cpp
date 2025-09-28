@@ -26,8 +26,9 @@ void AnimSystem::on_anim_direction_change( const Events::AnimDirectionChangeEven
   // SPDLOG_INFO("AnimDirectionChangeEvent");
 
   auto dir_cmp = m_reg->try_get<Cmp::Direction>( event.m_entity );
+  auto pos_cmp = m_reg->try_get<Cmp::Position>( event.m_entity );
   auto anim_cmp = m_reg->try_get<Cmp::SpriteAnimation>( event.m_entity );
-  if ( !dir_cmp || !anim_cmp ) return;
+  if ( !dir_cmp || !anim_cmp || !pos_cmp ) return;
 
   // Set base frame based on direction
   if ( dir_cmp->x == 1 )
@@ -43,6 +44,12 @@ void AnimSystem::on_anim_direction_change( const Events::AnimDirectionChangeEven
     anim_cmp->m_base_frame = 3; // Up-facing base frame
   }
   else if ( dir_cmp->y == 1 )
+  {
+    anim_cmp->m_base_frame = 0; // Down-facing base frame
+  }
+  // Special case:
+  // if squeezing diagonally between obstacles, face down
+  if ( isDiagonalMovementBetweenObstacles( *pos_cmp, *dir_cmp ) )
   {
     anim_cmp->m_base_frame = 0; // Down-facing base frame
   }

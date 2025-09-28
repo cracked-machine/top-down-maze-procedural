@@ -64,20 +64,6 @@ public:
   void update_movement( sf::Time deltaTime, bool skip_collision_check = false );
 
   /**
-   * @brief Checks if a diagonal movement would pass between two obstacles.
-   *
-   * This function determines whether a diagonal movement from the current position
-   * in the specified direction would result in the player squeezing between two
-   * obstacles (e.g., moving diagonally through a corner where two walls meet).
-   * This is typically used to prevent unrealistic movement through tight spaces.
-   *
-   * @param current_pos The current position of the player as a 2D vector
-   * @param direction The direction vector representing the intended diagonal movement
-   * @return true if the diagonal movement would pass between obstacles, false otherwise
-   */
-  bool isDiagonalMovementBetweenObstacles( const sf::Vector2f &current_pos, const sf::Vector2f &direction );
-
-  /**
    * @brief Updates the player's animation based on the elapsed time.
    *
    * This function handles the progression of player animation frames,
