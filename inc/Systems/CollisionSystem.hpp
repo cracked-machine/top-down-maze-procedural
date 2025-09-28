@@ -20,14 +20,12 @@
 #include <Persistent/BombBonus.hpp>
 #include <Persistent/CorruptionDamage.hpp>
 #include <Persistent/HealthBonus.hpp>
-#include <Persistent/LandMaxSpeed.hpp>
 #include <Persistent/NPCActivateScale.hpp>
 #include <Persistent/NpcDamage.hpp>
 #include <Persistent/NpcDamageDelay.hpp>
 #include <Persistent/NpcPushBack.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
 #include <Persistent/WaterBonus.hpp>
-#include <Persistent/WaterMaxSpeed.hpp>
 #include <SinkholeCell.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>

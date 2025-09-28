@@ -24,14 +24,7 @@ void PlayerSystem::init_context()
   add_persistent_component<Cmp::Persistent::PlayerStartPosition>( *m_reg );
   add_persistent_component<Cmp::Persistent::BombInventory>( *m_reg );
   add_persistent_component<Cmp::Persistent::BlastRadius>( *m_reg );
-  add_persistent_component<Cmp::Persistent::WaterMaxSpeed>( *m_reg );
-  add_persistent_component<Cmp::Persistent::LandMaxSpeed>( *m_reg );
-  add_persistent_component<Cmp::Persistent::LandAcceleration>( *m_reg );
-  add_persistent_component<Cmp::Persistent::LandDeceleration>( *m_reg );
-  add_persistent_component<Cmp::Persistent::WaterAcceleration>( *m_reg );
-  add_persistent_component<Cmp::Persistent::WaterDeceleration>( *m_reg );
   add_persistent_component<Cmp::Persistent::PCDetectionScale>( *m_reg );
-  add_persistent_component<Cmp::Persistent::PlayerMinVelocity>( *m_reg );
   add_persistent_component<Cmp::Persistent::PlayerLerpSpeed>( *m_reg );
   add_persistent_component<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( *m_reg );
   add_persistent_component<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( *m_reg );

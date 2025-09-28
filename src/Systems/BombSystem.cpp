@@ -2,8 +2,6 @@
 #include <NpcDeathPosition.hpp>
 #include <Persistent/ArmedOffDelay.hpp>
 #include <Persistent/BombDamage.hpp>
-#include <Persistent/LandMaxSpeed.hpp>
-#include <Persistent/WaterMaxSpeed.hpp>
 #include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {

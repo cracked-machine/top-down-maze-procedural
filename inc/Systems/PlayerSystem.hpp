@@ -7,13 +7,7 @@
 #include <PCDetectionBounds.hpp>
 #include <Persistent/BlastRadius.hpp>
 #include <Persistent/BombInventory.hpp>
-#include <Persistent/LandAcceleration.hpp>
-#include <Persistent/LandDeacceleration.hpp>
-#include <Persistent/LandMaxSpeed.hpp>
 #include <Persistent/PCDetectionScale.hpp>
-#include <Persistent/WaterAcceleration.hpp>
-#include <Persistent/WaterDeceleration.hpp>
-#include <Persistent/WaterMaxSpeed.hpp>
 #include <PlayableCharacter.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <entt/entity/registry.hpp>

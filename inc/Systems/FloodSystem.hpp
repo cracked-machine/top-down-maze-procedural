@@ -8,10 +8,6 @@
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
 #include <Components/WaterLevel.hpp>
-#include <Persistent/LandAcceleration.hpp>
-#include <Persistent/LandDeacceleration.hpp>
-#include <Persistent/WaterAcceleration.hpp>
-#include <Persistent/WaterDeceleration.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <SFML/Audio/Music.hpp>

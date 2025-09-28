@@ -13,7 +13,6 @@
 #include <Persistent/ObstaclePushBack.hpp>
 #include <Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Persistent/PlayerLerpSpeed.hpp>
-#include <Persistent/PlayerMinVelocity.hpp>
 #include <Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Persistent/PlayerSubmergedlLerpSpeedModifier.hpp>
 #include <Persistent/WaterBonus.hpp>
@@ -125,22 +124,6 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   ImGui::SliderFloat( "Player Submerged Lerp Speed Modifier", &player_submerged_lerp_speed_modifier(), 0.001f, 1.f,
                       "%.2f" );
 
-  auto &land_max_speed = m_reg->ctx().get<Cmp::Persistent::LandMaxSpeed>();
-  ImGui::SliderFloat( "Land Max Speed", &land_max_speed(), 25.0f, 150.0f, "%.1f" );
-  auto &water_max_speed = m_reg->ctx().get<Cmp::Persistent::WaterMaxSpeed>();
-  ImGui::SliderFloat( "Water Max Speed", &water_max_speed(), 25.0f, 150.0f, "%.1f" );
-
-  auto &player_min_velocity = m_reg->ctx().get<Cmp::Persistent::PlayerMinVelocity>();
-  ImGui::SliderFloat( "Player Min Velocity", &player_min_velocity(), 0.f, 5.f, "%.1f" );
-
-  auto &land_acceleration = m_reg->ctx().get<Cmp::Persistent::LandAcceleration>();
-  ImGui::SliderFloat( "Above Water Acceleration Rate", &land_acceleration(), 100.f, 1000.f, "%.1f pixels/second²" );
-  auto &land_deceleration = m_reg->ctx().get<Cmp::Persistent::LandDeceleration>();
-  ImGui::SliderFloat( "Above Water Deceleration Rate", &land_deceleration(), 100.f, 1000.f, "%.1f pixels/second²" );
-  auto &water_acceleration = m_reg->ctx().get<Cmp::Persistent::WaterAcceleration>();
-  ImGui::SliderFloat( "Under Water Acceleration Rate", &water_acceleration(), 50.f, 500.f, "%.1f pixels/second²" );
-  auto &water_deceleration = m_reg->ctx().get<Cmp::Persistent::WaterDeceleration>();
-  ImGui::SliderFloat( "Under Water Deceleration Rate", &water_deceleration(), 50.f, 500.f, "%.1f pixels/second²" );
   ImGui::Separator();
   auto &flood_speed = m_reg->ctx().get<Cmp::Persistent::FloodSpeed>();
   ImGui::SliderFloat( "Flood Velocity", &flood_speed(), 1.f, 10.f, "%.1f pixels/second" );
