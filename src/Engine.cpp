@@ -256,17 +256,6 @@ void Engine::setup()
 {
   reginfo( "Pre-setup" );
 
-  // Subscribe to NPC creation/death events
-  std::ignore = Sys::BaseSystem::getEventDispatcher()
-                    .sink<Events::NpcCreationEvent>()
-                    .connect<&Sys::NpcSystem::on_npc_creation>( m_npc_sys );
-  std::ignore = Sys::BaseSystem::getEventDispatcher()
-                    .sink<Events::NpcDeathEvent>()
-                    .connect<&Sys::NpcSystem::on_npc_death>( m_npc_sys );
-  std::ignore = Sys::BaseSystem::getEventDispatcher()
-                    .sink<Events::PlayerActionEvent>()
-                    .connect<&Sys::BombSystem::on_player_action>( m_bomb_sys );
-
   // Cmp::Random::seed(123456789); // testing purposes
 
   m_reg->ctx().emplace<std::shared_ptr<Sprites::SpriteFactory>>( m_sprite_factory );

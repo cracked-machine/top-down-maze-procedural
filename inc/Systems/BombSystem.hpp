@@ -41,6 +41,8 @@ public:
   BombSystem( ProceduralMaze::SharedEnttRegistry reg )
       : BaseSystem( reg )
   {
+    std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>(
+        this );
   }
 
   // Create context variables by Cmp::Persistent type (if they don't already exist)

@@ -24,6 +24,12 @@ public:
   NpcSystem( ProceduralMaze::SharedEnttRegistry reg )
       : BaseSystem( reg )
   {
+    std::ignore = Sys::BaseSystem::getEventDispatcher()
+                      .sink<Events::NpcCreationEvent>()
+                      .connect<&Sys::NpcSystem::on_npc_creation>( this );
+    std::ignore = Sys::BaseSystem::getEventDispatcher()
+                      .sink<Events::NpcDeathEvent>()
+                      .connect<&Sys::NpcSystem::on_npc_death>( this );
   }
 
   void init_context()
