@@ -6,6 +6,7 @@
 #include <Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Persistent/PlayerLerpSpeed.hpp>
 #include <Persistent/PlayerMinVelocity.hpp>
+#include <Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Persistent/PlayerStartPosition.hpp>
 #include <PlayableCharacter.hpp>
 #include <PlayerSystem.hpp>
@@ -34,6 +35,7 @@ void PlayerSystem::init_context()
   add_persistent_component<Cmp::Persistent::PlayerMinVelocity>( *m_reg );
   add_persistent_component<Cmp::Persistent::PlayerLerpSpeed>( *m_reg );
   add_persistent_component<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( *m_reg );
+  add_persistent_component<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( *m_reg );
 }
 
 void PlayerSystem::add_player_entity()
@@ -57,7 +59,6 @@ void PlayerSystem::add_player_entity()
   m_reg->emplace<Cmp::SpriteAnimation>( entity, 3, sf::seconds( 0.1f ) );
 }
 
-// TODO: increase resistance when moving diagonally between two obstacles
 void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_check )
 {
   const float dt = deltaTime.asSeconds();
@@ -70,6 +71,7 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
 
     // Check if moving diagonally
     bool is_diagonal = ( dir_cmp.x != 0.0f ) && ( dir_cmp.y != 0.0f );
+    bool diagonal_between_obstacles = is_diagonal && isDiagonalMovementBetweenObstacles( pos_cmp, dir_cmp );
 
     // Only start new movement when not lerping
     if ( wants_to_move && !lerp_cmp )
@@ -81,8 +83,27 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
       {
         auto &player_lerp_speed = m_reg->ctx().get<Cmp::Persistent::PlayerLerpSpeed>();
         auto &diagonal_lerp_speed_modifier = m_reg->ctx().get<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
+        auto &shortcut_lerp_speed_modifier = m_reg->ctx().get<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
 
-        float speed_modifier = is_diagonal ? diagonal_lerp_speed_modifier() : 1.0f;
+        float speed_modifier = 1.0f;
+        if ( diagonal_between_obstacles )
+        {
+          // Check if shortcut movement is disabled (speed modifier at or near zero)
+          if ( shortcut_lerp_speed_modifier() < 0.01f )
+          {
+            // Block this movement entirely instead of making it super slow
+            continue; // Skip to next entity, don't start the movement
+          }
+
+          // Extra slow when squeezing between obstacles
+          speed_modifier = shortcut_lerp_speed_modifier();
+        }
+        else if ( is_diagonal )
+        {
+          // Normal diagonal slowdown
+          speed_modifier = diagonal_lerp_speed_modifier();
+        }
+
         float adjusted_speed = player_lerp_speed() * speed_modifier;
 
         m_reg->emplace<Cmp::LerpPosition>( entity, target_pos, adjusted_speed );
@@ -124,6 +145,25 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
     }
     else { getEventDispatcher().trigger( Events::AnimDirectionChangeEvent( entity ) ); }
   }
+}
+
+bool PlayerSystem::isDiagonalMovementBetweenObstacles( const sf::Vector2f &current_pos, const sf::Vector2f &direction )
+{
+  if ( !( ( direction.x != 0.0f ) && ( direction.y != 0.0f ) ) ) return false; // Not diagonal
+
+  float grid_size = Sprites::MultiSprite::kDefaultSpriteDimensions.x;
+
+  // Calculate the two orthogonal positions the diagonal movement would "cut through"
+  sf::Vector2f horizontal_check = sf::Vector2f{ current_pos.x + ( direction.x * grid_size ), current_pos.y };
+
+  sf::Vector2f vertical_check = sf::Vector2f{ current_pos.x, current_pos.y + ( direction.y * grid_size ) };
+
+  // Check if both orthogonal positions have obstacles
+  bool horizontal_blocked = !isValidMove( horizontal_check );
+  bool vertical_blocked = !isValidMove( vertical_check );
+
+  // If both orthogonal paths are blocked, diagonal movement is between obstacles
+  return horizontal_blocked && vertical_blocked;
 }
 
 bool PlayerSystem::isValidMove( sf::Vector2f &target_position )

@@ -14,6 +14,7 @@
 #include <Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Persistent/PlayerLerpSpeed.hpp>
 #include <Persistent/PlayerMinVelocity.hpp>
+#include <Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Persistent/WaterBonus.hpp>
 #include <SFML/System/Angle.hpp>
 #include <Systems/RenderMenuSystem.hpp>
@@ -113,6 +114,10 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
 
   auto &player_diagonal_lerp_speed_modifier = m_reg->ctx().get<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
   ImGui::SliderFloat( "Player Diagonal Lerp Speed Modifier", &player_diagonal_lerp_speed_modifier(), 0.001f, 1.f,
+                      "%.2f" );
+
+  auto &player_shortcut_lerp_speed_modifier = m_reg->ctx().get<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
+  ImGui::SliderFloat( "Player Shortcut Lerp Speed Modifier", &player_shortcut_lerp_speed_modifier(), 0.001f, 1.f,
                       "%.2f" );
 
   auto &land_max_speed = m_reg->ctx().get<Cmp::Persistent::LandMaxSpeed>();
