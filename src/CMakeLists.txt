@@ -43,9 +43,10 @@ target_include_directories(${TARGET} SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/inc/Sprites
     ${CMAKE_SOURCE_DIR}/inc/Logging
     ${FETCHCONTENT_BASE_DIR}/imgui-src
-    $<$<STREQUAL:$(TARGET_TRIPLET),x86_64-w64-mingw32>:/usr/x86_64-w64-mingw32/include/GL/>
+    $<$<STREQUAL:${TARGET_TRIPLET},x86_64-w64-mingw32>:/usr/x86_64-w64-mingw32/include/GL/>
 )
 
+message("TARGET_TRIPLET: ${TARGET_TRIPLET}")
 target_compile_options(${TARGET} PRIVATE 
     $<$<COMPILE_LANGUAGE:CXX>:
         -std=c++23
@@ -55,7 +56,7 @@ target_compile_options(${TARGET} PRIVATE
         -Wextra                         # enable extra warnings
         -ftrivial-auto-var-init=zero    # initialize all automatic variables to zero
         # mingw limits object data sizes so enable large object files (fixes 'file too big' error)
-        $<$<STREQUAL:$(TARGET_TRIPLET),x86_64-w64-mingw32>:-Wa,-mbig-obj>
+        $<$<STREQUAL:${TARGET_TRIPLET},x86_64-w64-mingw32>:-Wa,-mbig-obj>
     >
 )
 
