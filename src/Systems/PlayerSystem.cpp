@@ -25,8 +25,6 @@ void PlayerSystem::init_context()
   add_persistent_component<Cmp::Persistent::BlastRadius>( *m_reg );
   add_persistent_component<Cmp::Persistent::WaterMaxSpeed>( *m_reg );
   add_persistent_component<Cmp::Persistent::LandMaxSpeed>( *m_reg );
-  add_persistent_component<Cmp::Persistent::FrictionCoefficient>( *m_reg );
-  add_persistent_component<Cmp::Persistent::FrictionFalloff>( *m_reg );
   add_persistent_component<Cmp::Persistent::LandAcceleration>( *m_reg );
   add_persistent_component<Cmp::Persistent::LandDeceleration>( *m_reg );
   add_persistent_component<Cmp::Persistent::WaterAcceleration>( *m_reg );

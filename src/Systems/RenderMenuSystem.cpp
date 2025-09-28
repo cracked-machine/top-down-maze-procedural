@@ -125,12 +125,6 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   auto &water_max_speed = m_reg->ctx().get<Cmp::Persistent::WaterMaxSpeed>();
   ImGui::SliderFloat( "Water Max Speed", &water_max_speed(), 25.0f, 150.0f, "%.1f" );
 
-  auto &friction_coefficient = m_reg->ctx().get<Cmp::Persistent::FrictionCoefficient>();
-  ImGui::SliderFloat( "Friction Coefficient", &friction_coefficient(), 0.01f, 1.f, "%.2f" );
-
-  auto &friction_falloff = m_reg->ctx().get<Cmp::Persistent::FrictionFalloff>();
-  ImGui::SliderFloat( "Friction Falloff", &friction_falloff(), 0.01f, 1.f, "%.2f" );
-
   auto &player_min_velocity = m_reg->ctx().get<Cmp::Persistent::PlayerMinVelocity>();
   ImGui::SliderFloat( "Player Min Velocity", &player_min_velocity(), 0.f, 5.f, "%.1f" );
 

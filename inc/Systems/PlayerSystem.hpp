@@ -7,8 +7,6 @@
 #include <PCDetectionBounds.hpp>
 #include <Persistent/BlastRadius.hpp>
 #include <Persistent/BombInventory.hpp>
-#include <Persistent/FrictionCoefficient.hpp>
-#include <Persistent/FrictionFalloff.hpp>
 #include <Persistent/LandAcceleration.hpp>
 #include <Persistent/LandDeacceleration.hpp>
 #include <Persistent/LandMaxSpeed.hpp>

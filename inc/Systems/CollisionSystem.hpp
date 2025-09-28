@@ -19,8 +19,6 @@
 #include <PCDetectionBounds.hpp>
 #include <Persistent/BombBonus.hpp>
 #include <Persistent/CorruptionDamage.hpp>
-#include <Persistent/FrictionCoefficient.hpp>
-#include <Persistent/FrictionFalloff.hpp>
 #include <Persistent/HealthBonus.hpp>
 #include <Persistent/LandMaxSpeed.hpp>
 #include <Persistent/NPCActivateScale.hpp>
