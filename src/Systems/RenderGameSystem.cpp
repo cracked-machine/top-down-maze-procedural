@@ -379,13 +379,6 @@ void RenderGameSystem::render_walls()
     m_wall_ms->pick( _ob.m_tile_index, "wall" );
     m_wall_ms->setPosition( _pos );
     getWindow().draw( *m_wall_ms );
-
-    sf::RectangleShape player_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
-    player_square.setFillColor( sf::Color::Transparent );
-    player_square.setOutlineColor( sf::Color::Green );
-    player_square.setOutlineThickness( 1.f );
-    player_square.setPosition( _pos );
-    getWindow().draw( player_square );
   }
 }
 
