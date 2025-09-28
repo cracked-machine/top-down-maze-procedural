@@ -25,8 +25,8 @@ void NpcSystem::add_npc_entity( sf::Vector2f position )
   m_reg->emplace<Cmp::NPCScanBounds>(
       new_npc_entity, position, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions }, npc_scan_scale() );
 
-  SPDLOG_INFO( "Creating NPC entity {} at position ({}, {})", static_cast<int>( new_npc_entity ), position.x,
-               position.y );
+  SPDLOG_DEBUG( "Creating NPC entity {} at position ({}, {})", static_cast<int>( new_npc_entity ), position.x,
+                position.y );
 }
 
 void NpcSystem::remove_npc_entity( entt::entity npc_entity )

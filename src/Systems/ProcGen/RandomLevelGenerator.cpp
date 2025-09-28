@@ -53,7 +53,7 @@ void RandomLevelGenerator::gen_border()
                        texture_index );
     // bottom edge
     add_border_entity(
-        { x, kMapGridOffset.y + ( ( kMapGridSize.y + 1 ) * Sprites::MultiSprite::kDefaultSpriteDimensions.y ) - 2 },
+        { x, kMapGridOffset.y + ( ( kMapGridSize.y + 1 ) * Sprites::MultiSprite::kDefaultSpriteDimensions.y ) - 1 },
         texture_index );
   }
   for ( float y = 0; y < kDisplaySize.y; y += Sprites::MultiSprite::kDefaultSpriteDimensions.y )
