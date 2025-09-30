@@ -1,4 +1,5 @@
 #include <NpcSystem.hpp>
+#include <SpriteAnimation.hpp>
 
 namespace ProceduralMaze::Sys {
 
@@ -25,6 +26,8 @@ void NpcSystem::add_npc_entity( sf::Vector2f position )
   m_reg->emplace<Cmp::NPCScanBounds>(
       new_npc_entity, position, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions }, npc_scan_scale() );
 
+  m_reg->emplace<Cmp::SpriteAnimation>( new_npc_entity, 10, sf::seconds( 0.1f ) );
+
   SPDLOG_DEBUG( "Creating NPC entity {} at position ({}, {})", static_cast<int>( new_npc_entity ), position.x,
                 position.y );
 }
@@ -35,6 +38,8 @@ void NpcSystem::remove_npc_entity( entt::entity npc_entity )
   m_reg->remove<Cmp::NPC>( npc_entity );
   m_reg->remove<Cmp::Position>( npc_entity );
   m_reg->remove<Cmp::NPCScanBounds>( npc_entity );
+  m_reg->remove<Cmp::SpriteAnimation>( npc_entity );
+  m_reg->remove<Cmp::Direction>( npc_entity );
   SPDLOG_DEBUG( "NPC entity {} killed by explosion", static_cast<int>( npc_entity ) );
 }
 

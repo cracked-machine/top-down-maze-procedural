@@ -6,7 +6,7 @@
 #include <Events/NpcCreationEvent.hpp>
 #include <Events/NpcDeathEvent.hpp>
 #include <LerpPosition.hpp>
-#include <Movement.hpp>
+
 #include <NPC.hpp>
 #include <NPCScanBounds.hpp>
 #include <Persistent/NPCActivateScale.hpp>

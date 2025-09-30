@@ -1,14 +1,27 @@
 #include <AnimSystem.hpp>
+#include <EnttDistanceMap.hpp>
+#include <LerpPosition.hpp>
+#include <NPC.hpp>
+#include <PlayableCharacter.hpp>
 #include <SpriteAnimation.hpp>
 
 namespace ProceduralMaze::Sys {
 
 void AnimSystem::update( sf::Time deltaTime )
 {
-  auto anim_view = m_reg->view<Cmp::SpriteAnimation>();
-  for ( auto [entity, anim_cmp] : anim_view.each() )
+
+  // only update animation for NPC that are actively pathfinding
+  auto pathfinding_npc_view = m_reg->view<Cmp::NPC, Cmp::LerpPosition, Cmp::SpriteAnimation>();
+  for ( [[maybe_unused]] auto [entity, npc_cmp, lerp_pos_cmp, anim_cmp] : pathfinding_npc_view.each() )
   {
-    update_frame( anim_cmp, deltaTime );
+    if ( lerp_pos_cmp.m_lerp_factor > 0.f ) { update_frame( anim_cmp, deltaTime ); }
+  }
+
+  // always update animation for player if they are moving
+  auto moving_player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Direction, Cmp::SpriteAnimation>();
+  for ( auto [entity, pc_cmp, dir_cmp, anim_cmp] : moving_player_view.each() )
+  {
+    if ( dir_cmp != sf::Vector2f( 0.f, 0.f ) ) { update_frame( anim_cmp, deltaTime ); }
   }
 }
 

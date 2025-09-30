@@ -1,7 +1,6 @@
 #ifndef __CMP_PLAYERSYSTEM_HPP__
 #define __CMP_PLAYERSYSTEM_HPP__
 
-#include <Components/Movement.hpp>
 #include <Components/Position.hpp>
 #include <Direction.hpp>
 #include <PCDetectionBounds.hpp>

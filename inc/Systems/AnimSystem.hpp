@@ -24,6 +24,7 @@ public:
                       .connect<&Sys::AnimSystem::on_anim_direction_change>( this );
   }
 
+  // update frames on all SpriteAnimation components
   void update( sf::Time deltaTime );
 
   // event handlers

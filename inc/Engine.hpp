@@ -32,7 +32,7 @@
 
 #include <Components/DisplaySize.hpp>
 #include <Components/Font.hpp>
-#include <Components/Movement.hpp>
+
 #include <Components/Obstacle.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>

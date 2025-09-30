@@ -3,7 +3,7 @@
 
 #include <Components/Armed.hpp>
 #include <Components/Loot.hpp>
-#include <Components/Movement.hpp>
+
 #include <Components/NPC.hpp>
 #include <Components/NPCScanBounds.hpp>
 #include <Components/Neighbours.hpp>

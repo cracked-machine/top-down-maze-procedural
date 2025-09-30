@@ -4,7 +4,7 @@
 #include <Components/Armed.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Loot.hpp>
-#include <Components/Movement.hpp>
+
 #include <Components/NPC.hpp>
 #include <Components/Neighbours.hpp>
 #include <Components/Obstacle.hpp>

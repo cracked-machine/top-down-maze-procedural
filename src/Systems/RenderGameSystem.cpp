@@ -1,7 +1,7 @@
 #include <FootStepAlpha.hpp>
 #include <FootStepTimer.hpp>
 #include <HazardFieldCell.hpp>
-#include <Movement.hpp>
+
 #include <MultiSprite.hpp>
 #include <NpcDeathPosition.hpp>
 #include <Persistent/PlayerStartPosition.hpp>
@@ -460,8 +460,8 @@ void RenderGameSystem::render_player_footsteps()
 
 void RenderGameSystem::render_npc()
 {
-  for ( auto [entity, npc, pos, npc_scan_bounds, direction] :
-        m_reg->view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds, Cmp::Direction>().each() )
+  for ( auto [entity, npc, pos, npc_scan_bounds, direction, anim_cmp] :
+        m_reg->view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds, Cmp::Direction, Cmp::SpriteAnimation>().each() )
   {
     // flip and x-axis offset the sprite depending on the direction
     if ( direction.x > 0 )
@@ -483,7 +483,9 @@ void RenderGameSystem::render_npc()
     m_npc_ms->setScale( { direction.x_scale, 1.f } );
     m_npc_ms->setPosition( { pos.x + direction.x_offset, pos.y } );
 
-    m_npc_ms->pick( 2, "npc" );
+    // get the correct sprite index based on animation frame
+    std::size_t sprite_index = anim_cmp.m_base_frame + anim_cmp.m_current_frame;
+    m_npc_ms->pick( sprite_index, "npc" );
     getWindow().draw( *m_npc_ms );
 
     // show npc scan distance
