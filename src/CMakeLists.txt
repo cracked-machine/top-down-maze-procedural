@@ -5,7 +5,6 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Engine.cpp
     ${CMAKE_SOURCE_DIR}/src/EventHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Base.cpp
-    ${CMAKE_SOURCE_DIR}/src/Components/Random.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/PlayableCharacter.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/SpriteFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/MultiSprite.cpp
@@ -27,6 +26,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/AnimSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/FootstepSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/HazardFieldSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/WormholeSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Debug/AssertHandler.cpp
 )
 

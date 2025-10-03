@@ -23,6 +23,7 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
       m_anim_sys( m_reg ),
       m_sinkhole_sys( m_reg ),
       m_corruption_sys( m_reg ),
+      m_wormhole_sys( m_reg ),
       m_title_music_sys( m_reg, "res/audio/title_music.mp3" ),
       m_underwater_sounds_sys( m_reg, "res/audio/underwater.wav" ),
       m_abovewater_sounds_sys( m_reg, "res/audio/footsteps.mp3" ),
@@ -33,8 +34,8 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
   m_render_game_sys.window().setVerticalSyncEnabled( true );
   // m_render_game_sys.window().setFramerateLimit( 144 );
 
-  // these need to be initialised by the time we get the
-  // Cmp::Persistent::GameState::State::SETTINGS state
+  // initialise the persistent components in the registry
+
   m_event_handler.init_context();
   m_player_sys.init_context();
   m_title_music_sys.init_context();
@@ -158,6 +159,7 @@ bool Engine::run()
         m_collision_sys.check_end_zone_collision();
         m_collision_sys.check_loot_collision();
         m_collision_sys.check_bones_reanimation();
+        m_wormhole_sys.check_player_wormhole_collision();
 
         m_collision_sys.update_obstacle_distances();
 
@@ -279,6 +281,7 @@ void Engine::setup()
   m_render_game_sys.init_views();
   m_sinkhole_sys.start_hazard_field();
   m_corruption_sys.start_hazard_field();
+  m_wormhole_sys.spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
   reginfo( "Post-setup" );
 }

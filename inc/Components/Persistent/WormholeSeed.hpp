@@ -1,0 +1,18 @@
+#ifndef __CMP_WORMHOLESEED_HPP__
+#define __CMP_WORMHOLESEED_HPP__
+
+#include <Persistent/BasePersistent.hpp>
+namespace ProceduralMaze::Cmp::Persistent {
+
+class WormholeSeed : public BasePersistent<unsigned long>
+{
+public:
+  WormholeSeed()
+      : BasePersistent<unsigned long>( 0 )
+  {
+  }
+};
+
+} // namespace ProceduralMaze::Cmp::Persistent
+
+#endif // __CMP_WORMHOLESEED_HPP__

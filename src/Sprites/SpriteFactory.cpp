@@ -37,7 +37,9 @@ SpriteFactory::SpriteFactory()
           { SpriteFactory::SpriteMetaType::SINKHOLE, "SINKHOLE", 1.f,
             MultiSprite{ "res/textures/sinkhole.png", { 0 } } },
           { SpriteFactory::SpriteMetaType::CORRUPTION, "CORRUPTION", 1.f,
-            MultiSprite{ "res/textures/corruption.png", { 0 } } } }
+            MultiSprite{ "res/textures/corruption.png", { 0 } } },
+          { SpriteFactory::SpriteMetaType::WORMHOLE, "WORMHOLE", 1.f,
+            MultiSprite{ "res/textures/objects.png", { 391, 392, 393, 423, 424, 425, 455, 456, 457 } } } }
 {
 }
 

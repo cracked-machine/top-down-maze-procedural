@@ -76,11 +76,10 @@ public:
    * consistent default size for sprite rendering and frame calculations.
    */
   static constexpr sf::Vector2u kDefaultSpriteDimensions{ 16, 16 };
+  void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
 
 private:
   bool add_sprite( const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks );
-
-  void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
 
   std::vector<sf::VertexArray> m_va_list;
 

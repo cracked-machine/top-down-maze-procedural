@@ -13,6 +13,7 @@
 #include <SinkholeCell.hpp>
 #include <SpriteAnimation.hpp>
 #include <Systems/RenderGameSystem.hpp>
+#include <Wormhole.hpp>
 #include <string>
 
 namespace ProceduralMaze::Sys {
@@ -99,6 +100,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
       render_obstacles();
       render_sinkhole();
       render_corruption();
+      render_wormhole();
       render_armed();
       render_loot();
       render_walls();
@@ -120,6 +122,7 @@ void RenderGameSystem::render_game( sf::Time deltaTime )
       render_obstacles();
       render_sinkhole();
       render_corruption();
+      render_wormhole();
       render_armed();
       render_loot();
       render_walls();
@@ -293,6 +296,56 @@ void RenderGameSystem::render_corruption()
     m_corruption_ms->setPosition( pos );
     m_corruption_ms->pick( 0, "Corruption" );
     getWindow().draw( *m_corruption_ms );
+  }
+}
+
+void RenderGameSystem::render_wormhole()
+{
+  auto wormhole_view = m_reg->view<Cmp::Wormhole, Cmp::Position>();
+  for ( auto [entity, wormhole_cmp, position_cmp] : wormhole_view.each() )
+  {
+
+    // Set up the shader view and position
+    m_wormhole_shader.update_shader_view_and_position(
+        position_cmp + ( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } * 0.5f ),
+        Sprites::ViewFragmentShader::Align::CENTER );
+
+    // Draw the floormap to the shader's render texture
+    m_floormap.draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
+
+    // Update the shader with the current time and view parameters
+    Sprites::UniformBuilder builder;
+    builder.set( "time", m_wormhole_shader.getElapsedTime().asSeconds() )
+        .set( "screenSize", m_wormhole_shader.get_view_size() )
+        .set( "centerPosition", m_wormhole_shader.get_view_center() );
+    m_wormhole_shader.Sprites::BaseFragmentShader::update( builder );
+
+    // draw MultiSprites onto the shader's 3x3 render texture.
+    // Draw a 3x3 grid of the detonated sprite to cover the shader area,
+    // centered around wormhole position (position_cmp)
+    int index = 0;
+    for ( int i = -1; i < 2; ++i )
+    {
+      for ( int j = -1; j < 2; ++j )
+      {
+        sf::Vector2f offset = { static_cast<float>( i ) * Sprites::MultiSprite::kDefaultSpriteDimensions.x,
+                                static_cast<float>( j ) * Sprites::MultiSprite::kDefaultSpriteDimensions.y };
+        m_wormhole_ms->pick( index++, "Wormhole" );
+        m_wormhole_ms->setPosition( position_cmp + offset );
+        m_wormhole_ms->draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
+      }
+    }
+
+    // Finally, draw the shader effect onto the main window
+    m_wormhole_shader.draw( getWindow(), sf::RenderStates::Default );
+
+    // Debug: Draw a red rectangle around the wormhole position
+    sf::RectangleShape temp_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+    temp_square.setPosition( position_cmp );
+    temp_square.setOutlineColor( sf::Color::Red );
+    temp_square.setFillColor( sf::Color::Transparent );
+    temp_square.setOutlineThickness( 1.f );
+    getWindow().draw( temp_square );
   }
 }
 
@@ -640,6 +693,7 @@ void RenderGameSystem::load_multisprites()
   m_footsteps_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::FOOTSTEPS );
   m_sinkhole_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::SINKHOLE );
   m_corruption_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::CORRUPTION );
+  m_wormhole_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::WORMHOLE );
 
   // we should ensure these MultiSprites are initialized before continuing
   std::string err_msg;
@@ -660,6 +714,7 @@ void RenderGameSystem::load_multisprites()
   if ( !m_footsteps_ms ) { err_msg = "Unable to get FOOTSTEPS from SpriteFactory"; }
   if ( !m_sinkhole_ms ) { err_msg = "Unable to get SINKHOLE from SpriteFactory"; }
   if ( !m_corruption_ms ) { err_msg = "Unable to get CORRUPTION from SpriteFactory"; }
+  if ( !m_wormhole_ms ) { err_msg = "Unable to get WORMHOLE from SpriteFactory"; }
 
   if ( !err_msg.empty() )
   {

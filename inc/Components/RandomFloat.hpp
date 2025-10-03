@@ -20,18 +20,10 @@ public:
   float gen() { return m_floatdist( m_randgen ); }
 
   // set the seed for random generator
-  static void seed( unsigned long s )
-  {
-    m_seed = s;
-    m_randgen = std::mt19937( s );
-  }
-
-  // get the seed for random generator
-  static unsigned long seed() { return m_seed; }
+  void seed( unsigned long s ) { m_randgen = std::mt19937( s ); }
 
 private:
-  static unsigned long m_seed;
-  static inline std::mt19937 m_randgen{ std::random_device{}() };
+  std::mt19937 m_randgen{ std::random_device{}() };
   std::uniform_real_distribution<> m_floatdist;
 };
 

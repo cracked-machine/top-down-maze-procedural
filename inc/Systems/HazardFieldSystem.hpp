@@ -4,9 +4,13 @@
 #include <BaseSystem.hpp>
 #include <CorruptionCell.hpp>
 #include <Obstacle.hpp>
+#include <Persistent/CorruptionSeed.hpp>
+#include <Persistent/SinkholeSeed.hpp>
+#include <PlayableCharacter.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 #include <SinkholeCell.hpp>
+#include <entt/entity/fwd.hpp>
 namespace ProceduralMaze::Sys {
 
 /**
@@ -38,6 +42,20 @@ public:
   HazardFieldSystem( ProceduralMaze::SharedEnttRegistry reg )
       : Sys::BaseSystem( reg )
   {
+    init_context();
+  }
+
+  void init_context()
+  {
+    // ensure we have a persistent component for the hazard seed
+    if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
+    {
+      add_persistent_component<Cmp::Persistent::SinkholeSeed>( *m_reg );
+    }
+    else if constexpr ( std::is_same_v<HazardType, Cmp::CorruptionCell> )
+    {
+      add_persistent_component<Cmp::Persistent::CorruptionSeed>( *m_reg );
+    }
   }
 
   // Starts the hazard field process, gets view of all obstacles, adds one hazard field component at one of the
@@ -65,22 +83,26 @@ public:
       return;
     }
 
-    auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
-
-    auto obstacle_count = std::distance( obstacle_view.begin(), obstacle_view.end() );
-    SPDLOG_DEBUG( "Found {} obstacles in the maze.", obstacle_count );
-
-    // Get random index and advance iterator to that position
-    Cmp::Random sinkhole_seed_picker = Cmp::Random( 0, static_cast<int>( obstacle_count - 1 ) );
-    int random_index = sinkhole_seed_picker.gen();
-    auto it = obstacle_view.begin();
-    std::advance( it, random_index );
-
-    // Get the random entity
-    entt::entity random_entity = *it;
-
-    // Now you can use random_entity for your hazard field logic
-    // For example, add HazardType component to it:
+    unsigned long seed = 0;
+    entt::entity random_entity = entt::null;
+    Cmp::Position random_position( { 0.f, 0.f } );
+    if constexpr ( std::is_same_v<HazardType, Cmp::CorruptionCell> )
+    {
+      seed = m_reg->ctx().get<Cmp::Persistent::CorruptionSeed>()();
+      std::tie( random_entity, random_position ) = get_random_position( IncludePack<Cmp::Obstacle>{}, ExcludePack<>{},
+                                                                        seed );
+    }
+    else if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
+    {
+      seed = m_reg->ctx().get<Cmp::Persistent::SinkholeSeed>()();
+      std::tie( random_entity, random_position ) = get_random_position( IncludePack<Cmp::Obstacle>{}, ExcludePack<>{},
+                                                                        seed );
+    }
+    if ( random_entity == entt::null )
+    {
+      SPDLOG_WARN( "No valid entity found to seed hazard field." );
+      return;
+    }
     m_reg->emplace<HazardType>( random_entity );
     m_reg->remove<Cmp::Obstacle>( random_entity );
     SPDLOG_DEBUG( "Hazard field seeded at random obstacle index {} (entity {}).", random_index,

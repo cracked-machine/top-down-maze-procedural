@@ -2,6 +2,7 @@
 #include <Persistent/ArmedOnDelay.hpp>
 #include <Persistent/BombBonus.hpp>
 #include <Persistent/BombDamage.hpp>
+#include <Persistent/CorruptionSeed.hpp>
 #include <Persistent/FuseDelay.hpp>
 #include <Persistent/HealthBonus.hpp>
 #include <Persistent/MusicVolume.hpp>
@@ -15,7 +16,9 @@
 #include <Persistent/PlayerLerpSpeed.hpp>
 #include <Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Persistent/PlayerSubmergedlLerpSpeedModifier.hpp>
+#include <Persistent/SinkholeSeed.hpp>
 #include <Persistent/WaterBonus.hpp>
+#include <Persistent/WormholeSeed.hpp>
 #include <SFML/System/Angle.hpp>
 #include <Systems/RenderMenuSystem.hpp>
 #include <imgui.h>
@@ -150,6 +153,13 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   }
 
   ImGui::Separator();
+
+  auto &wormhole_seed = m_reg->ctx().get<Cmp::Persistent::WormholeSeed>();
+  ImGui::InputScalar( "Wormhole Seed. Zero is ignored", ImGuiDataType_U64, &wormhole_seed() );
+  auto &corruption_seed = m_reg->ctx().get<Cmp::Persistent::CorruptionSeed>();
+  ImGui::InputScalar( "Corruption Seed. Zero is ignored", ImGuiDataType_U64, &corruption_seed() );
+  auto &sinkhole_seed = m_reg->ctx().get<Cmp::Persistent::SinkholeSeed>();
+  ImGui::InputScalar( "Sinkhole Seed. Zero is ignored", ImGuiDataType_U64, &sinkhole_seed() );
 
   auto &health_bonus = m_reg->ctx().get<Cmp::Persistent::HealthBonus>();
   ImGui::SliderInt( "Health Bonus", &health_bonus(), 1, 50 );

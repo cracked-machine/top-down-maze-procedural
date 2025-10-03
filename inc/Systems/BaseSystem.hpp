@@ -134,6 +134,61 @@ public:
     return *m_event_dispatcher;
   }
 
+  template <typename... Types> struct IncludePack
+  {
+  };
+
+  template <typename... Types> struct ExcludePack
+  {
+  };
+
+  template <typename... Include, typename... Exclude>
+  /**
+   * @brief Retrieves a random entity and its position component from entities matching the specified criteria.
+   *
+   * This function selects a random entity from a filtered view of entities that have a Position component
+   * and all specified Include components, while excluding entities with any of the Exclude components.
+   *
+   * @tparam Include... Variadic template parameter pack specifying component types that entities must have
+   * @tparam Exclude... Variadic template parameter pack specifying component types that entities must not have
+   *
+   * @param include_pack Template parameter pack wrapper for components to include in the filter
+   * @param exclude_pack Template parameter pack wrapper for components to exclude from the filter
+   * @param seed Optional seed value for random number generation. If 0 (default), uses std::random_device
+   *
+   * @return std::pair<entt::entity, Cmp::Position> A pair containing the randomly selected entity and its position
+   * component
+   *
+   * @note The function assumes there is at least one entity matching the filter criteria.
+   *       If no entities match, the behavior is undefined.
+   * @note Uses SPDLOG_DEBUG to log the number of matching positions found.
+   */
+  std::pair<entt::entity, Cmp::Position> get_random_position( IncludePack<Include...>, ExcludePack<Exclude...>,
+                                                              unsigned long seed = 0 )
+  {
+    auto random_view = m_reg->view<Cmp::Position, Include...>( entt::exclude<Exclude...> );
+
+    auto random_view_count = std::distance( random_view.begin(), random_view.end() );
+    SPDLOG_DEBUG( "Found {} positions in the maze.", random_view_count );
+
+    // Get random index and advance iterator to that position
+    Cmp::Random seed_picker = Cmp::Random( 0, static_cast<int>( random_view_count - 1 ) );
+    if ( seed != 0 ) { seed_picker.seed( seed ); }
+    else { seed_picker.seed( std::random_device{}() ); }
+
+    int random_index = seed_picker.gen();
+    auto it = random_view.begin();
+    std::advance( it, random_index );
+
+    // Get the random entity
+    entt::entity random_entity = *it;
+
+    // Get the position component
+    Cmp::Position random_position = random_view.template get<Cmp::Position>( random_entity );
+
+    return { random_entity, random_position };
+  }
+
 protected:
   // Entity registry
   ProceduralMaze::SharedEnttRegistry m_reg;

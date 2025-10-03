@@ -30,6 +30,7 @@ private:
   void render_obstacles();
   void render_sinkhole();
   void render_corruption();
+  void render_wormhole();
   void render_armed();
   void render_loot();
   void render_walls();
@@ -58,7 +59,9 @@ private:
   // Shaders
   Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", kDisplaySize };
 
-  Sprites::ViewFragmentShader m_sand_storm_shader{ "res/shaders/SimpleDistortionField.frag", { 64, 64 } };
+  Sprites::ViewFragmentShader m_wormhole_shader{
+      "res/shaders/SimpleDistortionField.frag",
+      Sprites::MultiSprite::kDefaultSpriteDimensions.componentWiseMul( { 3u, 3u } ) };
 
   // Sprites
   Sprites::Containers::TileMap m_floormap;
@@ -83,6 +86,7 @@ private:
   std::optional<Sprites::MultiSprite> m_footsteps_ms;
   std::optional<Sprites::MultiSprite> m_sinkhole_ms;
   std::optional<Sprites::MultiSprite> m_corruption_ms;
+  std::optional<Sprites::MultiSprite> m_wormhole_ms;
 };
 
 } // namespace ProceduralMaze::Sys

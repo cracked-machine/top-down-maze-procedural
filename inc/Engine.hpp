@@ -25,6 +25,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #include <WaterLevel.hpp>
+#include <WormholeSystem.hpp>
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
 
@@ -91,6 +92,7 @@ private:
   Sys::AnimSystem m_anim_sys;
   Sys::SinkHoleHazardSystem m_sinkhole_sys;
   Sys::CorruptionHazardSystem m_corruption_sys;
+  Sys::WormholeSystem m_wormhole_sys;
 
   Sys::MusicSystem m_title_music_sys;
   Sys::MusicSystem m_underwater_sounds_sys;

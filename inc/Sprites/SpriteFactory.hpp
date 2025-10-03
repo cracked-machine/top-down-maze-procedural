@@ -42,7 +42,8 @@ public:
     EXPLOSION = 13,
     FOOTSTEPS = 14,
     SINKHOLE = 15,
-    CORRUPTION = 16
+    CORRUPTION = 16,
+    WORMHOLE = 17
   };
 
 private:
