@@ -18,7 +18,7 @@ void RandomLevelGenerator::gen_objects()
       // track the contiguous creation order of the entity so we can easily
       // find its neighbours later
       m_data.push_back( entity );
-      auto sprite_factory = m_reg->ctx().get<std::shared_ptr<Sprites::SpriteFactory>>();
+      auto sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
       if ( not sprite_factory )
       {
         SPDLOG_CRITICAL( "SpriteFactory not found in registry context" );
@@ -95,7 +95,7 @@ void RandomLevelGenerator::stats()
   std::map<std::string, int> results;
   for ( auto [entity, _pos, _ob] : m_reg->view<Cmp::Position, Cmp::Obstacle>().each() )
   {
-    auto sprite_factory = m_reg->ctx().get<std::shared_ptr<Sprites::SpriteFactory>>();
+    auto sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
     if ( not sprite_factory ) continue;
     results[sprite_factory->get_spritedata_type_string( _ob.m_type )]++;
   }

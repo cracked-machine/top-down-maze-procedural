@@ -27,7 +27,6 @@ public:
   EventHandler( ProceduralMaze::SharedEnttRegistry reg );
 
   void init_context();
-  auto get_game_state() -> Cmp::Persistent::GameState &;
 
   void menu_state_handler( sf::RenderWindow &window );
   void settings_state_handler( sf::RenderWindow &window );

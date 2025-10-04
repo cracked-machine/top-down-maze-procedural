@@ -85,7 +85,7 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
   int sequence_counter = 0;
 
   // First arm the center tile
-  auto &fuse_delay = m_reg->ctx().get<Cmp::Persistent::FuseDelay>();
+  auto &fuse_delay = get_persistent_component<Cmp::Persistent::FuseDelay>();
   m_reg->emplace_or_replace<Cmp::Armed>( epicenter_entity, sf::seconds( fuse_delay() ), sf::Time::Zero, true,
                                          sf::Color::Transparent, sequence_counter++ );
 
@@ -119,9 +119,9 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
     for ( const auto &[entity, pos] : layer_entities )
     {
       sf::Color color = sf::Color( 255, 10 + ( sequence_counter * 10 ) % 155, 255, 64 );
-      auto &fuse_delay = m_reg->ctx().get<Cmp::Persistent::FuseDelay>();
-      auto &armed_on_delay = m_reg->ctx().get<Cmp::Persistent::ArmedOnDelay>();
-      auto &armed_off_delay = m_reg->ctx().get<Cmp::Persistent::ArmedOffDelay>();
+      auto &fuse_delay = get_persistent_component<Cmp::Persistent::FuseDelay>();
+      auto &armed_on_delay = get_persistent_component<Cmp::Persistent::ArmedOnDelay>();
+      auto &armed_off_delay = get_persistent_component<Cmp::Persistent::ArmedOffDelay>();
       auto new_fuse_delay = sf::seconds( fuse_delay() + ( sequence_counter * armed_on_delay() ) );
       auto new_warning_delay = sf::seconds( armed_off_delay() + ( sequence_counter * armed_off_delay() ) );
       m_reg->emplace_or_replace<Cmp::Armed>( entity, new_fuse_delay, new_warning_delay, false, color,
@@ -146,7 +146,7 @@ void BombSystem::update()
       // replace the broken pot neighbour entities with a random loot component/sprite
       if ( _obstacle_cmp.m_type == Sprites::SpriteFactory::SpriteMetaType::POT )
       {
-        auto &sprite_factory = m_reg->ctx().get<std::shared_ptr<Sprites::SpriteFactory>>();
+        auto &sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
         auto [obstacle_type, random_obstacle_texture_index] = sprite_factory->get_random_type_and_texture_index(
             std::vector<Sprites::SpriteFactory::SpriteMetaType>{
                 Sprites::SpriteFactory::SpriteMetaType::EXTRA_HEALTH,
@@ -166,7 +166,7 @@ void BombSystem::update()
       auto player_bounding_box = get_hitbox( player_position );
       if ( player_bounding_box.findIntersection( obstacle_explosion_zone ) )
       {
-        auto &bomb_damage = m_reg->ctx().get<Cmp::Persistent::BombDamage>();
+        auto &bomb_damage = get_persistent_component<Cmp::Persistent::BombDamage>();
         player.health -= bomb_damage();
         if ( player.health <= 0 ) { player.alive = false; }
       }

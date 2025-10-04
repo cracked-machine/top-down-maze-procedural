@@ -73,7 +73,7 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
         // the main engine loop via LerpSystems
         auto move_candidate_pixel_pos = getPixelPosition( nearest_obstacle.second );
         if ( not move_candidate_pixel_pos ) return;
-        auto npc_lerp_speed = m_reg->ctx().get<Cmp::Persistent::NpcLerpSpeed>();
+        auto npc_lerp_speed = get_persistent_component<Cmp::Persistent::NpcLerpSpeed>();
         m_reg->emplace_or_replace<Cmp::LerpPosition>( npc_entity, move_candidate_pixel_pos.value(), npc_lerp_speed() );
       }
     }

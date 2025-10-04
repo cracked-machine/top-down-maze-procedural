@@ -88,13 +88,13 @@ public:
     Cmp::Position random_position( { 0.f, 0.f } );
     if constexpr ( std::is_same_v<HazardType, Cmp::CorruptionCell> )
     {
-      seed = m_reg->ctx().get<Cmp::Persistent::CorruptionSeed>()();
+      seed = get_persistent_component<Cmp::Persistent::CorruptionSeed>()();
       std::tie( random_entity, random_position ) = get_random_position( IncludePack<Cmp::Obstacle>{}, ExcludePack<>{},
                                                                         seed );
     }
     else if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
     {
-      seed = m_reg->ctx().get<Cmp::Persistent::SinkholeSeed>()();
+      seed = get_persistent_component<Cmp::Persistent::SinkholeSeed>()();
       std::tie( random_entity, random_position ) = get_random_position( IncludePack<Cmp::Obstacle>{}, ExcludePack<>{},
                                                                         seed );
     }

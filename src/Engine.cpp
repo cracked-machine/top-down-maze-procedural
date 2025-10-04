@@ -60,7 +60,8 @@ bool Engine::run()
     sf::Time deltaTime = deltaClock.restart();
     m_title_music_sys.update_volume();
 
-    auto &game_state = m_event_handler.get_game_state();
+    // doesnt matter which system we use to get the game state as they all share the same registry context
+    auto &game_state = m_player_sys.get_persistent_component<Cmp::Persistent::GameState>();
 
     switch ( game_state.current_state )
     {

@@ -117,7 +117,7 @@ public:
         {
           // Player falls into a sinkhole or gets damaged by corruption
           if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> ) { player_cmp.alive = false; }
-          else { player_cmp.health -= m_reg->ctx().get<Cmp::Persistent::CorruptionDamage>()(); }
+          else { player_cmp.health -= get_persistent_component<Cmp::Persistent::CorruptionDamage>()(); }
           SPDLOG_INFO( "Player fell into a hazard field at position ({}, {})!", hazard_field_pos_cmp.x,
                        hazard_field_pos_cmp.y );
           return; // No need to check further if the player is already dead

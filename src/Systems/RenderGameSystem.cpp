@@ -34,7 +34,7 @@ void RenderGameSystem::init_views()
                              { kDisplaySize.x * kMiniMapViewZoomFactor, kDisplaySize.y * kMiniMapViewZoomFactor } );
   m_minimap_view.setViewport( sf::FloatRect( { 0.75f, 0.f }, { 0.25f, 0.25f } ) );
 
-  auto start_pos = m_reg->ctx().get<Cmp::Persistent::PlayerStartPosition>();
+  auto start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
   update_view_center( m_local_view, start_pos, kStartGameSmoothFactor );
   update_view_center( m_minimap_view, start_pos, kStartGameSmoothFactor );
 }
@@ -675,7 +675,7 @@ void RenderGameSystem::render_npc_distances_on_obstacles()
 void RenderGameSystem::load_multisprites()
 {
   using namespace Sprites;
-  auto &factory = m_reg->ctx().get<std::shared_ptr<SpriteFactory>>();
+  auto &factory = get_persistent_component<std::shared_ptr<SpriteFactory>>();
   m_rock_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::ROCK );
   m_pot_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::POT );
   m_bone_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::BONES );

@@ -27,7 +27,7 @@ void MusicSystem::start_music_fade_out()
   {
     SPDLOG_DEBUG( " Starting music fade out" );
     m_music_fading = true;
-    m_prefade_volume = m_reg->ctx().get<Cmp::Persistent::MusicVolume>()();
+    m_prefade_volume = get_persistent_component<Cmp::Persistent::MusicVolume>()();
     m_music_fade_clock.restart();
   }
 }
@@ -36,7 +36,7 @@ void MusicSystem::update_volume()
 {
   if ( not m_music_fading )
   {
-    float target_volume = m_reg->ctx().get<Cmp::Persistent::MusicVolume>()();
+    float target_volume = get_persistent_component<Cmp::Persistent::MusicVolume>()();
     m_music.setVolume( target_volume );
   }
   else

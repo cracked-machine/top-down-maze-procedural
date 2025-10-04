@@ -54,7 +54,7 @@ void FloodSystem::updateFlood( float dt )
       // performance
       for ( auto [_, water_level] : water_view.each() )
       {
-        auto &flood_speed = m_reg->ctx().get<Cmp::Persistent::FloodSpeed>();
+        auto &flood_speed = get_persistent_component<Cmp::Persistent::FloodSpeed>();
         water_level.m_level -= ( dt * flood_speed() );
       }
     }

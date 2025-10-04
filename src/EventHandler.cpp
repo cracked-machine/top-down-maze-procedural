@@ -10,19 +10,9 @@ EventHandler::EventHandler( ProceduralMaze::SharedEnttRegistry reg )
 
 void EventHandler::init_context() { add_persistent_component<Cmp::Persistent::GameState>(); }
 
-auto EventHandler::get_game_state() -> Cmp::Persistent::GameState &
-{
-  if ( not m_reg->ctx().contains<Cmp::Persistent::GameState>() )
-  {
-    SPDLOG_CRITICAL( "GameState was not found in registry context" );
-    std::terminate();
-  }
-  return m_reg->ctx().get<Cmp::Persistent::GameState>();
-}
-
 void EventHandler::menu_state_handler( sf::RenderWindow &window )
 {
-  auto &game_state = get_game_state();
+  auto &game_state = get_persistent_component<Cmp::Persistent::GameState>();
 
   using namespace sf::Keyboard;
   while ( const std::optional event = window.pollEvent() )
@@ -54,7 +44,7 @@ void EventHandler::menu_state_handler( sf::RenderWindow &window )
 
 void EventHandler::settings_state_handler( sf::RenderWindow &window )
 {
-  auto &game_state = get_game_state();
+  auto &game_state = get_persistent_component<Cmp::Persistent::GameState>();
   using namespace sf::Keyboard;
   while ( const std::optional event = window.pollEvent() )
   {
@@ -77,7 +67,7 @@ void EventHandler::settings_state_handler( sf::RenderWindow &window )
 
 void EventHandler::game_state_handler( sf::RenderWindow &window )
 {
-  auto &game_state = get_game_state();
+  auto &game_state = get_persistent_component<Cmp::Persistent::GameState>();
   using namespace sf::Keyboard;
   while ( const std::optional event = window.pollEvent() )
   {
@@ -177,7 +167,7 @@ void EventHandler::game_state_handler( sf::RenderWindow &window )
 
 void EventHandler::paused_state_handler( sf::RenderWindow &window )
 {
-  auto &game_state = get_game_state();
+  auto &game_state = get_persistent_component<Cmp::Persistent::GameState>();
   using namespace sf::Keyboard;
   while ( const std::optional event = window.pollEvent() )
   {
@@ -200,7 +190,7 @@ void EventHandler::paused_state_handler( sf::RenderWindow &window )
 
 void EventHandler::game_over_state_handler( sf::RenderWindow &window )
 {
-  auto &game_state = get_game_state();
+  auto &game_state = get_persistent_component<Cmp::Persistent::GameState>();
   using namespace sf::Keyboard;
   while ( const std::optional event = window.pollEvent() )
   {

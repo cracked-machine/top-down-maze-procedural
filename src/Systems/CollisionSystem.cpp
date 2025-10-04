@@ -57,7 +57,7 @@ void CollisionSystem::check_bones_reanimation()
            not _obstacle.m_visible )
         continue;
 
-      auto &npc_activate_scale = m_reg->ctx().get<Cmp::Persistent::NPCActivateScale>();
+      auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NPCActivateScale>();
       // we just create a temporary RectBounds here instead of a component
       // because we only need it for this one comparison and it already contains the needed scaling
       // logic
@@ -87,15 +87,15 @@ void CollisionSystem::check_player_to_npc_collision()
 
       if ( player_hitbox.findIntersection( npc_hitbox ) )
       {
-        auto &npc_damage_cooldown = m_reg->ctx().get<Cmp::Persistent::NpcDamageDelay>();
+        auto &npc_damage_cooldown = get_persistent_component<Cmp::Persistent::NpcDamageDelay>();
         if ( npc_cmp.m_damage_cooldown.getElapsedTime().asSeconds() < npc_damage_cooldown() ) continue;
 
-        auto &npc_damage = m_reg->ctx().get<Cmp::Persistent::NpcDamage>();
+        auto &npc_damage = get_persistent_component<Cmp::Persistent::NpcDamage>();
         pc_cmp.health -= npc_damage();
 
         npc_cmp.m_damage_cooldown.restart();
 
-        auto &npc_push_back = m_reg->ctx().get<Cmp::Persistent::NpcPushBack>();
+        auto &npc_push_back = get_persistent_component<Cmp::Persistent::NpcPushBack>();
 
         // Find a valid pushback position by checking all 8 directions
         sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp, npc_pos_cmp, dir_cmp,
@@ -213,17 +213,17 @@ void CollisionSystem::check_loot_collision()
     switch ( effect.type )
     {
       case Sprites::SpriteFactory::SpriteMetaType::EXTRA_HEALTH: {
-        auto &health_bonus = m_reg->ctx().get<Cmp::Persistent::HealthBonus>();
+        auto &health_bonus = get_persistent_component<Cmp::Persistent::HealthBonus>();
         _pc.health = std::min( _pc.health + health_bonus(), 100 );
         break;
       }
       case Sprites::SpriteFactory::SpriteMetaType::EXTRA_BOMBS: {
-        auto &bomb_bonus = m_reg->ctx().get<Cmp::Persistent::BombBonus>();
+        auto &bomb_bonus = get_persistent_component<Cmp::Persistent::BombBonus>();
         if ( _pc.bomb_inventory >= 0 ) _pc.bomb_inventory += bomb_bonus();
         break;
       }
       case Sprites::SpriteFactory::SpriteMetaType::LOWER_WATER: {
-        auto &water_bonus = m_reg->ctx().get<Cmp::Persistent::WaterBonus>();
+        auto &water_bonus = get_persistent_component<Cmp::Persistent::WaterBonus>();
         for ( auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each() )
         {
           water_level.m_level = std::min( water_level.m_level + water_bonus(), static_cast<float>( kDisplaySize.y ) );

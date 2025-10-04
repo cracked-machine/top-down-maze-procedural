@@ -41,16 +41,16 @@ void PlayerSystem::add_player_entity()
 {
   SPDLOG_INFO( "Creating player entity" );
   auto entity = m_reg->create();
-  auto start_pos = m_reg->ctx().get<Cmp::Persistent::PlayerStartPosition>();
+  auto start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
   m_reg->emplace<Cmp::Position>( entity, start_pos );
 
-  auto &bomb_inventory = m_reg->ctx().get<Cmp::Persistent::BombInventory>();
-  auto &blast_radius = m_reg->ctx().get<Cmp::Persistent::BlastRadius>();
+  auto &bomb_inventory = get_persistent_component<Cmp::Persistent::BombInventory>();
+  auto &blast_radius = get_persistent_component<Cmp::Persistent::BlastRadius>();
   m_reg->emplace<Cmp::PlayableCharacter>( entity, bomb_inventory(), blast_radius() );
 
   m_reg->emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
 
-  auto &pc_detection_scale = m_reg->ctx().get<Cmp::Persistent::PCDetectionScale>();
+  auto &pc_detection_scale = get_persistent_component<Cmp::Persistent::PCDetectionScale>();
 
   m_reg->emplace<Cmp::PCDetectionBounds>(
       entity, start_pos, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions }, pc_detection_scale() );
@@ -80,10 +80,13 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
 
       if ( is_valid_move( target_pos ) || skip_collision_check )
       {
-        auto &player_lerp_speed = m_reg->ctx().get<Cmp::Persistent::PlayerLerpSpeed>();
-        auto &diagonal_lerp_speed_modifier = m_reg->ctx().get<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
-        auto &shortcut_lerp_speed_modifier = m_reg->ctx().get<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
-        auto &submerged_lerp_speed_modifier = m_reg->ctx().get<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
+        auto &player_lerp_speed = get_persistent_component<Cmp::Persistent::PlayerLerpSpeed>();
+        auto &
+            diagonal_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
+        auto &
+            shortcut_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
+        auto &submerged_lerp_speed_modifier = get_persistent_component<
+            Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
 
         float speed_modifier = 1.0f;
         if ( diagonal_between_obstacles )

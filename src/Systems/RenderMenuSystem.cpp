@@ -103,50 +103,53 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   ImGui::Begin( "Settings", nullptr, kImGuiWindowOptions );
   // See PlayerSystem::Settings for details of which Components these are set
 
-  auto &bomb_inventory = m_reg->ctx().get<Cmp::Persistent::BombInventory>();
+  auto &bomb_inventory = get_persistent_component<Cmp::Persistent::BombInventory>();
   if ( ImGui::InputInt( "Bomb Inventory", &bomb_inventory() ) )
   {
     bomb_inventory() = std::clamp( bomb_inventory(), -1, 100 );
   }
 
-  auto &blast_radius = m_reg->ctx().get<Cmp::Persistent::BlastRadius>();
+  auto &blast_radius = get_persistent_component<Cmp::Persistent::BlastRadius>();
   ImGui::SliderInt( "Blast Radius", &blast_radius(), 1, 3 );
 
-  auto &player_lerp_speed = m_reg->ctx().get<Cmp::Persistent::PlayerLerpSpeed>();
+  auto &player_lerp_speed = get_persistent_component<Cmp::Persistent::PlayerLerpSpeed>();
   ImGui::SliderFloat( "Player Lerp Speed", &player_lerp_speed(), 3.f, 10.f, "%.1f" );
 
-  auto &player_diagonal_lerp_speed_modifier = m_reg->ctx().get<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
+  auto &player_diagonal_lerp_speed_modifier = get_persistent_component<
+      Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
   ImGui::SliderFloat( "Player Diagonal Lerp Speed Modifier", &player_diagonal_lerp_speed_modifier(), 0.001f, 1.f,
                       "%.2f" );
 
-  auto &player_shortcut_lerp_speed_modifier = m_reg->ctx().get<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
+  auto &player_shortcut_lerp_speed_modifier = get_persistent_component<
+      Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
   ImGui::SliderFloat( "Player Shortcut Lerp Speed Modifier", &player_shortcut_lerp_speed_modifier(), 0.001f, 1.f,
                       "%.2f" );
 
-  auto &player_submerged_lerp_speed_modifier = m_reg->ctx().get<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
+  auto &player_submerged_lerp_speed_modifier = get_persistent_component<
+      Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
   ImGui::SliderFloat( "Player Submerged Lerp Speed Modifier", &player_submerged_lerp_speed_modifier(), 0.001f, 1.f,
                       "%.2f" );
 
   ImGui::Separator();
-  auto &flood_speed = m_reg->ctx().get<Cmp::Persistent::FloodSpeed>();
+  auto &flood_speed = get_persistent_component<Cmp::Persistent::FloodSpeed>();
   ImGui::SliderFloat( "Flood Velocity", &flood_speed(), 1.f, 10.f, "%.1f pixels/second" );
   ImGui::Separator();
 
-  auto &npc_damage = m_reg->ctx().get<Cmp::Persistent::NpcDamage>();
+  auto &npc_damage = get_persistent_component<Cmp::Persistent::NpcDamage>();
   ImGui::SliderInt( "NPC Damage", &npc_damage(), 1, 50 );
 
-  auto &bomb_damage = m_reg->ctx().get<Cmp::Persistent::BombDamage>();
+  auto &bomb_damage = get_persistent_component<Cmp::Persistent::BombDamage>();
   ImGui::SliderInt( "Bomb Damage", &bomb_damage(), 1, 50 );
 
-  auto &fuse_delay = m_reg->ctx().get<Cmp::Persistent::FuseDelay>();
+  auto &fuse_delay = get_persistent_component<Cmp::Persistent::FuseDelay>();
   ImGui::SliderFloat( "Fuse Delay", &fuse_delay(), 1.f, 10.f, "%.1f seconds" );
 
-  auto &armed_on_delay = m_reg->ctx().get<Cmp::Persistent::ArmedOnDelay>();
+  auto &armed_on_delay = get_persistent_component<Cmp::Persistent::ArmedOnDelay>();
   if ( ImGui::InputFloat( "Armed Detonation Delay Increment", &armed_on_delay(), 0.001f, 0.001f ) )
   {
     armed_on_delay() = std::clamp( armed_on_delay(), 0.001f, 0.5f );
   }
-  auto &armed_off_delay = m_reg->ctx().get<Cmp::Persistent::ArmedOffDelay>();
+  auto &armed_off_delay = get_persistent_component<Cmp::Persistent::ArmedOffDelay>();
   if ( ImGui::InputFloat( "Armed Off Delay", &armed_off_delay(), 0.001f, 0.001f ) )
   {
     armed_off_delay() = std::clamp( armed_off_delay(), 0.001f, 0.5f );
@@ -154,45 +157,45 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
 
   ImGui::Separator();
 
-  auto &wormhole_seed = m_reg->ctx().get<Cmp::Persistent::WormholeSeed>();
+  auto &wormhole_seed = get_persistent_component<Cmp::Persistent::WormholeSeed>();
   ImGui::InputScalar( "Wormhole Seed. Zero is ignored", ImGuiDataType_U64, &wormhole_seed() );
-  auto &corruption_seed = m_reg->ctx().get<Cmp::Persistent::CorruptionSeed>();
+  auto &corruption_seed = get_persistent_component<Cmp::Persistent::CorruptionSeed>();
   ImGui::InputScalar( "Corruption Seed. Zero is ignored", ImGuiDataType_U64, &corruption_seed() );
-  auto &sinkhole_seed = m_reg->ctx().get<Cmp::Persistent::SinkholeSeed>();
+  auto &sinkhole_seed = get_persistent_component<Cmp::Persistent::SinkholeSeed>();
   ImGui::InputScalar( "Sinkhole Seed. Zero is ignored", ImGuiDataType_U64, &sinkhole_seed() );
 
-  auto &health_bonus = m_reg->ctx().get<Cmp::Persistent::HealthBonus>();
+  auto &health_bonus = get_persistent_component<Cmp::Persistent::HealthBonus>();
   ImGui::SliderInt( "Health Bonus", &health_bonus(), 1, 50 );
-  auto &bomb_bonus = m_reg->ctx().get<Cmp::Persistent::BombBonus>();
+  auto &bomb_bonus = get_persistent_component<Cmp::Persistent::BombBonus>();
   ImGui::SliderInt( "Bomb Bonus", &bomb_bonus(), 1, 20 );
-  auto &water_bonus = m_reg->ctx().get<Cmp::Persistent::WaterBonus>();
+  auto &water_bonus = get_persistent_component<Cmp::Persistent::WaterBonus>();
   ImGui::SliderFloat( "Water Bonus", &water_bonus(), 10.f, 500.f, "%.1f units" );
 
-  auto &obstacle_push_back = m_reg->ctx().get<Cmp::Persistent::ObstaclePushBack>();
+  auto &obstacle_push_back = get_persistent_component<Cmp::Persistent::ObstaclePushBack>();
   if ( ImGui::InputFloat( "Obstacle Push Back Factor", &obstacle_push_back(), 0.1f, 0.1f, "%.2f" ) )
   {
     obstacle_push_back() = std::clamp( obstacle_push_back(), 1.0f, 5.0f );
   }
-  auto &npc_push_back = m_reg->ctx().get<Cmp::Persistent::NpcPushBack>();
+  auto &npc_push_back = get_persistent_component<Cmp::Persistent::NpcPushBack>();
   if ( ImGui::InputFloat( "NPC Push Back Distance", &npc_push_back(), 0.1f, 0.1f, "%.2f pixels" ) )
   {
     npc_push_back() = std::clamp( npc_push_back(), 1.0f, 50.0f );
   }
 
-  auto &npc_activate_scale = m_reg->ctx().get<Cmp::Persistent::NPCActivateScale>();
+  auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NPCActivateScale>();
   ImGui::SliderFloat( "NPC Activation Bounding Box Scale Factor", &npc_activate_scale(), 1.f, 20.f, "%.1f pixels" );
-  auto &npc_scan_scale = m_reg->ctx().get<Cmp::Persistent::NPCScanScale>();
+  auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NPCScanScale>();
   ImGui::SliderFloat( "NPC Scan Bounding Box Scale Factor", &npc_scan_scale(), 1.f, 3.f, "%.1f pixels" );
-  auto &pc_detection_scale = m_reg->ctx().get<Cmp::Persistent::PCDetectionScale>();
+  auto &pc_detection_scale = get_persistent_component<Cmp::Persistent::PCDetectionScale>();
   ImGui::SliderFloat( "PC Detection Bounding Box Scale Factor", &pc_detection_scale(), 1.f, 20.f, "%.1f pixels" );
 
-  auto &npc_lerp_speed = m_reg->ctx().get<Cmp::Persistent::NpcLerpSpeed>();
+  auto &npc_lerp_speed = get_persistent_component<Cmp::Persistent::NpcLerpSpeed>();
   ImGui::SliderFloat( "NPC Speed", &npc_lerp_speed(), 0.1f, 3.f, "%.1f" );
 
-  auto &npc_damage_cooldown = m_reg->ctx().get<Cmp::Persistent::NpcDamageDelay>();
+  auto &npc_damage_cooldown = get_persistent_component<Cmp::Persistent::NpcDamageDelay>();
   ImGui::SliderFloat( "NPC Damage Cooldown", &npc_damage_cooldown(), 0.1f, 2.f, "%.1f seconds" );
 
-  auto &music_volume = m_reg->ctx().get<Cmp::Persistent::MusicVolume>();
+  auto &music_volume = get_persistent_component<Cmp::Persistent::MusicVolume>();
   ImGui::SliderFloat( "Music Volume", &music_volume(), 0.f, 100.f, "%.1f" );
 
   ImGui::End();

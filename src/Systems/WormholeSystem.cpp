@@ -26,7 +26,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   // 1. pick a random position component in the maze
   // 2. get the entity at that position
   unsigned long seed = 0;
-  if ( phase == SpawnPhase::InitialSpawn ) seed = m_reg->ctx().get<Cmp::Persistent::WormholeSeed>()();
+  if ( phase == SpawnPhase::InitialSpawn ) seed = get_persistent_component<Cmp::Persistent::WormholeSeed>()();
   auto [random_entity, random_position] = get_random_position( IncludePack<Cmp::Obstacle>{}, ExcludePack<>{}, seed );
 
   // 3. set the entities obstacle component to "broken" so we have something for the shader effect to mangle
