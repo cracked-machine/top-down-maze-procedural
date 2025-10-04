@@ -16,10 +16,7 @@ namespace ProceduralMaze::Sys {
 class PlayerSystem : public BaseSystem
 {
 public:
-  PlayerSystem( ProceduralMaze::SharedEnttRegistry registry )
-      : BaseSystem( registry )
-  {
-  }
+  PlayerSystem( ProceduralMaze::SharedEnttRegistry registry );
 
   /**
    * @brief Initializes the Components as context variables. These components are not owned by any

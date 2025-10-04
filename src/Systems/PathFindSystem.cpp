@@ -5,6 +5,7 @@ namespace ProceduralMaze::Sys {
 PathFindSystem::PathFindSystem( ProceduralMaze::SharedEnttRegistry reg )
     : BaseSystem( reg )
 {
+  init_context();
 }
 
 void PathFindSystem::init_context() { add_persistent_component<Cmp::Persistent::NpcLerpSpeed>( *m_reg ); }

@@ -9,6 +9,7 @@ MusicSystem::MusicSystem( ProceduralMaze::SharedEnttRegistry reg, std::filesyste
     : BaseSystem( reg ),
       m_music_buffer( std::move( music_path ) )
 {
+  init_context();
   m_music.setLooping( true );
 }
 

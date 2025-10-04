@@ -55,10 +55,7 @@ namespace ProceduralMaze::Sys {
 class CollisionSystem : public BaseSystem
 {
 public:
-  CollisionSystem( ProceduralMaze::SharedEnttRegistry reg )
-      : BaseSystem( reg )
-  {
-  }
+  CollisionSystem( ProceduralMaze::SharedEnttRegistry reg );
 
   ~CollisionSystem() = default;
 

@@ -8,6 +8,12 @@
 
 namespace ProceduralMaze::Sys {
 
+CollisionSystem::CollisionSystem( ProceduralMaze::SharedEnttRegistry reg )
+    : BaseSystem( reg )
+{
+  init_context();
+}
+
 void CollisionSystem::init_context()
 {
   add_persistent_component<Cmp::Persistent::HealthBonus>( *m_reg );

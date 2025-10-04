@@ -28,10 +28,7 @@ class FloodSystem : public BaseSystem
 {
 
 public:
-  FloodSystem( ProceduralMaze::SharedEnttRegistry reg )
-      : BaseSystem( reg )
-  {
-  }
+  FloodSystem( ProceduralMaze::SharedEnttRegistry reg );
 
   ~FloodSystem() = default;
 

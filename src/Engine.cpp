@@ -34,17 +34,6 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
   m_render_game_sys.window().setVerticalSyncEnabled( true );
   // m_render_game_sys.window().setFramerateLimit( 144 );
 
-  // initialise the persistent components in the registry
-
-  m_event_handler.init_context();
-  m_player_sys.init_context();
-  m_title_music_sys.init_context();
-  m_bomb_sys.init_context();
-  m_flood_sys.init_context();
-  m_collision_sys.init_context();
-  m_npc_sys.init_context();
-  m_path_find_sys.init_context();
-
   // setup ImGui here rather than RenderSystem classes to reduce white screen init time
   if ( not ImGui::SFML::Init( m_render_menu_sys.window() ) )
   {

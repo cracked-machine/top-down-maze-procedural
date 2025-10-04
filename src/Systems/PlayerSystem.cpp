@@ -19,6 +19,12 @@
 
 namespace ProceduralMaze::Sys {
 
+PlayerSystem::PlayerSystem( ProceduralMaze::SharedEnttRegistry registry )
+    : BaseSystem( registry )
+{
+  init_context();
+}
+
 void PlayerSystem::init_context()
 {
   add_persistent_component<Cmp::Persistent::PlayerStartPosition>( *m_reg );
