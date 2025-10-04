@@ -13,6 +13,7 @@
 #include <Components/Obstacle.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
+#include <Components/Wall.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -44,7 +45,8 @@ public:
   // The textures are picked randomly, but their positions are fixed
   void gen_border();
 
-  void add_border_entity( const sf::Vector2f &pos, std::size_t texture_index, bool enabled = true );
+  void add_wall_entity( const sf::Vector2f &pos, std::size_t texture_index );
+  void add_door_entity( const sf::Vector2f &pos, std::size_t texture_index, bool is_exit );
 
   void stats();
 

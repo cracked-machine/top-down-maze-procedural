@@ -244,15 +244,17 @@ void CellAutomataSystem::find_neighbours()
 
 #ifdef NDEBUG
 
-  for ( auto [_entt, _ob, _pos, _nb] : m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() )
+  auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>();
+  for ( auto [entity, obstacle_cmp, pos_cmp, neighbour_cmp] : obstacle_view.each() )
   {
     // SPDLOG_INFO("Entity {} has {} neighbours", entt::to_integral(_entt),
     // _nb.count());
-    std::string msg = std::to_string( entt::to_integral( _entt ) ) + "(" + std::to_string( _nb.count() ) + ") = ";
+    std::string msg = std::to_string( entt::to_integral( entity ) ) + "(" + std::to_string( neighbour_cmp.count() ) +
+                      ") = ";
 
-    for ( auto [_dir, _nb_entt] : _nb )
+    for ( auto [_dir, _nb_entt] : neighbour_cmp )
     {
-      msg += "[" + _nb.to_string( _dir ) + ":" + std::to_string( entt::to_integral( _nb_entt ) ) + "] ";
+      msg += "[" + neighbour_cmp.to_string( _dir ) + ":" + std::to_string( entt::to_integral( _nb_entt ) ) + "] ";
     }
     SPDLOG_TRACE( msg );
   }
@@ -262,13 +264,12 @@ void CellAutomataSystem::find_neighbours()
 void CellAutomataSystem::apply_rules()
 {
   // 2. apply rules
-
-  for ( auto [_entt, _ob, _pos, _nb] : m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() )
+  auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>();
+  for ( auto [entity, obstacle_cmp, pos_cmp, neighbour_cmp] : obstacle_view.each() )
   {
-    if ( _ob.m_type == Sprites::SpriteFactory::SpriteMetaType::WALL ) { continue; }
-    if ( _nb.count() <= 2 ) { _ob.m_enabled = true; }
-    else if ( _nb.count() > 2 and _nb.count() < 5 ) { _ob.m_enabled = false; }
-    else { _ob.m_enabled = true; }
+    if ( neighbour_cmp.count() <= 2 ) { obstacle_cmp.m_enabled = true; }
+    else if ( neighbour_cmp.count() > 2 and neighbour_cmp.count() < 5 ) { obstacle_cmp.m_enabled = false; }
+    else { obstacle_cmp.m_enabled = true; }
   }
   SPDLOG_INFO( "Finished applying Cellular Automata rules!" );
 }

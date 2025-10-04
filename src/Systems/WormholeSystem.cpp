@@ -1,9 +1,12 @@
+#include <Door.hpp>
 #include <LerpPosition.hpp>
+#include <NPC.hpp>
 #include <Obstacle.hpp>
 #include <Persistent/WormholeSeed.hpp>
 #include <PlayableCharacter.hpp>
 #include <RandomCoord.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <Wall.hpp>
 #include <Wormhole.hpp>
 #include <WormholeSystem.hpp>
 
@@ -23,11 +26,13 @@ void WormholeSystem::init_context()
 
 void WormholeSystem::spawn_wormhole( SpawnPhase phase )
 {
-  // 1. pick a random position component in the maze
+  // 1. pick a random position component in the maze, exclude walls, doors, exits, and playable characters
   // 2. get the entity at that position
   unsigned long seed = 0;
   if ( phase == SpawnPhase::InitialSpawn ) seed = get_persistent_component<Cmp::Persistent::WormholeSeed>()();
-  auto [random_entity, random_position] = get_random_position( IncludePack<Cmp::Obstacle>{}, ExcludePack<>{}, seed );
+  auto [random_entity, random_position] = get_random_position(
+      IncludePack<Cmp::Obstacle>{}, ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>{},
+      seed );
 
   // 3. set the entities obstacle component to "broken" so we have something for the shader effect to mangle
   auto obstacle_cmp = m_reg->try_get<Cmp::Obstacle>( random_entity );
@@ -88,9 +93,11 @@ void WormholeSystem::check_player_wormhole_collision()
       if ( !player_hitbox.findIntersection( wormhole_hitbox ) ) continue;
       SPDLOG_INFO( "Player collided with wormhole at position ({}, {})", position_cmp.x, position_cmp.y );
 
-      // 3. if collision, pick a random new player spawn location
-      auto [new_spawn_entity, new_spawn_position] = get_random_position( IncludePack<Cmp::Obstacle>{}, ExcludePack<>{},
-                                                                         0 );
+      // 3. if collision, pick a random new player spawn location. Exclude walls, doors, exits, playable characters and
+      // NPCs
+      auto [new_spawn_entity, new_spawn_position] = get_random_position(
+          IncludePack<Cmp::Obstacle>{},
+          ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>{}, 0 );
 
       // 6. call despawn_wormhole()
       despawn_wormhole();

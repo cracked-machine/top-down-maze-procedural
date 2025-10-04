@@ -3,6 +3,9 @@
 
 #include <BaseSystem.hpp>
 #include <CorruptionCell.hpp>
+#include <Door.hpp>
+#include <Exit.hpp>
+#include <NPC.hpp>
 #include <Obstacle.hpp>
 #include <Persistent/CorruptionSeed.hpp>
 #include <Persistent/SinkholeSeed.hpp>
@@ -10,6 +13,7 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 #include <SinkholeCell.hpp>
+#include <Wall.hpp>
 #include <entt/entity/fwd.hpp>
 namespace ProceduralMaze::Sys {
 
@@ -61,10 +65,10 @@ public:
   // Starts the hazard field process, gets view of all obstacles, adds one hazard field component at one of the
   // positions. This is done only once at the start of the game so it will check if there is already a hazard field
   // component present.
-  void start_hazard_field()
+  void init_hazard_field()
   {
-    // We want to avoid seeding hazards on top of each other,
-    // so we exclude other hazard field types from the view
+    // We want only one hazard type per map but we also want to avoid initializing hazards on top of other existing
+    // hazards, so we exclude other hazard  types from the view
     auto hazard_field_view = [this]() {
       if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
       {
@@ -83,20 +87,24 @@ public:
       return;
     }
 
+    // now find an obstacle/position to spawn the initial hazard field
+    // explicitly exclude walls, doors, exits, and playable characters
     unsigned long seed = 0;
     entt::entity random_entity = entt::null;
     Cmp::Position random_position( { 0.f, 0.f } );
     if constexpr ( std::is_same_v<HazardType, Cmp::CorruptionCell> )
     {
       seed = get_persistent_component<Cmp::Persistent::CorruptionSeed>()();
-      std::tie( random_entity, random_position ) = get_random_position( IncludePack<Cmp::Obstacle>{}, ExcludePack<>{},
-                                                                        seed );
+      std::tie( random_entity, random_position ) = get_random_position(
+          IncludePack<Cmp::Obstacle>{},
+          ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>(), seed );
     }
     else if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
     {
       seed = get_persistent_component<Cmp::Persistent::SinkholeSeed>()();
-      std::tie( random_entity, random_position ) = get_random_position( IncludePack<Cmp::Obstacle>{}, ExcludePack<>{},
-                                                                        seed );
+      std::tie( random_entity, random_position ) = get_random_position(
+          IncludePack<Cmp::Obstacle>{},
+          ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>{}, seed );
     }
     if ( random_entity == entt::null )
     {
@@ -133,7 +141,6 @@ public:
       int adjacent_hazard_fields = 0;
       for ( auto [obstacle_entity, obstacle_cmp, obstacle_pos] : obstacle_view.each() )
       {
-        if ( obstacle_cmp.m_type == Sprites::SpriteFactory::SpriteMetaType::WALL ) continue; // skip walls
         auto obstacle_hitbox = sf::FloatRect( obstacle_pos, obstacle_hitbox_size );
         if ( hazard_field_hitbox.findIntersection( obstacle_hitbox ) )
         {

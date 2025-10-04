@@ -1,3 +1,4 @@
+#include <Door.hpp>
 #include <FootStepAlpha.hpp>
 #include <FootStepTimer.hpp>
 #include <HazardFieldCell.hpp>
@@ -13,6 +14,7 @@
 #include <SinkholeCell.hpp>
 #include <SpriteAnimation.hpp>
 #include <Systems/RenderGameSystem.hpp>
+#include <Wall.hpp>
 #include <Wormhole.hpp>
 #include <string>
 
@@ -425,12 +427,21 @@ void RenderGameSystem::render_loot()
 
 void RenderGameSystem::render_walls()
 {
-  // Render textures for "WALL" entities - filtered out because they don't own neighbour components
-  for ( auto [entity, _ob, _pos] : m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::Neighbours> ).each() )
+  // draw walls and door frames
+  auto wall_view = m_reg->view<Cmp::Wall, Cmp::Position>();
+  for ( auto [entity, wall_cmp, pos_cmp] : wall_view.each() )
   {
+    m_wall_ms->pick( wall_cmp.m_tile_index, "wall" );
+    m_wall_ms->setPosition( pos_cmp );
+    getWindow().draw( *m_wall_ms );
+  }
 
-    m_wall_ms->pick( _ob.m_tile_index, "wall" );
-    m_wall_ms->setPosition( _pos );
+  // draw doors
+  auto door_view = m_reg->view<Cmp::Door, Cmp::Position>();
+  for ( auto [entity, door_cmp, pos_cmp] : door_view.each() )
+  {
+    m_wall_ms->pick( door_cmp.m_tile_index, "door" );
+    m_wall_ms->setPosition( pos_cmp );
     getWindow().draw( *m_wall_ms );
   }
 }

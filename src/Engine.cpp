@@ -269,8 +269,8 @@ void Engine::setup()
   // Reset the views early to prevent wild panning back to the start
   // position when the game starts rendering
   m_render_game_sys.init_views();
-  m_sinkhole_sys.start_hazard_field();
-  m_corruption_sys.start_hazard_field();
+  m_sinkhole_sys.init_hazard_field();
+  m_corruption_sys.init_hazard_field();
   m_wormhole_sys.spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
   reginfo( "Post-setup" );

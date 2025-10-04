@@ -1,4 +1,8 @@
+#include <Door.hpp>
+#include <Exit.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <Wall.hpp>
+#include <entt/entity/registry.hpp>
 
 namespace ProceduralMaze::Sys {
 
@@ -14,13 +18,31 @@ bool BaseSystem::is_valid_move( sf::Vector2f &target_position )
 {
   auto target_hitbox = get_hitbox( target_position );
 
+  // Check obstacles
   auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
   for ( auto [entity, obs_cmp, pos_cmp] : obstacle_view.each() )
   {
-    if ( obs_cmp.m_enabled == false ) continue;
+    if ( obs_cmp.m_enabled == false || obs_cmp.m_broken == true ) continue;
     auto obs_hitbox = get_hitbox( pos_cmp );
     if ( obs_hitbox.findIntersection( target_hitbox ) ) { return false; }
   }
+
+  // Check walls
+  auto wall_view = m_reg->view<Cmp::Wall, Cmp::Position>();
+  for ( auto [entity, wall_cmp, pos_cmp] : wall_view.each() )
+  {
+    auto wall_hitbox = get_hitbox( pos_cmp );
+    if ( wall_hitbox.findIntersection( target_hitbox ) ) { return false; }
+  }
+
+  // Check doors (excluding exits)
+  auto door_view = m_reg->view<Cmp::Door, Cmp::Position>( entt::exclude<Cmp::Exit> );
+  for ( auto [entity, door_cmp, pos_cmp] : door_view.each() )
+  {
+    auto door_hitbox = get_hitbox( pos_cmp );
+    if ( door_hitbox.findIntersection( target_hitbox ) ) { return false; }
+  }
+
   return true;
 }
 
