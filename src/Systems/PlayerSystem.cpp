@@ -27,14 +27,14 @@ PlayerSystem::PlayerSystem( ProceduralMaze::SharedEnttRegistry registry )
 
 void PlayerSystem::init_context()
 {
-  add_persistent_component<Cmp::Persistent::PlayerStartPosition>( *m_reg );
-  add_persistent_component<Cmp::Persistent::BombInventory>( *m_reg );
-  add_persistent_component<Cmp::Persistent::BlastRadius>( *m_reg );
-  add_persistent_component<Cmp::Persistent::PCDetectionScale>( *m_reg );
-  add_persistent_component<Cmp::Persistent::PlayerLerpSpeed>( *m_reg );
-  add_persistent_component<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( *m_reg );
-  add_persistent_component<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( *m_reg );
-  add_persistent_component<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>( *m_reg );
+  add_persistent_component<Cmp::Persistent::PlayerStartPosition>();
+  add_persistent_component<Cmp::Persistent::BombInventory>();
+  add_persistent_component<Cmp::Persistent::BlastRadius>();
+  add_persistent_component<Cmp::Persistent::PCDetectionScale>();
+  add_persistent_component<Cmp::Persistent::PlayerLerpSpeed>();
+  add_persistent_component<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
+  add_persistent_component<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
+  add_persistent_component<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
 }
 
 void PlayerSystem::add_player_entity()

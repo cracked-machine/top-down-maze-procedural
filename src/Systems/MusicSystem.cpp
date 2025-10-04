@@ -13,7 +13,7 @@ MusicSystem::MusicSystem( ProceduralMaze::SharedEnttRegistry reg, std::filesyste
   m_music.setLooping( true );
 }
 
-void MusicSystem::init_context() { add_persistent_component<Cmp::Persistent::MusicVolume>( *m_reg ); }
+void MusicSystem::init_context() { add_persistent_component<Cmp::Persistent::MusicVolume>(); }
 
 void MusicSystem::update_music_playback( Function func )
 {

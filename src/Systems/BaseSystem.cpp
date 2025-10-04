@@ -2,6 +2,10 @@
 
 namespace ProceduralMaze::Sys {
 
+BaseSystem::BaseSystem( ProceduralMaze::SharedEnttRegistry reg )
+    : m_reg( reg )
+{
+}
 // initialised by first call to getEventDispatcher()
 std::unique_ptr<entt::dispatcher> BaseSystem::m_event_dispatcher = nullptr;
 

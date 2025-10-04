@@ -50,11 +50,11 @@ public:
     // ensure we have a persistent component for the hazard seed
     if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
     {
-      add_persistent_component<Cmp::Persistent::SinkholeSeed>( *m_reg );
+      add_persistent_component<Cmp::Persistent::SinkholeSeed>();
     }
     else if constexpr ( std::is_same_v<HazardType, Cmp::CorruptionCell> )
     {
-      add_persistent_component<Cmp::Persistent::CorruptionSeed>( *m_reg );
+      add_persistent_component<Cmp::Persistent::CorruptionSeed>();
     }
   }
 

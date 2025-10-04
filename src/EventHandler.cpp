@@ -8,7 +8,7 @@ EventHandler::EventHandler( ProceduralMaze::SharedEnttRegistry reg )
   init_context();
 }
 
-void EventHandler::init_context() { add_persistent_component<Cmp::Persistent::GameState>( *m_reg ); }
+void EventHandler::init_context() { add_persistent_component<Cmp::Persistent::GameState>(); }
 
 auto EventHandler::get_game_state() -> Cmp::Persistent::GameState &
 {

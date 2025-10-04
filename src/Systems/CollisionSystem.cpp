@@ -16,15 +16,15 @@ CollisionSystem::CollisionSystem( ProceduralMaze::SharedEnttRegistry reg )
 
 void CollisionSystem::init_context()
 {
-  add_persistent_component<Cmp::Persistent::HealthBonus>( *m_reg );
-  add_persistent_component<Cmp::Persistent::BombBonus>( *m_reg );
-  add_persistent_component<Cmp::Persistent::WaterBonus>( *m_reg );
-  add_persistent_component<Cmp::Persistent::NpcDamage>( *m_reg );
-  add_persistent_component<Cmp::Persistent::ObstaclePushBack>( *m_reg );
-  add_persistent_component<Cmp::Persistent::NpcPushBack>( *m_reg );
-  add_persistent_component<Cmp::Persistent::NPCActivateScale>( *m_reg );
-  add_persistent_component<Cmp::Persistent::NpcDamageDelay>( *m_reg );
-  add_persistent_component<Cmp::Persistent::CorruptionDamage>( *m_reg );
+  add_persistent_component<Cmp::Persistent::HealthBonus>();
+  add_persistent_component<Cmp::Persistent::BombBonus>();
+  add_persistent_component<Cmp::Persistent::WaterBonus>();
+  add_persistent_component<Cmp::Persistent::NpcDamage>();
+  add_persistent_component<Cmp::Persistent::ObstaclePushBack>();
+  add_persistent_component<Cmp::Persistent::NpcPushBack>();
+  add_persistent_component<Cmp::Persistent::NPCActivateScale>();
+  add_persistent_component<Cmp::Persistent::NpcDamageDelay>();
+  add_persistent_component<Cmp::Persistent::CorruptionDamage>();
 }
 
 void CollisionSystem::suspend()

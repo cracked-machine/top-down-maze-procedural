@@ -20,16 +20,19 @@ namespace Sys {
 class BaseSystem
 {
 public:
-  BaseSystem( ProceduralMaze::SharedEnttRegistry reg )
-      : m_reg( reg )
-  {
-  }
+  BaseSystem( ProceduralMaze::SharedEnttRegistry reg );
 
   ~BaseSystem() = default;
 
-  template <typename T> void add_persistent_component( entt::registry &reg )
+  template <typename T> void add_persistent_component()
   {
-    if ( not reg.ctx().contains<T>() ) { reg.ctx().emplace<T>(); }
+    if ( not m_reg->ctx().contains<T>() ) { m_reg->ctx().emplace<T>(); }
+  }
+
+  template <typename T> T &get_persistent_component()
+  {
+    if ( not m_reg->ctx().contains<T>() ) { add_persistent_component<T>(); }
+    return m_reg->ctx().get<T>();
   }
 
   // Get a grid position from an entity's Position component

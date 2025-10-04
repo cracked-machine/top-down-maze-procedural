@@ -15,7 +15,7 @@ NpcSystem::NpcSystem( ProceduralMaze::SharedEnttRegistry reg )
                     .connect<&Sys::NpcSystem::on_npc_death>( this );
 }
 
-void NpcSystem::init_context() { add_persistent_component<Cmp::Persistent::NPCScanScale>( *m_reg ); }
+void NpcSystem::init_context() { add_persistent_component<Cmp::Persistent::NPCScanScale>(); }
 
 void NpcSystem::add_npc_entity( sf::Vector2f position )
 {

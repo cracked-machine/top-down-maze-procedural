@@ -18,7 +18,7 @@ WormholeSystem::WormholeSystem( ProceduralMaze::SharedEnttRegistry reg )
 void WormholeSystem::init_context()
 {
   // ensure we have a persistent component for the wormhole seed
-  add_persistent_component<Cmp::Persistent::WormholeSeed>( *m_reg );
+  add_persistent_component<Cmp::Persistent::WormholeSeed>();
 }
 
 void WormholeSystem::spawn_wormhole( SpawnPhase phase )
