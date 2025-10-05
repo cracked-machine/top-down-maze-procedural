@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+#include <nlohmann/json.hpp>
+
 namespace ProceduralMaze::Sprites {
 
 // This class manages the creation MultiSprites objects in the game.
@@ -51,14 +53,14 @@ private:
   // single place
   struct SpriteMetaData
   {
-    SpriteMetaType type;
     std::string name;
     float weight;
     ProceduralMaze::Sprites::MultiSprite m_multisprite{};
   };
 
+  std::unordered_map<SpriteMetaType, SpriteMetaData> m_sprite_metadata_map{};
   // list declaring multisprite instance and their associated metadata
-  std::vector<SpriteMetaData> m_sprite_metadata_list;
+  // std::vector<SpriteMetaData> m_sprite_metadata_list{};
 
 public:
   /**
@@ -126,6 +128,10 @@ private:
   // Internal use function used by get_random_type_and_texture_index()
   std::optional<SpriteMetaData> get_random_spritedata( std::vector<SpriteMetaType> type_list,
                                                        std::vector<float> weights = {} ) const;
+
+  // convert string to SpriteMetaType
+  SpriteFactory::SpriteMetaType string_to_sprite_type( const std::string &str ) const;
+
 }; // namespace ProceduralMaze::Sprites
 
 } // namespace ProceduralMaze::Sprites

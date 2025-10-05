@@ -1,0 +1,152 @@
+// To add Sprite types, edit the res/json/sprite_metadata_schema.json file
+// and then update the mapping function (string_to_sprite_type) in src/sprite/sprite_factory.cpp
+
+{
+  "sprites": {
+    "WALL": {
+      "name": "WALL",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/walls_and_doors.png",
+        "sprite_indices": [0, 1, 2, 3, 4, 5, 6]
+      }
+    },
+
+    "ROCK": {
+      "name": "ROCK",
+      "weight": 40.0,
+      "multisprite": {
+        "texture_path": "res/textures/objects.png",
+        "sprite_indices": [147, 148]
+      }
+    },
+    "POT": {
+      "name": "POT",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/objects.png",
+        "sprite_indices": [337, 339, 341]
+      }
+    },
+    "BONES": {
+      "name": "BONES",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/objects.png",
+        "sprite_indices": [270, 271]
+      }
+    },
+    "NPC": {
+      "name": "NPC",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/enemies-skeleton1_movement.png",
+        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+      }
+    },
+    "DETONATED": {
+      "name": "DETONATED",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/tilemap_packed.png",
+        "sprite_indices": [42]
+      }
+    },
+    "PLAYER": {
+      "name": "PLAYER",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/conjurer1.png",
+        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+      }
+    },
+    "BOMB": {
+      "name": "BOMB",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/bomb.png",
+        "sprite_indices": [0]
+      }
+    },
+    "EXTRA_HEALTH": {
+      "name": "EXTRA_HEALTH",
+      "weight": 30.0,
+      "multisprite": {
+        "texture_path": "res/textures/objects.png",
+        "sprite_indices": [32]
+      }
+    },
+    "EXTRA_BOMBS": {
+      "name": "EXTRA_BOMBS",
+      "weight": 40.0,
+      "multisprite": {
+        "texture_path": "res/textures/objects.png",
+        "sprite_indices": [67]
+      }
+    },
+    "INFINI_BOMBS": {
+      "name": "INFINI_BOMBS",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/objects.png",
+        "sprite_indices": [35]
+      }
+    },
+    "CHAIN_BOMBS": {
+      "name": "CHAIN_BOMBS",
+      "weight": 20.0,
+      "multisprite": {
+        "texture_path": "res/textures/objects.png",
+        "sprite_indices": [34]
+      }
+    },
+    "LOWER_WATER": {
+      "name": "LOWER_WATER",
+      "weight": 40.0,
+      "multisprite": {
+        "texture_path": "res/textures/objects.png",
+        "sprite_indices": [33]
+      }
+    },
+    "EXPLOSION": {
+      "name": "EXPLOSION",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
+        "sprite_indices": [66, 67, 68, 69, 70, 71]
+      }
+    },
+    "FOOTSTEPS": {
+      "name": "FOOTSTEPS",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/footsteps.png",
+        "sprite_indices": [0]
+      }
+    },
+    "SINKHOLE": {
+      "name": "SINKHOLE",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/sinkhole.png",
+        "sprite_indices": [0]
+      }
+    },
+    "CORRUPTION": {
+      "name": "CORRUPTION",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/corruption.png",
+        "sprite_indices": [0]
+      }
+    },
+    "WORMHOLE": {
+      "name": "WORMHOLE",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/objects.png",
+        "sprite_indices": [391, 392, 393, 423, 424, 425, 455, 456, 457]
+      }
+    }
+  }
+}

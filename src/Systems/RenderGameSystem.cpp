@@ -730,7 +730,7 @@ void RenderGameSystem::load_multisprites()
   if ( !err_msg.empty() )
   {
     SPDLOG_CRITICAL( "{}", err_msg );
-    std::get_terminate();
+    std::terminate();
   }
 }
 

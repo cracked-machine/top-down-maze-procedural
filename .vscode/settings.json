@@ -75,5 +75,13 @@
     },
     "clangd.arguments": [
         "-j", "24"
+    ],
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "**/sprite_metadata.json"
+            ],
+            "url": "./res/json/sprite_metadata_schema.json"
+        }
     ]
 }

@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SpriteMetaData Schema",
+  "description": "Schema for sprite metadata configuration using enum names as keys",
+  "type": "object",
+  "properties": {
+    "sprites": {
+      "type": "object",
+      "description": "Map of sprite enum names to their metadata",
+      "properties": {
+        "WALL": { "$ref": "#/definitions/spriteMetadata" },
+        "ROCK": { "$ref": "#/definitions/spriteMetadata" },
+        "POT": { "$ref": "#/definitions/spriteMetadata" },
+        "BONES": { "$ref": "#/definitions/spriteMetadata" },
+        "NPC": { "$ref": "#/definitions/spriteMetadata" },
+        "DETONATED": { "$ref": "#/definitions/spriteMetadata" },
+        "PLAYER": { "$ref": "#/definitions/spriteMetadata" },
+        "BOMB": { "$ref": "#/definitions/spriteMetadata" },
+        "EXTRA_HEALTH": { "$ref": "#/definitions/spriteMetadata" },
+        "EXTRA_BOMBS": { "$ref": "#/definitions/spriteMetadata" },
+        "INFINI_BOMBS": { "$ref": "#/definitions/spriteMetadata" },
+        "CHAIN_BOMBS": { "$ref": "#/definitions/spriteMetadata" },
+        "LOWER_WATER": { "$ref": "#/definitions/spriteMetadata" },
+        "EXPLOSION": { "$ref": "#/definitions/spriteMetadata" },
+        "FOOTSTEPS": { "$ref": "#/definitions/spriteMetadata" },
+        "SINKHOLE": { "$ref": "#/definitions/spriteMetadata" },
+        "CORRUPTION": { "$ref": "#/definitions/spriteMetadata" },
+        "WORMHOLE": { "$ref": "#/definitions/spriteMetadata" }
+      },
+      "required": [
+        "WALL", "ROCK", "POT", "BONES", "NPC", "DETONATED", "PLAYER", "BOMB",
+        "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", 
+        "LOWER_WATER", "EXPLOSION", "FOOTSTEPS", "SINKHOLE", "CORRUPTION", "WORMHOLE"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": ["sprites"],
+  "additionalProperties": false,
+  "definitions": {
+    "spriteMetadata": {
+      "type": "object",
+      "description": "Metadata for a single sprite type",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable sprite name",
+          "minLength": 1
+        },
+        "weight": {
+          "type": "number",
+          "description": "Weight for random selection",
+          "minimum": 0
+        },
+        "multisprite": {
+          "type": "object",
+          "description": "MultiSprite configuration",
+          "properties": {
+            "texture_path": {
+              "type": "string",
+              "description": "Path to the texture file",
+              "pattern": "^res/textures/.*\\.(png|jpg|jpeg|bmp|tga)$"
+            },
+            "sprite_indices": {
+              "type": "array",
+              "description": "Array of sprite indices in the texture",
+              "items": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          },
+          "required": ["texture_path", "sprite_indices"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["name", "weight", "multisprite"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -19,7 +19,8 @@ RUN apt update -y && apt install -y \
     g++-mingw-w64-x86-64 \
     doxygen \
     jq \
-    yq
+    yq \
+    python3-pip
     
 # SDL3 reqs
 RUN apt update -y && apt install -y \
