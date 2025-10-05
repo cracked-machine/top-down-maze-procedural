@@ -5,6 +5,12 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # general stuff plus mingw cross compiler
 RUN apt update -y && apt install -y \
+    git \
+    build-essential \
+    make \
+    pkg-config \
+    cmake \
+    ninja-build \
     clangd \
     clang-format \
     sudo \
@@ -17,12 +23,6 @@ RUN apt update -y && apt install -y \
     
 # SDL3 reqs
 RUN apt update -y && apt install -y \
-    git \
-    build-essential \
-    make \
-    pkg-config \
-    cmake \
-    ninja-build \
     gnome-desktop-testing \
     libasound2-dev \
     libpulse-dev \
