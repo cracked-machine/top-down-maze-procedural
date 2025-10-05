@@ -69,7 +69,9 @@ The correct and safe way is `entt::entt_traits<entt::entity>::to_integral(entity
 When the registry is cleared, entity values may be recycled or invalidated, so using to_entity can yield undefined or corrupted results, especially if it’s not meant for external use.
 Always use `to_integral` for serialization, logging, or storing entity IDs outside the registry. This will prevent corruption and ensure your entity IDs remain valid across restarts and registry clears.
 
+## JSON
 
-
+To add Sprite types, edit the res/json/sprite_metadata_schema.json file
+and then update the mapping function (string_to_sprite_type) in src/sprite/sprite_factory.cpp
 
 
