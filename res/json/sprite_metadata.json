@@ -1,6 +1,3 @@
-// To add Sprite types, edit the res/json/sprite_metadata_schema.json file
-// and then update the mapping function (string_to_sprite_type) in src/sprite/sprite_factory.cpp
-
 {
   "sprites": {
     "WALL": {
