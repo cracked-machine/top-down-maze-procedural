@@ -24,8 +24,6 @@ class NpcSystem : public BaseSystem
 public:
   NpcSystem( ProceduralMaze::SharedEnttRegistry reg );
 
-  void init_context();
-
   void add_npc_entity( sf::Vector2f position );
   void remove_npc_entity( entt::entity npc_entity );
 

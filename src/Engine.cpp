@@ -11,6 +11,7 @@ namespace ProceduralMaze {
 
 Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
     : m_reg( std::move( registry ) ),
+      m_persistent_sys( m_reg ),
       m_sprite_factory( std::make_shared<Sprites::SpriteFactory>() ),
       m_player_sys( m_reg ),
       m_flood_sys( m_reg ),
@@ -31,6 +32,9 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
 {
 
   SPDLOG_INFO( "Engine Initiliasing... " );
+
+  m_persistent_sys.loadState();
+
   m_render_game_sys.window().setVerticalSyncEnabled( true );
   // m_render_game_sys.window().setFramerateLimit( 144 );
 

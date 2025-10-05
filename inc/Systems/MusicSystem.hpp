@@ -13,8 +13,6 @@ class MusicSystem : public BaseSystem
 public:
   MusicSystem( ProceduralMaze::SharedEnttRegistry reg, std::filesystem::path music_path );
 
-  void init_context();
-
   enum class Function
   {
     PLAY,

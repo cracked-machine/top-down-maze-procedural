@@ -7,8 +7,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 class SinkholeSeed : public BasePersistent<unsigned long>
 {
 public:
-  SinkholeSeed()
-      : BasePersistent<unsigned long>( 0 )
+  SinkholeSeed( float value = 0 )
+      : BasePersistent<unsigned long>( value )
   {
   }
 };

@@ -9,8 +9,8 @@ class ArmedOffDelay : public BasePersistent<float>
 {
 
 public:
-  ArmedOffDelay()
-      : BasePersistent<float>( 0.075f )
+  ArmedOffDelay( float delay = 0.075f )
+      : BasePersistent<float>( delay )
   {
   }
 };

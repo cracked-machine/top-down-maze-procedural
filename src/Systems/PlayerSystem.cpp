@@ -22,19 +22,6 @@ namespace ProceduralMaze::Sys {
 PlayerSystem::PlayerSystem( ProceduralMaze::SharedEnttRegistry registry )
     : BaseSystem( registry )
 {
-  init_context();
-}
-
-void PlayerSystem::init_context()
-{
-  add_persistent_component<Cmp::Persistent::PlayerStartPosition>();
-  add_persistent_component<Cmp::Persistent::BombInventory>();
-  add_persistent_component<Cmp::Persistent::BlastRadius>();
-  add_persistent_component<Cmp::Persistent::PCDetectionScale>();
-  add_persistent_component<Cmp::Persistent::PlayerLerpSpeed>();
-  add_persistent_component<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
-  add_persistent_component<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
-  add_persistent_component<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
 }
 
 void PlayerSystem::add_player_entity()

@@ -8,8 +8,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 class NpcPushBack : public BasePersistent<float>
 {
 public:
-  NpcPushBack()
-      : BasePersistent<float>( ProceduralMaze::Sprites::MultiSprite::kDefaultSpriteDimensions.x )
+  NpcPushBack( float value = ProceduralMaze::Sprites::MultiSprite::kDefaultSpriteDimensions.x )
+      : BasePersistent<float>( value )
   {
   }
 };

@@ -19,15 +19,6 @@ public:
   PlayerSystem( ProceduralMaze::SharedEnttRegistry registry );
 
   /**
-   * @brief Initializes the Components as context variables. These components are not owned by any
-   * entity.
-   * @details Call this before using any PlayerSystem functionality that relies on an initialized
-   * context.
-   * @note Intended to be invoked once during system setup or scene load.
-   */
-  void init_context();
-
-  /**
    * @brief Adds a new player entity to the game world.
    *
    * Creates and initializes a player entity with default components for physics processing

@@ -5,10 +5,7 @@ namespace ProceduralMaze {
 EventHandler::EventHandler( ProceduralMaze::SharedEnttRegistry reg )
     : Sys::BaseSystem( reg )
 {
-  init_context();
 }
-
-void EventHandler::init_context() { add_persistent_component<Cmp::Persistent::GameState>(); }
 
 void EventHandler::menu_state_handler( sf::RenderWindow &window )
 {

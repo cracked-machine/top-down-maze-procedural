@@ -8,8 +8,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 class NPCActivateScale : public BasePersistent<float>
 {
 public:
-  NPCActivateScale()
-      : BasePersistent<float>( 5.f )
+  NPCActivateScale( float value = 5.f )
+      : BasePersistent<float>( value )
   {
   }
 };

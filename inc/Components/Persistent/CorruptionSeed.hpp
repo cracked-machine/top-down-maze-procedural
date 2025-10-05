@@ -7,8 +7,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 class CorruptionSeed : public BasePersistent<unsigned long>
 {
 public:
-  CorruptionSeed()
-      : BasePersistent<unsigned long>( 0 )
+  CorruptionSeed( unsigned long value = 0 )
+      : BasePersistent<unsigned long>( value )
   {
   }
 };

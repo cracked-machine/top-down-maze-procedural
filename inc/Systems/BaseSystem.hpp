@@ -29,6 +29,11 @@ public:
     if ( not m_reg->ctx().contains<T>() ) { m_reg->ctx().emplace<T>(); }
   }
 
+  template <typename T, typename... Args> void add_persistent_component( Args &&...args )
+  {
+    if ( not m_reg->ctx().contains<T>() ) { m_reg->ctx().emplace<T>( std::forward<Args>( args )... ); }
+  }
+
   template <typename T> T &get_persistent_component()
   {
     if ( not m_reg->ctx().contains<T>() ) { add_persistent_component<T>(); }

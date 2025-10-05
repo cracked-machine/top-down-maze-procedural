@@ -37,8 +37,6 @@ public:
   PathFindSystem( ProceduralMaze::SharedEnttRegistry reg );
   ~PathFindSystem() = default;
 
-  void init_context();
-
   void findPath( entt::entity player_entity );
 
 private:

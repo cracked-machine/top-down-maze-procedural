@@ -17,15 +17,8 @@
 #include <NPCScanBounds.hpp>
 #include <NpcSystem.hpp>
 #include <PCDetectionBounds.hpp>
-#include <Persistent/BombBonus.hpp>
+
 #include <Persistent/CorruptionDamage.hpp>
-#include <Persistent/HealthBonus.hpp>
-#include <Persistent/NPCActivateScale.hpp>
-#include <Persistent/NpcDamage.hpp>
-#include <Persistent/NpcDamageDelay.hpp>
-#include <Persistent/NpcPushBack.hpp>
-#include <Persistent/ObstaclePushBack.hpp>
-#include <Persistent/WaterBonus.hpp>
 #include <SinkholeCell.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -58,9 +51,6 @@ public:
   CollisionSystem( ProceduralMaze::SharedEnttRegistry reg );
 
   ~CollisionSystem() = default;
-
-  // Initialise persistent components as ECS context variables
-  void init_context();
 
   // Pause timers when game is paused
   void suspend();

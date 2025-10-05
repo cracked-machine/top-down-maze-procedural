@@ -6,10 +6,6 @@ namespace ProceduralMaze::Sys {
 RenderSystem::RenderSystem( ProceduralMaze::SharedEnttRegistry reg )
     : BaseSystem( reg )
 {
-
-  SPDLOG_INFO( "RenderSystem initialisation starting..." );
-
-  SPDLOG_INFO( "RenderSystem initialisation finished" );
 }
 
 void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align,

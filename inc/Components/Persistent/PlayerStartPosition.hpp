@@ -15,9 +15,9 @@ namespace ProceduralMaze::Cmp::Persistent {
 class PlayerStartPosition : public sf::Vector2f
 {
 public:
-  PlayerStartPosition()
-      : sf::Vector2f( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 2,
-                      static_cast<float>( Sys::BaseSystem::kDisplaySize.y ) / 2 ) // default start position
+  PlayerStartPosition( sf::Vector2f pos = sf::Vector2f( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 2,
+                                                        static_cast<float>( Sys::BaseSystem::kDisplaySize.y ) / 2 ) )
+      : sf::Vector2f( pos )
   {
     SPDLOG_DEBUG( "PlayerStartPosition()" );
   }

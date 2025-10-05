@@ -7,8 +7,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 class ObstaclePushBack : public BasePersistent<float>
 {
 public:
-  ObstaclePushBack()
-      : BasePersistent<float>( 1.1f )
+  ObstaclePushBack( float value = 1.1f )
+      : BasePersistent<float>( value )
   {
   }
 };

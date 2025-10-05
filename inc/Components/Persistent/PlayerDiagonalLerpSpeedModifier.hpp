@@ -7,8 +7,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 class PlayerDiagonalLerpSpeedModifier : public BasePersistent<float>
 {
 public:
-  PlayerDiagonalLerpSpeedModifier()
-      : BasePersistent<float>( 0.707f )
+  PlayerDiagonalLerpSpeedModifier( float value = 0.707f )
+      : BasePersistent<float>( value )
   {
   }
 };

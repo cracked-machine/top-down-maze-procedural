@@ -40,15 +40,6 @@ class BombSystem : public BaseSystem
 public:
   BombSystem( ProceduralMaze::SharedEnttRegistry reg );
 
-  // Create context variables by Cmp::Persistent type (if they don't already exist)
-  void init_context()
-  {
-    add_persistent_component<Cmp::Persistent::FuseDelay>();
-    add_persistent_component<Cmp::Persistent::BombDamage>();
-    add_persistent_component<Cmp::Persistent::ArmedOffDelay>();
-    add_persistent_component<Cmp::Persistent::ArmedOnDelay>();
-  }
-
   void suspend();
   void resume();
 

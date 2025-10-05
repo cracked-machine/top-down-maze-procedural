@@ -12,6 +12,7 @@
 #include <PathFindSystem.hpp>
 #include <Persistent/FuseDelay.hpp>
 #include <Persistent/GameState.hpp>
+#include <PersistentSystem.hpp>
 #include <PlayerSystem.hpp>
 #include <ProcGen/RandomLevelGenerator.hpp>
 #include <RenderGameSystem.hpp>
@@ -77,10 +78,14 @@ private:
   // ECS registry
   ProceduralMaze::SharedEnttRegistry m_reg;
 
+  // init this first since it registers core settings
+  Sys::PersistentSystem m_persistent_sys;
+
   // creates and manages MultiSprite resources
   std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory;
 
   //  ECS Systems
+
   Sys::PlayerSystem m_player_sys;
   Sys::FloodSystem m_flood_sys;
   Sys::PathFindSystem m_path_find_sys;

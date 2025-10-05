@@ -1,9 +1,15 @@
 #include <CollisionSystem.hpp>
 #include <CorruptionCell.hpp>
 #include <HazardFieldCell.hpp>
+#include <Persistent/BombBonus.hpp>
 #include <Persistent/CorruptionDamage.hpp>
+#include <Persistent/HealthBonus.hpp>
+#include <Persistent/NpcDamage.hpp>
+#include <Persistent/NpcDamageDelay.hpp>
+#include <Persistent/NpcPushBack.hpp>
 #include <Persistent/PlayerMinVelocity.hpp>
 #include <Persistent/PlayerStartPosition.hpp>
+#include <Persistent/WaterBonus.hpp>
 #include <SinkholeCell.hpp>
 
 namespace ProceduralMaze::Sys {
@@ -11,20 +17,6 @@ namespace ProceduralMaze::Sys {
 CollisionSystem::CollisionSystem( ProceduralMaze::SharedEnttRegistry reg )
     : BaseSystem( reg )
 {
-  init_context();
-}
-
-void CollisionSystem::init_context()
-{
-  add_persistent_component<Cmp::Persistent::HealthBonus>();
-  add_persistent_component<Cmp::Persistent::BombBonus>();
-  add_persistent_component<Cmp::Persistent::WaterBonus>();
-  add_persistent_component<Cmp::Persistent::NpcDamage>();
-  add_persistent_component<Cmp::Persistent::ObstaclePushBack>();
-  add_persistent_component<Cmp::Persistent::NpcPushBack>();
-  add_persistent_component<Cmp::Persistent::NPCActivateScale>();
-  add_persistent_component<Cmp::Persistent::NpcDamageDelay>();
-  add_persistent_component<Cmp::Persistent::CorruptionDamage>();
 }
 
 void CollisionSystem::suspend()

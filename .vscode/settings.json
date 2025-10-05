@@ -82,6 +82,12 @@
                 "**/sprite_metadata.json"
             ],
             "url": "./res/json/sprite_metadata_schema.json"
+        },
+        {
+            "fileMatch": [
+                "**/persistent_components.json"
+            ],
+            "url": "./res/json/persistent_components_schema.json"
         }
     ]
 }

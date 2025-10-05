@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://proceduralmaze.com/schemas/persistent-components.json",
+  "title": "Persistent Components Configuration",
+  "description": "Schema for procedural maze persistent component configurations",
+  "type": "object",
+  "patternProperties": {
+    "^[A-Z][a-zA-Z0-9]*$": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["float", "int", "bool", "string", "sf::Vector2f"],
+          "description": "The C++ data type of the persistent component"
+        },
+        "value": {
+          "oneOf": [
+            {
+              "type": "number",
+              "description": "Numeric value for float or int types"
+            },
+            {
+              "type": "boolean",
+              "description": "Boolean value for bool type"
+            },
+            {
+              "type": "string",
+              "description": "String value for string type"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "x": {"type": "number"},
+                "y": {"type": "number"}
+              },
+              "required": ["x", "y"],
+              "additionalProperties": false,
+              "description": "Vector2f value with x and y components"
+            }
+          ],
+          "description": "The default value of the persistent component"
+        }
+      },
+      "required": ["type", "value"],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {"const": "float"}
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {"type": "number"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {"const": "int"}
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {"type": "integer"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {"const": "bool"}
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {"type": "boolean"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {"const": "string"}
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {"type": "string"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {"const": "sf::Vector2f"}
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "object",
+                "properties": {
+                  "x": {"type": "number"},
+                  "y": {"type": "number"}
+                },
+                "required": ["x", "y"],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "minProperties": 1
+}

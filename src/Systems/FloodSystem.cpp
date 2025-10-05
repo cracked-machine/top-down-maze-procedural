@@ -5,10 +5,7 @@ namespace ProceduralMaze::Sys {
 FloodSystem::FloodSystem( ProceduralMaze::SharedEnttRegistry reg )
     : BaseSystem( reg )
 {
-  init_context();
 }
-
-void FloodSystem::init_context() { add_persistent_component<Cmp::Persistent::FloodSpeed>(); }
 
 void FloodSystem::add_flood_water_entity()
 {

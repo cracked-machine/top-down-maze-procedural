@@ -6,7 +6,6 @@ namespace ProceduralMaze::Sys {
 NpcSystem::NpcSystem( ProceduralMaze::SharedEnttRegistry reg )
     : BaseSystem( reg )
 {
-  init_context();
   std::ignore = Sys::BaseSystem::getEventDispatcher()
                     .sink<Events::NpcCreationEvent>()
                     .connect<&Sys::NpcSystem::on_npc_creation>( this );
@@ -14,8 +13,6 @@ NpcSystem::NpcSystem( ProceduralMaze::SharedEnttRegistry reg )
                     .sink<Events::NpcDeathEvent>()
                     .connect<&Sys::NpcSystem::on_npc_death>( this );
 }
-
-void NpcSystem::init_context() { add_persistent_component<Cmp::Persistent::NPCScanScale>(); }
 
 void NpcSystem::add_npc_entity( sf::Vector2f position )
 {

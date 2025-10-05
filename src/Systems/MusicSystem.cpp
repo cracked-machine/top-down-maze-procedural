@@ -9,11 +9,9 @@ MusicSystem::MusicSystem( ProceduralMaze::SharedEnttRegistry reg, std::filesyste
     : BaseSystem( reg ),
       m_music_buffer( std::move( music_path ) )
 {
-  init_context();
   m_music.setLooping( true );
 }
 
-void MusicSystem::init_context() { add_persistent_component<Cmp::Persistent::MusicVolume>(); }
 
 void MusicSystem::update_music_playback( Function func )
 {

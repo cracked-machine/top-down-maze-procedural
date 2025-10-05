@@ -26,8 +26,6 @@ class EventHandler : public Sys::BaseSystem
 public:
   EventHandler( ProceduralMaze::SharedEnttRegistry reg );
 
-  void init_context();
-
   void menu_state_handler( sf::RenderWindow &window );
   void settings_state_handler( sf::RenderWindow &window );
   void game_state_handler( sf::RenderWindow &window );

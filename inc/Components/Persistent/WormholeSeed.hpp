@@ -7,8 +7,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 class WormholeSeed : public BasePersistent<unsigned long>
 {
 public:
-  WormholeSeed()
-      : BasePersistent<unsigned long>( 0 )
+  WormholeSeed( unsigned long value = 0 )
+      : BasePersistent<unsigned long>( value )
   {
   }
 };

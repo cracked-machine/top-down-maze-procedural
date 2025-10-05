@@ -32,8 +32,6 @@ public:
 
   ~FloodSystem() = default;
 
-  // Create context variables by Cmp::Persistent type (if they don't already exist)
-  void init_context();
   void add_flood_water_entity();
 
   void update();

@@ -9,7 +9,6 @@ namespace ProceduralMaze::Sys {
 BombSystem::BombSystem( ProceduralMaze::SharedEnttRegistry reg )
     : BaseSystem( reg )
 {
-  init_context();
   std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>(
       this );
 }

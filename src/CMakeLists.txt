@@ -8,6 +8,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Sprites/MultiSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/BaseFragmentShader.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/BaseSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/PersistentSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ProcGen/RandomLevelGenerator.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ProcGen/CellAutomataSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/RenderSystem.cpp
