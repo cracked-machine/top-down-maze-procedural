@@ -9,14 +9,14 @@
 #include <Persistent/FuseDelay.hpp>
 #include <Persistent/HealthBonus.hpp>
 #include <Persistent/MusicVolume.hpp>
-#include <Persistent/NPCActivateScale.hpp>
-#include <Persistent/NPCScanScale.hpp>
+#include <Persistent/NpcActivateScale.hpp>
 #include <Persistent/NpcDamage.hpp>
 #include <Persistent/NpcDamageDelay.hpp>
 #include <Persistent/NpcLerpSpeed.hpp>
 #include <Persistent/NpcPushBack.hpp>
+#include <Persistent/NpcScanScale.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
-#include <Persistent/PCDetectionScale.hpp>
+#include <Persistent/PlayerDetectionScale.hpp>
 #include <Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Persistent/PlayerLerpSpeed.hpp>
 #include <Persistent/PlayerShortcutLerpSpeedModifier.hpp>
@@ -25,6 +25,8 @@
 #include <Persistent/WaterBonus.hpp>
 #include <PersistentSystem.hpp>
 #include <fstream>
+#include <functional>
+#include <unordered_map>
 
 #define JSON_NOEXCEPTION
 #include <nlohmann/json.hpp>
@@ -37,14 +39,51 @@ namespace ProceduralMaze::Sys {
 PersistentSystem::PersistentSystem( SharedEnttRegistry reg )
     : BaseSystem( reg )
 {
+  SPDLOG_INFO( "PersistentSystem constructor called" ); // Add this debug line
+  // not added from json file, always present
   add_persistent_component<Cmp::Persistent::GameState>();
+
+  std::ignore = getEventDispatcher()
+                    .sink<Events::SaveSettingsEvent>()
+                    .connect<&Sys::PersistentSystem::on_save_settings_event>( this );
+
+  initializeComponentRegistry();
 }
 
-// call this before changing to menu game state
-// 1. read json file
-// 2. deserialize json to persistent components
-// 3. load persistent components into registry context
-void PersistentSystem::loadState()
+void PersistentSystem::initializeComponentRegistry()
+{
+  // Register float components
+  registerComponent<Cmp::Persistent::ArmedOffDelay>( "ArmedOffDelay" );
+  registerComponent<Cmp::Persistent::ArmedOnDelay>( "ArmedOnDelay" );
+  registerComponent<Cmp::Persistent::FuseDelay>( "FuseDelay" );
+  registerComponent<Cmp::Persistent::PlayerDetectionScale>( "PlayerDetectionScale" );
+  registerComponent<Cmp::Persistent::PlayerLerpSpeed>( "PlayerLerpSpeed" );
+  registerComponent<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( "PlayerDiagonalLerpSpeedModifier" );
+  registerComponent<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
+  registerComponent<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>( "PlayerSubmergedLerpSpeedModifier" );
+  registerComponent<Cmp::Persistent::ObstaclePushBack>( "ObstaclePushBack" );
+  registerComponent<Cmp::Persistent::NpcActivateScale>( "NpcActivateScale" );
+  registerComponent<Cmp::Persistent::NpcDamageDelay>( "NpcDamageDelay" );
+  registerComponent<Cmp::Persistent::FloodSpeed>( "FloodSpeed" );
+  registerComponent<Cmp::Persistent::MusicVolume>( "MusicVolume" );
+  registerComponent<Cmp::Persistent::NpcScanScale>( "NpcScanScale" );
+  registerComponent<Cmp::Persistent::NpcLerpSpeed>( "NpcLerpSpeed" );
+
+  // Register int components
+  registerComponent<Cmp::Persistent::BombDamage>( "BombDamage" );
+  registerComponent<Cmp::Persistent::BombInventory>( "BombInventory" );
+  registerComponent<Cmp::Persistent::BlastRadius>( "BlastRadius" );
+  registerComponent<Cmp::Persistent::HealthBonus>( "HealthBonus" );
+  registerComponent<Cmp::Persistent::BombBonus>( "BombBonus" );
+  registerComponent<Cmp::Persistent::WaterBonus>( "WaterBonus" );
+  registerComponent<Cmp::Persistent::NpcDamage>( "NpcDamage" );
+  registerComponent<Cmp::Persistent::CorruptionDamage>( "CorruptionDamage" );
+
+  // Register special types (sf::Vector2f)
+  registerComponent<Cmp::Persistent::PlayerStartPosition>( "PlayerStartPosition" );
+}
+
+void PersistentSystem::load_state()
 {
   SPDLOG_INFO( "Loading persistent state..." );
   nlohmann::json jsonData;
@@ -57,185 +96,65 @@ void PersistentSystem::loadState()
 
   for ( const auto &[key, value] : jsonData.items() )
   {
-    if ( key == "ArmedOffDelay" )
-    {
-      float delay = value["value"].template get<float>();
-      SPDLOG_INFO( "Loaded ArmedOffDelay with delay: {}", delay );
-      add_persistent_component<Cmp::Persistent::ArmedOffDelay>( delay );
-    }
-    if ( key == "ArmedOnDelay" )
-    {
-      float delay = value["value"].template get<float>();
-      SPDLOG_INFO( "Loaded ArmedOnDelay with delay: {}", delay );
-      add_persistent_component<Cmp::Persistent::ArmedOnDelay>( delay );
-    }
-    if ( key == "FuseDelay" )
-    {
-      float delay = value["value"].template get<float>();
-      SPDLOG_INFO( "Loaded FuseDelay with delay: {}", delay );
-      add_persistent_component<Cmp::Persistent::FuseDelay>( delay );
-    }
-    if ( key == "BombDamage" )
-    {
-      int damage = value["value"].template get<int>();
-      SPDLOG_INFO( "Loaded BombDamage with damage: {}", damage );
-      add_persistent_component<Cmp::Persistent::BombDamage>( damage );
-    }
-    if ( key == "PlayerStartPosition" )
-    {
-      float x = value["value"]["x"].template get<float>();
-      float y = value["value"]["y"].template get<float>();
-      if ( x == 0.0f && y == 0.0f )
-      {
-        SPDLOG_INFO( "Loaded PlayerStartPosition with default position." );
-        add_persistent_component<Cmp::Persistent::PlayerStartPosition>();
-      }
-      else
-      {
-        SPDLOG_INFO( "Loaded PlayerStartPosition with position: ({}, {})", x, y );
-        add_persistent_component<Cmp::Persistent::PlayerStartPosition>( sf::Vector2f( x, y ) );
-      }
-    }
-    if ( key == "BombInventory" )
-    {
-      int inventory = value["value"].template get<int>();
-      SPDLOG_INFO( "Loaded BombInventory with inventory: {}", inventory );
-      add_persistent_component<Cmp::Persistent::BombInventory>( inventory );
-    }
-    if ( key == "BlastRadius" )
-    {
-      int radius = value["value"].template get<int>();
-      SPDLOG_INFO( "Loaded BlastRadius with radius: {}", radius );
-      add_persistent_component<Cmp::Persistent::BlastRadius>( radius );
-    }
-    if ( key == "PCDetectionScale" )
-    {
-      float scale = value["value"].template get<float>();
-      SPDLOG_INFO( "Loaded PCDetectionScale with scale: {}", scale );
-      add_persistent_component<Cmp::Persistent::PCDetectionScale>( scale );
-    }
-    if ( key == "PlayerLerpSpeed" )
-    {
-      float speed = value["value"].template get<float>();
-      SPDLOG_INFO( "Loaded PlayerLerpSpeed with speed: {}", speed );
-      add_persistent_component<Cmp::Persistent::PlayerLerpSpeed>( speed );
-    }
-    if ( key == "PlayerDiagonalLerpSpeedModifier" )
-    {
-      float modifier = value["value"].template get<float>();
-      SPDLOG_INFO( "Loaded PlayerDiagonalLerpSpeedModifier with modifier: {}", modifier );
-      add_persistent_component<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( modifier );
-    }
-    if ( key == "PlayerShortcutLerpSpeedModifier" )
-    {
-      float modifier = value["value"].template get<float>();
-      SPDLOG_INFO( "Loaded PlayerShortcutLerpSpeedModifier with modifier: {}", modifier );
-      add_persistent_component<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( modifier );
-    }
-    if ( key == "PlayerSubmergedLerpSpeedModifier" )
-    {
-      float modifier = value["value"].template get<float>();
-      SPDLOG_INFO( "Loaded PlayerSubmergedLerpSpeedModifier with modifier: {}", modifier );
-      add_persistent_component<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>( modifier );
-    }
-    if ( key == "HealthBonus" )
-    {
-      int bonus = value["value"].template get<int>();
-      SPDLOG_INFO( "Loaded HealthBonus with bonus: {}", bonus );
-      add_persistent_component<Cmp::Persistent::HealthBonus>( bonus );
-    }
-    if ( key == "BombBonus" )
-    {
-      int bonus = value["value"].template get<int>();
-      SPDLOG_INFO( "Loaded BombBonus with bonus: {}", bonus );
-      add_persistent_component<Cmp::Persistent::BombBonus>( bonus );
-    }
-    if ( key == "WaterBonus" )
-    {
-      int bonus = value["value"].template get<int>();
-      SPDLOG_INFO( "Loaded WaterBonus with bonus: {}", bonus );
-      add_persistent_component<Cmp::Persistent::WaterBonus>( bonus );
-    }
-    if ( key == "NpcDamage" )
-    {
-      int damage = value["value"].template get<int>();
-      SPDLOG_INFO( "Loaded NpcDamage with damage: {}", damage );
-      add_persistent_component<Cmp::Persistent::NpcDamage>( damage );
-    }
-    if ( key == "ObstaclePushBack" )
-    {
-      float pushback = value["value"].template get<float>();
-      SPDLOG_INFO( "Loaded ObstaclePushBack with pushback: {}", pushback );
-      add_persistent_component<Cmp::Persistent::ObstaclePushBack>( pushback );
-    }
-    if ( key == "NpcPushBack" )
-    {
-
-      float pushback = value["value"].template get<float>();
-      if ( pushback == 0.0f )
-      {
-        SPDLOG_INFO( "Loaded NpcPushBack with default pushback." );
-        add_persistent_component<Cmp::Persistent::NpcPushBack>();
-      }
-      else
-      {
-        SPDLOG_INFO( "Loaded NpcPushBack with pushback: {}", pushback );
-        add_persistent_component<Cmp::Persistent::NpcPushBack>( pushback );
-      }
-
-      SPDLOG_INFO( "Loaded NpcPushBack with pushback: {}", pushback );
-      add_persistent_component<Cmp::Persistent::NpcPushBack>( pushback );
-    }
-    if ( key == "NPCActivateScale" )
-    {
-      float scale = value["value"].template get<float>();
-      SPDLOG_INFO( "Loaded NPCActivateScale with scale: {}", scale );
-      add_persistent_component<Cmp::Persistent::NPCActivateScale>( scale );
-    }
-    if ( key == "NpcDamageDelay" )
-    {
-      float delay = value["value"].template get<float>();
-      SPDLOG_INFO( "Loaded NpcDamageDelay with delay: {}", delay );
-      add_persistent_component<Cmp::Persistent::NpcDamageDelay>( delay );
-    }
-    if ( key == "CorruptionDamage" )
-    {
-      int damage = value["value"].template get<int>();
-      SPDLOG_INFO( "Loaded CorruptionDamage with damage: {}", damage );
-      add_persistent_component<Cmp::Persistent::CorruptionDamage>( damage );
-    }
-    if ( key == "FloodSpeed" )
-    {
-      float speed = value["value"].template get<float>();
-      SPDLOG_INFO( "Loaded FloodSpeed with speed: {}", speed );
-      add_persistent_component<Cmp::Persistent::FloodSpeed>( speed );
-    }
-    if ( key == "MusicVolume" )
-    {
-      float volume = value["value"].template get<float>();
-      SPDLOG_INFO( "Loaded MusicVolume with volume: {}", volume );
-      add_persistent_component<Cmp::Persistent::MusicVolume>( volume );
-    }
-    if ( key == "NPCScanScale" )
-    {
-      float scale = value["value"].template get<float>();
-      SPDLOG_INFO( "Loaded NPCScanScale with scale: {}", scale );
-      add_persistent_component<Cmp::Persistent::NPCScanScale>( scale );
-    }
-    if ( key == "NPCLerpSpeed" )
-    {
-      float speed = value["value"].template get<float>();
-      SPDLOG_INFO( "Loaded NPCLerpSpeed with speed: {}", speed );
-      add_persistent_component<Cmp::Persistent::NpcLerpSpeed>( speed );
-    }
-
-    // Add more components as needed
+    if ( m_component_loaders.contains( key ) ) { m_component_loaders.at( key )( value ); }
+    else { SPDLOG_WARN( "Unknown component: {}", key ); }
   }
 }
 
-// call this as last action when exiting settings menu
-// 1. serialise persistent components to json
-// 2. write json to file
-void PersistentSystem::saveState() { SPDLOG_INFO( "Saving persistent state..." ); }
+void PersistentSystem::save_state()
+{
+  SPDLOG_INFO( "Saving persistent state..." );
+  nlohmann::json jsonData;
+
+  // Helper lambda to serialize a component if it exists
+  auto serializeComponent = [&]<typename ComponentType>( const std::string &key ) {
+    try
+    {
+      auto &component = get_persistent_component<ComponentType>();
+      jsonData[key] = component.serialize();
+    }
+    catch ( const std::exception &e )
+    {
+      SPDLOG_WARN( "Failed to serialize component {}: {}", key, e.what() );
+    }
+  };
+
+  // Serialize all registered components
+  // clang-format off
+  serializeComponent.template operator()<Cmp::Persistent::ArmedOffDelay>( "ArmedOffDelay" );
+  serializeComponent.template operator()<Cmp::Persistent::ArmedOnDelay>( "ArmedOnDelay" );
+  serializeComponent.template operator()<Cmp::Persistent::BombDamage>( "BombDamage" );
+  serializeComponent.template operator()<Cmp::Persistent::BombInventory>( "BombInventory" );
+  serializeComponent.template operator()<Cmp::Persistent::BlastRadius>( "BlastRadius" );
+  serializeComponent.template operator()<Cmp::Persistent::BombBonus>( "BombBonus" );
+  serializeComponent.template operator()<Cmp::Persistent::FloodSpeed>( "FloodSpeed" );
+  serializeComponent.template operator()<Cmp::Persistent::FuseDelay>( "FuseDelay" );
+  serializeComponent.template operator()<Cmp::Persistent::HealthBonus>( "HealthBonus" );
+  serializeComponent.template operator()<Cmp::Persistent::MusicVolume>( "MusicVolume" );
+  serializeComponent.template operator()<Cmp::Persistent::NpcActivateScale>( "NpcActivateScale" );
+  serializeComponent.template operator()<Cmp::Persistent::NpcDamageDelay>( "NpcDamageDelay" );
+  serializeComponent.template operator()<Cmp::Persistent::NpcScanScale>( "NpcScanScale" );
+  serializeComponent.template operator()<Cmp::Persistent::NpcLerpSpeed>( "NpcLerpSpeed" );
+  serializeComponent.template operator()<Cmp::Persistent::NpcDamage>( "NpcDamage" );
+  serializeComponent.template operator()<Cmp::Persistent::NpcPushBack>( "NpcPushBack" );
+  serializeComponent.template operator()<Cmp::Persistent::ObstaclePushBack>( "ObstaclePushBack" );
+  serializeComponent.template operator()<Cmp::Persistent::PlayerStartPosition>( "PlayerStartPosition" );
+  serializeComponent.template operator()<Cmp::Persistent::PlayerDetectionScale>( "PlayerDetectionScale" );
+  serializeComponent.template operator()<Cmp::Persistent::PlayerLerpSpeed>( "PlayerLerpSpeed" );
+  serializeComponent.template operator()<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( "PlayerDiagonalLerpSpeedModifier" );
+  serializeComponent.template operator()<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
+  serializeComponent.template operator()<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>( "PlayerSubmergedLerpSpeedModifier" );
+  serializeComponent.template operator()<Cmp::Persistent::WaterBonus>( "WaterBonus" );
+  // clang-format on
+
+  std::ofstream outputFile( "res/json/persistent_components.json" );
+  if ( outputFile.is_open() )
+  {
+    outputFile << jsonData.dump( 4 );
+    outputFile.close();
+    SPDLOG_INFO( "Persistent state saved successfully" );
+  }
+  else { SPDLOG_ERROR( "Failed to open file for saving persistent state" ); }
+}
 
 } // namespace ProceduralMaze::Sys

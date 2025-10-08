@@ -11,6 +11,7 @@ public:
       : BasePersistent<unsigned long>( value )
   {
   }
+  virtual std::string class_name() const override { return "WormholeSeed"; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

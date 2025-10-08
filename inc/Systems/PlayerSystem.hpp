@@ -6,7 +6,7 @@
 #include <PCDetectionBounds.hpp>
 #include <Persistent/BlastRadius.hpp>
 #include <Persistent/BombInventory.hpp>
-#include <Persistent/PCDetectionScale.hpp>
+#include <Persistent/PlayerDetectionScale.hpp>
 #include <PlayableCharacter.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <entt/entity/registry.hpp>

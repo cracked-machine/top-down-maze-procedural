@@ -4,13 +4,14 @@
 #include <Persistent/BasePersistent.hpp>
 namespace ProceduralMaze::Cmp::Persistent {
 
-class NPCScanScale : public BasePersistent<float>
+class NpcScanScale : public BasePersistent<float>
 {
 public:
-  NPCScanScale( float value = 2.5f )
+  NpcScanScale( float value = 2.5f )
       : BasePersistent<float>( value )
   {
   }
+  virtual std::string class_name() const override { return "NpcScanScale"; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

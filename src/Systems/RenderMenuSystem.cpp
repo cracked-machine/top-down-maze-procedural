@@ -6,11 +6,11 @@
 #include <Persistent/FuseDelay.hpp>
 #include <Persistent/HealthBonus.hpp>
 #include <Persistent/MusicVolume.hpp>
-#include <Persistent/NPCActivateScale.hpp>
-#include <Persistent/NPCScanScale.hpp>
+#include <Persistent/NpcActivateScale.hpp>
 #include <Persistent/NpcDamage.hpp>
 #include <Persistent/NpcDamageDelay.hpp>
 #include <Persistent/NpcPushBack.hpp>
+#include <Persistent/NpcScanScale.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
 #include <Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Persistent/PlayerLerpSpeed.hpp>
@@ -182,11 +182,11 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
     npc_push_back() = std::clamp( npc_push_back(), 1.0f, 50.0f );
   }
 
-  auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NPCActivateScale>();
+  auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NpcActivateScale>();
   ImGui::SliderFloat( "NPC Activation Bounding Box Scale Factor", &npc_activate_scale(), 1.f, 20.f, "%.1f pixels" );
-  auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NPCScanScale>();
+  auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NpcScanScale>();
   ImGui::SliderFloat( "NPC Scan Bounding Box Scale Factor", &npc_scan_scale(), 1.f, 3.f, "%.1f pixels" );
-  auto &pc_detection_scale = get_persistent_component<Cmp::Persistent::PCDetectionScale>();
+  auto &pc_detection_scale = get_persistent_component<Cmp::Persistent::PlayerDetectionScale>();
   ImGui::SliderFloat( "PC Detection Bounding Box Scale Factor", &pc_detection_scale(), 1.f, 20.f, "%.1f pixels" );
 
   auto &npc_lerp_speed = get_persistent_component<Cmp::Persistent::NpcLerpSpeed>();

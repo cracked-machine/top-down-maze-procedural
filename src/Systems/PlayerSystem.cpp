@@ -5,7 +5,6 @@
 #include <Obstacle.hpp>
 #include <Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Persistent/PlayerLerpSpeed.hpp>
-#include <Persistent/PlayerMinVelocity.hpp>
 #include <Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Persistent/PlayerStartPosition.hpp>
 #include <Persistent/PlayerSubmergedlLerpSpeedModifier.hpp>
@@ -37,7 +36,7 @@ void PlayerSystem::add_player_entity()
 
   m_reg->emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
 
-  auto &pc_detection_scale = get_persistent_component<Cmp::Persistent::PCDetectionScale>();
+  auto &pc_detection_scale = get_persistent_component<Cmp::Persistent::PlayerDetectionScale>();
 
   m_reg->emplace<Cmp::PCDetectionBounds>(
       entity, start_pos, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions }, pc_detection_scale() );

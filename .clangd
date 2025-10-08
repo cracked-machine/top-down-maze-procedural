@@ -1,9 +1,10 @@
 CompileFlags:
   CompilationDatabase: build-x86_64-w64-mingw32
   Add:
-    - -isystem/workspaces/top-down-maze-procedural/build/_deps/spdlog-src/include
-    - -isystem/workspaces/top-down-maze-procedural/build/_deps/sfml-src/include
-    - -isystem/workspaces/top-down-maze-procedural/build/_deps/entt-src/src
+    - -isystem/workspaces/top-down-maze-procedural/build-x86_64-w64-mingw32/_deps/spdlog-src/include
+    - -isystem/workspaces/top-down-maze-procedural/build-x86_64-w64-mingw32/_deps/sfml-src/include
+    - -isystem/workspaces/top-down-maze-procedural/build-x86_64-w64-mingw32/_deps/entt-src/src
+    - -isystem/workspaces/top-down-maze-procedural/build-x86_64-w64-mingw32/_deps/json-nlohmann-src/include
     - -isystem/workspaces/top-down-maze-procedural/inc
     - -isystem/workspaces/top-down-maze-procedural/inc/Systems
     - -isystem/workspaces/top-down-maze-procedural/inc/Components

@@ -13,6 +13,7 @@ public:
       : BasePersistent<float>( value )
   {
   }
+  virtual std::string class_name() const override { return "FuseDelay"; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

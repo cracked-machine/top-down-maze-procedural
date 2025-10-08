@@ -9,8 +9,8 @@
 
 #include <NPC.hpp>
 #include <NPCScanBounds.hpp>
-#include <Persistent/NPCActivateScale.hpp>
-#include <Persistent/NPCScanScale.hpp>
+#include <Persistent/NpcActivateScale.hpp>
+#include <Persistent/NpcScanScale.hpp>
 #include <Position.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <entt/entity/registry.hpp>

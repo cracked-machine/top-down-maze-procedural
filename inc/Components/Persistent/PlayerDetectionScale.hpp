@@ -5,13 +5,14 @@
 
 namespace ProceduralMaze::Cmp::Persistent {
 
-class PCDetectionScale : public BasePersistent<float>
+class PlayerDetectionScale : public BasePersistent<float>
 {
 public:
-  PCDetectionScale( float scale = 7.0f )
+  PlayerDetectionScale( float scale = 7.0f )
       : BasePersistent<float>( scale )
   {
   }
+  virtual std::string class_name() const override { return "PlayerDetectionScale"; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

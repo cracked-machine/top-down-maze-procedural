@@ -11,6 +11,8 @@ public:
       : BasePersistent<int>( value )
   {
   }
+
+  virtual std::string class_name() const override { return "BombInventory"; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

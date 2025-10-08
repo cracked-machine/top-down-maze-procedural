@@ -33,7 +33,7 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
 
   SPDLOG_INFO( "Engine Initiliasing... " );
 
-  m_persistent_sys.loadState();
+  m_persistent_sys.load_state();
 
   m_render_game_sys.window().setVerticalSyncEnabled( true );
   // m_render_game_sys.window().setFramerateLimit( 144 );
@@ -82,9 +82,6 @@ bool Engine::run()
       case Cmp::Persistent::GameState::State::SETTINGS: {
         m_render_menu_sys.render_settings( deltaTime );
         m_event_handler.settings_state_handler( m_render_game_sys.window() );
-
-        // make volume changes immediately audible
-
         break;
       } // case SETTINGS end
 

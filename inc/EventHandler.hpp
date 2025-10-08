@@ -23,6 +23,7 @@ namespace ProceduralMaze {
 
 class EventHandler : public Sys::BaseSystem
 {
+
 public:
   EventHandler( ProceduralMaze::SharedEnttRegistry reg );
 

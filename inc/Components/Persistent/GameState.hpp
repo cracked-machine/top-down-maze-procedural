@@ -1,6 +1,8 @@
 #ifndef __COMPONENTS_GAME_STATE_HPP__
 #define __COMPONENTS_GAME_STATE_HPP__
 
+#include <nlohmann/json.hpp>
+#include <string>
 namespace ProceduralMaze::Cmp::Persistent {
 
 class GameState
@@ -22,6 +24,14 @@ public:
   };
 
   State current_state = State::MENU;
+
+  std::string class_name() const
+  {
+    // get the type for this class
+    return "GameState";
+  }
+
+  virtual nlohmann::json serialize() const { return {}; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

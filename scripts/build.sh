@@ -17,8 +17,22 @@ chmod 777 $BUILD_DIR/bin/*
 # update .clangd settings
 if [ -f ".clangd" ]; then
     yq -y --in-place ".CompileFlags.CompilationDatabase = \"$BUILD_DIR\"" .clangd
+    # Update all -isystem paths to use the current BUILD_DIR
+    yq -y --in-place "
+        .CompileFlags.Add = [
+            \"-isystem/workspaces/top-down-maze-procedural/$BUILD_DIR/_deps/spdlog-src/include\",
+            \"-isystem/workspaces/top-down-maze-procedural/$BUILD_DIR/_deps/sfml-src/include\",
+            \"-isystem/workspaces/top-down-maze-procedural/$BUILD_DIR/_deps/entt-src/src\",
+            \"-isystem/workspaces/top-down-maze-procedural/$BUILD_DIR/_deps/json-nlohmann-src/include\",
+            \"-isystem/workspaces/top-down-maze-procedural/inc\",
+            \"-isystem/workspaces/top-down-maze-procedural/inc/Systems\",
+            \"-isystem/workspaces/top-down-maze-procedural/inc/Components\",
+            \"-isystem/workspaces/top-down-maze-procedural/inc/Sprites\",
+            \"-isystem/workspaces/top-down-maze-procedural/inc/Logging\"
+        ]
+    " .clangd
     echo "Switched .CompileFlags.CompilationDatabase to $BUILD_DIR"
-    echo "You may need to restart clangd server if this is a new value"
+    echo "You may need to restart clangd server if you just changed target"
 fi
 
 # Update VS Code settings - we moved these settings to .clangd but leaving this here for future reference

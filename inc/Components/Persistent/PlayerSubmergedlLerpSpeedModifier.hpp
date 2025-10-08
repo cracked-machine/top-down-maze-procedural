@@ -11,6 +11,7 @@ public:
       : BasePersistent<float>( value )
   {
   }
+  virtual std::string class_name() const override { return "PlayerSubmergedLerpSpeedModifier"; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

@@ -5,13 +5,14 @@
 #include <RectBounds.hpp>
 namespace ProceduralMaze::Cmp::Persistent {
 
-class NPCActivateScale : public BasePersistent<float>
+class NpcActivateScale : public BasePersistent<float>
 {
 public:
-  NPCActivateScale( float value = 5.f )
+  NpcActivateScale( float value = 5.f )
       : BasePersistent<float>( value )
   {
   }
+  virtual std::string class_name() const override { return "NpcActivateScale"; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

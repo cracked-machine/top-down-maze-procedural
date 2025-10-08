@@ -7,7 +7,6 @@
 #include <Persistent/NpcDamage.hpp>
 #include <Persistent/NpcDamageDelay.hpp>
 #include <Persistent/NpcPushBack.hpp>
-#include <Persistent/PlayerMinVelocity.hpp>
 #include <Persistent/PlayerStartPosition.hpp>
 #include <Persistent/WaterBonus.hpp>
 #include <SinkholeCell.hpp>
@@ -49,7 +48,7 @@ void CollisionSystem::check_bones_reanimation()
            not _obstacle.m_visible )
         continue;
 
-      auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NPCActivateScale>();
+      auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NpcActivateScale>();
       // we just create a temporary RectBounds here instead of a component
       // because we only need it for this one comparison and it already contains the needed scaling
       // logic

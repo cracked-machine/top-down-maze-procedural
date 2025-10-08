@@ -11,6 +11,7 @@ public:
       : BasePersistent<float>( value )
   {
   }
+  virtual std::string class_name() const override { return "WaterBonus"; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

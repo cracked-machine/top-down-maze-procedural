@@ -1,4 +1,5 @@
 #include <EventHandler.hpp>
+#include <Events/SaveSettingsEvent.hpp>
 
 namespace ProceduralMaze {
 
@@ -43,10 +44,17 @@ void EventHandler::settings_state_handler( sf::RenderWindow &window )
 {
   auto &game_state = get_persistent_component<Cmp::Persistent::GameState>();
   using namespace sf::Keyboard;
+
   while ( const std::optional event = window.pollEvent() )
   {
     ImGui::SFML::ProcessEvent( window, *event );
-    if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::Persistent::GameState::State::EXITING; }
+    if ( event->is<sf::Event::Closed>() )
+    {
+
+      getEventDispatcher().trigger( Events::SaveSettingsEvent() );
+      game_state.current_state = Cmp::Persistent::GameState::State::EXITING;
+      return; // Exit immediately after state change
+    }
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
     {
       sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
@@ -56,7 +64,9 @@ void EventHandler::settings_state_handler( sf::RenderWindow &window )
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape )
       {
+        getEventDispatcher().trigger( Events::SaveSettingsEvent() );
         game_state.current_state = Cmp::Persistent::GameState::State::MENU;
+        return; // Exit immediately after state change
       }
     }
   }

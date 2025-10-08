@@ -12,6 +12,8 @@ public:
       : BasePersistent<float>( value )
   {
   }
+
+  virtual std::string class_name() const override { return "ArmedOnDelay"; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

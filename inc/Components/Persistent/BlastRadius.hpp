@@ -11,6 +11,8 @@ public:
       : BasePersistent<int>( value )
   {
   }
+
+  virtual std::string class_name() const override { return "BlastRadius"; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

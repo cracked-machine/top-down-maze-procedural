@@ -20,7 +20,7 @@ void NpcSystem::add_npc_entity( sf::Vector2f position )
   m_reg->emplace<Cmp::NPC>( new_npc_entity );
   m_reg->emplace<Cmp::Direction>( new_npc_entity, sf::Vector2f{ 0, 0 } );
   m_reg->emplace<Cmp::Position>( new_npc_entity, position );
-  auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NPCScanScale>();
+  auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NpcScanScale>();
   m_reg->emplace<Cmp::NPCScanBounds>(
       new_npc_entity, position, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions }, npc_scan_scale() );
 
