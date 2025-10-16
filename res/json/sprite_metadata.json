@@ -4,8 +4,8 @@
       "name": "WALL",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/walls_and_doors.png",
-        "sprite_indices": [0, 1, 2, 3, 4, 5, 6]
+        "texture_path": "res/textures/obstacles.png",
+        "sprite_indices": [14,15]
       }
     },
 

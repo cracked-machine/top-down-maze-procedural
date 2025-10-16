@@ -1,4 +1,5 @@
 #include <Door.hpp>
+#include <Exit.hpp>
 #include <FootStepAlpha.hpp>
 #include <FootStepTimer.hpp>
 #include <HazardFieldCell.hpp>
@@ -10,6 +11,7 @@
 #include <RenderSystem.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
+#include <SFML/System/Angle.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SinkholeCell.hpp>
 #include <SpriteAnimation.hpp>
@@ -433,15 +435,32 @@ void RenderGameSystem::render_walls()
   {
     m_wall_ms->pick( wall_cmp.m_tile_index, "wall" );
     m_wall_ms->setPosition( pos_cmp );
+    m_wall_ms->setOrigin( { 0, 0 } );
+    m_wall_ms->setRotation( sf::degrees( 0 ) );
     getWindow().draw( *m_wall_ms );
   }
 
-  // draw doors
-  auto door_view = m_reg->view<Cmp::Door, Cmp::Position>();
-  for ( auto [entity, door_cmp, pos_cmp] : door_view.each() )
+  // draw entrance
+  auto entrance_door_view = m_reg->view<Cmp::Door, Cmp::Position>( entt::exclude<Cmp::Exit> );
+  for ( auto [entity, door_cmp, pos_cmp] : entrance_door_view.each() )
   {
     m_wall_ms->pick( door_cmp.m_tile_index, "door" );
+    m_wall_ms->setOrigin( { 0, 0 } );
+    m_wall_ms->setRotation( sf::degrees( 0 ) );
     m_wall_ms->setPosition( pos_cmp );
+    getWindow().draw( *m_wall_ms );
+  }
+
+  auto exit_door_view = m_reg->view<Cmp::Door, Cmp::Position, Cmp::Exit>();
+  for ( auto [entity, door_cmp, pos_cmp, exit_cmp] : exit_door_view.each() )
+  {
+    auto half_width_px = Sprites::MultiSprite::kDefaultSpriteDimensions.x / 2.f;
+    auto half_height_px = Sprites::MultiSprite::kDefaultSpriteDimensions.y / 2.f;
+    m_wall_ms->pick( door_cmp.m_tile_index, "door" );
+    m_wall_ms->setOrigin( { half_width_px, half_height_px } );
+    m_wall_ms->setRotation( sf::degrees( 180 ) );
+
+    m_wall_ms->setPosition( pos_cmp + sf::Vector2f{ half_width_px, half_height_px } );
     getWindow().draw( *m_wall_ms );
   }
 }

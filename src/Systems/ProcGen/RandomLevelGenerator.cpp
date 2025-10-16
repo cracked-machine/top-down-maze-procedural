@@ -43,7 +43,7 @@ void RandomLevelGenerator::gen_objects()
 void RandomLevelGenerator::gen_border()
 {
   const auto kDefaultSpriteDimensions = Sprites::MultiSprite::kDefaultSpriteDimensions;
-  std::size_t texture_index = 0;
+  std::size_t sprite_index = 0;
 
   // top and bottom edges
   for ( float x = 0; x < kDisplaySize.x; x += kDefaultSpriteDimensions.x )
@@ -52,12 +52,12 @@ void RandomLevelGenerator::gen_border()
     float bottom_edge_y_pos = kMapGridOffset.y + ( ( kMapGridSize.y + 1 ) * kDefaultSpriteDimensions.y ) - 1;
 
     if ( x == 0 || x == kDisplaySize.x - kDefaultSpriteDimensions.x )
-      texture_index = 2; // corner piece
+      sprite_index = 0; // corner piece
     else
-      texture_index = 1; // horizontal piece
+      sprite_index = 0; // horizontal piece
 
-    add_wall_entity( { x, top_edge_y_pos }, texture_index );
-    add_wall_entity( { x, bottom_edge_y_pos }, texture_index );
+    add_wall_entity( { x, top_edge_y_pos }, sprite_index );
+    add_wall_entity( { x, bottom_edge_y_pos }, sprite_index );
   }
 
   // left and right edges
@@ -67,44 +67,44 @@ void RandomLevelGenerator::gen_border()
     float right_edge_x_pos = kDisplaySize.x - kDefaultSpriteDimensions.x;
 
     if ( y == 0 || y == kDisplaySize.y - 1 )
-      texture_index = 2; // corner piece
+      sprite_index = 0; // corner piece
     else if ( y == ( kDisplaySize.y / 2.f ) - kDefaultSpriteDimensions.y )
-      texture_index = 3; // door frame piece
+      sprite_index = 0; // door frame piece
     else if ( y == ( kDisplaySize.y / 2.f ) + kDefaultSpriteDimensions.y )
-      texture_index = 4; // door frame piece
+      sprite_index = 0; // door frame piece
     else
-      texture_index = 0; // vertical piece
+      sprite_index = 0; // vertical piece
 
     // special case for door placement
     if ( y == ( kDisplaySize.y / 2.f ) )
     {
-      texture_index = 5;
+      sprite_index = 1;
       // this entrance "door" is never open and for filtering simplicity we use the wall component
-      add_door_entity( { left_edge_x_pos, y }, texture_index, false );
-      texture_index = 6;
+      add_door_entity( { left_edge_x_pos, y }, sprite_index, false );
+      sprite_index = 1;
       // this is the exit, we can filter on Cmp::Door for simple collsion detection
-      add_door_entity( { right_edge_x_pos, y }, texture_index, true );
+      add_door_entity( { right_edge_x_pos, y }, sprite_index, true );
     }
     else
     {
-      add_wall_entity( { left_edge_x_pos, y }, texture_index );
-      add_wall_entity( { right_edge_x_pos, y }, texture_index );
+      add_wall_entity( { left_edge_x_pos, y }, sprite_index );
+      add_wall_entity( { right_edge_x_pos, y }, sprite_index );
     }
   }
 }
 
-void RandomLevelGenerator::add_wall_entity( const sf::Vector2f &pos, std::size_t texture_index )
+void RandomLevelGenerator::add_wall_entity( const sf::Vector2f &pos, std::size_t sprite_index )
 {
   auto entity = m_reg->create();
   m_reg->emplace<Cmp::Position>( entity, pos );
-  m_reg->emplace<Cmp::Wall>( entity, Sprites::SpriteFactory::SpriteMetaType::WALL, texture_index );
+  m_reg->emplace<Cmp::Wall>( entity, Sprites::SpriteFactory::SpriteMetaType::WALL, sprite_index );
 }
 
-void RandomLevelGenerator::add_door_entity( const sf::Vector2f &pos, std::size_t texture_index, bool is_exit )
+void RandomLevelGenerator::add_door_entity( const sf::Vector2f &pos, std::size_t sprite_index, bool is_exit )
 {
   auto entity = m_reg->create();
   m_reg->emplace<Cmp::Position>( entity, pos );
-  m_reg->emplace<Cmp::Door>( entity, Sprites::SpriteFactory::SpriteMetaType::WALL, texture_index );
+  m_reg->emplace<Cmp::Door>( entity, Sprites::SpriteFactory::SpriteMetaType::WALL, sprite_index );
   if ( is_exit ) m_reg->emplace<Cmp::Exit>( entity );
 }
 

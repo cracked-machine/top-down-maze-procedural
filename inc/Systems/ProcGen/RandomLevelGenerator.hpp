@@ -45,8 +45,8 @@ public:
   // The textures are picked randomly, but their positions are fixed
   void gen_border();
 
-  void add_wall_entity( const sf::Vector2f &pos, std::size_t texture_index );
-  void add_door_entity( const sf::Vector2f &pos, std::size_t texture_index, bool is_exit );
+  void add_wall_entity( const sf::Vector2f &pos, std::size_t sprite_index );
+  void add_door_entity( const sf::Vector2f &pos, std::size_t sprite_index, bool is_exit );
 
   void stats();
 
