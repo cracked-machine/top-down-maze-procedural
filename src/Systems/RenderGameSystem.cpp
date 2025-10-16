@@ -510,11 +510,51 @@ void RenderGameSystem::render_player_footsteps()
 
     // we're changing the origin to be the center of the sprite so that
     // rotation happens around the center, this means we also need to
-    // offset the position by half the sprite size to keep it center-alligned
+    // offset the position to make it look convincing depending on direction of movement
     m_footsteps_ms->setOrigin( { Sprites::MultiSprite::kDefaultSpriteDimensions.x / 2.f,
                                  Sprites::MultiSprite::kDefaultSpriteDimensions.y / 2.f } );
-    m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x / 2.f ),
-                                   position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y / 2.f ) } );
+    // moving in right direction: place footsteps to bottom-left of player position
+    if ( direction == sf::Vector2f( 1.f, 0.f ) )
+    {
+      m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.25f ),
+                                     position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.75f ) } );
+    }
+    // moving in left direction: place footsteps to bottom-right of player position
+    else if ( direction == sf::Vector2f( -1.f, 0.f ) )
+    {
+      m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.75f ),
+                                     position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.75f ) } );
+    }
+    // moving diagonally: down/left
+    else if ( direction == sf::Vector2f( -1.f, 1.f ) )
+    {
+      m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.75f ),
+                                     position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.75f ) } );
+    }
+    // moving diagonally: down/right
+    else if ( direction == sf::Vector2f( 1.f, 1.f ) )
+    {
+      m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.5f ),
+                                     position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.8f ) } );
+    }
+    // moving diagonally: up/left
+    else if ( direction == sf::Vector2f( -1.f, -1.f ) )
+    {
+      m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.5f ),
+                                     position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.8f ) } );
+    }
+    // moving diagonally: up/right
+    else if ( direction == sf::Vector2f( 1.f, -1.f ) )
+    {
+      m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.5f ),
+                                     position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.8f ) } );
+    }
+    // moving in up/down direction: place footsteps to center of player position
+    else
+    {
+      m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.5f ),
+                                     position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.5f ) } );
+    }
     // only set rotation if direction is not zero vector
     if ( direction != sf::Vector2f( 0.f, 0.f ) ) { m_footsteps_ms->setRotation( direction.angle() ); }
 

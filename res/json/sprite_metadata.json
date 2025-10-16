@@ -13,24 +13,24 @@
       "name": "ROCK",
       "weight": 40.0,
       "multisprite": {
-        "texture_path": "res/textures/objects.png",
-        "sprite_indices": [147, 148]
+        "texture_path": "res/textures/obstacles.png",
+        "sprite_indices": [0,1,2,3,4,5,6,7]
       }
     },
     "POT": {
       "name": "POT",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/objects.png",
-        "sprite_indices": [337, 339, 341]
+        "texture_path": "res/textures/obstacles.png",
+        "sprite_indices": [8,9,10]
       }
     },
     "BONES": {
       "name": "BONES",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/objects.png",
-        "sprite_indices": [270, 271]
+        "texture_path": "res/textures/obstacles.png",
+        "sprite_indices": [12,13]
       }
     },
     "NPC": {
@@ -45,8 +45,8 @@
       "name": "DETONATED",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/tilemap_packed.png",
-        "sprite_indices": [42]
+        "texture_path": "res/textures/floor2.png",
+        "sprite_indices": [3]
       }
     },
     "PLAYER": {

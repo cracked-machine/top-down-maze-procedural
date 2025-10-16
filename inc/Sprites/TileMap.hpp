@@ -100,13 +100,13 @@ private:
   sf::VertexArray m_vertices;
   sf::Texture m_tileset;
 
-  const std::vector<unsigned int> kFloorTilePool{ 48, 48, 48, 48, 48, 48, 49 };
+  const std::vector<unsigned int> kFloorTilePool{ 0, 0, 0, 0, 0, 0, 0, 0, 1, 2 };
 
   Cmp::Random m_floortile_picker{ 0, static_cast<int>( kFloorTilePool.size() - 1 ) };
 
   std::vector<uint32_t> m_floortile_choices;
 
-  std::filesystem::path m_tile_file{ "res/textures/tilemap_packed.png" };
+  std::filesystem::path m_tile_file{ "res/textures/floor2.png" };
 
   sf::Clock m_clock{};
 };
