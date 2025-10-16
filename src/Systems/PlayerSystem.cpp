@@ -28,7 +28,7 @@ void PlayerSystem::add_player_entity()
   SPDLOG_INFO( "Creating player entity" );
   auto entity = m_reg->create();
 
-  // start position must be pixel within the screen resolution (kDisplaySize),
+  // start position must be pixel coordinates within the screen resolution (kDisplaySize),
   // but also grid aligned (kMapGridSize) to avoid collision detection errors.
   // So we must recalc start position to the nearest grid position here
   auto start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
