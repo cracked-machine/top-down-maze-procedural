@@ -33,7 +33,7 @@ public:
 
 private:
   // Helper function to update a single animation
-  void update_frame( Cmp::SpriteAnimation &anim, sf::Time deltaTime );
+  void update_frame( Cmp::SpriteAnimation &anim, sf::Time deltaTime, sf::Time frame_rate = sf::seconds( 0.1f ) );
 };
 
 } // namespace ProceduralMaze::Sys

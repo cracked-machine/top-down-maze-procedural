@@ -10,12 +10,14 @@
 #include <Persistent/HealthBonus.hpp>
 #include <Persistent/MusicVolume.hpp>
 #include <Persistent/NpcActivateScale.hpp>
+#include <Persistent/NpcAnimFramerate.hpp>
 #include <Persistent/NpcDamage.hpp>
 #include <Persistent/NpcDamageDelay.hpp>
 #include <Persistent/NpcLerpSpeed.hpp>
 #include <Persistent/NpcPushBack.hpp>
 #include <Persistent/NpcScanScale.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
+#include <Persistent/PlayerAnimFramerate.hpp>
 #include <Persistent/PlayerDetectionScale.hpp>
 #include <Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Persistent/PlayerLerpSpeed.hpp>
@@ -56,12 +58,14 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::ArmedOffDelay>( "ArmedOffDelay" );
   registerComponent<Cmp::Persistent::ArmedOnDelay>( "ArmedOnDelay" );
   registerComponent<Cmp::Persistent::FuseDelay>( "FuseDelay" );
+  registerComponent<Cmp::Persistent::PlayerAnimFramerate>( "PlayerAnimFramerate" );
   registerComponent<Cmp::Persistent::PlayerDetectionScale>( "PlayerDetectionScale" );
   registerComponent<Cmp::Persistent::PlayerLerpSpeed>( "PlayerLerpSpeed" );
   registerComponent<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( "PlayerDiagonalLerpSpeedModifier" );
   registerComponent<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
   registerComponent<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>( "PlayerSubmergedLerpSpeedModifier" );
   registerComponent<Cmp::Persistent::ObstaclePushBack>( "ObstaclePushBack" );
+  registerComponent<Cmp::Persistent::NpcAnimFramerate>( "NpcAnimFramerate" );
   registerComponent<Cmp::Persistent::NpcActivateScale>( "NpcActivateScale" );
   registerComponent<Cmp::Persistent::NpcDamageDelay>( "NpcDamageDelay" );
   registerComponent<Cmp::Persistent::FloodSpeed>( "FloodSpeed" );

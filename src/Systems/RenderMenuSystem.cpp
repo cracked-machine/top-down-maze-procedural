@@ -7,11 +7,13 @@
 #include <Persistent/HealthBonus.hpp>
 #include <Persistent/MusicVolume.hpp>
 #include <Persistent/NpcActivateScale.hpp>
+#include <Persistent/NpcAnimFramerate.hpp>
 #include <Persistent/NpcDamage.hpp>
 #include <Persistent/NpcDamageDelay.hpp>
 #include <Persistent/NpcPushBack.hpp>
 #include <Persistent/NpcScanScale.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
+#include <Persistent/PlayerAnimFramerate.hpp>
 #include <Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Persistent/PlayerLerpSpeed.hpp>
 #include <Persistent/PlayerShortcutLerpSpeedModifier.hpp>
@@ -112,6 +114,9 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   auto &blast_radius = get_persistent_component<Cmp::Persistent::BlastRadius>();
   ImGui::SliderInt( "Blast Radius", &blast_radius(), 1, 3 );
 
+  auto &player_anim_framerate = get_persistent_component<Cmp::Persistent::PlayerAnimFramerate>();
+  ImGui::SliderFloat( "Player Animation Framerate", &player_anim_framerate(), 0.01f, 0.5f, "%.2f" );
+
   auto &player_lerp_speed = get_persistent_component<Cmp::Persistent::PlayerLerpSpeed>();
   ImGui::SliderFloat( "Player Lerp Speed", &player_lerp_speed(), 3.f, 10.f, "%.1f" );
 
@@ -134,6 +139,9 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   auto &flood_speed = get_persistent_component<Cmp::Persistent::FloodSpeed>();
   ImGui::SliderFloat( "Flood Velocity", &flood_speed(), 1.f, 10.f, "%.1f pixels/second" );
   ImGui::Separator();
+
+  auto &npc_anim_framerate = get_persistent_component<Cmp::Persistent::NpcAnimFramerate>();
+  ImGui::SliderFloat( "NPC Animation Framerate", &npc_anim_framerate(), 0.01f, 0.5f, "%.2f" );
 
   auto &npc_damage = get_persistent_component<Cmp::Persistent::NpcDamage>();
   ImGui::SliderInt( "NPC Damage", &npc_damage(), 1, 50 );

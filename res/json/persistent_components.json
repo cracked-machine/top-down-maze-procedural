@@ -43,6 +43,10 @@
     "type": "float",
     "value": 100.0
   },
+  "NpcAnimFramerate": {
+    "type": "float",
+    "value": 0.1
+  },
   "NpcActivateScale": {
     "type": "float",
     "value": 5.0
@@ -66,6 +70,10 @@
   "ObstaclePushBack": {
     "type": "float",
     "value": 1.0
+  },
+  "PlayerAnimFramerate": {
+    "type": "float",
+    "value": 0.1
   },
   "PlayerDetectionScale": {
     "type": "float",

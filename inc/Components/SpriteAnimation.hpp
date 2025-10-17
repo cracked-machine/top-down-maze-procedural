@@ -9,8 +9,6 @@ struct SpriteAnimation
 {
   // Number of frames in animation sequence
   int m_frame_count = 3;
-  // Time per frame
-  sf::Time m_frame_duration = sf::seconds( 0.1f );
 
   int m_current_frame = 0;
 

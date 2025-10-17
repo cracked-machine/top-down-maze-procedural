@@ -71,11 +71,14 @@ private:
    * @brief Registers a component type with a corresponding loader function.
    *
    * This template function allows the registration of a component type by associating
-   * it with a unique key (string) and a loader function that handles deserialization
-   * from JSON. The loader function is stored in the `m_component_loaders` map.
+   * it with a unique key (string) and a loader function that handles json serialization/deserialization.
+   * The loader function is stored in the `m_component_loaders` map.
+   *
+   * @note Components registered here will have their value loaded from/saved to
+   * `res/json/persistent_components.json`
    *
    * @tparam ComponentType The type of the component to register.
-   * @param key A unique string identifier for the component type.
+   * @param key A unique string identifier for the corresponding json object.
    */
   template <typename ComponentType> void registerComponent( const std::string &key )
   {

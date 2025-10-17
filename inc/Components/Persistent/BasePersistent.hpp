@@ -19,6 +19,7 @@ public:
   virtual ~BasePersistent() = default;
   T &operator()() { return value; };
 
+  // object serialization to json
   virtual nlohmann::json serialize() const override
   {
     nlohmann::json json_data;
@@ -47,7 +48,7 @@ public:
     return json_data;
   }
 
-  // Default implementation - can be overridden
+  // json deserialization to object
   virtual void deserialize( const nlohmann::json &json_data ) override
   {
     if ( json_data.contains( "value" ) )
