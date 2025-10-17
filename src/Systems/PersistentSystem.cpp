@@ -25,6 +25,7 @@
 #include <Persistent/PlayerStartPosition.hpp>
 #include <Persistent/PlayerSubmergedlLerpSpeedModifier.hpp>
 #include <Persistent/WaterBonus.hpp>
+#include <Persistent/WormholeAnimFramerate.hpp>
 #include <PersistentSystem.hpp>
 #include <fstream>
 #include <functional>
@@ -72,6 +73,7 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::MusicVolume>( "MusicVolume" );
   registerComponent<Cmp::Persistent::NpcScanScale>( "NpcScanScale" );
   registerComponent<Cmp::Persistent::NpcLerpSpeed>( "NpcLerpSpeed" );
+  registerComponent<Cmp::Persistent::WormholeAnimFramerate>( "WormholeAnimFramerate" );
 
   // Register int components
   registerComponent<Cmp::Persistent::BombDamage>( "BombDamage" );

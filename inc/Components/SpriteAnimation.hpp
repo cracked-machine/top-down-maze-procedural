@@ -8,7 +8,8 @@ namespace ProceduralMaze::Cmp {
 struct SpriteAnimation
 {
   // Number of frames in animation sequence
-  int m_frame_count = 3;
+  int m_max_frames = 3;
+  int m_sprite_width_per_frame = 1;
 
   int m_current_frame = 0;
 

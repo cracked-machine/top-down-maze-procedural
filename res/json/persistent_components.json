@@ -105,5 +105,9 @@
   "WaterBonus": {
     "type": "int",
     "value": 10
+  },
+  "WormholeAnimFramerate": {
+    "type": "float",
+    "value": 0.1
   }
 }

@@ -4,9 +4,11 @@
 #include <NPC.hpp>
 #include <Persistent/NpcAnimFramerate.hpp>
 #include <Persistent/PlayerAnimFramerate.hpp>
+#include <Persistent/WormholeAnimFramerate.hpp>
 #include <PlayableCharacter.hpp>
 #include <SFML/System/Time.hpp>
 #include <SpriteAnimation.hpp>
+#include <Wormhole.hpp>
 
 namespace ProceduralMaze::Sys {
 
@@ -33,6 +35,13 @@ void AnimSystem::update( sf::Time deltaTime )
       auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::PlayerAnimFramerate>()() );
       update_frame( anim_cmp, deltaTime, frame_rate );
     }
+  }
+
+  auto wormhole_view = m_reg->view<Cmp::Wormhole, Cmp::SpriteAnimation>();
+  for ( auto [entity, wormhole_cmp, anim_cmp] : wormhole_view.each() )
+  {
+    auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::WormholeAnimFramerate>()() );
+    update_frame( anim_cmp, deltaTime, frame_rate );
   }
 }
 
@@ -86,11 +95,12 @@ void AnimSystem::update_frame( Cmp::SpriteAnimation &anim, sf::Time deltaTime, s
   if ( anim.m_elapsed_time >= frame_rate )
   {
     // Increment frame. Wrap around to zero at anim.m_frame_count
-    anim.m_current_frame = ( anim.m_current_frame + 1 ) % anim.m_frame_count;
+    anim.m_current_frame = ( anim.m_current_frame + anim.m_sprite_width_per_frame ) % anim.m_max_frames;
+
     // Subtract frame_rate instead of resetting to Zero to maintain precise timing
-    // i.e. this keeps time overflow from previous updates:
-    // if frame_rate = 0.1 seconds (100ms per frame)
-    // Frame 3: deltaTime = 0.05s
+    // i.e. this carries the time overflow from previous update:
+    // Example: if frame_rate = 0.1 seconds (100ms per frame)
+    // Frame N: deltaTime = 0.05s
     //   elapsed_time = 0.07 + 0.05 = 0.12s  // >= 0.1, advance frame!
     //   elapsed_time = 0.12 - 0.10 = 0.02s  // Keep the 0.02s "overflow"
     anim.m_elapsed_time -= frame_rate;

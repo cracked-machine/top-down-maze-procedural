@@ -305,8 +305,8 @@ void RenderGameSystem::render_corruption()
 
 void RenderGameSystem::render_wormhole()
 {
-  auto wormhole_view = m_reg->view<Cmp::Wormhole, Cmp::Position>();
-  for ( auto [entity, wormhole_cmp, position_cmp] : wormhole_view.each() )
+  auto wormhole_view = m_reg->view<Cmp::Wormhole, Cmp::Position, Cmp::SpriteAnimation>();
+  for ( auto [entity, wormhole_cmp, position_cmp, anim_cmp] : wormhole_view.each() )
   {
 
     // The wormhole is 3x3 sprite grid, so the topleft position is actually offset from the center.
@@ -328,18 +328,24 @@ void RenderGameSystem::render_wormhole()
     // Draw a 3x3 grid of the detonated sprite to cover the shader area,
     // centered around wormhole position (position_cmp)
     // Note this draws each row first
-    int index = 0;
-    for ( float row = -1; row < 2; ++row )
+    // const auto total_sprites_per_row = anim_cmp.m_sprite_width_per_frame * anim_cmp.m_max_frames;
+    std::stringstream frame_indices;
+    // frame_indices << "[" << anim_cmp.m_current_frame << "]: ";
+    for ( float row = 0; row < 3; ++row )
     {
-      for ( float col = -1; col < 2; ++col )
+      for ( float col = 0; col < 3; ++col )
       {
-        sf::Vector2f offset = { col * Sprites::MultiSprite::kDefaultSpriteDimensions.x,
-                                row * Sprites::MultiSprite::kDefaultSpriteDimensions.y };
-        m_wormhole_ms->pick( index++, "Wormhole" );
+        sf::Vector2f offset = { ( col - 1 ) * Sprites::MultiSprite::kDefaultSpriteDimensions.x,
+                                ( row - 1 ) * Sprites::MultiSprite::kDefaultSpriteDimensions.y };
+        auto index = anim_cmp.m_current_frame + ( row * 3 + col );
+        // frame_indices << index << ",";
+        m_wormhole_ms->pick( index, "Wormhole" );
         m_wormhole_ms->setPosition( position_cmp + offset );
         m_wormhole_ms->draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
       }
     }
+
+    // SPDLOG_INFO( "Wormhole frame indices drawn: {}", frame_indices.str() );
 
     // Finally, draw the shader effect onto the main window
     m_wormhole_shader.draw( getWindow(), sf::RenderStates::Default );

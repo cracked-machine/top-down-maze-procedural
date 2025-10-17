@@ -20,6 +20,7 @@
 #include <Persistent/PlayerSubmergedlLerpSpeedModifier.hpp>
 #include <Persistent/SinkholeSeed.hpp>
 #include <Persistent/WaterBonus.hpp>
+#include <Persistent/WormholeAnimFramerate.hpp>
 #include <Persistent/WormholeSeed.hpp>
 #include <SFML/System/Angle.hpp>
 #include <Systems/RenderMenuSystem.hpp>
@@ -164,6 +165,8 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   }
 
   ImGui::Separator();
+  auto &wormhole_anim_framerate = get_persistent_component<Cmp::Persistent::WormholeAnimFramerate>();
+  ImGui::SliderFloat( "Wormhole Animation Framerate", &wormhole_anim_framerate(), 0.01f, 0.5f, "%.2f" );
 
   auto &wormhole_seed = get_persistent_component<Cmp::Persistent::WormholeSeed>();
   ImGui::InputScalar( "Wormhole Seed. Zero is ignored", ImGuiDataType_U64, &wormhole_seed() );
