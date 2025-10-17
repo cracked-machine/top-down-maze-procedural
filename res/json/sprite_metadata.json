@@ -141,8 +141,8 @@
       "name": "WORMHOLE",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/objects.png",
-        "sprite_indices": [391, 392, 393, 423, 424, 425, 455, 456, 457]
+        "texture_path": "res/textures/wormhole.png",
+        "sprite_indices": [0,1,2,3,4,5,6,7,8]
       }
     }
   }

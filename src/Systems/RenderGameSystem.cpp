@@ -309,12 +309,12 @@ void RenderGameSystem::render_wormhole()
   for ( auto [entity, wormhole_cmp, position_cmp] : wormhole_view.each() )
   {
 
-    // Set up the shader view and position
-    m_wormhole_shader.update_shader_view_and_position(
+    // The wormhole is 3x3 sprite grid, so the topleft position is actually offset from the center.
+    m_wormhole_shader.update_shader_position(
         position_cmp + ( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } * 0.5f ),
         Sprites::ViewFragmentShader::Align::CENTER );
 
-    // Draw the floormap to the shader's render texture
+    // draw the background to the shader texture first so it is also included in the effect
     m_floormap.draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
 
     // Update the shader with the current time and view parameters
@@ -327,13 +327,14 @@ void RenderGameSystem::render_wormhole()
     // draw MultiSprites onto the shader's 3x3 render texture.
     // Draw a 3x3 grid of the detonated sprite to cover the shader area,
     // centered around wormhole position (position_cmp)
+    // Note this draws each row first
     int index = 0;
-    for ( int i = -1; i < 2; ++i )
+    for ( float row = -1; row < 2; ++row )
     {
-      for ( int j = -1; j < 2; ++j )
+      for ( float col = -1; col < 2; ++col )
       {
-        sf::Vector2f offset = { static_cast<float>( i ) * Sprites::MultiSprite::kDefaultSpriteDimensions.x,
-                                static_cast<float>( j ) * Sprites::MultiSprite::kDefaultSpriteDimensions.y };
+        sf::Vector2f offset = { col * Sprites::MultiSprite::kDefaultSpriteDimensions.x,
+                                row * Sprites::MultiSprite::kDefaultSpriteDimensions.y };
         m_wormhole_ms->pick( index++, "Wormhole" );
         m_wormhole_ms->setPosition( position_cmp + offset );
         m_wormhole_ms->draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
@@ -344,12 +345,12 @@ void RenderGameSystem::render_wormhole()
     m_wormhole_shader.draw( getWindow(), sf::RenderStates::Default );
 
     // Debug: Draw a red rectangle around the wormhole position
-    sf::RectangleShape temp_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
-    temp_square.setPosition( position_cmp );
-    temp_square.setOutlineColor( sf::Color::Red );
-    temp_square.setFillColor( sf::Color::Transparent );
-    temp_square.setOutlineThickness( 1.f );
-    getWindow().draw( temp_square );
+    // sf::RectangleShape temp_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+    // temp_square.setPosition( position_cmp );
+    // temp_square.setOutlineColor( sf::Color::Red );
+    // temp_square.setFillColor( sf::Color::Transparent );
+    // temp_square.setOutlineThickness( 1.f );
+    // getWindow().draw( temp_square );
   }
 }
 

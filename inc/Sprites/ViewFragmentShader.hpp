@@ -82,19 +82,16 @@ public:
   sf::Vector2f get_view_center() const { return m_shader_view.getCenter(); }
 
   /**
-   * @brief Updates the shader view and position based on the provided position and alignment.
-   *
-   * This function sets the shader view's center and position based on the input parameters.
-   * If the alignment is CENTER, the position is converted from center coordinates to top-left
-   * coordinates for consistency with internal calculations.
+   * @brief Updates the shader position. Supports different sprite alignments.
+   *        If your sprite is center aligned then use Align::CENTER.
    *
    * @param pos The position vector. If align is CENTER, this represents the center position;
    *            otherwise, it represents the top-left position.
-   * @param align The alignment mode for position interpretation. Defaults to Align::TOPLEFT.
+   * @param align Sprite alignment. Defaults to Align::TOPLEFT.
    *              - Align::TOPLEFT: pos is treated as top-left corner position
    *              - Align::CENTER: pos is treated as center position and converted to top-left
    */
-  void update_shader_view_and_position( sf::Vector2f pos, Align align = Align::TOPLEFT )
+  void update_shader_position( sf::Vector2f pos, Align align = Align::TOPLEFT )
   {
     if ( align == Align::CENTER )
     {
