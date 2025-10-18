@@ -109,5 +109,9 @@
   "WormholeAnimFramerate": {
     "type": "float",
     "value": 0.1
+  },
+  "NpcDeathAnimFramerate": {
+    "type": "float",
+    "value": 0.1
   }
 }

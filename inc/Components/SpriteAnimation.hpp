@@ -7,11 +7,13 @@ namespace ProceduralMaze::Cmp {
 
 struct SpriteAnimation
 {
+  // track the frame position in the animation sequence
+  unsigned int m_current_frame = 0;
 
-  int m_current_frame = 0;
+  // the start frame in the animation sequence
+  unsigned int m_base_frame = 0;
 
-  // Base frame for current direction
-  int m_base_frame = 0;
+  // elapsed time since the last frame change
   sf::Time m_elapsed_time = sf::Time::Zero;
 };
 

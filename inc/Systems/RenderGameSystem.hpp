@@ -37,7 +37,7 @@ private:
   void render_player();
   void render_player_footsteps();
   void render_npc();
-  void render_explosions( sf::Time deltaTime );
+  void render_explosions();
   void render_flood_waters();
   void render_player_distances_on_npc();
   void render_player_distances_on_obstacles();

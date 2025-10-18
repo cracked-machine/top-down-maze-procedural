@@ -13,10 +13,6 @@ public:
       : sf::Vector2f( pos )
   {
   }
-  // keep track of animation frame for death animation;
-  // use of this property is MultiSprite-dependent. See RenderGameSystem.cpp
-  std::size_t current_anim_frame{ 0 };
-  sf::Time elapsed_time{ sf::Time::Zero };
 };
 
 } // namespace ProceduralMaze::Cmp

@@ -2,6 +2,7 @@
 #include <NpcDeathPosition.hpp>
 #include <Persistent/ArmedOffDelay.hpp>
 #include <Persistent/BombDamage.hpp>
+#include <SpriteAnimation.hpp>
 #include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
@@ -180,7 +181,10 @@ void BombSystem::update()
       if ( npc_bounding_box.findIntersection( obstacle_explosion_zone ) )
       {
         m_reg->emplace_or_replace<Cmp::NpcDeathPosition>( npc_entt, npc_pos_cmp );
-        SPDLOG_DEBUG( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ), npc_pos_cmp.x, npc_pos_cmp.y );
+        m_reg->emplace_or_replace<Cmp::SpriteAnimation>( npc_entt );
+        auto &npc_death_anim = m_reg->get<Cmp::SpriteAnimation>( npc_entt );
+        npc_death_anim.m_current_frame = 0;
+        SPDLOG_INFO( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ), npc_pos_cmp.x, npc_pos_cmp.y );
         getEventDispatcher().trigger( Events::NpcDeathEvent( npc_entt ) );
       }
     }

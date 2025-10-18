@@ -10,6 +10,7 @@
 #include <Persistent/NpcAnimFramerate.hpp>
 #include <Persistent/NpcDamage.hpp>
 #include <Persistent/NpcDamageDelay.hpp>
+#include <Persistent/NpcDeathAnimFramerate.hpp>
 #include <Persistent/NpcPushBack.hpp>
 #include <Persistent/NpcScanScale.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
@@ -192,6 +193,9 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   {
     npc_push_back() = std::clamp( npc_push_back(), 1.0f, 50.0f );
   }
+
+  auto &npc_death_anim_framerate = get_persistent_component<Cmp::Persistent::NpcDeathAnimFramerate>();
+  ImGui::SliderFloat( "NPC Death Animation Framerate", &npc_death_anim_framerate(), 0.01f, 0.5f, "%.2f" );
 
   auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NpcActivateScale>();
   ImGui::SliderFloat( "NPC Activation Bounding Box Scale Factor", &npc_activate_scale(), 1.f, 20.f, "%.1f pixels" );

@@ -13,6 +13,7 @@
 #include <Persistent/NpcAnimFramerate.hpp>
 #include <Persistent/NpcDamage.hpp>
 #include <Persistent/NpcDamageDelay.hpp>
+#include <Persistent/NpcDeathAnimFramerate.hpp>
 #include <Persistent/NpcLerpSpeed.hpp>
 #include <Persistent/NpcPushBack.hpp>
 #include <Persistent/NpcScanScale.hpp>
@@ -74,6 +75,7 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::NpcScanScale>( "NpcScanScale" );
   registerComponent<Cmp::Persistent::NpcLerpSpeed>( "NpcLerpSpeed" );
   registerComponent<Cmp::Persistent::WormholeAnimFramerate>( "WormholeAnimFramerate" );
+  registerComponent<Cmp::Persistent::NpcDeathAnimFramerate>( "NpcDeathAnimFramerate" );
 
   // Register int components
   registerComponent<Cmp::Persistent::BombDamage>( "BombDamage" );

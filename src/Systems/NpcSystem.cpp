@@ -36,7 +36,6 @@ void NpcSystem::remove_npc_entity( entt::entity npc_entity )
   m_reg->remove<Cmp::NPC>( npc_entity );
   m_reg->remove<Cmp::Position>( npc_entity );
   m_reg->remove<Cmp::NPCScanBounds>( npc_entity );
-  m_reg->remove<Cmp::SpriteAnimation>( npc_entity );
   m_reg->remove<Cmp::Direction>( npc_entity );
   SPDLOG_DEBUG( "NPC entity {} killed by explosion", static_cast<int>( npc_entity ) );
 }

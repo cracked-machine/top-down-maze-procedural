@@ -2,7 +2,9 @@
 #include <EnttDistanceMap.hpp>
 #include <LerpPosition.hpp>
 #include <NPC.hpp>
+#include <NpcDeathPosition.hpp>
 #include <Persistent/NpcAnimFramerate.hpp>
+#include <Persistent/NpcDeathAnimFramerate.hpp>
 #include <Persistent/PlayerAnimFramerate.hpp>
 #include <Persistent/WormholeAnimFramerate.hpp>
 #include <PlayableCharacter.hpp>
@@ -10,14 +12,16 @@
 #include <SpriteAnimation.hpp>
 #include <SpriteFactory.hpp>
 #include <Wormhole.hpp>
+#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
 
 void AnimSystem::update( sf::Time deltaTime )
 {
   using namespace Sprites;
+  auto &factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
 
-  // only update animation for NPC that are actively pathfinding
+  // NPC Movement: only update animation for NPC that are actively pathfinding
   auto pathfinding_npc_view = m_reg->view<Cmp::NPC, Cmp::LerpPosition, Cmp::SpriteAnimation>();
   for ( [[maybe_unused]] auto [entity, npc_cmp, lerp_pos_cmp, anim_cmp] : pathfinding_npc_view.each() )
   {
@@ -33,7 +37,7 @@ void AnimSystem::update( sf::Time deltaTime )
     }
   }
 
-  // always update animation for player if they are moving
+  // Player Movement:always update animation for player if they are moving
   auto moving_player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Direction, Cmp::SpriteAnimation>();
   for ( auto [entity, pc_cmp, dir_cmp, anim_cmp] : moving_player_view.each() )
   {
@@ -49,16 +53,47 @@ void AnimSystem::update( sf::Time deltaTime )
     }
   }
 
+  // Wormhole
   auto wormhole_view = m_reg->view<Cmp::Wormhole, Cmp::SpriteAnimation>();
   for ( auto [entity, wormhole_cmp, anim_cmp] : wormhole_view.each() )
   {
-    auto &factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
+
     auto wormhole_sprite_metadata = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::WORMHOLE );
     auto sprites_per_frame = wormhole_sprite_metadata->get_sprites_per_frame();
     auto sprites_per_sequence = wormhole_sprite_metadata->get_sprites_per_sequence();
     auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::WormholeAnimFramerate>()() );
 
     update_frame( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
+  }
+
+  // NPC Death Explosion Animation
+  auto explosion_view = m_reg->view<Cmp::NpcDeathPosition, Cmp::SpriteAnimation>();
+  for ( auto [entity, explosion_cmp, anim_cmp] : explosion_view.each() )
+  {
+    auto explosion_sprite_metadata = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXPLOSION );
+    auto sprites_per_frame = explosion_sprite_metadata->get_sprites_per_frame();
+    auto sprites_per_sequence = explosion_sprite_metadata->get_sprites_per_sequence();
+    auto frame_rate = sf::seconds( m_reg->ctx().get<Cmp::Persistent::NpcDeathAnimFramerate>()() );
+
+    SPDLOG_DEBUG( "Explosion animation active for entity {} - current_frame: {}, sprites_per_frame: {}, "
+                  "sprites_per_sequence: {}, frame_rate: {}s",
+                  static_cast<int>( entity ), anim_cmp.m_current_frame, sprites_per_frame, sprites_per_sequence,
+                  frame_rate.asSeconds() );
+
+    // Update the frame first
+    update_frame( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
+
+    SPDLOG_DEBUG( "After update_frame - current_frame: {}, elapsed_time: {}s", anim_cmp.m_current_frame,
+                  anim_cmp.m_elapsed_time.asSeconds() );
+
+    // have we completed the animation?
+    if ( anim_cmp.m_current_frame == sprites_per_sequence - 1 )
+    {
+      m_reg->remove<Cmp::NpcDeathPosition>( entity );
+      m_reg->remove<Cmp::SpriteAnimation>( entity );
+      SPDLOG_DEBUG( "Explosion animation complete, removing component from entity {}", static_cast<int>( entity ) );
+      continue;
+    }
   }
 }
 
