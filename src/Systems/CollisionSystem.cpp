@@ -44,9 +44,7 @@ void CollisionSystem::check_bones_reanimation()
     auto player_hitbox = get_hitbox( _pc_pos );
     for ( auto [_obstacle_entt, _obstacle, _obstacle_pos] : obstacle_collision_view.each() )
     {
-      if ( _obstacle.m_type != Sprites::SpriteFactory::SpriteMetaType::BONES || not _obstacle.m_enabled ||
-           not _obstacle.m_visible )
-        continue;
+      if ( _obstacle.m_type != Sprites::SpriteFactory::SpriteMetaType::BONES || not _obstacle.m_enabled ) continue;
 
       auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NpcActivateScale>();
       // we just create a temporary RectBounds here instead of a component
@@ -58,7 +56,7 @@ void CollisionSystem::check_bones_reanimation()
       {
         // dont really care what obstacle this becomes as long as its disabled.
         m_reg->emplace_or_replace<Cmp::Obstacle>( _obstacle_entt, Sprites::SpriteFactory::SpriteMetaType::BONES, 0,
-                                                  false, false );
+                                                  false );
         getEventDispatcher().trigger( Events::NpcCreationEvent( _obstacle_pos ) );
       }
     }

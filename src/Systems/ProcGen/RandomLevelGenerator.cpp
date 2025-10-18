@@ -17,20 +17,14 @@ void RandomLevelGenerator::gen_objects()
                           ( Sys::BaseSystem::kMapGridOffset.x * Sprites::MultiSprite::kDefaultSpriteDimensions.x ),
                       ( y * Sprites::MultiSprite::kDefaultSpriteDimensions.y ) +
                           ( Sys::BaseSystem::kMapGridOffset.y * Sprites::MultiSprite::kDefaultSpriteDimensions.y ) } );
-      // track the contiguous creation order of the entity so we can easily
-      // find its neighbours later
+      // track the contiguous creation order of the entity so we can easily find its neighbours later
       m_data.push_back( entity );
       auto sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
-      if ( not sprite_factory )
-      {
-        SPDLOG_CRITICAL( "SpriteFactory not found in registry context" );
-        std::get_terminate();
-      }
       // pick a random obstacle type and texture index
       auto [obstacle_type, random_obstacle_texture_index] = sprite_factory->get_random_type_and_texture_index(
           { Sprites::SpriteFactory::SpriteMetaType::ROCK, Sprites::SpriteFactory::SpriteMetaType::POT,
             Sprites::SpriteFactory::SpriteMetaType::BONES } );
-      m_reg->emplace<Cmp::Obstacle>( entity, obstacle_type, random_obstacle_texture_index, true,
+      m_reg->emplace<Cmp::Obstacle>( entity, obstacle_type, random_obstacle_texture_index,
                                      m_activation_selector.gen() );
 
       m_reg->emplace<Cmp::Neighbours>( entity );
