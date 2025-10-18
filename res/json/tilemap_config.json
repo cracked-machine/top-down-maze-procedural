@@ -1,0 +1,15 @@
+{
+  "tilemap": {
+    "texture_path": "res/textures/floor2.png",
+    "tile_size": {
+      "width": 16,
+      "height": 16
+    },
+    "map_dimensions": {
+      "width": 200,
+      "height": 98
+    },
+    "floor_tile_pool": [0, 0, 0, 0, 0, 0, 0, 0, 1, 2],
+    "random_seed": 0
+  }
+}

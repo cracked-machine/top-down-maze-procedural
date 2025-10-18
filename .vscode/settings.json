@@ -88,6 +88,12 @@
                 "**/persistent_components.json"
             ],
             "url": "./res/json/persistent_components_schema.json"
+        },
+        {
+            "fileMatch": [
+                "**/tilemap_config.json"
+            ],
+            "url": "./res/json/tilemap_config_schema.json"
         }
     ]
 }

@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/tilemap-config.schema.json",
+  "title": "TileMap Configuration",
+  "description": "Configuration schema for procedural maze tilemap generation",
+  "type": "object",
+  "required": ["tilemap"],
+  "properties": {
+    "tilemap": {
+      "type": "object",
+      "description": "Main tilemap configuration object",
+      "required": [
+        "texture_path",
+        "tile_size",
+        "map_dimensions",
+        "floor_tile_pool"
+      ],
+      "properties": {
+        "texture_path": {
+          "type": "string",
+          "description": "Path to the tileset texture file",
+          "pattern": "^.*\\.(png|jpg|jpeg|bmp|tga)$",
+          "examples": ["res/textures/floor2.png"]
+        },
+        "tile_size": {
+          "type": "object",
+          "description": "Dimensions of individual tiles in pixels",
+          "required": ["width", "height"],
+          "properties": {
+            "width": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 512,
+              "description": "Tile width in pixels"
+            },
+            "height": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 512,
+              "description": "Tile height in pixels"
+            }
+          },
+          "additionalProperties": false
+        },
+        "map_dimensions": {
+          "type": "object",
+          "description": "Overall map size in tiles",
+          "required": ["width", "height"],
+          "properties": {
+            "width": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000,
+              "description": "Map width in tiles"
+            },
+            "height": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000,
+              "description": "Map height in tiles"
+            }
+          },
+          "additionalProperties": false
+        },
+        "floor_tile_pool": {
+          "type": "array",
+          "description": "Pool of tile indices to randomly select from for floor generation",
+          "minItems": 1,
+          "maxItems": 1000,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535,
+            "description": "Tile index in the tileset"
+          }
+        },
+        "random_seed": {
+          "type": "integer",
+          "description": "Seed for random number generation (0 for system time)",
+          "minimum": 0,
+          "default": 0
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
