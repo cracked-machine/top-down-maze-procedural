@@ -58,9 +58,15 @@ private:
     ProceduralMaze::Sprites::MultiSprite m_multisprite{};
   };
 
+  /**
+   * @brief Map storing metadata for different sprite types.
+   *
+   * This unordered map associates each SpriteMetaType with its corresponding
+   * SpriteMetaData, providing efficient lookup of sprite configuration data
+   * such as texture paths, dimensions, animation frames, or other sprite
+   * properties needed for sprite creation and management.
+   */
   std::unordered_map<SpriteMetaType, SpriteMetaData> m_sprite_metadata_map{};
-  // list declaring multisprite instance and their associated metadata
-  // std::vector<SpriteMetaData> m_sprite_metadata_list{};
 
 public:
   /**

@@ -327,25 +327,22 @@ void RenderGameSystem::render_wormhole()
     // draw MultiSprites onto the shader's 3x3 render texture.
     // Draw a 3x3 grid of the detonated sprite to cover the shader area,
     // centered around wormhole position (position_cmp)
-    // Note this draws each row first
-    // const auto total_sprites_per_row = anim_cmp.m_sprite_width_per_frame * anim_cmp.m_max_frames;
+
     std::stringstream frame_indices;
-    // frame_indices << "[" << anim_cmp.m_current_frame << "]: ";
-    for ( float row = 0; row < 3; ++row )
+    auto grid_size = m_wormhole_ms->get_grid_size();
+    for ( float row = 0; row < grid_size.height; ++row )
     {
-      for ( float col = 0; col < 3; ++col )
+      for ( float col = 0; col < grid_size.width; ++col )
       {
         sf::Vector2f offset = { ( col - 1 ) * Sprites::MultiSprite::kDefaultSpriteDimensions.x,
                                 ( row - 1 ) * Sprites::MultiSprite::kDefaultSpriteDimensions.y };
-        auto index = anim_cmp.m_current_frame + ( row * 3 + col );
-        // frame_indices << index << ",";
+        auto index = anim_cmp.m_current_frame + ( row * grid_size.height + col );
+
         m_wormhole_ms->pick( index, "Wormhole" );
         m_wormhole_ms->setPosition( position_cmp + offset );
         m_wormhole_ms->draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
       }
     }
-
-    // SPDLOG_INFO( "Wormhole frame indices drawn: {}", frame_indices.str() );
 
     // Finally, draw the shader effect onto the main window
     m_wormhole_shader.draw( getWindow(), sf::RenderStates::Default );

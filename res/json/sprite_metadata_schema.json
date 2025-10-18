@@ -56,6 +56,32 @@
           "type": "object",
           "description": "MultiSprite configuration",
           "properties": {
+            "sprites_per_frame": {
+              "type": "integer",
+              "description": "Number of sprites in each animation frame.",
+              "minimum": 1
+            },
+            "sprites_per_sequence": {
+              "type": "integer",
+              "description": "Number of frames in the animation sequence. 1 = static sprite.",
+              "minimum": 1
+            },
+            "grid_size": {
+              "type": "object",
+              "description": "width and height grid size for the multi-sprite",
+              "properties": {
+                "width": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "height": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
             "texture_path": {
               "type": "string",
               "description": "Path to the texture file",
@@ -72,7 +98,7 @@
               "uniqueItems": true
             }
           },
-          "required": ["texture_path", "sprite_indices"],
+          "required": ["texture_path", "sprite_indices", "grid_size", "sprites_per_frame", "sprites_per_sequence"],
           "additionalProperties": false
         }
       },

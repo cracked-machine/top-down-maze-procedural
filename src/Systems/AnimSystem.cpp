@@ -8,12 +8,14 @@
 #include <PlayableCharacter.hpp>
 #include <SFML/System/Time.hpp>
 #include <SpriteAnimation.hpp>
+#include <SpriteFactory.hpp>
 #include <Wormhole.hpp>
 
 namespace ProceduralMaze::Sys {
 
 void AnimSystem::update( sf::Time deltaTime )
 {
+  using namespace Sprites;
 
   // only update animation for NPC that are actively pathfinding
   auto pathfinding_npc_view = m_reg->view<Cmp::NPC, Cmp::LerpPosition, Cmp::SpriteAnimation>();
@@ -21,8 +23,13 @@ void AnimSystem::update( sf::Time deltaTime )
   {
     if ( lerp_pos_cmp.m_lerp_factor > 0.f )
     {
+      auto &factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
+      auto npc_sprite_metadata = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::NPC );
+      auto sprites_per_frame = npc_sprite_metadata->get_sprites_per_frame();
+      auto sprites_per_sequence = npc_sprite_metadata->get_sprites_per_sequence();
       auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::NpcAnimFramerate>()() );
-      update_frame( anim_cmp, deltaTime, frame_rate );
+
+      update_frame( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
     }
   }
 
@@ -32,16 +39,26 @@ void AnimSystem::update( sf::Time deltaTime )
   {
     if ( dir_cmp != sf::Vector2f( 0.f, 0.f ) )
     {
+      auto &factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
+      auto player_sprite_metadata = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::PLAYER );
+      auto sprites_per_frame = player_sprite_metadata->get_sprites_per_frame();
+      auto sprites_per_sequence = player_sprite_metadata->get_sprites_per_sequence();
       auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::PlayerAnimFramerate>()() );
-      update_frame( anim_cmp, deltaTime, frame_rate );
+
+      update_frame( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
     }
   }
 
   auto wormhole_view = m_reg->view<Cmp::Wormhole, Cmp::SpriteAnimation>();
   for ( auto [entity, wormhole_cmp, anim_cmp] : wormhole_view.each() )
   {
+    auto &factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
+    auto wormhole_sprite_metadata = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::WORMHOLE );
+    auto sprites_per_frame = wormhole_sprite_metadata->get_sprites_per_frame();
+    auto sprites_per_sequence = wormhole_sprite_metadata->get_sprites_per_sequence();
     auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::WormholeAnimFramerate>()() );
-    update_frame( anim_cmp, deltaTime, frame_rate );
+
+    update_frame( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
   }
 }
 
@@ -88,14 +105,15 @@ void AnimSystem::on_anim_direction_change( const Events::AnimDirectionChangeEven
   }
 }
 
-void AnimSystem::update_frame( Cmp::SpriteAnimation &anim, sf::Time deltaTime, sf::Time frame_rate )
+void AnimSystem::update_frame( Cmp::SpriteAnimation &anim, sf::Time deltaTime, const unsigned int sprites_per_frame,
+                               const unsigned int sprites_per_sequence, sf::Time frame_rate )
 {
   anim.m_elapsed_time += deltaTime;
 
   if ( anim.m_elapsed_time >= frame_rate )
   {
     // Increment frame. Wrap around to zero at anim.m_frame_count
-    anim.m_current_frame = ( anim.m_current_frame + anim.m_sprite_width_per_frame ) % anim.m_max_frames;
+    anim.m_current_frame = ( anim.m_current_frame + sprites_per_frame ) % sprites_per_sequence;
 
     // Subtract frame_rate instead of resetting to Zero to maintain precise timing
     // i.e. this carries the time overflow from previous update:

@@ -20,14 +20,20 @@ SpriteFactory::SpriteFactory()
   // Parse JSON into sprite metadata map
   for ( const auto &[key, value] : j["sprites"].items() )
   {
+    SpriteMetaType type = string_to_sprite_type( key );
+
     SpriteMetaData meta;
     meta.name = value["name"];
     meta.weight = value["weight"];
+
     std::filesystem::path texture_path = value["multisprite"]["texture_path"];
     std::vector<uint32_t> sprite_indices = value["multisprite"]["sprite_indices"].get<std::vector<uint32_t>>();
+    SpriteSize grid_size = { value["multisprite"]["grid_size"]["width"], value["multisprite"]["grid_size"]["height"] };
+    unsigned int sprites_per_frame = value["multisprite"]["sprites_per_frame"];
+    unsigned int sprites_per_sequence = value["multisprite"]["sprites_per_sequence"];
+    meta.m_multisprite = MultiSprite{ texture_path, sprite_indices, grid_size, sprites_per_frame,
+                                      sprites_per_sequence };
 
-    meta.m_multisprite = MultiSprite{ texture_path, sprite_indices };
-    SpriteMetaType type = string_to_sprite_type( key );
     m_sprite_metadata_map[type] = meta;
   }
 }

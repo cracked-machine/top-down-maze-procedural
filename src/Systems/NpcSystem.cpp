@@ -24,10 +24,7 @@ void NpcSystem::add_npc_entity( sf::Vector2f position )
   m_reg->emplace<Cmp::NPCScanBounds>(
       new_npc_entity, position, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions }, npc_scan_scale() );
 
-  m_reg->emplace<Cmp::SpriteAnimation>( new_npc_entity,
-                                        10, // max frames
-                                        1   // sprite width per frame
-  );
+  m_reg->emplace<Cmp::SpriteAnimation>( new_npc_entity );
 
   SPDLOG_DEBUG( "Creating NPC entity {} at position ({}, {})", static_cast<int>( new_npc_entity ), position.x,
                 position.y );

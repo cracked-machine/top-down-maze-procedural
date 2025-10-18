@@ -72,10 +72,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
 
   // 4. add the wormhole component to the entity
   m_reg->emplace_or_replace<Cmp::Wormhole>( random_entity );
-  m_reg->emplace_or_replace<Cmp::SpriteAnimation>( random_entity,
-                                                   108, // max frames
-                                                   9    // sprite width per frame
-  );
+  m_reg->emplace_or_replace<Cmp::SpriteAnimation>( random_entity );
 
   SPDLOG_INFO( "Wormhole spawned at position ({}, {})", random_position.x, random_position.y );
 }

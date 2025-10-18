@@ -46,10 +46,7 @@ void PlayerSystem::add_player_entity()
   m_reg->emplace<Cmp::PCDetectionBounds>(
       entity, start_pos, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions }, pc_detection_scale() );
 
-  m_reg->emplace<Cmp::SpriteAnimation>( entity,
-                                        3, // max frames
-                                        1  // sprite width per frame
-  );
+  m_reg->emplace<Cmp::SpriteAnimation>( entity );
 }
 
 void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_check )

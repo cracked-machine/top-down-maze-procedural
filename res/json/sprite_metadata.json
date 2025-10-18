@@ -5,7 +5,13 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/obstacles.png",
-        "sprite_indices": [14,15]
+        "sprite_indices": [14,15],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
       }
     },
 
@@ -14,7 +20,13 @@
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/obstacles.png",
-        "sprite_indices": [0,1,2,3,4,5,6,7]
+        "sprite_indices": [0,1,2,3,4,5,6,7],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
       }
     },
     "POT": {
@@ -22,7 +34,13 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/obstacles.png",
-        "sprite_indices": [8,9,10]
+        "sprite_indices": [8,9,10],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
       }
     },
     "BONES": {
@@ -30,7 +48,13 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/obstacles.png",
-        "sprite_indices": [12,13]
+        "sprite_indices": [12,13],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
       }
     },
     "NPC": {
@@ -38,7 +62,13 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/enemies-skeleton1_movement.png",
-        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        "sprites_per_sequence": 10,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
       }
     },
     "DETONATED": {
@@ -46,15 +76,27 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/floor2.png",
-        "sprite_indices": [3]
+        "sprite_indices": [3],
+        "sprites_per_frame": 1,
+        "sprites_per_sequence": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
       }
     },
     "PLAYER": {
       "name": "PLAYER",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/conjurer1.png",
-        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        "texture_path": "res/textures/conjurer2.png",
+        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+        "sprites_per_sequence": 3,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
       }
     },
     "BOMB": {
@@ -62,7 +104,13 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/bomb.png",
-        "sprite_indices": [0]
+        "sprite_indices": [0],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
       }
     },
     "EXTRA_HEALTH": {
@@ -70,7 +118,13 @@
       "weight": 30.0,
       "multisprite": {
         "texture_path": "res/textures/objects.png",
-        "sprite_indices": [32]
+        "sprite_indices": [32],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
       }
     },
     "EXTRA_BOMBS": {
@@ -78,7 +132,13 @@
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/objects.png",
-        "sprite_indices": [67]
+        "sprite_indices": [67],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
       }
     },
     "INFINI_BOMBS": {
@@ -86,7 +146,13 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/objects.png",
-        "sprite_indices": [35]
+        "sprite_indices": [35],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
       }
     },
     "CHAIN_BOMBS": {
@@ -94,7 +160,13 @@
       "weight": 20.0,
       "multisprite": {
         "texture_path": "res/textures/objects.png",
-        "sprite_indices": [34]
+        "sprite_indices": [34],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
       }
     },
     "LOWER_WATER": {
@@ -102,7 +174,13 @@
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/objects.png",
-        "sprite_indices": [33]
+        "sprite_indices": [33],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
       }
     },
     "EXPLOSION": {
@@ -110,7 +188,13 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
-        "sprite_indices": [66, 67, 68, 69, 70, 71]
+        "sprite_indices": [66, 67, 68, 69, 70, 71],
+        "sprites_per_sequence": 6,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
       }
     },
     "FOOTSTEPS": {
@@ -118,7 +202,13 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/footsteps.png",
-        "sprite_indices": [0]
+        "sprite_indices": [0],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
       }
     },
     "SINKHOLE": {
@@ -126,7 +216,13 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/sinkhole.png",
-        "sprite_indices": [0]
+        "sprite_indices": [0],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
       }
     },
     "CORRUPTION": {
@@ -134,7 +230,13 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/corruption.png",
-        "sprite_indices": [0]
+        "sprite_indices": [0],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
       }
     },
     "WORMHOLE": {
@@ -155,7 +257,13 @@
           27,28,29,63,64,65,99,100,101,
           30,31,32,66,67,68,102,103,104,
           33,34,35,69,70,71,105,106,107
-        ]
+        ],
+        "sprites_per_frame": 9,
+        "sprites_per_sequence": 108,
+        "grid_size": {
+          "width": 3,
+          "height": 3
+        }
       }
     }
   }

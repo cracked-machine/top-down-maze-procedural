@@ -18,6 +18,12 @@
 
 namespace ProceduralMaze::Sprites {
 
+typedef struct SpriteSize
+{
+  unsigned int width{ 1 };
+  unsigned int height{ 1 };
+} SpriteSize;
+
 class MultiSprite : public sf::Drawable, public sf::Transformable
 {
 public:
@@ -32,7 +38,12 @@ public:
    *
    * @throws std::runtime_error If the tilemap fails to load or is invalid
    */
-  explicit MultiSprite( const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks )
+  explicit MultiSprite( const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks,
+                        SpriteSize grid_size = { 1, 1 }, unsigned int sprites_per_frame = 1,
+                        unsigned int sprites_per_sequence = 1 )
+      : m_grid_size{ grid_size.width, grid_size.height },
+        m_sprites_per_frame{ sprites_per_frame },
+        m_sprites_per_sequence{ sprites_per_sequence }
   {
     if ( !add_sprite( tilemap_path, tilemap_picks ) )
     {
@@ -63,7 +74,11 @@ public:
  * @return true if a sprite was successfully selected, false if the sprite list is empty
  */
   bool pick( std::size_t idx, const std::string &caller = "unknown" );
+  SpriteSize get_grid_size() const { return m_grid_size; }
   std::size_t get_sprite_count() const { return m_va_list.size(); }
+  unsigned int get_sprites_per_frame() const { return m_sprites_per_frame; }
+  unsigned int get_sprites_per_sequence() const { return m_sprites_per_sequence; }
+
   void set_pick_opacity( uint8_t alpha );
 
   sf::Texture m_tilemap_texture;
@@ -85,7 +100,13 @@ private:
 
   sf::VertexArray m_selected_vertices;
 
-  sf::Vector2u m_tile_size;
+  // width and height grid size for the multi-sprite
+  SpriteSize m_grid_size{ 1, 1 };
+
+  // number of sprites per animation frame
+  unsigned int m_sprites_per_frame{ 1 };
+
+  unsigned int m_sprites_per_sequence{ 1 };
 };
 
 } // namespace ProceduralMaze::Sprites
