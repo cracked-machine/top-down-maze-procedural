@@ -47,25 +47,19 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
 
   if ( random_entity != entt::null && large_obstacle_sprite.has_value() )
   {
+    const auto kDefaultSpriteDimensions = Sprites::MultiSprite::kDefaultSpriteDimensions;
+
     // place large obstacle - multiply the grid size to get pixel size!
-    m_reg->emplace_or_replace<Cmp::LargeObstacle>(
-        random_entity, sprite_meta_type, random_origin_position,
-        sf::Vector2f{ static_cast<float>( large_obstacle_sprite->get_grid_size().width *
-                                          Sprites::MultiSprite::kDefaultSpriteDimensions.x ),
-                      static_cast<float>( large_obstacle_sprite->get_grid_size().height *
-                                          Sprites::MultiSprite::kDefaultSpriteDimensions.y ) } );
+    auto large_obst_grid_size = large_obstacle_sprite->get_grid_size();
+    m_reg->emplace_or_replace<Cmp::LargeObstacle>( random_entity, sprite_meta_type, random_origin_position,
+                                                   large_obst_grid_size.componentWiseMul( kDefaultSpriteDimensions ) );
+
     SPDLOG_INFO( "Placed large obstacle at position ({}, {}). Grid size: {}x{}", random_origin_position.x,
-                 random_origin_position.y, large_obstacle_sprite->get_grid_size().width,
-                 large_obstacle_sprite->get_grid_size().height );
+                 random_origin_position.y, large_obst_grid_size.width, large_obst_grid_size.height );
     auto new_large_obst_cmp = m_reg->get<Cmp::LargeObstacle>( random_entity );
 
     SPDLOG_INFO( "Large obstacle bounds: left={}, top={}, width={}, height={}", new_large_obst_cmp.position.x,
                  new_large_obst_cmp.position.y, new_large_obst_cmp.size.x, new_large_obst_cmp.size.y );
-
-    // Get grid dimensions and sprite dimensions
-    const auto grid_width = large_obstacle_sprite->get_grid_size().width;
-    // const auto grid_height = large_obstacle_sprite->get_grid_size().height;
-    const auto kDefaultSpriteDimensions = Sprites::MultiSprite::kDefaultSpriteDimensions;
 
     // find any position-owning entities that intersect
     // with the new large obstacle and mark them as reserved
@@ -76,7 +70,7 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
 
       if ( pos_cmp_rect.findIntersection( new_large_obst_cmp ) )
       {
-        // Calculate relative position within the large obstacle grid
+        // Calculate relative pixel positions within the large obstacle grid
         float rel_x = pos_cmp.x - random_origin_position.x;
         float rel_y = pos_cmp.y - random_origin_position.y;
         SPDLOG_INFO( "Reserving position at ({}, {}) within large obstacle at ({}, {})", pos_cmp.x, pos_cmp.y,
@@ -102,15 +96,15 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
         // Top-right position: grid_y=0, grid_x=3 → sprite_index = 0 * 4 + 3 = 3
         // Bottom-left position: grid_y=1, grid_x=0 → sprite_index = 1 * 4 + 0 = 4
         // Bottom-right position: grid_y=1, grid_x=3 → sprite_index = 1 * 4 + 3 = 7
-        int selected_index = grid_y * grid_width + grid_x;
+        int calculated_grid_index = grid_y * large_obst_grid_size.width + grid_x;
 
-        SPDLOG_INFO( "Calculated sprite index: {}", selected_index );
+        SPDLOG_INFO( "Calculated sprite index: {}", calculated_grid_index );
 
         SPDLOG_INFO( "Adding Cmp::ReservedPosition at ({}, {}) with sprite_index {}", pos_cmp.x, pos_cmp.y,
-                     selected_index );
-        m_reg->emplace_or_replace<Cmp::ReservedPosition>( entity, pos_cmp,
-                                                          large_obstacle_sprite->get_solid_mask()[selected_index],
-                                                          sprite_meta_type, selected_index );
+                     calculated_grid_index );
+        m_reg->emplace_or_replace<Cmp::ReservedPosition>(
+            entity, pos_cmp, large_obstacle_sprite->get_solid_mask()[calculated_grid_index], sprite_meta_type,
+            calculated_grid_index );
       }
     }
   }

@@ -22,6 +22,8 @@ typedef struct SpriteSize
 {
   unsigned int width{ 1 };
   unsigned int height{ 1 };
+  sf::Vector2f componentWiseMul( sf::Vector2f rhs ) const { return sf::Vector2f( width * rhs.x, height * rhs.y ); }
+  sf::Vector2f componentWiseMul( sf::Vector2u rhs ) const { return sf::Vector2f( width * rhs.x, height * rhs.y ); }
 } SpriteSize;
 
 class MultiSprite : public sf::Drawable, public sf::Transformable
