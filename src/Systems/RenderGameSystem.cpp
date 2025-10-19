@@ -204,6 +204,12 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
         m_overlay_sys.render_water_level_meter_overlay( water_level.m_level, { 40.f, 70.f }, { 200.f, 20.f } );
       }
 
+      auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
+      for ( auto [entity, pc_cmp, pos_cmp] : player_view.each() )
+      {
+        m_overlay_sys.render_player_position_overlay( pos_cmp, { 40.f, 220.f } );
+      }
+
       m_overlay_sys.render_entt_distance_set_overlay( { 40.f, 300.f } );
     }
     // UI Overlays end

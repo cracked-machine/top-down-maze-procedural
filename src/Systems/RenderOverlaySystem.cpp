@@ -1,4 +1,5 @@
 #include <RenderOverlaySystem.hpp>
+#include <SFML/Graphics/Text.hpp>
 
 namespace ProceduralMaze::Sys {
 
@@ -129,6 +130,20 @@ void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, s
   waterlvlbar_border.setOutlineColor( sf::Color::Black );
   waterlvlbar_border.setOutlineThickness( 5.f );
   getWindow().draw( waterlvlbar_border );
+}
+
+void RenderOverlaySystem::render_player_position_overlay( sf::Vector2f player_pos, sf::Vector2f pos )
+{
+  // text
+  std::stringstream ss;
+  ss << "Player Position: [ " << floor( player_pos.x ) << " , " << floor( player_pos.y ) << " ]";
+
+  sf::Text player_position_text( m_font, ss.str(), 30 );
+  player_position_text.setPosition( pos );
+  player_position_text.setFillColor( sf::Color::White );
+  player_position_text.setOutlineColor( sf::Color::Black );
+  player_position_text.setOutlineThickness( 2.f );
+  getWindow().draw( player_position_text );
 }
 
 } // namespace ProceduralMaze::Sys

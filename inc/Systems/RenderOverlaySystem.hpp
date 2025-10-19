@@ -1,6 +1,7 @@
 #ifndef __SYS_RENDEROVERSYSTEM_HPP__
 #define __SYS_RENDEROVERSYSTEM_HPP__
 
+#include <SFML/System/Vector2.hpp>
 #include <Systems/RenderSystem.hpp>
 
 namespace ProceduralMaze::Sys {
@@ -16,6 +17,7 @@ public:
   void render_bomb_overlay( int bomb_count, sf::Vector2f pos );
   void render_health_overlay( float health_value, sf::Vector2f pos, sf::Vector2f size );
   void render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size );
+  void render_player_position_overlay( sf::Vector2f player_position, sf::Vector2f pos );
 
 private:
   // overlay text
