@@ -43,19 +43,20 @@ void RandomLevelGenerator::gen_positions()
 void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprite> large_obstacle_sprite,
                                                Sprites::SpriteFactory::SpriteMetaType sprite_meta_type )
 {
-  auto [random_entity, random_position] = get_random_position( {}, {}, 4 );
+  auto [random_entity, random_origin_position] = get_random_position( {}, {}, 4 );
 
   if ( random_entity != entt::null && large_obstacle_sprite.has_value() )
   {
     // place large obstacle - multiply the grid size to get pixel size!
     m_reg->emplace_or_replace<Cmp::LargeObstacle>(
-        random_entity, sprite_meta_type, random_position,
+        random_entity, sprite_meta_type, random_origin_position,
         sf::Vector2f{ static_cast<float>( large_obstacle_sprite->get_grid_size().width *
                                           Sprites::MultiSprite::kDefaultSpriteDimensions.x ),
                       static_cast<float>( large_obstacle_sprite->get_grid_size().height *
                                           Sprites::MultiSprite::kDefaultSpriteDimensions.y ) } );
-    SPDLOG_INFO( "Placed large obstacle at position ({}, {}). Grid size: {}x{}", random_position.x, random_position.y,
-                 large_obstacle_sprite->get_grid_size().width, large_obstacle_sprite->get_grid_size().height );
+    SPDLOG_INFO( "Placed large obstacle at position ({}, {}). Grid size: {}x{}", random_origin_position.x,
+                 random_origin_position.y, large_obstacle_sprite->get_grid_size().width,
+                 large_obstacle_sprite->get_grid_size().height );
     auto new_large_obst_cmp = m_reg->get<Cmp::LargeObstacle>( random_entity );
 
     SPDLOG_INFO( "Large obstacle bounds: left={}, top={}, width={}, height={}", new_large_obst_cmp.position.x,
@@ -76,18 +77,33 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
       if ( pos_cmp_rect.findIntersection( new_large_obst_cmp ) )
       {
         // Calculate relative position within the large obstacle grid
-        float rel_x = pos_cmp.x - random_position.x;
-        float rel_y = pos_cmp.y - random_position.y;
+        float rel_x = pos_cmp.x - random_origin_position.x;
+        float rel_y = pos_cmp.y - random_origin_position.y;
         SPDLOG_INFO( "Reserving position at ({}, {}) within large obstacle at ({}, {})", pos_cmp.x, pos_cmp.y,
-                     random_position.x, random_position.y );
+                     random_origin_position.x, random_origin_position.y );
 
         // Convert to grid coordinates
         int grid_x = static_cast<int>( rel_x / kDefaultSpriteDimensions.x );
         int grid_y = static_cast<int>( rel_y / kDefaultSpriteDimensions.y );
         SPDLOG_INFO( "Relative grid position: ({}, {})", grid_x, grid_y );
 
-        // Calculate sprite index (row-major order: index = y * width + x)
+        // Calculate linear array index using relative grid distance from the origin grid position [0,0].
+        // We can then use the index to look up the sprite and solid mask in the large obstacle sprite object
+        // (method: row-major order: index = y * width + x)
+        // E.g. for a 1x2 grid:
+        //         [0]
+        //         [1]
+        // Top position: grid_y=0, grid_x=0 → sprite_index = 0 * 1 + 0 = 0
+        // Bottom position: grid_y=1, grid_x=0 → sprite_index = 1 * 1 + 0 = 1
+        // for a 4x2 grid:
+        //         [0][1][2][3]
+        //         [4][5][6][7]
+        // Top-left position: grid_y=0, grid_x=0 → sprite_index = 0 * 4 + 0 = 0
+        // Top-right position: grid_y=0, grid_x=3 → sprite_index = 0 * 4 + 3 = 3
+        // Bottom-left position: grid_y=1, grid_x=0 → sprite_index = 1 * 4 + 0 = 4
+        // Bottom-right position: grid_y=1, grid_x=3 → sprite_index = 1 * 4 + 3 = 7
         int selected_index = grid_y * grid_width + grid_x;
+
         SPDLOG_INFO( "Calculated sprite index: {}", selected_index );
 
         SPDLOG_INFO( "Adding Cmp::ReservedPosition at ({}, {}) with sprite_index {}", pos_cmp.x, pos_cmp.y,
