@@ -3,6 +3,7 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
+#include <string>
 
 namespace ProceduralMaze::Sprites {
 
@@ -17,11 +18,9 @@ SpriteFactory::SpriteFactory()
   nlohmann::json j;
   file >> j;
 
-  // Parse JSON into sprite metadata map
+  // Parse JSON into sprite metadata map - no enum conversion needed!
   for ( const auto &[key, value] : j["sprites"].items() )
   {
-    SpriteMetaType type = string_to_sprite_type( key );
-
     SpriteMetaData meta;
     meta.name = value["name"];
     meta.weight = value["weight"];
@@ -41,8 +40,81 @@ SpriteFactory::SpriteFactory()
     meta.m_multisprite = MultiSprite{ texture_path,      sprite_indices,       grid_size,
                                       sprites_per_frame, sprites_per_sequence, solid_mask };
 
-    m_sprite_metadata_map[type] = meta;
+    // Use the JSON key directly as the sprite type
+    m_sprite_metadata_map[key] = meta;
   }
+}
+
+std::vector<SpriteFactory::SpriteMetaType> SpriteFactory::get_all_sprite_types() const
+{
+  std::vector<SpriteMetaType> types;
+  types.reserve( m_sprite_metadata_map.size() );
+
+  for ( const auto &[type, _] : m_sprite_metadata_map )
+  {
+    types.push_back( type );
+  }
+  return types;
+}
+
+bool SpriteFactory::has_sprite_type( const SpriteMetaType &type ) const
+{
+  return m_sprite_metadata_map.find( type ) != m_sprite_metadata_map.end();
+}
+
+std::vector<SpriteFactory::SpriteMetaType>
+SpriteFactory::get_all_sprite_types_by_pattern( const std::string &pattern ) const
+{
+  std::vector<SpriteMetaType> types;
+
+  // Iterate directly over the map instead of creating a temporary vector
+  for ( const auto &[type, _] : m_sprite_metadata_map )
+  {
+    if ( type.find( pattern ) != std::string::npos ) // Changed from == 0
+    {
+      types.push_back( type );
+    }
+  }
+
+  return types;
+}
+
+std::pair<SpriteFactory::SpriteMetaType, std::size_t>
+SpriteFactory::get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list,
+                                                  std::vector<float> weights ) const
+{
+  auto selected_data = get_random_spritedata( type_list, weights );
+  if ( selected_data )
+  {
+    // Find the type that corresponds to this data
+    for ( const auto &[type, metadata] : m_sprite_metadata_map )
+    {
+      if ( metadata.name == selected_data->name )
+      {
+        Cmp::Random random_picker( 0, selected_data->m_multisprite.get_sprite_count() - 1 );
+        return { type, random_picker.gen() };
+      }
+    }
+  }
+  return { "ROCK", 0 }; // Fallback
+}
+
+std::optional<SpriteFactory::SpriteMetaData> SpriteFactory::get_spritedata_by_type( const SpriteMetaType &type ) const
+{
+  auto it = m_sprite_metadata_map.find( type );
+  if ( it != m_sprite_metadata_map.end() ) { return it->second; }
+  return std::nullopt;
+}
+
+std::optional<Sprites::MultiSprite> SpriteFactory::get_multisprite_by_type( const SpriteMetaType &type ) const
+{
+  if ( auto data = get_spritedata_by_type( type ) ) { return data->m_multisprite; }
+  return std::nullopt;
+}
+
+std::string SpriteFactory::get_spritedata_type_string( const SpriteFactory::SpriteMetaType &type ) const
+{
+  return type; // Since type is already a string!
 }
 
 std::optional<SpriteFactory::SpriteMetaData>
@@ -89,74 +161,6 @@ SpriteFactory::get_random_spritedata( std::vector<SpriteFactory::SpriteMetaType>
 
   // Fallback (shouldn't reach here normally)
   return get_spritedata_by_type( type_list.back() );
-}
-
-std::pair<SpriteFactory::SpriteMetaType, std::size_t>
-SpriteFactory::get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list,
-                                                  std::vector<float> weights ) const
-{
-  auto selected_data = get_random_spritedata( type_list, weights );
-  if ( selected_data )
-  {
-    // Find the type that corresponds to this data
-    for ( const auto &[type, metadata] : m_sprite_metadata_map )
-    {
-      if ( metadata.name == selected_data->name )
-      {
-        Cmp::Random random_picker( 0, selected_data->m_multisprite.get_sprite_count() - 1 );
-        return { type, random_picker.gen() };
-      }
-    }
-  }
-  return { SpriteMetaType::ROCK, 0 }; // Fallback
-}
-
-std::optional<SpriteFactory::SpriteMetaData> SpriteFactory::get_spritedata_by_type( SpriteMetaType type ) const
-{
-  auto it = m_sprite_metadata_map.find( type );
-  if ( it != m_sprite_metadata_map.end() ) { return it->second; }
-  return std::nullopt;
-}
-
-std::optional<Sprites::MultiSprite> SpriteFactory::get_multisprite_by_type( SpriteMetaType type ) const
-{
-  if ( auto data = get_spritedata_by_type( type ) ) { return data->m_multisprite; }
-  return std::nullopt;
-}
-
-std::string SpriteFactory::get_spritedata_type_string( SpriteFactory::SpriteMetaType type ) const
-{
-  if ( auto data = get_spritedata_by_type( type ) ) { return data->name; }
-  return "NOTFOUND";
-}
-
-SpriteFactory::SpriteMetaType SpriteFactory::string_to_sprite_type( const std::string &str ) const
-{
-  static const std::unordered_map<std::string, SpriteFactory::SpriteMetaType> map = {
-      { "WALL", SpriteFactory::SpriteMetaType::WALL },
-      { "ROCK", SpriteFactory::SpriteMetaType::ROCK },
-      { "POT", SpriteFactory::SpriteMetaType::POT },
-      { "BONES", SpriteFactory::SpriteMetaType::BONES },
-      { "NPC", SpriteFactory::SpriteMetaType::NPC },
-      { "DETONATED", SpriteFactory::SpriteMetaType::DETONATED },
-      { "PLAYER", SpriteFactory::SpriteMetaType::PLAYER },
-      { "BOMB", SpriteFactory::SpriteMetaType::BOMB },
-      { "EXTRA_HEALTH", SpriteFactory::SpriteMetaType::EXTRA_HEALTH },
-      { "EXTRA_BOMBS", SpriteFactory::SpriteMetaType::EXTRA_BOMBS },
-      { "INFINI_BOMBS", SpriteFactory::SpriteMetaType::INFINI_BOMBS },
-      { "CHAIN_BOMBS", SpriteFactory::SpriteMetaType::CHAIN_BOMBS },
-      { "LOWER_WATER", SpriteFactory::SpriteMetaType::LOWER_WATER },
-      { "EXPLOSION", SpriteFactory::SpriteMetaType::EXPLOSION },
-      { "FOOTSTEPS", SpriteFactory::SpriteMetaType::FOOTSTEPS },
-      { "SINKHOLE", SpriteFactory::SpriteMetaType::SINKHOLE },
-      { "CORRUPTION", SpriteFactory::SpriteMetaType::CORRUPTION },
-      { "WORMHOLE", SpriteFactory::SpriteMetaType::WORMHOLE },
-      { "PILLAR", SpriteFactory::SpriteMetaType::PILLAR },
-      { "PLINTH", SpriteFactory::SpriteMetaType::PLINTH } };
-
-  auto it = map.find( str );
-  if ( it != map.end() ) { return it->second; }
-  throw std::invalid_argument( "Unknown sprite type: " + str );
 }
 
 } // namespace ProceduralMaze::Sprites

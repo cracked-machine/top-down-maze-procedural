@@ -144,16 +144,11 @@ void BombSystem::update()
       _obstacle_cmp.m_enabled = false;
 
       // replace the broken pot neighbour entities with a random loot component/sprite
-      if ( _obstacle_cmp.m_type == Sprites::SpriteFactory::SpriteMetaType::POT )
+      if ( _obstacle_cmp.m_type == "POT" )
       {
         auto &sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
         auto [obstacle_type, random_obstacle_texture_index] = sprite_factory->get_random_type_and_texture_index(
-            std::vector<Sprites::SpriteFactory::SpriteMetaType>{
-                Sprites::SpriteFactory::SpriteMetaType::EXTRA_HEALTH,
-                Sprites::SpriteFactory::SpriteMetaType::EXTRA_BOMBS,
-                Sprites::SpriteFactory::SpriteMetaType::INFINI_BOMBS,
-                Sprites::SpriteFactory::SpriteMetaType::CHAIN_BOMBS,
-                Sprites::SpriteFactory::SpriteMetaType::LOWER_WATER } );
+            std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "LOWER_WATER" } );
         m_reg->emplace_or_replace<Cmp::Loot>( _entt, obstacle_type, random_obstacle_texture_index );
       }
     }

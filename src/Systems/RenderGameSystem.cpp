@@ -207,33 +207,32 @@ void RenderGameSystem::render_floormap( const sf::Vector2f &offset )
 void RenderGameSystem::render_large_obstacles()
 {
 
-  auto large_obst_view = m_reg->view<Cmp::LargeObstacle, Cmp::Position>();
-  for ( auto [entity, large_obst_cmp, pos_cmp] : large_obst_view.each() )
-  {
-    sf::RectangleShape square( large_obst_cmp.size );
-    square.setFillColor( sf::Color::Transparent );
-    square.setOutlineColor( sf::Color::Red );
-    square.setOutlineThickness( 2.f );
-    square.setPosition( pos_cmp );
-    getWindow().draw( square );
-  }
+  // auto large_obst_view = m_reg->view<Cmp::LargeObstacle, Cmp::Position>();
+  // for ( auto [entity, large_obst_cmp, pos_cmp] : large_obst_view.each() )
+  // {
+  //   sf::RectangleShape square( large_obst_cmp.size );
+  //   square.setFillColor( sf::Color::Transparent );
+  //   square.setOutlineColor( sf::Color::Red );
+  //   square.setOutlineThickness( 2.f );
+  //   square.setPosition( pos_cmp );
+  //   getWindow().draw( square );
+  // }
 
   auto reserved_view = m_reg->view<Cmp::ReservedPosition>();
   for ( auto [entity, reserved_cmp] : reserved_view.each() )
   {
+    // Render any grave sprite if used by this reserved position
+    // 'm_grave_map' contains:
+    // first: SpriteMetaType
+    // second: optional MultiSprite
+    if ( auto it = m_grave_ms_map.find( reserved_cmp.m_type ); it != m_grave_ms_map.end() && it->second.has_value() )
+    {
+      auto &sprite = it->second.value();
+      sprite.pick( reserved_cmp.m_sprite_index, "grave" );
+      sprite.setPosition( reserved_cmp );
+      getWindow().draw( sprite );
+    }
 
-    if ( reserved_cmp.m_type == Sprites::SpriteFactory::SpriteMetaType::PILLAR )
-    {
-      m_pillar_ms->pick( reserved_cmp.m_sprite_index, "Pillar" );
-      m_pillar_ms->setPosition( reserved_cmp );
-      getWindow().draw( *m_pillar_ms );
-    }
-    if ( reserved_cmp.m_type == Sprites::SpriteFactory::SpriteMetaType::PLINTH )
-    {
-      m_plinth_ms->pick( reserved_cmp.m_sprite_index, "Plinth" );
-      m_plinth_ms->setPosition( reserved_cmp );
-      getWindow().draw( *m_plinth_ms );
-    }
     if ( reserved_cmp.m_solid_mask )
     {
       SPDLOG_TRACE( "Rendering Cmp::ReservedPosition at ({}, {})", reserved_cmp.x, reserved_cmp.y );
@@ -265,19 +264,11 @@ void RenderGameSystem::render_small_obstacles()
   {
     if ( obstacle_cmp.m_enabled )
     {
-      switch ( obstacle_cmp.m_type )
+      if ( obstacle_cmp.m_type == "ROCK" ) { rockPositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index ); }
+      else if ( obstacle_cmp.m_type == "POT" ) { potPositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index ); }
+      else if ( obstacle_cmp.m_type == "BONES" )
       {
-        case Sprites::SpriteFactory::SpriteMetaType::ROCK:
-          rockPositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index );
-          break;
-        case Sprites::SpriteFactory::SpriteMetaType::POT:
-          potPositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index );
-          break;
-        case Sprites::SpriteFactory::SpriteMetaType::BONES:
-          bonePositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index );
-          break;
-        default:
-          break;
+        bonePositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index );
       }
     }
 
@@ -450,35 +441,41 @@ void RenderGameSystem::render_loot()
   auto loot_view = m_reg->view<Cmp::Obstacle, Cmp::Loot, Cmp::Position>();
   for ( auto [entity, obstacles, loot, position] : loot_view.each() )
   {
-    switch ( loot.m_type )
+
+    if ( loot.m_type == "EXTRA_HEALTH" )
     {
-      case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::EXTRA_HEALTH:
-        m_extra_health_ms->setPosition( position );
-        m_extra_health_ms->pick( loot.m_tile_index, "EXTRA_HEALTH" );
-        getWindow().draw( *m_extra_health_ms );
-        break;
-      case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::EXTRA_BOMBS:
-        m_extra_bombs_ms->setPosition( position );
-        m_extra_bombs_ms->pick( loot.m_tile_index, "EXTRA_BOMBS" );
-        getWindow().draw( *m_extra_bombs_ms );
-        break;
-      case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::INFINI_BOMBS:
-        m_infinite_bombs_ms->setPosition( position );
-        m_infinite_bombs_ms->pick( loot.m_tile_index, "INFINI_BOMBS" );
-        getWindow().draw( *m_infinite_bombs_ms );
-        break;
-      case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::CHAIN_BOMBS:
-        m_chain_bombs_ms->setPosition( position );
-        m_chain_bombs_ms->pick( loot.m_tile_index, "CHAIN_BOMBS" );
-        getWindow().draw( *m_chain_bombs_ms );
-        break;
-      case ProceduralMaze::Sprites::SpriteFactory::SpriteMetaType::LOWER_WATER:
-        m_lower_water_ms->setPosition( position );
-        m_lower_water_ms->pick( loot.m_tile_index, "LOWER_WATER" );
-        getWindow().draw( *m_lower_water_ms );
-        break;
-      default:
-        break;
+      m_extra_health_ms->setPosition( position );
+      m_extra_health_ms->pick( loot.m_tile_index, "EXTRA_HEALTH" );
+      getWindow().draw( *m_extra_health_ms );
+    }
+    else if ( loot.m_type == "EXTRA_BOMBS" )
+    {
+      m_extra_bombs_ms->setPosition( position );
+      m_extra_bombs_ms->pick( loot.m_tile_index, "EXTRA_BOMBS" );
+      getWindow().draw( *m_extra_bombs_ms );
+    }
+    else if ( loot.m_type == "INFINI_BOMBS" )
+    {
+      m_infinite_bombs_ms->setPosition( position );
+      m_infinite_bombs_ms->pick( loot.m_tile_index, "INFINI_BOMBS" );
+      getWindow().draw( *m_infinite_bombs_ms );
+    }
+    else if ( loot.m_type == "CHAIN_BOMBS" )
+    {
+      m_chain_bombs_ms->setPosition( position );
+      m_chain_bombs_ms->pick( loot.m_tile_index, "CHAIN_BOMBS" );
+      getWindow().draw( *m_chain_bombs_ms );
+    }
+    else if ( loot.m_type == "LOWER_WATER" )
+    {
+      m_lower_water_ms->setPosition( position );
+      m_lower_water_ms->pick( loot.m_tile_index, "LOWER_WATER" );
+      getWindow().draw( *m_lower_water_ms );
+    }
+    else
+    {
+      // Handle unknown loot types
+      SPDLOG_WARN( "Unknown loot type: {}", loot.m_type );
     }
   }
 }
@@ -782,29 +779,37 @@ void RenderGameSystem::load_multisprites()
 {
   using namespace Sprites;
   auto &factory = get_persistent_component<std::shared_ptr<SpriteFactory>>();
-  m_rock_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::ROCK );
-  m_pot_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::POT );
-  m_bone_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::BONES );
-  m_detonation_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::DETONATED );
-  m_bomb_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::BOMB );
-  m_wall_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::WALL );
-  m_player_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::PLAYER );
-  m_npc_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::NPC );
-  m_extra_health_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXTRA_HEALTH );
-  m_extra_bombs_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXTRA_BOMBS );
-  m_infinite_bombs_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::INFINI_BOMBS );
-  m_chain_bombs_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::CHAIN_BOMBS );
-  m_lower_water_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::LOWER_WATER );
-  m_explosion_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXPLOSION );
-  m_footsteps_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::FOOTSTEPS );
-  m_sinkhole_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::SINKHOLE );
-  m_corruption_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::CORRUPTION );
-  m_wormhole_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::WORMHOLE );
-  m_pillar_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::PILLAR );
-  m_plinth_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::PLINTH );
+  m_rock_ms = factory->get_multisprite_by_type( "ROCK" );
+  m_pot_ms = factory->get_multisprite_by_type( "POT" );
+  m_bone_ms = factory->get_multisprite_by_type( "BONES" );
+  m_detonation_ms = factory->get_multisprite_by_type( "DETONATED" );
+  m_bomb_ms = factory->get_multisprite_by_type( "BOMB" );
+  m_wall_ms = factory->get_multisprite_by_type( "WALL" );
+  m_player_ms = factory->get_multisprite_by_type( "PLAYER" );
+  m_npc_ms = factory->get_multisprite_by_type( "NPC" );
+  m_extra_health_ms = factory->get_multisprite_by_type( "EXTRA_HEALTH" );
+  m_extra_bombs_ms = factory->get_multisprite_by_type( "EXTRA_BOMBS" );
+  m_infinite_bombs_ms = factory->get_multisprite_by_type( "INFINI_BOMBS" );
+  m_chain_bombs_ms = factory->get_multisprite_by_type( "CHAIN_BOMBS" );
+  m_lower_water_ms = factory->get_multisprite_by_type( "LOWER_WATER" );
+  m_explosion_ms = factory->get_multisprite_by_type( "EXPLOSION" );
+  m_footsteps_ms = factory->get_multisprite_by_type( "FOOTSTEPS" );
+  m_sinkhole_ms = factory->get_multisprite_by_type( "SINKHOLE" );
+  m_corruption_ms = factory->get_multisprite_by_type( "CORRUPTION" );
+  m_wormhole_ms = factory->get_multisprite_by_type( "WORMHOLE" );
+
+  for ( auto type : factory->get_all_sprite_types_by_pattern( "GRAVE" ) )
+  {
+    m_grave_ms_map[type] = std::nullopt;
+  }
+  for ( auto &[type, sprite_opt] : m_grave_ms_map )
+  {
+    sprite_opt = factory->get_multisprite_by_type( type );
+  }
 
   // we should ensure these MultiSprites are initialized before continuing
   std::string err_msg;
+  // clang-format off
   if ( !m_rock_ms ) { err_msg = "Unable to get ROCK from SpriteFactory"; }
   if ( !m_pot_ms ) { err_msg = "Unable to get POT from SpriteFactory"; }
   if ( !m_bone_ms ) { err_msg = "Unable to get BONE from SpriteFactory"; }
@@ -823,8 +828,12 @@ void RenderGameSystem::load_multisprites()
   if ( !m_sinkhole_ms ) { err_msg = "Unable to get SINKHOLE from SpriteFactory"; }
   if ( !m_corruption_ms ) { err_msg = "Unable to get CORRUPTION from SpriteFactory"; }
   if ( !m_wormhole_ms ) { err_msg = "Unable to get WORMHOLE from SpriteFactory"; }
-  if ( !m_pillar_ms ) { err_msg = "Unable to get PILLAR from SpriteFactory"; }
-  if ( !m_plinth_ms ) { err_msg = "Unable to get PLINTH from SpriteFactory"; }
+
+  for( const auto& [type, sprite_opt] : m_grave_ms_map )
+  {
+      if ( !sprite_opt ) { err_msg = "Unable to get " + type + " from SpriteFactory"; }
+  }
+  // clang-format on
 
   if ( !err_msg.empty() )
   {

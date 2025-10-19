@@ -5,6 +5,7 @@
 #include <ProcGen/RandomLevelGenerator.hpp>
 #include <ReservedPosition.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <SpriteFactory.hpp>
 #include <Wall.hpp>
 
 namespace ProceduralMaze::Sys::ProcGen {
@@ -41,9 +42,11 @@ void RandomLevelGenerator::gen_positions()
 }
 
 void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprite> large_obstacle_sprite,
-                                               Sprites::SpriteFactory::SpriteMetaType sprite_meta_type )
+                                               Sprites::SpriteFactory::SpriteMetaType sprite_meta_type,
+                                               unsigned long seed )
 {
-  auto [random_entity, random_origin_position] = get_random_position( {}, {}, 4 );
+  // make sure the new large obstacle does not overlap with existing large obstacles
+  auto [random_entity, random_origin_position] = get_random_position( {}, ExcludePack<Cmp::ReservedPosition>{}, seed );
 
   if ( random_entity != entt::null && large_obstacle_sprite.has_value() )
   {
@@ -54,12 +57,14 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
     m_reg->emplace_or_replace<Cmp::LargeObstacle>( random_entity, sprite_meta_type, random_origin_position,
                                                    large_obst_grid_size.componentWiseMul( kDefaultSpriteDimensions ) );
 
-    SPDLOG_INFO( "Placed large obstacle at position ({}, {}). Grid size: {}x{}", random_origin_position.x,
+    auto sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
+    SPDLOG_INFO( "Placed large obstacle ({}) at position ({}, {}). Grid size: {}x{}",
+                 sprite_factory->get_spritedata_type_string( sprite_meta_type ), random_origin_position.x,
                  random_origin_position.y, large_obst_grid_size.width, large_obst_grid_size.height );
     auto new_large_obst_cmp = m_reg->get<Cmp::LargeObstacle>( random_entity );
 
-    SPDLOG_INFO( "Large obstacle bounds: left={}, top={}, width={}, height={}", new_large_obst_cmp.position.x,
-                 new_large_obst_cmp.position.y, new_large_obst_cmp.size.x, new_large_obst_cmp.size.y );
+    SPDLOG_DEBUG( "Large obstacle bounds: left={}, top={}, width={}, height={}", new_large_obst_cmp.position.x,
+                  new_large_obst_cmp.position.y, new_large_obst_cmp.size.x, new_large_obst_cmp.size.y );
 
     // find any position-owning entities that intersect
     // with the new large obstacle and mark them as reserved
@@ -73,13 +78,13 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
         // Calculate relative pixel positions within the large obstacle grid
         float rel_x = pos_cmp.x - random_origin_position.x;
         float rel_y = pos_cmp.y - random_origin_position.y;
-        SPDLOG_INFO( "Reserving position at ({}, {}) within large obstacle at ({}, {})", pos_cmp.x, pos_cmp.y,
-                     random_origin_position.x, random_origin_position.y );
+        SPDLOG_DEBUG( "Reserving position at ({}, {}) within large obstacle at ({}, {})", pos_cmp.x, pos_cmp.y,
+                      random_origin_position.x, random_origin_position.y );
 
         // Convert to grid coordinates
         int grid_x = static_cast<int>( rel_x / kDefaultSpriteDimensions.x );
         int grid_y = static_cast<int>( rel_y / kDefaultSpriteDimensions.y );
-        SPDLOG_INFO( "Relative grid position: ({}, {})", grid_x, grid_y );
+        SPDLOG_DEBUG( "Relative grid position: ({}, {})", grid_x, grid_y );
 
         // Calculate linear array index using relative grid distance from the origin grid position [0,0].
         // We can then use the index to look up the sprite and solid mask in the large obstacle sprite object
@@ -98,10 +103,10 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
         // Bottom-right position: grid_y=1, grid_x=3 → sprite_index = 1 * 4 + 3 = 7
         int calculated_grid_index = grid_y * large_obst_grid_size.width + grid_x;
 
-        SPDLOG_INFO( "Calculated sprite index: {}", calculated_grid_index );
+        SPDLOG_DEBUG( "Calculated sprite index: {}", calculated_grid_index );
 
-        SPDLOG_INFO( "Adding Cmp::ReservedPosition at ({}, {}) with sprite_index {}", pos_cmp.x, pos_cmp.y,
-                     calculated_grid_index );
+        SPDLOG_DEBUG( "Adding Cmp::ReservedPosition at ({}, {}) with sprite_index {}", pos_cmp.x, pos_cmp.y,
+                      calculated_grid_index );
         m_reg->emplace_or_replace<Cmp::ReservedPosition>(
             entity, pos_cmp, large_obstacle_sprite->get_solid_mask()[calculated_grid_index], sprite_meta_type,
             calculated_grid_index );
@@ -112,39 +117,42 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
 
 void RandomLevelGenerator::gen_large_obstacles()
 {
+
   auto sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
 
-  auto pillar_sprite_metatype = Sprites::SpriteFactory::SpriteMetaType::PILLAR;
-  auto pillar_sprite = sprite_factory->get_multisprite_by_type( pillar_sprite_metatype );
-  // gen_large_obstacle( pillar_sprite, pillar_sprite_metatype );
+  // Get all available grave types dynamically from JSON
+  auto grave_meta_types = sprite_factory->get_all_sprite_types_by_pattern( "GRAVE" );
 
-  auto plinth_sprite_metatype = Sprites::SpriteFactory::SpriteMetaType::PLINTH;
-  auto plinth_sprite = sprite_factory->get_multisprite_by_type( plinth_sprite_metatype );
-  gen_large_obstacle( plinth_sprite, plinth_sprite_metatype );
+  for ( std::size_t i = 0; i < 10; ++i )
+  {
+    // Use the dynamically discovered grave types
+    auto [altar_sprite_metatype, unused_index] = sprite_factory->get_random_type_and_texture_index( grave_meta_types );
+    auto altar_sprite = sprite_factory->get_multisprite_by_type( altar_sprite_metatype );
+    gen_large_obstacle( altar_sprite, altar_sprite_metatype, 0 );
+  }
 }
 
 void RandomLevelGenerator::gen_small_obstacles()
 {
   using namespace Sprites;
-  using SpriteMetaType = SpriteFactory::SpriteMetaType;
+  auto sprite_factory = get_persistent_component<std::shared_ptr<SpriteFactory>>();
 
-  auto position_view = m_reg->view<Cmp::Position>( entt::exclude<Cmp::PlayableCharacter> );
+  auto position_view = m_reg->view<Cmp::Position>( entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
   for ( auto [entity, pos] : position_view.each() )
   {
 
     // pick a random obstacle type and texture index
-    auto sprite_factory = get_persistent_component<std::shared_ptr<SpriteFactory>>();
 
-    auto [obst_type, rand_obst_tex_idx] = sprite_factory->get_random_type_and_texture_index(
-        { SpriteMetaType::ROCK, SpriteMetaType::POT, SpriteMetaType::BONES } );
+    auto [obst_type,
+          rand_obst_tex_idx] = sprite_factory->get_random_type_and_texture_index( { "ROCK", "POT", "BONES" } );
 
     // disable the obstacle if the position is reserved
-    auto reserved_pos_cmp = m_reg->try_get<Cmp::ReservedPosition>( entity );
-    if ( not reserved_pos_cmp )
-    {
-      m_reg->emplace<Cmp::Obstacle>( entity, obst_type, rand_obst_tex_idx, m_activation_selector.gen() );
-      m_reg->emplace<Cmp::Neighbours>( entity );
-    }
+    // auto reserved_pos_cmp = m_reg->try_get<Cmp::ReservedPosition>( entity );
+    // if ( not reserved_pos_cmp )
+    // {
+    m_reg->emplace<Cmp::Obstacle>( entity, obst_type, rand_obst_tex_idx, m_activation_selector.gen() );
+    m_reg->emplace<Cmp::Neighbours>( entity );
+    // }
   }
 }
 
@@ -208,14 +216,14 @@ void RandomLevelGenerator::add_wall_entity( const sf::Vector2f &pos, std::size_t
 {
   auto entity = m_reg->create();
   m_reg->emplace<Cmp::Position>( entity, pos );
-  m_reg->emplace<Cmp::Wall>( entity, Sprites::SpriteFactory::SpriteMetaType::WALL, sprite_index );
+  m_reg->emplace<Cmp::Wall>( entity, "WALL", sprite_index );
 }
 
 void RandomLevelGenerator::add_door_entity( const sf::Vector2f &pos, std::size_t sprite_index, bool is_exit )
 {
   auto entity = m_reg->create();
   m_reg->emplace<Cmp::Position>( entity, pos );
-  m_reg->emplace<Cmp::Door>( entity, Sprites::SpriteFactory::SpriteMetaType::WALL, sprite_index );
+  m_reg->emplace<Cmp::Door>( entity, "WALL", sprite_index );
   if ( is_exit ) m_reg->emplace<Cmp::Exit>( entity );
 }
 

@@ -5,6 +5,7 @@
 #include <Persistent/WormholeSeed.hpp>
 #include <PlayableCharacter.hpp>
 #include <RandomCoord.hpp>
+#include <ReservedPosition.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SpriteAnimation.hpp>
 #include <Wall.hpp>
@@ -32,8 +33,8 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   unsigned long seed = 0;
   if ( phase == SpawnPhase::InitialSpawn ) seed = get_persistent_component<Cmp::Persistent::WormholeSeed>()();
   auto [random_entity, random_position] = get_random_position(
-      IncludePack<Cmp::Obstacle>{}, ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>{},
-      seed );
+      IncludePack<Cmp::Obstacle>{},
+      ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, seed );
 
   // 3. set the entities obstacle component to "broken" so we have something for the shader effect to mangle
   auto obstacle_cmp = m_reg->try_get<Cmp::Obstacle>( random_entity );

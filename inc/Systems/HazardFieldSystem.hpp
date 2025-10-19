@@ -131,7 +131,7 @@ public:
 
     auto hazard_field_view = m_reg->view<HazardType, Cmp::Position>();
     auto hazard_field_hitbox_size = sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions };
-    auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
+    auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::ReservedPosition> );
     auto obstacle_hitbox_size = sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions };
     Cmp::Random hazard_field_spread_picker = Cmp::Random( 0, 7 ); // 1 in 8 chance for picking an adjacent obstacle
 

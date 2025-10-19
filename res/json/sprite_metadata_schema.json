@@ -26,13 +26,25 @@
         "SINKHOLE": { "$ref": "#/definitions/spriteMetadata" },
         "CORRUPTION": { "$ref": "#/definitions/spriteMetadata" },
         "WORMHOLE": { "$ref": "#/definitions/spriteMetadata" },
-        "PILLAR": { "$ref": "#/definitions/spriteMetadata" },
-        "PLINTH": { "$ref": "#/definitions/spriteMetadata" }
+        "GRAVE1": { "$ref": "#/definitions/spriteMetadata" },
+        "GRAVE2": { "$ref": "#/definitions/spriteMetadata" },
+        "GRAVE3": { "$ref": "#/definitions/spriteMetadata" },
+        "GRAVE4": { "$ref": "#/definitions/spriteMetadata" },
+        "GRAVE5": { "$ref": "#/definitions/spriteMetadata" },
+        "GRAVE6": { "$ref": "#/definitions/spriteMetadata" },
+        "GRAVE7": { "$ref": "#/definitions/spriteMetadata" },
+        "GRAVE8": { "$ref": "#/definitions/spriteMetadata" },
+        "GRAVE9": { "$ref": "#/definitions/spriteMetadata" },
+        "GRAVE10": { "$ref": "#/definitions/spriteMetadata" },
+        "GRAVE11": { "$ref": "#/definitions/spriteMetadata" },
+        "GRAVE12": { "$ref": "#/definitions/spriteMetadata" }
       },
       "required": [
         "WALL", "ROCK", "POT", "BONES", "NPC", "DETONATED", "PLAYER", "BOMB",
         "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", 
-        "LOWER_WATER", "EXPLOSION", "FOOTSTEPS", "SINKHOLE", "CORRUPTION", "WORMHOLE", "PILLAR", "PLINTH"
+        "LOWER_WATER", "EXPLOSION", "FOOTSTEPS", "SINKHOLE", "CORRUPTION", "WORMHOLE",
+        "GRAVE1", "GRAVE2", "GRAVE3", "GRAVE4", "GRAVE5", "GRAVE6", "GRAVE7", "GRAVE8",
+        "GRAVE9", "GRAVE10", "GRAVE11", "GRAVE12"
       ],
       "additionalProperties": false
     }

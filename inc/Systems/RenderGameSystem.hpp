@@ -11,6 +11,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <Systems/RenderSystem.hpp>
 #include <ViewFragmentShader.hpp>
+#include <unordered_map>
 
 namespace ProceduralMaze::Sys {
 
@@ -89,8 +90,8 @@ private:
   std::optional<Sprites::MultiSprite> m_corruption_ms;
   std::optional<Sprites::MultiSprite> m_wormhole_ms;
 
-  std::optional<Sprites::MultiSprite> m_pillar_ms;
-  std::optional<Sprites::MultiSprite> m_plinth_ms;
+  // multiblock grave sprites
+  std::unordered_map<Sprites::SpriteFactory::SpriteMetaType, std::optional<Sprites::MultiSprite>> m_grave_ms_map;
 };
 
 } // namespace ProceduralMaze::Sys

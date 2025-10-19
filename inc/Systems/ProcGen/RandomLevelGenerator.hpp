@@ -32,11 +32,10 @@ public:
 
   void gen_positions();
   void gen_large_obstacle( std::optional<Sprites::MultiSprite> large_obstacle_sprite,
-                           Sprites::SpriteFactory::SpriteMetaType );
+                           Sprites::SpriteFactory::SpriteMetaType, unsigned long seed );
   void gen_large_obstacles();
 
-  // These obstacles in the game map area.
-  // The enabled status and texture of each one is picked randomly
+  // Iterate all position (excluding playable characters) and randomly assign small obstacles
   void gen_small_obstacles();
 
   // These obstacles are for the map border.

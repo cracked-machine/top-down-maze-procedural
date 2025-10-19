@@ -44,7 +44,7 @@ void CollisionSystem::check_bones_reanimation()
     auto player_hitbox = get_hitbox( _pc_pos );
     for ( auto [_obstacle_entt, _obstacle, _obstacle_pos] : obstacle_collision_view.each() )
     {
-      if ( _obstacle.m_type != Sprites::SpriteFactory::SpriteMetaType::BONES || not _obstacle.m_enabled ) continue;
+      if ( _obstacle.m_type != "BONES" || not _obstacle.m_enabled ) continue;
 
       auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NpcActivateScale>();
       // we just create a temporary RectBounds here instead of a component because we only need it for
@@ -54,8 +54,7 @@ void CollisionSystem::check_bones_reanimation()
       if ( player_hitbox.findIntersection( npc_activate_bounds.getBounds() ) )
       {
         // dont really care what obstacle this becomes as long as its disabled.
-        m_reg->emplace_or_replace<Cmp::Obstacle>( _obstacle_entt, Sprites::SpriteFactory::SpriteMetaType::BONES, 0,
-                                                  false );
+        m_reg->emplace_or_replace<Cmp::Obstacle>( _obstacle_entt, "BONES", 0, false );
         getEventDispatcher().trigger( Events::NpcCreationEvent( _obstacle_pos ) );
       }
     }
@@ -198,38 +197,29 @@ void CollisionSystem::check_loot_collision()
     auto &_pc = m_reg->get<Cmp::PlayableCharacter>( effect.player_entity );
 
     // Apply the effect
-    switch ( effect.type )
+    if ( effect.type == "EXTRA_HEALTH" )
     {
-      case Sprites::SpriteFactory::SpriteMetaType::EXTRA_HEALTH: {
-        auto &health_bonus = get_persistent_component<Cmp::Persistent::HealthBonus>();
-        _pc.health = std::min( _pc.health + health_bonus(), 100 );
-        break;
-      }
-      case Sprites::SpriteFactory::SpriteMetaType::EXTRA_BOMBS: {
-        auto &bomb_bonus = get_persistent_component<Cmp::Persistent::BombBonus>();
-        if ( _pc.bomb_inventory >= 0 ) _pc.bomb_inventory += bomb_bonus();
-        break;
-      }
-      case Sprites::SpriteFactory::SpriteMetaType::LOWER_WATER: {
-        auto &water_bonus = get_persistent_component<Cmp::Persistent::WaterBonus>();
-        for ( auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each() )
-        {
-          water_level.m_level = std::min( water_level.m_level + water_bonus(), static_cast<float>( kDisplaySize.y ) );
-          break;
-        }
-        break;
-      }
-      case Sprites::SpriteFactory::SpriteMetaType::INFINI_BOMBS:
-        _pc.bomb_inventory = -1;
-        break;
-
-      case Sprites::SpriteFactory::SpriteMetaType::CHAIN_BOMBS:
-        _pc.blast_radius = std::clamp( _pc.blast_radius + 1, 0, 3 );
-        break;
-
-      default:
-        break;
+      auto &health_bonus = get_persistent_component<Cmp::Persistent::HealthBonus>();
+      _pc.health = std::min( _pc.health + health_bonus(), 100 );
     }
+    else if ( effect.type == "EXTRA_BOMBS" )
+    {
+      auto &bomb_bonus = get_persistent_component<Cmp::Persistent::BombBonus>();
+      if ( _pc.bomb_inventory >= 0 ) _pc.bomb_inventory += bomb_bonus();
+    }
+    else if ( effect.type == "LOWER_WATER" )
+    {
+      auto &water_bonus = get_persistent_component<Cmp::Persistent::WaterBonus>();
+      for ( auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each() )
+      {
+        water_level.m_level = std::min( water_level.m_level + water_bonus(), static_cast<float>( kDisplaySize.y ) );
+        break;
+      }
+      break;
+    }
+
+    else if ( effect.type == "INFINI_BOMBS" ) { _pc.bomb_inventory = -1; }
+    else if ( effect.type == "CHAIN_BOMBS" ) { _pc.blast_radius = std::clamp( _pc.blast_radius + 1, 0, 3 ); }
 
     // Remove the loot entity
     if ( m_reg->valid( effect.loot_entity ) ) { m_reg->erase<Cmp::Loot>( effect.loot_entity ); }

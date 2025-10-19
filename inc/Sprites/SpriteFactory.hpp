@@ -11,6 +11,7 @@
 #include <Sprites/MultiSprite.hpp>
 
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include <nlohmann/json.hpp>
@@ -26,29 +27,8 @@ class SpriteFactory
 public:
   SpriteFactory();
 
-  enum class SpriteMetaType
-  {
-    WALL = 0,
-    ROCK = 1,
-    POT = 2,
-    BONES = 3,
-    DETONATED = 4,
-    PLAYER = 5,
-    BOMB = 6,
-    EXTRA_HEALTH = 7,
-    EXTRA_BOMBS = 8,
-    INFINI_BOMBS = 9,
-    CHAIN_BOMBS = 10,
-    LOWER_WATER = 11,
-    NPC = 12,
-    EXPLOSION = 13,
-    FOOTSTEPS = 14,
-    SINKHOLE = 15,
-    CORRUPTION = 16,
-    WORMHOLE = 17,
-    PILLAR = 18,
-    PLINTH = 19
-  };
+  // Use string-based sprite type instead of enum
+  using SpriteMetaType = std::string;
 
 private:
   // This holds sprite type, tilemap texture path and tilemap indices in a
@@ -60,14 +40,7 @@ private:
     ProceduralMaze::Sprites::MultiSprite m_multisprite{};
   };
 
-  /**
-   * @brief Map storing metadata for different sprite types.
-   *
-   * This unordered map associates each SpriteMetaType with its corresponding
-   * SpriteMetaData, providing efficient lookup of sprite configuration data
-   * such as texture paths, dimensions, animation frames, or other sprite
-   * properties needed for sprite creation and management.
-   */
+  // string keys read from JSON
   std::unordered_map<SpriteMetaType, SpriteMetaData> m_sprite_metadata_map{};
 
 public:
@@ -93,6 +66,9 @@ public:
   std::pair<SpriteMetaType, std::size_t> get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list,
                                                                             std::vector<float> weights = {} ) const;
 
+  // Starts with the given pattern
+  std::vector<SpriteFactory::SpriteMetaType> get_all_sprite_types_by_pattern( const std::string &pattern ) const;
+
   /**
    * @brief Retrieves a MultiSprite object based on the specified sprite meta type.
    *
@@ -103,7 +79,7 @@ public:
    * @param type The SpriteMetaType to search for
    * @return std::optional<Sprites::MultiSprite> The MultiSprite if found, std::nullopt otherwise
    */
-  std::optional<Sprites::MultiSprite> get_multisprite_by_type( SpriteMetaType type ) const;
+  std::optional<Sprites::MultiSprite> get_multisprite_by_type( const SpriteMetaType &type ) const;
 
   /**
    * @brief Converts a SpriteMetaType enumeration value to its corresponding string representation.
@@ -116,7 +92,13 @@ public:
    * @param type The SpriteMetaType enumeration value to convert to string
    * @return std::string The string representation of the sprite meta type
    */
-  std::string get_spritedata_type_string( SpriteFactory::SpriteMetaType type ) const;
+  std::string get_spritedata_type_string( const SpriteFactory::SpriteMetaType &type ) const;
+
+  // Get all available sprite types from JSON
+  std::vector<SpriteMetaType> get_all_sprite_types() const;
+
+  // Check if a sprite type exists
+  bool has_sprite_type( const SpriteMetaType &type ) const;
 
 private:
   // get metadata by type
@@ -131,15 +113,11 @@ private:
    * @return std::optional<SpriteMetaData> containing the sprite metadata if found,
    *         or std::nullopt if no metadata exists for the given type
    */
-  std::optional<SpriteMetaData> get_spritedata_by_type( SpriteMetaType type ) const;
+  std::optional<SpriteMetaData> get_spritedata_by_type( const SpriteMetaType &type ) const;
 
   // Internal use function used by get_random_type_and_texture_index()
   std::optional<SpriteMetaData> get_random_spritedata( std::vector<SpriteMetaType> type_list,
                                                        std::vector<float> weights = {} ) const;
-
-  // convert string to SpriteMetaType
-  SpriteFactory::SpriteMetaType string_to_sprite_type( const std::string &str ) const;
-
 }; // namespace ProceduralMaze::Sprites
 
 } // namespace ProceduralMaze::Sprites

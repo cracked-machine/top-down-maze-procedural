@@ -28,7 +28,7 @@ void AnimSystem::update( sf::Time deltaTime )
     if ( lerp_pos_cmp.m_lerp_factor > 0.f )
     {
       auto &factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
-      auto npc_sprite_metadata = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::NPC );
+      auto npc_sprite_metadata = factory->get_multisprite_by_type( "NPC" );
       auto sprites_per_frame = npc_sprite_metadata->get_sprites_per_frame();
       auto sprites_per_sequence = npc_sprite_metadata->get_sprites_per_sequence();
       auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::NpcAnimFramerate>()() );
@@ -44,7 +44,7 @@ void AnimSystem::update( sf::Time deltaTime )
     if ( dir_cmp != sf::Vector2f( 0.f, 0.f ) )
     {
       auto &factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
-      auto player_sprite_metadata = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::PLAYER );
+      auto player_sprite_metadata = factory->get_multisprite_by_type( "PLAYER" );
       auto sprites_per_frame = player_sprite_metadata->get_sprites_per_frame();
       auto sprites_per_sequence = player_sprite_metadata->get_sprites_per_sequence();
       auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::PlayerAnimFramerate>()() );
@@ -58,7 +58,7 @@ void AnimSystem::update( sf::Time deltaTime )
   for ( auto [entity, wormhole_cmp, anim_cmp] : wormhole_view.each() )
   {
 
-    auto wormhole_sprite_metadata = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::WORMHOLE );
+    auto wormhole_sprite_metadata = factory->get_multisprite_by_type( "WORMHOLE" );
     auto sprites_per_frame = wormhole_sprite_metadata->get_sprites_per_frame();
     auto sprites_per_sequence = wormhole_sprite_metadata->get_sprites_per_sequence();
     auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::WormholeAnimFramerate>()() );
@@ -70,7 +70,7 @@ void AnimSystem::update( sf::Time deltaTime )
   auto explosion_view = m_reg->view<Cmp::NpcDeathPosition, Cmp::SpriteAnimation>();
   for ( auto [entity, explosion_cmp, anim_cmp] : explosion_view.each() )
   {
-    auto explosion_sprite_metadata = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::EXPLOSION );
+    auto explosion_sprite_metadata = factory->get_multisprite_by_type( "EXPLOSION" );
     auto sprites_per_frame = explosion_sprite_metadata->get_sprites_per_frame();
     auto sprites_per_sequence = explosion_sprite_metadata->get_sprites_per_sequence();
     auto frame_rate = sf::seconds( m_reg->ctx().get<Cmp::Persistent::NpcDeathAnimFramerate>()() );
