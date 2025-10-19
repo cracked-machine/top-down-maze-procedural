@@ -164,7 +164,7 @@ void CollisionSystem::check_loot_collision()
   struct LootEffect
   {
     entt::entity loot_entity;
-    Sprites::SpriteFactory::SpriteMetaType type;
+    Sprites::SpriteMetaType type;
     entt::entity player_entity;
   };
 

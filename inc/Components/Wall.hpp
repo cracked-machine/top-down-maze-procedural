@@ -16,12 +16,12 @@ namespace ProceduralMaze::Cmp {
 class Wall
 {
 public:
-  Wall( Sprites::SpriteFactory::SpriteMetaType type, std::size_t tile_index = 0 )
+  Wall( Sprites::SpriteMetaType type, std::size_t tile_index = 0 )
       : m_type( type ),
         m_tile_index( tile_index )
   {
   }
-  Sprites::SpriteFactory::SpriteMetaType m_type;
+  Sprites::SpriteMetaType m_type;
   uint32_t m_tile_index{ 0 };
 };
 

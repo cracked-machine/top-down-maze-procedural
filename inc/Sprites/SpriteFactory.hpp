@@ -28,14 +28,12 @@ public:
   SpriteFactory();
 
   // Use string-based sprite type instead of enum
-  using SpriteMetaType = std::string;
 
 private:
   // This holds sprite type, tilemap texture path and tilemap indices in a
   // single place
   struct SpriteMetaData
   {
-    std::string name;
     float weight;
     ProceduralMaze::Sprites::MultiSprite m_multisprite{};
   };
@@ -67,7 +65,7 @@ public:
                                                                             std::vector<float> weights = {} ) const;
 
   // Starts with the given pattern
-  std::vector<SpriteFactory::SpriteMetaType> get_all_sprite_types_by_pattern( const std::string &pattern ) const;
+  std::vector<SpriteMetaType> get_all_sprite_types_by_pattern( const std::string &pattern ) const;
 
   /**
    * @brief Retrieves a MultiSprite object based on the specified sprite meta type.
@@ -92,7 +90,7 @@ public:
    * @param type The SpriteMetaType enumeration value to convert to string
    * @return std::string The string representation of the sprite meta type
    */
-  std::string get_spritedata_type_string( const SpriteFactory::SpriteMetaType &type ) const;
+  std::string get_spritedata_type_string( const SpriteMetaType &type ) const;
 
   // Get all available sprite types from JSON
   std::vector<SpriteMetaType> get_all_sprite_types() const;

@@ -8,12 +8,12 @@ namespace ProceduralMaze::Cmp {
 
 struct LargeObstacle : public sf::FloatRect
 {
-  LargeObstacle( Sprites::SpriteFactory::SpriteMetaType type, const sf::Vector2f &position, const sf::Vector2f &size )
+  LargeObstacle( Sprites::SpriteMetaType type, const sf::Vector2f &position, const sf::Vector2f &size )
       : sf::FloatRect( position, size ),
         m_type( type )
   {
   }
-  Sprites::SpriteFactory::SpriteMetaType m_type;
+  Sprites::SpriteMetaType m_type;
 };
 
 } // namespace ProceduralMaze::Cmp

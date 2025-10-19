@@ -31,8 +31,8 @@ public:
   ~RandomLevelGenerator() = default;
 
   void gen_positions();
-  void gen_large_obstacle( std::optional<Sprites::MultiSprite> large_obstacle_sprite,
-                           Sprites::SpriteFactory::SpriteMetaType, unsigned long seed );
+  void gen_large_obstacle( std::optional<Sprites::MultiSprite> large_obstacle_sprite, Sprites::SpriteMetaType,
+                           unsigned long seed );
   void gen_large_obstacles();
 
   // Iterate all position (excluding playable characters) and randomly assign small obstacles

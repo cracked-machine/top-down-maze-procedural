@@ -18,6 +18,8 @@
 
 namespace ProceduralMaze::Sprites {
 
+using SpriteMetaType = std::string;
+
 typedef struct SpriteSize
 {
   unsigned int width{ 1 };
@@ -40,10 +42,12 @@ public:
    *
    * @throws std::runtime_error If the tilemap fails to load or is invalid
    */
-  explicit MultiSprite( const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks,
-                        SpriteSize grid_size = { 1, 1 }, unsigned int sprites_per_frame = 1,
-                        unsigned int sprites_per_sequence = 1, std::vector<bool> solid_mask = {} )
-      : m_grid_size{ grid_size.width, grid_size.height },
+  explicit MultiSprite( SpriteMetaType type, const std::filesystem::path &tilemap_path,
+                        const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size = { 1, 1 },
+                        unsigned int sprites_per_frame = 1, unsigned int sprites_per_sequence = 1,
+                        std::vector<bool> solid_mask = {} )
+      : m_sprite_type{ type },
+        m_grid_size{ grid_size.width, grid_size.height },
         m_sprites_per_frame{ sprites_per_frame },
         m_sprites_per_sequence{ sprites_per_sequence },
         m_solid_mask{ std::move( solid_mask ) }
@@ -97,9 +101,12 @@ public:
   static constexpr sf::Vector2u kDefaultSpriteDimensions{ 16, 16 };
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
 
+  SpriteMetaType get_sprite_type() const { return m_sprite_type; }
+
 private:
   bool add_sprite( const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks );
 
+  SpriteMetaType m_sprite_type;
   std::vector<sf::VertexArray> m_va_list;
 
   sf::VertexArray m_selected_vertices;
@@ -113,7 +120,7 @@ private:
   unsigned int m_sprites_per_sequence{ 1 };
 
   // Indicates which 'sprite_indices' the player cannot traverse. Array size must match sprite_indices size.
-  std::vector<bool> m_solid_mask;
+  std::vector<bool> m_solid_mask{};
 };
 
 } // namespace ProceduralMaze::Sprites

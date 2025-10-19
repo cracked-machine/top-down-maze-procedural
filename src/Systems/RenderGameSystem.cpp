@@ -255,7 +255,7 @@ void RenderGameSystem::render_large_obstacles()
       uint8_t new_alpha{ 255 };
       sf::Vector2f new_origin{ 0.f, 0.f };
       float new_angle{ 0.f };
-      safe_render_sprite( meta_type, reserved_cmp, new_idx, "grave", new_scale, new_alpha, new_origin,
+      safe_render_sprite( meta_type, reserved_cmp, new_idx, new_scale, new_alpha, new_origin,
                           sf::degrees( new_angle ) );
     }
 
@@ -304,7 +304,7 @@ void RenderGameSystem::render_small_obstacles()
   // Now draw each type in batches
   for ( const auto &[pos, idx] : rockPositions )
   {
-    safe_render_sprite( "ROCK", pos, idx, "Obstacle" );
+    safe_render_sprite( "ROCK", pos, idx );
     // sf::RectangleShape player_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
     // player_square.setFillColor( sf::Color::Transparent );
     // player_square.setOutlineColor( sf::Color::Red );
@@ -315,18 +315,18 @@ void RenderGameSystem::render_small_obstacles()
 
   for ( const auto &[pos, idx] : potPositions )
   {
-    safe_render_sprite( "POT", pos, idx, "Obstacle" );
+    safe_render_sprite( "POT", pos, idx );
   }
 
   for ( const auto &[pos, idx] : bonePositions )
   {
-    safe_render_sprite( "BONES", pos, idx, "Obstacle" );
+    safe_render_sprite( "BONES", pos, idx );
   }
 
   // "empty" sprite for detonated objects
   for ( const auto &pos : detonationPositions )
   {
-    safe_render_sprite( "DETONATED", pos, 0, "Detonated" );
+    safe_render_sprite( "DETONATED", pos, 0 );
   }
 }
 
@@ -341,7 +341,7 @@ void RenderGameSystem::render_sinkhole()
 
   for ( const auto &[pos, active] : sinkholePositions )
   {
-    safe_render_sprite( "SINKHOLE", pos, 0, "Sinkhole" );
+    safe_render_sprite( "SINKHOLE", pos, 0 );
   }
 }
 
@@ -356,7 +356,7 @@ void RenderGameSystem::render_corruption()
 
   for ( const auto &[pos, active] : corruptionPositions )
   {
-    safe_render_sprite( "CORRUPTION", pos, 0, "Corruption" );
+    safe_render_sprite( "CORRUPTION", pos, 0 );
   }
 }
 
@@ -395,7 +395,7 @@ void RenderGameSystem::render_wormhole()
 
           // Much cleaner: render to shader's render texture
           safe_render_sprite_to_target( m_wormhole_shader.get_render_texture(), "WORMHOLE", position_cmp + offset,
-                                        index, "Wormhole" );
+                                        index );
         }
       }
 
@@ -430,7 +430,7 @@ void RenderGameSystem::render_armed()
   auto all_armed_obstacles_view = m_reg->view<Cmp::Obstacle, Cmp::Armed, Cmp::Position>();
   for ( auto [entity, obstacle_cmp, armed_cmp, pos_cmp] : all_armed_obstacles_view.each() )
   {
-    if ( armed_cmp.m_display_bomb_sprite ) { safe_render_sprite( "BOMB", pos_cmp, 0, "Bomb" ); }
+    if ( armed_cmp.m_display_bomb_sprite ) { safe_render_sprite( "BOMB", pos_cmp, 0 ); }
 
     sf::RectangleShape temp_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
     temp_square.setPosition( pos_cmp );
@@ -461,26 +461,11 @@ void RenderGameSystem::render_loot()
   for ( auto [entity, obstacles, loot, position] : loot_view.each() )
   {
 
-    if ( loot.m_type == "EXTRA_HEALTH" )
-    {
-      safe_render_sprite( "EXTRA_HEALTH", position, loot.m_tile_index, "EXTRA_HEALTH" );
-    }
-    else if ( loot.m_type == "EXTRA_BOMBS" )
-    {
-      safe_render_sprite( "EXTRA_BOMBS", position, loot.m_tile_index, "EXTRA_BOMBS" );
-    }
-    else if ( loot.m_type == "INFINI_BOMBS" )
-    {
-      safe_render_sprite( "INFINI_BOMBS", position, loot.m_tile_index, "INFINI_BOMBS" );
-    }
-    else if ( loot.m_type == "CHAIN_BOMBS" )
-    {
-      safe_render_sprite( "CHAIN_BOMBS", position, loot.m_tile_index, "CHAIN_BOMBS" );
-    }
-    else if ( loot.m_type == "LOWER_WATER" )
-    {
-      safe_render_sprite( "LOWER_WATER", position, loot.m_tile_index, "LOWER_WATER" );
-    }
+    if ( loot.m_type == "EXTRA_HEALTH" ) { safe_render_sprite( "EXTRA_HEALTH", position, loot.m_tile_index ); }
+    else if ( loot.m_type == "EXTRA_BOMBS" ) { safe_render_sprite( "EXTRA_BOMBS", position, loot.m_tile_index ); }
+    else if ( loot.m_type == "INFINI_BOMBS" ) { safe_render_sprite( "INFINI_BOMBS", position, loot.m_tile_index ); }
+    else if ( loot.m_type == "CHAIN_BOMBS" ) { safe_render_sprite( "CHAIN_BOMBS", position, loot.m_tile_index ); }
+    else if ( loot.m_type == "LOWER_WATER" ) { safe_render_sprite( "LOWER_WATER", position, loot.m_tile_index ); }
     else
     {
       // Handle unknown loot types
@@ -501,7 +486,7 @@ void RenderGameSystem::render_walls()
     sf::Vector2f new_origin{ 0.f, 0.f };
     float angle{ 0.f };
 
-    safe_render_sprite( "WALL", pos_cmp, wall_cmp.m_tile_index, "wall", new_scale, new_alpha, new_origin,
+    safe_render_sprite( "WALL", pos_cmp, wall_cmp.m_tile_index, new_scale, new_alpha, new_origin,
                         sf::degrees( angle ) );
   }
 
@@ -515,7 +500,7 @@ void RenderGameSystem::render_walls()
     sf::Vector2f new_origin{ 0.f, 0.f };
     float angle{ 0.f };
 
-    safe_render_sprite( "WALL", pos_cmp, door_cmp.m_tile_index, "door", new_scale, new_alpha, new_origin,
+    safe_render_sprite( "WALL", pos_cmp, door_cmp.m_tile_index, new_scale, new_alpha, new_origin,
                         sf::degrees( angle ) );
   }
 
@@ -531,7 +516,7 @@ void RenderGameSystem::render_walls()
     sf::Vector2f new_origin{ half_width_px, half_height_px };
     float angle{ 180.f };
 
-    safe_render_sprite( "WALL", new_pos, door_cmp.m_tile_index, "door", new_scale, new_alpha, new_origin,
+    safe_render_sprite( "WALL", new_pos, door_cmp.m_tile_index, new_scale, new_alpha, new_origin,
                         sf::degrees( angle ) );
   }
 }
@@ -555,7 +540,7 @@ void RenderGameSystem::render_player()
       sprite_index = anim_cmp.m_base_frame + anim_cmp.m_current_frame;
     }
 
-    safe_render_sprite( "PLAYER", { position.x + direction.x_offset, position.y }, sprite_index, "Obstacle" );
+    safe_render_sprite( "PLAYER", { position.x + direction.x_offset, position.y }, sprite_index );
 
     if ( m_show_path_distances )
     {
@@ -649,7 +634,7 @@ void RenderGameSystem::render_player_footsteps()
     sf::Angle new_angle;
     if ( direction != sf::Vector2f( 0.f, 0.f ) ) { new_angle = direction.angle(); }
 
-    safe_render_sprite( "FOOTSTEPS", new_position, new_idx, "footsteps", new_scale, new_alpha, new_origin, new_angle );
+    safe_render_sprite( "FOOTSTEPS", new_position, new_idx, new_scale, new_alpha, new_origin, new_angle );
   }
 }
 
@@ -679,7 +664,7 @@ void RenderGameSystem::render_npc()
     sf::Vector2f new_position{ pos.x + direction.x_offset, pos.y };
     unsigned int new_sprite_idx{ anim_cmp.m_base_frame + anim_cmp.m_current_frame };
     // get the correct sprite index based on animation frame
-    safe_render_sprite( "NPC", new_position, new_sprite_idx, "npc", new_scale );
+    safe_render_sprite( "NPC", new_position, new_sprite_idx, new_scale );
 
     // show npc scan distance
     if ( m_show_path_distances )
@@ -712,7 +697,7 @@ void RenderGameSystem::render_explosions()
     SPDLOG_DEBUG( "Rendering explosion frame {}/{} for entity {}", anim_cmp.m_current_frame,
                   m_explosion_ms->get_sprites_per_sequence(), static_cast<int>( entity ) );
 
-    safe_render_sprite( "EXPLOSION", pos_cmp, anim_cmp.m_current_frame, "explosion" );
+    safe_render_sprite( "EXPLOSION", pos_cmp, anim_cmp.m_current_frame );
   }
 }
 
@@ -792,16 +777,15 @@ void RenderGameSystem::render_npc_distances_on_obstacles()
 }
 
 void RenderGameSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
-                                                     const sf::Vector2f &position, int sprite_index,
-                                                     const std::string &debug_name, sf::Vector2f scale, uint8_t alpha,
-                                                     sf::Vector2f origin, sf::Angle angle )
+                                                     const sf::Vector2f &position, int sprite_index, sf::Vector2f scale,
+                                                     uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
 {
   try
   {
     auto &sprite = m_multisprite_map.at( sprite_type );
     if ( sprite.has_value() )
     {
-      sprite->pick( sprite_index, debug_name );
+      sprite->pick( sprite_index, sprite_type );
       sprite->setPosition( position );
       sprite->setScale( scale );
       sprite->set_pick_opacity( alpha );
@@ -835,11 +819,10 @@ void RenderGameSystem::render_fallback_square_to_target( sf::RenderTarget &targe
 
 // Keep the original for backwards compatibility
 void RenderGameSystem::safe_render_sprite( const std::string &sprite_type, const sf::Vector2f &position,
-                                           int sprite_index, const std::string &debug_name, sf::Vector2f scale,
-                                           uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
+                                           int sprite_index, sf::Vector2f scale, uint8_t alpha, sf::Vector2f origin,
+                                           sf::Angle angle )
 {
-  safe_render_sprite_to_target( getWindow(), sprite_type, position, sprite_index, debug_name, scale, alpha, origin,
-                                angle );
+  safe_render_sprite_to_target( getWindow(), sprite_type, position, sprite_index, scale, alpha, origin, angle );
 }
 
 void RenderGameSystem::render_fallback_square( const sf::Vector2f &position, const sf::Color &color )

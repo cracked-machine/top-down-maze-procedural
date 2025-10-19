@@ -278,11 +278,18 @@
           6,7,16,17,
           8,9,18,19
         ],
+        "solid_mask": [
+          true, true, true, true,
+          true, true, true, true,
+          true, true, true, true,
+          true, true, true, true,
+          true, true, true, true
+        ],
         "sprites_per_sequence": 4,
         "sprites_per_frame": 4,
         "grid_size": {
-          "width": 1,
-          "height": 1
+          "width": 2,
+          "height": 2
         }
       }
     },
@@ -397,7 +404,7 @@
       "multisprite": {
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [8, 9, 24, 25, 29, 30, 56, 57],
-        "solid_mask": [false, true, false, true, false, true, false, true],
+        "solid_mask": [false, false, true, true, false, false, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {

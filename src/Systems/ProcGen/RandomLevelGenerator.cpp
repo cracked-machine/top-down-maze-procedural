@@ -42,8 +42,7 @@ void RandomLevelGenerator::gen_positions()
 }
 
 void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprite> large_obstacle_sprite,
-                                               Sprites::SpriteFactory::SpriteMetaType sprite_meta_type,
-                                               unsigned long seed )
+                                               Sprites::SpriteMetaType sprite_meta_type, unsigned long seed )
 {
   // make sure the new large obstacle does not overlap with existing large obstacles
   auto [random_entity, random_origin_position] = get_random_position( {}, ExcludePack<Cmp::ReservedPosition>{}, seed );
@@ -101,15 +100,24 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
         // Top-right position: grid_y=0, grid_x=3 → sprite_index = 0 * 4 + 3 = 3
         // Bottom-left position: grid_y=1, grid_x=0 → sprite_index = 1 * 4 + 0 = 4
         // Bottom-right position: grid_y=1, grid_x=3 → sprite_index = 1 * 4 + 3 = 7
-        int calculated_grid_index = grid_y * large_obst_grid_size.width + grid_x;
+        std::size_t calculated_grid_index = grid_y * large_obst_grid_size.width + grid_x;
 
         SPDLOG_DEBUG( "Calculated sprite index: {}", calculated_grid_index );
 
         SPDLOG_DEBUG( "Adding Cmp::ReservedPosition at ({}, {}) with sprite_index {}", pos_cmp.x, pos_cmp.y,
                       calculated_grid_index );
-        m_reg->emplace_or_replace<Cmp::ReservedPosition>(
-            entity, pos_cmp, large_obstacle_sprite->get_solid_mask()[calculated_grid_index], sprite_meta_type,
-            calculated_grid_index );
+
+        // check multisprite solid_mask vector is at least as large as calculated index - default to true (solid) if out
+        // of bounds
+        bool new_solid_mask = true;
+        auto solid_masks = large_obstacle_sprite->get_solid_mask();
+        if ( !solid_masks.empty() && solid_masks.size() > calculated_grid_index )
+        {
+          new_solid_mask = solid_masks.at( calculated_grid_index );
+        }
+
+        m_reg->emplace_or_replace<Cmp::ReservedPosition>( entity, pos_cmp, new_solid_mask, sprite_meta_type,
+                                                          calculated_grid_index );
       }
     }
   }
@@ -122,13 +130,31 @@ void RandomLevelGenerator::gen_large_obstacles()
 
   // Get all available grave types dynamically from JSON
   auto grave_meta_types = sprite_factory->get_all_sprite_types_by_pattern( "GRAVE" );
-
-  for ( std::size_t i = 0; i < 10; ++i )
+  if ( grave_meta_types.empty() ) { SPDLOG_WARN( "No GRAVE multisprites found in SpriteFactory" ); }
+  else
   {
-    // Use the dynamically discovered grave types
-    auto [altar_sprite_metatype, unused_index] = sprite_factory->get_random_type_and_texture_index( grave_meta_types );
-    auto altar_sprite = sprite_factory->get_multisprite_by_type( altar_sprite_metatype );
-    gen_large_obstacle( altar_sprite, altar_sprite_metatype, 0 );
+    for ( std::size_t i = 0; i < 10; ++i )
+    {
+      // Use the dynamically discovered grave types
+      auto [sprite_metatype, unused_index] = sprite_factory->get_random_type_and_texture_index( grave_meta_types );
+      auto multisprite = sprite_factory->get_multisprite_by_type( sprite_metatype );
+      if ( !multisprite.has_value() )
+      {
+        SPDLOG_WARN( "No multisprite found for grave type {}", sprite_metatype );
+        continue;
+      }
+      gen_large_obstacle( multisprite, sprite_metatype, 0 );
+    }
+  }
+  auto shrine_multisprite = sprite_factory->get_multisprite_by_type( "SHRINE" );
+  if ( !shrine_multisprite.has_value() ) { SPDLOG_WARN( "No SHRINE multisprite found in SpriteFactory" ); }
+  else
+  {
+    for ( std::size_t i = 0; i < 10; ++i )
+    {
+      // Use the dynamically discovered shrine types
+      gen_large_obstacle( shrine_multisprite, "SHRINE", 0 );
+    }
   }
 }
 

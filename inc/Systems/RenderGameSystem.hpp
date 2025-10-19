@@ -48,9 +48,8 @@ private:
   // Variant that renders to a specific render target (shader, texture, etc.)
   void safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
                                      const sf::Vector2f &position, int sprite_index = 0,
-                                     const std::string &debug_name = "sprite", sf::Vector2f scale = { 1.f, 1.f },
-                                     uint8_t alpha = 255, sf::Vector2f origin = { 0.f, 0.f },
-                                     sf::Angle angle = sf::degrees( 0.f ) );
+                                     sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255,
+                                     sf::Vector2f origin = { 0.f, 0.f }, sf::Angle angle = sf::degrees( 0.f ) );
 
   // Fallback rendering for missing sprites (also target-aware)
   void render_fallback_square_to_target( sf::RenderTarget &target, const sf::Vector2f &position,
@@ -58,8 +57,7 @@ private:
 
   // Safe sprite accessor that renders a fallback square if sprite is missing
   void safe_render_sprite( const std::string &sprite_type, const sf::Vector2f &position, int sprite_index = 0,
-                           const std::string &debug_name = "sprite", sf::Vector2f scale = { 1.f, 1.f },
-                           uint8_t alpha = 255, sf::Vector2f origin = { 0.f, 0.f },
+                           sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255, sf::Vector2f origin = { 0.f, 0.f },
                            sf::Angle angle = sf::degrees( 0.f ) );
 
   // Fallback rendering for missing sprites
@@ -88,7 +86,7 @@ private:
   // Sprites
   Sprites::Containers::TileMap m_floormap;
 
-  std::unordered_map<Sprites::SpriteFactory::SpriteMetaType, std::optional<Sprites::MultiSprite>> m_multisprite_map;
+  std::unordered_map<Sprites::SpriteMetaType, std::optional<Sprites::MultiSprite>> m_multisprite_map;
 };
 
 } // namespace ProceduralMaze::Sys
