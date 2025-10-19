@@ -77,7 +77,7 @@ void NpcSystem::on_npc_death( const Events::NpcDeathEvent &event )
 }
 void NpcSystem::on_npc_creation( const Events::NpcCreationEvent &event )
 {
-  SPDLOG_INFO( "NPC Creation Event received" );
+  SPDLOG_DEBUG( "NPC Creation Event received" );
   add_npc_entity( event.position );
 }
 

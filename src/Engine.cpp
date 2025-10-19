@@ -253,7 +253,7 @@ void Engine::setup()
 
   m_reg->ctx().emplace<std::shared_ptr<Sprites::SpriteFactory>>( m_sprite_factory );
 
-  m_render_game_sys.load_multisprites();
+  m_render_game_sys.init_multisprites();
   add_system_entity();
   m_player_sys.add_player_entity();
   m_flood_sys.add_flood_water_entity();

@@ -22,9 +22,9 @@ public:
   ~RenderGameSystem() = default;
 
   // Entry point for class
-  void render_game( sf::Time deltaTime );
   void init_views();
-  void load_multisprites();
+  void init_multisprites();
+  void render_game( sf::Time deltaTime );
 
 private:
   void render_floormap( const sf::Vector2f &offset = { 0.f, 0.f } );
@@ -44,6 +44,26 @@ private:
   void render_player_distances_on_npc();
   void render_player_distances_on_obstacles();
   void render_npc_distances_on_obstacles();
+
+  // Variant that renders to a specific render target (shader, texture, etc.)
+  void safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
+                                     const sf::Vector2f &position, int sprite_index = 0,
+                                     const std::string &debug_name = "sprite", sf::Vector2f scale = { 1.f, 1.f },
+                                     uint8_t alpha = 255, sf::Vector2f origin = { 0.f, 0.f },
+                                     sf::Angle angle = sf::degrees( 0.f ) );
+
+  // Fallback rendering for missing sprites (also target-aware)
+  void render_fallback_square_to_target( sf::RenderTarget &target, const sf::Vector2f &position,
+                                         const sf::Color &color = sf::Color::Magenta );
+
+  // Safe sprite accessor that renders a fallback square if sprite is missing
+  void safe_render_sprite( const std::string &sprite_type, const sf::Vector2f &position, int sprite_index = 0,
+                           const std::string &debug_name = "sprite", sf::Vector2f scale = { 1.f, 1.f },
+                           uint8_t alpha = 255, sf::Vector2f origin = { 0.f, 0.f },
+                           sf::Angle angle = sf::degrees( 0.f ) );
+
+  // Fallback rendering for missing sprites
+  void render_fallback_square( const sf::Vector2f &position, const sf::Color &color = sf::Color::Magenta );
 
   void update_view_center( sf::View &view, const Cmp::Position &player_pos, float smoothFactor = 0.1f );
 
@@ -68,30 +88,7 @@ private:
   // Sprites
   Sprites::Containers::TileMap m_floormap;
 
-  std::optional<Sprites::MultiSprite> m_rock_ms;
-  std::optional<Sprites::MultiSprite> m_pot_ms;
-  std::optional<Sprites::MultiSprite> m_bone_ms;
-  std::optional<Sprites::MultiSprite> m_detonation_ms;
-
-  std::optional<Sprites::MultiSprite> m_bomb_ms;
-  std::optional<Sprites::MultiSprite> m_wall_ms;
-  std::optional<Sprites::MultiSprite> m_player_ms;
-  std::optional<Sprites::MultiSprite> m_npc_ms;
-
-  std::optional<Sprites::MultiSprite> m_extra_health_ms;
-  std::optional<Sprites::MultiSprite> m_extra_bombs_ms;
-  std::optional<Sprites::MultiSprite> m_infinite_bombs_ms;
-  std::optional<Sprites::MultiSprite> m_chain_bombs_ms;
-  std::optional<Sprites::MultiSprite> m_lower_water_ms;
-  std::optional<Sprites::MultiSprite> m_explosion_ms;
-
-  std::optional<Sprites::MultiSprite> m_footsteps_ms;
-  std::optional<Sprites::MultiSprite> m_sinkhole_ms;
-  std::optional<Sprites::MultiSprite> m_corruption_ms;
-  std::optional<Sprites::MultiSprite> m_wormhole_ms;
-
-  // multiblock grave sprites
-  std::unordered_map<Sprites::SpriteFactory::SpriteMetaType, std::optional<Sprites::MultiSprite>> m_grave_ms_map;
+  std::unordered_map<Sprites::SpriteFactory::SpriteMetaType, std::optional<Sprites::MultiSprite>> m_multisprite_map;
 };
 
 } // namespace ProceduralMaze::Sys

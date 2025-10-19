@@ -47,6 +47,21 @@ void RenderGameSystem::init_views()
   update_view_center( m_minimap_view, start_pos, kStartGameSmoothFactor );
 }
 
+void RenderGameSystem::init_multisprites()
+{
+  using namespace Sprites;
+  auto &factory = get_persistent_component<std::shared_ptr<SpriteFactory>>();
+  for ( auto type : factory->get_all_sprite_types() )
+  {
+    m_multisprite_map[type] = factory->get_multisprite_by_type( type );
+    if ( !m_multisprite_map[type] )
+    {
+      SPDLOG_CRITICAL( "Unable to get {} from SpriteFactory", type );
+      std::terminate();
+    }
+  }
+}
+
 void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
 {
   using namespace Sprites;
@@ -225,12 +240,17 @@ void RenderGameSystem::render_large_obstacles()
     // 'm_grave_map' contains:
     // first: SpriteMetaType
     // second: optional MultiSprite
-    if ( auto it = m_grave_ms_map.find( reserved_cmp.m_type ); it != m_grave_ms_map.end() && it->second.has_value() )
+    if ( auto it = m_multisprite_map.find( reserved_cmp.m_type );
+         it != m_multisprite_map.end() && it->second.has_value() )
     {
-      auto &sprite = it->second.value();
-      sprite.pick( reserved_cmp.m_sprite_index, "grave" );
-      sprite.setPosition( reserved_cmp );
-      getWindow().draw( sprite );
+      auto meta_type = it->first;
+      auto new_idx = reserved_cmp.m_sprite_index;
+      sf::Vector2f new_scale{ 1.f, 1.f };
+      uint8_t new_alpha{ 255 };
+      sf::Vector2f new_origin{ 0.f, 0.f };
+      float new_angle{ 0.f };
+      safe_render_sprite( meta_type, reserved_cmp, new_idx, "grave", new_scale, new_alpha, new_origin,
+                          sf::degrees( new_angle ) );
     }
 
     if ( reserved_cmp.m_solid_mask )
@@ -278,9 +298,7 @@ void RenderGameSystem::render_small_obstacles()
   // Now draw each type in batches
   for ( const auto &[pos, idx] : rockPositions )
   {
-    m_rock_ms->pick( idx, "Obstacle" );
-    m_rock_ms->setPosition( pos );
-    getWindow().draw( *m_rock_ms );
+    safe_render_sprite( "ROCK", pos, idx, "Obstacle" );
     // sf::RectangleShape player_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
     // player_square.setFillColor( sf::Color::Transparent );
     // player_square.setOutlineColor( sf::Color::Red );
@@ -291,24 +309,18 @@ void RenderGameSystem::render_small_obstacles()
 
   for ( const auto &[pos, idx] : potPositions )
   {
-    m_pot_ms->pick( idx, "Obstacle" );
-    m_pot_ms->setPosition( pos );
-    getWindow().draw( *m_pot_ms );
+    safe_render_sprite( "POT", pos, idx, "Obstacle" );
   }
 
   for ( const auto &[pos, idx] : bonePositions )
   {
-    m_bone_ms->pick( idx, "Obstacle" );
-    m_bone_ms->setPosition( pos );
-    getWindow().draw( *m_bone_ms );
+    safe_render_sprite( "BONES", pos, idx, "Obstacle" );
   }
 
   // "empty" sprite for detonated objects
   for ( const auto &pos : detonationPositions )
   {
-    m_detonation_ms->setPosition( pos );
-    m_detonation_ms->pick( 0, "Detonated" );
-    getWindow().draw( *m_detonation_ms );
+    safe_render_sprite( "DETONATED", pos, 0, "Detonated" );
   }
 }
 
@@ -323,9 +335,7 @@ void RenderGameSystem::render_sinkhole()
 
   for ( const auto &[pos, active] : sinkholePositions )
   {
-    m_sinkhole_ms->setPosition( pos );
-    m_sinkhole_ms->pick( 0, "Sinkhole" );
-    getWindow().draw( *m_sinkhole_ms );
+    safe_render_sprite( "SINKHOLE", pos, 0, "Sinkhole" );
   }
 }
 
@@ -340,9 +350,7 @@ void RenderGameSystem::render_corruption()
 
   for ( const auto &[pos, active] : corruptionPositions )
   {
-    m_corruption_ms->setPosition( pos );
-    m_corruption_ms->pick( 0, "Corruption" );
-    getWindow().draw( *m_corruption_ms );
+    safe_render_sprite( "CORRUPTION", pos, 0, "Corruption" );
   }
 }
 
@@ -351,46 +359,56 @@ void RenderGameSystem::render_wormhole()
   auto wormhole_view = m_reg->view<Cmp::Wormhole, Cmp::Position, Cmp::SpriteAnimation>();
   for ( auto [entity, wormhole_cmp, position_cmp, anim_cmp] : wormhole_view.each() )
   {
-
-    // The wormhole is 3x3 sprite grid, so the topleft position is actually offset from the center.
-    m_wormhole_shader.update_shader_position(
-        position_cmp + ( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } * 0.5f ),
-        Sprites::ViewFragmentShader::Align::CENTER );
-
-    // draw the background to the shader texture first so it is also included in the effect
-    m_floormap.draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
-
-    // Update the shader with the current time and view parameters
-    Sprites::UniformBuilder builder;
-    builder.set( "time", m_wormhole_shader.getElapsedTime().asSeconds() )
-        .set( "screenSize", m_wormhole_shader.get_view_size() )
-        .set( "centerPosition", m_wormhole_shader.get_view_center() );
-    m_wormhole_shader.Sprites::BaseFragmentShader::update( builder );
-
-    // draw MultiSprites onto the shader's 3x3 render texture.
-    // Draw a 3x3 grid of the detonated sprite to cover the shader area,
-    // centered around wormhole position (position_cmp)
-
-    std::stringstream frame_indices;
-    auto grid_size = m_wormhole_ms->get_grid_size();
-    for ( float row = 0; row < grid_size.height; ++row )
+    try
     {
-      for ( float col = 0; col < grid_size.width; ++col )
+      auto &wormhole_sprite = m_multisprite_map.at( "WORMHOLE" );
+      if ( !wormhole_sprite.has_value() )
       {
-        sf::Vector2f offset = { ( col - 1 ) * Sprites::MultiSprite::kDefaultSpriteDimensions.x,
-                                ( row - 1 ) * Sprites::MultiSprite::kDefaultSpriteDimensions.y };
-        auto index = anim_cmp.m_current_frame + ( row * grid_size.height + col );
-
-        m_wormhole_ms->pick( index, "Wormhole" );
-        m_wormhole_ms->setPosition( position_cmp + offset );
-        m_wormhole_ms->draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
+        SPDLOG_WARN( "Wormhole sprite exists in map but has no value" );
+        render_fallback_square( position_cmp, sf::Color::Yellow );
+        continue;
       }
+
+      // Setup shader
+      m_wormhole_shader.update_shader_position(
+          position_cmp + ( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } * 0.5f ),
+          Sprites::ViewFragmentShader::Align::CENTER );
+
+      // Draw background to shader texture
+      m_floormap.draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
+
+      // Draw sprites to shader's render texture using the new function
+      auto grid_size = wormhole_sprite->get_grid_size();
+      for ( float row = 0; row < grid_size.height; ++row )
+      {
+        for ( float col = 0; col < grid_size.width; ++col )
+        {
+          sf::Vector2f offset = { ( col - 1 ) * Sprites::MultiSprite::kDefaultSpriteDimensions.x,
+                                  ( row - 1 ) * Sprites::MultiSprite::kDefaultSpriteDimensions.y };
+          auto index = anim_cmp.m_current_frame + ( row * grid_size.height + col );
+
+          // Much cleaner: render to shader's render texture
+          safe_render_sprite_to_target( m_wormhole_shader.get_render_texture(), "WORMHOLE", position_cmp + offset,
+                                        index, "Wormhole" );
+        }
+      }
+
+      // Update and draw shader
+      Sprites::UniformBuilder builder;
+      builder.set( "time", m_wormhole_shader.getElapsedTime().asSeconds() )
+          .set( "screenSize", m_wormhole_shader.get_view_size() )
+          .set( "centerPosition", m_wormhole_shader.get_view_center() );
+      m_wormhole_shader.Sprites::BaseFragmentShader::update( builder );
+
+      m_wormhole_shader.draw( getWindow(), sf::RenderStates::Default );
+    }
+    catch ( const std::out_of_range &e )
+    {
+      SPDLOG_WARN( "Missing wormhole sprite '{}' in map, rendering fallback square", "WORMHOLE" );
+      render_fallback_square( position_cmp, sf::Color::Magenta );
     }
 
-    // Finally, draw the shader effect onto the main window
-    m_wormhole_shader.draw( getWindow(), sf::RenderStates::Default );
-
-    // Debug: Draw a red rectangle around the wormhole position
+    // // Debug rectangle
     // sf::RectangleShape temp_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
     // temp_square.setPosition( position_cmp );
     // temp_square.setOutlineColor( sf::Color::Red );
@@ -406,12 +424,7 @@ void RenderGameSystem::render_armed()
   auto all_armed_obstacles_view = m_reg->view<Cmp::Obstacle, Cmp::Armed, Cmp::Position>();
   for ( auto [entity, obstacle_cmp, armed_cmp, pos_cmp] : all_armed_obstacles_view.each() )
   {
-    if ( armed_cmp.m_display_bomb_sprite )
-    {
-      m_bomb_ms->pick( 0, "Bomb" );
-      m_bomb_ms->setPosition( pos_cmp );
-      getWindow().draw( *m_bomb_ms );
-    }
+    if ( armed_cmp.m_display_bomb_sprite ) { safe_render_sprite( "BOMB", pos_cmp, 0, "Bomb" ); }
 
     sf::RectangleShape temp_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
     temp_square.setPosition( pos_cmp );
@@ -444,33 +457,23 @@ void RenderGameSystem::render_loot()
 
     if ( loot.m_type == "EXTRA_HEALTH" )
     {
-      m_extra_health_ms->setPosition( position );
-      m_extra_health_ms->pick( loot.m_tile_index, "EXTRA_HEALTH" );
-      getWindow().draw( *m_extra_health_ms );
+      safe_render_sprite( "EXTRA_HEALTH", position, loot.m_tile_index, "EXTRA_HEALTH" );
     }
     else if ( loot.m_type == "EXTRA_BOMBS" )
     {
-      m_extra_bombs_ms->setPosition( position );
-      m_extra_bombs_ms->pick( loot.m_tile_index, "EXTRA_BOMBS" );
-      getWindow().draw( *m_extra_bombs_ms );
+      safe_render_sprite( "EXTRA_BOMBS", position, loot.m_tile_index, "EXTRA_BOMBS" );
     }
     else if ( loot.m_type == "INFINI_BOMBS" )
     {
-      m_infinite_bombs_ms->setPosition( position );
-      m_infinite_bombs_ms->pick( loot.m_tile_index, "INFINI_BOMBS" );
-      getWindow().draw( *m_infinite_bombs_ms );
+      safe_render_sprite( "INFINI_BOMBS", position, loot.m_tile_index, "INFINI_BOMBS" );
     }
     else if ( loot.m_type == "CHAIN_BOMBS" )
     {
-      m_chain_bombs_ms->setPosition( position );
-      m_chain_bombs_ms->pick( loot.m_tile_index, "CHAIN_BOMBS" );
-      getWindow().draw( *m_chain_bombs_ms );
+      safe_render_sprite( "CHAIN_BOMBS", position, loot.m_tile_index, "CHAIN_BOMBS" );
     }
     else if ( loot.m_type == "LOWER_WATER" )
     {
-      m_lower_water_ms->setPosition( position );
-      m_lower_water_ms->pick( loot.m_tile_index, "LOWER_WATER" );
-      getWindow().draw( *m_lower_water_ms );
+      safe_render_sprite( "LOWER_WATER", position, loot.m_tile_index, "LOWER_WATER" );
     }
     else
     {
@@ -486,22 +489,28 @@ void RenderGameSystem::render_walls()
   auto wall_view = m_reg->view<Cmp::Wall, Cmp::Position>();
   for ( auto [entity, wall_cmp, pos_cmp] : wall_view.each() )
   {
-    m_wall_ms->pick( wall_cmp.m_tile_index, "wall" );
-    m_wall_ms->setPosition( pos_cmp );
-    m_wall_ms->setOrigin( { 0, 0 } );
-    m_wall_ms->setRotation( sf::degrees( 0 ) );
-    getWindow().draw( *m_wall_ms );
+
+    sf::Vector2f new_scale{ 1.f, 1.f };
+    uint8_t new_alpha{ 255 };
+    sf::Vector2f new_origin{ 0.f, 0.f };
+    float angle{ 0.f };
+
+    safe_render_sprite( "WALL", pos_cmp, wall_cmp.m_tile_index, "wall", new_scale, new_alpha, new_origin,
+                        sf::degrees( angle ) );
   }
 
   // draw entrance
   auto entrance_door_view = m_reg->view<Cmp::Door, Cmp::Position>( entt::exclude<Cmp::Exit> );
   for ( auto [entity, door_cmp, pos_cmp] : entrance_door_view.each() )
   {
-    m_wall_ms->pick( door_cmp.m_tile_index, "door" );
-    m_wall_ms->setOrigin( { 0, 0 } );
-    m_wall_ms->setRotation( sf::degrees( 0 ) );
-    m_wall_ms->setPosition( pos_cmp );
-    getWindow().draw( *m_wall_ms );
+
+    sf::Vector2f new_scale{ 1.f, 1.f };
+    uint8_t new_alpha{ 255 };
+    sf::Vector2f new_origin{ 0.f, 0.f };
+    float angle{ 0.f };
+
+    safe_render_sprite( "WALL", pos_cmp, door_cmp.m_tile_index, "door", new_scale, new_alpha, new_origin,
+                        sf::degrees( angle ) );
   }
 
   auto exit_door_view = m_reg->view<Cmp::Door, Cmp::Position, Cmp::Exit>();
@@ -509,12 +518,15 @@ void RenderGameSystem::render_walls()
   {
     auto half_width_px = Sprites::MultiSprite::kDefaultSpriteDimensions.x / 2.f;
     auto half_height_px = Sprites::MultiSprite::kDefaultSpriteDimensions.y / 2.f;
-    m_wall_ms->pick( door_cmp.m_tile_index, "door" );
-    m_wall_ms->setOrigin( { half_width_px, half_height_px } );
-    m_wall_ms->setRotation( sf::degrees( 180 ) );
 
-    m_wall_ms->setPosition( pos_cmp + sf::Vector2f{ half_width_px, half_height_px } );
-    getWindow().draw( *m_wall_ms );
+    sf::Vector2f new_pos{ pos_cmp + sf::Vector2f{ half_width_px, half_height_px } };
+    sf::Vector2f new_scale{ 1.f, 1.f };
+    uint8_t new_alpha{ 255 };
+    sf::Vector2f new_origin{ half_width_px, half_height_px };
+    float angle{ 180.f };
+
+    safe_render_sprite( "WALL", new_pos, door_cmp.m_tile_index, "door", new_scale, new_alpha, new_origin,
+                        sf::degrees( angle ) );
   }
 }
 
@@ -537,9 +549,7 @@ void RenderGameSystem::render_player()
       sprite_index = anim_cmp.m_base_frame + anim_cmp.m_current_frame;
     }
 
-    m_player_ms->pick( sprite_index, "player" );
-    m_player_ms->setPosition( { position.x + direction.x_offset, position.y } );
-    getWindow().draw( *m_player_ms );
+    safe_render_sprite( "PLAYER", { position.x + direction.x_offset, position.y }, sprite_index, "Obstacle" );
 
     if ( m_show_path_distances )
     {
@@ -551,6 +561,7 @@ void RenderGameSystem::render_player()
       getWindow().draw( pc_square );
     }
 
+    // Debug: Draw a green rectangle around the player position
     // sf::RectangleShape player_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
     // player_square.setFillColor( sf::Color::Transparent );
     // player_square.setOutlineColor( sf::Color::Green );
@@ -577,60 +588,62 @@ void RenderGameSystem::render_player_footsteps()
   auto footstep_view = m_reg->view<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Position, Cmp::Direction>();
   for ( auto [entity, timer, alpha, position, direction] : footstep_view.each() )
   {
-    m_footsteps_ms->pick( 0, "FOOTSTEPS" );
-    m_footsteps_ms->set_pick_opacity( alpha.m_alpha );
-
+    std::size_t new_idx = 0;
+    uint8_t new_alpha{ alpha.m_alpha };
+    sf::Vector2f new_scale{ 1.f, 1.f };
     // we're changing the origin to be the center of the sprite so that
     // rotation happens around the center, this means we also need to
     // offset the position to make it look convincing depending on direction of movement
-    m_footsteps_ms->setOrigin( { Sprites::MultiSprite::kDefaultSpriteDimensions.x / 2.f,
-                                 Sprites::MultiSprite::kDefaultSpriteDimensions.y / 2.f } );
+    sf::Vector2f new_origin{ Sprites::MultiSprite::kDefaultSpriteDimensions.x / 2.f,
+                             Sprites::MultiSprite::kDefaultSpriteDimensions.y / 2.f };
+    sf::Vector2f new_position{ position };
     // moving in right direction: place footsteps to bottom-left of player position
     if ( direction == sf::Vector2f( 1.f, 0.f ) )
     {
-      m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.25f ),
-                                     position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.75f ) } );
+      new_position = { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.25f ),
+                       position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.75f ) };
     }
     // moving in left direction: place footsteps to bottom-right of player position
     else if ( direction == sf::Vector2f( -1.f, 0.f ) )
     {
-      m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.75f ),
-                                     position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.75f ) } );
+      new_position = { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.75f ),
+                       position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.75f ) };
     }
     // moving diagonally: down/left
     else if ( direction == sf::Vector2f( -1.f, 1.f ) )
     {
-      m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.75f ),
-                                     position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.75f ) } );
+      new_position = { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.75f ),
+                       position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.75f ) };
     }
     // moving diagonally: down/right
     else if ( direction == sf::Vector2f( 1.f, 1.f ) )
     {
-      m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.5f ),
-                                     position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.8f ) } );
+      new_position = { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.5f ),
+                       position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.8f ) };
     }
     // moving diagonally: up/left
     else if ( direction == sf::Vector2f( -1.f, -1.f ) )
     {
-      m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.5f ),
-                                     position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.8f ) } );
+      new_position = { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.5f ),
+                       position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.8f ) };
     }
     // moving diagonally: up/right
     else if ( direction == sf::Vector2f( 1.f, -1.f ) )
     {
-      m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.5f ),
-                                     position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.8f ) } );
+      new_position = { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.5f ),
+                       position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.8f ) };
     }
     // moving in up/down direction: place footsteps to center of player position
     else
     {
-      m_footsteps_ms->setPosition( { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.5f ),
-                                     position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.5f ) } );
+      new_position = { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.5f ),
+                       position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.5f ) };
     }
     // only set rotation if direction is not zero vector
-    if ( direction != sf::Vector2f( 0.f, 0.f ) ) { m_footsteps_ms->setRotation( direction.angle() ); }
+    sf::Angle new_angle;
+    if ( direction != sf::Vector2f( 0.f, 0.f ) ) { new_angle = direction.angle(); }
 
-    getWindow().draw( *m_footsteps_ms );
+    safe_render_sprite( "FOOTSTEPS", new_position, new_idx, "footsteps", new_scale, new_alpha, new_origin, new_angle );
   }
 }
 
@@ -656,13 +669,11 @@ void RenderGameSystem::render_npc()
       direction.x_offset = direction.x_offset;
     }
 
-    m_npc_ms->setScale( { direction.x_scale, 1.f } );
-    m_npc_ms->setPosition( { pos.x + direction.x_offset, pos.y } );
-
+    sf::Vector2f new_scale{ direction.x_scale, 1.f };
+    sf::Vector2f new_position{ pos.x + direction.x_offset, pos.y };
+    unsigned int new_sprite_idx{ anim_cmp.m_base_frame + anim_cmp.m_current_frame };
     // get the correct sprite index based on animation frame
-    std::size_t sprite_index = anim_cmp.m_base_frame + anim_cmp.m_current_frame;
-    m_npc_ms->pick( sprite_index, "npc" );
-    getWindow().draw( *m_npc_ms );
+    safe_render_sprite( "NPC", new_position, new_sprite_idx, "npc", new_scale );
 
     // show npc scan distance
     if ( m_show_path_distances )
@@ -694,9 +705,8 @@ void RenderGameSystem::render_explosions()
     // Always render the current frame
     SPDLOG_DEBUG( "Rendering explosion frame {}/{} for entity {}", anim_cmp.m_current_frame,
                   m_explosion_ms->get_sprites_per_sequence(), static_cast<int>( entity ) );
-    m_explosion_ms->pick( anim_cmp.m_current_frame, "explosion" );
-    m_explosion_ms->setPosition( pos_cmp );
-    getWindow().draw( *m_explosion_ms );
+
+    safe_render_sprite( "EXPLOSION", pos_cmp, anim_cmp.m_current_frame, "explosion" );
   }
 }
 
@@ -775,71 +785,60 @@ void RenderGameSystem::render_npc_distances_on_obstacles()
   }
 }
 
-void RenderGameSystem::load_multisprites()
+void RenderGameSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
+                                                     const sf::Vector2f &position, int sprite_index,
+                                                     const std::string &debug_name, sf::Vector2f scale, uint8_t alpha,
+                                                     sf::Vector2f origin, sf::Angle angle )
 {
-  using namespace Sprites;
-  auto &factory = get_persistent_component<std::shared_ptr<SpriteFactory>>();
-  m_rock_ms = factory->get_multisprite_by_type( "ROCK" );
-  m_pot_ms = factory->get_multisprite_by_type( "POT" );
-  m_bone_ms = factory->get_multisprite_by_type( "BONES" );
-  m_detonation_ms = factory->get_multisprite_by_type( "DETONATED" );
-  m_bomb_ms = factory->get_multisprite_by_type( "BOMB" );
-  m_wall_ms = factory->get_multisprite_by_type( "WALL" );
-  m_player_ms = factory->get_multisprite_by_type( "PLAYER" );
-  m_npc_ms = factory->get_multisprite_by_type( "NPC" );
-  m_extra_health_ms = factory->get_multisprite_by_type( "EXTRA_HEALTH" );
-  m_extra_bombs_ms = factory->get_multisprite_by_type( "EXTRA_BOMBS" );
-  m_infinite_bombs_ms = factory->get_multisprite_by_type( "INFINI_BOMBS" );
-  m_chain_bombs_ms = factory->get_multisprite_by_type( "CHAIN_BOMBS" );
-  m_lower_water_ms = factory->get_multisprite_by_type( "LOWER_WATER" );
-  m_explosion_ms = factory->get_multisprite_by_type( "EXPLOSION" );
-  m_footsteps_ms = factory->get_multisprite_by_type( "FOOTSTEPS" );
-  m_sinkhole_ms = factory->get_multisprite_by_type( "SINKHOLE" );
-  m_corruption_ms = factory->get_multisprite_by_type( "CORRUPTION" );
-  m_wormhole_ms = factory->get_multisprite_by_type( "WORMHOLE" );
-
-  for ( auto type : factory->get_all_sprite_types_by_pattern( "GRAVE" ) )
+  try
   {
-    m_grave_ms_map[type] = std::nullopt;
+    auto &sprite = m_multisprite_map.at( sprite_type );
+    if ( sprite.has_value() )
+    {
+      sprite->pick( sprite_index, debug_name );
+      sprite->setPosition( position );
+      sprite->setScale( scale );
+      sprite->set_pick_opacity( alpha );
+      sprite->setOrigin( origin );
+      sprite->setRotation( angle );
+      target.draw( *sprite ); // Draw to specified target instead of getWindow()
+    }
+    else
+    {
+      SPDLOG_WARN( "Sprite '{}' exists in map but has no value", sprite_type );
+      render_fallback_square_to_target( target, position, sf::Color::Yellow );
+    }
   }
-  for ( auto &[type, sprite_opt] : m_grave_ms_map )
+  catch ( const std::out_of_range &e )
   {
-    sprite_opt = factory->get_multisprite_by_type( type );
+    SPDLOG_WARN( "Missing sprite '{}' in map, rendering fallback square", sprite_type );
+    render_fallback_square_to_target( target, position, sf::Color::Magenta );
   }
+}
 
-  // we should ensure these MultiSprites are initialized before continuing
-  std::string err_msg;
-  // clang-format off
-  if ( !m_rock_ms ) { err_msg = "Unable to get ROCK from SpriteFactory"; }
-  if ( !m_pot_ms ) { err_msg = "Unable to get POT from SpriteFactory"; }
-  if ( !m_bone_ms ) { err_msg = "Unable to get BONE from SpriteFactory"; }
-  if ( !m_detonation_ms ) { err_msg = "Unable to get DETONATION from SpriteFactory"; }
-  if ( !m_bomb_ms ) { err_msg = "Unable to get BOMB from SpriteFactory"; }
-  if ( !m_wall_ms ) { err_msg = "Unable to get WALL from SpriteFactory"; }
-  if ( !m_player_ms ) { err_msg = "Unable to get PLAYER from SpriteFactory"; }
-  if ( !m_npc_ms ) { err_msg = "Unable to get NPC from SpriteFactory"; }
-  if ( !m_extra_health_ms ) { err_msg = "Unable to get EXTRA_HEALTH from SpriteFactory"; }
-  if ( !m_extra_bombs_ms ) { err_msg = "Unable to get EXTRA_BOMBS from SpriteFactory"; }
-  if ( !m_infinite_bombs_ms ) { err_msg = "Unable to get INFINI_BOMBS from SpriteFactory"; }
-  if ( !m_chain_bombs_ms ) { err_msg = "Unable to get CHAIN_BOMBS from SpriteFactory"; }
-  if ( !m_lower_water_ms ) { err_msg = "Unable to get LOWER_WATER from SpriteFactory"; }
-  if ( !m_explosion_ms ) { err_msg = "Unable to get EXPLOSION from SpriteFactory"; }
-  if ( !m_footsteps_ms ) { err_msg = "Unable to get FOOTSTEPS from SpriteFactory"; }
-  if ( !m_sinkhole_ms ) { err_msg = "Unable to get SINKHOLE from SpriteFactory"; }
-  if ( !m_corruption_ms ) { err_msg = "Unable to get CORRUPTION from SpriteFactory"; }
-  if ( !m_wormhole_ms ) { err_msg = "Unable to get WORMHOLE from SpriteFactory"; }
+void RenderGameSystem::render_fallback_square_to_target( sf::RenderTarget &target, const sf::Vector2f &position,
+                                                         const sf::Color &color )
+{
+  sf::RectangleShape fallback_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+  fallback_square.setPosition( position );
+  fallback_square.setFillColor( color );
+  fallback_square.setOutlineColor( sf::Color::White );
+  fallback_square.setOutlineThickness( 1.f );
+  target.draw( fallback_square ); // Draw to specified target
+}
 
-  for( const auto& [type, sprite_opt] : m_grave_ms_map )
-  {
-      if ( !sprite_opt ) { err_msg = "Unable to get " + type + " from SpriteFactory"; }
-  }
-  // clang-format on
+// Keep the original for backwards compatibility
+void RenderGameSystem::safe_render_sprite( const std::string &sprite_type, const sf::Vector2f &position,
+                                           int sprite_index, const std::string &debug_name, sf::Vector2f scale,
+                                           uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
+{
+  safe_render_sprite_to_target( getWindow(), sprite_type, position, sprite_index, debug_name, scale, alpha, origin,
+                                angle );
+}
 
-  if ( !err_msg.empty() )
-  {
-    SPDLOG_CRITICAL( "{}", err_msg );
-    std::terminate();
-  }
+void RenderGameSystem::render_fallback_square( const sf::Vector2f &position, const sf::Color &color )
+{
+  render_fallback_square_to_target( getWindow(), position, color );
 }
 
 void RenderGameSystem::update_view_center( sf::View &view, const Cmp::Position &player_pos, float smoothFactor )
