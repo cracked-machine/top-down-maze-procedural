@@ -4,12 +4,15 @@
 #include <FootStepTimer.hpp>
 #include <HazardFieldCell.hpp>
 
+#include <LargeObstacle.hpp>
 #include <MultiSprite.hpp>
 #include <NpcDeathPosition.hpp>
 #include <Persistent/NpcDeathAnimFramerate.hpp>
 #include <Persistent/PlayerStartPosition.hpp>
+#include <PlayableCharacter.hpp>
 #include <Position.hpp>
 #include <RenderSystem.hpp>
+#include <ReservedPosition.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/System/Angle.hpp>
@@ -102,7 +105,8 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
       // getWindow().draw( m_sand_storm_shader );
 
       // now draw everything else on top of the sand shader
-      render_obstacles();
+      render_small_obstacles();
+
       render_sinkhole();
       render_corruption();
       render_wormhole();
@@ -112,6 +116,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
       render_player_footsteps();
       render_player();
       render_npc();
+      render_large_obstacles();
       render_explosions();
       render_flood_waters();
       render_player_distances_on_npc();
@@ -124,7 +129,8 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
     getWindow().setView( m_minimap_view );
     {
       render_floormap( { 0, kMapGridOffset.y * Sprites::MultiSprite::kDefaultSpriteDimensions.y } );
-      render_obstacles();
+      render_small_obstacles();
+
       render_sinkhole();
       render_corruption();
       render_wormhole();
@@ -133,6 +139,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
       render_walls();
       render_player();
       render_npc();
+      render_large_obstacles();
       render_flood_waters();
 
       // update the minimap view center based on player position
@@ -197,7 +204,50 @@ void RenderGameSystem::render_floormap( const sf::Vector2f &offset )
   getWindow().draw( m_floormap );
 }
 
-void RenderGameSystem::render_obstacles()
+void RenderGameSystem::render_large_obstacles()
+{
+
+  auto large_obst_view = m_reg->view<Cmp::LargeObstacle, Cmp::Position>();
+  for ( auto [entity, large_obst_cmp, pos_cmp] : large_obst_view.each() )
+  {
+    sf::RectangleShape square( large_obst_cmp.size );
+    square.setFillColor( sf::Color::Transparent );
+    square.setOutlineColor( sf::Color::Red );
+    square.setOutlineThickness( 2.f );
+    square.setPosition( pos_cmp );
+    getWindow().draw( square );
+  }
+
+  auto reserved_view = m_reg->view<Cmp::ReservedPosition>();
+  for ( auto [entity, reserved_cmp] : reserved_view.each() )
+  {
+
+    if ( reserved_cmp.m_type == Sprites::SpriteFactory::SpriteMetaType::PILLAR )
+    {
+      m_pillar_ms->pick( reserved_cmp.m_sprite_index, "Pillar" );
+      m_pillar_ms->setPosition( reserved_cmp );
+      getWindow().draw( *m_pillar_ms );
+    }
+    if ( reserved_cmp.m_type == Sprites::SpriteFactory::SpriteMetaType::PLINTH )
+    {
+      m_plinth_ms->pick( reserved_cmp.m_sprite_index, "Plinth" );
+      m_plinth_ms->setPosition( reserved_cmp );
+      getWindow().draw( *m_plinth_ms );
+    }
+    if ( reserved_cmp.m_solid_mask )
+    {
+      SPDLOG_TRACE( "Rendering Cmp::ReservedPosition at ({}, {})", reserved_cmp.x, reserved_cmp.y );
+      sf::RectangleShape square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+      square.setFillColor( sf::Color::Transparent );
+      square.setOutlineColor( sf::Color::Blue );
+      square.setOutlineThickness( 1.f );
+      square.setPosition( reserved_cmp );
+      getWindow().draw( square );
+    }
+  }
+}
+
+void RenderGameSystem::render_small_obstacles()
 {
 
   // Group similar draw operations to reduce state changes
@@ -209,8 +259,9 @@ void RenderGameSystem::render_obstacles()
   std::vector<sf::Vector2f> detonationPositions;
 
   // Collect all positions first instead of drawing immediately
-  for ( auto [entity, obstacle_cmp, position_cmp, _ob_nb_list] :
-        m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>().each() )
+  auto obst_view = m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>(
+      entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
+  for ( auto [entity, obstacle_cmp, position_cmp, _ob_nb_list] : obst_view.each() )
   {
     if ( obstacle_cmp.m_enabled )
     {
@@ -644,8 +695,8 @@ void RenderGameSystem::render_explosions()
   {
 
     // Always render the current frame
-    SPDLOG_INFO( "Rendering explosion frame {}/{} for entity {}", anim_cmp.m_current_frame,
-                 m_explosion_ms->get_sprites_per_sequence(), static_cast<int>( entity ) );
+    SPDLOG_DEBUG( "Rendering explosion frame {}/{} for entity {}", anim_cmp.m_current_frame,
+                  m_explosion_ms->get_sprites_per_sequence(), static_cast<int>( entity ) );
     m_explosion_ms->pick( anim_cmp.m_current_frame, "explosion" );
     m_explosion_ms->setPosition( pos_cmp );
     getWindow().draw( *m_explosion_ms );
@@ -749,6 +800,8 @@ void RenderGameSystem::load_multisprites()
   m_sinkhole_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::SINKHOLE );
   m_corruption_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::CORRUPTION );
   m_wormhole_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::WORMHOLE );
+  m_pillar_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::PILLAR );
+  m_plinth_ms = factory->get_multisprite_by_type( SpriteFactory::SpriteMetaType::PLINTH );
 
   // we should ensure these MultiSprites are initialized before continuing
   std::string err_msg;
@@ -770,6 +823,8 @@ void RenderGameSystem::load_multisprites()
   if ( !m_sinkhole_ms ) { err_msg = "Unable to get SINKHOLE from SpriteFactory"; }
   if ( !m_corruption_ms ) { err_msg = "Unable to get CORRUPTION from SpriteFactory"; }
   if ( !m_wormhole_ms ) { err_msg = "Unable to get WORMHOLE from SpriteFactory"; }
+  if ( !m_pillar_ms ) { err_msg = "Unable to get PILLAR from SpriteFactory"; }
+  if ( !m_plinth_ms ) { err_msg = "Unable to get PLINTH from SpriteFactory"; }
 
   if ( !err_msg.empty() )
   {

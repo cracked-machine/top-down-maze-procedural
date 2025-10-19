@@ -45,7 +45,9 @@ public:
     FOOTSTEPS = 14,
     SINKHOLE = 15,
     CORRUPTION = 16,
-    WORMHOLE = 17
+    WORMHOLE = 17,
+    PILLAR = 18,
+    PLINTH = 19
   };
 
 private:

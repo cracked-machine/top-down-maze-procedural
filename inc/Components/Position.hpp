@@ -16,10 +16,7 @@ public:
   Position( const sf::Vector2f &pos )
       : sf::Vector2f( pos )
   {
-    SPDLOG_DEBUG( "Position()" );
   }
-
-  ~Position() { SPDLOG_DEBUG( "~Position()" ); }
 };
 
 } // namespace ProceduralMaze::Cmp

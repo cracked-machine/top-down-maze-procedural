@@ -1,4 +1,6 @@
 #include <NpcSystem.hpp>
+#include <PlayableCharacter.hpp>
+#include <ReservedPosition.hpp>
 #include <SpriteAnimation.hpp>
 
 namespace ProceduralMaze::Sys {
@@ -42,7 +44,8 @@ void NpcSystem::remove_npc_entity( entt::entity npc_entity )
 
 void NpcSystem::lerp_movement( sf::Time dt )
 {
-  auto view = m_reg->view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds>();
+  auto view = m_reg->view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds>(
+      entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
 
   for ( auto [entity, pos, target, npc_scan_bounds] : view.each() )
   {
@@ -74,7 +77,7 @@ void NpcSystem::on_npc_death( const Events::NpcDeathEvent &event )
 }
 void NpcSystem::on_npc_creation( const Events::NpcCreationEvent &event )
 {
-  SPDLOG_DEBUG( "NPC Creation Event received" );
+  SPDLOG_INFO( "NPC Creation Event received" );
   add_npc_entity( event.position );
 }
 

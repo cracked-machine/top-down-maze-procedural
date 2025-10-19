@@ -27,7 +27,8 @@ public:
 
 private:
   void render_floormap( const sf::Vector2f &offset = { 0.f, 0.f } );
-  void render_obstacles();
+  void render_small_obstacles();
+  void render_large_obstacles();
   void render_sinkhole();
   void render_corruption();
   void render_wormhole();
@@ -87,6 +88,9 @@ private:
   std::optional<Sprites::MultiSprite> m_sinkhole_ms;
   std::optional<Sprites::MultiSprite> m_corruption_ms;
   std::optional<Sprites::MultiSprite> m_wormhole_ms;
+
+  std::optional<Sprites::MultiSprite> m_pillar_ms;
+  std::optional<Sprites::MultiSprite> m_plinth_ms;
 };
 
 } // namespace ProceduralMaze::Sys

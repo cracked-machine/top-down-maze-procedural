@@ -1,5 +1,6 @@
 #include <Door.hpp>
 #include <Exit.hpp>
+#include <ReservedPosition.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Wall.hpp>
 #include <entt/entity/registry.hpp>
@@ -41,6 +42,15 @@ bool BaseSystem::is_valid_move( sf::Vector2f &target_position )
   {
     auto door_hitbox = get_hitbox( pos_cmp );
     if ( door_hitbox.findIntersection( target_hitbox ) ) { return false; }
+  }
+
+  // Check reserved positions (excluding exits)
+  auto reserved_view = m_reg->view<Cmp::ReservedPosition>();
+  for ( auto [entity, reserved_cmp] : reserved_view.each() )
+  {
+    if ( not reserved_cmp.m_solid_mask ) continue;
+    auto reserved_hitbox = get_hitbox( reserved_cmp );
+    if ( reserved_hitbox.findIntersection( target_hitbox ) ) { return false; }
   }
 
   return true;

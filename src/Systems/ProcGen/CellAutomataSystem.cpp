@@ -24,30 +24,29 @@ void CellAutomataSystem::find_neighbours()
   // 1. find neighbours
   for ( auto it = m_random_level->begin(); it != m_random_level->end(); it++ )
   {
-    if ( !m_reg->valid( entt::entity( *it ) ) )
+    auto current_entity = entt::entity( *it );
+
+    // Skip invalid entities completely
+    if ( !m_reg->valid( current_entity ) )
     {
-      SPDLOG_WARN( "Entity {} is not valid! Valid entities are:", entt::to_integral( *it ) );
-      std::string valid_entities;
-      for ( [[maybe_unused]] auto entity : m_reg->view<entt::entity>() )
-      {
-        valid_entities += " " + std::to_string( entt::to_integral( entity ) );
-      }
-      SPDLOG_WARN( "{}", valid_entities );
+      SPDLOG_WARN( "Skipping invalid entity {}", entt::to_integral( *it ) );
+      continue;
     }
 
-    SPDLOG_TRACE( "Entity {} has neighbours:", entt::to_integral( *it ) );
-    m_reg->patch<Cmp::Neighbours>( entt::entity( *it ), []( auto &_nb_update ) { _nb_update.clear(); } );
+    // Clear previous neighbours
+    if ( not m_reg->all_of<Cmp::Neighbours>( current_entity ) )
+    {
+      // SPDLOG_WARN( "Entity {} does not have Neighbours component, skipping", entt::to_integral( *it ) );
+      continue;
+    }
+    m_reg->patch<Cmp::Neighbours>( current_entity, []( auto &_nb_update ) { _nb_update.clear(); } );
 
-    SPDLOG_TRACE( "" );
+    // calculate game area boundary edges within the `m_random_level` linear vector
     const int idx = std::distance( m_random_level->begin(), it );
-
     bool has_left_map_edge = not( ( idx ) % kMapGridSize.y );
     bool has_right_map_edge = not( ( idx + 1 ) % kMapGridSize.y );
 
-    SPDLOG_TRACE( "Entity {} has left map edge: {}", entt::to_integral( *it ), has_left_map_edge );
-    SPDLOG_TRACE( "Entity {} has right map edge: {}", entt::to_integral( *it ), has_right_map_edge );
-    auto current_entity = entt::entity( *it );
-
+    // ---------------------------------------
     //   Columns
     // ---------------------------------------
     // |  N - (y-1) |   N - 1   |            |  Rows
@@ -63,17 +62,7 @@ void CellAutomataSystem::find_neighbours()
     {
       auto left_entt = entt::entity( *std::prev( it ) );
       Cmp::Obstacle *left_entt_ob = m_reg->try_get<Cmp::Obstacle>( left_entt );
-      if ( not left_entt_ob )
-      {
-        SPDLOG_WARN( "No Obstacle component found on left entity [N - 1] "
-                     "neighbour: {}",
-                     entt::to_integral( left_entt ) );
-        assert( false &&
-                "No Obstacle component found on left entity [N - 1] "
-                "neighbour: " &&
-                entt::to_integral( left_entt ) );
-      }
-      else if ( left_entt_ob && left_entt_ob->m_enabled && not has_left_map_edge )
+      if ( left_entt_ob && left_entt_ob->m_enabled && not has_left_map_edge )
       {
         m_reg->patch<Cmp::Neighbours>(
             current_entity, [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::LEFT, left_entt ); } );
@@ -84,17 +73,7 @@ void CellAutomataSystem::find_neighbours()
     {
       auto down_left_entt = entt::entity( *std::prev( it, kMapGridSize.y + 1 ) );
       Cmp::Obstacle *down_left_entt_ob = m_reg->try_get<Cmp::Obstacle>( down_left_entt );
-      if ( not down_left_entt_ob )
-      {
-        SPDLOG_WARN( "No Obstacle component found on down left entity [N - (y "
-                     "- 1)] neighbour: {}",
-                     entt::to_integral( down_left_entt ) );
-        assert( false &&
-                "No Obstacle component found on down left entity [N - (y - "
-                "1)] neighbour: " &&
-                entt::to_integral( down_left_entt ) );
-      }
-      else if ( down_left_entt_ob->m_enabled && not has_left_map_edge )
+      if ( down_left_entt_ob && down_left_entt_ob->m_enabled && not has_left_map_edge )
       {
         m_reg->patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update ) {
           _nb_update.set( Cmp::Neighbours::Dir::DOWN_LEFT, down_left_entt );
@@ -106,17 +85,7 @@ void CellAutomataSystem::find_neighbours()
     {
       auto down_entt = entt::entity( *std::prev( it, kMapGridSize.y ) );
       Cmp::Obstacle *down_entt_ob = m_reg->try_get<Cmp::Obstacle>( down_entt );
-      if ( not down_entt_ob )
-      {
-        SPDLOG_WARN( "No Obstacle component found on down entity [N - y] "
-                     "neighbour: {}",
-                     entt::to_integral( down_entt ) );
-        assert( false &&
-                "No Obstacle component found on down entity [N - y] "
-                "neighbour: " &&
-                entt::to_integral( down_entt ) );
-      }
-      else if ( down_entt_ob->m_enabled )
+      if ( down_entt_ob && down_entt_ob->m_enabled )
       {
         m_reg->patch<Cmp::Neighbours>(
             current_entity, [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::DOWN, down_entt ); } );
@@ -127,17 +96,7 @@ void CellAutomataSystem::find_neighbours()
     {
       auto down_right_entt = entt::entity( *std::prev( it, kMapGridSize.y - 1 ) );
       Cmp::Obstacle *down_right_entt_ob = m_reg->try_get<Cmp::Obstacle>( down_right_entt );
-      if ( not down_right_entt_ob )
-      {
-        SPDLOG_WARN( "No Obstacle component found on down right entity [N - "
-                     "(y + 1)] neighbour: {}",
-                     entt::to_integral( down_right_entt ) );
-        assert( false &&
-                "No Obstacle component found on down right entity [N - (y + "
-                "1)] neighbour: " &&
-                entt::to_integral( down_right_entt ) );
-      }
-      else if ( down_right_entt_ob->m_enabled && not has_right_map_edge )
+      if ( down_right_entt_ob && down_right_entt_ob->m_enabled && not has_right_map_edge )
       {
         m_reg->patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update ) {
           _nb_update.set( Cmp::Neighbours::Dir::DOWN_RIGHT, down_right_entt );
@@ -161,17 +120,7 @@ void CellAutomataSystem::find_neighbours()
     {
       auto top_left_entt = entt::entity( *std::next( it, kMapGridSize.y - 1 ) );
       Cmp::Obstacle *top_left_entt_ob = m_reg->try_get<Cmp::Obstacle>( top_left_entt );
-      if ( not top_left_entt_ob )
-      {
-        SPDLOG_WARN( "No Obstacle component found on top left entity [N + (y "
-                     "- 1)] neighbour: {}",
-                     entt::to_integral( top_left_entt ) );
-        assert( false &&
-                "No Obstacle component found on top left entity [N + (y - 1)] "
-                "neighbour: " &&
-                entt::to_integral( top_left_entt ) );
-      }
-      else if ( top_left_entt_ob->m_enabled && not has_left_map_edge )
+      if ( top_left_entt_ob && top_left_entt_ob->m_enabled && not has_left_map_edge )
       {
         m_reg->patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update ) {
           _nb_update.set( Cmp::Neighbours::Dir::UP_LEFT, top_left_entt );
@@ -183,13 +132,7 @@ void CellAutomataSystem::find_neighbours()
     {
       auto top_entt = entt::entity( *std::next( it, kMapGridSize.y ) );
       Cmp::Obstacle *top_entt_ob = m_reg->try_get<Cmp::Obstacle>( top_entt );
-      if ( not top_entt_ob )
-      {
-        SPDLOG_WARN( "No Obstacle component found on top entity [N + y] neighbour: {}", entt::to_integral( top_entt ) );
-        assert( false && "No Obstacle component found on top entity [N + y] neighbour: " &&
-                entt::to_integral( top_entt ) );
-      }
-      else if ( top_entt_ob->m_enabled )
+      if ( top_entt_ob && top_entt_ob->m_enabled )
       {
         m_reg->patch<Cmp::Neighbours>(
             current_entity, [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::UP, top_entt ); } );
@@ -201,17 +144,7 @@ void CellAutomataSystem::find_neighbours()
     {
       auto top_right_entt = entt::entity( *std::next( it, ( kMapGridSize.y + 1 ) ) );
       Cmp::Obstacle *top_right_entt_ob = m_reg->try_get<Cmp::Obstacle>( top_right_entt );
-      if ( not top_right_entt_ob )
-      {
-        SPDLOG_WARN( "No Obstacle component found on top right entity [N + (y "
-                     "+ 1)] neighbour: {}",
-                     entt::to_integral( top_right_entt ) );
-        assert( false &&
-                "No Obstacle component found on top right entity [N + (y + "
-                "1)] neighbour: " &&
-                entt::to_integral( top_right_entt ) );
-      }
-      else if ( top_right_entt_ob->m_enabled && not has_right_map_edge )
+      if ( top_right_entt_ob && top_right_entt_ob->m_enabled && not has_right_map_edge )
       {
         m_reg->patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update ) {
           _nb_update.set( Cmp::Neighbours::Dir::UP_RIGHT, top_right_entt );
@@ -223,17 +156,7 @@ void CellAutomataSystem::find_neighbours()
     {
       auto right_entt = entt::entity( *std::next( it ) );
       Cmp::Obstacle *right_entt_ob = m_reg->try_get<Cmp::Obstacle>( right_entt );
-      if ( not right_entt_ob )
-      {
-        SPDLOG_WARN( "No Obstacle component found on right entity [N + 1] "
-                     "neighbour: {}",
-                     entt::to_integral( right_entt ) );
-        assert( false &&
-                "No Obstacle component found on right entity [N + 1] "
-                "neighbour: " &&
-                entt::to_integral( right_entt ) );
-      }
-      else if ( right_entt_ob->m_enabled && not has_right_map_edge )
+      if ( right_entt_ob && right_entt_ob->m_enabled && not has_right_map_edge )
       {
         m_reg->patch<Cmp::Neighbours>(
             current_entity, [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::RIGHT, right_entt ); } );

@@ -25,12 +25,14 @@
         "FOOTSTEPS": { "$ref": "#/definitions/spriteMetadata" },
         "SINKHOLE": { "$ref": "#/definitions/spriteMetadata" },
         "CORRUPTION": { "$ref": "#/definitions/spriteMetadata" },
-        "WORMHOLE": { "$ref": "#/definitions/spriteMetadata" }
+        "WORMHOLE": { "$ref": "#/definitions/spriteMetadata" },
+        "PILLAR": { "$ref": "#/definitions/spriteMetadata" },
+        "PLINTH": { "$ref": "#/definitions/spriteMetadata" }
       },
       "required": [
         "WALL", "ROCK", "POT", "BONES", "NPC", "DETONATED", "PLAYER", "BOMB",
         "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", 
-        "LOWER_WATER", "EXPLOSION", "FOOTSTEPS", "SINKHOLE", "CORRUPTION", "WORMHOLE"
+        "LOWER_WATER", "EXPLOSION", "FOOTSTEPS", "SINKHOLE", "CORRUPTION", "WORMHOLE", "PILLAR", "PLINTH"
       ],
       "additionalProperties": false
     }
@@ -86,6 +88,15 @@
               "type": "string",
               "description": "Path to the texture file",
               "pattern": "^res/textures/.*\\.(png|jpg|jpeg|bmp|tga)$"
+            },
+            "solid_mask": {
+              "type": "array",
+              "description": "Indicates which 'sprite_indices' the player cannot traverse. Array size must match sprite_indices size.",
+              "items": {
+                "type": "boolean"
+              },
+              "minItems": 1,
+              "uniqueItems": false
             },
             "sprite_indices": {
               "type": "array",

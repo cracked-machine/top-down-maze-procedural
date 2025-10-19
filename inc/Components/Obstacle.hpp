@@ -25,8 +25,9 @@ public:
   Sprites::SpriteFactory::SpriteMetaType m_type;
   uint32_t m_tile_index{ 0 };
 
-  // if true this obstacle will be considered impassable
+  // used for procedural generation algorithm and detonation logic
   bool m_enabled{ true };
+  // has this obstacle been broken (for destructible obstacles)
   bool m_broken{ false };
 };
 

@@ -31,8 +31,15 @@ SpriteFactory::SpriteFactory()
     SpriteSize grid_size = { value["multisprite"]["grid_size"]["width"], value["multisprite"]["grid_size"]["height"] };
     unsigned int sprites_per_frame = value["multisprite"]["sprites_per_frame"];
     unsigned int sprites_per_sequence = value["multisprite"]["sprites_per_sequence"];
-    meta.m_multisprite = MultiSprite{ texture_path, sprite_indices, grid_size, sprites_per_frame,
-                                      sprites_per_sequence };
+
+    std::vector<bool> solid_mask{};
+    if ( value["multisprite"].contains( "solid_mask" ) )
+    {
+      solid_mask = value["multisprite"]["solid_mask"].get<std::vector<bool>>();
+    }
+
+    meta.m_multisprite = MultiSprite{ texture_path,      sprite_indices,       grid_size,
+                                      sprites_per_frame, sprites_per_sequence, solid_mask };
 
     m_sprite_metadata_map[type] = meta;
   }
@@ -143,7 +150,9 @@ SpriteFactory::SpriteMetaType SpriteFactory::string_to_sprite_type( const std::s
       { "FOOTSTEPS", SpriteFactory::SpriteMetaType::FOOTSTEPS },
       { "SINKHOLE", SpriteFactory::SpriteMetaType::SINKHOLE },
       { "CORRUPTION", SpriteFactory::SpriteMetaType::CORRUPTION },
-      { "WORMHOLE", SpriteFactory::SpriteMetaType::WORMHOLE } };
+      { "WORMHOLE", SpriteFactory::SpriteMetaType::WORMHOLE },
+      { "PILLAR", SpriteFactory::SpriteMetaType::PILLAR },
+      { "PLINTH", SpriteFactory::SpriteMetaType::PLINTH } };
 
   auto it = map.find( str );
   if ( it != map.end() ) { return it->second; }

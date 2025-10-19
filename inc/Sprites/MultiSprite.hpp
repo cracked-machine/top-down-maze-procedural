@@ -40,10 +40,11 @@ public:
    */
   explicit MultiSprite( const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks,
                         SpriteSize grid_size = { 1, 1 }, unsigned int sprites_per_frame = 1,
-                        unsigned int sprites_per_sequence = 1 )
+                        unsigned int sprites_per_sequence = 1, std::vector<bool> solid_mask = {} )
       : m_grid_size{ grid_size.width, grid_size.height },
         m_sprites_per_frame{ sprites_per_frame },
-        m_sprites_per_sequence{ sprites_per_sequence }
+        m_sprites_per_sequence{ sprites_per_sequence },
+        m_solid_mask{ std::move( solid_mask ) }
   {
     if ( !add_sprite( tilemap_path, tilemap_picks ) )
     {
@@ -78,6 +79,7 @@ public:
   std::size_t get_sprite_count() const { return m_va_list.size(); }
   unsigned int get_sprites_per_frame() const { return m_sprites_per_frame; }
   unsigned int get_sprites_per_sequence() const { return m_sprites_per_sequence; }
+  const std::vector<bool> &get_solid_mask() const { return m_solid_mask; }
 
   void set_pick_opacity( uint8_t alpha );
 
@@ -107,6 +109,9 @@ private:
   unsigned int m_sprites_per_frame{ 1 };
 
   unsigned int m_sprites_per_sequence{ 1 };
+
+  // Indicates which 'sprite_indices' the player cannot traverse. Array size must match sprite_indices size.
+  std::vector<bool> m_solid_mask;
 };
 
 } // namespace ProceduralMaze::Sprites

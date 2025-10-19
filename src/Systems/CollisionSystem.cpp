@@ -47,9 +47,8 @@ void CollisionSystem::check_bones_reanimation()
       if ( _obstacle.m_type != Sprites::SpriteFactory::SpriteMetaType::BONES || not _obstacle.m_enabled ) continue;
 
       auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NpcActivateScale>();
-      // we just create a temporary RectBounds here instead of a component
-      // because we only need it for this one comparison and it already contains the needed scaling
-      // logic
+      // we just create a temporary RectBounds here instead of a component because we only need it for
+      // this one comparison and it already contains the needed scaling logic
       auto npc_activate_bounds = Cmp::RectBounds(
           _obstacle_pos, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions }, npc_activate_scale() );
       if ( player_hitbox.findIntersection( npc_activate_bounds.getBounds() ) )

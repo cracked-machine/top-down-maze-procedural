@@ -10,6 +10,7 @@
 #include <Persistent/CorruptionSeed.hpp>
 #include <Persistent/SinkholeSeed.hpp>
 #include <PlayableCharacter.hpp>
+#include <ReservedPosition.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 #include <SinkholeCell.hpp>
@@ -97,14 +98,16 @@ public:
       seed = get_persistent_component<Cmp::Persistent::CorruptionSeed>()();
       std::tie( random_entity, random_position ) = get_random_position(
           IncludePack<Cmp::Obstacle>{},
-          ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>(), seed );
+          ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(),
+          seed );
     }
     else if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
     {
       seed = get_persistent_component<Cmp::Persistent::SinkholeSeed>()();
       std::tie( random_entity, random_position ) = get_random_position(
           IncludePack<Cmp::Obstacle>{},
-          ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>{}, seed );
+          ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(),
+          seed );
     }
     if ( random_entity == entt::null )
     {

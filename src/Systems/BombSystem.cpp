@@ -189,8 +189,7 @@ void BombSystem::update()
       }
     }
 
-    // if we got this far then the bomb detonated, we can destroy the armed
-    // component
+    // if we got this far then the bomb detonated, we can destroy the armed component
     m_reg->erase<Cmp::Armed>( _entt );
 
     if ( m_fuse_sound_player.getStatus() == sf::Sound::Status::Playing ) m_fuse_sound_player.stop();
