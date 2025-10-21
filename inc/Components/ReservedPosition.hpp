@@ -18,9 +18,23 @@ public:
         m_sprite_index( sprite_index )
   {
   }
+
+  // Is collision detection enabled for this sprite
   bool m_solid_mask{ true };
+
+  // The type of sprite to use from the SpriteFactory
   Sprites::SpriteMetaType m_type;
+
+  // The sprite index to use from the MultiSprite associated with 'm_type'
   unsigned int m_sprite_index{ 0 };
+
+  // this is a one way switch - once animated, it cannot be disabled
+  void animate() { m_animated = true; }
+
+  bool is_animated() const { return m_animated; }
+
+private:
+  bool m_animated{ false };
 };
 
 } // namespace ProceduralMaze::Cmp

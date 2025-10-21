@@ -2,18 +2,19 @@
 
 namespace ProceduralMaze::Sprites {
 
-bool MultiSprite::pick( std::size_t idx, const std::string &caller )
+bool MultiSprite::pick( std::size_t idx, [[maybe_unused]] const std::string &caller )
 {
   if ( m_va_list.empty() )
   {
-    SPDLOG_WARN( "pick() called on empty sprite list from {}", caller );
+    // SPDLOG_WARN( "pick() called on empty sprite list from {}", caller );
     return false;
   }
 
   if ( idx >= m_va_list.size() )
   {
-    SPDLOG_WARN( "{}: pick() index {} out of range (size: {}), using index 0", caller, idx, m_va_list.size() );
+    // SPDLOG_WARN( "{}: pick() index {} out of range (size: {}), using index 0", caller, idx, m_va_list.size() );
     idx = 0;
+    return false;
   }
 
   m_selected_vertices = m_va_list[idx];

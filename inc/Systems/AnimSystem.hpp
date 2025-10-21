@@ -33,8 +33,14 @@ public:
 
 private:
   // Helper function to update a single animation
-  void update_frame( Cmp::SpriteAnimation &anim, sf::Time deltaTime, const unsigned int sprites_per_frame,
-                     const unsigned int sprites_per_sequence, sf::Time frame_rate = sf::seconds( 0.1f ) );
+  // void update_frame( Cmp::SpriteAnimation &anim, sf::Time deltaTime, const unsigned int sprites_per_frame,
+  //                    const unsigned int sprites_per_sequence, sf::Time frame_rate = sf::seconds( 0.1f ) );
+
+  void update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time deltaTime, const unsigned int sprites_per_frame,
+                               const unsigned int total_sprites, sf::Time frame_rate );
+
+  void update_grouped_sequences( Cmp::SpriteAnimation &anim, sf::Time deltaTime, const unsigned int sprites_per_frame,
+                                 const unsigned int frames_per_group, sf::Time frame_rate );
 };
 
 } // namespace ProceduralMaze::Sys

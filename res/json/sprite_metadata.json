@@ -285,7 +285,7 @@
           true, true, true, true,
           true, true, true, true
         ],
-        "sprites_per_sequence": 4,
+        "sprites_per_sequence": 20,
         "sprites_per_frame": 4,
         "grid_size": {
           "width": 2,

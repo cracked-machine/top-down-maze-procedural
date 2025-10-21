@@ -42,7 +42,8 @@ void RandomLevelGenerator::gen_positions()
 }
 
 void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprite> large_obstacle_sprite,
-                                               Sprites::SpriteMetaType sprite_meta_type, unsigned long seed )
+                                               Sprites::SpriteMetaType sprite_meta_type, unsigned long seed,
+                                               bool is_shrine )
 {
   // make sure the new large obstacle does not overlap with existing large obstacles
   auto [random_entity, random_origin_position] = get_random_position( {}, ExcludePack<Cmp::ReservedPosition>{}, seed );
@@ -54,7 +55,8 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
     // place large obstacle - multiply the grid size to get pixel size!
     auto large_obst_grid_size = large_obstacle_sprite->get_grid_size();
     m_reg->emplace_or_replace<Cmp::LargeObstacle>( random_entity, sprite_meta_type, random_origin_position,
-                                                   large_obst_grid_size.componentWiseMul( kDefaultSpriteDimensions ) );
+                                                   large_obst_grid_size.componentWiseMul( kDefaultSpriteDimensions ),
+                                                   is_shrine );
 
     auto sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
     SPDLOG_INFO( "Placed large obstacle ({}) at position ({}, {}). Grid size: {}x{}",
@@ -143,7 +145,7 @@ void RandomLevelGenerator::gen_large_obstacles()
         SPDLOG_WARN( "No multisprite found for grave type {}", sprite_metatype );
         continue;
       }
-      gen_large_obstacle( multisprite, sprite_metatype, 0 );
+      gen_large_obstacle( multisprite, sprite_metatype, 0, false );
     }
   }
   auto shrine_multisprite = sprite_factory->get_multisprite_by_type( "SHRINE" );
@@ -153,7 +155,7 @@ void RandomLevelGenerator::gen_large_obstacles()
     for ( std::size_t i = 0; i < 10; ++i )
     {
       // Use the dynamically discovered shrine types
-      gen_large_obstacle( shrine_multisprite, "SHRINE", 0 );
+      gen_large_obstacle( shrine_multisprite, "SHRINE", 0, true );
     }
   }
 }

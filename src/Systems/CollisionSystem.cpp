@@ -1,6 +1,7 @@
 #include <CollisionSystem.hpp>
 #include <CorruptionCell.hpp>
 #include <HazardFieldCell.hpp>
+#include <LargeObstacle.hpp>
 #include <Persistent/BombBonus.hpp>
 #include <Persistent/CorruptionDamage.hpp>
 #include <Persistent/HealthBonus.hpp>
@@ -9,7 +10,11 @@
 #include <Persistent/NpcPushBack.hpp>
 #include <Persistent/PlayerStartPosition.hpp>
 #include <Persistent/WaterBonus.hpp>
+#include <RectBounds.hpp>
+#include <ReservedPosition.hpp>
+#include <SFML/Graphics/Rect.hpp>
 #include <SinkholeCell.hpp>
+#include <SpriteAnimation.hpp>
 
 namespace ProceduralMaze::Sys {
 
@@ -258,6 +263,44 @@ void CollisionSystem::update_obstacle_distances()
         m_reg->emplace_or_replace<Cmp::PlayerDistance>( _ob_entt, distance );
       }
       else { m_reg->remove<Cmp::PlayerDistance>( _ob_entt ); }
+    }
+  }
+}
+
+void CollisionSystem::check_player_large_obstacle_collision()
+{
+  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto large_obstacle_view = m_reg->view<Cmp::LargeObstacle>();
+
+  for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : player_view.each() )
+  {
+    // slightly larger hitbox for large obstacles because we want to trigger
+    // collision when we get CLOSE to them
+    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions },
+                                          1.5f );
+
+    for ( auto [lo_entity, lo_cmp] : large_obstacle_view.each() )
+    {
+      if ( not lo_cmp.is_shrine() ) continue;
+      if ( player_hitbox.findIntersection( lo_cmp ) )
+      {
+        SPDLOG_DEBUG( "Player collided with LargeObstacle at ({}, {})", lo_cmp.position.x, lo_cmp.position.y );
+        lo_cmp.m_powers_active = true;
+
+        auto reserved_view = m_reg->view<Cmp::ReservedPosition>();
+        for ( auto [_res_entity, reserved_cmp] : reserved_view.each() )
+        {
+          // permanentlyenable animation for any reserved positions that intersect with the large obstacle
+          auto kDefaultSpriteDimensions = Sprites::MultiSprite::kDefaultSpriteDimensions;
+          auto reserved_hitbox = sf::FloatRect( reserved_cmp, sf::Vector2f{ kDefaultSpriteDimensions } );
+          if ( reserved_hitbox.findIntersection( lo_cmp ) )
+          {
+            reserved_cmp.animate();
+            m_reg->emplace_or_replace<Cmp::SpriteAnimation>( _res_entity, 0, 1 );
+          }
+        }
+      }
+      else { lo_cmp.m_powers_active = false; }
     }
   }
 }

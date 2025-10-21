@@ -8,6 +8,7 @@
 #include <Persistent/PlayerAnimFramerate.hpp>
 #include <Persistent/WormholeAnimFramerate.hpp>
 #include <PlayableCharacter.hpp>
+#include <ReservedPosition.hpp>
 #include <SFML/System/Time.hpp>
 #include <SpriteAnimation.hpp>
 #include <SpriteFactory.hpp>
@@ -21,6 +22,22 @@ void AnimSystem::update( sf::Time deltaTime )
   using namespace Sprites;
   auto &factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
 
+  // ReservedPosition Animation
+  auto reserved_view = m_reg->view<Cmp::ReservedPosition, Cmp::SpriteAnimation>();
+  for ( auto [entity, reserved_cmp, anim_cmp] : reserved_view.each() )
+  {
+    if ( reserved_cmp.is_animated() )
+    {
+      SPDLOG_DEBUG( "Updating ReservedPosition animation for entity {}", static_cast<int>( entity ) );
+      auto reserved_sprite_metadata = factory->get_multisprite_by_type( reserved_cmp.m_type );
+      auto sprites_per_frame = reserved_sprite_metadata->get_sprites_per_frame();
+      auto sprites_per_sequence = reserved_sprite_metadata->get_sprites_per_sequence();
+      auto frame_rate = sf::seconds( 0.1f );
+
+      update_single_sequence( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
+    }
+  }
+
   // NPC Movement: only update animation for NPC that are actively pathfinding
   auto pathfinding_npc_view = m_reg->view<Cmp::NPC, Cmp::LerpPosition, Cmp::SpriteAnimation>();
   for ( [[maybe_unused]] auto [entity, npc_cmp, lerp_pos_cmp, anim_cmp] : pathfinding_npc_view.each() )
@@ -33,7 +50,7 @@ void AnimSystem::update( sf::Time deltaTime )
       auto sprites_per_sequence = npc_sprite_metadata->get_sprites_per_sequence();
       auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::NpcAnimFramerate>()() );
 
-      update_frame( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
+      update_single_sequence( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
     }
   }
 
@@ -49,7 +66,7 @@ void AnimSystem::update( sf::Time deltaTime )
       auto sprites_per_sequence = player_sprite_metadata->get_sprites_per_sequence();
       auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::PlayerAnimFramerate>()() );
 
-      update_frame( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
+      update_grouped_sequences( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
     }
   }
 
@@ -63,7 +80,7 @@ void AnimSystem::update( sf::Time deltaTime )
     auto sprites_per_sequence = wormhole_sprite_metadata->get_sprites_per_sequence();
     auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::WormholeAnimFramerate>()() );
 
-    update_frame( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
+    update_single_sequence( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
   }
 
   // NPC Death Explosion Animation
@@ -81,7 +98,7 @@ void AnimSystem::update( sf::Time deltaTime )
                   frame_rate.asSeconds() );
 
     // Update the frame first
-    update_frame( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
+    update_single_sequence( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
 
     SPDLOG_DEBUG( "After update_frame - current_frame: {}, elapsed_time: {}s", anim_cmp.m_current_frame,
                   anim_cmp.m_elapsed_time.asSeconds() );
@@ -140,15 +157,17 @@ void AnimSystem::on_anim_direction_change( const Events::AnimDirectionChangeEven
   }
 }
 
-void AnimSystem::update_frame( Cmp::SpriteAnimation &anim, sf::Time deltaTime, const unsigned int sprites_per_frame,
-                               const unsigned int sprites_per_sequence, sf::Time frame_rate )
+void AnimSystem::update_grouped_sequences( Cmp::SpriteAnimation &anim, sf::Time deltaTime,
+                                           const unsigned int sprites_per_frame, const unsigned int frames_per_group,
+                                           sf::Time frame_rate )
 {
   anim.m_elapsed_time += deltaTime;
 
   if ( anim.m_elapsed_time >= frame_rate )
   {
+
     // Increment frame. Wrap around to zero at anim.m_frame_count
-    anim.m_current_frame = ( anim.m_current_frame + sprites_per_frame ) % sprites_per_sequence;
+    anim.m_current_frame = ( anim.m_current_frame + sprites_per_frame ) % frames_per_group;
 
     // Subtract frame_rate instead of resetting to Zero to maintain precise timing
     // i.e. this carries the time overflow from previous update:
@@ -159,5 +178,56 @@ void AnimSystem::update_frame( Cmp::SpriteAnimation &anim, sf::Time deltaTime, c
     anim.m_elapsed_time -= frame_rate;
   }
 }
+
+void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time deltaTime,
+                                         const unsigned int sprites_per_frame, const unsigned int total_sprites,
+                                         sf::Time frame_rate )
+{
+  anim.m_elapsed_time += deltaTime;
+
+  if ( anim.m_elapsed_time >= frame_rate )
+  {
+    // For single sequence animations with base frame offset
+    // Calculate how many animation frames exist
+    unsigned int num_animation_frames = total_sprites / sprites_per_frame; // 20/4 = 5 frames
+
+    // Get current animation frame index (0,1,2,3,4)
+    unsigned int current_anim_frame = anim.m_current_frame / sprites_per_frame;
+
+    // Advance to next animation frame, wrapping around
+    unsigned int next_anim_frame = ( current_anim_frame + 1 ) % num_animation_frames;
+
+    // If we wrapped around, start from base frame, otherwise continue sequence
+    if ( next_anim_frame == 0 )
+    {
+      next_anim_frame = anim.m_base_frame; // Start from base frame after wrap
+    }
+
+    // Convert back to sprite index
+    anim.m_current_frame = next_anim_frame * sprites_per_frame;
+
+    anim.m_elapsed_time -= frame_rate;
+  }
+}
+
+// void AnimSystem::update_frame( Cmp::SpriteAnimation &anim, sf::Time deltaTime, const unsigned int sprites_per_frame,
+//                                const unsigned int sprites_per_sequence, sf::Time frame_rate )
+// {
+//   anim.m_elapsed_time += deltaTime;
+
+//   if ( anim.m_elapsed_time >= frame_rate )
+//   {
+//     // Increment frame. Wrap around to zero at anim.m_frame_count
+//     anim.m_current_frame = ( anim.m_current_frame + sprites_per_frame ) % sprites_per_sequence;
+
+//     // Subtract frame_rate instead of resetting to Zero to maintain precise timing
+//     // i.e. this carries the time overflow from previous update:
+//     // Example: if frame_rate = 0.1 seconds (100ms per frame)
+//     // Frame N: deltaTime = 0.05s
+//     //   elapsed_time = 0.07 + 0.05 = 0.12s  // >= 0.1, advance frame!
+//     //   elapsed_time = 0.12 - 0.10 = 0.02s  // Keep the 0.02s "overflow"
+//     anim.m_elapsed_time -= frame_rate;
+//   }
+// }
 
 } // namespace ProceduralMaze::Sys

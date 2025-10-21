@@ -227,30 +227,28 @@ void RenderGameSystem::render_floormap( const sf::Vector2f &offset )
 
 void RenderGameSystem::render_large_obstacles()
 {
-
-  // auto large_obst_view = m_reg->view<Cmp::LargeObstacle, Cmp::Position>();
-  // for ( auto [entity, large_obst_cmp, pos_cmp] : large_obst_view.each() )
-  // {
-  //   sf::RectangleShape square( large_obst_cmp.size );
-  //   square.setFillColor( sf::Color::Transparent );
-  //   square.setOutlineColor( sf::Color::Red );
-  //   square.setOutlineThickness( 2.f );
-  //   square.setPosition( pos_cmp );
-  //   getWindow().draw( square );
-  // }
-
   auto reserved_view = m_reg->view<Cmp::ReservedPosition>();
   for ( auto [entity, reserved_cmp] : reserved_view.each() )
   {
-    // Render any grave sprite if used by this reserved position
-    // 'm_grave_map' contains:
-    // first: SpriteMetaType
-    // second: optional MultiSprite
+    // it->first: SpriteMetaType (aka std::string)
+    // it->second: optional<MultiSprite>
     if ( auto it = m_multisprite_map.find( reserved_cmp.m_type );
          it != m_multisprite_map.end() && it->second.has_value() )
     {
       auto meta_type = it->first;
+      // when not activated use the default sprite index
       auto new_idx = reserved_cmp.m_sprite_index;
+      auto anim_sprite_cmp = m_reg->try_get<Cmp::SpriteAnimation>( entity );
+      if ( anim_sprite_cmp )
+      {
+        // or use the current frame from the animation component
+        new_idx = reserved_cmp.m_sprite_index + anim_sprite_cmp->m_current_frame;
+        SPDLOG_TRACE( "Rendering animated ReservedPosition for entity {} at index {}, frame {}",
+                      static_cast<int>( entity ), reserved_cmp.m_sprite_index, anim_sprite_cmp->m_current_frame );
+      }
+      // if ( reserved_cmp.is_animated() )
+      //   new_idx = reserved_cmp.m_sprite_index + it->second.value().get_sprites_per_frame();
+
       sf::Vector2f new_scale{ 1.f, 1.f };
       uint8_t new_alpha{ 255 };
       sf::Vector2f new_origin{ 0.f, 0.f };
@@ -259,7 +257,7 @@ void RenderGameSystem::render_large_obstacles()
                           sf::degrees( new_angle ) );
     }
 
-    if ( reserved_cmp.m_solid_mask )
+    if ( reserved_cmp.is_animated() )
     {
       SPDLOG_TRACE( "Rendering Cmp::ReservedPosition at ({}, {})", reserved_cmp.x, reserved_cmp.y );
       sf::RectangleShape square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
@@ -269,6 +267,23 @@ void RenderGameSystem::render_large_obstacles()
       square.setPosition( reserved_cmp );
       getWindow().draw( square );
     }
+  }
+
+  auto large_obstacle_view = m_reg->view<Cmp::LargeObstacle>();
+  for ( auto [entity, large_obst_cmp] : large_obstacle_view.each() )
+  {
+    if ( not large_obst_cmp.m_powers_active || large_obst_cmp.m_powers_extinct )
+    {
+      // skip rendering inactive large obstacles
+      continue;
+    }
+    SPDLOG_DEBUG( "Rendering Cmp::LargeObstacle at ({}, {})", large_obst_cmp.position.x, large_obst_cmp.position.y );
+    sf::RectangleShape square( sf::Vector2f{ large_obst_cmp.size.x, large_obst_cmp.size.y } );
+    square.setFillColor( sf::Color::Transparent );
+    square.setOutlineColor( sf::Color::Green );
+    square.setOutlineThickness( 2.f );
+    square.setPosition( { large_obst_cmp.position.x, large_obst_cmp.position.y } );
+    getWindow().draw( square );
   }
 }
 
@@ -525,11 +540,11 @@ void RenderGameSystem::render_player()
 {
   auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds,
                                  Cmp::SpriteAnimation>();
-  for ( auto [entity, player, position, direction, pc_detection_bounds, anim_cmp] : player_view.each() )
+  for ( auto [entity, pc_cmp, pc_pos_cmp, dir_cmp, pc_detection_bounds, anim_cmp] : player_view.each() )
   {
     int sprite_index;
 
-    if ( direction == sf::Vector2f( 0.0f, 0.0f ) )
+    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) )
     {
       // Use static frame when not moving
       sprite_index = anim_cmp.m_base_frame;
@@ -540,7 +555,7 @@ void RenderGameSystem::render_player()
       sprite_index = anim_cmp.m_base_frame + anim_cmp.m_current_frame;
     }
 
-    safe_render_sprite( "PLAYER", { position.x + direction.x_offset, position.y }, sprite_index );
+    safe_render_sprite( "PLAYER", { pc_pos_cmp.x + dir_cmp.x_offset, pc_pos_cmp.y }, sprite_index );
 
     if ( m_show_path_distances )
     {
@@ -552,13 +567,15 @@ void RenderGameSystem::render_player()
       getWindow().draw( pc_square );
     }
 
+    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions },
+                                          1.2f );
     // Debug: Draw a green rectangle around the player position
-    // sf::RectangleShape player_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
-    // player_square.setFillColor( sf::Color::Transparent );
-    // player_square.setOutlineColor( sf::Color::Green );
-    // player_square.setOutlineThickness( 1.f );
-    // player_square.setPosition( position );
-    // getWindow().draw( player_square );
+    sf::RectangleShape player_square( player_hitbox.size() );
+    player_square.setFillColor( sf::Color::Transparent );
+    player_square.setOutlineColor( sf::Color::Green );
+    player_square.setOutlineThickness( 1.f );
+    player_square.setPosition( player_hitbox.position() );
+    getWindow().draw( player_square );
   }
 }
 
@@ -785,23 +802,27 @@ void RenderGameSystem::safe_render_sprite_to_target( sf::RenderTarget &target, c
     auto &sprite = m_multisprite_map.at( sprite_type );
     if ( sprite.has_value() )
     {
-      sprite->pick( sprite_index, sprite_type );
+      auto pick_result = sprite->pick( sprite_index, sprite_type );
       sprite->setPosition( position );
       sprite->setScale( scale );
       sprite->set_pick_opacity( alpha );
       sprite->setOrigin( origin );
       sprite->setRotation( angle );
-      target.draw( *sprite ); // Draw to specified target instead of getWindow()
+      if ( pick_result )
+      {
+        target.draw( *sprite ); // Draw to specified target instead of getWindow()
+      }
+      else { render_fallback_square_to_target( target, position, sf::Color::Cyan ); }
     }
     else
     {
-      SPDLOG_WARN( "Sprite '{}' exists in map but has no value", sprite_type );
+      // SPDLOG_WARN( "Sprite '{}' exists in map but has no value", sprite_type );
       render_fallback_square_to_target( target, position, sf::Color::Yellow );
     }
   }
   catch ( const std::out_of_range &e )
   {
-    SPDLOG_WARN( "Missing sprite '{}' in map, rendering fallback square", sprite_type );
+    // SPDLOG_WARN( "Missing sprite '{}' in map, rendering fallback square", sprite_type );
     render_fallback_square_to_target( target, position, sf::Color::Magenta );
   }
 }

@@ -150,6 +150,7 @@ bool Engine::run()
         m_collision_sys.check_end_zone_collision();
         m_collision_sys.check_loot_collision();
         m_collision_sys.check_bones_reanimation();
+        m_collision_sys.check_player_large_obstacle_collision();
         m_wormhole_sys.check_player_wormhole_collision();
 
         m_collision_sys.update_obstacle_distances();
