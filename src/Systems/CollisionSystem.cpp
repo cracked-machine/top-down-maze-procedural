@@ -285,22 +285,24 @@ void CollisionSystem::check_player_large_obstacle_collision()
       if ( player_hitbox.findIntersection( lo_cmp ) )
       {
         SPDLOG_DEBUG( "Player collided with LargeObstacle at ({}, {})", lo_cmp.position.x, lo_cmp.position.y );
-        lo_cmp.m_powers_active = true;
-
-        auto reserved_view = m_reg->view<Cmp::ReservedPosition>();
-        for ( auto [_res_entity, reserved_cmp] : reserved_view.each() )
+        // only activate once
+        if ( !lo_cmp.m_powers_active )
         {
-          // permanentlyenable animation for any reserved positions that intersect with the large obstacle
-          auto kDefaultSpriteDimensions = Sprites::MultiSprite::kDefaultSpriteDimensions;
-          auto reserved_hitbox = sf::FloatRect( reserved_cmp, sf::Vector2f{ kDefaultSpriteDimensions } );
-          if ( reserved_hitbox.findIntersection( lo_cmp ) )
+          lo_cmp.m_powers_active = true;
+          auto reserved_view = m_reg->view<Cmp::ReservedPosition>();
+          for ( auto [_res_entity, reserved_cmp] : reserved_view.each() )
           {
-            reserved_cmp.animate();
-            m_reg->emplace_or_replace<Cmp::SpriteAnimation>( _res_entity, 0, 1 );
+            // permanentlyenable animation for any reserved positions that intersect with the large obstacle
+            auto kDefaultSpriteDimensions = Sprites::MultiSprite::kDefaultSpriteDimensions;
+            auto reserved_hitbox = sf::FloatRect( reserved_cmp, sf::Vector2f{ kDefaultSpriteDimensions } );
+            if ( reserved_hitbox.findIntersection( lo_cmp ) )
+            {
+              reserved_cmp.animate();
+              m_reg->emplace_or_replace<Cmp::SpriteAnimation>( _res_entity, 0, 1 );
+            }
           }
         }
       }
-      else { lo_cmp.m_powers_active = false; }
     }
   }
 }

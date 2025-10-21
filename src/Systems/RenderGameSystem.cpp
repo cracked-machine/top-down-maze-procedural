@@ -257,34 +257,34 @@ void RenderGameSystem::render_large_obstacles()
                           sf::degrees( new_angle ) );
     }
 
-    if ( reserved_cmp.is_animated() )
-    {
-      SPDLOG_TRACE( "Rendering Cmp::ReservedPosition at ({}, {})", reserved_cmp.x, reserved_cmp.y );
-      sf::RectangleShape square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
-      square.setFillColor( sf::Color::Transparent );
-      square.setOutlineColor( sf::Color::Blue );
-      square.setOutlineThickness( 1.f );
-      square.setPosition( reserved_cmp );
-      getWindow().draw( square );
-    }
+    // if ( reserved_cmp.is_animated() )
+    // {
+    //   SPDLOG_TRACE( "Rendering Cmp::ReservedPosition at ({}, {})", reserved_cmp.x, reserved_cmp.y );
+    //   sf::RectangleShape square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+    //   square.setFillColor( sf::Color::Transparent );
+    //   square.setOutlineColor( sf::Color::Blue );
+    //   square.setOutlineThickness( 1.f );
+    //   square.setPosition( reserved_cmp );
+    //   getWindow().draw( square );
+    // }
   }
 
-  auto large_obstacle_view = m_reg->view<Cmp::LargeObstacle>();
-  for ( auto [entity, large_obst_cmp] : large_obstacle_view.each() )
-  {
-    if ( not large_obst_cmp.m_powers_active || large_obst_cmp.m_powers_extinct )
-    {
-      // skip rendering inactive large obstacles
-      continue;
-    }
-    SPDLOG_DEBUG( "Rendering Cmp::LargeObstacle at ({}, {})", large_obst_cmp.position.x, large_obst_cmp.position.y );
-    sf::RectangleShape square( sf::Vector2f{ large_obst_cmp.size.x, large_obst_cmp.size.y } );
-    square.setFillColor( sf::Color::Transparent );
-    square.setOutlineColor( sf::Color::Green );
-    square.setOutlineThickness( 2.f );
-    square.setPosition( { large_obst_cmp.position.x, large_obst_cmp.position.y } );
-    getWindow().draw( square );
-  }
+  // auto large_obstacle_view = m_reg->view<Cmp::LargeObstacle>();
+  // for ( auto [entity, large_obst_cmp] : large_obstacle_view.each() )
+  // {
+  //   if ( not large_obst_cmp.m_powers_active || large_obst_cmp.m_powers_extinct )
+  //   {
+  //     // skip rendering inactive large obstacles
+  //     continue;
+  //   }
+  //   SPDLOG_DEBUG( "Rendering Cmp::LargeObstacle at ({}, {})", large_obst_cmp.position.x, large_obst_cmp.position.y );
+  //   sf::RectangleShape square( sf::Vector2f{ large_obst_cmp.size.x, large_obst_cmp.size.y } );
+  //   square.setFillColor( sf::Color::Transparent );
+  //   square.setOutlineColor( sf::Color::Green );
+  //   square.setOutlineThickness( 2.f );
+  //   square.setPosition( { large_obst_cmp.position.x, large_obst_cmp.position.y } );
+  //   getWindow().draw( square );
+  // }
 }
 
 void RenderGameSystem::render_small_obstacles()
