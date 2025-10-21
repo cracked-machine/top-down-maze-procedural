@@ -35,7 +35,6 @@
 
 #include <cassert>
 #include <cmath>
-#include <memory>
 
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
@@ -152,15 +151,15 @@ public:
     }
   }
 
-  void check_player_large_obstacle_collision();
+  void check_player_large_obstacle_collision( Events::PlayerActionEvent::GameActions action );
 
-  /// EVENTS
+  /// EVENT SINKS ///
   void on_player_action( const Events::PlayerActionEvent &event )
   {
     SPDLOG_DEBUG( "Player Action Event received" );
-    if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE_SHRINE )
+    if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE )
     {
-      check_player_large_obstacle_collision();
+      check_player_large_obstacle_collision( event.action );
     }
   }
 

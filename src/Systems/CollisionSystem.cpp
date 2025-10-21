@@ -21,6 +21,9 @@ namespace ProceduralMaze::Sys {
 CollisionSystem::CollisionSystem( ProceduralMaze::SharedEnttRegistry reg )
     : BaseSystem( reg )
 {
+  // register the event sinks
+  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&CollisionSystem::on_player_action>(
+      this );
 }
 
 void CollisionSystem::suspend()
@@ -267,7 +270,7 @@ void CollisionSystem::update_obstacle_distances()
   }
 }
 
-void CollisionSystem::check_player_large_obstacle_collision()
+void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActionEvent::GameActions action )
 {
   auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
   auto large_obstacle_view = m_reg->view<Cmp::LargeObstacle>();
@@ -297,12 +300,13 @@ void CollisionSystem::check_player_large_obstacle_collision()
             auto reserved_hitbox = sf::FloatRect( reserved_cmp, sf::Vector2f{ kDefaultSpriteDimensions } );
             if ( reserved_hitbox.findIntersection( lo_cmp ) )
             {
-              if ( reserved_cmp.m_type == "SHRINE" )
+              if ( reserved_cmp.m_type == "SHRINE" && action == Events::PlayerActionEvent::GameActions::ACTIVATE )
               {
                 reserved_cmp.animate();
                 m_reg->emplace_or_replace<Cmp::SpriteAnimation>( _res_entity, 0, 1 );
               }
-              else if ( reserved_cmp.m_type.contains( "GRAVE" ) )
+              else if ( reserved_cmp.m_type.contains( "GRAVE" ) &&
+                        action == Events::PlayerActionEvent::GameActions::ACTIVATE )
               {
                 auto grave_ms = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>()
                                     ->get_multisprite_by_type( reserved_cmp.m_type );

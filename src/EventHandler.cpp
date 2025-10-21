@@ -170,6 +170,10 @@ void EventHandler::game_state_handler( sf::RenderWindow &window )
   {
     getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
   }
+  if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
+  {
+    getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
+  }
 }
 
 void EventHandler::paused_state_handler( sf::RenderWindow &window )
