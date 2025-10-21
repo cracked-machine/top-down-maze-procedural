@@ -14,6 +14,7 @@
 #include <Components/System.hpp>
 #include <Components/WaterLevel.hpp>
 #include <CorruptionCell.hpp>
+#include <Events/PlayerActionEvent.hpp>
 #include <NPCScanBounds.hpp>
 #include <NpcSystem.hpp>
 #include <PCDetectionBounds.hpp>
@@ -152,6 +153,16 @@ public:
   }
 
   void check_player_large_obstacle_collision();
+
+  /// EVENTS
+  void on_player_action( const Events::PlayerActionEvent &event )
+  {
+    SPDLOG_DEBUG( "Player Action Event received" );
+    if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE_SHRINE )
+    {
+      check_player_large_obstacle_collision();
+    }
+  }
 
 private:
   sf::FloatRect m_end_zone{ { kDisplaySize.x * 1.f, 0 }, { 500.f, kDisplaySize.y * 1.f } };

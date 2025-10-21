@@ -569,13 +569,13 @@ void RenderGameSystem::render_player()
 
     auto player_hitbox = Cmp::RectBounds( pc_pos_cmp, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions },
                                           1.2f );
-    // Debug: Draw a green rectangle around the player position
-    sf::RectangleShape player_square( player_hitbox.size() );
-    player_square.setFillColor( sf::Color::Transparent );
-    player_square.setOutlineColor( sf::Color::Green );
-    player_square.setOutlineThickness( 1.f );
-    player_square.setPosition( player_hitbox.position() );
-    getWindow().draw( player_square );
+    // // Debug: Draw a green rectangle around the player position
+    // sf::RectangleShape player_square( player_hitbox.size() );
+    // player_square.setFillColor( sf::Color::Transparent );
+    // player_square.setOutlineColor( sf::Color::Green );
+    // player_square.setOutlineThickness( 1.f );
+    // player_square.setPosition( player_hitbox.position() );
+    // getWindow().draw( player_square );
   }
 }
 

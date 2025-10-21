@@ -281,24 +281,40 @@ void CollisionSystem::check_player_large_obstacle_collision()
 
     for ( auto [lo_entity, lo_cmp] : large_obstacle_view.each() )
     {
-      if ( not lo_cmp.is_shrine() ) continue;
       if ( player_hitbox.findIntersection( lo_cmp ) )
       {
         SPDLOG_DEBUG( "Player collided with LargeObstacle at ({}, {})", lo_cmp.position.x, lo_cmp.position.y );
         // only activate once
+
         if ( !lo_cmp.m_powers_active )
         {
           lo_cmp.m_powers_active = true;
           auto reserved_view = m_reg->view<Cmp::ReservedPosition>();
           for ( auto [_res_entity, reserved_cmp] : reserved_view.each() )
           {
-            // permanentlyenable animation for any reserved positions that intersect with the large obstacle
+            // permanently enable animation for any reserved positions that intersect with the large obstacle
             auto kDefaultSpriteDimensions = Sprites::MultiSprite::kDefaultSpriteDimensions;
             auto reserved_hitbox = sf::FloatRect( reserved_cmp, sf::Vector2f{ kDefaultSpriteDimensions } );
             if ( reserved_hitbox.findIntersection( lo_cmp ) )
             {
-              reserved_cmp.animate();
-              m_reg->emplace_or_replace<Cmp::SpriteAnimation>( _res_entity, 0, 1 );
+              if ( reserved_cmp.m_type == "SHRINE" )
+              {
+                reserved_cmp.animate();
+                m_reg->emplace_or_replace<Cmp::SpriteAnimation>( _res_entity, 0, 1 );
+              }
+              else if ( reserved_cmp.m_type.contains( "GRAVE" ) )
+              {
+                auto grave_ms = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>()
+                                    ->get_multisprite_by_type( reserved_cmp.m_type );
+
+                // switch to 2nd pair sprite indices - see Grave types in res/json/sprite_metadata.json
+                // [ 0 ] --> becomes [ 2 ]
+                // [ 1 ] --> becomes [ 3 ]
+                // or
+                // [ 0 ][ 1 ] --> becomes [ 4 ][ 5 ]
+                // [ 2 ][ 3 ] --> becomes [ 6 ][ 7 ]
+                reserved_cmp.m_sprite_index += 2 * grave_ms->get_grid_size().width;
+              }
             }
           }
         }
