@@ -135,15 +135,25 @@ void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, s
 void RenderOverlaySystem::render_player_position_overlay( sf::Vector2f player_pos, sf::Vector2f pos )
 {
   // text
-  std::stringstream ss;
-  ss << "Player Position: [ " << floor( player_pos.x ) << " , " << floor( player_pos.y ) << " ]";
-
-  sf::Text player_position_text( m_font, ss.str(), 30 );
+  player_position_text.setString( "Player Position: [ " + std::to_string( static_cast<int>( player_pos.x ) ) + " , " +
+                                  std::to_string( static_cast<int>( player_pos.y ) ) + " ]" );
   player_position_text.setPosition( pos );
   player_position_text.setFillColor( sf::Color::White );
   player_position_text.setOutlineColor( sf::Color::Black );
   player_position_text.setOutlineThickness( 2.f );
   getWindow().draw( player_position_text );
+}
+
+void RenderOverlaySystem::render_player_score_overlay( unsigned int player_score, sf::Vector2f pos )
+{
+  // text
+  sf::Text player_score_text( m_font, "", 30 );
+  player_score_text.setString( "Player Score: " + std::to_string( player_score ) );
+  player_score_text.setPosition( pos );
+  player_score_text.setFillColor( sf::Color::White );
+  player_score_text.setOutlineColor( sf::Color::Black );
+  player_score_text.setOutlineThickness( 2.f );
+  getWindow().draw( player_score_text );
 }
 
 } // namespace ProceduralMaze::Sys

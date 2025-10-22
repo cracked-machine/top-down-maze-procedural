@@ -9,6 +9,7 @@
 #include <Persistent/PlayerStartPosition.hpp>
 #include <Persistent/PlayerSubmergedlLerpSpeedModifier.hpp>
 #include <PlayableCharacter.hpp>
+#include <PlayerScore.hpp>
 #include <PlayerSystem.hpp>
 #include <Position.hpp>
 #include <SFML/System/Time.hpp>
@@ -47,6 +48,7 @@ void PlayerSystem::add_player_entity()
       entity, start_pos, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions }, pc_detection_scale() );
 
   m_reg->emplace<Cmp::SpriteAnimation>( entity );
+  m_reg->emplace<Cmp::PlayerScore>( entity, 0 );
 }
 
 void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_check )

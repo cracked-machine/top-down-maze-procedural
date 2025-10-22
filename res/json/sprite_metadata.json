@@ -403,7 +403,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [8, 9, 24, 25, 39, 40, 56, 57],
+        "sprite_indices": [8, 9, 24, 25, 40, 41, 56, 57],
         "solid_mask": [false, false, true, true, false, false, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,

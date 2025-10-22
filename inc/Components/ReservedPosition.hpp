@@ -30,11 +30,14 @@ public:
 
   // this is a one way switch - once animated, it cannot be disabled
   void animate() { m_animated = true; }
-
   bool is_animated() const { return m_animated; }
+
+  void break_object() { m_broken = true; }
+  bool is_broken() const { return m_broken; }
 
 private:
   bool m_animated{ false };
+  bool m_broken{ false };
 };
 
 } // namespace ProceduralMaze::Cmp

@@ -135,7 +135,7 @@ void RandomLevelGenerator::gen_large_obstacles()
   if ( grave_meta_types.empty() ) { SPDLOG_WARN( "No GRAVE multisprites found in SpriteFactory" ); }
   else
   {
-    for ( std::size_t i = 0; i < 10; ++i )
+    for ( std::size_t i = 0; i < 30; ++i )
     {
       // Use the dynamically discovered grave types
       auto [sprite_metatype, unused_index] = sprite_factory->get_random_type_and_texture_index( grave_meta_types );
@@ -152,7 +152,7 @@ void RandomLevelGenerator::gen_large_obstacles()
   if ( !shrine_multisprite.has_value() ) { SPDLOG_WARN( "No SHRINE multisprite found in SpriteFactory" ); }
   else
   {
-    for ( std::size_t i = 0; i < 10; ++i )
+    for ( std::size_t i = 0; i < 3; ++i )
     {
       // Use the dynamically discovered shrine types
       gen_large_obstacle( shrine_multisprite, "SHRINE", 0, true );

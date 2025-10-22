@@ -10,6 +10,7 @@
 #include <Persistent/NpcDeathAnimFramerate.hpp>
 #include <Persistent/PlayerStartPosition.hpp>
 #include <PlayableCharacter.hpp>
+#include <PlayerScore.hpp>
 #include <Position.hpp>
 #include <RenderSystem.hpp>
 #include <ReservedPosition.hpp>
@@ -210,6 +211,12 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
         m_overlay_sys.render_player_position_overlay( pos_cmp, { 40.f, 220.f } );
       }
 
+      auto pc_score_cmp = m_reg->view<Cmp::PlayerScore>();
+      for ( auto [entity, score_cmp] : pc_score_cmp.each() )
+      {
+        m_overlay_sys.render_player_score_overlay( score_cmp.get_score(), { 40.f, 260.f } );
+      }
+
       m_overlay_sys.render_entt_distance_set_overlay( { 40.f, 300.f } );
     }
     // UI Overlays end
@@ -269,22 +276,22 @@ void RenderGameSystem::render_large_obstacles()
     // }
   }
 
-  // auto large_obstacle_view = m_reg->view<Cmp::LargeObstacle>();
-  // for ( auto [entity, large_obst_cmp] : large_obstacle_view.each() )
-  // {
-  //   if ( not large_obst_cmp.m_powers_active || large_obst_cmp.m_powers_extinct )
-  //   {
-  //     // skip rendering inactive large obstacles
-  //     continue;
-  //   }
-  //   SPDLOG_DEBUG( "Rendering Cmp::LargeObstacle at ({}, {})", large_obst_cmp.position.x, large_obst_cmp.position.y );
-  //   sf::RectangleShape square( sf::Vector2f{ large_obst_cmp.size.x, large_obst_cmp.size.y } );
-  //   square.setFillColor( sf::Color::Transparent );
-  //   square.setOutlineColor( sf::Color::Green );
-  //   square.setOutlineThickness( 2.f );
-  //   square.setPosition( { large_obst_cmp.position.x, large_obst_cmp.position.y } );
-  //   getWindow().draw( square );
-  // }
+  auto large_obstacle_view = m_reg->view<Cmp::LargeObstacle>();
+  for ( auto [entity, large_obst_cmp] : large_obstacle_view.each() )
+  {
+    if ( not large_obst_cmp.are_powers_active() )
+    {
+      // skip rendering inactive large obstacles
+      continue;
+    }
+    SPDLOG_DEBUG( "Rendering Cmp::LargeObstacle at ({}, {})", large_obst_cmp.position.x, large_obst_cmp.position.y );
+    sf::RectangleShape square( sf::Vector2f{ large_obst_cmp.size.x, large_obst_cmp.size.y } );
+    square.setFillColor( sf::Color::Transparent );
+    square.setOutlineColor( sf::Color::Green );
+    square.setOutlineThickness( 2.f );
+    square.setPosition( { large_obst_cmp.position.x, large_obst_cmp.position.y } );
+    getWindow().draw( square );
+  }
 }
 
 void RenderGameSystem::render_small_obstacles()

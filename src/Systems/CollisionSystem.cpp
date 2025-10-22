@@ -10,6 +10,7 @@
 #include <Persistent/NpcPushBack.hpp>
 #include <Persistent/PlayerStartPosition.hpp>
 #include <Persistent/WaterBonus.hpp>
+#include <PlayerScore.hpp>
 #include <RectBounds.hpp>
 #include <ReservedPosition.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -272,10 +273,11 @@ void CollisionSystem::update_obstacle_distances()
 
 void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActionEvent::GameActions action )
 {
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerScore>();
   auto large_obstacle_view = m_reg->view<Cmp::LargeObstacle>();
+  using PlayerActionEvent = Events::PlayerActionEvent::GameActions;
 
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : player_view.each() )
+  for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_score_cmp] : player_view.each() )
   {
     // slightly larger hitbox for large obstacles because we want to trigger
     // collision when we get CLOSE to them
@@ -284,30 +286,55 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
 
     for ( auto [lo_entity, lo_cmp] : large_obstacle_view.each() )
     {
+
       if ( player_hitbox.findIntersection( lo_cmp ) )
       {
         SPDLOG_DEBUG( "Player collided with LargeObstacle at ({}, {})", lo_cmp.position.x, lo_cmp.position.y );
-        // only activate once
 
-        if ( !lo_cmp.m_powers_active )
+        auto reserved_view = m_reg->view<Cmp::ReservedPosition>();
+        for ( auto [_res_entity, reserved_cmp] : reserved_view.each() )
         {
-          lo_cmp.m_powers_active = true;
-          auto reserved_view = m_reg->view<Cmp::ReservedPosition>();
-          for ( auto [_res_entity, reserved_cmp] : reserved_view.each() )
+
+          auto kDefaultSpriteDimensions = Sprites::MultiSprite::kDefaultSpriteDimensions;
+          auto reserved_hitbox = sf::FloatRect( reserved_cmp, sf::Vector2f{ kDefaultSpriteDimensions } );
+          if ( reserved_hitbox.findIntersection( lo_cmp ) )
           {
-            // permanently enable animation for any reserved positions that intersect with the large obstacle
-            auto kDefaultSpriteDimensions = Sprites::MultiSprite::kDefaultSpriteDimensions;
-            auto reserved_hitbox = sf::FloatRect( reserved_cmp, sf::Vector2f{ kDefaultSpriteDimensions } );
-            if ( reserved_hitbox.findIntersection( lo_cmp ) )
+            // SHRINES
+
+            if ( reserved_cmp.m_type == "SHRINE" && action == PlayerActionEvent::ACTIVATE )
             {
-              if ( reserved_cmp.m_type == "SHRINE" && action == Events::PlayerActionEvent::GameActions::ACTIVATE )
+              if ( pc_score_cmp.get_score() >= 2 && !reserved_cmp.is_animated() )
               {
-                reserved_cmp.animate();
-                m_reg->emplace_or_replace<Cmp::SpriteAnimation>( _res_entity, 0, 1 );
+
+                // Convert pixel size to grid size, then calculate threshold
+                auto lo_grid_size = lo_cmp.size.componentWiseDiv(
+                    sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+                auto lo_count_threshold = ( lo_grid_size.x * lo_grid_size.y );
+                SPDLOG_DEBUG( " Count {}, threshold {} ", lo_cmp.get_active_count(), count_threshold );
+                if ( lo_cmp.get_active_count() < lo_count_threshold )
+                {
+                  lo_cmp.increment_active_count();
+                  pc_score_cmp.decrement_score( 2 );
+                  reserved_cmp.animate();
+                  m_reg->emplace_or_replace<Cmp::SpriteAnimation>( _res_entity, 0, 1 );
+                  if ( lo_cmp.get_active_count() >= lo_count_threshold )
+                  {
+                    SPDLOG_DEBUG( "ACTIVATING SHRINE! Count: {}, Threshold: {}", lo_cmp.get_active_count(),
+                                  count_threshold );
+                    lo_cmp.set_powers_active();
+                  }
+                }
               }
-              else if ( reserved_cmp.m_type.contains( "GRAVE" ) &&
-                        action == Events::PlayerActionEvent::GameActions::ACTIVATE )
+            }
+
+            // GRAVES
+            else if ( reserved_cmp.m_type.contains( "GRAVE" ) && action == PlayerActionEvent::ACTIVATE )
+            {
+              if ( reserved_cmp.is_broken() == false )
               {
+
+                pc_score_cmp.increment_score( 1 );
+                reserved_cmp.break_object();
                 auto grave_ms = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>()
                                     ->get_multisprite_by_type( reserved_cmp.m_type );
 
