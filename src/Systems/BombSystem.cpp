@@ -137,10 +137,10 @@ void BombSystem::update()
   for ( auto [_entt, _armed_cmp, _obstacle_cmp, _neighbours_cmp, _ob_pos_comp] : armed_view.each() )
   {
     if ( _armed_cmp.getElapsedFuseTime() < _armed_cmp.m_fuse_delay ) continue;
-    if ( _obstacle_cmp.m_enabled && not _obstacle_cmp.m_broken )
+    if ( _obstacle_cmp.m_enabled && _obstacle_cmp.m_integrity > 0.0f )
     {
-      // tell the render system to draw detonated obstacle differently
-      _obstacle_cmp.m_broken = true;
+      // the obstacle is now destroyed by the bomb
+      _obstacle_cmp.m_integrity = 0.0f;
       _obstacle_cmp.m_enabled = false;
 
       // replace the broken pot neighbour entities with a random loot component/sprite

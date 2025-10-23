@@ -110,7 +110,7 @@ void WormholeSystem::check_player_wormhole_collision()
       if ( existing_obstacle_cmp )
       {
         SPDLOG_INFO( "Removing obstacle at new spawn position ({}, {})", new_spawn_position.x, new_spawn_position.y );
-        existing_obstacle_cmp->m_broken = true;
+        existing_obstacle_cmp->m_integrity = 0.0f;
       }
 
       // 5. teleport player to the location, abort lerp if active

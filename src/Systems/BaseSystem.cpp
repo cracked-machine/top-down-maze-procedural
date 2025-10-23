@@ -23,7 +23,7 @@ bool BaseSystem::is_valid_move( sf::Vector2f &target_position )
   auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
   for ( auto [entity, obs_cmp, pos_cmp] : obstacle_view.each() )
   {
-    if ( obs_cmp.m_enabled == false || obs_cmp.m_broken == true ) continue;
+    if ( obs_cmp.m_enabled == false || obs_cmp.m_integrity <= 0.0f ) continue;
     auto obs_hitbox = get_hitbox( pos_cmp );
     if ( obs_hitbox.findIntersection( target_hitbox ) ) { return false; }
   }

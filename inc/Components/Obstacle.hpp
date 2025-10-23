@@ -27,8 +27,8 @@ public:
 
   // used for procedural generation algorithm and detonation logic
   bool m_enabled{ true };
-  // has this obstacle been broken (for destructible obstacles)
-  bool m_broken{ false };
+  // integrity of the obstacle (0 = destroyed, 1 = intact)
+  float m_integrity{ 1.0f };
 };
 
 } // namespace ProceduralMaze::Cmp

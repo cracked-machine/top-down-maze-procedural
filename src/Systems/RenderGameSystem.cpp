@@ -329,7 +329,7 @@ void RenderGameSystem::render_small_obstacles()
       }
     }
 
-    if ( obstacle_cmp.m_broken ) { detonationPositions.push_back( position_cmp ); }
+    if ( obstacle_cmp.m_integrity <= 0.0f ) { detonationPositions.push_back( position_cmp ); }
   }
 
   // Now draw each type in batches

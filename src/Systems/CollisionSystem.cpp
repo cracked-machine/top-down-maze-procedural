@@ -2,6 +2,7 @@
 #include <CorruptionCell.hpp>
 #include <HazardFieldCell.hpp>
 #include <LargeObstacle.hpp>
+#include <MultiSprite.hpp>
 #include <Persistent/BombBonus.hpp>
 #include <Persistent/CorruptionDamage.hpp>
 #include <Persistent/HealthBonus.hpp>
@@ -225,16 +226,14 @@ void CollisionSystem::check_loot_collision()
       for ( auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each() )
       {
         water_level.m_level = std::min( water_level.m_level + water_bonus(), static_cast<float>( kDisplaySize.y ) );
-        break;
       }
-      break;
     }
 
     else if ( effect.type == "INFINI_BOMBS" ) { _pc.bomb_inventory = -1; }
     else if ( effect.type == "CHAIN_BOMBS" ) { _pc.blast_radius = std::clamp( _pc.blast_radius + 1, 0, 3 ); }
 
-    // Remove the loot entity
-    if ( m_reg->valid( effect.loot_entity ) ) { m_reg->erase<Cmp::Loot>( effect.loot_entity ); }
+    // Remove the loot component
+    m_reg->remove<Cmp::Loot>( effect.loot_entity );
   }
 }
 
@@ -359,21 +358,46 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
 
 void CollisionSystem::check_player_dig_obstacle_collision()
 {
-  auto position_view = m_reg->view<Cmp::Position>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
-  for ( auto [entity, pos_cmp] : position_view.each() )
-  {
+  auto position_view = m_reg->view<Cmp::Position, Cmp::Obstacle>(
+      entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
 
+  // Iterate through all entities with Position and Obstacle components
+  for ( auto [entity, pos_cmp, obst_cmp] : position_view.each() )
+  {
+    // skip positions with non diggable obstacles
+    if ( not obst_cmp.m_type.contains( "ROCK" ) or not obst_cmp.m_enabled ) continue;
+
+    // Remap the mouse position to game view coordinates (a subset of the actual game area)
     sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( RenderSystem::getWindow() );
     sf::Vector2f mouse_world_pos = RenderSystem::getWindow().mapPixelToCoords( mouse_pixel_pos,
                                                                                RenderSystem::getGameView() );
-
+    // Check if the mouse position intersects with the entity's position
     auto mouse_position_bounds = sf::FloatRect( mouse_world_pos, sf::Vector2f( 2.f, 2.f ) );
     auto pos_cmp_bounds = get_hitbox( pos_cmp );
     if ( mouse_position_bounds.findIntersection( pos_cmp_bounds ) )
     {
-      SPDLOG_DEBUG( "Player DIG at position ({}, {})!", pos_cmp.x, pos_cmp.y );
-      // remove any previous selected positions before adding
-      // the new one
+      SPDLOG_DEBUG( "Found diggable entity at position: [{}, {}]!", pos_cmp.x, pos_cmp.y );
+
+      // Check player proximity to the entity
+      auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
+      bool player_nearby = false;
+      for ( auto [_pc_entt, _pc_cmp, _pc_pos_cmp] : player_view.each() )
+      {
+        auto player_hitbox = Cmp::RectBounds( _pc_pos_cmp,
+                                              sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions }, 1.5f );
+        if ( player_hitbox.findIntersection( pos_cmp_bounds ) )
+        {
+          player_nearby = true;
+          break;
+        }
+      }
+      if ( not player_nearby )
+      {
+        SPDLOG_DEBUG( " Player not close enough to dig at position ({}, {})!", pos_cmp.x, pos_cmp.y );
+        continue;
+      }
+      // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
+      // Remove all SelectedPosition components from the registry
       auto selected_position_view = m_reg->view<Cmp::SelectedPosition>();
       for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
       {
@@ -381,6 +405,7 @@ void CollisionSystem::check_player_dig_obstacle_collision()
         SPDLOG_DEBUG( "Removing previous Cmp::SelectedPosition {},{} from entity {}", sel_cmp.x, sel_cmp.y,
                       static_cast<int>( existing_sel_entity ) );
       }
+      // then add a new SelectedPosition component to the entity
       m_reg->emplace_or_replace<Cmp::SelectedPosition>( entity, pos_cmp );
     }
   }
