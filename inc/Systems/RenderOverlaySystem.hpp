@@ -20,6 +20,7 @@ public:
   void render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size );
   void render_player_position_overlay( sf::Vector2f player_position, sf::Vector2f pos );
   void render_player_score_overlay( unsigned int player_score, sf::Vector2f pos );
+  void render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos );
 
 private:
   // overlay text

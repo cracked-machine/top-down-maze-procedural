@@ -12,8 +12,11 @@
 #include <Persistent/WaterBonus.hpp>
 #include <PlayerScore.hpp>
 #include <RectBounds.hpp>
+#include <RenderSystem.hpp>
 #include <ReservedPosition.hpp>
 #include <SFML/Graphics/Rect.hpp>
+#include <SFML/Window/Window.hpp>
+#include <SelectedPosition.hpp>
 #include <SinkholeCell.hpp>
 #include <SpriteAnimation.hpp>
 
@@ -242,7 +245,7 @@ void CollisionSystem::check_end_zone_collision()
     auto player_hitbox = get_hitbox( _pc_pos );
     if ( player_hitbox.findIntersection( m_end_zone ) )
     {
-      SPDLOG_INFO( "Player reached the end zone!" );
+      SPDLOG_DEBUG( "Player reached the end zone!" );
       for ( auto [_entt, _sys] : m_reg->view<Cmp::System>().each() )
       {
         _sys.level_complete = true;
@@ -350,6 +353,35 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
           }
         }
       }
+    }
+  }
+}
+
+void CollisionSystem::check_player_dig_obstacle_collision()
+{
+  auto position_view = m_reg->view<Cmp::Position>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
+  for ( auto [entity, pos_cmp] : position_view.each() )
+  {
+
+    sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( RenderSystem::getWindow() );
+    sf::Vector2f mouse_world_pos = RenderSystem::getWindow().mapPixelToCoords( mouse_pixel_pos,
+                                                                               RenderSystem::getGameView() );
+
+    auto mouse_position_bounds = sf::FloatRect( mouse_world_pos, sf::Vector2f( 2.f, 2.f ) );
+    auto pos_cmp_bounds = get_hitbox( pos_cmp );
+    if ( mouse_position_bounds.findIntersection( pos_cmp_bounds ) )
+    {
+      SPDLOG_DEBUG( "Player DIG at position ({}, {})!", pos_cmp.x, pos_cmp.y );
+      // remove any previous selected positions before adding
+      // the new one
+      auto selected_position_view = m_reg->view<Cmp::SelectedPosition>();
+      for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
+      {
+        m_reg->remove<Cmp::SelectedPosition>( existing_sel_entity );
+        SPDLOG_DEBUG( "Removing previous Cmp::SelectedPosition {},{} from entity {}", sel_cmp.x, sel_cmp.y,
+                      static_cast<int>( existing_sel_entity ) );
+      }
+      m_reg->emplace_or_replace<Cmp::SelectedPosition>( entity, pos_cmp );
     }
   }
 }

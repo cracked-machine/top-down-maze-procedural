@@ -92,6 +92,11 @@ protected:
   void render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align, float padding = 10.f,
                     sf::Color fill_color = sf::Color::White, sf::Color outline_color = sf::Color::Transparent );
 
+  static sf::View s_game_view;
+
+public:
+  static const sf::View &getGameView() { return s_game_view; }
+
   // Derived class accessor for the static window instance
   static sf::RenderWindow &getWindow()
   {

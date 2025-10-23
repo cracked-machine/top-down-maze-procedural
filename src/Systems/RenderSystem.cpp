@@ -41,4 +41,6 @@ void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2
 
 std::unique_ptr<sf::RenderWindow> RenderSystem::m_window = nullptr;
 
+sf::View RenderSystem::s_game_view{};
+
 } // namespace ProceduralMaze::Sys

@@ -174,6 +174,10 @@ void EventHandler::game_state_handler( sf::RenderWindow &window )
   {
     getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
   }
+  if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
+  {
+    getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
+  }
 }
 
 void EventHandler::paused_state_handler( sf::RenderWindow &window )

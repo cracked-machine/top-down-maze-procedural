@@ -18,6 +18,7 @@
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/System/Angle.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <SelectedPosition.hpp>
 #include <SinkholeCell.hpp>
 #include <SpriteAnimation.hpp>
 #include <Systems/RenderGameSystem.hpp>
@@ -81,6 +82,9 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
     // world
     getWindow().setView( m_local_view );
     {
+      // update the static game view reference
+      RenderSystem::s_game_view = m_local_view;
+
       sf::Vector2f player_position{ 0.f, 0.f };
 
       // move the local view position to equal the player position
@@ -217,6 +221,11 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
         m_overlay_sys.render_player_score_overlay( score_cmp.get_score(), { 40.f, 260.f } );
       }
 
+      sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( RenderSystem::getWindow() );
+      sf::Vector2f mouse_world_pos = RenderSystem::getWindow().mapPixelToCoords( mouse_pixel_pos,
+                                                                                 RenderSystem::getGameView() );
+      m_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 300.f } );
+
       m_overlay_sys.render_entt_distance_set_overlay( { 40.f, 300.f } );
     }
     // UI Overlays end
@@ -349,6 +358,18 @@ void RenderGameSystem::render_small_obstacles()
   for ( const auto &pos : detonationPositions )
   {
     safe_render_sprite( "DETONATED", pos, 0 );
+  }
+
+  auto selected_view = m_reg->view<Cmp::SelectedPosition, Cmp::Position>();
+  for ( auto [entity, selected_cmp, position_cmp] : selected_view.each() )
+  {
+    SPDLOG_DEBUG( "Rendering Cmp::SelectedPosition at ({}, {})", selected_cmp.x, selected_cmp.y );
+    sf::RectangleShape square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+    square.setFillColor( sf::Color::Transparent );
+    square.setOutlineColor( sf::Color::Blue );
+    square.setOutlineThickness( 2.f );
+    square.setPosition( selected_cmp );
+    getWindow().draw( square );
   }
 }
 

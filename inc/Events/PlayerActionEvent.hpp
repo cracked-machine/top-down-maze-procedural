@@ -11,7 +11,8 @@ struct PlayerActionEvent
   enum class GameActions
   {
     DROP_BOMB,
-    ACTIVATE
+    ACTIVATE,
+    DIG
   };
 
   GameActions action;

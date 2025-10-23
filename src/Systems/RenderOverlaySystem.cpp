@@ -156,4 +156,17 @@ void RenderOverlaySystem::render_player_score_overlay( unsigned int player_score
   getWindow().draw( player_score_text );
 }
 
+void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos )
+{
+  // text
+  sf::Text mouse_position_text( m_font, "", 30 );
+  mouse_position_text.setString( "Mouse Position: [ " + std::to_string( static_cast<int>( mouse_position.x ) ) + " , " +
+                                 std::to_string( static_cast<int>( mouse_position.y ) ) + " ]" );
+  mouse_position_text.setPosition( pos );
+  mouse_position_text.setFillColor( sf::Color::White );
+  mouse_position_text.setOutlineColor( sf::Color::Black );
+  mouse_position_text.setOutlineThickness( 2.f );
+  getWindow().draw( mouse_position_text );
+}
+
 } // namespace ProceduralMaze::Sys

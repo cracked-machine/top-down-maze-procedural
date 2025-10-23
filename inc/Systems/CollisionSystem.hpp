@@ -108,8 +108,8 @@ public:
           // Player falls into a sinkhole or gets damaged by corruption
           if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> ) { player_cmp.alive = false; }
           else { player_cmp.health -= get_persistent_component<Cmp::Persistent::CorruptionDamage>()(); }
-          SPDLOG_INFO( "Player fell into a hazard field at position ({}, {})!", hazard_field_pos_cmp.x,
-                       hazard_field_pos_cmp.y );
+          SPDLOG_DEBUG( "Player fell into a hazard field at position ({}, {})!", hazard_field_pos_cmp.x,
+                        hazard_field_pos_cmp.y );
           return; // No need to check further if the player is already dead
         }
       }
@@ -152,14 +152,20 @@ public:
   }
 
   void check_player_large_obstacle_collision( Events::PlayerActionEvent::GameActions action );
+  void check_player_dig_obstacle_collision();
 
   /// EVENT SINKS ///
   void on_player_action( const Events::PlayerActionEvent &event )
   {
-    SPDLOG_DEBUG( "Player Action Event received" );
+
     if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE )
     {
       check_player_large_obstacle_collision( event.action );
+    }
+    else if ( event.action == Events::PlayerActionEvent::GameActions::DIG )
+    {
+      // Check for collisions with diggable obstacles
+      check_player_dig_obstacle_collision();
     }
   }
 
