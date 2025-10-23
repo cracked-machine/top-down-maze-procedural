@@ -18,6 +18,7 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
       m_path_find_sys( m_reg ),
       m_npc_sys( m_reg ),
       m_collision_sys( m_reg ),
+      m_digging_sys( m_reg ),
       m_render_game_sys( m_reg ),
       m_render_menu_sys( m_reg ),
       m_bomb_sys( m_reg ),

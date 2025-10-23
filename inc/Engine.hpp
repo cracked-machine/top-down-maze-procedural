@@ -4,6 +4,7 @@
 #include <AnimSystem.hpp>
 #include <BaseSystem.hpp>
 #include <BombSystem.hpp>
+#include <DiggingSystem.hpp>
 #include <Direction.hpp>
 #include <FloodSystem.hpp>
 #include <HazardFieldSystem.hpp>
@@ -91,6 +92,7 @@ private:
   Sys::PathFindSystem m_path_find_sys;
   Sys::NpcSystem m_npc_sys;
   Sys::CollisionSystem m_collision_sys;
+  Sys::DiggingSystem m_digging_sys;
   Sys::RenderGameSystem m_render_game_sys;
   Sys::RenderMenuSystem m_render_menu_sys;
   Sys::BombSystem m_bomb_sys;

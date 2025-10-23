@@ -152,7 +152,6 @@ public:
   }
 
   void check_player_large_obstacle_collision( Events::PlayerActionEvent::GameActions action );
-  void check_player_dig_obstacle_collision();
 
   /// EVENT SINKS ///
   void on_player_action( const Events::PlayerActionEvent &event )
@@ -161,11 +160,6 @@ public:
     if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE )
     {
       check_player_large_obstacle_collision( event.action );
-    }
-    else if ( event.action == Events::PlayerActionEvent::GameActions::DIG )
-    {
-      // Check for collisions with diggable obstacles
-      check_player_dig_obstacle_collision();
     }
   }
 

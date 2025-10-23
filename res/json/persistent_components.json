@@ -25,7 +25,7 @@
   },
   "CorruptionDamage": {
     "type": "int",
-    "value": 10
+    "value": 1
   },
   "FloodSpeed": {
     "type": "float",

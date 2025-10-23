@@ -1,0 +1,20 @@
+#ifndef _SYS_DIGGING_SYSTEM_HPP__
+#define _SYS_DIGGING_SYSTEM_HPP__
+
+#include <BaseSystem.hpp>
+#include <Events/PlayerActionEvent.hpp>
+namespace ProceduralMaze::Sys {
+
+class DiggingSystem : public BaseSystem
+{
+public:
+  DiggingSystem( ProceduralMaze::SharedEnttRegistry reg );
+
+  void on_player_action( const Events::PlayerActionEvent &event );
+
+private:
+  void check_player_dig_obstacle_collision();
+};
+} // namespace ProceduralMaze::Sys
+
+#endif // __SYSTEMS_DIGGING_SYSTEM_HPP__
