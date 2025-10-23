@@ -307,7 +307,7 @@ void RenderGameSystem::render_small_obstacles()
 {
 
   // Group similar draw operations to reduce state changes
-  std::vector<std::pair<sf::Vector2f, int>> rockPositions;
+  std::vector<std::tuple<sf::Vector2f, int, float>> rockPositions;
   std::vector<std::pair<sf::Vector2f, int>> potPositions;
   std::vector<std::pair<sf::Vector2f, int>> bonePositions;
   std::vector<std::pair<sf::Vector2f, int>> npcPositions;
@@ -321,7 +321,10 @@ void RenderGameSystem::render_small_obstacles()
   {
     if ( obstacle_cmp.m_enabled )
     {
-      if ( obstacle_cmp.m_type == "ROCK" ) { rockPositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index ); }
+      if ( obstacle_cmp.m_type == "ROCK" )
+      {
+        rockPositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index, obstacle_cmp.m_integrity );
+      }
       else if ( obstacle_cmp.m_type == "POT" ) { potPositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index ); }
       else if ( obstacle_cmp.m_type == "BONES" )
       {
@@ -333,9 +336,11 @@ void RenderGameSystem::render_small_obstacles()
   }
 
   // Now draw each type in batches
-  for ( const auto &[pos, idx] : rockPositions )
+  for ( const auto &[pos, idx, integrity] : rockPositions )
   {
-    safe_render_sprite( "ROCK", pos, idx );
+    auto new_scale = sf::Vector2f{ 1.f, 1.f };
+    auto new_alpha = std::lerp( 0.0f, 254.f, integrity );
+    safe_render_sprite( "ROCK", pos, idx, new_scale, new_alpha );
     // sf::RectangleShape player_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
     // player_square.setFillColor( sf::Color::Transparent );
     // player_square.setOutlineColor( sf::Color::Red );

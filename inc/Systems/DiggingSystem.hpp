@@ -3,6 +3,7 @@
 
 #include <BaseSystem.hpp>
 #include <Events/PlayerActionEvent.hpp>
+#include <SFML/System/Clock.hpp>
 namespace ProceduralMaze::Sys {
 
 class DiggingSystem : public BaseSystem
@@ -14,6 +15,7 @@ public:
 
 private:
   void check_player_dig_obstacle_collision();
+  sf::Clock m_dig_cooldown_clock;
 };
 } // namespace ProceduralMaze::Sys
 

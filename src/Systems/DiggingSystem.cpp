@@ -1,6 +1,8 @@
 #include <DiggingSystem.hpp>
+#include <Persistent/DiggingCooldownAmount.hpp>
 #include <RenderSystem.hpp>
 #include <ReservedPosition.hpp>
+#include <SFML/System/Time.hpp>
 #include <SelectedPosition.hpp>
 
 namespace ProceduralMaze::Sys {
@@ -15,6 +17,23 @@ DiggingSystem::DiggingSystem( ProceduralMaze::SharedEnttRegistry reg )
 
 void DiggingSystem::check_player_dig_obstacle_collision()
 {
+  // abort if still in cooldown
+  auto digging_cooldown_amount = get_persistent_component<Cmp::Persistent::DiggingCooldownAmount>()();
+  if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
+  {
+    SPDLOG_INFO( "Digging is on cooldown for {} more seconds!",
+                 ( digging_cooldown_amount - m_dig_cooldown_clock.getElapsedTime().asSeconds() ) );
+    return;
+  }
+  // Remove all SelectedPosition components from the registry
+  auto selected_position_view = m_reg->view<Cmp::SelectedPosition>();
+  for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
+  {
+    m_reg->remove<Cmp::SelectedPosition>( existing_sel_entity );
+    SPDLOG_DEBUG( "Removing previous Cmp::SelectedPosition {},{} from entity {}", sel_cmp.x, sel_cmp.y,
+                  static_cast<int>( existing_sel_entity ) );
+  }
+
   auto position_view = m_reg->view<Cmp::Position, Cmp::Obstacle>(
       entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
 
@@ -54,16 +73,16 @@ void DiggingSystem::check_player_dig_obstacle_collision()
         continue;
       }
       // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
-      // Remove all SelectedPosition components from the registry
-      auto selected_position_view = m_reg->view<Cmp::SelectedPosition>();
-      for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
-      {
-        m_reg->remove<Cmp::SelectedPosition>( existing_sel_entity );
-        SPDLOG_DEBUG( "Removing previous Cmp::SelectedPosition {},{} from entity {}", sel_cmp.x, sel_cmp.y,
-                      static_cast<int>( existing_sel_entity ) );
-      }
+
       // then add a new SelectedPosition component to the entity
       m_reg->emplace_or_replace<Cmp::SelectedPosition>( entity, pos_cmp );
+      m_dig_cooldown_clock.restart();
+      obst_cmp.m_integrity -= 0.1f;
+      if ( obst_cmp.m_integrity <= 0.0f )
+      {
+        obst_cmp.m_enabled = false;
+        SPDLOG_INFO( "Digged through obstacle at position ({}, {})!", pos_cmp.x, pos_cmp.y );
+      }
     }
   }
 }

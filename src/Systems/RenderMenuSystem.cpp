@@ -3,6 +3,7 @@
 #include <Persistent/BombBonus.hpp>
 #include <Persistent/BombDamage.hpp>
 #include <Persistent/CorruptionSeed.hpp>
+#include <Persistent/DiggingCooldownAmount.hpp>
 #include <Persistent/FuseDelay.hpp>
 #include <Persistent/HealthBonus.hpp>
 #include <Persistent/MusicVolume.hpp>
@@ -136,6 +137,9 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
       Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
   ImGui::SliderFloat( "Player Submerged Lerp Speed Modifier", &player_submerged_lerp_speed_modifier(), 0.001f, 1.f,
                       "%.2f" );
+
+  auto &digging_cooldown = get_persistent_component<Cmp::Persistent::DiggingCooldownAmount>();
+  ImGui::SliderFloat( "Digging Cooldown", &digging_cooldown(), 0.1f, 5.f, "%.1f seconds" );
 
   ImGui::Separator();
   auto &flood_speed = get_persistent_component<Cmp::Persistent::FloodSpeed>();
