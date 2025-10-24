@@ -21,6 +21,7 @@ public:
   void render_player_position_overlay( sf::Vector2f player_position, sf::Vector2f pos );
   void render_player_score_overlay( unsigned int player_score, sf::Vector2f pos );
   void render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos );
+  void render_stats_overlay( sf::Vector2f pos );
 
 private:
   // overlay text
@@ -29,6 +30,7 @@ private:
   sf::Text bomb_inventory_text{ m_font, "Bombs:", 30 };
   sf::Text bomb_radius_text{ m_font, "Blast Radius:", 30 };
   sf::Text player_position_text{ m_font, "Player Pos:", 30 };
+  sf::Text stats_text{ m_font, "", 30 };
 };
 
 } // namespace ProceduralMaze::Sys

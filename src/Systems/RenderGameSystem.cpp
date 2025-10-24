@@ -75,6 +75,11 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
     m_show_armed_obstacles = _sys.show_armed_obstacles;
   }
 
+  sf::Vector2f player_position{ 0.f, 0.f };
+  for ( auto [entity, _pc, _pos] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+  {
+    player_position = _pos;
+  }
   // main render begin
   getWindow().clear();
   {
@@ -84,47 +89,13 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
     {
       // update the static game view reference
       RenderSystem::s_game_view = m_local_view;
-
-      sf::Vector2f player_position{ 0.f, 0.f };
-
       // move the local view position to equal the player position
 
-      for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
-      {
-        if ( _sys.player_stuck )
-        {
-          // reset the center if player is stuck
-          m_local_view.setCenter( { kLocalMapViewSize.x * 0.5f, kDisplaySize.y * 0.5f } );
-          _sys.player_stuck = false;
-        }
-        else
-        {
-          for ( auto [entity, _pc, _pos] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
-          {
-            player_position = _pos;
-            update_view_center( m_local_view, _pos );
-          }
-        }
-      }
-
+      update_view_center( m_local_view, player_position );
       // draw the background
       render_floormap( { 0, 0 } );
 
-      // // now post-process the floormap with the ViewFragmentShader
-      // m_sand_storm_shader.update_shader_view_and_position(
-      //     player_position + ( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } * 0.5f ),
-      //     ViewFragmentShader::Align::CENTER );
-      // m_floormap.draw( m_sand_storm_shader.get_render_texture(), sf::RenderStates::Default );
-
-      // UniformBuilder builder;
-      // builder.set( "time", m_sand_storm_shader.getElapsedTime().asSeconds() )
-      //     .set( "screenSize", m_sand_storm_shader.get_view_size() )
-      //     .set( "centerPosition", m_sand_storm_shader.get_view_center() );
-      // m_sand_storm_shader.Sprites::BaseFragmentShader::update( builder );
-
-      // getWindow().draw( m_sand_storm_shader );
-
-      // now draw everything else on top of the sand shader
+      // now draw everything else on top
       render_small_obstacles();
 
       render_sinkhole();
@@ -164,21 +135,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
 
       // update the minimap view center based on player position
       // reset the center if player is stuck
-      for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
-      {
-        if ( _sys.player_stuck )
-        {
-          m_minimap_view.setCenter( { kDisplaySize.x * 0.5f, kDisplaySize.y * 0.5f } );
-          _sys.player_stuck = false;
-        }
-        else
-        {
-          for ( auto [entity, _pc, _pos] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
-          {
-            update_view_center( m_minimap_view, _pos );
-          }
-        }
-      }
+      update_view_center( m_minimap_view, player_position );
     }
     // minimap view end
 
@@ -197,34 +154,51 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
       minimap_border.setOutlineThickness( 2.f );
       getWindow().draw( minimap_border );
 
+      // init metrics
+      int player_health = 0;
+      int bomb_inventory = 0;
+      int blast_radius = 0;
+      int water_level = 0;
+      sf::Vector2f player_pos{ 0.f, 0.f };
+      int player_score = 0;
+      sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( RenderSystem::getWindow() );
+      sf::Vector2f mouse_world_pos = RenderSystem::getWindow().mapPixelToCoords( mouse_pixel_pos,
+                                                                                 RenderSystem::getGameView() );
+
+      // gather metrics from components
       for ( auto [_entt, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
       {
-        m_overlay_sys.render_health_overlay( _pc.health, { 40.f, 20.f }, { 200.f, 20.f } );
-        m_overlay_sys.render_bomb_overlay( _pc.bomb_inventory, { 40.f, 120.f } );
-        m_overlay_sys.render_bomb_radius_overlay( _pc.blast_radius, { 40.f, 150.f } );
+        player_health = _pc.health;
+        bomb_inventory = _pc.bomb_inventory;
+        blast_radius = _pc.blast_radius;
       }
 
       for ( auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each() )
       {
-        m_overlay_sys.render_water_level_meter_overlay( water_level.m_level, { 40.f, 70.f }, { 200.f, 20.f } );
+        water_level = water_level.m_level;
       }
 
       auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
       for ( auto [entity, pc_cmp, pos_cmp] : player_view.each() )
       {
-        m_overlay_sys.render_player_position_overlay( pos_cmp, { 40.f, 220.f } );
+        player_pos = pos_cmp;
       }
 
       auto pc_score_cmp = m_reg->view<Cmp::PlayerScore>();
       for ( auto [entity, score_cmp] : pc_score_cmp.each() )
       {
-        m_overlay_sys.render_player_score_overlay( score_cmp.get_score(), { 40.f, 260.f } );
+        player_score = score_cmp.get_score();
       }
 
-      sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( RenderSystem::getWindow() );
-      sf::Vector2f mouse_world_pos = RenderSystem::getWindow().mapPixelToCoords( mouse_pixel_pos,
-                                                                                 RenderSystem::getGameView() );
-      m_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 300.f } );
+      // render metrics
+      m_overlay_sys.render_health_overlay( player_health, { 40.f, 30.f }, { 200.f, 20.f } );
+      m_overlay_sys.render_water_level_meter_overlay( water_level, { 40.f, 60.f }, { 200.f, 20.f } );
+      m_overlay_sys.render_player_score_overlay( player_score, { 40.f, 90.f } );
+      m_overlay_sys.render_bomb_overlay( bomb_inventory, { 40.f, 120.f } );
+      m_overlay_sys.render_bomb_radius_overlay( blast_radius, { 40.f, 150.f } );
+      m_overlay_sys.render_player_position_overlay( player_position, { 40.f, 180.f } );
+      m_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 210.f } );
+      m_overlay_sys.render_stats_overlay( { 40.f, 240.f } );
 
       m_overlay_sys.render_entt_distance_set_overlay( { 40.f, 300.f } );
     }

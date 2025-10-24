@@ -12,6 +12,12 @@ BaseSystem::BaseSystem( ProceduralMaze::SharedEnttRegistry reg )
 {
 }
 
+const sf::Vector2u BaseSystem::kDisplaySize{ 1920, 1024 };
+
+const sf::Vector2u BaseSystem::kMapGridSize{ 100u, 124u };
+
+const sf::Vector2f BaseSystem::kMapGridOffset{ 10.f, 1.f };
+
 // initialised by first call to getEventDispatcher()
 std::unique_ptr<entt::dispatcher> BaseSystem::m_event_dispatcher = nullptr;
 

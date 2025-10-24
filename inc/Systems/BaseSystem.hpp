@@ -28,13 +28,13 @@ public:
   static constexpr sf::Vector2u kGridSquareSizePixels{ 16, 16 };
 
   // The game display resolution in pixels
-  static constexpr sf::Vector2u kDisplaySize{ 1920, 1024 };
+  static const sf::Vector2u kDisplaySize;
 
   // The playable area size in blocks, not pixels
-  static constexpr sf::Vector2u kMapGridSize{ 100u, 124u };
+  static const sf::Vector2u kMapGridSize;
 
   // The playable area offset in blocks, not pixels
-  static constexpr sf::Vector2f kMapGridOffset{ 10.f, 1.f };
+  static const sf::Vector2f kMapGridOffset;
 
   // Add a persistent component to the registry's context if it doesn't already exist
   template <typename T> void add_persistent_component()

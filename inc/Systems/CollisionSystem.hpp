@@ -166,8 +166,8 @@ public:
   }
 
 private:
-  sf::FloatRect m_end_zone{ { kMapGridSize.x * kGridSquareSizePixels.x, 0 },
-                            { 500.f, kMapGridSize.y *kGridSquareSizePixels.y } };
+  sf::FloatRect m_end_zone{ { static_cast<float>( kMapGridSize.x * kGridSquareSizePixels.x ), 0 },
+                            { 500.f, static_cast<float>( kMapGridSize.y *kGridSquareSizePixels.y ) } };
   sf::Vector2f findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos,
                                           const sf::Vector2f &player_direction, float pushback_distance );
 };

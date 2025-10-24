@@ -169,4 +169,32 @@ void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_posi
   getWindow().draw( mouse_position_text );
 }
 
+void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos )
+{
+  auto entity_count = m_reg->view<entt::entity>().size();
+  auto obstacle_count = m_reg->view<Cmp::Obstacle>().size();
+  auto obst_view = m_reg->view<Cmp::Obstacle>();
+  auto position_count = obst_view.size();
+  int disabled_count = 0;
+  for ( auto [e, obstacle] : obst_view.each() )
+  {
+    if ( not obstacle.m_enabled ) { ++disabled_count; }
+  }
+  auto npc_count = m_reg->view<Cmp::NPC>().size();
+
+  sf::Text stats_text( m_font, "", 30 );
+  // clang-format off
+  stats_text.setString( 
+       "E: " + std::to_string( entity_count ) + 
+    "   P: " + std::to_string( position_count ) + " (disabled: " + std::to_string( disabled_count ) + ")" +
+    "   O: " + std::to_string( obstacle_count ) + 
+    "   N: " + std::to_string( npc_count ) );
+  // clang-format on
+  stats_text.setPosition( pos );
+  stats_text.setFillColor( sf::Color::White );
+  stats_text.setOutlineColor( sf::Color::Black );
+  stats_text.setOutlineThickness( 2.f );
+  getWindow().draw( stats_text );
+}
+
 } // namespace ProceduralMaze::Sys
