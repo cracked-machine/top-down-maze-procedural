@@ -1,31 +1,73 @@
 #include <DiggingSystem.hpp>
-#include <Persistent/DiggingCooldownAmount.hpp>
+#include <Persistent/DiggingCooldownThreshold.hpp>
+#include <Persistent/DiggingDamagePerHit .hpp>
 #include <RenderSystem.hpp>
 #include <ReservedPosition.hpp>
+#include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Time.hpp>
 #include <SelectedPosition.hpp>
+#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
 
 DiggingSystem::DiggingSystem( ProceduralMaze::SharedEnttRegistry reg )
     : BaseSystem( reg )
 {
-  // register the event sinks
+  // register the event handler
   std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&DiggingSystem::on_player_action>(
       this );
+
+  // load pool of pickaxe sound effects
+  for ( auto &pickaxe_sound : m_pickaxe_sounds )
+  {
+    if ( not pickaxe_sound.buffer.loadFromFile( pickaxe_sound.path ) )
+    {
+      SPDLOG_ERROR( "Failed to load dig sound effect: {}", pickaxe_sound.path.string() );
+      std::terminate();
+    }
+  }
+  // load final smash sound effect
+  if ( not m_pickaxe_final_sound.buffer.loadFromFile( m_pickaxe_final_sound.path ) )
+  {
+    SPDLOG_ERROR( "Failed to load smash sound effect: {}", m_pickaxe_final_sound.path.string() );
+    std::terminate();
+  }
+}
+
+void DiggingSystem::update()
+{
+
+  // abort if still in cooldown
+  auto digging_cooldown_amount = get_persistent_component<Cmp::Persistent::DiggingCooldownThreshold>()();
+  if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
+  {
+    SPDLOG_DEBUG( "Digging is on cooldown for {} more seconds!",
+                  ( digging_cooldown_amount - m_dig_cooldown_clock.getElapsedTime().asSeconds() ) );
+    return;
+  }
+
+  // Cooldown has expired: Remove any existing SelectedPosition components from the registry
+  auto selected_position_view = m_reg->view<Cmp::SelectedPosition>();
+  for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
+  {
+    m_reg->remove<Cmp::SelectedPosition>( existing_sel_entity );
+    SPDLOG_DEBUG( "Removing previous Cmp::SelectedPosition {},{} from entity {}", sel_cmp.x, sel_cmp.y,
+                  static_cast<int>( existing_sel_entity ) );
+  }
 }
 
 void DiggingSystem::check_player_dig_obstacle_collision()
 {
   // abort if still in cooldown
-  auto digging_cooldown_amount = get_persistent_component<Cmp::Persistent::DiggingCooldownAmount>()();
+  auto digging_cooldown_amount = get_persistent_component<Cmp::Persistent::DiggingCooldownThreshold>()();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
   {
-    SPDLOG_INFO( "Digging is on cooldown for {} more seconds!",
-                 ( digging_cooldown_amount - m_dig_cooldown_clock.getElapsedTime().asSeconds() ) );
+    SPDLOG_DEBUG( "Digging is on cooldown for {} more seconds!",
+                  ( digging_cooldown_amount - m_dig_cooldown_clock.getElapsedTime().asSeconds() ) );
     return;
   }
-  // Remove all SelectedPosition components from the registry
+
+  // Cooldown has expired: Remove any existing SelectedPosition components from the registry
   auto selected_position_view = m_reg->view<Cmp::SelectedPosition>();
   for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
   {
@@ -67,22 +109,40 @@ void DiggingSystem::check_player_dig_obstacle_collision()
           break;
         }
       }
+
+      // skip this iteration of the loop if player too far away
       if ( not player_nearby )
       {
         SPDLOG_DEBUG( " Player not close enough to dig at position ({}, {})!", pos_cmp.x, pos_cmp.y );
         continue;
       }
-      // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
 
-      // then add a new SelectedPosition component to the entity
+      // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
+      // Add a new SelectedPosition component to the entity
       m_reg->emplace_or_replace<Cmp::SelectedPosition>( entity, pos_cmp );
+
+      // Apply digging damage, play a sound depending on whether the obstacle was destroyed
       m_dig_cooldown_clock.restart();
-      obst_cmp.m_integrity -= 0.1f;
+      obst_cmp.m_integrity -= get_persistent_component<Cmp::Persistent::DiggingDamagePerHit>()();
       if ( obst_cmp.m_integrity <= 0.0f )
       {
+        // select the final smash sound
+        m_dig_sound.setBuffer( m_pickaxe_final_sound.buffer );
         obst_cmp.m_enabled = false;
-        SPDLOG_INFO( "Digged through obstacle at position ({}, {})!", pos_cmp.x, pos_cmp.y );
+        SPDLOG_DEBUG( "Digged through obstacle at position ({}, {})!", pos_cmp.x, pos_cmp.y );
       }
+      else
+      {
+        // select a random pickaxe sound
+        Cmp::Random random_picker( 0, m_pickaxe_sounds.size() - 1 );
+        auto selected_pickaxe_sound_index = random_picker.gen();
+        SPDLOG_INFO( "Random pickaxe sound index: {}", selected_pickaxe_sound_index );
+        m_dig_sound.setBuffer( m_pickaxe_sounds[selected_pickaxe_sound_index].buffer );
+        SPDLOG_INFO( "Playing pickaxe sound: {}", m_pickaxe_sounds[selected_pickaxe_sound_index].path.string() );
+        SPDLOG_DEBUG( "Digged obstacle at position ({}, {}), remaining integrity: {}!", pos_cmp.x, pos_cmp.y,
+                      obst_cmp.m_integrity );
+      }
+      m_dig_sound.play();
     }
   }
 }

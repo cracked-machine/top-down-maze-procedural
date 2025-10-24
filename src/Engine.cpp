@@ -152,7 +152,7 @@ bool Engine::run()
         m_collision_sys.check_loot_collision();
         m_collision_sys.check_bones_reanimation();
         m_wormhole_sys.check_player_wormhole_collision();
-
+        m_digging_sys.update();
         m_collision_sys.update_obstacle_distances();
 
         // enable/disable collision detection depending on Cmp::System settings

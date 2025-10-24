@@ -136,6 +136,7 @@ public:
   static constexpr sf::Vector2f kMapGridOffset{ 10.f, 1.f };
 
   // singleton event dispatcher
+  // Use this to get temporary access to the dispatcher to register event handlers
   static entt::dispatcher &getEventDispatcher()
   {
     if ( !m_event_dispatcher ) { m_event_dispatcher = std::make_unique<entt::dispatcher>(); }

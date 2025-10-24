@@ -5,7 +5,8 @@
 #include <Persistent/BombDamage.hpp>
 #include <Persistent/BombInventory.hpp>
 #include <Persistent/CorruptionDamage.hpp>
-#include <Persistent/DiggingCooldownAmount.hpp>
+#include <Persistent/DiggingCooldownThreshold.hpp>
+#include <Persistent/DiggingDamagePerHit .hpp>
 #include <Persistent/FloodSpeed.hpp>
 #include <Persistent/FuseDelay.hpp>
 #include <Persistent/HealthBonus.hpp>
@@ -77,7 +78,8 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::NpcLerpSpeed>( "NpcLerpSpeed" );
   registerComponent<Cmp::Persistent::WormholeAnimFramerate>( "WormholeAnimFramerate" );
   registerComponent<Cmp::Persistent::NpcDeathAnimFramerate>( "NpcDeathAnimFramerate" );
-  registerComponent<Cmp::Persistent::DiggingCooldownAmount>( "DiggingCooldownAmount" );
+  registerComponent<Cmp::Persistent::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
+  registerComponent<Cmp::Persistent::DiggingDamagePerHit>( "DiggingDamagePerHit" );
 
   // Register int components
   registerComponent<Cmp::Persistent::BombDamage>( "BombDamage" );
@@ -155,7 +157,8 @@ void PersistentSystem::save_state()
   serializeComponent.template operator()<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>( "PlayerSubmergedLerpSpeedModifier" );
   serializeComponent.template operator()<Cmp::Persistent::WaterBonus>( "WaterBonus" );
-  serializeComponent.template operator()<Cmp::Persistent::DiggingCooldownAmount>( "DiggingCooldownAmount" );
+  serializeComponent.template operator()<Cmp::Persistent::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
+  serializeComponent.template operator()<Cmp::Persistent::DiggingDamagePerHit>( "DiggingDamagePerHit" );
   // clang-format on
 
   std::ofstream outputFile( "res/json/persistent_components.json" );
