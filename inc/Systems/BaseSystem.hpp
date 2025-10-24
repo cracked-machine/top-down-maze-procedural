@@ -111,7 +111,7 @@ public:
    * @param player_position The target position to validate for player movement
    * @return true if the movement is valid and allowed, false otherwise
    */
-  bool is_valid_move( sf::Vector2f &player_position );
+  bool is_valid_move( const sf::Vector2f &player_position );
 
   /**
    * @brief Checks if a diagonal movement would pass between two obstacles.

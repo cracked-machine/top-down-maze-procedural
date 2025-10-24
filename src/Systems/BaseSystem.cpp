@@ -15,7 +15,7 @@ BaseSystem::BaseSystem( ProceduralMaze::SharedEnttRegistry reg )
 // initialised by first call to getEventDispatcher()
 std::unique_ptr<entt::dispatcher> BaseSystem::m_event_dispatcher = nullptr;
 
-bool BaseSystem::is_valid_move( sf::Vector2f &target_position )
+bool BaseSystem::is_valid_move( const sf::Vector2f &target_position )
 {
   auto target_hitbox = get_hitbox( target_position );
 
