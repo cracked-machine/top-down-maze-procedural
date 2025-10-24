@@ -58,41 +58,42 @@ PersistentSystem::PersistentSystem( SharedEnttRegistry reg )
 
 void PersistentSystem::initializeComponentRegistry()
 {
-  // Register float components
-  registerComponent<Cmp::Persistent::ArmedOffDelay>( "ArmedOffDelay" );
-  registerComponent<Cmp::Persistent::ArmedOnDelay>( "ArmedOnDelay" );
-  registerComponent<Cmp::Persistent::FuseDelay>( "FuseDelay" );
-  registerComponent<Cmp::Persistent::PlayerAnimFramerate>( "PlayerAnimFramerate" );
-  registerComponent<Cmp::Persistent::PlayerDetectionScale>( "PlayerDetectionScale" );
-  registerComponent<Cmp::Persistent::PlayerLerpSpeed>( "PlayerLerpSpeed" );
-  registerComponent<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( "PlayerDiagonalLerpSpeedModifier" );
-  registerComponent<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
-  registerComponent<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>( "PlayerSubmergedLerpSpeedModifier" );
-  registerComponent<Cmp::Persistent::ObstaclePushBack>( "ObstaclePushBack" );
-  registerComponent<Cmp::Persistent::NpcAnimFramerate>( "NpcAnimFramerate" );
-  registerComponent<Cmp::Persistent::NpcActivateScale>( "NpcActivateScale" );
-  registerComponent<Cmp::Persistent::NpcDamageDelay>( "NpcDamageDelay" );
-  registerComponent<Cmp::Persistent::FloodSpeed>( "FloodSpeed" );
-  registerComponent<Cmp::Persistent::MusicVolume>( "MusicVolume" );
-  registerComponent<Cmp::Persistent::NpcScanScale>( "NpcScanScale" );
-  registerComponent<Cmp::Persistent::NpcLerpSpeed>( "NpcLerpSpeed" );
-  registerComponent<Cmp::Persistent::WormholeAnimFramerate>( "WormholeAnimFramerate" );
-  registerComponent<Cmp::Persistent::NpcDeathAnimFramerate>( "NpcDeathAnimFramerate" );
-  registerComponent<Cmp::Persistent::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
-  registerComponent<Cmp::Persistent::DiggingDamagePerHit>( "DiggingDamagePerHit" );
-
-  // Register int components
-  registerComponent<Cmp::Persistent::BombDamage>( "BombDamage" );
-  registerComponent<Cmp::Persistent::BombInventory>( "BombInventory" );
-  registerComponent<Cmp::Persistent::BlastRadius>( "BlastRadius" );
-  registerComponent<Cmp::Persistent::HealthBonus>( "HealthBonus" );
-  registerComponent<Cmp::Persistent::BombBonus>( "BombBonus" );
-  registerComponent<Cmp::Persistent::WaterBonus>( "WaterBonus" );
-  registerComponent<Cmp::Persistent::NpcDamage>( "NpcDamage" );
-  registerComponent<Cmp::Persistent::CorruptionDamage>( "CorruptionDamage" );
+  // Register persistent component with their default values.
+  // These should be overidden by modifying the json file directly or via in-game settings
+  registerComponent<Cmp::Persistent::ArmedOffDelay>( "ArmedOffDelay", 0.075f );
+  registerComponent<Cmp::Persistent::ArmedOnDelay>( "ArmedOnDelay", 0.025f );
+  registerComponent<Cmp::Persistent::FuseDelay>( "FuseDelay", 3.f );
+  registerComponent<Cmp::Persistent::PlayerAnimFramerate>( "PlayerAnimFramerate", 0.1f );
+  registerComponent<Cmp::Persistent::PlayerDetectionScale>( "PlayerDetectionScale", 7.0f );
+  registerComponent<Cmp::Persistent::PlayerLerpSpeed>( "PlayerLerpSpeed", 4.f );
+  registerComponent<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( "PlayerDiagonalLerpSpeedModifier", 0.707f );
+  registerComponent<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier", 0.3f );
+  registerComponent<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>( "PlayerSubmergedLerpSpeedModifier", 0.3f );
+  registerComponent<Cmp::Persistent::ObstaclePushBack>( "ObstaclePushBack", 1.1f );
+  registerComponent<Cmp::Persistent::NpcAnimFramerate>( "NpcAnimFramerate", 0.1f );
+  registerComponent<Cmp::Persistent::NpcActivateScale>( "NpcActivateScale", 5.f );
+  registerComponent<Cmp::Persistent::NpcDamageDelay>( "NpcDamageDelay", 0.5f );
+  registerComponent<Cmp::Persistent::FloodSpeed>( "FloodSpeed", 1.f );
+  registerComponent<Cmp::Persistent::MusicVolume>( "MusicVolume", 100.0f );
+  registerComponent<Cmp::Persistent::NpcScanScale>( "NpcScanScale", 2.5f );
+  registerComponent<Cmp::Persistent::NpcLerpSpeed>( "NpcLerpSpeed", 1.f );
+  registerComponent<Cmp::Persistent::WormholeAnimFramerate>( "WormholeAnimFramerate", 0.5f );
+  registerComponent<Cmp::Persistent::NpcDeathAnimFramerate>( "NpcDeathAnimFramerate", 0.1f );
+  registerComponent<Cmp::Persistent::DiggingCooldownThreshold>( "DiggingCooldownThreshold", 1.0f );
+  registerComponent<Cmp::Persistent::DiggingDamagePerHit>( "DiggingDamagePerHit", 1.0f );
+  registerComponent<Cmp::Persistent::WaterBonus>( "WaterBonus", 100.0f );
+  registerComponent<Cmp::Persistent::BombDamage>( "BombDamage", 10 );
+  registerComponent<Cmp::Persistent::BombInventory>( "BombInventory", 10 );
+  registerComponent<Cmp::Persistent::BlastRadius>( "BlastRadius", 1 );
+  registerComponent<Cmp::Persistent::HealthBonus>( "HealthBonus", 10 );
+  registerComponent<Cmp::Persistent::BombBonus>( "BombBonus", 5 );
+  registerComponent<Cmp::Persistent::NpcDamage>( "NpcDamage", 10 );
+  registerComponent<Cmp::Persistent::CorruptionDamage>( "CorruptionDamage", 1 );
 
   // Register special types (sf::Vector2f)
-  registerComponent<Cmp::Persistent::PlayerStartPosition>( "PlayerStartPosition" );
+  auto default_player_start_pos = sf::Vector2f( Sys::BaseSystem::kGridSquareSizePixels.x * 2,
+                                                static_cast<float>( Sys::BaseSystem::kDisplaySize.y ) / 2 );
+  registerComponent<Cmp::Persistent::PlayerStartPosition>( "PlayerStartPosition", default_player_start_pos );
 }
 
 void PersistentSystem::load_state()
@@ -119,7 +120,8 @@ void PersistentSystem::save_state()
   nlohmann::json jsonData;
 
   // Helper lambda to serialize a component if it exists
-  auto serializeComponent = [&]<typename ComponentType>( const std::string &key ) {
+  auto serializeComponent = [&]<typename ComponentType>( const std::string &key )
+  {
     try
     {
       auto &component = get_persistent_component<ComponentType>();

@@ -7,7 +7,7 @@ namespace ProceduralMaze::Cmp::Persistent {
 class BombDamage : public BasePersistent<int>
 {
 public:
-  BombDamage( int value = 10 )
+  BombDamage( int value )
       : BasePersistent<int>( value )
   {
   }

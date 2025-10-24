@@ -8,7 +8,7 @@ namespace ProceduralMaze::Cmp::Persistent {
 class PlayerDetectionScale : public BasePersistent<float>
 {
 public:
-  PlayerDetectionScale( float scale = 7.0f )
+  PlayerDetectionScale( float scale )
       : BasePersistent<float>( scale )
   {
   }

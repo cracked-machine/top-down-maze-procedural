@@ -67,26 +67,41 @@ private:
    */
   void initializeComponentRegistry();
 
+  template <typename ComponentType, typename... DefaultArgTypes>
   /**
-   * @brief Registers a component type with a corresponding loader function.
+   * @brief Registers a persistent component loader with default arguments.
    *
-   * This template function allows the registration of a component type by associating
-   * it with a unique key (string) and a loader function that handles json deserialization.
-   * The loader function is stored in the `m_component_loaders` map.
+   * This function associates a component loader with a given key. The loader captures
+   * the provided default arguments, constructing the initial component when invoked.
+   * The initial default value is overridden by the deserialized JSON data.
    *
-   * @note Components registered here will have their value loaded from/saved to
-   * `res/json/persistent_components.json`
+   * @tparam ComponentType The type of the persistent component to register.
+   * @tparam DefaultArgTypes Variadic template parameter pack for default constructor arguments.
+   * @param key The unique string identifier for the component loader.
+   * @param default_args Default arguments to be forwarded to the component's constructor.
    *
-   * @tparam ComponentType The type of the component to register.
-   * @param key A unique string identifier for the corresponding json object.
+   * @note The loader is stored internally and can be invoked later to create and
+   *       initialize the component from a JSON value.
    */
-  template <typename ComponentType> void registerComponent( const std::string &key )
+  void registerComponent( const std::string &key, DefaultArgTypes &&...default_args )
   {
-    m_component_loaders[key] = [this]( const nlohmann::json &value ) {
-      auto &component = get_persistent_component<ComponentType>();
-      component.deserialize( value );
-      auto deserialized_value = component.get_value();
-      SPDLOG_INFO( "Loaded {} from JSON with value {}", component.class_name(), deserialized_value );
+    // Capture args in a tuple to preserve them for later use
+    auto args_tuple = std::make_tuple( std::forward<DefaultArgTypes>( default_args )... );
+
+    // move the tuple into the lambda to avoid copies (pack copy forbidden by lambda)
+    m_component_loaders[key] = [this, args_tuple = std::move( args_tuple )]( const nlohmann::json &value )
+    {
+      // Unpack the tuple and forward the arguments to add_persistent_component
+      std::apply(
+          [this, &value]( auto &&...unpacked_args )
+          {
+            add_persistent_component<ComponentType>( std::forward<decltype( unpacked_args )>( unpacked_args )... );
+            auto &component = get_persistent_component<ComponentType>();
+            component.deserialize( value );
+            auto deserialized_value = component.get_value();
+            SPDLOG_INFO( "Loaded {} from JSON with value {}", component.class_name(), deserialized_value );
+          },
+          args_tuple );
     };
   }
 };

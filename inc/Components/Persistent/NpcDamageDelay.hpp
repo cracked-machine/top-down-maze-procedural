@@ -7,7 +7,7 @@ namespace ProceduralMaze::Cmp::Persistent {
 class NpcDamageDelay : public BasePersistent<float>
 {
 public:
-  NpcDamageDelay( float value = 0.5f )
+  NpcDamageDelay( float value )
       : BasePersistent<float>( value )
   {
   }

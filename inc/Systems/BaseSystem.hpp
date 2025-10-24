@@ -36,7 +36,11 @@ public:
 
   template <typename T> T &get_persistent_component()
   {
-    if ( not m_reg->ctx().contains<T>() ) { add_persistent_component<T>(); }
+    if ( not m_reg->ctx().contains<T>() )
+    {
+      SPDLOG_CRITICAL( "Attempting to access non-existent persistent component: {}", typeid( T ).name() );
+      std::terminate();
+    }
     return m_reg->ctx().get<T>();
   }
 

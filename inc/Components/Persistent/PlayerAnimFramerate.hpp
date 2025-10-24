@@ -10,7 +10,7 @@ class PlayerAnimFramerate : public BasePersistent<float>
 {
 public:
   // time unit is seconds per frame, engine should convert to sf::Time as needed
-  PlayerAnimFramerate( float seconds_per_frame = 0.1f )
+  PlayerAnimFramerate( float seconds_per_frame )
       : BasePersistent<float>( seconds_per_frame )
   {
   }

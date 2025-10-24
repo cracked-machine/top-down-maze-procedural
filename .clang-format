@@ -16,6 +16,10 @@ BraceWrapping:
   BeforeCatch: true
   BeforeElse: true
   IndentBraces: false
+  BeforeLambdaBody : true
+  BeforeWhile: true
+SpacesInAngles: false
+
 SpacesInParentheses: true
 AllowShortIfStatementsOnASingleLine: true
 AllowShortBlocksOnASingleLine: true

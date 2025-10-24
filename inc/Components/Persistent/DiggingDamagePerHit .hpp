@@ -7,8 +7,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 
 struct DiggingDamagePerHit : public BasePersistent<float>
 {
-  DiggingDamagePerHit()
-      : BasePersistent<float>( 1.0f )
+  DiggingDamagePerHit( float value )
+      : BasePersistent<float>( value )
   {
   }
   virtual std::string class_name() const override { return "DiggingDamagePerHit"; }
