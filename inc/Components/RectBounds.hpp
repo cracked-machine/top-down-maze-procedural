@@ -23,6 +23,13 @@ namespace ProceduralMaze::Cmp {
 class RectBounds
 {
 public:
+  enum class ScaleCardinality
+  {
+    HORIZONTAL,
+    VERTICAL,
+    BOTH
+  };
+
   /**
    * @brief Constructs a RectBounds object with specified position, size, and scale factor.
    *
@@ -33,12 +40,33 @@ public:
    * @param size The base size vector before scaling is applied
    * @param ScaleFactor The scaling factor to apply to the size dimensions
    */
-  RectBounds( sf::Vector2f position, sf::Vector2f size, float ScaleFactor )
-      : m_scale_factor( ScaleFactor )
+  RectBounds( sf::Vector2f position, sf::Vector2f size, float ScaleFactor,
+              ScaleCardinality scale_cardinality = ScaleCardinality::BOTH )
+      : m_scale_factor( ScaleFactor ),
+        m_scale_cardinality( scale_cardinality )
   {
-    m_bounds.size = size * m_scale_factor;
-    m_bounds.position = position -
-                        sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } * kPositionOffsetFactor;
+    // calculate the bounds scale/offset for requested cardinality
+    switch ( m_scale_cardinality )
+    {
+      case ScaleCardinality::HORIZONTAL:
+        m_bounds.size.x = size.x * m_scale_factor;
+        m_bounds.size.y = size.y * 1;
+        m_bounds.position.x = position.x - Sprites::MultiSprite::kDefaultSpriteDimensions.x * kPositionOffsetFactor;
+        m_bounds.position.y = position.y;
+        break;
+      case ScaleCardinality::VERTICAL:
+        m_bounds.size.y = size.y * m_scale_factor;
+        m_bounds.size.x = size.x * 1;
+        m_bounds.position.y = position.y - Sprites::MultiSprite::kDefaultSpriteDimensions.y * kPositionOffsetFactor;
+        m_bounds.position.x = position.x;
+        break;
+      case ScaleCardinality::BOTH:
+      default:
+        m_bounds.size = size * m_scale_factor;
+        m_bounds.position = position -
+                            sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } * kPositionOffsetFactor;
+        break;
+    }
   }
 
   /**
@@ -102,6 +130,8 @@ private:
    * which accounts for the difference between the object's scaled size and its default size.
    */
   const float kPositionOffsetFactor{ ( m_scale_factor / 2.f ) - 0.5f };
+
+  ScaleCardinality m_scale_cardinality;
 };
 
 } // namespace ProceduralMaze::Cmp

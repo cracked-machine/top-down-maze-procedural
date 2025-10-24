@@ -94,16 +94,20 @@ void DiggingSystem::check_player_dig_obstacle_collision()
     auto pos_cmp_bounds = get_hitbox( pos_cmp );
     if ( mouse_position_bounds.findIntersection( pos_cmp_bounds ) )
     {
-      SPDLOG_DEBUG( "Found diggable entity at position: [{}, {}]!", pos_cmp.x, pos_cmp.y );
+      SPDLOG_INFO( "Found diggable entity at position: [{}, {}]!", pos_cmp.x, pos_cmp.y );
 
       // Check player proximity to the entity
       auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
       bool player_nearby = false;
-      for ( auto [_pc_entt, _pc_cmp, _pc_pos_cmp] : player_view.each() )
+      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_view.each() )
       {
-        auto player_hitbox = Cmp::RectBounds( _pc_pos_cmp,
-                                              sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions }, 1.5f );
-        if ( player_hitbox.findIntersection( pos_cmp_bounds ) )
+        auto half_sprite_size = sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions };
+        auto player_horizontal_bounds = Cmp::RectBounds( pc_pos_cmp, half_sprite_size, 1.5f,
+                                                         Cmp::RectBounds::ScaleCardinality::HORIZONTAL );
+        auto player_vertical_bounds = Cmp::RectBounds( pc_pos_cmp, half_sprite_size, 1.5f,
+                                                       Cmp::RectBounds::ScaleCardinality::VERTICAL );
+        if ( player_horizontal_bounds.findIntersection( pos_cmp_bounds ) ||
+             player_vertical_bounds.findIntersection( pos_cmp_bounds ) )
         {
           player_nearby = true;
           break;
@@ -113,7 +117,8 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       // skip this iteration of the loop if player too far away
       if ( not player_nearby )
       {
-        SPDLOG_DEBUG( " Player not close enough to dig at position ({}, {})!", pos_cmp.x, pos_cmp.y );
+        SPDLOG_INFO( " Player not close enough to dig at position ({}, {})!", pos_cmp_bounds.position.x,
+                     pos_cmp_bounds.position.y );
         continue;
       }
 

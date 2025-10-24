@@ -600,15 +600,29 @@ void RenderGameSystem::render_player()
       getWindow().draw( pc_square );
     }
 
-    // auto player_hitbox = Cmp::RectBounds( pc_pos_cmp, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions },
-    //                                       1.2f );
+    // auto half_sprite_size = sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions };
+    // auto player_horizontal_bounds = Cmp::RectBounds( pc_pos_cmp, half_sprite_size, 1.5f,
+    //                                                  Cmp::RectBounds::ScaleCardinality::HORIZONTAL );
+    // auto player_vertical_bounds = Cmp::RectBounds( pc_pos_cmp, half_sprite_size, 1.5f,
+    //                                                Cmp::RectBounds::ScaleCardinality::VERTICAL );
+
+    // // auto player_hitbox = Cmp::RectBounds( pc_pos_cmp, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions
+    // },
+    // //                                       1.2f );
     // // Debug: Draw a green rectangle around the player position
-    // sf::RectangleShape player_square( player_hitbox.size() );
+    // sf::RectangleShape player_square( player_horizontal_bounds.size() );
     // player_square.setFillColor( sf::Color::Transparent );
     // player_square.setOutlineColor( sf::Color::Green );
     // player_square.setOutlineThickness( 1.f );
-    // player_square.setPosition( player_hitbox.position() );
+    // player_square.setPosition( player_horizontal_bounds.position() );
     // getWindow().draw( player_square );
+
+    // sf::RectangleShape player_square2( player_vertical_bounds.size() );
+    // player_square2.setFillColor( sf::Color::Transparent );
+    // player_square2.setOutlineColor( sf::Color::Blue );
+    // player_square2.setOutlineThickness( 1.f );
+    // player_square2.setPosition( player_vertical_bounds.position() );
+    // getWindow().draw( player_square2 );
   }
 }
 
