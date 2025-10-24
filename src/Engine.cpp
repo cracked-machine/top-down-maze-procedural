@@ -141,14 +141,14 @@ bool Engine::run()
         // m_player_sys.update( deltaTime );
 
         m_anim_sys.update( deltaTime );
-        m_flood_sys.update();
+        // m_flood_sys.update();
         m_sinkhole_sys.update_hazard_field();
         m_corruption_sys.update_hazard_field();
         m_bomb_sys.update();
 
         m_collision_sys.check_npc_hazard_field_collision<Cmp::SinkholeCell>();
         m_collision_sys.check_npc_hazard_field_collision<Cmp::CorruptionCell>();
-        m_collision_sys.check_end_zone_collision();
+        // m_collision_sys.check_end_zone_collision();
         m_collision_sys.check_loot_collision();
         m_collision_sys.check_bones_reanimation();
         m_wormhole_sys.check_player_wormhole_collision();

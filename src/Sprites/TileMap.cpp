@@ -4,11 +4,12 @@
 
 namespace ProceduralMaze::Sprites::Containers {
 
-TileMap::TileMap( const std::filesystem::path &config_path )
+TileMap::TileMap( sf::Vector2u map_dimensions, const std::filesystem::path &config_path )
 {
   try
   {
     TileMapConfig config = load_config( config_path );
+    config.map_dimensions = map_dimensions;
     initialize( config );
   }
   catch ( const std::exception &e )
@@ -152,7 +153,7 @@ TileMap::TileMapConfig TileMap::load_config( const std::filesystem::path &config
   if ( !j.contains( "tilemap" ) ) { throw std::runtime_error( "Missing 'tilemap' section in config" ); }
 
   const auto &tilemap = j["tilemap"];
-  std::vector<std::string> required_fields = { "texture_path", "tile_size", "map_dimensions", "floor_tile_pool" };
+  std::vector<std::string> required_fields = { "texture_path", "tile_size", "floor_tile_pool" };
 
   for ( const auto &field : required_fields )
   {
@@ -166,8 +167,6 @@ TileMap::TileMapConfig TileMap::load_config( const std::filesystem::path &config
     config.texture_path = std::filesystem::path( tilemap["texture_path"] );
     config.tile_size.x = tilemap["tile_size"]["width"];
     config.tile_size.y = tilemap["tile_size"]["height"];
-    config.map_dimensions.x = tilemap["map_dimensions"]["width"];
-    config.map_dimensions.y = tilemap["map_dimensions"]["height"];
     config.floor_tile_pool = tilemap["floor_tile_pool"].get<std::vector<unsigned int>>();
     config.random_seed = tilemap.value( "random_seed", 0 ); // Default to 0 if missing
   }
@@ -180,16 +179,10 @@ TileMap::TileMapConfig TileMap::load_config( const std::filesystem::path &config
   // Validate config values
   if ( config.tile_size.x == 0 || config.tile_size.y == 0 ) { throw std::runtime_error( "Invalid tile size" ); }
 
-  if ( config.map_dimensions.x == 0 || config.map_dimensions.y == 0 )
-  {
-    throw std::runtime_error( "Invalid map dimensions" );
-  }
-
   if ( config.floor_tile_pool.empty() ) { throw std::runtime_error( "Empty floor tile pool" ); }
 
-  SPDLOG_INFO( "Loaded config: texture={}, tile_size={}x{}, map={}x{}, pool_size={}", config.texture_path.string(),
-               config.tile_size.x, config.tile_size.y, config.map_dimensions.x, config.map_dimensions.y,
-               config.floor_tile_pool.size() );
+  SPDLOG_INFO( "Loaded config: texture={}, tile_size={}x{}, pool_size={}", config.texture_path.string(),
+               config.tile_size.x, config.tile_size.y, config.floor_tile_pool.size() );
 
   return config;
 }

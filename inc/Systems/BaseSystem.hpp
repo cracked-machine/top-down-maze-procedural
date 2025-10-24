@@ -24,16 +24,31 @@ public:
 
   ~BaseSystem() = default;
 
+  // The size of each grid square in pixels
+  static constexpr sf::Vector2u kGridSquareSizePixels{ 16, 16 };
+
+  // The game display resolution in pixels
+  static constexpr sf::Vector2u kDisplaySize{ 1920, 1024 };
+
+  // The playable area size in blocks, not pixels
+  static constexpr sf::Vector2u kMapGridSize{ 100u, 124u };
+
+  // The playable area offset in blocks, not pixels
+  static constexpr sf::Vector2f kMapGridOffset{ 10.f, 1.f };
+
+  // Add a persistent component to the registry's context if it doesn't already exist
   template <typename T> void add_persistent_component()
   {
     if ( not m_reg->ctx().contains<T>() ) { m_reg->ctx().emplace<T>(); }
   }
 
+  // Add a persistent component with constructor arguments
   template <typename T, typename... Args> void add_persistent_component( Args &&...args )
   {
     if ( not m_reg->ctx().contains<T>() ) { m_reg->ctx().emplace<T>( std::forward<Args>( args )... ); }
   }
 
+  // Get a persistent component from the registry's context
   template <typename T> T &get_persistent_component()
   {
     if ( not m_reg->ctx().contains<T>() )
@@ -92,11 +107,13 @@ public:
     return std::max( std::abs( posA.x - posB.x ), std::abs( posA.y - posB.y ) );
   }
 
+  // Get the hitbox rectangle for a given position
   sf::FloatRect get_hitbox( sf::Vector2f pos )
   {
     return sf::FloatRect( { pos.x, pos.y }, sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
   }
 
+  // Snap a position to the nearest grid square
   sf::Vector2f snap_to_grid( const sf::Vector2f &position )
   {
     float grid_size = BaseSystem::kGridSquareSizePixels.x; // Assuming square grid
@@ -130,16 +147,6 @@ public:
    */
   bool isDiagonalMovementBetweenObstacles( const sf::Vector2f &current_pos, const sf::Vector2f &direction );
 
-  static constexpr sf::Vector2u kGridSquareSizePixels{ 16, 16 };
-
-  // The game display resolution in pixels
-  static constexpr sf::Vector2u kDisplaySize{ 1920, 1024 };
-
-  // The playable area size in blocks, not pixels
-  static constexpr sf::Vector2u kMapGridSize{ 100u, 62u };
-  // The playable area offset in blocks, not pixels
-  static constexpr sf::Vector2f kMapGridOffset{ 10.f, 1.f };
-
   // singleton event dispatcher
   // Use this to get temporary access to the dispatcher to register event handlers
   static entt::dispatcher &getEventDispatcher()
@@ -148,15 +155,16 @@ public:
     return *m_event_dispatcher;
   }
 
+  // Helper structs for variadic template parameter packs
   template <typename... Types> struct IncludePack
   {
   };
 
+  // Helper structs for variadic template parameter packs
   template <typename... Types> struct ExcludePack
   {
   };
 
-  template <typename... Include, typename... Exclude>
   /**
    * @brief Retrieves a random entity and its position component from entities matching the specified criteria.
    *
@@ -177,6 +185,7 @@ public:
    *       If no entities match, the behavior is undefined.
    * @note Uses SPDLOG_DEBUG to log the number of matching positions found.
    */
+  template <typename... Include, typename... Exclude>
   std::pair<entt::entity, Cmp::Position> get_random_position( IncludePack<Include...>, ExcludePack<Exclude...>,
                                                               unsigned long seed = 0 )
   {

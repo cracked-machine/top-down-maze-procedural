@@ -12,7 +12,7 @@ void FloodSystem::add_flood_water_entity()
   SPDLOG_INFO( "Creating flood water entity" );
   auto entity = m_reg->create();
   m_reg->emplace<Cmp::WaterLevel>( entity,
-                                   kDisplaySize.y - 1 // initial level
+                                   kMapGridSize.y - 1 // initial level
   );
 }
 

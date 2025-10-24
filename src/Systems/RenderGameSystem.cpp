@@ -138,7 +138,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
       render_npc();
       render_large_obstacles();
       render_explosions();
-      render_flood_waters();
+      // render_flood_waters();
       render_player_distances_on_npc();
       render_player_distances_on_obstacles();
     }
@@ -160,7 +160,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
       render_player();
       render_npc();
       render_large_obstacles();
-      render_flood_waters();
+      // render_flood_waters();
 
       // update the minimap view center based on player position
       // reset the center if player is stuck
@@ -305,6 +305,16 @@ void RenderGameSystem::render_large_obstacles()
 
 void RenderGameSystem::render_small_obstacles()
 {
+
+  // for ( auto [entt, pos] : m_reg->view<Cmp::Position>().each() )
+  // {
+  //   sf::RectangleShape position_square( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
+  //   position_square.setFillColor( sf::Color::Transparent );
+  //   position_square.setOutlineColor( sf::Color::Red );
+  //   position_square.setOutlineThickness( 1.f );
+  //   position_square.setPosition( pos );
+  //   getWindow().draw( position_square );
+  // }
 
   // Group similar draw operations to reduce state changes
   std::vector<std::tuple<sf::Vector2f, int, float>> rockPositions;
@@ -897,24 +907,26 @@ void RenderGameSystem::render_fallback_square( const sf::Vector2f &position, con
   render_fallback_square_to_target( getWindow(), position, color );
 }
 
-void RenderGameSystem::update_view_center( sf::View &view, const Cmp::Position &player_pos, float smoothFactor )
+void RenderGameSystem::update_view_center( sf::View &view, [[maybe_unused]] const Cmp::Position &player_pos,
+                                           [[maybe_unused]] float smoothFactor )
 {
-  const float kHalfViewWidth = view.getSize().x * 0.5f;
-  const float kHalfViewHeight = view.getSize().y * 0.5f;
+  // const float kHalfViewWidth = view.getSize().x * 0.5f;
+  // const float kHalfViewHeight = view.getSize().y * 0.5f;
 
-  // Calculate the maximum allowed camera positions
-  float maxX = kDisplaySize.x - kHalfViewWidth;
-  float maxY = kDisplaySize.y - kHalfViewHeight;
+  // // Calculate the maximum allowed camera positions
+  // float maxX = kDisplaySize.x - kHalfViewWidth;
+  // float maxY = kDisplaySize.y - kHalfViewHeight;
 
-  // Calculate new camera position
-  float newX = std::clamp( player_pos.x, kHalfViewWidth, maxX );
-  float newY = std::clamp( player_pos.y, kHalfViewHeight, maxY );
+  // // Calculate new camera position
+  // float newX = std::clamp( player_pos.x, kHalfViewWidth, maxX );
+  // float newY = std::clamp( player_pos.y, kHalfViewHeight, maxY );
 
-  // Smoothly interpolate to the new position
-  sf::Vector2f currentCenter = view.getCenter();
+  // // Smoothly interpolate to the new position
+  // sf::Vector2f currentCenter = view.getCenter();
 
-  view.setCenter( { currentCenter.x + ( newX - currentCenter.x ) * smoothFactor,
-                    currentCenter.y + ( newY - currentCenter.y ) * smoothFactor } );
+  // view.setCenter( { currentCenter.x + ( newX - currentCenter.x ) * smoothFactor,
+  //                   currentCenter.y + ( newY - currentCenter.y ) * smoothFactor } );
+  view.setCenter( player_pos );
 }
 
 } // namespace ProceduralMaze::Sys

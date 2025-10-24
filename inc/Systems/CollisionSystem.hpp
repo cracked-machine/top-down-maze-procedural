@@ -80,7 +80,8 @@ public:
 
   template <typename HazardType> void check_player_hazard_field_collision()
   {
-    auto hazard_field_view = [this]() {
+    auto hazard_field_view = [this]()
+    {
       if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
       {
         return m_reg->view<Cmp::SinkholeCell, Cmp::Position>();
@@ -118,7 +119,8 @@ public:
 
   template <typename HazardType> void check_npc_hazard_field_collision()
   {
-    auto hazard_field_view = [this]() {
+    auto hazard_field_view = [this]()
+    {
       if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
       {
         return m_reg->view<Cmp::SinkholeCell, Cmp::Position>();
@@ -164,7 +166,8 @@ public:
   }
 
 private:
-  sf::FloatRect m_end_zone{ { kDisplaySize.x * 1.f, 0 }, { 500.f, kDisplaySize.y * 1.f } };
+  sf::FloatRect m_end_zone{ { kMapGridSize.x * kGridSquareSizePixels.x, 0 },
+                            { 500.f, kMapGridSize.y *kGridSquareSizePixels.y } };
   sf::Vector2f findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos,
                                           const sf::Vector2f &player_direction, float pushback_distance );
 };

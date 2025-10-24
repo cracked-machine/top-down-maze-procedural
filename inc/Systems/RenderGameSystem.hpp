@@ -83,7 +83,7 @@ private:
                                                  BaseSystem::kGridSquareSizePixels.componentWiseMul( { 3u, 3u } ) };
 
   // Sprites
-  Sprites::Containers::TileMap m_floormap;
+  Sprites::Containers::TileMap m_floormap{ kMapGridSize };
 
   std::unordered_map<Sprites::SpriteMetaType, std::optional<Sprites::MultiSprite>> m_multisprite_map;
 };

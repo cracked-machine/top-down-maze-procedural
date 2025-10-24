@@ -42,26 +42,6 @@
           },
           "additionalProperties": false
         },
-        "map_dimensions": {
-          "type": "object",
-          "description": "Overall map size in tiles",
-          "required": ["width", "height"],
-          "properties": {
-            "width": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 10000,
-              "description": "Map width in tiles"
-            },
-            "height": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 10000,
-              "description": "Map height in tiles"
-            }
-          },
-          "additionalProperties": false
-        },
         "floor_tile_pool": {
           "type": "array",
           "description": "Pool of tile indices to randomly select from for floor generation",

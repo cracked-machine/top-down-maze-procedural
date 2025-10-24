@@ -25,9 +25,9 @@ void RandomLevelGenerator::gen_positions()
   using namespace Sprites;
   const auto kDefaultSpriteDimensions = Sys::BaseSystem::kGridSquareSizePixels;
 
-  for ( unsigned int x = 0; x < Sys::BaseSystem::kMapGridSize.x; x++ )
+  for ( unsigned int x = 0; x < Sys::BaseSystem::kMapGridSize.x - kMapGridOffset.x; x++ )
   {
-    for ( unsigned int y = 0; y < Sys::BaseSystem::kMapGridSize.y; y++ )
+    for ( unsigned int y = 0; y < Sys::BaseSystem::kMapGridSize.y - kMapGridOffset.y; y++ )
     {
       auto entity = m_reg->create();
       m_reg->emplace<Cmp::Position>(
@@ -189,16 +189,17 @@ void RandomLevelGenerator::gen_small_obstacles()
 void RandomLevelGenerator::gen_border()
 {
   using namespace Sprites;
-  const auto kDefaultSpriteDimensions = Sys::BaseSystem::kGridSquareSizePixels;
+  const auto kGridSquareSizePixels = Sys::BaseSystem::kGridSquareSizePixels;
+  const auto kMapGridSizePixels = kMapGridSize.componentWiseMul( kGridSquareSizePixels );
   std::size_t sprite_index = 0;
 
   // top and bottom edges
-  for ( float x = 0; x < kDisplaySize.x; x += kDefaultSpriteDimensions.x )
+  for ( float x = 0; x < kMapGridSizePixels.x; x += kGridSquareSizePixels.x )
   {
-    float top_edge_y_pos = ( kMapGridOffset.y - 1 ) * kDefaultSpriteDimensions.y;
-    float bottom_edge_y_pos = kMapGridOffset.y + ( ( kMapGridSize.y + 1 ) * kDefaultSpriteDimensions.y ) - 1;
+    float top_edge_y_pos = ( kMapGridOffset.y - 1 ) * kGridSquareSizePixels.y;
+    float bottom_edge_y_pos = kMapGridOffset.y + ( kMapGridSizePixels.y + 1 ) - 1;
 
-    if ( x == 0 || x == kDisplaySize.x - kDefaultSpriteDimensions.x )
+    if ( x == 0 || x == kMapGridSizePixels.x - kGridSquareSizePixels.x )
       sprite_index = 0; // corner piece
     else
       sprite_index = 0; // horizontal piece
@@ -208,22 +209,22 @@ void RandomLevelGenerator::gen_border()
   }
 
   // left and right edges
-  for ( float y = 0; y < kDisplaySize.y; y += kDefaultSpriteDimensions.y )
+  for ( float y = 0; y < kMapGridSizePixels.y; y += kGridSquareSizePixels.y )
   {
     float left_edge_x_pos = 0;
-    float right_edge_x_pos = kDisplaySize.x - kDefaultSpriteDimensions.x;
+    float right_edge_x_pos = kMapGridSizePixels.x - kGridSquareSizePixels.x;
 
-    if ( y == 0 || y == kDisplaySize.y - 1 )
+    if ( y == 0 || y == kMapGridSizePixels.y - 1 )
       sprite_index = 0; // corner piece
-    else if ( y == ( kDisplaySize.y / 2.f ) - kDefaultSpriteDimensions.y )
+    else if ( y == ( kMapGridSizePixels.y / 2.f ) - kGridSquareSizePixels.y )
       sprite_index = 0; // door frame piece
-    else if ( y == ( kDisplaySize.y / 2.f ) + kDefaultSpriteDimensions.y )
+    else if ( y == ( kMapGridSizePixels.y / 2.f ) + kGridSquareSizePixels.y )
       sprite_index = 0; // door frame piece
     else
       sprite_index = 0; // vertical piece
 
     // special case for door placement
-    if ( y == ( kDisplaySize.y / 2.f ) )
+    if ( y == ( kMapGridSizePixels.y / 2.f ) )
     {
       sprite_index = 1;
       // this entrance "door" is never open and for filtering simplicity we use the wall component
