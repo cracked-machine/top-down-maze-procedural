@@ -30,7 +30,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   // 1. pick a random position component in the maze, exclude walls, doors, exits, and playable characters
   // 2. get the entity at that position
   unsigned long seed = 0;
-  if ( phase == SpawnPhase::InitialSpawn ) seed = get_persistent_component<Cmp::Persistent::WormholeSeed>()();
+  if ( phase == SpawnPhase::InitialSpawn ) seed = get_persistent_component<Cmp::Persistent::WormholeSeed>().get_value();
   auto [random_entity, random_position] = get_random_position(
       IncludePack<Cmp::Obstacle>{},
       ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, seed );

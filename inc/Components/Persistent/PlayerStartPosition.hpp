@@ -23,7 +23,7 @@ public:
   }
   std::string class_name() const { return "PlayerStartPosition"; }
 
-  std::string &operator()()
+  std::string &get_value()
   {
     std::stringstream ss;
     ss << "x: " << x << " y: " << y;

@@ -52,7 +52,7 @@ void FloodSystem::updateFlood( float dt )
       for ( auto [_, water_level] : water_view.each() )
       {
         auto &flood_speed = get_persistent_component<Cmp::Persistent::FloodSpeed>();
-        water_level.m_level -= ( dt * flood_speed() );
+        water_level.m_level -= ( dt * flood_speed.get_value() );
       }
     }
   }

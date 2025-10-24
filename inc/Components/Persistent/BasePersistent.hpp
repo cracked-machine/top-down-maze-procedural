@@ -17,7 +17,7 @@ public:
   {
   }
   virtual ~BasePersistent() = default;
-  T &operator()() { return value; };
+  T &get_value() { return value; };
 
   // object serialization to json
   virtual nlohmann::json serialize() const override

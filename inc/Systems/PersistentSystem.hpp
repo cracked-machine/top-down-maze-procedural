@@ -71,7 +71,7 @@ private:
    * @brief Registers a component type with a corresponding loader function.
    *
    * This template function allows the registration of a component type by associating
-   * it with a unique key (string) and a loader function that handles json serialization/deserialization.
+   * it with a unique key (string) and a loader function that handles json deserialization.
    * The loader function is stored in the `m_component_loaders` map.
    *
    * @note Components registered here will have their value loaded from/saved to
@@ -85,7 +85,7 @@ private:
     m_component_loaders[key] = [this]( const nlohmann::json &value ) {
       auto &component = get_persistent_component<ComponentType>();
       component.deserialize( value );
-      auto deserialized_value = component();
+      auto deserialized_value = component.get_value();
       SPDLOG_INFO( "Loaded {} from JSON with value {}", component.class_name(), deserialized_value );
     };
   }

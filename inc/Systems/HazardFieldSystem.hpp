@@ -95,7 +95,7 @@ public:
     Cmp::Position random_position( { 0.f, 0.f } );
     if constexpr ( std::is_same_v<HazardType, Cmp::CorruptionCell> )
     {
-      seed = get_persistent_component<Cmp::Persistent::CorruptionSeed>()();
+      seed = get_persistent_component<Cmp::Persistent::CorruptionSeed>().get_value();
       std::tie( random_entity, random_position ) = get_random_position(
           IncludePack<Cmp::Obstacle>{},
           ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(),
@@ -103,7 +103,7 @@ public:
     }
     else if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
     {
-      seed = get_persistent_component<Cmp::Persistent::SinkholeSeed>()();
+      seed = get_persistent_component<Cmp::Persistent::SinkholeSeed>().get_value();
       std::tie( random_entity, random_position ) = get_random_position(
           IncludePack<Cmp::Obstacle>{},
           ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(),

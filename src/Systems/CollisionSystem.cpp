@@ -63,7 +63,7 @@ void CollisionSystem::check_bones_reanimation()
       // we just create a temporary RectBounds here instead of a component because we only need it for
       // this one comparison and it already contains the needed scaling logic
       auto npc_activate_bounds = Cmp::RectBounds( _obstacle_pos, sf::Vector2f{ BaseSystem::kGridSquareSizePixels },
-                                                  npc_activate_scale() );
+                                                  npc_activate_scale.get_value() );
       if ( player_hitbox.findIntersection( npc_activate_bounds.getBounds() ) )
       {
         // dont really care what obstacle this becomes as long as its disabled.
@@ -88,10 +88,10 @@ void CollisionSystem::check_player_to_npc_collision()
       if ( player_hitbox.findIntersection( npc_hitbox ) )
       {
         auto &npc_damage_cooldown = get_persistent_component<Cmp::Persistent::NpcDamageDelay>();
-        if ( npc_cmp.m_damage_cooldown.getElapsedTime().asSeconds() < npc_damage_cooldown() ) continue;
+        if ( npc_cmp.m_damage_cooldown.getElapsedTime().asSeconds() < npc_damage_cooldown.get_value() ) continue;
 
         auto &npc_damage = get_persistent_component<Cmp::Persistent::NpcDamage>();
-        pc_cmp.health -= npc_damage();
+        pc_cmp.health -= npc_damage.get_value();
 
         npc_cmp.m_damage_cooldown.restart();
 
@@ -99,7 +99,7 @@ void CollisionSystem::check_player_to_npc_collision()
 
         // Find a valid pushback position by checking all 8 directions
         sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp, npc_pos_cmp, dir_cmp,
-                                                                       npc_push_back() );
+                                                                       npc_push_back.get_value() );
 
         // Update player position if we found a valid pushback position
         if ( target_push_back_pos != pc_pos_cmp ) { pc_pos_cmp = target_push_back_pos; }
@@ -213,19 +213,20 @@ void CollisionSystem::check_loot_collision()
     if ( effect.type == "EXTRA_HEALTH" )
     {
       auto &health_bonus = get_persistent_component<Cmp::Persistent::HealthBonus>();
-      _pc.health = std::min( _pc.health + health_bonus(), 100 );
+      _pc.health = std::min( _pc.health + health_bonus.get_value(), 100 );
     }
     else if ( effect.type == "EXTRA_BOMBS" )
     {
       auto &bomb_bonus = get_persistent_component<Cmp::Persistent::BombBonus>();
-      if ( _pc.bomb_inventory >= 0 ) _pc.bomb_inventory += bomb_bonus();
+      if ( _pc.bomb_inventory >= 0 ) _pc.bomb_inventory += bomb_bonus.get_value();
     }
     else if ( effect.type == "LOWER_WATER" )
     {
       auto &water_bonus = get_persistent_component<Cmp::Persistent::WaterBonus>();
       for ( auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each() )
       {
-        water_level.m_level = std::min( water_level.m_level + water_bonus(), static_cast<float>( kDisplaySize.y ) );
+        water_level.m_level = std::min( water_level.m_level + water_bonus.get_value(),
+                                        static_cast<float>( kDisplaySize.y ) );
       }
     }
 

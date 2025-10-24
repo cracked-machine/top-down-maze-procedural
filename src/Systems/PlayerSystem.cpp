@@ -38,14 +38,14 @@ void PlayerSystem::add_player_entity()
 
   auto &bomb_inventory = get_persistent_component<Cmp::Persistent::BombInventory>();
   auto &blast_radius = get_persistent_component<Cmp::Persistent::BlastRadius>();
-  m_reg->emplace<Cmp::PlayableCharacter>( entity, bomb_inventory(), blast_radius() );
+  m_reg->emplace<Cmp::PlayableCharacter>( entity, bomb_inventory.get_value(), blast_radius.get_value() );
 
   m_reg->emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
 
   auto &pc_detection_scale = get_persistent_component<Cmp::Persistent::PlayerDetectionScale>();
 
   m_reg->emplace<Cmp::PCDetectionBounds>( entity, start_pos, sf::Vector2f{ BaseSystem::kGridSquareSizePixels },
-                                          pc_detection_scale() );
+                                          pc_detection_scale.get_value() );
 
   m_reg->emplace<Cmp::SpriteAnimation>( entity );
   m_reg->emplace<Cmp::PlayerScore>( entity, 0 );
@@ -85,24 +85,24 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
         if ( diagonal_between_obstacles )
         {
           // Check if shortcut movement is disabled (speed modifier at or near zero)
-          if ( shortcut_lerp_speed_modifier() < 0.01f )
+          if ( shortcut_lerp_speed_modifier.get_value() < 0.01f )
           {
             // Block this movement entirely instead of making it super slow
             continue; // Skip to next entity, don't start the movement
           }
 
           // Extra slow when squeezing between obstacles
-          speed_modifier = shortcut_lerp_speed_modifier();
+          speed_modifier = shortcut_lerp_speed_modifier.get_value();
         }
         else if ( is_diagonal )
         {
           // Normal diagonal slowdown
-          speed_modifier = diagonal_lerp_speed_modifier();
+          speed_modifier = diagonal_lerp_speed_modifier.get_value();
         }
 
-        float adjusted_speed = player_lerp_speed() * speed_modifier;
+        float adjusted_speed = player_lerp_speed.get_value() * speed_modifier;
         // add additional modifier if player is underwater
-        if ( pc_cmp.underwater ) { adjusted_speed *= submerged_lerp_speed_modifier(); }
+        if ( pc_cmp.underwater ) { adjusted_speed *= submerged_lerp_speed_modifier.get_value(); }
 
         m_reg->emplace<Cmp::LerpPosition>( entity, target_pos, adjusted_speed );
         lerp_cmp = m_reg->try_get<Cmp::LerpPosition>( entity );

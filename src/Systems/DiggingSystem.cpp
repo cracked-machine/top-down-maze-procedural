@@ -38,7 +38,7 @@ void DiggingSystem::update()
 {
 
   // abort if still in cooldown
-  auto digging_cooldown_amount = get_persistent_component<Cmp::Persistent::DiggingCooldownThreshold>()();
+  auto digging_cooldown_amount = get_persistent_component<Cmp::Persistent::DiggingCooldownThreshold>().get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
   {
     SPDLOG_DEBUG( "Digging is on cooldown for {} more seconds!",
@@ -59,7 +59,7 @@ void DiggingSystem::update()
 void DiggingSystem::check_player_dig_obstacle_collision()
 {
   // abort if still in cooldown
-  auto digging_cooldown_amount = get_persistent_component<Cmp::Persistent::DiggingCooldownThreshold>()();
+  auto digging_cooldown_amount = get_persistent_component<Cmp::Persistent::DiggingCooldownThreshold>().get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
   {
     SPDLOG_DEBUG( "Digging is on cooldown for {} more seconds!",
@@ -128,7 +128,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
 
       // Apply digging damage, play a sound depending on whether the obstacle was destroyed
       m_dig_cooldown_clock.restart();
-      obst_cmp.m_integrity -= get_persistent_component<Cmp::Persistent::DiggingDamagePerHit>()();
+      obst_cmp.m_integrity -= get_persistent_component<Cmp::Persistent::DiggingDamagePerHit>().get_value();
       if ( obst_cmp.m_integrity <= 0.0f )
       {
         // select the final smash sound

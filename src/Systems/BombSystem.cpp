@@ -86,7 +86,7 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
 
   // First arm the center tile
   auto &fuse_delay = get_persistent_component<Cmp::Persistent::FuseDelay>();
-  m_reg->emplace_or_replace<Cmp::Armed>( epicenter_entity, sf::seconds( fuse_delay() ), sf::Time::Zero, true,
+  m_reg->emplace_or_replace<Cmp::Armed>( epicenter_entity, sf::seconds( fuse_delay.get_value() ), sf::Time::Zero, true,
                                          sf::Color::Transparent, sequence_counter++ );
 
   auto all_obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
@@ -122,8 +122,9 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
       auto &fuse_delay = get_persistent_component<Cmp::Persistent::FuseDelay>();
       auto &armed_on_delay = get_persistent_component<Cmp::Persistent::ArmedOnDelay>();
       auto &armed_off_delay = get_persistent_component<Cmp::Persistent::ArmedOffDelay>();
-      auto new_fuse_delay = sf::seconds( fuse_delay() + ( sequence_counter * armed_on_delay() ) );
-      auto new_warning_delay = sf::seconds( armed_off_delay() + ( sequence_counter * armed_off_delay() ) );
+      auto new_fuse_delay = sf::seconds( fuse_delay.get_value() + ( sequence_counter * armed_on_delay.get_value() ) );
+      auto new_warning_delay = sf::seconds( armed_off_delay.get_value() +
+                                            ( sequence_counter * armed_off_delay.get_value() ) );
       m_reg->emplace_or_replace<Cmp::Armed>( entity, new_fuse_delay, new_warning_delay, false, color,
                                              sequence_counter );
       sequence_counter++;
@@ -162,7 +163,7 @@ void BombSystem::update()
       if ( player_bounding_box.findIntersection( obstacle_explosion_zone ) )
       {
         auto &bomb_damage = get_persistent_component<Cmp::Persistent::BombDamage>();
-        player.health -= bomb_damage();
+        player.health -= bomb_damage.get_value();
         if ( player.health <= 0 ) { player.alive = false; }
       }
       player.has_active_bomb = false;
