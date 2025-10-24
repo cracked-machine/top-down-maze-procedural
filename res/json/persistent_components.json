@@ -121,5 +121,9 @@
   "NpcDeathAnimFramerate": {
     "type": "float",
     "value": 0.1
+  },
+  "NpcPushBack": {
+    "type": "float",
+    "value": 16.0
   }
 }

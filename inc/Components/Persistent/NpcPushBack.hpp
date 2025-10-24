@@ -9,7 +9,7 @@ namespace ProceduralMaze::Cmp::Persistent {
 class NpcPushBack : public BasePersistent<float>
 {
 public:
-  NpcPushBack( float value = Sys::BaseSystem::kGridSquareSizePixels.x )
+  NpcPushBack( float value )
       : BasePersistent<float>( value )
   {
   }

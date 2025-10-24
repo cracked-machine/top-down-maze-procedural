@@ -89,6 +89,7 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::BombBonus>( "BombBonus", 5 );
   registerComponent<Cmp::Persistent::NpcDamage>( "NpcDamage", 10 );
   registerComponent<Cmp::Persistent::CorruptionDamage>( "CorruptionDamage", 1 );
+  registerComponent<Cmp::Persistent::NpcPushBack>( "NpcPushBack", 16.f );
 
   // Register special types (sf::Vector2f)
   auto default_player_start_pos = sf::Vector2f( Sys::BaseSystem::kGridSquareSizePixels.x * 2,
