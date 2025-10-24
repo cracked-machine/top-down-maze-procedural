@@ -79,9 +79,8 @@ private:
   // Shaders
   Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", kDisplaySize };
 
-  Sprites::ViewFragmentShader m_wormhole_shader{
-      "res/shaders/SimpleDistortionField.frag",
-      Sprites::MultiSprite::kDefaultSpriteDimensions.componentWiseMul( { 3u, 3u } ) };
+  Sprites::ViewFragmentShader m_wormhole_shader{ "res/shaders/SimpleDistortionField.frag",
+                                                 BaseSystem::kGridSquareSizePixels.componentWiseMul( { 3u, 3u } ) };
 
   // Sprites
   Sprites::Containers::TileMap m_floormap;

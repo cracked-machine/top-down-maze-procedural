@@ -23,7 +23,7 @@ RandomLevelGenerator::RandomLevelGenerator( ProceduralMaze::SharedEnttRegistry r
 void RandomLevelGenerator::gen_positions()
 {
   using namespace Sprites;
-  const auto kDefaultSpriteDimensions = MultiSprite::kDefaultSpriteDimensions;
+  const auto kDefaultSpriteDimensions = Sys::BaseSystem::kGridSquareSizePixels;
 
   for ( unsigned int x = 0; x < Sys::BaseSystem::kMapGridSize.x; x++ )
   {
@@ -50,7 +50,7 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
 
   if ( random_entity != entt::null && large_obstacle_sprite.has_value() )
   {
-    const auto kDefaultSpriteDimensions = Sprites::MultiSprite::kDefaultSpriteDimensions;
+    const auto kDefaultSpriteDimensions = BaseSystem::kGridSquareSizePixels;
 
     // place large obstacle - multiply the grid size to get pixel size!
     auto large_obst_grid_size = large_obstacle_sprite->get_grid_size();
@@ -189,7 +189,7 @@ void RandomLevelGenerator::gen_small_obstacles()
 void RandomLevelGenerator::gen_border()
 {
   using namespace Sprites;
-  const auto kDefaultSpriteDimensions = MultiSprite::kDefaultSpriteDimensions;
+  const auto kDefaultSpriteDimensions = Sys::BaseSystem::kGridSquareSizePixels;
   std::size_t sprite_index = 0;
 
   // top and bottom edges

@@ -97,7 +97,7 @@ public:
     for ( auto [pc_entt, player_cmp, player_pos_cmp] : player_view.each() )
     {
       // reduce the player hitbox size to avoid unfair deaths
-      auto offset = sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } / 4.f;
+      auto offset = sf::Vector2f{ BaseSystem::kGridSquareSizePixels } / 4.f;
       auto player_hitbox = sf::FloatRect( player_pos_cmp + offset, offset * 1.5f );
 
       for ( auto [hazard_field_entt, hazard_field_cmp, hazard_field_pos_cmp] : hazard_field_view.each() )

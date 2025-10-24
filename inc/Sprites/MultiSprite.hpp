@@ -98,7 +98,7 @@ public:
    * sprite frames within a multi-sprite texture. This constant provides a
    * consistent default size for sprite rendering and frame calculations.
    */
-  static constexpr sf::Vector2u kDefaultSpriteDimensions{ 16, 16 };
+  // static constexpr sf::Vector2u Sys::BaseSystem::kGridSquareSizePixels{ 16, 16 };
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
 
   SpriteMetaType get_sprite_type() const { return m_sprite_type; }

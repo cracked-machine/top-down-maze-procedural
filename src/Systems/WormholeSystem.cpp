@@ -45,8 +45,8 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
     {
       for ( int j = -1; j < 2; ++j )
       {
-        sf::Vector2f offset = { static_cast<float>( i ) * Sprites::MultiSprite::kDefaultSpriteDimensions.x,
-                                static_cast<float>( j ) * Sprites::MultiSprite::kDefaultSpriteDimensions.y };
+        sf::Vector2f offset = { static_cast<float>( i ) * BaseSystem::kGridSquareSizePixels.x,
+                                static_cast<float>( j ) * BaseSystem::kGridSquareSizePixels.y };
 
         // Calculate the adjacent position
         sf::Vector2f adjacent_position = random_position + offset;
@@ -84,14 +84,12 @@ void WormholeSystem::check_player_wormhole_collision()
   auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
   for ( auto [player_entity, player_cmp, player_position_cmp] : player_view.each() )
   {
-    auto player_hitbox = sf::FloatRect( player_position_cmp,
-                                        sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+    auto player_hitbox = sf::FloatRect( player_position_cmp, sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
     for ( auto [wormhole_entity, wormhole_cmp, position_cmp] : wormhole_view.each() )
     {
 
       // 2. check for collision,
-      auto wormhole_hitbox = sf::FloatRect( position_cmp,
-                                            sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+      auto wormhole_hitbox = sf::FloatRect( position_cmp, sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
       if ( !player_hitbox.findIntersection( wormhole_hitbox ) ) continue;
       SPDLOG_INFO( "Player collided with wormhole at position ({}, {})", position_cmp.x, position_cmp.y );
 

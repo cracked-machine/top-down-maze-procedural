@@ -112,7 +112,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
 
       // // now post-process the floormap with the ViewFragmentShader
       // m_sand_storm_shader.update_shader_view_and_position(
-      //     player_position + ( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } * 0.5f ),
+      //     player_position + ( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } * 0.5f ),
       //     ViewFragmentShader::Align::CENTER );
       // m_floormap.draw( m_sand_storm_shader.get_render_texture(), sf::RenderStates::Default );
 
@@ -148,7 +148,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
     // much smaller scale
     getWindow().setView( m_minimap_view );
     {
-      render_floormap( { 0, kMapGridOffset.y * Sprites::MultiSprite::kDefaultSpriteDimensions.y } );
+      render_floormap( { 0, kMapGridOffset.y * BaseSystem::kGridSquareSizePixels.y } );
       render_small_obstacles();
 
       render_sinkhole();
@@ -276,7 +276,7 @@ void RenderGameSystem::render_large_obstacles()
     // if ( reserved_cmp.is_animated() )
     // {
     //   SPDLOG_TRACE( "Rendering Cmp::ReservedPosition at ({}, {})", reserved_cmp.x, reserved_cmp.y );
-    //   sf::RectangleShape square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+    //   sf::RectangleShape square( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
     //   square.setFillColor( sf::Color::Transparent );
     //   square.setOutlineColor( sf::Color::Blue );
     //   square.setOutlineThickness( 1.f );
@@ -341,7 +341,7 @@ void RenderGameSystem::render_small_obstacles()
     auto new_scale = sf::Vector2f{ 1.f, 1.f };
     auto new_alpha = std::lerp( 0.0f, 254.f, integrity );
     safe_render_sprite( "ROCK", pos, idx, new_scale, new_alpha );
-    // sf::RectangleShape player_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+    // sf::RectangleShape player_square( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
     // player_square.setFillColor( sf::Color::Transparent );
     // player_square.setOutlineColor( sf::Color::Red );
     // player_square.setOutlineThickness( 1.f );
@@ -369,7 +369,7 @@ void RenderGameSystem::render_small_obstacles()
   for ( auto [entity, selected_cmp, position_cmp] : selected_view.each() )
   {
     SPDLOG_DEBUG( "Rendering Cmp::SelectedPosition at ({}, {})", selected_cmp.x, selected_cmp.y );
-    sf::RectangleShape square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+    sf::RectangleShape square( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
     square.setFillColor( sf::Color::Transparent );
     square.setOutlineColor( sf::Color::Blue );
     square.setOutlineThickness( 2.f );
@@ -424,9 +424,9 @@ void RenderGameSystem::render_wormhole()
       }
 
       // Setup shader
-      m_wormhole_shader.update_shader_position(
-          position_cmp + ( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } * 0.5f ),
-          Sprites::ViewFragmentShader::Align::CENTER );
+      m_wormhole_shader.update_shader_position( position_cmp +
+                                                    ( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } * 0.5f ),
+                                                Sprites::ViewFragmentShader::Align::CENTER );
 
       // Draw background to shader texture
       m_floormap.draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
@@ -437,8 +437,8 @@ void RenderGameSystem::render_wormhole()
       {
         for ( float col = 0; col < grid_size.width; ++col )
         {
-          sf::Vector2f offset = { ( col - 1 ) * Sprites::MultiSprite::kDefaultSpriteDimensions.x,
-                                  ( row - 1 ) * Sprites::MultiSprite::kDefaultSpriteDimensions.y };
+          sf::Vector2f offset = { ( col - 1 ) * BaseSystem::kGridSquareSizePixels.x,
+                                  ( row - 1 ) * BaseSystem::kGridSquareSizePixels.y };
           auto index = anim_cmp.m_current_frame + ( row * grid_size.height + col );
 
           // Much cleaner: render to shader's render texture
@@ -463,7 +463,7 @@ void RenderGameSystem::render_wormhole()
     }
 
     // // Debug rectangle
-    // sf::RectangleShape temp_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+    // sf::RectangleShape temp_square( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
     // temp_square.setPosition( position_cmp );
     // temp_square.setOutlineColor( sf::Color::Red );
     // temp_square.setFillColor( sf::Color::Transparent );
@@ -480,7 +480,7 @@ void RenderGameSystem::render_armed()
   {
     if ( armed_cmp.m_display_bomb_sprite ) { safe_render_sprite( "BOMB", pos_cmp, 0 ); }
 
-    sf::RectangleShape temp_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+    sf::RectangleShape temp_square( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
     temp_square.setPosition( pos_cmp );
     temp_square.setOutlineColor( sf::Color::Transparent );
     temp_square.setFillColor( sf::Color::Transparent );
@@ -555,8 +555,8 @@ void RenderGameSystem::render_walls()
   auto exit_door_view = m_reg->view<Cmp::Door, Cmp::Position, Cmp::Exit>();
   for ( auto [entity, door_cmp, pos_cmp, exit_cmp] : exit_door_view.each() )
   {
-    auto half_width_px = Sprites::MultiSprite::kDefaultSpriteDimensions.x / 2.f;
-    auto half_height_px = Sprites::MultiSprite::kDefaultSpriteDimensions.y / 2.f;
+    auto half_width_px = BaseSystem::kGridSquareSizePixels.x / 2.f;
+    auto half_height_px = BaseSystem::kGridSquareSizePixels.y / 2.f;
 
     sf::Vector2f new_pos{ pos_cmp + sf::Vector2f{ half_width_px, half_height_px } };
     sf::Vector2f new_scale{ 1.f, 1.f };
@@ -600,13 +600,13 @@ void RenderGameSystem::render_player()
       getWindow().draw( pc_square );
     }
 
-    // auto half_sprite_size = sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions };
+    // auto half_sprite_size = sf::Vector2f{ BaseSystem::kGridSquareSizePixels };
     // auto player_horizontal_bounds = Cmp::RectBounds( pc_pos_cmp, half_sprite_size, 1.5f,
     //                                                  Cmp::RectBounds::ScaleCardinality::HORIZONTAL );
     // auto player_vertical_bounds = Cmp::RectBounds( pc_pos_cmp, half_sprite_size, 1.5f,
     //                                                Cmp::RectBounds::ScaleCardinality::VERTICAL );
 
-    // // auto player_hitbox = Cmp::RectBounds( pc_pos_cmp, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions
+    // // auto player_hitbox = Cmp::RectBounds( pc_pos_cmp, sf::Vector2f{ BaseSystem::kGridSquareSizePixels
     // },
     // //                                       1.2f );
     // // Debug: Draw a green rectangle around the player position
@@ -649,50 +649,49 @@ void RenderGameSystem::render_player_footsteps()
     // we're changing the origin to be the center of the sprite so that
     // rotation happens around the center, this means we also need to
     // offset the position to make it look convincing depending on direction of movement
-    sf::Vector2f new_origin{ Sprites::MultiSprite::kDefaultSpriteDimensions.x / 2.f,
-                             Sprites::MultiSprite::kDefaultSpriteDimensions.y / 2.f };
+    sf::Vector2f new_origin{ BaseSystem::kGridSquareSizePixels.x / 2.f, BaseSystem::kGridSquareSizePixels.y / 2.f };
     sf::Vector2f new_position{ position };
     // moving in right direction: place footsteps to bottom-left of player position
     if ( direction == sf::Vector2f( 1.f, 0.f ) )
     {
-      new_position = { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.25f ),
-                       position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.75f ) };
+      new_position = { position.x + ( BaseSystem::kGridSquareSizePixels.x * 0.25f ),
+                       position.y + ( BaseSystem::kGridSquareSizePixels.y * 0.75f ) };
     }
     // moving in left direction: place footsteps to bottom-right of player position
     else if ( direction == sf::Vector2f( -1.f, 0.f ) )
     {
-      new_position = { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.75f ),
-                       position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.75f ) };
+      new_position = { position.x + ( BaseSystem::kGridSquareSizePixels.x * 0.75f ),
+                       position.y + ( BaseSystem::kGridSquareSizePixels.y * 0.75f ) };
     }
     // moving diagonally: down/left
     else if ( direction == sf::Vector2f( -1.f, 1.f ) )
     {
-      new_position = { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.75f ),
-                       position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.75f ) };
+      new_position = { position.x + ( BaseSystem::kGridSquareSizePixels.x * 0.75f ),
+                       position.y + ( BaseSystem::kGridSquareSizePixels.y * 0.75f ) };
     }
     // moving diagonally: down/right
     else if ( direction == sf::Vector2f( 1.f, 1.f ) )
     {
-      new_position = { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.5f ),
-                       position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.8f ) };
+      new_position = { position.x + ( BaseSystem::kGridSquareSizePixels.x * 0.5f ),
+                       position.y + ( BaseSystem::kGridSquareSizePixels.y * 0.8f ) };
     }
     // moving diagonally: up/left
     else if ( direction == sf::Vector2f( -1.f, -1.f ) )
     {
-      new_position = { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.5f ),
-                       position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.8f ) };
+      new_position = { position.x + ( BaseSystem::kGridSquareSizePixels.x * 0.5f ),
+                       position.y + ( BaseSystem::kGridSquareSizePixels.y * 0.8f ) };
     }
     // moving diagonally: up/right
     else if ( direction == sf::Vector2f( 1.f, -1.f ) )
     {
-      new_position = { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.5f ),
-                       position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.8f ) };
+      new_position = { position.x + ( BaseSystem::kGridSquareSizePixels.x * 0.5f ),
+                       position.y + ( BaseSystem::kGridSquareSizePixels.y * 0.8f ) };
     }
     // moving in up/down direction: place footsteps to center of player position
     else
     {
-      new_position = { position.x + ( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 0.5f ),
-                       position.y + ( Sprites::MultiSprite::kDefaultSpriteDimensions.y * 0.5f ) };
+      new_position = { position.x + ( BaseSystem::kGridSquareSizePixels.x * 0.5f ),
+                       position.y + ( BaseSystem::kGridSquareSizePixels.y * 0.5f ) };
     }
     // only set rotation if direction is not zero vector
     sf::Angle new_angle;
@@ -716,7 +715,7 @@ void RenderGameSystem::render_npc()
     else if ( direction.x < 0 )
     {
       direction.x_scale = -1.f;
-      direction.x_offset = Sprites::MultiSprite::kDefaultSpriteDimensions.x;
+      direction.x_offset = BaseSystem::kGridSquareSizePixels.x;
     }
     else
     {
@@ -741,7 +740,7 @@ void RenderGameSystem::render_npc()
       getWindow().draw( npc_square );
     }
 
-    // sf::RectangleShape player_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+    // sf::RectangleShape player_square( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
     // player_square.setFillColor( sf::Color::Transparent );
     // player_square.setOutlineColor( sf::Color::Red );
     // player_square.setOutlineThickness( 1.f );
@@ -877,7 +876,7 @@ void RenderGameSystem::safe_render_sprite_to_target( sf::RenderTarget &target, c
 void RenderGameSystem::render_fallback_square_to_target( sf::RenderTarget &target, const sf::Vector2f &position,
                                                          const sf::Color &color )
 {
-  sf::RectangleShape fallback_square( sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+  sf::RectangleShape fallback_square( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
   fallback_square.setPosition( position );
   fallback_square.setFillColor( color );
   fallback_square.setOutlineColor( sf::Color::White );

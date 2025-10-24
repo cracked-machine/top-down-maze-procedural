@@ -62,8 +62,8 @@ void CollisionSystem::check_bones_reanimation()
       auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NpcActivateScale>();
       // we just create a temporary RectBounds here instead of a component because we only need it for
       // this one comparison and it already contains the needed scaling logic
-      auto npc_activate_bounds = Cmp::RectBounds(
-          _obstacle_pos, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions }, npc_activate_scale() );
+      auto npc_activate_bounds = Cmp::RectBounds( _obstacle_pos, sf::Vector2f{ BaseSystem::kGridSquareSizePixels },
+                                                  npc_activate_scale() );
       if ( player_hitbox.findIntersection( npc_activate_bounds.getBounds() ) )
       {
         // dont really care what obstacle this becomes as long as its disabled.
@@ -283,8 +283,7 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
   {
     // slightly larger hitbox for large obstacles because we want to trigger
     // collision when we get CLOSE to them
-    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions },
-                                          1.5f );
+    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp, sf::Vector2f{ BaseSystem::kGridSquareSizePixels }, 1.5f );
 
     for ( auto [lo_entity, lo_cmp] : large_obstacle_view.each() )
     {
@@ -297,7 +296,7 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
         for ( auto [_res_entity, reserved_cmp] : reserved_view.each() )
         {
 
-          auto kDefaultSpriteDimensions = Sprites::MultiSprite::kDefaultSpriteDimensions;
+          auto kDefaultSpriteDimensions = BaseSystem::kGridSquareSizePixels;
           auto reserved_hitbox = sf::FloatRect( reserved_cmp, sf::Vector2f{ kDefaultSpriteDimensions } );
           if ( reserved_hitbox.findIntersection( lo_cmp ) )
           {
@@ -309,8 +308,7 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
               {
 
                 // Convert pixel size to grid size, then calculate threshold
-                auto lo_grid_size = lo_cmp.size.componentWiseDiv(
-                    sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+                auto lo_grid_size = lo_cmp.size.componentWiseDiv( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
                 auto lo_count_threshold = ( lo_grid_size.x * lo_grid_size.y );
                 SPDLOG_DEBUG( " Count {}, threshold {} ", lo_cmp.get_active_count(), count_threshold );
                 if ( lo_cmp.get_active_count() < lo_count_threshold )

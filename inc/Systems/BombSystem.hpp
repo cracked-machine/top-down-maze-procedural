@@ -55,8 +55,8 @@ public:
   }
 
 private:
-  const sf::Vector2f max_explosion_zone_size{ Sprites::MultiSprite::kDefaultSpriteDimensions.x * 3.f,
-                                              Sprites::MultiSprite::kDefaultSpriteDimensions.y * 3.f };
+  const sf::Vector2f max_explosion_zone_size{ BaseSystem::kGridSquareSizePixels.x * 3.f,
+                                              BaseSystem::kGridSquareSizePixels.y * 3.f };
 
   sf::SoundBuffer m_fuse_sound_buffer{ "res/audio/fuse.wav" };
   sf::Sound m_fuse_sound_player{ m_fuse_sound_buffer };

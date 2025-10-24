@@ -60,7 +60,7 @@ bool BaseSystem::isDiagonalMovementBetweenObstacles( const sf::Vector2f &current
 {
   if ( !( ( direction.x != 0.0f ) && ( direction.y != 0.0f ) ) ) return false; // Not diagonal
 
-  float grid_size = Sprites::MultiSprite::kDefaultSpriteDimensions.x;
+  float grid_size = BaseSystem::kGridSquareSizePixels.x;
 
   // Calculate the two orthogonal positions the diagonal movement would "cut through"
   sf::Vector2f horizontal_check = sf::Vector2f{ current_pos.x + ( direction.x * grid_size ), current_pos.y };

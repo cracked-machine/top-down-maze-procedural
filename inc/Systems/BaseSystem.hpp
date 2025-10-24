@@ -46,9 +46,8 @@ public:
     auto pos = m_reg->try_get<Cmp::Position>( entity );
     if ( pos )
     {
-      return std::optional<sf::Vector2i>{
-          { static_cast<int>( pos->x / Sprites::MultiSprite::kDefaultSpriteDimensions.x ),
-            static_cast<int>( pos->y / Sprites::MultiSprite::kDefaultSpriteDimensions.y ) } };
+      return std::optional<sf::Vector2i>{ { static_cast<int>( pos->x / BaseSystem::kGridSquareSizePixels.x ),
+                                            static_cast<int>( pos->y / BaseSystem::kGridSquareSizePixels.y ) } };
     }
     return std::nullopt;
   }
@@ -91,12 +90,12 @@ public:
 
   sf::FloatRect get_hitbox( sf::Vector2f pos )
   {
-    return sf::FloatRect( { pos.x, pos.y }, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } );
+    return sf::FloatRect( { pos.x, pos.y }, sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
   }
 
   sf::Vector2f snap_to_grid( const sf::Vector2f &position )
   {
-    float grid_size = Sprites::MultiSprite::kDefaultSpriteDimensions.x; // Assuming square grid
+    float grid_size = BaseSystem::kGridSquareSizePixels.x; // Assuming square grid
 
     return sf::Vector2f( std::round( position.x / grid_size ) * grid_size,
                          std::round( position.y / grid_size ) * grid_size );
@@ -126,6 +125,8 @@ public:
    * @return true if the diagonal movement would pass between obstacles, false otherwise
    */
   bool isDiagonalMovementBetweenObstacles( const sf::Vector2f &current_pos, const sf::Vector2f &direction );
+
+  static constexpr sf::Vector2u kGridSquareSizePixels{ 16, 16 };
 
   // The game display resolution in pixels
   static constexpr sf::Vector2u kDisplaySize{ 1920, 1024 };

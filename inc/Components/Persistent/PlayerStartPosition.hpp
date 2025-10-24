@@ -15,7 +15,7 @@ namespace ProceduralMaze::Cmp::Persistent {
 class PlayerStartPosition : public sf::Vector2f
 {
 public:
-  PlayerStartPosition( sf::Vector2f pos = sf::Vector2f( Sprites::MultiSprite::kDefaultSpriteDimensions.x * 2,
+  PlayerStartPosition( sf::Vector2f pos = sf::Vector2f( Sys::BaseSystem::kGridSquareSizePixels.x * 2,
                                                         static_cast<float>( Sys::BaseSystem::kDisplaySize.y ) / 2 ) )
       : sf::Vector2f( pos )
   {

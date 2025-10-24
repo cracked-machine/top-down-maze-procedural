@@ -1,6 +1,7 @@
 #ifndef __CMP_RECTBOUNDS_HPP__
 #define __CMP_RECTBOUNDS_HPP__
 
+#include <BaseSystem.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Sprites/SpriteFactory.hpp>
@@ -51,20 +52,19 @@ public:
       case ScaleCardinality::HORIZONTAL:
         m_bounds.size.x = size.x * m_scale_factor;
         m_bounds.size.y = size.y * 1;
-        m_bounds.position.x = position.x - Sprites::MultiSprite::kDefaultSpriteDimensions.x * kPositionOffsetFactor;
+        m_bounds.position.x = position.x - Sys::BaseSystem::kGridSquareSizePixels.x * kPositionOffsetFactor;
         m_bounds.position.y = position.y;
         break;
       case ScaleCardinality::VERTICAL:
         m_bounds.size.y = size.y * m_scale_factor;
         m_bounds.size.x = size.x * 1;
-        m_bounds.position.y = position.y - Sprites::MultiSprite::kDefaultSpriteDimensions.y * kPositionOffsetFactor;
+        m_bounds.position.y = position.y - Sys::BaseSystem::kGridSquareSizePixels.y * kPositionOffsetFactor;
         m_bounds.position.x = position.x;
         break;
       case ScaleCardinality::BOTH:
       default:
         m_bounds.size = size * m_scale_factor;
-        m_bounds.position = position -
-                            sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } * kPositionOffsetFactor;
+        m_bounds.position = position - sf::Vector2f{ Sys::BaseSystem::kGridSquareSizePixels } * kPositionOffsetFactor;
         break;
     }
   }
@@ -79,8 +79,7 @@ public:
    */
   void position( sf::Vector2f new_position )
   {
-    m_bounds.position = new_position -
-                        sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions } * kPositionOffsetFactor;
+    m_bounds.position = new_position - sf::Vector2f{ Sys::BaseSystem::kGridSquareSizePixels } * kPositionOffsetFactor;
   }
   sf::Vector2f position() const { return m_bounds.position; }
 

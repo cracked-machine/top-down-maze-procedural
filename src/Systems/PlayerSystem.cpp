@@ -44,8 +44,8 @@ void PlayerSystem::add_player_entity()
 
   auto &pc_detection_scale = get_persistent_component<Cmp::Persistent::PlayerDetectionScale>();
 
-  m_reg->emplace<Cmp::PCDetectionBounds>(
-      entity, start_pos, sf::Vector2f{ Sprites::MultiSprite::kDefaultSpriteDimensions }, pc_detection_scale() );
+  m_reg->emplace<Cmp::PCDetectionBounds>( entity, start_pos, sf::Vector2f{ BaseSystem::kGridSquareSizePixels },
+                                          pc_detection_scale() );
 
   m_reg->emplace<Cmp::SpriteAnimation>( entity );
   m_reg->emplace<Cmp::PlayerScore>( entity, 0 );
@@ -68,8 +68,8 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
     // Only start new movement when not lerping
     if ( wants_to_move && !lerp_cmp )
     {
-      auto target_pos = sf::Vector2f{ pos_cmp.x + ( dir_cmp.x * Sprites::MultiSprite::kDefaultSpriteDimensions.x ),
-                                      pos_cmp.y + ( dir_cmp.y * Sprites::MultiSprite::kDefaultSpriteDimensions.y ) };
+      auto target_pos = sf::Vector2f{ pos_cmp.x + ( dir_cmp.x * BaseSystem::kGridSquareSizePixels.x ),
+                                      pos_cmp.y + ( dir_cmp.y * BaseSystem::kGridSquareSizePixels.y ) };
 
       if ( is_valid_move( target_pos ) || skip_collision_check )
       {
