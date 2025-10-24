@@ -181,7 +181,7 @@ public:
     SPDLOG_DEBUG( "Found {} positions in the maze.", random_view_count );
 
     // Get random index and advance iterator to that position
-    Cmp::Random seed_picker = Cmp::Random( 0, static_cast<int>( random_view_count - 1 ) );
+    Cmp::RandomInt seed_picker( 0, static_cast<int>( random_view_count - 1 ) );
     if ( seed != 0 ) { seed_picker.seed( seed ); }
     else { seed_picker.seed( std::random_device{}() ); }
 

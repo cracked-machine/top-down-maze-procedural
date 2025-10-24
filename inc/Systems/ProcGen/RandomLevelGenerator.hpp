@@ -61,7 +61,7 @@ public:
 
 private:
   std::vector<entt::entity> m_data;
-  Cmp::Random m_activation_selector{ 0, 1 };
+  Cmp::RandomInt m_activation_selector{ 0, 1 };
 };
 
 } // namespace ProceduralMaze::Sys::ProcGen

@@ -40,7 +40,6 @@
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
-#include <Components/RandomCoord.hpp>
 #include <Components/System.hpp>
 #include <Sprites/TileMap.hpp>
 

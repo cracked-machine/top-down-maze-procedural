@@ -134,7 +134,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       else
       {
         // select a random pickaxe sound
-        Cmp::Random random_picker( 0, m_pickaxe_sounds.size() - 1 );
+        Cmp::RandomInt random_picker( 0, m_pickaxe_sounds.size() - 1 );
         auto selected_pickaxe_sound_index = random_picker.gen();
         SPDLOG_INFO( "Random pickaxe sound index: {}", selected_pickaxe_sound_index );
         m_dig_sound.setBuffer( m_pickaxe_sounds[selected_pickaxe_sound_index].buffer );

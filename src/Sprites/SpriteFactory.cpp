@@ -89,7 +89,7 @@ SpriteFactory::get_random_type_and_texture_index( std::vector<SpriteMetaType> ty
     {
       if ( metadata.m_multisprite.get_sprite_type() == selected_data->m_multisprite.get_sprite_type() )
       {
-        Cmp::Random random_picker( 0, selected_data->m_multisprite.get_sprite_count() - 1 );
+        Cmp::RandomInt random_picker( 0, selected_data->m_multisprite.get_sprite_count() - 1 );
         return { type, random_picker.gen() };
       }
     }

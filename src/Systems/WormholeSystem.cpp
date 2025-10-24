@@ -4,7 +4,6 @@
 #include <Obstacle.hpp>
 #include <Persistent/WormholeSeed.hpp>
 #include <PlayableCharacter.hpp>
-#include <RandomCoord.hpp>
 #include <ReservedPosition.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SpriteAnimation.hpp>

@@ -214,7 +214,7 @@ void TileMap::initialize( const TileMapConfig &config )
   const size_t total_tiles = static_cast<size_t>( config.map_dimensions.x ) * config.map_dimensions.y;
   m_floortile_choices.reserve( total_tiles );
 
-  Cmp::Random floortile_picker{ 0, static_cast<int>( config.floor_tile_pool.size() - 1 ) };
+  Cmp::RandomInt floortile_picker{ 0, static_cast<int>( config.floor_tile_pool.size() - 1 ) };
 
   // let json fix seed if specified as non-zero
   if ( config.random_seed != 0 )

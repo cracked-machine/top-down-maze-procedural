@@ -250,7 +250,7 @@ void Engine::setup()
 {
   reginfo( "Pre-setup" );
 
-  // Cmp::Random::seed(123456789); // testing purposes
+  // Cmp::RandomInt::seed(123456789); // testing purposes
 
   m_reg->ctx().emplace<std::shared_ptr<Sprites::SpriteFactory>>( m_sprite_factory );
 
