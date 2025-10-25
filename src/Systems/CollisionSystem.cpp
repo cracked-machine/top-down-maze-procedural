@@ -260,25 +260,31 @@ void CollisionSystem::check_end_zone_collision()
 
 void CollisionSystem::update_obstacle_distances()
 {
+  // precompute outside of loops for performance
   const auto viewBounds = BaseSystem::calculate_view_bounds( RenderSystem::getWindow().getView() );
 
+  // we only have one player so this is just for convenience
   auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PCDetectionBounds>();
-  for ( auto [_pc_entt, _pc, _pc_pos, pc_detection_bounds] : player_view.each() )
+  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_db_cmp] : player_view.each() )
   {
 
     auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
-    for ( auto [_ob_entt, _ob, _ob_pos] : obstacle_view.each() )
+    for ( auto [obst_entt, obst_cmp, obst_pos_cmp] : obstacle_view.each() )
     {
 
-      if ( !is_visible_in_view( viewBounds, _ob_pos ) ) continue;
+      if ( !is_visible_in_view( viewBounds, obst_pos_cmp ) ) continue;
 
       // while we are here calculate the obstacle/player distance for any traversable obstacles
-      if ( not _ob.m_enabled && pc_detection_bounds.findIntersection( get_hitbox( _ob_pos ) ) )
+      if ( not obst_cmp.m_enabled && pc_db_cmp.findIntersection( get_hitbox( obst_pos_cmp ) ) )
       {
-        auto distance = std::floor( getChebyshevDistance( _pc_pos, _ob_pos ) );
-        m_reg->emplace_or_replace<Cmp::PlayerDistance>( _ob_entt, distance );
+        auto distance = std::floor( getChebyshevDistance( pc_pos_cmp, obst_pos_cmp ) );
+        m_reg->emplace_or_replace<Cmp::PlayerDistance>( obst_entt, distance );
       }
-      else { m_reg->remove<Cmp::PlayerDistance>( _ob_entt ); }
+      else
+      {
+        // tidy up any out of range obstacles
+        m_reg->remove<Cmp::PlayerDistance>( obst_entt );
+      }
     }
   }
 }

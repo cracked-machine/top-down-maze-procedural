@@ -24,8 +24,7 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
   // only continue if player is within detection distance
   if ( not npc_scan_bounds->findIntersection( pc_detection_bounds->getBounds() ) )
   {
-    // remove any out-of-range PlayerDistance components to maintain a small
-    // search zone
+    // remove any out-of-range PlayerDistance components to maintain a small search zone
     m_reg->remove<Cmp::EnttDistanceMap>( npc_entity );
   }
   else
@@ -42,13 +41,11 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
       }
     }
 
-    // Our priority queue auto-sorts with the nearest PlayerDistance component
-    // at the top
+    // Our priority queue auto-sorts with the nearest PlayerDistance component at the top
     if ( distance_queue.empty() ) return;
     auto nearest_obstacle = distance_queue.top();
 
-    // now lets consider moving our NPC. We use lerp to get a smooth
-    // transition from grid movements.
+    // now lets consider moving our NPC. We use lerp to get a smooth transition from grid movements.
     auto npc_cmp = m_reg->try_get<Cmp::NPC>( npc_entity );
     if ( npc_cmp )
     {
@@ -66,8 +63,7 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
         {
           m_reg->emplace_or_replace<Cmp::Direction>( npc_entity, distance.normalized() );
         }
-        // Otherwise set target position for lerp. This will get updated in
-        // the main engine loop via LerpSystems
+        // Otherwise set target position for lerp. This will get updated in the main engine loop via LerpSystems
         auto move_candidate_pixel_pos = getPixelPosition( nearest_obstacle.second );
         if ( not move_candidate_pixel_pos ) return;
         auto npc_lerp_speed = get_persistent_component<Cmp::Persistent::NpcLerpSpeed>();
