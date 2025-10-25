@@ -429,8 +429,8 @@ void RenderGameSystem::render_wormhole()
         {
           sf::Vector2f offset = { ( col - 1 ) * BaseSystem::kGridSquareSizePixels.x,
                                   ( row - 1 ) * BaseSystem::kGridSquareSizePixels.y };
-          // auto index = anim_cmp.m_current_frame + ( row * grid_size.height + col );
-          auto index = 0;
+          auto index = anim_cmp.m_current_frame + ( row * grid_size.height + col );
+          // auto index = anim_cmp.m_current_frame;
 
           // dont modify the original pos_cmp, create copy with modified position
           sf::FloatRect offset_pos_cmp{ { pos_cmp.position + offset }, kGridSquareSizePixelsF };
