@@ -3,6 +3,8 @@
 
 #include <BaseSystem.hpp>
 #include <Events/UnlockDoorEvent.hpp>
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
 namespace ProceduralMaze::Sys {
 
 class ExitSystem : public BaseSystem
@@ -21,6 +23,8 @@ public:
 
 private:
   int exit_sprite_index = 6;
+  sf::SoundBuffer exit_unlock_sound_buffer{ "res/audio/secret.wav" };
+  sf::Sound exit_unlock_sound{ exit_unlock_sound_buffer };
 };
 
 } // namespace ProceduralMaze::Sys

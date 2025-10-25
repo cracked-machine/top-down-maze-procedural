@@ -125,5 +125,13 @@
   "NpcPushBack": {
     "type": "float",
     "value": 16.0
+  },
+  "MaxShrines": {
+    "type": "int",
+    "value": 3
+  },
+  "ShrineCost": {
+    "type": "int",
+    "value": 2
   }
 }

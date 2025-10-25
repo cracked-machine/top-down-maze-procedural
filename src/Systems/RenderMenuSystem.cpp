@@ -7,6 +7,7 @@
 #include <Persistent/DiggingDamagePerHit .hpp>
 #include <Persistent/FuseDelay.hpp>
 #include <Persistent/HealthBonus.hpp>
+#include <Persistent/MaxShrines.hpp>
 #include <Persistent/MusicVolume.hpp>
 #include <Persistent/NpcActivateScale.hpp>
 #include <Persistent/NpcAnimFramerate.hpp>
@@ -21,6 +22,7 @@
 #include <Persistent/PlayerLerpSpeed.hpp>
 #include <Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Persistent/PlayerSubmergedlLerpSpeedModifier.hpp>
+#include <Persistent/ShrineCost.hpp>
 #include <Persistent/SinkholeSeed.hpp>
 #include <Persistent/WaterBonus.hpp>
 #include <Persistent/WormholeAnimFramerate.hpp>
@@ -222,6 +224,11 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
 
   auto &music_volume = get_persistent_component<Cmp::Persistent::MusicVolume>();
   ImGui::SliderFloat( "Music Volume", &music_volume.get_value(), 0.f, 100.f, "%.1f" );
+
+  auto &max_shrines = get_persistent_component<Cmp::Persistent::MaxShrines>();
+  ImGui::SliderInt( "Max Shrines", reinterpret_cast<int *>( &max_shrines.get_value() ), 1, 10 );
+  auto &shrine_cost = get_persistent_component<Cmp::Persistent::ShrineCost>();
+  ImGui::SliderInt( "Shrine Cost", reinterpret_cast<int *>( &shrine_cost.get_value() ), 1, 10 );
 
   ImGui::End();
   ImGui::SFML::Render( getWindow() );

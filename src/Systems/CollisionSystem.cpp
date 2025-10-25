@@ -1,5 +1,6 @@
 #include <CollisionSystem.hpp>
 #include <CorruptionCell.hpp>
+#include <Events/UnlockDoorEvent.hpp>
 #include <Exit.hpp>
 #include <HazardFieldCell.hpp>
 #include <LargeObstacle.hpp>
@@ -11,6 +12,7 @@
 #include <Persistent/NpcDamageDelay.hpp>
 #include <Persistent/NpcPushBack.hpp>
 #include <Persistent/PlayerStartPosition.hpp>
+#include <Persistent/ShrineCost.hpp>
 #include <Persistent/WaterBonus.hpp>
 #include <PlayerScore.hpp>
 #include <Position.hpp>
@@ -300,7 +302,8 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
 
             if ( reserved_cmp.m_type == "SHRINE" && action == PlayerActionEvent::ACTIVATE )
             {
-              if ( pc_score_cmp.get_score() >= 2 && !reserved_cmp.is_animated() )
+              auto &shrine_cost = get_persistent_component<Cmp::Persistent::ShrineCost>();
+              if ( pc_score_cmp.get_score() >= shrine_cost.get_value() && !reserved_cmp.is_animated() )
               {
 
                 // Convert pixel size to grid size, then calculate threshold
@@ -310,7 +313,8 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
                 if ( lo_cmp.get_active_count() < lo_count_threshold )
                 {
                   lo_cmp.increment_active_count();
-                  pc_score_cmp.decrement_score( 2 );
+                  // if we just activated a shrine check if the exit can be unlocked
+                  pc_score_cmp.decrement_score( shrine_cost.get_value() );
                   reserved_cmp.animate();
                   m_reg->emplace_or_replace<Cmp::SpriteAnimation>( _res_entity, 0, 1 );
                   if ( lo_cmp.get_active_count() >= lo_count_threshold )
@@ -318,6 +322,7 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
                     SPDLOG_DEBUG( "ACTIVATING SHRINE! Count: {}, Threshold: {}", lo_cmp.get_active_count(),
                                   count_threshold );
                     lo_cmp.set_powers_active();
+                    getEventDispatcher().trigger( Events::UnlockDoorEvent() );
                   }
                 }
               }

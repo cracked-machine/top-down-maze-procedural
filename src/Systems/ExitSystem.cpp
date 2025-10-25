@@ -2,7 +2,9 @@
 #include <Components/PlayableCharacter.hpp>
 #include <Components/System.hpp>
 #include <Door.hpp>
+#include <LargeObstacle.hpp>
 #include <NPC.hpp>
+#include <Persistent/MaxShrines.hpp>
 #include <Persistent/PlayerStartPosition.hpp>
 #include <Random.hpp>
 #include <RenderSystem.hpp>
@@ -36,11 +38,30 @@ void ExitSystem::spawn_exit()
 
 void ExitSystem::unlock_exit()
 {
+  // count the number of activated shrines
+  unsigned int active_shrine_count = 0;
+  auto shrine_view = m_reg->view<Cmp::LargeObstacle>();
+  for ( auto [shrine_entt, shrine_cmp] : shrine_view.each() )
+  {
+    if ( shrine_cmp.is_shrine() && shrine_cmp.are_powers_active() ) { active_shrine_count++; }
+  }
+
+  // return if not enough shrines activated
+  auto max_num_shrines = get_persistent_component<Cmp::Persistent::MaxShrines>();
+  if ( active_shrine_count < max_num_shrines.get_value() )
+  {
+    SPDLOG_DEBUG( "Not enough shrines activated to unlock exit ({} / {})", active_shrine_count,
+                  max_num_shrines.get_value() );
+    return;
+  }
+
+  // otherwise unlock the exit
   auto exit_view = m_reg->view<Cmp::Exit, Cmp::Door>();
   for ( auto [entity, exit_cmp, door_cmp] : exit_view.each() )
   {
     exit_cmp.m_locked = false;
     door_cmp.m_tile_index = 1; // open door tile
+    exit_unlock_sound.play();
   }
 }
 
@@ -49,7 +70,8 @@ void ExitSystem::check_exit_collision()
   auto exit_view = m_reg->view<Cmp::Exit, Cmp::Position>();
   for ( auto [entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
   {
-    if ( exit_cmp.m_locked ) return;
+    auto max_num_shrines = get_persistent_component<Cmp::Persistent::MaxShrines>();
+    if ( exit_cmp.m_locked == true ) return;
     for ( auto [player_entity, pc_cmp, pc_pos_cmp] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
     {
       if ( pc_pos_cmp.findIntersection( exit_pos_cmp ) )

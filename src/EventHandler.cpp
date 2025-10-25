@@ -2,6 +2,8 @@
 #include <Events/SaveSettingsEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
 #include <Exit.hpp>
+#include <LargeObstacle.hpp>
+#include <Persistent/MaxShrines.hpp>
 
 namespace ProceduralMaze {
 
@@ -131,6 +133,16 @@ void EventHandler::game_state_handler( sf::RenderWindow &window )
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F10 )
       {
+        auto max_num_shrines = get_persistent_component<Cmp::Persistent::MaxShrines>();
+        auto shrine_view = m_reg->view<Cmp::LargeObstacle>();
+        for ( auto [shrine_entt, shrine_cmp] : shrine_view.each() )
+        {
+          if ( shrine_cmp.is_shrine() && not shrine_cmp.are_powers_active() )
+          {
+            shrine_cmp.set_powers_active();
+            SPDLOG_DEBUG( "Activating shrine at entity {}", static_cast<int>( shrine_entt ) );
+          }
+        }
         auto exit_cmp = m_reg->view<Cmp::Exit>();
         for ( auto [exit_entt, exit_cmp] : exit_cmp.each() )
         {

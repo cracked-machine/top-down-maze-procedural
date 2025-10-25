@@ -10,6 +10,7 @@
 #include <Persistent/FloodSpeed.hpp>
 #include <Persistent/FuseDelay.hpp>
 #include <Persistent/HealthBonus.hpp>
+#include <Persistent/MaxShrines.hpp>
 #include <Persistent/MusicVolume.hpp>
 #include <Persistent/NpcActivateScale.hpp>
 #include <Persistent/NpcAnimFramerate.hpp>
@@ -27,6 +28,7 @@
 #include <Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Persistent/PlayerStartPosition.hpp>
 #include <Persistent/PlayerSubmergedlLerpSpeedModifier.hpp>
+#include <Persistent/ShrineCost.hpp>
 #include <Persistent/WaterBonus.hpp>
 #include <Persistent/WormholeAnimFramerate.hpp>
 #include <PersistentSystem.hpp>
@@ -90,6 +92,8 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::NpcDamage>( "NpcDamage", 10 );
   registerComponent<Cmp::Persistent::CorruptionDamage>( "CorruptionDamage", 1 );
   registerComponent<Cmp::Persistent::NpcPushBack>( "NpcPushBack", 16.f );
+  registerComponent<Cmp::Persistent::MaxShrines>( "MaxShrines", 3u );
+  registerComponent<Cmp::Persistent::ShrineCost>( "ShrineCost", 2u );
 
   // Register special types (sf::Vector2f)
   auto default_player_start_pos = sf::Vector2f( Sys::BaseSystem::kGridSquareSizePixels.x * 2,
@@ -121,8 +125,7 @@ void PersistentSystem::save_state()
   nlohmann::json jsonData;
 
   // Helper lambda to serialize a component if it exists
-  auto serializeComponent = [&]<typename ComponentType>( const std::string &key )
-  {
+  auto serializeComponent = [&]<typename ComponentType>( const std::string &key ) {
     try
     {
       auto &component = get_persistent_component<ComponentType>();
@@ -162,6 +165,8 @@ void PersistentSystem::save_state()
   serializeComponent.template operator()<Cmp::Persistent::WaterBonus>( "WaterBonus" );
   serializeComponent.template operator()<Cmp::Persistent::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
   serializeComponent.template operator()<Cmp::Persistent::DiggingDamagePerHit>( "DiggingDamagePerHit" );
+  serializeComponent.template operator()<Cmp::Persistent::ShrineCost>( "ShrineCost" );
+  serializeComponent.template operator()<Cmp::Persistent::MaxShrines>( "MaxShrines" );
   // clang-format on
 
   std::ofstream outputFile( "res/json/persistent_components.json" );

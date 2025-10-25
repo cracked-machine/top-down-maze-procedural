@@ -1,6 +1,7 @@
 #include <BaseSystem.hpp>
 #include <Door.hpp>
 #include <LargeObstacle.hpp>
+#include <Persistent/MaxShrines.hpp>
 #include <PlayableCharacter.hpp>
 #include <ProcGen/RandomLevelGenerator.hpp>
 #include <ReservedPosition.hpp>
@@ -125,13 +126,14 @@ void RandomLevelGenerator::gen_large_obstacles()
 {
 
   auto sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
-
+  auto max_num_shrines = get_persistent_component<Cmp::Persistent::MaxShrines>();
   // Get all available grave types dynamically from JSON
   auto grave_meta_types = sprite_factory->get_all_sprite_types_by_pattern( "GRAVE" );
   if ( grave_meta_types.empty() ) { SPDLOG_WARN( "No GRAVE multisprites found in SpriteFactory" ); }
   else
   {
-    for ( std::size_t i = 0; i < 30; ++i )
+    auto max_num_graves = max_num_shrines.get_value() * 5;
+    for ( std::size_t i = 0; i < max_num_graves; ++i )
     {
       // Use the dynamically discovered grave types
       auto [sprite_metatype, unused_index] = sprite_factory->get_random_type_and_texture_index( grave_meta_types );
@@ -148,7 +150,7 @@ void RandomLevelGenerator::gen_large_obstacles()
   if ( !shrine_multisprite.has_value() ) { SPDLOG_WARN( "No SHRINE multisprite found in SpriteFactory" ); }
   else
   {
-    for ( std::size_t i = 0; i < 3; ++i )
+    for ( std::size_t i = 0; i < max_num_shrines.get_value(); ++i )
     {
       // Use the dynamically discovered shrine types
       gen_large_obstacle( shrine_multisprite, "SHRINE", 0, true );
