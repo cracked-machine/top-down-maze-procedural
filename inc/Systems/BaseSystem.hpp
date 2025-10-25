@@ -184,13 +184,14 @@ public:
   /**
    * @brief Retrieves a random entity and its position component from entities matching the specified criteria.
    *
-   * This function selects a random entity from a filtered view of entities that have a Position component
-   * and all specified Include components, while excluding entities with any of the Exclude components.
+   * This function selects a random entity and position component from a filtered view of entities that have a Position
+   * component and all specified Include components, while excluding entities with any of the Exclude components.
    *
    * @tparam Include... Variadic template parameter pack specifying component types that entities must have
    * @tparam Exclude... Variadic template parameter pack specifying component types that entities must not have
    *
-   * @param include_pack Template parameter pack wrapper for components to include in the filter
+   * @param include_pack Template parameter pack wrapper for components to include in the filter. Do not include
+   * Cmp::Position here.
    * @param exclude_pack Template parameter pack wrapper for components to exclude from the filter
    * @param seed Optional seed value for random number generation. If 0 (default), uses std::random_device
    *

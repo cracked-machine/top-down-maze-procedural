@@ -554,7 +554,7 @@ void RenderGameSystem::render_walls()
     sf::Vector2f new_scale{ 1.f, 1.f };
     uint8_t new_alpha{ 255 };
     sf::Vector2f new_origin{ half_width_px, half_height_px };
-    float angle{ 180.f };
+    float angle{ 0.f };
 
     safe_render_sprite( "WALL", new_pos, door_cmp.m_tile_index, new_scale, new_alpha, new_origin,
                         sf::degrees( angle ) );

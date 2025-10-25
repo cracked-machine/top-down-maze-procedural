@@ -8,9 +8,8 @@ namespace ProceduralMaze::Cmp {
 class Exit
 {
 public:
-private:
-  // This is redundant but ENTT requires components have at least one member
-  [[maybe_unused]] const bool m_is_exit{ true };
+  // Exit spawns randomly at the start of game but is locked. It can be unlocked later.
+  bool m_locked{ true };
 };
 
 } // namespace ProceduralMaze::Cmp

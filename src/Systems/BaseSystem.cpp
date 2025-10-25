@@ -42,14 +42,17 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
     if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
-  // Check doors (excluding exits)
-  auto door_view = m_reg->view<Cmp::Door, Cmp::Position>( entt::exclude<Cmp::Exit> );
+  // Check doors
+  auto door_view = m_reg->view<Cmp::Door, Cmp::Position>();
   for ( auto [entity, door_cmp, pos_cmp] : door_view.each() )
   {
+    auto exit_cmp = m_reg->try_get<Cmp::Exit>( entity );
+    // if door is an exit and is unlocked, allow passage
+    if ( exit_cmp && exit_cmp->m_locked == false ) return true;
     if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
-  // Check reserved positions (excluding exits)
+  // Check reserved positions
   auto reserved_view = m_reg->view<Cmp::ReservedPosition>();
   for ( auto [entity, reserved_cmp] : reserved_view.each() )
   {

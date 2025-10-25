@@ -170,13 +170,8 @@ void RandomLevelGenerator::gen_small_obstacles()
     auto [obst_type,
           rand_obst_tex_idx] = sprite_factory->get_random_type_and_texture_index( { "ROCK", "POT", "BONES" } );
 
-    // disable the obstacle if the position is reserved
-    // auto reserved_pos_cmp = m_reg->try_get<Cmp::ReservedPosition>( entity );
-    // if ( not reserved_pos_cmp )
-    // {
     m_reg->emplace<Cmp::Obstacle>( entity, obst_type, rand_obst_tex_idx, m_activation_selector.gen() );
     m_reg->emplace<Cmp::Neighbours>( entity );
-    // }
   }
 }
 
@@ -222,12 +217,12 @@ void RandomLevelGenerator::gen_border()
     // special case for door placement
     if ( y == ( kMapGridSizePixels.y / 2.f ) )
     {
-      sprite_index = 1;
+      sprite_index = 0;
       // this entrance "door" is never open and for filtering simplicity we use the wall component
-      add_door_entity( { left_edge_x_pos, y }, sprite_index, false );
-      sprite_index = 1;
-      // this is the exit, we can filter on Cmp::Door for simple collsion detection
-      add_door_entity( { right_edge_x_pos, y }, sprite_index, true );
+      add_wall_entity( { left_edge_x_pos, y }, sprite_index );
+      // sprite_index = 1;
+      // no more exit..it spawns in random position now
+      add_wall_entity( { right_edge_x_pos, y }, sprite_index );
     }
     else
     {

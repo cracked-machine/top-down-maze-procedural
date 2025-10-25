@@ -1,5 +1,7 @@
 #include <EventHandler.hpp>
 #include <Events/SaveSettingsEvent.hpp>
+#include <Events/UnlockDoorEvent.hpp>
+#include <Exit.hpp>
 
 namespace ProceduralMaze {
 
@@ -126,6 +128,17 @@ void EventHandler::game_state_handler( sf::RenderWindow &window )
           _sys.show_debug_stats = not _sys.show_debug_stats;
           SPDLOG_INFO( "Show debug stats is now {}", _sys.show_debug_stats ? "ENABLED" : "DISABLED" );
         }
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F10 )
+      {
+        auto exit_cmp = m_reg->view<Cmp::Exit>();
+        for ( auto [exit_entt, exit_cmp] : exit_cmp.each() )
+        {
+          // exit already unlocked
+          if ( exit_cmp.m_locked == false ) continue;
+        }
+        getEventDispatcher().trigger( Events::UnlockDoorEvent() );
+        SPDLOG_INFO( "Player cheated and unlocked exit" );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
       {

@@ -26,6 +26,7 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
       m_sinkhole_sys( m_reg ),
       m_corruption_sys( m_reg ),
       m_wormhole_sys( m_reg ),
+      m_exit_sys( m_reg ),
       m_title_music_sys( m_reg, "res/audio/title_music.mp3" ),
       m_underwater_sounds_sys( m_reg, "res/audio/underwater.wav" ),
       m_abovewater_sounds_sys( m_reg, "res/audio/footsteps.mp3" ),
@@ -146,7 +147,7 @@ bool Engine::run()
 
         m_collision_sys.check_npc_hazard_field_collision<Cmp::SinkholeCell>();
         m_collision_sys.check_npc_hazard_field_collision<Cmp::CorruptionCell>();
-        m_collision_sys.check_end_zone_collision();
+        m_exit_sys.check_exit_collision();
         m_collision_sys.check_loot_collision();
         m_collision_sys.check_bones_reanimation();
         m_wormhole_sys.check_player_wormhole_collision();
@@ -271,6 +272,8 @@ void Engine::setup()
   // procedurally generate the game area from the initial random layout
   Sys::ProcGen::CellAutomataSystem cellauto_parser{ m_reg, std::move( random_level ) };
   cellauto_parser.iterate( 5 );
+
+  m_exit_sys.spawn_exit();
 
   // Reset the views early to prevent wild panning back to the start
   // position when the game starts rendering

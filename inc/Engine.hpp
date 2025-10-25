@@ -6,6 +6,7 @@
 #include <BombSystem.hpp>
 #include <DiggingSystem.hpp>
 #include <Direction.hpp>
+#include <ExitSystem.hpp>
 #include <FloodSystem.hpp>
 #include <HazardFieldSystem.hpp>
 #include <MusicSystem.hpp>
@@ -99,6 +100,7 @@ private:
   Sys::SinkHoleHazardSystem m_sinkhole_sys;
   Sys::CorruptionHazardSystem m_corruption_sys;
   Sys::WormholeSystem m_wormhole_sys;
+  Sys::ExitSystem m_exit_sys;
 
   Sys::MusicSystem m_title_music_sys;
   Sys::MusicSystem m_underwater_sounds_sys;

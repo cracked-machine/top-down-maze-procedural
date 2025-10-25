@@ -69,9 +69,6 @@ public:
   // Check for player collision with loot items i.e. player picks up loot
   void check_loot_collision();
 
-  // Check for player collision with end zone to complete level
-  void check_end_zone_collision();
-
   // Update distances from player to obstacles for traversable obstacles
   // Only obstacles within the PCDetectionBounds are considered.
   // Use F3 to visualize the distance values (pixels from player center)
@@ -166,7 +163,6 @@ public:
   }
 
 private:
-  sf::FloatRect m_end_zone{ { 0.f, 0.f }, kGridSquareSizePixelsF };
   sf::Vector2f findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos,
                                           const sf::Vector2f &player_direction, float pushback_distance );
 };

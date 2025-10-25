@@ -28,6 +28,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/HazardFieldSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/WormholeSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/DiggingSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/ExitSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Debug/AssertHandler.cpp
 )
 

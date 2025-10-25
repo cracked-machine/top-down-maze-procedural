@@ -1,5 +1,6 @@
 #include <CollisionSystem.hpp>
 #include <CorruptionCell.hpp>
+#include <Exit.hpp>
 #include <HazardFieldCell.hpp>
 #include <LargeObstacle.hpp>
 #include <MultiSprite.hpp>
@@ -12,6 +13,7 @@
 #include <Persistent/PlayerStartPosition.hpp>
 #include <Persistent/WaterBonus.hpp>
 #include <PlayerScore.hpp>
+#include <Position.hpp>
 #include <RectBounds.hpp>
 #include <RenderSystem.hpp>
 #include <ReservedPosition.hpp>
@@ -235,21 +237,6 @@ void CollisionSystem::check_loot_collision()
 
     // Remove the loot component
     m_reg->remove<Cmp::Loot>( effect.loot_entity );
-  }
-}
-
-void CollisionSystem::check_end_zone_collision()
-{
-  for ( auto [_entt, _pc, _pc_pos] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
-  {
-    if ( _pc_pos.findIntersection( m_end_zone ) )
-    {
-      SPDLOG_DEBUG( "Player reached the end zone!" );
-      for ( auto [_entt, _sys] : m_reg->view<Cmp::System>().each() )
-      {
-        _sys.level_complete = true;
-      }
-    }
   }
 }
 
