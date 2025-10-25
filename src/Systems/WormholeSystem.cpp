@@ -7,6 +7,7 @@
 #include <ReservedPosition.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SpriteAnimation.hpp>
+#include <Systems/RenderSystem.hpp>
 #include <Wall.hpp>
 #include <Wormhole.hpp>
 #include <WormholeSystem.hpp>
@@ -87,6 +88,7 @@ void WormholeSystem::check_player_wormhole_collision()
     auto player_hitbox = sf::FloatRect( player_position_cmp, sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
     for ( auto [wormhole_entity, wormhole_cmp, position_cmp] : wormhole_view.each() )
     {
+      if ( !is_visible_in_view( RenderSystem::getWindow().getView(), position_cmp ) ) continue;
 
       // 2. check for collision,
       auto wormhole_hitbox = sf::FloatRect( position_cmp, sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );

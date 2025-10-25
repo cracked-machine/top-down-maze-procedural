@@ -13,6 +13,7 @@ public:
   bool pause_flood = false;          // F2
   bool show_path_distances = false;  // F3
   bool show_armed_obstacles = false; // F4
+  bool minimap_enabled = false;
   bool player_stuck = false;
   bool level_complete = false;
 };

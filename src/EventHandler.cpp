@@ -135,6 +135,14 @@ void EventHandler::game_state_handler( sf::RenderWindow &window )
           SPDLOG_INFO( "Level complete (player cheated)" );
         }
       }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::M )
+      {
+        for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
+        {
+          _sys.minimap_enabled = not _sys.minimap_enabled;
+          SPDLOG_INFO( "Minimap enabled (player cheated)" );
+        }
+      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
       {
         game_state.current_state = Cmp::Persistent::GameState::State::UNLOADING;

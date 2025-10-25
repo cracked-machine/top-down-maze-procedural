@@ -138,21 +138,20 @@ bool Engine::run()
 
         m_event_handler.game_state_handler( m_render_game_sys.window() );
 
-        // m_player_sys.update( deltaTime );
-
-        m_anim_sys.update( deltaTime );
         // m_flood_sys.update();
+        m_anim_sys.update( deltaTime );
         m_sinkhole_sys.update_hazard_field();
         m_corruption_sys.update_hazard_field();
         m_bomb_sys.update();
 
         m_collision_sys.check_npc_hazard_field_collision<Cmp::SinkholeCell>();
         m_collision_sys.check_npc_hazard_field_collision<Cmp::CorruptionCell>();
-        // m_collision_sys.check_end_zone_collision();
+        m_collision_sys.check_end_zone_collision();
         m_collision_sys.check_loot_collision();
         m_collision_sys.check_bones_reanimation();
         m_wormhole_sys.check_player_wormhole_collision();
         m_digging_sys.update();
+        // TODO optimizse this function
         m_collision_sys.update_obstacle_distances();
 
         // enable/disable collision detection depending on Cmp::System settings
@@ -161,7 +160,7 @@ bool Engine::run()
           m_player_sys.update_movement( deltaTime, !_sys.collisions_enabled );
           if ( _sys.collisions_enabled )
           {
-            // m_collision_sys.check_player_obstacle_collision();
+
             m_collision_sys.check_player_hazard_field_collision<Cmp::SinkholeCell>();
             m_collision_sys.check_player_hazard_field_collision<Cmp::CorruptionCell>();
             m_collision_sys.check_player_to_npc_collision();

@@ -73,6 +73,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
   {
     m_show_path_distances = _sys.show_path_distances;
     m_show_armed_obstacles = _sys.show_armed_obstacles;
+    m_minimap_enabled = _sys.minimap_enabled;
   }
 
   sf::Vector2f player_position{ 0.f, 0.f };
@@ -117,25 +118,28 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
 
     // minimap view begin - this show a quarter of the game world but in a
     // much smaller scale
-    getWindow().setView( m_minimap_view );
+    if ( m_minimap_enabled )
     {
-      render_floormap( { 0, kMapGridOffset.y * BaseSystem::kGridSquareSizePixels.y } );
-      render_small_obstacles();
+      getWindow().setView( m_minimap_view );
+      {
+        render_floormap( { 0, kMapGridOffset.y * BaseSystem::kGridSquareSizePixels.y } );
+        render_small_obstacles();
 
-      render_sinkhole();
-      render_corruption();
-      render_wormhole();
-      render_armed();
-      render_loot();
-      render_walls();
-      render_player();
-      render_npc();
-      render_large_obstacles();
-      // render_flood_waters();
+        render_sinkhole();
+        render_corruption();
+        render_wormhole();
+        render_armed();
+        render_loot();
+        render_walls();
+        render_player();
+        render_npc();
+        render_large_obstacles();
+        // render_flood_waters();
 
-      // update the minimap view center based on player position
-      // reset the center if player is stuck
-      update_view_center( m_minimap_view, player_position );
+        // update the minimap view center based on player position
+        // reset the center if player is stuck
+        update_view_center( m_minimap_view, player_position );
+      }
     }
     // minimap view end
 
@@ -303,6 +307,9 @@ void RenderGameSystem::render_small_obstacles()
       entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
   for ( auto [entity, obstacle_cmp, position_cmp, _ob_nb_list] : obst_view.each() )
   {
+    // check if obstacle is within the current view (in world coordinates)
+    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
+
     if ( obstacle_cmp.m_enabled )
     {
       if ( obstacle_cmp.m_type == "ROCK" )
@@ -368,6 +375,7 @@ void RenderGameSystem::render_sinkhole()
   auto sinkhole_view = m_reg->view<Cmp::SinkholeCell, Cmp::Position>();
   for ( auto [entity, sinkhole_cmp, position_cmp] : sinkhole_view.each() )
   {
+    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
     sinkholePositions.emplace_back( position_cmp, sinkhole_cmp.active );
   }
 
@@ -383,6 +391,7 @@ void RenderGameSystem::render_corruption()
   auto corruption_view = m_reg->view<Cmp::CorruptionCell, Cmp::Position>();
   for ( auto [entity, corruption_cmp, position_cmp] : corruption_view.each() )
   {
+    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
     corruptionPositions.emplace_back( position_cmp, corruption_cmp.active );
   }
 
@@ -397,6 +406,7 @@ void RenderGameSystem::render_wormhole()
   auto wormhole_view = m_reg->view<Cmp::Wormhole, Cmp::Position, Cmp::SpriteAnimation>();
   for ( auto [entity, wormhole_cmp, position_cmp, anim_cmp] : wormhole_view.each() )
   {
+    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
     try
     {
       auto &wormhole_sprite = m_multisprite_map.at( "WORMHOLE" );
@@ -423,7 +433,8 @@ void RenderGameSystem::render_wormhole()
         {
           sf::Vector2f offset = { ( col - 1 ) * BaseSystem::kGridSquareSizePixels.x,
                                   ( row - 1 ) * BaseSystem::kGridSquareSizePixels.y };
-          auto index = anim_cmp.m_current_frame + ( row * grid_size.height + col );
+          // auto index = anim_cmp.m_current_frame + ( row * grid_size.height + col );
+          auto index = 0;
 
           // Much cleaner: render to shader's render texture
           safe_render_sprite_to_target( m_wormhole_shader.get_render_texture(), "WORMHOLE", position_cmp + offset,
@@ -490,14 +501,14 @@ void RenderGameSystem::render_armed()
 void RenderGameSystem::render_loot()
 {
   auto loot_view = m_reg->view<Cmp::Obstacle, Cmp::Loot, Cmp::Position>();
-  for ( auto [entity, obstacles, loot, position] : loot_view.each() )
+  for ( auto [entity, obstacles, loot, position_cmp] : loot_view.each() )
   {
-
-    if ( loot.m_type == "EXTRA_HEALTH" ) { safe_render_sprite( "EXTRA_HEALTH", position, loot.m_tile_index ); }
-    else if ( loot.m_type == "EXTRA_BOMBS" ) { safe_render_sprite( "EXTRA_BOMBS", position, loot.m_tile_index ); }
-    else if ( loot.m_type == "INFINI_BOMBS" ) { safe_render_sprite( "INFINI_BOMBS", position, loot.m_tile_index ); }
-    else if ( loot.m_type == "CHAIN_BOMBS" ) { safe_render_sprite( "CHAIN_BOMBS", position, loot.m_tile_index ); }
-    else if ( loot.m_type == "LOWER_WATER" ) { safe_render_sprite( "LOWER_WATER", position, loot.m_tile_index ); }
+    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
+    if ( loot.m_type == "EXTRA_HEALTH" ) { safe_render_sprite( "EXTRA_HEALTH", position_cmp, loot.m_tile_index ); }
+    else if ( loot.m_type == "EXTRA_BOMBS" ) { safe_render_sprite( "EXTRA_BOMBS", position_cmp, loot.m_tile_index ); }
+    else if ( loot.m_type == "INFINI_BOMBS" ) { safe_render_sprite( "INFINI_BOMBS", position_cmp, loot.m_tile_index ); }
+    else if ( loot.m_type == "CHAIN_BOMBS" ) { safe_render_sprite( "CHAIN_BOMBS", position_cmp, loot.m_tile_index ); }
+    else if ( loot.m_type == "LOWER_WATER" ) { safe_render_sprite( "LOWER_WATER", position_cmp, loot.m_tile_index ); }
     else
     {
       // Handle unknown loot types
@@ -510,39 +521,40 @@ void RenderGameSystem::render_walls()
 {
   // draw walls and door frames
   auto wall_view = m_reg->view<Cmp::Wall, Cmp::Position>();
-  for ( auto [entity, wall_cmp, pos_cmp] : wall_view.each() )
+  for ( auto [entity, wall_cmp, position_cmp] : wall_view.each() )
   {
-
+    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
     sf::Vector2f new_scale{ 1.f, 1.f };
     uint8_t new_alpha{ 255 };
     sf::Vector2f new_origin{ 0.f, 0.f };
     float angle{ 0.f };
 
-    safe_render_sprite( "WALL", pos_cmp, wall_cmp.m_tile_index, new_scale, new_alpha, new_origin,
+    safe_render_sprite( "WALL", position_cmp, wall_cmp.m_tile_index, new_scale, new_alpha, new_origin,
                         sf::degrees( angle ) );
   }
 
   // draw entrance
   auto entrance_door_view = m_reg->view<Cmp::Door, Cmp::Position>( entt::exclude<Cmp::Exit> );
-  for ( auto [entity, door_cmp, pos_cmp] : entrance_door_view.each() )
+  for ( auto [entity, door_cmp, position_cmp] : entrance_door_view.each() )
   {
-
+    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
     sf::Vector2f new_scale{ 1.f, 1.f };
     uint8_t new_alpha{ 255 };
     sf::Vector2f new_origin{ 0.f, 0.f };
     float angle{ 0.f };
 
-    safe_render_sprite( "WALL", pos_cmp, door_cmp.m_tile_index, new_scale, new_alpha, new_origin,
+    safe_render_sprite( "WALL", position_cmp, door_cmp.m_tile_index, new_scale, new_alpha, new_origin,
                         sf::degrees( angle ) );
   }
 
   auto exit_door_view = m_reg->view<Cmp::Door, Cmp::Position, Cmp::Exit>();
-  for ( auto [entity, door_cmp, pos_cmp, exit_cmp] : exit_door_view.each() )
+  for ( auto [entity, door_cmp, position_cmp, exit_cmp] : exit_door_view.each() )
   {
+    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
     auto half_width_px = BaseSystem::kGridSquareSizePixels.x / 2.f;
     auto half_height_px = BaseSystem::kGridSquareSizePixels.y / 2.f;
 
-    sf::Vector2f new_pos{ pos_cmp + sf::Vector2f{ half_width_px, half_height_px } };
+    sf::Vector2f new_pos{ position_cmp + sf::Vector2f{ half_width_px, half_height_px } };
     sf::Vector2f new_scale{ 1.f, 1.f };
     uint8_t new_alpha{ 255 };
     sf::Vector2f new_origin{ half_width_px, half_height_px };
@@ -687,9 +699,10 @@ void RenderGameSystem::render_player_footsteps()
 
 void RenderGameSystem::render_npc()
 {
-  for ( auto [entity, npc, pos, npc_scan_bounds, direction, anim_cmp] :
+  for ( auto [entity, npc, position_cmp, npc_scan_bounds, direction, anim_cmp] :
         m_reg->view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds, Cmp::Direction, Cmp::SpriteAnimation>().each() )
   {
+    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
     // flip and x-axis offset the sprite depending on the direction
     if ( direction.x > 0 )
     {
@@ -708,7 +721,7 @@ void RenderGameSystem::render_npc()
     }
 
     sf::Vector2f new_scale{ direction.x_scale, 1.f };
-    sf::Vector2f new_position{ pos.x + direction.x_offset, pos.y };
+    sf::Vector2f new_position{ position_cmp.x + direction.x_offset, position_cmp.y };
     unsigned int new_sprite_idx{ anim_cmp.m_base_frame + anim_cmp.m_current_frame };
     // get the correct sprite index based on animation frame
     safe_render_sprite( "NPC", new_position, new_sprite_idx, new_scale );
@@ -827,8 +840,10 @@ void RenderGameSystem::safe_render_sprite_to_target( sf::RenderTarget &target, c
                                                      const sf::Vector2f &position, int sprite_index, sf::Vector2f scale,
                                                      uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
 {
+  if ( !is_visible_in_view( getWindow().getView(), position ) ) return;
   try
   {
+
     auto &sprite = m_multisprite_map.at( sprite_type );
     if ( sprite.has_value() )
     {

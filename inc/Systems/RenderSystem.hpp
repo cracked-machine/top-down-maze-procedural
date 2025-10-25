@@ -62,6 +62,7 @@ protected:
 
   bool m_show_path_distances = false;
   bool m_show_armed_obstacles = false;
+  bool m_minimap_enabled = false;
 
   // common window options for ImGui windows
   const int kImGuiWindowOptions = ImGuiWindowFlags_NoTitleBar

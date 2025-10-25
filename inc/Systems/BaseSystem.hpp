@@ -108,7 +108,7 @@ public:
   }
 
   // Get the hitbox rectangle for a given position
-  sf::FloatRect get_hitbox( sf::Vector2f pos )
+  sf::FloatRect get_hitbox( const sf::Vector2f &pos ) const
   {
     return sf::FloatRect( { pos.x, pos.y }, sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
   }
@@ -146,6 +146,18 @@ public:
    * @return true if the diagonal movement would pass between obstacles, false otherwise
    */
   bool isDiagonalMovementBetweenObstacles( const sf::Vector2f &current_pos, const sf::Vector2f &direction );
+
+  sf::FloatRect calculate_view_bounds( const sf::View &view ) const;
+  bool is_visible_in_view( const sf::FloatRect &viewbounds, const sf::Vector2f &position ) const;
+
+  /**
+   * @brief Checks if a position is visible within a given view's bounds
+   *
+   * @param view The view to check against (in world coordinates)
+   * @param position The position to test for visibility
+   * @return true if the position's hitbox intersects with the view bounds
+   */
+  bool is_visible_in_view( const sf::View &view, const sf::Vector2f &position ) const;
 
   // singleton event dispatcher
   // Use this to get temporary access to the dispatcher to register event handlers

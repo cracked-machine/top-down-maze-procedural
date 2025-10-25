@@ -57,6 +57,8 @@ void CollisionSystem::check_bones_reanimation()
     auto player_hitbox = get_hitbox( _pc_pos );
     for ( auto [_obstacle_entt, _obstacle, _obstacle_pos] : obstacle_collision_view.each() )
     {
+      if ( !is_visible_in_view( RenderSystem::getWindow().getView(), _obstacle_pos ) ) continue;
+
       if ( _obstacle.m_type != "BONES" || not _obstacle.m_enabled ) continue;
 
       auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NpcActivateScale>();
@@ -193,6 +195,8 @@ void CollisionSystem::check_loot_collision()
 
     for ( auto [_loot_entt, _loot, _loot_pos] : loot_collision_view.each() )
     {
+      if ( !is_visible_in_view( RenderSystem::getWindow().getView(), _loot_pos ) ) continue;
+
       auto loot_hitbox = get_hitbox( _loot_pos );
       if ( player_hitbox.findIntersection( loot_hitbox ) )
       {
@@ -256,6 +260,8 @@ void CollisionSystem::check_end_zone_collision()
 
 void CollisionSystem::update_obstacle_distances()
 {
+  const auto viewBounds = BaseSystem::calculate_view_bounds( RenderSystem::getWindow().getView() );
+
   auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PCDetectionBounds>();
   for ( auto [_pc_entt, _pc, _pc_pos, pc_detection_bounds] : player_view.each() )
   {
@@ -263,6 +269,9 @@ void CollisionSystem::update_obstacle_distances()
     auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
     for ( auto [_ob_entt, _ob, _ob_pos] : obstacle_view.each() )
     {
+
+      if ( !is_visible_in_view( viewBounds, _ob_pos ) ) continue;
+
       // while we are here calculate the obstacle/player distance for any traversable obstacles
       if ( not _ob.m_enabled && pc_detection_bounds.findIntersection( get_hitbox( _ob_pos ) ) )
       {

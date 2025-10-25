@@ -81,4 +81,29 @@ bool BaseSystem::isDiagonalMovementBetweenObstacles( const sf::Vector2f &current
   return horizontal_blocked && vertical_blocked;
 }
 
+sf::FloatRect BaseSystem::calculate_view_bounds( const sf::View &view ) const
+{
+  // Calculate view bounds in world coordinates
+  return sf::FloatRect( view.getCenter() - view.getSize() / 2.f, view.getSize() );
+}
+
+bool BaseSystem::is_visible_in_view( const sf::FloatRect &viewbounds, const sf::Vector2f &position ) const
+{
+  // Get the hitbox for the position
+  auto hitbox = get_hitbox( position );
+
+  // Check for intersection
+  return viewbounds.findIntersection( hitbox ).has_value();
+}
+
+bool BaseSystem::is_visible_in_view( const sf::View &view, const sf::Vector2f &position ) const
+{
+  auto viewBounds = calculate_view_bounds( view );
+  // Get the hitbox for the position
+  auto hitbox = get_hitbox( position );
+
+  // Check for intersection
+  return viewBounds.findIntersection( hitbox ).has_value();
+}
+
 } // namespace ProceduralMaze::Sys

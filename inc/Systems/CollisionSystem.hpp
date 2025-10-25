@@ -41,6 +41,8 @@
 
 #include <spdlog/spdlog.h>
 
+#include <Systems/RenderSystem.hpp>
+
 #define assertm( exp, msg ) assert( ( void( msg ), exp ) )
 
 namespace ProceduralMaze::Sys {
@@ -97,6 +99,8 @@ public:
 
     for ( auto [pc_entt, player_cmp, player_pos_cmp] : player_view.each() )
     {
+      if ( !is_visible_in_view( RenderSystem::getWindow().getView(), player_pos_cmp ) ) continue;
+
       // reduce the player hitbox size to avoid unfair deaths
       auto offset = sf::Vector2f{ BaseSystem::kGridSquareSizePixels } / 4.f;
       auto player_hitbox = sf::FloatRect( player_pos_cmp + offset, offset * 1.5f );
@@ -136,6 +140,7 @@ public:
 
     for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : npc_view.each() )
     {
+      if ( !is_visible_in_view( RenderSystem::getWindow().getView(), npc_pos_cmp ) ) continue;
       auto npc_hitbox = get_hitbox( npc_pos_cmp );
 
       for ( auto [hazard_field_entt, hazard_field_cmp, hazard_field_pos_cmp] : hazard_field_view.each() )

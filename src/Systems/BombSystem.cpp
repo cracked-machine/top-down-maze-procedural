@@ -108,12 +108,14 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
     }
 
     // Sort entities in clockwise order
-    std::sort( layer_entities.begin(), layer_entities.end(), [centerTile]( const auto &a, const auto &b ) {
-      // Calculate angles from center to points
-      float angleA = std::atan2( a.second.y - centerTile.y, a.second.x - centerTile.x );
-      float angleB = std::atan2( b.second.y - centerTile.y, b.second.x - centerTile.x );
-      return angleA < angleB;
-    } );
+    std::sort( layer_entities.begin(), layer_entities.end(),
+               [centerTile]( const auto &a, const auto &b )
+               {
+                 // Calculate angles from center to points
+                 float angleA = std::atan2( a.second.y - centerTile.y, a.second.x - centerTile.x );
+                 float angleB = std::atan2( b.second.y - centerTile.y, b.second.x - centerTile.x );
+                 return angleA < angleB;
+               } );
 
     // Arm each entity in the layer in clockwise order
     for ( const auto &[entity, pos] : layer_entities )
@@ -137,6 +139,7 @@ void BombSystem::update()
   auto armed_view = m_reg->view<Cmp::Armed, Cmp::Obstacle, Cmp::Neighbours, Cmp::Position>();
   for ( auto [_entt, _armed_cmp, _obstacle_cmp, _neighbours_cmp, _ob_pos_comp] : armed_view.each() )
   {
+
     if ( _armed_cmp.getElapsedFuseTime() < _armed_cmp.m_fuse_delay ) continue;
     if ( _obstacle_cmp.m_enabled && _obstacle_cmp.m_integrity > 0.0f )
     {
