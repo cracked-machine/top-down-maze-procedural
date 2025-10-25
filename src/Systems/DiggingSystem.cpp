@@ -91,10 +91,10 @@ void DiggingSystem::check_player_dig_obstacle_collision()
                                                                                RenderSystem::getGameView() );
     // Check if the mouse position intersects with the entity's position
     auto mouse_position_bounds = sf::FloatRect( mouse_world_pos, sf::Vector2f( 2.f, 2.f ) );
-    auto pos_cmp_bounds = get_hitbox( pos_cmp );
-    if ( mouse_position_bounds.findIntersection( pos_cmp_bounds ) )
+
+    if ( mouse_position_bounds.findIntersection( pos_cmp ) )
     {
-      SPDLOG_INFO( "Found diggable entity at position: [{}, {}]!", pos_cmp.x, pos_cmp.y );
+      SPDLOG_INFO( "Found diggable entity at position: [{}, {}]!", pos_cmp.position.x, pos_cmp.position.y );
 
       // Check player proximity to the entity
       auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
@@ -102,12 +102,12 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_view.each() )
       {
         auto half_sprite_size = sf::Vector2f{ BaseSystem::kGridSquareSizePixels };
-        auto player_horizontal_bounds = Cmp::RectBounds( pc_pos_cmp, half_sprite_size, 1.5f,
+        auto player_horizontal_bounds = Cmp::RectBounds( pc_pos_cmp.position, half_sprite_size, 1.5f,
                                                          Cmp::RectBounds::ScaleCardinality::HORIZONTAL );
-        auto player_vertical_bounds = Cmp::RectBounds( pc_pos_cmp, half_sprite_size, 1.5f,
+        auto player_vertical_bounds = Cmp::RectBounds( pc_pos_cmp.position, half_sprite_size, 1.5f,
                                                        Cmp::RectBounds::ScaleCardinality::VERTICAL );
-        if ( player_horizontal_bounds.findIntersection( pos_cmp_bounds ) ||
-             player_vertical_bounds.findIntersection( pos_cmp_bounds ) )
+        if ( player_horizontal_bounds.findIntersection( pos_cmp ) ||
+             player_vertical_bounds.findIntersection( pos_cmp ) )
         {
           player_nearby = true;
           break;
@@ -117,14 +117,13 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       // skip this iteration of the loop if player too far away
       if ( not player_nearby )
       {
-        SPDLOG_INFO( " Player not close enough to dig at position ({}, {})!", pos_cmp_bounds.position.x,
-                     pos_cmp_bounds.position.y );
+        SPDLOG_INFO( " Player not close enough to dig at position ({}, {})!", pos_cmp.position.x, pos_cmp.position.y );
         continue;
       }
 
       // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
       // Add a new SelectedPosition component to the entity
-      m_reg->emplace_or_replace<Cmp::SelectedPosition>( entity, pos_cmp );
+      m_reg->emplace_or_replace<Cmp::SelectedPosition>( entity, pos_cmp.position );
 
       // Apply digging damage, play a sound depending on whether the obstacle was destroyed
       m_dig_cooldown_clock.restart();

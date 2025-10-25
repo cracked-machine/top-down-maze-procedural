@@ -32,7 +32,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   // 2. get the entity at that position
   unsigned long seed = 0;
   if ( phase == SpawnPhase::InitialSpawn ) seed = get_persistent_component<Cmp::Persistent::WormholeSeed>().get_value();
-  auto [random_entity, random_position] = get_random_position(
+  auto [random_entity, random_pos] = get_random_position(
       IncludePack<Cmp::Obstacle>{},
       ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, seed );
 
@@ -50,20 +50,20 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
                                 static_cast<float>( j ) * BaseSystem::kGridSquareSizePixels.y };
 
         // Calculate the adjacent position
-        sf::Vector2f adjacent_position = random_position + offset;
+        sf::Vector2f adjacent_position = random_pos.position + offset;
 
         // Find entity at this adjacent position
         auto position_view = m_reg->view<Cmp::Position, Cmp::Obstacle>();
         for ( auto [entity, pos_cmp, adj_obstacle_cmp] : position_view.each() )
         {
           // Check if this entity is at the adjacent position we're looking for
-          if ( pos_cmp.x == adjacent_position.x && pos_cmp.y == adjacent_position.y )
+          if ( pos_cmp.position.x == adjacent_position.x && pos_cmp.position.y == adjacent_position.y )
           {
             // Found the entity at the adjacent position
             // Do whatever you need with this entity
             adj_obstacle_cmp.m_enabled = false;
-            SPDLOG_DEBUG( "Found adjacent entity {} at position ({}, {})", static_cast<uint32_t>( entity ), pos_cmp.x,
-                          pos_cmp.y );
+            SPDLOG_DEBUG( "Found adjacent entity {} at position ({}, {})", static_cast<uint32_t>( entity ),
+                          pos_cmp.position.x, pos_cmp.position.y );
             break; // Move to next offset
           }
         }
@@ -75,7 +75,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   m_reg->emplace_or_replace<Cmp::Wormhole>( random_entity );
   m_reg->emplace_or_replace<Cmp::SpriteAnimation>( random_entity );
 
-  SPDLOG_INFO( "Wormhole spawned at position ({}, {})", random_position.x, random_position.y );
+  SPDLOG_INFO( "Wormhole spawned at position ({}, {})", random_pos.position.x, random_pos.position.y );
 }
 
 void WormholeSystem::check_player_wormhole_collision()
@@ -83,21 +83,19 @@ void WormholeSystem::check_player_wormhole_collision()
   // 1. iterate wormhole and player view,
   auto wormhole_view = m_reg->view<Cmp::Wormhole, Cmp::Position>();
   auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
-  for ( auto [player_entity, player_cmp, player_position_cmp] : player_view.each() )
+  for ( auto [player_entity, player_cmp, player_pos_cmp] : player_view.each() )
   {
-    auto player_hitbox = sf::FloatRect( player_position_cmp, sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
-    for ( auto [wormhole_entity, wormhole_cmp, position_cmp] : wormhole_view.each() )
+    for ( auto [wormhole_entity, wormhole_cmp, wh_pos_cmp] : wormhole_view.each() )
     {
-      if ( !is_visible_in_view( RenderSystem::getWindow().getView(), position_cmp ) ) continue;
+      if ( !is_visible_in_view( RenderSystem::getWindow().getView(), wh_pos_cmp ) ) continue;
 
       // 2. check for collision,
-      auto wormhole_hitbox = sf::FloatRect( position_cmp, sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
-      if ( !player_hitbox.findIntersection( wormhole_hitbox ) ) continue;
-      SPDLOG_INFO( "Player collided with wormhole at position ({}, {})", position_cmp.x, position_cmp.y );
+      if ( !player_pos_cmp.findIntersection( wh_pos_cmp ) ) continue;
+      SPDLOG_INFO( "Player collided with wormhole at position ({}, {})", wh_pos_cmp.position.x, wh_pos_cmp.position.y );
 
       // 3. if collision, pick a random new player spawn location. Exclude walls, doors, exits, playable characters and
       // NPCs
-      auto [new_spawn_entity, new_spawn_position] = get_random_position(
+      auto [new_spawn_entity, new_spawn_pos_cmp] = get_random_position(
           IncludePack<Cmp::Obstacle>{},
           ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>{}, 0 );
 
@@ -108,14 +106,16 @@ void WormholeSystem::check_player_wormhole_collision()
       auto existing_obstacle_cmp = m_reg->try_get<Cmp::Obstacle>( new_spawn_entity );
       if ( existing_obstacle_cmp )
       {
-        SPDLOG_INFO( "Removing obstacle at new spawn position ({}, {})", new_spawn_position.x, new_spawn_position.y );
+        SPDLOG_INFO( "Removing obstacle at new spawn position ({}, {})", new_spawn_pos_cmp.position.x,
+                     new_spawn_pos_cmp.position.y );
         existing_obstacle_cmp->m_integrity = 0.0f;
       }
 
       // 5. teleport player to the location, abort lerp if active
       m_reg->remove<Cmp::LerpPosition>( player_entity );
-      m_reg->emplace_or_replace<Cmp::Position>( player_entity, new_spawn_position );
-      SPDLOG_INFO( "Player teleported to new position ({}, {})", new_spawn_position.x, new_spawn_position.y );
+      m_reg->emplace_or_replace<Cmp::Position>( player_entity, new_spawn_pos_cmp.position, new_spawn_pos_cmp.size );
+      SPDLOG_INFO( "Player teleported to new position ({}, {})", new_spawn_pos_cmp.position.x,
+                   new_spawn_pos_cmp.position.y );
 
       // 7. call spawn_wormhole()
       spawn_wormhole( WormholeSystem::SpawnPhase::Respawn );

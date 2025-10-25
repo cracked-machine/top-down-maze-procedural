@@ -21,7 +21,7 @@ void NpcSystem::add_npc_entity( sf::Vector2f position )
   auto new_npc_entity = m_reg->create();
   m_reg->emplace<Cmp::NPC>( new_npc_entity );
   m_reg->emplace<Cmp::Direction>( new_npc_entity, sf::Vector2f{ 0, 0 } );
-  m_reg->emplace<Cmp::Position>( new_npc_entity, position );
+  m_reg->emplace<Cmp::Position>( new_npc_entity, position, sf::Vector2f{ Sys::BaseSystem::kGridSquareSizePixels } );
   auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NpcScanScale>();
   m_reg->emplace<Cmp::NPCScanBounds>( new_npc_entity, position, sf::Vector2f{ BaseSystem::kGridSquareSizePixels },
                                       npc_scan_scale.get_value() );
@@ -47,26 +47,32 @@ void NpcSystem::lerp_movement( sf::Time dt )
   auto view = m_reg->view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds>(
       entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
 
-  for ( auto [entity, pos, target, npc_scan_bounds] : view.each() )
+  for ( auto [entity, pos_cmp, lerp_pos_cmp, npc_scan_bounds] : view.each() )
   {
     // If this is the first update, store the start position
-    if ( target.m_lerp_factor == 0.0f ) { target.m_start = pos; }
+    if ( lerp_pos_cmp.m_lerp_factor == 0.0f ) { lerp_pos_cmp.m_start = pos_cmp.position; }
 
-    target.m_lerp_factor += target.m_lerp_speed * dt.asSeconds();
+    lerp_pos_cmp.m_lerp_factor += lerp_pos_cmp.m_lerp_speed * dt.asSeconds();
 
-    if ( target.m_lerp_factor >= 1.0f )
+    if ( lerp_pos_cmp.m_lerp_factor >= 1.0f )
     {
-      pos = target.m_target;
+      pos_cmp.position = lerp_pos_cmp.m_target;
       m_reg->remove<Cmp::LerpPosition>( entity );
     }
     else
     {
       // Lerp from start to target directly
-      pos.x = std::lerp( target.m_start.x, target.m_target.x, target.m_lerp_factor );
-      pos.y = std::lerp( target.m_start.y, target.m_target.y, target.m_lerp_factor );
+      pos_cmp.position.x = std::lerp( lerp_pos_cmp.m_start.x, lerp_pos_cmp.m_target.x, lerp_pos_cmp.m_lerp_factor );
+      pos_cmp.position.y = std::lerp( lerp_pos_cmp.m_start.y, lerp_pos_cmp.m_target.y, lerp_pos_cmp.m_lerp_factor );
     }
 
-    m_reg->patch<Cmp::NPCScanBounds>( entity, [&]( auto &npc_scan_bounds ) { npc_scan_bounds.position( pos ); } );
+    // clang-format off
+    m_reg->patch<Cmp::NPCScanBounds>( entity, 
+      [&]( auto &npc_scan_bounds ) 
+      { 
+        npc_scan_bounds.position( pos_cmp.position ); 
+      });
+    // clang-format on
   }
 }
 

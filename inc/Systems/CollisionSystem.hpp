@@ -82,8 +82,7 @@ public:
 
   template <typename HazardType> void check_player_hazard_field_collision()
   {
-    auto hazard_field_view = [this]()
-    {
+    auto hazard_field_view = [this]() {
       if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
       {
         return m_reg->view<Cmp::SinkholeCell, Cmp::Position>();
@@ -101,14 +100,13 @@ public:
     {
       if ( !is_visible_in_view( RenderSystem::getWindow().getView(), player_pos_cmp ) ) continue;
 
-      // reduce the player hitbox size to avoid unfair deaths
+      // make a copy and reduce the player hitbox size to avoid unfair deaths
       auto offset = sf::Vector2f{ BaseSystem::kGridSquareSizePixels } / 4.f;
-      auto player_hitbox = sf::FloatRect( player_pos_cmp + offset, offset * 1.5f );
+      auto player_hitbox = sf::FloatRect( player_pos_cmp.position + offset, offset * 1.5f );
 
       for ( auto [hazard_field_entt, hazard_field_cmp, hazard_field_pos_cmp] : hazard_field_view.each() )
       {
-        auto hazard_field_hitbox = get_hitbox( hazard_field_pos_cmp );
-        if ( player_hitbox.findIntersection( hazard_field_hitbox ) )
+        if ( player_hitbox.findIntersection( hazard_field_pos_cmp ) )
         {
           // Player falls into a sinkhole or gets damaged by corruption
           if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> ) { player_cmp.alive = false; }
@@ -123,8 +121,7 @@ public:
 
   template <typename HazardType> void check_npc_hazard_field_collision()
   {
-    auto hazard_field_view = [this]()
-    {
+    auto hazard_field_view = [this]() {
       if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
       {
         return m_reg->view<Cmp::SinkholeCell, Cmp::Position>();
@@ -141,13 +138,11 @@ public:
     for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : npc_view.each() )
     {
       if ( !is_visible_in_view( RenderSystem::getWindow().getView(), npc_pos_cmp ) ) continue;
-      auto npc_hitbox = get_hitbox( npc_pos_cmp );
 
       for ( auto [hazard_field_entt, hazard_field_cmp, hazard_field_pos_cmp] : hazard_field_view.each() )
       {
-        auto hazard_field_hitbox = get_hitbox( hazard_field_pos_cmp );
 
-        if ( npc_hitbox.findIntersection( hazard_field_hitbox ) )
+        if ( npc_pos_cmp.findIntersection( hazard_field_pos_cmp ) )
         {
           // NPC falls into the sinkhole
           getEventDispatcher().trigger( Events::NpcDeathEvent( npc_entt ) );

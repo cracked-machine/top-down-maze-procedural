@@ -16,7 +16,7 @@ BraceWrapping:
   BeforeCatch: true
   BeforeElse: true
   IndentBraces: false
-  BeforeLambdaBody : true
+  BeforeLambdaBody : false
   BeforeWhile: true
 SpacesInAngles: false
 

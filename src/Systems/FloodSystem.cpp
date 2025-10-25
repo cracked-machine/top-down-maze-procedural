@@ -61,26 +61,26 @@ void FloodSystem::updateFlood( float dt )
   // BELOW player position
   for ( auto [_, water_level] : water_view.each() )
   {
-    for ( auto [player_entity, player_char, position, dir_cmp] : player_view.each() )
+    for ( auto [player_entity, pc_cmp, pos_cmp, dir_cmp] : player_view.each() )
     {
-      if ( water_level.m_level <= position.y ) // Water drowns player when water level is at or
-                                               // above player position
+      if ( water_level.m_level <= pos_cmp.position.y ) // Water drowns player when water level is at or
+                                                       // above player position
       {
 
         // Other systems will need to know which acceleration/deceleration/maxspeed to use
-        player_char.underwater = true;
+        pc_cmp.underwater = true;
 
         // Check if enough time has passed since last damage
         auto it = m_last_damage_time.find( player_entity );
         if ( it == m_last_damage_time.end() || ( total_time - it->second ) >= DAMAGE_COOLDOWN )
         {
-          player_char.health -= 5;
+          pc_cmp.health -= 5;
           SPDLOG_TRACE( "player health {}", player_char.health );
           m_last_damage_time[player_entity] = total_time;
 
-          if ( player_char.health <= 0 )
+          if ( pc_cmp.health <= 0 )
           {
-            player_char.alive = false;
+            pc_cmp.alive = false;
             SPDLOG_TRACE( "Player has drowned!" );
           }
         }
@@ -91,7 +91,7 @@ void FloodSystem::updateFlood( float dt )
         m_last_damage_time.erase( player_entity );
 
         // Other systems will need to know which acceleration/deceleration/maxspeed to use
-        player_char.underwater = false;
+        pc_cmp.underwater = false;
       }
     }
   }

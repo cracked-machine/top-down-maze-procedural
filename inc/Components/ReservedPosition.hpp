@@ -11,7 +11,7 @@ namespace ProceduralMaze::Cmp {
 class ReservedPosition : public Cmp::Position
 {
 public:
-  ReservedPosition( sf::Vector2f pos, bool solid_mask, Sprites::SpriteMetaType type, unsigned int sprite_index )
+  ReservedPosition( Cmp::Position pos, bool solid_mask, Sprites::SpriteMetaType type, unsigned int sprite_index )
       : Cmp::Position( pos ),
         m_solid_mask( solid_mask ),
         m_type( type ),

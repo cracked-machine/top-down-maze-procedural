@@ -35,7 +35,7 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
         entt::exclude<Cmp::NPC, Cmp::PlayableCharacter> );
     for ( auto [obstacle_entity, next_pos, player_distance] : obstacle_view.each() )
     {
-      if ( npc_scan_bounds->findIntersection( get_hitbox( next_pos ) ) )
+      if ( npc_scan_bounds->findIntersection( next_pos ) )
       {
         distance_queue.push( { player_distance.distance, obstacle_entity } );
       }
@@ -58,7 +58,7 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
         auto npc_pos = m_reg->try_get<Cmp::Position>( npc_entity );
         auto player_pos = m_reg->try_get<Cmp::Position>( player_entity );
         if ( !npc_pos || !player_pos ) return;
-        auto distance = *player_pos - *npc_pos;
+        auto distance = ( *player_pos ).position - ( *npc_pos ).position;
         if ( distance != sf::Vector2f( 0.0f, 0.0f ) )
         {
           m_reg->emplace_or_replace<Cmp::Direction>( npc_entity, distance.normalized() );

@@ -47,21 +47,21 @@ private:
 
   // Variant that renders to a specific render target (shader, texture, etc.)
   void safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
-                                     const sf::Vector2f &position, int sprite_index = 0,
+                                     const sf::FloatRect &pos_cmp, int sprite_index = 0,
                                      sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255,
                                      sf::Vector2f origin = { 0.f, 0.f }, sf::Angle angle = sf::degrees( 0.f ) );
 
   // Fallback rendering for missing sprites (also target-aware)
-  void render_fallback_square_to_target( sf::RenderTarget &target, const sf::Vector2f &position,
+  void render_fallback_square_to_target( sf::RenderTarget &target, const sf::FloatRect &pos_cmp,
                                          const sf::Color &color = sf::Color::Magenta );
 
   // Safe sprite accessor that renders a fallback square if sprite is missing
-  void safe_render_sprite( const std::string &sprite_type, const sf::Vector2f &position, int sprite_index = 0,
+  void safe_render_sprite( const std::string &sprite_type, const sf::FloatRect &position, int sprite_index = 0,
                            sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255, sf::Vector2f origin = { 0.f, 0.f },
                            sf::Angle angle = sf::degrees( 0.f ) );
 
   // Fallback rendering for missing sprites
-  void render_fallback_square( const sf::Vector2f &position, const sf::Color &color = sf::Color::Magenta );
+  void render_fallback_square( const sf::FloatRect &pos_cmp, const sf::Color &color = sf::Color::Magenta );
 
   void update_view_center( sf::View &view, const Cmp::Position &player_pos, float smoothFactor = 0.1f );
 

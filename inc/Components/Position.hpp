@@ -10,11 +10,11 @@
 namespace ProceduralMaze::Cmp {
 
 // Coordinate
-class Position : public sf::Vector2f
+class Position : public sf::FloatRect
 {
 public:
-  Position( const sf::Vector2f &pos )
-      : sf::Vector2f( pos )
+  Position( const sf::Vector2f &pos, const sf::Vector2f &size )
+      : sf::FloatRect( pos, size )
   {
   }
 };

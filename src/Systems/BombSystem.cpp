@@ -36,7 +36,7 @@ void BombSystem::resume()
 void BombSystem::arm_occupied_location()
 {
   auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
+  for ( const auto [pc_entity, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
   {
     if ( pc_cmp.has_active_bomb ) continue;     // skip if player already placed a bomb
     if ( pc_cmp.bomb_inventory == 0 ) continue; // skip if player has no bombs left, -1 is infini bombs
@@ -44,19 +44,16 @@ void BombSystem::arm_occupied_location()
     auto obstacle_collision_view = m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<typename Cmp::Armed> );
     for ( auto [obstacle_entity, obstacle_cmp, obstacle_pos_cmp] : obstacle_collision_view.each() )
     {
-      auto player_hitbox = get_hitbox( pc_pos_cmp );
 
-      // reduce/center the player hitbox to avoid
-      // arming a neighbouring location
+      // make a copy and reduce/center the player hitbox to avoid arming a neighbouring location
+      auto player_hitbox = sf::FloatRect( pc_pos_cmp );
       player_hitbox.size.x /= 2.f;
       player_hitbox.size.y /= 2.f;
       player_hitbox.position.x += 4.f;
       player_hitbox.position.y += 4.f;
 
-      auto obstacle_hitbox = get_hitbox( obstacle_pos_cmp );
-
       // are we standing on this tile?
-      if ( player_hitbox.findIntersection( obstacle_hitbox ) )
+      if ( player_hitbox.findIntersection( obstacle_pos_cmp ) )
       {
         // has the bomb spamming cooldown expired?
         if ( pc_cmp.m_bombdeploycooldowntimer.getElapsedTime() >= pc_cmp.m_bombdeploydelay )
@@ -158,12 +155,11 @@ void BombSystem::update()
     }
 
     // Check player explosion damage
-    auto obstacle_explosion_zone = get_hitbox( _ob_pos_comp );
     auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
     for ( auto [player_entt, player, player_position] : player_view.each() )
     {
-      auto player_bounding_box = get_hitbox( player_position );
-      if ( player_bounding_box.findIntersection( obstacle_explosion_zone ) )
+
+      if ( player_position.findIntersection( _ob_pos_comp ) )
       {
         auto &bomb_damage = get_persistent_component<Cmp::Persistent::BombDamage>();
         player.health -= bomb_damage.get_value();
@@ -175,15 +171,16 @@ void BombSystem::update()
     // Check if NPC was killed by explosion
     for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : m_reg->view<Cmp::NPC, Cmp::Position>().each() )
     {
-      auto npc_bounding_box = get_hitbox( npc_pos_cmp );
+
       // notify npc system of death
-      if ( npc_bounding_box.findIntersection( obstacle_explosion_zone ) )
+      if ( npc_pos_cmp.findIntersection( _ob_pos_comp ) )
       {
-        m_reg->emplace_or_replace<Cmp::NpcDeathPosition>( npc_entt, npc_pos_cmp );
+        m_reg->emplace_or_replace<Cmp::NpcDeathPosition>( npc_entt, npc_pos_cmp.position );
         m_reg->emplace_or_replace<Cmp::SpriteAnimation>( npc_entt );
         auto &npc_death_anim = m_reg->get<Cmp::SpriteAnimation>( npc_entt );
         npc_death_anim.m_current_frame = 0;
-        SPDLOG_INFO( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ), npc_pos_cmp.x, npc_pos_cmp.y );
+        SPDLOG_INFO( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ), npc_pos_cmp.position.x,
+                     npc_pos_cmp.position.y );
         getEventDispatcher().trigger( Events::NpcDeathEvent( npc_entt ) );
       }
     }

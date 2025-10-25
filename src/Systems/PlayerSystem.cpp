@@ -34,7 +34,7 @@ void PlayerSystem::add_player_entity()
   // So we must recalc start position to the nearest grid position here
   auto start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
   start_pos = snap_to_grid( start_pos );
-  m_reg->emplace<Cmp::Position>( entity, start_pos );
+  m_reg->emplace<Cmp::Position>( entity, start_pos, sf::Vector2f{ Sys::BaseSystem::kGridSquareSizePixels } );
 
   auto &bomb_inventory = get_persistent_component<Cmp::Persistent::BombInventory>();
   auto &blast_radius = get_persistent_component<Cmp::Persistent::BlastRadius>();
@@ -68,10 +68,12 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
     // Only start new movement when not lerping
     if ( wants_to_move && !lerp_cmp )
     {
-      auto target_pos = sf::Vector2f{ pos_cmp.x + ( dir_cmp.x * BaseSystem::kGridSquareSizePixels.x ),
-                                      pos_cmp.y + ( dir_cmp.y * BaseSystem::kGridSquareSizePixels.y ) };
+      // make a copy to determine if new target position is valid
+      sf::FloatRect new_pos{ pos_cmp };
+      new_pos.position.x = pos_cmp.position.x + ( dir_cmp.x * BaseSystem::kGridSquareSizePixels.x );
+      new_pos.position.y = pos_cmp.position.y + ( dir_cmp.y * BaseSystem::kGridSquareSizePixels.y );
 
-      if ( is_valid_move( target_pos ) || skip_collision_check )
+      if ( is_valid_move( new_pos ) || skip_collision_check )
       {
         auto &player_lerp_speed = get_persistent_component<Cmp::Persistent::PlayerLerpSpeed>();
         auto &
@@ -104,34 +106,34 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
         // add additional modifier if player is underwater
         if ( pc_cmp.underwater ) { adjusted_speed *= submerged_lerp_speed_modifier.get_value(); }
 
-        m_reg->emplace<Cmp::LerpPosition>( entity, target_pos, adjusted_speed );
+        m_reg->emplace<Cmp::LerpPosition>( entity, new_pos.position, adjusted_speed );
         lerp_cmp = m_reg->try_get<Cmp::LerpPosition>( entity );
 
-        lerp_cmp->m_start = pos_cmp;
-        lerp_cmp->m_target = target_pos;
+        lerp_cmp->m_start = pos_cmp.position;
+        lerp_cmp->m_target = new_pos.position;
         lerp_cmp->m_lerp_factor = 0.0f;
       }
     }
 
-    // Update existing lerp
+    // now we modify... ongoing lerp movement
     if ( lerp_cmp && lerp_cmp->m_lerp_factor < 1.0f )
     {
 
       lerp_cmp->m_lerp_factor += ( lerp_cmp->m_lerp_speed * dt );
       lerp_cmp->m_lerp_factor = std::min( lerp_cmp->m_lerp_factor, 1.0f );
 
-      // Interpolate position
-      pos_cmp.x = std::lerp( lerp_cmp->m_start.x, lerp_cmp->m_target.x, lerp_cmp->m_lerp_factor );
-      pos_cmp.y = std::lerp( lerp_cmp->m_start.y, lerp_cmp->m_target.y, lerp_cmp->m_lerp_factor );
+      // interpolate to the new position
+      pos_cmp.position.x = std::lerp( lerp_cmp->m_start.x, lerp_cmp->m_target.x, lerp_cmp->m_lerp_factor );
+      pos_cmp.position.y = std::lerp( lerp_cmp->m_start.y, lerp_cmp->m_target.y, lerp_cmp->m_lerp_factor );
 
-      // Update detection bounds during lerp
-      pc_detection_bounds.position( pos_cmp );
+      // Update detection bounds position during lerp to keep in sync
+      pc_detection_bounds.position( pos_cmp.position );
 
-      // Complete lerp
+      // if lerp is complete, finalize position
       if ( lerp_cmp->m_lerp_factor >= 1.0f )
       {
-        pos_cmp = lerp_cmp->m_target;
-        pc_detection_bounds.position( pos_cmp );
+        pos_cmp.position = lerp_cmp->m_target;
+        pc_detection_bounds.position( pos_cmp.position );
         m_reg->remove<Cmp::LerpPosition>( entity );
       }
     }

@@ -92,7 +92,7 @@ public:
     // explicitly exclude walls, doors, exits, and playable characters
     unsigned long seed = 0;
     entt::entity random_entity = entt::null;
-    Cmp::Position random_position( { 0.f, 0.f } );
+    Cmp::Position random_position( { 0.f, 0.f }, sf::Vector2f{ kGridSquareSizePixels } );
     if constexpr ( std::is_same_v<HazardType, Cmp::CorruptionCell> )
     {
       seed = get_persistent_component<Cmp::Persistent::CorruptionSeed>().get_value();
@@ -130,9 +130,8 @@ public:
     m_clock.restart();
 
     auto hazard_field_view = m_reg->view<HazardType, Cmp::Position>();
-    auto hazard_field_hitbox_size = sf::Vector2f{ BaseSystem::kGridSquareSizePixels };
     auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::ReservedPosition> );
-    auto obstacle_hitbox_size = sf::Vector2f{ BaseSystem::kGridSquareSizePixels };
+
     Cmp::RandomInt hazard_field_spread_picker( 0, 7 ); // 1 in 8 chance for picking an adjacent obstacle
 
     for ( auto [hazard_field_entity, hazard_field_cmp, position_cmp] : hazard_field_view.each() )
@@ -140,12 +139,13 @@ public:
       if ( !hazard_field_cmp.active ) continue; // only active hazard fields can spread
 
       // make the hazard field hitbox slightly larger to find adjacent obstacles
-      auto hazard_field_hitbox = sf::FloatRect( position_cmp, hazard_field_hitbox_size * 2.f );
+      auto hazard_field_hitbox = sf::FloatRect( position_cmp.position,
+                                                sf::Vector2f{ BaseSystem::kGridSquareSizePixels } * 2.f );
       int adjacent_hazard_fields = 0;
-      for ( auto [obstacle_entity, obstacle_cmp, obstacle_pos] : obstacle_view.each() )
+      for ( auto [obstacle_entity, obstacle_cmp, obst_pos_cmp] : obstacle_view.each() )
       {
-        auto obstacle_hitbox = sf::FloatRect( obstacle_pos, obstacle_hitbox_size );
-        if ( hazard_field_hitbox.findIntersection( obstacle_hitbox ) )
+
+        if ( hazard_field_hitbox.findIntersection( obst_pos_cmp ) )
         {
           // check if this obstacle already has a hazard field component
           if ( m_reg->try_get<HazardType>( obstacle_entity ) == nullptr )
@@ -164,12 +164,12 @@ public:
         }
       }
 
-      for ( auto [adj_hazard_field_entity, adj_hazard_field_cmp, adj_position_cmp] : hazard_field_view.each() )
+      for ( auto [adj_hazard_field_entity, adj_hazard_field_cmp, adj_pos_cmp] : hazard_field_view.each() )
       {
         if ( hazard_field_entity == adj_hazard_field_entity ) continue; // skip self
         // check if hazard field is adjacent to other hazard fields
-        auto adj_hazard_field_hitbox = sf::FloatRect( adj_position_cmp, hazard_field_hitbox_size );
-        if ( hazard_field_hitbox.findIntersection( adj_hazard_field_hitbox ) ) { adjacent_hazard_fields++; }
+
+        if ( hazard_field_hitbox.findIntersection( adj_pos_cmp ) ) { adjacent_hazard_fields++; }
       }
       // if the hazard field is surrounded by hazard fields, then we can exclude it from future searches
       if ( adjacent_hazard_fields >= 2 )

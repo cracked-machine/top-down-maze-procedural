@@ -65,8 +65,9 @@ public:
     auto pos = m_reg->try_get<Cmp::Position>( entity );
     if ( pos )
     {
-      return std::optional<sf::Vector2i>{ { static_cast<int>( pos->x / BaseSystem::kGridSquareSizePixels.x ),
-                                            static_cast<int>( pos->y / BaseSystem::kGridSquareSizePixels.y ) } };
+      return std::optional<sf::Vector2i>{
+          { static_cast<int>( pos->position.x / BaseSystem::kGridSquareSizePixels.x ),
+            static_cast<int>( pos->position.y / BaseSystem::kGridSquareSizePixels.y ) } };
     }
     return std::nullopt;
   }
@@ -75,7 +76,7 @@ public:
   std::optional<sf::Vector2f> getPixelPosition( entt::entity entity ) const
   {
     auto pos = m_reg->try_get<Cmp::Position>( entity );
-    if ( pos ) { return *pos; }
+    if ( pos ) { return ( *pos ).position; }
     return std::nullopt;
   }
 
@@ -107,19 +108,21 @@ public:
     return std::max( std::abs( posA.x - posB.x ), std::abs( posA.y - posB.y ) );
   }
 
-  // Get the hitbox rectangle for a given position
-  sf::FloatRect get_hitbox( const sf::Vector2f &pos ) const
+  // Snap a position to the nearest grid square
+  sf::FloatRect snap_to_grid( const sf::FloatRect &position )
   {
-    return sf::FloatRect( { pos.x, pos.y }, sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
+    float grid_size = BaseSystem::kGridSquareSizePixels.x; // Assuming square grid
+    sf::Vector2f snapped_pos{ std::round( position.position.x / BaseSystem::kGridSquareSizePixels.x ) * grid_size,
+                              std::round( position.position.y / BaseSystem::kGridSquareSizePixels.y ) * grid_size };
+    return sf::FloatRect( snapped_pos, position.size );
   }
 
-  // Snap a position to the nearest grid square
   sf::Vector2f snap_to_grid( const sf::Vector2f &position )
   {
     float grid_size = BaseSystem::kGridSquareSizePixels.x; // Assuming square grid
-
-    return sf::Vector2f( std::round( position.x / grid_size ) * grid_size,
-                         std::round( position.y / grid_size ) * grid_size );
+    sf::Vector2f snapped_pos{ std::round( position.x / BaseSystem::kGridSquareSizePixels.x ) * grid_size,
+                              std::round( position.y / BaseSystem::kGridSquareSizePixels.y ) * grid_size };
+    return snapped_pos;
   }
 
   /**
@@ -131,7 +134,7 @@ public:
    * @param player_position The target position to validate for player movement
    * @return true if the movement is valid and allowed, false otherwise
    */
-  bool is_valid_move( const sf::Vector2f &player_position );
+  bool is_valid_move( const sf::FloatRect &player_position );
 
   /**
    * @brief Checks if a diagonal movement would pass between two obstacles.
@@ -145,10 +148,10 @@ public:
    * @param direction The direction vector representing the intended diagonal movement
    * @return true if the diagonal movement would pass between obstacles, false otherwise
    */
-  bool isDiagonalMovementBetweenObstacles( const sf::Vector2f &current_pos, const sf::Vector2f &direction );
+  bool isDiagonalMovementBetweenObstacles( const sf::FloatRect &current_pos, const sf::Vector2f &direction );
 
   sf::FloatRect calculate_view_bounds( const sf::View &view ) const;
-  bool is_visible_in_view( const sf::FloatRect &viewbounds, const sf::Vector2f &position ) const;
+  bool is_visible_in_view( const sf::FloatRect &viewbounds, const sf::FloatRect &position ) const;
 
   /**
    * @brief Checks if a position is visible within a given view's bounds
@@ -157,7 +160,7 @@ public:
    * @param position The position to test for visibility
    * @return true if the position's hitbox intersects with the view bounds
    */
-  bool is_visible_in_view( const sf::View &view, const sf::Vector2f &position ) const;
+  bool is_visible_in_view( const sf::View &view, const sf::FloatRect &position ) const;
 
   // singleton event dispatcher
   // Use this to get temporary access to the dispatcher to register event handlers

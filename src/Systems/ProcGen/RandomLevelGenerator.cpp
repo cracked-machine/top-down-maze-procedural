@@ -22,18 +22,15 @@ RandomLevelGenerator::RandomLevelGenerator( ProceduralMaze::SharedEnttRegistry r
 
 void RandomLevelGenerator::gen_positions()
 {
-  using namespace Sprites;
-  const auto kDefaultSpriteDimensions = Sys::BaseSystem::kGridSquareSizePixels;
-
   for ( unsigned int x = 0; x < Sys::BaseSystem::kMapGridSize.x - kMapGridOffset.x; x++ )
   {
     for ( unsigned int y = 0; y < Sys::BaseSystem::kMapGridSize.y - kMapGridOffset.y; y++ )
     {
       auto entity = m_reg->create();
-      m_reg->emplace<Cmp::Position>(
-          entity,
-          sf::Vector2f{ ( x * kDefaultSpriteDimensions.x ) + ( kMapGridOffset.x * kDefaultSpriteDimensions.x ),
-                        ( y * kDefaultSpriteDimensions.y ) + ( kMapGridOffset.y * kDefaultSpriteDimensions.y ) } );
+      sf::Vector2f new_pos( ( x + kMapGridOffset.x ) * Sys::BaseSystem::kGridSquareSizePixels.x,
+                            ( y + kMapGridOffset.y ) * Sys::BaseSystem::kGridSquareSizePixels.y );
+
+      m_reg->emplace<Cmp::Position>( entity, new_pos, sf::Vector2f{ Sys::BaseSystem::kGridSquareSizePixels } );
 
       // track the contiguous creation order of the entity so we can easily find its neighbours later
       m_data.push_back( entity );
@@ -54,14 +51,14 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
 
     // place large obstacle - multiply the grid size to get pixel size!
     auto large_obst_grid_size = large_obstacle_sprite->get_grid_size();
-    m_reg->emplace_or_replace<Cmp::LargeObstacle>( random_entity, sprite_meta_type, random_origin_position,
+    m_reg->emplace_or_replace<Cmp::LargeObstacle>( random_entity, sprite_meta_type, random_origin_position.position,
                                                    large_obst_grid_size.componentWiseMul( kDefaultSpriteDimensions ),
                                                    is_shrine );
 
     auto sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
     SPDLOG_INFO( "Placed large obstacle ({}) at position ({}, {}). Grid size: {}x{}",
-                 sprite_factory->get_spritedata_type_string( sprite_meta_type ), random_origin_position.x,
-                 random_origin_position.y, large_obst_grid_size.width, large_obst_grid_size.height );
+                 sprite_factory->get_spritedata_type_string( sprite_meta_type ), random_origin_position.position.x,
+                 random_origin_position.position.y, large_obst_grid_size.width, large_obst_grid_size.height );
     auto new_large_obst_cmp = m_reg->get<Cmp::LargeObstacle>( random_entity );
 
     SPDLOG_DEBUG( "Large obstacle bounds: left={}, top={}, width={}, height={}", new_large_obst_cmp.position.x,
@@ -72,15 +69,14 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
     auto pos_view = m_reg->view<Cmp::Position>();
     for ( auto [entity, pos_cmp] : pos_view.each() )
     {
-      auto pos_cmp_rect = get_hitbox( pos_cmp );
 
-      if ( pos_cmp_rect.findIntersection( new_large_obst_cmp ) )
+      if ( pos_cmp.findIntersection( new_large_obst_cmp ) )
       {
         // Calculate relative pixel positions within the large obstacle grid
-        float rel_x = pos_cmp.x - random_origin_position.x;
-        float rel_y = pos_cmp.y - random_origin_position.y;
-        SPDLOG_DEBUG( "Reserving position at ({}, {}) within large obstacle at ({}, {})", pos_cmp.x, pos_cmp.y,
-                      random_origin_position.x, random_origin_position.y );
+        float rel_x = pos_cmp.position.x - random_origin_position.position.x;
+        float rel_y = pos_cmp.position.y - random_origin_position.position.y;
+        SPDLOG_DEBUG( "Reserving position at ({}, {}) within large obstacle at ({}, {})", pos_cmp.position.x,
+                      pos_cmp.position.y, random_origin_position.position.x, random_origin_position.position.y );
 
         // Convert to grid coordinates
         int grid_x = static_cast<int>( rel_x / kDefaultSpriteDimensions.x );
@@ -244,14 +240,14 @@ void RandomLevelGenerator::gen_border()
 void RandomLevelGenerator::add_wall_entity( const sf::Vector2f &pos, std::size_t sprite_index )
 {
   auto entity = m_reg->create();
-  m_reg->emplace<Cmp::Position>( entity, pos );
+  m_reg->emplace<Cmp::Position>( entity, pos, sf::Vector2f{ Sys::BaseSystem::kGridSquareSizePixels } );
   m_reg->emplace<Cmp::Wall>( entity, "WALL", sprite_index );
 }
 
 void RandomLevelGenerator::add_door_entity( const sf::Vector2f &pos, std::size_t sprite_index, bool is_exit )
 {
   auto entity = m_reg->create();
-  m_reg->emplace<Cmp::Position>( entity, pos );
+  m_reg->emplace<Cmp::Position>( entity, pos, sf::Vector2f{ Sys::BaseSystem::kGridSquareSizePixels } );
   m_reg->emplace<Cmp::Door>( entity, "WALL", sprite_index );
   if ( is_exit ) m_reg->emplace<Cmp::Exit>( entity );
 }

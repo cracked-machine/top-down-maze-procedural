@@ -54,7 +54,6 @@ void CollisionSystem::check_bones_reanimation()
   auto obstacle_collision_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
   for ( auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each() )
   {
-    auto player_hitbox = get_hitbox( _pc_pos );
     for ( auto [_obstacle_entt, _obstacle, _obstacle_pos] : obstacle_collision_view.each() )
     {
       if ( !is_visible_in_view( RenderSystem::getWindow().getView(), _obstacle_pos ) ) continue;
@@ -64,13 +63,14 @@ void CollisionSystem::check_bones_reanimation()
       auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NpcActivateScale>();
       // we just create a temporary RectBounds here instead of a component because we only need it for
       // this one comparison and it already contains the needed scaling logic
-      auto npc_activate_bounds = Cmp::RectBounds( _obstacle_pos, sf::Vector2f{ BaseSystem::kGridSquareSizePixels },
-                                                  npc_activate_scale.get_value() );
-      if ( player_hitbox.findIntersection( npc_activate_bounds.getBounds() ) )
+      auto npc_activate_bounds = Cmp::RectBounds(
+          _obstacle_pos.position, sf::Vector2f{ BaseSystem::kGridSquareSizePixels }, npc_activate_scale.get_value() );
+
+      if ( _pc_pos.findIntersection( npc_activate_bounds.getBounds() ) )
       {
         // dont really care what obstacle this becomes as long as its disabled.
         m_reg->emplace_or_replace<Cmp::Obstacle>( _obstacle_entt, "BONES", 0, false );
-        getEventDispatcher().trigger( Events::NpcCreationEvent( _obstacle_pos ) );
+        getEventDispatcher().trigger( Events::NpcCreationEvent( _obstacle_pos.position ) );
       }
     }
   }
@@ -82,12 +82,10 @@ void CollisionSystem::check_player_to_npc_collision()
   auto npc_collision_view = m_reg->view<Cmp::NPC, Cmp::Position>();
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp, dir_cmp] : player_collision_view.each() )
   {
-    auto player_hitbox = get_hitbox( pc_pos_cmp );
+
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_collision_view.each() )
     {
-      auto npc_hitbox = get_hitbox( npc_pos_cmp );
-
-      if ( player_hitbox.findIntersection( npc_hitbox ) )
+      if ( pc_pos_cmp.findIntersection( npc_pos_cmp ) )
       {
         auto &npc_damage_cooldown = get_persistent_component<Cmp::Persistent::NpcDamageDelay>();
         if ( npc_cmp.m_damage_cooldown.getElapsedTime().asSeconds() < npc_damage_cooldown.get_value() ) continue;
@@ -100,11 +98,11 @@ void CollisionSystem::check_player_to_npc_collision()
         auto &npc_push_back = get_persistent_component<Cmp::Persistent::NpcPushBack>();
 
         // Find a valid pushback position by checking all 8 directions
-        sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp, npc_pos_cmp, dir_cmp,
-                                                                       npc_push_back.get_value() );
+        sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp.position, npc_pos_cmp.position,
+                                                                       dir_cmp, npc_push_back.get_value() );
 
         // Update player position if we found a valid pushback position
-        if ( target_push_back_pos != pc_pos_cmp ) { pc_pos_cmp = target_push_back_pos; }
+        if ( target_push_back_pos != pc_pos_cmp.position ) { pc_pos_cmp.position = target_push_back_pos; }
       }
 
       if ( pc_cmp.health <= 0 )
@@ -162,11 +160,12 @@ sf::Vector2f CollisionSystem::findValidPushbackPosition( const sf::Vector2f &pla
   // Try each direction in priority order
   for ( const auto &push_dir : preferred_directions )
   {
-    sf::Vector2f candidate_pos = player_pos + push_dir.normalized() * pushback_distance;
+    sf::FloatRect candidate_pos{ player_pos + push_dir.normalized() * pushback_distance,
+                                 sf::Vector2f{ BaseSystem::kGridSquareSizePixels } };
     candidate_pos = snap_to_grid( candidate_pos );
 
     // Check if this position is valid and different from current position
-    if ( candidate_pos != player_pos && is_valid_move( candidate_pos ) ) { return candidate_pos; }
+    if ( candidate_pos.position != player_pos && is_valid_move( candidate_pos ) ) { return candidate_pos.position; }
   }
 
   // If no valid position found, return original position
@@ -191,14 +190,12 @@ void CollisionSystem::check_loot_collision()
 
   for ( auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each() )
   {
-    auto player_hitbox = get_hitbox( _pc_pos );
 
     for ( auto [_loot_entt, _loot, _loot_pos] : loot_collision_view.each() )
     {
       if ( !is_visible_in_view( RenderSystem::getWindow().getView(), _loot_pos ) ) continue;
 
-      auto loot_hitbox = get_hitbox( _loot_pos );
-      if ( player_hitbox.findIntersection( loot_hitbox ) )
+      if ( _pc_pos.findIntersection( _loot_pos ) )
       {
         // Store effect to apply after collision detection
         loot_effects.push_back( { _loot_entt, _loot.m_type, _pc_entt } );
@@ -246,8 +243,7 @@ void CollisionSystem::check_end_zone_collision()
 {
   for ( auto [_entt, _pc, _pc_pos] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
   {
-    auto player_hitbox = get_hitbox( _pc_pos );
-    if ( player_hitbox.findIntersection( m_end_zone ) )
+    if ( _pc_pos.findIntersection( m_end_zone ) )
     {
       SPDLOG_DEBUG( "Player reached the end zone!" );
       for ( auto [_entt, _sys] : m_reg->view<Cmp::System>().each() )
@@ -275,9 +271,9 @@ void CollisionSystem::update_obstacle_distances()
       if ( !is_visible_in_view( viewBounds, obst_pos_cmp ) ) continue;
 
       // while we are here calculate the obstacle/player distance for any traversable obstacles
-      if ( not obst_cmp.m_enabled && pc_db_cmp.findIntersection( get_hitbox( obst_pos_cmp ) ) )
+      if ( not obst_cmp.m_enabled && pc_db_cmp.findIntersection( obst_pos_cmp ) )
       {
-        auto distance = std::floor( getChebyshevDistance( pc_pos_cmp, obst_pos_cmp ) );
+        auto distance = std::floor( getChebyshevDistance( pc_pos_cmp.position, obst_pos_cmp.position ) );
         m_reg->emplace_or_replace<Cmp::PlayerDistance>( obst_entt, distance );
       }
       else
@@ -299,7 +295,8 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
   {
     // slightly larger hitbox for large obstacles because we want to trigger
     // collision when we get CLOSE to them
-    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp, sf::Vector2f{ BaseSystem::kGridSquareSizePixels }, 1.5f );
+    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, sf::Vector2f{ BaseSystem::kGridSquareSizePixels },
+                                          1.5f );
 
     for ( auto [lo_entity, lo_cmp] : large_obstacle_view.each() )
     {
@@ -312,9 +309,7 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
         for ( auto [_res_entity, reserved_cmp] : reserved_view.each() )
         {
 
-          auto kDefaultSpriteDimensions = BaseSystem::kGridSquareSizePixels;
-          auto reserved_hitbox = sf::FloatRect( reserved_cmp, sf::Vector2f{ kDefaultSpriteDimensions } );
-          if ( reserved_hitbox.findIntersection( lo_cmp ) )
+          if ( reserved_cmp.findIntersection( lo_cmp ) )
           {
             // SHRINES
 

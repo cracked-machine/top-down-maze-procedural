@@ -21,33 +21,29 @@ const sf::Vector2f BaseSystem::kMapGridOffset{ 10.f, 1.f };
 // initialised by first call to getEventDispatcher()
 std::unique_ptr<entt::dispatcher> BaseSystem::m_event_dispatcher = nullptr;
 
-bool BaseSystem::is_valid_move( const sf::Vector2f &target_position )
+bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
 {
-  auto target_hitbox = get_hitbox( target_position );
-
   // Check obstacles
   auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
   for ( auto [entity, obs_cmp, pos_cmp] : obstacle_view.each() )
   {
     if ( obs_cmp.m_enabled == false || obs_cmp.m_integrity <= 0.0f ) continue;
-    auto obs_hitbox = get_hitbox( pos_cmp );
-    if ( obs_hitbox.findIntersection( target_hitbox ) ) { return false; }
+    if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
   // Check walls
   auto wall_view = m_reg->view<Cmp::Wall, Cmp::Position>();
   for ( auto [entity, wall_cmp, pos_cmp] : wall_view.each() )
   {
-    auto wall_hitbox = get_hitbox( pos_cmp );
-    if ( wall_hitbox.findIntersection( target_hitbox ) ) { return false; }
+
+    if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
   // Check doors (excluding exits)
   auto door_view = m_reg->view<Cmp::Door, Cmp::Position>( entt::exclude<Cmp::Exit> );
   for ( auto [entity, door_cmp, pos_cmp] : door_view.each() )
   {
-    auto door_hitbox = get_hitbox( pos_cmp );
-    if ( door_hitbox.findIntersection( target_hitbox ) ) { return false; }
+    if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
   // Check reserved positions (excluding exits)
@@ -55,23 +51,24 @@ bool BaseSystem::is_valid_move( const sf::Vector2f &target_position )
   for ( auto [entity, reserved_cmp] : reserved_view.each() )
   {
     if ( not reserved_cmp.m_solid_mask ) continue;
-    auto reserved_hitbox = get_hitbox( reserved_cmp );
-    if ( reserved_hitbox.findIntersection( target_hitbox ) ) { return false; }
+    if ( reserved_cmp.findIntersection( target_position ) ) { return false; }
   }
 
   return true;
 }
 
-bool BaseSystem::isDiagonalMovementBetweenObstacles( const sf::Vector2f &current_pos, const sf::Vector2f &direction )
+bool BaseSystem::isDiagonalMovementBetweenObstacles( const sf::FloatRect &current_pos, const sf::Vector2f &direction )
 {
   if ( !( ( direction.x != 0.0f ) && ( direction.y != 0.0f ) ) ) return false; // Not diagonal
 
-  float grid_size = BaseSystem::kGridSquareSizePixels.x;
+  sf::Vector2f grid_size{ BaseSystem::kGridSquareSizePixels };
 
   // Calculate the two orthogonal positions the diagonal movement would "cut through"
-  sf::Vector2f horizontal_check = sf::Vector2f{ current_pos.x + ( direction.x * grid_size ), current_pos.y };
+  sf::FloatRect horizontal_check = sf::FloatRect{
+      sf::Vector2f{ current_pos.position.x + ( direction.x * grid_size.x ), current_pos.position.y }, grid_size };
 
-  sf::Vector2f vertical_check = sf::Vector2f{ current_pos.x, current_pos.y + ( direction.y * grid_size ) };
+  sf::FloatRect vertical_check = sf::FloatRect{
+      sf::Vector2f{ current_pos.position.x, current_pos.position.y + ( direction.y * grid_size.y ) }, grid_size };
 
   // Check if both orthogonal positions have obstacles
   bool horizontal_blocked = !is_valid_move( horizontal_check );
@@ -87,23 +84,18 @@ sf::FloatRect BaseSystem::calculate_view_bounds( const sf::View &view ) const
   return sf::FloatRect( view.getCenter() - view.getSize() / 2.f, view.getSize() );
 }
 
-bool BaseSystem::is_visible_in_view( const sf::FloatRect &viewbounds, const sf::Vector2f &position ) const
+bool BaseSystem::is_visible_in_view( const sf::FloatRect &viewbounds, const sf::FloatRect &position ) const
 {
-  // Get the hitbox for the position
-  auto hitbox = get_hitbox( position );
-
   // Check for intersection
-  return viewbounds.findIntersection( hitbox ).has_value();
+  return viewbounds.findIntersection( position ).has_value();
 }
 
-bool BaseSystem::is_visible_in_view( const sf::View &view, const sf::Vector2f &position ) const
+bool BaseSystem::is_visible_in_view( const sf::View &view, const sf::FloatRect &position ) const
 {
   auto viewBounds = calculate_view_bounds( view );
-  // Get the hitbox for the position
-  auto hitbox = get_hitbox( position );
 
   // Check for intersection
-  return viewBounds.findIntersection( hitbox ).has_value();
+  return viewBounds.findIntersection( position ).has_value();
 }
 
 } // namespace ProceduralMaze::Sys
