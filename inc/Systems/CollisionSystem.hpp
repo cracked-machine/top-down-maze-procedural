@@ -95,7 +95,7 @@ public:
 
     for ( auto [pc_entt, player_cmp, player_pos_cmp] : player_view.each() )
     {
-      if ( !is_visible_in_view( RenderSystem::getWindow().getView(), player_pos_cmp ) ) continue;
+      if ( !is_visible_in_view( RenderSystem::getGameView(), player_pos_cmp ) ) continue;
 
       // make a copy and reduce the player hitbox size to avoid unfair deaths
       auto offset = kGridSquareSizePixelsF / 4.f;
@@ -134,7 +134,7 @@ public:
 
     for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : npc_view.each() )
     {
-      if ( !is_visible_in_view( RenderSystem::getWindow().getView(), npc_pos_cmp ) ) continue;
+      if ( !is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) ) continue;
 
       for ( auto [hazard_field_entt, hazard_field_cmp, hazard_field_pos_cmp] : hazard_field_view.each() )
       {

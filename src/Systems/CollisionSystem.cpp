@@ -60,7 +60,7 @@ void CollisionSystem::check_bones_reanimation()
   {
     for ( auto [_obstacle_entt, _obstacle, _obstacle_pos] : obstacle_collision_view.each() )
     {
-      if ( !is_visible_in_view( RenderSystem::getWindow().getView(), _obstacle_pos ) ) continue;
+      if ( !is_visible_in_view( RenderSystem::getGameView(), _obstacle_pos ) ) continue;
 
       if ( _obstacle.m_type != "BONES" || not _obstacle.m_enabled ) continue;
 
@@ -191,17 +191,17 @@ void CollisionSystem::check_loot_collision()
   auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
   auto loot_collision_view = m_reg->view<Cmp::Loot, Cmp::Position>();
 
-  for ( auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each() )
+  for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
   {
 
-    for ( auto [_loot_entt, _loot, _loot_pos] : loot_collision_view.each() )
+    for ( auto [loot_entt, loot_cmp, loot_pos_cmp] : loot_collision_view.each() )
     {
-      if ( !is_visible_in_view( RenderSystem::getWindow().getView(), _loot_pos ) ) continue;
+      if ( not is_visible_in_view( RenderSystem::getGameView(), loot_pos_cmp ) ) continue;
 
-      if ( _pc_pos.findIntersection( _loot_pos ) )
+      if ( pc_pos_cmp.findIntersection( loot_pos_cmp ) )
       {
         // Store effect to apply after collision detection
-        loot_effects.push_back( { _loot_entt, _loot.m_type, _pc_entt } );
+        loot_effects.push_back( { loot_entt, loot_cmp.m_type, pc_entt } );
       }
     }
   }
@@ -245,7 +245,7 @@ void CollisionSystem::check_loot_collision()
 void CollisionSystem::update_obstacle_distances()
 {
   // precompute outside of loops for performance
-  const auto viewBounds = BaseSystem::calculate_view_bounds( RenderSystem::getWindow().getView() );
+  const auto viewBounds = BaseSystem::calculate_view_bounds( RenderSystem::getGameView() );
 
   // we only have one player so this is just for convenience
   auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PCDetectionBounds>();

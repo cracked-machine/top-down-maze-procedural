@@ -28,7 +28,7 @@ void AnimSystem::update( sf::Time deltaTime )
   auto reserved_view = m_reg->view<Cmp::ReservedPosition, Cmp::SpriteAnimation>();
   for ( auto [entity, reserved_cmp, anim_cmp] : reserved_view.each() )
   {
-    if ( !is_visible_in_view( RenderSystem::getWindow().getView(), reserved_cmp ) ) continue;
+    if ( !is_visible_in_view( RenderSystem::getGameView(), reserved_cmp ) ) continue;
     if ( reserved_cmp.is_animated() )
     {
       SPDLOG_DEBUG( "Updating ReservedPosition animation for entity {}", static_cast<int>( entity ) );
@@ -45,7 +45,7 @@ void AnimSystem::update( sf::Time deltaTime )
   auto pathfinding_npc_view = m_reg->view<Cmp::NPC, Cmp::LerpPosition, Cmp::SpriteAnimation, Cmp::Position>();
   for ( [[maybe_unused]] auto [entity, npc_cmp, lerp_pos_cmp, anim_cmp, pos_cmp] : pathfinding_npc_view.each() )
   {
-    if ( !is_visible_in_view( RenderSystem::getWindow().getView(), pos_cmp ) ) continue;
+    if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
     if ( lerp_pos_cmp.m_lerp_factor > 0.f )
     {
       auto &factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
@@ -62,7 +62,7 @@ void AnimSystem::update( sf::Time deltaTime )
   auto moving_player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Direction, Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [entity, pc_cmp, dir_cmp, anim_cmp, pos_cmp] : moving_player_view.each() )
   {
-    if ( !is_visible_in_view( RenderSystem::getWindow().getView(), pos_cmp ) ) continue;
+    if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
     if ( dir_cmp != sf::Vector2f( 0.f, 0.f ) )
     {
       auto &factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
@@ -79,7 +79,7 @@ void AnimSystem::update( sf::Time deltaTime )
   auto wormhole_view = m_reg->view<Cmp::Wormhole, Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [entity, wormhole_cmp, anim_cmp, pos_cmp] : wormhole_view.each() )
   {
-    if ( !is_visible_in_view( RenderSystem::getWindow().getView(), pos_cmp ) ) continue;
+    if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
 
     auto wormhole_sprite_metadata = factory->get_multisprite_by_type( "WORMHOLE" );
     auto sprites_per_frame = wormhole_sprite_metadata->get_sprites_per_frame();

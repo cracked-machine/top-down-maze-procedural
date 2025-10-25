@@ -87,7 +87,7 @@ void WormholeSystem::check_player_wormhole_collision()
   {
     for ( auto [wormhole_entity, wormhole_cmp, wh_pos_cmp] : wormhole_view.each() )
     {
-      if ( !is_visible_in_view( RenderSystem::getWindow().getView(), wh_pos_cmp ) ) continue;
+      if ( !is_visible_in_view( RenderSystem::getGameView(), wh_pos_cmp ) ) continue;
 
       // 2. check for collision,
       if ( !player_pos_cmp.findIntersection( wh_pos_cmp ) ) continue;
