@@ -12,6 +12,7 @@
 #include <PlayableCharacter.hpp>
 #include <PlayerScore.hpp>
 #include <Position.hpp>
+#include <RectBounds.hpp>
 #include <RenderSystem.hpp>
 #include <ReservedPosition.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -107,6 +108,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
       render_armed();
       render_loot();
       render_walls();
+      render_player_spawn();
       render_player_footsteps();
       render_player();
       render_npc();
@@ -133,6 +135,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
         render_armed();
         render_loot();
         render_walls();
+        render_player_spawn();
         render_player();
         render_npc();
         render_large_obstacles();
@@ -216,11 +219,41 @@ void RenderGameSystem::render_floormap( const sf::Vector2f &offset )
   getWindow().draw( m_floormap );
 }
 
+void RenderGameSystem::render_player_spawn()
+{
+  auto reserved_view = m_reg->view<Cmp::ReservedPosition>();
+  for ( auto [entity, reserved_cmp] : reserved_view.each() )
+  {
+    // broken reserved positions are normally used for player spawn area so dont render them
+    // (otherwise they draw on top of the player character)
+    if ( reserved_cmp.m_type != "PLAYERSPAWN" ) continue;
+
+    // it->first: SpriteMetaType (aka std::string)
+    // it->second: optional<MultiSprite>
+    if ( auto it = m_multisprite_map.find( reserved_cmp.m_type );
+         it != m_multisprite_map.end() && it->second.has_value() )
+    {
+      auto meta_type = it->first;
+      auto new_idx = reserved_cmp.m_sprite_index;
+      sf::Vector2f new_scale{ 1.f, 1.f };
+      uint8_t new_alpha{ 255 };
+      sf::Vector2f new_origin{ 0.f, 0.f };
+      float new_angle{ 0.f };
+      safe_render_sprite( meta_type, reserved_cmp, new_idx, new_scale, new_alpha, new_origin,
+                          sf::degrees( new_angle ) );
+    }
+  }
+}
+
 void RenderGameSystem::render_large_obstacles()
 {
   auto reserved_view = m_reg->view<Cmp::ReservedPosition>();
   for ( auto [entity, reserved_cmp] : reserved_view.each() )
   {
+    // broken reserved positions are normally used for player spawn area so dont render them
+    // (otherwise they draw on top of the player character)
+    if ( reserved_cmp.m_type == "PLAYERSPAWN" ) continue;
+
     // it->first: SpriteMetaType (aka std::string)
     // it->second: optional<MultiSprite>
     if ( auto it = m_multisprite_map.find( reserved_cmp.m_type );
@@ -281,16 +314,6 @@ void RenderGameSystem::render_large_obstacles()
 void RenderGameSystem::render_small_obstacles()
 {
 
-  // for ( auto [entt, pos] : m_reg->view<Cmp::Position>().each() )
-  // {
-  //   sf::RectangleShape position_square( kGridSquareSizePixelsF );
-  //   position_square.setFillColor( sf::Color::Transparent );
-  //   position_square.setOutlineColor( sf::Color::Red );
-  //   position_square.setOutlineThickness( 1.f );
-  //   position_square.setPosition( pos );
-  //   getWindow().draw( position_square );
-  // }
-
   // Group similar draw operations to reduce state changes
   std::vector<std::tuple<sf::FloatRect, int, float>> rockPositions;
   std::vector<std::pair<sf::FloatRect, int>> potPositions;
@@ -300,8 +323,7 @@ void RenderGameSystem::render_small_obstacles()
   std::vector<sf::FloatRect> detonationPositions;
 
   // Collect all positions first instead of drawing immediately
-  auto obst_view = m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>(
-      entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
+  auto obst_view = m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>( entt::exclude<Cmp::PlayableCharacter> );
   for ( auto [entity, obstacle_cmp, position_cmp, _ob_nb_list] : obst_view.each() )
   {
     // check if obstacle is within the current view (in world coordinates)
@@ -364,6 +386,17 @@ void RenderGameSystem::render_small_obstacles()
     square.setPosition( selected_cmp );
     getWindow().draw( square );
   }
+
+  // auto player_start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
+  // auto player_start_area = Cmp::RectBounds( player_start_pos, kGridSquareSizePixelsF, 5.f,
+  //                                           Cmp::RectBounds::ScaleCardinality::BOTH );
+
+  // sf::RectangleShape position_square( player_start_area.size() );
+  // position_square.setFillColor( sf::Color::Transparent );
+  // position_square.setOutlineColor( sf::Color::Red );
+  // position_square.setOutlineThickness( 1.f );
+  // position_square.setPosition( player_start_area.position() );
+  // getWindow().draw( position_square );
 }
 
 void RenderGameSystem::render_sinkhole()

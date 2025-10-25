@@ -2,8 +2,10 @@
 #include <Door.hpp>
 #include <LargeObstacle.hpp>
 #include <Persistent/MaxShrines.hpp>
+#include <Persistent/PlayerStartPosition.hpp>
 #include <PlayableCharacter.hpp>
 #include <ProcGen/RandomLevelGenerator.hpp>
+#include <RectBounds.hpp>
 #include <ReservedPosition.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SpriteFactory.hpp>
@@ -23,6 +25,10 @@ RandomLevelGenerator::RandomLevelGenerator( ProceduralMaze::SharedEnttRegistry r
 
 void RandomLevelGenerator::gen_positions()
 {
+  auto player_start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
+  auto player_start_area = Cmp::RectBounds( player_start_pos, kGridSquareSizePixelsF, 5.f,
+                                            Cmp::RectBounds::ScaleCardinality::BOTH );
+
   for ( unsigned int x = 0; x < Sys::BaseSystem::kMapGridSize.x - kMapGridOffset.x; x++ )
   {
     for ( unsigned int y = 0; y < Sys::BaseSystem::kMapGridSize.y - kMapGridOffset.y; y++ )
@@ -32,6 +38,22 @@ void RandomLevelGenerator::gen_positions()
                             ( y + kMapGridOffset.y ) * Sys::BaseSystem::kGridSquareSizePixels.y );
 
       m_reg->emplace<Cmp::Position>( entity, new_pos, kGridSquareSizePixelsF );
+      auto &pos_cmp = m_reg->get<Cmp::Position>( entity );
+      if ( pos_cmp.findIntersection( player_start_area.getBounds() ) )
+      {
+        // We need to reserve these positions (so nothing can be placed here) but ReservedPositions are rendered
+        // after player character so we break the reserved position object to prevent it from being rendered.
+        // We dont care about the sprite type because broken ReservedPositions are not rendered.
+        SPDLOG_DEBUG( "Position ({}, {}) is within player start area, marking as reserved.", pos_cmp.x, pos_cmp.y );
+        m_reg->emplace<Cmp::ReservedPosition>( entity, pos_cmp, false, "PLAYERSPAWN", 0 );
+        // auto &reserved_cmp = m_reg->get<Cmp::ReservedPosition>( entity );
+        // reserved_cmp.break_object();
+        // But we still want a sprite rendered here so add a disabled (non-blocking) obstacle. Obstacle components are
+        // rendered before the player character so the z-order is correct.
+        // m_reg->emplace<Cmp::Obstacle>( entity, "DETONATED", 0, false );
+        // auto &obst_cmp = m_reg->get<Cmp::Obstacle>( entity );
+        // obst_cmp.m_integrity = 0; // detonated obstacles are only rendered if they are "broken"
+      }
 
       // track the contiguous creation order of the entity so we can easily find its neighbours later
       m_data.push_back( entity );

@@ -16,7 +16,7 @@ const sf::Vector2u BaseSystem::kDisplaySize{ 1920, 1024 };
 
 const sf::Vector2u BaseSystem::kMapGridSize{ 100u, 124u };
 
-const sf::Vector2f BaseSystem::kMapGridOffset{ 10.f, 1.f };
+const sf::Vector2f BaseSystem::kMapGridOffset{ 1.f, 1.f };
 
 const sf::Vector2u BaseSystem::kGridSquareSizePixels{ 16u, 16u };
 const sf::Vector2f BaseSystem::kGridSquareSizePixelsF{ 16.f, 16.f };

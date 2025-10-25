@@ -252,7 +252,8 @@ void CollisionSystem::update_obstacle_distances()
   for ( [[maybe_unused]] auto [pc_entt, pc_cmp, pc_pos_cmp, pc_db_cmp] : player_view.each() )
   {
 
-    auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
+    // Don't calculate distance for ReservedPositions to prevent NPCs chasing into player spawn area
+    auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::ReservedPosition> );
     for ( auto [obst_entt, obst_cmp, obst_pos_cmp] : obstacle_view.each() )
     {
 

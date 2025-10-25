@@ -2,6 +2,7 @@
 #include <NpcDeathPosition.hpp>
 #include <Persistent/ArmedOffDelay.hpp>
 #include <Persistent/BombDamage.hpp>
+#include <ReservedPosition.hpp>
 #include <SpriteAnimation.hpp>
 #include <spdlog/spdlog.h>
 
@@ -41,7 +42,8 @@ void BombSystem::arm_occupied_location()
     if ( pc_cmp.has_active_bomb ) continue;     // skip if player already placed a bomb
     if ( pc_cmp.bomb_inventory == 0 ) continue; // skip if player has no bombs left, -1 is infini bombs
 
-    auto obstacle_collision_view = m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<typename Cmp::Armed> );
+    auto obstacle_collision_view = m_reg->view<Cmp::Obstacle, Cmp::Position>(
+        entt::exclude<typename Cmp::Armed, Cmp::ReservedPosition> );
     for ( auto [obstacle_entity, obstacle_cmp, obstacle_pos_cmp] : obstacle_collision_view.each() )
     {
 
@@ -86,7 +88,8 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
   m_reg->emplace_or_replace<Cmp::Armed>( epicenter_entity, sf::seconds( fuse_delay.get_value() ), sf::Time::Zero, true,
                                          sf::Color::Transparent, sequence_counter++ );
 
-  auto all_obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
+  // We dont detonate ReservedPositions so dont arm them in the first place
+  auto all_obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::ReservedPosition> );
 
   // For each layer from 1 to BLAST_RADIUS
   for ( int layer = 1; layer <= blast_radius; layer++ )
@@ -105,14 +108,12 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
     }
 
     // Sort entities in clockwise order
-    std::sort( layer_entities.begin(), layer_entities.end(),
-               [centerTile]( const auto &a, const auto &b )
-               {
-                 // Calculate angles from center to points
-                 float angleA = std::atan2( a.second.y - centerTile.y, a.second.x - centerTile.x );
-                 float angleB = std::atan2( b.second.y - centerTile.y, b.second.x - centerTile.x );
-                 return angleA < angleB;
-               } );
+    std::sort( layer_entities.begin(), layer_entities.end(), [centerTile]( const auto &a, const auto &b ) {
+      // Calculate angles from center to points
+      float angleA = std::atan2( a.second.y - centerTile.y, a.second.x - centerTile.x );
+      float angleB = std::atan2( b.second.y - centerTile.y, b.second.x - centerTile.x );
+      return angleA < angleB;
+    } );
 
     // Arm each entity in the layer in clockwise order
     for ( const auto &[entity, pos] : layer_entities )

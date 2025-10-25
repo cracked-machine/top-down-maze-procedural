@@ -36,6 +36,7 @@ private:
   void render_armed();
   void render_loot();
   void render_walls();
+  void render_player_spawn();
   void render_player();
   void render_player_footsteps();
   void render_npc();

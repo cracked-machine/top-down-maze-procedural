@@ -96,7 +96,7 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::ShrineCost>( "ShrineCost", 2u );
 
   // Register special types (sf::Vector2f)
-  auto default_player_start_pos = sf::Vector2f( Sys::BaseSystem::kGridSquareSizePixels.x * 2,
+  auto default_player_start_pos = sf::Vector2f( Sys::BaseSystem::kGridSquareSizePixels.x * 5,
                                                 static_cast<float>( Sys::BaseSystem::kDisplaySize.y ) / 2 );
   registerComponent<Cmp::Persistent::PlayerStartPosition>( "PlayerStartPosition", default_player_start_pos );
 }

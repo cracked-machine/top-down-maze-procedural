@@ -85,6 +85,20 @@
         }
       }
     },
+    "PLAYERSPAWN": {
+      "name": "PLAYERSPAWN",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/floor2.png",
+        "sprite_indices": [4],
+        "sprites_per_frame": 1,
+        "sprites_per_sequence": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
     "PLAYER": {
       "name": "PLAYER",
       "weight": 1.0,
