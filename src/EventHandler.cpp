@@ -108,7 +108,7 @@ void EventHandler::game_state_handler( sf::RenderWindow &window )
         for ( auto [_entt, _sys] : m_reg->view<Cmp::System>().each() )
         {
           _sys.show_path_distances = not _sys.show_path_distances;
-          SPDLOG_INFO( "Show Dijkstra distance is now {}", _sys.show_path_distances ? "ENABLED" : "DISABLED" );
+          SPDLOG_INFO( "Show player distances is now {}", _sys.show_path_distances ? "ENABLED" : "DISABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 )
@@ -117,6 +117,14 @@ void EventHandler::game_state_handler( sf::RenderWindow &window )
         {
           _sys.show_armed_obstacles = not _sys.show_armed_obstacles;
           SPDLOG_INFO( "Show armed obstacles is now {}", _sys.show_armed_obstacles ? "ENABLED" : "DISABLED" );
+        }
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
+      {
+        for ( auto [_entt, _sys] : m_reg->view<Cmp::System>().each() )
+        {
+          _sys.show_debug_stats = not _sys.show_debug_stats;
+          SPDLOG_INFO( "Show debug stats is now {}", _sys.show_debug_stats ? "ENABLED" : "DISABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )

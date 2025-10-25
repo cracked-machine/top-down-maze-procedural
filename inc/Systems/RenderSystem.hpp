@@ -60,9 +60,10 @@ protected:
   // Font for rendering text
   Cmp::Font m_font = Cmp::Font( "res/fonts/tuffy.ttf" );
 
-  bool m_show_path_distances = false;
-  bool m_show_armed_obstacles = false;
-  bool m_minimap_enabled = false;
+  bool m_show_path_distances{ false };
+  bool m_show_armed_obstacles{ false };
+  bool m_minimap_enabled{ false };
+  bool m_show_debug_stats{ false };
 
   // common window options for ImGui windows
   const int kImGuiWindowOptions = ImGuiWindowFlags_NoTitleBar

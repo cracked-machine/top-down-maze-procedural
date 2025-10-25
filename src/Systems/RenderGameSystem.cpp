@@ -75,6 +75,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
     m_show_path_distances = _sys.show_path_distances;
     m_show_armed_obstacles = _sys.show_armed_obstacles;
     m_minimap_enabled = _sys.minimap_enabled;
+    m_show_debug_stats = _sys.show_debug_stats;
   }
 
   sf::FloatRect player_position( { 0.f, 0.f }, sf::Vector2f{ kGridSquareSizePixels } );
@@ -196,8 +197,10 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
       m_overlay_sys.render_bomb_radius_overlay( blast_radius, { 40.f, 150.f } );
       m_overlay_sys.render_player_position_overlay( player_position.position, { 40.f, 180.f } );
       m_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 210.f } );
-      m_overlay_sys.render_stats_overlay( { 40.f, 240.f } );
-
+      if ( m_show_debug_stats )
+      {
+        m_overlay_sys.render_stats_overlay( { 40.f, 320.f }, { 40.f, 350.f }, { 40.f, 380.f } );
+      }
       m_overlay_sys.render_entt_distance_set_overlay( { 40.f, 300.f } );
     }
     // UI Overlays end

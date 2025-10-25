@@ -1,5 +1,9 @@
+#include <CorruptionCell.hpp>
+#include <HazardFieldCell.hpp>
+#include <Position.hpp>
 #include <RenderOverlaySystem.hpp>
 #include <SFML/Graphics/Text.hpp>
+#include <SinkholeCell.hpp>
 
 namespace ProceduralMaze::Sys {
 
@@ -169,28 +173,52 @@ void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_posi
   getWindow().draw( mouse_position_text );
 }
 
-void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos )
+void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3 )
 {
   auto entity_count = m_reg->view<entt::entity>().size();
-  auto obstacle_count = m_reg->view<Cmp::Obstacle>().size();
+  auto npc_count = m_reg->view<Cmp::NPC>().size();
+  auto position_count = m_reg->view<Cmp::Position>().size();
+  auto corruption_count = m_reg->view<Cmp::CorruptionCell>().size();
+  auto sinkhole_count = m_reg->view<Cmp::SinkholeCell>().size();
+
   auto obst_view = m_reg->view<Cmp::Obstacle>();
-  auto position_count = obst_view.size();
+  auto obstacle_count = obst_view.size();
   int disabled_count = 0;
   for ( auto [e, obstacle] : obst_view.each() )
   {
     if ( not obstacle.m_enabled ) { ++disabled_count; }
   }
-  auto npc_count = m_reg->view<Cmp::NPC>().size();
 
   sf::Text stats_text( m_font, "", 30 );
   // clang-format off
   stats_text.setString( 
        "E: " + std::to_string( entity_count ) + 
-    "   P: " + std::to_string( position_count ) + " (disabled: " + std::to_string( disabled_count ) + ")" +
-    "   O: " + std::to_string( obstacle_count ) + 
-    "   N: " + std::to_string( npc_count ) );
+    "   P: " + std::to_string( position_count ) );
   // clang-format on
-  stats_text.setPosition( pos );
+  stats_text.setPosition( pos1 );
+  stats_text.setFillColor( sf::Color::White );
+  stats_text.setOutlineColor( sf::Color::Black );
+  stats_text.setOutlineThickness( 2.f );
+  getWindow().draw( stats_text );
+
+  // clang-format off
+  stats_text.setString( 
+     "O: "         + std::to_string( obstacle_count ) + 
+    " (disabled: " + std::to_string( disabled_count ) + ")" );
+  // clang-format on
+  stats_text.setPosition( pos2 );
+  stats_text.setFillColor( sf::Color::White );
+  stats_text.setOutlineColor( sf::Color::Black );
+  stats_text.setOutlineThickness( 2.f );
+  getWindow().draw( stats_text );
+
+  // clang-format off
+  stats_text.setString( 
+       "N: " + std::to_string( npc_count ) +
+    "   C: " + std::to_string( corruption_count ) + 
+    "   S: " + std::to_string( sinkhole_count ) );
+  // clang-format on
+  stats_text.setPosition( pos3 );
   stats_text.setFillColor( sf::Color::White );
   stats_text.setOutlineColor( sf::Color::Black );
   stats_text.setOutlineThickness( 2.f );
