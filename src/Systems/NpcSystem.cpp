@@ -21,10 +21,9 @@ void NpcSystem::add_npc_entity( sf::Vector2f position )
   auto new_npc_entity = m_reg->create();
   m_reg->emplace<Cmp::NPC>( new_npc_entity );
   m_reg->emplace<Cmp::Direction>( new_npc_entity, sf::Vector2f{ 0, 0 } );
-  m_reg->emplace<Cmp::Position>( new_npc_entity, position, sf::Vector2f{ Sys::BaseSystem::kGridSquareSizePixels } );
+  m_reg->emplace<Cmp::Position>( new_npc_entity, position, kGridSquareSizePixelsF );
   auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NpcScanScale>();
-  m_reg->emplace<Cmp::NPCScanBounds>( new_npc_entity, position, sf::Vector2f{ BaseSystem::kGridSquareSizePixels },
-                                      npc_scan_scale.get_value() );
+  m_reg->emplace<Cmp::NPCScanBounds>( new_npc_entity, position, kGridSquareSizePixelsF, npc_scan_scale.get_value() );
 
   m_reg->emplace<Cmp::SpriteAnimation>( new_npc_entity );
 

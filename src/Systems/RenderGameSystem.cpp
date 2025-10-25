@@ -78,7 +78,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
     m_show_debug_stats = _sys.show_debug_stats;
   }
 
-  sf::FloatRect player_position( { 0.f, 0.f }, sf::Vector2f{ kGridSquareSizePixels } );
+  sf::FloatRect player_position( { 0.f, 0.f }, kGridSquareSizePixelsF );
   for ( auto [entity, _pc, _pos] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
   {
     player_position = _pos;
@@ -251,7 +251,7 @@ void RenderGameSystem::render_large_obstacles()
     // if ( reserved_cmp.is_animated() )
     // {
     //   SPDLOG_TRACE( "Rendering Cmp::ReservedPosition at ({}, {})", reserved_cmp.x, reserved_cmp.y );
-    //   sf::RectangleShape square( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
+    //   sf::RectangleShape square( kGridSquareSizePixelsF );
     //   square.setFillColor( sf::Color::Transparent );
     //   square.setOutlineColor( sf::Color::Blue );
     //   square.setOutlineThickness( 1.f );
@@ -283,7 +283,7 @@ void RenderGameSystem::render_small_obstacles()
 
   // for ( auto [entt, pos] : m_reg->view<Cmp::Position>().each() )
   // {
-  //   sf::RectangleShape position_square( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
+  //   sf::RectangleShape position_square( kGridSquareSizePixelsF );
   //   position_square.setFillColor( sf::Color::Transparent );
   //   position_square.setOutlineColor( sf::Color::Red );
   //   position_square.setOutlineThickness( 1.f );
@@ -329,7 +329,7 @@ void RenderGameSystem::render_small_obstacles()
     auto new_scale = sf::Vector2f{ 1.f, 1.f };
     auto new_alpha = std::lerp( 0.0f, 254.f, integrity );
     safe_render_sprite( "ROCK", pos_cmp, idx, new_scale, new_alpha );
-    // sf::RectangleShape player_square( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
+    // sf::RectangleShape player_square( kGridSquareSizePixelsF );
     // player_square.setFillColor( sf::Color::Transparent );
     // player_square.setOutlineColor( sf::Color::Red );
     // player_square.setOutlineThickness( 1.f );
@@ -357,7 +357,7 @@ void RenderGameSystem::render_small_obstacles()
   for ( auto [entity, selected_cmp, position_cmp] : selected_view.each() )
   {
     SPDLOG_DEBUG( "Rendering Cmp::SelectedPosition at ({}, {})", selected_cmp.x, selected_cmp.y );
-    sf::RectangleShape square( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
+    sf::RectangleShape square( kGridSquareSizePixelsF );
     square.setFillColor( sf::Color::Transparent );
     square.setOutlineColor( sf::Color::Blue );
     square.setOutlineThickness( 2.f );
@@ -415,8 +415,7 @@ void RenderGameSystem::render_wormhole()
       }
 
       // Setup shader
-      m_wormhole_shader.update_shader_position( pos_cmp.position +
-                                                    ( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } * 0.5f ),
+      m_wormhole_shader.update_shader_position( pos_cmp.position + ( kGridSquareSizePixelsF * 0.5f ),
                                                 Sprites::ViewFragmentShader::Align::CENTER );
 
       // Draw background to shader texture
@@ -434,7 +433,7 @@ void RenderGameSystem::render_wormhole()
           auto index = 0;
 
           // dont modify the original pos_cmp, create copy with modified position
-          sf::FloatRect offset_pos_cmp{ { pos_cmp.position + offset }, sf::Vector2f{ kGridSquareSizePixels } };
+          sf::FloatRect offset_pos_cmp{ { pos_cmp.position + offset }, kGridSquareSizePixelsF };
           safe_render_sprite_to_target( m_wormhole_shader.get_render_texture(), "WORMHOLE", offset_pos_cmp, index );
         }
       }
@@ -455,7 +454,7 @@ void RenderGameSystem::render_wormhole()
     }
 
     // // Debug rectangle
-    // sf::RectangleShape temp_square( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
+    // sf::RectangleShape temp_square( kGridSquareSizePixelsF );
     // temp_square.setPosition( pos_cmp.position );
     // temp_square.setOutlineColor( sf::Color::Red );
     // temp_square.setFillColor( sf::Color::Transparent );
@@ -472,7 +471,7 @@ void RenderGameSystem::render_armed()
   {
     if ( armed_cmp.m_display_bomb_sprite ) { safe_render_sprite( "BOMB", pos_cmp, 0 ); }
 
-    sf::RectangleShape temp_square( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
+    sf::RectangleShape temp_square( kGridSquareSizePixelsF );
     temp_square.setPosition( pos_cmp.position );
     temp_square.setOutlineColor( sf::Color::Transparent );
     temp_square.setFillColor( sf::Color::Transparent );
@@ -550,8 +549,7 @@ void RenderGameSystem::render_walls()
     auto half_height_px = BaseSystem::kGridSquareSizePixels.y / 2.f;
 
     // dont modify the original pos_cmp, create copy with modified position
-    sf::FloatRect new_pos{ pos_cmp.position + sf::Vector2f{ half_width_px, half_height_px },
-                           sf::Vector2f{ BaseSystem::kGridSquareSizePixels } };
+    sf::FloatRect new_pos{ pos_cmp.position + sf::Vector2f{ half_width_px, half_height_px }, kGridSquareSizePixelsF };
 
     sf::Vector2f new_scale{ 1.f, 1.f };
     uint8_t new_alpha{ 255 };
@@ -583,7 +581,7 @@ void RenderGameSystem::render_player()
     }
     // dont modify the original pos_cmp, create copy with modified position
     sf::FloatRect new_pos{ { pc_pos_cmp.position.x + dir_cmp.x_offset, pc_pos_cmp.position.y },
-                           sf::Vector2f{ BaseSystem::kGridSquareSizePixels } };
+                           kGridSquareSizePixelsF };
     safe_render_sprite( "PLAYER", new_pos, sprite_index );
 
     if ( m_show_path_distances )
@@ -596,7 +594,7 @@ void RenderGameSystem::render_player()
       getWindow().draw( pc_square );
     }
 
-    // auto half_sprite_size = sf::Vector2f{ BaseSystem::kGridSquareSizePixels };
+    // auto half_sprite_size = kGridSquareSizePixelsF;
     // auto player_horizontal_bounds = Cmp::RectBounds( pc_pos_cmp, half_sprite_size, 1.5f,
     //                                                  Cmp::RectBounds::ScaleCardinality::HORIZONTAL );
     // auto player_vertical_bounds = Cmp::RectBounds( pc_pos_cmp, half_sprite_size, 1.5f,
@@ -646,7 +644,7 @@ void RenderGameSystem::render_player_footsteps()
     // rotation happens around the center, this means we also need to
     // offset the position to make it look convincing depending on direction of movement
     sf::Vector2f new_origin{ BaseSystem::kGridSquareSizePixels.x / 2.f, BaseSystem::kGridSquareSizePixels.y / 2.f };
-    sf::FloatRect new_pos{ pos_cmp.position, sf::Vector2f{ BaseSystem::kGridSquareSizePixels } };
+    sf::FloatRect new_pos{ pos_cmp.position, kGridSquareSizePixelsF };
     // moving in right direction: place footsteps to bottom-left of player position
     if ( direction == sf::Vector2f( 1.f, 0.f ) )
     {
@@ -722,7 +720,7 @@ void RenderGameSystem::render_npc()
 
     sf::Vector2f new_scale{ dir_cmp.x_scale, 1.f };
     sf::FloatRect new_position{ sf::Vector2f{ pos_cmp.position.x + dir_cmp.x_offset, pos_cmp.position.y },
-                                sf::Vector2f{ BaseSystem::kGridSquareSizePixels } };
+                                kGridSquareSizePixelsF };
     unsigned int new_sprite_idx{ anim_cmp.m_base_frame + anim_cmp.m_current_frame };
     // get the correct sprite index based on animation frame
     safe_render_sprite( "NPC", new_position, new_sprite_idx, new_scale );
@@ -738,7 +736,7 @@ void RenderGameSystem::render_npc()
       getWindow().draw( npc_square );
     }
 
-    // sf::RectangleShape player_square( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
+    // sf::RectangleShape player_square( kGridSquareSizePixelsF );
     // player_square.setFillColor( sf::Color::Transparent );
     // player_square.setOutlineColor( sf::Color::Red );
     // player_square.setOutlineThickness( 1.f );
@@ -758,7 +756,7 @@ void RenderGameSystem::render_explosions()
     SPDLOG_DEBUG( "Rendering explosion frame {}/{} for entity {}", anim_cmp.m_current_frame,
                   m_explosion_ms->get_sprites_per_sequence(), static_cast<int>( entity ) );
 
-    sf::FloatRect npc_death_pos{ pos_cmp, sf::Vector2f{ BaseSystem::kGridSquareSizePixels } };
+    sf::FloatRect npc_death_pos{ pos_cmp, kGridSquareSizePixelsF };
     safe_render_sprite( "EXPLOSION", npc_death_pos, anim_cmp.m_current_frame );
   }
 }
@@ -877,7 +875,7 @@ void RenderGameSystem::safe_render_sprite_to_target( sf::RenderTarget &target, c
 void RenderGameSystem::render_fallback_square_to_target( sf::RenderTarget &target, const sf::FloatRect &pos_cmp,
                                                          const sf::Color &color )
 {
-  sf::RectangleShape fallback_square( sf::Vector2f{ BaseSystem::kGridSquareSizePixels } );
+  sf::RectangleShape fallback_square( kGridSquareSizePixelsF );
   fallback_square.setPosition( pos_cmp.position );
   fallback_square.setFillColor( color );
   fallback_square.setOutlineColor( sf::Color::White );

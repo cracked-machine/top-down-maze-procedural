@@ -30,7 +30,7 @@ void RandomLevelGenerator::gen_positions()
       sf::Vector2f new_pos( ( x + kMapGridOffset.x ) * Sys::BaseSystem::kGridSquareSizePixels.x,
                             ( y + kMapGridOffset.y ) * Sys::BaseSystem::kGridSquareSizePixels.y );
 
-      m_reg->emplace<Cmp::Position>( entity, new_pos, sf::Vector2f{ Sys::BaseSystem::kGridSquareSizePixels } );
+      m_reg->emplace<Cmp::Position>( entity, new_pos, kGridSquareSizePixelsF );
 
       // track the contiguous creation order of the entity so we can easily find its neighbours later
       m_data.push_back( entity );
@@ -240,14 +240,14 @@ void RandomLevelGenerator::gen_border()
 void RandomLevelGenerator::add_wall_entity( const sf::Vector2f &pos, std::size_t sprite_index )
 {
   auto entity = m_reg->create();
-  m_reg->emplace<Cmp::Position>( entity, pos, sf::Vector2f{ Sys::BaseSystem::kGridSquareSizePixels } );
+  m_reg->emplace<Cmp::Position>( entity, pos, kGridSquareSizePixelsF );
   m_reg->emplace<Cmp::Wall>( entity, "WALL", sprite_index );
 }
 
 void RandomLevelGenerator::add_door_entity( const sf::Vector2f &pos, std::size_t sprite_index, bool is_exit )
 {
   auto entity = m_reg->create();
-  m_reg->emplace<Cmp::Position>( entity, pos, sf::Vector2f{ Sys::BaseSystem::kGridSquareSizePixels } );
+  m_reg->emplace<Cmp::Position>( entity, pos, kGridSquareSizePixelsF );
   m_reg->emplace<Cmp::Door>( entity, "WALL", sprite_index );
   if ( is_exit ) m_reg->emplace<Cmp::Exit>( entity );
 }

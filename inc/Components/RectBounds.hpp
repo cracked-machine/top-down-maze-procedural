@@ -64,7 +64,7 @@ public:
       case ScaleCardinality::BOTH:
       default:
         m_bounds.size = size * m_scale_factor;
-        m_bounds.position = position - sf::Vector2f{ Sys::BaseSystem::kGridSquareSizePixels } * kPositionOffsetFactor;
+        m_bounds.position = position - Sys::BaseSystem::kGridSquareSizePixelsF * kPositionOffsetFactor;
         break;
     }
   }
@@ -79,7 +79,7 @@ public:
    */
   void position( sf::Vector2f new_position )
   {
-    m_bounds.position = new_position - sf::Vector2f{ Sys::BaseSystem::kGridSquareSizePixels } * kPositionOffsetFactor;
+    m_bounds.position = new_position - Sys::BaseSystem::kGridSquareSizePixelsF * kPositionOffsetFactor;
   }
   sf::Vector2f position() const { return m_bounds.position; }
 

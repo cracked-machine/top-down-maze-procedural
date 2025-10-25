@@ -101,7 +101,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       bool player_nearby = false;
       for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_view.each() )
       {
-        auto half_sprite_size = sf::Vector2f{ BaseSystem::kGridSquareSizePixels };
+        auto half_sprite_size = kGridSquareSizePixelsF;
         auto player_horizontal_bounds = Cmp::RectBounds( pc_pos_cmp.position, half_sprite_size, 1.5f,
                                                          Cmp::RectBounds::ScaleCardinality::HORIZONTAL );
         auto player_vertical_bounds = Cmp::RectBounds( pc_pos_cmp.position, half_sprite_size, 1.5f,

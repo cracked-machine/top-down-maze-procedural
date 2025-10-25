@@ -101,7 +101,7 @@ public:
       if ( !is_visible_in_view( RenderSystem::getWindow().getView(), player_pos_cmp ) ) continue;
 
       // make a copy and reduce the player hitbox size to avoid unfair deaths
-      auto offset = sf::Vector2f{ BaseSystem::kGridSquareSizePixels } / 4.f;
+      auto offset = kGridSquareSizePixelsF / 4.f;
       auto player_hitbox = sf::FloatRect( player_pos_cmp.position + offset, offset * 1.5f );
 
       for ( auto [hazard_field_entt, hazard_field_cmp, hazard_field_pos_cmp] : hazard_field_view.each() )
@@ -166,8 +166,7 @@ public:
   }
 
 private:
-  sf::FloatRect m_end_zone{ { static_cast<float>( kMapGridSize.x * kGridSquareSizePixels.x ), 0 },
-                            { 500.f, static_cast<float>( kMapGridSize.y *kGridSquareSizePixels.y ) } };
+  sf::FloatRect m_end_zone{ { 0.f, 0.f }, kGridSquareSizePixelsF };
   sf::Vector2f findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos,
                                           const sf::Vector2f &player_direction, float pushback_distance );
 };

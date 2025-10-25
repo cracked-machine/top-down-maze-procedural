@@ -25,7 +25,8 @@ public:
   ~BaseSystem() = default;
 
   // The size of each grid square in pixels
-  static constexpr sf::Vector2u kGridSquareSizePixels{ 16, 16 };
+  static const sf::Vector2u kGridSquareSizePixels;
+  static const sf::Vector2f kGridSquareSizePixelsF;
 
   // The game display resolution in pixels
   static const sf::Vector2u kDisplaySize;

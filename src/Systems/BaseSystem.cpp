@@ -18,6 +18,9 @@ const sf::Vector2u BaseSystem::kMapGridSize{ 100u, 124u };
 
 const sf::Vector2f BaseSystem::kMapGridOffset{ 10.f, 1.f };
 
+const sf::Vector2u BaseSystem::kGridSquareSizePixels{ 16u, 16u };
+const sf::Vector2f BaseSystem::kGridSquareSizePixelsF{ 16.f, 16.f };
+
 // initialised by first call to getEventDispatcher()
 std::unique_ptr<entt::dispatcher> BaseSystem::m_event_dispatcher = nullptr;
 

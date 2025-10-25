@@ -34,7 +34,7 @@ void PlayerSystem::add_player_entity()
   // So we must recalc start position to the nearest grid position here
   auto start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
   start_pos = snap_to_grid( start_pos );
-  m_reg->emplace<Cmp::Position>( entity, start_pos, sf::Vector2f{ Sys::BaseSystem::kGridSquareSizePixels } );
+  m_reg->emplace<Cmp::Position>( entity, start_pos, kGridSquareSizePixelsF );
 
   auto &bomb_inventory = get_persistent_component<Cmp::Persistent::BombInventory>();
   auto &blast_radius = get_persistent_component<Cmp::Persistent::BlastRadius>();
@@ -44,8 +44,7 @@ void PlayerSystem::add_player_entity()
 
   auto &pc_detection_scale = get_persistent_component<Cmp::Persistent::PlayerDetectionScale>();
 
-  m_reg->emplace<Cmp::PCDetectionBounds>( entity, start_pos, sf::Vector2f{ BaseSystem::kGridSquareSizePixels },
-                                          pc_detection_scale.get_value() );
+  m_reg->emplace<Cmp::PCDetectionBounds>( entity, start_pos, kGridSquareSizePixelsF, pc_detection_scale.get_value() );
 
   m_reg->emplace<Cmp::SpriteAnimation>( entity );
   m_reg->emplace<Cmp::PlayerScore>( entity, 0 );
