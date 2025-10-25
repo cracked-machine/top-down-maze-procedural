@@ -46,13 +46,6 @@ void RandomLevelGenerator::gen_positions()
         // We dont care about the sprite type because broken ReservedPositions are not rendered.
         SPDLOG_DEBUG( "Position ({}, {}) is within player start area, marking as reserved.", pos_cmp.x, pos_cmp.y );
         m_reg->emplace<Cmp::ReservedPosition>( entity, pos_cmp, false, "PLAYERSPAWN", 0 );
-        // auto &reserved_cmp = m_reg->get<Cmp::ReservedPosition>( entity );
-        // reserved_cmp.break_object();
-        // But we still want a sprite rendered here so add a disabled (non-blocking) obstacle. Obstacle components are
-        // rendered before the player character so the z-order is correct.
-        // m_reg->emplace<Cmp::Obstacle>( entity, "DETONATED", 0, false );
-        // auto &obst_cmp = m_reg->get<Cmp::Obstacle>( entity );
-        // obst_cmp.m_integrity = 0; // detonated obstacles are only rendered if they are "broken"
       }
 
       // track the contiguous creation order of the entity so we can easily find its neighbours later
@@ -154,7 +147,7 @@ void RandomLevelGenerator::gen_large_obstacles()
   if ( grave_meta_types.empty() ) { SPDLOG_WARN( "No GRAVE multisprites found in SpriteFactory" ); }
   else
   {
-    auto max_num_graves = max_num_shrines.get_value() * 5;
+    auto max_num_graves = max_num_shrines.get_value() * 10;
     for ( std::size_t i = 0; i < max_num_graves; ++i )
     {
       // Use the dynamically discovered grave types

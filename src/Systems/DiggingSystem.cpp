@@ -94,7 +94,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
 
     if ( mouse_position_bounds.findIntersection( pos_cmp ) )
     {
-      SPDLOG_INFO( "Found diggable entity at position: [{}, {}]!", pos_cmp.position.x, pos_cmp.position.y );
+      SPDLOG_DEBUG( "Found diggable entity at position: [{}, {}]!", pos_cmp.position.x, pos_cmp.position.y );
 
       // Check player proximity to the entity
       auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
@@ -117,7 +117,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       // skip this iteration of the loop if player too far away
       if ( not player_nearby )
       {
-        SPDLOG_INFO( " Player not close enough to dig at position ({}, {})!", pos_cmp.position.x, pos_cmp.position.y );
+        SPDLOG_DEBUG( " Player not close enough to dig at position ({}, {})!", pos_cmp.position.x, pos_cmp.position.y );
         continue;
       }
 
@@ -140,9 +140,9 @@ void DiggingSystem::check_player_dig_obstacle_collision()
         // select a random pickaxe sound
         Cmp::RandomInt random_picker( 0, m_pickaxe_sounds.size() - 1 );
         auto selected_pickaxe_sound_index = random_picker.gen();
-        SPDLOG_INFO( "Random pickaxe sound index: {}", selected_pickaxe_sound_index );
+        SPDLOG_DEBUG( "Random pickaxe sound index: {}", selected_pickaxe_sound_index );
         m_dig_sound.setBuffer( m_pickaxe_sounds[selected_pickaxe_sound_index].buffer );
-        SPDLOG_INFO( "Playing pickaxe sound: {}", m_pickaxe_sounds[selected_pickaxe_sound_index].path.string() );
+        SPDLOG_DEBUG( "Playing pickaxe sound: {}", m_pickaxe_sounds[selected_pickaxe_sound_index].path.string() );
         SPDLOG_DEBUG( "Digged obstacle at position ({}, {}), remaining integrity: {}!", pos_cmp.x, pos_cmp.y,
                       obst_cmp.m_integrity );
       }
