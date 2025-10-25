@@ -151,8 +151,13 @@ bool Engine::run()
         m_collision_sys.check_bones_reanimation();
         m_wormhole_sys.check_player_wormhole_collision();
         m_digging_sys.update();
-        // TODO optimizse this function
-        m_collision_sys.update_obstacle_distances();
+
+        // Throttled obstacle distance update (optimization)
+        if ( m_obstacle_distance_timer.getElapsedTime() >= m_obstacle_distance_update_interval )
+        {
+          m_collision_sys.update_obstacle_distances();
+          m_obstacle_distance_timer.restart();
+        }
 
         // enable/disable collision detection depending on Cmp::System settings
         for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )

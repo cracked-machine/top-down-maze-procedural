@@ -120,6 +120,10 @@ private:
   void add_display_size( const sf::Vector2u &size );
   void add_system_entity();
   void add_game_state_entity();
+
+  // restrict the path tracking data update to every 0.1 seconds (optimization)
+  const sf::Time m_obstacle_distance_update_interval{ sf::milliseconds( 100 ) };
+  sf::Clock m_obstacle_distance_timer;
 };
 
 } // namespace ProceduralMaze
