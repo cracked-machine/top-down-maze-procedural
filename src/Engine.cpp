@@ -20,6 +20,7 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
       m_collision_sys( m_reg ),
       m_digging_sys( m_reg ),
       m_render_game_sys( m_reg ),
+      m_render_overlay_sys( m_reg ),
       m_render_menu_sys( m_reg ),
       m_bomb_sys( m_reg ),
       m_anim_sys( m_reg ),
@@ -180,7 +181,7 @@ bool Engine::run()
 
         auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
         m_path_find_sys.findPath( player_entity );
-        m_npc_sys.lerp_movement( deltaTime );
+        m_npc_sys.update_movement( deltaTime );
 
         // did the player drown? Then end the game
         for ( auto [_, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
@@ -188,7 +189,7 @@ bool Engine::run()
           if ( not _pc.alive ) { game_state.current_state = Cmp::Persistent::GameState::State::GAMEOVER; }
         }
 
-        m_render_game_sys.render_game( deltaTime );
+        m_render_game_sys.render_game( deltaTime, m_render_overlay_sys );
         break;
       } // case PLAYING end
 
@@ -260,6 +261,7 @@ void Engine::setup()
   m_reg->ctx().emplace<std::shared_ptr<Sprites::SpriteFactory>>( m_sprite_factory );
 
   m_render_game_sys.init_multisprites();
+
   add_system_entity();
   m_player_sys.add_player_entity();
   m_flood_sys.add_flood_water_entity();

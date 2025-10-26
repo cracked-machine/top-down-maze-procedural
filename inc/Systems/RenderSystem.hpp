@@ -55,6 +55,7 @@ public:
 
   // External access to the window
   sf::RenderWindow &window() { return getWindow(); }
+  void init_multisprites();
 
 protected:
   // Font for rendering text
@@ -114,6 +115,28 @@ public:
     }
     return *RenderSystem::m_window;
   }
+
+protected:
+  // Variant that renders to a specific render target (shader, texture, etc.)
+  void safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
+                                     const sf::FloatRect &pos_cmp, int sprite_index = 0,
+                                     sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255,
+                                     sf::Vector2f origin = { 0.f, 0.f }, sf::Angle angle = sf::degrees( 0.f ) );
+
+  // Fallback rendering for missing sprites (also target-aware)
+  void render_fallback_square_to_target( sf::RenderTarget &target, const sf::FloatRect &pos_cmp,
+                                         const sf::Color &color = sf::Color::Magenta );
+
+  // Safe sprite accessor that renders a fallback square if sprite is missing
+  void safe_render_sprite( const std::string &sprite_type, const sf::FloatRect &position, int sprite_index = 0,
+                           sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255, sf::Vector2f origin = { 0.f, 0.f },
+                           sf::Angle angle = sf::degrees( 0.f ) );
+
+  // Fallback rendering for missing sprites
+  void render_fallback_square( const sf::FloatRect &pos_cmp, const sf::Color &color = sf::Color::Magenta );
+
+  // Shared multisprite map
+  static std::unordered_map<Sprites::SpriteMetaType, std::optional<Sprites::MultiSprite>> m_multisprite_map;
 
 private:
   // Static to prevent multiple windows being created

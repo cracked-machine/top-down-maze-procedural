@@ -4,6 +4,7 @@
 #include <NpcSystem.hpp>
 #include <Obstacle.hpp>
 #include <PlayableCharacter.hpp>
+#include <Random.hpp>
 #include <ReservedPosition.hpp>
 #include <ShrineSprite.hpp>
 #include <SpawnAreaSprite.hpp>
@@ -22,40 +23,37 @@ NpcSystem::NpcSystem( ProceduralMaze::SharedEnttRegistry reg )
                     .connect<&Sys::NpcSystem::on_npc_death>( this );
 }
 
-void NpcSystem::add_npc_entity( entt::entity npc_entity )
+void NpcSystem::add_npc_entity( entt::entity position_entity )
 {
-  auto pos_cmp = m_reg->try_get<Cmp::Position>( npc_entity );
+  auto pos_cmp = m_reg->try_get<Cmp::Position>( position_entity );
   if ( not pos_cmp )
   {
-    SPDLOG_ERROR( "Cannot add NPC entity {} without a Position component", static_cast<int>( npc_entity ) );
+    SPDLOG_ERROR( "Cannot add NPC entity {} without a Position component", static_cast<int>( position_entity ) );
     return;
   }
-  auto npc_container_cmp = m_reg->try_get<Cmp::NpcContainer>( npc_entity );
-  if ( not npc_container_cmp )
-  {
-    SPDLOG_ERROR( "Cannot add NPC entity {} without a NpcContainer component", static_cast<int>( npc_entity ) );
-    return;
-  }
-  m_reg->emplace_or_replace<Cmp::NPC>( npc_entity, npc_container_cmp->m_type, npc_container_cmp->m_tile_index );
-  m_reg->emplace_or_replace<Cmp::Direction>( npc_entity, sf::Vector2f{ 0, 0 } );
-  auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NpcScanScale>();
-  m_reg->emplace_or_replace<Cmp::NPCScanBounds>( npc_entity, pos_cmp->position, kGridSquareSizePixelsF,
-                                                 npc_scan_scale.get_value() );
 
-  m_reg->emplace_or_replace<Cmp::SpriteAnimation>( npc_entity );
+  auto npc_ms = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>()->get_multisprite_by_type( "NPC" );
+  Cmp::RandomInt npc_sprite_tile_picker( 0, npc_ms->get_sprite_count() - 1 );
+  auto tile_pick = npc_sprite_tile_picker.gen();
+  SPDLOG_INFO( "Creating NPC: {} of {} possible sprites", tile_pick, npc_ms->get_sprite_count() );
 
-  SPDLOG_DEBUG( "Creating NPC entity {} at position ({}, {})", static_cast<int>( npc_entity ), pos_cmp->position.x,
-                pos_cmp->position.y );
-
-  m_reg->remove<Cmp::NpcContainer>( npc_entity );
-  m_reg->remove<Cmp::ReservedPosition>( npc_entity );
-  m_reg->remove<Cmp::Obstacle>( npc_entity );
-
-  // The NPC is about to literally walk off with the existing Cmp::Position, so create a new one for the grid location
-  // otherwise we wont be able to detonate this location later on
+  // create a new entity for the NPC using the existing position
   auto new_pos_entity = m_reg->create();
   m_reg->emplace<Cmp::Position>( new_pos_entity, pos_cmp->position, kGridSquareSizePixelsF );
   m_reg->emplace<Cmp::Destructable>( new_pos_entity );
+  m_reg->emplace_or_replace<Cmp::NPC>( new_pos_entity, "NPC", tile_pick );
+  m_reg->emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 0, 0 } );
+  auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NpcScanScale>();
+  m_reg->emplace_or_replace<Cmp::NPCScanBounds>( new_pos_entity, pos_cmp->position, kGridSquareSizePixelsF,
+                                                 npc_scan_scale.get_value() );
+  m_reg->emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity );
+  m_reg->remove<Cmp::NpcContainer>( new_pos_entity );
+  m_reg->remove<Cmp::ReservedPosition>( new_pos_entity );
+  m_reg->remove<Cmp::Obstacle>( new_pos_entity );
+
+  // Remove the npc container component from the original entity
+  m_reg->remove<Cmp::NpcContainer>( position_entity );
+  m_reg->remove<Cmp::NpcContainer>( position_entity );
 }
 
 void NpcSystem::remove_npc_entity( entt::entity npc_entity )
@@ -68,9 +66,9 @@ void NpcSystem::remove_npc_entity( entt::entity npc_entity )
   SPDLOG_DEBUG( "NPC entity {} killed by explosion", static_cast<int>( npc_entity ) );
 }
 
-void NpcSystem::lerp_movement( sf::Time dt )
+void NpcSystem::update_movement( sf::Time dt )
 {
-  auto exclusions = entt::exclude<Cmp::ShrineSprite, Cmp::SpawnAreaSprite, Cmp::GraveSprite, Cmp::PlayableCharacter>;
+  auto exclusions = entt::exclude<Cmp::ShrineSprite, Cmp::SpawnAreaSprite, Cmp::PlayableCharacter>;
   auto view = m_reg->view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds>( exclusions );
 
   for ( auto [entity, pos_cmp, lerp_pos_cmp, npc_scan_bounds] : view.each() )
@@ -114,7 +112,7 @@ void NpcSystem::on_npc_death( const Events::NpcDeathEvent &event )
 void NpcSystem::on_npc_creation( const Events::NpcCreationEvent &event )
 {
   SPDLOG_DEBUG( "NPC Creation Event received" );
-  add_npc_entity( event.npc_entity );
+  add_npc_entity( event.position_entity );
 }
 
 } // namespace ProceduralMaze::Sys

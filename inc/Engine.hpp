@@ -94,6 +94,7 @@ private:
   Sys::CollisionSystem m_collision_sys;
   Sys::DiggingSystem m_digging_sys;
   Sys::RenderGameSystem m_render_game_sys;
+  Sys::RenderOverlaySystem m_render_overlay_sys;
   Sys::RenderMenuSystem m_render_menu_sys;
   Sys::BombSystem m_bomb_sys;
   Sys::AnimSystem m_anim_sys;

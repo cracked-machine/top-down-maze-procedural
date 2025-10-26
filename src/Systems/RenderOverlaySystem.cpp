@@ -1,5 +1,6 @@
 #include <CorruptionCell.hpp>
 #include <HazardFieldCell.hpp>
+#include <MultiSprite.hpp>
 #include <Position.hpp>
 #include <RenderOverlaySystem.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -105,6 +106,34 @@ void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2
   healthbar_border.setOutlineColor( sf::Color::Black );
   healthbar_border.setOutlineThickness( 5.f );
   getWindow().draw( healthbar_border );
+}
+
+void RenderOverlaySystem::render_weapons_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size )
+{
+  auto sprite_metatype = "WEAPONS";
+  auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
+  auto sprite_index = 0;
+  auto scale = sf::Vector2f( 2.f, 2.f );
+  RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
+
+  // bar fill
+  sf::Vector2f weapons_meter_offset{ 100.f, 10.f };
+  // weapons meter level is represented as a percentage (0-100) of the screen
+  // display y-axis note: {0,0} is top left so we need to invert the Y
+  // position
+  float meter_level = size.x - ( ( size.x / kDisplaySize.y ) * water_level );
+  auto weaponsbar = sf::RectangleShape( { meter_level, size.y } );
+  weaponsbar.setPosition( pos + weapons_meter_offset );
+  weaponsbar.setFillColor( sf::Color::Green );
+  getWindow().draw( weaponsbar );
+
+  // bar outline
+  auto weaponsbar_border = sf::RectangleShape( size );
+  weaponsbar_border.setPosition( pos + weapons_meter_offset );
+  weaponsbar_border.setFillColor( sf::Color::Transparent );
+  weaponsbar_border.setOutlineColor( sf::Color::Black );
+  weaponsbar_border.setOutlineThickness( 5.f );
+  getWindow().draw( weaponsbar_border );
 }
 
 void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size )

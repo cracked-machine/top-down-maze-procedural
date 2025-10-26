@@ -16,6 +16,7 @@
         "DETONATED": { "$ref": "#/definitions/spriteMetadata" },
         "PLAYERSPAWN": { "$ref": "#/definitions/spriteMetadata" },
         "PLAYER": { "$ref": "#/definitions/spriteMetadata" },
+        "WEAPONS": { "$ref": "#/definitions/spriteMetadata" },
         "BOMB": { "$ref": "#/definitions/spriteMetadata" },
         "EXTRA_HEALTH": { "$ref": "#/definitions/spriteMetadata" },
         "EXTRA_BOMBS": { "$ref": "#/definitions/spriteMetadata" },
@@ -42,7 +43,7 @@
         "GRAVE12": { "$ref": "#/definitions/spriteMetadata" }
       },
       "required": [
-        "WALL", "ROCK", "POT", "BONES", "NPC", "DETONATED", "PLAYERSPAWN", "PLAYER", "BOMB",
+        "WALL", "ROCK", "POT", "BONES", "NPC", "DETONATED", "PLAYERSPAWN", "PLAYER", "WEAPONS", "BOMB",
         "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS",
         "LOWER_WATER", "EXPLOSION", "FOOTSTEPS", "SINKHOLE", "CORRUPTION", "WORMHOLE",
         "SHRINE", "GRAVE1", "GRAVE2", "GRAVE3", "GRAVE4", "GRAVE5", "GRAVE6", "GRAVE7", 

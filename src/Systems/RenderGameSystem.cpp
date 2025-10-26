@@ -56,22 +56,7 @@ void RenderGameSystem::init_views()
   m_minimap_view.setCenter( start_pos );
 }
 
-void RenderGameSystem::init_multisprites()
-{
-  using namespace Sprites;
-  auto &factory = get_persistent_component<std::shared_ptr<SpriteFactory>>();
-  for ( auto type : factory->get_all_sprite_types() )
-  {
-    m_multisprite_map[type] = factory->get_multisprite_by_type( type );
-    if ( !m_multisprite_map[type] )
-    {
-      SPDLOG_CRITICAL( "Unable to get {} from SpriteFactory", type );
-      std::terminate();
-    }
-  }
-}
-
-void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
+void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderOverlaySystem &overlay_sys )
 {
   using namespace Sprites;
 
@@ -210,18 +195,19 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
       }
 
       // render metrics
-      m_overlay_sys.render_health_overlay( player_health, { 40.f, 30.f }, { 200.f, 20.f } );
-      m_overlay_sys.render_water_level_meter_overlay( water_level, { 40.f, 60.f }, { 200.f, 20.f } );
-      m_overlay_sys.render_player_score_overlay( player_score, { 40.f, 90.f } );
-      m_overlay_sys.render_bomb_overlay( bomb_inventory, { 40.f, 120.f } );
-      m_overlay_sys.render_bomb_radius_overlay( blast_radius, { 40.f, 150.f } );
+      overlay_sys.render_health_overlay( player_health, { 40.f, 30.f }, { 200.f, 20.f } );
+      overlay_sys.render_weapons_meter_overlay( water_level, { 40.f, 60.f }, { 200.f, 20.f } );
+
+      overlay_sys.render_player_score_overlay( player_score, { 40.f, 90.f } );
+      overlay_sys.render_bomb_overlay( bomb_inventory, { 40.f, 120.f } );
+      overlay_sys.render_bomb_radius_overlay( blast_radius, { 40.f, 150.f } );
       if ( m_show_debug_stats )
       {
-        m_overlay_sys.render_player_position_overlay( player_position.position, { 40.f, 260.f } );
-        m_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 290.f } );
-        m_overlay_sys.render_stats_overlay( { 40.f, 320.f }, { 40.f, 350.f }, { 40.f, 380.f } );
+        overlay_sys.render_player_position_overlay( player_position.position, { 40.f, 260.f } );
+        overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 290.f } );
+        overlay_sys.render_stats_overlay( { 40.f, 320.f }, { 40.f, 350.f }, { 40.f, 380.f } );
       }
-      m_overlay_sys.render_entt_distance_set_overlay( { 40.f, 300.f } );
+      overlay_sys.render_entt_distance_set_overlay( { 40.f, 300.f } );
     }
     // UI Overlays end
   }
@@ -575,7 +561,7 @@ void RenderGameSystem::render_loot()
   for ( auto [entity, loot_cmp, pos_cmp] : loot_view.each() )
   {
     // clang-format off
-    if ( loot_cmp.m_type == "EXTRA_HEALTH" ) { safe_render_sprite( "EXTRA_HEALTH", pos_cmp, loot_cmp.m_tile_index ); }
+    if ( loot_cmp.m_type == "EXTRA_HEALTH" ) { RenderSystem::safe_render_sprite( "EXTRA_HEALTH", pos_cmp, loot_cmp.m_tile_index ); }
     else if ( loot_cmp.m_type == "EXTRA_BOMBS" ) { safe_render_sprite( "EXTRA_BOMBS", pos_cmp, loot_cmp.m_tile_index ); }
     else if ( loot_cmp.m_type == "INFINI_BOMBS" ) { safe_render_sprite( "INFINI_BOMBS", pos_cmp, loot_cmp.m_tile_index ); }
     else if ( loot_cmp.m_type == "CHAIN_BOMBS" ) { safe_render_sprite( "CHAIN_BOMBS", pos_cmp, loot_cmp.m_tile_index ); }
@@ -771,7 +757,7 @@ void RenderGameSystem::render_player_footsteps()
 
 void RenderGameSystem::render_npc()
 {
-  for ( auto [entity, npc, pos_cmp, npc_sb_cmp, dir_cmp, anim_cmp] :
+  for ( auto [entity, npc_cmp, pos_cmp, npc_sb_cmp, dir_cmp, anim_cmp] :
         m_reg->view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds, Cmp::Direction, Cmp::SpriteAnimation>().each() )
   {
     // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
@@ -795,9 +781,9 @@ void RenderGameSystem::render_npc()
     sf::Vector2f new_scale{ dir_cmp.x_scale, 1.f };
     sf::FloatRect new_position{ sf::Vector2f{ pos_cmp.position.x + dir_cmp.x_offset, pos_cmp.position.y },
                                 kGridSquareSizePixelsF };
-    unsigned int new_sprite_idx{ anim_cmp.m_base_frame + anim_cmp.m_current_frame };
+    // unsigned int new_sprite_idx{ anim_cmp.m_base_frame + anim_cmp.m_current_frame };
     // get the correct sprite index based on animation frame
-    safe_render_sprite( "NPC", new_position, new_sprite_idx, new_scale );
+    safe_render_sprite( npc_cmp.m_type, new_position, npc_cmp.m_tile_index, new_scale );
 
     // show npc scan distance
     if ( m_show_path_distances )
@@ -922,66 +908,6 @@ void RenderGameSystem::render_positions()
     position_marker.setOutlineThickness( 1.f );
     getWindow().draw( position_marker );
   }
-}
-
-void RenderGameSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
-                                                     const sf::FloatRect &pos_cmp, int sprite_index, sf::Vector2f scale,
-                                                     uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
-{
-  if ( not is_visible_in_view( getWindow().getView(), pos_cmp ) ) return;
-  try
-  {
-
-    auto &sprite = m_multisprite_map.at( sprite_type );
-    if ( sprite.has_value() )
-    {
-      auto pick_result = sprite->pick( sprite_index, sprite_type );
-      sprite->setPosition( pos_cmp.position );
-      sprite->setScale( scale );
-      sprite->set_pick_opacity( alpha );
-      sprite->setOrigin( origin );
-      sprite->setRotation( angle );
-      if ( pick_result )
-      {
-        target.draw( *sprite ); // Draw to specified target instead of getWindow()
-      }
-      else { render_fallback_square_to_target( target, pos_cmp, sf::Color::Cyan ); }
-    }
-    else
-    {
-      // SPDLOG_WARN( "Sprite '{}' exists in map but has no value", sprite_type );
-      render_fallback_square_to_target( target, pos_cmp, sf::Color::Yellow );
-    }
-  }
-  catch ( const std::out_of_range &e )
-  {
-    // SPDLOG_WARN( "Missing sprite '{}' in map, rendering fallback square", sprite_type );
-    render_fallback_square_to_target( target, pos_cmp, sf::Color::Magenta );
-  }
-}
-
-void RenderGameSystem::render_fallback_square_to_target( sf::RenderTarget &target, const sf::FloatRect &pos_cmp,
-                                                         const sf::Color &color )
-{
-  sf::RectangleShape fallback_square( kGridSquareSizePixelsF );
-  fallback_square.setPosition( pos_cmp.position );
-  fallback_square.setFillColor( color );
-  fallback_square.setOutlineColor( sf::Color::White );
-  fallback_square.setOutlineThickness( 1.f );
-  target.draw( fallback_square ); // Draw to specified target
-}
-
-// Keep the original for backwards compatibility
-void RenderGameSystem::safe_render_sprite( const std::string &sprite_type, const sf::FloatRect &pos_cmp,
-                                           int sprite_index, sf::Vector2f scale, uint8_t alpha, sf::Vector2f origin,
-                                           sf::Angle angle )
-{
-  safe_render_sprite_to_target( getWindow(), sprite_type, pos_cmp, sprite_index, scale, alpha, origin, angle );
-}
-
-void RenderGameSystem::render_fallback_square( const sf::FloatRect &pos_cmp, const sf::Color &color )
-{
-  render_fallback_square_to_target( getWindow(), pos_cmp, color );
 }
 
 void RenderGameSystem::update_view_center( sf::View &view, [[maybe_unused]] const Cmp::Position &player_pos,

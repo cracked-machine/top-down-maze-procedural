@@ -1,6 +1,7 @@
 #include <CollisionSystem.hpp>
 #include <CorruptionCell.hpp>
 #include <Destructable.hpp>
+#include <Events/NpcCreationEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
 #include <Exit.hpp>
 #include <FootStepTimer.hpp>
@@ -78,9 +79,8 @@ void CollisionSystem::check_bones_reanimation()
 
       if ( pc_pos_cmp.findIntersection( npc_activate_bounds.getBounds() ) )
       {
-        // dont really care what obstacle this becomes as long as its disabled.
         // m_reg->emplace_or_replace<Cmp::Obstacle>( npccontainer_entt, "BONES", 0, false );
-        getEventDispatcher().trigger( Events::NpcCreationEvent( npccontainer_entt ) );
+        // getEventDispatcher().trigger( Events::NpcCreationEvent( npccontainer_entt ) );
       }
     }
   }
@@ -307,15 +307,15 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
         {
           if ( not lo_cmp.findIntersection( pos_cmp ) ) continue;
 
-          // check if the large obstacle is not yet fully depleted
-          auto grave_ms = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>()->get_multisprite_by_type(
-              grave_cmp.getType() );
-          if ( lo_cmp.get_activated_sprite_count() >=
-               grave_ms->get_grid_size().width * grave_ms->get_grid_size().height )
+          // have we activated all the parts of the grave yet?
+          auto sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
+          auto grave_ms = sprite_factory->get_multisprite_by_type( grave_cmp.getType() );
+          auto activation_threshold = grave_ms->get_grid_size().width * grave_ms->get_grid_size().height;
+          if ( lo_cmp.get_activated_sprite_count() >= activation_threshold )
+          {
+            // not done yet, skip
             continue;
-
-          pc_score_cmp.increment_score( 1 );
-          lo_cmp.increment_activated_sprite_count();
+          }
 
           // switch to 2nd pair sprite indices - see Grave types in res/json/sprite_metadata.json
           // [ 0 ] --> becomes [ 2 ]
@@ -325,6 +325,12 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
           // [ 2 ][ 3 ] --> becomes [ 6 ][ 7 ]
           auto current_index = grave_cmp.getTileIndex();
           grave_cmp.setTileIndex( current_index += 2 * grave_ms->get_grid_size().width );
+
+          pc_score_cmp.increment_score( 1 );
+          lo_cmp.increment_activated_sprite_count();
+
+          // as amusing as spawning one npc per grave sprite would be, limit to one npc per grave/large obstacle
+          getEventDispatcher().trigger( Events::NpcCreationEvent( lo_entity ) );
         }
       }
     }

@@ -9,14 +9,14 @@ namespace ProceduralMaze::Cmp {
 class NpcContainer
 {
 public:
-  NpcContainer( Sprites::SpriteMetaType type, std::size_t tile_index = 0 )
+  NpcContainer( Sprites::SpriteMetaType type, std::size_t tile_index )
       : m_type( type ),
         m_tile_index( tile_index )
   {
   }
 
   Sprites::SpriteMetaType m_type;
-  unsigned int m_tile_index{ 0 };
+  unsigned int m_tile_index;
 };
 
 } // namespace ProceduralMaze::Cmp

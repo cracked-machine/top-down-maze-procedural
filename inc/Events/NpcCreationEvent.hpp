@@ -11,10 +11,10 @@ struct NpcCreationEvent
 {
 
   explicit NpcCreationEvent( entt::entity entt )
-      : npc_entity( entt )
+      : position_entity( entt )
   {
   }
-  entt::entity npc_entity;
+  entt::entity position_entity;
 };
 
 } // namespace ProceduralMaze::Events
