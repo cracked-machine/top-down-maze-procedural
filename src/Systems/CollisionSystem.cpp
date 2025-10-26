@@ -249,47 +249,6 @@ void CollisionSystem::check_loot_collision()
   }
 }
 
-void CollisionSystem::update_player_distances()
-{
-  // precompute outside of loops for performance
-  const auto viewBounds = BaseSystem::calculate_view_bounds( RenderSystem::getGameView() );
-
-  // we only have one player so this is just for convenience
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PCDetectionBounds>();
-  for ( [[maybe_unused]] auto [pc_entt, pc_cmp, pc_pos_cmp, pc_db_cmp] : player_view.each() )
-  {
-
-    // clang-format off
-    // Exclude any components that we dont want NPCs to pathfind through
-    auto path_exclusions = entt::exclude<
-      Cmp::ShrineSprite, Cmp::SpawnAreaSprite, 
-      Cmp::GraveSprite,
-      Cmp::LootContainer
-    >;
-    // clang-format on
-    auto path_view = m_reg->view<Cmp::Position>( path_exclusions );
-    for ( auto [path_entt, path_pos_cmp] : path_view.each() )
-    {
-      if ( !is_visible_in_view( viewBounds, path_pos_cmp ) ) continue;
-      // we can't filter out obstacles in the view, we have to check its enabled bit
-      auto obst_cmp = m_reg->try_get<Cmp::Obstacle>( path_entt );
-      if ( obst_cmp && obst_cmp->m_enabled ) continue;
-
-      // calculate the distance from the position to the player
-      if ( pc_db_cmp.findIntersection( path_pos_cmp ) )
-      {
-        auto distance = std::floor( getChebyshevDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
-        m_reg->emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
-      }
-      else
-      {
-        // tidy up any out of range obstacles
-        m_reg->remove<Cmp::PlayerDistance>( path_entt );
-      }
-    }
-  }
-}
-
 void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActionEvent::GameActions action )
 {
   if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;

@@ -39,6 +39,11 @@ public:
 
   void findPath( entt::entity player_entity );
 
+  // Update distances from player to obstacles for traversable obstacles
+  // Only obstacles within the PCDetectionBounds are considered.
+  // Use F3 to visualize the distance values (pixels from player center)
+  void update_player_distances();
+
 private:
   void scanForPlayers( entt::entity npc_entity, entt::entity player_entity );
 
