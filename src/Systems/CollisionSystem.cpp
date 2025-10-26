@@ -1,11 +1,16 @@
 #include <CollisionSystem.hpp>
 #include <CorruptionCell.hpp>
+#include <Destructable.hpp>
 #include <Events/UnlockDoorEvent.hpp>
 #include <Exit.hpp>
+#include <FootStepTimer.hpp>
 #include <GraveSprite.hpp>
 #include <HazardFieldCell.hpp>
 #include <LargeObstacle.hpp>
+#include <LootContainer.hpp>
 #include <MultiSprite.hpp>
+#include <NpcContainer.hpp>
+#include <Obstacle.hpp>
 #include <Persistent/BombBonus.hpp>
 #include <Persistent/CorruptionDamage.hpp>
 #include <Persistent/HealthBonus.hpp>
@@ -25,6 +30,7 @@
 #include <SelectedPosition.hpp>
 #include <ShrineSprite.hpp>
 #include <SinkholeCell.hpp>
+#include <SpawnAreaSprite.hpp>
 #include <SpriteAnimation.hpp>
 
 namespace ProceduralMaze::Sys {
@@ -57,26 +63,24 @@ void CollisionSystem::resume()
 void CollisionSystem::check_bones_reanimation()
 {
   auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
-  auto obstacle_collision_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
-  for ( auto [_pc_entt, _pc, _pc_pos] : player_collision_view.each() )
+  auto npccontainer_collision_view = m_reg->view<Cmp::NpcContainer, Cmp::Position>();
+  for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
   {
-    for ( auto [_obstacle_entt, _obstacle, _obstacle_pos] : obstacle_collision_view.each() )
+    for ( auto [npccontainer_entt, npccontainer_cmp, npccontainer_pos_cmp] : npccontainer_collision_view.each() )
     {
-      if ( !is_visible_in_view( RenderSystem::getGameView(), _obstacle_pos ) ) continue;
-
-      if ( _obstacle.m_type != "BONES" || not _obstacle.m_enabled ) continue;
+      if ( !is_visible_in_view( RenderSystem::getGameView(), npccontainer_pos_cmp ) ) continue;
 
       auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NpcActivateScale>();
       // we just create a temporary RectBounds here instead of a component because we only need it for
       // this one comparison and it already contains the needed scaling logic
-      auto npc_activate_bounds = Cmp::RectBounds( _obstacle_pos.position, kGridSquareSizePixelsF,
+      auto npc_activate_bounds = Cmp::RectBounds( npccontainer_pos_cmp.position, kGridSquareSizePixelsF,
                                                   npc_activate_scale.get_value() );
 
-      if ( _pc_pos.findIntersection( npc_activate_bounds.getBounds() ) )
+      if ( pc_pos_cmp.findIntersection( npc_activate_bounds.getBounds() ) )
       {
         // dont really care what obstacle this becomes as long as its disabled.
-        m_reg->emplace_or_replace<Cmp::Obstacle>( _obstacle_entt, "BONES", 0, false );
-        getEventDispatcher().trigger( Events::NpcCreationEvent( _obstacle_pos.position ) );
+        // m_reg->emplace_or_replace<Cmp::Obstacle>( npccontainer_entt, "BONES", 0, false );
+        getEventDispatcher().trigger( Events::NpcCreationEvent( npccontainer_entt ) );
       }
     }
   }
@@ -241,10 +245,11 @@ void CollisionSystem::check_loot_collision()
 
     // Remove the loot component
     m_reg->remove<Cmp::Loot>( effect.loot_entity );
+    m_reg->emplace_or_replace<Cmp::Destructable>( effect.loot_entity );
   }
 }
 
-void CollisionSystem::update_obstacle_distances()
+void CollisionSystem::update_player_distances()
 {
   // precompute outside of loops for performance
   const auto viewBounds = BaseSystem::calculate_view_bounds( RenderSystem::getGameView() );
@@ -254,23 +259,32 @@ void CollisionSystem::update_obstacle_distances()
   for ( [[maybe_unused]] auto [pc_entt, pc_cmp, pc_pos_cmp, pc_db_cmp] : player_view.each() )
   {
 
-    // Don't calculate distance for ReservedPositions to prevent NPCs chasing into player spawn area
-    auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::ReservedPosition> );
-    for ( auto [obst_entt, obst_cmp, obst_pos_cmp] : obstacle_view.each() )
+    // clang-format off
+    // Exclude any components that we dont want NPCs to pathfind through
+    auto path_exclusions = entt::exclude<
+      Cmp::ShrineSprite, Cmp::SpawnAreaSprite, 
+      Cmp::GraveSprite,
+      Cmp::LootContainer
+    >;
+    // clang-format on
+    auto path_view = m_reg->view<Cmp::Position>( path_exclusions );
+    for ( auto [path_entt, path_pos_cmp] : path_view.each() )
     {
+      if ( !is_visible_in_view( viewBounds, path_pos_cmp ) ) continue;
+      // we can't filter out obstacles in the view, we have to check its enabled bit
+      auto obst_cmp = m_reg->try_get<Cmp::Obstacle>( path_entt );
+      if ( obst_cmp && obst_cmp->m_enabled ) continue;
 
-      if ( !is_visible_in_view( viewBounds, obst_pos_cmp ) ) continue;
-
-      // calculate the obstacle/player distance for any traversable obstacles
-      if ( not obst_cmp.m_enabled && pc_db_cmp.findIntersection( obst_pos_cmp ) )
+      // calculate the distance from the position to the player
+      if ( pc_db_cmp.findIntersection( path_pos_cmp ) )
       {
-        auto distance = std::floor( getChebyshevDistance( pc_pos_cmp.position, obst_pos_cmp.position ) );
-        m_reg->emplace_or_replace<Cmp::PlayerDistance>( obst_entt, distance );
+        auto distance = std::floor( getChebyshevDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
+        m_reg->emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
       }
       else
       {
         // tidy up any out of range obstacles
-        m_reg->remove<Cmp::PlayerDistance>( obst_entt );
+        m_reg->remove<Cmp::PlayerDistance>( path_entt );
       }
     }
   }

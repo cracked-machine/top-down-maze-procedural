@@ -72,7 +72,7 @@ public:
   // Update distances from player to obstacles for traversable obstacles
   // Only obstacles within the PCDetectionBounds are considered.
   // Use F3 to visualize the distance values (pixels from player center)
-  void update_obstacle_distances();
+  void update_player_distances();
 
   // Check for player collision with obstacles. This is the main collision detection function
   // void check_player_obstacle_collision();

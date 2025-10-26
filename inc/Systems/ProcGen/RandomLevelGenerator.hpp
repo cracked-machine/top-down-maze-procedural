@@ -39,6 +39,7 @@ public:
   void gen_small_obstacles();
 
   void gen_loot_containers();
+  void gen_npc_containers();
 
   // These obstacles are for the map border.
   // The textures are picked randomly, but their positions are fixed

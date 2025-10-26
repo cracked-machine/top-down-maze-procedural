@@ -1,4 +1,7 @@
+#include <FootStepAlpha.hpp>
+#include <FootStepTimer.hpp>
 #include <PathFindSystem.hpp>
+#include <SpawnAreaSprite.hpp>
 
 namespace ProceduralMaze::Sys {
 
@@ -24,25 +27,24 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
   // only continue if player is within detection distance
   if ( not npc_scan_bounds->findIntersection( pc_detection_bounds->getBounds() ) )
   {
-    // remove any out-of-range PlayerDistance components to maintain a small search zone
+    // remove any out-of-range EnttDistanceMap components to maintain a small search zone
     m_reg->remove<Cmp::EnttDistanceMap>( npc_entity );
   }
   else
   {
     // gather up any PlayerDistance components from within range obstacles
     PlayerDistanceQueue distance_queue;
-    auto obstacle_view = m_reg->view<Cmp::Position, Cmp::PlayerDistance>(
-        entt::exclude<Cmp::NPC, Cmp::PlayableCharacter> );
-    for ( auto [obstacle_entity, next_pos, player_distance] : obstacle_view.each() )
+    auto pd_view = m_reg->view<Cmp::Position, Cmp::PlayerDistance>( entt::exclude<Cmp::NPC, Cmp::PlayableCharacter> );
+    for ( auto [entity, pos_cmp, pd_cmp] : pd_view.each() )
     {
-      if ( npc_scan_bounds->findIntersection( next_pos ) )
-      {
-        distance_queue.push( { player_distance.distance, obstacle_entity } );
-      }
+      if ( npc_scan_bounds->findIntersection( pos_cmp ) ) { distance_queue.push( { pd_cmp.distance, entity } ); }
     }
 
     // Our priority queue auto-sorts with the nearest PlayerDistance component at the top
     if ( distance_queue.empty() ) return;
+    SPDLOG_DEBUG( " NPC entity {} found {} obstacles within scan bounds", static_cast<int>( npc_entity ),
+                  distance_queue.size() );
+
     auto nearest_obstacle = distance_queue.top();
 
     // now lets consider moving our NPC. We use lerp to get a smooth transition from grid movements.

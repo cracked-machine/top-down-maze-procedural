@@ -28,6 +28,8 @@ public:
 
 private:
   void render_floormap( const sf::Vector2f &offset = { 0.f, 0.f } );
+  void render_npc_containers();
+  void render_loot_containers();
   void render_small_obstacles();
   void render_large_obstacles();
   void render_sinkhole();
@@ -45,6 +47,7 @@ private:
   void render_player_distances_on_npc();
   void render_player_distances_on_obstacles();
   void render_npc_distances_on_obstacles();
+  void render_positions();
 
   // Variant that renders to a specific render target (shader, texture, etc.)
   void safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
@@ -87,6 +90,10 @@ private:
   Sprites::Containers::TileMap m_floormap{ kMapGridSize };
 
   std::unordered_map<Sprites::SpriteMetaType, std::optional<Sprites::MultiSprite>> m_multisprite_map;
+
+  // restrict the path tracking data update to every 0.1 seconds (optimization)
+  const sf::Time m_debug_update_interval{ sf::milliseconds( 10 ) };
+  sf::Clock m_debug_update_timer;
 };
 
 } // namespace ProceduralMaze::Sys

@@ -128,7 +128,7 @@ private:
    * factor differs from 1.0. The offset is computed as half the scale factor minus 0.5,
    * which accounts for the difference between the object's scaled size and its default size.
    */
-  const float kPositionOffsetFactor{ ( m_scale_factor / 2.f ) - 0.5f };
+  float kPositionOffsetFactor{ ( m_scale_factor / 2.f ) - 0.5f };
 
   ScaleCardinality m_scale_cardinality;
 };

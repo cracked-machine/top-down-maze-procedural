@@ -1,8 +1,14 @@
+#include <Armed.hpp>
 #include <BombSystem.hpp>
+#include <Destructable.hpp>
+#include <GraveSprite.hpp>
+#include <LootContainer.hpp>
+#include <NpcContainer.hpp>
 #include <NpcDeathPosition.hpp>
 #include <Persistent/ArmedOffDelay.hpp>
 #include <Persistent/BombDamage.hpp>
 #include <ReservedPosition.hpp>
+#include <ShrineSprite.hpp>
 #include <SpriteAnimation.hpp>
 #include <spdlog/spdlog.h>
 
@@ -42,9 +48,9 @@ void BombSystem::arm_occupied_location()
     if ( pc_cmp.has_active_bomb ) continue;     // skip if player already placed a bomb
     if ( pc_cmp.bomb_inventory == 0 ) continue; // skip if player has no bombs left, -1 is infini bombs
 
-    auto obstacle_collision_view = m_reg->view<Cmp::Obstacle, Cmp::Position>(
-        entt::exclude<typename Cmp::Armed, Cmp::ReservedPosition> );
-    for ( auto [obstacle_entity, obstacle_cmp, obstacle_pos_cmp] : obstacle_collision_view.each() )
+    auto destructable_view = m_reg->view<Cmp::Destructable, Cmp::Position>(
+        entt::exclude<typename Cmp::Armed, Cmp::ShrineSprite, Cmp::GraveSprite> );
+    for ( auto [destructable_entity, destructable_cmp, destructable_pos_cmp] : destructable_view.each() )
     {
 
       // make a copy and reduce/center the player hitbox to avoid arming a neighbouring location
@@ -55,14 +61,14 @@ void BombSystem::arm_occupied_location()
       player_hitbox.position.y += 4.f;
 
       // are we standing on this tile?
-      if ( player_hitbox.findIntersection( obstacle_pos_cmp ) )
+      if ( player_hitbox.findIntersection( destructable_pos_cmp ) )
       {
         // has the bomb spamming cooldown expired?
         if ( pc_cmp.m_bombdeploycooldowntimer.getElapsedTime() >= pc_cmp.m_bombdeploydelay )
         {
           if ( m_fuse_sound_player.getStatus() != sf::Sound::Status::Playing ) m_fuse_sound_player.play();
 
-          place_concentric_bomb_pattern( obstacle_entity, pc_cmp.blast_radius );
+          place_concentric_bomb_pattern( destructable_entity, pc_cmp.blast_radius );
 
           pc_cmp.m_bombdeploycooldowntimer.restart();
           pc_cmp.has_active_bomb = true;
@@ -75,9 +81,6 @@ void BombSystem::arm_occupied_location()
 
 void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, const int blast_radius )
 {
-  // arm the current tile (center of the bomb)
-  m_reg->emplace_or_replace<Cmp::Armed>( epicenter_entity, sf::seconds( 3 ), sf::Time::Zero, true, sf::Color::Blue,
-                                         -1 );
 
   sf::Vector2i centerTile = getGridPosition( epicenter_entity ).value();
 
@@ -89,7 +92,7 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
                                          sf::Color::Transparent, sequence_counter++ );
 
   // We dont detonate ReservedPositions so dont arm them in the first place
-  auto all_obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::ReservedPosition> );
+  auto all_obstacle_view = m_reg->view<Cmp::Destructable>( entt::exclude<Cmp::ShrineSprite, Cmp::GraveSprite> );
 
   // For each layer from 1 to BLAST_RADIUS
   for ( int layer = 1; layer <= blast_radius; layer++ )
@@ -97,15 +100,23 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
     std::vector<std::pair<entt::entity, sf::Vector2i>> layer_entities;
 
     // Collect all entities in this layer with their positions
-    for ( auto [obstacle_entity, obstacle_cmp, obstacle_pos_cmp] : all_obstacle_view.each() )
+    for ( auto [destructable_entity, destructable_cmp] : all_obstacle_view.each() )
     {
-      if ( obstacle_entity == epicenter_entity || m_reg->any_of<Cmp::Armed>( obstacle_entity ) ) continue;
+      if ( destructable_entity == epicenter_entity || m_reg->any_of<Cmp::Armed>( destructable_entity ) ) continue;
 
-      sf::Vector2i obstacleTile = getGridPosition( obstacle_entity ).value();
-      int distanceFromCenter = getChebyshevDistance( obstacleTile, centerTile );
+      sf::Vector2i grid_position = getGridPosition( destructable_entity ).value_or( sf::Vector2i{ -1, -1 } );
+      int distance_from_center = getChebyshevDistance( grid_position, centerTile );
 
-      if ( distanceFromCenter == layer ) { layer_entities.push_back( { obstacle_entity, obstacleTile } ); }
+      if ( distance_from_center == layer )
+      {
+        if ( m_reg->any_of<Cmp::LootContainer>( destructable_entity ) )
+        {
+          SPDLOG_INFO( "Arming loot container entity {}", static_cast<int>( destructable_entity ) );
+        }
+        layer_entities.push_back( { destructable_entity, grid_position } );
+      }
     }
+    SPDLOG_INFO( "Layer {}: Found {} entities to arm", layer, layer_entities.size() );
 
     // Sort entities in clockwise order
     std::sort( layer_entities.begin(), layer_entities.end(), [centerTile]( const auto &a, const auto &b ) {
@@ -134,25 +145,42 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
 
 void BombSystem::update()
 {
-  auto armed_view = m_reg->view<Cmp::Armed, Cmp::Obstacle, Cmp::Neighbours, Cmp::Position>();
-  for ( auto [_entt, _armed_cmp, _obstacle_cmp, _neighbours_cmp, _ob_pos_comp] : armed_view.each() )
+  auto armed_view = m_reg->view<Cmp::Armed, Cmp::Position>();
+  for ( auto [armed_entt, armed_cmp, armed_pos_cmp] : armed_view.each() )
   {
+    if ( armed_cmp.getElapsedFuseTime() < armed_cmp.m_fuse_delay ) continue;
 
-    if ( _armed_cmp.getElapsedFuseTime() < _armed_cmp.m_fuse_delay ) continue;
-    if ( _obstacle_cmp.m_enabled && _obstacle_cmp.m_integrity > 0.0f )
+    // detonate obstacles
+    auto obst_cmp = m_reg->try_get<Cmp::Obstacle>( armed_entt );
+    if ( obst_cmp && obst_cmp->m_enabled && obst_cmp->m_integrity > 0.0f )
     {
       // the obstacle is now destroyed by the bomb
-      _obstacle_cmp.m_integrity = 0.0f;
-      _obstacle_cmp.m_enabled = false;
+      obst_cmp->m_integrity = 0.0f;
+      obst_cmp->m_enabled = false;
+    }
 
-      // replace the broken pot neighbour entities with a random loot component/sprite
-      if ( _obstacle_cmp.m_type == "POT" )
-      {
-        auto &sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
-        auto [obstacle_type, random_obstacle_texture_index] = sprite_factory->get_random_type_and_texture_index(
-            std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "LOWER_WATER" } );
-        m_reg->emplace_or_replace<Cmp::Loot>( _entt, obstacle_type, random_obstacle_texture_index );
-      }
+    // detonate loot containers
+    auto lootcontainer_cmp = m_reg->try_get<Cmp::LootContainer>( armed_entt );
+    if ( lootcontainer_cmp )
+    {
+      // the loot container is now destroyed by the bomb, replace with a random loot component
+      auto &sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
+      auto [obstacle_type, random_obstacle_texture_index] = sprite_factory->get_random_type_and_texture_index(
+          std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "LOWER_WATER" } );
+      m_reg->remove<Cmp::LootContainer>( armed_entt );
+      m_reg->remove<Cmp::ReservedPosition>( armed_entt );
+      m_reg->emplace_or_replace<Cmp::Loot>( armed_entt, obstacle_type, random_obstacle_texture_index );
+    }
+
+    // detonate npc containers
+    auto npc_container_cmp = m_reg->try_get<Cmp::NpcContainer>( armed_entt );
+    if ( npc_container_cmp )
+    {
+      // assuming we could get close enough without the NPC spawning, the NPC container is now destroyed by the bomb
+      auto &sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
+      auto [npc_type, random_npc_texture_index] = sprite_factory->get_random_type_and_texture_index(
+          std::vector<std::string>{ "NPC_TYPE_1", "NPC_TYPE_2", "NPC_TYPE_3" } );
+      m_reg->remove<Cmp::NpcContainer>( armed_entt );
     }
 
     // Check player explosion damage
@@ -160,7 +188,7 @@ void BombSystem::update()
     for ( auto [player_entt, player, player_position] : player_view.each() )
     {
 
-      if ( player_position.findIntersection( _ob_pos_comp ) )
+      if ( player_position.findIntersection( armed_pos_cmp ) )
       {
         auto &bomb_damage = get_persistent_component<Cmp::Persistent::BombDamage>();
         player.health -= bomb_damage.get_value();
@@ -174,7 +202,7 @@ void BombSystem::update()
     {
 
       // notify npc system of death
-      if ( npc_pos_cmp.findIntersection( _ob_pos_comp ) )
+      if ( npc_pos_cmp.findIntersection( armed_pos_cmp ) )
       {
         m_reg->emplace_or_replace<Cmp::NpcDeathPosition>( npc_entt, npc_pos_cmp.position );
         m_reg->emplace_or_replace<Cmp::SpriteAnimation>( npc_entt );
@@ -186,8 +214,8 @@ void BombSystem::update()
       }
     }
 
-    // if we got this far then the bomb detonated, we can destroy the armed component
-    m_reg->erase<Cmp::Armed>( _entt );
+    // if we got this far then the bomb detonated, we can remove the armed component
+    m_reg->remove<Cmp::Armed>( armed_entt );
 
     if ( m_fuse_sound_player.getStatus() == sf::Sound::Status::Playing ) m_fuse_sound_player.stop();
     if ( m_detonate_sound_player.getStatus() != sf::Sound::Status::Playing ) m_detonate_sound_player.play();

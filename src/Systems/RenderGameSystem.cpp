@@ -6,7 +6,9 @@
 #include <HazardFieldCell.hpp>
 
 #include <LargeObstacle.hpp>
+#include <LootContainer.hpp>
 #include <MultiSprite.hpp>
+#include <NpcContainer.hpp>
 #include <NpcDeathPosition.hpp>
 #include <Persistent/NpcDeathAnimFramerate.hpp>
 #include <Persistent/PlayerStartPosition.hpp>
@@ -19,6 +21,7 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/System/Angle.hpp>
+#include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SelectedPosition.hpp>
 #include <ShrineSprite.hpp>
@@ -102,6 +105,8 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
       render_floormap( { 0, 0 } );
 
       // now draw everything else on top
+      render_npc_containers();
+      render_loot_containers();
       render_small_obstacles();
 
       render_sinkhole();
@@ -117,8 +122,15 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
       render_large_obstacles();
       render_explosions();
       // render_flood_waters();
-      render_player_distances_on_npc();
-      render_player_distances_on_obstacles();
+
+      if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
+      {
+        render_player_distances_on_npc();
+        render_player_distances_on_obstacles();
+        m_debug_update_timer.restart();
+      }
+
+      // render_positions();
     }
     // local view end
 
@@ -129,6 +141,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
       getWindow().setView( m_minimap_view );
       {
         render_floormap( { 0, kMapGridOffset.y * BaseSystem::kGridSquareSizePixels.y } );
+        render_loot_containers();
         render_small_obstacles();
 
         render_sinkhole();
@@ -154,17 +167,19 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime )
     // player moves)
     getWindow().setView( getWindow().getDefaultView() );
     {
-      auto minimap_border = sf::RectangleShape( {
-          getWindow().getSize().x * kMiniMapViewZoomFactor, // 25% of screen width
-          getWindow().getSize().y * kMiniMapViewZoomFactor  // 25% of screen height
-      } );
-      minimap_border.setPosition( { getWindow().getSize().x - minimap_border.getSize().x, 0.f } );
+      if ( m_minimap_enabled )
+      {
+        auto minimap_border = sf::RectangleShape( {
+            getWindow().getSize().x * kMiniMapViewZoomFactor, // 25% of screen width
+            getWindow().getSize().y * kMiniMapViewZoomFactor  // 25% of screen height
+        } );
+        minimap_border.setPosition( { getWindow().getSize().x - minimap_border.getSize().x, 0.f } );
 
-      minimap_border.setFillColor( sf::Color::Transparent );
-      minimap_border.setOutlineColor( sf::Color::White );
-      minimap_border.setOutlineThickness( 2.f );
-      getWindow().draw( minimap_border );
-
+        minimap_border.setFillColor( sf::Color::Transparent );
+        minimap_border.setOutlineColor( sf::Color::White );
+        minimap_border.setOutlineThickness( 2.f );
+        getWindow().draw( minimap_border );
+      }
       // init metrics
       int player_health = 0;
       int bomb_inventory = 0;
@@ -297,6 +312,44 @@ void RenderGameSystem::render_large_obstacles()
     square.setOutlineThickness( 2.f );
     square.setPosition( { large_obst_cmp.position.x, large_obst_cmp.position.y } );
     getWindow().draw( square );
+  }
+}
+
+void RenderGameSystem::render_npc_containers()
+{
+  auto npccontainer_view = m_reg->view<Cmp::NpcContainer, Cmp::Position>();
+  for ( auto [entity, npccontainer_cmp, pos_cmp] : npccontainer_view.each() )
+  {
+    if ( auto it = m_multisprite_map.find( npccontainer_cmp.m_type );
+         it != m_multisprite_map.end() && it->second.has_value() )
+    {
+      auto meta_type = it->first;
+      auto new_idx = npccontainer_cmp.m_tile_index;
+      sf::Vector2f new_scale{ 1.f, 1.f };
+      uint8_t new_alpha{ 255 };
+      sf::Vector2f new_origin{ 0.f, 0.f };
+      float new_angle{ 0.f };
+      safe_render_sprite( meta_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
+    }
+  }
+}
+
+void RenderGameSystem::render_loot_containers()
+{
+  auto lootcontainer_view = m_reg->view<Cmp::LootContainer, Cmp::Position>();
+  for ( auto [entity, lootcontainer_cmp, pos_cmp] : lootcontainer_view.each() )
+  {
+    if ( auto it = m_multisprite_map.find( lootcontainer_cmp.m_type );
+         it != m_multisprite_map.end() && it->second.has_value() )
+    {
+      auto meta_type = it->first;
+      auto new_idx = lootcontainer_cmp.m_tile_index;
+      sf::Vector2f new_scale{ 1.f, 1.f };
+      uint8_t new_alpha{ 255 };
+      sf::Vector2f new_origin{ 0.f, 0.f };
+      float new_angle{ 0.f };
+      safe_render_sprite( meta_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
+    }
   }
 }
 
@@ -488,8 +541,8 @@ void RenderGameSystem::render_wormhole()
 void RenderGameSystem::render_armed()
 {
   // render armed obstacles with debug outlines
-  auto all_armed_obstacles_view = m_reg->view<Cmp::Obstacle, Cmp::Armed, Cmp::Position>();
-  for ( auto [entity, obstacle_cmp, armed_cmp, pos_cmp] : all_armed_obstacles_view.each() )
+  auto armed_view = m_reg->view<Cmp::Armed, Cmp::Position>();
+  for ( auto [entity, armed_cmp, pos_cmp] : armed_view.each() )
   {
     if ( armed_cmp.m_display_bomb_sprite ) { safe_render_sprite( "BOMB", pos_cmp, 0 ); }
 
@@ -518,17 +571,16 @@ void RenderGameSystem::render_armed()
 
 void RenderGameSystem::render_loot()
 {
-  auto loot_view = m_reg->view<Cmp::Obstacle, Cmp::Loot, Cmp::Position>();
-  for ( auto [entity, obstacles, loot, pos_cmp] : loot_view.each() )
+  auto loot_view = m_reg->view<Cmp::Loot, Cmp::Position>();
+  for ( auto [entity, loot_cmp, pos_cmp] : loot_view.each() )
   {
-    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
     // clang-format off
-    if ( loot.m_type == "EXTRA_HEALTH" ) { safe_render_sprite( "EXTRA_HEALTH", pos_cmp, loot.m_tile_index ); }
-    else if ( loot.m_type == "EXTRA_BOMBS" ) { safe_render_sprite( "EXTRA_BOMBS", pos_cmp, loot.m_tile_index ); }
-    else if ( loot.m_type == "INFINI_BOMBS" ) { safe_render_sprite( "INFINI_BOMBS", pos_cmp, loot.m_tile_index ); }
-    else if ( loot.m_type == "CHAIN_BOMBS" ) { safe_render_sprite( "CHAIN_BOMBS", pos_cmp, loot.m_tile_index ); }
-    else if ( loot.m_type == "LOWER_WATER" ) { safe_render_sprite( "LOWER_WATER", pos_cmp, loot.m_tile_index ); }
-    else { SPDLOG_WARN( "Unknown loot type: {}", loot.m_type ); }
+    if ( loot_cmp.m_type == "EXTRA_HEALTH" ) { safe_render_sprite( "EXTRA_HEALTH", pos_cmp, loot_cmp.m_tile_index ); }
+    else if ( loot_cmp.m_type == "EXTRA_BOMBS" ) { safe_render_sprite( "EXTRA_BOMBS", pos_cmp, loot_cmp.m_tile_index ); }
+    else if ( loot_cmp.m_type == "INFINI_BOMBS" ) { safe_render_sprite( "INFINI_BOMBS", pos_cmp, loot_cmp.m_tile_index ); }
+    else if ( loot_cmp.m_type == "CHAIN_BOMBS" ) { safe_render_sprite( "CHAIN_BOMBS", pos_cmp, loot_cmp.m_tile_index ); }
+    else if ( loot_cmp.m_type == "LOWER_WATER" ) { safe_render_sprite( "LOWER_WATER", pos_cmp, loot_cmp.m_tile_index ); }
+    else { SPDLOG_WARN( "Unknown loot type: {}", loot_cmp.m_type ); }
     // clang-format on
   }
 }
@@ -819,8 +871,8 @@ void RenderGameSystem::render_player_distances_on_npc()
 void RenderGameSystem::render_player_distances_on_obstacles()
 {
   if ( !m_show_path_distances ) return;
-  auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::PlayerDistance>();
-  for ( auto [ob_entt, obst_cmp, pos_cmp, player_dist_cmp] : obstacle_view.each() )
+  auto obstacle_view = m_reg->view<Cmp::Position, Cmp::PlayerDistance>();
+  for ( auto [ob_entt, pos_cmp, player_dist_cmp] : obstacle_view.each() )
   {
     sf::Text distance_text( m_font, "", 10 );
     distance_text.setString( std::to_string( player_dist_cmp.distance ) );
@@ -855,6 +907,20 @@ void RenderGameSystem::render_npc_distances_on_obstacles()
       distance_text.setOutlineThickness( 2.f );
       getWindow().draw( distance_text );
     }
+  }
+}
+
+void RenderGameSystem::render_positions()
+{
+  auto position_view = m_reg->view<Cmp::Position>();
+  for ( auto [entity, pos_cmp] : position_view.each() )
+  {
+    sf::RectangleShape position_marker( kGridSquareSizePixelsF );
+    position_marker.setPosition( pos_cmp.position );
+    position_marker.setFillColor( sf::Color::Transparent );
+    position_marker.setOutlineColor( sf::Color::Green );
+    position_marker.setOutlineThickness( 1.f );
+    getWindow().draw( position_marker );
   }
 }
 

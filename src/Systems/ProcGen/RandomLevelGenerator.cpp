@@ -1,13 +1,16 @@
 #include <BaseSystem.hpp>
+#include <Destructable.hpp>
 #include <Door.hpp>
 #include <GraveSprite.hpp>
 #include <LargeObstacle.hpp>
 #include <LootContainer.hpp>
+#include <NpcContainer.hpp>
 #include <Persistent/MaxShrines.hpp>
 #include <Persistent/PlayerStartPosition.hpp>
 #include <PlayableCharacter.hpp>
 #include <Position.hpp>
 #include <ProcGen/RandomLevelGenerator.hpp>
+#include <Random.hpp>
 #include <RectBounds.hpp>
 #include <ReservedPosition.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -24,7 +27,9 @@ RandomLevelGenerator::RandomLevelGenerator( ProceduralMaze::SharedEnttRegistry r
   m_sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
   gen_positions();
   gen_large_obstacles();
-  gen_small_obstacles();
+  gen_loot_containers();
+  gen_npc_containers();
+  gen_small_obstacles(); // these are post-processed by cellular automaton system
   gen_border();
   stats();
 }
@@ -47,10 +52,7 @@ void RandomLevelGenerator::gen_positions()
       auto &pos_cmp = m_reg->get<Cmp::Position>( entity );
       if ( pos_cmp.findIntersection( player_start_area.getBounds() ) )
       {
-        // We need to reserve these positions (so nothing can be placed here) but ReservedPositions are rendered
-        // after player character so we break the reserved position object to prevent it from being rendered.
-        // We dont care about the sprite type because broken ReservedPositions are not rendered.
-        SPDLOG_DEBUG( "Position ({}, {}) is within player start area, marking as reserved.", pos_cmp.x, pos_cmp.y );
+        // We need to reserve these positions for the player start area
         m_reg->emplace<Cmp::ReservedPosition>( entity );
         m_reg->emplace<Cmp::SpawnAreaSprite>( entity, "PLAYERSPAWN", 0, false );
       }
@@ -147,7 +149,6 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
 
 void RandomLevelGenerator::gen_large_obstacles()
 {
-
   auto max_num_shrines = get_persistent_component<Cmp::Persistent::MaxShrines>();
   // Get all available grave types dynamically from JSON
   auto grave_meta_types = m_sprite_factory->get_all_sprite_types_by_pattern( "GRAVE" );
@@ -191,38 +192,64 @@ void RandomLevelGenerator::gen_small_obstacles()
     // clang-format off
     auto [obst_type, rand_obst_tex_idx] = 
       m_sprite_factory->get_random_type_and_texture_index( { 
-        "ROCK", 
-        "BONES",
-        "POT"
+        "ROCK"
       } );
     // clang-format on
 
     m_reg->emplace<Cmp::Obstacle>( entity, obst_type, rand_obst_tex_idx, m_activation_selector.gen() );
+    m_reg->emplace<Cmp::Destructable>( entity );
     m_reg->emplace<Cmp::Neighbours>( entity );
   }
 }
 
 void RandomLevelGenerator::gen_loot_containers()
 {
-  using namespace Sprites;
-  auto sprite_factory = get_persistent_component<std::shared_ptr<SpriteFactory>>();
+  auto num_loot_containers = kMapGridSize.x * kMapGridSize.y / 60; // one loot container per 60 grid squares
 
-  auto position_view = m_reg->view<Cmp::Position>(
-      entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle> );
-  for ( auto [entity, pos] : position_view.each() )
+  for ( std::size_t i = 0; i < num_loot_containers; ++i )
   {
+
+    auto [random_entity, random_origin_position] = get_random_position(
+        {}, ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
 
     // pick a random loot container type and texture index
     // clang-format off
     auto [loot_type, rand_loot_tex_idx] = 
-      sprite_factory->get_random_type_and_texture_index( { 
+      m_sprite_factory->get_random_type_and_texture_index( { 
         "POT"
       } );
     // clang-format on
 
-    m_reg->emplace<Cmp::LootContainer>( entity, loot_type, rand_loot_tex_idx );
+    m_reg->emplace_or_replace<Cmp::ReservedPosition>( random_entity );
+    m_reg->emplace_or_replace<Cmp::Destructable>( random_entity );
+    m_reg->emplace_or_replace<Cmp::LootContainer>( random_entity, loot_type, rand_loot_tex_idx );
   }
 }
+
+void RandomLevelGenerator::gen_npc_containers()
+{
+  auto num_npc_containers = kMapGridSize.x * kMapGridSize.y / 100; // one NPC container per 100 grid squares
+
+  for ( std::size_t i = 0; i < num_npc_containers; ++i )
+  {
+
+    auto [random_entity, random_origin_position] = get_random_position(
+        {}, ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
+
+    // pick a random loot container type and texture index
+    // clang-format off
+    auto [npc_type, rand_npc_tex_idx] =
+      m_sprite_factory->get_random_type_and_texture_index( {
+        "BONES"
+      } );
+    // clang-format on
+
+    m_reg->emplace_or_replace<Cmp::ReservedPosition>( random_entity );
+    m_reg->emplace_or_replace<Cmp::Destructable>( random_entity );
+    m_reg->emplace_or_replace<Cmp::NpcContainer>( random_entity, npc_type, rand_npc_tex_idx );
+  }
+}
+
 // These obstacles are for the map border.
 // The textures are picked randomly, but their positions are fixed
 void RandomLevelGenerator::gen_border()
@@ -300,11 +327,13 @@ void RandomLevelGenerator::stats()
   std::map<std::string, int> results;
   for ( auto [entity, _pos, _ob] : m_reg->view<Cmp::Position, Cmp::Obstacle>().each() )
   {
-    auto sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
-    if ( not sprite_factory ) continue;
-    results[sprite_factory->get_spritedata_type_string( _ob.m_type )]++;
+    results[m_sprite_factory->get_spritedata_type_string( _ob.m_type )]++;
   }
-  SPDLOG_INFO( "Obstacle Pick distribution:" );
+  for ( auto [entity, _pos, _lc] : m_reg->view<Cmp::Position, Cmp::LootContainer>().each() )
+  {
+    results[m_sprite_factory->get_spritedata_type_string( _lc.m_type )]++;
+  }
+  SPDLOG_INFO( "Object Pick distribution:" );
   for ( auto [bin, freq] : results )
   {
     SPDLOG_INFO( "[{}]:{}", bin, freq );

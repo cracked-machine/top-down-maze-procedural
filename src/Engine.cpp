@@ -156,7 +156,7 @@ bool Engine::run()
         // Throttled obstacle distance update (optimization)
         if ( m_obstacle_distance_timer.getElapsedTime() >= m_obstacle_distance_update_interval )
         {
-          m_collision_sys.update_obstacle_distances();
+          m_collision_sys.update_player_distances();
           m_obstacle_distance_timer.restart();
         }
 

@@ -70,6 +70,7 @@ public:
           { static_cast<int>( pos->position.x / BaseSystem::kGridSquareSizePixels.x ),
             static_cast<int>( pos->position.y / BaseSystem::kGridSquareSizePixels.y ) } };
     }
+    else { SPDLOG_ERROR( "Entity {} does not have a Position component", static_cast<int>( entity ) ); }
     return std::nullopt;
   }
 
