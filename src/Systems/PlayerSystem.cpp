@@ -47,7 +47,7 @@ void PlayerSystem::add_player_entity()
   m_reg->emplace<Cmp::PCDetectionBounds>( entity, start_pos, kGridSquareSizePixelsF, pc_detection_scale.get_value() );
 
   m_reg->emplace<Cmp::SpriteAnimation>( entity );
-  m_reg->emplace<Cmp::PlayerScore>( entity, 50 );
+  m_reg->emplace<Cmp::PlayerScore>( entity, 0 );
 }
 
 void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_check )
