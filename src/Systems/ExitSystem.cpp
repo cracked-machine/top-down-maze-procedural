@@ -40,10 +40,10 @@ void ExitSystem::unlock_exit()
 {
   // count the number of activated shrines
   unsigned int active_shrine_count = 0;
-  auto shrine_view = m_reg->view<Cmp::LargeObstacle>();
-  for ( auto [shrine_entt, shrine_cmp] : shrine_view.each() )
+  auto lo_view = m_reg->view<Cmp::LargeObstacle>();
+  for ( auto [lo_entt, lo_cmp] : lo_view.each() )
   {
-    if ( shrine_cmp.is_shrine() && shrine_cmp.are_powers_active() ) { active_shrine_count++; }
+    if ( lo_cmp.getType() == "SHRINE" && lo_cmp.are_powers_active() ) { active_shrine_count++; }
   }
 
   // return if not enough shrines activated

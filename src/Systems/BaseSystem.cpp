@@ -1,6 +1,8 @@
 #include <Door.hpp>
 #include <Exit.hpp>
+#include <GraveSprite.hpp>
 #include <ReservedPosition.hpp>
+#include <ShrineSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Wall.hpp>
 #include <entt/entity/registry.hpp>
@@ -53,11 +55,18 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
   }
 
   // Check reserved positions
-  auto reserved_view = m_reg->view<Cmp::ReservedPosition>();
-  for ( auto [entity, reserved_cmp] : reserved_view.each() )
+  auto grave_view = m_reg->view<Cmp::GraveSprite, Cmp::Position>();
+  for ( auto [entity, grave_cmp, pos_cmp] : grave_view.each() )
   {
-    if ( not reserved_cmp.m_solid_mask ) continue;
-    if ( reserved_cmp.findIntersection( target_position ) ) { return false; }
+    if ( not grave_cmp.isSolidMask() ) continue;
+    if ( pos_cmp.findIntersection( target_position ) ) { return false; }
+  }
+
+  auto shrine_view = m_reg->view<Cmp::ShrineSprite, Cmp::Position>();
+  for ( auto [entity, shrine_cmp, pos_cmp] : shrine_view.each() )
+  {
+    if ( not shrine_cmp.isSolidMask() ) continue;
+    if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
   return true;

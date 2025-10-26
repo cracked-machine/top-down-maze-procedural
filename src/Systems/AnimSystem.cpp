@@ -9,8 +9,8 @@
 #include <Persistent/WormholeAnimFramerate.hpp>
 #include <PlayableCharacter.hpp>
 #include <Position.hpp>
-#include <ReservedPosition.hpp>
 #include <SFML/System/Time.hpp>
+#include <ShrineSprite.hpp>
 #include <SpriteAnimation.hpp>
 #include <SpriteFactory.hpp>
 #include <Systems/RenderSystem.hpp>
@@ -24,17 +24,17 @@ void AnimSystem::update( sf::Time deltaTime )
   using namespace Sprites;
   auto &factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
 
-  // ReservedPosition Animation
-  auto reserved_view = m_reg->view<Cmp::ReservedPosition, Cmp::SpriteAnimation>();
-  for ( auto [entity, reserved_cmp, anim_cmp] : reserved_view.each() )
+  // Shrine Animation
+  auto shrine_view = m_reg->view<Cmp::ShrineSprite, Cmp::SpriteAnimation, Cmp::Position>();
+  for ( auto [entity, shrine_cmp, anim_cmp, pos_cmp] : shrine_view.each() )
   {
-    if ( !is_visible_in_view( RenderSystem::getGameView(), reserved_cmp ) ) continue;
-    if ( reserved_cmp.is_animated() )
+    if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
+    if ( anim_cmp.m_animation_active )
     {
-      SPDLOG_DEBUG( "Updating ReservedPosition animation for entity {}", static_cast<int>( entity ) );
-      auto reserved_sprite_metadata = factory->get_multisprite_by_type( reserved_cmp.m_type );
-      auto sprites_per_frame = reserved_sprite_metadata->get_sprites_per_frame();
-      auto sprites_per_sequence = reserved_sprite_metadata->get_sprites_per_sequence();
+      SPDLOG_DEBUG( "Updating Shrine animation for entity {}", static_cast<int>( entity ) );
+      auto shrine_sprite_metadata = factory->get_multisprite_by_type( shrine_cmp.getType() );
+      auto sprites_per_frame = shrine_sprite_metadata->get_sprites_per_frame();
+      auto sprites_per_sequence = shrine_sprite_metadata->get_sprites_per_sequence();
       auto frame_rate = sf::seconds( 0.1f );
 
       update_single_sequence( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );

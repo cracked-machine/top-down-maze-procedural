@@ -32,11 +32,13 @@ public:
 
   void gen_positions();
   void gen_large_obstacle( std::optional<Sprites::MultiSprite> large_obstacle_sprite, Sprites::SpriteMetaType,
-                           unsigned long seed, bool is_shrine = false );
+                           unsigned long seed );
   void gen_large_obstacles();
 
   // Iterate all position (excluding playable characters) and randomly assign small obstacles
   void gen_small_obstacles();
+
+  void gen_loot_containers();
 
   // These obstacles are for the map border.
   // The textures are picked randomly, but their positions are fixed
@@ -62,6 +64,7 @@ public:
 private:
   std::vector<entt::entity> m_data;
   Cmp::RandomInt m_activation_selector{ 0, 1 };
+  std::shared_ptr<ProceduralMaze::Sprites::SpriteFactory> m_sprite_factory;
 };
 
 } // namespace ProceduralMaze::Sys::ProcGen

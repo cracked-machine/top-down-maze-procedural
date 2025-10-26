@@ -6,34 +6,36 @@
 
 namespace ProceduralMaze::Cmp {
 
-struct LargeObstacle : public sf::FloatRect
+// LargeObstacle component represents a multi-block sprite defined geometrically as a rectangle
+// It also tracks activation of its constituent sprites and overall activation state
+class LargeObstacle : public sf::FloatRect
 {
-  LargeObstacle( Sprites::SpriteMetaType type, const sf::Vector2f &position, const sf::Vector2f &size,
-                 bool is_shrine = false )
+public:
+  LargeObstacle( Sprites::SpriteMetaType type, const sf::Vector2f &position, const sf::Vector2f &size )
       : sf::FloatRect( position, size ),
-        m_type( type ),
-        m_is_shrine( is_shrine )
+        m_type( type )
   {
   }
 
-  // The type of sprite to use from the SpriteFactory
-  Sprites::SpriteMetaType m_type;
+  Sprites::SpriteMetaType getType() const { return m_type; }
 
-  // all powers have been used up / expired. Cannot be re-activated.
-  bool m_powers_extinct{ false };
-
-  bool is_shrine() const { return m_is_shrine; }
-
-  void increment_active_count() { ++m_active_count; }
-  unsigned int get_active_count() const { return m_active_count; }
+  void increment_activated_sprite_count() { ++m_activated_sprite_count; }
+  unsigned int get_activated_sprite_count() const { return m_activated_sprite_count; }
 
   void set_powers_active() { m_powers_active = true; }
   bool are_powers_active() const { return m_powers_active; }
 
 private:
-  bool m_is_shrine{ false };
-  unsigned int m_active_count{ 0 };
-  // active powers are in effect. This is a one-shot, time-limited effect.
+  // The type of sprite to use from the SpriteFactory
+  Sprites::SpriteMetaType m_type;
+
+  // Track the number of activated sprites in this large obstacle
+  // Callees are responsible for managing max thresholds
+  unsigned int m_activated_sprite_count{ 0 };
+
+  // Overall large obstacle activation. Has multiple meanings depending on context.
+  // The callee is responsible for knowing when to set this. Usually when m_activated_sprite_count reaches some
+  // threshold value.
   bool m_powers_active{ false };
 };
 

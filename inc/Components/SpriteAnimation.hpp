@@ -7,6 +7,13 @@ namespace ProceduralMaze::Cmp {
 
 struct SpriteAnimation
 {
+  SpriteAnimation( unsigned int current_frame = 0, unsigned int base_frame = 0, bool activate_animation = true )
+      : m_current_frame( current_frame ),
+        m_base_frame( base_frame ),
+        m_animation_active( activate_animation )
+  {
+  }
+
   // track the frame position in the animation sequence
   // NOTE: for multi block sprites, this is relative to sprite index
   // E.g. for single sprites:
@@ -15,13 +22,15 @@ struct SpriteAnimation
   // E.g. for multi block sprites (4 blocks per frame):
   //    Frame #1: [0,1,2,3], Frame #2: [4,5,6,7], etc.
   //    so 0 is the first frame, 4 is the second frame, etc.
-  unsigned int m_current_frame = 0;
+  unsigned int m_current_frame;
 
   // the start frame in the animation sequence
-  unsigned int m_base_frame = 0;
+  unsigned int m_base_frame;
 
   // elapsed time since the last frame change
-  sf::Time m_elapsed_time = sf::Time::Zero;
+  sf::Time m_elapsed_time{ sf::Time::Zero };
+
+  bool m_animation_active;
 };
 
 } // namespace ProceduralMaze::Cmp

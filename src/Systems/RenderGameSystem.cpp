@@ -2,6 +2,7 @@
 #include <Exit.hpp>
 #include <FootStepAlpha.hpp>
 #include <FootStepTimer.hpp>
+#include <GraveSprite.hpp>
 #include <HazardFieldCell.hpp>
 
 #include <LargeObstacle.hpp>
@@ -14,14 +15,15 @@
 #include <Position.hpp>
 #include <RectBounds.hpp>
 #include <RenderSystem.hpp>
-#include <ReservedPosition.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/System/Angle.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SelectedPosition.hpp>
+#include <ShrineSprite.hpp>
 #include <SinkholeCell.hpp>
+#include <SpawnAreaSprite.hpp>
 #include <SpriteAnimation.hpp>
 #include <Systems/RenderGameSystem.hpp>
 #include <Wall.hpp>
@@ -221,76 +223,63 @@ void RenderGameSystem::render_floormap( const sf::Vector2f &offset )
 
 void RenderGameSystem::render_player_spawn()
 {
-  auto reserved_view = m_reg->view<Cmp::ReservedPosition>();
-  for ( auto [entity, reserved_cmp] : reserved_view.each() )
+  auto spawnarea_view = m_reg->view<Cmp::SpawnAreaSprite, Cmp::Position>();
+  for ( auto [entity, spawnarea_cmp, pos_cmp] : spawnarea_view.each() )
   {
-    // broken reserved positions are normally used for player spawn area so dont render them
-    // (otherwise they draw on top of the player character)
-    if ( reserved_cmp.m_type != "PLAYERSPAWN" ) continue;
-
-    // it->first: SpriteMetaType (aka std::string)
-    // it->second: optional<MultiSprite>
-    if ( auto it = m_multisprite_map.find( reserved_cmp.m_type );
+    if ( auto it = m_multisprite_map.find( spawnarea_cmp.getType() );
          it != m_multisprite_map.end() && it->second.has_value() )
     {
       auto meta_type = it->first;
-      auto new_idx = reserved_cmp.m_sprite_index;
+      auto new_idx = spawnarea_cmp.getTileIndex();
       sf::Vector2f new_scale{ 1.f, 1.f };
       uint8_t new_alpha{ 255 };
       sf::Vector2f new_origin{ 0.f, 0.f };
       float new_angle{ 0.f };
-      safe_render_sprite( meta_type, reserved_cmp, new_idx, new_scale, new_alpha, new_origin,
-                          sf::degrees( new_angle ) );
+      safe_render_sprite( meta_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
     }
   }
 }
 
 void RenderGameSystem::render_large_obstacles()
 {
-  auto reserved_view = m_reg->view<Cmp::ReservedPosition>();
-  for ( auto [entity, reserved_cmp] : reserved_view.each() )
+  auto shrine_view = m_reg->view<Cmp::ShrineSprite, Cmp::Position>();
+  for ( auto [entity, shrine_cmp, pos_cmp] : shrine_view.each() )
   {
-    // broken reserved positions are normally used for player spawn area so dont render them
-    // (otherwise they draw on top of the player character)
-    if ( reserved_cmp.m_type == "PLAYERSPAWN" ) continue;
-
-    // it->first: SpriteMetaType (aka std::string)
-    // it->second: optional<MultiSprite>
-    if ( auto it = m_multisprite_map.find( reserved_cmp.m_type );
+    if ( auto it = m_multisprite_map.find( shrine_cmp.getType() );
          it != m_multisprite_map.end() && it->second.has_value() )
     {
       auto meta_type = it->first;
-      // when not activated use the default sprite index
-      auto new_idx = reserved_cmp.m_sprite_index;
+      auto new_idx = shrine_cmp.getTileIndex();
       auto anim_sprite_cmp = m_reg->try_get<Cmp::SpriteAnimation>( entity );
       if ( anim_sprite_cmp )
       {
         // or use the current frame from the animation component
-        new_idx = reserved_cmp.m_sprite_index + anim_sprite_cmp->m_current_frame;
-        SPDLOG_TRACE( "Rendering animated ReservedPosition for entity {} at index {}, frame {}",
-                      static_cast<int>( entity ), reserved_cmp.m_sprite_index, anim_sprite_cmp->m_current_frame );
+        new_idx = shrine_cmp.getTileIndex() + anim_sprite_cmp->m_current_frame;
       }
-      // if ( reserved_cmp.is_animated() )
-      //   new_idx = reserved_cmp.m_sprite_index + it->second.value().get_sprites_per_frame();
 
       sf::Vector2f new_scale{ 1.f, 1.f };
       uint8_t new_alpha{ 255 };
       sf::Vector2f new_origin{ 0.f, 0.f };
       float new_angle{ 0.f };
-      safe_render_sprite( meta_type, reserved_cmp, new_idx, new_scale, new_alpha, new_origin,
-                          sf::degrees( new_angle ) );
+      safe_render_sprite( meta_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
     }
+  }
 
-    // if ( reserved_cmp.is_animated() )
-    // {
-    //   SPDLOG_TRACE( "Rendering Cmp::ReservedPosition at ({}, {})", reserved_cmp.x, reserved_cmp.y );
-    //   sf::RectangleShape square( kGridSquareSizePixelsF );
-    //   square.setFillColor( sf::Color::Transparent );
-    //   square.setOutlineColor( sf::Color::Blue );
-    //   square.setOutlineThickness( 1.f );
-    //   square.setPosition( reserved_cmp );
-    //   getWindow().draw( square );
-    // }
+  auto grave_view = m_reg->view<Cmp::GraveSprite, Cmp::Position>();
+  for ( auto [entity, grave_cmp, pos_cmp] : grave_view.each() )
+  {
+    if ( auto it = m_multisprite_map.find( grave_cmp.getType() );
+         it != m_multisprite_map.end() && it->second.has_value() )
+    {
+      auto meta_type = it->first;
+      auto new_idx = grave_cmp.getTileIndex();
+
+      sf::Vector2f new_scale{ 1.f, 1.f };
+      uint8_t new_alpha{ 255 };
+      sf::Vector2f new_origin{ 0.f, 0.f };
+      float new_angle{ 0.f };
+      safe_render_sprite( meta_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
+    }
   }
 
   auto large_obstacle_view = m_reg->view<Cmp::LargeObstacle>();

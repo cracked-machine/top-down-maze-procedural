@@ -2,6 +2,7 @@
 #include <CorruptionCell.hpp>
 #include <Events/UnlockDoorEvent.hpp>
 #include <Exit.hpp>
+#include <GraveSprite.hpp>
 #include <HazardFieldCell.hpp>
 #include <LargeObstacle.hpp>
 #include <MultiSprite.hpp>
@@ -22,6 +23,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Window/Window.hpp>
 #include <SelectedPosition.hpp>
+#include <ShrineSprite.hpp>
 #include <SinkholeCell.hpp>
 #include <SpriteAnimation.hpp>
 
@@ -276,9 +278,10 @@ void CollisionSystem::update_obstacle_distances()
 
 void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActionEvent::GameActions action )
 {
+  if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
+
   auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerScore>();
   auto large_obstacle_view = m_reg->view<Cmp::LargeObstacle>();
-  using PlayerActionEvent = Events::PlayerActionEvent::GameActions;
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_score_cmp] : player_view.each() )
   {
@@ -293,63 +296,62 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
       {
         SPDLOG_DEBUG( "Player collided with LargeObstacle at ({}, {})", lo_cmp.position.x, lo_cmp.position.y );
 
-        auto reserved_view = m_reg->view<Cmp::ReservedPosition>();
-        for ( auto [_res_entity, reserved_cmp] : reserved_view.each() )
+        auto shrine_view = m_reg->view<Cmp::ShrineSprite, Cmp::Position>();
+        for ( auto [shrine_entity, shrine_cmp, pos_cmp] : shrine_view.each() )
         {
 
-          if ( reserved_cmp.findIntersection( lo_cmp ) )
+          if ( not lo_cmp.findIntersection( pos_cmp ) ) continue;
+
+          auto anim_sprite_cmp = m_reg->try_get<Cmp::SpriteAnimation>( shrine_entity );
+          auto &shrine_cost = get_persistent_component<Cmp::Persistent::ShrineCost>();
+          if ( pc_score_cmp.get_score() >= shrine_cost.get_value() && !anim_sprite_cmp )
           {
-            // SHRINES
 
-            if ( reserved_cmp.m_type == "SHRINE" && action == PlayerActionEvent::ACTIVATE )
+            // Convert pixel size to grid size, then calculate threshold
+            auto lo_grid_size = lo_cmp.size.componentWiseDiv( kGridSquareSizePixelsF );
+            auto lo_count_threshold = ( lo_grid_size.x * lo_grid_size.y );
+
+            if ( lo_cmp.get_activated_sprite_count() < lo_count_threshold )
             {
-              auto &shrine_cost = get_persistent_component<Cmp::Persistent::ShrineCost>();
-              if ( pc_score_cmp.get_score() >= shrine_cost.get_value() && !reserved_cmp.is_animated() )
+              m_reg->emplace_or_replace<Cmp::SpriteAnimation>( shrine_entity, 0, 1 );
+
+              lo_cmp.increment_activated_sprite_count();
+              // if we just activated a shrine check if the exit can be unlocked
+              pc_score_cmp.decrement_score( shrine_cost.get_value() );
+
+              if ( lo_cmp.get_activated_sprite_count() >= lo_count_threshold )
               {
-
-                // Convert pixel size to grid size, then calculate threshold
-                auto lo_grid_size = lo_cmp.size.componentWiseDiv( kGridSquareSizePixelsF );
-                auto lo_count_threshold = ( lo_grid_size.x * lo_grid_size.y );
-                SPDLOG_DEBUG( " Count {}, threshold {} ", lo_cmp.get_active_count(), count_threshold );
-                if ( lo_cmp.get_active_count() < lo_count_threshold )
-                {
-                  lo_cmp.increment_active_count();
-                  // if we just activated a shrine check if the exit can be unlocked
-                  pc_score_cmp.decrement_score( shrine_cost.get_value() );
-                  reserved_cmp.animate();
-                  m_reg->emplace_or_replace<Cmp::SpriteAnimation>( _res_entity, 0, 1 );
-                  if ( lo_cmp.get_active_count() >= lo_count_threshold )
-                  {
-                    SPDLOG_DEBUG( "ACTIVATING SHRINE! Count: {}, Threshold: {}", lo_cmp.get_active_count(),
-                                  count_threshold );
-                    lo_cmp.set_powers_active();
-                    getEventDispatcher().trigger( Events::UnlockDoorEvent() );
-                  }
-                }
-              }
-            }
-
-            // GRAVES
-            else if ( reserved_cmp.m_type.contains( "GRAVE" ) && action == PlayerActionEvent::ACTIVATE )
-            {
-              if ( reserved_cmp.is_broken() == false )
-              {
-
-                pc_score_cmp.increment_score( 1 );
-                reserved_cmp.break_object();
-                auto grave_ms = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>()
-                                    ->get_multisprite_by_type( reserved_cmp.m_type );
-
-                // switch to 2nd pair sprite indices - see Grave types in res/json/sprite_metadata.json
-                // [ 0 ] --> becomes [ 2 ]
-                // [ 1 ] --> becomes [ 3 ]
-                // or
-                // [ 0 ][ 1 ] --> becomes [ 4 ][ 5 ]
-                // [ 2 ][ 3 ] --> becomes [ 6 ][ 7 ]
-                reserved_cmp.m_sprite_index += 2 * grave_ms->get_grid_size().width;
+                SPDLOG_DEBUG( "ACTIVATING SHRINE! Count: {}, Threshold: {}", lo_cmp.get_active_count(),
+                              count_threshold );
+                lo_cmp.set_powers_active();
+                getEventDispatcher().trigger( Events::UnlockDoorEvent() );
               }
             }
           }
+        }
+        auto grave_view = m_reg->view<Cmp::GraveSprite, Cmp::Position>();
+        for ( auto [grave_entity, grave_cmp, pos_cmp] : grave_view.each() )
+        {
+          if ( not lo_cmp.findIntersection( pos_cmp ) ) continue;
+
+          // check if the large obstacle is not yet fully depleted
+          auto grave_ms = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>()->get_multisprite_by_type(
+              grave_cmp.getType() );
+          if ( lo_cmp.get_activated_sprite_count() >=
+               grave_ms->get_grid_size().width * grave_ms->get_grid_size().height )
+            continue;
+
+          pc_score_cmp.increment_score( 1 );
+          lo_cmp.increment_activated_sprite_count();
+
+          // switch to 2nd pair sprite indices - see Grave types in res/json/sprite_metadata.json
+          // [ 0 ] --> becomes [ 2 ]
+          // [ 1 ] --> becomes [ 3 ]
+          // or
+          // [ 0 ][ 1 ] --> becomes [ 4 ][ 5 ]
+          // [ 2 ][ 3 ] --> becomes [ 6 ][ 7 ]
+          auto current_index = grave_cmp.getTileIndex();
+          grave_cmp.setTileIndex( current_index += 2 * grave_ms->get_grid_size().width );
         }
       }
     }
