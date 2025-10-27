@@ -44,18 +44,14 @@
 
 namespace ProceduralMaze::Sys {
 
-PersistentSystem::PersistentSystem( SharedEnttRegistry reg )
-    : BaseSystem( reg )
+PersistentSystem::PersistentSystem( SharedEnttRegistry reg, sf::RenderWindow &window )
+    : BaseSystem( reg, window )
 {
-  SPDLOG_INFO( "PersistentSystem constructor called" ); // Add this debug line
-  // not added from json file, always present
-  add_persistent_component<Cmp::Persistent::GameState>();
+  SPDLOG_INFO( "PersistentSystem constructor called" );
 
   std::ignore = getEventDispatcher()
                     .sink<Events::SaveSettingsEvent>()
                     .connect<&Sys::PersistentSystem::on_save_settings_event>( this );
-
-  initializeComponentRegistry();
 }
 
 void PersistentSystem::initializeComponentRegistry()

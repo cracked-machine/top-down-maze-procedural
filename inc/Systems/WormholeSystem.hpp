@@ -16,7 +16,7 @@ namespace ProceduralMaze::Sys {
 class WormholeSystem : public BaseSystem
 {
 public:
-  WormholeSystem( ProceduralMaze::SharedEnttRegistry reg );
+  WormholeSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window );
 
   void init_context();
 

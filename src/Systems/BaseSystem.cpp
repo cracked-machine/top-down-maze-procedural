@@ -9,8 +9,9 @@
 
 namespace ProceduralMaze::Sys {
 
-BaseSystem::BaseSystem( ProceduralMaze::SharedEnttRegistry reg )
-    : m_reg( reg )
+BaseSystem::BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
+    : m_reg( reg ),
+      m_window( window )
 {
 }
 

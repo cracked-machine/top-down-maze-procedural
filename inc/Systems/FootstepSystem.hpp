@@ -12,8 +12,8 @@ namespace ProceduralMaze::Sys {
 class FootstepSystem : public BaseSystem
 {
 public:
-  FootstepSystem( ProceduralMaze::SharedEnttRegistry reg )
-      : BaseSystem( reg )
+  FootstepSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
+      : BaseSystem( reg, window )
   {
   }
   // create an entity with components: Position, Direction, FootstepTimer, FootstepAlpha

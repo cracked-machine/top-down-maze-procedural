@@ -4,7 +4,7 @@
 
 namespace ProceduralMaze::Sprites::Containers {
 
-TileMap::TileMap( sf::Vector2u map_dimensions, const std::filesystem::path &config_path )
+void TileMap::load( sf::Vector2u map_dimensions, const std::filesystem::path &config_path )
 {
   try
   {

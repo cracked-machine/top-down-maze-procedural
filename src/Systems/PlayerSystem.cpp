@@ -19,8 +19,8 @@
 
 namespace ProceduralMaze::Sys {
 
-PlayerSystem::PlayerSystem( ProceduralMaze::SharedEnttRegistry registry )
-    : BaseSystem( registry )
+PlayerSystem::PlayerSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window )
+    : BaseSystem( registry, window )
 {
 }
 

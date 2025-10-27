@@ -13,8 +13,8 @@ namespace ProceduralMaze::Sys {
 class AnimSystem : public BaseSystem
 {
 public:
-  AnimSystem( ProceduralMaze::SharedEnttRegistry reg )
-      : BaseSystem( reg )
+  AnimSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
+      : BaseSystem( reg, window )
   {
     std::ignore = getEventDispatcher()
                       .sink<Events::AnimResetFrameEvent>()

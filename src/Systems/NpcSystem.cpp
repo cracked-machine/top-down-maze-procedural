@@ -12,8 +12,8 @@
 
 namespace ProceduralMaze::Sys {
 
-NpcSystem::NpcSystem( ProceduralMaze::SharedEnttRegistry reg )
-    : BaseSystem( reg )
+NpcSystem::NpcSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
+    : BaseSystem( reg, window )
 {
   std::ignore = Sys::BaseSystem::getEventDispatcher()
                     .sink<Events::NpcCreationEvent>()

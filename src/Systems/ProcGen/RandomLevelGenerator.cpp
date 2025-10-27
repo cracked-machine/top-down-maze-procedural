@@ -21,8 +21,8 @@
 
 namespace ProceduralMaze::Sys::ProcGen {
 
-RandomLevelGenerator::RandomLevelGenerator( ProceduralMaze::SharedEnttRegistry reg )
-    : BaseSystem( reg )
+RandomLevelGenerator::RandomLevelGenerator( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
+    : BaseSystem( reg, window )
 {
   m_sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
   gen_positions();

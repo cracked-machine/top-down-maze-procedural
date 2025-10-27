@@ -34,7 +34,7 @@ void RenderOverlaySystem::render_entt_distance_set_overlay( sf::Vector2f pos )
       }
 
       distance_text.setString( ss.str() );
-      getWindow().draw( distance_text );
+      m_window.draw( distance_text );
     }
     entt_distance_set++;
   }
@@ -47,7 +47,7 @@ void RenderOverlaySystem::render_bomb_radius_overlay( int radius_value, sf::Vect
   bomb_radius_text.setFillColor( sf::Color::White );
   bomb_radius_text.setOutlineColor( sf::Color::Black );
   bomb_radius_text.setOutlineThickness( 2.f );
-  getWindow().draw( bomb_radius_text );
+  m_window.draw( bomb_radius_text );
 
   // text
   sf::Text bomb_radius_value_text( m_font, "", 30 );
@@ -56,7 +56,7 @@ void RenderOverlaySystem::render_bomb_radius_overlay( int radius_value, sf::Vect
   bomb_radius_value_text.setFillColor( sf::Color::White );
   bomb_radius_value_text.setOutlineColor( sf::Color::Black );
   bomb_radius_value_text.setOutlineThickness( 2.f );
-  getWindow().draw( bomb_radius_value_text );
+  m_window.draw( bomb_radius_value_text );
 }
 
 void RenderOverlaySystem::render_bomb_overlay( int bomb_count, sf::Vector2f pos )
@@ -66,7 +66,7 @@ void RenderOverlaySystem::render_bomb_overlay( int bomb_count, sf::Vector2f pos 
   bomb_inventory_text.setFillColor( sf::Color::White );
   bomb_inventory_text.setOutlineColor( sf::Color::Black );
   bomb_inventory_text.setOutlineThickness( 2.f );
-  getWindow().draw( bomb_inventory_text );
+  m_window.draw( bomb_inventory_text );
 
   // text
   sf::Text bomb_count_text( m_font, "", 30 );
@@ -78,7 +78,7 @@ void RenderOverlaySystem::render_bomb_overlay( int bomb_count, sf::Vector2f pos 
   bomb_count_text.setFillColor( sf::Color::White );
   bomb_count_text.setOutlineColor( sf::Color::Black );
   bomb_count_text.setOutlineThickness( 2.f );
-  getWindow().draw( bomb_count_text );
+  m_window.draw( bomb_count_text );
 }
 
 void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2f pos, sf::Vector2f size )
@@ -88,14 +88,14 @@ void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2
   healthlvl_meter_text.setFillColor( sf::Color::White );
   healthlvl_meter_text.setOutlineColor( sf::Color::Black );
   healthlvl_meter_text.setOutlineThickness( 2.f );
-  getWindow().draw( healthlvl_meter_text );
+  m_window.draw( healthlvl_meter_text );
 
   // bar fill
   sf::Vector2f healthbar_offset{ 100.f, 10.f };
   auto healthbar = sf::RectangleShape( { ( ( size.x / 100 ) * health_value ), size.y } );
   healthbar.setPosition( pos + healthbar_offset );
   healthbar.setFillColor( sf::Color::Red );
-  getWindow().draw( healthbar );
+  m_window.draw( healthbar );
 
   // bar outline
   auto healthbar_border = sf::RectangleShape( size );
@@ -103,7 +103,7 @@ void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2
   healthbar_border.setFillColor( sf::Color::Transparent );
   healthbar_border.setOutlineColor( sf::Color::Black );
   healthbar_border.setOutlineThickness( 5.f );
-  getWindow().draw( healthbar_border );
+  m_window.draw( healthbar_border );
 }
 
 void RenderOverlaySystem::render_weapons_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size )
@@ -123,7 +123,7 @@ void RenderOverlaySystem::render_weapons_meter_overlay( float water_level, sf::V
   auto weaponsbar = sf::RectangleShape( { meter_level, size.y } );
   weaponsbar.setPosition( pos + weapons_meter_offset );
   weaponsbar.setFillColor( sf::Color::Green );
-  getWindow().draw( weaponsbar );
+  m_window.draw( weaponsbar );
 
   // bar outline
   auto weaponsbar_border = sf::RectangleShape( size );
@@ -131,7 +131,7 @@ void RenderOverlaySystem::render_weapons_meter_overlay( float water_level, sf::V
   weaponsbar_border.setFillColor( sf::Color::Transparent );
   weaponsbar_border.setOutlineColor( sf::Color::Black );
   weaponsbar_border.setOutlineThickness( 5.f );
-  getWindow().draw( weaponsbar_border );
+  m_window.draw( weaponsbar_border );
 }
 
 void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size )
@@ -141,7 +141,7 @@ void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, s
   waterlvl_meter_text.setFillColor( sf::Color::White );
   waterlvl_meter_text.setOutlineColor( sf::Color::Black );
   waterlvl_meter_text.setOutlineThickness( 2.f );
-  getWindow().draw( waterlvl_meter_text );
+  m_window.draw( waterlvl_meter_text );
 
   // bar fill
   sf::Vector2f waterlvl_meter_offset{ 100.f, 10.f };
@@ -152,7 +152,7 @@ void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, s
   auto waterlvlbar = sf::RectangleShape( { meter_meter_level, size.y } );
   waterlvlbar.setPosition( pos + waterlvl_meter_offset );
   waterlvlbar.setFillColor( sf::Color::Blue );
-  getWindow().draw( waterlvlbar );
+  m_window.draw( waterlvlbar );
 
   // bar outline
   auto waterlvlbar_border = sf::RectangleShape( size );
@@ -160,7 +160,7 @@ void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, s
   waterlvlbar_border.setFillColor( sf::Color::Transparent );
   waterlvlbar_border.setOutlineColor( sf::Color::Black );
   waterlvlbar_border.setOutlineThickness( 5.f );
-  getWindow().draw( waterlvlbar_border );
+  m_window.draw( waterlvlbar_border );
 }
 
 void RenderOverlaySystem::render_player_position_overlay( sf::Vector2f player_pos, sf::Vector2f pos )
@@ -172,7 +172,7 @@ void RenderOverlaySystem::render_player_position_overlay( sf::Vector2f player_po
   player_position_text.setFillColor( sf::Color::White );
   player_position_text.setOutlineColor( sf::Color::Black );
   player_position_text.setOutlineThickness( 2.f );
-  getWindow().draw( player_position_text );
+  m_window.draw( player_position_text );
 }
 
 void RenderOverlaySystem::render_player_score_overlay( unsigned int player_score, sf::Vector2f pos )
@@ -184,7 +184,7 @@ void RenderOverlaySystem::render_player_score_overlay( unsigned int player_score
   player_score_text.setFillColor( sf::Color::White );
   player_score_text.setOutlineColor( sf::Color::Black );
   player_score_text.setOutlineThickness( 2.f );
-  getWindow().draw( player_score_text );
+  m_window.draw( player_score_text );
 }
 
 void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos )
@@ -197,7 +197,7 @@ void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_posi
   mouse_position_text.setFillColor( sf::Color::White );
   mouse_position_text.setOutlineColor( sf::Color::Black );
   mouse_position_text.setOutlineThickness( 2.f );
-  getWindow().draw( mouse_position_text );
+  m_window.draw( mouse_position_text );
 }
 
 void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3 )
@@ -226,7 +226,7 @@ void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f 
   stats_text.setFillColor( sf::Color::White );
   stats_text.setOutlineColor( sf::Color::Black );
   stats_text.setOutlineThickness( 2.f );
-  getWindow().draw( stats_text );
+  m_window.draw( stats_text );
 
   // clang-format off
   stats_text.setString( 
@@ -237,7 +237,7 @@ void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f 
   stats_text.setFillColor( sf::Color::White );
   stats_text.setOutlineColor( sf::Color::Black );
   stats_text.setOutlineThickness( 2.f );
-  getWindow().draw( stats_text );
+  m_window.draw( stats_text );
 
   // clang-format off
   stats_text.setString( 
@@ -249,7 +249,7 @@ void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f 
   stats_text.setFillColor( sf::Color::White );
   stats_text.setOutlineColor( sf::Color::Black );
   stats_text.setOutlineThickness( 2.f );
-  getWindow().draw( stats_text );
+  m_window.draw( stats_text );
 }
 
 } // namespace ProceduralMaze::Sys

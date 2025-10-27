@@ -15,8 +15,8 @@
 
 namespace ProceduralMaze::Sys {
 
-ExitSystem::ExitSystem( ProceduralMaze::SharedEnttRegistry reg )
-    : BaseSystem( reg )
+ExitSystem::ExitSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
+    : BaseSystem( reg, window )
 {
   // register the event sinks
   std::ignore = getEventDispatcher().sink<Events::UnlockDoorEvent>().connect<&ExitSystem::on_door_unlock_event>( this );

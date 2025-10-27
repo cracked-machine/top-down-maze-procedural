@@ -20,7 +20,7 @@ namespace Sys {
 class BaseSystem
 {
 public:
-  BaseSystem( ProceduralMaze::SharedEnttRegistry reg );
+  BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window );
 
   ~BaseSystem() = default;
 
@@ -233,6 +233,9 @@ public:
 protected:
   // Entity registry
   ProceduralMaze::SharedEnttRegistry m_reg;
+
+  //! @brief Non-owning reference to the shared render window
+  sf::RenderWindow &m_window;
 
 private:
   // Prevent access to uninitialised dispatcher - use getEventDispatcher()

@@ -1,3 +1,4 @@
+#include <BaseSystem.hpp>
 #include <CorruptionCell.hpp>
 #include <Engine.hpp>
 #include <Events/AnimResetFrameEvent.hpp>
@@ -10,41 +11,45 @@ namespace ProceduralMaze {
 
 Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
     : m_reg( std::move( registry ) ),
-      m_persistent_sys( m_reg ),
-      m_sprite_factory( std::make_shared<Sprites::SpriteFactory>() ),
-      m_player_sys( m_reg ),
-      m_flood_sys( m_reg ),
-      m_path_find_sys( m_reg ),
-      m_npc_sys( m_reg ),
-      m_collision_sys( m_reg ),
-      m_digging_sys( m_reg ),
-      m_render_game_sys( m_reg ),
-      m_render_overlay_sys( m_reg ),
-      m_render_menu_sys( m_reg ),
-      m_bomb_sys( m_reg ),
-      m_anim_sys( m_reg ),
-      m_sinkhole_sys( m_reg ),
-      m_corruption_sys( m_reg ),
-      m_wormhole_sys( m_reg ),
-      m_exit_sys( m_reg ),
-      m_title_music_sys( m_reg, "res/audio/title_music.mp3" ),
-      m_underwater_sounds_sys( m_reg, "res/audio/underwater.wav" ),
-      m_abovewater_sounds_sys( m_reg, "res/audio/footsteps.mp3" ),
-      m_event_handler( m_reg )
+      m_persistent_sys( m_reg, *m_window ),
+      m_player_sys( m_reg, *m_window ),
+      m_flood_sys( m_reg, *m_window ),
+      m_path_find_sys( m_reg, *m_window ),
+      m_npc_sys( m_reg, *m_window ),
+      m_collision_sys( m_reg, *m_window ),
+      m_digging_sys( m_reg, *m_window ),
+      m_render_game_sys( m_reg, *m_window ),
+      m_render_overlay_sys( m_reg, *m_window ),
+      m_render_menu_sys( m_reg, *m_window, m_title_screen_shader ),
+      m_bomb_sys( m_reg, *m_window ),
+      m_anim_sys( m_reg, *m_window ),
+      m_sinkhole_sys( m_reg, *m_window ),
+      m_corruption_sys( m_reg, *m_window ),
+      m_wormhole_sys( m_reg, *m_window ),
+      m_exit_sys( m_reg, *m_window ),
+      m_footstep_sys( m_reg, *m_window ),
+      m_title_music_sys( m_reg, *m_window, "res/audio/title_music.mp3" ),
+      m_underwater_sounds_sys( m_reg, *m_window, "res/audio/underwater.wav" ),
+      m_abovewater_sounds_sys( m_reg, *m_window, "res/audio/footsteps.mp3" ),
+      m_event_handler( m_reg, *m_window )
 {
-  SPDLOG_INFO( "Engine Initiliasing... " );
+  SPDLOG_INFO( "Engine Initialising... " );
 
-  m_persistent_sys.load_state();
-
-  Sys::RenderSystem::getWindow().setVerticalSyncEnabled( true );
-  // m_render_game_sys.window().setFramerateLimit( 144 );
+  if ( !m_window->isOpen() )
+  {
+    SPDLOG_CRITICAL( "Failed to create SFML RenderWindow" );
+    std::terminate();
+  }
 
   // setup ImGui here rather than RenderSystem classes to reduce white screen init time
-  if ( not ImGui::SFML::Init( Sys::RenderSystem::getWindow() ) )
+  if ( not ImGui::SFML::Init( *m_window ) )
   {
     SPDLOG_CRITICAL( "ImGui-SFML initialization failed" );
     std::terminate();
   }
+
+  m_window->setVerticalSyncEnabled( true );
+  // m_render_game_sys.window().setFramerateLimit( 144 );
 
   // Set ImGui style
   ImGuiIO &io = ImGui::GetIO();
@@ -52,20 +57,26 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
   io.IniFilename = "res/imgui.ini";
   std::ignore = ImGui::SFML::UpdateFontTexture();
 
+  // make sure gamestate is loaded before we leave constructor (and enter run() loop)
+  m_persistent_sys.add_persistent_component<Cmp::Persistent::GameState>();
+
   SPDLOG_INFO( "Engine Initialisation Complete" );
 }
 
 bool Engine::run()
 {
+
   sf::Clock deltaClock;
 
   /// MAIN LOOP BEGINS
-  while ( Sys::RenderSystem::getWindow().isOpen() )
+  while ( m_window->isOpen() )
   {
     sf::Time deltaTime = deltaClock.restart();
-    m_title_music_sys.update_volume();
 
-    // doesnt matter which system we use to get the game state as they all share the same registry context
+    // TODO: fixme... persistent system loading is now deferred so this function cant access "music volume"
+    // m_title_music_sys.update_volume();
+
+    // accesss via any child of BaseSystem::get_persistent_component
     auto &game_state = m_player_sys.get_persistent_component<Cmp::Persistent::GameState>();
 
     switch ( game_state.current_state )
@@ -75,13 +86,15 @@ bool Engine::run()
         // m_title_music_sys.update_music_playback( Sys::MusicSystem::Function::PLAY );
 
         m_render_menu_sys.render_title();
-        m_event_handler.menu_state_handler( Sys::RenderSystem::getWindow() );
+        m_event_handler.menu_state_handler();
         break;
       } // case MENU end
 
       case Cmp::Persistent::GameState::State::SETTINGS: {
+        m_persistent_sys.initializeComponentRegistry();
+        m_persistent_sys.load_state();
         m_render_menu_sys.render_settings( deltaTime );
-        m_event_handler.settings_state_handler( Sys::RenderSystem::getWindow() );
+        m_event_handler.settings_state_handler();
         break;
       } // case SETTINGS end
 
@@ -134,7 +147,7 @@ bool Engine::run()
           }
         }
 
-        m_event_handler.game_state_handler( Sys::RenderSystem::getWindow() );
+        m_event_handler.game_state_handler();
 
         // m_flood_sys.update();
         m_anim_sys.update( deltaTime );
@@ -149,6 +162,7 @@ bool Engine::run()
         m_collision_sys.check_bones_reanimation();
         m_wormhole_sys.check_player_wormhole_collision();
         m_digging_sys.update();
+        m_footstep_sys.update();
 
         // Throttled obstacle distance update (optimization)
         if ( m_obstacle_distance_timer.getElapsedTime() >= m_obstacle_distance_update_interval )
@@ -193,13 +207,12 @@ bool Engine::run()
         m_collision_sys.suspend();
         m_bomb_sys.suspend();
 
-        while ( ( Cmp::Persistent::GameState::State::PAUSED == game_state.current_state ) and
-                Sys::RenderSystem::getWindow().isOpen() )
+        while ( ( Cmp::Persistent::GameState::State::PAUSED == game_state.current_state ) and m_window->isOpen() )
         {
           m_render_menu_sys.render_paused();
           std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
           // check for keyboard/window events to keep window responsive
-          m_event_handler.paused_state_handler( Sys::RenderSystem::getWindow() );
+          m_event_handler.paused_state_handler();
         }
 
         m_flood_sys.resume();
@@ -218,7 +231,7 @@ bool Engine::run()
           else { m_render_menu_sys.render_victory_screen(); }
         }
         std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
-        m_event_handler.game_over_state_handler( Sys::RenderSystem::getWindow() );
+        m_event_handler.game_over_state_handler();
 
         break;
       } // case GAME_OVER end
@@ -233,7 +246,7 @@ bool Engine::run()
         }
         SPDLOG_INFO( "Terminating application...." );
         teardown();
-        Sys::RenderSystem::getWindow().close();
+        m_window->close();
         std::terminate();
       }
     }
@@ -251,6 +264,14 @@ void Engine::setup()
   reginfo( "Pre-setup" );
 
   // Cmp::RandomInt::seed(123456789); // testing purposes
+  m_persistent_sys.initializeComponentRegistry();
+  m_persistent_sys.load_state();
+  m_sprite_factory->init();
+
+  m_render_game_sys.init_shaders();
+  m_render_game_sys.init_tilemap();
+
+  m_digging_sys.load_sounds();
 
   m_reg->ctx().emplace<std::shared_ptr<Sprites::SpriteFactory>>( m_sprite_factory );
 
@@ -263,10 +284,10 @@ void Engine::setup()
 
   // create initial random game area with the required sprites
   std::unique_ptr<Sys::ProcGen::RandomLevelGenerator>
-      random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>( m_reg );
+      random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>( m_reg, *m_window );
 
   // procedurally generate the game area from the initial random layout
-  Sys::ProcGen::CellAutomataSystem cellauto_parser{ m_reg, std::move( random_level ) };
+  Sys::ProcGen::CellAutomataSystem cellauto_parser{ m_reg, *m_window, std::move( random_level ) };
   cellauto_parser.iterate( 5 );
 
   m_exit_sys.spawn_exit();

@@ -1,6 +1,7 @@
 #ifndef __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 #define __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 
+#include <SFML/Window/Window.hpp>
 #include <spdlog/spdlog.h>
 
 #include <Components/Exit.hpp>
@@ -24,7 +25,7 @@ namespace ProceduralMaze::Sys::ProcGen {
 class RandomLevelGenerator : public BaseSystem
 {
 public:
-  RandomLevelGenerator( ProceduralMaze::SharedEnttRegistry reg );
+  RandomLevelGenerator( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window );
   ~RandomLevelGenerator() = default;
 
   void gen_positions();

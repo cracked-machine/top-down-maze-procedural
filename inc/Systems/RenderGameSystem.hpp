@@ -10,20 +10,20 @@
 #include <SFML/System/Vector2.hpp>
 #include <Systems/RenderSystem.hpp>
 #include <ViewFragmentShader.hpp>
-#include <unordered_map>
 
 namespace ProceduralMaze::Sys {
 
 class RenderGameSystem : public RenderSystem
 {
 public:
-  RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg );
+  RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window );
   ~RenderGameSystem() = default;
 
   // Entry point for class
   void init_views();
   // Add this method to share the sprite map with overlay system
-
+  void init_shaders();
+  void init_tilemap();
   void render_game( sf::Time deltaTime, RenderOverlaySystem &overlay_sys );
 
 private:
@@ -51,8 +51,6 @@ private:
 
   void update_view_center( sf::View &view, const Cmp::Position &player_pos, float smoothFactor = 0.1f );
 
-  FootstepSystem m_footstep_sys{ m_reg };
-
   // Views
   const sf::Vector2f kLocalMapViewSize{ 300.f, 200.f };
   const float kMiniMapViewZoomFactor = 0.25f;
@@ -68,7 +66,7 @@ private:
                                                  BaseSystem::kGridSquareSizePixels.componentWiseMul( { 3u, 3u } ) };
 
   // Sprites
-  Sprites::Containers::TileMap m_floormap{ kMapGridSize };
+  Sprites::Containers::TileMap m_floormap{};
 
   // restrict the path tracking data update to every 0.1 seconds (optimization)
   const sf::Time m_debug_update_interval{ sf::milliseconds( 10 ) };

@@ -22,7 +22,7 @@ namespace ProceduralMaze::Sys {
 class NpcSystem : public BaseSystem
 {
 public:
-  NpcSystem( ProceduralMaze::SharedEnttRegistry reg );
+  NpcSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window );
 
   // Converts a NpcContainer entity into an active NPC entity. Called by event: NpcCreationEvent
   void add_npc_entity( entt::entity npc_entity );

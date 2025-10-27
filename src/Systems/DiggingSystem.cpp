@@ -11,13 +11,16 @@
 
 namespace ProceduralMaze::Sys {
 
-DiggingSystem::DiggingSystem( ProceduralMaze::SharedEnttRegistry reg )
-    : BaseSystem( reg )
+DiggingSystem::DiggingSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
+    : BaseSystem( reg, window )
 {
   // register the event handler
   std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&DiggingSystem::on_player_action>(
       this );
+}
 
+void DiggingSystem::load_sounds()
+{
   // load pool of pickaxe sound effects
   for ( auto &pickaxe_sound : m_pickaxe_sounds )
   {
@@ -33,6 +36,7 @@ DiggingSystem::DiggingSystem( ProceduralMaze::SharedEnttRegistry reg )
     SPDLOG_ERROR( "Failed to load smash sound effect: {}", m_pickaxe_final_sound.path.string() );
     std::terminate();
   }
+  SPDLOG_INFO( "DiggingSystem sounds initialized" );
 }
 
 void DiggingSystem::update()
@@ -86,9 +90,8 @@ void DiggingSystem::check_player_dig_obstacle_collision()
     if ( not obst_cmp.m_type.contains( "ROCK" ) or not obst_cmp.m_enabled ) continue;
 
     // Remap the mouse position to game view coordinates (a subset of the actual game area)
-    sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( RenderSystem::getWindow() );
-    sf::Vector2f mouse_world_pos = RenderSystem::getWindow().mapPixelToCoords( mouse_pixel_pos,
-                                                                               RenderSystem::getGameView() );
+    sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
+    sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::getGameView() );
     // Check if the mouse position intersects with the entity's position
     auto mouse_position_bounds = sf::FloatRect( mouse_world_pos, sf::Vector2f( 2.f, 2.f ) );
 

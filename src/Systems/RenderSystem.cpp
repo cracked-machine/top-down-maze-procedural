@@ -3,8 +3,8 @@
 
 namespace ProceduralMaze::Sys {
 
-RenderSystem::RenderSystem( ProceduralMaze::SharedEnttRegistry reg )
-    : BaseSystem( reg )
+RenderSystem::RenderSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
+    : BaseSystem( reg, window )
 {
   // nothing
 }
@@ -53,15 +53,15 @@ void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2
   title_bg.setPosition(
       { final_position.x + title_bounds.position.x - padding, final_position.y + title_bounds.position.y - padding } );
 
-  getWindow().draw( title_bg );
-  getWindow().draw( title_text );
+  m_window.draw( title_bg );
+  m_window.draw( title_text );
 }
 
 void RenderSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
                                                  const sf::FloatRect &pos_cmp, int sprite_index, sf::Vector2f scale,
                                                  uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
 {
-  if ( not is_visible_in_view( getWindow().getView(), pos_cmp ) ) return;
+  if ( not is_visible_in_view( m_window.getView(), pos_cmp ) ) return;
   try
   {
     auto &sprite = m_multisprite_map.at( sprite_type );
@@ -75,7 +75,7 @@ void RenderSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const
       sprite->setRotation( angle );
       if ( pick_result )
       {
-        target.draw( *sprite ); // Draw to specified target instead of getWindow()
+        target.draw( *sprite ); // Draw to specified target instead of m_window
       }
       // SPDLOG_INFO( "Failed to pick sprite '{}' with index {}", sprite_type, sprite_index );
       else { render_fallback_square_to_target( target, pos_cmp, sf::Color::Cyan ); }
@@ -108,15 +108,13 @@ void RenderSystem::render_fallback_square_to_target( sf::RenderTarget &target, c
 void RenderSystem::safe_render_sprite( const std::string &sprite_type, const sf::FloatRect &pos_cmp, int sprite_index,
                                        sf::Vector2f scale, uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
 {
-  safe_render_sprite_to_target( getWindow(), sprite_type, pos_cmp, sprite_index, scale, alpha, origin, angle );
+  safe_render_sprite_to_target( m_window, sprite_type, pos_cmp, sprite_index, scale, alpha, origin, angle );
 }
 
 void RenderSystem::render_fallback_square( const sf::FloatRect &pos_cmp, const sf::Color &color )
 {
-  render_fallback_square_to_target( getWindow(), pos_cmp, color );
+  render_fallback_square_to_target( m_window, pos_cmp, color );
 }
-
-std::unique_ptr<sf::RenderWindow> RenderSystem::m_window = nullptr;
 
 sf::View RenderSystem::s_game_view{};
 

@@ -74,11 +74,16 @@ private:
   // ECS registry
   ProceduralMaze::SharedEnttRegistry m_reg;
 
+  Sprites::TitleScreenShader m_title_screen_shader{ "res/shaders/TitleScreen.frag", Sys::BaseSystem::kDisplaySize };
+
+  std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>(
+      sf::VideoMode( Sys::BaseSystem::kDisplaySize ), "ProceduralMaze", sf::State::Fullscreen );
+
   // init this first since it registers core settings
   Sys::PersistentSystem m_persistent_sys;
 
   // creates and manages MultiSprite resources
-  std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory;
+  std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory = std::make_shared<Sprites::SpriteFactory>();
 
   //  ECS Systems
 
@@ -97,7 +102,7 @@ private:
   Sys::CorruptionHazardSystem m_corruption_sys;
   Sys::WormholeSystem m_wormhole_sys;
   Sys::ExitSystem m_exit_sys;
-
+  Sys::FootstepSystem m_footstep_sys;
   Sys::MusicSystem m_title_music_sys;
   Sys::MusicSystem m_underwater_sounds_sys;
   Sys::MusicSystem m_abovewater_sounds_sys;

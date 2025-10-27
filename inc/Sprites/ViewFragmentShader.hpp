@@ -61,14 +61,12 @@ public:
       : BaseFragmentShader( shader_path, texture_size ),
         m_shader_view( sf::Vector2f{ 0.f, 0.f }, sf::Vector2f{ texture_size } )
   {
-    setup();
-    SPDLOG_INFO( "ViewFragmentShader initialized" );
   }
   ~ViewFragmentShader() override = default;
 
   auto get_render_texture() -> sf::RenderTexture & { return m_render_texture; }
   void pre_setup_texture() override {}
-  void post_setup_shader() override {}
+  void post_setup_shader() override { SPDLOG_INFO( "ViewFragmentShader initialized" ); }
   void update() override { /* unused */ }
 
   enum class Align

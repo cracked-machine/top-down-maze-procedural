@@ -34,8 +34,8 @@
 
 namespace ProceduralMaze::Sys {
 
-RenderGameSystem::RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg )
-    : RenderSystem( reg )
+RenderGameSystem::RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
+    : RenderSystem( reg, window )
 {
 }
 
@@ -54,6 +54,14 @@ void RenderGameSystem::init_views()
   m_local_view.setCenter( start_pos );
   m_minimap_view.setCenter( start_pos );
 }
+
+void RenderGameSystem::init_shaders()
+{
+  m_water_shader.setup();
+  m_wormhole_shader.setup();
+}
+
+void RenderGameSystem::init_tilemap() { m_floormap.load( kMapGridSize, "res/json/tilemap_config.json" ); }
 
 void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderOverlaySystem &overlay_sys )
 {
@@ -74,11 +82,11 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
     player_position = _pos;
   }
   // main render begin
-  getWindow().clear();
+  m_window.clear();
   {
     // local view begin - this shows only a `LOCAL_MAP_VIEW_SIZE` of the game
     // world
-    getWindow().setView( m_local_view );
+    m_window.setView( m_local_view );
     {
       // update the static game view reference
       RenderSystem::s_game_view = m_local_view;
@@ -122,7 +130,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
     // much smaller scale
     if ( m_minimap_enabled )
     {
-      getWindow().setView( m_minimap_view );
+      m_window.setView( m_minimap_view );
       {
         render_floormap( { 0, kMapGridOffset.y * BaseSystem::kGridSquareSizePixels.y } );
         render_loot_containers();
@@ -149,20 +157,20 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
 
     // UI Overlays begin (these will always be displayed no matter where the
     // player moves)
-    getWindow().setView( getWindow().getDefaultView() );
+    m_window.setView( m_window.getDefaultView() );
     {
       if ( m_minimap_enabled )
       {
         auto minimap_border = sf::RectangleShape( {
-            getWindow().getSize().x * kMiniMapViewZoomFactor, // 25% of screen width
-            getWindow().getSize().y * kMiniMapViewZoomFactor  // 25% of screen height
+            m_window.getSize().x * kMiniMapViewZoomFactor, // 25% of screen width
+            m_window.getSize().y * kMiniMapViewZoomFactor  // 25% of screen height
         } );
-        minimap_border.setPosition( { getWindow().getSize().x - minimap_border.getSize().x, 0.f } );
+        minimap_border.setPosition( { m_window.getSize().x - minimap_border.getSize().x, 0.f } );
 
         minimap_border.setFillColor( sf::Color::Transparent );
         minimap_border.setOutlineColor( sf::Color::White );
         minimap_border.setOutlineThickness( 2.f );
-        getWindow().draw( minimap_border );
+        m_window.draw( minimap_border );
       }
       // init metrics
       int player_health = 0;
@@ -170,9 +178,8 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
       int blast_radius = 0;
       int water_level = 0;
       int player_score = 0;
-      sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( RenderSystem::getWindow() );
-      sf::Vector2f mouse_world_pos = RenderSystem::getWindow().mapPixelToCoords( mouse_pixel_pos,
-                                                                                 RenderSystem::getGameView() );
+      sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
+      sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::getGameView() );
 
       // gather metrics from components
       for ( auto [_entt, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
@@ -211,14 +218,14 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
     // UI Overlays end
   }
 
-  getWindow().display();
+  m_window.display();
   // main render end
 }
 
 void RenderGameSystem::render_floormap( const sf::Vector2f &offset )
 {
   m_floormap.setPosition( offset );
-  getWindow().draw( m_floormap );
+  m_window.draw( m_floormap );
 }
 
 void RenderGameSystem::render_player_spawn()
@@ -296,7 +303,7 @@ void RenderGameSystem::render_large_obstacles()
     square.setOutlineColor( sf::Color::Green );
     square.setOutlineThickness( 2.f );
     square.setPosition( { large_obst_cmp.position.x, large_obst_cmp.position.y } );
-    getWindow().draw( square );
+    m_window.draw( square );
   }
 }
 
@@ -353,7 +360,7 @@ void RenderGameSystem::render_small_obstacles()
   for ( auto [entity, obstacle_cmp, position_cmp, _ob_nb_list] : obst_view.each() )
   {
     // check if obstacle is within the current view (in world coordinates)
-    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
+    // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
 
     if ( obstacle_cmp.m_enabled )
     {
@@ -382,7 +389,7 @@ void RenderGameSystem::render_small_obstacles()
     // player_square.setOutlineColor( sf::Color::Red );
     // player_square.setOutlineThickness( 1.f );
     // player_square.setPosition( pos );
-    // getWindow().draw( player_square );
+    // m_window.draw( player_square );
   }
 
   for ( const auto &[pos_cmp, idx] : potPositions )
@@ -410,7 +417,7 @@ void RenderGameSystem::render_small_obstacles()
     square.setOutlineColor( sf::Color::Blue );
     square.setOutlineThickness( 2.f );
     square.setPosition( selected_cmp );
-    getWindow().draw( square );
+    m_window.draw( square );
   }
 
   // auto player_start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
@@ -422,7 +429,7 @@ void RenderGameSystem::render_small_obstacles()
   // position_square.setOutlineColor( sf::Color::Red );
   // position_square.setOutlineThickness( 1.f );
   // position_square.setPosition( player_start_area.position() );
-  // getWindow().draw( position_square );
+  // m_window.draw( position_square );
 }
 
 void RenderGameSystem::render_sinkhole()
@@ -431,7 +438,7 @@ void RenderGameSystem::render_sinkhole()
   auto sinkhole_view = m_reg->view<Cmp::SinkholeCell, Cmp::Position>();
   for ( auto [entity, sinkhole_cmp, position_cmp] : sinkhole_view.each() )
   {
-    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
+    // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
     sinkholePositions.emplace_back( position_cmp, sinkhole_cmp.active );
   }
 
@@ -447,7 +454,7 @@ void RenderGameSystem::render_corruption()
   auto corruption_view = m_reg->view<Cmp::CorruptionCell, Cmp::Position>();
   for ( auto [entity, corruption_cmp, position_cmp] : corruption_view.each() )
   {
-    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
+    // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
     corruptionPositions.emplace_back( position_cmp, corruption_cmp.active );
   }
 
@@ -462,7 +469,7 @@ void RenderGameSystem::render_wormhole()
   auto wormhole_view = m_reg->view<Cmp::Wormhole, Cmp::Position, Cmp::SpriteAnimation>();
   for ( auto [entity, wormhole_cmp, pos_cmp, anim_cmp] : wormhole_view.each() )
   {
-    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
+    // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
     try
     {
       auto &wormhole_sprite = m_multisprite_map.at( "WORMHOLE" );
@@ -504,7 +511,7 @@ void RenderGameSystem::render_wormhole()
           .set( "centerPosition", m_wormhole_shader.get_view_center() );
       m_wormhole_shader.Sprites::BaseFragmentShader::update( builder );
 
-      m_wormhole_shader.draw( getWindow(), sf::RenderStates::Default );
+      m_wormhole_shader.draw( m_window, sf::RenderStates::Default );
     }
     catch ( const std::out_of_range &e )
     {
@@ -518,7 +525,7 @@ void RenderGameSystem::render_wormhole()
     // temp_square.setOutlineColor( sf::Color::Red );
     // temp_square.setFillColor( sf::Color::Transparent );
     // temp_square.setOutlineThickness( 1.f );
-    // getWindow().draw( temp_square );
+    // m_window.draw( temp_square );
   }
 }
 
@@ -540,7 +547,7 @@ void RenderGameSystem::render_armed()
       temp_square.setFillColor( armed_cmp.m_armed_color );
     }
     temp_square.setOutlineThickness( 1.f );
-    getWindow().draw( temp_square );
+    m_window.draw( temp_square );
 
     // debug - F4
     if ( m_show_armed_obstacles )
@@ -548,7 +555,7 @@ void RenderGameSystem::render_armed()
       sf::Text text( m_font, "", 12 );
       text.setString( std::to_string( armed_cmp.m_index ) );
       text.setPosition( pos_cmp.position );
-      getWindow().draw( text );
+      m_window.draw( text );
     }
   }
 }
@@ -575,7 +582,7 @@ void RenderGameSystem::render_walls()
   auto wall_view = m_reg->view<Cmp::Wall, Cmp::Position>();
   for ( auto [entity, wall_cmp, pos_cmp] : wall_view.each() )
   {
-    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
+    // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
     sf::Vector2f new_scale{ 1.f, 1.f };
     uint8_t new_alpha{ 255 };
     sf::Vector2f new_origin{ 0.f, 0.f };
@@ -589,7 +596,7 @@ void RenderGameSystem::render_walls()
   auto entrance_door_view = m_reg->view<Cmp::Door, Cmp::Position>( entt::exclude<Cmp::Exit> );
   for ( auto [entity, door_cmp, pos_cmp] : entrance_door_view.each() )
   {
-    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
+    // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
     sf::Vector2f new_scale{ 1.f, 1.f };
     uint8_t new_alpha{ 255 };
     sf::Vector2f new_origin{ 0.f, 0.f };
@@ -602,7 +609,7 @@ void RenderGameSystem::render_walls()
   auto exit_door_view = m_reg->view<Cmp::Door, Cmp::Position, Cmp::Exit>();
   for ( auto [entity, door_cmp, pos_cmp, exit_cmp] : exit_door_view.each() )
   {
-    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
+    // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
     auto half_width_px = BaseSystem::kGridSquareSizePixels.x / 2.f;
     auto half_height_px = BaseSystem::kGridSquareSizePixels.y / 2.f;
 
@@ -649,7 +656,7 @@ void RenderGameSystem::render_player()
       pc_square.setOutlineColor( sf::Color::Green );
       pc_square.setOutlineThickness( 1.f );
       pc_square.setPosition( pc_detection_bounds.position() );
-      getWindow().draw( pc_square );
+      m_window.draw( pc_square );
     }
 
     // auto half_sprite_size = kGridSquareSizePixelsF;
@@ -667,29 +674,19 @@ void RenderGameSystem::render_player()
     // player_square.setOutlineColor( sf::Color::Green );
     // player_square.setOutlineThickness( 1.f );
     // player_square.setPosition( player_horizontal_bounds.position() );
-    // getWindow().draw( player_square );
+    // m_window.draw( player_square );
 
     // sf::RectangleShape player_square2( player_vertical_bounds.size() );
     // player_square2.setFillColor( sf::Color::Transparent );
     // player_square2.setOutlineColor( sf::Color::Blue );
     // player_square2.setOutlineThickness( 1.f );
     // player_square2.setPosition( player_vertical_bounds.position() );
-    // getWindow().draw( player_square2 );
+    // m_window.draw( player_square2 );
   }
 }
 
 void RenderGameSystem::render_player_footsteps()
 {
-  // add new footstep for player
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction>();
-  for ( auto [entity, player, pos_cmp, dir_cmp] : player_view.each() )
-  {
-    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { continue; }
-    m_footstep_sys.add_footstep( pos_cmp, dir_cmp );
-  }
-
-  // update all footsteps (fade out and remove if alpha <= 0)
-  m_footstep_sys.update();
 
   // render all footsteps
   auto footstep_view = m_reg->view<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Position, Cmp::Direction>();
@@ -758,7 +755,7 @@ void RenderGameSystem::render_npc()
   for ( auto [entity, npc_cmp, pos_cmp, npc_sb_cmp, dir_cmp, anim_cmp] :
         m_reg->view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds, Cmp::Direction, Cmp::SpriteAnimation>().each() )
   {
-    // if ( !is_visible_in_view( getWindow().getView(), position_cmp ) ) continue;
+    // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
     // flip and x-axis offset the sprite depending on the direction
     if ( dir_cmp.x > 0 )
     {
@@ -791,7 +788,7 @@ void RenderGameSystem::render_npc()
       npc_square.setOutlineColor( sf::Color::Red );
       npc_square.setOutlineThickness( 1.f );
       npc_square.setPosition( npc_sb_cmp.position() );
-      getWindow().draw( npc_square );
+      m_window.draw( npc_square );
     }
 
     // sf::RectangleShape player_square( kGridSquareSizePixelsF );
@@ -799,7 +796,7 @@ void RenderGameSystem::render_npc()
     // player_square.setOutlineColor( sf::Color::Red );
     // player_square.setOutlineThickness( 1.f );
     // player_square.setPosition( pos );
-    // getWindow().draw( player_square );
+    // m_window.draw( player_square );
   }
 }
 
@@ -822,7 +819,7 @@ void RenderGameSystem::render_flood_waters()
   for ( auto [_, _wl] : m_reg->view<Cmp::WaterLevel>().each() )
   {
     if ( _wl.m_level > 0 ) { m_water_shader.update( _wl.m_level ); }
-    getWindow().draw( m_water_shader );
+    m_window.draw( m_water_shader );
   }
 }
 
@@ -845,7 +842,7 @@ void RenderGameSystem::render_player_distances_on_npc()
   //     // distance_text.setFillColor(sf::Color::White);
   //     // distance_text.setOutlineColor(sf::Color::Black);
   //     // distance_text.setOutlineThickness(2.f);
-  //     // getWindow().draw(distance_text);
+  //     // m_window.draw(distance_text);
 
   // }
 }
@@ -862,7 +859,7 @@ void RenderGameSystem::render_player_distances_on_obstacles()
     distance_text.setFillColor( sf::Color::White );
     distance_text.setOutlineColor( sf::Color::Black );
     distance_text.setOutlineThickness( 2.f );
-    getWindow().draw( distance_text );
+    m_window.draw( distance_text );
   }
 }
 
@@ -887,7 +884,7 @@ void RenderGameSystem::render_npc_distances_on_obstacles()
       distance_text.setFillColor( sf::Color::White );
       distance_text.setOutlineColor( sf::Color::Black );
       distance_text.setOutlineThickness( 2.f );
-      getWindow().draw( distance_text );
+      m_window.draw( distance_text );
     }
   }
 }
@@ -902,7 +899,7 @@ void RenderGameSystem::render_positions()
     position_marker.setFillColor( sf::Color::Transparent );
     position_marker.setOutlineColor( sf::Color::Green );
     position_marker.setOutlineThickness( 1.f );
-    getWindow().draw( position_marker );
+    m_window.draw( position_marker );
   }
 }
 

@@ -36,8 +36,8 @@
 
 namespace ProceduralMaze::Sys {
 
-CollisionSystem::CollisionSystem( ProceduralMaze::SharedEnttRegistry reg )
-    : BaseSystem( reg )
+CollisionSystem::CollisionSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
+    : BaseSystem( reg, window )
 {
   // register the event sinks
   std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&CollisionSystem::on_player_action>(

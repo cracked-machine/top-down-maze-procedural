@@ -23,7 +23,7 @@ namespace ProceduralMaze::Sys {
 class FloodSystem : public BaseSystem
 {
 public:
-  FloodSystem( ProceduralMaze::SharedEnttRegistry reg );
+  FloodSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window );
 
   ~FloodSystem() = default;
 

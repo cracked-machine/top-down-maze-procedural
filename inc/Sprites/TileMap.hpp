@@ -13,8 +13,9 @@ namespace ProceduralMaze::Sprites::Containers {
 class TileMap : public sf::Drawable, public sf::Transformable
 {
 public:
-  // Default constructor using JSON config
-  TileMap( sf::Vector2u map_dimensions, const std::filesystem::path &config_path = "res/json/tilemap_config.json" );
+  TileMap() = default;
+
+  void load( sf::Vector2u map_dimensions, const std::filesystem::path &config_path = "res/json/tilemap_config.json" );
 
   // Create the tile map using a single large sf::VertexArray
   void create( sf::Vector2u tile_size, unsigned int width, unsigned int height );

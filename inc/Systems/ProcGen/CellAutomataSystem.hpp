@@ -13,7 +13,7 @@
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
-#include <iterator>
+
 #include <memory>
 
 namespace ProceduralMaze::Sys::ProcGen {
@@ -21,8 +21,9 @@ namespace ProceduralMaze::Sys::ProcGen {
 class CellAutomataSystem : public BaseSystem
 {
 public:
-  CellAutomataSystem( ProceduralMaze::SharedEnttRegistry reg, std::unique_ptr<RandomLevelGenerator> random_level )
-      : BaseSystem( reg ),
+  CellAutomataSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+                      std::unique_ptr<RandomLevelGenerator> random_level )
+      : BaseSystem( reg, window ),
         m_random_level( std::move( random_level ) )
   {
   }

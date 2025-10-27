@@ -2,8 +2,8 @@
 
 namespace ProceduralMaze::Sys {
 
-FloodSystem::FloodSystem( ProceduralMaze::SharedEnttRegistry reg )
-    : BaseSystem( reg )
+FloodSystem::FloodSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
+    : BaseSystem( reg, window )
 {
 }
 

@@ -47,7 +47,7 @@ class RenderSystem : public BaseSystem
 public:
   //! @brief Construct a new Render System object
   //! @param reg
-  RenderSystem( ProceduralMaze::SharedEnttRegistry reg );
+  RenderSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window );
 
   //! @brief Destroy the Render System object
   virtual ~RenderSystem() = default;
@@ -58,23 +58,6 @@ public:
   //! @brief Accessor for the static game view
   //! @return const sf::View&
   static const sf::View &getGameView() { return s_game_view; }
-
-  //! @brief Singleton accessor for the SFML RenderWindow
-  //! @return sf::RenderWindow&
-  static sf::RenderWindow &getWindow()
-  {
-    if ( !RenderSystem::m_window )
-    {
-      RenderSystem::m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( kDisplaySize ), "ProceduralMaze",
-                                                                   sf::State::Fullscreen );
-      if ( !RenderSystem::m_window->isOpen() )
-      {
-        SPDLOG_CRITICAL( "Failed to create SFML RenderWindow" );
-        std::terminate();
-      }
-    }
-    return *RenderSystem::m_window;
-  }
 
 protected:
   //! @brief Text alignment options
@@ -137,12 +120,6 @@ protected:
   static std::unordered_map<Sprites::SpriteMetaType, std::optional<Sprites::MultiSprite>> m_multisprite_map;
 
   static sf::View s_game_view;
-
-private:
-  // Static to prevent multiple windows being created
-  // Private to prevent uninitialised access
-  // Use the singleton getWindow() method to access
-  static std::unique_ptr<sf::RenderWindow> m_window;
 };
 
 } // namespace ProceduralMaze::Sys

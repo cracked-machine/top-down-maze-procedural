@@ -22,13 +22,13 @@ namespace ProceduralMaze {
 class EventHandler : public Sys::BaseSystem
 {
 public:
-  EventHandler( ProceduralMaze::SharedEnttRegistry reg );
+  EventHandler( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window );
 
-  void menu_state_handler( sf::RenderWindow &window );
-  void settings_state_handler( sf::RenderWindow &window );
-  void game_state_handler( sf::RenderWindow &window );
-  void paused_state_handler( sf::RenderWindow &window );
-  void game_over_state_handler( sf::RenderWindow &window );
+  void menu_state_handler();
+  void settings_state_handler();
+  void game_state_handler();
+  void paused_state_handler();
+  void game_over_state_handler();
 };
 
 } // namespace ProceduralMaze

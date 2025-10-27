@@ -22,8 +22,8 @@ namespace ProceduralMaze::Sprites {
 class SpriteFactory
 {
 public:
-  SpriteFactory();
-
+  SpriteFactory() = default;
+  void init();
   // Use string-based sprite type instead of enum
 
 private:

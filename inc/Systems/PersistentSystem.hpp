@@ -9,7 +9,7 @@ namespace ProceduralMaze::Sys {
 class PersistentSystem : public BaseSystem
 {
 public:
-  PersistentSystem( SharedEnttRegistry reg );
+  PersistentSystem( SharedEnttRegistry reg, sf::RenderWindow &window );
 
   /**
    * @brief Loads the persistent state data from storage.
@@ -41,6 +41,15 @@ public:
     SPDLOG_INFO( "Save Settings Event received" );
     save_state();
   }
+  /**
+   * @brief Initializes the component registry for the persistent system.
+   *
+   * This function sets up and registers all necessary components that need to
+   * persist across different game states or scenes. It should be called during
+   * system initialization to ensure all persistent components are properly
+   * configured and available for use.
+   */
+  void initializeComponentRegistry();
 
 private:
   /**
@@ -56,16 +65,6 @@ private:
    * an entity-component system or similar architecture.
    */
   std::unordered_map<std::string, std::function<void( const nlohmann::json & )>> m_component_loaders;
-
-  /**
-   * @brief Initializes the component registry for the persistent system.
-   *
-   * This function sets up and registers all necessary components that need to
-   * persist across different game states or scenes. It should be called during
-   * system initialization to ensure all persistent components are properly
-   * configured and available for use.
-   */
-  void initializeComponentRegistry();
 
   template <typename ComponentType, typename... DefaultArgTypes>
   /**

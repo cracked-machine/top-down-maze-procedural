@@ -6,7 +6,7 @@
 
 namespace ProceduralMaze::Sprites {
 
-SpriteFactory::SpriteFactory()
+void SpriteFactory::init()
 {
   std::ifstream file( "res/json/sprite_metadata.json" );
   if ( !file.is_open() )

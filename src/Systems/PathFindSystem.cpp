@@ -9,8 +9,8 @@
 
 namespace ProceduralMaze::Sys {
 
-PathFindSystem::PathFindSystem( ProceduralMaze::SharedEnttRegistry reg )
-    : BaseSystem( reg )
+PathFindSystem::PathFindSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
+    : BaseSystem( reg, window )
 {
 }
 

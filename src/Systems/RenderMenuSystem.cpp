@@ -36,12 +36,12 @@ namespace ProceduralMaze::Sys {
 
 void RenderMenuSystem::render_loading_screen( const std::string &status )
 {
-  getWindow().clear();
+  m_window.clear();
 
   // Background
   sf::RectangleShape background( ( sf::Vector2f( kDisplaySize ) ) );
   background.setFillColor( sf::Color::Black );
-  getWindow().draw( background );
+  m_window.draw( background );
 
   // Loading text
   render_text( "Loading Game...", 64, { kDisplaySize.x * 0.5f, kDisplaySize.y * 0.4f }, Alignment::CENTER );
@@ -54,21 +54,21 @@ void RenderMenuSystem::render_loading_screen( const std::string &status )
   spinner.setPosition( { kDisplaySize.x * 0.5f - 20.0f, kDisplaySize.y * 0.7f } );
   spinner.setFillColor( sf::Color::White );
   spinner.setRotation( sf::degrees( rotation ) );
-  getWindow().draw( spinner );
+  m_window.draw( spinner );
 
-  getWindow().display();
+  m_window.display();
 }
 
 void RenderMenuSystem::render_title()
 {
   // main render begin
-  getWindow().clear();
+  m_window.clear();
   {
     m_title_screen_shader.set_position( { 0, 0 } );
-    const auto mouse_pos = sf::Vector2f( sf::Mouse::getPosition( getWindow() ) )
-                               .componentWiseDiv( sf::Vector2f( getWindow().getSize() ) );
+    const auto mouse_pos = sf::Vector2f( sf::Mouse::getPosition( m_window ) )
+                               .componentWiseDiv( sf::Vector2f( m_window.getSize() ) );
     m_title_screen_shader.update( mouse_pos );
-    getWindow().draw( m_title_screen_shader );
+    m_window.draw( m_title_screen_shader );
 
     render_text( "Procedural Maze", 128, { kDisplaySize.x * 0.25f, 100.f }, Alignment::CENTER, 20.f, sf::Color::Black,
                  sf::Color::White );
@@ -80,34 +80,34 @@ void RenderMenuSystem::render_title()
     render_text( "Press <S> key for settings", 48, { kDisplaySize.x * 0.25f, 500.f }, Alignment::CENTER, 15.f );
   }
 
-  getWindow().display();
+  m_window.display();
   // main render end
 }
 
 void RenderMenuSystem::render_settings( sf::Time deltaTime )
 {
-  getWindow().clear();
+  m_window.clear();
 
   sf::Text title_text( m_font, "Settings", 64 );
   title_text.setFillColor( sf::Color::White );
   title_text.setPosition( { 100.f, 50.f } );
-  getWindow().draw( title_text );
+  m_window.draw( title_text );
 
   sf::Text start_text( m_font, "Press <Esc> key to go back", 24 );
   start_text.setFillColor( sf::Color::White );
   start_text.setPosition( { 400.f, 95.f } );
-  getWindow().draw( start_text );
+  m_window.draw( start_text );
 
   // ImGUI should be rendered before window.display() or SFML wipes the display buffer prematurely
   render_settings_widgets( deltaTime );
 
-  getWindow().display();
+  m_window.display();
 }
 
 void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
 {
   // need to make sure we call Update() and Render() every frame
-  ImGui::SFML::Update( getWindow(), deltaTime );
+  ImGui::SFML::Update( m_window, deltaTime );
 
   ImGui::Begin( "Settings", nullptr, kImGuiWindowOptions );
   // See PlayerSystem::Settings for details of which Components these are set
@@ -232,66 +232,66 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   ImGui::SliderInt( "Shrine Cost", reinterpret_cast<int *>( &shrine_cost.get_value() ), 1, 10 );
 
   ImGui::End();
-  ImGui::SFML::Render( getWindow() );
+  ImGui::SFML::Render( m_window );
 }
 
 void RenderMenuSystem::render_paused()
 {
   // main render begin
-  getWindow().clear();
+  m_window.clear();
   {
     sf::Text title_text( m_font, "Paused", 96 );
     title_text.setFillColor( sf::Color::White );
     title_text.setPosition( { kDisplaySize.x / 4.f, 100.f } );
-    getWindow().draw( title_text );
+    m_window.draw( title_text );
 
     sf::Text start_text( m_font, "Press P to continue", 48 );
     start_text.setFillColor( sf::Color::White );
     start_text.setPosition( { kDisplaySize.x / 4.f, 200.f } );
-    getWindow().draw( start_text );
+    m_window.draw( start_text );
   }
 
-  getWindow().display();
+  m_window.display();
   // main render end
 }
 
 void RenderMenuSystem::render_defeat_screen()
 {
   // main render begin
-  getWindow().clear();
+  m_window.clear();
   {
     sf::Text title_text( m_font, "You died!", 96 );
     title_text.setFillColor( sf::Color::White );
     title_text.setPosition( { kDisplaySize.x / 4.f, 100.f } );
-    getWindow().draw( title_text );
+    m_window.draw( title_text );
 
     sf::Text start_text( m_font, "Press <R> key to continue", 48 );
     start_text.setFillColor( sf::Color::White );
     start_text.setPosition( { kDisplaySize.x / 4.f, 200.f } );
-    getWindow().draw( start_text );
+    m_window.draw( start_text );
   }
 
-  getWindow().display();
+  m_window.display();
   // main render end
 }
 
 void RenderMenuSystem::render_victory_screen()
 {
   // main render begin
-  getWindow().clear();
+  m_window.clear();
   {
     sf::Text title_text( m_font, "You won!", 96 );
     title_text.setFillColor( sf::Color::White );
     title_text.setPosition( { kDisplaySize.x / 4.f, 100.f } );
-    getWindow().draw( title_text );
+    m_window.draw( title_text );
 
     sf::Text start_text( m_font, "Press <R> key to continue", 48 );
     start_text.setFillColor( sf::Color::White );
     start_text.setPosition( { kDisplaySize.x / 4.f, 200.f } );
-    getWindow().draw( start_text );
+    m_window.draw( start_text );
   }
 
-  getWindow().display();
+  m_window.display();
   // main render end
 }
 

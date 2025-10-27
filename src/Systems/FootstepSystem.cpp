@@ -1,6 +1,7 @@
 #include <FootStepAlpha.hpp>
 #include <FootStepTimer.hpp>
 #include <MultiSprite.hpp>
+#include <PlayableCharacter.hpp>
 #include <SpawnAreaSprite.hpp>
 #include <Systems/FootstepSystem.hpp>
 
@@ -44,6 +45,15 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
 
 void FootstepSystem::update()
 {
+
+  // add new footstep for player
+  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction>();
+  for ( auto [entity, player, pos_cmp, dir_cmp] : player_view.each() )
+  {
+    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { continue; }
+    add_footstep( pos_cmp, dir_cmp );
+  }
+
   auto view = m_reg->view<Cmp::FootStepTimer, Cmp::FootStepAlpha>();
   for ( auto [entity, timer, alpha] : view.each() )
   {

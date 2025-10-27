@@ -7,24 +7,24 @@
 
 namespace ProceduralMaze {
 
-EventHandler::EventHandler( ProceduralMaze::SharedEnttRegistry reg )
-    : Sys::BaseSystem( reg )
+EventHandler::EventHandler( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &m_window )
+    : Sys::BaseSystem( reg, m_window )
 {
 }
 
-void EventHandler::menu_state_handler( sf::RenderWindow &window )
+void EventHandler::menu_state_handler()
 {
   auto &game_state = get_persistent_component<Cmp::Persistent::GameState>();
 
   using namespace sf::Keyboard;
-  while ( const std::optional event = window.pollEvent() )
+  while ( const std::optional event = m_window.pollEvent() )
   {
-    ImGui::SFML::ProcessEvent( window, *event );
+    ImGui::SFML::ProcessEvent( m_window, *event );
     if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::Persistent::GameState::State::EXITING; }
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
     {
       sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
-      window.setView( sf::View( visibleArea ) );
+      m_window.setView( sf::View( visibleArea ) );
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
@@ -44,14 +44,14 @@ void EventHandler::menu_state_handler( sf::RenderWindow &window )
   }
 }
 
-void EventHandler::settings_state_handler( sf::RenderWindow &window )
+void EventHandler::settings_state_handler()
 {
   auto &game_state = get_persistent_component<Cmp::Persistent::GameState>();
   using namespace sf::Keyboard;
 
-  while ( const std::optional event = window.pollEvent() )
+  while ( const std::optional event = m_window.pollEvent() )
   {
-    ImGui::SFML::ProcessEvent( window, *event );
+    ImGui::SFML::ProcessEvent( m_window, *event );
     if ( event->is<sf::Event::Closed>() )
     {
       getEventDispatcher().trigger( Events::SaveSettingsEvent() );
@@ -61,7 +61,7 @@ void EventHandler::settings_state_handler( sf::RenderWindow &window )
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
     {
       sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
-      window.setView( sf::View( visibleArea ) );
+      m_window.setView( sf::View( visibleArea ) );
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
@@ -75,18 +75,18 @@ void EventHandler::settings_state_handler( sf::RenderWindow &window )
   }
 }
 
-void EventHandler::game_state_handler( sf::RenderWindow &window )
+void EventHandler::game_state_handler()
 {
   auto &game_state = get_persistent_component<Cmp::Persistent::GameState>();
   using namespace sf::Keyboard;
-  while ( const std::optional event = window.pollEvent() )
+  while ( const std::optional event = m_window.pollEvent() )
   {
-    ImGui::SFML::ProcessEvent( window, *event );
+    ImGui::SFML::ProcessEvent( m_window, *event );
     if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::Persistent::GameState::State::EXITING; }
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
     {
       sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
-      window.setView( sf::View( visibleArea ) );
+      m_window.setView( sf::View( visibleArea ) );
     }
     else if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
@@ -201,8 +201,8 @@ void EventHandler::game_state_handler( sf::RenderWindow &window )
     direction.y = 0;
     if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) ) { direction.y = -1; } // move player up
     if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) ) { direction.x = -1; } // move player left
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; } // move player right
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; } // move player down
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; }  // move player right
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; }  // move player down
   }
 
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Space ) )
@@ -219,18 +219,18 @@ void EventHandler::game_state_handler( sf::RenderWindow &window )
   }
 }
 
-void EventHandler::paused_state_handler( sf::RenderWindow &window )
+void EventHandler::paused_state_handler()
 {
   auto &game_state = get_persistent_component<Cmp::Persistent::GameState>();
   using namespace sf::Keyboard;
-  while ( const std::optional event = window.pollEvent() )
+  while ( const std::optional event = m_window.pollEvent() )
   {
-    ImGui::SFML::ProcessEvent( window, *event );
+    ImGui::SFML::ProcessEvent( m_window, *event );
     if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::Persistent::GameState::State::EXITING; }
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
     {
       sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
-      window.setView( sf::View( visibleArea ) );
+      m_window.setView( sf::View( visibleArea ) );
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
@@ -242,18 +242,18 @@ void EventHandler::paused_state_handler( sf::RenderWindow &window )
   }
 }
 
-void EventHandler::game_over_state_handler( sf::RenderWindow &window )
+void EventHandler::game_over_state_handler()
 {
   auto &game_state = get_persistent_component<Cmp::Persistent::GameState>();
   using namespace sf::Keyboard;
-  while ( const std::optional event = window.pollEvent() )
+  while ( const std::optional event = m_window.pollEvent() )
   {
-    ImGui::SFML::ProcessEvent( window, *event );
+    ImGui::SFML::ProcessEvent( m_window, *event );
     if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::Persistent::GameState::State::EXITING; }
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
     {
       sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
-      window.setView( sf::View( visibleArea ) );
+      m_window.setView( sf::View( visibleArea ) );
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
