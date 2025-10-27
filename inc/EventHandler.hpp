@@ -1,7 +1,12 @@
 #ifndef __INPUT_EVENT_HANDLER_HPP__
 #define __INPUT_EVENT_HANDLER_HPP__
 
+#include <imgui-SFML.h>
+#include <spdlog/spdlog.h>
+
 #include <BaseSystem.hpp>
+#include <Components/PlayableCharacter.hpp>
+#include <Components/Position.hpp>
 #include <Components/System.hpp>
 #include <Direction.hpp>
 #include <Events/PlayerActionEvent.hpp>
@@ -12,18 +17,10 @@
 #include <SFML/Window/Window.hpp>
 #include <optional>
 
-#include <Components/PlayableCharacter.hpp>
-#include <Components/Position.hpp>
-
-#include <spdlog/spdlog.h>
-
-#include <imgui-SFML.h>
-
 namespace ProceduralMaze {
 
 class EventHandler : public Sys::BaseSystem
 {
-
 public:
   EventHandler( ProceduralMaze::SharedEnttRegistry reg );
 

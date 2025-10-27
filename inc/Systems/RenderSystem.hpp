@@ -1,6 +1,10 @@
 #ifndef __SYSTEMS_RENDER_SYSTEM_HPP__
 #define __SYSTEMS_RENDER_SYSTEM_HPP__
 
+#include <imgui-SFML.h>
+#include <imgui.h>
+#include <spdlog/spdlog.h>
+
 #include <Components/Armed.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Font.hpp>
@@ -17,15 +21,6 @@
 #include <NPCScanBounds.hpp>
 #include <PCDetectionBounds.hpp>
 #include <PlayerSystem.hpp>
-#include <SFML/Window/WindowEnums.hpp>
-#include <Sprites/BasicSprite.hpp>
-#include <Sprites/FloodWaterShader.hpp>
-#include <Sprites/MultiSprite.hpp>
-#include <Sprites/SpriteFactory.hpp>
-#include <Sprites/TileMap.hpp>
-#include <Systems/BaseSystem.hpp>
-#include <Systems/PathFindSystem.hpp>
-
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -34,73 +29,42 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <imgui-SFML.h>
-
+#include <SFML/Window/WindowEnums.hpp>
+#include <Sprites/BasicSprite.hpp>
+#include <Sprites/FloodWaterShader.hpp>
+#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteFactory.hpp>
+#include <Sprites/TileMap.hpp>
+#include <Systems/BaseSystem.hpp>
+#include <Systems/PathFindSystem.hpp>
 #include <entt/entity/fwd.hpp>
-
-#include <imgui.h>
 #include <memory>
-
-#include <imgui-SFML.h>
-
-#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
 
 class RenderSystem : public BaseSystem
 {
 public:
+  //! @brief Construct a new Render System object
+  //! @param reg
   RenderSystem( ProceduralMaze::SharedEnttRegistry reg );
+
+  //! @brief Destroy the Render System object
   virtual ~RenderSystem() = default;
 
-  // External access to the window
-  sf::RenderWindow &window() { return getWindow(); }
+  //! @brief Initialize multi-sprites
   void init_multisprites();
 
-protected:
-  // Font for rendering text
-  Cmp::Font m_font = Cmp::Font( "res/fonts/tuffy.ttf" );
-
-  bool m_show_path_distances{ false };
-  bool m_show_armed_obstacles{ false };
-  bool m_minimap_enabled{ false };
-  bool m_show_debug_stats{ false };
-
-  // common window options for ImGui windows
-  const int kImGuiWindowOptions = ImGuiWindowFlags_NoTitleBar
-      // | ImGuiWindowFlags_NoResize
-      // | ImGuiWindowFlags_NoMove
-      ;
-
-  // Text alignment options
-  enum class Alignment
-  {
-    LEFT,
-    CENTER
-  };
-
-  /**
-   * @brief Renders text to the screen with specified formatting and alignment options.
-   *
-   * @param text The string content to be rendered
-   * @param size The font size for the text in pixels
-   * @param position The screen coordinates where the text should be positioned
-   * @param align The alignment mode for the text (left or center). Left will respect position.x,
-   * center will ignore it.
-   * @param padding Optional spacing around the text in pixels (default: 10.0f)
-   * @param fill_color Optional color for the text fill (default: White)
-   * @param outline_color Optional color for the text outline (default: Transparent). Outline
-   * thickness is 0.f if set to Transparent.
-   */
-  void render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align, float padding = 10.f,
-                    sf::Color fill_color = sf::Color::White, sf::Color outline_color = sf::Color::Transparent );
-
-  static sf::View s_game_view;
-
-public:
+  //! @brief Accessor for the static game view
+  //! @return const sf::View&
   static const sf::View &getGameView() { return s_game_view; }
 
-  // Derived class accessor for the static window instance
+  //! @brief External access to the window
+  //! @return sf::RenderWindow&
+  sf::RenderWindow &window() { return getWindow(); }
+
+  //! @brief Singleton accessor for the SFML RenderWindow
+  //! @return sf::RenderWindow&
   static sf::RenderWindow &getWindow()
   {
     if ( !RenderSystem::m_window )
@@ -117,6 +81,44 @@ public:
   }
 
 protected:
+  //! @brief Text alignment options
+  enum class Alignment
+  {
+    //! @brief Left align text (respects position.x)
+    LEFT,
+    //! @brief Center align text (ignores position.x)
+    CENTER
+  };
+
+  //! @brief Default font for rendering text
+  Cmp::Font m_font = Cmp::Font( "res/fonts/tuffy.ttf" );
+
+  // System mode flags
+  bool m_show_path_distances{ false };
+  bool m_show_armed_obstacles{ false };
+  bool m_minimap_enabled{ false };
+  bool m_show_debug_stats{ false };
+
+  //! @brief Common window options for ImGui windows
+  const int kImGuiWindowOptions = ImGuiWindowFlags_NoTitleBar
+      // | ImGuiWindowFlags_NoResize
+      // | ImGuiWindowFlags_NoMove
+      ;
+
+  //! @brief Renders text to the screen with specified formatting and alignment options.
+  //!
+  //! @param text The string content to be rendered
+  //! @param size The font size for the text in pixels
+  //! @param position The screen coordinates where the text should be positioned
+  //! @param align The alignment mode for the text (left or center). Left will
+  //! respect position.x, center will ignore it.
+  //! @param padding Optional spacing around the text in pixels (default: 10.0f)
+  //! @param fill_color Optional color for the text fill (default: White)
+  //! @param outline_color Optional color for the text outline (default:
+  //! Transparent). Outline thickness is 0.f if set to Transparent.
+  void render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align, float padding = 10.f,
+                    sf::Color fill_color = sf::Color::White, sf::Color outline_color = sf::Color::Transparent );
+
   // Variant that renders to a specific render target (shader, texture, etc.)
   void safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
                                      const sf::FloatRect &pos_cmp, int sprite_index = 0,
@@ -137,6 +139,8 @@ protected:
 
   // Shared multisprite map
   static std::unordered_map<Sprites::SpriteMetaType, std::optional<Sprites::MultiSprite>> m_multisprite_map;
+
+  static sf::View s_game_view;
 
 private:
   // Static to prevent multiple windows being created

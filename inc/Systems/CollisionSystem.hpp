@@ -1,10 +1,11 @@
 #ifndef __SYSTEMS_COLLISION_SYSTEM_HPP__
 #define __SYSTEMS_COLLISION_SYSTEM_HPP__
 
+#include <spdlog/spdlog.h>
+
 #include <Components/Armed.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Loot.hpp>
-
 #include <Components/NPC.hpp>
 #include <Components/Neighbours.hpp>
 #include <Components/Obstacle.hpp>
@@ -18,12 +19,7 @@
 #include <NPCScanBounds.hpp>
 #include <NpcSystem.hpp>
 #include <PCDetectionBounds.hpp>
-
 #include <Persistent/CorruptionDamage.hpp>
-#include <SinkholeCell.hpp>
-#include <Sprites/SpriteFactory.hpp>
-#include <Systems/BaseSystem.hpp>
-
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -32,16 +28,14 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
-
+#include <SinkholeCell.hpp>
+#include <Sprites/SpriteFactory.hpp>
+#include <Systems/BaseSystem.hpp>
+#include <Systems/RenderSystem.hpp>
 #include <cassert>
 #include <cmath>
-
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
-
-#include <spdlog/spdlog.h>
-
-#include <Systems/RenderSystem.hpp>
 
 #define assertm( exp, msg ) assert( ( void( msg ), exp ) )
 
@@ -133,7 +127,6 @@ public:
 
       for ( auto [hazard_field_entt, hazard_field_cmp, hazard_field_pos_cmp] : hazard_field_view.each() )
       {
-
         if ( npc_pos_cmp.findIntersection( hazard_field_pos_cmp ) )
         {
           // NPC falls into the sinkhole
@@ -150,7 +143,6 @@ public:
   /// EVENT SINKS ///
   void on_player_action( const Events::PlayerActionEvent &event )
   {
-
     if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE )
     {
       check_player_large_obstacle_collision( event.action );

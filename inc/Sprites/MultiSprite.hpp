@@ -1,6 +1,8 @@
 #ifndef __SPRITES_MULTISPRITE2_HPP__
 #define __SPRITES_MULTISPRITE2_HPP__
 
+#include <spdlog/spdlog.h>
+
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -8,11 +10,8 @@
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/System/Vector2.hpp>
-
 #include <cstdint>
 #include <filesystem>
-
-#include <spdlog/spdlog.h>
 #include <string>
 #include <vector>
 

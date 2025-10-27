@@ -1,11 +1,12 @@
 #ifndef __COMPONENTS_PLAYER_SCORE_HPP__
 #define __COMPONENTS_PLAYER_SCORE_HPP__
 
+#include <spdlog/common.h>
+#include <spdlog/spdlog.h>
+
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <spdlog/common.h>
-#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Cmp {
 

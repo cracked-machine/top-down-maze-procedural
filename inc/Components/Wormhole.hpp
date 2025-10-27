@@ -1,8 +1,9 @@
 #ifndef __COMPONENTS_WORMHOLE_HPP__
 #define __COMPONENTS_WORMHOLE_HPP__
 
-#include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
+
+#include <entt/entity/registry.hpp>
 
 namespace ProceduralMaze::Cmp {
 

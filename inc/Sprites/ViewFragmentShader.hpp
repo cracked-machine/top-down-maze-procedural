@@ -1,14 +1,14 @@
 #ifndef __SPRITES_VIEWFRAGMENTSHADER_HPP__
 #define __SPRITES_VIEWFRAGMENTSHADER_HPP__
 
+#include <spdlog/spdlog.h>
+
 #include <Random.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Sprites/BaseFragmentShader.hpp>
 #include <Systems/BaseSystem.hpp>
-
-#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sprites {
 

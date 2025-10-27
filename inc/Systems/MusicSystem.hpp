@@ -9,7 +9,6 @@ namespace ProceduralMaze::Sys {
 
 class MusicSystem : public BaseSystem
 {
-
 public:
   MusicSystem( ProceduralMaze::SharedEnttRegistry reg, std::filesystem::path music_path );
 

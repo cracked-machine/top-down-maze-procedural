@@ -20,7 +20,6 @@ void CellAutomataSystem::iterate( unsigned int iterations )
 
 void CellAutomataSystem::find_neighbours()
 {
-
   // 1. find neighbours
   for ( auto it = m_random_level->begin(); it != m_random_level->end(); it++ )
   {

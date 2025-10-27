@@ -1,13 +1,14 @@
 #ifndef __COMPONENTS_OBSTACLE_HPP__
 #define __COMPONENTS_OBSTACLE_HPP__
 
+#include <spdlog/spdlog.h>
+
 #include <Random.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <cstdint>
 #include <entt/entity/registry.hpp>
-#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Cmp {
 

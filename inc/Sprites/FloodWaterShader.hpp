@@ -1,10 +1,11 @@
 #ifndef __SPRITES_FLOODERWATERSHADER_HPP__
 #define __SPRITES_FLOODERWATERSHADER_HPP__
 
+#include <spdlog/spdlog.h>
+
 #include <SFML/System/Time.hpp>
 #include <Sprites/BaseFragmentShader.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sprites {
 

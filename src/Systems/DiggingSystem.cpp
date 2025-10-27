@@ -1,3 +1,5 @@
+#include <spdlog/spdlog.h>
+
 #include <DiggingSystem.hpp>
 #include <Persistent/DiggingCooldownThreshold.hpp>
 #include <Persistent/DiggingDamagePerHit .hpp>
@@ -6,7 +8,6 @@
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Time.hpp>
 #include <SelectedPosition.hpp>
-#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
 
@@ -36,7 +37,6 @@ DiggingSystem::DiggingSystem( ProceduralMaze::SharedEnttRegistry reg )
 
 void DiggingSystem::update()
 {
-
   // abort if still in cooldown
   auto digging_cooldown_amount = get_persistent_component<Cmp::Persistent::DiggingCooldownThreshold>().get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )

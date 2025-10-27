@@ -1,12 +1,13 @@
 #ifndef __SYS_NPCSYSTEM_HPP__
 #define __SYS_NPCSYSTEM_HPP__
 
+#include <spdlog/spdlog.h>
+
 #include <BaseSystem.hpp>
 #include <Direction.hpp>
 #include <Events/NpcCreationEvent.hpp>
 #include <Events/NpcDeathEvent.hpp>
 #include <LerpPosition.hpp>
-
 #include <NPC.hpp>
 #include <NPCScanBounds.hpp>
 #include <Persistent/NpcActivateScale.hpp>
@@ -15,7 +16,6 @@
 #include <Sprites/SpriteFactory.hpp>
 #include <entt/entity/registry.hpp>
 #include <entt/signal/dispatcher.hpp>
-#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
 

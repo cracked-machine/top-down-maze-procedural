@@ -4,7 +4,6 @@
 #include <FootStepTimer.hpp>
 #include <GraveSprite.hpp>
 #include <HazardFieldCell.hpp>
-
 #include <LargeObstacle.hpp>
 #include <LootContainer.hpp>
 #include <MultiSprite.hpp>
@@ -341,7 +340,6 @@ void RenderGameSystem::render_loot_containers()
 
 void RenderGameSystem::render_small_obstacles()
 {
-
   // Group similar draw operations to reduce state changes
   std::vector<std::tuple<sf::FloatRect, int, float>> rockPositions;
   std::vector<std::pair<sf::FloatRect, int>> potPositions;
@@ -807,11 +805,9 @@ void RenderGameSystem::render_npc()
 
 void RenderGameSystem::render_explosions()
 {
-
   auto explosion_view = m_reg->view<Cmp::NpcDeathPosition, Cmp::SpriteAnimation>();
   for ( auto [entity, pos_cmp, anim_cmp] : explosion_view.each() )
   {
-
     // Always render the current frame
     SPDLOG_DEBUG( "Rendering explosion frame {}/{} for entity {}", anim_cmp.m_current_frame,
                   m_explosion_ms->get_sprites_per_sequence(), static_cast<int>( entity ) );

@@ -95,5 +95,9 @@
             ],
             "url": "./res/json/tilemap_config_schema.json"
         }
-    ]
+    ],
+    "doxdocgen.c.triggerSequence": "//",
+    "doxdocgen.c.firstLine": "",
+    "doxdocgen.c.lastLine": "",
+    "doxdocgen.c.commentPrefix": "//! "
 }

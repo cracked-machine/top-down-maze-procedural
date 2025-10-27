@@ -1,11 +1,6 @@
 #ifndef __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 #define __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 
-#include <SFML/System/Vector2.hpp>
-
-#include <entt/entity/fwd.hpp>
-#include <entt/entity/registry.hpp>
-
 #include <spdlog/spdlog.h>
 
 #include <Components/Exit.hpp>
@@ -14,10 +9,12 @@
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <Components/Wall.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
-
+#include <entt/entity/fwd.hpp>
+#include <entt/entity/registry.hpp>
 #include <map>
 #include <memory>
 #include <optional>

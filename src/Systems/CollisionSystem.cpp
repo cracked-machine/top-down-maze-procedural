@@ -92,7 +92,6 @@ void CollisionSystem::check_player_to_npc_collision()
   auto npc_collision_view = m_reg->view<Cmp::NPC, Cmp::Position>();
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp, dir_cmp] : player_collision_view.each() )
   {
-
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_collision_view.each() )
     {
       if ( pc_pos_cmp.findIntersection( npc_pos_cmp ) )
@@ -199,7 +198,6 @@ void CollisionSystem::check_loot_collision()
 
   for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
   {
-
     for ( auto [loot_entt, loot_cmp, loot_pos_cmp] : loot_collision_view.each() )
     {
       if ( not is_visible_in_view( RenderSystem::getGameView(), loot_pos_cmp ) ) continue;
@@ -264,7 +262,6 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
 
     for ( auto [lo_entity, lo_cmp] : large_obstacle_view.each() )
     {
-
       if ( player_hitbox.findIntersection( lo_cmp ) )
       {
         SPDLOG_DEBUG( "Player collided with LargeObstacle at ({}, {})", lo_cmp.position.x, lo_cmp.position.y );
@@ -272,14 +269,12 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
         auto shrine_view = m_reg->view<Cmp::ShrineSprite, Cmp::Position>();
         for ( auto [shrine_entity, shrine_cmp, pos_cmp] : shrine_view.each() )
         {
-
           if ( not lo_cmp.findIntersection( pos_cmp ) ) continue;
 
           auto anim_sprite_cmp = m_reg->try_get<Cmp::SpriteAnimation>( shrine_entity );
           auto &shrine_cost = get_persistent_component<Cmp::Persistent::ShrineCost>();
           if ( pc_score_cmp.get_score() >= shrine_cost.get_value() && !anim_sprite_cmp )
           {
-
             // Convert pixel size to grid size, then calculate threshold
             auto lo_grid_size = lo_cmp.size.componentWiseDiv( kGridSquareSizePixelsF );
             auto lo_count_threshold = ( lo_grid_size.x * lo_grid_size.y );

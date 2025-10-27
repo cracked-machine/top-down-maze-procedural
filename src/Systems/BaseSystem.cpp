@@ -40,7 +40,6 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
   auto wall_view = m_reg->view<Cmp::Wall, Cmp::Position>();
   for ( auto [entity, wall_cmp, pos_cmp] : wall_view.each() )
   {
-
     if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 

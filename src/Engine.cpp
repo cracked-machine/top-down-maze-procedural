@@ -1,6 +1,5 @@
 #include <CorruptionCell.hpp>
 #include <Engine.hpp>
-
 #include <Events/AnimResetFrameEvent.hpp>
 #include <MusicSystem.hpp>
 #include <Persistent/MusicVolume.hpp>
@@ -33,7 +32,6 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
       m_abovewater_sounds_sys( m_reg, "res/audio/footsteps.mp3" ),
       m_event_handler( m_reg )
 {
-
   SPDLOG_INFO( "Engine Initiliasing... " );
 
   m_persistent_sys.load_state();
@@ -73,7 +71,6 @@ bool Engine::run()
     switch ( game_state.current_state )
     {
       case Cmp::Persistent::GameState::State::MENU: {
-
         // process music playback
         // m_title_music_sys.update_music_playback( Sys::MusicSystem::Function::PLAY );
 
@@ -89,7 +86,6 @@ bool Engine::run()
       } // case SETTINGS end
 
       case Cmp::Persistent::GameState::State::LOADING: {
-
         // wait for fade out to complete
         m_title_music_sys.start_music_fade_out();
         if ( m_title_music_sys.is_fading_out() )
@@ -167,7 +163,6 @@ bool Engine::run()
           m_player_sys.update_movement( deltaTime, !_sys.collisions_enabled );
           if ( _sys.collisions_enabled )
           {
-
             m_collision_sys.check_player_hazard_field_collision<Cmp::SinkholeCell>();
             m_collision_sys.check_player_hazard_field_collision<Cmp::CorruptionCell>();
             m_collision_sys.check_player_to_npc_collision();
@@ -229,7 +224,6 @@ bool Engine::run()
       } // case GAME_OVER end
 
       case Cmp::Persistent::GameState::State::EXITING: {
-
         // wait for fade out to complete
         m_title_music_sys.start_music_fade_out();
         if ( m_title_music_sys.is_fading_out() )

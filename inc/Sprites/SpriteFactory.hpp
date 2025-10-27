@@ -1,19 +1,17 @@
 #ifndef __SPRITES_SPRITE_FACTORY_HPP__
 #define __SPRITES_SPRITE_FACTORY_HPP__
 
-#include "MultiSprite.hpp"
+#include <Components/Random.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Vector2.hpp>
-
-#include <Components/Random.hpp>
 #include <Sprites/MultiSprite.hpp>
-
+#include <nlohmann/json.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-#include <nlohmann/json.hpp>
+#include "MultiSprite.hpp"
 
 namespace ProceduralMaze::Sprites {
 

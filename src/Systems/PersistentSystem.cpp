@@ -37,10 +37,10 @@
 #include <unordered_map>
 
 #define JSON_NOEXCEPTION
-#include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
 #include <Persistent/GameState.hpp>
+#include <nlohmann/json.hpp>
 
 namespace ProceduralMaze::Sys {
 

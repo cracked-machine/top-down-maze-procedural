@@ -1,21 +1,18 @@
 #ifndef __SYSTEMS_PROCGEN_CELLAUTO_SYSTEM_HPP__
 #define __SYSTEMS_PROCGEN_CELLAUTO_SYSTEM_HPP__
 
-#include <SFML/System/Clock.hpp>
-#include <SFML/System/Vector2.hpp>
-
-#include <entt/entity/entity.hpp>
-#include <entt/entity/registry.hpp>
-
 #include <spdlog/spdlog.h>
 
 #include <Components/Neighbours.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
+#include <SFML/System/Clock.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
-
+#include <entt/entity/entity.hpp>
+#include <entt/entity/registry.hpp>
 #include <iterator>
 #include <memory>
 

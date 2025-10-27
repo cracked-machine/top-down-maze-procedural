@@ -1,13 +1,13 @@
 #ifndef __COMPONENTS_PLAYABLECHARACTER_HPP__
 #define __COMPONENTS_PLAYABLECHARACTER_HPP__
 
+#include <spdlog/spdlog.h>
+
 #include <Base.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
-
 #include <entt/entity/registry.hpp>
-#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Cmp {
 

@@ -88,7 +88,6 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
     auto pos_view = m_reg->view<Cmp::Position>();
     for ( auto [entity, pos_cmp] : pos_view.each() )
     {
-
       if ( pos_cmp.findIntersection( new_large_obst_cmp ) )
       {
         // Calculate relative pixel positions within the large obstacle grid
@@ -183,11 +182,9 @@ void RandomLevelGenerator::gen_large_obstacles()
 
 void RandomLevelGenerator::gen_small_obstacles()
 {
-
   auto position_view = m_reg->view<Cmp::Position>( entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
   for ( auto [entity, pos] : position_view.each() )
   {
-
     // pick a random obstacle type and texture index
     // clang-format off
     auto [obst_type, rand_obst_tex_idx] = 
@@ -208,7 +205,6 @@ void RandomLevelGenerator::gen_loot_containers()
 
   for ( std::size_t i = 0; i < num_loot_containers; ++i )
   {
-
     auto [random_entity, random_origin_position] = get_random_position(
         {}, ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
 
@@ -232,7 +228,6 @@ void RandomLevelGenerator::gen_npc_containers()
 
   for ( std::size_t i = 0; i < num_npc_containers; ++i )
   {
-
     auto [random_entity, random_origin_position] = get_random_position(
         {}, ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
 

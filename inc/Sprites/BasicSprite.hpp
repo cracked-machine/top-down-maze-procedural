@@ -1,10 +1,11 @@
 #ifndef __SPRITES_BASICSPRITE_HPP__
 #define __SPRITES_BASICSPRITE_HPP__
 
+#include <spdlog/spdlog.h>
+
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sprites {
 

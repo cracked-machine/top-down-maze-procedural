@@ -1,24 +1,20 @@
 #ifndef __SYSTEMS_WATER_SYSTEM_HPP__
 #define __SYSTEMS_WATER_SYSTEM_HPP__
 
-#include <Components/Direction.hpp>
+#include <spdlog/spdlog.h>
 
+#include <Components/Direction.hpp>
 #include <Components/Persistent/FloodSpeed.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
 #include <Components/WaterLevel.hpp>
-#include <Systems/BaseSystem.hpp>
-
 #include <SFML/Audio/Music.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/System/Vector2.hpp>
-
+#include <Systems/BaseSystem.hpp>
 #include <entt/entity/registry.hpp>
-
-#include <spdlog/spdlog.h>
-
 #include <memory>
 #include <unordered_map>
 
@@ -26,7 +22,6 @@ namespace ProceduralMaze::Sys {
 
 class FloodSystem : public BaseSystem
 {
-
 public:
   FloodSystem( ProceduralMaze::SharedEnttRegistry reg );
 

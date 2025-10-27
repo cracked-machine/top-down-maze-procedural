@@ -54,7 +54,6 @@ void EventHandler::settings_state_handler( sf::RenderWindow &window )
     ImGui::SFML::ProcessEvent( window, *event );
     if ( event->is<sf::Event::Closed>() )
     {
-
       getEventDispatcher().trigger( Events::SaveSettingsEvent() );
       game_state.current_state = Cmp::Persistent::GameState::State::EXITING;
       return; // Exit immediately after state change
@@ -183,7 +182,6 @@ void EventHandler::game_state_handler( sf::RenderWindow &window )
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-
       if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
       {
         using namespace std::chrono_literals;
@@ -203,8 +201,8 @@ void EventHandler::game_state_handler( sf::RenderWindow &window )
     direction.y = 0;
     if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) ) { direction.y = -1; } // move player up
     if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) ) { direction.x = -1; } // move player left
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; }  // move player right
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; }  // move player down
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; } // move player right
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; } // move player down
   }
 
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Space ) )

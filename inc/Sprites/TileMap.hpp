@@ -1,11 +1,12 @@
 #ifndef __SPRITES_TILEMAP_HPP__
 #define __SPRITES_TILEMAP_HPP__
 
+#include <spdlog/spdlog.h>
+
 #include <Random.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <nlohmann/json.hpp>
-#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sprites::Containers {
 

@@ -1,6 +1,8 @@
 #ifndef __COMPONENTS_DOOR_HPP__
 #define __COMPONENTS_DOOR_HPP__
 
+#include <spdlog/spdlog.h>
+
 #include <Exit.hpp>
 #include <Random.hpp>
 #include <SFML/System/Clock.hpp>
@@ -8,7 +10,6 @@
 #include <Sprites/SpriteFactory.hpp>
 #include <cstdint>
 #include <entt/entity/registry.hpp>
-#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Cmp {
 

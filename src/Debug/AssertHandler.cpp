@@ -1,6 +1,7 @@
+#include <spdlog/spdlog.h>
+
 #include <Debug/AssertHandler.hpp>
 #include <iomanip>
-#include <spdlog/spdlog.h>
 #include <sstream>
 
 #ifdef _WIN32
@@ -64,7 +65,6 @@ void stack_trace( void )
 
   for ( size_t i = 0; i < 25; i++ )
   {
-
     BOOL result = StackWalk64( image, process, thread, &stackframe, &context, NULL, SymFunctionTableAccess64,
                                SymGetModuleBase64, NULL );
 
@@ -80,7 +80,6 @@ void stack_trace( void )
     // Get symbol information
     if ( SymFromAddr( process, stackframe.AddrPC.Offset, &displacement, symbol ) )
     {
-
       // Get line information
       IMAGEHLP_LINE64 line;
       line.SizeOfStruct = sizeof( IMAGEHLP_LINE64 );

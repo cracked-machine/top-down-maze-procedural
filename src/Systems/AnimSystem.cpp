@@ -1,3 +1,5 @@
+#include <spdlog/spdlog.h>
+
 #include <AnimSystem.hpp>
 #include <EnttDistanceMap.hpp>
 #include <LerpPosition.hpp>
@@ -15,7 +17,6 @@
 #include <SpriteFactory.hpp>
 #include <Systems/RenderSystem.hpp>
 #include <Wormhole.hpp>
-#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
 
@@ -122,7 +123,6 @@ void AnimSystem::update( sf::Time deltaTime )
 
 void AnimSystem::on_anim_reset_frame( const Events::AnimResetFrameEvent &event )
 {
-
   auto anim_cmp = m_reg->try_get<Cmp::SpriteAnimation>( event.m_entity );
   if ( !anim_cmp ) return;
   anim_cmp->m_current_frame = 0;
@@ -171,7 +171,6 @@ void AnimSystem::update_grouped_sequences( Cmp::SpriteAnimation &anim, sf::Time 
 
   if ( anim.m_elapsed_time >= frame_rate )
   {
-
     // Increment frame. Wrap around to zero at anim.m_frame_count
     anim.m_current_frame = ( anim.m_current_frame + sprites_per_frame ) % frames_per_group;
 

@@ -1,16 +1,16 @@
 #ifndef __COMPONENTS_NEIGHBOURS_HPP__
 #define __COMPONENTS_NEIGHBOURS_HPP__
 
+#include <spdlog/spdlog.h>
+
 #include <entt/entity/registry.hpp>
 #include <map>
-#include <spdlog/spdlog.h>
 #include <string>
 
 namespace ProceduralMaze::Cmp {
 
 class Neighbours
 {
-
 public:
   enum class Dir
   {

@@ -19,27 +19,34 @@
 namespace ProceduralMaze::Sys {
 
 /**
- * @brief A templated system that manages the creation and spread of hazard fields in a procedural maze.
+ * @brief A templated system that manages the creation and spread of hazard
+ * fields in a procedural maze.
  *
- * This system handles the lifecycle of hazard field entities, from initial seeding to progressive
- * spreading throughout the maze. It operates on entities with obstacle components and converts them
- * to hazard field entities over time.
+ * This system handles the lifecycle of hazard field entities, from initial
+ * seeding to progressive spreading throughout the maze. It operates on entities
+ * with obstacle components and converts them to hazard field entities over
+ * time.
  *
- * @tparam HazardType The type of hazard component (e.g., Cmp::SinkholeCell, Cmp::CorruptionCell)
- *                    that this system will manage. Different hazard types are prevented from
- *                    overlapping through exclusion mechanisms.
+ * @tparam HazardType The type of hazard component (e.g., Cmp::SinkholeCell,
+ * Cmp::CorruptionCell) that this system will manage. Different hazard types are
+ * prevented from overlapping through exclusion mechanisms.
  *
  * Key behaviors:
  * - Seeds an initial hazard field at a random obstacle location during startup
- * - Periodically spreads hazard fields to adjacent obstacles with configurable probability
+ * - Periodically spreads hazard fields to adjacent obstacles with configurable
+ * probability
  * - Prevents multiple hazard types from occupying the same location
- * - Deactivates hazard fields when they become surrounded by other hazard fields
- * - Converts obstacle entities to hazard field entities, removing their obstacle component
+ * - Deactivates hazard fields when they become surrounded by other hazard
+ * fields
+ * - Converts obstacle entities to hazard field entities, removing their
+ * obstacle component
  *
- * The system uses a time-based update mechanism with a 5-second interval between spread attempts.
- * Each active hazard field has a 1 in 8 chance of spreading to an adjacent obstacle per update cycle.
+ * The system uses a time-based update mechanism with a 5-second interval
+ * between spread attempts. Each active hazard field has a 1 in 8 chance of
+ * spreading to an adjacent obstacle per update cycle.
  *
- * @note Inherits from Sys::BaseSystem and requires a shared EnTT registry for entity management.
+ * @note Inherits from Sys::BaseSystem and requires a shared EnTT registry for
+ * entity management.
  */
 template <typename HazardType> class HazardFieldSystem : public Sys::BaseSystem
 {
@@ -63,13 +70,15 @@ public:
     }
   }
 
-  // Starts the hazard field process, gets view of all obstacles, adds one hazard field component at one of the
-  // positions. This is done only once at the start of the game so it will check if there is already a hazard field
+  // Starts the hazard field process, gets view of all obstacles, adds one
+  // hazard field component at one of the positions. This is done only once at
+  // the start of the game so it will check if there is already a hazard field
   // component present.
   void init_hazard_field()
   {
-    // We want only one hazard type per map but we also want to avoid initializing hazards on top of other existing
-    // hazards, so we exclude other hazard  types from the view
+    // We want only one hazard type per map but we also want to avoid
+    // initializing hazards on top of other existing hazards, so we exclude
+    // other hazard  types from the view
     auto hazard_field_view = [this]() {
       if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
       {
@@ -122,8 +131,8 @@ public:
 
   // add an adjacent hazard field component if possible
   // This is done every m_interval seconds, using the m_clock to track time.
-  // get a view of all hazard fields, for each hazard field check adjacent positions
-  // if there is no hazard field, add a hazard field component
+  // get a view of all hazard fields, for each hazard field check adjacent
+  // positions if there is no hazard field, add a hazard field component
   void update_hazard_field()
   {
     if ( m_clock.getElapsedTime() < m_interval_sec ) return;
@@ -143,13 +152,11 @@ public:
       int adjacent_hazard_fields = 0;
       for ( auto [obstacle_entity, obstacle_cmp, obst_pos_cmp] : obstacle_view.each() )
       {
-
         if ( hazard_field_hitbox.findIntersection( obst_pos_cmp ) )
         {
           // check if this obstacle already has a hazard field component
           if ( m_reg->try_get<HazardType>( obstacle_entity ) == nullptr )
           {
-
             if ( hazard_field_spread_picker.gen() == 0 )
             {
               // add hazard field component to this obstacle
@@ -170,7 +177,8 @@ public:
 
         if ( hazard_field_hitbox.findIntersection( adj_pos_cmp ) ) { adjacent_hazard_fields++; }
       }
-      // if the hazard field is surrounded by hazard fields, then we can exclude it from future searches
+      // if the hazard field is surrounded by hazard fields, then we can exclude
+      // it from future searches
       if ( adjacent_hazard_fields >= 2 )
       {
         hazard_field_cmp.active = false;

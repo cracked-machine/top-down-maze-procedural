@@ -1,3 +1,5 @@
+#include <spdlog/spdlog.h>
+
 #include <Armed.hpp>
 #include <BombSystem.hpp>
 #include <Destructable.hpp>
@@ -10,7 +12,6 @@
 #include <ReservedPosition.hpp>
 #include <ShrineSprite.hpp>
 #include <SpriteAnimation.hpp>
-#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
 
@@ -52,7 +53,6 @@ void BombSystem::arm_occupied_location()
         entt::exclude<typename Cmp::Armed, Cmp::ShrineSprite, Cmp::GraveSprite> );
     for ( auto [destructable_entity, destructable_cmp, destructable_pos_cmp] : destructable_view.each() )
     {
-
       // make a copy and reduce/center the player hitbox to avoid arming a neighbouring location
       auto player_hitbox = sf::FloatRect( pc_pos_cmp );
       player_hitbox.size.x /= 2.f;
@@ -81,7 +81,6 @@ void BombSystem::arm_occupied_location()
 
 void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, const int blast_radius )
 {
-
   sf::Vector2i centerTile = getGridPosition( epicenter_entity ).value();
 
   int sequence_counter = 0;
@@ -187,7 +186,6 @@ void BombSystem::update()
     auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
     for ( auto [player_entt, player, player_position] : player_view.each() )
     {
-
       if ( player_position.findIntersection( armed_pos_cmp ) )
       {
         auto &bomb_damage = get_persistent_component<Cmp::Persistent::BombDamage>();
@@ -200,7 +198,6 @@ void BombSystem::update()
     // Check if NPC was killed by explosion
     for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : m_reg->view<Cmp::NPC, Cmp::Position>().each() )
     {
-
       // notify npc system of death
       if ( npc_pos_cmp.findIntersection( armed_pos_cmp ) )
       {

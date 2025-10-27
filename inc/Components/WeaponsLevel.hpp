@@ -1,5 +1,5 @@
-#ifndef __COMPONENTS_WATER_LEVEL_HPP__
-#define __COMPONENTS_WATER_LEVEL_HPP__
+#ifndef __COMPONENTS_WEAPONS_LEVEL_HPP__
+#define __COMPONENTS_WEAPONS_LEVEL_HPP__
 
 #include <spdlog/common.h>
 #include <spdlog/spdlog.h>
@@ -10,14 +10,13 @@
 
 namespace ProceduralMaze::Cmp {
 
-class WaterLevel
+class WeaponsLevel
 {
 public:
-  WaterLevel( unsigned int level )
+  WeaponsLevel( unsigned int level )
       : m_level( level )
   {
   }
-  ~WaterLevel() = default;
   float m_level;
 };
 

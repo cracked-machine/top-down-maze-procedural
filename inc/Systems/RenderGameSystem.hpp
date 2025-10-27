@@ -3,11 +3,10 @@
 
 #include <BackgroundShader.hpp>
 #include <FootstepSystem.hpp>
+#include <HazardFieldSystem.hpp>
 #include <MultiSprite.hpp>
 #include <RenderOverlaySystem.hpp>
 #include <SFML/System/Time.hpp>
-
-#include <HazardFieldSystem.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Systems/RenderSystem.hpp>
 #include <ViewFragmentShader.hpp>

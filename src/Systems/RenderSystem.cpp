@@ -6,6 +6,7 @@ namespace ProceduralMaze::Sys {
 RenderSystem::RenderSystem( ProceduralMaze::SharedEnttRegistry reg )
     : BaseSystem( reg )
 {
+  // nothing
 }
 
 std::unordered_map<Sprites::SpriteMetaType, std::optional<Sprites::MultiSprite>> RenderSystem::m_multisprite_map;
@@ -63,7 +64,6 @@ void RenderSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const
   if ( not is_visible_in_view( getWindow().getView(), pos_cmp ) ) return;
   try
   {
-
     auto &sprite = m_multisprite_map.at( sprite_type );
     if ( sprite.has_value() )
     {

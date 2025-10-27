@@ -1,5 +1,4 @@
 #include <SpriteFactory.hpp>
-
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>

@@ -45,6 +45,7 @@ void stack_trace();
   do                                                                                                                   \
   {                                                                                                                    \
     if ( !( condition ) ) { ::Debug::assert_handler( #condition, msg, __FILE__, __LINE__ ); }                          \
-  } while ( 0 )
+  }                                                                                                                    \
+  while ( 0 )
 
 #endif // DEBUG_ASSERT_HANDLER_HPP

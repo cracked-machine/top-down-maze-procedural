@@ -117,7 +117,6 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
     // now we modify... ongoing lerp movement
     if ( lerp_cmp && lerp_cmp->m_lerp_factor < 1.0f )
     {
-
       lerp_cmp->m_lerp_factor += ( lerp_cmp->m_lerp_speed * dt );
       lerp_cmp->m_lerp_factor = std::min( lerp_cmp->m_lerp_factor, 1.0f );
 

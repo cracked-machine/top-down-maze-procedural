@@ -1,9 +1,8 @@
 #include "Debug/AssertHandler.hpp" // Include this first for custom assertions
 
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
-#include <Logging/BasicLogController.hpp>
-
 #include <Engine.hpp>
+#include <Logging/BasicLogController.hpp>
 
 int main()
 {

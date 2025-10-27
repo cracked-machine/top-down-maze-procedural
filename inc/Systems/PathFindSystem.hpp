@@ -1,6 +1,8 @@
 #ifndef __SYS_PATHFINDSYSTEM_HPP__
 #define __SYS_PATHFINDSYSTEM_HPP__
 
+#include <spdlog/spdlog.h>
+
 #include <Components/EnttDistanceMap.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/NPC.hpp>
@@ -14,17 +16,12 @@
 #include <Persistent/NpcLerpSpeed.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <Systems/BaseSystem.hpp>
-
-#include <cstdlib>
-
-#include <entt/entity/fwd.hpp>
-#include <entt/entity/registry.hpp>
-
 #include <array>
 #include <cmath>
-
+#include <cstdlib>
+#include <entt/entity/fwd.hpp>
+#include <entt/entity/registry.hpp>
 #include <queue>
-#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
 

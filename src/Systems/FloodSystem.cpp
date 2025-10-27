@@ -66,7 +66,6 @@ void FloodSystem::updateFlood( float dt )
       if ( water_level.m_level <= pos_cmp.position.y ) // Water drowns player when water level is at or
                                                        // above player position
       {
-
         // Other systems will need to know which acceleration/deceleration/maxspeed to use
         pc_cmp.underwater = true;
 

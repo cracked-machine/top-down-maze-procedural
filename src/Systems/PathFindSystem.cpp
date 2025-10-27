@@ -23,7 +23,6 @@ void PathFindSystem::update_player_distances()
   auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PCDetectionBounds>();
   for ( [[maybe_unused]] auto [pc_entt, pc_cmp, pc_pos_cmp, pc_db_cmp] : player_view.each() )
   {
-
     // clang-format off
     // Exclude any components that we dont want NPCs to pathfind through
     auto path_exclusions = entt::exclude<
@@ -96,7 +95,6 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
     auto npc_cmp = m_reg->try_get<Cmp::NPC>( npc_entity );
     if ( npc_cmp )
     {
-
       // do not interrupt mid lerp
       auto npc_lerp_pos_cmp = m_reg->try_get<Cmp::LerpPosition>( npc_entity );
       if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) {}

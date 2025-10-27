@@ -1,11 +1,12 @@
 #ifndef __SYS_RENDERMENUSYSTEM_HPP__
 #define __SYS_RENDERMENUSYSTEM_HPP__
 
+#include <spdlog/spdlog.h>
+
 #include <BombSystem.hpp>
 #include <SFML/System/Time.hpp>
 #include <Systems/RenderSystem.hpp>
 #include <TitleScreenShader.hpp>
-#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
 

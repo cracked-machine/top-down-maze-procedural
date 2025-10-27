@@ -1,6 +1,8 @@
 #ifndef __SPRITES_BASEFRAGMENTSHADER_HPP__
 #define __SPRITES_BASEFRAGMENTSHADER_HPP__
 
+#include <spdlog/spdlog.h>
+
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/RenderTexture.hpp>
 #include <SFML/Graphics/Shader.hpp>
@@ -8,9 +10,7 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <filesystem>
-
 #include <map>
-#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sprites {
 

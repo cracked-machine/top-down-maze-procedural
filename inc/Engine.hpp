@@ -1,11 +1,21 @@
 #ifndef __ENGINE_HPP__
 #define __ENGINE_HPP__
 
+#include <spdlog/spdlog.h>
+
 #include <AnimSystem.hpp>
 #include <BaseSystem.hpp>
 #include <BombSystem.hpp>
+#include <Components/DisplaySize.hpp>
+#include <Components/Font.hpp>
+#include <Components/Obstacle.hpp>
+#include <Components/PlayableCharacter.hpp>
+#include <Components/Position.hpp>
+#include <Components/Random.hpp>
+#include <Components/System.hpp>
 #include <DiggingSystem.hpp>
 #include <Direction.hpp>
+#include <EventHandler.hpp>
 #include <ExitSystem.hpp>
 #include <FloodSystem.hpp>
 #include <HazardFieldSystem.hpp>
@@ -26,29 +36,14 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
-
-#include <WaterLevel.hpp>
-#include <WormholeSystem.hpp>
-#include <entt/entity/registry.hpp>
-#include <spdlog/spdlog.h>
-
-#include <memory>
-
-#include <Components/DisplaySize.hpp>
-#include <Components/Font.hpp>
-
-#include <Components/Obstacle.hpp>
-#include <Components/PlayableCharacter.hpp>
-#include <Components/Position.hpp>
-#include <Components/Random.hpp>
-#include <Components/System.hpp>
 #include <Sprites/TileMap.hpp>
-
 #include <Systems/CollisionSystem.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
 #include <Systems/RenderSystem.hpp>
-
-#include <EventHandler.hpp>
+#include <WaterLevel.hpp>
+#include <WormholeSystem.hpp>
+#include <entt/entity/registry.hpp>
+#include <memory>
 #include <string>
 
 #ifdef _WIN32

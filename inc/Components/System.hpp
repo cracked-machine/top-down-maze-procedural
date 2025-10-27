@@ -1,8 +1,9 @@
 #ifndef __COMPONENTS_SYSTEM_HPP__
 #define __COMPONENTS_SYSTEM_HPP__
 
-#include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
+
+#include <entt/entity/registry.hpp>
 
 namespace ProceduralMaze::Cmp {
 

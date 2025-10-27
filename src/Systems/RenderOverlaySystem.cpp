@@ -16,7 +16,6 @@ void RenderOverlaySystem::render_entt_distance_set_overlay( sf::Vector2f pos )
   int entt_distance_set = 0;
   for ( auto [e, distance_map] : entt_distance_map_view.each() )
   {
-
     sf::Text distance_text( m_font, "", 30 );
     distance_text.setFillColor( sf::Color::White );
     distance_text.setOutlineColor( sf::Color::Black );
@@ -25,7 +24,6 @@ void RenderOverlaySystem::render_entt_distance_set_overlay( sf::Vector2f pos )
     if ( distance_map.empty() ) { continue; }
     else
     {
-
       std::stringstream ss;
       ss << "NPC Entity #" << entt::to_integral( e ) << " - ";
       distance_text.setPosition( pos + sf::Vector2f{ 0, entt_distance_set * 30.f } );

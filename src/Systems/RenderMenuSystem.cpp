@@ -1,3 +1,5 @@
+#include <imgui.h>
+
 #include <BombSystem.hpp>
 #include <Persistent/ArmedOnDelay.hpp>
 #include <Persistent/BombBonus.hpp>
@@ -29,7 +31,6 @@
 #include <Persistent/WormholeSeed.hpp>
 #include <SFML/System/Angle.hpp>
 #include <Systems/RenderMenuSystem.hpp>
-#include <imgui.h>
 
 namespace ProceduralMaze::Sys {
 

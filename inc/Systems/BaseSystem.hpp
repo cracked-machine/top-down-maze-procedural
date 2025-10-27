@@ -1,6 +1,8 @@
 #ifndef __SYSTEMS_BASE_SYSTEM_HPP__
 #define __SYSTEMS_BASE_SYSTEM_HPP__
 
+#include <spdlog/spdlog.h>
+
 #include <MultiSprite.hpp>
 #include <Obstacle.hpp>
 #include <Position.hpp>
@@ -8,8 +10,6 @@
 #include <SFML/System/Vector2.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <entt/entity/registry.hpp>
-#include <spdlog/spdlog.h>
-
 #include <entt/signal/dispatcher.hpp>
 
 namespace ProceduralMaze {

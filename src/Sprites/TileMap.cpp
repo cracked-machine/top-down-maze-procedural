@@ -21,7 +21,6 @@ TileMap::TileMap( sf::Vector2u map_dimensions, const std::filesystem::path &conf
 
 void TileMap::create( sf::Vector2u tile_size, unsigned int width, unsigned int height )
 {
-
   if ( width == 0 || height == 0 )
   {
     SPDLOG_ERROR( "Invalid dimensions: {}x{}", width, height );

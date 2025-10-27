@@ -7,7 +7,6 @@ namespace ProceduralMaze::Cmp::Persistent {
 // Delay between each concentric obstacle in bomb pattern being disarmed...violently
 class ArmedOffDelay : public BasePersistent<float>
 {
-
 public:
   ArmedOffDelay( float delay )
       : BasePersistent<float>( delay )

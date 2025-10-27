@@ -1,9 +1,10 @@
 #ifndef __SYS_WORMHOLE_SYSTEM_HPP__
 #define __SYS_WORMHOLE_SYSTEM_HPP__
 
+#include <spdlog/spdlog.h>
+
 #include <BaseSystem.hpp>
 #include <entt/entity/registry.hpp>
-#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys {
 
