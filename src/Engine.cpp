@@ -36,11 +36,11 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
 
   m_persistent_sys.load_state();
 
-  m_render_game_sys.window().setVerticalSyncEnabled( true );
+  Sys::RenderSystem::getWindow().setVerticalSyncEnabled( true );
   // m_render_game_sys.window().setFramerateLimit( 144 );
 
   // setup ImGui here rather than RenderSystem classes to reduce white screen init time
-  if ( not ImGui::SFML::Init( m_render_menu_sys.window() ) )
+  if ( not ImGui::SFML::Init( Sys::RenderSystem::getWindow() ) )
   {
     SPDLOG_CRITICAL( "ImGui-SFML initialization failed" );
     std::terminate();
@@ -60,7 +60,7 @@ bool Engine::run()
   sf::Clock deltaClock;
 
   /// MAIN LOOP BEGINS
-  while ( m_render_game_sys.window().isOpen() )
+  while ( Sys::RenderSystem::getWindow().isOpen() )
   {
     sf::Time deltaTime = deltaClock.restart();
     m_title_music_sys.update_volume();
@@ -75,13 +75,13 @@ bool Engine::run()
         // m_title_music_sys.update_music_playback( Sys::MusicSystem::Function::PLAY );
 
         m_render_menu_sys.render_title();
-        m_event_handler.menu_state_handler( m_render_game_sys.window() );
+        m_event_handler.menu_state_handler( Sys::RenderSystem::getWindow() );
         break;
       } // case MENU end
 
       case Cmp::Persistent::GameState::State::SETTINGS: {
         m_render_menu_sys.render_settings( deltaTime );
-        m_event_handler.settings_state_handler( m_render_game_sys.window() );
+        m_event_handler.settings_state_handler( Sys::RenderSystem::getWindow() );
         break;
       } // case SETTINGS end
 
@@ -134,7 +134,7 @@ bool Engine::run()
           }
         }
 
-        m_event_handler.game_state_handler( m_render_game_sys.window() );
+        m_event_handler.game_state_handler( Sys::RenderSystem::getWindow() );
 
         // m_flood_sys.update();
         m_anim_sys.update( deltaTime );
@@ -194,12 +194,12 @@ bool Engine::run()
         m_bomb_sys.suspend();
 
         while ( ( Cmp::Persistent::GameState::State::PAUSED == game_state.current_state ) and
-                m_render_game_sys.window().isOpen() )
+                Sys::RenderSystem::getWindow().isOpen() )
         {
           m_render_menu_sys.render_paused();
           std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
           // check for keyboard/window events to keep window responsive
-          m_event_handler.paused_state_handler( m_render_game_sys.window() );
+          m_event_handler.paused_state_handler( Sys::RenderSystem::getWindow() );
         }
 
         m_flood_sys.resume();
@@ -218,7 +218,7 @@ bool Engine::run()
           else { m_render_menu_sys.render_victory_screen(); }
         }
         std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
-        m_event_handler.game_over_state_handler( m_render_game_sys.window() );
+        m_event_handler.game_over_state_handler( Sys::RenderSystem::getWindow() );
 
         break;
       } // case GAME_OVER end
@@ -233,7 +233,7 @@ bool Engine::run()
         }
         SPDLOG_INFO( "Terminating application...." );
         teardown();
-        m_render_game_sys.window().close();
+        Sys::RenderSystem::getWindow().close();
         std::terminate();
       }
     }

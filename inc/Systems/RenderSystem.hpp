@@ -59,10 +59,6 @@ public:
   //! @return const sf::View&
   static const sf::View &getGameView() { return s_game_view; }
 
-  //! @brief External access to the window
-  //! @return sf::RenderWindow&
-  sf::RenderWindow &window() { return getWindow(); }
-
   //! @brief Singleton accessor for the SFML RenderWindow
   //! @return sf::RenderWindow&
   static sf::RenderWindow &getWindow()
