@@ -13,10 +13,8 @@ namespace ProceduralMaze::Sys {
 class RenderMenuSystem : public RenderSystem
 {
 public:
-  RenderMenuSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window,
-                    Sprites::TitleScreenShader &title_screen_shader )
-      : RenderSystem( registry, window ),
-        m_title_screen_shader( title_screen_shader )
+  RenderMenuSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window )
+      : RenderSystem( registry, window )
   {
     SPDLOG_INFO( "RenderMenuSystem constructor called" );
   }
@@ -32,8 +30,7 @@ public:
   void render_victory_screen();
 
 private:
-  //! @brief Non-owning reference to the title screen shader
-  Sprites::TitleScreenShader &m_title_screen_shader;
+  Sprites::TitleScreenShader m_title_screen_shader{ "res/shaders/TitleScreen.frag", Sys::BaseSystem::kDisplaySize };
 };
 
 } // namespace ProceduralMaze::Sys

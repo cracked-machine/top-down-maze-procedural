@@ -41,7 +41,7 @@
   },
   "MusicVolume": {
     "type": "float",
-    "value": 100.0
+    "value": 20.0
   },
   "NpcAnimFramerate": {
     "type": "float",

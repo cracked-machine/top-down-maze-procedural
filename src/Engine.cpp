@@ -7,12 +7,13 @@
 #include <Persistent/MusicVolume.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
 #include <SinkholeCell.hpp>
+#include <filesystem>
 #include <memory>
+#include <thread>
 
 namespace ProceduralMaze {
 
-Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
-    : m_reg( std::move( registry ) )
+Engine::Engine()
 {
   SPDLOG_INFO( "Engine Initialising... " );
 
@@ -38,18 +39,13 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
   io.IniFilename = "res/imgui.ini";
   std::ignore = ImGui::SFML::UpdateFontTexture();
 
-  // make sure gamestate is loaded before we leave constructor (and enter run() loop)
-  m_render_menu_sys = std::make_unique<Sys::RenderMenuSystem>( m_reg, *m_window, m_title_screen_shader );
-  m_event_handler = std::make_unique<Sys::EventHandler>( m_reg, *m_window );
-  m_event_handler->add_persistent_component<Cmp::Persistent::GameState>();
-
   SPDLOG_INFO( "Engine Initialisation Complete" );
-
-  SPDLOG_INFO( "Lazy initialization of systems complete" );
 }
 
 bool Engine::run()
 {
+
+  loading_screen( [this]() { this->init_systems(); }, m_splash_texture );
 
   sf::Clock deltaClock;
 
@@ -57,28 +53,22 @@ bool Engine::run()
   while ( m_window->isOpen() )
   {
     sf::Time deltaTime = deltaClock.restart();
-
-    // TODO: fixme... persistent system loading is now deferred so this function cant access "music volume"
-    // m_title_music_sys.update_volume();
-
-    // accesss via any child of BaseSystem::get_persistent_component
     auto &game_state = m_event_handler->get_persistent_component<Cmp::Persistent::GameState>();
 
     switch ( game_state.current_state )
     {
-      case Cmp::Persistent::GameState::State::MENU: {
-        // process music playback
-        // m_title_music_sys.update_music_playback( Sys::MusicSystem::Function::PLAY );
 
+      case Cmp::Persistent::GameState::State::MENU: {
         m_render_menu_sys->render_title();
+        m_title_music_sys->update_volume();
+        m_game_music_sys->update_volume();
+        m_title_music_sys->update_music_playback( Sys::MusicSystem::Function::PLAY );
         m_event_handler->menu_state_handler();
         break;
       } // case MENU end
 
       case Cmp::Persistent::GameState::State::SETTINGS: {
-        init_systems();
-        m_persistent_sys->initializeComponentRegistry();
-        m_persistent_sys->load_state();
+
         m_render_menu_sys->render_settings( deltaTime );
         m_event_handler->settings_state_handler();
         break;
@@ -86,23 +76,19 @@ bool Engine::run()
 
       case Cmp::Persistent::GameState::State::LOADING: {
         // wait for fade out to complete
-        m_title_music_sys->start_music_fade_out();
-        if ( m_title_music_sys->is_fading_out() )
-        {
-          m_title_music_sys->update_volume();
-          break;
-        }
-        init_systems();
-        restart();
+
+        loading_screen( [this]() { this->enter_game(); }, m_splash_texture );
+
         game_state.current_state = Cmp::Persistent::GameState::State::PLAYING;
         SPDLOG_INFO( "Loading game...." );
         break;
       }
 
       case Cmp::Persistent::GameState::State::UNLOADING: {
+        m_game_music_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
         m_abovewater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
         m_underwater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
-        teardown();
+        exit_game();
         game_state.current_state = Cmp::Persistent::GameState::State::MENU;
         SPDLOG_INFO( "Unloading game...." );
         break;
@@ -110,6 +96,7 @@ bool Engine::run()
 
       case Cmp::Persistent::GameState::State::PLAYING: {
         m_title_music_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
+        m_game_music_sys->update_music_playback( Sys::MusicSystem::Function::PLAY );
 
         // check if player is underwater to start/stop underwater sounds
         auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Direction>();
@@ -231,7 +218,7 @@ bool Engine::run()
           break;
         }
         SPDLOG_INFO( "Terminating application...." );
-        teardown();
+        exit_game();
         m_window->close();
         std::terminate();
       }
@@ -246,52 +233,69 @@ bool Engine::run()
 
 void Engine::init_systems()
 {
-  if ( !m_title_music_sys ) m_title_music_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, "res/audio/title_music.mp3" );
-  if ( !m_persistent_sys ) m_persistent_sys = std::make_unique<Sys::PersistentSystem>( m_reg, *m_window );
-  if ( !m_render_game_sys ) m_render_game_sys = std::make_unique<Sys::RenderGameSystem>( m_reg, *m_window );
-  if ( !m_player_sys ) m_player_sys = std::make_unique<Sys::PlayerSystem>( m_reg, *m_window );
-  if ( !m_flood_sys ) m_flood_sys = std::make_unique<Sys::FloodSystem>( m_reg, *m_window );
-  if ( !m_path_find_sys ) m_path_find_sys = std::make_unique<Sys::PathFindSystem>( m_reg, *m_window );
-  if ( !m_npc_sys ) m_npc_sys = std::make_unique<Sys::NpcSystem>( m_reg, *m_window );
-  if ( !m_collision_sys ) m_collision_sys = std::make_unique<Sys::CollisionSystem>( m_reg, *m_window );
-  if ( !m_digging_sys ) m_digging_sys = std::make_unique<Sys::DiggingSystem>( m_reg, *m_window );
-  if ( !m_render_overlay_sys ) m_render_overlay_sys = std::make_unique<Sys::RenderOverlaySystem>( m_reg, *m_window );
-  if ( !m_bomb_sys ) m_bomb_sys = std::make_unique<Sys::BombSystem>( m_reg, *m_window );
-  if ( !m_anim_sys ) m_anim_sys = std::make_unique<Sys::AnimSystem>( m_reg, *m_window );
-  if ( !m_sinkhole_sys ) m_sinkhole_sys = std::make_unique<Sys::SinkHoleHazardSystem>( m_reg, *m_window );
-  if ( !m_corruption_sys ) m_corruption_sys = std::make_unique<Sys::CorruptionHazardSystem>( m_reg, *m_window );
-  if ( !m_wormhole_sys ) m_wormhole_sys = std::make_unique<Sys::WormholeSystem>( m_reg, *m_window );
-  if ( !m_exit_sys ) m_exit_sys = std::make_unique<Sys::ExitSystem>( m_reg, *m_window );
-  if ( !m_footstep_sys ) m_footstep_sys = std::make_unique<Sys::FootstepSystem>( m_reg, *m_window );
-  if ( !m_underwater_sounds_sys )
-    m_underwater_sounds_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, "res/audio/underwater.wav" );
-  if ( !m_abovewater_sounds_sys )
-    m_abovewater_sounds_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, "res/audio/footsteps.mp3" );
-}
+  // init core systems - these are required just to get the engine running
+  m_render_menu_sys = std::make_unique<Sys::RenderMenuSystem>( m_reg, *m_window );
+  m_event_handler = std::make_unique<Sys::EventHandler>( m_reg, *m_window );
+  m_event_handler->add_persistent_component<Cmp::Persistent::GameState>();
+  m_persistent_sys = std::make_unique<Sys::PersistentSystem>( m_reg, *m_window );
 
-// Sets up ECS for the rest of the game
-void Engine::restart()
-{
-  reginfo( "Pre-setup" );
+  // title music
+  if ( not std::filesystem::exists( m_title_music_path ) )
+  {
+    SPDLOG_CRITICAL( "Music file not found at path: {}", m_title_music_path.string() );
+    std::terminate();
+  }
+  m_title_music_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, m_title_music_path );
 
-  // Cmp::RandomInt::seed(123456789); // testing purposes
+  // game music
+  if ( not std::filesystem::exists( m_game_music_path ) )
+  {
+    SPDLOG_CRITICAL( "Music file not found at path: {}", m_game_music_path.string() );
+    std::terminate();
+  }
+  m_game_music_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, m_game_music_path );
+
+  // init game systems - these are required for the actual gameplay
+  m_render_game_sys = std::make_unique<Sys::RenderGameSystem>( m_reg, *m_window );
+  m_player_sys = std::make_unique<Sys::PlayerSystem>( m_reg, *m_window );
+  m_flood_sys = std::make_unique<Sys::FloodSystem>( m_reg, *m_window );
+  m_path_find_sys = std::make_unique<Sys::PathFindSystem>( m_reg, *m_window );
+  m_npc_sys = std::make_unique<Sys::NpcSystem>( m_reg, *m_window );
+  m_collision_sys = std::make_unique<Sys::CollisionSystem>( m_reg, *m_window );
+  m_digging_sys = std::make_unique<Sys::DiggingSystem>( m_reg, *m_window );
+  m_render_overlay_sys = std::make_unique<Sys::RenderOverlaySystem>( m_reg, *m_window );
+  m_bomb_sys = std::make_unique<Sys::BombSystem>( m_reg, *m_window );
+  m_anim_sys = std::make_unique<Sys::AnimSystem>( m_reg, *m_window );
+  m_sinkhole_sys = std::make_unique<Sys::SinkHoleHazardSystem>( m_reg, *m_window );
+  m_corruption_sys = std::make_unique<Sys::CorruptionHazardSystem>( m_reg, *m_window );
+  m_wormhole_sys = std::make_unique<Sys::WormholeSystem>( m_reg, *m_window );
+  m_exit_sys = std::make_unique<Sys::ExitSystem>( m_reg, *m_window );
+  m_footstep_sys = std::make_unique<Sys::FootstepSystem>( m_reg, *m_window );
+  m_underwater_sounds_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, "res/audio/underwater.wav" );
+  m_abovewater_sounds_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, "res/audio/footsteps.mp3" );
+
   m_persistent_sys->initializeComponentRegistry();
   m_persistent_sys->load_state();
+
+  m_sprite_factory = std::make_shared<Sprites::SpriteFactory>();
   m_sprite_factory->init();
+  m_reg->ctx().emplace<std::shared_ptr<Sprites::SpriteFactory>>( m_sprite_factory );
 
   m_render_game_sys->init_shaders();
   m_render_game_sys->init_tilemap();
-
-  m_digging_sys->load_sounds();
-
-  m_reg->ctx().emplace<std::shared_ptr<Sprites::SpriteFactory>>( m_sprite_factory );
-
   m_render_game_sys->init_multisprites();
 
+  m_digging_sys->load_sounds();
+  add_display_size( sf::Vector2u{ 1920, 1024 } );
+  SPDLOG_INFO( "Lazy initialization of systems complete" );
+}
+
+// Sets up ECS for the rest of the game
+void Engine::enter_game()
+{
   add_system_entity();
   m_player_sys->add_player_entity();
   m_flood_sys->add_flood_water_entity();
-  add_display_size( sf::Vector2u{ 1920, 1024 } );
 
   // create initial random game area with the required sprites
   std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>(
@@ -309,17 +313,13 @@ void Engine::restart()
   m_sinkhole_sys->init_hazard_field();
   m_corruption_sys->init_hazard_field();
   m_wormhole_sys->spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
-
-  reginfo( "Post-setup" );
 }
 
 // Teardown the engine
-void Engine::teardown()
+void Engine::exit_game()
 {
-  SPDLOG_INFO( "Tearing down...." );
-  reginfo( "Pre-teardown" );
+  SPDLOG_INFO( "Exit game" );
   m_reg->clear();
-  reginfo( "Post-teardown" );
 }
 
 void Engine::reginfo( std::string msg )
