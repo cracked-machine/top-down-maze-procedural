@@ -17,6 +17,7 @@ DiggingSystem::DiggingSystem( ProceduralMaze::SharedEnttRegistry reg, sf::Render
   // register the event handler
   std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&DiggingSystem::on_player_action>(
       this );
+  SPDLOG_INFO( "DiggingSystem initialized" );
 }
 
 void DiggingSystem::load_sounds()

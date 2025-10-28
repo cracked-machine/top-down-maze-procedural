@@ -76,45 +76,41 @@ private:
 
   Sprites::TitleScreenShader m_title_screen_shader{ "res/shaders/TitleScreen.frag", Sys::BaseSystem::kDisplaySize };
 
-  std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>(
-      sf::VideoMode( Sys::BaseSystem::kDisplaySize ), "ProceduralMaze", sf::State::Fullscreen );
+  std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( Sys::BaseSystem::kDisplaySize ),
+                                                                                   "ProceduralMaze", sf::State::Fullscreen );
 
   // init this first since it registers core settings
-  Sys::PersistentSystem m_persistent_sys;
 
   // creates and manages MultiSprite resources
   std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory = std::make_shared<Sprites::SpriteFactory>();
 
   //  ECS Systems
 
-  Sys::PlayerSystem m_player_sys;
-  Sys::FloodSystem m_flood_sys;
-  Sys::PathFindSystem m_path_find_sys;
-  Sys::NpcSystem m_npc_sys;
-  Sys::CollisionSystem m_collision_sys;
-  Sys::DiggingSystem m_digging_sys;
-  Sys::RenderGameSystem m_render_game_sys;
-  Sys::RenderOverlaySystem m_render_overlay_sys;
-  Sys::RenderMenuSystem m_render_menu_sys;
-  Sys::BombSystem m_bomb_sys;
-  Sys::AnimSystem m_anim_sys;
-  Sys::SinkHoleHazardSystem m_sinkhole_sys;
-  Sys::CorruptionHazardSystem m_corruption_sys;
-  Sys::WormholeSystem m_wormhole_sys;
-  Sys::ExitSystem m_exit_sys;
-  Sys::FootstepSystem m_footstep_sys;
-  Sys::MusicSystem m_title_music_sys;
-  Sys::MusicSystem m_underwater_sounds_sys;
-  Sys::MusicSystem m_abovewater_sounds_sys;
+  std::unique_ptr<Sys::RenderMenuSystem> m_render_menu_sys;
+  std::unique_ptr<Sys::EventHandler> m_event_handler;
 
-  // SFML keyboard/mouse event handler
-  ProceduralMaze::EventHandler m_event_handler;
+  std::unique_ptr<Sys::MusicSystem> m_title_music_sys;
+  std::unique_ptr<Sys::RenderGameSystem> m_render_game_sys;
+  std::unique_ptr<Sys::PersistentSystem> m_persistent_sys;
+  std::unique_ptr<Sys::PlayerSystem> m_player_sys;
+  std::unique_ptr<Sys::FloodSystem> m_flood_sys;
+  std::unique_ptr<Sys::PathFindSystem> m_path_find_sys;
+  std::unique_ptr<Sys::NpcSystem> m_npc_sys;
+  std::unique_ptr<Sys::CollisionSystem> m_collision_sys;
+  std::unique_ptr<Sys::DiggingSystem> m_digging_sys;
+  std::unique_ptr<Sys::RenderOverlaySystem> m_render_overlay_sys;
+  std::unique_ptr<Sys::BombSystem> m_bomb_sys;
+  std::unique_ptr<Sys::AnimSystem> m_anim_sys;
+  std::unique_ptr<Sys::SinkHoleHazardSystem> m_sinkhole_sys;
+  std::unique_ptr<Sys::CorruptionHazardSystem> m_corruption_sys;
+  std::unique_ptr<Sys::WormholeSystem> m_wormhole_sys;
+  std::unique_ptr<Sys::ExitSystem> m_exit_sys;
+  std::unique_ptr<Sys::FootstepSystem> m_footstep_sys;
+  std::unique_ptr<Sys::MusicSystem> m_underwater_sounds_sys;
+  std::unique_ptr<Sys::MusicSystem> m_abovewater_sounds_sys;
 
-  // sets up ECS just enough to let the statemachine work
-  void bootstrap();
-
-  // Sets up ECS for the rest of the game
-  void setup();
+  void init_systems();
+  void restart();
 
   // Teardown the engine
   void teardown();

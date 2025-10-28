@@ -18,6 +18,7 @@ public:
       : RenderSystem( registry, window ),
         m_title_screen_shader( title_screen_shader )
   {
+    SPDLOG_INFO( "RenderMenuSystem constructor called" );
   }
   ~RenderMenuSystem() = default;
 

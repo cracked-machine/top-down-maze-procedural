@@ -2,36 +2,17 @@
 #include <CorruptionCell.hpp>
 #include <Engine.hpp>
 #include <Events/AnimResetFrameEvent.hpp>
+#include <HazardFieldSystem.hpp>
 #include <MusicSystem.hpp>
 #include <Persistent/MusicVolume.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
 #include <SinkholeCell.hpp>
+#include <memory>
 
 namespace ProceduralMaze {
 
 Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
-    : m_reg( std::move( registry ) ),
-      m_persistent_sys( m_reg, *m_window ),
-      m_player_sys( m_reg, *m_window ),
-      m_flood_sys( m_reg, *m_window ),
-      m_path_find_sys( m_reg, *m_window ),
-      m_npc_sys( m_reg, *m_window ),
-      m_collision_sys( m_reg, *m_window ),
-      m_digging_sys( m_reg, *m_window ),
-      m_render_game_sys( m_reg, *m_window ),
-      m_render_overlay_sys( m_reg, *m_window ),
-      m_render_menu_sys( m_reg, *m_window, m_title_screen_shader ),
-      m_bomb_sys( m_reg, *m_window ),
-      m_anim_sys( m_reg, *m_window ),
-      m_sinkhole_sys( m_reg, *m_window ),
-      m_corruption_sys( m_reg, *m_window ),
-      m_wormhole_sys( m_reg, *m_window ),
-      m_exit_sys( m_reg, *m_window ),
-      m_footstep_sys( m_reg, *m_window ),
-      m_title_music_sys( m_reg, *m_window, "res/audio/title_music.mp3" ),
-      m_underwater_sounds_sys( m_reg, *m_window, "res/audio/underwater.wav" ),
-      m_abovewater_sounds_sys( m_reg, *m_window, "res/audio/footsteps.mp3" ),
-      m_event_handler( m_reg, *m_window )
+    : m_reg( std::move( registry ) )
 {
   SPDLOG_INFO( "Engine Initialising... " );
 
@@ -58,9 +39,13 @@ Engine::Engine( ProceduralMaze::SharedEnttRegistry registry )
   std::ignore = ImGui::SFML::UpdateFontTexture();
 
   // make sure gamestate is loaded before we leave constructor (and enter run() loop)
-  m_persistent_sys.add_persistent_component<Cmp::Persistent::GameState>();
+  m_render_menu_sys = std::make_unique<Sys::RenderMenuSystem>( m_reg, *m_window, m_title_screen_shader );
+  m_event_handler = std::make_unique<Sys::EventHandler>( m_reg, *m_window );
+  m_event_handler->add_persistent_component<Cmp::Persistent::GameState>();
 
   SPDLOG_INFO( "Engine Initialisation Complete" );
+
+  SPDLOG_INFO( "Lazy initialization of systems complete" );
 }
 
 bool Engine::run()
@@ -77,7 +62,7 @@ bool Engine::run()
     // m_title_music_sys.update_volume();
 
     // accesss via any child of BaseSystem::get_persistent_component
-    auto &game_state = m_player_sys.get_persistent_component<Cmp::Persistent::GameState>();
+    auto &game_state = m_event_handler->get_persistent_component<Cmp::Persistent::GameState>();
 
     switch ( game_state.current_state )
     {
@@ -85,37 +70,38 @@ bool Engine::run()
         // process music playback
         // m_title_music_sys.update_music_playback( Sys::MusicSystem::Function::PLAY );
 
-        m_render_menu_sys.render_title();
-        m_event_handler.menu_state_handler();
+        m_render_menu_sys->render_title();
+        m_event_handler->menu_state_handler();
         break;
       } // case MENU end
 
       case Cmp::Persistent::GameState::State::SETTINGS: {
-        m_persistent_sys.initializeComponentRegistry();
-        m_persistent_sys.load_state();
-        m_render_menu_sys.render_settings( deltaTime );
-        m_event_handler.settings_state_handler();
+        init_systems();
+        m_persistent_sys->initializeComponentRegistry();
+        m_persistent_sys->load_state();
+        m_render_menu_sys->render_settings( deltaTime );
+        m_event_handler->settings_state_handler();
         break;
       } // case SETTINGS end
 
       case Cmp::Persistent::GameState::State::LOADING: {
         // wait for fade out to complete
-        m_title_music_sys.start_music_fade_out();
-        if ( m_title_music_sys.is_fading_out() )
+        m_title_music_sys->start_music_fade_out();
+        if ( m_title_music_sys->is_fading_out() )
         {
-          m_title_music_sys.update_volume();
+          m_title_music_sys->update_volume();
           break;
         }
-
-        setup();
+        init_systems();
+        restart();
         game_state.current_state = Cmp::Persistent::GameState::State::PLAYING;
         SPDLOG_INFO( "Loading game...." );
         break;
       }
 
       case Cmp::Persistent::GameState::State::UNLOADING: {
-        m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
-        m_underwater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
+        m_abovewater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
+        m_underwater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
         teardown();
         game_state.current_state = Cmp::Persistent::GameState::State::MENU;
         SPDLOG_INFO( "Unloading game...." );
@@ -123,7 +109,7 @@ bool Engine::run()
       }
 
       case Cmp::Persistent::GameState::State::PLAYING: {
-        m_title_music_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
+        m_title_music_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
 
         // check if player is underwater to start/stop underwater sounds
         auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Direction>();
@@ -131,55 +117,55 @@ bool Engine::run()
         {
           if ( pc.underwater )
           {
-            m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
+            m_abovewater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
             // under water should always be playing even if not moving
-            m_underwater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::PLAY );
+            m_underwater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::PLAY );
           }
           else
           {
-            m_underwater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
+            m_underwater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
             // play footsteps only when player is moving
             if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) )
             {
-              m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
+              m_abovewater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
             }
-            else { m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::PLAY ); }
+            else { m_abovewater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::PLAY ); }
           }
         }
 
-        m_event_handler.game_state_handler();
+        m_event_handler->game_state_handler();
 
         // m_flood_sys.update();
-        m_anim_sys.update( deltaTime );
-        m_sinkhole_sys.update_hazard_field();
-        m_corruption_sys.update_hazard_field();
-        m_bomb_sys.update();
+        m_anim_sys->update( deltaTime );
+        m_sinkhole_sys->update_hazard_field();
+        m_corruption_sys->update_hazard_field();
+        m_bomb_sys->update();
 
-        m_collision_sys.check_npc_hazard_field_collision<Cmp::SinkholeCell>();
-        m_collision_sys.check_npc_hazard_field_collision<Cmp::CorruptionCell>();
-        m_exit_sys.check_exit_collision();
-        m_collision_sys.check_loot_collision();
-        m_collision_sys.check_bones_reanimation();
-        m_wormhole_sys.check_player_wormhole_collision();
-        m_digging_sys.update();
-        m_footstep_sys.update();
+        m_collision_sys->check_npc_hazard_field_collision<Cmp::SinkholeCell>();
+        m_collision_sys->check_npc_hazard_field_collision<Cmp::CorruptionCell>();
+        m_exit_sys->check_exit_collision();
+        m_collision_sys->check_loot_collision();
+        m_collision_sys->check_bones_reanimation();
+        m_wormhole_sys->check_player_wormhole_collision();
+        m_digging_sys->update();
+        m_footstep_sys->update();
 
         // Throttled obstacle distance update (optimization)
         if ( m_obstacle_distance_timer.getElapsedTime() >= m_obstacle_distance_update_interval )
         {
-          m_path_find_sys.update_player_distances();
+          m_path_find_sys->update_player_distances();
           m_obstacle_distance_timer.restart();
         }
 
         // enable/disable collision detection depending on Cmp::System settings
         for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
         {
-          m_player_sys.update_movement( deltaTime, !_sys.collisions_enabled );
+          m_player_sys->update_movement( deltaTime, !_sys.collisions_enabled );
           if ( _sys.collisions_enabled )
           {
-            m_collision_sys.check_player_hazard_field_collision<Cmp::SinkholeCell>();
-            m_collision_sys.check_player_hazard_field_collision<Cmp::CorruptionCell>();
-            m_collision_sys.check_player_to_npc_collision();
+            m_collision_sys->check_player_hazard_field_collision<Cmp::SinkholeCell>();
+            m_collision_sys->check_player_hazard_field_collision<Cmp::CorruptionCell>();
+            m_collision_sys->check_player_to_npc_collision();
           }
           if ( _sys.level_complete )
           {
@@ -189,8 +175,8 @@ bool Engine::run()
         }
 
         auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
-        m_path_find_sys.findPath( player_entity );
-        m_npc_sys.update_movement( deltaTime );
+        m_path_find_sys->findPath( player_entity );
+        m_npc_sys->update_movement( deltaTime );
 
         // did the player drown? Then end the game
         for ( auto [_, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
@@ -198,50 +184,50 @@ bool Engine::run()
           if ( not _pc.alive ) { game_state.current_state = Cmp::Persistent::GameState::State::GAMEOVER; }
         }
 
-        m_render_game_sys.render_game( deltaTime, m_render_overlay_sys );
+        m_render_game_sys->render_game( deltaTime, *m_render_overlay_sys );
         break;
       } // case PLAYING end
 
       case Cmp::Persistent::GameState::State::PAUSED: {
-        m_flood_sys.suspend();
-        m_collision_sys.suspend();
-        m_bomb_sys.suspend();
+        m_flood_sys->suspend();
+        m_collision_sys->suspend();
+        m_bomb_sys->suspend();
 
         while ( ( Cmp::Persistent::GameState::State::PAUSED == game_state.current_state ) and m_window->isOpen() )
         {
-          m_render_menu_sys.render_paused();
+          m_render_menu_sys->render_paused();
           std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
           // check for keyboard/window events to keep window responsive
-          m_event_handler.paused_state_handler();
+          m_event_handler->paused_state_handler();
         }
 
-        m_flood_sys.resume();
-        m_collision_sys.resume();
-        m_bomb_sys.resume();
+        m_flood_sys->resume();
+        m_collision_sys->resume();
+        m_bomb_sys->resume();
 
         break;
       } // case PAUSED end
 
       case Cmp::Persistent::GameState::State::GAMEOVER: {
-        m_abovewater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
-        m_underwater_sounds_sys.update_music_playback( Sys::MusicSystem::Function::STOP );
+        m_abovewater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
+        m_underwater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
         for ( auto [_, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
         {
-          if ( not _pc.alive ) { m_render_menu_sys.render_defeat_screen(); }
-          else { m_render_menu_sys.render_victory_screen(); }
+          if ( not _pc.alive ) { m_render_menu_sys->render_defeat_screen(); }
+          else { m_render_menu_sys->render_victory_screen(); }
         }
         std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
-        m_event_handler.game_over_state_handler();
+        m_event_handler->game_over_state_handler();
 
         break;
       } // case GAME_OVER end
 
       case Cmp::Persistent::GameState::State::EXITING: {
         // wait for fade out to complete
-        m_title_music_sys.start_music_fade_out();
-        if ( m_title_music_sys.is_fading_out() )
+        m_title_music_sys->start_music_fade_out();
+        if ( m_title_music_sys->is_fading_out() )
         {
-          m_title_music_sys.update_volume();
+          m_title_music_sys->update_volume();
           break;
         }
         SPDLOG_INFO( "Terminating application...." );
@@ -258,46 +244,71 @@ bool Engine::run()
   return false;
 }
 
+void Engine::init_systems()
+{
+  if ( !m_title_music_sys ) m_title_music_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, "res/audio/title_music.mp3" );
+  if ( !m_persistent_sys ) m_persistent_sys = std::make_unique<Sys::PersistentSystem>( m_reg, *m_window );
+  if ( !m_render_game_sys ) m_render_game_sys = std::make_unique<Sys::RenderGameSystem>( m_reg, *m_window );
+  if ( !m_player_sys ) m_player_sys = std::make_unique<Sys::PlayerSystem>( m_reg, *m_window );
+  if ( !m_flood_sys ) m_flood_sys = std::make_unique<Sys::FloodSystem>( m_reg, *m_window );
+  if ( !m_path_find_sys ) m_path_find_sys = std::make_unique<Sys::PathFindSystem>( m_reg, *m_window );
+  if ( !m_npc_sys ) m_npc_sys = std::make_unique<Sys::NpcSystem>( m_reg, *m_window );
+  if ( !m_collision_sys ) m_collision_sys = std::make_unique<Sys::CollisionSystem>( m_reg, *m_window );
+  if ( !m_digging_sys ) m_digging_sys = std::make_unique<Sys::DiggingSystem>( m_reg, *m_window );
+  if ( !m_render_overlay_sys ) m_render_overlay_sys = std::make_unique<Sys::RenderOverlaySystem>( m_reg, *m_window );
+  if ( !m_bomb_sys ) m_bomb_sys = std::make_unique<Sys::BombSystem>( m_reg, *m_window );
+  if ( !m_anim_sys ) m_anim_sys = std::make_unique<Sys::AnimSystem>( m_reg, *m_window );
+  if ( !m_sinkhole_sys ) m_sinkhole_sys = std::make_unique<Sys::SinkHoleHazardSystem>( m_reg, *m_window );
+  if ( !m_corruption_sys ) m_corruption_sys = std::make_unique<Sys::CorruptionHazardSystem>( m_reg, *m_window );
+  if ( !m_wormhole_sys ) m_wormhole_sys = std::make_unique<Sys::WormholeSystem>( m_reg, *m_window );
+  if ( !m_exit_sys ) m_exit_sys = std::make_unique<Sys::ExitSystem>( m_reg, *m_window );
+  if ( !m_footstep_sys ) m_footstep_sys = std::make_unique<Sys::FootstepSystem>( m_reg, *m_window );
+  if ( !m_underwater_sounds_sys )
+    m_underwater_sounds_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, "res/audio/underwater.wav" );
+  if ( !m_abovewater_sounds_sys )
+    m_abovewater_sounds_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, "res/audio/footsteps.mp3" );
+}
+
 // Sets up ECS for the rest of the game
-void Engine::setup()
+void Engine::restart()
 {
   reginfo( "Pre-setup" );
 
   // Cmp::RandomInt::seed(123456789); // testing purposes
-  m_persistent_sys.initializeComponentRegistry();
-  m_persistent_sys.load_state();
+  m_persistent_sys->initializeComponentRegistry();
+  m_persistent_sys->load_state();
   m_sprite_factory->init();
 
-  m_render_game_sys.init_shaders();
-  m_render_game_sys.init_tilemap();
+  m_render_game_sys->init_shaders();
+  m_render_game_sys->init_tilemap();
 
-  m_digging_sys.load_sounds();
+  m_digging_sys->load_sounds();
 
   m_reg->ctx().emplace<std::shared_ptr<Sprites::SpriteFactory>>( m_sprite_factory );
 
-  m_render_game_sys.init_multisprites();
+  m_render_game_sys->init_multisprites();
 
   add_system_entity();
-  m_player_sys.add_player_entity();
-  m_flood_sys.add_flood_water_entity();
+  m_player_sys->add_player_entity();
+  m_flood_sys->add_flood_water_entity();
   add_display_size( sf::Vector2u{ 1920, 1024 } );
 
   // create initial random game area with the required sprites
-  std::unique_ptr<Sys::ProcGen::RandomLevelGenerator>
-      random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>( m_reg, *m_window );
+  std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>(
+      m_reg, *m_window );
 
   // procedurally generate the game area from the initial random layout
   Sys::ProcGen::CellAutomataSystem cellauto_parser{ m_reg, *m_window, std::move( random_level ) };
   cellauto_parser.iterate( 5 );
 
-  m_exit_sys.spawn_exit();
+  m_exit_sys->spawn_exit();
 
   // Reset the views early to prevent wild panning back to the start
   // position when the game starts rendering
-  m_render_game_sys.init_views();
-  m_sinkhole_sys.init_hazard_field();
-  m_corruption_sys.init_hazard_field();
-  m_wormhole_sys.spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
+  m_render_game_sys->init_views();
+  m_sinkhole_sys->init_hazard_field();
+  m_corruption_sys->init_hazard_field();
+  m_wormhole_sys->spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
   reginfo( "Post-setup" );
 }

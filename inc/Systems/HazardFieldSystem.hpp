@@ -55,6 +55,7 @@ public:
       : Sys::BaseSystem( reg, window )
   {
     init_context();
+    SPDLOG_INFO( "HazardFieldSystem initialized" );
   }
 
   void init_context()

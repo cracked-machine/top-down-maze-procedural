@@ -22,6 +22,7 @@ public:
     std::ignore = getEventDispatcher()
                       .sink<Events::AnimDirectionChangeEvent>()
                       .connect<&Sys::AnimSystem::on_anim_direction_change>( this );
+    SPDLOG_INFO( "AnimSystem initialized" );
   }
 
   // update frames on all SpriteAnimation components

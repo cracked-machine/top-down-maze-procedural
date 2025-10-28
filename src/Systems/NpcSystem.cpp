@@ -21,6 +21,7 @@ NpcSystem::NpcSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &
   std::ignore = Sys::BaseSystem::getEventDispatcher()
                     .sink<Events::NpcDeathEvent>()
                     .connect<&Sys::NpcSystem::on_npc_death>( this );
+  SPDLOG_INFO( "NpcSystem initialized" );
 }
 
 void NpcSystem::add_npc_entity( entt::entity position_entity )

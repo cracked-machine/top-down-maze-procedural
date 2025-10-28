@@ -18,6 +18,7 @@ WormholeSystem::WormholeSystem( ProceduralMaze::SharedEnttRegistry reg, sf::Rend
     : BaseSystem( reg, window )
 {
   init_context();
+  SPDLOG_INFO( "WormholeSystem initialized" );
 }
 
 void WormholeSystem::init_context()

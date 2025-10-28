@@ -12,6 +12,7 @@ namespace ProceduralMaze::Sys {
 PathFindSystem::PathFindSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
     : BaseSystem( reg, window )
 {
+  SPDLOG_INFO( "PathFindSystem initialized" );
 }
 
 void PathFindSystem::update_player_distances()

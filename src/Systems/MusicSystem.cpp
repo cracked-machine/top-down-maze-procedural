@@ -11,6 +11,7 @@ MusicSystem::MusicSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWind
       m_music_buffer( std::move( music_path ) )
 {
   m_music.setLooping( true );
+  SPDLOG_INFO( "MusicSystem initialized" );
 }
 
 void MusicSystem::update_music_playback( Function func )

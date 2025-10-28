@@ -12,7 +12,10 @@ class RenderOverlaySystem : public RenderSystem
 {
 public:
   RenderOverlaySystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
-      : RenderSystem( reg, window ) {};
+      : RenderSystem( reg, window )
+  {
+    SPDLOG_INFO( "RenderOverlaySystem initialized" );
+  };
 
   void render_entt_distance_set_overlay( sf::Vector2f pos );
   void render_bomb_radius_overlay( int radius_value, sf::Vector2f pos );

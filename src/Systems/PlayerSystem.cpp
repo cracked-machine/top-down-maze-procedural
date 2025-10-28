@@ -22,6 +22,7 @@ namespace ProceduralMaze::Sys {
 PlayerSystem::PlayerSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window )
     : BaseSystem( registry, window )
 {
+  SPDLOG_INFO( "PlayerSystem initialized" );
 }
 
 void PlayerSystem::add_player_entity()

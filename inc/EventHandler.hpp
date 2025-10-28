@@ -17,7 +17,7 @@
 #include <SFML/Window/Window.hpp>
 #include <optional>
 
-namespace ProceduralMaze {
+namespace ProceduralMaze::Sys {
 
 class EventHandler : public Sys::BaseSystem
 {
@@ -31,6 +31,6 @@ public:
   void game_over_state_handler();
 };
 
-} // namespace ProceduralMaze
+} // namespace ProceduralMaze::Sys
 
 #endif // __INPUT_EVENT_HANDLER_HPP__

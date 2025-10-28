@@ -5,7 +5,7 @@
 #include <LargeObstacle.hpp>
 #include <Persistent/MaxShrines.hpp>
 
-namespace ProceduralMaze {
+namespace ProceduralMaze::Sys {
 
 EventHandler::EventHandler( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &m_window )
     : Sys::BaseSystem( reg, m_window )
@@ -265,4 +265,4 @@ void EventHandler::game_over_state_handler()
   }
 }
 
-} // namespace ProceduralMaze
+} // namespace ProceduralMaze::Sys

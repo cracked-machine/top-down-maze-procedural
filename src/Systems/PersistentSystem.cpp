@@ -52,6 +52,7 @@ PersistentSystem::PersistentSystem( SharedEnttRegistry reg, sf::RenderWindow &wi
   std::ignore = getEventDispatcher()
                     .sink<Events::SaveSettingsEvent>()
                     .connect<&Sys::PersistentSystem::on_save_settings_event>( this );
+  SPDLOG_INFO( "PersistentSystem initialized" );
 }
 
 void PersistentSystem::initializeComponentRegistry()

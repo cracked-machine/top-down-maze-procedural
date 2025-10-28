@@ -20,6 +20,7 @@ ExitSystem::ExitSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow
 {
   // register the event sinks
   std::ignore = getEventDispatcher().sink<Events::UnlockDoorEvent>().connect<&ExitSystem::on_door_unlock_event>( this );
+  SPDLOG_INFO( "ExitSystem initialized" );
 }
 
 void ExitSystem::spawn_exit()

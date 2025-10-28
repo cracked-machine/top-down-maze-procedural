@@ -37,6 +37,7 @@ namespace ProceduralMaze::Sys {
 RenderGameSystem::RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
     : RenderSystem( reg, window )
 {
+  SPDLOG_INFO( "RenderGameSystem initialized" );
 }
 
 void RenderGameSystem::init_views()

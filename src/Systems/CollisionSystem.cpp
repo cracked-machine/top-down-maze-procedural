@@ -42,6 +42,7 @@ CollisionSystem::CollisionSystem( ProceduralMaze::SharedEnttRegistry reg, sf::Re
   // register the event sinks
   std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&CollisionSystem::on_player_action>(
       this );
+  SPDLOG_INFO( "CollisionSystem initialized" );
 }
 
 void CollisionSystem::suspend()

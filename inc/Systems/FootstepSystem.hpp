@@ -15,6 +15,7 @@ public:
   FootstepSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
       : BaseSystem( reg, window )
   {
+    SPDLOG_INFO( "FootstepSystem initialized" );
   }
   // create an entity with components: Position, Direction, FootstepTimer, FootstepAlpha
   void add_footstep( const Cmp::Position &position, const Cmp::Direction &direction );

@@ -6,7 +6,7 @@ namespace ProceduralMaze::Sys {
 RenderSystem::RenderSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
     : BaseSystem( reg, window )
 {
-  // nothing
+  SPDLOG_INFO( "RenderSystem constructor called" );
 }
 
 std::unordered_map<Sprites::SpriteMetaType, std::optional<Sprites::MultiSprite>> RenderSystem::m_multisprite_map;
