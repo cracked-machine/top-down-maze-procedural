@@ -2,7 +2,9 @@
 #define __ENGINE_HPP__
 
 #include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <condition_variable>
+#include <future>
 #include <spdlog/spdlog.h>
 
 #include <AnimSystem.hpp>
@@ -89,30 +91,49 @@ private:
   // add game state component to the registry
   void add_game_state_entity();
 
-  //! @brief Show a loading screen while initializing systems
-  //!
-  //! @tparam Callable
-  //! @param callable
-  //! @param loading_texture
-  template <typename Callable> void loading_screen( Callable &&callable, const sf::Texture &loading_texture )
+  template <typename Callable> void loading_screen( Callable &&callable, [[maybe_unused]] const sf::Texture &loading_texture )
   {
-    m_systems_initialized = false;
+    Cmp::Font font( "res/fonts/tuffy.ttf" );
+    sf::Text loading_text( font, "Loading", 48 );
+    loading_text.setFillColor( sf::Color::White );
+    loading_text.setPosition( { Sys::BaseSystem::kDisplaySize.x / 2.f - 50.f, Sys::BaseSystem::kDisplaySize.y / 2.f + 100.f } );
 
-    m_window->clear( sf::Color::Black );
-    sf::Sprite splash_sprite( loading_texture );
-    splash_sprite.setPosition( { 0, 0 } );
-    m_window->draw( splash_sprite );
-    m_window->display();
+    sf::Clock clock;
+    const float text_update_interval = 1.f; // 1 second between dot updates
+    int dot_count = 0;
 
-    std::thread( [this, func = std::forward<Callable>( callable )]() mutable {
-      func();
-      m_systems_initialized = true;
-    } ).detach();
+    // Launch the initialization task asynchronously
+    auto future = std::async( std::launch::async, std::forward<Callable>( callable ) );
 
-    while ( !m_systems_initialized )
+    // Run code while waiting for completion
+    while ( future.wait_for( std::chrono::milliseconds( 16 ) ) != std::future_status::ready )
     {
-      std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+      // Handle window events to prevent "not responding"
+      while ( const std::optional event = m_window->pollEvent() )
+      {
+        if ( event->is<sf::Event::Closed>() )
+        {
+          m_window->close();
+          return;
+        }
+      }
+
+      // Update dots every second
+      if ( clock.getElapsedTime().asSeconds() >= text_update_interval )
+      {
+        dot_count = ( dot_count + 1 ) % 4; // Cycle 0 -> 1 -> 2 -> 3 -> 0
+        std::string dots( dot_count, '.' );
+        loading_text.setString( "Loading" + dots );
+        clock.restart();
+      }
+
+      m_window->clear( sf::Color::Black );
+      m_window->draw( loading_text );
+      m_window->display();
     }
+
+    // Ensure any exceptions from the worker thread are propagated
+    future.get();
   }
 
   // load the splash texture first
