@@ -52,8 +52,7 @@ public:
     {
       m_apply = [oldApply, name, value]( sf::Shader &shader ) {
         if ( oldApply ) oldApply( shader );
-        shader.setUniform( name,
-                           sf::Glsl::Vec4( value.r / 255.0f, value.g / 255.0f, value.b / 255.0f, value.a / 255.0f ) );
+        shader.setUniform( name, sf::Glsl::Vec4( value.r / 255.0f, value.g / 255.0f, value.b / 255.0f, value.a / 255.0f ) );
       };
     }
     else
@@ -165,8 +164,7 @@ public:
             else if constexpr ( std::is_same_v<T, sf::Vector3f> ) { m_shader.setUniform( name, val ); }
             else if constexpr ( std::is_same_v<T, sf::Color> )
             {
-              m_shader.setUniform( name,
-                                   sf::Glsl::Vec4( val.r / 255.0f, val.g / 255.0f, val.b / 255.0f, val.a / 255.0f ) );
+              m_shader.setUniform( name, sf::Glsl::Vec4( val.r / 255.0f, val.g / 255.0f, val.b / 255.0f, val.a / 255.0f ) );
             }
           },
           value );
@@ -193,6 +191,8 @@ public:
   void set_texture_view( sf::View view_update ) { m_render_texture.setView( view_update ); }
   // internal draw function called by SFML
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
+
+  auto get_texture_size() const { return m_render_texture.getSize(); }
 
 protected:
   // this is the pallette texture that the shader will be applied to

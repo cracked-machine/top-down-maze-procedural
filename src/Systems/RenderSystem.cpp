@@ -6,7 +6,7 @@ namespace ProceduralMaze::Sys {
 RenderSystem::RenderSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
     : BaseSystem( reg, window )
 {
-  SPDLOG_INFO( "RenderSystem constructor called" );
+  SPDLOG_DEBUG( "RenderSystem constructor called" );
 }
 
 std::unordered_map<Sprites::SpriteMetaType, std::optional<Sprites::MultiSprite>> RenderSystem::m_multisprite_map;
@@ -26,8 +26,8 @@ void RenderSystem::init_multisprites()
   }
 }
 
-void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align,
-                                float padding, sf::Color fill_color, sf::Color outline_color )
+void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align, float padding,
+                                sf::Color fill_color, sf::Color outline_color )
 {
   sf::Text title_text( m_font, text, size );
   title_text.setFillColor( fill_color );
@@ -58,8 +58,8 @@ void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2
 }
 
 void RenderSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
-                                                 const sf::FloatRect &pos_cmp, int sprite_index, sf::Vector2f scale,
-                                                 uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
+                                                 const sf::FloatRect &pos_cmp, int sprite_index, sf::Vector2f scale, uint8_t alpha,
+                                                 sf::Vector2f origin, sf::Angle angle )
 {
   if ( not is_visible_in_view( m_window.getView(), pos_cmp ) ) return;
   try

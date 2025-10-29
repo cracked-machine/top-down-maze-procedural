@@ -16,11 +16,11 @@ public:
   RenderMenuSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window )
       : RenderSystem( registry, window )
   {
-    SPDLOG_INFO( "RenderMenuSystem constructor called" );
+    SPDLOG_DEBUG( "RenderMenuSystem constructor called" );
   }
   ~RenderMenuSystem() = default;
 
-  void render_loading_screen( const std::string &status );
+  void init_title();
   void render_title();
 
   void render_settings_widgets( sf::Time deltaTime );
@@ -30,7 +30,7 @@ public:
   void render_victory_screen();
 
 private:
-  Sprites::TitleScreenShader m_title_screen_shader{ "res/shaders/TitleScreen.frag", Sys::BaseSystem::kDisplaySize };
+  std::unique_ptr<Sprites::TitleScreenShader> m_title_screen_shader;
 };
 
 } // namespace ProceduralMaze::Sys

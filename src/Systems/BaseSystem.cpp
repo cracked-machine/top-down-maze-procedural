@@ -13,7 +13,7 @@ BaseSystem::BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow
     : m_reg( reg ),
       m_window( window )
 {
-  SPDLOG_INFO( "BaseSystem constructor called" );
+  SPDLOG_DEBUG( "BaseSystem constructor called" );
 }
 
 const sf::Vector2u BaseSystem::kDisplaySize{ 1920, 1024 };

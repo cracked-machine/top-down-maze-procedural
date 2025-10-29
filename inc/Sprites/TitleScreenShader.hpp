@@ -16,7 +16,6 @@ public:
   TitleScreenShader( std::filesystem::path shader_path, sf::Vector2u texture_size )
       : BaseFragmentShader( shader_path, texture_size )
   {
-    setup();
   }
   ~TitleScreenShader() override = default;
 

@@ -55,16 +55,13 @@ public:
       : Sys::BaseSystem( reg, window )
   {
     init_context();
-    SPDLOG_INFO( "HazardFieldSystem initialized" );
+    SPDLOG_DEBUG( "HazardFieldSystem initialized" );
   }
 
   void init_context()
   {
     // ensure we have a persistent component for the hazard seed
-    if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
-    {
-      add_persistent_component<Cmp::Persistent::SinkholeSeed>();
-    }
+    if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> ) { add_persistent_component<Cmp::Persistent::SinkholeSeed>(); }
     else if constexpr ( std::is_same_v<HazardType, Cmp::CorruptionCell> )
     {
       add_persistent_component<Cmp::Persistent::CorruptionSeed>();
@@ -108,16 +105,14 @@ public:
       seed = get_persistent_component<Cmp::Persistent::CorruptionSeed>().get_value();
       std::tie( random_entity, random_position ) = get_random_position(
           IncludePack<Cmp::Obstacle>{},
-          ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(),
-          seed );
+          ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
     }
     else if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
     {
       seed = get_persistent_component<Cmp::Persistent::SinkholeSeed>().get_value();
       std::tie( random_entity, random_position ) = get_random_position(
           IncludePack<Cmp::Obstacle>{},
-          ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(),
-          seed );
+          ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
     }
     if ( random_entity == entt::null )
     {
@@ -184,8 +179,7 @@ public:
       {
         hazard_field_cmp.active = false;
 
-        SPDLOG_DEBUG( "Hazard field at entity {} is now inactive (surrounded).",
-                      static_cast<uint32_t>( hazard_field_entity ) );
+        SPDLOG_DEBUG( "Hazard field at entity {} is now inactive (surrounded).", static_cast<uint32_t>( hazard_field_entity ) );
       }
     }
   }

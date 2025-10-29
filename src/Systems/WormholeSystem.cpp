@@ -18,7 +18,7 @@ WormholeSystem::WormholeSystem( ProceduralMaze::SharedEnttRegistry reg, sf::Rend
     : BaseSystem( reg, window )
 {
   init_context();
-  SPDLOG_INFO( "WormholeSystem initialized" );
+  SPDLOG_DEBUG( "WormholeSystem initialized" );
 }
 
 void WormholeSystem::init_context()
@@ -63,8 +63,8 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
             // Found the entity at the adjacent position
             // Do whatever you need with this entity
             adj_obstacle_cmp.m_enabled = false;
-            SPDLOG_DEBUG( "Found adjacent entity {} at position ({}, {})", static_cast<uint32_t>( entity ),
-                          pos_cmp.position.x, pos_cmp.position.y );
+            SPDLOG_DEBUG( "Found adjacent entity {} at position ({}, {})", static_cast<uint32_t>( entity ), pos_cmp.position.x,
+                          pos_cmp.position.y );
             break; // Move to next offset
           }
         }
@@ -97,8 +97,7 @@ void WormholeSystem::check_player_wormhole_collision()
       // 3. if collision, pick a random new player spawn location. Exclude walls, doors, exits, playable characters and
       // NPCs
       auto [new_spawn_entity, new_spawn_pos_cmp] = get_random_position(
-          IncludePack<Cmp::Obstacle>{},
-          ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>{}, 0 );
+          IncludePack<Cmp::Obstacle>{}, ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>{}, 0 );
 
       // 6. call despawn_wormhole()
       despawn_wormhole();
@@ -115,8 +114,7 @@ void WormholeSystem::check_player_wormhole_collision()
       // 5. teleport player to the location, abort lerp if active
       m_reg->remove<Cmp::LerpPosition>( player_entity );
       m_reg->emplace_or_replace<Cmp::Position>( player_entity, new_spawn_pos_cmp.position, new_spawn_pos_cmp.size );
-      SPDLOG_INFO( "Player teleported to new position ({}, {})", new_spawn_pos_cmp.position.x,
-                   new_spawn_pos_cmp.position.y );
+      SPDLOG_INFO( "Player teleported to new position ({}, {})", new_spawn_pos_cmp.position.x, new_spawn_pos_cmp.position.y );
 
       // 7. call spawn_wormhole()
       spawn_wormhole( WormholeSystem::SpawnPhase::Respawn );

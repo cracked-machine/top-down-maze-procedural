@@ -20,7 +20,7 @@ BombSystem::BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow
 {
   std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>(
       this );
-  SPDLOG_INFO( "BombSystem initialized" );
+  SPDLOG_DEBUG( "BombSystem initialized" );
 }
 
 void BombSystem::suspend()

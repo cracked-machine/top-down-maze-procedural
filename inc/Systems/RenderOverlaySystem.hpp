@@ -14,7 +14,7 @@ public:
   RenderOverlaySystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
       : RenderSystem( reg, window )
   {
-    SPDLOG_INFO( "RenderOverlaySystem initialized" );
+    SPDLOG_DEBUG( "RenderOverlaySystem initialized" );
   };
 
   void render_entt_distance_set_overlay( sf::Vector2f pos );

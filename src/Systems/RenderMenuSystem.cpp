@@ -34,29 +34,11 @@
 
 namespace ProceduralMaze::Sys {
 
-void RenderMenuSystem::render_loading_screen( const std::string &status )
+void RenderMenuSystem::init_title()
 {
-  m_window.clear();
-
-  // Background
-  sf::RectangleShape background( ( sf::Vector2f( kDisplaySize ) ) );
-  background.setFillColor( sf::Color::Black );
-  m_window.draw( background );
-
-  // Loading text
-  render_text( "Loading Game...", 64, { kDisplaySize.x * 0.5f, kDisplaySize.y * 0.4f }, Alignment::CENTER );
-  render_text( status, 32, { kDisplaySize.x * 0.5f, kDisplaySize.y * 0.6f }, Alignment::CENTER );
-
-  // Simple progress bar or spinner
-  static float rotation = 0.0f;
-  rotation += 5.0f;
-  sf::CircleShape spinner( 20.0f, 8 );
-  spinner.setPosition( { kDisplaySize.x * 0.5f - 20.0f, kDisplaySize.y * 0.7f } );
-  spinner.setFillColor( sf::Color::White );
-  spinner.setRotation( sf::degrees( rotation ) );
-  m_window.draw( spinner );
-
-  m_window.display();
+  m_title_screen_shader = std::make_unique<Sprites::TitleScreenShader>( "res/shaders/TitleScreen.frag",
+                                                                        Sys::BaseSystem::kDisplaySize );
+  m_title_screen_shader->setup();
 }
 
 void RenderMenuSystem::render_title()
@@ -64,11 +46,11 @@ void RenderMenuSystem::render_title()
   // main render begin
   m_window.clear();
   {
-    m_title_screen_shader.set_position( { 0, 0 } );
+    m_title_screen_shader->set_position( { 0, 0 } );
     const auto mouse_pos = sf::Vector2f( sf::Mouse::getPosition( m_window ) )
                                .componentWiseDiv( sf::Vector2f( m_window.getSize() ) );
-    m_title_screen_shader.update( mouse_pos );
-    m_window.draw( m_title_screen_shader );
+    m_title_screen_shader->update( mouse_pos );
+    m_window.draw( *m_title_screen_shader );
 
     render_text( "Procedural Maze", 128, { kDisplaySize.x * 0.25f, 100.f }, Alignment::CENTER, 20.f, sf::Color::Black,
                  sf::Color::White );
@@ -127,20 +109,17 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   auto &player_lerp_speed = get_persistent_component<Cmp::Persistent::PlayerLerpSpeed>();
   ImGui::SliderFloat( "Player Lerp Speed", &player_lerp_speed.get_value(), 3.f, 10.f, "%.1f" );
 
-  auto &player_diagonal_lerp_speed_modifier = get_persistent_component<
-      Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
-  ImGui::SliderFloat( "Player Diagonal Lerp Speed Modifier", &player_diagonal_lerp_speed_modifier.get_value(), 0.001f,
-                      1.f, "%.2f" );
+  auto &player_diagonal_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
+  ImGui::SliderFloat( "Player Diagonal Lerp Speed Modifier", &player_diagonal_lerp_speed_modifier.get_value(), 0.001f, 1.f,
+                      "%.2f" );
 
-  auto &player_shortcut_lerp_speed_modifier = get_persistent_component<
-      Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
-  ImGui::SliderFloat( "Player Shortcut Lerp Speed Modifier", &player_shortcut_lerp_speed_modifier.get_value(), 0.001f,
-                      1.f, "%.2f" );
+  auto &player_shortcut_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
+  ImGui::SliderFloat( "Player Shortcut Lerp Speed Modifier", &player_shortcut_lerp_speed_modifier.get_value(), 0.001f, 1.f,
+                      "%.2f" );
 
-  auto &player_submerged_lerp_speed_modifier = get_persistent_component<
-      Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
-  ImGui::SliderFloat( "Player Submerged Lerp Speed Modifier", &player_submerged_lerp_speed_modifier.get_value(), 0.001f,
-                      1.f, "%.2f" );
+  auto &player_submerged_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
+  ImGui::SliderFloat( "Player Submerged Lerp Speed Modifier", &player_submerged_lerp_speed_modifier.get_value(), 0.001f, 1.f,
+                      "%.2f" );
 
   auto &digging_cooldown = get_persistent_component<Cmp::Persistent::DiggingCooldownThreshold>();
   ImGui::SliderFloat( "Digging Cooldown", &digging_cooldown.get_value(), 0.05f, 1.f, "%.2f seconds" );
@@ -209,13 +188,11 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   ImGui::SliderFloat( "NPC Death Animation Framerate", &npc_death_anim_framerate.get_value(), 0.01f, 0.5f, "%.2f" );
 
   auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NpcActivateScale>();
-  ImGui::SliderFloat( "NPC Activation Bounding Box Scale Factor", &npc_activate_scale.get_value(), 1.f, 20.f,
-                      "%.1f pixels" );
+  ImGui::SliderFloat( "NPC Activation Bounding Box Scale Factor", &npc_activate_scale.get_value(), 1.f, 20.f, "%.1f pixels" );
   auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NpcScanScale>();
   ImGui::SliderFloat( "NPC Scan Bounding Box Scale Factor", &npc_scan_scale.get_value(), 1.f, 3.f, "%.1f pixels" );
   auto &pc_detection_scale = get_persistent_component<Cmp::Persistent::PlayerDetectionScale>();
-  ImGui::SliderFloat( "PC Detection Bounding Box Scale Factor", &pc_detection_scale.get_value(), 1.f, 20.f,
-                      "%.1f pixels" );
+  ImGui::SliderFloat( "PC Detection Bounding Box Scale Factor", &pc_detection_scale.get_value(), 1.f, 20.f, "%.1f pixels" );
 
   auto &npc_lerp_speed = get_persistent_component<Cmp::Persistent::NpcLerpSpeed>();
   ImGui::SliderFloat( "NPC Speed", &npc_lerp_speed.get_value(), 0.1f, 3.f, "%.1f" );

@@ -37,7 +37,7 @@ namespace ProceduralMaze::Sys {
 RenderGameSystem::RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
     : RenderSystem( reg, window )
 {
-  SPDLOG_INFO( "RenderGameSystem initialized" );
+  SPDLOG_DEBUG( "RenderGameSystem initialized" );
 }
 
 void RenderGameSystem::init_views()
@@ -95,6 +95,8 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
 
       m_local_view.setCenter( player_position.position );
       // draw the background
+
+      render_flood_waters( player_position );
       render_floormap( { 0, 0 } );
 
       // now draw everything else on top
@@ -114,7 +116,6 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
       render_npc();
       render_large_obstacles();
       render_explosions();
-      // render_flood_waters();
 
       if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
       {
@@ -234,8 +235,7 @@ void RenderGameSystem::render_player_spawn()
   auto spawnarea_view = m_reg->view<Cmp::SpawnAreaSprite, Cmp::Position>();
   for ( auto [entity, spawnarea_cmp, pos_cmp] : spawnarea_view.each() )
   {
-    if ( auto it = m_multisprite_map.find( spawnarea_cmp.getType() );
-         it != m_multisprite_map.end() && it->second.has_value() )
+    if ( auto it = m_multisprite_map.find( spawnarea_cmp.getType() ); it != m_multisprite_map.end() && it->second.has_value() )
     {
       auto meta_type = it->first;
       auto new_idx = spawnarea_cmp.getTileIndex();
@@ -253,8 +253,7 @@ void RenderGameSystem::render_large_obstacles()
   auto shrine_view = m_reg->view<Cmp::ShrineSprite, Cmp::Position>();
   for ( auto [entity, shrine_cmp, pos_cmp] : shrine_view.each() )
   {
-    if ( auto it = m_multisprite_map.find( shrine_cmp.getType() );
-         it != m_multisprite_map.end() && it->second.has_value() )
+    if ( auto it = m_multisprite_map.find( shrine_cmp.getType() ); it != m_multisprite_map.end() && it->second.has_value() )
     {
       auto meta_type = it->first;
       auto new_idx = shrine_cmp.getTileIndex();
@@ -276,8 +275,7 @@ void RenderGameSystem::render_large_obstacles()
   auto grave_view = m_reg->view<Cmp::GraveSprite, Cmp::Position>();
   for ( auto [entity, grave_cmp, pos_cmp] : grave_view.each() )
   {
-    if ( auto it = m_multisprite_map.find( grave_cmp.getType() );
-         it != m_multisprite_map.end() && it->second.has_value() )
+    if ( auto it = m_multisprite_map.find( grave_cmp.getType() ); it != m_multisprite_map.end() && it->second.has_value() )
     {
       auto meta_type = it->first;
       auto new_idx = grave_cmp.getTileIndex();
@@ -313,8 +311,7 @@ void RenderGameSystem::render_npc_containers()
   auto npccontainer_view = m_reg->view<Cmp::NpcContainer, Cmp::Position>();
   for ( auto [entity, npccontainer_cmp, pos_cmp] : npccontainer_view.each() )
   {
-    if ( auto it = m_multisprite_map.find( npccontainer_cmp.m_type );
-         it != m_multisprite_map.end() && it->second.has_value() )
+    if ( auto it = m_multisprite_map.find( npccontainer_cmp.m_type ); it != m_multisprite_map.end() && it->second.has_value() )
     {
       auto meta_type = it->first;
       auto new_idx = npccontainer_cmp.m_tile_index;
@@ -332,8 +329,7 @@ void RenderGameSystem::render_loot_containers()
   auto lootcontainer_view = m_reg->view<Cmp::LootContainer, Cmp::Position>();
   for ( auto [entity, lootcontainer_cmp, pos_cmp] : lootcontainer_view.each() )
   {
-    if ( auto it = m_multisprite_map.find( lootcontainer_cmp.m_type );
-         it != m_multisprite_map.end() && it->second.has_value() )
+    if ( auto it = m_multisprite_map.find( lootcontainer_cmp.m_type ); it != m_multisprite_map.end() && it->second.has_value() )
     {
       auto meta_type = it->first;
       auto new_idx = lootcontainer_cmp.m_tile_index;
@@ -370,10 +366,7 @@ void RenderGameSystem::render_small_obstacles()
         rockPositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index, obstacle_cmp.m_integrity );
       }
       else if ( obstacle_cmp.m_type == "POT" ) { potPositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index ); }
-      else if ( obstacle_cmp.m_type == "BONES" )
-      {
-        bonePositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index );
-      }
+      else if ( obstacle_cmp.m_type == "BONES" ) { bonePositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index ); }
     }
 
     if ( obstacle_cmp.m_integrity <= 0.0f ) { detonationPositions.push_back( position_cmp ); }
@@ -589,8 +582,7 @@ void RenderGameSystem::render_walls()
     sf::Vector2f new_origin{ 0.f, 0.f };
     float angle{ 0.f };
 
-    safe_render_sprite( "WALL", pos_cmp, wall_cmp.m_tile_index, new_scale, new_alpha, new_origin,
-                        sf::degrees( angle ) );
+    safe_render_sprite( "WALL", pos_cmp, wall_cmp.m_tile_index, new_scale, new_alpha, new_origin, sf::degrees( angle ) );
   }
 
   // draw entrance
@@ -603,8 +595,7 @@ void RenderGameSystem::render_walls()
     sf::Vector2f new_origin{ 0.f, 0.f };
     float angle{ 0.f };
 
-    safe_render_sprite( "WALL", pos_cmp, door_cmp.m_tile_index, new_scale, new_alpha, new_origin,
-                        sf::degrees( angle ) );
+    safe_render_sprite( "WALL", pos_cmp, door_cmp.m_tile_index, new_scale, new_alpha, new_origin, sf::degrees( angle ) );
   }
 
   auto exit_door_view = m_reg->view<Cmp::Door, Cmp::Position, Cmp::Exit>();
@@ -622,8 +613,7 @@ void RenderGameSystem::render_walls()
     sf::Vector2f new_origin{ half_width_px, half_height_px };
     float angle{ 0.f };
 
-    safe_render_sprite( "WALL", new_pos, door_cmp.m_tile_index, new_scale, new_alpha, new_origin,
-                        sf::degrees( angle ) );
+    safe_render_sprite( "WALL", new_pos, door_cmp.m_tile_index, new_scale, new_alpha, new_origin, sf::degrees( angle ) );
   }
 }
 
@@ -646,8 +636,7 @@ void RenderGameSystem::render_player()
       sprite_index = anim_cmp.m_base_frame + anim_cmp.m_current_frame;
     }
     // dont modify the original pos_cmp, create copy with modified position
-    sf::FloatRect new_pos{ { pc_pos_cmp.position.x + dir_cmp.x_offset, pc_pos_cmp.position.y },
-                           kGridSquareSizePixelsF };
+    sf::FloatRect new_pos{ { pc_pos_cmp.position.x + dir_cmp.x_offset, pc_pos_cmp.position.y }, kGridSquareSizePixelsF };
     safe_render_sprite( "PLAYER", new_pos, sprite_index );
 
     if ( m_show_path_distances )
@@ -775,8 +764,7 @@ void RenderGameSystem::render_npc()
     }
 
     sf::Vector2f new_scale{ dir_cmp.x_scale, 1.f };
-    sf::FloatRect new_position{ sf::Vector2f{ pos_cmp.position.x + dir_cmp.x_offset, pos_cmp.position.y },
-                                kGridSquareSizePixelsF };
+    sf::FloatRect new_position{ sf::Vector2f{ pos_cmp.position.x + dir_cmp.x_offset, pos_cmp.position.y }, kGridSquareSizePixelsF };
     // unsigned int new_sprite_idx{ anim_cmp.m_base_frame + anim_cmp.m_current_frame };
     // get the correct sprite index based on animation frame
     safe_render_sprite( npc_cmp.m_type, new_position, npc_cmp.m_tile_index, new_scale );
@@ -815,13 +803,12 @@ void RenderGameSystem::render_explosions()
   }
 }
 
-void RenderGameSystem::render_flood_waters()
+void RenderGameSystem::render_flood_waters( sf::FloatRect player_position )
 {
-  for ( auto [_, _wl] : m_reg->view<Cmp::WaterLevel>().each() )
-  {
-    if ( _wl.m_level > 0 ) { m_water_shader.update( _wl.m_level ); }
-    m_window.draw( m_water_shader );
-  }
+
+  m_water_shader.update( { player_position.position.x - m_water_shader.get_texture_size().x / 2.f,
+                           player_position.position.y - m_water_shader.get_texture_size().y / 2.f } );
+  m_window.draw( m_water_shader );
 }
 
 void RenderGameSystem::render_player_distances_on_npc()

@@ -5,7 +5,7 @@ namespace ProceduralMaze::Sys {
 FloodSystem::FloodSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
     : BaseSystem( reg, window )
 {
-  SPDLOG_INFO( "FloodSystem initialized" );
+  SPDLOG_DEBUG( "FloodSystem initialized" );
 }
 
 void FloodSystem::add_flood_water_entity()

@@ -15,13 +15,15 @@ namespace ProceduralMaze {
 
 Engine::Engine()
 {
-  SPDLOG_INFO( "Engine Initialising... " );
 
   if ( !m_window->isOpen() )
   {
     SPDLOG_CRITICAL( "Failed to create SFML RenderWindow" );
     std::terminate();
   }
+
+  m_window->clear( sf::Color::Black );
+  m_window->display();
 
   // setup ImGui here rather than RenderSystem classes to reduce white screen init time
   if ( not ImGui::SFML::Init( *m_window ) )
@@ -38,8 +40,6 @@ Engine::Engine()
   io.FontGlobalScale = 1.5f;
   io.IniFilename = "res/imgui.ini";
   std::ignore = ImGui::SFML::UpdateFontTexture();
-
-  SPDLOG_INFO( "Engine Initialisation Complete" );
 }
 
 bool Engine::run()
@@ -233,6 +233,7 @@ bool Engine::run()
 
 void Engine::init_systems()
 {
+
   // init core systems - these are required just to get the engine running
   m_render_menu_sys = std::make_unique<Sys::RenderMenuSystem>( m_reg, *m_window );
   m_event_handler = std::make_unique<Sys::EventHandler>( m_reg, *m_window );
@@ -256,6 +257,7 @@ void Engine::init_systems()
   m_game_music_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, m_game_music_path );
 
   // init game systems - these are required for the actual gameplay
+  // might as well init them all here....it will shorten load times later
   m_render_game_sys = std::make_unique<Sys::RenderGameSystem>( m_reg, *m_window );
   m_player_sys = std::make_unique<Sys::PlayerSystem>( m_reg, *m_window );
   m_flood_sys = std::make_unique<Sys::FloodSystem>( m_reg, *m_window );
@@ -287,6 +289,9 @@ void Engine::init_systems()
 
   m_digging_sys->load_sounds();
   add_display_size( sf::Vector2u{ 1920, 1024 } );
+
+  // prep the title screen resources since they get used next
+  m_render_menu_sys->init_title();
   SPDLOG_INFO( "Lazy initialization of systems complete" );
 }
 

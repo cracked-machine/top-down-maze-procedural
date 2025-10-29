@@ -74,9 +74,8 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
     // place large obstacle - multiply the grid size to get pixel size!
     auto large_obst_grid_size = large_obstacle_sprite->get_grid_size();
 
-    m_reg->emplace_or_replace<Cmp::LargeObstacle>(
-        random_entity, sprite_meta_type, random_origin_position.position,
-        large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
+    m_reg->emplace_or_replace<Cmp::LargeObstacle>( random_entity, sprite_meta_type, random_origin_position.position,
+                                                   large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
 
     SPDLOG_INFO( "Placed large obstacle ({}) at position ({}, {}). Grid size: {}x{}",
                  m_sprite_factory->get_spritedata_type_string( sprite_meta_type ), random_origin_position.position.x,
@@ -131,13 +130,11 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
 
         if ( sprite_meta_type == "SHRINE" )
         {
-          m_reg->emplace_or_replace<Cmp::ShrineSprite>( entity, sprite_meta_type, calculated_grid_index,
-                                                        new_solid_mask );
+          m_reg->emplace_or_replace<Cmp::ShrineSprite>( entity, sprite_meta_type, calculated_grid_index, new_solid_mask );
         }
         else if ( sprite_meta_type.contains( "GRAVE" ) )
         {
-          m_reg->emplace_or_replace<Cmp::GraveSprite>( entity, sprite_meta_type, calculated_grid_index,
-                                                       new_solid_mask );
+          m_reg->emplace_or_replace<Cmp::GraveSprite>( entity, sprite_meta_type, calculated_grid_index, new_solid_mask );
         }
 
         m_reg->emplace_or_replace<Cmp::ReservedPosition>( entity );
@@ -258,7 +255,7 @@ void RandomLevelGenerator::gen_border()
   for ( float x = 0; x < kMapGridSizePixels.x; x += kGridSquareSizePixels.x )
   {
     float top_edge_y_pos = ( kMapGridOffset.y - 1 ) * kGridSquareSizePixels.y;
-    float bottom_edge_y_pos = kMapGridOffset.y + ( kMapGridSizePixels.y + 1 ) - 1;
+    float bottom_edge_y_pos = ( kMapGridSizePixels.y );
 
     if ( x == 0 || x == kMapGridSizePixels.x - kGridSquareSizePixels.x )
       sprite_index = 0; // corner piece

@@ -47,12 +47,11 @@ namespace ProceduralMaze::Sys {
 PersistentSystem::PersistentSystem( SharedEnttRegistry reg, sf::RenderWindow &window )
     : BaseSystem( reg, window )
 {
-  SPDLOG_INFO( "PersistentSystem constructor called" );
+  SPDLOG_DEBUG( "PersistentSystem constructor called" );
 
-  std::ignore = getEventDispatcher()
-                    .sink<Events::SaveSettingsEvent>()
-                    .connect<&Sys::PersistentSystem::on_save_settings_event>( this );
-  SPDLOG_INFO( "PersistentSystem initialized" );
+  std::ignore = getEventDispatcher().sink<Events::SaveSettingsEvent>().connect<&Sys::PersistentSystem::on_save_settings_event>(
+      this );
+  SPDLOG_DEBUG( "PersistentSystem initialized" );
 }
 
 void PersistentSystem::initializeComponentRegistry()
