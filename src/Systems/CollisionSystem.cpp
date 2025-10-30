@@ -267,66 +267,74 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
       {
         SPDLOG_DEBUG( "Player collided with LargeObstacle at ({}, {})", lo_cmp.position.x, lo_cmp.position.y );
 
+        // check for shrine collisions
         auto shrine_view = m_reg->view<Cmp::ShrineSprite, Cmp::Position>();
-        for ( auto [shrine_entity, shrine_cmp, pos_cmp] : shrine_view.each() )
+        for ( auto [shrine_entity, shrine_cmp, shrine_pos_cmp] : shrine_view.each() )
         {
-          if ( not lo_cmp.findIntersection( pos_cmp ) ) continue;
+          // is shrine part of the collided large obstacle?
+          if ( not lo_cmp.findIntersection( shrine_pos_cmp ) ) continue;
 
+          // already activated shrine? - skip
           auto anim_sprite_cmp = m_reg->try_get<Cmp::SpriteAnimation>( shrine_entity );
+          if ( anim_sprite_cmp ) continue;
+
+          // player doesn't have enough score? - skip
           auto &shrine_cost = get_persistent_component<Cmp::Persistent::ShrineCost>();
-          if ( pc_score_cmp.get_score() >= shrine_cost.get_value() && !anim_sprite_cmp )
+          if ( pc_score_cmp.get_score() < shrine_cost.get_value() ) continue;
+
+          // Convert pixel size to grid size, then calculate threshold
+          auto lo_grid_size = lo_cmp.size.componentWiseDiv( kGridSquareSizePixelsF );
+          auto lo_count_threshold = ( lo_grid_size.x * lo_grid_size.y );
+
+          if ( lo_cmp.get_activated_sprite_count() < lo_count_threshold )
           {
-            // Convert pixel size to grid size, then calculate threshold
-            auto lo_grid_size = lo_cmp.size.componentWiseDiv( kGridSquareSizePixelsF );
-            auto lo_count_threshold = ( lo_grid_size.x * lo_grid_size.y );
+            // activate the next shrine sprite
+            m_reg->emplace_or_replace<Cmp::SpriteAnimation>( shrine_entity, 0, 1 );
+            lo_cmp.increment_activated_sprite_count();
+            pc_score_cmp.decrement_score( shrine_cost.get_value() );
 
-            if ( lo_cmp.get_activated_sprite_count() < lo_count_threshold )
+            // Did we just fully activate the shrine?
+            if ( lo_cmp.get_activated_sprite_count() >= lo_count_threshold )
             {
-              m_reg->emplace_or_replace<Cmp::SpriteAnimation>( shrine_entity, 0, 1 );
-
-              lo_cmp.increment_activated_sprite_count();
-              // if we just activated a shrine check if the exit can be unlocked
-              pc_score_cmp.decrement_score( shrine_cost.get_value() );
-
-              if ( lo_cmp.get_activated_sprite_count() >= lo_count_threshold )
-              {
-                SPDLOG_DEBUG( "ACTIVATING SHRINE! Count: {}, Threshold: {}", lo_cmp.get_active_count(), count_threshold );
-                lo_cmp.set_powers_active();
-                getEventDispatcher().trigger( Events::UnlockDoorEvent() );
-              }
+              lo_cmp.set_powers_active();
+              // unlock the door (internally checks if we activated all of the shrines)
+              getEventDispatcher().trigger( Events::UnlockDoorEvent() );
             }
           }
         }
+
+        // check for grave collisions
         auto grave_view = m_reg->view<Cmp::GraveSprite, Cmp::Position>();
-        for ( auto [grave_entity, grave_cmp, pos_cmp] : grave_view.each() )
+        for ( auto [grave_entity, grave_cmp, grave_pos_cmp] : grave_view.each() )
         {
-          if ( not lo_cmp.findIntersection( pos_cmp ) ) continue;
+          // is grave part of the collided large obstacle?
+          if ( not lo_cmp.findIntersection( grave_pos_cmp ) ) continue;
 
           // have we activated all the parts of the grave yet?
           auto sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
           auto grave_ms = sprite_factory->get_multisprite_by_type( grave_cmp.getType() );
           auto activation_threshold = grave_ms->get_grid_size().width * grave_ms->get_grid_size().height;
-          if ( lo_cmp.get_activated_sprite_count() >= activation_threshold )
+          if ( lo_cmp.get_activated_sprite_count() < activation_threshold )
           {
-            // not done yet, skip
-            continue;
+
+            // switch to 2nd pair sprite indices - see Grave types in res/json/sprite_metadata.json
+            // [ 0 ] --> becomes [ 2 ]
+            // [ 1 ] --> becomes [ 3 ]
+            // or
+            // [ 0 ][ 1 ] --> becomes [ 4 ][ 5 ]
+            // [ 2 ][ 3 ] --> becomes [ 6 ][ 7 ]
+            auto current_index = grave_cmp.getTileIndex();
+            grave_cmp.setTileIndex( current_index += 2 * grave_ms->get_grid_size().width );
+
+            pc_score_cmp.increment_score( 1 );
+            lo_cmp.increment_activated_sprite_count();
+
+            spawn_npc = true;
           }
-
-          // switch to 2nd pair sprite indices - see Grave types in res/json/sprite_metadata.json
-          // [ 0 ] --> becomes [ 2 ]
-          // [ 1 ] --> becomes [ 3 ]
-          // or
-          // [ 0 ][ 1 ] --> becomes [ 4 ][ 5 ]
-          // [ 2 ][ 3 ] --> becomes [ 6 ][ 7 ]
-          auto current_index = grave_cmp.getTileIndex();
-          grave_cmp.setTileIndex( current_index += 2 * grave_ms->get_grid_size().width );
-
-          pc_score_cmp.increment_score( 1 );
-          lo_cmp.increment_activated_sprite_count();
-
-          spawn_npc = true;
         }
       }
+
+      // spawn npc event after processing all possible shrine/grave activations
       if ( spawn_npc ) { getEventDispatcher().trigger( Events::NpcCreationEvent( lo_entity ) ); }
     }
   }
