@@ -18,8 +18,7 @@ namespace ProceduralMaze::Sys {
 BombSystem::BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
     : BaseSystem( reg, window )
 {
-  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>(
-      this );
+  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>( this );
   SPDLOG_DEBUG( "BombSystem initialized" );
 }
 
@@ -50,8 +49,7 @@ void BombSystem::arm_occupied_location()
     if ( pc_cmp.has_active_bomb ) continue;     // skip if player already placed a bomb
     if ( pc_cmp.bomb_inventory == 0 ) continue; // skip if player has no bombs left, -1 is infini bombs
 
-    auto destructable_view = m_reg->view<Cmp::Destructable, Cmp::Position>(
-        entt::exclude<typename Cmp::Armed, Cmp::ShrineSprite, Cmp::GraveSprite> );
+    auto destructable_view = m_reg->view<Cmp::Destructable, Cmp::Position>( entt::exclude<typename Cmp::Armed, Cmp::ShrineSprite> );
     for ( auto [destructable_entity, destructable_cmp, destructable_pos_cmp] : destructable_view.each() )
     {
       // make a copy and reduce/center the player hitbox to avoid arming a neighbouring location
@@ -134,10 +132,8 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
       auto &armed_on_delay = get_persistent_component<Cmp::Persistent::ArmedOnDelay>();
       auto &armed_off_delay = get_persistent_component<Cmp::Persistent::ArmedOffDelay>();
       auto new_fuse_delay = sf::seconds( fuse_delay.get_value() + ( sequence_counter * armed_on_delay.get_value() ) );
-      auto new_warning_delay = sf::seconds( armed_off_delay.get_value() +
-                                            ( sequence_counter * armed_off_delay.get_value() ) );
-      m_reg->emplace_or_replace<Cmp::Armed>( entity, new_fuse_delay, new_warning_delay, false, color,
-                                             sequence_counter );
+      auto new_warning_delay = sf::seconds( armed_off_delay.get_value() + ( sequence_counter * armed_off_delay.get_value() ) );
+      m_reg->emplace_or_replace<Cmp::Armed>( entity, new_fuse_delay, new_warning_delay, false, color, sequence_counter );
       sequence_counter++;
     }
   }

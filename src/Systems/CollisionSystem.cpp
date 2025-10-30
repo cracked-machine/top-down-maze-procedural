@@ -2,6 +2,7 @@
 #include <CorruptionCell.hpp>
 #include <Destructable.hpp>
 #include <Events/NpcCreationEvent.hpp>
+#include <Events/PlayerActionEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
 #include <Exit.hpp>
 #include <FootStepTimer.hpp>
@@ -262,7 +263,7 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
     for ( auto [lo_entity, lo_cmp] : large_obstacle_view.each() )
     {
       // only spawn one npc per large obstacle
-      bool spawn_npc = false;
+      bool grave_activated = false;
       if ( player_hitbox.findIntersection( lo_cmp ) )
       {
         SPDLOG_DEBUG( "Player collided with LargeObstacle at ({}, {})", lo_cmp.position.x, lo_cmp.position.y );
@@ -326,16 +327,34 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
             auto current_index = grave_cmp.getTileIndex();
             grave_cmp.setTileIndex( current_index += 2 * grave_ms->get_grid_size().width );
 
-            pc_score_cmp.increment_score( 1 );
             lo_cmp.increment_activated_sprite_count();
-
-            spawn_npc = true;
+            grave_activated = true;
           }
         }
       }
 
       // spawn npc event after processing all possible shrine/grave activations
-      if ( spawn_npc ) { getEventDispatcher().trigger( Events::NpcCreationEvent( lo_entity ) ); }
+      if ( grave_activated )
+      {
+        auto grave_activation_rng = Cmp::RandomInt( 1, 3 );
+        auto consequence = grave_activation_rng.gen();
+        switch ( consequence )
+        {
+          case 1:
+            SPDLOG_INFO( "Spawning NPC from grave activation." );
+            getEventDispatcher().trigger( Events::NpcCreationEvent( lo_entity ) );
+            break;
+          case 2:
+            SPDLOG_INFO( "Dropping bomb from grave activation." );
+            pc_cmp.bomb_inventory += 1;
+            getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
+            break;
+          case 3:
+            SPDLOG_INFO( "Increasing player score from grave activation." );
+            pc_score_cmp.increment_score( 2 );
+            break;
+        }
+      }
     }
   }
 }

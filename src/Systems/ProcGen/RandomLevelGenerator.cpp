@@ -135,6 +135,7 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
         else if ( sprite_meta_type.contains( "GRAVE" ) )
         {
           m_reg->emplace_or_replace<Cmp::GraveSprite>( entity, sprite_meta_type, calculated_grid_index, new_solid_mask );
+          m_reg->emplace_or_replace<Cmp::Destructable>( entity );
         }
 
         m_reg->emplace_or_replace<Cmp::ReservedPosition>( entity );
@@ -151,7 +152,7 @@ void RandomLevelGenerator::gen_large_obstacles()
   if ( grave_meta_types.empty() ) { SPDLOG_WARN( "No GRAVE multisprites found in SpriteFactory" ); }
   else
   {
-    auto max_num_graves = max_num_shrines.get_value() * 10;
+    auto max_num_graves = max_num_shrines.get_value() * 30;
     for ( std::size_t i = 0; i < max_num_graves; ++i )
     {
       // Use the dynamically discovered grave types
