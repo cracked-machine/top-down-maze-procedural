@@ -47,7 +47,7 @@ class RenderSystem : public BaseSystem
 public:
   //! @brief Construct a new Render System object
   //! @param reg
-  RenderSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window );
+  RenderSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
 
   //! @brief Destroy the Render System object
   virtual ~RenderSystem() = default;
@@ -99,9 +99,8 @@ protected:
                     sf::Color fill_color = sf::Color::White, sf::Color outline_color = sf::Color::Transparent );
 
   // Variant that renders to a specific render target (shader, texture, etc.)
-  void safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
-                                     const sf::FloatRect &pos_cmp, int sprite_index = 0,
-                                     sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255,
+  void safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type, const sf::FloatRect &pos_cmp,
+                                     int sprite_index = 0, sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255,
                                      sf::Vector2f origin = { 0.f, 0.f }, sf::Angle angle = sf::degrees( 0.f ) );
 
   // Fallback rendering for missing sprites (also target-aware)

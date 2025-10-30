@@ -12,15 +12,12 @@
 
 namespace ProceduralMaze::Sys {
 
-NpcSystem::NpcSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
-    : BaseSystem( reg, window )
+NpcSystem::NpcSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory )
+    : BaseSystem( reg, window, sprite_factory )
 {
-  std::ignore = Sys::BaseSystem::getEventDispatcher()
-                    .sink<Events::NpcCreationEvent>()
-                    .connect<&Sys::NpcSystem::on_npc_creation>( this );
-  std::ignore = Sys::BaseSystem::getEventDispatcher()
-                    .sink<Events::NpcDeathEvent>()
-                    .connect<&Sys::NpcSystem::on_npc_death>( this );
+  std::ignore = Sys::BaseSystem::getEventDispatcher().sink<Events::NpcCreationEvent>().connect<&Sys::NpcSystem::on_npc_creation>(
+      this );
+  std::ignore = Sys::BaseSystem::getEventDispatcher().sink<Events::NpcDeathEvent>().connect<&Sys::NpcSystem::on_npc_death>( this );
   SPDLOG_DEBUG( "NpcSystem initialized" );
 }
 
@@ -33,7 +30,7 @@ void NpcSystem::add_npc_entity( entt::entity position_entity )
     return;
   }
 
-  auto npc_ms = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>()->get_multisprite_by_type( "NPC" );
+  auto npc_ms = m_sprite_factory.get_multisprite_by_type( "NPC" );
   Cmp::RandomInt npc_sprite_tile_picker( 0, npc_ms->get_sprite_count() - 1 );
   auto tile_pick = npc_sprite_tile_picker.gen();
   SPDLOG_INFO( "Creating NPC: {} of {} possible sprites", tile_pick, npc_ms->get_sprite_count() );

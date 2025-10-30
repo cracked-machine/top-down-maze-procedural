@@ -34,8 +34,9 @@
 
 namespace ProceduralMaze::Sys {
 
-RenderGameSystem::RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
-    : RenderSystem( reg, window )
+RenderGameSystem::RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+                                    Sprites::SpriteFactory &sprite_factory )
+    : RenderSystem( reg, window, sprite_factory )
 {
   SPDLOG_DEBUG( "RenderGameSystem initialized" );
 }

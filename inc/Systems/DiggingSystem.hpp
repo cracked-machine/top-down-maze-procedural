@@ -17,7 +17,7 @@ namespace ProceduralMaze::Sys {
 class DiggingSystem : public BaseSystem
 {
 public:
-  DiggingSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window );
+  DiggingSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
 
   void load_sounds();
   // additional updates via the main game loop

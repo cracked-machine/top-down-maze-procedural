@@ -9,7 +9,7 @@ namespace ProceduralMaze::Sys {
 class PersistentSystem : public BaseSystem
 {
 public:
-  PersistentSystem( SharedEnttRegistry reg, sf::RenderWindow &window );
+  PersistentSystem( SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
 
   /**
    * @brief Loads the persistent state data from storage.

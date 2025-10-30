@@ -11,8 +11,8 @@ namespace ProceduralMaze::Sys {
 class RenderOverlaySystem : public RenderSystem
 {
 public:
-  RenderOverlaySystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
-      : RenderSystem( reg, window )
+  RenderOverlaySystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory )
+      : RenderSystem( reg, window, sprite_factory )
   {
     SPDLOG_DEBUG( "RenderOverlaySystem initialized" );
   };

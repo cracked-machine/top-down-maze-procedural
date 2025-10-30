@@ -44,7 +44,7 @@ namespace ProceduralMaze::Sys {
 class CollisionSystem : public BaseSystem
 {
 public:
-  CollisionSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window );
+  CollisionSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
 
   ~CollisionSystem() = default;
 
@@ -69,10 +69,7 @@ public:
   template <typename HazardType> void check_player_hazard_field_collision()
   {
     auto hazard_field_view = [this]() {
-      if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
-      {
-        return m_reg->view<Cmp::SinkholeCell, Cmp::Position>();
-      }
+      if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> ) { return m_reg->view<Cmp::SinkholeCell, Cmp::Position>(); }
       else if constexpr ( std::is_same_v<HazardType, Cmp::CorruptionCell> )
       {
         return m_reg->view<Cmp::CorruptionCell, Cmp::Position>();
@@ -97,8 +94,7 @@ public:
           // Player falls into a sinkhole or gets damaged by corruption
           if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> ) { player_cmp.alive = false; }
           else { player_cmp.health -= get_persistent_component<Cmp::Persistent::CorruptionDamage>().get_value(); }
-          SPDLOG_DEBUG( "Player fell into a hazard field at position ({}, {})!", hazard_field_pos_cmp.x,
-                        hazard_field_pos_cmp.y );
+          SPDLOG_DEBUG( "Player fell into a hazard field at position ({}, {})!", hazard_field_pos_cmp.x, hazard_field_pos_cmp.y );
           return; // No need to check further if the player is already dead
         }
       }
@@ -108,10 +104,7 @@ public:
   template <typename HazardType> void check_npc_hazard_field_collision()
   {
     auto hazard_field_view = [this]() {
-      if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> )
-      {
-        return m_reg->view<Cmp::SinkholeCell, Cmp::Position>();
-      }
+      if constexpr ( std::is_same_v<HazardType, Cmp::SinkholeCell> ) { return m_reg->view<Cmp::SinkholeCell, Cmp::Position>(); }
       else if constexpr ( std::is_same_v<HazardType, Cmp::CorruptionCell> )
       {
         return m_reg->view<Cmp::CorruptionCell, Cmp::Position>();

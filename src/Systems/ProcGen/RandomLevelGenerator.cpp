@@ -21,10 +21,10 @@
 
 namespace ProceduralMaze::Sys::ProcGen {
 
-RandomLevelGenerator::RandomLevelGenerator( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
-    : BaseSystem( reg, window )
+RandomLevelGenerator::RandomLevelGenerator( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+                                            Sprites::SpriteFactory &sprite_factory )
+    : BaseSystem( reg, window, sprite_factory )
 {
-  m_sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
   gen_positions();
   gen_large_obstacles();
   gen_loot_containers();
@@ -78,7 +78,7 @@ void RandomLevelGenerator::gen_large_obstacle( std::optional<Sprites::MultiSprit
                                                    large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
 
     SPDLOG_INFO( "Placed large obstacle ({}) at position ({}, {}). Grid size: {}x{}",
-                 m_sprite_factory->get_spritedata_type_string( sprite_meta_type ), random_origin_position.position.x,
+                 m_sprite_factory.get_spritedata_type_string( sprite_meta_type ), random_origin_position.position.x,
                  random_origin_position.position.y, large_obst_grid_size.width, large_obst_grid_size.height );
 
     // find any position-owning entities that intersect
@@ -148,7 +148,7 @@ void RandomLevelGenerator::gen_large_obstacles()
 {
   auto max_num_shrines = get_persistent_component<Cmp::Persistent::MaxShrines>();
   // Get all available grave types dynamically from JSON
-  auto grave_meta_types = m_sprite_factory->get_all_sprite_types_by_pattern( "GRAVE" );
+  auto grave_meta_types = m_sprite_factory.get_all_sprite_types_by_pattern( "GRAVE" );
   if ( grave_meta_types.empty() ) { SPDLOG_WARN( "No GRAVE multisprites found in SpriteFactory" ); }
   else
   {
@@ -156,8 +156,8 @@ void RandomLevelGenerator::gen_large_obstacles()
     for ( std::size_t i = 0; i < max_num_graves; ++i )
     {
       // Use the dynamically discovered grave types
-      auto [sprite_metatype, unused_index] = m_sprite_factory->get_random_type_and_texture_index( grave_meta_types );
-      auto multisprite = m_sprite_factory->get_multisprite_by_type( sprite_metatype );
+      auto [sprite_metatype, unused_index] = m_sprite_factory.get_random_type_and_texture_index( grave_meta_types );
+      auto multisprite = m_sprite_factory.get_multisprite_by_type( sprite_metatype );
       if ( !multisprite.has_value() )
       {
         SPDLOG_WARN( "No multisprite found for grave type {}", sprite_metatype );
@@ -166,7 +166,7 @@ void RandomLevelGenerator::gen_large_obstacles()
       gen_large_obstacle( multisprite, sprite_metatype, 0 );
     }
   }
-  auto shrine_multisprite = m_sprite_factory->get_multisprite_by_type( "SHRINE" );
+  auto shrine_multisprite = m_sprite_factory.get_multisprite_by_type( "SHRINE" );
   if ( !shrine_multisprite.has_value() ) { SPDLOG_WARN( "No SHRINE multisprite found in SpriteFactory" ); }
   else
   {
@@ -186,7 +186,7 @@ void RandomLevelGenerator::gen_small_obstacles()
     // pick a random obstacle type and texture index
     // clang-format off
     auto [obst_type, rand_obst_tex_idx] = 
-      m_sprite_factory->get_random_type_and_texture_index( { 
+      m_sprite_factory.get_random_type_and_texture_index( { 
         "ROCK"
       } );
     // clang-format on
@@ -209,7 +209,7 @@ void RandomLevelGenerator::gen_loot_containers()
     // pick a random loot container type and texture index
     // clang-format off
     auto [loot_type, rand_loot_tex_idx] = 
-      m_sprite_factory->get_random_type_and_texture_index( { 
+      m_sprite_factory.get_random_type_and_texture_index( { 
         "POT"
       } );
     // clang-format on
@@ -222,7 +222,7 @@ void RandomLevelGenerator::gen_loot_containers()
 
 void RandomLevelGenerator::gen_npc_containers()
 {
-  auto num_npc_containers = kMapGridSize.x * kMapGridSize.y / 100; // one NPC container per 100 grid squares
+  auto num_npc_containers = kMapGridSize.x * kMapGridSize.y / 200; // one NPC container per 200 grid squares
 
   for ( std::size_t i = 0; i < num_npc_containers; ++i )
   {
@@ -232,7 +232,7 @@ void RandomLevelGenerator::gen_npc_containers()
     // pick a random loot container type and texture index
     // clang-format off
     auto [npc_type, rand_npc_tex_idx] =
-      m_sprite_factory->get_random_type_and_texture_index( {
+      m_sprite_factory.get_random_type_and_texture_index( {
         "BONES"
       } );
     // clang-format on
@@ -320,11 +320,11 @@ void RandomLevelGenerator::stats()
   std::map<std::string, int> results;
   for ( auto [entity, _pos, _ob] : m_reg->view<Cmp::Position, Cmp::Obstacle>().each() )
   {
-    results[m_sprite_factory->get_spritedata_type_string( _ob.m_type )]++;
+    results[m_sprite_factory.get_spritedata_type_string( _ob.m_type )]++;
   }
   for ( auto [entity, _pos, _lc] : m_reg->view<Cmp::Position, Cmp::LootContainer>().each() )
   {
-    results[m_sprite_factory->get_spritedata_type_string( _lc.m_type )]++;
+    results[m_sprite_factory.get_spritedata_type_string( _lc.m_type )]++;
   }
   SPDLOG_INFO( "Object Pick distribution:" );
   for ( auto [bin, freq] : results )

@@ -9,9 +9,10 @@
 
 namespace ProceduralMaze::Sys {
 
-BaseSystem::BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
+BaseSystem::BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory )
     : m_reg( reg ),
-      m_window( window )
+      m_window( window ),
+      m_sprite_factory( sprite_factory )
 {
   SPDLOG_DEBUG( "BaseSystem constructor called" );
 }

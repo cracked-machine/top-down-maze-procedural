@@ -22,7 +22,7 @@ namespace ProceduralMaze::Sys {
 class EventHandler : public Sys::BaseSystem
 {
 public:
-  EventHandler( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window );
+  EventHandler( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
 
   void menu_state_handler();
   void settings_state_handler();

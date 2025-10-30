@@ -2,8 +2,8 @@
 
 namespace ProceduralMaze::Sys {
 
-FloodSystem::FloodSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
-    : BaseSystem( reg, window )
+FloodSystem::FloodSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory )
+    : BaseSystem( reg, window, sprite_factory )
 {
   SPDLOG_DEBUG( "FloodSystem initialized" );
 }

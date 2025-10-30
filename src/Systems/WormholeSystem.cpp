@@ -14,8 +14,9 @@
 
 namespace ProceduralMaze::Sys {
 
-WormholeSystem::WormholeSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
-    : BaseSystem( reg, window )
+WormholeSystem::WormholeSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+                                Sprites::SpriteFactory &sprite_factory )
+    : BaseSystem( reg, window, sprite_factory )
 {
   init_context();
   SPDLOG_DEBUG( "WormholeSystem initialized" );

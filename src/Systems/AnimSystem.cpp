@@ -22,8 +22,6 @@ namespace ProceduralMaze::Sys {
 
 void AnimSystem::update( sf::Time deltaTime )
 {
-  using namespace Sprites;
-  auto &factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
 
   // Shrine Animation
   auto shrine_view = m_reg->view<Cmp::ShrineSprite, Cmp::SpriteAnimation, Cmp::Position>();
@@ -33,7 +31,7 @@ void AnimSystem::update( sf::Time deltaTime )
     if ( anim_cmp.m_animation_active )
     {
       SPDLOG_DEBUG( "Updating Shrine animation for entity {}", static_cast<int>( entity ) );
-      auto shrine_sprite_metadata = factory->get_multisprite_by_type( shrine_cmp.getType() );
+      auto shrine_sprite_metadata = m_sprite_factory.get_multisprite_by_type( shrine_cmp.getType() );
       auto sprites_per_frame = shrine_sprite_metadata->get_sprites_per_frame();
       auto sprites_per_sequence = shrine_sprite_metadata->get_sprites_per_sequence();
       auto frame_rate = sf::seconds( 0.1f );
@@ -49,8 +47,8 @@ void AnimSystem::update( sf::Time deltaTime )
     if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
     if ( lerp_pos_cmp.m_lerp_factor > 0.f )
     {
-      auto &factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
-      auto npc_sprite_metadata = factory->get_multisprite_by_type( "NPC" );
+
+      auto npc_sprite_metadata = m_sprite_factory.get_multisprite_by_type( "NPC" );
       auto sprites_per_frame = npc_sprite_metadata->get_sprites_per_frame();
       auto sprites_per_sequence = npc_sprite_metadata->get_sprites_per_sequence();
       auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::NpcAnimFramerate>().get_value() );
@@ -66,8 +64,7 @@ void AnimSystem::update( sf::Time deltaTime )
     if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
     if ( dir_cmp != sf::Vector2f( 0.f, 0.f ) )
     {
-      auto &factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
-      auto player_sprite_metadata = factory->get_multisprite_by_type( "PLAYER" );
+      auto player_sprite_metadata = m_sprite_factory.get_multisprite_by_type( "PLAYER" );
       auto sprites_per_frame = player_sprite_metadata->get_sprites_per_frame();
       auto sprites_per_sequence = player_sprite_metadata->get_sprites_per_sequence();
       auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::PlayerAnimFramerate>().get_value() );
@@ -82,7 +79,7 @@ void AnimSystem::update( sf::Time deltaTime )
   {
     if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
 
-    auto wormhole_sprite_metadata = factory->get_multisprite_by_type( "WORMHOLE" );
+    auto wormhole_sprite_metadata = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
     auto sprites_per_frame = wormhole_sprite_metadata->get_sprites_per_frame();
     auto sprites_per_sequence = wormhole_sprite_metadata->get_sprites_per_sequence();
     auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::WormholeAnimFramerate>().get_value() );
@@ -94,7 +91,7 @@ void AnimSystem::update( sf::Time deltaTime )
   auto explosion_view = m_reg->view<Cmp::NpcDeathPosition, Cmp::SpriteAnimation>();
   for ( auto [entity, explosion_cmp, anim_cmp] : explosion_view.each() )
   {
-    auto explosion_sprite_metadata = factory->get_multisprite_by_type( "EXPLOSION" );
+    auto explosion_sprite_metadata = m_sprite_factory.get_multisprite_by_type( "EXPLOSION" );
     auto sprites_per_frame = explosion_sprite_metadata->get_sprites_per_frame();
     auto sprites_per_sequence = explosion_sprite_metadata->get_sprites_per_sequence();
     auto frame_rate = sf::seconds( m_reg->ctx().get<Cmp::Persistent::NpcDeathAnimFramerate>().get_value() );
@@ -163,9 +160,8 @@ void AnimSystem::on_anim_direction_change( const Events::AnimDirectionChangeEven
   }
 }
 
-void AnimSystem::update_grouped_sequences( Cmp::SpriteAnimation &anim, sf::Time deltaTime,
-                                           const unsigned int sprites_per_frame, const unsigned int frames_per_group,
-                                           sf::Time frame_rate )
+void AnimSystem::update_grouped_sequences( Cmp::SpriteAnimation &anim, sf::Time deltaTime, const unsigned int sprites_per_frame,
+                                           const unsigned int frames_per_group, sf::Time frame_rate )
 {
   anim.m_elapsed_time += deltaTime;
 
@@ -184,9 +180,8 @@ void AnimSystem::update_grouped_sequences( Cmp::SpriteAnimation &anim, sf::Time 
   }
 }
 
-void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time deltaTime,
-                                         const unsigned int sprites_per_frame, const unsigned int total_sprites,
-                                         sf::Time frame_rate )
+void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time deltaTime, const unsigned int sprites_per_frame,
+                                         const unsigned int total_sprites, sf::Time frame_rate )
 {
   anim.m_elapsed_time += deltaTime;
 

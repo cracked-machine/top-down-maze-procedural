@@ -9,8 +9,9 @@
 
 namespace ProceduralMaze::Sys {
 
-PathFindSystem::PathFindSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
-    : BaseSystem( reg, window )
+PathFindSystem::PathFindSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+                                Sprites::SpriteFactory &sprite_factory )
+    : BaseSystem( reg, window, sprite_factory )
 {
   SPDLOG_DEBUG( "PathFindSystem initialized" );
 }
@@ -87,8 +88,7 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
 
     // Our priority queue auto-sorts with the nearest PlayerDistance component at the top
     if ( distance_queue.empty() ) return;
-    SPDLOG_DEBUG( " NPC entity {} found {} obstacles within scan bounds", static_cast<int>( npc_entity ),
-                  distance_queue.size() );
+    SPDLOG_DEBUG( " NPC entity {} found {} obstacles within scan bounds", static_cast<int>( npc_entity ), distance_queue.size() );
 
     auto nearest_obstacle = distance_queue.top();
 
@@ -113,8 +113,7 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
         auto move_candidate_pixel_pos = getPixelPosition( nearest_obstacle.second );
         if ( not move_candidate_pixel_pos ) return;
         auto npc_lerp_speed = get_persistent_component<Cmp::Persistent::NpcLerpSpeed>();
-        m_reg->emplace_or_replace<Cmp::LerpPosition>( npc_entity, move_candidate_pixel_pos.value(),
-                                                      npc_lerp_speed.get_value() );
+        m_reg->emplace_or_replace<Cmp::LerpPosition>( npc_entity, move_candidate_pixel_pos.value(), npc_lerp_speed.get_value() );
       }
     }
   }

@@ -51,8 +51,8 @@ namespace ProceduralMaze::Sys {
 template <typename HazardType> class HazardFieldSystem : public Sys::BaseSystem
 {
 public:
-  HazardFieldSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
-      : Sys::BaseSystem( reg, window )
+  HazardFieldSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory )
+      : Sys::BaseSystem( reg, window, sprite_factory )
   {
     init_context();
     SPDLOG_DEBUG( "HazardFieldSystem initialized" );

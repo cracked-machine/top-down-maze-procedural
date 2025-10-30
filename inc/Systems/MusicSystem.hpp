@@ -10,7 +10,8 @@ namespace ProceduralMaze::Sys {
 class MusicSystem : public BaseSystem
 {
 public:
-  MusicSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, std::filesystem::path music_path );
+  MusicSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+               std::filesystem::path music_path );
 
   enum class Function
   {

@@ -16,7 +16,7 @@ namespace ProceduralMaze::Sys {
 class RenderGameSystem : public RenderSystem
 {
 public:
-  RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window );
+  RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
   ~RenderGameSystem() = default;
 
   // Entry point for class

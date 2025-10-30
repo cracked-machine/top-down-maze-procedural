@@ -3,8 +3,9 @@
 
 namespace ProceduralMaze::Sys {
 
-RenderSystem::RenderSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
-    : BaseSystem( reg, window )
+RenderSystem::RenderSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+                            Sprites::SpriteFactory &sprite_factory )
+    : BaseSystem( reg, window, sprite_factory )
 {
   SPDLOG_DEBUG( "RenderSystem constructor called" );
 }
@@ -14,10 +15,9 @@ std::unordered_map<Sprites::SpriteMetaType, std::optional<Sprites::MultiSprite>>
 void RenderSystem::init_multisprites()
 {
   using namespace Sprites;
-  auto &factory = get_persistent_component<std::shared_ptr<SpriteFactory>>();
-  for ( auto type : factory->get_all_sprite_types() )
+  for ( auto type : m_sprite_factory.get_all_sprite_types() )
   {
-    m_multisprite_map[type] = factory->get_multisprite_by_type( type );
+    m_multisprite_map[type] = m_sprite_factory.get_multisprite_by_type( type );
     if ( !m_multisprite_map[type] )
     {
       SPDLOG_CRITICAL( "Unable to get {} from SpriteFactory", type );

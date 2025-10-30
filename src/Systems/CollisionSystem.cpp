@@ -37,8 +37,9 @@
 
 namespace ProceduralMaze::Sys {
 
-CollisionSystem::CollisionSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
-    : BaseSystem( reg, window )
+CollisionSystem::CollisionSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+                                  Sprites::SpriteFactory &sprite_factory )
+    : BaseSystem( reg, window, sprite_factory )
 {
   // register the event sinks
   std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&CollisionSystem::on_player_action>( this );
@@ -80,8 +81,8 @@ void CollisionSystem::check_bones_reanimation()
 
       if ( pc_pos_cmp.findIntersection( npc_activate_bounds.getBounds() ) )
       {
-        // m_reg->emplace_or_replace<Cmp::Obstacle>( npccontainer_entt, "BONES", 0, false );
-        // getEventDispatcher().trigger( Events::NpcCreationEvent( npccontainer_entt ) );
+        m_reg->emplace_or_replace<Cmp::Obstacle>( npccontainer_entt, "BONES", 0, false );
+        getEventDispatcher().trigger( Events::NpcCreationEvent( npccontainer_entt ) );
       }
     }
   }
@@ -312,8 +313,7 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
           if ( not lo_cmp.findIntersection( grave_pos_cmp ) ) continue;
 
           // have we activated all the parts of the grave yet?
-          auto sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
-          auto grave_ms = sprite_factory->get_multisprite_by_type( grave_cmp.getType() );
+          auto grave_ms = m_sprite_factory.get_multisprite_by_type( grave_cmp.getType() );
           auto activation_threshold = grave_ms->get_grid_size().width * grave_ms->get_grid_size().height;
           if ( lo_cmp.get_activated_sprite_count() < activation_threshold )
           {

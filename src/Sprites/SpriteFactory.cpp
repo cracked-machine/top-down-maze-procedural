@@ -35,8 +35,8 @@ void SpriteFactory::init()
       solid_mask = value["multisprite"]["solid_mask"].get<std::vector<bool>>();
     }
 
-    meta.m_multisprite = MultiSprite{
-        key, texture_path, sprite_indices, grid_size, sprites_per_frame, sprites_per_sequence, solid_mask };
+    meta.m_multisprite = MultiSprite{ key,       texture_path, sprite_indices, grid_size, sprites_per_frame, sprites_per_sequence,
+                                      solid_mask };
 
     // Use the JSON key directly as the sprite type
     m_sprite_metadata_map[key] = meta;
@@ -76,9 +76,8 @@ std::vector<SpriteMetaType> SpriteFactory::get_all_sprite_types_by_pattern( cons
   return types;
 }
 
-std::pair<SpriteMetaType, std::size_t>
-SpriteFactory::get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list,
-                                                  std::vector<float> weights ) const
+std::pair<SpriteMetaType, std::size_t> SpriteFactory::get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list,
+                                                                                         std::vector<float> weights ) const
 {
   auto selected_data = get_random_spritedata( type_list, weights );
   if ( selected_data )
@@ -114,8 +113,8 @@ std::string SpriteFactory::get_spritedata_type_string( const SpriteMetaType &typ
   return type; // Since type is already a string!
 }
 
-std::optional<SpriteFactory::SpriteMetaData>
-SpriteFactory::get_random_spritedata( std::vector<SpriteMetaType> type_list, std::vector<float> weights ) const
+std::optional<SpriteFactory::SpriteMetaData> SpriteFactory::get_random_spritedata( std::vector<SpriteMetaType> type_list,
+                                                                                   std::vector<float> weights ) const
 {
   if ( type_list.empty() )
   {

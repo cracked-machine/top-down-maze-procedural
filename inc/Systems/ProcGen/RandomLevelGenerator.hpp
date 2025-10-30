@@ -25,12 +25,11 @@ namespace ProceduralMaze::Sys::ProcGen {
 class RandomLevelGenerator : public BaseSystem
 {
 public:
-  RandomLevelGenerator( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window );
+  RandomLevelGenerator( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
   ~RandomLevelGenerator() = default;
 
   void gen_positions();
-  void gen_large_obstacle( std::optional<Sprites::MultiSprite> large_obstacle_sprite, Sprites::SpriteMetaType,
-                           unsigned long seed );
+  void gen_large_obstacle( std::optional<Sprites::MultiSprite> large_obstacle_sprite, Sprites::SpriteMetaType, unsigned long seed );
   void gen_large_obstacles();
 
   // Iterate all position (excluding playable characters) and randomly assign small obstacles
@@ -63,7 +62,6 @@ public:
 private:
   std::vector<entt::entity> m_data;
   Cmp::RandomInt m_activation_selector{ 0, 1 };
-  std::shared_ptr<ProceduralMaze::Sprites::SpriteFactory> m_sprite_factory;
 };
 
 } // namespace ProceduralMaze::Sys::ProcGen

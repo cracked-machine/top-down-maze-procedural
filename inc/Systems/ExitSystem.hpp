@@ -10,7 +10,7 @@ namespace ProceduralMaze::Sys {
 class ExitSystem : public BaseSystem
 {
 public:
-  ExitSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window );
+  ExitSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
 
   void spawn_exit();
   void unlock_exit();

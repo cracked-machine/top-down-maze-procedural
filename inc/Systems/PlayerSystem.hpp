@@ -16,7 +16,7 @@ namespace ProceduralMaze::Sys {
 class PlayerSystem : public BaseSystem
 {
 public:
-  PlayerSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window );
+  PlayerSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
 
   /**
    * @brief Adds a new player entity to the game world.

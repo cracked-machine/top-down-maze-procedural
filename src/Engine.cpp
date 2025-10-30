@@ -235,10 +235,12 @@ void Engine::init_systems()
 {
 
   // init core systems - these are required just to get the engine running
-  m_render_menu_sys = std::make_unique<Sys::RenderMenuSystem>( m_reg, *m_window );
-  m_event_handler = std::make_unique<Sys::EventHandler>( m_reg, *m_window );
+  m_sprite_factory = std::make_unique<Sprites::SpriteFactory>();
+  m_sprite_factory->init();
+  m_render_menu_sys = std::make_unique<Sys::RenderMenuSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_event_handler = std::make_unique<Sys::EventHandler>( m_reg, *m_window, *m_sprite_factory );
   m_event_handler->add_persistent_component<Cmp::Persistent::GameState>();
-  m_persistent_sys = std::make_unique<Sys::PersistentSystem>( m_reg, *m_window );
+  m_persistent_sys = std::make_unique<Sys::PersistentSystem>( m_reg, *m_window, *m_sprite_factory );
 
   // title music
   if ( not std::filesystem::exists( m_title_music_path ) )
@@ -246,7 +248,7 @@ void Engine::init_systems()
     SPDLOG_CRITICAL( "Music file not found at path: {}", m_title_music_path.string() );
     std::terminate();
   }
-  m_title_music_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, m_title_music_path );
+  m_title_music_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, *m_sprite_factory, m_title_music_path );
 
   // game music
   if ( not std::filesystem::exists( m_game_music_path ) )
@@ -254,34 +256,30 @@ void Engine::init_systems()
     SPDLOG_CRITICAL( "Music file not found at path: {}", m_game_music_path.string() );
     std::terminate();
   }
-  m_game_music_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, m_game_music_path );
+  m_game_music_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, *m_sprite_factory, m_game_music_path );
 
   // init game systems - these are required for the actual gameplay
   // might as well init them all here....it will shorten load times later
-  m_render_game_sys = std::make_unique<Sys::RenderGameSystem>( m_reg, *m_window );
-  m_player_sys = std::make_unique<Sys::PlayerSystem>( m_reg, *m_window );
-  m_flood_sys = std::make_unique<Sys::FloodSystem>( m_reg, *m_window );
-  m_path_find_sys = std::make_unique<Sys::PathFindSystem>( m_reg, *m_window );
-  m_npc_sys = std::make_unique<Sys::NpcSystem>( m_reg, *m_window );
-  m_collision_sys = std::make_unique<Sys::CollisionSystem>( m_reg, *m_window );
-  m_digging_sys = std::make_unique<Sys::DiggingSystem>( m_reg, *m_window );
-  m_render_overlay_sys = std::make_unique<Sys::RenderOverlaySystem>( m_reg, *m_window );
-  m_bomb_sys = std::make_unique<Sys::BombSystem>( m_reg, *m_window );
-  m_anim_sys = std::make_unique<Sys::AnimSystem>( m_reg, *m_window );
-  m_sinkhole_sys = std::make_unique<Sys::SinkHoleHazardSystem>( m_reg, *m_window );
-  m_corruption_sys = std::make_unique<Sys::CorruptionHazardSystem>( m_reg, *m_window );
-  m_wormhole_sys = std::make_unique<Sys::WormholeSystem>( m_reg, *m_window );
-  m_exit_sys = std::make_unique<Sys::ExitSystem>( m_reg, *m_window );
-  m_footstep_sys = std::make_unique<Sys::FootstepSystem>( m_reg, *m_window );
-  m_underwater_sounds_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, "res/audio/underwater.wav" );
-  m_abovewater_sounds_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, "res/audio/footsteps.mp3" );
+  m_render_game_sys = std::make_unique<Sys::RenderGameSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_player_sys = std::make_unique<Sys::PlayerSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_flood_sys = std::make_unique<Sys::FloodSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_path_find_sys = std::make_unique<Sys::PathFindSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_npc_sys = std::make_unique<Sys::NpcSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_collision_sys = std::make_unique<Sys::CollisionSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_digging_sys = std::make_unique<Sys::DiggingSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_render_overlay_sys = std::make_unique<Sys::RenderOverlaySystem>( m_reg, *m_window, *m_sprite_factory );
+  m_bomb_sys = std::make_unique<Sys::BombSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_anim_sys = std::make_unique<Sys::AnimSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_sinkhole_sys = std::make_unique<Sys::SinkHoleHazardSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_corruption_sys = std::make_unique<Sys::CorruptionHazardSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_wormhole_sys = std::make_unique<Sys::WormholeSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_exit_sys = std::make_unique<Sys::ExitSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_footstep_sys = std::make_unique<Sys::FootstepSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_underwater_sounds_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, *m_sprite_factory, "res/audio/underwater.wav" );
+  m_abovewater_sounds_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, *m_sprite_factory, "res/audio/footsteps.mp3" );
 
   m_persistent_sys->initializeComponentRegistry();
   m_persistent_sys->load_state();
-
-  m_sprite_factory = std::make_shared<Sprites::SpriteFactory>();
-  m_sprite_factory->init();
-  m_reg->ctx().emplace<std::shared_ptr<Sprites::SpriteFactory>>( m_sprite_factory );
 
   m_render_game_sys->init_shaders();
   m_render_game_sys->init_tilemap();
@@ -304,10 +302,10 @@ void Engine::enter_game()
 
   // create initial random game area with the required sprites
   std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>(
-      m_reg, *m_window );
+      m_reg, *m_window, *m_sprite_factory );
 
   // procedurally generate the game area from the initial random layout
-  Sys::ProcGen::CellAutomataSystem cellauto_parser{ m_reg, *m_window, std::move( random_level ) };
+  Sys::ProcGen::CellAutomataSystem cellauto_parser{ m_reg, *m_window, *m_sprite_factory, std::move( random_level ) };
   cellauto_parser.iterate( 5 );
 
   m_exit_sys->spawn_exit();

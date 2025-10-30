@@ -44,8 +44,8 @@
 
 namespace ProceduralMaze::Sys {
 
-PersistentSystem::PersistentSystem( SharedEnttRegistry reg, sf::RenderWindow &window )
-    : BaseSystem( reg, window )
+PersistentSystem::PersistentSystem( SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory )
+    : BaseSystem( reg, window, sprite_factory )
 {
   SPDLOG_DEBUG( "PersistentSystem constructor called" );
 

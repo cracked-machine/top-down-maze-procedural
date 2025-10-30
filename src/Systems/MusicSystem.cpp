@@ -5,8 +5,9 @@
 
 namespace ProceduralMaze::Sys {
 
-MusicSystem::MusicSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, std::filesystem::path music_path )
-    : BaseSystem( reg, window ),
+MusicSystem::MusicSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                          std::filesystem::path music_path )
+    : BaseSystem( reg, window, sprite_factory ),
       m_music_buffer( std::move( music_path ) )
 {
   m_music.setLooping( true );

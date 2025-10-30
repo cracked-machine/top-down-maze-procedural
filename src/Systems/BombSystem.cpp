@@ -15,8 +15,8 @@
 
 namespace ProceduralMaze::Sys {
 
-BombSystem::BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
-    : BaseSystem( reg, window )
+BombSystem::BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory )
+    : BaseSystem( reg, window, sprite_factory )
 {
   std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>( this );
   SPDLOG_DEBUG( "BombSystem initialized" );
@@ -160,8 +160,7 @@ void BombSystem::update()
     if ( lootcontainer_cmp )
     {
       // the loot container is now destroyed by the bomb, replace with a random loot component
-      auto &sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
-      auto [obstacle_type, random_obstacle_texture_index] = sprite_factory->get_random_type_and_texture_index(
+      auto [obstacle_type, random_obstacle_texture_index] = m_sprite_factory.get_random_type_and_texture_index(
           std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "LOWER_WATER" } );
       m_reg->remove<Cmp::LootContainer>( armed_entt );
       m_reg->remove<Cmp::ReservedPosition>( armed_entt );
@@ -173,8 +172,7 @@ void BombSystem::update()
     if ( npc_container_cmp )
     {
       // assuming we could get close enough without the NPC spawning, the NPC container is now destroyed by the bomb
-      auto &sprite_factory = get_persistent_component<std::shared_ptr<Sprites::SpriteFactory>>();
-      auto [npc_type, random_npc_texture_index] = sprite_factory->get_random_type_and_texture_index(
+      auto [npc_type, random_npc_texture_index] = m_sprite_factory.get_random_type_and_texture_index(
           std::vector<std::string>{ "NPC_TYPE_1", "NPC_TYPE_2", "NPC_TYPE_3" } );
       m_reg->remove<Cmp::NpcContainer>( armed_entt );
     }

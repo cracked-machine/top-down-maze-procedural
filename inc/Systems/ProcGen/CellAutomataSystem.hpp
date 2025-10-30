@@ -21,9 +21,9 @@ namespace ProceduralMaze::Sys::ProcGen {
 class CellAutomataSystem : public BaseSystem
 {
 public:
-  CellAutomataSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+  CellAutomataSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
                       std::unique_ptr<RandomLevelGenerator> random_level )
-      : BaseSystem( reg, window ),
+      : BaseSystem( reg, window, sprite_factory ),
         m_random_level( std::move( random_level ) )
   {
   }

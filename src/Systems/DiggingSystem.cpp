@@ -11,12 +11,12 @@
 
 namespace ProceduralMaze::Sys {
 
-DiggingSystem::DiggingSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window )
-    : BaseSystem( reg, window )
+DiggingSystem::DiggingSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+                              Sprites::SpriteFactory &sprite_factory )
+    : BaseSystem( reg, window, sprite_factory )
 {
   // register the event handler
-  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&DiggingSystem::on_player_action>(
-      this );
+  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&DiggingSystem::on_player_action>( this );
   SPDLOG_DEBUG( "DiggingSystem initialized" );
 }
 
@@ -81,8 +81,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
                   static_cast<int>( existing_sel_entity ) );
   }
 
-  auto position_view = m_reg->view<Cmp::Position, Cmp::Obstacle>(
-      entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
+  auto position_view = m_reg->view<Cmp::Position, Cmp::Obstacle>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
 
   // Iterate through all entities with Position and Obstacle components
   for ( auto [entity, pos_cmp, obst_cmp] : position_view.each() )
@@ -110,8 +109,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
                                                          Cmp::RectBounds::ScaleCardinality::HORIZONTAL );
         auto player_vertical_bounds = Cmp::RectBounds( pc_pos_cmp.position, half_sprite_size, 1.5f,
                                                        Cmp::RectBounds::ScaleCardinality::VERTICAL );
-        if ( player_horizontal_bounds.findIntersection( pos_cmp ) ||
-             player_vertical_bounds.findIntersection( pos_cmp ) )
+        if ( player_horizontal_bounds.findIntersection( pos_cmp ) || player_vertical_bounds.findIntersection( pos_cmp ) )
         {
           player_nearby = true;
           break;

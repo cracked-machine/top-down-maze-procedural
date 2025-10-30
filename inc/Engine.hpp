@@ -147,7 +147,7 @@ private:
                                                                                    "ProceduralMaze", sf::State::Fullscreen );
 
   // create MultiSprite resources
-  std::shared_ptr<Sprites::SpriteFactory> m_sprite_factory;
+  std::unique_ptr<Sprites::SpriteFactory> m_sprite_factory;
 
   //  ECS Systems
   std::unique_ptr<Sys::RenderMenuSystem> m_render_menu_sys;

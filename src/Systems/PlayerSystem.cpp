@@ -19,8 +19,9 @@
 
 namespace ProceduralMaze::Sys {
 
-PlayerSystem::PlayerSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window )
-    : BaseSystem( registry, window )
+PlayerSystem::PlayerSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window,
+                            Sprites::SpriteFactory &sprite_factory )
+    : BaseSystem( registry, window, sprite_factory )
 {
   SPDLOG_DEBUG( "PlayerSystem initialized" );
 }
@@ -76,12 +77,9 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
       if ( is_valid_move( new_pos ) || skip_collision_check )
       {
         auto &player_lerp_speed = get_persistent_component<Cmp::Persistent::PlayerLerpSpeed>();
-        auto &
-            diagonal_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
-        auto &
-            shortcut_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
-        auto &submerged_lerp_speed_modifier = get_persistent_component<
-            Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
+        auto &diagonal_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
+        auto &shortcut_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
+        auto &submerged_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
 
         float speed_modifier = 1.0f;
         if ( diagonal_between_obstacles )
@@ -138,10 +136,7 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
     }
 
     // Animation events
-    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) )
-    {
-      getEventDispatcher().trigger( Events::AnimResetFrameEvent( entity ) );
-    }
+    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { getEventDispatcher().trigger( Events::AnimResetFrameEvent( entity ) ); }
     else { getEventDispatcher().trigger( Events::AnimDirectionChangeEvent( entity ) ); }
   }
 }

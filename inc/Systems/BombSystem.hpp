@@ -35,7 +35,7 @@ namespace ProceduralMaze::Sys {
 class BombSystem : public BaseSystem
 {
 public:
-  BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window );
+  BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
 
   void suspend();
   void resume();
