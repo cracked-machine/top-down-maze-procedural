@@ -263,8 +263,9 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
 
     for ( auto [lo_entity, lo_cmp] : large_obstacle_view.each() )
     {
-      // only spawn one npc per large obstacle
-      bool grave_activated = false;
+      // only spawn one npc per large obstacle but give proportionate score for the grave size
+      uint8_t grave_activated_score = 0;
+
       if ( player_hitbox.findIntersection( lo_cmp ) )
       {
         SPDLOG_DEBUG( "Player collided with LargeObstacle at ({}, {})", lo_cmp.position.x, lo_cmp.position.y );
@@ -328,13 +329,13 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
             grave_cmp.setTileIndex( current_index += 2 * grave_ms.get_grid_size().width );
 
             lo_cmp.increment_activated_sprite_count();
-            grave_activated = true;
+            grave_activated_score += 1;
           }
         }
       }
 
       // spawn npc event after processing all possible shrine/grave activations
-      if ( grave_activated )
+      if ( grave_activated_score > 0 )
       {
         auto grave_activation_rng = Cmp::RandomInt( 1, 3 );
         auto consequence = grave_activation_rng.gen();
@@ -351,7 +352,7 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
             break;
           case 3:
             SPDLOG_INFO( "Increasing player score from grave activation." );
-            pc_score_cmp.increment_score( 2 );
+            pc_score_cmp.increment_score( grave_activated_score );
             break;
         }
       }
