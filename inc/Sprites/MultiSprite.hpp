@@ -41,25 +41,14 @@ public:
    *
    * @throws std::runtime_error If the tilemap fails to load or is invalid
    */
-  explicit MultiSprite( SpriteMetaType type, const std::filesystem::path &tilemap_path,
-                        const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size = { 1, 1 },
-                        unsigned int sprites_per_frame = 1, unsigned int sprites_per_sequence = 1,
-                        std::vector<bool> solid_mask = {} )
-      : m_sprite_type{ type },
-        m_grid_size{ grid_size.width, grid_size.height },
-        m_sprites_per_frame{ sprites_per_frame },
-        m_sprites_per_sequence{ sprites_per_sequence },
-        m_solid_mask{ std::move( solid_mask ) }
-  {
-    if ( !add_sprite( tilemap_path, tilemap_picks ) )
-    {
-      SPDLOG_CRITICAL( "Failed to load tilemap: {}", tilemap_path.string() );
-      std::terminate();
-    }
-  }
+  explicit MultiSprite( SpriteMetaType type, const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks,
+                        SpriteSize grid_size = { 1, 1 }, unsigned int sprites_per_frame = 1, unsigned int sprites_per_sequence = 1,
+                        std::vector<bool> solid_mask = {} );
 
-  MultiSprite( const MultiSprite & ) = default;
-  MultiSprite &operator=( const MultiSprite & ) = default;
+  explicit MultiSprite( SpriteMetaType type, sf::Texture tilemap_texture, const std::vector<uint32_t> &tilemap_picks,
+                        SpriteSize grid_size = { 1, 1 }, unsigned int sprites_per_frame = 1, unsigned int sprites_per_sequence = 1,
+                        std::vector<bool> solid_mask = {} );
+
   MultiSprite( MultiSprite && ) = default;
   MultiSprite &operator=( MultiSprite && ) = default;
   ~MultiSprite() = default;
@@ -88,7 +77,7 @@ public:
 
   void set_pick_opacity( uint8_t alpha );
 
-  sf::Texture m_tilemap_texture;
+  std::unique_ptr<sf::Texture> m_tilemap_texture;
 
   /**
    * @brief Default dimensions for sprite frames in pixels.
@@ -103,7 +92,7 @@ public:
   SpriteMetaType get_sprite_type() const { return m_sprite_type; }
 
 private:
-  bool add_sprite( const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks );
+  bool add_sprite( const std::vector<uint32_t> &tilemap_picks );
 
   SpriteMetaType m_sprite_type;
   std::vector<sf::VertexArray> m_va_list;

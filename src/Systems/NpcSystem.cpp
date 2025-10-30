@@ -30,10 +30,10 @@ void NpcSystem::add_npc_entity( entt::entity position_entity )
     return;
   }
 
-  auto npc_ms = m_sprite_factory.get_multisprite_by_type( "NPC" );
-  Cmp::RandomInt npc_sprite_tile_picker( 0, npc_ms->get_sprite_count() - 1 );
+  auto &npc_ms = m_sprite_factory.get_multisprite_by_type( "NPC" );
+  Cmp::RandomInt npc_sprite_tile_picker( 0, npc_ms.get_sprite_count() - 1 );
   auto tile_pick = npc_sprite_tile_picker.gen();
-  SPDLOG_INFO( "Creating NPC: {} of {} possible sprites", tile_pick, npc_ms->get_sprite_count() );
+  SPDLOG_INFO( "Creating NPC: {} of {} possible sprites", tile_pick, npc_ms.get_sprite_count() );
 
   // create a new entity for the NPC using the existing position
   auto new_pos_entity = m_reg->create();

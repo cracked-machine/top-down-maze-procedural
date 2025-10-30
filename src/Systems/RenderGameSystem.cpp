@@ -236,7 +236,7 @@ void RenderGameSystem::render_player_spawn()
   auto spawnarea_view = m_reg->view<Cmp::SpawnAreaSprite, Cmp::Position>();
   for ( auto [entity, spawnarea_cmp, pos_cmp] : spawnarea_view.each() )
   {
-    if ( auto it = m_multisprite_map.find( spawnarea_cmp.getType() ); it != m_multisprite_map.end() && it->second.has_value() )
+    if ( auto it = m_multisprite_map.find( spawnarea_cmp.getType() ); it != m_multisprite_map.end() )
     {
       auto meta_type = it->first;
       auto new_idx = spawnarea_cmp.getTileIndex();
@@ -254,7 +254,7 @@ void RenderGameSystem::render_large_obstacles()
   auto shrine_view = m_reg->view<Cmp::ShrineSprite, Cmp::Position>();
   for ( auto [entity, shrine_cmp, pos_cmp] : shrine_view.each() )
   {
-    if ( auto it = m_multisprite_map.find( shrine_cmp.getType() ); it != m_multisprite_map.end() && it->second.has_value() )
+    if ( auto it = m_multisprite_map.find( shrine_cmp.getType() ); it != m_multisprite_map.end() )
     {
       auto meta_type = it->first;
       auto new_idx = shrine_cmp.getTileIndex();
@@ -276,7 +276,7 @@ void RenderGameSystem::render_large_obstacles()
   auto grave_view = m_reg->view<Cmp::GraveSprite, Cmp::Position>();
   for ( auto [entity, grave_cmp, pos_cmp] : grave_view.each() )
   {
-    if ( auto it = m_multisprite_map.find( grave_cmp.getType() ); it != m_multisprite_map.end() && it->second.has_value() )
+    if ( auto it = m_multisprite_map.find( grave_cmp.getType() ); it != m_multisprite_map.end() )
     {
       auto meta_type = it->first;
       auto new_idx = grave_cmp.getTileIndex();
@@ -312,7 +312,7 @@ void RenderGameSystem::render_npc_containers()
   auto npccontainer_view = m_reg->view<Cmp::NpcContainer, Cmp::Position>();
   for ( auto [entity, npccontainer_cmp, pos_cmp] : npccontainer_view.each() )
   {
-    if ( auto it = m_multisprite_map.find( npccontainer_cmp.m_type ); it != m_multisprite_map.end() && it->second.has_value() )
+    if ( auto it = m_multisprite_map.find( npccontainer_cmp.m_type ); it != m_multisprite_map.end() )
     {
       auto meta_type = it->first;
       auto new_idx = npccontainer_cmp.m_tile_index;
@@ -330,7 +330,7 @@ void RenderGameSystem::render_loot_containers()
   auto lootcontainer_view = m_reg->view<Cmp::LootContainer, Cmp::Position>();
   for ( auto [entity, lootcontainer_cmp, pos_cmp] : lootcontainer_view.each() )
   {
-    if ( auto it = m_multisprite_map.find( lootcontainer_cmp.m_type ); it != m_multisprite_map.end() && it->second.has_value() )
+    if ( auto it = m_multisprite_map.find( lootcontainer_cmp.m_type ); it != m_multisprite_map.end() )
     {
       auto meta_type = it->first;
       auto new_idx = lootcontainer_cmp.m_tile_index;
@@ -468,13 +468,6 @@ void RenderGameSystem::render_wormhole()
     try
     {
       auto &wormhole_sprite = m_multisprite_map.at( "WORMHOLE" );
-      if ( !wormhole_sprite.has_value() )
-      {
-        SPDLOG_WARN( "Wormhole sprite exists in map but has no value" );
-        render_fallback_square( pos_cmp, sf::Color::Yellow );
-        continue;
-      }
-
       // Setup shader
       m_wormhole_shader.update_shader_position( pos_cmp.position + ( kGridSquareSizePixelsF * 0.5f ),
                                                 Sprites::ViewFragmentShader::Align::CENTER );
@@ -483,7 +476,7 @@ void RenderGameSystem::render_wormhole()
       m_floormap.draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
 
       // Draw sprites to shader's render texture using the new function
-      auto grid_size = wormhole_sprite->get_grid_size();
+      auto grid_size = wormhole_sprite.get().get_grid_size();
       for ( float row = 0; row < grid_size.height; ++row )
       {
         for ( float col = 0; col < grid_size.width; ++col )

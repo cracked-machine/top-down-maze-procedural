@@ -10,19 +10,19 @@ RenderSystem::RenderSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWi
   SPDLOG_DEBUG( "RenderSystem constructor called" );
 }
 
-std::unordered_map<Sprites::SpriteMetaType, std::optional<Sprites::MultiSprite>> RenderSystem::m_multisprite_map;
+std::unordered_map<Sprites::SpriteMetaType, std::reference_wrapper<Sprites::MultiSprite>> RenderSystem::m_multisprite_map;
 
 void RenderSystem::init_multisprites()
 {
-  using namespace Sprites;
   for ( auto type : m_sprite_factory.get_all_sprite_types() )
   {
-    m_multisprite_map[type] = m_sprite_factory.get_multisprite_by_type( type );
-    if ( !m_multisprite_map[type] )
-    {
-      SPDLOG_CRITICAL( "Unable to get {} from SpriteFactory", type );
-      std::terminate();
-    }
+    // const_cast is needed because get_multisprite_by_type returns const&
+    // but we need mutable access for rendering operations like pick()
+    // Note: Using const_cast to remove const from a reference is safe here because the underlying objects in SpriteFactory are
+    // actually mutable. The factory just returns them as const references for encapsulation, but you need mutable access for
+    // rendering operations.
+    m_multisprite_map.emplace( type,
+                               std::ref( const_cast<Sprites::MultiSprite &>( m_sprite_factory.get_multisprite_by_type( type ) ) ) );
   }
 }
 
@@ -65,26 +65,15 @@ void RenderSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const
   try
   {
     auto &sprite = m_multisprite_map.at( sprite_type );
-    if ( sprite.has_value() )
-    {
-      auto pick_result = sprite->pick( sprite_index, sprite_type );
-      sprite->setPosition( pos_cmp.position );
-      sprite->setScale( scale );
-      sprite->set_pick_opacity( alpha );
-      sprite->setOrigin( origin );
-      sprite->setRotation( angle );
-      if ( pick_result )
-      {
-        target.draw( *sprite ); // Draw to specified target instead of m_window
-      }
-      // SPDLOG_INFO( "Failed to pick sprite '{}' with index {}", sprite_type, sprite_index );
-      else { render_fallback_square_to_target( target, pos_cmp, sf::Color::Cyan ); }
-    }
-    else
-    {
-      // SPDLOG_WARN( "Sprite '{}' exists in map but has no value", sprite_type );
-      render_fallback_square_to_target( target, pos_cmp, sf::Color::Yellow );
-    }
+
+    auto pick_result = sprite.get().pick( sprite_index, sprite_type );
+    sprite.get().setPosition( pos_cmp.position );
+    sprite.get().setScale( scale );
+    sprite.get().set_pick_opacity( alpha );
+    sprite.get().setOrigin( origin );
+    sprite.get().setRotation( angle );
+    if ( pick_result ) { target.draw( sprite.get() ); }
+    else { render_fallback_square_to_target( target, pos_cmp, sf::Color::Cyan ); }
   }
   catch ( const std::out_of_range &e )
   {

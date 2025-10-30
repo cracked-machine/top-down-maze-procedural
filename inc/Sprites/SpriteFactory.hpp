@@ -74,7 +74,7 @@ public:
    * @param type The SpriteMetaType to search for
    * @return std::optional<Sprites::MultiSprite> The MultiSprite if found, std::nullopt otherwise
    */
-  std::optional<Sprites::MultiSprite> get_multisprite_by_type( const SpriteMetaType &type ) const;
+  const Sprites::MultiSprite &get_multisprite_by_type( const SpriteMetaType &type ) const;
 
   /**
    * @brief Converts a SpriteMetaType enumeration value to its corresponding string representation.
@@ -108,11 +108,13 @@ private:
    * @return std::optional<SpriteMetaData> containing the sprite metadata if found,
    *         or std::nullopt if no metadata exists for the given type
    */
-  std::optional<SpriteMetaData> get_spritedata_by_type( const SpriteMetaType &type ) const;
+  const SpriteMetaData &get_spritedata_by_type( const SpriteMetaType &type ) const;
 
   // Internal use function used by get_random_type_and_texture_index()
-  std::optional<SpriteMetaData> get_random_spritedata( std::vector<SpriteMetaType> type_list,
-                                                       std::vector<float> weights = {} ) const;
+  const SpriteMetaData &get_random_spritedata( std::vector<SpriteMetaType> type_list, std::vector<float> weights = {} ) const;
+
+  sf::Texture m_error_texture; // Procedurally generated error texture
+  SpriteMetaData m_error_metadata;
 }; // namespace ProceduralMaze::Sprites
 
 } // namespace ProceduralMaze::Sprites

@@ -116,7 +116,7 @@ protected:
   void render_fallback_square( const sf::FloatRect &pos_cmp, const sf::Color &color = sf::Color::Magenta );
 
   // Shared multisprite map
-  static std::unordered_map<Sprites::SpriteMetaType, std::optional<Sprites::MultiSprite>> m_multisprite_map;
+  static std::unordered_map<Sprites::SpriteMetaType, std::reference_wrapper<Sprites::MultiSprite>> m_multisprite_map;
 
   static sf::View s_game_view;
 };

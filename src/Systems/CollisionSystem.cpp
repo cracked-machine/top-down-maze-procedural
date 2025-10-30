@@ -313,8 +313,8 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
           if ( not lo_cmp.findIntersection( grave_pos_cmp ) ) continue;
 
           // have we activated all the parts of the grave yet?
-          auto grave_ms = m_sprite_factory.get_multisprite_by_type( grave_cmp.getType() );
-          auto activation_threshold = grave_ms->get_grid_size().width * grave_ms->get_grid_size().height;
+          auto &grave_ms = m_sprite_factory.get_multisprite_by_type( grave_cmp.getType() );
+          auto activation_threshold = grave_ms.get_grid_size().width * grave_ms.get_grid_size().height;
           if ( lo_cmp.get_activated_sprite_count() < activation_threshold )
           {
 
@@ -325,7 +325,7 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
             // [ 0 ][ 1 ] --> becomes [ 4 ][ 5 ]
             // [ 2 ][ 3 ] --> becomes [ 6 ][ 7 ]
             auto current_index = grave_cmp.getTileIndex();
-            grave_cmp.setTileIndex( current_index += 2 * grave_ms->get_grid_size().width );
+            grave_cmp.setTileIndex( current_index += 2 * grave_ms.get_grid_size().width );
 
             lo_cmp.increment_activated_sprite_count();
             grave_activated = true;
