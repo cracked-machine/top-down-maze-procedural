@@ -40,8 +40,7 @@ CollisionSystem::CollisionSystem( ProceduralMaze::SharedEnttRegistry reg, sf::Re
     : BaseSystem( reg, window )
 {
   // register the event sinks
-  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&CollisionSystem::on_player_action>(
-      this );
+  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&CollisionSystem::on_player_action>( this );
   SPDLOG_DEBUG( "CollisionSystem initialized" );
 }
 
@@ -108,8 +107,8 @@ void CollisionSystem::check_player_to_npc_collision()
         auto &npc_push_back = get_persistent_component<Cmp::Persistent::NpcPushBack>();
 
         // Find a valid pushback position by checking all 8 directions
-        sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp.position, npc_pos_cmp.position,
-                                                                       dir_cmp, npc_push_back.get_value() );
+        sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp.position, npc_pos_cmp.position, dir_cmp,
+                                                                       npc_push_back.get_value() );
 
         // Update player position if we found a valid pushback position
         if ( target_push_back_pos != pc_pos_cmp.position ) { pc_pos_cmp.position = target_push_back_pos; }
@@ -234,8 +233,7 @@ void CollisionSystem::check_loot_collision()
       auto &water_bonus = get_persistent_component<Cmp::Persistent::WaterBonus>();
       for ( auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each() )
       {
-        water_level.m_level = std::min( water_level.m_level + water_bonus.get_value(),
-                                        static_cast<float>( kDisplaySize.y ) );
+        water_level.m_level = std::min( water_level.m_level + water_bonus.get_value(), static_cast<float>( kDisplaySize.y ) );
       }
     }
 
@@ -263,6 +261,8 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
 
     for ( auto [lo_entity, lo_cmp] : large_obstacle_view.each() )
     {
+      // only spawn one npc per large obstacle
+      bool spawn_npc = false;
       if ( player_hitbox.findIntersection( lo_cmp ) )
       {
         SPDLOG_DEBUG( "Player collided with LargeObstacle at ({}, {})", lo_cmp.position.x, lo_cmp.position.y );
@@ -290,8 +290,7 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
 
               if ( lo_cmp.get_activated_sprite_count() >= lo_count_threshold )
               {
-                SPDLOG_DEBUG( "ACTIVATING SHRINE! Count: {}, Threshold: {}", lo_cmp.get_active_count(),
-                              count_threshold );
+                SPDLOG_DEBUG( "ACTIVATING SHRINE! Count: {}, Threshold: {}", lo_cmp.get_active_count(), count_threshold );
                 lo_cmp.set_powers_active();
                 getEventDispatcher().trigger( Events::UnlockDoorEvent() );
               }
@@ -325,10 +324,10 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
           pc_score_cmp.increment_score( 1 );
           lo_cmp.increment_activated_sprite_count();
 
-          // as amusing as spawning one npc per grave sprite would be, limit to one npc per grave/large obstacle
-          getEventDispatcher().trigger( Events::NpcCreationEvent( lo_entity ) );
+          spawn_npc = true;
         }
       }
+      if ( spawn_npc ) { getEventDispatcher().trigger( Events::NpcCreationEvent( lo_entity ) ); }
     }
   }
 }
