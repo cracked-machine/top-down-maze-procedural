@@ -1,3 +1,5 @@
+#include <Persistent/NpcGhostAnimFramerate.hpp>
+#include <Persistent/NpcSkeleAnimFramerate.hpp>
 #include <imgui.h>
 
 #include <BombSystem.hpp>
@@ -132,8 +134,11 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   ImGui::SliderFloat( "Flood Velocity", &flood_speed.get_value(), 1.f, 10.f, "%.1f pixels/second" );
   ImGui::Separator();
 
-  auto &npc_anim_framerate = get_persistent_component<Cmp::Persistent::NpcAnimFramerate>();
-  ImGui::SliderFloat( "NPC Animation Framerate", &npc_anim_framerate.get_value(), 0.01f, 0.5f, "%.2f" );
+  auto &npc_anim_framerate = get_persistent_component<Cmp::Persistent::NpcSkeleAnimFramerate>();
+  ImGui::SliderFloat( "NPC Animation Skeleton Framerate", &npc_anim_framerate.get_value(), 0.01f, 0.5f, "%.2f" );
+
+  auto &npc_ghost_anim_framerate = get_persistent_component<Cmp::Persistent::NpcGhostAnimFramerate>();
+  ImGui::SliderFloat( "NPC Animation Ghost Framerate", &npc_ghost_anim_framerate.get_value(), 0.01f, 0.5f, "%.2f" );
 
   auto &npc_damage = get_persistent_component<Cmp::Persistent::NpcDamage>();
   ImGui::SliderInt( "NPC Damage", &npc_damage.get_value(), 1, 50 );

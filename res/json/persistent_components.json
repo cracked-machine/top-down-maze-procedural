@@ -47,6 +47,14 @@
     "type": "float",
     "value": 0.1
   },
+  "NpcGhostAnimFramerate": {
+    "type": "float",
+    "value": 0.01
+  },
+  "NpcSkeleAnimFramerate": {
+    "type": "float",
+    "value": 0.1
+  },
   "NpcActivateScale": {
     "type": "float",
     "value": 5.0

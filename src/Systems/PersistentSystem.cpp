@@ -17,9 +17,11 @@
 #include <Persistent/NpcDamage.hpp>
 #include <Persistent/NpcDamageDelay.hpp>
 #include <Persistent/NpcDeathAnimFramerate.hpp>
+#include <Persistent/NpcGhostAnimFramerate.hpp>
 #include <Persistent/NpcLerpSpeed.hpp>
 #include <Persistent/NpcPushBack.hpp>
 #include <Persistent/NpcScanScale.hpp>
+#include <Persistent/NpcSkeleAnimFramerate.hpp>
 #include <Persistent/ObstaclePushBack.hpp>
 #include <Persistent/PlayerAnimFramerate.hpp>
 #include <Persistent/PlayerDetectionScale.hpp>
@@ -69,6 +71,8 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>( "PlayerSubmergedLerpSpeedModifier", 0.3f );
   registerComponent<Cmp::Persistent::ObstaclePushBack>( "ObstaclePushBack", 1.1f );
   registerComponent<Cmp::Persistent::NpcAnimFramerate>( "NpcAnimFramerate", 0.1f );
+  registerComponent<Cmp::Persistent::NpcGhostAnimFramerate>( "NpcGhostAnimFramerate", 0.01f );
+  registerComponent<Cmp::Persistent::NpcSkeleAnimFramerate>( "NpcSkeleAnimFramerate", 0.1f );
   registerComponent<Cmp::Persistent::NpcActivateScale>( "NpcActivateScale", 5.f );
   registerComponent<Cmp::Persistent::NpcDamageDelay>( "NpcDamageDelay", 0.5f );
   registerComponent<Cmp::Persistent::FloodSpeed>( "FloodSpeed", 1.f );
@@ -155,6 +159,7 @@ void PersistentSystem::save_state()
   serializeComponent.template operator()<Cmp::Persistent::PlayerStartPosition>( "PlayerStartPosition" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerDetectionScale>( "PlayerDetectionScale" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerLerpSpeed>( "PlayerLerpSpeed" );
+  serializeComponent.template operator()<Cmp::Persistent::PlayerAnimFramerate>( "PlayerAnimFramerate" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( "PlayerDiagonalLerpSpeedModifier" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>( "PlayerSubmergedLerpSpeedModifier" );
@@ -163,6 +168,9 @@ void PersistentSystem::save_state()
   serializeComponent.template operator()<Cmp::Persistent::DiggingDamagePerHit>( "DiggingDamagePerHit" );
   serializeComponent.template operator()<Cmp::Persistent::ShrineCost>( "ShrineCost" );
   serializeComponent.template operator()<Cmp::Persistent::MaxShrines>( "MaxShrines" );
+  serializeComponent.template operator()<Cmp::Persistent::NpcSkeleAnimFramerate>( "NpcSkeleAnimFramerate" );
+  serializeComponent.template operator()<Cmp::Persistent::NpcGhostAnimFramerate>( "NpcGhostAnimFramerate" );
+
   // clang-format on
 
   std::ofstream outputFile( "res/json/persistent_components.json" );

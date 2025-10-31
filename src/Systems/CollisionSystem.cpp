@@ -82,7 +82,7 @@ void CollisionSystem::check_bones_reanimation()
       if ( pc_pos_cmp.findIntersection( npc_activate_bounds.getBounds() ) )
       {
         m_reg->emplace_or_replace<Cmp::Obstacle>( npccontainer_entt, "BONES", 0, false );
-        getEventDispatcher().trigger( Events::NpcCreationEvent( npccontainer_entt ) );
+        getEventDispatcher().trigger( Events::NpcCreationEvent( npccontainer_entt, "NPCSKELE" ) );
       }
     }
   }
@@ -343,7 +343,7 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
         {
           case 1:
             SPDLOG_INFO( "Spawning NPC from grave activation." );
-            getEventDispatcher().trigger( Events::NpcCreationEvent( lo_entity ) );
+            getEventDispatcher().trigger( Events::NpcCreationEvent( lo_entity, "NPCGHOST" ) );
             break;
           case 2:
             SPDLOG_INFO( "Dropping bomb from grave activation." );

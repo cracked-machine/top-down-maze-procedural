@@ -57,13 +57,27 @@
         }
       }
     },
-    "NPC": {
-      "name": "NPC",
+    "NPCGHOST": {
+      "name": "NPCGHOST",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/npc.png",
-        "sprite_indices": [0, 1, 2],
-        "sprites_per_sequence": 1,
+        "texture_path": "res/textures/npcghost.png",
+        "sprite_indices": [0, 1, 2,3,4,5,6,7,8,9,10,11,12],
+        "sprites_per_sequence": 13,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "NPCSKELE": {
+      "name": "NPCSKELE",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/enemies-skeleton1_movement.png",
+        "sprite_indices": [0, 1, 2,3,4,5,6,7,8,9],
+        "sprites_per_sequence": 10,
         "sprites_per_frame": 1,
         "grid_size": {
           "width": 1,

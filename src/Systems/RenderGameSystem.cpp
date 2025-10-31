@@ -759,9 +759,8 @@ void RenderGameSystem::render_npc()
 
     sf::Vector2f new_scale{ dir_cmp.x_scale, 1.f };
     sf::FloatRect new_position{ sf::Vector2f{ pos_cmp.position.x + dir_cmp.x_offset, pos_cmp.position.y }, kGridSquareSizePixelsF };
-    // unsigned int new_sprite_idx{ anim_cmp.m_base_frame + anim_cmp.m_current_frame };
     // get the correct sprite index based on animation frame
-    safe_render_sprite( npc_cmp.m_type, new_position, npc_cmp.m_tile_index, new_scale );
+    safe_render_sprite( npc_cmp.m_type, new_position, anim_cmp.m_current_frame, new_scale );
 
     // show npc scan distance
     if ( m_show_path_distances )

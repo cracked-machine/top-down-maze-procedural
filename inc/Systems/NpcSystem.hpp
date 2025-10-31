@@ -1,6 +1,7 @@
 #ifndef __SYS_NPCSYSTEM_HPP__
 #define __SYS_NPCSYSTEM_HPP__
 
+#include <MultiSprite.hpp>
 #include <spdlog/spdlog.h>
 
 #include <BaseSystem.hpp>
@@ -25,7 +26,7 @@ public:
   NpcSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
 
   // Converts a NpcContainer entity into an active NPC entity. Called by event: NpcCreationEvent
-  void add_npc_entity( entt::entity npc_entity );
+  void add_npc_entity( const Events::NpcCreationEvent &event );
   // Removes an active NPC entity from the game. Called by event: NpcDeathEvent
   void remove_npc_entity( entt::entity npc_entity );
 

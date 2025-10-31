@@ -1,3 +1,5 @@
+#include <Persistent/NpcGhostAnimFramerate.hpp>
+#include <Persistent/NpcSkeleAnimFramerate.hpp>
 #include <spdlog/spdlog.h>
 
 #include <AnimSystem.hpp>
@@ -48,10 +50,19 @@ void AnimSystem::update( sf::Time deltaTime )
     if ( lerp_pos_cmp.m_lerp_factor > 0.f )
     {
 
-      auto &npc_sprite_metadata = m_sprite_factory.get_multisprite_by_type( "NPC" );
+      auto &npc_sprite_metadata = m_sprite_factory.get_multisprite_by_type( npc_cmp.m_type );
       auto sprites_per_frame = npc_sprite_metadata.get_sprites_per_frame();
       auto sprites_per_sequence = npc_sprite_metadata.get_sprites_per_sequence();
-      auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::NpcAnimFramerate>().get_value() );
+      sf::Time frame_rate = sf::Time::Zero;
+      if ( npc_cmp.m_type == "NPCSKELE" )
+      {
+        frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::NpcSkeleAnimFramerate>().get_value() );
+      }
+      else if ( npc_cmp.m_type == "NPCGHOST" )
+      {
+        frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::NpcGhostAnimFramerate>().get_value() );
+      }
+      else { frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::NpcAnimFramerate>().get_value() ); }
 
       update_single_sequence( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
     }
@@ -187,26 +198,19 @@ void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time de
 
   if ( anim.m_elapsed_time >= frame_rate )
   {
-    // For single sequence animations with base frame offset
-    // Calculate how many animation frames exist
-    unsigned int num_animation_frames = total_sprites / sprites_per_frame; // 20/4 = 5 frames
+    // SPDLOG_INFO( "Before: current_frame={}, elapsed_time={}s, sprites_per_frame={}, total_sprites={}", anim.m_current_frame,
+    //              anim.m_elapsed_time.asSeconds(), sprites_per_frame, total_sprites );
 
-    // Get current animation frame index (0,1,2,3,4)
+    unsigned int num_animation_frames = total_sprites / sprites_per_frame;
     unsigned int current_anim_frame = anim.m_current_frame / sprites_per_frame;
-
-    // Advance to next animation frame, wrapping around
     unsigned int next_anim_frame = ( current_anim_frame + 1 ) % num_animation_frames;
 
-    // If we wrapped around, start from base frame, otherwise continue sequence
-    if ( next_anim_frame == 0 )
-    {
-      next_anim_frame = anim.m_base_frame; // Start from base frame after wrap
-    }
+    if ( next_anim_frame == 0 ) { next_anim_frame = anim.m_base_frame; }
 
-    // Convert back to sprite index
     anim.m_current_frame = next_anim_frame * sprites_per_frame;
-
     anim.m_elapsed_time -= frame_rate;
+
+    // SPDLOG_INFO( "After: current_frame={}, base_frame={}", anim.m_current_frame, anim.m_base_frame );
   }
 }
 
