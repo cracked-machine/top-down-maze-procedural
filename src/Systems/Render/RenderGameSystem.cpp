@@ -1,3 +1,4 @@
+#include <Components/WeaponLevel.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
@@ -181,7 +182,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
       int player_health = 0;
       int bomb_inventory = 0;
       int blast_radius = 0;
-      int water_level = 0;
+      int new_weapon_level = 0;
       int player_score = 0;
       sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
       sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::getGameView() );
@@ -194,9 +195,9 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
         blast_radius = _pc.blast_radius;
       }
 
-      for ( auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each() )
+      for ( auto [_entt, weapon_level, pc_cmp] : m_reg->view<Cmp::WeaponLevel, Cmp::PlayableCharacter>().each() )
       {
-        water_level = water_level.m_level;
+        new_weapon_level = weapon_level.m_level;
       }
 
       auto pc_score_cmp = m_reg->view<Cmp::PlayerScore>();
@@ -207,7 +208,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
 
       // render metrics
       overlay_sys.render_health_overlay( player_health, { 40.f, 30.f }, { 200.f, 20.f } );
-      overlay_sys.render_weapons_meter_overlay( water_level, { 40.f, 60.f }, { 200.f, 20.f } );
+      overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, 60.f }, { 200.f, 20.f } );
 
       overlay_sys.render_player_score_overlay( player_score, { 40.f, 90.f } );
       overlay_sys.render_bomb_overlay( bomb_inventory, { 40.f, 120.f } );

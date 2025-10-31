@@ -1,3 +1,4 @@
+#include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <SFML/System/Angle.hpp>
 
 #include <imgui.h>
@@ -129,6 +130,9 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
 
   auto &digging_damage_per_hit = get_persistent_component<Cmp::Persistent::DiggingDamagePerHit>();
   ImGui::SliderFloat( "Digging Damage Per Hit", &digging_damage_per_hit.get_value(), 0.01f, 1.0f, "%.2f damage" );
+
+  auto &weapon_degrade_per_hit = get_persistent_component<Cmp::Persistent::WeaponDegradePerHit>();
+  ImGui::SliderFloat( "Weapon Degrade Per Hit", &weapon_degrade_per_hit.get_value(), 0.01f, 5.0f, "%.2f level" );
 
   ImGui::Separator();
   auto &flood_speed = get_persistent_component<Cmp::Persistent::FloodSpeed>();

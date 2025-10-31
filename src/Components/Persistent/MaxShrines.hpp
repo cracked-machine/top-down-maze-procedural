@@ -7,7 +7,7 @@ namespace ProceduralMaze::Cmp::Persistent {
 class MaxShrines : public BasePersistent<unsigned int>
 {
 public:
-  MaxShrines( unsigned int value )
+  MaxShrines( unsigned int value = 3 )
       : BasePersistent<unsigned int>( value )
   {
   }

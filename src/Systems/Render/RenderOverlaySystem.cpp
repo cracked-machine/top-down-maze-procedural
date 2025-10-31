@@ -107,7 +107,7 @@ void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2
   m_window.draw( healthbar_border );
 }
 
-void RenderOverlaySystem::render_weapons_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size )
+void RenderOverlaySystem::render_weapons_meter_overlay( float new_weapon_level, sf::Vector2f pos, sf::Vector2f size )
 {
   auto sprite_metatype = "WEAPONS";
   auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
@@ -115,13 +115,9 @@ void RenderOverlaySystem::render_weapons_meter_overlay( float water_level, sf::V
   auto scale = sf::Vector2f( 2.f, 2.f );
   RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
 
-  // bar fill
+  // bar fill - weapons level is out of 100, but the bar is 200 pixels wide
   sf::Vector2f weapons_meter_offset{ 100.f, 10.f };
-  // weapons meter level is represented as a percentage (0-100) of the screen
-  // display y-axis note: {0,0} is top left so we need to invert the Y
-  // position
-  float meter_level = size.x - ( ( size.x / kDisplaySize.y ) * water_level );
-  auto weaponsbar = sf::RectangleShape( { meter_level, size.y } );
+  auto weaponsbar = sf::RectangleShape( { new_weapon_level * 2, size.y } );
   weaponsbar.setPosition( pos + weapons_meter_offset );
   weaponsbar.setFillColor( sf::Color::Green );
   m_window.draw( weaponsbar );

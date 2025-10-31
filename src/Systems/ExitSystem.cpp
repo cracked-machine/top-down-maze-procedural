@@ -5,7 +5,6 @@
 #include <Components/LargeObstacle.hpp>
 #include <Components/NPC.hpp>
 #include <Components/Persistent/MaxShrines.hpp>
-#include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Random.hpp>
 #include <Components/ReservedPosition.hpp>

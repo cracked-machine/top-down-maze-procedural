@@ -11,7 +11,7 @@ namespace ProceduralMaze::Cmp::Persistent {
 class PlayerStartPosition : public sf::Vector2f
 {
 public:
-  PlayerStartPosition( sf::Vector2f pos )
+  PlayerStartPosition( sf::Vector2f pos = { 0.0f, 0.0f } )
       : sf::Vector2f( pos )
   {
     SPDLOG_DEBUG( "PlayerStartPosition()" );

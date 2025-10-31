@@ -7,7 +7,7 @@ namespace ProceduralMaze::Cmp::Persistent {
 class NpcLerpSpeed : public BasePersistent<float>
 {
 public:
-  NpcLerpSpeed( float value )
+  NpcLerpSpeed( float value = 1.0f )
       : BasePersistent<float>( value )
   {
   }

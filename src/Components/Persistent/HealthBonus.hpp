@@ -7,7 +7,7 @@ namespace ProceduralMaze::Cmp::Persistent {
 class HealthBonus : public BasePersistent<int>
 {
 public:
-  HealthBonus( int value )
+  HealthBonus( int value = 25 )
       : BasePersistent<int>( value )
   {
   }

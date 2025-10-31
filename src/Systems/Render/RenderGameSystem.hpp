@@ -21,9 +21,7 @@ public:
   RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
   ~RenderGameSystem() = default;
 
-  // Entry point for class
   void init_views();
-  // Add this method to share the sprite map with overlay system
   void init_shaders();
   void init_tilemap();
   void render_game( sf::Time deltaTime, RenderOverlaySystem &overlay_sys );

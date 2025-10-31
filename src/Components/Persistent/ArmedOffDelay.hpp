@@ -8,7 +8,7 @@ namespace ProceduralMaze::Cmp::Persistent {
 class ArmedOffDelay : public BasePersistent<float>
 {
 public:
-  ArmedOffDelay( float delay )
+  ArmedOffDelay( float delay = 0.075f )
       : BasePersistent<float>( delay )
   {
   }

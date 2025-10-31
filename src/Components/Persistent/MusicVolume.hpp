@@ -7,7 +7,7 @@ namespace ProceduralMaze::Cmp::Persistent {
 class MusicVolume : public BasePersistent<float>
 {
 public:
-  MusicVolume( float value )
+  MusicVolume( float value = 20.0f )
       : BasePersistent<float>( value )
   {
   }

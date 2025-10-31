@@ -27,6 +27,14 @@
     "type": "int",
     "value": 1
   },
+  "DiggingCooldownThreshold":{
+    "type": "float",
+    "value": 0.4
+  },
+  "DiggingDamagePerHit":{
+    "type": "float",
+    "value": 0.25
+  },  
   "FloodSpeed": {
     "type": "float",
     "value": 1.0
@@ -39,11 +47,31 @@
     "type": "int",
     "value": 25
   },
+    "MaxShrines": {
+    "type": "int",
+    "value": 3
+  },
   "MusicVolume": {
     "type": "float",
     "value": 20.0
   },
+  "NpcActivateScale": {
+    "type": "float",
+    "value": 5.0
+  },
   "NpcAnimFramerate": {
+    "type": "float",
+    "value": 0.1
+  },
+  "NpcDamage": {
+    "type": "int",
+    "value": 15
+  },  
+  "NpcDamageDelay": {
+    "type": "float",
+    "value": 1.0
+  },  
+  "NpcDeathAnimFramerate": {
     "type": "float",
     "value": 0.1
   },
@@ -51,29 +79,21 @@
     "type": "float",
     "value": 0.01
   },
-  "NpcSkeleAnimFramerate": {
-    "type": "float",
-    "value": 0.1
-  },
-  "NpcActivateScale": {
-    "type": "float",
-    "value": 5.0
-  },
-  "NpcDamage": {
-    "type": "int",
-    "value": 15
-  },
-  "NpcDamageDelay": {
-    "type": "float",
-    "value": 1.0
-  },
   "NpcLerpSpeed": {
     "type": "float",
     "value": 1.0
   },
+  "NpcPushBack": {
+    "type": "float",
+    "value": 16.0
+  },  
   "NpcScanScale": {
     "type": "float",
     "value": 2.5
+  },
+  "NpcSkeleAnimFramerate": {
+    "type": "float",
+    "value": 0.1
   },
   "ObstaclePushBack": {
     "type": "float",
@@ -110,36 +130,20 @@
     "type": "float",
     "value": 0.3
   },
-  "DiggingCooldownThreshold":{
-    "type": "float",
-    "value": 0.4
-  },
-  "DiggingDamagePerHit":{
-    "type": "float",
-    "value": 0.2
+  "ShrineCost": {
+    "type": "int",
+    "value": 2
   },
   "WaterBonus": {
     "type": "int",
     "value": 10
   },
+  "WeaponDegradePerHit":{
+    "type": "float",
+    "value": 2.0
+  },
   "WormholeAnimFramerate": {
     "type": "float",
     "value": 0.1
-  },
-  "NpcDeathAnimFramerate": {
-    "type": "float",
-    "value": 0.1
-  },
-  "NpcPushBack": {
-    "type": "float",
-    "value": 16.0
-  },
-  "MaxShrines": {
-    "type": "int",
-    "value": 3
-  },
-  "ShrineCost": {
-    "type": "int",
-    "value": 2
   }
 }

@@ -7,7 +7,7 @@ namespace ProceduralMaze::Cmp::Persistent {
 
 struct DiggingCooldownThreshold : public BasePersistent<float>
 {
-  DiggingCooldownThreshold( float value )
+  DiggingCooldownThreshold( float value = 0.4f )
       : BasePersistent<float>( value )
   {
   }

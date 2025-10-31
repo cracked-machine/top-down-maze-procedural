@@ -17,7 +17,6 @@
 #include <Components/Persistent/NpcDamage.hpp>
 #include <Components/Persistent/NpcDamageDelay.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
-#include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Persistent/ShrineCost.hpp>
 #include <Components/Persistent/WaterBonus.hpp>
 #include <Components/PlayerScore.hpp>

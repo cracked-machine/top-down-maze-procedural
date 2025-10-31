@@ -9,7 +9,7 @@ class NpcGhostAnimFramerate : public BasePersistent<float>
 {
 public:
   // time unit is seconds per frame, engine should convert to sf::Time as needed
-  NpcGhostAnimFramerate( float seconds_per_frame )
+  NpcGhostAnimFramerate( float seconds_per_frame = 0.01f )
       : BasePersistent<float>( seconds_per_frame )
   {
   }

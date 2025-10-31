@@ -1,3 +1,4 @@
+#include <Components/WeaponLevel.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 
@@ -51,6 +52,7 @@ void PlayerSystem::add_player_entity()
 
   m_reg->emplace<Cmp::SpriteAnimation>( entity );
   m_reg->emplace<Cmp::PlayerScore>( entity, 0 );
+  m_reg->emplace<Cmp::WeaponLevel>( entity, 100.f );
 }
 
 void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_check )

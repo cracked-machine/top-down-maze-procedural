@@ -7,7 +7,7 @@ namespace ProceduralMaze::Cmp::Persistent {
 class NpcPushBack : public BasePersistent<float>
 {
 public:
-  NpcPushBack( float value )
+  NpcPushBack( float value = 16.0 )
       : BasePersistent<float>( value )
   {
   }

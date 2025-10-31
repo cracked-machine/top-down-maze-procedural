@@ -7,7 +7,7 @@ namespace ProceduralMaze::Cmp::Persistent {
 
 struct DiggingDamagePerHit : public BasePersistent<float>
 {
-  DiggingDamagePerHit( float value )
+  DiggingDamagePerHit( float value = 0.25f )
       : BasePersistent<float>( value )
   {
   }
