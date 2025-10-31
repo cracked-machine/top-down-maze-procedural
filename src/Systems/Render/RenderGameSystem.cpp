@@ -562,6 +562,7 @@ void RenderGameSystem::render_loot()
     else if ( loot_cmp.m_type == "INFINI_BOMBS" ) { safe_render_sprite( "INFINI_BOMBS", pos_cmp, loot_cmp.m_tile_index ); }
     else if ( loot_cmp.m_type == "CHAIN_BOMBS" ) { safe_render_sprite( "CHAIN_BOMBS", pos_cmp, loot_cmp.m_tile_index ); }
     else if ( loot_cmp.m_type == "LOWER_WATER" ) { safe_render_sprite( "LOWER_WATER", pos_cmp, loot_cmp.m_tile_index ); }
+    else if ( loot_cmp.m_type == "WEAPON_BOOST" ) { safe_render_sprite( "WEAPON_BOOST", pos_cmp, loot_cmp.m_tile_index ); }
     else { SPDLOG_WARN( "Unknown loot type: {}", loot_cmp.m_type ); }
     // clang-format on
   }

@@ -161,7 +161,7 @@ void BombSystem::update()
     {
       // the loot container is now destroyed by the bomb, replace with a random loot component
       auto [obstacle_type, random_obstacle_texture_index] = m_sprite_factory.get_random_type_and_texture_index(
-          std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "LOWER_WATER" } );
+          std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "WEAPON_BOOST" } );
       m_reg->remove<Cmp::LootContainer>( armed_entt );
       m_reg->remove<Cmp::ReservedPosition>( armed_entt );
       m_reg->emplace_or_replace<Cmp::Loot>( armed_entt, obstacle_type, random_obstacle_texture_index );

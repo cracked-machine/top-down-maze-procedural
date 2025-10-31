@@ -1,3 +1,4 @@
+#include <Components/WeaponLevel.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Window/Window.hpp>
 
@@ -195,10 +196,10 @@ void CollisionSystem::check_loot_collision()
   std::vector<LootEffect> loot_effects;
 
   // First pass: detect collisions and gather effects to apply
-  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::WeaponLevel>();
   auto loot_collision_view = m_reg->view<Cmp::Loot, Cmp::Position>();
 
-  for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
+  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_weapon_level] : player_collision_view.each() )
   {
     for ( auto [loot_entt, loot_cmp, loot_pos_cmp] : loot_collision_view.each() )
     {
@@ -217,18 +218,19 @@ void CollisionSystem::check_loot_collision()
   {
     if ( !m_reg->valid( effect.player_entity ) ) continue;
 
-    auto &_pc = m_reg->get<Cmp::PlayableCharacter>( effect.player_entity );
+    auto &pc_cmp = m_reg->get<Cmp::PlayableCharacter>( effect.player_entity );
+    auto &weapon_level_cmp = m_reg->get<Cmp::WeaponLevel>( effect.player_entity );
 
     // Apply the effect
     if ( effect.type == "EXTRA_HEALTH" )
     {
       auto &health_bonus = get_persistent_component<Cmp::Persistent::HealthBonus>();
-      _pc.health = std::min( _pc.health + health_bonus.get_value(), 100 );
+      pc_cmp.health = std::min( pc_cmp.health + health_bonus.get_value(), 100 );
     }
     else if ( effect.type == "EXTRA_BOMBS" )
     {
       auto &bomb_bonus = get_persistent_component<Cmp::Persistent::BombBonus>();
-      if ( _pc.bomb_inventory >= 0 ) _pc.bomb_inventory += bomb_bonus.get_value();
+      if ( pc_cmp.bomb_inventory >= 0 ) pc_cmp.bomb_inventory += bomb_bonus.get_value();
     }
     else if ( effect.type == "LOWER_WATER" )
     {
@@ -239,8 +241,13 @@ void CollisionSystem::check_loot_collision()
       }
     }
 
-    else if ( effect.type == "INFINI_BOMBS" ) { _pc.bomb_inventory = -1; }
-    else if ( effect.type == "CHAIN_BOMBS" ) { _pc.blast_radius = std::clamp( _pc.blast_radius + 1, 0, 3 ); }
+    else if ( effect.type == "INFINI_BOMBS" ) { pc_cmp.bomb_inventory = -1; }
+    else if ( effect.type == "CHAIN_BOMBS" ) { pc_cmp.blast_radius = std::clamp( pc_cmp.blast_radius + 1, 0, 3 ); }
+    else if ( effect.type == "WEAPON_BOOST" )
+    {
+      // increase weapon level by 50, up to max level 100
+      weapon_level_cmp.m_level = std::clamp( weapon_level_cmp.m_level + 50.f, 0.f, 100.f );
+    }
 
     // Remove the loot component
     m_reg->remove<Cmp::Loot>( effect.loot_entity );

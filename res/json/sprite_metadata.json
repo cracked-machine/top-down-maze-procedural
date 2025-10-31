@@ -159,8 +159,8 @@
       "name": "EXTRA_HEALTH",
       "weight": 30.0,
       "multisprite": {
-        "texture_path": "res/textures/objects.png",
-        "sprite_indices": [32],
+        "texture_path": "res/textures/loot.png",
+        "sprite_indices": [0],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -173,8 +173,8 @@
       "name": "EXTRA_BOMBS",
       "weight": 40.0,
       "multisprite": {
-        "texture_path": "res/textures/objects.png",
-        "sprite_indices": [67],
+        "texture_path": "res/textures/loot.png",
+        "sprite_indices": [1],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -187,8 +187,8 @@
       "name": "INFINI_BOMBS",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/objects.png",
-        "sprite_indices": [35],
+        "texture_path": "res/textures/loot.png",
+        "sprite_indices": [4],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -201,8 +201,8 @@
       "name": "CHAIN_BOMBS",
       "weight": 20.0,
       "multisprite": {
-        "texture_path": "res/textures/objects.png",
-        "sprite_indices": [34],
+        "texture_path": "res/textures/loot.png",
+        "sprite_indices": [3],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -215,8 +215,22 @@
       "name": "LOWER_WATER",
       "weight": 40.0,
       "multisprite": {
-        "texture_path": "res/textures/objects.png",
-        "sprite_indices": [33],
+        "texture_path": "res/textures/loot.png",
+        "sprite_indices": [5],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "WEAPON_BOOST": {
+      "name": "WEAPON_BOOST",
+      "weight": 40.0,
+      "multisprite": {
+        "texture_path": "res/textures/loot.png",
+        "sprite_indices": [2],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
