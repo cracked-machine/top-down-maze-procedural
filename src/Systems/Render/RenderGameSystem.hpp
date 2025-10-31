@@ -4,9 +4,9 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <Sprites/BackgroundShader.hpp>
+#include <Shaders/BackgroundShader.hpp>
+#include <Shaders/ViewFragmentShader.hpp>
 #include <Sprites/MultiSprite.hpp>
-#include <Sprites/ViewFragmentShader.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>

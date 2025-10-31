@@ -6,7 +6,7 @@
 #include <spdlog/spdlog.h>
 
 #include <Components/Random.hpp>
-#include <Sprites/BaseFragmentShader.hpp>
+#include <Shaders/BaseFragmentShader.hpp>
 #include <Systems/BaseSystem.hpp>
 
 namespace ProceduralMaze::Sprites {

@@ -5,7 +5,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Engine.cpp
     ${CMAKE_SOURCE_DIR}/src/EventHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Debug/AssertHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Sprites/BaseFragmentShader.cpp
+    ${CMAKE_SOURCE_DIR}/src/Shaders/BaseFragmentShader.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/MultiSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/SpriteFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/TileMap.cpp

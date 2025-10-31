@@ -5,7 +5,7 @@
 
 #include <SFML/System/Time.hpp>
 
-#include <Sprites/BaseFragmentShader.hpp>
+#include <Shaders/BaseFragmentShader.hpp>
 #include <Systems/BaseSystem.hpp>
 
 namespace ProceduralMaze::Sprites {

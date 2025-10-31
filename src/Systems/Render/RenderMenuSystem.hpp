@@ -5,7 +5,8 @@
 
 #include <spdlog/spdlog.h>
 
-#include <Sprites/TitleScreenShader.hpp>
+#include <Shaders/TitleScreenShader.hpp>
+#include <Systems/BaseSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/BombSystem.hpp>
 

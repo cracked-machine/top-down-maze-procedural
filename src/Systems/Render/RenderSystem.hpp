@@ -31,8 +31,8 @@
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
 #include <Components/WaterLevel.hpp>
+#include <Shaders/FloodWaterShader.hpp>
 #include <Sprites/BasicSprite.hpp>
-#include <Sprites/FloodWaterShader.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Sprites/TileMap.hpp>
