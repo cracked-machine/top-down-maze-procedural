@@ -1,11 +1,12 @@
-#include <Door.hpp>
-#include <Exit.hpp>
-#include <GraveSprite.hpp>
-#include <ReservedPosition.hpp>
-#include <ShrineSprite.hpp>
-#include <Systems/BaseSystem.hpp>
-#include <Wall.hpp>
 #include <entt/entity/registry.hpp>
+
+#include <Components/Door.hpp>
+#include <Components/Exit.hpp>
+#include <Components/GraveSprite.hpp>
+#include <Components/ReservedPosition.hpp>
+#include <Components/ShrineSprite.hpp>
+#include <Components/Wall.hpp>
+#include <Systems/BaseSystem.hpp>
 
 namespace ProceduralMaze::Sys {
 

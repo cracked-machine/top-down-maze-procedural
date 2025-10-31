@@ -1,48 +1,47 @@
-#include <Persistent/ArmedOffDelay.hpp>
-#include <Persistent/ArmedOnDelay.hpp>
-#include <Persistent/BlastRadius.hpp>
-#include <Persistent/BombBonus.hpp>
-#include <Persistent/BombDamage.hpp>
-#include <Persistent/BombInventory.hpp>
-#include <Persistent/CorruptionDamage.hpp>
-#include <Persistent/DiggingCooldownThreshold.hpp>
-#include <Persistent/DiggingDamagePerHit .hpp>
-#include <Persistent/FloodSpeed.hpp>
-#include <Persistent/FuseDelay.hpp>
-#include <Persistent/HealthBonus.hpp>
-#include <Persistent/MaxShrines.hpp>
-#include <Persistent/MusicVolume.hpp>
-#include <Persistent/NpcActivateScale.hpp>
-#include <Persistent/NpcAnimFramerate.hpp>
-#include <Persistent/NpcDamage.hpp>
-#include <Persistent/NpcDamageDelay.hpp>
-#include <Persistent/NpcDeathAnimFramerate.hpp>
-#include <Persistent/NpcGhostAnimFramerate.hpp>
-#include <Persistent/NpcLerpSpeed.hpp>
-#include <Persistent/NpcPushBack.hpp>
-#include <Persistent/NpcScanScale.hpp>
-#include <Persistent/NpcSkeleAnimFramerate.hpp>
-#include <Persistent/ObstaclePushBack.hpp>
-#include <Persistent/PlayerAnimFramerate.hpp>
-#include <Persistent/PlayerDetectionScale.hpp>
-#include <Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
-#include <Persistent/PlayerLerpSpeed.hpp>
-#include <Persistent/PlayerShortcutLerpSpeedModifier.hpp>
-#include <Persistent/PlayerStartPosition.hpp>
-#include <Persistent/PlayerSubmergedlLerpSpeedModifier.hpp>
-#include <Persistent/ShrineCost.hpp>
-#include <Persistent/WaterBonus.hpp>
-#include <Persistent/WormholeAnimFramerate.hpp>
-#include <PersistentSystem.hpp>
-#include <fstream>
-#include <functional>
-#include <unordered_map>
-
 #define JSON_NOEXCEPTION
+#include <nlohmann/json.hpp>
+
 #include <spdlog/spdlog.h>
 
-#include <Persistent/GameState.hpp>
-#include <nlohmann/json.hpp>
+#include <Components/Persistent/ArmedOffDelay.hpp>
+#include <Components/Persistent/ArmedOnDelay.hpp>
+#include <Components/Persistent/BlastRadius.hpp>
+#include <Components/Persistent/BombBonus.hpp>
+#include <Components/Persistent/BombDamage.hpp>
+#include <Components/Persistent/BombInventory.hpp>
+#include <Components/Persistent/CorruptionDamage.hpp>
+#include <Components/Persistent/DiggingCooldownThreshold.hpp>
+#include <Components/Persistent/DiggingDamagePerHit.hpp>
+#include <Components/Persistent/FloodSpeed.hpp>
+#include <Components/Persistent/FuseDelay.hpp>
+#include <Components/Persistent/GameState.hpp>
+#include <Components/Persistent/HealthBonus.hpp>
+#include <Components/Persistent/MaxShrines.hpp>
+#include <Components/Persistent/MusicVolume.hpp>
+#include <Components/Persistent/NpcActivateScale.hpp>
+#include <Components/Persistent/NpcAnimFramerate.hpp>
+#include <Components/Persistent/NpcDamage.hpp>
+#include <Components/Persistent/NpcDamageDelay.hpp>
+#include <Components/Persistent/NpcDeathAnimFramerate.hpp>
+#include <Components/Persistent/NpcGhostAnimFramerate.hpp>
+#include <Components/Persistent/NpcLerpSpeed.hpp>
+#include <Components/Persistent/NpcPushBack.hpp>
+#include <Components/Persistent/NpcScanScale.hpp>
+#include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
+#include <Components/Persistent/ObstaclePushBack.hpp>
+#include <Components/Persistent/PlayerAnimFramerate.hpp>
+#include <Components/Persistent/PlayerDetectionScale.hpp>
+#include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
+#include <Components/Persistent/PlayerLerpSpeed.hpp>
+#include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
+#include <Components/Persistent/PlayerStartPosition.hpp>
+#include <Components/Persistent/PlayerSubmergedLerpSpeedModifier.hpp>
+#include <Components/Persistent/ShrineCost.hpp>
+#include <Components/Persistent/WaterBonus.hpp>
+#include <Components/Persistent/WormholeAnimFramerate.hpp>
+#include <Systems/PersistentSystem.hpp>
+
+#include <fstream>
 
 namespace ProceduralMaze::Sys {
 

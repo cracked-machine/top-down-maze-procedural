@@ -1,13 +1,13 @@
-#include <BaseSystem.hpp>
-#include <CorruptionCell.hpp>
+#include <Components/CorruptionCell.hpp>
+#include <Components/Persistent/MusicVolume.hpp>
+#include <Components/Persistent/ObstaclePushBack.hpp>
+#include <Components/SinkholeCell.hpp>
 #include <Engine.hpp>
 #include <Events/AnimResetFrameEvent.hpp>
-#include <HazardFieldSystem.hpp>
-#include <MusicSystem.hpp>
-#include <Persistent/MusicVolume.hpp>
-#include <Persistent/ObstaclePushBack.hpp>
-#include <SinkholeCell.hpp>
-#include <filesystem>
+#include <Systems/BaseSystem.hpp>
+#include <Systems/MusicSystem.hpp>
+#include <Systems/Threats/HazardFieldSystem.hpp>
+
 #include <memory>
 #include <thread>
 

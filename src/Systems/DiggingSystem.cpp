@@ -1,13 +1,14 @@
-#include <spdlog/spdlog.h>
-
-#include <DiggingSystem.hpp>
-#include <Persistent/DiggingCooldownThreshold.hpp>
-#include <Persistent/DiggingDamagePerHit .hpp>
-#include <RenderSystem.hpp>
-#include <ReservedPosition.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Time.hpp>
-#include <SelectedPosition.hpp>
+
+#include <spdlog/spdlog.h>
+
+#include <Components/Persistent/DiggingCooldownThreshold.hpp>
+#include <Components/Persistent/DiggingDamagePerHit.hpp>
+#include <Components/ReservedPosition.hpp>
+#include <Components/SelectedPosition.hpp>
+#include <Systems/DiggingSystem.hpp>
+#include <Systems/Render/RenderSystem.hpp>
 
 namespace ProceduralMaze::Sys {
 

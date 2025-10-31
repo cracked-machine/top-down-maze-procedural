@@ -1,9 +1,9 @@
+#include <Components/Exit.hpp>
+#include <Components/LargeObstacle.hpp>
+#include <Components/Persistent/MaxShrines.hpp>
 #include <EventHandler.hpp>
 #include <Events/SaveSettingsEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
-#include <Exit.hpp>
-#include <LargeObstacle.hpp>
-#include <Persistent/MaxShrines.hpp>
 
 namespace ProceduralMaze::Sys {
 

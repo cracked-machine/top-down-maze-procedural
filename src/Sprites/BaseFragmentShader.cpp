@@ -1,4 +1,4 @@
-#include <BaseFragmentShader.hpp>
+#include <Sprites/BaseFragmentShader.hpp>
 
 namespace ProceduralMaze::Sprites {
 

@@ -1,11 +1,11 @@
-#include <FootStepAlpha.hpp>
-#include <FootStepTimer.hpp>
-#include <GraveSprite.hpp>
-#include <LootContainer.hpp>
-#include <PathFindSystem.hpp>
-#include <RenderSystem.hpp>
-#include <ShrineSprite.hpp>
-#include <SpawnAreaSprite.hpp>
+#include <Components/FootStepAlpha.hpp>
+#include <Components/FootStepTimer.hpp>
+#include <Components/GraveSprite.hpp>
+#include <Components/LootContainer.hpp>
+#include <Components/ShrineSprite.hpp>
+#include <Components/SpawnAreaSprite.hpp>
+#include <Systems/PathFindSystem.hpp>
+#include <Systems/Render/RenderSystem.hpp>
 
 namespace ProceduralMaze::Sys {
 

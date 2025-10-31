@@ -1,7 +1,8 @@
-#include <BaseSystem.hpp>
-#include <MusicSystem.hpp>
-#include <Persistent/MusicVolume.hpp>
 #include <SFML/Audio/Sound.hpp>
+
+#include <Components/Persistent/MusicVolume.hpp>
+#include <Systems/BaseSystem.hpp>
+#include <Systems/MusicSystem.hpp>
 
 namespace ProceduralMaze::Sys {
 

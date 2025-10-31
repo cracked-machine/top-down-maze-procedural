@@ -1,5 +1,5 @@
-#include <BaseSystem.hpp>
-#include <MultiSprite.hpp>
+#include <Systems/BaseSystem.hpp>
+#include <Sprites/MultiSprite.hpp>
 
 namespace ProceduralMaze::Sprites {
 

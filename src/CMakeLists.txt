@@ -4,32 +4,32 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/main.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine.cpp
     ${CMAKE_SOURCE_DIR}/src/EventHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Sprites/SpriteFactory.cpp
-    ${CMAKE_SOURCE_DIR}/src/Sprites/MultiSprite.cpp
-    ${CMAKE_SOURCE_DIR}/src/Sprites/TileMap.cpp
+    ${CMAKE_SOURCE_DIR}/src/Debug/AssertHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/BaseFragmentShader.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/BaseSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/PersistentSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Sprites/MultiSprite.cpp
+    ${CMAKE_SOURCE_DIR}/src/Sprites/SpriteFactory.cpp
+    ${CMAKE_SOURCE_DIR}/src/Sprites/TileMap.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ProcGen/RandomLevelGenerator.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ProcGen/CellAutomataSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/RenderSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/RenderGameSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/RenderMenuSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/RenderOverlaySystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/PathFindSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/BombSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/FloodSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/CollisionSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/PlayerSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/NpcSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/MusicSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/Render/RenderSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/Render/RenderGameSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/Render/RenderMenuSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/Render/RenderOverlaySystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/AnimSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/FootstepSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/HazardFieldSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/WormholeSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/BaseSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/CollisionSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/DiggingSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ExitSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Debug/AssertHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/FootstepSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/MusicSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/PathFindSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/PersistentSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/PlayerSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/Threats/BombSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/Threats/FloodSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/Threats/NpcSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/Threats/HazardFieldSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/Threats/WormholeSystem.cpp
 )
 
 target_link_libraries(${TARGET} PRIVATE 
@@ -42,6 +42,11 @@ target_link_libraries(${TARGET} PRIVATE
     nlohmann_json::nlohmann_json
 )
 target_include_directories(${TARGET} SYSTEM PRIVATE 
+    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/src/Logging
+    ${CMAKE_SOURCE_DIR}/src/Debug
+    ${CMAKE_SOURCE_DIR}/src/Logging
+
     ${CMAKE_SOURCE_DIR}/inc
     ${CMAKE_SOURCE_DIR}/inc/Systems
     ${CMAKE_SOURCE_DIR}/inc/Components

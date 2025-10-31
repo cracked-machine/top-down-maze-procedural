@@ -1,0 +1,256 @@
+#include <SFML/Graphics/Text.hpp>
+
+#include <Components/CorruptionCell.hpp>
+#include <Components/HazardFieldCell.hpp>
+#include <Components/Position.hpp>
+#include <Components/SinkholeCell.hpp>
+#include <Sprites/MultiSprite.hpp>
+#include <Systems/Render/RenderOverlaySystem.hpp>
+
+namespace ProceduralMaze::Sys {
+
+void RenderOverlaySystem::render_entt_distance_set_overlay( sf::Vector2f pos )
+{
+  if ( !m_show_path_distances ) return;
+
+  auto entt_distance_map_view = m_reg->view<Cmp::EnttDistanceMap>();
+  int entt_distance_set = 0;
+  for ( auto [e, distance_map] : entt_distance_map_view.each() )
+  {
+    sf::Text distance_text( m_font, "", 30 );
+    distance_text.setFillColor( sf::Color::White );
+    distance_text.setOutlineColor( sf::Color::Black );
+    distance_text.setOutlineThickness( 2.f );
+
+    if ( distance_map.empty() ) { continue; }
+    else
+    {
+      std::stringstream ss;
+      ss << "NPC Entity #" << entt::to_integral( e ) << " - ";
+      distance_text.setPosition( pos + sf::Vector2f{ 0, entt_distance_set * 30.f } );
+
+      for ( auto it = distance_map.begin(); it != distance_map.end(); ++it )
+      {
+        ss << " " << entt::to_integral( it->first ) << ":" << it->second << ",";
+      }
+
+      distance_text.setString( ss.str() );
+      m_window.draw( distance_text );
+    }
+    entt_distance_set++;
+  }
+}
+
+void RenderOverlaySystem::render_bomb_radius_overlay( int radius_value, sf::Vector2f pos )
+{
+  // text
+  bomb_radius_text.setPosition( pos );
+  bomb_radius_text.setFillColor( sf::Color::White );
+  bomb_radius_text.setOutlineColor( sf::Color::Black );
+  bomb_radius_text.setOutlineThickness( 2.f );
+  m_window.draw( bomb_radius_text );
+
+  // text
+  sf::Text bomb_radius_value_text( m_font, "", 30 );
+  bomb_radius_value_text.setString( std::to_string( radius_value ) );
+  bomb_radius_value_text.setPosition( pos + sf::Vector2f( 180.f, 0.f ) );
+  bomb_radius_value_text.setFillColor( sf::Color::White );
+  bomb_radius_value_text.setOutlineColor( sf::Color::Black );
+  bomb_radius_value_text.setOutlineThickness( 2.f );
+  m_window.draw( bomb_radius_value_text );
+}
+
+void RenderOverlaySystem::render_bomb_overlay( int bomb_count, sf::Vector2f pos )
+{
+  // text
+  bomb_inventory_text.setPosition( pos );
+  bomb_inventory_text.setFillColor( sf::Color::White );
+  bomb_inventory_text.setOutlineColor( sf::Color::Black );
+  bomb_inventory_text.setOutlineThickness( 2.f );
+  m_window.draw( bomb_inventory_text );
+
+  // text
+  sf::Text bomb_count_text( m_font, "", 30 );
+  if ( bomb_count < 0 )
+    bomb_count_text.setString( " INFINITE " );
+  else
+    bomb_count_text.setString( " x " + std::to_string( bomb_count ) );
+  bomb_count_text.setPosition( pos + sf::Vector2f( 100.f, 0.f ) );
+  bomb_count_text.setFillColor( sf::Color::White );
+  bomb_count_text.setOutlineColor( sf::Color::Black );
+  bomb_count_text.setOutlineThickness( 2.f );
+  m_window.draw( bomb_count_text );
+}
+
+void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2f pos, sf::Vector2f size )
+{
+  // text
+  healthlvl_meter_text.setPosition( pos );
+  healthlvl_meter_text.setFillColor( sf::Color::White );
+  healthlvl_meter_text.setOutlineColor( sf::Color::Black );
+  healthlvl_meter_text.setOutlineThickness( 2.f );
+  m_window.draw( healthlvl_meter_text );
+
+  // bar fill
+  sf::Vector2f healthbar_offset{ 100.f, 10.f };
+  auto healthbar = sf::RectangleShape( { ( ( size.x / 100 ) * health_value ), size.y } );
+  healthbar.setPosition( pos + healthbar_offset );
+  healthbar.setFillColor( sf::Color::Red );
+  m_window.draw( healthbar );
+
+  // bar outline
+  auto healthbar_border = sf::RectangleShape( size );
+  healthbar_border.setPosition( pos + healthbar_offset );
+  healthbar_border.setFillColor( sf::Color::Transparent );
+  healthbar_border.setOutlineColor( sf::Color::Black );
+  healthbar_border.setOutlineThickness( 5.f );
+  m_window.draw( healthbar_border );
+}
+
+void RenderOverlaySystem::render_weapons_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size )
+{
+  auto sprite_metatype = "WEAPONS";
+  auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
+  auto sprite_index = 0;
+  auto scale = sf::Vector2f( 2.f, 2.f );
+  RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
+
+  // bar fill
+  sf::Vector2f weapons_meter_offset{ 100.f, 10.f };
+  // weapons meter level is represented as a percentage (0-100) of the screen
+  // display y-axis note: {0,0} is top left so we need to invert the Y
+  // position
+  float meter_level = size.x - ( ( size.x / kDisplaySize.y ) * water_level );
+  auto weaponsbar = sf::RectangleShape( { meter_level, size.y } );
+  weaponsbar.setPosition( pos + weapons_meter_offset );
+  weaponsbar.setFillColor( sf::Color::Green );
+  m_window.draw( weaponsbar );
+
+  // bar outline
+  auto weaponsbar_border = sf::RectangleShape( size );
+  weaponsbar_border.setPosition( pos + weapons_meter_offset );
+  weaponsbar_border.setFillColor( sf::Color::Transparent );
+  weaponsbar_border.setOutlineColor( sf::Color::Black );
+  weaponsbar_border.setOutlineThickness( 5.f );
+  m_window.draw( weaponsbar_border );
+}
+
+void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size )
+{
+  // text
+  waterlvl_meter_text.setPosition( pos );
+  waterlvl_meter_text.setFillColor( sf::Color::White );
+  waterlvl_meter_text.setOutlineColor( sf::Color::Black );
+  waterlvl_meter_text.setOutlineThickness( 2.f );
+  m_window.draw( waterlvl_meter_text );
+
+  // bar fill
+  sf::Vector2f waterlvl_meter_offset{ 100.f, 10.f };
+  // water meter level is represented as a percentage (0-100) of the screen
+  // display y-axis note: {0,0} is top left so we need to invert the Y
+  // position
+  float meter_meter_level = size.x - ( ( size.x / kDisplaySize.y ) * water_level );
+  auto waterlvlbar = sf::RectangleShape( { meter_meter_level, size.y } );
+  waterlvlbar.setPosition( pos + waterlvl_meter_offset );
+  waterlvlbar.setFillColor( sf::Color::Blue );
+  m_window.draw( waterlvlbar );
+
+  // bar outline
+  auto waterlvlbar_border = sf::RectangleShape( size );
+  waterlvlbar_border.setPosition( pos + waterlvl_meter_offset );
+  waterlvlbar_border.setFillColor( sf::Color::Transparent );
+  waterlvlbar_border.setOutlineColor( sf::Color::Black );
+  waterlvlbar_border.setOutlineThickness( 5.f );
+  m_window.draw( waterlvlbar_border );
+}
+
+void RenderOverlaySystem::render_player_position_overlay( sf::Vector2f player_pos, sf::Vector2f pos )
+{
+  // text
+  player_position_text.setString( "Player Position: [ " + std::to_string( static_cast<int>( player_pos.x ) ) + " , " +
+                                  std::to_string( static_cast<int>( player_pos.y ) ) + " ]" );
+  player_position_text.setPosition( pos );
+  player_position_text.setFillColor( sf::Color::White );
+  player_position_text.setOutlineColor( sf::Color::Black );
+  player_position_text.setOutlineThickness( 2.f );
+  m_window.draw( player_position_text );
+}
+
+void RenderOverlaySystem::render_player_score_overlay( unsigned int player_score, sf::Vector2f pos )
+{
+  // text
+  sf::Text player_score_text( m_font, "", 30 );
+  player_score_text.setString( "Player Score: " + std::to_string( player_score ) );
+  player_score_text.setPosition( pos );
+  player_score_text.setFillColor( sf::Color::White );
+  player_score_text.setOutlineColor( sf::Color::Black );
+  player_score_text.setOutlineThickness( 2.f );
+  m_window.draw( player_score_text );
+}
+
+void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos )
+{
+  // text
+  sf::Text mouse_position_text( m_font, "", 30 );
+  mouse_position_text.setString( "Mouse Position: [ " + std::to_string( static_cast<int>( mouse_position.x ) ) + " , " +
+                                 std::to_string( static_cast<int>( mouse_position.y ) ) + " ]" );
+  mouse_position_text.setPosition( pos );
+  mouse_position_text.setFillColor( sf::Color::White );
+  mouse_position_text.setOutlineColor( sf::Color::Black );
+  mouse_position_text.setOutlineThickness( 2.f );
+  m_window.draw( mouse_position_text );
+}
+
+void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3 )
+{
+  auto entity_count = m_reg->view<entt::entity>().size();
+  auto npc_count = m_reg->view<Cmp::NPC>().size();
+  auto position_count = m_reg->view<Cmp::Position>().size();
+  auto corruption_count = m_reg->view<Cmp::CorruptionCell>().size();
+  auto sinkhole_count = m_reg->view<Cmp::SinkholeCell>().size();
+
+  auto obst_view = m_reg->view<Cmp::Obstacle>();
+  auto obstacle_count = obst_view.size();
+  int disabled_count = 0;
+  for ( auto [e, obstacle] : obst_view.each() )
+  {
+    if ( not obstacle.m_enabled ) { ++disabled_count; }
+  }
+
+  sf::Text stats_text( m_font, "", 30 );
+  // clang-format off
+  stats_text.setString( 
+       "E: " + std::to_string( entity_count ) + 
+    "   P: " + std::to_string( position_count ) );
+  // clang-format on
+  stats_text.setPosition( pos1 );
+  stats_text.setFillColor( sf::Color::White );
+  stats_text.setOutlineColor( sf::Color::Black );
+  stats_text.setOutlineThickness( 2.f );
+  m_window.draw( stats_text );
+
+  // clang-format off
+  stats_text.setString( 
+     "O: "         + std::to_string( obstacle_count ) + 
+    " (disabled: " + std::to_string( disabled_count ) + ")" );
+  // clang-format on
+  stats_text.setPosition( pos2 );
+  stats_text.setFillColor( sf::Color::White );
+  stats_text.setOutlineColor( sf::Color::Black );
+  stats_text.setOutlineThickness( 2.f );
+  m_window.draw( stats_text );
+
+  // clang-format off
+  stats_text.setString( 
+       "N: " + std::to_string( npc_count ) +
+    "   C: " + std::to_string( corruption_count ) + 
+    "   S: " + std::to_string( sinkhole_count ) );
+  // clang-format on
+  stats_text.setPosition( pos3 );
+  stats_text.setFillColor( sf::Color::White );
+  stats_text.setOutlineColor( sf::Color::Black );
+  stats_text.setOutlineThickness( 2.f );
+  m_window.draw( stats_text );
+}
+
+} // namespace ProceduralMaze::Sys

@@ -1,24 +1,25 @@
-#include <Persistent/NpcGhostAnimFramerate.hpp>
-#include <Persistent/NpcSkeleAnimFramerate.hpp>
 #include <spdlog/spdlog.h>
 
-#include <AnimSystem.hpp>
-#include <EnttDistanceMap.hpp>
-#include <LerpPosition.hpp>
-#include <NPC.hpp>
-#include <NpcDeathPosition.hpp>
-#include <Persistent/NpcAnimFramerate.hpp>
-#include <Persistent/NpcDeathAnimFramerate.hpp>
-#include <Persistent/PlayerAnimFramerate.hpp>
-#include <Persistent/WormholeAnimFramerate.hpp>
-#include <PlayableCharacter.hpp>
-#include <Position.hpp>
 #include <SFML/System/Time.hpp>
-#include <ShrineSprite.hpp>
-#include <SpriteAnimation.hpp>
-#include <SpriteFactory.hpp>
-#include <Systems/RenderSystem.hpp>
-#include <Wormhole.hpp>
+
+#include <Components/EnttDistanceMap.hpp>
+#include <Components/LerpPosition.hpp>
+#include <Components/NPC.hpp>
+#include <Components/NpcDeathPosition.hpp>
+#include <Components/Persistent/NpcAnimFramerate.hpp>
+#include <Components/Persistent/NpcDeathAnimFramerate.hpp>
+#include <Components/Persistent/NpcGhostAnimFramerate.hpp>
+#include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
+#include <Components/Persistent/PlayerAnimFramerate.hpp>
+#include <Components/Persistent/WormholeAnimFramerate.hpp>
+#include <Components/PlayableCharacter.hpp>
+#include <Components/Position.hpp>
+#include <Components/ShrineSprite.hpp>
+#include <Components/SpriteAnimation.hpp>
+#include <Components/Wormhole.hpp>
+#include <Sprites/SpriteFactory.hpp>
+#include <Systems/AnimSystem.hpp>
+#include <Systems/Render/RenderSystem.hpp>
 
 namespace ProceduralMaze::Sys {
 

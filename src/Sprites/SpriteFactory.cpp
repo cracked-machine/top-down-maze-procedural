@@ -1,9 +1,10 @@
-#include <MultiSprite.hpp>
 #include <SFML/Graphics/Image.hpp>
-#include <SpriteFactory.hpp>
-#include <fstream>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
+
+#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteFactory.hpp>
+#include <fstream>
 #include <string>
 
 namespace ProceduralMaze::Sprites {

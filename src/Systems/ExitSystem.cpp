@@ -1,17 +1,18 @@
-#include <Components/Exit.hpp>
-#include <Components/PlayableCharacter.hpp>
-#include <Components/System.hpp>
-#include <Door.hpp>
-#include <LargeObstacle.hpp>
-#include <NPC.hpp>
-#include <Persistent/MaxShrines.hpp>
-#include <Persistent/PlayerStartPosition.hpp>
-#include <Random.hpp>
-#include <RenderSystem.hpp>
-#include <ReservedPosition.hpp>
 #include <SFML/System/Vector2.hpp>
+
+#include <Components/Door.hpp>
+#include <Components/Exit.hpp>
+#include <Components/LargeObstacle.hpp>
+#include <Components/NPC.hpp>
+#include <Components/Persistent/MaxShrines.hpp>
+#include <Components/Persistent/PlayerStartPosition.hpp>
+#include <Components/PlayableCharacter.hpp>
+#include <Components/Random.hpp>
+#include <Components/ReservedPosition.hpp>
+#include <Components/System.hpp>
+#include <Components/Wall.hpp>
 #include <Systems/ExitSystem.hpp>
-#include <Wall.hpp>
+#include <Systems/Render/RenderSystem.hpp>
 
 namespace ProceduralMaze::Sys {
 

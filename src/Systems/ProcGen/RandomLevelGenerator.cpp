@@ -1,23 +1,24 @@
-#include <BaseSystem.hpp>
-#include <Destructable.hpp>
-#include <Door.hpp>
-#include <GraveSprite.hpp>
-#include <LargeObstacle.hpp>
-#include <LootContainer.hpp>
-#include <NpcContainer.hpp>
-#include <Persistent/MaxShrines.hpp>
-#include <Persistent/PlayerStartPosition.hpp>
-#include <PlayableCharacter.hpp>
-#include <Position.hpp>
-#include <ProcGen/RandomLevelGenerator.hpp>
-#include <Random.hpp>
-#include <RectBounds.hpp>
-#include <ReservedPosition.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <ShrineSprite.hpp>
-#include <SpawnAreaSprite.hpp>
-#include <SpriteFactory.hpp>
-#include <Wall.hpp>
+
+#include <Components/Destructable.hpp>
+#include <Components/Door.hpp>
+#include <Components/GraveSprite.hpp>
+#include <Components/LargeObstacle.hpp>
+#include <Components/LootContainer.hpp>
+#include <Components/NpcContainer.hpp>
+#include <Components/Persistent/MaxShrines.hpp>
+#include <Components/Persistent/PlayerStartPosition.hpp>
+#include <Components/PlayableCharacter.hpp>
+#include <Components/Position.hpp>
+#include <Components/Random.hpp>
+#include <Components/RectBounds.hpp>
+#include <Components/ReservedPosition.hpp>
+#include <Components/ShrineSprite.hpp>
+#include <Components/SpawnAreaSprite.hpp>
+#include <Components/Wall.hpp>
+#include <Sprites/SpriteFactory.hpp>
+#include <Systems/BaseSystem.hpp>
+#include <Systems/ProcGen/RandomLevelGenerator.hpp>
 
 namespace ProceduralMaze::Sys::ProcGen {
 

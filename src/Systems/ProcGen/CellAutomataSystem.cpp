@@ -1,4 +1,4 @@
-#include <ProcGen/CellAutomataSystem.hpp>
+#include <Systems/ProcGen/CellAutomataSystem.hpp>
 
 namespace ProceduralMaze::Sys::ProcGen {
 
@@ -63,8 +63,8 @@ void CellAutomataSystem::find_neighbours()
       Cmp::Obstacle *left_entt_ob = m_reg->try_get<Cmp::Obstacle>( left_entt );
       if ( left_entt_ob && left_entt_ob->m_enabled && not has_left_map_edge )
       {
-        m_reg->patch<Cmp::Neighbours>(
-            current_entity, [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::LEFT, left_entt ); } );
+        m_reg->patch<Cmp::Neighbours>( current_entity,
+                                       [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::LEFT, left_entt ); } );
       }
     }
     // N - (y - 1)
@@ -74,9 +74,8 @@ void CellAutomataSystem::find_neighbours()
       Cmp::Obstacle *down_left_entt_ob = m_reg->try_get<Cmp::Obstacle>( down_left_entt );
       if ( down_left_entt_ob && down_left_entt_ob->m_enabled && not has_left_map_edge )
       {
-        m_reg->patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update ) {
-          _nb_update.set( Cmp::Neighbours::Dir::DOWN_LEFT, down_left_entt );
-        } );
+        m_reg->patch<Cmp::Neighbours>(
+            current_entity, [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::DOWN_LEFT, down_left_entt ); } );
       }
     }
     // N - y
@@ -86,8 +85,8 @@ void CellAutomataSystem::find_neighbours()
       Cmp::Obstacle *down_entt_ob = m_reg->try_get<Cmp::Obstacle>( down_entt );
       if ( down_entt_ob && down_entt_ob->m_enabled )
       {
-        m_reg->patch<Cmp::Neighbours>(
-            current_entity, [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::DOWN, down_entt ); } );
+        m_reg->patch<Cmp::Neighbours>( current_entity,
+                                       [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::DOWN, down_entt ); } );
       }
     }
     // N - (y + 1)
@@ -97,9 +96,8 @@ void CellAutomataSystem::find_neighbours()
       Cmp::Obstacle *down_right_entt_ob = m_reg->try_get<Cmp::Obstacle>( down_right_entt );
       if ( down_right_entt_ob && down_right_entt_ob->m_enabled && not has_right_map_edge )
       {
-        m_reg->patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update ) {
-          _nb_update.set( Cmp::Neighbours::Dir::DOWN_RIGHT, down_right_entt );
-        } );
+        m_reg->patch<Cmp::Neighbours>(
+            current_entity, [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::DOWN_RIGHT, down_right_entt ); } );
       }
     }
 
@@ -121,9 +119,8 @@ void CellAutomataSystem::find_neighbours()
       Cmp::Obstacle *top_left_entt_ob = m_reg->try_get<Cmp::Obstacle>( top_left_entt );
       if ( top_left_entt_ob && top_left_entt_ob->m_enabled && not has_left_map_edge )
       {
-        m_reg->patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update ) {
-          _nb_update.set( Cmp::Neighbours::Dir::UP_LEFT, top_left_entt );
-        } );
+        m_reg->patch<Cmp::Neighbours>(
+            current_entity, [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::UP_LEFT, top_left_entt ); } );
       }
     }
     // N + y
@@ -133,21 +130,19 @@ void CellAutomataSystem::find_neighbours()
       Cmp::Obstacle *top_entt_ob = m_reg->try_get<Cmp::Obstacle>( top_entt );
       if ( top_entt_ob && top_entt_ob->m_enabled )
       {
-        m_reg->patch<Cmp::Neighbours>(
-            current_entity, [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::UP, top_entt ); } );
+        m_reg->patch<Cmp::Neighbours>( current_entity,
+                                       [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::UP, top_entt ); } );
       }
     }
     // N + (y + 1)
-    if ( ( kMapGridSize.y + 1 ) < m_random_level->size() &&
-         std::next( it, ( kMapGridSize.y + 1 ) ) < m_random_level->end() )
+    if ( ( kMapGridSize.y + 1 ) < m_random_level->size() && std::next( it, ( kMapGridSize.y + 1 ) ) < m_random_level->end() )
     {
       auto top_right_entt = entt::entity( *std::next( it, ( kMapGridSize.y + 1 ) ) );
       Cmp::Obstacle *top_right_entt_ob = m_reg->try_get<Cmp::Obstacle>( top_right_entt );
       if ( top_right_entt_ob && top_right_entt_ob->m_enabled && not has_right_map_edge )
       {
-        m_reg->patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update ) {
-          _nb_update.set( Cmp::Neighbours::Dir::UP_RIGHT, top_right_entt );
-        } );
+        m_reg->patch<Cmp::Neighbours>(
+            current_entity, [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::UP_RIGHT, top_right_entt ); } );
       }
     }
     // N + 1
@@ -157,8 +152,8 @@ void CellAutomataSystem::find_neighbours()
       Cmp::Obstacle *right_entt_ob = m_reg->try_get<Cmp::Obstacle>( right_entt );
       if ( right_entt_ob && right_entt_ob->m_enabled && not has_right_map_edge )
       {
-        m_reg->patch<Cmp::Neighbours>(
-            current_entity, [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::RIGHT, right_entt ); } );
+        m_reg->patch<Cmp::Neighbours>( current_entity,
+                                       [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::RIGHT, right_entt ); } );
       }
     }
   }
@@ -171,8 +166,7 @@ void CellAutomataSystem::find_neighbours()
   {
     // SPDLOG_INFO("Entity {} has {} neighbours", entt::to_integral(_entt),
     // _nb.count());
-    std::string msg = std::to_string( entt::to_integral( entity ) ) + "(" + std::to_string( neighbour_cmp.count() ) +
-                      ") = ";
+    std::string msg = std::to_string( entt::to_integral( entity ) ) + "(" + std::to_string( neighbour_cmp.count() ) + ") = ";
 
     for ( auto [_dir, _nb_entt] : neighbour_cmp )
     {

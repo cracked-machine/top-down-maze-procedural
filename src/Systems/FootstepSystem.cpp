@@ -1,8 +1,8 @@
-#include <FootStepAlpha.hpp>
-#include <FootStepTimer.hpp>
-#include <MultiSprite.hpp>
-#include <PlayableCharacter.hpp>
-#include <SpawnAreaSprite.hpp>
+#include <Components/FootStepAlpha.hpp>
+#include <Components/FootStepTimer.hpp>
+#include <Components/PlayableCharacter.hpp>
+#include <Components/SpawnAreaSprite.hpp>
+#include <Sprites/MultiSprite.hpp>
 #include <Systems/FootstepSystem.hpp>
 
 namespace ProceduralMaze::Sys {

@@ -1,21 +1,22 @@
-#include <Direction.hpp>
-#include <Events/AnimDirectionChangeEvent.hpp>
-#include <Events/AnimResetFrameEvent.hpp>
-#include <LerpPosition.hpp>
-#include <Obstacle.hpp>
-#include <Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
-#include <Persistent/PlayerLerpSpeed.hpp>
-#include <Persistent/PlayerShortcutLerpSpeedModifier.hpp>
-#include <Persistent/PlayerStartPosition.hpp>
-#include <Persistent/PlayerSubmergedlLerpSpeedModifier.hpp>
-#include <PlayableCharacter.hpp>
-#include <PlayerScore.hpp>
-#include <PlayerSystem.hpp>
-#include <Position.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <SpriteAnimation.hpp>
-#include <SpriteFactory.hpp>
+
+#include <Components/Direction.hpp>
+#include <Components/LerpPosition.hpp>
+#include <Components/Obstacle.hpp>
+#include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
+#include <Components/Persistent/PlayerLerpSpeed.hpp>
+#include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
+#include <Components/Persistent/PlayerStartPosition.hpp>
+#include <Components/Persistent/PlayerSubmergedLerpSpeedModifier.hpp>
+#include <Components/PlayableCharacter.hpp>
+#include <Components/PlayerScore.hpp>
+#include <Components/Position.hpp>
+#include <Components/SpriteAnimation.hpp>
+#include <Events/AnimDirectionChangeEvent.hpp>
+#include <Events/AnimResetFrameEvent.hpp>
+#include <Sprites/SpriteFactory.hpp>
+#include <Systems/PlayerSystem.hpp>
 
 namespace ProceduralMaze::Sys {
 
