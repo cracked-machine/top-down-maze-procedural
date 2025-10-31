@@ -6,6 +6,15 @@ message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 # message(STATUS "Loading toolchain file: ${CMAKE_SOURCE_DIR}/scripts/cmake-${TARGET_TRIPLET}.cmake")
 # include(${CMAKE_SOURCE_DIR}/scripts/cmake-${TARGET_TRIPLET}.cmake)
 
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    message(STATUS "Found ccache: ${CCACHE_PROGRAM}")
+    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+else()
+    message(STATUS "ccache not found - compilation caching disabled")
+endif()
+
 include(FetchContent)
 
 set(SFML_USE_SYSTEM_DEPS OFF CACHE BOOL "Use system dependencies" FORCE)

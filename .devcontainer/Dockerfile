@@ -18,6 +18,7 @@ RUN apt update -y && apt install -y \
     gcc-mingw-w64-x86-64 \
     g++-mingw-w64-x86-64 \
     doxygen \
+    ccache \
     jq \
     yq \
     python3-pip
