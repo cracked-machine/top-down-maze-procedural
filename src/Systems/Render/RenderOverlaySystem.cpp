@@ -1,9 +1,11 @@
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Text.hpp>
 
 #include <Components/CorruptionCell.hpp>
 #include <Components/HazardFieldCell.hpp>
 #include <Components/Position.hpp>
 #include <Components/SinkholeCell.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
 
@@ -41,6 +43,111 @@ void RenderOverlaySystem::render_entt_distance_set_overlay( sf::Vector2f pos )
   }
 }
 
+void RenderOverlaySystem::render_ui_background_overlay( sf::Vector2f pos, sf::Vector2f size )
+{
+  auto ui_background = sf::RectangleShape( size );
+  ui_background.setPosition( pos );
+  ui_background.setFillColor( sf::Color( 48, 48, 64, 128 ) );
+  m_window.draw( ui_background );
+
+  auto ui_edge = sf::RectangleShape( size );
+  ui_edge.setPosition( pos );
+  ui_edge.setFillColor( sf::Color( sf::Color::Transparent ) );
+  ui_edge.setOutlineColor( sf::Color::Black );
+  ui_edge.setOutlineThickness( 5.f );
+  m_window.draw( ui_edge );
+}
+
+void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2f pos, sf::Vector2f size )
+{
+
+  auto sprite_metatype = "ICONS";
+  auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
+  auto sprite_index = 1; // health icon
+  auto scale = sf::Vector2f( 2.f, 2.f );
+  RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
+
+  // bar fill
+  sf::Vector2f healthbar_offset{ 50.f, 8.f };
+  auto healthbar = sf::RectangleShape( { ( ( size.x / 100 ) * health_value ), size.y } );
+  healthbar.setPosition( pos + healthbar_offset );
+  healthbar.setFillColor( sf::Color::Red );
+  m_window.draw( healthbar );
+
+  // bar outline
+  auto healthbar_border = sf::RectangleShape( size );
+  healthbar_border.setPosition( pos + healthbar_offset );
+  healthbar_border.setFillColor( sf::Color::Transparent );
+  healthbar_border.setOutlineColor( sf::Color::Black );
+  healthbar_border.setOutlineThickness( 5.f );
+  m_window.draw( healthbar_border );
+}
+
+void RenderOverlaySystem::render_weapons_meter_overlay( float new_weapon_level, sf::Vector2f pos, sf::Vector2f size )
+{
+  auto sprite_metatype = "ICONS";
+  auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
+  auto sprite_index = 0; // hammer icon
+  auto scale = sf::Vector2f( 2.f, 2.f );
+  RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
+
+  // bar fill - weapons level is out of 100, but the bar is 200 pixels wide
+  sf::Vector2f weapons_meter_offset{ 50.f, 8.f };
+  auto weaponsbar = sf::RectangleShape( { new_weapon_level * 2, size.y } );
+  weaponsbar.setPosition( pos + weapons_meter_offset );
+  weaponsbar.setFillColor( sf::Color::Green );
+  m_window.draw( weaponsbar );
+
+  // bar outline
+  auto weaponsbar_border = sf::RectangleShape( size );
+  weaponsbar_border.setPosition( pos + weapons_meter_offset );
+  weaponsbar_border.setFillColor( sf::Color::Transparent );
+  weaponsbar_border.setOutlineColor( sf::Color::Black );
+  weaponsbar_border.setOutlineThickness( 5.f );
+  m_window.draw( weaponsbar_border );
+}
+
+void RenderOverlaySystem::render_player_score_overlay( unsigned int player_score, sf::Vector2f pos )
+{
+  auto sprite_metatype = "ICONS";
+  auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
+  auto sprite_index = 3; // candle icon
+  auto scale = sf::Vector2f( 2.f, 2.f );
+  RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
+
+  // text
+  sf::Vector2f score_meter_offset{ 50.f, -2.f };
+  sf::Text player_score_text( m_font, "", 30 );
+  player_score_text.setString( "x " + std::to_string( player_score ) );
+  player_score_text.setPosition( pos + score_meter_offset );
+  player_score_text.setFillColor( sf::Color::White );
+  player_score_text.setOutlineColor( sf::Color::Black );
+  player_score_text.setOutlineThickness( 2.f );
+  m_window.draw( player_score_text );
+}
+
+void RenderOverlaySystem::render_bomb_overlay( int bomb_count, sf::Vector2f pos )
+{
+
+  auto sprite_metatype = "ICONS";
+  auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
+  auto sprite_index = 2; // bomb icon
+  auto scale = sf::Vector2f( 2.f, 2.f );
+  RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
+
+  // text
+  sf::Text bomb_count_text( m_font, "", 30 );
+  if ( bomb_count < 0 )
+    bomb_count_text.setString( " INFINITE " );
+  else
+    bomb_count_text.setString( " x " + std::to_string( bomb_count ) );
+  bomb_count_text.setPosition( pos + sf::Vector2f( 40.f, -4.f ) );
+  bomb_count_text.setFillColor( sf::Color::White );
+  bomb_count_text.setOutlineColor( sf::Color::Black );
+  bomb_count_text.setOutlineThickness( 2.f );
+  m_window.draw( bomb_count_text );
+}
+
 void RenderOverlaySystem::render_bomb_radius_overlay( int radius_value, sf::Vector2f pos )
 {
   // text
@@ -58,77 +165,6 @@ void RenderOverlaySystem::render_bomb_radius_overlay( int radius_value, sf::Vect
   bomb_radius_value_text.setOutlineColor( sf::Color::Black );
   bomb_radius_value_text.setOutlineThickness( 2.f );
   m_window.draw( bomb_radius_value_text );
-}
-
-void RenderOverlaySystem::render_bomb_overlay( int bomb_count, sf::Vector2f pos )
-{
-  // text
-  bomb_inventory_text.setPosition( pos );
-  bomb_inventory_text.setFillColor( sf::Color::White );
-  bomb_inventory_text.setOutlineColor( sf::Color::Black );
-  bomb_inventory_text.setOutlineThickness( 2.f );
-  m_window.draw( bomb_inventory_text );
-
-  // text
-  sf::Text bomb_count_text( m_font, "", 30 );
-  if ( bomb_count < 0 )
-    bomb_count_text.setString( " INFINITE " );
-  else
-    bomb_count_text.setString( " x " + std::to_string( bomb_count ) );
-  bomb_count_text.setPosition( pos + sf::Vector2f( 100.f, 0.f ) );
-  bomb_count_text.setFillColor( sf::Color::White );
-  bomb_count_text.setOutlineColor( sf::Color::Black );
-  bomb_count_text.setOutlineThickness( 2.f );
-  m_window.draw( bomb_count_text );
-}
-
-void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2f pos, sf::Vector2f size )
-{
-  // text
-  healthlvl_meter_text.setPosition( pos );
-  healthlvl_meter_text.setFillColor( sf::Color::White );
-  healthlvl_meter_text.setOutlineColor( sf::Color::Black );
-  healthlvl_meter_text.setOutlineThickness( 2.f );
-  m_window.draw( healthlvl_meter_text );
-
-  // bar fill
-  sf::Vector2f healthbar_offset{ 100.f, 10.f };
-  auto healthbar = sf::RectangleShape( { ( ( size.x / 100 ) * health_value ), size.y } );
-  healthbar.setPosition( pos + healthbar_offset );
-  healthbar.setFillColor( sf::Color::Red );
-  m_window.draw( healthbar );
-
-  // bar outline
-  auto healthbar_border = sf::RectangleShape( size );
-  healthbar_border.setPosition( pos + healthbar_offset );
-  healthbar_border.setFillColor( sf::Color::Transparent );
-  healthbar_border.setOutlineColor( sf::Color::Black );
-  healthbar_border.setOutlineThickness( 5.f );
-  m_window.draw( healthbar_border );
-}
-
-void RenderOverlaySystem::render_weapons_meter_overlay( float new_weapon_level, sf::Vector2f pos, sf::Vector2f size )
-{
-  auto sprite_metatype = "WEAPONS";
-  auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
-  auto sprite_index = 0;
-  auto scale = sf::Vector2f( 2.f, 2.f );
-  RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
-
-  // bar fill - weapons level is out of 100, but the bar is 200 pixels wide
-  sf::Vector2f weapons_meter_offset{ 100.f, 10.f };
-  auto weaponsbar = sf::RectangleShape( { new_weapon_level * 2, size.y } );
-  weaponsbar.setPosition( pos + weapons_meter_offset );
-  weaponsbar.setFillColor( sf::Color::Green );
-  m_window.draw( weaponsbar );
-
-  // bar outline
-  auto weaponsbar_border = sf::RectangleShape( size );
-  weaponsbar_border.setPosition( pos + weapons_meter_offset );
-  weaponsbar_border.setFillColor( sf::Color::Transparent );
-  weaponsbar_border.setOutlineColor( sf::Color::Black );
-  weaponsbar_border.setOutlineThickness( 5.f );
-  m_window.draw( weaponsbar_border );
 }
 
 void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size )
@@ -170,18 +206,6 @@ void RenderOverlaySystem::render_player_position_overlay( sf::Vector2f player_po
   player_position_text.setOutlineColor( sf::Color::Black );
   player_position_text.setOutlineThickness( 2.f );
   m_window.draw( player_position_text );
-}
-
-void RenderOverlaySystem::render_player_score_overlay( unsigned int player_score, sf::Vector2f pos )
-{
-  // text
-  sf::Text player_score_text( m_font, "", 30 );
-  player_score_text.setString( "Player Score: " + std::to_string( player_score ) );
-  player_score_text.setPosition( pos );
-  player_score_text.setFillColor( sf::Color::White );
-  player_score_text.setOutlineColor( sf::Color::Black );
-  player_score_text.setOutlineThickness( 2.f );
-  m_window.draw( player_score_text );
 }
 
 void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos )

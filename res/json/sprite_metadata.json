@@ -127,12 +127,12 @@
         }
       }
     },
-    "WEAPONS": {
-      "name": "WEAPONS",
+    "ICONS": {
+      "name": "ICONS",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/weapons.png",
-        "sprite_indices": [0],
+        "texture_path": "res/textures/icons.png",
+        "sprite_indices": [0,1,2,3],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {

@@ -11,7 +11,8 @@ RenderSystem::RenderSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWi
   SPDLOG_DEBUG( "RenderSystem constructor called" );
 }
 
-std::unordered_map<Sprites::SpriteMetaType, std::reference_wrapper<Sprites::MultiSprite>> RenderSystem::m_multisprite_map;
+std::unordered_map<Sprites::SpriteMetaType, std::reference_wrapper<Sprites::MultiSprite>>
+    RenderSystem::m_multisprite_map;
 
 void RenderSystem::init_multisprites()
 {
@@ -19,21 +20,22 @@ void RenderSystem::init_multisprites()
   {
     // const_cast is needed because get_multisprite_by_type returns const&
     // but we need mutable access for rendering operations like pick()
-    // Note: Using const_cast to remove const from a reference is safe here because the underlying objects in SpriteFactory are
-    // actually mutable. The factory just returns them as const references for encapsulation, but you need mutable access for
-    // rendering operations.
-    m_multisprite_map.emplace( type,
-                               std::ref( const_cast<Sprites::MultiSprite &>( m_sprite_factory.get_multisprite_by_type( type ) ) ) );
+    // Note: Using const_cast to remove const from a reference is safe here because the underlying objects in
+    // SpriteFactory are actually mutable. The factory just returns them as const references for encapsulation, but you
+    // need mutable access for rendering operations.
+    m_multisprite_map.emplace(
+        type, std::ref( const_cast<Sprites::MultiSprite &>( m_sprite_factory.get_multisprite_by_type( type ) ) ) );
   }
 }
 
-void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align, float padding,
-                                sf::Color fill_color, sf::Color outline_color )
+void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align,
+                                float letter_spacing, sf::Color fill_color, sf::Color outline_color )
 {
   sf::Text title_text( m_font, text, size );
   title_text.setFillColor( fill_color );
   title_text.setOutlineColor( outline_color );
   if ( outline_color != sf::Color::Transparent ) { title_text.setOutlineThickness( 5.f ); }
+  title_text.setLetterSpacing( letter_spacing );
 
   // if requested center aligned then we ignore the user provided x position
   sf::Vector2f final_position = position;
@@ -47,20 +49,21 @@ void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2
   title_text.setPosition( final_position );
 
   // Create a black background rectangle for the title text
+  float cell_padding = 20;
   sf::RectangleShape title_bg;
   sf::FloatRect title_bounds = title_text.getLocalBounds();
-  title_bg.setSize( { title_bounds.size.x + padding * 2.f, title_bounds.size.y + padding * 2.f } );
+  title_bg.setSize( { title_bounds.size.x + cell_padding * 2.f, title_bounds.size.y + cell_padding * 2.f } );
   title_bg.setFillColor( sf::Color::Black );
-  title_bg.setPosition(
-      { final_position.x + title_bounds.position.x - padding, final_position.y + title_bounds.position.y - padding } );
+  title_bg.setPosition( { final_position.x + title_bounds.position.x - cell_padding,
+                          final_position.y + title_bounds.position.y - cell_padding } );
 
   m_window.draw( title_bg );
   m_window.draw( title_text );
 }
 
 void RenderSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
-                                                 const sf::FloatRect &pos_cmp, int sprite_index, sf::Vector2f scale, uint8_t alpha,
-                                                 sf::Vector2f origin, sf::Angle angle )
+                                                 const sf::FloatRect &pos_cmp, int sprite_index, sf::Vector2f scale,
+                                                 uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
 {
   if ( not is_visible_in_view( m_window.getView(), pos_cmp ) ) return;
   try

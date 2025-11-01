@@ -64,6 +64,8 @@ void RenderGameSystem::init_shaders()
 {
   m_water_shader.setup();
   m_wormhole_shader.setup();
+  m_pulsing_shader.setup();
+  m_mist_shader.setup();
 }
 
 void RenderGameSystem::init_tilemap() { m_floormap.load( kMapGridSize, "res/json/tilemap_config.json" ); }
@@ -120,6 +122,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
       render_npc();
       render_large_obstacles();
       render_explosions();
+      render_mist( player_position );
 
       if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
       {
@@ -207,12 +210,12 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
       }
 
       // render metrics
-      overlay_sys.render_health_overlay( player_health, { 40.f, 30.f }, { 200.f, 20.f } );
-      overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, 60.f }, { 200.f, 20.f } );
-
-      overlay_sys.render_player_score_overlay( player_score, { 40.f, 90.f } );
-      overlay_sys.render_bomb_overlay( bomb_inventory, { 40.f, 120.f } );
-      overlay_sys.render_bomb_radius_overlay( blast_radius, { 40.f, 150.f } );
+      overlay_sys.render_ui_background_overlay( { 20.f, 20.f }, { 300.f, 250.f } );
+      overlay_sys.render_health_overlay( player_health, { 40.f, 40.f }, { 200.f, 20.f } );
+      overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, 80.f }, { 200.f, 20.f } );
+      overlay_sys.render_player_score_overlay( player_score, { 40.f, 120.f } );
+      overlay_sys.render_bomb_overlay( bomb_inventory, { 40.f, 160.f } );
+      overlay_sys.render_bomb_radius_overlay( blast_radius, { 40.f, 200.f } );
       if ( m_show_debug_stats )
       {
         overlay_sys.render_player_position_overlay( player_position.position, { 40.f, 260.f } );
@@ -303,8 +306,8 @@ void RenderGameSystem::render_large_obstacles()
     SPDLOG_DEBUG( "Rendering Cmp::LargeObstacle at ({}, {})", large_obst_cmp.position.x, large_obst_cmp.position.y );
     sf::RectangleShape square( sf::Vector2f{ large_obst_cmp.size.x, large_obst_cmp.size.y } );
     square.setFillColor( sf::Color::Transparent );
-    square.setOutlineColor( sf::Color::Green );
-    square.setOutlineThickness( 2.f );
+    square.setOutlineColor( sf::Color::Yellow );
+    square.setOutlineThickness( 1.f );
     square.setPosition( { large_obst_cmp.position.x, large_obst_cmp.position.y } );
     m_window.draw( square );
   }
@@ -370,7 +373,10 @@ void RenderGameSystem::render_small_obstacles()
         rockPositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index, obstacle_cmp.m_integrity );
       }
       else if ( obstacle_cmp.m_type == "POT" ) { potPositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index ); }
-      else if ( obstacle_cmp.m_type == "BONES" ) { bonePositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index ); }
+      else if ( obstacle_cmp.m_type == "BONES" )
+      {
+        bonePositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index );
+      }
     }
 
     if ( obstacle_cmp.m_integrity <= 0.0f ) { detonationPositions.push_back( position_cmp ); }
@@ -412,8 +418,8 @@ void RenderGameSystem::render_small_obstacles()
     SPDLOG_DEBUG( "Rendering Cmp::SelectedPosition at ({}, {})", selected_cmp.x, selected_cmp.y );
     sf::RectangleShape square( kGridSquareSizePixelsF );
     square.setFillColor( sf::Color::Transparent );
-    square.setOutlineColor( sf::Color::Blue );
-    square.setOutlineThickness( 2.f );
+    square.setOutlineColor( sf::Color::White );
+    square.setOutlineThickness( 1.f );
     square.setPosition( selected_cmp );
     m_window.draw( square );
   }
@@ -580,7 +586,8 @@ void RenderGameSystem::render_walls()
     sf::Vector2f new_origin{ 0.f, 0.f };
     float angle{ 0.f };
 
-    safe_render_sprite( "WALL", pos_cmp, wall_cmp.m_tile_index, new_scale, new_alpha, new_origin, sf::degrees( angle ) );
+    safe_render_sprite( "WALL", pos_cmp, wall_cmp.m_tile_index, new_scale, new_alpha, new_origin,
+                        sf::degrees( angle ) );
   }
 
   // draw entrance
@@ -593,7 +600,8 @@ void RenderGameSystem::render_walls()
     sf::Vector2f new_origin{ 0.f, 0.f };
     float angle{ 0.f };
 
-    safe_render_sprite( "WALL", pos_cmp, door_cmp.m_tile_index, new_scale, new_alpha, new_origin, sf::degrees( angle ) );
+    safe_render_sprite( "WALL", pos_cmp, door_cmp.m_tile_index, new_scale, new_alpha, new_origin,
+                        sf::degrees( angle ) );
   }
 
   auto exit_door_view = m_reg->view<Cmp::Door, Cmp::Position, Cmp::Exit>();
@@ -611,7 +619,8 @@ void RenderGameSystem::render_walls()
     sf::Vector2f new_origin{ half_width_px, half_height_px };
     float angle{ 0.f };
 
-    safe_render_sprite( "WALL", new_pos, door_cmp.m_tile_index, new_scale, new_alpha, new_origin, sf::degrees( angle ) );
+    safe_render_sprite( "WALL", new_pos, door_cmp.m_tile_index, new_scale, new_alpha, new_origin,
+                        sf::degrees( angle ) );
   }
 }
 
@@ -634,7 +643,8 @@ void RenderGameSystem::render_player()
       sprite_index = anim_cmp.m_base_frame + anim_cmp.m_current_frame;
     }
     // dont modify the original pos_cmp, create copy with modified position
-    sf::FloatRect new_pos{ { pc_pos_cmp.position.x + dir_cmp.x_offset, pc_pos_cmp.position.y }, kGridSquareSizePixelsF };
+    sf::FloatRect new_pos{ { pc_pos_cmp.position.x + dir_cmp.x_offset, pc_pos_cmp.position.y },
+                           kGridSquareSizePixelsF };
     safe_render_sprite( "PLAYER", new_pos, sprite_index );
 
     if ( m_show_path_distances )
@@ -762,7 +772,8 @@ void RenderGameSystem::render_npc()
     }
 
     sf::Vector2f new_scale{ dir_cmp.x_scale, 1.f };
-    sf::FloatRect new_position{ sf::Vector2f{ pos_cmp.position.x + dir_cmp.x_offset, pos_cmp.position.y }, kGridSquareSizePixelsF };
+    sf::FloatRect new_position{ sf::Vector2f{ pos_cmp.position.x + dir_cmp.x_offset, pos_cmp.position.y },
+                                kGridSquareSizePixelsF };
     // get the correct sprite index based on animation frame
     safe_render_sprite( npc_cmp.m_type, new_position, anim_cmp.m_current_frame, new_scale );
 
@@ -806,6 +817,20 @@ void RenderGameSystem::render_flood_waters( sf::FloatRect player_position )
   m_water_shader.update( { player_position.position.x - m_water_shader.get_texture_size().x / 2.f,
                            player_position.position.y - m_water_shader.get_texture_size().y / 2.f } );
   m_window.draw( m_water_shader );
+}
+
+void RenderGameSystem::render_mist( sf::FloatRect player_position )
+{
+  m_mist_shader.update( { player_position.position.x - m_mist_shader.get_texture_size().x / 2.f,
+                          player_position.position.y - m_mist_shader.get_texture_size().y / 2.f },
+                        0.25 ); // Set the alpha value
+
+  m_pulsing_shader.update( { player_position.position.x - m_pulsing_shader.get_texture_size().x / 2.f,
+                             player_position.position.y - m_pulsing_shader.get_texture_size().y / 2.f },
+                           0.5f ); // Set the alpha value
+
+  m_window.draw( m_mist_shader );
+  m_window.draw( m_pulsing_shader );
 }
 
 void RenderGameSystem::render_player_distances_on_npc()

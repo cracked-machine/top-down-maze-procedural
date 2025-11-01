@@ -19,13 +19,16 @@ public:
   };
 
   void render_entt_distance_set_overlay( sf::Vector2f pos );
-  void render_bomb_radius_overlay( int radius_value, sf::Vector2f pos );
-  void render_bomb_overlay( int bomb_count, sf::Vector2f pos );
+  void render_ui_background_overlay( sf::Vector2f pos, sf::Vector2f size );
+
   void render_health_overlay( float health_value, sf::Vector2f pos, sf::Vector2f size );
-  void render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size );
   void render_weapons_meter_overlay( float weapons_level, sf::Vector2f pos, sf::Vector2f size );
-  void render_player_position_overlay( sf::Vector2f player_position, sf::Vector2f pos );
   void render_player_score_overlay( unsigned int player_score, sf::Vector2f pos );
+  void render_bomb_overlay( int bomb_count, sf::Vector2f pos );
+  void render_bomb_radius_overlay( int radius_value, sf::Vector2f pos );
+  void render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size );
+
+  void render_player_position_overlay( sf::Vector2f player_position, sf::Vector2f pos );
   void render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos );
   void render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3 );
 

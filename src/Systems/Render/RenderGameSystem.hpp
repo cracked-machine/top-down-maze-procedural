@@ -5,6 +5,8 @@
 #include <SFML/System/Vector2.hpp>
 
 #include <Shaders/BackgroundShader.hpp>
+#include <Shaders/MistShader.hpp>
+#include <Shaders/PulsingShader.hpp>
 #include <Shaders/ViewFragmentShader.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -44,6 +46,7 @@ private:
   void render_npc();
   void render_explosions();
   void render_flood_waters( sf::FloatRect player_position );
+  void render_mist( sf::FloatRect player_position );
   void render_player_distances_on_npc();
   void render_player_distances_on_obstacles();
   void render_npc_distances_on_obstacles();
@@ -63,6 +66,8 @@ private:
   Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", kDisplaySize };
   Sprites::ViewFragmentShader m_wormhole_shader{ "res/shaders/SimpleDistortionField.frag",
                                                  BaseSystem::kGridSquareSizePixels.componentWiseMul( { 3u, 3u } ) };
+  Sprites::PulsingShader m_pulsing_shader{ "res/shaders/RedPulsingSand.frag", kDisplaySize };
+  Sprites::MistShader m_mist_shader{ "res/shaders/MistShader.frag", kDisplaySize };
 
   // Sprites
   Sprites::Containers::TileMap m_floormap{};

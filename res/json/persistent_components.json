@@ -77,11 +77,11 @@
   },
   "NpcGhostAnimFramerate": {
     "type": "float",
-    "value": 0.01
+    "value": 0.5
   },
   "NpcLerpSpeed": {
     "type": "float",
-    "value": 1.0
+    "value": 0.75
   },
   "NpcPushBack": {
     "type": "float",

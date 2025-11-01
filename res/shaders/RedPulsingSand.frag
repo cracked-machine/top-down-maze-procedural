@@ -2,12 +2,10 @@
 
 uniform sampler2D texture;
 uniform float time;
+uniform float alpha; // Add alpha uniform
 
 // pseudo-random noise using a hash function
-float noise( vec2 st )
-{
-  return fract( sin( dot( st.xy, vec2( 12.9898, 78.233 ) ) ) * 43758.5453123 );
-}
+float noise( vec2 st ) { return fract( sin( dot( st.xy, vec2( 12.9898, 78.233 ) ) ) * 43758.5453123 ); }
 
 // Bilinear interpolation between noise values for smooth transitions
 float smoothNoise( vec2 st )
@@ -41,6 +39,9 @@ void main()
 
   // Apply brightness variation
   color.rgb *= 0.8 + simpleNoise * 0.4;
+
+  // Apply the alpha uniform
+  color.a *= alpha;
 
   gl_FragColor = color;
 }
