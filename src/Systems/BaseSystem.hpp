@@ -22,7 +22,8 @@ namespace Sys {
 class BaseSystem
 {
 public:
-  BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
+  BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+              Sprites::SpriteFactory &sprite_factory );
 
   ~BaseSystem() = default;
 
@@ -68,8 +69,9 @@ public:
     auto pos = m_reg->try_get<Cmp::Position>( entity );
     if ( pos )
     {
-      return std::optional<sf::Vector2i>{ { static_cast<int>( pos->position.x / BaseSystem::kGridSquareSizePixels.x ),
-                                            static_cast<int>( pos->position.y / BaseSystem::kGridSquareSizePixels.y ) } };
+      return std::optional<sf::Vector2i>{
+          { static_cast<int>( pos->position.x / BaseSystem::kGridSquareSizePixels.x ),
+            static_cast<int>( pos->position.y / BaseSystem::kGridSquareSizePixels.y ) } };
     }
     else { SPDLOG_ERROR( "Entity {} does not have a Position component", static_cast<int>( entity ) ); }
     return std::nullopt;

@@ -1,4 +1,4 @@
-#include <Components/WeaponLevel.hpp>
+#include <Components/PlayerKeysCount.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Window/Window.hpp>
 
@@ -20,7 +20,7 @@
 #include <Components/Persistent/NpcPushBack.hpp>
 #include <Components/Persistent/ShrineCost.hpp>
 #include <Components/Persistent/WaterBonus.hpp>
-#include <Components/PlayerScore.hpp>
+#include <Components/PlayerCandlesCount.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -29,6 +29,7 @@
 #include <Components/SinkholeCell.hpp>
 #include <Components/SpawnAreaSprite.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Components/WeaponLevel.hpp>
 #include <Events/NpcCreationEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
@@ -43,7 +44,8 @@ CollisionSystem::CollisionSystem( ProceduralMaze::SharedEnttRegistry reg, sf::Re
     : BaseSystem( reg, window, sprite_factory )
 {
   // register the event sinks
-  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&CollisionSystem::on_player_action>( this );
+  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&CollisionSystem::on_player_action>(
+      this );
   SPDLOG_DEBUG( "CollisionSystem initialized" );
 }
 
@@ -110,8 +112,8 @@ void CollisionSystem::check_player_to_npc_collision()
         auto &npc_push_back = get_persistent_component<Cmp::Persistent::NpcPushBack>();
 
         // Find a valid pushback position by checking all 8 directions
-        sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp.position, npc_pos_cmp.position, dir_cmp,
-                                                                       npc_push_back.get_value() );
+        sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp.position, npc_pos_cmp.position,
+                                                                       dir_cmp, npc_push_back.get_value() );
 
         // Update player position if we found a valid pushback position
         if ( target_push_back_pos != pc_pos_cmp.position ) { pc_pos_cmp.position = target_push_back_pos; }
@@ -196,10 +198,12 @@ void CollisionSystem::check_loot_collision()
   std::vector<LootEffect> loot_effects;
 
   // First pass: detect collisions and gather effects to apply
-  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::WeaponLevel>();
+  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::WeaponLevel,
+                                           Cmp::PlayerKeysCount, Cmp::PlayerCandlesCount>();
   auto loot_collision_view = m_reg->view<Cmp::Loot, Cmp::Position>();
 
-  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_weapon_level] : player_collision_view.each() )
+  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_weapon_level, pc_keys_count, pc_candles_count] :
+        player_collision_view.each() )
   {
     for ( auto [loot_entt, loot_cmp, loot_pos_cmp] : loot_collision_view.each() )
     {
@@ -226,18 +230,25 @@ void CollisionSystem::check_loot_collision()
     {
       auto &health_bonus = get_persistent_component<Cmp::Persistent::HealthBonus>();
       pc_cmp.health = std::min( pc_cmp.health + health_bonus.get_value(), 100 );
+      m_get_loot_sound_player.play();
     }
     else if ( effect.type == "EXTRA_BOMBS" )
     {
       auto &bomb_bonus = get_persistent_component<Cmp::Persistent::BombBonus>();
-      if ( pc_cmp.bomb_inventory >= 0 ) pc_cmp.bomb_inventory += bomb_bonus.get_value();
+      if ( pc_cmp.bomb_inventory >= 0 )
+      {
+        pc_cmp.bomb_inventory += bomb_bonus.get_value();
+        m_get_loot_sound_player.play();
+      }
     }
     else if ( effect.type == "LOWER_WATER" )
     {
       auto &water_bonus = get_persistent_component<Cmp::Persistent::WaterBonus>();
       for ( auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each() )
       {
-        water_level.m_level = std::min( water_level.m_level + water_bonus.get_value(), static_cast<float>( kDisplaySize.y ) );
+        water_level.m_level = std::min( water_level.m_level + water_bonus.get_value(),
+                                        static_cast<float>( kDisplaySize.y ) );
+        m_get_loot_sound_player.play();
       }
     }
 
@@ -247,6 +258,24 @@ void CollisionSystem::check_loot_collision()
     {
       // increase weapon level by 50, up to max level 100
       weapon_level_cmp.m_level = std::clamp( weapon_level_cmp.m_level + 50.f, 0.f, 100.f );
+      m_get_loot_sound_player.play();
+    }
+    else if ( effect.type == "CANDLE_DROP" )
+    {
+      auto &pc_candles_count = m_reg->get<Cmp::PlayerCandlesCount>( effect.player_entity );
+      pc_candles_count.increment_count( 1 );
+      m_get_loot_sound_player.play();
+    }
+    else if ( effect.type == "KEY_DROP" )
+    {
+      auto &pc_keys_count = m_reg->get<Cmp::PlayerKeysCount>( effect.player_entity );
+      pc_keys_count.increment_count( 1 );
+      m_get_key_sound_player.play();
+    }
+    else
+    {
+      SPDLOG_WARN( "Unknown loot type encountered during pickup: {}", effect.type );
+      continue;
     }
 
     // Remove the loot component
@@ -259,10 +288,11 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
 {
   if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
 
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerScore>();
+  auto player_view = m_reg
+                         ->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount>();
   auto large_obstacle_view = m_reg->view<Cmp::LargeObstacle>();
 
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_score_cmp] : player_view.each() )
+  for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_candles_cmp, pc_keys_cmp] : player_view.each() )
   {
     // slightly larger hitbox for large obstacles because we want to trigger
     // collision when we get CLOSE to them
@@ -270,8 +300,8 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
 
     for ( auto [lo_entity, lo_cmp] : large_obstacle_view.each() )
     {
-      // only spawn one npc per large obstacle but give proportionate score for the grave size
-      uint8_t grave_activated_score = 0;
+      // only spawn one npc per large obstacle but give proportionate count for the grave size
+      uint8_t activated_grave_count = 0;
 
       if ( player_hitbox.findIntersection( lo_cmp ) )
       {
@@ -288,9 +318,9 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
           auto anim_sprite_cmp = m_reg->try_get<Cmp::SpriteAnimation>( shrine_entity );
           if ( anim_sprite_cmp ) continue;
 
-          // player doesn't have enough score? - skip
+          // player doesn't have enough candles? - skip
           auto &shrine_cost = get_persistent_component<Cmp::Persistent::ShrineCost>();
-          if ( pc_score_cmp.get_score() < shrine_cost.get_value() ) continue;
+          if ( pc_candles_cmp.get_count() < shrine_cost.get_value() ) continue;
 
           // Convert pixel size to grid size, then calculate threshold
           auto lo_grid_size = lo_cmp.size.componentWiseDiv( kGridSquareSizePixelsF );
@@ -301,12 +331,28 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
             // activate the next shrine sprite
             m_reg->emplace_or_replace<Cmp::SpriteAnimation>( shrine_entity, 0, 1 );
             lo_cmp.increment_activated_sprite_count();
-            pc_score_cmp.decrement_score( shrine_cost.get_value() );
+            pc_candles_cmp.decrement_count( shrine_cost.get_value() );
 
             // Did we just fully activate the shrine?
             if ( lo_cmp.get_activated_sprite_count() >= lo_count_threshold )
             {
+              // activate the altar
               lo_cmp.set_powers_active();
+
+              // create the key loot drop at a disabled obstacle that is nearest to the large obstacle (altar)
+              auto lo_cmp_bounds = Cmp::RectBounds( lo_cmp.position, lo_cmp.size, 1.5f );
+              for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : m_reg->view<Cmp::Obstacle, Cmp::Position>().each() )
+              {
+                if ( not lo_cmp_bounds.findIntersection( obst_pos_cmp ) ) continue;
+                if ( obst_cmp.m_enabled ) continue; // only drop the loot at disabled (traversable) obstacle
+
+                auto entity = m_reg->create();
+                m_reg->emplace_or_replace<Cmp::Loot>( entity, "KEY_DROP", 0 );
+                m_reg->emplace_or_replace<Cmp::Position>( entity, obst_pos_cmp );
+                m_drop_loot_sound_player.play();
+                break;
+              }
+
               // unlock the door (internally checks if we activated all of the shrines)
               getEventDispatcher().trigger( Events::UnlockDoorEvent() );
             }
@@ -336,13 +382,13 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
             grave_cmp.setTileIndex( current_index += 2 * grave_ms.get_grid_size().width );
 
             lo_cmp.increment_activated_sprite_count();
-            grave_activated_score += 1;
+            activated_grave_count += 1;
           }
         }
       }
 
-      // spawn npc event after processing all possible shrine/grave activations
-      if ( grave_activated_score > 0 )
+      // choose a random consequence for activating graves: spawn npc, drop bomb, give candles
+      if ( activated_grave_count > 0 )
       {
         auto grave_activation_rng = Cmp::RandomInt( 1, 3 );
         auto consequence = grave_activation_rng.gen();
@@ -355,11 +401,26 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
           case 2:
             SPDLOG_INFO( "Dropping bomb from grave activation." );
             pc_cmp.bomb_inventory += 1;
-            getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
+            getEventDispatcher().trigger(
+                Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
             break;
           case 3:
-            SPDLOG_INFO( "Increasing player score from grave activation." );
-            pc_score_cmp.increment_score( grave_activated_score );
+            SPDLOG_INFO( "Dropping candle from grave activation." );
+
+            // create the candle loot drop at a disabled obstacle that is nearest to the large obstacle (altar)
+            auto lo_cmp_bounds = Cmp::RectBounds( lo_cmp.position, lo_cmp.size, 1.5f );
+            for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : m_reg->view<Cmp::Obstacle, Cmp::Position>().each() )
+            {
+              if ( not lo_cmp_bounds.findIntersection( obst_pos_cmp ) ) continue;
+              if ( obst_cmp.m_enabled ) continue; // only drop the loot at disabled (traversable) obstacle
+
+              auto entity = m_reg->create();
+              m_reg->emplace_or_replace<Cmp::Loot>( entity, "CANDLE_DROP", 0 );
+              m_reg->emplace_or_replace<Cmp::Position>( entity, obst_pos_cmp );
+
+              m_drop_loot_sound_player.play();
+              break;
+            }
             break;
         }
       }

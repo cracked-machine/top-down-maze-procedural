@@ -1,4 +1,5 @@
 #include <Components/Persistent/EffectsVolume.hpp>
+#include <Components/PlayerKeysCount.hpp>
 #include <Components/WeaponLevel.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -12,7 +13,7 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Persistent/PlayerSubmergedLerpSpeedModifier.hpp>
 #include <Components/PlayableCharacter.hpp>
-#include <Components/PlayerScore.hpp>
+#include <Components/PlayerCandlesCount.hpp>
 #include <Components/Position.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Events/AnimDirectionChangeEvent.hpp>
@@ -52,7 +53,8 @@ void PlayerSystem::add_player_entity()
   m_reg->emplace<Cmp::PCDetectionBounds>( entity, start_pos, kGridSquareSizePixelsF, pc_detection_scale.get_value() );
 
   m_reg->emplace<Cmp::SpriteAnimation>( entity );
-  m_reg->emplace<Cmp::PlayerScore>( entity, 0 );
+  m_reg->emplace<Cmp::PlayerCandlesCount>( entity, 0 );
+  m_reg->emplace<Cmp::PlayerKeysCount>( entity, 0 );
   m_reg->emplace<Cmp::WeaponLevel>( entity, 100.f );
 }
 
