@@ -213,9 +213,9 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
       overlay_sys.render_ui_background_overlay( { 20.f, 20.f }, { 300.f, 250.f } );
       overlay_sys.render_health_overlay( player_health, { 40.f, 40.f }, { 200.f, 20.f } );
       overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, 80.f }, { 200.f, 20.f } );
-      overlay_sys.render_player_score_overlay( player_score, { 40.f, 120.f } );
-      overlay_sys.render_bomb_overlay( bomb_inventory, { 40.f, 160.f } );
-      overlay_sys.render_bomb_radius_overlay( blast_radius, { 40.f, 200.f } );
+      overlay_sys.render_bomb_overlay( bomb_inventory, blast_radius, { 40.f, 120.f } );
+      overlay_sys.render_player_candles_overlay( player_score, { 40.f, 160.f } );
+      overlay_sys.render_key_count_overlay( 0, { 40.f, 200.f } );
       if ( m_show_debug_stats )
       {
         overlay_sys.render_player_position_overlay( player_position.position, { 40.f, 260.f } );

@@ -12,7 +12,8 @@ namespace ProceduralMaze::Sys {
 class RenderOverlaySystem : public RenderSystem
 {
 public:
-  RenderOverlaySystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory )
+  RenderOverlaySystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+                       Sprites::SpriteFactory &sprite_factory )
       : RenderSystem( reg, window, sprite_factory )
   {
     SPDLOG_DEBUG( "RenderOverlaySystem initialized" );
@@ -20,12 +21,11 @@ public:
 
   void render_entt_distance_set_overlay( sf::Vector2f pos );
   void render_ui_background_overlay( sf::Vector2f pos, sf::Vector2f size );
-
   void render_health_overlay( float health_value, sf::Vector2f pos, sf::Vector2f size );
   void render_weapons_meter_overlay( float weapons_level, sf::Vector2f pos, sf::Vector2f size );
-  void render_player_score_overlay( unsigned int player_score, sf::Vector2f pos );
-  void render_bomb_overlay( int bomb_count, sf::Vector2f pos );
-  void render_bomb_radius_overlay( int radius_value, sf::Vector2f pos );
+  void render_bomb_overlay( int bomb_count, int radius_value, sf::Vector2f pos );
+  void render_player_candles_overlay( unsigned int player_score, sf::Vector2f pos );
+  void render_key_count_overlay( unsigned int key_count, sf::Vector2f pos );
   void render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size );
 
   void render_player_position_overlay( sf::Vector2f player_position, sf::Vector2f pos );

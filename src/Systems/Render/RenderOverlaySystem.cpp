@@ -63,7 +63,7 @@ void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2
 
   auto sprite_metatype = "ICONS";
   auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
-  auto sprite_index = 1; // health icon
+  auto sprite_index = 0; // health icon
   auto scale = sf::Vector2f( 2.f, 2.f );
   RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
 
@@ -87,7 +87,7 @@ void RenderOverlaySystem::render_weapons_meter_overlay( float new_weapon_level, 
 {
   auto sprite_metatype = "ICONS";
   auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
-  auto sprite_index = 0; // hammer icon
+  auto sprite_index = 1; // hammer icon
   auto scale = sf::Vector2f( 2.f, 2.f );
   RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
 
@@ -107,26 +107,7 @@ void RenderOverlaySystem::render_weapons_meter_overlay( float new_weapon_level, 
   m_window.draw( weaponsbar_border );
 }
 
-void RenderOverlaySystem::render_player_score_overlay( unsigned int player_score, sf::Vector2f pos )
-{
-  auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
-  auto sprite_index = 3; // candle icon
-  auto scale = sf::Vector2f( 2.f, 2.f );
-  RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
-
-  // text
-  sf::Vector2f score_meter_offset{ 50.f, -2.f };
-  sf::Text player_score_text( m_font, "", 30 );
-  player_score_text.setString( "x " + std::to_string( player_score ) );
-  player_score_text.setPosition( pos + score_meter_offset );
-  player_score_text.setFillColor( sf::Color::White );
-  player_score_text.setOutlineColor( sf::Color::Black );
-  player_score_text.setOutlineThickness( 2.f );
-  m_window.draw( player_score_text );
-}
-
-void RenderOverlaySystem::render_bomb_overlay( int bomb_count, sf::Vector2f pos )
+void RenderOverlaySystem::render_bomb_overlay( int bomb_count, int radius_value, sf::Vector2f pos )
 {
 
   auto sprite_metatype = "ICONS";
@@ -135,36 +116,56 @@ void RenderOverlaySystem::render_bomb_overlay( int bomb_count, sf::Vector2f pos 
   auto scale = sf::Vector2f( 2.f, 2.f );
   RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
 
-  // text
+  // text - slightly offset the y-axis to center with icon
+  sf::Vector2f bomb_meter_offset{ 50.f, -2.f };
   sf::Text bomb_count_text( m_font, "", 30 );
   if ( bomb_count < 0 )
     bomb_count_text.setString( " INFINITE " );
   else
-    bomb_count_text.setString( " x " + std::to_string( bomb_count ) );
-  bomb_count_text.setPosition( pos + sf::Vector2f( 40.f, -4.f ) );
+    bomb_count_text.setString( " = " + std::to_string( bomb_count ) + " x " + std::to_string( radius_value ) );
+  bomb_count_text.setPosition( pos + bomb_meter_offset );
   bomb_count_text.setFillColor( sf::Color::White );
   bomb_count_text.setOutlineColor( sf::Color::Black );
   bomb_count_text.setOutlineThickness( 2.f );
   m_window.draw( bomb_count_text );
 }
 
-void RenderOverlaySystem::render_bomb_radius_overlay( int radius_value, sf::Vector2f pos )
+void RenderOverlaySystem::render_player_candles_overlay( unsigned int player_score, sf::Vector2f pos )
 {
-  // text
-  bomb_radius_text.setPosition( pos );
-  bomb_radius_text.setFillColor( sf::Color::White );
-  bomb_radius_text.setOutlineColor( sf::Color::Black );
-  bomb_radius_text.setOutlineThickness( 2.f );
-  m_window.draw( bomb_radius_text );
+  auto sprite_metatype = "ICONS";
+  auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
+  auto sprite_index = 3; // candle icon
+  auto scale = sf::Vector2f( 2.f, 2.f );
+  RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
 
-  // text
-  sf::Text bomb_radius_value_text( m_font, "", 30 );
-  bomb_radius_value_text.setString( std::to_string( radius_value ) );
-  bomb_radius_value_text.setPosition( pos + sf::Vector2f( 180.f, 0.f ) );
-  bomb_radius_value_text.setFillColor( sf::Color::White );
-  bomb_radius_value_text.setOutlineColor( sf::Color::Black );
-  bomb_radius_value_text.setOutlineThickness( 2.f );
-  m_window.draw( bomb_radius_value_text );
+  // text - slightly offset the y-axis to center with icon
+  sf::Vector2f score_meter_offset{ 50.f, -2.f };
+  sf::Text player_score_text( m_font, "", 30 );
+  player_score_text.setString( " = " + std::to_string( player_score ) );
+  player_score_text.setPosition( pos + score_meter_offset );
+  player_score_text.setFillColor( sf::Color::White );
+  player_score_text.setOutlineColor( sf::Color::Black );
+  player_score_text.setOutlineThickness( 2.f );
+  m_window.draw( player_score_text );
+}
+
+void RenderOverlaySystem::render_key_count_overlay( unsigned int key_count, sf::Vector2f pos )
+{
+  auto sprite_metatype = "ICONS";
+  auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
+  auto sprite_index = 4; // key icon
+  auto scale = sf::Vector2f( 2.f, 2.f );
+  RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
+
+  // text - slightly offset the y-axis to center with icon
+  sf::Vector2f score_meter_offset{ 50.f, -2.f };
+  sf::Text player_score_text( m_font, "", 30 );
+  player_score_text.setString( " = " + std::to_string( key_count ) );
+  player_score_text.setPosition( pos + score_meter_offset );
+  player_score_text.setFillColor( sf::Color::White );
+  player_score_text.setOutlineColor( sf::Color::Black );
+  player_score_text.setOutlineThickness( 2.f );
+  m_window.draw( player_score_text );
 }
 
 void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size )
