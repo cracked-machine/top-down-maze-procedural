@@ -122,7 +122,7 @@ void RenderOverlaySystem::render_bomb_overlay( int bomb_count, int radius_value,
   if ( bomb_count < 0 )
     bomb_count_text.setString( " INFINITE " );
   else
-    bomb_count_text.setString( " = " + std::to_string( bomb_count ) + " x " + std::to_string( radius_value ) );
+    bomb_count_text.setString( " =   " + std::to_string( bomb_count ) + " x " + std::to_string( radius_value ) );
   bomb_count_text.setPosition( pos + bomb_meter_offset );
   bomb_count_text.setFillColor( sf::Color::White );
   bomb_count_text.setOutlineColor( sf::Color::Black );
@@ -141,7 +141,7 @@ void RenderOverlaySystem::render_player_candles_overlay( unsigned int player_sco
   // text - slightly offset the y-axis to center with icon
   sf::Vector2f score_meter_offset{ 50.f, -2.f };
   sf::Text player_score_text( m_font, "", 30 );
-  player_score_text.setString( " = " + std::to_string( player_score ) );
+  player_score_text.setString( " =   " + std::to_string( player_score ) );
   player_score_text.setPosition( pos + score_meter_offset );
   player_score_text.setFillColor( sf::Color::White );
   player_score_text.setOutlineColor( sf::Color::Black );
@@ -160,7 +160,7 @@ void RenderOverlaySystem::render_key_count_overlay( unsigned int key_count, sf::
   // text - slightly offset the y-axis to center with icon
   sf::Vector2f score_meter_offset{ 50.f, -2.f };
   sf::Text player_score_text( m_font, "", 30 );
-  player_score_text.setString( " = " + std::to_string( key_count ) );
+  player_score_text.setString( " =   " + std::to_string( key_count ) );
   player_score_text.setPosition( pos + score_meter_offset );
   player_score_text.setFillColor( sf::Color::White );
   player_score_text.setOutlineColor( sf::Color::Black );
