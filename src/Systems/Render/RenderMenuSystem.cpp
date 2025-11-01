@@ -1,3 +1,4 @@
+#include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <SFML/System/Angle.hpp>
 
@@ -50,11 +51,14 @@ void RenderMenuSystem::render_title()
   // main render begin
   m_window.clear();
   {
+    // shaders
     m_title_screen_shader->set_position( { 0, 0 } );
     const auto mouse_pos = sf::Vector2f( sf::Mouse::getPosition( m_window ) )
                                .componentWiseDiv( sf::Vector2f( m_window.getSize() ) );
     m_title_screen_shader->update( mouse_pos );
     m_window.draw( *m_title_screen_shader );
+
+    // text
     sf::Color txt_color{ 64, 96, 184 };
     sf::Color txt_outline_color{ 48, 48, 48 };
 
@@ -241,6 +245,9 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
 
   auto &music_volume = get_persistent_component<Cmp::Persistent::MusicVolume>();
   ImGui::SliderFloat( "Music Volume", &music_volume.get_value(), 0.f, 100.f, "%.1f" );
+
+  auto &effects_volume = get_persistent_component<Cmp::Persistent::EffectsVolume>();
+  ImGui::SliderFloat( "Effects Volume", &effects_volume.get_value(), 0.f, 100.f, "%.1f" );
 
   auto &max_shrines = get_persistent_component<Cmp::Persistent::MaxShrines>();
   ImGui::SliderInt( "Max Shrines", reinterpret_cast<int *>( &max_shrines.get_value() ), 1, 10 );

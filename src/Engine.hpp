@@ -93,12 +93,14 @@ private:
   // add game state component to the registry
   void add_game_state_entity();
 
-  template <typename Callable> void loading_screen( Callable &&callable, [[maybe_unused]] const sf::Texture &loading_texture )
+  template <typename Callable>
+  void loading_screen( Callable &&callable, [[maybe_unused]] const sf::Texture &loading_texture )
   {
     Cmp::Font font( "res/fonts/tuffy.ttf" );
     sf::Text loading_text( font, "Loading", 48 );
     loading_text.setFillColor( sf::Color::White );
-    loading_text.setPosition( { Sys::BaseSystem::kDisplaySize.x / 2.f - 50.f, Sys::BaseSystem::kDisplaySize.y / 2.f + 100.f } );
+    loading_text.setPosition( { Sys::BaseSystem::kDisplaySize.x / 2.f - 50.f,
+                                Sys::BaseSystem::kDisplaySize.y / 2.f + 100.f } );
 
     sf::Clock clock;
     const float text_update_interval = 1.f; // 1 second between dot updates
@@ -142,11 +144,12 @@ private:
   sf::Texture m_splash_texture{ "res/textures/splash.png" };
 
   // Create the ECS registry
-  ProceduralMaze::SharedEnttRegistry m_reg{ std::make_shared<entt::basic_registry<entt::entity>>() };
+  ProceduralMaze::SharedEnttRegistry m_reg{
+      std::make_shared<entt::basic_registry<entt::entity>>() };
 
   // Create the opengl window
-  std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( Sys::BaseSystem::kDisplaySize ),
-                                                                                   "ProceduralMaze", sf::State::Fullscreen );
+  std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>(
+      sf::VideoMode( Sys::BaseSystem::kDisplaySize ), "ProceduralMaze", sf::State::Fullscreen );
 
   // create MultiSprite resources
   std::unique_ptr<Sprites::SpriteFactory> m_sprite_factory;
@@ -172,8 +175,7 @@ private:
   std::unique_ptr<Sys::WormholeSystem> m_wormhole_sys;
   std::unique_ptr<Sys::ExitSystem> m_exit_sys;
   std::unique_ptr<Sys::FootstepSystem> m_footstep_sys;
-  std::unique_ptr<Sys::MusicSystem> m_underwater_sounds_sys;
-  std::unique_ptr<Sys::MusicSystem> m_abovewater_sounds_sys;
+
   std::filesystem::path m_title_music_path = "res/audio/EerieScifi.mp3";
   std::filesystem::path m_game_music_path = "res/audio/SadWindyOrgan.mp3";
 

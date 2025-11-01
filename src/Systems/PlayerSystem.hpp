@@ -1,6 +1,9 @@
 #ifndef __CMP_PLAYERSYSTEM_HPP__
 #define __CMP_PLAYERSYSTEM_HPP__
 
+#include <Components/Persistent/EffectsVolume.hpp>
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
 #include <entt/entity/registry.hpp>
 
 #include <Components/Direction.hpp>
@@ -17,7 +20,8 @@ namespace ProceduralMaze::Sys {
 class PlayerSystem : public BaseSystem
 {
 public:
-  PlayerSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
+  PlayerSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window,
+                Sprites::SpriteFactory &sprite_factory );
 
   /**
    * @brief Adds a new player entity to the game world.
@@ -53,6 +57,19 @@ public:
    * @param deltaTime The time elapsed since the last frame update
    */
   void update_player_animation( sf::Time deltaTime );
+
+  void update_volume()
+  {
+    // get a copy of the component and assigns its value to the members
+    auto effects_volume = get_persistent_component<Cmp::Persistent::EffectsVolume>();
+    m_footsteps_sound_player.setVolume( effects_volume.get_value() );
+  }
+  void play_footsteps_sound();
+  void stop_footsteps_sound();
+
+private:
+  sf::SoundBuffer m_footsteps_sound_buffer{ "res/audio/footsteps.wav" };
+  sf::Sound m_footsteps_sound_player{ m_footsteps_sound_buffer };
 };
 
 } // namespace ProceduralMaze::Sys

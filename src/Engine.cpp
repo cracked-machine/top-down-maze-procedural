@@ -1,4 +1,5 @@
 #include <Components/CorruptionCell.hpp>
+#include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/MusicVolume.hpp>
 #include <Components/Persistent/ObstaclePushBack.hpp>
 #include <Components/SinkholeCell.hpp>
@@ -60,9 +61,18 @@ bool Engine::run()
 
       case Cmp::Persistent::GameState::State::MENU: {
         m_render_menu_sys->render_title();
+
+        // update fx volumes with persistent settings
+        m_player_sys->update_volume();
+        m_bomb_sys->update_volume();
+        m_digging_sys->update_volume();
+        m_exit_sys->update_volume();
+
+        // update music volumes with persistent settings
         m_title_music_sys->update_volume();
         m_game_music_sys->update_volume();
         m_title_music_sys->update_music_playback( Sys::MusicSystem::Function::PLAY );
+
         m_event_handler->menu_state_handler();
         break;
       } // case MENU end
@@ -86,8 +96,7 @@ bool Engine::run()
 
       case Cmp::Persistent::GameState::State::UNLOADING: {
         m_game_music_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
-        m_abovewater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
-        m_underwater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
+        m_player_sys->stop_footsteps_sound();
         exit_game();
         game_state.current_state = Cmp::Persistent::GameState::State::MENU;
         SPDLOG_INFO( "Unloading game...." );
@@ -98,26 +107,12 @@ bool Engine::run()
         m_title_music_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
         m_game_music_sys->update_music_playback( Sys::MusicSystem::Function::PLAY );
 
-        // check if player is underwater to start/stop underwater sounds
+        // play/stop footstep sounds depending on player movement
         auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Direction>();
-        for ( auto [_, pc, dir_cmp] : player_view.each() )
+        for ( auto [pc_entity, pc_cmp, dir_cmp] : player_view.each() )
         {
-          if ( pc.underwater )
-          {
-            m_abovewater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
-            // under water should always be playing even if not moving
-            m_underwater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::PLAY );
-          }
-          else
-          {
-            m_underwater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
-            // play footsteps only when player is moving
-            if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) )
-            {
-              m_abovewater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
-            }
-            else { m_abovewater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::PLAY ); }
-          }
+          if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) ) { m_player_sys->stop_footsteps_sound(); }
+          else { m_player_sys->play_footsteps_sound(); }
         }
 
         m_event_handler->game_state_handler();
@@ -196,8 +191,7 @@ bool Engine::run()
       } // case PAUSED end
 
       case Cmp::Persistent::GameState::State::GAMEOVER: {
-        m_abovewater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
-        m_underwater_sounds_sys->update_music_playback( Sys::MusicSystem::Function::STOP );
+        m_player_sys->stop_footsteps_sound();
         for ( auto [_, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
         {
           if ( not _pc.alive ) { m_render_menu_sys->render_defeat_screen(); }
@@ -241,6 +235,8 @@ void Engine::init_systems()
   m_event_handler = std::make_unique<Sys::EventHandler>( m_reg, *m_window, *m_sprite_factory );
   m_event_handler->add_persistent_component<Cmp::Persistent::GameState>();
   m_persistent_sys = std::make_unique<Sys::PersistentSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_persistent_sys->initializeComponentRegistry();
+  m_persistent_sys->load_state();
 
   // title music
   if ( not std::filesystem::exists( m_title_music_path ) )
@@ -275,11 +271,6 @@ void Engine::init_systems()
   m_wormhole_sys = std::make_unique<Sys::WormholeSystem>( m_reg, *m_window, *m_sprite_factory );
   m_exit_sys = std::make_unique<Sys::ExitSystem>( m_reg, *m_window, *m_sprite_factory );
   m_footstep_sys = std::make_unique<Sys::FootstepSystem>( m_reg, *m_window, *m_sprite_factory );
-  m_underwater_sounds_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, *m_sprite_factory, "res/audio/underwater.wav" );
-  m_abovewater_sounds_sys = std::make_unique<Sys::MusicSystem>( m_reg, *m_window, *m_sprite_factory, "res/audio/footsteps.mp3" );
-
-  m_persistent_sys->initializeComponentRegistry();
-  m_persistent_sys->load_state();
 
   m_render_game_sys->init_shaders();
   m_render_game_sys->init_tilemap();
@@ -301,8 +292,8 @@ void Engine::enter_game()
   m_flood_sys->add_flood_water_entity();
 
   // create initial random game area with the required sprites
-  std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>(
-      m_reg, *m_window, *m_sprite_factory );
+  std::unique_ptr<Sys::ProcGen::RandomLevelGenerator>
+      random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>( m_reg, *m_window, *m_sprite_factory );
 
   // procedurally generate the game area from the initial random layout
   Sys::ProcGen::CellAutomataSystem cellauto_parser{ m_reg, *m_window, *m_sprite_factory, std::move( random_level ) };

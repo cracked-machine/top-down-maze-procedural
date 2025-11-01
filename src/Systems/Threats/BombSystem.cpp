@@ -1,3 +1,4 @@
+#include <Components/Persistent/EffectsVolume.hpp>
 #include <spdlog/spdlog.h>
 
 #include <Components/Armed.hpp>
@@ -15,10 +16,13 @@
 
 namespace ProceduralMaze::Sys {
 
-BombSystem::BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory )
+BombSystem::BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+                        Sprites::SpriteFactory &sprite_factory )
     : BaseSystem( reg, window, sprite_factory )
 {
-  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>( this );
+  std::ignore = getEventDispatcher()
+                    .sink<Events::PlayerActionEvent>()
+                    .connect<&Sys::BombSystem::on_player_action>( this );
   SPDLOG_DEBUG( "BombSystem initialized" );
 }
 
@@ -46,11 +50,14 @@ void BombSystem::arm_occupied_location()
   auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
   for ( const auto [pc_entity, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
   {
-    if ( pc_cmp.has_active_bomb ) continue;     // skip if player already placed a bomb
-    if ( pc_cmp.bomb_inventory == 0 ) continue; // skip if player has no bombs left, -1 is infini bombs
+    if ( pc_cmp.has_active_bomb ) continue; // skip if player already placed a bomb
+    if ( pc_cmp.bomb_inventory == 0 )
+      continue; // skip if player has no bombs left, -1 is infini bombs
 
-    auto destructable_view = m_reg->view<Cmp::Destructable, Cmp::Position>( entt::exclude<typename Cmp::Armed, Cmp::ShrineSprite> );
-    for ( auto [destructable_entity, destructable_cmp, destructable_pos_cmp] : destructable_view.each() )
+    auto destructable_view = m_reg->view<Cmp::Destructable, Cmp::Position>(
+        entt::exclude<typename Cmp::Armed, Cmp::ShrineSprite> );
+    for ( auto [destructable_entity, destructable_cmp, destructable_pos_cmp] :
+          destructable_view.each() )
     {
       // make a copy and reduce/center the player hitbox to avoid arming a neighbouring location
       auto player_hitbox = sf::FloatRect( pc_pos_cmp );
@@ -65,20 +72,23 @@ void BombSystem::arm_occupied_location()
         // has the bomb spamming cooldown expired?
         if ( pc_cmp.m_bombdeploycooldowntimer.getElapsedTime() >= pc_cmp.m_bombdeploydelay )
         {
-          if ( m_fuse_sound_player.getStatus() != sf::Sound::Status::Playing ) m_fuse_sound_player.play();
+          if ( m_fuse_sound_player.getStatus() != sf::Sound::Status::Playing )
+            m_fuse_sound_player.play();
 
           place_concentric_bomb_pattern( destructable_entity, pc_cmp.blast_radius );
 
           pc_cmp.m_bombdeploycooldowntimer.restart();
           pc_cmp.has_active_bomb = true;
-          pc_cmp.bomb_inventory = ( pc_cmp.bomb_inventory > 0 ) ? pc_cmp.bomb_inventory - 1 : pc_cmp.bomb_inventory;
+          pc_cmp.bomb_inventory = ( pc_cmp.bomb_inventory > 0 ) ? pc_cmp.bomb_inventory - 1
+                                                                : pc_cmp.bomb_inventory;
         }
       }
     }
   }
 }
 
-void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, const int blast_radius )
+void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity,
+                                                const int blast_radius )
 {
   sf::Vector2i centerTile = getGridPosition( epicenter_entity ).value();
 
@@ -86,11 +96,13 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
 
   // First arm the center tile
   auto &fuse_delay = get_persistent_component<Cmp::Persistent::FuseDelay>();
-  m_reg->emplace_or_replace<Cmp::Armed>( epicenter_entity, sf::seconds( fuse_delay.get_value() ), sf::Time::Zero, true,
-                                         sf::Color::Transparent, sequence_counter++ );
+  m_reg->emplace_or_replace<Cmp::Armed>( epicenter_entity, sf::seconds( fuse_delay.get_value() ),
+                                         sf::Time::Zero, true, sf::Color::Transparent,
+                                         sequence_counter++ );
 
   // We dont detonate ReservedPositions so dont arm them in the first place
-  auto all_obstacle_view = m_reg->view<Cmp::Destructable>( entt::exclude<Cmp::ShrineSprite, Cmp::GraveSprite> );
+  auto all_obstacle_view = m_reg->view<Cmp::Destructable>(
+      entt::exclude<Cmp::ShrineSprite, Cmp::GraveSprite> );
 
   // For each layer from 1 to BLAST_RADIUS
   for ( int layer = 1; layer <= blast_radius; layer++ )
@@ -100,29 +112,34 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
     // Collect all entities in this layer with their positions
     for ( auto [destructable_entity, destructable_cmp] : all_obstacle_view.each() )
     {
-      if ( destructable_entity == epicenter_entity || m_reg->any_of<Cmp::Armed>( destructable_entity ) ) continue;
+      if ( destructable_entity == epicenter_entity ||
+           m_reg->any_of<Cmp::Armed>( destructable_entity ) )
+        continue;
 
-      sf::Vector2i grid_position = getGridPosition( destructable_entity ).value_or( sf::Vector2i{ -1, -1 } );
+      sf::Vector2i grid_position = getGridPosition( destructable_entity )
+                                       .value_or( sf::Vector2i{ -1, -1 } );
       int distance_from_center = getChebyshevDistance( grid_position, centerTile );
 
       if ( distance_from_center == layer )
       {
         if ( m_reg->any_of<Cmp::LootContainer>( destructable_entity ) )
         {
-          SPDLOG_INFO( "Arming loot container entity {}", static_cast<int>( destructable_entity ) );
+          SPDLOG_DEBUG( "Arming loot container entity {}",
+                        static_cast<int>( destructable_entity ) );
         }
         layer_entities.push_back( { destructable_entity, grid_position } );
       }
     }
-    SPDLOG_INFO( "Layer {}: Found {} entities to arm", layer, layer_entities.size() );
+    SPDLOG_DEBUG( "Layer {}: Found {} entities to arm", layer, layer_entities.size() );
 
     // Sort entities in clockwise order
-    std::sort( layer_entities.begin(), layer_entities.end(), [centerTile]( const auto &a, const auto &b ) {
-      // Calculate angles from center to points
-      float angleA = std::atan2( a.second.y - centerTile.y, a.second.x - centerTile.x );
-      float angleB = std::atan2( b.second.y - centerTile.y, b.second.x - centerTile.x );
-      return angleA < angleB;
-    } );
+    std::sort( layer_entities.begin(), layer_entities.end(),
+               [centerTile]( const auto &a, const auto &b ) {
+                 // Calculate angles from center to points
+                 float angleA = std::atan2( a.second.y - centerTile.y, a.second.x - centerTile.x );
+                 float angleB = std::atan2( b.second.y - centerTile.y, b.second.x - centerTile.x );
+                 return angleA < angleB;
+               } );
 
     // Arm each entity in the layer in clockwise order
     for ( const auto &[entity, pos] : layer_entities )
@@ -131,9 +148,12 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
       auto &fuse_delay = get_persistent_component<Cmp::Persistent::FuseDelay>();
       auto &armed_on_delay = get_persistent_component<Cmp::Persistent::ArmedOnDelay>();
       auto &armed_off_delay = get_persistent_component<Cmp::Persistent::ArmedOffDelay>();
-      auto new_fuse_delay = sf::seconds( fuse_delay.get_value() + ( sequence_counter * armed_on_delay.get_value() ) );
-      auto new_warning_delay = sf::seconds( armed_off_delay.get_value() + ( sequence_counter * armed_off_delay.get_value() ) );
-      m_reg->emplace_or_replace<Cmp::Armed>( entity, new_fuse_delay, new_warning_delay, false, color, sequence_counter );
+      auto new_fuse_delay = sf::seconds( fuse_delay.get_value() +
+                                         ( sequence_counter * armed_on_delay.get_value() ) );
+      auto new_warning_delay = sf::seconds( armed_off_delay.get_value() +
+                                            ( sequence_counter * armed_off_delay.get_value() ) );
+      m_reg->emplace_or_replace<Cmp::Armed>( entity, new_fuse_delay, new_warning_delay, false,
+                                             color, sequence_counter );
       sequence_counter++;
     }
   }
@@ -160,20 +180,30 @@ void BombSystem::update()
     if ( lootcontainer_cmp )
     {
       // the loot container is now destroyed by the bomb, replace with a random loot component
-      auto [obstacle_type, random_obstacle_texture_index] = m_sprite_factory.get_random_type_and_texture_index(
-          std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "WEAPON_BOOST" } );
+      auto [obstacle_type,
+            random_obstacle_texture_index] = m_sprite_factory
+                                                 .get_random_type_and_texture_index(
+                                                     std::vector<std::string>{
+                                                         "EXTRA_HEALTH", "EXTRA_BOMBS",
+                                                         "INFINI_BOMBS", "CHAIN_BOMBS",
+                                                         "WEAPON_BOOST" } );
       m_reg->remove<Cmp::LootContainer>( armed_entt );
       m_reg->remove<Cmp::ReservedPosition>( armed_entt );
-      m_reg->emplace_or_replace<Cmp::Loot>( armed_entt, obstacle_type, random_obstacle_texture_index );
+      m_reg->emplace_or_replace<Cmp::Loot>( armed_entt, obstacle_type,
+                                            random_obstacle_texture_index );
     }
 
     // detonate npc containers
     auto npc_container_cmp = m_reg->try_get<Cmp::NpcContainer>( armed_entt );
     if ( npc_container_cmp )
     {
-      // assuming we could get close enough without the NPC spawning, the NPC container is now destroyed by the bomb
-      auto [npc_type, random_npc_texture_index] = m_sprite_factory.get_random_type_and_texture_index(
-          std::vector<std::string>{ "NPC_TYPE_1", "NPC_TYPE_2", "NPC_TYPE_3" } );
+      // assuming we could get close enough without the NPC spawning, the NPC container is now
+      // destroyed by the bomb
+      auto [npc_type,
+            random_npc_texture_index] = m_sprite_factory
+                                            .get_random_type_and_texture_index(
+                                                std::vector<std::string>{
+                                                    "NPC_TYPE_1", "NPC_TYPE_2", "NPC_TYPE_3" } );
       m_reg->remove<Cmp::NpcContainer>( armed_entt );
     }
 
@@ -200,8 +230,8 @@ void BombSystem::update()
         m_reg->emplace_or_replace<Cmp::SpriteAnimation>( npc_entt );
         auto &npc_death_anim = m_reg->get<Cmp::SpriteAnimation>( npc_entt );
         npc_death_anim.m_current_frame = 0;
-        SPDLOG_INFO( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ), npc_pos_cmp.position.x,
-                     npc_pos_cmp.position.y );
+        SPDLOG_INFO( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ),
+                     npc_pos_cmp.position.x, npc_pos_cmp.position.y );
         getEventDispatcher().trigger( Events::NpcDeathEvent( npc_entt ) );
       }
     }
@@ -210,7 +240,8 @@ void BombSystem::update()
     m_reg->remove<Cmp::Armed>( armed_entt );
 
     if ( m_fuse_sound_player.getStatus() == sf::Sound::Status::Playing ) m_fuse_sound_player.stop();
-    if ( m_detonate_sound_player.getStatus() != sf::Sound::Status::Playing ) m_detonate_sound_player.play();
+    if ( m_detonate_sound_player.getStatus() != sf::Sound::Status::Playing )
+      m_detonate_sound_player.play();
   }
 }
 

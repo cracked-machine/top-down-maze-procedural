@@ -20,7 +20,8 @@ DiggingSystem::DiggingSystem( ProceduralMaze::SharedEnttRegistry reg, sf::Render
     : BaseSystem( reg, window, sprite_factory )
 {
   // register the event handler
-  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&DiggingSystem::on_player_action>( this );
+  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&DiggingSystem::on_player_action>(
+      this );
   SPDLOG_DEBUG( "DiggingSystem initialized" );
 }
 
@@ -79,7 +80,8 @@ void DiggingSystem::check_player_dig_obstacle_collision()
   }
 
   // Iterate through all entities with Position and Obstacle components
-  auto position_view = m_reg->view<Cmp::Position, Cmp::Obstacle>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
+  auto position_view = m_reg->view<Cmp::Position, Cmp::Obstacle>(
+      entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
   for ( auto [entity, pos_cmp, obst_cmp] : position_view.each() )
   {
     // skip positions with non diggable obstacles
@@ -106,7 +108,8 @@ void DiggingSystem::check_player_dig_obstacle_collision()
                                                          Cmp::RectBounds::ScaleCardinality::HORIZONTAL );
         auto player_vertical_bounds = Cmp::RectBounds( pc_pos_cmp.position, half_sprite_size, 1.5f,
                                                        Cmp::RectBounds::ScaleCardinality::VERTICAL );
-        if ( player_horizontal_bounds.findIntersection( pos_cmp ) || player_vertical_bounds.findIntersection( pos_cmp ) )
+        if ( player_horizontal_bounds.findIntersection( pos_cmp ) ||
+             player_vertical_bounds.findIntersection( pos_cmp ) )
         {
           player_nearby = true;
           break;
@@ -138,7 +141,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       if ( obst_cmp.m_integrity <= 0.0f )
       {
         // select the final smash sound
-        m_dig_sound.setBuffer( m_pickaxe_final_sound.buffer );
+        m_dig_sound_player.setBuffer( m_pickaxe_final_sound.buffer );
         obst_cmp.m_enabled = false;
         SPDLOG_DEBUG( "Digged through obstacle at position ({}, {})!", pos_cmp.x, pos_cmp.y );
       }
@@ -148,12 +151,12 @@ void DiggingSystem::check_player_dig_obstacle_collision()
         Cmp::RandomInt random_picker( 0, m_pickaxe_sounds.size() - 1 );
         auto selected_pickaxe_sound_index = random_picker.gen();
         SPDLOG_DEBUG( "Random pickaxe sound index: {}", selected_pickaxe_sound_index );
-        m_dig_sound.setBuffer( m_pickaxe_sounds[selected_pickaxe_sound_index].buffer );
+        m_dig_sound_player.setBuffer( m_pickaxe_sounds[selected_pickaxe_sound_index].buffer );
         SPDLOG_DEBUG( "Playing pickaxe sound: {}", m_pickaxe_sounds[selected_pickaxe_sound_index].path.string() );
         SPDLOG_DEBUG( "Digged obstacle at position ({}, {}), remaining integrity: {}!", pos_cmp.x, pos_cmp.y,
                       obst_cmp.m_integrity );
       }
-      m_dig_sound.play();
+      m_dig_sound_player.play();
     }
   }
 }

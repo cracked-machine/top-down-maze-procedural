@@ -15,7 +15,8 @@
 
 namespace ProceduralMaze::Sys {
 
-ExitSystem::ExitSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory )
+ExitSystem::ExitSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+                        Sprites::SpriteFactory &sprite_factory )
     : BaseSystem( reg, window, sprite_factory )
 {
   // register the event sinks
@@ -51,7 +52,8 @@ void ExitSystem::unlock_exit()
   auto max_num_shrines = get_persistent_component<Cmp::Persistent::MaxShrines>();
   if ( active_shrine_count < max_num_shrines.get_value() )
   {
-    SPDLOG_DEBUG( "Not enough shrines activated to unlock exit ({} / {})", active_shrine_count, max_num_shrines.get_value() );
+    SPDLOG_DEBUG( "Not enough shrines activated to unlock exit ({} / {})", active_shrine_count,
+                  max_num_shrines.get_value() );
     return;
   }
 
@@ -61,7 +63,7 @@ void ExitSystem::unlock_exit()
   {
     exit_cmp.m_locked = false;
     door_cmp.m_tile_index = 1; // open door tile
-    exit_unlock_sound.play();
+    exit_unlock_sound_player.play();
   }
 }
 

@@ -1,3 +1,4 @@
+#include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/WeaponLevel.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -80,9 +81,12 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
       if ( is_valid_move( new_pos ) || skip_collision_check )
       {
         auto &player_lerp_speed = get_persistent_component<Cmp::Persistent::PlayerLerpSpeed>();
-        auto &diagonal_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
-        auto &shortcut_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
-        auto &submerged_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
+        auto &
+            diagonal_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
+        auto &
+            shortcut_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
+        auto &submerged_lerp_speed_modifier = get_persistent_component<
+            Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
 
         float speed_modifier = 1.0f;
         if ( diagonal_between_obstacles )
@@ -139,9 +143,21 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
     }
 
     // Animation events
-    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { getEventDispatcher().trigger( Events::AnimResetFrameEvent( entity ) ); }
+    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) )
+    {
+      getEventDispatcher().trigger( Events::AnimResetFrameEvent( entity ) );
+    }
     else { getEventDispatcher().trigger( Events::AnimDirectionChangeEvent( entity ) ); }
   }
 }
+
+void PlayerSystem::play_footsteps_sound()
+{
+  // Restarting prematurely creates a stutter effect, so check first
+  if ( m_footsteps_sound_player.getStatus() == sf::Sound::Status::Playing ) return;
+  m_footsteps_sound_player.play();
+}
+
+void PlayerSystem::stop_footsteps_sound() { m_footsteps_sound_player.stop(); }
 
 } // namespace ProceduralMaze::Sys

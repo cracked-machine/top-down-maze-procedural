@@ -35,6 +35,10 @@
     "type": "float",
     "value": 0.25
   },  
+  "EffectsVolume": {
+    "type": "float",
+    "value": 20.0
+  },
   "FloodSpeed": {
     "type": "float",
     "value": 1.0

@@ -1,6 +1,7 @@
 #ifndef __COMPONENTS_BOMB_SYSTEM_HPP__
 #define __COMPONENTS_BOMB_SYSTEM_HPP__
 
+#include <Components/Persistent/EffectsVolume.hpp>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
@@ -37,7 +38,8 @@ namespace ProceduralMaze::Sys {
 class BombSystem : public BaseSystem
 {
 public:
-  BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
+  BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+              Sprites::SpriteFactory &sprite_factory );
 
   void suspend();
   void resume();
@@ -51,6 +53,14 @@ public:
   {
     SPDLOG_DEBUG( "Player Action Event received" );
     if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB ) { arm_occupied_location(); }
+  }
+
+  void update_volume()
+  {
+    // get a copy of the component and assigns its value to the members
+    auto effects_volume = get_persistent_component<Cmp::Persistent::EffectsVolume>();
+    m_fuse_sound_player.setVolume( effects_volume.get_value() );
+    m_detonate_sound_player.setVolume( effects_volume.get_value() );
   }
 
 private:
