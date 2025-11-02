@@ -339,19 +339,33 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
               // activate the altar
               lo_cmp.set_powers_active();
 
-              // create the key loot drop at a disabled obstacle that is nearest to the large obstacle (altar)
-              auto lo_cmp_bounds = Cmp::RectBounds( lo_cmp.position, lo_cmp.size, 1.5f );
-              for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : m_reg->view<Cmp::Obstacle, Cmp::Position>().each() )
-              {
-                if ( not lo_cmp_bounds.findIntersection( obst_pos_cmp ) ) continue;
-                if ( obst_cmp.m_enabled ) continue; // only drop the loot at disabled (traversable) obstacle
+              // // create the key loot drop at a disabled obstacle that is nearest to the large obstacle (altar)
+              // auto lo_cmp_bounds = Cmp::RectBounds( lo_cmp.position, lo_cmp.size, 1.5f );
+              // for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : m_reg->view<Cmp::Obstacle, Cmp::Position>().each() )
+              // {
+              //   if ( not lo_cmp_bounds.findIntersection( obst_pos_cmp ) ) continue;
+              //   if ( obst_cmp.m_enabled ) continue; // only drop the loot at disabled (traversable) obstacle
 
-                auto entity = m_reg->create();
-                m_reg->emplace_or_replace<Cmp::Loot>( entity, "KEY_DROP", 0 );
-                m_reg->emplace_or_replace<Cmp::Position>( entity, obst_pos_cmp );
-                m_drop_loot_sound_player.play();
-                break;
-              }
+              //   auto entity = m_reg->create();
+              //   m_reg->emplace_or_replace<Cmp::Loot>( entity, "KEY_DROP", 0 );
+              //   m_reg->emplace_or_replace<Cmp::Position>( entity, obst_pos_cmp );
+              //   m_drop_loot_sound_player.play();
+              //   break;
+              // }
+
+              auto lo_cmp_bounds = Cmp::RectBounds( lo_cmp.position, lo_cmp.size, 1.5f );
+              // clang-format off
+              auto obst_entity = create_loot_drop( 
+                Cmp::Loot{ "KEY_DROP", 0 },
+                sf::FloatRect{ lo_cmp_bounds.position(), 
+                lo_cmp_bounds.size() }, 
+                IncludePack<>{},
+                ExcludePack<>{} 
+              );
+              // clang-format on
+
+              if ( obst_entity != entt::null ) { m_drop_loot_sound_player.play(); }
+              break;
 
               // unlock the door (internally checks if we activated all of the shrines)
               getEventDispatcher().trigger( Events::UnlockDoorEvent() );
@@ -405,22 +419,19 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
                 Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
             break;
           case 3:
-            SPDLOG_INFO( "Dropping candle from grave activation." );
 
-            // create the candle loot drop at a disabled obstacle that is nearest to the large obstacle (altar)
             auto lo_cmp_bounds = Cmp::RectBounds( lo_cmp.position, lo_cmp.size, 1.5f );
-            for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : m_reg->view<Cmp::Obstacle, Cmp::Position>().each() )
-            {
-              if ( not lo_cmp_bounds.findIntersection( obst_pos_cmp ) ) continue;
-              if ( obst_cmp.m_enabled ) continue; // only drop the loot at disabled (traversable) obstacle
+            // clang-format off
+            auto obst_entity = create_loot_drop( 
+              Cmp::Loot{ "CANDLE_DROP", 0 },
+              sf::FloatRect{ lo_cmp_bounds.position(), 
+              lo_cmp_bounds.size() }, 
+              IncludePack<>{},
+              ExcludePack<>{} 
+            );
+            // clang-format on
 
-              auto entity = m_reg->create();
-              m_reg->emplace_or_replace<Cmp::Loot>( entity, "CANDLE_DROP", 0 );
-              m_reg->emplace_or_replace<Cmp::Position>( entity, obst_pos_cmp );
-
-              m_drop_loot_sound_player.play();
-              break;
-            }
+            if ( obst_entity != entt::null ) { m_drop_loot_sound_player.play(); }
             break;
         }
       }

@@ -6,9 +6,11 @@
 
 #include <spdlog/spdlog.h>
 
+#include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#include <Components/Loot.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Position.hpp>
 #include <Sprites/MultiSprite.hpp>
@@ -67,6 +69,7 @@ public:
   std::optional<sf::Vector2i> getGridPosition( entt::entity entity ) const
   {
     auto pos = m_reg->try_get<Cmp::Position>( entity );
+
     if ( pos )
     {
       return std::optional<sf::Vector2i>{
@@ -81,6 +84,7 @@ public:
   std::optional<sf::Vector2f> getPixelPosition( entt::entity entity ) const
   {
     auto pos = m_reg->try_get<Cmp::Position>( entity );
+
     if ( pos ) { return ( *pos ).position; }
     return std::nullopt;
   }
@@ -119,6 +123,7 @@ public:
     float grid_size = BaseSystem::kGridSquareSizePixels.x; // Assuming square grid
     sf::Vector2f snapped_pos{ std::round( position.position.x / BaseSystem::kGridSquareSizePixels.x ) * grid_size,
                               std::round( position.position.y / BaseSystem::kGridSquareSizePixels.y ) * grid_size };
+
     return sf::FloatRect( snapped_pos, position.size );
   }
 
@@ -127,6 +132,7 @@ public:
     float grid_size = BaseSystem::kGridSquareSizePixels.x; // Assuming square grid
     sf::Vector2f snapped_pos{ std::round( position.x / BaseSystem::kGridSquareSizePixels.x ) * grid_size,
                               std::round( position.y / BaseSystem::kGridSquareSizePixels.y ) * grid_size };
+
     return snapped_pos;
   }
 
@@ -213,6 +219,7 @@ public:
     auto random_view = m_reg->view<Cmp::Position, Include...>( entt::exclude<Exclude...> );
 
     auto random_view_count = std::distance( random_view.begin(), random_view.end() );
+
     SPDLOG_DEBUG( "Found {} positions in the maze.", random_view_count );
 
     // Get random index and advance iterator to that position
@@ -231,6 +238,42 @@ public:
     Cmp::Position random_position = random_view.template get<Cmp::Position>( random_entity );
 
     return { random_entity, random_position };
+  }
+
+  /**
+   * @brief Attempts to create a loot drop at a traversable obstacle within a specified search area.
+   *
+   * Iterates over obstacles in the registry that match the given inclusion and exclusion criteria.
+   * For each obstacle, checks if its position intersects with the search area and if it is disabled (traversable).
+   * If a suitable obstacle is found, creates a new entity, assigns the provided loot component to it,
+   * and places it at the obstacle's position.
+   *
+   * @tparam Include... Component types to include in the view.
+   * @tparam Exclude... Component types to exclude from the view.
+   * @param loot_cmp The loot component to be assigned to the new entity.
+   * @param search The area in which to search for a suitable obstacle.
+   * @param include_pack Pack of components to include in the view.
+   * @param exclude_pack Pack of components to exclude from the view.
+   * @return entt::entity The newly created loot entity, or entt::null if no suitable location was found.
+   */
+  template <typename... Include, typename... Exclude>
+  entt::entity create_loot_drop( Cmp::Loot &&loot_cmp, sf::FloatRect search, IncludePack<Include...>,
+                                 ExcludePack<Exclude...> )
+  {
+    auto obst_view = m_reg->view<Cmp::Obstacle, Cmp::Position, Include...>( entt::exclude<Exclude...> );
+
+    for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : obst_view.each() )
+    {
+      if ( not search.findIntersection( obst_pos_cmp ) ) continue;
+      if ( obst_cmp.m_enabled ) continue; // only drop the loot at disabled (traversable) obstacle
+
+      auto loot_entity = m_reg->create();
+      m_reg->emplace<Cmp::Loot>( loot_entity, std::move( loot_cmp ) );
+      m_reg->emplace_or_replace<Cmp::Position>( loot_entity, obst_pos_cmp );
+      return loot_entity;
+    }
+    SPDLOG_WARN( "Failed to drop {} at [{},{}].", loot_cmp.m_type, search.position.x, search.position.y );
+    return entt::null;
   }
 
 protected:
