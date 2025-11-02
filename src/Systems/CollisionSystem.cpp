@@ -1,4 +1,5 @@
 #include <Components/PlayerKeysCount.hpp>
+#include <Components/PlayerRelicCount.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Window/Window.hpp>
 
@@ -272,6 +273,12 @@ void CollisionSystem::check_loot_collision()
       pc_keys_count.increment_count( 1 );
       m_get_key_sound_player.play();
     }
+    else if ( effect.type == "RELIC_DROP" )
+    {
+      auto &pc_relic_count = m_reg->get<Cmp::PlayerRelicCount>( effect.player_entity );
+      pc_relic_count.increment_count( 1 );
+      m_get_loot_sound_player.play();
+    }
     else
     {
       SPDLOG_WARN( "Unknown loot type encountered during pickup: {}", effect.type );
@@ -339,20 +346,7 @@ void CollisionSystem::check_player_large_obstacle_collision( Events::PlayerActio
               // activate the altar
               lo_cmp.set_powers_active();
 
-              // // create the key loot drop at a disabled obstacle that is nearest to the large obstacle (altar)
-              // auto lo_cmp_bounds = Cmp::RectBounds( lo_cmp.position, lo_cmp.size, 1.5f );
-              // for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : m_reg->view<Cmp::Obstacle, Cmp::Position>().each() )
-              // {
-              //   if ( not lo_cmp_bounds.findIntersection( obst_pos_cmp ) ) continue;
-              //   if ( obst_cmp.m_enabled ) continue; // only drop the loot at disabled (traversable) obstacle
-
-              //   auto entity = m_reg->create();
-              //   m_reg->emplace_or_replace<Cmp::Loot>( entity, "KEY_DROP", 0 );
-              //   m_reg->emplace_or_replace<Cmp::Position>( entity, obst_pos_cmp );
-              //   m_drop_loot_sound_player.play();
-              //   break;
-              // }
-
+              // drop the key loot
               auto lo_cmp_bounds = Cmp::RectBounds( lo_cmp.position, lo_cmp.size, 1.5f );
               // clang-format off
               auto obst_entity = create_loot_drop( 

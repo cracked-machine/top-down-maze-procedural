@@ -1,5 +1,6 @@
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/PlayerKeysCount.hpp>
+#include <Components/PlayerRelicCount.hpp>
 #include <Components/WeaponLevel.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -55,6 +56,7 @@ void PlayerSystem::add_player_entity()
   m_reg->emplace<Cmp::SpriteAnimation>( entity );
   m_reg->emplace<Cmp::PlayerCandlesCount>( entity, 0 );
   m_reg->emplace<Cmp::PlayerKeysCount>( entity, 0 );
+  m_reg->emplace<Cmp::PlayerRelicCount>( entity, 0 );
   m_reg->emplace<Cmp::WeaponLevel>( entity, 100.f );
 }
 

@@ -8,16 +8,21 @@
 #include <Components/ShrineSprite.hpp>
 #include <Components/SpawnAreaSprite.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <SFML/Graphics/Rect.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 
 namespace ProceduralMaze::Sys {
 
-NpcSystem::NpcSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory )
+NpcSystem::NpcSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+                      Sprites::SpriteFactory &sprite_factory )
     : BaseSystem( reg, window, sprite_factory )
 {
-  std::ignore = Sys::BaseSystem::getEventDispatcher().sink<Events::NpcCreationEvent>().connect<&Sys::NpcSystem::on_npc_creation>(
-      this );
-  std::ignore = Sys::BaseSystem::getEventDispatcher().sink<Events::NpcDeathEvent>().connect<&Sys::NpcSystem::on_npc_death>( this );
+  std::ignore = Sys::BaseSystem::getEventDispatcher()
+                    .sink<Events::NpcCreationEvent>()
+                    .connect<&Sys::NpcSystem::on_npc_creation>( this );
+  std::ignore = Sys::BaseSystem::getEventDispatcher()
+                    .sink<Events::NpcDeathEvent>()
+                    .connect<&Sys::NpcSystem::on_npc_death>( this );
   SPDLOG_DEBUG( "NpcSystem initialized" );
 }
 
@@ -46,15 +51,42 @@ void NpcSystem::add_npc_entity( const Events::NpcCreationEvent &event )
 
   // Remove the npc container component from the original entity
   m_reg->remove<Cmp::NpcContainer>( event.position_entity );
+
+  if ( event.type == "NPCGHOST" )
+  {
+    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ),
+                 event.type, pos_cmp->position.x, pos_cmp->position.y );
+    m_spawn_ghost_sound_player.play();
+  }
 }
 
 void NpcSystem::remove_npc_entity( entt::entity npc_entity )
 {
+  // drop loot at npc death position
+  auto npc_pos_cmp = m_reg->try_get<Cmp::Position>( npc_entity );
+  if ( npc_pos_cmp )
+  {
+    auto npc_pos_cmp_bounds = Cmp::RectBounds( npc_pos_cmp->position, kGridSquareSizePixelsF, 1.5f );
+    // clang-format off
+    auto loot_entity = create_loot_drop( 
+      Cmp::Loot( "RELIC_DROP", 0 ),                                   
+      sf::FloatRect{ npc_pos_cmp_bounds.position(), npc_pos_cmp_bounds.size() },
+      IncludePack<>{}, 
+      ExcludePack<>{} 
+    );
+    // clang-format on
+    if ( loot_entity != entt::null )
+    {
+      SPDLOG_DEBUG( "Dropped RELIC_DROP loot at NPC death position." );
+      m_drop_artifact_sound_player.play();
+    }
+  }
   // kill npc
   m_reg->remove<Cmp::NPC>( npc_entity );
   m_reg->remove<Cmp::Position>( npc_entity );
   m_reg->remove<Cmp::NPCScanBounds>( npc_entity );
   m_reg->remove<Cmp::Direction>( npc_entity );
+
   SPDLOG_DEBUG( "NPC entity {} killed by explosion", static_cast<int>( npc_entity ) );
 }
 

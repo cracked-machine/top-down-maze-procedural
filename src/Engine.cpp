@@ -68,6 +68,7 @@ bool Engine::run()
         m_digging_sys->update_volume();
         m_exit_sys->update_volume();
         m_collision_sys->update_volume();
+        m_npc_sys->update_volume();
 
         // update music volumes with persistent settings
         m_title_music_sys->update_volume();

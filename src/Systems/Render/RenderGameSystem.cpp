@@ -1,4 +1,5 @@
 #include <Components/PlayerKeysCount.hpp>
+#include <Components/PlayerRelicCount.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
@@ -187,8 +188,9 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
       int bomb_inventory = 0;
       int blast_radius = 0;
       int new_weapon_level = 0;
-      int player_candles = 0;
-      int player_keys = 0;
+      int player_candles_count = 0;
+      int player_keys_count = 0;
+      int player_relic_count = 0;
       sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
       sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::getGameView() );
 
@@ -205,25 +207,27 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
         new_weapon_level = weapon_level.m_level;
       }
 
-      auto pc_candles_cmp = m_reg->view<Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount>();
-      for ( auto [entity, candles_cmp, keys_cmp] : pc_candles_cmp.each() )
+      auto pc_candles_cmp = m_reg->view<Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount, Cmp::PlayerRelicCount>();
+      for ( auto [entity, candles_cmp, keys_cmp, relic_cmp] : pc_candles_cmp.each() )
       {
-        player_candles = candles_cmp.get_count();
-        player_keys = keys_cmp.get_count();
+        player_candles_count = candles_cmp.get_count();
+        player_keys_count = keys_cmp.get_count();
+        player_relic_count = relic_cmp.get_count();
       }
 
       // render metrics
-      overlay_sys.render_ui_background_overlay( { 20.f, 20.f }, { 300.f, 250.f } );
+      overlay_sys.render_ui_background_overlay( { 20.f, 20.f }, { 300.f, 270.f } );
       overlay_sys.render_health_overlay( player_health, { 40.f, 40.f }, { 200.f, 20.f } );
       overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, 80.f }, { 200.f, 20.f } );
       overlay_sys.render_bomb_overlay( bomb_inventory, blast_radius, { 40.f, 120.f } );
-      overlay_sys.render_player_candles_overlay( player_candles, { 40.f, 160.f } );
-      overlay_sys.render_key_count_overlay( player_keys, { 40.f, 200.f } );
+      overlay_sys.render_player_candles_overlay( player_candles_count, { 40.f, 160.f } );
+      overlay_sys.render_key_count_overlay( player_keys_count, { 40.f, 200.f } );
+      overlay_sys.render_relic_count_overlay( player_relic_count, { 40.f, 240.f } );
       if ( m_show_debug_stats )
       {
-        overlay_sys.render_player_position_overlay( player_position.position, { 40.f, 260.f } );
-        overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 290.f } );
-        overlay_sys.render_stats_overlay( { 40.f, 320.f }, { 40.f, 350.f }, { 40.f, 380.f } );
+        overlay_sys.render_player_position_overlay( player_position.position, { 40.f, 300.f } );
+        overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 340.f } );
+        overlay_sys.render_stats_overlay( { 40.f, 360.f }, { 40.f, 380.f }, { 40.f, 400.f } );
       }
       overlay_sys.render_entt_distance_set_overlay( { 40.f, 300.f } );
     }
@@ -574,6 +578,7 @@ void RenderGameSystem::render_loot()
     else if ( loot_cmp.m_type == "WEAPON_BOOST" ) { safe_render_sprite( "WEAPON_BOOST", pos_cmp, loot_cmp.m_tile_index ); }
     else if ( loot_cmp.m_type == "CANDLE_DROP" ) { safe_render_sprite( "CANDLE_DROP", pos_cmp, loot_cmp.m_tile_index ); }
     else if ( loot_cmp.m_type == "KEY_DROP" ) { safe_render_sprite( "KEY_DROP", pos_cmp, loot_cmp.m_tile_index ); }
+    else if ( loot_cmp.m_type == "RELIC_DROP" ) { safe_render_sprite( "RELIC_DROP", pos_cmp, loot_cmp.m_tile_index ); }
     else { SPDLOG_WARN( "Unknown loot type: {}", loot_cmp.m_type ); }
     // clang-format on
   }
