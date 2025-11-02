@@ -12,6 +12,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/ShrineSprite.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Events/LootContainerDestroyedEvent.hpp>
 #include <Systems/Threats/BombSystem.hpp>
 
 namespace ProceduralMaze::Sys {
@@ -165,12 +166,14 @@ void BombSystem::update()
     auto lootcontainer_cmp = m_reg->try_get<Cmp::LootContainer>( armed_entt );
     if ( lootcontainer_cmp )
     {
-      // the loot container is now destroyed by the bomb, replace with a random loot component
-      auto [obstacle_type, random_obstacle_texture_index] = m_sprite_factory.get_random_type_and_texture_index(
-          std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "WEAPON_BOOST" } );
-      m_reg->remove<Cmp::LootContainer>( armed_entt );
-      m_reg->remove<Cmp::ReservedPosition>( armed_entt );
-      m_reg->emplace_or_replace<Cmp::Loot>( armed_entt, obstacle_type, random_obstacle_texture_index );
+      SPDLOG_INFO( "Triggering LootContainerDestroyedEvent for entity {}  ", static_cast<int>( armed_entt ) );
+      getEventDispatcher().trigger( Events::LootContainerDestroyedEvent( armed_entt ) );
+      // // the loot container is now destroyed by the bomb, replace with a random loot component
+      // auto [obstacle_type, random_obstacle_texture_index] = m_sprite_factory.get_random_type_and_texture_index(
+      //     std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "WEAPON_BOOST" } );
+      // m_reg->remove<Cmp::LootContainer>( armed_entt );
+      // m_reg->remove<Cmp::ReservedPosition>( armed_entt );
+      // m_reg->emplace_or_replace<Cmp::Loot>( armed_entt, obstacle_type, random_obstacle_texture_index );
     }
 
     // detonate npc containers

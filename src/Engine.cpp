@@ -69,6 +69,8 @@ bool Engine::run()
         m_exit_sys->update_volume();
         m_collision_sys->update_volume();
         m_npc_sys->update_volume();
+        m_large_obstacle_sys->update_volume();
+        m_loot_sys->update_volume();
 
         // update music volumes with persistent settings
         m_title_music_sys->update_volume();
@@ -129,7 +131,7 @@ bool Engine::run()
         m_collision_sys->check_npc_hazard_field_collision<Cmp::CorruptionCell>();
         m_exit_sys->check_exit_collision();
         m_collision_sys->check_loot_collision();
-        m_collision_sys->check_bones_reanimation();
+        m_npc_sys->check_bones_reanimation();
         m_wormhole_sys->check_player_wormhole_collision();
         m_digging_sys->update();
         m_footstep_sys->update();
@@ -149,7 +151,7 @@ bool Engine::run()
           {
             m_collision_sys->check_player_hazard_field_collision<Cmp::SinkholeCell>();
             m_collision_sys->check_player_hazard_field_collision<Cmp::CorruptionCell>();
-            m_collision_sys->check_player_to_npc_collision();
+            m_npc_sys->check_player_to_npc_collision();
           }
           if ( _sys.level_complete )
           {
@@ -267,12 +269,14 @@ void Engine::init_systems()
   m_digging_sys = std::make_unique<Sys::DiggingSystem>( m_reg, *m_window, *m_sprite_factory );
   m_render_overlay_sys = std::make_unique<Sys::RenderOverlaySystem>( m_reg, *m_window, *m_sprite_factory );
   m_bomb_sys = std::make_unique<Sys::BombSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_loot_sys = std::make_unique<Sys::LootSystem>( m_reg, *m_window, *m_sprite_factory );
   m_anim_sys = std::make_unique<Sys::AnimSystem>( m_reg, *m_window, *m_sprite_factory );
   m_sinkhole_sys = std::make_unique<Sys::SinkHoleHazardSystem>( m_reg, *m_window, *m_sprite_factory );
   m_corruption_sys = std::make_unique<Sys::CorruptionHazardSystem>( m_reg, *m_window, *m_sprite_factory );
   m_wormhole_sys = std::make_unique<Sys::WormholeSystem>( m_reg, *m_window, *m_sprite_factory );
   m_exit_sys = std::make_unique<Sys::ExitSystem>( m_reg, *m_window, *m_sprite_factory );
   m_footstep_sys = std::make_unique<Sys::FootstepSystem>( m_reg, *m_window, *m_sprite_factory );
+  m_large_obstacle_sys = std::make_unique<Sys::LargeObstacleSystem>( m_reg, *m_window, *m_sprite_factory );
 
   m_render_game_sys->init_shaders();
   m_render_game_sys->init_tilemap();

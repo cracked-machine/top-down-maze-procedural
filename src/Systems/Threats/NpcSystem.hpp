@@ -31,17 +31,18 @@ public:
 
   // Converts a NpcContainer entity into an active NPC entity. Called by event: NpcCreationEvent
   void add_npc_entity( const Events::NpcCreationEvent &event );
+
   // Removes an active NPC entity from the game. Called by event: NpcDeathEvent
   void remove_npc_entity( entt::entity npc_entity );
 
   // Smoothly interpolates the position of NPCs. Called in the main update loop.
   void update_movement( sf::Time dt );
 
-  // Event handler for remove_npc_entity()
-  void on_npc_death( const Events::NpcDeathEvent &event );
+  // Check for player collision with bones obstacles to reanimate NPCs
+  void check_bones_reanimation();
 
-  // Event handler for add_npc_entity()
-  void on_npc_creation( const Events::NpcCreationEvent &event );
+  // Check for player collision with NPCs
+  void check_player_to_npc_collision();
 
   void update_volume()
   {
@@ -51,8 +52,17 @@ public:
     m_spawn_ghost_sound_player.setVolume( effects_volume.get_value() );
   }
 
+  // Event handler for remove_npc_entity()
+  void on_npc_death( const Events::NpcDeathEvent &event );
+
+  // Event handler for add_npc_entity()
+  void on_npc_creation( const Events::NpcCreationEvent &event );
+
 private:
-  sf::SoundBuffer m_drop_artifact_sound_buffer{ "res/audio/drop_artifact.wav" };
+  sf::Vector2f findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos,
+                                          const sf::Vector2f &player_direction, float pushback_distance );
+
+  sf::SoundBuffer m_drop_artifact_sound_buffer{ "res/audio/drop_relic.wav" };
   sf::Sound m_drop_artifact_sound_player{ m_drop_artifact_sound_buffer };
   sf::SoundBuffer m_spawn_ghost_sound_buffer{ "res/audio/spawn_ghost.wav" };
   sf::Sound m_spawn_ghost_sound_player{ m_spawn_ghost_sound_buffer };

@@ -30,6 +30,8 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/FloodSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/NpcSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/HazardFieldSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/LargeObstacleSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/LootSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/WormholeSystem.cpp
 )
 

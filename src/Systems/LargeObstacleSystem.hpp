@@ -1,0 +1,51 @@
+#ifndef __SYS_LARGEOBSTACLESYSTEM_HPP__
+#define __SYS_LARGEOBSTACLESYSTEM_HPP__
+
+#include <Components/LargeObstacle.hpp>
+#include <Components/Persistent/EffectsVolume.hpp>
+#include <Components/PlayableCharacter.hpp>
+#include <Components/PlayerCandlesCount.hpp>
+#include <Events/PlayerActionEvent.hpp>
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
+#include <Systems/BaseSystem.hpp>
+#include <entt/entity/fwd.hpp>
+
+namespace ProceduralMaze::Sys {
+
+class LargeObstacleSystem : public BaseSystem
+{
+public:
+  LargeObstacleSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+                       Sprites::SpriteFactory &sprite_factory );
+
+  void check_player_lo_collision( Events::PlayerActionEvent::GameActions action );
+  void check_player_shrine_activation( Cmp::LargeObstacle &lo_cmp, Cmp::PlayerCandlesCount &pc_candles_cmp );
+  void check_player_grave_activation( Cmp::LargeObstacle &lo_cmp, entt::entity &lo_entity,
+                                      Cmp::PlayableCharacter &pc_cmp );
+  void activate_shrine_special_power();
+
+  /// EVENT SINKS ///
+  void on_player_action( const Events::PlayerActionEvent &event )
+  {
+    if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE )
+    {
+      check_player_lo_collision( event.action );
+    }
+  }
+
+  void update_volume()
+  {
+    // get a copy of the component and assigns its value to the members
+    auto effects_volume = get_persistent_component<Cmp::Persistent::EffectsVolume>();
+    m_drop_loot_sound_player.setVolume( effects_volume.get_value() );
+  }
+
+private:
+  sf::SoundBuffer m_drop_loot_sound_buffer{ "res/audio/drop_loot.wav" };
+  sf::Sound m_drop_loot_sound_player{ m_drop_loot_sound_buffer };
+};
+
+} // namespace ProceduralMaze::Sys
+
+#endif // __SYS_LARGEOBSTACLESYSTEM_HPP__

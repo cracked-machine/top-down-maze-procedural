@@ -1,6 +1,8 @@
 #include <Components/Exit.hpp>
 #include <Components/LargeObstacle.hpp>
 #include <Components/Persistent/MaxShrines.hpp>
+#include <Components/PlayerCandlesCount.hpp>
+#include <Components/PlayerKeysCount.hpp>
 #include <EventHandler.hpp>
 #include <Events/SaveSettingsEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
@@ -160,6 +162,7 @@ void EventHandler::game_state_handler()
           SPDLOG_INFO( "Player committed suicide" );
         }
       }
+
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F12 )
       {
         for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
@@ -176,6 +179,23 @@ void EventHandler::game_state_handler()
           SPDLOG_INFO( "Minimap enabled (player cheated)" );
         }
       }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
+      {
+        for ( auto [pc_entity, pc_candle_count_cmp] : m_reg->view<Cmp::PlayerCandlesCount>().each() )
+        {
+          pc_candle_count_cmp.increment_count( 1 );
+          SPDLOG_INFO( "Player gained a candle (player cheated)" );
+        }
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
+      {
+        for ( auto [pc_entity, pc_key_count_cmp] : m_reg->view<Cmp::PlayerKeysCount>().each() )
+        {
+          pc_key_count_cmp.increment_count( 1 );
+          SPDLOG_INFO( "Player gained a key (player cheated)" );
+        }
+      }
+
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
       {
         game_state.current_state = Cmp::Persistent::GameState::State::UNLOADING;

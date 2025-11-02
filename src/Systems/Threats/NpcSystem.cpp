@@ -1,3 +1,8 @@
+#include <Components/Persistent/NpcDamage.hpp>
+#include <Components/Persistent/NpcDamageDelay.hpp>
+#include <Components/Persistent/NpcPushBack.hpp>
+#include <SFML/Graphics/Rect.hpp>
+
 #include <Components/Destructable.hpp>
 #include <Components/GraveSprite.hpp>
 #include <Components/NpcContainer.hpp>
@@ -8,7 +13,7 @@
 #include <Components/ShrineSprite.hpp>
 #include <Components/SpawnAreaSprite.hpp>
 #include <Components/SpriteAnimation.hpp>
-#include <SFML/Graphics/Rect.hpp>
+#include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 
 namespace ProceduralMaze::Sys {
@@ -62,32 +67,41 @@ void NpcSystem::add_npc_entity( const Events::NpcCreationEvent &event )
 
 void NpcSystem::remove_npc_entity( entt::entity npc_entity )
 {
-  // drop loot at npc death position
+  // check for position component
   auto npc_pos_cmp = m_reg->try_get<Cmp::Position>( npc_entity );
-  if ( npc_pos_cmp )
+  if ( not npc_pos_cmp )
   {
-    auto npc_pos_cmp_bounds = Cmp::RectBounds( npc_pos_cmp->position, kGridSquareSizePixelsF, 1.5f );
-    // clang-format off
-    auto loot_entity = create_loot_drop( 
-      Cmp::Loot( "RELIC_DROP", 0 ),                                   
-      sf::FloatRect{ npc_pos_cmp_bounds.position(), npc_pos_cmp_bounds.size() },
-      IncludePack<>{}, 
-      ExcludePack<>{} 
-    );
-    // clang-format on
-    if ( loot_entity != entt::null )
+    SPDLOG_WARN( "Cannot process loot drop for NPC entity {} without a Position component",
+                 static_cast<int>( npc_entity ) );
+  }
+  else
+  {
+    // 1 in 20 chance of dropping a relic
+    auto loot_chance_rng = Cmp::RandomInt( 1, 20 );
+    if ( loot_chance_rng.gen() == 1 )
     {
-      SPDLOG_DEBUG( "Dropped RELIC_DROP loot at NPC death position." );
-      m_drop_artifact_sound_player.play();
+      auto npc_pos_cmp_bounds = Cmp::RectBounds( npc_pos_cmp->position, kGridSquareSizePixelsF, 1.5f );
+      // clang-format off
+      auto loot_entity = create_loot_drop( 
+        Cmp::Loot( "RELIC_DROP", 0 ),                                   
+        sf::FloatRect{ npc_pos_cmp_bounds.position(), npc_pos_cmp_bounds.size() },
+        IncludePack<>{}, 
+        ExcludePack<>{} 
+      );
+      // clang-format on
+      if ( loot_entity != entt::null )
+      {
+        SPDLOG_INFO( "Dropped RELIC_DROP loot at NPC death position." );
+        m_drop_artifact_sound_player.play();
+      }
     }
   }
-  // kill npc
+
+  // kill npc once we are done
   m_reg->remove<Cmp::NPC>( npc_entity );
   m_reg->remove<Cmp::Position>( npc_entity );
   m_reg->remove<Cmp::NPCScanBounds>( npc_entity );
   m_reg->remove<Cmp::Direction>( npc_entity );
-
-  SPDLOG_DEBUG( "NPC entity {} killed by explosion", static_cast<int>( npc_entity ) );
 }
 
 void NpcSystem::update_movement( sf::Time dt )
@@ -128,6 +142,68 @@ void NpcSystem::update_movement( sf::Time dt )
   }
 }
 
+void NpcSystem::check_bones_reanimation()
+{
+  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto npccontainer_collision_view = m_reg->view<Cmp::NpcContainer, Cmp::Position>();
+  for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
+  {
+    for ( auto [npccontainer_entt, npccontainer_cmp, npccontainer_pos_cmp] : npccontainer_collision_view.each() )
+    {
+      if ( !is_visible_in_view( RenderSystem::getGameView(), npccontainer_pos_cmp ) ) continue;
+
+      auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NpcActivateScale>();
+      // we just create a temporary RectBounds here instead of a component because we only need it for
+      // this one comparison and it already contains the needed scaling logic
+      auto npc_activate_bounds = Cmp::RectBounds( npccontainer_pos_cmp.position, kGridSquareSizePixelsF,
+                                                  npc_activate_scale.get_value() );
+
+      if ( pc_pos_cmp.findIntersection( npc_activate_bounds.getBounds() ) )
+      {
+        m_reg->emplace_or_replace<Cmp::Obstacle>( npccontainer_entt, "BONES", 0, false );
+        getEventDispatcher().trigger( Events::NpcCreationEvent( npccontainer_entt, "NPCSKELE" ) );
+      }
+    }
+  }
+}
+
+void NpcSystem::check_player_to_npc_collision()
+{
+  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction>();
+  auto npc_collision_view = m_reg->view<Cmp::NPC, Cmp::Position>();
+  for ( auto [pc_entity, pc_cmp, pc_pos_cmp, dir_cmp] : player_collision_view.each() )
+  {
+    for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_collision_view.each() )
+    {
+      if ( pc_pos_cmp.findIntersection( npc_pos_cmp ) )
+      {
+        auto &npc_damage_cooldown = get_persistent_component<Cmp::Persistent::NpcDamageDelay>();
+        if ( npc_cmp.m_damage_cooldown.getElapsedTime().asSeconds() < npc_damage_cooldown.get_value() ) continue;
+
+        auto &npc_damage = get_persistent_component<Cmp::Persistent::NpcDamage>();
+        pc_cmp.health -= npc_damage.get_value();
+
+        npc_cmp.m_damage_cooldown.restart();
+
+        auto &npc_push_back = get_persistent_component<Cmp::Persistent::NpcPushBack>();
+
+        // Find a valid pushback position by checking all 8 directions
+        sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp.position, npc_pos_cmp.position,
+                                                                       dir_cmp, npc_push_back.get_value() );
+
+        // Update player position if we found a valid pushback position
+        if ( target_push_back_pos != pc_pos_cmp.position ) { pc_pos_cmp.position = target_push_back_pos; }
+      }
+
+      if ( pc_cmp.health <= 0 )
+      {
+        pc_cmp.alive = false;
+        return;
+      }
+    }
+  }
+}
+
 void NpcSystem::on_npc_death( const Events::NpcDeathEvent &event )
 {
   SPDLOG_DEBUG( "NPC Death Event received" );
@@ -137,6 +213,63 @@ void NpcSystem::on_npc_creation( const Events::NpcCreationEvent &event )
 {
   SPDLOG_DEBUG( "NPC Creation Event received" );
   add_npc_entity( event );
+}
+
+sf::Vector2f NpcSystem::findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos,
+                                                   const sf::Vector2f &player_direction, float pushback_distance )
+{
+  // Define all 8 directions (N, NE, E, SE, S, SW, W, NW)
+  std::vector<sf::Vector2f> directions = {
+      { 0.0f, -1.0f }, // North
+      { 1.0f, -1.0f }, // North-East
+      { 1.0f, 0.0f },  // East
+      { 1.0f, 1.0f },  // South-East
+      { 0.0f, 1.0f },  // South
+      { -1.0f, 1.0f }, // South-West
+      { -1.0f, 0.0f }, // West
+      { -1.0f, -1.0f } // North-West
+  };
+
+  // Priority order for direction selection
+  std::vector<sf::Vector2f> preferred_directions;
+
+  if ( player_direction != sf::Vector2f( 0.0f, 0.0f ) )
+  {
+    // Player is moving - prefer pushing opposite to movement direction
+    sf::Vector2f opposite_dir = -player_direction.normalized();
+    preferred_directions.push_back( opposite_dir );
+
+    // Add perpendicular directions as secondary options
+    sf::Vector2f perp1 = sf::Vector2f( -opposite_dir.y, opposite_dir.x );
+    sf::Vector2f perp2 = sf::Vector2f( opposite_dir.y, -opposite_dir.x );
+    preferred_directions.push_back( perp1 );
+    preferred_directions.push_back( perp2 );
+  }
+  else
+  {
+    // Player is stationary - prefer pushing away from NPC
+    sf::Vector2f away_from_npc = player_pos - npc_pos;
+    if ( away_from_npc != sf::Vector2f( 0.0f, 0.0f ) ) { preferred_directions.push_back( away_from_npc.normalized() ); }
+  }
+
+  // Add all 8 directions to ensure we check everything
+  for ( const auto &dir : directions )
+  {
+    preferred_directions.push_back( dir );
+  }
+
+  // Try each direction in priority order
+  for ( const auto &push_dir : preferred_directions )
+  {
+    sf::FloatRect candidate_pos{ player_pos + push_dir.normalized() * pushback_distance, kGridSquareSizePixelsF };
+    candidate_pos = snap_to_grid( candidate_pos );
+
+    // Check if this position is valid and different from current position
+    if ( candidate_pos.position != player_pos && is_valid_move( candidate_pos ) ) { return candidate_pos.position; }
+  }
+
+  // If no valid position found, return original position
+  return player_pos;
 }
 
 } // namespace ProceduralMaze::Sys

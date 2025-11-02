@@ -58,12 +58,6 @@ public:
   // Resume timers when game is unpaused
   void resume();
 
-  // Check for player collision with bones obstacles to reanimate NPCs
-  void check_bones_reanimation();
-
-  // Check for player collision with NPCs
-  void check_player_to_npc_collision();
-
   // Check for player collision with loot items i.e. player picks up loot
   void check_loot_collision();
 
@@ -142,36 +136,19 @@ public:
     }
   }
 
-  void check_player_large_obstacle_collision( Events::PlayerActionEvent::GameActions action );
-
-  /// EVENT SINKS ///
-  void on_player_action( const Events::PlayerActionEvent &event )
-  {
-    if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE )
-    {
-      check_player_large_obstacle_collision( event.action );
-    }
-  }
-
   void update_volume()
   {
     // get a copy of the component and assigns its value to the members
     auto effects_volume = get_persistent_component<Cmp::Persistent::EffectsVolume>();
     m_get_loot_sound_player.setVolume( effects_volume.get_value() );
     m_get_key_sound_player.setVolume( effects_volume.get_value() );
-    m_drop_loot_sound_player.setVolume( effects_volume.get_value() );
   }
 
 private:
-  sf::Vector2f findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos,
-                                          const sf::Vector2f &player_direction, float pushback_distance );
-
   sf::SoundBuffer m_get_loot_sound_buffer{ "res/audio/get_loot.wav" };
   sf::Sound m_get_loot_sound_player{ m_get_loot_sound_buffer };
   sf::SoundBuffer m_get_key_sound_buffer{ "res/audio/get_key.wav" };
   sf::Sound m_get_key_sound_player{ m_get_key_sound_buffer };
-  sf::SoundBuffer m_drop_loot_sound_buffer{ "res/audio/drop_loot.wav" };
-  sf::Sound m_drop_loot_sound_player{ m_drop_loot_sound_buffer };
 };
 
 } // namespace ProceduralMaze::Sys
