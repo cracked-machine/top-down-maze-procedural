@@ -21,7 +21,6 @@
 #include <Components/Persistent/NpcActivateScale.hpp>
 #include <Components/Persistent/NpcAnimFramerate.hpp>
 #include <Components/Persistent/NpcDamage.hpp>
-#include <Components/Persistent/NpcDamageDelay.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
 #include <Components/Persistent/NpcGhostAnimFramerate.hpp>
 #include <Components/Persistent/NpcLerpSpeed.hpp>
@@ -29,6 +28,7 @@
 #include <Components/Persistent/NpcScanScale.hpp>
 #include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
 #include <Components/Persistent/ObstaclePushBack.hpp>
+#include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
 #include <Components/Persistent/PlayerDetectionScale.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
@@ -83,7 +83,7 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::NpcGhostAnimFramerate>( "NpcGhostAnimFramerate" );
   registerComponent<Cmp::Persistent::NpcSkeleAnimFramerate>( "NpcSkeleAnimFramerate" );
   registerComponent<Cmp::Persistent::NpcActivateScale>( "NpcActivateScale" );
-  registerComponent<Cmp::Persistent::NpcDamageDelay>( "NpcDamageDelay" );
+  registerComponent<Cmp::Persistent::PcDamageDelay>( "PcDamageDelay" );
   registerComponent<Cmp::Persistent::NpcScanScale>( "NpcScanScale" );
   registerComponent<Cmp::Persistent::NpcLerpSpeed>( "NpcLerpSpeed" );
   registerComponent<Cmp::Persistent::NpcDamage>( "NpcDamage" );
@@ -107,8 +107,7 @@ void PersistentSystem::initializeComponentRegistry()
   auto default_player_start_pos = sf::Vector2f( ( Sys::BaseSystem::kGridSquareSizePixels.x * 5 ),
                                                 ( Sys::BaseSystem::kDisplaySize.y / 2.f ) );
 
-  registerComponent<Cmp::Persistent::PlayerStartPosition>( "PlayerStartPosition",
-                                                           default_player_start_pos );
+  registerComponent<Cmp::Persistent::PlayerStartPosition>( "PlayerStartPosition", default_player_start_pos );
 }
 
 void PersistentSystem::load_state()
@@ -164,7 +163,7 @@ void PersistentSystem::save_state()
   serializeComponent.template operator()<Cmp::Persistent::MaxShrines>( "MaxShrines" );
   serializeComponent.template operator()<Cmp::Persistent::MusicVolume>( "MusicVolume" );
   serializeComponent.template operator()<Cmp::Persistent::NpcActivateScale>( "NpcActivateScale" );
-  serializeComponent.template operator()<Cmp::Persistent::NpcDamageDelay>( "NpcDamageDelay" );
+  serializeComponent.template operator()<Cmp::Persistent::PcDamageDelay>( "PcDamageDelay" );
   serializeComponent.template operator()<Cmp::Persistent::NpcScanScale>( "NpcScanScale" );
   serializeComponent.template operator()<Cmp::Persistent::NpcLerpSpeed>( "NpcLerpSpeed" );
   serializeComponent.template operator()<Cmp::Persistent::NpcDamage>( "NpcDamage" );

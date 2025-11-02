@@ -17,8 +17,8 @@
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
 #include <Components/Persistent/NpcDamage.hpp>
-#include <Components/Persistent/NpcDamageDelay.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
+#include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/ShrineCost.hpp>
 #include <Components/Persistent/WaterBonus.hpp>
 #include <Components/PlayerCandlesCount.hpp>

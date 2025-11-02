@@ -7,7 +7,7 @@ namespace ProceduralMaze::Cmp::Persistent {
 class ShrineCost : public BasePersistent<unsigned int>
 {
 public:
-  ShrineCost( unsigned int value = 2 )
+  ShrineCost( unsigned int value = 1 )
       : BasePersistent<unsigned int>( value )
   {
   }

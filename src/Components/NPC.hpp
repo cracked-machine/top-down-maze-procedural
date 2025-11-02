@@ -16,7 +16,6 @@ struct NPC
   }
   Sprites::SpriteMetaType m_type;
   unsigned int m_tile_index{ 0 };
-  sf::Clock m_damage_cooldown;
 };
 } // namespace ProceduralMaze::Cmp
 

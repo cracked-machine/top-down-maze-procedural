@@ -71,9 +71,9 @@
     "type": "int",
     "value": 15
   },  
-  "NpcDamageDelay": {
+  "PcDamageDelay": {
     "type": "float",
-    "value": 1.0
+    "value": 3.0
   },  
   "NpcDeathAnimFramerate": {
     "type": "float",
@@ -136,7 +136,7 @@
   },
   "ShrineCost": {
     "type": "int",
-    "value": 2
+    "value": 1
   },
   "WaterBonus": {
     "type": "int",

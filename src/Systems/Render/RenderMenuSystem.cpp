@@ -17,13 +17,13 @@
 #include <Components/Persistent/NpcActivateScale.hpp>
 #include <Components/Persistent/NpcAnimFramerate.hpp>
 #include <Components/Persistent/NpcDamage.hpp>
-#include <Components/Persistent/NpcDamageDelay.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
 #include <Components/Persistent/NpcGhostAnimFramerate.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
 #include <Components/Persistent/NpcScanScale.hpp>
 #include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
 #include <Components/Persistent/ObstaclePushBack.hpp>
+#include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerLerpSpeed.hpp>
@@ -219,8 +219,8 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   auto &npc_lerp_speed = get_persistent_component<Cmp::Persistent::NpcLerpSpeed>();
   ImGui::SliderFloat( "NPC Speed", &npc_lerp_speed.get_value(), 0.1f, 3.f, "%.1f" );
 
-  auto &npc_damage_cooldown = get_persistent_component<Cmp::Persistent::NpcDamageDelay>();
-  ImGui::SliderFloat( "NPC Damage Cooldown", &npc_damage_cooldown.get_value(), 0.1f, 2.f, "%.1f seconds" );
+  auto &pc_damage_cooldown = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
+  ImGui::SliderFloat( "PC Damage Cooldown", &pc_damage_cooldown.get_value(), 0.1f, 2.f, "%.1f seconds" );
 
   auto &music_volume = get_persistent_component<Cmp::Persistent::MusicVolume>();
   ImGui::SliderFloat( "Music Volume", &music_volume.get_value(), 0.f, 100.f, "%.1f" );

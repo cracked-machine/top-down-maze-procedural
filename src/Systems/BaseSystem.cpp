@@ -1,3 +1,4 @@
+#include <Components/NPC.hpp>
 #include <entt/entity/registry.hpp>
 
 #include <Components/Door.hpp>
@@ -10,7 +11,8 @@
 
 namespace ProceduralMaze::Sys {
 
-BaseSystem::BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory )
+BaseSystem::BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+                        Sprites::SpriteFactory &sprite_factory )
     : m_reg( reg ),
       m_window( window ),
       m_sprite_factory( sprite_factory )
@@ -32,6 +34,7 @@ std::unique_ptr<entt::dispatcher> BaseSystem::m_event_dispatcher = nullptr;
 
 bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
 {
+
   // Check obstacles
   auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
   for ( auto [entity, obs_cmp, pos_cmp] : obstacle_view.each() )
@@ -57,7 +60,6 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
     if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
-  // Check reserved positions
   auto grave_view = m_reg->view<Cmp::GraveSprite, Cmp::Position>();
   for ( auto [entity, grave_cmp, pos_cmp] : grave_view.each() )
   {

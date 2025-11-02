@@ -1,3 +1,4 @@
+#include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -655,7 +656,18 @@ void RenderGameSystem::render_player()
     // dont modify the original pos_cmp, create copy with modified position
     sf::FloatRect new_pos{ { pc_pos_cmp.position.x + dir_cmp.x_offset, pc_pos_cmp.position.y },
                            kGridSquareSizePixelsF };
-    safe_render_sprite( "PLAYER", new_pos, sprite_index );
+
+    auto &pc_damage_cooldown = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
+    bool is_in_damage_cooldown = pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() <
+                                 pc_damage_cooldown.get_value();
+
+    // Only render if not in cooldown OR if in cooldown and blink is visible
+    if ( !is_in_damage_cooldown ||
+         ( is_in_damage_cooldown &&
+           static_cast<int>( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asMilliseconds() / 100 ) % 2 == 0 ) )
+    {
+      safe_render_sprite( "PLAYER", new_pos, sprite_index );
+    }
 
     if ( m_show_path_distances )
     {

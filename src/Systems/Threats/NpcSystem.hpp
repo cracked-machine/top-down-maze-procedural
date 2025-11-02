@@ -50,6 +50,7 @@ public:
     auto effects_volume = get_persistent_component<Cmp::Persistent::EffectsVolume>();
     m_drop_artifact_sound_player.setVolume( effects_volume.get_value() );
     m_spawn_ghost_sound_player.setVolume( effects_volume.get_value() );
+    m_damage_player_sound_player.setVolume( effects_volume.get_value() );
   }
 
   // Event handler for remove_npc_entity()
@@ -66,6 +67,8 @@ private:
   sf::Sound m_drop_artifact_sound_player{ m_drop_artifact_sound_buffer };
   sf::SoundBuffer m_spawn_ghost_sound_buffer{ "res/audio/spawn_ghost.wav" };
   sf::Sound m_spawn_ghost_sound_player{ m_spawn_ghost_sound_buffer };
+  sf::SoundBuffer m_damage_player_sound_buffer{ "res/audio/damage_player.wav" };
+  sf::Sound m_damage_player_sound_player{ m_damage_player_sound_buffer };
 };
 
 } // namespace ProceduralMaze::Sys

@@ -1,6 +1,6 @@
 #include <Components/Persistent/NpcDamage.hpp>
-#include <Components/Persistent/NpcDamageDelay.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
+#include <Components/Persistent/PcDamageDelay.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
 #include <Components/Destructable.hpp>
@@ -177,13 +177,14 @@ void NpcSystem::check_player_to_npc_collision()
     {
       if ( pc_pos_cmp.findIntersection( npc_pos_cmp ) )
       {
-        auto &npc_damage_cooldown = get_persistent_component<Cmp::Persistent::NpcDamageDelay>();
-        if ( npc_cmp.m_damage_cooldown.getElapsedTime().asSeconds() < npc_damage_cooldown.get_value() ) continue;
+        auto &pc_damage_cooldown = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
+        if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
 
         auto &npc_damage = get_persistent_component<Cmp::Persistent::NpcDamage>();
         pc_cmp.health -= npc_damage.get_value();
+        m_damage_player_sound_player.play();
 
-        npc_cmp.m_damage_cooldown.restart();
+        pc_cmp.m_damage_cooldown_timer.restart();
 
         auto &npc_push_back = get_persistent_component<Cmp::Persistent::NpcPushBack>();
 
@@ -236,20 +237,70 @@ sf::Vector2f NpcSystem::findValidPushbackPosition( const sf::Vector2f &player_po
   if ( player_direction != sf::Vector2f( 0.0f, 0.0f ) )
   {
     // Player is moving - prefer pushing opposite to movement direction
-    sf::Vector2f opposite_dir = -player_direction.normalized();
-    preferred_directions.push_back( opposite_dir );
+    sf::Vector2f opposite_dir = -player_direction;
+
+    // Normalize for comparison
+    float mag = std::sqrt( opposite_dir.x * opposite_dir.x + opposite_dir.y * opposite_dir.y );
+    if ( mag > 0.0f )
+    {
+      opposite_dir.x /= mag;
+      opposite_dir.y /= mag;
+    }
+
+    // Find the closest matching cardinal/diagonal direction
+    float best_dot = -2.0f;
+    sf::Vector2f best_dir;
+    for ( const auto &dir : directions )
+    {
+      float dot = opposite_dir.x * dir.x + opposite_dir.y * dir.y;
+      if ( dot > best_dot )
+      {
+        best_dot = dot;
+        best_dir = dir;
+      }
+    }
+
+    preferred_directions.push_back( best_dir );
 
     // Add perpendicular directions as secondary options
-    sf::Vector2f perp1 = sf::Vector2f( -opposite_dir.y, opposite_dir.x );
-    sf::Vector2f perp2 = sf::Vector2f( opposite_dir.y, -opposite_dir.x );
-    preferred_directions.push_back( perp1 );
-    preferred_directions.push_back( perp2 );
+    // Find directions that are perpendicular to best_dir
+    for ( const auto &dir : directions )
+    {
+      float dot = std::abs( best_dir.x * dir.x + best_dir.y * dir.y );
+      if ( dot < 0.1f ) // approximately perpendicular
+      {
+        preferred_directions.push_back( dir );
+      }
+    }
   }
   else
   {
     // Player is stationary - prefer pushing away from NPC
     sf::Vector2f away_from_npc = player_pos - npc_pos;
-    if ( away_from_npc != sf::Vector2f( 0.0f, 0.0f ) ) { preferred_directions.push_back( away_from_npc.normalized() ); }
+    if ( away_from_npc != sf::Vector2f( 0.0f, 0.0f ) )
+    {
+      // Normalize for comparison
+      float mag = std::sqrt( away_from_npc.x * away_from_npc.x + away_from_npc.y * away_from_npc.y );
+      if ( mag > 0.0f )
+      {
+        away_from_npc.x /= mag;
+        away_from_npc.y /= mag;
+      }
+
+      // Find the closest matching cardinal/diagonal direction
+      float best_dot = -2.0f;
+      sf::Vector2f best_dir;
+      for ( const auto &dir : directions )
+      {
+        float dot = away_from_npc.x * dir.x + away_from_npc.y * dir.y;
+        if ( dot > best_dot )
+        {
+          best_dot = dot;
+          best_dir = dir;
+        }
+      }
+      preferred_directions.push_back( best_dir );
+    }
   }
 
   // Add all 8 directions to ensure we check everything
@@ -261,7 +312,7 @@ sf::Vector2f NpcSystem::findValidPushbackPosition( const sf::Vector2f &player_po
   // Try each direction in priority order
   for ( const auto &push_dir : preferred_directions )
   {
-    sf::FloatRect candidate_pos{ player_pos + push_dir.normalized() * pushback_distance, kGridSquareSizePixelsF };
+    sf::FloatRect candidate_pos{ player_pos + push_dir * pushback_distance, kGridSquareSizePixelsF };
     candidate_pos = snap_to_grid( candidate_pos );
 
     // Check if this position is valid and different from current position
