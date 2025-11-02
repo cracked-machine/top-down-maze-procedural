@@ -99,5 +99,11 @@
     "doxdocgen.c.triggerSequence": "//",
     "doxdocgen.c.firstLine": "",
     "doxdocgen.c.lastLine": "",
-    "doxdocgen.c.commentPrefix": "//! "
+    "doxdocgen.c.commentPrefix": "//! ",
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "xaver.clang-format",
+    "clang-format.language.glsl.enable": true,
+    "clang-format.language.glsl.style": "",
+    "[cpp]": {
+    }
 }
