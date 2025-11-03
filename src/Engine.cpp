@@ -127,8 +127,8 @@ bool Engine::run()
         m_corruption_sys->update_hazard_field();
         m_bomb_sys->update();
 
-        m_collision_sys->check_npc_hazard_field_collision<Cmp::SinkholeCell>();
-        m_collision_sys->check_npc_hazard_field_collision<Cmp::CorruptionCell>();
+        m_sinkhole_sys->check_npc_hazard_field_collision();
+        m_corruption_sys->check_npc_hazard_field_collision();
         m_exit_sys->check_exit_collision();
         m_collision_sys->check_loot_collision();
         m_npc_sys->check_bones_reanimation();
@@ -149,8 +149,8 @@ bool Engine::run()
           m_player_sys->update_movement( deltaTime, !_sys.collisions_enabled );
           if ( _sys.collisions_enabled )
           {
-            m_collision_sys->check_player_hazard_field_collision<Cmp::SinkholeCell>();
-            m_collision_sys->check_player_hazard_field_collision<Cmp::CorruptionCell>();
+            m_sinkhole_sys->check_player_hazard_field_collision();
+            m_corruption_sys->check_player_hazard_field_collision();
             m_npc_sys->check_player_to_npc_collision();
           }
           if ( _sys.level_complete )

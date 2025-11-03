@@ -18,8 +18,9 @@ BraceWrapping:
   IndentBraces: false
   BeforeLambdaBody : false
   BeforeWhile: true
+  
 SpacesInAngles: false
-
+BreakTemplateDeclarations : Yes
 SpacesInParentheses: true
 AllowShortIfStatementsOnASingleLine: true
 AllowShortBlocksOnASingleLine: true
