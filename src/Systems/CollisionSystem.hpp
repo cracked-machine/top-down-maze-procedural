@@ -58,22 +58,7 @@ public:
   // Resume timers when game is unpaused
   void resume();
 
-  // Check for player collision with loot items i.e. player picks up loot
-  void check_loot_collision();
-
-  void update_volume()
-  {
-    // get a copy of the component and assigns its value to the members
-    auto effects_volume = get_persistent_component<Cmp::Persistent::EffectsVolume>();
-    m_get_loot_sound_player.setVolume( effects_volume.get_value() );
-    m_get_key_sound_player.setVolume( effects_volume.get_value() );
-  }
-
 private:
-  sf::SoundBuffer m_get_loot_sound_buffer{ "res/audio/get_loot.wav" };
-  sf::Sound m_get_loot_sound_player{ m_get_loot_sound_buffer };
-  sf::SoundBuffer m_get_key_sound_buffer{ "res/audio/get_key.wav" };
-  sf::Sound m_get_key_sound_player{ m_get_key_sound_buffer };
 };
 
 } // namespace ProceduralMaze::Sys

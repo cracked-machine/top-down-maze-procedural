@@ -67,7 +67,6 @@ bool Engine::run()
         m_bomb_sys->update_volume();
         m_digging_sys->update_volume();
         m_exit_sys->update_volume();
-        m_collision_sys->update_volume();
         m_npc_sys->update_volume();
         m_large_obstacle_sys->update_volume();
         m_loot_sys->update_volume();
@@ -130,7 +129,7 @@ bool Engine::run()
         m_sinkhole_sys->check_npc_hazard_field_collision();
         m_corruption_sys->check_npc_hazard_field_collision();
         m_exit_sys->check_exit_collision();
-        m_collision_sys->check_loot_collision();
+        m_loot_sys->check_loot_collision();
         m_npc_sys->check_bones_reanimation();
         m_wormhole_sys->check_player_wormhole_collision();
         m_digging_sys->update();
