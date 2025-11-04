@@ -1,4 +1,8 @@
+#include <Components/LerpPosition.hpp>
 #include <Components/NPC.hpp>
+#include <Components/Persistent/PcDamageDelay.hpp>
+#include <Components/PlayableCharacter.hpp>
+#include <Components/RectBounds.hpp>
 #include <entt/entity/registry.hpp>
 
 #include <Components/Door.hpp>
@@ -35,6 +39,21 @@ std::unique_ptr<entt::dispatcher> BaseSystem::m_event_dispatcher = nullptr;
 bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
 {
 
+  // Prevent the player from walking through NPCs
+  auto &pc_damage_delay = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
+  auto npc_view = m_reg->view<Cmp::NPC, Cmp::Position, Cmp::LerpPosition>();
+  auto pc_view = m_reg->view<Cmp::PlayableCharacter>();
+  for ( auto [pc_entity, pc_cmp] : pc_view.each() )
+  {
+    // However if player is in damage cooldown (blinking), let player walk through NPCs to escape
+    if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_delay.get_value() ) continue;
+    for ( auto [entity, npc_cmp, pos_cmp, lerp_pos_cmp] : npc_view.each() )
+    {
+      // relaxed bounds to allow player to sneak past during lerp transition
+      Cmp::RectBounds npc_pos_cmp_bounds_current{ pos_cmp.position, pos_cmp.size, 0.1f };
+      if ( target_position.findIntersection( npc_pos_cmp_bounds_current.getBounds() ) ) { return false; }
+    }
+  }
   // Check obstacles
   auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
   for ( auto [entity, obs_cmp, pos_cmp] : obstacle_view.each() )

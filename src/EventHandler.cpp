@@ -1,6 +1,7 @@
 #include <Components/Exit.hpp>
 #include <Components/LargeObstacle.hpp>
 #include <Components/Persistent/MaxShrines.hpp>
+#include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <EventHandler.hpp>
@@ -193,6 +194,14 @@ void EventHandler::game_state_handler()
         {
           pc_key_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a key (player cheated)" );
+        }
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
+      {
+        for ( auto [pc_entity, pc_cmp] : m_reg->view<Cmp::PlayableCharacter>().each() )
+        {
+          pc_cmp.health = std::clamp( 10, pc_cmp.health + 10, 100 );
+          SPDLOG_INFO( "Player gained health (player cheated)" );
         }
       }
 

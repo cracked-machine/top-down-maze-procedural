@@ -1,6 +1,8 @@
+#include <Components/LerpPosition.hpp>
 #include <Components/Persistent/NpcDamage.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
+#include <Components/RectBounds.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
 #include <Components/Destructable.hpp>
@@ -171,36 +173,36 @@ void NpcSystem::check_player_to_npc_collision()
 {
   auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction>();
   auto npc_collision_view = m_reg->view<Cmp::NPC, Cmp::Position>();
+  auto &npc_push_back = get_persistent_component<Cmp::Persistent::NpcPushBack>();
+  auto &pc_damage_cooldown = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
+
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp, dir_cmp] : player_collision_view.each() )
   {
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_collision_view.each() )
     {
-      if ( pc_pos_cmp.findIntersection( npc_pos_cmp ) )
-      {
-        auto &pc_damage_cooldown = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
-        if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
+      // relaxed bounds to allow player to sneak past during lerp transition
+      Cmp::RectBounds npc_pos_cmp_bounds_current{ npc_pos_cmp.position, npc_pos_cmp.size, 0.1f };
+      if ( not pc_pos_cmp.findIntersection( npc_pos_cmp_bounds_current.getBounds() ) ) continue;
 
-        auto &npc_damage = get_persistent_component<Cmp::Persistent::NpcDamage>();
-        pc_cmp.health -= npc_damage.get_value();
-        m_damage_player_sound_player.play();
+      if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
 
-        pc_cmp.m_damage_cooldown_timer.restart();
-
-        auto &npc_push_back = get_persistent_component<Cmp::Persistent::NpcPushBack>();
-
-        // Find a valid pushback position by checking all 8 directions
-        sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp.position, npc_pos_cmp.position,
-                                                                       dir_cmp, npc_push_back.get_value() );
-
-        // Update player position if we found a valid pushback position
-        if ( target_push_back_pos != pc_pos_cmp.position ) { pc_pos_cmp.position = target_push_back_pos; }
-      }
-
+      auto &npc_damage = get_persistent_component<Cmp::Persistent::NpcDamage>();
+      pc_cmp.health -= npc_damage.get_value();
+      m_damage_player_sound_player.play();
       if ( pc_cmp.health <= 0 )
       {
         pc_cmp.alive = false;
         return;
       }
+
+      pc_cmp.m_damage_cooldown_timer.restart();
+
+      // Find a valid pushback position by checking all 8 directions
+      sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp.position, npc_pos_cmp.position, dir_cmp,
+                                                                     npc_push_back.get_value() );
+
+      // Update player position if we found a valid pushback position
+      if ( target_push_back_pos != pc_pos_cmp.position ) { pc_pos_cmp.position = target_push_back_pos; }
     }
   }
 }
