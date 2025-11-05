@@ -48,6 +48,17 @@ void DiggingSystem::update()
 
 void DiggingSystem::check_player_dig_obstacle_collision()
 {
+  // shit out of pick?
+  auto player_weapons_view = m_reg->view<Cmp::WeaponLevel>();
+  for ( auto [weapons_entity, weapons_level] : player_weapons_view.each() )
+  {
+    if ( weapons_level.m_level <= 0 )
+    {
+      SPDLOG_DEBUG( "Player weapons level is {}, cannot dig!", weapons_level.m_level );
+      return;
+    }
+  }
+
   // abort if still in cooldown
   auto digging_cooldown_amount = get_persistent_component<Cmp::Persistent::DiggingCooldownThreshold>().get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
