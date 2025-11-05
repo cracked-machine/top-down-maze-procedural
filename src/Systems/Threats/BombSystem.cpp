@@ -96,7 +96,9 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
                                          sf::Color::Transparent, sequence_counter++ );
 
   // We dont detonate ReservedPositions so dont arm them in the first place
-  auto all_obstacle_view = m_reg->view<Cmp::Destructable>( entt::exclude<Cmp::ShrineSprite, Cmp::GraveSprite> );
+  // Also exclude NPCs since they're handled separately and may be missing Position component during death animation
+  auto all_obstacle_view = m_reg->view<Cmp::Destructable, Cmp::Position>(
+      entt::exclude<Cmp::ShrineSprite, Cmp::GraveSprite, Cmp::NPC> );
 
   // For each layer from 1 to BLAST_RADIUS
   for ( int layer = 1; layer <= blast_radius; layer++ )
@@ -104,11 +106,11 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
     std::vector<std::pair<entt::entity, sf::Vector2i>> layer_entities;
 
     // Collect all entities in this layer with their positions
-    for ( auto [destructable_entity, destructable_cmp] : all_obstacle_view.each() )
+    for ( auto [destructable_entity, destructable_cmp, destructable_pos] : all_obstacle_view.each() )
     {
       if ( destructable_entity == epicenter_entity || m_reg->any_of<Cmp::Armed>( destructable_entity ) ) continue;
 
-      sf::Vector2i grid_position = getGridPosition( destructable_entity ).value_or( sf::Vector2i{ -1, -1 } );
+      sf::Vector2i grid_position = getGridPosition( destructable_entity ).value();
       int distance_from_center = getChebyshevDistance( grid_position, centerTile );
 
       if ( distance_from_center == layer )
