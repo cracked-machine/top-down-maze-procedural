@@ -27,11 +27,11 @@ RandomLevelGenerator::RandomLevelGenerator( ProceduralMaze::SharedEnttRegistry r
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   gen_positions();
+  gen_border();
   gen_large_obstacles();
   gen_loot_containers();
   gen_npc_containers();
   gen_small_obstacles(); // these are post-processed by cellular automaton system
-  gen_border();
   stats();
 }
 
@@ -68,7 +68,58 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
                                                Sprites::SpriteMetaType sprite_meta_type, unsigned long seed )
 {
   // make sure the new large obstacle does not overlap with existing large obstacles
-  auto [random_entity, random_origin_position] = get_random_position( {}, ExcludePack<Cmp::ReservedPosition>{}, seed );
+  auto [random_entity,
+        random_origin_position] = get_random_position( {}, ExcludePack<Cmp::ReservedPosition, Cmp::Wall>{}, seed );
+
+  // Retry until we find a non-intersecting position (with max attempts to prevent infinite loop)
+  constexpr int max_attempts = 100;
+  int attempts = 0;
+  bool intersects = true;
+
+  while ( intersects && attempts < max_attempts && random_entity != entt::null )
+  {
+    intersects = false;
+
+    // Check against existing large obstacles
+    for ( auto [entity, large_obst_cmp] : m_reg->view<Cmp::LargeObstacle>().each() )
+    {
+      if ( random_origin_position.findIntersection( large_obst_cmp ) )
+      {
+        SPDLOG_INFO( "Position at ({}, {}) intersects with existing large obstacle. Retrying (attempt {}).",
+                     random_origin_position.position.x, random_origin_position.position.y, attempts + 1 );
+        std::tie( random_entity, random_origin_position ) = get_random_position(
+            {}, ExcludePack<Cmp::ReservedPosition, Cmp::Wall>{}, seed + attempts );
+        intersects = true;
+        break;
+      }
+    }
+
+    // Check against walls if we haven't already found an intersection
+    if ( !intersects )
+    {
+      for ( auto [entity, wall_cmp, wall_pos] : m_reg->view<Cmp::Wall, Cmp::Position>().each() )
+      {
+        if ( random_origin_position.findIntersection( wall_pos ) )
+        {
+          SPDLOG_INFO( "Position at ({}, {}) intersects with wall at ({}, {}). Retrying (attempt {}).",
+                       random_origin_position.position.x, random_origin_position.position.y, wall_pos.position.x,
+                       wall_pos.position.y, attempts + 1 );
+          std::tie( random_entity, random_origin_position ) = get_random_position(
+              {}, ExcludePack<Cmp::ReservedPosition, Cmp::Wall>{}, seed + attempts );
+          intersects = true;
+          break;
+        }
+      }
+    }
+
+    attempts++;
+  }
+
+  if ( attempts >= max_attempts )
+  {
+    SPDLOG_WARN( "Failed to place large obstacle ({}) after {} attempts - position may overlap",
+                 m_sprite_factory.get_spritedata_type_string( sprite_meta_type ), max_attempts );
+  }
 
   if ( random_entity != entt::null )
   {
@@ -301,6 +352,7 @@ void RandomLevelGenerator::add_wall_entity( const sf::Vector2f &pos, std::size_t
   auto entity = m_reg->create();
   m_reg->emplace<Cmp::Position>( entity, pos, kGridSquareSizePixelsF );
   m_reg->emplace<Cmp::Wall>( entity, "WALL", sprite_index );
+  m_reg->emplace<Cmp::ReservedPosition>( entity );
 }
 
 void RandomLevelGenerator::add_door_entity( const sf::Vector2f &pos, std::size_t sprite_index, bool is_exit )
@@ -308,6 +360,7 @@ void RandomLevelGenerator::add_door_entity( const sf::Vector2f &pos, std::size_t
   auto entity = m_reg->create();
   m_reg->emplace<Cmp::Position>( entity, pos, kGridSquareSizePixelsF );
   m_reg->emplace<Cmp::Door>( entity, "WALL", sprite_index );
+  m_reg->emplace<Cmp::ReservedPosition>( entity );
   if ( is_exit ) m_reg->emplace<Cmp::Exit>( entity );
 }
 
