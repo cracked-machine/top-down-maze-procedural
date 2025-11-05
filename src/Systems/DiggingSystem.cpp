@@ -25,26 +25,6 @@ DiggingSystem::DiggingSystem( ProceduralMaze::SharedEnttRegistry reg, sf::Render
   SPDLOG_DEBUG( "DiggingSystem initialized" );
 }
 
-// void DiggingSystem::load_sounds()
-// {
-//   // load pool of pickaxe sound effects
-//   for ( auto &pickaxe_sound : m_pickaxe_sounds )
-//   {
-//     if ( not pickaxe_sound.buffer.loadFromFile( pickaxe_sound.path ) )
-//     {
-//       SPDLOG_ERROR( "Failed to load dig sound effect: {}", pickaxe_sound.path.string() );
-//       std::terminate();
-//     }
-//   }
-//   // load final smash sound effect
-//   if ( not m_pickaxe_final_sound.buffer.loadFromFile( m_pickaxe_final_sound.path ) )
-//   {
-//     SPDLOG_ERROR( "Failed to load smash sound effect: {}", m_pickaxe_final_sound.path.string() );
-//     std::terminate();
-//   }
-//   SPDLOG_INFO( "DiggingSystem sounds initialized" );
-// }
-
 void DiggingSystem::update()
 {
   // abort if still in cooldown
@@ -135,7 +115,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       {
         // Decrease weapons level based on damage dealt
         weapons_level.m_level -= get_persistent_component<Cmp::Persistent::WeaponDegradePerHit>().get_value();
-        SPDLOG_INFO( "Player weapons level decreased to {} after digging!", weapons_level.m_level );
+        SPDLOG_DEBUG( "Player weapons level decreased to {} after digging!", weapons_level.m_level );
       }
 
       if ( obst_cmp.m_integrity <= 0.0f )

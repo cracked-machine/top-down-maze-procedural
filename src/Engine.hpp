@@ -86,6 +86,8 @@ private:
   void enter_game();
   // teardown the game environment/state
   void exit_game();
+  // show error screen with message
+  void show_error_screen( const std::string &error_msg );
   // print registry info for debugging
   void reginfo( std::string msg = "" );
   // add display size component to the registry

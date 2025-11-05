@@ -55,15 +55,15 @@ void SoundBank::update_music_volume( float volume )
 sf::Sound &SoundBank::get_effect( const std::string &name )
 {
   if ( sounds.find( name ) != sounds.end() ) { return sounds.at( name ).control; }
-  SPDLOG_CRITICAL( "Sound {} not found!", name );
-  std::terminate();
+  SPDLOG_CRITICAL( "Audio effect {} not found!", name );
+  throw std::runtime_error( "Audio effect not found: " + name );
 }
 
 sf::Music &SoundBank::get_music( const std::string &name )
 {
   if ( music.find( name ) != music.end() ) { return music.at( name ).control; }
   SPDLOG_CRITICAL( "Music {} not found!", name );
-  std::terminate();
+  throw std::runtime_error( "Music not found: " + name );
 }
 
 // Generate a simple tone
@@ -88,7 +88,7 @@ sf::SoundBuffer SoundBank::generate_tone( float frequency, float duration, unsig
     return buffer;
   }
   SPDLOG_CRITICAL( "Failed to generate tone" );
-  std::terminate();
+  throw std::runtime_error( "Failed to generate tone" );
 }
 
 } // namespace ProceduralMaze::Audio

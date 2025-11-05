@@ -64,7 +64,7 @@ public:
     if ( not m_reg->ctx().contains<T>() )
     {
       SPDLOG_CRITICAL( "Attempting to access non-existent persistent component: {}", typeid( T ).name() );
-      std::terminate();
+      throw std::runtime_error( "Persistent component not found: " + std::string( typeid( T ).name() ) );
     }
     return m_reg->ctx().get<T>();
   }

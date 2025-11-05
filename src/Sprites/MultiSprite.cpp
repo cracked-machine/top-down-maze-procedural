@@ -1,11 +1,12 @@
-#include <Systems/BaseSystem.hpp>
 #include <Sprites/MultiSprite.hpp>
+#include <Systems/BaseSystem.hpp>
 
 namespace ProceduralMaze::Sprites {
 
 MultiSprite::MultiSprite( SpriteMetaType type, const std::filesystem::path &tilemap_path,
-                          const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size, unsigned int sprites_per_frame,
-                          unsigned int sprites_per_sequence, std::vector<bool> solid_mask )
+                          const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size,
+                          unsigned int sprites_per_frame, unsigned int sprites_per_sequence,
+                          std::vector<bool> solid_mask )
     : m_sprite_type{ type },
       m_grid_size{ grid_size.width, grid_size.height },
       m_sprites_per_frame{ sprites_per_frame },
@@ -16,13 +17,13 @@ MultiSprite::MultiSprite( SpriteMetaType type, const std::filesystem::path &tile
   if ( !m_tilemap_texture->loadFromFile( tilemap_path ) )
   {
     SPDLOG_ERROR( "Unable to load tile map {}", tilemap_path.string() );
-    std::terminate();
+    throw std::runtime_error( "Unable to load tile map: " + tilemap_path.string() );
   }
   SPDLOG_INFO( "Loaded tilemap texture: {}", tilemap_path.string() );
   if ( !add_sprite( tilemap_picks ) )
   {
     SPDLOG_CRITICAL( "Failed to load tilemap: {}", tilemap_path.string() );
-    std::terminate();
+    throw std::runtime_error( "Failed to load tilemap: " + tilemap_path.string() );
   }
 }
 
@@ -40,7 +41,7 @@ MultiSprite::MultiSprite( SpriteMetaType type, sf::Texture tilemap_texture, cons
   if ( !add_sprite( tilemap_picks ) )
   {
     SPDLOG_CRITICAL( "Failed to load tilemap" );
-    std::terminate();
+    throw std::runtime_error( "Failed to load tilemap" );
   }
 }
 
@@ -91,7 +92,8 @@ bool MultiSprite::add_sprite( const std::vector<uint32_t> &tilemap_picks )
     current_va[2].texCoords = sf::Vector2f( tu * kGridSquareSizePixels.x, ( tv + 1 ) * kGridSquareSizePixels.y );
     current_va[3].texCoords = sf::Vector2f( tu * kGridSquareSizePixels.x, ( tv + 1 ) * kGridSquareSizePixels.y );
     current_va[4].texCoords = sf::Vector2f( ( tu + 1 ) * kGridSquareSizePixels.x, tv * kGridSquareSizePixels.y );
-    current_va[5].texCoords = sf::Vector2f( ( tu + 1 ) * kGridSquareSizePixels.x, ( tv + 1 ) * kGridSquareSizePixels.y );
+    current_va[5].texCoords = sf::Vector2f( ( tu + 1 ) * kGridSquareSizePixels.x,
+                                            ( tv + 1 ) * kGridSquareSizePixels.y );
     SPDLOG_TRACE( "  - Added tile index {} (tu={},tv={})", tile_idx, tu, tv );
 
     m_va_list.push_back( current_va );

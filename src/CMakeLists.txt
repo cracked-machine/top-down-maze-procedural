@@ -46,6 +46,7 @@ target_link_libraries(${TARGET} PRIVATE
     $<$<PLATFORM_ID:Windows>:dbghelp>
     ImGui-SFML::ImGui-SFML
     nlohmann_json::nlohmann_json
+    stdc++exp
 )
 target_include_directories(${TARGET} SYSTEM PRIVATE 
     ${CMAKE_SOURCE_DIR}/src

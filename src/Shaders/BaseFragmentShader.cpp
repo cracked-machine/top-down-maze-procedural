@@ -28,7 +28,7 @@ void BaseFragmentShader::setup_shader()
   if ( !m_shader.loadFromFile( m_shader_path.string(), sf::Shader::Type::Fragment ) )
   {
     SPDLOG_CRITICAL( "Failed to load shader {}", m_shader_path.string() );
-    std::terminate();
+    throw std::runtime_error( "Failed to load shader: " + m_shader_path.string() );
   }
   SPDLOG_INFO( "Shader {} loaded successfully", m_shader_path.string() );
 }

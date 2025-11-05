@@ -10,7 +10,7 @@ struct MusicData
   //! @brief Music control
   sf::Music control;
 
-  MusicData( const char *filepath );
+  MusicData( const std::filesystem::path &filepath );
 };
 
 } // namespace ProceduralMaze::Audio

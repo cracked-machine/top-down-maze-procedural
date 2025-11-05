@@ -7,7 +7,7 @@ EffectsData::EffectsData( const std::filesystem::path &filepath )
         if ( not std::filesystem::exists( filepath ) )
         {
           SPDLOG_CRITICAL( "Sound effect file {} does not exist!", filepath.string() );
-          std::terminate();
+          throw std::runtime_error( "Sound effect file not found: " + filepath.string() );
         }
         return std::make_unique<sf::SoundBuffer>( filepath );
       }() ),
