@@ -21,8 +21,8 @@
 namespace ProceduralMaze::Sys {
 
 NpcSystem::NpcSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                      Sprites::SpriteFactory &sprite_factory )
-    : BaseSystem( reg, window, sprite_factory )
+                      Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   std::ignore = Sys::BaseSystem::getEventDispatcher()
                     .sink<Events::NpcCreationEvent>()
@@ -63,7 +63,7 @@ void NpcSystem::add_npc_entity( const Events::NpcCreationEvent &event )
   {
     SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ),
                  event.type, pos_cmp->position.x, pos_cmp->position.y );
-    m_spawn_ghost_sound_player.play();
+    m_sound_bank.get_effect( "spawn_ghost" ).play();
   }
 }
 
@@ -94,7 +94,7 @@ void NpcSystem::remove_npc_entity( entt::entity npc_entity )
       if ( loot_entity != entt::null )
       {
         SPDLOG_INFO( "Dropped RELIC_DROP loot at NPC death position." );
-        m_drop_artifact_sound_player.play();
+        m_sound_bank.get_effect( "drop_relic" ).play();
       }
     }
   }
@@ -188,7 +188,9 @@ void NpcSystem::check_player_to_npc_collision()
 
       auto &npc_damage = get_persistent_component<Cmp::Persistent::NpcDamage>();
       pc_cmp.health -= npc_damage.get_value();
-      m_damage_player_sound_player.play();
+
+      m_sound_bank.get_effect( "damage_player" ).play();
+
       if ( pc_cmp.health <= 0 )
       {
         pc_cmp.alive = false;

@@ -4,6 +4,9 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/main.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine.cpp
     ${CMAKE_SOURCE_DIR}/src/EventHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Audio/EffectsItem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Audio/MusicItem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Audio/SoundBank.cpp
     ${CMAKE_SOURCE_DIR}/src/Debug/AssertHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Shaders/BaseFragmentShader.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/MultiSprite.cpp
@@ -21,7 +24,6 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/DiggingSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ExitSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/FootstepSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/MusicSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/PathFindSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/PersistentSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/PlayerSystem.cpp
@@ -32,6 +34,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/HazardFieldSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/LargeObstacleSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/LootSystem.cpp
+    
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/WormholeSystem.cpp
 )
 

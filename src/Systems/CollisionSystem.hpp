@@ -48,7 +48,7 @@ class CollisionSystem : public BaseSystem
 {
 public:
   CollisionSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                   Sprites::SpriteFactory &sprite_factory );
+                   Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   ~CollisionSystem() = default;
 

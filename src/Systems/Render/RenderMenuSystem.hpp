@@ -15,8 +15,9 @@ namespace ProceduralMaze::Sys {
 class RenderMenuSystem : public RenderSystem
 {
 public:
-  RenderMenuSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory )
-      : RenderSystem( registry, window, sprite_factory )
+  RenderMenuSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window,
+                    Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+      : RenderSystem( registry, window, sprite_factory, sound_bank )
   {
     SPDLOG_DEBUG( "RenderMenuSystem constructor called" );
   }

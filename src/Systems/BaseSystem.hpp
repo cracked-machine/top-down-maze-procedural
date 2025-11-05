@@ -1,6 +1,7 @@
 #ifndef __SYSTEMS_BASE_SYSTEM_HPP__
 #define __SYSTEMS_BASE_SYSTEM_HPP__
 
+#include <Audio/SoundBank.hpp>
 #include <entt/entity/registry.hpp>
 #include <entt/signal/dispatcher.hpp>
 
@@ -24,8 +25,8 @@ namespace Sys {
 class BaseSystem
 {
 public:
-  BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-              Sprites::SpriteFactory &sprite_factory );
+  BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+              Audio::SoundBank &sound_bank );
 
   ~BaseSystem() = default;
 
@@ -43,19 +44,22 @@ public:
   static const sf::Vector2f kMapGridOffset;
 
   // Add a persistent component to the registry's context if it doesn't already exist
-  template <typename T> void add_persistent_component()
+  template <typename T>
+  void add_persistent_component()
   {
     if ( not m_reg->ctx().contains<T>() ) { m_reg->ctx().emplace<T>(); }
   }
 
   // Add a persistent component with constructor arguments
-  template <typename T, typename... Args> void add_persistent_component( Args &&...args )
+  template <typename T, typename... Args>
+  void add_persistent_component( Args &&...args )
   {
     if ( not m_reg->ctx().contains<T>() ) { m_reg->ctx().emplace<T>( std::forward<Args>( args )... ); }
   }
 
   // Get a persistent component from the registry's context
-  template <typename T> T &get_persistent_component()
+  template <typename T>
+  T &get_persistent_component()
   {
     if ( not m_reg->ctx().contains<T>() )
     {
@@ -182,12 +186,14 @@ public:
   }
 
   // Helper structs for variadic template parameter packs
-  template <typename... Types> struct IncludePack
+  template <typename... Types>
+  struct IncludePack
   {
   };
 
   // Helper structs for variadic template parameter packs
-  template <typename... Types> struct ExcludePack
+  template <typename... Types>
+  struct ExcludePack
   {
   };
 
@@ -285,6 +291,9 @@ protected:
 
   //! @brief Non-owning reference to the shared sprite factory
   Sprites::SpriteFactory &m_sprite_factory;
+
+  //! @brief Non-owning reference to the shared sound effects system
+  Audio::SoundBank &m_sound_bank;
 
 private:
   // Prevent access to uninitialised dispatcher - use getEventDispatcher()

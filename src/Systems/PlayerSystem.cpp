@@ -25,8 +25,8 @@
 namespace ProceduralMaze::Sys {
 
 PlayerSystem::PlayerSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window,
-                            Sprites::SpriteFactory &sprite_factory )
-    : BaseSystem( registry, window, sprite_factory )
+                            Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : BaseSystem( registry, window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "PlayerSystem initialized" );
 }
@@ -158,10 +158,11 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
 void PlayerSystem::play_footsteps_sound()
 {
   // Restarting prematurely creates a stutter effect, so check first
-  if ( m_footsteps_sound_player.getStatus() == sf::Sound::Status::Playing ) return;
-  m_footsteps_sound_player.play();
+  auto &footsteps = m_sound_bank.get_effect( "footsteps" );
+  if ( footsteps.getStatus() == sf::Sound::Status::Playing ) return;
+  footsteps.play();
 }
 
-void PlayerSystem::stop_footsteps_sound() { m_footsteps_sound_player.stop(); }
+void PlayerSystem::stop_footsteps_sound() { m_sound_bank.get_effect( "footsteps" ).stop(); }
 
 } // namespace ProceduralMaze::Sys

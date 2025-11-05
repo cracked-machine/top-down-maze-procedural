@@ -18,8 +18,8 @@
 namespace ProceduralMaze::Sys {
 
 BombSystem::BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                        Sprites::SpriteFactory &sprite_factory )
-    : BaseSystem( reg, window, sprite_factory )
+                        Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>(
       this );
@@ -70,7 +70,8 @@ void BombSystem::arm_occupied_location()
         // has the bomb spamming cooldown expired?
         if ( pc_cmp.m_bombdeploycooldowntimer.getElapsedTime() >= pc_cmp.m_bombdeploydelay )
         {
-          if ( m_fuse_sound_player.getStatus() != sf::Sound::Status::Playing ) m_fuse_sound_player.play();
+          auto &bomb_fuse_player = m_sound_bank.get_effect( "bomb_fuse" );
+          if ( bomb_fuse_player.getStatus() != sf::Sound::Status::Playing ) bomb_fuse_player.play();
 
           place_concentric_bomb_pattern( destructable_entity, pc_cmp.blast_radius );
 
@@ -218,9 +219,11 @@ void BombSystem::update()
 
     // if we got this far then the bomb detonated, we can remove the armed component
     m_reg->remove<Cmp::Armed>( armed_entt );
-
-    if ( m_fuse_sound_player.getStatus() == sf::Sound::Status::Playing ) m_fuse_sound_player.stop();
-    if ( m_detonate_sound_player.getStatus() != sf::Sound::Status::Playing ) m_detonate_sound_player.play();
+    auto &bomb_fuse_player = m_sound_bank.get_effect( "bomb_fuse" );
+    if ( bomb_fuse_player.getStatus() == sf::Sound::Status::Playing ) bomb_fuse_player.stop();
+    // dont play bomb detonate sound multiple times for concentric bombs
+    auto &bomb_detonate_player = m_sound_bank.get_effect( "bomb_detonate" );
+    if ( bomb_detonate_player.getStatus() != sf::Sound::Status::Playing ) bomb_detonate_player.play();
   }
 }
 

@@ -25,7 +25,8 @@ namespace ProceduralMaze::Sys {
 class FloodSystem : public BaseSystem
 {
 public:
-  FloodSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
+  FloodSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+               Audio::SoundBank &sound_bank );
 
   ~FloodSystem() = default;
 

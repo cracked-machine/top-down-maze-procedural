@@ -13,8 +13,8 @@
 namespace ProceduralMaze::Sys {
 
 LootSystem::LootSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                        Sprites::SpriteFactory &sprite_factory )
-    : BaseSystem( reg, window, sprite_factory )
+                        Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   std::ignore = getEventDispatcher()
                     .sink<Events::LootContainerDestroyedEvent>()
@@ -67,7 +67,7 @@ void LootSystem::check_loot_collision()
     {
       auto &health_bonus = get_persistent_component<Cmp::Persistent::HealthBonus>();
       pc_cmp.health = std::min( pc_cmp.health + health_bonus.get_value(), 100 );
-      m_get_loot_sound_player.play();
+      m_sound_bank.get_effect( "get_loot" ).play();
     }
     else if ( effect.type == "EXTRA_BOMBS" )
     {
@@ -75,7 +75,7 @@ void LootSystem::check_loot_collision()
       if ( pc_cmp.bomb_inventory >= 0 )
       {
         pc_cmp.bomb_inventory += bomb_bonus.get_value();
-        m_get_loot_sound_player.play();
+        m_sound_bank.get_effect( "get_loot" ).play();
       }
     }
     else if ( effect.type == "LOWER_WATER" )
@@ -85,7 +85,7 @@ void LootSystem::check_loot_collision()
       {
         water_level.m_level = std::min( water_level.m_level + water_bonus.get_value(),
                                         static_cast<float>( kDisplaySize.y ) );
-        m_get_loot_sound_player.play();
+        m_sound_bank.get_effect( "get_loot" ).play();
       }
     }
 
@@ -95,25 +95,25 @@ void LootSystem::check_loot_collision()
     {
       // increase weapon level by 50, up to max level 100
       weapon_level_cmp.m_level = std::clamp( weapon_level_cmp.m_level + 50.f, 0.f, 100.f );
-      m_get_loot_sound_player.play();
+      m_sound_bank.get_effect( "get_loot" ).play();
     }
     else if ( effect.type == "CANDLE_DROP" )
     {
       auto &pc_candles_count = m_reg->get<Cmp::PlayerCandlesCount>( effect.player_entity );
       pc_candles_count.increment_count( 1 );
-      m_get_loot_sound_player.play();
+      m_sound_bank.get_effect( "get_loot" ).play();
     }
     else if ( effect.type == "KEY_DROP" )
     {
       auto &pc_keys_count = m_reg->get<Cmp::PlayerKeysCount>( effect.player_entity );
       pc_keys_count.increment_count( 1 );
-      m_get_key_sound_player.play();
+      m_sound_bank.get_effect( "get_key" ).play();
     }
     else if ( effect.type == "RELIC_DROP" )
     {
       auto &pc_relic_count = m_reg->get<Cmp::PlayerRelicCount>( effect.player_entity );
       pc_relic_count.increment_count( 1 );
-      m_get_loot_sound_player.play();
+      m_sound_bank.get_effect( "get_loot" ).play();
     }
     else
     {
@@ -135,16 +135,8 @@ void LootSystem::detonate_loot_container( const Events::LootContainerDestroyedEv
   m_reg->remove<Cmp::LootContainer>( event.m_entity );
   m_reg->remove<Cmp::ReservedPosition>( event.m_entity );
   m_reg->emplace_or_replace<Cmp::Loot>( event.m_entity, obstacle_type, random_obstacle_texture_index );
-  if ( m_break_pot_sound_player.getStatus() == sf::Sound::Status::Stopped ) { m_break_pot_sound_player.play(); }
-}
-
-void LootSystem::update_volume()
-{
-  // get a copy of the component and assigns its value to the members
-  auto effects_volume = get_persistent_component<Cmp::Persistent::EffectsVolume>();
-  m_break_pot_sound_player.setVolume( effects_volume.get_value() );
-  m_get_loot_sound_player.setVolume( effects_volume.get_value() );
-  m_get_key_sound_player.setVolume( effects_volume.get_value() );
+  auto &break_pot_player = m_sound_bank.get_effect( "break_pot" );
+  if ( break_pot_player.getStatus() == sf::Sound::Status::Stopped ) { break_pot_player.play(); }
 }
 
 } // namespace ProceduralMaze::Sys

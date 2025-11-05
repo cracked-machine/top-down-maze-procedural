@@ -1,6 +1,7 @@
 #ifndef __ENGINE_HPP__
 #define __ENGINE_HPP__
 
+#include <Audio/SoundBank.hpp>
 #include <Systems/LootSystem.hpp>
 #include <entt/entity/registry.hpp>
 
@@ -35,7 +36,6 @@
 #include <Systems/DiggingSystem.hpp>
 #include <Systems/ExitSystem.hpp>
 #include <Systems/LargeObstacleSystem.hpp>
-#include <Systems/MusicSystem.hpp>
 #include <Systems/PathFindSystem.hpp>
 #include <Systems/PersistentSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
@@ -155,11 +155,11 @@ private:
   // create MultiSprite resources
   std::unique_ptr<Sprites::SpriteFactory> m_sprite_factory;
 
+  std::unique_ptr<Audio::SoundBank> m_sound_bank = std::make_unique<Audio::SoundBank>();
+
   //  ECS Systems
   std::unique_ptr<Sys::RenderMenuSystem> m_render_menu_sys;
   std::unique_ptr<Sys::EventHandler> m_event_handler;
-  std::unique_ptr<Sys::MusicSystem> m_title_music_sys;
-  std::unique_ptr<Sys::MusicSystem> m_game_music_sys;
   std::unique_ptr<Sys::RenderGameSystem> m_render_game_sys;
   std::unique_ptr<Sys::PersistentSystem> m_persistent_sys;
   std::unique_ptr<Sys::PlayerSystem> m_player_sys;
@@ -178,9 +178,6 @@ private:
   std::unique_ptr<Sys::FootstepSystem> m_footstep_sys;
   std::unique_ptr<Sys::LargeObstacleSystem> m_large_obstacle_sys;
   std::unique_ptr<Sys::LootSystem> m_loot_sys;
-
-  std::filesystem::path m_title_music_path = "res/audio/EerieScifi.mp3";
-  std::filesystem::path m_game_music_path = "res/audio/SadWindyOrgan.mp3";
 
   // restrict the path tracking data update to every 0.1 seconds (optimization)
   const sf::Time m_obstacle_distance_update_interval{ sf::milliseconds( 100 ) };

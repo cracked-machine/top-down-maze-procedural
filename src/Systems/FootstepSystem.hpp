@@ -13,8 +13,9 @@ namespace ProceduralMaze::Sys {
 class FootstepSystem : public BaseSystem
 {
 public:
-  FootstepSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory )
-      : BaseSystem( reg, window, sprite_factory )
+  FootstepSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+                  Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+      : BaseSystem( reg, window, sprite_factory, sound_bank )
   {
     SPDLOG_DEBUG( "FootstepSystem initialized" );
   }

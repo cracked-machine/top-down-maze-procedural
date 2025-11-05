@@ -23,8 +23,8 @@
 namespace ProceduralMaze::Sys::ProcGen {
 
 RandomLevelGenerator::RandomLevelGenerator( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                                            Sprites::SpriteFactory &sprite_factory )
-    : BaseSystem( reg, window, sprite_factory )
+                                            Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   gen_positions();
   gen_large_obstacles();
@@ -75,8 +75,9 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
     // place large obstacle - multiply the grid size to get pixel size!
     auto large_obst_grid_size = large_obstacle_sprite.get_grid_size();
 
-    m_reg->emplace_or_replace<Cmp::LargeObstacle>( random_entity, sprite_meta_type, random_origin_position.position,
-                                                   large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
+    m_reg->emplace_or_replace<Cmp::LargeObstacle>(
+        random_entity, sprite_meta_type, random_origin_position.position,
+        large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
 
     SPDLOG_INFO( "Placed large obstacle ({}) at position ({}, {}). Grid size: {}x{}",
                  m_sprite_factory.get_spritedata_type_string( sprite_meta_type ), random_origin_position.position.x,
@@ -131,11 +132,13 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
 
         if ( sprite_meta_type == "SHRINE" )
         {
-          m_reg->emplace_or_replace<Cmp::ShrineSprite>( entity, sprite_meta_type, calculated_grid_index, new_solid_mask );
+          m_reg->emplace_or_replace<Cmp::ShrineSprite>( entity, sprite_meta_type, calculated_grid_index,
+                                                        new_solid_mask );
         }
         else if ( sprite_meta_type.contains( "GRAVE" ) )
         {
-          m_reg->emplace_or_replace<Cmp::GraveSprite>( entity, sprite_meta_type, calculated_grid_index, new_solid_mask );
+          m_reg->emplace_or_replace<Cmp::GraveSprite>( entity, sprite_meta_type, calculated_grid_index,
+                                                       new_solid_mask );
           m_reg->emplace_or_replace<Cmp::Destructable>( entity );
         }
 

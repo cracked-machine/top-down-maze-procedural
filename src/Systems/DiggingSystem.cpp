@@ -16,8 +16,8 @@
 namespace ProceduralMaze::Sys {
 
 DiggingSystem::DiggingSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                              Sprites::SpriteFactory &sprite_factory )
-    : BaseSystem( reg, window, sprite_factory )
+                              Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // register the event handler
   std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&DiggingSystem::on_player_action>(
@@ -25,25 +25,25 @@ DiggingSystem::DiggingSystem( ProceduralMaze::SharedEnttRegistry reg, sf::Render
   SPDLOG_DEBUG( "DiggingSystem initialized" );
 }
 
-void DiggingSystem::load_sounds()
-{
-  // load pool of pickaxe sound effects
-  for ( auto &pickaxe_sound : m_pickaxe_sounds )
-  {
-    if ( not pickaxe_sound.buffer.loadFromFile( pickaxe_sound.path ) )
-    {
-      SPDLOG_ERROR( "Failed to load dig sound effect: {}", pickaxe_sound.path.string() );
-      std::terminate();
-    }
-  }
-  // load final smash sound effect
-  if ( not m_pickaxe_final_sound.buffer.loadFromFile( m_pickaxe_final_sound.path ) )
-  {
-    SPDLOG_ERROR( "Failed to load smash sound effect: {}", m_pickaxe_final_sound.path.string() );
-    std::terminate();
-  }
-  SPDLOG_INFO( "DiggingSystem sounds initialized" );
-}
+// void DiggingSystem::load_sounds()
+// {
+//   // load pool of pickaxe sound effects
+//   for ( auto &pickaxe_sound : m_pickaxe_sounds )
+//   {
+//     if ( not pickaxe_sound.buffer.loadFromFile( pickaxe_sound.path ) )
+//     {
+//       SPDLOG_ERROR( "Failed to load dig sound effect: {}", pickaxe_sound.path.string() );
+//       std::terminate();
+//     }
+//   }
+//   // load final smash sound effect
+//   if ( not m_pickaxe_final_sound.buffer.loadFromFile( m_pickaxe_final_sound.path ) )
+//   {
+//     SPDLOG_ERROR( "Failed to load smash sound effect: {}", m_pickaxe_final_sound.path.string() );
+//     std::terminate();
+//   }
+//   SPDLOG_INFO( "DiggingSystem sounds initialized" );
+// }
 
 void DiggingSystem::update()
 {
@@ -141,22 +141,19 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       if ( obst_cmp.m_integrity <= 0.0f )
       {
         // select the final smash sound
-        m_dig_sound_player.setBuffer( m_pickaxe_final_sound.buffer );
+        m_sound_bank.get_effect( "pickaxe_final" ).play();
         obst_cmp.m_enabled = false;
         SPDLOG_DEBUG( "Digged through obstacle at position ({}, {})!", pos_cmp.x, pos_cmp.y );
       }
       else
       {
-        // select a random pickaxe sound
-        Cmp::RandomInt random_picker( 0, m_pickaxe_sounds.size() - 1 );
-        auto selected_pickaxe_sound_index = random_picker.gen();
-        SPDLOG_DEBUG( "Random pickaxe sound index: {}", selected_pickaxe_sound_index );
-        m_dig_sound_player.setBuffer( m_pickaxe_sounds[selected_pickaxe_sound_index].buffer );
-        SPDLOG_DEBUG( "Playing pickaxe sound: {}", m_pickaxe_sounds[selected_pickaxe_sound_index].path.string() );
+        // select all pickaxe sounds except the final smash sound
+        Cmp::RandomInt random_picker( 1, 6 );
+        m_sound_bank.get_effect( "pickaxe" + std::to_string( random_picker.gen() ) ).play();
+
         SPDLOG_DEBUG( "Digged obstacle at position ({}, {}), remaining integrity: {}!", pos_cmp.x, pos_cmp.y,
                       obst_cmp.m_integrity );
       }
-      m_dig_sound_player.play();
     }
   }
 }

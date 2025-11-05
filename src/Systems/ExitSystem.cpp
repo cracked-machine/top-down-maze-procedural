@@ -16,8 +16,8 @@
 namespace ProceduralMaze::Sys {
 
 ExitSystem::ExitSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                        Sprites::SpriteFactory &sprite_factory )
-    : BaseSystem( reg, window, sprite_factory )
+                        Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // register the event sinks
   std::ignore = getEventDispatcher().sink<Events::UnlockDoorEvent>().connect<&ExitSystem::on_door_unlock_event>( this );
@@ -63,7 +63,7 @@ void ExitSystem::unlock_exit()
   {
     exit_cmp.m_locked = false;
     door_cmp.m_tile_index = 1; // open door tile
-    exit_unlock_sound_player.play();
+    m_sound_bank.get_effect( "secret" ).play();
   }
 }
 

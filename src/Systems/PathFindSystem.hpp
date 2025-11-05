@@ -32,7 +32,8 @@ using PlayerDistanceQueue = std::priority_queue<std::pair<int, entt::entity>, st
 class PathFindSystem : public BaseSystem
 {
 public:
-  PathFindSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
+  PathFindSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+                  Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~PathFindSystem() = default;
 
   void findPath( entt::entity player_entity );

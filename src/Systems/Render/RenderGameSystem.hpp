@@ -20,7 +20,8 @@ namespace ProceduralMaze::Sys {
 class RenderGameSystem : public RenderSystem
 {
 public:
-  RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory );
+  RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
+                    Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~RenderGameSystem() = default;
 
   void init_views();

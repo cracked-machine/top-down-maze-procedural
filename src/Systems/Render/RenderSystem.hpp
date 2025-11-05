@@ -49,7 +49,7 @@ public:
   //! @brief Construct a new Render System object
   //! @param reg
   RenderSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                Sprites::SpriteFactory &sprite_factory );
+                Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief Destroy the Render System object
   virtual ~RenderSystem() = default;

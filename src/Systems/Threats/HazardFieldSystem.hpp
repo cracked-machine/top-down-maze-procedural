@@ -78,8 +78,8 @@ public:
   //! @param window Reference to the SFML render window
   //! @param sprite_factory Reference to the sprite factory
   HazardFieldSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                     Sprites::SpriteFactory &sprite_factory )
-      : Sys::BaseSystem( reg, window, sprite_factory )
+                     Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+      : Sys::BaseSystem( reg, window, sprite_factory, sound_bank )
   {
     // seed component must be created in entt registry before use.
     add_persistent_component<typename Traits::SeedType>();

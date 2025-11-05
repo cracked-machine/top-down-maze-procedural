@@ -14,8 +14,8 @@ namespace ProceduralMaze::Sys {
 class LootSystem : public BaseSystem
 {
 public:
-  LootSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-              Sprites::SpriteFactory &sprite_factory );
+  LootSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+              Audio::SoundBank &sound_bank );
 
   // Check for player collision with loot items i.e. player picks up loot
   void check_loot_collision();
@@ -29,15 +29,7 @@ public:
     detonate_loot_container( event );
   }
 
-  void update_volume();
-
 private:
-  sf::SoundBuffer m_break_pot_sound_buffer{ "res/audio/break_pot.wav" };
-  sf::Sound m_break_pot_sound_player{ m_break_pot_sound_buffer };
-  sf::SoundBuffer m_get_loot_sound_buffer{ "res/audio/get_loot.wav" };
-  sf::Sound m_get_loot_sound_player{ m_get_loot_sound_buffer };
-  sf::SoundBuffer m_get_key_sound_buffer{ "res/audio/get_key.wav" };
-  sf::Sound m_get_key_sound_player{ m_get_key_sound_buffer };
 };
 
 } // namespace ProceduralMaze::Sys

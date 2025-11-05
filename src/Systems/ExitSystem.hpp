@@ -12,8 +12,8 @@ namespace ProceduralMaze::Sys {
 class ExitSystem : public BaseSystem
 {
 public:
-  ExitSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-              Sprites::SpriteFactory &sprite_factory );
+  ExitSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+              Audio::SoundBank &sound_bank );
 
   void spawn_exit();
   void unlock_exit();
@@ -24,17 +24,8 @@ public:
   /// EVENT SINKS ///
   void on_door_unlock_event( [[maybe_unused]] const Events::UnlockDoorEvent &event ) { unlock_exit(); }
 
-  void update_volume()
-  {
-    // get a copy of the component and assigns its value to the members
-    auto effects_volume = get_persistent_component<Cmp::Persistent::EffectsVolume>();
-    exit_unlock_sound_player.setVolume( effects_volume.get_value() );
-  }
-
 private:
   int exit_sprite_index = 6;
-  sf::SoundBuffer exit_unlock_sound_buffer{ "res/audio/secret.wav" };
-  sf::Sound exit_unlock_sound_player{ exit_unlock_sound_buffer };
 };
 
 } // namespace ProceduralMaze::Sys

@@ -14,12 +14,16 @@ namespace ProceduralMaze::Sys {
 class AnimSystem : public BaseSystem
 {
 public:
-  AnimSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory )
-      : BaseSystem( reg, window, sprite_factory )
+  AnimSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+              Audio::SoundBank &sound_bank )
+      : BaseSystem( reg, window, sprite_factory, sound_bank )
   {
-    std::ignore = getEventDispatcher().sink<Events::AnimResetFrameEvent>().connect<&Sys::AnimSystem::on_anim_reset_frame>( this );
-    std::ignore = getEventDispatcher().sink<Events::AnimDirectionChangeEvent>().connect<&Sys::AnimSystem::on_anim_direction_change>(
-        this );
+    std::ignore = getEventDispatcher()
+                      .sink<Events::AnimResetFrameEvent>()
+                      .connect<&Sys::AnimSystem::on_anim_reset_frame>( this );
+    std::ignore = getEventDispatcher()
+                      .sink<Events::AnimDirectionChangeEvent>()
+                      .connect<&Sys::AnimSystem::on_anim_direction_change>( this );
     SPDLOG_DEBUG( "AnimSystem initialized" );
   }
 

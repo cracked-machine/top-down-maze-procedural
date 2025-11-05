@@ -11,8 +11,8 @@
 namespace ProceduralMaze::Sys {
 
 EventHandler::EventHandler( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &m_window,
-                            Sprites::SpriteFactory &sprite_factory )
-    : Sys::BaseSystem( reg, m_window, sprite_factory )
+                            Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : Sys::BaseSystem( reg, m_window, sprite_factory, sound_bank )
 {
 }
 

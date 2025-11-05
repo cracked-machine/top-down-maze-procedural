@@ -13,8 +13,8 @@ class RenderOverlaySystem : public RenderSystem
 {
 public:
   RenderOverlaySystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                       Sprites::SpriteFactory &sprite_factory )
-      : RenderSystem( reg, window, sprite_factory )
+                       Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+      : RenderSystem( reg, window, sprite_factory, sound_bank )
   {
     SPDLOG_DEBUG( "RenderOverlaySystem initialized" );
   };

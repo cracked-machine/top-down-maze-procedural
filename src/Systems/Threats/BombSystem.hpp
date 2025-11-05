@@ -38,8 +38,8 @@ namespace ProceduralMaze::Sys {
 class BombSystem : public BaseSystem
 {
 public:
-  BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-              Sprites::SpriteFactory &sprite_factory );
+  BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+              Audio::SoundBank &sound_bank );
 
   void suspend();
   void resume();
@@ -55,22 +55,9 @@ public:
     if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB ) { arm_occupied_location(); }
   }
 
-  void update_volume()
-  {
-    // get a copy of the component and assigns its value to the members
-    auto effects_volume = get_persistent_component<Cmp::Persistent::EffectsVolume>();
-    m_fuse_sound_player.setVolume( effects_volume.get_value() );
-    m_detonate_sound_player.setVolume( effects_volume.get_value() );
-  }
-
 private:
   const sf::Vector2f max_explosion_zone_size{ BaseSystem::kGridSquareSizePixels.x * 3.f,
                                               BaseSystem::kGridSquareSizePixels.y * 3.f };
-
-  sf::SoundBuffer m_fuse_sound_buffer{ "res/audio/fuse.wav" };
-  sf::Sound m_fuse_sound_player{ m_fuse_sound_buffer };
-  sf::SoundBuffer m_detonate_sound_buffer{ "res/audio/detonate.wav" };
-  sf::Sound m_detonate_sound_player{ m_detonate_sound_buffer };
 };
 
 } // namespace ProceduralMaze::Sys

@@ -21,8 +21,8 @@
 namespace ProceduralMaze::Sys {
 
 LargeObstacleSystem::LargeObstacleSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                                          Sprites::SpriteFactory &sprite_factory )
-    : BaseSystem( reg, window, sprite_factory )
+                                          Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // register the event sinks
   std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&LargeObstacleSystem::on_player_action>(
@@ -109,7 +109,7 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
               );
         // clang-format on
 
-        if ( obst_entity != entt::null ) { m_drop_loot_sound_player.play(); }
+        if ( obst_entity != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
         break;
 
         // unlock the door (internally checks if we activated all of the shrines)
@@ -181,7 +181,7 @@ void LargeObstacleSystem::check_player_grave_activation( Cmp::LargeObstacle &lo_
             );
         // clang-format on
 
-        if ( obst_entity != entt::null ) { m_drop_loot_sound_player.play(); }
+        if ( obst_entity != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
         break;
     }
   }
