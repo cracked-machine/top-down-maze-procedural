@@ -109,13 +109,14 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
       render_floormap( { 0, 0 } );
 
       // now draw everything else on top
+      render_sinkhole();
+      render_corruption();
+      render_wormhole();
+
       render_npc_containers();
       render_loot_containers();
       render_small_obstacles();
 
-      render_sinkhole();
-      render_corruption();
-      render_wormhole();
       render_armed();
       render_walls();
       render_player_spawn();
