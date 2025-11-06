@@ -112,10 +112,12 @@ bool BaseSystem::isDiagonalMovementBetweenObstacles( const sf::FloatRect &curren
 
   // Check if both orthogonal positions have obstacles
   bool horizontal_blocked = !is_valid_move( horizontal_check );
+  if ( !horizontal_blocked ) return false;
   bool vertical_blocked = !is_valid_move( vertical_check );
+  if ( !vertical_blocked ) return false;
 
-  // If both orthogonal paths are blocked, diagonal movement is between obstacles
-  return horizontal_blocked && vertical_blocked;
+  // Both orthogonal paths are blocked, diagonal movement is between obstacles
+  return true;
 }
 
 sf::FloatRect BaseSystem::calculate_view_bounds( const sf::View &view ) const

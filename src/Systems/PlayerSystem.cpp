@@ -72,7 +72,8 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
 
     // Check if moving diagonally
     bool is_diagonal = ( dir_cmp.x != 0.0f ) && ( dir_cmp.y != 0.0f );
-    bool diagonal_between_obstacles = is_diagonal && isDiagonalMovementBetweenObstacles( pos_cmp, dir_cmp );
+    bool diagonal_between_obstacles = false;
+    diagonal_between_obstacles = is_diagonal && isDiagonalMovementBetweenObstacles( pos_cmp, dir_cmp );
 
     // Only start new movement when not lerping
     if ( wants_to_move && !lerp_cmp )
