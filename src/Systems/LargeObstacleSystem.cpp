@@ -14,7 +14,6 @@
 #include <Events/LootContainerDestroyedEvent.hpp>
 #include <Events/NpcCreationEvent.hpp>
 #include <Events/NpcDeathEvent.hpp>
-#include <Events/UnlockDoorEvent.hpp>
 #include <Systems/LargeObstacleSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
@@ -25,16 +24,14 @@ LargeObstacleSystem::LargeObstacleSystem( ProceduralMaze::SharedEnttRegistry reg
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // register the event sinks
-  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&LargeObstacleSystem::on_player_action>(
-      this );
+  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&LargeObstacleSystem::on_player_action>( this );
 }
 
 void LargeObstacleSystem::check_player_lo_collision( Events::PlayerActionEvent::GameActions action )
 {
   if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
 
-  auto player_view = m_reg
-                         ->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount>();
+  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount>();
   auto large_obstacle_view = m_reg->view<Cmp::LargeObstacle>();
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_candles_cmp, pc_keys_cmp] : player_view.each() )
@@ -58,8 +55,7 @@ void LargeObstacleSystem::check_player_lo_collision( Events::PlayerActionEvent::
   }
 }
 
-void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo_cmp,
-                                                          Cmp::PlayerCandlesCount &pc_candles_cmp )
+void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo_cmp, Cmp::PlayerCandlesCount &pc_candles_cmp )
 {
   // check for shrine collisions
   auto shrine_view = m_reg->view<Cmp::ShrineSprite, Cmp::Position>();
@@ -111,9 +107,6 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
 
         if ( obst_entity != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
         break;
-
-        // unlock the door (internally checks if we activated all of the shrines)
-        getEventDispatcher().trigger( Events::UnlockDoorEvent() );
       }
     }
   }

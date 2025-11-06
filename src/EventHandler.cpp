@@ -136,15 +136,11 @@ void EventHandler::game_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F10 )
       {
-        auto max_num_shrines = get_persistent_component<Cmp::Persistent::MaxShrines>();
-        auto lo_view = m_reg->view<Cmp::LargeObstacle>();
-        for ( auto [lo_entt, lo_cmp] : lo_view.each() )
+        // UnlockDoorEvent will check player key count so give player 3 keys first
+        auto player_key_view = m_reg->view<Cmp::PlayerKeysCount>();
+        for ( auto [pkey_count_entity, pkey_count_cmp] : player_key_view.each() )
         {
-          if ( lo_cmp.getType() == "SHRINE" && not lo_cmp.are_powers_active() )
-          {
-            lo_cmp.set_powers_active();
-            SPDLOG_DEBUG( "Activating shrine at entity {}", static_cast<int>( lo_entt ) );
-          }
+          pkey_count_cmp.increment_count( 3 );
         }
         auto exit_cmp = m_reg->view<Cmp::Exit>();
         for ( auto [exit_entt, exit_cmp] : exit_cmp.each() )
@@ -194,6 +190,7 @@ void EventHandler::game_state_handler()
         {
           pc_key_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a key (player cheated)" );
+          getEventDispatcher().trigger( Events::UnlockDoorEvent() );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )

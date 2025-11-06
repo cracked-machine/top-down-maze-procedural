@@ -38,11 +38,12 @@ void SpriteFactory::init()
       solid_mask = value["multisprite"]["solid_mask"].get<std::vector<bool>>();
     }
 
-    meta.m_multisprite = MultiSprite{
-        key, texture_path, sprite_indices, grid_size, sprites_per_frame, sprites_per_sequence, solid_mask };
+    meta.m_multisprite = MultiSprite{ key,       texture_path, sprite_indices, grid_size, sprites_per_frame, sprites_per_sequence,
+                                      solid_mask };
 
     // Use the JSON key directly as the sprite type
     m_sprite_metadata_map[key] = std::move( meta );
+    SPDLOG_DEBUG( "Loaded sprite metadata for type: {}, texture path: {}", key, texture_path.string() );
   }
 
   // Create procedural error texture (bright magenta/black checkerboard)
@@ -100,9 +101,8 @@ std::vector<SpriteMetaType> SpriteFactory::get_all_sprite_types_by_pattern( cons
   return types;
 }
 
-std::pair<SpriteMetaType, std::size_t>
-SpriteFactory::get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list,
-                                                  std::vector<float> weights ) const
+std::pair<SpriteMetaType, std::size_t> SpriteFactory::get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list,
+                                                                                         std::vector<float> weights ) const
 {
   const SpriteMetaData &selected_data = get_random_spritedata( type_list, weights );
 

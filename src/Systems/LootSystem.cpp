@@ -7,18 +7,18 @@
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/WeaponLevel.hpp>
+#include <Events/UnlockDoorEvent.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
 namespace ProceduralMaze::Sys {
 
-LootSystem::LootSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                        Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+LootSystem::LootSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                        Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
-  std::ignore = getEventDispatcher()
-                    .sink<Events::LootContainerDestroyedEvent>()
-                    .connect<&LootSystem::on_loot_container_destroyed>( this );
+  std::ignore = getEventDispatcher().sink<Events::LootContainerDestroyedEvent>().connect<&LootSystem::on_loot_container_destroyed>(
+      this );
   SPDLOG_DEBUG( "LootSystem initialized" );
 }
 
@@ -35,12 +35,11 @@ void LootSystem::check_loot_collision()
   std::vector<LootEffect> loot_effects;
 
   // First pass: detect collisions and gather effects to apply
-  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::WeaponLevel,
-                                           Cmp::PlayerKeysCount, Cmp::PlayerCandlesCount>();
+  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::WeaponLevel, Cmp::PlayerKeysCount,
+                                           Cmp::PlayerCandlesCount>();
   auto loot_collision_view = m_reg->view<Cmp::Loot, Cmp::Position>();
 
-  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_weapon_level, pc_keys_count, pc_candles_count] :
-        player_collision_view.each() )
+  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_weapon_level, pc_keys_count, pc_candles_count] : player_collision_view.each() )
   {
     for ( auto [loot_entt, loot_cmp, loot_pos_cmp] : loot_collision_view.each() )
     {
@@ -83,8 +82,7 @@ void LootSystem::check_loot_collision()
       auto &water_bonus = get_persistent_component<Cmp::Persistent::WaterBonus>();
       for ( auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each() )
       {
-        water_level.m_level = std::min( water_level.m_level + water_bonus.get_value(),
-                                        static_cast<float>( kDisplaySize.y ) );
+        water_level.m_level = std::min( water_level.m_level + water_bonus.get_value(), static_cast<float>( kDisplaySize.y ) );
         m_sound_bank.get_effect( "get_loot" ).play();
       }
     }
@@ -108,6 +106,8 @@ void LootSystem::check_loot_collision()
       auto &pc_keys_count = m_reg->get<Cmp::PlayerKeysCount>( effect.player_entity );
       pc_keys_count.increment_count( 1 );
       m_sound_bank.get_effect( "get_key" ).play();
+      // unlock the door (internally checks if we activated all of the shrines)
+      getEventDispatcher().trigger( Events::UnlockDoorEvent() );
     }
     else if ( effect.type == "RELIC_DROP" )
     {

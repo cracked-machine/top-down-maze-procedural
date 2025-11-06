@@ -32,7 +32,7 @@ public:
 
   // The size of each grid square in pixels
   static const sf::Vector2u kGridSquareSizePixels;
-  static const sf::Vector2f kGridSquareSizePixelsF;
+  inline static constexpr sf::Vector2f kGridSquareSizePixelsF{ 16.f, 16.f };
 
   // The game display resolution in pixels
   static const sf::Vector2u kDisplaySize;
@@ -76,9 +76,8 @@ public:
 
     if ( pos )
     {
-      return std::optional<sf::Vector2i>{
-          { static_cast<int>( pos->position.x / BaseSystem::kGridSquareSizePixels.x ),
-            static_cast<int>( pos->position.y / BaseSystem::kGridSquareSizePixels.y ) } };
+      return std::optional<sf::Vector2i>{ { static_cast<int>( pos->position.x / BaseSystem::kGridSquareSizePixels.x ),
+                                            static_cast<int>( pos->position.y / BaseSystem::kGridSquareSizePixels.y ) } };
     }
     else { SPDLOG_ERROR( "Entity {} does not have a Position component", static_cast<int>( entity ) ); }
     return std::nullopt;
@@ -263,8 +262,7 @@ public:
    * @return entt::entity The newly created loot entity, or entt::null if no suitable location was found.
    */
   template <typename... Include, typename... Exclude>
-  entt::entity create_loot_drop( Cmp::Loot &&loot_cmp, sf::FloatRect search, IncludePack<Include...>,
-                                 ExcludePack<Exclude...> )
+  entt::entity create_loot_drop( Cmp::Loot &&loot_cmp, sf::FloatRect search, IncludePack<Include...>, ExcludePack<Exclude...> )
   {
     auto obst_view = m_reg->view<Cmp::Obstacle, Cmp::Position, Include...>( entt::exclude<Exclude...> );
 

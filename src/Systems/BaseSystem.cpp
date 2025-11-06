@@ -15,8 +15,8 @@
 
 namespace ProceduralMaze::Sys {
 
-BaseSystem::BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                        Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+BaseSystem::BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                        Audio::SoundBank &sound_bank )
     : m_reg( reg ),
       m_window( window ),
       m_sprite_factory( sprite_factory ),
@@ -32,7 +32,6 @@ const sf::Vector2u BaseSystem::kMapGridSize{ 100u, 124u };
 const sf::Vector2f BaseSystem::kMapGridOffset{ 1.f, 1.f };
 
 const sf::Vector2u BaseSystem::kGridSquareSizePixels{ 16u, 16u };
-const sf::Vector2f BaseSystem::kGridSquareSizePixelsF{ 16.f, 16.f };
 
 // initialised by first call to getEventDispatcher()
 std::unique_ptr<entt::dispatcher> BaseSystem::m_event_dispatcher = nullptr;

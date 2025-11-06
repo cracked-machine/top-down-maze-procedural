@@ -125,6 +125,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
       render_large_obstacles();
       render_loot();
       render_explosions();
+      render_arrow_compass();
       render_mist( player_position );
 
       if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
@@ -381,10 +382,7 @@ void RenderGameSystem::render_small_obstacles()
         rockPositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index, obstacle_cmp.m_integrity );
       }
       else if ( obstacle_cmp.m_type == "POT" ) { potPositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index ); }
-      else if ( obstacle_cmp.m_type == "BONES" )
-      {
-        bonePositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index );
-      }
+      else if ( obstacle_cmp.m_type == "BONES" ) { bonePositions.emplace_back( position_cmp, obstacle_cmp.m_tile_index ); }
     }
 
     if ( obstacle_cmp.m_integrity <= 0.0f ) { detonationPositions.push_back( position_cmp ); }
@@ -597,8 +595,7 @@ void RenderGameSystem::render_walls()
     sf::Vector2f new_origin{ 0.f, 0.f };
     float angle{ 0.f };
 
-    safe_render_sprite( "WALL", pos_cmp, wall_cmp.m_tile_index, new_scale, new_alpha, new_origin,
-                        sf::degrees( angle ) );
+    safe_render_sprite( "WALL", pos_cmp, wall_cmp.m_tile_index, new_scale, new_alpha, new_origin, sf::degrees( angle ) );
   }
 
   // draw entrance
@@ -611,8 +608,7 @@ void RenderGameSystem::render_walls()
     sf::Vector2f new_origin{ 0.f, 0.f };
     float angle{ 0.f };
 
-    safe_render_sprite( "WALL", pos_cmp, door_cmp.m_tile_index, new_scale, new_alpha, new_origin,
-                        sf::degrees( angle ) );
+    safe_render_sprite( "WALL", pos_cmp, door_cmp.m_tile_index, new_scale, new_alpha, new_origin, sf::degrees( angle ) );
   }
 
   auto exit_door_view = m_reg->view<Cmp::Door, Cmp::Position, Cmp::Exit>();
@@ -630,8 +626,7 @@ void RenderGameSystem::render_walls()
     sf::Vector2f new_origin{ half_width_px, half_height_px };
     float angle{ 0.f };
 
-    safe_render_sprite( "WALL", new_pos, door_cmp.m_tile_index, new_scale, new_alpha, new_origin,
-                        sf::degrees( angle ) );
+    safe_render_sprite( "WALL", new_pos, door_cmp.m_tile_index, new_scale, new_alpha, new_origin, sf::degrees( angle ) );
   }
 }
 
@@ -654,12 +649,10 @@ void RenderGameSystem::render_player()
       sprite_index = anim_cmp.m_base_frame + anim_cmp.m_current_frame;
     }
     // dont modify the original pos_cmp, create copy with modified position
-    sf::FloatRect new_pos{ { pc_pos_cmp.position.x + dir_cmp.x_offset, pc_pos_cmp.position.y },
-                           kGridSquareSizePixelsF };
+    sf::FloatRect new_pos{ { pc_pos_cmp.position.x + dir_cmp.x_offset, pc_pos_cmp.position.y }, kGridSquareSizePixelsF };
 
     auto &pc_damage_cooldown = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
-    bool is_in_damage_cooldown = pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() <
-                                 pc_damage_cooldown.get_value();
+    bool is_in_damage_cooldown = pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value();
 
     // Only render if not in cooldown OR if in cooldown and blink is visible
     if ( !is_in_damage_cooldown ||
@@ -794,8 +787,7 @@ void RenderGameSystem::render_npc()
     }
 
     sf::Vector2f new_scale{ dir_cmp.x_scale, 1.f };
-    sf::FloatRect new_position{ sf::Vector2f{ pos_cmp.position.x + dir_cmp.x_offset, pos_cmp.position.y },
-                                kGridSquareSizePixelsF };
+    sf::FloatRect new_position{ sf::Vector2f{ pos_cmp.position.x + dir_cmp.x_offset, pos_cmp.position.y }, kGridSquareSizePixelsF };
     // get the correct sprite index based on animation frame
     safe_render_sprite( npc_cmp.m_type, new_position, anim_cmp.m_current_frame, new_scale );
 
@@ -825,9 +817,6 @@ void RenderGameSystem::render_explosions()
   for ( auto [entity, pos_cmp, anim_cmp] : explosion_view.each() )
   {
     // Always render the current frame
-    SPDLOG_DEBUG( "Rendering explosion frame {}/{} for entity {}", anim_cmp.m_current_frame,
-                  m_explosion_ms->get_sprites_per_sequence(), static_cast<int>( entity ) );
-
     sf::FloatRect npc_death_pos{ pos_cmp, kGridSquareSizePixelsF };
     safe_render_sprite( "EXPLOSION", npc_death_pos, anim_cmp.m_current_frame );
   }
@@ -932,6 +921,79 @@ void RenderGameSystem::render_positions()
     position_marker.setOutlineColor( sf::Color::Green );
     position_marker.setOutlineThickness( 1.f );
     m_window.draw( position_marker );
+  }
+}
+
+void RenderGameSystem::render_arrow_compass()
+{
+  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto exit_view = m_reg->view<Cmp::Exit, Cmp::Position>();
+
+  for ( auto [player_entity, pc_cmp, pc_pos_cmp] : player_view.each() )
+  {
+    for ( auto [exit_entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
+    {
+      // only show the compass arrow if we unlocked the door (to reward player and help them find exit)
+      if ( exit_cmp.m_locked ) continue;
+
+      // dont show the compass arrow pointing to the exit if the exit is on-screen....we can see it
+      if ( is_visible_in_view( getGameView(), exit_pos_cmp ) ) return;
+
+      auto player_pos_center = pc_pos_cmp.getCenter();
+      sf::Vector2f exit_pos_center = exit_pos_cmp.getCenter();
+      sf::Vector2f direction = ( exit_pos_center - player_pos_center ).normalized();
+
+      // Get view bounds in world coordinates
+      sf::Vector2f view_center = m_local_view.getCenter();
+      sf::Vector2f view_size = m_local_view.getSize();
+      sf::FloatRect view_bounds{ { view_center.x - view_size.x / 2.0f, view_center.y - view_size.y / 2.0f }, view_size };
+
+      // Add margin from edge
+      float margin = 32.0f;
+      view_bounds.position.x += margin;
+      view_bounds.position.y += margin;
+      view_bounds.size.x -= margin * 2.0f;
+      view_bounds.size.y -= margin * 2.0f;
+
+      // Calculate intersection with screen bounds
+      sf::Vector2f arrow_position = player_pos_center;
+
+      // Calculate distances to each edge
+      float t_left = ( view_bounds.position.x - player_pos_center.x ) / direction.x;
+      float t_right = ( view_bounds.position.x + view_bounds.size.x - player_pos_center.x ) / direction.x;
+      float t_top = ( view_bounds.position.y - player_pos_center.y ) / direction.y;
+      float t_bottom = ( view_bounds.position.y + view_bounds.size.y - player_pos_center.y ) / direction.y;
+
+      // Find the smallest positive t (closest intersection)
+      float t = std::numeric_limits<float>::max();
+      if ( t_left > 0 ) t = std::min( t, t_left );
+      if ( t_right > 0 ) t = std::min( t, t_right );
+      if ( t_top > 0 ) t = std::min( t, t_top );
+      if ( t_bottom > 0 ) t = std::min( t, t_bottom );
+
+      // Calculate final arrow position at screen edge
+      if ( t < std::numeric_limits<float>::max() ) { arrow_position = player_pos_center + direction * t; }
+
+      // Use SFML's angle() function to get the angle directly
+      auto angle_radians = direction.angle();
+
+      // Center the arrow sprite at the calculated position
+      sf::FloatRect arrow_rect{ arrow_position - sf::Vector2f{ kGridSquareSizePixelsF.x / 2.0f, kGridSquareSizePixelsF.y / 2.0f },
+                                kGridSquareSizePixelsF };
+
+      // Map sin(time) from [-1, 1] to [0.2, 1.0]
+      // Formula: min + (max - min) * (sin(freq * time) + 1) / 2
+      auto time = m_compass_osc_clock.getElapsedTime().asSeconds();
+      auto sine = std::sin( m_compass_freq * time );
+      float oscillating_scale = m_compass_min_scale + ( m_compass_max_scale - m_compass_min_scale ) * ( sine + 1.0f ) / 2.0f;
+      auto scale = sf::Vector2f{ oscillating_scale, oscillating_scale };
+
+      auto sprite_index = 0;
+      auto alpha = 255;
+      auto origin = sf::Vector2f{ kGridSquareSizePixelsF.x / 2.0f, kGridSquareSizePixelsF.y / 2.0f };
+
+      safe_render_sprite( "ARROW", arrow_rect, sprite_index, scale, alpha, origin, angle_radians );
+    }
   }
 }
 

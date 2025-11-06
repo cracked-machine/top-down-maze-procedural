@@ -20,8 +20,8 @@ namespace ProceduralMaze::Sys {
 class RenderGameSystem : public RenderSystem
 {
 public:
-  RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                    Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                    Audio::SoundBank &sound_bank );
   ~RenderGameSystem() = default;
 
   void init_views();
@@ -52,6 +52,7 @@ private:
   void render_player_distances_on_obstacles();
   void render_npc_distances_on_obstacles();
   void render_positions();
+  void render_arrow_compass();
 
   void update_view_center( sf::View &view, const Cmp::Position &player_pos, float smoothFactor = 0.1f );
 
@@ -76,6 +77,12 @@ private:
   // restrict the path tracking data update to every 0.1 seconds (optimization)
   const sf::Time m_debug_update_interval{ sf::milliseconds( 10 ) };
   sf::Clock m_debug_update_timer;
+
+  float m_compass_scale{ 1.f };
+  sf::Clock m_compass_osc_clock;
+  float m_compass_freq{ 4.0f }; // oscillations per second
+  float m_compass_min_scale{ 0.5f };
+  float m_compass_max_scale{ 1.5f };
 };
 
 } // namespace ProceduralMaze::Sys
