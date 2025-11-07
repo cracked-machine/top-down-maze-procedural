@@ -2,6 +2,7 @@
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/MusicVolume.hpp>
 #include <Components/Persistent/ObstaclePushBack.hpp>
+#include <Components/PlayerMortality.hpp>
 #include <Components/SinkholeCell.hpp>
 #include <Engine.hpp>
 #include <Events/AnimResetFrameEvent.hpp>
@@ -65,8 +66,7 @@ bool Engine::run()
           m_render_menu_sys->render_title();
 
           // update fx volumes with persistent settings
-          auto &effects_volume = m_event_handler->get_persistent_component<Cmp::Persistent::EffectsVolume>()
-                                     .get_value();
+          auto &effects_volume = m_event_handler->get_persistent_component<Cmp::Persistent::EffectsVolume>().get_value();
           m_sound_bank->update_effects_volume( effects_volume );
 
           // update music volumes with persistent settings
@@ -168,13 +168,14 @@ bool Engine::run()
           m_path_find_sys->findPath( player_entity );
           m_npc_sys->update_movement( deltaTime );
 
-          // did the player drown? Then end the game
-          for ( auto [_, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
+          // did the player die? Then end the game
+          if ( m_player_sys->check_player_mortality() == Cmp::PlayerMortality::State::DEAD )
           {
-            if ( not _pc.alive ) { game_state.current_state = Cmp::Persistent::GameState::State::GAMEOVER; }
+            SPDLOG_INFO( "Player has died!" );
+            game_state.current_state = Cmp::Persistent::GameState::State::GAMEOVER;
           }
 
-          m_render_game_sys->render_game( deltaTime, *m_render_overlay_sys );
+          m_render_game_sys->render_game( deltaTime, *m_render_overlay_sys, *m_render_player_sys );
           break;
         } // case PLAYING end
 
@@ -200,11 +201,13 @@ bool Engine::run()
 
         case Cmp::Persistent::GameState::State::GAMEOVER: {
           m_player_sys->stop_footsteps_sound();
-          for ( auto [_, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
+
+          if ( m_player_sys->check_player_mortality() == Cmp::PlayerMortality::State::DEAD )
           {
-            if ( not _pc.alive ) { m_render_menu_sys->render_defeat_screen(); }
-            else { m_render_menu_sys->render_victory_screen(); }
+            m_render_menu_sys->render_defeat_screen();
           }
+          else { m_render_menu_sys->render_victory_screen(); }
+
           std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
           m_event_handler->game_over_state_handler();
 
@@ -269,19 +272,17 @@ void Engine::init_systems()
   m_npc_sys = std::make_unique<Sys::NpcSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
   m_collision_sys = std::make_unique<Sys::CollisionSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
   m_digging_sys = std::make_unique<Sys::DiggingSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
-  m_render_overlay_sys = std::make_unique<Sys::RenderOverlaySystem>( m_reg, *m_window, *m_sprite_factory,
-                                                                     *m_sound_bank );
+  m_render_overlay_sys = std::make_unique<Sys::RenderOverlaySystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
+  m_render_player_sys = std::make_unique<Sys::RenderPlayerSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
   m_bomb_sys = std::make_unique<Sys::BombSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
   m_loot_sys = std::make_unique<Sys::LootSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
   m_anim_sys = std::make_unique<Sys::AnimSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
   m_sinkhole_sys = std::make_unique<Sys::SinkHoleHazardSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
-  m_corruption_sys = std::make_unique<Sys::CorruptionHazardSystem>( m_reg, *m_window, *m_sprite_factory,
-                                                                    *m_sound_bank );
+  m_corruption_sys = std::make_unique<Sys::CorruptionHazardSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
   m_wormhole_sys = std::make_unique<Sys::WormholeSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
   m_exit_sys = std::make_unique<Sys::ExitSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
   m_footstep_sys = std::make_unique<Sys::FootstepSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
-  m_large_obstacle_sys = std::make_unique<Sys::LargeObstacleSystem>( m_reg, *m_window, *m_sprite_factory,
-                                                                     *m_sound_bank );
+  m_large_obstacle_sys = std::make_unique<Sys::LargeObstacleSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
 
   m_render_game_sys->init_shaders();
   m_render_game_sys->init_tilemap();
@@ -302,13 +303,11 @@ void Engine::enter_game()
   m_flood_sys->add_flood_water_entity();
 
   // create initial random game area with the required sprites
-  std::unique_ptr<Sys::ProcGen::RandomLevelGenerator>
-      random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>( m_reg, *m_window, *m_sprite_factory,
-                                                                           *m_sound_bank );
+  std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>(
+      m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
 
   // procedurally generate the game area from the initial random layout
-  Sys::ProcGen::CellAutomataSystem cellauto_parser{ m_reg, *m_window, *m_sprite_factory, *m_sound_bank,
-                                                    std::move( random_level ) };
+  Sys::ProcGen::CellAutomataSystem cellauto_parser{ m_reg, *m_window, *m_sprite_factory, *m_sound_bank, std::move( random_level ) };
   cellauto_parser.iterate( 5 );
 
   m_exit_sys->spawn_exit();

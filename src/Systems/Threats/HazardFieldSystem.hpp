@@ -3,6 +3,7 @@
 
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/PlayerHealth.hpp>
+#include <Components/PlayerMortality.hpp>
 #include <entt/entity/fwd.hpp>
 
 #include <SFML/System/Clock.hpp>
@@ -41,6 +42,7 @@ struct HazardTraits<Cmp::SinkholeCell>
   using SeedType = Cmp::Persistent::SinkholeSeed;
   using ExcludeHazard = Cmp::CorruptionCell;
   static constexpr bool kills_instantly = true;
+  static constexpr Cmp::PlayerMortality::State mortality_state = Cmp::PlayerMortality::State::FALLING;
 };
 
 // Traits for Corruption hazard field types
@@ -50,6 +52,7 @@ struct HazardTraits<Cmp::CorruptionCell>
   using SeedType = Cmp::Persistent::CorruptionSeed;
   using ExcludeHazard = Cmp::SinkholeCell;
   static constexpr bool kills_instantly = false;
+  static constexpr Cmp::PlayerMortality::State mortality_state = Cmp::PlayerMortality::State::DECAYING;
 };
 
 // Concept to constrain valid hazard field types
@@ -169,11 +172,12 @@ public:
   void check_player_hazard_field_collision()
   {
     auto hazard_view = m_reg->view<HazardType, Cmp::Position>();
-    auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::Position>();
+    auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
 
-    for ( auto [pc_entt, player_cmp, player_health_cmp, player_pos_cmp] : player_view.each() )
+    for ( auto [pc_entt, player_cmp, player_health_cmp, player_mort_cmp, player_pos_cmp] : player_view.each() )
     {
       // optimization
+      if ( player_mort_cmp.state != Cmp::PlayerMortality::State::ALIVE ) return;
       if ( !is_visible_in_view( RenderSystem::getGameView(), player_pos_cmp ) ) continue;
 
       // reduce the player hitbox so that you have to be almost centered over it to fall in
@@ -184,8 +188,19 @@ public:
         auto hazard_hitbox_redux = Cmp::RectBounds( hazard_pos_cmp.position, hazard_pos_cmp.size, 0.1f );
         if ( not player_hitbox_redux.findIntersection( hazard_hitbox_redux.getBounds() ) ) continue;
 
-        if constexpr ( Traits::kills_instantly ) { player_cmp.alive = false; }
-        else { player_health_cmp.health -= get_persistent_component<Cmp::Persistent::CorruptionDamage>().get_value(); }
+        if constexpr ( Traits::kills_instantly )
+        {
+          player_health_cmp.health = 0;
+          player_mort_cmp.state = Traits::mortality_state;
+        }
+        else
+        {
+          // corruption field: gradually drain health. if health is zero we trigger the death animation.
+          // but we might to use the decay state as a mechanic for zombies later on
+          if ( player_health_cmp.health <= 0 ) { player_mort_cmp.state = Traits::mortality_state; }
+          player_health_cmp.health -= get_persistent_component<Cmp::Persistent::CorruptionDamage>().get_value();
+          // player_mort_cmp.state = Traits::mortality_state;
+        }
         SPDLOG_DEBUG( "Player fell into a hazard field at position ({}, {})!", hazard_pos_cmp.x, hazard_pos_cmp.y );
         return;
       }

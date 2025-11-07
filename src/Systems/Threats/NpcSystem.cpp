@@ -3,6 +3,7 @@
 #include <Components/Persistent/NpcPushBack.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/PlayerHealth.hpp>
+#include <Components/PlayerMortality.hpp>
 #include <Components/RectBounds.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
@@ -168,13 +169,15 @@ void NpcSystem::check_bones_reanimation()
 
 void NpcSystem::check_player_to_npc_collision()
 {
-  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::Position, Cmp::Direction>();
+  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position,
+                                           Cmp::Direction>();
   auto npc_collision_view = m_reg->view<Cmp::NPC, Cmp::Position>();
   auto &npc_push_back = get_persistent_component<Cmp::Persistent::NpcPushBack>();
   auto &pc_damage_cooldown = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
 
-  for ( auto [pc_entity, pc_cmp, pc_health_cmp, pc_pos_cmp, dir_cmp] : player_collision_view.each() )
+  for ( auto [pc_entity, pc_cmp, pc_health_cmp, pc_mort_cmp, pc_pos_cmp, dir_cmp] : player_collision_view.each() )
   {
+    if ( pc_mort_cmp.state != Cmp::PlayerMortality::State::ALIVE ) return;
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_collision_view.each() )
     {
       // relaxed bounds to allow player to sneak past during lerp transition
@@ -190,7 +193,7 @@ void NpcSystem::check_player_to_npc_collision()
 
       if ( pc_health_cmp.health <= 0 )
       {
-        pc_cmp.alive = false;
+        pc_mort_cmp.state = Cmp::PlayerMortality::State::HAUNTED;
         return;
       }
 

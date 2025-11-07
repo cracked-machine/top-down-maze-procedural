@@ -1,6 +1,7 @@
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
+#include <Components/PlayerMortality.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/WeaponLevel.hpp>
 #include <SFML/System/Time.hpp>
@@ -59,7 +60,30 @@ void PlayerSystem::add_player_entity()
   m_reg->emplace<Cmp::PlayerKeysCount>( entity, 0 );
   m_reg->emplace<Cmp::PlayerRelicCount>( entity, 0 );
   m_reg->emplace<Cmp::PlayerHealth>( entity, 100 );
+  m_reg->emplace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );
   m_reg->emplace<Cmp::WeaponLevel>( entity, 100.f );
+}
+
+Cmp::PlayerMortality::State PlayerSystem::check_player_mortality()
+{
+  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality>();
+  Cmp::PlayerMortality::State mortality_state = Cmp::PlayerMortality::State::ALIVE;
+  for ( auto [entity, pc_cmp, health_cmp, mortality_cmp] : player_view.each() )
+  {
+
+    if ( mortality_cmp.state == Cmp::PlayerMortality::State::DEAD )
+    {
+      mortality_state = mortality_cmp.state;
+      break;
+    }
+    if ( health_cmp.health <= 0 && mortality_cmp.death_progress >= 1.0f )
+    {
+      mortality_cmp.state = Cmp::PlayerMortality::State::DEAD;
+      SPDLOG_INFO( "Player has progressed to deadness." );
+    }
+    mortality_state = mortality_cmp.state;
+  }
+  return mortality_state;
 }
 
 void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_check )

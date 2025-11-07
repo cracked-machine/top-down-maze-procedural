@@ -1,4 +1,5 @@
 #include <Components/PlayerHealth.hpp>
+#include <Components/PlayerMortality.hpp>
 #include <Systems/Threats/FloodSystem.hpp>
 
 namespace ProceduralMaze::Sys {
@@ -43,7 +44,7 @@ void FloodSystem::updateFlood( float dt )
 
   // Cache views once - better performance since entities always exist
   auto water_view = m_reg->view<Cmp::WaterLevel>();
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::Position, Cmp::Direction>();
+  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position, Cmp::Direction>();
 
   // abort if flood is paused
   for ( auto [_, sys] : m_reg->view<Cmp::System>().each() )
@@ -64,7 +65,7 @@ void FloodSystem::updateFlood( float dt )
   // BELOW player position
   for ( auto [_, water_level] : water_view.each() )
   {
-    for ( auto [player_entity, pc_cmp, pc_health_cmp, pos_cmp, dir_cmp] : player_view.each() )
+    for ( auto [player_entity, pc_cmp, pc_health_cmp, pc_mort_cmp, pos_cmp, dir_cmp] : player_view.each() )
     {
       if ( water_level.m_level <= pos_cmp.position.y ) // Water drowns player when water level is at or
                                                        // above player position
@@ -82,7 +83,7 @@ void FloodSystem::updateFlood( float dt )
 
           if ( pc_health_cmp.health <= 0 )
           {
-            pc_cmp.alive = false;
+            pc_mort_cmp.state = Cmp::PlayerMortality::State::DROWNING;
             SPDLOG_TRACE( "Player has drowned!" );
           }
         }

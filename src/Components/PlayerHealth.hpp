@@ -7,13 +7,13 @@ namespace ProceduralMaze::Cmp {
 class PlayerHealth
 {
 public:
-  explicit PlayerHealth( uint8_t initial_health = 100 )
+  explicit PlayerHealth( uint32_t initial_health = 100 )
       : health( initial_health )
   {
   }
 
-  // player health, signed, to prevent wrap-around
-  int8_t health{ 100 };
+  // i32 to mitigate accidental underflow as much as possible
+  int32_t health{ 100 };
 };
 
 } // namespace ProceduralMaze::Cmp

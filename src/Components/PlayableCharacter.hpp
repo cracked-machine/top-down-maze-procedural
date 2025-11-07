@@ -17,9 +17,6 @@ public:
   // blast radius for bomb explosions
   int blast_radius{};
 
-  // the source of all truthiness
-  bool alive{ true };
-
   // prevent bomb spamming
   sf::Clock m_bombdeploycooldowntimer;
   // prevent bomb spamming

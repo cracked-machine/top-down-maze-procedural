@@ -18,6 +18,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/Render/RenderGameSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Render/RenderMenuSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Render/RenderOverlaySystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/Render/RenderPlayerSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/AnimSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/BaseSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/CollisionSystem.cpp

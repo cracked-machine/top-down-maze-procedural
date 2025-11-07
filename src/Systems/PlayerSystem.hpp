@@ -2,6 +2,7 @@
 #define __CMP_PLAYERSYSTEM_HPP__
 
 #include <Components/Persistent/EffectsVolume.hpp>
+#include <Components/PlayerMortality.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <entt/entity/registry.hpp>
@@ -20,8 +21,8 @@ namespace ProceduralMaze::Sys {
 class PlayerSystem : public BaseSystem
 {
 public:
-  PlayerSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window,
-                Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  PlayerSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                Audio::SoundBank &sound_bank );
 
   /**
    * @brief Adds a new player entity to the game world.
@@ -31,6 +32,8 @@ public:
    * This method is typically called during game initialization.
    */
   void add_player_entity();
+
+  [[nodiscard]] Cmp::PlayerMortality::State check_player_mortality();
 
   /**
    * @brief Updates the player's movement based on input and physics

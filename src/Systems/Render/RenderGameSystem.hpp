@@ -12,6 +12,7 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
+#include <Systems/Render/RenderPlayerSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
 
@@ -27,7 +28,14 @@ public:
   void init_views();
   void init_shaders();
   void init_tilemap();
-  void render_game( sf::Time deltaTime, RenderOverlaySystem &overlay_sys );
+
+  //! @brief Entrypoint for rendering the game
+  //!
+  //! @param deltaTime
+  //! @param render_overlay_sys anything that is not part of the game world itself. i.e. UI, debug info, etc..
+  //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc.. as well as death
+  //! animations/effects
+  void render_game( sf::Time deltaTime, RenderOverlaySystem &render_overlay_sys, RenderPlayerSystem &render_player_sys );
 
 private:
   void render_floormap( const sf::Vector2f &offset = { 0.f, 0.f } );
@@ -42,9 +50,7 @@ private:
   void render_loot();
   void render_walls();
   void render_player_spawn();
-  void render_player();
-  void render_player_footsteps();
-  void render_npc();
+
   void render_explosions();
   void render_flood_waters( sf::FloatRect player_position );
   void render_mist( sf::FloatRect player_position );

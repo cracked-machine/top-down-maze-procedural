@@ -73,7 +73,8 @@ void RenderGameSystem::init_shaders()
 
 void RenderGameSystem::init_tilemap() { m_floormap.load( kMapGridSize, "res/json/tilemap_config.json" ); }
 
-void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderOverlaySystem &overlay_sys )
+void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderOverlaySystem &render_overlay_sys,
+                                    RenderPlayerSystem &render_player_sys )
 {
   using namespace Sprites;
 
@@ -120,9 +121,9 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
       render_armed();
       render_walls();
       render_player_spawn();
-      render_player_footsteps();
-      render_player();
-      render_npc();
+      render_player_sys.render_player_footsteps();
+      render_player_sys.render_player();
+      render_player_sys.render_npc();
       render_large_obstacles();
       render_loot();
       render_explosions();
@@ -157,8 +158,8 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
         render_loot();
         render_walls();
         render_player_spawn();
-        render_player();
-        render_npc();
+        render_player_sys.render_player();
+        render_player_sys.render_npc();
         render_large_obstacles();
         // render_flood_waters();
 
@@ -219,20 +220,20 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
       }
 
       // render metrics
-      overlay_sys.render_ui_background_overlay( { 20.f, 20.f }, { 300.f, 270.f } );
-      overlay_sys.render_health_overlay( player_health, { 40.f, 40.f }, { 200.f, 20.f } );
-      overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, 80.f }, { 200.f, 20.f } );
-      overlay_sys.render_bomb_overlay( bomb_inventory, blast_radius, { 40.f, 120.f } );
-      overlay_sys.render_player_candles_overlay( player_candles_count, { 40.f, 160.f } );
-      overlay_sys.render_key_count_overlay( player_keys_count, { 40.f, 200.f } );
-      overlay_sys.render_relic_count_overlay( player_relic_count, { 40.f, 240.f } );
+      render_overlay_sys.render_ui_background_overlay( { 20.f, 20.f }, { 300.f, 270.f } );
+      render_overlay_sys.render_health_overlay( player_health, { 40.f, 40.f }, { 200.f, 20.f } );
+      render_overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, 80.f }, { 200.f, 20.f } );
+      render_overlay_sys.render_bomb_overlay( bomb_inventory, blast_radius, { 40.f, 120.f } );
+      render_overlay_sys.render_player_candles_overlay( player_candles_count, { 40.f, 160.f } );
+      render_overlay_sys.render_key_count_overlay( player_keys_count, { 40.f, 200.f } );
+      render_overlay_sys.render_relic_count_overlay( player_relic_count, { 40.f, 240.f } );
       if ( m_show_debug_stats )
       {
-        overlay_sys.render_player_position_overlay( player_position.position, { 40.f, 300.f } );
-        overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 340.f } );
-        overlay_sys.render_stats_overlay( { 40.f, 360.f }, { 40.f, 380.f }, { 40.f, 400.f } );
+        render_overlay_sys.render_player_position_overlay( player_position.position, { 40.f, 300.f } );
+        render_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 340.f } );
+        render_overlay_sys.render_stats_overlay( { 40.f, 360.f }, { 40.f, 380.f }, { 40.f, 400.f } );
       }
-      overlay_sys.render_entt_distance_set_overlay( { 40.f, 300.f } );
+      render_overlay_sys.render_entt_distance_set_overlay( { 40.f, 300.f } );
     }
     // UI Overlays end
   }
@@ -628,187 +629,6 @@ void RenderGameSystem::render_walls()
     float angle{ 0.f };
 
     safe_render_sprite( "WALL", new_pos, door_cmp.m_tile_index, new_scale, new_alpha, new_origin, sf::degrees( angle ) );
-  }
-}
-
-void RenderGameSystem::render_player()
-{
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds,
-                                 Cmp::SpriteAnimation>();
-  for ( auto [entity, pc_cmp, pc_pos_cmp, dir_cmp, pc_detection_bounds, anim_cmp] : player_view.each() )
-  {
-    int sprite_index;
-
-    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) )
-    {
-      // Use static frame when not moving
-      sprite_index = anim_cmp.m_base_frame;
-    }
-    else
-    {
-      // Use animated frame: base_frame + current_frame
-      sprite_index = anim_cmp.m_base_frame + anim_cmp.m_current_frame;
-    }
-    // dont modify the original pos_cmp, create copy with modified position
-    sf::FloatRect new_pos{ { pc_pos_cmp.position.x + dir_cmp.x_offset, pc_pos_cmp.position.y }, kGridSquareSizePixelsF };
-
-    auto &pc_damage_cooldown = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
-    bool is_in_damage_cooldown = pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value();
-
-    // Only render if not in cooldown OR if in cooldown and blink is visible
-    if ( !is_in_damage_cooldown ||
-         ( is_in_damage_cooldown &&
-           static_cast<int>( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asMilliseconds() / 100 ) % 2 == 0 ) )
-    {
-      safe_render_sprite( "PLAYER", new_pos, sprite_index );
-    }
-
-    if ( m_show_path_distances )
-    {
-      sf::RectangleShape pc_square( pc_detection_bounds.size() );
-      pc_square.setFillColor( sf::Color::Transparent );
-      pc_square.setOutlineColor( sf::Color::Green );
-      pc_square.setOutlineThickness( 1.f );
-      pc_square.setPosition( pc_detection_bounds.position() );
-      m_window.draw( pc_square );
-    }
-
-    // auto half_sprite_size = kGridSquareSizePixelsF;
-    // auto player_horizontal_bounds = Cmp::RectBounds( pc_pos_cmp, half_sprite_size, 1.5f,
-    //                                                  Cmp::RectBounds::ScaleCardinality::HORIZONTAL );
-    // auto player_vertical_bounds = Cmp::RectBounds( pc_pos_cmp, half_sprite_size, 1.5f,
-    //                                                Cmp::RectBounds::ScaleCardinality::VERTICAL );
-
-    // // auto player_hitbox = Cmp::RectBounds( pc_pos_cmp, sf::Vector2f{ BaseSystem::kGridSquareSizePixels
-    // },
-    // //                                       1.2f );
-    // // Debug: Draw a green rectangle around the player position
-    // sf::RectangleShape player_square( player_horizontal_bounds.size() );
-    // player_square.setFillColor( sf::Color::Transparent );
-    // player_square.setOutlineColor( sf::Color::Green );
-    // player_square.setOutlineThickness( 1.f );
-    // player_square.setPosition( player_horizontal_bounds.position() );
-    // m_window.draw( player_square );
-
-    // sf::RectangleShape player_square2( player_vertical_bounds.size() );
-    // player_square2.setFillColor( sf::Color::Transparent );
-    // player_square2.setOutlineColor( sf::Color::Blue );
-    // player_square2.setOutlineThickness( 1.f );
-    // player_square2.setPosition( player_vertical_bounds.position() );
-    // m_window.draw( player_square2 );
-  }
-}
-
-void RenderGameSystem::render_player_footsteps()
-{
-
-  // render all footsteps
-  auto footstep_view = m_reg->view<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Position, Cmp::Direction>();
-  for ( auto [entity, timer, alpha, pos_cmp, direction] : footstep_view.each() )
-  {
-    std::size_t new_idx = 0;
-    uint8_t new_alpha{ alpha.m_alpha };
-    sf::Vector2f new_scale{ 1.f, 1.f };
-    // we're changing the origin to be the center of the sprite so that
-    // rotation happens around the center, this means we also need to
-    // offset the position to make it look convincing depending on direction of movement
-    sf::Vector2f new_origin{ BaseSystem::kGridSquareSizePixels.x / 2.f, BaseSystem::kGridSquareSizePixels.y / 2.f };
-    sf::FloatRect new_pos{ pos_cmp.position, kGridSquareSizePixelsF };
-    // moving in right direction: place footsteps to bottom-left of player position
-    if ( direction == sf::Vector2f( 1.f, 0.f ) )
-    {
-      new_pos.position = { pos_cmp.position.x + ( BaseSystem::kGridSquareSizePixels.x * 0.25f ),
-                           pos_cmp.position.y + ( BaseSystem::kGridSquareSizePixels.y * 0.75f ) };
-    }
-    // moving in left direction: place footsteps to bottom-right of player position
-    else if ( direction == sf::Vector2f( -1.f, 0.f ) )
-    {
-      new_pos.position = { pos_cmp.position.x + ( BaseSystem::kGridSquareSizePixels.x * 0.75f ),
-                           pos_cmp.position.y + ( BaseSystem::kGridSquareSizePixels.y * 0.75f ) };
-    }
-    // moving diagonally: down/left
-    else if ( direction == sf::Vector2f( -1.f, 1.f ) )
-    {
-      new_pos.position = { pos_cmp.position.x + ( BaseSystem::kGridSquareSizePixels.x * 0.75f ),
-                           pos_cmp.position.y + ( BaseSystem::kGridSquareSizePixels.y * 0.75f ) };
-    }
-    // moving diagonally: down/right
-    else if ( direction == sf::Vector2f( 1.f, 1.f ) )
-    {
-      new_pos.position = { pos_cmp.position.x + ( BaseSystem::kGridSquareSizePixels.x * 0.5f ),
-                           pos_cmp.position.y + ( BaseSystem::kGridSquareSizePixels.y * 0.8f ) };
-    }
-    // moving diagonally: up/left
-    else if ( direction == sf::Vector2f( -1.f, -1.f ) )
-    {
-      new_pos.position = { pos_cmp.position.x + ( BaseSystem::kGridSquareSizePixels.x * 0.5f ),
-                           pos_cmp.position.y + ( BaseSystem::kGridSquareSizePixels.y * 0.8f ) };
-    }
-    // moving diagonally: up/right
-    else if ( direction == sf::Vector2f( 1.f, -1.f ) )
-    {
-      new_pos.position = { pos_cmp.position.x + ( BaseSystem::kGridSquareSizePixels.x * 0.5f ),
-                           pos_cmp.position.y + ( BaseSystem::kGridSquareSizePixels.y * 0.8f ) };
-    }
-    // moving in up/down direction: place footsteps to center of player position
-    else
-    {
-      new_pos.position = { pos_cmp.position.x + ( BaseSystem::kGridSquareSizePixels.x * 0.5f ),
-                           pos_cmp.position.y + ( BaseSystem::kGridSquareSizePixels.y * 0.5f ) };
-    }
-    // only set rotation if direction is not zero vector
-    sf::Angle new_angle;
-    if ( direction != sf::Vector2f( 0.f, 0.f ) ) { new_angle = direction.angle(); }
-
-    safe_render_sprite( "FOOTSTEPS", new_pos, new_idx, new_scale, new_alpha, new_origin, new_angle );
-  }
-}
-
-void RenderGameSystem::render_npc()
-{
-  for ( auto [entity, npc_cmp, pos_cmp, npc_sb_cmp, dir_cmp, anim_cmp] :
-        m_reg->view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds, Cmp::Direction, Cmp::SpriteAnimation>().each() )
-  {
-    // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
-    // flip and x-axis offset the sprite depending on the direction
-    if ( dir_cmp.x > 0 )
-    {
-      dir_cmp.x_scale = 1.f;
-      dir_cmp.x_offset = 0.f;
-    }
-    else if ( dir_cmp.x < 0 )
-    {
-      dir_cmp.x_scale = -1.f;
-      dir_cmp.x_offset = BaseSystem::kGridSquareSizePixels.x;
-    }
-    else
-    {
-      dir_cmp.x_scale = dir_cmp.x_scale; // keep last known direction
-      dir_cmp.x_offset = dir_cmp.x_offset;
-    }
-
-    sf::Vector2f new_scale{ dir_cmp.x_scale, 1.f };
-    sf::FloatRect new_position{ sf::Vector2f{ pos_cmp.position.x + dir_cmp.x_offset, pos_cmp.position.y }, kGridSquareSizePixelsF };
-    // get the correct sprite index based on animation frame
-    safe_render_sprite( npc_cmp.m_type, new_position, anim_cmp.m_current_frame, new_scale );
-
-    // show npc scan distance
-    if ( m_show_path_distances )
-    {
-      sf::RectangleShape npc_square( npc_sb_cmp.size() );
-      npc_square.setFillColor( sf::Color::Transparent );
-      npc_square.setOutlineColor( sf::Color::Red );
-      npc_square.setOutlineThickness( 1.f );
-      npc_square.setPosition( npc_sb_cmp.position() );
-      m_window.draw( npc_square );
-    }
-
-    // sf::RectangleShape player_square( kGridSquareSizePixelsF );
-    // player_square.setFillColor( sf::Color::Transparent );
-    // player_square.setOutlineColor( sf::Color::Red );
-    // player_square.setOutlineThickness( 1.f );
-    // player_square.setPosition( pos );
-    // m_window.draw( player_square );
   }
 }
 

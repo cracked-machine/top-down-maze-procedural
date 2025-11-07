@@ -103,8 +103,7 @@ private:
     Cmp::Font font( "res/fonts/tuffy.ttf" );
     sf::Text loading_text( font, "Loading", 48 );
     loading_text.setFillColor( sf::Color::White );
-    loading_text.setPosition(
-        { Sys::BaseSystem::kDisplaySize.x / 2.f - 50.f, Sys::BaseSystem::kDisplaySize.y / 2.f + 100.f } );
+    loading_text.setPosition( { Sys::BaseSystem::kDisplaySize.x / 2.f - 50.f, Sys::BaseSystem::kDisplaySize.y / 2.f + 100.f } );
 
     sf::Clock clock;
     const float text_update_interval = 1.f; // 1 second between dot updates
@@ -151,8 +150,8 @@ private:
   ProceduralMaze::SharedEnttRegistry m_reg{ std::make_shared<entt::basic_registry<entt::entity>>() };
 
   // Create the opengl window
-  std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>(
-      sf::VideoMode( Sys::BaseSystem::kDisplaySize ), "ProceduralMaze", sf::State::Fullscreen );
+  std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( Sys::BaseSystem::kDisplaySize ),
+                                                                                   "ProceduralMaze", sf::State::Fullscreen );
 
   // create MultiSprite resources
   std::unique_ptr<Sprites::SpriteFactory> m_sprite_factory;
@@ -171,6 +170,7 @@ private:
   std::unique_ptr<Sys::CollisionSystem> m_collision_sys;
   std::unique_ptr<Sys::DiggingSystem> m_digging_sys;
   std::unique_ptr<Sys::RenderOverlaySystem> m_render_overlay_sys;
+  std::unique_ptr<Sys::RenderPlayerSystem> m_render_player_sys;
   std::unique_ptr<Sys::BombSystem> m_bomb_sys;
   std::unique_ptr<Sys::AnimSystem> m_anim_sys;
   std::unique_ptr<Sys::SinkHoleHazardSystem> m_sinkhole_sys;

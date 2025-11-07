@@ -5,6 +5,7 @@
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
+#include <Components/PlayerMortality.hpp>
 #include <EventHandler.hpp>
 #include <Events/SaveSettingsEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
@@ -154,9 +155,11 @@ void EventHandler::game_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
       {
-        for ( auto [_, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
+        // dont set PlayerMortality::State directly, instead update health/death_progress and let the PlayerSystem logic handle it
+        for ( auto [entity, pc_mort_cmp, pc_health_cmp] : m_reg->view<Cmp::PlayerMortality, Cmp::PlayerHealth>().each() )
         {
-          _pc.alive = false;
+          pc_health_cmp.health = 0;
+          pc_mort_cmp.death_progress = 1.0f;
           SPDLOG_INFO( "Player committed suicide" );
         }
       }

@@ -1,5 +1,6 @@
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/PlayerHealth.hpp>
+#include <Components/PlayerMortality.hpp>
 #include <spdlog/spdlog.h>
 
 #include <Components/Armed.hpp>
@@ -189,14 +190,14 @@ void BombSystem::update()
     }
 
     // Check player explosion damage
-    auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::Position>();
-    for ( auto [pc_entt, pc_cmp, pc_health_cmp, pc_pos_cmp] : player_view.each() )
+    auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
+    for ( auto [pc_entt, pc_cmp, pc_health_cmp, pc_mort_cmp, pc_pos_cmp] : player_view.each() )
     {
       if ( pc_pos_cmp.findIntersection( armed_pos_cmp ) )
       {
         auto &bomb_damage = get_persistent_component<Cmp::Persistent::BombDamage>();
         pc_health_cmp.health -= bomb_damage.get_value();
-        if ( pc_health_cmp.health <= 0 ) { pc_cmp.alive = false; }
+        if ( pc_health_cmp.health <= 0 ) { pc_mort_cmp.state = Cmp::PlayerMortality::State::EXPLODING; }
       }
       pc_cmp.has_active_bomb = false;
     }
