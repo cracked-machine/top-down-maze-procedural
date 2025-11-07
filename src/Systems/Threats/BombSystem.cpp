@@ -1,4 +1,5 @@
 #include <Components/Persistent/EffectsVolume.hpp>
+#include <Components/PlayerHealth.hpp>
 #include <spdlog/spdlog.h>
 
 #include <Components/Armed.hpp>
@@ -17,12 +18,11 @@
 
 namespace ProceduralMaze::Sys {
 
-BombSystem::BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                        Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+BombSystem::BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                        Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
-  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>(
-      this );
+  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>( this );
   SPDLOG_DEBUG( "BombSystem initialized" );
 }
 
@@ -140,10 +140,8 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
       auto &armed_on_delay = get_persistent_component<Cmp::Persistent::ArmedOnDelay>();
       auto &armed_off_delay = get_persistent_component<Cmp::Persistent::ArmedOffDelay>();
       auto new_fuse_delay = sf::seconds( fuse_delay.get_value() + ( sequence_counter * armed_on_delay.get_value() ) );
-      auto new_warning_delay = sf::seconds( armed_off_delay.get_value() +
-                                            ( sequence_counter * armed_off_delay.get_value() ) );
-      m_reg->emplace_or_replace<Cmp::Armed>( entity, new_fuse_delay, new_warning_delay, false, color,
-                                             sequence_counter );
+      auto new_warning_delay = sf::seconds( armed_off_delay.get_value() + ( sequence_counter * armed_off_delay.get_value() ) );
+      m_reg->emplace_or_replace<Cmp::Armed>( entity, new_fuse_delay, new_warning_delay, false, color, sequence_counter );
       sequence_counter++;
     }
   }
@@ -191,16 +189,16 @@ void BombSystem::update()
     }
 
     // Check player explosion damage
-    auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
-    for ( auto [player_entt, player, player_position] : player_view.each() )
+    auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::Position>();
+    for ( auto [pc_entt, pc_cmp, pc_health_cmp, pc_pos_cmp] : player_view.each() )
     {
-      if ( player_position.findIntersection( armed_pos_cmp ) )
+      if ( pc_pos_cmp.findIntersection( armed_pos_cmp ) )
       {
         auto &bomb_damage = get_persistent_component<Cmp::Persistent::BombDamage>();
-        player.health -= bomb_damage.get_value();
-        if ( player.health <= 0 ) { player.alive = false; }
+        pc_health_cmp.health -= bomb_damage.get_value();
+        if ( pc_health_cmp.health <= 0 ) { pc_cmp.alive = false; }
       }
-      player.has_active_bomb = false;
+      pc_cmp.has_active_bomb = false;
     }
 
     // Check if NPC was killed by explosion

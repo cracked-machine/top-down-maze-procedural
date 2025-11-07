@@ -4,6 +4,7 @@
 #include <Components/Persistent/WaterBonus.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCandlesCount.hpp>
+#include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/WeaponLevel.hpp>
@@ -59,13 +60,14 @@ void LootSystem::check_loot_collision()
     if ( !m_reg->valid( effect.player_entity ) ) continue;
 
     auto &pc_cmp = m_reg->get<Cmp::PlayableCharacter>( effect.player_entity );
+    auto &pc_health_cmp = m_reg->get<Cmp::PlayerHealth>( effect.player_entity );
     auto &weapon_level_cmp = m_reg->get<Cmp::WeaponLevel>( effect.player_entity );
 
     // Apply the effect
     if ( effect.type == "EXTRA_HEALTH" )
     {
       auto &health_bonus = get_persistent_component<Cmp::Persistent::HealthBonus>();
-      pc_cmp.health = std::min( pc_cmp.health + health_bonus.get_value(), 100 );
+      pc_health_cmp.health = std::min( pc_health_cmp.health + health_bonus.get_value(), 100 );
       m_sound_bank.get_effect( "get_loot" ).play();
     }
     else if ( effect.type == "EXTRA_BOMBS" )

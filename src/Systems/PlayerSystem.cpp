@@ -1,4 +1,5 @@
 #include <Components/Persistent/EffectsVolume.hpp>
+#include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/WeaponLevel.hpp>
@@ -57,6 +58,7 @@ void PlayerSystem::add_player_entity()
   m_reg->emplace<Cmp::PlayerCandlesCount>( entity, 0 );
   m_reg->emplace<Cmp::PlayerKeysCount>( entity, 0 );
   m_reg->emplace<Cmp::PlayerRelicCount>( entity, 0 );
+  m_reg->emplace<Cmp::PlayerHealth>( entity, 100 );
   m_reg->emplace<Cmp::WeaponLevel>( entity, 100.f );
 }
 

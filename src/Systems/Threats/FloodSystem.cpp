@@ -1,9 +1,10 @@
+#include <Components/PlayerHealth.hpp>
 #include <Systems/Threats/FloodSystem.hpp>
 
 namespace ProceduralMaze::Sys {
 
-FloodSystem::FloodSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                          Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+FloodSystem::FloodSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                          Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "FloodSystem initialized" );
@@ -42,7 +43,7 @@ void FloodSystem::updateFlood( float dt )
 
   // Cache views once - better performance since entities always exist
   auto water_view = m_reg->view<Cmp::WaterLevel>();
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction>();
+  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::Position, Cmp::Direction>();
 
   // abort if flood is paused
   for ( auto [_, sys] : m_reg->view<Cmp::System>().each() )
@@ -63,7 +64,7 @@ void FloodSystem::updateFlood( float dt )
   // BELOW player position
   for ( auto [_, water_level] : water_view.each() )
   {
-    for ( auto [player_entity, pc_cmp, pos_cmp, dir_cmp] : player_view.each() )
+    for ( auto [player_entity, pc_cmp, pc_health_cmp, pos_cmp, dir_cmp] : player_view.each() )
     {
       if ( water_level.m_level <= pos_cmp.position.y ) // Water drowns player when water level is at or
                                                        // above player position
@@ -75,11 +76,11 @@ void FloodSystem::updateFlood( float dt )
         auto it = m_last_damage_time.find( player_entity );
         if ( it == m_last_damage_time.end() || ( total_time - it->second ) >= DAMAGE_COOLDOWN )
         {
-          pc_cmp.health -= 5;
-          SPDLOG_TRACE( "player health {}", player_char.health );
+          pc_health_cmp.health -= 5;
+          SPDLOG_TRACE( "player health {}", pc_health_cmp.health );
           m_last_damage_time[player_entity] = total_time;
 
-          if ( pc_cmp.health <= 0 )
+          if ( pc_health_cmp.health <= 0 )
           {
             pc_cmp.alive = false;
             SPDLOG_TRACE( "Player has drowned!" );

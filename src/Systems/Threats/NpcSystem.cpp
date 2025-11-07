@@ -2,6 +2,7 @@
 #include <Components/Persistent/NpcDamage.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
+#include <Components/PlayerHealth.hpp>
 #include <Components/RectBounds.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
@@ -20,16 +21,13 @@
 
 namespace ProceduralMaze::Sys {
 
-NpcSystem::NpcSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                      Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+NpcSystem::NpcSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                      Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
-  std::ignore = Sys::BaseSystem::getEventDispatcher()
-                    .sink<Events::NpcCreationEvent>()
-                    .connect<&Sys::NpcSystem::on_npc_creation>( this );
-  std::ignore = Sys::BaseSystem::getEventDispatcher()
-                    .sink<Events::NpcDeathEvent>()
-                    .connect<&Sys::NpcSystem::on_npc_death>( this );
+  std::ignore = Sys::BaseSystem::getEventDispatcher().sink<Events::NpcCreationEvent>().connect<&Sys::NpcSystem::on_npc_creation>(
+      this );
+  std::ignore = Sys::BaseSystem::getEventDispatcher().sink<Events::NpcDeathEvent>().connect<&Sys::NpcSystem::on_npc_death>( this );
   SPDLOG_DEBUG( "NpcSystem initialized" );
 }
 
@@ -61,8 +59,8 @@ void NpcSystem::add_npc_entity( const Events::NpcCreationEvent &event )
 
   if ( event.type == "NPCGHOST" )
   {
-    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ),
-                 event.type, pos_cmp->position.x, pos_cmp->position.y );
+    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), event.type,
+                 pos_cmp->position.x, pos_cmp->position.y );
     m_sound_bank.get_effect( "spawn_ghost" ).play();
   }
 }
@@ -73,8 +71,7 @@ void NpcSystem::remove_npc_entity( entt::entity npc_entity )
   auto npc_pos_cmp = m_reg->try_get<Cmp::Position>( npc_entity );
   if ( not npc_pos_cmp )
   {
-    SPDLOG_WARN( "Cannot process loot drop for NPC entity {} without a Position component",
-                 static_cast<int>( npc_entity ) );
+    SPDLOG_WARN( "Cannot process loot drop for NPC entity {} without a Position component", static_cast<int>( npc_entity ) );
   }
   else
   {
@@ -171,12 +168,12 @@ void NpcSystem::check_bones_reanimation()
 
 void NpcSystem::check_player_to_npc_collision()
 {
-  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction>();
+  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::Position, Cmp::Direction>();
   auto npc_collision_view = m_reg->view<Cmp::NPC, Cmp::Position>();
   auto &npc_push_back = get_persistent_component<Cmp::Persistent::NpcPushBack>();
   auto &pc_damage_cooldown = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
 
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp, dir_cmp] : player_collision_view.each() )
+  for ( auto [pc_entity, pc_cmp, pc_health_cmp, pc_pos_cmp, dir_cmp] : player_collision_view.each() )
   {
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_collision_view.each() )
     {
@@ -187,11 +184,11 @@ void NpcSystem::check_player_to_npc_collision()
       if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
 
       auto &npc_damage = get_persistent_component<Cmp::Persistent::NpcDamage>();
-      pc_cmp.health -= npc_damage.get_value();
+      pc_health_cmp.health -= npc_damage.get_value();
 
       m_sound_bank.get_effect( "damage_player" ).play();
 
-      if ( pc_cmp.health <= 0 )
+      if ( pc_health_cmp.health <= 0 )
       {
         pc_cmp.alive = false;
         return;

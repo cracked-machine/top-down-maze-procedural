@@ -2,6 +2,7 @@
 #define __SYS_HAZARDFIELDSYSTEM_HPP__
 
 #include <Components/Persistent/CorruptionDamage.hpp>
+#include <Components/PlayerHealth.hpp>
 #include <entt/entity/fwd.hpp>
 
 #include <SFML/System/Clock.hpp>
@@ -77,8 +78,8 @@ public:
   //! @param reg Smart pointer to the entt registry
   //! @param window Reference to the SFML render window
   //! @param sprite_factory Reference to the sprite factory
-  HazardFieldSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                     Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+  HazardFieldSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                     Audio::SoundBank &sound_bank )
       : Sys::BaseSystem( reg, window, sprite_factory, sound_bank )
   {
     // seed component must be created in entt registry before use.
@@ -168,23 +169,23 @@ public:
   void check_player_hazard_field_collision()
   {
     auto hazard_view = m_reg->view<HazardType, Cmp::Position>();
-    auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
+    auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::Position>();
 
-    for ( auto [pc_entt, player_cmp, player_pos_cmp] : player_view.each() )
+    for ( auto [pc_entt, player_cmp, player_health_cmp, player_pos_cmp] : player_view.each() )
     {
       // optimization
       if ( !is_visible_in_view( RenderSystem::getGameView(), player_pos_cmp ) ) continue;
 
-      // make a copy and reduce the player hitbox size to avoid unfair deaths
-      auto offset = kGridSquareSizePixelsF / 4.f;
-      auto player_hitbox = sf::FloatRect( player_pos_cmp.position + offset, offset * 1.5f );
-
+      // reduce the player hitbox so that you have to be almost centered over it to fall in
+      auto player_hitbox_redux = Cmp::RectBounds( player_pos_cmp.position, player_pos_cmp.size, 0.1f );
       for ( auto [hazard_entt, hazard_cmp, hazard_pos_cmp] : hazard_view.each() )
       {
-        if ( not player_hitbox.findIntersection( hazard_pos_cmp ) ) continue;
+        // reduce the hazaard hotbox so that you have to be almost centered over it to fall in
+        auto hazard_hitbox_redux = Cmp::RectBounds( hazard_pos_cmp.position, hazard_pos_cmp.size, 0.1f );
+        if ( not player_hitbox_redux.findIntersection( hazard_hitbox_redux.getBounds() ) ) continue;
 
         if constexpr ( Traits::kills_instantly ) { player_cmp.alive = false; }
-        else { player_cmp.health -= get_persistent_component<Cmp::Persistent::CorruptionDamage>().get_value(); }
+        else { player_health_cmp.health -= get_persistent_component<Cmp::Persistent::CorruptionDamage>().get_value(); }
         SPDLOG_DEBUG( "Player fell into a hazard field at position ({}, {})!", hazard_pos_cmp.x, hazard_pos_cmp.y );
         return;
       }

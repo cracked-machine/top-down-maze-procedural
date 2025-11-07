@@ -19,8 +19,6 @@ public:
 
   // the source of all truthiness
   bool alive{ true };
-  // player health, signed, to prevent wrap-around
-  int8_t health{ 100 };
 
   // prevent bomb spamming
   sf::Clock m_bombdeploycooldowntimer;

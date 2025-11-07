@@ -87,9 +87,9 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
   }
 
   sf::FloatRect player_position( { 0.f, 0.f }, kGridSquareSizePixelsF );
-  for ( auto [entity, _pc, _pos] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+  for ( auto [entity, pc_cmp, pc_pos_cmp] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
   {
-    player_position = _pos;
+    player_position = pc_pos_cmp;
   }
   // main render begin
   m_window.clear();
@@ -198,14 +198,14 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time deltaTime, RenderO
       sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::getGameView() );
 
       // gather metrics from components
-      for ( auto [_entt, _pc] : m_reg->view<Cmp::PlayableCharacter>().each() )
+      for ( auto [pc_entt, pc_cmp, pc_health_cmp] : m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
       {
-        player_health = _pc.health;
-        bomb_inventory = _pc.bomb_inventory;
-        blast_radius = _pc.blast_radius;
+        player_health = pc_health_cmp.health;
+        bomb_inventory = pc_cmp.bomb_inventory;
+        blast_radius = pc_cmp.blast_radius;
       }
 
-      for ( auto [_entt, weapon_level, pc_cmp] : m_reg->view<Cmp::WeaponLevel, Cmp::PlayableCharacter>().each() )
+      for ( auto [entity, weapon_level, pc_cmp] : m_reg->view<Cmp::WeaponLevel, Cmp::PlayableCharacter>().each() )
       {
         new_weapon_level = weapon_level.m_level;
       }
