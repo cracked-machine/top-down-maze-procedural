@@ -96,6 +96,10 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
     auto lerp_cmp = m_reg->try_get<Cmp::LerpPosition>( entity );
     bool wants_to_move = dir_cmp != sf::Vector2f( 0.0f, 0.0f );
 
+    // Animation events
+    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { getEventDispatcher().trigger( Events::AnimResetFrameEvent( entity ) ); }
+    else { getEventDispatcher().trigger( Events::AnimDirectionChangeEvent( entity ) ); }
+
     // Only start new movement when not lerping
     if ( wants_to_move && !lerp_cmp )
     {
@@ -174,10 +178,6 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
         m_reg->remove<Cmp::LerpPosition>( entity );
       }
     }
-
-    // Animation events
-    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { getEventDispatcher().trigger( Events::AnimResetFrameEvent( entity ) ); }
-    else { getEventDispatcher().trigger( Events::AnimDirectionChangeEvent( entity ) ); }
   }
 }
 
