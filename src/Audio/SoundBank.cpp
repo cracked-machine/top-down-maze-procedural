@@ -33,8 +33,8 @@ void SoundBank::init()
   sounds.emplace( "pickaxe_final", EffectsData{ "res/audio/pickaxe_final.wav" } );
 
   // Initialize music (can't use initializer list because sf::Music is move-only)
-  music.emplace( "title_music", MusicData{ "res/audio/EerieScifi.mp3" } );
-  music.emplace( "game_music", MusicData{ "res/audio/SadWindyOrgan.mp3" } );
+  music.emplace( "title_music", MusicData{ "res/audio/EerieScifi.wav" } );
+  music.emplace( "game_music", MusicData{ "res/audio/SadWindyOrgan.wav" } );
 }
 
 void SoundBank::update_effects_volume( float volume )
@@ -84,10 +84,7 @@ sf::SoundBuffer SoundBank::generate_tone( float frequency, float duration, unsig
   }
 
   sf::SoundBuffer buffer;
-  if ( buffer.loadFromSamples( samples.data(), sample_count, 1, sample_rate, { sf::SoundChannel::Mono } ) )
-  {
-    return buffer;
-  }
+  if ( buffer.loadFromSamples( samples.data(), sample_count, 1, sample_rate, { sf::SoundChannel::Mono } ) ) { return buffer; }
   SPDLOG_CRITICAL( "Failed to generate tone" );
   throw std::runtime_error( "Failed to generate tone" );
 }
