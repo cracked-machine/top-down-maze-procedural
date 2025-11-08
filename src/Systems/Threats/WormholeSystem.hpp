@@ -6,6 +6,7 @@
 #include <spdlog/spdlog.h>
 
 #include <Systems/BaseSystem.hpp>
+#include <unordered_map>
 
 namespace ProceduralMaze::Sys {
 
@@ -17,8 +18,8 @@ namespace ProceduralMaze::Sys {
 class WormholeSystem : public BaseSystem
 {
 public:
-  WormholeSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                  Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  WormholeSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                  Audio::SoundBank &sound_bank );
 
   void init_context();
 

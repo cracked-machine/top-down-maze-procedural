@@ -5,6 +5,7 @@
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerMortality.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/WormholeJump.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
 #include <Components/Destructable.hpp>
@@ -111,12 +112,19 @@ void NpcSystem::update_movement( sf::Time dt )
 
   for ( auto [entity, pos_cmp, lerp_pos_cmp, npc_scan_bounds] : view.each() )
   {
+
     // skip over obstacles that are still enabled i.e. dont travel though them
     auto obst_cmp = m_reg->try_get<Cmp::Obstacle>( entity );
     if ( obst_cmp && obst_cmp->m_enabled ) continue;
 
     // If this is the first update, store the start position
-    if ( lerp_pos_cmp.m_lerp_factor == 0.0f ) { lerp_pos_cmp.m_start = pos_cmp.position; }
+    if ( lerp_pos_cmp.m_lerp_factor == 0.0f )
+    {
+      // Allow NPCs to escape wormholes if they're mid-lerp.
+      if ( m_reg->try_get<Cmp::WormholeJump>( entity ) ) continue;
+
+      lerp_pos_cmp.m_start = pos_cmp.position;
+    }
 
     lerp_pos_cmp.m_lerp_factor += lerp_pos_cmp.m_lerp_speed * dt.asSeconds();
 

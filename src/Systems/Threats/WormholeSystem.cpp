@@ -1,3 +1,5 @@
+#include <Components/RectBounds.hpp>
+#include <Components/WormholeJump.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <Components/Door.hpp>
@@ -65,8 +67,8 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
             // Found the entity at the adjacent position
             // Do whatever you need with this entity
             adj_obstacle_cmp.m_enabled = false;
-            SPDLOG_DEBUG( "Found adjacent entity {} at position ({}, {})", static_cast<uint32_t>( entity ),
-                          pos_cmp.position.x, pos_cmp.position.y );
+            SPDLOG_DEBUG( "Found adjacent entity {} at position ({}, {})", static_cast<uint32_t>( entity ), pos_cmp.position.x,
+                          pos_cmp.position.y );
             break; // Move to next offset
           }
         }
@@ -83,49 +85,113 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
 
 void WormholeSystem::check_player_wormhole_collision()
 {
-  // 1. iterate wormhole and player view,
   auto wormhole_view = m_reg->view<Cmp::Wormhole, Cmp::Position>();
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
-  for ( auto [player_entity, player_cmp, player_pos_cmp] : player_view.each() )
+  auto all_actors_view = m_reg->view<Cmp::Direction, Cmp::Position>();
+
+  // First, check for any entities with WormholeJump that are NOT colliding
+  auto jump_view = m_reg->view<Cmp::WormholeJump>();
+  for ( auto [entity, jump_cmp] : jump_view.each() )
+  {
+    bool still_colliding = false;
+
+    auto *jump_pos_cmp = m_reg->try_get<Cmp::Position>( entity );
+    // TODO: pointless check? Never happens (according to log)
+    if ( !jump_pos_cmp )
+    {
+      SPDLOG_INFO( "Entity {} has WormholeJump but NO Position component - removing jump", static_cast<uint32_t>( entity ) );
+      m_reg->remove<Cmp::WormholeJump>( entity );
+      continue;
+    }
+
+    for ( auto [wormhole_entity, wormhole_cmp, wh_pos_cmp] : wormhole_view.each() )
+    {
+      auto wh_hitbox_redux = Cmp::RectBounds( wh_pos_cmp.position, wh_pos_cmp.size, 0.5f );
+      if ( jump_pos_cmp && jump_pos_cmp->findIntersection( wh_hitbox_redux.getBounds() ) )
+      {
+        still_colliding = true;
+        break;
+      }
+    }
+
+    if ( !still_colliding )
+    {
+      SPDLOG_WARN( "Entity {} has WormholeJump but is NO LONGER colliding - removing jump component",
+                   static_cast<uint32_t>( entity ) );
+      m_reg->remove<Cmp::WormholeJump>( entity );
+      m_sound_bank.get_effect( "wormhole_jump" ).stop();
+    }
+  }
+
+  // Now check for new/ongoing collisions and collect entities ready to teleport
+  for ( auto [actor_entity, actor_dir_cmp, actor_pos_cmp] : all_actors_view.each() )
   {
     for ( auto [wormhole_entity, wormhole_cmp, wh_pos_cmp] : wormhole_view.each() )
     {
-      if ( !is_visible_in_view( RenderSystem::getGameView(), wh_pos_cmp ) ) continue;
 
-      // 2. check for collision,
-      if ( !player_pos_cmp.findIntersection( wh_pos_cmp ) ) continue;
-      SPDLOG_INFO( "Player collided with wormhole at position ({}, {})", wh_pos_cmp.position.x, wh_pos_cmp.position.y );
+      auto wh_hitbox_redux = Cmp::RectBounds( wh_pos_cmp.position, wh_pos_cmp.size, 0.5f );
+      if ( !actor_pos_cmp.findIntersection( wh_hitbox_redux.getBounds() ) ) continue;
 
-      // 3. if collision, pick a random new player spawn location. Exclude walls, doors, exits, playable characters and
-      // NPCs
+      // Check if jump component already exists
+      auto *wh_jump_cmp = m_reg->try_get<Cmp::WormholeJump>( actor_entity );
+      if ( !wh_jump_cmp )
+      {
+        // First collision - create component
+        m_reg->emplace<Cmp::WormholeJump>( actor_entity );
+        SPDLOG_INFO( "Entity {} is jump candidate.", static_cast<uint32_t>( actor_entity ) );
+        // restart the jump sfx for each actor processed so that it is heard by the last actor.
+        // There is adequate lead time on the sfx (~2secs) to prevent restart stuttering.
+        m_sound_bank.get_effect( "wormhole_jump" ).play();
+      }
+    }
+  }
+
+  // Count how many entitiesare ready to teleport
+  std::size_t teleport_ready_count = 0;
+  for ( auto [entity, jump_cmp] : jump_view.each() )
+  {
+    // Check if cooldown complete
+    float elapsed = jump_cmp.jump_clock.getElapsedTime().asSeconds();
+    float cooldown = jump_cmp.jump_cooldown.asSeconds();
+
+    if ( elapsed >= cooldown ) { teleport_ready_count++; }
+  }
+
+  // Commence teleportation if all entities are ready to jump
+  if ( teleport_ready_count == jump_view.size() && teleport_ready_count > 0 )
+  {
+    SPDLOG_INFO( "Teleportation commencing. Jump candidates: {}", jump_view.size() );
+    for ( auto [entity, jump_cmp] : jump_view.each() )
+    {
+
+      // Get unique random position for this actor entity
       auto [new_spawn_entity, new_spawn_pos_cmp] = get_random_position(
-          IncludePack<Cmp::Obstacle>{},
-          ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>{}, 0 );
+          IncludePack<Cmp::Obstacle>{}, ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>{}, 0 );
 
-      // 6. call despawn_wormhole()
-      despawn_wormhole();
-
-      // 4. remove the obstacle from the new spawn location
+      // destroy any obstacles at the new actor spawn position
       auto existing_obstacle_cmp = m_reg->try_get<Cmp::Obstacle>( new_spawn_entity );
       if ( existing_obstacle_cmp )
       {
-        SPDLOG_INFO( "Removing obstacle at new spawn position ({}, {})", new_spawn_pos_cmp.position.x,
-                     new_spawn_pos_cmp.position.y );
+        SPDLOG_INFO( "Entity {} - Removing obstacle at new spawn ({}, {})", static_cast<uint32_t>( entity ),
+                     new_spawn_pos_cmp.position.x, new_spawn_pos_cmp.position.y );
         existing_obstacle_cmp->m_integrity = 0.0f;
       }
 
-      // 5. teleport player to the location, abort lerp if active
-      m_reg->remove<Cmp::LerpPosition>( player_entity );
-      m_reg->emplace_or_replace<Cmp::Position>( player_entity, new_spawn_pos_cmp.position, new_spawn_pos_cmp.size );
-      SPDLOG_INFO( "Player teleported to new position ({}, {})", new_spawn_pos_cmp.position.x,
+      // update the teleported entity's components
+      SPDLOG_INFO( "Entity {} - TELEPORTING NOW!", static_cast<uint32_t>( entity ) );
+      m_reg->remove<Cmp::LerpPosition>( entity );
+      m_reg->emplace_or_replace<Cmp::Position>( entity, new_spawn_pos_cmp.position, new_spawn_pos_cmp.size );
+      m_reg->remove<Cmp::WormholeJump>( entity );
+      auto *npc_scan_bounds = m_reg->try_get<Cmp::NPCScanBounds>( entity );
+      if ( npc_scan_bounds ) { npc_scan_bounds->position( new_spawn_pos_cmp.position ); }
+
+      SPDLOG_INFO( "Entity {} - TELEPORT to ({}, {}) COMPLETE", static_cast<uint32_t>( entity ), new_spawn_pos_cmp.position.x,
                    new_spawn_pos_cmp.position.y );
-
-      // 7. call spawn_wormhole()
-      spawn_wormhole( WormholeSystem::SpawnPhase::Respawn );
-
-      // 8. Exit immediately after teleporting to prevent multiple teleports in the same frame
-      return;
     }
+
+    // respawn the wormhole now all entities have teleported
+    SPDLOG_INFO( "Teleportation complete. Jump candidates: {}", jump_view.size() );
+    despawn_wormhole();
+    spawn_wormhole( WormholeSystem::SpawnPhase::Respawn );
   }
 }
 

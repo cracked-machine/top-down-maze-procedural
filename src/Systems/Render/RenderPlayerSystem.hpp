@@ -38,7 +38,8 @@ public:
   void render_player();
   void render_player_footsteps();
   RenderParams calc_alive_render_params( const Sprites::SpriteMetaType &sprite_type, const Cmp::Position &pos_cmp,
-                                         const Cmp::Direction &direction, const Cmp::SpriteAnimation &anim_cmp );
+                                         const Cmp::Direction &direction, const Cmp::SpriteAnimation &anim_cmp,
+                                         entt::entity entity );
   RenderParams calc_falling_render_params( const Sprites::SpriteMetaType &sprite_type, const Cmp::Position &pos_cmp,
                                            const Cmp::Direction &direction, const Cmp::SpriteAnimation &anim_cmp,
                                            Cmp::PlayerMortality &pc_mort_cmp );
@@ -47,6 +48,8 @@ public:
 
 private:
   void render_path_distance( const Cmp::RectBounds &bounds_cmp, const sf::Color &outline_color );
+
+  uint8_t m_player_current_alpha{ 255 };
 
   sf::Angle m_player_current_angle{ sf::radians( 0.f ) };
   sf::Vector2f m_player_current_scale{ 1.f, 1.f };

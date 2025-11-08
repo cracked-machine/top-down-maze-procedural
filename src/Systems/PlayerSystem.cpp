@@ -4,6 +4,7 @@
 #include <Components/PlayerMortality.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/WeaponLevel.hpp>
+#include <Components/WormholeJump.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 
@@ -93,16 +94,27 @@ void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_chec
   auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds>();
   for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, pc_detection_bounds] : player_view.each() )
   {
+
     auto lerp_cmp = m_reg->try_get<Cmp::LerpPosition>( entity );
     bool wants_to_move = dir_cmp != sf::Vector2f( 0.0f, 0.0f );
 
     // Animation events
     if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { getEventDispatcher().trigger( Events::AnimResetFrameEvent( entity ) ); }
-    else { getEventDispatcher().trigger( Events::AnimDirectionChangeEvent( entity ) ); }
+    else
+    {
+      // prevent spamming direction change events during wormhole jumps
+      if ( !m_reg->try_get<Cmp::WormholeJump>( entity ) )
+      {
+        getEventDispatcher().trigger( Events::AnimDirectionChangeEvent( entity ) );
+      }
+    }
 
     // Only start new movement when not lerping
     if ( wants_to_move && !lerp_cmp )
     {
+      // disable new lerp starting during wormhole jump
+      if ( m_reg->try_get<Cmp::WormholeJump>( entity ) ) return;
+
       // make a copy to determine if new target position is valid
       sf::FloatRect new_pos{ pos_cmp };
       new_pos.position.x = pos_cmp.position.x + ( dir_cmp.x * BaseSystem::kGridSquareSizePixels.x );

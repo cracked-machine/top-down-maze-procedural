@@ -45,15 +45,14 @@
 
 namespace ProceduralMaze::Sys {
 
-PersistentSystem::PersistentSystem( SharedEnttRegistry reg, sf::RenderWindow &window,
-                                    Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+PersistentSystem::PersistentSystem( SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                                    Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "PersistentSystem constructor called" );
 
-  std::ignore = getEventDispatcher()
-                    .sink<Events::SaveSettingsEvent>()
-                    .connect<&Sys::PersistentSystem::on_save_settings_event>( this );
+  std::ignore = getEventDispatcher().sink<Events::SaveSettingsEvent>().connect<&Sys::PersistentSystem::on_save_settings_event>(
+      this );
   SPDLOG_DEBUG( "PersistentSystem initialized" );
 }
 
@@ -181,6 +180,7 @@ void PersistentSystem::save_state()
   serializeComponent.template operator()<Cmp::Persistent::ShrineCost>( "ShrineCost" );
   serializeComponent.template operator()<Cmp::Persistent::WaterBonus>( "WaterBonus" );
   serializeComponent.template operator()<Cmp::Persistent::WeaponDegradePerHit>( "WeaponDegradePerHit" );
+  serializeComponent.template operator()<Cmp::Persistent::WormholeAnimFramerate>( "WormholeAnimFramerate" );
   // clang-format on
 
   std::ofstream outputFile( "res/json/persistent_components.json" );

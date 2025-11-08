@@ -11,6 +11,8 @@ void SoundBank::init()
 {
   SPDLOG_INFO( "Initializing SoundBank..." );
   // Initialize sound effects
+  sounds.emplace( "wormhole_jump", EffectsData{ "res/audio/wormhole_jump.wav" } );
+
   sounds.emplace( "secret", EffectsData{ "res/audio/secret.wav" } );
   sounds.emplace( "drop_relic", EffectsData{ "res/audio/drop_relic.wav" } );
   sounds.emplace( "spawn_ghost", EffectsData{ "res/audio/spawn_ghost.wav" } );

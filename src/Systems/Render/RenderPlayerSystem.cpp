@@ -3,6 +3,7 @@
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/PlayerMortality.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Components/WormholeJump.hpp>
 #include <Systems/Render/RenderPlayerSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <tuple>
@@ -26,7 +27,7 @@ void RenderPlayerSystem::render_player()
         int blink_visible = static_cast<int>( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asMilliseconds() / 100 ) % 2 == 0;
         if ( !is_in_damage_cooldown || ( is_in_damage_cooldown && blink_visible ) )
         {
-          auto params_tuple = calc_alive_render_params( "PLAYER", pc_pos_cmp, dir_cmp, anim_cmp );
+          auto params_tuple = calc_alive_render_params( "PLAYER", pc_pos_cmp, dir_cmp, anim_cmp, entity );
           std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                       params_tuple );
         }
@@ -42,28 +43,28 @@ void RenderPlayerSystem::render_player()
       }
       case Cmp::PlayerMortality::State::HAUNTED: {
         pc_mort_cmp.death_progress += 0.1f;
-        auto params_tuple = calc_alive_render_params( "PLAYER", pc_pos_cmp, dir_cmp, anim_cmp );
+        auto params_tuple = calc_alive_render_params( "PLAYER", pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                     params_tuple );
         break;
       }
       case Cmp::PlayerMortality::State::DECAYING: {
         pc_mort_cmp.death_progress += 0.1f;
-        auto params_tuple = calc_alive_render_params( "PLAYER", pc_pos_cmp, dir_cmp, anim_cmp );
+        auto params_tuple = calc_alive_render_params( "PLAYER", pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                     params_tuple );
         break;
       }
       case Cmp::PlayerMortality::State::EXPLODING: {
         pc_mort_cmp.death_progress += 0.1f;
-        auto params_tuple = calc_alive_render_params( "PLAYER", pc_pos_cmp, dir_cmp, anim_cmp );
+        auto params_tuple = calc_alive_render_params( "PLAYER", pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                     params_tuple );
         break;
       }
       case Cmp::PlayerMortality::State::DROWNING: {
         pc_mort_cmp.death_progress += 0.1f;
-        auto params_tuple = calc_alive_render_params( "PLAYER", pc_pos_cmp, dir_cmp, anim_cmp );
+        auto params_tuple = calc_alive_render_params( "PLAYER", pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                     params_tuple );
         break;
@@ -169,7 +170,7 @@ void RenderPlayerSystem::render_npc()
       dir_cmp.x_offset = dir_cmp.x_offset;
     }
 
-    auto params_tuple = calc_alive_render_params( npc_cmp.m_type, pos_cmp, dir_cmp, anim_cmp );
+    auto params_tuple = calc_alive_render_params( npc_cmp.m_type, pos_cmp, dir_cmp, anim_cmp, entity );
     std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                 params_tuple );
 
@@ -181,8 +182,10 @@ void RenderPlayerSystem::render_npc()
 RenderPlayerSystem::RenderParams RenderPlayerSystem::calc_alive_render_params( const Sprites::SpriteMetaType &sprite_type,
                                                                                const Cmp::Position &pos_cmp,
                                                                                const Cmp::Direction &direction,
-                                                                               const Cmp::SpriteAnimation &anim_cmp )
+                                                                               const Cmp::SpriteAnimation &anim_cmp,
+                                                                               entt::entity entity )
 {
+  uint8_t new_alpha = 255;
   int sprite_index = 0;
   if ( sprite_type == "PLAYER" )
   {
@@ -197,9 +200,21 @@ RenderPlayerSystem::RenderParams RenderPlayerSystem::calc_alive_render_params( c
     sprite_index = anim_cmp.m_current_frame;
   }
 
+  auto *wormhole_jump = m_reg->try_get<Cmp::WormholeJump>( entity );
+  if ( wormhole_jump )
+  {
+    // Calculate fade based on elapsed time vs total cooldown
+    float elapsed = wormhole_jump->jump_clock.getElapsedTime().asSeconds();
+    float cooldown = wormhole_jump->jump_cooldown.asSeconds();
+    float progress = std::min( elapsed / cooldown, 1.0f ); // 0.0 to 1.0
+
+    // Fade from 255 to 0
+    new_alpha = m_player_current_alpha = static_cast<uint8_t>( 255 * ( 1.0f - progress ) );
+  }
+  else { new_alpha = m_player_current_alpha = 255; }
+
   sf::FloatRect new_pos{ { pos_cmp.position.x + direction.x_offset, pos_cmp.position.y }, kGridSquareSizePixelsF };
   auto new_scale = sf::Vector2f{ direction.x_scale, 1.f };
-  uint8_t new_alpha = 255;
   sf::Vector2f new_origin{ 0.f, 0.f };
   sf::Angle new_angle = sf::degrees( 0.f );
   return { sprite_type, new_pos, sprite_index, new_scale, new_alpha, new_origin, new_angle };
