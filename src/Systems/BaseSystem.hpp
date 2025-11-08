@@ -2,6 +2,7 @@
 #define __SYSTEMS_BASE_SYSTEM_HPP__
 
 #include <Audio/SoundBank.hpp>
+#include <Components/PlayableCharacter.hpp>
 #include <entt/entity/registry.hpp>
 #include <entt/signal/dispatcher.hpp>
 
@@ -277,6 +278,25 @@ public:
       return loot_entity;
     }
     SPDLOG_WARN( "Failed to drop {} at [{},{}].", loot_cmp.m_type, search.position.x, search.position.y );
+    return entt::null;
+  }
+
+  template <typename... Include, typename... Exclude>
+  entt::entity get_random_nearby_disabled_obstacle( sf::FloatRect search_area, IncludePack<Include...>, ExcludePack<Exclude...> )
+  {
+
+    auto obst_view = m_reg->view<Cmp::Obstacle, Cmp::Position, Include...>( entt::exclude<Exclude...> );
+
+    for ( auto obst_entity : obst_view )
+    {
+      auto &obst_cmp = obst_view.template get<Cmp::Obstacle>( obst_entity );
+      auto &obst_pos_cmp = obst_view.template get<Cmp::Position>( obst_entity );
+      if ( obst_cmp.m_enabled ) continue; // only drop the loot at disabled (traversable) obstacle
+      if ( not search_area.findIntersection( obst_pos_cmp ) ) continue;
+
+      return obst_entity;
+    }
+    SPDLOG_WARN( "Failed to find nearby disabled obstacle for [{},{}].", search_area.position.x, search_area.position.y );
     return entt::null;
   }
 

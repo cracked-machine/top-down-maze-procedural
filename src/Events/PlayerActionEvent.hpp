@@ -8,6 +8,7 @@ struct PlayerActionEvent
   enum class GameActions
   {
     DROP_BOMB,
+    GRAVE_BOMB,
     ACTIVATE,
     DIG
   };

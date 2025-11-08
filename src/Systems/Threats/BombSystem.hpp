@@ -44,7 +44,7 @@ public:
   void suspend();
   void resume();
 
-  void arm_occupied_location();
+  void arm_occupied_location( const Events::PlayerActionEvent &event );
   void place_concentric_bomb_pattern( entt::entity &epicenter_entity, const int blast_radius );
   void update();
 
@@ -52,7 +52,8 @@ public:
   void on_player_action( const Events::PlayerActionEvent &event )
   {
     SPDLOG_DEBUG( "Player Action Event received" );
-    if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB ) { arm_occupied_location(); }
+    if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB ) { arm_occupied_location( event ); }
+    if ( event.action == Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) { arm_occupied_location( event ); }
   }
 
 private:

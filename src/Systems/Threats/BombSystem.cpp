@@ -46,33 +46,55 @@ void BombSystem::resume()
   }
 }
 
-void BombSystem::arm_occupied_location()
+void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerActionEvent &event )
 {
   auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
   for ( const auto [pc_entity, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
   {
-    if ( pc_cmp.has_active_bomb ) continue;     // skip if player already placed a bomb
-    if ( pc_cmp.bomb_inventory == 0 ) continue; // skip if player has no bombs left, -1 is infini bombs
+    if ( event.action != Events::PlayerActionEvent::GameActions::GRAVE_BOMB && pc_cmp.has_active_bomb )
+      continue; // skip if player already placed a bomb
+    if ( event.action != Events::PlayerActionEvent::GameActions::GRAVE_BOMB && pc_cmp.bomb_inventory == 0 )
+      continue; // skip if player has no bombs left, -1 is infini bombs
 
-    auto destructable_view = m_reg->view<Cmp::Destructable, Cmp::Position>(
-        entt::exclude<typename Cmp::Armed, Cmp::ShrineSprite, Cmp::NPC> );
-    for ( auto [destructable_entity, destructable_cmp, destructable_pos_cmp] : destructable_view.each() )
+    // for booby trapped graves, first try to find a random nearby disabled destructable obstacle for candidate bomb epicenter
+    entt::entity candidate_entity = entt::null;
+    if ( event.action == Events::PlayerActionEvent::GameActions::GRAVE_BOMB )
     {
-      // make a copy and reduce/center the player hitbox to avoid arming a neighbouring location
-      auto player_hitbox = sf::FloatRect( pc_pos_cmp );
-      player_hitbox.size.x /= 2.f;
-      player_hitbox.size.y /= 2.f;
-      player_hitbox.position.x += 4.f;
-      player_hitbox.position.y += 4.f;
-
-      // are we standing on this tile?
-      if ( player_hitbox.findIntersection( destructable_pos_cmp ) )
+      auto search_area = Cmp::RectBounds( pc_pos_cmp.position, BaseSystem::kGridSquareSizePixelsF, 3.f );
+      candidate_entity = get_random_nearby_disabled_obstacle( search_area.getBounds(), IncludePack<Cmp::Destructable>{}, ExcludePack<>{} );
+      auto pos_cmp = m_reg->try_get<Cmp::Position>( candidate_entity );
+      if ( pos_cmp )
+        SPDLOG_INFO( "Returned candidate entity: {}, pos: {},{}", static_cast<uint32_t>( candidate_entity ), pos_cmp->position.x,
+                     pos_cmp->position.y );
+    }
+    // then use the candidate entity to place the booby trap bomb
+    if ( candidate_entity != entt::null )
+    {
+      m_sound_bank.get_effect( "bomb_fuse" ).play();
+      place_concentric_bomb_pattern( candidate_entity, pc_cmp.blast_radius );
+    }
+    // fallback to the normal bomb placement at player's current location
+    else
+    {
+      auto destructable_view = m_reg->view<Cmp::Destructable, Cmp::Position>(
+          entt::exclude<typename Cmp::Armed, Cmp::ShrineSprite, Cmp::NPC> );
+      for ( auto [destructable_entity, destructable_cmp, destructable_pos_cmp] : destructable_view.each() )
       {
-        // has the bomb spamming cooldown expired?
-        if ( pc_cmp.m_bombdeploycooldowntimer.getElapsedTime() >= pc_cmp.m_bombdeploydelay )
+        // make a copy and reduce/center the player hitbox to avoid arming a neighbouring location
+        auto player_hitbox = sf::FloatRect( pc_pos_cmp );
+        player_hitbox.size.x /= 2.f;
+        player_hitbox.size.y /= 2.f;
+        player_hitbox.position.x += 4.f;
+        player_hitbox.position.y += 4.f;
+
+        // are we standing on a destructable tile?
+        if ( player_hitbox.findIntersection( destructable_pos_cmp ) )
         {
-          auto &bomb_fuse_player = m_sound_bank.get_effect( "bomb_fuse" );
-          if ( bomb_fuse_player.getStatus() != sf::Sound::Status::Playing ) bomb_fuse_player.play();
+
+          SPDLOG_INFO( "Checking cooldown timer for bomb placement." );
+          if ( pc_cmp.m_bombdeploycooldowntimer.getElapsedTime() < pc_cmp.m_bombdeploydelay ) continue;
+
+          m_sound_bank.get_effect( "bomb_fuse" ).play();
 
           place_concentric_bomb_pattern( destructable_entity, pc_cmp.blast_radius );
 
@@ -94,7 +116,7 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
   // First arm the center tile
   auto &fuse_delay = get_persistent_component<Cmp::Persistent::FuseDelay>();
   m_reg->emplace_or_replace<Cmp::Armed>( epicenter_entity, sf::seconds( fuse_delay.get_value() ), sf::Time::Zero, true,
-                                         sf::Color::Transparent, sequence_counter++ );
+                                         sf::Color::Transparent, sequence_counter++, Cmp::Armed::EpiCenter::YES );
 
   // We dont detonate ReservedPositions so dont arm them in the first place
   // Also exclude NPCs since they're handled separately and may be missing Position component during death animation
@@ -218,13 +240,23 @@ void BombSystem::update()
       }
     }
 
-    // if we got this far then the bomb detonated, we can remove the armed component
+    // play sound effect if this armed component is epicenter
+    if ( armed_cmp.m_epicenter == Cmp::Armed::EpiCenter::YES ) { m_sound_bank.get_effect( "bomb_detonate" ).play(); }
+
+    // check if we have any epicenter armed components before stopping the fuse sound
+    bool remaining_epicenter_bombs = false;
+    for ( auto [armed_entity, armed_cmp] : m_reg->view<Cmp::Armed>().each() )
+    {
+      if ( armed_cmp.m_epicenter == Cmp::Armed::EpiCenter::YES )
+      {
+        remaining_epicenter_bombs = true;
+        break; // we dont care how many
+      }
+    }
+    if ( not remaining_epicenter_bombs ) m_sound_bank.get_effect( "bomb_fuse" ).stop();
+
+    // finally delete the armed component
     m_reg->remove<Cmp::Armed>( armed_entt );
-    auto &bomb_fuse_player = m_sound_bank.get_effect( "bomb_fuse" );
-    if ( bomb_fuse_player.getStatus() == sf::Sound::Status::Playing ) bomb_fuse_player.stop();
-    // dont play bomb detonate sound multiple times for concentric bombs
-    auto &bomb_detonate_player = m_sound_bank.get_effect( "bomb_detonate" );
-    if ( bomb_detonate_player.getStatus() != sf::Sound::Status::Playing ) bomb_detonate_player.play();
   }
 }
 

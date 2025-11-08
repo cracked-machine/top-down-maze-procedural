@@ -148,18 +148,18 @@ void LargeObstacleSystem::check_player_grave_activation( Cmp::LargeObstacle &lo_
   // choose a random consequence for activating graves: spawn npc, drop bomb, give candles
   if ( activated_grave_count > 0 )
   {
-    auto grave_activation_rng = Cmp::RandomInt( 1, 3 );
+    auto grave_activation_rng = Cmp::RandomInt( 2, 2 );
     auto consequence = grave_activation_rng.gen();
     switch ( consequence )
     {
       case 1:
-        SPDLOG_INFO( "Spawning NPC from grave activation." );
+        SPDLOG_INFO( "Grave activated NPC trap." );
         getEventDispatcher().trigger( Events::NpcCreationEvent( lo_entity, "NPCGHOST" ) );
         break;
       case 2:
-        SPDLOG_INFO( "Dropping bomb from grave activation." );
+        SPDLOG_INFO( "Grave activated bomb trap." );
         pc_cmp.bomb_inventory += 1;
-        getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
+        getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) );
         break;
       case 3:
 
