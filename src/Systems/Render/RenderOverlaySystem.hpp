@@ -12,12 +12,17 @@ namespace ProceduralMaze::Sys {
 class RenderOverlaySystem : public RenderSystem
 {
 public:
-  RenderOverlaySystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                       Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+  RenderOverlaySystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                       Audio::SoundBank &sound_bank )
       : RenderSystem( reg, window, sprite_factory, sound_bank )
   {
     SPDLOG_DEBUG( "RenderOverlaySystem initialized" );
   };
+
+  //! @brief event handlers for pausing system clocks
+  void onPause() override {}
+  //! @brief event handlers for resuming system clocks
+  void onResume() override {}
 
   void render_entt_distance_set_overlay( sf::Vector2f pos );
   void render_ui_background_overlay( sf::Vector2f pos, sf::Vector2f size );

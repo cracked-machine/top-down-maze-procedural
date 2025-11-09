@@ -1,6 +1,7 @@
 #ifndef __SYS_FOOTSTEPSYSTEM_HPP__
 #define __SYS_FOOTSTEPSYSTEM_HPP__
 
+#include <Components/FootStepTimer.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Vector2.hpp>
 
@@ -13,12 +14,18 @@ namespace ProceduralMaze::Sys {
 class FootstepSystem : public BaseSystem
 {
 public:
-  FootstepSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                  Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+  FootstepSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                  Audio::SoundBank &sound_bank )
       : BaseSystem( reg, window, sprite_factory, sound_bank )
   {
     SPDLOG_DEBUG( "FootstepSystem initialized" );
   }
+
+  //! @brief event handlers for pausing footstep clocks
+  void onPause() override;
+  //! @brief event handlers for resuming footstep clocks
+  void onResume() override;
+
   // create an entity with components: Position, Direction, FootstepTimer, FootstepAlpha
   void add_footstep( const Cmp::Position &position, const Cmp::Direction &direction );
   // Update all FootstepAlpha based on their FootstepTimer, remove any entities with FootstepAlpha

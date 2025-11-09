@@ -23,7 +23,7 @@
 
 namespace ProceduralMaze::Sys {
 
-void AnimSystem::update( sf::Time deltaTime )
+void AnimSystem::update( sf::Time globalDeltaTime )
 {
 
   // Shrine Animation
@@ -39,7 +39,7 @@ void AnimSystem::update( sf::Time deltaTime )
       auto sprites_per_sequence = shrine_sprite_metadata.get_sprites_per_sequence();
       auto frame_rate = sf::seconds( 0.1f );
 
-      update_single_sequence( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
+      update_single_sequence( anim_cmp, globalDeltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
     }
   }
 
@@ -65,7 +65,7 @@ void AnimSystem::update( sf::Time deltaTime )
       }
       else { frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::NpcAnimFramerate>().get_value() ); }
 
-      update_single_sequence( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
+      update_single_sequence( anim_cmp, globalDeltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
     }
   }
 
@@ -81,7 +81,7 @@ void AnimSystem::update( sf::Time deltaTime )
       auto sprites_per_sequence = player_sprite_metadata.get_sprites_per_sequence();
       auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::PlayerAnimFramerate>().get_value() );
 
-      update_grouped_sequences( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
+      update_grouped_sequences( anim_cmp, globalDeltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
     }
   }
 
@@ -96,7 +96,7 @@ void AnimSystem::update( sf::Time deltaTime )
     auto sprites_per_sequence = wormhole_sprite_metadata.get_sprites_per_sequence();
     auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::WormholeAnimFramerate>().get_value() );
 
-    update_single_sequence( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
+    update_single_sequence( anim_cmp, globalDeltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
   }
 
   // NPC Death Explosion Animation
@@ -114,7 +114,7 @@ void AnimSystem::update( sf::Time deltaTime )
                   frame_rate.asSeconds() );
 
     // Update the frame first
-    update_single_sequence( anim_cmp, deltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
+    update_single_sequence( anim_cmp, globalDeltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
 
     SPDLOG_DEBUG( "After update_frame - current_frame: {}, elapsed_time: {}s", anim_cmp.m_current_frame,
                   anim_cmp.m_elapsed_time.asSeconds() );
@@ -172,10 +172,11 @@ void AnimSystem::on_anim_direction_change( const Events::AnimDirectionChangeEven
   }
 }
 
-void AnimSystem::update_grouped_sequences( Cmp::SpriteAnimation &anim, sf::Time deltaTime, const unsigned int sprites_per_frame,
-                                           const unsigned int frames_per_group, sf::Time frame_rate )
+void AnimSystem::update_grouped_sequences( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime,
+                                           const unsigned int sprites_per_frame, const unsigned int frames_per_group,
+                                           sf::Time frame_rate )
 {
-  anim.m_elapsed_time += deltaTime;
+  anim.m_elapsed_time += globalDeltaTime;
 
   if ( anim.m_elapsed_time >= frame_rate )
   {
@@ -192,10 +193,10 @@ void AnimSystem::update_grouped_sequences( Cmp::SpriteAnimation &anim, sf::Time 
   }
 }
 
-void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time deltaTime, const unsigned int sprites_per_frame,
+void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const unsigned int sprites_per_frame,
                                          const unsigned int total_sprites, sf::Time frame_rate )
 {
-  anim.m_elapsed_time += deltaTime;
+  anim.m_elapsed_time += globalDeltaTime;
 
   if ( anim.m_elapsed_time >= frame_rate )
   {

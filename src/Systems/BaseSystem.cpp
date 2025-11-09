@@ -25,14 +25,6 @@ BaseSystem::BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow
   SPDLOG_DEBUG( "BaseSystem constructor called" );
 }
 
-const sf::Vector2u BaseSystem::kDisplaySize{ 1920, 1024 };
-
-const sf::Vector2u BaseSystem::kMapGridSize{ 100u, 124u };
-
-const sf::Vector2f BaseSystem::kMapGridOffset{ 1.f, 1.f };
-
-const sf::Vector2u BaseSystem::kGridSquareSizePixels{ 16u, 16u };
-
 // initialised by first call to getEventDispatcher()
 std::unique_ptr<entt::dispatcher> BaseSystem::m_event_dispatcher = nullptr;
 

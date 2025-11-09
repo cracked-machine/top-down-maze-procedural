@@ -47,16 +47,15 @@ namespace ProceduralMaze::Sys {
 class CollisionSystem : public BaseSystem
 {
 public:
-  CollisionSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                   Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  CollisionSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                   Audio::SoundBank &sound_bank );
 
   ~CollisionSystem() = default;
 
-  // Pause timers when game is paused
-  void suspend();
-
-  // Resume timers when game is unpaused
-  void resume();
+  //! @brief event handlers for pausing system clocks
+  void onPause() override;
+  //! @brief event handlers for resuming system clocks
+  void onResume() override;
 
 private:
 };

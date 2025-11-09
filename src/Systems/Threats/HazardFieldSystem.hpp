@@ -4,6 +4,8 @@
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerMortality.hpp>
+#include <Events/PauseClocksEvent.hpp>
+#include <Events/ResumeClocksEvent.hpp>
 #include <entt/entity/fwd.hpp>
 
 #include <SFML/System/Clock.hpp>
@@ -87,7 +89,15 @@ public:
   {
     // seed component must be created in entt registry before use.
     add_persistent_component<typename Traits::SeedType>();
+
+    getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onPause>( this );
+    getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onResume>( this );
   }
+
+  //! @brief event handlers for pausing hazard spread clocks
+  void onPause() override { m_spread_update_clock.stop(); }
+  //! @brief event handlers for resuming hazard spread clocks
+  void onResume() override { m_spread_update_clock.start(); }
 
   //! @brief Initialise the hazard field. This is done only once at the start of the game:
   //! 1. Get view of all entities that own obstacles and position components
@@ -125,8 +135,8 @@ public:
   //!   c. Count adjacent hazard fields; if surrounded by 2 or more, mark as inactive to stop further spreading.
   void update_hazard_field()
   {
-    if ( m_clock.getElapsedTime() < m_update_period ) return;
-    m_clock.restart();
+    if ( m_spread_update_clock.getElapsedTime() < m_update_period ) return;
+    m_spread_update_clock.restart();
 
     auto hazard_view = m_reg->view<HazardType, Cmp::Position>();
     auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::ReservedPosition> );
@@ -233,7 +243,7 @@ public:
 private:
   //! @brief Clock used to track time for hazard field updates.
   //!
-  sf::Clock m_clock;
+  sf::Clock m_spread_update_clock;
 
   //! @brief Time period for updating hazard fields.
   //!

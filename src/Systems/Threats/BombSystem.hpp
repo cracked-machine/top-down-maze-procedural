@@ -41,8 +41,10 @@ public:
   BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
               Audio::SoundBank &sound_bank );
 
-  void suspend();
-  void resume();
+  //! @brief event handlers for pausing system clocks
+  void onPause() override;
+  //! @brief event handlers for resuming system clocks
+  void onResume() override;
 
   void arm_occupied_location( const Events::PlayerActionEvent &event );
   void place_concentric_bomb_pattern( entt::entity &epicenter_entity, const int blast_radius );

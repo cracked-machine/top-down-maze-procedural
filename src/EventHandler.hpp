@@ -22,8 +22,13 @@ namespace ProceduralMaze::Sys {
 class EventHandler : public Sys::BaseSystem
 {
 public:
-  EventHandler( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  EventHandler( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                Audio::SoundBank &sound_bank );
+
+  //! @brief event handlers for pausing system clocks
+  void onPause() override {}
+  //! @brief event handlers for resuming system clocks
+  void onResume() override {}
 
   void menu_state_handler();
   void settings_state_handler();

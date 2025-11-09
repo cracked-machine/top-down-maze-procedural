@@ -6,6 +6,8 @@
 #include <Components/SinkholeCell.hpp>
 #include <Engine.hpp>
 #include <Events/AnimResetFrameEvent.hpp>
+#include <Events/PauseClocksEvent.hpp>
+#include <Events/ResumeClocksEvent.hpp>
 #include <SFML/Window/WindowEnums.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
@@ -51,12 +53,12 @@ bool Engine::run()
   {
     loading_screen( [this]() { this->init_systems(); }, m_splash_texture );
 
-    sf::Clock deltaClock;
+    sf::Clock globalFrameClock;
 
     /// MAIN LOOP BEGINS
     while ( m_window->isOpen() )
     {
-      sf::Time deltaTime = deltaClock.restart();
+      sf::Time globalDeltaTime = globalFrameClock.restart();
       auto &game_state = m_event_handler->get_persistent_component<Cmp::Persistent::GameState>();
 
       switch ( game_state.current_state )
@@ -83,7 +85,7 @@ bool Engine::run()
 
         case Cmp::Persistent::GameState::State::SETTINGS: {
 
-          m_render_menu_sys->render_settings( deltaTime );
+          m_render_menu_sys->render_settings( globalDeltaTime );
           m_event_handler->settings_state_handler();
           break;
         } // case SETTINGS end
@@ -126,7 +128,7 @@ bool Engine::run()
           m_event_handler->game_state_handler();
 
           // m_flood_sys.update();
-          m_anim_sys->update( deltaTime );
+          m_anim_sys->update( globalDeltaTime );
           m_sinkhole_sys->update_hazard_field();
           m_corruption_sys->update_hazard_field();
           m_bomb_sys->update();
@@ -150,7 +152,7 @@ bool Engine::run()
           // enable/disable collision detection depending on Cmp::System settings
           for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
           {
-            m_player_sys->update_movement( deltaTime, !_sys.collisions_enabled );
+            m_player_sys->update_movement( globalDeltaTime, !_sys.collisions_enabled );
             if ( _sys.collisions_enabled )
             {
               m_sinkhole_sys->check_player_hazard_field_collision();
@@ -166,7 +168,7 @@ bool Engine::run()
 
           auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
           m_path_find_sys->findPath( player_entity );
-          m_npc_sys->update_movement( deltaTime );
+          m_npc_sys->update_movement( globalDeltaTime );
 
           // did the player die? Then end the game
           if ( m_player_sys->check_player_mortality() == Cmp::PlayerMortality::State::DEAD )
@@ -175,14 +177,13 @@ bool Engine::run()
             game_state.current_state = Cmp::Persistent::GameState::State::GAMEOVER;
           }
 
-          m_render_game_sys->render_game( deltaTime, *m_render_overlay_sys, *m_render_player_sys );
+          m_render_game_sys->render_game( globalDeltaTime, *m_render_overlay_sys, *m_render_player_sys );
           break;
         } // case PLAYING end
 
         case Cmp::Persistent::GameState::State::PAUSED: {
-          m_flood_sys->suspend();
-          m_collision_sys->suspend();
-          m_bomb_sys->suspend();
+          m_event_handler->getEventDispatcher().trigger( Events::PauseClocksEvent() );
+          globalFrameClock.stop();
 
           while ( ( Cmp::Persistent::GameState::State::PAUSED == game_state.current_state ) and m_window->isOpen() )
           {
@@ -192,9 +193,8 @@ bool Engine::run()
             m_event_handler->paused_state_handler();
           }
 
-          m_flood_sys->resume();
-          m_collision_sys->resume();
-          m_bomb_sys->resume();
+          m_event_handler->getEventDispatcher().trigger( Events::ResumeClocksEvent() );
+          globalFrameClock.start();
 
           break;
         } // case PAUSED end

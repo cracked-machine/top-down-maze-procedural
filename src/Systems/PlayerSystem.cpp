@@ -87,9 +87,9 @@ Cmp::PlayerMortality::State PlayerSystem::check_player_mortality()
   return mortality_state;
 }
 
-void PlayerSystem::update_movement( sf::Time deltaTime, bool skip_collision_check )
+void PlayerSystem::update_movement( sf::Time globalDeltaTime, bool skip_collision_check )
 {
-  const float dt = deltaTime.asSeconds();
+  const float dt = globalDeltaTime.asSeconds();
 
   auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds>();
   for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, pc_detection_bounds] : player_view.each() )

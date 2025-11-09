@@ -35,6 +35,11 @@ public:
     SPDLOG_DEBUG( "RenderPlayerSystem initialized" );
   }
 
+  //! @brief event handlers for pausing system clocks
+  void onPause() override {}
+  //! @brief event handlers for resuming system clocks
+  void onResume() override {}
+
   void render_player();
   void render_player_footsteps();
   RenderParams calc_alive_render_params( const Sprites::SpriteMetaType &sprite_type, const Cmp::Position &pos_cmp,

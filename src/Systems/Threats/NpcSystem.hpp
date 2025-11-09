@@ -30,6 +30,11 @@ public:
   NpcSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
              Audio::SoundBank &sound_bank );
 
+  //! @brief event handlers for pausing system clocks
+  void onPause() override {}
+  //! @brief event handlers for resuming system clocks
+  void onResume() override {}
+
   // Converts a NpcContainer entity into an active NPC entity. Called by event: NpcCreationEvent
   void add_npc_entity( const Events::NpcCreationEvent &event );
 
@@ -37,7 +42,7 @@ public:
   void remove_npc_entity( entt::entity npc_entity );
 
   // Smoothly interpolates the position of NPCs. Called in the main update loop.
-  void update_movement( sf::Time dt );
+  void update_movement( sf::Time globalDeltaTime );
 
   // Check for player collision with bones obstacles to reanimate NPCs
   void check_bones_reanimation();

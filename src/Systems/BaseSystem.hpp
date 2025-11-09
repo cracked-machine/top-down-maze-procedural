@@ -26,39 +26,60 @@ namespace Sys {
 class BaseSystem
 {
 public:
+  // The size of each grid square in pixels
+  inline static constexpr sf::Vector2u kGridSquareSizePixels{ 16u, 16u };
+  inline static constexpr sf::Vector2f kGridSquareSizePixelsF{ 16.f, 16.f };
+
+  // The game display resolution in pixels
+  inline static constexpr sf::Vector2u kDisplaySize{ 1920, 1024 };
+
+  // The playable area size in blocks, not pixels
+  inline static constexpr sf::Vector2u kMapGridSize{ 100u, 124u };
+
+  // The playable area offset in blocks, not pixels
+  inline static constexpr sf::Vector2f kMapGridOffset{ 1.f, 1.f };
+
   BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
               Audio::SoundBank &sound_bank );
 
   ~BaseSystem() = default;
 
-  // The size of each grid square in pixels
-  static const sf::Vector2u kGridSquareSizePixels;
-  inline static constexpr sf::Vector2f kGridSquareSizePixelsF{ 16.f, 16.f };
+  //! @brief Event handler for pausing system clocks. Must be implemented by derived classes.
+  //! @note If you register this handler with the event dispatcher, this function is automcatically called when the game is paused.
+  /// For example:
+  /// `std::ignore = getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::DerivedSystem::onPause>(this);`
+  virtual void onPause() = 0;
 
-  // The game display resolution in pixels
-  static const sf::Vector2u kDisplaySize;
+  //! @brief Event handler for resuming system clocks. Must be implemented by derived classes.
+  //! @note If you register this handler with the event dispatcher, this function is automcatically called when the game is resumed.
+  /// For example:
+  /// `std::ignore = getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::DerivedSystem::onResume>(this);`
+  virtual void onResume() = 0;
 
-  // The playable area size in blocks, not pixels
-  static const sf::Vector2u kMapGridSize;
-
-  // The playable area offset in blocks, not pixels
-  static const sf::Vector2f kMapGridOffset;
-
-  // Add a persistent component to the registry's context if it doesn't already exist
+  //! @brief Add a persistent component to the registry's context if it doesn't already exist
+  //!
+  //! @tparam T
   template <typename T>
   void add_persistent_component()
   {
     if ( not m_reg->ctx().contains<T>() ) { m_reg->ctx().emplace<T>(); }
   }
 
-  // Add a persistent component with constructor arguments
+  //! @brief Add a persistent component with constructor arguments
+  //!
+  //! @tparam T
+  //! @tparam Args
+  //! @param args
   template <typename T, typename... Args>
   void add_persistent_component( Args &&...args )
   {
     if ( not m_reg->ctx().contains<T>() ) { m_reg->ctx().emplace<T>( std::forward<Args>( args )... ); }
   }
 
-  // Get a persistent component from the registry's context
+  //! @brief Get the persistent component object
+  //!
+  //! @tparam T
+  //! @return T&
   template <typename T>
   T &get_persistent_component()
   {
@@ -70,7 +91,10 @@ public:
     return m_reg->ctx().get<T>();
   }
 
-  // Get a grid position from an entity's Position component
+  //! @brief Get the Grid Position object
+  //!
+  //! @param entity The entity to get the grid position for.
+  //! @return std::optional<sf::Vector2i>
   std::optional<sf::Vector2i> getGridPosition( entt::entity entity ) const
   {
     auto pos = m_reg->try_get<Cmp::Position>( entity );
@@ -84,7 +108,10 @@ public:
     return std::nullopt;
   }
 
-  // Get a pixel position from an entity's Position component
+  //! @brief Get the Pixel Position object from an entity's Position component.
+  //!
+  //! @param entity The entity to get the pixel position for.
+  //! @return std::optional<sf::Vector2f>
   std::optional<sf::Vector2f> getPixelPosition( entt::entity entity ) const
   {
     auto pos = m_reg->try_get<Cmp::Position>( entity );
@@ -93,35 +120,65 @@ public:
     return std::nullopt;
   }
 
-  // sum( (posA.x - posB.x) + (posA.y - posB.y) )
-  // cardinal directions only
+  //! @brief Get the Manhattan Distance between two positions.
+  //!
+  //! @param posA The first position.
+  //! @param posB The second position.
+  //! @return unsigned int The Manhattan distance.
   unsigned int getManhattanDistance( sf::Vector2i posA, sf::Vector2i posB ) const
   {
     return std::abs( posA.x - posB.x ) + std::abs( posA.y - posB.y );
   }
 
-  // sum( (posA.x - posB.x) + (posA.y - posB.y) )
-  // cardinal directions only
+  //! @brief Get the Manhattan Distance between two positions.
+  //!
+  //! @param posA The first position.
+  //! @param posB The second position.
+  //! @return float The Manhattan distance.
   float getManhattanDistance( sf::Vector2f posA, sf::Vector2f posB ) const
   {
     return std::abs( posA.x - posB.x ) + std::abs( posA.y - posB.y );
   }
 
-  // max( (posA.x - posB.x), (posA.y - posB.y) )
-  // cardinal and diagonal directions
+  //! @brief Get the Chebyshev Distance between two positions.
+  //!
+  //! @param posA The first position.
+  //! @param posB The second position.
+  //! @return unsigned int The Chebyshev distance.
   unsigned int getChebyshevDistance( sf::Vector2i posA, sf::Vector2i posB ) const
   {
     return std::max( std::abs( posA.x - posB.x ), std::abs( posA.y - posB.y ) );
   }
 
-  // max( (posA.x - posB.x), (posA.y - posB.y) )
-  // cardinal and diagonal directions
+  //! Calculates the Chebyshev distance between two 2D positions.
+  //!
+  //! The Chebyshev distance is the maximum of the absolute differences of their coordinates.
+  //! It is commonly used in grid-based pathfinding where movement can occur in any direction.
+  //!
+  //! @param posA The first position as an sf::Vector2f.
+  //! @param posB The second position as an sf::Vector2f.
+  //! @return The Chebyshev distance between posA and posB.
   float getChebyshevDistance( sf::Vector2f posA, sf::Vector2f posB ) const
   {
     return std::max( std::abs( posA.x - posB.x ), std::abs( posA.y - posB.y ) );
   }
 
-  // Snap a position to the nearest grid square
+  //! @brief Snaps a rectangle's position to the nearest grid cell.
+  //!
+  //! Computes a new rectangle whose top-left corner is moved to the nearest grid
+  //! intersection based on BaseSystem::kGridSquareSizePixels.x (the function
+  //! assumes a square grid and uses the x component as the grid cell size).
+  //! The input rectangle's size is preserved.
+  //!
+  //! Rounding uses std::round, so coordinates are mapped to the nearest multiple
+  //! of the grid size (negative coordinates are handled correctly by std::round).
+  //!
+  //! @param position The rectangle to be snapped. Only its position is considered;
+  //!                 the rectangle's size remains unchanged.
+  //! @return A new sf::FloatRect with the snapped position and the original size.
+  //!
+  //! @note If the grid is not square, only the x component of
+  //!       BaseSystem::kGridSquareSizePixels is used for both axes.
   sf::FloatRect snap_to_grid( const sf::FloatRect &position )
   {
     float grid_size = BaseSystem::kGridSquareSizePixels.x; // Assuming square grid
@@ -131,6 +188,13 @@ public:
     return sf::FloatRect( snapped_pos, position.size );
   }
 
+  //! @brief Snap a given position to the nearest grid square.
+  //! This function takes a 2D position and rounds its coordinates to the nearest
+  //! grid square based on the grid size defined in BaseSystem::kGridSquareSizePixels.
+  //! It assumes the grid squares are of uniform size.
+  //!
+  //! @param position The position to snap, as an sf::Vector2f.
+  //! @return sf::Vector2f The snapped position aligned to the grid.
   sf::Vector2f snap_to_grid( const sf::Vector2f &position )
   {
     float grid_size = BaseSystem::kGridSquareSizePixels.x; // Assuming square grid
@@ -140,32 +204,45 @@ public:
     return snapped_pos;
   }
 
-  /**
-   * @brief Checks if the player's movement to a given position is valid
-   *
-   * Validates whether the player can move to the specified position by checking
-   * for collisions with walls, boundaries, or other obstacles in the game world.
-   *
-   * @param player_position The target position to validate for player movement
-   * @return true if the movement is valid and allowed, false otherwise
-   */
+  //! @brief Checks if the player's movement to a given position is valid
+  //! Validates whether the player can move to the specified position by checking
+  //! for collisions with walls, boundaries, or other obstacles in the game world.
+  //! @param player_position The target position to validate for player movement
+  //! @return true if the movement is valid and allowed, false otherwise
   bool is_valid_move( const sf::FloatRect &player_position );
 
-  /**
-   * @brief Checks if a diagonal movement would pass between two obstacles.
-   *
-   * This function determines whether a diagonal movement from the current position
-   * in the specified direction would result in the player squeezing between two
-   * obstacles (e.g., moving diagonally through a corner where two walls meet).
-   * This is typically used to prevent unrealistic movement through tight spaces.
-   *
-   * @param current_pos The current position of the player as a 2D vector
-   * @param direction The direction vector representing the intended diagonal movement
-   * @return true if the diagonal movement would pass between obstacles, false otherwise
-   */
+  //! @brief Checks if a diagonal movement would pass between two obstacles.
+  //! This function determines whether a diagonal movement from the current position
+  //! in the specified direction would result in the player squeezing between two
+  //! obstacles (e.g., moving diagonally through a corner where two walls meet).
+  //! This is typically used to prevent unrealistic movement through tight spaces.
+  //!
+  //! @param current_pos The current position of the player as a 2D vector
+  //! @param direction The direction vector representing the intended diagonal movement
+  //! @return true if the diagonal movement would pass between obstacles, false otherwise
   bool isDiagonalMovementBetweenObstacles( const sf::FloatRect &current_pos, const sf::Vector2f &direction );
 
+  /**
+   * @brief Calculates the bounding rectangle of the given SFML view.
+   *
+   * This function computes the world-space bounds represented by the specified sf::View.
+   * The returned sf::FloatRect describes the area visible through the view.
+   *
+   * @param view Reference to the SFML view whose bounds are to be calculated.
+   * @return sf::FloatRect The rectangle representing the view's bounds in world coordinates.
+   */
   sf::FloatRect calculate_view_bounds( const sf::View &view ) const;
+
+  /**
+   * @brief Determines if a given position rectangle is visible within the specified view bounds.
+   *
+   * This function checks whether the provided position rectangle intersects with the view bounds,
+   * indicating that the position is at least partially visible in the current view.
+   *
+   * @param viewbounds The rectangle representing the bounds of the current view.
+   * @param position The rectangle representing the position to check for visibility.
+   * @return true if the position is visible within the view bounds; false otherwise.
+   */
   bool is_visible_in_view( const sf::FloatRect &viewbounds, const sf::FloatRect &position ) const;
 
   /**

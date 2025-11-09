@@ -47,11 +47,11 @@ private:
   std::unordered_map<entt::entity, float> m_last_damage_time;
 
 public:
-  void suspend()
+  void onPause() override
   {
     if ( m_clock.isRunning() ) m_clock.stop();
   }
-  void resume()
+  void onResume() override
   {
     if ( not m_clock.isRunning() ) m_clock.start();
   }

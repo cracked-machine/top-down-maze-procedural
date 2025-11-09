@@ -25,6 +25,11 @@ public:
                     Audio::SoundBank &sound_bank );
   ~RenderGameSystem() = default;
 
+  //! @brief event handlers for pausing system clocks
+  void onPause() override {}
+  //! @brief event handlers for resuming system clocks
+  void onResume() override {}
+
   void init_views();
   void init_shaders();
   void init_tilemap();
@@ -35,7 +40,7 @@ public:
   //! @param render_overlay_sys anything that is not part of the game world itself. i.e. UI, debug info, etc..
   //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc.. as well as death
   //! animations/effects
-  void render_game( sf::Time deltaTime, RenderOverlaySystem &render_overlay_sys, RenderPlayerSystem &render_player_sys );
+  void render_game( sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys, RenderPlayerSystem &render_player_sys );
 
 private:
   void render_floormap( const sf::Vector2f &offset = { 0.f, 0.f } );

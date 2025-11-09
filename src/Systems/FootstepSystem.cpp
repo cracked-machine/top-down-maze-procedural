@@ -7,6 +7,26 @@
 
 namespace ProceduralMaze::Sys {
 
+void FootstepSystem::onPause()
+{
+  auto footstep_timer_view = m_reg->view<Cmp::FootStepTimer>();
+  for ( auto [entity, timer] : footstep_timer_view.each() )
+  {
+    // pause each footstep timer clock
+    timer.m_clock.stop();
+  }
+}
+
+void FootstepSystem::onResume()
+{
+  auto footstep_timer_view = m_reg->view<Cmp::FootStepTimer>();
+  for ( auto [entity, timer] : footstep_timer_view.each() )
+  {
+    // resume each footstep timer clock
+    timer.m_clock.start();
+  }
+}
+
 void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Direction &direction )
 {
   if ( update_clock.getElapsedTime() >= kFootstepAddDelay )

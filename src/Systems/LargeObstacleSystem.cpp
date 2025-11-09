@@ -148,7 +148,7 @@ void LargeObstacleSystem::check_player_grave_activation( Cmp::LargeObstacle &lo_
   // choose a random consequence for activating graves: spawn npc, drop bomb, give candles
   if ( activated_grave_count > 0 )
   {
-    auto grave_activation_rng = Cmp::RandomInt( 2, 2 );
+    auto grave_activation_rng = Cmp::RandomInt( 1, 3 );
     auto consequence = grave_activation_rng.gen();
     switch ( consequence )
     {

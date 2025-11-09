@@ -15,6 +15,11 @@ public:
   ExitSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
               Audio::SoundBank &sound_bank );
 
+  //! @brief event handlers for pausing system clocks
+  void onPause() override {}
+  //! @brief event handlers for resuming system clocks
+  void onResume() override {}
+
   void spawn_exit();
   void unlock_exit();
 

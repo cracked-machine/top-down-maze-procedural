@@ -64,20 +64,18 @@ void RenderMenuSystem::render_title()
 
     render_text( "Resurrectionist", 128, { kDisplaySize.x * 0.25f, 200.f }, Alignment::CENTER, 2.f, txt_outline_color );
 
-    render_text( "Press <Enter> key to start", 48, { kDisplaySize.x * 0.25f, 400.f }, Alignment::CENTER, 3.f,
-                 txt_color );
+    render_text( "Press <Enter> key to start", 48, { kDisplaySize.x * 0.25f, 400.f }, Alignment::CENTER, 3.f, txt_color );
 
     render_text( "Press <Q> key to quit", 48, { kDisplaySize.x * 0.25f, 500.f }, Alignment::CENTER, 3.f, txt_color );
 
-    render_text( "Press <S> key for settings", 48, { kDisplaySize.x * 0.25f, 600.f }, Alignment::CENTER, 3.f,
-                 txt_color );
+    render_text( "Press <S> key for settings", 48, { kDisplaySize.x * 0.25f, 600.f }, Alignment::CENTER, 3.f, txt_color );
   }
 
   m_window.display();
   // main render end
 }
 
-void RenderMenuSystem::render_settings( sf::Time deltaTime )
+void RenderMenuSystem::render_settings( sf::Time globalDeltaTime )
 {
   m_window.clear();
 
@@ -92,15 +90,15 @@ void RenderMenuSystem::render_settings( sf::Time deltaTime )
   m_window.draw( start_text );
 
   // ImGUI should be rendered before window.display() or SFML wipes the display buffer prematurely
-  render_settings_widgets( deltaTime );
+  render_settings_widgets( globalDeltaTime );
 
   m_window.display();
 }
 
-void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
+void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
 {
   // need to make sure we call Update() and Render() every frame
-  ImGui::SFML::Update( m_window, deltaTime );
+  ImGui::SFML::Update( m_window, globalDeltaTime );
 
   ImGui::Begin( "Settings", nullptr, kImGuiWindowOptions );
   // See PlayerSystem::Settings for details of which Components these are set
@@ -120,20 +118,17 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   auto &player_lerp_speed = get_persistent_component<Cmp::Persistent::PlayerLerpSpeed>();
   ImGui::SliderFloat( "Player Lerp Speed", &player_lerp_speed.get_value(), 3.f, 10.f, "%.1f" );
 
-  auto &player_diagonal_lerp_speed_modifier = get_persistent_component<
-      Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
-  ImGui::SliderFloat( "Player Diagonal Lerp Speed Modifier", &player_diagonal_lerp_speed_modifier.get_value(), 0.001f,
-                      1.f, "%.2f" );
+  auto &player_diagonal_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
+  ImGui::SliderFloat( "Player Diagonal Lerp Speed Modifier", &player_diagonal_lerp_speed_modifier.get_value(), 0.001f, 1.f,
+                      "%.2f" );
 
-  auto &player_shortcut_lerp_speed_modifier = get_persistent_component<
-      Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
-  ImGui::SliderFloat( "Player Shortcut Lerp Speed Modifier", &player_shortcut_lerp_speed_modifier.get_value(), 0.001f,
-                      1.f, "%.2f" );
+  auto &player_shortcut_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
+  ImGui::SliderFloat( "Player Shortcut Lerp Speed Modifier", &player_shortcut_lerp_speed_modifier.get_value(), 0.001f, 1.f,
+                      "%.2f" );
 
-  auto &player_submerged_lerp_speed_modifier = get_persistent_component<
-      Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
-  ImGui::SliderFloat( "Player Submerged Lerp Speed Modifier", &player_submerged_lerp_speed_modifier.get_value(), 0.001f,
-                      1.f, "%.2f" );
+  auto &player_submerged_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
+  ImGui::SliderFloat( "Player Submerged Lerp Speed Modifier", &player_submerged_lerp_speed_modifier.get_value(), 0.001f, 1.f,
+                      "%.2f" );
 
   auto &digging_cooldown = get_persistent_component<Cmp::Persistent::DiggingCooldownThreshold>();
   ImGui::SliderFloat( "Digging Cooldown", &digging_cooldown.get_value(), 0.05f, 1.f, "%.2f seconds" );
@@ -208,13 +203,11 @@ void RenderMenuSystem::render_settings_widgets( sf::Time deltaTime )
   ImGui::SliderFloat( "NPC Death Animation Framerate", &npc_death_anim_framerate.get_value(), 0.01f, 0.5f, "%.2f" );
 
   auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NpcActivateScale>();
-  ImGui::SliderFloat( "NPC Activation Bounding Box Scale Factor", &npc_activate_scale.get_value(), 1.f, 20.f,
-                      "%.1f pixels" );
+  ImGui::SliderFloat( "NPC Activation Bounding Box Scale Factor", &npc_activate_scale.get_value(), 1.f, 20.f, "%.1f pixels" );
   auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NpcScanScale>();
   ImGui::SliderFloat( "NPC Scan Bounding Box Scale Factor", &npc_scan_scale.get_value(), 1.f, 3.f, "%.1f pixels" );
   auto &pc_detection_scale = get_persistent_component<Cmp::Persistent::PlayerDetectionScale>();
-  ImGui::SliderFloat( "PC Detection Bounding Box Scale Factor", &pc_detection_scale.get_value(), 1.f, 20.f,
-                      "%.1f pixels" );
+  ImGui::SliderFloat( "PC Detection Bounding Box Scale Factor", &pc_detection_scale.get_value(), 1.f, 20.f, "%.1f pixels" );
 
   auto &npc_lerp_speed = get_persistent_component<Cmp::Persistent::NpcLerpSpeed>();
   ImGui::SliderFloat( "NPC Speed", &npc_lerp_speed.get_value(), 0.1f, 3.f, "%.1f" );

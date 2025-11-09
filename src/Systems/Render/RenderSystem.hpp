@@ -48,11 +48,16 @@ class RenderSystem : public BaseSystem
 public:
   //! @brief Construct a new Render System object
   //! @param reg
-  RenderSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  RenderSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                Audio::SoundBank &sound_bank );
 
   //! @brief Destroy the Render System object
   virtual ~RenderSystem() = default;
+
+  //! @brief event handlers for pausing system clocks
+  void onPause() override {}
+  //! @brief event handlers for resuming system clocks
+  void onResume() override {}
 
   //! @brief Initialize multi-sprites
   void init_multisprites();
@@ -97,14 +102,12 @@ protected:
   //! @param fill_color Optional color for the text fill (default: White)
   //! @param outline_color Optional color for the text outline (default:
   //! Transparent). Outline thickness is 0.f if set to Transparent.
-  void render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align,
-                    float letter_spacing = 1.f, sf::Color fill_color = sf::Color::White,
-                    sf::Color outline_color = sf::Color::Transparent );
+  void render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align, float letter_spacing = 1.f,
+                    sf::Color fill_color = sf::Color::White, sf::Color outline_color = sf::Color::Transparent );
 
   // Variant that renders to a specific render target (shader, texture, etc.)
-  void safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
-                                     const sf::FloatRect &pos_cmp, int sprite_index = 0,
-                                     sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255,
+  void safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type, const sf::FloatRect &pos_cmp,
+                                     int sprite_index = 0, sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255,
                                      sf::Vector2f origin = { 0.f, 0.f }, sf::Angle angle = sf::degrees( 0.f ) );
 
   // Fallback rendering for missing sprites (also target-aware)

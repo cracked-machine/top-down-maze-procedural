@@ -1,5 +1,7 @@
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
+#include <Events/PauseClocksEvent.hpp>
+#include <Events/ResumeClocksEvent.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Window/Window.hpp>
 
@@ -46,9 +48,11 @@ CollisionSystem::CollisionSystem( ProceduralMaze::SharedEnttRegistry reg, sf::Re
 {
 
   SPDLOG_DEBUG( "CollisionSystem initialized" );
+  std::ignore = getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::CollisionSystem::onPause>( this );
+  std::ignore = getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::CollisionSystem::onResume>( this );
 }
 
-void CollisionSystem::suspend()
+void CollisionSystem::onPause()
 {
   auto player_collision_view = m_reg->view<Cmp::PlayableCharacter>();
   for ( auto [_pc_entt, player] : player_collision_view.each() )
@@ -56,7 +60,7 @@ void CollisionSystem::suspend()
     if ( player.m_bombdeploycooldowntimer.isRunning() ) player.m_bombdeploycooldowntimer.stop();
   }
 }
-void CollisionSystem::resume()
+void CollisionSystem::onResume()
 {
   auto player_collision_view = m_reg->view<Cmp::PlayableCharacter>();
   for ( auto [_pc_entt, player] : player_collision_view.each() )

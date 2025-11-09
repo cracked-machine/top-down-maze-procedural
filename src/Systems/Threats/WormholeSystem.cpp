@@ -1,5 +1,7 @@
 #include <Components/RectBounds.hpp>
 #include <Components/WormholeJump.hpp>
+#include <Events/PauseClocksEvent.hpp>
+#include <Events/ResumeClocksEvent.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <Components/Door.hpp>
@@ -22,7 +24,35 @@ WormholeSystem::WormholeSystem( ProceduralMaze::SharedEnttRegistry reg, sf::Rend
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   init_context();
+
+  getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::WormholeSystem::onPause>( this );
+  getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::WormholeSystem::onResume>( this );
+
   SPDLOG_DEBUG( "WormholeSystem initialized" );
+}
+
+void WormholeSystem::onPause()
+{
+  if ( m_sound_bank.get_effect( "wormhole_jump" ).getStatus() == sf::Sound::Status::Playing )
+    m_sound_bank.get_effect( "wormhole_jump" ).pause();
+
+  auto jump_view = m_reg->view<Cmp::WormholeJump>();
+  for ( auto [entity, jump_cmp] : jump_view.each() )
+  {
+    jump_cmp.jump_clock.stop();
+  }
+}
+
+void WormholeSystem::onResume()
+{
+  if ( m_sound_bank.get_effect( "wormhole_jump" ).getStatus() == sf::Sound::Status::Paused )
+    m_sound_bank.get_effect( "wormhole_jump" ).play();
+
+  auto jump_view = m_reg->view<Cmp::WormholeJump>();
+  for ( auto [entity, jump_cmp] : jump_view.each() )
+  {
+    jump_cmp.jump_clock.start();
+  }
 }
 
 void WormholeSystem::init_context()

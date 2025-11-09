@@ -1,5 +1,7 @@
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerMortality.hpp>
+#include <Events/PauseClocksEvent.hpp>
+#include <Events/ResumeClocksEvent.hpp>
 #include <Systems/Threats/FloodSystem.hpp>
 
 namespace ProceduralMaze::Sys {
@@ -9,6 +11,8 @@ FloodSystem::FloodSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWind
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "FloodSystem initialized" );
+  std::ignore = getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::FloodSystem::onPause>( this );
+  std::ignore = getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::FloodSystem::onResume>( this );
 }
 
 void FloodSystem::add_flood_water_entity()

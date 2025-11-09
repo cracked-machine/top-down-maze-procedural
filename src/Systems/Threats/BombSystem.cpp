@@ -1,6 +1,8 @@
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerMortality.hpp>
+#include <Events/PauseClocksEvent.hpp>
+#include <Events/ResumeClocksEvent.hpp>
 #include <spdlog/spdlog.h>
 
 #include <Components/Armed.hpp>
@@ -24,11 +26,17 @@ BombSystem::BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>( this );
+  std::ignore = getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::BombSystem::onPause>( this );
+  std::ignore = getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::BombSystem::onResume>( this );
   SPDLOG_DEBUG( "BombSystem initialized" );
 }
 
-void BombSystem::suspend()
+void BombSystem::onPause()
 {
+  if ( m_sound_bank.get_effect( "bomb_fuse" ).getStatus() == sf::Sound::Status::Playing )
+    m_sound_bank.get_effect( "bomb_fuse" ).pause();
+  if ( m_sound_bank.get_effect( "bomb_detonate" ).getStatus() == sf::Sound::Status::Playing )
+    m_sound_bank.get_effect( "bomb_detonate" ).pause();
   auto player_collision_view = m_reg->view<Cmp::Armed>();
   for ( auto [_pc_entt, armed] : player_collision_view.each() )
   {
@@ -36,8 +44,12 @@ void BombSystem::suspend()
     if ( armed.m_warning_delay_clock.isRunning() ) armed.m_warning_delay_clock.stop();
   }
 }
-void BombSystem::resume()
+void BombSystem::onResume()
 {
+  if ( m_sound_bank.get_effect( "bomb_fuse" ).getStatus() == sf::Sound::Status::Paused )
+    m_sound_bank.get_effect( "bomb_fuse" ).play();
+  if ( m_sound_bank.get_effect( "bomb_detonate" ).getStatus() == sf::Sound::Status::Paused )
+    m_sound_bank.get_effect( "bomb_detonate" ).play();
   auto player_collision_view = m_reg->view<Cmp::Armed>();
   for ( auto [_pc_entt, armed] : player_collision_view.each() )
   {
@@ -61,7 +73,8 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
     if ( event.action == Events::PlayerActionEvent::GameActions::GRAVE_BOMB )
     {
       auto search_area = Cmp::RectBounds( pc_pos_cmp.position, BaseSystem::kGridSquareSizePixelsF, 3.f );
-      candidate_entity = get_random_nearby_disabled_obstacle( search_area.getBounds(), IncludePack<Cmp::Destructable>{}, ExcludePack<>{} );
+      candidate_entity = get_random_nearby_disabled_obstacle( search_area.getBounds(), IncludePack<Cmp::Destructable>{},
+                                                              ExcludePack<>{} );
       auto pos_cmp = m_reg->try_get<Cmp::Position>( candidate_entity );
       if ( pos_cmp )
         SPDLOG_INFO( "Returned candidate entity: {}, pos: {},{}", static_cast<uint32_t>( candidate_entity ), pos_cmp->position.x,
@@ -192,12 +205,6 @@ void BombSystem::update()
     {
       SPDLOG_INFO( "Triggering LootContainerDestroyedEvent for entity {}  ", static_cast<int>( armed_entt ) );
       getEventDispatcher().trigger( Events::LootContainerDestroyedEvent( armed_entt ) );
-      // // the loot container is now destroyed by the bomb, replace with a random loot component
-      // auto [obstacle_type, random_obstacle_texture_index] = m_sprite_factory.get_random_type_and_texture_index(
-      //     std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "WEAPON_BOOST" } );
-      // m_reg->remove<Cmp::LootContainer>( armed_entt );
-      // m_reg->remove<Cmp::ReservedPosition>( armed_entt );
-      // m_reg->emplace_or_replace<Cmp::Loot>( armed_entt, obstacle_type, random_obstacle_texture_index );
     }
 
     // detonate npc containers

@@ -19,6 +19,11 @@ public:
   LargeObstacleSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
                        Audio::SoundBank &sound_bank );
 
+  //! @brief event handlers for pausing system clocks
+  void onPause() override {}
+  //! @brief event handlers for resuming system clocks
+  void onResume() override {}
+
   void check_player_lo_collision( Events::PlayerActionEvent::GameActions action );
   void check_player_shrine_activation( Cmp::LargeObstacle &lo_cmp, Cmp::PlayerCandlesCount &pc_candles_cmp );
   void check_player_grave_activation( Cmp::LargeObstacle &lo_cmp, entt::entity &lo_entity, Cmp::PlayableCharacter &pc_cmp );

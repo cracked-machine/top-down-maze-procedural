@@ -105,7 +105,7 @@ void NpcSystem::remove_npc_entity( entt::entity npc_entity )
   m_reg->remove<Cmp::Direction>( npc_entity );
 }
 
-void NpcSystem::update_movement( sf::Time dt )
+void NpcSystem::update_movement( sf::Time globalDeltaTime )
 {
   auto exclusions = entt::exclude<Cmp::ShrineSprite, Cmp::SpawnAreaSprite, Cmp::PlayableCharacter>;
   auto view = m_reg->view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds>( exclusions );
@@ -126,7 +126,7 @@ void NpcSystem::update_movement( sf::Time dt )
       lerp_pos_cmp.m_start = pos_cmp.position;
     }
 
-    lerp_pos_cmp.m_lerp_factor += lerp_pos_cmp.m_lerp_speed * dt.asSeconds();
+    lerp_pos_cmp.m_lerp_factor += lerp_pos_cmp.m_lerp_speed * globalDeltaTime.asSeconds();
 
     if ( lerp_pos_cmp.m_lerp_factor >= 1.0f )
     {

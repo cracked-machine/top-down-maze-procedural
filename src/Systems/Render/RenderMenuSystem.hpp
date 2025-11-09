@@ -15,19 +15,24 @@ namespace ProceduralMaze::Sys {
 class RenderMenuSystem : public RenderSystem
 {
 public:
-  RenderMenuSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window,
-                    Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+  RenderMenuSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                    Audio::SoundBank &sound_bank )
       : RenderSystem( registry, window, sprite_factory, sound_bank )
   {
     SPDLOG_DEBUG( "RenderMenuSystem constructor called" );
   }
   ~RenderMenuSystem() = default;
 
+  //! @brief event handlers for pausing system clocks
+  void onPause() override {}
+  //! @brief event handlers for resuming system clocks
+  void onResume() override {}
+
   void init_title();
   void render_title();
 
-  void render_settings_widgets( sf::Time deltaTime );
-  void render_settings( sf::Time deltaTime );
+  void render_settings_widgets( sf::Time globalDeltaTime );
+  void render_settings( sf::Time globalDeltaTime );
   void render_paused();
   void render_defeat_screen();
   void render_victory_screen();
