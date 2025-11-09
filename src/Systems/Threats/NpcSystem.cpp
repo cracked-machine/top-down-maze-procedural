@@ -65,6 +65,12 @@ void NpcSystem::add_npc_entity( const Events::NpcCreationEvent &event )
                  pos_cmp->position.x, pos_cmp->position.y );
     m_sound_bank.get_effect( "spawn_ghost" ).play();
   }
+  else if ( event.type == "NPCSKELE" )
+  {
+    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), event.type,
+                 pos_cmp->position.x, pos_cmp->position.y );
+    m_sound_bank.get_effect( "spawn_skeleton" ).play();
+  }
 }
 
 void NpcSystem::remove_npc_entity( entt::entity npc_entity )
