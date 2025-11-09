@@ -92,6 +92,7 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
       {
         // activate the altar
         lo_cmp.set_powers_active();
+        m_sound_bank.get_effect( "shrine_lighting" ).play();
 
         // drop the key loot
         auto lo_cmp_bounds = Cmp::RectBounds( lo_cmp.position, lo_cmp.size, 1.5f );
