@@ -78,7 +78,7 @@ void NpcSystem::remove_npc_entity( entt::entity npc_entity )
   else
   {
     // 1 in 20 chance of dropping a relic
-    auto loot_chance_rng = Cmp::RandomInt( 1, 20 );
+    auto loot_chance_rng = Cmp::RandomInt( 1, 10 );
     if ( loot_chance_rng.gen() == 1 )
     {
       auto npc_pos_cmp_bounds = Cmp::RectBounds( npc_pos_cmp->position, kGridSquareSizePixelsF, 1.5f );
