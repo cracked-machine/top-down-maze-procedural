@@ -73,6 +73,7 @@ bool Engine::run()
           // update music volumes with persistent settings
           auto &music_volume = m_event_handler->get_persistent_component<Cmp::Persistent::MusicVolume>().get_value();
           m_sound_bank->update_music_volume( music_volume );
+
           if ( m_sound_bank->get_music( "title_music" ).getStatus() != sf::Music::Status::Playing )
           {
             m_sound_bank->get_music( "title_music" ).play();
@@ -186,11 +187,17 @@ bool Engine::run()
 
           while ( ( Cmp::Persistent::GameState::State::PAUSED == game_state.current_state ) and m_window->isOpen() )
           {
-            m_render_menu_sys->render_paused();
+            m_render_menu_sys->render_paused( globalDeltaTime );
             std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
             // check for keyboard/window events to keep window responsive
             m_event_handler->paused_state_handler();
           }
+          // save persistent settings and update music/sfx volumes with persistent settings
+          m_event_handler->getEventDispatcher().trigger( Events::SaveSettingsEvent() );
+          auto &effects_volume = m_event_handler->get_persistent_component<Cmp::Persistent::EffectsVolume>().get_value();
+          m_sound_bank->update_effects_volume( effects_volume );
+          auto &music_volume = m_event_handler->get_persistent_component<Cmp::Persistent::MusicVolume>().get_value();
+          m_sound_bank->update_music_volume( music_volume );
 
           m_event_handler->getEventDispatcher().trigger( Events::ResumeClocksEvent() );
           globalFrameClock.start();
@@ -214,13 +221,6 @@ bool Engine::run()
         } // case GAME_OVER end
 
         case Cmp::Persistent::GameState::State::EXITING: {
-          // wait for fade out to complete
-          // m_title_music_sys->start_music_fade_out();
-          // if ( m_title_music_sys->is_fading_out() )
-          // {
-          //   m_title_music_sys->update_volume();
-          //   break;
-          // }
           SPDLOG_INFO( "Terminating application...." );
           exit_game();
           m_window->close();

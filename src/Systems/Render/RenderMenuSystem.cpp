@@ -229,21 +229,32 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
   ImGui::SFML::Render( m_window );
 }
 
-void RenderMenuSystem::render_paused()
+void RenderMenuSystem::render_paused( sf::Time globalDeltaTime )
 {
   // main render begin
   m_window.clear();
-  {
-    sf::Text title_text( m_font, "Paused", 96 );
-    title_text.setFillColor( sf::Color::White );
-    title_text.setPosition( { kDisplaySize.x / 4.f, 100.f } );
-    m_window.draw( title_text );
 
-    sf::Text start_text( m_font, "Press P to continue", 48 );
-    start_text.setFillColor( sf::Color::White );
-    start_text.setPosition( { kDisplaySize.x / 4.f, 200.f } );
-    m_window.draw( start_text );
-  }
+  ImGui::SFML::Update( m_window, globalDeltaTime );
+  ImGui::Begin( "PausedMenu", nullptr, kImGuiWindowOptions );
+
+  sf::Text title_text( m_font, "Paused", 96 );
+  title_text.setFillColor( sf::Color::White );
+  title_text.setPosition( { kDisplaySize.x / 4.f, 100.f } );
+  m_window.draw( title_text );
+
+  sf::Text start_text( m_font, "Press P to continue", 48 );
+  start_text.setFillColor( sf::Color::White );
+  start_text.setPosition( { kDisplaySize.x / 4.f, 200.f } );
+  m_window.draw( start_text );
+
+  auto &music_volume = get_persistent_component<Cmp::Persistent::MusicVolume>();
+  ImGui::SliderFloat( "Music Volume", &music_volume.get_value(), 0.f, 100.f, "%.1f" );
+
+  auto &effects_volume = get_persistent_component<Cmp::Persistent::EffectsVolume>();
+  ImGui::SliderFloat( "Effects Volume", &effects_volume.get_value(), 0.f, 100.f, "%.1f" );
+
+  ImGui::End();
+  ImGui::SFML::Render( m_window );
 
   m_window.display();
   // main render end
@@ -254,6 +265,7 @@ void RenderMenuSystem::render_defeat_screen()
   // main render begin
   m_window.clear();
   {
+
     sf::Text title_text( m_font, "You died!", 96 );
     title_text.setFillColor( sf::Color::White );
     title_text.setPosition( { kDisplaySize.x / 4.f, 100.f } );
