@@ -45,7 +45,6 @@
 #include <Systems/Render/RenderMenuSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/BombSystem.hpp>
-#include <Systems/Threats/FloodSystem.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Systems/Threats/WormholeSystem.hpp>
@@ -164,7 +163,6 @@ private:
   std::unique_ptr<Sys::RenderGameSystem> m_render_game_sys;
   std::unique_ptr<Sys::PersistentSystem> m_persistent_sys;
   std::unique_ptr<Sys::PlayerSystem> m_player_sys;
-  std::unique_ptr<Sys::FloodSystem> m_flood_sys;
   std::unique_ptr<Sys::PathFindSystem> m_path_find_sys;
   std::unique_ptr<Sys::NpcSystem> m_npc_sys;
   std::unique_ptr<Sys::CollisionSystem> m_collision_sys;

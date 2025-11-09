@@ -22,13 +22,11 @@
 #include <Components/Persistent/NpcPushBack.hpp>
 #include <Components/Persistent/NpcScanScale.hpp>
 #include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
-#include <Components/Persistent/ObstaclePushBack.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerLerpSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
-#include <Components/Persistent/PlayerSubmergedLerpSpeedModifier.hpp>
 #include <Components/Persistent/ShrineCost.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
 #include <Components/Persistent/WaterBonus.hpp>
@@ -99,10 +97,10 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
 {
   // need to make sure we call Update() and Render() every frame
   ImGui::SFML::Update( m_window, globalDeltaTime );
-
   ImGui::Begin( "Settings", nullptr, kImGuiWindowOptions );
-  // See PlayerSystem::Settings for details of which Components these are set
 
+  // Player Settings
+  ImGui::SeparatorText( "Player Settings" );
   auto &bomb_inventory = get_persistent_component<Cmp::Persistent::BombInventory>();
   if ( ImGui::InputInt( "Bomb Inventory", &bomb_inventory.get_value() ) )
   {
@@ -126,10 +124,6 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
   ImGui::SliderFloat( "Player Shortcut Lerp Speed Modifier", &player_shortcut_lerp_speed_modifier.get_value(), 0.001f, 1.f,
                       "%.2f" );
 
-  auto &player_submerged_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
-  ImGui::SliderFloat( "Player Submerged Lerp Speed Modifier", &player_submerged_lerp_speed_modifier.get_value(), 0.001f, 1.f,
-                      "%.2f" );
-
   auto &digging_cooldown = get_persistent_component<Cmp::Persistent::DiggingCooldownThreshold>();
   ImGui::SliderFloat( "Digging Cooldown", &digging_cooldown.get_value(), 0.05f, 1.f, "%.2f seconds" );
 
@@ -139,19 +133,13 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
   auto &weapon_degrade_per_hit = get_persistent_component<Cmp::Persistent::WeaponDegradePerHit>();
   ImGui::SliderFloat( "Weapon Degrade Per Hit", &weapon_degrade_per_hit.get_value(), 0.01f, 5.0f, "%.2f level" );
 
-  ImGui::Separator();
-  auto &flood_speed = get_persistent_component<Cmp::Persistent::FloodSpeed>();
-  ImGui::SliderFloat( "Flood Velocity", &flood_speed.get_value(), 1.f, 10.f, "%.1f pixels/second" );
-  ImGui::Separator();
+  auto &pc_detection_scale = get_persistent_component<Cmp::Persistent::PlayerDetectionScale>();
+  ImGui::SliderFloat( "PC Detection Bounding Box Scale Factor", &pc_detection_scale.get_value(), 1.f, 20.f, "%.1f pixels" );
+  auto &pc_damage_cooldown = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
+  ImGui::SliderFloat( "PC Damage Cooldown", &pc_damage_cooldown.get_value(), 0.1f, 2.f, "%.1f seconds" );
 
-  auto &npc_anim_framerate = get_persistent_component<Cmp::Persistent::NpcSkeleAnimFramerate>();
-  ImGui::SliderFloat( "NPC Animation Skeleton Framerate", &npc_anim_framerate.get_value(), 0.01f, 0.5f, "%.2f" );
-
-  auto &npc_ghost_anim_framerate = get_persistent_component<Cmp::Persistent::NpcGhostAnimFramerate>();
-  ImGui::SliderFloat( "NPC Animation Ghost Framerate", &npc_ghost_anim_framerate.get_value(), 0.01f, 0.5f, "%.2f" );
-
-  auto &npc_damage = get_persistent_component<Cmp::Persistent::NpcDamage>();
-  ImGui::SliderInt( "NPC Damage", &npc_damage.get_value(), 1, 50 );
+  // Bomb Settings
+  ImGui::SeparatorText( "Bomb Settings" );
 
   auto &bomb_damage = get_persistent_component<Cmp::Persistent::BombDamage>();
   ImGui::SliderInt( "Bomb Damage", &bomb_damage.get_value(), 1, 50 );
@@ -170,7 +158,8 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
     armed_off_delay.get_value() = std::clamp( armed_off_delay.get_value(), 0.001f, 0.5f );
   }
 
-  ImGui::Separator();
+  // Hazard Settings
+  ImGui::SeparatorText( "Hazard Settings" );
   auto &wormhole_anim_framerate = get_persistent_component<Cmp::Persistent::WormholeAnimFramerate>();
   ImGui::SliderFloat( "Wormhole Animation Framerate", &wormhole_anim_framerate.get_value(), 0.01f, 0.5f, "%.2f" );
 
@@ -181,6 +170,8 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
   auto &sinkhole_seed = get_persistent_component<Cmp::Persistent::SinkholeSeed>();
   ImGui::InputScalar( "Sinkhole Seed. Zero is ignored", ImGuiDataType_U64, &sinkhole_seed.get_value() );
 
+  // Loot Settings
+  ImGui::SeparatorText( "Loot Settings" );
   auto &health_bonus = get_persistent_component<Cmp::Persistent::HealthBonus>();
   ImGui::SliderInt( "Health Bonus", &health_bonus.get_value(), 1, 50 );
   auto &bomb_bonus = get_persistent_component<Cmp::Persistent::BombBonus>();
@@ -188,11 +179,18 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
   auto &water_bonus = get_persistent_component<Cmp::Persistent::WaterBonus>();
   ImGui::SliderFloat( "Water Bonus", &water_bonus.get_value(), 10.f, 500.f, "%.1f units" );
 
-  auto &obstacle_push_back = get_persistent_component<Cmp::Persistent::ObstaclePushBack>();
-  if ( ImGui::InputFloat( "Obstacle Push Back Factor", &obstacle_push_back.get_value(), 0.1f, 0.1f, "%.2f" ) )
-  {
-    obstacle_push_back.get_value() = std::clamp( obstacle_push_back.get_value(), 1.0f, 5.0f );
-  }
+  // NPC Settings
+  ImGui::SeparatorText( "NPC Settings" );
+
+  auto &npc_anim_framerate = get_persistent_component<Cmp::Persistent::NpcSkeleAnimFramerate>();
+  ImGui::SliderFloat( "NPC Animation Skeleton Framerate", &npc_anim_framerate.get_value(), 0.01f, 0.5f, "%.2f" );
+
+  auto &npc_ghost_anim_framerate = get_persistent_component<Cmp::Persistent::NpcGhostAnimFramerate>();
+  ImGui::SliderFloat( "NPC Animation Ghost Framerate", &npc_ghost_anim_framerate.get_value(), 0.01f, 0.5f, "%.2f" );
+
+  auto &npc_damage = get_persistent_component<Cmp::Persistent::NpcDamage>();
+  ImGui::SliderInt( "NPC Damage", &npc_damage.get_value(), 1, 50 );
+
   auto &npc_push_back = get_persistent_component<Cmp::Persistent::NpcPushBack>();
   if ( ImGui::InputFloat( "NPC Push Back Distance", &npc_push_back.get_value(), 0.1f, 0.1f, "%.2f pixels" ) )
   {
@@ -206,20 +204,21 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
   ImGui::SliderFloat( "NPC Activation Bounding Box Scale Factor", &npc_activate_scale.get_value(), 1.f, 20.f, "%.1f pixels" );
   auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NpcScanScale>();
   ImGui::SliderFloat( "NPC Scan Bounding Box Scale Factor", &npc_scan_scale.get_value(), 1.f, 3.f, "%.1f pixels" );
-  auto &pc_detection_scale = get_persistent_component<Cmp::Persistent::PlayerDetectionScale>();
-  ImGui::SliderFloat( "PC Detection Bounding Box Scale Factor", &pc_detection_scale.get_value(), 1.f, 20.f, "%.1f pixels" );
 
   auto &npc_lerp_speed = get_persistent_component<Cmp::Persistent::NpcLerpSpeed>();
   ImGui::SliderFloat( "NPC Speed", &npc_lerp_speed.get_value(), 0.1f, 3.f, "%.1f" );
 
-  auto &pc_damage_cooldown = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
-  ImGui::SliderFloat( "PC Damage Cooldown", &pc_damage_cooldown.get_value(), 0.1f, 2.f, "%.1f seconds" );
+  // Audio
+  ImGui::SeparatorText( "Audio" );
 
   auto &music_volume = get_persistent_component<Cmp::Persistent::MusicVolume>();
   ImGui::SliderFloat( "Music Volume", &music_volume.get_value(), 0.f, 100.f, "%.1f" );
 
   auto &effects_volume = get_persistent_component<Cmp::Persistent::EffectsVolume>();
   ImGui::SliderFloat( "Effects Volume", &effects_volume.get_value(), 0.f, 100.f, "%.1f" );
+
+  // Procedural Generation
+  ImGui::SeparatorText( "Procedural Generation" );
 
   auto &max_shrines = get_persistent_component<Cmp::Persistent::MaxShrines>();
   ImGui::SliderInt( "Max Shrines", reinterpret_cast<int *>( &max_shrines.get_value() ), 1, 10 );

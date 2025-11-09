@@ -1,7 +1,6 @@
 #include <Components/CorruptionCell.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/MusicVolume.hpp>
-#include <Components/Persistent/ObstaclePushBack.hpp>
 #include <Components/PlayerMortality.hpp>
 #include <Components/SinkholeCell.hpp>
 #include <Engine.hpp>
@@ -267,7 +266,6 @@ void Engine::init_systems()
   // might as well init them all here....it will shorten load times later
   m_render_game_sys = std::make_unique<Sys::RenderGameSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
   m_player_sys = std::make_unique<Sys::PlayerSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
-  m_flood_sys = std::make_unique<Sys::FloodSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
   m_path_find_sys = std::make_unique<Sys::PathFindSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
   m_npc_sys = std::make_unique<Sys::NpcSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
   m_collision_sys = std::make_unique<Sys::CollisionSystem>( m_reg, *m_window, *m_sprite_factory, *m_sound_bank );
@@ -300,7 +298,6 @@ void Engine::enter_game()
 {
   add_system_entity();
   m_player_sys->add_player_entity();
-  m_flood_sys->add_flood_water_entity();
 
   // create initial random game area with the required sprites
   std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>(

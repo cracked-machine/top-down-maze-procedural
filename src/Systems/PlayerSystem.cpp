@@ -15,7 +15,6 @@
 #include <Components/Persistent/PlayerLerpSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
-#include <Components/Persistent/PlayerSubmergedLerpSpeedModifier.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/Position.hpp>
@@ -131,7 +130,6 @@ void PlayerSystem::update_movement( sf::Time globalDeltaTime, bool skip_collisio
       auto &player_lerp_speed = get_persistent_component<Cmp::Persistent::PlayerLerpSpeed>();
       auto &diagonal_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
       auto &shortcut_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
-      auto &submerged_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>();
 
       float speed_modifier = 1.0f;
       if ( diagonal_between_obstacles )
@@ -153,8 +151,6 @@ void PlayerSystem::update_movement( sf::Time globalDeltaTime, bool skip_collisio
       }
 
       float adjusted_speed = player_lerp_speed.get_value() * speed_modifier;
-      // add additional modifier if player is underwater
-      if ( pc_cmp.underwater ) { adjusted_speed *= submerged_lerp_speed_modifier.get_value(); }
 
       m_reg->emplace<Cmp::LerpPosition>( entity, new_pos.position, adjusted_speed );
       lerp_cmp = m_reg->try_get<Cmp::LerpPosition>( entity );

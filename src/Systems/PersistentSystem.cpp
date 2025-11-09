@@ -12,7 +12,6 @@
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
-#include <Components/Persistent/FloodSpeed.hpp>
 #include <Components/Persistent/FuseDelay.hpp>
 #include <Components/Persistent/GameState.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
@@ -27,7 +26,6 @@
 #include <Components/Persistent/NpcPushBack.hpp>
 #include <Components/Persistent/NpcScanScale.hpp>
 #include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
-#include <Components/Persistent/ObstaclePushBack.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
 #include <Components/Persistent/PlayerDetectionScale.hpp>
@@ -35,7 +33,6 @@
 #include <Components/Persistent/PlayerLerpSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
-#include <Components/Persistent/PlayerSubmergedLerpSpeedModifier.hpp>
 #include <Components/Persistent/ShrineCost.hpp>
 #include <Components/Persistent/WaterBonus.hpp>
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
@@ -74,7 +71,6 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::DiggingDamagePerHit>( "DiggingDamagePerHit" );
   registerComponent<Cmp::Persistent::EffectsVolume>( "EffectsVolume" );
   registerComponent<Cmp::Persistent::FuseDelay>( "FuseDelay" );
-  registerComponent<Cmp::Persistent::FloodSpeed>( "FloodSpeed" );
   registerComponent<Cmp::Persistent::HealthBonus>( "HealthBonus" );
   registerComponent<Cmp::Persistent::MusicVolume>( "MusicVolume" );
   registerComponent<Cmp::Persistent::MaxShrines>( "MaxShrines" );
@@ -88,13 +84,11 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::NpcDamage>( "NpcDamage" );
   registerComponent<Cmp::Persistent::NpcPushBack>( "NpcPushBack" );
   registerComponent<Cmp::Persistent::NpcDeathAnimFramerate>( "NpcDeathAnimFramerate" );
-  registerComponent<Cmp::Persistent::ObstaclePushBack>( "ObstaclePushBack" );
   registerComponent<Cmp::Persistent::PlayerAnimFramerate>( "PlayerAnimFramerate" );
   registerComponent<Cmp::Persistent::PlayerDetectionScale>( "PlayerDetectionScale" );
   registerComponent<Cmp::Persistent::PlayerLerpSpeed>( "PlayerLerpSpeed" );
   registerComponent<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( "PlayerDiagonalLerpSpeedModifier" );
   registerComponent<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
-  registerComponent<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>( "PlayerSubmergedLerpSpeedModifier" );
   registerComponent<Cmp::Persistent::ShrineCost>( "ShrineCost" );
   registerComponent<Cmp::Persistent::WormholeAnimFramerate>( "WormholeAnimFramerate" );
   registerComponent<Cmp::Persistent::WeaponDegradePerHit>( "WeaponDegradePerHit" );
@@ -156,7 +150,6 @@ void PersistentSystem::save_state()
   serializeComponent.template operator()<Cmp::Persistent::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
   serializeComponent.template operator()<Cmp::Persistent::DiggingDamagePerHit>( "DiggingDamagePerHit" );
   serializeComponent.template operator()<Cmp::Persistent::EffectsVolume>( "EffectsVolume" );
-  serializeComponent.template operator()<Cmp::Persistent::FloodSpeed>( "FloodSpeed" );
   serializeComponent.template operator()<Cmp::Persistent::FuseDelay>( "FuseDelay" );
   serializeComponent.template operator()<Cmp::Persistent::HealthBonus>( "HealthBonus" );
   serializeComponent.template operator()<Cmp::Persistent::MaxShrines>( "MaxShrines" );
@@ -169,14 +162,12 @@ void PersistentSystem::save_state()
   serializeComponent.template operator()<Cmp::Persistent::NpcPushBack>( "NpcPushBack" );
   serializeComponent.template operator()<Cmp::Persistent::NpcSkeleAnimFramerate>( "NpcSkeleAnimFramerate" );
   serializeComponent.template operator()<Cmp::Persistent::NpcGhostAnimFramerate>( "NpcGhostAnimFramerate" );
-  serializeComponent.template operator()<Cmp::Persistent::ObstaclePushBack>( "ObstaclePushBack" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerStartPosition>( "PlayerStartPosition" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerDetectionScale>( "PlayerDetectionScale" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerLerpSpeed>( "PlayerLerpSpeed" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerAnimFramerate>( "PlayerAnimFramerate" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( "PlayerDiagonalLerpSpeedModifier" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
-  serializeComponent.template operator()<Cmp::Persistent::PlayerSubmergedLerpSpeedModifier>( "PlayerSubmergedLerpSpeedModifier" );
   serializeComponent.template operator()<Cmp::Persistent::ShrineCost>( "ShrineCost" );
   serializeComponent.template operator()<Cmp::Persistent::WaterBonus>( "WaterBonus" );
   serializeComponent.template operator()<Cmp::Persistent::WeaponDegradePerHit>( "WeaponDegradePerHit" );

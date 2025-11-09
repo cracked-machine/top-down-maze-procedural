@@ -29,7 +29,6 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/PersistentSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/PlayerSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/BombSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/Threats/FloodSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/NpcSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/HazardFieldSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/LargeObstacleSystem.cpp
