@@ -16,6 +16,14 @@ public:
                        Audio::SoundBank &sound_bank )
       : RenderSystem( reg, window, sprite_factory, sound_bank )
   {
+    // Pre-warm font texture atlas with all glyphs used in debug overlays
+    sf::Text warmup_30( m_font, "0123456789 [](),:.-=xyzEPONCSabcdefghijklmnopqrstuvwXYZ INFINITE", 30 );
+    warmup_30.setOutlineThickness( 2.f );
+    std::ignore = warmup_30.getGlobalBounds(); // Force glyph generation
+
+    sf::Text warmup_20( m_font, "0123456789 [](),:.-=xyzEPONCSabcdefghijklmnopqrstuvwXYZ", 20 );
+    warmup_20.setOutlineThickness( 1.f );
+    std::ignore = warmup_20.getGlobalBounds(); // Force glyph generation
     SPDLOG_DEBUG( "RenderOverlaySystem initialized" );
   };
 
@@ -37,15 +45,24 @@ public:
   void render_player_position_overlay( sf::Vector2f player_position, sf::Vector2f pos );
   void render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos );
   void render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3 );
+  void render_npc_list_overlay( sf::Vector2f pos );
 
 private:
+  // restrict the debug data update to every 1 second (optimization)
+  const sf::Time m_debug_update_interval{ sf::milliseconds( 1000 ) };
+  sf::Clock m_debug_update_timer;
+
   // overlay text
-  sf::Text healthlvl_meter_text{ m_font, "Health:", 30 };
-  sf::Text waterlvl_meter_text{ m_font, "Flood:", 30 };
-  sf::Text bomb_inventory_text{ m_font, "Bombs:", 30 };
-  sf::Text bomb_radius_text{ m_font, "Blast Radius:", 30 };
-  sf::Text player_position_text{ m_font, "Player Pos:", 30 };
-  sf::Text stats_text{ m_font, "", 30 };
+  sf::Text m_healthlvl_meter_text{ m_font, "Health:", 30 };
+  sf::Text m_waterlvl_meter_text{ m_font, "Flood:", 30 };
+  sf::Text m_bomb_inventory_text{ m_font, "Bombs:", 30 };
+  sf::Text m_bomb_radius_text{ m_font, "Blast Radius:", 30 };
+  sf::Text m_player_position_text{ m_font, "Player Pos:", 30 };
+  sf::Text m_mouse_position_text{ m_font, "", 30 };
+  sf::Text m_stats_text1{ m_font, "", 30 };
+  sf::Text m_stats_text2{ m_font, "", 30 };
+  sf::Text m_stats_text3{ m_font, "", 30 };
+  std::map<unsigned int, sf::Text> m_npc_list_text{};
 };
 
 } // namespace ProceduralMaze::Sys

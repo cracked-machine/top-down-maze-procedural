@@ -229,9 +229,11 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_overlay_sys.render_relic_count_overlay( player_relic_count, { 40.f, 240.f } );
       if ( m_show_debug_stats )
       {
+
         render_overlay_sys.render_player_position_overlay( player_position.position, { 40.f, 300.f } );
         render_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 340.f } );
-        render_overlay_sys.render_stats_overlay( { 40.f, 360.f }, { 40.f, 380.f }, { 40.f, 400.f } );
+        render_overlay_sys.render_stats_overlay( { 40.f, 380.f }, { 40.f, 420.f }, { 40.f, 460.f } );
+        render_overlay_sys.render_npc_list_overlay( { kDisplaySize.x - 450, 200.f } );
       }
       render_overlay_sys.render_entt_distance_set_overlay( { 40.f, 300.f } );
     }
