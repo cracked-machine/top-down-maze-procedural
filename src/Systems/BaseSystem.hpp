@@ -179,18 +179,6 @@ public:
     return static_cast<T>( std::sqrt( dx * dx + dy * dy ) );
   }
 
-  // //! @brief Get the Euclidean Distance between two positions.
-  // //!
-  // //! @param posA The first position.
-  // //! @param posB The second position.
-  // //! @return float The Euclidean distance.
-  // float getEuclideanDistance( sf::Vector2f posA, sf::Vector2f posB ) const
-  // {
-  //   float dx = posA.x - posB.x;
-  //   float dy = posA.y - posB.y;
-  //   return std::sqrt( dx * dx + dy * dy );
-  // }
-
   //! @brief Snaps a rectangle's position to the nearest grid cell.
   //!
   //! Computes a new rectangle whose top-left corner is moved to the nearest grid
