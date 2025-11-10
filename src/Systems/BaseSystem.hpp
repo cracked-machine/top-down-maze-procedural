@@ -121,47 +121,75 @@ public:
   }
 
   //! @brief Get the Manhattan Distance between two positions.
-  //!
+  //! Creates a grid-like distance metric:
+  //! ┌────┬────┬────┐
+  //! │ 2  │ 1  │ 2  │  Sum of absolute differences
+  //! ├────┼────┼────┤  Moves only horizontal/vertical
+  //! │ 1  │ 0  │ 1  │  (Like a taxi in a city grid)
+  //! ├────┼────┼────┤
+  //! │ 2  │ 1  │ 2  │
+  //! └────┴────┴────┘
+  //! @note NPCs will be unable to "see" around corners with this distance metric.
   //! @param posA The first position.
   //! @param posB The second position.
   //! @return unsigned int The Manhattan distance.
-  unsigned int getManhattanDistance( sf::Vector2i posA, sf::Vector2i posB ) const
-  {
-    return std::abs( posA.x - posB.x ) + std::abs( posA.y - posB.y );
-  }
-
-  //! @brief Get the Manhattan Distance between two positions.
-  //!
-  //! @param posA The first position.
-  //! @param posB The second position.
-  //! @return float The Manhattan distance.
-  float getManhattanDistance( sf::Vector2f posA, sf::Vector2f posB ) const
+  template <typename T>
+  T getManhattanDistance( sf::Vector2<T> posA, sf::Vector2<T> posB ) const
   {
     return std::abs( posA.x - posB.x ) + std::abs( posA.y - posB.y );
   }
 
   //! @brief Get the Chebyshev Distance between two positions.
-  //!
+  //! Creates an equal-cost distance metric for all 8 directions:
+  //! ┌────┬────┬────┐
+  //! │ 1  │ 1  │ 1  │  Maximum of x or y distance
+  //! ├────┼────┼────┤  All 8 neighbors are distance 1
+  //! │ 1  │ 0  │ 1  │  (Like a chess king's move)
+  //! ├────┼────┼────┤
+  //! │ 1  │ 1  │ 1  │
+  //! └────┴────┴────┘
+  //! @note NPC pathfinding will pick randomly and appear to zig-zag
   //! @param posA The first position.
   //! @param posB The second position.
   //! @return unsigned int The Chebyshev distance.
-  unsigned int getChebyshevDistance( sf::Vector2i posA, sf::Vector2i posB ) const
+  template <typename T>
+  T getChebyshevDistance( sf::Vector2<T> posA, sf::Vector2<T> posB ) const
   {
     return std::max( std::abs( posA.x - posB.x ), std::abs( posA.y - posB.y ) );
   }
 
-  //! Calculates the Chebyshev distance between two 2D positions.
-  //!
-  //! The Chebyshev distance is the maximum of the absolute differences of their coordinates.
-  //! It is commonly used in grid-based pathfinding where movement can occur in any direction.
-  //!
-  //! @param posA The first position as an sf::Vector2f.
-  //! @param posB The second position as an sf::Vector2f.
-  //! @return The Chebyshev distance between posA and posB.
-  float getChebyshevDistance( sf::Vector2f posA, sf::Vector2f posB ) const
+  //! @brief Get the Euclidean Distance between two positions.
+  //! Creates a straight-line distance metric:
+  //! ┌─────┬─────┬─────┐
+  //! │ 1.4 │ 1.0 │ 1.4 │  Straight-line distance
+  //! ├─────┼─────┼─────┤  Diagonal = √2 ≈ 1.414
+  //! │ 1.0 │ 0.0 │ 1.0 │  (Standard geometric distance)
+  //! ├─────┼─────┼─────┤
+  //! │ 1.4 │ 1.0 │ 1.4 │
+  //! └─────┴─────┴─────┘
+  //! @note NPCs pathfinding will be able to navigate around obstacles
+  //! @param posA The first position.
+  //! @param posB The second position.
+  //! @return unsigned int The Euclidean distance.
+  template <typename T>
+  T getEuclideanDistance( sf::Vector2<T> posA, sf::Vector2<T> posB ) const
   {
-    return std::max( std::abs( posA.x - posB.x ), std::abs( posA.y - posB.y ) );
+    T dx = posA.x - posB.x;
+    T dy = posA.y - posB.y;
+    return static_cast<T>( std::sqrt( dx * dx + dy * dy ) );
   }
+
+  // //! @brief Get the Euclidean Distance between two positions.
+  // //!
+  // //! @param posA The first position.
+  // //! @param posB The second position.
+  // //! @return float The Euclidean distance.
+  // float getEuclideanDistance( sf::Vector2f posA, sf::Vector2f posB ) const
+  // {
+  //   float dx = posA.x - posB.x;
+  //   float dy = posA.y - posB.y;
+  //   return std::sqrt( dx * dx + dy * dy );
+  // }
 
   //! @brief Snaps a rectangle's position to the nearest grid cell.
   //!

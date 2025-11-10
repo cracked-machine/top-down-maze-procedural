@@ -27,7 +27,7 @@ void PathFindSystem::update_player_distances()
   {
 
     // Exclude any components that we dont want NPCs to pathfind through
-    auto path_exclusions = entt::exclude<Cmp::ShrineSprite, Cmp::SpawnAreaSprite, Cmp::GraveSprite, Cmp::LootContainer>;
+    auto path_exclusions = entt::exclude<Cmp::ShrineSprite, Cmp::SpawnAreaSprite, Cmp::GraveSprite, Cmp::LootContainer, Cmp::NPC>;
 
     auto path_view = m_reg->view<Cmp::Position>( path_exclusions );
     for ( auto [path_entt, path_pos_cmp] : path_view.each() )
@@ -42,7 +42,7 @@ void PathFindSystem::update_player_distances()
       // calculate the distance from the position to the player
       if ( pc_db_cmp.findIntersection( path_pos_cmp ) )
       {
-        auto distance = std::floor( getManhattanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
+        auto distance = std::floor( getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
         m_reg->emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
       }
       else
