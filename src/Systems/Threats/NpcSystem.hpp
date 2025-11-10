@@ -12,7 +12,7 @@
 #include <Components/Direction.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/NPC.hpp>
-#include <Components/NPCScanBounds.hpp>
+
 #include <Components/Persistent/NpcActivateScale.hpp>
 #include <Components/Persistent/NpcScanScale.hpp>
 #include <Components/Position.hpp>

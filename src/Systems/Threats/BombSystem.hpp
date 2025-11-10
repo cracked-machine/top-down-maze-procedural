@@ -17,7 +17,6 @@
 #include <Components/Armed.hpp>
 #include <Components/Loot.hpp>
 #include <Components/NPC.hpp>
-#include <Components/NPCScanBounds.hpp>
 #include <Components/Neighbours.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/ArmedOffDelay.hpp>

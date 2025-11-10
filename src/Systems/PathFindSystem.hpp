@@ -7,7 +7,7 @@
 #include <Components/Direction.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/NPC.hpp>
-#include <Components/NPCScanBounds.hpp>
+
 #include <Components/Obstacle.hpp>
 #include <Components/PCDetectionBounds.hpp>
 #include <Components/Persistent/NpcLerpSpeed.hpp>

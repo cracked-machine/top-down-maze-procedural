@@ -1,6 +1,7 @@
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerMortality.hpp>
+#include <Components/RectBounds.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
 #include <spdlog/spdlog.h>

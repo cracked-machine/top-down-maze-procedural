@@ -2,6 +2,7 @@
 #include <Components/FootStepTimer.hpp>
 #include <Components/GraveSprite.hpp>
 #include <Components/LootContainer.hpp>
+#include <Components/NPCScanBounds.hpp>
 #include <Components/ShrineSprite.hpp>
 #include <Components/SpawnAreaSprite.hpp>
 #include <Systems/PathFindSystem.hpp>

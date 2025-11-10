@@ -10,6 +10,7 @@
 
 #include <Components/Destructable.hpp>
 #include <Components/GraveSprite.hpp>
+#include <Components/NPCScanBounds.hpp>
 #include <Components/NpcContainer.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/PlayableCharacter.hpp>

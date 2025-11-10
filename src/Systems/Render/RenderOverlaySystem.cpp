@@ -350,7 +350,7 @@ void RenderOverlaySystem::render_scan_detection_bounds()
   for ( auto [entity, pc_pos_cmp, pc_detection_bounds] : player_view.each() )
   {
     sf::RectangleShape detection_bounds_shape;
-    detection_bounds_shape.setPosition( pc_detection_bounds.position() + sf::Vector2f{ 2.f, 2.f } );
+    detection_bounds_shape.setPosition( pc_detection_bounds.position() );
     detection_bounds_shape.setSize( pc_detection_bounds.size() );
     detection_bounds_shape.setFillColor( sf::Color::Transparent );
     detection_bounds_shape.setOutlineColor( sf::Color::Blue );
@@ -361,7 +361,7 @@ void RenderOverlaySystem::render_scan_detection_bounds()
   for ( auto [entity, pos_cmp, npc_sb_cmp] : m_reg->view<Cmp::Position, Cmp::NPCScanBounds>().each() )
   {
     sf::RectangleShape scan_bounds_shape;
-    scan_bounds_shape.setPosition( npc_sb_cmp.position() + sf::Vector2f{ 2.f, 2.f } );
+    scan_bounds_shape.setPosition( npc_sb_cmp.position());
     scan_bounds_shape.setSize( npc_sb_cmp.size() );
     scan_bounds_shape.setFillColor( sf::Color::Transparent );
     scan_bounds_shape.setOutlineColor( sf::Color::Red );
