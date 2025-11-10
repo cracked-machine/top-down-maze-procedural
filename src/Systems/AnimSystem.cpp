@@ -2,7 +2,6 @@
 
 #include <SFML/System/Time.hpp>
 
-#include <Components/EnttDistanceMap.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/NPC.hpp>
 #include <Components/NpcDeathPosition.hpp>

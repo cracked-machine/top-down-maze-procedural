@@ -81,7 +81,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
   // check for updates to the System modes
   for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
   {
-    m_show_path_distances = _sys.show_path_distances;
+    m_show_path_finding = _sys.show_path_distances;
     m_show_armed_obstacles = _sys.show_armed_obstacles;
     m_minimap_enabled = _sys.minimap_enabled;
     m_show_debug_stats = _sys.show_debug_stats;
@@ -129,13 +129,6 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_explosions();
       render_arrow_compass();
       render_mist( player_position );
-
-      if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
-      {
-        render_player_distances_on_npc();
-        render_player_distances_on_obstacles();
-        m_debug_update_timer.restart();
-      }
 
       // render_positions();
     }
@@ -235,7 +228,11 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
         render_overlay_sys.render_stats_overlay( { 40.f, 380.f }, { 40.f, 420.f }, { 40.f, 460.f } );
         render_overlay_sys.render_npc_list_overlay( { kDisplaySize.x - 450, 200.f } );
       }
-      render_overlay_sys.render_entt_distance_set_overlay( { 40.f, 300.f } );
+      if ( m_show_path_finding )
+      {
+        render_overlay_sys.render_scan_detection_bounds();
+        render_overlay_sys.render_player_distances();
+      }
     }
     // UI Overlays end
   }
@@ -665,86 +662,6 @@ void RenderGameSystem::render_mist( sf::FloatRect player_position )
 
   m_window.draw( m_mist_shader );
   m_window.draw( m_pulsing_shader );
-}
-
-void RenderGameSystem::render_player_distances_on_npc()
-{
-  if ( !m_show_path_distances ) return;
-
-  // for (auto [entt, npc_position] : m_reg->view<Cmp::Position>().each())
-  // {
-  //     // sf::Text distance_text(m_font, "", 10);
-  //     // if( player_distance_to_npc.distance ==
-  //     std::numeric_limits<unsigned int>::max() ) {
-  //     //     continue;
-  //     // } else {
-  //     //
-  //     distance_text.setString(std::to_string(player_distance_to_npc.distance));
-  //     // }
-
-  //     // distance_text.setPosition(npc_position + sf::Vector2f{5.f, 0.f});
-  //     // distance_text.setFillColor(sf::Color::White);
-  //     // distance_text.setOutlineColor(sf::Color::Black);
-  //     // distance_text.setOutlineThickness(2.f);
-  //     // m_window.draw(distance_text);
-
-  // }
-}
-
-void RenderGameSystem::render_player_distances_on_obstacles()
-{
-  if ( !m_show_path_distances ) return;
-  auto obstacle_view = m_reg->view<Cmp::Position, Cmp::PlayerDistance>();
-  for ( auto [ob_entt, pos_cmp, player_dist_cmp] : obstacle_view.each() )
-  {
-    sf::Text distance_text( m_font, "", 10 );
-    distance_text.setString( std::to_string( player_dist_cmp.distance ) );
-    distance_text.setPosition( pos_cmp.position + sf::Vector2f{ 5.f, 0.f } );
-    distance_text.setFillColor( sf::Color::White );
-    distance_text.setOutlineColor( sf::Color::Black );
-    distance_text.setOutlineThickness( 2.f );
-    m_window.draw( distance_text );
-  }
-}
-
-void RenderGameSystem::render_npc_distances_on_obstacles()
-{
-  if ( !m_show_path_distances ) return;
-
-  auto entt_distance_map_view = m_reg->view<Cmp::EnttDistanceMap>();
-
-  for ( auto [npc_entt, distance_map] : entt_distance_map_view.each() )
-  {
-    for ( auto [obstacle_entt, distance] : distance_map )
-    {
-      auto obstacle_position = m_reg->try_get<Cmp::Position>( obstacle_entt );
-      if ( not obstacle_position ) continue;
-
-      sf::Text distance_text( m_font, "", 10 );
-
-      distance_text.setString( "+" );
-
-      distance_text.setPosition( ( *obstacle_position ).position );
-      distance_text.setFillColor( sf::Color::White );
-      distance_text.setOutlineColor( sf::Color::Black );
-      distance_text.setOutlineThickness( 2.f );
-      m_window.draw( distance_text );
-    }
-  }
-}
-
-void RenderGameSystem::render_positions()
-{
-  auto position_view = m_reg->view<Cmp::Position>();
-  for ( auto [entity, pos_cmp] : position_view.each() )
-  {
-    sf::RectangleShape position_marker( kGridSquareSizePixelsF );
-    position_marker.setPosition( pos_cmp.position );
-    position_marker.setFillColor( sf::Color::Transparent );
-    position_marker.setOutlineColor( sf::Color::Green );
-    position_marker.setOutlineThickness( 1.f );
-    m_window.draw( position_marker );
-  }
 }
 
 void RenderGameSystem::render_arrow_compass()

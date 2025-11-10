@@ -5,7 +5,6 @@
 #include <spdlog/spdlog.h>
 
 #include <Components/Direction.hpp>
-#include <Components/EnttDistanceMap.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/NPC.hpp>
 #include <Components/NPCScanBounds.hpp>

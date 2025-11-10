@@ -59,10 +59,7 @@ private:
   void render_explosions();
   void render_flood_waters( sf::FloatRect player_position );
   void render_mist( sf::FloatRect player_position );
-  void render_player_distances_on_npc();
-  void render_player_distances_on_obstacles();
-  void render_npc_distances_on_obstacles();
-  void render_positions();
+
   void render_arrow_compass();
 
   void update_view_center( sf::View &view, const Cmp::Position &player_pos, float smoothFactor = 0.1f );

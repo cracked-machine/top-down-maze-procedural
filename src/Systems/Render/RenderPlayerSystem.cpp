@@ -77,7 +77,7 @@ void RenderPlayerSystem::render_player()
         // do nothing
     };
 
-    if ( m_show_path_distances ) { render_path_distance( pc_detection_bounds, sf::Color::Green ); }
+    if ( m_show_path_finding ) { render_path_distance( pc_detection_bounds, sf::Color::Green ); }
   }
 }
 
@@ -175,7 +175,7 @@ void RenderPlayerSystem::render_npc()
                 params_tuple );
 
     // show npc scan distance
-    if ( m_show_path_distances ) { render_path_distance( npc_sb_cmp, sf::Color::Red ); }
+    if ( m_show_path_finding ) { render_path_distance( npc_sb_cmp, sf::Color::Red ); }
   }
 }
 

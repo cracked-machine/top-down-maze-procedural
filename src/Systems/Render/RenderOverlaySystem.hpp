@@ -25,6 +25,11 @@ public:
     warmup_20.setOutlineThickness( 1.f );
     std::ignore = warmup_20.getGlobalBounds(); // Force glyph generation
     SPDLOG_DEBUG( "RenderOverlaySystem initialized" );
+
+    sf::Text warmup_15( m_font, "0123456789 [](),:.-=xyzEPONCSabcdefghijklmnopqrstuvwXYZ", 15 );
+    warmup_15.setOutlineThickness( 1.f );
+    std::ignore = warmup_15.getGlobalBounds(); // Force glyph generation
+    SPDLOG_DEBUG( "RenderOverlaySystem initialized" );
   };
 
   //! @brief event handlers for pausing system clocks
@@ -47,12 +52,16 @@ public:
   void render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3 );
   void render_npc_list_overlay( sf::Vector2f pos );
 
+  void render_player_distances();
+  void render_scan_detection_bounds();
+
 private:
   // restrict the debug data update to every 1 second (optimization)
   const sf::Time m_debug_update_interval{ sf::milliseconds( 1000 ) };
   sf::Clock m_debug_update_timer;
 
   // overlay text
+  sf::Text m_distance_text{ m_font, "", 10 };
   sf::Text m_healthlvl_meter_text{ m_font, "Health:", 30 };
   sf::Text m_waterlvl_meter_text{ m_font, "Flood:", 30 };
   sf::Text m_bomb_inventory_text{ m_font, "Bombs:", 30 };

@@ -25,18 +25,16 @@ void PathFindSystem::update_player_distances()
   auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PCDetectionBounds>();
   for ( [[maybe_unused]] auto [pc_entt, pc_cmp, pc_pos_cmp, pc_db_cmp] : player_view.each() )
   {
-    // clang-format off
+
     // Exclude any components that we dont want NPCs to pathfind through
-    auto path_exclusions = entt::exclude<
-      Cmp::ShrineSprite, Cmp::SpawnAreaSprite, 
-      Cmp::GraveSprite,
-      Cmp::LootContainer
-    >;
-    // clang-format on
+    auto path_exclusions = entt::exclude<Cmp::ShrineSprite, Cmp::SpawnAreaSprite, Cmp::GraveSprite, Cmp::LootContainer>;
+
     auto path_view = m_reg->view<Cmp::Position>( path_exclusions );
     for ( auto [path_entt, path_pos_cmp] : path_view.each() )
     {
+      // optimization
       if ( !is_visible_in_view( viewBounds, path_pos_cmp ) ) continue;
+
       // we can't filter out obstacles in the view, we have to check its enabled bit
       auto obst_cmp = m_reg->try_get<Cmp::Obstacle>( path_entt );
       if ( obst_cmp && obst_cmp->m_enabled ) continue;
@@ -44,7 +42,7 @@ void PathFindSystem::update_player_distances()
       // calculate the distance from the position to the player
       if ( pc_db_cmp.findIntersection( path_pos_cmp ) )
       {
-        auto distance = std::floor( getChebyshevDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
+        auto distance = std::floor( getManhattanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
         m_reg->emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
       }
       else
@@ -71,12 +69,7 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
   if ( not npc_scan_bounds || not pc_detection_bounds ) return;
 
   // only continue if player is within detection distance
-  if ( not npc_scan_bounds->findIntersection( pc_detection_bounds->getBounds() ) )
-  {
-    // remove any out-of-range EnttDistanceMap components to maintain a small search zone
-    m_reg->remove<Cmp::EnttDistanceMap>( npc_entity );
-  }
-  else
+  if ( npc_scan_bounds->findIntersection( pc_detection_bounds->getBounds() ) )
   {
     // gather up any PlayerDistance components from within range obstacles
     PlayerDistanceQueue distance_queue;
@@ -88,8 +81,7 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
 
     // Our priority queue auto-sorts with the nearest PlayerDistance component at the top
     if ( distance_queue.empty() ) return;
-    SPDLOG_DEBUG( " NPC entity {} found {} obstacles within scan bounds", static_cast<int>( npc_entity ),
-                  distance_queue.size() );
+    SPDLOG_DEBUG( " NPC entity {} found {} obstacles within scan bounds", static_cast<int>( npc_entity ), distance_queue.size() );
 
     auto nearest_obstacle = distance_queue.top();
 
@@ -114,8 +106,7 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
         auto move_candidate_pixel_pos = getPixelPosition( nearest_obstacle.second );
         if ( not move_candidate_pixel_pos ) return;
         auto npc_lerp_speed = get_persistent_component<Cmp::Persistent::NpcLerpSpeed>();
-        m_reg->emplace_or_replace<Cmp::LerpPosition>( npc_entity, move_candidate_pixel_pos.value(),
-                                                      npc_lerp_speed.get_value() );
+        m_reg->emplace_or_replace<Cmp::LerpPosition>( npc_entity, move_candidate_pixel_pos.value(), npc_lerp_speed.get_value() );
       }
     }
   }

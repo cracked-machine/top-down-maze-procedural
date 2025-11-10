@@ -14,38 +14,6 @@
 
 namespace ProceduralMaze::Sys {
 
-void RenderOverlaySystem::render_entt_distance_set_overlay( sf::Vector2f pos )
-{
-  if ( !m_show_path_distances ) return;
-
-  auto entt_distance_map_view = m_reg->view<Cmp::EnttDistanceMap>();
-  int entt_distance_set = 0;
-  for ( auto [e, distance_map] : entt_distance_map_view.each() )
-  {
-    sf::Text distance_text( m_font, "", 30 );
-    distance_text.setFillColor( sf::Color::White );
-    distance_text.setOutlineColor( sf::Color::Black );
-    distance_text.setOutlineThickness( 2.f );
-
-    if ( distance_map.empty() ) { continue; }
-    else
-    {
-      std::stringstream ss;
-      ss << "NPC Entity #" << entt::to_integral( e ) << " - ";
-      distance_text.setPosition( pos + sf::Vector2f{ 0, entt_distance_set * 30.f } );
-
-      for ( auto it = distance_map.begin(); it != distance_map.end(); ++it )
-      {
-        ss << " " << entt::to_integral( it->first ) << ":" << it->second << ",";
-      }
-
-      distance_text.setString( ss.str() );
-      m_window.draw( distance_text );
-    }
-    entt_distance_set++;
-  }
-}
-
 void RenderOverlaySystem::render_ui_background_overlay( sf::Vector2f pos, sf::Vector2f size )
 {
   auto ui_background = sf::RectangleShape( size );
@@ -344,6 +312,64 @@ void RenderOverlaySystem::render_npc_list_overlay( sf::Vector2f text_start_pos )
     m_window.draw( npc_text );
     ++count;
   }
+}
+
+void RenderOverlaySystem::render_player_distances()
+{
+  // Save the current view
+  sf::View previous_view = m_window.getView();
+
+  // Set the game view for world-space rendering
+  m_window.setView( RenderSystem::s_game_view );
+
+  auto obstacle_view = m_reg->view<Cmp::Position, Cmp::PlayerDistance>();
+  for ( auto [ob_entt, pos_cmp, player_dist_cmp] : obstacle_view.each() )
+  {
+
+    m_distance_text.setString( std::to_string( player_dist_cmp.distance ) );
+    m_distance_text.setPosition( pos_cmp.position + sf::Vector2f{ 5.f, 0.f } );
+    m_distance_text.setFillColor( sf::Color::White );
+    m_distance_text.setOutlineColor( sf::Color::Black );
+    m_distance_text.setOutlineThickness( 2.f );
+    m_window.draw( m_distance_text );
+  }
+
+  // Restore the previous view
+  m_window.setView( previous_view );
+}
+
+void RenderOverlaySystem::render_scan_detection_bounds()
+{
+  // Save the current view
+  sf::View previous_view = m_window.getView();
+
+  // Set the game view for world-space rendering
+  m_window.setView( RenderSystem::s_game_view );
+
+  auto player_view = m_reg->view<Cmp::Direction, Cmp::PCDetectionBounds>();
+  for ( auto [entity, pc_pos_cmp, pc_detection_bounds] : player_view.each() )
+  {
+    sf::RectangleShape detection_bounds_shape;
+    detection_bounds_shape.setPosition( pc_detection_bounds.position() + sf::Vector2f{ 2.f, 2.f } );
+    detection_bounds_shape.setSize( pc_detection_bounds.size() );
+    detection_bounds_shape.setFillColor( sf::Color::Transparent );
+    detection_bounds_shape.setOutlineColor( sf::Color::Blue );
+    detection_bounds_shape.setOutlineThickness( 1.f );
+    m_window.draw( detection_bounds_shape );
+  }
+
+  for ( auto [entity, pos_cmp, npc_sb_cmp] : m_reg->view<Cmp::Position, Cmp::NPCScanBounds>().each() )
+  {
+    sf::RectangleShape scan_bounds_shape;
+    scan_bounds_shape.setPosition( npc_sb_cmp.position() + sf::Vector2f{ 2.f, 2.f } );
+    scan_bounds_shape.setSize( npc_sb_cmp.size() );
+    scan_bounds_shape.setFillColor( sf::Color::Transparent );
+    scan_bounds_shape.setOutlineColor( sf::Color::Red );
+    scan_bounds_shape.setOutlineThickness( 1.f );
+    m_window.draw( scan_bounds_shape );
+  }
+  // Restore the previous view
+  m_window.setView( previous_view );
 }
 
 } // namespace ProceduralMaze::Sys
