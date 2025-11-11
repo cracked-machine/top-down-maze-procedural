@@ -41,6 +41,8 @@ public:
   // Removes an active NPC entity from the game. Called by event: NpcDeathEvent
   void remove_npc_entity( entt::entity npc_entity );
 
+  bool isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::Vector2f &diagonal_direction );
+
   // Smoothly interpolates the position of NPCs. Called in the main update loop.
   void update_movement( sf::Time globalDeltaTime );
 

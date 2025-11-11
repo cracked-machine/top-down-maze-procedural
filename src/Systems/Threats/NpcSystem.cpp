@@ -1,3 +1,4 @@
+#include <Components/Direction.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Persistent/NpcDamage.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
@@ -112,12 +113,38 @@ void NpcSystem::remove_npc_entity( entt::entity npc_entity )
   m_reg->remove<Cmp::Direction>( npc_entity );
 }
 
+//! @brief Check if diagonal movement should be blocked due to adjacent obstacles
+//! @param current_pos Current position rectangle
+//! @param diagonal_direction The diagonal direction vector (e.g., {1, -1} for up-right)
+//! @return true if diagonal movement is blocked by adjacent obstacles
+bool NpcSystem::isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::Vector2f &diagonal_direction )
+{
+  // Only check for diagonal movements (both x and y components non-zero)
+  if ( diagonal_direction.x == 0.f || diagonal_direction.y == 0.f )
+  {
+    return false; // Not a diagonal move
+  }
+
+  // Create test positions for the two cardinal directions
+  sf::FloatRect horizontal_test = current_pos;
+  horizontal_test.position.x += diagonal_direction.x * kGridSquareSizePixelsF.x;
+
+  sf::FloatRect vertical_test = current_pos;
+  vertical_test.position.y += diagonal_direction.y * kGridSquareSizePixelsF.y;
+
+  // If EITHER cardinal direction is blocked, block the diagonal
+  bool horizontal_blocked = !is_valid_move( horizontal_test );
+  bool vertical_blocked = !is_valid_move( vertical_test );
+
+  return horizontal_blocked || vertical_blocked;
+}
+
 void NpcSystem::update_movement( sf::Time globalDeltaTime )
 {
   auto exclusions = entt::exclude<Cmp::ShrineSprite, Cmp::SpawnAreaSprite, Cmp::PlayableCharacter>;
-  auto view = m_reg->view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds>( exclusions );
+  auto view = m_reg->view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds, Cmp::Direction>( exclusions );
 
-  for ( auto [entity, pos_cmp, lerp_pos_cmp, npc_scan_bounds] : view.each() )
+  for ( auto [entity, pos_cmp, lerp_pos_cmp, npc_scan_bounds, dir_cmp] : view.each() )
   {
 
     // skip over obstacles that are still enabled i.e. dont travel though them
@@ -127,6 +154,15 @@ void NpcSystem::update_movement( sf::Time globalDeltaTime )
     // If this is the first update, store the start position
     if ( lerp_pos_cmp.m_lerp_factor == 0.0f )
     {
+
+      // // Check if diagonal movement is blocked by adjacent obstacles
+      // if ( isDiagonalBlocked( pos_cmp, dir_cmp ) )
+      // {
+      //   // Diagonal blocked! Try sliding along one of the cardinal directions instead
+      //   // Or simply don't move
+      //   return;
+      // }
+
       // Allow NPCs to escape wormholes if they're mid-lerp.
       if ( m_reg->try_get<Cmp::WormholeJump>( entity ) ) continue;
 

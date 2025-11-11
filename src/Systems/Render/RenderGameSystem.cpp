@@ -230,8 +230,17 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       }
       if ( m_show_path_finding )
       {
+        // Save the current view
+        sf::View previous_view = m_window.getView();
+        // Set the game view for world-space rendering
+        m_window.setView( RenderSystem::s_game_view );
+
         render_overlay_sys.render_scan_detection_bounds();
         render_overlay_sys.render_player_distances();
+        render_overlay_sys.render_lerp_positions();
+
+        // Restore the previous view
+        m_window.setView( previous_view );
       }
     }
     // UI Overlays end

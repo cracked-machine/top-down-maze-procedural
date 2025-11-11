@@ -1,4 +1,6 @@
+#include <Components/RectBounds.hpp>
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
 
 #include <Components/CorruptionCell.hpp>
@@ -316,12 +318,6 @@ void RenderOverlaySystem::render_npc_list_overlay( sf::Vector2f text_start_pos )
 
 void RenderOverlaySystem::render_player_distances()
 {
-  // Save the current view
-  sf::View previous_view = m_window.getView();
-
-  // Set the game view for world-space rendering
-  m_window.setView( RenderSystem::s_game_view );
-
   auto obstacle_view = m_reg->view<Cmp::Position, Cmp::PlayerDistance>();
   for ( auto [ob_entt, pos_cmp, player_dist_cmp] : obstacle_view.each() )
   {
@@ -330,22 +326,13 @@ void RenderOverlaySystem::render_player_distances()
     m_distance_text.setPosition( pos_cmp.position + sf::Vector2f{ 5.f, 0.f } );
     m_distance_text.setFillColor( sf::Color::White );
     m_distance_text.setOutlineColor( sf::Color::Black );
-    m_distance_text.setOutlineThickness( 2.f );
+    m_distance_text.setOutlineThickness( 1.f );
     m_window.draw( m_distance_text );
   }
-
-  // Restore the previous view
-  m_window.setView( previous_view );
 }
 
 void RenderOverlaySystem::render_scan_detection_bounds()
 {
-  // Save the current view
-  sf::View previous_view = m_window.getView();
-
-  // Set the game view for world-space rendering
-  m_window.setView( RenderSystem::s_game_view );
-
   auto player_view = m_reg->view<Cmp::Direction, Cmp::PCDetectionBounds>();
   for ( auto [entity, pc_pos_cmp, pc_detection_bounds] : player_view.each() )
   {
@@ -361,15 +348,52 @@ void RenderOverlaySystem::render_scan_detection_bounds()
   for ( auto [entity, pos_cmp, npc_sb_cmp] : m_reg->view<Cmp::Position, Cmp::NPCScanBounds>().each() )
   {
     sf::RectangleShape scan_bounds_shape;
-    scan_bounds_shape.setPosition( npc_sb_cmp.position());
+    scan_bounds_shape.setPosition( npc_sb_cmp.position() );
     scan_bounds_shape.setSize( npc_sb_cmp.size() );
     scan_bounds_shape.setFillColor( sf::Color::Transparent );
     scan_bounds_shape.setOutlineColor( sf::Color::Red );
     scan_bounds_shape.setOutlineThickness( 1.f );
     m_window.draw( scan_bounds_shape );
   }
-  // Restore the previous view
-  m_window.setView( previous_view );
+}
+
+void RenderOverlaySystem::render_lerp_positions()
+{
+  auto lerp_view = m_reg->view<Cmp::LerpPosition, Cmp::Direction, Cmp::NPC>();
+  for ( auto [entity, lerp_pos_cmp, dir_cmp, npc_cmp] : lerp_view.each() )
+  {
+    sf::RectangleShape lerp_start_pos_rect( kGridSquareSizePixelsF );
+    lerp_start_pos_rect.setPosition( lerp_pos_cmp.m_start );
+    lerp_start_pos_rect.setFillColor( sf::Color::Transparent );
+    lerp_start_pos_rect.setOutlineColor( sf::Color::Yellow );
+    lerp_start_pos_rect.setOutlineThickness( 1.f );
+    m_window.draw( lerp_start_pos_rect );
+
+    sf::RectangleShape lerp_stop_pos_rect( kGridSquareSizePixelsF );
+    lerp_stop_pos_rect.setPosition( lerp_pos_cmp.m_target );
+    lerp_stop_pos_rect.setFillColor( sf::Color::Transparent );
+    lerp_stop_pos_rect.setOutlineColor( sf::Color::Cyan );
+    lerp_stop_pos_rect.setOutlineThickness( 1.f );
+    m_window.draw( lerp_stop_pos_rect );
+
+    auto hlerp_hitbox = Cmp::RectBounds( sf::Vector2f{ lerp_pos_cmp.m_target.x - ( dir_cmp.x * 8 ), lerp_pos_cmp.m_target.y },
+                                         kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
+    sf::RectangleShape lerp_diag_pos_hrect( hlerp_hitbox.size() );
+    lerp_diag_pos_hrect.setPosition( hlerp_hitbox.position() );
+    lerp_diag_pos_hrect.setFillColor( sf::Color::Transparent );
+    lerp_diag_pos_hrect.setOutlineColor( sf::Color::Green );
+    lerp_diag_pos_hrect.setOutlineThickness( 1.f );
+    m_window.draw( lerp_diag_pos_hrect );
+
+    auto vlerp_hitbox = Cmp::RectBounds( sf::Vector2f{ lerp_pos_cmp.m_target.x, lerp_pos_cmp.m_target.y - ( dir_cmp.y * 8 ) },
+                                         kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
+    sf::RectangleShape lerp_diag_pos_vrect( vlerp_hitbox.size() );
+    lerp_diag_pos_vrect.setPosition( vlerp_hitbox.position() );
+    lerp_diag_pos_vrect.setFillColor( sf::Color::Transparent );
+    lerp_diag_pos_vrect.setOutlineColor( sf::Color::Green );
+    lerp_diag_pos_vrect.setOutlineThickness( 1.f );
+    m_window.draw( lerp_diag_pos_vrect );
+  }
 }
 
 } // namespace ProceduralMaze::Sys

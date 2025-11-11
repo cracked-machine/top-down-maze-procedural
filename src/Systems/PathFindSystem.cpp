@@ -3,6 +3,8 @@
 #include <Components/GraveSprite.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NPCScanBounds.hpp>
+#include <Components/PlayerDistance.hpp>
+#include <Components/Position.hpp>
 #include <Components/ShrineSprite.hpp>
 #include <Components/SpawnAreaSprite.hpp>
 #include <Systems/PathFindSystem.hpp>
@@ -80,36 +82,80 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
       if ( npc_scan_bounds->findIntersection( pos_cmp ) ) { distance_queue.push( { pd_cmp.distance, entity } ); }
     }
 
-    // Our priority queue auto-sorts with the nearest PlayerDistance component at the top
     if ( distance_queue.empty() ) return;
-    SPDLOG_DEBUG( " NPC entity {} found {} obstacles within scan bounds", static_cast<int>( npc_entity ), distance_queue.size() );
+    while ( !distance_queue.empty() )
+    {
+      // priority queue auto-sorts with the nearest PlayerDistance component at the top
+      auto nearest_obstacle = distance_queue.top();
+      distance_queue.pop(); // Pop immediately to prevent infinite loop
 
-    auto nearest_obstacle = distance_queue.top();
+      // Set the Direction vector and LerpPosition target Coords for next movement towards the player
+      auto npc_cmp = m_reg->try_get<Cmp::NPC>( npc_entity );
+      auto npc_pos = m_reg->try_get<Cmp::Position>( npc_entity );
+      auto npc_lerp_pos_cmp = m_reg->try_get<Cmp::LerpPosition>( npc_entity );
+      if ( not npc_cmp || not npc_pos ) return;
+      if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) return;
 
-    // Set the Direction vector and LerpPosition target Coords for next movement towards the player
-    auto npc_cmp = m_reg->try_get<Cmp::NPC>( npc_entity );
-    if ( not npc_cmp ) return;
+      auto move_candidate_pixel_pos = getPixelPosition( nearest_obstacle.second );
+      if ( not move_candidate_pixel_pos ) continue; // Try next candidate
 
-    auto npc_lerp_pos_cmp = m_reg->try_get<Cmp::LerpPosition>( npc_entity );
-    if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) return;
+      // Calculate direction from NPC to target cell
+      auto direction_to_target = move_candidate_pixel_pos.value() - npc_pos->position;
+      if ( direction_to_target == sf::Vector2f( 0.0f, 0.0f ) ) continue;
 
-    auto npc_pos = m_reg->try_get<Cmp::Position>( npc_entity );
-    auto player_pos = m_reg->try_get<Cmp::Position>( player_entity );
-    if ( !npc_pos || !player_pos ) return;
+      auto candidate_dir = Cmp::Direction( direction_to_target.normalized() );
+      auto npc_lerp_speed = get_persistent_component<Cmp::Persistent::NpcLerpSpeed>();
+      auto candidate_lerp_pos = Cmp::LerpPosition( move_candidate_pixel_pos.value(), npc_lerp_speed.get_value() );
 
-    auto distance = ( *player_pos ).position - ( *npc_pos ).position;
-    SPDLOG_INFO( " NPC entity {} moving towards player from obstacle at distance {},{}", static_cast<int>( npc_entity ), distance.x,
-                 distance.y );
-    if ( distance == sf::Vector2f( 0.0f, 0.0f ) ) return;
+      if ( npc_cmp->m_type == "NPCGHOST" )
+      {
+        // Ghosts can phase through obstacles, so no need to check for diagonal collisions
+        add_candidate_lerp( npc_entity, std::move( candidate_dir ), std::move( candidate_lerp_pos ) );
+        return;
+      }
 
-    m_reg->emplace_or_replace<Cmp::Direction>( npc_entity, distance.normalized() );
+      // For diagonal movement, check if the path is clear
+      // Only check diagonal collision if we're actually moving diagonally
+      bool is_diagonal = std::abs( direction_to_target.x ) > 0.1f && std::abs( direction_to_target.y ) > 0.1f;
 
-    auto move_candidate_pixel_pos = getPixelPosition( nearest_obstacle.second );
-    if ( not move_candidate_pixel_pos ) return;
+      if ( is_diagonal )
+      {
+        // Check the two adjacent cells that form the diagonal path
+        auto horizontal_check_pos = sf::Vector2f{ move_candidate_pixel_pos.value().x, npc_pos->position.y };
+        auto vertical_check_pos = sf::Vector2f{ npc_pos->position.x, move_candidate_pixel_pos.value().y };
 
-    auto npc_lerp_speed = get_persistent_component<Cmp::Persistent::NpcLerpSpeed>();
-    m_reg->emplace_or_replace<Cmp::LerpPosition>( npc_entity, move_candidate_pixel_pos.value(), npc_lerp_speed.get_value() );
+        auto horizontal_hitbox = Cmp::RectBounds( horizontal_check_pos, kGridSquareSizePixelsF, 0.5f,
+                                                  Cmp::RectBounds::ScaleCardinality::BOTH );
+        auto vertical_hitbox = Cmp::RectBounds( vertical_check_pos, kGridSquareSizePixelsF, 0.5f,
+                                                Cmp::RectBounds::ScaleCardinality::BOTH );
+
+        bool horizontal_collision = false;
+        bool vertical_collision = false;
+        auto obst_view = m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::PlayerDistance> );
+        for ( auto [obst_entity, obst_cmp, obst_pos] : obst_view.each() )
+        {
+          if ( not pc_detection_bounds->findIntersection( obst_pos ) ) continue;
+          if ( not obst_cmp.m_enabled ) continue;
+          if ( horizontal_hitbox.findIntersection( obst_pos ) ) { horizontal_collision = true; }
+          if ( vertical_hitbox.findIntersection( obst_pos ) ) { vertical_collision = true; }
+        }
+
+        // If diagonal is blocked, try next candidate
+        if ( horizontal_collision || vertical_collision ) { continue; }
+      }
+
+      // Target is valid
+      add_candidate_lerp( npc_entity, std::move( candidate_dir ), std::move( candidate_lerp_pos ) );
+      return;
+    }
   }
+}
+
+void PathFindSystem::add_candidate_lerp( entt::entity npc_entity, Cmp::Direction candidate_dir,
+                                         Cmp::LerpPosition candidate_lerp_pos )
+{
+  m_reg->emplace_or_replace<Cmp::Direction>( npc_entity, std::move( candidate_dir ) );
+  m_reg->emplace_or_replace<Cmp::LerpPosition>( npc_entity, std::move( candidate_lerp_pos ) );
 }
 
 } // namespace ProceduralMaze::Sys

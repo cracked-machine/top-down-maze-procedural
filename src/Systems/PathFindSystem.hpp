@@ -49,14 +49,7 @@ public:
 
 private:
   void scanForPlayers( entt::entity npc_entity, entt::entity player_entity );
-
-  // Define possible movement directions (up, right, down, left)
-  const std::array<sf::Vector2f, 4> m_directions = {
-      sf::Vector2f( 0.f, -BaseSystem::kGridSquareSizePixels.y ), // Up
-      sf::Vector2f( BaseSystem::kGridSquareSizePixels.x, 0.f ),  // Right
-      sf::Vector2f( 0.f, BaseSystem::kGridSquareSizePixels.y ),  // Down
-      sf::Vector2f( -BaseSystem::kGridSquareSizePixels.x, 0.f )  // Left
-  };
+  void add_candidate_lerp( entt::entity npc_entity, Cmp::Direction candidate_dir, Cmp::LerpPosition candidate_lerp_pos );
 };
 
 } // namespace ProceduralMaze::Sys

@@ -54,6 +54,7 @@ public:
 
   void render_player_distances();
   void render_scan_detection_bounds();
+  void render_lerp_positions();
 
 private:
   // restrict the debug data update to every 1 second (optimization)
@@ -61,7 +62,7 @@ private:
   sf::Clock m_debug_update_timer;
 
   // overlay text
-  sf::Text m_distance_text{ m_font, "", 10 };
+  sf::Text m_distance_text{ m_font, "", 7 };
   sf::Text m_healthlvl_meter_text{ m_font, "Health:", 30 };
   sf::Text m_waterlvl_meter_text{ m_font, "Flood:", 30 };
   sf::Text m_bomb_inventory_text{ m_font, "Bombs:", 30 };
