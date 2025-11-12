@@ -51,7 +51,7 @@ public:
   void render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos );
   void render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3 );
   void render_npc_list_overlay( sf::Vector2f pos );
-
+  void render_obstacle_markers();
   void render_player_distances();
   void render_scan_detection_bounds();
   void render_lerp_positions();

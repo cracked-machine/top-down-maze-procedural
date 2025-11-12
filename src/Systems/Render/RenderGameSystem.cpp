@@ -242,6 +242,18 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
         // Restore the previous view
         m_window.setView( previous_view );
       }
+      if ( m_show_armed_obstacles )
+      {
+        // Save the current view
+        sf::View previous_view = m_window.getView();
+        // Set the game view for world-space rendering
+        m_window.setView( RenderSystem::s_game_view );
+
+        render_overlay_sys.render_obstacle_markers();
+
+        // Restore the previous view
+        m_window.setView( previous_view );
+      }
     }
     // UI Overlays end
   }
@@ -561,15 +573,6 @@ void RenderGameSystem::render_armed()
     }
     temp_square.setOutlineThickness( 1.f );
     m_window.draw( temp_square );
-
-    // debug - F4
-    if ( m_show_armed_obstacles )
-    {
-      sf::Text text( m_font, "", 12 );
-      text.setString( std::to_string( armed_cmp.m_index ) );
-      text.setPosition( pos_cmp.position );
-      m_window.draw( text );
-    }
   }
 }
 

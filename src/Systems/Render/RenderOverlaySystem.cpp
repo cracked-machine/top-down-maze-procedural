@@ -316,6 +316,31 @@ void RenderOverlaySystem::render_npc_list_overlay( sf::Vector2f text_start_pos )
   }
 }
 
+void RenderOverlaySystem::render_obstacle_markers()
+{
+  if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
+  {
+    auto obstacle_view = m_reg->view<Cmp::Position, Cmp::Obstacle>();
+    for ( auto [ob_entt, pos_cmp, obst_cmp] : obstacle_view.each() )
+    {
+      sf::RectangleShape obstacle_shape( kGridSquareSizePixelsF );
+      obstacle_shape.setPosition( pos_cmp.position );
+      if ( obst_cmp.m_enabled )
+      {
+        obstacle_shape.setFillColor( sf::Color( 0, 255, 0, 100 ) ); // semi-transparent green
+        obstacle_shape.setOutlineColor( sf::Color::Green );
+      }
+      else
+      {
+        obstacle_shape.setFillColor( sf::Color( 255, 0, 0, 100 ) ); // semi-transparent red
+        obstacle_shape.setOutlineColor( sf::Color::Red );
+      }
+      obstacle_shape.setOutlineThickness( 1.f );
+      m_window.draw( obstacle_shape );
+    }
+  }
+}
+
 void RenderOverlaySystem::render_player_distances()
 {
   auto obstacle_view = m_reg->view<Cmp::Position, Cmp::PlayerDistance>();
