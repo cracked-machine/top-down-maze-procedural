@@ -9,8 +9,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 class FuseDelay : public BasePersistent<float>
 {
 public:
-  FuseDelay( float value = 3.0f )
-      : BasePersistent<float>( value )
+  FuseDelay( float value = 3.0f, float min_value = 1.0f, float max_value = 10.0f )
+      : BasePersistent<float>( value, min_value, max_value )
   {
   }
   virtual std::string class_name() const override { return "FuseDelay"; }

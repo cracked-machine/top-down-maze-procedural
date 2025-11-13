@@ -18,7 +18,6 @@
 #include <Components/Persistent/MaxShrines.hpp>
 #include <Components/Persistent/MusicVolume.hpp>
 #include <Components/Persistent/NpcActivateScale.hpp>
-#include <Components/Persistent/NpcAnimFramerate.hpp>
 #include <Components/Persistent/NpcDamage.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
 #include <Components/Persistent/NpcGhostAnimFramerate.hpp>
@@ -33,8 +32,7 @@
 #include <Components/Persistent/PlayerLerpSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
-#include <Components/Persistent/ShrineCost.hpp>
-#include <Components/Persistent/WaterBonus.hpp>
+#include <Components/Persistent/ShrineCostPerSprite.hpp>
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Systems/PersistentSystem.hpp>
 #include <fstream>
@@ -74,7 +72,6 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::HealthBonus>( "HealthBonus" );
   registerComponent<Cmp::Persistent::MusicVolume>( "MusicVolume" );
   registerComponent<Cmp::Persistent::MaxShrines>( "MaxShrines" );
-  registerComponent<Cmp::Persistent::NpcAnimFramerate>( "NpcAnimFramerate" );
   registerComponent<Cmp::Persistent::NpcGhostAnimFramerate>( "NpcGhostAnimFramerate" );
   registerComponent<Cmp::Persistent::NpcSkeleAnimFramerate>( "NpcSkeleAnimFramerate" );
   registerComponent<Cmp::Persistent::NpcActivateScale>( "NpcActivateScale" );
@@ -89,10 +86,9 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::PlayerLerpSpeed>( "PlayerLerpSpeed" );
   registerComponent<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( "PlayerDiagonalLerpSpeedModifier" );
   registerComponent<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
-  registerComponent<Cmp::Persistent::ShrineCost>( "ShrineCost" );
+  registerComponent<Cmp::Persistent::ShrineCostPerSprite>( "ShrineCostPerSprite" );
   registerComponent<Cmp::Persistent::WormholeAnimFramerate>( "WormholeAnimFramerate" );
   registerComponent<Cmp::Persistent::WeaponDegradePerHit>( "WeaponDegradePerHit" );
-  registerComponent<Cmp::Persistent::WaterBonus>( "WaterBonus" );
 
   // clang-format on
 
@@ -147,6 +143,7 @@ void PersistentSystem::save_state()
   serializeComponent.template operator()<Cmp::Persistent::BombInventory>( "BombInventory" );
   serializeComponent.template operator()<Cmp::Persistent::BlastRadius>( "BlastRadius" );
   serializeComponent.template operator()<Cmp::Persistent::BombBonus>( "BombBonus" );
+  serializeComponent.template operator()<Cmp::Persistent::CorruptionDamage>( "CorruptionDamage" );
   serializeComponent.template operator()<Cmp::Persistent::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
   serializeComponent.template operator()<Cmp::Persistent::DiggingDamagePerHit>( "DiggingDamagePerHit" );
   serializeComponent.template operator()<Cmp::Persistent::EffectsVolume>( "EffectsVolume" );
@@ -155,23 +152,23 @@ void PersistentSystem::save_state()
   serializeComponent.template operator()<Cmp::Persistent::MaxShrines>( "MaxShrines" );
   serializeComponent.template operator()<Cmp::Persistent::MusicVolume>( "MusicVolume" );
   serializeComponent.template operator()<Cmp::Persistent::NpcActivateScale>( "NpcActivateScale" );
-  serializeComponent.template operator()<Cmp::Persistent::PcDamageDelay>( "PcDamageDelay" );
   serializeComponent.template operator()<Cmp::Persistent::NpcScanScale>( "NpcScanScale" );
   serializeComponent.template operator()<Cmp::Persistent::NpcLerpSpeed>( "NpcLerpSpeed" );
   serializeComponent.template operator()<Cmp::Persistent::NpcDamage>( "NpcDamage" );
   serializeComponent.template operator()<Cmp::Persistent::NpcPushBack>( "NpcPushBack" );
   serializeComponent.template operator()<Cmp::Persistent::NpcSkeleAnimFramerate>( "NpcSkeleAnimFramerate" );
   serializeComponent.template operator()<Cmp::Persistent::NpcGhostAnimFramerate>( "NpcGhostAnimFramerate" );
+  serializeComponent.template operator()<Cmp::Persistent::PcDamageDelay>( "PcDamageDelay" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerStartPosition>( "PlayerStartPosition" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerDetectionScale>( "PlayerDetectionScale" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerLerpSpeed>( "PlayerLerpSpeed" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerAnimFramerate>( "PlayerAnimFramerate" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( "PlayerDiagonalLerpSpeedModifier" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
-  serializeComponent.template operator()<Cmp::Persistent::ShrineCost>( "ShrineCost" );
-  serializeComponent.template operator()<Cmp::Persistent::WaterBonus>( "WaterBonus" );
+  serializeComponent.template operator()<Cmp::Persistent::ShrineCostPerSprite>( "ShrineCostPerSprite" );
   serializeComponent.template operator()<Cmp::Persistent::WeaponDegradePerHit>( "WeaponDegradePerHit" );
   serializeComponent.template operator()<Cmp::Persistent::WormholeAnimFramerate>( "WormholeAnimFramerate" );
+
   // clang-format on
 
   std::ofstream outputFile( "res/json/persistent_components.json" );

@@ -8,8 +8,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 class ArmedOnDelay : public BasePersistent<float>
 {
 public:
-  ArmedOnDelay( float value = 0.025f )
-      : BasePersistent<float>( value )
+  ArmedOnDelay( float value = 0.025f, float min_value = 0.001f, float max_value = 0.5f )
+      : BasePersistent<float>( value, min_value, max_value )
   {
   }
 

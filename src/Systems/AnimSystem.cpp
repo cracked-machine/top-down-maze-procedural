@@ -5,7 +5,6 @@
 #include <Components/LerpPosition.hpp>
 #include <Components/NPC.hpp>
 #include <Components/NpcDeathPosition.hpp>
-#include <Components/Persistent/NpcAnimFramerate.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
 #include <Components/Persistent/NpcGhostAnimFramerate.hpp>
 #include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
@@ -62,7 +61,6 @@ void AnimSystem::update( sf::Time globalDeltaTime )
       {
         frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::NpcGhostAnimFramerate>().get_value() );
       }
-      else { frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::NpcAnimFramerate>().get_value() ); }
 
       update_single_sequence( anim_cmp, globalDeltaTime, sprites_per_frame, sprites_per_sequence, frame_rate );
     }

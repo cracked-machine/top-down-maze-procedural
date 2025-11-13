@@ -7,8 +7,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 class BombBonus : public BasePersistent<int>
 {
 public:
-  BombBonus( int value = 3 )
-      : BasePersistent<int>( value )
+  BombBonus( int value = 3, int min_value = 0, int max_value = 20 )
+      : BasePersistent<int>( value, min_value, max_value )
   {
   }
 

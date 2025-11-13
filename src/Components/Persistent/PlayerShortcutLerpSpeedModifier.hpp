@@ -7,8 +7,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 class PlayerShortcutLerpSpeedModifier : public BasePersistent<float>
 {
 public:
-  PlayerShortcutLerpSpeedModifier( float value = 0 )
-      : BasePersistent<float>( value )
+  PlayerShortcutLerpSpeedModifier( float value = 0, float min_value = 0.001f, float max_value = 1.f )
+      : BasePersistent<float>( value, min_value, max_value )
   {
   }
   virtual std::string class_name() const override { return "PlayerShortcutLerpSpeedModifier"; }

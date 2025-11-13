@@ -2,7 +2,7 @@
 #include <Components/LargeObstacle.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NPC.hpp>
-#include <Components/Persistent/ShrineCost.hpp>
+#include <Components/Persistent/ShrineCostPerSprite.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerKeysCount.hpp>
@@ -73,7 +73,7 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
     }
 
     // player doesn't have enough candles? - skip
-    auto &shrine_cost = get_persistent_component<Cmp::Persistent::ShrineCost>();
+    auto &shrine_cost = get_persistent_component<Cmp::Persistent::ShrineCostPerSprite>();
     if ( pc_candles_cmp.get_count() < shrine_cost.get_value() ) continue;
 
     // Convert pixel size to grid size, then calculate threshold

@@ -7,8 +7,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 class NpcScanScale : public BasePersistent<float>
 {
 public:
-  NpcScanScale( float value = 2.5 )
-      : BasePersistent<float>( value )
+  NpcScanScale( float value = 2.5, float min_value = 1.0f, float max_value = 3.0f )
+      : BasePersistent<float>( value, min_value, max_value )
   {
   }
   virtual std::string class_name() const override { return "NpcScanScale"; }

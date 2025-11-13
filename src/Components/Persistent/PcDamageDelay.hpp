@@ -7,8 +7,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 class PcDamageDelay : public BasePersistent<float>
 {
 public:
-  PcDamageDelay( float value = 3.0f )
-      : BasePersistent<float>( value )
+  PcDamageDelay( float value = 3.0f, float min_value = 0.1f, float max_value = 2.0f )
+      : BasePersistent<float>( value, min_value, max_value )
   {
   }
   virtual std::string class_name() const override { return "PcDamageDelay"; }

@@ -7,8 +7,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 class MusicVolume : public BasePersistent<float>
 {
 public:
-  MusicVolume( float value = 20.0f )
-      : BasePersistent<float>( value )
+  MusicVolume( float value = 20.0f, float min_value = 0.0f, float max_value = 100.0f )
+      : BasePersistent<float>( value, min_value, max_value )
   {
   }
   virtual std::string class_name() const override { return "MusicVolume"; }

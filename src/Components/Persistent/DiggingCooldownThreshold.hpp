@@ -7,8 +7,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 
 struct DiggingCooldownThreshold : public BasePersistent<float>
 {
-  DiggingCooldownThreshold( float value = 0.4f )
-      : BasePersistent<float>( value )
+  DiggingCooldownThreshold( float value = 0.4f, float min_value = 0.05f, float max_value = 1.0f )
+      : BasePersistent<float>( value, min_value, max_value )
   {
   }
   virtual std::string class_name() const override { return "DiggingCooldownThreshold"; }

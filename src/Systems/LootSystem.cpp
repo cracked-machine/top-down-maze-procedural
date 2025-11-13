@@ -1,7 +1,6 @@
 #include <Components/Destructable.hpp>
 #include <Components/Persistent/BombBonus.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
-#include <Components/Persistent/WaterBonus.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerHealth.hpp>
@@ -76,15 +75,6 @@ void LootSystem::check_loot_collision()
       if ( pc_cmp.bomb_inventory >= 0 )
       {
         pc_cmp.bomb_inventory += bomb_bonus.get_value();
-        m_sound_bank.get_effect( "get_loot" ).play();
-      }
-    }
-    else if ( effect.type == "LOWER_WATER" )
-    {
-      auto &water_bonus = get_persistent_component<Cmp::Persistent::WaterBonus>();
-      for ( auto [_entt, water_level] : m_reg->view<Cmp::WaterLevel>().each() )
-      {
-        water_level.m_level = std::min( water_level.m_level + water_bonus.get_value(), static_cast<float>( kDisplaySize.y ) );
         m_sound_bank.get_effect( "get_loot" ).play();
       }
     }

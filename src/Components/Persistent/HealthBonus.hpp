@@ -7,8 +7,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 class HealthBonus : public BasePersistent<int>
 {
 public:
-  HealthBonus( int value = 25 )
-      : BasePersistent<int>( value )
+  HealthBonus( int value = 25, int min_value = 1, int max_value = 50 )
+      : BasePersistent<int>( value, min_value, max_value )
   {
   }
   virtual std::string class_name() const override { return "HealthBonus"; }

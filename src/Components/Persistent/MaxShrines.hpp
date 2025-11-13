@@ -7,11 +7,12 @@ namespace ProceduralMaze::Cmp::Persistent {
 class MaxShrines : public BasePersistent<unsigned int>
 {
 public:
-  MaxShrines( unsigned int value = 3 )
-      : BasePersistent<unsigned int>( value )
+  MaxShrines( unsigned int value = 3, unsigned int min_value = 1, unsigned int max_value = 10 )
+      : BasePersistent<unsigned int>( value, min_value, max_value )
   {
   }
   virtual std::string class_name() const override { return "MaxShrines"; }
+
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

@@ -21,8 +21,7 @@
 #include <Components/Persistent/NpcDamage.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
-#include <Components/Persistent/ShrineCost.hpp>
-#include <Components/Persistent/WaterBonus.hpp>
+#include <Components/Persistent/ShrineCostPerSprite.hpp>
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>

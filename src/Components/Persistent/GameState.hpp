@@ -5,6 +5,7 @@
 #include <string>
 namespace ProceduralMaze::Cmp::Persistent {
 
+// This component does not use JSON serialization as it is managed internally by the game engine.
 class GameState
 {
 public:

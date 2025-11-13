@@ -7,8 +7,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 class BombDamage : public BasePersistent<int>
 {
 public:
-  BombDamage( int value = 10 )
-      : BasePersistent<int>( value )
+  BombDamage( int value = 10, int min_value = 1, int max_value = 50 )
+      : BasePersistent<int>( value, min_value, max_value )
   {
   }
   virtual std::string class_name() const override { return "BombDamage"; }

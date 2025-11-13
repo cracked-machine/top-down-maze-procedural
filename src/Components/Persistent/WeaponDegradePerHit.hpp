@@ -7,8 +7,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 
 struct WeaponDegradePerHit : public BasePersistent<float>
 {
-  WeaponDegradePerHit( float value = 2.f )
-      : BasePersistent<float>( value )
+  WeaponDegradePerHit( float value = 2.f, float min_value = 0.01f, float max_value = 5.0f )
+      : BasePersistent<float>( value, min_value, max_value )
   {
   }
   virtual std::string class_name() const override { return "WeaponDegradePerHit"; }

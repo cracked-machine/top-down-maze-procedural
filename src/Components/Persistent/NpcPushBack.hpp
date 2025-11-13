@@ -7,8 +7,8 @@ namespace ProceduralMaze::Cmp::Persistent {
 class NpcPushBack : public BasePersistent<float>
 {
 public:
-  NpcPushBack( float value = 16.0 )
-      : BasePersistent<float>( value )
+  NpcPushBack( float value = 16.0, float min_value = 0.0f, float max_value = 64.0f )
+      : BasePersistent<float>( value, min_value, max_value )
   {
   }
   virtual std::string class_name() const override { return "NpcPushBack"; }
