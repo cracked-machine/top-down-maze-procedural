@@ -26,8 +26,6 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override;
 
-  void init_context();
-
   enum class SpawnPhase
   {
     InitialSpawn,

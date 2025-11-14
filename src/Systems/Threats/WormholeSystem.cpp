@@ -25,7 +25,8 @@ WormholeSystem::WormholeSystem( ProceduralMaze::SharedEnttRegistry reg, sf::Rend
                                 Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
-  init_context();
+  // ensure we have a persistent component for the wormhole seed
+  add_persistent_component<Cmp::Persistent::WormholeSeed>( 0 );
 
   getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::WormholeSystem::onPause>( this );
   getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::WormholeSystem::onResume>( this );
@@ -55,12 +56,6 @@ void WormholeSystem::onResume()
   {
     jump_cmp.jump_clock.start();
   }
-}
-
-void WormholeSystem::init_context()
-{
-  // ensure we have a persistent component for the wormhole seed
-  add_persistent_component<Cmp::Persistent::WormholeSeed>();
 }
 
 std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsigned long seed )

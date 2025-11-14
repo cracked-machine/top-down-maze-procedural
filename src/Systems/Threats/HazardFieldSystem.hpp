@@ -88,7 +88,7 @@ public:
       : Sys::BaseSystem( reg, window, sprite_factory, sound_bank )
   {
     // seed component must be created in entt registry before use.
-    add_persistent_component<typename Traits::SeedType>();
+    add_persistent_component<typename Traits::SeedType>(0);
 
     getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onPause>( this );
     getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onResume>( this );

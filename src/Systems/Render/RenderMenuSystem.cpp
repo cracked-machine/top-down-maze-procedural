@@ -159,8 +159,8 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
                        &fuse_delay.get_max_value(), "%.1f seconds" );
 
   auto &armed_on_delay = get_persistent_component<Cmp::Persistent::ArmedOnDelay>();
-  ImGui::InputScalar( "Armed Detonation Delay Increment", ImGuiDataType_Float, &armed_on_delay.get_value(),
-                      &armed_on_delay.get_min_value(), &armed_on_delay.get_max_value(), "%.3f" );
+  ImGui::SliderScalar( "Armed Detonation Delay Increment", ImGuiDataType_Float, &armed_on_delay.get_value(),
+                       &armed_on_delay.get_min_value(), &armed_on_delay.get_max_value(), "%.3f" );
 
   auto &armed_off_delay = get_persistent_component<Cmp::Persistent::ArmedOffDelay>();
   ImGui::SliderScalar( "Armed Off Delay", ImGuiDataType_Float, &armed_off_delay.get_value(), &armed_off_delay.get_min_value(),
@@ -177,11 +177,14 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
                        &wormhole_anim_framerate.get_min_value(), &wormhole_anim_framerate.get_max_value(), "%.2f" );
 
   auto &wormhole_seed = get_persistent_component<Cmp::Persistent::WormholeSeed>();
-  ImGui::InputScalar( "Wormhole Seed. Zero is ignored", ImGuiDataType_U64, &wormhole_seed.get_value() );
+  ImGui::InputScalar( "Wormhole Seed. Zero is ignored", ImGuiDataType_U64, &wormhole_seed.get_value(), nullptr, nullptr, "%llu",
+                      ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_AutoSelectAll );
   auto &corruption_seed = get_persistent_component<Cmp::Persistent::CorruptionSeed>();
-  ImGui::InputScalar( "Corruption Seed. Zero is ignored", ImGuiDataType_U64, &corruption_seed.get_value() );
+  ImGui::InputScalar( "Corruption Seed. Zero is ignored", ImGuiDataType_U64, &corruption_seed.get_value(), nullptr, nullptr, "%llu",
+                      ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_AutoSelectAll );
   auto &sinkhole_seed = get_persistent_component<Cmp::Persistent::SinkholeSeed>();
-  ImGui::InputScalar( "Sinkhole Seed. Zero is ignored", ImGuiDataType_U64, &sinkhole_seed.get_value() );
+  ImGui::InputScalar( "Sinkhole Seed. Zero is ignored", ImGuiDataType_U64, &sinkhole_seed.get_value(), nullptr, nullptr, "%llu",
+                      ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_AutoSelectAll );
 
   // Loot Settings
   ImGui::SeparatorText( "Loot Settings" );
