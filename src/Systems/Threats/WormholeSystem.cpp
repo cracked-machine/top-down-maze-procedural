@@ -1,4 +1,6 @@
+#include <Components/GraveSprite.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/ShrineSprite.hpp>
 #include <Components/WormholeJump.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
@@ -61,15 +63,75 @@ void WormholeSystem::init_context()
   add_persistent_component<Cmp::Persistent::WormholeSeed>();
 }
 
+std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsigned long seed )
+{
+  constexpr int kMaxAttempts = 1000;
+  int attempts = 0;
+  unsigned long current_seed = seed;
+
+  while ( attempts < kMaxAttempts )
+  {
+    auto [random_entity, random_pos] = get_random_position(
+        IncludePack<Cmp::Obstacle>{},
+        ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, current_seed );
+
+    Cmp::RectBounds wormhole_hitbox( random_pos.position, random_pos.size, 2.f );
+
+    // Check collisions with walls, graves, shrines
+    auto is_valid = [&]() -> bool {
+      // return false for wall collisions
+      for ( auto [entity, wall_cmp, wall_pos_cmp] : m_reg->view<Cmp::Wall, Cmp::Position>().each() )
+      {
+        if ( wall_pos_cmp.findIntersection( wormhole_hitbox.getBounds() ) ) return false;
+      }
+
+      // Return false for grave collisions
+      for ( auto [entity, grave_cmp, grave_pos_cmp] : m_reg->view<Cmp::GraveSprite, Cmp::Position>().each() )
+      {
+        if ( grave_pos_cmp.findIntersection( wormhole_hitbox.getBounds() ) ) return false;
+      }
+
+      // Return false for shrine collisions
+      for ( auto [entity, shrine_cmp, shrine_pos_cmp] : m_reg->view<Cmp::ShrineSprite, Cmp::Position>().each() )
+      {
+        if ( shrine_pos_cmp.findIntersection( wormhole_hitbox.getBounds() ) ) return false;
+      }
+
+      return true;
+    };
+
+    if ( is_valid() )
+    {
+      if ( current_seed != seed && seed > 0 )
+      {
+        SPDLOG_WARN( "Wormhole spawn: original seed {} was invalid, used seed {} instead (attempt {})", seed, current_seed,
+                     attempts + 1 );
+      }
+      return { random_entity, random_pos };
+    }
+
+    attempts++;
+    // Increment seed for next attempt (works for both seeded and non-seeded cases)
+    if ( seed > 0 ) { current_seed++; }
+  }
+
+  SPDLOG_ERROR( "Failed to find valid wormhole spawn location after {} attempts (original seed: {})", kMaxAttempts, seed );
+  return { entt::null, Cmp::Position{ { 0.f, 0.f }, { 0.f, 0.f } } };
+}
+
 void WormholeSystem::spawn_wormhole( SpawnPhase phase )
 {
   // 1. pick a random position component in the maze, exclude walls, doors, exits, and playable characters
   // 2. get the entity at that position
   unsigned long seed = 0;
   if ( phase == SpawnPhase::InitialSpawn ) seed = get_persistent_component<Cmp::Persistent::WormholeSeed>().get_value();
-  auto [random_entity, random_pos] = get_random_position(
-      IncludePack<Cmp::Obstacle>{},
-      ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, seed );
+
+  auto [random_entity, random_pos] = find_spawn_location( seed );
+  if ( random_entity == entt::null )
+  {
+    SPDLOG_ERROR( "Failed to find valid wormhole spawn position." );
+    return;
+  }
 
   // 3. set the entities obstacle component to "broken" so we have something for the shader effect to mangle
   auto obstacle_cmp = m_reg->try_get<Cmp::Obstacle>( random_entity );

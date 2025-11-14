@@ -39,6 +39,8 @@ public:
   // 4. add the wormhole component to the entity
   void spawn_wormhole( SpawnPhase phase );
 
+  std::pair<entt::entity, Cmp::Position> find_spawn_location( unsigned long seed );
+
   // 1. iterate wormhole and player view,
   // 2. check for collision,
   // 3. if collision, pick a random location
