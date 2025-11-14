@@ -273,16 +273,13 @@ void RenderGameSystem::render_player_spawn()
   auto spawnarea_view = m_reg->view<Cmp::SpawnAreaSprite, Cmp::Position>();
   for ( auto [entity, spawnarea_cmp, pos_cmp] : spawnarea_view.each() )
   {
-    if ( auto it = m_multisprite_map.find( spawnarea_cmp.getType() ); it != m_multisprite_map.end() )
-    {
-      auto meta_type = it->first;
-      auto new_idx = spawnarea_cmp.getTileIndex();
-      sf::Vector2f new_scale{ 1.f, 1.f };
-      uint8_t new_alpha{ 255 };
-      sf::Vector2f new_origin{ 0.f, 0.f };
-      float new_angle{ 0.f };
-      safe_render_sprite( meta_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
-    }
+
+    auto new_idx = spawnarea_cmp.getTileIndex();
+    sf::Vector2f new_scale{ 1.f, 1.f };
+    uint8_t new_alpha{ 255 };
+    sf::Vector2f new_origin{ 0.f, 0.f };
+    float new_angle{ 0.f };
+    safe_render_sprite( spawnarea_cmp.getType(), pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
   }
 }
 
@@ -291,39 +288,33 @@ void RenderGameSystem::render_large_obstacles()
   auto shrine_view = m_reg->view<Cmp::ShrineSprite, Cmp::Position>();
   for ( auto [entity, shrine_cmp, pos_cmp] : shrine_view.each() )
   {
-    if ( auto it = m_multisprite_map.find( shrine_cmp.getType() ); it != m_multisprite_map.end() )
-    {
-      auto meta_type = it->first;
-      auto new_idx = shrine_cmp.getTileIndex();
-      auto anim_sprite_cmp = m_reg->try_get<Cmp::SpriteAnimation>( entity );
-      if ( anim_sprite_cmp )
-      {
-        // or use the current frame from the animation component
-        new_idx = shrine_cmp.getTileIndex() + anim_sprite_cmp->m_current_frame;
-      }
 
-      sf::Vector2f new_scale{ 1.f, 1.f };
-      uint8_t new_alpha{ 255 };
-      sf::Vector2f new_origin{ 0.f, 0.f };
-      float new_angle{ 0.f };
-      safe_render_sprite( meta_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
+    auto new_idx = shrine_cmp.getTileIndex();
+    auto anim_sprite_cmp = m_reg->try_get<Cmp::SpriteAnimation>( entity );
+    if ( anim_sprite_cmp )
+    {
+      // or use the current frame from the animation component
+      new_idx = shrine_cmp.getTileIndex() + anim_sprite_cmp->m_current_frame;
     }
+
+    sf::Vector2f new_scale{ 1.f, 1.f };
+    uint8_t new_alpha{ 255 };
+    sf::Vector2f new_origin{ 0.f, 0.f };
+    float new_angle{ 0.f };
+    safe_render_sprite( shrine_cmp.getType(), pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
   }
 
   auto grave_view = m_reg->view<Cmp::GraveSprite, Cmp::Position>();
   for ( auto [entity, grave_cmp, pos_cmp] : grave_view.each() )
   {
-    if ( auto it = m_multisprite_map.find( grave_cmp.getType() ); it != m_multisprite_map.end() )
-    {
-      auto meta_type = it->first;
-      auto new_idx = grave_cmp.getTileIndex();
 
-      sf::Vector2f new_scale{ 1.f, 1.f };
-      uint8_t new_alpha{ 255 };
-      sf::Vector2f new_origin{ 0.f, 0.f };
-      float new_angle{ 0.f };
-      safe_render_sprite( meta_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
-    }
+    auto new_idx = grave_cmp.getTileIndex();
+
+    sf::Vector2f new_scale{ 1.f, 1.f };
+    uint8_t new_alpha{ 255 };
+    sf::Vector2f new_origin{ 0.f, 0.f };
+    float new_angle{ 0.f };
+    safe_render_sprite( grave_cmp.getType(), pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
   }
 
   auto large_obstacle_view = m_reg->view<Cmp::LargeObstacle>();
@@ -349,16 +340,13 @@ void RenderGameSystem::render_npc_containers()
   auto npccontainer_view = m_reg->view<Cmp::NpcContainer, Cmp::Position>();
   for ( auto [entity, npccontainer_cmp, pos_cmp] : npccontainer_view.each() )
   {
-    if ( auto it = m_multisprite_map.find( npccontainer_cmp.m_type ); it != m_multisprite_map.end() )
-    {
-      auto meta_type = it->first;
-      auto new_idx = npccontainer_cmp.m_tile_index;
-      sf::Vector2f new_scale{ 1.f, 1.f };
-      uint8_t new_alpha{ 255 };
-      sf::Vector2f new_origin{ 0.f, 0.f };
-      float new_angle{ 0.f };
-      safe_render_sprite( meta_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
-    }
+
+    auto new_idx = npccontainer_cmp.m_tile_index;
+    sf::Vector2f new_scale{ 1.f, 1.f };
+    uint8_t new_alpha{ 255 };
+    sf::Vector2f new_origin{ 0.f, 0.f };
+    float new_angle{ 0.f };
+    safe_render_sprite( npccontainer_cmp.m_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
   }
 }
 
@@ -367,16 +355,12 @@ void RenderGameSystem::render_loot_containers()
   auto lootcontainer_view = m_reg->view<Cmp::LootContainer, Cmp::Position>();
   for ( auto [entity, lootcontainer_cmp, pos_cmp] : lootcontainer_view.each() )
   {
-    if ( auto it = m_multisprite_map.find( lootcontainer_cmp.m_type ); it != m_multisprite_map.end() )
-    {
-      auto meta_type = it->first;
-      auto new_idx = lootcontainer_cmp.m_tile_index;
-      sf::Vector2f new_scale{ 1.f, 1.f };
-      uint8_t new_alpha{ 255 };
-      sf::Vector2f new_origin{ 0.f, 0.f };
-      float new_angle{ 0.f };
-      safe_render_sprite( meta_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
-    }
+    auto new_idx = lootcontainer_cmp.m_tile_index;
+    sf::Vector2f new_scale{ 1.f, 1.f };
+    uint8_t new_alpha{ 255 };
+    sf::Vector2f new_origin{ 0.f, 0.f };
+    float new_angle{ 0.f };
+    safe_render_sprite( lootcontainer_cmp.m_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
   }
 }
 
@@ -504,7 +488,7 @@ void RenderGameSystem::render_wormhole()
     // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
     try
     {
-      auto &wormhole_sprite = m_multisprite_map.at( "WORMHOLE" );
+      auto &wormhole_sprite = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
       // Setup shader
       m_wormhole_shader.update_shader_position( pos_cmp.position + ( kGridSquareSizePixelsF * 0.5f ),
                                                 Sprites::ViewFragmentShader::Align::CENTER );

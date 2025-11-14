@@ -94,13 +94,13 @@ private:
     auto args_tuple = std::make_tuple( std::forward<DefaultArgTypes>( default_args )... );
 
     // move the tuple into the lambda to avoid copies (pack copy forbidden by lambda)
-    m_component_loaders[key] = [this, args_tuple = std::move( args_tuple )]( const nlohmann::json &value ) {
+    m_component_loaders[key] = [this, args_tuple = std::move( args_tuple )]( const nlohmann::json &persistent_object ) {
       // Unpack the tuple and forward the arguments to add_persistent_component
       std::apply(
-          [this, &value]( auto &&...unpacked_args ) {
+          [this, &persistent_object]( auto &&...unpacked_args ) {
             add_persistent_component<ComponentType>( std::forward<decltype( unpacked_args )>( unpacked_args )... );
             auto &component = get_persistent_component<ComponentType>();
-            component.deserialize( value );
+            component.deserialize( persistent_object );
             auto deserialized_value = component.get_value();
             SPDLOG_INFO( "Loaded {} from JSON with value {}", component.class_name(), deserialized_value );
           },

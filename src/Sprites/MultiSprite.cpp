@@ -4,9 +4,8 @@
 namespace ProceduralMaze::Sprites {
 
 MultiSprite::MultiSprite( SpriteMetaType type, const std::filesystem::path &tilemap_path,
-                          const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size,
-                          unsigned int sprites_per_frame, unsigned int sprites_per_sequence,
-                          std::vector<bool> solid_mask )
+                          const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size, unsigned int sprites_per_frame,
+                          unsigned int sprites_per_sequence, std::vector<bool> solid_mask )
     : m_sprite_type{ type },
       m_grid_size{ grid_size.width, grid_size.height },
       m_sprites_per_frame{ sprites_per_frame },
@@ -37,31 +36,12 @@ MultiSprite::MultiSprite( SpriteMetaType type, sf::Texture tilemap_texture, cons
       m_solid_mask{ std::move( solid_mask ) }
 {
   SPDLOG_INFO( "Loaded tilemap texture" );
-  m_tilemap_texture = std::make_unique<sf::Texture>( std::move( tilemap_texture ) );
+  m_tilemap_texture = std::make_shared<sf::Texture>( std::move( tilemap_texture ) );
   if ( !add_sprite( tilemap_picks ) )
   {
     SPDLOG_CRITICAL( "Failed to load tilemap" );
     throw std::runtime_error( "Failed to load tilemap" );
   }
-}
-
-bool MultiSprite::pick( std::size_t idx, [[maybe_unused]] const std::string &caller )
-{
-  if ( m_va_list.empty() )
-  {
-    // SPDLOG_WARN( "pick() called on empty sprite list from {}", caller );
-    return false;
-  }
-
-  if ( idx >= m_va_list.size() )
-  {
-    // SPDLOG_WARN( "{}: pick() index {} out of range (size: {}), using index 0", caller, idx, m_va_list.size() );
-    idx = 0;
-    return false;
-  }
-
-  m_selected_vertices = m_va_list[idx];
-  return true;
 }
 
 bool MultiSprite::add_sprite( const std::vector<uint32_t> &tilemap_picks )
@@ -92,20 +72,13 @@ bool MultiSprite::add_sprite( const std::vector<uint32_t> &tilemap_picks )
     current_va[2].texCoords = sf::Vector2f( tu * kGridSquareSizePixels.x, ( tv + 1 ) * kGridSquareSizePixels.y );
     current_va[3].texCoords = sf::Vector2f( tu * kGridSquareSizePixels.x, ( tv + 1 ) * kGridSquareSizePixels.y );
     current_va[4].texCoords = sf::Vector2f( ( tu + 1 ) * kGridSquareSizePixels.x, tv * kGridSquareSizePixels.y );
-    current_va[5].texCoords = sf::Vector2f( ( tu + 1 ) * kGridSquareSizePixels.x,
-                                            ( tv + 1 ) * kGridSquareSizePixels.y );
+    current_va[5].texCoords = sf::Vector2f( ( tu + 1 ) * kGridSquareSizePixels.x, ( tv + 1 ) * kGridSquareSizePixels.y );
     SPDLOG_TRACE( "  - Added tile index {} (tu={},tv={})", tile_idx, tu, tv );
 
     m_va_list.push_back( current_va );
   }
   SPDLOG_INFO( "{} requested {} tiles ... Created {} sprites ", m_sprite_type, tilemap_picks.size(), m_va_list.size() );
   return true;
-}
-
-void MultiSprite::set_pick_opacity( uint8_t alpha )
-{
-  for ( std::size_t idx = 0; idx < m_selected_vertices.getVertexCount(); ++idx )
-    m_selected_vertices[idx].color.a = alpha;
 }
 
 void MultiSprite::draw( sf::RenderTarget &target, sf::RenderStates states ) const

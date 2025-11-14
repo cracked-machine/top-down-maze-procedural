@@ -68,8 +68,7 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
                                                Sprites::SpriteMetaType sprite_meta_type, unsigned long seed )
 {
   // make sure the new large obstacle does not overlap with existing large obstacles
-  auto [random_entity,
-        random_origin_position] = get_random_position( {}, ExcludePack<Cmp::ReservedPosition, Cmp::Wall>{}, seed );
+  auto [random_entity, random_origin_position] = get_random_position( {}, ExcludePack<Cmp::ReservedPosition, Cmp::Wall>{}, seed );
 
   // Retry until we find a non-intersecting position (with max attempts to prevent infinite loop)
   constexpr int max_attempts = 100;
@@ -117,8 +116,7 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
 
   if ( attempts >= max_attempts )
   {
-    SPDLOG_WARN( "Failed to place large obstacle ({}) after {} attempts - position may overlap",
-                 m_sprite_factory.get_spritedata_type_string( sprite_meta_type ), max_attempts );
+    SPDLOG_WARN( "Failed to place large obstacle ({}) after {} attempts - position may overlap", sprite_meta_type, max_attempts );
   }
 
   if ( random_entity != entt::null )
@@ -126,13 +124,12 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
     // place large obstacle - multiply the grid size to get pixel size!
     auto large_obst_grid_size = large_obstacle_sprite.get_grid_size();
 
-    m_reg->emplace_or_replace<Cmp::LargeObstacle>(
-        random_entity, sprite_meta_type, random_origin_position.position,
-        large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
+    m_reg->emplace_or_replace<Cmp::LargeObstacle>( random_entity, sprite_meta_type, random_origin_position.position,
+                                                   large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
 
-    SPDLOG_INFO( "Placed large obstacle ({}) at position ({}, {}). Grid size: {}x{}",
-                 m_sprite_factory.get_spritedata_type_string( sprite_meta_type ), random_origin_position.position.x,
-                 random_origin_position.position.y, large_obst_grid_size.width, large_obst_grid_size.height );
+    SPDLOG_INFO( "Placed large obstacle ({}) at position ({}, {}). Grid size: {}x{}", sprite_meta_type,
+                 random_origin_position.position.x, random_origin_position.position.y, large_obst_grid_size.width,
+                 large_obst_grid_size.height );
 
     // find any position-owning entities that intersect
     // with the new large obstacle and mark them as reserved
@@ -183,13 +180,11 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
 
         if ( sprite_meta_type == "SHRINE" )
         {
-          m_reg->emplace_or_replace<Cmp::ShrineSprite>( entity, sprite_meta_type, calculated_grid_index,
-                                                        new_solid_mask );
+          m_reg->emplace_or_replace<Cmp::ShrineSprite>( entity, sprite_meta_type, calculated_grid_index, new_solid_mask );
         }
         else if ( sprite_meta_type.contains( "GRAVE" ) )
         {
-          m_reg->emplace_or_replace<Cmp::GraveSprite>( entity, sprite_meta_type, calculated_grid_index,
-                                                       new_solid_mask );
+          m_reg->emplace_or_replace<Cmp::GraveSprite>( entity, sprite_meta_type, calculated_grid_index, new_solid_mask );
           m_reg->emplace_or_replace<Cmp::Destructable>( entity );
         }
 
@@ -369,11 +364,11 @@ void RandomLevelGenerator::stats()
   std::map<std::string, int> results;
   for ( auto [entity, _pos, _ob] : m_reg->view<Cmp::Position, Cmp::Obstacle>().each() )
   {
-    results[m_sprite_factory.get_spritedata_type_string( _ob.m_type )]++;
+    results[_ob.m_type]++;
   }
   for ( auto [entity, _pos, _lc] : m_reg->view<Cmp::Position, Cmp::LootContainer>().each() )
   {
-    results[m_sprite_factory.get_spritedata_type_string( _lc.m_type )]++;
+    results[_lc.m_type]++;
   }
   SPDLOG_INFO( "Object Pick distribution:" );
   for ( auto [bin, freq] : results )

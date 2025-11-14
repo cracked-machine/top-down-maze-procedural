@@ -45,7 +45,8 @@ private:
   std::function<void( sf::Shader & )> m_apply;
 
 public:
-  template <typename T> UniformBuilder &set( const std::string &name, const T &value )
+  template <typename T>
+  UniformBuilder &set( const std::string &name, const T &value )
   {
     auto oldApply = std::move( m_apply );
 
@@ -107,6 +108,7 @@ public:
   BaseFragmentShader( BaseFragmentShader && ) = default;
   BaseFragmentShader &operator=( BaseFragmentShader && ) = default;
 
+  //! @brief polymorphic destructor for derived classes
   virtual ~BaseFragmentShader() = default;
 
   /**

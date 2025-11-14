@@ -155,6 +155,7 @@ void PersistentSystem::save_state()
   serializeComponent.template operator()<Cmp::Persistent::NpcScanScale>( "NpcScanScale" );
   serializeComponent.template operator()<Cmp::Persistent::NpcLerpSpeed>( "NpcLerpSpeed" );
   serializeComponent.template operator()<Cmp::Persistent::NpcDamage>( "NpcDamage" );
+  serializeComponent.template operator()<Cmp::Persistent::NpcDeathAnimFramerate>( "NpcDeathAnimFramerate" );
   serializeComponent.template operator()<Cmp::Persistent::NpcPushBack>( "NpcPushBack" );
   serializeComponent.template operator()<Cmp::Persistent::NpcSkeleAnimFramerate>( "NpcSkeleAnimFramerate" );
   serializeComponent.template operator()<Cmp::Persistent::NpcGhostAnimFramerate>( "NpcGhostAnimFramerate" );

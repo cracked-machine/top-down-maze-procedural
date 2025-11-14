@@ -54,32 +54,13 @@ public:
   MultiSprite &operator=( MultiSprite && ) = default;
   ~MultiSprite() = default;
 
-  /**
- * @brief Selects a sprite from the internal list by index.
- *
- * This method picks a specific sprite from the vertex array list and sets it as
- * the currently selected vertices. If the provided index is out of bounds, it
- * defaults to index 0 and logs a warning. If the sprite list is empty, the
- * operation fails and returns false.
-
- * @note The index is zero-based and contiguous. For example if SpriteFactory loaded 10, 45 and 89 from the tileset,
- * these are now mapped to 0, 1 and 2 respectively.
- *
- * @param idx The index of the sprite to select from the vertex array list
- * @param caller Identifier string for the calling context, used for logging purposes
- * @return true if a sprite was successfully selected, false if the sprite list is empty
- */
-  bool pick( std::size_t idx, const std::string &caller = "unknown" );
   SpriteSize get_grid_size() const { return m_grid_size; }
   std::size_t get_sprite_count() const { return m_va_list.size(); }
   unsigned int get_sprites_per_frame() const { return m_sprites_per_frame; }
   unsigned int get_sprites_per_sequence() const { return m_sprites_per_sequence; }
   const std::vector<bool> &get_solid_mask() const { return m_solid_mask; }
 
-  void set_pick_opacity( uint8_t alpha );
-
-  std::unique_ptr<sf::Texture> m_tilemap_texture;
-
+  const sf::Texture &get_texture() const { return *m_tilemap_texture; }
   /**
    * @brief Default dimensions for sprite frames in pixels.
    *
@@ -91,14 +72,14 @@ public:
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
 
   SpriteMetaType get_sprite_type() const { return m_sprite_type; }
+  sf::VertexArray m_selected_vertices;
+  std::vector<sf::VertexArray> m_va_list;
 
 private:
+  std::shared_ptr<sf::Texture> m_tilemap_texture;
   bool add_sprite( const std::vector<uint32_t> &tilemap_picks );
 
   SpriteMetaType m_sprite_type;
-  std::vector<sf::VertexArray> m_va_list;
-
-  sf::VertexArray m_selected_vertices;
 
   // width and height grid size for the multi-sprite
   SpriteSize m_grid_size{ 1, 1 };

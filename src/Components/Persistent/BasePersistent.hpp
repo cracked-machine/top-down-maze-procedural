@@ -19,7 +19,10 @@ public:
         max_value( max_value_in )
   {
   }
+
+  //! @brief polymorphic destructor for derived classes
   virtual ~BasePersistent() = default;
+
   T &get_value() { return value; };
   T &get_min_value() { return min_value; };
   T &get_max_value() { return max_value; };
@@ -88,19 +91,19 @@ public:
     {
       if constexpr ( std::is_same_v<T, float> || std::is_same_v<T, double> )
       {
-        if ( json_data["min_value"].is_number() ) { value = json_data["min_value"].get<T>(); }
+        if ( json_data["min_value"].is_number() ) { min_value = json_data["min_value"].get<T>(); }
       }
       else if constexpr ( std::is_integral_v<T> && !std::is_same_v<T, bool> )
       {
-        if ( json_data["min_value"].is_number_integer() ) { value = json_data["min_value"].get<T>(); }
+        if ( json_data["min_value"].is_number_integer() ) { min_value = json_data["min_value"].get<T>(); }
       }
       else if constexpr ( std::is_same_v<T, bool> )
       {
-        if ( json_data["min_value"].is_boolean() ) { value = json_data["min_value"].get<T>(); }
+        if ( json_data["min_value"].is_boolean() ) { min_value = json_data["min_value"].get<T>(); }
       }
       else if constexpr ( std::is_same_v<T, std::string> )
       {
-        if ( json_data["min_value"].is_string() ) { value = json_data["min_value"].get<T>(); }
+        if ( json_data["min_value"].is_string() ) { min_value = json_data["min_value"].get<T>(); }
       }
     }
 
@@ -108,19 +111,19 @@ public:
     {
       if constexpr ( std::is_same_v<T, float> || std::is_same_v<T, double> )
       {
-        if ( json_data["max_value"].is_number() ) { value = json_data["max_value"].get<T>(); }
+        if ( json_data["max_value"].is_number() ) { max_value = json_data["max_value"].get<T>(); }
       }
       else if constexpr ( std::is_integral_v<T> && !std::is_same_v<T, bool> )
       {
-        if ( json_data["max_value"].is_number_integer() ) { value = json_data["max_value"].get<T>(); }
+        if ( json_data["max_value"].is_number_integer() ) { max_value = json_data["max_value"].get<T>(); }
       }
       else if constexpr ( std::is_same_v<T, bool> )
       {
-        if ( json_data["max_value"].is_boolean() ) { value = json_data["max_value"].get<T>(); }
+        if ( json_data["max_value"].is_boolean() ) { max_value = json_data["max_value"].get<T>(); }
       }
       else if constexpr ( std::is_same_v<T, std::string> )
       {
-        if ( json_data["max_value"].is_string() ) { value = json_data["max_value"].get<T>(); }
+        if ( json_data["max_value"].is_string() ) { max_value = json_data["max_value"].get<T>(); }
       }
     }
   }

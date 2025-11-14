@@ -11,6 +11,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace ProceduralMaze::Sprites {
@@ -53,32 +54,15 @@ public:
 
   //! @brief  Retrieves a MultiSprite object based on the specified sprite meta type.
   //! This method searches for and returns a MultiSprite that corresponds to the given
-  //! SpriteMetaType. If no matching MultiSprite is found for the specified type,
-  //! the method returns std::nullopt.
+  //! SpriteMetaType. If the type is not found, it returns the error sprite.
   //! @param type The SpriteMetaType to search for
-  //! @return Sprites::MultiSprite&  The MultiSprite if found, std::nullopt otherwise
-  Sprites::MultiSprite &get_multisprite_by_type( const SpriteMetaType &type );
-
-  //! @brief Converts a SpriteMetaType enumeration value to its corresponding string representation.
-  //! This function takes a SpriteMetaType enumeration value and returns a human-readable
-  //! string that represents the type of sprite data. This is useful for debugging,
-  //! logging, or serialization purposes where the enum value needs to be displayed
-  //! or stored as text.
-  //! @param type The SpriteMetaType enumeration value to convert to string
-  //! @return std::string The string representation of the sprite meta type
-  std::string get_spritedata_type_string( const SpriteMetaType &type );
+  //! @return Sprites::MultiSprite& const& The MultiSprite object if found, error sprite otherwise
+  const Sprites::MultiSprite &get_multisprite_by_type( const SpriteMetaType &type );
 
   //! @brief Get a vector of all SpriteMetaType objects
   //! @return std::vector<SpriteMetaType>
   std::vector<SpriteMetaType> get_all_sprite_types();
-
-  //! @brief Checks if a sprite type exists in the factory.
-  //! This function checks if the specified sprite type is present in the factory's
-  //! metadata map. It can be used to verify if a particular sprite type has been
-  //! registered and is available for use.
-  //! @param type The SpriteMetaType to check for existence
-  //! @return true if the sprite type exists, false otherwise
-  bool has_sprite_type( const SpriteMetaType &type ) const;
+  std::unordered_set<SpriteMetaType> get_all_sprite_types_set();
 
 private:
   //! @brief Metadata for a single sprite. This is mainly a legacy struct to hold the MultiSprite along with its weight.
@@ -95,7 +79,7 @@ private:
   //! texture coordinates, dimensions, and other properties based on the sprite type.
   //! @param type The SpriteMetaType to search for
   //! @return SpriteMetaData&  The SpriteMetaData if found, m_error_metadata otherwise
-  SpriteMetaData &get_spritedata_by_type( const SpriteMetaType &type );
+  const SpriteMetaData &get_spritedata_by_type( const SpriteMetaType &type );
 
   // Internal use function used by get_random_type_and_texture_index()
   const SpriteMetaData &get_random_spritedata( std::vector<SpriteMetaType> type_list, std::vector<float> weights = {} );

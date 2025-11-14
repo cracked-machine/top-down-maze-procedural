@@ -284,7 +284,6 @@ void Engine::init_systems()
 
   m_render_game_sys->init_shaders();
   m_render_game_sys->init_tilemap();
-  m_render_game_sys->init_multisprites();
 
   add_display_size( sf::Vector2u{ 1920, 1024 } );
 

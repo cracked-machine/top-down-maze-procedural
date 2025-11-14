@@ -15,6 +15,9 @@ protected:
   inline static unsigned long s_instance_counter;
 
 public:
+  //! @brief Polymorphic destructor for derived classes
+  virtual ~RandomBase() = default;
+
   static void setGlobalSeed( unsigned long seed )
   {
     s_global_seed = seed;
@@ -31,7 +34,8 @@ public:
   static bool isGlobalSeedSet() { return s_global_seed_set; }
 };
 
-template <typename T> class Random : public RandomBase
+template <typename T>
+class Random : public RandomBase
 {
 public:
   // set the rng range

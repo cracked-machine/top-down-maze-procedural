@@ -1,5 +1,5 @@
 #include <SFML/Graphics/Color.hpp>
-
+#include <Systems/Render/RenderBuffer.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
 namespace ProceduralMaze::Sys {
@@ -9,21 +9,6 @@ RenderSystem::RenderSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWi
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "RenderSystem constructor called" );
-}
-
-std::unordered_map<Sprites::SpriteMetaType, Sprites::MultiSprite &> RenderSystem::m_multisprite_map;
-
-void RenderSystem::init_multisprites()
-{
-  for ( auto type : m_sprite_factory.get_all_sprite_types() )
-  {
-    // const_cast is needed because get_multisprite_by_type returns const&
-    // but we need mutable access for rendering operations like pick()
-    // Note: Using const_cast to remove const from a reference is safe here because the underlying objects in
-    // SpriteFactory are actually mutable. The factory just returns them as const references for encapsulation, but you
-    // need mutable access for rendering operations.
-    m_multisprite_map.emplace( type, m_sprite_factory.get_multisprite_by_type( type ) );
-  }
 }
 
 void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align, float letter_spacing,
@@ -60,21 +45,30 @@ void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2
 }
 
 void RenderSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
-                                                 const sf::FloatRect &pos_cmp, int sprite_index, sf::Vector2f scale, uint8_t alpha,
-                                                 sf::Vector2f origin, sf::Angle angle )
+                                                 const sf::FloatRect &pos_cmp, std::size_t sprite_index, sf::Vector2f scale,
+                                                 uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
 {
   if ( not is_visible_in_view( m_window.getView(), pos_cmp ) ) return;
   try
   {
-    auto &sprite = m_multisprite_map.at( sprite_type );
+    auto &sprite = m_sprite_factory.get_multisprite_by_type( sprite_type );
 
-    auto pick_result = sprite.pick( sprite_index, sprite_type );
-    sprite.setPosition( pos_cmp.position );
-    sprite.setScale( scale );
-    sprite.set_pick_opacity( alpha );
-    sprite.setOrigin( origin );
-    sprite.setRotation( angle );
-    if ( pick_result ) { target.draw( sprite ); }
+    if ( sprite_index < sprite.get_sprite_count() )
+    {
+      //! @brief Load the const& MultiSprite into a mutable RenderBuffer.
+      //! @note The vertex array (item from 'm_va_list') is a copy, this means we can modify the geometry without affecting the
+      //! global MultiSprite geometry. For performance reasons the global MultiSprite texture must be copied by reference, but
+      //! in order to protect the global MultiSprite texture from accidental side effects it must also be a const reference,
+      //! i.e. read-only.
+      const auto &readonly_texture = sprite.get_texture();
+      Sys::RenderBuffer sprite_buffer( sprite.m_va_list[sprite_index], readonly_texture );
+      sprite_buffer.setPosition( pos_cmp.position );
+      sprite_buffer.setScale( scale );
+      sprite_buffer.set_pick_opacity( alpha );
+      sprite_buffer.setOrigin( origin );
+      sprite_buffer.setRotation( angle );
+      target.draw( sprite_buffer );
+    }
     else { render_fallback_square_to_target( target, pos_cmp, sf::Color::Cyan ); }
   }
   catch ( const std::out_of_range &e )
@@ -96,7 +90,7 @@ void RenderSystem::render_fallback_square_to_target( sf::RenderTarget &target, c
 }
 
 // Keep the original for backwards compatibility
-void RenderSystem::safe_render_sprite( const std::string &sprite_type, const sf::FloatRect &pos_cmp, int sprite_index,
+void RenderSystem::safe_render_sprite( const std::string &sprite_type, const sf::FloatRect &pos_cmp, std::size_t sprite_index,
                                        sf::Vector2f scale, uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
 {
   safe_render_sprite_to_target( m_window, sprite_type, pos_cmp, sprite_index, scale, alpha, origin, angle );

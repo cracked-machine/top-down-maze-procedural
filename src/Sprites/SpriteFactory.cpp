@@ -4,6 +4,7 @@
 
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
+
 #include <fstream>
 #include <string>
 
@@ -108,12 +109,10 @@ std::vector<SpriteMetaType> SpriteFactory::get_all_sprite_types_by_pattern( cons
   return types;
 }
 
-Sprites::MultiSprite &SpriteFactory::get_multisprite_by_type( const SpriteMetaType &type )
+const Sprites::MultiSprite &SpriteFactory::get_multisprite_by_type( const SpriteMetaType &type )
 {
   return get_spritedata_by_type( type ).m_multisprite;
 }
-
-std::string SpriteFactory::get_spritedata_type_string( const SpriteMetaType &type ) { return type; }
 
 std::vector<SpriteMetaType> SpriteFactory::get_all_sprite_types()
 {
@@ -127,12 +126,18 @@ std::vector<SpriteMetaType> SpriteFactory::get_all_sprite_types()
   return types;
 }
 
-bool SpriteFactory::has_sprite_type( const SpriteMetaType &type ) const
+std::unordered_set<SpriteMetaType> SpriteFactory::get_all_sprite_types_set()
 {
-  return m_sprite_metadata_map.find( type ) != m_sprite_metadata_map.end();
+  std::unordered_set<SpriteMetaType> types;
+
+  for ( const auto &pair : m_sprite_metadata_map )
+  {
+    types.insert( pair.first );
+  }
+  return types;
 }
 
-SpriteFactory::SpriteMetaData &SpriteFactory::get_spritedata_by_type( const SpriteMetaType &type )
+const SpriteFactory::SpriteMetaData &SpriteFactory::get_spritedata_by_type( const SpriteMetaType &type )
 {
   auto it = m_sprite_metadata_map.find( type );
   if ( it != m_sprite_metadata_map.end() ) { return it->second; }

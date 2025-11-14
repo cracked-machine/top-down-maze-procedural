@@ -39,6 +39,7 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PathFindSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
+#include <Systems/Render/RenderBuffer.hpp>
 
 namespace ProceduralMaze::Sys {
 
@@ -50,16 +51,13 @@ public:
   RenderSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
                 Audio::SoundBank &sound_bank );
 
-  //! @brief Destroy the Render System object
+  //! @brief polymorphic destructor for derived classes
   virtual ~RenderSystem() = default;
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
-
-  //! @brief Initialize multi-sprites
-  void init_multisprites();
 
   //! @brief Accessor for the static game view
   //! @return const sf::View&
@@ -75,6 +73,10 @@ protected:
     CENTER
   };
 
+  //! @brief Static view of the visible game area (not the entire game world)
+  //! @return const sf::View&
+  static sf::View s_game_view;
+
   //! @brief Default font for rendering text
   Cmp::Font m_font = Cmp::Font( "res/fonts/tuffy.ttf" );
 
@@ -83,12 +85,6 @@ protected:
   bool m_show_armed_obstacles{ false };
   bool m_minimap_enabled{ false };
   bool m_show_debug_stats{ false };
-
-  //! @brief Common window options for ImGui windows
-  const int kImGuiWindowOptions = ImGuiWindowFlags_NoTitleBar
-      // | ImGuiWindowFlags_NoResize
-      // | ImGuiWindowFlags_NoMove
-      ;
 
   //! @brief Renders text to the screen with specified formatting and alignment options.
   //!
@@ -106,7 +102,7 @@ protected:
 
   // Variant that renders to a specific render target (shader, texture, etc.)
   void safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type, const sf::FloatRect &pos_cmp,
-                                     int sprite_index = 0, sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255,
+                                     std::size_t sprite_index = 0, sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255,
                                      sf::Vector2f origin = { 0.f, 0.f }, sf::Angle angle = sf::degrees( 0.f ) );
 
   // Fallback rendering for missing sprites (also target-aware)
@@ -114,17 +110,18 @@ protected:
                                          const sf::Color &color = sf::Color::Magenta );
 
   // Safe sprite accessor that renders a fallback square if sprite is missing
-  void safe_render_sprite( const std::string &sprite_type, const sf::FloatRect &position, int sprite_index = 0,
+  void safe_render_sprite( const std::string &sprite_type, const sf::FloatRect &position, std::size_t sprite_index = 0,
                            sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255, sf::Vector2f origin = { 0.f, 0.f },
                            sf::Angle angle = sf::degrees( 0.f ) );
 
   // Fallback rendering for missing sprites
   void render_fallback_square( const sf::FloatRect &pos_cmp, const sf::Color &color = sf::Color::Magenta );
 
-  // Shared multisprite map
-  static std::unordered_map<Sprites::SpriteMetaType, Sprites::MultiSprite &> m_multisprite_map;
-
-  static sf::View s_game_view;
+  //! @brief Common window options for ImGui windows
+  const int kImGuiWindowOptions = ImGuiWindowFlags_NoTitleBar
+      // | ImGuiWindowFlags_NoResize
+      // | ImGuiWindowFlags_NoMove
+      ;
 };
 
 } // namespace ProceduralMaze::Sys

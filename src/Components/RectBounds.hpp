@@ -67,6 +67,9 @@ public:
     }
   }
 
+  //! @brief Polymorphic destructor for derived classes
+  virtual ~RectBounds() = default;
+
   /**
    * @brief Sets the position of the rectangular bounds
    *

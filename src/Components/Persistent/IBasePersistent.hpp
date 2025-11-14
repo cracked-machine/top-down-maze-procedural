@@ -29,6 +29,7 @@ namespace ProceduralMaze::Cmp::Persistent {
 class IBasePersistent
 {
 public:
+  //! @brief polymorphic destructor for derived classes
   virtual ~IBasePersistent() = default;
 
   /**

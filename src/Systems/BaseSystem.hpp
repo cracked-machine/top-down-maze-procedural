@@ -42,7 +42,8 @@ public:
   BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
               Audio::SoundBank &sound_bank );
 
-  ~BaseSystem() = default;
+  //! @brief polymorphic destructor for derived classes
+  virtual ~BaseSystem() = default;
 
   //! @brief Event handler for pausing system clocks. Must be implemented by derived classes.
   //! @note If you register this handler with the event dispatcher, this function is automcatically called when the game is paused.
