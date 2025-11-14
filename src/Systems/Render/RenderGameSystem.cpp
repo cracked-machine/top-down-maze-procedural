@@ -513,7 +513,7 @@ void RenderGameSystem::render_wormhole()
       m_floormap.draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
 
       // Draw sprites to shader's render texture using the new function
-      auto grid_size = wormhole_sprite.get().get_grid_size();
+      auto grid_size = wormhole_sprite.get_grid_size();
       for ( float row = 0; row < grid_size.height; ++row )
       {
         for ( float col = 0; col < grid_size.width; ++col )

@@ -11,8 +11,7 @@ RenderSystem::RenderSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWi
   SPDLOG_DEBUG( "RenderSystem constructor called" );
 }
 
-std::unordered_map<Sprites::SpriteMetaType, std::reference_wrapper<Sprites::MultiSprite>>
-    RenderSystem::m_multisprite_map;
+std::unordered_map<Sprites::SpriteMetaType, Sprites::MultiSprite &> RenderSystem::m_multisprite_map;
 
 void RenderSystem::init_multisprites()
 {
@@ -23,13 +22,12 @@ void RenderSystem::init_multisprites()
     // Note: Using const_cast to remove const from a reference is safe here because the underlying objects in
     // SpriteFactory are actually mutable. The factory just returns them as const references for encapsulation, but you
     // need mutable access for rendering operations.
-    m_multisprite_map.emplace(
-        type, std::ref( const_cast<Sprites::MultiSprite &>( m_sprite_factory.get_multisprite_by_type( type ) ) ) );
+    m_multisprite_map.emplace( type, m_sprite_factory.get_multisprite_by_type( type ) );
   }
 }
 
-void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align,
-                                float letter_spacing, sf::Color fill_color, sf::Color outline_color )
+void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align, float letter_spacing,
+                                sf::Color fill_color, sf::Color outline_color )
 {
   sf::Text title_text( m_font, text, size );
   title_text.setFillColor( fill_color );
@@ -54,29 +52,29 @@ void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2
   sf::FloatRect title_bounds = title_text.getLocalBounds();
   title_bg.setSize( { title_bounds.size.x + cell_padding * 2.f, title_bounds.size.y + cell_padding * 2.f } );
   title_bg.setFillColor( sf::Color::Black );
-  title_bg.setPosition( { final_position.x + title_bounds.position.x - cell_padding,
-                          final_position.y + title_bounds.position.y - cell_padding } );
+  title_bg.setPosition(
+      { final_position.x + title_bounds.position.x - cell_padding, final_position.y + title_bounds.position.y - cell_padding } );
 
   m_window.draw( title_bg );
   m_window.draw( title_text );
 }
 
 void RenderSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
-                                                 const sf::FloatRect &pos_cmp, int sprite_index, sf::Vector2f scale,
-                                                 uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
+                                                 const sf::FloatRect &pos_cmp, int sprite_index, sf::Vector2f scale, uint8_t alpha,
+                                                 sf::Vector2f origin, sf::Angle angle )
 {
   if ( not is_visible_in_view( m_window.getView(), pos_cmp ) ) return;
   try
   {
     auto &sprite = m_multisprite_map.at( sprite_type );
 
-    auto pick_result = sprite.get().pick( sprite_index, sprite_type );
-    sprite.get().setPosition( pos_cmp.position );
-    sprite.get().setScale( scale );
-    sprite.get().set_pick_opacity( alpha );
-    sprite.get().setOrigin( origin );
-    sprite.get().setRotation( angle );
-    if ( pick_result ) { target.draw( sprite.get() ); }
+    auto pick_result = sprite.pick( sprite_index, sprite_type );
+    sprite.setPosition( pos_cmp.position );
+    sprite.setScale( scale );
+    sprite.set_pick_opacity( alpha );
+    sprite.setOrigin( origin );
+    sprite.setRotation( angle );
+    if ( pick_result ) { target.draw( sprite ); }
     else { render_fallback_square_to_target( target, pos_cmp, sf::Color::Cyan ); }
   }
   catch ( const std::out_of_range &e )

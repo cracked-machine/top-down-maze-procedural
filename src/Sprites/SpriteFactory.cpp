@@ -46,6 +46,11 @@ void SpriteFactory::init()
     SPDLOG_DEBUG( "Loaded sprite metadata for type: {}, texture path: {}", key, texture_path.string() );
   }
 
+  create_error_sprite();
+}
+
+void SpriteFactory::create_error_sprite()
+{
   // Create procedural error texture (bright magenta/black checkerboard)
   sf::Image error_image( { 16, 16 }, sf::Color::Magenta );
 
@@ -71,38 +76,8 @@ void SpriteFactory::init()
                                                         {} } };
 }
 
-std::vector<SpriteMetaType> SpriteFactory::get_all_sprite_types() const
-{
-  std::vector<SpriteMetaType> types;
-  types.reserve( m_sprite_metadata_map.size() );
-
-  for ( const auto &[type, _] : m_sprite_metadata_map )
-  {
-    types.push_back( type );
-  }
-  return types;
-}
-
-bool SpriteFactory::has_sprite_type( const SpriteMetaType &type ) const
-{
-  return m_sprite_metadata_map.find( type ) != m_sprite_metadata_map.end();
-}
-
-std::vector<SpriteMetaType> SpriteFactory::get_all_sprite_types_by_pattern( const std::string &pattern ) const
-{
-  std::vector<SpriteMetaType> types;
-
-  // Iterate directly over the map instead of creating a temporary vector
-  for ( const auto &[type, _] : m_sprite_metadata_map )
-  {
-    if ( type.find( pattern ) != std::string::npos ) { types.push_back( type ); }
-  }
-
-  return types;
-}
-
 std::pair<SpriteMetaType, std::size_t> SpriteFactory::get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list,
-                                                                                         std::vector<float> weights ) const
+                                                                                         std::vector<float> weights )
 {
   const SpriteMetaData &selected_data = get_random_spritedata( type_list, weights );
 
@@ -120,22 +95,52 @@ std::pair<SpriteMetaType, std::size_t> SpriteFactory::get_random_type_and_textur
   return { "ERROR_SPRITE", 0 };
 }
 
-const SpriteFactory::SpriteMetaData &SpriteFactory::get_spritedata_by_type( const SpriteMetaType &type ) const
+std::vector<SpriteMetaType> SpriteFactory::get_all_sprite_types_by_pattern( const std::string &pattern )
+{
+  std::vector<SpriteMetaType> types;
+
+  // Iterate directly over the map instead of creating a temporary vector
+  for ( const auto &[type, _] : m_sprite_metadata_map )
+  {
+    if ( type.find( pattern ) != std::string::npos ) { types.push_back( type ); }
+  }
+
+  return types;
+}
+
+Sprites::MultiSprite &SpriteFactory::get_multisprite_by_type( const SpriteMetaType &type )
+{
+  return get_spritedata_by_type( type ).m_multisprite;
+}
+
+std::string SpriteFactory::get_spritedata_type_string( const SpriteMetaType &type ) { return type; }
+
+std::vector<SpriteMetaType> SpriteFactory::get_all_sprite_types()
+{
+  std::vector<SpriteMetaType> types;
+  types.reserve( m_sprite_metadata_map.size() );
+
+  for ( const auto &[type, _] : m_sprite_metadata_map )
+  {
+    types.push_back( type );
+  }
+  return types;
+}
+
+bool SpriteFactory::has_sprite_type( const SpriteMetaType &type ) const
+{
+  return m_sprite_metadata_map.find( type ) != m_sprite_metadata_map.end();
+}
+
+SpriteFactory::SpriteMetaData &SpriteFactory::get_spritedata_by_type( const SpriteMetaType &type )
 {
   auto it = m_sprite_metadata_map.find( type );
   if ( it != m_sprite_metadata_map.end() ) { return it->second; }
   return m_error_metadata;
 }
 
-const Sprites::MultiSprite &SpriteFactory::get_multisprite_by_type( const SpriteMetaType &type ) const
-{
-  return get_spritedata_by_type( type ).m_multisprite;
-}
-
-std::string SpriteFactory::get_spritedata_type_string( const SpriteMetaType &type ) const { return type; }
-
 const SpriteFactory::SpriteMetaData &SpriteFactory::get_random_spritedata( std::vector<SpriteMetaType> type_list,
-                                                                           std::vector<float> weights ) const
+                                                                           std::vector<float> weights )
 {
   if ( type_list.empty() )
   {
