@@ -187,18 +187,8 @@ RenderPlayerSystem::RenderParams RenderPlayerSystem::calc_alive_render_params( c
 {
   uint8_t new_alpha = 255;
   int sprite_index = 0;
-  if ( sprite_type == "PLAYER" )
-  {
-    // Use static frame when not moving
-    if ( direction == sf::Vector2f( 0.0f, 0.0f ) ) { sprite_index = anim_cmp.m_base_frame; }
-    // Use animated frame: base_frame + current_frame
-    else { sprite_index = anim_cmp.m_base_frame + anim_cmp.m_current_frame; }
-  }
-  else
-  {
-    // for NPCs just use the current animation frame
-    sprite_index = anim_cmp.m_current_frame;
-  }
+  // Use static frame when not moving
+  sprite_index = anim_cmp.m_current_frame;
 
   auto *wormhole_jump = m_reg->try_get<Cmp::WormholeJump>( entity );
   if ( wormhole_jump )
@@ -228,19 +218,10 @@ RenderPlayerSystem::RenderParams RenderPlayerSystem::calc_falling_render_params(
 {
   int sprite_index = 0;
   sf::Vector2f new_scale{ m_player_current_scale };
-  if ( sprite_type == "PLAYER" )
-  {
-    // Use static frame when not moving
-    if ( direction == sf::Vector2f( 0.0f, 0.0f ) ) { sprite_index = anim_cmp.m_base_frame; }
-    // Use animated frame: base_frame + current_frame
-    else { sprite_index = anim_cmp.m_base_frame + anim_cmp.m_current_frame; }
-  }
-  else
-  {
-    // for NPCs just use the current animation frame
-    sprite_index = anim_cmp.m_current_frame;
-    new_scale = sf::Vector2f{ direction.x_scale, 1.f };
-  }
+
+  // Use static frame when not moving
+  sprite_index = anim_cmp.m_current_frame;
+  new_scale = sf::Vector2f{ direction.x_scale, 1.f };
 
   sf::FloatRect new_pos{ pos_cmp.position + ( kGridSquareSizePixelsF / 2.f ), kGridSquareSizePixelsF };
 

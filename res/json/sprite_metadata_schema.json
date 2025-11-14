@@ -8,7 +8,7 @@
       "type": "object",
       "description": "Map of sprite enum names to their metadata",
       "patternProperties": {
-        "^[A-Z0-9_]+$": {
+        "^[A-Za-z0-9_.]+$": {
           "$ref": "#/definitions/spriteMetadata"
         }
       },

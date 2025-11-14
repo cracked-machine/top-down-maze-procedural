@@ -113,20 +113,6 @@
         }
       }
     },
-    "PLAYER": {
-      "name": "PLAYER",
-      "weight": 1.0,
-      "multisprite": {
-        "texture_path": "res/textures/conjurer2.png",
-        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-        "sprites_per_sequence": 3,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
     "PLAYER.walk.south": {
       "name": "PLAYER.walk.south",
       "weight": 1.0,
@@ -138,8 +124,7 @@
         "grid_size": {
           "width": 1,
           "height": 1
-        },
-        "direction": {"x": 0, "y": 1}
+        }
       }
     },
     "PLAYER.walk.north": {
@@ -153,8 +138,7 @@
         "grid_size": {
           "width": 1,
           "height": 1
-        },
-        "direction": {"x": 0, "y": -1}
+        }
       }
     },
     "PLAYER.walk.east": {
@@ -168,8 +152,7 @@
         "grid_size": {
           "width": 1,
           "height": 1
-        },
-        "direction": {"x": -1, "y": 0}
+        }
       }
     },
     "PLAYER.walk.west": {
@@ -183,8 +166,7 @@
         "grid_size": {
           "width": 1,
           "height": 1
-        },
-        "direction": {"x": 1, "y": 0}
+        }
       }
     },
     "ICONS": {
