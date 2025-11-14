@@ -6,6 +6,7 @@
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerMortality.hpp>
+#include <Components/PlayerRelicCount.hpp>
 #include <EventHandler.hpp>
 #include <Events/SaveSettingsEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
@@ -203,6 +204,14 @@ void EventHandler::game_state_handler()
         {
           pc_health_cmp.health = std::clamp( 10, pc_health_cmp.health + 10, 100 );
           SPDLOG_INFO( "Player gained health (player cheated)" );
+        }
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 )
+      {
+        for ( auto [pc_entity, pc_cmp, pc_relic_count_cmp] : m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerRelicCount>().each() )
+        {
+          pc_relic_count_cmp.increment_count( 1 );
+          SPDLOG_INFO( "Player gained a relic (player cheated)" );
         }
       }
 

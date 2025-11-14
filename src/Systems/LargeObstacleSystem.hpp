@@ -8,6 +8,7 @@
 #include <Events/PlayerActionEvent.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
+#include <SFML/System/Clock.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <entt/entity/fwd.hpp>
 
@@ -36,6 +37,8 @@ public:
   }
 
 private:
+  sf::Clock m_shrine_activation_clock;
+  sf::Time m_shrine_activation_cooldown{ sf::seconds( 3.f ) };
 };
 
 } // namespace ProceduralMaze::Sys

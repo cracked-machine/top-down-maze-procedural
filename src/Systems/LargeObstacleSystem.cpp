@@ -66,7 +66,7 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
 
     // already activated shrine? - skip
     auto anim_sprite_cmp = m_reg->try_get<Cmp::SpriteAnimation>( shrine_entity );
-    if ( anim_sprite_cmp )
+    if ( anim_sprite_cmp && m_shrine_activation_clock.getElapsedTime() > m_shrine_activation_cooldown )
     {
       activate_shrine_special_power();
       continue;
@@ -107,6 +107,7 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
         // clang-format on
 
         if ( obst_entity != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
+        m_shrine_activation_clock.restart();
         break;
       }
     }
