@@ -59,6 +59,8 @@ public:
   void stop_footsteps_sound();
 
 private:
+
+    
 };
 
 } // namespace ProceduralMaze::Sys

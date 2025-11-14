@@ -19,8 +19,6 @@
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/Position.hpp>
 #include <Components/SpriteAnimation.hpp>
-#include <Events/AnimDirectionChangeEvent.hpp>
-#include <Events/AnimResetFrameEvent.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PlayerSystem.hpp>
 
@@ -55,7 +53,7 @@ void PlayerSystem::add_player_entity()
 
   m_reg->emplace<Cmp::PCDetectionBounds>( entity, start_pos, kGridSquareSizePixelsF, pc_detection_scale.get_value() );
 
-  m_reg->emplace<Cmp::SpriteAnimation>( entity );
+  m_reg->emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYER.walk.south" );
   m_reg->emplace<Cmp::PlayerCandlesCount>( entity, 0 );
   m_reg->emplace<Cmp::PlayerKeysCount>( entity, 0 );
   m_reg->emplace<Cmp::PlayerRelicCount>( entity, 0 );
@@ -90,22 +88,23 @@ void PlayerSystem::update_movement( sf::Time globalDeltaTime, bool skip_collisio
 {
   const float dt = globalDeltaTime.asSeconds();
 
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds>();
-  for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, pc_detection_bounds] : player_view.each() )
+  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds,
+                                 Cmp::SpriteAnimation>();
+  for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, pc_detection_bounds, anim_cmp] : player_view.each() )
   {
 
     auto lerp_cmp = m_reg->try_get<Cmp::LerpPosition>( entity );
     bool wants_to_move = dir_cmp != sf::Vector2f( 0.0f, 0.0f );
 
-    // Animation events
-    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { getEventDispatcher().trigger( Events::AnimResetFrameEvent( entity ) ); }
+    // update the animation state based on movement direction
+    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { anim_cmp.m_animation_active = false; }
     else
     {
-      // prevent spamming direction change events during wormhole jumps
-      if ( !m_reg->try_get<Cmp::WormholeJump>( entity ) )
-      {
-        getEventDispatcher().trigger( Events::AnimDirectionChangeEvent( entity ) );
-      }
+      anim_cmp.m_animation_active = true;
+      if ( dir_cmp.x == 1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.east"; }
+      else if ( dir_cmp.x == -1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.west"; }
+      else if ( dir_cmp.y == -1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.north"; }
+      else if ( dir_cmp.y == 1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.south"; }
     }
 
     // Only start new movement when not lerping

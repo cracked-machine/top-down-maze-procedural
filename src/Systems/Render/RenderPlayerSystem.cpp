@@ -27,7 +27,7 @@ void RenderPlayerSystem::render_player()
         int blink_visible = static_cast<int>( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asMilliseconds() / 100 ) % 2 == 0;
         if ( !is_in_damage_cooldown || ( is_in_damage_cooldown && blink_visible ) )
         {
-          auto params_tuple = calc_alive_render_params( "PLAYER", pc_pos_cmp, dir_cmp, anim_cmp, entity );
+          auto params_tuple = calc_alive_render_params( anim_cmp.m_sprite_type, pc_pos_cmp, dir_cmp, anim_cmp, entity );
           std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                       params_tuple );
         }
@@ -35,7 +35,7 @@ void RenderPlayerSystem::render_player()
       }
       case Cmp::PlayerMortality::State::FALLING: {
 
-        auto params_tuple = calc_falling_render_params( "PLAYER", pc_pos_cmp, dir_cmp, anim_cmp, pc_mort_cmp );
+        auto params_tuple = calc_alive_render_params( "PLAYER.walk.south", pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                     params_tuple );
 
@@ -43,28 +43,28 @@ void RenderPlayerSystem::render_player()
       }
       case Cmp::PlayerMortality::State::HAUNTED: {
         pc_mort_cmp.death_progress += 0.1f;
-        auto params_tuple = calc_alive_render_params( "PLAYER", pc_pos_cmp, dir_cmp, anim_cmp, entity );
+        auto params_tuple = calc_alive_render_params( "PLAYER.walk.south", pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                     params_tuple );
         break;
       }
       case Cmp::PlayerMortality::State::DECAYING: {
         pc_mort_cmp.death_progress += 0.1f;
-        auto params_tuple = calc_alive_render_params( "PLAYER", pc_pos_cmp, dir_cmp, anim_cmp, entity );
+        auto params_tuple = calc_alive_render_params( "PLAYER.walk.south", pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                     params_tuple );
         break;
       }
       case Cmp::PlayerMortality::State::EXPLODING: {
         pc_mort_cmp.death_progress += 0.1f;
-        auto params_tuple = calc_alive_render_params( "PLAYER", pc_pos_cmp, dir_cmp, anim_cmp, entity );
+        auto params_tuple = calc_alive_render_params( "PLAYER.walk.south", pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                     params_tuple );
         break;
       }
       case Cmp::PlayerMortality::State::DROWNING: {
         pc_mort_cmp.death_progress += 0.1f;
-        auto params_tuple = calc_alive_render_params( "PLAYER", pc_pos_cmp, dir_cmp, anim_cmp, entity );
+        auto params_tuple = calc_alive_render_params( "PLAYER.walk.south", pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                     params_tuple );
         break;

@@ -2,15 +2,18 @@
 #define INC_COMPONENTS_SPRITEANIMATION_HPP
 
 #include <SFML/System/Time.hpp>
+#include <Sprites/MultiSprite.hpp>
 
 namespace ProceduralMaze::Cmp {
 
 struct SpriteAnimation
 {
-  SpriteAnimation( unsigned int current_frame = 0, unsigned int base_frame = 0, bool activate_animation = true )
+  SpriteAnimation( unsigned int current_frame = 0, unsigned int base_frame = 0, bool activate_animation = true,
+                   Sprites::SpriteMetaType sprite_type = "" )
       : m_current_frame( current_frame ),
         m_base_frame( base_frame ),
-        m_animation_active( activate_animation )
+        m_animation_active( activate_animation ),
+        m_sprite_type( sprite_type )
   {
   }
 
@@ -31,6 +34,9 @@ struct SpriteAnimation
   sf::Time m_elapsed_time{ sf::Time::Zero };
 
   bool m_animation_active;
+
+  //! @brief State for the current animation sequence
+  Sprites::SpriteMetaType m_sprite_type = "";
 };
 
 } // namespace ProceduralMaze::Cmp

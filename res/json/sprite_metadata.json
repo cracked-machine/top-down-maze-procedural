@@ -127,6 +127,66 @@
         }
       }
     },
+    "PLAYER.walk.south": {
+      "name": "PLAYER.walk.south",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/conjurer1.png",
+        "sprite_indices": [0, 1, 2],
+        "sprites_per_sequence": 3,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        },
+        "direction": {"x": 0, "y": 1}
+      }
+    },
+    "PLAYER.walk.north": {
+      "name": "PLAYER.walk.north",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/conjurer1.png",
+        "sprite_indices": [3,4,5],
+        "sprites_per_sequence": 3,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        },
+        "direction": {"x": 0, "y": -1}
+      }
+    },
+    "PLAYER.walk.east": {
+      "name": "PLAYER.walk.west",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/conjurer1.png",
+        "sprite_indices": [6,7,8],
+        "sprites_per_sequence": 3,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        },
+        "direction": {"x": -1, "y": 0}
+      }
+    },
+    "PLAYER.walk.west": {
+      "name": "PLAYER.walk.east",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/conjurer1.png",
+        "sprite_indices": [9,10,11],
+        "sprites_per_sequence": 3,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        },
+        "direction": {"x": 1, "y": 0}
+      }
+    },
     "ICONS": {
       "name": "ICONS",
       "weight": 1.0,

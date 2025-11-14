@@ -4,7 +4,6 @@
 #include <Components/PlayerMortality.hpp>
 #include <Components/SinkholeCell.hpp>
 #include <Engine.hpp>
-#include <Events/AnimResetFrameEvent.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
 #include <SFML/Window/WindowEnums.hpp>
