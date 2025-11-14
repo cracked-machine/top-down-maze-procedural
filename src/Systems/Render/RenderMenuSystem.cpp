@@ -1,5 +1,6 @@
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
+#include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <SFML/System/Angle.hpp>
 
@@ -246,6 +247,11 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
   auto &max_shrines = get_persistent_component<Cmp::Persistent::MaxShrines>();
   ImGui::SliderScalar( "Max Shrines", ImGuiDataType_U32, &max_shrines.get_value(), &max_shrines.get_min_value(),
                        &max_shrines.get_max_value(), "%d Max Shrines" );
+
+  auto &grave_num_multiplier = get_persistent_component<Cmp::Persistent::GraveNumMultiplier>();
+  ImGui::SliderScalar( "Grave Number Multiplier", ImGuiDataType_U32, &grave_num_multiplier.get_value(),
+                       &grave_num_multiplier.get_min_value(), &grave_num_multiplier.get_max_value(), "%d" );
+
   auto &shrine_cost = get_persistent_component<Cmp::Persistent::ShrineCostPerSprite>();
   ImGui::SliderScalar( "Shrine Cost", ImGuiDataType_S32, &shrine_cost.get_value(), &shrine_cost.get_min_value(),
                        &shrine_cost.get_max_value(), "%d Shrine Cost per sprite" );

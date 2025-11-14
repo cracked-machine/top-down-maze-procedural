@@ -1,4 +1,5 @@
 #include <Components/Persistent/EffectsVolume.hpp>
+#include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #define JSON_NOEXCEPTION
 #include <spdlog/spdlog.h>
@@ -69,6 +70,7 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::DiggingDamagePerHit>( "DiggingDamagePerHit" );
   registerComponent<Cmp::Persistent::EffectsVolume>( "EffectsVolume" );
   registerComponent<Cmp::Persistent::FuseDelay>( "FuseDelay" );
+  registerComponent<Cmp::Persistent::GraveNumMultiplier>( "GraveNumMultiplier" );
   registerComponent<Cmp::Persistent::HealthBonus>( "HealthBonus" );
   registerComponent<Cmp::Persistent::MusicVolume>( "MusicVolume" );
   registerComponent<Cmp::Persistent::MaxShrines>( "MaxShrines" );
@@ -148,6 +150,7 @@ void PersistentSystem::save_state()
   serializeComponent.template operator()<Cmp::Persistent::DiggingDamagePerHit>( "DiggingDamagePerHit" );
   serializeComponent.template operator()<Cmp::Persistent::EffectsVolume>( "EffectsVolume" );
   serializeComponent.template operator()<Cmp::Persistent::FuseDelay>( "FuseDelay" );
+  serializeComponent.template operator()<Cmp::Persistent::GraveNumMultiplier>( "GraveNumMultiplier" );
   serializeComponent.template operator()<Cmp::Persistent::HealthBonus>( "HealthBonus" );
   serializeComponent.template operator()<Cmp::Persistent::MaxShrines>( "MaxShrines" );
   serializeComponent.template operator()<Cmp::Persistent::MusicVolume>( "MusicVolume" );

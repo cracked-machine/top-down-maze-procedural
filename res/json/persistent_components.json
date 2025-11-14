@@ -43,6 +43,10 @@
     "type": "float",
     "value": 3.0
   },
+  "GraveNumMultiplier": {
+    "type": "int",
+    "value": 30
+  },
   "HealthBonus": {
     "type": "int",
     "value": 25
