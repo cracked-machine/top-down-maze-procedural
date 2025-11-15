@@ -15,7 +15,7 @@
 #include <Components/Persistent/ArmedOffDelay.hpp>
 #include <Components/Persistent/BombDamage.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/ShrineSprite.hpp>
+#include <Components/ShrineSegment.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Events/LootContainerDestroyedEvent.hpp>
 #include <Systems/Threats/BombSystem.hpp>
@@ -91,7 +91,7 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
     else
     {
       auto destructable_view = m_reg->view<Cmp::Destructable, Cmp::Position>(
-          entt::exclude<typename Cmp::Armed, Cmp::ShrineSprite, Cmp::NPC> );
+          entt::exclude<typename Cmp::Armed, Cmp::ShrineSegment, Cmp::NPC> );
       for ( auto [destructable_entity, destructable_cmp, destructable_pos_cmp] : destructable_view.each() )
       {
         // make a copy and reduce/center the player hitbox to avoid arming a neighbouring location
@@ -135,7 +135,7 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
   // We dont detonate ReservedPositions so dont arm them in the first place
   // Also exclude NPCs since they're handled separately and may be missing Position component during death animation
   auto all_obstacle_view = m_reg->view<Cmp::Destructable, Cmp::Position>(
-      entt::exclude<Cmp::ShrineSprite, Cmp::GraveSprite, Cmp::NPC> );
+      entt::exclude<Cmp::ShrineSegment, Cmp::GraveSprite, Cmp::NPC> );
 
   // For each layer from 1 to BLAST_RADIUS
   for ( int layer = 1; layer <= blast_radius; layer++ )

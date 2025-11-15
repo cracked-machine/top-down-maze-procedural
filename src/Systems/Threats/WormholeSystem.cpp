@@ -1,6 +1,6 @@
 #include <Components/GraveSprite.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/ShrineSprite.hpp>
+#include <Components/ShrineSegment.hpp>
 #include <Components/WormholeJump.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
@@ -87,7 +87,7 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
       }
 
       // Return false for shrine collisions
-      for ( auto [entity, shrine_cmp, shrine_pos_cmp] : m_reg->view<Cmp::ShrineSprite, Cmp::Position>().each() )
+      for ( auto [entity, shrine_cmp, shrine_pos_cmp] : m_reg->view<Cmp::ShrineSegment, Cmp::Position>().each() )
       {
         if ( shrine_pos_cmp.findIntersection( wormhole_hitbox.getBounds() ) ) return false;
       }

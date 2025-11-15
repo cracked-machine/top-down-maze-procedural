@@ -6,7 +6,7 @@
 #include <Components/NPCScanBounds.hpp>
 #include <Components/PlayerDistance.hpp>
 #include <Components/Position.hpp>
-#include <Components/ShrineSprite.hpp>
+#include <Components/ShrineSegment.hpp>
 #include <Components/SpawnAreaSprite.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/Wall.hpp>
@@ -33,7 +33,8 @@ void PathFindSystem::update_player_distances()
   {
 
     // Exclude any components that we dont want NPCs to pathfind through
-    auto path_exclusions = entt::exclude<Cmp::ShrineSprite, Cmp::SpawnAreaSprite, Cmp::GraveSprite, Cmp::Wall, Cmp::Exit, Cmp::NPC>;
+    auto
+        path_exclusions = entt::exclude<Cmp::ShrineSegment, Cmp::SpawnAreaSprite, Cmp::GraveSprite, Cmp::Wall, Cmp::Exit, Cmp::NPC>;
 
     auto path_view = m_reg->view<Cmp::Position>( path_exclusions );
     for ( auto [path_entt, path_pos_cmp] : path_view.each() )

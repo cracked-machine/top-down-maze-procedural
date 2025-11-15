@@ -41,22 +41,6 @@ void ExitSystem::spawn_exit()
 
 void ExitSystem::unlock_exit()
 {
-  // count the number of activated shrines
-  // unsigned int active_shrine_count = 0;
-  // auto lo_view = m_reg->view<Cmp::LargeObstacle>();
-  // for ( auto [lo_entt, lo_cmp] : lo_view.each() )
-  // {
-  //   if ( lo_cmp.getType() == "SHRINE" && lo_cmp.are_powers_active() ) { active_shrine_count++; }
-  // }
-
-  // // return if not enough shrines activated
-  // auto max_num_shrines = get_persistent_component<Cmp::Persistent::MaxShrines>();
-  // if ( active_shrine_count < max_num_shrines.get_value() )
-  // {
-  //   SPDLOG_DEBUG( "Not enough shrines activated to unlock exit ({} / {})", active_shrine_count,
-  //                 max_num_shrines.get_value() );
-  //   return;
-  // }
 
   auto player_key_view = m_reg->view<Cmp::PlayerKeysCount>();
   for ( auto [pk_entity, pk_cmp] : player_key_view.each() )

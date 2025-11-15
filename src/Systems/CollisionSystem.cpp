@@ -27,7 +27,6 @@
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
-#include <Components/ShrineSprite.hpp>
 #include <Components/SinkholeCell.hpp>
 #include <Components/SpawnAreaSprite.hpp>
 #include <Components/SpriteAnimation.hpp>

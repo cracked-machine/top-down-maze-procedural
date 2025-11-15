@@ -9,7 +9,7 @@
 #include <Components/Exit.hpp>
 #include <Components/GraveSprite.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/ShrineSprite.hpp>
+#include <Components/ShrineSegment.hpp>
 #include <Components/Wall.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -78,7 +78,7 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
     if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
-  auto shrine_view = m_reg->view<Cmp::ShrineSprite, Cmp::Position>();
+  auto shrine_view = m_reg->view<Cmp::ShrineSegment, Cmp::Position>();
   for ( auto [entity, shrine_cmp, pos_cmp] : shrine_view.each() )
   {
     if ( not shrine_cmp.isSolidMask() ) continue;

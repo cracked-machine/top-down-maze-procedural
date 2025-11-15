@@ -1,4 +1,5 @@
 #include <Components/Persistent/GraveNumMultiplier.hpp>
+#include <Components/SpriteAnimation.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <Components/Destructable.hpp>
@@ -14,7 +15,7 @@
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/ShrineSprite.hpp>
+#include <Components/ShrineSegment.hpp>
 #include <Components/SpawnAreaSprite.hpp>
 #include <Components/Wall.hpp>
 #include <Sprites/SpriteFactory.hpp>
@@ -93,7 +94,7 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
       }
 
       // Return false for shrine collisions
-      for ( auto [entity, shrine_cmp, shrine_pos_cmp] : m_reg->view<Cmp::ShrineSprite, Cmp::Position>().each() )
+      for ( auto [entity, shrine_cmp, shrine_pos_cmp] : m_reg->view<Cmp::ShrineSegment, Cmp::Position>().each() )
       {
         if ( shrine_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
@@ -152,8 +153,7 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
                random_origin_position.position.x, random_origin_position.position.y, large_obst_grid_size.width,
                large_obst_grid_size.height );
 
-  // find any position-owning entities that intersect
-  // with the new large obstacle and mark them as reserved
+  // find any position-owning entities that intersect with the new large obstacle and mark them as reserved
   auto new_large_obst_cmp = m_reg->get<Cmp::LargeObstacle>( random_entity );
   auto pos_view = m_reg->view<Cmp::Position>();
   for ( auto [entity, pos_cmp] : pos_view.each() )
@@ -164,9 +164,9 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
       float rel_x = pos_cmp.position.x - random_origin_position.position.x;
       float rel_y = pos_cmp.position.y - random_origin_position.position.y;
 
-      // Convert to grid coordinates
-      int grid_x = static_cast<int>( rel_x / BaseSystem::kGridSquareSizePixels.x );
-      int grid_y = static_cast<int>( rel_y / BaseSystem::kGridSquareSizePixels.y );
+      // Convert to relative grid coordinates
+      int rel_grid_x = static_cast<int>( rel_x / BaseSystem::kGridSquareSizePixels.x );
+      int rel_grid_y = static_cast<int>( rel_y / BaseSystem::kGridSquareSizePixels.y );
 
       // Calculate linear array index using relative grid distance from the origin grid position [0,0].
       // We can then use the index to look up the sprite and solid mask in the large obstacle sprite object
@@ -183,11 +183,9 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
       // Top-right position: grid_y=0, grid_x=3 → sprite_index = 0 * 4 + 3 = 3
       // Bottom-left position: grid_y=1, grid_x=0 → sprite_index = 1 * 4 + 0 = 4
       // Bottom-right position: grid_y=1, grid_x=3 → sprite_index = 1 * 4 + 3 = 7
-      std::size_t calculated_grid_index = grid_y * large_obst_grid_size.width + grid_x;
-
-      SPDLOG_DEBUG( "Calculated sprite index: {}", calculated_grid_index );
-
-      SPDLOG_DEBUG( "Adding Cmp::ReservedPosition at ({}, {}) with sprite_index {}", pos_cmp.x, pos_cmp.y, calculated_grid_index );
+      std::size_t calculated_grid_index = rel_grid_y * large_obst_grid_size.width + rel_grid_x;
+      SPDLOG_INFO( "Adding Cmp::ReservedPosition at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y,
+                   calculated_grid_index );
 
       // check multisprite solid_mask vector is at least as large as calculated index - default to true (solid) if out
       // of bounds
@@ -198,9 +196,10 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
         new_solid_mask = solid_masks.at( calculated_grid_index );
       }
 
-      if ( sprite_meta_type == "SHRINE" )
+      if ( sprite_meta_type.contains( "SHRINE" ) )
       {
-        m_reg->emplace_or_replace<Cmp::ShrineSprite>( entity, sprite_meta_type, calculated_grid_index, new_solid_mask );
+        m_reg->emplace_or_replace<Cmp::ShrineSegment>( entity, new_solid_mask );
+        m_reg->emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_meta_type, calculated_grid_index );
       }
       else if ( sprite_meta_type.contains( "GRAVE" ) )
       {
@@ -233,11 +232,11 @@ void RandomLevelGenerator::gen_large_obstacles()
     }
   }
 
-  auto &shrine_multisprite = m_sprite_factory.get_multisprite_by_type( "SHRINE" );
+  auto &shrine_multisprite = m_sprite_factory.get_multisprite_by_type( "SHRINE.inactive" );
   for ( std::size_t i = 0; i < max_num_shrines.get_value(); ++i )
   {
     // Use the dynamically discovered shrine types
-    gen_large_obstacle( shrine_multisprite, "SHRINE", 0 );
+    gen_large_obstacle( shrine_multisprite, "SHRINE.inactive", 0 );
   }
 }
 

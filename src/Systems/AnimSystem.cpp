@@ -12,7 +12,7 @@
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
-#include <Components/ShrineSprite.hpp>
+#include <Components/ShrineSegment.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/Wormhole.hpp>
 #include <Sprites/SpriteFactory.hpp>
@@ -25,14 +25,14 @@ void AnimSystem::update( sf::Time globalDeltaTime )
 {
 
   // Shrine Animation
-  auto shrine_view = m_reg->view<Cmp::ShrineSprite, Cmp::SpriteAnimation, Cmp::Position>();
+  auto shrine_view = m_reg->view<Cmp::ShrineSegment, Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [entity, shrine_cmp, anim_cmp, pos_cmp] : shrine_view.each() )
   {
     if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
     if ( anim_cmp.m_animation_active )
     {
       SPDLOG_DEBUG( "Updating Shrine animation for entity {}", static_cast<int>( entity ) );
-      const auto &shrine_sprite_metadata = m_sprite_factory.get_multisprite_by_type( shrine_cmp.getType() );
+      const auto &shrine_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
       auto frame_rate = sf::seconds( 0.1f );
 
       update_single_sequence( anim_cmp, globalDeltaTime, shrine_sprite_metadata, frame_rate );
@@ -69,7 +69,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
     if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
     auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::PlayerAnimFramerate>().get_value() );
     const auto &player_walk_sequence = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
-    update_grouped_sequences( anim_cmp, globalDeltaTime, player_walk_sequence, frame_rate );
+    update_single_sequence( anim_cmp, globalDeltaTime, player_walk_sequence, frame_rate );
   }
 
   // Wormhole

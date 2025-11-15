@@ -4,16 +4,18 @@
 #include <SFML/System/Time.hpp>
 #include <Sprites/MultiSprite.hpp>
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
 struct SpriteAnimation
 {
   SpriteAnimation( unsigned int current_frame = 0, unsigned int base_frame = 0, bool activate_animation = true,
-                   Sprites::SpriteMetaType sprite_type = "" )
+                   Sprites::SpriteMetaType sprite_type = "", unsigned int frame_index_offset = 0 )
       : m_current_frame( current_frame ),
         m_base_frame( base_frame ),
         m_animation_active( activate_animation ),
-        m_sprite_type( sprite_type )
+        m_sprite_type( sprite_type ),
+        m_frame_index_offset( frame_index_offset )
   {
   }
 
@@ -35,8 +37,18 @@ struct SpriteAnimation
 
   bool m_animation_active;
 
-  //! @brief State for the current animation sequence
+  //! @brief The multisprite object type (string) that we are animating
   Sprites::SpriteMetaType m_sprite_type = "";
+
+  //! @brief Get the frame index offset for multi-block sprites
+  //! @return unsigned int
+  unsigned int getFrameIndexOffset() const { return m_frame_index_offset; }
+
+private:
+  //! @brief Get the relative frame index offset within multi-block sprites
+  //! This should be immutable for the lifetime of the component
+  //! @return unsigned int
+  unsigned int m_frame_index_offset;
 };
 
 } // namespace ProceduralMaze::Cmp

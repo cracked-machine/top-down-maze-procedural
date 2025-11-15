@@ -23,7 +23,7 @@ public:
   void increment_activated_sprite_count() { ++m_activated_sprite_count; }
   unsigned int get_activated_sprite_count() const { return m_activated_sprite_count; }
 
-  void set_powers_active() { m_powers_active = true; }
+  void set_powers_active( bool activate = true ) { m_powers_active = activate; }
   bool are_powers_active() const { return m_powers_active; }
 
 private:

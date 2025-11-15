@@ -25,7 +25,7 @@
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SelectedPosition.hpp>
-#include <Components/ShrineSprite.hpp>
+#include <Components/ShrineSegment.hpp>
 #include <Components/SinkholeCell.hpp>
 #include <Components/SpawnAreaSprite.hpp>
 #include <Components/SpriteAnimation.hpp>
@@ -285,23 +285,31 @@ void RenderGameSystem::render_player_spawn()
 
 void RenderGameSystem::render_large_obstacles()
 {
-  auto shrine_view = m_reg->view<Cmp::ShrineSprite, Cmp::Position>();
-  for ( auto [entity, shrine_cmp, pos_cmp] : shrine_view.each() )
-  {
 
-    auto new_idx = shrine_cmp.getTileIndex();
-    auto anim_sprite_cmp = m_reg->try_get<Cmp::SpriteAnimation>( entity );
-    if ( anim_sprite_cmp )
-    {
-      // or use the current frame from the animation component
-      new_idx = shrine_cmp.getTileIndex() + anim_sprite_cmp->m_current_frame;
-    }
+  auto shrine_view = m_reg->view<Cmp::ShrineSegment, Cmp::Position, Cmp::SpriteAnimation>();
+  for ( auto [entity, shrine_cmp, pos_cmp, anim_cmp] : shrine_view.each() )
+  {
+    if ( !is_visible_in_view( RenderSystem::s_game_view, pos_cmp ) ) continue;
+
+    // add the current frame position to the relative frame offset to get the current position within the animation sequence
+    //  FRAME 1
+    // [ a,b,c ]
+    // [ d,e,f ]  if m_frame_index_offset = 3 the index for frame 1 is: 0+3=3 (d)
+    // [ g,h,i ]
+    //  FRAME 2
+    // [ j,k,l ]
+    // [ l,m,n ]  if m_frame_index_offset = 3 the index for frame 2 is: 3+3=6 (l)
+    // [ o,p,q ]
+    // etc.
+    SPDLOG_INFO( "Rendering Cmp::ShrineSegment at ({}, {}) with animation frame index offset {} + {}", pos_cmp.position.x,
+                 pos_cmp.position.y, anim_cmp.getFrameIndexOffset(), anim_cmp.m_current_frame );
+    auto new_idx = anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame;
 
     sf::Vector2f new_scale{ 1.f, 1.f };
     uint8_t new_alpha{ 255 };
     sf::Vector2f new_origin{ 0.f, 0.f };
     float new_angle{ 0.f };
-    safe_render_sprite( shrine_cmp.getType(), pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
+    safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
   }
 
   auto grave_view = m_reg->view<Cmp::GraveSprite, Cmp::Position>();
