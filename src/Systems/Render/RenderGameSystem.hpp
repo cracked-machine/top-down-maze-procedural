@@ -16,7 +16,8 @@
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 class RenderGameSystem : public RenderSystem
 {
@@ -57,12 +58,10 @@ private:
   void render_player_spawn();
 
   void render_explosions();
-  void render_flood_waters( sf::FloatRect player_position );
+  void render_background_water( sf::FloatRect player_position );
   void render_mist( sf::FloatRect player_position );
 
   void render_arrow_compass();
-
-  void update_view_center( sf::View &view, const Cmp::Position &player_pos, float smoothFactor = 0.1f );
 
   // Views
   const sf::Vector2f kLocalMapViewSize{ 300.f, 200.f };

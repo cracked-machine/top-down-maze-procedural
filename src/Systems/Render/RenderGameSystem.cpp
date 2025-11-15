@@ -107,7 +107,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       m_local_view.setCenter( player_position.position );
       // draw the background
 
-      render_flood_waters( player_position );
+      render_background_water( player_position );
       render_floormap( { 0, 0 } );
 
       // now draw everything else on top
@@ -634,15 +634,14 @@ void RenderGameSystem::render_walls()
 void RenderGameSystem::render_explosions()
 {
   auto explosion_view = m_reg->view<Cmp::NpcDeathPosition, Cmp::SpriteAnimation>();
-  for ( auto [entity, pos_cmp, anim_cmp] : explosion_view.each() )
+  for ( auto [entity, npc_death_pos, anim_cmp] : explosion_view.each() )
   {
-    // Always render the current frame
-    sf::FloatRect npc_death_pos{ pos_cmp, kGridSquareSizePixelsF };
-    safe_render_sprite( "EXPLOSION", npc_death_pos, anim_cmp.m_current_frame );
+    auto new_idx = anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame;
+    safe_render_sprite( anim_cmp.m_sprite_type, npc_death_pos, new_idx );
   }
 }
 
-void RenderGameSystem::render_flood_waters( sf::FloatRect player_position )
+void RenderGameSystem::render_background_water( sf::FloatRect player_position )
 {
 
   m_water_shader.update( { player_position.position.x - m_water_shader.get_texture_size().x / 2.f,
@@ -735,28 +734,6 @@ void RenderGameSystem::render_arrow_compass()
       safe_render_sprite( "ARROW", arrow_rect, sprite_index, scale, alpha, origin, angle_radians );
     }
   }
-}
-
-void RenderGameSystem::update_view_center( sf::View &view, [[maybe_unused]] const Cmp::Position &player_pos,
-                                           [[maybe_unused]] float smoothFactor )
-{
-  // const float kHalfViewWidth = view.getSize().x * 0.5f;
-  // const float kHalfViewHeight = view.getSize().y * 0.5f;
-
-  // // Calculate the maximum allowed camera positions
-  // float maxX = kDisplaySize.x - kHalfViewWidth;
-  // float maxY = kDisplaySize.y - kHalfViewHeight;
-
-  // // Calculate new camera position
-  // float newX = std::clamp( player_pos.x, kHalfViewWidth, maxX );
-  // float newY = std::clamp( player_pos.y, kHalfViewHeight, maxY );
-
-  // // Smoothly interpolate to the new position
-  // sf::Vector2f currentCenter = view.getCenter();
-
-  // view.setCenter( { currentCenter.x + ( newX - currentCenter.x ) * smoothFactor,
-  //                   currentCenter.y + ( newY - currentCenter.y ) * smoothFactor } );
-  view.setCenter( player_pos.position );
 }
 
 } // namespace ProceduralMaze::Sys

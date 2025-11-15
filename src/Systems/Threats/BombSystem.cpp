@@ -4,6 +4,7 @@
 #include <Components/RectBounds.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
+#include <SFML/Graphics/Rect.hpp>
 #include <spdlog/spdlog.h>
 
 #include <Components/Armed.hpp>
@@ -241,10 +242,8 @@ void BombSystem::update()
       // notify npc system of death
       if ( npc_pos_cmp.findIntersection( armed_pos_cmp ) )
       {
-        m_reg->emplace_or_replace<Cmp::NpcDeathPosition>( npc_entt, npc_pos_cmp.position );
-        m_reg->emplace_or_replace<Cmp::SpriteAnimation>( npc_entt );
-        auto &npc_death_anim = m_reg->get<Cmp::SpriteAnimation>( npc_entt );
-        npc_death_anim.m_current_frame = 0;
+        m_reg->emplace_or_replace<Cmp::NpcDeathPosition>( npc_entt, npc_pos_cmp.position, npc_pos_cmp.size );
+        m_reg->emplace_or_replace<Cmp::SpriteAnimation>( npc_entt, 0, 0, true, "EXPLOSION", 0 );
         SPDLOG_INFO( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ), npc_pos_cmp.position.x,
                      npc_pos_cmp.position.y );
         getEventDispatcher().trigger( Events::NpcDeathEvent( npc_entt ) );

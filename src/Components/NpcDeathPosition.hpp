@@ -1,15 +1,17 @@
 #ifndef __CMP_NPC_DEATH_POSITION_HPP__
 #define __CMP_NPC_DEATH_POSITION_HPP__
 
+#include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
-class NpcDeathPosition : public sf::Vector2f
+class NpcDeathPosition : public sf::FloatRect
 {
 public:
-  NpcDeathPosition( sf::Vector2f pos )
-      : sf::Vector2f( pos )
+  NpcDeathPosition( const sf::Vector2f &pos, const sf::Vector2f &size )
+      : sf::FloatRect( pos, size )
   {
   }
 };
