@@ -2,17 +2,17 @@
 #define __CMP_MAXSHRINES_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
-namespace ProceduralMaze::Cmp::Persistent {
+namespace ProceduralMaze::Cmp::Persistent
+{
 
-class MaxShrines : public BasePersistent<unsigned int>
+class MaxShrines : public BasePersistent<uint8_t>
 {
 public:
-  MaxShrines( unsigned int value = 3, unsigned int min_value = 1, unsigned int max_value = 10 )
-      : BasePersistent<unsigned int>( value, min_value, max_value )
+  MaxShrines( uint8_t value = 3, uint8_t min_value = 1, uint8_t max_value = 10 )
+      : BasePersistent<uint8_t>( value, min_value, max_value )
   {
   }
   virtual std::string class_name() const override { return "MaxShrines"; }
-
 };
 
 } // namespace ProceduralMaze::Cmp::Persistent

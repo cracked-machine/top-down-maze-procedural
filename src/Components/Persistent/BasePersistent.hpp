@@ -3,7 +3,8 @@
 
 #include <Components/Persistent/IBasePersistent.hpp>
 
-namespace ProceduralMaze::Cmp::Persistent {
+namespace ProceduralMaze::Cmp::Persistent
+{
 
 // Base class for persistent settings
 // These types should be added to the registry as context variables
@@ -26,6 +27,11 @@ public:
   T &get_value() { return value; };
   T &get_min_value() { return min_value; };
   T &get_max_value() { return max_value; };
+
+  // Add pointer accessors for ImGui SliderScalar compatibility
+  T *get_value_ptr() { return &value; };
+  T *get_min_value_ptr() { return &min_value; };
+  T *get_max_value_ptr() { return &max_value; };
 
   // object serialization to json
   virtual nlohmann::json serialize() const override

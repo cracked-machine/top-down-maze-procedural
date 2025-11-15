@@ -3,14 +3,15 @@
 
 #include <Components/Persistent/BasePersistent.hpp>
 
-namespace ProceduralMaze::Cmp::Persistent {
+namespace ProceduralMaze::Cmp::Persistent
+{
 
 // This component does not use JSON serialization as it is managed internally by the game engine.
-class WormholeSeed : public BasePersistent<unsigned long>
+class WormholeSeed : public BasePersistent<uint64_t>
 {
 public:
-  WormholeSeed( unsigned long value = 0 )
-      : BasePersistent<unsigned long>( value )
+  WormholeSeed( uint64_t value = 0 )
+      : BasePersistent<uint64_t>( value, 0, std::numeric_limits<uint64_t>::max() )
   {
   }
   virtual std::string class_name() const override { return "WormholeSeed"; }

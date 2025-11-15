@@ -2,13 +2,15 @@
 #define __CMP_BLASTRADIUS_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
-namespace ProceduralMaze::Cmp::Persistent {
+#include <cstdint>
+namespace ProceduralMaze::Cmp::Persistent
+{
 
-class BlastRadius : public BasePersistent<int>
+class BlastRadius : public BasePersistent<uint8_t>
 {
 public:
-  BlastRadius( int value = 1, int min_value = 1, int max_value = 5 )
-      : BasePersistent<int>( value, min_value, max_value )
+  BlastRadius( uint8_t value = 1, uint8_t min_value = 1, uint8_t max_value = 5 )
+      : BasePersistent<uint8_t>( value, min_value, max_value )
   {
   }
 

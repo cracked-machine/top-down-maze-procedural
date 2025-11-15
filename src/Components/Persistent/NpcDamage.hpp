@@ -2,13 +2,14 @@
 #define __CMP_NPCDAMAGE_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
-namespace ProceduralMaze::Cmp::Persistent {
+namespace ProceduralMaze::Cmp::Persistent
+{
 
-class NpcDamage : public BasePersistent<int>
+class NpcDamage : public BasePersistent<uint8_t>
 {
 public:
-  NpcDamage( int value = 15, int min_value = 1, int max_value = 50 )
-      : BasePersistent<int>( value, min_value, max_value )
+  NpcDamage( uint8_t value = 15, uint8_t min_value = 1, uint8_t max_value = 50 )
+      : BasePersistent<uint8_t>( value, min_value, max_value )
   {
   }
   virtual std::string class_name() const override { return "NpcDamage"; }

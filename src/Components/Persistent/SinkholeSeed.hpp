@@ -2,14 +2,15 @@
 #define __CMP_SINKHOLESEED_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
-namespace ProceduralMaze::Cmp::Persistent {
+namespace ProceduralMaze::Cmp::Persistent
+{
 
 // This component does not use JSON serialization as it is managed internally by the game engine.
-class SinkholeSeed : public BasePersistent<unsigned long>
+class SinkholeSeed : public BasePersistent<uint64_t>
 {
 public:
-  SinkholeSeed( float value = 0 )
-      : BasePersistent<unsigned long>( value )
+  SinkholeSeed( uint64_t value = 0 )
+      : BasePersistent<uint64_t>( value, 0, std::numeric_limits<uint64_t>::max() )
   {
   }
   virtual std::string class_name() const override { return "SinkholeSeed"; }

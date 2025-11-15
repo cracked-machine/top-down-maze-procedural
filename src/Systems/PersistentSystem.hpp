@@ -4,7 +4,8 @@
 #include <Events/SaveSettingsEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 class PersistentSystem : public BaseSystem
 {
@@ -72,7 +73,6 @@ private:
    */
   std::unordered_map<std::string, std::function<void( const nlohmann::json & )>> m_component_loaders;
 
-  template <typename ComponentType, typename... DefaultArgTypes>
   /**
    * @brief Registers a persistent component loader with default arguments.
    *
@@ -88,23 +88,24 @@ private:
    * @note The loader is stored internally and can be invoked later to create and
    *       initialize the component from a JSON value.
    */
+  template <typename ComponentType, typename... DefaultArgTypes>
   void registerComponent( const std::string &key, DefaultArgTypes &&...default_args )
   {
     // Capture args in a tuple to preserve them for later use
     auto args_tuple = std::make_tuple( std::forward<DefaultArgTypes>( default_args )... );
 
+    std::apply( [this]( auto &&...unpacked_args )
+                { add_persistent_component<ComponentType>( std::forward<decltype( unpacked_args )>( unpacked_args )... ); },
+                args_tuple );
+
     // move the tuple into the lambda to avoid copies (pack copy forbidden by lambda)
-    m_component_loaders[key] = [this, args_tuple = std::move( args_tuple )]( const nlohmann::json &persistent_object ) {
-      // Unpack the tuple and forward the arguments to add_persistent_component
-      std::apply(
-          [this, &persistent_object]( auto &&...unpacked_args ) {
-            add_persistent_component<ComponentType>( std::forward<decltype( unpacked_args )>( unpacked_args )... );
-            auto &component = get_persistent_component<ComponentType>();
-            component.deserialize( persistent_object );
-            auto deserialized_value = component.get_value();
-            SPDLOG_INFO( "Loaded {} from JSON with value {}", component.class_name(), deserialized_value );
-          },
-          args_tuple );
+    m_component_loaders[key] = [this, args_tuple = std::move( args_tuple )]( const nlohmann::json &persistent_object )
+    {
+      // Component already exists, just update it
+      auto &component = get_persistent_component<ComponentType>();
+      component.deserialize( persistent_object );
+      auto deserialized_value = component.get_value();
+      SPDLOG_INFO( "Loaded {} from JSON with value {}", component.class_name(), deserialized_value );
     };
   }
 };

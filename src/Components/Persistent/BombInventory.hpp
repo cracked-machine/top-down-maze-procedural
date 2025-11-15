@@ -2,13 +2,14 @@
 #define __CMP_BOMBINVENTORY_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
-namespace ProceduralMaze::Cmp::Persistent {
+namespace ProceduralMaze::Cmp::Persistent
+{
 
-class BombInventory : public BasePersistent<int>
+class BombInventory : public BasePersistent<uint8_t>
 {
 public:
-  BombInventory( int value = 10, int min_value = -1, int max_value = 100 )
-      : BasePersistent<int>( value, min_value, max_value )
+  BombInventory( uint8_t value = 10, uint8_t min_value = 0, uint8_t max_value = 100 )
+      : BasePersistent<uint8_t>( value, min_value, max_value )
   {
   }
 

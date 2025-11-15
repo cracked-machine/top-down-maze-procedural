@@ -2,13 +2,14 @@
 #define __CMP_CORRUPTIONSEED_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
-namespace ProceduralMaze::Cmp::Persistent {
+namespace ProceduralMaze::Cmp::Persistent
+{
 
-class CorruptionSeed : public BasePersistent<unsigned long>
+class CorruptionSeed : public BasePersistent<uint64_t>
 {
 public:
-  CorruptionSeed( unsigned long value = 0 )
-      : BasePersistent<unsigned long>( value )
+  CorruptionSeed( uint64_t value = 0 )
+      : BasePersistent<uint64_t>( value, 0, std::numeric_limits<uint64_t>::max() )
   {
   }
   virtual std::string class_name() const override { return "CorruptionSeed"; }

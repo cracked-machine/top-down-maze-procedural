@@ -225,7 +225,7 @@ void RandomLevelGenerator::gen_large_obstacles()
   if ( grave_meta_types.empty() ) { SPDLOG_WARN( "No GRAVE multisprites found in SpriteFactory" ); }
   else
   {
-    auto max_num_graves = max_num_shrines.get_value() * grave_num_multiplier.get_value();
+    uint8_t max_num_graves = max_num_shrines.get_value() * grave_num_multiplier.get_value();
     for ( std::size_t i = 0; i < max_num_graves; ++i )
     {
       // Use the dynamically discovered grave types

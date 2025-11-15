@@ -2,13 +2,15 @@
 #define __CMP_BOMBBONUS_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
-namespace ProceduralMaze::Cmp::Persistent {
+#include <cstdint>
+namespace ProceduralMaze::Cmp::Persistent
+{
 
-class BombBonus : public BasePersistent<int>
+class BombBonus : public BasePersistent<uint8_t>
 {
 public:
-  BombBonus( int value = 3, int min_value = 0, int max_value = 20 )
-      : BasePersistent<int>( value, min_value, max_value )
+  BombBonus( uint8_t value = 3, uint8_t min_value = 0, uint8_t max_value = 20 )
+      : BasePersistent<uint8_t>( value, min_value, max_value )
   {
   }
 
