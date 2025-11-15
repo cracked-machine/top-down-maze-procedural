@@ -492,15 +492,15 @@ void RenderGameSystem::render_wormhole()
     // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
     try
     {
-      auto &wormhole_sprite = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
+      auto &wormhole_sprite = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
       // Setup shader
       m_wormhole_shader.update_shader_position( pos_cmp.position + ( kGridSquareSizePixelsF * 0.5f ),
                                                 Sprites::ViewFragmentShader::Align::CENTER );
 
-      // Draw background to shader texture
+      // Draw background onto shader texture
       m_floormap.draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
 
-      // Draw sprites to shader's render texture using the new function
+      // Draw sprites to shader's render texture, offset from the center by -1 in both dimensions
       auto grid_size = wormhole_sprite.get_grid_size();
       for ( float row = 0; row < grid_size.height; ++row )
       {
@@ -513,7 +513,7 @@ void RenderGameSystem::render_wormhole()
 
           // dont modify the original pos_cmp, create copy with modified position
           sf::FloatRect offset_pos_cmp{ { pos_cmp.position + offset }, kGridSquareSizePixelsF };
-          safe_render_sprite_to_target( m_wormhole_shader.get_render_texture(), "WORMHOLE", offset_pos_cmp, index );
+          safe_render_sprite_to_target( m_wormhole_shader.get_render_texture(), anim_cmp.m_sprite_type, offset_pos_cmp, index );
         }
       }
 

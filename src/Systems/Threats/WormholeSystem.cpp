@@ -131,43 +131,20 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   }
 
   // 3. set the entities obstacle component to "broken" so we have something for the shader effect to mangle
-  auto obstacle_cmp = m_reg->try_get<Cmp::Obstacle>( random_entity );
-  if ( obstacle_cmp )
+  auto random_pos_3x3_hitbox = Cmp::RectBounds( random_pos.position, random_pos.size, 3.f );
+  auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
+  for ( auto [entity, obstacle_cmp, obstacle_pos_cmp] : obstacle_view.each() )
   {
-    obstacle_cmp->m_enabled = false;
-
-    for ( int i = -1; i < 2; ++i )
+    if ( obstacle_pos_cmp.findIntersection( random_pos_3x3_hitbox.getBounds() ) )
     {
-      for ( int j = -1; j < 2; ++j )
-      {
-        sf::Vector2f offset = { static_cast<float>( i ) * BaseSystem::kGridSquareSizePixels.x,
-                                static_cast<float>( j ) * BaseSystem::kGridSquareSizePixels.y };
-
-        // Calculate the adjacent position
-        sf::Vector2f adjacent_position = random_pos.position + offset;
-
-        // Find entity at this adjacent position
-        auto position_view = m_reg->view<Cmp::Position, Cmp::Obstacle>();
-        for ( auto [entity, pos_cmp, adj_obstacle_cmp] : position_view.each() )
-        {
-          // Check if this entity is at the adjacent position we're looking for
-          if ( pos_cmp.position.x == adjacent_position.x && pos_cmp.position.y == adjacent_position.y )
-          {
-            // Found the entity at the adjacent position
-            // Do whatever you need with this entity
-            adj_obstacle_cmp.m_enabled = false;
-            SPDLOG_DEBUG( "Found adjacent entity {} at position ({}, {})", static_cast<uint32_t>( entity ), pos_cmp.position.x,
-                          pos_cmp.position.y );
-            break; // Move to next offset
-          }
-        }
-      }
+      obstacle_cmp.m_enabled = false;
+      SPDLOG_INFO( "Wormhole spawn: Destroying obstacle at ({}, {})", obstacle_pos_cmp.position.x, obstacle_pos_cmp.position.y );
     }
   }
 
   // 4. add the wormhole component to the entity
   m_reg->emplace_or_replace<Cmp::Wormhole>( random_entity );
-  m_reg->emplace_or_replace<Cmp::SpriteAnimation>( random_entity );
+  m_reg->emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, "WORMHOLE" );
 
   SPDLOG_INFO( "Wormhole spawned at position ({}, {})", random_pos.position.x, random_pos.position.y );
 }

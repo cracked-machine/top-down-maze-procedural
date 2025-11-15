@@ -6,9 +6,9 @@
 #include <spdlog/spdlog.h>
 
 #include <Systems/BaseSystem.hpp>
-#include <unordered_map>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 // 1. Wormhole spawns at random location
 // 2. Player collision with wormhole
