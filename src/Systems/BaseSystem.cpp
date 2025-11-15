@@ -7,13 +7,14 @@
 
 #include <Components/Door.hpp>
 #include <Components/Exit.hpp>
-#include <Components/GraveSprite.hpp>
+#include <Components/GraveSegment.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/ShrineSegment.hpp>
 #include <Components/Wall.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 BaseSystem::BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
                         Audio::SoundBank &sound_bank )
@@ -71,7 +72,7 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
     if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
-  auto grave_view = m_reg->view<Cmp::GraveSprite, Cmp::Position>();
+  auto grave_view = m_reg->view<Cmp::GraveSegment, Cmp::Position>();
   for ( auto [entity, grave_cmp, pos_cmp] : grave_view.each() )
   {
     if ( not grave_cmp.isSolidMask() ) continue;

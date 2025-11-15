@@ -1,4 +1,4 @@
-#include <Components/GraveSprite.hpp>
+#include <Components/GraveSegment.hpp>
 #include <Components/LargeObstacle.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NPC.hpp>
@@ -88,22 +88,14 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
       {
         case 0:
           // clang-format off
-          m_reg->patch<Cmp::SpriteAnimation>( shrine_entity, 
-            [&]( Cmp::SpriteAnimation &anim_cmp )
-            {
-              anim_cmp.m_sprite_type = "SHRINE.one";
-            } );
+          m_reg->patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.one"; } );
           // clang-format on
           activated_shrine_segment_count++;
           SPDLOG_INFO( "Shrine activated to state ONE." );
           break;
         case 1:
           // clang-format off
-          m_reg->patch<Cmp::SpriteAnimation>( shrine_entity,
-            [&]( Cmp::SpriteAnimation &anim_cmp )
-            {
-              anim_cmp.m_sprite_type = "SHRINE.two";
-            } );
+          m_reg->patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.two"; } );
           // clang-format on
           activated_shrine_segment_count++;
           SPDLOG_INFO( "Shrine activated to state TWO." );
@@ -111,22 +103,14 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
 
         case 2:
           // clang-format off
-          m_reg->patch<Cmp::SpriteAnimation>( shrine_entity,
-            [&]( Cmp::SpriteAnimation &anim_cmp )
-            {
-              anim_cmp.m_sprite_type = "SHRINE.three";
-            } );
+          m_reg->patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.three"; } );
           // clang-format on
           activated_shrine_segment_count++;
           SPDLOG_INFO( "Shrine activated to state THREE." );
           break;
         case 3:
           // clang-format off
-          m_reg->patch<Cmp::SpriteAnimation>( shrine_entity,
-            [&]( Cmp::SpriteAnimation &anim_cmp )
-            {
-              anim_cmp.m_sprite_type = "SHRINE.four";
-            } );
+          m_reg->patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.four"; } );
           // clang-format on
           activated_shrine_segment_count++;
           SPDLOG_INFO( "Shrine activated to state FOUR." );
@@ -184,66 +168,73 @@ void LargeObstacleSystem::check_player_grave_activation( Cmp::LargeObstacle &lo_
                                                          Cmp::PlayableCharacter &pc_cmp )
 {
   // only spawn one npc per large obstacle but give proportionate count for the grave size
-  uint8_t activated_grave_count = 0;
+  // uint8_t activated_grave_segments_count = 0;
 
   // check for grave collisions
-  auto grave_view = m_reg->view<Cmp::GraveSprite, Cmp::Position>();
-  for ( auto [grave_entity, grave_cmp, grave_pos_cmp] : grave_view.each() )
+  auto grave_view = m_reg->view<Cmp::GraveSegment, Cmp::Position, Cmp::SpriteAnimation>();
+  for ( auto [grave_entity, grave_cmp, grave_pos_cmp, grave_anim_cmp] : grave_view.each() )
   {
+    // dont proceed if large obstacle powers are already active
+    if ( lo_cmp.are_powers_active() ) break;
+
     // is grave part of the collided large obstacle?
     if ( not lo_cmp.findIntersection( grave_pos_cmp ) ) continue;
+    SPDLOG_INFO( "Found grave at ({}, {}) for activation check", grave_pos_cmp.position.x, grave_pos_cmp.position.y );
 
     // have we activated all the parts of the grave yet?
-    auto &grave_ms = m_sprite_factory.get_multisprite_by_type( grave_cmp.getType() );
+    auto &grave_ms = m_sprite_factory.get_multisprite_by_type( grave_anim_cmp.m_sprite_type );
     auto activation_threshold = grave_ms.get_grid_size().width * grave_ms.get_grid_size().height;
+    SPDLOG_INFO( "Grave activation threshold: {}/{}", lo_cmp.get_activated_sprite_count(), activation_threshold );
+
+    // if ( lo_cmp.get_activated_sprite_count() >= activation_threshold ) continue;
     if ( lo_cmp.get_activated_sprite_count() < activation_threshold )
     {
-
-      // switch to 2nd pair sprite indices - see Grave types in res/json/sprite_metadata.json
-      // [ 0 ] --> becomes [ 2 ]
-      // [ 1 ] --> becomes [ 3 ]
-      // or
-      // [ 0 ][ 1 ] --> becomes [ 4 ][ 5 ]
-      // [ 2 ][ 3 ] --> becomes [ 6 ][ 7 ]
-      auto current_index = grave_cmp.getTileIndex();
-      grave_cmp.setTileIndex( current_index += 2 * grave_ms.get_grid_size().width );
-
+      SPDLOG_INFO( "Activating grave sprite {}/{}.", lo_cmp.get_activated_sprite_count() + 1, activation_threshold );
       lo_cmp.increment_activated_sprite_count();
-      activated_grave_count += 1;
+      if ( std::string::size_type n = grave_anim_cmp.m_sprite_type.find( "." ); n != std::string::npos )
+      {
+        grave_anim_cmp.m_sprite_type = grave_anim_cmp.m_sprite_type.substr( 0, n ) + ".opened";
+        SPDLOG_INFO( "Grave Cmp::SpriteAnimation changed to opened type: {}", grave_anim_cmp.m_sprite_type );
+      }
     }
-  }
 
-  // choose a random consequence for activating graves: spawn npc, drop bomb, give candles
-  if ( activated_grave_count > 0 )
-  {
-    auto grave_activation_rng = Cmp::RandomInt( 1, 3 );
-    auto consequence = grave_activation_rng.gen();
-    switch ( consequence )
+    if ( lo_cmp.get_activated_sprite_count() >= activation_threshold )
     {
-      case 1:
-        SPDLOG_INFO( "Grave activated NPC trap." );
-        getEventDispatcher().trigger( Events::NpcCreationEvent( lo_entity, "NPCGHOST" ) );
-        break;
-      case 2:
-        SPDLOG_INFO( "Grave activated bomb trap." );
-        pc_cmp.bomb_inventory += 1;
-        getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) );
-        break;
-      case 3:
+      SPDLOG_INFO( "Activating large obstacle at ({}, {})", lo_cmp.position.x, lo_cmp.position.y );
+      lo_cmp.set_powers_active( true );
+    }
+    // choose a random consequence for activating graves: spawn npc, drop bomb, give candles
+    if ( lo_cmp.are_powers_active() )
+    {
+      auto grave_activation_rng = Cmp::RandomInt( 1, 3 );
+      auto consequence = grave_activation_rng.gen();
+      switch ( consequence )
+      {
+        case 1:
+          SPDLOG_INFO( "Grave activated NPC trap." );
+          getEventDispatcher().trigger( Events::NpcCreationEvent( lo_entity, "NPCGHOST" ) );
+          break;
+        case 2:
+          SPDLOG_INFO( "Grave activated bomb trap." );
+          pc_cmp.bomb_inventory += 1;
+          getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) );
+          break;
+        case 3:
 
-        auto lo_cmp_bounds = Cmp::RectBounds( lo_cmp.position, lo_cmp.size, 1.5f );
-        // clang-format off
-            auto obst_entity = create_loot_drop( 
-              Cmp::Loot{ "CANDLE_DROP", 0 },
-              sf::FloatRect{ lo_cmp_bounds.position(), 
-              lo_cmp_bounds.size() }, 
-              IncludePack<>{},
-              ExcludePack<>{} 
-            );
-        // clang-format on
+          auto lo_cmp_bounds = Cmp::RectBounds( lo_cmp.position, lo_cmp.size, 1.5f );
+          // clang-format off
+              auto obst_entity = create_loot_drop( 
+                Cmp::Loot{ "CANDLE_DROP", 0 },
+                sf::FloatRect{ lo_cmp_bounds.position(), 
+                lo_cmp_bounds.size() }, 
+                IncludePack<>{},
+                ExcludePack<>{} 
+              );
+          // clang-format on
 
-        if ( obst_entity != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
-        break;
+          if ( obst_entity != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
+          break;
+      }
     }
   }
 }

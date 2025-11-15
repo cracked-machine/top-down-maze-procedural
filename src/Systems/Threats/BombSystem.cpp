@@ -8,7 +8,7 @@
 
 #include <Components/Armed.hpp>
 #include <Components/Destructable.hpp>
-#include <Components/GraveSprite.hpp>
+#include <Components/GraveSegment.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NpcContainer.hpp>
 #include <Components/NpcDeathPosition.hpp>
@@ -20,7 +20,8 @@
 #include <Events/LootContainerDestroyedEvent.hpp>
 #include <Systems/Threats/BombSystem.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 BombSystem::BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
                         Audio::SoundBank &sound_bank )
@@ -135,7 +136,7 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
   // We dont detonate ReservedPositions so dont arm them in the first place
   // Also exclude NPCs since they're handled separately and may be missing Position component during death animation
   auto all_obstacle_view = m_reg->view<Cmp::Destructable, Cmp::Position>(
-      entt::exclude<Cmp::ShrineSegment, Cmp::GraveSprite, Cmp::NPC> );
+      entt::exclude<Cmp::ShrineSegment, Cmp::GraveSegment, Cmp::NPC> );
 
   // For each layer from 1 to BLAST_RADIUS
   for ( int layer = 1; layer <= blast_radius; layer++ )
@@ -162,12 +163,14 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
     SPDLOG_DEBUG( "Layer {}: Found {} entities to arm", layer, layer_entities.size() );
 
     // Sort entities in clockwise order
-    std::sort( layer_entities.begin(), layer_entities.end(), [centerTile]( const auto &a, const auto &b ) {
-      // Calculate angles from center to points
-      float angleA = std::atan2( a.second.y - centerTile.y, a.second.x - centerTile.x );
-      float angleB = std::atan2( b.second.y - centerTile.y, b.second.x - centerTile.x );
-      return angleA < angleB;
-    } );
+    std::sort( layer_entities.begin(), layer_entities.end(),
+               [centerTile]( const auto &a, const auto &b )
+               {
+                 // Calculate angles from center to points
+                 float angleA = std::atan2( a.second.y - centerTile.y, a.second.x - centerTile.x );
+                 float angleB = std::atan2( b.second.y - centerTile.y, b.second.x - centerTile.x );
+                 return angleA < angleB;
+               } );
 
     // Arm each entity in the layer in clockwise order
     for ( const auto &[entity, pos] : layer_entities )

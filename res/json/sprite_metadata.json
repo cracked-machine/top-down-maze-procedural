@@ -636,13 +636,13 @@
         }
       }
     },
-    "GRAVE1": {
-      "name": "GRAVE1",
+    "GRAVE1.closed": {
+      "name": "GRAVE1.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [0, 16, 32, 48],
-        "solid_mask": [false, true, false, true],
+        "sprite_indices": [0, 16],
+        "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -651,13 +651,13 @@
         }
       }
     },
-    "GRAVE2": {
-      "name": "GRAVE2",
+    "GRAVE1.opened": {
+      "name": "GRAVE1.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [1,17,33,49],
-        "solid_mask": [false, true, false, true],
+        "sprite_indices": [32, 48],
+        "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -666,13 +666,13 @@
         }
       }
     },
-    "GRAVE3": {
-      "name": "GRAVE3",
+    "GRAVE2.closed": {
+      "name": "GRAVE2.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [2,18,34,50],
-        "solid_mask": [false, true, false, true],
+        "sprite_indices": [1,17],
+        "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -681,13 +681,13 @@
         }
       }
     },
-    "GRAVE4": {
-      "name": "GRAVE4",
+    "GRAVE2.opened": {
+      "name": "GRAVE2.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [3,19,35,51],
-        "solid_mask": [false, true, false, true],
+        "sprite_indices": [33,49],
+        "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -696,13 +696,13 @@
         }
       }
     },
-    "GRAVE5": {
-      "name": "GRAVE5",
+    "GRAVE3.closed": {
+      "name": "GRAVE3.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [4,20,36,52],
-       "solid_mask": [false, true, false, true],
+        "sprite_indices": [2,18],
+        "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -711,13 +711,13 @@
         }
       }
     },
-    "GRAVE6": {
-      "name": "GRAVE6",
+    "GRAVE3.opened": {
+      "name": "GRAVE3.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [5,21,37,53],
-        "solid_mask": [false, true, false, true],
+        "sprite_indices": [34,50],
+        "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -726,13 +726,103 @@
         }
       }
     },
-    "GRAVE7": {
-      "name": "GRAVE7",
+    "GRAVE4.closed": {
+      "name": "GRAVE4.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [6, 7, 22, 23, 38, 39, 54, 55],
-        "solid_mask": [false, false, true, true, false, false, true, true],
+        "sprite_indices": [3,19],
+        "solid_mask": [false, true],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 2
+        }
+      }
+    },
+    "GRAVE4.opened": {
+      "name": "GRAVE4.opened",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/graves.png",
+        "sprite_indices": [35,51],
+        "solid_mask": [false, true],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 2
+        }
+      }
+    },
+    "GRAVE5.closed": {
+      "name": "GRAVE5.closed",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/graves.png",
+        "sprite_indices": [4,20],
+       "solid_mask": [false, true],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 2
+        }
+      }
+    },
+    "GRAVE5.opened": {
+      "name": "GRAVE5.opened",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/graves.png",
+        "sprite_indices": [36,52],
+       "solid_mask": [false, true],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 2
+        }
+      }
+    },
+    "GRAVE6.closed": {
+      "name": "GRAVE6.closed",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/graves.png",
+        "sprite_indices": [5,21],
+        "solid_mask": [false, true],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 2
+        }
+      }
+    },
+    "GRAVE6.opened": {
+      "name": "GRAVE6.opened",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/graves.png",
+        "sprite_indices": [37,53],
+        "solid_mask": [false, true],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 2
+        }
+      }
+    },
+    "GRAVE7.closed": {
+      "name": "GRAVE7.closed",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/graves.png",
+        "sprite_indices": [6, 7, 22, 23],
+        "solid_mask": [false, false, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -741,13 +831,13 @@
         }
       }
     },
-    "GRAVE8": {
-      "name": "GRAVE8",
+    "GRAVE7.opened": {
+      "name": "GRAVE7.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [8, 9, 24, 25, 40, 41, 56, 57],
-        "solid_mask": [false, false, true, true, false, false, true, true],
+        "sprite_indices": [38, 39, 54, 55],
+        "solid_mask": [false, false, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -756,13 +846,43 @@
         }
       }
     },
-    "GRAVE9": {
-      "name": "GRAVE9",
+    "GRAVE8.closed": {
+      "name": "GRAVE8.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [10, 26, 42, 58],
-        "solid_mask": [false, true, false, true],
+        "sprite_indices": [8, 9, 24, 25],
+        "solid_mask": [false, false, true, true],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 2,
+          "height": 2
+        }
+      }
+    },
+    "GRAVE8.opened": {
+      "name": "GRAVE8.opened",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/graves.png",
+        "sprite_indices": [40, 41, 56, 57],
+        "solid_mask": [false, false, true, true],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 2,
+          "height": 2
+        }
+      }
+    },
+    "GRAVE9.closed": {
+      "name": "GRAVE9.closed",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/graves.png",
+        "sprite_indices": [10, 26],
+        "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -771,13 +891,13 @@
         }
       }
     },
-    "GRAVE10": {
-      "name": "GRAVE10",
+    "GRAVE9.opened": {
+      "name": "GRAVE9.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [11, 27, 43, 59],
-        "solid_mask": [false, true, false, true],
+        "sprite_indices": [42, 58],
+        "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -786,13 +906,43 @@
         }
       }
     },
-    "GRAVE11": {
-      "name": "GRAVE11",
+    "GRAVE10.closed": {
+      "name": "GRAVE10.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [12, 13, 28, 29, 44, 45, 60, 61],
-        "solid_mask": [false, false, true, true, false, false, true, true],
+        "sprite_indices": [11, 27],
+        "solid_mask": [false, true],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 2
+        }
+      }
+    },
+    "GRAVE10.opened": {
+      "name": "GRAVE10.opened",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/graves.png",
+        "sprite_indices": [43, 59],
+        "solid_mask": [false, true],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 2
+        }
+      }
+    },
+    "GRAVE11.closed": {
+      "name": "GRAVE11.closed",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/graves.png",
+        "sprite_indices": [12, 13, 28, 29],
+        "solid_mask": [false, false, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -801,13 +951,13 @@
         }
       }
     },
-    "GRAVE12": {
-      "name": "GRAVE12",
+    "GRAVE11.opened": {
+      "name": "GRAVE11.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [14, 15, 30, 31, 46, 47, 62, 63],
-        "solid_mask": [false, false, true, true, false, false, true, true],
+        "sprite_indices": [44, 45, 60, 61],
+        "solid_mask": [false, false, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -816,6 +966,37 @@
         }
       }
     },
+    "GRAVE12.closed": {
+      "name": "GRAVE12.closed",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/graves.png",
+        "sprite_indices": [14, 15, 30, 31],
+        "solid_mask": [false, false, true, true],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 2,
+          "height": 2
+        }
+      }
+    },
+    "GRAVE12.opened": {
+      "name": "GRAVE12.opened",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/graves.png",
+        "sprite_indices": [46, 47, 62, 63],
+        "solid_mask": [false, false, true, true],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 2,
+          "height": 2
+        }
+      }
+    },
+
     "ARROW": {
       "name": "ARROW",
       "weight": 1.0,

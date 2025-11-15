@@ -12,7 +12,7 @@
 #include <Components/Exit.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
-#include <Components/GraveSprite.hpp>
+#include <Components/GraveSegment.hpp>
 #include <Components/HazardFieldCell.hpp>
 #include <Components/LargeObstacle.hpp>
 #include <Components/LootContainer.hpp>
@@ -38,7 +38,8 @@
 
 #include <string>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 RenderGameSystem::RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
                                     Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -301,8 +302,6 @@ void RenderGameSystem::render_large_obstacles()
     // [ l,m,n ]  if m_frame_index_offset = 3 the index for frame 2 is: 3+3=6 (l)
     // [ o,p,q ]
     // etc.
-    SPDLOG_INFO( "Rendering Cmp::ShrineSegment at ({}, {}) with animation frame index offset {} + {}", pos_cmp.position.x,
-                 pos_cmp.position.y, anim_cmp.getFrameIndexOffset(), anim_cmp.m_current_frame );
     auto new_idx = anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame;
 
     sf::Vector2f new_scale{ 1.f, 1.f };
@@ -312,27 +311,24 @@ void RenderGameSystem::render_large_obstacles()
     safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
   }
 
-  auto grave_view = m_reg->view<Cmp::GraveSprite, Cmp::Position>();
-  for ( auto [entity, grave_cmp, pos_cmp] : grave_view.each() )
+  auto grave_view = m_reg->view<Cmp::GraveSegment, Cmp::Position, Cmp::SpriteAnimation>();
+  for ( auto [entity, grave_cmp, pos_cmp, anim_cmp] : grave_view.each() )
   {
 
-    auto new_idx = grave_cmp.getTileIndex();
+    auto new_idx = anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame;
 
     sf::Vector2f new_scale{ 1.f, 1.f };
     uint8_t new_alpha{ 255 };
     sf::Vector2f new_origin{ 0.f, 0.f };
     float new_angle{ 0.f };
-    safe_render_sprite( grave_cmp.getType(), pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
+    safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
   }
 
+  // TODO replace this yellow activation box with halo effect shader
   auto large_obstacle_view = m_reg->view<Cmp::LargeObstacle>();
   for ( auto [entity, large_obst_cmp] : large_obstacle_view.each() )
   {
-    if ( not large_obst_cmp.are_powers_active() )
-    {
-      // skip rendering inactive large obstacles
-      continue;
-    }
+    if ( not large_obst_cmp.are_powers_active() ) { continue; }
     SPDLOG_DEBUG( "Rendering Cmp::LargeObstacle at ({}, {})", large_obst_cmp.position.x, large_obst_cmp.position.y );
     sf::RectangleShape square( sf::Vector2f{ large_obst_cmp.size.x, large_obst_cmp.size.y } );
     square.setFillColor( sf::Color::Transparent );

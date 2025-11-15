@@ -4,7 +4,7 @@
 
 #include <Components/Destructable.hpp>
 #include <Components/Door.hpp>
-#include <Components/GraveSprite.hpp>
+#include <Components/GraveSegment.hpp>
 #include <Components/LargeObstacle.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NpcContainer.hpp>
@@ -22,7 +22,8 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
 
-namespace ProceduralMaze::Sys::ProcGen {
+namespace ProceduralMaze::Sys::ProcGen
+{
 
 RandomLevelGenerator::RandomLevelGenerator( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
                                             Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -80,7 +81,8 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
     Cmp::RectBounds new_lo_hitbox( random_pos.position, random_pos.size, 2.f );
 
     // Check collisions with walls, graves, shrines
-    auto is_valid = [&]() -> bool {
+    auto is_valid = [&]() -> bool
+    {
       // return false for wall collisions
       for ( auto [entity, wall_cmp, wall_pos_cmp] : m_reg->view<Cmp::Wall, Cmp::Position>().each() )
       {
@@ -88,7 +90,7 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
       }
 
       // Return false for grave collisions
-      for ( auto [entity, grave_cmp, grave_pos_cmp] : m_reg->view<Cmp::GraveSprite, Cmp::Position>().each() )
+      for ( auto [entity, grave_cmp, grave_pos_cmp] : m_reg->view<Cmp::GraveSegment, Cmp::Position>().each() )
       {
         if ( grave_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
@@ -203,7 +205,8 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
       }
       else if ( sprite_meta_type.contains( "GRAVE" ) )
       {
-        m_reg->emplace_or_replace<Cmp::GraveSprite>( entity, sprite_meta_type, calculated_grid_index, new_solid_mask );
+        m_reg->emplace_or_replace<Cmp::GraveSegment>( entity, new_solid_mask );
+        m_reg->emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_meta_type, calculated_grid_index );
         m_reg->emplace_or_replace<Cmp::Destructable>( entity );
       }
 
@@ -218,7 +221,7 @@ void RandomLevelGenerator::gen_large_obstacles()
   auto grave_num_multiplier = get_persistent_component<Cmp::Persistent::GraveNumMultiplier>();
 
   // Get all available grave types dynamically from JSON
-  auto grave_meta_types = m_sprite_factory.get_all_sprite_types_by_pattern( "GRAVE" );
+  auto grave_meta_types = m_sprite_factory.get_all_sprite_types_by_pattern( ".closed" );
   if ( grave_meta_types.empty() ) { SPDLOG_WARN( "No GRAVE multisprites found in SpriteFactory" ); }
   else
   {

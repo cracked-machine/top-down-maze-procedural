@@ -10,7 +10,7 @@
 #include <SFML/Graphics/Rect.hpp>
 
 #include <Components/Destructable.hpp>
-#include <Components/GraveSprite.hpp>
+#include <Components/GraveSegment.hpp>
 #include <Components/NPCScanBounds.hpp>
 #include <Components/NpcContainer.hpp>
 #include <Components/Obstacle.hpp>
@@ -23,7 +23,8 @@
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 NpcSystem::NpcSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
                       Audio::SoundBank &sound_bank )

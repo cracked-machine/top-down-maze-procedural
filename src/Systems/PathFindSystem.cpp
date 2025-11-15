@@ -1,7 +1,7 @@
 #include <Components/Exit.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
-#include <Components/GraveSprite.hpp>
+#include <Components/GraveSegment.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NPCScanBounds.hpp>
 #include <Components/PlayerDistance.hpp>
@@ -13,7 +13,8 @@
 #include <Systems/PathFindSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 PathFindSystem::PathFindSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
                                 Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -33,8 +34,8 @@ void PathFindSystem::update_player_distances()
   {
 
     // Exclude any components that we dont want NPCs to pathfind through
-    auto
-        path_exclusions = entt::exclude<Cmp::ShrineSegment, Cmp::SpawnAreaSprite, Cmp::GraveSprite, Cmp::Wall, Cmp::Exit, Cmp::NPC>;
+    auto path_exclusions = entt::exclude<Cmp::ShrineSegment, Cmp::SpawnAreaSprite, Cmp::GraveSegment, Cmp::Wall, Cmp::Exit,
+                                         Cmp::NPC>;
 
     auto path_view = m_reg->view<Cmp::Position>( path_exclusions );
     for ( auto [path_entt, path_pos_cmp] : path_view.each() )

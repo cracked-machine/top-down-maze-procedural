@@ -1,3 +1,4 @@
+#include <Components/GraveSegment.hpp>
 #include <spdlog/spdlog.h>
 
 #include <SFML/System/Time.hpp>
@@ -19,7 +20,8 @@
 #include <Systems/AnimSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 void AnimSystem::update( sf::Time globalDeltaTime )
 {
@@ -36,6 +38,21 @@ void AnimSystem::update( sf::Time globalDeltaTime )
       auto frame_rate = sf::seconds( 0.1f );
 
       update_single_sequence( anim_cmp, globalDeltaTime, shrine_sprite_metadata, frame_rate );
+    }
+  }
+
+  // Grave Animation
+  auto grave_view = m_reg->view<Cmp::GraveSegment, Cmp::SpriteAnimation, Cmp::Position>();
+  for ( auto [entity, grave_cmp, anim_cmp, pos_cmp] : grave_view.each() )
+  {
+    if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
+    if ( anim_cmp.m_animation_active )
+    {
+      SPDLOG_DEBUG( "Updating Grave animation for entity {}", static_cast<int>( entity ) );
+      const auto &grave_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
+      auto frame_rate = sf::seconds( 0.1f );
+
+      update_single_sequence( anim_cmp, globalDeltaTime, grave_sprite_metadata, frame_rate );
     }
   }
 

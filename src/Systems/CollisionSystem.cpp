@@ -9,7 +9,6 @@
 #include <Components/Destructable.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepTimer.hpp>
-#include <Components/GraveSprite.hpp>
 #include <Components/HazardFieldCell.hpp>
 #include <Components/LargeObstacle.hpp>
 #include <Components/LootContainer.hpp>

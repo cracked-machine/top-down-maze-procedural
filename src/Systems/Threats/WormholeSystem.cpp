@@ -1,4 +1,4 @@
-#include <Components/GraveSprite.hpp>
+#include <Components/GraveSegment.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ShrineSegment.hpp>
 #include <Components/WormholeJump.hpp>
@@ -19,7 +19,8 @@
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/WormholeSystem.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 WormholeSystem::WormholeSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
                                 Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -73,7 +74,8 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
     Cmp::RectBounds wormhole_hitbox( random_pos.position, random_pos.size, 2.f );
 
     // Check collisions with walls, graves, shrines
-    auto is_valid = [&]() -> bool {
+    auto is_valid = [&]() -> bool
+    {
       // return false for wall collisions
       for ( auto [entity, wall_cmp, wall_pos_cmp] : m_reg->view<Cmp::Wall, Cmp::Position>().each() )
       {
@@ -81,7 +83,7 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
       }
 
       // Return false for grave collisions
-      for ( auto [entity, grave_cmp, grave_pos_cmp] : m_reg->view<Cmp::GraveSprite, Cmp::Position>().each() )
+      for ( auto [entity, grave_cmp, grave_pos_cmp] : m_reg->view<Cmp::GraveSegment, Cmp::Position>().each() )
       {
         if ( grave_pos_cmp.findIntersection( wormhole_hitbox.getBounds() ) ) return false;
       }
