@@ -97,7 +97,13 @@ void PlayerSystem::update_movement( sf::Time globalDeltaTime, bool skip_collisio
     bool wants_to_move = dir_cmp != sf::Vector2f( 0.0f, 0.0f );
 
     // update the animation state based on movement direction
-    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { anim_cmp.m_animation_active = false; }
+    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) )
+    {
+      // player is not pressing any keys but sprite is still lerping to target position?
+      // keep animation active otherwise it has the effect of sliding to a stop
+      if ( lerp_cmp && lerp_cmp->m_lerp_factor < 1.0f ) { anim_cmp.m_animation_active = true; }
+      else { anim_cmp.m_animation_active = false; }
+    }
     else
     {
       anim_cmp.m_animation_active = true;

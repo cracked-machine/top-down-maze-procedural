@@ -48,12 +48,21 @@ void NpcSystem::add_npc_entity( const Events::NpcCreationEvent &event )
   auto new_pos_entity = m_reg->create();
   m_reg->emplace<Cmp::Position>( new_pos_entity, pos_cmp->position, kGridSquareSizePixelsF );
   m_reg->emplace<Cmp::Destructable>( new_pos_entity );
-  m_reg->emplace_or_replace<Cmp::NPC>( new_pos_entity, event.type, 0 );
   m_reg->emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 0, 0 } );
   auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NpcScanScale>();
   m_reg->emplace_or_replace<Cmp::NPCScanBounds>( new_pos_entity, pos_cmp->position, kGridSquareSizePixelsF,
                                                  npc_scan_scale.get_value() );
-  m_reg->emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity );
+  if ( event.type == "NPCGHOST" )
+  {
+    m_reg->emplace_or_replace<Cmp::NPC>( new_pos_entity );
+    m_reg->emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, "NPCGHOST.walk.east" );
+  }
+  else if ( event.type == "NPCSKELE" )
+  {
+    m_reg->emplace_or_replace<Cmp::NPC>( new_pos_entity );
+    m_reg->emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, "NPCSKELE.walk.east" );
+  }
+
   m_reg->remove<Cmp::NpcContainer>( new_pos_entity );
   m_reg->remove<Cmp::ReservedPosition>( new_pos_entity );
   m_reg->remove<Cmp::Obstacle>( new_pos_entity );
@@ -154,15 +163,6 @@ void NpcSystem::update_movement( sf::Time globalDeltaTime )
     // If this is the first update, store the start position
     if ( lerp_pos_cmp.m_lerp_factor == 0.0f )
     {
-
-      // // Check if diagonal movement is blocked by adjacent obstacles
-      // if ( isDiagonalBlocked( pos_cmp, dir_cmp ) )
-      // {
-      //   // Diagonal blocked! Try sliding along one of the cardinal directions instead
-      //   // Or simply don't move
-      //   return;
-      // }
-
       // Allow NPCs to escape wormholes if they're mid-lerp.
       if ( m_reg->try_get<Cmp::WormholeJump>( entity ) ) continue;
 

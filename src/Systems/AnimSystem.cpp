@@ -47,18 +47,17 @@ void AnimSystem::update( sf::Time globalDeltaTime )
     if ( lerp_pos_cmp.m_lerp_factor > 0.f )
     {
 
-      const auto &npc_sprite_metadata = m_sprite_factory.get_multisprite_by_type( npc_cmp.m_type );
       sf::Time frame_rate = sf::Time::Zero;
-      if ( npc_cmp.m_type == "NPCSKELE" )
+      if ( anim_cmp.m_sprite_type.contains( "NPCSKELE" ) )
       {
         frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::NpcSkeleAnimFramerate>().get_value() );
       }
-      else if ( npc_cmp.m_type == "NPCGHOST" )
+      else if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) )
       {
         frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::NpcGhostAnimFramerate>().get_value() );
       }
-
-      update_single_sequence( anim_cmp, globalDeltaTime, npc_sprite_metadata, frame_rate );
+      const auto &npc_walk_sequence = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
+      update_single_sequence( anim_cmp, globalDeltaTime, npc_walk_sequence, frame_rate );
     }
   }
 

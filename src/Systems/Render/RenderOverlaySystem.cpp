@@ -1,4 +1,5 @@
 #include <Components/RectBounds.hpp>
+#include <Components/SpriteAnimation.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -277,19 +278,21 @@ void RenderOverlaySystem::render_npc_list_overlay( sf::Vector2f text_start_pos )
   // refresh the list only at intervals
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
   {
-    auto npc_view = m_reg->view<Cmp::NPC, Cmp::Position>();
+    auto npc_view = m_reg->view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>();
     m_npc_list_text.clear();
-    for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_view.each() )
+    for ( auto [npc_entity, npc_cmp, npc_pos_cmp, npc_anim_cmp] : npc_view.each() )
     {
       sf::Text npc_text( m_font, "", 20 );
 
       // Pad the type name to consistent width
-      std::string type_str = npc_cmp.m_type;
-      type_str.resize( 10, ' ' ); // Pad to 12 characters
+      std::string type_str = npc_anim_cmp.m_sprite_type;
+      int padding = 20;
+      type_str.resize( padding, ' ' ); // Pad to 20 characters
 
       // Format entity ID with padding
+      padding = 10;
       std::string entity_id = std::to_string( entt::to_integral( npc_entity ) );
-      entity_id.insert( 0, 10 - std::min( 10, (int)entity_id.length() ), ' ' ); // Right-align in 10 chars
+      entity_id.insert( 0, padding - std::min( padding, (int)entity_id.length() ), ' ' ); // Right-align in padding chars
 
       std::stringstream ss;
       // clang-format off

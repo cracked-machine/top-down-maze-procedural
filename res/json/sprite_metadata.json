@@ -57,8 +57,8 @@
         }
       }
     },
-    "NPCGHOST": {
-      "name": "NPCGHOST",
+    "NPCGHOST.walk.south": {
+      "name": "NPCGHOST.walk.south",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/npcghost.png",
@@ -71,12 +71,96 @@
         }
       }
     },
-    "NPCSKELE": {
-      "name": "NPCSKELE",
+    "NPCGHOST.walk.north": {
+      "name": "NPCGHOST.walk.north",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/enemies-skeleton1_movement.png",
+        "texture_path": "res/textures/npcghost.png",
+        "sprite_indices": [0, 1, 2,3,4,5,6,7,8,9,10,11,12],
+        "sprites_per_sequence": 13,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "NPCGHOST.walk.east": {
+      "name": "NPCGHOST.walk.east",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/npcghost.png",
+        "sprite_indices": [0, 1, 2,3,4,5,6,7,8,9,10,11,12],
+        "sprites_per_sequence": 13,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "NPCGHOST.walk.west": {
+      "name": "NPCGHOST.walk.west",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/npcghost.png",
+        "sprite_indices": [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+        "sprites_per_sequence": 13,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "NPCSKELE.walk.south": {
+      "name": "NPCSKELE.walk.south",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/npcskele.png",
         "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        "sprites_per_sequence": 10,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "NPCSKELE.walk.north": {
+      "name": "NPCSKELE.walk.north",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/npcskele.png",
+        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        "sprites_per_sequence": 10,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "NPCSKELE.walk.east": {
+      "name": "NPCSKELE.walk.east",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/npcskele.png",
+        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        "sprites_per_sequence": 10,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "NPCSKELE.walk.west": {
+      "name": "NPCSKELE.walk.west",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/npcskele.png",
+        "sprite_indices": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
         "sprites_per_sequence": 10,
         "sprites_per_frame": 1,
         "grid_size": {

@@ -9,13 +9,7 @@ namespace ProceduralMaze::Cmp {
 
 struct NPC
 {
-  NPC( Sprites::SpriteMetaType type, std::size_t tile_index = 0 )
-      : m_type( type ),
-        m_tile_index( tile_index )
-  {
-  }
-  Sprites::SpriteMetaType m_type;
-  unsigned int m_tile_index{ 0 };
+  bool active = true;
 };
 } // namespace ProceduralMaze::Cmp
 

@@ -35,7 +35,7 @@ void RenderPlayerSystem::render_player()
       }
       case Cmp::PlayerMortality::State::FALLING: {
 
-        auto params_tuple = calc_alive_render_params( "PLAYER.walk.south", pc_pos_cmp, dir_cmp, anim_cmp, entity );
+        auto params_tuple = calc_alive_render_params( anim_cmp.m_sprite_type, pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                     params_tuple );
 
@@ -43,28 +43,28 @@ void RenderPlayerSystem::render_player()
       }
       case Cmp::PlayerMortality::State::HAUNTED: {
         pc_mort_cmp.death_progress += 0.1f;
-        auto params_tuple = calc_alive_render_params( "PLAYER.walk.south", pc_pos_cmp, dir_cmp, anim_cmp, entity );
+        auto params_tuple = calc_alive_render_params( anim_cmp.m_sprite_type, pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                     params_tuple );
         break;
       }
       case Cmp::PlayerMortality::State::DECAYING: {
         pc_mort_cmp.death_progress += 0.1f;
-        auto params_tuple = calc_alive_render_params( "PLAYER.walk.south", pc_pos_cmp, dir_cmp, anim_cmp, entity );
+        auto params_tuple = calc_alive_render_params( anim_cmp.m_sprite_type, pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                     params_tuple );
         break;
       }
       case Cmp::PlayerMortality::State::EXPLODING: {
         pc_mort_cmp.death_progress += 0.1f;
-        auto params_tuple = calc_alive_render_params( "PLAYER.walk.south", pc_pos_cmp, dir_cmp, anim_cmp, entity );
+        auto params_tuple = calc_alive_render_params( anim_cmp.m_sprite_type, pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                     params_tuple );
         break;
       }
       case Cmp::PlayerMortality::State::DROWNING: {
         pc_mort_cmp.death_progress += 0.1f;
-        auto params_tuple = calc_alive_render_params( "PLAYER.walk.south", pc_pos_cmp, dir_cmp, anim_cmp, entity );
+        auto params_tuple = calc_alive_render_params( anim_cmp.m_sprite_type, pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                     params_tuple );
         break;
@@ -153,24 +153,24 @@ void RenderPlayerSystem::render_npc()
         m_reg->view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds, Cmp::Direction, Cmp::SpriteAnimation>().each() )
   {
 
-    // make the NPC gaze follow the players relative direction
-    if ( dir_cmp.x > 0 )
-    {
-      dir_cmp.x_scale = 1.f;
-      dir_cmp.x_offset = 0.f;
-    }
-    else if ( dir_cmp.x < 0 )
-    {
-      dir_cmp.x_scale = -1.f;
-      dir_cmp.x_offset = BaseSystem::kGridSquareSizePixels.x;
-    }
-    else
-    {
-      dir_cmp.x_scale = dir_cmp.x_scale; // keep last known direction
-      dir_cmp.x_offset = dir_cmp.x_offset;
-    }
+    // // make the NPC gaze follow the players relative direction
+    // if ( dir_cmp.x > 0 )
+    // {
+    //   dir_cmp.x_scale = 1.f;
+    //   dir_cmp.x_offset = 0.f;
+    // }
+    // else if ( dir_cmp.x < 0 )
+    // {
+    //   dir_cmp.x_scale = -1.f;
+    //   dir_cmp.x_offset = BaseSystem::kGridSquareSizePixels.x;
+    // }
+    // else
+    // {
+    //   dir_cmp.x_scale = dir_cmp.x_scale; // keep last known direction
+    //   dir_cmp.x_offset = dir_cmp.x_offset;
+    // }
 
-    auto params_tuple = calc_alive_render_params( npc_cmp.m_type, pos_cmp, dir_cmp, anim_cmp, entity );
+    auto params_tuple = calc_alive_render_params( anim_cmp.m_sprite_type, pos_cmp, dir_cmp, anim_cmp, entity );
     std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                 params_tuple );
 
