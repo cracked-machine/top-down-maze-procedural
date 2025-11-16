@@ -48,7 +48,7 @@ void LargeObstacleSystem::check_player_lo_collision( Events::PlayerActionEvent::
 
       if ( player_hitbox.findIntersection( lo_cmp ) )
       {
-        SPDLOG_INFO( "Player collided with LargeObstacle at ({}, {})", lo_cmp.position.x, lo_cmp.position.y );
+        SPDLOG_DEBUG( "Player collided with LargeObstacle at ({}, {})", lo_cmp.position.x, lo_cmp.position.y );
         check_player_shrine_activation( lo_cmp, pc_candles_cmp );
         check_player_grave_activation( lo_cmp, lo_entity, pc_cmp );
       }
@@ -69,11 +69,11 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
     // player doesn't have enough candles? - skip
     auto &shrine_cost = get_persistent_component<Cmp::Persistent::ShrineCostPerSprite>();
     if ( pc_candles_cmp.get_count() < shrine_cost.get_value() ) break;
-    SPDLOG_INFO( "Player has enough candles ({}), proceeding with shrine check", pc_candles_cmp.get_count() );
+    SPDLOG_DEBUG( "Player has enough candles ({}), proceeding with shrine check", pc_candles_cmp.get_count() );
 
     // is shrine part of the collided large obstacle?
     if ( not shrine_pos_cmp.findIntersection( lo_cmp ) ) continue;
-    SPDLOG_INFO( "Found shrine at ({}, {}) for activation check", shrine_pos_cmp.position.x, shrine_pos_cmp.position.y );
+    SPDLOG_DEBUG( "Found shrine at ({}, {}) for activation check", shrine_pos_cmp.position.x, shrine_pos_cmp.position.y );
 
     // Convert pixel size to grid size, then calculate threshold
     auto lo_grid_size = lo_cmp.size.componentWiseDiv( kGridSquareSizePixelsF );
@@ -81,7 +81,7 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
 
     if ( lo_cmp.get_activated_sprite_count() < lo_count_threshold )
     {
-      SPDLOG_INFO( "Activating shrine sprite {}/{}.", lo_cmp.get_activated_sprite_count() + 1, lo_count_threshold );
+      SPDLOG_DEBUG( "Activating shrine sprite {}/{}.", lo_cmp.get_activated_sprite_count() + 1, lo_count_threshold );
       // activate the next shrine candle and switch to the new animation sequence
 
       switch ( lo_cmp.get_activated_sprite_count() )
@@ -91,14 +91,14 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
           m_reg->patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.one"; } );
           // clang-format on
           activated_shrine_segment_count++;
-          SPDLOG_INFO( "Shrine activated to state ONE." );
+          SPDLOG_DEBUG( "Shrine activated to state ONE." );
           break;
         case 1:
           // clang-format off
           m_reg->patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.two"; } );
           // clang-format on
           activated_shrine_segment_count++;
-          SPDLOG_INFO( "Shrine activated to state TWO." );
+          SPDLOG_DEBUG( "Shrine activated to state TWO." );
           break;
 
         case 2:
@@ -106,14 +106,14 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
           m_reg->patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.three"; } );
           // clang-format on
           activated_shrine_segment_count++;
-          SPDLOG_INFO( "Shrine activated to state THREE." );
+          SPDLOG_DEBUG( "Shrine activated to state THREE." );
           break;
         case 3:
           // clang-format off
           m_reg->patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.four"; } );
           // clang-format on
           activated_shrine_segment_count++;
-          SPDLOG_INFO( "Shrine activated to state FOUR." );
+          SPDLOG_DEBUG( "Shrine activated to state FOUR." );
           break;
         default:
           break;
@@ -130,7 +130,7 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
     // Did we just fully activate the shrine?
     if ( lo_cmp.are_powers_active() )
     {
-      SPDLOG_INFO( "Shrine fully activated!" );
+      SPDLOG_DEBUG( "Shrine fully activated!" );
       m_sound_bank.get_effect( "shrine_lighting" ).play();
       // drop the key loot
       auto lo_cmp_bounds = Cmp::RectBounds( lo_cmp.position, lo_cmp.size, 1.5f );
@@ -154,7 +154,7 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
   {
     for ( auto [shrine_entity, shrine_cmp, shrine_pos_cmp] : shrine_view.each() )
     {
-      SPDLOG_INFO( "Checking for special power activation." );
+      SPDLOG_DEBUG( "Checking for special power activation." );
       auto anim_sprite_cmp = m_reg->try_get<Cmp::SpriteAnimation>( shrine_entity );
       if ( anim_sprite_cmp && m_shrine_activation_clock.getElapsedTime() > m_shrine_activation_cooldown )
       {
@@ -179,28 +179,28 @@ void LargeObstacleSystem::check_player_grave_activation( Cmp::LargeObstacle &lo_
 
     // is grave part of the collided large obstacle?
     if ( not lo_cmp.findIntersection( grave_pos_cmp ) ) continue;
-    SPDLOG_INFO( "Found grave at ({}, {}) for activation check", grave_pos_cmp.position.x, grave_pos_cmp.position.y );
+    SPDLOG_DEBUG( "Found grave at ({}, {}) for activation check", grave_pos_cmp.position.x, grave_pos_cmp.position.y );
 
     // have we activated all the parts of the grave yet?
     auto &grave_ms = m_sprite_factory.get_multisprite_by_type( grave_anim_cmp.m_sprite_type );
     auto activation_threshold = grave_ms.get_grid_size().width * grave_ms.get_grid_size().height;
-    SPDLOG_INFO( "Grave activation threshold: {}/{}", lo_cmp.get_activated_sprite_count(), activation_threshold );
+    SPDLOG_DEBUG( "Grave activation threshold: {}/{}", lo_cmp.get_activated_sprite_count(), activation_threshold );
 
     // if ( lo_cmp.get_activated_sprite_count() >= activation_threshold ) continue;
     if ( lo_cmp.get_activated_sprite_count() < activation_threshold )
     {
-      SPDLOG_INFO( "Activating grave sprite {}/{}.", lo_cmp.get_activated_sprite_count() + 1, activation_threshold );
+      SPDLOG_DEBUG( "Activating grave sprite {}/{}.", lo_cmp.get_activated_sprite_count() + 1, activation_threshold );
       lo_cmp.increment_activated_sprite_count();
       if ( std::string::size_type n = grave_anim_cmp.m_sprite_type.find( "." ); n != std::string::npos )
       {
         grave_anim_cmp.m_sprite_type = grave_anim_cmp.m_sprite_type.substr( 0, n ) + ".opened";
-        SPDLOG_INFO( "Grave Cmp::SpriteAnimation changed to opened type: {}", grave_anim_cmp.m_sprite_type );
+        SPDLOG_DEBUG( "Grave Cmp::SpriteAnimation changed to opened type: {}", grave_anim_cmp.m_sprite_type );
       }
     }
 
     if ( lo_cmp.get_activated_sprite_count() >= activation_threshold )
     {
-      SPDLOG_INFO( "Activating large obstacle at ({}, {})", lo_cmp.position.x, lo_cmp.position.y );
+      SPDLOG_DEBUG( "Activating large obstacle at ({}, {})", lo_cmp.position.x, lo_cmp.position.y );
       lo_cmp.set_powers_active( true );
     }
     // choose a random consequence for activating graves: spawn npc, drop bomb, give candles
@@ -247,7 +247,7 @@ bool LargeObstacleSystem::activate_shrine_special_power()
 
     if ( pc_relic_count_cmp.get_count() < 1 ) return false;
 
-    SPDLOG_INFO( "Activating shrine special power!" );
+    SPDLOG_DEBUG( "Activating shrine special power!" );
     // consume a relic
     pc_relic_count_cmp.decrement_count( 1 );
 
