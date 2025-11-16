@@ -33,7 +33,15 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/HazardFieldSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/LargeObstacleSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/LootSystem.cpp
-    
+    ${CMAKE_SOURCE_DIR}/src/Scene/SceneManager.cpp
+    ${CMAKE_SOURCE_DIR}/src/Scene/GraveyardScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/Scene/SettingsMenuScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/Scene/PausedMenuScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/Scene/GameOverScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/Scene/MainMenuScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/Scene/LevelCompleteScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/Scene/CryptScene.cpp
+
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/WormholeSystem.cpp
 )
 

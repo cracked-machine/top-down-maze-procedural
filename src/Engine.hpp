@@ -2,6 +2,7 @@
 #define __ENGINE_HPP__
 
 #include <Audio/SoundBank.hpp>
+#include <Scene/SceneManager.hpp>
 #include <Systems/LootSystem.hpp>
 #include <entt/entity/registry.hpp>
 
@@ -28,27 +29,9 @@
 #include <Components/Random.hpp>
 #include <Components/System.hpp>
 #include <Components/WaterLevel.hpp>
-#include <EventHandler.hpp>
-#include <Sprites/TileMap.hpp>
-#include <Systems/AnimSystem.hpp>
-#include <Systems/BaseSystem.hpp>
-#include <Systems/CollisionSystem.hpp>
-#include <Systems/DiggingSystem.hpp>
-#include <Systems/ExitSystem.hpp>
-#include <Systems/LargeObstacleSystem.hpp>
-#include <Systems/PathFindSystem.hpp>
-#include <Systems/PersistentSystem.hpp>
-#include <Systems/PlayerSystem.hpp>
-#include <Systems/ProcGen/CellAutomataSystem.hpp>
-#include <Systems/ProcGen/RandomLevelGenerator.hpp>
-#include <Systems/Render/RenderGameSystem.hpp>
-#include <Systems/Render/RenderMenuSystem.hpp>
-#include <Systems/Render/RenderSystem.hpp>
-#include <Systems/Threats/BombSystem.hpp>
-#include <Systems/Threats/HazardFieldSystem.hpp>
-#include <Systems/Threats/NpcSystem.hpp>
-#include <Systems/Threats/WormholeSystem.hpp>
 
+#include <Sprites/TileMap.hpp>
+#include <Systems/Systems.hpp>
 #include <future>
 #include <memory>
 #include <string>
@@ -155,7 +138,6 @@ private:
 
   // create MultiSprite resources
   std::unique_ptr<Sprites::SpriteFactory> m_sprite_factory;
-
   std::unique_ptr<Audio::SoundBank> m_sound_bank = std::make_unique<Audio::SoundBank>();
 
   //  ECS Systems
@@ -187,6 +169,10 @@ private:
 
   // flag to indicate when systems have finished initializing; used by loading_screen()
   bool m_systems_initialized = false;
+
+  Sys::SystemPtrs m_scene_di_sys_ptrs;
+  std::vector<Sys::BaseSystem *> m_reg_inject_system_ptrs;
+  std::unique_ptr<Scene::SceneManager> m_scene_manager;
 };
 
 } // namespace ProceduralMaze

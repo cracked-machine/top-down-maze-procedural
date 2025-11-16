@@ -402,7 +402,7 @@ protected:
   // Entity registry
   entt::registry *m_reg = nullptr;
 
-  //! @brief Non-owning reference to the shared render window
+  //! @brief Non-owning reference to the OpenGL window
   sf::RenderWindow &m_window;
 
   //! @brief Non-owning reference to the shared sprite factory

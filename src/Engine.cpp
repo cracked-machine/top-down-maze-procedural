@@ -6,9 +6,13 @@
 #include <Engine.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
-#include <SFML/Window/WindowEnums.hpp>
+#include <Scene/CryptScene.hpp>
+#include <Scene/GraveyardScene.hpp>
+#include <Scene/SceneManager.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
+
+#include <SFML/Window/WindowEnums.hpp>
 
 #include <memory>
 #include <stacktrace>
@@ -338,6 +342,50 @@ void Engine::init_systems()
   // prep the title screen resources since they get used next
   m_render_menu_sys->init_title();
   SPDLOG_INFO( "Lazy initialization of systems complete" );
+
+  m_scene_di_sys_ptrs.render_menu_sys = m_render_menu_sys.get();
+  m_scene_di_sys_ptrs.event_handler = m_event_handler.get();
+  m_scene_di_sys_ptrs.render_game_sys = m_render_game_sys.get();
+  m_scene_di_sys_ptrs.persistent_sys = m_persistent_sys.get();
+  m_scene_di_sys_ptrs.player_sys = m_player_sys.get();
+  m_scene_di_sys_ptrs.path_find_sys = m_path_find_sys.get();
+  m_scene_di_sys_ptrs.npc_sys = m_npc_sys.get();
+  m_scene_di_sys_ptrs.collision_sys = m_collision_sys.get();
+  m_scene_di_sys_ptrs.digging_sys = m_digging_sys.get();
+  m_scene_di_sys_ptrs.render_overlay_sys = m_render_overlay_sys.get();
+  m_scene_di_sys_ptrs.render_player_sys = m_render_player_sys.get();
+  m_scene_di_sys_ptrs.bomb_sys = m_bomb_sys.get();
+  m_scene_di_sys_ptrs.anim_sys = m_anim_sys.get();
+  m_scene_di_sys_ptrs.sinkhole_sys = m_sinkhole_sys.get();
+  m_scene_di_sys_ptrs.corruption_sys = m_corruption_sys.get();
+  m_scene_di_sys_ptrs.wormhole_sys = m_wormhole_sys.get();
+  m_scene_di_sys_ptrs.exit_sys = m_exit_sys.get();
+  m_scene_di_sys_ptrs.footstep_sys = m_footstep_sys.get();
+  m_scene_di_sys_ptrs.large_obstacle_sys = m_large_obstacle_sys.get();
+  m_scene_di_sys_ptrs.loot_sys = m_loot_sys.get();
+
+  m_reg_inject_system_ptrs.push_back( m_render_menu_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_event_handler.get() );
+  m_reg_inject_system_ptrs.push_back( m_render_game_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_persistent_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_player_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_path_find_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_npc_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_collision_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_digging_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_render_overlay_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_render_player_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_bomb_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_anim_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_sinkhole_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_corruption_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_wormhole_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_exit_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_footstep_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_large_obstacle_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_loot_sys.get() );
+
+  m_scene_manager = std::make_unique<Scene::SceneManager>( *m_window, m_scene_di_sys_ptrs, m_reg_inject_system_ptrs );
 }
 
 // Sets up ECS for the rest of the game
