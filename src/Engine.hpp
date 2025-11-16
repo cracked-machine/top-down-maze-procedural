@@ -72,13 +72,13 @@ private:
   // show error screen with message
   void show_error_screen( const std::string &error_msg );
   // print registry info for debugging
-  void reginfo( std::string msg = "" );
-  // add display size component to the registry
-  void add_display_size( const sf::Vector2u &size );
-  // add system component to the registry
-  void add_system_entity();
-  // add game state component to the registry
-  void add_game_state_entity();
+  // void reginfo( std::string msg = "" );
+  // // add display size component to the registry
+  // void add_display_size( const sf::Vector2u &size );
+  // // add system component to the registry
+  // void add_system_entity();
+  // // add game state component to the registry
+  // void add_game_state_entity();
 
   template <typename Callable>
   void loading_screen( Callable &&callable, [[maybe_unused]] const sf::Texture &loading_texture )
@@ -130,7 +130,7 @@ private:
   sf::Texture m_splash_texture{ "res/textures/splash.png" };
 
   // Create the ECS registry
-  std::unique_ptr<entt::registry> m_reg = std::make_unique<entt::registry>();
+  // std::unique_ptr<entt::registry> m_reg = std::make_unique<entt::registry>();
 
   // Create the opengl window
   std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( Sys::BaseSystem::kDisplaySize ),

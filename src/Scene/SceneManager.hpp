@@ -22,18 +22,20 @@ public:
   explicit SceneManager( sf::RenderWindow &w, Sys::SystemPtrs scene_di_sys_ptrs,
                          std::vector<Sys::BaseSystem *> reg_inject_system_ptrs )
       : m_window( w ),
-        m_scene_di_sys_ptrs( scene_di_sys_ptrs ),
-        m_reg_inject_system_ptrs( std::move( reg_inject_system_ptrs ) )
+        m_reg_inject_system_ptrs( std::move( reg_inject_system_ptrs ) ),
+        m_scene_di_sys_ptrs( scene_di_sys_ptrs )
   {
   }
 
-  void push( std::unique_ptr<IScene> scene );
+  void update( sf::Time dt );
 
+  void push( std::unique_ptr<IScene> scene );
   void pop();
+  void replace( std::unique_ptr<IScene> scene );
 
   IScene *current();
 
-  void update( float dt );
+  void handle_request( SceneRequest req );
 
 private:
   void inject_registry();
@@ -89,8 +91,9 @@ private:
 
   std::vector<std::unique_ptr<IScene>> m_scenes;
 
-  Sys::SystemPtrs m_scene_di_sys_ptrs;
   std::vector<Sys::BaseSystem *> m_reg_inject_system_ptrs;
+
+  Sys::SystemPtrs m_scene_di_sys_ptrs;
 };
 
 } // namespace ProceduralMaze::Scene

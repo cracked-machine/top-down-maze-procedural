@@ -1,6 +1,9 @@
+#include <Components/Persistent/CorruptionSeed.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
+#include <Components/Persistent/SinkholeSeed.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
+#include <Components/Persistent/WormholeSeed.hpp>
 #define JSON_NOEXCEPTION
 #include <spdlog/spdlog.h>
 
@@ -98,6 +101,10 @@ void PersistentSystem::initializeComponentRegistry()
                                                 ( Sys::BaseSystem::kDisplaySize.y / 2.f ) );
 
   registerComponent<Cmp::Persistent::PlayerStartPosition>( "PlayerStartPosition", default_player_start_pos );
+
+  add_persistent_component<Cmp::Persistent::WormholeSeed>( 0 );
+  add_persistent_component<Cmp::Persistent::SinkholeSeed>( 0 );
+  add_persistent_component<Cmp::Persistent::CorruptionSeed>( 0 );
 }
 
 void PersistentSystem::load_state()

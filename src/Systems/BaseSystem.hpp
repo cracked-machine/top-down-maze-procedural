@@ -64,6 +64,11 @@ public:
   template <typename T>
   void add_persistent_component()
   {
+    if ( m_reg == nullptr )
+    {
+      SPDLOG_CRITICAL( "BaseSystem registry pointer is null in add_persistent_component for type: {}", typeid( T ).name() );
+      throw std::runtime_error( "BaseSystem registry pointer is null" );
+    }
     if ( not m_reg->ctx().contains<T>() ) { m_reg->ctx().emplace<T>(); }
   }
 
@@ -75,6 +80,11 @@ public:
   template <typename T, typename... Args>
   void add_persistent_component( Args &&...args )
   {
+    if ( m_reg == nullptr )
+    {
+      SPDLOG_CRITICAL( "BaseSystem registry pointer is null in add_persistent_component for type: {}", typeid( T ).name() );
+      throw std::runtime_error( "BaseSystem registry pointer is null" );
+    }
     if ( not m_reg->ctx().contains<T>() ) { m_reg->ctx().emplace<T>( std::forward<Args>( args )... ); }
   }
 
@@ -85,6 +95,11 @@ public:
   template <typename T>
   T &get_persistent_component()
   {
+    if ( m_reg == nullptr )
+    {
+      SPDLOG_CRITICAL( "BaseSystem registry pointer is null in add_persistent_component for type: {}", typeid( T ).name() );
+      throw std::runtime_error( "BaseSystem registry pointer is null" );
+    }
     if ( not m_reg->ctx().contains<T>() )
     {
       SPDLOG_CRITICAL( "Attempting to access non-existent persistent component: {}", typeid( T ).name() );

@@ -87,15 +87,9 @@ public:
   HazardFieldSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
       : Sys::BaseSystem( window, sprite_factory, sound_bank )
   {
-
+    // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
     getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onPause>( this );
     getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onResume>( this );
-  }
-
-  void init()
-  {
-    // seed component must be created in entt registry before use.
-    add_persistent_component<typename Traits::SeedType>( 0 );
   }
 
   //! @brief event handlers for pausing hazard spread clocks

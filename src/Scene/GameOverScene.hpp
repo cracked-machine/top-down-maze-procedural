@@ -13,12 +13,9 @@ public:
 
   void on_enter() override;
   void on_exit() override;
-  void update( [[maybe_unused]] float dt ) override;
+  void update( [[maybe_unused]] sf::Time dt ) override;
 
   entt::registry *get_registry() override;
-
-private:
-  entt::registry reg;
 };
 
 } // namespace ProceduralMaze::Scene

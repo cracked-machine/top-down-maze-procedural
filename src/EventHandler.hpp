@@ -23,6 +23,19 @@ namespace ProceduralMaze::Sys
 class EventHandler : public Sys::BaseSystem
 {
 public:
+  enum class MenuAction
+  {
+    NONE,
+    MENU,
+    SETTINGS,
+    LOAD,
+    PLAY,
+    PAUSE,
+    GAMEOVER,
+    UNLOAD,
+    EXIT
+  };
+
   EventHandler( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief event handlers for pausing system clocks
@@ -30,8 +43,8 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
-  void menu_state_handler();
-  void settings_state_handler();
+  MenuAction menu_state_handler();
+  MenuAction settings_state_handler();
   void game_state_handler();
   void paused_state_handler();
   void game_over_state_handler();

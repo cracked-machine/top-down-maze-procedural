@@ -20,8 +20,6 @@ class WormholeSystem : public BaseSystem
 public:
   WormholeSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
-  void init();
-
   //! @brief event handlers for pausing system clocks
   void onPause() override;
   //! @brief event handlers for resuming system clocks

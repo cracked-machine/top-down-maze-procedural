@@ -8,6 +8,7 @@
 #include <Events/ResumeClocksEvent.hpp>
 #include <Scene/CryptScene.hpp>
 #include <Scene/GraveyardScene.hpp>
+#include <Scene/MainMenuScene.hpp>
 #include <Scene/SceneManager.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
@@ -56,189 +57,194 @@ bool Engine::run()
   {
     loading_screen( [this]() { this->init_systems(); }, m_splash_texture );
 
+    m_scene_manager->push( std::make_unique<Scene::MainMenuScene>( *m_sound_bank, m_scene_di_sys_ptrs.persistent_sys,
+                                                                   m_scene_di_sys_ptrs.render_menu_sys,
+                                                                   m_scene_di_sys_ptrs.event_handler ) );
     sf::Clock globalFrameClock;
 
     /// MAIN LOOP BEGINS
     while ( m_window->isOpen() )
     {
       sf::Time globalDeltaTime = globalFrameClock.restart();
-      auto &game_state = m_event_handler->get_persistent_component<Cmp::Persistent::GameState>();
+      m_scene_manager->update( globalDeltaTime );
 
-      switch ( game_state.current_state )
-      {
+      // auto &game_state = m_event_handler->get_persistent_component<Cmp::Persistent::GameState>();
 
-        case Cmp::Persistent::GameState::State::MENU:
-        {
-          m_render_menu_sys->render_title();
+      // switch ( game_state.current_state )
+      // {
 
-          // update fx volumes with persistent settings
-          auto &effects_volume = m_event_handler->get_persistent_component<Cmp::Persistent::EffectsVolume>().get_value();
-          m_sound_bank->update_effects_volume( effects_volume );
+      //   case Cmp::Persistent::GameState::State::MENU:
+      //   {
+      //     m_render_menu_sys->render_title();
 
-          // update music volumes with persistent settings
-          auto &music_volume = m_event_handler->get_persistent_component<Cmp::Persistent::MusicVolume>().get_value();
-          m_sound_bank->update_music_volume( music_volume );
+      //     // update fx volumes with persistent settings
+      //     auto &effects_volume = m_event_handler->get_persistent_component<Cmp::Persistent::EffectsVolume>().get_value();
+      //     m_sound_bank->update_effects_volume( effects_volume );
 
-          if ( m_sound_bank->get_music( "title_music" ).getStatus() != sf::Music::Status::Playing )
-          {
-            m_sound_bank->get_music( "title_music" ).play();
-          }
+      //     // update music volumes with persistent settings
+      //     auto &music_volume = m_event_handler->get_persistent_component<Cmp::Persistent::MusicVolume>().get_value();
+      //     m_sound_bank->update_music_volume( music_volume );
 
-          m_event_handler->menu_state_handler();
-          break;
-        } // case MENU end
+      //     if ( m_sound_bank->get_music( "title_music" ).getStatus() != sf::Music::Status::Playing )
+      //     {
+      //       m_sound_bank->get_music( "title_music" ).play();
+      //     }
 
-        case Cmp::Persistent::GameState::State::SETTINGS:
-        {
+      //     m_event_handler->menu_state_handler();
+      //     break;
+      //   } // case MENU end
 
-          m_render_menu_sys->render_settings( globalDeltaTime );
-          m_event_handler->settings_state_handler();
-          break;
-        } // case SETTINGS end
+      //   case Cmp::Persistent::GameState::State::SETTINGS:
+      //   {
 
-        case Cmp::Persistent::GameState::State::LOADING:
-        {
-          // wait for fade out to complete
+      //     m_render_menu_sys->render_settings( globalDeltaTime );
+      //     m_event_handler->settings_state_handler();
+      //     break;
+      //   } // case SETTINGS end
 
-          loading_screen( [this]() { this->enter_game(); }, m_splash_texture );
+      //   case Cmp::Persistent::GameState::State::LOADING:
+      //   {
+      //     // wait for fade out to complete
 
-          game_state.current_state = Cmp::Persistent::GameState::State::PLAYING;
-          SPDLOG_INFO( "Loading game...." );
-          break;
-        }
+      //     loading_screen( [this]() { this->enter_game(); }, m_splash_texture );
 
-        case Cmp::Persistent::GameState::State::UNLOADING:
-        {
-          m_sound_bank->get_music( "game_music" ).stop();
+      //     game_state.current_state = Cmp::Persistent::GameState::State::PLAYING;
+      //     SPDLOG_INFO( "Loading game...." );
+      //     break;
+      //   }
 
-          m_player_sys->stop_footsteps_sound();
-          exit_game();
-          game_state.current_state = Cmp::Persistent::GameState::State::MENU;
-          SPDLOG_INFO( "Unloading game...." );
-          break;
-        }
+      //   case Cmp::Persistent::GameState::State::UNLOADING:
+      //   {
+      //     m_sound_bank->get_music( "game_music" ).stop();
 
-        case Cmp::Persistent::GameState::State::PLAYING:
-        {
-          m_sound_bank->get_music( "title_music" ).stop();
-          if ( m_sound_bank->get_music( "game_music" ).getStatus() != sf::Music::Status::Playing )
-          {
-            m_sound_bank->get_music( "game_music" ).play();
-          }
+      //     m_player_sys->stop_footsteps_sound();
+      //     exit_game();
+      //     game_state.current_state = Cmp::Persistent::GameState::State::MENU;
+      //     SPDLOG_INFO( "Unloading game...." );
+      //     break;
+      //   }
 
-          // play/stop footstep sounds depending on player movement
-          auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Direction>();
-          for ( auto [pc_entity, pc_cmp, dir_cmp] : player_view.each() )
-          {
-            if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) ) { m_player_sys->stop_footsteps_sound(); }
-            else { m_player_sys->play_footsteps_sound(); }
-          }
+      //   case Cmp::Persistent::GameState::State::PLAYING:
+      //   {
+      //     m_sound_bank->get_music( "title_music" ).stop();
+      //     if ( m_sound_bank->get_music( "game_music" ).getStatus() != sf::Music::Status::Playing )
+      //     {
+      //       m_sound_bank->get_music( "game_music" ).play();
+      //     }
 
-          m_event_handler->game_state_handler();
+      //     // play/stop footstep sounds depending on player movement
+      //     auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Direction>();
+      //     for ( auto [pc_entity, pc_cmp, dir_cmp] : player_view.each() )
+      //     {
+      //       if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) ) { m_player_sys->stop_footsteps_sound(); }
+      //       else { m_player_sys->play_footsteps_sound(); }
+      //     }
 
-          // m_flood_sys.update();
-          m_anim_sys->update( globalDeltaTime );
-          m_sinkhole_sys->update_hazard_field();
-          m_corruption_sys->update_hazard_field();
-          m_bomb_sys->update();
+      //     m_event_handler->game_state_handler();
 
-          m_sinkhole_sys->check_npc_hazard_field_collision();
-          m_corruption_sys->check_npc_hazard_field_collision();
-          m_exit_sys->check_exit_collision();
-          m_loot_sys->check_loot_collision();
-          m_npc_sys->check_bones_reanimation();
-          m_wormhole_sys->check_player_wormhole_collision();
-          m_digging_sys->update();
-          m_footstep_sys->update();
+      //     // m_flood_sys.update();
+      //     m_anim_sys->update( globalDeltaTime );
+      //     m_sinkhole_sys->update_hazard_field();
+      //     m_corruption_sys->update_hazard_field();
+      //     m_bomb_sys->update();
 
-          // Throttled obstacle distance update (optimization)
-          if ( m_obstacle_distance_timer.getElapsedTime() >= m_obstacle_distance_update_interval )
-          {
-            m_path_find_sys->update_player_distances();
-            m_obstacle_distance_timer.restart();
-          }
+      //     m_sinkhole_sys->check_npc_hazard_field_collision();
+      //     m_corruption_sys->check_npc_hazard_field_collision();
+      //     m_exit_sys->check_exit_collision();
+      //     m_loot_sys->check_loot_collision();
+      //     m_npc_sys->check_bones_reanimation();
+      //     m_wormhole_sys->check_player_wormhole_collision();
+      //     m_digging_sys->update();
+      //     m_footstep_sys->update();
 
-          // enable/disable collision detection depending on Cmp::System settings
-          for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
-          {
-            m_player_sys->update_movement( globalDeltaTime, !_sys.collisions_enabled );
-            if ( _sys.collisions_enabled )
-            {
-              m_sinkhole_sys->check_player_hazard_field_collision();
-              m_corruption_sys->check_player_hazard_field_collision();
-              m_npc_sys->check_player_to_npc_collision();
-            }
-            if ( _sys.level_complete )
-            {
-              SPDLOG_INFO( "Level complete!" );
-              game_state.current_state = Cmp::Persistent::GameState::State::GAMEOVER;
-            }
-          }
+      //     // Throttled obstacle distance update (optimization)
+      //     if ( m_obstacle_distance_timer.getElapsedTime() >= m_obstacle_distance_update_interval )
+      //     {
+      //       m_path_find_sys->update_player_distances();
+      //       m_obstacle_distance_timer.restart();
+      //     }
 
-          auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
-          m_path_find_sys->findPath( player_entity );
-          m_npc_sys->update_movement( globalDeltaTime );
+      //     // enable/disable collision detection depending on Cmp::System settings
+      //     for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
+      //     {
+      //       m_player_sys->update_movement( globalDeltaTime, !_sys.collisions_enabled );
+      //       if ( _sys.collisions_enabled )
+      //       {
+      //         m_sinkhole_sys->check_player_hazard_field_collision();
+      //         m_corruption_sys->check_player_hazard_field_collision();
+      //         m_npc_sys->check_player_to_npc_collision();
+      //       }
+      //       if ( _sys.level_complete )
+      //       {
+      //         SPDLOG_INFO( "Level complete!" );
+      //         game_state.current_state = Cmp::Persistent::GameState::State::GAMEOVER;
+      //       }
+      //     }
 
-          // did the player die? Then end the game
-          if ( m_player_sys->check_player_mortality() == Cmp::PlayerMortality::State::DEAD )
-          {
-            SPDLOG_INFO( "Player has died!" );
-            game_state.current_state = Cmp::Persistent::GameState::State::GAMEOVER;
-          }
+      //     auto player_entity = m_reg->view<Cmp::PlayableCharacter>().front();
+      //     m_path_find_sys->findPath( player_entity );
+      //     m_npc_sys->update_movement( globalDeltaTime );
 
-          m_render_game_sys->render_game( globalDeltaTime, *m_render_overlay_sys, *m_render_player_sys );
-          break;
-        } // case PLAYING end
+      //     // did the player die? Then end the game
+      //     if ( m_player_sys->check_player_mortality() == Cmp::PlayerMortality::State::DEAD )
+      //     {
+      //       SPDLOG_INFO( "Player has died!" );
+      //       game_state.current_state = Cmp::Persistent::GameState::State::GAMEOVER;
+      //     }
 
-        case Cmp::Persistent::GameState::State::PAUSED:
-        {
-          m_event_handler->getEventDispatcher().trigger( Events::PauseClocksEvent() );
-          globalFrameClock.stop();
+      //     m_render_game_sys->render_game( globalDeltaTime, *m_render_overlay_sys, *m_render_player_sys );
+      //     break;
+      //   } // case PLAYING end
 
-          while ( ( Cmp::Persistent::GameState::State::PAUSED == game_state.current_state ) and m_window->isOpen() )
-          {
-            m_render_menu_sys->render_paused( globalDeltaTime );
-            std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
-            // check for keyboard/window events to keep window responsive
-            m_event_handler->paused_state_handler();
-          }
-          // save persistent settings and update music/sfx volumes with persistent settings
-          m_event_handler->getEventDispatcher().trigger( Events::SaveSettingsEvent() );
-          auto &effects_volume = m_event_handler->get_persistent_component<Cmp::Persistent::EffectsVolume>().get_value();
-          m_sound_bank->update_effects_volume( effects_volume );
-          auto &music_volume = m_event_handler->get_persistent_component<Cmp::Persistent::MusicVolume>().get_value();
-          m_sound_bank->update_music_volume( music_volume );
+      //   case Cmp::Persistent::GameState::State::PAUSED:
+      //   {
+      //     m_event_handler->getEventDispatcher().trigger( Events::PauseClocksEvent() );
+      //     globalFrameClock.stop();
 
-          m_event_handler->getEventDispatcher().trigger( Events::ResumeClocksEvent() );
-          globalFrameClock.start();
+      //     while ( ( Cmp::Persistent::GameState::State::PAUSED == game_state.current_state ) and m_window->isOpen() )
+      //     {
+      //       m_render_menu_sys->render_paused( globalDeltaTime );
+      //       std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
+      //       // check for keyboard/window events to keep window responsive
+      //       m_event_handler->paused_state_handler();
+      //     }
+      //     // save persistent settings and update music/sfx volumes with persistent settings
+      //     m_event_handler->getEventDispatcher().trigger( Events::SaveSettingsEvent() );
+      //     auto &effects_volume = m_event_handler->get_persistent_component<Cmp::Persistent::EffectsVolume>().get_value();
+      //     m_sound_bank->update_effects_volume( effects_volume );
+      //     auto &music_volume = m_event_handler->get_persistent_component<Cmp::Persistent::MusicVolume>().get_value();
+      //     m_sound_bank->update_music_volume( music_volume );
 
-          break;
-        } // case PAUSED end
+      //     m_event_handler->getEventDispatcher().trigger( Events::ResumeClocksEvent() );
+      //     globalFrameClock.start();
 
-        case Cmp::Persistent::GameState::State::GAMEOVER:
-        {
-          m_player_sys->stop_footsteps_sound();
+      //     break;
+      //   } // case PAUSED end
 
-          if ( m_player_sys->check_player_mortality() == Cmp::PlayerMortality::State::DEAD )
-          {
-            m_render_menu_sys->render_defeat_screen();
-          }
-          else { m_render_menu_sys->render_victory_screen(); }
+      //   case Cmp::Persistent::GameState::State::GAMEOVER:
+      //   {
+      //     m_player_sys->stop_footsteps_sound();
 
-          std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
-          m_event_handler->game_over_state_handler();
+      //     if ( m_player_sys->check_player_mortality() == Cmp::PlayerMortality::State::DEAD )
+      //     {
+      //       m_render_menu_sys->render_defeat_screen();
+      //     }
+      //     else { m_render_menu_sys->render_victory_screen(); }
 
-          break;
-        } // case GAME_OVER end
+      //     std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
+      //     m_event_handler->game_over_state_handler();
 
-        case Cmp::Persistent::GameState::State::EXITING:
-        {
-          SPDLOG_INFO( "Terminating application...." );
-          exit_game();
-          m_window->close();
-          break;
-        }
-      }
+      //     break;
+      //   } // case GAME_OVER end
+
+      //   case Cmp::Persistent::GameState::State::EXITING:
+      //   {
+      //     SPDLOG_INFO( "Terminating application...." );
+      //     exit_game();
+      //     m_window->close();
+      //     break;
+      // }
+      // }
 
       // Update event dispatcher at end of frame
       Sys::BaseSystem::getEventDispatcher().update();
@@ -267,81 +273,78 @@ void Engine::init_systems()
   m_sprite_factory = std::make_unique<Sprites::SpriteFactory>();
   m_sprite_factory->init();
   m_render_menu_sys = std::make_unique<Sys::RenderMenuSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_render_menu_sys->setRegistry( m_reg.get() );
+  // m_render_menu_sys->setRegistry( m_reg.get() );
   m_event_handler = std::make_unique<Sys::EventHandler>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_event_handler->setRegistry( m_reg.get() );
-  m_event_handler->add_persistent_component<Cmp::Persistent::GameState>();
+  // m_event_handler->setRegistry( m_reg.get() );
+  // m_event_handler->add_persistent_component<Cmp::Persistent::GameState>();
   m_persistent_sys = std::make_unique<Sys::PersistentSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_persistent_sys->setRegistry( m_reg.get() );
-  m_persistent_sys->initializeComponentRegistry();
-  m_persistent_sys->load_state();
+  // m_persistent_sys->setRegistry( m_reg.get() );
 
   m_sound_bank->init();
 
   // init game systems - these are required for the actual gameplay
   // might as well init them all here....it will shorten load times later
   m_render_game_sys = std::make_unique<Sys::RenderGameSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_render_game_sys->setRegistry( m_reg.get() );
+  // m_render_game_sys->setRegistry( m_reg.get() );
 
   m_player_sys = std::make_unique<Sys::PlayerSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_player_sys->setRegistry( m_reg.get() );
+  // m_player_sys->setRegistry( m_reg.get() );
 
   m_path_find_sys = std::make_unique<Sys::PathFindSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_path_find_sys->setRegistry( m_reg.get() );
+  // m_path_find_sys->setRegistry( m_reg.get() );
 
   m_npc_sys = std::make_unique<Sys::NpcSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_npc_sys->setRegistry( m_reg.get() );
+  // m_npc_sys->setRegistry( m_reg.get() );
 
   m_collision_sys = std::make_unique<Sys::CollisionSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_collision_sys->setRegistry( m_reg.get() );
+  // m_collision_sys->setRegistry( m_reg.get() );
 
   m_digging_sys = std::make_unique<Sys::DiggingSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_digging_sys->setRegistry( m_reg.get() );
+  // m_digging_sys->setRegistry( m_reg.get() );
 
   m_render_overlay_sys = std::make_unique<Sys::RenderOverlaySystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_render_overlay_sys->setRegistry( m_reg.get() );
+  // m_render_overlay_sys->setRegistry( m_reg.get() );
 
   m_render_player_sys = std::make_unique<Sys::RenderPlayerSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_render_player_sys->setRegistry( m_reg.get() );
+  // m_render_player_sys->setRegistry( m_reg.get() );
 
   m_bomb_sys = std::make_unique<Sys::BombSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_bomb_sys->setRegistry( m_reg.get() );
+  // m_bomb_sys->setRegistry( m_reg.get() );
 
   m_loot_sys = std::make_unique<Sys::LootSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_loot_sys->setRegistry( m_reg.get() );
+  // m_loot_sys->setRegistry( m_reg.get() );
 
   m_anim_sys = std::make_unique<Sys::AnimSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_anim_sys->setRegistry( m_reg.get() );
+  // m_anim_sys->setRegistry( m_reg.get() );
 
   m_sinkhole_sys = std::make_unique<Sys::SinkHoleHazardSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_sinkhole_sys->setRegistry( m_reg.get() );
-  m_sinkhole_sys->init();
+  // m_sinkhole_sys->setRegistry( m_reg.get() );
+  // m_sinkhole_sys->init();
 
   m_corruption_sys = std::make_unique<Sys::CorruptionHazardSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_corruption_sys->setRegistry( m_reg.get() );
-  m_corruption_sys->init();
+  // m_corruption_sys->setRegistry( m_reg.get() );
+  // m_corruption_sys->init();
 
   m_wormhole_sys = std::make_unique<Sys::WormholeSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_wormhole_sys->setRegistry( m_reg.get() );
-  m_wormhole_sys->init();
+  // m_wormhole_sys->setRegistry( m_reg.get() );
+  // m_wormhole_sys->init();
 
   m_exit_sys = std::make_unique<Sys::ExitSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_exit_sys->setRegistry( m_reg.get() );
+  // m_exit_sys->setRegistry( m_reg.get() );
 
   m_footstep_sys = std::make_unique<Sys::FootstepSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_footstep_sys->setRegistry( m_reg.get() );
+  // m_footstep_sys->setRegistry( m_reg.get() );
 
   m_large_obstacle_sys = std::make_unique<Sys::LargeObstacleSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_large_obstacle_sys->setRegistry( m_reg.get() );
+  // m_large_obstacle_sys->setRegistry( m_reg.get() );
 
-  m_render_game_sys->init_shaders();
-  m_render_game_sys->init_tilemap();
+  // m_render_game_sys->init_shaders();
+  // m_render_game_sys->init_tilemap();
 
-  add_display_size( sf::Vector2u{ 1920, 1024 } );
+  // add_display_size( sf::Vector2u{ 1920, 1024 } );
 
   // prep the title screen resources since they get used next
-  m_render_menu_sys->init_title();
-  SPDLOG_INFO( "Lazy initialization of systems complete" );
+  // m_render_menu_sys->init_title();
 
   m_scene_di_sys_ptrs.render_menu_sys = m_render_menu_sys.get();
   m_scene_di_sys_ptrs.event_handler = m_event_handler.get();
@@ -386,23 +389,25 @@ void Engine::init_systems()
   m_reg_inject_system_ptrs.push_back( m_loot_sys.get() );
 
   m_scene_manager = std::make_unique<Scene::SceneManager>( *m_window, m_scene_di_sys_ptrs, m_reg_inject_system_ptrs );
+
+  SPDLOG_INFO( "Lazy initialization of systems complete" );
 }
 
 // Sets up ECS for the rest of the game
 void Engine::enter_game()
 {
-  add_system_entity();
+  // add_system_entity();
   m_player_sys->add_player_entity();
 
   // create initial random game area with the required sprites
   std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>(
       *m_window, *m_sprite_factory, *m_sound_bank );
-  random_level->setRegistry( m_reg.get() );
+  // random_level->setRegistry( m_reg.get() );
   random_level->generate();
 
   // procedurally generate the game area from the initial random layout
   Sys::ProcGen::CellAutomataSystem cellauto_parser{ *m_window, *m_sprite_factory, *m_sound_bank, std::move( random_level ) };
-  cellauto_parser.setRegistry( m_reg.get() );
+  // cellauto_parser.setRegistry( m_reg.get() );
   cellauto_parser.iterate( 5 );
 
   m_exit_sys->spawn_exit();
@@ -419,7 +424,7 @@ void Engine::enter_game()
 void Engine::exit_game()
 {
   SPDLOG_INFO( "Exit game" );
-  m_reg->clear();
+  // m_reg->clear();
 }
 
 void Engine::show_error_screen( const std::string &error_msg )
@@ -461,50 +466,50 @@ void Engine::show_error_screen( const std::string &error_msg )
   }
 }
 
-void Engine::reginfo( std::string msg )
-{
-  std::size_t entity_count = 0;
-  for ( [[maybe_unused]] auto entity : m_reg->view<entt::entity>() )
-  {
-    ++entity_count;
-  }
-  SPDLOG_INFO( "Registry Count - {}: {}", msg, entity_count );
-}
+// void Engine::reginfo( std::string msg )
+// {
+//   std::size_t entity_count = 0;
+//   for ( [[maybe_unused]] auto entity : m_reg->view<entt::entity>() )
+//   {
+//     ++entity_count;
+//   }
+//   SPDLOG_INFO( "Registry Count - {}: {}", msg, entity_count );
+// }
 
-void Engine::add_display_size( const sf::Vector2u &size )
-{
-  if ( not m_reg->view<Cmp::DisplaySize>()->empty() )
-  {
-    SPDLOG_WARN( "Display size entity already exists, skipping creation" );
-    return;
-  }
-  SPDLOG_INFO( "Creating display size entity" );
-  auto entity = m_reg->create();
-  m_reg->emplace<Cmp::DisplaySize>( entity, size );
-}
+// void Engine::add_display_size( const sf::Vector2u &size )
+// {
+//   if ( not m_reg->view<Cmp::DisplaySize>()->empty() )
+//   {
+//     SPDLOG_WARN( "Display size entity already exists, skipping creation" );
+//     return;
+//   }
+//   SPDLOG_INFO( "Creating display size entity" );
+//   auto entity = m_reg->create();
+//   m_reg->emplace<Cmp::DisplaySize>( entity, size );
+// }
 
-void Engine::add_system_entity()
-{
-  if ( not m_reg->view<Cmp::System>()->empty() )
-  {
-    SPDLOG_WARN( "System entity already exists, skipping creation" );
-    return;
-  }
-  SPDLOG_INFO( "Creating system entity" );
-  auto entity = m_reg->create();
-  m_reg->emplace<Cmp::System>( entity );
-}
+// void Engine::add_system_entity()
+// {
+//   if ( not m_reg->view<Cmp::System>()->empty() )
+//   {
+//     SPDLOG_WARN( "System entity already exists, skipping creation" );
+//     return;
+//   }
+//   SPDLOG_INFO( "Creating system entity" );
+//   auto entity = m_reg->create();
+//   m_reg->emplace<Cmp::System>( entity );
+// }
 
-void Engine::add_game_state_entity()
-{
-  if ( not m_reg->view<Cmp::Persistent::GameState>()->empty() )
-  {
-    SPDLOG_WARN( "Game state entity already exists, skipping creation" );
-    return;
-  }
-  SPDLOG_INFO( "Creating game state entity" );
-  auto entity = m_reg->create();
-  m_reg->emplace<Cmp::Persistent::GameState>( entity );
-}
+// void Engine::add_game_state_entity()
+// {
+//   if ( not m_reg->view<Cmp::Persistent::GameState>()->empty() )
+//   {
+//     SPDLOG_WARN( "Game state entity already exists, skipping creation" );
+//     return;
+//   }
+//   SPDLOG_INFO( "Creating game state entity" );
+//   auto entity = m_reg->create();
+//   m_reg->emplace<Cmp::Persistent::GameState>( entity );
+// }
 
 } // namespace ProceduralMaze

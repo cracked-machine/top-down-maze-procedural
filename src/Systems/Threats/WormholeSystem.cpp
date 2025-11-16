@@ -33,12 +33,6 @@ WormholeSystem::WormholeSystem( sf::RenderWindow &window, Sprites::SpriteFactory
   SPDLOG_DEBUG( "WormholeSystem initialized" );
 }
 
-void WormholeSystem::init()
-{
-  // seed component must be created in entt registry before use.
-  add_persistent_component<Cmp::Persistent::WormholeSeed>( 0 );
-}
-
 void WormholeSystem::onPause()
 {
   if ( m_sound_bank.get_effect( "wormhole_jump" ).getStatus() == sf::Sound::Status::Playing )
