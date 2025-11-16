@@ -10,14 +10,14 @@
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/BombSystem.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 class RenderMenuSystem : public RenderSystem
 {
 public:
-  RenderMenuSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                    Audio::SoundBank &sound_bank )
-      : RenderSystem( registry, window, sprite_factory, sound_bank )
+  RenderMenuSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+      : RenderSystem( window, sprite_factory, sound_bank )
   {
     SPDLOG_DEBUG( "RenderMenuSystem constructor called" );
   }

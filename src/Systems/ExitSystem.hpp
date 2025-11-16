@@ -7,13 +7,13 @@
 
 #include <Events/UnlockDoorEvent.hpp>
 #include <Systems/BaseSystem.hpp>
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 class ExitSystem : public BaseSystem
 {
 public:
-  ExitSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-              Audio::SoundBank &sound_bank );
+  ExitSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}

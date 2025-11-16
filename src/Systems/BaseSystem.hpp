@@ -18,10 +18,12 @@
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
 
-namespace ProceduralMaze {
-using SharedEnttRegistry = std::shared_ptr<entt::basic_registry<entt::entity>>;
+namespace ProceduralMaze
+{
+// using SharedEnttRegistry = std::shared_ptr<entt::basic_registry<entt::entity>>;
 
-namespace Sys {
+namespace Sys
+{
 
 class BaseSystem
 {
@@ -39,8 +41,7 @@ public:
   // The playable area offset in blocks, not pixels
   inline static constexpr sf::Vector2f kMapGridOffset{ 1.f, 1.f };
 
-  BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-              Audio::SoundBank &sound_bank );
+  BaseSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief polymorphic destructor for derived classes
   virtual ~BaseSystem() = default;
@@ -394,9 +395,12 @@ public:
     return entt::null;
   }
 
+  entt::registry *getRegistry() { return m_reg; }
+  void setRegistry( entt::registry *registry ) { m_reg = registry; }
+
 protected:
   // Entity registry
-  ProceduralMaze::SharedEnttRegistry m_reg;
+  entt::registry *m_reg = nullptr;
 
   //! @brief Non-owning reference to the shared render window
   sf::RenderWindow &m_window;

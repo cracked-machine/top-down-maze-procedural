@@ -18,14 +18,15 @@
 
 #include <memory>
 
-namespace ProceduralMaze::Sys::ProcGen {
+namespace ProceduralMaze::Sys::ProcGen
+{
 
 class CellAutomataSystem : public BaseSystem
 {
 public:
-  CellAutomataSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                      Audio::SoundBank &sound_bank, std::unique_ptr<RandomLevelGenerator> random_level )
-      : BaseSystem( reg, window, sprite_factory, sound_bank ),
+  CellAutomataSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
+                      std::unique_ptr<RandomLevelGenerator> random_level )
+      : BaseSystem( window, sprite_factory, sound_bank ),
         m_random_level( std::move( random_level ) )
   {
   }

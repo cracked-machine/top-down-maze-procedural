@@ -16,10 +16,8 @@
 namespace ProceduralMaze::Sys
 {
 
-BaseSystem::BaseSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                        Audio::SoundBank &sound_bank )
-    : m_reg( reg ),
-      m_window( window ),
+BaseSystem::BaseSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : m_window( window ),
       m_sprite_factory( sprite_factory ),
       m_sound_bank( sound_bank )
 {

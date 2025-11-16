@@ -41,9 +41,8 @@
 namespace ProceduralMaze::Sys
 {
 
-RenderGameSystem::RenderGameSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                                    Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : RenderSystem( reg, window, sprite_factory, sound_bank )
+RenderGameSystem::RenderGameSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : RenderSystem( window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "RenderGameSystem initialized" );
 }

@@ -20,14 +20,16 @@
 
 #include <optional>
 
-namespace ProceduralMaze::Sys::ProcGen {
+namespace ProceduralMaze::Sys::ProcGen
+{
 
 class RandomLevelGenerator : public BaseSystem
 {
 public:
-  RandomLevelGenerator( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                        Audio::SoundBank &sound_bank );
+  RandomLevelGenerator( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~RandomLevelGenerator() = default;
+
+  void generate();
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}

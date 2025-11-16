@@ -14,13 +14,13 @@
 #include <Systems/ExitSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
-namespace ProceduralMaze::Sys {
-
-ExitSystem::ExitSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                        Audio::SoundBank &sound_bank )
-    : BaseSystem( reg, window, sprite_factory, sound_bank )
+namespace ProceduralMaze::Sys
 {
-  // register the event sinks
+
+ExitSystem::ExitSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : BaseSystem( window, sprite_factory, sound_bank )
+{
+  // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
   std::ignore = getEventDispatcher().sink<Events::UnlockDoorEvent>().connect<&ExitSystem::on_door_unlock_event>( this );
   SPDLOG_DEBUG( "ExitSystem initialized" );
 }

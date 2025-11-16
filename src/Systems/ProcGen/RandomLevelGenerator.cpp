@@ -25,9 +25,13 @@
 namespace ProceduralMaze::Sys::ProcGen
 {
 
-RandomLevelGenerator::RandomLevelGenerator( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                                            Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : BaseSystem( reg, window, sprite_factory, sound_bank )
+RandomLevelGenerator::RandomLevelGenerator( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                                            Audio::SoundBank &sound_bank )
+    : BaseSystem( window, sprite_factory, sound_bank )
+{
+}
+
+void RandomLevelGenerator::generate()
 {
   gen_positions();
   gen_border();

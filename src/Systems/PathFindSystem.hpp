@@ -23,7 +23,8 @@
 #include <entt/entity/registry.hpp>
 #include <queue>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 using PlayerDistanceQueue = std::priority_queue<std::pair<int, entt::entity>, std::vector<std::pair<int, entt::entity>>,
                                                 std::greater<std::pair<int, entt::entity>>>;
@@ -31,8 +32,7 @@ using PlayerDistanceQueue = std::priority_queue<std::pair<int, entt::entity>, st
 class PathFindSystem : public BaseSystem
 {
 public:
-  PathFindSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                  Audio::SoundBank &sound_bank );
+  PathFindSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~PathFindSystem() = default;
 
   //! @brief event handlers for pausing system clocks

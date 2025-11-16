@@ -7,7 +7,8 @@
 #include <SFML/System/Angle.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 class RenderPlayerSystem : public RenderSystem
 {
@@ -28,9 +29,8 @@ public:
                                   sf::Vector2f,            // origin
                                   sf::Angle>;              // angle
 
-  RenderPlayerSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                      Audio::SoundBank &sound_bank )
-      : RenderSystem( reg, window, sprite_factory, sound_bank )
+  RenderPlayerSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+      : RenderSystem( window, sprite_factory, sound_bank )
   {
     SPDLOG_DEBUG( "RenderPlayerSystem initialized" );
   }

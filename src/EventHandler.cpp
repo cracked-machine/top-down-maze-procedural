@@ -11,11 +11,11 @@
 #include <Events/SaveSettingsEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
-EventHandler::EventHandler( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &m_window,
-                            Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : Sys::BaseSystem( reg, m_window, sprite_factory, sound_bank )
+EventHandler::EventHandler( sf::RenderWindow &m_window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : Sys::BaseSystem( m_window, sprite_factory, sound_bank )
 {
 }
 

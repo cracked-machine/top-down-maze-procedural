@@ -37,16 +37,16 @@
 #include <Systems/CollisionSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
-namespace ProceduralMaze::Sys {
-
-CollisionSystem::CollisionSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                                  Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : BaseSystem( reg, window, sprite_factory, sound_bank )
+namespace ProceduralMaze::Sys
 {
 
-  SPDLOG_DEBUG( "CollisionSystem initialized" );
+CollisionSystem::CollisionSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : BaseSystem( window, sprite_factory, sound_bank )
+{
+  // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
   std::ignore = getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::CollisionSystem::onPause>( this );
   std::ignore = getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::CollisionSystem::onResume>( this );
+  SPDLOG_DEBUG( "CollisionSystem initialized" );
 }
 
 void CollisionSystem::onPause()

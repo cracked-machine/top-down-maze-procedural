@@ -13,15 +13,14 @@
 #include <Systems/DiggingSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
-namespace ProceduralMaze::Sys {
-
-DiggingSystem::DiggingSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                              Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : BaseSystem( reg, window, sprite_factory, sound_bank )
+namespace ProceduralMaze::Sys
 {
-  // register the event handler
-  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&DiggingSystem::on_player_action>(
-      this );
+
+DiggingSystem::DiggingSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : BaseSystem( window, sprite_factory, sound_bank )
+{
+  // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
+  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&DiggingSystem::on_player_action>( this );
   SPDLOG_DEBUG( "DiggingSystem initialized" );
 }
 
@@ -71,8 +70,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
   }
 
   // Iterate through all entities with Position and Obstacle components
-  auto position_view = m_reg->view<Cmp::Position, Cmp::Obstacle>(
-      entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
+  auto position_view = m_reg->view<Cmp::Position, Cmp::Obstacle>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
   for ( auto [entity, pos_cmp, obst_cmp] : position_view.each() )
   {
     // skip positions with non diggable obstacles
@@ -99,8 +97,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
                                                          Cmp::RectBounds::ScaleCardinality::HORIZONTAL );
         auto player_vertical_bounds = Cmp::RectBounds( pc_pos_cmp.position, half_sprite_size, 1.5f,
                                                        Cmp::RectBounds::ScaleCardinality::VERTICAL );
-        if ( player_horizontal_bounds.findIntersection( pos_cmp ) ||
-             player_vertical_bounds.findIntersection( pos_cmp ) )
+        if ( player_horizontal_bounds.findIntersection( pos_cmp ) || player_vertical_bounds.findIntersection( pos_cmp ) )
         {
           player_nearby = true;
           break;

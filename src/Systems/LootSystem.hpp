@@ -9,13 +9,13 @@
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 class LootSystem : public BaseSystem
 {
 public:
-  LootSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-              Audio::SoundBank &sound_bank );
+  LootSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}

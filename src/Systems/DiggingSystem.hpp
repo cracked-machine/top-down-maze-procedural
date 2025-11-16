@@ -11,7 +11,8 @@
 #include <Systems/BaseSystem.hpp>
 
 #include <filesystem>
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 // DiggingSystem handles player digging actions within the maze.
 // This system is mainly event-driven, responding to player dig actions.
@@ -20,8 +21,7 @@ namespace ProceduralMaze::Sys {
 class DiggingSystem : public BaseSystem
 {
 public:
-  DiggingSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                 Audio::SoundBank &sound_bank );
+  DiggingSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}

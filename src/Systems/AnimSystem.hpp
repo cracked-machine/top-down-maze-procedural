@@ -9,15 +9,16 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 class AnimSystem : public BaseSystem
 {
 public:
-  AnimSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-              Audio::SoundBank &sound_bank )
-      : BaseSystem( reg, window, sprite_factory, sound_bank )
+  AnimSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+      : BaseSystem( window, sprite_factory, sound_bank )
   {
+    // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
     std::ignore = getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::AnimSystem::onPause>( this );
     std::ignore = getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::AnimSystem::onResume>( this );
     SPDLOG_DEBUG( "AnimSystem initialized" );

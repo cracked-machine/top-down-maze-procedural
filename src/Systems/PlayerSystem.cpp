@@ -22,11 +22,11 @@
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PlayerSystem.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
-PlayerSystem::PlayerSystem( ProceduralMaze::SharedEnttRegistry registry, sf::RenderWindow &window,
-                            Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : BaseSystem( registry, window, sprite_factory, sound_bank )
+PlayerSystem::PlayerSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : BaseSystem( window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "PlayerSystem initialized" );
 }

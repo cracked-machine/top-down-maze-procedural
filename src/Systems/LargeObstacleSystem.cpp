@@ -20,11 +20,11 @@
 namespace ProceduralMaze::Sys
 {
 
-LargeObstacleSystem::LargeObstacleSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                                          Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : BaseSystem( reg, window, sprite_factory, sound_bank )
+LargeObstacleSystem::LargeObstacleSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                                          Audio::SoundBank &sound_bank )
+    : BaseSystem( window, sprite_factory, sound_bank )
 {
-  // register the event sinks
+  // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
   std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&LargeObstacleSystem::on_player_action>( this );
 }
 

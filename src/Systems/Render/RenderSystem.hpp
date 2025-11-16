@@ -41,15 +41,15 @@
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/Render/RenderBuffer.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 class RenderSystem : public BaseSystem
 {
 public:
   //! @brief Construct a new Render System object
   //! @param reg
-  RenderSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                Audio::SoundBank &sound_bank );
+  RenderSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief polymorphic destructor for derived classes
   virtual ~RenderSystem() = default;

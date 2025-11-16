@@ -7,14 +7,14 @@
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 class RenderOverlaySystem : public RenderSystem
 {
 public:
-  RenderOverlaySystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                       Audio::SoundBank &sound_bank )
-      : RenderSystem( reg, window, sprite_factory, sound_bank )
+  RenderOverlaySystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+      : RenderSystem( window, sprite_factory, sound_bank )
   {
     // Pre-warm font texture atlas with all glyphs used in debug overlays
     sf::Text warmup_30( m_font, "0123456789 [](),:.-=xyzEPONCSabcdefghijklmnopqrstuvwXYZ INFINITE", 30 );

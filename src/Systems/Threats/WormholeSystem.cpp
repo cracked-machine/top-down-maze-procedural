@@ -22,17 +22,21 @@
 namespace ProceduralMaze::Sys
 {
 
-WormholeSystem::WormholeSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                                Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : BaseSystem( reg, window, sprite_factory, sound_bank )
+WormholeSystem::WormholeSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : BaseSystem( window, sprite_factory, sound_bank )
 {
-  // ensure we have a persistent component for the wormhole seed
-  add_persistent_component<Cmp::Persistent::WormholeSeed>( 0 );
 
+  // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
   getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::WormholeSystem::onPause>( this );
   getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::WormholeSystem::onResume>( this );
 
   SPDLOG_DEBUG( "WormholeSystem initialized" );
+}
+
+void WormholeSystem::init()
+{
+  // seed component must be created in entt registry before use.
+  add_persistent_component<Cmp::Persistent::WormholeSeed>( 0 );
 }
 
 void WormholeSystem::onPause()

@@ -16,9 +16,8 @@
 namespace ProceduralMaze::Sys
 {
 
-PathFindSystem::PathFindSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window,
-                                Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : BaseSystem( reg, window, sprite_factory, sound_bank )
+PathFindSystem::PathFindSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : BaseSystem( window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "PathFindSystem initialized" );
 }

@@ -24,10 +24,10 @@
 namespace ProceduralMaze::Sys
 {
 
-BombSystem::BombSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                        Audio::SoundBank &sound_bank )
-    : BaseSystem( reg, window, sprite_factory, sound_bank )
+BombSystem::BombSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : BaseSystem( window, sprite_factory, sound_bank )
 {
+  // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
   std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>( this );
   std::ignore = getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::BombSystem::onPause>( this );
   std::ignore = getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::BombSystem::onResume>( this );

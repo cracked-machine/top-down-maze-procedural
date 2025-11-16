@@ -39,14 +39,13 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 
-namespace ProceduralMaze::Sys {
-
-PersistentSystem::PersistentSystem( SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                                    Audio::SoundBank &sound_bank )
-    : BaseSystem( reg, window, sprite_factory, sound_bank )
+namespace ProceduralMaze::Sys
 {
-  SPDLOG_DEBUG( "PersistentSystem constructor called" );
 
+PersistentSystem::PersistentSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : BaseSystem( window, sprite_factory, sound_bank )
+{
+  // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
   std::ignore = getEventDispatcher().sink<Events::SaveSettingsEvent>().connect<&Sys::PersistentSystem::on_save_settings_event>(
       this );
   SPDLOG_DEBUG( "PersistentSystem initialized" );
@@ -125,7 +124,8 @@ void PersistentSystem::save_state()
   nlohmann::json jsonData;
 
   // Helper lambda to serialize a component if it exists
-  auto serializeComponent = [&]<typename ComponentType>( const std::string &key ) {
+  auto serializeComponent = [&]<typename ComponentType>( const std::string &key )
+  {
     try
     {
       auto &component = get_persistent_component<ComponentType>();

@@ -41,13 +41,13 @@
 
 #define assertm( exp, msg ) assert( ( void( msg ), exp ) )
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 class CollisionSystem : public BaseSystem
 {
 public:
-  CollisionSystem( ProceduralMaze::SharedEnttRegistry reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                   Audio::SoundBank &sound_bank );
+  CollisionSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   ~CollisionSystem() = default;
 

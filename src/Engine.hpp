@@ -57,7 +57,8 @@
 #include <windows.h>
 #endif
 
-namespace ProceduralMaze {
+namespace ProceduralMaze
+{
 
 // Singleton-like Engine class:
 // - Manages game state
@@ -146,7 +147,7 @@ private:
   sf::Texture m_splash_texture{ "res/textures/splash.png" };
 
   // Create the ECS registry
-  ProceduralMaze::SharedEnttRegistry m_reg{ std::make_shared<entt::basic_registry<entt::entity>>() };
+  std::unique_ptr<entt::registry> m_reg = std::make_unique<entt::registry>();
 
   // Create the opengl window
   std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( Sys::BaseSystem::kDisplaySize ),
