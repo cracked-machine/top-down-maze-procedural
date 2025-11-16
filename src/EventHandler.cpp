@@ -25,7 +25,7 @@ EventHandler::MenuAction EventHandler::menu_state_handler()
   while ( const std::optional event = m_window.pollEvent() )
   {
     ImGui::SFML::ProcessEvent( m_window, *event );
-    if ( event->is<sf::Event::Closed>() ) { return MenuAction::EXIT; }
+    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
     {
       sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
@@ -47,7 +47,7 @@ EventHandler::MenuAction EventHandler::settings_state_handler()
   while ( const std::optional event = m_window.pollEvent() )
   {
     ImGui::SFML::ProcessEvent( m_window, *event );
-    if ( event->is<sf::Event::Closed>() ) { return MenuAction::EXIT; }
+    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
     {
       sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
@@ -61,14 +61,14 @@ EventHandler::MenuAction EventHandler::settings_state_handler()
   return MenuAction::NONE;
 }
 
-void EventHandler::game_state_handler()
+EventHandler::MenuAction EventHandler::game_state_handler()
 {
-  auto &game_state = get_persistent_component<Cmp::Persistent::GameState>();
+
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
   {
     ImGui::SFML::ProcessEvent( m_window, *event );
-    if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::Persistent::GameState::State::EXITING; }
+    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
     {
       sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
@@ -194,25 +194,15 @@ void EventHandler::game_state_handler()
         }
       }
 
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
-      {
-        game_state.current_state = Cmp::Persistent::GameState::State::UNLOADING;
-      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { return MenuAction::MENU; }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
-      {
-        using namespace std::chrono_literals;
-        game_state.current_state = Cmp::Persistent::GameState::State::PAUSED;
-        SPDLOG_INFO( "Pausing game...." );
-        std::this_thread::sleep_for( 200ms );
-      }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { return MenuAction::PAUSE; }
     }
   }
 
-  // allow multiple changes to the direction vector, otherwise we get a
-  // delayed slurred movement
+  // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
   auto player_direction_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Direction>();
   for ( auto [entity, player, direction] : player_direction_view.each() )
   {
@@ -236,16 +226,18 @@ void EventHandler::game_state_handler()
   {
     getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
   }
+
+  return MenuAction::NONE;
 }
 
-void EventHandler::paused_state_handler()
+EventHandler::MenuAction EventHandler::paused_state_handler()
 {
-  auto &game_state = get_persistent_component<Cmp::Persistent::GameState>();
+
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
   {
     ImGui::SFML::ProcessEvent( m_window, *event );
-    if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::Persistent::GameState::State::EXITING; }
+    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
     {
       sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
@@ -253,12 +245,10 @@ void EventHandler::paused_state_handler()
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
-      {
-        game_state.current_state = Cmp::Persistent::GameState::State::PLAYING;
-      }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { return MenuAction::PLAY; }
     }
   }
+  return MenuAction::NONE;
 }
 
 void EventHandler::game_over_state_handler()

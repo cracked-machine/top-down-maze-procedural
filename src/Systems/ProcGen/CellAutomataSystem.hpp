@@ -24,10 +24,8 @@ namespace ProceduralMaze::Sys::ProcGen
 class CellAutomataSystem : public BaseSystem
 {
 public:
-  CellAutomataSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
-                      std::unique_ptr<RandomLevelGenerator> random_level )
-      : BaseSystem( window, sprite_factory, sound_bank ),
-        m_random_level( std::move( random_level ) )
+  CellAutomataSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+      : BaseSystem( window, sprite_factory, sound_bank )
   {
   }
 
@@ -38,8 +36,10 @@ public:
 
   void iterate( unsigned int iterations );
 
+  void set_random_level_generator( RandomLevelGenerator *random_level ) { m_random_level = random_level; }
+
 private:
-  std::unique_ptr<RandomLevelGenerator> m_random_level;
+  RandomLevelGenerator *m_random_level;
 
   void find_neighbours();
 

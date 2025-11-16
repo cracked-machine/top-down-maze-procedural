@@ -33,6 +33,7 @@ public:
   void init_views();
   void init_shaders();
   void init_tilemap();
+  void clear_tilemap();
 
   //! @brief Entrypoint for rendering the game
   //!

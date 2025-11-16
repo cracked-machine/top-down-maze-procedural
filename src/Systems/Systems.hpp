@@ -47,6 +47,8 @@ struct SystemPtrs
   FootstepSystem *footstep_sys;
   LargeObstacleSystem *large_obstacle_sys;
   LootSystem *loot_sys;
+  ProcGen::RandomLevelGenerator *random_level_sys;
+  ProcGen::CellAutomataSystem *cellauto_parser;
 };
 
 } // namespace ProceduralMaze::Sys

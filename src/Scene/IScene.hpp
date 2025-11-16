@@ -12,6 +12,10 @@ enum class SceneRequest
   None,
   StartGame,
   OpenSettings,
+  Pause,
+  Resume,
+  GameOver,
+  LevelComplete,
   Pop,
   Quit
 };
@@ -24,6 +28,7 @@ class IScene
 public:
   virtual ~IScene() = default;
 
+  virtual void on_init() = 0;
   virtual void on_enter() = 0;
   virtual void on_exit() = 0;
   virtual void update( sf::Time dt ) = 0;
@@ -38,6 +43,8 @@ public:
     requestFlag = SceneRequest::None;
     return r;
   }
+
+  virtual bool blocks_update() const { return true; }
 
 protected:
   SceneManager *m_scene_manager = nullptr; // non-owning

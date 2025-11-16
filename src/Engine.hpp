@@ -161,6 +161,8 @@ private:
   std::unique_ptr<Sys::FootstepSystem> m_footstep_sys;
   std::unique_ptr<Sys::LargeObstacleSystem> m_large_obstacle_sys;
   std::unique_ptr<Sys::LootSystem> m_loot_sys;
+  std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> m_random_level_sys;
+  std::unique_ptr<Sys::ProcGen::CellAutomataSystem> m_cellauto_parser;
 
   // restrict the path tracking data update to every 0.1 seconds (optimization)
   const sf::Time m_obstacle_distance_update_interval{ sf::milliseconds( 100 ) };

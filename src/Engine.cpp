@@ -268,84 +268,36 @@ bool Engine::run()
 
 void Engine::init_systems()
 {
-
   // init core systems - these are required just to get the engine running
   m_sprite_factory = std::make_unique<Sprites::SpriteFactory>();
   m_sprite_factory->init();
   m_render_menu_sys = std::make_unique<Sys::RenderMenuSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_render_menu_sys->setRegistry( m_reg.get() );
   m_event_handler = std::make_unique<Sys::EventHandler>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_event_handler->setRegistry( m_reg.get() );
-  // m_event_handler->add_persistent_component<Cmp::Persistent::GameState>();
   m_persistent_sys = std::make_unique<Sys::PersistentSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_persistent_sys->setRegistry( m_reg.get() );
 
   m_sound_bank->init();
 
-  // init game systems - these are required for the actual gameplay
-  // might as well init them all here....it will shorten load times later
   m_render_game_sys = std::make_unique<Sys::RenderGameSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_render_game_sys->setRegistry( m_reg.get() );
-
   m_player_sys = std::make_unique<Sys::PlayerSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_player_sys->setRegistry( m_reg.get() );
-
   m_path_find_sys = std::make_unique<Sys::PathFindSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_path_find_sys->setRegistry( m_reg.get() );
-
   m_npc_sys = std::make_unique<Sys::NpcSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_npc_sys->setRegistry( m_reg.get() );
-
   m_collision_sys = std::make_unique<Sys::CollisionSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_collision_sys->setRegistry( m_reg.get() );
-
   m_digging_sys = std::make_unique<Sys::DiggingSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_digging_sys->setRegistry( m_reg.get() );
-
   m_render_overlay_sys = std::make_unique<Sys::RenderOverlaySystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_render_overlay_sys->setRegistry( m_reg.get() );
-
   m_render_player_sys = std::make_unique<Sys::RenderPlayerSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_render_player_sys->setRegistry( m_reg.get() );
-
   m_bomb_sys = std::make_unique<Sys::BombSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_bomb_sys->setRegistry( m_reg.get() );
-
   m_loot_sys = std::make_unique<Sys::LootSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_loot_sys->setRegistry( m_reg.get() );
-
   m_anim_sys = std::make_unique<Sys::AnimSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_anim_sys->setRegistry( m_reg.get() );
-
   m_sinkhole_sys = std::make_unique<Sys::SinkHoleHazardSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_sinkhole_sys->setRegistry( m_reg.get() );
-  // m_sinkhole_sys->init();
-
   m_corruption_sys = std::make_unique<Sys::CorruptionHazardSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_corruption_sys->setRegistry( m_reg.get() );
-  // m_corruption_sys->init();
-
   m_wormhole_sys = std::make_unique<Sys::WormholeSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_wormhole_sys->setRegistry( m_reg.get() );
-  // m_wormhole_sys->init();
-
   m_exit_sys = std::make_unique<Sys::ExitSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_exit_sys->setRegistry( m_reg.get() );
-
   m_footstep_sys = std::make_unique<Sys::FootstepSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_footstep_sys->setRegistry( m_reg.get() );
-
   m_large_obstacle_sys = std::make_unique<Sys::LargeObstacleSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  // m_large_obstacle_sys->setRegistry( m_reg.get() );
+  m_random_level_sys = std::make_unique<Sys::ProcGen::RandomLevelGenerator>( *m_window, *m_sprite_factory, *m_sound_bank );
+  m_cellauto_parser = std::make_unique<Sys::ProcGen::CellAutomataSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
 
-  // m_render_game_sys->init_shaders();
-  // m_render_game_sys->init_tilemap();
-
-  // add_display_size( sf::Vector2u{ 1920, 1024 } );
-
-  // prep the title screen resources since they get used next
-  // m_render_menu_sys->init_title();
-
+  // setup scene dependency injection pointers
   m_scene_di_sys_ptrs.render_menu_sys = m_render_menu_sys.get();
   m_scene_di_sys_ptrs.event_handler = m_event_handler.get();
   m_scene_di_sys_ptrs.render_game_sys = m_render_game_sys.get();
@@ -366,7 +318,10 @@ void Engine::init_systems()
   m_scene_di_sys_ptrs.footstep_sys = m_footstep_sys.get();
   m_scene_di_sys_ptrs.large_obstacle_sys = m_large_obstacle_sys.get();
   m_scene_di_sys_ptrs.loot_sys = m_loot_sys.get();
+  m_scene_di_sys_ptrs.random_level_sys = m_random_level_sys.get();
+  m_scene_di_sys_ptrs.cellauto_parser = m_cellauto_parser.get();
 
+  // setup registry injection pointers
   m_reg_inject_system_ptrs.push_back( m_render_menu_sys.get() );
   m_reg_inject_system_ptrs.push_back( m_event_handler.get() );
   m_reg_inject_system_ptrs.push_back( m_render_game_sys.get() );
@@ -387,8 +342,12 @@ void Engine::init_systems()
   m_reg_inject_system_ptrs.push_back( m_footstep_sys.get() );
   m_reg_inject_system_ptrs.push_back( m_large_obstacle_sys.get() );
   m_reg_inject_system_ptrs.push_back( m_loot_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_random_level_sys.get() );
+  m_reg_inject_system_ptrs.push_back( m_cellauto_parser.get() );
 
-  m_scene_manager = std::make_unique<Scene::SceneManager>( *m_window, m_scene_di_sys_ptrs, m_reg_inject_system_ptrs );
+  // create the scene manager now that all systems are initialized
+  m_scene_manager = std::make_unique<Scene::SceneManager>( *m_window, *m_sound_bank, m_scene_di_sys_ptrs,
+                                                           m_reg_inject_system_ptrs );
 
   SPDLOG_INFO( "Lazy initialization of systems complete" );
 }
@@ -397,27 +356,27 @@ void Engine::init_systems()
 void Engine::enter_game()
 {
   // add_system_entity();
-  m_player_sys->add_player_entity();
+  // m_player_sys->add_player_entity();
 
-  // create initial random game area with the required sprites
-  std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>(
-      *m_window, *m_sprite_factory, *m_sound_bank );
-  // random_level->setRegistry( m_reg.get() );
-  random_level->generate();
+  // // create initial random game area with the required sprites
+  // std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> random_level = std::make_unique<Sys::ProcGen::RandomLevelGenerator>(
+  //     *m_window, *m_sprite_factory, *m_sound_bank );
+  // // random_level->setRegistry( m_reg.get() );
+  // random_level->generate();
 
-  // procedurally generate the game area from the initial random layout
-  Sys::ProcGen::CellAutomataSystem cellauto_parser{ *m_window, *m_sprite_factory, *m_sound_bank, std::move( random_level ) };
-  // cellauto_parser.setRegistry( m_reg.get() );
-  cellauto_parser.iterate( 5 );
+  // // procedurally generate the game area from the initial random layout
+  // Sys::ProcGen::CellAutomataSystem cellauto_parser{ *m_window, *m_sprite_factory, *m_sound_bank, std::move( random_level ) };
+  // // cellauto_parser.setRegistry( m_reg.get() );
+  // cellauto_parser.iterate( 5 );
 
-  m_exit_sys->spawn_exit();
+  // m_exit_sys->spawn_exit();
 
-  // Reset the views early to prevent wild panning back to the start
-  // position when the game starts rendering
-  m_render_game_sys->init_views();
-  m_sinkhole_sys->init_hazard_field();
-  m_corruption_sys->init_hazard_field();
-  m_wormhole_sys->spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
+  // // Reset the views early to prevent wild panning back to the start
+  // // position when the game starts rendering
+  // m_render_game_sys->init_views();
+  // m_sinkhole_sys->init_hazard_field();
+  // m_corruption_sys->init_hazard_field();
+  // m_wormhole_sys->spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 }
 
 // Teardown the engine

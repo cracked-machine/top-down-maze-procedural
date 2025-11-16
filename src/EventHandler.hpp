@@ -45,8 +45,8 @@ public:
 
   MenuAction menu_state_handler();
   MenuAction settings_state_handler();
-  void game_state_handler();
-  void paused_state_handler();
+  MenuAction game_state_handler();
+  MenuAction paused_state_handler();
   void game_over_state_handler();
 };
 

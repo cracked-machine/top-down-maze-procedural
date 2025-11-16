@@ -344,6 +344,12 @@ public:
     else { seed_picker.seed( std::random_device{}() ); }
 
     int random_index = seed_picker.gen();
+    SPDLOG_DEBUG( "Random index selected: {}", random_index );
+    if ( random_index < 0 || random_index >= random_view_count )
+    {
+      SPDLOG_CRITICAL( "Random index {} out of bounds (0 to {})", random_index, random_view_count - 1 );
+      throw std::out_of_range( "Random index out of bounds" );
+    }
     auto it = random_view.begin();
     std::advance( it, random_index );
 

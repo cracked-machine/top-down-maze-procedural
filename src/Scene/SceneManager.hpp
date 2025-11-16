@@ -1,6 +1,7 @@
 #ifndef SCENE_SCENEMANAGER_HPP_
 #define SCENE_SCENEMANAGER_HPP_
 
+#include <Audio/SoundBank.hpp>
 #include <SFML/Graphics.hpp>
 
 #include <Components/Font.hpp>
@@ -19,9 +20,10 @@ namespace ProceduralMaze::Scene
 class SceneManager
 {
 public:
-  explicit SceneManager( sf::RenderWindow &w, Sys::SystemPtrs scene_di_sys_ptrs,
+  explicit SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::SystemPtrs scene_di_sys_ptrs,
                          std::vector<Sys::BaseSystem *> reg_inject_system_ptrs )
       : m_window( w ),
+        m_sound_bank( sound_bank ),
         m_reg_inject_system_ptrs( std::move( reg_inject_system_ptrs ) ),
         m_scene_di_sys_ptrs( scene_di_sys_ptrs )
   {
@@ -31,9 +33,14 @@ public:
 
   void push( std::unique_ptr<IScene> scene );
   void pop();
+
+  void push_overlay( std::unique_ptr<IScene> scene );
+  void pop_overlay();
+
   void replace( std::unique_ptr<IScene> scene );
 
   IScene *current();
+  void gen_level();
 
   void handle_request( SceneRequest req );
 
@@ -88,12 +95,15 @@ private:
 
   //! @brief Non-owning reference to the OpenGL window
   sf::RenderWindow &m_window;
+  Audio::SoundBank &m_sound_bank;
 
   std::vector<std::unique_ptr<IScene>> m_scenes;
 
   std::vector<Sys::BaseSystem *> m_reg_inject_system_ptrs;
 
   Sys::SystemPtrs m_scene_di_sys_ptrs;
+
+  sf::Texture m_splash_texture{ "res/textures/splash.png" };
 };
 
 } // namespace ProceduralMaze::Scene

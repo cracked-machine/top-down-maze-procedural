@@ -11,6 +11,7 @@ class GameOverScene : public IScene
 public:
   GameOverScene();
 
+  void on_init() override;
   void on_enter() override;
   void on_exit() override;
   void update( [[maybe_unused]] sf::Time dt ) override;

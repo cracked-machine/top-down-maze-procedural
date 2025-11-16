@@ -11,6 +11,7 @@ class LevelCompleteScene : public IScene
 public:
   LevelCompleteScene();
 
+  void on_init() override;
   void on_enter() override;
   void on_exit() override;
   void update( [[maybe_unused]] sf::Time dt ) override;

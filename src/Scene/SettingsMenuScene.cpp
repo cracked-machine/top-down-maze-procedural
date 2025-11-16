@@ -12,6 +12,8 @@ SettingsMenuScene::SettingsMenuScene( Sys::PersistentSystem *persistent_sys, Sys
 {
 }
 
+void SettingsMenuScene::on_init() { SPDLOG_INFO( "Initializing SettingsMenuScene" ); }
+
 void SettingsMenuScene::on_enter()
 {
   SPDLOG_INFO( "Entering SettingsMenuScene" );

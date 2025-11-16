@@ -6,6 +6,7 @@ namespace ProceduralMaze::Scene
 
 LevelCompleteScene::LevelCompleteScene() {}
 
+void LevelCompleteScene::on_init() { /* init entities */ }
 void LevelCompleteScene::on_enter() { /* init entities */ }
 void LevelCompleteScene::on_exit() { /* cleanup if needed */ }
 void LevelCompleteScene::update( [[maybe_unused]] sf::Time dt ) { /* game logic */ }

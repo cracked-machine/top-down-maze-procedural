@@ -18,13 +18,15 @@ MainMenuScene::MainMenuScene( Audio::SoundBank &sound_bank, Sys::PersistentSyste
 {
 }
 
+void MainMenuScene::on_init() { SPDLOG_INFO( "Initializing MainMenuScene" ); }
+
 void MainMenuScene::on_enter()
 {
   SPDLOG_INFO( "Entering MainMenuScene" );
 
   m_persistent_sys->initializeComponentRegistry();
-
   m_persistent_sys->load_state();
+
   m_render_menu_sys->init_title();
 
   // update fx volumes with persistent settings
@@ -43,6 +45,7 @@ void MainMenuScene::on_exit()
 {
   // Cleanup if needed
   SPDLOG_INFO( "Exiting MainMenuScene" );
+
   //   m_persistent_sys->save_state();
 }
 
@@ -53,9 +56,9 @@ void MainMenuScene::update( [[maybe_unused]] sf::Time dt )
   switch ( menu_action )
   {
     case Sys::EventHandler::MenuAction::PLAY:
+      request( SceneRequest::StartGame );
       break;
     case Sys::EventHandler::MenuAction::SETTINGS:
-      //   m_scene_manager->push( std::make_unique<SettingsMenuScene>( m_persistent_sys, m_render_menu_sys, m_event_handler ) );
       request( SceneRequest::OpenSettings );
       break;
     case Sys::EventHandler::MenuAction::EXIT:

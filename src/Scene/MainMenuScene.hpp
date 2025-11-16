@@ -17,6 +17,7 @@ public:
   MainMenuScene( Audio::SoundBank &sound_bank, Sys::PersistentSystem *persistent_sys, Sys::RenderMenuSystem *render_menu_sys,
                  Sys::EventHandler *event_handler );
 
+  void on_init() override;
   void on_enter() override;
   void on_exit() override;
   void update( [[maybe_unused]] sf::Time dt ) override;

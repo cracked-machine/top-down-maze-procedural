@@ -9,7 +9,8 @@
 
 #include <Components/Random.hpp>
 
-namespace ProceduralMaze::Sprites::Containers {
+namespace ProceduralMaze::Sprites::Containers
+{
 
 class TileMap : public sf::Drawable, public sf::Transformable
 {
@@ -23,6 +24,12 @@ public:
 
   // Draw the sf::VertexArray to the render target (with optional state for shader)
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
+
+  void clear()
+  {
+    m_vertices.clear();
+    m_floortile_choices.clear();
+  }
 
 private:
   struct TileMapConfig
