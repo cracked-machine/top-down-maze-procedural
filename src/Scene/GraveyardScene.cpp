@@ -98,11 +98,11 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
   auto menu_action = m_event_handler->game_state_handler();
   switch ( menu_action )
   {
-    case Sys::EventHandler::MenuAction::MENU:
+    case Sys::EventHandler::NavigationActions::TITLE:
       request( SceneRequest::Pop );
       break;
-    case Sys::EventHandler::MenuAction::PAUSE:
-      request( SceneRequest::Pause );
+    case Sys::EventHandler::NavigationActions::PAUSE:
+      request( SceneRequest::PausedMenu );
       break;
     default:
       break;

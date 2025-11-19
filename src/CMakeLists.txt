@@ -38,7 +38,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Scene/SettingsMenuScene.cpp
     ${CMAKE_SOURCE_DIR}/src/Scene/PausedMenuScene.cpp
     ${CMAKE_SOURCE_DIR}/src/Scene/GameOverScene.cpp
-    ${CMAKE_SOURCE_DIR}/src/Scene/MainMenuScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/Scene/TitleScene.cpp
     ${CMAKE_SOURCE_DIR}/src/Scene/LevelCompleteScene.cpp
     ${CMAKE_SOURCE_DIR}/src/Scene/CryptScene.cpp
 

@@ -2,10 +2,10 @@
 #include <Scene/GraveyardScene.hpp>
 #include <Scene/IScene.hpp>
 #include <Scene/LevelCompleteScene.hpp>
-#include <Scene/MainMenuScene.hpp>
 #include <Scene/PausedMenuScene.hpp>
 #include <Scene/SceneManager.hpp>
 #include <Scene/SettingsMenuScene.hpp>
+#include <Scene/TitleScene.hpp>
 #include <cstddef>
 
 namespace ProceduralMaze::Scene
@@ -130,7 +130,7 @@ void SceneManager::handle_request( SceneRequest req )
   {
     switch ( req )
     {
-      case SceneRequest::OpenSettings:
+      case SceneRequest::SettingsMenu:
       {
         auto settings_scene = std::make_unique<SettingsMenuScene>( m_scene_di_sys_ptrs.persistent_sys,
                                                                    m_scene_di_sys_ptrs.render_menu_sys,
@@ -138,9 +138,8 @@ void SceneManager::handle_request( SceneRequest req )
         push( std::move( settings_scene ) );
         break;
       }
-      case SceneRequest::StartGame:
+      case SceneRequest::GraveyardScene:
       {
-        // inject the dependencies into the new scene
         auto graveyard_scene = std::make_unique<GraveyardScene>(
             m_sound_bank, m_scene_di_sys_ptrs.persistent_sys, m_scene_di_sys_ptrs.player_sys,
             m_scene_di_sys_ptrs.render_game_sys, m_scene_di_sys_ptrs.event_handler, m_scene_di_sys_ptrs.anim_sys,
@@ -151,22 +150,16 @@ void SceneManager::handle_request( SceneRequest req )
             m_scene_di_sys_ptrs.render_player_sys, m_scene_di_sys_ptrs.random_level_sys,
             m_scene_di_sys_ptrs.cellauto_parser );
 
-        // initialise registry and the dependencies
         push( std::move( graveyard_scene ) );
 
         break;
       }
-      case SceneRequest::Pause:
+      case SceneRequest::PausedMenu:
       {
         auto paused_scene = std::make_unique<PausedMenuScene>( m_sound_bank, m_scene_di_sys_ptrs.persistent_sys,
                                                                m_scene_di_sys_ptrs.event_handler,
                                                                m_scene_di_sys_ptrs.render_menu_sys );
         push_overlay( std::move( paused_scene ) );
-        break;
-      }
-      case SceneRequest::Resume:
-      {
-        pop_overlay();
         break;
       }
       case SceneRequest::GameOver:
@@ -187,10 +180,15 @@ void SceneManager::handle_request( SceneRequest req )
         replace_overlay( std::move( level_complete_scene ) );
         break;
       }
-
+      case SceneRequest::PopOverlay:
+      {
+        // scene can request to pop itself but new top scene does NOT call on_enter or inject registry
+        pop_overlay();
+        break;
+      }
       case SceneRequest::Pop:
       {
-        // scene can request to pop itself from the stack
+        // scene can request to pop itself and new top scene WILL call on_enter and inject registry
         pop();
         break;
       }

@@ -8,8 +8,8 @@
 #include <Events/ResumeClocksEvent.hpp>
 #include <Scene/CryptScene.hpp>
 #include <Scene/GraveyardScene.hpp>
-#include <Scene/MainMenuScene.hpp>
 #include <Scene/SceneManager.hpp>
+#include <Scene/TitleScene.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
 
@@ -56,9 +56,9 @@ bool Engine::run()
   {
     loading_screen( [this]() { this->init_systems(); }, m_splash_texture );
 
-    m_scene_manager->push( std::make_unique<Scene::MainMenuScene>( *m_sound_bank, m_scene_di_sys_ptrs.persistent_sys,
-                                                                   m_scene_di_sys_ptrs.render_menu_sys,
-                                                                   m_scene_di_sys_ptrs.event_handler ) );
+    m_scene_manager->push( std::make_unique<Scene::TitleScene>( *m_sound_bank, m_scene_di_sys_ptrs.persistent_sys,
+                                                                m_scene_di_sys_ptrs.render_menu_sys,
+                                                                m_scene_di_sys_ptrs.event_handler ) );
     sf::Clock globalFrameClock;
 
     /// MAIN LOOP BEGINS

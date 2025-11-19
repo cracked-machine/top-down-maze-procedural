@@ -32,7 +32,7 @@ void SettingsMenuScene::update( [[maybe_unused]] sf::Time dt )
   auto menu_action = m_event_handler->settings_state_handler();
   switch ( menu_action )
   {
-    case Sys::EventHandler::MenuAction::MENU:
+    case Sys::EventHandler::NavigationActions::TITLE:
       request( SceneRequest::Pop );
       break;
     default:

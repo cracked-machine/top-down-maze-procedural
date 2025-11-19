@@ -34,7 +34,7 @@ void PausedMenuScene::update( [[maybe_unused]] sf::Time dt )
   m_event_handler->getEventDispatcher().trigger( Events::PauseClocksEvent() );
   // globalFrameClock.stop();
 
-  while ( ( m_event_handler->paused_state_handler() != Sys::EventHandler::MenuAction::PLAY ) )
+  while ( ( m_event_handler->paused_state_handler() != Sys::EventHandler::NavigationActions::RESUME ) )
   {
     // check for keyboard/window events to keep window responsive
     m_render_menu_sys->render_paused( dt );
@@ -52,7 +52,7 @@ void PausedMenuScene::update( [[maybe_unused]] sf::Time dt )
 
   m_event_handler->getEventDispatcher().trigger( Events::ResumeClocksEvent() );
   // globalFrameClock.start();
-  request( SceneRequest::Resume );
+  request( SceneRequest::PopOverlay );
 }
 
 entt::registry *PausedMenuScene::get_registry() { return &registry; }

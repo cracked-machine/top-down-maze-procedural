@@ -23,16 +23,15 @@ namespace ProceduralMaze::Sys
 class EventHandler : public Sys::BaseSystem
 {
 public:
-  enum class MenuAction
+  enum class NavigationActions
   {
     NONE,
-    MENU,
+    TITLE,
     SETTINGS,
-    LOAD,
     PLAY,
     PAUSE,
+    RESUME,
     GAMEOVER,
-    UNLOAD,
     EXIT
   };
 
@@ -43,11 +42,11 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
-  MenuAction menu_state_handler();
-  MenuAction settings_state_handler();
-  MenuAction game_state_handler();
-  MenuAction paused_state_handler();
-  MenuAction game_over_state_handler();
+  NavigationActions menu_state_handler();
+  NavigationActions settings_state_handler();
+  NavigationActions game_state_handler();
+  NavigationActions paused_state_handler();
+  NavigationActions game_over_state_handler();
 };
 
 } // namespace ProceduralMaze::Sys

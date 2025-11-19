@@ -1,5 +1,5 @@
-#ifndef SCENE_MAINMENUSCENE_HPP_
-#define SCENE_MAINMENUSCENE_HPP_
+#ifndef SCENE_TITLESCENE_HPP_
+#define SCENE_TITLESCENE_HPP_
 
 #include <Audio/SoundBank.hpp>
 #include <EventHandler.hpp>
@@ -11,11 +11,11 @@
 namespace ProceduralMaze::Scene
 {
 
-class MainMenuScene : public IScene
+class TitleScene : public IScene
 {
 public:
-  MainMenuScene( Audio::SoundBank &sound_bank, Sys::PersistentSystem *persistent_sys,
-                 Sys::RenderMenuSystem *render_menu_sys, Sys::EventHandler *event_handler );
+  TitleScene( Audio::SoundBank &sound_bank, Sys::PersistentSystem *persistent_sys,
+              Sys::RenderMenuSystem *render_menu_sys, Sys::EventHandler *event_handler );
 
   void on_init() override;
   void on_enter() override;
@@ -35,4 +35,4 @@ private:
 
 } // namespace ProceduralMaze::Scene
 
-#endif // SCENE_MAINMENUSCENE_HPP_
+#endif // SCENE_TITLESCENE_HPP_

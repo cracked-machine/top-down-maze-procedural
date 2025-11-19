@@ -11,12 +11,12 @@ namespace ProceduralMaze::Scene
 enum class SceneRequest
 {
   None,
-  StartGame,
-  OpenSettings,
-  Pause,
-  Resume,
+  SettingsMenu,
+  GraveyardScene,
+  PausedMenu,
   GameOver,
   LevelComplete,
+  PopOverlay,
   Pop,
   Quit
 };

@@ -14,12 +14,13 @@
 namespace ProceduralMaze::Sys
 {
 
-EventHandler::EventHandler( sf::RenderWindow &m_window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+EventHandler::EventHandler( sf::RenderWindow &m_window, Sprites::SpriteFactory &sprite_factory,
+                            Audio::SoundBank &sound_bank )
     : Sys::BaseSystem( m_window, sprite_factory, sound_bank )
 {
 }
 
-EventHandler::MenuAction EventHandler::menu_state_handler()
+EventHandler::NavigationActions EventHandler::menu_state_handler()
 {
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
@@ -33,15 +34,15 @@ EventHandler::MenuAction EventHandler::menu_state_handler()
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::Enter ) { return MenuAction::PLAY; }
-      else if ( keyPressed->scancode == sf::Keyboard::Scancode::Q ) { return MenuAction::EXIT; }
-      else if ( keyPressed->scancode == sf::Keyboard::Scancode::S ) { return MenuAction::SETTINGS; }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::Enter ) { return NavigationActions::PLAY; }
+      else if ( keyPressed->scancode == sf::Keyboard::Scancode::Q ) { return NavigationActions::EXIT; }
+      else if ( keyPressed->scancode == sf::Keyboard::Scancode::S ) { return NavigationActions::SETTINGS; }
     }
   }
-  return MenuAction::NONE;
+  return NavigationActions::NONE;
 }
 
-EventHandler::MenuAction EventHandler::settings_state_handler()
+EventHandler::NavigationActions EventHandler::settings_state_handler()
 {
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
@@ -55,13 +56,13 @@ EventHandler::MenuAction EventHandler::settings_state_handler()
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape ) { return MenuAction::MENU; }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape ) { return NavigationActions::TITLE; }
     }
   }
-  return MenuAction::NONE;
+  return NavigationActions::NONE;
 }
 
-EventHandler::MenuAction EventHandler::game_state_handler()
+EventHandler::NavigationActions EventHandler::game_state_handler()
 {
 
   using namespace sf::Keyboard;
@@ -135,8 +136,10 @@ EventHandler::MenuAction EventHandler::game_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
       {
-        // dont set PlayerMortality::State directly, instead update health/death_progress and let the PlayerSystem logic handle it
-        for ( auto [entity, pc_mort_cmp, pc_health_cmp] : m_reg->view<Cmp::PlayerMortality, Cmp::PlayerHealth>().each() )
+        // dont set PlayerMortality::State directly, instead update health/death_progress and let the PlayerSystem logic
+        // handle it
+        for ( auto [entity, pc_mort_cmp, pc_health_cmp] :
+              m_reg->view<Cmp::PlayerMortality, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = 0;
           pc_mort_cmp.death_progress = 1.0f;
@@ -179,7 +182,8 @@ EventHandler::MenuAction EventHandler::game_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] :
+              m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = std::clamp( 10, pc_health_cmp.health + 10, 100 );
           SPDLOG_INFO( "Player gained health (player cheated)" );
@@ -187,18 +191,19 @@ EventHandler::MenuAction EventHandler::game_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_relic_count_cmp] : m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerRelicCount>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_relic_count_cmp] :
+              m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerRelicCount>().each() )
         {
           pc_relic_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a relic (player cheated)" );
         }
       }
 
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { return MenuAction::MENU; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { return NavigationActions::TITLE; }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { return MenuAction::PAUSE; }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { return NavigationActions::PAUSE; }
     }
   }
 
@@ -227,10 +232,10 @@ EventHandler::MenuAction EventHandler::game_state_handler()
     getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
   }
 
-  return MenuAction::NONE;
+  return NavigationActions::NONE;
 }
 
-EventHandler::MenuAction EventHandler::paused_state_handler()
+EventHandler::NavigationActions EventHandler::paused_state_handler()
 {
 
   using namespace sf::Keyboard;
@@ -245,19 +250,19 @@ EventHandler::MenuAction EventHandler::paused_state_handler()
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { return MenuAction::PLAY; }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { return NavigationActions::RESUME; }
     }
   }
-  return MenuAction::NONE;
+  return NavigationActions::NONE;
 }
 
-EventHandler::MenuAction EventHandler::game_over_state_handler()
+EventHandler::NavigationActions EventHandler::game_over_state_handler()
 {
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
   {
     ImGui::SFML::ProcessEvent( m_window, *event );
-    if ( event->is<sf::Event::Closed>() ) { return MenuAction::EXIT; }
+    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
     {
       sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
@@ -265,10 +270,10 @@ EventHandler::MenuAction EventHandler::game_over_state_handler()
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::R ) { return MenuAction::MENU; }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::R ) { return NavigationActions::TITLE; }
     }
   }
-  return MenuAction::NONE;
+  return NavigationActions::NONE;
 }
 
 } // namespace ProceduralMaze::Sys

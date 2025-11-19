@@ -1,7 +1,7 @@
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/MusicVolume.hpp>
-#include <Scene/MainMenuScene.hpp>
 #include <Scene/SettingsMenuScene.hpp>
+#include <Scene/TitleScene.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
 
 #include <Scene/SceneManager.hpp>
@@ -9,8 +9,8 @@
 namespace ProceduralMaze::Scene
 {
 
-MainMenuScene::MainMenuScene( Audio::SoundBank &sound_bank, Sys::PersistentSystem *persistent_sys,
-                              Sys::RenderMenuSystem *render_menu_sys, Sys::EventHandler *event_handler )
+TitleScene::TitleScene( Audio::SoundBank &sound_bank, Sys::PersistentSystem *persistent_sys,
+                        Sys::RenderMenuSystem *render_menu_sys, Sys::EventHandler *event_handler )
     : m_sound_bank( sound_bank ),
       m_persistent_sys( persistent_sys ),
       m_render_menu_sys( render_menu_sys ),
@@ -18,11 +18,11 @@ MainMenuScene::MainMenuScene( Audio::SoundBank &sound_bank, Sys::PersistentSyste
 {
 }
 
-void MainMenuScene::on_init() { SPDLOG_INFO( "Initializing MainMenuScene" ); }
+void TitleScene::on_init() { SPDLOG_INFO( "Initializing TitleScene" ); }
 
-void MainMenuScene::on_enter()
+void TitleScene::on_enter()
 {
-  SPDLOG_INFO( "Entering MainMenuScene" );
+  SPDLOG_INFO( "Entering TitleScene" );
 
   m_persistent_sys->initializeComponentRegistry();
   m_persistent_sys->load_state();
@@ -41,27 +41,27 @@ void MainMenuScene::on_enter()
   }
 }
 
-void MainMenuScene::on_exit()
+void TitleScene::on_exit()
 {
   // Cleanup if needed
-  SPDLOG_INFO( "Exiting MainMenuScene" );
+  SPDLOG_INFO( "Exiting TitleScene" );
 
   //   m_persistent_sys->save_state();
 }
 
-void MainMenuScene::update( [[maybe_unused]] sf::Time dt )
+void TitleScene::update( [[maybe_unused]] sf::Time dt )
 {
   m_render_menu_sys->render_title();
   auto menu_action = m_event_handler->menu_state_handler();
   switch ( menu_action )
   {
-    case Sys::EventHandler::MenuAction::PLAY:
-      request( SceneRequest::StartGame );
+    case Sys::EventHandler::NavigationActions::PLAY:
+      request( SceneRequest::GraveyardScene );
       break;
-    case Sys::EventHandler::MenuAction::SETTINGS:
-      request( SceneRequest::OpenSettings );
+    case Sys::EventHandler::NavigationActions::SETTINGS:
+      request( SceneRequest::SettingsMenu );
       break;
-    case Sys::EventHandler::MenuAction::EXIT:
+    case Sys::EventHandler::NavigationActions::EXIT:
       request( SceneRequest::Quit );
       break;
     default:
@@ -69,6 +69,6 @@ void MainMenuScene::update( [[maybe_unused]] sf::Time dt )
   }
 }
 
-entt::registry *MainMenuScene::get_registry() { return &registry; }
+entt::registry *TitleScene::get_registry() { return &registry; }
 
 } // namespace ProceduralMaze::Scene
