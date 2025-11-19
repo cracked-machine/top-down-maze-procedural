@@ -38,6 +38,7 @@ public:
   void pop_overlay();
 
   void replace( std::unique_ptr<IScene> scene );
+  void replace_overlay( std::unique_ptr<IScene> scene );
 
   IScene *current();
   void gen_level();
@@ -53,7 +54,8 @@ private:
     Cmp::Font font( "res/fonts/tuffy.ttf" );
     sf::Text loading_text( font, "Loading", 48 );
     loading_text.setFillColor( sf::Color::White );
-    loading_text.setPosition( { Sys::BaseSystem::kDisplaySize.x / 2.f - 50.f, Sys::BaseSystem::kDisplaySize.y / 2.f + 100.f } );
+    loading_text.setPosition(
+        { Sys::BaseSystem::kDisplaySize.x / 2.f - 50.f, Sys::BaseSystem::kDisplaySize.y / 2.f + 100.f } );
 
     sf::Clock clock;
     const float text_update_interval = 1.f; // 1 second between dot updates
@@ -92,6 +94,8 @@ private:
     // Ensure any exceptions from the worker thread are propagated
     future.get();
   }
+
+  void print_stack();
 
   //! @brief Non-owning reference to the OpenGL window
   sf::RenderWindow &m_window;

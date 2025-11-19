@@ -12,13 +12,14 @@ namespace ProceduralMaze::Scene
 class PausedMenuScene : public IScene
 {
 public:
-  PausedMenuScene( Audio::SoundBank &sound_bank, Sys::PersistentSystem *persistent_sys, Sys::EventHandler *event_handler,
-                   Sys::RenderMenuSystem *render_menu_sys );
+  PausedMenuScene( Audio::SoundBank &sound_bank, Sys::PersistentSystem *persistent_sys,
+                   Sys::EventHandler *event_handler, Sys::RenderMenuSystem *render_menu_sys );
 
   void on_init() override;
   void on_enter() override;
   void on_exit() override;
   void update( [[maybe_unused]] sf::Time dt ) override;
+  std::string get_name() const override { return "PausedMenuScene"; }
 
   entt::registry *get_registry() override;
 

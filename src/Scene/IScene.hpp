@@ -3,6 +3,7 @@
 
 #include <SFML/System/Time.hpp>
 #include <entt/entity/registry.hpp>
+#include <string>
 
 namespace ProceduralMaze::Scene
 {
@@ -32,6 +33,7 @@ public:
   virtual void on_enter() = 0;
   virtual void on_exit() = 0;
   virtual void update( sf::Time dt ) = 0;
+  virtual std::string get_name() const = 0;
 
   void set_scene_manager( SceneManager *sm ) { m_scene_manager = sm; }
   virtual entt::registry *get_registry() = 0;

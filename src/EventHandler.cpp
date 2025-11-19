@@ -251,14 +251,13 @@ EventHandler::MenuAction EventHandler::paused_state_handler()
   return MenuAction::NONE;
 }
 
-void EventHandler::game_over_state_handler()
+EventHandler::MenuAction EventHandler::game_over_state_handler()
 {
-  auto &game_state = get_persistent_component<Cmp::Persistent::GameState>();
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
   {
     ImGui::SFML::ProcessEvent( m_window, *event );
-    if ( event->is<sf::Event::Closed>() ) { game_state.current_state = Cmp::Persistent::GameState::State::EXITING; }
+    if ( event->is<sf::Event::Closed>() ) { return MenuAction::EXIT; }
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
     {
       sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
@@ -266,12 +265,10 @@ void EventHandler::game_over_state_handler()
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::R )
-      {
-        game_state.current_state = Cmp::Persistent::GameState::State::UNLOADING;
-      }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::R ) { return MenuAction::MENU; }
     }
   }
+  return MenuAction::NONE;
 }
 
 } // namespace ProceduralMaze::Sys

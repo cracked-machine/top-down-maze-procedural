@@ -31,7 +31,7 @@ void PausedMenuScene::on_exit()
 void PausedMenuScene::update( [[maybe_unused]] sf::Time dt )
 {
 
-  // m_event_handler->getEventDispatcher().trigger( Events::PauseClocksEvent() );
+  m_event_handler->getEventDispatcher().trigger( Events::PauseClocksEvent() );
   // globalFrameClock.stop();
 
   while ( ( m_event_handler->paused_state_handler() != Sys::EventHandler::MenuAction::PLAY ) )
@@ -50,7 +50,7 @@ void PausedMenuScene::update( [[maybe_unused]] sf::Time dt )
   auto &music_volume = m_event_handler->get_persistent_component<Cmp::Persistent::MusicVolume>().get_value();
   m_sound_bank.update_music_volume( music_volume );
 
-  // m_event_handler->getEventDispatcher().trigger( Events::ResumeClocksEvent() );
+  m_event_handler->getEventDispatcher().trigger( Events::ResumeClocksEvent() );
   // globalFrameClock.start();
   request( SceneRequest::Resume );
 }

@@ -47,7 +47,7 @@ public:
   MenuAction settings_state_handler();
   MenuAction game_state_handler();
   MenuAction paused_state_handler();
-  void game_over_state_handler();
+  MenuAction game_over_state_handler();
 };
 
 } // namespace ProceduralMaze::Sys

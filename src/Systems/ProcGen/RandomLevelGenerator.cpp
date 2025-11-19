@@ -124,8 +124,8 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
     {
       if ( current_seed != seed && seed > 0 )
       {
-        SPDLOG_WARN( "Large Obstacle spawn: original seed {} was invalid, used seed {} instead (attempt {})", seed, current_seed,
-                     attempts + 1 );
+        SPDLOG_WARN( "Large Obstacle spawn: original seed {} was invalid, used seed {} instead (attempt {})", seed,
+                     current_seed, attempts + 1 );
       }
       return { random_entity, random_pos };
     }
@@ -135,7 +135,8 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
     if ( seed > 0 ) { current_seed++; }
   }
 
-  SPDLOG_ERROR( "Failed to find valid large obstacle spawn location after {} attempts (original seed: {})", kMaxAttempts, seed );
+  SPDLOG_ERROR( "Failed to find valid large obstacle spawn location after {} attempts (original seed: {})",
+                kMaxAttempts, seed );
   return { entt::null, Cmp::Position{ { 0.f, 0.f }, { 0.f, 0.f } } };
 }
 
@@ -152,8 +153,9 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
   // place large obstacle - multiply the grid size to get pixel size!
   auto large_obst_grid_size = large_obstacle_sprite.get_grid_size();
 
-  m_reg->emplace_or_replace<Cmp::LargeObstacle>( random_entity, sprite_meta_type, random_origin_position.position,
-                                                 large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
+  m_reg->emplace_or_replace<Cmp::LargeObstacle>(
+      random_entity, sprite_meta_type, random_origin_position.position,
+      large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
 
   SPDLOG_INFO( "Placed large obstacle ({}) at position ({}, {}). Grid size: {}x{}", sprite_meta_type,
                random_origin_position.position.x, random_origin_position.position.y, large_obst_grid_size.width,
@@ -190,8 +192,8 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
       // Bottom-left position: grid_y=1, grid_x=0 → sprite_index = 1 * 4 + 0 = 4
       // Bottom-right position: grid_y=1, grid_x=3 → sprite_index = 1 * 4 + 3 = 7
       std::size_t calculated_grid_index = rel_grid_y * large_obst_grid_size.width + rel_grid_x;
-      SPDLOG_INFO( "Adding Cmp::ReservedPosition at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y,
-                   calculated_grid_index );
+      SPDLOG_DEBUG( "Adding Cmp::ReservedPosition at ({}, {}) with sprite_index {}", pos_cmp.position.x,
+                    pos_cmp.position.y, calculated_grid_index );
 
       // check multisprite solid_mask vector is at least as large as calculated index - default to true (solid) if out
       // of bounds

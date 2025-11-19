@@ -104,7 +104,7 @@ private:
       auto &component = get_persistent_component<ComponentType>();
       component.deserialize( persistent_object );
       auto deserialized_value = component.get_value();
-      SPDLOG_INFO( "Loaded {} from JSON with value {}", component.class_name(), deserialized_value );
+      SPDLOG_DEBUG( "Loaded {} from JSON with value {}", component.class_name(), deserialized_value );
     };
   }
 };
