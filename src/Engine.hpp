@@ -152,6 +152,8 @@ private:
   std::vector<Sys::BaseSystem *> m_reg_inject_system_ptrs;
   // scene manager
   std::unique_ptr<Scene::SceneManager> m_scene_manager;
+
+  entt::dispatcher m_nav_event_dispatcher;
 };
 
 } // namespace ProceduralMaze

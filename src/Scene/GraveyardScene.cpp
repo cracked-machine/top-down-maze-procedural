@@ -1,3 +1,4 @@
+#include <Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <Scene/GraveyardScene.hpp>
 #include <Scene/SceneManager.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -13,7 +14,8 @@ GraveyardScene::GraveyardScene(
     Sys::ExitSystem *exit_sys, Sys::LootSystem *loot_sys, Sys::NpcSystem *npc_sys, Sys::WormholeSystem *wormhole_sys,
     Sys::DiggingSystem *digging_sys, Sys::FootstepSystem *footstep_sys, Sys::PathFindSystem *path_find_sys,
     Sys::RenderOverlaySystem *render_overlay_sys, Sys::RenderPlayerSystem *render_player_sys,
-    Sys::ProcGen::RandomLevelGenerator *random_level_sys, Sys::ProcGen::CellAutomataSystem *cellauto_parser )
+    Sys::ProcGen::RandomLevelGenerator *random_level_sys, Sys::ProcGen::CellAutomataSystem *cellauto_parser,
+    entt::dispatcher &nav_event_dispatcher )
 
     : m_sound_bank( sound_bank ),
       m_persistent_sys( persistent_sys ),
@@ -34,7 +36,8 @@ GraveyardScene::GraveyardScene(
       m_render_overlay_sys( render_overlay_sys ),
       m_render_player_sys( render_player_sys ),
       random_level_sys( random_level_sys ),
-      cellauto_parser( cellauto_parser )
+      cellauto_parser( cellauto_parser ),
+      m_nav_event_dispatcher( nav_event_dispatcher )
 {
 }
 
@@ -95,18 +98,19 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
     else { m_player_sys->play_footsteps_sound(); }
   }
 
-  auto menu_action = m_event_handler->game_state_handler();
-  switch ( menu_action )
-  {
-    case Sys::EventHandler::NavigationActions::TITLE:
-      request( SceneRequest::Pop );
-      break;
-    case Sys::EventHandler::NavigationActions::PAUSE:
-      request( SceneRequest::PausedMenu );
-      break;
-    default:
-      break;
-  }
+  m_nav_event_dispatcher.trigger<Events::ProcessGraveyardSceneInputEvent>();
+  // auto menu_action = m_event_handler->game_state_handler();
+  // switch ( menu_action )
+  // {
+  //   case Sys::EventHandler::NavigationActions::TITLE:
+  //     request( SceneRequest::Pop );
+  //     break;
+  //   case Sys::EventHandler::NavigationActions::PAUSE:
+  //     request( SceneRequest::PausedMenu );
+  //     break;
+  //   default:
+  //     break;
+  // }
 
   m_anim_sys->update( dt );
   m_sinkhole_sys->update_hazard_field();

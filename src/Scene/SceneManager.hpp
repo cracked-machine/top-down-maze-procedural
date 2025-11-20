@@ -2,6 +2,7 @@
 #define SCENE_SCENEMANAGER_HPP_
 
 #include <Audio/SoundBank.hpp>
+#include <Events/SceneManagerEvent.hpp>
 #include <SFML/Graphics.hpp>
 
 #include <Components/Font.hpp>
@@ -21,12 +22,14 @@ class SceneManager
 {
 public:
   explicit SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::SystemPtrs scene_di_sys_ptrs,
-                         std::vector<Sys::BaseSystem *> reg_inject_system_ptrs )
+                         std::vector<Sys::BaseSystem *> reg_inject_system_ptrs, entt::dispatcher &nav_event_dispatcher )
       : m_window( w ),
         m_sound_bank( sound_bank ),
         m_reg_inject_system_ptrs( std::move( reg_inject_system_ptrs ) ),
-        m_scene_di_sys_ptrs( scene_di_sys_ptrs )
+        m_scene_di_sys_ptrs( scene_di_sys_ptrs ),
+        m_nav_event_dispatcher( nav_event_dispatcher )
   {
+    m_nav_event_dispatcher.sink<Events::SceneManagerEvent>().connect<&SceneManager::handle_events>( this );
   }
 
   void update( sf::Time dt );
@@ -43,7 +46,7 @@ public:
   IScene *current();
   void gen_level();
 
-  void handle_request( SceneRequest req );
+  // void handle_request( SceneRequest req );
 
 private:
   void inject_registry();
@@ -95,6 +98,8 @@ private:
     future.get();
   }
 
+  void handle_events( const Events::SceneManagerEvent &event );
+
   void print_stack();
 
   //! @brief Non-owning reference to the OpenGL window
@@ -108,6 +113,9 @@ private:
   Sys::SystemPtrs m_scene_di_sys_ptrs;
 
   sf::Texture m_splash_texture{ "res/textures/splash.png" };
+
+  entt::dispatcher &m_nav_event_dispatcher;
+  std::recursive_mutex m_scene_mutex;
 };
 
 } // namespace ProceduralMaze::Scene

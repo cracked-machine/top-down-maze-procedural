@@ -8,41 +8,34 @@
 #include <Components/PlayerMortality.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <EventHandler.hpp>
+#include <Events/ProcessGameoverSceneInputEvent.hpp>
+#include <Events/ProcessGraveyardSceneInputEvent.hpp>
+#include <Events/ProcessPausedMenuSceneInputEvent copy.hpp>
+#include <Events/ProcessSettingsMenuSceneInputEvent.hpp>
+#include <Events/ProcessTitleSceneInputEvent.hpp>
 #include <Events/SaveSettingsEvent.hpp>
+#include <Events/SceneManagerEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
 
 namespace ProceduralMaze::Sys
 {
 
 EventHandler::EventHandler( sf::RenderWindow &m_window, Sprites::SpriteFactory &sprite_factory,
-                            Audio::SoundBank &sound_bank )
-    : Sys::BaseSystem( m_window, sprite_factory, sound_bank )
+                            Audio::SoundBank &sound_bank, entt::dispatcher &nav_event_dispatcher )
+    : Sys::BaseSystem( m_window, sprite_factory, sound_bank ),
+      m_nav_event_dispatcher( nav_event_dispatcher )
 {
+  m_nav_event_dispatcher.sink<Events::ProcessTitleSceneInputEvent>().connect<&EventHandler::title_scene_input_handler>(
+      this );
+  m_nav_event_dispatcher.sink<Events::ProcessSettingsMenuSceneInputEvent>()
+      .connect<&EventHandler::settings_scene_state_handler>( this );
+  m_nav_event_dispatcher.sink<Events::ProcessGraveyardSceneInputEvent>()
+      .connect<&EventHandler::graveyard_scene_state_handler>( this );
+  m_nav_event_dispatcher.sink<Events::ProcessPausedMenuSceneInputEvent>().connect<&EventHandler::paused_state_handler>(
+      this );
 }
 
-EventHandler::NavigationActions EventHandler::menu_state_handler()
-{
-  using namespace sf::Keyboard;
-  while ( const std::optional event = m_window.pollEvent() )
-  {
-    ImGui::SFML::ProcessEvent( m_window, *event );
-    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
-    {
-      sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
-      m_window.setView( sf::View( visibleArea ) );
-    }
-    else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
-    {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::Enter ) { return NavigationActions::PLAY; }
-      else if ( keyPressed->scancode == sf::Keyboard::Scancode::Q ) { return NavigationActions::EXIT; }
-      else if ( keyPressed->scancode == sf::Keyboard::Scancode::S ) { return NavigationActions::SETTINGS; }
-    }
-  }
-  return NavigationActions::NONE;
-}
-
-EventHandler::NavigationActions EventHandler::settings_state_handler()
+void EventHandler::title_scene_input_handler()
 {
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
@@ -56,13 +49,47 @@ EventHandler::NavigationActions EventHandler::settings_state_handler()
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape ) { return NavigationActions::TITLE; }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::Enter )
+      {
+        m_nav_event_dispatcher.trigger( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::START_GAME ) );
+      }
+      else if ( keyPressed->scancode == sf::Keyboard::Scancode::Q )
+      {
+        m_nav_event_dispatcher.trigger( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_GAME ) );
+      }
+      else if ( keyPressed->scancode == sf::Keyboard::Scancode::S )
+      {
+        m_nav_event_dispatcher.trigger( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::SETTINGS_MENU ) );
+      }
     }
   }
-  return NavigationActions::NONE;
+  // return NavigationActions::NONE;
 }
 
-EventHandler::NavigationActions EventHandler::game_state_handler()
+void EventHandler::settings_scene_state_handler()
+{
+  using namespace sf::Keyboard;
+  while ( const std::optional event = m_window.pollEvent() )
+  {
+    ImGui::SFML::ProcessEvent( m_window, *event );
+    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
+    else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
+    {
+      sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
+      m_window.setView( sf::View( visibleArea ) );
+    }
+    else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
+    {
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape )
+      {
+        m_nav_event_dispatcher.trigger(
+            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_SETTINGS_MENU ) );
+      }
+    }
+  }
+}
+
+void EventHandler::graveyard_scene_state_handler()
 {
 
   using namespace sf::Keyboard;
@@ -199,11 +226,18 @@ EventHandler::NavigationActions EventHandler::game_state_handler()
         }
       }
 
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { return NavigationActions::TITLE; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
+      {
+        SPDLOG_INFO( "Quitting game from graveyard scene" );
+        m_nav_event_dispatcher.trigger( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::QUIT_GAME ) );
+      }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { return NavigationActions::PAUSE; }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
+      {
+        m_nav_event_dispatcher.trigger( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::PAUSE_GAME ) );
+      }
     }
   }
 
@@ -231,11 +265,9 @@ EventHandler::NavigationActions EventHandler::game_state_handler()
   {
     getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
   }
-
-  return NavigationActions::NONE;
 }
 
-EventHandler::NavigationActions EventHandler::paused_state_handler()
+void EventHandler::paused_state_handler()
 {
 
   using namespace sf::Keyboard;
@@ -250,10 +282,13 @@ EventHandler::NavigationActions EventHandler::paused_state_handler()
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { return NavigationActions::RESUME; }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
+      {
+        SPDLOG_INFO( "Resuming game from paused state" );
+        // m_nav_event_dispatcher.trigger( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::RESUME_GAME ) );
+      }
     }
   }
-  return NavigationActions::NONE;
 }
 
 EventHandler::NavigationActions EventHandler::game_over_state_handler()

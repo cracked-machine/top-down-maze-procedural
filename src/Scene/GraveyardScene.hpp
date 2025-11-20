@@ -17,6 +17,7 @@
 #include <Systems/Threats/BombSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Systems/Threats/WormholeSystem.hpp>
+#include <entt/signal/fwd.hpp>
 
 namespace ProceduralMaze::Scene
 {
@@ -32,7 +33,7 @@ public:
                   Sys::FootstepSystem *footstep_sys, Sys::PathFindSystem *path_find_sys,
                   Sys::RenderOverlaySystem *render_overlay_sys, Sys::RenderPlayerSystem *render_player_sys,
                   Sys::ProcGen::RandomLevelGenerator *random_level_sys,
-                  Sys::ProcGen::CellAutomataSystem *cellauto_parser );
+                  Sys::ProcGen::CellAutomataSystem *cellauto_parser, entt::dispatcher &nav_event_dispatcher );
 
   void on_init() override;
   void on_enter() override;
@@ -69,6 +70,8 @@ private:
   const sf::Time m_obstacle_distance_update_interval{ sf::milliseconds( 100 ) };
   // path tracking timer (optimization)
   sf::Clock m_obstacle_distance_timer;
+
+  entt::dispatcher &m_nav_event_dispatcher;
 };
 
 } // namespace ProceduralMaze::Scene

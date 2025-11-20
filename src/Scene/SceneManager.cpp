@@ -1,3 +1,4 @@
+#include <Events/SceneManagerEvent.hpp>
 #include <Scene/GameOverScene.hpp>
 #include <Scene/GraveyardScene.hpp>
 #include <Scene/IScene.hpp>
@@ -13,16 +14,16 @@ namespace ProceduralMaze::Scene
 
 void SceneManager::update( sf::Time dt )
 {
+  std::lock_guard<std::recursive_mutex> lock( m_scene_mutex );
   if ( m_scenes.empty() ) return;
-  m_scenes.back()->update( dt );
 
-  // Handle request after update completes
-  SceneRequest req = m_scenes.back()->consume_request();
-  if ( req != SceneRequest::None ) { handle_request( req ); }
+  m_scenes.back().get()->update( dt );
 }
 
 void SceneManager::push( std::unique_ptr<IScene> scene )
 {
+  std::lock_guard<std::recursive_mutex> lock( m_scene_mutex );
+
   // call exit handler on the current scene
   if ( !m_scenes.empty() ) m_scenes.back()->on_exit();
 
@@ -44,6 +45,8 @@ void SceneManager::push( std::unique_ptr<IScene> scene )
 
 void SceneManager::pop()
 {
+  std::lock_guard<std::recursive_mutex> lock( m_scene_mutex );
+
   if ( m_scenes.empty() ) return;
   m_scenes.back()->on_exit();
   SPDLOG_INFO( "Popping {}.", m_scenes.back()->get_name() );
@@ -57,6 +60,8 @@ void SceneManager::pop()
 
 void SceneManager::push_overlay( std::unique_ptr<IScene> scene )
 {
+  std::lock_guard<std::recursive_mutex> lock( m_scene_mutex );
+
   // new scene is now the current scene
   scene->set_scene_manager( this );
   m_scenes.push_back( std::move( scene ) );
@@ -69,6 +74,8 @@ void SceneManager::push_overlay( std::unique_ptr<IScene> scene )
 
 void SceneManager::pop_overlay()
 {
+  std::lock_guard<std::recursive_mutex> lock( m_scene_mutex );
+
   if ( m_scenes.empty() ) return;
   m_scenes.back()->on_exit();
   SPDLOG_INFO( "Popping {} (overlay).", m_scenes.back()->get_name() );
@@ -79,6 +86,8 @@ void SceneManager::pop_overlay()
 
 void SceneManager::replace( std::unique_ptr<IScene> scene )
 {
+  std::lock_guard<std::recursive_mutex> lock( m_scene_mutex );
+
   if ( !m_scenes.empty() )
   {
     print_stack();
@@ -99,6 +108,8 @@ void SceneManager::replace( std::unique_ptr<IScene> scene )
 
 void SceneManager::replace_overlay( std::unique_ptr<IScene> scene )
 {
+  std::lock_guard<std::recursive_mutex> lock( m_scene_mutex );
+
   if ( !m_scenes.empty() )
   {
     print_stack();
@@ -125,83 +136,149 @@ void SceneManager::gen_level()
   m_scene_di_sys_ptrs.cellauto_parser->iterate( 5 );
 }
 
-void SceneManager::handle_request( SceneRequest req )
+void SceneManager::handle_events( const Events::SceneManagerEvent &event )
 {
+  switch ( event.m_type )
   {
-    switch ( req )
+    case Events::SceneManagerEvent::Type::SETTINGS_MENU:
     {
-      case SceneRequest::SettingsMenu:
-      {
-        auto settings_scene = std::make_unique<SettingsMenuScene>( m_scene_di_sys_ptrs.persistent_sys,
-                                                                   m_scene_di_sys_ptrs.render_menu_sys,
-                                                                   m_scene_di_sys_ptrs.event_handler );
-        push( std::move( settings_scene ) );
-        break;
-      }
-      case SceneRequest::GraveyardScene:
-      {
-        auto graveyard_scene = std::make_unique<GraveyardScene>(
-            m_sound_bank, m_scene_di_sys_ptrs.persistent_sys, m_scene_di_sys_ptrs.player_sys,
-            m_scene_di_sys_ptrs.render_game_sys, m_scene_di_sys_ptrs.event_handler, m_scene_di_sys_ptrs.anim_sys,
-            m_scene_di_sys_ptrs.sinkhole_sys, m_scene_di_sys_ptrs.corruption_sys, m_scene_di_sys_ptrs.bomb_sys,
-            m_scene_di_sys_ptrs.exit_sys, m_scene_di_sys_ptrs.loot_sys, m_scene_di_sys_ptrs.npc_sys,
-            m_scene_di_sys_ptrs.wormhole_sys, m_scene_di_sys_ptrs.digging_sys, m_scene_di_sys_ptrs.footstep_sys,
-            m_scene_di_sys_ptrs.path_find_sys, m_scene_di_sys_ptrs.render_overlay_sys,
-            m_scene_di_sys_ptrs.render_player_sys, m_scene_di_sys_ptrs.random_level_sys,
-            m_scene_di_sys_ptrs.cellauto_parser );
+      SPDLOG_INFO( "SceneManager: SETTINGS_MENU event received" );
 
-        push( std::move( graveyard_scene ) );
-
-        break;
-      }
-      case SceneRequest::PausedMenu:
-      {
-        auto paused_scene = std::make_unique<PausedMenuScene>( m_sound_bank, m_scene_di_sys_ptrs.persistent_sys,
-                                                               m_scene_di_sys_ptrs.event_handler,
-                                                               m_scene_di_sys_ptrs.render_menu_sys );
-        push_overlay( std::move( paused_scene ) );
-        break;
-      }
-      case SceneRequest::GameOver:
-      {
-        auto game_over_scene = std::make_unique<GameOverScene>(
-            m_sound_bank, m_scene_di_sys_ptrs.persistent_sys, m_scene_di_sys_ptrs.player_sys,
-            m_scene_di_sys_ptrs.render_menu_sys, m_scene_di_sys_ptrs.event_handler,
-            m_scene_di_sys_ptrs.render_game_sys );
-        replace_overlay( std::move( game_over_scene ) );
-        break;
-      }
-      case SceneRequest::LevelComplete:
-      {
-        auto level_complete_scene = std::make_unique<LevelCompleteScene>(
-            m_sound_bank, m_scene_di_sys_ptrs.persistent_sys, m_scene_di_sys_ptrs.player_sys,
-            m_scene_di_sys_ptrs.render_menu_sys, m_scene_di_sys_ptrs.event_handler,
-            m_scene_di_sys_ptrs.render_game_sys );
-        replace_overlay( std::move( level_complete_scene ) );
-        break;
-      }
-      case SceneRequest::PopOverlay:
-      {
-        // scene can request to pop itself but new top scene does NOT call on_enter or inject registry
-        pop_overlay();
-        break;
-      }
-      case SceneRequest::Pop:
-      {
-        // scene can request to pop itself and new top scene WILL call on_enter and inject registry
-        pop();
-        break;
-      }
-      case SceneRequest::Quit:
-      {
-        m_window.close();
-        break;
-      }
-      default:
-        break;
+      auto settings_scene = std::make_unique<SettingsMenuScene>(
+          m_scene_di_sys_ptrs.persistent_sys, m_scene_di_sys_ptrs.render_menu_sys, m_nav_event_dispatcher );
+      push( std::move( settings_scene ) );
+      break;
     }
+    case Events::SceneManagerEvent::Type::EXIT_GAME:
+    {
+      SPDLOG_INFO( "SceneManager: EXIT_GAME event received" );
+      m_window.close();
+      break;
+    }
+    case Events::SceneManagerEvent::Type::EXIT_SETTINGS_MENU:
+    {
+      SPDLOG_INFO( "SceneManager: EXIT_SETTINGS_MENU event received" );
+      pop();
+      break;
+    }
+    case Events::SceneManagerEvent::Type::START_GAME:
+    {
+      SPDLOG_INFO( "SceneManager: START_GAME event received" );
+      auto graveyard_scene = std::make_unique<GraveyardScene>(
+          m_sound_bank, m_scene_di_sys_ptrs.persistent_sys, m_scene_di_sys_ptrs.player_sys,
+          m_scene_di_sys_ptrs.render_game_sys, m_scene_di_sys_ptrs.event_handler, m_scene_di_sys_ptrs.anim_sys,
+          m_scene_di_sys_ptrs.sinkhole_sys, m_scene_di_sys_ptrs.corruption_sys, m_scene_di_sys_ptrs.bomb_sys,
+          m_scene_di_sys_ptrs.exit_sys, m_scene_di_sys_ptrs.loot_sys, m_scene_di_sys_ptrs.npc_sys,
+          m_scene_di_sys_ptrs.wormhole_sys, m_scene_di_sys_ptrs.digging_sys, m_scene_di_sys_ptrs.footstep_sys,
+          m_scene_di_sys_ptrs.path_find_sys, m_scene_di_sys_ptrs.render_overlay_sys,
+          m_scene_di_sys_ptrs.render_player_sys, m_scene_di_sys_ptrs.random_level_sys,
+          m_scene_di_sys_ptrs.cellauto_parser, m_nav_event_dispatcher );
+
+      push( std::move( graveyard_scene ) );
+      break;
+    }
+    case Events::SceneManagerEvent::Type::PAUSE_GAME:
+    {
+      SPDLOG_INFO( "SceneManager: PAUSE_GAME event received" );
+      auto paused_scene = std::make_unique<PausedMenuScene>(
+          m_sound_bank, m_scene_di_sys_ptrs.persistent_sys, m_scene_di_sys_ptrs.event_handler,
+          m_scene_di_sys_ptrs.render_menu_sys, m_nav_event_dispatcher );
+      push_overlay( std::move( paused_scene ) );
+      break;
+    }
+    case Events::SceneManagerEvent::Type::RESUME_GAME:
+    {
+      SPDLOG_INFO( "SceneManager: RESUME_GAME event received" );
+      pop_overlay();
+      break;
+    }
+    case Events::SceneManagerEvent::Type::QUIT_GAME:
+    {
+      SPDLOG_INFO( "SceneManager: QUIT_GAME event received" );
+      pop();
+      break;
+    }
+    default:
+      break;
   }
 }
+
+// void SceneManager::handle_request( SceneRequest req )
+// {
+//   {
+//     switch ( req )
+//     {
+//       case SceneRequest::SettingsMenu:
+//       {
+//         auto settings_scene = std::make_unique<SettingsMenuScene>(
+//             m_scene_di_sys_ptrs.persistent_sys, m_scene_di_sys_ptrs.render_menu_sys, m_nav_event_dispatcher );
+//         push( std::move( settings_scene ) );
+//         break;
+//       }
+//       case SceneRequest::GraveyardScene:
+//       {
+//         auto graveyard_scene = std::make_unique<GraveyardScene>(
+//             m_sound_bank, m_scene_di_sys_ptrs.persistent_sys, m_scene_di_sys_ptrs.player_sys,
+//             m_scene_di_sys_ptrs.render_game_sys, m_scene_di_sys_ptrs.event_handler, m_scene_di_sys_ptrs.anim_sys,
+//             m_scene_di_sys_ptrs.sinkhole_sys, m_scene_di_sys_ptrs.corruption_sys, m_scene_di_sys_ptrs.bomb_sys,
+//             m_scene_di_sys_ptrs.exit_sys, m_scene_di_sys_ptrs.loot_sys, m_scene_di_sys_ptrs.npc_sys,
+//             m_scene_di_sys_ptrs.wormhole_sys, m_scene_di_sys_ptrs.digging_sys, m_scene_di_sys_ptrs.footstep_sys,
+//             m_scene_di_sys_ptrs.path_find_sys, m_scene_di_sys_ptrs.render_overlay_sys,
+//             m_scene_di_sys_ptrs.render_player_sys, m_scene_di_sys_ptrs.random_level_sys,
+//             m_scene_di_sys_ptrs.cellauto_parser, m_nav_event_dispatcher );
+
+//         push( std::move( graveyard_scene ) );
+
+//         break;
+//       }
+//       case SceneRequest::PausedMenu:
+//       {
+//         auto paused_scene = std::make_unique<PausedMenuScene>(
+//             m_sound_bank, m_scene_di_sys_ptrs.persistent_sys, m_scene_di_sys_ptrs.event_handler,
+//             m_scene_di_sys_ptrs.render_menu_sys, m_nav_event_dispatcher );
+//         push_overlay( std::move( paused_scene ) );
+//         break;
+//       }
+//       case SceneRequest::GameOver:
+//       {
+//         auto game_over_scene = std::make_unique<GameOverScene>(
+//             m_sound_bank, m_scene_di_sys_ptrs.persistent_sys, m_scene_di_sys_ptrs.player_sys,
+//             m_scene_di_sys_ptrs.render_menu_sys, m_scene_di_sys_ptrs.event_handler,
+//             m_scene_di_sys_ptrs.render_game_sys );
+//         replace_overlay( std::move( game_over_scene ) );
+//         break;
+//       }
+//       case SceneRequest::LevelComplete:
+//       {
+//         auto level_complete_scene = std::make_unique<LevelCompleteScene>(
+//             m_sound_bank, m_scene_di_sys_ptrs.persistent_sys, m_scene_di_sys_ptrs.player_sys,
+//             m_scene_di_sys_ptrs.render_menu_sys, m_scene_di_sys_ptrs.event_handler,
+//             m_scene_di_sys_ptrs.render_game_sys );
+//         replace_overlay( std::move( level_complete_scene ) );
+//         break;
+//       }
+//       case SceneRequest::PopOverlay:
+//       {
+//         // scene can request to pop itself but new top scene does NOT call on_enter or inject registry
+//         pop_overlay();
+//         break;
+//       }
+//       case SceneRequest::Pop:
+//       {
+//         // scene can request to pop itself and new top scene WILL call on_enter and inject registry
+//         pop();
+//         break;
+//       }
+//       case SceneRequest::Quit:
+//       {
+//         m_window.close();
+//         break;
+//       }
+//       default:
+//         break;
+//     }
+//   }
+// }
 
 // PRIVATE FUNCTIONS
 

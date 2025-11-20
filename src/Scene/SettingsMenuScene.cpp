@@ -1,3 +1,4 @@
+#include <Events/ProcessSettingsMenuSceneInputEvent.hpp>
 #include <Scene/SceneManager.hpp>
 #include <Scene/SettingsMenuScene.hpp>
 
@@ -5,10 +6,10 @@ namespace ProceduralMaze::Scene
 {
 
 SettingsMenuScene::SettingsMenuScene( Sys::PersistentSystem *persistent_sys, Sys::RenderMenuSystem *render_menu_sys,
-                                      Sys::EventHandler *event_handler )
+                                      entt::dispatcher &nav_event_dispatcher )
     : m_persistent_sys( persistent_sys ),
       m_render_menu_sys( render_menu_sys ),
-      m_event_handler( event_handler )
+      m_nav_event_dispatcher( nav_event_dispatcher )
 {
 }
 
@@ -27,17 +28,8 @@ void SettingsMenuScene::on_exit()
 }
 void SettingsMenuScene::update( [[maybe_unused]] sf::Time dt )
 {
-
   m_render_menu_sys->render_settings( dt );
-  auto menu_action = m_event_handler->settings_state_handler();
-  switch ( menu_action )
-  {
-    case Sys::EventHandler::NavigationActions::TITLE:
-      request( SceneRequest::Pop );
-      break;
-    default:
-      break;
-  }
+  m_nav_event_dispatcher.trigger<Events::ProcessSettingsMenuSceneInputEvent>();
 }
 
 entt::registry *SettingsMenuScene::get_registry() { return &registry; }

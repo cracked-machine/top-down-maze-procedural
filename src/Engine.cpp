@@ -58,7 +58,7 @@ bool Engine::run()
 
     m_scene_manager->push( std::make_unique<Scene::TitleScene>( *m_sound_bank, m_scene_di_sys_ptrs.persistent_sys,
                                                                 m_scene_di_sys_ptrs.render_menu_sys,
-                                                                m_scene_di_sys_ptrs.event_handler ) );
+                                                                m_nav_event_dispatcher ) );
     sf::Clock globalFrameClock;
 
     /// MAIN LOOP BEGINS
@@ -91,7 +91,8 @@ void Engine::init_systems()
   m_sprite_factory = std::make_unique<Sprites::SpriteFactory>();
   m_sprite_factory->init();
   m_render_menu_sys = std::make_unique<Sys::RenderMenuSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_event_handler = std::make_unique<Sys::EventHandler>( *m_window, *m_sprite_factory, *m_sound_bank );
+  m_event_handler = std::make_unique<Sys::EventHandler>( *m_window, *m_sprite_factory, *m_sound_bank,
+                                                         m_nav_event_dispatcher );
   m_persistent_sys = std::make_unique<Sys::PersistentSystem>( *m_window, *m_sprite_factory, *m_sound_bank );
 
   m_sound_bank->init();
@@ -167,7 +168,7 @@ void Engine::init_systems()
 
   // create the scene manager now that all systems are initialized
   m_scene_manager = std::make_unique<Scene::SceneManager>( *m_window, *m_sound_bank, m_scene_di_sys_ptrs,
-                                                           m_reg_inject_system_ptrs );
+                                                           m_reg_inject_system_ptrs, m_nav_event_dispatcher );
 
   SPDLOG_INFO( "Lazy initialization of systems complete" );
 }
