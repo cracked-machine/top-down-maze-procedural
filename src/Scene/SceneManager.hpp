@@ -3,12 +3,12 @@
 
 #include <Audio/SoundBank.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 
 #include <Components/Font.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
 #include <Scene/IScene.hpp>
+#include <SystemStore.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <Systems/Systems.hpp>
 
 #include <future>
 #include <memory>
@@ -20,12 +20,10 @@ namespace ProceduralMaze::Scene
 class SceneManager
 {
 public:
-  explicit SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::SystemPtrs scene_di_sys_ptrs,
-                         std::vector<Sys::BaseSystem *> reg_inject_system_ptrs )
+  explicit SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::SystemStore &system_store )
       : m_window( w ),
         m_sound_bank( sound_bank ),
-        m_reg_inject_system_ptrs( std::move( reg_inject_system_ptrs ) ),
-        m_scene_di_sys_ptrs( scene_di_sys_ptrs )
+        m_system_store( system_store )
   {
   }
 
@@ -41,7 +39,6 @@ public:
   void replace_overlay( std::unique_ptr<IScene> scene );
 
   IScene *current();
-  void gen_level();
 
   void handle_request( SceneRequest req );
 
@@ -54,8 +51,7 @@ private:
     Cmp::Font font( "res/fonts/tuffy.ttf" );
     sf::Text loading_text( font, "Loading", 48 );
     loading_text.setFillColor( sf::Color::White );
-    loading_text.setPosition(
-        { Sys::BaseSystem::kDisplaySize.x / 2.f - 50.f, Sys::BaseSystem::kDisplaySize.y / 2.f + 100.f } );
+    loading_text.setPosition( { Sys::BaseSystem::kDisplaySize.x / 2.f - 50.f, Sys::BaseSystem::kDisplaySize.y / 2.f + 100.f } );
 
     sf::Clock clock;
     const float text_update_interval = 1.f; // 1 second between dot updates
@@ -103,11 +99,13 @@ private:
 
   std::vector<std::unique_ptr<IScene>> m_scenes;
 
-  std::vector<Sys::BaseSystem *> m_reg_inject_system_ptrs;
+  // std::vector<Sys::BaseSystem *> m_reg_inject_system_ptrs;
 
-  Sys::SystemPtrs m_scene_di_sys_ptrs;
+  // Sys::SystemPtrs m_scene_di_sys_ptrs;
 
   sf::Texture m_splash_texture{ "res/textures/splash.png" };
+
+  Sys::SystemStore &m_system_store;
 };
 
 } // namespace ProceduralMaze::Scene

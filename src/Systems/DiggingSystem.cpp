@@ -47,9 +47,15 @@ void DiggingSystem::update()
 
 void DiggingSystem::check_player_dig_obstacle_collision()
 {
-  // shit out of pick?
-  auto player_weapons_view = m_reg->view<Cmp::WeaponLevel>();
-  for ( auto [weapons_entity, weapons_level] : player_weapons_view.each() )
+  SPDLOG_INFO( "DiggingSystem::check_player_dig_obstacle_collision - m_registry = {}", static_cast<void *>( m_reg ) );
+  if ( !m_reg )
+  {
+    SPDLOG_ERROR( "DiggingSystem m_registry is null!" );
+    return;
+  }
+
+  auto weapon_view = m_reg->view<Cmp::WeaponLevel>();
+  for ( auto [weapons_entity, weapons_level] : weapon_view.each() )
   {
     if ( weapons_level.m_level <= 0 )
     {

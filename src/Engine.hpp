@@ -18,20 +18,9 @@
 
 #include <spdlog/spdlog.h>
 
-#include <Components/Direction.hpp>
-#include <Components/DisplaySize.hpp>
-#include <Components/Font.hpp>
-#include <Components/Obstacle.hpp>
-#include <Components/Persistent/FuseDelay.hpp>
-#include <Components/Persistent/GameState.hpp>
-#include <Components/PlayableCharacter.hpp>
-#include <Components/Position.hpp>
-#include <Components/Random.hpp>
-#include <Components/System.hpp>
-#include <Components/WaterLevel.hpp>
-
 #include <Sprites/TileMap.hpp>
-#include <Systems/Systems.hpp>
+#include <SystemStore.hpp>
+
 #include <future>
 #include <memory>
 #include <string>
@@ -70,8 +59,7 @@ private:
     Cmp::Font font( "res/fonts/tuffy.ttf" );
     sf::Text loading_text( font, "Loading", 48 );
     loading_text.setFillColor( sf::Color::White );
-    loading_text.setPosition(
-        { Sys::BaseSystem::kDisplaySize.x / 2.f - 50.f, Sys::BaseSystem::kDisplaySize.y / 2.f + 100.f } );
+    loading_text.setPosition( { Sys::BaseSystem::kDisplaySize.x / 2.f - 50.f, Sys::BaseSystem::kDisplaySize.y / 2.f + 100.f } );
 
     sf::Clock clock;
     const float text_update_interval = 1.f; // 1 second between dot updates
@@ -115,42 +103,14 @@ private:
   sf::Texture m_splash_texture{ "res/textures/splash.png" };
 
   // Create the opengl window
-  std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>(
-      sf::VideoMode( Sys::BaseSystem::kDisplaySize ), "ProceduralMaze", sf::State::Fullscreen );
+  std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( Sys::BaseSystem::kDisplaySize ),
+                                                                                   "ProceduralMaze", sf::State::Fullscreen );
 
   // create MultiSprite resources
   std::unique_ptr<Sprites::SpriteFactory> m_sprite_factory;
   std::unique_ptr<Audio::SoundBank> m_sound_bank = std::make_unique<Audio::SoundBank>();
 
-  // ECS Systems - owned by Engine
-  std::unique_ptr<Sys::RenderMenuSystem> m_render_menu_sys;
-  std::unique_ptr<Sys::EventHandler> m_event_handler;
-  std::unique_ptr<Sys::RenderGameSystem> m_render_game_sys;
-  std::unique_ptr<Sys::PersistentSystem> m_persistent_sys;
-  std::unique_ptr<Sys::PlayerSystem> m_player_sys;
-  std::unique_ptr<Sys::PathFindSystem> m_path_find_sys;
-  std::unique_ptr<Sys::NpcSystem> m_npc_sys;
-  std::unique_ptr<Sys::CollisionSystem> m_collision_sys;
-  std::unique_ptr<Sys::DiggingSystem> m_digging_sys;
-  std::unique_ptr<Sys::RenderOverlaySystem> m_render_overlay_sys;
-  std::unique_ptr<Sys::RenderPlayerSystem> m_render_player_sys;
-  std::unique_ptr<Sys::BombSystem> m_bomb_sys;
-  std::unique_ptr<Sys::AnimSystem> m_anim_sys;
-  std::unique_ptr<Sys::SinkHoleHazardSystem> m_sinkhole_sys;
-  std::unique_ptr<Sys::CorruptionHazardSystem> m_corruption_sys;
-  std::unique_ptr<Sys::WormholeSystem> m_wormhole_sys;
-  std::unique_ptr<Sys::ExitSystem> m_exit_sys;
-  std::unique_ptr<Sys::FootstepSystem> m_footstep_sys;
-  std::unique_ptr<Sys::LargeObstacleSystem> m_large_obstacle_sys;
-  std::unique_ptr<Sys::LootSystem> m_loot_sys;
-  std::unique_ptr<Sys::ProcGen::RandomLevelGenerator> m_random_level_sys;
-  std::unique_ptr<Sys::ProcGen::CellAutomataSystem> m_cellauto_parser;
-
-  // scene dependency injection pointers passed to SceneManager
-  Sys::SystemPtrs m_scene_di_sys_ptrs;
-  // registry injection pointers passed to SceneManager
-  std::vector<Sys::BaseSystem *> m_reg_inject_system_ptrs;
-  // scene manager
+  std::unique_ptr<Sys::SystemStore> m_system_store;
   std::unique_ptr<Scene::SceneManager> m_scene_manager;
 };
 

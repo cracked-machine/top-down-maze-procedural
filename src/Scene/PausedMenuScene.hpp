@@ -3,6 +3,7 @@
 
 #include <EventHandler.hpp>
 #include <Scene/IScene.hpp>
+#include <SystemStore.hpp>
 #include <Systems/PersistentSystem.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
 
@@ -12,8 +13,7 @@ namespace ProceduralMaze::Scene
 class PausedMenuScene : public IScene
 {
 public:
-  PausedMenuScene( Audio::SoundBank &sound_bank, Sys::PersistentSystem *persistent_sys,
-                   Sys::EventHandler *event_handler, Sys::RenderMenuSystem *render_menu_sys );
+  PausedMenuScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store );
 
   void on_init() override;
   void on_enter() override;
@@ -27,10 +27,7 @@ public:
 
 private:
   Audio::SoundBank &m_sound_bank;
-
-  Sys::PersistentSystem *m_persistent_sys;
-  Sys::EventHandler *m_event_handler;
-  Sys::RenderMenuSystem *m_render_menu_sys;
+  Sys::SystemStore &m_system_store;
 };
 
 } // namespace ProceduralMaze::Scene

@@ -118,13 +118,6 @@ void SceneManager::replace_overlay( std::unique_ptr<IScene> scene )
 
 IScene *SceneManager::current() { return m_scenes.empty() ? nullptr : m_scenes.back().get(); }
 
-void SceneManager::gen_level()
-{
-  m_scene_di_sys_ptrs.random_level_sys->generate();
-  m_scene_di_sys_ptrs.cellauto_parser->set_random_level_generator( m_scene_di_sys_ptrs.random_level_sys );
-  m_scene_di_sys_ptrs.cellauto_parser->iterate( 5 );
-}
-
 void SceneManager::handle_request( SceneRequest req )
 {
   {
@@ -132,23 +125,13 @@ void SceneManager::handle_request( SceneRequest req )
     {
       case SceneRequest::SettingsMenu:
       {
-        auto settings_scene = std::make_unique<SettingsMenuScene>( m_scene_di_sys_ptrs.persistent_sys,
-                                                                   m_scene_di_sys_ptrs.render_menu_sys,
-                                                                   m_scene_di_sys_ptrs.event_handler );
+        auto settings_scene = std::make_unique<SettingsMenuScene>( m_system_store );
         push( std::move( settings_scene ) );
         break;
       }
       case SceneRequest::GraveyardScene:
       {
-        auto graveyard_scene = std::make_unique<GraveyardScene>(
-            m_sound_bank, m_scene_di_sys_ptrs.persistent_sys, m_scene_di_sys_ptrs.player_sys,
-            m_scene_di_sys_ptrs.render_game_sys, m_scene_di_sys_ptrs.event_handler, m_scene_di_sys_ptrs.anim_sys,
-            m_scene_di_sys_ptrs.sinkhole_sys, m_scene_di_sys_ptrs.corruption_sys, m_scene_di_sys_ptrs.bomb_sys,
-            m_scene_di_sys_ptrs.exit_sys, m_scene_di_sys_ptrs.loot_sys, m_scene_di_sys_ptrs.npc_sys,
-            m_scene_di_sys_ptrs.wormhole_sys, m_scene_di_sys_ptrs.digging_sys, m_scene_di_sys_ptrs.footstep_sys,
-            m_scene_di_sys_ptrs.path_find_sys, m_scene_di_sys_ptrs.render_overlay_sys,
-            m_scene_di_sys_ptrs.render_player_sys, m_scene_di_sys_ptrs.random_level_sys,
-            m_scene_di_sys_ptrs.cellauto_parser );
+        auto graveyard_scene = std::make_unique<GraveyardScene>( m_sound_bank, m_system_store );
 
         push( std::move( graveyard_scene ) );
 
@@ -156,27 +139,19 @@ void SceneManager::handle_request( SceneRequest req )
       }
       case SceneRequest::PausedMenu:
       {
-        auto paused_scene = std::make_unique<PausedMenuScene>( m_sound_bank, m_scene_di_sys_ptrs.persistent_sys,
-                                                               m_scene_di_sys_ptrs.event_handler,
-                                                               m_scene_di_sys_ptrs.render_menu_sys );
+        auto paused_scene = std::make_unique<PausedMenuScene>( m_sound_bank, m_system_store );
         push_overlay( std::move( paused_scene ) );
         break;
       }
       case SceneRequest::GameOver:
       {
-        auto game_over_scene = std::make_unique<GameOverScene>(
-            m_sound_bank, m_scene_di_sys_ptrs.persistent_sys, m_scene_di_sys_ptrs.player_sys,
-            m_scene_di_sys_ptrs.render_menu_sys, m_scene_di_sys_ptrs.event_handler,
-            m_scene_di_sys_ptrs.render_game_sys );
+        auto game_over_scene = std::make_unique<GameOverScene>( m_sound_bank, m_system_store );
         replace_overlay( std::move( game_over_scene ) );
         break;
       }
       case SceneRequest::LevelComplete:
       {
-        auto level_complete_scene = std::make_unique<LevelCompleteScene>(
-            m_sound_bank, m_scene_di_sys_ptrs.persistent_sys, m_scene_di_sys_ptrs.player_sys,
-            m_scene_di_sys_ptrs.render_menu_sys, m_scene_di_sys_ptrs.event_handler,
-            m_scene_di_sys_ptrs.render_game_sys );
+        auto level_complete_scene = std::make_unique<LevelCompleteScene>( m_sound_bank, m_system_store );
         replace_overlay( std::move( level_complete_scene ) );
         break;
       }
@@ -209,11 +184,11 @@ void SceneManager::inject_registry()
 {
   auto *scene = current();
   entt::registry *reg = scene ? scene->get_registry() : nullptr;
+  if ( !reg ) throw std::runtime_error( "SceneManager::inject_registry: Current scene has null registry pointer." );
+  for ( auto &sys : m_system_store )
+    sys.second->setRegistry( reg );
 
-  for ( auto *sys : m_reg_inject_system_ptrs )
-    sys->setRegistry( reg );
-
-  SPDLOG_INFO( "Injected registry into all systems for {}", scene->get_name() );
+  SPDLOG_INFO( "Injected registry into {} systems for {}", m_system_store.size(), scene->get_name() );
 }
 
 void SceneManager::print_stack()
