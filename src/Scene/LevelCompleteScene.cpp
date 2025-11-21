@@ -24,7 +24,7 @@ void LevelCompleteScene::on_enter()
 void LevelCompleteScene::on_exit()
 {
   SPDLOG_INFO( "Exiting LevelCompleteScene" );
-  registry.clear();
+  m_reg.clear();
 
   auto &player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
   player_sys.stop_footsteps_sound();
@@ -51,6 +51,6 @@ void LevelCompleteScene::update( [[maybe_unused]] sf::Time dt )
   }
 }
 
-entt::registry *LevelCompleteScene::get_registry() { return &registry; }
+entt::registry &LevelCompleteScene::get_registry() { return m_reg; }
 
 } // namespace ProceduralMaze::Scene

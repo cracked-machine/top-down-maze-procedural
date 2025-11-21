@@ -18,7 +18,8 @@ namespace ProceduralMaze::Sys
 class LargeObstacleSystem : public BaseSystem
 {
 public:
-  LargeObstacleSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  LargeObstacleSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                       Audio::SoundBank &sound_bank );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}

@@ -41,8 +41,9 @@
 namespace ProceduralMaze::Sys
 {
 
-RenderGameSystem::RenderGameSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : RenderSystem( window, sprite_factory, sound_bank )
+RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                                    Audio::SoundBank &sound_bank )
+    : RenderSystem( reg, window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "RenderGameSystem initialized" );
 }
@@ -80,7 +81,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
   using namespace Sprites;
 
   // check for updates to the System modes
-  for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
+  for ( auto [_ent, _sys] : getReg().view<Cmp::System>().each() )
   {
     m_show_path_finding = _sys.show_path_distances;
     m_show_armed_obstacles = _sys.show_armed_obstacles;
@@ -89,7 +90,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
   }
 
   sf::FloatRect player_position( { 0.f, 0.f }, kGridSquareSizePixelsF );
-  for ( auto [entity, pc_cmp, pc_pos_cmp] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+  for ( auto [entity, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
   {
     player_position = pc_pos_cmp;
   }
@@ -193,19 +194,19 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::getGameView() );
 
       // gather metrics from components
-      for ( auto [pc_entt, pc_cmp, pc_health_cmp] : m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+      for ( auto [pc_entt, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
       {
         player_health = pc_health_cmp.health;
         bomb_inventory = pc_cmp.bomb_inventory;
         blast_radius = pc_cmp.blast_radius;
       }
 
-      for ( auto [entity, weapon_level, pc_cmp] : m_reg->view<Cmp::WeaponLevel, Cmp::PlayableCharacter>().each() )
+      for ( auto [entity, weapon_level, pc_cmp] : getReg().view<Cmp::WeaponLevel, Cmp::PlayableCharacter>().each() )
       {
         new_weapon_level = weapon_level.m_level;
       }
 
-      auto pc_candles_cmp = m_reg->view<Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount, Cmp::PlayerRelicCount>();
+      auto pc_candles_cmp = getReg().view<Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount, Cmp::PlayerRelicCount>();
       for ( auto [entity, candles_cmp, keys_cmp, relic_cmp] : pc_candles_cmp.each() )
       {
         player_candles_count = candles_cmp.get_count();
@@ -271,7 +272,7 @@ void RenderGameSystem::render_floormap( const sf::Vector2f &offset )
 
 void RenderGameSystem::render_player_spawn()
 {
-  auto spawnarea_view = m_reg->view<Cmp::SpawnAreaSprite, Cmp::Position>();
+  auto spawnarea_view = getReg().view<Cmp::SpawnAreaSprite, Cmp::Position>();
   for ( auto [entity, spawnarea_cmp, pos_cmp] : spawnarea_view.each() )
   {
 
@@ -287,7 +288,7 @@ void RenderGameSystem::render_player_spawn()
 void RenderGameSystem::render_large_obstacles()
 {
 
-  auto shrine_view = m_reg->view<Cmp::ShrineSegment, Cmp::Position, Cmp::SpriteAnimation>();
+  auto shrine_view = getReg().view<Cmp::ShrineSegment, Cmp::Position, Cmp::SpriteAnimation>();
   for ( auto [entity, shrine_cmp, pos_cmp, anim_cmp] : shrine_view.each() )
   {
     if ( !is_visible_in_view( RenderSystem::s_game_view, pos_cmp ) ) continue;
@@ -311,7 +312,7 @@ void RenderGameSystem::render_large_obstacles()
     safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
   }
 
-  auto grave_view = m_reg->view<Cmp::GraveSegment, Cmp::Position, Cmp::SpriteAnimation>();
+  auto grave_view = getReg().view<Cmp::GraveSegment, Cmp::Position, Cmp::SpriteAnimation>();
   for ( auto [entity, grave_cmp, pos_cmp, anim_cmp] : grave_view.each() )
   {
 
@@ -325,7 +326,7 @@ void RenderGameSystem::render_large_obstacles()
   }
 
   // TODO replace this yellow activation box with halo effect shader
-  auto large_obstacle_view = m_reg->view<Cmp::LargeObstacle>();
+  auto large_obstacle_view = getReg().view<Cmp::LargeObstacle>();
   for ( auto [entity, large_obst_cmp] : large_obstacle_view.each() )
   {
     if ( not large_obst_cmp.are_powers_active() ) { continue; }
@@ -341,7 +342,7 @@ void RenderGameSystem::render_large_obstacles()
 
 void RenderGameSystem::render_npc_containers()
 {
-  auto npccontainer_view = m_reg->view<Cmp::NpcContainer, Cmp::Position>();
+  auto npccontainer_view = getReg().view<Cmp::NpcContainer, Cmp::Position>();
   for ( auto [entity, npccontainer_cmp, pos_cmp] : npccontainer_view.each() )
   {
 
@@ -356,7 +357,7 @@ void RenderGameSystem::render_npc_containers()
 
 void RenderGameSystem::render_loot_containers()
 {
-  auto lootcontainer_view = m_reg->view<Cmp::LootContainer, Cmp::Position>();
+  auto lootcontainer_view = getReg().view<Cmp::LootContainer, Cmp::Position>();
   for ( auto [entity, lootcontainer_cmp, pos_cmp] : lootcontainer_view.each() )
   {
     auto new_idx = lootcontainer_cmp.m_tile_index;
@@ -379,7 +380,7 @@ void RenderGameSystem::render_small_obstacles()
   std::vector<sf::FloatRect> detonationPositions;
 
   // Collect all positions first instead of drawing immediately
-  auto obst_view = m_reg->view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>( entt::exclude<Cmp::PlayableCharacter> );
+  auto obst_view = getReg().view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>( entt::exclude<Cmp::PlayableCharacter> );
   for ( auto [entity, obstacle_cmp, position_cmp, _ob_nb_list] : obst_view.each() )
   {
     // check if obstacle is within the current view (in world coordinates)
@@ -428,7 +429,7 @@ void RenderGameSystem::render_small_obstacles()
     safe_render_sprite( "DETONATED", pos_cmp, 0 );
   }
 
-  auto selected_view = m_reg->view<Cmp::SelectedPosition, Cmp::Position>();
+  auto selected_view = getReg().view<Cmp::SelectedPosition, Cmp::Position>();
   for ( auto [entity, selected_cmp, position_cmp] : selected_view.each() )
   {
     SPDLOG_DEBUG( "Rendering Cmp::SelectedPosition at ({}, {})", selected_cmp.x, selected_cmp.y );
@@ -455,7 +456,7 @@ void RenderGameSystem::render_small_obstacles()
 void RenderGameSystem::render_sinkhole()
 {
   std::vector<std::pair<sf::FloatRect, bool>> sinkholePositions;
-  auto sinkhole_view = m_reg->view<Cmp::SinkholeCell, Cmp::Position>();
+  auto sinkhole_view = getReg().view<Cmp::SinkholeCell, Cmp::Position>();
   for ( auto [entity, sinkhole_cmp, position_cmp] : sinkhole_view.each() )
   {
     // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
@@ -471,7 +472,7 @@ void RenderGameSystem::render_sinkhole()
 void RenderGameSystem::render_corruption()
 {
   std::vector<std::pair<sf::FloatRect, bool>> corruptionPositions;
-  auto corruption_view = m_reg->view<Cmp::CorruptionCell, Cmp::Position>();
+  auto corruption_view = getReg().view<Cmp::CorruptionCell, Cmp::Position>();
   for ( auto [entity, corruption_cmp, position_cmp] : corruption_view.each() )
   {
     // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
@@ -486,7 +487,7 @@ void RenderGameSystem::render_corruption()
 
 void RenderGameSystem::render_wormhole()
 {
-  auto wormhole_view = m_reg->view<Cmp::Wormhole, Cmp::Position, Cmp::SpriteAnimation>();
+  auto wormhole_view = getReg().view<Cmp::Wormhole, Cmp::Position, Cmp::SpriteAnimation>();
   for ( auto [entity, wormhole_cmp, pos_cmp, anim_cmp] : wormhole_view.each() )
   {
     // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
@@ -545,7 +546,7 @@ void RenderGameSystem::render_wormhole()
 void RenderGameSystem::render_armed()
 {
   // render armed obstacles with debug outlines
-  auto armed_view = m_reg->view<Cmp::Armed, Cmp::Position>();
+  auto armed_view = getReg().view<Cmp::Armed, Cmp::Position>();
   for ( auto [entity, armed_cmp, pos_cmp] : armed_view.each() )
   {
     if ( armed_cmp.m_display_bomb_sprite ) { safe_render_sprite( "BOMB", pos_cmp, 0 ); }
@@ -566,7 +567,7 @@ void RenderGameSystem::render_armed()
 
 void RenderGameSystem::render_loot()
 {
-  auto loot_view = m_reg->view<Cmp::Loot, Cmp::Position>();
+  auto loot_view = getReg().view<Cmp::Loot, Cmp::Position>();
   for ( auto [entity, loot_cmp, pos_cmp] : loot_view.each() )
   {
     // clang-format off
@@ -587,7 +588,7 @@ void RenderGameSystem::render_loot()
 void RenderGameSystem::render_walls()
 {
   // draw walls and door frames
-  auto wall_view = m_reg->view<Cmp::Wall, Cmp::Position>();
+  auto wall_view = getReg().view<Cmp::Wall, Cmp::Position>();
   for ( auto [entity, wall_cmp, pos_cmp] : wall_view.each() )
   {
     // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
@@ -600,7 +601,7 @@ void RenderGameSystem::render_walls()
   }
 
   // draw entrance
-  auto entrance_door_view = m_reg->view<Cmp::Door, Cmp::Position>( entt::exclude<Cmp::Exit> );
+  auto entrance_door_view = getReg().view<Cmp::Door, Cmp::Position>( entt::exclude<Cmp::Exit> );
   for ( auto [entity, door_cmp, pos_cmp] : entrance_door_view.each() )
   {
     // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
@@ -612,7 +613,7 @@ void RenderGameSystem::render_walls()
     safe_render_sprite( "WALL", pos_cmp, door_cmp.m_tile_index, new_scale, new_alpha, new_origin, sf::degrees( angle ) );
   }
 
-  auto exit_door_view = m_reg->view<Cmp::Door, Cmp::Position, Cmp::Exit>();
+  auto exit_door_view = getReg().view<Cmp::Door, Cmp::Position, Cmp::Exit>();
   for ( auto [entity, door_cmp, pos_cmp, exit_cmp] : exit_door_view.each() )
   {
     // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
@@ -633,7 +634,7 @@ void RenderGameSystem::render_walls()
 
 void RenderGameSystem::render_explosions()
 {
-  auto explosion_view = m_reg->view<Cmp::NpcDeathPosition, Cmp::SpriteAnimation>();
+  auto explosion_view = getReg().view<Cmp::NpcDeathPosition, Cmp::SpriteAnimation>();
   for ( auto [entity, npc_death_pos, anim_cmp] : explosion_view.each() )
   {
     auto new_idx = anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame;
@@ -665,8 +666,8 @@ void RenderGameSystem::render_mist( sf::FloatRect player_position )
 
 void RenderGameSystem::render_arrow_compass()
 {
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
-  auto exit_view = m_reg->view<Cmp::Exit, Cmp::Position>();
+  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto exit_view = getReg().view<Cmp::Exit, Cmp::Position>();
 
   for ( auto [player_entity, pc_cmp, pc_pos_cmp] : player_view.each() )
   {

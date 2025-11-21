@@ -23,7 +23,7 @@ public:
   void update( [[maybe_unused]] sf::Time dt ) override;
   std::string get_name() const override { return "LevelCompleteScene"; }
 
-  entt::registry *get_registry() override;
+  entt::registry &get_registry() override;
 
 private:
   Audio::SoundBank &m_sound_bank;

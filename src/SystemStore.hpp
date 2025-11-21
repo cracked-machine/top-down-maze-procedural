@@ -62,28 +62,28 @@ public:
   SystemStore( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
   {
     // clang-format off
-    m_sysmap.emplace( Type::RenderMenuSystem, std::make_unique<RenderMenuSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::EventHandler, std::make_unique<EventHandler>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::RenderGameSystem, std::make_unique<RenderGameSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::PersistentSystem, std::make_unique<PersistentSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::PlayerSystem, std::make_unique<PlayerSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::PathFindSystem, std::make_unique<PathFindSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::NpcSystem, std::make_unique<NpcSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::CollisionSystem, std::make_unique<CollisionSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::DiggingSystem, std::make_unique<DiggingSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::RenderOverlaySystem, std::make_unique<RenderOverlaySystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::RenderPlayerSystem, std::make_unique<RenderPlayerSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::BombSystem, std::make_unique<BombSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::AnimSystem, std::make_unique<AnimSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::SinkHoleHazardSystem, std::make_unique<SinkHoleHazardSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::CorruptionHazardSystem, std::make_unique<CorruptionHazardSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::WormholeSystem, std::make_unique<WormholeSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::ExitSystem, std::make_unique<ExitSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::FootstepSystem, std::make_unique<FootstepSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::LargeObstacleSystem, std::make_unique<LargeObstacleSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::LootSystem, std::make_unique<LootSystem>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::RandomLevelGenerator, std::make_unique<ProcGen::RandomLevelGenerator>( window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::CellAutomataSystem, std::make_unique<ProcGen::CellAutomataSystem>( window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::RenderMenuSystem, std::make_unique<RenderMenuSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::EventHandler, std::make_unique<EventHandler>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::RenderGameSystem, std::make_unique<RenderGameSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::PersistentSystem, std::make_unique<PersistentSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::PlayerSystem, std::make_unique<PlayerSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::PathFindSystem, std::make_unique<PathFindSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::NpcSystem, std::make_unique<NpcSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::CollisionSystem, std::make_unique<CollisionSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::DiggingSystem, std::make_unique<DiggingSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::RenderOverlaySystem, std::make_unique<RenderOverlaySystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::RenderPlayerSystem, std::make_unique<RenderPlayerSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::BombSystem, std::make_unique<BombSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::AnimSystem, std::make_unique<AnimSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::SinkHoleHazardSystem, std::make_unique<SinkHoleHazardSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::CorruptionHazardSystem, std::make_unique<CorruptionHazardSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::WormholeSystem, std::make_unique<WormholeSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::ExitSystem, std::make_unique<ExitSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::FootstepSystem, std::make_unique<FootstepSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::LargeObstacleSystem, std::make_unique<LargeObstacleSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::LootSystem, std::make_unique<LootSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::RandomLevelGenerator, std::make_unique<ProcGen::RandomLevelGenerator>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::CellAutomataSystem, std::make_unique<ProcGen::CellAutomataSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     // clang-format on
   }
 
@@ -128,6 +128,7 @@ public:
 
 private:
   std::map<Type, std::unique_ptr<BaseSystem>> m_sysmap;
+  entt::registry m_initial_reg; // Temporary registry for initialization
 };
 
 } // namespace ProceduralMaze::Sys

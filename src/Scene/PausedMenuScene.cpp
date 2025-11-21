@@ -56,6 +56,6 @@ void PausedMenuScene::update( [[maybe_unused]] sf::Time dt )
   request( SceneRequest::PopOverlay );
 }
 
-entt::registry *PausedMenuScene::get_registry() { return &registry; }
+entt::registry &PausedMenuScene::get_registry() { return m_reg; }
 
 } // namespace ProceduralMaze::Scene

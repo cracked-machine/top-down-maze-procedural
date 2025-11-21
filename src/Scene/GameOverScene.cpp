@@ -25,7 +25,7 @@ void GameOverScene::on_enter()
 void GameOverScene::on_exit()
 {
   SPDLOG_INFO( "Exiting GameOverScene" );
-  registry.clear();
+  m_reg.clear();
 
   auto &m_player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
   m_player_sys.stop_footsteps_sound();
@@ -52,6 +52,6 @@ void GameOverScene::update( [[maybe_unused]] sf::Time dt )
   }
 }
 
-entt::registry *GameOverScene::get_registry() { return &registry; }
+entt::registry &GameOverScene::get_registry() { return m_reg; }
 
 } // namespace ProceduralMaze::Scene

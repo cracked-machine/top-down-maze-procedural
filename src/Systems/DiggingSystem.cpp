@@ -16,8 +16,9 @@
 namespace ProceduralMaze::Sys
 {
 
-DiggingSystem::DiggingSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : BaseSystem( window, sprite_factory, sound_bank )
+DiggingSystem::DiggingSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                              Audio::SoundBank &sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
   std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&DiggingSystem::on_player_action>( this );
@@ -36,10 +37,10 @@ void DiggingSystem::update()
   }
 
   // Cooldown has expired: Remove any existing SelectedPosition components from the registry
-  auto selected_position_view = m_reg->view<Cmp::SelectedPosition>();
+  auto selected_position_view = getReg().view<Cmp::SelectedPosition>();
   for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
   {
-    m_reg->remove<Cmp::SelectedPosition>( existing_sel_entity );
+    getReg().remove<Cmp::SelectedPosition>( existing_sel_entity );
     SPDLOG_DEBUG( "Removing previous Cmp::SelectedPosition {},{} from entity {}", sel_cmp.x, sel_cmp.y,
                   static_cast<int>( existing_sel_entity ) );
   }
@@ -47,13 +48,7 @@ void DiggingSystem::update()
 
 void DiggingSystem::check_player_dig_obstacle_collision()
 {
-  if ( !m_reg )
-  {
-    SPDLOG_ERROR( "DiggingSystem m_registry is null!" );
-    return;
-  }
-
-  auto weapon_view = m_reg->view<Cmp::WeaponLevel>();
+  auto weapon_view = getReg().view<Cmp::WeaponLevel>();
   for ( auto [weapons_entity, weapons_level] : weapon_view.each() )
   {
     if ( weapons_level.m_level <= 0 )
@@ -68,14 +63,14 @@ void DiggingSystem::check_player_dig_obstacle_collision()
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
 
   // Cooldown has expired: Remove any existing SelectedPosition components from the registry
-  auto selected_position_view = m_reg->view<Cmp::SelectedPosition>();
+  auto selected_position_view = getReg().view<Cmp::SelectedPosition>();
   for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
   {
-    m_reg->remove<Cmp::SelectedPosition>( existing_sel_entity );
+    getReg().remove<Cmp::SelectedPosition>( existing_sel_entity );
   }
 
   // Iterate through all entities with Position and Obstacle components
-  auto position_view = m_reg->view<Cmp::Position, Cmp::Obstacle>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
+  auto position_view = getReg().view<Cmp::Position, Cmp::Obstacle>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
   for ( auto [entity, pos_cmp, obst_cmp] : position_view.each() )
   {
     // skip positions with non diggable obstacles
@@ -93,7 +88,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
 
       // TODO: check player is facing the obstacle
       // Check player proximity to the entity
-      auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
+      auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
       bool player_nearby = false;
       for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_view.each() )
       {
@@ -118,12 +113,12 @@ void DiggingSystem::check_player_dig_obstacle_collision()
 
       // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
       // Add a new SelectedPosition component to the entity
-      m_reg->emplace_or_replace<Cmp::SelectedPosition>( entity, pos_cmp.position );
+      getReg().emplace_or_replace<Cmp::SelectedPosition>( entity, pos_cmp.position );
 
       // Apply digging damage, play a sound depending on whether the obstacle was destroyed
       m_dig_cooldown_clock.restart();
       obst_cmp.m_integrity -= get_persistent_component<Cmp::Persistent::DiggingDamagePerHit>().get_value();
-      auto player_weapons_view = m_reg->view<Cmp::WeaponLevel, Cmp::PlayableCharacter>();
+      auto player_weapons_view = getReg().view<Cmp::WeaponLevel, Cmp::PlayableCharacter>();
       for ( auto [weapons_entity, weapons_level, pc_cmp] : player_weapons_view.each() )
       {
         // Decrease weapons level based on damage dealt

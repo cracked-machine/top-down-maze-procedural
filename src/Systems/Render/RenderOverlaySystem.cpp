@@ -15,7 +15,8 @@
 #include <iomanip>
 #include <sstream>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 void RenderOverlaySystem::render_ui_background_overlay( sf::Vector2f pos, sf::Vector2f size )
 {
@@ -226,13 +227,13 @@ void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f 
   // only gather stats every interval
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
   {
-    auto entity_count = m_reg->view<entt::entity>().size();
-    auto npc_count = m_reg->view<Cmp::NPC>().size();
-    auto position_count = m_reg->view<Cmp::Position>().size();
-    auto corruption_count = m_reg->view<Cmp::CorruptionCell>().size();
-    auto sinkhole_count = m_reg->view<Cmp::SinkholeCell>().size();
+    auto entity_count = getReg().view<entt::entity>().size();
+    auto npc_count = getReg().view<Cmp::NPC>().size();
+    auto position_count = getReg().view<Cmp::Position>().size();
+    auto corruption_count = getReg().view<Cmp::CorruptionCell>().size();
+    auto sinkhole_count = getReg().view<Cmp::SinkholeCell>().size();
 
-    auto obst_view = m_reg->view<Cmp::Obstacle>();
+    auto obst_view = getReg().view<Cmp::Obstacle>();
     auto obstacle_count = obst_view.size();
     int disabled_count = 0;
     for ( auto [e, obstacle] : obst_view.each() )
@@ -278,7 +279,7 @@ void RenderOverlaySystem::render_npc_list_overlay( sf::Vector2f text_start_pos )
   // refresh the list only at intervals
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
   {
-    auto npc_view = m_reg->view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>();
+    auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>();
     m_npc_list_text.clear();
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp, npc_anim_cmp] : npc_view.each() )
     {
@@ -323,7 +324,7 @@ void RenderOverlaySystem::render_obstacle_markers()
 {
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
   {
-    auto obstacle_view = m_reg->view<Cmp::Position, Cmp::Obstacle>();
+    auto obstacle_view = getReg().view<Cmp::Position, Cmp::Obstacle>();
     for ( auto [ob_entt, pos_cmp, obst_cmp] : obstacle_view.each() )
     {
       sf::RectangleShape obstacle_shape( kGridSquareSizePixelsF );
@@ -346,7 +347,7 @@ void RenderOverlaySystem::render_obstacle_markers()
 
 void RenderOverlaySystem::render_player_distances()
 {
-  auto obstacle_view = m_reg->view<Cmp::Position, Cmp::PlayerDistance>();
+  auto obstacle_view = getReg().view<Cmp::Position, Cmp::PlayerDistance>();
   for ( auto [ob_entt, pos_cmp, player_dist_cmp] : obstacle_view.each() )
   {
 
@@ -361,7 +362,7 @@ void RenderOverlaySystem::render_player_distances()
 
 void RenderOverlaySystem::render_scan_detection_bounds()
 {
-  auto player_view = m_reg->view<Cmp::Direction, Cmp::PCDetectionBounds>();
+  auto player_view = getReg().view<Cmp::Direction, Cmp::PCDetectionBounds>();
   for ( auto [entity, pc_pos_cmp, pc_detection_bounds] : player_view.each() )
   {
     sf::RectangleShape detection_bounds_shape;
@@ -373,7 +374,7 @@ void RenderOverlaySystem::render_scan_detection_bounds()
     m_window.draw( detection_bounds_shape );
   }
 
-  for ( auto [entity, pos_cmp, npc_sb_cmp] : m_reg->view<Cmp::Position, Cmp::NPCScanBounds>().each() )
+  for ( auto [entity, pos_cmp, npc_sb_cmp] : getReg().view<Cmp::Position, Cmp::NPCScanBounds>().each() )
   {
     sf::RectangleShape scan_bounds_shape;
     scan_bounds_shape.setPosition( npc_sb_cmp.position() );
@@ -387,7 +388,7 @@ void RenderOverlaySystem::render_scan_detection_bounds()
 
 void RenderOverlaySystem::render_lerp_positions()
 {
-  auto lerp_view = m_reg->view<Cmp::LerpPosition, Cmp::Direction, Cmp::NPC, Cmp::Position>();
+  auto lerp_view = getReg().view<Cmp::LerpPosition, Cmp::Direction, Cmp::NPC, Cmp::Position>();
   for ( auto [entity, lerp_pos_cmp, dir_cmp, npc_cmp, npc_pos_cmp] : lerp_view.each() )
   {
     sf::RectangleShape lerp_start_pos_rect( kGridSquareSizePixelsF );

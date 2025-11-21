@@ -10,7 +10,8 @@ namespace ProceduralMaze::Sys
 class PersistentSystem : public BaseSystem
 {
 public:
-  PersistentSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  PersistentSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                    Audio::SoundBank &sound_bank );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}

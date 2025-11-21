@@ -20,9 +20,9 @@
 namespace ProceduralMaze::Sys
 {
 
-LargeObstacleSystem::LargeObstacleSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+LargeObstacleSystem::LargeObstacleSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
                                           Audio::SoundBank &sound_bank )
-    : BaseSystem( window, sprite_factory, sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
   std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&LargeObstacleSystem::on_player_action>( this );
@@ -32,8 +32,8 @@ void LargeObstacleSystem::check_player_lo_collision( Events::PlayerActionEvent::
 {
   if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
 
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount>();
-  auto large_obstacle_view = m_reg->view<Cmp::LargeObstacle>();
+  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount>();
+  auto large_obstacle_view = getReg().view<Cmp::LargeObstacle>();
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_candles_cmp, pc_keys_cmp] : player_view.each() )
   {
@@ -60,7 +60,7 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
 {
 
   uint8_t activated_shrine_segment_count = 0;
-  auto shrine_view = m_reg->view<Cmp::ShrineSegment, Cmp::Position>();
+  auto shrine_view = getReg().view<Cmp::ShrineSegment, Cmp::Position>();
   for ( auto [shrine_entity, shrine_cmp, shrine_pos_cmp] : shrine_view.each() )
   {
     // dont proceed if large obstacle powers are already active
@@ -88,14 +88,14 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
       {
         case 0:
           // clang-format off
-          m_reg->patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.one"; } );
+          getReg().patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.one"; } );
           // clang-format on
           activated_shrine_segment_count++;
           SPDLOG_DEBUG( "Shrine activated to state ONE." );
           break;
         case 1:
           // clang-format off
-          m_reg->patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.two"; } );
+          getReg().patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.two"; } );
           // clang-format on
           activated_shrine_segment_count++;
           SPDLOG_DEBUG( "Shrine activated to state TWO." );
@@ -103,14 +103,14 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
 
         case 2:
           // clang-format off
-          m_reg->patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.three"; } );
+          getReg().patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.three"; } );
           // clang-format on
           activated_shrine_segment_count++;
           SPDLOG_DEBUG( "Shrine activated to state THREE." );
           break;
         case 3:
           // clang-format off
-          m_reg->patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.four"; } );
+          getReg().patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.four"; } );
           // clang-format on
           activated_shrine_segment_count++;
           SPDLOG_DEBUG( "Shrine activated to state FOUR." );
@@ -155,7 +155,7 @@ void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo
     for ( auto [shrine_entity, shrine_cmp, shrine_pos_cmp] : shrine_view.each() )
     {
       SPDLOG_DEBUG( "Checking for special power activation." );
-      auto anim_sprite_cmp = m_reg->try_get<Cmp::SpriteAnimation>( shrine_entity );
+      auto anim_sprite_cmp = getReg().try_get<Cmp::SpriteAnimation>( shrine_entity );
       if ( anim_sprite_cmp && m_shrine_activation_clock.getElapsedTime() > m_shrine_activation_cooldown )
       {
         activate_shrine_special_power();
@@ -171,7 +171,7 @@ void LargeObstacleSystem::check_player_grave_activation( Cmp::LargeObstacle &lo_
   // uint8_t activated_grave_segments_count = 0;
 
   // check for grave collisions
-  auto grave_view = m_reg->view<Cmp::GraveSegment, Cmp::Position, Cmp::SpriteAnimation>();
+  auto grave_view = getReg().view<Cmp::GraveSegment, Cmp::Position, Cmp::SpriteAnimation>();
   for ( auto [grave_entity, grave_cmp, grave_pos_cmp, grave_anim_cmp] : grave_view.each() )
   {
     // dont proceed if large obstacle powers are already active
@@ -242,7 +242,7 @@ void LargeObstacleSystem::check_player_grave_activation( Cmp::LargeObstacle &lo_
 bool LargeObstacleSystem::activate_shrine_special_power()
 {
 
-  for ( auto [pc_entity, pc_relic_count_cmp] : m_reg->view<Cmp::PlayerRelicCount>().each() )
+  for ( auto [pc_entity, pc_relic_count_cmp] : getReg().view<Cmp::PlayerRelicCount>().each() )
   {
 
     if ( pc_relic_count_cmp.get_count() < 1 ) return false;
@@ -259,7 +259,7 @@ bool LargeObstacleSystem::activate_shrine_special_power()
       case 1:
       {
         SPDLOG_INFO( "Special Power: Kill all nearby NPCs!" );
-        auto npc_view = m_reg->view<Cmp::NPC, Cmp::Position>();
+        auto npc_view = getReg().view<Cmp::NPC, Cmp::Position>();
         for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_view.each() )
         {
           if ( is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) )
@@ -273,7 +273,7 @@ bool LargeObstacleSystem::activate_shrine_special_power()
       case 2:
       {
         SPDLOG_INFO( "Special Power: Re-enable all nearby obstacles!" );
-        auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
+        auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position>();
         for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : obstacle_view.each() )
         {
           if ( is_visible_in_view( RenderSystem::getGameView(), obst_pos_cmp ) )
@@ -292,7 +292,7 @@ bool LargeObstacleSystem::activate_shrine_special_power()
       case 3:
       {
         SPDLOG_INFO( "Special Power: Open all loot containers!" );
-        auto loot_container_view = m_reg->view<Cmp::LootContainer, Cmp::Position>();
+        auto loot_container_view = getReg().view<Cmp::LootContainer, Cmp::Position>();
         for ( auto [lc_entity, lc_cmp, lc_pos_cmp] : loot_container_view.each() )
         {
           if ( is_visible_in_view( RenderSystem::getGameView(), lc_pos_cmp ) )

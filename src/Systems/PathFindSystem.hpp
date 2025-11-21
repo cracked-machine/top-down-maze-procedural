@@ -32,7 +32,8 @@ using PlayerDistanceQueue = std::priority_queue<std::pair<int, entt::entity>, st
 class PathFindSystem : public BaseSystem
 {
 public:
-  PathFindSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  PathFindSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                  Audio::SoundBank &sound_bank );
   ~PathFindSystem() = default;
 
   //! @brief event handlers for pausing system clocks

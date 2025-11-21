@@ -14,9 +14,9 @@
 namespace ProceduralMaze::Sys
 {
 
-EventHandler::EventHandler( sf::RenderWindow &m_window, Sprites::SpriteFactory &sprite_factory,
+EventHandler::EventHandler( entt::registry &reg, sf::RenderWindow &m_window, Sprites::SpriteFactory &sprite_factory,
                             Audio::SoundBank &sound_bank )
-    : Sys::BaseSystem( m_window, sprite_factory, sound_bank )
+    : Sys::BaseSystem( reg, m_window, sprite_factory, sound_bank )
 {
 }
 
@@ -79,7 +79,7 @@ EventHandler::NavigationActions EventHandler::game_state_handler()
     {
       if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 )
       {
-        for ( auto [_entt, _sys] : m_reg->view<Cmp::System>().each() )
+        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.collisions_enabled = not _sys.collisions_enabled;
           SPDLOG_INFO( "Collisions are now {}", _sys.collisions_enabled ? "ENABLED" : "DISABLED" );
@@ -87,7 +87,7 @@ EventHandler::NavigationActions EventHandler::game_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
       {
-        for ( auto [_entt, _sys] : m_reg->view<Cmp::System>().each() )
+        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.pause_flood = not _sys.pause_flood;
           SPDLOG_INFO( "Pause flood is now {}", _sys.pause_flood ? "ENABLED" : "DISABLED" );
@@ -95,7 +95,7 @@ EventHandler::NavigationActions EventHandler::game_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 )
       {
-        for ( auto [_entt, _sys] : m_reg->view<Cmp::System>().each() )
+        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.show_path_distances = not _sys.show_path_distances;
           SPDLOG_INFO( "Show player distances is now {}", _sys.show_path_distances ? "ENABLED" : "DISABLED" );
@@ -103,7 +103,7 @@ EventHandler::NavigationActions EventHandler::game_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 )
       {
-        for ( auto [_entt, _sys] : m_reg->view<Cmp::System>().each() )
+        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.show_armed_obstacles = not _sys.show_armed_obstacles;
           SPDLOG_INFO( "Show armed obstacles is now {}", _sys.show_armed_obstacles ? "ENABLED" : "DISABLED" );
@@ -111,7 +111,7 @@ EventHandler::NavigationActions EventHandler::game_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
       {
-        for ( auto [_entt, _sys] : m_reg->view<Cmp::System>().each() )
+        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.show_debug_stats = not _sys.show_debug_stats;
           SPDLOG_INFO( "Show debug stats is now {}", _sys.show_debug_stats ? "ENABLED" : "DISABLED" );
@@ -120,12 +120,12 @@ EventHandler::NavigationActions EventHandler::game_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F10 )
       {
         // UnlockDoorEvent will check player key count so give player 3 keys first
-        auto player_key_view = m_reg->view<Cmp::PlayerKeysCount>();
+        auto player_key_view = getReg().view<Cmp::PlayerKeysCount>();
         for ( auto [pkey_count_entity, pkey_count_cmp] : player_key_view.each() )
         {
           pkey_count_cmp.increment_count( 3 );
         }
-        auto exit_cmp = m_reg->view<Cmp::Exit>();
+        auto exit_cmp = getReg().view<Cmp::Exit>();
         for ( auto [exit_entt, exit_cmp] : exit_cmp.each() )
         {
           // exit already unlocked
@@ -138,8 +138,7 @@ EventHandler::NavigationActions EventHandler::game_state_handler()
       {
         // dont set PlayerMortality::State directly, instead update health/death_progress and let the PlayerSystem logic
         // handle it
-        for ( auto [entity, pc_mort_cmp, pc_health_cmp] :
-              m_reg->view<Cmp::PlayerMortality, Cmp::PlayerHealth>().each() )
+        for ( auto [entity, pc_mort_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerMortality, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = 0;
           pc_mort_cmp.death_progress = 1.0f;
@@ -149,7 +148,7 @@ EventHandler::NavigationActions EventHandler::game_state_handler()
 
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F12 )
       {
-        for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
+        for ( auto [_ent, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.level_complete = true;
           SPDLOG_INFO( "Level complete (player cheated)" );
@@ -157,7 +156,7 @@ EventHandler::NavigationActions EventHandler::game_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::M )
       {
-        for ( auto [_ent, _sys] : m_reg->view<Cmp::System>().each() )
+        for ( auto [_ent, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.minimap_enabled = not _sys.minimap_enabled;
           SPDLOG_INFO( "Minimap enabled (player cheated)" );
@@ -165,7 +164,7 @@ EventHandler::NavigationActions EventHandler::game_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
       {
-        for ( auto [pc_entity, pc_candle_count_cmp] : m_reg->view<Cmp::PlayerCandlesCount>().each() )
+        for ( auto [pc_entity, pc_candle_count_cmp] : getReg().view<Cmp::PlayerCandlesCount>().each() )
         {
           pc_candle_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a candle (player cheated)" );
@@ -173,7 +172,7 @@ EventHandler::NavigationActions EventHandler::game_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
       {
-        for ( auto [pc_entity, pc_key_count_cmp] : m_reg->view<Cmp::PlayerKeysCount>().each() )
+        for ( auto [pc_entity, pc_key_count_cmp] : getReg().view<Cmp::PlayerKeysCount>().each() )
         {
           pc_key_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a key (player cheated)" );
@@ -182,8 +181,7 @@ EventHandler::NavigationActions EventHandler::game_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] :
-              m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = std::clamp( 10, pc_health_cmp.health + 10, 100 );
           SPDLOG_INFO( "Player gained health (player cheated)" );
@@ -191,8 +189,7 @@ EventHandler::NavigationActions EventHandler::game_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_relic_count_cmp] :
-              m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerRelicCount>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_relic_count_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerRelicCount>().each() )
         {
           pc_relic_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a relic (player cheated)" );
@@ -208,7 +205,7 @@ EventHandler::NavigationActions EventHandler::game_state_handler()
   }
 
   // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
-  auto player_direction_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Direction>();
+  auto player_direction_view = getReg().view<Cmp::PlayableCharacter, Cmp::Direction>();
   for ( auto [entity, player, direction] : player_direction_view.each() )
   {
     direction.x = 0;

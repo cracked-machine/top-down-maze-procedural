@@ -40,8 +40,9 @@
 namespace ProceduralMaze::Sys
 {
 
-CollisionSystem::CollisionSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : BaseSystem( window, sprite_factory, sound_bank )
+CollisionSystem::CollisionSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                                  Audio::SoundBank &sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
   std::ignore = getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::CollisionSystem::onPause>( this );
@@ -51,7 +52,7 @@ CollisionSystem::CollisionSystem( sf::RenderWindow &window, Sprites::SpriteFacto
 
 void CollisionSystem::onPause()
 {
-  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter>();
+  auto player_collision_view = getReg().view<Cmp::PlayableCharacter>();
   for ( auto [_pc_entt, player] : player_collision_view.each() )
   {
     if ( player.m_bombdeploycooldowntimer.isRunning() ) player.m_bombdeploycooldowntimer.stop();
@@ -59,7 +60,7 @@ void CollisionSystem::onPause()
 }
 void CollisionSystem::onResume()
 {
-  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter>();
+  auto player_collision_view = getReg().view<Cmp::PlayableCharacter>();
   for ( auto [_pc_entt, player] : player_collision_view.each() )
   {
     if ( not player.m_bombdeploycooldowntimer.isRunning() ) player.m_bombdeploycooldowntimer.start();

@@ -27,7 +27,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
 {
 
   // Shrine Animation
-  auto shrine_view = m_reg->view<Cmp::ShrineSegment, Cmp::SpriteAnimation, Cmp::Position>();
+  auto shrine_view = getReg().view<Cmp::ShrineSegment, Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [entity, shrine_cmp, anim_cmp, pos_cmp] : shrine_view.each() )
   {
     if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
@@ -42,7 +42,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
   }
 
   // Grave Animation
-  auto grave_view = m_reg->view<Cmp::GraveSegment, Cmp::SpriteAnimation, Cmp::Position>();
+  auto grave_view = getReg().view<Cmp::GraveSegment, Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [entity, grave_cmp, anim_cmp, pos_cmp] : grave_view.each() )
   {
     if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
@@ -57,7 +57,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
   }
 
   // NPC Movement: only update animation for NPC that are actively pathfinding
-  auto pathfinding_npc_view = m_reg->view<Cmp::NPC, Cmp::LerpPosition, Cmp::SpriteAnimation, Cmp::Position>();
+  auto pathfinding_npc_view = getReg().view<Cmp::NPC, Cmp::LerpPosition, Cmp::SpriteAnimation, Cmp::Position>();
   for ( [[maybe_unused]] auto [entity, npc_cmp, lerp_pos_cmp, anim_cmp, pos_cmp] : pathfinding_npc_view.each() )
   {
     if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
@@ -79,7 +79,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
   }
 
   // Player Movement:always update animation for player if they are moving
-  auto moving_player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Direction, Cmp::SpriteAnimation, Cmp::Position>();
+  auto moving_player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Direction, Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [entity, pc_cmp, dir_cmp, anim_cmp, pos_cmp] : moving_player_view.each() )
   {
     if ( not anim_cmp.m_animation_active ) continue;
@@ -90,7 +90,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
   }
 
   // Wormhole
-  const auto wormhole_view = m_reg->view<Cmp::Wormhole, Cmp::SpriteAnimation, Cmp::Position>();
+  const auto wormhole_view = getReg().view<Cmp::Wormhole, Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [entity, wormhole_cmp, anim_cmp, pos_cmp] : wormhole_view.each() )
   {
     if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
@@ -102,11 +102,11 @@ void AnimSystem::update( sf::Time globalDeltaTime )
   }
 
   // NPC Death Explosion Animation
-  auto explosion_view = m_reg->view<Cmp::NpcDeathPosition, Cmp::SpriteAnimation>();
+  auto explosion_view = getReg().view<Cmp::NpcDeathPosition, Cmp::SpriteAnimation>();
   for ( auto [entity, explosion_cmp, anim_cmp] : explosion_view.each() )
   {
     const auto &explosion_sprite_metadata = m_sprite_factory.get_multisprite_by_type( "EXPLOSION" );
-    auto frame_rate = sf::seconds( m_reg->ctx().get<Cmp::Persistent::NpcDeathAnimFramerate>().get_value() );
+    auto frame_rate = sf::seconds( getReg().ctx().get<Cmp::Persistent::NpcDeathAnimFramerate>().get_value() );
 
     SPDLOG_DEBUG( "Explosion animation active for entity {} - current_frame: {}, sprites_per_frame: {}, "
                   "sprites_per_sequence: {}, frame_rate: {}s",
@@ -122,8 +122,8 @@ void AnimSystem::update( sf::Time globalDeltaTime )
     // have we completed the animation?
     if ( anim_cmp.m_current_frame == explosion_sprite_metadata.get_sprites_per_sequence() - 1 )
     {
-      m_reg->remove<Cmp::NpcDeathPosition>( entity );
-      m_reg->remove<Cmp::SpriteAnimation>( entity );
+      getReg().remove<Cmp::NpcDeathPosition>( entity );
+      getReg().remove<Cmp::SpriteAnimation>( entity );
       SPDLOG_DEBUG( "Explosion animation complete, removing component from entity {}", static_cast<int>( entity ) );
       continue;
     }

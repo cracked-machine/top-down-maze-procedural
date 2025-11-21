@@ -6,6 +6,7 @@
 #include <entt/entity/registry.hpp>
 #include <entt/signal/dispatcher.hpp>
 
+#include <functional>
 #include <spdlog/spdlog.h>
 
 #include <SFML/Graphics/Rect.hpp>
@@ -41,7 +42,7 @@ public:
   // The playable area offset in blocks, not pixels
   inline static constexpr sf::Vector2f kMapGridOffset{ 1.f, 1.f };
 
-  BaseSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  BaseSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief polymorphic destructor for derived classes
   virtual ~BaseSystem() { SPDLOG_INFO( "BaseSystem destructor called for system at {}", static_cast<void *>( this ) ); };
@@ -64,12 +65,7 @@ public:
   template <typename T>
   void add_persistent_component()
   {
-    if ( m_reg == nullptr )
-    {
-      SPDLOG_CRITICAL( "BaseSystem registry pointer is null in add_persistent_component for type: {}", typeid( T ).name() );
-      throw std::runtime_error( "BaseSystem registry pointer is null" );
-    }
-    if ( not m_reg->ctx().contains<T>() ) { m_reg->ctx().emplace<T>(); }
+    if ( not getReg().ctx().contains<T>() ) { getReg().ctx().emplace<T>(); }
   }
 
   //! @brief Add a persistent component with constructor arguments
@@ -80,12 +76,7 @@ public:
   template <typename T, typename... Args>
   void add_persistent_component( Args &&...args )
   {
-    if ( m_reg == nullptr )
-    {
-      SPDLOG_CRITICAL( "BaseSystem registry pointer is null in add_persistent_component for type: {}", typeid( T ).name() );
-      throw std::runtime_error( "BaseSystem registry pointer is null" );
-    }
-    if ( not m_reg->ctx().contains<T>() ) { m_reg->ctx().emplace<T>( std::forward<Args>( args )... ); }
+    if ( not getReg().ctx().contains<T>() ) { getReg().ctx().emplace<T>( std::forward<Args>( args )... ); }
   }
 
   //! @brief Get the persistent component object
@@ -95,17 +86,12 @@ public:
   template <typename T>
   T &get_persistent_component()
   {
-    if ( m_reg == nullptr )
-    {
-      SPDLOG_CRITICAL( "BaseSystem registry pointer is null in add_persistent_component for type: {}", typeid( T ).name() );
-      throw std::runtime_error( "BaseSystem registry pointer is null" );
-    }
-    if ( not m_reg->ctx().contains<T>() )
+    if ( not getReg().ctx().contains<T>() )
     {
       SPDLOG_CRITICAL( "Attempting to access non-existent persistent component: {}", typeid( T ).name() );
       throw std::runtime_error( "Persistent component not found: " + std::string( typeid( T ).name() ) );
     }
-    return m_reg->ctx().get<T>();
+    return getReg().ctx().get<T>();
   }
 
   //! @brief Get the Grid Position object
@@ -114,7 +100,7 @@ public:
   //! @return std::optional<sf::Vector2i>
   std::optional<sf::Vector2i> getGridPosition( entt::entity entity ) const
   {
-    auto pos = m_reg->try_get<Cmp::Position>( entity );
+    auto pos = getReg().try_get<Cmp::Position>( entity );
 
     if ( pos )
     {
@@ -131,7 +117,7 @@ public:
   //! @return std::optional<sf::Vector2f>
   std::optional<sf::Vector2f> getPixelPosition( entt::entity entity ) const
   {
-    auto pos = m_reg->try_get<Cmp::Position>( entity );
+    auto pos = getReg().try_get<Cmp::Position>( entity );
 
     if ( pos ) { return ( *pos ).position; }
     return std::nullopt;
@@ -332,7 +318,7 @@ public:
   std::pair<entt::entity, Cmp::Position> get_random_position( IncludePack<Include...>, ExcludePack<Exclude...>,
                                                               unsigned long seed = 0 )
   {
-    auto random_view = m_reg->view<Cmp::Position, Include...>( entt::exclude<Exclude...> );
+    auto random_view = getReg().view<Cmp::Position, Include...>( entt::exclude<Exclude...> );
 
     auto random_view_count = std::distance( random_view.begin(), random_view.end() );
 
@@ -381,16 +367,16 @@ public:
   template <typename... Include, typename... Exclude>
   entt::entity create_loot_drop( Cmp::Loot &&loot_cmp, sf::FloatRect search, IncludePack<Include...>, ExcludePack<Exclude...> )
   {
-    auto obst_view = m_reg->view<Cmp::Obstacle, Cmp::Position, Include...>( entt::exclude<Exclude...> );
+    auto obst_view = getReg().view<Cmp::Obstacle, Cmp::Position, Include...>( entt::exclude<Exclude...> );
 
     for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : obst_view.each() )
     {
       if ( not search.findIntersection( obst_pos_cmp ) ) continue;
       if ( obst_cmp.m_enabled ) continue; // only drop the loot at disabled (traversable) obstacle
 
-      auto loot_entity = m_reg->create();
-      m_reg->emplace<Cmp::Loot>( loot_entity, std::move( loot_cmp ) );
-      m_reg->emplace_or_replace<Cmp::Position>( loot_entity, obst_pos_cmp );
+      auto loot_entity = getReg().create();
+      getReg().emplace<Cmp::Loot>( loot_entity, std::move( loot_cmp ) );
+      getReg().emplace_or_replace<Cmp::Position>( loot_entity, obst_pos_cmp );
       return loot_entity;
     }
     SPDLOG_WARN( "Failed to drop {} at [{},{}].", loot_cmp.m_type, search.position.x, search.position.y );
@@ -401,7 +387,7 @@ public:
   entt::entity get_random_nearby_disabled_obstacle( sf::FloatRect search_area, IncludePack<Include...>, ExcludePack<Exclude...> )
   {
 
-    auto obst_view = m_reg->view<Cmp::Obstacle, Cmp::Position, Include...>( entt::exclude<Exclude...> );
+    auto obst_view = getReg().view<Cmp::Obstacle, Cmp::Position, Include...>( entt::exclude<Exclude...> );
 
     for ( auto obst_entity : obst_view )
     {
@@ -416,17 +402,14 @@ public:
     return entt::null;
   }
 
-  entt::registry *getRegistry() { return m_reg; }
-  void setRegistry( entt::registry *registry )
-  {
-    SPDLOG_INFO( "BaseSystem::setRegistry called with {} for system at {}", static_cast<void *>( registry ),
-                 static_cast<void *>( this ) );
-    m_reg = registry;
-  }
+  entt::registry &getReg() { return m_reg.get(); }
+  const entt::registry &getReg() const { return m_reg.get(); }
+  void setReg( entt::registry &reg ) { m_reg = std::ref( reg ); }
 
 protected:
-  // Entity registry
-  entt::registry *m_reg = nullptr;
+  // Entity registry: non-owning, re-assignable reference (by SceneManager)
+  // The registry is owned by the current Scene.
+  std::reference_wrapper<entt::registry> m_reg;
 
   //! @brief Non-owning reference to the OpenGL window
   sf::RenderWindow &m_window;

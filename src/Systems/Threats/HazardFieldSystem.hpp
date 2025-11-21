@@ -84,8 +84,9 @@ public:
   //! @param reg Smart pointer to the entt registry
   //! @param window Reference to the SFML render window
   //! @param sprite_factory Reference to the sprite factory
-  HazardFieldSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-      : Sys::BaseSystem( window, sprite_factory, sound_bank )
+  HazardFieldSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                     Audio::SoundBank &sound_bank )
+      : Sys::BaseSystem( reg, window, sprite_factory, sound_bank )
   {
     // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
     getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onPause>( this );
@@ -105,7 +106,7 @@ public:
   //! 5. Remove obstacle component from the random entity.
   void init_hazard_field()
   {
-    auto hazard_field_view = m_reg->view<HazardType>( entt::exclude<typename Traits::ExcludeHazard> );
+    auto hazard_field_view = getReg().template view<HazardType>( entt::exclude<typename Traits::ExcludeHazard> );
     if ( hazard_field_view.size_hint() > 0 ) { return; }
 
     unsigned long seed = get_persistent_component<typename Traits::SeedType>().get_value();
@@ -114,8 +115,8 @@ public:
         ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
     if ( random_entity == entt::null ) { return; }
 
-    m_reg->emplace<HazardType>( random_entity );
-    m_reg->remove<Cmp::Obstacle>( random_entity );
+    getReg().template emplace<HazardType>( random_entity );
+    getReg().template remove<Cmp::Obstacle>( random_entity );
     SPDLOG_INFO( "Hazard field seeded at position [{}, {}].", random_pos.position.x, random_pos.position.y );
   }
 
@@ -136,8 +137,8 @@ public:
     if ( m_spread_update_clock.getElapsedTime() < m_update_period ) return;
     m_spread_update_clock.restart();
 
-    auto hazard_view = m_reg->view<HazardType, Cmp::Position>();
-    auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::ReservedPosition> );
+    auto hazard_view = getReg().template view<HazardType, Cmp::Position>();
+    auto obstacle_view = getReg().template view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::ReservedPosition> );
 
     Cmp::RandomInt hazard_spread_picker( 0, 7 ); // 1 in 8 chance for picking an adjacent obstacle
 
@@ -153,11 +154,11 @@ public:
       for ( auto [obstacle_entity, obstacle_cmp, obst_pos_cmp] : obstacle_view.each() )
       {
         if ( not hazard_hitbox.findIntersection( obst_pos_cmp ) ) continue;
-        if ( m_reg->try_get<HazardType>( obstacle_entity ) ) continue;
+        if ( getReg().template try_get<HazardType>( obstacle_entity ) ) continue;
         if ( hazard_spread_picker.gen() == 0 )
         {
-          m_reg->emplace<HazardType>( obstacle_entity );
-          m_reg->remove<Cmp::Obstacle>( obstacle_entity );
+          getReg().template emplace<HazardType>( obstacle_entity );
+          getReg().template remove<Cmp::Obstacle>( obstacle_entity );
           SPDLOG_DEBUG( "New hazard field created at entity {}", static_cast<uint32_t>( obstacle_entity ) );
           return; // only add one hazard cell per update period
         }
@@ -179,8 +180,8 @@ public:
   //! If a collision is detected, apply damage or instant death based on hazard type.
   void check_player_hazard_field_collision()
   {
-    auto hazard_view = m_reg->view<HazardType, Cmp::Position>();
-    auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
+    auto hazard_view = getReg().template view<HazardType, Cmp::Position>();
+    auto player_view = getReg().template view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
 
     for ( auto [pc_entt, player_cmp, player_health_cmp, player_mort_cmp, player_pos_cmp] : player_view.each() )
     {
@@ -219,8 +220,8 @@ public:
   //! If a collision is detected, trigger NPC death event.
   void check_npc_hazard_field_collision()
   {
-    auto hazard_view = m_reg->view<HazardType, Cmp::Position>();
-    auto npc_view = m_reg->view<Cmp::NPC, Cmp::Position>();
+    auto hazard_view = getReg().template view<HazardType, Cmp::Position>();
+    auto npc_view = getReg().template view<Cmp::NPC, Cmp::Position>();
 
     for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : npc_view.each() )
     {

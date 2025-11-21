@@ -16,8 +16,10 @@
 namespace ProceduralMaze::Sys
 {
 
-BaseSystem::BaseSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : m_window( window ),
+BaseSystem::BaseSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                        Audio::SoundBank &sound_bank )
+    : m_reg( reg ),
+      m_window( window ),
       m_sprite_factory( sprite_factory ),
       m_sound_bank( sound_bank )
 {
@@ -32,8 +34,8 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
 
   // Prevent the player from walking through NPCs
   auto &pc_damage_delay = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
-  auto npc_view = m_reg->view<Cmp::NPC, Cmp::Position, Cmp::LerpPosition>();
-  auto pc_view = m_reg->view<Cmp::PlayableCharacter>();
+  auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::LerpPosition>();
+  auto pc_view = getReg().view<Cmp::PlayableCharacter>();
   for ( auto [pc_entity, pc_cmp] : pc_view.each() )
   {
     // However if player is in damage cooldown (blinking), let player walk through NPCs to escape
@@ -46,7 +48,7 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
     }
   }
   // Check obstacles
-  auto obstacle_view = m_reg->view<Cmp::Obstacle, Cmp::Position>();
+  auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position>();
   for ( auto [entity, obs_cmp, pos_cmp] : obstacle_view.each() )
   {
     if ( obs_cmp.m_enabled == false || obs_cmp.m_integrity <= 0.0f ) continue;
@@ -54,30 +56,30 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
   }
 
   // Check walls
-  auto wall_view = m_reg->view<Cmp::Wall, Cmp::Position>();
+  auto wall_view = getReg().view<Cmp::Wall, Cmp::Position>();
   for ( auto [entity, wall_cmp, pos_cmp] : wall_view.each() )
   {
     if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
   // Check doors
-  auto door_view = m_reg->view<Cmp::Door, Cmp::Position>();
+  auto door_view = getReg().view<Cmp::Door, Cmp::Position>();
   for ( auto [entity, door_cmp, pos_cmp] : door_view.each() )
   {
-    auto exit_cmp = m_reg->try_get<Cmp::Exit>( entity );
+    auto exit_cmp = getReg().try_get<Cmp::Exit>( entity );
     // if door is an exit and is unlocked, allow passage
     if ( exit_cmp && exit_cmp->m_locked == false ) return true;
     if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
-  auto grave_view = m_reg->view<Cmp::GraveSegment, Cmp::Position>();
+  auto grave_view = getReg().view<Cmp::GraveSegment, Cmp::Position>();
   for ( auto [entity, grave_cmp, pos_cmp] : grave_view.each() )
   {
     if ( not grave_cmp.isSolidMask() ) continue;
     if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
-  auto shrine_view = m_reg->view<Cmp::ShrineSegment, Cmp::Position>();
+  auto shrine_view = getReg().view<Cmp::ShrineSegment, Cmp::Position>();
   for ( auto [entity, shrine_cmp, pos_cmp] : shrine_view.each() )
   {
     if ( not shrine_cmp.isSolidMask() ) continue;

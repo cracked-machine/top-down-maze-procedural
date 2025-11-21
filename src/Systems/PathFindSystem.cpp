@@ -16,8 +16,9 @@
 namespace ProceduralMaze::Sys
 {
 
-PathFindSystem::PathFindSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : BaseSystem( window, sprite_factory, sound_bank )
+PathFindSystem::PathFindSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                                Audio::SoundBank &sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "PathFindSystem initialized" );
 }
@@ -28,7 +29,7 @@ void PathFindSystem::update_player_distances()
   const auto viewBounds = BaseSystem::calculate_view_bounds( RenderSystem::getGameView() );
 
   // we only have one player so this is just for convenience
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PCDetectionBounds>();
+  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PCDetectionBounds>();
   for ( [[maybe_unused]] auto [pc_entt, pc_cmp, pc_pos_cmp, pc_db_cmp] : player_view.each() )
   {
 
@@ -36,26 +37,26 @@ void PathFindSystem::update_player_distances()
     auto path_exclusions = entt::exclude<Cmp::ShrineSegment, Cmp::SpawnAreaSprite, Cmp::GraveSegment, Cmp::Wall, Cmp::Exit,
                                          Cmp::NPC>;
 
-    auto path_view = m_reg->view<Cmp::Position>( path_exclusions );
+    auto path_view = getReg().view<Cmp::Position>( path_exclusions );
     for ( auto [path_entt, path_pos_cmp] : path_view.each() )
     {
       // optimization
       if ( !is_visible_in_view( viewBounds, path_pos_cmp ) ) continue;
 
       // we can't filter out obstacles in the view, we have to check its enabled bit
-      auto obst_cmp = m_reg->try_get<Cmp::Obstacle>( path_entt );
+      auto obst_cmp = getReg().try_get<Cmp::Obstacle>( path_entt );
       if ( obst_cmp && obst_cmp->m_enabled ) continue;
 
       // calculate the distance from the position to the player
       if ( pc_db_cmp.findIntersection( path_pos_cmp ) )
       {
         auto distance = std::floor( getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
-        m_reg->emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
+        getReg().emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
       }
       else
       {
         // tidy up any out of range obstacles
-        m_reg->remove<Cmp::PlayerDistance>( path_entt );
+        getReg().remove<Cmp::PlayerDistance>( path_entt );
       }
     }
   }
@@ -63,7 +64,7 @@ void PathFindSystem::update_player_distances()
 
 void PathFindSystem::findPath( entt::entity player_entity )
 {
-  for ( auto [npc_entity, npc_cmp] : m_reg->view<Cmp::NPC>().each() )
+  for ( auto [npc_entity, npc_cmp] : getReg().view<Cmp::NPC>().each() )
   {
     scanForPlayers( npc_entity, player_entity );
   }
@@ -72,8 +73,8 @@ void PathFindSystem::findPath( entt::entity player_entity )
 void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity player_entity )
 {
 
-  auto npc_scan_bounds = m_reg->try_get<Cmp::NPCScanBounds>( npc_entity );
-  auto pc_detection_bounds = m_reg->try_get<Cmp::PCDetectionBounds>( player_entity );
+  auto npc_scan_bounds = getReg().try_get<Cmp::NPCScanBounds>( npc_entity );
+  auto pc_detection_bounds = getReg().try_get<Cmp::PCDetectionBounds>( player_entity );
   if ( not npc_scan_bounds || not pc_detection_bounds ) return;
 
   // only continue if player is within detection distance
@@ -81,7 +82,7 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
 
   // gather up any PlayerDistance components from within range obstacles
   PlayerDistanceQueue distance_queue;
-  auto pd_view = m_reg->view<Cmp::Position, Cmp::PlayerDistance>( entt::exclude<Cmp::NPC, Cmp::PlayableCharacter> );
+  auto pd_view = getReg().view<Cmp::Position, Cmp::PlayerDistance>( entt::exclude<Cmp::NPC, Cmp::PlayableCharacter> );
   for ( auto [entity, pos_cmp, pd_cmp] : pd_view.each() )
   {
     if ( npc_scan_bounds->findIntersection( pos_cmp ) ) { distance_queue.push( { pd_cmp.distance, entity } ); }
@@ -95,10 +96,10 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
     distance_queue.pop(); // Pop immediately to prevent infinite loop
 
     // Set the Direction vector and LerpPosition target Coords for next movement towards the player
-    auto npc_cmp = m_reg->try_get<Cmp::NPC>( npc_entity );
-    auto npc_pos = m_reg->try_get<Cmp::Position>( npc_entity );
-    auto npc_lerp_pos_cmp = m_reg->try_get<Cmp::LerpPosition>( npc_entity );
-    auto npc_anim_cmp = m_reg->try_get<Cmp::SpriteAnimation>( npc_entity );
+    auto npc_cmp = getReg().try_get<Cmp::NPC>( npc_entity );
+    auto npc_pos = getReg().try_get<Cmp::Position>( npc_entity );
+    auto npc_lerp_pos_cmp = getReg().try_get<Cmp::LerpPosition>( npc_entity );
+    auto npc_anim_cmp = getReg().try_get<Cmp::SpriteAnimation>( npc_entity );
     if ( not npc_cmp || not npc_pos || not npc_anim_cmp ) return;
     if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) return;
 
@@ -156,7 +157,7 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
 
       bool horizontal_collision = false;
       bool vertical_collision = false;
-      auto obst_view = m_reg->view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::PlayerDistance> );
+      auto obst_view = getReg().view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::PlayerDistance> );
       for ( auto [obst_entity, obst_cmp, obst_pos] : obst_view.each() )
       {
         if ( not pc_detection_bounds->findIntersection( obst_pos ) ) continue;
@@ -190,8 +191,8 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
 void PathFindSystem::add_candidate_lerp( entt::entity npc_entity, Cmp::Direction candidate_dir,
                                          Cmp::LerpPosition candidate_lerp_pos )
 {
-  m_reg->emplace_or_replace<Cmp::Direction>( npc_entity, std::move( candidate_dir ) );
-  m_reg->emplace_or_replace<Cmp::LerpPosition>( npc_entity, std::move( candidate_lerp_pos ) );
+  getReg().emplace_or_replace<Cmp::Direction>( npc_entity, std::move( candidate_dir ) );
+  getReg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, std::move( candidate_lerp_pos ) );
 }
 
 } // namespace ProceduralMaze::Sys

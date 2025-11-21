@@ -14,8 +14,9 @@
 namespace ProceduralMaze::Sys
 {
 
-LootSystem::LootSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : BaseSystem( window, sprite_factory, sound_bank )
+LootSystem::LootSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                        Audio::SoundBank &sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
   std::ignore = getEventDispatcher().sink<Events::LootContainerDestroyedEvent>().connect<&LootSystem::on_loot_container_destroyed>(
@@ -36,9 +37,10 @@ void LootSystem::check_loot_collision()
   std::vector<LootEffect> loot_effects;
 
   // First pass: detect collisions and gather effects to apply
-  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::WeaponLevel, Cmp::PlayerKeysCount,
-                                           Cmp::PlayerCandlesCount>();
-  auto loot_collision_view = m_reg->view<Cmp::Loot, Cmp::Position>();
+  auto player_collision_view = getReg()
+                                   .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::WeaponLevel, Cmp::PlayerKeysCount,
+                                         Cmp::PlayerCandlesCount>();
+  auto loot_collision_view = getReg().view<Cmp::Loot, Cmp::Position>();
 
   for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_weapon_level, pc_keys_count, pc_candles_count] : player_collision_view.each() )
   {
@@ -57,11 +59,11 @@ void LootSystem::check_loot_collision()
   // Second pass: apply effects and remove loots
   for ( const auto &effect : loot_effects )
   {
-    if ( !m_reg->valid( effect.player_entity ) ) continue;
+    if ( !getReg().valid( effect.player_entity ) ) continue;
 
-    auto &pc_cmp = m_reg->get<Cmp::PlayableCharacter>( effect.player_entity );
-    auto &pc_health_cmp = m_reg->get<Cmp::PlayerHealth>( effect.player_entity );
-    auto &weapon_level_cmp = m_reg->get<Cmp::WeaponLevel>( effect.player_entity );
+    auto &pc_cmp = getReg().get<Cmp::PlayableCharacter>( effect.player_entity );
+    auto &pc_health_cmp = getReg().get<Cmp::PlayerHealth>( effect.player_entity );
+    auto &weapon_level_cmp = getReg().get<Cmp::WeaponLevel>( effect.player_entity );
 
     // Apply the effect
     if ( effect.type == "EXTRA_HEALTH" )
@@ -90,13 +92,13 @@ void LootSystem::check_loot_collision()
     }
     else if ( effect.type == "CANDLE_DROP" )
     {
-      auto &pc_candles_count = m_reg->get<Cmp::PlayerCandlesCount>( effect.player_entity );
+      auto &pc_candles_count = getReg().get<Cmp::PlayerCandlesCount>( effect.player_entity );
       pc_candles_count.increment_count( 1 );
       m_sound_bank.get_effect( "get_loot" ).play();
     }
     else if ( effect.type == "KEY_DROP" )
     {
-      auto &pc_keys_count = m_reg->get<Cmp::PlayerKeysCount>( effect.player_entity );
+      auto &pc_keys_count = getReg().get<Cmp::PlayerKeysCount>( effect.player_entity );
       pc_keys_count.increment_count( 1 );
       m_sound_bank.get_effect( "get_key" ).play();
       // unlock the door (internally checks if we activated all of the shrines)
@@ -104,7 +106,7 @@ void LootSystem::check_loot_collision()
     }
     else if ( effect.type == "RELIC_DROP" )
     {
-      auto &pc_relic_count = m_reg->get<Cmp::PlayerRelicCount>( effect.player_entity );
+      auto &pc_relic_count = getReg().get<Cmp::PlayerRelicCount>( effect.player_entity );
       pc_relic_count.increment_count( 1 );
       m_sound_bank.get_effect( "get_loot" ).play();
     }
@@ -115,8 +117,8 @@ void LootSystem::check_loot_collision()
     }
 
     // Remove the loot component
-    m_reg->remove<Cmp::Loot>( effect.loot_entity );
-    m_reg->emplace_or_replace<Cmp::Destructable>( effect.loot_entity );
+    getReg().remove<Cmp::Loot>( effect.loot_entity );
+    getReg().emplace_or_replace<Cmp::Destructable>( effect.loot_entity );
   }
 }
 
@@ -125,9 +127,9 @@ void LootSystem::detonate_loot_container( const Events::LootContainerDestroyedEv
   // the loot container is now destroyed by the bomb, replace with a random loot component
   auto [obstacle_type, random_obstacle_texture_index] = m_sprite_factory.get_random_type_and_texture_index(
       std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "WEAPON_BOOST" } );
-  m_reg->remove<Cmp::LootContainer>( event.m_entity );
-  m_reg->remove<Cmp::ReservedPosition>( event.m_entity );
-  m_reg->emplace_or_replace<Cmp::Loot>( event.m_entity, obstacle_type, random_obstacle_texture_index );
+  getReg().remove<Cmp::LootContainer>( event.m_entity );
+  getReg().remove<Cmp::ReservedPosition>( event.m_entity );
+  getReg().emplace_or_replace<Cmp::Loot>( event.m_entity, obstacle_type, random_obstacle_texture_index );
   auto &break_pot_player = m_sound_bank.get_effect( "break_pot" );
   if ( break_pot_player.getStatus() == sf::Sound::Status::Stopped ) { break_pot_player.play(); }
 }

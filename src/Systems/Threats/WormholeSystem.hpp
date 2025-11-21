@@ -18,7 +18,8 @@ namespace ProceduralMaze::Sys
 class WormholeSystem : public BaseSystem
 {
 public:
-  WormholeSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  WormholeSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                  Audio::SoundBank &sound_bank );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override;

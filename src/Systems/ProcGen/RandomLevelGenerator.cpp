@@ -25,9 +25,9 @@
 namespace ProceduralMaze::Sys::ProcGen
 {
 
-RandomLevelGenerator::RandomLevelGenerator( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+RandomLevelGenerator::RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
                                             Audio::SoundBank &sound_bank )
-    : BaseSystem( window, sprite_factory, sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
 }
 
@@ -52,17 +52,17 @@ void RandomLevelGenerator::gen_positions()
   {
     for ( unsigned int y = 0; y < Sys::BaseSystem::kMapGridSize.y - kMapGridOffset.y; y++ )
     {
-      auto entity = m_reg->create();
+      auto entity = getReg().create();
       sf::Vector2f new_pos( ( x + kMapGridOffset.x ) * Sys::BaseSystem::kGridSquareSizePixels.x,
                             ( y + kMapGridOffset.y ) * Sys::BaseSystem::kGridSquareSizePixels.y );
 
-      m_reg->emplace<Cmp::Position>( entity, new_pos, kGridSquareSizePixelsF );
-      auto &pos_cmp = m_reg->get<Cmp::Position>( entity );
+      getReg().emplace<Cmp::Position>( entity, new_pos, kGridSquareSizePixelsF );
+      auto &pos_cmp = getReg().get<Cmp::Position>( entity );
       if ( pos_cmp.findIntersection( player_start_area.getBounds() ) )
       {
         // We need to reserve these positions for the player start area
-        m_reg->emplace<Cmp::ReservedPosition>( entity );
-        m_reg->emplace<Cmp::SpawnAreaSprite>( entity, "PLAYERSPAWN", 0, false );
+        getReg().emplace<Cmp::ReservedPosition>( entity );
+        getReg().emplace<Cmp::SpawnAreaSprite>( entity, "PLAYERSPAWN", 0, false );
       }
 
       // track the contiguous creation order of the entity so we can easily find its neighbours later
@@ -88,31 +88,31 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
     auto is_valid = [&]() -> bool
     {
       // return false for wall collisions
-      for ( auto [entity, wall_cmp, wall_pos_cmp] : m_reg->view<Cmp::Wall, Cmp::Position>().each() )
+      for ( auto [entity, wall_cmp, wall_pos_cmp] : getReg().view<Cmp::Wall, Cmp::Position>().each() )
       {
         if ( wall_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       // Return false for grave collisions
-      for ( auto [entity, grave_cmp, grave_pos_cmp] : m_reg->view<Cmp::GraveSegment, Cmp::Position>().each() )
+      for ( auto [entity, grave_cmp, grave_pos_cmp] : getReg().view<Cmp::GraveSegment, Cmp::Position>().each() )
       {
         if ( grave_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       // Return false for shrine collisions
-      for ( auto [entity, shrine_cmp, shrine_pos_cmp] : m_reg->view<Cmp::ShrineSegment, Cmp::Position>().each() )
+      for ( auto [entity, shrine_cmp, shrine_pos_cmp] : getReg().view<Cmp::ShrineSegment, Cmp::Position>().each() )
       {
         if ( shrine_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       // Return false for reserved position collisions
-      for ( auto [entity, reserved_cmp, reserved_pos_cmp] : m_reg->view<Cmp::ReservedPosition, Cmp::Position>().each() )
+      for ( auto [entity, reserved_cmp, reserved_pos_cmp] : getReg().view<Cmp::ReservedPosition, Cmp::Position>().each() )
       {
         if ( reserved_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       // Return false for playable character collisions
-      for ( auto [entity, player_cmp, player_pos_cmp] : m_reg->view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+      for ( auto [entity, player_cmp, player_pos_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
       {
         if ( player_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
@@ -124,8 +124,8 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
     {
       if ( current_seed != seed && seed > 0 )
       {
-        SPDLOG_WARN( "Large Obstacle spawn: original seed {} was invalid, used seed {} instead (attempt {})", seed,
-                     current_seed, attempts + 1 );
+        SPDLOG_WARN( "Large Obstacle spawn: original seed {} was invalid, used seed {} instead (attempt {})", seed, current_seed,
+                     attempts + 1 );
       }
       return { random_entity, random_pos };
     }
@@ -135,8 +135,7 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
     if ( seed > 0 ) { current_seed++; }
   }
 
-  SPDLOG_ERROR( "Failed to find valid large obstacle spawn location after {} attempts (original seed: {})",
-                kMaxAttempts, seed );
+  SPDLOG_ERROR( "Failed to find valid large obstacle spawn location after {} attempts (original seed: {})", kMaxAttempts, seed );
   return { entt::null, Cmp::Position{ { 0.f, 0.f }, { 0.f, 0.f } } };
 }
 
@@ -153,17 +152,16 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
   // place large obstacle - multiply the grid size to get pixel size!
   auto large_obst_grid_size = large_obstacle_sprite.get_grid_size();
 
-  m_reg->emplace_or_replace<Cmp::LargeObstacle>(
-      random_entity, sprite_meta_type, random_origin_position.position,
-      large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
+  getReg().emplace_or_replace<Cmp::LargeObstacle>( random_entity, sprite_meta_type, random_origin_position.position,
+                                                   large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
 
   SPDLOG_INFO( "Placed large obstacle ({}) at position ({}, {}). Grid size: {}x{}", sprite_meta_type,
                random_origin_position.position.x, random_origin_position.position.y, large_obst_grid_size.width,
                large_obst_grid_size.height );
 
   // find any position-owning entities that intersect with the new large obstacle and mark them as reserved
-  auto new_large_obst_cmp = m_reg->get<Cmp::LargeObstacle>( random_entity );
-  auto pos_view = m_reg->view<Cmp::Position>();
+  auto new_large_obst_cmp = getReg().get<Cmp::LargeObstacle>( random_entity );
+  auto pos_view = getReg().view<Cmp::Position>();
   for ( auto [entity, pos_cmp] : pos_view.each() )
   {
     if ( pos_cmp.findIntersection( new_large_obst_cmp ) )
@@ -192,8 +190,8 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
       // Bottom-left position: grid_y=1, grid_x=0 → sprite_index = 1 * 4 + 0 = 4
       // Bottom-right position: grid_y=1, grid_x=3 → sprite_index = 1 * 4 + 3 = 7
       std::size_t calculated_grid_index = rel_grid_y * large_obst_grid_size.width + rel_grid_x;
-      SPDLOG_DEBUG( "Adding Cmp::ReservedPosition at ({}, {}) with sprite_index {}", pos_cmp.position.x,
-                    pos_cmp.position.y, calculated_grid_index );
+      SPDLOG_DEBUG( "Adding Cmp::ReservedPosition at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y,
+                    calculated_grid_index );
 
       // check multisprite solid_mask vector is at least as large as calculated index - default to true (solid) if out
       // of bounds
@@ -206,17 +204,17 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
 
       if ( sprite_meta_type.contains( "SHRINE" ) )
       {
-        m_reg->emplace_or_replace<Cmp::ShrineSegment>( entity, new_solid_mask );
-        m_reg->emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_meta_type, calculated_grid_index );
+        getReg().emplace_or_replace<Cmp::ShrineSegment>( entity, new_solid_mask );
+        getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_meta_type, calculated_grid_index );
       }
       else if ( sprite_meta_type.contains( "GRAVE" ) )
       {
-        m_reg->emplace_or_replace<Cmp::GraveSegment>( entity, new_solid_mask );
-        m_reg->emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_meta_type, calculated_grid_index );
-        m_reg->emplace_or_replace<Cmp::Destructable>( entity );
+        getReg().emplace_or_replace<Cmp::GraveSegment>( entity, new_solid_mask );
+        getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_meta_type, calculated_grid_index );
+        getReg().emplace_or_replace<Cmp::Destructable>( entity );
       }
 
-      m_reg->emplace_or_replace<Cmp::ReservedPosition>( entity );
+      getReg().emplace_or_replace<Cmp::ReservedPosition>( entity );
     }
   }
 }
@@ -251,7 +249,7 @@ void RandomLevelGenerator::gen_large_obstacles()
 
 void RandomLevelGenerator::gen_small_obstacles()
 {
-  auto position_view = m_reg->view<Cmp::Position>( entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
+  auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
   for ( auto [entity, pos] : position_view.each() )
   {
     // pick a random obstacle type and texture index
@@ -262,9 +260,9 @@ void RandomLevelGenerator::gen_small_obstacles()
       } );
     // clang-format on
 
-    m_reg->emplace<Cmp::Obstacle>( entity, obst_type, rand_obst_tex_idx, m_activation_selector.gen() );
-    m_reg->emplace<Cmp::Destructable>( entity );
-    m_reg->emplace<Cmp::Neighbours>( entity );
+    getReg().emplace<Cmp::Obstacle>( entity, obst_type, rand_obst_tex_idx, m_activation_selector.gen() );
+    getReg().emplace<Cmp::Destructable>( entity );
+    getReg().emplace<Cmp::Neighbours>( entity );
   }
 }
 
@@ -285,9 +283,9 @@ void RandomLevelGenerator::gen_loot_containers()
       } );
     // clang-format on
 
-    m_reg->emplace_or_replace<Cmp::ReservedPosition>( random_entity );
-    m_reg->emplace_or_replace<Cmp::Destructable>( random_entity );
-    m_reg->emplace_or_replace<Cmp::LootContainer>( random_entity, loot_type, rand_loot_tex_idx );
+    getReg().emplace_or_replace<Cmp::ReservedPosition>( random_entity );
+    getReg().emplace_or_replace<Cmp::Destructable>( random_entity );
+    getReg().emplace_or_replace<Cmp::LootContainer>( random_entity, loot_type, rand_loot_tex_idx );
   }
 }
 
@@ -308,9 +306,9 @@ void RandomLevelGenerator::gen_npc_containers()
       } );
     // clang-format on
 
-    m_reg->emplace_or_replace<Cmp::ReservedPosition>( random_entity );
-    m_reg->emplace_or_replace<Cmp::Destructable>( random_entity );
-    m_reg->emplace_or_replace<Cmp::NpcContainer>( random_entity, npc_type, rand_npc_tex_idx );
+    getReg().emplace_or_replace<Cmp::ReservedPosition>( random_entity );
+    getReg().emplace_or_replace<Cmp::Destructable>( random_entity );
+    getReg().emplace_or_replace<Cmp::NpcContainer>( random_entity, npc_type, rand_npc_tex_idx );
   }
 }
 
@@ -373,29 +371,29 @@ void RandomLevelGenerator::gen_border()
 
 void RandomLevelGenerator::add_wall_entity( const sf::Vector2f &pos, std::size_t sprite_index )
 {
-  auto entity = m_reg->create();
-  m_reg->emplace<Cmp::Position>( entity, pos, kGridSquareSizePixelsF );
-  m_reg->emplace<Cmp::Wall>( entity, "WALL", sprite_index );
-  m_reg->emplace<Cmp::ReservedPosition>( entity );
+  auto entity = getReg().create();
+  getReg().emplace<Cmp::Position>( entity, pos, kGridSquareSizePixelsF );
+  getReg().emplace<Cmp::Wall>( entity, "WALL", sprite_index );
+  getReg().emplace<Cmp::ReservedPosition>( entity );
 }
 
 void RandomLevelGenerator::add_door_entity( const sf::Vector2f &pos, std::size_t sprite_index, bool is_exit )
 {
-  auto entity = m_reg->create();
-  m_reg->emplace<Cmp::Position>( entity, pos, kGridSquareSizePixelsF );
-  m_reg->emplace<Cmp::Door>( entity, "WALL", sprite_index );
-  m_reg->emplace<Cmp::ReservedPosition>( entity );
-  if ( is_exit ) m_reg->emplace<Cmp::Exit>( entity );
+  auto entity = getReg().create();
+  getReg().emplace<Cmp::Position>( entity, pos, kGridSquareSizePixelsF );
+  getReg().emplace<Cmp::Door>( entity, "WALL", sprite_index );
+  getReg().emplace<Cmp::ReservedPosition>( entity );
+  if ( is_exit ) getReg().emplace<Cmp::Exit>( entity );
 }
 
 void RandomLevelGenerator::stats()
 {
   std::map<std::string, int> results;
-  for ( auto [entity, _pos, _ob] : m_reg->view<Cmp::Position, Cmp::Obstacle>().each() )
+  for ( auto [entity, _pos, _ob] : getReg().view<Cmp::Position, Cmp::Obstacle>().each() )
   {
     results[_ob.m_type]++;
   }
-  for ( auto [entity, _pos, _lc] : m_reg->view<Cmp::Position, Cmp::LootContainer>().each() )
+  for ( auto [entity, _pos, _lc] : getReg().view<Cmp::Position, Cmp::LootContainer>().each() )
   {
     results[_lc.m_type]++;
   }

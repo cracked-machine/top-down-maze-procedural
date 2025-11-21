@@ -35,8 +35,8 @@ void GraveyardScene::on_enter()
   auto &m_player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
   m_player_sys.add_player_entity();
 
-  auto entity = registry.create();
-  registry.emplace<Cmp::System>( entity );
+  auto entity = m_reg.create();
+  m_reg.emplace<Cmp::System>( entity );
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
   random_level_sys.generate();
@@ -62,7 +62,7 @@ void GraveyardScene::on_enter()
 void GraveyardScene::on_exit()
 {
   SPDLOG_INFO( "Exiting GraveyardScene" );
-  registry.clear();
+  m_reg.clear();
   m_sound_bank.get_music( "game_music" ).stop();
   m_sound_bank.get_music( "title_music" ).play();
 
@@ -84,7 +84,7 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
 
   // play/stop footstep sounds depending on player movement
   auto &m_player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
-  auto player_view = registry.view<Cmp::PlayableCharacter, Cmp::Direction>();
+  auto player_view = m_reg.view<Cmp::PlayableCharacter, Cmp::Direction>();
   for ( auto [pc_entity, pc_cmp, dir_cmp] : player_view.each() )
   {
     if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) ) { m_player_sys.stop_footsteps_sound(); }
@@ -149,7 +149,7 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
 
   // enable/disable collision detection depending on Cmp::System settings
   auto &player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
-  for ( auto [_ent, _sys] : registry.view<Cmp::System>().each() )
+  for ( auto [_ent, _sys] : m_reg.view<Cmp::System>().each() )
   {
     player_sys.update_movement( dt, !_sys.collisions_enabled );
     if ( _sys.collisions_enabled )
@@ -165,7 +165,7 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
     }
   }
 
-  auto player_entity = registry.view<Cmp::PlayableCharacter>().front();
+  auto player_entity = m_reg.view<Cmp::PlayableCharacter>().front();
   path_find_sys.findPath( player_entity );
   npc_sys.update_movement( dt );
 
@@ -182,6 +182,6 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
   render_game_sys.render_game( dt, render_overlay_sys, render_player_sys );
 }
 
-entt::registry *GraveyardScene::get_registry() { return &registry; }
+entt::registry &GraveyardScene::get_registry() { return m_reg; }
 
 } // namespace ProceduralMaze::Scene

@@ -72,6 +72,6 @@ void TitleScene::update( [[maybe_unused]] sf::Time dt )
   }
 }
 
-entt::registry *TitleScene::get_registry() { return &registry; }
+entt::registry &TitleScene::get_registry() { return m_reg; }
 
 } // namespace ProceduralMaze::Scene

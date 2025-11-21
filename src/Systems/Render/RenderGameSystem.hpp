@@ -22,7 +22,8 @@ namespace ProceduralMaze::Sys
 class RenderGameSystem : public RenderSystem
 {
 public:
-  RenderGameSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                    Audio::SoundBank &sound_bank );
   ~RenderGameSystem() = default;
 
   //! @brief event handlers for pausing system clocks

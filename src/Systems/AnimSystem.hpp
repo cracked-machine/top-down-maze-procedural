@@ -15,8 +15,8 @@ namespace ProceduralMaze::Sys
 class AnimSystem : public BaseSystem
 {
 public:
-  AnimSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-      : BaseSystem( window, sprite_factory, sound_bank )
+  AnimSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+      : BaseSystem( reg, window, sprite_factory, sound_bank )
   {
     // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
     std::ignore = getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::AnimSystem::onPause>( this );

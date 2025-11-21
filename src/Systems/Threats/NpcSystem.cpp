@@ -26,8 +26,9 @@
 namespace ProceduralMaze::Sys
 {
 
-NpcSystem::NpcSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : BaseSystem( window, sprite_factory, sound_bank )
+NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                      Audio::SoundBank &sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
   std::ignore = Sys::BaseSystem::getEventDispatcher().sink<Events::NpcCreationEvent>().connect<&Sys::NpcSystem::on_npc_creation>(
@@ -38,7 +39,7 @@ NpcSystem::NpcSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_f
 
 void NpcSystem::add_npc_entity( const Events::NpcCreationEvent &event )
 {
-  auto pos_cmp = m_reg->try_get<Cmp::Position>( event.position_entity );
+  auto pos_cmp = getReg().try_get<Cmp::Position>( event.position_entity );
   if ( not pos_cmp )
   {
     SPDLOG_ERROR( "Cannot add NPC entity {} without a Position component", static_cast<int>( event.position_entity ) );
@@ -46,30 +47,30 @@ void NpcSystem::add_npc_entity( const Events::NpcCreationEvent &event )
   }
 
   // create a new entity for the NPC using the existing position
-  auto new_pos_entity = m_reg->create();
-  m_reg->emplace<Cmp::Position>( new_pos_entity, pos_cmp->position, kGridSquareSizePixelsF );
-  m_reg->emplace<Cmp::Destructable>( new_pos_entity );
-  m_reg->emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 0, 0 } );
+  auto new_pos_entity = getReg().create();
+  getReg().emplace<Cmp::Position>( new_pos_entity, pos_cmp->position, kGridSquareSizePixelsF );
+  getReg().emplace<Cmp::Destructable>( new_pos_entity );
+  getReg().emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 0, 0 } );
   auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NpcScanScale>();
-  m_reg->emplace_or_replace<Cmp::NPCScanBounds>( new_pos_entity, pos_cmp->position, kGridSquareSizePixelsF,
-                                                 npc_scan_scale.get_value() );
+  getReg().emplace_or_replace<Cmp::NPCScanBounds>( new_pos_entity, pos_cmp->position, kGridSquareSizePixelsF,
+                                                   npc_scan_scale.get_value() );
   if ( event.type == "NPCGHOST" )
   {
-    m_reg->emplace_or_replace<Cmp::NPC>( new_pos_entity );
-    m_reg->emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, "NPCGHOST.walk.east" );
+    getReg().emplace_or_replace<Cmp::NPC>( new_pos_entity );
+    getReg().emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, "NPCGHOST.walk.east" );
   }
   else if ( event.type == "NPCSKELE" )
   {
-    m_reg->emplace_or_replace<Cmp::NPC>( new_pos_entity );
-    m_reg->emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, "NPCSKELE.walk.east" );
+    getReg().emplace_or_replace<Cmp::NPC>( new_pos_entity );
+    getReg().emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, "NPCSKELE.walk.east" );
   }
 
-  m_reg->remove<Cmp::NpcContainer>( new_pos_entity );
-  m_reg->remove<Cmp::ReservedPosition>( new_pos_entity );
-  m_reg->remove<Cmp::Obstacle>( new_pos_entity );
+  getReg().remove<Cmp::NpcContainer>( new_pos_entity );
+  getReg().remove<Cmp::ReservedPosition>( new_pos_entity );
+  getReg().remove<Cmp::Obstacle>( new_pos_entity );
 
   // Remove the npc container component from the original entity
-  m_reg->remove<Cmp::NpcContainer>( event.position_entity );
+  getReg().remove<Cmp::NpcContainer>( event.position_entity );
 
   if ( event.type == "NPCGHOST" )
   {
@@ -88,7 +89,7 @@ void NpcSystem::add_npc_entity( const Events::NpcCreationEvent &event )
 void NpcSystem::remove_npc_entity( entt::entity npc_entity )
 {
   // check for position component
-  auto npc_pos_cmp = m_reg->try_get<Cmp::Position>( npc_entity );
+  auto npc_pos_cmp = getReg().try_get<Cmp::Position>( npc_entity );
   if ( not npc_pos_cmp )
   {
     SPDLOG_WARN( "Cannot process loot drop for NPC entity {} without a Position component", static_cast<int>( npc_entity ) );
@@ -117,10 +118,10 @@ void NpcSystem::remove_npc_entity( entt::entity npc_entity )
   }
 
   // kill npc once we are done
-  m_reg->remove<Cmp::NPC>( npc_entity );
-  m_reg->remove<Cmp::Position>( npc_entity );
-  m_reg->remove<Cmp::NPCScanBounds>( npc_entity );
-  m_reg->remove<Cmp::Direction>( npc_entity );
+  getReg().remove<Cmp::NPC>( npc_entity );
+  getReg().remove<Cmp::Position>( npc_entity );
+  getReg().remove<Cmp::NPCScanBounds>( npc_entity );
+  getReg().remove<Cmp::Direction>( npc_entity );
 }
 
 //! @brief Check if diagonal movement should be blocked due to adjacent obstacles
@@ -152,20 +153,20 @@ bool NpcSystem::isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::V
 void NpcSystem::update_movement( sf::Time globalDeltaTime )
 {
   auto exclusions = entt::exclude<Cmp::ShrineSegment, Cmp::SpawnAreaSprite, Cmp::PlayableCharacter>;
-  auto view = m_reg->view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds, Cmp::Direction>( exclusions );
+  auto view = getReg().view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds, Cmp::Direction>( exclusions );
 
   for ( auto [entity, pos_cmp, lerp_pos_cmp, npc_scan_bounds, dir_cmp] : view.each() )
   {
 
     // skip over obstacles that are still enabled i.e. dont travel though them
-    auto obst_cmp = m_reg->try_get<Cmp::Obstacle>( entity );
+    auto obst_cmp = getReg().try_get<Cmp::Obstacle>( entity );
     if ( obst_cmp && obst_cmp->m_enabled ) continue;
 
     // If this is the first update, store the start position
     if ( lerp_pos_cmp.m_lerp_factor == 0.0f )
     {
       // Allow NPCs to escape wormholes if they're mid-lerp.
-      if ( m_reg->try_get<Cmp::WormholeJump>( entity ) ) continue;
+      if ( getReg().try_get<Cmp::WormholeJump>( entity ) ) continue;
 
       lerp_pos_cmp.m_start = pos_cmp.position;
     }
@@ -175,7 +176,7 @@ void NpcSystem::update_movement( sf::Time globalDeltaTime )
     if ( lerp_pos_cmp.m_lerp_factor >= 1.0f )
     {
       pos_cmp.position = lerp_pos_cmp.m_target;
-      m_reg->remove<Cmp::LerpPosition>( entity );
+      getReg().remove<Cmp::LerpPosition>( entity );
     }
     else
     {
@@ -185,7 +186,7 @@ void NpcSystem::update_movement( sf::Time globalDeltaTime )
     }
 
     // clang-format off
-    m_reg->patch<Cmp::NPCScanBounds>( entity, 
+    getReg().patch<Cmp::NPCScanBounds>( entity, 
       [&]( auto &npc_scan_bounds ) 
       { 
         npc_scan_bounds.position( pos_cmp.position ); 
@@ -196,8 +197,8 @@ void NpcSystem::update_movement( sf::Time globalDeltaTime )
 
 void NpcSystem::check_bones_reanimation()
 {
-  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position>();
-  auto npccontainer_collision_view = m_reg->view<Cmp::NpcContainer, Cmp::Position>();
+  auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto npccontainer_collision_view = getReg().view<Cmp::NpcContainer, Cmp::Position>();
   for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
   {
     for ( auto [npccontainer_entt, npccontainer_cmp, npccontainer_pos_cmp] : npccontainer_collision_view.each() )
@@ -212,7 +213,7 @@ void NpcSystem::check_bones_reanimation()
 
       if ( pc_pos_cmp.findIntersection( npc_activate_bounds.getBounds() ) )
       {
-        m_reg->emplace_or_replace<Cmp::Obstacle>( npccontainer_entt, "BONES", 0, false );
+        getReg().emplace_or_replace<Cmp::Obstacle>( npccontainer_entt, "BONES", 0, false );
         getEventDispatcher().trigger( Events::NpcCreationEvent( npccontainer_entt, "NPCSKELE" ) );
       }
     }
@@ -221,9 +222,10 @@ void NpcSystem::check_bones_reanimation()
 
 void NpcSystem::check_player_to_npc_collision()
 {
-  auto player_collision_view = m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position,
-                                           Cmp::Direction>();
-  auto npc_collision_view = m_reg->view<Cmp::NPC, Cmp::Position>();
+  auto player_collision_view = getReg()
+                                   .view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position,
+                                         Cmp::Direction>();
+  auto npc_collision_view = getReg().view<Cmp::NPC, Cmp::Position>();
   auto &npc_push_back = get_persistent_component<Cmp::Persistent::NpcPushBack>();
   auto &pc_damage_cooldown = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
 

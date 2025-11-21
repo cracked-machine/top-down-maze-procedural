@@ -26,7 +26,8 @@ namespace ProceduralMaze::Sys::ProcGen
 class RandomLevelGenerator : public BaseSystem
 {
 public:
-  RandomLevelGenerator( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                        Audio::SoundBank &sound_bank );
   ~RandomLevelGenerator() = default;
 
   void generate();

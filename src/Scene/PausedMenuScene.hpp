@@ -21,7 +21,7 @@ public:
   void update( [[maybe_unused]] sf::Time dt ) override;
   std::string get_name() const override { return "PausedMenuScene"; }
 
-  entt::registry *get_registry() override;
+  entt::registry &get_registry() override;
 
   bool blocks_update() const override { return true; }
 

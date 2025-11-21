@@ -25,8 +25,9 @@
 namespace ProceduralMaze::Sys
 {
 
-PlayerSystem::PlayerSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : BaseSystem( window, sprite_factory, sound_bank )
+PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                            Audio::SoundBank &sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "PlayerSystem initialized" );
 }
@@ -34,37 +35,37 @@ PlayerSystem::PlayerSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sp
 void PlayerSystem::add_player_entity()
 {
   SPDLOG_INFO( "Creating player entity" );
-  auto entity = m_reg->create();
+  auto entity = getReg().create();
 
   // start position must be pixel coordinates within the screen resolution (kDisplaySize),
   // but also grid aligned (kMapGridSize) to avoid collision detection errors.
   // So we must recalc start position to the nearest grid position here
   auto start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
   start_pos = snap_to_grid( start_pos );
-  m_reg->emplace<Cmp::Position>( entity, start_pos, kGridSquareSizePixelsF );
+  getReg().emplace<Cmp::Position>( entity, start_pos, kGridSquareSizePixelsF );
 
   auto &bomb_inventory = get_persistent_component<Cmp::Persistent::BombInventory>();
   auto &blast_radius = get_persistent_component<Cmp::Persistent::BlastRadius>();
-  m_reg->emplace<Cmp::PlayableCharacter>( entity, bomb_inventory.get_value(), blast_radius.get_value() );
+  getReg().emplace<Cmp::PlayableCharacter>( entity, bomb_inventory.get_value(), blast_radius.get_value() );
 
-  m_reg->emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
+  getReg().emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
 
   auto &pc_detection_scale = get_persistent_component<Cmp::Persistent::PlayerDetectionScale>();
 
-  m_reg->emplace<Cmp::PCDetectionBounds>( entity, start_pos, kGridSquareSizePixelsF, pc_detection_scale.get_value() );
+  getReg().emplace<Cmp::PCDetectionBounds>( entity, start_pos, kGridSquareSizePixelsF, pc_detection_scale.get_value() );
 
-  m_reg->emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYER.walk.south" );
-  m_reg->emplace<Cmp::PlayerCandlesCount>( entity, 0 );
-  m_reg->emplace<Cmp::PlayerKeysCount>( entity, 0 );
-  m_reg->emplace<Cmp::PlayerRelicCount>( entity, 0 );
-  m_reg->emplace<Cmp::PlayerHealth>( entity, 100 );
-  m_reg->emplace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );
-  m_reg->emplace<Cmp::WeaponLevel>( entity, 100.f );
+  getReg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYER.walk.south" );
+  getReg().emplace<Cmp::PlayerCandlesCount>( entity, 0 );
+  getReg().emplace<Cmp::PlayerKeysCount>( entity, 0 );
+  getReg().emplace<Cmp::PlayerRelicCount>( entity, 0 );
+  getReg().emplace<Cmp::PlayerHealth>( entity, 100 );
+  getReg().emplace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );
+  getReg().emplace<Cmp::WeaponLevel>( entity, 100.f );
 }
 
 Cmp::PlayerMortality::State PlayerSystem::check_player_mortality()
 {
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality>();
+  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality>();
   Cmp::PlayerMortality::State mortality_state = Cmp::PlayerMortality::State::ALIVE;
   for ( auto [entity, pc_cmp, health_cmp, mortality_cmp] : player_view.each() )
   {
@@ -88,12 +89,13 @@ void PlayerSystem::update_movement( sf::Time globalDeltaTime, bool skip_collisio
 {
   const float dt = globalDeltaTime.asSeconds();
 
-  auto player_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds,
-                                 Cmp::SpriteAnimation>();
+  auto player_view = getReg()
+                         .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds,
+                               Cmp::SpriteAnimation>();
   for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, pc_detection_bounds, anim_cmp] : player_view.each() )
   {
 
-    auto lerp_cmp = m_reg->try_get<Cmp::LerpPosition>( entity );
+    auto lerp_cmp = getReg().try_get<Cmp::LerpPosition>( entity );
     bool wants_to_move = dir_cmp != sf::Vector2f( 0.0f, 0.0f );
 
     // update the animation state based on movement direction
@@ -117,7 +119,7 @@ void PlayerSystem::update_movement( sf::Time globalDeltaTime, bool skip_collisio
     if ( wants_to_move && !lerp_cmp )
     {
       // disable new lerp starting during wormhole jump
-      if ( m_reg->try_get<Cmp::WormholeJump>( entity ) ) return;
+      if ( getReg().try_get<Cmp::WormholeJump>( entity ) ) return;
 
       // make a copy to determine if new target position is valid
       sf::FloatRect new_pos{ pos_cmp };
@@ -157,8 +159,8 @@ void PlayerSystem::update_movement( sf::Time globalDeltaTime, bool skip_collisio
 
       float adjusted_speed = player_lerp_speed.get_value() * speed_modifier;
 
-      m_reg->emplace<Cmp::LerpPosition>( entity, new_pos.position, adjusted_speed );
-      lerp_cmp = m_reg->try_get<Cmp::LerpPosition>( entity );
+      getReg().emplace<Cmp::LerpPosition>( entity, new_pos.position, adjusted_speed );
+      lerp_cmp = getReg().try_get<Cmp::LerpPosition>( entity );
 
       lerp_cmp->m_start = pos_cmp.position;
       lerp_cmp->m_target = new_pos.position;
@@ -188,7 +190,7 @@ void PlayerSystem::update_movement( sf::Time globalDeltaTime, bool skip_collisio
       {
         pos_cmp.position = lerp_cmp->m_target;
         pc_detection_bounds.position( pos_cmp.position );
-        m_reg->remove<Cmp::LerpPosition>( entity );
+        getReg().remove<Cmp::LerpPosition>( entity );
       }
     }
   }

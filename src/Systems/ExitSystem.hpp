@@ -13,7 +13,7 @@ namespace ProceduralMaze::Sys
 class ExitSystem : public BaseSystem
 {
 public:
-  ExitSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}

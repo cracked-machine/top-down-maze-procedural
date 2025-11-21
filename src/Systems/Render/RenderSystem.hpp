@@ -49,7 +49,8 @@ class RenderSystem : public BaseSystem
 public:
   //! @brief Construct a new Render System object
   //! @param reg
-  RenderSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  RenderSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                Audio::SoundBank &sound_bank );
 
   //! @brief polymorphic destructor for derived classes
   virtual ~RenderSystem() = default;

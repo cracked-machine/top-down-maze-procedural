@@ -36,7 +36,7 @@ public:
   virtual std::string get_name() const = 0;
 
   void set_scene_manager( SceneManager *sm ) { m_scene_manager = sm; }
-  virtual entt::registry *get_registry() = 0;
+  virtual entt::registry &get_registry() = 0;
 
   void request( SceneRequest r ) { requestFlag = r; }
   SceneRequest consume_request()
@@ -50,7 +50,7 @@ public:
 
 protected:
   SceneManager *m_scene_manager = nullptr; // non-owning
-  entt::registry registry;
+  entt::registry m_reg;
 
 private:
   SceneRequest requestFlag = SceneRequest::None;

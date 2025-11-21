@@ -8,18 +8,21 @@
 #include <Systems/Render/RenderSystem.hpp>
 #include <tuple>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
 void RenderPlayerSystem::render_player()
 {
-  auto pc_view = m_reg->view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds, Cmp::SpriteAnimation,
-                             Cmp::PlayerMortality>();
+  auto pc_view = getReg()
+                     .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds, Cmp::SpriteAnimation,
+                           Cmp::PlayerMortality>();
   for ( auto [entity, pc_cmp, pc_pos_cmp, dir_cmp, pc_detection_bounds, anim_cmp, pc_mort_cmp] : pc_view.each() )
   {
 
     switch ( pc_mort_cmp.state )
     {
-      case Cmp::PlayerMortality::State::ALIVE: {
+      case Cmp::PlayerMortality::State::ALIVE:
+      {
 
         // Only render if not in cooldown OR if in cooldown and blink is visible
         auto &pc_damage_cooldown = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
@@ -33,7 +36,8 @@ void RenderPlayerSystem::render_player()
         }
         break;
       }
-      case Cmp::PlayerMortality::State::FALLING: {
+      case Cmp::PlayerMortality::State::FALLING:
+      {
 
         auto params_tuple = calc_alive_render_params( anim_cmp.m_sprite_type, pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
@@ -41,28 +45,32 @@ void RenderPlayerSystem::render_player()
 
         break;
       }
-      case Cmp::PlayerMortality::State::HAUNTED: {
+      case Cmp::PlayerMortality::State::HAUNTED:
+      {
         pc_mort_cmp.death_progress += 0.1f;
         auto params_tuple = calc_alive_render_params( anim_cmp.m_sprite_type, pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                     params_tuple );
         break;
       }
-      case Cmp::PlayerMortality::State::DECAYING: {
+      case Cmp::PlayerMortality::State::DECAYING:
+      {
         pc_mort_cmp.death_progress += 0.1f;
         auto params_tuple = calc_alive_render_params( anim_cmp.m_sprite_type, pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                     params_tuple );
         break;
       }
-      case Cmp::PlayerMortality::State::EXPLODING: {
+      case Cmp::PlayerMortality::State::EXPLODING:
+      {
         pc_mort_cmp.death_progress += 0.1f;
         auto params_tuple = calc_alive_render_params( anim_cmp.m_sprite_type, pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
                     params_tuple );
         break;
       }
-      case Cmp::PlayerMortality::State::DROWNING: {
+      case Cmp::PlayerMortality::State::DROWNING:
+      {
         pc_mort_cmp.death_progress += 0.1f;
         auto params_tuple = calc_alive_render_params( anim_cmp.m_sprite_type, pc_pos_cmp, dir_cmp, anim_cmp, entity );
         std::apply( [this]( auto &&...tpl_args ) { safe_render_sprite( std::forward<decltype( tpl_args )>( tpl_args )... ); },
@@ -70,7 +78,8 @@ void RenderPlayerSystem::render_player()
         break;
       }
 
-      case Cmp::PlayerMortality::State::DEAD: {
+      case Cmp::PlayerMortality::State::DEAD:
+      {
         pc_mort_cmp.death_progress += 0.1f;
         break;
       }
@@ -85,7 +94,7 @@ void RenderPlayerSystem::render_player_footsteps()
 {
 
   // render all footsteps
-  auto footstep_view = m_reg->view<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Position, Cmp::Direction>();
+  auto footstep_view = getReg().view<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Position, Cmp::Direction>();
   for ( auto [entity, timer, alpha, pos_cmp, direction] : footstep_view.each() )
   {
     std::size_t new_idx = 0;
@@ -150,7 +159,7 @@ void RenderPlayerSystem::render_npc()
 {
 
   for ( auto [entity, npc_cmp, pos_cmp, npc_sb_cmp, dir_cmp, anim_cmp] :
-        m_reg->view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds, Cmp::Direction, Cmp::SpriteAnimation>().each() )
+        getReg().view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds, Cmp::Direction, Cmp::SpriteAnimation>().each() )
   {
 
     // // make the NPC gaze follow the players relative direction
@@ -190,7 +199,7 @@ RenderPlayerSystem::RenderParams RenderPlayerSystem::calc_alive_render_params( c
   // Use static frame when not moving
   sprite_index = anim_cmp.m_current_frame;
 
-  auto *wormhole_jump = m_reg->try_get<Cmp::WormholeJump>( entity );
+  auto *wormhole_jump = getReg().try_get<Cmp::WormholeJump>( entity );
   if ( wormhole_jump )
   {
     // Calculate fade based on elapsed time vs total cooldown

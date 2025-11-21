@@ -24,8 +24,9 @@ namespace ProceduralMaze::Sys::ProcGen
 class CellAutomataSystem : public BaseSystem
 {
 public:
-  CellAutomataSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-      : BaseSystem( window, sprite_factory, sound_bank )
+  CellAutomataSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                      Audio::SoundBank &sound_bank )
+      : BaseSystem( reg, window, sprite_factory, sound_bank )
   {
   }
 

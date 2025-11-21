@@ -182,10 +182,9 @@ void SceneManager::handle_request( SceneRequest req )
 void SceneManager::inject_registry()
 {
   auto *scene = current();
-  entt::registry *reg = scene ? scene->get_registry() : nullptr;
-  if ( !reg ) throw std::runtime_error( "SceneManager::inject_registry: Current scene has null registry pointer." );
+  entt::registry &reg = scene->get_registry();
   for ( auto &sys : m_system_store )
-    sys.second->setRegistry( reg );
+    sys.second->setReg( reg ); // pass the unique_ptr by reference
 
   SPDLOG_INFO( "Injected registry into {} systems for {}", m_system_store.size(), scene->get_name() );
 }
