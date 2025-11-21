@@ -7,12 +7,12 @@
 
 #include <Components/Font.hpp>
 #include <Scene/IScene.hpp>
+#include <Scene/SceneStack.hpp>
 #include <SystemStore.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <future>
 #include <memory>
-#include <vector>
 
 namespace ProceduralMaze::Scene
 {
@@ -98,7 +98,7 @@ private:
   Audio::SoundBank &m_sound_bank;
   Sys::SystemStore &m_system_store;
 
-  std::vector<std::unique_ptr<IScene>> m_scenes;
+  SceneStack m_scene_stack;
   sf::Texture m_splash_texture{ "res/textures/splash.png" };
 };
 
