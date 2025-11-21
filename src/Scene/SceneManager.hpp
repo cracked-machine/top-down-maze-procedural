@@ -96,16 +96,10 @@ private:
   //! @brief Non-owning reference to the OpenGL window
   sf::RenderWindow &m_window;
   Audio::SoundBank &m_sound_bank;
+  Sys::SystemStore &m_system_store;
 
   std::vector<std::unique_ptr<IScene>> m_scenes;
-
-  // std::vector<Sys::BaseSystem *> m_reg_inject_system_ptrs;
-
-  // Sys::SystemPtrs m_scene_di_sys_ptrs;
-
   sf::Texture m_splash_texture{ "res/textures/splash.png" };
-
-  Sys::SystemStore &m_system_store;
 };
 
 } // namespace ProceduralMaze::Scene

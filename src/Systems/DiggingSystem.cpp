@@ -47,7 +47,6 @@ void DiggingSystem::update()
 
 void DiggingSystem::check_player_dig_obstacle_collision()
 {
-  SPDLOG_INFO( "DiggingSystem::check_player_dig_obstacle_collision - m_registry = {}", static_cast<void *>( m_reg ) );
   if ( !m_reg )
   {
     SPDLOG_ERROR( "DiggingSystem m_registry is null!" );

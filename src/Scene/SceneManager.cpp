@@ -132,7 +132,6 @@ void SceneManager::handle_request( SceneRequest req )
       case SceneRequest::GraveyardScene:
       {
         auto graveyard_scene = std::make_unique<GraveyardScene>( m_sound_bank, m_system_store );
-
         push( std::move( graveyard_scene ) );
 
         break;

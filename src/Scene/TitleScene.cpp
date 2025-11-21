@@ -21,15 +21,15 @@ void TitleScene::on_enter()
 {
   SPDLOG_INFO( "Entering TitleScene" );
 
-  auto &m_persistent_sys = static_cast<Sys::PersistentSystem &>( m_system_store.find( Sys::SystemStore::Type::PersistentSystem ) );
+  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  auto &m_render_menu_sys = static_cast<Sys::RenderMenuSystem &>( m_system_store.find( Sys::SystemStore::Type::RenderMenuSystem ) );
+  auto &m_render_menu_sys = m_system_store.find<Sys::SystemStore::Type::RenderMenuSystem>();
   m_render_menu_sys.init_title();
 
   // update fx volumes with persistent settings
-  auto &event_handler = static_cast<Sys::EventHandler &>( m_system_store.find( Sys::SystemStore::Type::EventHandler ) );
+  auto &event_handler = m_system_store.find<Sys::SystemStore::Type::EventHandler>();
   auto &effects_volume = event_handler.get_persistent_component<Cmp::Persistent::EffectsVolume>().get_value();
   m_sound_bank.update_effects_volume( effects_volume );
   auto &music_volume = event_handler.get_persistent_component<Cmp::Persistent::MusicVolume>().get_value();
@@ -51,10 +51,10 @@ void TitleScene::on_exit()
 
 void TitleScene::update( [[maybe_unused]] sf::Time dt )
 {
-  auto &render_menu_sys = static_cast<Sys::RenderMenuSystem &>( m_system_store.find( Sys::SystemStore::Type::RenderMenuSystem ) );
+  auto &render_menu_sys = m_system_store.find<Sys::SystemStore::Type::RenderMenuSystem>();
   render_menu_sys.render_title();
 
-  auto &event_handler = static_cast<Sys::EventHandler &>( m_system_store.find( Sys::SystemStore::Type::EventHandler ) );
+  auto &event_handler = m_system_store.find<Sys::SystemStore::Type::EventHandler>();
   auto menu_action = event_handler.menu_state_handler();
   switch ( menu_action )
   {

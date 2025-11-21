@@ -87,6 +87,35 @@ public:
     // clang-format on
   }
 
+  template <Type T>
+  auto &find()
+  {
+    if constexpr ( T == Type::RenderGameSystem ) { return static_cast<RenderGameSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::EventHandler ) { return static_cast<EventHandler &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::RenderMenuSystem ) { return static_cast<RenderMenuSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::PersistentSystem ) { return static_cast<PersistentSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::PlayerSystem ) { return static_cast<PlayerSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::PathFindSystem ) { return static_cast<PathFindSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::NpcSystem ) { return static_cast<NpcSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::CollisionSystem ) { return static_cast<CollisionSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::DiggingSystem ) { return static_cast<DiggingSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::RenderOverlaySystem ) { return static_cast<RenderOverlaySystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::RenderPlayerSystem ) { return static_cast<RenderPlayerSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::BombSystem ) { return static_cast<BombSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::AnimSystem ) { return static_cast<AnimSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::SinkHoleHazardSystem ) { return static_cast<SinkHoleHazardSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::CorruptionHazardSystem ) { return static_cast<CorruptionHazardSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::WormholeSystem ) { return static_cast<WormholeSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::ExitSystem ) { return static_cast<ExitSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::FootstepSystem ) { return static_cast<FootstepSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::LargeObstacleSystem ) { return static_cast<LargeObstacleSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::LootSystem ) { return static_cast<LootSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::RandomLevelGenerator ) { return static_cast<ProcGen::RandomLevelGenerator &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::CellAutomataSystem ) { return static_cast<ProcGen::CellAutomataSystem &>( *m_sysmap[T] ); }
+    // ... add other systems as needed
+    else { static_assert( false, "Unknown system type" ); }
+  }
+
   BaseSystem &find( Type t )
   {
     if ( auto search = m_sysmap.find( t ); search != m_sysmap.end() ) { return *search->second; }

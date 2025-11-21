@@ -15,7 +15,7 @@ void PausedMenuScene::on_init() { SPDLOG_INFO( "Initializing PausedMenuScene" );
 
 void PausedMenuScene::on_enter()
 {
-  auto &persistent_sys = static_cast<Sys::PersistentSystem &>( m_system_store.find( Sys::SystemStore::Type::PersistentSystem ) );
+  auto &persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
   persistent_sys.initializeComponentRegistry();
   persistent_sys.load_state();
 }
@@ -23,17 +23,17 @@ void PausedMenuScene::on_enter()
 void PausedMenuScene::on_exit()
 {
   // cleanup if needed
-  auto &persistent_sys = static_cast<Sys::PersistentSystem &>( m_system_store.find( Sys::SystemStore::Type::PersistentSystem ) );
+  auto &persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
   persistent_sys.save_state();
 }
 
 void PausedMenuScene::update( [[maybe_unused]] sf::Time dt )
 {
-  auto &event_handler = static_cast<Sys::EventHandler &>( m_system_store.find( Sys::SystemStore::Type::EventHandler ) );
+  auto &event_handler = m_system_store.find<Sys::SystemStore::Type::EventHandler>();
   event_handler.getEventDispatcher().trigger( Events::PauseClocksEvent() );
   // globalFrameClock.stop();
 
-  auto &render_menu_sys = static_cast<Sys::RenderMenuSystem &>( m_system_store.find( Sys::SystemStore::Type::RenderMenuSystem ) );
+  auto &render_menu_sys = m_system_store.find<Sys::SystemStore::Type::RenderMenuSystem>();
   while ( ( event_handler.paused_state_handler() != Sys::EventHandler::NavigationActions::RESUME ) )
   {
     // check for keyboard/window events to keep window responsive
@@ -42,7 +42,7 @@ void PausedMenuScene::update( [[maybe_unused]] sf::Time dt )
   }
   // save persistent settings
   // event_handler.getEventDispatcher().trigger( Events::SaveSettingsEvent() );
-  auto &persistent_sys = static_cast<Sys::PersistentSystem &>( m_system_store.find( Sys::SystemStore::Type::PersistentSystem ) );
+  auto &persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
   persistent_sys.save_state();
 
   // update music/sfx volumes with persistent settings

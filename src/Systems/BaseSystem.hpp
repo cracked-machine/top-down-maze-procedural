@@ -43,27 +43,6 @@ public:
 
   BaseSystem( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
-  BaseSystem( const BaseSystem &other )
-      : m_reg( other.m_reg ),
-        m_window( other.m_window ),
-        m_sprite_factory( other.m_sprite_factory ),
-        m_sound_bank( other.m_sound_bank )
-  {
-    SPDLOG_INFO( "BaseSystem copy constructor called - copying registry {} to system at {}", static_cast<void *>( m_reg ),
-                 static_cast<void *>( this ) );
-  }
-
-  BaseSystem( BaseSystem &&other ) noexcept
-      : m_reg( other.m_reg ),
-        m_window( other.m_window ),
-        m_sprite_factory( other.m_sprite_factory ),
-        m_sound_bank( other.m_sound_bank )
-  {
-    other.m_reg = nullptr;
-    SPDLOG_INFO( "BaseSystem move constructor called - moved registry {} to system at {}, old system at {} now has null registry",
-                 static_cast<void *>( m_reg ), static_cast<void *>( this ), static_cast<void *>( &other ) );
-  }
-
   //! @brief polymorphic destructor for derived classes
   virtual ~BaseSystem() { SPDLOG_INFO( "BaseSystem destructor called for system at {}", static_cast<void *>( this ) ); };
 
