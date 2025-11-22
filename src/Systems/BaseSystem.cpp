@@ -27,7 +27,7 @@ BaseSystem::BaseSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
 }
 
 // initialised by first call to getEventDispatcher()
-std::unique_ptr<entt::dispatcher> BaseSystem::m_event_dispatcher = nullptr;
+std::unique_ptr<entt::dispatcher> BaseSystem::m_systems_event_queue = nullptr;
 
 bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
 {

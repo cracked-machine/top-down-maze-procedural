@@ -162,7 +162,7 @@ void EventHandler::graveyard_scene_state_handler()
           // exit already unlocked
           if ( exit_cmp.m_locked == false ) continue;
         }
-        getEventDispatcher().trigger( Events::UnlockDoorEvent() );
+        get_systems_event_queue().trigger( Events::UnlockDoorEvent() );
         SPDLOG_INFO( "Player cheated and unlocked exit" );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
@@ -207,7 +207,7 @@ void EventHandler::graveyard_scene_state_handler()
         {
           pc_key_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a key (player cheated)" );
-          getEventDispatcher().trigger( Events::UnlockDoorEvent() );
+          get_systems_event_queue().trigger( Events::UnlockDoorEvent() );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
@@ -255,15 +255,15 @@ void EventHandler::graveyard_scene_state_handler()
 
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Space ) )
   {
-    getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
+    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
   }
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
   {
-    getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
+    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
   }
   if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
   {
-    getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
+    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
   }
 }
 

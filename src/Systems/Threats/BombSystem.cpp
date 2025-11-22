@@ -29,9 +29,9 @@ BombSystem::BombSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>( this );
-  std::ignore = getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::BombSystem::onPause>( this );
-  std::ignore = getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::BombSystem::onResume>( this );
+  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>( this );
+  std::ignore = get_systems_event_queue().sink<Events::PauseClocksEvent>().connect<&Sys::BombSystem::onPause>( this );
+  std::ignore = get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::BombSystem::onResume>( this );
   SPDLOG_DEBUG( "BombSystem initialized" );
 }
 
@@ -210,7 +210,7 @@ void BombSystem::update()
     if ( lootcontainer_cmp )
     {
       SPDLOG_INFO( "Triggering LootContainerDestroyedEvent for entity {}  ", static_cast<int>( armed_entt ) );
-      getEventDispatcher().trigger( Events::LootContainerDestroyedEvent( armed_entt ) );
+      get_systems_event_queue().trigger( Events::LootContainerDestroyedEvent( armed_entt ) );
     }
 
     // detonate npc containers
@@ -247,7 +247,7 @@ void BombSystem::update()
         getReg().emplace_or_replace<Cmp::SpriteAnimation>( npc_entt, 0, 0, true, "EXPLOSION", 0 );
         SPDLOG_INFO( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ), npc_pos_cmp.position.x,
                      npc_pos_cmp.position.y );
-        getEventDispatcher().trigger( Events::NpcDeathEvent( npc_entt ) );
+        get_systems_event_queue().trigger( Events::NpcDeathEvent( npc_entt ) );
       }
     }
 

@@ -45,8 +45,8 @@ CollisionSystem::CollisionSystem( entt::registry &reg, sf::RenderWindow &window,
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-  std::ignore = getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::CollisionSystem::onPause>( this );
-  std::ignore = getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::CollisionSystem::onResume>( this );
+  std::ignore = get_systems_event_queue().sink<Events::PauseClocksEvent>().connect<&Sys::CollisionSystem::onPause>( this );
+  std::ignore = get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::CollisionSystem::onResume>( this );
   SPDLOG_DEBUG( "CollisionSystem initialized" );
 }
 

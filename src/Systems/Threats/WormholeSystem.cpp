@@ -28,8 +28,8 @@ WormholeSystem::WormholeSystem( entt::registry &reg, sf::RenderWindow &window, S
 {
 
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-  getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::WormholeSystem::onPause>( this );
-  getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::WormholeSystem::onResume>( this );
+  get_systems_event_queue().sink<Events::PauseClocksEvent>().connect<&Sys::WormholeSystem::onPause>( this );
+  get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::WormholeSystem::onResume>( this );
 
   SPDLOG_DEBUG( "WormholeSystem initialized" );
 }

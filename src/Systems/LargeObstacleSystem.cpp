@@ -25,7 +25,7 @@ LargeObstacleSystem::LargeObstacleSystem( entt::registry &reg, sf::RenderWindow 
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&LargeObstacleSystem::on_player_action>( this );
+  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&LargeObstacleSystem::on_player_action>( this );
 }
 
 void LargeObstacleSystem::check_player_lo_collision( Events::PlayerActionEvent::GameActions action )
@@ -212,12 +212,12 @@ void LargeObstacleSystem::check_player_grave_activation( Cmp::LargeObstacle &lo_
       {
         case 1:
           SPDLOG_INFO( "Grave activated NPC trap." );
-          getEventDispatcher().trigger( Events::NpcCreationEvent( lo_entity, "NPCGHOST" ) );
+          get_systems_event_queue().trigger( Events::NpcCreationEvent( lo_entity, "NPCGHOST" ) );
           break;
         case 2:
           SPDLOG_INFO( "Grave activated bomb trap." );
           pc_cmp.bomb_inventory += 1;
-          getEventDispatcher().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) );
+          get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) );
           break;
         case 3:
 
@@ -265,7 +265,7 @@ bool LargeObstacleSystem::activate_shrine_special_power()
           if ( is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) )
           {
             SPDLOG_INFO( "Killed NPC at ({}, {})", npc_pos_cmp.position.x, npc_pos_cmp.position.y );
-            getEventDispatcher().trigger( Events::NpcDeathEvent( npc_entity ) );
+            get_systems_event_queue().trigger( Events::NpcDeathEvent( npc_entity ) );
           }
         }
         break;
@@ -298,7 +298,7 @@ bool LargeObstacleSystem::activate_shrine_special_power()
           if ( is_visible_in_view( RenderSystem::getGameView(), lc_pos_cmp ) )
           {
             SPDLOG_INFO( "Opened loot container at ({}, {})", lc_pos_cmp.position.x, lc_pos_cmp.position.y );
-            getEventDispatcher().trigger( Events::LootContainerDestroyedEvent( lc_entity ) );
+            get_systems_event_queue().trigger( Events::LootContainerDestroyedEvent( lc_entity ) );
           }
         }
         break;

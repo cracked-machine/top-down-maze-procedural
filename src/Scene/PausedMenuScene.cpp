@@ -23,7 +23,7 @@ void PausedMenuScene::on_enter()
   persistent_sys.initializeComponentRegistry();
   persistent_sys.load_state();
 
-  persistent_sys.getEventDispatcher().trigger( Events::PauseClocksEvent() );
+  persistent_sys.get_systems_event_queue().trigger( Events::PauseClocksEvent() );
 }
 
 void PausedMenuScene::on_exit()
@@ -32,7 +32,7 @@ void PausedMenuScene::on_exit()
   auto &persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
   persistent_sys.save_state();
 
-  persistent_sys.getEventDispatcher().trigger( Events::ResumeClocksEvent() );
+  persistent_sys.get_systems_event_queue().trigger( Events::ResumeClocksEvent() );
 }
 
 void PausedMenuScene::update( [[maybe_unused]] sf::Time dt )

@@ -31,9 +31,11 @@ NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::Sp
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-  std::ignore = Sys::BaseSystem::getEventDispatcher().sink<Events::NpcCreationEvent>().connect<&Sys::NpcSystem::on_npc_creation>(
+  std::ignore = Sys::BaseSystem::get_systems_event_queue()
+                    .sink<Events::NpcCreationEvent>()
+                    .connect<&Sys::NpcSystem::on_npc_creation>( this );
+  std::ignore = Sys::BaseSystem::get_systems_event_queue().sink<Events::NpcDeathEvent>().connect<&Sys::NpcSystem::on_npc_death>(
       this );
-  std::ignore = Sys::BaseSystem::getEventDispatcher().sink<Events::NpcDeathEvent>().connect<&Sys::NpcSystem::on_npc_death>( this );
   SPDLOG_DEBUG( "NpcSystem initialized" );
 }
 
@@ -214,7 +216,7 @@ void NpcSystem::check_bones_reanimation()
       if ( pc_pos_cmp.findIntersection( npc_activate_bounds.getBounds() ) )
       {
         getReg().emplace_or_replace<Cmp::Obstacle>( npccontainer_entt, "BONES", 0, false );
-        getEventDispatcher().trigger( Events::NpcCreationEvent( npccontainer_entt, "NPCSKELE" ) );
+        get_systems_event_queue().trigger( Events::NpcCreationEvent( npccontainer_entt, "NPCSKELE" ) );
       }
     }
   }

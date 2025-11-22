@@ -21,7 +21,7 @@ DiggingSystem::DiggingSystem( entt::registry &reg, sf::RenderWindow &window, Spr
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-  std::ignore = getEventDispatcher().sink<Events::PlayerActionEvent>().connect<&DiggingSystem::on_player_action>( this );
+  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&DiggingSystem::on_player_action>( this );
   SPDLOG_DEBUG( "DiggingSystem initialized" );
 }
 

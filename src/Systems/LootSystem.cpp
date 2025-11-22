@@ -19,8 +19,9 @@ LootSystem::LootSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-  std::ignore = getEventDispatcher().sink<Events::LootContainerDestroyedEvent>().connect<&LootSystem::on_loot_container_destroyed>(
-      this );
+  std::ignore = get_systems_event_queue()
+                    .sink<Events::LootContainerDestroyedEvent>()
+                    .connect<&LootSystem::on_loot_container_destroyed>( this );
   SPDLOG_DEBUG( "LootSystem initialized" );
 }
 
@@ -102,7 +103,7 @@ void LootSystem::check_loot_collision()
       pc_keys_count.increment_count( 1 );
       m_sound_bank.get_effect( "get_key" ).play();
       // unlock the door (internally checks if we activated all of the shrines)
-      getEventDispatcher().trigger( Events::UnlockDoorEvent() );
+      get_systems_event_queue().trigger( Events::UnlockDoorEvent() );
     }
     else if ( effect.type == "RELIC_DROP" )
     {

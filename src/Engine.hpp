@@ -114,7 +114,7 @@ private:
   std::unique_ptr<Scene::SceneManager> m_scene_manager;
 
   entt::dispatcher m_nav_event_dispatcher;
-  entt::dispatcher m_scenemanager_event_dispatcher;
+  entt::dispatcher m_scenemanager_event_queue;
 };
 
 } // namespace ProceduralMaze

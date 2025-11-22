@@ -64,7 +64,7 @@ bool Engine::run()
     {
       sf::Time globalDeltaTime = globalFrameClock.restart();
       m_scene_manager->update( globalDeltaTime );
-      Sys::BaseSystem::getEventDispatcher().update();
+      Sys::BaseSystem::get_systems_event_queue().update();
 
     } /// MAIN LOOP ENDS
   }
@@ -89,9 +89,9 @@ void Engine::init_systems()
   m_sprite_factory->init();
   m_sound_bank->init();
   m_system_store = std::make_unique<Sys::SystemStore>( *m_window, *m_sprite_factory, *m_sound_bank, m_nav_event_dispatcher,
-                                                       m_scenemanager_event_dispatcher );
+                                                       m_scenemanager_event_queue );
   m_scene_manager = std::make_unique<Scene::SceneManager>( *m_window, *m_sound_bank, *m_system_store, m_nav_event_dispatcher,
-                                                           m_scenemanager_event_dispatcher );
+                                                           m_scenemanager_event_queue );
 
   SPDLOG_INFO( "Lazy initialization of systems complete" );
 }

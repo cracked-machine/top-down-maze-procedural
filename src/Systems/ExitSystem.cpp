@@ -24,7 +24,7 @@ ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
       m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-  std::ignore = getEventDispatcher().sink<Events::UnlockDoorEvent>().connect<&ExitSystem::on_door_unlock_event>( this );
+  std::ignore = get_systems_event_queue().sink<Events::UnlockDoorEvent>().connect<&ExitSystem::on_door_unlock_event>( this );
   SPDLOG_DEBUG( "ExitSystem initialized" );
 }
 

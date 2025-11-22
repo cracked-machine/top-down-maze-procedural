@@ -89,8 +89,8 @@ public:
       : Sys::BaseSystem( reg, window, sprite_factory, sound_bank )
   {
     // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-    getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onPause>( this );
-    getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onResume>( this );
+    get_systems_event_queue().sink<Events::PauseClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onPause>( this );
+    get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onResume>( this );
   }
 
   //! @brief event handlers for pausing hazard spread clocks
@@ -232,7 +232,7 @@ public:
       {
         if ( not npc_pos_cmp.findIntersection( hazard_pos_cmp ) ) continue;
 
-        getEventDispatcher().trigger( Events::NpcDeathEvent( npc_entt ) );
+        get_systems_event_queue().trigger( Events::NpcDeathEvent( npc_entt ) );
         SPDLOG_DEBUG( "NPC fell into a hazard field at position ({}, {})!", hazard_pos_cmp.x, hazard_pos_cmp.y );
         return;
       }

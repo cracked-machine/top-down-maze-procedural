@@ -50,7 +50,7 @@ PersistentSystem::PersistentSystem( entt::registry &reg, sf::RenderWindow &windo
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-  std::ignore = getEventDispatcher().sink<Events::SaveSettingsEvent>().connect<&Sys::PersistentSystem::on_save_settings_event>(
+  std::ignore = get_systems_event_queue().sink<Events::SaveSettingsEvent>().connect<&Sys::PersistentSystem::on_save_settings_event>(
       this );
   SPDLOG_DEBUG( "PersistentSystem initialized" );
 }

@@ -275,10 +275,10 @@ public:
 
   // singleton event dispatcher
   // Use this to get temporary access to the dispatcher to register event handlers
-  static entt::dispatcher &getEventDispatcher()
+  static entt::dispatcher &get_systems_event_queue()
   {
-    if ( !m_event_dispatcher ) { m_event_dispatcher = std::make_unique<entt::dispatcher>(); }
-    return *m_event_dispatcher;
+    if ( !m_systems_event_queue ) { m_systems_event_queue = std::make_unique<entt::dispatcher>(); }
+    return *m_systems_event_queue;
   }
 
   // Helper structs for variadic template parameter packs
@@ -422,7 +422,7 @@ protected:
 
 private:
   // Prevent access to uninitialised dispatcher - use getEventDispatcher()
-  static std::unique_ptr<entt::dispatcher> m_event_dispatcher;
+  static std::unique_ptr<entt::dispatcher> m_systems_event_queue;
 };
 
 } // namespace Sys
