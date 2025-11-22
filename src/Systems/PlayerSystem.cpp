@@ -5,6 +5,7 @@
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/WeaponLevel.hpp>
 #include <Components/WormholeJump.hpp>
+#include <Events/SceneManagerEvent.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 
@@ -26,8 +27,9 @@ namespace ProceduralMaze::Sys
 {
 
 PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                            Audio::SoundBank &sound_bank )
-    : BaseSystem( reg, window, sprite_factory, sound_bank )
+                            Audio::SoundBank &sound_bank, entt::dispatcher &scenemanager_event_dispatcher )
+    : BaseSystem( reg, window, sprite_factory, sound_bank ),
+      m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
 {
   SPDLOG_DEBUG( "PlayerSystem initialized" );
 }
@@ -79,6 +81,7 @@ Cmp::PlayerMortality::State PlayerSystem::check_player_mortality()
     {
       mortality_cmp.state = Cmp::PlayerMortality::State::DEAD;
       SPDLOG_INFO( "Player has progressed to deadness." );
+      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::GAME_OVER );
     }
     mortality_state = mortality_cmp.state;
   }

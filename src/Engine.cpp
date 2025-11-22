@@ -56,7 +56,7 @@ bool Engine::run()
   {
     loading_screen( [this]() { this->init_systems(); }, m_splash_texture );
 
-    m_scene_manager->push( std::make_unique<Scene::TitleScene>( *m_sound_bank, *m_system_store ) );
+    m_scene_manager->push( std::make_unique<Scene::TitleScene>( *m_sound_bank, *m_system_store, m_nav_event_dispatcher ) );
     sf::Clock globalFrameClock;
 
     /// MAIN LOOP BEGINS
@@ -88,8 +88,10 @@ void Engine::init_systems()
   m_sprite_factory = std::make_unique<Sprites::SpriteFactory>();
   m_sprite_factory->init();
   m_sound_bank->init();
-  m_system_store = std::make_unique<Sys::SystemStore>( *m_window, *m_sprite_factory, *m_sound_bank );
-  m_scene_manager = std::make_unique<Scene::SceneManager>( *m_window, *m_sound_bank, *m_system_store );
+  m_system_store = std::make_unique<Sys::SystemStore>( *m_window, *m_sprite_factory, *m_sound_bank, m_nav_event_dispatcher,
+                                                       m_scenemanager_event_dispatcher );
+  m_scene_manager = std::make_unique<Scene::SceneManager>( *m_window, *m_sound_bank, *m_system_store, m_nav_event_dispatcher,
+                                                           m_scenemanager_event_dispatcher );
 
   SPDLOG_INFO( "Lazy initialization of systems complete" );
 }

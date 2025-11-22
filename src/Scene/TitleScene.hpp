@@ -15,24 +15,21 @@ namespace ProceduralMaze::Scene
 class TitleScene : public IScene
 {
 public:
-  TitleScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store );
+  TitleScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher );
 
   void on_init() override;
   void on_enter() override;
   void on_exit() override;
   void update( [[maybe_unused]] sf::Time dt ) override;
-  std::string get_name() const override { return "MainMenuScene"; }
+  std::string get_name() const override { return "TitleScene"; }
 
   entt::registry &get_registry() override;
 
 private:
   Audio::SoundBank &m_sound_bank;
-
-  // Sys::PersistentSystem *m_persistent_sys;
-  // Sys::RenderMenuSystem *m_render_menu_sys;
-  // Sys::EventHandler *m_event_handler;
-
   Sys::SystemStore &m_system_store;
+
+  entt::dispatcher &m_nav_event_dispatcher;
 };
 
 } // namespace ProceduralMaze::Scene

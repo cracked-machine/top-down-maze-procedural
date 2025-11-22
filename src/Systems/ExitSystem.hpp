@@ -13,7 +13,8 @@ namespace ProceduralMaze::Sys
 class ExitSystem : public BaseSystem
 {
 public:
-  ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
+              entt::dispatcher &scenemanager_event_dispatcher );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}
@@ -31,6 +32,8 @@ public:
 
 private:
   int exit_sprite_index = 6;
+
+  entt::dispatcher &m_scenemanager_event_dispatcher;
 };
 
 } // namespace ProceduralMaze::Sys

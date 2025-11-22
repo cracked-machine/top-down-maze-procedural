@@ -22,8 +22,8 @@ namespace ProceduralMaze::Sys
 class PlayerSystem : public BaseSystem
 {
 public:
-  PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                Audio::SoundBank &sound_bank );
+  PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
+                entt::dispatcher &scenemanager_event_dispatcher );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}
@@ -39,7 +39,7 @@ public:
    */
   void add_player_entity();
 
-  [[nodiscard]] Cmp::PlayerMortality::State check_player_mortality();
+  Cmp::PlayerMortality::State check_player_mortality();
 
   /**
    * @brief Updates the player's movement based on input and physics
@@ -60,6 +60,7 @@ public:
   void stop_footsteps_sound();
 
 private:
+  entt::dispatcher &m_scenemanager_event_dispatcher;
 };
 
 } // namespace ProceduralMaze::Sys

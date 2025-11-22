@@ -13,7 +13,7 @@ namespace ProceduralMaze::Scene
 class SettingsMenuScene : public IScene
 {
 public:
-  SettingsMenuScene( Sys::SystemStore &system_store );
+  SettingsMenuScene( Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher );
 
   void on_init() override;
   void on_enter() override;
@@ -25,6 +25,7 @@ public:
 
 private:
   Sys::SystemStore &m_system_store;
+  entt::dispatcher &m_nav_event_dispatcher;
 };
 
 } // namespace ProceduralMaze::Scene

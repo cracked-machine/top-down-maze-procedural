@@ -18,6 +18,7 @@
 #include <Systems/Threats/BombSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Systems/Threats/WormholeSystem.hpp>
+#include <entt/signal/fwd.hpp>
 
 namespace ProceduralMaze::Scene
 {
@@ -25,7 +26,7 @@ namespace ProceduralMaze::Scene
 class GraveyardScene : public IScene
 {
 public:
-  GraveyardScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store );
+  GraveyardScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher );
 
   void on_init() override;
   void on_enter() override;
@@ -39,6 +40,7 @@ private:
   Audio::SoundBank &m_sound_bank;
 
   Sys::SystemStore &m_system_store;
+  entt::dispatcher &m_nav_event_dispatcher;
 
   // restrict the path tracking data update to every 0.1 seconds (optimization)
   const sf::Time m_obstacle_distance_update_interval{ sf::milliseconds( 100 ) };

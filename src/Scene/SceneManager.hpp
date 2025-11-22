@@ -2,6 +2,7 @@
 #define SCENE_SCENEMANAGER_HPP_
 
 #include <Audio/SoundBank.hpp>
+#include <Events/SceneManagerEvent.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
@@ -20,11 +21,15 @@ namespace ProceduralMaze::Scene
 class SceneManager
 {
 public:
-  explicit SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::SystemStore &system_store )
+  explicit SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::SystemStore &system_store,
+                         entt::dispatcher &nav_event_dispatcher, entt::dispatcher &scenemanager_event_dispatcher )
       : m_window( w ),
         m_sound_bank( sound_bank ),
-        m_system_store( system_store )
+        m_system_store( system_store ),
+        m_nav_event_dispatcher( nav_event_dispatcher ),
+        m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
   {
+    m_scenemanager_event_dispatcher.sink<Events::SceneManagerEvent>().connect<&Scene::SceneManager::handle_events>( this );
   }
 
   void update( sf::Time dt );
@@ -40,7 +45,7 @@ public:
 
   IScene *current();
 
-  void handle_request( SceneRequest req );
+  void handle_events( const Events::SceneManagerEvent &event );
 
 private:
   void inject_registry();
@@ -100,6 +105,9 @@ private:
 
   SceneStack m_scene_stack;
   sf::Texture m_splash_texture{ "res/textures/splash.png" };
+
+  entt::dispatcher &m_nav_event_dispatcher;
+  entt::dispatcher &m_scenemanager_event_dispatcher;
 };
 
 } // namespace ProceduralMaze::Scene

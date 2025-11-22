@@ -1,3 +1,4 @@
+#include <Events/ProcessGameoverSceneInputEvent.hpp>
 #include <Scene/GameOverScene.hpp>
 #include <Scene/SceneManager.hpp>
 #include <SystemStore.hpp>
@@ -6,16 +7,17 @@
 namespace ProceduralMaze::Scene
 {
 
-GameOverScene::GameOverScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store )
+GameOverScene::GameOverScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher )
     : m_sound_bank( sound_bank ),
-      m_system_store( system_store )
+      m_system_store( system_store ),
+      m_nav_event_dispatcher( nav_event_dispatcher )
 {
 }
 
 void GameOverScene::on_init() { SPDLOG_INFO( "Initializing GameOverScene" ); }
 void GameOverScene::on_enter()
 {
-  SPDLOG_INFO( "Entering GameOverScene" );
+  SPDLOG_INFO( "Entering {}", get_name() );
   auto &persistent_sys = static_cast<Sys::PersistentSystem &>( m_system_store.find( Sys::SystemStore::Type::PersistentSystem ) );
   persistent_sys.initializeComponentRegistry();
   persistent_sys.load_state();
@@ -24,7 +26,7 @@ void GameOverScene::on_enter()
 }
 void GameOverScene::on_exit()
 {
-  SPDLOG_INFO( "Exiting GameOverScene" );
+  SPDLOG_INFO( "Exiting {}", get_name() );
   m_reg.clear();
 
   auto &m_player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
@@ -40,16 +42,8 @@ void GameOverScene::update( [[maybe_unused]] sf::Time dt )
   auto &render_menu_sys = m_system_store.find<Sys::SystemStore::Type::RenderMenuSystem>();
   render_menu_sys.render_defeat_screen();
 
-  auto &event_handler = m_system_store.find<Sys::SystemStore::Type::EventHandler>();
-  auto menu_action = event_handler.game_over_state_handler();
-  switch ( menu_action )
-  {
-    case Sys::EventHandler::NavigationActions::TITLE:
-      request( SceneRequest::Pop );
-      break;
-    default:
-      break;
-  }
+  // defer this scenes input event processing until we  exit this function
+  m_nav_event_dispatcher.enqueue( Events::ProcessGameoverSceneInputEvent() );
 }
 
 entt::registry &GameOverScene::get_registry() { return m_reg; }

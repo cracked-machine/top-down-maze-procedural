@@ -1,3 +1,4 @@
+#include <Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <Scene/GraveyardScene.hpp>
 #include <Scene/SceneManager.hpp>
 #include <SystemStore.hpp>
@@ -8,10 +9,12 @@
 namespace ProceduralMaze::Scene
 {
 
-GraveyardScene::GraveyardScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store )
+GraveyardScene::GraveyardScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store,
+                                entt::dispatcher &nav_event_dispatcher )
 
     : m_sound_bank( sound_bank ),
-      m_system_store( system_store )
+      m_system_store( system_store ),
+      m_nav_event_dispatcher( nav_event_dispatcher )
 {
 }
 
@@ -25,7 +28,7 @@ void GraveyardScene::on_init()
 
 void GraveyardScene::on_enter()
 {
-  SPDLOG_INFO( "Entering GraveyardScene" );
+  SPDLOG_INFO( "Entering {}", get_name() );
 
   auto &render_game_system = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
   SPDLOG_INFO( "Got render_game_system at {}", static_cast<void *>( &render_game_system ) );
@@ -61,7 +64,7 @@ void GraveyardScene::on_enter()
 
 void GraveyardScene::on_exit()
 {
-  SPDLOG_INFO( "Exiting GraveyardScene" );
+  SPDLOG_INFO( "Exiting {}", get_name() );
   m_reg.clear();
   m_sound_bank.get_music( "game_music" ).stop();
   m_sound_bank.get_music( "title_music" ).play();
@@ -89,20 +92,6 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
   {
     if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) ) { m_player_sys.stop_footsteps_sound(); }
     else { m_player_sys.play_footsteps_sound(); }
-  }
-
-  auto &m_event_handler = m_system_store.find<Sys::SystemStore::Type::EventHandler>();
-  auto menu_action = m_event_handler.game_state_handler();
-  switch ( menu_action )
-  {
-    case Sys::EventHandler::NavigationActions::TITLE:
-      request( SceneRequest::Pop );
-      break;
-    case Sys::EventHandler::NavigationActions::PAUSE:
-      request( SceneRequest::PausedMenu );
-      break;
-    default:
-      break;
   }
 
   auto &anim_sys = m_system_store.find<Sys::SystemStore::Type::AnimSystem>();
@@ -158,28 +147,21 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
       corruption_sys.check_player_hazard_field_collision();
       npc_sys.check_player_to_npc_collision();
     }
-    if ( _sys.level_complete )
-    {
-      SPDLOG_INFO( "Level complete!" );
-      request( SceneRequest::LevelComplete );
-    }
   }
 
   auto player_entity = m_reg.view<Cmp::PlayableCharacter>().front();
   path_find_sys.findPath( player_entity );
   npc_sys.update_movement( dt );
 
-  // did the player die? Then end the game
-  if ( player_sys.check_player_mortality() == Cmp::PlayerMortality::State::DEAD )
-  {
-    SPDLOG_INFO( "Player has died!" );
-    request( SceneRequest::GameOver );
-  }
+  player_sys.check_player_mortality();
 
   auto &render_game_sys = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
   auto &render_overlay_sys = m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>();
   auto &render_player_sys = m_system_store.find<Sys::SystemStore::Type::RenderPlayerSystem>();
   render_game_sys.render_game( dt, render_overlay_sys, render_player_sys );
+
+  // defer this scenes input event processing until we  exit this function
+  m_nav_event_dispatcher.enqueue( Events::ProcessGraveyardSceneInputEvent() );
 }
 
 entt::registry &GraveyardScene::get_registry() { return m_reg; }

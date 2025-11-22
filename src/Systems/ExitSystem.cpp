@@ -1,4 +1,5 @@
 #include <Components/PlayerKeysCount.hpp>
+#include <Events/SceneManagerEvent.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <Components/Door.hpp>
@@ -18,8 +19,9 @@ namespace ProceduralMaze::Sys
 {
 
 ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                        Audio::SoundBank &sound_bank )
-    : BaseSystem( reg, window, sprite_factory, sound_bank )
+                        Audio::SoundBank &sound_bank, entt::dispatcher &scenemanager_event_dispatcher )
+    : BaseSystem( reg, window, sprite_factory, sound_bank ),
+      m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
   std::ignore = getEventDispatcher().sink<Events::UnlockDoorEvent>().connect<&ExitSystem::on_door_unlock_event>( this );
@@ -79,6 +81,7 @@ void ExitSystem::check_exit_collision()
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.level_complete = true;
+          m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::LEVEL_COMPLETE );
         }
       }
     }

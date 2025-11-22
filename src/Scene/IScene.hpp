@@ -3,6 +3,7 @@
 
 #include <SFML/System/Time.hpp>
 #include <entt/entity/registry.hpp>
+#include <entt/signal/dispatcher.hpp>
 #include <string>
 
 namespace ProceduralMaze::Scene
@@ -35,25 +36,15 @@ public:
   virtual void update( sf::Time dt ) = 0;
   virtual std::string get_name() const = 0;
 
-  void set_scene_manager( SceneManager *sm ) { m_scene_manager = sm; }
   virtual entt::registry &get_registry() = 0;
 
-  void request( SceneRequest r ) { requestFlag = r; }
-  SceneRequest consume_request()
-  {
-    SceneRequest r = requestFlag;
-    requestFlag = SceneRequest::None;
-    return r;
-  }
+  entt::dispatcher &get_event_dispatcher() { return m_scene_event_dispatcher; }
 
   virtual bool blocks_update() const { return true; }
 
 protected:
-  SceneManager *m_scene_manager = nullptr; // non-owning
   entt::registry m_reg;
-
-private:
-  SceneRequest requestFlag = SceneRequest::None;
+  entt::dispatcher m_scene_event_dispatcher;
 };
 
 } // namespace ProceduralMaze::Scene

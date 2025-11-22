@@ -35,19 +35,23 @@ public:
     EXIT
   };
 
-  EventHandler( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                Audio::SoundBank &sound_bank );
+  EventHandler( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
+                entt::dispatcher &nav_event_dispatcher, entt::dispatcher &scenemanager_event_dispatcher );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
-  NavigationActions menu_state_handler();
-  NavigationActions settings_state_handler();
-  NavigationActions game_state_handler();
-  NavigationActions paused_state_handler();
-  NavigationActions game_over_state_handler();
+  void title_scene_input_handler();
+  void settings_scene_state_handler();
+  void graveyard_scene_state_handler();
+  void paused_scene_state_handler();
+  void game_over_scene_state_handler();
+  void level_complete_scene_state_handler();
+
+  entt::dispatcher &m_nav_event_dispatcher;
+  entt::dispatcher &m_scenemanager_event_dispatcher;
 };
 
 } // namespace ProceduralMaze::Sys
