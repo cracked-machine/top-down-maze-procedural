@@ -1,6 +1,9 @@
+#include <Components/Persistent/BlastRadius.hpp>
+#include <Components/Persistent/BombInventory.hpp>
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
+#include <Components/Persistent/PlayerDetectionScale.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <SFML/System/Angle.hpp>
 

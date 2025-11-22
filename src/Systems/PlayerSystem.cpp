@@ -1,27 +1,31 @@
-#include <Components/Persistent/EffectsVolume.hpp>
-#include <Components/PlayerHealth.hpp>
-#include <Components/PlayerKeysCount.hpp>
-#include <Components/PlayerMortality.hpp>
-#include <Components/PlayerRelicCount.hpp>
-#include <Components/WeaponLevel.hpp>
-#include <Components/WormholeJump.hpp>
-#include <Events/SceneManagerEvent.hpp>
-#include <SFML/System/Time.hpp>
-#include <SFML/System/Vector2.hpp>
-
 #include <Components/Direction.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/PCDetectionBounds.hpp>
+#include <Components/Persistent/BlastRadius.hpp>
+#include <Components/Persistent/BombInventory.hpp>
+#include <Components/Persistent/EffectsVolume.hpp>
+#include <Components/Persistent/PlayerDetectionScale.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerLerpSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCandlesCount.hpp>
+#include <Components/PlayerHealth.hpp>
+#include <Components/PlayerKeysCount.hpp>
+#include <Components/PlayerMortality.hpp>
+#include <Components/PlayerRelicCount.hpp>
 #include <Components/Position.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Components/WeaponLevel.hpp>
+#include <Components/WormholeJump.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PlayerSystem.hpp>
+
+#include <Events/SceneManagerEvent.hpp>
+#include <SFML/System/Time.hpp>
+#include <SFML/System/Vector2.hpp>
 
 namespace ProceduralMaze::Sys
 {

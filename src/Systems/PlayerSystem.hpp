@@ -3,18 +3,12 @@
 
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/PlayerMortality.hpp>
+#include <Components/Position.hpp>
+#include <Systems/BaseSystem.hpp>
+
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <entt/entity/registry.hpp>
-
-#include <Components/Direction.hpp>
-#include <Components/PCDetectionBounds.hpp>
-#include <Components/Persistent/BlastRadius.hpp>
-#include <Components/Persistent/BombInventory.hpp>
-#include <Components/Persistent/PlayerDetectionScale.hpp>
-#include <Components/PlayableCharacter.hpp>
-#include <Components/Position.hpp>
-#include <Systems/BaseSystem.hpp>
 
 namespace ProceduralMaze::Sys
 {
