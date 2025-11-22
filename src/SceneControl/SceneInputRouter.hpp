@@ -20,7 +20,7 @@
 namespace ProceduralMaze::Sys
 {
 
-class EventHandler : public Sys::BaseSystem
+class SceneInputRouter : public Sys::BaseSystem
 {
 public:
   enum class NavigationActions
@@ -35,8 +35,9 @@ public:
     EXIT
   };
 
-  EventHandler( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
-                entt::dispatcher &nav_event_dispatcher, entt::dispatcher &scenemanager_event_dispatcher );
+  SceneInputRouter( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                    Audio::SoundBank &sound_bank, entt::dispatcher &nav_event_dispatcher,
+                    entt::dispatcher &scenemanager_event_dispatcher );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}

@@ -1,7 +1,7 @@
 #ifndef SRC_SCENE_SCENESTACK_HPP_
 #define SRC_SCENE_SCENESTACK_HPP_
 
-#include <Scene/IScene.hpp>
+#include <SceneControl/IScene.hpp>
 #include <memory>
 #include <spdlog/spdlog.h>
 #include <stdexcept>

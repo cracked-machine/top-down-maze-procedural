@@ -1,24 +1,8 @@
 #ifndef SCENE_GRAVEYARDSCENE_HPP_
 #define SCENE_GRAVEYARDSCENE_HPP_
 
-#include <EventHandler.hpp>
-#include <Scene/IScene.hpp>
+#include <SceneControl/IScene.hpp>
 #include <SystemStore.hpp>
-#include <Systems/AnimSystem.hpp>
-#include <Systems/DiggingSystem.hpp>
-#include <Systems/ExitSystem.hpp>
-#include <Systems/FootstepSystem.hpp>
-#include <Systems/LootSystem.hpp>
-#include <Systems/PathFindSystem.hpp>
-#include <Systems/PersistentSystem.hpp>
-#include <Systems/PlayerSystem.hpp>
-#include <Systems/ProcGen/CellAutomataSystem.hpp>
-#include <Systems/ProcGen/RandomLevelGenerator.hpp>
-#include <Systems/Render/RenderGameSystem.hpp>
-#include <Systems/Threats/BombSystem.hpp>
-#include <Systems/Threats/NpcSystem.hpp>
-#include <Systems/Threats/WormholeSystem.hpp>
-#include <entt/signal/fwd.hpp>
 
 namespace ProceduralMaze::Scene
 {

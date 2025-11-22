@@ -7,7 +7,6 @@
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerMortality.hpp>
 #include <Components/PlayerRelicCount.hpp>
-#include <EventHandler.hpp>
 #include <Events/ProcessGameoverSceneInputEvent.hpp>
 #include <Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <Events/ProcessLevelCompleteSceneInputEvent.hpp>
@@ -17,31 +16,32 @@
 #include <Events/SaveSettingsEvent.hpp>
 #include <Events/SceneManagerEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
+#include <SceneControl/SceneInputRouter.hpp>
 
 namespace ProceduralMaze::Sys
 {
 
-EventHandler::EventHandler( entt::registry &reg, sf::RenderWindow &m_window, Sprites::SpriteFactory &sprite_factory,
-                            Audio::SoundBank &sound_bank, entt::dispatcher &nav_event_dispatcher,
-                            entt::dispatcher &scenemanager_event_dispatcher )
+SceneInputRouter::SceneInputRouter( entt::registry &reg, sf::RenderWindow &m_window, Sprites::SpriteFactory &sprite_factory,
+                                    Audio::SoundBank &sound_bank, entt::dispatcher &nav_event_dispatcher,
+                                    entt::dispatcher &scenemanager_event_dispatcher )
     : Sys::BaseSystem( reg, m_window, sprite_factory, sound_bank ),
       m_nav_event_dispatcher( nav_event_dispatcher ),
       m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
 {
-  m_nav_event_dispatcher.sink<Events::ProcessTitleSceneInputEvent>().connect<&EventHandler::title_scene_input_handler>( this );
-  m_nav_event_dispatcher.sink<Events::ProcessSettingsMenuSceneInputEvent>().connect<&EventHandler::settings_scene_state_handler>(
+  m_nav_event_dispatcher.sink<Events::ProcessTitleSceneInputEvent>().connect<&SceneInputRouter::title_scene_input_handler>( this );
+  m_nav_event_dispatcher.sink<Events::ProcessSettingsMenuSceneInputEvent>()
+      .connect<&SceneInputRouter::settings_scene_state_handler>( this );
+  m_nav_event_dispatcher.sink<Events::ProcessGraveyardSceneInputEvent>().connect<&SceneInputRouter::graveyard_scene_state_handler>(
       this );
-  m_nav_event_dispatcher.sink<Events::ProcessGraveyardSceneInputEvent>().connect<&EventHandler::graveyard_scene_state_handler>(
+  m_nav_event_dispatcher.sink<Events::ProcessPausedMenuSceneInputEvent>().connect<&SceneInputRouter::paused_scene_state_handler>(
       this );
-  m_nav_event_dispatcher.sink<Events::ProcessPausedMenuSceneInputEvent>().connect<&EventHandler::paused_scene_state_handler>(
-      this );
-  m_nav_event_dispatcher.sink<Events::ProcessGameoverSceneInputEvent>().connect<&EventHandler::game_over_scene_state_handler>(
+  m_nav_event_dispatcher.sink<Events::ProcessGameoverSceneInputEvent>().connect<&SceneInputRouter::game_over_scene_state_handler>(
       this );
   m_nav_event_dispatcher.sink<Events::ProcessLevelCompleteSceneInputEvent>()
-      .connect<&EventHandler::level_complete_scene_state_handler>( this );
+      .connect<&SceneInputRouter::level_complete_scene_state_handler>( this );
 }
 
-void EventHandler::title_scene_input_handler()
+void SceneInputRouter::title_scene_input_handler()
 {
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
@@ -71,7 +71,7 @@ void EventHandler::title_scene_input_handler()
   }
 }
 
-void EventHandler::settings_scene_state_handler()
+void SceneInputRouter::settings_scene_state_handler()
 {
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
@@ -93,7 +93,7 @@ void EventHandler::settings_scene_state_handler()
   }
 }
 
-void EventHandler::graveyard_scene_state_handler()
+void SceneInputRouter::graveyard_scene_state_handler()
 {
 
   using namespace sf::Keyboard;
@@ -267,7 +267,7 @@ void EventHandler::graveyard_scene_state_handler()
   }
 }
 
-void EventHandler::paused_scene_state_handler()
+void SceneInputRouter::paused_scene_state_handler()
 {
 
   using namespace sf::Keyboard;
@@ -290,7 +290,7 @@ void EventHandler::paused_scene_state_handler()
   }
 }
 
-void EventHandler::game_over_scene_state_handler()
+void SceneInputRouter::game_over_scene_state_handler()
 {
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )
@@ -312,7 +312,7 @@ void EventHandler::game_over_scene_state_handler()
   }
 }
 
-void EventHandler::level_complete_scene_state_handler()
+void SceneInputRouter::level_complete_scene_state_handler()
 {
   using namespace sf::Keyboard;
   while ( const std::optional event = m_window.pollEvent() )

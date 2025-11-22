@@ -1,7 +1,5 @@
 #include <Events/ProcessLevelCompleteSceneInputEvent.hpp>
-#include <Scene/LevelCompleteScene.hpp>
-#include <Scene/SceneManager.hpp>
-#include <SystemStore.hpp>
+#include <SceneControl/Scenes/LevelCompleteScene.hpp>
 
 namespace ProceduralMaze::Scene
 {

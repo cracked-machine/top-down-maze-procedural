@@ -1,8 +1,7 @@
 #ifndef SCENE_CRYPTSCENE_HPP_
 #define SCENE_CRYPTSCENE_HPP_
 
-#include <Scene/IScene.hpp>
-#include <string>
+#include <SceneControl/IScene.hpp>
 
 namespace ProceduralMaze::Scene
 {

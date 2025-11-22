@@ -2,7 +2,7 @@
 #define __ENGINE_HPP__
 
 #include <Audio/SoundBank.hpp>
-#include <Scene/SceneManager.hpp>
+#include <SceneControl/SceneManager.hpp>
 #include <Systems/LootSystem.hpp>
 #include <entt/entity/registry.hpp>
 

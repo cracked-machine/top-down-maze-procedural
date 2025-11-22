@@ -6,10 +6,10 @@
 #include <Engine.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
-#include <Scene/CryptScene.hpp>
-#include <Scene/GraveyardScene.hpp>
-#include <Scene/SceneManager.hpp>
-#include <Scene/TitleScene.hpp>
+#include <SceneControl/SceneManager.hpp>
+#include <SceneControl/Scenes/CryptScene.hpp>
+#include <SceneControl/Scenes/GraveyardScene.hpp>
+#include <SceneControl/Scenes/TitleScene.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
 

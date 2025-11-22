@@ -1,5 +1,4 @@
-#include <Scene/CryptScene.hpp>
-#include <Scene/SceneManager.hpp>
+#include <SceneControl/Scenes/CryptScene.hpp>
 
 namespace ProceduralMaze::Scene
 {

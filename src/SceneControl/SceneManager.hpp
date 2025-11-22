@@ -7,8 +7,8 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 
 #include <Components/Font.hpp>
-#include <Scene/IScene.hpp>
-#include <Scene/SceneStack.hpp>
+#include <SceneControl/IScene.hpp>
+#include <SceneControl/SceneStack.hpp>
 #include <SystemStore.hpp>
 #include <Systems/BaseSystem.hpp>
 

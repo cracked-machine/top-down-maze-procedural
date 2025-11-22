@@ -1,13 +1,8 @@
 #ifndef SCENE_LEVELCOMPLETE_SCENE_HPP_
 #define SCENE_LEVELCOMPLETE_SCENE_HPP_
 
-#include <Audio/SoundBank.hpp>
-#include <EventHandler.hpp>
-#include <Scene/IScene.hpp>
+#include <SceneControl/IScene.hpp>
 #include <SystemStore.hpp>
-#include <Systems/PersistentSystem.hpp>
-#include <Systems/Render/RenderGameSystem.hpp>
-#include <Systems/Render/RenderMenuSystem.hpp>
 
 namespace ProceduralMaze::Scene
 {

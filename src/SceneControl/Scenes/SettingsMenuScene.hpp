@@ -1,11 +1,8 @@
 #ifndef SCENE_SETTINGSMENUSCENE_HPP_
 #define SCENE_SETTINGSMENUSCENE_HPP_
 
-#include <EventHandler.hpp>
-#include <Scene/IScene.hpp>
+#include <SceneControl/IScene.hpp>
 #include <SystemStore.hpp>
-#include <Systems/PersistentSystem.hpp>
-#include <Systems/Render/RenderMenuSystem.hpp>
 
 namespace ProceduralMaze::Scene
 {

@@ -3,7 +3,7 @@ set(TARGET ProceduralMaze)
 add_executable(${TARGET} 
     ${CMAKE_SOURCE_DIR}/src/main.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine.cpp
-    ${CMAKE_SOURCE_DIR}/src/EventHandler.cpp
+    
     ${CMAKE_SOURCE_DIR}/src/Audio/EffectsItem.cpp
     ${CMAKE_SOURCE_DIR}/src/Audio/MusicItem.cpp
     ${CMAKE_SOURCE_DIR}/src/Audio/SoundBank.cpp
@@ -31,18 +31,18 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/BombSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/NpcSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/HazardFieldSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/Threats/WormholeSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/LargeObstacleSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/LootSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Scene/SceneManager.cpp
-    ${CMAKE_SOURCE_DIR}/src/Scene/GraveyardScene.cpp
-    ${CMAKE_SOURCE_DIR}/src/Scene/SettingsMenuScene.cpp
-    ${CMAKE_SOURCE_DIR}/src/Scene/PausedMenuScene.cpp
-    ${CMAKE_SOURCE_DIR}/src/Scene/GameOverScene.cpp
-    ${CMAKE_SOURCE_DIR}/src/Scene/TitleScene.cpp
-    ${CMAKE_SOURCE_DIR}/src/Scene/LevelCompleteScene.cpp
-    ${CMAKE_SOURCE_DIR}/src/Scene/CryptScene.cpp
-
-    ${CMAKE_SOURCE_DIR}/src/Systems/Threats/WormholeSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/SceneControl/SceneInputRouter.cpp
+    ${CMAKE_SOURCE_DIR}/src/SceneControl/SceneManager.cpp
+    ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/GraveyardScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/SettingsMenuScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/PausedMenuScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/GameOverScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/TitleScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/LevelCompleteScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/CryptScene.cpp
 )
 
 target_link_libraries(${TARGET} PRIVATE 

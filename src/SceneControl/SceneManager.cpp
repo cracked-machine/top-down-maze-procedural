@@ -1,11 +1,11 @@
-#include <Scene/GameOverScene.hpp>
-#include <Scene/GraveyardScene.hpp>
-#include <Scene/IScene.hpp>
-#include <Scene/LevelCompleteScene.hpp>
-#include <Scene/PausedMenuScene.hpp>
-#include <Scene/SceneManager.hpp>
-#include <Scene/SettingsMenuScene.hpp>
-#include <Scene/TitleScene.hpp>
+#include <SceneControl/IScene.hpp>
+#include <SceneControl/SceneManager.hpp>
+#include <SceneControl/Scenes/GameOverScene.hpp>
+#include <SceneControl/Scenes/GraveyardScene.hpp>
+#include <SceneControl/Scenes/LevelCompleteScene.hpp>
+#include <SceneControl/Scenes/PausedMenuScene.hpp>
+#include <SceneControl/Scenes/SettingsMenuScene.hpp>
+#include <SceneControl/Scenes/TitleScene.hpp>
 
 namespace ProceduralMaze::Scene
 {

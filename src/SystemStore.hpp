@@ -1,7 +1,7 @@
 #ifndef SRC_SYSTEMSTORE_HPP_
 #define SRC_SYSTEMSTORE_HPP_
 
-#include <EventHandler.hpp>
+#include <SceneControl/SceneInputRouter.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/CollisionSystem.hpp>
@@ -36,7 +36,7 @@ public:
   enum class Type
   {
     RenderMenuSystem,
-    EventHandler,
+    SceneInputRouter,
     RenderGameSystem,
     PersistentSystem,
     PlayerSystem,
@@ -64,7 +64,7 @@ public:
   {
     // clang-format off
     m_sysmap.emplace( Type::RenderMenuSystem, std::make_unique<RenderMenuSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::EventHandler, std::make_unique<EventHandler>( m_initial_reg, window, sprite_factory, sound_bank, nav_event_dispatcher, scenemanager_event_dispatcher ) );
+    m_sysmap.emplace( Type::SceneInputRouter, std::make_unique<SceneInputRouter>( m_initial_reg, window, sprite_factory, sound_bank, nav_event_dispatcher, scenemanager_event_dispatcher ) );
     m_sysmap.emplace( Type::RenderGameSystem, std::make_unique<RenderGameSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::PersistentSystem, std::make_unique<PersistentSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::PlayerSystem, std::make_unique<PlayerSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
@@ -92,7 +92,7 @@ public:
   auto &find()
   {
     if constexpr ( T == Type::RenderGameSystem ) { return static_cast<RenderGameSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::EventHandler ) { return static_cast<EventHandler &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::SceneInputRouter ) { return static_cast<SceneInputRouter &>( *m_sysmap[T] ); }
     else if constexpr ( T == Type::RenderMenuSystem ) { return static_cast<RenderMenuSystem &>( *m_sysmap[T] ); }
     else if constexpr ( T == Type::PersistentSystem ) { return static_cast<PersistentSystem &>( *m_sysmap[T] ); }
     else if constexpr ( T == Type::PlayerSystem ) { return static_cast<PlayerSystem &>( *m_sysmap[T] ); }

@@ -1,11 +1,6 @@
-#include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/MusicVolume.hpp>
 #include <Events/ProcessTitleSceneInputEvent.hpp>
-#include <Scene/SettingsMenuScene.hpp>
-#include <Scene/TitleScene.hpp>
-#include <Systems/Render/RenderMenuSystem.hpp>
-
-#include <Scene/SceneManager.hpp>
+#include <SceneControl/Scenes/TitleScene.hpp>
 
 namespace ProceduralMaze::Scene
 {

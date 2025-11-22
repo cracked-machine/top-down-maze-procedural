@@ -1,13 +1,8 @@
 #ifndef SCENE_TITLESCENE_HPP_
 #define SCENE_TITLESCENE_HPP_
 
-#include <Audio/SoundBank.hpp>
-#include <EventHandler.hpp>
+#include <SceneControl/IScene.hpp>
 #include <SystemStore.hpp>
-#include <Systems/PersistentSystem.hpp>
-#include <Systems/Render/RenderMenuSystem.hpp>
-
-#include <Scene/IScene.hpp>
 
 namespace ProceduralMaze::Scene
 {

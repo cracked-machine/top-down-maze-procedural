@@ -1,7 +1,7 @@
+
 #include <Components/Persistent/MusicVolume.hpp>
 #include <Events/ProcessPausedMenuSceneInputEvent.hpp>
-#include <Scene/PausedMenuScene.hpp>
-#include <Scene/SceneManager.hpp>
+#include <SceneControl/Scenes/PausedMenuScene.hpp>
 
 namespace ProceduralMaze::Scene
 {
