@@ -9,8 +9,8 @@
 #include <Components/Font.hpp>
 #include <SceneControl/IScene.hpp>
 #include <SceneControl/SceneStack.hpp>
-#include <SystemStore.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <Systems/SystemStore.hpp>
 
 #include <future>
 #include <memory>

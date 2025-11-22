@@ -3,7 +3,6 @@ set(TARGET ProceduralMaze)
 add_executable(${TARGET} 
     ${CMAKE_SOURCE_DIR}/src/main.cpp
     ${CMAKE_SOURCE_DIR}/src/Engine.cpp
-    
     ${CMAKE_SOURCE_DIR}/src/Audio/EffectsItem.cpp
     ${CMAKE_SOURCE_DIR}/src/Audio/MusicItem.cpp
     ${CMAKE_SOURCE_DIR}/src/Audio/SoundBank.cpp

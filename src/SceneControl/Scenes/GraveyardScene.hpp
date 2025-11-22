@@ -2,7 +2,7 @@
 #define SCENE_GRAVEYARDSCENE_HPP_
 
 #include <SceneControl/IScene.hpp>
-#include <SystemStore.hpp>
+#include <Systems/SystemStore.hpp>
 
 namespace ProceduralMaze::Scene
 {

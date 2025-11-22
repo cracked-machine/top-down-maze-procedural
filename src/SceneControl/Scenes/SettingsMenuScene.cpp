@@ -1,6 +1,6 @@
 #include <Events/ProcessSettingsMenuSceneInputEvent.hpp>
 #include <SceneControl/Scenes/SettingsMenuScene.hpp>
-#include <SystemStore.hpp>
+#include <Systems/SystemStore.hpp>
 
 namespace ProceduralMaze::Scene
 {

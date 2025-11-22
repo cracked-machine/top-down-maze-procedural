@@ -2,7 +2,7 @@
 #define SCENE_SETTINGSMENUSCENE_HPP_
 
 #include <SceneControl/IScene.hpp>
-#include <SystemStore.hpp>
+#include <Systems/SystemStore.hpp>
 
 namespace ProceduralMaze::Scene
 {

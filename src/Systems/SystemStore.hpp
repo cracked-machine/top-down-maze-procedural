@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEMSTORE_HPP_
-#define SRC_SYSTEMSTORE_HPP_
+#ifndef SRC_SYSTEMS_SYSTEMSTORE_HPP_
+#define SRC_SYSTEMS_SYSTEMSTORE_HPP_
 
 #include <SceneControl/SceneInputRouter.hpp>
 #include <Systems/AnimSystem.hpp>
@@ -134,4 +134,4 @@ private:
 
 } // namespace ProceduralMaze::Sys
 
-#endif // SRC_SYSTEMSTORE_HPP_
+#endif // SRC_SYSTEMS_SYSTEMSTORE_HPP_

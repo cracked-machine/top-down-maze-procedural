@@ -19,7 +19,7 @@
 #include <spdlog/spdlog.h>
 
 #include <Sprites/TileMap.hpp>
-#include <SystemStore.hpp>
+#include <Systems/SystemStore.hpp>
 
 #include <future>
 #include <memory>
