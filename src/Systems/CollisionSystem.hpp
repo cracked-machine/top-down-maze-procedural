@@ -1,5 +1,5 @@
-#ifndef __SYSTEMS_COLLISION_SYSTEM_HPP__
-#define __SYSTEMS_COLLISION_SYSTEM_HPP__
+#ifndef SRC_SYSTEMS_COLLISIONSYSTEM_HPP__
+#define SRC_SYSTEMS_COLLISIONSYSTEM_HPP__
 
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
@@ -62,4 +62,4 @@ private:
 
 } // namespace ProceduralMaze::Sys
 
-#endif // __SYSTEMS_COLLISION_SYSTEM_HPP__
+#endif // SRC_SYSTEMS_COLLISIONSYSTEM_HPP__

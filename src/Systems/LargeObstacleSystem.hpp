@@ -1,5 +1,5 @@
-#ifndef __SYS_LARGEOBSTACLESYSTEM_HPP__
-#define __SYS_LARGEOBSTACLESYSTEM_HPP__
+#ifndef SRC_SYSTEMS_LARGEOBSTACLESYSTEM_HPP__
+#define SRC_SYSTEMS_LARGEOBSTACLESYSTEM_HPP__
 
 #include <Components/LargeObstacle.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
@@ -44,4 +44,4 @@ private:
 
 } // namespace ProceduralMaze::Sys
 
-#endif // __SYS_LARGEOBSTACLESYSTEM_HPP__
+#endif // SRC_SYSTEMS_LARGEOBSTACLESYSTEM_HPP__

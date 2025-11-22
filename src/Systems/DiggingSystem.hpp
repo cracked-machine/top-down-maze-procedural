@@ -1,5 +1,5 @@
-#ifndef _SYS_DIGGING_SYSTEM_HPP__
-#define _SYS_DIGGING_SYSTEM_HPP__
+#ifndef SRC_SYSTEMS_DIGGINGSYSTEM_HPP__
+#define SRC_SYSTEMS_DIGGINGSYSTEM_HPP__
 
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <SFML/Audio/AudioResource.hpp>
@@ -59,27 +59,7 @@ private:
     std::filesystem::path path;
     sf::SoundBuffer buffer;
   };
-
-  // //! @brief List of non-final pickaxe sound effects
-  // //! These dont include the final shatter sound. These are randomly selected to create audible variety, if the
-  // obstacle
-  // //! is not yet destroyed.
-  // std::vector<PickAxeSound> m_pickaxe_sounds{
-  //     { "./res/audio/pickaxe1.wav", sf::SoundBuffer() }, { "./res/audio/pickaxe2.wav", sf::SoundBuffer() },
-  //     { "./res/audio/pickaxe3.wav", sf::SoundBuffer() }, { "./res/audio/pickaxe4.wav", sf::SoundBuffer() },
-  //     { "./res/audio/pickaxe5.wav", sf::SoundBuffer() }, { "./res/audio/pickaxe6.wav", sf::SoundBuffer() },
-
-  // };
-
-  // //! @brief Final pickaxe sound effect
-  // //! This sound is played when the last hit destroys an obstacle. This is separate from the other sounds for
-  // //! convenience only.
-  // PickAxeSound m_pickaxe_final_sound{ "./res/audio/pickaxe_final.wav", sf::SoundBuffer() };
-
-  // //! @brief Digging sound player
-  // //! Controls the randomly selected PickAxeSound playback. Defaults to the first pickaxe sound.
-  // sf::Sound m_dig_sound_player{ m_pickaxe_sounds[0].buffer };
 };
 } // namespace ProceduralMaze::Sys
 
-#endif // __SYSTEMS_DIGGING_SYSTEM_HPP__
+#endif // SRC_SYSTEMS_DIGGINGSYSTEM_HPP__

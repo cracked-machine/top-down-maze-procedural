@@ -1,5 +1,5 @@
-#ifndef __SYS_FOOTSTEPSYSTEM_HPP__
-#define __SYS_FOOTSTEPSYSTEM_HPP__
+#ifndef SRC_SYSTEMS_FOOTSTEPSYSTEM_HPP__
+#define SRC_SYSTEMS_FOOTSTEPSYSTEM_HPP__
 
 #include <Components/FootStepTimer.hpp>
 #include <SFML/System/Clock.hpp>
@@ -44,4 +44,4 @@ private:
 
 } // namespace ProceduralMaze::Sys
 
-#endif // __SYS_FOOTSTEPSYSTEM_HPP__
+#endif // SRC_SYSTEMS_FOOTSTEPSYSTEM_HPP__

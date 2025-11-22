@@ -1,5 +1,5 @@
-#ifndef __SYS_NPCSYSTEM_HPP__
-#define __SYS_NPCSYSTEM_HPP__
+#ifndef SRC_SYSTEMS_NPCSYSTEM_HPP__
+#define SRC_SYSTEMS_NPCSYSTEM_HPP__
 
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <SFML/Audio/Sound.hpp>
@@ -65,4 +65,4 @@ private:
 
 } // namespace ProceduralMaze::Sys
 
-#endif // __SYS_NPCSYSTEM_HPP__
+#endif // SRC_SYSTEMS_NPCSYSTEM_HPP__

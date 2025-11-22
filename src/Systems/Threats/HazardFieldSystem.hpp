@@ -1,5 +1,5 @@
-#ifndef __SYS_HAZARDFIELDSYSTEM_HPP__
-#define __SYS_HAZARDFIELDSYSTEM_HPP__
+#ifndef SRC_SYSTEMS_HAZARDFIELDSYSTEM_HPP__
+#define SRC_SYSTEMS_HAZARDFIELDSYSTEM_HPP__
 
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/PlayerHealth.hpp>
@@ -259,4 +259,4 @@ using CorruptionHazardSystem = HazardFieldSystem<Cmp::CorruptionCell>;
 
 } // namespace ProceduralMaze::Sys
 
-#endif // __SYS_HAZARDFIELDSYSTEM_HPP__
+#endif // SRC_SYSTEMS_HAZARDFIELDSYSTEM_HPP__

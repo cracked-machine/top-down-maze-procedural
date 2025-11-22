@@ -1,5 +1,5 @@
-#ifndef __COMPONENTS_BOMB_SYSTEM_HPP__
-#define __COMPONENTS_BOMB_SYSTEM_HPP__
+#ifndef SRC_SYSTEMS_BOMBSYSTEM_HPP__
+#define SRC_SYSTEMS_BOMBSYSTEM_HPP__
 
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <entt/entity/entity.hpp>
@@ -64,4 +64,4 @@ private:
 
 } // namespace ProceduralMaze::Sys
 
-#endif // __COMPONENTS_BOMB_SYSTEM_HPP__
+#endif // SRC_SYSTEMS_BOMBSYSTEM_HPP__

@@ -1,5 +1,5 @@
-#ifndef INC_SYSTEMS_ANIMSYSTEM_HPP
-#define INC_SYSTEMS_ANIMSYSTEM_HPP
+#ifndef SRC_SYSTEMS_ANIMSYSTEM_HPP
+#define SRC_SYSTEMS_ANIMSYSTEM_HPP
 
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
@@ -50,4 +50,4 @@ private:
 
 } // namespace ProceduralMaze::Sys
 
-#endif // INC_SYSTEMS_ANIMSYSTEM_HPP
+#endif // SRC_SYSTEMS_ANIMSYSTEM_HPP

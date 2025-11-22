@@ -1,5 +1,5 @@
-#ifndef __SYS_LOOTSYSTEM_HPP__
-#define __SYS_LOOTSYSTEM_HPP__
+#ifndef SRC_SYSTEMS_LOOTSYSTEM_HPP__
+#define SRC_SYSTEMS_LOOTSYSTEM_HPP__
 
 #include <Components/LootContainer.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
@@ -39,4 +39,4 @@ private:
 
 } // namespace ProceduralMaze::Sys
 
-#endif // __SYS_LOOTSYSTEM_HPP__
+#endif // SRC_SYSTEMS_LOOTSYSTEM_HPP__

@@ -1,5 +1,5 @@
-#ifndef __CMP_PLAYERSYSTEM_HPP__
-#define __CMP_PLAYERSYSTEM_HPP__
+#ifndef SRC_SYSTEMS_PLAYERSYSTEM_HPP__
+#define SRC_SYSTEMS_PLAYERSYSTEM_HPP__
 
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/PlayerMortality.hpp>
@@ -65,4 +65,4 @@ private:
 
 } // namespace ProceduralMaze::Sys
 
-#endif // __CMP_PLAYERSYSTEM_HPP__
+#endif // SRC_SYSTEMS_PLAYERSYSTEM_HPP__

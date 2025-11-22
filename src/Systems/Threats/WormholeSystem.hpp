@@ -1,5 +1,5 @@
-#ifndef __SYS_WORMHOLE_SYSTEM_HPP__
-#define __SYS_WORMHOLE_SYSTEM_HPP__
+#ifndef SRC_SYSTEMS_WORMHOLESYSTEM_HPP__
+#define SRC_SYSTEMS_WORMHOLESYSTEM_HPP__
 
 #include <entt/entity/registry.hpp>
 
@@ -54,4 +54,4 @@ public:
 
 } // namespace ProceduralMaze::Sys
 
-#endif // __SYS_WORMHOLE_SYSTEM_HPP__
+#endif // SRC_SYSTEMS_WORMHOLESYSTEM_HPP__

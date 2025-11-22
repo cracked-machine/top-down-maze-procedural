@@ -1,5 +1,5 @@
-#ifndef _SYS_EXIT_SYSTEM_HPP__
-#define _SYS_EXIT_SYSTEM_HPP__
+#ifndef SRC_SYSTEMS_EXITSYSTEM_HPP__
+#define SRC_SYSTEMS_EXITSYSTEM_HPP__
 
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <SFML/Audio/Sound.hpp>
@@ -38,4 +38,4 @@ private:
 
 } // namespace ProceduralMaze::Sys
 
-#endif // _SYS_EXIT_SYSTEM_HPP__
+#endif // SRC_SYSTEMS_EXITSYSTEM_HPP__

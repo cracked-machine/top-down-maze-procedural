@@ -1,5 +1,5 @@
-#ifndef __SYS_PATHFINDSYSTEM_HPP__
-#define __SYS_PATHFINDSYSTEM_HPP__
+#ifndef SRC_SYSTEMS_PATHFINDSYSTEM_HPP__
+#define SRC_SYSTEMS_PATHFINDSYSTEM_HPP__
 
 #include <SFML/Graphics/Rect.hpp>
 #include <spdlog/spdlog.h>
@@ -55,4 +55,4 @@ private:
 
 } // namespace ProceduralMaze::Sys
 
-#endif // __SYS_PATHFINDSYSTEM_HPP__
+#endif // SRC_SYSTEMS_PATHFINDSYSTEM_HPP__

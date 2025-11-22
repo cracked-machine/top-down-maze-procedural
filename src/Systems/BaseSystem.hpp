@@ -1,5 +1,5 @@
-#ifndef __SYSTEMS_BASE_SYSTEM_HPP__
-#define __SYSTEMS_BASE_SYSTEM_HPP__
+#ifndef SRC_SYSTEMS_BASESYSTEM_HPP__
+#define SRC_SYSTEMS_BASESYSTEM_HPP__
 
 #include <Audio/SoundBank.hpp>
 #include <Components/PlayableCharacter.hpp>
@@ -428,4 +428,4 @@ private:
 } // namespace Sys
 } // namespace ProceduralMaze
 
-#endif // __SYSTEMS_BASE_SYSTEM_HPP__
+#endif // SRC_SYSTEMS_BASESYSTEM_HPP__

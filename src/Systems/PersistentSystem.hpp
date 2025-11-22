@@ -1,5 +1,5 @@
-#ifndef _INC_PERSISTENT_SYSTEM_HPP
-#define _INC_PERSISTENT_SYSTEM_HPP
+#ifndef SRC_SYSTEMS_PERSISTENT_SYSTEM_HPP
+#define SRC_SYSTEMS_PERSISTENT_SYSTEM_HPP
 
 #include <Events/SaveSettingsEvent.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -112,4 +112,4 @@ private:
 
 } // namespace ProceduralMaze::Sys
 
-#endif // _INC_PERSISTENT_SYSTEM_HPP
+#endif // SRC_SYSTEMS_PERSISTENT_SYSTEM_HPP
