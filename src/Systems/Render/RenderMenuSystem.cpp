@@ -5,6 +5,9 @@
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/PlayerDetectionScale.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
+#include <Components/PlayerCandlesCount.hpp>
+#include <Components/PlayerKeysCount.hpp>
+#include <Components/PlayerRelicCount.hpp>
 #include <SFML/System/Angle.hpp>
 
 #include <imgui.h>
@@ -315,7 +318,7 @@ void RenderMenuSystem::render_defeat_screen()
   m_window.clear();
   {
 
-    sf::Text title_text( m_font, "You died!", 96 );
+    sf::Text title_text( m_font, "You died...again!", 96 );
     title_text.setFillColor( sf::Color::White );
     title_text.setPosition( { kDisplaySize.x / 4.f, 100.f } );
     m_window.draw( title_text );
@@ -324,6 +327,33 @@ void RenderMenuSystem::render_defeat_screen()
     start_text.setFillColor( sf::Color::White );
     start_text.setPosition( { kDisplaySize.x / 4.f, 200.f } );
     m_window.draw( start_text );
+
+    auto key_view = getReg().view<Cmp::PlayerKeysCount>();
+    for ( auto [entity, keycount] : key_view.each() )
+    {
+      sf::Text player_score_text( m_font, "KeyCount: " + std::to_string( keycount.get_count() ), 24 );
+      player_score_text.setFillColor( sf::Color::White );
+      player_score_text.setPosition( { kDisplaySize.x / 4.f, 500.f } );
+      m_window.draw( player_score_text );
+    }
+
+    auto candle_view = getReg().view<Cmp::PlayerCandlesCount>();
+    for ( auto [entity, candlecount] : candle_view.each() )
+    {
+      sf::Text player_score_text( m_font, "CandleCount: " + std::to_string( candlecount.get_count() ), 24 );
+      player_score_text.setFillColor( sf::Color::White );
+      player_score_text.setPosition( { kDisplaySize.x / 4.f, 550.f } );
+      m_window.draw( player_score_text );
+    }
+
+    auto relic_view = getReg().view<Cmp::PlayerRelicCount>();
+    for ( auto [entity, reliccount] : relic_view.each() )
+    {
+      sf::Text player_score_text( m_font, "RelicCount: " + std::to_string( reliccount.get_count() ), 24 );
+      player_score_text.setFillColor( sf::Color::White );
+      player_score_text.setPosition( { kDisplaySize.x / 4.f, 600.f } );
+      m_window.draw( player_score_text );
+    }
   }
 
   m_window.display();
@@ -334,16 +364,42 @@ void RenderMenuSystem::render_victory_screen()
 {
   // main render begin
   m_window.clear();
-  {
-    sf::Text title_text( m_font, "You won!", 96 );
-    title_text.setFillColor( sf::Color::White );
-    title_text.setPosition( { kDisplaySize.x / 4.f, 100.f } );
-    m_window.draw( title_text );
 
-    sf::Text start_text( m_font, "Press <R> key to continue", 48 );
-    start_text.setFillColor( sf::Color::White );
-    start_text.setPosition( { kDisplaySize.x / 4.f, 200.f } );
-    m_window.draw( start_text );
+  sf::Text title_text( m_font, "You won!", 96 );
+  title_text.setFillColor( sf::Color::White );
+  title_text.setPosition( { kDisplaySize.x / 4.f, 100.f } );
+  m_window.draw( title_text );
+
+  sf::Text start_text( m_font, "Press <R> key to continue", 48 );
+  start_text.setFillColor( sf::Color::White );
+  start_text.setPosition( { kDisplaySize.x / 4.f, 200.f } );
+  m_window.draw( start_text );
+
+  auto key_view = getReg().view<Cmp::PlayerKeysCount>();
+  for ( auto [entity, keycount] : key_view.each() )
+  {
+    sf::Text player_score_text( m_font, "KeyCount: " + std::to_string( keycount.get_count() ), 24 );
+    player_score_text.setFillColor( sf::Color::White );
+    player_score_text.setPosition( { kDisplaySize.x / 4.f, 500.f } );
+    m_window.draw( player_score_text );
+  }
+
+  auto candle_view = getReg().view<Cmp::PlayerCandlesCount>();
+  for ( auto [entity, candlecount] : candle_view.each() )
+  {
+    sf::Text player_score_text( m_font, "CandleCount: " + std::to_string( candlecount.get_count() ), 24 );
+    player_score_text.setFillColor( sf::Color::White );
+    player_score_text.setPosition( { kDisplaySize.x / 4.f, 550.f } );
+    m_window.draw( player_score_text );
+  }
+
+  auto relic_view = getReg().view<Cmp::PlayerRelicCount>();
+  for ( auto [entity, reliccount] : relic_view.each() )
+  {
+    sf::Text player_score_text( m_font, "RelicCount: " + std::to_string( reliccount.get_count() ), 24 );
+    player_score_text.setFillColor( sf::Color::White );
+    player_score_text.setPosition( { kDisplaySize.x / 4.f, 600.f } );
+    m_window.draw( player_score_text );
   }
 
   m_window.display();

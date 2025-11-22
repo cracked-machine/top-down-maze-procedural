@@ -2,11 +2,14 @@
 #define SCENE_SCENEMANAGER_HPP_
 
 #include <Audio/SoundBank.hpp>
+#include <Components/PlayerKeysCount.hpp>
+#include <Components/PlayerRelicCount.hpp>
 #include <Events/SceneManagerEvent.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
 #include <Components/Font.hpp>
+#include <SceneControl/ComponentTransfer.hpp>
 #include <SceneControl/IScene.hpp>
 #include <SceneControl/SceneStack.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -32,24 +35,39 @@ public:
     m_scenemanager_event_dispatcher.sink<Events::SceneManagerEvent>().connect<&Scene::SceneManager::handle_events>( this );
   }
 
+  // Update the current scene
   void update( sf::Time dt );
 
-  void push( std::unique_ptr<IScene> scene );
-  void pop();
+  // Render the current scene
+  void push( std::unique_ptr<IScene> scene,
+             ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
+  // Pop the current scene
+  void pop( ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
 
-  void push_overlay( std::unique_ptr<IScene> scene );
-  void pop_overlay();
+  // Push a new overlay scene
+  void push_overlay( std::unique_ptr<IScene> scene,
+                     ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
+  // Pop the current overlay scene - do not call on_exit()
+  void pop_overlay( ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
 
-  void replace( std::unique_ptr<IScene> scene );
-  void replace_overlay( std::unique_ptr<IScene> scene );
+  // Replace the current scene with a new one
+  void replace( std::unique_ptr<IScene> scene,
+                ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
+  // Replace the current scene with a new one - do not call on_exit()
+  void replace_overlay( std::unique_ptr<IScene> scene,
+                        ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
 
+  // Get a pointer to the current active scene
   IScene *current();
 
+  // Event handler for scene manager events
   void handle_events( const Events::SceneManagerEvent &event );
 
 private:
+  // Helper function to inject the current scene's registry into the system store
   void inject_registry();
 
+  // Loading screen implementation
   template <typename Callable>
   void loading_screen( Callable &&callable, [[maybe_unused]] const sf::Texture &loading_texture )
   {
@@ -96,18 +114,28 @@ private:
     future.get();
   }
 
-  void print_stack();
-
   //! @brief Non-owning reference to the OpenGL window
   sf::RenderWindow &m_window;
+
+  //! @brief Non-owning reference to the sound bank
   Audio::SoundBank &m_sound_bank;
+
+  //! @brief Non-owning reference to the system store
   Sys::SystemStore &m_system_store;
 
+  // Scene stack managing active scenes
   SceneStack m_scene_stack;
+
+  // Splash screen texture
   sf::Texture m_splash_texture{ "res/textures/splash.png" };
 
+  //! @brief Non-owning reference to the navigation event dispatcher
   entt::dispatcher &m_nav_event_dispatcher;
+
+  //! @brief Non-owning reference to the scene manager event dispatcher
   entt::dispatcher &m_scenemanager_event_dispatcher;
+
+  ComponentTransfer m_cmp_transfer;
 };
 
 } // namespace ProceduralMaze::Scene
