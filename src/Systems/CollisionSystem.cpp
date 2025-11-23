@@ -10,7 +10,6 @@
 #include <Components/Exit.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/HazardFieldCell.hpp>
-#include <Components/LargeObstacle.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NpcContainer.hpp>
 #include <Components/Obstacle.hpp>

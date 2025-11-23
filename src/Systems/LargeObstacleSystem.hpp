@@ -1,7 +1,8 @@
 #ifndef SRC_SYSTEMS_LARGEOBSTACLESYSTEM_HPP__
 #define SRC_SYSTEMS_LARGEOBSTACLESYSTEM_HPP__
 
-#include <Components/LargeObstacle.hpp>
+#include <Components/AltarMultiBlock.hpp>
+#include <Components/GraveMultiBlock.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCandlesCount.hpp>
@@ -27,9 +28,10 @@ public:
   void onResume() override {}
 
   void check_player_lo_collision( Events::PlayerActionEvent::GameActions action );
-  void check_player_shrine_activation( Cmp::LargeObstacle &lo_cmp, Cmp::PlayerCandlesCount &pc_candles_cmp );
-  void check_player_grave_activation( Cmp::LargeObstacle &lo_cmp, entt::entity &lo_entity, Cmp::PlayableCharacter &pc_cmp );
-  bool activate_shrine_special_power();
+  void check_player_altar_activation( entt::entity altar_entity, Cmp::AltarMultiBlock &altar_cmp,
+                                      Cmp::PlayerCandlesCount &pc_candles_cmp );
+  void check_player_grave_activation( entt::entity &lo_entity, Cmp::GraveMultiBlock &grave_cmp, Cmp::PlayableCharacter &pc_cmp );
+  bool activate_altar_special_power();
 
   /// EVENT SINKS ///
   void on_player_action( const Events::PlayerActionEvent &event )

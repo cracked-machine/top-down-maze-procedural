@@ -1,7 +1,8 @@
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sprites {
+namespace ProceduralMaze::Sprites
+{
 
 MultiSprite::MultiSprite( SpriteMetaType type, const std::filesystem::path &tilemap_path,
                           const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size, unsigned int sprites_per_frame,
@@ -52,14 +53,23 @@ bool MultiSprite::add_sprite( const std::vector<uint32_t> &tilemap_picks )
     return false;
   }
 
+  SPDLOG_INFO( "{} requested {} tiles", m_sprite_type, tilemap_picks.size() );
   for ( const auto &tile_idx : tilemap_picks )
   {
-    auto kGridSquareSizePixels = Sys::BaseSystem::kGridSquareSizePixels;
-    sf::VertexArray current_va( sf::PrimitiveType::Triangles, 6 );
-    const int tu = tile_idx % ( m_tilemap_texture->getSize().x / kGridSquareSizePixels.x );
-    const int tv = tile_idx / ( m_tilemap_texture->getSize().x / kGridSquareSizePixels.x );
+    sf::Vector2u kGridSquareSizePixels{ Sys::BaseSystem::kGridSquareSizePixels.x * m_grid_size.width,
+                                        Sys::BaseSystem::kGridSquareSizePixels.y * m_grid_size.height };
 
-    // draw the two triangles within local space using the `Sys::BaseSystem::kGridSquareSizePixels`
+    sf::VertexArray current_va( sf::PrimitiveType::Triangles, 6 );
+
+    // Calculate texture coordinates based on 16x16 base tile grid (not sprite grid)
+    const int base_tiles_per_row = m_tilemap_texture->getSize().x / Sys::BaseSystem::kGridSquareSizePixels.x;
+    const int base_tile_x = tile_idx % base_tiles_per_row;
+    const int base_tile_y = tile_idx / base_tiles_per_row;
+
+    const int tu = base_tile_x * Sys::BaseSystem::kGridSquareSizePixels.x;
+    const int tv = base_tile_y * Sys::BaseSystem::kGridSquareSizePixels.y;
+
+    // draw the two triangles within local space using the sprite dimensions
     current_va[0].position = sf::Vector2f( 0, 0 );
     current_va[1].position = sf::Vector2f( kGridSquareSizePixels.x, 0 );
     current_va[2].position = sf::Vector2f( 0, kGridSquareSizePixels.y );
@@ -67,17 +77,20 @@ bool MultiSprite::add_sprite( const std::vector<uint32_t> &tilemap_picks )
     current_va[4].position = sf::Vector2f( kGridSquareSizePixels.x, 0 );
     current_va[5].position = sf::Vector2f( kGridSquareSizePixels.x, kGridSquareSizePixels.y );
 
-    current_va[0].texCoords = sf::Vector2f( tu * kGridSquareSizePixels.x, tv * kGridSquareSizePixels.y );
-    current_va[1].texCoords = sf::Vector2f( ( tu + 1 ) * kGridSquareSizePixels.x, tv * kGridSquareSizePixels.y );
-    current_va[2].texCoords = sf::Vector2f( tu * kGridSquareSizePixels.x, ( tv + 1 ) * kGridSquareSizePixels.y );
-    current_va[3].texCoords = sf::Vector2f( tu * kGridSquareSizePixels.x, ( tv + 1 ) * kGridSquareSizePixels.y );
-    current_va[4].texCoords = sf::Vector2f( ( tu + 1 ) * kGridSquareSizePixels.x, tv * kGridSquareSizePixels.y );
-    current_va[5].texCoords = sf::Vector2f( ( tu + 1 ) * kGridSquareSizePixels.x, ( tv + 1 ) * kGridSquareSizePixels.y );
-    SPDLOG_TRACE( "  - Added tile index {} (tu={},tv={})", tile_idx, tu, tv );
+    current_va[0].texCoords = sf::Vector2f( tu, tv );
+    current_va[1].texCoords = sf::Vector2f( tu + kGridSquareSizePixels.x, tv );
+    current_va[2].texCoords = sf::Vector2f( tu, tv + kGridSquareSizePixels.y );
+    current_va[3].texCoords = sf::Vector2f( tu, tv + kGridSquareSizePixels.y );
+    current_va[4].texCoords = sf::Vector2f( tu + kGridSquareSizePixels.x, tv );
+    current_va[5].texCoords = sf::Vector2f( tu + kGridSquareSizePixels.x, tv + kGridSquareSizePixels.y );
+
+    SPDLOG_INFO( "Added sprite index {} at texture coords ({}, {})", tile_idx, tu, tv );
+    SPDLOG_INFO( "Sprite vertex positions: [({}, {}) to  ({}, {})]", current_va[0].position.x, current_va[0].position.y,
+                 current_va[5].position.x, current_va[5].position.y );
 
     m_va_list.push_back( current_va );
   }
-  SPDLOG_INFO( "{} requested {} tiles ... Created {} sprites ", m_sprite_type, tilemap_picks.size(), m_va_list.size() );
+  SPDLOG_INFO( "Created {} sprites ", m_va_list.size() );
   return true;
 }
 

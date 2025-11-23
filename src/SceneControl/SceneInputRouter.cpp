@@ -1,5 +1,4 @@
 #include <Components/Exit.hpp>
-#include <Components/LargeObstacle.hpp>
 #include <Components/Persistent/MaxShrines.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCandlesCount.hpp>

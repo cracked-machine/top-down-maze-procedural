@@ -8,7 +8,8 @@
 #include <fstream>
 #include <string>
 
-namespace ProceduralMaze::Sprites {
+namespace ProceduralMaze::Sprites
+{
 
 void SpriteFactory::init()
 {
@@ -71,7 +72,7 @@ void SpriteFactory::create_error_sprite()
   m_error_metadata = SpriteMetaData{ 1.0f, MultiSprite{ "ERROR_SPRITE",
                                                         m_error_texture, // Use the in-memory texture
                                                         { 0 },
-                                                        { 16, 16 },
+                                                        { 1, 1 },
                                                         1,
                                                         1,
                                                         {} } };

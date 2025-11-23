@@ -1,5 +1,6 @@
+#include <Components/AltarMultiBlock.hpp>
+#include <Components/GraveMultiBlock.hpp>
 #include <Components/GraveSegment.hpp>
-#include <Components/LargeObstacle.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NPC.hpp>
 #include <Components/Persistent/ShrineCostPerSprite.hpp>
@@ -33,178 +34,161 @@ void LargeObstacleSystem::check_player_lo_collision( Events::PlayerActionEvent::
   if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
 
   auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount>();
-  auto large_obstacle_view = getReg().view<Cmp::LargeObstacle>();
+  auto altar_view = getReg().view<Cmp::AltarMultiBlock>();
+  auto grave_view = getReg().view<Cmp::GraveMultiBlock>();
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_candles_cmp, pc_keys_cmp] : player_view.each() )
   {
-    // slightly larger hitbox for large obstacles because we want to trigger
-    // collision when we get CLOSE to them
     auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, kGridSquareSizePixelsF, 1.5f );
 
-    for ( auto [lo_entity, lo_cmp] : large_obstacle_view.each() )
+    for ( auto [altar_entity, altar_cmp] : altar_view.each() )
     {
-      //   // only spawn one npc per large obstacle but give proportionate count for the grave size
-      //   uint8_t activated_grave_count = 0;
-
-      if ( player_hitbox.findIntersection( lo_cmp ) )
+      if ( player_hitbox.findIntersection( altar_cmp ) )
       {
-        SPDLOG_DEBUG( "Player collided with LargeObstacle at ({}, {})", lo_cmp.position.x, lo_cmp.position.y );
-        check_player_shrine_activation( lo_cmp, pc_candles_cmp );
-        check_player_grave_activation( lo_cmp, lo_entity, pc_cmp );
+        SPDLOG_DEBUG( "Player collided with Altar at ({}, {})", altar_cmp.position.x, altar_cmp.position.y );
+        check_player_altar_activation( altar_entity, altar_cmp, pc_candles_cmp );
+      }
+    }
+
+    for ( auto [grave_entity, grave_cmp] : grave_view.each() )
+    {
+      if ( player_hitbox.findIntersection( grave_cmp ) )
+      {
+        SPDLOG_DEBUG( "Player collided with Grave at ({}, {})", grave_cmp.position.x, grave_cmp.position.y );
+        check_player_grave_activation( grave_entity, grave_cmp, pc_cmp );
       }
     }
   }
 }
 
-void LargeObstacleSystem::check_player_shrine_activation( Cmp::LargeObstacle &lo_cmp, Cmp::PlayerCandlesCount &pc_candles_cmp )
+void LargeObstacleSystem::check_player_altar_activation( entt::entity altar_entity, Cmp::AltarMultiBlock &altar_cmp,
+                                                         Cmp::PlayerCandlesCount &pc_candles_cmp )
 {
 
-  uint8_t activated_shrine_segment_count = 0;
-  auto shrine_view = getReg().view<Cmp::ShrineSegment, Cmp::Position>();
-  for ( auto [shrine_entity, shrine_cmp, shrine_pos_cmp] : shrine_view.each() )
+  SPDLOG_DEBUG( "Checking altar activation: {}/{}", altar_cmp.get_activation_count(), altar_cmp.get_activation_threshold() );
+  if ( altar_cmp.get_activation_count() < altar_cmp.get_activation_threshold() )
   {
-    // dont proceed if large obstacle powers are already active
-    if ( lo_cmp.are_powers_active() ) break;
-
-    // player doesn't have enough candles? - skip
-    auto &shrine_cost = get_persistent_component<Cmp::Persistent::ShrineCostPerSprite>();
-    if ( pc_candles_cmp.get_count() < shrine_cost.get_value() ) break;
-    SPDLOG_DEBUG( "Player has enough candles ({}), proceeding with shrine check", pc_candles_cmp.get_count() );
-
-    // is shrine part of the collided large obstacle?
-    if ( not shrine_pos_cmp.findIntersection( lo_cmp ) ) continue;
-    SPDLOG_DEBUG( "Found shrine at ({}, {}) for activation check", shrine_pos_cmp.position.x, shrine_pos_cmp.position.y );
-
-    // Convert pixel size to grid size, then calculate threshold
-    auto lo_grid_size = lo_cmp.size.componentWiseDiv( kGridSquareSizePixelsF );
-    auto lo_count_threshold = ( lo_grid_size.x * lo_grid_size.y );
-
-    if ( lo_cmp.get_activated_sprite_count() < lo_count_threshold )
+    if ( pc_candles_cmp.get_count() < 1 ) return;
+    switch ( altar_cmp.get_activation_count() )
     {
-      SPDLOG_DEBUG( "Activating shrine sprite {}/{}.", lo_cmp.get_activated_sprite_count() + 1, lo_count_threshold );
-      // activate the next shrine candle and switch to the new animation sequence
+      case 0:
+        // clang-format off
+          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { 
+            altar_cmp.set_activation_count( 1 );
+          } );
+          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) {
+            anim_cmp.m_sprite_type = "SHRINE.one";
+          } );
 
-      switch ( lo_cmp.get_activated_sprite_count() )
-      {
-        case 0:
-          // clang-format off
-          getReg().patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.one"; } );
-          // clang-format on
-          activated_shrine_segment_count++;
-          SPDLOG_DEBUG( "Shrine activated to state ONE." );
-          break;
-        case 1:
-          // clang-format off
-          getReg().patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.two"; } );
-          // clang-format on
-          activated_shrine_segment_count++;
-          SPDLOG_DEBUG( "Shrine activated to state TWO." );
-          break;
+        // clang-format on
+        pc_candles_cmp.decrement_count( 1 );
+        SPDLOG_INFO( "Shrine activated to state ONE." );
+        break;
+      case 1:
+        // clang-format off
+          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { 
+            altar_cmp.set_activation_count( 2 );
+          } );
+          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) {
+            anim_cmp.m_sprite_type = "SHRINE.two";
+          } );
 
-        case 2:
-          // clang-format off
-          getReg().patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.three"; } );
-          // clang-format on
-          activated_shrine_segment_count++;
-          SPDLOG_DEBUG( "Shrine activated to state THREE." );
-          break;
-        case 3:
-          // clang-format off
-          getReg().patch<Cmp::SpriteAnimation>( shrine_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "SHRINE.four"; } );
-          // clang-format on
-          activated_shrine_segment_count++;
-          SPDLOG_DEBUG( "Shrine activated to state FOUR." );
-          break;
-        default:
-          break;
-      }
+        // clang-format on
+        pc_candles_cmp.decrement_count( 1 );
+        SPDLOG_INFO( "Shrine activated to state TWO." );
+        break;
+
+      case 2:
+        // clang-format off
+          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { 
+            altar_cmp.set_activation_count( 3 ); 
+          } );
+          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) {
+            anim_cmp.m_sprite_type = "SHRINE.three";
+          } );
+
+        // clang-format on
+        pc_candles_cmp.decrement_count( 1 );
+        SPDLOG_INFO( "Shrine activated to state THREE." );
+        break;
+      case 3:
+        // clang-format off
+          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { 
+            altar_cmp.set_activation_count( 4 ); 
+          } );
+          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) {
+            anim_cmp.m_sprite_type = "SHRINE.four";
+          } );
+
+        // clang-format on
+        pc_candles_cmp.decrement_count( 1 );
+        SPDLOG_INFO( "Shrine activated to state FOUR." );
+        break;
+      default:
+        break;
     }
-    // we just incremented the state of each shrine segment so tax the player candles and mark the shrine as activated
-    if ( activated_shrine_segment_count >= 4 )
-    {
-      lo_cmp.increment_activated_sprite_count();
-      pc_candles_cmp.decrement_count( shrine_cost.get_value() );
-      if ( lo_cmp.get_activated_sprite_count() >= lo_count_threshold ) { lo_cmp.set_powers_active(); }
-    }
+  }
 
-    // Did we just fully activate the shrine?
-    if ( lo_cmp.are_powers_active() )
+  // allow this condition to be met in the same pass as the candle activation above
+  if ( altar_cmp.get_activation_count() >= altar_cmp.get_activation_threshold() )
+  {
+    if ( not altar_cmp.are_powers_active() )
     {
-      SPDLOG_DEBUG( "Shrine fully activated!" );
+      SPDLOG_INFO( "Shrine fully activated!" );
       m_sound_bank.get_effect( "shrine_lighting" ).play();
       // drop the key loot
-      auto lo_cmp_bounds = Cmp::RectBounds( lo_cmp.position, lo_cmp.size, 1.5f );
+      auto altar_cmp_bounds = Cmp::RectBounds( altar_cmp.position, altar_cmp.size, 1.5f );
       // clang-format off
-              auto obst_entity = create_loot_drop( 
-                Cmp::Loot{ "KEY_DROP", 0 },
-                sf::FloatRect{ lo_cmp_bounds.position(), 
-                lo_cmp_bounds.size() }, 
-                IncludePack<>{},
-                ExcludePack<>{} 
-              );
+      auto obst_entity = create_loot_drop( 
+        Cmp::Loot{ "KEY_DROP", 0 },
+        sf::FloatRect{ altar_cmp_bounds.position(), 
+        altar_cmp_bounds.size() }, 
+        IncludePack<>{},
+        ExcludePack<>{} 
+      );
       // clang-format on
-
       if ( obst_entity != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
+      altar_cmp.set_powers_active();
       m_shrine_activation_clock.restart();
-      break;
     }
-  }
 
-  if ( lo_cmp.are_powers_active() )
-  {
-    for ( auto [shrine_entity, shrine_cmp, shrine_pos_cmp] : shrine_view.each() )
+    if ( altar_cmp.are_powers_active() )
     {
       SPDLOG_DEBUG( "Checking for special power activation." );
-      auto anim_sprite_cmp = getReg().try_get<Cmp::SpriteAnimation>( shrine_entity );
+      auto anim_sprite_cmp = getReg().try_get<Cmp::SpriteAnimation>( altar_entity );
       if ( anim_sprite_cmp && m_shrine_activation_clock.getElapsedTime() > m_shrine_activation_cooldown )
       {
-        activate_shrine_special_power();
+        activate_altar_special_power();
       }
     }
   }
 }
 
-void LargeObstacleSystem::check_player_grave_activation( Cmp::LargeObstacle &lo_cmp, entt::entity &lo_entity,
+void LargeObstacleSystem::check_player_grave_activation( entt::entity &grave_entity, Cmp::GraveMultiBlock &grave_cmp,
                                                          Cmp::PlayableCharacter &pc_cmp )
 {
-  // only spawn one npc per large obstacle but give proportionate count for the grave size
-  // uint8_t activated_grave_segments_count = 0;
-
-  // check for grave collisions
-  auto grave_view = getReg().view<Cmp::GraveSegment, Cmp::Position, Cmp::SpriteAnimation>();
-  for ( auto [grave_entity, grave_cmp, grave_pos_cmp, grave_anim_cmp] : grave_view.each() )
+  if ( grave_cmp.are_powers_active() ) return;
+  if ( grave_cmp.get_activation_count() < grave_cmp.get_activation_threshold() )
   {
-    // dont proceed if large obstacle powers are already active
-    if ( lo_cmp.are_powers_active() ) break;
 
-    // is grave part of the collided large obstacle?
-    if ( not lo_cmp.findIntersection( grave_pos_cmp ) ) continue;
-    SPDLOG_DEBUG( "Found grave at ({}, {}) for activation check", grave_pos_cmp.position.x, grave_pos_cmp.position.y );
+    SPDLOG_DEBUG( "Activating grave sprite {}/{}.", grave_cmp.get_activated_sprite_count() + 1,
+                  grave_cmp.get_activation_threshold() );
+    grave_cmp.set_activation_count( grave_cmp.get_activation_threshold() );
 
-    // have we activated all the parts of the grave yet?
-    auto &grave_ms = m_sprite_factory.get_multisprite_by_type( grave_anim_cmp.m_sprite_type );
-    auto activation_threshold = grave_ms.get_grid_size().width * grave_ms.get_grid_size().height;
-    SPDLOG_DEBUG( "Grave activation threshold: {}/{}", lo_cmp.get_activated_sprite_count(), activation_threshold );
-
-    // if ( lo_cmp.get_activated_sprite_count() >= activation_threshold ) continue;
-    if ( lo_cmp.get_activated_sprite_count() < activation_threshold )
+    auto anim_cmp = getReg().try_get<Cmp::SpriteAnimation>( grave_entity );
+    if ( anim_cmp )
     {
-      SPDLOG_DEBUG( "Activating grave sprite {}/{}.", lo_cmp.get_activated_sprite_count() + 1, activation_threshold );
-      lo_cmp.increment_activated_sprite_count();
-      if ( std::string::size_type n = grave_anim_cmp.m_sprite_type.find( "." ); n != std::string::npos )
+      if ( std::string::size_type n = anim_cmp->m_sprite_type.find( "." ); n != std::string::npos )
       {
-        grave_anim_cmp.m_sprite_type = grave_anim_cmp.m_sprite_type.substr( 0, n ) + ".opened";
-        SPDLOG_DEBUG( "Grave Cmp::SpriteAnimation changed to opened type: {}", grave_anim_cmp.m_sprite_type );
+        anim_cmp->m_sprite_type = anim_cmp->m_sprite_type.substr( 0, n ) + ".opened";
+        SPDLOG_DEBUG( "Grave Cmp::SpriteAnimation changed to opened type: {}", anim_cmp->m_sprite_type );
       }
     }
 
-    if ( lo_cmp.get_activated_sprite_count() >= activation_threshold )
-    {
-      SPDLOG_DEBUG( "Activating large obstacle at ({}, {})", lo_cmp.position.x, lo_cmp.position.y );
-      lo_cmp.set_powers_active( true );
-    }
+    grave_cmp.set_powers_active( true );
+
     // choose a random consequence for activating graves: spawn npc, drop bomb, give candles
-    if ( lo_cmp.are_powers_active() )
+    if ( grave_cmp.are_powers_active() )
     {
       auto grave_activation_rng = Cmp::RandomInt( 1, 3 );
       auto consequence = grave_activation_rng.gen();
@@ -212,7 +196,7 @@ void LargeObstacleSystem::check_player_grave_activation( Cmp::LargeObstacle &lo_
       {
         case 1:
           SPDLOG_INFO( "Grave activated NPC trap." );
-          get_systems_event_queue().trigger( Events::NpcCreationEvent( lo_entity, "NPCGHOST" ) );
+          get_systems_event_queue().trigger( Events::NpcCreationEvent( grave_entity, "NPCGHOST" ) );
           break;
         case 2:
           SPDLOG_INFO( "Grave activated bomb trap." );
@@ -221,12 +205,12 @@ void LargeObstacleSystem::check_player_grave_activation( Cmp::LargeObstacle &lo_
           break;
         case 3:
 
-          auto lo_cmp_bounds = Cmp::RectBounds( lo_cmp.position, lo_cmp.size, 1.5f );
+          auto grave_cmp_bounds = Cmp::RectBounds( grave_cmp.position, grave_cmp.size, 1.5f );
           // clang-format off
               auto obst_entity = create_loot_drop( 
                 Cmp::Loot{ "CANDLE_DROP", 0 },
-                sf::FloatRect{ lo_cmp_bounds.position(), 
-                lo_cmp_bounds.size() }, 
+                sf::FloatRect{ grave_cmp_bounds.position(), 
+                grave_cmp_bounds.size() }, 
                 IncludePack<>{},
                 ExcludePack<>{} 
               );
@@ -235,11 +219,12 @@ void LargeObstacleSystem::check_player_grave_activation( Cmp::LargeObstacle &lo_
           if ( obst_entity != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
           break;
       }
+      // }
     }
   }
 }
 
-bool LargeObstacleSystem::activate_shrine_special_power()
+bool LargeObstacleSystem::activate_altar_special_power()
 {
 
   for ( auto [pc_entity, pc_relic_count_cmp] : getReg().view<Cmp::PlayerRelicCount>().each() )
@@ -247,7 +232,7 @@ bool LargeObstacleSystem::activate_shrine_special_power()
 
     if ( pc_relic_count_cmp.get_count() < 1 ) return false;
 
-    SPDLOG_DEBUG( "Activating shrine special power!" );
+    SPDLOG_INFO( "Activating altar special power!" );
     // consume a relic
     pc_relic_count_cmp.decrement_count( 1 );
 
@@ -305,6 +290,7 @@ bool LargeObstacleSystem::activate_shrine_special_power()
       }
     }
   }
+  m_shrine_activation_clock.restart();
   return true;
 }
 

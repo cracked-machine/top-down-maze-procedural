@@ -1,3 +1,5 @@
+#include <Components/AltarMultiBlock.hpp>
+#include <Components/GraveMultiBlock.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
@@ -14,7 +16,6 @@
 #include <Components/FootStepTimer.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/HazardFieldCell.hpp>
-#include <Components/LargeObstacle.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NpcContainer.hpp>
 #include <Components/NpcDeathPosition.hpp>
@@ -287,55 +288,43 @@ void RenderGameSystem::render_player_spawn()
 
 void RenderGameSystem::render_large_obstacles()
 {
-
-  auto shrine_view = getReg().view<Cmp::ShrineSegment, Cmp::Position, Cmp::SpriteAnimation>();
-  for ( auto [entity, shrine_cmp, pos_cmp, anim_cmp] : shrine_view.each() )
+  auto altar_view = getReg().view<Cmp::AltarMultiBlock, Cmp::Position, Cmp::SpriteAnimation>();
+  for ( auto [entity, altar_cmp, pos_cmp, anim_cmp] : altar_view.each() )
   {
-    if ( !is_visible_in_view( RenderSystem::s_game_view, pos_cmp ) ) continue;
-
-    // add the current frame position to the relative frame offset to get the current position within the animation sequence
-    //  FRAME 1
-    // [ a,b,c ]
-    // [ d,e,f ]  if m_frame_index_offset = 3 the index for frame 1 is: 0+3=3 (d)
-    // [ g,h,i ]
-    //  FRAME 2
-    // [ j,k,l ]
-    // [ l,m,n ]  if m_frame_index_offset = 3 the index for frame 2 is: 3+3=6 (l)
-    // [ o,p,q ]
-    // etc.
     auto new_idx = anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame;
-
     sf::Vector2f new_scale{ 1.f, 1.f };
     uint8_t new_alpha{ 255 };
     sf::Vector2f new_origin{ 0.f, 0.f };
     float new_angle{ 0.f };
     safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
-  }
 
-  auto grave_view = getReg().view<Cmp::GraveSegment, Cmp::Position, Cmp::SpriteAnimation>();
-  for ( auto [entity, grave_cmp, pos_cmp, anim_cmp] : grave_view.each() )
-  {
-
-    auto new_idx = anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame;
-
-    sf::Vector2f new_scale{ 1.f, 1.f };
-    uint8_t new_alpha{ 255 };
-    sf::Vector2f new_origin{ 0.f, 0.f };
-    float new_angle{ 0.f };
-    safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
-  }
-
-  // TODO replace this yellow activation box with halo effect shader
-  auto large_obstacle_view = getReg().view<Cmp::LargeObstacle>();
-  for ( auto [entity, large_obst_cmp] : large_obstacle_view.each() )
-  {
-    if ( not large_obst_cmp.are_powers_active() ) { continue; }
-    SPDLOG_DEBUG( "Rendering Cmp::LargeObstacle at ({}, {})", large_obst_cmp.position.x, large_obst_cmp.position.y );
-    sf::RectangleShape square( sf::Vector2f{ large_obst_cmp.size.x, large_obst_cmp.size.y } );
+    if ( not altar_cmp.are_powers_active() ) { continue; }
+    SPDLOG_DEBUG( "Rendering Cmp::AltarMultiBlock at ({}, {})", altar_cmp.position.x, altar_cmp.position.y );
+    sf::RectangleShape square( sf::Vector2f{ altar_cmp.size.x, altar_cmp.size.y } );
     square.setFillColor( sf::Color::Transparent );
     square.setOutlineColor( sf::Color::Yellow );
     square.setOutlineThickness( 1.f );
-    square.setPosition( { large_obst_cmp.position.x, large_obst_cmp.position.y } );
+    square.setPosition( { altar_cmp.position.x, altar_cmp.position.y } );
+    m_window.draw( square );
+  }
+
+  auto grave_view = getReg().view<Cmp::GraveMultiBlock, Cmp::Position, Cmp::SpriteAnimation>();
+  for ( auto [entity, grave_cmp, pos_cmp, anim_cmp] : grave_view.each() )
+  {
+    auto new_idx = anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame;
+    sf::Vector2f new_scale{ 1.f, 1.f };
+    uint8_t new_alpha{ 255 };
+    sf::Vector2f new_origin{ 0.f, 0.f };
+    float new_angle{ 0.f };
+    safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
+
+    if ( not grave_cmp.are_powers_active() ) { continue; }
+    SPDLOG_DEBUG( "Rendering Cmp::GraveMultiBlock at ({}, {})", grave_cmp.position.x, grave_cmp.position.y );
+    sf::RectangleShape square( sf::Vector2f{ grave_cmp.size.x, grave_cmp.size.y } );
+    square.setFillColor( sf::Color::Transparent );
+    square.setOutlineColor( sf::Color::Yellow );
+    square.setOutlineThickness( 1.f );
+    square.setPosition( { grave_cmp.position.x, grave_cmp.position.y } );
     m_window.draw( square );
   }
 }

@@ -490,46 +490,19 @@
         }
       }
     },
-    "SHRINE": {
-      "name": "SHRINE",
-      "weight": 1.0,
-      "multisprite": {
-        "texture_path": "res/textures/shrine.png",
-        "sprite_indices": [
-          0,1,10,11,
-          2,3,12,13,
-          4,5,14,15,
-          6,7,16,17,
-          8,9,18,19
-        ],
-        "solid_mask": [
-          true, true, true, true,
-          true, true, true, true,
-          true, true, true, true,
-          true, true, true, true,
-          true, true, true, true
-        ],
-        "sprites_per_sequence": 20,
-        "sprites_per_frame": 4,
-        "grid_size": {
-          "width": 2,
-          "height": 2
-        }
-      }
-    },
     "SHRINE.inactive": {
       "name": "SHRINE.inactive",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/shrine.png",
         "sprite_indices": [
-          0,1,8,9
+          0
         ],
         "solid_mask": [
           true, true, true, true
         ],
-        "sprites_per_sequence": 4,
-        "sprites_per_frame": 4,
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
         "grid_size": {
           "width": 2,
           "height": 2
@@ -542,10 +515,10 @@
       "multisprite": {
         "texture_path": "res/textures/shrine.png",
         "sprite_indices": [
-          16, 17, 24, 25,
-          18, 19, 26, 27,
-          20, 21, 28, 29,
-          22, 23, 30, 31
+          16,
+          18,
+          20,
+          22
         ],
         "solid_mask": [
           true, true, true, true,
@@ -553,8 +526,8 @@
           true, true, true, true,
           true, true, true, true
         ],
-        "sprites_per_sequence": 16,
-        "sprites_per_frame": 4,
+        "sprites_per_sequence": 4,
+        "sprites_per_frame": 1,
         "grid_size": {
           "width": 2,
           "height": 2
@@ -567,10 +540,10 @@
       "multisprite": {
         "texture_path": "res/textures/shrine.png",
         "sprite_indices": [
-          32, 33, 40, 41,
-          34, 35, 42, 43,
-          36, 37, 44, 45,
-          38, 39, 46, 47
+          32,
+          34,
+          36,
+          38
         ],
         "solid_mask": [
           true, true, true, true,
@@ -578,8 +551,8 @@
           true, true, true, true,
           true, true, true, true
         ],
-        "sprites_per_sequence": 16,
-        "sprites_per_frame": 4,
+        "sprites_per_sequence": 4,
+        "sprites_per_frame": 1,
         "grid_size": {
           "width": 2,
           "height": 2
@@ -592,10 +565,10 @@
       "multisprite": {
         "texture_path": "res/textures/shrine.png",
         "sprite_indices": [
-          48, 49, 56, 57,
-          50, 51, 58, 59,
-          52, 53, 60, 61,
-          54, 55, 62, 63
+          48,
+          50, 
+          52,
+          54
         ],
         "solid_mask": [
           true, true, true, true,
@@ -603,8 +576,8 @@
           true, true, true, true,
           true, true, true, true
         ],
-        "sprites_per_sequence": 16,
-        "sprites_per_frame": 4,
+        "sprites_per_sequence": 4,
+        "sprites_per_frame": 1,
         "grid_size": {
           "width": 2,
           "height": 2
@@ -617,10 +590,10 @@
       "multisprite": {
         "texture_path": "res/textures/shrine.png",
         "sprite_indices": [
-          64, 65, 72, 73,
-          66, 67, 74, 75,
-          68, 69, 76, 77,
-          70, 71, 78, 79
+          64, 
+          66,
+          68,
+          70
         ],
         "solid_mask": [
           true, true, true, true,
@@ -628,8 +601,8 @@
           true, true, true, true,
           true, true, true, true
         ],
-        "sprites_per_sequence": 16,
-        "sprites_per_frame": 4,
+        "sprites_per_sequence": 4,
+        "sprites_per_frame": 1,
         "grid_size": {
           "width": 2,
           "height": 2
@@ -641,7 +614,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [0, 16],
+        "sprite_indices": [0],
         "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -656,7 +629,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [32, 48],
+        "sprite_indices": [32],
         "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -671,7 +644,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [1,17],
+        "sprite_indices": [1],
         "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -686,7 +659,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [33,49],
+        "sprite_indices": [33],
         "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -701,7 +674,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [2,18],
+        "sprite_indices": [2],
         "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -716,7 +689,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [34,50],
+        "sprite_indices": [34],
         "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -731,7 +704,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [3,19],
+        "sprite_indices": [3],
         "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -746,7 +719,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [35,51],
+        "sprite_indices": [35],
         "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -761,7 +734,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [4,20],
+        "sprite_indices": [4],
        "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -776,7 +749,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [36,52],
+        "sprite_indices": [36],
        "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -791,7 +764,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [5,21],
+        "sprite_indices": [5],
         "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -806,7 +779,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [37,53],
+        "sprite_indices": [37],
         "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -821,7 +794,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [6, 7, 22, 23],
+        "sprite_indices": [6],
         "solid_mask": [false, false, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -836,7 +809,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [38, 39, 54, 55],
+        "sprite_indices": [38],
         "solid_mask": [false, false, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -851,7 +824,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [8, 9, 24, 25],
+        "sprite_indices": [8],
         "solid_mask": [false, false, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -866,7 +839,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [40, 41, 56, 57],
+        "sprite_indices": [40],
         "solid_mask": [false, false, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -881,7 +854,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [10, 26],
+        "sprite_indices": [10],
         "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -896,7 +869,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [42, 58],
+        "sprite_indices": [42],
         "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -911,7 +884,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [11, 27],
+        "sprite_indices": [11],
         "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -926,7 +899,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [43, 59],
+        "sprite_indices": [43],
         "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -941,7 +914,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [12, 13, 28, 29],
+        "sprite_indices": [12],
         "solid_mask": [false, false, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -956,7 +929,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [44, 45, 60, 61],
+        "sprite_indices": [44],
         "solid_mask": [false, false, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -971,7 +944,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [14, 15, 30, 31],
+        "sprite_indices": [14],
         "solid_mask": [false, false, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -986,7 +959,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
-        "sprite_indices": [46, 47, 62, 63],
+        "sprite_indices": [46],
         "solid_mask": [false, false, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,

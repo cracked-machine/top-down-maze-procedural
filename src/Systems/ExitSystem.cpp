@@ -4,7 +4,6 @@
 
 #include <Components/Door.hpp>
 #include <Components/Exit.hpp>
-#include <Components/LargeObstacle.hpp>
 #include <Components/NPC.hpp>
 #include <Components/Persistent/MaxShrines.hpp>
 #include <Components/PlayableCharacter.hpp>

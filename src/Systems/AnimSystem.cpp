@@ -33,7 +33,6 @@ void AnimSystem::update( sf::Time globalDeltaTime )
     if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
     if ( anim_cmp.m_animation_active )
     {
-      SPDLOG_DEBUG( "Updating Shrine animation for entity {}", static_cast<int>( entity ) );
       const auto &shrine_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
       auto frame_rate = sf::seconds( 0.1f );
 

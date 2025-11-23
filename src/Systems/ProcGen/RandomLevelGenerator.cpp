@@ -1,3 +1,5 @@
+#include <Components/AltarMultiBlock.hpp>
+#include <Components/GraveMultiBlock.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -5,7 +7,6 @@
 #include <Components/Destructable.hpp>
 #include <Components/Door.hpp>
 #include <Components/GraveSegment.hpp>
-#include <Components/LargeObstacle.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NpcContainer.hpp>
 #include <Components/Persistent/MaxShrines.hpp>
@@ -152,19 +153,35 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
   // place large obstacle - multiply the grid size to get pixel size!
   auto large_obst_grid_size = large_obstacle_sprite.get_grid_size();
 
-  getReg().emplace_or_replace<Cmp::LargeObstacle>( random_entity, sprite_meta_type, random_origin_position.position,
-                                                   large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
-
-  SPDLOG_INFO( "Placed large obstacle ({}) at position ({}, {}). Grid size: {}x{}", sprite_meta_type,
-               random_origin_position.position.x, random_origin_position.position.y, large_obst_grid_size.width,
-               large_obst_grid_size.height );
-
   // find any position-owning entities that intersect with the new large obstacle and mark them as reserved
-  auto new_large_obst_cmp = getReg().get<Cmp::LargeObstacle>( random_entity );
+  sf::FloatRect new_multiblock_bounds{};
+  if ( sprite_meta_type.contains( "SHRINE" ) )
+  {
+
+    getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, sprite_meta_type, 0 );
+    getReg().emplace_or_replace<Cmp::AltarMultiBlock>( random_entity, random_origin_position.position,
+                                                       large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
+    SPDLOG_INFO( "Placed AltarMultiBlock at position ({}, {}). Grid size: {}x{}", random_origin_position.position.x,
+                 random_origin_position.position.y, large_obst_grid_size.width, large_obst_grid_size.height );
+
+    new_multiblock_bounds = getReg().get<Cmp::AltarMultiBlock>( random_entity );
+  }
+  else if ( sprite_meta_type.contains( "GRAVE" ) )
+  {
+
+    getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, sprite_meta_type, 0 );
+    getReg().emplace_or_replace<Cmp::GraveMultiBlock>( random_entity, random_origin_position.position,
+                                                       large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
+    SPDLOG_INFO( "Placed GraveMultiBlock at position ({}, {}). Grid size: {}x{}", random_origin_position.position.x,
+                 random_origin_position.position.y, large_obst_grid_size.width, large_obst_grid_size.height );
+
+    new_multiblock_bounds = getReg().get<Cmp::GraveMultiBlock>( random_entity );
+  }
+
   auto pos_view = getReg().view<Cmp::Position>();
   for ( auto [entity, pos_cmp] : pos_view.each() )
   {
-    if ( pos_cmp.findIntersection( new_large_obst_cmp ) )
+    if ( pos_cmp.findIntersection( new_multiblock_bounds ) )
     {
       // Calculate relative pixel positions within the large obstacle grid
       float rel_x = pos_cmp.position.x - random_origin_position.position.x;
@@ -204,13 +221,12 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
 
       if ( sprite_meta_type.contains( "SHRINE" ) )
       {
+        ///
         getReg().emplace_or_replace<Cmp::ShrineSegment>( entity, new_solid_mask );
-        getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_meta_type, calculated_grid_index );
       }
       else if ( sprite_meta_type.contains( "GRAVE" ) )
       {
         getReg().emplace_or_replace<Cmp::GraveSegment>( entity, new_solid_mask );
-        getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_meta_type, calculated_grid_index );
         getReg().emplace_or_replace<Cmp::Destructable>( entity );
       }
 
