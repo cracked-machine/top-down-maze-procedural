@@ -1,4 +1,5 @@
 #include <Components/GraveSegment.hpp>
+#include <Components/WormholeMultiBlock.hpp>
 #include <spdlog/spdlog.h>
 
 #include <SFML/System/Time.hpp>
@@ -15,7 +16,7 @@
 #include <Components/Position.hpp>
 #include <Components/ShrineSegment.hpp>
 #include <Components/SpriteAnimation.hpp>
-#include <Components/Wormhole.hpp>
+#include <Components/WormholeSingularity.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -89,7 +90,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
   }
 
   // Wormhole
-  const auto wormhole_view = getReg().view<Cmp::Wormhole, Cmp::SpriteAnimation, Cmp::Position>();
+  const auto wormhole_view = getReg().view<Cmp::WormholeMultiBlock, Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [entity, wormhole_cmp, anim_cmp, pos_cmp] : wormhole_view.each() )
   {
     if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;

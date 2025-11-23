@@ -3,6 +3,7 @@
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
+#include <Components/WormholeMultiBlock.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
@@ -32,7 +33,7 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/Wall.hpp>
 #include <Components/WeaponLevel.hpp>
-#include <Components/Wormhole.hpp>
+#include <Components/WormholeSingularity.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -41,6 +42,7 @@
 
 namespace ProceduralMaze::Sys
 {
+using Cmp::WormholeMultiBlock;
 
 RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
                                     Audio::SoundBank &sound_bank )
@@ -476,36 +478,20 @@ void RenderGameSystem::render_corruption()
 
 void RenderGameSystem::render_wormhole()
 {
-  auto wormhole_view = getReg().view<Cmp::Wormhole, Cmp::Position, Cmp::SpriteAnimation>();
+  auto wormhole_view = getReg().view<Cmp::WormholeMultiBlock, Cmp::Position, Cmp::SpriteAnimation>();
   for ( auto [entity, wormhole_cmp, pos_cmp, anim_cmp] : wormhole_view.each() )
   {
-    // if ( !is_visible_in_view( m_window.getView(), position_cmp ) ) continue;
     try
     {
       auto &wormhole_sprite = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
       // Setup shader
-      m_wormhole_shader.update_shader_position( pos_cmp.position + ( kGridSquareSizePixelsF * 0.5f ),
-                                                Sprites::ViewFragmentShader::Align::CENTER );
+      m_wormhole_shader.update_shader_position( pos_cmp.position, Sprites::ViewFragmentShader::Align::TOPLEFT );
 
       // Draw background onto shader texture
       m_floormap.draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
 
-      // Draw sprites to shader's render texture, offset from the center by -1 in both dimensions
-      auto grid_size = wormhole_sprite.get_grid_size();
-      for ( float row = 0; row < grid_size.height; ++row )
-      {
-        for ( float col = 0; col < grid_size.width; ++col )
-        {
-          sf::Vector2f offset = { ( col - 1 ) * BaseSystem::kGridSquareSizePixels.x,
-                                  ( row - 1 ) * BaseSystem::kGridSquareSizePixels.y };
-          auto index = anim_cmp.m_current_frame + ( row * grid_size.height + col );
-          // auto index = anim_cmp.m_current_frame;
-
-          // dont modify the original pos_cmp, create copy with modified position
-          sf::FloatRect offset_pos_cmp{ { pos_cmp.position + offset }, kGridSquareSizePixelsF };
-          safe_render_sprite_to_target( m_wormhole_shader.get_render_texture(), anim_cmp.m_sprite_type, offset_pos_cmp, index );
-        }
-      }
+      safe_render_sprite_to_target( m_wormhole_shader.get_render_texture(), wormhole_sprite.get_sprite_type(), wormhole_cmp,
+                                    anim_cmp.m_current_frame );
 
       // Update and draw shader
       Sprites::UniformBuilder builder;
@@ -522,13 +508,17 @@ void RenderGameSystem::render_wormhole()
       render_fallback_square( pos_cmp, sf::Color::Magenta );
     }
 
-    // // Debug rectangle
-    // sf::RectangleShape temp_square( kGridSquareSizePixelsF );
-    // temp_square.setPosition( pos_cmp.position );
-    // temp_square.setOutlineColor( sf::Color::Red );
-    // temp_square.setFillColor( sf::Color::Transparent );
-    // temp_square.setOutlineThickness( 1.f );
-    // m_window.draw( temp_square );
+    auto wormhole_singularity_view = getReg().view<Cmp::WormholeSingularity, Cmp::Position>();
+    for ( auto [entity, wormhole_cmp, wormhole_pos_cmp] : wormhole_singularity_view.each() )
+    {
+      // Debug rectangle
+      sf::RectangleShape temp_square( kGridSquareSizePixelsF );
+      temp_square.setPosition( wormhole_pos_cmp.position );
+      temp_square.setOutlineColor( sf::Color::Red );
+      temp_square.setFillColor( sf::Color::Transparent );
+      temp_square.setOutlineThickness( 1.f );
+      m_window.draw( temp_square );
+    }
   }
 }
 

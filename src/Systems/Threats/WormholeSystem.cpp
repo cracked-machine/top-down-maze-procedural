@@ -2,6 +2,8 @@
 #include <Components/RectBounds.hpp>
 #include <Components/ShrineSegment.hpp>
 #include <Components/WormholeJump.hpp>
+#include <Components/WormholeMultiBlock.hpp>
+#include <Components/WormholeSingularity.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -15,7 +17,6 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/Wall.hpp>
-#include <Components/Wormhole.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/WormholeSystem.hpp>
 
@@ -70,7 +71,11 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
         IncludePack<Cmp::Obstacle>{},
         ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, current_seed );
 
-    Cmp::RectBounds wormhole_hitbox( random_pos.position, random_pos.size, 2.f );
+    auto &wormhole_ms = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
+    Cmp::WormholeMultiBlock wormhole_block( random_pos.position,
+                                            wormhole_ms.get_grid_size().componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
+
+    // Cmp::RectBounds wormhole_hitbox( random_pos.position, random_pos.size, 2.f );
 
     // Check collisions with walls, graves, shrines
     auto is_valid = [&]() -> bool
@@ -78,19 +83,19 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
       // return false for wall collisions
       for ( auto [entity, wall_cmp, wall_pos_cmp] : getReg().view<Cmp::Wall, Cmp::Position>().each() )
       {
-        if ( wall_pos_cmp.findIntersection( wormhole_hitbox.getBounds() ) ) return false;
+        if ( wall_pos_cmp.findIntersection( wormhole_block ) ) return false;
       }
 
       // Return false for grave collisions
       for ( auto [entity, grave_cmp, grave_pos_cmp] : getReg().view<Cmp::GraveSegment, Cmp::Position>().each() )
       {
-        if ( grave_pos_cmp.findIntersection( wormhole_hitbox.getBounds() ) ) return false;
+        if ( grave_pos_cmp.findIntersection( wormhole_block ) ) return false;
       }
 
       // Return false for shrine collisions
       for ( auto [entity, shrine_cmp, shrine_pos_cmp] : getReg().view<Cmp::ShrineSegment, Cmp::Position>().each() )
       {
-        if ( shrine_pos_cmp.findIntersection( wormhole_hitbox.getBounds() ) ) return false;
+        if ( shrine_pos_cmp.findIntersection( wormhole_block ) ) return false;
       }
 
       return true;
@@ -130,11 +135,14 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   }
 
   // 3. set the entities obstacle component to "broken" so we have something for the shader effect to mangle
-  auto random_pos_3x3_hitbox = Cmp::RectBounds( random_pos.position, random_pos.size, 3.f );
+  auto &wormhole_ms = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
+  Cmp::WormholeMultiBlock wormhole_block( random_pos.position,
+                                          wormhole_ms.get_grid_size().componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
+
   auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position>();
   for ( auto [entity, obstacle_cmp, obstacle_pos_cmp] : obstacle_view.each() )
   {
-    if ( obstacle_pos_cmp.findIntersection( random_pos_3x3_hitbox.getBounds() ) )
+    if ( obstacle_pos_cmp.findIntersection( wormhole_block ) )
     {
       obstacle_cmp.m_enabled = false;
       SPDLOG_INFO( "Wormhole spawn: Destroying obstacle at ({}, {})", obstacle_pos_cmp.position.x, obstacle_pos_cmp.position.y );
@@ -142,7 +150,15 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   }
 
   // 4. add the wormhole component to the entity
-  getReg().emplace_or_replace<Cmp::Wormhole>( random_entity );
+  // get the erntity that owns the center grid position of the 3x3 area
+  sf::Vector2f center_pos = random_pos.position + BaseSystem::kGridSquareSizePixelsF;
+  auto center_entity = getReg().create();
+  getReg().emplace<Cmp::Position>( center_entity, center_pos, BaseSystem::kGridSquareSizePixelsF );
+  getReg().emplace<Cmp::WormholeSingularity>( center_entity );
+
+  // getReg().emplace_or_replace<Cmp::WormholeSingularity>( random_entity );
+  getReg().emplace_or_replace<Cmp::WormholeMultiBlock>(
+      random_entity, random_pos.position, wormhole_ms.get_grid_size().componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
   getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, "WORMHOLE" );
 
   SPDLOG_INFO( "Wormhole spawned at position ({}, {})", random_pos.position.x, random_pos.position.y );
@@ -150,7 +166,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
 
 void WormholeSystem::check_player_wormhole_collision()
 {
-  auto wormhole_view = getReg().view<Cmp::Wormhole, Cmp::Position>();
+  auto wormhole_view = getReg().view<Cmp::WormholeSingularity, Cmp::Position>();
   auto all_actors_view = getReg().view<Cmp::Direction, Cmp::Position>();
 
   // First, check for any entities with WormholeJump that are NOT colliding
@@ -170,7 +186,7 @@ void WormholeSystem::check_player_wormhole_collision()
 
     for ( auto [wormhole_entity, wormhole_cmp, wh_pos_cmp] : wormhole_view.each() )
     {
-      auto wh_hitbox_redux = Cmp::RectBounds( wh_pos_cmp.position, wh_pos_cmp.size, 0.5f );
+      auto wh_hitbox_redux = Cmp::RectBounds( wh_pos_cmp.position, wh_pos_cmp.size, 1.f );
       if ( jump_pos_cmp && jump_pos_cmp->findIntersection( wh_hitbox_redux.getBounds() ) )
       {
         still_colliding = true;
@@ -193,7 +209,7 @@ void WormholeSystem::check_player_wormhole_collision()
     for ( auto [wormhole_entity, wormhole_cmp, wh_pos_cmp] : wormhole_view.each() )
     {
 
-      auto wh_hitbox_redux = Cmp::RectBounds( wh_pos_cmp.position, wh_pos_cmp.size, 0.5f );
+      auto wh_hitbox_redux = Cmp::RectBounds( wh_pos_cmp.position, wh_pos_cmp.size, 1.f );
       if ( !actor_pos_cmp.findIntersection( wh_hitbox_redux.getBounds() ) ) continue;
 
       // Check if jump component already exists
@@ -263,11 +279,19 @@ void WormholeSystem::check_player_wormhole_collision()
 void WormholeSystem::despawn_wormhole()
 {
   // remove the wormhole entity
-  auto wormhole_view = getReg().view<Cmp::Wormhole>();
+  auto wormhole_view = getReg().view<Cmp::WormholeSingularity>();
   for ( auto [entity, _] : wormhole_view.each() )
   {
-    getReg().remove<Cmp::Wormhole>( entity );
+    getReg().remove<Cmp::WormholeSingularity>( entity );
     SPDLOG_INFO( "Wormhole despawned (entity {})", static_cast<uint32_t>( entity ) );
+  }
+
+  auto wormhole_mb_view = getReg().view<Cmp::WormholeMultiBlock>();
+  for ( auto [entity, _] : wormhole_mb_view.each() )
+  {
+    getReg().remove<Cmp::WormholeMultiBlock>( entity );
+    getReg().remove<Cmp::SpriteAnimation>( entity );
+    SPDLOG_INFO( "WormholeMultiBlock despawned (entity {})", static_cast<uint32_t>( entity ) );
   }
 }
 

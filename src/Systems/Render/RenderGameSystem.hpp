@@ -76,7 +76,7 @@ private:
   Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", kDisplaySize };
   // make the view size 16x16 grid squares for the 9x9 wormhole shader effect so that it blurs the edges better
   Sprites::ViewFragmentShader m_wormhole_shader{ "res/shaders/SimpleDistortionField.frag",
-                                                 BaseSystem::kGridSquareSizePixels.componentWiseMul( { 4u, 4u } ) };
+                                                 BaseSystem::kGridSquareSizePixels.componentWiseMul( { 3u, 3u } ) };
   Sprites::PulsingShader m_pulsing_shader{ "res/shaders/RedPulsingSand.frag", kDisplaySize };
   Sprites::MistShader m_mist_shader{ "res/shaders/MistShader.frag", kDisplaySize };
 
