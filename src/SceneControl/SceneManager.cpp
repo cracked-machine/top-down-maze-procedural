@@ -70,7 +70,8 @@ void SceneManager::pop( ComponentTransfer::TransferMode clone_options )
   // Transfer registry components - specify which component types to transfer
   if ( reg_snapshot && clone_options == ComponentTransfer::TransferMode::PLAYER_INVENTORY )
   {
-    m_cmp_transfer.transfer_player_inventory( *reg_snapshot, m_scene_stack.current().get_registry() );
+    loading_screen( [&]() { m_cmp_transfer.transfer_player_inventory( *reg_snapshot, m_scene_stack.current().get_registry() ); },
+                    m_splash_texture );
   }
 
   if ( !m_scene_stack.empty() ) m_scene_stack.current().on_enter();

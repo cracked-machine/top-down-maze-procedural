@@ -77,7 +77,7 @@ void LargeObstacleSystem::check_player_altar_activation( entt::entity altar_enti
             altar_cmp.set_activation_count( 1 );
           } );
           getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) {
-            anim_cmp.m_sprite_type = "SHRINE.one";
+            anim_cmp.m_sprite_type = "ALTAR.one";
           } );
 
         // clang-format on
@@ -90,7 +90,7 @@ void LargeObstacleSystem::check_player_altar_activation( entt::entity altar_enti
             altar_cmp.set_activation_count( 2 );
           } );
           getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) {
-            anim_cmp.m_sprite_type = "SHRINE.two";
+            anim_cmp.m_sprite_type = "ALTAR.two";
           } );
 
         // clang-format on
@@ -104,7 +104,7 @@ void LargeObstacleSystem::check_player_altar_activation( entt::entity altar_enti
             altar_cmp.set_activation_count( 3 ); 
           } );
           getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) {
-            anim_cmp.m_sprite_type = "SHRINE.three";
+            anim_cmp.m_sprite_type = "ALTAR.three";
           } );
 
         // clang-format on
@@ -117,7 +117,7 @@ void LargeObstacleSystem::check_player_altar_activation( entt::entity altar_enti
             altar_cmp.set_activation_count( 4 ); 
           } );
           getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) {
-            anim_cmp.m_sprite_type = "SHRINE.four";
+            anim_cmp.m_sprite_type = "ALTAR.four";
           } );
 
         // clang-format on

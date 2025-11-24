@@ -490,8 +490,8 @@
         }
       }
     },
-    "SHRINE.inactive": {
-      "name": "SHRINE.inactive",
+    "ALTAR.inactive": {
+      "name": "ALTAR.inactive",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/shrine.png",
@@ -509,8 +509,8 @@
         }
       }
     },
-    "SHRINE.one": {
-      "name": "SHRINE.one",
+    "ALTAR.one": {
+      "name": "ALTAR.one",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/shrine.png",
@@ -534,8 +534,8 @@
         }
       }
     },
-    "SHRINE.two": {
-      "name": "SHRINE.two",
+    "ALTAR.two": {
+      "name": "ALTAR.two",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/shrine.png",
@@ -559,8 +559,8 @@
         }
       }
     },
-    "SHRINE.three": {
-      "name": "SHRINE.three",
+    "ALTAR.three": {
+      "name": "ALTAR.three",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/shrine.png",
@@ -584,8 +584,8 @@
         }
       }
     },
-    "SHRINE.four": {
-      "name": "SHRINE.four",
+    "ALTAR.four": {
+      "name": "ALTAR.four",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/shrine.png",

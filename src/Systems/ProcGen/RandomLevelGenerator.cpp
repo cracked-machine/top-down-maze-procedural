@@ -155,7 +155,7 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
 
   // find any position-owning entities that intersect with the new large obstacle and mark them as reserved
   sf::FloatRect new_multiblock_bounds{};
-  if ( sprite_meta_type.contains( "SHRINE" ) )
+  if ( sprite_meta_type.contains( "ALTAR" ) )
   {
 
     getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, sprite_meta_type, 0 );
@@ -219,7 +219,7 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
         new_solid_mask = solid_masks.at( calculated_grid_index );
       }
 
-      if ( sprite_meta_type.contains( "SHRINE" ) )
+      if ( sprite_meta_type.contains( "ALTAR" ) )
       {
         ///
         getReg().emplace_or_replace<Cmp::ShrineSegment>( entity, new_solid_mask );
@@ -255,11 +255,11 @@ void RandomLevelGenerator::gen_large_obstacles()
     }
   }
 
-  auto &shrine_multisprite = m_sprite_factory.get_multisprite_by_type( "SHRINE.inactive" );
+  auto &shrine_multisprite = m_sprite_factory.get_multisprite_by_type( "ALTAR.inactive" );
   for ( std::size_t i = 0; i < max_num_shrines.get_value(); ++i )
   {
     // Use the dynamically discovered shrine types
-    gen_large_obstacle( shrine_multisprite, "SHRINE.inactive", 0 );
+    gen_large_obstacle( shrine_multisprite, "ALTAR.inactive", 0 );
   }
 }
 
