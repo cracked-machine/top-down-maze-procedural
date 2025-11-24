@@ -494,7 +494,7 @@
       "name": "ALTAR.inactive",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/shrine.png",
+        "texture_path": "res/textures/altar.png",
         "sprite_indices": [
           0
         ],
@@ -513,7 +513,7 @@
       "name": "ALTAR.one",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/shrine.png",
+        "texture_path": "res/textures/altar.png",
         "sprite_indices": [
           16,
           18,
@@ -538,7 +538,7 @@
       "name": "ALTAR.two",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/shrine.png",
+        "texture_path": "res/textures/altar.png",
         "sprite_indices": [
           32,
           34,
@@ -563,7 +563,7 @@
       "name": "ALTAR.three",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/shrine.png",
+        "texture_path": "res/textures/altar.png",
         "sprite_indices": [
           48,
           50, 
@@ -588,7 +588,7 @@
       "name": "ALTAR.four",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/shrine.png",
+        "texture_path": "res/textures/altar.png",
         "sprite_indices": [
           64, 
           66,
