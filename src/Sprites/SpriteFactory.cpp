@@ -6,6 +6,7 @@
 #include <Sprites/SpriteFactory.hpp>
 
 #include <fstream>
+#include <regex>
 #include <string>
 
 namespace ProceduralMaze::Sprites
@@ -101,10 +102,24 @@ std::vector<SpriteMetaType> SpriteFactory::get_all_sprite_types_by_pattern( cons
 {
   std::vector<SpriteMetaType> types;
 
-  // Iterate directly over the map instead of creating a temporary vector
-  for ( const auto &[type, _] : m_sprite_metadata_map )
+  try
   {
-    if ( type.find( pattern ) != std::string::npos ) { types.push_back( type ); }
+    // Try to use as regex first
+    std::regex pattern_regex( pattern );
+
+    for ( const auto &[type, _] : m_sprite_metadata_map )
+    {
+      if ( std::regex_search( type, pattern_regex ) ) { types.push_back( type ); }
+    }
+  }
+  catch ( const std::regex_error &e )
+  {
+    // If regex fails, fallback to substring matching (current behavior)
+    SPDLOG_DEBUG( "Pattern '{}' is not valid regex, using substring matching", pattern );
+    for ( const auto &[type, _] : m_sprite_metadata_map )
+    {
+      if ( type.find( pattern ) != std::string::npos ) { types.push_back( type ); }
+    }
   }
 
   return types;

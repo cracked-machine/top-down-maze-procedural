@@ -1,4 +1,6 @@
 #include <Components/AltarMultiBlock.hpp>
+#include <Components/CryptMultiBlock.hpp>
+#include <Components/CryptSegment.hpp>
 #include <Components/GraveMultiBlock.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/SpriteAnimation.hpp>
@@ -100,16 +102,28 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
         if ( grave_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
-      // Return false for shrine collisions
-      for ( auto [entity, shrine_cmp, shrine_pos_cmp] : getReg().view<Cmp::AltarSegment, Cmp::Position>().each() )
+      // Return false for altar collisions
+      for ( auto [entity, altar_cmp, altar_pos_cmp] : getReg().view<Cmp::AltarSegment, Cmp::Position>().each() )
       {
-        if ( shrine_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
+        if ( altar_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
+      }
+
+      // Return false for crypt collisions
+      for ( auto [entity, crypt_cmp, crypt_pos_cmp] : getReg().view<Cmp::CryptSegment, Cmp::Position>().each() )
+      {
+        if ( crypt_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       // Return false for reserved position collisions
       for ( auto [entity, reserved_cmp, reserved_pos_cmp] : getReg().view<Cmp::ReservedPosition, Cmp::Position>().each() )
       {
         if ( reserved_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
+      }
+
+      // Return false for spawn area collisions
+      for ( auto [entity, spawn_cmp, spawn_pos_cmp] : getReg().view<Cmp::SpawnAreaSprite, Cmp::Position>().each() )
+      {
+        if ( spawn_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       // Return false for playable character collisions
@@ -140,25 +154,24 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
   return { entt::null, Cmp::Position{ { 0.f, 0.f }, { 0.f, 0.f } } };
 }
 
-void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large_obstacle_sprite,
-                                               Sprites::SpriteMetaType sprite_meta_type, unsigned long seed )
+void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &ms, unsigned long seed )
 {
   auto [random_entity, random_origin_position] = find_spawn_location( seed );
   if ( random_entity == entt::null )
   {
-    SPDLOG_ERROR( "Failed to find valid large obstacle spawn position." );
+    SPDLOG_ERROR( "Failed to find valid spawn position for {}.", ms.get_sprite_type() );
     return;
   }
 
   // place large obstacle - multiply the grid size to get pixel size!
-  auto large_obst_grid_size = large_obstacle_sprite.get_grid_size();
+  auto large_obst_grid_size = ms.get_grid_size();
 
   // find any position-owning entities that intersect with the new large obstacle and mark them as reserved
   sf::FloatRect new_multiblock_bounds{};
-  if ( sprite_meta_type.contains( "ALTAR" ) )
+  if ( ms.get_sprite_type().contains( "ALTAR" ) )
   {
 
-    getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, sprite_meta_type, 0 );
+    getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, ms.get_sprite_type(), 0 );
     getReg().emplace_or_replace<Cmp::AltarMultiBlock>( random_entity, random_origin_position.position,
                                                        large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
     SPDLOG_INFO( "Placed AltarMultiBlock at position ({}, {}). Grid size: {}x{}", random_origin_position.position.x,
@@ -166,16 +179,31 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
 
     new_multiblock_bounds = getReg().get<Cmp::AltarMultiBlock>( random_entity );
   }
-  else if ( sprite_meta_type.contains( "GRAVE" ) )
+  else if ( ms.get_sprite_type().contains( "GRAVE" ) )
   {
 
-    getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, sprite_meta_type, 0 );
+    getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, ms.get_sprite_type(), 0 );
     getReg().emplace_or_replace<Cmp::GraveMultiBlock>( random_entity, random_origin_position.position,
                                                        large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
     SPDLOG_INFO( "Placed GraveMultiBlock at position ({}, {}). Grid size: {}x{}", random_origin_position.position.x,
                  random_origin_position.position.y, large_obst_grid_size.width, large_obst_grid_size.height );
 
     new_multiblock_bounds = getReg().get<Cmp::GraveMultiBlock>( random_entity );
+  }
+  else if ( ms.get_sprite_type().contains( "CRYPT" ) )
+  {
+    getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, ms.get_sprite_type(), 0 );
+    getReg().emplace_or_replace<Cmp::CryptMultiBlock>( random_entity, random_origin_position.position,
+                                                       large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
+    SPDLOG_INFO( "Placed CryptMultiBlock at position ({}, {}). Grid size: {}x{}", random_origin_position.position.x,
+                 random_origin_position.position.y, large_obst_grid_size.width, large_obst_grid_size.height );
+
+    new_multiblock_bounds = getReg().get<Cmp::CryptMultiBlock>( random_entity );
+  }
+  else
+  {
+    SPDLOG_ERROR( "gen_large_obstacle called with unsupported multisprite type: {}", ms.get_sprite_type() );
+    return;
   }
 
   auto pos_view = getReg().view<Cmp::Position>();
@@ -194,12 +222,7 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
       // Calculate linear array index using relative grid distance from the origin grid position [0,0].
       // We can then use the index to look up the sprite and solid mask in the large obstacle sprite object
       // (method: row-major order: index = y * width + x)
-      // E.g. for a 1x2 grid:
-      //         [0]
-      //         [1]
-      // Top position: grid_y=0, grid_x=0 → sprite_index = 0 * 1 + 0 = 0
-      // Bottom position: grid_y=1, grid_x=0 → sprite_index = 1 * 1 + 0 = 1
-      // for a 4x2 grid:
+      // Example for a 4x2 grid:
       //         [0][1][2][3]
       //         [4][5][6][7]
       // Top-left position: grid_y=0, grid_x=0 → sprite_index = 0 * 4 + 0 = 0
@@ -210,26 +233,30 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
       SPDLOG_DEBUG( "Adding Cmp::ReservedPosition at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y,
                     calculated_grid_index );
 
-      // check multisprite solid_mask vector is at least as large as calculated index - default to true (solid) if out
-      // of bounds
+      // check multisprite solid_mask vector is at least as large as calculated index - default to true (solid) if out of bounds
       bool new_solid_mask = true;
-      auto solid_masks = large_obstacle_sprite.get_solid_mask();
+      auto solid_masks = ms.get_solid_mask();
       if ( !solid_masks.empty() && solid_masks.size() > calculated_grid_index )
       {
         new_solid_mask = solid_masks.at( calculated_grid_index );
       }
 
-      if ( sprite_meta_type.contains( "ALTAR" ) )
+      if ( ms.get_sprite_type().contains( "ALTAR" ) )
       {
-        ///
-        getReg().emplace_or_replace<Cmp::AltarSegment>( entity, new_solid_mask );
+        // altars are not destructable
+        if ( new_solid_mask ) getReg().emplace_or_replace<Cmp::AltarSegment>( entity, new_solid_mask );
       }
-      else if ( sprite_meta_type.contains( "GRAVE" ) )
+      else if ( ms.get_sprite_type().contains( "GRAVE" ) )
       {
-        getReg().emplace_or_replace<Cmp::GraveSegment>( entity, new_solid_mask );
+        if ( new_solid_mask ) getReg().emplace_or_replace<Cmp::GraveSegment>( entity, new_solid_mask );
         getReg().emplace_or_replace<Cmp::Destructable>( entity );
       }
-
+      else if ( ms.get_sprite_type().contains( "CRYPT" ) )
+      {
+        // crypts are not destructable
+        if ( new_solid_mask ) getReg().emplace_or_replace<Cmp::CryptSegment>( entity, new_solid_mask );
+      }
+      // all positions should be reserved
       getReg().emplace_or_replace<Cmp::ReservedPosition>( entity );
     }
   }
@@ -237,29 +264,35 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
 
 void RandomLevelGenerator::gen_large_obstacles()
 {
-  auto max_num_shrines = get_persistent_component<Cmp::Persistent::MaxNumAltars>();
+  auto max_num_altars = get_persistent_component<Cmp::Persistent::MaxNumAltars>();
   auto grave_num_multiplier = get_persistent_component<Cmp::Persistent::GraveNumMultiplier>();
 
-  // Get all available grave types dynamically from JSON
-  auto grave_meta_types = m_sprite_factory.get_all_sprite_types_by_pattern( ".closed" );
+  // GRAVES
+  auto grave_meta_types = m_sprite_factory.get_all_sprite_types_by_pattern( "^GRAVE\\d+\\.closed$" );
   if ( grave_meta_types.empty() ) { SPDLOG_WARN( "No GRAVE multisprites found in SpriteFactory" ); }
   else
   {
-    uint8_t max_num_graves = max_num_shrines.get_value() * grave_num_multiplier.get_value();
+    uint8_t max_num_graves = max_num_altars.get_value() * grave_num_multiplier.get_value();
     for ( std::size_t i = 0; i < max_num_graves; ++i )
     {
-      // Use the dynamically discovered grave types
       auto [sprite_metatype, unused_index] = m_sprite_factory.get_random_type_and_texture_index( grave_meta_types );
       auto &multisprite = m_sprite_factory.get_multisprite_by_type( sprite_metatype );
-      gen_large_obstacle( multisprite, sprite_metatype, 0 );
+      gen_large_obstacle( multisprite, 0 );
     }
   }
 
-  auto &shrine_multisprite = m_sprite_factory.get_multisprite_by_type( "ALTAR.inactive" );
-  for ( std::size_t i = 0; i < max_num_shrines.get_value(); ++i )
+  // ALTARS
+  auto &altar_multisprite = m_sprite_factory.get_multisprite_by_type( "ALTAR.inactive" );
+  for ( std::size_t i = 0; i < max_num_altars.get_value(); ++i )
   {
-    // Use the dynamically discovered shrine types
-    gen_large_obstacle( shrine_multisprite, "ALTAR.inactive", 0 );
+    gen_large_obstacle( altar_multisprite, 0 );
+  }
+
+  // CRYPTS - note: we use keys from altars to open crypts so the number should be equal
+  auto &crypt_multisprite = m_sprite_factory.get_multisprite_by_type( "CRYPT.closed" );
+  for ( std::size_t i = 0; i < max_num_altars.get_value(); ++i )
+  {
+    gen_large_obstacle( crypt_multisprite, 0 );
   }
 }
 

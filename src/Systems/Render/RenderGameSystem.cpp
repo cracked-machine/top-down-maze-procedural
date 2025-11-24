@@ -1,4 +1,6 @@
 #include <Components/AltarMultiBlock.hpp>
+#include <Components/CryptMultiBlock.hpp>
+#include <Components/CryptSegment.hpp>
 #include <Components/GraveMultiBlock.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/PlayerKeysCount.hpp>
@@ -328,6 +330,17 @@ void RenderGameSystem::render_large_obstacles()
     square.setPosition( { grave_cmp.position.x, grave_cmp.position.y } );
     m_window.draw( square );
   }
+
+  auto crypt_view = getReg().view<Cmp::CryptMultiBlock, Cmp::Position, Cmp::SpriteAnimation>();
+  for ( auto [entity, crypt_cmp, pos_cmp, anim_cmp] : crypt_view.each() )
+  {
+    auto new_idx = anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame;
+    sf::Vector2f new_scale{ 1.f, 1.f };
+    uint8_t new_alpha{ 255 };
+    sf::Vector2f new_origin{ 0.f, 0.f };
+    float new_angle{ 0.f };
+    safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, new_idx, new_scale, new_alpha, new_origin, sf::degrees( new_angle ) );
+  }
 }
 
 void RenderGameSystem::render_npc_containers()
@@ -505,18 +518,6 @@ void RenderGameSystem::render_wormhole()
     {
       SPDLOG_WARN( "Missing wormhole sprite '{}' in map, rendering fallback square", "WORMHOLE" );
       render_fallback_square( pos_cmp, sf::Color::Magenta );
-    }
-
-    auto wormhole_singularity_view = getReg().view<Cmp::WormholeSingularity, Cmp::Position>();
-    for ( auto [entity, wormhole_cmp, wormhole_pos_cmp] : wormhole_singularity_view.each() )
-    {
-      // Debug rectangle
-      sf::RectangleShape temp_square( kGridSquareSizePixelsF );
-      temp_square.setPosition( wormhole_pos_cmp.position );
-      temp_square.setOutlineColor( sf::Color::Red );
-      temp_square.setFillColor( sf::Color::Transparent );
-      temp_square.setOutlineThickness( 1.f );
-      m_window.draw( temp_square );
     }
   }
 }

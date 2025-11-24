@@ -1,3 +1,4 @@
+#include <Components/CryptSegment.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/NPC.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
@@ -79,10 +80,17 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
     if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
-  auto shrine_view = getReg().view<Cmp::AltarSegment, Cmp::Position>();
-  for ( auto [entity, shrine_cmp, pos_cmp] : shrine_view.each() )
+  auto altar_view = getReg().view<Cmp::AltarSegment, Cmp::Position>();
+  for ( auto [entity, altar_cmp, pos_cmp] : altar_view.each() )
   {
-    if ( not shrine_cmp.isSolidMask() ) continue;
+    if ( not altar_cmp.isSolidMask() ) continue;
+    if ( pos_cmp.findIntersection( target_position ) ) { return false; }
+  }
+
+  auto crypt_view = getReg().view<Cmp::CryptSegment, Cmp::Position>();
+  for ( auto [entity, crypt_cmp, pos_cmp] : crypt_view.each() )
+  {
+    if ( not crypt_cmp.isSolidMask() ) continue;
     if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 

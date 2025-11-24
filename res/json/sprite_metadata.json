@@ -989,7 +989,8 @@
       "multisprite": {
         "texture_path": "res/textures/crypt.png",
         "sprite_indices": [0],
-        "solid_mask": [true, true, true,
+        "solid_mask": [
+                false, false, false,
                 true, true, true,
                 true, true, true,
                 true, true, true
@@ -1008,7 +1009,8 @@
       "multisprite": {
         "texture_path": "res/textures/crypt.png",
         "sprite_indices": [12],
-        "solid_mask": [true, true, true,
+        "solid_mask": [
+                       false, false, false,
                        true, true, true,
                        true, true, true,
                        true, true, true

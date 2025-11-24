@@ -14,7 +14,8 @@
 #include <unordered_set>
 #include <vector>
 
-namespace ProceduralMaze::Sprites {
+namespace ProceduralMaze::Sprites
+{
 
 // This class manages the creation MultiSprites objects in the game.
 // Contains logic for random selection of sprite types based on weights.
@@ -47,6 +48,7 @@ public:
                                                                             std::vector<float> weights = {} );
 
   //! @brief Get the all sprite types by pattern object
+  //! Supports regex and plain text matching.
   //!
   //! @param pattern partial string pattern to match sprite types
   //! @return std::vector<SpriteMetaType>

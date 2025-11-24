@@ -101,7 +101,7 @@
   },
   "PlayerDetectionScale": {
     "type": "float",
-    "value": 7.0
+    "value": 8.0
   },
   "PlayerDiagonalLerpSpeedModifier": {
     "type": "float",

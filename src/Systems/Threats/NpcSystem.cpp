@@ -1,3 +1,4 @@
+#include <Components/CryptSegment.hpp>
 #include <Components/Direction.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Persistent/NpcDamage.hpp>
@@ -154,7 +155,7 @@ bool NpcSystem::isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::V
 
 void NpcSystem::update_movement( sf::Time globalDeltaTime )
 {
-  auto exclusions = entt::exclude<Cmp::AltarSegment, Cmp::SpawnAreaSprite, Cmp::PlayableCharacter>;
+  auto exclusions = entt::exclude<Cmp::AltarSegment, Cmp::CryptSegment, Cmp::SpawnAreaSprite, Cmp::PlayableCharacter>;
   auto view = getReg().view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds, Cmp::Direction>( exclusions );
 
   for ( auto [entity, pos_cmp, lerp_pos_cmp, npc_scan_bounds, dir_cmp] : view.each() )

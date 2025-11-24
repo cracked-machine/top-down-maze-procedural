@@ -1,4 +1,5 @@
 #include <Components/AltarSegment.hpp>
+#include <Components/CryptSegment.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
@@ -34,8 +35,17 @@ void PathFindSystem::update_player_distances()
   {
 
     // Exclude any components that we dont want NPCs to pathfind through
-    auto
-        path_exclusions = entt::exclude<Cmp::AltarSegment, Cmp::SpawnAreaSprite, Cmp::GraveSegment, Cmp::Wall, Cmp::Exit, Cmp::NPC>;
+    // clang-format off
+    auto path_exclusions = entt::exclude<
+          Cmp::CryptSegment,
+          Cmp::AltarSegment, 
+          Cmp::SpawnAreaSprite, 
+          Cmp::GraveSegment, 
+          Cmp::Wall, 
+          Cmp::Exit, 
+          Cmp::NPC
+        >;
+    // clang-format on
 
     auto path_view = getReg().view<Cmp::Position>( path_exclusions );
     for ( auto [path_entt, path_pos_cmp] : path_view.each() )

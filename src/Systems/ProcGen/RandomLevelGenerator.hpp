@@ -37,24 +37,38 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
+  // Generate position components for the entire map grid and add player spawn
   void gen_positions();
+
+  // Find a valid spawn location for a large obstacle given a seed
   std::pair<entt::entity, Cmp::Position> find_spawn_location( unsigned long seed );
-  void gen_large_obstacle( const Sprites::MultiSprite &large_obstacle_sprite, Sprites::SpriteMetaType, unsigned long seed );
+
+  // Generate a large obstacle at a random valid position (graves, shrines, crypts)
+  void gen_large_obstacle( const Sprites::MultiSprite &ms, unsigned long seed );
+
+  // Iterate and generate large obstacles (graves, shrines, crypts)
   void gen_large_obstacles();
 
   // Iterate all position (excluding playable characters) and randomly assign small obstacles
   void gen_small_obstacles();
 
+  // Iterate and generate loot containers
   void gen_loot_containers();
+
+  // Iterate and generate npc containers
   void gen_npc_containers();
 
   // These obstacles are for the map border.
   // The textures are picked randomly, but their positions are fixed
   void gen_border();
 
+  // Helper functions to add wall and door entities
   void add_wall_entity( const sf::Vector2f &pos, std::size_t sprite_index );
+
+  // Helper function to add door entities
   void add_door_entity( const sf::Vector2f &pos, std::size_t sprite_index, bool is_exit );
 
+  // Output generation statistics
   void stats();
 
   std::optional<entt::entity> at( std::size_t idx )
