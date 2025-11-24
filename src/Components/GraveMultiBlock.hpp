@@ -9,7 +9,7 @@ namespace ProceduralMaze::Cmp
 {
 
 // GraveMultiBlock component represents a multi-block sprite defined geometrically as a rectangle
-// It also tracks activation of its constituent sprites and overall activation state
+// It can be used to find its GraveSegment parts and track overall activation state
 class GraveMultiBlock : public sf::FloatRect
 {
 public:

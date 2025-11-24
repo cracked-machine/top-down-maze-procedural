@@ -20,7 +20,7 @@
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Persistent/FuseDelay.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
-#include <Components/Persistent/MaxShrines.hpp>
+#include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/MusicVolume.hpp>
 #include <Components/Persistent/NpcActivateScale.hpp>
 #include <Components/Persistent/NpcDamage.hpp>
@@ -34,7 +34,6 @@
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerLerpSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
-#include <Components/Persistent/ShrineCostPerSprite.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
@@ -261,17 +260,13 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
     // Procedural Generation
     ImGui::SeparatorText( "Procedural Generation" );
 
-    auto &max_shrines = get_persistent_component<Cmp::Persistent::MaxShrines>();
-    ImGui::SliderScalar( "Max Shrines", ImGuiDataType_U8, max_shrines.get_value_ptr(), max_shrines.get_min_value_ptr(),
-                         max_shrines.get_max_value_ptr(), "%d Max Shrines" );
+    auto &max_num_altars = get_persistent_component<Cmp::Persistent::MaxNumAltars>();
+    ImGui::SliderScalar( "Max NNumber of Altars", ImGuiDataType_U8, max_num_altars.get_value_ptr(),
+                         max_num_altars.get_min_value_ptr(), max_num_altars.get_max_value_ptr(), "%d Max Altars" );
 
     auto &grave_num_multiplier = get_persistent_component<Cmp::Persistent::GraveNumMultiplier>();
     ImGui::SliderScalar( "Grave Number Multiplier", ImGuiDataType_U8, grave_num_multiplier.get_value_ptr(),
                          grave_num_multiplier.get_min_value_ptr(), grave_num_multiplier.get_max_value_ptr(), "%d" );
-
-    auto &shrine_cost = get_persistent_component<Cmp::Persistent::ShrineCostPerSprite>();
-    ImGui::SliderScalar( "Shrine Cost", ImGuiDataType_U8, shrine_cost.get_value_ptr(), shrine_cost.get_min_value_ptr(),
-                         shrine_cost.get_max_value_ptr(), "%d Shrine Cost per sprite" );
   }
   catch ( const std::exception &e )
   {

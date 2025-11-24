@@ -5,6 +5,7 @@
 namespace ProceduralMaze::Cmp
 {
 
+// Mainly used to distinguish between 16x16 block grave segments for the purpose of collision detection
 class GraveSegment
 {
 public:

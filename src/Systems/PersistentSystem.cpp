@@ -19,7 +19,7 @@
 #include <Components/Persistent/FuseDelay.hpp>
 #include <Components/Persistent/GameState.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
-#include <Components/Persistent/MaxShrines.hpp>
+#include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/MusicVolume.hpp>
 #include <Components/Persistent/NpcActivateScale.hpp>
 #include <Components/Persistent/NpcDamage.hpp>
@@ -36,7 +36,6 @@
 #include <Components/Persistent/PlayerLerpSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
-#include <Components/Persistent/ShrineCostPerSprite.hpp>
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Systems/PersistentSystem.hpp>
 #include <fstream>
@@ -75,7 +74,7 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::FuseDelay>( "FuseDelay" );
   registerComponent<Cmp::Persistent::GraveNumMultiplier>( "GraveNumMultiplier" );
   registerComponent<Cmp::Persistent::HealthBonus>( "HealthBonus" );
-  registerComponent<Cmp::Persistent::MaxShrines>( "MaxShrines" );
+  registerComponent<Cmp::Persistent::MaxNumAltars>( "MaxNumAltars" );
   registerComponent<Cmp::Persistent::MusicVolume>( "MusicVolume" );
   registerComponent<Cmp::Persistent::NpcActivateScale>( "NpcActivateScale" );
   registerComponent<Cmp::Persistent::NpcDamage>( "NpcDamage" );
@@ -91,7 +90,6 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( "PlayerDiagonalLerpSpeedModifier" );
   registerComponent<Cmp::Persistent::PlayerLerpSpeed>( "PlayerLerpSpeed" );
   registerComponent<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
-  registerComponent<Cmp::Persistent::ShrineCostPerSprite>( "ShrineCostPerSprite" );
   registerComponent<Cmp::Persistent::WeaponDegradePerHit>( "WeaponDegradePerHit" );
   registerComponent<Cmp::Persistent::WormholeAnimFramerate>( "WormholeAnimFramerate" );
 
@@ -160,7 +158,7 @@ void PersistentSystem::save_state()
   serializeComponent.template operator()<Cmp::Persistent::FuseDelay>( "FuseDelay" );
   serializeComponent.template operator()<Cmp::Persistent::GraveNumMultiplier>( "GraveNumMultiplier" );
   serializeComponent.template operator()<Cmp::Persistent::HealthBonus>( "HealthBonus" );
-  serializeComponent.template operator()<Cmp::Persistent::MaxShrines>( "MaxShrines" );
+  serializeComponent.template operator()<Cmp::Persistent::MaxNumAltars>( "MaxNumAltars" );
   serializeComponent.template operator()<Cmp::Persistent::MusicVolume>( "MusicVolume" );
   serializeComponent.template operator()<Cmp::Persistent::NpcActivateScale>( "NpcActivateScale" );
   serializeComponent.template operator()<Cmp::Persistent::NpcDamage>( "NpcDamage" );
@@ -177,7 +175,6 @@ void PersistentSystem::save_state()
   serializeComponent.template operator()<Cmp::Persistent::PlayerLerpSpeed>( "PlayerLerpSpeed" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerStartPosition>( "PlayerStartPosition" );
-  serializeComponent.template operator()<Cmp::Persistent::ShrineCostPerSprite>( "ShrineCostPerSprite" );
   serializeComponent.template operator()<Cmp::Persistent::WeaponDegradePerHit>( "WeaponDegradePerHit" );
   serializeComponent.template operator()<Cmp::Persistent::WormholeAnimFramerate>( "WormholeAnimFramerate" );
 

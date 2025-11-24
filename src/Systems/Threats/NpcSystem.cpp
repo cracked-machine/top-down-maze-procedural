@@ -9,6 +9,7 @@
 #include <Components/WormholeJump.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
+#include <Components/AltarSegment.hpp>
 #include <Components/Destructable.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/NPCScanBounds.hpp>
@@ -17,7 +18,6 @@
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Random.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/ShrineSegment.hpp>
 #include <Components/SpawnAreaSprite.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -154,7 +154,7 @@ bool NpcSystem::isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::V
 
 void NpcSystem::update_movement( sf::Time globalDeltaTime )
 {
-  auto exclusions = entt::exclude<Cmp::ShrineSegment, Cmp::SpawnAreaSprite, Cmp::PlayableCharacter>;
+  auto exclusions = entt::exclude<Cmp::AltarSegment, Cmp::SpawnAreaSprite, Cmp::PlayableCharacter>;
   auto view = getReg().view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds, Cmp::Direction>( exclusions );
 
   for ( auto [entity, pos_cmp, lerp_pos_cmp, npc_scan_bounds, dir_cmp] : view.each() )

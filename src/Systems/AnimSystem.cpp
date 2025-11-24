@@ -4,6 +4,7 @@
 
 #include <SFML/System/Time.hpp>
 
+#include <Components/AltarSegment.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/NPC.hpp>
 #include <Components/NpcDeathPosition.hpp>
@@ -14,7 +15,6 @@
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
-#include <Components/ShrineSegment.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/WormholeSingularity.hpp>
 #include <Sprites/SpriteFactory.hpp>
@@ -28,7 +28,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
 {
 
   // Shrine Animation
-  auto shrine_view = getReg().view<Cmp::ShrineSegment, Cmp::SpriteAnimation, Cmp::Position>();
+  auto shrine_view = getReg().view<Cmp::AltarSegment, Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [entity, shrine_cmp, anim_cmp, pos_cmp] : shrine_view.each() )
   {
     if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;

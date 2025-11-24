@@ -5,7 +5,7 @@
 #include <Components/Door.hpp>
 #include <Components/Exit.hpp>
 #include <Components/NPC.hpp>
-#include <Components/Persistent/MaxShrines.hpp>
+#include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Random.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -47,10 +47,10 @@ void ExitSystem::unlock_exit()
   auto player_key_view = getReg().view<Cmp::PlayerKeysCount>();
   for ( auto [pk_entity, pk_cmp] : player_key_view.each() )
   {
-    if ( pk_cmp.get_count() < get_persistent_component<Cmp::Persistent::MaxShrines>().get_value() )
+    if ( pk_cmp.get_count() < get_persistent_component<Cmp::Persistent::MaxNumAltars>().get_value() )
     {
       SPDLOG_DEBUG( "Not enough keys to unlock exit ({} / {})", pk_cmp.get_count(),
-                    get_persistent_component<Cmp::Persistent::MaxShrines>().get_value() );
+                    get_persistent_component<Cmp::Persistent::MaxNumAltars>().get_value() );
       return;
     }
   }
@@ -70,7 +70,7 @@ void ExitSystem::check_exit_collision()
   auto exit_view = getReg().view<Cmp::Exit, Cmp::Position>();
   for ( auto [entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
   {
-    auto max_num_shrines = get_persistent_component<Cmp::Persistent::MaxShrines>();
+    auto max_num_shrines = get_persistent_component<Cmp::Persistent::MaxNumAltars>();
     if ( exit_cmp.m_locked == true ) return;
     for ( auto [player_entity, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
     {

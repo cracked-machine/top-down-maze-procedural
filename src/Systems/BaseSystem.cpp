@@ -5,11 +5,11 @@
 #include <Components/RectBounds.hpp>
 #include <entt/entity/registry.hpp>
 
+#include <Components/AltarSegment.hpp>
 #include <Components/Door.hpp>
 #include <Components/Exit.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/ShrineSegment.hpp>
 #include <Components/Wall.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -79,7 +79,7 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
     if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
-  auto shrine_view = getReg().view<Cmp::ShrineSegment, Cmp::Position>();
+  auto shrine_view = getReg().view<Cmp::AltarSegment, Cmp::Position>();
   for ( auto [entity, shrine_cmp, pos_cmp] : shrine_view.each() )
   {
     if ( not shrine_cmp.isSolidMask() ) continue;

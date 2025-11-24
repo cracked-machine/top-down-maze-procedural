@@ -1,6 +1,6 @@
+#include <Components/AltarSegment.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/ShrineSegment.hpp>
 #include <Components/WormholeJump.hpp>
 #include <Components/WormholeMultiBlock.hpp>
 #include <Components/WormholeSingularity.hpp>
@@ -93,7 +93,7 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
       }
 
       // Return false for shrine collisions
-      for ( auto [entity, shrine_cmp, shrine_pos_cmp] : getReg().view<Cmp::ShrineSegment, Cmp::Position>().each() )
+      for ( auto [entity, shrine_cmp, shrine_pos_cmp] : getReg().view<Cmp::AltarSegment, Cmp::Position>().each() )
       {
         if ( shrine_pos_cmp.findIntersection( wormhole_block ) ) return false;
       }

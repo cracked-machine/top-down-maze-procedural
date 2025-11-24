@@ -51,7 +51,7 @@
     "type": "int",
     "value": 25
   },
-    "MaxShrines": {
+    "MaxNumAltars": {
     "type": "int",
     "value": 3
   },
@@ -120,13 +120,9 @@
     "value": {
       "x": 0.0,
       "y": 0.0
-    } 
+    }
   },
-  "ShrineCostPerSprite": {
-    "type": "int",
-    "value": 1
-  },
-  "WeaponDegradePerHit":{
+  "WeaponDegradePerHit": {
     "type": "float",
     "value": 1.0
   },

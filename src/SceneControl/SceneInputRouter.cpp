@@ -1,5 +1,5 @@
 #include <Components/Exit.hpp>
-#include <Components/Persistent/MaxShrines.hpp>
+#include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerHealth.hpp>

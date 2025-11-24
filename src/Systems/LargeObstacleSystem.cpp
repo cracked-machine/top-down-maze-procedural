@@ -3,14 +3,12 @@
 #include <Components/GraveSegment.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NPC.hpp>
-#include <Components/Persistent/ShrineCostPerSprite.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/ShrineSegment.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Events/LootContainerDestroyedEvent.hpp>
 #include <Events/NpcCreationEvent.hpp>

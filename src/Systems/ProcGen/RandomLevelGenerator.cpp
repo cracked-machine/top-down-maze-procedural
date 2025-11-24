@@ -4,19 +4,19 @@
 #include <Components/SpriteAnimation.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#include <Components/AltarSegment.hpp>
 #include <Components/Destructable.hpp>
 #include <Components/Door.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NpcContainer.hpp>
-#include <Components/Persistent/MaxShrines.hpp>
+#include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/ShrineSegment.hpp>
 #include <Components/SpawnAreaSprite.hpp>
 #include <Components/Wall.hpp>
 #include <Sprites/SpriteFactory.hpp>
@@ -101,7 +101,7 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
       }
 
       // Return false for shrine collisions
-      for ( auto [entity, shrine_cmp, shrine_pos_cmp] : getReg().view<Cmp::ShrineSegment, Cmp::Position>().each() )
+      for ( auto [entity, shrine_cmp, shrine_pos_cmp] : getReg().view<Cmp::AltarSegment, Cmp::Position>().each() )
       {
         if ( shrine_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
@@ -222,7 +222,7 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
       if ( sprite_meta_type.contains( "ALTAR" ) )
       {
         ///
-        getReg().emplace_or_replace<Cmp::ShrineSegment>( entity, new_solid_mask );
+        getReg().emplace_or_replace<Cmp::AltarSegment>( entity, new_solid_mask );
       }
       else if ( sprite_meta_type.contains( "GRAVE" ) )
       {
@@ -237,7 +237,7 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &large
 
 void RandomLevelGenerator::gen_large_obstacles()
 {
-  auto max_num_shrines = get_persistent_component<Cmp::Persistent::MaxShrines>();
+  auto max_num_shrines = get_persistent_component<Cmp::Persistent::MaxNumAltars>();
   auto grave_num_multiplier = get_persistent_component<Cmp::Persistent::GraveNumMultiplier>();
 
   // Get all available grave types dynamically from JSON

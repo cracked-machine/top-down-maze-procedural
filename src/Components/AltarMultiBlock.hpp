@@ -9,7 +9,7 @@ namespace ProceduralMaze::Cmp
 {
 
 // AltarMultiBlock component represents a multi-block sprite defined geometrically as a rectangle
-// It also tracks activation of its constituent sprites and overall activation state
+// It can be used to find its AltarSegment parts and track overall activation state
 class AltarMultiBlock : public sf::FloatRect
 {
 public:
