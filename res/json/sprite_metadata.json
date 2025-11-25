@@ -1013,7 +1013,7 @@
                        false, false, false,
                        true, true, true,
                        true, true, true,
-                       true, true, true
+                       true, false, true
                      ],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,

@@ -7,7 +7,8 @@
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
 /**
  * @brief A wrapper class for sf::FloatRect that provides scaled bounds with position offset calculations.
@@ -93,10 +94,14 @@ public:
    * @param new_size The desired size as a 2D vector (width, height) before scaling
    */
   void size( sf::Vector2f new_size ) { m_bounds.size = new_size * m_scale_factor; }
+
+  //! @brief Retrieves the size of the rectangular bounds.
   sf::Vector2f size() const { return m_bounds.size; }
 
+  //! @brief Checks for intersection with another rectangle.
   std::optional<sf::FloatRect> findIntersection( const sf::FloatRect &rectangle ) { return m_bounds.findIntersection( rectangle ); }
 
+  //! @brief Retrieves the underlying FloatRect bounds.
   sf::FloatRect getBounds() const { return m_bounds; }
 
 private:
@@ -128,6 +133,7 @@ private:
    */
   float kPositionOffsetFactor{ ( m_scale_factor / 2.f ) - 0.5f };
 
+  //! @brief The cardinality of scaling applied to the bounds.
   ScaleCardinality m_scale_cardinality;
 };
 

@@ -33,6 +33,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/WormholeSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/LargeObstacleSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/LootSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/CryptSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/SceneInputRouter.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/SceneManager.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/GraveyardScene.cpp

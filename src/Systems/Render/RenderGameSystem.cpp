@@ -1,4 +1,5 @@
 #include <Components/AltarMultiBlock.hpp>
+#include <Components/CryptDoor.hpp>
 #include <Components/CryptMultiBlock.hpp>
 #include <Components/CryptSegment.hpp>
 #include <Components/GraveMultiBlock.hpp>

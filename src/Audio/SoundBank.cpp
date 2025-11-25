@@ -3,7 +3,8 @@
 #include <SFML/Audio/SoundChannel.hpp>
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Audio {
+namespace ProceduralMaze::Audio
+{
 
 SoundBank::SoundBank() { sounds.emplace( "fallback", EffectsData{ "res/audio/fallback.wav" } ); }
 
@@ -35,6 +36,9 @@ void SoundBank::init()
   sounds.emplace( "pickaxe5", EffectsData{ "res/audio/pickaxe5.wav" } );
   sounds.emplace( "pickaxe6", EffectsData{ "res/audio/pickaxe6.wav" } );
   sounds.emplace( "pickaxe_final", EffectsData{ "res/audio/pickaxe_final.wav" } );
+
+  sounds.emplace( "crypt_open", EffectsData{ "res/audio/crypt_open2.wav" } );
+  sounds.emplace( "crypt_locked", EffectsData{ "res/audio/crypt_locked.wav" } );
 
   // Initialize music (can't use initializer list because sf::Music is move-only)
   music.emplace( "title_music", MusicData{ "res/audio/EerieScifi.wav" } );

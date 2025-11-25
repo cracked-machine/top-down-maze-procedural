@@ -1,4 +1,5 @@
 #include <Components/AltarMultiBlock.hpp>
+#include <Components/CryptDoor.hpp>
 #include <Components/CryptMultiBlock.hpp>
 #include <Components/CryptSegment.hpp>
 #include <Components/GraveMultiBlock.hpp>
@@ -255,6 +256,11 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &ms, u
       {
         // crypts are not destructable
         if ( new_solid_mask ) getReg().emplace_or_replace<Cmp::CryptSegment>( entity, new_solid_mask );
+        if ( calculated_grid_index == 10 ) // hardcoded for now - only the door segment
+        {
+          // add door component to the door segment
+          getReg().emplace_or_replace<Cmp::CryptDoor>( entity );
+        }
       }
       // all positions should be reserved
       getReg().emplace_or_replace<Cmp::ReservedPosition>( entity );

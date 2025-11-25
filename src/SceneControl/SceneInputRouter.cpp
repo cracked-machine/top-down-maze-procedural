@@ -27,17 +27,14 @@ SceneInputRouter::SceneInputRouter( entt::registry &reg, sf::RenderWindow &m_win
       m_nav_event_dispatcher( nav_event_dispatcher ),
       m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
 {
+  // clang-format off
   m_nav_event_dispatcher.sink<Events::ProcessTitleSceneInputEvent>().connect<&SceneInputRouter::title_scene_input_handler>( this );
-  m_nav_event_dispatcher.sink<Events::ProcessSettingsMenuSceneInputEvent>()
-      .connect<&SceneInputRouter::settings_scene_state_handler>( this );
-  m_nav_event_dispatcher.sink<Events::ProcessGraveyardSceneInputEvent>().connect<&SceneInputRouter::graveyard_scene_state_handler>(
-      this );
-  m_nav_event_dispatcher.sink<Events::ProcessPausedMenuSceneInputEvent>().connect<&SceneInputRouter::paused_scene_state_handler>(
-      this );
-  m_nav_event_dispatcher.sink<Events::ProcessGameoverSceneInputEvent>().connect<&SceneInputRouter::game_over_scene_state_handler>(
-      this );
-  m_nav_event_dispatcher.sink<Events::ProcessLevelCompleteSceneInputEvent>()
-      .connect<&SceneInputRouter::level_complete_scene_state_handler>( this );
+  m_nav_event_dispatcher.sink<Events::ProcessSettingsMenuSceneInputEvent>().connect<&SceneInputRouter::settings_scene_state_handler>( this );
+  m_nav_event_dispatcher.sink<Events::ProcessGraveyardSceneInputEvent>().connect<&SceneInputRouter::graveyard_scene_state_handler>(this );
+  m_nav_event_dispatcher.sink<Events::ProcessPausedMenuSceneInputEvent>().connect<&SceneInputRouter::paused_scene_state_handler>(this );
+  m_nav_event_dispatcher.sink<Events::ProcessGameoverSceneInputEvent>().connect<&SceneInputRouter::game_over_scene_state_handler>(this );
+  m_nav_event_dispatcher.sink<Events::ProcessLevelCompleteSceneInputEvent>().connect<&SceneInputRouter::level_complete_scene_state_handler>( this );
+  // clang-format on
 }
 
 void SceneInputRouter::title_scene_input_handler()

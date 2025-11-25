@@ -5,6 +5,7 @@
 #include <Systems/AnimSystem.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/CollisionSystem.hpp>
+#include <Systems/CryptSystem.hpp>
 #include <Systems/DiggingSystem.hpp>
 #include <Systems/ExitSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
@@ -56,7 +57,8 @@ public:
     LargeObstacleSystem,
     LootSystem,
     RandomLevelGenerator,
-    CellAutomataSystem
+    CellAutomataSystem,
+    CryptSystem,
   };
 
   SystemStore( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
@@ -85,6 +87,7 @@ public:
     m_sysmap.emplace( Type::LootSystem, std::make_unique<LootSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::RandomLevelGenerator, std::make_unique<ProcGen::RandomLevelGenerator>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::CellAutomataSystem, std::make_unique<ProcGen::CellAutomataSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::CryptSystem, std::make_unique<ProceduralMaze::Sys::CryptSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     // clang-format on
   }
 
@@ -113,6 +116,7 @@ public:
     else if constexpr ( T == Type::LootSystem ) { return static_cast<LootSystem &>( *m_sysmap[T] ); }
     else if constexpr ( T == Type::RandomLevelGenerator ) { return static_cast<ProcGen::RandomLevelGenerator &>( *m_sysmap[T] ); }
     else if constexpr ( T == Type::CellAutomataSystem ) { return static_cast<ProcGen::CellAutomataSystem &>( *m_sysmap[T] ); }
+    else if constexpr ( T == Type::CryptSystem ) { return static_cast<ProceduralMaze::Sys::CryptSystem &>( *m_sysmap[T] ); }
     // ... add other systems as needed
     else { static_assert( false, "Unknown system type" ); }
   }
