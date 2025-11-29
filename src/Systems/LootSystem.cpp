@@ -6,7 +6,10 @@
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
+#include <Components/Position.hpp>
+#include <Components/SpriteAnimation.hpp>
 #include <Components/WeaponLevel.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Events/UnlockDoorEvent.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -38,10 +41,10 @@ void LootSystem::check_loot_collision()
   std::vector<LootEffect> loot_effects;
 
   // First pass: detect collisions and gather effects to apply
-  auto player_collision_view = getReg()
-                                   .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::WeaponLevel, Cmp::PlayerKeysCount,
-                                         Cmp::PlayerCandlesCount>();
+  // clang-format off
+  auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::WeaponLevel, Cmp::PlayerKeysCount,Cmp::PlayerCandlesCount>();
   auto loot_collision_view = getReg().view<Cmp::Loot, Cmp::Position>();
+  // clang-format on
 
   for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_weapon_level, pc_keys_count, pc_candles_count] : player_collision_view.each() )
   {
@@ -119,6 +122,8 @@ void LootSystem::check_loot_collision()
 
     // Remove the loot component
     getReg().remove<Cmp::Loot>( effect.loot_entity );
+    getReg().remove<Cmp::SpriteAnimation>( effect.loot_entity );
+    getReg().remove<Cmp::ZOrderValue>( effect.loot_entity );
     getReg().emplace_or_replace<Cmp::Destructable>( effect.loot_entity );
   }
 }
@@ -130,9 +135,24 @@ void LootSystem::detonate_loot_container( const Events::LootContainerDestroyedEv
       std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "WEAPON_BOOST" } );
   getReg().remove<Cmp::LootContainer>( event.m_entity );
   getReg().remove<Cmp::ReservedPosition>( event.m_entity );
-  getReg().emplace_or_replace<Cmp::Loot>( event.m_entity, obstacle_type, random_obstacle_texture_index );
-  auto &break_pot_player = m_sound_bank.get_effect( "break_pot" );
-  if ( break_pot_player.getStatus() == sf::Sound::Status::Stopped ) { break_pot_player.play(); }
+
+  // create a new entity for the loot drop at the same position as the detonated loot container
+  auto pos_cmp = getReg().try_get<Cmp::Position>( event.m_entity );
+  if ( pos_cmp )
+  {
+    auto new_loot_entity = getReg().create();
+    getReg().emplace<Cmp::Position>( new_loot_entity, pos_cmp->position, pos_cmp->size );
+    getReg().emplace<Cmp::Loot>( new_loot_entity, obstacle_type, random_obstacle_texture_index );
+    getReg().emplace<Cmp::SpriteAnimation>( new_loot_entity, 0, 0, true, obstacle_type, random_obstacle_texture_index );
+    getReg().emplace<Cmp::ZOrderValue>( new_loot_entity, pos_cmp->position.y );
+    SPDLOG_INFO( "Created loot entity {} of type {} at position ({}, {}) from destroyed loot container {}",
+                 static_cast<int>( new_loot_entity ), obstacle_type, pos_cmp->position.x, pos_cmp->position.y,
+                 static_cast<int>( event.m_entity ) );
+
+    auto &break_pot_player = m_sound_bank.get_effect( "break_pot" );
+    if ( break_pot_player.getStatus() == sf::Sound::Status::Stopped ) { break_pot_player.play(); }
+  }
+  else { SPDLOG_WARN( "Loot container entity {} has no Position component!", static_cast<int>( event.m_entity ) ); }
 }
 
 } // namespace ProceduralMaze::Sys

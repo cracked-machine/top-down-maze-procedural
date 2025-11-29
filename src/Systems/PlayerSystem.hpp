@@ -33,7 +33,7 @@ public:
    */
   void add_player_entity();
 
-  Cmp::PlayerMortality::State check_player_mortality();
+  void check_player_mortality();
 
   /**
    * @brief Updates the player's movement based on input and physics

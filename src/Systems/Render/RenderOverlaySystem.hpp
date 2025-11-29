@@ -1,11 +1,13 @@
 #ifndef __SYS_RENDEROVERSYSTEM_HPP__
 #define __SYS_RENDEROVERSYSTEM_HPP__
 
+#include <Components/ZOrderValue.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <set>
 
 namespace ProceduralMaze::Sys
 {
@@ -50,12 +52,44 @@ public:
 
   void render_player_position_overlay( sf::Vector2f player_position, sf::Vector2f pos );
   void render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos );
-  void render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3 );
+  void render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3, sf::Vector2f pos4 );
+  void render_zorder_values_overlay( sf::Vector2f pos, std::vector<ZOrder> &zorder_queue,
+                                     std::set<Sprites::SpriteMetaType> exclusions = {} );
   void render_npc_list_overlay( sf::Vector2f pos );
   void render_obstacle_markers();
   void render_player_distances();
   void render_scan_detection_bounds();
   void render_lerp_positions();
+
+  template <typename Component>
+  void render_zorder_value( sf::Color text_color = sf::Color::White, int precision = 1 )
+  {
+    // Save the current view
+    sf::View previous_view = m_window.getView();
+    // Set the game view for world-space rendering
+    m_window.setView( RenderSystem::s_game_view );
+
+    auto requested_view = getReg().view<Component>();
+    for ( auto [entity, requested_cmp] : requested_view.each() )
+    {
+      if ( getReg().all_of<Cmp::Position, Cmp::ZOrderValue>( entity ) )
+      {
+        auto &pos_cmp = getReg().get<Cmp::Position>( entity );
+        auto zorder_cmp = getReg().get<Cmp::ZOrderValue>( entity );
+        std::stringstream ss;
+        ss << std::fixed << std::setprecision( precision ) << zorder_cmp.getZOrder();
+        sf::Text m_z_text{ m_font, ss.str(), 7 };
+        m_z_text.setFillColor( text_color );
+        m_z_text.setPosition( { pos_cmp.position.x, pos_cmp.position.y } );
+        m_z_text.setOutlineColor( sf::Color::Black );
+        m_z_text.setOutlineThickness( 0.5f );
+        m_window.draw( m_z_text );
+      }
+    }
+
+    // Restore the previous view
+    m_window.setView( previous_view );
+  }
 
 private:
   // restrict the debug data update to every 1 second (optimization)
@@ -73,6 +107,7 @@ private:
   sf::Text m_stats_text1{ m_font, "", 30 };
   sf::Text m_stats_text2{ m_font, "", 30 };
   sf::Text m_stats_text3{ m_font, "", 30 };
+  sf::Text m_stats_text4{ m_font, "", 30 };
   std::map<unsigned int, sf::Text> m_npc_list_text{};
 };
 

@@ -33,10 +33,12 @@ void ExitSystem::spawn_exit()
       {}, ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, 0 );
 
   auto existing_obstacle_cmp = getReg().try_get<Cmp::Obstacle>( rand_entity );
-  if ( existing_obstacle_cmp ) { existing_obstacle_cmp->m_integrity = 0.0f; }
+  if ( existing_obstacle_cmp ) { getReg().remove<Cmp::Obstacle>( rand_entity ); }
 
   getReg().emplace_or_replace<Cmp::Door>( rand_entity, "WALL", 0 );
   getReg().emplace_or_replace<Cmp::Exit>( rand_entity, true ); // locked at start
+  getReg().emplace_or_replace<Cmp::SpriteAnimation>( rand_entity, 0, 0, true, "WALL", 0 );
+  getReg().emplace_or_replace<Cmp::ZOrderValue>( rand_entity, rand_pos_cmp.position.y );
 
   SPDLOG_INFO( "Spawned exit at position ({}, {})", rand_pos_cmp.position.x, rand_pos_cmp.position.y );
 }
@@ -56,10 +58,12 @@ void ExitSystem::unlock_exit()
   }
 
   // otherwise unlock the exit
-  auto exit_view = getReg().view<Cmp::Exit, Cmp::Door>();
-  for ( auto [entity, exit_cmp, door_cmp] : exit_view.each() )
+  auto exit_view = getReg().view<Cmp::Exit, Cmp::Door, Cmp::Position>();
+  for ( auto [entity, exit_cmp, door_cmp, pos_cmp] : exit_view.each() )
   {
     exit_cmp.m_locked = false;
+    getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", 1 );
+    getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y - 16.f );
     door_cmp.m_tile_index = 1; // open door tile
     m_sound_bank.get_effect( "secret" ).play();
   }

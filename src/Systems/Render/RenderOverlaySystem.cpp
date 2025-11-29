@@ -1,5 +1,6 @@
 #include <Components/RectBounds.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -222,7 +223,7 @@ void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_posi
   m_window.draw( m_mouse_position_text );
 }
 
-void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3 )
+void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3, sf::Vector2f pos4 )
 {
   // only gather stats every interval
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
@@ -253,25 +254,65 @@ void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f 
         "   C: " + std::to_string( corruption_count ) + 
         "   S: " + std::to_string( sinkhole_count ) );
     // clang-format on
+
+    auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::ZOrderValue>();
+    for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_zorder_cmp] : player_view.each() )
+    {
+      m_stats_text4.setString( "Player: " + std::to_string( entt::to_integral( pc_entity ) ) +
+                               "   Z: " + std::to_string( pc_zorder_cmp.getZOrder() ) );
+    }
+
+    m_stats_text1.setPosition( pos1 );
+    m_stats_text1.setFillColor( sf::Color::White );
+    m_stats_text1.setOutlineColor( sf::Color::Black );
+    m_stats_text1.setOutlineThickness( 2.f );
+    m_window.draw( m_stats_text1 );
+
+    m_stats_text2.setPosition( pos2 );
+    m_stats_text2.setFillColor( sf::Color::White );
+    m_stats_text2.setOutlineColor( sf::Color::Black );
+    m_stats_text2.setOutlineThickness( 2.f );
+    m_window.draw( m_stats_text2 );
+
+    m_stats_text3.setPosition( pos3 );
+    m_stats_text3.setFillColor( sf::Color::White );
+    m_stats_text3.setOutlineColor( sf::Color::Black );
+    m_stats_text3.setOutlineThickness( 2.f );
+    m_window.draw( m_stats_text3 );
+
+    m_stats_text4.setPosition( pos4 );
+    m_stats_text4.setFillColor( sf::Color::White );
+    m_stats_text4.setOutlineColor( sf::Color::Black );
+    m_stats_text4.setOutlineThickness( 2.f );
+    m_window.draw( m_stats_text4 );
   }
+}
 
-  m_stats_text1.setPosition( pos1 );
-  m_stats_text1.setFillColor( sf::Color::White );
-  m_stats_text1.setOutlineColor( sf::Color::Black );
-  m_stats_text1.setOutlineThickness( 2.f );
-  m_window.draw( m_stats_text1 );
+void RenderOverlaySystem::render_zorder_values_overlay( sf::Vector2f pos, std::vector<ZOrder> &zorder_queue,
+                                                        std::set<Sprites::SpriteMetaType> exclusions )
+{
+  uint32_t font_size = 15;
+  float count = 0;
+  for ( const auto &zorder_entry : zorder_queue )
+  {
+    if ( getReg().all_of<Cmp::SpriteAnimation>( zorder_entry.e ) )
+    {
+      auto &sprite_anim_cmp = getReg().get<Cmp::SpriteAnimation>( zorder_entry.e );
+      if ( exclusions.find( sprite_anim_cmp.m_sprite_type ) != exclusions.end() ) { continue; }
 
-  m_stats_text2.setPosition( pos2 );
-  m_stats_text2.setFillColor( sf::Color::White );
-  m_stats_text2.setOutlineColor( sf::Color::Black );
-  m_stats_text2.setOutlineThickness( 2.f );
-  m_window.draw( m_stats_text2 );
-
-  m_stats_text3.setPosition( pos3 );
-  m_stats_text3.setFillColor( sf::Color::White );
-  m_stats_text3.setOutlineColor( sf::Color::Black );
-  m_stats_text3.setOutlineThickness( 2.f );
-  m_window.draw( m_stats_text3 );
+      std::stringstream ss;
+      ss << std::fixed << std::setprecision( 1 ) << zorder_entry.z << " | ";
+      ss << static_cast<uint32_t>( zorder_entry.e ) << " | ";
+      ss << sprite_anim_cmp.m_sprite_type << " | ";
+      sf::Text m_z_text{ m_font, ss.str(), font_size };
+      m_z_text.setFillColor( sf::Color::White );
+      m_z_text.setPosition( { pos.x, pos.y + count } );
+      m_z_text.setOutlineColor( sf::Color::Black );
+      m_z_text.setOutlineThickness( 0.5f );
+      m_window.draw( m_z_text );
+      count += font_size; // Move down for the next entry
+    }
+  }
 }
 
 void RenderOverlaySystem::render_npc_list_overlay( sf::Vector2f text_start_pos )

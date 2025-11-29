@@ -4,6 +4,8 @@
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/PlayerDetectionScale.hpp>
+#include <Components/Persistent/PlayerFootstepAddDelay.hpp>
+#include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerKeysCount.hpp>
@@ -130,6 +132,16 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
     ImGui::SliderScalar(
         "Player Diagonal Lerp Speed Modifier", ImGuiDataType_Float, player_diagonal_lerp_speed_modifier.get_value_ptr(),
         player_diagonal_lerp_speed_modifier.get_min_value_ptr(), player_diagonal_lerp_speed_modifier.get_max_value_ptr(), "%.2f" );
+
+    auto &player_footstep_add_delay = get_persistent_component<Cmp::Persistent::PlayerFootstepAddDelay>();
+    ImGui::SliderScalar( "Player Footstep Add Delay", ImGuiDataType_Float, player_footstep_add_delay.get_value_ptr(),
+                         player_footstep_add_delay.get_min_value_ptr(), player_footstep_add_delay.get_max_value_ptr(),
+                         "%.2f seconds" );
+
+    auto &player_footstep_fade_delay = get_persistent_component<Cmp::Persistent::PlayerFootstepFadeDelay>();
+    ImGui::SliderScalar( "Player Footstep Fade Delay", ImGuiDataType_Float, player_footstep_fade_delay.get_value_ptr(),
+                         player_footstep_fade_delay.get_min_value_ptr(), player_footstep_fade_delay.get_max_value_ptr(),
+                         "%.2f seconds" );
 
     auto &player_shortcut_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
     ImGui::SliderScalar(

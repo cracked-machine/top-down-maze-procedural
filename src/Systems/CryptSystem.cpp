@@ -4,6 +4,7 @@
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
@@ -37,7 +38,26 @@ void CryptSystem::crypt_door_collisions()
         SPDLOG_INFO( "Player passed through an already open crypt door at ({}, {})", door_pos_cmp.position.x,
                      door_pos_cmp.position.y );
         // TODO: transition to crypt scene
+        // Set the z-order value
+        auto crypt_view = getReg().view<Cmp::CryptMultiBlock>();
+        for ( auto [crypt_entity, crypt_cmp] : crypt_view.each() )
+        {
+          if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;
+          getReg().emplace_or_replace<Cmp::ZOrderValue>( crypt_entity, crypt_cmp.position.y - 16.f );
+        }
         continue;
+      }
+      else
+      {
+        {
+          // Set the z-order value
+          auto crypt_view = getReg().view<Cmp::CryptMultiBlock>();
+          for ( auto [crypt_entity, crypt_cmp] : crypt_view.each() )
+          {
+            if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;
+            getReg().emplace_or_replace<Cmp::ZOrderValue>( crypt_entity, crypt_cmp.position.y + 16.f );
+          }
+        }
       }
 
       // No keys to open the crypt door
@@ -56,12 +76,14 @@ void CryptSystem::crypt_door_collisions()
       m_sound_bank.get_effect( "crypt_open" ).play();
       cryptdoor_cmp.set_is_open( true );
 
+      // make doorway non-solid and lower z-order so player walks over it
+      getReg().emplace_or_replace<Cmp::CryptSegment>( door_entity, Cmp::CryptSegment( false ) );
+
       // find the crypt multi-block this door belongs to and update the sprite
       auto crypt_view = getReg().view<Cmp::CryptMultiBlock, Cmp::SpriteAnimation>();
       for ( auto [crypt_entity, crypt_cmp, anim_cmp] : crypt_view.each() )
       {
         if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;
-
         anim_cmp.m_sprite_type = "CRYPT.opened";
 
         SPDLOG_INFO( "Updated crypt multi-block sprite to open state at ({}, {})", crypt_cmp.position.x, crypt_cmp.position.y );

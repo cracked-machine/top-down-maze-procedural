@@ -16,7 +16,8 @@
 #include <string>
 #include <vector>
 
-namespace ProceduralMaze::Sprites {
+namespace ProceduralMaze::Sprites
+{
 
 using SpriteMetaType = std::string;
 
@@ -70,6 +71,9 @@ public:
    */
   // static constexpr sf::Vector2u Sys::BaseSystem::kGridSquareSizePixels{ 16, 16 };
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
+
+  // Returns the pixel bounds of first sprite in array. Assumes that all sprites in the multi-sprite have the same size
+  sf::Vector2f getSpriteSizePixels() const { return m_va_list[0].getBounds().size; }
 
   SpriteMetaType get_sprite_type() const { return m_sprite_type; }
   sf::VertexArray m_selected_vertices;

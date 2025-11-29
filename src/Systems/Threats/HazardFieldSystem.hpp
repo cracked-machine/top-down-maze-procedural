@@ -4,8 +4,11 @@
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerMortality.hpp>
+#include <Components/SpriteAnimation.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
+#include <Sprites/MultiSprite.hpp>
 #include <entt/entity/fwd.hpp>
 
 #include <SFML/System/Clock.hpp>
@@ -46,6 +49,7 @@ struct HazardTraits<Cmp::SinkholeCell>
   using ExcludeHazard = Cmp::CorruptionCell;
   static constexpr bool kills_instantly = true;
   static constexpr Cmp::PlayerMortality::State mortality_state = Cmp::PlayerMortality::State::FALLING;
+  static constexpr Sprites::SpriteMetaType sprite_type = "SINKHOLE";
 };
 
 // Traits for Corruption hazard field types
@@ -56,6 +60,7 @@ struct HazardTraits<Cmp::CorruptionCell>
   using ExcludeHazard = Cmp::SinkholeCell;
   static constexpr bool kills_instantly = false;
   static constexpr Cmp::PlayerMortality::State mortality_state = Cmp::PlayerMortality::State::DECAYING;
+  static constexpr Sprites::SpriteMetaType sprite_type = "CORRUPTION";
 };
 
 // Concept to constrain valid hazard field types
@@ -116,6 +121,8 @@ public:
     if ( random_entity == entt::null ) { return; }
 
     getReg().template emplace<HazardType>( random_entity );
+    getReg().template emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, Traits::sprite_type, 0 );
+    getReg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 1.f );
     getReg().template remove<Cmp::Obstacle>( random_entity );
     SPDLOG_INFO( "Hazard field seeded at position [{}, {}].", random_pos.position.x, random_pos.position.y );
   }
@@ -158,6 +165,8 @@ public:
         if ( hazard_spread_picker.gen() == 0 )
         {
           getReg().template emplace<HazardType>( obstacle_entity );
+          getReg().template emplace_or_replace<Cmp::SpriteAnimation>( obstacle_entity, 0, 0, true, Traits::sprite_type, 0 );
+          getReg().template emplace_or_replace<Cmp::ZOrderValue>( obstacle_entity, obst_pos_cmp.position.y - 1.f );
           getReg().template remove<Cmp::Obstacle>( obstacle_entity );
           SPDLOG_DEBUG( "New hazard field created at entity {}", static_cast<uint32_t>( obstacle_entity ) );
           return; // only add one hazard cell per update period
@@ -186,7 +195,7 @@ public:
     for ( auto [pc_entt, player_cmp, player_health_cmp, player_mort_cmp, player_pos_cmp] : player_view.each() )
     {
       // optimization
-      if ( player_mort_cmp.state != Cmp::PlayerMortality::State::ALIVE ) return;
+      // if ( player_mort_cmp.state != Cmp::PlayerMortality::State::ALIVE ) return;
       if ( !is_visible_in_view( RenderSystem::getGameView(), player_pos_cmp ) ) continue;
 
       // reduce the player hitbox so that you have to be almost centered over it to fall in
@@ -197,21 +206,18 @@ public:
         auto hazard_hitbox_redux = Cmp::RectBounds( hazard_pos_cmp.position, hazard_pos_cmp.size, 0.1f );
         if ( not player_hitbox_redux.findIntersection( hazard_hitbox_redux.getBounds() ) ) continue;
 
-        if constexpr ( Traits::kills_instantly )
+        if constexpr ( Traits::sprite_type == "SINKHOLE" )
         {
           player_health_cmp.health = 0;
-          player_mort_cmp.state = Traits::mortality_state;
+          SPDLOG_DEBUG( "Player fell into a hazard field at position ({}, {})!", hazard_pos_cmp.x, hazard_pos_cmp.y );
         }
-        else
+        else if constexpr ( Traits::sprite_type == "CORRUPTION" )
         {
-          // corruption field: gradually drain health. if health is zero we trigger the death animation.
-          // but we might to use the decay state as a mechanic for zombies later on
-          if ( player_health_cmp.health <= 0 ) { player_mort_cmp.state = Traits::mortality_state; }
           player_health_cmp.health -= get_persistent_component<Cmp::Persistent::CorruptionDamage>().get_value();
-          // player_mort_cmp.state = Traits::mortality_state;
+          SPDLOG_DEBUG( "Player took corruption damage at position ({}, {})! Health is now {}.", hazard_pos_cmp.x, hazard_pos_cmp.y,
+                        player_health_cmp.health );
+          return;
         }
-        SPDLOG_DEBUG( "Player fell into a hazard field at position ({}, {})!", hazard_pos_cmp.x, hazard_pos_cmp.y );
-        return;
       }
     }
   }

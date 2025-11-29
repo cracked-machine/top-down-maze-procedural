@@ -20,6 +20,7 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/WeaponLevel.hpp>
 #include <Components/WormholeJump.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PlayerSystem.hpp>
 
@@ -67,29 +68,21 @@ void PlayerSystem::add_player_entity()
   getReg().emplace<Cmp::PlayerHealth>( entity, 100 );
   getReg().emplace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );
   getReg().emplace<Cmp::WeaponLevel>( entity, 100.f );
+  getReg().emplace<Cmp::ZOrderValue>( entity, start_pos.y ); // z-order based on y-position
 }
 
-Cmp::PlayerMortality::State PlayerSystem::check_player_mortality()
+void PlayerSystem::check_player_mortality()
 {
   auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality>();
-  Cmp::PlayerMortality::State mortality_state = Cmp::PlayerMortality::State::ALIVE;
   for ( auto [entity, pc_cmp, health_cmp, mortality_cmp] : player_view.each() )
   {
-
-    if ( mortality_cmp.state == Cmp::PlayerMortality::State::DEAD )
-    {
-      mortality_state = mortality_cmp.state;
-      break;
-    }
-    if ( health_cmp.health <= 0 && mortality_cmp.death_progress >= 1.0f )
+    if ( health_cmp.health <= 0 )
     {
       mortality_cmp.state = Cmp::PlayerMortality::State::DEAD;
       SPDLOG_INFO( "Player has progressed to deadness." );
       m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::GAME_OVER );
     }
-    mortality_state = mortality_cmp.state;
   }
-  return mortality_state;
 }
 
 void PlayerSystem::update_movement( sf::Time globalDeltaTime, bool skip_collision_check )
@@ -199,6 +192,8 @@ void PlayerSystem::update_movement( sf::Time globalDeltaTime, bool skip_collisio
         pc_detection_bounds.position( pos_cmp.position );
         getReg().remove<Cmp::LerpPosition>( entity );
       }
+      auto zorder_cmp = getReg().try_get<Cmp::ZOrderValue>( entity );
+      if ( zorder_cmp ) { zorder_cmp->setZOrder( pos_cmp.position.y ); }
     }
   }
 }

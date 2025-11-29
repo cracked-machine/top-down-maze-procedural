@@ -65,6 +65,13 @@ public:
   static const sf::View &getGameView() { return s_game_view; }
 
 protected:
+  //! @brief Z-order entry for rendering queue
+  struct ZOrder
+  {
+    float z;
+    entt::entity e;
+  };
+
   //! @brief Text alignment options
   enum class Alignment
   {

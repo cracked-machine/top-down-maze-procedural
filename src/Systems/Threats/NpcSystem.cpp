@@ -8,6 +8,7 @@
 #include <Components/PlayerMortality.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/WormholeJump.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
 #include <Components/AltarSegment.hpp>
@@ -61,19 +62,22 @@ void NpcSystem::add_npc_entity( const Events::NpcCreationEvent &event )
   {
     getReg().emplace_or_replace<Cmp::NPC>( new_pos_entity );
     getReg().emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, "NPCGHOST.walk.east" );
+    getReg().emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
   }
   else if ( event.type == "NPCSKELE" )
   {
     getReg().emplace_or_replace<Cmp::NPC>( new_pos_entity );
     getReg().emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, "NPCSKELE.walk.east" );
+    getReg().emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
+
+    // Remove the npc container component from the original entity
+    getReg().remove<Cmp::NpcContainer>( event.position_entity );
+    getReg().remove<Cmp::ZOrderValue>( event.position_entity );
   }
 
-  getReg().remove<Cmp::NpcContainer>( new_pos_entity );
-  getReg().remove<Cmp::ReservedPosition>( new_pos_entity );
-  getReg().remove<Cmp::Obstacle>( new_pos_entity );
-
-  // Remove the npc container component from the original entity
-  getReg().remove<Cmp::NpcContainer>( event.position_entity );
+  // getReg().remove<Cmp::NpcContainer>( new_pos_entity );
+  // getReg().remove<Cmp::ReservedPosition>( new_pos_entity );
+  // getReg().remove<Cmp::Obstacle>( new_pos_entity );
 
   if ( event.type == "NPCGHOST" )
   {
@@ -125,6 +129,8 @@ void NpcSystem::remove_npc_entity( entt::entity npc_entity )
   getReg().remove<Cmp::Position>( npc_entity );
   getReg().remove<Cmp::NPCScanBounds>( npc_entity );
   getReg().remove<Cmp::Direction>( npc_entity );
+  getReg().remove<Cmp::SpriteAnimation>( npc_entity );
+  getReg().remove<Cmp::ZOrderValue>( npc_entity );
 }
 
 //! @brief Check if diagonal movement should be blocked due to adjacent obstacles
@@ -190,10 +196,15 @@ void NpcSystem::update_movement( sf::Time globalDeltaTime )
 
     // clang-format off
     getReg().patch<Cmp::NPCScanBounds>( entity, 
-      [&]( auto &npc_scan_bounds ) 
-      { 
-        npc_scan_bounds.position( pos_cmp.position ); 
-      });
+    [&]( auto &npc_scan_bounds ) 
+    { 
+      npc_scan_bounds.position( pos_cmp.position ); 
+    });
+    getReg().patch<Cmp::ZOrderValue>( entity, 
+    [&]( auto &zorder_cmp ) 
+    { 
+      zorder_cmp.setZOrder( pos_cmp.position.y ); 
+    });
     // clang-format on
   }
 }

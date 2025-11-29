@@ -1,6 +1,8 @@
 #include <Components/Persistent/CorruptionSeed.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
+#include <Components/Persistent/PlayerFootstepAddDelay.hpp>
+#include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
@@ -88,6 +90,8 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::PlayerAnimFramerate>( "PlayerAnimFramerate" );
   registerComponent<Cmp::Persistent::PlayerDetectionScale>( "PlayerDetectionScale" );
   registerComponent<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( "PlayerDiagonalLerpSpeedModifier" );
+  registerComponent<Cmp::Persistent::PlayerFootstepAddDelay>( "PlayerFootstepAddDelay" );
+  registerComponent<Cmp::Persistent::PlayerFootstepFadeDelay>( "PlayerFootstepFadeDelay" );
   registerComponent<Cmp::Persistent::PlayerLerpSpeed>( "PlayerLerpSpeed" );
   registerComponent<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
   registerComponent<Cmp::Persistent::WeaponDegradePerHit>( "WeaponDegradePerHit" );
@@ -172,6 +176,8 @@ void PersistentSystem::save_state()
   serializeComponent.template operator()<Cmp::Persistent::PlayerAnimFramerate>( "PlayerAnimFramerate" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerDetectionScale>( "PlayerDetectionScale" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( "PlayerDiagonalLerpSpeedModifier" );
+  serializeComponent.template operator()<Cmp::Persistent::PlayerFootstepAddDelay>( "PlayerFootstepAddDelay" );
+  serializeComponent.template operator()<Cmp::Persistent::PlayerFootstepFadeDelay>( "PlayerFootstepFadeDelay" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerLerpSpeed>( "PlayerLerpSpeed" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
   serializeComponent.template operator()<Cmp::Persistent::PlayerStartPosition>( "PlayerStartPosition" );

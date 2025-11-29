@@ -78,7 +78,8 @@ void AnimSystem::update( sf::Time globalDeltaTime )
     }
   }
 
-  // Player Movement:always update animation for player if they are moving
+  // Player Movement
+  // TODO: Add death animations depending on the mortality state
   auto moving_player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Direction, Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [entity, pc_cmp, dir_cmp, anim_cmp, pos_cmp] : moving_player_view.each() )
   {
@@ -105,7 +106,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
   auto explosion_view = getReg().view<Cmp::NpcDeathPosition, Cmp::SpriteAnimation>();
   for ( auto [entity, explosion_cmp, anim_cmp] : explosion_view.each() )
   {
-    const auto &explosion_sprite_metadata = m_sprite_factory.get_multisprite_by_type( "EXPLOSION" );
+    const auto &explosion_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
     auto frame_rate = sf::seconds( getReg().ctx().get<Cmp::Persistent::NpcDeathAnimFramerate>().get_value() );
 
     SPDLOG_DEBUG( "Explosion animation active for entity {} - current_frame: {}, sprites_per_frame: {}, "
@@ -124,6 +125,8 @@ void AnimSystem::update( sf::Time globalDeltaTime )
     {
       getReg().remove<Cmp::NpcDeathPosition>( entity );
       getReg().remove<Cmp::SpriteAnimation>( entity );
+      getReg().remove<Cmp::ZOrderValue>( entity );
+      getReg().remove<Cmp::Position>( entity );
       SPDLOG_DEBUG( "Explosion animation complete, removing component from entity {}", static_cast<int>( entity ) );
       continue;
     }

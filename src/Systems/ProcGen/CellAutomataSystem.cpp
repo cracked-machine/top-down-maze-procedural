@@ -1,3 +1,4 @@
+#include <Components/ZOrderValue.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
 
 namespace ProceduralMaze::Sys::ProcGen
@@ -184,9 +185,21 @@ void CellAutomataSystem::apply_rules()
   auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>();
   for ( auto [entity, obstacle_cmp, pos_cmp, neighbour_cmp] : obstacle_view.each() )
   {
-    if ( neighbour_cmp.count() <= 2 ) { obstacle_cmp.m_enabled = true; }
-    else if ( neighbour_cmp.count() > 2 and neighbour_cmp.count() < 5 ) { obstacle_cmp.m_enabled = false; }
-    else { obstacle_cmp.m_enabled = true; }
+    if ( neighbour_cmp.count() <= 2 )
+    {
+      obstacle_cmp.m_enabled = true;
+      getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y );
+    }
+    else if ( neighbour_cmp.count() > 2 and neighbour_cmp.count() < 5 )
+    {
+      obstacle_cmp.m_enabled = false;
+      if ( getReg().all_of<Cmp::ZOrderValue>( entity ) ) { getReg().remove<Cmp::ZOrderValue>( entity ); }
+    }
+    else
+    {
+      obstacle_cmp.m_enabled = true;
+      getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y );
+    }
   }
   SPDLOG_INFO( "Finished applying Cellular Automata rules!" );
 }

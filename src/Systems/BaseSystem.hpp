@@ -3,6 +3,8 @@
 
 #include <Audio/SoundBank.hpp>
 #include <Components/PlayableCharacter.hpp>
+#include <Components/SpriteAnimation.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <entt/entity/registry.hpp>
 #include <entt/signal/dispatcher.hpp>
 
@@ -374,10 +376,14 @@ public:
       if ( not search.findIntersection( obst_pos_cmp ) ) continue;
       if ( obst_cmp.m_enabled ) continue; // only drop the loot at disabled (traversable) obstacle
 
-      auto loot_entity = getReg().create();
-      getReg().emplace<Cmp::Loot>( loot_entity, std::move( loot_cmp ) );
-      getReg().emplace_or_replace<Cmp::Position>( loot_entity, obst_pos_cmp );
-      return loot_entity;
+      auto new_loot_entity = getReg().create();
+      getReg().emplace<Cmp::Position>( new_loot_entity, obst_pos_cmp.position, obst_pos_cmp.size );
+      getReg().emplace<Cmp::SpriteAnimation>( new_loot_entity, 0, 0, true, loot_cmp.m_type, loot_cmp.m_tile_index );
+      getReg().emplace<Cmp::ZOrderValue>( new_loot_entity, obst_pos_cmp.position.y - 16.f );
+      getReg().emplace<Cmp::Loot>( new_loot_entity, loot_cmp.m_type, loot_cmp.m_tile_index );
+      SPDLOG_INFO( "Created loot entity {} of type {} at position ({}, {})", static_cast<int>( new_loot_entity ), loot_cmp.m_type,
+                   obst_pos_cmp.position.x, obst_pos_cmp.position.y );
+      return new_loot_entity;
     }
     SPDLOG_WARN( "Failed to drop {} at [{},{}].", loot_cmp.m_type, search.position.x, search.position.y );
     return entt::null;

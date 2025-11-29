@@ -1,7 +1,9 @@
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerMortality.hpp>
+#include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -134,6 +136,8 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
   auto &fuse_delay = get_persistent_component<Cmp::Persistent::FuseDelay>();
   getReg().emplace_or_replace<Cmp::Armed>( epicenter_entity, sf::seconds( fuse_delay.get_value() ), sf::Time::Zero, true,
                                            sf::Color::Transparent, sequence_counter++, Cmp::Armed::EpiCenter::YES );
+  getReg().emplace_or_replace<Cmp::SpriteAnimation>( epicenter_entity, 0, 0, true, "BOMB", 0 );
+  getReg().emplace_or_replace<Cmp::ZOrderValue>( epicenter_entity, centerTile.y );
 
   // We dont detonate ReservedPositions so dont arm them in the first place
   // Also exclude NPCs since they're handled separately and may be missing Position component during death animation
@@ -201,7 +205,7 @@ void BombSystem::update()
     if ( obst_cmp && obst_cmp->m_enabled && obst_cmp->m_integrity > 0.0f )
     {
       // the obstacle is now destroyed by the bomb
-      obst_cmp->m_integrity = 0.0f;
+      // obst_cmp->m_integrity = 0.0f;
       obst_cmp->m_enabled = false;
     }
 
@@ -243,8 +247,12 @@ void BombSystem::update()
       // notify npc system of death
       if ( npc_pos_cmp.findIntersection( armed_pos_cmp ) )
       {
-        getReg().emplace_or_replace<Cmp::NpcDeathPosition>( npc_entt, npc_pos_cmp.position, npc_pos_cmp.size );
-        getReg().emplace_or_replace<Cmp::SpriteAnimation>( npc_entt, 0, 0, true, "EXPLOSION", 0 );
+        auto npc_death_entity = getReg().create();
+        getReg().emplace<Cmp::Position>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
+        getReg().emplace_or_replace<Cmp::NpcDeathPosition>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
+        getReg().emplace_or_replace<Cmp::SpriteAnimation>( npc_death_entity, 0, 0, true, "EXPLOSION", 0 );
+        getReg().emplace_or_replace<Cmp::ZOrderValue>( npc_death_entity, npc_pos_cmp.position.y );
+
         SPDLOG_INFO( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ), npc_pos_cmp.position.x,
                      npc_pos_cmp.position.y );
         get_systems_event_queue().trigger( Events::NpcDeathEvent( npc_entt ) );
@@ -268,6 +276,12 @@ void BombSystem::update()
 
     // finally delete the armed component
     getReg().remove<Cmp::Armed>( armed_entt );
+    getReg().remove<Cmp::SpriteAnimation>( armed_entt );
+    getReg().remove<Cmp::ZOrderValue>( armed_entt );
+
+    // Reduce the zorder to guarantee it is drawn beneath the player
+    getReg().emplace<Cmp::SpriteAnimation>( armed_entt, 0, 0, true, "DETONATED", 0 );
+    getReg().emplace<Cmp::ZOrderValue>( armed_entt, armed_pos_cmp.position.y - 32.f );
   }
 }
 

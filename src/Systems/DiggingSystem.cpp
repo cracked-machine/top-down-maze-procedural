@@ -1,5 +1,7 @@
 #include <Components/PlayableCharacter.hpp>
+#include <Components/SpriteAnimation.hpp>
 #include <Components/WeaponLevel.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Time.hpp>
 
@@ -130,7 +132,12 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       {
         // select the final smash sound
         m_sound_bank.get_effect( "pickaxe_final" ).play();
+        // disable the obstacle but replace the sprite and reset its integrity so it will be drawn fully opaque.
         obst_cmp.m_enabled = false;
+        obst_cmp.m_integrity = 1.0f;
+        getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "DETONATED", 0 );
+        // Reduce the zorder to guarantee it is drawn beneath the player
+        getReg().patch<Cmp::ZOrderValue>( entity, []( Cmp::ZOrderValue &z_order_cmp ) { z_order_cmp.setZOrder( -1 ); } );
         SPDLOG_DEBUG( "Digged through obstacle at position ({}, {})!", pos_cmp.x, pos_cmp.y );
       }
       else

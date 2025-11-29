@@ -107,6 +107,14 @@
     "type": "float",
     "value": 0.707
   },
+  "PlayerFootstepAddDelay": {
+    "type": "float",
+    "value": 0.2
+  },
+  "PlayerFootstepFadeDelay": {
+    "type": "float",
+    "value": 1.0
+  },
   "PlayerLerpSpeed": {
     "type": "float",
     "value": 4.0

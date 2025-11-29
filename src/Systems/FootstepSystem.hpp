@@ -36,8 +36,6 @@ public:
   constexpr static const sf::Vector2f kFootstepSize{ 10.f, 6.f };
 
 private:
-  const sf::Time kFootstepFadeDelay{ sf::seconds( 1.f ) };
-  const sf::Time kFootstepAddDelay{ sf::seconds( 0.2f ) };
   const unsigned int kFootstepFadeFactor{ 1 };
   sf::Clock update_clock{};
 };

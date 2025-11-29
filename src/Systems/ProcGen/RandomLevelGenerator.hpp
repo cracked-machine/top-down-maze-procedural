@@ -65,9 +65,6 @@ public:
   // Helper functions to add wall and door entities
   void add_wall_entity( const sf::Vector2f &pos, std::size_t sprite_index );
 
-  // Helper function to add door entities
-  void add_door_entity( const sf::Vector2f &pos, std::size_t sprite_index, bool is_exit );
-
   // Output generation statistics
   void stats();
 

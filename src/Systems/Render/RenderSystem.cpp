@@ -63,7 +63,12 @@ void RenderSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const
       //! i.e. read-only.
       const auto &readonly_texture = sprite.get_texture();
       Sys::RenderBuffer sprite_buffer( sprite.m_va_list[sprite_index], readonly_texture );
-      sprite_buffer.setPosition( pos_cmp.position );
+
+      // Adjust position to compensate for origin offset when origin != (0,0)
+      sf::Vector2f adjusted_position = pos_cmp.position;
+      if ( origin != sf::Vector2f( 0.f, 0.f ) ) { adjusted_position += origin; }
+      sprite_buffer.setPosition( adjusted_position );
+
       sprite_buffer.setScale( scale );
       sprite_buffer.set_pick_opacity( alpha );
       sprite_buffer.setOrigin( origin );

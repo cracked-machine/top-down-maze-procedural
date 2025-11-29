@@ -66,6 +66,13 @@ public:
   std::vector<SpriteMetaType> get_all_sprite_types();
   std::unordered_set<SpriteMetaType> get_all_sprite_types_set();
 
+  // Returns the pixel bounds of first sprite in array. Assumes that all sprites in the multi-sprite have the same size
+
+  sf::Vector2f get_sprite_size_by_type( const SpriteMetaType &type )
+  {
+    return get_spritedata_by_type( type ).m_multisprite.getSpriteSizePixels();
+  }
+
 private:
   //! @brief Metadata for a single sprite. This is mainly a legacy struct to hold the MultiSprite along with its weight.
   //         Previously held more data before MultiSprite encapsulated it.

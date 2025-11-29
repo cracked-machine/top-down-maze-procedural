@@ -4,6 +4,7 @@
 #include <Components/WormholeJump.hpp>
 #include <Components/WormholeMultiBlock.hpp>
 #include <Components/WormholeSingularity.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -139,13 +140,19 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   Cmp::WormholeMultiBlock wormhole_block( random_pos.position,
                                           wormhole_ms.get_grid_size().componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
 
-  auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position>();
-  for ( auto [entity, obstacle_cmp, obstacle_pos_cmp] : obstacle_view.each() )
+  auto obstacle_view = getReg().view<Cmp::Position>();
+  for ( auto [entity, obstacle_pos] : obstacle_view.each() )
   {
-    if ( obstacle_pos_cmp.findIntersection( wormhole_block ) )
+    if ( obstacle_pos.findIntersection( wormhole_block ) )
     {
-      obstacle_cmp.m_enabled = false;
-      SPDLOG_INFO( "Wormhole spawn: Destroying obstacle at ({}, {})", obstacle_pos_cmp.position.x, obstacle_pos_cmp.position.y );
+      if ( getReg().any_of<Cmp::ZOrderValue>( entity ) ) getReg().remove<Cmp::ZOrderValue>( entity );
+      if ( getReg().any_of<Cmp::Obstacle>( entity ) )
+      {
+        auto &obstacle_cmp = getReg().get<Cmp::Obstacle>( entity );
+        obstacle_cmp.m_enabled = false;
+      }
+
+      SPDLOG_INFO( "Wormhole spawn: Destroying obstacle at ({}, {})", obstacle_pos.position.x, obstacle_pos.position.y );
     }
   }
 
@@ -160,6 +167,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   getReg().emplace_or_replace<Cmp::WormholeMultiBlock>(
       random_entity, random_pos.position, wormhole_ms.get_grid_size().componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
   getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, "WORMHOLE" );
+  getReg().emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - random_pos.size.y );
 
   SPDLOG_INFO( "Wormhole spawned at position ({}, {})", random_pos.position.x, random_pos.position.y );
 }

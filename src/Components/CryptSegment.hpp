@@ -16,6 +16,7 @@ public:
   }
 
   bool isSolidMask() const { return m_solid_mask; }
+  void set_solid_mask( bool solid_mask ) { m_solid_mask = solid_mask; }
 
 private:
   // Is collision detection enabled for this sprite

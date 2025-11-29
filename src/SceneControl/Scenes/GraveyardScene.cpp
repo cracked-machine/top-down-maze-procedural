@@ -153,6 +153,7 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
   auto &render_game_sys = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
   auto &render_overlay_sys = m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>();
   auto &render_player_sys = m_system_store.find<Sys::SystemStore::Type::RenderPlayerSystem>();
+  render_game_sys.refresh_z_order_queue();
   render_game_sys.render_game( dt, render_overlay_sys, render_player_sys );
 
   // defer this scenes input event processing until we  exit this function

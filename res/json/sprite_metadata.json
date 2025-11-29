@@ -425,8 +425,8 @@
       "name": "FOOTSTEPS",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/footsteps.png",
-        "sprite_indices": [0],
+        "texture_path": "res/textures/footsteps_tileset.png",
+        "sprite_indices": [0,1,2,3],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {

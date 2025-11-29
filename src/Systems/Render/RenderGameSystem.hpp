@@ -31,6 +31,8 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
+  void refresh_z_order_queue();
+
   void init_views();
   void init_shaders();
   void init_tilemap();
@@ -92,6 +94,8 @@ private:
   float m_compass_freq{ 4.0f }; // oscillations per second
   float m_compass_min_scale{ 0.5f };
   float m_compass_max_scale{ 1.5f };
+
+  std::vector<ZOrder> m_zorder_queue_;
 };
 
 } // namespace ProceduralMaze::Sys

@@ -1,3 +1,5 @@
+#include <Components/AbsoluteOffset.hpp>
+#include <Components/AbsoluteRotation.hpp>
 #include <Components/AltarMultiBlock.hpp>
 #include <Components/CryptDoor.hpp>
 #include <Components/CryptMultiBlock.hpp>
@@ -7,6 +9,7 @@
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/WormholeMultiBlock.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
@@ -53,6 +56,18 @@ RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &windo
   SPDLOG_DEBUG( "RenderGameSystem initialized" );
 }
 
+void RenderGameSystem::refresh_z_order_queue()
+{
+  m_zorder_queue_.clear();
+  auto view = getReg().view<Cmp::ZOrderValue, Cmp::Position>();
+  for ( auto [entity, z_order_cmp, pos_cmp] : view.each() )
+  {
+    if ( is_visible_in_view( RenderSystem::s_game_view, pos_cmp ) )
+      m_zorder_queue_.push_back( ZOrder{ z_order_cmp.getZOrder(), entity } );
+  }
+  std::sort( m_zorder_queue_.begin(), m_zorder_queue_.end(), []( const ZOrder &a, const ZOrder &b ) { return a.z < b.z; } );
+}
+
 void RenderGameSystem::init_views()
 {
   // init local view dimensions
@@ -81,7 +96,7 @@ void RenderGameSystem::init_tilemap() { m_floormap.load( kMapGridSize, "res/json
 void RenderGameSystem::clear_tilemap() { m_floormap.clear(); }
 
 void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys,
-                                    RenderPlayerSystem &render_player_sys )
+                                    [[maybe_unused]] RenderPlayerSystem &render_player_sys )
 {
   using namespace Sprites;
 
@@ -102,91 +117,53 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
   // main render begin
   m_window.clear();
   {
-    // local view begin - this shows only a `LOCAL_MAP_VIEW_SIZE` of the game
-    // world
+    // local view begin - this shows only a `LOCAL_MAP_VIEW_SIZE` of the game world
     m_window.setView( m_local_view );
     {
       // update the static game view reference
       RenderSystem::s_game_view = m_local_view;
-      // move the local view position to equal the player position
 
       m_local_view.setCenter( player_position.position );
-      // draw the background
 
       render_background_water( player_position );
       render_floormap( { 0, 0 } );
 
-      // now draw everything else on top
-      render_sinkhole();
-      render_corruption();
-      render_wormhole();
+      for ( const auto &zorder_entry : m_zorder_queue_ )
+      {
+        auto entity = zorder_entry.e;
+        if ( getReg().all_of<Cmp::Position, Cmp::SpriteAnimation>( entity ) )
+        {
+          const auto &pos_cmp = getReg().get<Cmp::Position>( entity );
+          const auto &anim_cmp = getReg().get<Cmp::SpriteAnimation>( entity );
 
-      render_npc_containers();
-      render_loot_containers();
-      render_small_obstacles();
+          uint8_t alpha_value = 255;
+          auto obst_cmp = getReg().try_get<Cmp::Obstacle>( entity );
+          if ( obst_cmp ) alpha_value = static_cast<uint8_t>( obst_cmp->m_integrity * 255.0f );
+
+          sf::Vector2f new_origin_value = { 0.F, 0.F };
+          auto new_offset_cmp = getReg().try_get<Cmp::AbsoluteOffset>( entity );
+          if ( new_offset_cmp ) new_origin_value = new_offset_cmp->getOffset();
+
+          sf::Angle new_angle_value = sf::degrees( 0.f );
+          auto new_angle_cmp = getReg().try_get<Cmp::AbsoluteRotation>( entity );
+          if ( new_angle_cmp ) new_angle_value = sf::degrees( new_angle_cmp->getAngle() );
+
+          safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame,
+                              { 1.f, 1.f }, alpha_value, new_origin_value, new_angle_value );
+        }
+      }
 
       render_armed();
-      render_walls();
-      render_player_spawn();
-      render_player_sys.render_player_footsteps();
-      render_player_sys.render_player();
-      render_player_sys.render_npc();
-      render_large_obstacles();
-      render_loot();
-      render_explosions();
       render_arrow_compass();
       render_mist( player_position );
-
-      // render_positions();
     }
     // local view end
-
-    // minimap view begin - this show a quarter of the game world but in a
-    // much smaller scale
-    if ( m_minimap_enabled )
-    {
-      m_window.setView( m_minimap_view );
-      {
-        render_floormap( { 0, kMapGridOffset.y * BaseSystem::kGridSquareSizePixels.y } );
-        render_loot_containers();
-        render_small_obstacles();
-
-        render_sinkhole();
-        render_corruption();
-        render_wormhole();
-        render_armed();
-        render_loot();
-        render_walls();
-        render_player_spawn();
-        render_player_sys.render_player();
-        render_player_sys.render_npc();
-        render_large_obstacles();
-        // render_flood_waters();
-
-        // update the minimap view center based on player position
-        // reset the center if player is stuck
-        m_minimap_view.setCenter( player_position.position );
-      }
-    }
-    // minimap view end
 
     // UI Overlays begin (these will always be displayed no matter where the
     // player moves)
     m_window.setView( m_window.getDefaultView() );
     {
-      if ( m_minimap_enabled )
-      {
-        auto minimap_border = sf::RectangleShape( {
-            m_window.getSize().x * kMiniMapViewZoomFactor, // 25% of screen width
-            m_window.getSize().y * kMiniMapViewZoomFactor  // 25% of screen height
-        } );
-        minimap_border.setPosition( { m_window.getSize().x - minimap_border.getSize().x, 0.f } );
 
-        minimap_border.setFillColor( sf::Color::Transparent );
-        minimap_border.setOutlineColor( sf::Color::White );
-        minimap_border.setOutlineThickness( 2.f );
-        m_window.draw( minimap_border );
-      }
       // init metrics
       int player_health = 0;
       int bomb_inventory = 0;
@@ -227,12 +204,15 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_overlay_sys.render_player_candles_overlay( player_candles_count, { 40.f, 160.f } );
       render_overlay_sys.render_key_count_overlay( player_keys_count, { 40.f, 200.f } );
       render_overlay_sys.render_relic_count_overlay( player_relic_count, { 40.f, 240.f } );
+
       if ( m_show_debug_stats )
       {
 
         render_overlay_sys.render_player_position_overlay( player_position.position, { 40.f, 300.f } );
         render_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 340.f } );
-        render_overlay_sys.render_stats_overlay( { 40.f, 380.f }, { 40.f, 420.f }, { 40.f, 460.f } );
+        render_overlay_sys.render_stats_overlay( { 40.f, 380.f }, { 40.f, 420.f }, { 40.f, 460.f }, { 40.f, 500.f } );
+        render_overlay_sys.render_zorder_values_overlay( { 40.f, 600.f }, m_zorder_queue_,
+                                                         { "ROCK",  "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED" } );
         render_overlay_sys.render_npc_list_overlay( { kDisplaySize.x - 600, 200.f } );
       }
       if ( m_show_path_finding )
@@ -547,20 +527,20 @@ void RenderGameSystem::render_armed()
 
 void RenderGameSystem::render_loot()
 {
-  auto loot_view = getReg().view<Cmp::Loot, Cmp::Position>();
+  auto loot_view = getReg().view<Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [entity, loot_cmp, pos_cmp] : loot_view.each() )
   {
     // clang-format off
-    if ( loot_cmp.m_type == "EXTRA_HEALTH" ) { RenderSystem::safe_render_sprite( "EXTRA_HEALTH", pos_cmp, loot_cmp.m_tile_index ); }
-    else if ( loot_cmp.m_type == "EXTRA_BOMBS" ) { safe_render_sprite( "EXTRA_BOMBS", pos_cmp, loot_cmp.m_tile_index ); }
-    else if ( loot_cmp.m_type == "INFINI_BOMBS" ) { safe_render_sprite( "INFINI_BOMBS", pos_cmp, loot_cmp.m_tile_index ); }
-    else if ( loot_cmp.m_type == "CHAIN_BOMBS" ) { safe_render_sprite( "CHAIN_BOMBS", pos_cmp, loot_cmp.m_tile_index ); }
-    else if ( loot_cmp.m_type == "LOWER_WATER" ) { safe_render_sprite( "LOWER_WATER", pos_cmp, loot_cmp.m_tile_index ); }
-    else if ( loot_cmp.m_type == "WEAPON_BOOST" ) { safe_render_sprite( "WEAPON_BOOST", pos_cmp, loot_cmp.m_tile_index ); }
-    else if ( loot_cmp.m_type == "CANDLE_DROP" ) { safe_render_sprite( "CANDLE_DROP", pos_cmp, loot_cmp.m_tile_index ); }
-    else if ( loot_cmp.m_type == "KEY_DROP" ) { safe_render_sprite( "KEY_DROP", pos_cmp, loot_cmp.m_tile_index ); }
-    else if ( loot_cmp.m_type == "RELIC_DROP" ) { safe_render_sprite( "RELIC_DROP", pos_cmp, loot_cmp.m_tile_index ); }
-    else { SPDLOG_WARN( "Unknown loot type: {}", loot_cmp.m_type ); }
+    if ( loot_cmp.m_sprite_type == "EXTRA_HEALTH" ) { RenderSystem::safe_render_sprite( "EXTRA_HEALTH", pos_cmp, loot_cmp.m_current_frame ); }
+    else if ( loot_cmp.m_sprite_type == "EXTRA_BOMBS" ) { safe_render_sprite( "EXTRA_BOMBS", pos_cmp, loot_cmp.m_current_frame ); }
+    else if ( loot_cmp.m_sprite_type == "INFINI_BOMBS" ) { safe_render_sprite( "INFINI_BOMBS", pos_cmp, loot_cmp.m_current_frame ); }
+    else if ( loot_cmp.m_sprite_type == "CHAIN_BOMBS" ) { safe_render_sprite( "CHAIN_BOMBS", pos_cmp, loot_cmp.m_current_frame ); }
+    else if ( loot_cmp.m_sprite_type == "LOWER_WATER" ) { safe_render_sprite( "LOWER_WATER", pos_cmp, loot_cmp.m_current_frame ); }
+    else if ( loot_cmp.m_sprite_type == "WEAPON_BOOST" ) { safe_render_sprite( "WEAPON_BOOST", pos_cmp, loot_cmp.m_current_frame ); }
+    else if ( loot_cmp.m_sprite_type == "CANDLE_DROP" ) { safe_render_sprite( "CANDLE_DROP", pos_cmp, loot_cmp.m_current_frame ); }
+    else if ( loot_cmp.m_sprite_type == "KEY_DROP" ) { safe_render_sprite( "KEY_DROP", pos_cmp, loot_cmp.m_current_frame ); }
+    else if ( loot_cmp.m_sprite_type == "RELIC_DROP" ) { safe_render_sprite( "RELIC_DROP", pos_cmp, loot_cmp.m_current_frame ); }
+    else { SPDLOG_WARN( "Unknown loot type: {}", loot_cmp.m_sprite_type ); }
     // clang-format on
   }
 }
