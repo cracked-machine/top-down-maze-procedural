@@ -82,9 +82,16 @@ void LootSystem::check_loot_collision()
         m_sound_bank.get_effect( "get_loot" ).play();
       }
     }
-
-    else if ( effect.type == "INFINI_BOMBS" ) { pc_cmp.bomb_inventory = -1; }
-    else if ( effect.type == "CHAIN_BOMBS" ) { pc_cmp.blast_radius = std::clamp( pc_cmp.blast_radius + 1, 0, 3 ); }
+    else if ( effect.type == "INFINI_BOMBS" )
+    {
+      pc_cmp.bomb_inventory = -1;
+      m_sound_bank.get_effect( "get_loot" ).play();
+    }
+    else if ( effect.type == "CHAIN_BOMBS" )
+    {
+      pc_cmp.blast_radius = std::clamp( pc_cmp.blast_radius + 1, 0, 3 );
+      m_sound_bank.get_effect( "get_loot" ).play();
+    }
     else if ( effect.type == "WEAPON_BOOST" )
     {
       // increase weapon level by 50, up to max level 100
