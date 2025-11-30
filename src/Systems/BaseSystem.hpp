@@ -2,6 +2,7 @@
 #define SRC_SYSTEMS_BASESYSTEM_HPP__
 
 #include <Audio/SoundBank.hpp>
+#include <Components/NoPathFinding.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -317,8 +318,7 @@ public:
    * @note Uses SPDLOG_DEBUG to log the number of matching positions found.
    */
   template <typename... Include, typename... Exclude>
-  std::pair<entt::entity, Cmp::Position> get_random_position( IncludePack<Include...>, ExcludePack<Exclude...>,
-                                                              unsigned long seed = 0 )
+  std::pair<entt::entity, Cmp::Position> get_random_position( IncludePack<Include...>, ExcludePack<Exclude...>, unsigned long seed = 0 )
   {
     auto random_view = getReg().view<Cmp::Position, Include...>( entt::exclude<Exclude...> );
 
@@ -369,21 +369,24 @@ public:
   template <typename... Include, typename... Exclude>
   entt::entity create_loot_drop( Cmp::Loot &&loot_cmp, sf::FloatRect search, IncludePack<Include...>, ExcludePack<Exclude...> )
   {
-    auto obst_view = getReg().view<Cmp::Obstacle, Cmp::Position, Include...>( entt::exclude<Exclude...> );
+    auto pos_view = getReg().view<Cmp::Position, Include...>( entt::exclude<Exclude...> );
 
-    for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : obst_view.each() )
+    for ( auto [pos_entity, pos_cmp] : pos_view.each() )
     {
-      if ( not search.findIntersection( obst_pos_cmp ) ) continue;
-      if ( obst_cmp.m_enabled ) continue; // only drop the loot at disabled (traversable) obstacle
+      if ( search.findIntersection( pos_cmp ) )
+      {
+        auto obst_cmp = getReg().try_get<Cmp::Obstacle>( pos_entity );
+        if ( obst_cmp and obst_cmp->m_enabled ) continue; // dont drop the loot at non-traversable obstacle
 
-      auto new_loot_entity = getReg().create();
-      getReg().emplace<Cmp::Position>( new_loot_entity, obst_pos_cmp.position, obst_pos_cmp.size );
-      getReg().emplace<Cmp::SpriteAnimation>( new_loot_entity, 0, 0, true, loot_cmp.m_type, loot_cmp.m_tile_index );
-      getReg().emplace<Cmp::ZOrderValue>( new_loot_entity, obst_pos_cmp.position.y - 16.f );
-      getReg().emplace<Cmp::Loot>( new_loot_entity, loot_cmp.m_type, loot_cmp.m_tile_index );
-      SPDLOG_INFO( "Created loot entity {} of type {} at position ({}, {})", static_cast<int>( new_loot_entity ), loot_cmp.m_type,
-                   obst_pos_cmp.position.x, obst_pos_cmp.position.y );
-      return new_loot_entity;
+        auto new_loot_entity = getReg().create();
+        getReg().emplace<Cmp::Position>( new_loot_entity, pos_cmp.position, pos_cmp.size );
+        getReg().emplace<Cmp::SpriteAnimation>( new_loot_entity, 0, 0, true, loot_cmp.m_type, loot_cmp.m_tile_index );
+        getReg().emplace<Cmp::ZOrderValue>( new_loot_entity, pos_cmp.position.y - 16.f );
+        getReg().emplace<Cmp::Loot>( new_loot_entity, loot_cmp.m_type, loot_cmp.m_tile_index );
+        SPDLOG_INFO( "Created loot entity {} of type {} at position ({}, {})", static_cast<int>( new_loot_entity ), loot_cmp.m_type,
+                     pos_cmp.position.x, pos_cmp.position.y );
+        return new_loot_entity;
+      }
     }
     SPDLOG_WARN( "Failed to drop {} at [{},{}].", loot_cmp.m_type, search.position.x, search.position.y );
     return entt::null;

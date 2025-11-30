@@ -1,4 +1,5 @@
 #include <Components/AltarMultiBlock.hpp>
+#include <Components/AltarSegment.hpp>
 #include <Components/GraveMultiBlock.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/LootContainer.hpp>
@@ -9,6 +10,7 @@
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/SpawnAreaSprite.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Events/LootContainerDestroyedEvent.hpp>
 #include <Events/NpcCreationEvent.hpp>
@@ -135,14 +137,14 @@ void LargeObstacleSystem::check_player_altar_activation( entt::entity altar_enti
       SPDLOG_INFO( "Shrine fully activated!" );
       m_sound_bank.get_effect( "shrine_lighting" ).play();
       // drop the key loot
-      auto altar_cmp_bounds = Cmp::RectBounds( altar_cmp.position, altar_cmp.size, 1.5f );
+      auto altar_cmp_bounds = Cmp::RectBounds( altar_cmp.position, altar_cmp.size, 2.f );
       // clang-format off
       auto obst_entity = create_loot_drop( 
         Cmp::Loot{ "KEY_DROP", 0 },
         sf::FloatRect{ altar_cmp_bounds.position(), 
         altar_cmp_bounds.size() }, 
         IncludePack<>{},
-        ExcludePack<>{} 
+        ExcludePack<Cmp::PlayableCharacter, Cmp::AltarSegment, Cmp::SpawnAreaSprite>{} 
       );
       // clang-format on
       if ( obst_entity != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
@@ -154,23 +156,18 @@ void LargeObstacleSystem::check_player_altar_activation( entt::entity altar_enti
     {
       SPDLOG_DEBUG( "Checking for special power activation." );
       auto anim_sprite_cmp = getReg().try_get<Cmp::SpriteAnimation>( altar_entity );
-      if ( anim_sprite_cmp && m_shrine_activation_clock.getElapsedTime() > m_shrine_activation_cooldown )
-      {
-        activate_altar_special_power();
-      }
+      if ( anim_sprite_cmp && m_shrine_activation_clock.getElapsedTime() > m_shrine_activation_cooldown ) { activate_altar_special_power(); }
     }
   }
 }
 
-void LargeObstacleSystem::check_player_grave_activation( entt::entity &grave_entity, Cmp::GraveMultiBlock &grave_cmp,
-                                                         Cmp::PlayableCharacter &pc_cmp )
+void LargeObstacleSystem::check_player_grave_activation( entt::entity &grave_entity, Cmp::GraveMultiBlock &grave_cmp, Cmp::PlayableCharacter &pc_cmp )
 {
   if ( grave_cmp.are_powers_active() ) return;
   if ( grave_cmp.get_activation_count() < grave_cmp.get_activation_threshold() )
   {
 
-    SPDLOG_DEBUG( "Activating grave sprite {}/{}.", grave_cmp.get_activated_sprite_count() + 1,
-                  grave_cmp.get_activation_threshold() );
+    SPDLOG_DEBUG( "Activating grave sprite {}/{}.", grave_cmp.get_activated_sprite_count() + 1, grave_cmp.get_activation_threshold() );
     grave_cmp.set_activation_count( grave_cmp.get_activation_threshold() );
 
     auto anim_cmp = getReg().try_get<Cmp::SpriteAnimation>( grave_entity );
@@ -188,7 +185,7 @@ void LargeObstacleSystem::check_player_grave_activation( entt::entity &grave_ent
     // choose a random consequence for activating graves: spawn npc, drop bomb, give candles
     if ( grave_cmp.are_powers_active() )
     {
-      auto grave_activation_rng = Cmp::RandomInt( 1, 3 );
+      auto grave_activation_rng = Cmp::RandomInt( 3, 3 );
       auto consequence = grave_activation_rng.gen();
       switch ( consequence )
       {
@@ -203,14 +200,14 @@ void LargeObstacleSystem::check_player_grave_activation( entt::entity &grave_ent
           break;
         case 3:
 
-          auto grave_cmp_bounds = Cmp::RectBounds( grave_cmp.position, grave_cmp.size, 1.5f );
+          auto grave_cmp_bounds = Cmp::RectBounds( grave_cmp.position, grave_cmp.size, 2.f );
           // clang-format off
               auto obst_entity = create_loot_drop( 
                 Cmp::Loot{ "CANDLE_DROP", 0 },
                 sf::FloatRect{ grave_cmp_bounds.position(), 
                 grave_cmp_bounds.size() }, 
                 IncludePack<>{},
-                ExcludePack<>{} 
+                ExcludePack<Cmp::PlayableCharacter, Cmp::GraveSegment, Cmp::SpawnAreaSprite>{} 
               );
           // clang-format on
 

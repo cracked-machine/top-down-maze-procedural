@@ -64,13 +64,14 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
   }
 
   // Check doors
-  auto door_view = getReg().view<Cmp::Door, Cmp::Position>();
-  for ( auto [entity, door_cmp, pos_cmp] : door_view.each() )
+  auto door_view = getReg().view<Cmp::Exit, Cmp::Position>();
+  for ( auto [entity, exit_cmp, pos_cmp] : door_view.each() )
   {
-    auto exit_cmp = getReg().try_get<Cmp::Exit>( entity );
-    // if door is an exit and is unlocked, allow passage
-    if ( exit_cmp && exit_cmp->m_locked == false ) return true;
-    if ( pos_cmp.findIntersection( target_position ) ) { return false; }
+    if ( pos_cmp.findIntersection( target_position ) )
+    {
+      if ( exit_cmp.m_locked == false ) { return true; }
+      else { return false; }
+    }
   }
 
   auto grave_view = getReg().view<Cmp::GraveSegment, Cmp::Position>();

@@ -1,3 +1,4 @@
+#include <Components/NoPathFinding.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/WeaponLevel.hpp>
@@ -18,8 +19,7 @@
 namespace ProceduralMaze::Sys
 {
 
-DiggingSystem::DiggingSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                              Audio::SoundBank &sound_bank )
+DiggingSystem::DiggingSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
@@ -33,8 +33,7 @@ void DiggingSystem::update()
   auto digging_cooldown_amount = get_persistent_component<Cmp::Persistent::DiggingCooldownThreshold>().get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
   {
-    SPDLOG_DEBUG( "Digging is on cooldown for {} more seconds!",
-                  ( digging_cooldown_amount - m_dig_cooldown_clock.getElapsedTime().asSeconds() ) );
+    SPDLOG_DEBUG( "Digging is on cooldown for {} more seconds!", ( digging_cooldown_amount - m_dig_cooldown_clock.getElapsedTime().asSeconds() ) );
     return;
   }
 
@@ -43,8 +42,7 @@ void DiggingSystem::update()
   for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
   {
     getReg().remove<Cmp::SelectedPosition>( existing_sel_entity );
-    SPDLOG_DEBUG( "Removing previous Cmp::SelectedPosition {},{} from entity {}", sel_cmp.x, sel_cmp.y,
-                  static_cast<int>( existing_sel_entity ) );
+    SPDLOG_DEBUG( "Removing previous Cmp::SelectedPosition {},{} from entity {}", sel_cmp.x, sel_cmp.y, static_cast<int>( existing_sel_entity ) );
   }
 }
 
@@ -95,10 +93,8 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_view.each() )
       {
         auto half_sprite_size = kGridSquareSizePixelsF;
-        auto player_horizontal_bounds = Cmp::RectBounds( pc_pos_cmp.position, half_sprite_size, 1.5f,
-                                                         Cmp::RectBounds::ScaleCardinality::HORIZONTAL );
-        auto player_vertical_bounds = Cmp::RectBounds( pc_pos_cmp.position, half_sprite_size, 1.5f,
-                                                       Cmp::RectBounds::ScaleCardinality::VERTICAL );
+        auto player_horizontal_bounds = Cmp::RectBounds( pc_pos_cmp.position, half_sprite_size, 1.5f, Cmp::RectBounds::ScaleCardinality::HORIZONTAL );
+        auto player_vertical_bounds = Cmp::RectBounds( pc_pos_cmp.position, half_sprite_size, 1.5f, Cmp::RectBounds::ScaleCardinality::VERTICAL );
         if ( player_horizontal_bounds.findIntersection( pos_cmp ) || player_vertical_bounds.findIntersection( pos_cmp ) )
         {
           player_nearby = true;
@@ -138,6 +134,8 @@ void DiggingSystem::check_player_dig_obstacle_collision()
         getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "DETONATED", 0 );
         // Reduce the zorder to guarantee it is drawn beneath the player
         getReg().patch<Cmp::ZOrderValue>( entity, []( Cmp::ZOrderValue &z_order_cmp ) { z_order_cmp.setZOrder( -1 ); } );
+        // allow pathfinding through the dug obstacle
+        if ( getReg().all_of<Cmp::NoPathFinding>( entity ) ) { getReg().remove<Cmp::NoPathFinding>( entity ); }
         SPDLOG_DEBUG( "Digged through obstacle at position ({}, {})!", pos_cmp.x, pos_cmp.y );
       }
       else
@@ -146,8 +144,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
         Cmp::RandomInt random_picker( 1, 6 );
         m_sound_bank.get_effect( "pickaxe" + std::to_string( random_picker.gen() ) ).play();
 
-        SPDLOG_DEBUG( "Digged obstacle at position ({}, {}), remaining integrity: {}!", pos_cmp.x, pos_cmp.y,
-                      obst_cmp.m_integrity );
+        SPDLOG_DEBUG( "Digged obstacle at position ({}, {}), remaining integrity: {}!", pos_cmp.x, pos_cmp.y, obst_cmp.m_integrity );
       }
     }
   }

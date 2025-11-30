@@ -1,11 +1,14 @@
 #include <Components/AltarSegment.hpp>
+#include <Components/Armed.hpp>
 #include <Components/CryptSegment.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/GraveSegment.hpp>
+#include <Components/HazardFieldCell.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NPCScanBounds.hpp>
+#include <Components/NoPathFinding.hpp>
 #include <Components/PlayerDistance.hpp>
 #include <Components/Position.hpp>
 #include <Components/SpawnAreaSprite.hpp>
@@ -17,8 +20,7 @@
 namespace ProceduralMaze::Sys
 {
 
-PathFindSystem::PathFindSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                                Audio::SoundBank &sound_bank )
+PathFindSystem::PathFindSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "PathFindSystem initialized" );
@@ -26,44 +28,28 @@ PathFindSystem::PathFindSystem( entt::registry &reg, sf::RenderWindow &window, S
 
 void PathFindSystem::update_player_distances()
 {
-  // precompute outside of loops for performance
   const auto viewBounds = BaseSystem::calculate_view_bounds( RenderSystem::getGameView() );
 
-  // we only have one player so this is just for convenience
   auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PCDetectionBounds>();
-  for ( [[maybe_unused]] auto [pc_entt, pc_cmp, pc_pos_cmp, pc_db_cmp] : player_view.each() )
+  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_db_cmp] : player_view.each() )
   {
-
-    // Exclude any components that we dont want NPCs to pathfind through
-    // clang-format off
-    auto path_exclusions = entt::exclude<
-          Cmp::CryptSegment,
-          Cmp::AltarSegment, 
-          Cmp::SpawnAreaSprite, 
-          Cmp::GraveSegment, 
-          Cmp::Wall, 
-          Cmp::Exit, 
-          Cmp::NPC
-        >;
-    // clang-format on
-
-    auto path_view = getReg().view<Cmp::Position>( path_exclusions );
-    for ( auto [path_entt, path_pos_cmp] : path_view.each() )
+    auto add_path_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::NoPathFinding> );
+    for ( auto [path_entt, path_pos_cmp] : add_path_view.each() )
     {
-      // optimization
-      if ( !is_visible_in_view( viewBounds, path_pos_cmp ) ) continue;
-
-      // we can't filter out obstacles in the view, we have to check its enabled bit
-      auto obst_cmp = getReg().try_get<Cmp::Obstacle>( path_entt );
-      if ( obst_cmp && obst_cmp->m_enabled ) continue;
-
-      // calculate the distance from the position to the player
       if ( pc_db_cmp.findIntersection( path_pos_cmp ) )
       {
+        if ( !is_visible_in_view( viewBounds, path_pos_cmp ) ) continue; // optimization
+
+        // calculate the distance from the position to the player
         auto distance = std::floor( getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
         getReg().emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
       }
-      else
+    }
+
+    auto remove_path_view = getReg().view<Cmp::Position>();
+    for ( auto [path_entt, path_pos_cmp] : remove_path_view.each() )
+    {
+      if ( not pc_db_cmp.findIntersection( path_pos_cmp ) )
       {
         // tidy up any out of range obstacles
         getReg().remove<Cmp::PlayerDistance>( path_entt );
@@ -159,11 +145,10 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
 
       auto vertical_hitbox = Cmp::RectBounds( sf::Vector2f{ npc_pos->position.x, npc_pos->position.y + ( candidate_dir.y * 16 ) },
                                               kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
-      SPDLOG_DEBUG( "Checking distance {} - NPC at ({}, {}), Target at ({}, {}), Dir ({}, {})", nearest_obstacle.first,
-                    npc_pos->position.x, npc_pos->position.y, move_candidate_pixel_pos.value().x,
-                    move_candidate_pixel_pos.value().y, candidate_dir.x, candidate_dir.y );
-      SPDLOG_DEBUG( "Horizontal hitbox at ({}, {}), Vertical hitbox at ({}, {})", npc_pos->position.x + ( candidate_dir.x * 16 ),
-                    npc_pos->position.y, npc_pos->position.x, npc_pos->position.y + ( candidate_dir.y * 16 ) );
+      SPDLOG_DEBUG( "Checking distance {} - NPC at ({}, {}), Target at ({}, {}), Dir ({}, {})", nearest_obstacle.first, npc_pos->position.x,
+                    npc_pos->position.y, move_candidate_pixel_pos.value().x, move_candidate_pixel_pos.value().y, candidate_dir.x, candidate_dir.y );
+      SPDLOG_DEBUG( "Horizontal hitbox at ({}, {}), Vertical hitbox at ({}, {})", npc_pos->position.x + ( candidate_dir.x * 16 ), npc_pos->position.y,
+                    npc_pos->position.x, npc_pos->position.y + ( candidate_dir.y * 16 ) );
 
       bool horizontal_collision = false;
       bool vertical_collision = false;
@@ -198,8 +183,7 @@ void PathFindSystem::scanForPlayers( entt::entity npc_entity, entt::entity playe
   }
 }
 
-void PathFindSystem::add_candidate_lerp( entt::entity npc_entity, Cmp::Direction candidate_dir,
-                                         Cmp::LerpPosition candidate_lerp_pos )
+void PathFindSystem::add_candidate_lerp( entt::entity npc_entity, Cmp::Direction candidate_dir, Cmp::LerpPosition candidate_lerp_pos )
 {
   getReg().emplace_or_replace<Cmp::Direction>( npc_entity, std::move( candidate_dir ) );
   getReg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, std::move( candidate_lerp_pos ) );

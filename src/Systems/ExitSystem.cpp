@@ -1,3 +1,4 @@
+#include <Components/NoPathFinding.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Events/SceneManagerEvent.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -17,8 +18,8 @@
 namespace ProceduralMaze::Sys
 {
 
-ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                        Audio::SoundBank &sound_bank, entt::dispatcher &scenemanager_event_dispatcher )
+ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
+                        entt::dispatcher &scenemanager_event_dispatcher )
     : BaseSystem( reg, window, sprite_factory, sound_bank ),
       m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
 {
@@ -29,16 +30,16 @@ ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
 
 void ExitSystem::spawn_exit()
 {
-  auto [rand_entity, rand_pos_cmp] = get_random_position(
-      {}, ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, 0 );
+  auto [rand_entity,
+        rand_pos_cmp] = get_random_position( {}, ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, 0 );
 
   auto existing_obstacle_cmp = getReg().try_get<Cmp::Obstacle>( rand_entity );
   if ( existing_obstacle_cmp ) { getReg().remove<Cmp::Obstacle>( rand_entity ); }
 
-  getReg().emplace_or_replace<Cmp::Door>( rand_entity, "WALL", 0 );
   getReg().emplace_or_replace<Cmp::Exit>( rand_entity, true ); // locked at start
   getReg().emplace_or_replace<Cmp::SpriteAnimation>( rand_entity, 0, 0, true, "WALL", 0 );
   getReg().emplace_or_replace<Cmp::ZOrderValue>( rand_entity, rand_pos_cmp.position.y );
+  getReg().emplace_or_replace<Cmp::NoPathFinding>( rand_entity );
 
   SPDLOG_INFO( "Spawned exit at position ({}, {})", rand_pos_cmp.position.x, rand_pos_cmp.position.y );
 }
@@ -58,13 +59,12 @@ void ExitSystem::unlock_exit()
   }
 
   // otherwise unlock the exit
-  auto exit_view = getReg().view<Cmp::Exit, Cmp::Door, Cmp::Position>();
-  for ( auto [entity, exit_cmp, door_cmp, pos_cmp] : exit_view.each() )
+  auto exit_view = getReg().view<Cmp::Exit, Cmp::Position>();
+  for ( auto [entity, exit_cmp, pos_cmp] : exit_view.each() )
   {
     exit_cmp.m_locked = false;
     getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", 1 );
     getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y - 16.f );
-    door_cmp.m_tile_index = 1; // open door tile
     m_sound_bank.get_effect( "secret" ).play();
   }
 }

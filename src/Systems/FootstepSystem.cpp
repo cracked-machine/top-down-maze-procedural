@@ -35,32 +35,20 @@ void FootstepSystem::onResume()
 
 void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Direction &direction )
 {
-  if ( update_clock.getElapsedTime() >=
-       sf::seconds( get_persistent_component<Cmp::Persistent::PlayerFootstepAddDelay>().get_value() ) )
+  if ( update_clock.getElapsedTime() >= sf::seconds( get_persistent_component<Cmp::Persistent::PlayerFootstepAddDelay>().get_value() ) )
   {
-    // Check if position is inside a spawn area
-    auto spawnarea_view = getReg().view<Cmp::SpawnAreaSprite, Cmp::Position>();
-    for ( auto [spawn_entity, spawnarea_cmp, spawn_pos_cmp] : spawnarea_view.each() )
+
+    auto nopathfind_view = getReg().view<Cmp::NoPathFinding, Cmp::Position>();
+    for ( auto [nopath_entity, nopath_cmp, nopath_pos_cmp] : nopathfind_view.each() )
     {
-      if ( spawn_pos_cmp.findIntersection( pos_cmp ) )
+      if ( nopath_pos_cmp.findIntersection( pos_cmp ) )
       {
-        // Don't create footstep in spawn area
-        return;
-      }
-    }
-    // not realistic to have footsteps inside obstacles unless we have debug collision off
-    auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position>();
-    for ( auto [obstacle_entity, obstacle_cmp, obstacle_pos_cmp] : obstacle_view.each() )
-    {
-      if ( obstacle_cmp.m_enabled && obstacle_pos_cmp.findIntersection( pos_cmp ) )
-      {
-        // Don't create footstep in obstacle area
+        // Don't create footstep in no-pathfinding area
         return;
       }
     }
 
     auto entity = getReg().create();
-
     getReg().emplace<Cmp::Direction>( entity, direction );
     getReg().emplace<Cmp::FootStepTimer>( entity );
     getReg().emplace<Cmp::FootStepAlpha>( entity );
@@ -95,32 +83,28 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
       getReg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "FOOTSTEPS", 0 );
       getReg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       getReg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
-      getReg().emplace<Cmp::AbsoluteOffset>( entity, BaseSystem::kGridSquareSizePixels.x / 2.f,
-                                             BaseSystem::kGridSquareSizePixels.y / 2.f );
+      getReg().emplace<Cmp::AbsoluteOffset>( entity, BaseSystem::kGridSquareSizePixels.x / 2.f, BaseSystem::kGridSquareSizePixels.y / 2.f );
     }
     else if ( direction == sf::Vector2f( -1.f, 1.f ) )
     { // moving down/left
       getReg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "FOOTSTEPS", 2 );
       getReg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       getReg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
-      getReg().emplace<Cmp::AbsoluteOffset>( entity, BaseSystem::kGridSquareSizePixels.x / 2.f,
-                                             BaseSystem::kGridSquareSizePixels.y / 2.f );
+      getReg().emplace<Cmp::AbsoluteOffset>( entity, BaseSystem::kGridSquareSizePixels.x / 2.f, BaseSystem::kGridSquareSizePixels.y / 2.f );
     }
     else if ( direction == sf::Vector2f( -1.f, -1.f ) )
     { // moving up/left
       getReg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "FOOTSTEPS", 1 );
       getReg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       getReg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
-      getReg().emplace<Cmp::AbsoluteOffset>( entity, BaseSystem::kGridSquareSizePixels.x / 2.f,
-                                             BaseSystem::kGridSquareSizePixels.y / 2.f );
+      getReg().emplace<Cmp::AbsoluteOffset>( entity, BaseSystem::kGridSquareSizePixels.x / 2.f, BaseSystem::kGridSquareSizePixels.y / 2.f );
     }
     else if ( direction == sf::Vector2f( 1.f, -1.f ) )
     { // moving up/right
       getReg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "FOOTSTEPS", 3 );
       getReg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       getReg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
-      getReg().emplace<Cmp::AbsoluteOffset>( entity, BaseSystem::kGridSquareSizePixels.x / 2.f,
-                                             BaseSystem::kGridSquareSizePixels.y / 2.f );
+      getReg().emplace<Cmp::AbsoluteOffset>( entity, BaseSystem::kGridSquareSizePixels.x / 2.f, BaseSystem::kGridSquareSizePixels.y / 2.f );
     }
 
     // Reset the timer to enforce discrete steps
@@ -142,8 +126,7 @@ void FootstepSystem::update()
   auto view = getReg().view<Cmp::FootStepTimer, Cmp::FootStepAlpha>();
   for ( auto [entity, timer, alpha] : view.each() )
   {
-    if ( timer.m_clock.getElapsedTime() >
-         sf::seconds( get_persistent_component<Cmp::Persistent::PlayerFootstepFadeDelay>().get_value() ) )
+    if ( timer.m_clock.getElapsedTime() > sf::seconds( get_persistent_component<Cmp::Persistent::PlayerFootstepFadeDelay>().get_value() ) )
     {
       alpha.m_alpha -= kFootstepFadeFactor;
       if ( alpha.m_alpha <= 0.f )

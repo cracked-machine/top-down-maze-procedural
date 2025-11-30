@@ -17,14 +17,11 @@
 namespace ProceduralMaze::Sys
 {
 
-LootSystem::LootSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                        Audio::SoundBank &sound_bank )
+LootSystem::LootSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-  std::ignore = get_systems_event_queue()
-                    .sink<Events::LootContainerDestroyedEvent>()
-                    .connect<&LootSystem::on_loot_container_destroyed>( this );
+  std::ignore = get_systems_event_queue().sink<Events::LootContainerDestroyedEvent>().connect<&LootSystem::on_loot_container_destroyed>( this );
   SPDLOG_DEBUG( "LootSystem initialized" );
 }
 
@@ -120,11 +117,8 @@ void LootSystem::check_loot_collision()
       continue;
     }
 
-    // Remove the loot component
-    getReg().remove<Cmp::Loot>( effect.loot_entity );
-    getReg().remove<Cmp::SpriteAnimation>( effect.loot_entity );
-    getReg().remove<Cmp::ZOrderValue>( effect.loot_entity );
-    getReg().emplace_or_replace<Cmp::Destructable>( effect.loot_entity );
+    // Remove the loot entity
+    getReg().destroy( effect.loot_entity );
   }
 }
 
@@ -135,6 +129,8 @@ void LootSystem::detonate_loot_container( const Events::LootContainerDestroyedEv
       std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "WEAPON_BOOST" } );
   getReg().remove<Cmp::LootContainer>( event.m_entity );
   getReg().remove<Cmp::ReservedPosition>( event.m_entity );
+  getReg().remove<Cmp::SpriteAnimation>( event.m_entity );
+  getReg().remove<Cmp::ZOrderValue>( event.m_entity );
 
   // create a new entity for the loot drop at the same position as the detonated loot container
   auto pos_cmp = getReg().try_get<Cmp::Position>( event.m_entity );
@@ -145,9 +141,8 @@ void LootSystem::detonate_loot_container( const Events::LootContainerDestroyedEv
     getReg().emplace<Cmp::Loot>( new_loot_entity, obstacle_type, random_obstacle_texture_index );
     getReg().emplace<Cmp::SpriteAnimation>( new_loot_entity, 0, 0, true, obstacle_type, random_obstacle_texture_index );
     getReg().emplace<Cmp::ZOrderValue>( new_loot_entity, pos_cmp->position.y );
-    SPDLOG_INFO( "Created loot entity {} of type {} at position ({}, {}) from destroyed loot container {}",
-                 static_cast<int>( new_loot_entity ), obstacle_type, pos_cmp->position.x, pos_cmp->position.y,
-                 static_cast<int>( event.m_entity ) );
+    SPDLOG_INFO( "Created loot entity {} of type {} at position ({}, {}) from destroyed loot container {}", static_cast<int>( new_loot_entity ),
+                 obstacle_type, pos_cmp->position.x, pos_cmp->position.y, static_cast<int>( event.m_entity ) );
 
     auto &break_pot_player = m_sound_bank.get_effect( "break_pot" );
     if ( break_pot_player.getStatus() == sf::Sound::Status::Stopped ) { break_pot_player.play(); }

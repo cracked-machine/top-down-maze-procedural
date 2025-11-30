@@ -69,8 +69,8 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
   while ( attempts < kMaxAttempts )
   {
     auto [random_entity, random_pos] = get_random_position(
-        IncludePack<Cmp::Obstacle>{},
-        ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, current_seed );
+        IncludePack<Cmp::Obstacle>{}, ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{},
+        current_seed );
 
     auto &wormhole_ms = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
     Cmp::WormholeMultiBlock wormhole_block( random_pos.position,
@@ -254,7 +254,7 @@ void WormholeSystem::check_player_wormhole_collision()
 
       // Get unique random position for this actor entity
       auto [new_spawn_entity, new_spawn_pos_cmp] = get_random_position(
-          IncludePack<Cmp::Obstacle>{}, ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>{}, 0 );
+          IncludePack<Cmp::Obstacle>{}, ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>{}, 0 );
 
       // destroy any obstacles at the new actor spawn position
       auto existing_obstacle_cmp = getReg().try_get<Cmp::Obstacle>( new_spawn_entity );

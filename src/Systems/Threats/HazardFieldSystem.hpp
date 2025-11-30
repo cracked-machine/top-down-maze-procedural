@@ -1,7 +1,9 @@
 #ifndef SRC_SYSTEMS_HAZARDFIELDSYSTEM_HPP__
 #define SRC_SYSTEMS_HAZARDFIELDSYSTEM_HPP__
 
+#include <Components/NoPathFinding.hpp>
 #include <Components/Persistent/CorruptionDamage.hpp>
+#include <Components/PlayerDistance.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerMortality.hpp>
 #include <Components/SpriteAnimation.hpp>
@@ -89,8 +91,7 @@ public:
   //! @param reg Smart pointer to the entt registry
   //! @param window Reference to the SFML render window
   //! @param sprite_factory Reference to the sprite factory
-  HazardFieldSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                     Audio::SoundBank &sound_bank )
+  HazardFieldSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
       : Sys::BaseSystem( reg, window, sprite_factory, sound_bank )
   {
     // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
@@ -116,13 +117,13 @@ public:
 
     unsigned long seed = get_persistent_component<typename Traits::SeedType>().get_value();
     auto [random_entity, random_pos] = get_random_position(
-        IncludePack<Cmp::Obstacle>{},
-        ExcludePack<Cmp::Wall, Cmp::Door, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
+        IncludePack<Cmp::Obstacle>{}, ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
     if ( random_entity == entt::null ) { return; }
 
     getReg().template emplace<HazardType>( random_entity );
     getReg().template emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, Traits::sprite_type, 0 );
     getReg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 1.f );
+    getReg().template emplace_or_replace<Cmp::NoPathFinding>( random_entity );
     getReg().template remove<Cmp::Obstacle>( random_entity );
     SPDLOG_INFO( "Hazard field seeded at position [{}, {}].", random_pos.position.x, random_pos.position.y );
   }
@@ -164,9 +165,14 @@ public:
         if ( getReg().template try_get<HazardType>( obstacle_entity ) ) continue;
         if ( hazard_spread_picker.gen() == 0 )
         {
-          getReg().template emplace<HazardType>( obstacle_entity );
+          getReg().template emplace_or_replace<HazardType>( obstacle_entity );
           getReg().template emplace_or_replace<Cmp::SpriteAnimation>( obstacle_entity, 0, 0, true, Traits::sprite_type, 0 );
           getReg().template emplace_or_replace<Cmp::ZOrderValue>( obstacle_entity, obst_pos_cmp.position.y - 1.f );
+          getReg().template emplace_or_replace<Cmp::NoPathFinding>( obstacle_entity );
+          if ( getReg().template all_of<Cmp::PlayerDistance>( obstacle_entity ) )
+          {
+            getReg().template remove<Cmp::PlayerDistance>( obstacle_entity );
+          }
           getReg().template remove<Cmp::Obstacle>( obstacle_entity );
           SPDLOG_DEBUG( "New hazard field created at entity {}", static_cast<uint32_t>( obstacle_entity ) );
           return; // only add one hazard cell per update period

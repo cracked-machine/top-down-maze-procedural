@@ -1,4 +1,4 @@
-ColumnLimit: 132
+ColumnLimit: 150
 BreakConstructorInitializers: BeforeColon
 PackConstructorInitializers: Never
 AlignAfterOpenBracket: Align
