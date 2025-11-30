@@ -31,15 +31,22 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
+  //! @brief Refreshes the Z-order rendering queue
   void refresh_z_order_queue();
 
+  //! @brief Initializes the views used for rendering
   void init_views();
+
+  //! @brief Initializes the shaders used for rendering
   void init_shaders();
+
+  //! @brief Initializes the tilemap used for rendering the game world
   void init_tilemap();
+
+  //! @brief Clears the tilemap data
   void clear_tilemap();
 
   //! @brief Entrypoint for rendering the game
-  //!
   //! @param deltaTime
   //! @param render_overlay_sys anything that is not part of the game world itself. i.e. UI, debug info, etc..
   //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc.. as well as death
@@ -47,54 +54,56 @@ public:
   void render_game( sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys, RenderPlayerSystem &render_player_sys );
 
 private:
+  //! @brief Renders the game world floor
+  //! @param offset The offset to apply to the floor rendering
   void render_floormap( const sf::Vector2f &offset = { 0.f, 0.f } );
-  void render_npc_containers();
-  void render_loot_containers();
-  void render_small_obstacles();
-  void render_large_obstacles();
-  void render_sinkhole();
-  void render_corruption();
-  void render_wormhole();
-  void render_armed();
-  void render_loot();
-  void render_walls();
-  void render_player_spawn();
 
-  void render_explosions();
+  //! @brief Renders the armed obstacles in the game world
+  void render_armed();
+
+  //! @brief Renders the flood water background effect
+  //! @param player_position
   void render_background_water( sf::FloatRect player_position );
+
+  //! @brief Renders the mist effect over the game world
   void render_mist( sf::FloatRect player_position );
 
+  //! @brief Renders the arrow compass effect
   void render_arrow_compass();
 
-  // Views
-  const sf::Vector2f kLocalMapViewSize{ 300.f, 200.f };
-  const float kMiniMapViewZoomFactor = 0.25f;
-
+  //! @brief This is the section of the game world that is visible to the player
   sf::View m_local_view;
+
+  //! @brief m_local_view dimension
+  const sf::Vector2f kLocalMapViewSize{ 300.f, 200.f };
+
+  // unused?
+  const float kMiniMapViewZoomFactor = 0.25f;
   sf::View m_minimap_view;
-  const float kStartGameSmoothFactor = 1.f; // instant centering on start
+
+  //! @brief The floormap object. This is effectively a single texture for rendering the entire floor of the game world
+  Sprites::Containers::TileMap m_floormap{};
 
   // Shaders
   Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", kDisplaySize };
-  // make the view size 16x16 grid squares for the 9x9 wormhole shader effect so that it blurs the edges better
   Sprites::ViewFragmentShader m_wormhole_shader{ "res/shaders/SimpleDistortionField.frag",
                                                  BaseSystem::kGridSquareSizePixels.componentWiseMul( { 3u, 3u } ) };
   Sprites::PulsingShader m_pulsing_shader{ "res/shaders/RedPulsingSand.frag", kDisplaySize };
   Sprites::MistShader m_mist_shader{ "res/shaders/MistShader.frag", kDisplaySize };
 
-  // Sprites
-  Sprites::Containers::TileMap m_floormap{};
-
-  // restrict the path tracking data update to every 0.1 seconds (optimization)
+  // optimize the debug overlay updates to every n milliseconds
   const sf::Time m_debug_update_interval{ sf::milliseconds( 10 ) };
   sf::Clock m_debug_update_timer;
 
+  // compass arrow variables
   float m_compass_scale{ 1.f };
   sf::Clock m_compass_osc_clock;
   float m_compass_freq{ 4.0f }; // oscillations per second
   float m_compass_min_scale{ 0.5f };
   float m_compass_max_scale{ 1.5f };
 
+  //! @brief The z-order queue for rendering
+  //! Each frame, this queue is refreshed to ensure correct rendering order
   std::vector<ZOrder> m_zorder_queue_;
 };
 
