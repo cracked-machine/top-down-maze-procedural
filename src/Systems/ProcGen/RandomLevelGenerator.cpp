@@ -1,3 +1,4 @@
+#include <Components/AbsoluteAlpha.hpp>
 #include <Components/AltarMultiBlock.hpp>
 #include <Components/CryptDoor.hpp>
 #include <Components/CryptMultiBlock.hpp>
@@ -354,6 +355,7 @@ void RandomLevelGenerator::gen_small_obstacles()
       getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y + ( zorder * 2.f ) );
       getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
     }
+    getReg().emplace_or_replace<Cmp::AbsoluteAlpha>( entity, 255 );
     getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, obst_type, rand_obst_tex_idx );
     getReg().emplace_or_replace<Cmp::Armable>( entity );
     getReg().emplace_or_replace<Cmp::Neighbours>( entity );

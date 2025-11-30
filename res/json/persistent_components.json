@@ -32,9 +32,9 @@
     "value": 0.4
   },
   "DiggingDamagePerHit":{
-    "type": "float",
-    "value": 0.25
-  },  
+    "type": "int",
+    "value": 64
+  },
   "EffectsVolume": {
     "type": "float",
     "value": 20.0

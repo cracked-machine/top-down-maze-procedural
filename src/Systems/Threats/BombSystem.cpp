@@ -291,6 +291,7 @@ void BombSystem::update()
     getReg().remove<Cmp::Armed>( armed_entt );
     getReg().remove<Cmp::SpriteAnimation>( armed_entt );
     getReg().remove<Cmp::ZOrderValue>( armed_entt );
+    if ( getReg().all_of<Cmp::NoPathFinding>( armed_entt ) ) { getReg().remove<Cmp::NoPathFinding>( armed_entt ); }
 
     // Replace the armed position with a detonated sprite for visual effect - make sure its z-order is furthest back
     getReg().emplace<Cmp::SpriteAnimation>( armed_entt, 0, 0, true, "DETONATED", 0 );

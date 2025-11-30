@@ -50,7 +50,7 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
   auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position>();
   for ( auto [entity, obs_cmp, pos_cmp] : obstacle_view.each() )
   {
-    if ( obs_cmp.m_enabled == false || obs_cmp.m_integrity <= 0.0f ) continue;
+    if ( obs_cmp.m_enabled == false ) continue;
     if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 

@@ -250,25 +250,26 @@ bool LargeObstacleSystem::activate_altar_special_power()
         }
         break;
       }
-      case 2:
-      {
-        SPDLOG_INFO( "Special Power: Re-enable all nearby obstacles!" );
-        auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position>();
-        for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : obstacle_view.each() )
-        {
-          if ( is_visible_in_view( RenderSystem::getGameView(), obst_pos_cmp ) )
-          {
-            // only re-enable obstacles the player destroyed
-            if ( not obst_cmp.m_enabled && obst_cmp.m_integrity <= 0.0f )
-            {
-              SPDLOG_INFO( "Re-enabled obstacle at ({}, {})", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
-              obst_cmp.m_enabled = true;
-              obst_cmp.m_integrity = 1.0f;
-            }
-          }
-        }
-        break;
-      }
+      // TODO FIX this later
+      // Probably just find all open squares and re-add obstacles there
+      // case 2:
+      // {
+      //   SPDLOG_INFO( "Special Power: Re-enable all nearby obstacles!" );
+      //   auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position>();
+      //   for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : obstacle_view.each() )
+      //   {
+      //     if ( is_visible_in_view( RenderSystem::getGameView(), obst_pos_cmp ) )
+      //     {
+      //       // only re-enable obstacles the player destroyed
+      //       if ( not obst_cmp.m_enabled )
+      //       {
+      //         SPDLOG_INFO( "Re-enabled obstacle at ({}, {})", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
+      //         obst_cmp.m_enabled = true;
+      //       }
+      //     }
+      //   }
+      //   break;
+      // }
       case 3:
       {
         SPDLOG_INFO( "Special Power: Open all loot containers!" );

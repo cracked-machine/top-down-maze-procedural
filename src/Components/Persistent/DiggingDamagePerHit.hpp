@@ -3,12 +3,13 @@
 
 #include <Components/Persistent/BasePersistent.hpp>
 
-namespace ProceduralMaze::Cmp::Persistent {
-
-struct DiggingDamagePerHit : public BasePersistent<float>
+namespace ProceduralMaze::Cmp::Persistent
 {
-  DiggingDamagePerHit( float value = 0.25f, float min_value = 0.01f, float max_value = 1.0f )
-      : BasePersistent<float>( value, min_value, max_value )
+
+struct DiggingDamagePerHit : public BasePersistent<uint8_t>
+{
+  DiggingDamagePerHit( uint8_t value = 32, uint8_t min_value = 64, uint8_t max_value = 128 )
+      : BasePersistent<uint8_t>( value, min_value, max_value )
   {
   }
   virtual std::string class_name() const override { return "DiggingDamagePerHit"; }

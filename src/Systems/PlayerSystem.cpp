@@ -31,8 +31,8 @@
 namespace ProceduralMaze::Sys
 {
 
-PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                            Audio::SoundBank &sound_bank, entt::dispatcher &scenemanager_event_dispatcher )
+PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
+                            entt::dispatcher &scenemanager_event_dispatcher )
     : BaseSystem( reg, window, sprite_factory, sound_bank ),
       m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
 {
@@ -89,11 +89,12 @@ void PlayerSystem::update_movement( sf::Time globalDeltaTime, bool skip_collisio
 {
   const float dt = globalDeltaTime.asSeconds();
 
-  auto player_view = getReg()
-                         .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds,
-                               Cmp::SpriteAnimation>();
+  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds, Cmp::SpriteAnimation>();
   for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, pc_detection_bounds, anim_cmp] : player_view.each() )
   {
+    // always set the player, even if not moving
+    auto zorder_cmp = getReg().try_get<Cmp::ZOrderValue>( entity );
+    if ( zorder_cmp ) { zorder_cmp->setZOrder( pos_cmp.position.y ); }
 
     auto lerp_cmp = getReg().try_get<Cmp::LerpPosition>( entity );
     bool wants_to_move = dir_cmp != sf::Vector2f( 0.0f, 0.0f );
@@ -192,8 +193,6 @@ void PlayerSystem::update_movement( sf::Time globalDeltaTime, bool skip_collisio
         pc_detection_bounds.position( pos_cmp.position );
         getReg().remove<Cmp::LerpPosition>( entity );
       }
-      auto zorder_cmp = getReg().try_get<Cmp::ZOrderValue>( entity );
-      if ( zorder_cmp ) { zorder_cmp->setZOrder( pos_cmp.position.y ); }
     }
   }
 }

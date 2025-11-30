@@ -1,4 +1,5 @@
 #include <Components/GraveSegment.hpp>
+#include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/WormholeMultiBlock.hpp>
 #include <spdlog/spdlog.h>
 
@@ -83,6 +84,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
   auto moving_player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Direction, Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [entity, pc_cmp, dir_cmp, anim_cmp, pos_cmp] : moving_player_view.each() )
   {
+
     if ( not anim_cmp.m_animation_active ) continue;
     if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
     auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::PlayerAnimFramerate>().get_value() );
@@ -117,8 +119,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
     // Update the frame first
     update_single_sequence( anim_cmp, globalDeltaTime, explosion_sprite_metadata, frame_rate );
 
-    SPDLOG_DEBUG( "After update_frame - current_frame: {}, elapsed_time: {}s", anim_cmp.m_current_frame,
-                  anim_cmp.m_elapsed_time.asSeconds() );
+    SPDLOG_DEBUG( "After update_frame - current_frame: {}, elapsed_time: {}s", anim_cmp.m_current_frame, anim_cmp.m_elapsed_time.asSeconds() );
 
     // have we completed the animation?
     if ( anim_cmp.m_current_frame == explosion_sprite_metadata.get_sprites_per_sequence() - 1 )
@@ -133,8 +134,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
   }
 }
 
-void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const Sprites::MultiSprite &ms,
-                                         sf::Time frame_rate )
+void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const Sprites::MultiSprite &ms, sf::Time frame_rate )
 {
   anim.m_elapsed_time += globalDeltaTime;
 
@@ -156,8 +156,7 @@ void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time gl
   }
 }
 
-void AnimSystem::update_grouped_sequences( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const Sprites::MultiSprite &ms,
-                                           sf::Time frame_rate )
+void AnimSystem::update_grouped_sequences( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const Sprites::MultiSprite &ms, sf::Time frame_rate )
 {
   anim.m_elapsed_time += globalDeltaTime;
 

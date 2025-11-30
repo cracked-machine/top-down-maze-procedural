@@ -1,3 +1,4 @@
+#include <Components/AbsoluteAlpha.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/SpriteAnimation.hpp>
@@ -70,8 +71,8 @@ void DiggingSystem::check_player_dig_obstacle_collision()
   }
 
   // Iterate through all entities with Position and Obstacle components
-  auto position_view = getReg().view<Cmp::Position, Cmp::Obstacle>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
-  for ( auto [entity, pos_cmp, obst_cmp] : position_view.each() )
+  auto position_view = getReg().view<Cmp::Position, Cmp::Obstacle, Cmp::AbsoluteAlpha>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
+  for ( auto [obst_entity, obst_pos_cmp, obst_cmp, alpha_cmp] : position_view.each() )
   {
     // skip positions with non diggable obstacles
     if ( not obst_cmp.m_enabled ) continue;
@@ -82,7 +83,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
 
     // Check if the mouse position intersects with the entity's position
     auto mouse_position_bounds = sf::FloatRect( mouse_world_pos, sf::Vector2f( 2.f, 2.f ) );
-    if ( mouse_position_bounds.findIntersection( pos_cmp ) )
+    if ( mouse_position_bounds.findIntersection( obst_pos_cmp ) )
     {
       SPDLOG_DEBUG( "Found diggable entity at position: [{}, {}]!", pos_cmp.position.x, pos_cmp.position.y );
 
@@ -95,7 +96,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
         auto half_sprite_size = kGridSquareSizePixelsF;
         auto player_horizontal_bounds = Cmp::RectBounds( pc_pos_cmp.position, half_sprite_size, 1.5f, Cmp::RectBounds::ScaleCardinality::HORIZONTAL );
         auto player_vertical_bounds = Cmp::RectBounds( pc_pos_cmp.position, half_sprite_size, 1.5f, Cmp::RectBounds::ScaleCardinality::VERTICAL );
-        if ( player_horizontal_bounds.findIntersection( pos_cmp ) || player_vertical_bounds.findIntersection( pos_cmp ) )
+        if ( player_horizontal_bounds.findIntersection( obst_pos_cmp ) || player_vertical_bounds.findIntersection( obst_pos_cmp ) )
         {
           player_nearby = true;
           break;
@@ -111,11 +112,16 @@ void DiggingSystem::check_player_dig_obstacle_collision()
 
       // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
       // Add a new SelectedPosition component to the entity
-      getReg().emplace_or_replace<Cmp::SelectedPosition>( entity, pos_cmp.position );
+      getReg().emplace_or_replace<Cmp::SelectedPosition>( obst_entity, obst_pos_cmp.position );
 
       // Apply digging damage, play a sound depending on whether the obstacle was destroyed
       m_dig_cooldown_clock.restart();
-      obst_cmp.m_integrity -= get_persistent_component<Cmp::Persistent::DiggingDamagePerHit>().get_value();
+      
+      auto damage_per_dig = get_persistent_component<Cmp::Persistent::DiggingDamagePerHit>().get_value();
+      alpha_cmp.setAlpha( std::max( 0, alpha_cmp.getAlpha() - damage_per_dig ) );
+      SPDLOG_INFO( "Applied {} digging damage to obstacle at position ({}, {}), new alpha is {}.", damage_per_dig, obst_pos_cmp.position.x,
+                   obst_pos_cmp.position.y, alpha_cmp.getAlpha() );
+
       auto player_weapons_view = getReg().view<Cmp::WeaponLevel, Cmp::PlayableCharacter>();
       for ( auto [weapons_entity, weapons_level, pc_cmp] : player_weapons_view.each() )
       {
@@ -124,27 +130,29 @@ void DiggingSystem::check_player_dig_obstacle_collision()
         SPDLOG_DEBUG( "Player weapons level decreased to {} after digging!", weapons_level.m_level );
       }
 
-      if ( obst_cmp.m_integrity <= 0.0f )
+      if ( alpha_cmp.getAlpha() == 0 )
       {
         // select the final smash sound
         m_sound_bank.get_effect( "pickaxe_final" ).play();
-        // disable the obstacle but replace the sprite and reset its integrity so it will be drawn fully opaque.
-        obst_cmp.m_enabled = false;
-        obst_cmp.m_integrity = 1.0f;
-        getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "DETONATED", 0 );
-        // Reduce the zorder to guarantee it is drawn beneath the player
-        getReg().patch<Cmp::ZOrderValue>( entity, []( Cmp::ZOrderValue &z_order_cmp ) { z_order_cmp.setZOrder( -1 ); } );
-        // allow pathfinding through the dug obstacle
-        if ( getReg().all_of<Cmp::NoPathFinding>( entity ) ) { getReg().remove<Cmp::NoPathFinding>( entity ); }
-        SPDLOG_DEBUG( "Digged through obstacle at position ({}, {})!", pos_cmp.x, pos_cmp.y );
+
+        // remove the obstacle components
+        getReg().remove<Cmp::Obstacle>( obst_entity );
+        getReg().remove<Cmp::ZOrderValue>( obst_entity );
+        getReg().remove<Cmp::SpriteAnimation>( obst_entity );
+        if ( getReg().all_of<Cmp::NoPathFinding>( obst_entity ) ) { getReg().remove<Cmp::NoPathFinding>( obst_entity ); }
+
+        // replace it with a detonated sprite animation - reset the entity's alpha component or we'll never see it again!!!
+        getReg().emplace_or_replace<Cmp::SpriteAnimation>( obst_entity, 0, 0, true, "DETONATED", 0 );
+        getReg().emplace_or_replace<Cmp::ZOrderValue>( obst_entity, obst_pos_cmp.position.y - 256.f );
+        getReg().emplace_or_replace<Cmp::AbsoluteAlpha>( obst_entity, 255 );
+
+        SPDLOG_INFO( "Digged through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
       }
       else
       {
         // select all pickaxe sounds except the final smash sound
         Cmp::RandomInt random_picker( 1, 6 );
         m_sound_bank.get_effect( "pickaxe" + std::to_string( random_picker.gen() ) ).play();
-
-        SPDLOG_DEBUG( "Digged obstacle at position ({}, {}), remaining integrity: {}!", pos_cmp.x, pos_cmp.y, obst_cmp.m_integrity );
       }
     }
   }

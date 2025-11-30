@@ -1,3 +1,4 @@
+#include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/AltarMultiBlock.hpp>
@@ -46,7 +47,6 @@
 
 namespace ProceduralMaze::Sys
 {
-using Cmp::WormholeMultiBlock;
 
 RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
                                     Audio::SoundBank &sound_bank )
@@ -135,8 +135,8 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
           const auto &anim_cmp = getReg().get<Cmp::SpriteAnimation>( entity );
 
           uint8_t alpha_value = 255;
-          auto obst_cmp = getReg().try_get<Cmp::Obstacle>( entity );
-          if ( obst_cmp ) alpha_value = static_cast<uint8_t>( obst_cmp->m_integrity * 255.0f );
+          auto obst_cmp = getReg().try_get<Cmp::AbsoluteAlpha>( entity );
+          if ( obst_cmp ) alpha_value = static_cast<uint8_t>( obst_cmp->getAlpha() );
 
           sf::Vector2f new_origin_value = { 0.F, 0.F };
           auto new_offset_cmp = getReg().try_get<Cmp::AbsoluteOffset>( entity );

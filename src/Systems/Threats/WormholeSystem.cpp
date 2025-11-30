@@ -1,6 +1,7 @@
 #include <Components/AltarSegment.hpp>
 #include <Components/Exit.hpp>
 #include <Components/GraveSegment.hpp>
+#include <Components/NoPathFinding.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/WormholeJump.hpp>
 #include <Components/WormholeMultiBlock.hpp>
@@ -246,14 +247,12 @@ void WormholeSystem::check_player_wormhole_collision()
       auto [new_spawn_entity, new_spawn_pos_cmp] = get_random_position( IncludePack<Cmp::Obstacle>{},
                                                                         ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>{}, 0 );
 
-      // destroy any obstacles at the new actor spawn position
-      auto existing_obstacle_cmp = getReg().try_get<Cmp::Obstacle>( new_spawn_entity );
-      if ( existing_obstacle_cmp )
-      {
-        SPDLOG_INFO( "Entity {} - Removing obstacle at new spawn ({}, {})", static_cast<uint32_t>( entity ), new_spawn_pos_cmp.position.x,
-                     new_spawn_pos_cmp.position.y );
-        existing_obstacle_cmp->m_integrity = 0.0f;
-      }
+      if ( getReg().all_of<Cmp::Obstacle>( new_spawn_entity ) ) getReg().remove<Cmp::Obstacle>( new_spawn_entity );
+      if ( getReg().all_of<Cmp::ZOrderValue>( new_spawn_entity ) ) getReg().remove<Cmp::ZOrderValue>( new_spawn_entity );
+      if ( getReg().all_of<Cmp::SpriteAnimation>( new_spawn_entity ) ) getReg().remove<Cmp::SpriteAnimation>( new_spawn_entity );
+      if ( getReg().all_of<Cmp::NoPathFinding>( new_spawn_entity ) ) { getReg().remove<Cmp::NoPathFinding>( new_spawn_entity ); }
+      getReg().emplace_or_replace<Cmp::SpriteAnimation>( new_spawn_entity, 0, 0, true, "DETONATED", 0 );
+      getReg().emplace_or_replace<Cmp::ZOrderValue>( new_spawn_entity, new_spawn_pos_cmp.position.y - 256.f );
 
       // update the teleported entity's components
       SPDLOG_INFO( "Entity {} - TELEPORTING NOW!", static_cast<uint32_t>( entity ) );
