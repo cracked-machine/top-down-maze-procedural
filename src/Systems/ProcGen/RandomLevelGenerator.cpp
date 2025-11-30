@@ -380,7 +380,7 @@ void RandomLevelGenerator::gen_loot_containers()
 
     getReg().emplace_or_replace<Cmp::ReservedPosition>( random_entity );
     getReg().emplace_or_replace<Cmp::Destructable>( random_entity );
-    getReg().emplace_or_replace<Cmp::LootContainer>( random_entity, loot_type, rand_loot_tex_idx );
+    getReg().emplace_or_replace<Cmp::LootContainer>( random_entity );
     getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, loot_type, rand_loot_tex_idx );
     // Set the z-order value so that the spawn area is rendered above ground but below everything else
     float zorder = m_sprite_factory.get_sprite_size_by_type( "PLAYERSPAWN" ).y;
@@ -489,9 +489,9 @@ void RandomLevelGenerator::stats()
   {
     results[_ob.m_type]++;
   }
-  for ( auto [entity, _pos, _lc] : getReg().view<Cmp::Position, Cmp::LootContainer>().each() )
+  for ( auto [entity, _pos, _sa] : getReg().view<Cmp::Position, Cmp::SpriteAnimation>().each() )
   {
-    results[_lc.m_type]++;
+    results[_sa.m_sprite_type]++;
   }
   SPDLOG_INFO( "Object Pick distribution:" );
   for ( auto [bin, freq] : results )

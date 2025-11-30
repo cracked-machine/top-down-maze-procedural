@@ -3,20 +3,13 @@
 
 #include <Sprites/MultiSprite.hpp>
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
 // Loot container concept
-class LootContainer
+struct LootContainer
 {
-public:
-  LootContainer( Sprites::SpriteMetaType type, std::size_t tile_index = 0 )
-      : m_type( type ),
-        m_tile_index( tile_index )
-  {
-  }
-
-  Sprites::SpriteMetaType m_type;
-  unsigned int m_tile_index{ 0 };
+  [[maybe_unused]] bool active = true;
 };
 
 } // namespace ProceduralMaze::Cmp
