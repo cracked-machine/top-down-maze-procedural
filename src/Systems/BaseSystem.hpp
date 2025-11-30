@@ -367,7 +367,7 @@ public:
    * @return entt::entity The newly created loot entity, or entt::null if no suitable location was found.
    */
   template <typename... Include, typename... Exclude>
-  entt::entity create_loot_drop( Cmp::Loot &&loot_cmp, sf::FloatRect search, IncludePack<Include...>, ExcludePack<Exclude...> )
+  entt::entity create_loot_drop( Cmp::SpriteAnimation &&loot_anim_cmp, sf::FloatRect search, IncludePack<Include...>, ExcludePack<Exclude...> )
   {
     auto pos_view = getReg().view<Cmp::Position, Include...>( entt::exclude<Exclude...> );
 
@@ -380,15 +380,15 @@ public:
 
         auto new_loot_entity = getReg().create();
         getReg().emplace<Cmp::Position>( new_loot_entity, pos_cmp.position, pos_cmp.size );
-        getReg().emplace<Cmp::SpriteAnimation>( new_loot_entity, 0, 0, true, loot_cmp.m_type, loot_cmp.m_tile_index );
+        getReg().emplace<Cmp::SpriteAnimation>( new_loot_entity, loot_anim_cmp );
         getReg().emplace<Cmp::ZOrderValue>( new_loot_entity, pos_cmp.position.y - 16.f );
-        getReg().emplace<Cmp::Loot>( new_loot_entity, loot_cmp.m_type, loot_cmp.m_tile_index );
-        SPDLOG_INFO( "Created loot entity {} of type {} at position ({}, {})", static_cast<int>( new_loot_entity ), loot_cmp.m_type,
+        getReg().emplace<Cmp::Loot>( new_loot_entity );
+        SPDLOG_INFO( "Created loot entity {} of type {} at position ({}, {})", static_cast<int>( new_loot_entity ), loot_anim_cmp.m_sprite_type,
                      pos_cmp.position.x, pos_cmp.position.y );
         return new_loot_entity;
       }
     }
-    SPDLOG_WARN( "Failed to drop {} at [{},{}].", loot_cmp.m_type, search.position.x, search.position.y );
+    SPDLOG_WARN( "Failed to drop {} at [{},{}].", loot_anim_cmp.m_sprite_type, search.position.x, search.position.y );
     return entt::null;
   }
 

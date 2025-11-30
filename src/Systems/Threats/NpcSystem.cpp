@@ -28,16 +28,12 @@
 namespace ProceduralMaze::Sys
 {
 
-NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                      Audio::SoundBank &sound_bank )
+NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-  std::ignore = Sys::BaseSystem::get_systems_event_queue()
-                    .sink<Events::NpcCreationEvent>()
-                    .connect<&Sys::NpcSystem::on_npc_creation>( this );
-  std::ignore = Sys::BaseSystem::get_systems_event_queue().sink<Events::NpcDeathEvent>().connect<&Sys::NpcSystem::on_npc_death>(
-      this );
+  std::ignore = Sys::BaseSystem::get_systems_event_queue().sink<Events::NpcCreationEvent>().connect<&Sys::NpcSystem::on_npc_creation>( this );
+  std::ignore = Sys::BaseSystem::get_systems_event_queue().sink<Events::NpcDeathEvent>().connect<&Sys::NpcSystem::on_npc_death>( this );
   SPDLOG_DEBUG( "NpcSystem initialized" );
 }
 
@@ -56,8 +52,7 @@ void NpcSystem::add_npc_entity( const Events::NpcCreationEvent &event )
   getReg().emplace<Cmp::Destructable>( new_pos_entity );
   getReg().emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 0, 0 } );
   auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NpcScanScale>();
-  getReg().emplace_or_replace<Cmp::NPCScanBounds>( new_pos_entity, pos_cmp->position, kGridSquareSizePixelsF,
-                                                   npc_scan_scale.get_value() );
+  getReg().emplace_or_replace<Cmp::NPCScanBounds>( new_pos_entity, pos_cmp->position, kGridSquareSizePixelsF, npc_scan_scale.get_value() );
   if ( event.type == "NPCGHOST" )
   {
     getReg().emplace_or_replace<Cmp::NPC>( new_pos_entity );
@@ -81,14 +76,14 @@ void NpcSystem::add_npc_entity( const Events::NpcCreationEvent &event )
 
   if ( event.type == "NPCGHOST" )
   {
-    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), event.type,
-                 pos_cmp->position.x, pos_cmp->position.y );
+    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), event.type, pos_cmp->position.x,
+                 pos_cmp->position.y );
     m_sound_bank.get_effect( "spawn_ghost" ).play();
   }
   else if ( event.type == "NPCSKELE" )
   {
-    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), event.type,
-                 pos_cmp->position.x, pos_cmp->position.y );
+    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), event.type, pos_cmp->position.x,
+                 pos_cmp->position.y );
     m_sound_bank.get_effect( "spawn_skeleton" ).play();
   }
 }
@@ -97,10 +92,7 @@ void NpcSystem::remove_npc_entity( entt::entity npc_entity )
 {
   // check for position component
   auto npc_pos_cmp = getReg().try_get<Cmp::Position>( npc_entity );
-  if ( not npc_pos_cmp )
-  {
-    SPDLOG_WARN( "Cannot process loot drop for NPC entity {} without a Position component", static_cast<int>( npc_entity ) );
-  }
+  if ( not npc_pos_cmp ) { SPDLOG_WARN( "Cannot process loot drop for NPC entity {} without a Position component", static_cast<int>( npc_entity ) ); }
   else
   {
     // 1 in 20 chance of dropping a relic
@@ -110,7 +102,7 @@ void NpcSystem::remove_npc_entity( entt::entity npc_entity )
       auto npc_pos_cmp_bounds = Cmp::RectBounds( npc_pos_cmp->position, kGridSquareSizePixelsF, 1.5f );
       // clang-format off
       auto loot_entity = create_loot_drop( 
-        Cmp::Loot( "RELIC_DROP", 0 ),                                   
+        Cmp::SpriteAnimation( 0,0, true,"RELIC_DROP", 0 ),                                   
         sf::FloatRect{ npc_pos_cmp_bounds.position(), npc_pos_cmp_bounds.size() },
         IncludePack<>{}, 
         ExcludePack<>{} 
@@ -222,8 +214,7 @@ void NpcSystem::check_bones_reanimation()
       auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NpcActivateScale>();
       // we just create a temporary RectBounds here instead of a component because we only need it for
       // this one comparison and it already contains the needed scaling logic
-      auto npc_activate_bounds = Cmp::RectBounds( npccontainer_pos_cmp.position, kGridSquareSizePixelsF,
-                                                  npc_activate_scale.get_value() );
+      auto npc_activate_bounds = Cmp::RectBounds( npccontainer_pos_cmp.position, kGridSquareSizePixelsF, npc_activate_scale.get_value() );
 
       if ( pc_pos_cmp.findIntersection( npc_activate_bounds.getBounds() ) )
       {
@@ -236,9 +227,7 @@ void NpcSystem::check_bones_reanimation()
 
 void NpcSystem::check_player_to_npc_collision()
 {
-  auto player_collision_view = getReg()
-                                   .view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position,
-                                         Cmp::Direction>();
+  auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position, Cmp::Direction>();
   auto npc_collision_view = getReg().view<Cmp::NPC, Cmp::Position>();
   auto &npc_push_back = get_persistent_component<Cmp::Persistent::NpcPushBack>();
   auto &pc_damage_cooldown = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
@@ -268,8 +257,7 @@ void NpcSystem::check_player_to_npc_collision()
       pc_cmp.m_damage_cooldown_timer.restart();
 
       // Find a valid pushback position by checking all 8 directions
-      sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp.position, npc_pos_cmp.position, dir_cmp,
-                                                                     npc_push_back.get_value() );
+      sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp.position, npc_pos_cmp.position, dir_cmp, npc_push_back.get_value() );
 
       // Update player position if we found a valid pushback position
       if ( target_push_back_pos != pc_pos_cmp.position ) { pc_pos_cmp.position = target_push_back_pos; }
@@ -288,8 +276,8 @@ void NpcSystem::on_npc_creation( const Events::NpcCreationEvent &event )
   add_npc_entity( event );
 }
 
-sf::Vector2f NpcSystem::findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos,
-                                                   const sf::Vector2f &player_direction, float pushback_distance )
+sf::Vector2f NpcSystem::findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos, const sf::Vector2f &player_direction,
+                                                   float pushback_distance )
 {
   // Define all 8 directions (N, NE, E, SE, S, SW, W, NW)
   std::vector<sf::Vector2f> directions = {

@@ -3,18 +3,12 @@
 
 #include <Sprites/SpriteFactory.hpp>
 
-namespace ProceduralMaze::Cmp {
-
-class Loot
+namespace ProceduralMaze::Cmp
 {
-public:
-  Loot( Sprites::SpriteMetaType type, std::size_t tile_index )
-      : m_type( type ),
-        m_tile_index( tile_index )
-  {
-  }
-  Sprites::SpriteMetaType m_type;
-  std::size_t m_tile_index;
+
+struct Loot
+{
+  [[maybe_unused]] bool active = true;
 };
 
 } // namespace ProceduralMaze::Cmp

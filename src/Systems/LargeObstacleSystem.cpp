@@ -140,7 +140,7 @@ void LargeObstacleSystem::check_player_altar_activation( entt::entity altar_enti
       auto altar_cmp_bounds = Cmp::RectBounds( altar_cmp.position, altar_cmp.size, 2.f );
       // clang-format off
       auto obst_entity = create_loot_drop( 
-        Cmp::Loot{ "KEY_DROP", 0 },
+        Cmp::SpriteAnimation{0,0,true, "KEY_DROP", 0 },
         sf::FloatRect{ altar_cmp_bounds.position(), 
         altar_cmp_bounds.size() }, 
         IncludePack<>{},
@@ -185,7 +185,7 @@ void LargeObstacleSystem::check_player_grave_activation( entt::entity &grave_ent
     // choose a random consequence for activating graves: spawn npc, drop bomb, give candles
     if ( grave_cmp.are_powers_active() )
     {
-      auto grave_activation_rng = Cmp::RandomInt( 3, 3 );
+      auto grave_activation_rng = Cmp::RandomInt( 1, 3 );
       auto consequence = grave_activation_rng.gen();
       switch ( consequence )
       {
@@ -203,7 +203,7 @@ void LargeObstacleSystem::check_player_grave_activation( entt::entity &grave_ent
           auto grave_cmp_bounds = Cmp::RectBounds( grave_cmp.position, grave_cmp.size, 2.f );
           // clang-format off
               auto obst_entity = create_loot_drop( 
-                Cmp::Loot{ "CANDLE_DROP", 0 },
+                Cmp::SpriteAnimation{ 0,0,true,"CANDLE_DROP", 0 },
                 sf::FloatRect{ grave_cmp_bounds.position(), 
                 grave_cmp_bounds.size() }, 
                 IncludePack<>{},

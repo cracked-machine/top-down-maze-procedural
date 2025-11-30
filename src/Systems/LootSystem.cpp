@@ -40,19 +40,19 @@ void LootSystem::check_loot_collision()
   // First pass: detect collisions and gather effects to apply
   // clang-format off
   auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::WeaponLevel, Cmp::PlayerKeysCount,Cmp::PlayerCandlesCount>();
-  auto loot_collision_view = getReg().view<Cmp::Loot, Cmp::Position>();
+  auto loot_collision_view = getReg().view<Cmp::Loot, Cmp::Position, Cmp::SpriteAnimation>();
   // clang-format on
 
   for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_weapon_level, pc_keys_count, pc_candles_count] : player_collision_view.each() )
   {
-    for ( auto [loot_entt, loot_cmp, loot_pos_cmp] : loot_collision_view.each() )
+    for ( auto [loot_entt, loot_cmp, loot_pos_cmp, loot_sprite_anim] : loot_collision_view.each() )
     {
       if ( not is_visible_in_view( RenderSystem::getGameView(), loot_pos_cmp ) ) continue;
 
       if ( pc_pos_cmp.findIntersection( loot_pos_cmp ) )
       {
         // Store effect to apply after collision detection
-        loot_effects.push_back( { loot_entt, loot_cmp.m_type, pc_entt } );
+        loot_effects.push_back( { loot_entt, loot_sprite_anim.m_sprite_type, pc_entt } );
       }
     }
   }
@@ -145,7 +145,7 @@ void LootSystem::detonate_loot_container( const Events::LootContainerDestroyedEv
   {
     auto new_loot_entity = getReg().create();
     getReg().emplace<Cmp::Position>( new_loot_entity, pos_cmp->position, pos_cmp->size );
-    getReg().emplace<Cmp::Loot>( new_loot_entity, obstacle_type, random_obstacle_texture_index );
+    getReg().emplace<Cmp::Loot>( new_loot_entity );
     getReg().emplace<Cmp::SpriteAnimation>( new_loot_entity, 0, 0, true, obstacle_type, random_obstacle_texture_index );
     getReg().emplace<Cmp::ZOrderValue>( new_loot_entity, pos_cmp->position.y );
     SPDLOG_INFO( "Created loot entity {} of type {} at position ({}, {}) from destroyed loot container {}", static_cast<int>( new_loot_entity ),

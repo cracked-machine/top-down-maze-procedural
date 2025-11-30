@@ -71,8 +71,6 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
     auto &wormhole_ms = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
     Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_grid_size().componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
 
-    // Cmp::RectBounds wormhole_hitbox( random_pos.position, random_pos.size, 2.f );
-
     // Check collisions with walls, graves, shrines
     auto is_valid = [&]() -> bool
     {
