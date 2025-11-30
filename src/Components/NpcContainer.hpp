@@ -3,20 +3,13 @@
 
 #include <Sprites/MultiSprite.hpp>
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
 // NPC container concept
-class NpcContainer
+struct NpcContainer
 {
-public:
-  NpcContainer( Sprites::SpriteMetaType type, std::size_t tile_index )
-      : m_type( type ),
-        m_tile_index( tile_index )
-  {
-  }
-
-  Sprites::SpriteMetaType m_type;
-  unsigned int m_tile_index;
+  [[maybe_unused]] bool active = true;
 };
 
 } // namespace ProceduralMaze::Cmp

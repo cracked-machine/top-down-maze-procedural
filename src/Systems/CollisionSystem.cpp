@@ -5,8 +5,8 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Window/Window.hpp>
 
+#include <Components/Armable.hpp>
 #include <Components/CorruptionCell.hpp>
-#include <Components/Destructable.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/HazardFieldCell.hpp>
@@ -25,7 +25,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
 #include <Components/SinkholeCell.hpp>
-#include <Components/SpawnAreaSprite.hpp>
+#include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/WeaponLevel.hpp>
 #include <Events/NpcCreationEvent.hpp>

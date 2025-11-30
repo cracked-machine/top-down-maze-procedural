@@ -11,7 +11,7 @@
 #include <Components/NoPathFinding.hpp>
 #include <Components/PlayerDistance.hpp>
 #include <Components/Position.hpp>
-#include <Components/SpawnAreaSprite.hpp>
+#include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/Wall.hpp>
 #include <Systems/PathFindSystem.hpp>

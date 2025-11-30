@@ -5,7 +5,7 @@
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
 #include <Components/PlayableCharacter.hpp>
-#include <Components/SpawnAreaSprite.hpp>
+#include <Components/SpawnArea.hpp>
 #include <SFML/System/Time.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/FootstepSystem.hpp>

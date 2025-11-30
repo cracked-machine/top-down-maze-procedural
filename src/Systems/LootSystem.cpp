@@ -1,4 +1,4 @@
-#include <Components/Destructable.hpp>
+#include <Components/Armable.hpp>
 #include <Components/Persistent/BombBonus.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
 #include <Components/PlayableCharacter.hpp>

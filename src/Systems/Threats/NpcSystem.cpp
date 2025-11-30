@@ -12,7 +12,7 @@
 #include <SFML/Graphics/Rect.hpp>
 
 #include <Components/AltarSegment.hpp>
-#include <Components/Destructable.hpp>
+#include <Components/Armable.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/NPCScanBounds.hpp>
 #include <Components/NpcContainer.hpp>
@@ -20,7 +20,7 @@
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Random.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/SpawnAreaSprite.hpp>
+#include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
@@ -49,7 +49,7 @@ void NpcSystem::add_npc_entity( const Events::NpcCreationEvent &event )
   // create a new entity for the NPC using the existing position
   auto new_pos_entity = getReg().create();
   getReg().emplace<Cmp::Position>( new_pos_entity, pos_cmp->position, kGridSquareSizePixelsF );
-  getReg().emplace<Cmp::Destructable>( new_pos_entity );
+  getReg().emplace<Cmp::Armable>( new_pos_entity );
   getReg().emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 0, 0 } );
   auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NpcScanScale>();
   getReg().emplace_or_replace<Cmp::NPCScanBounds>( new_pos_entity, pos_cmp->position, kGridSquareSizePixelsF, npc_scan_scale.get_value() );
@@ -69,10 +69,6 @@ void NpcSystem::add_npc_entity( const Events::NpcCreationEvent &event )
     getReg().remove<Cmp::NpcContainer>( event.position_entity );
     getReg().remove<Cmp::ZOrderValue>( event.position_entity );
   }
-
-  // getReg().remove<Cmp::NpcContainer>( new_pos_entity );
-  // getReg().remove<Cmp::ReservedPosition>( new_pos_entity );
-  // getReg().remove<Cmp::Obstacle>( new_pos_entity );
 
   if ( event.type == "NPCGHOST" )
   {
@@ -153,7 +149,7 @@ bool NpcSystem::isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::V
 
 void NpcSystem::update_movement( sf::Time globalDeltaTime )
 {
-  auto exclusions = entt::exclude<Cmp::AltarSegment, Cmp::CryptSegment, Cmp::SpawnAreaSprite, Cmp::PlayableCharacter>;
+  auto exclusions = entt::exclude<Cmp::AltarSegment, Cmp::CryptSegment, Cmp::SpawnArea, Cmp::PlayableCharacter>;
   auto view = getReg().view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds, Cmp::Direction>( exclusions );
 
   for ( auto [entity, pos_cmp, lerp_pos_cmp, npc_scan_bounds, dir_cmp] : view.each() )
@@ -218,7 +214,6 @@ void NpcSystem::check_bones_reanimation()
 
       if ( pc_pos_cmp.findIntersection( npc_activate_bounds.getBounds() ) )
       {
-        getReg().emplace_or_replace<Cmp::Obstacle>( npccontainer_entt, "BONES", 0, false );
         get_systems_event_queue().trigger( Events::NpcCreationEvent( npccontainer_entt, "NPCSKELE" ) );
       }
     }

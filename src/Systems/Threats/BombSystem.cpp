@@ -13,8 +13,8 @@
 #include <spdlog/spdlog.h>
 
 #include <Components/AltarSegment.hpp>
+#include <Components/Armable.hpp>
 #include <Components/Armed.hpp>
-#include <Components/Destructable.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NpcContainer.hpp>
@@ -78,7 +78,7 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
     if ( event.action == Events::PlayerActionEvent::GameActions::GRAVE_BOMB )
     {
       auto search_area = Cmp::RectBounds( pc_pos_cmp.position, BaseSystem::kGridSquareSizePixelsF, 3.f );
-      candidate_entity = get_random_nearby_disabled_obstacle( search_area.getBounds(), IncludePack<Cmp::Destructable>{}, ExcludePack<Cmp::Exit>{} );
+      candidate_entity = get_random_nearby_disabled_obstacle( search_area.getBounds(), IncludePack<Cmp::Armable>{}, ExcludePack<Cmp::Exit>{} );
       auto pos_cmp = getReg().try_get<Cmp::Position>( candidate_entity );
       if ( pos_cmp )
         SPDLOG_INFO( "Returned candidate entity: {}, pos: {},{}", static_cast<uint32_t>( candidate_entity ), pos_cmp->position.x,
@@ -93,7 +93,7 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
     // fallback to the normal bomb placement at player's current location
     else
     {
-      auto destructable_view = getReg().view<Cmp::Destructable, Cmp::Position>();
+      auto destructable_view = getReg().view<Cmp::Armable, Cmp::Position>();
       for ( auto [destructable_entity, destructable_cmp, destructable_pos_cmp] : destructable_view.each() )
       {
         // make a copy and reduce/center the player hitbox to avoid arming a neighbouring location
@@ -148,7 +148,7 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
 
   // We dont detonate ReservedPositions so dont arm them in the first place
   // Also exclude NPCs since they're handled separately and may be missing Position component during death animation
-  auto all_obstacle_view = getReg().view<Cmp::Destructable, Cmp::Position>( exclude<Cmp::NPC, Cmp::Exit> );
+  auto all_obstacle_view = getReg().view<Cmp::Armable, Cmp::Position>( exclude<Cmp::NPC, Cmp::Exit> );
 
   // For each layer from 1 to BLAST_RADIUS
   for ( int layer = 1; layer <= blast_radius; layer++ )

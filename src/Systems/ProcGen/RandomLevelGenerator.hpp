@@ -26,8 +26,7 @@ namespace ProceduralMaze::Sys::ProcGen
 class RandomLevelGenerator : public BaseSystem
 {
 public:
-  RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                        Audio::SoundBank &sound_bank );
+  RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~RandomLevelGenerator() = default;
 
   void generate();
@@ -64,9 +63,6 @@ public:
 
   // Helper functions to add wall and door entities
   void add_wall_entity( const sf::Vector2f &pos, std::size_t sprite_index );
-
-  // Output generation statistics
-  void stats();
 
   std::optional<entt::entity> at( std::size_t idx )
   {

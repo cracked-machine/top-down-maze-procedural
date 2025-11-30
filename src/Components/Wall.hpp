@@ -1,23 +1,13 @@
 #ifndef __COMPONENTS_WALL_HPP__
 #define __COMPONENTS_WALL_HPP__
 
-#include <Sprites/SpriteFactory.hpp>
-
-#include <cstdint>
-
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
 // Wall concept
-class Wall
+struct Wall
 {
-public:
-  Wall( Sprites::SpriteMetaType type, std::size_t tile_index = 0 )
-      : m_type( type ),
-        m_tile_index( tile_index )
-  {
-  }
-  Sprites::SpriteMetaType m_type;
-  uint32_t m_tile_index{ 0 };
+  [[maybe_unused]] bool active = true;
 };
 
 } // namespace ProceduralMaze::Cmp

@@ -74,7 +74,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
   for ( auto [entity, pos_cmp, obst_cmp] : position_view.each() )
   {
     // skip positions with non diggable obstacles
-    if ( not obst_cmp.m_type.contains( "ROCK" ) or not obst_cmp.m_enabled ) continue;
+    if ( not obst_cmp.m_enabled ) continue;
 
     // Remap the mouse position to game view coordinates (a subset of the actual game area)
     sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );

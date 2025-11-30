@@ -33,7 +33,7 @@
 #include <Components/RectBounds.hpp>
 #include <Components/SelectedPosition.hpp>
 #include <Components/SinkholeCell.hpp>
-#include <Components/SpawnAreaSprite.hpp>
+#include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/Wall.hpp>
 #include <Components/WeaponLevel.hpp>

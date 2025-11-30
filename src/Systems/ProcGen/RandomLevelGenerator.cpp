@@ -10,7 +10,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #include <Components/AltarSegment.hpp>
-#include <Components/Destructable.hpp>
+#include <Components/Armable.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NpcContainer.hpp>
@@ -21,7 +21,7 @@
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/SpawnAreaSprite.hpp>
+#include <Components/SpawnArea.hpp>
 #include <Components/Wall.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -44,7 +44,6 @@ void RandomLevelGenerator::generate()
   gen_loot_containers();
   gen_npc_containers();
   gen_small_obstacles(); // these are post-processed by cellular automaton system
-  stats();
 }
 
 void RandomLevelGenerator::gen_positions()
@@ -66,7 +65,7 @@ void RandomLevelGenerator::gen_positions()
       {
         // We need to reserve these positions for the player start area
         getReg().emplace_or_replace<Cmp::ReservedPosition>( entity );
-        getReg().emplace_or_replace<Cmp::SpawnAreaSprite>( entity, "PLAYERSPAWN", 0, false );
+        getReg().emplace_or_replace<Cmp::SpawnArea>( entity, false );
         getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
         getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYERSPAWN", 0 );
         getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y - m_sprite_factory.get_sprite_size_by_type( "PLAYERSPAWN" ).y );
@@ -125,7 +124,7 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
       }
 
       // Return false for spawn area collisions
-      for ( auto [entity, spawn_cmp, spawn_pos_cmp] : getReg().view<Cmp::SpawnAreaSprite, Cmp::Position>().each() )
+      for ( auto [entity, spawn_cmp, spawn_pos_cmp] : getReg().view<Cmp::SpawnArea, Cmp::Position>().each() )
       {
         if ( spawn_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
@@ -267,7 +266,7 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &ms, u
           getReg().emplace_or_replace<Cmp::AltarSegment>( entity, new_solid_mask );
           getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
         }
-        getReg().emplace_or_replace<Cmp::Destructable>( entity );
+        getReg().emplace_or_replace<Cmp::Armable>( entity );
 
         getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y + ms.getSpriteSizePixels().y );
       }
@@ -278,7 +277,7 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &ms, u
           getReg().emplace_or_replace<Cmp::GraveSegment>( entity, new_solid_mask );
           getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
         }
-        getReg().emplace_or_replace<Cmp::Destructable>( entity );
+        getReg().emplace_or_replace<Cmp::Armable>( entity );
         getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y + ms.getSpriteSizePixels().y );
       }
       else if ( ms.get_sprite_type().contains( "CRYPT" ) )
@@ -288,7 +287,7 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &ms, u
           getReg().emplace_or_replace<Cmp::CryptSegment>( entity, new_solid_mask );
           getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
         }
-        getReg().emplace_or_replace<Cmp::Destructable>( entity );
+        getReg().emplace_or_replace<Cmp::Armable>( entity );
         if ( calculated_grid_index == 10 ) // hardcoded for now - only the door segment
         {
           getReg().emplace_or_replace<Cmp::CryptDoor>( entity );
@@ -347,7 +346,7 @@ void RandomLevelGenerator::gen_small_obstacles()
     // clang-format on
 
     auto is_activated = m_activation_selector.gen();
-    getReg().emplace_or_replace<Cmp::Obstacle>( entity, obst_type, rand_obst_tex_idx, is_activated );
+    getReg().emplace_or_replace<Cmp::Obstacle>( entity, is_activated );
     if ( is_activated )
     {
       // Set the z-order value so that the rock obstacles are rendered above everything else
@@ -356,7 +355,7 @@ void RandomLevelGenerator::gen_small_obstacles()
       getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
     }
     getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, obst_type, rand_obst_tex_idx );
-    getReg().emplace_or_replace<Cmp::Destructable>( entity );
+    getReg().emplace_or_replace<Cmp::Armable>( entity );
     getReg().emplace_or_replace<Cmp::Neighbours>( entity );
   }
 }
@@ -379,7 +378,7 @@ void RandomLevelGenerator::gen_loot_containers()
     // clang-format on
 
     getReg().emplace_or_replace<Cmp::ReservedPosition>( random_entity );
-    getReg().emplace_or_replace<Cmp::Destructable>( random_entity );
+    getReg().emplace_or_replace<Cmp::Armable>( random_entity );
     getReg().emplace_or_replace<Cmp::LootContainer>( random_entity );
     getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, loot_type, rand_loot_tex_idx );
     // Set the z-order value so that the spawn area is rendered above ground but below everything else
@@ -406,8 +405,8 @@ void RandomLevelGenerator::gen_npc_containers()
     // clang-format on
 
     getReg().emplace_or_replace<Cmp::ReservedPosition>( random_entity );
-    getReg().emplace_or_replace<Cmp::Destructable>( random_entity );
-    getReg().emplace_or_replace<Cmp::NpcContainer>( random_entity, npc_type, rand_npc_tex_idx );
+    getReg().emplace_or_replace<Cmp::Armable>( random_entity );
+    getReg().emplace_or_replace<Cmp::NpcContainer>( random_entity );
     getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, npc_type, rand_npc_tex_idx );
     getReg().emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_origin_position.position.y );
   }
@@ -475,29 +474,11 @@ void RandomLevelGenerator::add_wall_entity( const sf::Vector2f &pos, std::size_t
 {
   auto entity = getReg().create();
   getReg().emplace_or_replace<Cmp::Position>( entity, pos, kGridSquareSizePixelsF );
-  getReg().emplace_or_replace<Cmp::Wall>( entity, "WALL", sprite_index );
+  getReg().emplace_or_replace<Cmp::Wall>( entity );
   getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", sprite_index );
   getReg().emplace_or_replace<Cmp::ReservedPosition>( entity );
   getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos.y );
   getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
-}
-
-void RandomLevelGenerator::stats()
-{
-  std::map<std::string, int> results;
-  for ( auto [entity, _pos, _ob] : getReg().view<Cmp::Position, Cmp::Obstacle>().each() )
-  {
-    results[_ob.m_type]++;
-  }
-  for ( auto [entity, _pos, _sa] : getReg().view<Cmp::Position, Cmp::SpriteAnimation>().each() )
-  {
-    results[_sa.m_sprite_type]++;
-  }
-  SPDLOG_INFO( "Object Pick distribution:" );
-  for ( auto [bin, freq] : results )
-  {
-    SPDLOG_INFO( "[{}]:{}", bin, freq );
-  }
 }
 
 } // namespace ProceduralMaze::Sys::ProcGen

@@ -10,7 +10,7 @@
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/SpawnAreaSprite.hpp>
+#include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Events/LootContainerDestroyedEvent.hpp>
 #include <Events/NpcCreationEvent.hpp>
@@ -144,7 +144,7 @@ void LargeObstacleSystem::check_player_altar_activation( entt::entity altar_enti
         sf::FloatRect{ altar_cmp_bounds.position(), 
         altar_cmp_bounds.size() }, 
         IncludePack<>{},
-        ExcludePack<Cmp::PlayableCharacter, Cmp::AltarSegment, Cmp::SpawnAreaSprite>{} 
+        ExcludePack<Cmp::PlayableCharacter, Cmp::AltarSegment, Cmp::SpawnArea>{} 
       );
       // clang-format on
       if ( obst_entity != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
@@ -207,7 +207,7 @@ void LargeObstacleSystem::check_player_grave_activation( entt::entity &grave_ent
                 sf::FloatRect{ grave_cmp_bounds.position(), 
                 grave_cmp_bounds.size() }, 
                 IncludePack<>{},
-                ExcludePack<Cmp::PlayableCharacter, Cmp::GraveSegment, Cmp::SpawnAreaSprite>{} 
+                ExcludePack<Cmp::PlayableCharacter, Cmp::GraveSegment, Cmp::SpawnArea>{} 
               );
           // clang-format on
 
