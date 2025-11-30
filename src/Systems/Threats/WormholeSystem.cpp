@@ -1,4 +1,5 @@
 #include <Components/AltarSegment.hpp>
+#include <Components/Exit.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/WormholeJump.hpp>
@@ -9,7 +10,6 @@
 #include <Events/ResumeClocksEvent.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <Components/Door.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/NPC.hpp>
 #include <Components/Obstacle.hpp>
@@ -24,8 +24,7 @@
 namespace ProceduralMaze::Sys
 {
 
-WormholeSystem::WormholeSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                                Audio::SoundBank &sound_bank )
+WormholeSystem::WormholeSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
 
@@ -38,8 +37,7 @@ WormholeSystem::WormholeSystem( entt::registry &reg, sf::RenderWindow &window, S
 
 void WormholeSystem::onPause()
 {
-  if ( m_sound_bank.get_effect( "wormhole_jump" ).getStatus() == sf::Sound::Status::Playing )
-    m_sound_bank.get_effect( "wormhole_jump" ).pause();
+  if ( m_sound_bank.get_effect( "wormhole_jump" ).getStatus() == sf::Sound::Status::Playing ) m_sound_bank.get_effect( "wormhole_jump" ).pause();
 
   auto jump_view = getReg().view<Cmp::WormholeJump>();
   for ( auto [entity, jump_cmp] : jump_view.each() )
@@ -50,8 +48,7 @@ void WormholeSystem::onPause()
 
 void WormholeSystem::onResume()
 {
-  if ( m_sound_bank.get_effect( "wormhole_jump" ).getStatus() == sf::Sound::Status::Paused )
-    m_sound_bank.get_effect( "wormhole_jump" ).play();
+  if ( m_sound_bank.get_effect( "wormhole_jump" ).getStatus() == sf::Sound::Status::Paused ) m_sound_bank.get_effect( "wormhole_jump" ).play();
 
   auto jump_view = getReg().view<Cmp::WormholeJump>();
   for ( auto [entity, jump_cmp] : jump_view.each() )
@@ -69,12 +66,10 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
   while ( attempts < kMaxAttempts )
   {
     auto [random_entity, random_pos] = get_random_position(
-        IncludePack<Cmp::Obstacle>{}, ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{},
-        current_seed );
+        IncludePack<Cmp::Obstacle>{}, ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, current_seed );
 
     auto &wormhole_ms = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
-    Cmp::WormholeMultiBlock wormhole_block( random_pos.position,
-                                            wormhole_ms.get_grid_size().componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
+    Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_grid_size().componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
 
     // Cmp::RectBounds wormhole_hitbox( random_pos.position, random_pos.size, 2.f );
 
@@ -106,8 +101,7 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
     {
       if ( current_seed != seed && seed > 0 )
       {
-        SPDLOG_WARN( "Wormhole spawn: original seed {} was invalid, used seed {} instead (attempt {})", seed, current_seed,
-                     attempts + 1 );
+        SPDLOG_WARN( "Wormhole spawn: original seed {} was invalid, used seed {} instead (attempt {})", seed, current_seed, attempts + 1 );
       }
       return { random_entity, random_pos };
     }
@@ -137,8 +131,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
 
   // 3. set the entities obstacle component to "broken" so we have something for the shader effect to mangle
   auto &wormhole_ms = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
-  Cmp::WormholeMultiBlock wormhole_block( random_pos.position,
-                                          wormhole_ms.get_grid_size().componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
+  Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_grid_size().componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
 
   auto obstacle_view = getReg().view<Cmp::Position>();
   for ( auto [entity, obstacle_pos] : obstacle_view.each() )
@@ -164,8 +157,8 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   getReg().emplace<Cmp::WormholeSingularity>( center_entity );
 
   // getReg().emplace_or_replace<Cmp::WormholeSingularity>( random_entity );
-  getReg().emplace_or_replace<Cmp::WormholeMultiBlock>(
-      random_entity, random_pos.position, wormhole_ms.get_grid_size().componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
+  getReg().emplace_or_replace<Cmp::WormholeMultiBlock>( random_entity, random_pos.position,
+                                                        wormhole_ms.get_grid_size().componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
   getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, "WORMHOLE" );
   getReg().emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - random_pos.size.y );
 
@@ -204,8 +197,7 @@ void WormholeSystem::check_player_wormhole_collision()
 
     if ( !still_colliding )
     {
-      SPDLOG_WARN( "Entity {} has WormholeJump but is NO LONGER colliding - removing jump component",
-                   static_cast<uint32_t>( entity ) );
+      SPDLOG_WARN( "Entity {} has WormholeJump but is NO LONGER colliding - removing jump component", static_cast<uint32_t>( entity ) );
       getReg().remove<Cmp::WormholeJump>( entity );
       m_sound_bank.get_effect( "wormhole_jump" ).stop();
     }
@@ -253,15 +245,15 @@ void WormholeSystem::check_player_wormhole_collision()
     {
 
       // Get unique random position for this actor entity
-      auto [new_spawn_entity, new_spawn_pos_cmp] = get_random_position(
-          IncludePack<Cmp::Obstacle>{}, ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>{}, 0 );
+      auto [new_spawn_entity, new_spawn_pos_cmp] = get_random_position( IncludePack<Cmp::Obstacle>{},
+                                                                        ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>{}, 0 );
 
       // destroy any obstacles at the new actor spawn position
       auto existing_obstacle_cmp = getReg().try_get<Cmp::Obstacle>( new_spawn_entity );
       if ( existing_obstacle_cmp )
       {
-        SPDLOG_INFO( "Entity {} - Removing obstacle at new spawn ({}, {})", static_cast<uint32_t>( entity ),
-                     new_spawn_pos_cmp.position.x, new_spawn_pos_cmp.position.y );
+        SPDLOG_INFO( "Entity {} - Removing obstacle at new spawn ({}, {})", static_cast<uint32_t>( entity ), new_spawn_pos_cmp.position.x,
+                     new_spawn_pos_cmp.position.y );
         existing_obstacle_cmp->m_integrity = 0.0f;
       }
 

@@ -11,7 +11,6 @@
 
 #include <Components/AltarSegment.hpp>
 #include <Components/Destructable.hpp>
-#include <Components/Door.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NpcContainer.hpp>

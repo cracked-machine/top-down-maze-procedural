@@ -17,7 +17,6 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <Components/Door.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
@@ -62,8 +61,7 @@ void RenderGameSystem::refresh_z_order_queue()
   auto view = getReg().view<Cmp::ZOrderValue, Cmp::Position>();
   for ( auto [entity, z_order_cmp, pos_cmp] : view.each() )
   {
-    if ( is_visible_in_view( RenderSystem::s_game_view, pos_cmp ) )
-      m_zorder_queue_.push_back( ZOrder{ z_order_cmp.getZOrder(), entity } );
+    if ( is_visible_in_view( RenderSystem::s_game_view, pos_cmp ) ) m_zorder_queue_.push_back( ZOrder{ z_order_cmp.getZOrder(), entity } );
   }
   std::sort( m_zorder_queue_.begin(), m_zorder_queue_.end(), []( const ZOrder &a, const ZOrder &b ) { return a.z < b.z; } );
 }
@@ -148,8 +146,8 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
           auto new_angle_cmp = getReg().try_get<Cmp::AbsoluteRotation>( entity );
           if ( new_angle_cmp ) new_angle_value = sf::degrees( new_angle_cmp->getAngle() );
 
-          safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame,
-                              { 1.f, 1.f }, alpha_value, new_origin_value, new_angle_value );
+          safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame, { 1.f, 1.f }, alpha_value,
+                              new_origin_value, new_angle_value );
         }
       }
 

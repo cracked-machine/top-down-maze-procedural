@@ -3,7 +3,6 @@
 #include <Events/SceneManagerEvent.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <Components/Door.hpp>
 #include <Components/Exit.hpp>
 #include <Components/NPC.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>

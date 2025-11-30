@@ -17,7 +17,6 @@
 #include <SFML/System/Time.hpp>
 
 #include <Components/CorruptionCell.hpp>
-#include <Components/Door.hpp>
 #include <Components/Exit.hpp>
 #include <Components/HazardFieldCell.hpp>
 #include <Components/NPC.hpp>
