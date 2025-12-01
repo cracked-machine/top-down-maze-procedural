@@ -213,7 +213,7 @@ public:
 
         if constexpr ( Traits::sprite_type == "SINKHOLE" )
         {
-          player_health_cmp.health = 0;
+          player_mort_cmp.state = Traits::mortality_state;
           SPDLOG_DEBUG( "Player fell into a hazard field at position ({}, {})!", hazard_pos_cmp.x, hazard_pos_cmp.y );
         }
         else if constexpr ( Traits::sprite_type == "CORRUPTION" )

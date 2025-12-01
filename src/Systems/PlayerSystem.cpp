@@ -1,3 +1,5 @@
+#include <Components/AbsoluteAlpha.hpp>
+#include <Components/AbsoluteRotation.hpp>
 #include <Components/Direction.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Obstacle.hpp>
@@ -5,6 +7,7 @@
 #include <Components/Persistent/BlastRadius.hpp>
 #include <Components/Persistent/BombInventory.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
+#include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerDetectionScale.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerLerpSpeed.hpp>
@@ -69,6 +72,8 @@ void PlayerSystem::add_player_entity()
   getReg().emplace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );
   getReg().emplace<Cmp::WeaponLevel>( entity, 100.f );
   getReg().emplace<Cmp::ZOrderValue>( entity, start_pos.y ); // z-order based on y-position
+  getReg().emplace<Cmp::AbsoluteAlpha>( entity, 255 );       // fully opaque
+  getReg().emplace<Cmp::AbsoluteRotation>( entity, 0 );
 }
 
 void PlayerSystem::check_player_mortality()
@@ -88,6 +93,41 @@ void PlayerSystem::check_player_mortality()
 void PlayerSystem::update_movement( sf::Time globalDeltaTime, bool skip_collision_check )
 {
   const float dt = globalDeltaTime.asSeconds();
+
+  auto blinking_player_view = getReg()
+                                  .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::SpriteAnimation, Cmp::PlayerMortality,
+                                        Cmp::AbsoluteAlpha, Cmp::AbsoluteRotation, Cmp::PlayerHealth>();
+  for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, anim_cmp, mortality_cmp, alpha_cmp, rotation_cmp, player_health_cmp] : blinking_player_view.each() )
+  {
+    // // normal do nothing
+    // if ( mortality_cmp.state != Cmp::PlayerMortality::State::ALIVE ) continue;
+    // wormhole jump fade effect
+    auto *wormhole_jump = getReg().try_get<Cmp::WormholeJump>( entity );
+    if ( wormhole_jump )
+    {
+      // Calculate fade based on elapsed time vs total cooldown
+      float elapsed = wormhole_jump->jump_clock.getElapsedTime().asSeconds();
+      float cooldown = wormhole_jump->jump_cooldown.asSeconds();
+      float progress = std::min( elapsed / cooldown, 1.0f ); // 0.0 to 1.0
+      alpha_cmp = static_cast<uint8_t>( 255 * ( 1.0f - progress ) );
+    }
+    else if ( mortality_cmp.state == Cmp::PlayerMortality::State::FALLING )
+    {
+      // TODO: falling effect
+      player_health_cmp.health = 0;
+      mortality_cmp.state = Cmp::PlayerMortality::State::DEAD;
+      return;
+    }
+    // damage cooldown blink effect
+    else
+    {
+      auto &pc_damage_cooldown = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
+      bool is_in_damage_cooldown = pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value();
+      int blink_visible = static_cast<int>( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asMilliseconds() / 100 ) % 2 == 0;
+      if ( !is_in_damage_cooldown || ( is_in_damage_cooldown && blink_visible ) ) { alpha_cmp = 255; }
+      else { alpha_cmp = 0; }
+    }
+  }
 
   auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds, Cmp::SpriteAnimation>();
   for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, pc_detection_bounds, anim_cmp] : player_view.each() )

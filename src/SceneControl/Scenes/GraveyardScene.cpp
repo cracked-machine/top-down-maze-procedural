@@ -4,8 +4,7 @@
 namespace ProceduralMaze::Scene
 {
 
-GraveyardScene::GraveyardScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store,
-                                entt::dispatcher &nav_event_dispatcher )
+GraveyardScene::GraveyardScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher )
 
     : m_sound_bank( sound_bank ),
       m_system_store( system_store ),
@@ -75,10 +74,7 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
 {
   m_sound_bank.get_music( "title_music" ).stop();
   // only do this once every update, other it constantly restarts the music
-  if ( m_sound_bank.get_music( "game_music" ).getStatus() != sf::Music::Status::Playing )
-  {
-    m_sound_bank.get_music( "game_music" ).play();
-  }
+  if ( m_sound_bank.get_music( "game_music" ).getStatus() != sf::Music::Status::Playing ) { m_sound_bank.get_music( "game_music" ).play(); }
 
   // play/stop footstep sounds depending on player movement
   auto &m_player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
@@ -152,9 +148,8 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
 
   auto &render_game_sys = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
   auto &render_overlay_sys = m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>();
-  auto &render_player_sys = m_system_store.find<Sys::SystemStore::Type::RenderPlayerSystem>();
   render_game_sys.refresh_z_order_queue();
-  render_game_sys.render_game( dt, render_overlay_sys, render_player_sys );
+  render_game_sys.render_game( dt, render_overlay_sys );
 
   // defer this scenes input event processing until we  exit this function
   m_nav_event_dispatcher.enqueue( Events::ProcessGraveyardSceneInputEvent() );

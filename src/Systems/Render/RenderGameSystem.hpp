@@ -12,7 +12,6 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
-#include <Systems/Render/RenderPlayerSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
 
@@ -22,8 +21,7 @@ namespace ProceduralMaze::Sys
 class RenderGameSystem : public RenderSystem
 {
 public:
-  RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                    Audio::SoundBank &sound_bank );
+  RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~RenderGameSystem() = default;
 
   //! @brief event handlers for pausing system clocks
@@ -51,7 +49,7 @@ public:
   //! @param render_overlay_sys anything that is not part of the game world itself. i.e. UI, debug info, etc..
   //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc.. as well as death
   //! animations/effects
-  void render_game( sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys, RenderPlayerSystem &render_player_sys );
+  void render_game( sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys );
 
 private:
   //! @brief Renders the game world floor

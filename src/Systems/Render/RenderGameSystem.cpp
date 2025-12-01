@@ -93,8 +93,7 @@ void RenderGameSystem::init_shaders()
 void RenderGameSystem::init_tilemap() { m_floormap.load( kMapGridSize, "res/json/tilemap_config.json" ); }
 void RenderGameSystem::clear_tilemap() { m_floormap.clear(); }
 
-void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys,
-                                    [[maybe_unused]] RenderPlayerSystem &render_player_sys )
+void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys )
 {
   using namespace Sprites;
 

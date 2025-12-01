@@ -19,7 +19,6 @@
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
-#include <Systems/Render/RenderPlayerSystem.hpp>
 #include <Systems/Threats/BombSystem.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
@@ -46,7 +45,6 @@ public:
     CollisionSystem,
     DiggingSystem,
     RenderOverlaySystem,
-    RenderPlayerSystem,
     BombSystem,
     AnimSystem,
     SinkHoleHazardSystem,
@@ -61,8 +59,8 @@ public:
     CryptSystem,
   };
 
-  SystemStore( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
-               entt::dispatcher &nav_event_dispatcher, entt::dispatcher &scenemanager_event_dispatcher )
+  SystemStore( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank, entt::dispatcher &nav_event_dispatcher,
+               entt::dispatcher &scenemanager_event_dispatcher )
   {
     // clang-format off
     m_sysmap.emplace( Type::RenderMenuSystem, std::make_unique<RenderMenuSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
@@ -75,7 +73,6 @@ public:
     m_sysmap.emplace( Type::CollisionSystem, std::make_unique<CollisionSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::DiggingSystem, std::make_unique<DiggingSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::RenderOverlaySystem, std::make_unique<RenderOverlaySystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::RenderPlayerSystem, std::make_unique<RenderPlayerSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::BombSystem, std::make_unique<BombSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::AnimSystem, std::make_unique<AnimSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::SinkHoleHazardSystem, std::make_unique<SinkHoleHazardSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
@@ -104,7 +101,6 @@ public:
     else if constexpr ( T == Type::CollisionSystem ) { return static_cast<CollisionSystem &>( *m_sysmap[T] ); }
     else if constexpr ( T == Type::DiggingSystem ) { return static_cast<DiggingSystem &>( *m_sysmap[T] ); }
     else if constexpr ( T == Type::RenderOverlaySystem ) { return static_cast<RenderOverlaySystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::RenderPlayerSystem ) { return static_cast<RenderPlayerSystem &>( *m_sysmap[T] ); }
     else if constexpr ( T == Type::BombSystem ) { return static_cast<BombSystem &>( *m_sysmap[T] ); }
     else if constexpr ( T == Type::AnimSystem ) { return static_cast<AnimSystem &>( *m_sysmap[T] ); }
     else if constexpr ( T == Type::SinkHoleHazardSystem ) { return static_cast<SinkHoleHazardSystem &>( *m_sysmap[T] ); }
