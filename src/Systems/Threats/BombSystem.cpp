@@ -44,22 +44,34 @@ void BombSystem::onPause()
 {
   if ( m_sound_bank.get_effect( "bomb_fuse" ).getStatus() == sf::Sound::Status::Playing ) m_sound_bank.get_effect( "bomb_fuse" ).pause();
   if ( m_sound_bank.get_effect( "bomb_detonate" ).getStatus() == sf::Sound::Status::Playing ) m_sound_bank.get_effect( "bomb_detonate" ).pause();
-  auto player_collision_view = getReg().view<Cmp::Armed>();
-  for ( auto [_pc_entt, armed] : player_collision_view.each() )
+  auto armed_view = getReg().view<Cmp::Armed>();
+  for ( auto [entt, armed_cmp] : armed_view.each() )
   {
-    if ( armed.m_fuse_delay_clock.isRunning() ) armed.m_fuse_delay_clock.stop();
-    if ( armed.m_warning_delay_clock.isRunning() ) armed.m_warning_delay_clock.stop();
+    if ( armed_cmp.m_fuse_delay_clock.isRunning() ) armed_cmp.m_fuse_delay_clock.stop();
+    if ( armed_cmp.m_warning_delay_clock.isRunning() ) armed_cmp.m_warning_delay_clock.stop();
+  }
+
+  auto player_collision_view = getReg().view<Cmp::PlayableCharacter>();
+  for ( auto [entt, player] : player_collision_view.each() )
+  {
+    if ( player.m_bombdeploycooldowntimer.isRunning() ) player.m_bombdeploycooldowntimer.stop();
   }
 }
 void BombSystem::onResume()
 {
   if ( m_sound_bank.get_effect( "bomb_fuse" ).getStatus() == sf::Sound::Status::Paused ) m_sound_bank.get_effect( "bomb_fuse" ).play();
   if ( m_sound_bank.get_effect( "bomb_detonate" ).getStatus() == sf::Sound::Status::Paused ) m_sound_bank.get_effect( "bomb_detonate" ).play();
-  auto player_collision_view = getReg().view<Cmp::Armed>();
-  for ( auto [_pc_entt, armed] : player_collision_view.each() )
+  auto armed_view = getReg().view<Cmp::Armed>();
+  for ( auto [entt, armed_cmp] : armed_view.each() )
   {
-    if ( not armed.m_fuse_delay_clock.isRunning() ) armed.m_fuse_delay_clock.start();
-    if ( not armed.m_warning_delay_clock.isRunning() ) armed.m_warning_delay_clock.start();
+    if ( not armed_cmp.m_fuse_delay_clock.isRunning() ) armed_cmp.m_fuse_delay_clock.start();
+    if ( not armed_cmp.m_warning_delay_clock.isRunning() ) armed_cmp.m_warning_delay_clock.start();
+  }
+
+  auto player_collision_view = getReg().view<Cmp::PlayableCharacter>();
+  for ( auto [entt, player] : player_collision_view.each() )
+  {
+    if ( not player.m_bombdeploycooldowntimer.isRunning() ) player.m_bombdeploycooldowntimer.start();
   }
 }
 

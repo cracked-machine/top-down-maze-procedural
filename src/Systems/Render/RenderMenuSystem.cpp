@@ -3,6 +3,7 @@
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
+#include <Components/Persistent/NpcLerpSpeed.hpp>
 #include <Components/Persistent/PlayerDetectionScale.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>

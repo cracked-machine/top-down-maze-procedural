@@ -19,11 +19,9 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/Render/RenderOverlaySystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/AnimSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/BaseSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/CollisionSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/DiggingSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ExitSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/FootstepSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/PathFindSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/PersistentSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/PlayerSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/BombSystem.cpp

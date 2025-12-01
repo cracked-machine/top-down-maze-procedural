@@ -1,9 +1,9 @@
 #ifndef SRC_SYSTEMS_NPCSYSTEM_HPP__
 #define SRC_SYSTEMS_NPCSYSTEM_HPP__
 
-#include <Components/Persistent/EffectsVolume.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
+
 #include <entt/entity/registry.hpp>
 #include <entt/signal/dispatcher.hpp>
 
@@ -12,7 +12,7 @@
 #include <Components/Direction.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/NPC.hpp>
-
+#include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/NpcActivateScale.hpp>
 #include <Components/Persistent/NpcScanScale.hpp>
 #include <Components/Position.hpp>
@@ -22,18 +22,20 @@
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
 
+#include <queue>
+
 namespace ProceduralMaze::Sys
 {
+
+using PlayerDistanceQueue = std::priority_queue<std::pair<int, entt::entity>, std::vector<std::pair<int, entt::entity>>,
+                                                std::greater<std::pair<int, entt::entity>>>;
 
 class NpcSystem : public BaseSystem
 {
 public:
   NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
-  //! @brief event handlers for pausing system clocks
-  void onPause() override {}
-  //! @brief event handlers for resuming system clocks
-  void onResume() override {}
+  void update( sf::Time dt );
 
   // Converts a NpcContainer entity into an active NPC entity. Called by event: NpcCreationEvent
   void add_npc_entity( const Events::NpcCreationEvent &event );
@@ -46,9 +48,6 @@ public:
   // Smoothly interpolates the position of NPCs. Called in the main update loop.
   void update_movement( sf::Time globalDeltaTime );
 
-  // Check for player collision with bones obstacles to reanimate NPCs
-  void check_bones_reanimation();
-
   // Check for player collision with NPCs
   void check_player_to_npc_collision();
 
@@ -58,9 +57,20 @@ public:
   // Event handler for add_npc_entity()
   void on_npc_creation( const Events::NpcCreationEvent &event );
 
+  //! @brief event handlers for pausing system clocks
+  void onPause() override {}
+  //! @brief event handlers for resuming system clocks
+  void onResume() override {}
+
 private:
-  sf::Vector2f findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos,
-                                          const sf::Vector2f &player_direction, float pushback_distance );
+  // Check for player collision with bones obstacles to reanimate NPCs
+  void check_bones_reanimation();
+
+  sf::Vector2f findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos, const sf::Vector2f &player_direction,
+                                          float pushback_distance );
+
+  void scanForPlayers( entt::entity player_entity );
+  void add_candidate_lerp( entt::entity npc_entity, Cmp::Direction candidate_dir, Cmp::LerpPosition candidate_lerp_pos );
 };
 
 } // namespace ProceduralMaze::Sys

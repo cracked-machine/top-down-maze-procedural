@@ -27,7 +27,7 @@ void GameOverScene::on_exit()
   m_reg.clear();
 
   auto &m_player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
-  m_player_sys.stop_footsteps_sound();
+  m_player_sys.stopFootstepsSound();
 
   auto &m_render_game_sys = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
   m_render_game_sys.clear_tilemap();

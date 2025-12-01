@@ -37,7 +37,6 @@
 #include <Sprites/SpriteFactory.hpp>
 #include <Sprites/TileMap.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <Systems/PathFindSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/Render/RenderBuffer.hpp>
 
@@ -49,8 +48,7 @@ class RenderSystem : public BaseSystem
 public:
   //! @brief Construct a new Render System object
   //! @param reg
-  RenderSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                Audio::SoundBank &sound_bank );
+  RenderSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief polymorphic destructor for derived classes
   virtual ~RenderSystem() = default;
@@ -114,8 +112,7 @@ protected:
                                      sf::Vector2f origin = { 0.f, 0.f }, sf::Angle angle = sf::degrees( 0.f ) );
 
   // Fallback rendering for missing sprites (also target-aware)
-  void render_fallback_square_to_target( sf::RenderTarget &target, const sf::FloatRect &pos_cmp,
-                                         const sf::Color &color = sf::Color::Magenta );
+  void render_fallback_square_to_target( sf::RenderTarget &target, const sf::FloatRect &pos_cmp, const sf::Color &color = sf::Color::Magenta );
 
   // Safe sprite accessor that renders a fallback square if sprite is missing
   void safe_render_sprite( const std::string &sprite_type, const sf::FloatRect &position, std::size_t sprite_index = 0,

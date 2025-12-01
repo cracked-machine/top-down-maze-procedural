@@ -25,11 +25,6 @@ private:
 
   Sys::SystemStore &m_system_store;
   entt::dispatcher &m_nav_event_dispatcher;
-
-  // restrict the path tracking data update to every 0.1 seconds (optimization)
-  const sf::Time m_obstacle_distance_update_interval{ sf::milliseconds( 100 ) };
-  // path tracking timer (optimization)
-  sf::Clock m_obstacle_distance_timer;
 };
 
 } // namespace ProceduralMaze::Scene

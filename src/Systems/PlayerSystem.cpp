@@ -26,6 +26,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PlayerSystem.hpp>
+#include <Systems/Render/RenderSystem.hpp>
 
 #include <Events/SceneManagerEvent.hpp>
 #include <SFML/System/Time.hpp>
@@ -42,7 +43,30 @@ PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
   SPDLOG_DEBUG( "PlayerSystem initialized" );
 }
 
-void PlayerSystem::add_player_entity()
+void PlayerSystem::update( sf::Time globalDeltaTime, bool skip_collision_check )
+{
+
+  localTransforms();
+  globalTranslations( globalDeltaTime, skip_collision_check );
+
+  if ( m_debug_info_timer.getElapsedTime() >= sf::milliseconds( 100 ) )
+  {
+    refreshPlayerDistances();
+    m_debug_info_timer.restart();
+  }
+
+  checkPlayerMortality();
+
+  // play/stop footstep sounds depending on player movement
+  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Direction>();
+  for ( auto [pc_entity, pc_cmp, dir_cmp] : player_view.each() )
+  {
+    if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) ) { stopFootstepsSound(); }
+    else { playFootstepsSound(); }
+  }
+}
+
+void PlayerSystem::addPlayerEntity()
 {
   SPDLOG_INFO( "Creating player entity" );
   auto entity = getReg().create();
@@ -76,23 +100,18 @@ void PlayerSystem::add_player_entity()
   getReg().emplace<Cmp::AbsoluteRotation>( entity, 0 );
 }
 
-void PlayerSystem::check_player_mortality()
+void PlayerSystem::playFootstepsSound()
 {
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality>();
-  for ( auto [entity, pc_cmp, health_cmp, mortality_cmp] : player_view.each() )
-  {
-    if ( health_cmp.health <= 0 )
-    {
-      mortality_cmp.state = Cmp::PlayerMortality::State::DEAD;
-      SPDLOG_INFO( "Player has progressed to deadness." );
-      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::GAME_OVER );
-    }
-  }
+  // Restarting prematurely creates a stutter effect, so check first
+  auto &footsteps = m_sound_bank.get_effect( "footsteps" );
+  if ( footsteps.getStatus() == sf::Sound::Status::Playing ) return;
+  footsteps.play();
 }
 
-void PlayerSystem::update_movement( sf::Time globalDeltaTime, bool skip_collision_check )
+void PlayerSystem::stopFootstepsSound() { m_sound_bank.get_effect( "footsteps" ).stop(); }
+
+void PlayerSystem::localTransforms()
 {
-  const float dt = globalDeltaTime.asSeconds();
 
   auto blinking_player_view = getReg()
                                   .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::SpriteAnimation, Cmp::PlayerMortality,
@@ -128,6 +147,12 @@ void PlayerSystem::update_movement( sf::Time globalDeltaTime, bool skip_collisio
       else { alpha_cmp = 0; }
     }
   }
+}
+
+void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool skip_collision_check )
+{
+
+  const float dt = globalDeltaTime.asSeconds();
 
   auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds, Cmp::SpriteAnimation>();
   for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, pc_detection_bounds, anim_cmp] : player_view.each() )
@@ -237,14 +262,50 @@ void PlayerSystem::update_movement( sf::Time globalDeltaTime, bool skip_collisio
   }
 }
 
-void PlayerSystem::play_footsteps_sound()
+void PlayerSystem::refreshPlayerDistances()
 {
-  // Restarting prematurely creates a stutter effect, so check first
-  auto &footsteps = m_sound_bank.get_effect( "footsteps" );
-  if ( footsteps.getStatus() == sf::Sound::Status::Playing ) return;
-  footsteps.play();
+  const auto viewBounds = BaseSystem::calculate_view_bounds( RenderSystem::getGameView() );
+
+  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PCDetectionBounds>();
+  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_db_cmp] : player_view.each() )
+  {
+    auto add_path_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::NoPathFinding> );
+    for ( auto [path_entt, path_pos_cmp] : add_path_view.each() )
+    {
+      if ( pc_db_cmp.findIntersection( path_pos_cmp ) )
+      {
+        if ( !is_visible_in_view( viewBounds, path_pos_cmp ) ) continue; // optimization
+
+        // calculate the distance from the position to the player
+        auto distance = std::floor( getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
+        getReg().emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
+      }
+    }
+
+    auto remove_path_view = getReg().view<Cmp::Position>();
+    for ( auto [path_entt, path_pos_cmp] : remove_path_view.each() )
+    {
+      if ( not pc_db_cmp.findIntersection( path_pos_cmp ) )
+      {
+        // tidy up any out of range obstacles
+        getReg().remove<Cmp::PlayerDistance>( path_entt );
+      }
+    }
+  }
 }
 
-void PlayerSystem::stop_footsteps_sound() { m_sound_bank.get_effect( "footsteps" ).stop(); }
+void PlayerSystem::checkPlayerMortality()
+{
+  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality>();
+  for ( auto [entity, pc_cmp, health_cmp, mortality_cmp] : player_view.each() )
+  {
+    if ( health_cmp.health <= 0 )
+    {
+      mortality_cmp.state = Cmp::PlayerMortality::State::DEAD;
+      SPDLOG_INFO( "Player has progressed to deadness." );
+      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::GAME_OVER );
+    }
+  }
+}
 
 } // namespace ProceduralMaze::Sys

@@ -1,16 +1,16 @@
-#include <Components/NoPathFinding.hpp>
-#include <Components/PlayerKeysCount.hpp>
-#include <Events/SceneManagerEvent.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <Components/Exit.hpp>
 #include <Components/NPC.hpp>
+#include <Components/NoPathFinding.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/PlayableCharacter.hpp>
+#include <Components/PlayerKeysCount.hpp>
 #include <Components/Random.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
+#include <Events/SceneManagerEvent.hpp>
 #include <Systems/ExitSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 

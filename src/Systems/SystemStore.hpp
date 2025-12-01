@@ -4,14 +4,12 @@
 #include <SceneControl/SceneInputRouter.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <Systems/CollisionSystem.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/DiggingSystem.hpp>
 #include <Systems/ExitSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/LargeObstacleSystem.hpp>
 #include <Systems/LootSystem.hpp>
-#include <Systems/PathFindSystem.hpp>
 #include <Systems/PersistentSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
@@ -40,9 +38,7 @@ public:
     RenderGameSystem,
     PersistentSystem,
     PlayerSystem,
-    PathFindSystem,
     NpcSystem,
-    CollisionSystem,
     DiggingSystem,
     RenderOverlaySystem,
     BombSystem,
@@ -68,9 +64,7 @@ public:
     m_sysmap.emplace( Type::RenderGameSystem, std::make_unique<RenderGameSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::PersistentSystem, std::make_unique<PersistentSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::PlayerSystem, std::make_unique<PlayerSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
-    m_sysmap.emplace( Type::PathFindSystem, std::make_unique<PathFindSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::NpcSystem, std::make_unique<NpcSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::CollisionSystem, std::make_unique<CollisionSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::DiggingSystem, std::make_unique<DiggingSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::RenderOverlaySystem, std::make_unique<RenderOverlaySystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::BombSystem, std::make_unique<BombSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
@@ -96,9 +90,7 @@ public:
     else if constexpr ( T == Type::RenderMenuSystem ) { return static_cast<RenderMenuSystem &>( *m_sysmap[T] ); }
     else if constexpr ( T == Type::PersistentSystem ) { return static_cast<PersistentSystem &>( *m_sysmap[T] ); }
     else if constexpr ( T == Type::PlayerSystem ) { return static_cast<PlayerSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::PathFindSystem ) { return static_cast<PathFindSystem &>( *m_sysmap[T] ); }
     else if constexpr ( T == Type::NpcSystem ) { return static_cast<NpcSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::CollisionSystem ) { return static_cast<CollisionSystem &>( *m_sysmap[T] ); }
     else if constexpr ( T == Type::DiggingSystem ) { return static_cast<DiggingSystem &>( *m_sysmap[T] ); }
     else if constexpr ( T == Type::RenderOverlaySystem ) { return static_cast<RenderOverlaySystem &>( *m_sysmap[T] ); }
     else if constexpr ( T == Type::BombSystem ) { return static_cast<BombSystem &>( *m_sysmap[T] ); }

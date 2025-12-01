@@ -4,8 +4,7 @@
 namespace ProceduralMaze::Scene
 {
 
-LevelCompleteScene::LevelCompleteScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store,
-                                        entt::dispatcher &nav_event_dispatcher )
+LevelCompleteScene::LevelCompleteScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher )
     : m_sound_bank( sound_bank ),
       m_system_store( system_store ),
       m_nav_event_dispatcher( nav_event_dispatcher )
@@ -29,7 +28,7 @@ void LevelCompleteScene::on_exit()
   m_reg.clear();
 
   auto &player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
-  player_sys.stop_footsteps_sound();
+  player_sys.stopFootstepsSound();
 
   auto &m_render_game_sys = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
   m_render_game_sys.clear_tilemap();

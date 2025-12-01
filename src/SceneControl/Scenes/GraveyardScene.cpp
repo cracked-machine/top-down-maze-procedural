@@ -30,7 +30,7 @@ void GraveyardScene::on_enter()
   render_game_system.init_tilemap();
 
   auto &m_player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
-  m_player_sys.add_player_entity();
+  m_player_sys.addPlayerEntity();
 
   auto entity = m_reg.create();
   m_reg.emplace<Cmp::System>( entity );
@@ -64,7 +64,7 @@ void GraveyardScene::on_exit()
   m_sound_bank.get_music( "title_music" ).play();
 
   auto &m_player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
-  m_player_sys.stop_footsteps_sound();
+  m_player_sys.stopFootstepsSound();
 
   auto &m_render_game_sys = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
   m_render_game_sys.clear_tilemap();
@@ -76,30 +76,19 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
   // only do this once every update, other it constantly restarts the music
   if ( m_sound_bank.get_music( "game_music" ).getStatus() != sf::Music::Status::Playing ) { m_sound_bank.get_music( "game_music" ).play(); }
 
-  // play/stop footstep sounds depending on player movement
-  auto &m_player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
-  auto player_view = m_reg.view<Cmp::PlayableCharacter, Cmp::Direction>();
-  for ( auto [pc_entity, pc_cmp, dir_cmp] : player_view.each() )
-  {
-    if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) ) { m_player_sys.stop_footsteps_sound(); }
-    else { m_player_sys.play_footsteps_sound(); }
-  }
-
   auto &anim_sys = m_system_store.find<Sys::SystemStore::Type::AnimSystem>();
   anim_sys.update( dt );
 
   auto &sinkhole_sys = m_system_store.find<Sys::SystemStore::Type::SinkHoleHazardSystem>();
   sinkhole_sys.update_hazard_field();
+  sinkhole_sys.check_npc_hazard_field_collision();
 
   auto &corruption_sys = m_system_store.find<Sys::SystemStore::Type::CorruptionHazardSystem>();
   corruption_sys.update_hazard_field();
+  corruption_sys.check_npc_hazard_field_collision();
 
   auto &bomb_sys = m_system_store.find<Sys::SystemStore::Type::BombSystem>();
   bomb_sys.update();
-
-  sinkhole_sys.check_npc_hazard_field_collision();
-
-  corruption_sys.check_npc_hazard_field_collision();
 
   auto &exit_sys = m_system_store.find<Sys::SystemStore::Type::ExitSystem>();
   exit_sys.check_exit_collision();
@@ -108,7 +97,7 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
   loot_sys.check_loot_collision();
 
   auto &npc_sys = m_system_store.find<Sys::SystemStore::Type::NpcSystem>();
-  npc_sys.check_bones_reanimation();
+  npc_sys.update( dt );
 
   auto &wormhole_sys = m_system_store.find<Sys::SystemStore::Type::WormholeSystem>();
   wormhole_sys.check_player_wormhole_collision();
@@ -119,19 +108,11 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
   auto &footstep_sys = m_system_store.find<Sys::SystemStore::Type::FootstepSystem>();
   footstep_sys.update();
 
-  // Throttled obstacle distance update (optimization)
-  auto &path_find_sys = m_system_store.find<Sys::SystemStore::Type::PathFindSystem>();
-  if ( m_obstacle_distance_timer.getElapsedTime() >= m_obstacle_distance_update_interval )
-  {
-    path_find_sys.update_player_distances();
-    m_obstacle_distance_timer.restart();
-  }
-
   // enable/disable collision detection depending on Cmp::System settings
   auto &player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
   for ( auto [_ent, _sys] : m_reg.view<Cmp::System>().each() )
   {
-    player_sys.update_movement( dt, !_sys.collisions_enabled );
+    player_sys.update( dt, !_sys.collisions_enabled );
     if ( _sys.collisions_enabled )
     {
       sinkhole_sys.check_player_hazard_field_collision();
@@ -139,12 +120,6 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
       npc_sys.check_player_to_npc_collision();
     }
   }
-
-  auto player_entity = m_reg.view<Cmp::PlayableCharacter>().front();
-  path_find_sys.findPath( player_entity );
-  npc_sys.update_movement( dt );
-
-  player_sys.check_player_mortality();
 
   auto &render_game_sys = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
   auto &render_overlay_sys = m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>();
