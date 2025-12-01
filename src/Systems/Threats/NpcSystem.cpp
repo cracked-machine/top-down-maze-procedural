@@ -46,6 +46,11 @@ void NpcSystem::update( sf::Time dt )
   if ( player_entity_view->size() > 0 ) scanForPlayers( player_entity_view.front() );
 
   update_movement( dt );
+
+  for ( auto [_ent, _sys] : getReg().view<Cmp::System>().each() )
+  {
+    if ( _sys.collisions_enabled ) { check_player_to_npc_collision(); }
+  }
 }
 
 void NpcSystem::add_npc_entity( const Events::NpcCreationEvent &event )

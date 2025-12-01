@@ -76,55 +76,34 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
   // only do this once every update, other it constantly restarts the music
   if ( m_sound_bank.get_music( "game_music" ).getStatus() != sf::Music::Status::Playing ) { m_sound_bank.get_music( "game_music" ).play(); }
 
-  auto &anim_sys = m_system_store.find<Sys::SystemStore::Type::AnimSystem>();
-  anim_sys.update( dt );
+  m_system_store.find<Sys::SystemStore::Type::AnimSystem>().update( dt );
 
-  auto &sinkhole_sys = m_system_store.find<Sys::SystemStore::Type::SinkHoleHazardSystem>();
-  sinkhole_sys.update_hazard_field();
-  sinkhole_sys.check_npc_hazard_field_collision();
+  m_system_store.find<Sys::SystemStore::Type::SinkHoleHazardSystem>().update();
 
-  auto &corruption_sys = m_system_store.find<Sys::SystemStore::Type::CorruptionHazardSystem>();
-  corruption_sys.update_hazard_field();
-  corruption_sys.check_npc_hazard_field_collision();
+  m_system_store.find<Sys::SystemStore::Type::CorruptionHazardSystem>().update();
 
-  auto &bomb_sys = m_system_store.find<Sys::SystemStore::Type::BombSystem>();
-  bomb_sys.update();
+  m_system_store.find<Sys::SystemStore::Type::BombSystem>().update();
 
-  auto &exit_sys = m_system_store.find<Sys::SystemStore::Type::ExitSystem>();
-  exit_sys.check_exit_collision();
+  m_system_store.find<Sys::SystemStore::Type::ExitSystem>().check_exit_collision();
 
-  auto &loot_sys = m_system_store.find<Sys::SystemStore::Type::LootSystem>();
-  loot_sys.check_loot_collision();
+  m_system_store.find<Sys::SystemStore::Type::LootSystem>().check_loot_collision();
 
-  auto &npc_sys = m_system_store.find<Sys::SystemStore::Type::NpcSystem>();
-  npc_sys.update( dt );
+  m_system_store.find<Sys::SystemStore::Type::NpcSystem>().update( dt );
 
-  auto &wormhole_sys = m_system_store.find<Sys::SystemStore::Type::WormholeSystem>();
-  wormhole_sys.check_player_wormhole_collision();
+  m_system_store.find<Sys::SystemStore::Type::WormholeSystem>().check_player_wormhole_collision();
 
-  auto &digging_sys = m_system_store.find<Sys::SystemStore::Type::DiggingSystem>();
-  digging_sys.update();
+  m_system_store.find<Sys::SystemStore::Type::DiggingSystem>().update();
 
-  auto &footstep_sys = m_system_store.find<Sys::SystemStore::Type::FootstepSystem>();
-  footstep_sys.update();
+  m_system_store.find<Sys::SystemStore::Type::FootstepSystem>().update();
 
-  // enable/disable collision detection depending on Cmp::System settings
-  auto &player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
-  for ( auto [_ent, _sys] : m_reg.view<Cmp::System>().each() )
-  {
-    player_sys.update( dt, !_sys.collisions_enabled );
-    if ( _sys.collisions_enabled )
-    {
-      sinkhole_sys.check_player_hazard_field_collision();
-      corruption_sys.check_player_hazard_field_collision();
-      npc_sys.check_player_to_npc_collision();
-    }
-  }
+  m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt );
 
-  auto &render_game_sys = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
-  auto &render_overlay_sys = m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>();
-  render_game_sys.refresh_z_order_queue();
-  render_game_sys.render_game( dt, render_overlay_sys );
+  // clang-format off
+  m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().render_game( 
+    dt,
+    m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>() 
+  );
+  // clang-format on
 
   // defer this scenes input event processing until we  exit this function
   m_nav_event_dispatcher.enqueue( Events::ProcessGraveyardSceneInputEvent() );

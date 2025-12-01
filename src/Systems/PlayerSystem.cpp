@@ -43,11 +43,14 @@ PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
   SPDLOG_DEBUG( "PlayerSystem initialized" );
 }
 
-void PlayerSystem::update( sf::Time globalDeltaTime, bool skip_collision_check )
+void PlayerSystem::update( sf::Time globalDeltaTime )
 {
 
   localTransforms();
-  globalTranslations( globalDeltaTime, skip_collision_check );
+  for ( auto [_ent, _sys] : getReg().view<Cmp::System>().each() )
+  {
+    globalTranslations( globalDeltaTime, !_sys.collisions_enabled );
+  }
 
   if ( m_debug_info_timer.getElapsedTime() >= sf::milliseconds( 100 ) )
   {

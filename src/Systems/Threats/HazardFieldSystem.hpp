@@ -98,10 +98,16 @@ public:
     get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onResume>( this );
   }
 
-  //! @brief event handlers for pausing hazard spread clocks
-  void onPause() override { m_spread_update_clock.stop(); }
-  //! @brief event handlers for resuming hazard spread clocks
-  void onResume() override { m_spread_update_clock.start(); }
+  void update()
+  {
+    update_hazard_field();
+    check_npc_hazard_field_collision();
+
+    for ( auto [_ent, _sys] : getReg().template view<Cmp::System>().each() )
+    {
+      if ( _sys.collisions_enabled ) { check_player_hazard_field_collision(); }
+    }
+  }
 
   //! @brief Initialise the hazard field. This is done only once at the start of the game:
   //! 1. Get view of all entities that own obstacles and position components
@@ -127,11 +133,12 @@ public:
     SPDLOG_INFO( "Hazard field seeded at position [{}, {}].", random_pos.position.x, random_pos.position.y );
   }
 
-  // add an adjacent hazard field component if possible
-  // This is done every m_interval seconds, using the m_clock to track time.
-  // get a view of all hazard fields, for each hazard field check adjacent
-  // positions if there is no hazard field, add a hazard field component
+  //! @brief event handlers for pausing hazard spread clocks
+  void onPause() override { m_spread_update_clock.stop(); }
+  //! @brief event handlers for resuming hazard spread clocks
+  void onResume() override { m_spread_update_clock.start(); }
 
+private:
   //! @brief Update the hazard field by spreading it to adjacent positions.
   //! 1. Check if the update interval has elapsed using m_clock.
   //! 2. Get a view of all entities with the hazard field component and position.
@@ -250,7 +257,6 @@ public:
     }
   }
 
-private:
   //! @brief Clock used to track time for hazard field updates.
   //!
   sf::Clock m_spread_update_clock;

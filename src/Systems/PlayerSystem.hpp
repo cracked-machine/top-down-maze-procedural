@@ -20,7 +20,7 @@ public:
                 entt::dispatcher &scenemanager_event_dispatcher );
 
   //! @brief Update the player system.
-  void update( sf::Time globalDeltaTime, bool skip_collision_check = false );
+  void update( sf::Time globalDeltaTime );
 
   //! @brief Create and add the player entity to the registry
   void addPlayerEntity();

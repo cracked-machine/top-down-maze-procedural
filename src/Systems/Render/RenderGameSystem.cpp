@@ -97,6 +97,8 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
 {
   using namespace Sprites;
 
+  refresh_z_order_queue();
+
   // check for updates to the System modes
   for ( auto [_ent, _sys] : getReg().view<Cmp::System>().each() )
   {
