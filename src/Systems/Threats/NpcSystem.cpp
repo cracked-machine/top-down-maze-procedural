@@ -53,6 +53,43 @@ void NpcSystem::update( sf::Time dt )
   }
 }
 
+//! @brief Check if diagonal movement should be blocked due to adjacent obstacles
+//! @param current_pos Current position rectangle
+//! @param diagonal_direction The diagonal direction vector (e.g., {1, -1} for up-right)
+//! @return true if diagonal movement is blocked by adjacent obstacles
+bool NpcSystem::isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::Vector2f &diagonal_direction )
+{
+  // Only check for diagonal movements (both x and y components non-zero)
+  if ( diagonal_direction.x == 0.f || diagonal_direction.y == 0.f )
+  {
+    return false; // Not a diagonal move
+  }
+
+  // Create test positions for the two cardinal directions
+  sf::FloatRect horizontal_test = current_pos;
+  horizontal_test.position.x += diagonal_direction.x * kGridSquareSizePixelsF.x;
+
+  sf::FloatRect vertical_test = current_pos;
+  vertical_test.position.y += diagonal_direction.y * kGridSquareSizePixelsF.y;
+
+  // If EITHER cardinal direction is blocked, block the diagonal
+  bool horizontal_blocked = !is_valid_move( horizontal_test );
+  bool vertical_blocked = !is_valid_move( vertical_test );
+
+  return horizontal_blocked || vertical_blocked;
+}
+
+void NpcSystem::on_npc_death( const Events::NpcDeathEvent &event )
+{
+  SPDLOG_DEBUG( "NPC Death Event received" );
+  remove_npc_entity( event.npc_entity );
+}
+void NpcSystem::on_npc_creation( const Events::NpcCreationEvent &event )
+{
+  SPDLOG_DEBUG( "NPC Creation Event received" );
+  add_npc_entity( event );
+}
+
 void NpcSystem::add_npc_entity( const Events::NpcCreationEvent &event )
 {
   auto pos_cmp = getReg().try_get<Cmp::Position>( event.position_entity );
@@ -135,32 +172,6 @@ void NpcSystem::remove_npc_entity( entt::entity npc_entity )
   getReg().remove<Cmp::Direction>( npc_entity );
   getReg().remove<Cmp::SpriteAnimation>( npc_entity );
   getReg().remove<Cmp::ZOrderValue>( npc_entity );
-}
-
-//! @brief Check if diagonal movement should be blocked due to adjacent obstacles
-//! @param current_pos Current position rectangle
-//! @param diagonal_direction The diagonal direction vector (e.g., {1, -1} for up-right)
-//! @return true if diagonal movement is blocked by adjacent obstacles
-bool NpcSystem::isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::Vector2f &diagonal_direction )
-{
-  // Only check for diagonal movements (both x and y components non-zero)
-  if ( diagonal_direction.x == 0.f || diagonal_direction.y == 0.f )
-  {
-    return false; // Not a diagonal move
-  }
-
-  // Create test positions for the two cardinal directions
-  sf::FloatRect horizontal_test = current_pos;
-  horizontal_test.position.x += diagonal_direction.x * kGridSquareSizePixelsF.x;
-
-  sf::FloatRect vertical_test = current_pos;
-  vertical_test.position.y += diagonal_direction.y * kGridSquareSizePixelsF.y;
-
-  // If EITHER cardinal direction is blocked, block the diagonal
-  bool horizontal_blocked = !is_valid_move( horizontal_test );
-  bool vertical_blocked = !is_valid_move( vertical_test );
-
-  return horizontal_blocked || vertical_blocked;
 }
 
 void NpcSystem::update_movement( sf::Time globalDeltaTime )
@@ -274,17 +285,6 @@ void NpcSystem::check_player_to_npc_collision()
       if ( target_push_back_pos != pc_pos_cmp.position ) { pc_pos_cmp.position = target_push_back_pos; }
     }
   }
-}
-
-void NpcSystem::on_npc_death( const Events::NpcDeathEvent &event )
-{
-  SPDLOG_DEBUG( "NPC Death Event received" );
-  remove_npc_entity( event.npc_entity );
-}
-void NpcSystem::on_npc_creation( const Events::NpcCreationEvent &event )
-{
-  SPDLOG_DEBUG( "NPC Creation Event received" );
-  add_npc_entity( event );
 }
 
 sf::Vector2f NpcSystem::findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos, const sf::Vector2f &player_direction,
@@ -426,7 +426,7 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
       auto npc_lerp_pos_cmp = getReg().try_get<Cmp::LerpPosition>( npc_entity );
       auto npc_anim_cmp = getReg().try_get<Cmp::SpriteAnimation>( npc_entity );
       if ( not npc_cmp || not npc_pos || not npc_anim_cmp ) return;
-      if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) return;
+      if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) return; // still mid-lerp, wait until done
 
       auto move_candidate_pixel_pos = getPixelPosition( nearest_obstacle.second );
       if ( not move_candidate_pixel_pos ) continue; // Try next candidate
@@ -464,7 +464,7 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
 
         if ( npc_anim_cmp->m_sprite_type.contains( "NPCGHOST" ) )
         {
-          // Ghosts can phase through obstacles, so no need to check for diagonal collisions
+          // Ghosts can phase diagonally between obstacles, so no need to check for diagonal collisions
           add_candidate_lerp( npc_entity, std::move( candidate_dir ), std::move( candidate_lerp_pos ) );
           return;
         }
@@ -474,10 +474,10 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
 
         auto vertical_hitbox = Cmp::RectBounds( sf::Vector2f{ npc_pos->position.x, npc_pos->position.y + ( candidate_dir.y * 16 ) },
                                                 kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
-        SPDLOG_DEBUG( "Checking distance {} - NPC at ({}, {}), Target at ({}, {}), Dir ({}, {})", nearest_obstacle.first, npc_pos->position.x,
-                      npc_pos->position.y, move_candidate_pixel_pos.value().x, move_candidate_pixel_pos.value().y, candidate_dir.x, candidate_dir.y );
-        SPDLOG_DEBUG( "Horizontal hitbox at ({}, {}), Vertical hitbox at ({}, {})", npc_pos->position.x + ( candidate_dir.x * 16 ),
-                      npc_pos->position.y, npc_pos->position.x, npc_pos->position.y + ( candidate_dir.y * 16 ) );
+        SPDLOG_INFO( "Checking distance {} - NPC at ({}, {}), Target at ({}, {}), Dir ({}, {})", nearest_obstacle.first, npc_pos->position.x,
+                     npc_pos->position.y, move_candidate_pixel_pos.value().x, move_candidate_pixel_pos.value().y, candidate_dir.x, candidate_dir.y );
+        SPDLOG_INFO( "Horizontal hitbox at ({}, {}), Vertical hitbox at ({}, {})", npc_pos->position.x + ( candidate_dir.x * 16 ),
+                     npc_pos->position.y, npc_pos->position.x, npc_pos->position.y + ( candidate_dir.y * 16 ) );
 
         bool horizontal_collision = false;
         bool vertical_collision = false;
@@ -488,12 +488,12 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
           if ( not obst_cmp.m_enabled ) continue;
           if ( horizontal_hitbox.findIntersection( obst_pos ) )
           {
-            SPDLOG_DEBUG( "!!!! Horizontal collision at obstacle ({}, {})", obst_pos.position.x, obst_pos.position.y );
+            SPDLOG_INFO( "!!!! Horizontal collision at obstacle ({}, {})", obst_pos.position.x, obst_pos.position.y );
             horizontal_collision = true;
           }
           if ( vertical_hitbox.findIntersection( obst_pos ) )
           {
-            SPDLOG_DEBUG( "!!!! Vertical collision at obstacle ({}, {})", obst_pos.position.x, obst_pos.position.y );
+            SPDLOG_INFO( "!!!! Vertical collision at obstacle ({}, {})", obst_pos.position.x, obst_pos.position.y );
             vertical_collision = true;
           }
         }
@@ -501,7 +501,7 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
         if ( horizontal_collision && vertical_collision )
         {
 
-          SPDLOG_DEBUG( "Exclude obstacle at distance {}", nearest_obstacle.first );
+          SPDLOG_INFO( "Exclude obstacle at distance {}", nearest_obstacle.first );
           continue;
         }
 
