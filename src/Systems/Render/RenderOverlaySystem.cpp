@@ -237,11 +237,6 @@ void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f 
 
     auto obst_view = getReg().view<Cmp::Obstacle>();
     auto obstacle_count = obst_view.size();
-    int disabled_count = 0;
-    for ( auto [e, obstacle] : obst_view.each() )
-    {
-      if ( not obstacle.m_enabled ) { ++disabled_count; }
-    }
 
     // clang-format off
     m_stats_text1.setString( 
@@ -249,7 +244,7 @@ void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f 
       "   P: " + std::to_string( position_count ) );
     m_stats_text2.setString( 
       "O: "         + std::to_string( obstacle_count ) + 
-      " (disabled: " + std::to_string( disabled_count ) + ")" );
+      ")" );
       m_stats_text3.setString( 
            "N: " + std::to_string( npc_count ) +
         "   C: " + std::to_string( corruption_count ) + 
@@ -371,16 +366,6 @@ void RenderOverlaySystem::render_obstacle_markers()
     {
       sf::RectangleShape obstacle_shape( kGridSquareSizePixelsF );
       obstacle_shape.setPosition( pos_cmp.position );
-      if ( obst_cmp.m_enabled )
-      {
-        obstacle_shape.setFillColor( sf::Color( 0, 255, 0, 100 ) ); // semi-transparent green
-        obstacle_shape.setOutlineColor( sf::Color::Green );
-      }
-      else
-      {
-        obstacle_shape.setFillColor( sf::Color( 255, 0, 0, 100 ) ); // semi-transparent red
-        obstacle_shape.setOutlineColor( sf::Color::Red );
-      }
       obstacle_shape.setOutlineThickness( 1.f );
       m_window.draw( obstacle_shape );
     }

@@ -48,7 +48,7 @@ public:
   // Iterate and generate large obstacles (graves, shrines, crypts)
   void gen_large_obstacles();
 
-  // Iterate all position (excluding playable characters) and randomly assign small obstacles
+  // Iterate all position (excluding playable characters) and randomly assign an obstacle component
   void gen_small_obstacles();
 
   // Iterate and generate loot containers
@@ -78,7 +78,6 @@ public:
 
 private:
   std::vector<entt::entity> m_data;
-  Cmp::RandomInt m_activation_selector{ 0, 1 };
 };
 
 } // namespace ProceduralMaze::Sys::ProcGen

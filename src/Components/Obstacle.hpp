@@ -13,15 +13,9 @@ namespace ProceduralMaze::Cmp
 {
 
 // Obstacle concept
-class Obstacle
+struct Obstacle
 {
-public:
-  Obstacle( bool enabled = true )
-      : m_enabled( enabled )
-  {
-  }
 
-  // used for procedural generation algorithm and detonation logic
   bool m_enabled{ true };
 };
 

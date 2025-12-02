@@ -338,7 +338,6 @@ void RandomLevelGenerator::gen_small_obstacles()
   auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
   for ( auto [entity, pos_cmp] : position_view.each() )
   {
-    // pick a random obstacle type and texture index
     // clang-format off
     auto [obst_type, rand_obst_tex_idx] = 
       m_sprite_factory.get_random_type_and_texture_index( { 
@@ -346,10 +345,9 @@ void RandomLevelGenerator::gen_small_obstacles()
       } );
     // clang-format on
 
-    auto is_activated = m_activation_selector.gen();
-    getReg().emplace_or_replace<Cmp::Obstacle>( entity, is_activated );
-    if ( is_activated )
+    if ( Cmp::RandomInt{ 0, 1 }.gen() == 1 )
     {
+      getReg().emplace_or_replace<Cmp::Obstacle>( entity );
       // Set the z-order value so that the rock obstacles are rendered above everything else
       float zorder = m_sprite_factory.get_sprite_size_by_type( "ROCK" ).y;
       getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y + ( zorder * 2.f ) );
