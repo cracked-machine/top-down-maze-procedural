@@ -15,8 +15,7 @@ namespace ProceduralMaze::Sys
 class RenderOverlaySystem : public RenderSystem
 {
 public:
-  RenderOverlaySystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                       Audio::SoundBank &sound_bank )
+  RenderOverlaySystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
       : RenderSystem( reg, window, sprite_factory, sound_bank )
   {
     // Pre-warm font texture atlas with all glyphs used in debug overlays
@@ -53,13 +52,32 @@ public:
   void render_player_position_overlay( sf::Vector2f player_position, sf::Vector2f pos );
   void render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos );
   void render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3, sf::Vector2f pos4 );
-  void render_zorder_values_overlay( sf::Vector2f pos, std::vector<ZOrder> &zorder_queue,
-                                     std::set<Sprites::SpriteMetaType> exclusions = {} );
+  void render_zorder_values_overlay( sf::Vector2f pos, std::vector<ZOrder> &zorder_queue, std::set<Sprites::SpriteMetaType> exclusions = {} );
   void render_npc_list_overlay( sf::Vector2f pos );
   void render_obstacle_markers();
   void render_player_distances();
   void render_scan_detection_bounds();
   void render_lerp_positions();
+
+  template <typename Component>
+  void render_square_for_component( entt::entity entity, sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )
+  {
+    if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
+    {
+      auto pos_cmp = getReg().try_get<Cmp::Position>( entity );
+      auto requested_cmp = getReg().try_get<Component>( entity );
+      if ( pos_cmp && requested_cmp )
+      {
+        sf::RectangleShape rectangle;
+        rectangle.setSize( kGridSquareSizePixelsF );
+        rectangle.setPosition( pos_cmp->position );
+        rectangle.setFillColor( sf::Color::Transparent );
+        rectangle.setOutlineColor( square_color );
+        rectangle.setOutlineThickness( square_thickness );
+        m_window.draw( rectangle );
+      }
+    }
+  }
 
   template <typename Component>
   void render_zorder_value( sf::Color text_color = sf::Color::White, int precision = 1 )
