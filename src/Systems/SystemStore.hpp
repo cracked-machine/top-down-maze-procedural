@@ -24,6 +24,8 @@
 
 #include <map>
 #include <memory>
+#include <stdexcept>
+#include <string>
 
 namespace ProceduralMaze::Sys
 {
@@ -55,6 +57,10 @@ public:
     CryptSystem,
   };
 
+  // System type traits - explicit specializations
+  template <Type T>
+  struct SystemTraits;
+
   SystemStore( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank, entt::dispatcher &nav_event_dispatcher,
                entt::dispatcher &scenemanager_event_dispatcher )
   {
@@ -85,34 +91,13 @@ public:
   template <Type T>
   auto &find()
   {
-    if constexpr ( T == Type::RenderGameSystem ) { return static_cast<RenderGameSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::SceneInputRouter ) { return static_cast<SceneInputRouter &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::RenderMenuSystem ) { return static_cast<RenderMenuSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::PersistentSystem ) { return static_cast<PersistentSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::PlayerSystem ) { return static_cast<PlayerSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::NpcSystem ) { return static_cast<NpcSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::DiggingSystem ) { return static_cast<DiggingSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::RenderOverlaySystem ) { return static_cast<RenderOverlaySystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::BombSystem ) { return static_cast<BombSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::AnimSystem ) { return static_cast<AnimSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::SinkHoleHazardSystem ) { return static_cast<SinkHoleHazardSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::CorruptionHazardSystem ) { return static_cast<CorruptionHazardSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::WormholeSystem ) { return static_cast<WormholeSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::ExitSystem ) { return static_cast<ExitSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::FootstepSystem ) { return static_cast<FootstepSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::LargeObstacleSystem ) { return static_cast<LargeObstacleSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::LootSystem ) { return static_cast<LootSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::RandomLevelGenerator ) { return static_cast<ProcGen::RandomLevelGenerator &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::CellAutomataSystem ) { return static_cast<ProcGen::CellAutomataSystem &>( *m_sysmap[T] ); }
-    else if constexpr ( T == Type::CryptSystem ) { return static_cast<ProceduralMaze::Sys::CryptSystem &>( *m_sysmap[T] ); }
-    // ... add other systems as needed
-    else { static_assert( false, "Unknown system type" ); }
-  }
+    using SystemType = typename SystemTraits<T>::type;
 
-  BaseSystem &find( Type t )
-  {
-    if ( auto search = m_sysmap.find( t ); search != m_sysmap.end() ) { return *search->second; }
-    throw std::runtime_error( "Unknown system type: " + std::to_string( static_cast<int>( t ) ) );
+    auto it = m_sysmap.find( T );
+    if ( it == m_sysmap.end() ) { throw std::runtime_error( "System not found in store: " + std::to_string( static_cast<int>( T ) ) ); }
+    if ( !it->second ) { throw std::runtime_error( "System pointer is null: " + std::to_string( static_cast<int>( T ) ) ); }
+
+    return static_cast<SystemType &>( *it->second );
   }
 
   auto begin() { return m_sysmap.begin(); }
@@ -123,6 +108,30 @@ private:
   std::map<Type, std::unique_ptr<BaseSystem>> m_sysmap;
   entt::registry m_initial_reg; // Temporary registry for initialization
 };
+
+// Explicit template specializations for SystemTraits
+// clang-format off
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::RenderGameSystem>       { using type = RenderGameSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::SceneInputRouter>       { using type = SceneInputRouter; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::RenderMenuSystem>       { using type = RenderMenuSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::PersistentSystem>       { using type = PersistentSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::PlayerSystem>           { using type = PlayerSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::NpcSystem>              { using type = NpcSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::DiggingSystem>          { using type = DiggingSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::RenderOverlaySystem>    { using type = RenderOverlaySystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::BombSystem>             { using type = BombSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::AnimSystem>             { using type = AnimSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::SinkHoleHazardSystem>   { using type = SinkHoleHazardSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::CorruptionHazardSystem> { using type = CorruptionHazardSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::WormholeSystem>         { using type = WormholeSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::ExitSystem>             { using type = ExitSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::FootstepSystem>         { using type = FootstepSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::LargeObstacleSystem>    { using type = LargeObstacleSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::LootSystem>             { using type = LootSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::RandomLevelGenerator>   { using type = ProcGen::RandomLevelGenerator; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::CellAutomataSystem>     { using type = ProcGen::CellAutomataSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::CryptSystem>            { using type = ProceduralMaze::Sys::CryptSystem; };
+// clang-format on
 
 } // namespace ProceduralMaze::Sys
 
