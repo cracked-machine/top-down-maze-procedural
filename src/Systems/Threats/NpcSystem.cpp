@@ -182,9 +182,9 @@ void NpcSystem::update_movement( sf::Time globalDeltaTime )
   for ( auto [entity, pos_cmp, lerp_pos_cmp, npc_scan_bounds, dir_cmp] : view.each() )
   {
 
-    // skip over obstacles that are still enabled i.e. dont travel though them
+    // if there is an obstacle at this entity move onto the next entity
     auto obst_cmp = getReg().try_get<Cmp::Obstacle>( entity );
-    if ( obst_cmp && obst_cmp->m_enabled ) continue;
+    if ( obst_cmp ) continue;
 
     // If this is the first update, store the start position
     if ( lerp_pos_cmp.m_lerp_factor == 0.0f )
@@ -485,7 +485,6 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
         for ( auto [obst_entity, obst_cmp, obst_pos] : obst_view.each() )
         {
           if ( not pc_detection_bounds->findIntersection( obst_pos ) ) continue;
-          if ( not obst_cmp.m_enabled ) continue;
           if ( horizontal_hitbox.findIntersection( obst_pos ) )
           {
             SPDLOG_INFO( "!!!! Horizontal collision at obstacle ({}, {})", obst_pos.position.x, obst_pos.position.y );

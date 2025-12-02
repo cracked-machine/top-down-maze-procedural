@@ -74,8 +74,6 @@ void DiggingSystem::check_player_dig_obstacle_collision()
   auto position_view = getReg().view<Cmp::Position, Cmp::Obstacle, Cmp::AbsoluteAlpha>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
   for ( auto [obst_entity, obst_pos_cmp, obst_cmp, alpha_cmp] : position_view.each() )
   {
-    // skip positions with non diggable obstacles
-    if ( not obst_cmp.m_enabled ) continue;
 
     // Remap the mouse position to game view coordinates (a subset of the actual game area)
     sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
@@ -116,7 +114,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
 
       // Apply digging damage, play a sound depending on whether the obstacle was destroyed
       m_dig_cooldown_clock.restart();
-      
+
       auto damage_per_dig = get_persistent_component<Cmp::Persistent::DiggingDamagePerHit>().get_value();
       alpha_cmp.setAlpha( std::max( 0, alpha_cmp.getAlpha() - damage_per_dig ) );
       SPDLOG_INFO( "Applied {} digging damage to obstacle at position ({}, {}), new alpha is {}.", damage_per_dig, obst_pos_cmp.position.x,

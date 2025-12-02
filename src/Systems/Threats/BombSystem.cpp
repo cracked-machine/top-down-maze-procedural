@@ -233,7 +233,6 @@ void BombSystem::update()
       getReg().remove<Cmp::ZOrderValue>( obst_entity );
       getReg().remove<Cmp::SpriteAnimation>( obst_entity );
       if ( getReg().all_of<Cmp::NoPathFinding>( obst_entity ) ) { getReg().remove<Cmp::NoPathFinding>( obst_entity ); }
-      obst_cmp.m_enabled = false;
     }
 
     // detonate loot containers - component removal is handled by LootSystem

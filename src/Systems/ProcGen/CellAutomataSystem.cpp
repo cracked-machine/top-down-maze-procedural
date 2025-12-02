@@ -18,6 +18,17 @@ void CellAutomataSystem::iterate( unsigned int iterations )
   // run one last time to get the latest neighbour data
   find_neighbours();
 
+  // delete any obstacles that are disabled
+  auto obstacle_view = getReg().view<Cmp::Obstacle>();
+  for ( auto [entity, obst_cmp] : obstacle_view.each() )
+  {
+    if ( not obst_cmp.m_enabled )
+    {
+      getReg().remove<Cmp::Obstacle>( entity );
+      if ( getReg().any_of<Cmp::NoPathFinding>( entity ) ) { getReg().remove<Cmp::NoPathFinding>( entity ); }
+      if ( getReg().any_of<Cmp::ZOrderValue>( entity ) ) { getReg().remove<Cmp::ZOrderValue>( entity ); }
+    }
+  }
   SPDLOG_INFO( "Total Iterations: {}", iterations );
 }
 
