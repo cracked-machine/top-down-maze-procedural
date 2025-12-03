@@ -58,11 +58,17 @@ RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &windo
 void RenderGameSystem::refresh_z_order_queue()
 {
   m_zorder_queue_.clear();
-  auto view = getReg().view<Cmp::ZOrderValue, Cmp::Position>();
-  for ( auto [entity, z_order_cmp, pos_cmp] : view.each() )
-  {
-    if ( is_visible_in_view( RenderSystem::s_game_view, pos_cmp ) ) m_zorder_queue_.push_back( ZOrder{ z_order_cmp.getZOrder(), entity } );
-  }
+  sf::FloatRect view_bounds = calculate_view_bounds( m_local_view );
+
+  // prevent pop-in/pop-outs when multiblock entities are near the edge of the view
+  add_visible_entity_to_z_order_queue<Cmp::WormholeMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::AltarMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::CryptMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::GraveMultiBlock>( m_zorder_queue_, view_bounds );
+
+  // add other components as normal
+  add_visible_entity_to_z_order_queue<Cmp::Position>( m_zorder_queue_, view_bounds );
+
   std::sort( m_zorder_queue_.begin(), m_zorder_queue_.end(), []( const ZOrder &a, const ZOrder &b ) { return a.z < b.z; } );
 }
 
@@ -97,8 +103,6 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
 {
   using namespace Sprites;
 
-  refresh_z_order_queue();
-
   // check for updates to the System modes
   for ( auto [_ent, _sys] : getReg().view<Cmp::System>().each() )
   {
@@ -113,6 +117,10 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
   {
     player_position = pc_pos_cmp;
   }
+
+  m_local_view.setCenter( player_position.position );
+  refresh_z_order_queue();
+
   // main render begin
   m_window.clear();
   {
@@ -121,8 +129,6 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
     {
       // update the static game view reference
       RenderSystem::s_game_view = m_local_view;
-
-      m_local_view.setCenter( player_position.position );
 
       render_background_water( player_position );
       render_floormap( { 0, 0 } );

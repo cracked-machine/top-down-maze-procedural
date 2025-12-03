@@ -69,6 +69,25 @@ private:
   //! @brief Renders the arrow compass effect
   void render_arrow_compass();
 
+  //! @brief Adds visible entities of a specific component type to the Z-order queue
+  //! Optimized (single-type view) query on entt components for visibility check and Z-order queue addition
+  //! @note The Component-owning entity must also have a Cmp::ZOrderValue component to be added to the queue
+  //! @tparam Component The component type to check for visibility
+  //! @param zorder_queue The Z-order queue to add visible entities to
+  //! @param view_bounds The view bounds to check against
+  template <typename Component>
+  void add_visible_entity_to_z_order_queue( std::vector<ZOrder> &zorder_queue, sf::FloatRect view_bounds )
+  {
+    for ( auto [entity, component] : getReg().view<Component>().each() )
+    {
+      if ( is_visible_in_view( view_bounds, component ) )
+      {
+        auto z_order_cmp = getReg().try_get<Cmp::ZOrderValue>( entity );
+        if ( z_order_cmp ) { zorder_queue.push_back( ZOrder{ z_order_cmp->getZOrder(), entity } ); }
+      }
+    }
+  }
+
   //! @brief This is the section of the game world that is visible to the player
   sf::View m_local_view;
 

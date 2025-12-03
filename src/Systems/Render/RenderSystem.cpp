@@ -5,8 +5,7 @@
 namespace ProceduralMaze::Sys
 {
 
-RenderSystem::RenderSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                            Audio::SoundBank &sound_bank )
+RenderSystem::RenderSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "RenderSystem constructor called" );
@@ -38,18 +37,16 @@ void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2
   sf::FloatRect title_bounds = title_text.getLocalBounds();
   title_bg.setSize( { title_bounds.size.x + cell_padding * 2.f, title_bounds.size.y + cell_padding * 2.f } );
   title_bg.setFillColor( sf::Color::Black );
-  title_bg.setPosition(
-      { final_position.x + title_bounds.position.x - cell_padding, final_position.y + title_bounds.position.y - cell_padding } );
+  title_bg.setPosition( { final_position.x + title_bounds.position.x - cell_padding, final_position.y + title_bounds.position.y - cell_padding } );
 
   m_window.draw( title_bg );
   m_window.draw( title_text );
 }
 
-void RenderSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
-                                                 const sf::FloatRect &pos_cmp, std::size_t sprite_index, sf::Vector2f scale,
-                                                 uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
+void RenderSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type, const sf::FloatRect &pos_cmp,
+                                                 std::size_t sprite_index, sf::Vector2f scale, uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
 {
-  if ( not is_visible_in_view( m_window.getView(), pos_cmp ) ) return;
+
   try
   {
     auto &sprite = m_sprite_factory.get_multisprite_by_type( sprite_type );
@@ -84,8 +81,7 @@ void RenderSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const
   }
 }
 
-void RenderSystem::render_fallback_square_to_target( sf::RenderTarget &target, const sf::FloatRect &pos_cmp,
-                                                     const sf::Color &color )
+void RenderSystem::render_fallback_square_to_target( sf::RenderTarget &target, const sf::FloatRect &pos_cmp, const sf::Color &color )
 {
   sf::RectangleShape fallback_square( kGridSquareSizePixelsF );
   fallback_square.setPosition( pos_cmp.position );
@@ -96,8 +92,8 @@ void RenderSystem::render_fallback_square_to_target( sf::RenderTarget &target, c
 }
 
 // Keep the original for backwards compatibility
-void RenderSystem::safe_render_sprite( const std::string &sprite_type, const sf::FloatRect &pos_cmp, std::size_t sprite_index,
-                                       sf::Vector2f scale, uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
+void RenderSystem::safe_render_sprite( const std::string &sprite_type, const sf::FloatRect &pos_cmp, std::size_t sprite_index, sf::Vector2f scale,
+                                       uint8_t alpha, sf::Vector2f origin, sf::Angle angle )
 {
   safe_render_sprite_to_target( m_window, sprite_type, pos_cmp, sprite_index, scale, alpha, origin, angle );
 }
