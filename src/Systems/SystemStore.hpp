@@ -2,13 +2,14 @@
 #define SRC_SYSTEMS_SYSTEMSTORE_HPP_
 
 #include <SceneControl/SceneInputRouter.hpp>
+#include <Systems/AltarSystem.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/DiggingSystem.hpp>
 #include <Systems/ExitSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
-#include <Systems/LargeObstacleSystem.hpp>
+#include <Systems/GraveSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/PersistentSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
@@ -35,26 +36,27 @@ class SystemStore
 public:
   enum class Type
   {
-    RenderMenuSystem,
-    SceneInputRouter,
-    RenderGameSystem,
-    PersistentSystem,
-    PlayerSystem,
-    NpcSystem,
-    DiggingSystem,
-    RenderOverlaySystem,
-    BombSystem,
     AnimSystem,
-    SinkHoleHazardSystem,
+    AltarSystem,
+    BombSystem,
+    CellAutomataSystem,
     CorruptionHazardSystem,
-    WormholeSystem,
+    CryptSystem,
+    DiggingSystem,
     ExitSystem,
     FootstepSystem,
-    LargeObstacleSystem,
+    GraveSystem,
     LootSystem,
+    NpcSystem,
+    PersistentSystem,
+    PlayerSystem,
     RandomLevelGenerator,
-    CellAutomataSystem,
-    CryptSystem,
+    RenderGameSystem,
+    RenderMenuSystem,
+    RenderOverlaySystem,
+    SceneInputRouter,
+    SinkHoleHazardSystem,
+    WormholeSystem,
   };
 
   // System type traits - explicit specializations
@@ -65,26 +67,27 @@ public:
                entt::dispatcher &scenemanager_event_dispatcher )
   {
     // clang-format off
-    m_sysmap.emplace( Type::RenderMenuSystem, std::make_unique<RenderMenuSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::SceneInputRouter, std::make_unique<SceneInputRouter>( m_initial_reg, window, sprite_factory, sound_bank, nav_event_dispatcher, scenemanager_event_dispatcher ) );
-    m_sysmap.emplace( Type::RenderGameSystem, std::make_unique<RenderGameSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::PersistentSystem, std::make_unique<PersistentSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::PlayerSystem, std::make_unique<PlayerSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
-    m_sysmap.emplace( Type::NpcSystem, std::make_unique<NpcSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::DiggingSystem, std::make_unique<DiggingSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::RenderOverlaySystem, std::make_unique<RenderOverlaySystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::BombSystem, std::make_unique<BombSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::AltarSystem, std::make_unique<AltarSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::AnimSystem, std::make_unique<AnimSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::SinkHoleHazardSystem, std::make_unique<SinkHoleHazardSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::BombSystem, std::make_unique<BombSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::CellAutomataSystem, std::make_unique<ProcGen::CellAutomataSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::CorruptionHazardSystem, std::make_unique<CorruptionHazardSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::WormholeSystem, std::make_unique<WormholeSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::CryptSystem, std::make_unique<ProceduralMaze::Sys::CryptSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::DiggingSystem, std::make_unique<DiggingSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::ExitSystem, std::make_unique<ExitSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
     m_sysmap.emplace( Type::FootstepSystem, std::make_unique<FootstepSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::LargeObstacleSystem, std::make_unique<LargeObstacleSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::GraveSystem, std::make_unique<GraveSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::LootSystem, std::make_unique<LootSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::NpcSystem, std::make_unique<NpcSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::PlayerSystem, std::make_unique<PlayerSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
+    m_sysmap.emplace( Type::PersistentSystem, std::make_unique<PersistentSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::RandomLevelGenerator, std::make_unique<ProcGen::RandomLevelGenerator>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::CellAutomataSystem, std::make_unique<ProcGen::CellAutomataSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::CryptSystem, std::make_unique<ProceduralMaze::Sys::CryptSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::RenderGameSystem, std::make_unique<RenderGameSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::RenderMenuSystem, std::make_unique<RenderMenuSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::RenderOverlaySystem, std::make_unique<RenderOverlaySystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::SinkHoleHazardSystem, std::make_unique<SinkHoleHazardSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::SceneInputRouter, std::make_unique<SceneInputRouter>( m_initial_reg, window, sprite_factory, sound_bank, nav_event_dispatcher, scenemanager_event_dispatcher ) );
+    m_sysmap.emplace( Type::WormholeSystem, std::make_unique<WormholeSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     // clang-format on
   }
 
@@ -111,26 +114,27 @@ private:
 
 // Explicit template specializations for SystemTraits
 // clang-format off
-  template<> struct SystemStore::SystemTraits<SystemStore::Type::RenderGameSystem>       { using type = RenderGameSystem; };
-  template<> struct SystemStore::SystemTraits<SystemStore::Type::SceneInputRouter>       { using type = SceneInputRouter; };
-  template<> struct SystemStore::SystemTraits<SystemStore::Type::RenderMenuSystem>       { using type = RenderMenuSystem; };
-  template<> struct SystemStore::SystemTraits<SystemStore::Type::PersistentSystem>       { using type = PersistentSystem; };
-  template<> struct SystemStore::SystemTraits<SystemStore::Type::PlayerSystem>           { using type = PlayerSystem; };
-  template<> struct SystemStore::SystemTraits<SystemStore::Type::NpcSystem>              { using type = NpcSystem; };
-  template<> struct SystemStore::SystemTraits<SystemStore::Type::DiggingSystem>          { using type = DiggingSystem; };
-  template<> struct SystemStore::SystemTraits<SystemStore::Type::RenderOverlaySystem>    { using type = RenderOverlaySystem; };
-  template<> struct SystemStore::SystemTraits<SystemStore::Type::BombSystem>             { using type = BombSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::AltarSystem>            { using type = AltarSystem; };
   template<> struct SystemStore::SystemTraits<SystemStore::Type::AnimSystem>             { using type = AnimSystem; };
-  template<> struct SystemStore::SystemTraits<SystemStore::Type::SinkHoleHazardSystem>   { using type = SinkHoleHazardSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::BombSystem>             { using type = BombSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::CellAutomataSystem>     { using type = ProcGen::CellAutomataSystem; };
   template<> struct SystemStore::SystemTraits<SystemStore::Type::CorruptionHazardSystem> { using type = CorruptionHazardSystem; };
-  template<> struct SystemStore::SystemTraits<SystemStore::Type::WormholeSystem>         { using type = WormholeSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::CryptSystem>            { using type = ProceduralMaze::Sys::CryptSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::DiggingSystem>          { using type = DiggingSystem; };
   template<> struct SystemStore::SystemTraits<SystemStore::Type::ExitSystem>             { using type = ExitSystem; };
   template<> struct SystemStore::SystemTraits<SystemStore::Type::FootstepSystem>         { using type = FootstepSystem; };
-  template<> struct SystemStore::SystemTraits<SystemStore::Type::LargeObstacleSystem>    { using type = LargeObstacleSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::GraveSystem>           { using type = GraveSystem; };
   template<> struct SystemStore::SystemTraits<SystemStore::Type::LootSystem>             { using type = LootSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::NpcSystem>              { using type = NpcSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::PersistentSystem>       { using type = PersistentSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::PlayerSystem>           { using type = PlayerSystem; };
   template<> struct SystemStore::SystemTraits<SystemStore::Type::RandomLevelGenerator>   { using type = ProcGen::RandomLevelGenerator; };
-  template<> struct SystemStore::SystemTraits<SystemStore::Type::CellAutomataSystem>     { using type = ProcGen::CellAutomataSystem; };
-  template<> struct SystemStore::SystemTraits<SystemStore::Type::CryptSystem>            { using type = ProceduralMaze::Sys::CryptSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::RenderGameSystem>       { using type = RenderGameSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::RenderOverlaySystem>    { using type = RenderOverlaySystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::RenderMenuSystem>       { using type = RenderMenuSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::SceneInputRouter>       { using type = SceneInputRouter; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::SinkHoleHazardSystem>   { using type = SinkHoleHazardSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::WormholeSystem>         { using type = WormholeSystem; };
 // clang-format on
 
 } // namespace ProceduralMaze::Sys

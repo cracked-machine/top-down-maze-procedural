@@ -1,41 +1,33 @@
 #include <Components/AltarMultiBlock.hpp>
 #include <Components/AltarSegment.hpp>
-#include <Components/GraveMultiBlock.hpp>
-#include <Components/GraveSegment.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NPC.hpp>
-#include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
-#include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SpawnArea.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Events/LootContainerDestroyedEvent.hpp>
-#include <Events/NpcCreationEvent.hpp>
 #include <Events/NpcDeathEvent.hpp>
-#include <Systems/LargeObstacleSystem.hpp>
+#include <Systems/AltarSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
 namespace ProceduralMaze::Sys
 {
 
-LargeObstacleSystem::LargeObstacleSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                                          Audio::SoundBank &sound_bank )
+AltarSystem::AltarSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&LargeObstacleSystem::on_player_action>( this );
+  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&AltarSystem::on_player_action>( this );
 }
 
-void LargeObstacleSystem::check_player_lo_collision( Events::PlayerActionEvent::GameActions action )
+void AltarSystem::check_player_collision( Events::PlayerActionEvent::GameActions action )
 {
   if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
 
   auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount>();
   auto altar_view = getReg().view<Cmp::AltarMultiBlock>();
-  auto grave_view = getReg().view<Cmp::GraveMultiBlock>();
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_candles_cmp, pc_keys_cmp] : player_view.each() )
   {
@@ -49,20 +41,10 @@ void LargeObstacleSystem::check_player_lo_collision( Events::PlayerActionEvent::
         check_player_altar_activation( altar_entity, altar_cmp, pc_candles_cmp );
       }
     }
-
-    for ( auto [grave_entity, grave_cmp] : grave_view.each() )
-    {
-      if ( player_hitbox.findIntersection( grave_cmp ) )
-      {
-        SPDLOG_DEBUG( "Player collided with Grave at ({}, {})", grave_cmp.position.x, grave_cmp.position.y );
-        check_player_grave_activation( grave_entity, grave_cmp, pc_cmp );
-      }
-    }
   }
 }
 
-void LargeObstacleSystem::check_player_altar_activation( entt::entity altar_entity, Cmp::AltarMultiBlock &altar_cmp,
-                                                         Cmp::PlayerCandlesCount &pc_candles_cmp )
+void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp::AltarMultiBlock &altar_cmp, Cmp::PlayerCandlesCount &pc_candles_cmp )
 {
 
   SPDLOG_DEBUG( "Checking altar activation: {}/{}", altar_cmp.get_activation_count(), altar_cmp.get_activation_threshold() );
@@ -149,77 +131,19 @@ void LargeObstacleSystem::check_player_altar_activation( entt::entity altar_enti
       // clang-format on
       if ( obst_entity != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
       altar_cmp.set_powers_active();
-      m_shrine_activation_clock.restart();
+      m_altar_activation_clock.restart();
     }
 
     if ( altar_cmp.are_powers_active() )
     {
       SPDLOG_DEBUG( "Checking for special power activation." );
       auto anim_sprite_cmp = getReg().try_get<Cmp::SpriteAnimation>( altar_entity );
-      if ( anim_sprite_cmp && m_shrine_activation_clock.getElapsedTime() > m_shrine_activation_cooldown ) { activate_altar_special_power(); }
+      if ( anim_sprite_cmp && m_altar_activation_clock.getElapsedTime() > m_altar_activation_cooldown ) { activate_altar_special_power(); }
     }
   }
 }
 
-void LargeObstacleSystem::check_player_grave_activation( entt::entity &grave_entity, Cmp::GraveMultiBlock &grave_cmp, Cmp::PlayableCharacter &pc_cmp )
-{
-  if ( grave_cmp.are_powers_active() ) return;
-  if ( grave_cmp.get_activation_count() < grave_cmp.get_activation_threshold() )
-  {
-
-    SPDLOG_DEBUG( "Activating grave sprite {}/{}.", grave_cmp.get_activated_sprite_count() + 1, grave_cmp.get_activation_threshold() );
-    grave_cmp.set_activation_count( grave_cmp.get_activation_threshold() );
-
-    auto anim_cmp = getReg().try_get<Cmp::SpriteAnimation>( grave_entity );
-    if ( anim_cmp )
-    {
-      if ( std::string::size_type n = anim_cmp->m_sprite_type.find( "." ); n != std::string::npos )
-      {
-        anim_cmp->m_sprite_type = anim_cmp->m_sprite_type.substr( 0, n ) + ".opened";
-        SPDLOG_DEBUG( "Grave Cmp::SpriteAnimation changed to opened type: {}", anim_cmp->m_sprite_type );
-      }
-    }
-
-    grave_cmp.set_powers_active( true );
-
-    // choose a random consequence for activating graves: spawn npc, drop bomb, give candles
-    if ( grave_cmp.are_powers_active() )
-    {
-      auto grave_activation_rng = Cmp::RandomInt( 1, 3 );
-      auto consequence = grave_activation_rng.gen();
-      switch ( consequence )
-      {
-        case 1:
-          SPDLOG_INFO( "Grave activated NPC trap." );
-          get_systems_event_queue().trigger( Events::NpcCreationEvent( grave_entity, "NPCGHOST" ) );
-          break;
-        case 2:
-          SPDLOG_INFO( "Grave activated bomb trap." );
-          pc_cmp.bomb_inventory += 1;
-          get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) );
-          break;
-        case 3:
-
-          auto grave_cmp_bounds = Cmp::RectBounds( grave_cmp.position, grave_cmp.size, 2.f );
-          // clang-format off
-              auto obst_entity = create_loot_drop( 
-                Cmp::SpriteAnimation{ 0,0,true,"CANDLE_DROP", 0 },
-                sf::FloatRect{ grave_cmp_bounds.position(), 
-                grave_cmp_bounds.size() }, 
-                IncludePack<>{},
-                ExcludePack<Cmp::PlayableCharacter, Cmp::GraveSegment, Cmp::SpawnArea>{} 
-              );
-          // clang-format on
-
-          if ( obst_entity != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
-          break;
-      }
-      // }
-    }
-  }
-}
-
-bool LargeObstacleSystem::activate_altar_special_power()
+bool AltarSystem::activate_altar_special_power()
 {
 
   for ( auto [pc_entity, pc_relic_count_cmp] : getReg().view<Cmp::PlayerRelicCount>().each() )
@@ -286,7 +210,7 @@ bool LargeObstacleSystem::activate_altar_special_power()
       }
     }
   }
-  m_shrine_activation_clock.restart();
+  m_altar_activation_clock.restart();
   return true;
 }
 
