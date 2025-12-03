@@ -43,7 +43,10 @@ void NpcSystem::update( sf::Time dt )
   check_bones_reanimation();
 
   auto player_entity_view = getReg().view<Cmp::PlayableCharacter>();
-  if ( player_entity_view->size() > 0 ) scanForPlayers( player_entity_view.front() );
+  for ( auto player_entity : player_entity_view )
+  {
+    scanForPlayers( player_entity );
+  }
 
   update_movement( dt );
 
@@ -400,10 +403,12 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
   {
     auto npc_scan_bounds = getReg().try_get<Cmp::NPCScanBounds>( npc_entity );
     auto pc_detection_bounds = getReg().try_get<Cmp::PCDetectionBounds>( player_entity );
-    if ( not npc_scan_bounds || not pc_detection_bounds ) return;
+    if ( not npc_scan_bounds || not pc_detection_bounds ) continue;
+    SPDLOG_DEBUG( "npc_scan_bounds {}, pc_detection_bounds {}", reinterpret_cast<std::size_t>( npc_scan_bounds ),
+                  reinterpret_cast<std::size_t>( pc_detection_bounds ) );
 
     // only continue if player is within detection distance
-    if ( not npc_scan_bounds->findIntersection( pc_detection_bounds->getBounds() ) ) return;
+    if ( not npc_scan_bounds->findIntersection( pc_detection_bounds->getBounds() ) ) continue;
 
     // gather up any PlayerDistance components from within range obstacles
     PlayerDistanceQueue distance_queue;
@@ -413,7 +418,7 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
       if ( npc_scan_bounds->findIntersection( pos_cmp ) ) { distance_queue.push( { pd_cmp.distance, entity } ); }
     }
 
-    if ( distance_queue.empty() ) return;
+    if ( distance_queue.empty() ) continue;
     while ( not distance_queue.empty() )
     {
       // priority queue auto-sorts with the nearest PlayerDistance component at the top
@@ -425,8 +430,8 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
       auto npc_pos = getReg().try_get<Cmp::Position>( npc_entity );
       auto npc_lerp_pos_cmp = getReg().try_get<Cmp::LerpPosition>( npc_entity );
       auto npc_anim_cmp = getReg().try_get<Cmp::SpriteAnimation>( npc_entity );
-      if ( not npc_cmp || not npc_pos || not npc_anim_cmp ) return;
-      if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) return; // still mid-lerp, wait until done
+      if ( not npc_cmp || not npc_pos || not npc_anim_cmp ) continue;
+      if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) continue; // still mid-lerp, wait until done
 
       auto move_candidate_pixel_pos = getPixelPosition( nearest_obstacle.second );
       if ( not move_candidate_pixel_pos ) continue; // Try next candidate
@@ -474,10 +479,10 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
 
         auto vertical_hitbox = Cmp::RectBounds( sf::Vector2f{ npc_pos->position.x, npc_pos->position.y + ( candidate_dir.y * 16 ) },
                                                 kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
-        SPDLOG_INFO( "Checking distance {} - NPC at ({}, {}), Target at ({}, {}), Dir ({}, {})", nearest_obstacle.first, npc_pos->position.x,
-                     npc_pos->position.y, move_candidate_pixel_pos.value().x, move_candidate_pixel_pos.value().y, candidate_dir.x, candidate_dir.y );
-        SPDLOG_INFO( "Horizontal hitbox at ({}, {}), Vertical hitbox at ({}, {})", npc_pos->position.x + ( candidate_dir.x * 16 ),
-                     npc_pos->position.y, npc_pos->position.x, npc_pos->position.y + ( candidate_dir.y * 16 ) );
+        SPDLOG_DEBUG( "Checking distance {} - NPC at ({}, {}), Target at ({}, {}), Dir ({}, {})", nearest_obstacle.first, npc_pos->position.x,
+                      npc_pos->position.y, move_candidate_pixel_pos.value().x, move_candidate_pixel_pos.value().y, candidate_dir.x, candidate_dir.y );
+        SPDLOG_DEBUG( "Horizontal hitbox at ({}, {}), Vertical hitbox at ({}, {})", npc_pos->position.x + ( candidate_dir.x * 16 ),
+                      npc_pos->position.y, npc_pos->position.x, npc_pos->position.y + ( candidate_dir.y * 16 ) );
 
         bool horizontal_collision = false;
         bool vertical_collision = false;
@@ -492,7 +497,7 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
           }
           if ( vertical_hitbox.findIntersection( obst_pos ) )
           {
-            SPDLOG_INFO( "!!!! Vertical collision at obstacle ({}, {})", obst_pos.position.x, obst_pos.position.y );
+            SPDLOG_DEBUG( "!!!! Vertical collision at obstacle ({}, {})", obst_pos.position.x, obst_pos.position.y );
             vertical_collision = true;
           }
         }
@@ -500,13 +505,13 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
         if ( horizontal_collision && vertical_collision )
         {
 
-          SPDLOG_INFO( "Exclude obstacle at distance {}", nearest_obstacle.first );
+          SPDLOG_DEBUG( "Exclude obstacle at distance {}", nearest_obstacle.first );
           continue;
         }
 
         // Target is valid
         add_candidate_lerp( npc_entity, std::move( candidate_dir ), std::move( candidate_lerp_pos ) );
-        return;
+        break;
       }
     }
   }

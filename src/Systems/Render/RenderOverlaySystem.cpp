@@ -401,11 +401,13 @@ void RenderOverlaySystem::render_scan_detection_bounds()
     m_window.draw( detection_bounds_shape );
   }
 
-  for ( auto [entity, pos_cmp, npc_sb_cmp] : getReg().view<Cmp::Position, Cmp::NPCScanBounds>().each() )
+  for ( auto [entity, pos_cmp, npc_cmp] : getReg().view<Cmp::Position, Cmp::NPC>().each() )
   {
+    auto npc_sb_cmp = getReg().try_get<Cmp::NPCScanBounds>( entity );
+    if ( not npc_sb_cmp ) continue;
     sf::RectangleShape scan_bounds_shape;
-    scan_bounds_shape.setPosition( npc_sb_cmp.position() );
-    scan_bounds_shape.setSize( npc_sb_cmp.size() );
+    scan_bounds_shape.setPosition( npc_sb_cmp->position() );
+    scan_bounds_shape.setSize( npc_sb_cmp->size() );
     scan_bounds_shape.setFillColor( sf::Color::Transparent );
     scan_bounds_shape.setOutlineColor( sf::Color::Red );
     scan_bounds_shape.setOutlineThickness( 1.f );
