@@ -1,4 +1,5 @@
 #include <Components/CryptSegment.hpp>
+#include <Components/DestroyedObstacle.hpp>
 #include <Components/Exit.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
@@ -307,6 +308,7 @@ void BombSystem::update()
     // Replace the armed position with a detonated sprite for visual effect - make sure its z-order is furthest back
     getReg().emplace<Cmp::SpriteAnimation>( armed_entt, 0, 0, true, "DETONATED", 0 );
     getReg().emplace<Cmp::ZOrderValue>( armed_entt, armed_pos_cmp.position.y - 256.f );
+    getReg().emplace_or_replace<Cmp::DestroyedObstacle>( armed_entt );
   }
 }
 

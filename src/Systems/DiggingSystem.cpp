@@ -1,4 +1,5 @@
 #include <Components/AbsoluteAlpha.hpp>
+#include <Components/DestroyedObstacle.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/SpriteAnimation.hpp>
@@ -117,8 +118,8 @@ void DiggingSystem::check_player_dig_obstacle_collision()
 
       auto damage_per_dig = get_persistent_component<Cmp::Persistent::DiggingDamagePerHit>().get_value();
       alpha_cmp.setAlpha( std::max( 0, alpha_cmp.getAlpha() - damage_per_dig ) );
-      SPDLOG_INFO( "Applied {} digging damage to obstacle at position ({}, {}), new alpha is {}.", damage_per_dig, obst_pos_cmp.position.x,
-                   obst_pos_cmp.position.y, alpha_cmp.getAlpha() );
+      SPDLOG_DEBUG( "Applied {} digging damage to obstacle at position ({}, {}), new alpha is {}.", damage_per_dig, obst_pos_cmp.position.x,
+                    obst_pos_cmp.position.y, alpha_cmp.getAlpha() );
 
       auto player_weapons_view = getReg().view<Cmp::WeaponLevel, Cmp::PlayableCharacter>();
       for ( auto [weapons_entity, weapons_level, pc_cmp] : player_weapons_view.each() )
@@ -143,8 +144,9 @@ void DiggingSystem::check_player_dig_obstacle_collision()
         getReg().emplace_or_replace<Cmp::SpriteAnimation>( obst_entity, 0, 0, true, "DETONATED", 0 );
         getReg().emplace_or_replace<Cmp::ZOrderValue>( obst_entity, obst_pos_cmp.position.y - 256.f );
         getReg().emplace_or_replace<Cmp::AbsoluteAlpha>( obst_entity, 255 );
+        getReg().emplace_or_replace<Cmp::DestroyedObstacle>( obst_entity );
 
-        SPDLOG_INFO( "Digged through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
+        SPDLOG_DEBUG( "Digged through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
       }
       else
       {

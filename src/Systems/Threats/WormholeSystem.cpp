@@ -140,7 +140,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
       if ( getReg().any_of<Cmp::ZOrderValue>( entity ) ) getReg().remove<Cmp::ZOrderValue>( entity );
       if ( getReg().any_of<Cmp::Obstacle>( entity ) ) { getReg().remove<Cmp::Obstacle>( entity ); }
 
-      SPDLOG_INFO( "Wormhole spawn: Destroying obstacle at ({}, {})", obstacle_pos.position.x, obstacle_pos.position.y );
+      SPDLOG_DEBUG( "Wormhole spawn: Destroying obstacle at ({}, {})", obstacle_pos.position.x, obstacle_pos.position.y );
     }
   }
 

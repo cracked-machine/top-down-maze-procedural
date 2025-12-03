@@ -1,12 +1,19 @@
+#include <Components/AbsoluteAlpha.hpp>
 #include <Components/AltarMultiBlock.hpp>
 #include <Components/AltarSegment.hpp>
+#include <Components/Armable.hpp>
+#include <Components/DestroyedObstacle.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NPC.hpp>
+#include <Components/NoPathFinding.hpp>
+#include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/ReservedPosition.hpp>
 #include <Components/SpawnArea.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Events/LootContainerDestroyedEvent.hpp>
 #include <Events/NpcDeathEvent.hpp>
 #include <Systems/AltarSystem.hpp>
@@ -155,61 +162,72 @@ bool AltarSystem::activate_altar_special_power()
     // consume a relic
     pc_relic_count_cmp.decrement_count( 1 );
 
-    // Implement the special power activation logic here
-    auto special_power_picker = Cmp::RandomInt( 1, 3 );
-    auto power_choice = special_power_picker.gen();
-    switch ( power_choice )
+    SPDLOG_INFO( "Special Power: Re-enable all nearby obstacles!" );
+    auto obstacle_view = getReg().view<Cmp::DestroyedObstacle, Cmp::Position>(
+        entt::exclude<Cmp::PlayableCharacter, Cmp::NPC, Cmp::LootContainer, Cmp::Loot, Cmp::ReservedPosition> );
+
+    for ( auto [destroyed_entity, destroyed_cmp, destroyed_pos_cmp] : obstacle_view.each() )
     {
-      case 1:
+      if ( is_visible_in_view( RenderSystem::getGameView(), destroyed_pos_cmp ) )
       {
-        SPDLOG_INFO( "Special Power: Kill all nearby NPCs!" );
-        auto npc_view = getReg().view<Cmp::NPC, Cmp::Position>();
-        for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_view.each() )
+        auto obst_cmp = getReg().try_get<Cmp::Obstacle>( destroyed_entity );
+        if ( not obst_cmp )
         {
-          if ( is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) )
+          // skip if player or npc is occupying the position
+          bool skip_position = false;
+          auto npc_view = getReg().view<Cmp::NPC, Cmp::Position>();
+          for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_view.each() )
           {
-            SPDLOG_INFO( "Killed NPC at ({}, {})", npc_pos_cmp.position.x, npc_pos_cmp.position.y );
-            get_systems_event_queue().trigger( Events::NpcDeathEvent( npc_entity ) );
+            if ( npc_pos_cmp.findIntersection( destroyed_pos_cmp ) ) skip_position = true;
           }
-        }
-        break;
-      }
-      // TODO FIX this later
-      // Probably just find all open squares and re-add obstacles there
-      // case 2:
-      // {
-      //   SPDLOG_INFO( "Special Power: Re-enable all nearby obstacles!" );
-      //   auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position>();
-      //   for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : obstacle_view.each() )
-      //   {
-      //     if ( is_visible_in_view( RenderSystem::getGameView(), obst_pos_cmp ) )
-      //     {
-      //       // only re-enable obstacles the player destroyed
-      //       if ( not obst_cmp.m_enabled )
-      //       {
-      //         SPDLOG_INFO( "Re-enabled obstacle at ({}, {})", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
-      //         obst_cmp.m_enabled = true;
-      //       }
-      //     }
-      //   }
-      //   break;
-      // }
-      case 3:
-      {
-        SPDLOG_INFO( "Special Power: Open all loot containers!" );
-        auto loot_container_view = getReg().view<Cmp::LootContainer, Cmp::Position>();
-        for ( auto [lc_entity, lc_cmp, lc_pos_cmp] : loot_container_view.each() )
-        {
-          if ( is_visible_in_view( RenderSystem::getGameView(), lc_pos_cmp ) )
+          auto playable_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
+          for ( auto [playable_entity, playable_cmp, playable_pos_cmp] : playable_view.each() )
           {
-            SPDLOG_INFO( "Opened loot container at ({}, {})", lc_pos_cmp.position.x, lc_pos_cmp.position.y );
-            get_systems_event_queue().trigger( Events::LootContainerDestroyedEvent( lc_entity ) );
+            if ( playable_pos_cmp.findIntersection( destroyed_pos_cmp ) ) skip_position = true;
           }
+          if ( skip_position ) continue;
+
+          getReg().remove<Cmp::DestroyedObstacle>( destroyed_entity );
+
+          getReg().emplace_or_replace<Cmp::Obstacle>( destroyed_entity, Cmp::Obstacle{ true } );
+          getReg().emplace_or_replace<Cmp::NoPathFinding>( destroyed_entity );
+          getReg().emplace_or_replace<Cmp::ZOrderValue>( destroyed_entity, destroyed_pos_cmp.position.y );
+          getReg().emplace_or_replace<Cmp::AbsoluteAlpha>( destroyed_entity, 255 );
+          getReg().emplace_or_replace<Cmp::Armable>( destroyed_entity );
+          // clang-format off
+                auto [obst_type, rand_obst_tex_idx] = 
+                  m_sprite_factory.get_random_type_and_texture_index( { 
+                    "ROCK"
+                  } );
+          // clang-format on
+          getReg().emplace_or_replace<Cmp::SpriteAnimation>( destroyed_entity, 0, 0, true, obst_type, rand_obst_tex_idx );
         }
-        break;
       }
     }
   }
+
+  SPDLOG_INFO( "Special Power: Kill all nearby NPCs!" );
+  auto npc_view = getReg().view<Cmp::NPC, Cmp::Position>();
+  for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_view.each() )
+  {
+    if ( is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) )
+    {
+      SPDLOG_INFO( "Killed NPC at ({}, {})", npc_pos_cmp.position.x, npc_pos_cmp.position.y );
+      get_systems_event_queue().trigger( Events::NpcDeathEvent( npc_entity ) );
+    }
+  }
+
+  SPDLOG_INFO( "Special Power: Open all loot containers!" );
+  auto loot_container_view = getReg().view<Cmp::LootContainer, Cmp::Position>();
+  for ( auto [lc_entity, lc_cmp, lc_pos_cmp] : loot_container_view.each() )
+  {
+    if ( is_visible_in_view( RenderSystem::getGameView(), lc_pos_cmp ) )
+    {
+      SPDLOG_INFO( "Opened loot container at ({}, {})", lc_pos_cmp.position.x, lc_pos_cmp.position.y );
+      get_systems_event_queue().trigger( Events::LootContainerDestroyedEvent( lc_entity ) );
+    }
+  }
+
   m_altar_activation_clock.restart();
   return true;
 }
