@@ -474,6 +474,15 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
           return;
         }
 
+        // Check if this is a diagonal movement and if it should be blocked
+        bool is_diagonal = ( candidate_dir.x != 0.0f ) && ( candidate_dir.y != 0.0f );
+        if ( is_diagonal && isDiagonalBlocked( sf::FloatRect{ npc_pos->position, npc_pos->size }, candidate_dir ) )
+        {
+          SPDLOG_DEBUG( "Blocking diagonal movement for NPC at ({}, {}) towards ({}, {})", npc_pos->position.x, npc_pos->position.y,
+                        move_candidate_pixel_pos.value().x, move_candidate_pixel_pos.value().y );
+          continue; // Skip this target and try the next one
+        }
+
         auto horizontal_hitbox = Cmp::RectBounds( sf::Vector2f{ npc_pos->position.x + ( candidate_dir.x * 16 ), npc_pos->position.y },
                                                   kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
