@@ -1,6 +1,7 @@
 #include <Components/NoPathFinding.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Factory/ObstacleFactory.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
 #include <spdlog/spdlog.h>
 
@@ -183,24 +184,9 @@ void CellAutomataSystem::apply_rules()
   auto non_reserved_view = getReg().view<Cmp::Position, Cmp::Neighbours>( entt::exclude<Cmp::ReservedPosition> );
   for ( auto [entity, pos_cmp, neighbour_cmp] : non_reserved_view.each() )
   {
-    if ( neighbour_cmp.count() <= 2 )
-    {
-      getReg().emplace_or_replace<Cmp::Obstacle>( entity );
-      getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y );
-      getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
-    }
-    else if ( neighbour_cmp.count() > 2 and neighbour_cmp.count() < 5 )
-    {
-      if ( getReg().all_of<Cmp::Obstacle>( entity ) ) { getReg().remove<Cmp::Obstacle>( entity ); }
-      if ( getReg().all_of<Cmp::NoPathFinding>( entity ) ) { getReg().remove<Cmp::NoPathFinding>( entity ); }
-      if ( getReg().all_of<Cmp::ZOrderValue>( entity ) ) { getReg().remove<Cmp::ZOrderValue>( entity ); }
-    }
-    else
-    {
-      getReg().emplace_or_replace<Cmp::Obstacle>( entity );
-      getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y );
-      getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
-    }
+    if ( neighbour_cmp.count() <= 2 ) { Factory::createObstacle( getReg(), entity, pos_cmp, "ROCK", 0, pos_cmp.position.y ); }
+    else if ( neighbour_cmp.count() > 2 and neighbour_cmp.count() < 5 ) { Factory::destroyObstacle( getReg(), entity ); }
+    else { Factory::createObstacle( getReg(), entity, pos_cmp, "ROCK", 0, pos_cmp.position.y ); }
   }
   SPDLOG_DEBUG( "Finished applying Cellular Automata rules!" );
 }

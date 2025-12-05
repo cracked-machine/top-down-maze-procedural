@@ -4,7 +4,6 @@
 #include <Components/LootContainer.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Events/LootContainerDestroyedEvent.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -24,15 +23,6 @@ public:
 
   // Check for player collision with loot items i.e. player picks up loot
   void check_loot_collision();
-
-  void detonate_loot_container( const Events::LootContainerDestroyedEvent &event );
-
-  /// EVENT SINKS ///
-  void on_loot_container_destroyed( const Events::LootContainerDestroyedEvent &event )
-  {
-    SPDLOG_INFO( "Processing LootContainerDestroyedEvent for entity {}", static_cast<int>( event.m_entity ) );
-    detonate_loot_container( event );
-  }
 
 private:
 };

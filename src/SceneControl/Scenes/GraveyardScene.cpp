@@ -1,4 +1,5 @@
 #include <Events/ProcessGraveyardSceneInputEvent.hpp>
+#include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Scenes/GraveyardScene.hpp>
 
 namespace ProceduralMaze::Scene
@@ -29,8 +30,9 @@ void GraveyardScene::on_enter()
   render_game_system.init_shaders();
   render_game_system.init_tilemap();
 
-  auto &m_player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
-  m_player_sys.addPlayerEntity();
+  // auto &m_player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
+  // m_player_sys.addPlayerEntity();
+  Factory::CreatePlayer( m_reg );
 
   auto entity = m_reg.create();
   m_reg.emplace<Cmp::System>( entity );

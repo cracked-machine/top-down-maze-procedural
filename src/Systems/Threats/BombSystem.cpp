@@ -10,6 +10,9 @@
 #include <Components/ZOrderValue.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
+#include <Factory/LootFactory.hpp>
+#include <Factory/NpcFactory.hpp>
+#include <Factory/ObstacleFactory.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <spdlog/spdlog.h>
 
@@ -24,7 +27,6 @@
 #include <Components/Persistent/BombDamage.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
-#include <Events/LootContainerDestroyedEvent.hpp>
 #include <Systems/Threats/BombSystem.hpp>
 
 namespace ProceduralMaze::Sys
@@ -229,11 +231,7 @@ void BombSystem::update()
     for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : obstacle_view.each() )
     {
       if ( not obst_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
-
-      getReg().remove<Cmp::Obstacle>( obst_entity );
-      getReg().remove<Cmp::ZOrderValue>( obst_entity );
-      getReg().remove<Cmp::SpriteAnimation>( obst_entity );
-      if ( getReg().all_of<Cmp::NoPathFinding>( obst_entity ) ) { getReg().remove<Cmp::NoPathFinding>( obst_entity ); }
+      Factory::destroyObstacle( getReg(), obst_entity );
     }
 
     // detonate loot containers - component removal is handled by LootSystem
@@ -241,7 +239,22 @@ void BombSystem::update()
     for ( auto [loot_entity, loot_cmp, loot_pos_cmp] : loot_container_view.each() )
     {
       if ( not loot_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
-      get_systems_event_queue().trigger( Events::LootContainerDestroyedEvent( loot_entity ) );
+
+      auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
+          std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "WEAPON_BOOST" } );
+
+      // clang-format off
+      auto loot_entt = Factory::createLootDrop( 
+        getReg(), 
+        Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),                                        
+        sf::FloatRect{ loot_pos_cmp.position, loot_pos_cmp.size }, 
+        Sys::BaseSystem::IncludePack<>{},
+        Sys::BaseSystem::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition>{} );
+      // clang-format on
+
+      if ( loot_entt != entt::null ) { m_sound_bank.get_effect( "break_pot" ).play(); }
+
+      Factory::destroyLootContainer( getReg(), loot_entity );
     }
 
     // detonate npc containers - these are activated by proximity so just destroy them
@@ -249,9 +262,7 @@ void BombSystem::update()
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_container_view.each() )
     {
       if ( not npc_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
-      getReg().remove<Cmp::NpcContainer>( npc_entity );
-      getReg().remove<Cmp::SpriteAnimation>( npc_entity );
-      getReg().remove<Cmp::ZOrderValue>( npc_entity );
+      Factory::destroyNpcContainer( getReg(), npc_entity );
     }
 
     // Check player explosion damage
@@ -273,14 +284,15 @@ void BombSystem::update()
       // notify npc system of death
       if ( npc_pos_cmp.findIntersection( armed_pos_cmp ) )
       {
-        auto npc_death_entity = getReg().create();
-        getReg().emplace<Cmp::Position>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
-        getReg().emplace_or_replace<Cmp::NpcDeathPosition>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
-        getReg().emplace_or_replace<Cmp::SpriteAnimation>( npc_death_entity, 0, 0, true, "EXPLOSION", 0 );
-        getReg().emplace_or_replace<Cmp::ZOrderValue>( npc_death_entity, npc_pos_cmp.position.y );
+        Factory::createNpcExplosion( getReg(), npc_pos_cmp );
 
         SPDLOG_INFO( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ), npc_pos_cmp.position.x, npc_pos_cmp.position.y );
-        get_systems_event_queue().trigger( Events::NpcDeathEvent( npc_entt ) );
+        auto loot_entity = Factory::destroyNPC( getReg(), npc_entt );
+        if ( loot_entity != entt::null )
+        {
+          SPDLOG_INFO( "Dropped RELIC_DROP loot at NPC death position." );
+          m_sound_bank.get_effect( "drop_relic" ).play();
+        }
       }
     }
 

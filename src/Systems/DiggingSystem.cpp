@@ -5,6 +5,7 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/WeaponLevel.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Factory/ObstacleFactory.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Time.hpp>
 
@@ -134,11 +135,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
         // select the final smash sound
         m_sound_bank.get_effect( "pickaxe_final" ).play();
 
-        // remove the obstacle components
-        getReg().remove<Cmp::Obstacle>( obst_entity );
-        getReg().remove<Cmp::ZOrderValue>( obst_entity );
-        getReg().remove<Cmp::SpriteAnimation>( obst_entity );
-        if ( getReg().all_of<Cmp::NoPathFinding>( obst_entity ) ) { getReg().remove<Cmp::NoPathFinding>( obst_entity ); }
+        Factory::destroyObstacle( getReg(), obst_entity );
 
         // replace it with a detonated sprite animation - reset the entity's alpha component or we'll never see it again!!!
         getReg().emplace_or_replace<Cmp::SpriteAnimation>( obst_entity, 0, 0, true, "DETONATED", 0 );

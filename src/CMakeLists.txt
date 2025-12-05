@@ -41,6 +41,10 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/TitleScene.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/LevelCompleteScene.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/CryptScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/PlayerFactory.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/NpcFactory.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/LootFactory.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/ObstacleFactory.cpp
 )
 
 target_link_libraries(${TARGET} PRIVATE 

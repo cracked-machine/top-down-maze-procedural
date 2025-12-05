@@ -25,13 +25,13 @@
 #include <Components/WeaponLevel.hpp>
 #include <Components/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <Sprites/SpriteFactory.hpp>
-#include <Systems/PlayerSystem.hpp>
-#include <Systems/Render/RenderSystem.hpp>
-
 #include <Events/SceneManagerEvent.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <Sprites/SpriteFactory.hpp>
+#include <Systems/PlayerSystem.hpp>
+#include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -68,40 +68,6 @@ void PlayerSystem::update( sf::Time globalDeltaTime )
     if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) ) { stopFootstepsSound(); }
     else { playFootstepsSound(); }
   }
-}
-
-void PlayerSystem::addPlayerEntity()
-{
-  SPDLOG_DEBUG( "Creating player entity" );
-  auto entity = getReg().create();
-
-  // start position must be pixel coordinates within the screen resolution (kDisplaySize),
-  // but also grid aligned (kMapGridSize) to avoid collision detection errors.
-  // So we must recalc start position to the nearest grid position here
-  auto start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
-  start_pos = snap_to_grid( start_pos );
-  getReg().emplace<Cmp::Position>( entity, start_pos, kGridSquareSizePixelsF );
-
-  auto &bomb_inventory = get_persistent_component<Cmp::Persistent::BombInventory>();
-  auto &blast_radius = get_persistent_component<Cmp::Persistent::BlastRadius>();
-  getReg().emplace<Cmp::PlayableCharacter>( entity, bomb_inventory.get_value(), blast_radius.get_value() );
-
-  getReg().emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
-
-  auto &pc_detection_scale = get_persistent_component<Cmp::Persistent::PlayerDetectionScale>();
-
-  getReg().emplace<Cmp::PCDetectionBounds>( entity, start_pos, kGridSquareSizePixelsF, pc_detection_scale.get_value() );
-
-  getReg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYER.walk.south" );
-  getReg().emplace<Cmp::PlayerCandlesCount>( entity, 0 );
-  getReg().emplace<Cmp::PlayerKeysCount>( entity, 0 );
-  getReg().emplace<Cmp::PlayerRelicCount>( entity, 0 );
-  getReg().emplace<Cmp::PlayerHealth>( entity, 100 );
-  getReg().emplace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );
-  getReg().emplace<Cmp::WeaponLevel>( entity, 100.f );
-  getReg().emplace<Cmp::ZOrderValue>( entity, start_pos.y ); // z-order based on y-position
-  getReg().emplace<Cmp::AbsoluteAlpha>( entity, 255 );       // fully opaque
-  getReg().emplace<Cmp::AbsoluteRotation>( entity, 0 );
 }
 
 void PlayerSystem::playFootstepsSound()

@@ -25,7 +25,6 @@
 #include <Components/Persistent/FuseDelay.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
-#include <Events/NpcDeathEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -58,8 +57,7 @@ public:
   }
 
 private:
-  const sf::Vector2f max_explosion_zone_size{ BaseSystem::kGridSquareSizePixels.x * 3.f,
-                                              BaseSystem::kGridSquareSizePixels.y * 3.f };
+  const sf::Vector2f max_explosion_zone_size{ BaseSystem::kGridSquareSizePixels.x * 3.f, BaseSystem::kGridSquareSizePixels.y * 3.f };
 };
 
 } // namespace ProceduralMaze::Sys

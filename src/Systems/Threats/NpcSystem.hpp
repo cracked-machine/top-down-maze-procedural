@@ -16,8 +16,6 @@
 #include <Components/Persistent/NpcActivateScale.hpp>
 #include <Components/Persistent/NpcScanScale.hpp>
 #include <Components/Position.hpp>
-#include <Events/NpcCreationEvent.hpp>
-#include <Events/NpcDeathEvent.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -42,24 +40,12 @@ public:
   //! @brief Check if diagonal movement should be blocked due to adjacent obstacles
   bool isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::Vector2f &diagonal_direction );
 
-  // Event handler for remove_npc_entity()
-  void on_npc_death( const Events::NpcDeathEvent &event );
-
-  // Event handler for add_npc_entity()
-  void on_npc_creation( const Events::NpcCreationEvent &event );
-
   //! @brief event handlers for pausing system clocks
   void onPause() override {}
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
 private:
-  // Converts a NpcContainer entity into an active NPC entity. Called by event: NpcCreationEvent
-  void add_npc_entity( const Events::NpcCreationEvent &event );
-
-  // Removes an active NPC entity from the game. Called by event: NpcDeathEvent
-  void remove_npc_entity( entt::entity npc_entity );
-
   // Updates lerp movement for NPCs
   void update_movement( sf::Time globalDeltaTime );
 

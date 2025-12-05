@@ -8,6 +8,9 @@
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Factory/LootFactory.hpp>
+#include <Factory/NpcFactory.hpp>
+#include <Factory/ObstacleFactory.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <Components/AltarSegment.hpp>
@@ -61,6 +64,7 @@ void RandomLevelGenerator::gen_positions()
                             ( y + kMapGridOffset.y ) * Sys::BaseSystem::kGridSquareSizePixels.y );
 
       getReg().emplace_or_replace<Cmp::Position>( entity, new_pos, kGridSquareSizePixelsF );
+      getReg().emplace_or_replace<Cmp::Neighbours>( entity );
       auto &pos_cmp = getReg().get<Cmp::Position>( entity );
       if ( pos_cmp.findIntersection( player_start_area.getBounds() ) )
       {
@@ -348,16 +352,10 @@ void RandomLevelGenerator::gen_small_obstacles()
 
     if ( Cmp::RandomInt{ 0, 1 }.gen() == 1 )
     {
-      getReg().emplace_or_replace<Cmp::Obstacle>( entity );
-      // Set the z-order value so that the rock obstacles are rendered above everything else
       float zorder = m_sprite_factory.get_sprite_size_by_type( "ROCK" ).y;
-      getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y + ( zorder * 2.f ) );
-      getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
+      // Set the z-order value so that the rock obstacles are rendered above everything else
+      Factory::createObstacle( getReg(), entity, pos_cmp, obst_type, rand_obst_tex_idx, ( zorder * 2.f ) );
     }
-    getReg().emplace_or_replace<Cmp::AbsoluteAlpha>( entity, 255 );
-    getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, obst_type, rand_obst_tex_idx );
-    getReg().emplace_or_replace<Cmp::Armable>( entity );
-    getReg().emplace_or_replace<Cmp::Neighbours>( entity );
   }
 }
 
@@ -378,13 +376,9 @@ void RandomLevelGenerator::gen_loot_containers()
       } );
     // clang-format on
 
-    getReg().emplace_or_replace<Cmp::ReservedPosition>( random_entity );
-    getReg().emplace_or_replace<Cmp::Armable>( random_entity );
-    getReg().emplace_or_replace<Cmp::LootContainer>( random_entity );
-    getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, loot_type, rand_loot_tex_idx );
-    // Set the z-order value so that the spawn area is rendered above ground but below everything else
-    float zorder = m_sprite_factory.get_sprite_size_by_type( "PLAYERSPAWN" ).y;
-    getReg().emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_origin_position.position.y - zorder );
+    float zorder = m_sprite_factory.get_sprite_size_by_type( loot_type ).y;
+
+    Factory::createLootContainer( getReg(), random_entity, random_origin_position, loot_type, rand_loot_tex_idx, zorder );
   }
 }
 
@@ -405,11 +399,7 @@ void RandomLevelGenerator::gen_npc_containers()
       } );
     // clang-format on
 
-    getReg().emplace_or_replace<Cmp::ReservedPosition>( random_entity );
-    getReg().emplace_or_replace<Cmp::Armable>( random_entity );
-    getReg().emplace_or_replace<Cmp::NpcContainer>( random_entity );
-    getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, npc_type, rand_npc_tex_idx );
-    getReg().emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_origin_position.position.y );
+    Factory::createNpcContainer( getReg(), random_entity, random_origin_position, npc_type, rand_npc_tex_idx, 0.f );
   }
 }
 

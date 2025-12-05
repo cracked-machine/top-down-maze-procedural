@@ -1,4 +1,5 @@
 #include <Components/FootStepTimer.hpp>
+#include <Factory/NpcFactory.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
 #include <Components/AltarSegment.hpp>
@@ -26,6 +27,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -33,9 +35,6 @@ namespace ProceduralMaze::Sys
 NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
-  // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-  std::ignore = Sys::BaseSystem::get_systems_event_queue().sink<Events::NpcCreationEvent>().connect<&Sys::NpcSystem::on_npc_creation>( this );
-  std::ignore = Sys::BaseSystem::get_systems_event_queue().sink<Events::NpcDeathEvent>().connect<&Sys::NpcSystem::on_npc_death>( this );
   SPDLOG_DEBUG( "NpcSystem initialized" );
 }
 
@@ -81,101 +80,6 @@ bool NpcSystem::isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::V
   bool vertical_blocked = !is_valid_move( vertical_test );
 
   return horizontal_blocked || vertical_blocked;
-}
-
-void NpcSystem::on_npc_death( const Events::NpcDeathEvent &event )
-{
-  SPDLOG_DEBUG( "NPC Death Event received" );
-  remove_npc_entity( event.npc_entity );
-}
-void NpcSystem::on_npc_creation( const Events::NpcCreationEvent &event )
-{
-  SPDLOG_DEBUG( "NPC Creation Event received" );
-  add_npc_entity( event );
-}
-
-void NpcSystem::add_npc_entity( const Events::NpcCreationEvent &event )
-{
-  auto pos_cmp = getReg().try_get<Cmp::Position>( event.position_entity );
-  if ( not pos_cmp )
-  {
-    SPDLOG_ERROR( "Cannot add NPC entity {} without a Position component", static_cast<int>( event.position_entity ) );
-    return;
-  }
-
-  // create a new entity for the NPC using the existing position
-  auto new_pos_entity = getReg().create();
-  getReg().emplace<Cmp::Position>( new_pos_entity, pos_cmp->position, kGridSquareSizePixelsF );
-  getReg().emplace<Cmp::Armable>( new_pos_entity );
-  getReg().emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 0, 0 } );
-  auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NpcScanScale>();
-  getReg().emplace_or_replace<Cmp::NPCScanBounds>( new_pos_entity, pos_cmp->position, kGridSquareSizePixelsF, npc_scan_scale.get_value() );
-  if ( event.type == "NPCGHOST" )
-  {
-    getReg().emplace_or_replace<Cmp::NPC>( new_pos_entity );
-    getReg().emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, "NPCGHOST.walk.east" );
-    getReg().emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
-  }
-  else if ( event.type == "NPCSKELE" )
-  {
-    getReg().emplace_or_replace<Cmp::NPC>( new_pos_entity );
-    getReg().emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, "NPCSKELE.walk.east" );
-    getReg().emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
-
-    // Remove the npc container component from the original entity
-    getReg().remove<Cmp::NpcContainer>( event.position_entity );
-    getReg().remove<Cmp::ZOrderValue>( event.position_entity );
-  }
-
-  if ( event.type == "NPCGHOST" )
-  {
-    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), event.type, pos_cmp->position.x,
-                 pos_cmp->position.y );
-    m_sound_bank.get_effect( "spawn_ghost" ).play();
-  }
-  else if ( event.type == "NPCSKELE" )
-  {
-    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), event.type, pos_cmp->position.x,
-                 pos_cmp->position.y );
-    m_sound_bank.get_effect( "spawn_skeleton" ).play();
-  }
-}
-
-void NpcSystem::remove_npc_entity( entt::entity npc_entity )
-{
-  // check for position component
-  auto npc_pos_cmp = getReg().try_get<Cmp::Position>( npc_entity );
-  if ( not npc_pos_cmp ) { SPDLOG_WARN( "Cannot process loot drop for NPC entity {} without a Position component", static_cast<int>( npc_entity ) ); }
-  else
-  {
-    // 1 in 20 chance of dropping a relic
-    auto loot_chance_rng = Cmp::RandomInt( 1, 10 );
-    if ( loot_chance_rng.gen() == 1 )
-    {
-      auto npc_pos_cmp_bounds = Cmp::RectBounds( npc_pos_cmp->position, kGridSquareSizePixelsF, 1.5f );
-      // clang-format off
-      auto loot_entity = create_loot_drop( 
-        Cmp::SpriteAnimation( 0,0, true,"RELIC_DROP", 0 ),                                   
-        sf::FloatRect{ npc_pos_cmp_bounds.position(), npc_pos_cmp_bounds.size() },
-        IncludePack<>{}, 
-        ExcludePack<>{} 
-      );
-      // clang-format on
-      if ( loot_entity != entt::null )
-      {
-        SPDLOG_INFO( "Dropped RELIC_DROP loot at NPC death position." );
-        m_sound_bank.get_effect( "drop_relic" ).play();
-      }
-    }
-  }
-
-  // kill npc once we are done
-  getReg().remove<Cmp::NPC>( npc_entity );
-  getReg().remove<Cmp::Position>( npc_entity );
-  getReg().remove<Cmp::NPCScanBounds>( npc_entity );
-  getReg().remove<Cmp::Direction>( npc_entity );
-  getReg().remove<Cmp::SpriteAnimation>( npc_entity );
-  getReg().remove<Cmp::ZOrderValue>( npc_entity );
 }
 
 void NpcSystem::update_movement( sf::Time globalDeltaTime )
@@ -245,7 +149,8 @@ void NpcSystem::check_bones_reanimation()
 
       if ( pc_pos_cmp.findIntersection( npc_activate_bounds.getBounds() ) )
       {
-        get_systems_event_queue().trigger( Events::NpcCreationEvent( npccontainer_entt, "NPCSKELE" ) );
+        Factory::createNPC( getReg(), npccontainer_entt, "NPCSKELE" );
+        m_sound_bank.get_effect( "spawn_skeleton" ).play();
       }
     }
   }
@@ -388,7 +293,7 @@ sf::Vector2f NpcSystem::findValidPushbackPosition( const sf::Vector2f &player_po
   for ( const auto &push_dir : preferred_directions )
   {
     sf::FloatRect candidate_pos{ player_pos + push_dir * pushback_distance, kGridSquareSizePixelsF };
-    candidate_pos = snap_to_grid( candidate_pos );
+    candidate_pos = Utils::snap_to_grid( candidate_pos );
 
     // Check if this position is valid and different from current position
     if ( candidate_pos.position != player_pos && is_valid_move( candidate_pos ) ) { return candidate_pos.position; }

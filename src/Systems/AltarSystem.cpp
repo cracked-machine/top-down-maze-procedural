@@ -14,8 +14,9 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <Events/LootContainerDestroyedEvent.hpp>
-#include <Events/NpcDeathEvent.hpp>
+#include <Factory/LootFactory.hpp>
+#include <Factory/NpcFactory.hpp>
+#include <Factory/ObstacleFactory.hpp>
 #include <Systems/AltarSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
@@ -128,7 +129,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       // drop the key loot
       auto altar_cmp_bounds = Cmp::RectBounds( altar_cmp.position, altar_cmp.size, 2.f );
       // clang-format off
-      auto obst_entity = create_loot_drop( 
+      auto obst_entity = Factory::createLootDrop(getReg(),
         Cmp::SpriteAnimation{0,0,true, "KEY_DROP", 0 },
         sf::FloatRect{ altar_cmp_bounds.position(), 
         altar_cmp_bounds.size() }, 
@@ -187,20 +188,14 @@ bool AltarSystem::activate_altar_special_power()
           }
           if ( skip_position ) continue;
 
-          getReg().remove<Cmp::DestroyedObstacle>( destroyed_entity );
-
-          getReg().emplace_or_replace<Cmp::Obstacle>( destroyed_entity, Cmp::Obstacle{ true } );
-          getReg().emplace_or_replace<Cmp::NoPathFinding>( destroyed_entity );
-          getReg().emplace_or_replace<Cmp::ZOrderValue>( destroyed_entity, destroyed_pos_cmp.position.y );
-          getReg().emplace_or_replace<Cmp::AbsoluteAlpha>( destroyed_entity, 255 );
-          getReg().emplace_or_replace<Cmp::Armable>( destroyed_entity );
           // clang-format off
-                auto [obst_type, rand_obst_tex_idx] = 
-                  m_sprite_factory.get_random_type_and_texture_index( { 
-                    "ROCK"
-                  } );
+          auto [obst_type, rand_obst_tex_idx] = 
+            m_sprite_factory.get_random_type_and_texture_index( { 
+              "ROCK"
+            } );
           // clang-format on
-          getReg().emplace_or_replace<Cmp::SpriteAnimation>( destroyed_entity, 0, 0, true, obst_type, rand_obst_tex_idx );
+
+          Factory::createObstacle( getReg(), destroyed_entity, destroyed_pos_cmp, obst_type, rand_obst_tex_idx, destroyed_pos_cmp.position.y );
         }
       }
     }
@@ -213,7 +208,12 @@ bool AltarSystem::activate_altar_special_power()
     if ( is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) )
     {
       SPDLOG_DEBUG( "Killed NPC at ({}, {})", npc_pos_cmp.position.x, npc_pos_cmp.position.y );
-      get_systems_event_queue().trigger( Events::NpcDeathEvent( npc_entity ) );
+      auto loot_entity = Factory::destroyNPC( getReg(), npc_entity );
+      if ( loot_entity != entt::null )
+      {
+        SPDLOG_INFO( "Dropped RELIC_DROP loot at NPC death position." );
+        m_sound_bank.get_effect( "drop_relic" ).play();
+      }
     }
   }
 
@@ -224,7 +224,21 @@ bool AltarSystem::activate_altar_special_power()
     if ( is_visible_in_view( RenderSystem::getGameView(), lc_pos_cmp ) )
     {
       SPDLOG_DEBUG( "Opened loot container at ({}, {})", lc_pos_cmp.position.x, lc_pos_cmp.position.y );
-      get_systems_event_queue().trigger( Events::LootContainerDestroyedEvent( lc_entity ) );
+      auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
+          std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "WEAPON_BOOST" } );
+
+      // clang-format off
+      auto loot_entt = Factory::createLootDrop( 
+        getReg(), 
+        Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),                                        
+        sf::FloatRect{ lc_pos_cmp.position, lc_pos_cmp.size }, 
+        Sys::BaseSystem::IncludePack<>{},
+        Sys::BaseSystem::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition>{} );
+      // clang-format on
+
+      if ( loot_entt != entt::null ) { m_sound_bank.get_effect( "break_pot" ).play(); }
+
+      Factory::destroyLootContainer( getReg(), lc_entity );
     }
   }
 

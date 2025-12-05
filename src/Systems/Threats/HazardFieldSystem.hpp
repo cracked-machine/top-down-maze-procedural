@@ -10,6 +10,8 @@
 #include <Components/ZOrderValue.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
+#include <Factory/NpcFactory.hpp>
+#include <Factory/ObstacleFactory.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <entt/entity/fwd.hpp>
 
@@ -27,7 +29,6 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/SinkholeCell.hpp>
 #include <Components/Wall.hpp>
-#include <Events/NpcDeathEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
@@ -127,11 +128,11 @@ public:
         IncludePack<Cmp::Obstacle>{}, ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
     if ( random_entity == entt::null ) { return; }
 
+    Factory::destroyObstacle( getReg(), random_entity );
     getReg().template emplace<HazardType>( random_entity );
     getReg().template emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, Traits::sprite_type, 0 );
     getReg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 1.f );
     getReg().template emplace_or_replace<Cmp::NoPathFinding>( random_entity );
-    getReg().template remove<Cmp::Obstacle>( random_entity );
     SPDLOG_INFO( "{} hazard spawned at position [{}, {}].", Traits::sprite_type, random_pos.position.x, random_pos.position.y );
   }
 
@@ -173,6 +174,7 @@ private:
         if ( getReg().template try_get<HazardType>( obstacle_entity ) ) continue;
         if ( hazard_spread_picker.gen() == 0 )
         {
+          Factory::destroyObstacle( getReg(), obstacle_entity );
           getReg().template emplace_or_replace<HazardType>( obstacle_entity );
           getReg().template emplace_or_replace<Cmp::SpriteAnimation>( obstacle_entity, 0, 0, true, Traits::sprite_type, 0 );
           getReg().template emplace_or_replace<Cmp::ZOrderValue>( obstacle_entity, obst_pos_cmp.position.y - 1.f );
@@ -181,7 +183,7 @@ private:
           {
             getReg().template remove<Cmp::PlayerDistance>( obstacle_entity );
           }
-          getReg().template remove<Cmp::Obstacle>( obstacle_entity );
+
           SPDLOG_DEBUG( "New hazard field created at entity {}", static_cast<uint32_t>( obstacle_entity ) );
           return; // only add one hazard cell per update period
         }
@@ -252,7 +254,12 @@ private:
       {
         if ( not npc_pos_cmp.findIntersection( hazard_pos_cmp ) ) continue;
 
-        get_systems_event_queue().trigger( Events::NpcDeathEvent( npc_entt ) );
+        auto loot_entity = Factory::destroyNPC( getReg(), npc_entt );
+        if ( loot_entity != entt::null )
+        {
+          SPDLOG_INFO( "Dropped RELIC_DROP loot at NPC death position." );
+          m_sound_bank.get_effect( "drop_relic" ).play();
+        }
         SPDLOG_DEBUG( "NPC fell into a hazard field at position ({}, {})!", hazard_pos_cmp.x, hazard_pos_cmp.y );
         return;
       }

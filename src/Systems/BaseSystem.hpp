@@ -6,6 +6,7 @@
 #include <Components/PlayableCharacter.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
 #include <entt/signal/dispatcher.hpp>
 
@@ -97,6 +98,21 @@ public:
     return getReg().ctx().get<T>();
   }
 
+  //! @brief Get the persistent component object
+  //!
+  //! @tparam T
+  //! @return T&
+  template <typename T>
+  static T &get_persistent_component( entt::registry &reg )
+  {
+    if ( not reg.ctx().contains<T>() )
+    {
+      SPDLOG_CRITICAL( "Attempting to access non-existent persistent component: {}", typeid( T ).name() );
+      throw std::runtime_error( "Persistent component not found: " + std::string( typeid( T ).name() ) );
+    }
+    return reg.ctx().get<T>();
+  }
+
   //! @brief Get the Grid Position object
   //!
   //! @param entity The entity to get the grid position for.
@@ -183,47 +199,6 @@ public:
     T dx = posA.x - posB.x;
     T dy = posA.y - posB.y;
     return static_cast<T>( std::sqrt( dx * dx + dy * dy ) );
-  }
-
-  //! @brief Snaps a rectangle's position to the nearest grid cell.
-  //!
-  //! Computes a new rectangle whose top-left corner is moved to the nearest grid
-  //! intersection based on BaseSystem::kGridSquareSizePixels.x (the function
-  //! assumes a square grid and uses the x component as the grid cell size).
-  //! The input rectangle's size is preserved.
-  //!
-  //! Rounding uses std::round, so coordinates are mapped to the nearest multiple
-  //! of the grid size (negative coordinates are handled correctly by std::round).
-  //!
-  //! @param position The rectangle to be snapped. Only its position is considered;
-  //!                 the rectangle's size remains unchanged.
-  //! @return A new sf::FloatRect with the snapped position and the original size.
-  //!
-  //! @note If the grid is not square, only the x component of
-  //!       BaseSystem::kGridSquareSizePixels is used for both axes.
-  sf::FloatRect snap_to_grid( const sf::FloatRect &position )
-  {
-    float grid_size = BaseSystem::kGridSquareSizePixels.x; // Assuming square grid
-    sf::Vector2f snapped_pos{ std::round( position.position.x / BaseSystem::kGridSquareSizePixels.x ) * grid_size,
-                              std::round( position.position.y / BaseSystem::kGridSquareSizePixels.y ) * grid_size };
-
-    return sf::FloatRect( snapped_pos, position.size );
-  }
-
-  //! @brief Snap a given position to the nearest grid square.
-  //! This function takes a 2D position and rounds its coordinates to the nearest
-  //! grid square based on the grid size defined in BaseSystem::kGridSquareSizePixels.
-  //! It assumes the grid squares are of uniform size.
-  //!
-  //! @param position The position to snap, as an sf::Vector2f.
-  //! @return sf::Vector2f The snapped position aligned to the grid.
-  sf::Vector2f snap_to_grid( const sf::Vector2f &position )
-  {
-    float grid_size = BaseSystem::kGridSquareSizePixels.x; // Assuming square grid
-    sf::Vector2f snapped_pos{ std::round( position.x / BaseSystem::kGridSquareSizePixels.x ) * grid_size,
-                              std::round( position.y / BaseSystem::kGridSquareSizePixels.y ) * grid_size };
-
-    return snapped_pos;
   }
 
   //! @brief Checks if the player's movement to a given position is valid
@@ -348,48 +323,6 @@ public:
     Cmp::Position random_position = random_view.template get<Cmp::Position>( random_entity );
 
     return { random_entity, random_position };
-  }
-
-  /**
-   * @brief Attempts to create a loot drop at a traversable obstacle within a specified search area.
-   *
-   * Iterates over obstacles in the registry that match the given inclusion and exclusion criteria.
-   * For each obstacle, checks if its position intersects with the search area and if it is disabled (traversable).
-   * If a suitable obstacle is found, creates a new entity, assigns the provided loot component to it,
-   * and places it at the obstacle's position.
-   *
-   * @tparam Include... Component types to include in the view.
-   * @tparam Exclude... Component types to exclude from the view.
-   * @param loot_cmp The loot component to be assigned to the new entity.
-   * @param search The area in which to search for a suitable obstacle.
-   * @param include_pack Pack of components to include in the view.
-   * @param exclude_pack Pack of components to exclude from the view.
-   * @return entt::entity The newly created loot entity, or entt::null if no suitable location was found.
-   */
-  template <typename... Include, typename... Exclude>
-  entt::entity create_loot_drop( Cmp::SpriteAnimation &&loot_anim_cmp, sf::FloatRect search, IncludePack<Include...>, ExcludePack<Exclude...> )
-  {
-    auto pos_view = getReg().view<Cmp::Position, Include...>( entt::exclude<Exclude...> );
-
-    for ( auto [pos_entity, pos_cmp] : pos_view.each() )
-    {
-      if ( search.findIntersection( pos_cmp ) )
-      {
-        auto obst_cmp = getReg().try_get<Cmp::Obstacle>( pos_entity );
-        if ( obst_cmp and obst_cmp->m_enabled ) continue; // dont drop the loot at non-traversable obstacle
-
-        auto new_loot_entity = getReg().create();
-        getReg().emplace<Cmp::Position>( new_loot_entity, pos_cmp.position, pos_cmp.size );
-        getReg().emplace<Cmp::SpriteAnimation>( new_loot_entity, loot_anim_cmp );
-        getReg().emplace<Cmp::ZOrderValue>( new_loot_entity, pos_cmp.position.y - 16.f );
-        getReg().emplace<Cmp::Loot>( new_loot_entity );
-        SPDLOG_DEBUG( "Created loot entity {} of type {} at position ({}, {})", static_cast<int>( new_loot_entity ), loot_anim_cmp.m_sprite_type,
-                      pos_cmp.position.x, pos_cmp.position.y );
-        return new_loot_entity;
-      }
-    }
-    SPDLOG_WARN( "Failed to drop {} at [{},{}].", loot_anim_cmp.m_sprite_type, search.position.x, search.position.y );
-    return entt::null;
   }
 
   template <typename... Include, typename... Exclude>

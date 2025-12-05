@@ -13,6 +13,9 @@
 #include <Components/ZOrderValue.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
+#include <Factory/LootFactory.hpp>
+#include <Factory/NpcFactory.hpp>
+#include <Factory/ObstacleFactory.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <Components/LerpPosition.hpp>
@@ -153,12 +156,9 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   {
     if ( obstacle_pos.findIntersection( wormhole_block ) )
     {
-      if ( getReg().any_of<Cmp::ZOrderValue>( entity ) ) getReg().remove<Cmp::ZOrderValue>( entity );
-      if ( getReg().any_of<Cmp::SpriteAnimation>( entity ) ) { getReg().remove<Cmp::SpriteAnimation>( entity ); }
-      if ( getReg().any_of<Cmp::NoPathFinding>( entity ) ) { getReg().remove<Cmp::NoPathFinding>( entity ); }
-      if ( getReg().any_of<Cmp::Obstacle>( entity ) ) { getReg().remove<Cmp::Obstacle>( entity ); }
-      if ( getReg().any_of<Cmp::LootContainer>( entity ) ) { getReg().remove<Cmp::LootContainer>( entity ); }
-      if ( getReg().any_of<Cmp::NpcContainer>( entity ) ) { getReg().remove<Cmp::NpcContainer>( entity ); }
+      Factory::destroyObstacle( getReg(), entity );
+      Factory::destroyLootContainer( getReg(), entity );
+      Factory::destroyNpcContainer( getReg(), entity );
 
       SPDLOG_DEBUG( "Wormhole spawn: Destroying item at ({}, {})", obstacle_pos.position.x, obstacle_pos.position.y );
     }
@@ -263,10 +263,7 @@ void WormholeSystem::check_player_wormhole_collision()
       auto [new_spawn_entity, new_spawn_pos_cmp] = get_random_position( IncludePack<Cmp::Obstacle>{},
                                                                         ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>{}, 0 );
 
-      if ( getReg().all_of<Cmp::Obstacle>( new_spawn_entity ) ) getReg().remove<Cmp::Obstacle>( new_spawn_entity );
-      if ( getReg().all_of<Cmp::ZOrderValue>( new_spawn_entity ) ) getReg().remove<Cmp::ZOrderValue>( new_spawn_entity );
-      if ( getReg().all_of<Cmp::SpriteAnimation>( new_spawn_entity ) ) getReg().remove<Cmp::SpriteAnimation>( new_spawn_entity );
-      if ( getReg().all_of<Cmp::NoPathFinding>( new_spawn_entity ) ) { getReg().remove<Cmp::NoPathFinding>( new_spawn_entity ); }
+      Factory::destroyObstacle( getReg(), new_spawn_entity );
       getReg().emplace_or_replace<Cmp::SpriteAnimation>( new_spawn_entity, 0, 0, true, "DETONATED", 0 );
       getReg().emplace_or_replace<Cmp::ZOrderValue>( new_spawn_entity, new_spawn_pos_cmp.position.y - 256.f );
 

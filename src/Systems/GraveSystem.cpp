@@ -4,7 +4,8 @@
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SpawnArea.hpp>
-#include <Events/NpcCreationEvent.hpp>
+#include <Factory/LootFactory.hpp>
+#include <Factory/NpcFactory.hpp>
 #include <Systems/GraveSystem.hpp>
 
 namespace ProceduralMaze::Sys
@@ -68,7 +69,8 @@ void GraveSystem::check_player_grave_activation( entt::entity &grave_entity, Cmp
       {
         case 1:
           SPDLOG_DEBUG( "Grave activated NPC trap." );
-          get_systems_event_queue().trigger( Events::NpcCreationEvent( grave_entity, "NPCGHOST" ) );
+          Factory::createNPC( getReg(), grave_entity, "NPCGHOST" );
+          m_sound_bank.get_effect( "spawn_ghost" ).play();
           break;
         case 2:
           SPDLOG_DEBUG( "Grave activated bomb trap." );
@@ -79,12 +81,12 @@ void GraveSystem::check_player_grave_activation( entt::entity &grave_entity, Cmp
 
           auto grave_cmp_bounds = Cmp::RectBounds( grave_cmp.position, grave_cmp.size, 2.f );
           // clang-format off
-              auto obst_entity = create_loot_drop( 
+              auto obst_entity = Factory::createLootDrop(getReg(), 
                 Cmp::SpriteAnimation{ 0,0,true,"CANDLE_DROP", 0 },
                 sf::FloatRect{ grave_cmp_bounds.position(), 
                 grave_cmp_bounds.size() }, 
-                IncludePack<>{},
-                ExcludePack<Cmp::PlayableCharacter, Cmp::GraveSegment, Cmp::SpawnArea>{} 
+                Sys::BaseSystem::IncludePack<>{},
+                Sys::BaseSystem::ExcludePack<Cmp::PlayableCharacter, Cmp::GraveSegment, Cmp::SpawnArea>{} 
               );
           // clang-format on
 

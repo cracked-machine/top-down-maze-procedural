@@ -22,9 +22,6 @@ public:
   //! @brief Update the player system.
   void update( sf::Time globalDeltaTime );
 
-  //! @brief Create and add the player entity to the registry
-  void addPlayerEntity();
-
   void playFootstepsSound();
   void stopFootstepsSound();
 
