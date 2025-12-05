@@ -1,5 +1,6 @@
 #include <Components/Persistent/CorruptionSeed.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
+#include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
@@ -51,8 +52,7 @@ PersistentSystem::PersistentSystem( entt::registry &reg, sf::RenderWindow &windo
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-  std::ignore = get_systems_event_queue().sink<Events::SaveSettingsEvent>().connect<&Sys::PersistentSystem::on_save_settings_event>(
-      this );
+  std::ignore = get_systems_event_queue().sink<Events::SaveSettingsEvent>().connect<&Sys::PersistentSystem::on_save_settings_event>( this );
   SPDLOG_DEBUG( "PersistentSystem initialized" );
 }
 
@@ -73,6 +73,7 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
   registerComponent<Cmp::Persistent::DiggingDamagePerHit>( "DiggingDamagePerHit" );
   registerComponent<Cmp::Persistent::EffectsVolume>( "EffectsVolume" );
+  registerComponent<Cmp::Persistent::ExitKeyRequirement>( "ExitKeyRequirement" );
   registerComponent<Cmp::Persistent::FuseDelay>( "FuseDelay" );
   registerComponent<Cmp::Persistent::GraveNumMultiplier>( "GraveNumMultiplier" );
   registerComponent<Cmp::Persistent::HealthBonus>( "HealthBonus" );
@@ -100,8 +101,7 @@ void PersistentSystem::initializeComponentRegistry()
   // clang-format on
 
   // The default value here is retained if the corresponding value in the json is 0,0
-  auto default_player_start_pos = sf::Vector2f( ( Sys::BaseSystem::kGridSquareSizePixels.x * 5 ),
-                                                ( Sys::BaseSystem::kDisplaySize.y / 2.f ) );
+  auto default_player_start_pos = sf::Vector2f( ( Sys::BaseSystem::kGridSquareSizePixels.x * 5 ), ( Sys::BaseSystem::kDisplaySize.y / 2.f ) );
 
   registerComponent<Cmp::Persistent::PlayerStartPosition>( "PlayerStartPosition", default_player_start_pos );
 
@@ -159,6 +159,7 @@ void PersistentSystem::save_state()
   serializeComponent.template operator()<Cmp::Persistent::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
   serializeComponent.template operator()<Cmp::Persistent::DiggingDamagePerHit>( "DiggingDamagePerHit" );
   serializeComponent.template operator()<Cmp::Persistent::EffectsVolume>( "EffectsVolume" );
+  serializeComponent.template operator()<Cmp::Persistent::ExitKeyRequirement>( "ExitKeyRequirement" );
   serializeComponent.template operator()<Cmp::Persistent::FuseDelay>( "FuseDelay" );
   serializeComponent.template operator()<Cmp::Persistent::GraveNumMultiplier>( "GraveNumMultiplier" );
   serializeComponent.template operator()<Cmp::Persistent::HealthBonus>( "HealthBonus" );

@@ -1,3 +1,4 @@
+#include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <Components/Exit.hpp>
@@ -49,10 +50,10 @@ void ExitSystem::unlock_exit()
   auto player_key_view = getReg().view<Cmp::PlayerKeysCount>();
   for ( auto [pk_entity, pk_cmp] : player_key_view.each() )
   {
-    if ( pk_cmp.get_count() < get_persistent_component<Cmp::Persistent::MaxNumAltars>().get_value() )
+    if ( pk_cmp.get_count() < get_persistent_component<Cmp::Persistent::ExitKeyRequirement>().get_value() )
     {
       SPDLOG_DEBUG( "Not enough keys to unlock exit ({} / {})", pk_cmp.get_count(),
-                    get_persistent_component<Cmp::Persistent::MaxNumAltars>().get_value() );
+                    get_persistent_component<Cmp::Persistent::ExitKeyRequirement>().get_value() );
       return;
     }
   }

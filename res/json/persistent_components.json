@@ -39,6 +39,10 @@
     "type": "float",
     "value": 20.0
   },
+  "ExitKeyRequirement": {
+    "type": "int",
+    "value": 3
+  },
   "FuseDelay": {
     "type": "float",
     "value": 3.0
@@ -53,7 +57,7 @@
   },
     "MaxNumAltars": {
     "type": "int",
-    "value": 3
+    "value": 5
   },
   "MusicVolume": {
     "type": "float",

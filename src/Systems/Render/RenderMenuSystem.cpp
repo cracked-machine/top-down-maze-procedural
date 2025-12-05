@@ -2,6 +2,7 @@
 #include <Components/Persistent/BombInventory.hpp>
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
+#include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/NpcLerpSpeed.hpp>
 #include <Components/Persistent/PlayerDetectionScale.hpp>
@@ -274,6 +275,10 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
     auto &grave_num_multiplier = get_persistent_component<Cmp::Persistent::GraveNumMultiplier>();
     ImGui::SliderScalar( "Grave Number Multiplier", ImGuiDataType_U8, grave_num_multiplier.get_value_ptr(), grave_num_multiplier.get_min_value_ptr(),
                          grave_num_multiplier.get_max_value_ptr(), "%d" );
+
+    auto &exit_key_requirement = get_persistent_component<Cmp::Persistent::ExitKeyRequirement>();
+    ImGui::SliderScalar( "Exit Key Requirement", ImGuiDataType_U8, exit_key_requirement.get_value_ptr(), exit_key_requirement.get_min_value_ptr(),
+                         exit_key_requirement.get_max_value_ptr(), "%d Keys" ); 
   }
   catch ( const std::exception &e )
   {

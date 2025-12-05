@@ -1,4 +1,5 @@
 #include <Components/Exit.hpp>
+#include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCandlesCount.hpp>
@@ -150,7 +151,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
         auto player_key_view = getReg().view<Cmp::PlayerKeysCount>();
         for ( auto [pkey_count_entity, pkey_count_cmp] : player_key_view.each() )
         {
-          pkey_count_cmp.increment_count( 3 );
+          pkey_count_cmp.increment_count( get_persistent_component<Cmp::Persistent::ExitKeyRequirement>().get_value() );
         }
         auto exit_cmp = getReg().view<Cmp::Exit>();
         for ( auto [exit_entt, exit_cmp] : exit_cmp.each() )
