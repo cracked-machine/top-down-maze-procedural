@@ -1,3 +1,4 @@
+#include <Components/FootStepTimer.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
 #include <Components/AltarSegment.hpp>
@@ -404,17 +405,20 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
     auto npc_scan_bounds = getReg().try_get<Cmp::NPCScanBounds>( npc_entity );
     auto pc_detection_bounds = getReg().try_get<Cmp::PCDetectionBounds>( player_entity );
     if ( not npc_scan_bounds || not pc_detection_bounds ) continue;
-    SPDLOG_DEBUG( "npc_scan_bounds {}, pc_detection_bounds {}", reinterpret_cast<std::size_t>( npc_scan_bounds ),
-                  reinterpret_cast<std::size_t>( pc_detection_bounds ) );
 
     // only continue if player is within detection distance
-    if ( not npc_scan_bounds->findIntersection( pc_detection_bounds->getBounds() ) ) continue;
+    // if ( not npc_scan_bounds->findIntersection( pc_detection_bounds->getBounds() ) ) continue;
 
     // gather up any PlayerDistance components from within range obstacles
     PlayerDistanceQueue distance_queue;
     auto pd_view = getReg().view<Cmp::Position, Cmp::PlayerDistance>( entt::exclude<Cmp::NPC, Cmp::PlayableCharacter> );
     for ( auto [entity, pos_cmp, pd_cmp] : pd_view.each() )
     {
+      // footsteps are always tracked, everything else needs to be within scan bounds
+      if ( not getReg().all_of<Cmp::FootStepTimer>( entity ) )
+      {
+        if ( not npc_scan_bounds->findIntersection( pc_detection_bounds->getBounds() ) ) continue;
+      }
       if ( npc_scan_bounds->findIntersection( pos_cmp ) ) { distance_queue.push( { pd_cmp.distance, entity } ); }
     }
 

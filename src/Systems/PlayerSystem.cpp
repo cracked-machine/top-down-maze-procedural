@@ -1,6 +1,7 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Direction.hpp>
+#include <Components/FootStepTimer.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/PCDetectionBounds.hpp>
@@ -275,24 +276,33 @@ void PlayerSystem::refreshPlayerDistances()
     auto add_path_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::NoPathFinding> );
     for ( auto [path_entt, path_pos_cmp] : add_path_view.each() )
     {
-      if ( pc_db_cmp.findIntersection( path_pos_cmp ) )
+      if ( getReg().all_of<Cmp::FootStepTimer>( path_entt ) )
       {
-        if ( !is_visible_in_view( viewBounds, path_pos_cmp ) ) continue; // optimization
-
-        // calculate the distance from the position to the player
+        // always update footsteps distance to player
+        if ( !is_visible_in_view( viewBounds, path_pos_cmp ) ) continue;
         auto distance = std::floor( getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
         getReg().emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
+      }
+      else
+      {
+        if ( pc_db_cmp.findIntersection( path_pos_cmp ) )
+        {
+          if ( !is_visible_in_view( viewBounds, path_pos_cmp ) ) continue; // optimization
+
+          // calculate the distance from the position to the player
+          auto distance = std::floor( getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
+          getReg().emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
+        }
       }
     }
 
     auto remove_path_view = getReg().view<Cmp::Position>();
     for ( auto [path_entt, path_pos_cmp] : remove_path_view.each() )
     {
-      if ( not pc_db_cmp.findIntersection( path_pos_cmp ) )
-      {
-        // tidy up any out of range obstacles
-        getReg().remove<Cmp::PlayerDistance>( path_entt );
-      }
+      // keep playerdistance for footsteps always so NPC can track outside of the detection bounds
+      if ( getReg().all_of<Cmp::FootStepTimer>( path_entt ) ) continue;
+      // otherwise tidy up any out of range player distances
+      if ( not pc_db_cmp.findIntersection( path_pos_cmp ) ) { getReg().remove<Cmp::PlayerDistance>( path_entt ); }
     }
   }
 }

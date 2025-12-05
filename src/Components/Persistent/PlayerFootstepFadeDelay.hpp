@@ -8,7 +8,7 @@ namespace ProceduralMaze::Cmp::Persistent
 class PlayerFootstepFadeDelay : public BasePersistent<float>
 {
 public:
-  PlayerFootstepFadeDelay( float value = 1.f, float min_value = 0.1f, float max_value = 3.0f )
+  PlayerFootstepFadeDelay( float value = 5.f, float min_value = 0.1f, float max_value = 10.0f )
       : BasePersistent<float>( value, min_value, max_value )
   {
   }
