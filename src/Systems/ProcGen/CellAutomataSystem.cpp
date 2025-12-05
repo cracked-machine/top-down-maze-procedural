@@ -14,7 +14,7 @@ void CellAutomataSystem::iterate( unsigned int iterations )
   {
     find_neighbours();
     apply_rules();
-    SPDLOG_INFO( "#{} took {}ms", i, iteration_timer.restart().asMilliseconds() );
+    SPDLOG_INFO( "Iteration #{} took {}ms", i, iteration_timer.restart().asMilliseconds() );
   }
 
   // run one last time to get the latest neighbour data
