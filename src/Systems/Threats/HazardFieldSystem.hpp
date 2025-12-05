@@ -42,6 +42,16 @@ namespace ProceduralMaze::Sys
 template <typename T>
 struct HazardTraits;
 
+// Concept to constrain valid hazard field types
+template <typename T>
+concept ValidHazard = requires {
+  typename HazardTraits<T>::SeedType;
+  typename HazardTraits<T>::ExcludeHazard;
+  { HazardTraits<T>::kills_instantly } -> std::convertible_to<bool>;
+  { HazardTraits<T>::mortality_state } -> std::convertible_to<Cmp::PlayerMortality::State>;
+  { HazardTraits<T>::sprite_type } -> std::convertible_to<Sprites::SpriteMetaType>;
+};
+
 // Traits for Sinkhole hazard field types
 template <>
 struct HazardTraits<Cmp::SinkholeCell>
@@ -62,14 +72,6 @@ struct HazardTraits<Cmp::CorruptionCell>
   static constexpr bool kills_instantly = false;
   static constexpr Cmp::PlayerMortality::State mortality_state = Cmp::PlayerMortality::State::DECAYING;
   static constexpr Sprites::SpriteMetaType sprite_type = "CORRUPTION";
-};
-
-// Concept to constrain valid hazard field types
-template <typename T>
-concept ValidHazard = requires {
-  typename HazardTraits<T>::SeedType;
-  typename HazardTraits<T>::ExcludeHazard;
-  { HazardTraits<T>::kills_instantly } -> std::convertible_to<bool>;
 };
 
 /**
