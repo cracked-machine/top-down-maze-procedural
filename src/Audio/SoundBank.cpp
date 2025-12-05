@@ -10,7 +10,7 @@ SoundBank::SoundBank() { sounds.emplace( "fallback", EffectsData{ "res/audio/fal
 
 void SoundBank::init()
 {
-  SPDLOG_INFO( "Initializing SoundBank..." );
+  SPDLOG_DEBUG( "Initializing SoundBank..." );
   // Initialize sound effects
   sounds.emplace( "wormhole_jump", EffectsData{ "res/audio/wormhole_jump.wav" } );
   sounds.emplace( "shrine_lighting", EffectsData{ "res/audio/shrine_lighting.wav" } );

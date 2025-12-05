@@ -196,7 +196,7 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &ms, u
     getReg().emplace_or_replace<Cmp::GraveMultiBlock>( random_entity, random_origin_position.position,
                                                        large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
     // clang-format off
-    SPDLOG_INFO( "Placed GraveMultiBlock at position ({}, {}). Grid size: {}x{}", 
+    SPDLOG_DEBUG( "Placed GraveMultiBlock at position ({}, {}). Grid size: {}x{}", 
       random_origin_position.position.x,
       random_origin_position.position.y,
       large_obst_grid_size.width,

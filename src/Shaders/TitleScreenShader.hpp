@@ -9,7 +9,8 @@
 #include <Shaders/BaseFragmentShader.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sprites {
+namespace ProceduralMaze::Sprites
+{
 
 class TitleScreenShader : public BaseFragmentShader
 {
@@ -29,7 +30,7 @@ public:
   void post_setup_shader() override
   {
     m_shader.setUniform( "texture", sf::Shader::CurrentTexture );
-    SPDLOG_INFO( "TitleScreenShader initialized" );
+    SPDLOG_DEBUG( "TitleScreenShader initialized" );
   }
 
   void update( sf::Vector2f mousePos )

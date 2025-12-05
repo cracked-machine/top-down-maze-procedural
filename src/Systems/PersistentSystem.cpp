@@ -112,7 +112,7 @@ void PersistentSystem::initializeComponentRegistry()
 
 void PersistentSystem::load_state()
 {
-  SPDLOG_INFO( "Loading persistent state..." );
+  SPDLOG_DEBUG( "Loading persistent state..." );
   nlohmann::json jsonData;
   std::ifstream inputFile( "res/json/persistent_components.json" );
   if ( inputFile.is_open() )
@@ -130,7 +130,7 @@ void PersistentSystem::load_state()
 
 void PersistentSystem::save_state()
 {
-  SPDLOG_INFO( "Saving persistent state..." );
+  SPDLOG_DEBUG( "Saving persistent state..." );
   nlohmann::json jsonData;
 
   // Helper lambda to serialize a component if it exists

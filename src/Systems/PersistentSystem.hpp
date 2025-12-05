@@ -10,8 +10,7 @@ namespace ProceduralMaze::Sys
 class PersistentSystem : public BaseSystem
 {
 public:
-  PersistentSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                    Audio::SoundBank &sound_bank );
+  PersistentSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}
@@ -45,7 +44,7 @@ public:
   /// EVENTS
   void on_save_settings_event( [[maybe_unused]] const Events::SaveSettingsEvent &event )
   {
-    SPDLOG_INFO( "Save Settings Event received" );
+    SPDLOG_DEBUG( "Save Settings Event received" );
     save_state();
   }
   /**
@@ -95,8 +94,7 @@ private:
     auto args_tuple = std::make_tuple( std::forward<DefaultArgTypes>( default_args )... );
 
     std::apply( [this]( auto &&...unpacked_args )
-                { add_persistent_component<ComponentType>( std::forward<decltype( unpacked_args )>( unpacked_args )... ); },
-                args_tuple );
+                { add_persistent_component<ComponentType>( std::forward<decltype( unpacked_args )>( unpacked_args )... ); }, args_tuple );
 
     // move the tuple into the lambda to avoid copies (pack copy forbidden by lambda)
     m_component_loaders[key] = [this, args_tuple = std::move( args_tuple )]( const nlohmann::json &persistent_object )

@@ -501,7 +501,7 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
           if ( not pc_detection_bounds->findIntersection( obst_pos ) ) continue;
           if ( horizontal_hitbox.findIntersection( obst_pos ) )
           {
-            SPDLOG_INFO( "!!!! Horizontal collision at obstacle ({}, {})", obst_pos.position.x, obst_pos.position.y );
+            SPDLOG_DEBUG( "!!!! Horizontal collision at obstacle ({}, {})", obst_pos.position.x, obst_pos.position.y );
             horizontal_collision = true;
           }
           if ( vertical_hitbox.findIntersection( obst_pos ) )

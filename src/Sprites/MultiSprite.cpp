@@ -1,12 +1,12 @@
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sprites
 {
 
-MultiSprite::MultiSprite( SpriteMetaType type, const std::filesystem::path &tilemap_path,
-                          const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size, unsigned int sprites_per_frame,
-                          unsigned int sprites_per_sequence, std::vector<bool> solid_mask )
+MultiSprite::MultiSprite( SpriteMetaType type, const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks,
+                          SpriteSize grid_size, unsigned int sprites_per_frame, unsigned int sprites_per_sequence, std::vector<bool> solid_mask )
     : m_sprite_type{ type },
       m_grid_size{ grid_size.width, grid_size.height },
       m_sprites_per_frame{ sprites_per_frame },
@@ -19,7 +19,7 @@ MultiSprite::MultiSprite( SpriteMetaType type, const std::filesystem::path &tile
     SPDLOG_ERROR( "Unable to load tile map {}", tilemap_path.string() );
     throw std::runtime_error( "Unable to load tile map: " + tilemap_path.string() );
   }
-  SPDLOG_INFO( "Loaded tilemap texture: {}", tilemap_path.string() );
+  SPDLOG_DEBUG( "Loaded tilemap texture: {}", tilemap_path.string() );
   if ( !add_sprite( tilemap_picks ) )
   {
     SPDLOG_CRITICAL( "Failed to load tilemap: {}", tilemap_path.string() );
@@ -27,16 +27,15 @@ MultiSprite::MultiSprite( SpriteMetaType type, const std::filesystem::path &tile
   }
 }
 
-MultiSprite::MultiSprite( SpriteMetaType type, sf::Texture tilemap_texture, const std::vector<uint32_t> &tilemap_picks,
-                          SpriteSize grid_size, unsigned int sprites_per_frame, unsigned int sprites_per_sequence,
-                          std::vector<bool> solid_mask )
+MultiSprite::MultiSprite( SpriteMetaType type, sf::Texture tilemap_texture, const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size,
+                          unsigned int sprites_per_frame, unsigned int sprites_per_sequence, std::vector<bool> solid_mask )
     : m_sprite_type{ type },
       m_grid_size{ grid_size.width, grid_size.height },
       m_sprites_per_frame{ sprites_per_frame },
       m_sprites_per_sequence{ sprites_per_sequence },
       m_solid_mask{ std::move( solid_mask ) }
 {
-  SPDLOG_INFO( "Loaded tilemap texture" );
+  SPDLOG_DEBUG( "Loaded tilemap texture" );
   m_tilemap_texture = std::make_shared<sf::Texture>( std::move( tilemap_texture ) );
   if ( !add_sprite( tilemap_picks ) )
   {
@@ -84,13 +83,13 @@ bool MultiSprite::add_sprite( const std::vector<uint32_t> &tilemap_picks )
     current_va[4].texCoords = sf::Vector2f( tu + kGridSquareSizePixels.x, tv );
     current_va[5].texCoords = sf::Vector2f( tu + kGridSquareSizePixels.x, tv + kGridSquareSizePixels.y );
 
-    SPDLOG_INFO( "Added sprite index {} at texture coords ({}, {})", tile_idx, tu, tv );
-    SPDLOG_INFO( "Sprite vertex positions: [({}, {}) to  ({}, {})]", current_va[0].position.x, current_va[0].position.y,
-                 current_va[5].position.x, current_va[5].position.y );
+    SPDLOG_DEBUG( "Added sprite index {} at texture coords ({}, {})", tile_idx, tu, tv );
+    SPDLOG_DEBUG( "Sprite vertex positions: [({}, {}) to  ({}, {})]", current_va[0].position.x, current_va[0].position.y, current_va[5].position.x,
+                  current_va[5].position.y );
 
     m_va_list.push_back( current_va );
   }
-  SPDLOG_INFO( "Created {} sprites ", m_va_list.size() );
+  SPDLOG_DEBUG( "Created {} sprites ", m_va_list.size() );
   return true;
 }
 

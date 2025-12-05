@@ -130,7 +130,7 @@ public:
     getReg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 1.f );
     getReg().template emplace_or_replace<Cmp::NoPathFinding>( random_entity );
     getReg().template remove<Cmp::Obstacle>( random_entity );
-    SPDLOG_INFO( "Hazard field seeded at position [{}, {}].", random_pos.position.x, random_pos.position.y );
+    SPDLOG_INFO( "{} hazard spawned at position [{}, {}].", Traits::sprite_type, random_pos.position.x, random_pos.position.y );
   }
 
   //! @brief event handlers for pausing hazard spread clocks

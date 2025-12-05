@@ -11,7 +11,8 @@
 #include <Shaders/BaseFragmentShader.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sprites {
+namespace ProceduralMaze::Sprites
+{
 
 //  Usage example:
 //
@@ -67,7 +68,7 @@ public:
 
   auto get_render_texture() -> sf::RenderTexture & { return m_render_texture; }
   void pre_setup_texture() override {}
-  void post_setup_shader() override { SPDLOG_INFO( "ViewFragmentShader initialized" ); }
+  void post_setup_shader() override { SPDLOG_DEBUG( "ViewFragmentShader initialized" ); }
   void update() override { /* unused */ }
 
   enum class Align

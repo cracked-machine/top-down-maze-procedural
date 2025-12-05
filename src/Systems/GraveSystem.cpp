@@ -67,11 +67,11 @@ void GraveSystem::check_player_grave_activation( entt::entity &grave_entity, Cmp
       switch ( consequence )
       {
         case 1:
-          SPDLOG_INFO( "Grave activated NPC trap." );
+          SPDLOG_DEBUG( "Grave activated NPC trap." );
           get_systems_event_queue().trigger( Events::NpcCreationEvent( grave_entity, "NPCGHOST" ) );
           break;
         case 2:
-          SPDLOG_INFO( "Grave activated bomb trap." );
+          SPDLOG_DEBUG( "Grave activated bomb trap." );
           pc_cmp.bomb_inventory += 1;
           get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) );
           break;

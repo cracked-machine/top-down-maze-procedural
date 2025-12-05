@@ -2,6 +2,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
+#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys::ProcGen
 {
@@ -18,7 +19,7 @@ void CellAutomataSystem::iterate( unsigned int iterations )
 
   // run one last time to get the latest neighbour data
   find_neighbours();
-  SPDLOG_INFO( "Total Iterations: {}", iterations );
+  SPDLOG_DEBUG( "Total Iterations: {}", iterations );
 }
 
 void CellAutomataSystem::find_neighbours()
@@ -156,7 +157,7 @@ void CellAutomataSystem::find_neighbours()
       }
     }
   }
-  SPDLOG_INFO( "Processed neighbours for {} entities.", m_random_level->size() );
+  SPDLOG_DEBUG( "Processed neighbours for {} entities.", m_random_level->size() );
 
 #ifdef NDEBUG
 
@@ -201,7 +202,7 @@ void CellAutomataSystem::apply_rules()
       getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
     }
   }
-  SPDLOG_INFO( "Finished applying Cellular Automata rules!" );
+  SPDLOG_DEBUG( "Finished applying Cellular Automata rules!" );
 }
 
 } // namespace ProceduralMaze::Sys::ProcGen

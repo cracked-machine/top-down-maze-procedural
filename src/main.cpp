@@ -13,7 +13,7 @@ int main()
   std::unique_ptr<Logger> logger{ std::make_unique<Logger>( "logger", "log.txt" ) };
   spdlog::set_level( spdlog::level::trace );
 
-  SPDLOG_INFO( "Entering Engine" );
+  SPDLOG_DEBUG( "Entering Engine" );
 
   ProceduralMaze::Engine engine;
   engine.run();

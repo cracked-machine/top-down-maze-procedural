@@ -93,7 +93,7 @@ void Engine::init_systems()
   m_scene_manager = std::make_unique<Scene::SceneManager>( *m_window, *m_sound_bank, *m_system_store, m_nav_event_dispatcher,
                                                            m_scenemanager_event_queue );
 
-  SPDLOG_INFO( "Lazy initialization of systems complete" );
+  SPDLOG_DEBUG( "Lazy initialization of systems complete" );
 }
 
 void Engine::show_error_screen( const std::string &error_msg )
@@ -110,8 +110,7 @@ void Engine::show_error_screen( const std::string &error_msg )
   }
 
   // Show only the error message on screen, not the stack trace
-  std::string screen_message = "Fatal Error\n\n" + error_msg + "\n\nPress any key to exit" +
-                               "\n\nFull stack trace saved to log.txt";
+  std::string screen_message = "Fatal Error\n\n" + error_msg + "\n\nPress any key to exit" + "\n\nFull stack trace saved to log.txt";
 
   sf::Text error_text( font, screen_message, 24 );
   error_text.setFillColor( sf::Color::White );

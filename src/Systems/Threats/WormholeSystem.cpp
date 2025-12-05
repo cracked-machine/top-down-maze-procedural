@@ -195,7 +195,7 @@ void WormholeSystem::check_player_wormhole_collision()
     // TODO: pointless check? Never happens (according to log)
     if ( !jump_pos_cmp )
     {
-      SPDLOG_INFO( "Entity {} has WormholeJump but NO Position component - removing jump", static_cast<uint32_t>( entity ) );
+      SPDLOG_DEBUG( "Entity {} has WormholeJump but NO Position component - removing jump", static_cast<uint32_t>( entity ) );
       getReg().remove<Cmp::WormholeJump>( entity );
       continue;
     }
@@ -271,7 +271,7 @@ void WormholeSystem::check_player_wormhole_collision()
       getReg().emplace_or_replace<Cmp::ZOrderValue>( new_spawn_entity, new_spawn_pos_cmp.position.y - 256.f );
 
       // update the teleported entity's components
-      SPDLOG_INFO( "Entity {} - TELEPORTING NOW!", static_cast<uint32_t>( entity ) );
+      SPDLOG_DEBUG( "Entity {} - TELEPORTING NOW!", static_cast<uint32_t>( entity ) );
       getReg().remove<Cmp::LerpPosition>( entity );
       getReg().emplace_or_replace<Cmp::Position>( entity, new_spawn_pos_cmp.position, new_spawn_pos_cmp.size );
       getReg().remove<Cmp::WormholeJump>( entity );
@@ -296,7 +296,7 @@ void WormholeSystem::despawn_wormhole()
   for ( auto [entity, _] : wormhole_view.each() )
   {
     getReg().remove<Cmp::WormholeSingularity>( entity );
-    SPDLOG_INFO( "Wormhole despawned (entity {})", static_cast<uint32_t>( entity ) );
+    SPDLOG_DEBUG( "Wormhole despawned (entity {})", static_cast<uint32_t>( entity ) );
   }
 
   auto wormhole_mb_view = getReg().view<Cmp::WormholeMultiBlock>();
@@ -304,7 +304,7 @@ void WormholeSystem::despawn_wormhole()
   {
     getReg().remove<Cmp::WormholeMultiBlock>( entity );
     getReg().remove<Cmp::SpriteAnimation>( entity );
-    SPDLOG_INFO( "WormholeMultiBlock despawned (entity {})", static_cast<uint32_t>( entity ) );
+    SPDLOG_DEBUG( "WormholeMultiBlock despawned (entity {})", static_cast<uint32_t>( entity ) );
   }
 }
 

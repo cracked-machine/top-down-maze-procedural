@@ -1,6 +1,7 @@
 #include <Shaders/BaseFragmentShader.hpp>
 
-namespace ProceduralMaze::Sprites {
+namespace ProceduralMaze::Sprites
+{
 
 BaseFragmentShader::BaseFragmentShader( std::filesystem::path shader_path, sf::Vector2u texture_size )
     : m_render_texture( texture_size ),
@@ -24,7 +25,7 @@ void BaseFragmentShader::setup_shader()
     throw std::filesystem::filesystem_error( "Shader file does not exist", m_shader_path,
                                              std::make_error_code( std::errc::no_such_file_or_directory ) );
   }
-  SPDLOG_INFO( "Loading shader from {}", m_shader_path.string() );
+  SPDLOG_DEBUG( "Loading shader from {}", m_shader_path.string() );
   if ( !m_shader.loadFromFile( m_shader_path.string(), sf::Shader::Type::Fragment ) )
   {
     SPDLOG_CRITICAL( "Failed to load shader {}", m_shader_path.string() );

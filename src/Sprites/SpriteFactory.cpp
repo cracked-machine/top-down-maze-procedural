@@ -7,6 +7,7 @@
 
 #include <fstream>
 #include <regex>
+#include <spdlog/spdlog.h>
 #include <string>
 
 namespace ProceduralMaze::Sprites
@@ -17,7 +18,7 @@ void SpriteFactory::init()
   std::ifstream file( "res/json/sprite_metadata.json" );
   if ( !file.is_open() )
   {
-    SPDLOG_INFO( "Could not open sprite_metadata.json." );
+    SPDLOG_CRITICAL( "Could not open sprite_metadata.json." );
     throw std::runtime_error( "Could not open sprite_metadata.json." );
   }
   nlohmann::json j;
@@ -36,13 +37,9 @@ void SpriteFactory::init()
     unsigned int sprites_per_sequence = value["multisprite"]["sprites_per_sequence"];
 
     std::vector<bool> solid_mask{};
-    if ( value["multisprite"].contains( "solid_mask" ) )
-    {
-      solid_mask = value["multisprite"]["solid_mask"].get<std::vector<bool>>();
-    }
+    if ( value["multisprite"].contains( "solid_mask" ) ) { solid_mask = value["multisprite"]["solid_mask"].get<std::vector<bool>>(); }
 
-    meta.m_multisprite = MultiSprite{ key,       texture_path, sprite_indices, grid_size, sprites_per_frame, sprites_per_sequence,
-                                      solid_mask };
+    meta.m_multisprite = MultiSprite{ key, texture_path, sprite_indices, grid_size, sprites_per_frame, sprites_per_sequence, solid_mask };
 
     // Use the JSON key directly as the sprite type
     m_sprite_metadata_map[key] = std::move( meta );
@@ -160,8 +157,7 @@ const SpriteFactory::SpriteMetaData &SpriteFactory::get_spritedata_by_type( cons
   return m_error_metadata;
 }
 
-const SpriteFactory::SpriteMetaData &SpriteFactory::get_random_spritedata( std::vector<SpriteMetaType> type_list,
-                                                                           std::vector<float> weights )
+const SpriteFactory::SpriteMetaData &SpriteFactory::get_random_spritedata( std::vector<SpriteMetaType> type_list, std::vector<float> weights )
 {
   if ( type_list.empty() )
   {

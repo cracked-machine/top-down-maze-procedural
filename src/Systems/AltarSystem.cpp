@@ -71,7 +71,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
 
         // clang-format on
         pc_candles_cmp.decrement_count( 1 );
-        SPDLOG_INFO( "Shrine activated to state ONE." );
+        SPDLOG_DEBUG( "Altar activated to state ONE." );
         break;
       case 1:
         // clang-format off
@@ -84,7 +84,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
 
         // clang-format on
         pc_candles_cmp.decrement_count( 1 );
-        SPDLOG_INFO( "Shrine activated to state TWO." );
+        SPDLOG_DEBUG( "Altar activated to state TWO." );
         break;
 
       case 2:
@@ -98,7 +98,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
 
         // clang-format on
         pc_candles_cmp.decrement_count( 1 );
-        SPDLOG_INFO( "Shrine activated to state THREE." );
+        SPDLOG_DEBUG( "Altar activated to state THREE." );
         break;
       case 3:
         // clang-format off
@@ -111,7 +111,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
 
         // clang-format on
         pc_candles_cmp.decrement_count( 1 );
-        SPDLOG_INFO( "Shrine activated to state FOUR." );
+        SPDLOG_DEBUG( "Altar activated to state FOUR." );
         break;
       default:
         break;
@@ -123,7 +123,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   {
     if ( not altar_cmp.are_powers_active() )
     {
-      SPDLOG_INFO( "Shrine fully activated!" );
+      SPDLOG_DEBUG( "Altar fully activated!" );
       m_sound_bank.get_effect( "shrine_lighting" ).play();
       // drop the key loot
       auto altar_cmp_bounds = Cmp::RectBounds( altar_cmp.position, altar_cmp.size, 2.f );
@@ -158,11 +158,11 @@ bool AltarSystem::activate_altar_special_power()
 
     if ( pc_relic_count_cmp.get_count() < 1 ) return false;
 
-    SPDLOG_INFO( "Activating altar special power!" );
+    SPDLOG_DEBUG( "Activating altar special power!" );
     // consume a relic
     pc_relic_count_cmp.decrement_count( 1 );
 
-    SPDLOG_INFO( "Special Power: Re-enable all nearby obstacles!" );
+    SPDLOG_DEBUG( "Special Power: Re-enable all nearby obstacles!" );
     auto obstacle_view = getReg().view<Cmp::DestroyedObstacle, Cmp::Position>(
         entt::exclude<Cmp::PlayableCharacter, Cmp::NPC, Cmp::LootContainer, Cmp::Loot, Cmp::ReservedPosition> );
 
@@ -206,24 +206,24 @@ bool AltarSystem::activate_altar_special_power()
     }
   }
 
-  SPDLOG_INFO( "Special Power: Kill all nearby NPCs!" );
+  SPDLOG_DEBUG( "Special Power: Kill all nearby NPCs!" );
   auto npc_view = getReg().view<Cmp::NPC, Cmp::Position>();
   for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_view.each() )
   {
     if ( is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) )
     {
-      SPDLOG_INFO( "Killed NPC at ({}, {})", npc_pos_cmp.position.x, npc_pos_cmp.position.y );
+      SPDLOG_DEBUG( "Killed NPC at ({}, {})", npc_pos_cmp.position.x, npc_pos_cmp.position.y );
       get_systems_event_queue().trigger( Events::NpcDeathEvent( npc_entity ) );
     }
   }
 
-  SPDLOG_INFO( "Special Power: Open all loot containers!" );
+  SPDLOG_DEBUG( "Special Power: Open all loot containers!" );
   auto loot_container_view = getReg().view<Cmp::LootContainer, Cmp::Position>();
   for ( auto [lc_entity, lc_cmp, lc_pos_cmp] : loot_container_view.each() )
   {
     if ( is_visible_in_view( RenderSystem::getGameView(), lc_pos_cmp ) )
     {
-      SPDLOG_INFO( "Opened loot container at ({}, {})", lc_pos_cmp.position.x, lc_pos_cmp.position.y );
+      SPDLOG_DEBUG( "Opened loot container at ({}, {})", lc_pos_cmp.position.x, lc_pos_cmp.position.y );
       get_systems_event_queue().trigger( Events::LootContainerDestroyedEvent( lc_entity ) );
     }
   }

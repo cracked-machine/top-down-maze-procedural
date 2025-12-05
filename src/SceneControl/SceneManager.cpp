@@ -70,8 +70,7 @@ void SceneManager::pop( ComponentTransfer::TransferMode clone_options )
   // Transfer registry components - specify which component types to transfer
   if ( reg_snapshot && clone_options == ComponentTransfer::TransferMode::PLAYER_INVENTORY )
   {
-    loading_screen( [&]() { m_cmp_transfer.transfer_player_inventory( *reg_snapshot, m_scene_stack.current().get_registry() ); },
-                    m_splash_texture );
+    loading_screen( [&]() { m_cmp_transfer.transfer_player_inventory( *reg_snapshot, m_scene_stack.current().get_registry() ); }, m_splash_texture );
   }
 
   if ( !m_scene_stack.empty() ) m_scene_stack.current().on_enter();
@@ -254,7 +253,7 @@ void SceneManager::inject_registry()
   for ( auto &sys : m_system_store )
     sys.second->setReg( reg ); // pass the unique_ptr by reference
 
-  SPDLOG_INFO( "Injected registry into {} systems for {}", m_system_store.size(), m_scene_stack.current().get_name() );
+  SPDLOG_DEBUG( "Injected registry into {} systems for {}", m_system_store.size(), m_scene_stack.current().get_name() );
 }
 
 } // namespace ProceduralMaze::Scene

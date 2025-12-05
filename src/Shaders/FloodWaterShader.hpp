@@ -8,7 +8,8 @@
 #include <Shaders/BaseFragmentShader.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sprites {
+namespace ProceduralMaze::Sprites
+{
 
 class FloodWaterShader : public BaseFragmentShader
 {
@@ -28,7 +29,7 @@ public:
   void post_setup_shader() override
   {
     m_shader.setUniform( "resolution", sf::Vector2f{ m_render_texture.getSize() } );
-    SPDLOG_INFO( "FloodWaterShader initialized" );
+    SPDLOG_DEBUG( "FloodWaterShader initialized" );
   }
 
   void update( sf::Vector2f position )

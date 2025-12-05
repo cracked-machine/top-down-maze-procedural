@@ -94,8 +94,8 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
       candidate_entity = get_random_nearby_disabled_obstacle( search_area.getBounds(), IncludePack<Cmp::Armable>{}, ExcludePack<Cmp::Exit>{} );
       auto pos_cmp = getReg().try_get<Cmp::Position>( candidate_entity );
       if ( pos_cmp )
-        SPDLOG_INFO( "Returned candidate entity: {}, pos: {},{}", static_cast<uint32_t>( candidate_entity ), pos_cmp->position.x,
-                     pos_cmp->position.y );
+        SPDLOG_DEBUG( "Returned candidate entity: {}, pos: {},{}", static_cast<uint32_t>( candidate_entity ), pos_cmp->position.x,
+                      pos_cmp->position.y );
     }
     // then use the candidate entity to place the booby trap bomb
     if ( candidate_entity != entt::null )
@@ -120,7 +120,7 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
         if ( player_hitbox.findIntersection( destructable_pos_cmp ) )
         {
 
-          SPDLOG_INFO( "Checking cooldown timer for bomb placement." );
+          SPDLOG_DEBUG( "Checking cooldown timer for bomb placement." );
           if ( pc_cmp.m_bombdeploycooldowntimer.getElapsedTime() < pc_cmp.m_bombdeploydelay ) continue;
           m_sound_bank.get_effect( "bomb_fuse" ).play();
 

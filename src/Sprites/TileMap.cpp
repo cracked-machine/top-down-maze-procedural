@@ -3,7 +3,8 @@
 #include <fstream>
 #include <stdexcept>
 
-namespace ProceduralMaze::Sprites::Containers {
+namespace ProceduralMaze::Sprites::Containers
+{
 
 void TileMap::load( sf::Vector2u map_dimensions, const std::filesystem::path &config_path )
 {
@@ -61,8 +62,7 @@ void TileMap::create( sf::Vector2u tile_size, unsigned int width, unsigned int h
       // Validate tile index
       if ( tile_number > max_tile_index )
       {
-        SPDLOG_WARN( "Tile index {} exceeds max index {} for texture size {}x{}", tile_number, max_tile_index, texture_size.x,
-                     texture_size.y );
+        SPDLOG_WARN( "Tile index {} exceeds max index {} for texture size {}x{}", tile_number, max_tile_index, texture_size.x, texture_size.y );
         continue; // Skip invalid tiles
       }
 
@@ -181,8 +181,8 @@ TileMap::TileMapConfig TileMap::load_config( const std::filesystem::path &config
 
   if ( config.floor_tile_pool.empty() ) { throw std::runtime_error( "Empty floor tile pool" ); }
 
-  SPDLOG_INFO( "Loaded config: texture={}, tile_size={}x{}, pool_size={}", config.texture_path.string(), config.tile_size.x,
-               config.tile_size.y, config.floor_tile_pool.size() );
+  SPDLOG_DEBUG( "Loaded config: texture={}, tile_size={}x{}, pool_size={}", config.texture_path.string(), config.tile_size.x, config.tile_size.y,
+                config.floor_tile_pool.size() );
 
   return config;
 }

@@ -71,7 +71,7 @@ void PlayerSystem::update( sf::Time globalDeltaTime )
 
 void PlayerSystem::addPlayerEntity()
 {
-  SPDLOG_INFO( "Creating player entity" );
+  SPDLOG_DEBUG( "Creating player entity" );
   auto entity = getReg().create();
 
   // start position must be pixel coordinates within the screen resolution (kDisplaySize),
@@ -305,7 +305,7 @@ void PlayerSystem::checkPlayerMortality()
     if ( health_cmp.health <= 0 )
     {
       mortality_cmp.state = Cmp::PlayerMortality::State::DEAD;
-      SPDLOG_INFO( "Player has progressed to deadness." );
+      SPDLOG_DEBUG( "Player has progressed to deadness." );
       m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::GAME_OVER );
     }
   }

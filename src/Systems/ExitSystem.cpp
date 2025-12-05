@@ -41,7 +41,7 @@ void ExitSystem::spawn_exit()
   getReg().emplace_or_replace<Cmp::ZOrderValue>( rand_entity, rand_pos_cmp.position.y );
   getReg().emplace_or_replace<Cmp::NoPathFinding>( rand_entity );
 
-  SPDLOG_INFO( "Spawned exit at position ({}, {})", rand_pos_cmp.position.x, rand_pos_cmp.position.y );
+  SPDLOG_INFO( "Exit spawned at position ({}, {})", rand_pos_cmp.position.x, rand_pos_cmp.position.y );
 }
 
 void ExitSystem::unlock_exit()
