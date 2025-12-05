@@ -40,7 +40,7 @@ public:
   void gen_positions();
 
   // Find a valid spawn location for a large obstacle given a seed
-  std::pair<entt::entity, Cmp::Position> find_spawn_location( unsigned long seed );
+  std::pair<entt::entity, Cmp::Position> find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed );
 
   // Generate a large obstacle at a random valid position (graves, shrines, crypts)
   void gen_large_obstacle( const Sprites::MultiSprite &ms, unsigned long seed );

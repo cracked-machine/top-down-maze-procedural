@@ -78,7 +78,7 @@ void RandomLevelGenerator::gen_positions()
   }
 }
 
-std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location( unsigned long seed )
+std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed )
 {
   constexpr int kMaxAttempts = 1000;
   int attempts = 0;
@@ -89,7 +89,8 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
     auto [random_entity, random_pos] = get_random_position( IncludePack<>{}, ExcludePack<Cmp::Wall, Cmp::ReservedPosition, Cmp::PlayableCharacter>{},
                                                             current_seed );
 
-    Cmp::RectBounds new_lo_hitbox( random_pos.position, random_pos.size, 2.f );
+    auto lo_sprite_size = m_sprite_factory.get_sprite_size_by_type( ms.get_sprite_type() );
+    Cmp::RectBounds new_lo_hitbox( random_pos.position, lo_sprite_size, 1.f );
 
     // Check collisions with walls, graves, shrines
     auto is_valid = [&]() -> bool
@@ -159,7 +160,7 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
 
 void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &ms, unsigned long seed )
 {
-  auto [random_entity, random_origin_position] = find_spawn_location( seed );
+  auto [random_entity, random_origin_position] = find_spawn_location( ms, seed );
   if ( random_entity == entt::null )
   {
     SPDLOG_ERROR( "Failed to find valid spawn position for {}.", ms.get_sprite_type() );
