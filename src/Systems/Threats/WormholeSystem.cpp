@@ -1,7 +1,11 @@
 #include <Components/AltarSegment.hpp>
+#include <Components/CryptSegment.hpp>
 #include <Components/Exit.hpp>
 #include <Components/GraveSegment.hpp>
+#include <Components/HazardFieldCell.hpp>
+#include <Components/LootContainer.hpp>
 #include <Components/NoPathFinding.hpp>
+#include <Components/NpcContainer.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/WormholeJump.hpp>
 #include <Components/WormholeMultiBlock.hpp>
@@ -87,10 +91,22 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
         if ( grave_pos_cmp.findIntersection( wormhole_block ) ) return false;
       }
 
-      // Return false for shrine collisions
-      for ( auto [entity, shrine_cmp, shrine_pos_cmp] : getReg().view<Cmp::AltarSegment, Cmp::Position>().each() )
+      // Return false for altar collisions
+      for ( auto [entity, altar_cmp, altar_pos_cmp] : getReg().view<Cmp::AltarSegment, Cmp::Position>().each() )
       {
-        if ( shrine_pos_cmp.findIntersection( wormhole_block ) ) return false;
+        if ( altar_pos_cmp.findIntersection( wormhole_block ) ) return false;
+      }
+
+      // Return false for crypt collisions
+      for ( auto [entity, crypt_cmp, crypt_pos_cmp] : getReg().view<Cmp::CryptSegment, Cmp::Position>().each() )
+      {
+        if ( crypt_pos_cmp.findIntersection( wormhole_block ) ) return false;
+      }
+
+      // Return false for hazard collisions
+      for ( auto [entity, hazard_cmp, hazard_pos_cmp] : getReg().view<Cmp::HazardFieldCell, Cmp::Position>().each() )
+      {
+        if ( hazard_pos_cmp.findIntersection( wormhole_block ) ) return false;
       }
 
       return true;
@@ -138,9 +154,13 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
     if ( obstacle_pos.findIntersection( wormhole_block ) )
     {
       if ( getReg().any_of<Cmp::ZOrderValue>( entity ) ) getReg().remove<Cmp::ZOrderValue>( entity );
+      if ( getReg().any_of<Cmp::SpriteAnimation>( entity ) ) { getReg().remove<Cmp::SpriteAnimation>( entity ); }
+      if ( getReg().any_of<Cmp::NoPathFinding>( entity ) ) { getReg().remove<Cmp::NoPathFinding>( entity ); }
       if ( getReg().any_of<Cmp::Obstacle>( entity ) ) { getReg().remove<Cmp::Obstacle>( entity ); }
+      if ( getReg().any_of<Cmp::LootContainer>( entity ) ) { getReg().remove<Cmp::LootContainer>( entity ); }
+      if ( getReg().any_of<Cmp::NpcContainer>( entity ) ) { getReg().remove<Cmp::NpcContainer>( entity ); }
 
-      SPDLOG_DEBUG( "Wormhole spawn: Destroying obstacle at ({}, {})", obstacle_pos.position.x, obstacle_pos.position.y );
+      SPDLOG_DEBUG( "Wormhole spawn: Destroying item at ({}, {})", obstacle_pos.position.x, obstacle_pos.position.y );
     }
   }
 
