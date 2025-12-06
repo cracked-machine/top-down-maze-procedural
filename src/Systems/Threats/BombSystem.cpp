@@ -10,10 +10,12 @@
 #include <Components/ZOrderValue.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
+#include <Factory/BombFactory.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <SFML/Graphics/Rect.hpp>
+#include <optional>
 #include <spdlog/spdlog.h>
 
 #include <Components/AltarSegment.hpp>
@@ -142,24 +144,8 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
 void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, const int blast_radius )
 {
   sf::Vector2i centerTile = getGridPosition( epicenter_entity ).value();
-
   int sequence_counter = 0;
-
-  // First arm the center tile
-  // clang-format off
-  getReg().emplace_or_replace<Cmp::Armed>( 
-    epicenter_entity, 
-    sf::seconds( get_persistent_component<Cmp::Persistent::FuseDelay>().get_value() ), 
-    sf::Time::Zero, 
-    true,
-    sf::Color::Transparent, 
-    sequence_counter++, 
-    Cmp::Armed::EpiCenter::YES 
-  );
-  // clang-format on
-  getReg().emplace_or_replace<Cmp::SpriteAnimation>( epicenter_entity, 0, 0, true, "BOMB", 0 );
-  getReg().emplace_or_replace<Cmp::ZOrderValue>( epicenter_entity, centerTile.y - 64.f );
-  getReg().emplace_or_replace<Cmp::NoPathFinding>( epicenter_entity );
+  Factory::createArmed( getReg(), epicenter_entity, Cmp::Armed::EpiCenter::YES, sequence_counter++, centerTile.y - 64 );
 
   // We dont detonate ReservedPositions so dont arm them in the first place
   // Also exclude NPCs since they're handled separately and may be missing Position component during death animation
@@ -202,19 +188,7 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
     // Arm each entity in the layer in clockwise order
     for ( const auto &[entity, pos] : layer_entities )
     {
-      sf::Color color = sf::Color( 255, 10 + ( sequence_counter * 10 ) % 155, 255, 64 );
-      auto &fuse_delay = get_persistent_component<Cmp::Persistent::FuseDelay>();
-      auto &armed_on_delay = get_persistent_component<Cmp::Persistent::ArmedOnDelay>();
-      auto &armed_off_delay = get_persistent_component<Cmp::Persistent::ArmedOffDelay>();
-      auto new_fuse_delay = sf::seconds( fuse_delay.get_value() + ( sequence_counter * armed_on_delay.get_value() ) );
-      auto new_warning_delay = sf::seconds( armed_off_delay.get_value() + ( sequence_counter * armed_off_delay.get_value() ) );
-
-      auto new_armed_entity = getReg().create();
-      getReg().emplace_or_replace<Cmp::Position>( new_armed_entity, getReg().get<Cmp::Position>( entity ).position,
-                                                  getReg().get<Cmp::Position>( entity ).size );
-      getReg().emplace_or_replace<Cmp::Armed>( new_armed_entity, new_fuse_delay, new_warning_delay, false, color, sequence_counter );
-      getReg().emplace_or_replace<Cmp::NoPathFinding>( new_armed_entity );
-      sequence_counter++;
+      Factory::createArmed( getReg(), entity, Cmp::Armed::EpiCenter::NO, sequence_counter++, centerTile.y - 64 );
     }
   }
 }
@@ -312,15 +286,10 @@ void BombSystem::update()
     if ( not remaining_epicenter_bombs ) m_sound_bank.get_effect( "bomb_fuse" ).stop();
 
     // finally delete the armed component
-    getReg().remove<Cmp::Armed>( armed_entt );
-    getReg().remove<Cmp::SpriteAnimation>( armed_entt );
-    getReg().remove<Cmp::ZOrderValue>( armed_entt );
-    if ( getReg().all_of<Cmp::NoPathFinding>( armed_entt ) ) { getReg().remove<Cmp::NoPathFinding>( armed_entt ); }
+    Factory::destroyArmed( getReg(), armed_entt );
 
     // Replace the armed position with a detonated sprite for visual effect - make sure its z-order is furthest back
-    getReg().emplace<Cmp::SpriteAnimation>( armed_entt, 0, 0, true, "DETONATED", 0 );
-    getReg().emplace<Cmp::ZOrderValue>( armed_entt, armed_pos_cmp.position.y - 256.f );
-    getReg().emplace_or_replace<Cmp::DestroyedObstacle>( armed_entt );
+    Factory::createDetonated( getReg(), armed_entt, armed_pos_cmp );
   }
 }
 

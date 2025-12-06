@@ -45,6 +45,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Factory/NpcFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/LootFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/ObstacleFactory.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/BombFactory.cpp
 )
 
 target_link_libraries(${TARGET} PRIVATE 
