@@ -1,3 +1,4 @@
+#include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <SFML/System/Vector2.hpp>
 
@@ -191,6 +192,7 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &ms, u
 void RandomLevelGenerator::gen_large_obstacles()
 {
   auto max_num_altars = get_persistent_component<Cmp::Persistent::MaxNumAltars>();
+  auto max_num_crypts = get_persistent_component<Cmp::Persistent::MaxNumCrypts>();
   auto grave_num_multiplier = get_persistent_component<Cmp::Persistent::GraveNumMultiplier>();
 
   // GRAVES
@@ -216,7 +218,7 @@ void RandomLevelGenerator::gen_large_obstacles()
 
   // CRYPTS - note: we use keys from altars to open crypts so the number should be equal
   auto &crypt_multisprite = m_sprite_factory.get_multisprite_by_type( "CRYPT.closed" );
-  for ( std::size_t i = 0; i < max_num_altars.get_value(); ++i )
+  for ( std::size_t i = 0; i < max_num_crypts.get_value(); ++i )
   {
     gen_large_obstacle( crypt_multisprite, 0 );
   }

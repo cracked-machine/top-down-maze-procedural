@@ -4,6 +4,7 @@
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
+#include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Components/Persistent/NpcLerpSpeed.hpp>
 #include <Components/Persistent/PlayerDetectionScale.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
@@ -278,7 +279,11 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
 
     auto &exit_key_requirement = get_persistent_component<Cmp::Persistent::ExitKeyRequirement>();
     ImGui::SliderScalar( "Exit Key Requirement", ImGuiDataType_U8, exit_key_requirement.get_value_ptr(), exit_key_requirement.get_min_value_ptr(),
-                         exit_key_requirement.get_max_value_ptr(), "%d Keys" ); 
+                         exit_key_requirement.get_max_value_ptr(), "%d Keys" );
+
+    auto &max_num_crypts = get_persistent_component<Cmp::Persistent::MaxNumCrypts>();
+    ImGui::SliderScalar( "Max Number of Crypts", ImGuiDataType_U8, max_num_crypts.get_value_ptr(), max_num_crypts.get_min_value_ptr(),
+                         max_num_crypts.get_max_value_ptr(), "%d Max Crypts" );
   }
   catch ( const std::exception &e )
   {

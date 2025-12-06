@@ -2,6 +2,7 @@
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
+#include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
@@ -78,6 +79,7 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::GraveNumMultiplier>( "GraveNumMultiplier" );
   registerComponent<Cmp::Persistent::HealthBonus>( "HealthBonus" );
   registerComponent<Cmp::Persistent::MaxNumAltars>( "MaxNumAltars" );
+  registerComponent<Cmp::Persistent::MaxNumCrypts>( "MaxNumCrypts" );
   registerComponent<Cmp::Persistent::MusicVolume>( "MusicVolume" );
   registerComponent<Cmp::Persistent::NpcActivateScale>( "NpcActivateScale" );
   registerComponent<Cmp::Persistent::NpcDamage>( "NpcDamage" );
@@ -164,6 +166,7 @@ void PersistentSystem::save_state()
   serializeComponent.template operator()<Cmp::Persistent::GraveNumMultiplier>( "GraveNumMultiplier" );
   serializeComponent.template operator()<Cmp::Persistent::HealthBonus>( "HealthBonus" );
   serializeComponent.template operator()<Cmp::Persistent::MaxNumAltars>( "MaxNumAltars" );
+  serializeComponent.template operator()<Cmp::Persistent::MaxNumCrypts>( "MaxNumCrypts" );
   serializeComponent.template operator()<Cmp::Persistent::MusicVolume>( "MusicVolume" );
   serializeComponent.template operator()<Cmp::Persistent::NpcActivateScale>( "NpcActivateScale" );
   serializeComponent.template operator()<Cmp::Persistent::NpcDamage>( "NpcDamage" );
