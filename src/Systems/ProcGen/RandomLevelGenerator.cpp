@@ -1,32 +1,27 @@
-#include <Components/AbsoluteAlpha.hpp>
+#include <Factory/MultiblockFactory.hpp>
+#include <SFML/System/Vector2.hpp>
+
 #include <Components/AltarMultiBlock.hpp>
+#include <Components/AltarSegment.hpp>
+#include <Components/Armable.hpp>
 #include <Components/CryptDoor.hpp>
 #include <Components/CryptMultiBlock.hpp>
 #include <Components/CryptSegment.hpp>
 #include <Components/GraveMultiBlock.hpp>
-#include <Components/NoPathFinding.hpp>
-#include <Components/Persistent/GraveNumMultiplier.hpp>
-#include <Components/SpriteAnimation.hpp>
-#include <Components/ZOrderValue.hpp>
-#include <Factory/LootFactory.hpp>
-#include <Factory/NpcFactory.hpp>
-#include <Factory/ObstacleFactory.hpp>
-#include <SFML/System/Vector2.hpp>
-
-#include <Components/AltarSegment.hpp>
-#include <Components/Armable.hpp>
 #include <Components/GraveSegment.hpp>
-#include <Components/LootContainer.hpp>
-#include <Components/NpcContainer.hpp>
+#include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
-#include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpawnArea.hpp>
+#include <Components/SpriteAnimation.hpp>
 #include <Components/Wall.hpp>
+#include <Factory/LootFactory.hpp>
+#include <Factory/NpcFactory.hpp>
+#include <Factory/ObstacleFactory.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
@@ -171,136 +166,25 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &ms, u
     return;
   }
 
-  // place large obstacle - multiply the grid size to get pixel size!
-  auto large_obst_grid_size = ms.get_grid_size();
-
-  // find any position-owning entities that intersect with the new large obstacle and mark them as reserved
-  sf::FloatRect new_multiblock_bounds{};
   if ( ms.get_sprite_type().contains( "ALTAR" ) )
   {
-
-    getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, ms.get_sprite_type(), 0 );
-    getReg().emplace_or_replace<Cmp::AltarMultiBlock>( random_entity, random_origin_position.position,
-                                                       large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
-    // clang-format off
-    SPDLOG_INFO( "Placed AltarMultiBlock at position ({}, {}). Grid size: {}x{}", 
-      random_origin_position.position.x,
-      random_origin_position.position.y, 
-      large_obst_grid_size.width, 
-      large_obst_grid_size.height 
-    );
-    // clang-format on
-
-    new_multiblock_bounds = getReg().get<Cmp::AltarMultiBlock>( random_entity );
+    Factory::createMultiblock<Cmp::AltarMultiBlock>( getReg(), random_entity, random_origin_position, ms );
+    Factory::createMultiblockSegments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( getReg(), random_entity, random_origin_position, ms );
   }
   else if ( ms.get_sprite_type().contains( "GRAVE" ) )
   {
-
-    getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, ms.get_sprite_type(), 0 );
-    getReg().emplace_or_replace<Cmp::GraveMultiBlock>( random_entity, random_origin_position.position,
-                                                       large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
-    // clang-format off
-    SPDLOG_DEBUG( "Placed GraveMultiBlock at position ({}, {}). Grid size: {}x{}", 
-      random_origin_position.position.x,
-      random_origin_position.position.y,
-      large_obst_grid_size.width,
-      large_obst_grid_size.height
-    );
-    // clang-format on
-
-    new_multiblock_bounds = getReg().get<Cmp::GraveMultiBlock>( random_entity );
+    Factory::createMultiblock<Cmp::GraveMultiBlock>( getReg(), random_entity, random_origin_position, ms );
+    Factory::createMultiblockSegments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( getReg(), random_entity, random_origin_position, ms );
   }
   else if ( ms.get_sprite_type().contains( "CRYPT" ) )
   {
-    getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, ms.get_sprite_type(), 0 );
-    getReg().emplace_or_replace<Cmp::CryptMultiBlock>( random_entity, random_origin_position.position,
-                                                       large_obst_grid_size.componentWiseMul( BaseSystem::kGridSquareSizePixels ) );
-    // Set the z-order value so that the spawn area is rendered above ground but below everything else
-    getReg().emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_origin_position.position.y + ms.getSpriteSizePixels().y );
-
-    // clang-format off
-    SPDLOG_INFO( "Placed CryptMultiBlock at position ({}, {}). Grid size: {}x{}", 
-      random_origin_position.position.x,
-      random_origin_position.position.y,
-      large_obst_grid_size.width,
-      large_obst_grid_size.height
-    );
-    // clang-format on
-
-    new_multiblock_bounds = getReg().get<Cmp::CryptMultiBlock>( random_entity );
+    Factory::createMultiblock<Cmp::CryptMultiBlock>( getReg(), random_entity, random_origin_position, ms );
+    Factory::createMultiblockSegments<Cmp::CryptMultiBlock, Cmp::CryptSegment>( getReg(), random_entity, random_origin_position, ms );
   }
   else
   {
     SPDLOG_ERROR( "gen_large_obstacle called with unsupported multisprite type: {}", ms.get_sprite_type() );
     return;
-  }
-
-  auto pos_view = getReg().view<Cmp::Position>();
-  for ( auto [entity, pos_cmp] : pos_view.each() )
-  {
-    if ( pos_cmp.findIntersection( new_multiblock_bounds ) )
-    {
-      // Calculate relative pixel positions within the large obstacle grid
-      float rel_x = pos_cmp.position.x - random_origin_position.position.x;
-      float rel_y = pos_cmp.position.y - random_origin_position.position.y;
-
-      // Convert to relative grid coordinates
-      int rel_grid_x = static_cast<int>( rel_x / BaseSystem::kGridSquareSizePixels.x );
-      int rel_grid_y = static_cast<int>( rel_y / BaseSystem::kGridSquareSizePixels.y );
-
-      // Calculate linear array index using relative grid distance from the origin grid position [0,0].
-      // We can then use the index to look up the sprite and solid mask in the large obstacle sprite object
-      // (method: row-major order: index = y * width + x)
-      // Example for a 4x2 grid:
-      //         [0][1][2][3]
-      //         [4][5][6][7]
-      // Top-left position: grid_y=0, grid_x=0 → sprite_index = 0 * 4 + 0 = 0
-      // Top-right position: grid_y=0, grid_x=3 → sprite_index = 0 * 4 + 3 = 3
-      // Bottom-left position: grid_y=1, grid_x=0 → sprite_index = 1 * 4 + 0 = 4
-      // Bottom-right position: grid_y=1, grid_x=3 → sprite_index = 1 * 4 + 3 = 7
-      std::size_t calculated_grid_index = rel_grid_y * large_obst_grid_size.width + rel_grid_x;
-      SPDLOG_DEBUG( "Adding Cmp::ReservedPosition at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
-
-      bool new_solid_mask = true;
-      auto solid_masks = ms.get_solid_mask();
-      if ( !solid_masks.empty() && solid_masks.size() > calculated_grid_index ) { new_solid_mask = solid_masks.at( calculated_grid_index ); }
-
-      if ( ms.get_sprite_type().contains( "ALTAR" ) )
-      {
-        if ( new_solid_mask )
-        {
-          getReg().emplace_or_replace<Cmp::AltarSegment>( entity, new_solid_mask );
-          getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
-        }
-        getReg().emplace_or_replace<Cmp::Armable>( entity );
-
-        getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y + ms.getSpriteSizePixels().y );
-      }
-      else if ( ms.get_sprite_type().contains( "GRAVE" ) )
-      {
-        if ( new_solid_mask )
-        {
-          getReg().emplace_or_replace<Cmp::GraveSegment>( entity, new_solid_mask );
-          getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
-        }
-        getReg().emplace_or_replace<Cmp::Armable>( entity );
-        getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y + ms.getSpriteSizePixels().y );
-      }
-      else if ( ms.get_sprite_type().contains( "CRYPT" ) )
-      {
-        if ( new_solid_mask )
-        {
-          getReg().emplace_or_replace<Cmp::CryptSegment>( entity, new_solid_mask );
-          getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
-        }
-        getReg().emplace_or_replace<Cmp::Armable>( entity );
-        if ( calculated_grid_index == 10 ) // hardcoded for now - only the door segment
-        {
-          getReg().emplace_or_replace<Cmp::CryptDoor>( entity );
-        }
-      }
-      getReg().emplace_or_replace<Cmp::ReservedPosition>( entity );
-    }
   }
 }
 
