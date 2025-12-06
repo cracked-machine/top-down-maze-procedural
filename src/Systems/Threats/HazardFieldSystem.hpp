@@ -1,18 +1,6 @@
 #ifndef SRC_SYSTEMS_HAZARDFIELDSYSTEM_HPP__
 #define SRC_SYSTEMS_HAZARDFIELDSYSTEM_HPP__
 
-#include <Components/NoPathFinding.hpp>
-#include <Components/Persistent/CorruptionDamage.hpp>
-#include <Components/PlayerDistance.hpp>
-#include <Components/PlayerHealth.hpp>
-#include <Components/PlayerMortality.hpp>
-#include <Components/SpriteAnimation.hpp>
-#include <Components/ZOrderValue.hpp>
-#include <Events/PauseClocksEvent.hpp>
-#include <Events/ResumeClocksEvent.hpp>
-#include <Factory/NpcFactory.hpp>
-#include <Factory/ObstacleFactory.hpp>
-#include <Sprites/MultiSprite.hpp>
 #include <entt/entity/fwd.hpp>
 
 #include <SFML/System/Clock.hpp>
@@ -22,15 +10,28 @@
 #include <Components/Exit.hpp>
 #include <Components/HazardFieldCell.hpp>
 #include <Components/NPC.hpp>
+#include <Components/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/Persistent/CorruptionSeed.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
 #include <Components/PlayableCharacter.hpp>
+#include <Components/PlayerDistance.hpp>
+#include <Components/PlayerHealth.hpp>
+#include <Components/PlayerMortality.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SinkholeCell.hpp>
+#include <Components/SpriteAnimation.hpp>
 #include <Components/Wall.hpp>
+#include <Components/ZOrderValue.hpp>
+#include <Events/PauseClocksEvent.hpp>
+#include <Events/ResumeClocksEvent.hpp>
+#include <Factory/NpcFactory.hpp>
+#include <Factory/ObstacleFactory.hpp>
+#include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Utils.hpp>
 
 //! @brief HazardFields are environmental dangers that spread throughout the maze,
 //! posing threats to both the player and NPCs. Examples include sinkholes (composed of many Cmp::SinkholeCell)
@@ -212,7 +213,7 @@ private:
     {
       // optimization
       // if ( player_mort_cmp.state != Cmp::PlayerMortality::State::ALIVE ) return;
-      if ( !is_visible_in_view( RenderSystem::getGameView(), player_pos_cmp ) ) continue;
+      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), player_pos_cmp ) ) continue;
 
       // reduce the player hitbox so that you have to be almost centered over it to fall in
       auto player_hitbox_redux = Cmp::RectBounds( player_pos_cmp.position, player_pos_cmp.size, 0.1f );
@@ -248,7 +249,7 @@ private:
     for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : npc_view.each() )
     {
       // optimization
-      if ( !is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) ) continue;
+      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) ) continue;
 
       for ( auto [hazard_entt, hazard_cmp, hazard_pos_cmp] : hazard_view.each() )
       {

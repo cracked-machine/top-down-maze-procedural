@@ -234,7 +234,7 @@ void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool skip_colli
 
 void PlayerSystem::refreshPlayerDistances()
 {
-  const auto viewBounds = BaseSystem::calculate_view_bounds( RenderSystem::getGameView() );
+  const auto viewBounds = Utils::calculate_view_bounds( RenderSystem::getGameView() );
 
   auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PCDetectionBounds>();
   for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_db_cmp] : player_view.each() )
@@ -245,18 +245,18 @@ void PlayerSystem::refreshPlayerDistances()
       if ( getReg().all_of<Cmp::FootStepTimer>( path_entt ) )
       {
         // always update footsteps distance to player
-        if ( !is_visible_in_view( viewBounds, path_pos_cmp ) ) continue;
-        auto distance = std::floor( getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
+        if ( !Utils::is_visible_in_view( viewBounds, path_pos_cmp ) ) continue;
+        auto distance = std::floor( Utils::Maths::getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
         getReg().emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
       }
       else
       {
         if ( pc_db_cmp.findIntersection( path_pos_cmp ) )
         {
-          if ( !is_visible_in_view( viewBounds, path_pos_cmp ) ) continue; // optimization
+          if ( !Utils::is_visible_in_view( viewBounds, path_pos_cmp ) ) continue; // optimization
 
           // calculate the distance from the position to the player
-          auto distance = std::floor( getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
+          auto distance = std::floor( Utils::Maths::getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
           getReg().emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
         }
       }

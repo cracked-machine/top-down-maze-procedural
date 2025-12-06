@@ -14,6 +14,7 @@
 #include <Factory/LootFactory.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -46,7 +47,7 @@ void LootSystem::check_loot_collision()
   {
     for ( auto [loot_entt, loot_cmp, loot_pos_cmp, loot_sprite_anim] : loot_collision_view.each() )
     {
-      if ( not is_visible_in_view( RenderSystem::getGameView(), loot_pos_cmp ) ) continue;
+      if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), loot_pos_cmp ) ) continue;
 
       if ( pc_pos_cmp.findIntersection( loot_pos_cmp ) )
       {

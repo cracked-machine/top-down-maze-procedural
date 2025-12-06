@@ -1,11 +1,10 @@
-#include <Components/FootStepTimer.hpp>
-#include <Factory/NpcFactory.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
 #include <Components/AltarSegment.hpp>
 #include <Components/Armable.hpp>
 #include <Components/CryptSegment.hpp>
 #include <Components/Direction.hpp>
+#include <Components/FootStepTimer.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/NPCScanBounds.hpp>
@@ -25,6 +24,7 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Factory/NpcFactory.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Utils/Utils.hpp>
@@ -140,7 +140,7 @@ void NpcSystem::check_bones_reanimation()
   {
     for ( auto [npccontainer_entt, npccontainer_cmp, npccontainer_pos_cmp] : npccontainer_collision_view.each() )
     {
-      if ( !is_visible_in_view( RenderSystem::getGameView(), npccontainer_pos_cmp ) ) continue;
+      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), npccontainer_pos_cmp ) ) continue;
 
       auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NpcActivateScale>();
       // we just create a temporary RectBounds here instead of a component because we only need it for

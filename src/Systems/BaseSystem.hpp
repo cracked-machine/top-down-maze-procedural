@@ -142,65 +142,6 @@ public:
     return std::nullopt;
   }
 
-  //! @brief Get the Manhattan Distance between two positions.
-  //! Creates a grid-like distance metric:
-  //! ┌────┬────┬────┐
-  //! │ 2  │ 1  │ 2  │  Sum of absolute differences
-  //! ├────┼────┼────┤  Moves only horizontal/vertical
-  //! │ 1  │ 0  │ 1  │  (Like a taxi in a city grid)
-  //! ├────┼────┼────┤
-  //! │ 2  │ 1  │ 2  │
-  //! └────┴────┴────┘
-  //! @note NPCs will be unable to "see" around corners with this distance metric.
-  //! @param posA The first position.
-  //! @param posB The second position.
-  //! @return unsigned int The Manhattan distance.
-  template <typename T>
-  T getManhattanDistance( sf::Vector2<T> posA, sf::Vector2<T> posB ) const
-  {
-    return std::abs( posA.x - posB.x ) + std::abs( posA.y - posB.y );
-  }
-
-  //! @brief Get the Chebyshev Distance between two positions.
-  //! Creates an equal-cost distance metric for all 8 directions:
-  //! ┌────┬────┬────┐
-  //! │ 1  │ 1  │ 1  │  Maximum of x or y distance
-  //! ├────┼────┼────┤  All 8 neighbors are distance 1
-  //! │ 1  │ 0  │ 1  │  (Like a chess king's move)
-  //! ├────┼────┼────┤
-  //! │ 1  │ 1  │ 1  │
-  //! └────┴────┴────┘
-  //! @note NPC pathfinding will pick randomly and appear to zig-zag
-  //! @param posA The first position.
-  //! @param posB The second position.
-  //! @return unsigned int The Chebyshev distance.
-  template <typename T>
-  T getChebyshevDistance( sf::Vector2<T> posA, sf::Vector2<T> posB ) const
-  {
-    return std::max( std::abs( posA.x - posB.x ), std::abs( posA.y - posB.y ) );
-  }
-
-  //! @brief Get the Euclidean Distance between two positions.
-  //! Creates a straight-line distance metric:
-  //! ┌─────┬─────┬─────┐
-  //! │ 1.4 │ 1.0 │ 1.4 │  Straight-line distance
-  //! ├─────┼─────┼─────┤  Diagonal = √2 ≈ 1.414
-  //! │ 1.0 │ 0.0 │ 1.0 │  (Standard geometric distance)
-  //! ├─────┼─────┼─────┤
-  //! │ 1.4 │ 1.0 │ 1.4 │
-  //! └─────┴─────┴─────┘
-  //! @note NPCs pathfinding will be able to navigate around obstacles
-  //! @param posA The first position.
-  //! @param posB The second position.
-  //! @return unsigned int The Euclidean distance.
-  template <typename T>
-  T getEuclideanDistance( sf::Vector2<T> posA, sf::Vector2<T> posB ) const
-  {
-    T dx = posA.x - posB.x;
-    T dy = posA.y - posB.y;
-    return static_cast<T>( std::sqrt( dx * dx + dy * dy ) );
-  }
-
   //! @brief Checks if the player's movement to a given position is valid
   //! Validates whether the player can move to the specified position by checking
   //! for collisions with walls, boundaries, or other obstacles in the game world.
@@ -218,38 +159,6 @@ public:
   //! @param direction The direction vector representing the intended diagonal movement
   //! @return true if the diagonal movement would pass between obstacles, false otherwise
   bool isDiagonalMovementBetweenObstacles( const sf::FloatRect &current_pos, const sf::Vector2f &direction );
-
-  /**
-   * @brief Calculates the bounding rectangle of the given SFML view.
-   *
-   * This function computes the world-space bounds represented by the specified sf::View.
-   * The returned sf::FloatRect describes the area visible through the view.
-   *
-   * @param view Reference to the SFML view whose bounds are to be calculated.
-   * @return sf::FloatRect The rectangle representing the view's bounds in world coordinates.
-   */
-  sf::FloatRect calculate_view_bounds( const sf::View &view ) const;
-
-  /**
-   * @brief Determines if a given position rectangle is visible within the specified view bounds.
-   *
-   * This function checks whether the provided position rectangle intersects with the view bounds,
-   * indicating that the position is at least partially visible in the current view.
-   *
-   * @param viewbounds The rectangle representing the bounds of the current view.
-   * @param position The rectangle representing the position to check for visibility.
-   * @return true if the position is visible within the view bounds; false otherwise.
-   */
-  bool is_visible_in_view( const sf::FloatRect &viewbounds, const sf::FloatRect &position ) const;
-
-  /**
-   * @brief Checks if a position is visible within a given view's bounds
-   *
-   * @param view The view to check against (in world coordinates)
-   * @param position The position to test for visibility
-   * @return true if the position's hitbox intersects with the view bounds
-   */
-  bool is_visible_in_view( const sf::View &view, const sf::FloatRect &position ) const;
 
   // singleton event dispatcher
   // Use this to get temporary access to the dispatcher to register event handlers

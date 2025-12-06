@@ -19,6 +19,7 @@
 #include <Factory/ObstacleFactory.hpp>
 #include <Systems/AltarSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -169,7 +170,7 @@ bool AltarSystem::activate_altar_special_power()
 
     for ( auto [destroyed_entity, destroyed_cmp, destroyed_pos_cmp] : obstacle_view.each() )
     {
-      if ( is_visible_in_view( RenderSystem::getGameView(), destroyed_pos_cmp ) )
+      if ( Utils::is_visible_in_view( RenderSystem::getGameView(), destroyed_pos_cmp ) )
       {
         auto obst_cmp = getReg().try_get<Cmp::Obstacle>( destroyed_entity );
         if ( not obst_cmp )
@@ -205,7 +206,7 @@ bool AltarSystem::activate_altar_special_power()
   auto npc_view = getReg().view<Cmp::NPC, Cmp::Position>();
   for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_view.each() )
   {
-    if ( is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) )
+    if ( Utils::is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) )
     {
       SPDLOG_DEBUG( "Killed NPC at ({}, {})", npc_pos_cmp.position.x, npc_pos_cmp.position.y );
       auto loot_entity = Factory::destroyNPC( getReg(), npc_entity );
@@ -221,7 +222,7 @@ bool AltarSystem::activate_altar_special_power()
   auto loot_container_view = getReg().view<Cmp::LootContainer, Cmp::Position>();
   for ( auto [lc_entity, lc_cmp, lc_pos_cmp] : loot_container_view.each() )
   {
-    if ( is_visible_in_view( RenderSystem::getGameView(), lc_pos_cmp ) )
+    if ( Utils::is_visible_in_view( RenderSystem::getGameView(), lc_pos_cmp ) )
     {
       SPDLOG_DEBUG( "Opened loot container at ({}, {})", lc_pos_cmp.position.x, lc_pos_cmp.position.y );
       auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(

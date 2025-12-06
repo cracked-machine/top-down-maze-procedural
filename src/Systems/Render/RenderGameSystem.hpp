@@ -14,6 +14,7 @@
 #include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -80,7 +81,7 @@ private:
   {
     for ( auto [entity, component] : getReg().view<Component>().each() )
     {
-      if ( is_visible_in_view( view_bounds, component ) )
+      if ( Utils::is_visible_in_view( view_bounds, component ) )
       {
         auto z_order_cmp = getReg().try_get<Cmp::ZOrderValue>( entity );
         if ( z_order_cmp ) { zorder_queue.push_back( ZOrder{ z_order_cmp->getZOrder(), entity } ); }

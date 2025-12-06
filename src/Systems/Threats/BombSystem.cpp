@@ -15,6 +15,7 @@
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <SFML/Graphics/Rect.hpp>
+#include <Utils/Utils.hpp>
 #include <optional>
 #include <spdlog/spdlog.h>
 
@@ -162,7 +163,7 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
       if ( destructable_entity == epicenter_entity || getReg().any_of<Cmp::Armed>( destructable_entity ) ) continue;
 
       sf::Vector2i grid_position = getGridPosition( destructable_entity ).value();
-      int distance_from_center = getChebyshevDistance( grid_position, centerTile );
+      int distance_from_center = Utils::Maths::getChebyshevDistance( grid_position, centerTile );
 
       if ( distance_from_center == layer )
       {

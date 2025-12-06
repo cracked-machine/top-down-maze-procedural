@@ -21,6 +21,7 @@
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -32,7 +33,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
   auto shrine_view = getReg().view<Cmp::AltarSegment, Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [entity, shrine_cmp, anim_cmp, pos_cmp] : shrine_view.each() )
   {
-    if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
+    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
     if ( anim_cmp.m_animation_active )
     {
       const auto &shrine_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
@@ -46,7 +47,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
   auto grave_view = getReg().view<Cmp::GraveSegment, Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [entity, grave_cmp, anim_cmp, pos_cmp] : grave_view.each() )
   {
-    if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
+    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
     if ( anim_cmp.m_animation_active )
     {
       SPDLOG_DEBUG( "Updating Grave animation for entity {}", static_cast<int>( entity ) );
@@ -61,7 +62,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
   auto pathfinding_npc_view = getReg().view<Cmp::NPC, Cmp::LerpPosition, Cmp::SpriteAnimation, Cmp::Position>();
   for ( [[maybe_unused]] auto [entity, npc_cmp, lerp_pos_cmp, anim_cmp, pos_cmp] : pathfinding_npc_view.each() )
   {
-    if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
+    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
     if ( lerp_pos_cmp.m_lerp_factor > 0.f )
     {
 
@@ -86,7 +87,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
   {
 
     if ( not anim_cmp.m_animation_active ) continue;
-    if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
+    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
     auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::PlayerAnimFramerate>().get_value() );
     const auto &player_walk_sequence = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
     update_single_sequence( anim_cmp, globalDeltaTime, player_walk_sequence, frame_rate );
@@ -96,7 +97,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
   const auto wormhole_view = getReg().view<Cmp::WormholeMultiBlock, Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [entity, wormhole_cmp, anim_cmp, pos_cmp] : wormhole_view.each() )
   {
-    if ( !is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
+    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
 
     const auto &wormhole_sprite_metadata = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
     auto frame_rate = sf::seconds( get_persistent_component<Cmp::Persistent::WormholeAnimFramerate>().get_value() );

@@ -7,6 +7,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -21,22 +22,20 @@ void CryptSystem::crypt_door_collisions()
     for ( auto [door_entity, cryptdoor_cmp, door_pos_cmp] : cryptdoor_view.each() )
     {
       // optimize: skip if not visible
-      if ( !is_visible_in_view( RenderSystem::getGameView(), door_pos_cmp ) ) continue;
+      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), door_pos_cmp ) ) continue;
 
       // prevent spamming the activate key
       if ( m_door_cooldown_timer.getElapsedTime().asSeconds() < m_door_cooldown_time ) continue;
       m_door_cooldown_timer.restart();
 
       // Player can't pass through crypt door if its closed so expand their hitbox slightly for collision detection
-      auto increased_player_bounds = Cmp::RectBounds( pc_pos_cmp.position, pc_pos_cmp.size, 1.5f,
-                                                      Cmp::RectBounds::ScaleCardinality::VERTICAL );
+      auto increased_player_bounds = Cmp::RectBounds( pc_pos_cmp.position, pc_pos_cmp.size, 1.5f, Cmp::RectBounds::ScaleCardinality::VERTICAL );
       if ( not increased_player_bounds.findIntersection( door_pos_cmp ) ) continue;
 
       // Crypt door is already opened
       if ( cryptdoor_cmp.is_open() )
       {
-        SPDLOG_INFO( "Player passed through an already open crypt door at ({}, {})", door_pos_cmp.position.x,
-                     door_pos_cmp.position.y );
+        SPDLOG_INFO( "Player passed through an already open crypt door at ({}, {})", door_pos_cmp.position.x, door_pos_cmp.position.y );
         // TODO: transition to crypt scene
         // Set the z-order value
         auto crypt_view = getReg().view<Cmp::CryptMultiBlock>();
@@ -64,8 +63,7 @@ void CryptSystem::crypt_door_collisions()
       auto player_key_count = getReg().try_get<Cmp::PlayerKeysCount>( pc_entity );
       if ( player_key_count && player_key_count->get_count() == 0 )
       {
-        SPDLOG_INFO( "Player tried to open a locked crypt door at ({}, {}) but has no keys.", door_pos_cmp.position.x,
-                     door_pos_cmp.position.y );
+        SPDLOG_INFO( "Player tried to open a locked crypt door at ({}, {}) but has no keys.", door_pos_cmp.position.x, door_pos_cmp.position.y );
         m_sound_bank.get_effect( "crypt_locked" ).play();
         continue;
       }

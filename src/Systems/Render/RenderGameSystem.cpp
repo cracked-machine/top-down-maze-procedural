@@ -1,16 +1,3 @@
-#include <Components/AbsoluteAlpha.hpp>
-#include <Components/AbsoluteOffset.hpp>
-#include <Components/AbsoluteRotation.hpp>
-#include <Components/AltarMultiBlock.hpp>
-#include <Components/CryptDoor.hpp>
-#include <Components/CryptMultiBlock.hpp>
-#include <Components/CryptSegment.hpp>
-#include <Components/GraveMultiBlock.hpp>
-#include <Components/Persistent/PcDamageDelay.hpp>
-#include <Components/PlayerKeysCount.hpp>
-#include <Components/PlayerRelicCount.hpp>
-#include <Components/WormholeMultiBlock.hpp>
-#include <Components/ZOrderValue.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
@@ -18,18 +5,29 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#include <Components/AbsoluteAlpha.hpp>
+#include <Components/AbsoluteOffset.hpp>
+#include <Components/AbsoluteRotation.hpp>
+#include <Components/AltarMultiBlock.hpp>
+#include <Components/CryptDoor.hpp>
+#include <Components/CryptMultiBlock.hpp>
+#include <Components/CryptSegment.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
+#include <Components/GraveMultiBlock.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/HazardFieldCell.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NpcContainer.hpp>
 #include <Components/NpcDeathPosition.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
+#include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCandlesCount.hpp>
+#include <Components/PlayerKeysCount.hpp>
+#include <Components/PlayerRelicCount.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SelectedPosition.hpp>
@@ -38,10 +36,13 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/Wall.hpp>
 #include <Components/WeaponLevel.hpp>
+#include <Components/WormholeMultiBlock.hpp>
 #include <Components/WormholeSingularity.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Utils.hpp>
 
 #include <string>
 
@@ -58,7 +59,7 @@ RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &windo
 void RenderGameSystem::refresh_z_order_queue()
 {
   m_zorder_queue_.clear();
-  sf::FloatRect view_bounds = calculate_view_bounds( m_local_view );
+  sf::FloatRect view_bounds = Utils::calculate_view_bounds( m_local_view );
 
   // prevent pop-in/pop-outs when multiblock entities are near the edge of the view
   add_visible_entity_to_z_order_queue<Cmp::WormholeMultiBlock>( m_zorder_queue_, view_bounds );
@@ -316,7 +317,7 @@ void RenderGameSystem::render_arrow_compass()
       if ( exit_cmp.m_locked ) continue;
 
       // dont show the compass arrow pointing to the exit if the exit is on-screen....we can see it
-      if ( is_visible_in_view( getGameView(), exit_pos_cmp ) ) return;
+      if ( Utils::is_visible_in_view( getGameView(), exit_pos_cmp ) ) return;
 
       auto player_pos_center = pc_pos_cmp.getCenter();
       sf::Vector2f exit_pos_center = exit_pos_cmp.getCenter();
