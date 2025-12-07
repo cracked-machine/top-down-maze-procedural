@@ -22,7 +22,6 @@ public:
 
 private:
   Audio::SoundBank &m_sound_bank;
-
   Sys::SystemStore &m_system_store;
   entt::dispatcher &m_nav_event_dispatcher;
 };

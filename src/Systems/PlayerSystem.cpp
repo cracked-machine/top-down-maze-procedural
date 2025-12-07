@@ -46,22 +46,24 @@ PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
 
 void PlayerSystem::update( sf::Time globalDeltaTime )
 {
-
+  // process changes to player position and related transforms
   localTransforms();
   for ( auto [_ent, _sys] : getReg().view<Cmp::System>().each() )
   {
     globalTranslations( globalDeltaTime, !_sys.collisions_enabled );
   }
 
+  // update path tracking data
   if ( m_debug_info_timer.getElapsedTime() >= sf::milliseconds( 100 ) )
   {
     refreshPlayerDistances();
     m_debug_info_timer.restart();
   }
 
+  // did player die?
   checkPlayerMortality();
 
-  // play/stop footstep sounds depending on player movement
+  // footstep sfx
   auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Direction>();
   for ( auto [pc_entity, pc_cmp, dir_cmp] : player_view.each() )
   {

@@ -31,7 +31,7 @@ void SettingsMenuScene::update( [[maybe_unused]] sf::Time dt )
   auto &m_render_menu_sys = m_system_store.find<Sys::SystemStore::Type::RenderMenuSystem>();
   m_render_menu_sys.render_settings( dt );
 
-  // defer this scenes input event processing until we  exit this function
+  // Notify SceneInputRouter that there may be new SettingsMenuScene input to process
   m_nav_event_dispatcher.enqueue( Events::ProcessSettingsMenuSceneInputEvent() );
 }
 

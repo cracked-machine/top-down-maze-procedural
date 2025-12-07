@@ -98,6 +98,7 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
 
   m_system_store.find<Sys::SystemStore::Type::FootstepSystem>().update();
 
+  // Note: this enqueues 'Events::SceneManagerEvent::Type::GAME_OVER' if player is dead
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt );
 
   // clang-format off
@@ -107,7 +108,7 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
   );
   // clang-format on
 
-  // defer this scenes input event processing until we  exit this function
+  // Notify SceneInputRouter that there may be new GraveyardScene input to process
   m_nav_event_dispatcher.enqueue( Events::ProcessGraveyardSceneInputEvent() );
 }
 

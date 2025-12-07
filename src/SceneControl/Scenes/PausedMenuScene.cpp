@@ -6,8 +6,7 @@
 namespace ProceduralMaze::Scene
 {
 
-PausedMenuScene::PausedMenuScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store,
-                                  entt::dispatcher &nav_event_dispatcher )
+PausedMenuScene::PausedMenuScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher )
     : m_sound_bank( sound_bank ),
       m_system_store( system_store ),
       m_nav_event_dispatcher( nav_event_dispatcher )
@@ -46,7 +45,7 @@ void PausedMenuScene::update( [[maybe_unused]] sf::Time dt )
   render_menu_sys.render_paused( dt );
   std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
 
-  // defer this scenes input event processing until we  exit this function
+  // Notify SceneInputRouter that there may be new PausedMenuScene input to process
   m_nav_event_dispatcher.enqueue( Events::ProcessPausedMenuSceneInputEvent() );
 
   // save persistent settings

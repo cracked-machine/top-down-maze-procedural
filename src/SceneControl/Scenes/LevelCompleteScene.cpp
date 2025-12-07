@@ -41,7 +41,7 @@ void LevelCompleteScene::update( [[maybe_unused]] sf::Time dt )
   auto &render_menu_sys = m_system_store.find<Sys::SystemStore::Type::RenderMenuSystem>();
   render_menu_sys.render_victory_screen();
 
-  // defer this scenes input event processing until we  exit this function
+  // Notify SceneInputRouter that there may be new LevelCompleteScene input to process
   m_nav_event_dispatcher.enqueue( Events::ProcessLevelCompleteSceneInputEvent() );
 }
 

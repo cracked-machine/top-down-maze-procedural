@@ -31,10 +31,7 @@ void TitleScene::on_enter()
   auto &music_volume = m_persistent_sys.get_persistent_component<Cmp::Persistent::MusicVolume>().get_value();
   m_sound_bank.update_music_volume( music_volume );
 
-  if ( m_sound_bank.get_music( "title_music" ).getStatus() != sf::Music::Status::Playing )
-  {
-    m_sound_bank.get_music( "title_music" ).play();
-  }
+  if ( m_sound_bank.get_music( "title_music" ).getStatus() != sf::Music::Status::Playing ) { m_sound_bank.get_music( "title_music" ).play(); }
 }
 
 void TitleScene::on_exit()
@@ -48,7 +45,7 @@ void TitleScene::update( [[maybe_unused]] sf::Time dt )
   auto &render_menu_sys = m_system_store.find<Sys::SystemStore::Type::RenderMenuSystem>();
   render_menu_sys.render_title();
 
-  // defer this scenes input event processing until we exit this function
+  // Notify SceneInputRouter that there may be new TitleScene input to process
   m_nav_event_dispatcher.enqueue( Events::ProcessTitleSceneInputEvent() );
 }
 
