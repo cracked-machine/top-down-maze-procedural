@@ -9,22 +9,6 @@
 namespace ProceduralMaze::Scene
 {
 
-enum class SceneRequest
-{
-  None,
-  SettingsMenu,
-  GraveyardScene,
-  PausedMenu,
-  GameOver,
-  LevelComplete,
-  PopOverlay,
-  Pop,
-  Quit
-};
-
-//! @brief Forward declaration of SceneManager to avoid circular dependency
-class SceneManager;
-
 class IScene
 {
 public:
