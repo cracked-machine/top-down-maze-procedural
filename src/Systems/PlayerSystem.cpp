@@ -25,13 +25,14 @@
 #include <Components/WeaponLevel.hpp>
 #include <Components/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <Events/SceneManagerEvent.hpp>
-#include <SFML/System/Time.hpp>
-#include <SFML/System/Vector2.hpp>
+#include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Utils.hpp>
+
+#include <SFML/System/Time.hpp>
+#include <SFML/System/Vector2.hpp>
 
 namespace ProceduralMaze::Sys
 {

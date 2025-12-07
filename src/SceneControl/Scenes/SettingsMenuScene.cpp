@@ -1,4 +1,4 @@
-#include <Events/ProcessSettingsMenuSceneInputEvent.hpp>
+#include <SceneControl/Events/ProcessSettingsMenuSceneInputEvent.hpp>
 #include <SceneControl/Scenes/SettingsMenuScene.hpp>
 #include <Systems/SystemStore.hpp>
 

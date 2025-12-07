@@ -7,15 +7,15 @@
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerMortality.hpp>
 #include <Components/PlayerRelicCount.hpp>
-#include <Events/ProcessGameoverSceneInputEvent.hpp>
-#include <Events/ProcessGraveyardSceneInputEvent.hpp>
-#include <Events/ProcessLevelCompleteSceneInputEvent.hpp>
-#include <Events/ProcessPausedMenuSceneInputEvent.hpp>
-#include <Events/ProcessSettingsMenuSceneInputEvent.hpp>
-#include <Events/ProcessTitleSceneInputEvent.hpp>
 #include <Events/SaveSettingsEvent.hpp>
-#include <Events/SceneManagerEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
+#include <SceneControl/Events/ProcessGameoverSceneInputEvent.hpp>
+#include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
+#include <SceneControl/Events/ProcessLevelCompleteSceneInputEvent.hpp>
+#include <SceneControl/Events/ProcessPausedMenuSceneInputEvent.hpp>
+#include <SceneControl/Events/ProcessSettingsMenuSceneInputEvent.hpp>
+#include <SceneControl/Events/ProcessTitleSceneInputEvent.hpp>
+#include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/SceneInputRouter.hpp>
 
 namespace ProceduralMaze::Sys

@@ -1,15 +1,15 @@
 #ifndef SCENE_SCENEMANAGER_HPP_
 #define SCENE_SCENEMANAGER_HPP_
 
-#include <Audio/SoundBank.hpp>
-#include <Components/PlayerKeysCount.hpp>
-#include <Components/PlayerRelicCount.hpp>
-#include <Events/SceneManagerEvent.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
+#include <Audio/SoundBank.hpp>
 #include <Components/Font.hpp>
+#include <Components/PlayerKeysCount.hpp>
+#include <Components/PlayerRelicCount.hpp>
 #include <SceneControl/ComponentTransfer.hpp>
+#include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/IScene.hpp>
 #include <SceneControl/SceneStack.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -24,8 +24,8 @@ namespace ProceduralMaze::Scene
 class SceneManager
 {
 public:
-  explicit SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::SystemStore &system_store,
-                         entt::dispatcher &nav_event_dispatcher, entt::dispatcher &scenemanager_event_dispatcher )
+  explicit SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher,
+                         entt::dispatcher &scenemanager_event_dispatcher )
       : m_window( w ),
         m_sound_bank( sound_bank ),
         m_system_store( system_store ),
@@ -39,23 +39,19 @@ public:
   void update( sf::Time dt );
 
   // Render the current scene
-  void push( std::unique_ptr<IScene> scene,
-             ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
+  void push( std::unique_ptr<IScene> scene, ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
   // Pop the current scene
   void pop( ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
 
   // Push a new overlay scene
-  void push_overlay( std::unique_ptr<IScene> scene,
-                     ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
+  void push_overlay( std::unique_ptr<IScene> scene, ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
   // Pop the current overlay scene - do not call on_exit()
   void pop_overlay( ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
 
   // Replace the current scene with a new one
-  void replace( std::unique_ptr<IScene> scene,
-                ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
+  void replace( std::unique_ptr<IScene> scene, ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
   // Replace the current scene with a new one - do not call on_exit()
-  void replace_overlay( std::unique_ptr<IScene> scene,
-                        ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
+  void replace_overlay( std::unique_ptr<IScene> scene, ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
 
   // Get a pointer to the current active scene
   IScene *current();

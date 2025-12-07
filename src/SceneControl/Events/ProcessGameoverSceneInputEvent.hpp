@@ -1,0 +1,13 @@
+#ifndef _SRC_SCENECONTROL_EVENTS_PROCESSGAMEOVERSCENEINPUTEVENT_HPP_
+#define _SRC_SCENECONTROL_EVENTS_PROCESSGAMEOVERSCENEINPUTEVENT_HPP_
+
+namespace ProceduralMaze::Events
+{
+
+struct ProcessGameoverSceneInputEvent
+{
+};
+
+} // namespace ProceduralMaze::Events
+
+#endif // _SRC_SCENECONTROL_EVENTS_PROCESSGAMEOVERSCENEINPUTEVENT_HPP_

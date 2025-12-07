@@ -1,5 +1,5 @@
-#include <Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <SceneControl/Scenes/GraveyardScene.hpp>
 
 namespace ProceduralMaze::Scene

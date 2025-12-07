@@ -1,4 +1,4 @@
-#include <Events/ProcessGameoverSceneInputEvent.hpp>
+#include <SceneControl/Events/ProcessGameoverSceneInputEvent.hpp>
 #include <SceneControl/Scenes/GameOverScene.hpp>
 
 namespace ProceduralMaze::Scene

@@ -1,4 +1,4 @@
-#include <Events/ProcessLevelCompleteSceneInputEvent.hpp>
+#include <SceneControl/Events/ProcessLevelCompleteSceneInputEvent.hpp>
 #include <SceneControl/Scenes/LevelCompleteScene.hpp>
 
 namespace ProceduralMaze::Scene

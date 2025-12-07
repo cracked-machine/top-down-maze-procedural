@@ -1,5 +1,5 @@
 #include <Components/Persistent/MusicVolume.hpp>
-#include <Events/ProcessTitleSceneInputEvent.hpp>
+#include <SceneControl/Events/ProcessTitleSceneInputEvent.hpp>
 #include <SceneControl/Scenes/TitleScene.hpp>
 
 namespace ProceduralMaze::Scene

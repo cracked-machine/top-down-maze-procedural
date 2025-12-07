@@ -11,7 +11,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
-#include <Events/SceneManagerEvent.hpp>
+#include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Systems/ExitSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
