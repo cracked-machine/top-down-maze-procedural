@@ -36,15 +36,14 @@ public:
   virtual void update( sf::Time dt ) = 0;
   virtual std::string get_name() const = 0;
 
+  //! @brief Get the registry object owned by the scene
+  //! @return entt::registry&
   virtual entt::registry &get_registry() = 0;
-
-  entt::dispatcher &get_event_dispatcher() { return m_scene_event_dispatcher; }
 
   virtual bool blocks_update() const { return true; }
 
 protected:
   entt::registry m_reg;
-  entt::dispatcher m_scene_event_dispatcher;
 };
 
 } // namespace ProceduralMaze::Scene
