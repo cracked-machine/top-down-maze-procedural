@@ -1,30 +1,36 @@
 #ifndef SCENE_TITLESCENE_HPP_
 #define SCENE_TITLESCENE_HPP_
 
-#include <SceneControl/IScene.hpp>
+#include <SceneControl/Events/ProcessTitleSceneInputEvent.hpp>
+#include <SceneControl/Scene.hpp>
 #include <Systems/SystemStore.hpp>
 
 namespace ProceduralMaze::Scene
 {
 
-class TitleScene : public IScene
+class TitleScene : public Scene<Events::ProcessTitleSceneInputEvent>
 {
 public:
-  TitleScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher );
+  TitleScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher )
+      : Scene( nav_event_dispatcher ),
+        m_sound_bank( sound_bank ),
+        m_system_store( system_store )
+  {
+  }
 
   void on_init() override;
   void on_enter() override;
   void on_exit() override;
-  void update( [[maybe_unused]] sf::Time dt ) override;
   std::string get_name() const override { return "TitleScene"; }
 
   entt::registry &get_registry() override;
 
+protected:
+  void do_update( [[maybe_unused]] sf::Time dt ) override;
+
 private:
   Audio::SoundBank &m_sound_bank;
   Sys::SystemStore &m_system_store;
-
-  entt::dispatcher &m_nav_event_dispatcher;
 };
 
 } // namespace ProceduralMaze::Scene

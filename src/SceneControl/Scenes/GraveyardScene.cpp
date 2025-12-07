@@ -5,14 +5,6 @@
 namespace ProceduralMaze::Scene
 {
 
-GraveyardScene::GraveyardScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher )
-
-    : m_sound_bank( sound_bank ),
-      m_system_store( system_store ),
-      m_nav_event_dispatcher( nav_event_dispatcher )
-{
-}
-
 void GraveyardScene::on_init()
 {
   // initialize any entities or components that should exist before on_enter
@@ -72,7 +64,7 @@ void GraveyardScene::on_exit()
   m_render_game_sys.clear_tilemap();
 }
 
-void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
+void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
 {
   m_sound_bank.get_music( "title_music" ).stop();
   // only do this once every update, other it constantly restarts the music
@@ -107,9 +99,6 @@ void GraveyardScene::update( [[maybe_unused]] sf::Time dt )
     m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>() 
   );
   // clang-format on
-
-  // Notify SceneInputRouter that there may be new GraveyardScene input to process
-  m_nav_event_dispatcher.enqueue( Events::ProcessGraveyardSceneInputEvent() );
 }
 
 entt::registry &GraveyardScene::get_registry() { return m_reg; }

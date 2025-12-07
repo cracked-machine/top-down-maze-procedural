@@ -4,13 +4,6 @@
 namespace ProceduralMaze::Scene
 {
 
-LevelCompleteScene::LevelCompleteScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher )
-    : m_sound_bank( sound_bank ),
-      m_system_store( system_store ),
-      m_nav_event_dispatcher( nav_event_dispatcher )
-{
-}
-
 void LevelCompleteScene::on_init() { /* init entities */ }
 void LevelCompleteScene::on_enter()
 {
@@ -34,15 +27,12 @@ void LevelCompleteScene::on_exit()
   m_render_game_sys.clear_tilemap();
 }
 
-void LevelCompleteScene::update( [[maybe_unused]] sf::Time dt )
+void LevelCompleteScene::do_update( [[maybe_unused]] sf::Time dt )
 {
   m_sound_bank.get_effect( "footsteps" ).stop();
 
   auto &render_menu_sys = m_system_store.find<Sys::SystemStore::Type::RenderMenuSystem>();
   render_menu_sys.render_victory_screen();
-
-  // Notify SceneInputRouter that there may be new LevelCompleteScene input to process
-  m_nav_event_dispatcher.enqueue( Events::ProcessLevelCompleteSceneInputEvent() );
 }
 
 entt::registry &LevelCompleteScene::get_registry() { return m_reg; }

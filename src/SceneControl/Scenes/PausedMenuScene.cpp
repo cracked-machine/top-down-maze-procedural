@@ -6,13 +6,6 @@
 namespace ProceduralMaze::Scene
 {
 
-PausedMenuScene::PausedMenuScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher )
-    : m_sound_bank( sound_bank ),
-      m_system_store( system_store ),
-      m_nav_event_dispatcher( nav_event_dispatcher )
-{
-}
-
 void PausedMenuScene::on_init() { SPDLOG_INFO( "Initializing PausedMenuScene" ); }
 
 void PausedMenuScene::on_enter()
@@ -34,7 +27,7 @@ void PausedMenuScene::on_exit()
   persistent_sys.get_systems_event_queue().trigger( Events::ResumeClocksEvent() );
 }
 
-void PausedMenuScene::update( [[maybe_unused]] sf::Time dt )
+void PausedMenuScene::do_update( [[maybe_unused]] sf::Time dt )
 {
 
   // globalFrameClock.stop();
@@ -44,9 +37,6 @@ void PausedMenuScene::update( [[maybe_unused]] sf::Time dt )
   // check for keyboard/window events to keep window responsive
   render_menu_sys.render_paused( dt );
   std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
-
-  // Notify SceneInputRouter that there may be new PausedMenuScene input to process
-  m_nav_event_dispatcher.enqueue( Events::ProcessPausedMenuSceneInputEvent() );
 
   // save persistent settings
   auto &persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
