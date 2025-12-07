@@ -97,10 +97,8 @@ void RenderGameSystem::init_shaders()
   m_mist_shader.setup();
 }
 
-void RenderGameSystem::init_tilemap() { m_floormap.load( kMapGridSize, "res/json/tilemap_config.json" ); }
-void RenderGameSystem::clear_tilemap() { m_floormap.clear(); }
-
-void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys )
+void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys,
+                                    Sprites::Containers::TileMap &floormap )
 {
   using namespace Sprites;
 
@@ -132,7 +130,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       RenderSystem::s_game_view = m_local_view;
 
       render_background_water( player_position );
-      render_floormap( { 0, 0 } );
+      render_floormap( floormap, { 0, 0 } );
 
       for ( const auto &zorder_entry : m_zorder_queue_ )
       {
@@ -156,6 +154,9 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
 
           safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame, { 1.f, 1.f }, alpha_value,
                               new_origin_value, new_angle_value );
+
+          if ( getReg().all_of<Cmp::CryptDoor>( entity ) )
+            render_overlay_sys.render_square_for_component<Cmp::CryptDoor>( entity, sf::Color::Magenta, 1.f );
         }
       }
 
@@ -254,10 +255,10 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
   // main render end
 }
 
-void RenderGameSystem::render_floormap( const sf::Vector2f &offset )
+void RenderGameSystem::render_floormap( Sprites::Containers::TileMap &floormap, const sf::Vector2f &offset )
 {
-  m_floormap.setPosition( offset );
-  m_window.draw( m_floormap );
+  floormap.setPosition( offset );
+  m_window.draw( floormap );
 }
 
 void RenderGameSystem::render_armed()

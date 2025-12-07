@@ -3,6 +3,7 @@
 
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
+#include <Sprites/TileMap.hpp>
 #include <Systems/SystemStore.hpp>
 
 namespace ProceduralMaze::Scene
@@ -31,6 +32,8 @@ protected:
 private:
   Audio::SoundBank &m_sound_bank;
   Sys::SystemStore &m_system_store;
+
+  Sprites::Containers::TileMap m_floormap{};
 };
 
 } // namespace ProceduralMaze::Scene

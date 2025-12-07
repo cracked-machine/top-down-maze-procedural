@@ -9,6 +9,7 @@
 #include <Shaders/PulsingShader.hpp>
 #include <Shaders/ViewFragmentShader.hpp>
 #include <Sprites/MultiSprite.hpp>
+#include <Sprites/TileMap.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
@@ -39,23 +40,17 @@ public:
   //! @brief Initializes the shaders used for rendering
   void init_shaders();
 
-  //! @brief Initializes the tilemap used for rendering the game world
-  void init_tilemap();
-
-  //! @brief Clears the tilemap data
-  void clear_tilemap();
-
   //! @brief Entrypoint for rendering the game
   //! @param deltaTime
   //! @param render_overlay_sys anything that is not part of the game world itself. i.e. UI, debug info, etc..
   //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc.. as well as death
   //! animations/effects
-  void render_game( sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys );
+  void render_game( sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap );
 
 private:
   //! @brief Renders the game world floor
   //! @param offset The offset to apply to the floor rendering
-  void render_floormap( const sf::Vector2f &offset = { 0.f, 0.f } );
+  void render_floormap( Sprites::Containers::TileMap &floormap, const sf::Vector2f &offset = { 0.f, 0.f } );
 
   //! @brief Renders the armed obstacles in the game world
   void render_armed();
@@ -98,9 +93,6 @@ private:
   // unused?
   const float kMiniMapViewZoomFactor = 0.25f;
   sf::View m_minimap_view;
-
-  //! @brief The floormap object. This is effectively a single texture for rendering the entire floor of the game world
-  Sprites::Containers::TileMap m_floormap{};
 
   // Shaders
   Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", kDisplaySize };

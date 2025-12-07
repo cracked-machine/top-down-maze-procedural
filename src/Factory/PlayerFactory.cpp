@@ -22,7 +22,7 @@ namespace ProceduralMaze::Factory
 
 void CreatePlayer( entt::registry &registry )
 {
-  SPDLOG_DEBUG( "Creating player entity" );
+  SPDLOG_INFO( "Creating player entity" );
   auto entity = registry.create();
 
   // start position must be pixel coordinates within the screen resolution (kDisplaySize),

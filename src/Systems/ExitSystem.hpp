@@ -32,7 +32,6 @@ public:
 
 private:
   int exit_sprite_index = 6;
-
   entt::dispatcher &m_scenemanager_event_dispatcher;
 };
 

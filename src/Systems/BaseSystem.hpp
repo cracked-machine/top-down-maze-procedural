@@ -41,10 +41,13 @@ public:
   inline static constexpr sf::Vector2u kDisplaySize{ 1920, 1024 };
 
   // The playable area size in blocks, not pixels
-  inline static constexpr sf::Vector2u kMapGridSize{ 100u, 124u };
+  inline static constexpr sf::Vector2u kGraveyardMapGridSize{ 100u, 124u };
 
   // The playable area offset in blocks, not pixels
-  inline static constexpr sf::Vector2f kMapGridOffset{ 1.f, 1.f };
+  inline static constexpr sf::Vector2f kGraveyardMapGridOffset{ 1.f, 1.f };
+
+  inline static constexpr sf::Vector2u kCryptMapGridSize{ 64u, 32u };
+  inline static constexpr sf::Vector2f kCryptMapGridOffset{ 1.f, 1.f };
 
   BaseSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 

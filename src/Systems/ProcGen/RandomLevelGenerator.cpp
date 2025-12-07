@@ -36,28 +36,31 @@ RandomLevelGenerator::RandomLevelGenerator( entt::registry &reg, sf::RenderWindo
 {
 }
 
-void RandomLevelGenerator::generate()
+void RandomLevelGenerator::generate( sf::Vector2u map_grid_size, sf::Vector2f map_grid_offset, bool gen_graves, bool gen_altars, bool gen_crypts )
 {
-  gen_positions();
-  gen_border();
-  gen_large_obstacles();
-  gen_loot_containers();
-  gen_npc_containers();
+  m_data.clear();
+  gen_positions( map_grid_size, map_grid_offset );
+  gen_border( map_grid_size );
+  if ( gen_graves ) gen_grave_obstacles();
+  if ( gen_altars ) gen_altar_obstacles();
+  if ( gen_crypts ) gen_crypt_obstacles();
+  gen_loot_containers( map_grid_size );
+  gen_npc_containers( map_grid_size );
   gen_small_obstacles(); // these are post-processed by cellular automaton system
 }
 
-void RandomLevelGenerator::gen_positions()
+void RandomLevelGenerator::gen_positions( sf::Vector2u map_grid_size, sf::Vector2f map_grid_offset )
 {
   auto player_start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
   auto player_start_area = Cmp::RectBounds( player_start_pos, kGridSquareSizePixelsF, 5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
-  for ( unsigned int x = 0; x < Sys::BaseSystem::kMapGridSize.x - kMapGridOffset.x; x++ )
+  for ( unsigned int x = 0; x < map_grid_size.x - map_grid_offset.x; x++ )
   {
-    for ( unsigned int y = 0; y < Sys::BaseSystem::kMapGridSize.y - kMapGridOffset.y; y++ )
+    for ( unsigned int y = 0; y < map_grid_size.y - map_grid_offset.y; y++ )
     {
       auto entity = getReg().create();
-      sf::Vector2f new_pos( ( x + kMapGridOffset.x ) * Sys::BaseSystem::kGridSquareSizePixels.x,
-                            ( y + kMapGridOffset.y ) * Sys::BaseSystem::kGridSquareSizePixels.y );
+      sf::Vector2f new_pos( ( x + map_grid_offset.x ) * Sys::BaseSystem::kGridSquareSizePixels.x,
+                            ( y + map_grid_offset.y ) * Sys::BaseSystem::kGridSquareSizePixels.y );
 
       getReg().emplace_or_replace<Cmp::Position>( entity, new_pos, kGridSquareSizePixelsF );
       getReg().emplace_or_replace<Cmp::Neighbours>( entity );
@@ -76,6 +79,7 @@ void RandomLevelGenerator::gen_positions()
       m_data.push_back( entity );
     }
   }
+  SPDLOG_INFO( "Generated {} positions for random level.", m_data.size() );
 }
 
 std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed )
@@ -189,11 +193,10 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &ms, u
   }
 }
 
-void RandomLevelGenerator::gen_large_obstacles()
+void RandomLevelGenerator::gen_grave_obstacles()
 {
-  auto max_num_altars = get_persistent_component<Cmp::Persistent::MaxNumAltars>();
-  auto max_num_crypts = get_persistent_component<Cmp::Persistent::MaxNumCrypts>();
   auto grave_num_multiplier = get_persistent_component<Cmp::Persistent::GraveNumMultiplier>();
+  auto max_num_altars = get_persistent_component<Cmp::Persistent::MaxNumAltars>();
 
   // GRAVES
   auto grave_meta_types = m_sprite_factory.get_all_sprite_types_by_pattern( "^GRAVE\\d+\\.closed$" );
@@ -208,14 +211,22 @@ void RandomLevelGenerator::gen_large_obstacles()
       gen_large_obstacle( multisprite, 0 );
     }
   }
+}
 
+void RandomLevelGenerator::gen_altar_obstacles()
+{
+  auto max_num_altars = get_persistent_component<Cmp::Persistent::MaxNumAltars>();
   // ALTARS
   auto &altar_multisprite = m_sprite_factory.get_multisprite_by_type( "ALTAR.inactive" );
   for ( std::size_t i = 0; i < max_num_altars.get_value(); ++i )
   {
     gen_large_obstacle( altar_multisprite, 0 );
   }
+}
 
+void RandomLevelGenerator::gen_crypt_obstacles()
+{
+  auto max_num_crypts = get_persistent_component<Cmp::Persistent::MaxNumCrypts>();
   // CRYPTS - note: we use keys from altars to open crypts so the number should be equal
   auto &crypt_multisprite = m_sprite_factory.get_multisprite_by_type( "CRYPT.closed" );
   for ( std::size_t i = 0; i < max_num_crypts.get_value(); ++i )
@@ -245,9 +256,9 @@ void RandomLevelGenerator::gen_small_obstacles()
   }
 }
 
-void RandomLevelGenerator::gen_loot_containers()
+void RandomLevelGenerator::gen_loot_containers( sf::Vector2u map_grid_size )
 {
-  auto num_loot_containers = kMapGridSize.x * kMapGridSize.y / 60; // one loot container per 60 grid squares
+  auto num_loot_containers = map_grid_size.x * map_grid_size.y / 60; // one loot container per 60 grid squares
 
   for ( std::size_t i = 0; i < num_loot_containers; ++i )
   {
@@ -268,9 +279,9 @@ void RandomLevelGenerator::gen_loot_containers()
   }
 }
 
-void RandomLevelGenerator::gen_npc_containers()
+void RandomLevelGenerator::gen_npc_containers( sf::Vector2u map_grid_size )
 {
-  auto num_npc_containers = kMapGridSize.x * kMapGridSize.y / 200; // one NPC container per 200 grid squares
+  auto num_npc_containers = map_grid_size.x * map_grid_size.y / 200; // one NPC container per 200 grid squares
 
   for ( std::size_t i = 0; i < num_npc_containers; ++i )
   {
@@ -291,18 +302,18 @@ void RandomLevelGenerator::gen_npc_containers()
 
 // These obstacles are for the map border.
 // The textures are picked randomly, but their positions are fixed
-void RandomLevelGenerator::gen_border()
+void RandomLevelGenerator::gen_border( sf::Vector2u map_grid_size )
 {
   using namespace Sprites;
   const auto kGridSquareSizePixels = Sys::BaseSystem::kGridSquareSizePixels;
 
-  const auto kMapGridSizePixels = kMapGridSize.componentWiseMul( kGridSquareSizePixels );
+  const auto kMapGridSizePixels = map_grid_size.componentWiseMul( kGridSquareSizePixels );
   std::size_t sprite_index = 0;
 
   // top and bottom edges
   for ( float x = 0; x < kMapGridSizePixels.x; x += kGridSquareSizePixels.x )
   {
-    float top_edge_y_pos = ( kMapGridOffset.y - 1 ) * kGridSquareSizePixels.y;
+    float top_edge_y_pos = ( kGraveyardMapGridOffset.y - 1 ) * kGridSquareSizePixels.y;
     float bottom_edge_y_pos = ( kMapGridSizePixels.y );
 
     if ( x == 0 || x == kMapGridSizePixels.x - kGridSquareSizePixels.x )

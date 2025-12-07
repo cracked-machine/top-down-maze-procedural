@@ -1,3 +1,5 @@
+#include <Components/PlayerRelicCount.hpp>
+#include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <SceneControl/Scenes/GraveyardScene.hpp>
@@ -7,30 +9,24 @@ namespace ProceduralMaze::Scene
 
 void GraveyardScene::on_init()
 {
-  // initialize any entities or components that should exist before on_enter
+  SPDLOG_INFO( "Entering {}", get_name() );
+
   auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
-}
-
-void GraveyardScene::on_enter()
-{
-  SPDLOG_INFO( "Entering {}", get_name() );
 
   auto &render_game_system = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
   SPDLOG_INFO( "Got render_game_system at {}", static_cast<void *>( &render_game_system ) );
   render_game_system.init_shaders();
-  render_game_system.init_tilemap();
+  Factory::FloormapFactory::CreateFloormap( m_floormap, Sys::BaseSystem::kGraveyardMapGridSize );
 
-  // auto &m_player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
-  // m_player_sys.addPlayerEntity();
   Factory::CreatePlayer( m_reg );
 
   auto entity = m_reg.create();
   m_reg.emplace<Cmp::System>( entity );
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
-  random_level_sys.generate();
+  random_level_sys.generate( Sys::BaseSystem::kGraveyardMapGridSize, Sys::BaseSystem::kGraveyardMapGridOffset, true, true, true );
 
   auto &cellauto_parser = m_system_store.find<Sys::SystemStore::Type::CellAutomataSystem>();
   cellauto_parser.set_random_level_generator( &random_level_sys );
@@ -50,6 +46,24 @@ void GraveyardScene::on_enter()
   wormhole_sys.spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 }
 
+void GraveyardScene::on_enter()
+{
+  SPDLOG_INFO( "Entering {}", get_name() );
+
+  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
+  m_persistent_sys.initializeComponentRegistry();
+  m_persistent_sys.load_state();
+
+  m_sound_bank.get_music( "title_music" ).stop();
+  m_sound_bank.get_music( "game_music" ).play();
+
+  auto relic_view = m_reg.view<Cmp::PlayerRelicCount>();
+  for ( auto [entity, reliccount] : relic_view.each() )
+  {
+    SPDLOG_INFO( "RelicCount: {}", reliccount.get_count() );
+  }
+}
+
 void GraveyardScene::on_exit()
 {
   SPDLOG_INFO( "Exiting {}", get_name() );
@@ -60,15 +74,11 @@ void GraveyardScene::on_exit()
   auto &m_player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
   m_player_sys.stopFootstepsSound();
 
-  auto &m_render_game_sys = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
-  m_render_game_sys.clear_tilemap();
+  Factory::FloormapFactory::ClearFloormap( m_floormap );
 }
 
 void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
 {
-  m_sound_bank.get_music( "title_music" ).stop();
-  // only do this once every update, other it constantly restarts the music
-  if ( m_sound_bank.get_music( "game_music" ).getStatus() != sf::Music::Status::Playing ) { m_sound_bank.get_music( "game_music" ).play(); }
 
   m_system_store.find<Sys::SystemStore::Type::AnimSystem>().update( dt );
 
@@ -90,13 +100,15 @@ void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
 
   m_system_store.find<Sys::SystemStore::Type::FootstepSystem>().update();
 
+  m_system_store.find<Sys::SystemStore::Type::CryptSystem>().check_door_transitions();
+
   // Note: this enqueues 'Events::SceneManagerEvent::Type::GAME_OVER' if player is dead
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt );
 
   // clang-format off
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().render_game( 
     dt,
-    m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>() 
+    m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>(), m_floormap
   );
   // clang-format on
 }

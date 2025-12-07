@@ -5,7 +5,8 @@
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Cmp::Persistent {
+namespace ProceduralMaze::Cmp::Persistent
+{
 
 // Coordinate
 class PlayerStartPosition : public sf::Vector2f

@@ -39,19 +39,19 @@ public:
   void update( sf::Time dt );
 
   // Render the current scene
-  void push( std::unique_ptr<IScene> scene, ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
+  void push( std::unique_ptr<IScene> scene, ComponentTransfer::CopyRegistry retain_inventory = ComponentTransfer::CopyRegistry::SKIP );
   // Pop the current scene
-  void pop( ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
+  void pop( ComponentTransfer::CopyRegistry retain_inventory = ComponentTransfer::CopyRegistry::SKIP );
 
-  // Push a new overlay scene
-  void push_overlay( std::unique_ptr<IScene> scene, ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
-  // Pop the current overlay scene - do not call on_exit()
-  void pop_overlay( ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
+  // Push a new overlay scene - do not call on_exit() for the scene below this on the stack
+  void push_overlay( std::unique_ptr<IScene> scene, ComponentTransfer::CopyRegistry retain_inventory = ComponentTransfer::CopyRegistry::SKIP );
+  // Pop the current overlay scene - do not call on_enter() for the scene below this on the stack
+  void pop_overlay( ComponentTransfer::CopyRegistry retain_inventory = ComponentTransfer::CopyRegistry::SKIP );
 
   // Replace the current scene with a new one
-  void replace( std::unique_ptr<IScene> scene, ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
-  // Replace the current scene with a new one - do not call on_exit()
-  void replace_overlay( std::unique_ptr<IScene> scene, ComponentTransfer::TransferMode retain_inventory = ComponentTransfer::TransferMode::NONE );
+  void replace( std::unique_ptr<IScene> scene, ComponentTransfer::CopyRegistry retain_inventory = ComponentTransfer::CopyRegistry::SKIP );
+  // Replace the current scene with a new one - do not call on_exit() for the replaced scene
+  void replace_overlay( std::unique_ptr<IScene> scene, ComponentTransfer::CopyRegistry retain_inventory = ComponentTransfer::CopyRegistry::SKIP );
 
   // Get a pointer to the current active scene
   IScene *current();
@@ -61,7 +61,7 @@ public:
 
 private:
   // Helper function to inject the current scene's registry into the system store
-  void inject_registry();
+  void inject_current_scene_registry_into_systems();
 
   // Loading screen implementation
   template <typename Callable>
@@ -131,6 +131,7 @@ private:
   //! @brief Non-owning reference to the scene manager event dispatcher
   entt::dispatcher &m_scenemanager_event_dispatcher;
 
+  //! @brief Used to transfer components from outgoing scene registry to an incoming scene registry
   ComponentTransfer m_cmp_transfer;
 };
 

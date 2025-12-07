@@ -23,8 +23,6 @@ void LevelCompleteScene::on_exit()
   auto &player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
   player_sys.stopFootstepsSound();
 
-  auto &m_render_game_sys = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
-  m_render_game_sys.clear_tilemap();
 }
 
 void LevelCompleteScene::do_update( [[maybe_unused]] sf::Time dt )

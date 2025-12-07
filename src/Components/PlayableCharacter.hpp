@@ -6,7 +6,8 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
 // See PlayerSystem.hpp for initilization values
 class PlayableCharacter
@@ -28,6 +29,43 @@ public:
   bool underwater{ false };
 
   sf::Clock m_damage_cooldown_timer;
+
+  PlayableCharacter( int bomb_inv, int blast_rad )
+      : bomb_inventory( bomb_inv ),
+        blast_radius( blast_rad )
+  {
+  }
+
+  // Custom copy constructor to handle sf::Clock
+  PlayableCharacter( const PlayableCharacter &other )
+      : bomb_inventory( other.bomb_inventory ),
+        blast_radius( other.blast_radius ),
+        m_bombdeploycooldowntimer(), // Reset clocks on copy
+        m_bombdeploydelay( other.m_bombdeploydelay ),
+        has_active_bomb( other.has_active_bomb ),
+        underwater( other.underwater ),
+        m_damage_cooldown_timer() // Reset clocks on copy
+  {
+  }
+
+  // Custom copy assignment operator
+  PlayableCharacter &operator=( const PlayableCharacter &other )
+  {
+    if ( this != &other )
+    {
+      bomb_inventory = other.bomb_inventory;
+      blast_radius = other.blast_radius;
+      // Reset clocks instead of copying
+      m_bombdeploycooldowntimer.restart();
+      has_active_bomb = other.has_active_bomb;
+      underwater = other.underwater;
+      m_damage_cooldown_timer.restart();
+    }
+    return *this;
+  }
+
+  // Default constructor
+  PlayableCharacter() = default;
 };
 
 } // namespace ProceduralMaze::Cmp

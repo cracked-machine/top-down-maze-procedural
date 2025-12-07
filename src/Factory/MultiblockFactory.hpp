@@ -66,7 +66,7 @@ void createMultiblockSegments( entt::registry &registry, entt::entity multiblock
       // Bottom-left position: grid_y=1, grid_x=0 → sprite_index = 1 * 4 + 0 = 4
       // Bottom-right position: grid_y=1, grid_x=3 → sprite_index = 1 * 4 + 3 = 7
       std::size_t calculated_grid_index = rel_grid_y * ms.get_grid_size().width + rel_grid_x;
-      SPDLOG_DEBUG( "Adding Cmp::ReservedPosition at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
+      SPDLOG_DEBUG( "  - Creating segment at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
 
       bool new_solid_mask = true;
       auto solid_masks = ms.get_solid_mask();
@@ -82,7 +82,11 @@ void createMultiblockSegments( entt::registry &registry, entt::entity multiblock
 
       // NOTE that this is a bit shit: hardcoded door placement for crypts.
       // If we add new MultiBlock sprites with 9+ segments they might suddenly sprout CryptDoors
-      if ( calculated_grid_index == 10 ) { registry.emplace_or_replace<Cmp::CryptDoor>( entity ); }
+      if ( calculated_grid_index == 10 )
+      {
+        registry.emplace_or_replace<Cmp::CryptDoor>( entity );
+        SPDLOG_INFO( "Adding Cmp::CryptDoor at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
+      }
 
       registry.emplace_or_replace<Cmp::ReservedPosition>( entity );
     }

@@ -16,6 +16,8 @@ struct SceneManagerEvent
     RESUME_GAME,
     GAME_OVER,
     LEVEL_COMPLETE,
+    ENTER_CRYPT,
+    EXIT_CRYPT,
     RETURN_TO_TITLE
   };
 

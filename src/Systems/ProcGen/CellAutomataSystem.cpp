@@ -47,8 +47,8 @@ void CellAutomataSystem::find_neighbours()
 
     // calculate game area boundary edges within the `m_random_level` linear vector
     const int idx = std::distance( m_random_level->begin(), it );
-    bool has_left_map_edge = not( ( idx ) % kMapGridSize.y );
-    bool has_right_map_edge = not( ( idx + 1 ) % kMapGridSize.y );
+    bool has_left_map_edge = not( ( idx ) % kGraveyardMapGridSize.y );
+    bool has_right_map_edge = not( ( idx + 1 ) % kGraveyardMapGridSize.y );
 
     // ---------------------------------------
     //   Columns
@@ -72,9 +72,9 @@ void CellAutomataSystem::find_neighbours()
       }
     }
     // N - (y - 1)
-    if ( std::prev( it, ( kMapGridSize.y + 1 ) ) >= m_random_level->begin() )
+    if ( std::prev( it, ( kGraveyardMapGridSize.y + 1 ) ) >= m_random_level->begin() )
     {
-      auto down_left_entt = entt::entity( *std::prev( it, kMapGridSize.y + 1 ) );
+      auto down_left_entt = entt::entity( *std::prev( it, kGraveyardMapGridSize.y + 1 ) );
       Cmp::Obstacle *down_left_entt_ob = getReg().try_get<Cmp::Obstacle>( down_left_entt );
       if ( down_left_entt_ob && not has_left_map_edge )
       {
@@ -83,9 +83,9 @@ void CellAutomataSystem::find_neighbours()
       }
     }
     // N - y
-    if ( std::prev( it, kMapGridSize.y ) >= m_random_level->begin() )
+    if ( std::prev( it, kGraveyardMapGridSize.y ) >= m_random_level->begin() )
     {
-      auto down_entt = entt::entity( *std::prev( it, kMapGridSize.y ) );
+      auto down_entt = entt::entity( *std::prev( it, kGraveyardMapGridSize.y ) );
       Cmp::Obstacle *down_entt_ob = getReg().try_get<Cmp::Obstacle>( down_entt );
       if ( down_entt_ob )
       {
@@ -93,9 +93,9 @@ void CellAutomataSystem::find_neighbours()
       }
     }
     // N - (y + 1)
-    if ( ( std::prev( it, ( kMapGridSize.y - 1 ) ) ) >= m_random_level->begin() )
+    if ( ( std::prev( it, ( kGraveyardMapGridSize.y - 1 ) ) ) >= m_random_level->begin() )
     {
-      auto down_right_entt = entt::entity( *std::prev( it, kMapGridSize.y - 1 ) );
+      auto down_right_entt = entt::entity( *std::prev( it, kGraveyardMapGridSize.y - 1 ) );
       Cmp::Obstacle *down_right_entt_ob = getReg().try_get<Cmp::Obstacle>( down_right_entt );
       if ( down_right_entt_ob && not has_right_map_edge )
       {
@@ -116,9 +116,9 @@ void CellAutomataSystem::find_neighbours()
     // where N is iterator, y is column length
 
     // N + (y - 1)
-    if ( std::next( it, ( kMapGridSize.y - 1 ) ) < m_random_level->end() )
+    if ( std::next( it, ( kGraveyardMapGridSize.y - 1 ) ) < m_random_level->end() )
     {
-      auto top_left_entt = entt::entity( *std::next( it, kMapGridSize.y - 1 ) );
+      auto top_left_entt = entt::entity( *std::next( it, kGraveyardMapGridSize.y - 1 ) );
       Cmp::Obstacle *top_left_entt_ob = getReg().try_get<Cmp::Obstacle>( top_left_entt );
       if ( top_left_entt_ob && not has_left_map_edge )
       {
@@ -127,9 +127,9 @@ void CellAutomataSystem::find_neighbours()
       }
     }
     // N + y
-    if ( kMapGridSize.y < m_random_level->size() && std::next( it, kMapGridSize.y ) < m_random_level->end() )
+    if ( kGraveyardMapGridSize.y < m_random_level->size() && std::next( it, kGraveyardMapGridSize.y ) < m_random_level->end() )
     {
-      auto top_entt = entt::entity( *std::next( it, kMapGridSize.y ) );
+      auto top_entt = entt::entity( *std::next( it, kGraveyardMapGridSize.y ) );
       Cmp::Obstacle *top_entt_ob = getReg().try_get<Cmp::Obstacle>( top_entt );
       if ( top_entt_ob )
       {
@@ -137,9 +137,9 @@ void CellAutomataSystem::find_neighbours()
       }
     }
     // N + (y + 1)
-    if ( ( kMapGridSize.y + 1 ) < m_random_level->size() && std::next( it, ( kMapGridSize.y + 1 ) ) < m_random_level->end() )
+    if ( ( kGraveyardMapGridSize.y + 1 ) < m_random_level->size() && std::next( it, ( kGraveyardMapGridSize.y + 1 ) ) < m_random_level->end() )
     {
-      auto top_right_entt = entt::entity( *std::next( it, ( kMapGridSize.y + 1 ) ) );
+      auto top_right_entt = entt::entity( *std::next( it, ( kGraveyardMapGridSize.y + 1 ) ) );
       Cmp::Obstacle *top_right_entt_ob = getReg().try_get<Cmp::Obstacle>( top_right_entt );
       if ( top_right_entt_ob && not has_right_map_edge )
       {
