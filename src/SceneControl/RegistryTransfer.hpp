@@ -26,11 +26,7 @@
 
 namespace ProceduralMaze::Scene
 {
-enum class RegCopyMode
-{
-  NONE,
-  PLAYER
-};
+enum class RegCopyMode { NONE, PLAYER };
 class RegistryTransfer
 {
 public:
@@ -52,7 +48,8 @@ public:
     int skipped_entities = 0;
     for ( auto entity : source_registry.storage<entt::entity>() )
     {
-      if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::Neighbours, Cmp::NoPathFinding>( entity ) )
+      if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable,
+                                  Cmp::Neighbours, Cmp::NoPathFinding>( entity ) )
       {
         // SPDLOG_INFO( "Skipping copy of entity {}", static_cast<uint32_t>( entity ) );
         skipped_entities++;
@@ -73,11 +70,16 @@ public:
             SPDLOG_INFO( "Copied component: {}", source_storage.type().name() );
             copied_entities++;
           }
-          else { SPDLOG_WARN( "No storage found in target registry for component: {}", source_storage.type().name() ); }
+          else
+          {
+            SPDLOG_WARN( "No storage found in target registry for component: {}",
+                         source_storage.type().name() );
+          }
         }
       }
     }
-    SPDLOG_INFO( "Registry capture completed: {} entities copied, {} entities skipped", copied_entities, skipped_entities );
+    SPDLOG_INFO( "Registry capture completed: {} entities copied, {} entities skipped",
+                 copied_entities, skipped_entities );
 
     return registry_copy;
   }
@@ -102,13 +104,15 @@ public:
     {
       // No player exists, create new one
       target_entity = to_registry.create();
-      SPDLOG_INFO( "Created new player entity {} in target registry", static_cast<uint32_t>( target_entity ) );
+      SPDLOG_INFO( "Created new player entity {} in target registry",
+                   static_cast<uint32_t>( target_entity ) );
     }
     else
     {
       // Player exists, use existing entity
       target_entity = target_player_view.front();
-      SPDLOG_INFO( "Using existing player entity {} in target registry", static_cast<uint32_t>( target_entity ) );
+      SPDLOG_INFO( "Using existing player entity {} in target registry",
+                   static_cast<uint32_t>( target_entity ) );
     }
 
     // Ensure all known player component storages exist in target registry
@@ -117,6 +121,7 @@ public:
     SPDLOG_INFO( "Transferring entity {} components", static_cast<uint32_t>( source_entity ) );
 
     // Create a copy of an entity component by component (from entt wiki)
+    int copied_components = 0;
     for ( auto &&curr : from_registry.storage() )
     {
       if ( auto &source_storage = curr.second; source_storage.contains( source_entity ) )
@@ -133,11 +138,17 @@ public:
             SPDLOG_INFO( "Removed existing component: {}", source_storage.type().name() );
           }
           target_storage->push( target_entity, source_storage.value( source_entity ) );
-          SPDLOG_INFO( "Successfully transferred component: {}", source_storage.type().name() );
+          copied_components++;
+
+          SPDLOG_DEBUG( "Successfully transferred component: {}", source_storage.type().name() );
         }
-        else { SPDLOG_WARN( "No storage found in target registry for component: {}", source_storage.type().name() ); }
+        else
+        {
+          SPDLOG_WARN( "No storage found in target reg for cmp: {}", source_storage.type().name() );
+        }
       }
     }
+    SPDLOG_INFO( "Entity transfer completed: {} components copied", copied_components );
   }
 
 private:

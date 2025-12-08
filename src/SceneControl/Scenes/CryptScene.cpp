@@ -14,8 +14,6 @@ void CryptScene::on_init()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  // Factory::CreatePlayer( m_reg );
-
   auto entity = m_reg.create();
   m_reg.emplace<Cmp::System>( entity );
 

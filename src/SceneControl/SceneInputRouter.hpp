@@ -23,21 +23,12 @@ namespace ProceduralMaze::Sys
 class SceneInputRouter : public Sys::BaseSystem
 {
 public:
-  enum class NavigationActions
-  {
-    NONE,
-    TITLE,
-    SETTINGS,
-    PLAY,
-    CRYPT,
-    PAUSE,
-    RESUME,
-    GAMEOVER,
-    EXIT
-  };
+  enum class NavigationActions { NONE, TITLE, SETTINGS, CRYPT, PAUSE, RESUME, GAMEOVER, EXIT };
 
-  SceneInputRouter( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
-                    entt::dispatcher &nav_event_dispatcher, entt::dispatcher &scenemanager_event_dispatcher );
+  SceneInputRouter( entt::registry &reg, sf::RenderWindow &window,
+                    Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
+                    entt::dispatcher &nav_event_dispatcher,
+                    entt::dispatcher &scenemanager_event_dispatcher );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}

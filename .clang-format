@@ -1,9 +1,19 @@
-ColumnLimit: 150
+ColumnLimit: 100
 BreakConstructorInitializers: BeforeColon
 PackConstructorInitializers: Never
 AlignAfterOpenBracket: Align
-BreakBeforeBraces: Allman
-IndentCaseLabels  : true
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterFunction: true
+  BeforeLambdaBody: true
+  AfterClass: true
+  AfterControlStatement: true
+  AfterNamespace: true
+  AfterStruct: true
+  AfterUnion: true
+  BeforeElse: true
+  IndentBraces: false
+IndentCaseLabels: true
 
   
 SpacesInAngles: false

@@ -8,9 +8,9 @@
 #include <Components/Font.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
-#include <SceneControl/ComponentTransfer.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/IScene.hpp>
+#include <SceneControl/RegistryTransfer.hpp>
 #include <SceneControl/SceneStack.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/SystemStore.hpp>
@@ -24,7 +24,8 @@ namespace ProceduralMaze::Scene
 class SceneManager
 {
 public:
-  explicit SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher,
+  explicit SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank,
+                         Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher,
                          entt::dispatcher &scenemanager_event_dispatcher )
       : m_window( w ),
         m_sound_bank( sound_bank ),
@@ -32,7 +33,8 @@ public:
         m_nav_event_dispatcher( nav_event_dispatcher ),
         m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
   {
-    m_scenemanager_event_dispatcher.sink<Events::SceneManagerEvent>().connect<&Scene::SceneManager::handle_events>( this );
+    m_scenemanager_event_dispatcher.sink<Events::SceneManagerEvent>()
+        .connect<&Scene::SceneManager::handle_events>( this );
   }
 
   // Update the current scene
@@ -40,18 +42,18 @@ public:
 
   // Render the current scene
   void push( std::unique_ptr<IScene> scene, RegCopyMode mode = RegCopyMode::NONE );
+  // Push a new overlay scene - do not call on_exit() for the scene below this on the stack
+  void push_no_exit( std::unique_ptr<IScene> scene, RegCopyMode mode = RegCopyMode::NONE );
+
   // Pop the current scene
   void pop( RegCopyMode mode = RegCopyMode::NONE );
-
-  // Push a new overlay scene - do not call on_exit() for the scene below this on the stack
-  void push_overlay( std::unique_ptr<IScene> scene, RegCopyMode mode = RegCopyMode::NONE );
   // Pop the current overlay scene - do not call on_enter() for the scene below this on the stack
-  void pop_overlay( RegCopyMode mode = RegCopyMode::NONE );
+  void pop_no_exit( RegCopyMode mode = RegCopyMode::NONE );
 
   // Replace the current scene with a new one
   void replace( std::unique_ptr<IScene> scene, RegCopyMode mode = RegCopyMode::NONE );
   // Replace the current scene with a new one - do not call on_exit() for the replaced scene
-  void replace_overlay( std::unique_ptr<IScene> scene, RegCopyMode mode = RegCopyMode::NONE );
+  void replace_no_exit( std::unique_ptr<IScene> scene, RegCopyMode mode = RegCopyMode::NONE );
 
   // Get a pointer to the current active scene
   IScene *current();
@@ -70,7 +72,8 @@ private:
     Cmp::Font font( "res/fonts/tuffy.ttf" );
     sf::Text loading_text( font, "Loading", 48 );
     loading_text.setFillColor( sf::Color::White );
-    loading_text.setPosition( { Sys::BaseSystem::kDisplaySize.x / 2.f - 50.f, Sys::BaseSystem::kDisplaySize.y / 2.f + 100.f } );
+    loading_text.setPosition( { Sys::BaseSystem::kDisplaySize.x / 2.f - 50.f,
+                                Sys::BaseSystem::kDisplaySize.y / 2.f + 100.f } );
 
     sf::Clock clock;
     const float text_update_interval = 1.f; // 1 second between dot updates
