@@ -18,7 +18,8 @@ void CryptScene::on_init()
   m_reg.emplace<Cmp::System>( entity );
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
-  random_level_sys.generate( Sys::BaseSystem::kCryptMapGridSize, Sys::BaseSystem::kCryptMapGridOffset, false, false, false );
+  random_level_sys.generate( Sys::BaseSystem::kCryptMapGridSize,
+                             Sys::BaseSystem::kCryptMapGridOffset, false, false, false );
 
   auto &cellauto_parser = m_system_store.find<Sys::SystemStore::Type::CellAutomataSystem>();
   cellauto_parser.set_random_level_generator( &random_level_sys );
@@ -37,24 +38,6 @@ void CryptScene::on_enter()
   m_persistent_sys.load_state();
 
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().init_views();
-
-  auto key_view = m_reg.view<Cmp::PlayerKeysCount>();
-  for ( auto [entity, keycount] : key_view.each() )
-  {
-    SPDLOG_INFO( "KeyCount: {}", keycount.get_count() );
-  }
-
-  auto candle_view = m_reg.view<Cmp::PlayerCandlesCount>();
-  for ( auto [entity, candlecount] : candle_view.each() )
-  {
-    SPDLOG_INFO( "CandleCount: {}", candlecount.get_count() );
-  }
-
-  auto relic_view = m_reg.view<Cmp::PlayerRelicCount>();
-  for ( auto [entity, reliccount] : relic_view.each() )
-  {
-    SPDLOG_INFO( "RelicCount: {}", reliccount.get_count() );
-  }
 }
 
 void CryptScene::on_exit()

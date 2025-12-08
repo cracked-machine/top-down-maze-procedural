@@ -5,6 +5,8 @@
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Armable.hpp>
 #include <Components/Direction.hpp>
+#include <Components/FootStepAlpha.hpp>
+#include <Components/FootStepTimer.hpp>
 #include <Components/Neighbours.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/PCDetectionBounds.hpp>
@@ -23,16 +25,29 @@
 #include <entt/entt.hpp>
 #include <memory>
 #include <spdlog/spdlog.h>
+#include <sstream>
 
 namespace ProceduralMaze::Scene
 {
-enum class RegCopyMode { NONE, PLAYER };
+
+//! @brief Enumeration for registry copy modes
+enum class RegCopyMode {
+  //! @brief Copy no components
+  NONE,
+  //! @brief Copy only player components
+  PLAYER_ONLY
+};
+
 class RegistryTransfer
 {
 public:
+  //! @brief Type alias for a unique pointer to an entt::registry
   using RegCopy = std::unique_ptr<entt::registry>;
 
-  // Helper function to capture the current scene's registry
+  //! @brief Create a copy of the registry from the given scene
+  //! @param scene The scene to copy the registry from
+  //! @param copy_mode The mode to use for copying
+  //! @return RegCopy A unique pointer to the copied registry
   RegCopy copy_reg( IScene &scene, RegCopyMode copy_mode = RegCopyMode::NONE )
   {
     if ( copy_mode == RegCopyMode::NONE ) { return nullptr; }
@@ -40,19 +55,18 @@ public:
     auto registry_copy = std::make_unique<entt::registry>();
     auto &source_registry = scene.registry();
 
-    // Ensure all known player component storages exist in target registry
     ensure_player_component_storages( *registry_copy );
 
-    // Copy all entities and their components instead of swapping
-    int copied_entities = 0;
-    int skipped_entities = 0;
+    int skipped_cmp = 0;
+    std::vector<std::string> copied_cmp;
     for ( auto entity : source_registry.storage<entt::entity>() )
     {
-      if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable,
-                                  Cmp::Neighbours, Cmp::NoPathFinding>( entity ) )
+      // this is a list of components that we do NOT want to copy over
+      if ( source_registry
+               .any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::Neighbours,
+                       Cmp::NoPathFinding, Cmp::FootStepTimer, Cmp::FootStepAlpha>( entity ) )
       {
-        // SPDLOG_INFO( "Skipping copy of entity {}", static_cast<uint32_t>( entity ) );
-        skipped_entities++;
+        skipped_cmp++;
         continue; // Skip player entity
       }
       auto new_entity = registry_copy->create();
@@ -67,8 +81,8 @@ public:
           if ( auto *target_storage = registry_copy->storage( type_hash ) )
           {
             target_storage->push( new_entity, source_storage.value( entity ) );
-            SPDLOG_INFO( "Copied component: {}", source_storage.type().name() );
-            copied_entities++;
+            SPDLOG_DEBUG( "Copied component: {}", source_storage.type().name() );
+            copied_cmp.emplace_back( source_storage.type().name() );
           }
           else
           {
@@ -78,13 +92,15 @@ public:
         }
       }
     }
-    SPDLOG_INFO( "Registry capture completed: {} entities copied, {} entities skipped",
-                 copied_entities, skipped_entities );
+    SPDLOG_INFO( "Registry copy completed: {} copied, {} skipped", copied_cmp.size(), skipped_cmp );
+    pretty_print( copied_cmp );
 
     return registry_copy;
   }
 
-  // Transfer all components from player entity
+  //! @brief Transfer player entity components from one registry to another
+  //! @param from_registry Source registry
+  //! @param to_registry Target registry
   void xfer_player_entt( entt::registry &from_registry, entt::registry &to_registry )
   {
     auto player_view = from_registry.view<Cmp::PlayableCharacter>();
@@ -104,29 +120,28 @@ public:
     {
       // No player exists, create new one
       target_entity = to_registry.create();
-      SPDLOG_INFO( "Created new player entity {} in target registry",
+      SPDLOG_INFO( "Created new player entity (#{}) in target registry",
                    static_cast<uint32_t>( target_entity ) );
     }
     else
     {
       // Player exists, use existing entity
       target_entity = target_player_view.front();
-      SPDLOG_INFO( "Using existing player entity {} in target registry",
+      SPDLOG_INFO( "Using existing player entity (#{}) in target registry",
                    static_cast<uint32_t>( target_entity ) );
     }
 
     // Ensure all known player component storages exist in target registry
     ensure_player_component_storages( to_registry );
 
-    SPDLOG_INFO( "Transferring entity {} components", static_cast<uint32_t>( source_entity ) );
-
     // Create a copy of an entity component by component (from entt wiki)
-    int copied_components = 0;
+    std::vector<std::string> transferred_cmps;
+    std::vector<std::string> removed_cmps;
     for ( auto &&curr : from_registry.storage() )
     {
       if ( auto &source_storage = curr.second; source_storage.contains( source_entity ) )
       {
-        SPDLOG_INFO( "Transferring component: {}", source_storage.type().name() );
+        SPDLOG_DEBUG( "Transferring component: {}", source_storage.type().name() );
 
         auto type_hash = curr.first;
 
@@ -135,10 +150,11 @@ public:
           if ( target_storage->contains( target_entity ) )
           {
             target_storage->erase( target_entity );
-            SPDLOG_INFO( "Removed existing component: {}", source_storage.type().name() );
+            SPDLOG_DEBUG( "Removed existing component: {}", source_storage.type().name() );
+            removed_cmps.emplace_back( source_storage.type().name() );
           }
           target_storage->push( target_entity, source_storage.value( source_entity ) );
-          copied_components++;
+          transferred_cmps.emplace_back( source_storage.type().name() );
 
           SPDLOG_DEBUG( "Successfully transferred component: {}", source_storage.type().name() );
         }
@@ -148,11 +164,15 @@ public:
         }
       }
     }
-    SPDLOG_INFO( "Entity transfer completed: {} components copied", copied_components );
+    SPDLOG_INFO( "Component transfer completed: {} removed", removed_cmps.size() );
+    pretty_print( removed_cmps );
+    SPDLOG_INFO( "Component transfer completed: {} transferred", transferred_cmps.size() );
+    pretty_print( transferred_cmps );
   }
 
 private:
-  // Ensure storages exist for known player components
+  //! @brief Ensure all known player component storages exist in the given registry
+  //! @param registry
   void ensure_player_component_storages( entt::registry &registry )
   {
     // Force storage creation by accessing storage for each known component type
@@ -174,28 +194,23 @@ private:
     // Add other player-related components as needed
   }
 
-  // Generic component transfer function
-  template <typename... Components>
-  static void transfer_components( entt::registry &from_registry, entt::registry &to_registry )
+  //! @brief Print python style list of component type names
+  //! @param components Vector of component type names
+  void pretty_print( const std::vector<std::string> &components )
   {
-    auto transfer_component = [&]<typename Component>()
-    {
-      auto view = from_registry.view<Component>();
-      if ( view.empty() )
-      {
-        SPDLOG_INFO( "No {} components to transfer", typeid( Component ).name() );
-        return;
-      }
-      for ( auto entity : view )
-      {
-        const auto &component = view.template get<Component>( entity );
-        auto new_entity = to_registry.create();
-        to_registry.emplace<Component>( new_entity, component );
-        SPDLOG_INFO( "Transferred component: {}", typeid( Component ).name() );
-      }
-    };
+    if ( components.empty() ) return;
 
-    ( transfer_component.template operator()<Components>(), ... );
+    std::stringstream ss;
+    ss << "[ ";
+    for ( const auto &comp_name : components )
+    {
+      // get class from namespace string after last "::"
+      auto last_colon = comp_name.find_last_of( "::" );
+      if ( last_colon != std::string::npos ) { ss << comp_name.substr( last_colon + 1 ) << " "; }
+      else { ss << comp_name << " "; }
+    }
+    ss << "]";
+    SPDLOG_DEBUG( "{}", ss.str() );
   }
 };
 

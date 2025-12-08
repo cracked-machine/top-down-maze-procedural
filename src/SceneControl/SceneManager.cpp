@@ -42,7 +42,7 @@ void SceneManager::push( std::unique_ptr<IScene> new_scene, RegCopyMode mode )
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER )
+  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
     loading_screen(
         [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); },
@@ -68,7 +68,7 @@ void SceneManager::push_no_exit( std::unique_ptr<IScene> new_scene, RegCopyMode 
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER )
+  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
     loading_screen(
         [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); },
@@ -91,7 +91,7 @@ void SceneManager::pop( RegCopyMode mode )
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER )
+  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
     loading_screen(
         [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); },
@@ -115,7 +115,7 @@ void SceneManager::pop_no_exit( RegCopyMode mode )
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER )
+  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
     loading_screen(
         [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); },
@@ -141,7 +141,7 @@ void SceneManager::replace( std::unique_ptr<IScene> new_scene, RegCopyMode mode 
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER )
+  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
     loading_screen(
         [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); },
@@ -164,7 +164,7 @@ void SceneManager::replace_no_exit( std::unique_ptr<IScene> new_scene, RegCopyMo
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER )
+  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
     loading_screen(
         [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); },
@@ -189,12 +189,12 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_CRYPT requested" );
       auto crypt_scene = std::make_unique<CryptScene>( m_sound_bank, m_system_store,
                                                        m_nav_event_dispatcher );
-      push_no_exit( std::move( crypt_scene ), RegCopyMode::PLAYER );
+      push_no_exit( std::move( crypt_scene ), RegCopyMode::PLAYER_ONLY );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_CRYPT: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_CRYPT requested" );
-      pop_no_exit( RegCopyMode::PLAYER );
+      pop_no_exit( RegCopyMode::PLAYER_ONLY );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_GAME: {
@@ -239,17 +239,17 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
       // pop back to the graveyard scene
       while ( m_scene_stack.size() > 2 )
       {
-        pop_no_exit( RegCopyMode::PLAYER );
+        pop_no_exit( RegCopyMode::PLAYER_ONLY );
       }
       // then replace the graveyard scene with the game over scene
-      replace_no_exit( std::move( game_over_scene ), RegCopyMode::PLAYER );
+      replace_no_exit( std::move( game_over_scene ), RegCopyMode::PLAYER_ONLY );
       break;
     }
     case Events::SceneManagerEvent::Type::LEVEL_COMPLETE: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::LEVEL_COMPLETE requested" );
       auto level_complete_scene = std::make_unique<LevelCompleteScene>(
           m_sound_bank, m_system_store, m_nav_event_dispatcher );
-      replace_no_exit( std::move( level_complete_scene ), RegCopyMode::PLAYER );
+      replace_no_exit( std::move( level_complete_scene ), RegCopyMode::PLAYER_ONLY );
       break;
     }
     case Events::SceneManagerEvent::Type::RETURN_TO_TITLE: {

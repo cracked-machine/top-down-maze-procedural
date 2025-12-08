@@ -26,7 +26,8 @@ void GraveyardScene::on_init()
   m_reg.emplace<Cmp::System>( entity );
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
-  random_level_sys.generate( Sys::BaseSystem::kGraveyardMapGridSize, Sys::BaseSystem::kGraveyardMapGridOffset, true, true, true );
+  random_level_sys.generate( Sys::BaseSystem::kGraveyardMapGridSize,
+                             Sys::BaseSystem::kGraveyardMapGridOffset, true, true, true );
 
   auto &cellauto_parser = m_system_store.find<Sys::SystemStore::Type::CellAutomataSystem>();
   cellauto_parser.set_random_level_generator( &random_level_sys );
@@ -55,7 +56,10 @@ void GraveyardScene::on_enter()
   m_persistent_sys.load_state();
 
   m_sound_bank.get_music( "title_music" ).stop();
-  m_sound_bank.get_music( "game_music" ).play();
+  if ( m_sound_bank.get_music( "game_music" ).getStatus() != sf::Sound::Status::Playing )
+  {
+    m_sound_bank.get_music( "game_music" ).play();
+  }
 
   auto relic_view = m_reg.view<Cmp::PlayerRelicCount>();
   for ( auto [entity, reliccount] : relic_view.each() )
