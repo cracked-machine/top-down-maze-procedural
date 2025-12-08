@@ -27,21 +27,21 @@
 namespace ProceduralMaze::Scene
 {
 
-class ComponentTransfer
+class RegistryTransfer
 {
 public:
-  enum class CopyRegistry
+  enum class RegCopyMode
   {
-    SKIP,
-    FULL
+    NONE,
+    PLAYER
   };
 
-  using RegistrySnapshot = std::unique_ptr<entt::registry>;
+  using RegCopy = std::unique_ptr<entt::registry>;
 
   // Helper function to capture the current scene's registry
-  RegistrySnapshot capture( IScene &scene, CopyRegistry transfer_mode = CopyRegistry::SKIP )
+  RegCopy copy_reg( IScene &scene, RegCopyMode copy_mode = RegCopyMode::NONE )
   {
-    if ( transfer_mode == CopyRegistry::SKIP ) { return nullptr; }
+    if ( copy_mode == RegCopyMode::NONE ) { return nullptr; }
 
     auto registry_copy = std::make_unique<entt::registry>();
     auto &source_registry = scene.get_registry();

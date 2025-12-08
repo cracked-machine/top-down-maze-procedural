@@ -25,14 +25,14 @@ void SceneManager::update( sf::Time dt )
   if ( m_scenemanager_event_dispatcher.size() > 0 ) { m_scenemanager_event_dispatcher.update(); }
 }
 
-void SceneManager::push( std::unique_ptr<IScene> scene, ComponentTransfer::CopyRegistry clone_options )
+void SceneManager::push( std::unique_ptr<IScene> scene, RegistryTransfer::RegCopyMode mode )
 {
-  ComponentTransfer::RegistrySnapshot reg_snapshot = nullptr;
+  RegistryTransfer::RegCopy reg_copy = nullptr;
 
   // exit the current scene
   if ( !m_scene_stack.empty() )
   {
-    reg_snapshot = m_cmp_transfer.capture( m_scene_stack.current(), clone_options );
+    reg_copy = m_reg_xfer.copy_reg( m_scene_stack.current(), mode );
     m_scene_stack.current().on_exit();
   }
 
@@ -46,9 +46,9 @@ void SceneManager::push( std::unique_ptr<IScene> scene, ComponentTransfer::CopyR
   inject_current_scene_registry_into_systems();
 
   // // Transfer registry components - specify which component types to transfer
-  // if ( reg_snapshot && clone_options == ComponentTransfer::CopyRegistry::FULL )
+  // if ( reg_copy && mode == ComponentTransfer::CopyRegistry::FULL )
   // {
-  //   m_cmp_transfer.transfer_player_entity( *reg_snapshot, m_scene_stack.current().get_registry() );
+  //   m_cmp_transfer.transfer_player_entity( *reg_copy, m_scene_stack.current().get_registry() );
   // }
 
   // call enter handler on the new scene. Use a loading screen to hide any delays
@@ -56,9 +56,9 @@ void SceneManager::push( std::unique_ptr<IScene> scene, ComponentTransfer::CopyR
   m_scene_stack.current().on_enter();
 }
 
-void SceneManager::pop( ComponentTransfer::CopyRegistry clone_options )
+void SceneManager::pop( RegistryTransfer::RegCopyMode mode )
 {
-  ComponentTransfer::RegistrySnapshot reg_snapshot = m_cmp_transfer.capture( m_scene_stack.current(), clone_options );
+  RegistryTransfer::RegCopy reg_copy = m_reg_xfer.copy_reg( m_scene_stack.current(), mode );
 
   if ( m_scene_stack.size() == 1 ) return;
   m_scene_stack.current().on_exit();
@@ -70,17 +70,17 @@ void SceneManager::pop( ComponentTransfer::CopyRegistry clone_options )
   inject_current_scene_registry_into_systems();
 
   // // Transfer registry components - specify which component types to transfer
-  // if ( reg_snapshot && clone_options == ComponentTransfer::CopyRegistry::FULL )
+  // if ( reg_copy && mode == ComponentTransfer::CopyRegistry::FULL )
   // {
-  //   loading_screen( [&]() { m_cmp_transfer.transfer_player_entity( *reg_snapshot, m_scene_stack.current().get_registry() ); }, m_splash_texture );
+  //   loading_screen( [&]() { m_cmp_transfer.transfer_player_entity( *reg_copy, m_scene_stack.current().get_registry() ); }, m_splash_texture );
   // }
 
   if ( !m_scene_stack.empty() ) m_scene_stack.current().on_enter();
 }
 
-void SceneManager::push_overlay( std::unique_ptr<IScene> scene, ComponentTransfer::CopyRegistry clone_options )
+void SceneManager::push_overlay( std::unique_ptr<IScene> scene, RegistryTransfer::RegCopyMode mode )
 {
-  ComponentTransfer::RegistrySnapshot reg_snapshot = m_cmp_transfer.capture( m_scene_stack.current(), clone_options );
+  RegistryTransfer::RegCopy reg_copy = m_reg_xfer.copy_reg( m_scene_stack.current(), mode );
 
   m_scene_stack.push( std::move( scene ) );
   SPDLOG_INFO( "Pushed {} (overlay).  ", m_scene_stack.current().get_name() );
@@ -91,18 +91,18 @@ void SceneManager::push_overlay( std::unique_ptr<IScene> scene, ComponentTransfe
   loading_screen( [&]() { m_scene_stack.current().on_init(); }, m_splash_texture );
 
   // Transfer components from the clone to the new top scene registry
-  if ( reg_snapshot && clone_options == ComponentTransfer::CopyRegistry::FULL )
+  if ( reg_copy && mode == RegistryTransfer::RegCopyMode::PLAYER )
   {
-    m_cmp_transfer.transfer_player_entity( *reg_snapshot, m_scene_stack.current().get_registry() );
+    m_reg_xfer.transfer_player_entity( *reg_copy, m_scene_stack.current().get_registry() );
   }
   m_scene_stack.current().on_enter();
 }
 
-void SceneManager::pop_overlay( ComponentTransfer::CopyRegistry clone_options )
+void SceneManager::pop_overlay( RegistryTransfer::RegCopyMode mode )
 {
   if ( m_scene_stack.size() == 1 ) return;
 
-  ComponentTransfer::RegistrySnapshot reg_snapshot = m_cmp_transfer.capture( m_scene_stack.current(), clone_options );
+  RegistryTransfer::RegCopy reg_copy = m_reg_xfer.copy_reg( m_scene_stack.current(), mode );
 
   m_scene_stack.current().on_exit();
 
@@ -114,17 +114,17 @@ void SceneManager::pop_overlay( ComponentTransfer::CopyRegistry clone_options )
   inject_current_scene_registry_into_systems();
 
   // Transfer components from the clone to the new top scene registry
-  if ( reg_snapshot && clone_options == ComponentTransfer::CopyRegistry::FULL )
+  if ( reg_copy && mode == RegistryTransfer::RegCopyMode::PLAYER )
   {
-    m_cmp_transfer.transfer_player_entity( *reg_snapshot, m_scene_stack.current().get_registry() );
+    m_reg_xfer.transfer_player_entity( *reg_copy, m_scene_stack.current().get_registry() );
   }
 
   m_scene_stack.current().on_enter();
 }
 
-void SceneManager::replace( std::unique_ptr<IScene> scene, ComponentTransfer::CopyRegistry clone_options )
+void SceneManager::replace( std::unique_ptr<IScene> scene, RegistryTransfer::RegCopyMode mode )
 {
-  ComponentTransfer::RegistrySnapshot reg_snapshot = m_cmp_transfer.capture( m_scene_stack.current(), clone_options );
+  RegistryTransfer::RegCopy reg_copy = m_reg_xfer.copy_reg( m_scene_stack.current(), mode );
 
   // exit the current scene before popping
   m_scene_stack.print_stack();
@@ -143,17 +143,17 @@ void SceneManager::replace( std::unique_ptr<IScene> scene, ComponentTransfer::Co
   inject_current_scene_registry_into_systems();
 
   // // Transfer components from the clone to the new scene registry
-  // if ( reg_snapshot && clone_options == ComponentTransfer::CopyRegistry::FULL )
+  // if ( reg_copy && mode == ComponentTransfer::CopyRegistry::FULL )
   // {
-  //   m_cmp_transfer.transfer_player_entity( *reg_snapshot, m_scene_stack.current().get_registry() );
+  //   m_cmp_transfer.transfer_player_entity( *reg_copy, m_scene_stack.current().get_registry() );
   // }
 
   loading_screen( [&]() { m_scene_stack.current().on_enter(); }, m_splash_texture );
 }
 
-void SceneManager::replace_overlay( std::unique_ptr<IScene> scene, ComponentTransfer::CopyRegistry clone_options )
+void SceneManager::replace_overlay( std::unique_ptr<IScene> scene, RegistryTransfer::RegCopyMode mode )
 {
-  ComponentTransfer::RegistrySnapshot reg_snapshot = m_cmp_transfer.capture( m_scene_stack.current(), clone_options );
+  RegistryTransfer::RegCopy reg_copy = m_reg_xfer.copy_reg( m_scene_stack.current(), mode );
 
   m_scene_stack.print_stack();
   SPDLOG_INFO( "Replacing {} (overlay).", m_scene_stack.current().get_name() );
@@ -170,9 +170,9 @@ void SceneManager::replace_overlay( std::unique_ptr<IScene> scene, ComponentTran
   inject_current_scene_registry_into_systems();
 
   // // Transfer components from the clone to the new scene registry
-  // if ( reg_snapshot && clone_options == ComponentTransfer::CopyRegistry::FULL )
+  // if ( reg_copy && mode == ComponentTransfer::CopyRegistry::FULL )
   // {
-  //   m_cmp_transfer.transfer_player_entity( *reg_snapshot, m_scene_stack.current().get_registry() );
+  //   m_cmp_transfer.transfer_player_entity( *reg_copy, m_scene_stack.current().get_registry() );
   // }
 
   loading_screen( [&]() { m_scene_stack.current().on_enter(); }, m_splash_texture );
@@ -193,13 +193,13 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
     {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_CRYPT requested" );
       auto crypt_scene = std::make_unique<CryptScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher );
-      push_overlay( std::move( crypt_scene ), ComponentTransfer::CopyRegistry::FULL );
+      push_overlay( std::move( crypt_scene ), RegistryTransfer::RegCopyMode::PLAYER );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_CRYPT:
     {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_CRYPT requested" );
-      pop_overlay( ComponentTransfer::CopyRegistry::FULL );
+      pop_overlay( RegistryTransfer::RegCopyMode::PLAYER );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_GAME:
@@ -244,14 +244,14 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
     {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::GAME_OVER requested" );
       auto game_over_scene = std::make_unique<GameOverScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher );
-      replace_overlay( std::move( game_over_scene ), ComponentTransfer::CopyRegistry::FULL );
+      replace_overlay( std::move( game_over_scene ), RegistryTransfer::RegCopyMode::PLAYER );
       break;
     }
     case Events::SceneManagerEvent::Type::LEVEL_COMPLETE:
     {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::LEVEL_COMPLETE requested" );
       auto level_complete_scene = std::make_unique<LevelCompleteScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher );
-      replace_overlay( std::move( level_complete_scene ), ComponentTransfer::CopyRegistry::FULL );
+      replace_overlay( std::move( level_complete_scene ), RegistryTransfer::RegCopyMode::PLAYER );
       break;
     }
     case Events::SceneManagerEvent::Type::RETURN_TO_TITLE:
