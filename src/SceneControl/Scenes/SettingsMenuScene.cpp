@@ -26,6 +26,6 @@ void SettingsMenuScene::do_update( [[maybe_unused]] sf::Time dt )
   m_render_menu_sys.render_settings( dt );
 }
 
-entt::registry &SettingsMenuScene::get_registry() { return m_reg; }
+entt::registry &SettingsMenuScene::registry() { return m_reg; }
 
 } // namespace ProceduralMaze::Scene

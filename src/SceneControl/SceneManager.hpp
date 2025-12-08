@@ -39,19 +39,19 @@ public:
   void update( sf::Time dt );
 
   // Render the current scene
-  void push( std::unique_ptr<IScene> scene, RegistryTransfer::RegCopyMode mode = RegistryTransfer::RegCopyMode::NONE );
+  void push( std::unique_ptr<IScene> scene, RegCopyMode mode = RegCopyMode::NONE );
   // Pop the current scene
-  void pop( RegistryTransfer::RegCopyMode mode = RegistryTransfer::RegCopyMode::NONE );
+  void pop( RegCopyMode mode = RegCopyMode::NONE );
 
   // Push a new overlay scene - do not call on_exit() for the scene below this on the stack
-  void push_overlay( std::unique_ptr<IScene> scene, RegistryTransfer::RegCopyMode mode = RegistryTransfer::RegCopyMode::NONE );
+  void push_overlay( std::unique_ptr<IScene> scene, RegCopyMode mode = RegCopyMode::NONE );
   // Pop the current overlay scene - do not call on_enter() for the scene below this on the stack
-  void pop_overlay( RegistryTransfer::RegCopyMode mode = RegistryTransfer::RegCopyMode::NONE );
+  void pop_overlay( RegCopyMode mode = RegCopyMode::NONE );
 
   // Replace the current scene with a new one
-  void replace( std::unique_ptr<IScene> scene, RegistryTransfer::RegCopyMode mode = RegistryTransfer::RegCopyMode::NONE );
+  void replace( std::unique_ptr<IScene> scene, RegCopyMode mode = RegCopyMode::NONE );
   // Replace the current scene with a new one - do not call on_exit() for the replaced scene
-  void replace_overlay( std::unique_ptr<IScene> scene, RegistryTransfer::RegCopyMode mode = RegistryTransfer::RegCopyMode::NONE );
+  void replace_overlay( std::unique_ptr<IScene> scene, RegCopyMode mode = RegCopyMode::NONE );
 
   // Get a pointer to the current active scene
   IScene *current();

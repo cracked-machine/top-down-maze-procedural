@@ -31,6 +31,6 @@ void GameOverScene::do_update( [[maybe_unused]] sf::Time dt )
   render_menu_sys.render_defeat_screen();
 }
 
-entt::registry &GameOverScene::get_registry() { return m_reg; }
+entt::registry &GameOverScene::registry() { return m_reg; }
 
 } // namespace ProceduralMaze::Scene

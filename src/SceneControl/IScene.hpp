@@ -28,7 +28,7 @@ public:
 
   //! @brief Get the registry object owned by the scene
   //! @return entt::registry&
-  virtual entt::registry &get_registry() = 0;
+  virtual entt::registry &registry() = 0;
 
 protected:
   //! @brief User-overridable update function

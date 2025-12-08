@@ -84,6 +84,6 @@ void CryptScene::do_update( [[maybe_unused]] sf::Time dt )
   // clang-format on
 }
 
-entt::registry &CryptScene::get_registry() { return m_reg; }
+entt::registry &CryptScene::registry() { return m_reg; }
 
 } // namespace ProceduralMaze::Scene

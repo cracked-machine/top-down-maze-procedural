@@ -26,16 +26,14 @@
 
 namespace ProceduralMaze::Scene
 {
-
+enum class RegCopyMode
+{
+  NONE,
+  PLAYER
+};
 class RegistryTransfer
 {
 public:
-  enum class RegCopyMode
-  {
-    NONE,
-    PLAYER
-  };
-
   using RegCopy = std::unique_ptr<entt::registry>;
 
   // Helper function to capture the current scene's registry
@@ -44,7 +42,7 @@ public:
     if ( copy_mode == RegCopyMode::NONE ) { return nullptr; }
 
     auto registry_copy = std::make_unique<entt::registry>();
-    auto &source_registry = scene.get_registry();
+    auto &source_registry = scene.registry();
 
     // Ensure all known player component storages exist in target registry
     ensure_player_component_storages( *registry_copy );
@@ -85,13 +83,13 @@ public:
   }
 
   // Transfer all components from player entity
-  entt::entity transfer_player_entity( entt::registry &from_registry, entt::registry &to_registry )
+  void xfer_player_entt( entt::registry &from_registry, entt::registry &to_registry )
   {
     auto player_view = from_registry.view<Cmp::PlayableCharacter>();
     if ( player_view.empty() )
     {
       SPDLOG_WARN( "No player entity found to transfer" );
-      return entt::null;
+      return;
     }
 
     auto source_entity = player_view.front();
@@ -140,8 +138,6 @@ public:
         else { SPDLOG_WARN( "No storage found in target registry for component: {}", source_storage.type().name() ); }
       }
     }
-
-    return target_entity;
   }
 
 private:

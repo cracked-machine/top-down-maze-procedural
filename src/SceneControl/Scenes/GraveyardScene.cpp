@@ -113,6 +113,6 @@ void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
   // clang-format on
 }
 
-entt::registry &GraveyardScene::get_registry() { return m_reg; }
+entt::registry &GraveyardScene::registry() { return m_reg; }
 
 } // namespace ProceduralMaze::Scene

@@ -39,6 +39,6 @@ void TitleScene::do_update( [[maybe_unused]] sf::Time dt )
   render_menu_sys.render_title();
 }
 
-entt::registry &TitleScene::get_registry() { return m_reg; }
+entt::registry &TitleScene::registry() { return m_reg; }
 
 } // namespace ProceduralMaze::Scene

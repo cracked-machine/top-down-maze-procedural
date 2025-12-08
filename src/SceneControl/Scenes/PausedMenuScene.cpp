@@ -51,6 +51,6 @@ void PausedMenuScene::do_update( [[maybe_unused]] sf::Time dt )
   // globalFrameClock.start();
 }
 
-entt::registry &PausedMenuScene::get_registry() { return m_reg; }
+entt::registry &PausedMenuScene::registry() { return m_reg; }
 
 } // namespace ProceduralMaze::Scene

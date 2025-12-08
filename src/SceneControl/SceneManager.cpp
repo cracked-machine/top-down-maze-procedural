@@ -1,6 +1,7 @@
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
+#include <SceneControl/ComponentTransfer.hpp>
 #include <SceneControl/IScene.hpp>
 #include <SceneControl/SceneManager.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
@@ -25,7 +26,7 @@ void SceneManager::update( sf::Time dt )
   if ( m_scenemanager_event_dispatcher.size() > 0 ) { m_scenemanager_event_dispatcher.update(); }
 }
 
-void SceneManager::push( std::unique_ptr<IScene> scene, RegistryTransfer::RegCopyMode mode )
+void SceneManager::push( std::unique_ptr<IScene> scene, RegCopyMode mode )
 {
   RegistryTransfer::RegCopy reg_copy = nullptr;
 
@@ -45,18 +46,15 @@ void SceneManager::push( std::unique_ptr<IScene> scene, RegistryTransfer::RegCop
   // update the systems with current scene registry
   inject_current_scene_registry_into_systems();
 
-  // // Transfer registry components - specify which component types to transfer
-  // if ( reg_copy && mode == ComponentTransfer::CopyRegistry::FULL )
-  // {
-  //   m_cmp_transfer.transfer_player_entity( *reg_copy, m_scene_stack.current().get_registry() );
-  // }
+  // Transfer registry components - specify which component types to transfer
+  if ( reg_copy && mode == RegCopyMode::PLAYER ) { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); }
 
   // call enter handler on the new scene. Use a loading screen to hide any delays
   loading_screen( [&]() { m_scene_stack.current().on_init(); }, m_splash_texture );
   m_scene_stack.current().on_enter();
 }
 
-void SceneManager::pop( RegistryTransfer::RegCopyMode mode )
+void SceneManager::pop( RegCopyMode mode )
 {
   RegistryTransfer::RegCopy reg_copy = m_reg_xfer.copy_reg( m_scene_stack.current(), mode );
 
@@ -69,16 +67,16 @@ void SceneManager::pop( RegistryTransfer::RegCopyMode mode )
 
   inject_current_scene_registry_into_systems();
 
-  // // Transfer registry components - specify which component types to transfer
-  // if ( reg_copy && mode == ComponentTransfer::CopyRegistry::FULL )
-  // {
-  //   loading_screen( [&]() { m_cmp_transfer.transfer_player_entity( *reg_copy, m_scene_stack.current().get_registry() ); }, m_splash_texture );
-  // }
+  // Transfer registry components - specify which component types to transfer
+  if ( reg_copy && mode == RegCopyMode::PLAYER )
+  {
+    loading_screen( [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); }, m_splash_texture );
+  }
 
   if ( !m_scene_stack.empty() ) m_scene_stack.current().on_enter();
 }
 
-void SceneManager::push_overlay( std::unique_ptr<IScene> scene, RegistryTransfer::RegCopyMode mode )
+void SceneManager::push_overlay( std::unique_ptr<IScene> scene, RegCopyMode mode )
 {
   RegistryTransfer::RegCopy reg_copy = m_reg_xfer.copy_reg( m_scene_stack.current(), mode );
 
@@ -91,14 +89,11 @@ void SceneManager::push_overlay( std::unique_ptr<IScene> scene, RegistryTransfer
   loading_screen( [&]() { m_scene_stack.current().on_init(); }, m_splash_texture );
 
   // Transfer components from the clone to the new top scene registry
-  if ( reg_copy && mode == RegistryTransfer::RegCopyMode::PLAYER )
-  {
-    m_reg_xfer.transfer_player_entity( *reg_copy, m_scene_stack.current().get_registry() );
-  }
+  if ( reg_copy && mode == RegCopyMode::PLAYER ) { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); }
   m_scene_stack.current().on_enter();
 }
 
-void SceneManager::pop_overlay( RegistryTransfer::RegCopyMode mode )
+void SceneManager::pop_overlay( RegCopyMode mode )
 {
   if ( m_scene_stack.size() == 1 ) return;
 
@@ -114,15 +109,12 @@ void SceneManager::pop_overlay( RegistryTransfer::RegCopyMode mode )
   inject_current_scene_registry_into_systems();
 
   // Transfer components from the clone to the new top scene registry
-  if ( reg_copy && mode == RegistryTransfer::RegCopyMode::PLAYER )
-  {
-    m_reg_xfer.transfer_player_entity( *reg_copy, m_scene_stack.current().get_registry() );
-  }
+  if ( reg_copy && mode == RegCopyMode::PLAYER ) { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); }
 
   m_scene_stack.current().on_enter();
 }
 
-void SceneManager::replace( std::unique_ptr<IScene> scene, RegistryTransfer::RegCopyMode mode )
+void SceneManager::replace( std::unique_ptr<IScene> scene, RegCopyMode mode )
 {
   RegistryTransfer::RegCopy reg_copy = m_reg_xfer.copy_reg( m_scene_stack.current(), mode );
 
@@ -142,16 +134,13 @@ void SceneManager::replace( std::unique_ptr<IScene> scene, RegistryTransfer::Reg
 
   inject_current_scene_registry_into_systems();
 
-  // // Transfer components from the clone to the new scene registry
-  // if ( reg_copy && mode == ComponentTransfer::CopyRegistry::FULL )
-  // {
-  //   m_cmp_transfer.transfer_player_entity( *reg_copy, m_scene_stack.current().get_registry() );
-  // }
+  // Transfer components from the clone to the new scene registry
+  if ( reg_copy && mode == RegCopyMode::PLAYER ) { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); }
 
   loading_screen( [&]() { m_scene_stack.current().on_enter(); }, m_splash_texture );
 }
 
-void SceneManager::replace_overlay( std::unique_ptr<IScene> scene, RegistryTransfer::RegCopyMode mode )
+void SceneManager::replace_overlay( std::unique_ptr<IScene> scene, RegCopyMode mode )
 {
   RegistryTransfer::RegCopy reg_copy = m_reg_xfer.copy_reg( m_scene_stack.current(), mode );
 
@@ -169,11 +158,8 @@ void SceneManager::replace_overlay( std::unique_ptr<IScene> scene, RegistryTrans
 
   inject_current_scene_registry_into_systems();
 
-  // // Transfer components from the clone to the new scene registry
-  // if ( reg_copy && mode == ComponentTransfer::CopyRegistry::FULL )
-  // {
-  //   m_cmp_transfer.transfer_player_entity( *reg_copy, m_scene_stack.current().get_registry() );
-  // }
+  // Transfer components from the clone to the new scene registry
+  if ( reg_copy && mode == RegCopyMode::PLAYER ) { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); }
 
   loading_screen( [&]() { m_scene_stack.current().on_enter(); }, m_splash_texture );
 }
@@ -193,13 +179,13 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
     {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_CRYPT requested" );
       auto crypt_scene = std::make_unique<CryptScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher );
-      push_overlay( std::move( crypt_scene ), RegistryTransfer::RegCopyMode::PLAYER );
+      push_overlay( std::move( crypt_scene ), RegCopyMode::PLAYER );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_CRYPT:
     {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_CRYPT requested" );
-      pop_overlay( RegistryTransfer::RegCopyMode::PLAYER );
+      pop_overlay( RegCopyMode::PLAYER );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_GAME:
@@ -244,14 +230,14 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
     {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::GAME_OVER requested" );
       auto game_over_scene = std::make_unique<GameOverScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher );
-      replace_overlay( std::move( game_over_scene ), RegistryTransfer::RegCopyMode::PLAYER );
+      replace_overlay( std::move( game_over_scene ), RegCopyMode::PLAYER );
       break;
     }
     case Events::SceneManagerEvent::Type::LEVEL_COMPLETE:
     {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::LEVEL_COMPLETE requested" );
       auto level_complete_scene = std::make_unique<LevelCompleteScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher );
-      replace_overlay( std::move( level_complete_scene ), RegistryTransfer::RegCopyMode::PLAYER );
+      replace_overlay( std::move( level_complete_scene ), RegCopyMode::PLAYER );
       break;
     }
     case Events::SceneManagerEvent::Type::RETURN_TO_TITLE:
@@ -270,7 +256,7 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
 void SceneManager::inject_current_scene_registry_into_systems()
 {
   if ( m_scene_stack.empty() ) { throw std::runtime_error( "SceneManager::inject_registry: No current scene available" ); }
-  entt::registry &reg = m_scene_stack.current().get_registry();
+  entt::registry &reg = m_scene_stack.current().registry();
   for ( auto &sys : m_system_store )
     sys.second->setReg( reg ); // pass the unique_ptr by reference
 

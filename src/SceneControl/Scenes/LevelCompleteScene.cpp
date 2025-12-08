@@ -22,7 +22,6 @@ void LevelCompleteScene::on_exit()
 
   auto &player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
   player_sys.stopFootstepsSound();
-
 }
 
 void LevelCompleteScene::do_update( [[maybe_unused]] sf::Time dt )
@@ -33,6 +32,6 @@ void LevelCompleteScene::do_update( [[maybe_unused]] sf::Time dt )
   render_menu_sys.render_victory_screen();
 }
 
-entt::registry &LevelCompleteScene::get_registry() { return m_reg; }
+entt::registry &LevelCompleteScene::registry() { return m_reg; }
 
 } // namespace ProceduralMaze::Scene
