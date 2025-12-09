@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <entt/entity/fwd.hpp>
 #include <nlohmann/json.hpp>
 
 #include <spdlog/spdlog.h>
@@ -17,10 +18,8 @@ class TileMap : public sf::Drawable, public sf::Transformable
 public:
   TileMap() = default;
 
-  void load( sf::Vector2u map_dimensions, const std::filesystem::path &config_path = "res/json/tilemap_config.json" );
-
-  // Create the tile map using a single large sf::VertexArray
-  void create( sf::Vector2u tile_size, unsigned int width, unsigned int height );
+  void load( entt::registry &registry, sf::Vector2u map_dimensions,
+             const std::filesystem::path &config_path = "res/json/tilemap_config.json" );
 
   // Draw the sf::VertexArray to the render target (with optional state for shader)
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
@@ -43,7 +42,11 @@ private:
 
   TileMapConfig load_config( const std::filesystem::path &config_path );
 
-  void initialize( const TileMapConfig &config );
+  void initialize( entt::registry &registry, const TileMapConfig &config );
+
+  // Create the tile map using a single large sf::VertexArray
+  void create( entt::registry &registry, sf::Vector2u tile_size, unsigned int width,
+               unsigned int height );
 
   sf::VertexArray m_vertices;
   sf::Texture m_tileset;

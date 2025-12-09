@@ -42,8 +42,8 @@ void RandomLevelGenerator::generate( sf::Vector2u map_grid_size, bool gen_graves
                                      bool gen_crypts )
 {
   m_data.clear();
-  gen_rectangle_gamearea( map_grid_size );
-  // gen_circular_gamearea( map_grid_size );
+  // gen_rectangle_gamearea( map_grid_size );
+  gen_circular_gamearea( map_grid_size );
   if ( gen_graves ) gen_grave_obstacles();
   if ( gen_altars ) gen_altar_obstacles();
   if ( gen_crypts ) gen_crypt_obstacles();

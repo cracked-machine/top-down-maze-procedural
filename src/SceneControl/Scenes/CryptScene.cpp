@@ -24,7 +24,7 @@ void CryptScene::on_init()
   cellauto_parser.set_random_level_generator( &random_level_sys );
   cellauto_parser.iterate( 5 );
 
-  Factory::FloormapFactory::CreateFloormap( m_floormap, Sys::BaseSystem::kCryptMapGridSize );
+  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, Sys::BaseSystem::kCryptMapGridSize );
 }
 
 void CryptScene::on_enter()

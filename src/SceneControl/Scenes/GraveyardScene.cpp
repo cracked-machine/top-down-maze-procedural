@@ -18,7 +18,6 @@ void GraveyardScene::on_init()
   auto &render_game_system = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
   SPDLOG_INFO( "Got render_game_system at {}", static_cast<void *>( &render_game_system ) );
   render_game_system.init_shaders();
-  Factory::FloormapFactory::CreateFloormap( m_floormap, Sys::BaseSystem::kGraveyardMapGridSize );
 
   Factory::CreatePlayer( m_reg );
 
@@ -31,6 +30,9 @@ void GraveyardScene::on_init()
   auto &cellauto_parser = m_system_store.find<Sys::SystemStore::Type::CellAutomataSystem>();
   cellauto_parser.set_random_level_generator( &random_level_sys );
   cellauto_parser.iterate( 5 );
+
+  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap,
+                                            Sys::BaseSystem::kGraveyardMapGridSize );
 
   auto &exit_sys = m_system_store.find<Sys::SystemStore::Type::ExitSystem>();
   exit_sys.spawn_exit();
