@@ -43,27 +43,32 @@ public:
   // The playable area size in blocks, not pixels
   inline static constexpr sf::Vector2u kGraveyardMapGridSize{ 100u, 124u };
 
-  // The playable area offset in blocks, not pixels
-  inline static constexpr sf::Vector2f kGraveyardMapGridOffset{ 1.f, 1.f };
-
   inline static constexpr sf::Vector2u kCryptMapGridSize{ 64u, 32u };
   inline static constexpr sf::Vector2f kCryptMapGridOffset{ 1.f, 1.f };
 
-  BaseSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  BaseSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+              Audio::SoundBank &sound_bank );
 
   //! @brief polymorphic destructor for derived classes
-  virtual ~BaseSystem() { SPDLOG_INFO( "BaseSystem destructor called for system at {}", static_cast<void *>( this ) ); };
+  virtual ~BaseSystem()
+  {
+    SPDLOG_INFO( "BaseSystem destructor called for system at {}", static_cast<void *>( this ) );
+  };
 
   //! @brief Event handler for pausing system clocks. Must be implemented by derived classes.
-  //! @note If you register this handler with the event dispatcher, this function is automcatically called when the game is paused.
+  //! @note If you register this handler with the event dispatcher, this function is automcatically
+  //! called when the game is paused.
   /// For example:
-  /// `std::ignore = getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::DerivedSystem::onPause>(this);`
+  /// `std::ignore =
+  /// getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::DerivedSystem::onPause>(this);`
   virtual void onPause() = 0;
 
   //! @brief Event handler for resuming system clocks. Must be implemented by derived classes.
-  //! @note If you register this handler with the event dispatcher, this function is automcatically called when the game is resumed.
+  //! @note If you register this handler with the event dispatcher, this function is automcatically
+  //! called when the game is resumed.
   /// For example:
-  /// `std::ignore = getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::DerivedSystem::onResume>(this);`
+  /// `std::ignore =
+  /// getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::DerivedSystem::onResume>(this);`
   virtual void onResume() = 0;
 
   //! @brief Add a persistent component to the registry's context if it doesn't already exist
@@ -83,7 +88,10 @@ public:
   template <typename T, typename... Args>
   void add_persistent_component( Args &&...args )
   {
-    if ( not getReg().ctx().contains<T>() ) { getReg().ctx().emplace<T>( std::forward<Args>( args )... ); }
+    if ( not getReg().ctx().contains<T>() )
+    {
+      getReg().ctx().emplace<T>( std::forward<Args>( args )... );
+    }
   }
 
   //! @brief Get the persistent component object
@@ -95,8 +103,10 @@ public:
   {
     if ( not getReg().ctx().contains<T>() )
     {
-      SPDLOG_CRITICAL( "Attempting to access non-existent persistent component: {}", typeid( T ).name() );
-      throw std::runtime_error( "Persistent component not found: " + std::string( typeid( T ).name() ) );
+      SPDLOG_CRITICAL( "Attempting to access non-existent persistent component: {}",
+                       typeid( T ).name() );
+      throw std::runtime_error( "Persistent component not found: " +
+                                std::string( typeid( T ).name() ) );
     }
     return getReg().ctx().get<T>();
   }
@@ -110,8 +120,10 @@ public:
   {
     if ( not reg.ctx().contains<T>() )
     {
-      SPDLOG_CRITICAL( "Attempting to access non-existent persistent component: {}", typeid( T ).name() );
-      throw std::runtime_error( "Persistent component not found: " + std::string( typeid( T ).name() ) );
+      SPDLOG_CRITICAL( "Attempting to access non-existent persistent component: {}",
+                       typeid( T ).name() );
+      throw std::runtime_error( "Persistent component not found: " +
+                                std::string( typeid( T ).name() ) );
     }
     return reg.ctx().get<T>();
   }
@@ -126,10 +138,14 @@ public:
 
     if ( pos )
     {
-      return std::optional<sf::Vector2i>{ { static_cast<int>( pos->position.x / BaseSystem::kGridSquareSizePixels.x ),
-                                            static_cast<int>( pos->position.y / BaseSystem::kGridSquareSizePixels.y ) } };
+      return std::optional<sf::Vector2i>{
+          { static_cast<int>( pos->position.x / BaseSystem::kGridSquareSizePixels.x ),
+            static_cast<int>( pos->position.y / BaseSystem::kGridSquareSizePixels.y ) } };
     }
-    else { SPDLOG_ERROR( "Entity {} does not have a Position component", static_cast<int>( entity ) ); }
+    else
+    {
+      SPDLOG_ERROR( "Entity {} does not have a Position component", static_cast<int>( entity ) );
+    }
     return std::nullopt;
   }
 
@@ -161,7 +177,8 @@ public:
   //! @param current_pos The current position of the player as a 2D vector
   //! @param direction The direction vector representing the intended diagonal movement
   //! @return true if the diagonal movement would pass between obstacles, false otherwise
-  bool isDiagonalMovementBetweenObstacles( const sf::FloatRect &current_pos, const sf::Vector2f &direction );
+  bool isDiagonalMovementBetweenObstacles( const sf::FloatRect &current_pos,
+                                           const sf::Vector2f &direction );
 
   // singleton event dispatcher
   // Use this to get temporary access to the dispatcher to register event handlers
@@ -184,28 +201,34 @@ public:
   };
 
   /**
-   * @brief Retrieves a random entity and its position component from entities matching the specified criteria.
+   * @brief Retrieves a random entity and its position component from entities matching the
+   * specified criteria.
    *
-   * This function selects a random entity and position component from a filtered view of entities that have a Position
-   * component and all specified Include components, while excluding entities with any of the Exclude components.
+   * This function selects a random entity and position component from a filtered view of entities
+   * that have a Position component and all specified Include components, while excluding entities
+   * with any of the Exclude components.
    *
-   * @tparam Include... Variadic template parameter pack specifying component types that entities must have
-   * @tparam Exclude... Variadic template parameter pack specifying component types that entities must not have
+   * @tparam Include... Variadic template parameter pack specifying component types that entities
+   * must have
+   * @tparam Exclude... Variadic template parameter pack specifying component types that entities
+   * must not have
    *
-   * @param include_pack Template parameter pack wrapper for components to include in the filter. Do not include
-   * Cmp::Position here.
+   * @param include_pack Template parameter pack wrapper for components to include in the filter. Do
+   * not include Cmp::Position here.
    * @param exclude_pack Template parameter pack wrapper for components to exclude from the filter
-   * @param seed Optional seed value for random number generation. If 0 (default), uses std::random_device
+   * @param seed Optional seed value for random number generation. If 0 (default), uses
+   * std::random_device
    *
-   * @return std::pair<entt::entity, Cmp::Position> A pair containing the randomly selected entity and its position
-   * component
+   * @return std::pair<entt::entity, Cmp::Position> A pair containing the randomly selected entity
+   * and its position component
    *
    * @note The function assumes there is at least one entity matching the filter criteria.
    *       If no entities match, the behavior is undefined.
    * @note Uses SPDLOG_DEBUG to log the number of matching positions found.
    */
   template <typename... Include, typename... Exclude>
-  std::pair<entt::entity, Cmp::Position> get_random_position( IncludePack<Include...>, ExcludePack<Exclude...>, unsigned long seed = 0 )
+  std::pair<entt::entity, Cmp::Position>
+  get_random_position( IncludePack<Include...>, ExcludePack<Exclude...>, unsigned long seed = 0 )
   {
     auto random_view = getReg().view<Cmp::Position, Include...>( entt::exclude<Exclude...> );
 
@@ -222,7 +245,8 @@ public:
     SPDLOG_DEBUG( "Random index selected: {}", random_index );
     if ( random_index < 0 || random_index >= random_view_count )
     {
-      SPDLOG_CRITICAL( "Random index {} out of bounds (0 to {})", random_index, random_view_count - 1 );
+      SPDLOG_CRITICAL( "Random index {} out of bounds (0 to {})", random_index,
+                       random_view_count - 1 );
       throw std::out_of_range( "Random index out of bounds" );
     }
     auto it = random_view.begin();
@@ -238,10 +262,13 @@ public:
   }
 
   template <typename... Include, typename... Exclude>
-  entt::entity get_random_nearby_disabled_obstacle( sf::FloatRect search_area, IncludePack<Include...>, ExcludePack<Exclude...> )
+  entt::entity get_random_nearby_disabled_obstacle( sf::FloatRect search_area,
+                                                    IncludePack<Include...>,
+                                                    ExcludePack<Exclude...> )
   {
 
-    auto obst_view = getReg().view<Cmp::Obstacle, Cmp::Position, Include...>( entt::exclude<Exclude...> );
+    auto obst_view = getReg().view<Cmp::Obstacle, Cmp::Position, Include...>(
+        entt::exclude<Exclude...> );
 
     for ( auto obst_entity : obst_view )
     {
@@ -252,7 +279,8 @@ public:
 
       return obst_entity;
     }
-    SPDLOG_WARN( "Failed to find nearby disabled obstacle for [{},{}].", search_area.position.x, search_area.position.y );
+    SPDLOG_WARN( "Failed to find nearby disabled obstacle for [{},{}].", search_area.position.x,
+                 search_area.position.y );
     return entt::null;
   }
 

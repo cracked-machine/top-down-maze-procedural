@@ -1,6 +1,7 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Direction.hpp>
+#include <Components/Neighbours.hpp>
 #include <Components/PCDetectionBounds.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
 #include <Components/Persistent/BombInventory.hpp>
@@ -12,6 +13,8 @@
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerMortality.hpp>
 #include <Components/PlayerRelicCount.hpp>
+#include <Components/ReservedPosition.hpp>
+#include <Components/SpawnArea.hpp>
 #include <Components/WeaponLevel.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Utils/Utils.hpp>
@@ -28,19 +31,25 @@ void CreatePlayer( entt::registry &registry )
   // start position must be pixel coordinates within the screen resolution (kDisplaySize),
   // but also grid aligned (kMapGridSize) to avoid collision detection errors.
   // So we must recalc start position to the nearest grid position here
-  auto start_pos = Sys::BaseSystem::get_persistent_component<Cmp::Persistent::PlayerStartPosition>( registry );
+  auto start_pos = Sys::BaseSystem::get_persistent_component<Cmp::Persistent::PlayerStartPosition>(
+      registry );
   start_pos = Utils::snap_to_grid( start_pos );
   registry.emplace<Cmp::Position>( entity, start_pos, Sys::BaseSystem::kGridSquareSizePixelsF );
 
-  auto &bomb_inventory = Sys::BaseSystem::get_persistent_component<Cmp::Persistent::BombInventory>( registry );
-  auto &blast_radius = Sys::BaseSystem::get_persistent_component<Cmp::Persistent::BlastRadius>( registry );
-  registry.emplace<Cmp::PlayableCharacter>( entity, bomb_inventory.get_value(), blast_radius.get_value() );
+  auto &bomb_inventory = Sys::BaseSystem::get_persistent_component<Cmp::Persistent::BombInventory>(
+      registry );
+  auto &blast_radius = Sys::BaseSystem::get_persistent_component<Cmp::Persistent::BlastRadius>(
+      registry );
+  registry.emplace<Cmp::PlayableCharacter>( entity, bomb_inventory.get_value(),
+                                            blast_radius.get_value() );
 
   registry.emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
 
-  auto &pc_detection_scale = Sys::BaseSystem::get_persistent_component<Cmp::Persistent::PlayerDetectionScale>( registry );
+  auto &pc_detection_scale = Sys::BaseSystem::get_persistent_component<
+      Cmp::Persistent::PlayerDetectionScale>( registry );
 
-  registry.emplace<Cmp::PCDetectionBounds>( entity, start_pos, Sys::BaseSystem::kGridSquareSizePixelsF, pc_detection_scale.get_value() );
+  registry.emplace<Cmp::PCDetectionBounds>(
+      entity, start_pos, Sys::BaseSystem::kGridSquareSizePixelsF, pc_detection_scale.get_value() );
 
   registry.emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYER.walk.south" );
   registry.emplace<Cmp::PlayerCandlesCount>( entity, 0 );
@@ -52,6 +61,27 @@ void CreatePlayer( entt::registry &registry )
   registry.emplace<Cmp::ZOrderValue>( entity, start_pos.y ); // z-order based on y-position
   registry.emplace<Cmp::AbsoluteAlpha>( entity, 255 );       // fully opaque
   registry.emplace<Cmp::AbsoluteRotation>( entity, 0 );
+}
+
+entt::entity createSpawnPointMarker( entt::registry &registry, const sf::Vector2f &pos,
+                                     Cmp::RectBounds player_start_area, float zorder )
+{
+
+  auto entity = registry.create();
+  registry.emplace_or_replace<Cmp::Position>( entity, pos,
+                                              Sys::BaseSystem::kGridSquareSizePixelsF );
+  registry.emplace_or_replace<Cmp::Neighbours>( entity );
+  auto &pos_cmp = registry.get<Cmp::Position>( entity );
+  if ( pos_cmp.findIntersection( player_start_area.getBounds() ) )
+  {
+    // We need to reserve these positions for the player start area
+    registry.emplace_or_replace<Cmp::ReservedPosition>( entity );
+    registry.emplace_or_replace<Cmp::SpawnArea>( entity, false );
+    registry.emplace_or_replace<Cmp::NoPathFinding>( entity );
+    registry.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYERSPAWN", 0 );
+    registry.emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y - zorder );
+  }
+  return entity;
 }
 
 } // namespace ProceduralMaze::Factory

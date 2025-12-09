@@ -26,8 +26,7 @@ void GraveyardScene::on_init()
   m_reg.emplace<Cmp::System>( entity );
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
-  random_level_sys.generate( Sys::BaseSystem::kGraveyardMapGridSize,
-                             Sys::BaseSystem::kGraveyardMapGridOffset, true, true, true );
+  random_level_sys.generate( Sys::BaseSystem::kGraveyardMapGridSize, true, true, true );
 
   auto &cellauto_parser = m_system_store.find<Sys::SystemStore::Type::CellAutomataSystem>();
   cellauto_parser.set_random_level_generator( &random_level_sys );

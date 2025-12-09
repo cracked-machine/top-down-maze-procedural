@@ -18,8 +18,7 @@ void CryptScene::on_init()
   m_reg.emplace<Cmp::System>( entity );
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
-  random_level_sys.generate( Sys::BaseSystem::kCryptMapGridSize,
-                             Sys::BaseSystem::kCryptMapGridOffset, false, false, false );
+  random_level_sys.generate( Sys::BaseSystem::kCryptMapGridSize, false, false, false );
 
   auto &cellauto_parser = m_system_store.find<Sys::SystemStore::Type::CellAutomataSystem>();
   cellauto_parser.set_random_level_generator( &random_level_sys );
