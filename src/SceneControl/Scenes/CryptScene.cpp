@@ -1,3 +1,4 @@
+#include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Factory/FloormapFactory.hpp>
@@ -16,6 +17,9 @@ void CryptScene::on_init()
 
   auto entity = m_reg.create();
   m_reg.emplace<Cmp::System>( entity );
+
+  Sys::BaseSystem::add_persistent_component<Cmp::Persistent::PlayerStartPosition>(
+      m_reg, m_player_start_position );
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
   random_level_sys.generate( Sys::BaseSystem::kCryptMapGridSize, false, false, false );
@@ -37,6 +41,12 @@ void CryptScene::on_enter()
   m_persistent_sys.load_state();
 
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().init_views();
+
+  auto player_view = m_reg.view<Cmp::PlayableCharacter, Cmp::Position>();
+  for ( auto [player_entity, pc_cmp, pos_cmp] : player_view.each() )
+  {
+    pos_cmp.position = m_player_start_position;
+  }
 }
 
 void CryptScene::on_exit()

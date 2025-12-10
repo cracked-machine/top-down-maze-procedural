@@ -4,6 +4,7 @@
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
 #include <Sprites/TileMap.hpp>
+#include <Systems/BaseSystem.hpp>
 #include <Systems/SystemStore.hpp>
 
 namespace ProceduralMaze::Scene
@@ -12,7 +13,8 @@ namespace ProceduralMaze::Scene
 class GraveyardScene : public Scene<Events::ProcessGraveyardSceneInputEvent>
 {
 public:
-  GraveyardScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher )
+  GraveyardScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store,
+                  entt::dispatcher &nav_event_dispatcher )
       : Scene( nav_event_dispatcher ),
         m_sound_bank( sound_bank ),
         m_system_store( system_store )
@@ -34,6 +36,10 @@ private:
   Sys::SystemStore &m_system_store;
 
   Sprites::Containers::TileMap m_floormap{};
+
+  inline static constexpr sf::Vector2f m_player_start_position = sf::Vector2f(
+      Sys::BaseSystem::kGraveyardMapGridSizeF.x / 2.f * Sys::BaseSystem::kGridSquareSizePixels.x,
+      Sys::BaseSystem::kGraveyardMapGridSizeF.y / 2.f * Sys::BaseSystem::kGridSquareSizePixels.y );
 };
 
 } // namespace ProceduralMaze::Scene

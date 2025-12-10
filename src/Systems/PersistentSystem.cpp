@@ -48,12 +48,16 @@
 namespace ProceduralMaze::Sys
 {
 
-PersistentSystem::PersistentSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+PersistentSystem::PersistentSystem( entt::registry &reg, sf::RenderWindow &window,
+                                    Sprites::SpriteFactory &sprite_factory,
                                     Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
-  // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-  std::ignore = get_systems_event_queue().sink<Events::SaveSettingsEvent>().connect<&Sys::PersistentSystem::on_save_settings_event>( this );
+  // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
+  // the constructor
+  std::ignore = get_systems_event_queue()
+                    .sink<Events::SaveSettingsEvent>()
+                    .connect<&Sys::PersistentSystem::on_save_settings_event>( this );
   SPDLOG_DEBUG( "PersistentSystem initialized" );
 }
 
@@ -99,13 +103,7 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
   registerComponent<Cmp::Persistent::WeaponDegradePerHit>( "WeaponDegradePerHit" );
   registerComponent<Cmp::Persistent::WormholeAnimFramerate>( "WormholeAnimFramerate" );
-
   // clang-format on
-
-  // The default value here is retained if the corresponding value in the json is 0,0
-  auto default_player_start_pos = sf::Vector2f( ( Sys::BaseSystem::kGridSquareSizePixels.x * 5 ), ( Sys::BaseSystem::kDisplaySize.y / 2.f ) );
-
-  registerComponent<Cmp::Persistent::PlayerStartPosition>( "PlayerStartPosition", default_player_start_pos );
 
   add_persistent_component<Cmp::Persistent::WormholeSeed>( 0 );
   add_persistent_component<Cmp::Persistent::SinkholeSeed>( 0 );
@@ -142,8 +140,7 @@ void PersistentSystem::save_state()
     {
       auto &component = get_persistent_component<ComponentType>();
       jsonData[key] = component.serialize();
-    }
-    catch ( const std::exception &e )
+    } catch ( const std::exception &e )
     {
       SPDLOG_WARN( "Failed to serialize component {}: {}", key, e.what() );
     }

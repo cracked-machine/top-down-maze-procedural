@@ -17,7 +17,9 @@
 #include <Components/SpawnArea.hpp>
 #include <Components/WeaponLevel.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <Utils/Utils.hpp>
+#include <entt/entity/fwd.hpp>
 #include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Factory
@@ -63,25 +65,23 @@ void CreatePlayer( entt::registry &registry )
   registry.emplace<Cmp::AbsoluteRotation>( entity, 0 );
 }
 
-entt::entity createSpawnPointMarker( entt::registry &registry, const sf::Vector2f &pos,
-                                     Cmp::RectBounds player_start_area, float zorder )
+entt::entity createWorldPosition( entt::registry &registry, const sf::Vector2f &pos )
 {
-
   auto entity = registry.create();
   registry.emplace_or_replace<Cmp::Position>( entity, pos,
                                               Sys::BaseSystem::kGridSquareSizePixelsF );
   registry.emplace_or_replace<Cmp::Neighbours>( entity );
-  auto &pos_cmp = registry.get<Cmp::Position>( entity );
-  if ( pos_cmp.findIntersection( player_start_area.getBounds() ) )
-  {
-    // We need to reserve these positions for the player start area
-    registry.emplace_or_replace<Cmp::ReservedPosition>( entity );
-    registry.emplace_or_replace<Cmp::SpawnArea>( entity, false );
-    registry.emplace_or_replace<Cmp::NoPathFinding>( entity );
-    registry.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYERSPAWN", 0 );
-    registry.emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y - zorder );
-  }
   return entity;
+}
+
+void addSpawnArea( entt::registry &registry, entt::entity entity, float zorder )
+{
+  // We need to reserve these positions for the player start area
+  registry.emplace_or_replace<Cmp::ReservedPosition>( entity );
+  registry.emplace_or_replace<Cmp::SpawnArea>( entity, false );
+  registry.emplace_or_replace<Cmp::NoPathFinding>( entity );
+  registry.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYERSPAWN", 0 );
+  registry.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
 }
 
 } // namespace ProceduralMaze::Factory

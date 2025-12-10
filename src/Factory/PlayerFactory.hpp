@@ -10,8 +10,8 @@ namespace ProceduralMaze::Factory
 {
 
 void CreatePlayer( entt::registry &registry );
-entt::entity createSpawnPointMarker( entt::registry &registry, const sf::Vector2f &pos,
-                                     Cmp::RectBounds player_start_area, float zorder );
+entt::entity createWorldPosition( entt::registry &registry, const sf::Vector2f &pos );
+void addSpawnArea( entt::registry &registry, entt::entity entity, float zorder );
 
 } // namespace ProceduralMaze::Factory
 

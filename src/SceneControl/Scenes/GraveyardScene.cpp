@@ -1,8 +1,10 @@
+#include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <SceneControl/Scenes/GraveyardScene.hpp>
+#include <Systems/BaseSystem.hpp>
 
 namespace ProceduralMaze::Scene
 {
@@ -14,6 +16,9 @@ void GraveyardScene::on_init()
   auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
+
+  Sys::BaseSystem::add_persistent_component<Cmp::Persistent::PlayerStartPosition>(
+      m_reg, m_player_start_position );
 
   auto &render_game_system = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
   SPDLOG_INFO( "Got render_game_system at {}", static_cast<void *>( &render_game_system ) );
@@ -62,10 +67,10 @@ void GraveyardScene::on_enter()
     m_sound_bank.get_music( "game_music" ).play();
   }
 
-  auto relic_view = m_reg.view<Cmp::PlayerRelicCount>();
-  for ( auto [entity, reliccount] : relic_view.each() )
+  auto player_view = m_reg.view<Cmp::PlayableCharacter, Cmp::Position>();
+  for ( auto [player_entity, pc_cmp, pos_cmp] : player_view.each() )
   {
-    SPDLOG_INFO( "RelicCount: {}", reliccount.get_count() );
+    pos_cmp.position = m_player_start_position;
   }
 }
 

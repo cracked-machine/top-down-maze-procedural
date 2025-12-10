@@ -41,6 +41,18 @@ public:
   void gen_rectangle_gamearea( sf::Vector2u map_grid_size );
   void gen_circular_gamearea( sf::Vector2u map_grid_size );
 
+  //! @brief Generate a cross-shaped game area
+  //! @param map_grid_size size of the total map grid in tiles
+  //! @param armHalfWidth arm half-thickness in tiles (cross thickness = 2*armHalfWidth+1)
+  //! @param vertHalfLengthModifier modifier for vertical arm half-length, i.e. 0.5 = half the map
+  //! height
+  //! @param horizHalfLengthModifier modifier for horizontal arm half-length, i.e. 0.25 = quarter
+  //! the map width
+  //! @param horizOffset move horizontal arm up by N tiles (positive pushes it downward)
+  void gen_cross_gamearea( sf::Vector2u map_grid_size, int armHalfWidth,
+                           float vertHalfLengthModifier, float horizHalfLengthModifier,
+                           int horizOffset );
+
   // Find a valid spawn location for a large obstacle given a seed
   std::pair<entt::entity, Cmp::Position> find_spawn_location( const Sprites::MultiSprite &ms,
                                                               unsigned long seed );

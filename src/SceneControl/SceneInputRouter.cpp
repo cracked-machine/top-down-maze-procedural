@@ -24,8 +24,10 @@
 namespace ProceduralMaze::Sys
 {
 
-SceneInputRouter::SceneInputRouter( entt::registry &reg, sf::RenderWindow &m_window, Sprites::SpriteFactory &sprite_factory,
-                                    Audio::SoundBank &sound_bank, entt::dispatcher &nav_event_dispatcher,
+SceneInputRouter::SceneInputRouter( entt::registry &reg, sf::RenderWindow &m_window,
+                                    Sprites::SpriteFactory &sprite_factory,
+                                    Audio::SoundBank &sound_bank,
+                                    entt::dispatcher &nav_event_dispatcher,
                                     entt::dispatcher &scenemanager_event_dispatcher )
     : Sys::BaseSystem( reg, m_window, sprite_factory, sound_bank ),
       m_nav_event_dispatcher( nav_event_dispatcher ),
@@ -58,15 +60,18 @@ void SceneInputRouter::title_scene_input_handler()
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::Enter )
       {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::START_GAME ) );
+        m_scenemanager_event_dispatcher.enqueue(
+            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::START_GAME ) );
       }
       else if ( keyPressed->scancode == sf::Keyboard::Scancode::Q )
       {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_GAME ) );
+        m_scenemanager_event_dispatcher.enqueue(
+            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_GAME ) );
       }
       else if ( keyPressed->scancode == sf::Keyboard::Scancode::S )
       {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::SETTINGS_MENU ) );
+        m_scenemanager_event_dispatcher.enqueue(
+            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::SETTINGS_MENU ) );
       }
     }
   }
@@ -88,7 +93,8 @@ void SceneInputRouter::settings_scene_state_handler()
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape )
       {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_SETTINGS_MENU ) );
+        m_scenemanager_event_dispatcher.enqueue(
+            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_SETTINGS_MENU ) );
       }
     }
   }
@@ -122,7 +128,8 @@ void SceneInputRouter::graveyard_scene_state_handler()
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.show_path_distances = not _sys.show_path_distances;
-          SPDLOG_INFO( "Show player distances is now {}", _sys.show_path_distances ? "ENABLED" : "DISABLED" );
+          SPDLOG_INFO( "Show player distances is now {}",
+                       _sys.show_path_distances ? "ENABLED" : "DISABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 )
@@ -130,7 +137,8 @@ void SceneInputRouter::graveyard_scene_state_handler()
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.show_armed_obstacles = not _sys.show_armed_obstacles;
-          SPDLOG_INFO( "Show armed obstacles is now {}", _sys.show_armed_obstacles ? "ENABLED" : "DISABLED" );
+          SPDLOG_INFO( "Show armed obstacles is now {}",
+                       _sys.show_armed_obstacles ? "ENABLED" : "DISABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
@@ -138,7 +146,8 @@ void SceneInputRouter::graveyard_scene_state_handler()
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.show_debug_stats = not _sys.show_debug_stats;
-          SPDLOG_INFO( "Show debug stats is now {}", _sys.show_debug_stats ? "ENABLED" : "DISABLED" );
+          SPDLOG_INFO( "Show debug stats is now {}",
+                       _sys.show_debug_stats ? "ENABLED" : "DISABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F10 )
@@ -147,7 +156,8 @@ void SceneInputRouter::graveyard_scene_state_handler()
         auto player_key_view = getReg().view<Cmp::PlayerKeysCount>();
         for ( auto [pkey_count_entity, pkey_count_cmp] : player_key_view.each() )
         {
-          pkey_count_cmp.increment_count( get_persistent_component<Cmp::Persistent::ExitKeyRequirement>().get_value() );
+          pkey_count_cmp.increment_count(
+              get_persistent_component<Cmp::Persistent::ExitKeyRequirement>().get_value() );
         }
         auto exit_cmp = getReg().view<Cmp::Exit>();
         for ( auto [exit_entt, exit_cmp] : exit_cmp.each() )
@@ -160,9 +170,10 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
       {
-        // dont set PlayerMortality::State directly, instead update health/death_progress and let the PlayerSystem logic
-        // handle it
-        for ( auto [entity, pc_mort_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerMortality, Cmp::PlayerHealth>().each() )
+        // dont set PlayerMortality::State directly, instead update health/death_progress and let
+        // the PlayerSystem logic handle it
+        for ( auto [entity, pc_mort_cmp, pc_health_cmp] :
+              getReg().view<Cmp::PlayerMortality, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = 0;
           pc_mort_cmp.death_progress = 1.0f;
@@ -171,7 +182,8 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
       {
-        for ( auto [pc_entity, pc_candle_count_cmp] : getReg().view<Cmp::PlayerCandlesCount>().each() )
+        for ( auto [pc_entity, pc_candle_count_cmp] :
+              getReg().view<Cmp::PlayerCandlesCount>().each() )
         {
           pc_candle_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a candle (player cheated)" );
@@ -188,7 +200,8 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] :
+              getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = std::clamp( 10, pc_health_cmp.health + 10, 100 );
           SPDLOG_INFO( "Player gained health (player cheated)" );
@@ -196,7 +209,8 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_relic_count_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerRelicCount>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_relic_count_cmp] :
+              getReg().view<Cmp::PlayableCharacter, Cmp::PlayerRelicCount>().each() )
         {
           pc_relic_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a relic (player cheated)" );
@@ -204,18 +218,21 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
       {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_CRYPT ) );
+        m_scenemanager_event_dispatcher.enqueue(
+            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_CRYPT ) );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
       {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::QUIT_GAME ) );
+        m_scenemanager_event_dispatcher.enqueue(
+            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::QUIT_GAME ) );
       }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
       {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::PAUSE_GAME ) );
+        m_scenemanager_event_dispatcher.enqueue(
+            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::PAUSE_GAME ) );
       }
     }
   }
@@ -226,23 +243,38 @@ void SceneInputRouter::graveyard_scene_state_handler()
   {
     direction.x = 0;
     direction.y = 0;
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) ) { direction.y = -1; } // move player up
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) ) { direction.x = -1; } // move player left
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; }  // move player right
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; }  // move player down
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) )
+    {
+      direction.y = -1;
+    } // move player up
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) )
+    {
+      direction.x = -1;
+    } // move player left
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) )
+    {
+      direction.x = 1;
+    } // move player right
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) )
+    {
+      direction.y = 1;
+    } // move player down
   }
 
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Space ) )
   {
-    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
+    get_systems_event_queue().trigger(
+        Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
   }
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
   {
-    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
+    get_systems_event_queue().trigger(
+        Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
   }
   if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
   {
-    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
+    get_systems_event_queue().trigger(
+        Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
   }
 }
 
@@ -274,7 +306,8 @@ void SceneInputRouter::crypt_scene_state_handler()
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.show_path_distances = not _sys.show_path_distances;
-          SPDLOG_INFO( "Show player distances is now {}", _sys.show_path_distances ? "ENABLED" : "DISABLED" );
+          SPDLOG_INFO( "Show player distances is now {}",
+                       _sys.show_path_distances ? "ENABLED" : "DISABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 )
@@ -282,7 +315,8 @@ void SceneInputRouter::crypt_scene_state_handler()
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.show_armed_obstacles = not _sys.show_armed_obstacles;
-          SPDLOG_INFO( "Show armed obstacles is now {}", _sys.show_armed_obstacles ? "ENABLED" : "DISABLED" );
+          SPDLOG_INFO( "Show armed obstacles is now {}",
+                       _sys.show_armed_obstacles ? "ENABLED" : "DISABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
@@ -290,13 +324,16 @@ void SceneInputRouter::crypt_scene_state_handler()
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.show_debug_stats = not _sys.show_debug_stats;
-          SPDLOG_INFO( "Show debug stats is now {}", _sys.show_debug_stats ? "ENABLED" : "DISABLED" );
+          SPDLOG_INFO( "Show debug stats is now {}",
+                       _sys.show_debug_stats ? "ENABLED" : "DISABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
       {
-        // dont set PlayerMortality::State directly, instead update health/death_progress and let the PlayerSystem logic handle it
-        for ( auto [entity, pc_mort_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerMortality, Cmp::PlayerHealth>().each() )
+        // dont set PlayerMortality::State directly, instead update health/death_progress and let
+        // the PlayerSystem logic handle it
+        for ( auto [entity, pc_mort_cmp, pc_health_cmp] :
+              getReg().view<Cmp::PlayerMortality, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = 0;
           pc_mort_cmp.death_progress = 1.0f;
@@ -305,7 +342,8 @@ void SceneInputRouter::crypt_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
       {
-        for ( auto [pc_entity, pc_candle_count_cmp] : getReg().view<Cmp::PlayerCandlesCount>().each() )
+        for ( auto [pc_entity, pc_candle_count_cmp] :
+              getReg().view<Cmp::PlayerCandlesCount>().each() )
         {
           pc_candle_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a candle (player cheated)" );
@@ -322,7 +360,8 @@ void SceneInputRouter::crypt_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] :
+              getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = std::clamp( 10, pc_health_cmp.health + 10, 100 );
           SPDLOG_INFO( "Player gained health (player cheated)" );
@@ -330,7 +369,8 @@ void SceneInputRouter::crypt_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_relic_count_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerRelicCount>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_relic_count_cmp] :
+              getReg().view<Cmp::PlayableCharacter, Cmp::PlayerRelicCount>().each() )
         {
           pc_relic_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a relic (player cheated)" );
@@ -338,14 +378,9 @@ void SceneInputRouter::crypt_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
       {
-        auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
-        for ( auto [player_entity, pc_cmp, pos_cmp] : player_view.each() )
-        {
-          auto start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
-          pos_cmp.position = start_pos;
-          SPDLOG_INFO( "Player exiting crypt from position ({}, {})", pos_cmp.position.x, pos_cmp.position.y );
-        }
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_CRYPT ) );
+
+        m_scenemanager_event_dispatcher.enqueue(
+            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_CRYPT ) );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
       {
@@ -356,7 +391,8 @@ void SceneInputRouter::crypt_scene_state_handler()
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
       {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::PAUSE_GAME ) );
+        m_scenemanager_event_dispatcher.enqueue(
+            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::PAUSE_GAME ) );
       }
     }
   }
@@ -367,23 +403,38 @@ void SceneInputRouter::crypt_scene_state_handler()
   {
     direction.x = 0;
     direction.y = 0;
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) ) { direction.y = -1; } // move player up
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) ) { direction.x = -1; } // move player left
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; }  // move player right
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; }  // move player down
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) )
+    {
+      direction.y = -1;
+    } // move player up
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) )
+    {
+      direction.x = -1;
+    } // move player left
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) )
+    {
+      direction.x = 1;
+    } // move player right
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) )
+    {
+      direction.y = 1;
+    } // move player down
   }
 
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Space ) )
   {
-    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
+    get_systems_event_queue().trigger(
+        Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
   }
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
   {
-    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
+    get_systems_event_queue().trigger(
+        Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
   }
   if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
   {
-    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
+    get_systems_event_queue().trigger(
+        Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
   }
 }
 
@@ -404,7 +455,8 @@ void SceneInputRouter::paused_scene_state_handler()
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
       {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::RESUME_GAME ) );
+        m_scenemanager_event_dispatcher.enqueue(
+            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::RESUME_GAME ) );
       }
     }
   }
@@ -426,7 +478,8 @@ void SceneInputRouter::game_over_scene_state_handler()
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::R )
       {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::RETURN_TO_TITLE ) );
+        m_scenemanager_event_dispatcher.enqueue(
+            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::RETURN_TO_TITLE ) );
       }
     }
   }
@@ -448,7 +501,8 @@ void SceneInputRouter::level_complete_scene_state_handler()
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::R )
       {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::RETURN_TO_TITLE ) );
+        m_scenemanager_event_dispatcher.enqueue(
+            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::RETURN_TO_TITLE ) );
       }
     }
   }

@@ -194,6 +194,7 @@ void TileMap::create( entt::registry &registry, sf::Vector2u tile_size, unsigned
   m_vertices.resize( width * height * 6 );
 
   auto grid_view = registry.view<Cmp::Position, Cmp::Neighbours>();
+  SPDLOG_INFO( "Generating tilemap for {} positions", grid_view.size_hint() );
   for ( auto [entity, pos_cmp, reserved_cmp] : grid_view.each() )
   {
     // Calculate grid indices

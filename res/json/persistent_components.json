@@ -131,13 +131,6 @@
     "type": "float",
     "value": 0
   },
-  "PlayerStartPosition": {
-    "type": "sf::Vector2f",
-    "value": {
-      "x": 0.0,
-      "y": 0.0
-    }
-  },
   "WeaponDegradePerHit": {
     "type": "float",
     "value": 1.0

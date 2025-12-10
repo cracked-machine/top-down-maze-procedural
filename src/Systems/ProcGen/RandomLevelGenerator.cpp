@@ -42,8 +42,9 @@ void RandomLevelGenerator::generate( sf::Vector2u map_grid_size, bool gen_graves
                                      bool gen_crypts )
 {
   m_data.clear();
-  // gen_rectangle_gamearea( map_grid_size );
-  gen_circular_gamearea( map_grid_size );
+  gen_rectangle_gamearea( map_grid_size );
+  // gen_circular_gamearea( map_grid_size );
+  // gen_cross_gamearea( map_grid_size, 5, 0.5, 0.25, 20 );
   if ( gen_graves ) gen_grave_obstacles();
   if ( gen_altars ) gen_altar_obstacles();
   if ( gen_crypts ) gen_crypt_obstacles();
@@ -54,7 +55,7 @@ void RandomLevelGenerator::generate( sf::Vector2u map_grid_size, bool gen_graves
 
 void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
 {
-  auto player_start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
+  sf::Vector2f player_start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
   auto player_start_area = Cmp::RectBounds( player_start_pos, kGridSquareSizePixelsF, 5.f,
                                             Cmp::RectBounds::ScaleCardinality::BOTH );
 
@@ -65,21 +66,22 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
   {
     for ( unsigned int y = 0; y < h; y++ )
     {
-
-      auto kGridSquareSizePixels = Sys::BaseSystem::kGridSquareSizePixels;
-      sf::Vector2f new_pos( x * kGridSquareSizePixels.x, y * kGridSquareSizePixels.y );
+      sf::Vector2f new_pos( { x * kGridSquareSizePixelsF.x, y * kGridSquareSizePixelsF.y } );
 
       // condition for left, right, top, bottom borders
       bool isBorder = ( x == 0 ) || ( y == 0 ) || ( x == w - 1 ) || ( y == h - 1 );
       if ( isBorder ) { add_wall_entity( new_pos, 0 ); }
       else
       {
-        // create the spawn point markers while we are here
-        auto entity = Factory::createSpawnPointMarker(
-            getReg(), new_pos, player_start_area,
-            new_pos.y - m_sprite_factory.get_sprite_size_by_type( "PLAYERSPAWN" ).y );
+        // create world position entity, mark spawn area if in player start area
+        auto entity = Factory::createWorldPosition( getReg(), new_pos );
+        auto &pos_cmp = getReg().get<Cmp::Position>( entity );
+        if ( pos_cmp.findIntersection( player_start_area.getBounds() ) )
+        {
+          Factory::addSpawnArea( getReg(), entity, new_pos.y - 16.0f );
+        }
 
-        // track the contiguous creation order entities so we can easily find its neighbours later
+        // track contiguous list of positions for proc gen
         m_data.push_back( entity );
       }
     }
@@ -120,10 +122,13 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size )
       if ( d2 <= rInner2 )
       {
 
-        // create the spawn point markers while we are here
-        auto entity = Factory::createSpawnPointMarker(
-            getReg(), new_pos, player_start_area,
-            new_pos.y - m_sprite_factory.get_sprite_size_by_type( "PLAYERSPAWN" ).y );
+        // create world position entity, mark spawn area if in player start area
+        auto entity = Factory::createWorldPosition( getReg(), new_pos );
+        auto &pos_cmp = getReg().get<Cmp::Position>( entity );
+        if ( pos_cmp.findIntersection( player_start_area.getBounds() ) )
+        {
+          Factory::addSpawnArea( getReg(), entity, new_pos.y - 16.0f );
+        }
 
         // track the contiguous creation order entities so we can easily find its neighbours later
         m_data.push_back( entity );
@@ -132,6 +137,75 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size )
       else
       {
         // outside circle (no tile)
+      }
+    }
+  }
+}
+
+void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int armHalfWidth,
+                                               float vertHalfLengthModifier,
+                                               float horizHalfLengthModifier, int horizOffset )
+{
+  auto player_start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
+  auto player_start_area = Cmp::RectBounds( player_start_pos, kGridSquareSizePixelsF, 5.f,
+                                            Cmp::RectBounds::ScaleCardinality::BOTH );
+
+  unsigned int w = map_grid_size.x; // in tiles
+  unsigned int h = map_grid_size.y; // in tiles
+
+  int cx = w / 2;
+  int cy = h / 2;
+
+  // arm half-length in tiles
+  int vertHalfLength = h * vertHalfLengthModifier;
+  int horizHalfLength = w * horizHalfLengthModifier;
+
+  // helper: is (x,y) part of the cross?
+  auto inCross = [&]( int x, int y ) -> bool
+  {
+    if ( x < 0 || y < 0 || x >= (int)w || y >= (int)h ) return false;
+
+    int dx = x - cx;
+    int dy = y - cy;
+
+    // Vertical arm (centered on cx, cy)
+    bool inVertical = std::abs( dx ) <= armHalfWidth && std::abs( dy ) <= vertHalfLength;
+
+    // Horizontal arm (centered on cy + horizOffset)
+    bool inHorizontal = std::abs( ( dy - horizOffset ) ) <= armHalfWidth &&
+                        std::abs( dx ) <= horizHalfLength;
+
+    return inVertical || inHorizontal;
+  };
+
+  for ( int x = 0; x < (int)w; ++x )
+  {
+    for ( int y = 0; y < (int)h; ++y )
+    {
+
+      auto kGridSquareSizePixels = Sys::BaseSystem::kGridSquareSizePixels;
+      sf::Vector2f new_pos( x * kGridSquareSizePixels.x, y * kGridSquareSizePixels.y );
+
+      bool inside = inCross( x, y );
+      if ( !inside ) continue; // outside cross, skip
+
+      // 1-tile border: any 4-neighbor outside the cross
+      bool isBorder = !inCross( x - 1, y ) || !inCross( x + 1, y ) || !inCross( x, y - 1 ) ||
+                      !inCross( x, y + 1 );
+
+      if ( isBorder ) { add_wall_entity( new_pos, 0 ); }
+      else
+      {
+        // create world position entity, mark spawn area if in player start area
+        auto entity = Factory::createWorldPosition( getReg(), new_pos );
+        auto &pos_cmp = getReg().get<Cmp::Position>( entity );
+        if ( pos_cmp.findIntersection( player_start_area.getBounds() ) )
+        {
+          Factory::addSpawnArea( getReg(), entity, new_pos.y - 16.0f );
+        }
+
+        // track the contiguous creation order entities so we can easily find its neighbours later
+        m_data.push_back( entity );
       }
     }
   }

@@ -41,10 +41,11 @@ public:
   inline static constexpr sf::Vector2u kDisplaySize{ 1920, 1024 };
 
   // The playable area size in blocks, not pixels
-  inline static constexpr sf::Vector2u kGraveyardMapGridSize{ 100u, 124u };
 
+  inline static constexpr sf::Vector2u kGraveyardMapGridSize{ 100u, 124u };
+  inline static constexpr sf::Vector2f kGraveyardMapGridSizeF{ 100.f, 124.f };
   inline static constexpr sf::Vector2u kCryptMapGridSize{ 64u, 32u };
-  inline static constexpr sf::Vector2f kCryptMapGridOffset{ 1.f, 1.f };
+  inline static constexpr sf::Vector2f kCryptMapGridSizeF{ 64.f, 32.f };
 
   BaseSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
               Audio::SoundBank &sound_bank );
@@ -80,6 +81,15 @@ public:
     if ( not getReg().ctx().contains<T>() ) { getReg().ctx().emplace<T>(); }
   }
 
+  //! @brief Add a persistent component to the registry's context if it doesn't already exist
+  //!
+  //! @tparam T
+  template <typename T>
+  static void add_persistent_component( entt::registry &reg )
+  {
+    if ( not reg.ctx().contains<T>() ) { reg.ctx().emplace<T>(); }
+  }
+
   //! @brief Add a persistent component with constructor arguments
   //!
   //! @tparam T
@@ -92,6 +102,17 @@ public:
     {
       getReg().ctx().emplace<T>( std::forward<Args>( args )... );
     }
+  }
+
+  //! @brief Add a persistent component with constructor arguments
+  //!
+  //! @tparam T
+  //! @tparam Args
+  //! @param args
+  template <typename T, typename... Args>
+  static void add_persistent_component( entt::registry &reg, Args &&...args )
+  {
+    if ( not reg.ctx().contains<T>() ) { reg.ctx().emplace<T>( std::forward<Args>( args )... ); }
   }
 
   //! @brief Get the persistent component object
