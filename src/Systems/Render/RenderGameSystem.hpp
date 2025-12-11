@@ -23,7 +23,8 @@ namespace ProceduralMaze::Sys
 class RenderGameSystem : public RenderSystem
 {
 public:
-  RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  RenderGameSystem( entt::registry &reg, sf::RenderWindow &window,
+                    Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~RenderGameSystem() = default;
 
   //! @brief event handlers for pausing system clocks
@@ -42,15 +43,18 @@ public:
 
   //! @brief Entrypoint for rendering the game
   //! @param deltaTime
-  //! @param render_overlay_sys anything that is not part of the game world itself. i.e. UI, debug info, etc..
-  //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc.. as well as death
-  //! animations/effects
-  void render_game( sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap );
+  //! @param render_overlay_sys anything that is not part of the game world itself. i.e. UI, debug
+  //! info, etc..
+  //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc..
+  //! as well as death animations/effects
+  void render_game( sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys,
+                    Sprites::Containers::TileMap &floormap );
 
 private:
   //! @brief Renders the game world floor
   //! @param offset The offset to apply to the floor rendering
-  void render_floormap( Sprites::Containers::TileMap &floormap, const sf::Vector2f &offset = { 0.f, 0.f } );
+  void render_floormap( Sprites::Containers::TileMap &floormap,
+                        const sf::Vector2f &offset = { 0.f, 0.f } );
 
   //! @brief Renders the armed obstacles in the game world
   void render_armed();
@@ -66,13 +70,16 @@ private:
   void render_arrow_compass();
 
   //! @brief Adds visible entities of a specific component type to the Z-order queue
-  //! Optimized (single-type view) query on entt components for visibility check and Z-order queue addition
-  //! @note The Component-owning entity must also have a Cmp::ZOrderValue component to be added to the queue
+  //! Optimized (single-type view) query on entt components for visibility check and Z-order queue
+  //! addition
+  //! @note The Component-owning entity must also have a Cmp::ZOrderValue component to be added to
+  //! the queue
   //! @tparam Component The component type to check for visibility
   //! @param zorder_queue The Z-order queue to add visible entities to
   //! @param view_bounds The view bounds to check against
   template <typename Component>
-  void add_visible_entity_to_z_order_queue( std::vector<ZOrder> &zorder_queue, sf::FloatRect view_bounds )
+  void add_visible_entity_to_z_order_queue( std::vector<ZOrder> &zorder_queue,
+                                            sf::FloatRect view_bounds )
   {
     for ( auto [entity, component] : getReg().view<Component>().each() )
     {
@@ -96,8 +103,9 @@ private:
 
   // Shaders
   Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", kDisplaySize };
-  Sprites::ViewFragmentShader m_wormhole_shader{ "res/shaders/SimpleDistortionField.frag",
-                                                 BaseSystem::kGridSquareSizePixels.componentWiseMul( { 3u, 3u } ) };
+  Sprites::ViewFragmentShader m_wormhole_shader{
+      "res/shaders/SimpleDistortionField.frag",
+      Constants::kGridSquareSizePixels.componentWiseMul( { 3u, 3u } ) };
   Sprites::PulsingShader m_pulsing_shader{ "res/shaders/RedPulsingSand.frag", kDisplaySize };
   Sprites::MistShader m_mist_shader{ "res/shaders/MistShader.frag", kDisplaySize };
 

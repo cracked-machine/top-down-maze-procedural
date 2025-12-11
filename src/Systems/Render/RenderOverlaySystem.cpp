@@ -35,11 +35,12 @@ void RenderOverlaySystem::render_ui_background_overlay( sf::Vector2f pos, sf::Ve
   m_window.draw( ui_edge );
 }
 
-void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2f pos, sf::Vector2f size )
+void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2f pos,
+                                                 sf::Vector2f size )
 {
 
   auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
+  auto position = sf::FloatRect{ pos, Constants::kGridSquareSizePixelsF };
   auto sprite_index = 0; // health icon
   auto scale = sf::Vector2f( 2.f, 2.f );
   RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
@@ -60,10 +61,11 @@ void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2
   m_window.draw( healthbar_border );
 }
 
-void RenderOverlaySystem::render_weapons_meter_overlay( float new_weapon_level, sf::Vector2f pos, sf::Vector2f size )
+void RenderOverlaySystem::render_weapons_meter_overlay( float new_weapon_level, sf::Vector2f pos,
+                                                        sf::Vector2f size )
 {
   auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
+  auto position = sf::FloatRect{ pos, Constants::kGridSquareSizePixelsF };
   auto sprite_index = 1; // hammer icon
   auto scale = sf::Vector2f( 2.f, 2.f );
   RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
@@ -88,7 +90,7 @@ void RenderOverlaySystem::render_bomb_overlay( int bomb_count, int radius_value,
 {
 
   auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
+  auto position = sf::FloatRect{ pos, Constants::kGridSquareSizePixelsF };
   auto sprite_index = 2; // bomb icon
   auto scale = sf::Vector2f( 2.f, 2.f );
   RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
@@ -99,7 +101,8 @@ void RenderOverlaySystem::render_bomb_overlay( int bomb_count, int radius_value,
   if ( bomb_count < 0 )
     bomb_count_text.setString( " INFINITE " );
   else
-    bomb_count_text.setString( " =   " + std::to_string( bomb_count ) + " x " + std::to_string( radius_value ) );
+    bomb_count_text.setString( " =   " + std::to_string( bomb_count ) + " x " +
+                               std::to_string( radius_value ) );
   bomb_count_text.setPosition( pos + bomb_meter_offset );
   bomb_count_text.setFillColor( sf::Color::White );
   bomb_count_text.setOutlineColor( sf::Color::Black );
@@ -107,10 +110,11 @@ void RenderOverlaySystem::render_bomb_overlay( int bomb_count, int radius_value,
   m_window.draw( bomb_count_text );
 }
 
-void RenderOverlaySystem::render_player_candles_overlay( unsigned int candle_count, sf::Vector2f pos )
+void RenderOverlaySystem::render_player_candles_overlay( unsigned int candle_count,
+                                                         sf::Vector2f pos )
 {
   auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
+  auto position = sf::FloatRect{ pos, Constants::kGridSquareSizePixelsF };
   auto sprite_index = 3; // candle icon
   auto scale = sf::Vector2f( 2.f, 2.f );
   RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
@@ -129,7 +133,7 @@ void RenderOverlaySystem::render_player_candles_overlay( unsigned int candle_cou
 void RenderOverlaySystem::render_key_count_overlay( unsigned int key_count, sf::Vector2f pos )
 {
   auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
+  auto position = sf::FloatRect{ pos, Constants::kGridSquareSizePixelsF };
   auto sprite_index = 4; // key icon
   auto scale = sf::Vector2f( 2.f, 2.f );
   RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
@@ -148,7 +152,7 @@ void RenderOverlaySystem::render_key_count_overlay( unsigned int key_count, sf::
 void RenderOverlaySystem::render_relic_count_overlay( unsigned int relic_count, sf::Vector2f pos )
 {
   auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, kGridSquareSizePixelsF };
+  auto position = sf::FloatRect{ pos, Constants::kGridSquareSizePixelsF };
   auto sprite_index = 5; // artifact icon
   auto scale = sf::Vector2f( 2.f, 2.f );
   RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
@@ -164,7 +168,8 @@ void RenderOverlaySystem::render_relic_count_overlay( unsigned int relic_count, 
   m_window.draw( player_score_text );
 }
 
-void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size )
+void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, sf::Vector2f pos,
+                                                            sf::Vector2f size )
 {
   // text
   m_waterlvl_meter_text.setPosition( pos );
@@ -193,12 +198,14 @@ void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, s
   m_window.draw( waterlvlbar_border );
 }
 
-void RenderOverlaySystem::render_player_position_overlay( sf::Vector2f player_pos, sf::Vector2f pos )
+void RenderOverlaySystem::render_player_position_overlay( sf::Vector2f player_pos,
+                                                          sf::Vector2f pos )
 {
   // text
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
   {
-    m_player_position_text.setString( "Player Position: [ " + std::to_string( static_cast<int>( player_pos.x ) ) + " , " +
+    m_player_position_text.setString( "Player Position: [ " +
+                                      std::to_string( static_cast<int>( player_pos.x ) ) + " , " +
                                       std::to_string( static_cast<int>( player_pos.y ) ) + " ]" );
   }
   m_player_position_text.setPosition( pos );
@@ -208,14 +215,16 @@ void RenderOverlaySystem::render_player_position_overlay( sf::Vector2f player_po
   m_window.draw( m_player_position_text );
 }
 
-void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos )
+void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_position,
+                                                         sf::Vector2f pos )
 {
   // text
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
   {
 
-    m_mouse_position_text.setString( "Mouse Position: [ " + std::to_string( static_cast<int>( mouse_position.x ) ) + " , " +
-                                     std::to_string( static_cast<int>( mouse_position.y ) ) + " ]" );
+    m_mouse_position_text.setString(
+        "Mouse Position: [ " + std::to_string( static_cast<int>( mouse_position.x ) ) + " , " +
+        std::to_string( static_cast<int>( mouse_position.y ) ) + " ]" );
   }
   m_mouse_position_text.setPosition( pos );
   m_mouse_position_text.setFillColor( sf::Color::White );
@@ -224,7 +233,8 @@ void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_posi
   m_window.draw( m_mouse_position_text );
 }
 
-void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3, sf::Vector2f pos4 )
+void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2,
+                                                sf::Vector2f pos3, sf::Vector2f pos4 )
 {
   // only gather stats every interval
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
@@ -284,8 +294,9 @@ void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f 
   }
 }
 
-void RenderOverlaySystem::render_zorder_values_overlay( sf::Vector2f pos, std::vector<ZOrder> &zorder_queue,
-                                                        std::set<Sprites::SpriteMetaType> exclusions )
+void RenderOverlaySystem::render_zorder_values_overlay(
+    sf::Vector2f pos, std::vector<ZOrder> &zorder_queue,
+    std::set<Sprites::SpriteMetaType> exclusions )
 {
   uint32_t font_size = 15;
   float count = 0;
@@ -330,7 +341,8 @@ void RenderOverlaySystem::render_npc_list_overlay( sf::Vector2f text_start_pos )
       // Format entity ID with padding
       padding = 10;
       std::string entity_id = std::to_string( entt::to_integral( npc_entity ) );
-      entity_id.insert( 0, padding - std::min( padding, (int)entity_id.length() ), ' ' ); // Right-align in padding chars
+      entity_id.insert( 0, padding - std::min( padding, (int)entity_id.length() ),
+                        ' ' ); // Right-align in padding chars
 
       std::stringstream ss;
       // clang-format off
@@ -364,7 +376,7 @@ void RenderOverlaySystem::render_obstacle_markers()
     auto obstacle_view = getReg().view<Cmp::Position, Cmp::Obstacle>();
     for ( auto [ob_entt, pos_cmp, obst_cmp] : obstacle_view.each() )
     {
-      sf::RectangleShape obstacle_shape( kGridSquareSizePixelsF );
+      sf::RectangleShape obstacle_shape( Constants::kGridSquareSizePixelsF );
       obstacle_shape.setPosition( pos_cmp.position );
       obstacle_shape.setOutlineThickness( 1.f );
       m_window.draw( obstacle_shape );
@@ -420,14 +432,14 @@ void RenderOverlaySystem::render_lerp_positions()
   auto lerp_view = getReg().view<Cmp::LerpPosition, Cmp::Direction, Cmp::NPC, Cmp::Position>();
   for ( auto [entity, lerp_pos_cmp, dir_cmp, npc_cmp, npc_pos_cmp] : lerp_view.each() )
   {
-    sf::RectangleShape lerp_start_pos_rect( kGridSquareSizePixelsF );
+    sf::RectangleShape lerp_start_pos_rect( Constants::kGridSquareSizePixelsF );
     lerp_start_pos_rect.setPosition( lerp_pos_cmp.m_start );
     lerp_start_pos_rect.setFillColor( sf::Color::Transparent );
     lerp_start_pos_rect.setOutlineColor( sf::Color::Yellow );
     lerp_start_pos_rect.setOutlineThickness( 1.f );
     m_window.draw( lerp_start_pos_rect );
 
-    sf::RectangleShape lerp_stop_pos_rect( kGridSquareSizePixelsF );
+    sf::RectangleShape lerp_stop_pos_rect( Constants::kGridSquareSizePixelsF );
     lerp_stop_pos_rect.setPosition( lerp_pos_cmp.m_target );
     lerp_stop_pos_rect.setFillColor( sf::Color::Transparent );
     lerp_stop_pos_rect.setOutlineColor( sf::Color::Cyan );
@@ -437,15 +449,17 @@ void RenderOverlaySystem::render_lerp_positions()
     // clang-format off
     auto horizontal_hitbox = 
       Cmp::RectBounds( sf::Vector2f{ npc_pos_cmp.position.x + ( dir_cmp.x * 16 ), npc_pos_cmp.position.y },
-      kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
+      Constants::kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
     auto vertical_hitbox = 
       Cmp::RectBounds( sf::Vector2f{ npc_pos_cmp.position.x, npc_pos_cmp.position.y + ( dir_cmp.y * 16 ) },
-      kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
+      Constants::kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
     // clang-format on
 
-    // auto hlerp_hitbox = Cmp::RectBounds( sf::Vector2f{ lerp_pos_cmp.m_target.x - ( dir_cmp.x * 8 ), lerp_pos_cmp.m_target.y },
-    //                                      kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
+    // auto hlerp_hitbox = Cmp::RectBounds( sf::Vector2f{ lerp_pos_cmp.m_target.x - ( dir_cmp.x * 8
+    // ), lerp_pos_cmp.m_target.y },
+    //                                      kGridSquareSizePixelsF, 0.5f,
+    //                                      Cmp::RectBounds::ScaleCardinality::BOTH );
     sf::RectangleShape lerp_diag_pos_hrect( horizontal_hitbox.size() );
     lerp_diag_pos_hrect.setPosition( horizontal_hitbox.position() );
     lerp_diag_pos_hrect.setFillColor( sf::Color::Transparent );
@@ -453,8 +467,10 @@ void RenderOverlaySystem::render_lerp_positions()
     lerp_diag_pos_hrect.setOutlineThickness( 1.f );
     m_window.draw( lerp_diag_pos_hrect );
 
-    // auto vlerp_hitbox = Cmp::RectBounds( sf::Vector2f{ lerp_pos_cmp.m_target.x, lerp_pos_cmp.m_target.y - ( dir_cmp.y * 8 ) },
-    //                                      kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
+    // auto vlerp_hitbox = Cmp::RectBounds( sf::Vector2f{ lerp_pos_cmp.m_target.x,
+    // lerp_pos_cmp.m_target.y - ( dir_cmp.y * 8 ) },
+    //                                      kGridSquareSizePixelsF, 0.5f,
+    //                                      Cmp::RectBounds::ScaleCardinality::BOTH );
     sf::RectangleShape lerp_diag_pos_vrect( vertical_hitbox.size() );
     lerp_diag_pos_vrect.setPosition( vertical_hitbox.position() );
     lerp_diag_pos_vrect.setFillColor( sf::Color::Transparent );

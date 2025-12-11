@@ -37,7 +37,8 @@ namespace ProceduralMaze::Sys
 class BombSystem : public BaseSystem
 {
 public:
-  BombSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  BombSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+              Audio::SoundBank &sound_bank );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override;
@@ -52,12 +53,19 @@ public:
   void on_player_action( const Events::PlayerActionEvent &event )
   {
     SPDLOG_DEBUG( "Player Action Event received" );
-    if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB ) { arm_occupied_location( event ); }
-    if ( event.action == Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) { arm_occupied_location( event ); }
+    if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB )
+    {
+      arm_occupied_location( event );
+    }
+    if ( event.action == Events::PlayerActionEvent::GameActions::GRAVE_BOMB )
+    {
+      arm_occupied_location( event );
+    }
   }
 
 private:
-  const sf::Vector2f max_explosion_zone_size{ BaseSystem::kGridSquareSizePixels.x * 3.f, BaseSystem::kGridSquareSizePixels.y * 3.f };
+  const sf::Vector2f max_explosion_zone_size{ Constants::kGridSquareSizePixels.x * 3.f,
+                                              Constants::kGridSquareSizePixels.y * 3.f };
 };
 
 } // namespace ProceduralMaze::Sys

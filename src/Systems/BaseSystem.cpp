@@ -16,7 +16,8 @@
 namespace ProceduralMaze::Sys
 {
 
-BaseSystem::BaseSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+BaseSystem::BaseSystem( entt::registry &reg, sf::RenderWindow &window,
+                        Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : m_reg( reg ),
       m_window( window ),
       m_sprite_factory( sprite_factory ),
@@ -38,12 +39,16 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
   for ( auto [pc_entity, pc_cmp] : pc_view.each() )
   {
     // However if player is in damage cooldown (blinking), let player walk through NPCs to escape
-    if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_delay.get_value() ) continue;
+    if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_delay.get_value() )
+      continue;
     for ( auto [entity, npc_cmp, pos_cmp, lerp_pos_cmp] : npc_view.each() )
     {
       // relaxed bounds to allow player to sneak past during lerp transition
       Cmp::RectBounds npc_pos_cmp_bounds_current{ pos_cmp.position, pos_cmp.size, 0.1f };
-      if ( target_position.findIntersection( npc_pos_cmp_bounds_current.getBounds() ) ) { return false; }
+      if ( target_position.findIntersection( npc_pos_cmp_bounds_current.getBounds() ) )
+      {
+        return false;
+      }
     }
   }
   // Check obstacles
@@ -95,18 +100,23 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
   return true;
 }
 
-bool BaseSystem::isDiagonalMovementBetweenObstacles( const sf::FloatRect &current_pos, const sf::Vector2f &direction )
+bool BaseSystem::isDiagonalMovementBetweenObstacles( const sf::FloatRect &current_pos,
+                                                     const sf::Vector2f &direction )
 {
   if ( !( ( direction.x != 0.0f ) && ( direction.y != 0.0f ) ) ) return false; // Not diagonal
 
-  sf::Vector2f grid_size{ BaseSystem::kGridSquareSizePixels };
+  sf::Vector2f grid_size{ Constants::kGridSquareSizePixels };
 
   // Calculate the two orthogonal positions the diagonal movement would "cut through"
-  sf::FloatRect horizontal_check = sf::FloatRect{ sf::Vector2f{ current_pos.position.x + ( direction.x * grid_size.x ), current_pos.position.y },
-                                                  grid_size };
+  sf::FloatRect horizontal_check = sf::FloatRect{
+      sf::Vector2f{ current_pos.position.x + ( direction.x * grid_size.x ),
+                    current_pos.position.y },
+      grid_size };
 
-  sf::FloatRect vertical_check = sf::FloatRect{ sf::Vector2f{ current_pos.position.x, current_pos.position.y + ( direction.y * grid_size.y ) },
-                                                grid_size };
+  sf::FloatRect vertical_check = sf::FloatRect{
+      sf::Vector2f{ current_pos.position.x,
+                    current_pos.position.y + ( direction.y * grid_size.y ) },
+      grid_size };
 
   // Check if both orthogonal positions have obstacles
   bool horizontal_blocked = !is_valid_move( horizontal_check );

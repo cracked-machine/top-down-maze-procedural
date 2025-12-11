@@ -25,8 +25,14 @@ typedef struct SpriteSize
 {
   unsigned int width{ 1 };
   unsigned int height{ 1 };
-  sf::Vector2f componentWiseMul( sf::Vector2f rhs ) const { return sf::Vector2f( width * rhs.x, height * rhs.y ); }
-  sf::Vector2f componentWiseMul( sf::Vector2u rhs ) const { return sf::Vector2f( width * rhs.x, height * rhs.y ); }
+  sf::Vector2f componentWiseMul( sf::Vector2f rhs ) const
+  {
+    return sf::Vector2f( width * rhs.x, height * rhs.y );
+  }
+  sf::Vector2f componentWiseMul( sf::Vector2u rhs ) const
+  {
+    return sf::Vector2f( width * rhs.x, height * rhs.y );
+  }
 } SpriteSize;
 
 class MultiSprite : public sf::Drawable, public sf::Transformable
@@ -43,12 +49,14 @@ public:
    *
    * @throws std::runtime_error If the tilemap fails to load or is invalid
    */
-  explicit MultiSprite( SpriteMetaType type, const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks,
-                        SpriteSize grid_size = { 1, 1 }, unsigned int sprites_per_frame = 1, unsigned int sprites_per_sequence = 1,
+  explicit MultiSprite( SpriteMetaType type, const std::filesystem::path &tilemap_path,
+                        const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size = { 1, 1 },
+                        unsigned int sprites_per_frame = 1, unsigned int sprites_per_sequence = 1,
                         std::vector<bool> solid_mask = {} );
 
-  explicit MultiSprite( SpriteMetaType type, sf::Texture tilemap_texture, const std::vector<uint32_t> &tilemap_picks,
-                        SpriteSize grid_size = { 1, 1 }, unsigned int sprites_per_frame = 1, unsigned int sprites_per_sequence = 1,
+  explicit MultiSprite( SpriteMetaType type, sf::Texture tilemap_texture,
+                        const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size = { 1, 1 },
+                        unsigned int sprites_per_frame = 1, unsigned int sprites_per_sequence = 1,
                         std::vector<bool> solid_mask = {} );
 
   MultiSprite( MultiSprite && ) = default;
@@ -69,10 +77,11 @@ public:
    * sprite frames within a multi-sprite texture. This constant provides a
    * consistent default size for sprite rendering and frame calculations.
    */
-  // static constexpr sf::Vector2u Sys::BaseSystem::kGridSquareSizePixels{ 16, 16 };
+  // static constexpr sf::Vector2u Constants::kGridSquareSizePixels{ 16, 16 };
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
 
-  // Returns the pixel bounds of first sprite in array. Assumes that all sprites in the multi-sprite have the same size
+  // Returns the pixel bounds of first sprite in array. Assumes that all sprites in the multi-sprite
+  // have the same size
   sf::Vector2f getSpriteSizePixels() const { return m_va_list[0].getBounds().size; }
 
   SpriteMetaType get_sprite_type() const { return m_sprite_type; }
@@ -93,7 +102,8 @@ private:
 
   unsigned int m_sprites_per_sequence{ 1 };
 
-  // Indicates which 'sprite_indices' the player cannot traverse. Array size must match sprite_indices size.
+  // Indicates which 'sprite_indices' the player cannot traverse. Array size must match
+  // sprite_indices size.
   std::vector<bool> m_solid_mask{};
 };
 

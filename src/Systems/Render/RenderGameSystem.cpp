@@ -49,7 +49,8 @@
 namespace ProceduralMaze::Sys
 {
 
-RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &window,
+                                    Sprites::SpriteFactory &sprite_factory,
                                     Audio::SoundBank &sound_bank )
     : RenderSystem( reg, window, sprite_factory, sound_bank )
 {
@@ -70,18 +71,21 @@ void RenderGameSystem::refresh_z_order_queue()
   // add other components as normal
   add_visible_entity_to_z_order_queue<Cmp::Position>( m_zorder_queue_, view_bounds );
 
-  std::sort( m_zorder_queue_.begin(), m_zorder_queue_.end(), []( const ZOrder &a, const ZOrder &b ) { return a.z < b.z; } );
+  std::sort( m_zorder_queue_.begin(), m_zorder_queue_.end(),
+             []( const ZOrder &a, const ZOrder &b ) { return a.z < b.z; } );
 }
 
 void RenderGameSystem::init_views()
 {
   // init local view dimensions
-  m_local_view = sf::View( { kLocalMapViewSize.x * 0.5f, kLocalMapViewSize.y * 0.5f }, kLocalMapViewSize );
+  m_local_view = sf::View( { kLocalMapViewSize.x * 0.5f, kLocalMapViewSize.y * 0.5f },
+                           kLocalMapViewSize );
   m_local_view.setViewport( sf::FloatRect( { 0.f, 0.f }, { 1.f, 1.f } ) );
 
   // init minimap view dimensions
-  m_minimap_view = sf::View( { kDisplaySize.x * 0.5f, kDisplaySize.y * 0.5f },
-                             { kDisplaySize.x * kMiniMapViewZoomFactor, kDisplaySize.y * kMiniMapViewZoomFactor } );
+  m_minimap_view = sf::View(
+      { kDisplaySize.x * 0.5f, kDisplaySize.y * 0.5f },
+      { kDisplaySize.x * kMiniMapViewZoomFactor, kDisplaySize.y * kMiniMapViewZoomFactor } );
   m_minimap_view.setViewport( sf::FloatRect( { 0.75f, 0.f }, { 0.25f, 0.25f } ) );
 
   auto start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
@@ -97,7 +101,8 @@ void RenderGameSystem::init_shaders()
   m_mist_shader.setup();
 }
 
-void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys,
+void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime,
+                                    RenderOverlaySystem &render_overlay_sys,
                                     Sprites::Containers::TileMap &floormap )
 {
   using namespace Sprites;
@@ -111,8 +116,9 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
     m_show_debug_stats = _sys.show_debug_stats;
   }
 
-  sf::FloatRect player_position( { 0.f, 0.f }, kGridSquareSizePixelsF );
-  for ( auto [entity, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+  sf::FloatRect player_position( { 0.f, 0.f }, Constants::kGridSquareSizePixelsF );
+  for ( auto [entity, pc_cmp, pc_pos_cmp] :
+        getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
   {
     player_position = pc_pos_cmp;
   }
@@ -152,11 +158,13 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
           auto new_angle_cmp = getReg().try_get<Cmp::AbsoluteRotation>( entity );
           if ( new_angle_cmp ) new_angle_value = sf::degrees( new_angle_cmp->getAngle() );
 
-          safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame, { 1.f, 1.f }, alpha_value,
-                              new_origin_value, new_angle_value );
+          safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp,
+                              anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame,
+                              { 1.f, 1.f }, alpha_value, new_origin_value, new_angle_value );
 
           if ( getReg().all_of<Cmp::CryptDoor>( entity ) )
-            render_overlay_sys.render_square_for_component<Cmp::CryptDoor>( entity, sf::Color::Magenta, 1.f );
+            render_overlay_sys.render_square_for_component<Cmp::CryptDoor>(
+                entity, sf::Color::Magenta, 1.f );
         }
       }
 
@@ -179,22 +187,27 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       int player_keys_count = 0;
       int player_relic_count = 0;
       sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
-      sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::getGameView() );
+      sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos,
+                                                                RenderSystem::getGameView() );
 
       // gather metrics from components
-      for ( auto [pc_entt, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+      for ( auto [pc_entt, pc_cmp, pc_health_cmp] :
+            getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
       {
         player_health = pc_health_cmp.health;
         bomb_inventory = pc_cmp.bomb_inventory;
         blast_radius = pc_cmp.blast_radius;
       }
 
-      for ( auto [entity, weapon_level, pc_cmp] : getReg().view<Cmp::WeaponLevel, Cmp::PlayableCharacter>().each() )
+      for ( auto [entity, weapon_level, pc_cmp] :
+            getReg().view<Cmp::WeaponLevel, Cmp::PlayableCharacter>().each() )
       {
         new_weapon_level = weapon_level.m_level;
       }
 
-      auto pc_candles_cmp = getReg().view<Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount, Cmp::PlayerRelicCount>();
+      auto pc_candles_cmp = getReg()
+                                .view<Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount,
+                                      Cmp::PlayerRelicCount>();
       for ( auto [entity, candles_cmp, keys_cmp, relic_cmp] : pc_candles_cmp.each() )
       {
         player_candles_count = candles_cmp.get_count();
@@ -205,7 +218,8 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       // render metrics
       render_overlay_sys.render_ui_background_overlay( { 20.f, 20.f }, { 300.f, 270.f } );
       render_overlay_sys.render_health_overlay( player_health, { 40.f, 40.f }, { 200.f, 20.f } );
-      render_overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, 80.f }, { 200.f, 20.f } );
+      render_overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, 80.f },
+                                                       { 200.f, 20.f } );
       render_overlay_sys.render_bomb_overlay( bomb_inventory, blast_radius, { 40.f, 120.f } );
       render_overlay_sys.render_player_candles_overlay( player_candles_count, { 40.f, 160.f } );
       render_overlay_sys.render_key_count_overlay( player_keys_count, { 40.f, 200.f } );
@@ -214,11 +228,14 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       if ( m_show_debug_stats )
       {
 
-        render_overlay_sys.render_player_position_overlay( player_position.position, { 40.f, 300.f } );
+        render_overlay_sys.render_player_position_overlay( player_position.position,
+                                                           { 40.f, 300.f } );
         render_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 340.f } );
-        render_overlay_sys.render_stats_overlay( { 40.f, 380.f }, { 40.f, 420.f }, { 40.f, 460.f }, { 40.f, 500.f } );
-        render_overlay_sys.render_zorder_values_overlay( { 40.f, 600.f }, m_zorder_queue_,
-                                                         { "ROCK", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED" } );
+        render_overlay_sys.render_stats_overlay( { 40.f, 380.f }, { 40.f, 420.f }, { 40.f, 460.f },
+                                                 { 40.f, 500.f } );
+        render_overlay_sys.render_zorder_values_overlay(
+            { 40.f, 600.f }, m_zorder_queue_,
+            { "ROCK", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED" } );
         render_overlay_sys.render_npc_list_overlay( { kDisplaySize.x - 600, 200.f } );
       }
       if ( m_show_path_finding )
@@ -255,7 +272,8 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
   // main render end
 }
 
-void RenderGameSystem::render_floormap( Sprites::Containers::TileMap &floormap, const sf::Vector2f &offset )
+void RenderGameSystem::render_floormap( Sprites::Containers::TileMap &floormap,
+                                        const sf::Vector2f &offset )
 {
   floormap.setPosition( offset );
   m_window.draw( floormap );
@@ -269,7 +287,7 @@ void RenderGameSystem::render_armed()
   {
     if ( armed_cmp.m_display_bomb_sprite ) { safe_render_sprite( "BOMB", pos_cmp, 0 ); }
 
-    sf::RectangleShape temp_square( kGridSquareSizePixelsF );
+    sf::RectangleShape temp_square( Constants::kGridSquareSizePixelsF );
     temp_square.setPosition( pos_cmp.position );
     temp_square.setOutlineColor( sf::Color::Transparent );
     temp_square.setFillColor( sf::Color::Transparent );
@@ -286,8 +304,9 @@ void RenderGameSystem::render_armed()
 void RenderGameSystem::render_background_water( sf::FloatRect player_position )
 {
 
-  m_water_shader.update( { player_position.position.x - m_water_shader.get_texture_size().x / 2.f,
-                           player_position.position.y - m_water_shader.get_texture_size().y / 2.f } );
+  m_water_shader.update(
+      { player_position.position.x - m_water_shader.get_texture_size().x / 2.f,
+        player_position.position.y - m_water_shader.get_texture_size().y / 2.f } );
   m_window.draw( m_water_shader );
 }
 
@@ -297,9 +316,10 @@ void RenderGameSystem::render_mist( sf::FloatRect player_position )
                           player_position.position.y - m_mist_shader.get_texture_size().y / 2.f },
                         0.25 ); // Set the alpha value
 
-  m_pulsing_shader.update( { player_position.position.x - m_pulsing_shader.get_texture_size().x / 2.f,
-                             player_position.position.y - m_pulsing_shader.get_texture_size().y / 2.f },
-                           0.5f ); // Set the alpha value
+  m_pulsing_shader.update(
+      { player_position.position.x - m_pulsing_shader.get_texture_size().x / 2.f,
+        player_position.position.y - m_pulsing_shader.get_texture_size().y / 2.f },
+      0.5f ); // Set the alpha value
 
   m_window.draw( m_mist_shader );
   m_window.draw( m_pulsing_shader );
@@ -314,7 +334,8 @@ void RenderGameSystem::render_arrow_compass()
   {
     for ( auto [exit_entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
     {
-      // only show the compass arrow if we unlocked the door (to reward player and help them find exit)
+      // only show the compass arrow if we unlocked the door (to reward player and help them find
+      // exit)
       if ( exit_cmp.m_locked ) continue;
 
       // dont show the compass arrow pointing to the exit if the exit is on-screen....we can see it
@@ -327,7 +348,8 @@ void RenderGameSystem::render_arrow_compass()
       // Get view bounds in world coordinates
       sf::Vector2f view_center = m_local_view.getCenter();
       sf::Vector2f view_size = m_local_view.getSize();
-      sf::FloatRect view_bounds{ { view_center.x - view_size.x / 2.0f, view_center.y - view_size.y / 2.0f }, view_size };
+      sf::FloatRect view_bounds{
+          { view_center.x - view_size.x / 2.0f, view_center.y - view_size.y / 2.0f }, view_size };
 
       // Add margin from edge
       float margin = 32.0f;
@@ -341,9 +363,11 @@ void RenderGameSystem::render_arrow_compass()
 
       // Calculate distances to each edge
       float t_left = ( view_bounds.position.x - player_pos_center.x ) / direction.x;
-      float t_right = ( view_bounds.position.x + view_bounds.size.x - player_pos_center.x ) / direction.x;
+      float t_right = ( view_bounds.position.x + view_bounds.size.x - player_pos_center.x ) /
+                      direction.x;
       float t_top = ( view_bounds.position.y - player_pos_center.y ) / direction.y;
-      float t_bottom = ( view_bounds.position.y + view_bounds.size.y - player_pos_center.y ) / direction.y;
+      float t_bottom = ( view_bounds.position.y + view_bounds.size.y - player_pos_center.y ) /
+                       direction.y;
 
       // Find the smallest positive t (closest intersection)
       float t = std::numeric_limits<float>::max();
@@ -353,25 +377,33 @@ void RenderGameSystem::render_arrow_compass()
       if ( t_bottom > 0 ) t = std::min( t, t_bottom );
 
       // Calculate final arrow position at screen edge
-      if ( t < std::numeric_limits<float>::max() ) { arrow_position = player_pos_center + direction * t; }
+      if ( t < std::numeric_limits<float>::max() )
+      {
+        arrow_position = player_pos_center + direction * t;
+      }
 
       // Use SFML's angle() function to get the angle directly
       auto angle_radians = direction.angle();
 
       // Center the arrow sprite at the calculated position
-      sf::FloatRect arrow_rect{ arrow_position - sf::Vector2f{ kGridSquareSizePixelsF.x / 2.0f, kGridSquareSizePixelsF.y / 2.0f },
-                                kGridSquareSizePixelsF };
+      sf::FloatRect arrow_rect{ arrow_position -
+                                    sf::Vector2f{ Constants::kGridSquareSizePixelsF.x / 2.0f,
+                                                  Constants::kGridSquareSizePixelsF.y / 2.0f },
+                                Constants::kGridSquareSizePixelsF };
 
       // Map sin(time) from [-1, 1] to [0.2, 1.0]
       // Formula: min + (max - min) * (sin(freq * time) + 1) / 2
       auto time = m_compass_osc_clock.getElapsedTime().asSeconds();
       auto sine = std::sin( m_compass_freq * time );
-      float oscillating_scale = m_compass_min_scale + ( m_compass_max_scale - m_compass_min_scale ) * ( sine + 1.0f ) / 2.0f;
+      float oscillating_scale = m_compass_min_scale +
+                                ( m_compass_max_scale - m_compass_min_scale ) * ( sine + 1.0f ) /
+                                    2.0f;
       auto scale = sf::Vector2f{ oscillating_scale, oscillating_scale };
 
       auto sprite_index = 0;
       auto alpha = 255;
-      auto origin = sf::Vector2f{ kGridSquareSizePixelsF.x / 2.0f, kGridSquareSizePixelsF.y / 2.0f };
+      auto origin = sf::Vector2f{ Constants::kGridSquareSizePixelsF.x / 2.0f,
+                                  Constants::kGridSquareSizePixelsF.y / 2.0f };
 
       safe_render_sprite( "ARROW", arrow_rect, sprite_index, scale, alpha, origin, angle_radians );
     }

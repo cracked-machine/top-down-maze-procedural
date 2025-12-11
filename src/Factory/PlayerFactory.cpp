@@ -36,7 +36,7 @@ void CreatePlayer( entt::registry &registry )
   auto start_pos = Sys::BaseSystem::get_persistent_component<Cmp::Persistent::PlayerStartPosition>(
       registry );
   start_pos = Utils::snap_to_grid( start_pos );
-  registry.emplace<Cmp::Position>( entity, start_pos, Sys::BaseSystem::kGridSquareSizePixelsF );
+  registry.emplace<Cmp::Position>( entity, start_pos, Constants::kGridSquareSizePixelsF );
 
   auto &bomb_inventory = Sys::BaseSystem::get_persistent_component<Cmp::Persistent::BombInventory>(
       registry );
@@ -50,8 +50,8 @@ void CreatePlayer( entt::registry &registry )
   auto &pc_detection_scale = Sys::BaseSystem::get_persistent_component<
       Cmp::Persistent::PlayerDetectionScale>( registry );
 
-  registry.emplace<Cmp::PCDetectionBounds>(
-      entity, start_pos, Sys::BaseSystem::kGridSquareSizePixelsF, pc_detection_scale.get_value() );
+  registry.emplace<Cmp::PCDetectionBounds>( entity, start_pos, Constants::kGridSquareSizePixelsF,
+                                            pc_detection_scale.get_value() );
 
   registry.emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYER.walk.south" );
   registry.emplace<Cmp::PlayerCandlesCount>( entity, 0 );
@@ -68,8 +68,7 @@ void CreatePlayer( entt::registry &registry )
 entt::entity createWorldPosition( entt::registry &registry, const sf::Vector2f &pos )
 {
   auto entity = registry.create();
-  registry.emplace_or_replace<Cmp::Position>( entity, pos,
-                                              Sys::BaseSystem::kGridSquareSizePixelsF );
+  registry.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSquareSizePixelsF );
   registry.emplace_or_replace<Cmp::Neighbours>( entity );
   return entity;
 }

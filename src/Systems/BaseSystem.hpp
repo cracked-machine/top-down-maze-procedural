@@ -22,6 +22,7 @@
 #include <Components/Position.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze
 {
@@ -34,8 +35,6 @@ class BaseSystem
 {
 public:
   // The size of each grid square in pixels
-  inline static constexpr sf::Vector2u kGridSquareSizePixels{ 16u, 16u };
-  inline static constexpr sf::Vector2f kGridSquareSizePixelsF{ 16.f, 16.f };
 
   // The game display resolution in pixels
   inline static constexpr sf::Vector2u kDisplaySize{ 1920, 1024 };
@@ -160,8 +159,8 @@ public:
     if ( pos )
     {
       return std::optional<sf::Vector2i>{
-          { static_cast<int>( pos->position.x / BaseSystem::kGridSquareSizePixels.x ),
-            static_cast<int>( pos->position.y / BaseSystem::kGridSquareSizePixels.y ) } };
+          { static_cast<int>( pos->position.x / Constants::kGridSquareSizePixels.x ),
+            static_cast<int>( pos->position.y / Constants::kGridSquareSizePixels.y ) } };
     }
     else
     {

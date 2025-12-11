@@ -15,11 +15,13 @@ namespace ProceduralMaze::Sys
 class RenderOverlaySystem : public RenderSystem
 {
 public:
-  RenderOverlaySystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+  RenderOverlaySystem( entt::registry &reg, sf::RenderWindow &window,
+                       Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
       : RenderSystem( reg, window, sprite_factory, sound_bank )
   {
     // Pre-warm font texture atlas with all glyphs used in debug overlays
-    sf::Text warmup_30( m_font, "0123456789 [](),:.-=xyzEPONCSabcdefghijklmnopqrstuvwXYZ INFINITE", 30 );
+    sf::Text warmup_30( m_font, "0123456789 [](),:.-=xyzEPONCSabcdefghijklmnopqrstuvwXYZ INFINITE",
+                        30 );
     warmup_30.setOutlineThickness( 2.f );
     std::ignore = warmup_30.getGlobalBounds(); // Force glyph generation
 
@@ -51,8 +53,10 @@ public:
 
   void render_player_position_overlay( sf::Vector2f player_position, sf::Vector2f pos );
   void render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos );
-  void render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3, sf::Vector2f pos4 );
-  void render_zorder_values_overlay( sf::Vector2f pos, std::vector<ZOrder> &zorder_queue, std::set<Sprites::SpriteMetaType> exclusions = {} );
+  void render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3,
+                             sf::Vector2f pos4 );
+  void render_zorder_values_overlay( sf::Vector2f pos, std::vector<ZOrder> &zorder_queue,
+                                     std::set<Sprites::SpriteMetaType> exclusions = {} );
   void render_npc_list_overlay( sf::Vector2f pos );
   void render_obstacle_markers();
   void render_player_distances();
@@ -60,7 +64,8 @@ public:
   void render_lerp_positions();
 
   template <typename Component>
-  void render_square_for_component( entt::entity entity, sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )
+  void render_square_for_component( entt::entity entity, sf::Color square_color = sf::Color::Red,
+                                    float square_thickness = 1.f )
   {
     if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
     {
@@ -69,7 +74,7 @@ public:
       if ( pos_cmp && requested_cmp )
       {
         sf::RectangleShape rectangle;
-        rectangle.setSize( kGridSquareSizePixelsF );
+        rectangle.setSize( Constants::kGridSquareSizePixelsF );
         rectangle.setPosition( pos_cmp->position );
         rectangle.setFillColor( sf::Color::Transparent );
         rectangle.setOutlineColor( square_color );

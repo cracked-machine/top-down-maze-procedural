@@ -26,7 +26,7 @@ void GraveSystem::check_player_collision( Events::PlayerActionEvent::GameActions
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_candles_cmp, pc_keys_cmp] : player_view.each() )
   {
-    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, kGridSquareSizePixelsF, 1.5f );
+    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
 
     for ( auto [grave_entity, grave_cmp] : grave_view.each() )
     {

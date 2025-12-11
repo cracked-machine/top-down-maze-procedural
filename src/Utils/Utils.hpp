@@ -2,10 +2,16 @@
 #define SRC_UTILS_UTILS_HPP__
 
 #include <SFML/Graphics/Rect.hpp>
-
-#include <Systems/BaseSystem.hpp>
+#include <SFML/Graphics/View.hpp>
+// #include <Systems/BaseSystem.hpp>
 
 #include <cmath>
+
+namespace ProceduralMaze::Constants
+{
+inline constexpr sf::Vector2u kGridSquareSizePixels{ 16u, 16u };
+inline static constexpr sf::Vector2f kGridSquareSizePixelsF{ 16.f, 16.f };
+} // namespace ProceduralMaze::Constants
 
 namespace ProceduralMaze::Utils
 {
@@ -28,9 +34,10 @@ namespace ProceduralMaze::Utils
 //!       BaseSystem::kGridSquareSizePixels is used for both axes.
 inline constexpr sf::FloatRect snap_to_grid( const sf::FloatRect &position ) noexcept
 {
-  float grid_size = Sys::BaseSystem::kGridSquareSizePixels.x; // Assuming square grid
-  sf::Vector2f snapped_pos{ std::round( position.position.x / Sys::BaseSystem::kGridSquareSizePixels.x ) * grid_size,
-                            std::round( position.position.y / Sys::BaseSystem::kGridSquareSizePixels.y ) * grid_size };
+  float grid_size = Constants::kGridSquareSizePixels.x; // Assuming square grid
+  sf::Vector2f snapped_pos{
+      std::round( position.position.x / Constants::kGridSquareSizePixels.x ) * grid_size,
+      std::round( position.position.y / Constants::kGridSquareSizePixels.y ) * grid_size };
 
   return sf::FloatRect( snapped_pos, position.size );
 }
@@ -44,9 +51,10 @@ inline constexpr sf::FloatRect snap_to_grid( const sf::FloatRect &position ) noe
 //! @return sf::Vector2f The snapped position aligned to the grid.
 inline constexpr sf::Vector2f snap_to_grid( const sf::Vector2f &position ) noexcept
 {
-  float grid_size = Sys::BaseSystem::kGridSquareSizePixels.x; // Assuming square grid
-  sf::Vector2f snapped_pos{ std::round( position.x / Sys::BaseSystem::kGridSquareSizePixels.x ) * grid_size,
-                            std::round( position.y / Sys::BaseSystem::kGridSquareSizePixels.y ) * grid_size };
+  float grid_size = Constants::kGridSquareSizePixels.x; // Assuming square grid
+  sf::Vector2f snapped_pos{
+      std::round( position.x / Constants::kGridSquareSizePixels.x ) * grid_size,
+      std::round( position.y / Constants::kGridSquareSizePixels.y ) * grid_size };
 
   return snapped_pos;
 }
@@ -75,7 +83,8 @@ constexpr inline sf::FloatRect calculate_view_bounds( const sf::View &view )
  * @param position The rectangle representing the position to check for visibility.
  * @return true if the position is visible within the view bounds; false otherwise.
  */
-constexpr inline bool is_visible_in_view( const sf::FloatRect &viewbounds, const sf::FloatRect &position )
+constexpr inline bool is_visible_in_view( const sf::FloatRect &viewbounds,
+                                          const sf::FloatRect &position )
 {
   return viewbounds.findIntersection( position ).has_value();
 }

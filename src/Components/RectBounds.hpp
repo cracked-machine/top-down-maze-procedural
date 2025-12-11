@@ -11,7 +11,8 @@ namespace ProceduralMaze::Cmp
 {
 
 /**
- * @brief A wrapper class for sf::FloatRect that provides scaled bounds with position offset calculations.
+ * @brief A wrapper class for sf::FloatRect that provides scaled bounds with position offset
+ * calculations.
  *
  * RectBounds manages a rectangular boundary with automatic scaling and position offsetting
  * based on sprite dimensions. It provides convenient methods for updating position and size
@@ -23,12 +24,7 @@ namespace ProceduralMaze::Cmp
 class RectBounds
 {
 public:
-  enum class ScaleCardinality
-  {
-    HORIZONTAL,
-    VERTICAL,
-    BOTH
-  };
+  enum class ScaleCardinality { HORIZONTAL, VERTICAL, BOTH };
 
   /**
    * @brief Constructs a RectBounds object with specified position, size, and scale factor.
@@ -40,7 +36,8 @@ public:
    * @param size The base size vector before scaling is applied
    * @param ScaleFactor The scaling factor to apply to the size dimensions
    */
-  RectBounds( sf::Vector2f position, sf::Vector2f size, float ScaleFactor, ScaleCardinality scale_cardinality = ScaleCardinality::BOTH )
+  RectBounds( sf::Vector2f position, sf::Vector2f size, float ScaleFactor,
+              ScaleCardinality scale_cardinality = ScaleCardinality::BOTH )
       : m_scale_factor( ScaleFactor ),
         m_scale_cardinality( scale_cardinality )
   {
@@ -50,19 +47,21 @@ public:
       case ScaleCardinality::HORIZONTAL:
         m_bounds.size.x = size.x * m_scale_factor;
         m_bounds.size.y = size.y * 1;
-        m_bounds.position.x = position.x - Sys::BaseSystem::kGridSquareSizePixelsF.x * kPositionOffsetFactor;
+        m_bounds.position.x = position.x -
+                              Constants::kGridSquareSizePixelsF.x * kPositionOffsetFactor;
         m_bounds.position.y = position.y;
         break;
       case ScaleCardinality::VERTICAL:
         m_bounds.size.y = size.y * m_scale_factor;
         m_bounds.size.x = size.x * 1;
-        m_bounds.position.y = position.y - Sys::BaseSystem::kGridSquareSizePixelsF.y * kPositionOffsetFactor;
+        m_bounds.position.y = position.y -
+                              Constants::kGridSquareSizePixelsF.y * kPositionOffsetFactor;
         m_bounds.position.x = position.x;
         break;
       case ScaleCardinality::BOTH:
       default:
         m_bounds.size = size * m_scale_factor;
-        m_bounds.position = position - Sys::BaseSystem::kGridSquareSizePixelsF * kPositionOffsetFactor;
+        m_bounds.position = position - Constants::kGridSquareSizePixelsF * kPositionOffsetFactor;
         break;
     }
   }
@@ -78,7 +77,10 @@ public:
    *
    * @param new_position The new position to set for the bounds
    */
-  void position( sf::Vector2f new_position ) { m_bounds.position = new_position - Sys::BaseSystem::kGridSquareSizePixelsF * kPositionOffsetFactor; }
+  void position( sf::Vector2f new_position )
+  {
+    m_bounds.position = new_position - Constants::kGridSquareSizePixelsF * kPositionOffsetFactor;
+  }
   sf::Vector2f position() const { return m_bounds.position; }
 
   /**
@@ -95,7 +97,10 @@ public:
   sf::Vector2f size() const { return m_bounds.size; }
 
   //! @brief Checks for intersection with another rectangle.
-  std::optional<sf::FloatRect> findIntersection( const sf::FloatRect &rectangle ) { return m_bounds.findIntersection( rectangle ); }
+  std::optional<sf::FloatRect> findIntersection( const sf::FloatRect &rectangle )
+  {
+    return m_bounds.findIntersection( rectangle );
+  }
 
   //! @brief Retrieves the underlying FloatRect bounds.
   sf::FloatRect getBounds() const { return m_bounds; }

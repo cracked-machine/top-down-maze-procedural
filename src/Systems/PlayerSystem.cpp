@@ -37,7 +37,8 @@
 namespace ProceduralMaze::Sys
 {
 
-PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
+PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window,
+                            Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
                             entt::dispatcher &scenemanager_event_dispatcher )
     : BaseSystem( reg, window, sprite_factory, sound_bank ),
       m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
@@ -87,9 +88,12 @@ void PlayerSystem::localTransforms()
 {
 
   auto blinking_player_view = getReg()
-                                  .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::SpriteAnimation, Cmp::PlayerMortality,
-                                        Cmp::AbsoluteAlpha, Cmp::AbsoluteRotation, Cmp::PlayerHealth>();
-  for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, anim_cmp, mortality_cmp, alpha_cmp, rotation_cmp, player_health_cmp] : blinking_player_view.each() )
+                                  .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction,
+                                        Cmp::SpriteAnimation, Cmp::PlayerMortality,
+                                        Cmp::AbsoluteAlpha, Cmp::AbsoluteRotation,
+                                        Cmp::PlayerHealth>();
+  for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, anim_cmp, mortality_cmp, alpha_cmp, rotation_cmp,
+              player_health_cmp] : blinking_player_view.each() )
   {
     // // normal do nothing
     // if ( mortality_cmp.state != Cmp::PlayerMortality::State::ALIVE ) continue;
@@ -114,9 +118,17 @@ void PlayerSystem::localTransforms()
     else
     {
       auto &pc_damage_cooldown = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
-      bool is_in_damage_cooldown = pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value();
-      int blink_visible = static_cast<int>( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asMilliseconds() / 100 ) % 2 == 0;
-      if ( !is_in_damage_cooldown || ( is_in_damage_cooldown && blink_visible ) ) { alpha_cmp = 255; }
+      bool is_in_damage_cooldown = pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() <
+                                   pc_damage_cooldown.get_value();
+      int blink_visible = static_cast<int>(
+                              pc_cmp.m_damage_cooldown_timer.getElapsedTime().asMilliseconds() /
+                              100 ) %
+                              2 ==
+                          0;
+      if ( !is_in_damage_cooldown || ( is_in_damage_cooldown && blink_visible ) )
+      {
+        alpha_cmp = 255;
+      }
       else { alpha_cmp = 0; }
     }
   }
@@ -127,8 +139,11 @@ void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool skip_colli
 
   const float dt = globalDeltaTime.asSeconds();
 
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds, Cmp::SpriteAnimation>();
-  for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, pc_detection_bounds, anim_cmp] : player_view.each() )
+  auto player_view = getReg()
+                         .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction,
+                               Cmp::PCDetectionBounds, Cmp::SpriteAnimation>();
+  for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, pc_detection_bounds, anim_cmp] :
+        player_view.each() )
   {
     // always set the player, even if not moving
     auto zorder_cmp = getReg().try_get<Cmp::ZOrderValue>( entity );
@@ -162,8 +177,8 @@ void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool skip_colli
 
       // make a copy to determine if new target position is valid
       sf::FloatRect new_pos{ pos_cmp };
-      new_pos.position.x = pos_cmp.position.x + ( dir_cmp.x * BaseSystem::kGridSquareSizePixels.x );
-      new_pos.position.y = pos_cmp.position.y + ( dir_cmp.y * BaseSystem::kGridSquareSizePixels.y );
+      new_pos.position.x = pos_cmp.position.x + ( dir_cmp.x * Constants::kGridSquareSizePixels.x );
+      new_pos.position.y = pos_cmp.position.y + ( dir_cmp.y * Constants::kGridSquareSizePixels.y );
 
       // Check collision ONCE
       bool can_move = skip_collision_check || is_valid_move( new_pos );
@@ -171,11 +186,14 @@ void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool skip_colli
 
       // Check if moving diagonally AFTER we know movement is valid
       bool is_diagonal = ( dir_cmp.x != 0.0f ) && ( dir_cmp.y != 0.0f );
-      bool diagonal_between_obstacles = is_diagonal && isDiagonalMovementBetweenObstacles( pos_cmp, dir_cmp );
+      bool diagonal_between_obstacles = is_diagonal &&
+                                        isDiagonalMovementBetweenObstacles( pos_cmp, dir_cmp );
 
       auto &player_lerp_speed = get_persistent_component<Cmp::Persistent::PlayerLerpSpeed>();
-      auto &diagonal_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
-      auto &shortcut_lerp_speed_modifier = get_persistent_component<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
+      auto &diagonal_lerp_speed_modifier = get_persistent_component<
+          Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
+      auto &shortcut_lerp_speed_modifier = get_persistent_component<
+          Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
 
       float speed_modifier = 1.0f;
       if ( diagonal_between_obstacles )
@@ -249,7 +267,8 @@ void PlayerSystem::refreshPlayerDistances()
       {
         // always update footsteps distance to player
         if ( !Utils::is_visible_in_view( viewBounds, path_pos_cmp ) ) continue;
-        auto distance = std::floor( Utils::Maths::getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
+        auto distance = std::floor(
+            Utils::Maths::getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
         getReg().emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
       }
       else
@@ -259,7 +278,8 @@ void PlayerSystem::refreshPlayerDistances()
           if ( !Utils::is_visible_in_view( viewBounds, path_pos_cmp ) ) continue; // optimization
 
           // calculate the distance from the position to the player
-          auto distance = std::floor( Utils::Maths::getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
+          auto distance = std::floor(
+              Utils::Maths::getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
           getReg().emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
         }
       }
@@ -271,21 +291,26 @@ void PlayerSystem::refreshPlayerDistances()
       // keep playerdistance for footsteps always so NPC can track outside of the detection bounds
       if ( getReg().all_of<Cmp::FootStepTimer>( path_entt ) ) continue;
       // otherwise tidy up any out of range player distances
-      if ( not pc_db_cmp.findIntersection( path_pos_cmp ) ) { getReg().remove<Cmp::PlayerDistance>( path_entt ); }
+      if ( not pc_db_cmp.findIntersection( path_pos_cmp ) )
+      {
+        getReg().remove<Cmp::PlayerDistance>( path_entt );
+      }
     }
   }
 }
 
 void PlayerSystem::checkPlayerMortality()
 {
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality>();
+  auto player_view = getReg()
+                         .view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality>();
   for ( auto [entity, pc_cmp, health_cmp, mortality_cmp] : player_view.each() )
   {
     if ( health_cmp.health <= 0 )
     {
       mortality_cmp.state = Cmp::PlayerMortality::State::DEAD;
       SPDLOG_DEBUG( "Player has progressed to deadness." );
-      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::GAME_OVER );
+      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>(
+          Events::SceneManagerEvent::Type::GAME_OVER );
     }
   }
 }

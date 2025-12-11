@@ -56,8 +56,8 @@ void RandomLevelGenerator::generate( sf::Vector2u map_grid_size, bool gen_graves
 void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
 {
   sf::Vector2f player_start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
-  auto player_start_area = Cmp::RectBounds( player_start_pos, kGridSquareSizePixelsF, 5.f,
-                                            Cmp::RectBounds::ScaleCardinality::BOTH );
+  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF,
+                                            5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
   unsigned int w = map_grid_size.x;
   unsigned int h = map_grid_size.y;
@@ -66,7 +66,8 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
   {
     for ( unsigned int y = 0; y < h; y++ )
     {
-      sf::Vector2f new_pos( { x * kGridSquareSizePixelsF.x, y * kGridSquareSizePixelsF.y } );
+      sf::Vector2f new_pos(
+          { x * Constants::kGridSquareSizePixelsF.x, y * Constants::kGridSquareSizePixelsF.y } );
 
       // condition for left, right, top, bottom borders
       bool isBorder = ( x == 0 ) || ( y == 0 ) || ( x == w - 1 ) || ( y == h - 1 );
@@ -92,8 +93,8 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
 void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size )
 {
   auto player_start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
-  auto player_start_area = Cmp::RectBounds( player_start_pos, kGridSquareSizePixelsF, 5.f,
-                                            Cmp::RectBounds::ScaleCardinality::BOTH );
+  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF,
+                                            5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
   unsigned int w = map_grid_size.x;
   unsigned int h = map_grid_size.y;
@@ -116,7 +117,7 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size )
       int dy = static_cast<int>( y ) - cy;
       int d2 = dx * dx + dy * dy;
 
-      auto kGridSquareSizePixels = Sys::BaseSystem::kGridSquareSizePixels;
+      auto kGridSquareSizePixels = Constants::kGridSquareSizePixels;
       sf::Vector2f new_pos( x * kGridSquareSizePixels.x, y * kGridSquareSizePixels.y );
 
       if ( d2 <= rInner2 )
@@ -147,8 +148,8 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int a
                                                float horizHalfLengthModifier, int horizOffset )
 {
   auto player_start_pos = get_persistent_component<Cmp::Persistent::PlayerStartPosition>();
-  auto player_start_area = Cmp::RectBounds( player_start_pos, kGridSquareSizePixelsF, 5.f,
-                                            Cmp::RectBounds::ScaleCardinality::BOTH );
+  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF,
+                                            5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
   unsigned int w = map_grid_size.x; // in tiles
   unsigned int h = map_grid_size.y; // in tiles
@@ -183,7 +184,7 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int a
     for ( int y = 0; y < (int)h; ++y )
     {
 
-      auto kGridSquareSizePixels = Sys::BaseSystem::kGridSquareSizePixels;
+      auto kGridSquareSizePixels = Constants::kGridSquareSizePixels;
       sf::Vector2f new_pos( x * kGridSquareSizePixels.x, y * kGridSquareSizePixels.y );
 
       bool inside = inCross( x, y );
@@ -460,7 +461,7 @@ void RandomLevelGenerator::gen_npc_containers( sf::Vector2u map_grid_size )
 void RandomLevelGenerator::add_wall_entity( const sf::Vector2f &pos, std::size_t sprite_index )
 {
   auto entity = getReg().create();
-  getReg().emplace_or_replace<Cmp::Position>( entity, pos, kGridSquareSizePixelsF );
+  getReg().emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSquareSizePixelsF );
   getReg().emplace_or_replace<Cmp::Wall>( entity );
   getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", sprite_index );
   getReg().emplace_or_replace<Cmp::ReservedPosition>( entity );

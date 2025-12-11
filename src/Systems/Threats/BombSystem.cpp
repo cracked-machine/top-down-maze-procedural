@@ -36,20 +36,30 @@ namespace ProceduralMaze::Sys
 {
 using entt::exclude;
 
-BombSystem::BombSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+BombSystem::BombSystem( entt::registry &reg, sf::RenderWindow &window,
+                        Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
-  // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>( this );
-  std::ignore = get_systems_event_queue().sink<Events::PauseClocksEvent>().connect<&Sys::BombSystem::onPause>( this );
-  std::ignore = get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::BombSystem::onResume>( this );
+  // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
+  // the constructor
+  std::ignore = get_systems_event_queue()
+                    .sink<Events::PlayerActionEvent>()
+                    .connect<&Sys::BombSystem::on_player_action>( this );
+  std::ignore = get_systems_event_queue()
+                    .sink<Events::PauseClocksEvent>()
+                    .connect<&Sys::BombSystem::onPause>( this );
+  std::ignore = get_systems_event_queue()
+                    .sink<Events::ResumeClocksEvent>()
+                    .connect<&Sys::BombSystem::onResume>( this );
   SPDLOG_DEBUG( "BombSystem initialized" );
 }
 
 void BombSystem::onPause()
 {
-  if ( m_sound_bank.get_effect( "bomb_fuse" ).getStatus() == sf::Sound::Status::Playing ) m_sound_bank.get_effect( "bomb_fuse" ).pause();
-  if ( m_sound_bank.get_effect( "bomb_detonate" ).getStatus() == sf::Sound::Status::Playing ) m_sound_bank.get_effect( "bomb_detonate" ).pause();
+  if ( m_sound_bank.get_effect( "bomb_fuse" ).getStatus() == sf::Sound::Status::Playing )
+    m_sound_bank.get_effect( "bomb_fuse" ).pause();
+  if ( m_sound_bank.get_effect( "bomb_detonate" ).getStatus() == sf::Sound::Status::Playing )
+    m_sound_bank.get_effect( "bomb_detonate" ).pause();
   auto armed_view = getReg().view<Cmp::Armed>();
   for ( auto [entt, armed_cmp] : armed_view.each() )
   {
@@ -65,8 +75,10 @@ void BombSystem::onPause()
 }
 void BombSystem::onResume()
 {
-  if ( m_sound_bank.get_effect( "bomb_fuse" ).getStatus() == sf::Sound::Status::Paused ) m_sound_bank.get_effect( "bomb_fuse" ).play();
-  if ( m_sound_bank.get_effect( "bomb_detonate" ).getStatus() == sf::Sound::Status::Paused ) m_sound_bank.get_effect( "bomb_detonate" ).play();
+  if ( m_sound_bank.get_effect( "bomb_fuse" ).getStatus() == sf::Sound::Status::Paused )
+    m_sound_bank.get_effect( "bomb_fuse" ).play();
+  if ( m_sound_bank.get_effect( "bomb_detonate" ).getStatus() == sf::Sound::Status::Paused )
+    m_sound_bank.get_effect( "bomb_detonate" ).play();
   auto armed_view = getReg().view<Cmp::Armed>();
   for ( auto [entt, armed_cmp] : armed_view.each() )
   {
@@ -77,7 +89,8 @@ void BombSystem::onResume()
   auto player_collision_view = getReg().view<Cmp::PlayableCharacter>();
   for ( auto [entt, player] : player_collision_view.each() )
   {
-    if ( not player.m_bombdeploycooldowntimer.isRunning() ) player.m_bombdeploycooldowntimer.start();
+    if ( not player.m_bombdeploycooldowntimer.isRunning() )
+      player.m_bombdeploycooldowntimer.start();
   }
 }
 
@@ -86,20 +99,26 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
   auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
   for ( const auto [pc_entity, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
   {
-    if ( event.action != Events::PlayerActionEvent::GameActions::GRAVE_BOMB && pc_cmp.has_active_bomb )
+    if ( event.action != Events::PlayerActionEvent::GameActions::GRAVE_BOMB &&
+         pc_cmp.has_active_bomb )
       continue; // skip if player already placed a bomb
-    if ( event.action != Events::PlayerActionEvent::GameActions::GRAVE_BOMB && pc_cmp.bomb_inventory == 0 )
+    if ( event.action != Events::PlayerActionEvent::GameActions::GRAVE_BOMB &&
+         pc_cmp.bomb_inventory == 0 )
       continue; // skip if player has no bombs left, -1 is infini bombs
 
-    // for booby trapped graves, first try to find a random nearby disabled destructable obstacle for candidate bomb epicenter
+    // for booby trapped graves, first try to find a random nearby disabled destructable obstacle
+    // for candidate bomb epicenter
     entt::entity candidate_entity = entt::null;
     if ( event.action == Events::PlayerActionEvent::GameActions::GRAVE_BOMB )
     {
-      auto search_area = Cmp::RectBounds( pc_pos_cmp.position, BaseSystem::kGridSquareSizePixelsF, 3.f );
-      candidate_entity = get_random_nearby_disabled_obstacle( search_area.getBounds(), IncludePack<Cmp::Armable>{}, ExcludePack<Cmp::Exit>{} );
+      auto search_area = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF,
+                                          3.f );
+      candidate_entity = get_random_nearby_disabled_obstacle(
+          search_area.getBounds(), IncludePack<Cmp::Armable>{}, ExcludePack<Cmp::Exit>{} );
       auto pos_cmp = getReg().try_get<Cmp::Position>( candidate_entity );
       if ( pos_cmp )
-        SPDLOG_DEBUG( "Returned candidate entity: {}, pos: {},{}", static_cast<uint32_t>( candidate_entity ), pos_cmp->position.x,
+        SPDLOG_DEBUG( "Returned candidate entity: {}, pos: {},{}",
+                      static_cast<uint32_t>( candidate_entity ), pos_cmp->position.x,
                       pos_cmp->position.y );
     }
     // then use the candidate entity to place the booby trap bomb
@@ -112,7 +131,8 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
     else
     {
       auto destructable_view = getReg().view<Cmp::Armable, Cmp::Position>();
-      for ( auto [destructable_entity, destructable_cmp, destructable_pos_cmp] : destructable_view.each() )
+      for ( auto [destructable_entity, destructable_cmp, destructable_pos_cmp] :
+            destructable_view.each() )
       {
         // make a copy and reduce/center the player hitbox to avoid arming a neighbouring location
         auto player_hitbox = sf::FloatRect( pc_pos_cmp );
@@ -126,31 +146,38 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
         {
 
           SPDLOG_DEBUG( "Checking cooldown timer for bomb placement." );
-          if ( pc_cmp.m_bombdeploycooldowntimer.getElapsedTime() < pc_cmp.m_bombdeploydelay ) continue;
+          if ( pc_cmp.m_bombdeploycooldowntimer.getElapsedTime() < pc_cmp.m_bombdeploydelay )
+            continue;
           m_sound_bank.get_effect( "bomb_fuse" ).play();
 
           auto armed_epicenter_entity = getReg().create();
-          getReg().emplace<Cmp::Position>( armed_epicenter_entity, destructable_pos_cmp.position, destructable_pos_cmp.size );
+          getReg().emplace<Cmp::Position>( armed_epicenter_entity, destructable_pos_cmp.position,
+                                           destructable_pos_cmp.size );
           place_concentric_bomb_pattern( armed_epicenter_entity, pc_cmp.blast_radius );
 
           pc_cmp.m_bombdeploycooldowntimer.restart();
           pc_cmp.has_active_bomb = true;
-          pc_cmp.bomb_inventory = ( pc_cmp.bomb_inventory > 0 ) ? pc_cmp.bomb_inventory - 1 : pc_cmp.bomb_inventory;
+          pc_cmp.bomb_inventory = ( pc_cmp.bomb_inventory > 0 ) ? pc_cmp.bomb_inventory - 1
+                                                                : pc_cmp.bomb_inventory;
         }
       }
     }
   }
 }
 
-void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, const int blast_radius )
+void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity,
+                                                const int blast_radius )
 {
   sf::Vector2i centerTile = getGridPosition( epicenter_entity ).value();
   int sequence_counter = 0;
-  Factory::createArmed( getReg(), epicenter_entity, Cmp::Armed::EpiCenter::YES, sequence_counter++, centerTile.y - 64 );
+  Factory::createArmed( getReg(), epicenter_entity, Cmp::Armed::EpiCenter::YES, sequence_counter++,
+                        centerTile.y - 64 );
 
   // We dont detonate ReservedPositions so dont arm them in the first place
-  // Also exclude NPCs since they're handled separately and may be missing Position component during death animation
-  auto all_obstacle_view = getReg().view<Cmp::Armable, Cmp::Position>( exclude<Cmp::NPC, Cmp::Exit> );
+  // Also exclude NPCs since they're handled separately and may be missing Position component during
+  // death animation
+  auto all_obstacle_view = getReg().view<Cmp::Armable, Cmp::Position>(
+      exclude<Cmp::NPC, Cmp::Exit> );
 
   // For each layer from 1 to BLAST_RADIUS
   for ( int layer = 1; layer <= blast_radius; layer++ )
@@ -158,9 +185,12 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
     std::vector<std::pair<entt::entity, sf::Vector2i>> layer_entities;
 
     // Collect all entities in this layer with their positions
-    for ( auto [destructable_entity, destructable_cmp, destructable_pos] : all_obstacle_view.each() )
+    for ( auto [destructable_entity, destructable_cmp, destructable_pos] :
+          all_obstacle_view.each() )
     {
-      if ( destructable_entity == epicenter_entity || getReg().any_of<Cmp::Armed>( destructable_entity ) ) continue;
+      if ( destructable_entity == epicenter_entity ||
+           getReg().any_of<Cmp::Armed>( destructable_entity ) )
+        continue;
 
       sf::Vector2i grid_position = getGridPosition( destructable_entity ).value();
       int distance_from_center = Utils::Maths::getChebyshevDistance( grid_position, centerTile );
@@ -169,7 +199,8 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
       {
         if ( getReg().any_of<Cmp::LootContainer>( destructable_entity ) )
         {
-          SPDLOG_DEBUG( "Arming loot container entity {}", static_cast<int>( destructable_entity ) );
+          SPDLOG_DEBUG( "Arming loot container entity {}",
+                        static_cast<int>( destructable_entity ) );
         }
         layer_entities.push_back( { destructable_entity, grid_position } );
       }
@@ -189,7 +220,8 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
     // Arm each entity in the layer in clockwise order
     for ( const auto &[entity, pos] : layer_entities )
     {
-      Factory::createArmed( getReg(), entity, Cmp::Armed::EpiCenter::NO, sequence_counter++, centerTile.y - 64 );
+      Factory::createArmed( getReg(), entity, Cmp::Armed::EpiCenter::NO, sequence_counter++,
+                            centerTile.y - 64 );
     }
   }
 }
@@ -216,7 +248,8 @@ void BombSystem::update()
       if ( not loot_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
 
       auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
-          std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "WEAPON_BOOST" } );
+          std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS",
+                                    "WEAPON_BOOST" } );
 
       // clang-format off
       auto loot_entt = Factory::createLootDrop( 
@@ -241,14 +274,19 @@ void BombSystem::update()
     }
 
     // Check player explosion damage
-    auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
+    auto player_view = getReg()
+                           .view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality,
+                                 Cmp::Position>();
     for ( auto [pc_entt, pc_cmp, pc_health_cmp, pc_mort_cmp, pc_pos_cmp] : player_view.each() )
     {
       if ( pc_pos_cmp.findIntersection( armed_pos_cmp ) )
       {
         auto &bomb_damage = get_persistent_component<Cmp::Persistent::BombDamage>();
         pc_health_cmp.health -= bomb_damage.get_value();
-        if ( pc_health_cmp.health <= 0 ) { pc_mort_cmp.state = Cmp::PlayerMortality::State::EXPLODING; }
+        if ( pc_health_cmp.health <= 0 )
+        {
+          pc_mort_cmp.state = Cmp::PlayerMortality::State::EXPLODING;
+        }
       }
       pc_cmp.has_active_bomb = false;
     }
@@ -261,7 +299,8 @@ void BombSystem::update()
       {
         Factory::createNpcExplosion( getReg(), npc_pos_cmp );
 
-        SPDLOG_INFO( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ), npc_pos_cmp.position.x, npc_pos_cmp.position.y );
+        SPDLOG_INFO( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ),
+                     npc_pos_cmp.position.x, npc_pos_cmp.position.y );
         auto loot_entity = Factory::destroyNPC( getReg(), npc_entt );
         if ( loot_entity != entt::null )
         {
@@ -272,7 +311,10 @@ void BombSystem::update()
     }
 
     // play sound effect if this armed component is epicenter
-    if ( armed_cmp.m_epicenter == Cmp::Armed::EpiCenter::YES ) { m_sound_bank.get_effect( "bomb_detonate" ).play(); }
+    if ( armed_cmp.m_epicenter == Cmp::Armed::EpiCenter::YES )
+    {
+      m_sound_bank.get_effect( "bomb_detonate" ).play();
+    }
 
     // check if we have any epicenter armed components before stopping the fuse sound
     bool remaining_epicenter_bombs = false;
@@ -289,7 +331,8 @@ void BombSystem::update()
     // finally delete the armed component
     Factory::destroyArmed( getReg(), armed_entt );
 
-    // Replace the armed position with a detonated sprite for visual effect - make sure its z-order is furthest back
+    // Replace the armed position with a detonated sprite for visual effect - make sure its z-order
+    // is furthest back
     Factory::createDetonated( getReg(), armed_entt, armed_pos_cmp );
   }
 }
