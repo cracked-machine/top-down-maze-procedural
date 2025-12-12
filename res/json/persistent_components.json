@@ -35,6 +35,13 @@
     "type": "int",
     "value": 64
   },
+  "DisplayResolution": {
+    "type": "sf::Vector2u",
+    "value": {
+      "x": 1920,
+      "y": 1080
+    }
+  },
   "EffectsVolume": {
     "type": "float",
     "value": 20.0

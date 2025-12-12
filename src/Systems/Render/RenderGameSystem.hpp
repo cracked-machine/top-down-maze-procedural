@@ -1,6 +1,7 @@
 #ifndef __SYS_RENDERGAMESYSTEM_HPP__
 #define __SYS_RENDERGAMESYSTEM_HPP__
 
+#include <Components/Persistent/DisplayResolution.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 
@@ -23,8 +24,8 @@ namespace ProceduralMaze::Sys
 class RenderGameSystem : public RenderSystem
 {
 public:
-  RenderGameSystem( entt::registry &reg, sf::RenderWindow &window,
-                    Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                    Audio::SoundBank &sound_bank );
   ~RenderGameSystem() = default;
 
   //! @brief event handlers for pausing system clocks
@@ -53,8 +54,7 @@ public:
 private:
   //! @brief Renders the game world floor
   //! @param offset The offset to apply to the floor rendering
-  void render_floormap( Sprites::Containers::TileMap &floormap,
-                        const sf::Vector2f &offset = { 0.f, 0.f } );
+  void render_floormap( Sprites::Containers::TileMap &floormap, const sf::Vector2f &offset = { 0.f, 0.f } );
 
   //! @brief Renders the armed obstacles in the game world
   void render_armed();
@@ -78,8 +78,7 @@ private:
   //! @param zorder_queue The Z-order queue to add visible entities to
   //! @param view_bounds The view bounds to check against
   template <typename Component>
-  void add_visible_entity_to_z_order_queue( std::vector<ZOrder> &zorder_queue,
-                                            sf::FloatRect view_bounds )
+  void add_visible_entity_to_z_order_queue( std::vector<ZOrder> &zorder_queue, sf::FloatRect view_bounds )
   {
     for ( auto [entity, component] : getReg().view<Component>().each() )
     {
@@ -101,13 +100,12 @@ private:
   const float kMiniMapViewZoomFactor = 0.25f;
   sf::View m_minimap_view;
 
-  // Shaders
-  Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", kDisplaySize };
-  Sprites::ViewFragmentShader m_wormhole_shader{
-      "res/shaders/SimpleDistortionField.frag",
-      Constants::kGridSquareSizePixels.componentWiseMul( { 3u, 3u } ) };
-  Sprites::PulsingShader m_pulsing_shader{ "res/shaders/RedPulsingSand.frag", kDisplaySize };
-  Sprites::MistShader m_mist_shader{ "res/shaders/MistShader.frag", kDisplaySize };
+  // Shaders - we dont know the size of the texture yet so set to 1,1 and resize later
+  Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", { 1u, 1u } };
+  Sprites::ViewFragmentShader m_wormhole_shader{ "res/shaders/SimpleDistortionField.frag",
+                                                 Constants::kGridSquareSizePixels.componentWiseMul( { 3u, 3u } ) };
+  Sprites::PulsingShader m_pulsing_shader{ "res/shaders/RedPulsingSand.frag", { 1u, 1u } };
+  Sprites::MistShader m_mist_shader{ "res/shaders/MistShader.frag", { 1u, 1u } };
 
   // optimize the debug overlay updates to every n milliseconds
   const sf::Time m_debug_update_interval{ sf::milliseconds( 10 ) };

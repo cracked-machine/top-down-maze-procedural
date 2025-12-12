@@ -10,7 +10,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["float", "int", "bool", "string", "sf::Vector2f"],
+          "enum": ["float", "int", "bool", "string", "sf::Vector2f", "sf::Vector2u"],
           "description": "The C++ data type of the persistent component"
         },
         "value": {
@@ -96,6 +96,26 @@
           "if": {
             "properties": {
               "type": {"const": "sf::Vector2f"}
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "object",
+                "properties": {
+                  "x": {"type": "number"},
+                  "y": {"type": "number"}
+                },
+                "required": ["x", "y"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+    {
+          "if": {
+            "properties": {
+              "type": {"const": "sf::Vector2u"}
             }
           },
           "then": {

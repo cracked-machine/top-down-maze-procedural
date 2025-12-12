@@ -1,4 +1,5 @@
 #include <Components/Persistent/CorruptionSeed.hpp>
+#include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
@@ -49,8 +50,8 @@
 namespace ProceduralMaze::Sys
 {
 
-PersistSystem::PersistSystem( entt::registry &reg, sf::RenderWindow &window,
-                              Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+PersistSystem::PersistSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                              Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
@@ -77,6 +78,7 @@ void PersistSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persist::CorruptionDamage>( "CorruptionDamage" );
   registerComponent<Cmp::Persist::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
   registerComponent<Cmp::Persist::DiggingDamagePerHit>( "DiggingDamagePerHit" );
+  registerComponent<Cmp::Persist::DisplayResolution>( "DisplayResolution", kFallbackDisplaySize );
   registerComponent<Cmp::Persist::EffectsVolume>( "EffectsVolume" );
   registerComponent<Cmp::Persist::ExitKeyRequirement>( "ExitKeyRequirement" );
   registerComponent<Cmp::Persist::FuseDelay>( "FuseDelay" );
@@ -157,6 +159,7 @@ void PersistSystem::save_state()
   serializeComponent.template operator()<Cmp::Persist::CorruptionDamage>( "CorruptionDamage" );
   serializeComponent.template operator()<Cmp::Persist::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
   serializeComponent.template operator()<Cmp::Persist::DiggingDamagePerHit>( "DiggingDamagePerHit" );
+  serializeComponent.template operator()<Cmp::Persist::DisplayResolution>( "DisplayResolution" );
   serializeComponent.template operator()<Cmp::Persist::EffectsVolume>( "EffectsVolume" );
   serializeComponent.template operator()<Cmp::Persist::ExitKeyRequirement>( "ExitKeyRequirement" );
   serializeComponent.template operator()<Cmp::Persist::FuseDelay>( "FuseDelay" );

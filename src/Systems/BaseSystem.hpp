@@ -6,6 +6,7 @@
 #include <Components/PlayableCharacter.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <_mingw_stat64.h>
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
 #include <entt/signal/dispatcher.hpp>
@@ -34,18 +35,24 @@ namespace Sys
 class BaseSystem
 {
 public:
-  // The size of each grid square in pixels
+  //! @brief The game display resolution in pixels
+  inline static constexpr sf::Vector2u kFallbackDisplaySize{ 1920, 1080 };
 
-  // The game display resolution in pixels
-  inline static constexpr sf::Vector2u kDisplaySize{ 1920, 1024 };
-
-  // The playable area size in blocks, not pixels
-
+  //! @brief The size of the graveyard map grid in number of squares
   inline static constexpr sf::Vector2u kGraveyardMapGridSize{ 100u, 124u };
-  inline static constexpr sf::Vector2f kGraveyardMapGridSizeF{ 100.f, 124.f };
-  inline static constexpr sf::Vector2u kCryptMapGridSize{ 64u, 32u };
-  inline static constexpr sf::Vector2f kCryptMapGridSizeF{ 64.f, 32.f };
 
+  //! @brief The size of the graveyard map grid in number of squares as floats
+  inline static constexpr sf::Vector2f kGraveyardMapGridSizeF{ static_cast<float>( kGraveyardMapGridSize.x ),
+                                                               static_cast<float>( kGraveyardMapGridSize.y ) };
+
+  //! @brief The size of the crypt map grid in number of squares
+  inline static constexpr sf::Vector2u kCryptMapGridSize{ 64u, 32u };
+
+  //! @brief The size of the crypt map grid in number of squares as floats
+  inline static constexpr sf::Vector2f kCryptMapGridSizeF{ static_cast<float>( kCryptMapGridSize.x ),
+                                                           static_cast<float>( kCryptMapGridSize.y ) };
+
+  //! @brief Construct a new Base System object
   BaseSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
               Audio::SoundBank &sound_bank );
 
@@ -85,10 +92,7 @@ public:
           { static_cast<int>( pos->position.x / Constants::kGridSquareSizePixels.x ),
             static_cast<int>( pos->position.y / Constants::kGridSquareSizePixels.y ) } };
     }
-    else
-    {
-      SPDLOG_ERROR( "Entity {} does not have a Position component", static_cast<int>( entity ) );
-    }
+    else { SPDLOG_ERROR( "Entity {} does not have a Position component", static_cast<int>( entity ) ); }
     return std::nullopt;
   }
 
@@ -120,8 +124,7 @@ public:
   //! @param current_pos The current position of the player as a 2D vector
   //! @param direction The direction vector representing the intended diagonal movement
   //! @return true if the diagonal movement would pass between obstacles, false otherwise
-  bool isDiagonalMovementBetweenObstacles( const sf::FloatRect &current_pos,
-                                           const sf::Vector2f &direction );
+  bool isDiagonalMovementBetweenObstacles( const sf::FloatRect &current_pos, const sf::Vector2f &direction );
 
   // singleton event dispatcher
   // Use this to get temporary access to the dispatcher to register event handlers
@@ -170,8 +173,8 @@ public:
    * @note Uses SPDLOG_DEBUG to log the number of matching positions found.
    */
   template <typename... Include, typename... Exclude>
-  std::pair<entt::entity, Cmp::Position>
-  get_random_position( IncludePack<Include...>, ExcludePack<Exclude...>, unsigned long seed = 0 )
+  std::pair<entt::entity, Cmp::Position> get_random_position( IncludePack<Include...>, ExcludePack<Exclude...>,
+                                                              unsigned long seed = 0 )
   {
     auto random_view = getReg().view<Cmp::Position, Include...>( entt::exclude<Exclude...> );
 
@@ -188,8 +191,7 @@ public:
     SPDLOG_DEBUG( "Random index selected: {}", random_index );
     if ( random_index < 0 || random_index >= random_view_count )
     {
-      SPDLOG_CRITICAL( "Random index {} out of bounds (0 to {})", random_index,
-                       random_view_count - 1 );
+      SPDLOG_CRITICAL( "Random index {} out of bounds (0 to {})", random_index, random_view_count - 1 );
       throw std::out_of_range( "Random index out of bounds" );
     }
     auto it = random_view.begin();
@@ -205,13 +207,11 @@ public:
   }
 
   template <typename... Include, typename... Exclude>
-  entt::entity get_random_nearby_disabled_obstacle( sf::FloatRect search_area,
-                                                    IncludePack<Include...>,
+  entt::entity get_random_nearby_disabled_obstacle( sf::FloatRect search_area, IncludePack<Include...>,
                                                     ExcludePack<Exclude...> )
   {
 
-    auto obst_view = getReg().view<Cmp::Obstacle, Cmp::Position, Include...>(
-        entt::exclude<Exclude...> );
+    auto obst_view = getReg().view<Cmp::Obstacle, Cmp::Position, Include...>( entt::exclude<Exclude...> );
 
     for ( auto obst_entity : obst_view )
     {

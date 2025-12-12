@@ -56,7 +56,8 @@ bool Engine::run()
   {
     loading_screen( [this]() { this->init_systems(); }, m_splash_texture );
 
-    m_scene_manager->push( std::make_unique<Scene::TitleScene>( *m_sound_bank, *m_system_store, m_nav_event_dispatcher ) );
+    m_scene_manager->push(
+        std::make_unique<Scene::TitleScene>( *m_sound_bank, *m_system_store, m_nav_event_dispatcher ) );
     sf::Clock globalFrameClock;
 
     /// MAIN LOOP BEGINS
@@ -66,15 +67,23 @@ bool Engine::run()
       m_scene_manager->update( globalDeltaTime );
       Sys::BaseSystem::get_systems_event_queue().update();
 
+      // catch the resize events
+      while ( const std::optional event = m_window->pollEvent() )
+      {
+        if ( const auto *resized = event->getIf<sf::Event::Resized>() )
+        {
+          // update the view to the new size of the window
+          sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
+          m_window->setView( sf::View( visibleArea ) );
+        }
+      }
     } /// MAIN LOOP ENDS
-  }
-  catch ( const std::exception &e )
+  } catch ( const std::exception &e )
   {
     SPDLOG_CRITICAL( "Unhandled exception in Engine::run(): {}", e.what() );
     show_error_screen( e.what() );
     return false;
-  }
-  catch ( ... )
+  } catch ( ... )
   {
     SPDLOG_CRITICAL( "Unhandled unknown exception in Engine::run()" );
     show_error_screen( "An unknown error has occurred. Please check log." );
@@ -88,10 +97,10 @@ void Engine::init_systems()
   m_sprite_factory = std::make_unique<Sprites::SpriteFactory>();
   m_sprite_factory->init();
   m_sound_bank->init();
-  m_system_store = std::make_unique<Sys::SystemStore>( *m_window, *m_sprite_factory, *m_sound_bank, m_nav_event_dispatcher,
-                                                       m_scenemanager_event_queue );
-  m_scene_manager = std::make_unique<Scene::SceneManager>( *m_window, *m_sound_bank, *m_system_store, m_nav_event_dispatcher,
-                                                           m_scenemanager_event_queue );
+  m_system_store = std::make_unique<Sys::SystemStore>( *m_window, *m_sprite_factory, *m_sound_bank,
+                                                       m_nav_event_dispatcher, m_scenemanager_event_queue );
+  m_scene_manager = std::make_unique<Scene::SceneManager>( *m_window, *m_sound_bank, *m_system_store,
+                                                           m_nav_event_dispatcher, m_scenemanager_event_queue );
 
   SPDLOG_DEBUG( "Lazy initialization of systems complete" );
 }
@@ -110,7 +119,8 @@ void Engine::show_error_screen( const std::string &error_msg )
   }
 
   // Show only the error message on screen, not the stack trace
-  std::string screen_message = "Fatal Error\n\n" + error_msg + "\n\nPress any key to exit" + "\n\nFull stack trace saved to log.txt";
+  std::string screen_message = "Fatal Error\n\n" + error_msg + "\n\nPress any key to exit" +
+                               "\n\nFull stack trace saved to log.txt";
 
   sf::Text error_text( font, screen_message, 24 );
   error_text.setFillColor( sf::Color::White );

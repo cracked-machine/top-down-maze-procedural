@@ -13,7 +13,8 @@
 #include <filesystem>
 #include <map>
 
-namespace ProceduralMaze::Sprites {
+namespace ProceduralMaze::Sprites
+{
 
 /**
  * @class UniformBuilder
@@ -52,14 +53,17 @@ public:
 
     if constexpr ( std::is_same_v<T, sf::Color> )
     {
-      m_apply = [oldApply, name, value]( sf::Shader &shader ) {
+      m_apply = [oldApply, name, value]( sf::Shader &shader )
+      {
         if ( oldApply ) oldApply( shader );
-        shader.setUniform( name, sf::Glsl::Vec4( value.r / 255.0f, value.g / 255.0f, value.b / 255.0f, value.a / 255.0f ) );
+        shader.setUniform( name,
+                           sf::Glsl::Vec4( value.r / 255.0f, value.g / 255.0f, value.b / 255.0f, value.a / 255.0f ) );
       };
     }
     else
     {
-      m_apply = [oldApply, name, value]( sf::Shader &shader ) {
+      m_apply = [oldApply, name, value]( sf::Shader &shader )
+      {
         if ( oldApply ) oldApply( shader );
         shader.setUniform( name, value );
       };
@@ -159,7 +163,8 @@ public:
     for ( const auto &[name, value] : uniforms )
     {
       std::visit(
-          [&]( const auto &val ) {
+          [&]( const auto &val )
+          {
             using T = std::decay_t<decltype( val )>;
             if constexpr ( std::is_same_v<T, float> ) { m_shader.setUniform( name, val ); }
             else if constexpr ( std::is_same_v<T, int> ) { m_shader.setUniform( name, val ); }
@@ -167,7 +172,8 @@ public:
             else if constexpr ( std::is_same_v<T, sf::Vector3f> ) { m_shader.setUniform( name, val ); }
             else if constexpr ( std::is_same_v<T, sf::Color> )
             {
-              m_shader.setUniform( name, sf::Glsl::Vec4( val.r / 255.0f, val.g / 255.0f, val.b / 255.0f, val.a / 255.0f ) );
+              m_shader.setUniform( name,
+                                   sf::Glsl::Vec4( val.r / 255.0f, val.g / 255.0f, val.b / 255.0f, val.a / 255.0f ) );
             }
           },
           value );
@@ -196,6 +202,12 @@ public:
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
 
   auto get_texture_size() const { return m_render_texture.getSize(); }
+  void resize_texture( sf::Vector2u new_size )
+  {
+    auto result = m_render_texture.resize( new_size );
+    SPDLOG_INFO( "Resized render texture to {}x{}, result: {}", new_size.x, new_size.y, result ? "Success" : "Failed" );
+    m_sprite.setTexture( m_render_texture.getTexture(), true );
+  }
 
 protected:
   // this is the pallette texture that the shader will be applied to

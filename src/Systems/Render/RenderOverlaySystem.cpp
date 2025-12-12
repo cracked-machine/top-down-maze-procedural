@@ -35,8 +35,7 @@ void RenderOverlaySystem::render_ui_background_overlay( sf::Vector2f pos, sf::Ve
   m_window.draw( ui_edge );
 }
 
-void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2f pos,
-                                                 sf::Vector2f size )
+void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2f pos, sf::Vector2f size )
 {
 
   auto sprite_metatype = "ICONS";
@@ -61,8 +60,7 @@ void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2
   m_window.draw( healthbar_border );
 }
 
-void RenderOverlaySystem::render_weapons_meter_overlay( float new_weapon_level, sf::Vector2f pos,
-                                                        sf::Vector2f size )
+void RenderOverlaySystem::render_weapons_meter_overlay( float new_weapon_level, sf::Vector2f pos, sf::Vector2f size )
 {
   auto sprite_metatype = "ICONS";
   auto position = sf::FloatRect{ pos, Constants::kGridSquareSizePixelsF };
@@ -101,8 +99,7 @@ void RenderOverlaySystem::render_bomb_overlay( int bomb_count, int radius_value,
   if ( bomb_count < 0 )
     bomb_count_text.setString( " INFINITE " );
   else
-    bomb_count_text.setString( " =   " + std::to_string( bomb_count ) + " x " +
-                               std::to_string( radius_value ) );
+    bomb_count_text.setString( " =   " + std::to_string( bomb_count ) + " x " + std::to_string( radius_value ) );
   bomb_count_text.setPosition( pos + bomb_meter_offset );
   bomb_count_text.setFillColor( sf::Color::White );
   bomb_count_text.setOutlineColor( sf::Color::Black );
@@ -110,8 +107,7 @@ void RenderOverlaySystem::render_bomb_overlay( int bomb_count, int radius_value,
   m_window.draw( bomb_count_text );
 }
 
-void RenderOverlaySystem::render_player_candles_overlay( unsigned int candle_count,
-                                                         sf::Vector2f pos )
+void RenderOverlaySystem::render_player_candles_overlay( unsigned int candle_count, sf::Vector2f pos )
 {
   auto sprite_metatype = "ICONS";
   auto position = sf::FloatRect{ pos, Constants::kGridSquareSizePixelsF };
@@ -168,8 +164,7 @@ void RenderOverlaySystem::render_relic_count_overlay( unsigned int relic_count, 
   m_window.draw( player_score_text );
 }
 
-void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, sf::Vector2f pos,
-                                                            sf::Vector2f size )
+void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size )
 {
   // text
   m_waterlvl_meter_text.setPosition( pos );
@@ -183,7 +178,8 @@ void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, s
   // water meter level is represented as a percentage (0-100) of the screen
   // display y-axis note: {0,0} is top left so we need to invert the Y
   // position
-  float meter_meter_level = size.x - ( ( size.x / kDisplaySize.y ) * water_level );
+  sf::Vector2u display_size = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
+  float meter_meter_level = size.x - ( ( size.x / display_size.y ) * water_level );
   auto waterlvlbar = sf::RectangleShape( { meter_meter_level, size.y } );
   waterlvlbar.setPosition( pos + waterlvl_meter_offset );
   waterlvlbar.setFillColor( sf::Color::Blue );
@@ -198,15 +194,13 @@ void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, s
   m_window.draw( waterlvlbar_border );
 }
 
-void RenderOverlaySystem::render_player_position_overlay( sf::Vector2f player_pos,
-                                                          sf::Vector2f pos )
+void RenderOverlaySystem::render_player_position_overlay( sf::Vector2f player_pos, sf::Vector2f pos )
 {
   // text
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
   {
-    m_player_position_text.setString( "Player Position: [ " +
-                                      std::to_string( static_cast<int>( player_pos.x ) ) + " , " +
-                                      std::to_string( static_cast<int>( player_pos.y ) ) + " ]" );
+    m_player_position_text.setString( "Player Position: [ " + std::to_string( static_cast<int>( player_pos.x ) ) +
+                                      " , " + std::to_string( static_cast<int>( player_pos.y ) ) + " ]" );
   }
   m_player_position_text.setPosition( pos );
   m_player_position_text.setFillColor( sf::Color::White );
@@ -215,16 +209,14 @@ void RenderOverlaySystem::render_player_position_overlay( sf::Vector2f player_po
   m_window.draw( m_player_position_text );
 }
 
-void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_position,
-                                                         sf::Vector2f pos )
+void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos )
 {
   // text
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
   {
 
-    m_mouse_position_text.setString(
-        "Mouse Position: [ " + std::to_string( static_cast<int>( mouse_position.x ) ) + " , " +
-        std::to_string( static_cast<int>( mouse_position.y ) ) + " ]" );
+    m_mouse_position_text.setString( "Mouse Position: [ " + std::to_string( static_cast<int>( mouse_position.x ) ) +
+                                     " , " + std::to_string( static_cast<int>( mouse_position.y ) ) + " ]" );
   }
   m_mouse_position_text.setPosition( pos );
   m_mouse_position_text.setFillColor( sf::Color::White );
@@ -233,8 +225,8 @@ void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_posi
   m_window.draw( m_mouse_position_text );
 }
 
-void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2,
-                                                sf::Vector2f pos3, sf::Vector2f pos4 )
+void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3,
+                                                sf::Vector2f pos4 )
 {
   // only gather stats every interval
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
@@ -294,9 +286,8 @@ void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f 
   }
 }
 
-void RenderOverlaySystem::render_zorder_values_overlay(
-    sf::Vector2f pos, std::vector<ZOrder> &zorder_queue,
-    std::set<Sprites::SpriteMetaType> exclusions )
+void RenderOverlaySystem::render_zorder_values_overlay( sf::Vector2f pos, std::vector<ZOrder> &zorder_queue,
+                                                        std::set<Sprites::SpriteMetaType> exclusions )
 {
   uint32_t font_size = 15;
   float count = 0;

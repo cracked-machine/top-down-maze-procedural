@@ -25,10 +25,6 @@
 #include <memory>
 #include <string>
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
 namespace ProceduralMaze
 {
 
@@ -59,7 +55,9 @@ private:
     Cmp::Font font( "res/fonts/tuffy.ttf" );
     sf::Text loading_text( font, "Loading", 48 );
     loading_text.setFillColor( sf::Color::White );
-    loading_text.setPosition( { Sys::BaseSystem::kDisplaySize.x / 2.f - 50.f, Sys::BaseSystem::kDisplaySize.y / 2.f + 100.f } );
+    // use fallback resolution for loading screen position since we dont have registry access at this point
+    loading_text.setPosition( { Sys::BaseSystem::kFallbackDisplaySize.x / 2.f - 50.f,
+                                Sys::BaseSystem::kFallbackDisplaySize.y / 2.f + 100.f } );
 
     sf::Clock clock;
     const float text_update_interval = 1.f; // 1 second between dot updates
@@ -103,8 +101,9 @@ private:
   sf::Texture m_splash_texture{ "res/textures/splash.png" };
 
   // Create the opengl window
-  std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( Sys::BaseSystem::kDisplaySize ),
-                                                                                   "ProceduralMaze", sf::State::Fullscreen );
+  // use fallback resolution for loading screen position since we dont have registry access at this point
+  std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>(
+      sf::VideoMode( Sys::BaseSystem::kFallbackDisplaySize ), "ProceduralMaze", sf::State::Fullscreen );
 
   // create MultiSprite resources
   std::unique_ptr<Sprites::SpriteFactory> m_sprite_factory;

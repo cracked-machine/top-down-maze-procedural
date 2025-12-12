@@ -16,6 +16,23 @@ namespace ProceduralMaze::Sys
 class RenderMenuSystem : public RenderSystem
 {
 public:
+  //! @brief Helper struct for display settings options
+  struct DisplaySettings
+  {
+    //! @brief List of available display resolutions. Initialised in the cpp file.
+    static const std::vector<sf::Vector2u> resolutions;
+
+    //! @brief ImGui-compatible getter for display resolutions
+    static bool get( [[maybe_unused]] void *data, int idx, const char **out_text )
+    {
+      if ( idx < 0 || idx >= static_cast<int>( resolutions.size() ) ) return false;
+      static std::string str;
+      str = std::to_string( resolutions[idx].x ) + "x" + std::to_string( resolutions[idx].y );
+      *out_text = str.c_str();
+      return true;
+    }
+  };
+
   RenderMenuSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
                     Audio::SoundBank &sound_bank )
       : RenderSystem( reg, window, sprite_factory, sound_bank )
@@ -32,7 +49,7 @@ public:
   void init_title();
   void render_title();
 
-  void render_settings_widgets( sf::Time globalDeltaTime );
+  void render_settings_widgets( sf::Time globalDeltaTime, sf::FloatRect title_text_dimensions );
   void render_settings( sf::Time globalDeltaTime );
   void render_paused( sf::Time globalDeltaTime );
   void render_defeat_screen();
