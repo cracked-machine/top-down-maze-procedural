@@ -282,8 +282,8 @@ void BombSystem::update()
     {
       if ( pc_pos_cmp.findIntersection( armed_pos_cmp ) )
       {
-        auto &bomb_damage = Sys::PersistentSystem::get_persistent_component<
-            Cmp::Persistent::BombDamage>( getReg() );
+        auto &bomb_damage = Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::BombDamage>(
+            getReg() );
         pc_health_cmp.health -= bomb_damage.get_value();
         if ( pc_health_cmp.health <= 0 )
         {

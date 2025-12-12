@@ -62,7 +62,7 @@ public:
   //!
   //! @tparam T
   template <typename T>
-  static void add_persistent_component( entt::registry &reg )
+  static void add_persist_cmp( entt::registry &reg )
   {
     if ( not reg.ctx().contains<T>() ) { reg.ctx().emplace<T>(); }
   }
@@ -73,7 +73,7 @@ public:
   //! @tparam Args
   //! @param args
   template <typename T, typename... Args>
-  static void add_persistent_component( entt::registry &reg, Args &&...args )
+  static void add_persist_cmp( entt::registry &reg, Args &&...args )
   {
     if ( not reg.ctx().contains<T>() ) { reg.ctx().emplace<T>( std::forward<Args>( args )... ); }
   }
@@ -83,7 +83,7 @@ public:
   //! @tparam T
   //! @return T&
   template <typename T>
-  static T &get_persistent_component( entt::registry &reg )
+  static T &get_persist_cmp( entt::registry &reg )
   {
     if ( not reg.ctx().contains<T>() )
     {
@@ -135,7 +135,7 @@ private:
     std::apply(
         [this]( auto &&...unpacked_args )
         {
-          Sys::PersistentSystem::add_persistent_component<ComponentType>(
+          Sys::PersistentSystem::add_persist_cmp<ComponentType>(
               getReg(), std::forward<decltype( unpacked_args )>( unpacked_args )... );
         },
         args_tuple );
@@ -145,7 +145,7 @@ private:
         [this, args_tuple = std::move( args_tuple )]( const nlohmann::json &persistent_object )
     {
       // Component already exists, just update it
-      auto &component = get_persistent_component<ComponentType>( getReg() );
+      auto &component = get_persist_cmp<ComponentType>( getReg() );
       component.deserialize( persistent_object );
       auto deserialized_value = component.get_value();
       SPDLOG_DEBUG( "Loaded {} from JSON with value {}", component.class_name(),

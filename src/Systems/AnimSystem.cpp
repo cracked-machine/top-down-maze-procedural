@@ -76,14 +76,14 @@ void AnimSystem::update( sf::Time globalDeltaTime )
       if ( anim_cmp.m_sprite_type.contains( "NPCSKELE" ) )
       {
         frame_rate = sf::seconds(
-            Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::NpcSkeleAnimFramerate>(
+            Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::NpcSkeleAnimFramerate>(
                 getReg() )
                 .get_value() );
       }
       else if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) )
       {
         frame_rate = sf::seconds(
-            Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::NpcGhostAnimFramerate>(
+            Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::NpcGhostAnimFramerate>(
                 getReg() )
                 .get_value() );
       }
@@ -104,8 +104,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
     if ( not anim_cmp.m_animation_active ) continue;
     if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
     auto frame_rate = sf::seconds(
-        Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::PlayerAnimFramerate>(
-            getReg() )
+        Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::PlayerAnimFramerate>( getReg() )
             .get_value() );
     const auto &player_walk_sequence = m_sprite_factory.get_multisprite_by_type(
         anim_cmp.m_sprite_type );
@@ -121,8 +120,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
 
     const auto &wormhole_sprite_metadata = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
     auto frame_rate = sf::seconds(
-        Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::WormholeAnimFramerate>(
-            getReg() )
+        Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::WormholeAnimFramerate>( getReg() )
             .get_value() );
 
     update_single_sequence( anim_cmp, globalDeltaTime, wormhole_sprite_metadata, frame_rate );

@@ -106,9 +106,9 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::WormholeAnimFramerate>( "WormholeAnimFramerate" );
   // clang-format on
 
-  Sys::PersistentSystem::add_persistent_component<Cmp::Persistent::WormholeSeed>( getReg(), 0 );
-  Sys::PersistentSystem::add_persistent_component<Cmp::Persistent::SinkholeSeed>( getReg(), 0 );
-  Sys::PersistentSystem::add_persistent_component<Cmp::Persistent::CorruptionSeed>( getReg(), 0 );
+  Sys::PersistentSystem::add_persist_cmp<Cmp::Persistent::WormholeSeed>( getReg(), 0 );
+  Sys::PersistentSystem::add_persist_cmp<Cmp::Persistent::SinkholeSeed>( getReg(), 0 );
+  Sys::PersistentSystem::add_persist_cmp<Cmp::Persistent::CorruptionSeed>( getReg(), 0 );
 }
 
 void PersistentSystem::load_state()
@@ -139,7 +139,7 @@ void PersistentSystem::save_state()
   {
     try
     {
-      auto &component = Sys::PersistentSystem::get_persistent_component<ComponentType>( getReg() );
+      auto &component = Sys::PersistentSystem::get_persist_cmp<ComponentType>( getReg() );
       jsonData[key] = component.serialize();
     } catch ( const std::exception &e )
     {

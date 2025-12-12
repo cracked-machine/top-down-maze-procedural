@@ -88,8 +88,8 @@ void RenderGameSystem::init_views()
       { kDisplaySize.x * kMiniMapViewZoomFactor, kDisplaySize.y * kMiniMapViewZoomFactor } );
   m_minimap_view.setViewport( sf::FloatRect( { 0.75f, 0.f }, { 0.25f, 0.25f } ) );
 
-  auto start_pos = Sys::PersistentSystem::get_persistent_component<
-      Cmp::Persistent::PlayerStartPosition>( getReg() );
+  auto start_pos = Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::PlayerStartPosition>(
+      getReg() );
   m_local_view.setCenter( start_pos );
   m_minimap_view.setCenter( start_pos );
 }

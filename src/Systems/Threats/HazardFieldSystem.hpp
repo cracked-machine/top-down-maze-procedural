@@ -134,7 +134,7 @@ public:
         entt::exclude<typename Traits::ExcludeHazard> );
     if ( hazard_field_view.size_hint() > 0 ) { return; }
 
-    unsigned long seed = Sys::PersistentSystem::get_persistent_component<typename Traits::SeedType>(
+    unsigned long seed = Sys::PersistentSystem::get_persist_cmp<typename Traits::SeedType>(
                              getReg() )
                              .get_value();
     auto [random_entity, random_pos] = get_random_position(
@@ -261,9 +261,10 @@ private:
         }
         else if constexpr ( Traits::sprite_type == "CORRUPTION" )
         {
-          player_health_cmp.health -= Sys::PersistentSystem::get_persistent_component<
-                                          Cmp::Persistent::CorruptionDamage>( getReg() )
-                                          .get_value();
+          player_health_cmp
+              .health -= Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::CorruptionDamage>(
+                             getReg() )
+                             .get_value();
           SPDLOG_DEBUG( "Player took corruption damage at position ({}, {})! Health is now {}.",
                         hazard_pos_cmp.x, hazard_pos_cmp.y, player_health_cmp.health );
           return;

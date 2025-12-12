@@ -151,7 +151,7 @@ void NpcSystem::check_bones_reanimation()
       if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), npccontainer_pos_cmp ) )
         continue;
 
-      auto &npc_activate_scale = Sys::PersistentSystem::get_persistent_component<
+      auto &npc_activate_scale = Sys::PersistentSystem::get_persist_cmp<
           Cmp::Persistent::NpcActivateScale>( getReg() );
       // we just create a temporary RectBounds here instead of a component because we only need it
       // for this one comparison and it already contains the needed scaling logic
@@ -174,11 +174,10 @@ void NpcSystem::check_player_to_npc_collision()
                                    .view<Cmp::PlayableCharacter, Cmp::PlayerHealth,
                                          Cmp::PlayerMortality, Cmp::Position, Cmp::Direction>();
   auto npc_collision_view = getReg().view<Cmp::NPC, Cmp::Position>();
-  auto &
-      npc_push_back = Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::NpcPushBack>(
-          getReg() );
-  auto &pc_damage_cooldown = Sys::PersistentSystem::get_persistent_component<
-      Cmp::Persistent::PcDamageDelay>( getReg() );
+  auto &npc_push_back = Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::NpcPushBack>(
+      getReg() );
+  auto &pc_damage_cooldown = Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::PcDamageDelay>(
+      getReg() );
 
   for ( auto [pc_entity, pc_cmp, pc_health_cmp, pc_mort_cmp, pc_pos_cmp, dir_cmp] :
         player_collision_view.each() )
@@ -194,9 +193,8 @@ void NpcSystem::check_player_to_npc_collision()
            pc_damage_cooldown.get_value() )
         continue;
 
-      auto
-          &npc_damage = Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::NpcDamage>(
-              getReg() );
+      auto &npc_damage = Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::NpcDamage>(
+          getReg() );
       pc_health_cmp.health -= npc_damage.get_value();
 
       m_sound_bank.get_effect( "damage_player" ).play();
@@ -430,8 +428,8 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
         }
 
         auto candidate_dir = Cmp::Direction( direction_to_target.normalized() );
-        auto npc_lerp_speed = Sys::PersistentSystem::get_persistent_component<
-            Cmp::Persistent::NpcLerpSpeed>( getReg() );
+        auto npc_lerp_speed = Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::NpcLerpSpeed>(
+            getReg() );
         auto candidate_lerp_pos = Cmp::LerpPosition( move_candidate_pixel_pos.value(),
                                                      npc_lerp_speed.get_value() );
 
