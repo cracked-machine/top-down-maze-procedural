@@ -3,7 +3,7 @@
 
 #include <Components/Persistent/BasePersistent.hpp>
 
-namespace ProceduralMaze::Cmp::Persistent
+namespace ProceduralMaze::Cmp::Persist
 {
 
 struct DiggingDamagePerHit : public BasePersistent<uint8_t>
@@ -15,6 +15,6 @@ struct DiggingDamagePerHit : public BasePersistent<uint8_t>
   virtual std::string class_name() const override { return "DiggingDamagePerHit"; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persistent
+} // namespace ProceduralMaze::Cmp::Persist
 
 #endif // _PERSISTENT_DIGGING_DAMAGE_PER_HIT_HPP__

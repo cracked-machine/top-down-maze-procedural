@@ -2,7 +2,8 @@
 #define __CMP_MUSICVOLUME_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
-namespace ProceduralMaze::Cmp::Persistent {
+namespace ProceduralMaze::Cmp::Persist
+{
 
 class MusicVolume : public BasePersistent<float>
 {
@@ -14,6 +15,6 @@ public:
   virtual std::string class_name() const override { return "MusicVolume"; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persistent
+} // namespace ProceduralMaze::Cmp::Persist
 
 #endif // __CMP_MUSICVOLUME_HPP__

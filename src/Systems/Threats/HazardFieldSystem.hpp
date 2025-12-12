@@ -59,7 +59,7 @@ concept ValidHazard = requires {
 template <>
 struct HazardTraits<Cmp::SinkholeCell>
 {
-  using SeedType = Cmp::Persistent::SinkholeSeed;
+  using SeedType = Cmp::Persist::SinkholeSeed;
   using ExcludeHazard = Cmp::CorruptionCell;
   static constexpr bool kills_instantly = true;
   static constexpr Cmp::PlayerMortality::State
@@ -71,7 +71,7 @@ struct HazardTraits<Cmp::SinkholeCell>
 template <>
 struct HazardTraits<Cmp::CorruptionCell>
 {
-  using SeedType = Cmp::Persistent::CorruptionSeed;
+  using SeedType = Cmp::Persist::CorruptionSeed;
   using ExcludeHazard = Cmp::SinkholeCell;
   static constexpr bool kills_instantly = false;
   static constexpr Cmp::PlayerMortality::State
@@ -261,7 +261,7 @@ private:
         else if constexpr ( Traits::sprite_type == "CORRUPTION" )
         {
           player_health_cmp
-              .health -= Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::CorruptionDamage>(
+              .health -= Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CorruptionDamage>(
                              getReg() )
                              .get_value();
           SPDLOG_DEBUG( "Player took corruption damage at position ({}, {})! Health is now {}.",

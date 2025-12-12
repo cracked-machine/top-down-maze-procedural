@@ -118,9 +118,8 @@ void PlayerSystem::localTransforms()
     // damage cooldown blink effect
     else
     {
-      auto
-          &pc_damage_cooldown = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::PcDamageDelay>(
-              getReg() );
+      auto &pc_damage_cooldown = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>(
+          getReg() );
       bool is_in_damage_cooldown = pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() <
                                    pc_damage_cooldown.get_value();
       int blink_visible = static_cast<int>(
@@ -192,13 +191,12 @@ void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool skip_colli
       bool diagonal_between_obstacles = is_diagonal &&
                                         isDiagonalMovementBetweenObstacles( pos_cmp, dir_cmp );
 
-      auto &
-          player_lerp_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::PlayerLerpSpeed>(
-              getReg() );
+      auto &player_lerp_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerLerpSpeed>(
+          getReg() );
       auto &diagonal_lerp_speed_modifier = Sys::PersistSystem::get_persist_cmp<
-          Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( getReg() );
+          Cmp::Persist::PlayerDiagonalLerpSpeedModifier>( getReg() );
       auto &shortcut_lerp_speed_modifier = Sys::PersistSystem::get_persist_cmp<
-          Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( getReg() );
+          Cmp::Persist::PlayerShortcutLerpSpeedModifier>( getReg() );
 
       float speed_modifier = 1.0f;
       if ( diagonal_between_obstacles )

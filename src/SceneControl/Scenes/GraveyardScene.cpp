@@ -17,8 +17,8 @@ void GraveyardScene::on_init()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  Sys::PersistSystem::add_persist_cmp<Cmp::Persistent::PlayerStartPosition>(
-      m_reg, m_player_start_position );
+  Sys::PersistSystem::add_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg,
+                                                                          m_player_start_position );
 
   auto &render_game_system = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
   SPDLOG_INFO( "Got render_game_system at {}", static_cast<void *>( &render_game_system ) );

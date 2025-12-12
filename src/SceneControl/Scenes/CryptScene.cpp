@@ -19,8 +19,8 @@ void CryptScene::on_init()
   auto entity = m_reg.create();
   m_reg.emplace<Cmp::System>( entity );
 
-  Sys::PersistSystem::add_persist_cmp<Cmp::Persistent::PlayerStartPosition>(
-      m_reg, m_player_start_position );
+  Sys::PersistSystem::add_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg,
+                                                                          m_player_start_position );
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
   random_level_sys.generate( Sys::BaseSystem::kCryptMapGridSize, false, false, false );

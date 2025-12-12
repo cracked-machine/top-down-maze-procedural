@@ -2,7 +2,7 @@
 #define __CMP_BOMBINVENTORY_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
-namespace ProceduralMaze::Cmp::Persistent
+namespace ProceduralMaze::Cmp::Persist
 {
 
 class BombInventory : public BasePersistent<uint8_t>
@@ -16,6 +16,6 @@ public:
   virtual std::string class_name() const override { return "BombInventory"; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persistent
+} // namespace ProceduralMaze::Cmp::Persist
 
 #endif // __CMP_BOMBINVENTORY_HPP__

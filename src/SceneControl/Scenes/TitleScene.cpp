@@ -19,11 +19,10 @@ void TitleScene::on_enter()
   m_render_menu_sys.init_title();
 
   // update fx volumes with persistent settings
-  auto &effects_volume = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::EffectsVolume>(
-                             m_reg )
+  auto &effects_volume = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::EffectsVolume>( m_reg )
                              .get_value();
   m_sound_bank.update_effects_volume( effects_volume );
-  auto &music_volume = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::MusicVolume>( m_reg )
+  auto &music_volume = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MusicVolume>( m_reg )
                            .get_value();
   m_sound_bank.update_music_volume( music_volume );
 

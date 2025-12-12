@@ -2,7 +2,8 @@
 #define __CMP__ARMEDOFFDELAY_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
-namespace ProceduralMaze::Cmp::Persistent {
+namespace ProceduralMaze::Cmp::Persist
+{
 
 // Delay between each concentric obstacle in bomb pattern being disarmed...violently
 class ArmedOffDelay : public BasePersistent<float>
@@ -16,6 +17,6 @@ public:
   virtual std::string class_name() const override { return "ArmedOffDelay"; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persistent
+} // namespace ProceduralMaze::Cmp::Persist
 
 #endif // __CMP__ARMEDOFFDELAY_HPP__

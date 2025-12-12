@@ -5,7 +5,7 @@
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Cmp::Persistent
+namespace ProceduralMaze::Cmp::Persist
 {
 
 // Coordinate
@@ -55,6 +55,6 @@ public:
   }
 };
 
-} // namespace ProceduralMaze::Cmp::Persistent
+} // namespace ProceduralMaze::Cmp::Persist
 
 #endif // __COMPONENTS_POSITION_HPP__

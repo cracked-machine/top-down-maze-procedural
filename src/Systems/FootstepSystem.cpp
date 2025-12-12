@@ -38,7 +38,7 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
 {
   if ( update_clock.getElapsedTime() >=
        sf::seconds(
-           Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::PlayerFootstepAddDelay>( getReg() )
+           Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerFootstepAddDelay>( getReg() )
                .get_value() ) )
   {
 
@@ -145,9 +145,9 @@ void FootstepSystem::update()
   for ( auto [entity, timer, alpha] : view.each() )
   {
     if ( timer.m_clock.getElapsedTime() >
-         sf::seconds( Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::PlayerFootstepFadeDelay>(
-                          getReg() )
-                          .get_value() ) )
+         sf::seconds(
+             Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerFootstepFadeDelay>( getReg() )
+                 .get_value() ) )
     {
       alpha.m_alpha -= kFootstepFadeFactor;
       if ( alpha.m_alpha <= 0.f )

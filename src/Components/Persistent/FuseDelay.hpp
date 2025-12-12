@@ -4,7 +4,8 @@
 #include <Components/Persistent/BasePersistent.hpp>
 #include <SFML/System/Time.hpp>
 
-namespace ProceduralMaze::Cmp::Persistent {
+namespace ProceduralMaze::Cmp::Persist
+{
 
 class FuseDelay : public BasePersistent<float>
 {
@@ -16,5 +17,5 @@ public:
   virtual std::string class_name() const override { return "FuseDelay"; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persistent
+} // namespace ProceduralMaze::Cmp::Persist
 #endif // __CMP_FUSEDELAY_HPP__

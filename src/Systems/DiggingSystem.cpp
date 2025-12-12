@@ -40,7 +40,7 @@ void DiggingSystem::update()
 {
   // abort if still in cooldown
   auto digging_cooldown_amount = Sys::PersistSystem::get_persist_cmp<
-                                     Cmp::Persistent::DiggingCooldownThreshold>( getReg() )
+                                     Cmp::Persist::DiggingCooldownThreshold>( getReg() )
                                      .get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
   {
@@ -73,7 +73,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
 
   // abort if still in cooldown
   auto digging_cooldown_amount = Sys::PersistSystem::get_persist_cmp<
-                                     Cmp::Persistent::DiggingCooldownThreshold>( getReg() )
+                                     Cmp::Persist::DiggingCooldownThreshold>( getReg() )
                                      .get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
 
@@ -138,8 +138,8 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       // Apply digging damage, play a sound depending on whether the obstacle was destroyed
       m_dig_cooldown_clock.restart();
 
-      auto damage_per_dig = Sys::PersistSystem::get_persist_cmp<
-                                Cmp::Persistent::DiggingDamagePerHit>( getReg() )
+      auto damage_per_dig = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingDamagePerHit>(
+                                getReg() )
                                 .get_value();
       alpha_cmp.setAlpha( std::max( 0, alpha_cmp.getAlpha() - damage_per_dig ) );
       SPDLOG_DEBUG( "Applied {} digging damage to obstacle at position ({}, {}), new alpha is {}.",
@@ -151,7 +151,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       {
         // Decrease weapons level based on damage dealt
         weapons_level
-            .m_level -= Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::WeaponDegradePerHit>(
+            .m_level -= Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WeaponDegradePerHit>(
                             getReg() )
                             .get_value();
         SPDLOG_DEBUG( "Player weapons level decreased to {} after digging!",

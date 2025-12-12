@@ -57,7 +57,7 @@ void RandomLevelGenerator::generate( sf::Vector2u map_grid_size, bool gen_graves
 void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
 {
   sf::Vector2f
-      player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::PlayerStartPosition>(
+      player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>(
           getReg() );
   auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF,
                                             5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
@@ -95,7 +95,7 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
 
 void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size )
 {
-  auto player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::PlayerStartPosition>(
+  auto player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>(
       getReg() );
   auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF,
                                             5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
@@ -151,7 +151,7 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int a
                                                float vertHalfLengthModifier,
                                                float horizHalfLengthModifier, int horizOffset )
 {
-  auto player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::PlayerStartPosition>(
+  auto player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>(
       getReg() );
   auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF,
                                             5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
@@ -350,10 +350,9 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &ms, u
 
 void RandomLevelGenerator::gen_grave_obstacles()
 {
-  auto grave_num_multiplier = Sys::PersistSystem::get_persist_cmp<
-      Cmp::Persistent::GraveNumMultiplier>( getReg() );
-  auto max_num_altars = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::MaxNumAltars>(
+  auto grave_num_multiplier = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::GraveNumMultiplier>(
       getReg() );
+  auto max_num_altars = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumAltars>( getReg() );
 
   // GRAVES
   auto grave_meta_types = m_sprite_factory.get_all_sprite_types_by_pattern(
@@ -374,8 +373,7 @@ void RandomLevelGenerator::gen_grave_obstacles()
 
 void RandomLevelGenerator::gen_altar_obstacles()
 {
-  auto max_num_altars = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::MaxNumAltars>(
-      getReg() );
+  auto max_num_altars = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumAltars>( getReg() );
   // ALTARS
   auto &altar_multisprite = m_sprite_factory.get_multisprite_by_type( "ALTAR.inactive" );
   for ( std::size_t i = 0; i < max_num_altars.get_value(); ++i )
@@ -386,8 +384,7 @@ void RandomLevelGenerator::gen_altar_obstacles()
 
 void RandomLevelGenerator::gen_crypt_obstacles()
 {
-  auto max_num_crypts = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::MaxNumCrypts>(
-      getReg() );
+  auto max_num_crypts = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumCrypts>( getReg() );
   // CRYPTS - note: we use keys from altars to open crypts so the number should be equal
   auto &crypt_multisprite = m_sprite_factory.get_multisprite_by_type( "CRYPT.closed" );
   for ( std::size_t i = 0; i < max_num_crypts.get_value(); ++i )

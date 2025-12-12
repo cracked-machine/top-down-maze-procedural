@@ -3,7 +3,8 @@
 
 #include <Components/Persistent/BasePersistent.hpp>
 
-namespace ProceduralMaze::Cmp::Persistent {
+namespace ProceduralMaze::Cmp::Persist
+{
 
 class EffectsVolume : public BasePersistent<float>
 {
@@ -15,6 +16,6 @@ public:
   virtual std::string class_name() const override { return "EffectsVolume"; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persistent
+} // namespace ProceduralMaze::Cmp::Persist
 
 #endif // __CMP_EFFECTSVOLUME_HPP__

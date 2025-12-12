@@ -76,13 +76,13 @@ void AnimSystem::update( sf::Time globalDeltaTime )
       if ( anim_cmp.m_sprite_type.contains( "NPCSKELE" ) )
       {
         frame_rate = sf::seconds(
-            Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::NpcSkeleAnimFramerate>( getReg() )
+            Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcSkeleAnimFramerate>( getReg() )
                 .get_value() );
       }
       else if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) )
       {
         frame_rate = sf::seconds(
-            Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::NpcGhostAnimFramerate>( getReg() )
+            Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcGhostAnimFramerate>( getReg() )
                 .get_value() );
       }
       const auto &npc_walk_sequence = m_sprite_factory.get_multisprite_by_type(
@@ -102,7 +102,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
     if ( not anim_cmp.m_animation_active ) continue;
     if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
     auto frame_rate = sf::seconds(
-        Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::PlayerAnimFramerate>( getReg() )
+        Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerAnimFramerate>( getReg() )
             .get_value() );
     const auto &player_walk_sequence = m_sprite_factory.get_multisprite_by_type(
         anim_cmp.m_sprite_type );
@@ -118,7 +118,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
 
     const auto &wormhole_sprite_metadata = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
     auto frame_rate = sf::seconds(
-        Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::WormholeAnimFramerate>( getReg() )
+        Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WormholeAnimFramerate>( getReg() )
             .get_value() );
 
     update_single_sequence( anim_cmp, globalDeltaTime, wormhole_sprite_metadata, frame_rate );
@@ -131,7 +131,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
     const auto &explosion_sprite_metadata = m_sprite_factory.get_multisprite_by_type(
         anim_cmp.m_sprite_type );
     auto frame_rate = sf::seconds(
-        getReg().ctx().get<Cmp::Persistent::NpcDeathAnimFramerate>().get_value() );
+        getReg().ctx().get<Cmp::Persist::NpcDeathAnimFramerate>().get_value() );
 
     SPDLOG_DEBUG(
         "Explosion animation active for entity {} - current_frame: {}, sprites_per_frame: {}, "

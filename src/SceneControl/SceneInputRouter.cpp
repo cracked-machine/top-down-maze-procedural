@@ -158,7 +158,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
         for ( auto [pkey_count_entity, pkey_count_cmp] : player_key_view.each() )
         {
           pkey_count_cmp.increment_count(
-              Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::ExitKeyRequirement>( getReg() )
+              Sys::PersistSystem::get_persist_cmp<Cmp::Persist::ExitKeyRequirement>( getReg() )
                   .get_value() );
         }
         auto exit_cmp = getReg().view<Cmp::Exit>();

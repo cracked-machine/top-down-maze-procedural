@@ -163,8 +163,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   // 2. get the entity at that position
   unsigned long seed = 0;
   if ( phase == SpawnPhase::InitialSpawn )
-    seed = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::WormholeSeed>( getReg() )
-               .get_value();
+    seed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WormholeSeed>( getReg() ).get_value();
 
   auto [random_entity, random_pos] = find_spawn_location( seed );
   if ( random_entity == entt::null )

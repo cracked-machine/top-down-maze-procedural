@@ -3,7 +3,7 @@
 
 #include <Components/Persistent/BasePersistent.hpp>
 
-namespace ProceduralMaze::Cmp::Persistent
+namespace ProceduralMaze::Cmp::Persist
 {
 
 class PlayerDetectionScale : public BasePersistent<float>
@@ -16,6 +16,6 @@ public:
   virtual std::string class_name() const override { return "PlayerDetectionScale"; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persistent
+} // namespace ProceduralMaze::Cmp::Persist
 
 #endif // __CMP_PC_DETECTION_SCALE_HPP__

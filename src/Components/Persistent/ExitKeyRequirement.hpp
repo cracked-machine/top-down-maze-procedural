@@ -3,7 +3,7 @@
 
 #include <Components/Persistent/BasePersistent.hpp>
 
-namespace ProceduralMaze::Cmp::Persistent
+namespace ProceduralMaze::Cmp::Persist
 {
 
 //! @brief The number of keys the player must hold to unlock the exit
@@ -18,6 +18,6 @@ public:
   virtual std::string class_name() const override { return "ExitKeyRequirement"; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persistent
+} // namespace ProceduralMaze::Cmp::Persist
 
 #endif // SRC_COMPONENTS_PERSISTENT_EXITKEYREQUIREMENT_HPP_

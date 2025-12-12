@@ -4,7 +4,8 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-namespace ProceduralMaze::Cmp::Persistent {
+namespace ProceduralMaze::Cmp::Persist
+{
 
 /**
  * @brief Abstract base interface for persistent components that can be serialized and deserialized.
@@ -70,6 +71,6 @@ public:
   virtual nlohmann::json serialize() const = 0;
 };
 
-} // namespace ProceduralMaze::Cmp::Persistent
+} // namespace ProceduralMaze::Cmp::Persist
 
 #endif // __CMP_IBASEPERSISTENT_HPP__

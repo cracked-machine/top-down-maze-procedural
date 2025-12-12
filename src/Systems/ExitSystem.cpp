@@ -59,11 +59,11 @@ void ExitSystem::unlock_exit()
   for ( auto [pk_entity, pk_cmp] : player_key_view.each() )
   {
     if ( pk_cmp.get_count() <
-         Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::ExitKeyRequirement>( getReg() )
+         Sys::PersistSystem::get_persist_cmp<Cmp::Persist::ExitKeyRequirement>( getReg() )
              .get_value() )
     {
       SPDLOG_DEBUG( "Not enough keys to unlock exit ({} / {})", pk_cmp.get_count(),
-                    get_persistent_component<Cmp::Persistent::ExitKeyRequirement>().get_value() );
+                    get_persistent_component<Cmp::Persist::ExitKeyRequirement>().get_value() );
       return;
     }
   }
@@ -84,7 +84,7 @@ void ExitSystem::check_exit_collision()
   auto exit_view = getReg().view<Cmp::Exit, Cmp::Position>();
   for ( auto [entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
   {
-    auto max_num_shrines = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::MaxNumAltars>(
+    auto max_num_shrines = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumAltars>(
         getReg() );
     if ( exit_cmp.m_locked == true ) return;
     for ( auto [player_entity, pc_cmp, pc_pos_cmp] :

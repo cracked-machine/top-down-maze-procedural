@@ -3,7 +3,8 @@
 
 #include <Components/Persistent/BasePersistent.hpp>
 
-namespace ProceduralMaze::Cmp::Persistent {
+namespace ProceduralMaze::Cmp::Persist
+{
 
 struct DiggingCooldownThreshold : public BasePersistent<float>
 {
@@ -14,6 +15,6 @@ struct DiggingCooldownThreshold : public BasePersistent<float>
   virtual std::string class_name() const override { return "DiggingCooldownThreshold"; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persistent
+} // namespace ProceduralMaze::Cmp::Persist
 
 #endif // _PERSISTENT_DIGGING_COOLDOWN_THRESHOLD_HPP__

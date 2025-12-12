@@ -63,51 +63,51 @@ PersistSystem::PersistSystem( entt::registry &reg, sf::RenderWindow &window,
 
 void PersistSystem::initializeComponentRegistry()
 {
-  // Register a JSON key and its derived Cmp::Persistent::BasePersistent class for deserialization.
+  // Register a JSON key and its derived Cmp::Persist::BasePersistent class for deserialization.
   // Note: You can set default values here but they will be overridden when loading from json file.
   // If you want these defaults to be used then you must override the deserialize() function in the
-  // derived Cmp::Persistent::BasePersistent class. See PlayerStartPosition component as an example.
+  // derived Cmp::Persist::BasePersistent class. See PlayerStartPosition component as an example.
   // clang-format off
-  registerComponent<Cmp::Persistent::ArmedOffDelay>( "ArmedOffDelay" );
-  registerComponent<Cmp::Persistent::ArmedOnDelay>( "ArmedOnDelay" );
-  registerComponent<Cmp::Persistent::BlastRadius>( "BlastRadius" );
-  registerComponent<Cmp::Persistent::BombBonus>( "BombBonus" );
-  registerComponent<Cmp::Persistent::BombDamage>( "BombDamage" );
-  registerComponent<Cmp::Persistent::BombInventory>( "BombInventory" );
-  registerComponent<Cmp::Persistent::CorruptionDamage>( "CorruptionDamage" );
-  registerComponent<Cmp::Persistent::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
-  registerComponent<Cmp::Persistent::DiggingDamagePerHit>( "DiggingDamagePerHit" );
-  registerComponent<Cmp::Persistent::EffectsVolume>( "EffectsVolume" );
-  registerComponent<Cmp::Persistent::ExitKeyRequirement>( "ExitKeyRequirement" );
-  registerComponent<Cmp::Persistent::FuseDelay>( "FuseDelay" );
-  registerComponent<Cmp::Persistent::GraveNumMultiplier>( "GraveNumMultiplier" );
-  registerComponent<Cmp::Persistent::HealthBonus>( "HealthBonus" );
-  registerComponent<Cmp::Persistent::MaxNumAltars>( "MaxNumAltars" );
-  registerComponent<Cmp::Persistent::MaxNumCrypts>( "MaxNumCrypts" );
-  registerComponent<Cmp::Persistent::MusicVolume>( "MusicVolume" );
-  registerComponent<Cmp::Persistent::NpcActivateScale>( "NpcActivateScale" );
-  registerComponent<Cmp::Persistent::NpcDamage>( "NpcDamage" );
-  registerComponent<Cmp::Persistent::NpcDeathAnimFramerate>( "NpcDeathAnimFramerate" );
-  registerComponent<Cmp::Persistent::NpcGhostAnimFramerate>( "NpcGhostAnimFramerate" );
-  registerComponent<Cmp::Persistent::NpcLerpSpeed>( "NpcLerpSpeed" );
-  registerComponent<Cmp::Persistent::NpcPushBack>( "NpcPushBack" );
-  registerComponent<Cmp::Persistent::NpcScanScale>( "NpcScanScale" );
-  registerComponent<Cmp::Persistent::NpcSkeleAnimFramerate>( "NpcSkeleAnimFramerate" );
-  registerComponent<Cmp::Persistent::PcDamageDelay>( "PcDamageDelay" );
-  registerComponent<Cmp::Persistent::PlayerAnimFramerate>( "PlayerAnimFramerate" );
-  registerComponent<Cmp::Persistent::PlayerDetectionScale>( "PlayerDetectionScale" );
-  registerComponent<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( "PlayerDiagonalLerpSpeedModifier" );
-  registerComponent<Cmp::Persistent::PlayerFootstepAddDelay>( "PlayerFootstepAddDelay" );
-  registerComponent<Cmp::Persistent::PlayerFootstepFadeDelay>( "PlayerFootstepFadeDelay" );
-  registerComponent<Cmp::Persistent::PlayerLerpSpeed>( "PlayerLerpSpeed" );
-  registerComponent<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
-  registerComponent<Cmp::Persistent::WeaponDegradePerHit>( "WeaponDegradePerHit" );
-  registerComponent<Cmp::Persistent::WormholeAnimFramerate>( "WormholeAnimFramerate" );
+  registerComponent<Cmp::Persist::ArmedOffDelay>( "ArmedOffDelay" );
+  registerComponent<Cmp::Persist::ArmedOnDelay>( "ArmedOnDelay" );
+  registerComponent<Cmp::Persist::BlastRadius>( "BlastRadius" );
+  registerComponent<Cmp::Persist::BombBonus>( "BombBonus" );
+  registerComponent<Cmp::Persist::BombDamage>( "BombDamage" );
+  registerComponent<Cmp::Persist::BombInventory>( "BombInventory" );
+  registerComponent<Cmp::Persist::CorruptionDamage>( "CorruptionDamage" );
+  registerComponent<Cmp::Persist::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
+  registerComponent<Cmp::Persist::DiggingDamagePerHit>( "DiggingDamagePerHit" );
+  registerComponent<Cmp::Persist::EffectsVolume>( "EffectsVolume" );
+  registerComponent<Cmp::Persist::ExitKeyRequirement>( "ExitKeyRequirement" );
+  registerComponent<Cmp::Persist::FuseDelay>( "FuseDelay" );
+  registerComponent<Cmp::Persist::GraveNumMultiplier>( "GraveNumMultiplier" );
+  registerComponent<Cmp::Persist::HealthBonus>( "HealthBonus" );
+  registerComponent<Cmp::Persist::MaxNumAltars>( "MaxNumAltars" );
+  registerComponent<Cmp::Persist::MaxNumCrypts>( "MaxNumCrypts" );
+  registerComponent<Cmp::Persist::MusicVolume>( "MusicVolume" );
+  registerComponent<Cmp::Persist::NpcActivateScale>( "NpcActivateScale" );
+  registerComponent<Cmp::Persist::NpcDamage>( "NpcDamage" );
+  registerComponent<Cmp::Persist::NpcDeathAnimFramerate>( "NpcDeathAnimFramerate" );
+  registerComponent<Cmp::Persist::NpcGhostAnimFramerate>( "NpcGhostAnimFramerate" );
+  registerComponent<Cmp::Persist::NpcLerpSpeed>( "NpcLerpSpeed" );
+  registerComponent<Cmp::Persist::NpcPushBack>( "NpcPushBack" );
+  registerComponent<Cmp::Persist::NpcScanScale>( "NpcScanScale" );
+  registerComponent<Cmp::Persist::NpcSkeleAnimFramerate>( "NpcSkeleAnimFramerate" );
+  registerComponent<Cmp::Persist::PcDamageDelay>( "PcDamageDelay" );
+  registerComponent<Cmp::Persist::PlayerAnimFramerate>( "PlayerAnimFramerate" );
+  registerComponent<Cmp::Persist::PlayerDetectionScale>( "PlayerDetectionScale" );
+  registerComponent<Cmp::Persist::PlayerDiagonalLerpSpeedModifier>( "PlayerDiagonalLerpSpeedModifier" );
+  registerComponent<Cmp::Persist::PlayerFootstepAddDelay>( "PlayerFootstepAddDelay" );
+  registerComponent<Cmp::Persist::PlayerFootstepFadeDelay>( "PlayerFootstepFadeDelay" );
+  registerComponent<Cmp::Persist::PlayerLerpSpeed>( "PlayerLerpSpeed" );
+  registerComponent<Cmp::Persist::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
+  registerComponent<Cmp::Persist::WeaponDegradePerHit>( "WeaponDegradePerHit" );
+  registerComponent<Cmp::Persist::WormholeAnimFramerate>( "WormholeAnimFramerate" );
   // clang-format on
 
-  Sys::PersistSystem::add_persist_cmp<Cmp::Persistent::WormholeSeed>( getReg(), 0 );
-  Sys::PersistSystem::add_persist_cmp<Cmp::Persistent::SinkholeSeed>( getReg(), 0 );
-  Sys::PersistSystem::add_persist_cmp<Cmp::Persistent::CorruptionSeed>( getReg(), 0 );
+  Sys::PersistSystem::add_persist_cmp<Cmp::Persist::WormholeSeed>( getReg(), 0 );
+  Sys::PersistSystem::add_persist_cmp<Cmp::Persist::SinkholeSeed>( getReg(), 0 );
+  Sys::PersistSystem::add_persist_cmp<Cmp::Persist::CorruptionSeed>( getReg(), 0 );
 }
 
 void PersistSystem::load_state()
@@ -148,42 +148,42 @@ void PersistSystem::save_state()
 
   // Serialize all registered components
   // clang-format off
-  serializeComponent.template operator()<Cmp::Persistent::ArmedOffDelay>( "ArmedOffDelay" );
-  serializeComponent.template operator()<Cmp::Persistent::ArmedOnDelay>( "ArmedOnDelay" );
-  serializeComponent.template operator()<Cmp::Persistent::BlastRadius>( "BlastRadius" );
-  serializeComponent.template operator()<Cmp::Persistent::BombBonus>( "BombBonus" );
-  serializeComponent.template operator()<Cmp::Persistent::BombDamage>( "BombDamage" );
-  serializeComponent.template operator()<Cmp::Persistent::BombInventory>( "BombInventory" );
-  serializeComponent.template operator()<Cmp::Persistent::CorruptionDamage>( "CorruptionDamage" );
-  serializeComponent.template operator()<Cmp::Persistent::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
-  serializeComponent.template operator()<Cmp::Persistent::DiggingDamagePerHit>( "DiggingDamagePerHit" );
-  serializeComponent.template operator()<Cmp::Persistent::EffectsVolume>( "EffectsVolume" );
-  serializeComponent.template operator()<Cmp::Persistent::ExitKeyRequirement>( "ExitKeyRequirement" );
-  serializeComponent.template operator()<Cmp::Persistent::FuseDelay>( "FuseDelay" );
-  serializeComponent.template operator()<Cmp::Persistent::GraveNumMultiplier>( "GraveNumMultiplier" );
-  serializeComponent.template operator()<Cmp::Persistent::HealthBonus>( "HealthBonus" );
-  serializeComponent.template operator()<Cmp::Persistent::MaxNumAltars>( "MaxNumAltars" );
-  serializeComponent.template operator()<Cmp::Persistent::MaxNumCrypts>( "MaxNumCrypts" );
-  serializeComponent.template operator()<Cmp::Persistent::MusicVolume>( "MusicVolume" );
-  serializeComponent.template operator()<Cmp::Persistent::NpcActivateScale>( "NpcActivateScale" );
-  serializeComponent.template operator()<Cmp::Persistent::NpcDamage>( "NpcDamage" );
-  serializeComponent.template operator()<Cmp::Persistent::NpcDeathAnimFramerate>( "NpcDeathAnimFramerate" );
-  serializeComponent.template operator()<Cmp::Persistent::NpcGhostAnimFramerate>( "NpcGhostAnimFramerate" );
-  serializeComponent.template operator()<Cmp::Persistent::NpcLerpSpeed>( "NpcLerpSpeed" );
-  serializeComponent.template operator()<Cmp::Persistent::NpcPushBack>( "NpcPushBack" );
-  serializeComponent.template operator()<Cmp::Persistent::NpcScanScale>( "NpcScanScale" );
-  serializeComponent.template operator()<Cmp::Persistent::NpcSkeleAnimFramerate>( "NpcSkeleAnimFramerate" );
-  serializeComponent.template operator()<Cmp::Persistent::PcDamageDelay>( "PcDamageDelay" );
-  serializeComponent.template operator()<Cmp::Persistent::PlayerAnimFramerate>( "PlayerAnimFramerate" );
-  serializeComponent.template operator()<Cmp::Persistent::PlayerDetectionScale>( "PlayerDetectionScale" );
-  serializeComponent.template operator()<Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( "PlayerDiagonalLerpSpeedModifier" );
-  serializeComponent.template operator()<Cmp::Persistent::PlayerFootstepAddDelay>( "PlayerFootstepAddDelay" );
-  serializeComponent.template operator()<Cmp::Persistent::PlayerFootstepFadeDelay>( "PlayerFootstepFadeDelay" );
-  serializeComponent.template operator()<Cmp::Persistent::PlayerLerpSpeed>( "PlayerLerpSpeed" );
-  serializeComponent.template operator()<Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
-  serializeComponent.template operator()<Cmp::Persistent::PlayerStartPosition>( "PlayerStartPosition" );
-  serializeComponent.template operator()<Cmp::Persistent::WeaponDegradePerHit>( "WeaponDegradePerHit" );
-  serializeComponent.template operator()<Cmp::Persistent::WormholeAnimFramerate>( "WormholeAnimFramerate" );
+  serializeComponent.template operator()<Cmp::Persist::ArmedOffDelay>( "ArmedOffDelay" );
+  serializeComponent.template operator()<Cmp::Persist::ArmedOnDelay>( "ArmedOnDelay" );
+  serializeComponent.template operator()<Cmp::Persist::BlastRadius>( "BlastRadius" );
+  serializeComponent.template operator()<Cmp::Persist::BombBonus>( "BombBonus" );
+  serializeComponent.template operator()<Cmp::Persist::BombDamage>( "BombDamage" );
+  serializeComponent.template operator()<Cmp::Persist::BombInventory>( "BombInventory" );
+  serializeComponent.template operator()<Cmp::Persist::CorruptionDamage>( "CorruptionDamage" );
+  serializeComponent.template operator()<Cmp::Persist::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
+  serializeComponent.template operator()<Cmp::Persist::DiggingDamagePerHit>( "DiggingDamagePerHit" );
+  serializeComponent.template operator()<Cmp::Persist::EffectsVolume>( "EffectsVolume" );
+  serializeComponent.template operator()<Cmp::Persist::ExitKeyRequirement>( "ExitKeyRequirement" );
+  serializeComponent.template operator()<Cmp::Persist::FuseDelay>( "FuseDelay" );
+  serializeComponent.template operator()<Cmp::Persist::GraveNumMultiplier>( "GraveNumMultiplier" );
+  serializeComponent.template operator()<Cmp::Persist::HealthBonus>( "HealthBonus" );
+  serializeComponent.template operator()<Cmp::Persist::MaxNumAltars>( "MaxNumAltars" );
+  serializeComponent.template operator()<Cmp::Persist::MaxNumCrypts>( "MaxNumCrypts" );
+  serializeComponent.template operator()<Cmp::Persist::MusicVolume>( "MusicVolume" );
+  serializeComponent.template operator()<Cmp::Persist::NpcActivateScale>( "NpcActivateScale" );
+  serializeComponent.template operator()<Cmp::Persist::NpcDamage>( "NpcDamage" );
+  serializeComponent.template operator()<Cmp::Persist::NpcDeathAnimFramerate>( "NpcDeathAnimFramerate" );
+  serializeComponent.template operator()<Cmp::Persist::NpcGhostAnimFramerate>( "NpcGhostAnimFramerate" );
+  serializeComponent.template operator()<Cmp::Persist::NpcLerpSpeed>( "NpcLerpSpeed" );
+  serializeComponent.template operator()<Cmp::Persist::NpcPushBack>( "NpcPushBack" );
+  serializeComponent.template operator()<Cmp::Persist::NpcScanScale>( "NpcScanScale" );
+  serializeComponent.template operator()<Cmp::Persist::NpcSkeleAnimFramerate>( "NpcSkeleAnimFramerate" );
+  serializeComponent.template operator()<Cmp::Persist::PcDamageDelay>( "PcDamageDelay" );
+  serializeComponent.template operator()<Cmp::Persist::PlayerAnimFramerate>( "PlayerAnimFramerate" );
+  serializeComponent.template operator()<Cmp::Persist::PlayerDetectionScale>( "PlayerDetectionScale" );
+  serializeComponent.template operator()<Cmp::Persist::PlayerDiagonalLerpSpeedModifier>( "PlayerDiagonalLerpSpeedModifier" );
+  serializeComponent.template operator()<Cmp::Persist::PlayerFootstepAddDelay>( "PlayerFootstepAddDelay" );
+  serializeComponent.template operator()<Cmp::Persist::PlayerFootstepFadeDelay>( "PlayerFootstepFadeDelay" );
+  serializeComponent.template operator()<Cmp::Persist::PlayerLerpSpeed>( "PlayerLerpSpeed" );
+  serializeComponent.template operator()<Cmp::Persist::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
+  serializeComponent.template operator()<Cmp::Persist::PlayerStartPosition>( "PlayerStartPosition" );
+  serializeComponent.template operator()<Cmp::Persist::WeaponDegradePerHit>( "WeaponDegradePerHit" );
+  serializeComponent.template operator()<Cmp::Persist::WormholeAnimFramerate>( "WormholeAnimFramerate" );
 
   // clang-format on
 

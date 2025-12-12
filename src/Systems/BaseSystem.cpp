@@ -34,7 +34,7 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
 {
 
   // Prevent the player from walking through NPCs
-  auto &pc_damage_delay = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::PcDamageDelay>(
+  auto &pc_damage_delay = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>(
       getReg() );
   auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::LerpPosition>();
   auto pc_view = getReg().view<Cmp::PlayableCharacter>();

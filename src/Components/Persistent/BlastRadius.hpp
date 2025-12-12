@@ -3,7 +3,7 @@
 
 #include <Components/Persistent/BasePersistent.hpp>
 #include <cstdint>
-namespace ProceduralMaze::Cmp::Persistent
+namespace ProceduralMaze::Cmp::Persist
 {
 
 class BlastRadius : public BasePersistent<uint8_t>
@@ -17,6 +17,6 @@ public:
   virtual std::string class_name() const override { return "BlastRadius"; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persistent
+} // namespace ProceduralMaze::Cmp::Persist
 
 #endif // __CMP_BLASTRADIUS_HPP__

@@ -3,7 +3,8 @@
 
 #include <Components/Persistent/BasePersistent.hpp>
 
-namespace ProceduralMaze::Cmp::Persistent {
+namespace ProceduralMaze::Cmp::Persist
+{
 
 struct WeaponDegradePerHit : public BasePersistent<float>
 {
@@ -14,6 +15,6 @@ struct WeaponDegradePerHit : public BasePersistent<float>
   virtual std::string class_name() const override { return "WeaponDegradePerHit"; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persistent
+} // namespace ProceduralMaze::Cmp::Persist
 
 #endif // _PERSISTENT_WEAPONS_DEGRADE_PER_HIT_HPP__

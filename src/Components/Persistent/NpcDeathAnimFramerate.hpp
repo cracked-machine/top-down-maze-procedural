@@ -3,19 +3,21 @@
 
 #include <Components/Persistent/BasePersistent.hpp>
 
-namespace ProceduralMaze::Cmp::Persistent {
+namespace ProceduralMaze::Cmp::Persist
+{
 
 class NpcDeathAnimFramerate : public BasePersistent<float>
 {
 public:
   // time unit is seconds per frame, engine should convert to sf::Time as needed
-  NpcDeathAnimFramerate( float seconds_per_frame = 0.1f, float min_value = 0.01f, float max_value = 0.5f )
+  NpcDeathAnimFramerate( float seconds_per_frame = 0.1f, float min_value = 0.01f,
+                         float max_value = 0.5f )
       : BasePersistent<float>( seconds_per_frame, min_value, max_value )
   {
   }
   virtual std::string class_name() const override { return "NpcDeathAnimFramerate"; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persistent
+} // namespace ProceduralMaze::Cmp::Persist
 
 #endif // __CMP_NPC_DEATH_ANIM_FRAMERATE_HPP__

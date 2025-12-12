@@ -2,7 +2,7 @@
 #define __CMP_CORRUPTIONDAMAGE_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
-namespace ProceduralMaze::Cmp::Persistent
+namespace ProceduralMaze::Cmp::Persist
 {
 
 class CorruptionDamage : public BasePersistent<uint8_t>
@@ -15,6 +15,6 @@ public:
   virtual std::string class_name() const override { return "CorruptionDamage"; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persistent
+} // namespace ProceduralMaze::Cmp::Persist
 
 #endif // __CMP_CORRUPTIONDAMAGE_HPP__

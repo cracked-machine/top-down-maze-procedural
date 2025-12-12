@@ -2,7 +2,7 @@
 #define __CMP_PLAYER_FOOTSTEP_ADDDELAY_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
-namespace ProceduralMaze::Cmp::Persistent
+namespace ProceduralMaze::Cmp::Persist
 {
 
 class PlayerFootstepAddDelay : public BasePersistent<float>
@@ -15,6 +15,6 @@ public:
   virtual std::string class_name() const override { return "PlayerFootstepAddDelay"; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persistent
+} // namespace ProceduralMaze::Cmp::Persist
 
 #endif // __CMP_PLAYER_FOOTSTEP_ADDDELAY_HPP__

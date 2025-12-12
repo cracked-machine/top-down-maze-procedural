@@ -3,7 +3,7 @@
 
 #include <Components/Persistent/IBasePersistent.hpp>
 
-namespace ProceduralMaze::Cmp::Persistent
+namespace ProceduralMaze::Cmp::Persist
 {
 
 // Base class for persistent settings
@@ -101,7 +101,10 @@ public:
       }
       else if constexpr ( std::is_integral_v<T> && !std::is_same_v<T, bool> )
       {
-        if ( json_data["min_value"].is_number_integer() ) { min_value = json_data["min_value"].get<T>(); }
+        if ( json_data["min_value"].is_number_integer() )
+        {
+          min_value = json_data["min_value"].get<T>();
+        }
       }
       else if constexpr ( std::is_same_v<T, bool> )
       {
@@ -121,7 +124,10 @@ public:
       }
       else if constexpr ( std::is_integral_v<T> && !std::is_same_v<T, bool> )
       {
-        if ( json_data["max_value"].is_number_integer() ) { max_value = json_data["max_value"].get<T>(); }
+        if ( json_data["max_value"].is_number_integer() )
+        {
+          max_value = json_data["max_value"].get<T>();
+        }
       }
       else if constexpr ( std::is_same_v<T, bool> )
       {
@@ -140,6 +146,6 @@ protected:
   T max_value{};
 };
 
-} // namespace ProceduralMaze::Cmp::Persistent
+} // namespace ProceduralMaze::Cmp::Persist
 
 #endif // __CMP_BASEPERSISTENT_HPP__
