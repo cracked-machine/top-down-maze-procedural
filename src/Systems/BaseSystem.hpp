@@ -61,36 +61,6 @@ public:
   /// getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::DerivedSystem::onResume>(this);`
   virtual void onResume() = 0;
 
-  //! @brief Get the Grid Position object
-  //!
-  //! @param entity The entity to get the grid position for.
-  //! @return std::optional<sf::Vector2i>
-  std::optional<sf::Vector2i> getGridPosition( entt::entity entity ) const
-  {
-    auto pos = getReg().try_get<Cmp::Position>( entity );
-
-    if ( pos )
-    {
-      return std::optional<sf::Vector2i>{
-          { static_cast<int>( pos->position.x / Constants::kGridSquareSizePixels.x ),
-            static_cast<int>( pos->position.y / Constants::kGridSquareSizePixels.y ) } };
-    }
-    else { SPDLOG_ERROR( "Entity {} does not have a Position component", static_cast<int>( entity ) ); }
-    return std::nullopt;
-  }
-
-  //! @brief Get the Pixel Position object from an entity's Position component.
-  //!
-  //! @param entity The entity to get the pixel position for.
-  //! @return std::optional<sf::Vector2f>
-  std::optional<sf::Vector2f> getPixelPosition( entt::entity entity ) const
-  {
-    auto pos = getReg().try_get<Cmp::Position>( entity );
-
-    if ( pos ) { return ( *pos ).position; }
-    return std::nullopt;
-  }
-
   //! @brief Checks if the player's movement to a given position is valid
   //! Validates whether the player can move to the specified position by checking
   //! for collisions with walls, boundaries, or other obstacles in the game world.

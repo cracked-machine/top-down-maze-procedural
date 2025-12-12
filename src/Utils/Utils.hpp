@@ -1,11 +1,14 @@
 #ifndef SRC_UTILS_UTILS_HPP__
 #define SRC_UTILS_UTILS_HPP__
 
+#include <Components/Position.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/View.hpp>
 // #include <Systems/BaseSystem.hpp>
 
 #include <cmath>
+#include <entt/entity/registry.hpp>
+#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Constants
 {
@@ -98,6 +101,33 @@ constexpr inline bool is_visible_in_view( const sf::View &view, const sf::FloatR
 {
   auto viewBounds = calculate_view_bounds( view );
   return viewBounds.findIntersection( position ).has_value();
+}
+
+//! @brief Get the Grid Position object
+//!
+//! @param entity The entity to get the grid position for.
+//! @return std::optional<sf::Vector2i>
+static std::optional<sf::Vector2i> getGridPosition( entt::registry &registry, entt::entity entity )
+{
+  auto pos = registry.try_get<Cmp::Position>( entity );
+  if ( pos )
+  {
+    return std::optional<sf::Vector2i>{ { static_cast<int>( pos->position.x / Constants::kGridSquareSizePixels.x ),
+                                          static_cast<int>( pos->position.y / Constants::kGridSquareSizePixels.y ) } };
+  }
+  else { SPDLOG_ERROR( "Entity {} does not have a Position component", static_cast<int>( entity ) ); }
+  return std::nullopt;
+}
+
+//! @brief Get the Pixel Position object from an entity's Position component.
+//!
+//! @param entity The entity to get the pixel position for.
+//! @return std::optional<sf::Vector2f>
+static std::optional<sf::Vector2f> getPixelPosition( entt::registry &registry, entt::entity entity )
+{
+  auto pos = registry.try_get<Cmp::Position>( entity );
+  if ( pos ) { return ( *pos ).position; }
+  return std::nullopt;
 }
 
 namespace Maths

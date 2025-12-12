@@ -33,8 +33,8 @@
 namespace ProceduralMaze::Sys
 {
 
-NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window,
-                      Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                      Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "NpcSystem initialized" );
@@ -62,8 +62,7 @@ void NpcSystem::update( sf::Time dt )
 //! @param current_pos Current position rectangle
 //! @param diagonal_direction The diagonal direction vector (e.g., {1, -1} for up-right)
 //! @return true if diagonal movement is blocked by adjacent obstacles
-bool NpcSystem::isDiagonalBlocked( const sf::FloatRect &current_pos,
-                                   const sf::Vector2f &diagonal_direction )
+bool NpcSystem::isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::Vector2f &diagonal_direction )
 {
   // Only check for diagonal movements (both x and y components non-zero)
   if ( diagonal_direction.x == 0.f || diagonal_direction.y == 0.f )
@@ -87,10 +86,8 @@ bool NpcSystem::isDiagonalBlocked( const sf::FloatRect &current_pos,
 
 void NpcSystem::update_movement( sf::Time globalDeltaTime )
 {
-  auto exclusions = entt::exclude<Cmp::AltarSegment, Cmp::CryptSegment, Cmp::SpawnArea,
-                                  Cmp::PlayableCharacter>;
-  auto view = getReg().view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds, Cmp::Direction>(
-      exclusions );
+  auto exclusions = entt::exclude<Cmp::AltarSegment, Cmp::CryptSegment, Cmp::SpawnArea, Cmp::PlayableCharacter>;
+  auto view = getReg().view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds, Cmp::Direction>( exclusions );
 
   for ( auto [entity, pos_cmp, lerp_pos_cmp, npc_scan_bounds, dir_cmp] : view.each() )
   {
@@ -118,10 +115,8 @@ void NpcSystem::update_movement( sf::Time globalDeltaTime )
     else
     {
       // Lerp from start to target directly
-      pos_cmp.position.x = std::lerp( lerp_pos_cmp.m_start.x, lerp_pos_cmp.m_target.x,
-                                      lerp_pos_cmp.m_lerp_factor );
-      pos_cmp.position.y = std::lerp( lerp_pos_cmp.m_start.y, lerp_pos_cmp.m_target.y,
-                                      lerp_pos_cmp.m_lerp_factor );
+      pos_cmp.position.x = std::lerp( lerp_pos_cmp.m_start.x, lerp_pos_cmp.m_target.x, lerp_pos_cmp.m_lerp_factor );
+      pos_cmp.position.y = std::lerp( lerp_pos_cmp.m_start.y, lerp_pos_cmp.m_target.y, lerp_pos_cmp.m_lerp_factor );
     }
 
     // clang-format off
@@ -145,19 +140,14 @@ void NpcSystem::check_bones_reanimation()
   auto npccontainer_collision_view = getReg().view<Cmp::NpcContainer, Cmp::Position>();
   for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
   {
-    for ( auto [npccontainer_entt, npccontainer_cmp, npccontainer_pos_cmp] :
-          npccontainer_collision_view.each() )
+    for ( auto [npccontainer_entt, npccontainer_cmp, npccontainer_pos_cmp] : npccontainer_collision_view.each() )
     {
-      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), npccontainer_pos_cmp ) )
-        continue;
+      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), npccontainer_pos_cmp ) ) continue;
 
-      auto
-          &npc_activate_scale = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcActivateScale>(
-              getReg() );
+      auto &npc_activate_scale = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcActivateScale>( getReg() );
       // we just create a temporary RectBounds here instead of a component because we only need it
       // for this one comparison and it already contains the needed scaling logic
-      auto npc_activate_bounds = Cmp::RectBounds( npccontainer_pos_cmp.position,
-                                                  Constants::kGridSquareSizePixelsF,
+      auto npc_activate_bounds = Cmp::RectBounds( npccontainer_pos_cmp.position, Constants::kGridSquareSizePixelsF,
                                                   npc_activate_scale.get_value() );
 
       if ( pc_pos_cmp.findIntersection( npc_activate_bounds.getBounds() ) )
@@ -172,15 +162,13 @@ void NpcSystem::check_bones_reanimation()
 void NpcSystem::check_player_to_npc_collision()
 {
   auto player_collision_view = getReg()
-                                   .view<Cmp::PlayableCharacter, Cmp::PlayerHealth,
-                                         Cmp::PlayerMortality, Cmp::Position, Cmp::Direction>();
+                                   .view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position,
+                                         Cmp::Direction>();
   auto npc_collision_view = getReg().view<Cmp::NPC, Cmp::Position>();
   auto &npc_push_back = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcPushBack>( getReg() );
-  auto &pc_damage_cooldown = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>(
-      getReg() );
+  auto &pc_damage_cooldown = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>( getReg() );
 
-  for ( auto [pc_entity, pc_cmp, pc_health_cmp, pc_mort_cmp, pc_pos_cmp, dir_cmp] :
-        player_collision_view.each() )
+  for ( auto [pc_entity, pc_cmp, pc_health_cmp, pc_mort_cmp, pc_pos_cmp, dir_cmp] : player_collision_view.each() )
   {
     if ( pc_mort_cmp.state != Cmp::PlayerMortality::State::ALIVE ) return;
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_collision_view.each() )
@@ -189,9 +177,7 @@ void NpcSystem::check_player_to_npc_collision()
       Cmp::RectBounds npc_pos_cmp_bounds_current{ npc_pos_cmp.position, npc_pos_cmp.size, 0.1f };
       if ( not pc_pos_cmp.findIntersection( npc_pos_cmp_bounds_current.getBounds() ) ) continue;
 
-      if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() <
-           pc_damage_cooldown.get_value() )
-        continue;
+      if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
 
       auto &npc_damage = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcDamage>( getReg() );
       pc_health_cmp.health -= npc_damage.get_value();
@@ -207,22 +193,17 @@ void NpcSystem::check_player_to_npc_collision()
       pc_cmp.m_damage_cooldown_timer.restart();
 
       // Find a valid pushback position by checking all 8 directions
-      sf::Vector2f target_push_back_pos = findValidPushbackPosition(
-          pc_pos_cmp.position, npc_pos_cmp.position, dir_cmp, npc_push_back.get_value() );
+      sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp.position, npc_pos_cmp.position, dir_cmp,
+                                                                     npc_push_back.get_value() );
 
       // Update player position if we found a valid pushback position
-      if ( target_push_back_pos != pc_pos_cmp.position )
-      {
-        pc_pos_cmp.position = target_push_back_pos;
-      }
+      if ( target_push_back_pos != pc_pos_cmp.position ) { pc_pos_cmp.position = target_push_back_pos; }
     }
   }
 }
 
-sf::Vector2f NpcSystem::findValidPushbackPosition( const sf::Vector2f &player_pos,
-                                                   const sf::Vector2f &npc_pos,
-                                                   const sf::Vector2f &player_direction,
-                                                   float pushback_distance )
+sf::Vector2f NpcSystem::findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos,
+                                                   const sf::Vector2f &player_direction, float pushback_distance )
 {
   // Define all 8 directions (N, NE, E, SE, S, SW, W, NW)
   std::vector<sf::Vector2f> directions = {
@@ -285,8 +266,7 @@ sf::Vector2f NpcSystem::findValidPushbackPosition( const sf::Vector2f &player_po
     if ( away_from_npc != sf::Vector2f( 0.0f, 0.0f ) )
     {
       // Normalize for comparison
-      float mag = std::sqrt( away_from_npc.x * away_from_npc.x +
-                             away_from_npc.y * away_from_npc.y );
+      float mag = std::sqrt( away_from_npc.x * away_from_npc.x + away_from_npc.y * away_from_npc.y );
       if ( mag > 0.0f )
       {
         away_from_npc.x /= mag;
@@ -318,15 +298,11 @@ sf::Vector2f NpcSystem::findValidPushbackPosition( const sf::Vector2f &player_po
   // Try each direction in priority order
   for ( const auto &push_dir : preferred_directions )
   {
-    sf::FloatRect candidate_pos{ player_pos + push_dir * pushback_distance,
-                                 Constants::kGridSquareSizePixelsF };
+    sf::FloatRect candidate_pos{ player_pos + push_dir * pushback_distance, Constants::kGridSquareSizePixelsF };
     candidate_pos = Utils::snap_to_grid( candidate_pos );
 
     // Check if this position is valid and different from current position
-    if ( candidate_pos.position != player_pos && is_valid_move( candidate_pos ) )
-    {
-      return candidate_pos.position;
-    }
+    if ( candidate_pos.position != player_pos && is_valid_move( candidate_pos ) ) { return candidate_pos.position; }
   }
 
   // If no valid position found, return original position
@@ -346,8 +322,7 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
 
     // gather up any PlayerDistance components from within range obstacles
     PlayerDistanceQueue distance_queue;
-    auto pd_view = getReg().view<Cmp::Position, Cmp::PlayerDistance>(
-        entt::exclude<Cmp::NPC, Cmp::PlayableCharacter> );
+    auto pd_view = getReg().view<Cmp::Position, Cmp::PlayerDistance>( entt::exclude<Cmp::NPC, Cmp::PlayableCharacter> );
     for ( auto [entity, pos_cmp, pd_cmp] : pd_view.each() )
     {
       // footsteps are always tracked, everything else needs to be within scan bounds
@@ -355,10 +330,7 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
       {
         if ( not npc_scan_bounds->findIntersection( pc_detection_bounds->getBounds() ) ) continue;
       }
-      if ( npc_scan_bounds->findIntersection( pos_cmp ) )
-      {
-        distance_queue.push( { pd_cmp.distance, entity } );
-      }
+      if ( npc_scan_bounds->findIntersection( pos_cmp ) ) { distance_queue.push( { pd_cmp.distance, entity } ); }
     }
 
     if ( distance_queue.empty() ) continue;
@@ -375,10 +347,9 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
       auto npc_lerp_pos_cmp = getReg().try_get<Cmp::LerpPosition>( npc_entity );
       auto npc_anim_cmp = getReg().try_get<Cmp::SpriteAnimation>( npc_entity );
       if ( not npc_cmp || not npc_pos || not npc_anim_cmp ) continue;
-      if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f )
-        continue; // still mid-lerp, wait until done
+      if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) continue; // still mid-lerp, wait until done
 
-      auto move_candidate_pixel_pos = getPixelPosition( nearest_obstacle.second );
+      auto move_candidate_pixel_pos = Utils::getPixelPosition( getReg(), nearest_obstacle.second );
       if ( not move_candidate_pixel_pos ) continue; // Try next candidate
 
       // Calculate direction from NPC to target cell and update animation state
@@ -395,60 +366,37 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
         {
 
           if ( direction_to_target.x > 0 ) { npc_anim_cmp->m_sprite_type = "NPCSKELE.walk.east"; }
-          else if ( direction_to_target.x < 0 )
-          {
-            npc_anim_cmp->m_sprite_type = "NPCSKELE.walk.west";
-          }
-          else if ( direction_to_target.y < 0 )
-          {
-            npc_anim_cmp->m_sprite_type = "NPCSKELE.walk.north";
-          }
-          else if ( direction_to_target.y > 0 )
-          {
-            npc_anim_cmp->m_sprite_type = "NPCSKELE.walk.south";
-          }
+          else if ( direction_to_target.x < 0 ) { npc_anim_cmp->m_sprite_type = "NPCSKELE.walk.west"; }
+          else if ( direction_to_target.y < 0 ) { npc_anim_cmp->m_sprite_type = "NPCSKELE.walk.north"; }
+          else if ( direction_to_target.y > 0 ) { npc_anim_cmp->m_sprite_type = "NPCSKELE.walk.south"; }
         }
         else if ( npc_anim_cmp->m_sprite_type.contains( "NPCGHOST" ) )
         {
           // Ghost NPCs face cardinal directions only
           if ( direction_to_target.x > 0 ) { npc_anim_cmp->m_sprite_type = "NPCGHOST.walk.east"; }
-          else if ( direction_to_target.x < 0 )
-          {
-            npc_anim_cmp->m_sprite_type = "NPCGHOST.walk.west";
-          }
-          else if ( direction_to_target.y < 0 )
-          {
-            npc_anim_cmp->m_sprite_type = "NPCGHOST.walk.north";
-          }
-          else if ( direction_to_target.y > 0 )
-          {
-            npc_anim_cmp->m_sprite_type = "NPCGHOST.walk.south";
-          }
+          else if ( direction_to_target.x < 0 ) { npc_anim_cmp->m_sprite_type = "NPCGHOST.walk.west"; }
+          else if ( direction_to_target.y < 0 ) { npc_anim_cmp->m_sprite_type = "NPCGHOST.walk.north"; }
+          else if ( direction_to_target.y > 0 ) { npc_anim_cmp->m_sprite_type = "NPCGHOST.walk.south"; }
         }
 
         auto candidate_dir = Cmp::Direction( direction_to_target.normalized() );
-        auto npc_lerp_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcLerpSpeed>(
-            getReg() );
-        auto candidate_lerp_pos = Cmp::LerpPosition( move_candidate_pixel_pos.value(),
-                                                     npc_lerp_speed.get_value() );
+        auto npc_lerp_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcLerpSpeed>( getReg() );
+        auto candidate_lerp_pos = Cmp::LerpPosition( move_candidate_pixel_pos.value(), npc_lerp_speed.get_value() );
 
         if ( npc_anim_cmp->m_sprite_type.contains( "NPCGHOST" ) )
         {
           // Ghosts can phase diagonally between obstacles, so no need to check for diagonal
           // collisions
-          add_candidate_lerp( npc_entity, std::move( candidate_dir ),
-                              std::move( candidate_lerp_pos ) );
+          add_candidate_lerp( npc_entity, std::move( candidate_dir ), std::move( candidate_lerp_pos ) );
           return;
         }
 
         // Check if this is a diagonal movement and if it should be blocked
         bool is_diagonal = ( candidate_dir.x != 0.0f ) && ( candidate_dir.y != 0.0f );
-        if ( is_diagonal &&
-             isDiagonalBlocked( sf::FloatRect{ npc_pos->position, npc_pos->size }, candidate_dir ) )
+        if ( is_diagonal && isDiagonalBlocked( sf::FloatRect{ npc_pos->position, npc_pos->size }, candidate_dir ) )
         {
-          SPDLOG_DEBUG( "Blocking diagonal movement for NPC at ({}, {}) towards ({}, {})",
-                        npc_pos->position.x, npc_pos->position.y,
-                        move_candidate_pixel_pos.value().x, move_candidate_pixel_pos.value().y );
+          SPDLOG_DEBUG( "Blocking diagonal movement for NPC at ({}, {}) towards ({}, {})", npc_pos->position.x,
+                        npc_pos->position.y, move_candidate_pixel_pos.value().x, move_candidate_pixel_pos.value().y );
           continue; // Skip this target and try the next one
         }
 
@@ -461,29 +409,26 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
             Constants::kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
         SPDLOG_DEBUG( "Checking distance {} - NPC at ({}, {}), Target at ({}, {}), Dir ({}, {})",
                       nearest_obstacle.first, npc_pos->position.x, npc_pos->position.y,
-                      move_candidate_pixel_pos.value().x, move_candidate_pixel_pos.value().y,
-                      candidate_dir.x, candidate_dir.y );
+                      move_candidate_pixel_pos.value().x, move_candidate_pixel_pos.value().y, candidate_dir.x,
+                      candidate_dir.y );
         SPDLOG_DEBUG( "Horizontal hitbox at ({}, {}), Vertical hitbox at ({}, {})",
-                      npc_pos->position.x + ( candidate_dir.x * 16 ), npc_pos->position.y,
-                      npc_pos->position.x, npc_pos->position.y + ( candidate_dir.y * 16 ) );
+                      npc_pos->position.x + ( candidate_dir.x * 16 ), npc_pos->position.y, npc_pos->position.x,
+                      npc_pos->position.y + ( candidate_dir.y * 16 ) );
 
         bool horizontal_collision = false;
         bool vertical_collision = false;
-        auto obst_view = getReg().view<Cmp::Obstacle, Cmp::Position>(
-            entt::exclude<Cmp::PlayerDistance> );
+        auto obst_view = getReg().view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::PlayerDistance> );
         for ( auto [obst_entity, obst_cmp, obst_pos] : obst_view.each() )
         {
           if ( not pc_detection_bounds->findIntersection( obst_pos ) ) continue;
           if ( horizontal_hitbox.findIntersection( obst_pos ) )
           {
-            SPDLOG_DEBUG( "!!!! Horizontal collision at obstacle ({}, {})", obst_pos.position.x,
-                          obst_pos.position.y );
+            SPDLOG_DEBUG( "!!!! Horizontal collision at obstacle ({}, {})", obst_pos.position.x, obst_pos.position.y );
             horizontal_collision = true;
           }
           if ( vertical_hitbox.findIntersection( obst_pos ) )
           {
-            SPDLOG_DEBUG( "!!!! Vertical collision at obstacle ({}, {})", obst_pos.position.x,
-                          obst_pos.position.y );
+            SPDLOG_DEBUG( "!!!! Vertical collision at obstacle ({}, {})", obst_pos.position.x, obst_pos.position.y );
             vertical_collision = true;
           }
         }
@@ -496,8 +441,7 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
         }
 
         // Target is valid
-        add_candidate_lerp( npc_entity, std::move( candidate_dir ),
-                            std::move( candidate_lerp_pos ) );
+        add_candidate_lerp( npc_entity, std::move( candidate_dir ), std::move( candidate_lerp_pos ) );
         break;
       }
     }
