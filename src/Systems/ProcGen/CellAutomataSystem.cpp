@@ -8,22 +8,22 @@
 namespace ProceduralMaze::Sys::ProcGen
 {
 
-void CellAutomataSystem::iterate( unsigned int iterations )
+void CellAutomataSystem::iterate( unsigned int iterations, const sf::Vector2u kMapGridSize )
 {
   sf::Clock iteration_timer;
   for ( unsigned int i = 0; i < iterations; i++ )
   {
-    find_neighbours();
+    find_neighbours( kMapGridSize );
     apply_rules();
     SPDLOG_INFO( "Iteration #{} took {}ms", i, iteration_timer.restart().asMilliseconds() );
   }
 
   // run one last time to get the latest neighbour data
-  find_neighbours();
+  find_neighbours( kMapGridSize );
   SPDLOG_DEBUG( "Total Iterations: {}", iterations );
 }
 
-void CellAutomataSystem::find_neighbours()
+void CellAutomataSystem::find_neighbours( const sf::Vector2u kMapGridSize )
 {
   // 1. find neighbours
   for ( auto it = m_random_level->begin(); it != m_random_level->end(); it++ )
@@ -44,13 +44,12 @@ void CellAutomataSystem::find_neighbours()
       // *it ) );
       continue;
     }
-    getReg().patch<Cmp::Neighbours>( current_entity,
-                                     []( auto &_nb_update ) { _nb_update.clear(); } );
+    getReg().patch<Cmp::Neighbours>( current_entity, []( auto &_nb_update ) { _nb_update.clear(); } );
 
     // calculate game area boundary edges within the `m_random_level` linear vector
     const int idx = std::distance( m_random_level->begin(), it );
-    bool has_left_map_edge = not( ( idx ) % kGraveyardMapGridSize.y );
-    bool has_right_map_edge = not( ( idx + 1 ) % kGraveyardMapGridSize.y );
+    bool has_left_map_edge = not( ( idx ) % kMapGridSize.y );
+    bool has_right_map_edge = not( ( idx + 1 ) % kMapGridSize.y );
 
     // ---------------------------------------
     //   Columns
@@ -70,45 +69,41 @@ void CellAutomataSystem::find_neighbours()
       Cmp::Obstacle *left_entt_ob = getReg().try_get<Cmp::Obstacle>( left_entt );
       if ( left_entt_ob && not has_left_map_edge )
       {
-        getReg().patch<Cmp::Neighbours>(
-            current_entity,
-            [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::LEFT, left_entt ); } );
+        getReg().patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update )
+                                         { _nb_update.set( Cmp::Neighbours::Dir::LEFT, left_entt ); } );
       }
     }
     // N - (y - 1)
-    if ( std::prev( it, ( kGraveyardMapGridSize.y + 1 ) ) >= m_random_level->begin() )
+    if ( std::prev( it, ( kMapGridSize.y + 1 ) ) >= m_random_level->begin() )
     {
-      auto down_left_entt = entt::entity( *std::prev( it, kGraveyardMapGridSize.y + 1 ) );
+      auto down_left_entt = entt::entity( *std::prev( it, kMapGridSize.y + 1 ) );
       Cmp::Obstacle *down_left_entt_ob = getReg().try_get<Cmp::Obstacle>( down_left_entt );
       if ( down_left_entt_ob && not has_left_map_edge )
       {
-        getReg().patch<Cmp::Neighbours>(
-            current_entity, [&]( auto &_nb_update )
-            { _nb_update.set( Cmp::Neighbours::Dir::DOWN_LEFT, down_left_entt ); } );
+        getReg().patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update )
+                                         { _nb_update.set( Cmp::Neighbours::Dir::DOWN_LEFT, down_left_entt ); } );
       }
     }
     // N - y
-    if ( std::prev( it, kGraveyardMapGridSize.y ) >= m_random_level->begin() )
+    if ( std::prev( it, kMapGridSize.y ) >= m_random_level->begin() )
     {
-      auto down_entt = entt::entity( *std::prev( it, kGraveyardMapGridSize.y ) );
+      auto down_entt = entt::entity( *std::prev( it, kMapGridSize.y ) );
       Cmp::Obstacle *down_entt_ob = getReg().try_get<Cmp::Obstacle>( down_entt );
       if ( down_entt_ob )
       {
-        getReg().patch<Cmp::Neighbours>(
-            current_entity,
-            [&]( auto &_nb_update ) { _nb_update.set( Cmp::Neighbours::Dir::DOWN, down_entt ); } );
+        getReg().patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update )
+                                         { _nb_update.set( Cmp::Neighbours::Dir::DOWN, down_entt ); } );
       }
     }
     // N - (y + 1)
-    if ( ( std::prev( it, ( kGraveyardMapGridSize.y - 1 ) ) ) >= m_random_level->begin() )
+    if ( ( std::prev( it, ( kMapGridSize.y - 1 ) ) ) >= m_random_level->begin() )
     {
-      auto down_right_entt = entt::entity( *std::prev( it, kGraveyardMapGridSize.y - 1 ) );
+      auto down_right_entt = entt::entity( *std::prev( it, kMapGridSize.y - 1 ) );
       Cmp::Obstacle *down_right_entt_ob = getReg().try_get<Cmp::Obstacle>( down_right_entt );
       if ( down_right_entt_ob && not has_right_map_edge )
       {
-        getReg().patch<Cmp::Neighbours>(
-            current_entity, [&]( auto &_nb_update )
-            { _nb_update.set( Cmp::Neighbours::Dir::DOWN_RIGHT, down_right_entt ); } );
+        getReg().patch<Cmp::Neighbours>( current_entity, [&]( auto &_nb_update )
+                                         { _nb_update.set( Cmp::Neighbours::Dir::DOWN_RIGHT, down_right_entt ); } );
       }
     }
 
@@ -124,9 +119,9 @@ void CellAutomataSystem::find_neighbours()
     // where N is iterator, y is column length
 
     // N + (y - 1)
-    if ( std::next( it, ( kGraveyardMapGridSize.y - 1 ) ) < m_random_level->end() )
+    if ( std::next( it, ( kMapGridSize.y - 1 ) ) < m_random_level->end() )
     {
-      auto top_left_entt = entt::entity( *std::next( it, kGraveyardMapGridSize.y - 1 ) );
+      auto top_left_entt = entt::entity( *std::next( it, kMapGridSize.y - 1 ) );
       Cmp::Obstacle *top_left_entt_ob = getReg().try_get<Cmp::Obstacle>( top_left_entt );
       if ( top_left_entt_ob && not has_left_map_edge )
       {
@@ -139,10 +134,9 @@ void CellAutomataSystem::find_neighbours()
       }
     }
     // N + y
-    if ( kGraveyardMapGridSize.y < m_random_level->size() &&
-         std::next( it, kGraveyardMapGridSize.y ) < m_random_level->end() )
+    if ( kMapGridSize.y < m_random_level->size() && std::next( it, kMapGridSize.y ) < m_random_level->end() )
     {
-      auto top_entt = entt::entity( *std::next( it, kGraveyardMapGridSize.y ) );
+      auto top_entt = entt::entity( *std::next( it, kMapGridSize.y ) );
       Cmp::Obstacle *top_entt_ob = getReg().try_get<Cmp::Obstacle>( top_entt );
       if ( top_entt_ob )
       {
@@ -155,10 +149,10 @@ void CellAutomataSystem::find_neighbours()
       }
     }
     // N + (y + 1)
-    if ( ( kGraveyardMapGridSize.y + 1 ) < m_random_level->size() &&
-         std::next( it, ( kGraveyardMapGridSize.y + 1 ) ) < m_random_level->end() )
+    if ( ( kMapGridSize.y + 1 ) < m_random_level->size() &&
+         std::next( it, ( kMapGridSize.y + 1 ) ) < m_random_level->end() )
     {
-      auto top_right_entt = entt::entity( *std::next( it, ( kGraveyardMapGridSize.y + 1 ) ) );
+      auto top_right_entt = entt::entity( *std::next( it, ( kMapGridSize.y + 1 ) ) );
       Cmp::Obstacle *top_right_entt_ob = getReg().try_get<Cmp::Obstacle>( top_right_entt );
       if ( top_right_entt_ob && not has_right_map_edge )
       {
@@ -195,13 +189,12 @@ void CellAutomataSystem::find_neighbours()
   {
     // SPDLOG_INFO("Entity {} has {} neighbours", entt::to_integral(_entt),
     // _nb.count());
-    std::string msg = std::to_string( entt::to_integral( entity ) ) + "(" +
-                      std::to_string( neighbour_cmp.count() ) + ") = ";
+    std::string msg = std::to_string( entt::to_integral( entity ) ) + "(" + std::to_string( neighbour_cmp.count() ) +
+                      ") = ";
 
     for ( auto [_dir, _nb_entt] : neighbour_cmp )
     {
-      msg += "[" + neighbour_cmp.to_string( _dir ) + ":" +
-             std::to_string( entt::to_integral( _nb_entt ) ) + "] ";
+      msg += "[" + neighbour_cmp.to_string( _dir ) + ":" + std::to_string( entt::to_integral( _nb_entt ) ) + "] ";
     }
     SPDLOG_TRACE( msg );
   }

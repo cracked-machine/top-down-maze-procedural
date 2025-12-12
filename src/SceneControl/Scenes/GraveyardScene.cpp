@@ -17,8 +17,7 @@ void GraveyardScene::on_init()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  Sys::PersistSystem::add_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg,
-                                                                          m_player_start_position );
+  Sys::PersistSystem::add_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_start_position );
 
   auto &render_game_system = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
   SPDLOG_INFO( "Got render_game_system at {}", static_cast<void *>( &render_game_system ) );
@@ -30,14 +29,13 @@ void GraveyardScene::on_init()
   m_reg.emplace<Cmp::System>( entity );
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
-  random_level_sys.generate( Sys::BaseSystem::kGraveyardMapGridSize, true, true, true );
+  random_level_sys.generate( GraveyardScene::kMapGridSize, true, true, true );
 
   auto &cellauto_parser = m_system_store.find<Sys::SystemStore::Type::CellAutomataSystem>();
   cellauto_parser.set_random_level_generator( &random_level_sys );
-  cellauto_parser.iterate( 5 );
+  cellauto_parser.iterate( 5, GraveyardScene::kMapGridSize );
 
-  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap,
-                                            Sys::BaseSystem::kGraveyardMapGridSize );
+  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, GraveyardScene::kMapGridSize );
 
   auto &exit_sys = m_system_store.find<Sys::SystemStore::Type::ExitSystem>();
   exit_sys.spawn_exit();

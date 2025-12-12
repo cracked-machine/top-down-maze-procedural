@@ -19,17 +19,16 @@ void CryptScene::on_init()
   auto entity = m_reg.create();
   m_reg.emplace<Cmp::System>( entity );
 
-  Sys::PersistSystem::add_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg,
-                                                                          m_player_start_position );
+  Sys::PersistSystem::add_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_start_position );
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
-  random_level_sys.generate( Sys::BaseSystem::kCryptMapGridSize, false, false, false );
+  random_level_sys.generate( CryptScene::kMapGridSize, false, false, false );
 
   auto &cellauto_parser = m_system_store.find<Sys::SystemStore::Type::CellAutomataSystem>();
   cellauto_parser.set_random_level_generator( &random_level_sys );
-  cellauto_parser.iterate( 5 );
+  cellauto_parser.iterate( 5, CryptScene::kMapGridSize );
 
-  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, Sys::BaseSystem::kCryptMapGridSize );
+  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, CryptScene::kMapGridSize );
 }
 
 void CryptScene::on_enter()

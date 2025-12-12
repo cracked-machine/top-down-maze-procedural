@@ -35,14 +35,14 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
-  void iterate( unsigned int iterations );
+  void iterate( unsigned int iterations, const sf::Vector2u kMapGridSize );
 
   void set_random_level_generator( RandomLevelGenerator *random_level ) { m_random_level = random_level; }
 
 private:
   RandomLevelGenerator *m_random_level;
 
-  void find_neighbours();
+  void find_neighbours( const sf::Vector2u kMapGridSize );
 
   void apply_rules();
 };

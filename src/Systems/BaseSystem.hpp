@@ -35,22 +35,6 @@ namespace Sys
 class BaseSystem
 {
 public:
-  //! @brief The game display resolution in pixels
-
-  //! @brief The size of the graveyard map grid in number of squares
-  inline static constexpr sf::Vector2u kGraveyardMapGridSize{ 100u, 124u };
-
-  //! @brief The size of the graveyard map grid in number of squares as floats
-  inline static constexpr sf::Vector2f kGraveyardMapGridSizeF{ static_cast<float>( kGraveyardMapGridSize.x ),
-                                                               static_cast<float>( kGraveyardMapGridSize.y ) };
-
-  //! @brief The size of the crypt map grid in number of squares
-  inline static constexpr sf::Vector2u kCryptMapGridSize{ 64u, 32u };
-
-  //! @brief The size of the crypt map grid in number of squares as floats
-  inline static constexpr sf::Vector2f kCryptMapGridSizeF{ static_cast<float>( kCryptMapGridSize.x ),
-                                                           static_cast<float>( kCryptMapGridSize.y ) };
-
   //! @brief Construct a new Base System object
   BaseSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
               Audio::SoundBank &sound_bank );
