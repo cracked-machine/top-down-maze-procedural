@@ -26,7 +26,7 @@
 #include <Factory/ObstacleFactory.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <Systems/PersistentSystem.hpp>
+#include <Systems/PersistSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
 
 namespace ProceduralMaze::Sys::ProcGen
@@ -56,8 +56,9 @@ void RandomLevelGenerator::generate( sf::Vector2u map_grid_size, bool gen_graves
 
 void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
 {
-  sf::Vector2f player_start_pos = Sys::PersistentSystem::get_persist_cmp<
-      Cmp::Persistent::PlayerStartPosition>( getReg() );
+  sf::Vector2f
+      player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::PlayerStartPosition>(
+          getReg() );
   auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF,
                                             5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
@@ -94,8 +95,8 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
 
 void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size )
 {
-  auto player_start_pos = Sys::PersistentSystem::get_persist_cmp<
-      Cmp::Persistent::PlayerStartPosition>( getReg() );
+  auto player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::PlayerStartPosition>(
+      getReg() );
   auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF,
                                             5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
@@ -150,8 +151,8 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int a
                                                float vertHalfLengthModifier,
                                                float horizHalfLengthModifier, int horizOffset )
 {
-  auto player_start_pos = Sys::PersistentSystem::get_persist_cmp<
-      Cmp::Persistent::PlayerStartPosition>( getReg() );
+  auto player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::PlayerStartPosition>(
+      getReg() );
   auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF,
                                             5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
@@ -349,9 +350,9 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &ms, u
 
 void RandomLevelGenerator::gen_grave_obstacles()
 {
-  auto grave_num_multiplier = Sys::PersistentSystem::get_persist_cmp<
+  auto grave_num_multiplier = Sys::PersistSystem::get_persist_cmp<
       Cmp::Persistent::GraveNumMultiplier>( getReg() );
-  auto max_num_altars = Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::MaxNumAltars>(
+  auto max_num_altars = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::MaxNumAltars>(
       getReg() );
 
   // GRAVES
@@ -373,7 +374,7 @@ void RandomLevelGenerator::gen_grave_obstacles()
 
 void RandomLevelGenerator::gen_altar_obstacles()
 {
-  auto max_num_altars = Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::MaxNumAltars>(
+  auto max_num_altars = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::MaxNumAltars>(
       getReg() );
   // ALTARS
   auto &altar_multisprite = m_sprite_factory.get_multisprite_by_type( "ALTAR.inactive" );
@@ -385,7 +386,7 @@ void RandomLevelGenerator::gen_altar_obstacles()
 
 void RandomLevelGenerator::gen_crypt_obstacles()
 {
-  auto max_num_crypts = Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::MaxNumCrypts>(
+  auto max_num_crypts = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::MaxNumCrypts>(
       getReg() );
   // CRYPTS - note: we use keys from altars to open crypts so the number should be equal
   auto &crypt_multisprite = m_sprite_factory.get_multisprite_by_type( "CRYPT.closed" );

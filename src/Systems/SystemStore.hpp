@@ -11,7 +11,7 @@
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/GraveSystem.hpp>
 #include <Systems/LootSystem.hpp>
-#include <Systems/PersistentSystem.hpp>
+#include <Systems/PersistSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
@@ -34,8 +34,7 @@ namespace ProceduralMaze::Sys
 class SystemStore
 {
 public:
-  enum class Type
-  {
+  enum class Type {
     AnimSystem,
     AltarSystem,
     BombSystem,
@@ -48,7 +47,7 @@ public:
     GraveSystem,
     LootSystem,
     NpcSystem,
-    PersistentSystem,
+    PersistSystem,
     PlayerSystem,
     RandomLevelGenerator,
     RenderGameSystem,
@@ -63,7 +62,8 @@ public:
   template <Type T>
   struct SystemTraits;
 
-  SystemStore( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank, entt::dispatcher &nav_event_dispatcher,
+  SystemStore( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+               Audio::SoundBank &sound_bank, entt::dispatcher &nav_event_dispatcher,
                entt::dispatcher &scenemanager_event_dispatcher )
   {
     // clang-format off
@@ -80,7 +80,7 @@ public:
     m_sysmap.emplace( Type::LootSystem, std::make_unique<LootSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::NpcSystem, std::make_unique<NpcSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::PlayerSystem, std::make_unique<PlayerSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
-    m_sysmap.emplace( Type::PersistentSystem, std::make_unique<PersistentSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::PersistSystem, std::make_unique<PersistSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::RandomLevelGenerator, std::make_unique<ProcGen::RandomLevelGenerator>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::RenderGameSystem, std::make_unique<RenderGameSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::RenderMenuSystem, std::make_unique<RenderMenuSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
@@ -97,8 +97,16 @@ public:
     using SystemType = typename SystemTraits<T>::type;
 
     auto it = m_sysmap.find( T );
-    if ( it == m_sysmap.end() ) { throw std::runtime_error( "System not found in store: " + std::to_string( static_cast<int>( T ) ) ); }
-    if ( !it->second ) { throw std::runtime_error( "System pointer is null: " + std::to_string( static_cast<int>( T ) ) ); }
+    if ( it == m_sysmap.end() )
+    {
+      throw std::runtime_error( "System not found in store: " +
+                                std::to_string( static_cast<int>( T ) ) );
+    }
+    if ( !it->second )
+    {
+      throw std::runtime_error( "System pointer is null: " +
+                                std::to_string( static_cast<int>( T ) ) );
+    }
 
     return static_cast<SystemType &>( *it->second );
   }
@@ -126,7 +134,7 @@ private:
   template<> struct SystemStore::SystemTraits<SystemStore::Type::GraveSystem>           { using type = GraveSystem; };
   template<> struct SystemStore::SystemTraits<SystemStore::Type::LootSystem>             { using type = LootSystem; };
   template<> struct SystemStore::SystemTraits<SystemStore::Type::NpcSystem>              { using type = NpcSystem; };
-  template<> struct SystemStore::SystemTraits<SystemStore::Type::PersistentSystem>       { using type = PersistentSystem; };
+  template<> struct SystemStore::SystemTraits<SystemStore::Type::PersistSystem>       { using type = PersistSystem; };
   template<> struct SystemStore::SystemTraits<SystemStore::Type::PlayerSystem>           { using type = PlayerSystem; };
   template<> struct SystemStore::SystemTraits<SystemStore::Type::RandomLevelGenerator>   { using type = ProcGen::RandomLevelGenerator; };
   template<> struct SystemStore::SystemTraits<SystemStore::Type::RenderGameSystem>       { using type = RenderGameSystem; };

@@ -10,14 +10,14 @@ void SettingsMenuScene::on_init() { SPDLOG_INFO( "Initializing SettingsMenuScene
 void SettingsMenuScene::on_enter()
 {
   SPDLOG_INFO( "Entering  {}", get_name() );
-  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
+  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 }
 void SettingsMenuScene::on_exit()
 {
   SPDLOG_INFO( "Exiting  {}", get_name() );
-  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
+  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
   m_persistent_sys.save_state();
 }
 void SettingsMenuScene::do_update( [[maybe_unused]] sf::Time dt )

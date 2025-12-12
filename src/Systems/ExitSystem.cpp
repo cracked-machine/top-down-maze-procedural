@@ -13,7 +13,7 @@
 #include <Components/Wall.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Systems/ExitSystem.hpp>
-#include <Systems/PersistentSystem.hpp>
+#include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
 namespace ProceduralMaze::Sys
@@ -59,7 +59,7 @@ void ExitSystem::unlock_exit()
   for ( auto [pk_entity, pk_cmp] : player_key_view.each() )
   {
     if ( pk_cmp.get_count() <
-         Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::ExitKeyRequirement>( getReg() )
+         Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::ExitKeyRequirement>( getReg() )
              .get_value() )
     {
       SPDLOG_DEBUG( "Not enough keys to unlock exit ({} / {})", pk_cmp.get_count(),
@@ -84,7 +84,7 @@ void ExitSystem::check_exit_collision()
   auto exit_view = getReg().view<Cmp::Exit, Cmp::Position>();
   for ( auto [entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
   {
-    auto max_num_shrines = Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::MaxNumAltars>(
+    auto max_num_shrines = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::MaxNumAltars>(
         getReg() );
     if ( exit_cmp.m_locked == true ) return;
     for ( auto [player_entity, pc_cmp, pc_pos_cmp] :

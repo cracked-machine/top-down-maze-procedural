@@ -8,7 +8,8 @@ void GameOverScene::on_init() { SPDLOG_INFO( "Initializing GameOverScene" ); }
 void GameOverScene::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
-  auto &persistent_sys = static_cast<Sys::PersistentSystem &>( m_system_store.find<Sys::SystemStore::Type::PersistentSystem>() );
+  auto &persistent_sys = static_cast<Sys::PersistSystem &>(
+      m_system_store.find<Sys::SystemStore::Type::PersistSystem>() );
   persistent_sys.initializeComponentRegistry();
   persistent_sys.load_state();
   m_sound_bank.get_music( "game_music" ).stop();

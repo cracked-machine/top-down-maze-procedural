@@ -42,27 +42,26 @@
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
-#include <Systems/PersistentSystem.hpp>
+#include <Systems/PersistSystem.hpp>
 #include <fstream>
 #include <nlohmann/json.hpp>
 
 namespace ProceduralMaze::Sys
 {
 
-PersistentSystem::PersistentSystem( entt::registry &reg, sf::RenderWindow &window,
-                                    Sprites::SpriteFactory &sprite_factory,
-                                    Audio::SoundBank &sound_bank )
+PersistSystem::PersistSystem( entt::registry &reg, sf::RenderWindow &window,
+                              Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
   // the constructor
   std::ignore = get_systems_event_queue()
                     .sink<Events::SaveSettingsEvent>()
-                    .connect<&Sys::PersistentSystem::on_save_settings_event>( this );
-  SPDLOG_DEBUG( "PersistentSystem initialized" );
+                    .connect<&Sys::PersistSystem::on_save_settings_event>( this );
+  SPDLOG_DEBUG( "PersistSystem initialized" );
 }
 
-void PersistentSystem::initializeComponentRegistry()
+void PersistSystem::initializeComponentRegistry()
 {
   // Register a JSON key and its derived Cmp::Persistent::BasePersistent class for deserialization.
   // Note: You can set default values here but they will be overridden when loading from json file.
@@ -106,12 +105,12 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::WormholeAnimFramerate>( "WormholeAnimFramerate" );
   // clang-format on
 
-  Sys::PersistentSystem::add_persist_cmp<Cmp::Persistent::WormholeSeed>( getReg(), 0 );
-  Sys::PersistentSystem::add_persist_cmp<Cmp::Persistent::SinkholeSeed>( getReg(), 0 );
-  Sys::PersistentSystem::add_persist_cmp<Cmp::Persistent::CorruptionSeed>( getReg(), 0 );
+  Sys::PersistSystem::add_persist_cmp<Cmp::Persistent::WormholeSeed>( getReg(), 0 );
+  Sys::PersistSystem::add_persist_cmp<Cmp::Persistent::SinkholeSeed>( getReg(), 0 );
+  Sys::PersistSystem::add_persist_cmp<Cmp::Persistent::CorruptionSeed>( getReg(), 0 );
 }
 
-void PersistentSystem::load_state()
+void PersistSystem::load_state()
 {
   SPDLOG_DEBUG( "Loading persistent state..." );
   nlohmann::json jsonData;
@@ -129,7 +128,7 @@ void PersistentSystem::load_state()
   }
 }
 
-void PersistentSystem::save_state()
+void PersistSystem::save_state()
 {
   SPDLOG_DEBUG( "Saving persistent state..." );
   nlohmann::json jsonData;
@@ -139,7 +138,7 @@ void PersistentSystem::save_state()
   {
     try
     {
-      auto &component = Sys::PersistentSystem::get_persist_cmp<ComponentType>( getReg() );
+      auto &component = Sys::PersistSystem::get_persist_cmp<ComponentType>( getReg() );
       jsonData[key] = component.serialize();
     } catch ( const std::exception &e )
     {

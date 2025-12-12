@@ -4,7 +4,7 @@
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
-#include <Systems/PersistentSystem.hpp>
+#include <Systems/PersistSystem.hpp>
 
 namespace ProceduralMaze::Scene
 {
@@ -12,14 +12,14 @@ namespace ProceduralMaze::Scene
 void CryptScene::on_init()
 {
 
-  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
+  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
   auto entity = m_reg.create();
   m_reg.emplace<Cmp::System>( entity );
 
-  Sys::PersistentSystem::add_persist_cmp<Cmp::Persistent::PlayerStartPosition>(
+  Sys::PersistSystem::add_persist_cmp<Cmp::Persistent::PlayerStartPosition>(
       m_reg, m_player_start_position );
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
@@ -37,7 +37,7 @@ void CryptScene::on_enter()
   // Initialize entities specific to the CryptScene
   SPDLOG_INFO( "Entering {}", get_name() );
 
-  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
+  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 

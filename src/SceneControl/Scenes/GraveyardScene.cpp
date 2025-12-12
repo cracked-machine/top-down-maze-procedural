@@ -13,11 +13,11 @@ void GraveyardScene::on_init()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
 
-  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
+  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  Sys::PersistentSystem::add_persist_cmp<Cmp::Persistent::PlayerStartPosition>(
+  Sys::PersistSystem::add_persist_cmp<Cmp::Persistent::PlayerStartPosition>(
       m_reg, m_player_start_position );
 
   auto &render_game_system = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
@@ -57,7 +57,7 @@ void GraveyardScene::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
 
-  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
+  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 

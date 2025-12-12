@@ -22,7 +22,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/DiggingSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ExitSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/FootstepSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/PersistentSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/PersistSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/PlayerSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/BombSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/NpcSystem.cpp

@@ -10,7 +10,7 @@
 #include <Factory/NpcFactory.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <Systems/PersistentSystem.hpp>
+#include <Systems/PersistSystem.hpp>
 
 #include <entt/entity/entity.hpp>
 #include <spdlog/spdlog.h>
@@ -55,7 +55,7 @@ void createNPC( entt::registry &registry, entt::entity position_entity,
                                    Constants::kGridSquareSizePixelsF );
   registry.emplace<Cmp::Armable>( new_pos_entity );
   registry.emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 0, 0 } );
-  auto &npc_scan_scale = Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::NpcScanScale>(
+  auto &npc_scan_scale = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::NpcScanScale>(
       registry );
   registry.emplace_or_replace<Cmp::NPCScanBounds>( new_pos_entity, pos_cmp->position,
                                                    Constants::kGridSquareSizePixelsF,

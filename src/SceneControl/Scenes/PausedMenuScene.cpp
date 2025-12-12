@@ -11,7 +11,7 @@ void PausedMenuScene::on_init() { SPDLOG_INFO( "Initializing PausedMenuScene" );
 void PausedMenuScene::on_enter()
 {
   SPDLOG_INFO( "Entering  {}", get_name() );
-  auto &persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
+  auto &persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
   persistent_sys.initializeComponentRegistry();
   persistent_sys.load_state();
 
@@ -21,7 +21,7 @@ void PausedMenuScene::on_enter()
 void PausedMenuScene::on_exit()
 {
   SPDLOG_INFO( "Exiting {}", get_name() );
-  auto &persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
+  auto &persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
   persistent_sys.save_state();
 
   persistent_sys.get_systems_event_queue().trigger( Events::ResumeClocksEvent() );
@@ -39,15 +39,15 @@ void PausedMenuScene::do_update( [[maybe_unused]] sf::Time dt )
   std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
 
   // save persistent settings
-  auto &persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
+  auto &persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
   persistent_sys.save_state();
 
   // update music/sfx volumes with persistent settings
-  auto &effects_volume = Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::EffectsVolume>(
+  auto &effects_volume = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::EffectsVolume>(
                              m_reg )
                              .get_value();
   m_sound_bank.update_effects_volume( effects_volume );
-  auto &music_volume = Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::MusicVolume>( m_reg )
+  auto &music_volume = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::MusicVolume>( m_reg )
                            .get_value();
   m_sound_bank.update_music_volume( music_volume );
 

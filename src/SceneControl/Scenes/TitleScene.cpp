@@ -11,7 +11,7 @@ void TitleScene::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
 
-  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistentSystem>();
+  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
@@ -19,11 +19,11 @@ void TitleScene::on_enter()
   m_render_menu_sys.init_title();
 
   // update fx volumes with persistent settings
-  auto &effects_volume = Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::EffectsVolume>(
+  auto &effects_volume = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::EffectsVolume>(
                              m_reg )
                              .get_value();
   m_sound_bank.update_effects_volume( effects_volume );
-  auto &music_volume = Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::MusicVolume>( m_reg )
+  auto &music_volume = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::MusicVolume>( m_reg )
                            .get_value();
   m_sound_bank.update_music_volume( music_volume );
 

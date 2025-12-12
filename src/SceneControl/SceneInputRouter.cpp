@@ -20,7 +20,7 @@
 #include <SceneControl/Events/ProcessTitleSceneInputEvent.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/SceneInputRouter.hpp>
-#include <Systems/PersistentSystem.hpp>
+#include <Systems/PersistSystem.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -158,8 +158,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
         for ( auto [pkey_count_entity, pkey_count_cmp] : player_key_view.each() )
         {
           pkey_count_cmp.increment_count(
-              Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::ExitKeyRequirement>(
-                  getReg() )
+              Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::ExitKeyRequirement>( getReg() )
                   .get_value() );
         }
         auto exit_cmp = getReg().view<Cmp::Exit>();

@@ -13,7 +13,7 @@
 #include <Events/UnlockDoorEvent.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Systems/LootSystem.hpp>
-#include <Systems/PersistentSystem.hpp>
+#include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Utils.hpp>
 
@@ -72,14 +72,14 @@ void LootSystem::check_loot_collision()
     // Apply the effect
     if ( effect.type == "EXTRA_HEALTH" )
     {
-      auto &health_bonus = Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::HealthBonus>(
+      auto &health_bonus = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::HealthBonus>(
           getReg() );
       pc_health_cmp.health = std::min( pc_health_cmp.health + health_bonus.get_value(), 100 );
       m_sound_bank.get_effect( "get_loot" ).play();
     }
     else if ( effect.type == "EXTRA_BOMBS" )
     {
-      auto &bomb_bonus = Sys::PersistentSystem::get_persist_cmp<Cmp::Persistent::BombBonus>(
+      auto &bomb_bonus = Sys::PersistSystem::get_persist_cmp<Cmp::Persistent::BombBonus>(
           getReg() );
       if ( pc_cmp.bomb_inventory >= 0 )
       {

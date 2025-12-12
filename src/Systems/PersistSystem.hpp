@@ -7,11 +7,11 @@
 namespace ProceduralMaze::Sys
 {
 
-class PersistentSystem : public BaseSystem
+class PersistSystem : public BaseSystem
 {
 public:
-  PersistentSystem( entt::registry &reg, sf::RenderWindow &window,
-                    Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  PersistSystem( entt::registry &reg, sf::RenderWindow &window,
+                 Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}
@@ -135,7 +135,7 @@ private:
     std::apply(
         [this]( auto &&...unpacked_args )
         {
-          Sys::PersistentSystem::add_persist_cmp<ComponentType>(
+          Sys::PersistSystem::add_persist_cmp<ComponentType>(
               getReg(), std::forward<decltype( unpacked_args )>( unpacked_args )... );
         },
         args_tuple );
