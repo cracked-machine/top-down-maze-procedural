@@ -72,8 +72,8 @@ private:
     sf::Text loading_text( font, "Loading", 48 );
     loading_text.setFillColor( sf::Color::White );
     // use fallback resolution for loading screen position since we dont have registry access at this point
-    loading_text.setPosition( { Sys::BaseSystem::kFallbackDisplaySize.x / 2.f - 50.f,
-                                Sys::BaseSystem::kFallbackDisplaySize.y / 2.f + 100.f } );
+    loading_text.setPosition(
+        { Constants::kFallbackDisplaySize.x / 2.f - 50.f, Constants::kFallbackDisplaySize.y / 2.f + 100.f } );
 
     sf::Clock clock;
     const float text_update_interval = 1.f; // 1 second between dot updates

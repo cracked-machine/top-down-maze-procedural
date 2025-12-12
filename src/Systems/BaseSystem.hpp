@@ -36,7 +36,6 @@ class BaseSystem
 {
 public:
   //! @brief The game display resolution in pixels
-  inline static constexpr sf::Vector2u kFallbackDisplaySize{ 1920, 1080 };
 
   //! @brief The size of the graveyard map grid in number of squares
   inline static constexpr sf::Vector2u kGraveyardMapGridSize{ 100u, 124u };

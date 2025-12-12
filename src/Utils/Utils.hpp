@@ -11,6 +11,7 @@ namespace ProceduralMaze::Constants
 {
 inline constexpr sf::Vector2u kGridSquareSizePixels{ 16u, 16u };
 inline static constexpr sf::Vector2f kGridSquareSizePixelsF{ 16.f, 16.f };
+inline static constexpr sf::Vector2u kFallbackDisplaySize{ 1920, 1080 };
 } // namespace ProceduralMaze::Constants
 
 namespace ProceduralMaze::Utils
@@ -35,9 +36,8 @@ namespace ProceduralMaze::Utils
 inline constexpr sf::FloatRect snap_to_grid( const sf::FloatRect &position ) noexcept
 {
   float grid_size = Constants::kGridSquareSizePixels.x; // Assuming square grid
-  sf::Vector2f snapped_pos{
-      std::round( position.position.x / Constants::kGridSquareSizePixels.x ) * grid_size,
-      std::round( position.position.y / Constants::kGridSquareSizePixels.y ) * grid_size };
+  sf::Vector2f snapped_pos{ std::round( position.position.x / Constants::kGridSquareSizePixels.x ) * grid_size,
+                            std::round( position.position.y / Constants::kGridSquareSizePixels.y ) * grid_size };
 
   return sf::FloatRect( snapped_pos, position.size );
 }
@@ -52,9 +52,8 @@ inline constexpr sf::FloatRect snap_to_grid( const sf::FloatRect &position ) noe
 inline constexpr sf::Vector2f snap_to_grid( const sf::Vector2f &position ) noexcept
 {
   float grid_size = Constants::kGridSquareSizePixels.x; // Assuming square grid
-  sf::Vector2f snapped_pos{
-      std::round( position.x / Constants::kGridSquareSizePixels.x ) * grid_size,
-      std::round( position.y / Constants::kGridSquareSizePixels.y ) * grid_size };
+  sf::Vector2f snapped_pos{ std::round( position.x / Constants::kGridSquareSizePixels.x ) * grid_size,
+                            std::round( position.y / Constants::kGridSquareSizePixels.y ) * grid_size };
 
   return snapped_pos;
 }
@@ -83,8 +82,7 @@ constexpr inline sf::FloatRect calculate_view_bounds( const sf::View &view )
  * @param position The rectangle representing the position to check for visibility.
  * @return true if the position is visible within the view bounds; false otherwise.
  */
-constexpr inline bool is_visible_in_view( const sf::FloatRect &viewbounds,
-                                          const sf::FloatRect &position )
+constexpr inline bool is_visible_in_view( const sf::FloatRect &viewbounds, const sf::FloatRect &position )
 {
   return viewbounds.findIntersection( position ).has_value();
 }

@@ -78,7 +78,7 @@ void PersistSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persist::CorruptionDamage>( "CorruptionDamage" );
   registerComponent<Cmp::Persist::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
   registerComponent<Cmp::Persist::DiggingDamagePerHit>( "DiggingDamagePerHit" );
-  registerComponent<Cmp::Persist::DisplayResolution>( "DisplayResolution", kFallbackDisplaySize );
+  registerComponent<Cmp::Persist::DisplayResolution>( "DisplayResolution", Constants::kFallbackDisplaySize );
   registerComponent<Cmp::Persist::EffectsVolume>( "EffectsVolume" );
   registerComponent<Cmp::Persist::ExitKeyRequirement>( "ExitKeyRequirement" );
   registerComponent<Cmp::Persist::FuseDelay>( "FuseDelay" );
