@@ -12,6 +12,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/Wall.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <Systems/PersistentSystem.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -33,7 +34,8 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
 {
 
   // Prevent the player from walking through NPCs
-  auto &pc_damage_delay = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
+  auto &pc_damage_delay = Sys::PersistentSystem::get_persistent_component<
+      Cmp::Persistent::PcDamageDelay>( getReg() );
   auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::LerpPosition>();
   auto pc_view = getReg().view<Cmp::PlayableCharacter>();
   for ( auto [pc_entity, pc_cmp] : pc_view.each() )

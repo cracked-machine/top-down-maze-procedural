@@ -8,6 +8,7 @@
 #include <Components/Persistent/SinkholeSeed.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
+#include <Systems/BaseSystem.hpp>
 #define JSON_NOEXCEPTION
 #include <spdlog/spdlog.h>
 
@@ -105,9 +106,9 @@ void PersistentSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persistent::WormholeAnimFramerate>( "WormholeAnimFramerate" );
   // clang-format on
 
-  add_persistent_component<Cmp::Persistent::WormholeSeed>( 0 );
-  add_persistent_component<Cmp::Persistent::SinkholeSeed>( 0 );
-  add_persistent_component<Cmp::Persistent::CorruptionSeed>( 0 );
+  Sys::PersistentSystem::add_persistent_component<Cmp::Persistent::WormholeSeed>( getReg(), 0 );
+  Sys::PersistentSystem::add_persistent_component<Cmp::Persistent::SinkholeSeed>( getReg(), 0 );
+  Sys::PersistentSystem::add_persistent_component<Cmp::Persistent::CorruptionSeed>( getReg(), 0 );
 }
 
 void PersistentSystem::load_state()
@@ -138,7 +139,7 @@ void PersistentSystem::save_state()
   {
     try
     {
-      auto &component = get_persistent_component<ComponentType>();
+      auto &component = Sys::PersistentSystem::get_persistent_component<ComponentType>( getReg() );
       jsonData[key] = component.serialize();
     } catch ( const std::exception &e )
     {

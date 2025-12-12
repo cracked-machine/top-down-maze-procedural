@@ -4,6 +4,7 @@
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
+#include <Systems/PersistentSystem.hpp>
 
 namespace ProceduralMaze::Scene
 {
@@ -18,7 +19,7 @@ void CryptScene::on_init()
   auto entity = m_reg.create();
   m_reg.emplace<Cmp::System>( entity );
 
-  Sys::BaseSystem::add_persistent_component<Cmp::Persistent::PlayerStartPosition>(
+  Sys::PersistentSystem::add_persistent_component<Cmp::Persistent::PlayerStartPosition>(
       m_reg, m_player_start_position );
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();

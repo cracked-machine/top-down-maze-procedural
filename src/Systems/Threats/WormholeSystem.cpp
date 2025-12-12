@@ -26,6 +26,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/Wall.hpp>
+#include <Systems/PersistentSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/WormholeSystem.hpp>
 
@@ -162,7 +163,9 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   // 2. get the entity at that position
   unsigned long seed = 0;
   if ( phase == SpawnPhase::InitialSpawn )
-    seed = get_persistent_component<Cmp::Persistent::WormholeSeed>().get_value();
+    seed = Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::WormholeSeed>(
+               getReg() )
+               .get_value();
 
   auto [random_entity, random_pos] = find_spawn_location( seed );
   if ( random_entity == entt::null )

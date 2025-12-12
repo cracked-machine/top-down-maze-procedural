@@ -30,6 +30,7 @@
 #include <Components/Persistent/BombDamage.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Systems/PersistentSystem.hpp>
 #include <Systems/Threats/BombSystem.hpp>
 
 namespace ProceduralMaze::Sys
@@ -281,7 +282,8 @@ void BombSystem::update()
     {
       if ( pc_pos_cmp.findIntersection( armed_pos_cmp ) )
       {
-        auto &bomb_damage = get_persistent_component<Cmp::Persistent::BombDamage>();
+        auto &bomb_damage = Sys::PersistentSystem::get_persistent_component<
+            Cmp::Persistent::BombDamage>( getReg() );
         pc_health_cmp.health -= bomb_damage.get_value();
         if ( pc_health_cmp.health <= 0 )
         {

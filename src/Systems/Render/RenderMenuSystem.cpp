@@ -15,6 +15,7 @@
 #include <Components/PlayerRelicCount.hpp>
 #include <SFML/System/Angle.hpp>
 
+#include <Systems/PersistentSystem.hpp>
 #include <imgui.h>
 
 #include <Components/Persistent/ArmedOnDelay.hpp>
@@ -119,77 +120,86 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
 
     ImGui::SeparatorText( "Player Settings" );
 
-    auto &bomb_inventory = get_persistent_component<Cmp::Persistent::BombInventory>();
+    auto &bomb_inventory = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::BombInventory>( getReg() );
     ImGui::SliderScalar( "Bomb Inventory", ImGuiDataType_U8, bomb_inventory.get_value_ptr(),
                          bomb_inventory.get_min_value_ptr(), bomb_inventory.get_max_value_ptr(),
                          "%d" );
 
-    auto &blast_radius = get_persistent_component<Cmp::Persistent::BlastRadius>();
+    auto &blast_radius = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::BlastRadius>( getReg() );
     ImGui::SliderScalar( "Blast Radius", ImGuiDataType_U8, blast_radius.get_value_ptr(),
                          blast_radius.get_min_value_ptr(), blast_radius.get_max_value_ptr(), "%d" );
 
-    auto &player_anim_framerate = get_persistent_component<Cmp::Persistent::PlayerAnimFramerate>();
+    auto &player_anim_framerate = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::PlayerAnimFramerate>( getReg() );
     ImGui::SliderScalar( "Player Animation Framerate", ImGuiDataType_Float,
                          player_anim_framerate.get_value_ptr(),
                          player_anim_framerate.get_min_value_ptr(),
                          player_anim_framerate.get_max_value_ptr(), "%.2f" );
 
-    auto &player_lerp_speed = get_persistent_component<Cmp::Persistent::PlayerLerpSpeed>();
+    auto &player_lerp_speed = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::PlayerLerpSpeed>( getReg() );
     ImGui::SliderScalar( "Player Lerp Speed", ImGuiDataType_Float,
                          player_lerp_speed.get_value_ptr(), player_lerp_speed.get_min_value_ptr(),
                          player_lerp_speed.get_max_value_ptr(), "%.1f" );
 
-    auto &player_diagonal_lerp_speed_modifier = get_persistent_component<
-        Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>();
+    auto &player_diagonal_lerp_speed_modifier = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::PlayerDiagonalLerpSpeedModifier>( getReg() );
     ImGui::SliderScalar( "Player Diagonal Lerp Speed Modifier", ImGuiDataType_Float,
                          player_diagonal_lerp_speed_modifier.get_value_ptr(),
                          player_diagonal_lerp_speed_modifier.get_min_value_ptr(),
                          player_diagonal_lerp_speed_modifier.get_max_value_ptr(), "%.2f" );
 
-    auto &player_footstep_add_delay = get_persistent_component<
-        Cmp::Persistent::PlayerFootstepAddDelay>();
+    auto &player_footstep_add_delay = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::PlayerFootstepAddDelay>( getReg() );
     ImGui::SliderScalar( "Player Footstep Add Delay", ImGuiDataType_Float,
                          player_footstep_add_delay.get_value_ptr(),
                          player_footstep_add_delay.get_min_value_ptr(),
                          player_footstep_add_delay.get_max_value_ptr(), "%.2f seconds" );
 
-    auto &player_footstep_fade_delay = get_persistent_component<
-        Cmp::Persistent::PlayerFootstepFadeDelay>();
+    auto &player_footstep_fade_delay = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::PlayerFootstepFadeDelay>( getReg() );
     ImGui::SliderScalar( "Player Footstep Fade Delay", ImGuiDataType_Float,
                          player_footstep_fade_delay.get_value_ptr(),
                          player_footstep_fade_delay.get_min_value_ptr(),
                          player_footstep_fade_delay.get_max_value_ptr(), "%.2f seconds" );
 
-    auto &player_shortcut_lerp_speed_modifier = get_persistent_component<
-        Cmp::Persistent::PlayerShortcutLerpSpeedModifier>();
+    auto &player_shortcut_lerp_speed_modifier = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::PlayerShortcutLerpSpeedModifier>( getReg() );
     ImGui::SliderScalar( "Player Shortcut Lerp Speed Modifier", ImGuiDataType_Float,
                          player_shortcut_lerp_speed_modifier.get_value_ptr(),
                          player_shortcut_lerp_speed_modifier.get_min_value_ptr(),
                          player_shortcut_lerp_speed_modifier.get_max_value_ptr(), "%.2f" );
 
-    auto &digging_cooldown = get_persistent_component<Cmp::Persistent::DiggingCooldownThreshold>();
+    auto &digging_cooldown = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::DiggingCooldownThreshold>( getReg() );
     ImGui::SliderScalar( "Digging Cooldown", ImGuiDataType_Float, digging_cooldown.get_value_ptr(),
                          digging_cooldown.get_min_value_ptr(), digging_cooldown.get_max_value_ptr(),
                          "%.2f seconds" );
 
-    auto &digging_damage_per_hit = get_persistent_component<Cmp::Persistent::DiggingDamagePerHit>();
+    auto &digging_damage_per_hit = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::DiggingDamagePerHit>( getReg() );
     ImGui::SliderScalar( "Digging Damage Per Hit", ImGuiDataType_U8,
                          digging_damage_per_hit.get_value_ptr(),
                          digging_damage_per_hit.get_min_value_ptr(),
                          digging_damage_per_hit.get_max_value_ptr(), "%d damage" );
 
-    auto &weapon_degrade_per_hit = get_persistent_component<Cmp::Persistent::WeaponDegradePerHit>();
+    auto &weapon_degrade_per_hit = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::WeaponDegradePerHit>( getReg() );
     ImGui::SliderScalar( "Weapon Degrade Per Hit", ImGuiDataType_Float,
                          weapon_degrade_per_hit.get_value_ptr(),
                          weapon_degrade_per_hit.get_min_value_ptr(),
                          weapon_degrade_per_hit.get_max_value_ptr(), "%.2f level" );
 
-    auto &pc_detection_scale = get_persistent_component<Cmp::Persistent::PlayerDetectionScale>();
+    auto &pc_detection_scale = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::PlayerDetectionScale>( getReg() );
     ImGui::SliderScalar( "PC Detection Bounding Box Scale Factor", ImGuiDataType_Float,
                          pc_detection_scale.get_value_ptr(), pc_detection_scale.get_min_value_ptr(),
                          pc_detection_scale.get_max_value_ptr(), "%.1f pixels" );
 
-    auto &pc_damage_cooldown = get_persistent_component<Cmp::Persistent::PcDamageDelay>();
+    auto &pc_damage_cooldown = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::PcDamageDelay>( getReg() );
     ImGui::SliderScalar( "PC Damage Cooldown", ImGuiDataType_Float,
                          pc_damage_cooldown.get_value_ptr(), pc_damage_cooldown.get_min_value_ptr(),
                          pc_damage_cooldown.get_max_value_ptr(), "%.1f seconds" );
@@ -197,84 +207,98 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
     // Bomb Settings
     ImGui::SeparatorText( "Bomb Settings" );
 
-    auto &bomb_damage = get_persistent_component<Cmp::Persistent::BombDamage>();
+    auto
+        &bomb_damage = Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::BombDamage>(
+            getReg() );
     ImGui::SliderScalar( "Bomb Damage", ImGuiDataType_U8, bomb_damage.get_value_ptr(),
                          bomb_damage.get_min_value_ptr(), bomb_damage.get_max_value_ptr(), "%d" );
 
-    auto &fuse_delay = get_persistent_component<Cmp::Persistent::FuseDelay>();
+    auto &fuse_delay = Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::FuseDelay>(
+        getReg() );
     ImGui::SliderScalar( "Fuse Delay", ImGuiDataType_Float, fuse_delay.get_value_ptr(),
                          fuse_delay.get_min_value_ptr(), fuse_delay.get_max_value_ptr(),
                          "%.1f seconds" );
 
-    auto &armed_on_delay = get_persistent_component<Cmp::Persistent::ArmedOnDelay>();
+    auto &armed_on_delay = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::ArmedOnDelay>( getReg() );
     ImGui::SliderScalar( "Armed Detonation Delay Increment", ImGuiDataType_Float,
                          armed_on_delay.get_value_ptr(), armed_on_delay.get_min_value_ptr(),
                          armed_on_delay.get_max_value_ptr(), "%.3f" );
 
-    auto &armed_off_delay = get_persistent_component<Cmp::Persistent::ArmedOffDelay>();
+    auto &armed_off_delay = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::ArmedOffDelay>( getReg() );
     ImGui::SliderScalar( "Armed Off Delay", ImGuiDataType_Float, armed_off_delay.get_value_ptr(),
                          armed_off_delay.get_min_value_ptr(), armed_off_delay.get_max_value_ptr(),
                          "%.3f" );
 
     // Hazard Settings
     ImGui::SeparatorText( "Hazard Settings" );
-    auto &corruption_damage = get_persistent_component<Cmp::Persistent::CorruptionDamage>();
+    auto &corruption_damage = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::CorruptionDamage>( getReg() );
     ImGui::SliderScalar( "Corruption Damage", ImGuiDataType_U8, corruption_damage.get_value_ptr(),
                          corruption_damage.get_min_value_ptr(),
                          corruption_damage.get_max_value_ptr(), "%d" );
 
-    auto &wormhole_anim_framerate = get_persistent_component<
-        Cmp::Persistent::WormholeAnimFramerate>();
+    auto &wormhole_anim_framerate = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::WormholeAnimFramerate>( getReg() );
     ImGui::SliderScalar( "Wormhole Animation Framerate", ImGuiDataType_Float,
                          wormhole_anim_framerate.get_value_ptr(),
                          wormhole_anim_framerate.get_min_value_ptr(),
                          wormhole_anim_framerate.get_max_value_ptr(), "%.2f" );
 
-    auto &wormhole_seed = get_persistent_component<Cmp::Persistent::WormholeSeed>();
+    auto &wormhole_seed = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::WormholeSeed>( getReg() );
     ImGui::InputScalar( "Wormhole Seed. Zero is ignored", ImGuiDataType_U64,
                         wormhole_seed.get_value_ptr(), nullptr, nullptr, "%llu",
                         ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_AutoSelectAll );
 
-    auto &corruption_seed = get_persistent_component<Cmp::Persistent::CorruptionSeed>();
+    auto &corruption_seed = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::CorruptionSeed>( getReg() );
     ImGui::InputScalar( "Corruption Seed. Zero is ignored", ImGuiDataType_U64,
                         corruption_seed.get_value_ptr(), nullptr, nullptr, "%llu",
                         ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_AutoSelectAll );
 
-    auto &sinkhole_seed = get_persistent_component<Cmp::Persistent::SinkholeSeed>();
+    auto &sinkhole_seed = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::SinkholeSeed>( getReg() );
     ImGui::InputScalar( "Sinkhole Seed. Zero is ignored", ImGuiDataType_U64,
                         sinkhole_seed.get_value_ptr(), nullptr, nullptr, "%llu",
                         ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_AutoSelectAll );
 
     // Loot Settings
     ImGui::SeparatorText( "Loot Settings" );
-    auto &health_bonus = get_persistent_component<Cmp::Persistent::HealthBonus>();
+    auto &health_bonus = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::HealthBonus>( getReg() );
     ImGui::SliderScalar( "Health Bonus", ImGuiDataType_U8, health_bonus.get_value_ptr(),
                          health_bonus.get_min_value_ptr(), health_bonus.get_max_value_ptr(), "%d" );
 
-    auto &bomb_bonus = get_persistent_component<Cmp::Persistent::BombBonus>();
+    auto &bomb_bonus = Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::BombBonus>(
+        getReg() );
     ImGui::SliderScalar( "Bomb Bonus", ImGuiDataType_U8, bomb_bonus.get_value_ptr(),
                          bomb_bonus.get_min_value_ptr(), bomb_bonus.get_max_value_ptr(), "%d" );
 
     // NPC Settings
     ImGui::SeparatorText( "NPC Settings" );
 
-    auto &npc_anim_framerate = get_persistent_component<Cmp::Persistent::NpcSkeleAnimFramerate>();
+    auto &npc_anim_framerate = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::NpcSkeleAnimFramerate>( getReg() );
     ImGui::SliderScalar( "NPC Animation Skeleton Framerate", ImGuiDataType_Float,
                          npc_anim_framerate.get_value_ptr(), npc_anim_framerate.get_min_value_ptr(),
                          npc_anim_framerate.get_max_value_ptr(), "%.2f" );
 
-    auto &npc_ghost_anim_framerate = get_persistent_component<
-        Cmp::Persistent::NpcGhostAnimFramerate>();
+    auto &npc_ghost_anim_framerate = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::NpcGhostAnimFramerate>( getReg() );
     ImGui::SliderScalar( "NPC Animation Ghost Framerate", ImGuiDataType_Float,
                          npc_ghost_anim_framerate.get_value_ptr(),
                          npc_ghost_anim_framerate.get_min_value_ptr(),
                          npc_ghost_anim_framerate.get_max_value_ptr(), "%.2f" );
 
-    auto &npc_damage = get_persistent_component<Cmp::Persistent::NpcDamage>();
+    auto &npc_damage = Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::NpcDamage>(
+        getReg() );
     ImGui::SliderScalar( "NPC Damage", ImGuiDataType_U8, npc_damage.get_value_ptr(),
                          npc_damage.get_min_value_ptr(), npc_damage.get_max_value_ptr(), "%d" );
 
-    auto &npc_push_back = get_persistent_component<Cmp::Persistent::NpcPushBack>();
+    auto &npc_push_back = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::NpcPushBack>( getReg() );
     if ( ImGui::SliderScalar( "NPC Push Back Distance", ImGuiDataType_Float,
                               npc_push_back.get_value_ptr(), npc_push_back.get_min_value_ptr(),
                               npc_push_back.get_max_value_ptr(), "%.1f pixels" ) )
@@ -283,24 +307,27 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
       npc_push_back.get_value() = roundf( npc_push_back.get_value() / step ) * step;
     }
 
-    auto &npc_death_anim_framerate = get_persistent_component<
-        Cmp::Persistent::NpcDeathAnimFramerate>();
+    auto &npc_death_anim_framerate = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::NpcDeathAnimFramerate>( getReg() );
     ImGui::SliderScalar( "NPC Death Animation Framerate", ImGuiDataType_Float,
                          npc_death_anim_framerate.get_value_ptr(),
                          npc_death_anim_framerate.get_min_value_ptr(),
                          npc_death_anim_framerate.get_max_value_ptr(), "%.2f" );
 
-    auto &npc_activate_scale = get_persistent_component<Cmp::Persistent::NpcActivateScale>();
+    auto &npc_activate_scale = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::NpcActivateScale>( getReg() );
     ImGui::SliderScalar( "NPC Activation Bounding Box Scale Factor", ImGuiDataType_Float,
                          npc_activate_scale.get_value_ptr(), npc_activate_scale.get_min_value_ptr(),
                          npc_activate_scale.get_max_value_ptr(), "%.1f pixels" );
 
-    auto &npc_scan_scale = get_persistent_component<Cmp::Persistent::NpcScanScale>();
+    auto &npc_scan_scale = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::NpcScanScale>( getReg() );
     ImGui::SliderScalar( "NPC Scan Bounding Box Scale Factor", ImGuiDataType_Float,
                          npc_scan_scale.get_value_ptr(), npc_scan_scale.get_min_value_ptr(),
                          npc_scan_scale.get_max_value_ptr(), "%.1f pixels" );
 
-    auto &npc_lerp_speed = get_persistent_component<Cmp::Persistent::NpcLerpSpeed>();
+    auto &npc_lerp_speed = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::NpcLerpSpeed>( getReg() );
     ImGui::SliderScalar( "NPC Speed", ImGuiDataType_Float, npc_lerp_speed.get_value_ptr(),
                          npc_lerp_speed.get_min_value_ptr(), npc_lerp_speed.get_max_value_ptr(),
                          "%.1f" );
@@ -308,12 +335,14 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
     // Audio
     ImGui::SeparatorText( "Audio" );
 
-    auto &music_volume = get_persistent_component<Cmp::Persistent::MusicVolume>();
+    auto &music_volume = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::MusicVolume>( getReg() );
     ImGui::SliderScalar( "Music Volume", ImGuiDataType_Float, music_volume.get_value_ptr(),
                          music_volume.get_min_value_ptr(), music_volume.get_max_value_ptr(),
                          "%.1f" );
 
-    auto &effects_volume = get_persistent_component<Cmp::Persistent::EffectsVolume>();
+    auto &effects_volume = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::EffectsVolume>( getReg() );
     ImGui::SliderScalar( "Effects Volume", ImGuiDataType_Float, effects_volume.get_value_ptr(),
                          effects_volume.get_min_value_ptr(), effects_volume.get_max_value_ptr(),
                          "%.1f" );
@@ -321,23 +350,27 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime )
     // Procedural Generation
     ImGui::SeparatorText( "Procedural Generation" );
 
-    auto &max_num_altars = get_persistent_component<Cmp::Persistent::MaxNumAltars>();
+    auto &max_num_altars = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::MaxNumAltars>( getReg() );
     ImGui::SliderScalar( "Max NNumber of Altars", ImGuiDataType_U8, max_num_altars.get_value_ptr(),
                          max_num_altars.get_min_value_ptr(), max_num_altars.get_max_value_ptr(),
                          "%d Max Altars" );
 
-    auto &grave_num_multiplier = get_persistent_component<Cmp::Persistent::GraveNumMultiplier>();
+    auto &grave_num_multiplier = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::GraveNumMultiplier>( getReg() );
     ImGui::SliderScalar(
         "Grave Number Multiplier", ImGuiDataType_U8, grave_num_multiplier.get_value_ptr(),
         grave_num_multiplier.get_min_value_ptr(), grave_num_multiplier.get_max_value_ptr(), "%d" );
 
-    auto &exit_key_requirement = get_persistent_component<Cmp::Persistent::ExitKeyRequirement>();
+    auto &exit_key_requirement = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::ExitKeyRequirement>( getReg() );
     ImGui::SliderScalar( "Exit Key Requirement", ImGuiDataType_U8,
                          exit_key_requirement.get_value_ptr(),
                          exit_key_requirement.get_min_value_ptr(),
                          exit_key_requirement.get_max_value_ptr(), "%d Keys" );
 
-    auto &max_num_crypts = get_persistent_component<Cmp::Persistent::MaxNumCrypts>();
+    auto &max_num_crypts = Sys::PersistentSystem::get_persistent_component<
+        Cmp::Persistent::MaxNumCrypts>( getReg() );
     ImGui::SliderScalar( "Max Number of Crypts", ImGuiDataType_U8, max_num_crypts.get_value_ptr(),
                          max_num_crypts.get_min_value_ptr(), max_num_crypts.get_max_value_ptr(),
                          "%d Max Crypts" );
@@ -368,10 +401,13 @@ void RenderMenuSystem::render_paused( sf::Time globalDeltaTime )
   start_text.setPosition( { kDisplaySize.x / 4.f, 200.f } );
   m_window.draw( start_text );
 
-  auto &music_volume = get_persistent_component<Cmp::Persistent::MusicVolume>();
+  auto
+      &music_volume = Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::MusicVolume>(
+          getReg() );
   ImGui::SliderFloat( "Music Volume", &music_volume.get_value(), 0.f, 100.f, "%.1f" );
 
-  auto &effects_volume = get_persistent_component<Cmp::Persistent::EffectsVolume>();
+  auto &effects_volume = Sys::PersistentSystem::get_persistent_component<
+      Cmp::Persistent::EffectsVolume>( getReg() );
   ImGui::SliderFloat( "Effects Volume", &effects_volume.get_value(), 0.f, 100.f, "%.1f" );
 
   ImGui::End();

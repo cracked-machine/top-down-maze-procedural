@@ -5,22 +5,26 @@
 #include <Components/Persistent/FuseDelay.hpp>
 #include <Components/Position.hpp>
 #include <Factory/BombFactory.hpp>
+#include <Systems/PersistentSystem.hpp>
 
 #include <Systems/BaseSystem.hpp>
 
 namespace ProceduralMaze::Factory
 {
 
-void createArmed( entt::registry &registry, entt::entity entity, Cmp::Armed::EpiCenter epi_center, int sequence, int zorder )
+void createArmed( entt::registry &registry, entt::entity entity, Cmp::Armed::EpiCenter epi_center,
+                  int sequence, int zorder )
 {
 
   // get persistent settings
+  // clang-format off
   sf::Color color = sf::Color( 255, 10 + ( sequence * 10 ) % 155, 255, 64 );
-  auto &fuse_delay = Sys::BaseSystem::get_persistent_component<Cmp::Persistent::FuseDelay>( registry );
-  auto &armed_on_delay = Sys::BaseSystem::get_persistent_component<Cmp::Persistent::ArmedOnDelay>( registry );
-  auto &armed_off_delay = Sys::BaseSystem::get_persistent_component<Cmp::Persistent::ArmedOffDelay>( registry );
+  auto &fuse_delay = Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::FuseDelay>( registry );
+  auto &armed_on_delay = Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::ArmedOnDelay>( registry );
+  auto &armed_off_delay = Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::ArmedOffDelay>( registry );
   auto new_fuse_delay = sf::seconds( fuse_delay.get_value() + ( sequence * armed_on_delay.get_value() ) );
   auto new_warning_delay = sf::seconds( armed_off_delay.get_value() + ( sequence * armed_off_delay.get_value() ) );
+  // clang-format on
 
   // create the new armed entity
   auto new_armed_entity = registry.create();
@@ -36,7 +40,8 @@ void createArmed( entt::registry &registry, entt::entity entity, Cmp::Armed::Epi
     );
   // clang-format on
 
-  registry.emplace_or_replace<Cmp::Position>( new_armed_entity, registry.get<Cmp::Position>( entity ).position,
+  registry.emplace_or_replace<Cmp::Position>( new_armed_entity,
+                                              registry.get<Cmp::Position>( entity ).position,
                                               registry.get<Cmp::Position>( entity ).size );
 
   if ( epi_center == Cmp::Armed::EpiCenter::YES )
@@ -53,7 +58,10 @@ void destroyArmed( entt::registry &reg, entt::entity armed_entity )
   reg.remove<Cmp::Armed>( armed_entity );
   reg.remove<Cmp::SpriteAnimation>( armed_entity );
   reg.remove<Cmp::ZOrderValue>( armed_entity );
-  if ( reg.all_of<Cmp::NoPathFinding>( armed_entity ) ) { reg.remove<Cmp::NoPathFinding>( armed_entity ); }
+  if ( reg.all_of<Cmp::NoPathFinding>( armed_entity ) )
+  {
+    reg.remove<Cmp::NoPathFinding>( armed_entity );
+  }
 }
 
 void createDetonated( entt::registry &reg, entt::entity armed_entity, Cmp::Position &armed_pos_cmp )

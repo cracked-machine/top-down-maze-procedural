@@ -10,6 +10,7 @@
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Time.hpp>
 
+#include <Systems/PersistentSystem.hpp>
 #include <spdlog/spdlog.h>
 
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
@@ -38,8 +39,8 @@ DiggingSystem::DiggingSystem( entt::registry &reg, sf::RenderWindow &window,
 void DiggingSystem::update()
 {
   // abort if still in cooldown
-  auto digging_cooldown_amount = get_persistent_component<
-                                     Cmp::Persistent::DiggingCooldownThreshold>()
+  auto digging_cooldown_amount = Sys::PersistentSystem::get_persistent_component<
+                                     Cmp::Persistent::DiggingCooldownThreshold>( getReg() )
                                      .get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
   {
@@ -71,8 +72,8 @@ void DiggingSystem::check_player_dig_obstacle_collision()
   }
 
   // abort if still in cooldown
-  auto digging_cooldown_amount = get_persistent_component<
-                                     Cmp::Persistent::DiggingCooldownThreshold>()
+  auto digging_cooldown_amount = Sys::PersistentSystem::get_persistent_component<
+                                     Cmp::Persistent::DiggingCooldownThreshold>( getReg() )
                                      .get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
 
@@ -137,7 +138,8 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       // Apply digging damage, play a sound depending on whether the obstacle was destroyed
       m_dig_cooldown_clock.restart();
 
-      auto damage_per_dig = get_persistent_component<Cmp::Persistent::DiggingDamagePerHit>()
+      auto damage_per_dig = Sys::PersistentSystem::get_persistent_component<
+                                Cmp::Persistent::DiggingDamagePerHit>( getReg() )
                                 .get_value();
       alpha_cmp.setAlpha( std::max( 0, alpha_cmp.getAlpha() - damage_per_dig ) );
       SPDLOG_DEBUG( "Applied {} digging damage to obstacle at position ({}, {}), new alpha is {}.",
@@ -148,7 +150,8 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       for ( auto [weapons_entity, weapons_level, pc_cmp] : player_weapons_view.each() )
       {
         // Decrease weapons level based on damage dealt
-        weapons_level.m_level -= get_persistent_component<Cmp::Persistent::WeaponDegradePerHit>()
+        weapons_level.m_level -= Sys::PersistentSystem::get_persistent_component<
+                                     Cmp::Persistent::WeaponDegradePerHit>( getReg() )
                                      .get_value();
         SPDLOG_DEBUG( "Player weapons level decreased to {} after digging!",
                       weapons_level.m_level );

@@ -43,9 +43,14 @@ void PausedMenuScene::do_update( [[maybe_unused]] sf::Time dt )
   persistent_sys.save_state();
 
   // update music/sfx volumes with persistent settings
-  auto &effects_volume = persistent_sys.get_persistent_component<Cmp::Persistent::EffectsVolume>().get_value();
+  auto &effects_volume = Sys::PersistentSystem::get_persistent_component<
+                             Cmp::Persistent::EffectsVolume>( m_reg )
+                             .get_value();
   m_sound_bank.update_effects_volume( effects_volume );
-  auto &music_volume = persistent_sys.get_persistent_component<Cmp::Persistent::MusicVolume>().get_value();
+  auto
+      &music_volume = Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::MusicVolume>(
+                          m_reg )
+                          .get_value();
   m_sound_bank.update_music_volume( music_volume );
 
   // globalFrameClock.start();

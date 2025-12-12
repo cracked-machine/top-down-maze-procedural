@@ -9,6 +9,7 @@
 #include <SFML/System/Time.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/FootstepSystem.hpp>
+#include <Systems/PersistentSystem.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -37,7 +38,9 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
 {
   if ( update_clock.getElapsedTime() >=
        sf::seconds(
-           get_persistent_component<Cmp::Persistent::PlayerFootstepAddDelay>().get_value() ) )
+           Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::PlayerFootstepAddDelay>(
+               getReg() )
+               .get_value() ) )
   {
 
     auto nopathfind_view = getReg().view<Cmp::NoPathFinding, Cmp::Position>();
@@ -143,8 +146,9 @@ void FootstepSystem::update()
   for ( auto [entity, timer, alpha] : view.each() )
   {
     if ( timer.m_clock.getElapsedTime() >
-         sf::seconds(
-             get_persistent_component<Cmp::Persistent::PlayerFootstepFadeDelay>().get_value() ) )
+         sf::seconds( Sys::PersistentSystem::get_persistent_component<
+                          Cmp::Persistent::PlayerFootstepFadeDelay>( getReg() )
+                          .get_value() ) )
     {
       alpha.m_alpha -= kFootstepFadeFactor;
       if ( alpha.m_alpha <= 0.f )

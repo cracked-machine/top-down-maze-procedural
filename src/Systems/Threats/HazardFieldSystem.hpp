@@ -30,6 +30,7 @@
 #include <Factory/ObstacleFactory.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <Systems/PersistentSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Utils.hpp>
 
@@ -133,7 +134,9 @@ public:
         entt::exclude<typename Traits::ExcludeHazard> );
     if ( hazard_field_view.size_hint() > 0 ) { return; }
 
-    unsigned long seed = get_persistent_component<typename Traits::SeedType>().get_value();
+    unsigned long seed = Sys::PersistentSystem::get_persistent_component<typename Traits::SeedType>(
+                             getReg() )
+                             .get_value();
     auto [random_entity, random_pos] = get_random_position(
         IncludePack<Cmp::Obstacle>{},
         ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC,
@@ -258,7 +261,8 @@ private:
         }
         else if constexpr ( Traits::sprite_type == "CORRUPTION" )
         {
-          player_health_cmp.health -= get_persistent_component<Cmp::Persistent::CorruptionDamage>()
+          player_health_cmp.health -= Sys::PersistentSystem::get_persistent_component<
+                                          Cmp::Persistent::CorruptionDamage>( getReg() )
                                           .get_value();
           SPDLOG_DEBUG( "Player took corruption damage at position ({}, {})! Health is now {}.",
                         hazard_pos_cmp.x, hazard_pos_cmp.y, player_health_cmp.health );

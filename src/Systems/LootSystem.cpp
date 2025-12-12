@@ -13,13 +13,15 @@
 #include <Events/UnlockDoorEvent.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Systems/LootSystem.hpp>
+#include <Systems/PersistentSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
 {
 
-LootSystem::LootSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+LootSystem::LootSystem( entt::registry &reg, sf::RenderWindow &window,
+                        Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "LootSystem initialized" );
@@ -43,7 +45,8 @@ void LootSystem::check_loot_collision()
   auto loot_collision_view = getReg().view<Cmp::Loot, Cmp::Position, Cmp::SpriteAnimation>();
   // clang-format on
 
-  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_weapon_level, pc_keys_count, pc_candles_count] : player_collision_view.each() )
+  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_weapon_level, pc_keys_count, pc_candles_count] :
+        player_collision_view.each() )
   {
     for ( auto [loot_entt, loot_cmp, loot_pos_cmp, loot_sprite_anim] : loot_collision_view.each() )
     {
@@ -69,13 +72,16 @@ void LootSystem::check_loot_collision()
     // Apply the effect
     if ( effect.type == "EXTRA_HEALTH" )
     {
-      auto &health_bonus = get_persistent_component<Cmp::Persistent::HealthBonus>();
+      auto &health_bonus = Sys::PersistentSystem::get_persistent_component<
+          Cmp::Persistent::HealthBonus>( getReg() );
       pc_health_cmp.health = std::min( pc_health_cmp.health + health_bonus.get_value(), 100 );
       m_sound_bank.get_effect( "get_loot" ).play();
     }
     else if ( effect.type == "EXTRA_BOMBS" )
     {
-      auto &bomb_bonus = get_persistent_component<Cmp::Persistent::BombBonus>();
+      auto
+          &bomb_bonus = Sys::PersistentSystem::get_persistent_component<Cmp::Persistent::BombBonus>(
+              getReg() );
       if ( pc_cmp.bomb_inventory >= 0 )
       {
         pc_cmp.bomb_inventory += bomb_bonus.get_value();
