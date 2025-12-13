@@ -32,7 +32,7 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
-#include <Utils/Utils.hpp>
+#include <Utils/Optimizations.hpp>
 
 //! @brief HazardFields are environmental dangers that spread throughout the maze,
 //! posing threats to both the player and NPCs. Examples include sinkholes (composed of many
@@ -62,8 +62,7 @@ struct HazardTraits<Cmp::SinkholeCell>
   using SeedType = Cmp::Persist::SinkholeSeed;
   using ExcludeHazard = Cmp::CorruptionCell;
   static constexpr bool kills_instantly = true;
-  static constexpr Cmp::PlayerMortality::State
-      mortality_state = Cmp::PlayerMortality::State::FALLING;
+  static constexpr Cmp::PlayerMortality::State mortality_state = Cmp::PlayerMortality::State::FALLING;
   static constexpr Sprites::SpriteMetaType sprite_type = "SINKHOLE";
 };
 
@@ -74,8 +73,7 @@ struct HazardTraits<Cmp::CorruptionCell>
   using SeedType = Cmp::Persist::CorruptionSeed;
   using ExcludeHazard = Cmp::SinkholeCell;
   static constexpr bool kills_instantly = false;
-  static constexpr Cmp::PlayerMortality::State
-      mortality_state = Cmp::PlayerMortality::State::DECAYING;
+  static constexpr Cmp::PlayerMortality::State mortality_state = Cmp::PlayerMortality::State::DECAYING;
   static constexpr Sprites::SpriteMetaType sprite_type = "CORRUPTION";
 };
 
@@ -97,18 +95,16 @@ public:
   //! @param reg Smart pointer to the entt registry
   //! @param window Reference to the SFML render window
   //! @param sprite_factory Reference to the sprite factory
-  HazardFieldSystem( entt::registry &reg, sf::RenderWindow &window,
-                     Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+  HazardFieldSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                     Audio::SoundBank &sound_bank )
       : Sys::BaseSystem( reg, window, sprite_factory, sound_bank )
   {
     // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
     // the constructor
-    get_systems_event_queue()
-        .sink<Events::PauseClocksEvent>()
-        .connect<&Sys::HazardFieldSystem<HazardType>::onPause>( this );
-    get_systems_event_queue()
-        .sink<Events::ResumeClocksEvent>()
-        .connect<&Sys::HazardFieldSystem<HazardType>::onResume>( this );
+    get_systems_event_queue().sink<Events::PauseClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onPause>(
+        this );
+    get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onResume>(
+        this );
   }
 
   void update()
@@ -130,28 +126,22 @@ public:
   //! 5. Remove obstacle component from the random entity.
   void init_hazard_field()
   {
-    auto hazard_field_view = getReg().template view<HazardType>(
-        entt::exclude<typename Traits::ExcludeHazard> );
+    auto hazard_field_view = getReg().template view<HazardType>( entt::exclude<typename Traits::ExcludeHazard> );
     if ( hazard_field_view.size_hint() > 0 ) { return; }
 
-    unsigned long seed = Sys::PersistSystem::get_persist_cmp<typename Traits::SeedType>( getReg() )
-                             .get_value();
+    unsigned long seed = Sys::PersistSystem::get_persist_cmp<typename Traits::SeedType>( getReg() ).get_value();
     auto [random_entity, random_pos] = get_random_position(
         IncludePack<Cmp::Obstacle>{},
-        ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC,
-                    Cmp::ReservedPosition>(),
-        seed );
+        ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
     if ( random_entity == entt::null ) { return; }
 
     Factory::destroyObstacle( getReg(), random_entity );
     getReg().template emplace<HazardType>( random_entity );
-    getReg().template emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true,
-                                                                Traits::sprite_type, 0 );
-    getReg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity,
-                                                            random_pos.position.y - 1.f );
+    getReg().template emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, Traits::sprite_type, 0 );
+    getReg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 1.f );
     getReg().template emplace_or_replace<Cmp::NoPathFinding>( random_entity );
-    SPDLOG_INFO( "{} hazard spawned at position [{}, {}].", Traits::sprite_type,
-                 random_pos.position.x, random_pos.position.y );
+    SPDLOG_INFO( "{} hazard spawned at position [{}, {}].", Traits::sprite_type, random_pos.position.x,
+                 random_pos.position.y );
   }
 
   //! @brief event handlers for pausing hazard spread clocks
@@ -174,8 +164,7 @@ private:
     m_spread_update_clock.restart();
 
     auto hazard_view = getReg().template view<HazardType, Cmp::Position>();
-    auto obstacle_view = getReg().template view<Cmp::Obstacle, Cmp::Position>(
-        entt::exclude<Cmp::ReservedPosition> );
+    auto obstacle_view = getReg().template view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::ReservedPosition> );
 
     Cmp::RandomInt hazard_spread_picker( 0, 7 ); // 1 in 8 chance for picking an adjacent obstacle
 
@@ -184,8 +173,7 @@ private:
       if ( not hazard_cmp.active ) continue;
 
       // make the hazard field hitbox slightly larger to find adjacent obstacles
-      auto hazard_hitbox = sf::FloatRect( position_cmp.position,
-                                          Constants::kGridSquareSizePixelsF * 2.f );
+      auto hazard_hitbox = sf::FloatRect( position_cmp.position, Constants::kGridSquareSizePixelsF * 2.f );
       int adjacent_hazard_fields = 0;
 
       // add new hazard cell
@@ -197,18 +185,16 @@ private:
         {
           Factory::destroyObstacle( getReg(), obstacle_entity );
           getReg().template emplace_or_replace<HazardType>( obstacle_entity );
-          getReg().template emplace_or_replace<Cmp::SpriteAnimation>( obstacle_entity, 0, 0, true,
-                                                                      Traits::sprite_type, 0 );
-          getReg().template emplace_or_replace<Cmp::ZOrderValue>( obstacle_entity,
-                                                                  obst_pos_cmp.position.y - 1.f );
+          getReg().template emplace_or_replace<Cmp::SpriteAnimation>( obstacle_entity, 0, 0, true, Traits::sprite_type,
+                                                                      0 );
+          getReg().template emplace_or_replace<Cmp::ZOrderValue>( obstacle_entity, obst_pos_cmp.position.y - 1.f );
           getReg().template emplace_or_replace<Cmp::NoPathFinding>( obstacle_entity );
           if ( getReg().template all_of<Cmp::PlayerDistance>( obstacle_entity ) )
           {
             getReg().template remove<Cmp::PlayerDistance>( obstacle_entity );
           }
 
-          SPDLOG_DEBUG( "New hazard field created at entity {}",
-                        static_cast<uint32_t>( obstacle_entity ) );
+          SPDLOG_DEBUG( "New hazard field created at entity {}", static_cast<uint32_t>( obstacle_entity ) );
           return; // only add one hazard cell per update period
         }
       }
@@ -232,40 +218,34 @@ private:
   {
     auto hazard_view = getReg().template view<HazardType, Cmp::Position>();
     auto player_view = getReg()
-                           .template view<Cmp::PlayableCharacter, Cmp::PlayerHealth,
-                                          Cmp::PlayerMortality, Cmp::Position>();
+                           .template view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality,
+                                          Cmp::Position>();
 
-    for ( auto [pc_entt, player_cmp, player_health_cmp, player_mort_cmp, player_pos_cmp] :
-          player_view.each() )
+    for ( auto [pc_entt, player_cmp, player_health_cmp, player_mort_cmp, player_pos_cmp] : player_view.each() )
     {
       // optimization
       // if ( player_mort_cmp.state != Cmp::PlayerMortality::State::ALIVE ) return;
       if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), player_pos_cmp ) ) continue;
 
       // reduce the player hitbox so that you have to be almost centered over it to fall in
-      auto player_hitbox_redux = Cmp::RectBounds( player_pos_cmp.position, player_pos_cmp.size,
-                                                  0.1f );
+      auto player_hitbox_redux = Cmp::RectBounds( player_pos_cmp.position, player_pos_cmp.size, 0.1f );
       for ( auto [hazard_entt, hazard_cmp, hazard_pos_cmp] : hazard_view.each() )
       {
         // reduce the hazaard hotbox so that you have to be almost centered over it to fall in
-        auto hazard_hitbox_redux = Cmp::RectBounds( hazard_pos_cmp.position, hazard_pos_cmp.size,
-                                                    0.1f );
+        auto hazard_hitbox_redux = Cmp::RectBounds( hazard_pos_cmp.position, hazard_pos_cmp.size, 0.1f );
         if ( not player_hitbox_redux.findIntersection( hazard_hitbox_redux.getBounds() ) ) continue;
 
         if constexpr ( Traits::sprite_type == "SINKHOLE" )
         {
           player_mort_cmp.state = Traits::mortality_state;
-          SPDLOG_DEBUG( "Player fell into a hazard field at position ({}, {})!", hazard_pos_cmp.x,
-                        hazard_pos_cmp.y );
+          SPDLOG_DEBUG( "Player fell into a hazard field at position ({}, {})!", hazard_pos_cmp.x, hazard_pos_cmp.y );
         }
         else if constexpr ( Traits::sprite_type == "CORRUPTION" )
         {
-          player_health_cmp
-              .health -= Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CorruptionDamage>(
-                             getReg() )
-                             .get_value();
-          SPDLOG_DEBUG( "Player took corruption damage at position ({}, {})! Health is now {}.",
-                        hazard_pos_cmp.x, hazard_pos_cmp.y, player_health_cmp.health );
+          player_health_cmp.health -= Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CorruptionDamage>( getReg() )
+                                          .get_value();
+          SPDLOG_DEBUG( "Player took corruption damage at position ({}, {})! Health is now {}.", hazard_pos_cmp.x,
+                        hazard_pos_cmp.y, player_health_cmp.health );
           return;
         }
       }
@@ -294,8 +274,7 @@ private:
           SPDLOG_INFO( "Dropped RELIC_DROP loot at NPC death position." );
           m_sound_bank.get_effect( "drop_relic" ).play();
         }
-        SPDLOG_DEBUG( "NPC fell into a hazard field at position ({}, {})!", hazard_pos_cmp.x,
-                      hazard_pos_cmp.y );
+        SPDLOG_DEBUG( "NPC fell into a hazard field at position ({}, {})!", hazard_pos_cmp.x, hazard_pos_cmp.y );
         return;
       }
     }

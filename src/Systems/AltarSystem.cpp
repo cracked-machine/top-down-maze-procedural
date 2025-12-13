@@ -19,20 +19,19 @@
 #include <Factory/ObstacleFactory.hpp>
 #include <Systems/AltarSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
-#include <Utils/Utils.hpp>
+#include <Utils/Optimizations.hpp>
 
 namespace ProceduralMaze::Sys
 {
 
-AltarSystem::AltarSystem( entt::registry &reg, sf::RenderWindow &window,
-                          Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+AltarSystem::AltarSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                          Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
   // the constructor
-  std::ignore = get_systems_event_queue()
-                    .sink<Events::PlayerActionEvent>()
-                    .connect<&AltarSystem::on_player_action>( this );
+  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&AltarSystem::on_player_action>(
+      this );
 }
 
 void AltarSystem::check_player_collision( Events::PlayerActionEvent::GameActions action )
@@ -40,29 +39,25 @@ void AltarSystem::check_player_collision( Events::PlayerActionEvent::GameActions
   if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
 
   auto player_view = getReg()
-                         .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount,
-                               Cmp::PlayerKeysCount>();
+                         .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount>();
   auto altar_view = getReg().view<Cmp::AltarMultiBlock>();
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_candles_cmp, pc_keys_cmp] : player_view.each() )
   {
-    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF,
-                                          1.5f );
+    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
 
     for ( auto [altar_entity, altar_cmp] : altar_view.each() )
     {
       if ( player_hitbox.findIntersection( altar_cmp ) )
       {
-        SPDLOG_DEBUG( "Player collided with Altar at ({}, {})", altar_cmp.position.x,
-                      altar_cmp.position.y );
+        SPDLOG_DEBUG( "Player collided with Altar at ({}, {})", altar_cmp.position.x, altar_cmp.position.y );
         check_player_altar_activation( altar_entity, altar_cmp, pc_candles_cmp );
       }
     }
   }
 }
 
-void AltarSystem::check_player_altar_activation( entt::entity altar_entity,
-                                                 Cmp::AltarMultiBlock &altar_cmp,
+void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp::AltarMultiBlock &altar_cmp,
                                                  Cmp::PlayerCandlesCount &pc_candles_cmp )
 {
 
@@ -158,8 +153,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity,
     {
       SPDLOG_DEBUG( "Checking for special power activation." );
       auto anim_sprite_cmp = getReg().try_get<Cmp::SpriteAnimation>( altar_entity );
-      if ( anim_sprite_cmp &&
-           m_altar_activation_clock.getElapsedTime() > m_altar_activation_cooldown )
+      if ( anim_sprite_cmp && m_altar_activation_clock.getElapsedTime() > m_altar_activation_cooldown )
       {
         activate_altar_special_power();
       }
@@ -181,8 +175,7 @@ bool AltarSystem::activate_altar_special_power()
 
     SPDLOG_DEBUG( "Special Power: Re-enable all nearby obstacles!" );
     auto obstacle_view = getReg().view<Cmp::DestroyedObstacle, Cmp::Position>(
-        entt::exclude<Cmp::PlayableCharacter, Cmp::NPC, Cmp::LootContainer, Cmp::Loot,
-                      Cmp::ReservedPosition> );
+        entt::exclude<Cmp::PlayableCharacter, Cmp::NPC, Cmp::LootContainer, Cmp::Loot, Cmp::ReservedPosition> );
 
     for ( auto [destroyed_entity, destroyed_cmp, destroyed_pos_cmp] : obstacle_view.each() )
     {
@@ -212,8 +205,8 @@ bool AltarSystem::activate_altar_special_power()
             } );
           // clang-format on
 
-          Factory::createObstacle( getReg(), destroyed_entity, destroyed_pos_cmp, obst_type,
-                                   rand_obst_tex_idx, destroyed_pos_cmp.position.y );
+          Factory::createObstacle( getReg(), destroyed_entity, destroyed_pos_cmp, obst_type, rand_obst_tex_idx,
+                                   destroyed_pos_cmp.position.y );
         }
       }
     }
@@ -241,11 +234,9 @@ bool AltarSystem::activate_altar_special_power()
   {
     if ( Utils::is_visible_in_view( RenderSystem::getGameView(), lc_pos_cmp ) )
     {
-      SPDLOG_DEBUG( "Opened loot container at ({}, {})", lc_pos_cmp.position.x,
-                    lc_pos_cmp.position.y );
+      SPDLOG_DEBUG( "Opened loot container at ({}, {})", lc_pos_cmp.position.x, lc_pos_cmp.position.y );
       auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
-          std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS",
-                                    "WEAPON_BOOST" } );
+          std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "WEAPON_BOOST" } );
 
       // clang-format off
       auto loot_entt = Factory::createLootDrop( 

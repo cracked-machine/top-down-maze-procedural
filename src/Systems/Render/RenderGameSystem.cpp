@@ -43,7 +43,7 @@
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
-#include <Utils/Utils.hpp>
+#include <Utils/Optimizations.hpp>
 
 #include <string>
 

@@ -8,7 +8,7 @@
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
-#include <Utils/Utils.hpp>
+#include <Utils/Optimizations.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -29,8 +29,10 @@ void CryptSystem::unlock_crypt_door()
       if ( m_door_cooldown_timer.getElapsedTime().asSeconds() < m_door_cooldown_time ) continue;
       m_door_cooldown_timer.restart();
 
-      // Player can't intersect with a closed crypt door so expand their hitbox slightly to facilitate collision detection
-      auto increased_player_bounds = Cmp::RectBounds( pc_pos_cmp.position, pc_pos_cmp.size, 1.5f, Cmp::RectBounds::ScaleCardinality::VERTICAL );
+      // Player can't intersect with a closed crypt door so expand their hitbox slightly to facilitate collision
+      // detection
+      auto increased_player_bounds = Cmp::RectBounds( pc_pos_cmp.position, pc_pos_cmp.size, 1.5f,
+                                                      Cmp::RectBounds::ScaleCardinality::VERTICAL );
       if ( not increased_player_bounds.findIntersection( door_pos_cmp ) ) continue;
 
       // Crypt door is already opened
@@ -80,7 +82,8 @@ void CryptSystem::unlock_crypt_door()
         if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;
         anim_cmp.m_sprite_type = "CRYPT.opened";
 
-        SPDLOG_INFO( "Updated crypt multi-block sprite to open state at ({}, {})", crypt_cmp.position.x, crypt_cmp.position.y );
+        SPDLOG_INFO( "Updated crypt multi-block sprite to open state at ({}, {})", crypt_cmp.position.x,
+                     crypt_cmp.position.y );
         break;
       }
     }
@@ -100,7 +103,8 @@ void CryptSystem::check_door_transitions()
       // optimize: skip if not visible
       if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), crypt_door_pos_cmp ) ) continue;
       if ( not pc_pos_cmp.findIntersection( crypt_door_pos_cmp ) ) continue;
-      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_CRYPT );
+      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>(
+          Events::SceneManagerEvent::Type::ENTER_CRYPT );
     }
   }
 }

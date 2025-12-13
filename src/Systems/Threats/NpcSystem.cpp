@@ -28,6 +28,7 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
+#include <Utils/Optimizations.hpp>
 #include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys

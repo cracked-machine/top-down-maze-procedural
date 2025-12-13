@@ -16,7 +16,7 @@
 #include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
-#include <Utils/Utils.hpp>
+#include <Utils/Optimizations.hpp>
 
 namespace ProceduralMaze::Sys
 {

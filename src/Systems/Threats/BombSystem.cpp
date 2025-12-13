@@ -15,6 +15,7 @@
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <SFML/Graphics/Rect.hpp>
+#include <Utils/Maths.hpp>
 #include <Utils/Utils.hpp>
 #include <optional>
 #include <spdlog/spdlog.h>

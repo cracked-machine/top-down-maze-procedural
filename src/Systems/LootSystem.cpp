@@ -15,13 +15,13 @@
 #include <Systems/LootSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
-#include <Utils/Utils.hpp>
+#include <Utils/Optimizations.hpp>
 
 namespace ProceduralMaze::Sys
 {
 
-LootSystem::LootSystem( entt::registry &reg, sf::RenderWindow &window,
-                        Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+LootSystem::LootSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                        Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "LootSystem initialized" );
@@ -72,8 +72,7 @@ void LootSystem::check_loot_collision()
     // Apply the effect
     if ( effect.type == "EXTRA_HEALTH" )
     {
-      auto &health_bonus = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::HealthBonus>(
-          getReg() );
+      auto &health_bonus = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::HealthBonus>( getReg() );
       pc_health_cmp.health = std::min( pc_health_cmp.health + health_bonus.get_value(), 100 );
       m_sound_bank.get_effect( "get_loot" ).play();
     }
