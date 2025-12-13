@@ -12,7 +12,7 @@ class CryptScene : public Scene<Events::ProcessCryptSceneInputEvent>
 {
 public:
   //! @brief The size of the crypt map grid in number of squares
-  inline static constexpr sf::Vector2u kMapGridSize{ 64u, 32u };
+  inline static constexpr sf::Vector2u kMapGridSize{ 32u, 64u };
 
   //! @brief The size of the crypt map grid in number of squares as floats
   inline static constexpr sf::Vector2f kMapGridSizeF{ static_cast<float>( kMapGridSize.x ),
@@ -41,8 +41,8 @@ private:
   Sprites::Containers::TileMap m_floormap{};
 
   inline static constexpr sf::Vector2f m_player_start_position = sf::Vector2f(
-      CryptScene::kMapGridSizeF.x / 2.f * Constants::kGridSquareSizePixels.x,
-      CryptScene::kMapGridSizeF.y / 2.f * Constants::kGridSquareSizePixels.y );
+      ( CryptScene::kMapGridSizeF.x / 2.f ) * Constants::kGridSquareSizePixels.x,
+      ( CryptScene::kMapGridSizeF.y - 5.f ) * Constants::kGridSquareSizePixels.y );
 };
 
 } // namespace ProceduralMaze::Scene

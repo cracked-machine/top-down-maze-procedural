@@ -6,7 +6,7 @@
 #include <Components/AltarMultiBlock.hpp>
 #include <Components/AltarSegment.hpp>
 #include <Components/Armable.hpp>
-#include <Components/CryptDoor.hpp>
+#include <Components/CryptEntrance.hpp>
 #include <Components/CryptMultiBlock.hpp>
 #include <Components/CryptSegment.hpp>
 #include <Components/GraveMultiBlock.hpp>
@@ -39,11 +39,22 @@ RandomLevelGenerator::RandomLevelGenerator( entt::registry &reg, sf::RenderWindo
 {
 }
 
-void RandomLevelGenerator::generate( sf::Vector2u map_grid_size, bool gen_graves, bool gen_altars, bool gen_crypts )
+void RandomLevelGenerator::generate( RandomLevelGenerator::AreaShape shape, sf::Vector2u map_grid_size, bool gen_graves,
+                                     bool gen_altars, bool gen_crypts )
 {
   m_data.clear();
-  gen_rectangle_gamearea( map_grid_size );
-  // gen_circular_gamearea( map_grid_size );
+  switch ( shape )
+  {
+    case AreaShape::RECTANGLE:
+      gen_rectangle_gamearea( map_grid_size );
+      break;
+    case AreaShape::CIRCLE:
+      gen_circular_gamearea( map_grid_size );
+      break;
+    case AreaShape::CROSS:
+      gen_cross_gamearea( map_grid_size );
+      break;
+  }
   // gen_cross_gamearea( map_grid_size, 5, 0.5, 0.25, 20 );
   if ( gen_graves ) gen_grave_obstacles();
   if ( gen_altars ) gen_altar_obstacles();
@@ -142,12 +153,11 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size )
   }
 }
 
-void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int armHalfWidth,
-                                               float vertHalfLengthModifier, float horizHalfLengthModifier,
+void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int vertArmHalfWidth, int horizArmHalfWidth,
                                                int horizOffset )
 {
   auto player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( getReg() );
-  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF, 5.f,
+  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF, 3.f,
                                             Cmp::RectBounds::ScaleCardinality::BOTH );
 
   unsigned int w = map_grid_size.x; // in tiles
@@ -157,29 +167,29 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int a
   int cy = h / 2;
 
   // arm half-length in tiles
-  int vertHalfLength = h * vertHalfLengthModifier;
-  int horizHalfLength = w * horizHalfLengthModifier;
+  int vertHalfLength = h;
+  int horizHalfLength = w;
 
   // helper: is (x,y) part of the cross?
   auto inCross = [&]( int x, int y ) -> bool
   {
-    if ( x < 0 || y < 0 || x >= (int)w || y >= (int)h ) return false;
+    if ( x < 0 || y < 0 || x >= static_cast<int>( w ) || y >= static_cast<int>( h ) ) return false;
 
     int dx = x - cx;
     int dy = y - cy;
 
     // Vertical arm (centered on cx, cy)
-    bool inVertical = std::abs( dx ) <= armHalfWidth && std::abs( dy ) <= vertHalfLength;
+    bool inVertical = std::abs( dx ) <= vertArmHalfWidth && std::abs( dy ) <= vertHalfLength;
 
     // Horizontal arm (centered on cy + horizOffset)
-    bool inHorizontal = std::abs( ( dy - horizOffset ) ) <= armHalfWidth && std::abs( dx ) <= horizHalfLength;
+    bool inHorizontal = std::abs( ( dy - horizOffset ) ) <= horizArmHalfWidth && std::abs( dx ) <= horizHalfLength;
 
     return inVertical || inHorizontal;
   };
 
-  for ( int x = 0; x < (int)w; ++x )
+  for ( int x = 0; x < static_cast<int>( w ); ++x )
   {
-    for ( int y = 0; y < (int)h; ++y )
+    for ( int y = 0; y < static_cast<int>( h ); ++y )
     {
 
       auto kGridSquareSizePixels = Constants::kGridSquareSizePixels;

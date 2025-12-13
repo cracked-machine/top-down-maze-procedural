@@ -1,5 +1,5 @@
-#ifndef SRC_COMPONENTS_CRYPTDOOR_HPP__
-#define SRC_COMPONENTS_CRYPTDOOR_HPP__
+#ifndef SRC_COMPONENTS_CRYPTEXIT_HPP__
+#define SRC_COMPONENTS_CRYPTEXIT_HPP__
 
 #include <SFML/System/Clock.hpp>
 #include <Sprites/MultiSprite.hpp>
@@ -8,10 +8,10 @@ namespace ProceduralMaze::Cmp
 {
 
 // Used for collision detection on crypt doors
-class CryptDoor
+class CryptExit
 {
 public:
-  CryptDoor( bool is_open = false )
+  CryptExit( bool is_open = false )
       : m_is_open( is_open )
   {
   }
@@ -26,4 +26,4 @@ private:
 
 } // namespace ProceduralMaze::Cmp
 
-#endif // SRC_COMPONENTS_CRYPTDOOR_HPP__
+#endif // SRC_COMPONENTS_CRYPTEXIT_HPP__

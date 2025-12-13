@@ -158,7 +158,7 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
 
 void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, const int blast_radius )
 {
-  sf::Vector2i centerTile = Utils::getGridPosition( getReg(), epicenter_entity ).value();
+  sf::Vector2i centerTile = Utils::getGridPosition<int>( getReg(), epicenter_entity ).value();
   int sequence_counter = 0;
   Factory::createArmed( getReg(), epicenter_entity, Cmp::Armed::EpiCenter::YES, sequence_counter++, centerTile.y - 64 );
 
@@ -177,7 +177,7 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
     {
       if ( destructable_entity == epicenter_entity || getReg().any_of<Cmp::Armed>( destructable_entity ) ) continue;
 
-      sf::Vector2i grid_position = Utils::getGridPosition( getReg(), destructable_entity ).value();
+      sf::Vector2i grid_position = Utils::getGridPosition<int>( getReg(), destructable_entity ).value();
       int distance_from_center = Utils::Maths::getChebyshevDistance( grid_position, centerTile );
 
       if ( distance_from_center == layer )

@@ -62,16 +62,18 @@ inline constexpr sf::Vector2f snap_to_grid( const sf::Vector2f &position ) noexc
 }
 
 //! @brief Get the Grid Position object
-//!
 //! @param entity The entity to get the grid position for.
-//! @return std::optional<sf::Vector2i>
-static std::optional<sf::Vector2i> getGridPosition( entt::registry &registry, entt::entity entity )
+//! @tparam Signedness The signedness of the grid position coordinates (int or unsigned int).
+//! @return std::optional<sf::Vector2<Signedness>>
+template <typename Signedness>
+static std::optional<sf::Vector2<Signedness>> getGridPosition( entt::registry &registry, entt::entity entity )
 {
   auto pos = registry.try_get<Cmp::Position>( entity );
   if ( pos )
   {
-    return std::optional<sf::Vector2i>{ { static_cast<int>( pos->position.x / Constants::kGridSquareSizePixels.x ),
-                                          static_cast<int>( pos->position.y / Constants::kGridSquareSizePixels.y ) } };
+    return std::optional<sf::Vector2<Signedness>>{
+        { static_cast<Signedness>( pos->position.x / Constants::kGridSquareSizePixels.x ),
+          static_cast<Signedness>( pos->position.y / Constants::kGridSquareSizePixels.y ) } };
   }
   else { SPDLOG_ERROR( "Entity {} does not have a Position component", static_cast<int>( entity ) ); }
   return std::nullopt;

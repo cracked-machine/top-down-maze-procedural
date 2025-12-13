@@ -7,7 +7,9 @@ namespace ProceduralMaze::Scene
 {
 
 //! @brief Base class for all scenes that process input events of a specific type
-//! @tparam InputEventType The type of input event to process
+//! @tparam InputEventType The type of input event to process. This essentially means we can "bake in"
+//!         the call to `m_nav_event_dispatcher.enqueue<InputEventType>()` after each update, so that the
+//!         specialization of this class template doesn't have to remember to do that.
 template <typename InputEventType>
 class Scene : public IScene
 {

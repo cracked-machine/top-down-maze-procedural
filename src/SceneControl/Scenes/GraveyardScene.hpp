@@ -1,6 +1,7 @@
 #ifndef SCENE_GRAVEYARDSCENE_HPP_
 #define SCENE_GRAVEYARDSCENE_HPP_
 
+#include <SFML/System/Time.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
 #include <Sprites/TileMap.hpp>
@@ -46,6 +47,9 @@ private:
   inline static constexpr sf::Vector2f m_player_start_position = sf::Vector2f(
       GraveyardScene::kMapGridSize.x / 2.f * Constants::kGridSquareSizePixels.x,
       GraveyardScene::kMapGridSizeF.y / 2.f * Constants::kGridSquareSizePixels.y );
+
+  sf::Clock m_scene_exit_cooldown{};
+  sf::Time m_scene_exit_cooldown_time{ sf::seconds( 2 ) };
 };
 
 } // namespace ProceduralMaze::Scene

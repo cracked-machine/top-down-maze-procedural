@@ -22,13 +22,18 @@ void CryptScene::on_init()
   Sys::PersistSystem::add_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_start_position );
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
-  random_level_sys.generate( CryptScene::kMapGridSize, false, false, false );
+  random_level_sys.generate( Sys::ProcGen::RandomLevelGenerator::AreaShape::CROSS, CryptScene::kMapGridSize, false,
+                             false, false );
 
   auto &cellauto_parser = m_system_store.find<Sys::SystemStore::Type::CellAutomataSystem>();
   cellauto_parser.set_random_level_generator( &random_level_sys );
   cellauto_parser.iterate( 5, CryptScene::kMapGridSize );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, CryptScene::kMapGridSize );
+
+  // pass concrete spawn position to exit spawner
+  m_system_store.find<Sys::SystemStore::Type::CryptSystem>().spawn_exit(
+      sf::Vector2u{ CryptScene::kMapGridSize.x / 2, CryptScene::kMapGridSize.y - 1 } );
 }
 
 void CryptScene::on_enter()
@@ -63,6 +68,9 @@ void CryptScene::do_update( [[maybe_unused]] sf::Time dt )
   m_system_store.find<Sys::SystemStore::Type::NpcSystem>().update( dt );
   m_system_store.find<Sys::SystemStore::Type::BombSystem>().update();
   m_system_store.find<Sys::SystemStore::Type::FootstepSystem>().update();
+  m_system_store.find<Sys::SystemStore::Type::LootSystem>().check_loot_collision();
+  m_system_store.find<Sys::SystemStore::Type::CryptSystem>().check_exit_collision();
+
   // Note: this enqueues 'Events::SceneManagerEvent::Type::GAME_OVER' if player is dead
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt );
 

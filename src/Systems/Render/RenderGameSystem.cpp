@@ -10,7 +10,7 @@
 #include <Components/AbsoluteOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/AltarMultiBlock.hpp>
-#include <Components/CryptDoor.hpp>
+#include <Components/CryptEntrance.hpp>
 #include <Components/CryptMultiBlock.hpp>
 #include <Components/CryptSegment.hpp>
 #include <Components/Exit.hpp>
@@ -165,10 +165,13 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
           safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp,
                               anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame, { 1.f, 1.f }, alpha_value,
                               new_origin_value, new_angle_value );
-
-          if ( getReg().all_of<Cmp::CryptDoor>( entity ) )
-            render_overlay_sys.render_square_for_component<Cmp::CryptDoor>( entity, sf::Color::Magenta, 1.f );
         }
+      }
+
+      for ( const auto &zorder_entry : m_zorder_queue_ )
+      {
+        if ( getReg().all_of<Cmp::CryptEntrance>( zorder_entry.e ) )
+          render_overlay_sys.render_square_for_component<Cmp::CryptEntrance>( zorder_entry.e, sf::Color::Magenta, 1.f );
       }
 
       render_armed();

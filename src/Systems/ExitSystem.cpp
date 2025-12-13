@@ -1,4 +1,5 @@
 #include <Components/Persistent/ExitKeyRequirement.hpp>
+#include <Components/Position.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <Components/Exit.hpp>
@@ -16,6 +17,7 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Random.hpp>
+#include <entt/entity/entity.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -32,21 +34,46 @@ ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
   SPDLOG_DEBUG( "ExitSystem initialized" );
 }
 
-void ExitSystem::spawn_exit()
+void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
 {
-  auto [rand_entity, rand_pos_cmp] = Utils::Rnd::get_random_position(
-      getReg(), {},
-      Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, 0 );
+  if ( spawn_position )
+  {
+    sf::FloatRect spawn_pos_px = sf::FloatRect(
+        { static_cast<float>( spawn_position->x ) * Constants::kGridSquareSizePixels.x,
+          static_cast<float>( spawn_position->y ) * Constants::kGridSquareSizePixels.y },
+        Constants::kGridSquareSizePixelsF );
 
-  auto existing_obstacle_cmp = getReg().try_get<Cmp::Obstacle>( rand_entity );
-  if ( existing_obstacle_cmp ) { getReg().remove<Cmp::Obstacle>( rand_entity ); }
+    // remove any wall
+    for ( auto [entt, wall_cmp, pos_cmp] : getReg().view<Cmp::Wall, Cmp::Position>().each() )
+    {
+      if ( spawn_pos_px.findIntersection( pos_cmp ) ) { getReg().remove<Cmp::Wall>( entt ); }
+    }
 
-  getReg().emplace_or_replace<Cmp::Exit>( rand_entity, true ); // locked at start
-  getReg().emplace_or_replace<Cmp::SpriteAnimation>( rand_entity, 0, 0, true, "WALL", 0 );
-  getReg().emplace_or_replace<Cmp::ZOrderValue>( rand_entity, rand_pos_cmp.position.y );
-  getReg().emplace_or_replace<Cmp::NoPathFinding>( rand_entity );
+    auto entity = getReg().create();
+    getReg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, Constants::kGridSquareSizePixelsF );
+    getReg().emplace_or_replace<Cmp::Exit>( entity, true ); // locked at start
+    getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", 1 );
+    getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.position.y );
+    getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
 
-  SPDLOG_INFO( "Exit spawned at position ({}, {})", rand_pos_cmp.position.x, rand_pos_cmp.position.y );
+    SPDLOG_INFO( "Exit spawned at position ({}, {})", spawn_position->x, spawn_position->y );
+    return;
+  }
+  else
+  {
+    auto [rand_entity, rand_pos_cmp] = Utils::Rnd::get_random_position(
+        getReg(), {},
+        Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, 0 );
+
+    auto existing_obstacle_cmp = getReg().try_get<Cmp::Obstacle>( rand_entity );
+    if ( existing_obstacle_cmp ) { getReg().remove<Cmp::Obstacle>( rand_entity ); }
+
+    getReg().emplace_or_replace<Cmp::Exit>( rand_entity, true ); // locked at start
+    getReg().emplace_or_replace<Cmp::SpriteAnimation>( rand_entity, 0, 0, true, "WALL", 0 );
+    getReg().emplace_or_replace<Cmp::ZOrderValue>( rand_entity, rand_pos_cmp.position.y );
+    getReg().emplace_or_replace<Cmp::NoPathFinding>( rand_entity );
+    SPDLOG_INFO( "Exit spawned at position ({}, {})", rand_pos_cmp.position.x, rand_pos_cmp.position.y );
+  }
 }
 
 void ExitSystem::unlock_exit()

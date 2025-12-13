@@ -74,7 +74,7 @@ void RenderMenuSystem::render_title()
     sf::Color txt_color{ 64, 96, 184 };
     sf::Color txt_outline_color{ 48, 48, 48 };
     sf::Vector2u display_size = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
-    SPDLOG_INFO( "Display size in render title: {}x{}", display_size.x, display_size.y );
+
     render_text( "Resurrectionist", display_size.x / 20, { display_size.x * 0.25f, display_size.y * 0.25f },
                  Alignment::CENTER, 2.f, txt_outline_color );
 
@@ -130,7 +130,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     const float kFontScaleFactor = 1280.f;
 
     ImVec2 window_size = ImVec2( display_resolution.x - padding_px,
-                                 display_resolution.y - (title_bounds.size.y * 2 ) - padding_px );
+                                 display_resolution.y - ( title_bounds.size.y * 2 ) - padding_px );
     ImGui::SetWindowSize( "Settings", window_size );
     ImGui::SetWindowPos( "Settings", ImVec2( padding_px, title_bounds.size.y * 2 ) );
     ImGui::SetWindowFontScale( display_resolution.x / kFontScaleFactor );
@@ -150,7 +150,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
       m_title_screen_shader->resize_texture( display_resolution );
       init_title();
 
-      SPDLOG_INFO( "Selected resolution: {}x{}", display_resolution.x, display_resolution.y );
+      // SPDLOG_INFO( "Selected resolution: {}x{}", display_resolution.x, display_resolution.y );
       // Apply resolution change here
     }
 

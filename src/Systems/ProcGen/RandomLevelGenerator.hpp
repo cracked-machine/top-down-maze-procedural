@@ -26,11 +26,13 @@ namespace ProceduralMaze::Sys::ProcGen
 class RandomLevelGenerator : public BaseSystem
 {
 public:
-  RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window,
-                        Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  enum class AreaShape { RECTANGLE, CIRCLE, CROSS };
+
+  RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                        Audio::SoundBank &sound_bank );
   ~RandomLevelGenerator() = default;
 
-  void generate( sf::Vector2u map_grid_size, bool gen_graves, bool gen_altars, bool gen_crypts );
+  void generate( AreaShape shape, sf::Vector2u map_grid_size, bool gen_graves, bool gen_altars, bool gen_crypts );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}
@@ -49,13 +51,11 @@ public:
   //! @param horizHalfLengthModifier modifier for horizontal arm half-length, i.e. 0.25 = quarter
   //! the map width
   //! @param horizOffset move horizontal arm up by N tiles (positive pushes it downward)
-  void gen_cross_gamearea( sf::Vector2u map_grid_size, int armHalfWidth,
-                           float vertHalfLengthModifier, float horizHalfLengthModifier,
-                           int horizOffset );
+  void gen_cross_gamearea( sf::Vector2u map_grid_size, int vertArmHalfWidth = 10, int horizArmHalfWidth = 5,
+                           int horizOffset = 10 );
 
   // Find a valid spawn location for a large obstacle given a seed
-  std::pair<entt::entity, Cmp::Position> find_spawn_location( const Sprites::MultiSprite &ms,
-                                                              unsigned long seed );
+  std::pair<entt::entity, Cmp::Position> find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed );
 
   // Generate a large obstacle at a random valid position (graves, shrines, crypts)
   void gen_large_obstacle( const Sprites::MultiSprite &ms, unsigned long seed );
