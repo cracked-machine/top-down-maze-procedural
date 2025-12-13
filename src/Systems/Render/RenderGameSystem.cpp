@@ -63,7 +63,6 @@ void RenderGameSystem::refresh_z_order_queue()
   sf::FloatRect view_bounds = Utils::calculate_view_bounds( m_local_view );
 
   // prevent pop-in/pop-outs when multiblock entities are near the edge of the view
-  add_visible_entity_to_z_order_queue<Cmp::WormholeMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::AltarMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::CryptMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::GraveMultiBlock>( m_zorder_queue_, view_bounds );
@@ -175,6 +174,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       }
 
       render_armed();
+      render_wormhole_effect( floormap );
       render_arrow_compass();
       render_mist( player_position );
     }
@@ -318,6 +318,39 @@ void RenderGameSystem::render_mist( sf::FloatRect player_position )
 
   m_window.draw( m_mist_shader );
   m_window.draw( m_pulsing_shader );
+}
+
+void RenderGameSystem::render_wormhole_effect( Sprites::Containers::TileMap &floormap )
+{
+  auto wormhole_view = getReg().view<Cmp::WormholeMultiBlock, Cmp::Position, Cmp::SpriteAnimation>();
+  for ( auto [entity, wormhole_cmp, pos_cmp, anim_cmp] : wormhole_view.each() )
+  {
+    try
+    {
+      auto &wormhole_sprite = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
+      // Setup shader
+      m_wormhole_shader.update_shader_position( pos_cmp.position, Sprites::ViewFragmentShader::Align::TOPLEFT );
+
+      // Draw background onto shader texture
+      floormap.draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
+
+      safe_render_sprite_to_target( m_wormhole_shader.get_render_texture(), wormhole_sprite.get_sprite_type(),
+                                    wormhole_cmp, anim_cmp.m_current_frame );
+
+      // Update and draw shader
+      Sprites::UniformBuilder builder;
+      builder.set( "time", m_wormhole_shader.getElapsedTime().asSeconds() )
+          .set( "screenSize", m_wormhole_shader.get_view_size() )
+          .set( "centerPosition", m_wormhole_shader.get_view_center() );
+      m_wormhole_shader.Sprites::BaseFragmentShader::update( builder );
+
+      m_wormhole_shader.draw( m_window, sf::RenderStates::Default );
+    } catch ( const std::out_of_range &e )
+    {
+      SPDLOG_WARN( "Missing wormhole sprite '{}' in map, rendering fallback square", "WORMHOLE" );
+      render_fallback_square( pos_cmp, sf::Color::Magenta );
+    }
+  }
 }
 
 void RenderGameSystem::render_arrow_compass()

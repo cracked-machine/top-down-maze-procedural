@@ -69,6 +69,8 @@ private:
   //! @brief Renders the arrow compass effect
   void render_arrow_compass();
 
+  void render_wormhole_effect( Sprites::Containers::TileMap &floormap );
+
   //! @brief Adds visible entities of a specific component type to the Z-order queue
   //! Optimized (single-type view) query on entt components for visibility check and Z-order queue
   //! addition
