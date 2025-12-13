@@ -107,5 +107,8 @@
     "editor.indentSize": "tabSize",
     "editor.tabSize": 2,
     "[cpp]": {
-    }
+    },
+
+    // stop tripping over the hover pages when browsing the code
+    "editor.hover.delay": 2000
 }

@@ -16,6 +16,7 @@
 #include <Factory/ObstacleFactory.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <Utils/Maths.hpp>
+#include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 #include <optional>
 #include <spdlog/spdlog.h>
@@ -106,8 +107,9 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
     if ( event.action == Events::PlayerActionEvent::GameActions::GRAVE_BOMB )
     {
       auto search_area = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 3.f );
-      candidate_entity = get_random_nearby_disabled_obstacle( search_area.getBounds(), IncludePack<Cmp::Armable>{},
-                                                              ExcludePack<Cmp::Exit>{} );
+      candidate_entity = Utils::Rnd::get_random_nearby_disabled_obstacle( getReg(), search_area.getBounds(),
+                                                                          Utils::Rnd::IncludePack<Cmp::Armable>{},
+                                                                          Utils::Rnd::ExcludePack<Cmp::Exit>{} );
       auto pos_cmp = getReg().try_get<Cmp::Position>( candidate_entity );
       if ( pos_cmp )
         SPDLOG_DEBUG( "Returned candidate entity: {}, pos: {},{}", static_cast<uint32_t>( candidate_entity ),
@@ -236,8 +238,8 @@ void BombSystem::update()
         getReg(), 
         Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),                                        
         sf::FloatRect{ loot_pos_cmp.position, loot_pos_cmp.size }, 
-        Sys::BaseSystem::IncludePack<>{},
-        Sys::BaseSystem::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition>{} );
+        Factory::IncludePack<>{},
+        Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition>{} );
       // clang-format on
 
       if ( loot_entt != entt::null ) { m_sound_bank.get_effect( "break_pot" ).play(); }

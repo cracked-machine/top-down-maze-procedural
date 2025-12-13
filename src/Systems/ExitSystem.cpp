@@ -15,30 +15,28 @@
 #include <Systems/ExitSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Random.hpp>
 
 namespace ProceduralMaze::Sys
 {
 
-ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window,
-                        Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
-                        entt::dispatcher &scenemanager_event_dispatcher )
+ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                        Audio::SoundBank &sound_bank, entt::dispatcher &scenemanager_event_dispatcher )
     : BaseSystem( reg, window, sprite_factory, sound_bank ),
       m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
   // the constructor
-  std::ignore = get_systems_event_queue()
-                    .sink<Events::UnlockDoorEvent>()
-                    .connect<&ExitSystem::on_door_unlock_event>( this );
+  std::ignore = get_systems_event_queue().sink<Events::UnlockDoorEvent>().connect<&ExitSystem::on_door_unlock_event>(
+      this );
   SPDLOG_DEBUG( "ExitSystem initialized" );
 }
 
 void ExitSystem::spawn_exit()
 {
-  auto [rand_entity, rand_pos_cmp] = get_random_position(
-      {},
-      ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{},
-      0 );
+  auto [rand_entity, rand_pos_cmp] = Utils::Rnd::get_random_position(
+      getReg(), {},
+      Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, 0 );
 
   auto existing_obstacle_cmp = getReg().try_get<Cmp::Obstacle>( rand_entity );
   if ( existing_obstacle_cmp ) { getReg().remove<Cmp::Obstacle>( rand_entity ); }
@@ -48,8 +46,7 @@ void ExitSystem::spawn_exit()
   getReg().emplace_or_replace<Cmp::ZOrderValue>( rand_entity, rand_pos_cmp.position.y );
   getReg().emplace_or_replace<Cmp::NoPathFinding>( rand_entity );
 
-  SPDLOG_INFO( "Exit spawned at position ({}, {})", rand_pos_cmp.position.x,
-               rand_pos_cmp.position.y );
+  SPDLOG_INFO( "Exit spawned at position ({}, {})", rand_pos_cmp.position.x, rand_pos_cmp.position.y );
 }
 
 void ExitSystem::unlock_exit()
@@ -59,8 +56,7 @@ void ExitSystem::unlock_exit()
   for ( auto [pk_entity, pk_cmp] : player_key_view.each() )
   {
     if ( pk_cmp.get_count() <
-         Sys::PersistSystem::get_persist_cmp<Cmp::Persist::ExitKeyRequirement>( getReg() )
-             .get_value() )
+         Sys::PersistSystem::get_persist_cmp<Cmp::Persist::ExitKeyRequirement>( getReg() ).get_value() )
     {
       SPDLOG_DEBUG( "Not enough keys to unlock exit ({} / {})", pk_cmp.get_count(),
                     get_persistent_component<Cmp::Persist::ExitKeyRequirement>().get_value() );
@@ -84,11 +80,9 @@ void ExitSystem::check_exit_collision()
   auto exit_view = getReg().view<Cmp::Exit, Cmp::Position>();
   for ( auto [entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
   {
-    auto max_num_shrines = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumAltars>(
-        getReg() );
+    auto max_num_shrines = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumAltars>( getReg() );
     if ( exit_cmp.m_locked == true ) return;
-    for ( auto [player_entity, pc_cmp, pc_pos_cmp] :
-          getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+    for ( auto [player_entity, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
     {
       if ( pc_pos_cmp.findIntersection( exit_pos_cmp ) )
       {

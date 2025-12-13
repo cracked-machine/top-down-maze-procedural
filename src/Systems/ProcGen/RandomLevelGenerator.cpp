@@ -28,19 +28,18 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
+#include <Utils/Random.hpp>
 
 namespace ProceduralMaze::Sys::ProcGen
 {
 
 RandomLevelGenerator::RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window,
-                                            Sprites::SpriteFactory &sprite_factory,
-                                            Audio::SoundBank &sound_bank )
+                                            Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
 }
 
-void RandomLevelGenerator::generate( sf::Vector2u map_grid_size, bool gen_graves, bool gen_altars,
-                                     bool gen_crypts )
+void RandomLevelGenerator::generate( sf::Vector2u map_grid_size, bool gen_graves, bool gen_altars, bool gen_crypts )
 {
   m_data.clear();
   gen_rectangle_gamearea( map_grid_size );
@@ -56,11 +55,9 @@ void RandomLevelGenerator::generate( sf::Vector2u map_grid_size, bool gen_graves
 
 void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
 {
-  sf::Vector2f
-      player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>(
-          getReg() );
-  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF,
-                                            5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
+  sf::Vector2f player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( getReg() );
+  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF, 5.f,
+                                            Cmp::RectBounds::ScaleCardinality::BOTH );
 
   unsigned int w = map_grid_size.x;
   unsigned int h = map_grid_size.y;
@@ -69,8 +66,7 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
   {
     for ( unsigned int y = 0; y < h; y++ )
     {
-      sf::Vector2f new_pos(
-          { x * Constants::kGridSquareSizePixelsF.x, y * Constants::kGridSquareSizePixelsF.y } );
+      sf::Vector2f new_pos( { x * Constants::kGridSquareSizePixelsF.x, y * Constants::kGridSquareSizePixelsF.y } );
 
       // condition for left, right, top, bottom borders
       bool isBorder = ( x == 0 ) || ( y == 0 ) || ( x == w - 1 ) || ( y == h - 1 );
@@ -95,10 +91,9 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
 
 void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size )
 {
-  auto player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>(
-      getReg() );
-  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF,
-                                            5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
+  auto player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( getReg() );
+  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF, 5.f,
+                                            Cmp::RectBounds::ScaleCardinality::BOTH );
 
   unsigned int w = map_grid_size.x;
   unsigned int h = map_grid_size.y;
@@ -148,13 +143,12 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size )
 }
 
 void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int armHalfWidth,
-                                               float vertHalfLengthModifier,
-                                               float horizHalfLengthModifier, int horizOffset )
+                                               float vertHalfLengthModifier, float horizHalfLengthModifier,
+                                               int horizOffset )
 {
-  auto player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>(
-      getReg() );
-  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF,
-                                            5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
+  auto player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( getReg() );
+  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF, 5.f,
+                                            Cmp::RectBounds::ScaleCardinality::BOTH );
 
   unsigned int w = map_grid_size.x; // in tiles
   unsigned int h = map_grid_size.y; // in tiles
@@ -178,8 +172,7 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int a
     bool inVertical = std::abs( dx ) <= armHalfWidth && std::abs( dy ) <= vertHalfLength;
 
     // Horizontal arm (centered on cy + horizOffset)
-    bool inHorizontal = std::abs( ( dy - horizOffset ) ) <= armHalfWidth &&
-                        std::abs( dx ) <= horizHalfLength;
+    bool inHorizontal = std::abs( ( dy - horizOffset ) ) <= armHalfWidth && std::abs( dx ) <= horizHalfLength;
 
     return inVertical || inHorizontal;
   };
@@ -196,8 +189,7 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int a
       if ( !inside ) continue; // outside cross, skip
 
       // 1-tile border: any 4-neighbor outside the cross
-      bool isBorder = !inCross( x - 1, y ) || !inCross( x + 1, y ) || !inCross( x, y - 1 ) ||
-                      !inCross( x, y + 1 );
+      bool isBorder = !inCross( x - 1, y ) || !inCross( x + 1, y ) || !inCross( x, y - 1 ) || !inCross( x, y + 1 );
 
       if ( isBorder ) { add_wall_entity( new_pos, 0 ); }
       else
@@ -217,8 +209,8 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int a
   }
 }
 
-std::pair<entt::entity, Cmp::Position>
-RandomLevelGenerator::find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed )
+std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location( const Sprites::MultiSprite &ms,
+                                                                                  unsigned long seed )
 {
   constexpr int kMaxAttempts = 1000;
   int attempts = 0;
@@ -226,9 +218,9 @@ RandomLevelGenerator::find_spawn_location( const Sprites::MultiSprite &ms, unsig
 
   while ( attempts < kMaxAttempts )
   {
-    auto [random_entity, random_pos] = get_random_position(
-        IncludePack<>{}, ExcludePack<Cmp::Wall, Cmp::ReservedPosition, Cmp::PlayableCharacter>{},
-        current_seed );
+    auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
+        getReg(), Utils::Rnd::IncludePack<>{},
+        Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::ReservedPosition, Cmp::PlayableCharacter>{}, current_seed );
 
     auto lo_sprite_size = m_sprite_factory.get_sprite_size_by_type( ms.get_sprite_type() );
     Cmp::RectBounds new_lo_hitbox( random_pos.position, lo_sprite_size, 1.f );
@@ -237,29 +229,25 @@ RandomLevelGenerator::find_spawn_location( const Sprites::MultiSprite &ms, unsig
     auto is_valid = [&]() -> bool
     {
       // return false for wall collisions
-      for ( auto [entity, wall_cmp, wall_pos_cmp] :
-            getReg().view<Cmp::Wall, Cmp::Position>().each() )
+      for ( auto [entity, wall_cmp, wall_pos_cmp] : getReg().view<Cmp::Wall, Cmp::Position>().each() )
       {
         if ( wall_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       // Return false for grave collisions
-      for ( auto [entity, grave_cmp, grave_pos_cmp] :
-            getReg().view<Cmp::GraveSegment, Cmp::Position>().each() )
+      for ( auto [entity, grave_cmp, grave_pos_cmp] : getReg().view<Cmp::GraveSegment, Cmp::Position>().each() )
       {
         if ( grave_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       // Return false for altar collisions
-      for ( auto [entity, altar_cmp, altar_pos_cmp] :
-            getReg().view<Cmp::AltarSegment, Cmp::Position>().each() )
+      for ( auto [entity, altar_cmp, altar_pos_cmp] : getReg().view<Cmp::AltarSegment, Cmp::Position>().each() )
       {
         if ( altar_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       // Return false for crypt collisions
-      for ( auto [entity, crypt_cmp, crypt_pos_cmp] :
-            getReg().view<Cmp::CryptSegment, Cmp::Position>().each() )
+      for ( auto [entity, crypt_cmp, crypt_pos_cmp] : getReg().view<Cmp::CryptSegment, Cmp::Position>().each() )
       {
         if ( crypt_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
@@ -272,15 +260,13 @@ RandomLevelGenerator::find_spawn_location( const Sprites::MultiSprite &ms, unsig
       }
 
       // Return false for spawn area collisions
-      for ( auto [entity, spawn_cmp, spawn_pos_cmp] :
-            getReg().view<Cmp::SpawnArea, Cmp::Position>().each() )
+      for ( auto [entity, spawn_cmp, spawn_pos_cmp] : getReg().view<Cmp::SpawnArea, Cmp::Position>().each() )
       {
         if ( spawn_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       // Return false for playable character collisions
-      for ( auto [entity, player_cmp, player_pos_cmp] :
-            getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+      for ( auto [entity, player_cmp, player_pos_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
       {
         if ( player_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
@@ -292,9 +278,8 @@ RandomLevelGenerator::find_spawn_location( const Sprites::MultiSprite &ms, unsig
     {
       if ( current_seed != seed && seed > 0 )
       {
-        SPDLOG_WARN(
-            "Large Obstacle spawn: original seed {} was invalid, used seed {} instead (attempt {})",
-            seed, current_seed, attempts + 1 );
+        SPDLOG_WARN( "Large Obstacle spawn: original seed {} was invalid, used seed {} instead (attempt {})", seed,
+                     current_seed, attempts + 1 );
       }
       return { random_entity, random_pos };
     }
@@ -304,9 +289,8 @@ RandomLevelGenerator::find_spawn_location( const Sprites::MultiSprite &ms, unsig
     if ( seed > 0 ) { current_seed++; }
   }
 
-  SPDLOG_ERROR(
-      "Failed to find valid large obstacle spawn location after {} attempts (original seed: {})",
-      kMaxAttempts, seed );
+  SPDLOG_ERROR( "Failed to find valid large obstacle spawn location after {} attempts (original seed: {})",
+                kMaxAttempts, seed );
   return { entt::null, Cmp::Position{ { 0.f, 0.f }, { 0.f, 0.f } } };
 }
 
@@ -321,50 +305,43 @@ void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &ms, u
 
   if ( ms.get_sprite_type().contains( "ALTAR" ) )
   {
-    Factory::createMultiblock<Cmp::AltarMultiBlock>( getReg(), random_entity,
-                                                     random_origin_position, ms );
-    Factory::createMultiblockSegments<Cmp::AltarMultiBlock, Cmp::AltarSegment>(
-        getReg(), random_entity, random_origin_position, ms );
+    Factory::createMultiblock<Cmp::AltarMultiBlock>( getReg(), random_entity, random_origin_position, ms );
+    Factory::createMultiblockSegments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( getReg(), random_entity,
+                                                                                random_origin_position, ms );
   }
   else if ( ms.get_sprite_type().contains( "GRAVE" ) )
   {
-    Factory::createMultiblock<Cmp::GraveMultiBlock>( getReg(), random_entity,
-                                                     random_origin_position, ms );
-    Factory::createMultiblockSegments<Cmp::GraveMultiBlock, Cmp::GraveSegment>(
-        getReg(), random_entity, random_origin_position, ms );
+    Factory::createMultiblock<Cmp::GraveMultiBlock>( getReg(), random_entity, random_origin_position, ms );
+    Factory::createMultiblockSegments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( getReg(), random_entity,
+                                                                                random_origin_position, ms );
   }
   else if ( ms.get_sprite_type().contains( "CRYPT" ) )
   {
-    Factory::createMultiblock<Cmp::CryptMultiBlock>( getReg(), random_entity,
-                                                     random_origin_position, ms );
-    Factory::createMultiblockSegments<Cmp::CryptMultiBlock, Cmp::CryptSegment>(
-        getReg(), random_entity, random_origin_position, ms );
+    Factory::createMultiblock<Cmp::CryptMultiBlock>( getReg(), random_entity, random_origin_position, ms );
+    Factory::createMultiblockSegments<Cmp::CryptMultiBlock, Cmp::CryptSegment>( getReg(), random_entity,
+                                                                                random_origin_position, ms );
   }
   else
   {
-    SPDLOG_ERROR( "gen_large_obstacle called with unsupported multisprite type: {}",
-                  ms.get_sprite_type() );
+    SPDLOG_ERROR( "gen_large_obstacle called with unsupported multisprite type: {}", ms.get_sprite_type() );
     return;
   }
 }
 
 void RandomLevelGenerator::gen_grave_obstacles()
 {
-  auto grave_num_multiplier = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::GraveNumMultiplier>(
-      getReg() );
+  auto grave_num_multiplier = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::GraveNumMultiplier>( getReg() );
   auto max_num_altars = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumAltars>( getReg() );
 
   // GRAVES
-  auto grave_meta_types = m_sprite_factory.get_all_sprite_types_by_pattern(
-      "^GRAVE\\d+\\.closed$" );
+  auto grave_meta_types = m_sprite_factory.get_all_sprite_types_by_pattern( "^GRAVE\\d+\\.closed$" );
   if ( grave_meta_types.empty() ) { SPDLOG_WARN( "No GRAVE multisprites found in SpriteFactory" ); }
   else
   {
     uint8_t max_num_graves = max_num_altars.get_value() * grave_num_multiplier.get_value();
     for ( std::size_t i = 0; i < max_num_graves; ++i )
     {
-      auto [sprite_metatype,
-            unused_index] = m_sprite_factory.get_random_type_and_texture_index( grave_meta_types );
+      auto [sprite_metatype, unused_index] = m_sprite_factory.get_random_type_and_texture_index( grave_meta_types );
       auto &multisprite = m_sprite_factory.get_multisprite_by_type( sprite_metatype );
       gen_large_obstacle( multisprite, 0 );
     }
@@ -395,8 +372,7 @@ void RandomLevelGenerator::gen_crypt_obstacles()
 
 void RandomLevelGenerator::gen_small_obstacles()
 {
-  auto position_view = getReg().view<Cmp::Position>(
-      entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
+  auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
   for ( auto [entity, pos_cmp] : position_view.each() )
   {
     // clang-format off
@@ -410,21 +386,19 @@ void RandomLevelGenerator::gen_small_obstacles()
     {
       float zorder = m_sprite_factory.get_sprite_size_by_type( "ROCK" ).y;
       // Set the z-order value so that the rock obstacles are rendered above everything else
-      Factory::createObstacle( getReg(), entity, pos_cmp, obst_type, rand_obst_tex_idx,
-                               ( zorder * 2.f ) );
+      Factory::createObstacle( getReg(), entity, pos_cmp, obst_type, rand_obst_tex_idx, ( zorder * 2.f ) );
     }
   }
 }
 
 void RandomLevelGenerator::gen_loot_containers( sf::Vector2u map_grid_size )
 {
-  auto num_loot_containers = map_grid_size.x * map_grid_size.y /
-                             60; // one loot container per 60 grid squares
+  auto num_loot_containers = map_grid_size.x * map_grid_size.y / 60; // one loot container per 60 grid squares
 
   for ( std::size_t i = 0; i < num_loot_containers; ++i )
   {
-    auto [random_entity, random_origin_position] = get_random_position(
-        {}, ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
+    auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
+        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
 
     // pick a random loot container type and texture index
     // clang-format off
@@ -436,20 +410,19 @@ void RandomLevelGenerator::gen_loot_containers( sf::Vector2u map_grid_size )
 
     float zorder = m_sprite_factory.get_sprite_size_by_type( loot_type ).y;
 
-    Factory::createLootContainer( getReg(), random_entity, random_origin_position, loot_type,
-                                  rand_loot_tex_idx, zorder );
+    Factory::createLootContainer( getReg(), random_entity, random_origin_position, loot_type, rand_loot_tex_idx,
+                                  zorder );
   }
 }
 
 void RandomLevelGenerator::gen_npc_containers( sf::Vector2u map_grid_size )
 {
-  auto num_npc_containers = map_grid_size.x * map_grid_size.y /
-                            200; // one NPC container per 200 grid squares
+  auto num_npc_containers = map_grid_size.x * map_grid_size.y / 200; // one NPC container per 200 grid squares
 
   for ( std::size_t i = 0; i < num_npc_containers; ++i )
   {
-    auto [random_entity, random_origin_position] = get_random_position(
-        {}, ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
+    auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
+        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
 
     // pick a random loot container type and texture index
     // clang-format off
@@ -459,8 +432,7 @@ void RandomLevelGenerator::gen_npc_containers( sf::Vector2u map_grid_size )
       } );
     // clang-format on
 
-    Factory::createNpcContainer( getReg(), random_entity, random_origin_position, npc_type,
-                                 rand_npc_tex_idx, 0.f );
+    Factory::createNpcContainer( getReg(), random_entity, random_origin_position, npc_type, rand_npc_tex_idx, 0.f );
   }
 }
 

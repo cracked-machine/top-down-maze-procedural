@@ -6,13 +6,16 @@
 #include <Components/Position.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Factory/Factory.hpp>
 #include <Systems/BaseSystem.hpp>
+
 #include <entt/entity/registry.hpp>
 
 namespace ProceduralMaze::Factory
 {
-void createLootContainer( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
-                          std::size_t sprite_tile_idx, float zorder );
+
+void createLootContainer( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp,
+                          Sprites::SpriteMetaType sprite_type, std::size_t sprite_tile_idx, float zorder );
 
 void destroyLootContainer( entt::registry &registry, entt::entity loot_entity );
 
@@ -33,8 +36,8 @@ void destroyLootContainer( entt::registry &registry, entt::entity loot_entity );
  * @return entt::entity The newly created loot entity, or entt::null if no suitable location was found.
  */
 template <typename... Include, typename... Exclude>
-inline entt::entity createLootDrop( entt::registry &registry, Cmp::SpriteAnimation &&loot_anim_cmp, sf::FloatRect search,
-                                    Sys::BaseSystem::IncludePack<Include...>, Sys::BaseSystem::ExcludePack<Exclude...> )
+inline entt::entity createLootDrop( entt::registry &registry, Cmp::SpriteAnimation &&loot_anim_cmp,
+                                    sf::FloatRect search, IncludePack<Include...>, ExcludePack<Exclude...> )
 {
   entt::entity new_loot_entity = entt::null;
   auto pos_view = registry.view<Cmp::Position, Include...>( entt::exclude<Exclude...> );
@@ -51,8 +54,8 @@ inline entt::entity createLootDrop( entt::registry &registry, Cmp::SpriteAnimati
       registry.emplace<Cmp::SpriteAnimation>( new_loot_entity, loot_anim_cmp );
       registry.emplace<Cmp::ZOrderValue>( new_loot_entity, pos_cmp.position.y - 16.f );
       registry.emplace<Cmp::Loot>( new_loot_entity );
-      SPDLOG_DEBUG( "Created loot entity {} of type {} at position ({}, {})", static_cast<int>( new_loot_entity ), loot_anim_cmp.m_sprite_type,
-                    pos_cmp.position.x, pos_cmp.position.y );
+      SPDLOG_DEBUG( "Created loot entity {} of type {} at position ({}, {})", static_cast<int>( new_loot_entity ),
+                    loot_anim_cmp.m_sprite_type, pos_cmp.position.x, pos_cmp.position.y );
       return new_loot_entity;
     }
   }

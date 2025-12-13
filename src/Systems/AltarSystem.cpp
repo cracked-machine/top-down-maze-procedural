@@ -140,8 +140,8 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
         Cmp::SpriteAnimation{0,0,true, "KEY_DROP", 0 },
         sf::FloatRect{ altar_cmp_bounds.position(), 
         altar_cmp_bounds.size() }, 
-        IncludePack<>{},
-        ExcludePack<Cmp::PlayableCharacter, Cmp::AltarSegment, Cmp::SpawnArea>{} 
+        Factory::IncludePack<>{},
+        Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::AltarSegment, Cmp::SpawnArea>{} 
       );
       // clang-format on
       if ( obst_entity != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
@@ -243,8 +243,8 @@ bool AltarSystem::activate_altar_special_power()
         getReg(), 
         Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),                                        
         sf::FloatRect{ lc_pos_cmp.position, lc_pos_cmp.size }, 
-        Sys::BaseSystem::IncludePack<>{},
-        Sys::BaseSystem::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition>{} );
+        Factory::IncludePack<>{},
+        Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition>{} );
       // clang-format on
 
       if ( loot_entt != entt::null ) { m_sound_bank.get_effect( "break_pot" ).play(); }

@@ -1,6 +1,7 @@
 #ifndef SRC_SYSTEMS_HAZARDFIELDSYSTEM_HPP__
 #define SRC_SYSTEMS_HAZARDFIELDSYSTEM_HPP__
 
+#include <Utils/Random.hpp>
 #include <entt/entity/fwd.hpp>
 
 #include <SFML/System/Clock.hpp>
@@ -130,9 +131,10 @@ public:
     if ( hazard_field_view.size_hint() > 0 ) { return; }
 
     unsigned long seed = Sys::PersistSystem::get_persist_cmp<typename Traits::SeedType>( getReg() ).get_value();
-    auto [random_entity, random_pos] = get_random_position(
-        IncludePack<Cmp::Obstacle>{},
-        ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
+    auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
+        getReg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{},
+        Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(),
+        seed );
     if ( random_entity == entt::null ) { return; }
 
     Factory::destroyObstacle( getReg(), random_entity );

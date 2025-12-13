@@ -6,6 +6,7 @@
 #include <Components/NpcDeathPosition.hpp>
 #include <Components/Persistent/NpcScanScale.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Factory/Factory.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Sprites/MultiSprite.hpp>
@@ -19,14 +20,12 @@ namespace ProceduralMaze::Factory
 {
 
 void createNpcContainer( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp,
-                         Sprites::SpriteMetaType sprite_type, std::size_t sprite_tile_idx,
-                         float zorder )
+                         Sprites::SpriteMetaType sprite_type, std::size_t sprite_tile_idx, float zorder )
 {
   registry.emplace_or_replace<Cmp::ReservedPosition>( entt );
   registry.emplace_or_replace<Cmp::Armable>( entt );
   registry.emplace_or_replace<Cmp::NpcContainer>( entt );
-  registry.emplace_or_replace<Cmp::SpriteAnimation>( entt, 0, 0, true, sprite_type,
-                                                     sprite_tile_idx );
+  registry.emplace_or_replace<Cmp::SpriteAnimation>( entt, 0, 0, true, sprite_type, sprite_tile_idx );
   registry.emplace_or_replace<Cmp::ZOrderValue>( entt, pos_cmp.position.y - zorder );
 }
 
@@ -37,41 +36,34 @@ void destroyNpcContainer( entt::registry &registry, entt::entity npc_container_e
   registry.remove<Cmp::ZOrderValue>( npc_container_entity );
 }
 
-void createNPC( entt::registry &registry, entt::entity position_entity,
-                const Sprites::SpriteMetaType &type )
+void createNPC( entt::registry &registry, entt::entity position_entity, const Sprites::SpriteMetaType &type )
 {
 
   auto pos_cmp = registry.try_get<Cmp::Position>( position_entity );
   if ( not pos_cmp )
   {
-    SPDLOG_ERROR( "Cannot add NPC entity {} without a Position component",
-                  static_cast<int>( position_entity ) );
+    SPDLOG_ERROR( "Cannot add NPC entity {} without a Position component", static_cast<int>( position_entity ) );
     return;
   }
 
   // create a new entity for the NPC using the existing position
   auto new_pos_entity = registry.create();
-  registry.emplace<Cmp::Position>( new_pos_entity, pos_cmp->position,
-                                   Constants::kGridSquareSizePixelsF );
+  registry.emplace<Cmp::Position>( new_pos_entity, pos_cmp->position, Constants::kGridSquareSizePixelsF );
   registry.emplace<Cmp::Armable>( new_pos_entity );
   registry.emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 0, 0 } );
-  auto &npc_scan_scale = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcScanScale>(
-      registry );
-  registry.emplace_or_replace<Cmp::NPCScanBounds>( new_pos_entity, pos_cmp->position,
-                                                   Constants::kGridSquareSizePixelsF,
+  auto &npc_scan_scale = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcScanScale>( registry );
+  registry.emplace_or_replace<Cmp::NPCScanBounds>( new_pos_entity, pos_cmp->position, Constants::kGridSquareSizePixelsF,
                                                    npc_scan_scale.get_value() );
   if ( type == "NPCGHOST" )
   {
     registry.emplace_or_replace<Cmp::NPC>( new_pos_entity );
-    registry.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true,
-                                                       "NPCGHOST.walk.east" );
+    registry.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, "NPCGHOST.walk.east" );
     registry.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
   }
   else if ( type == "NPCSKELE" )
   {
     registry.emplace_or_replace<Cmp::NPC>( new_pos_entity );
-    registry.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true,
-                                                       "NPCSKELE.walk.east" );
+    registry.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, "NPCSKELE.walk.east" );
     registry.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
 
     // Remove the npc container component from the original entity
@@ -81,15 +73,13 @@ void createNPC( entt::registry &registry, entt::entity position_entity,
 
   if ( type == "NPCGHOST" )
   {
-    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})",
-                 static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
-                 pos_cmp->position.y );
+    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type,
+                 pos_cmp->position.x, pos_cmp->position.y );
   }
   else if ( type == "NPCSKELE" )
   {
-    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})",
-                 static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
-                 pos_cmp->position.y );
+    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type,
+                 pos_cmp->position.x, pos_cmp->position.y );
   }
 }
 
@@ -110,14 +100,13 @@ entt::entity destroyNPC( entt::registry &registry, entt::entity npc_entity )
     auto loot_chance_rng = Cmp::RandomInt( 1, 10 );
     if ( loot_chance_rng.gen() == 1 )
     {
-      auto npc_pos_cmp_bounds = Cmp::RectBounds( npc_pos_cmp->position,
-                                                 Constants::kGridSquareSizePixelsF, 1.5f );
+      auto npc_pos_cmp_bounds = Cmp::RectBounds( npc_pos_cmp->position, Constants::kGridSquareSizePixelsF, 1.5f );
       // clang-format off
       loot_entity = Factory::createLootDrop(registry,
         Cmp::SpriteAnimation( 0,0, true,"RELIC_DROP", 0 ),
         sf::FloatRect{ npc_pos_cmp_bounds.position(), npc_pos_cmp_bounds.size() },
-        Sys::BaseSystem::IncludePack<>{},
-        Sys::BaseSystem::ExcludePack<>{}
+        IncludePack<>{},
+        ExcludePack<>{}
       );
       // clang-format on
     }
@@ -138,8 +127,7 @@ void createNpcExplosion( entt::registry &registry, Cmp::Position npc_pos_cmp )
 {
   auto npc_death_entity = registry.create();
   registry.emplace<Cmp::Position>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
-  registry.emplace_or_replace<Cmp::NpcDeathPosition>( npc_death_entity, npc_pos_cmp.position,
-                                                      npc_pos_cmp.size );
+  registry.emplace_or_replace<Cmp::NpcDeathPosition>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
   registry.emplace_or_replace<Cmp::SpriteAnimation>( npc_death_entity, 0, 0, true, "EXPLOSION", 0 );
   registry.emplace_or_replace<Cmp::ZOrderValue>( npc_death_entity, npc_pos_cmp.position.y );
 }
