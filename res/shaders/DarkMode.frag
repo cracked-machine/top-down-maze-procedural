@@ -5,6 +5,9 @@ uniform vec2 aperture_half_size;
 uniform vec2 display_resolution;
 uniform float time;
 
+// Simple noise function for flickering effect
+float noise( float t ) { return sin( t * 6.28318 ) * 0.5 + 0.5; }
+
 void main()
 {
   vec2 fragCoord = gl_FragCoord.xy;
@@ -16,7 +19,12 @@ void main()
 
   vec2 center = local_resolution * 0.5;
 
-  vec2 dist_from_center = abs( local_coord - center );
+  vec2 dist_from_center = local_coord - center;
+  // Calculate circular distance
+  float distance_from_center = length( dist_from_center );
+  // Use the smaller aperture dimension as the radius
+  float aperture_radius = min( aperture_half_size.x, aperture_half_size.y );
+
   // Red outline thickness
   float outline_thickness = 3.0;
 
@@ -27,16 +35,37 @@ void main()
   if ( on_border )
   {
     // Red outline
-    gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
-  }
-  else if ( dist_from_center.x <= aperture_half_size.x && dist_from_center.y <= aperture_half_size.y )
-  {
-    // Inside window - make transparent
-    gl_FragColor = vec4( 0.0, 0.0, 0.0, 0.0 );
+    // gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
   }
   else
   {
-    // Outside window - make black
-    gl_FragColor = vec4( 0.0, 0.0, 0.0, 1.0 );
+    // Candlelight flickering effect
+    float flicker_speed = 4.0;
+    float flicker_intensity = 0.1;
+
+    // Combine multiple noise frequencies for more realistic flicker
+    float flicker = noise( time * flicker_speed ) * 0.5 + noise( time * flicker_speed * 2.3 ) * 0.3 +
+                    noise( time * flicker_speed * 0.7 ) * 0.2;
+
+    // Apply flicker to adjust the effective aperture radius
+    float flickered_radius = aperture_radius * ( 1.0 + flicker * flicker_intensity );
+
+    // Blur edge width
+    float blur_width = 20.0;
+
+    // Create smooth transition from transparent to black using the flickered radius
+    float alpha = smoothstep( flickered_radius - blur_width, flickered_radius + blur_width, distance_from_center );
+
+    // Warm white tint (candlelight color)
+    vec3 warm_white = vec3( 1.0, 0.9, 0.7 ); // Slightly orange-tinted white
+    float tint_intensity = 0.5;              // How strong the tint is
+
+    // Calculate how much tint to apply (inverse of alpha - more tint where it's more transparent)
+    float tint_amount = ( 1.0 - alpha ) * tint_intensity;
+
+    // Mix warm white tint with black based on the aperture area
+    vec3 color = mix( vec3( 0.0 ), warm_white, tint_amount );
+
+    gl_FragColor = vec4( color, alpha );
   }
 }
