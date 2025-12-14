@@ -2,6 +2,7 @@
 #include <Components/CryptExit.hpp>
 #include <Components/CryptMultiBlock.hpp>
 #include <Components/CryptObjectiveMultiBlock.hpp>
+#include <Components/CryptObjectiveSegment.hpp>
 #include <Components/CryptSegment.hpp>
 #include <Components/Exit.hpp>
 #include <Components/PlayerCadaverCount.hpp>
@@ -10,6 +11,7 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Factory/LootFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -173,9 +175,16 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
 
       if ( player_hitbox.findIntersection( objective_cmp ) )
       {
-        pc_cadaver_cmp.increment_count( 1 );
-        objective_cmp.increment_activation_count();
-        SPDLOG_INFO( "Player activated crypt objective. Total cadavers collected: {}", pc_cadaver_cmp.get_count() );
+        auto obst_entity = Factory::createLootDrop(
+            getReg(), Cmp::SpriteAnimation{ 0, 0, true, "CADAVER_DROP", 0 },
+            sf::FloatRect{ objective_cmp.position, objective_cmp.size }, Factory::IncludePack<>{},
+            Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::CryptObjectiveSegment>{} );
+        if ( obst_entity != entt::null )
+        {
+          m_sound_bank.get_effect( "drop_loot" ).play();
+          objective_cmp.increment_activation_count();
+          SPDLOG_INFO( "Player activated crypt objective." );
+        }
       }
     }
   }

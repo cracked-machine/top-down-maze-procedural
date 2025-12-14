@@ -2,6 +2,7 @@
 #include <Components/Persistent/BombBonus.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
 #include <Components/PlayableCharacter.hpp>
+#include <Components/PlayerCadaverCount.hpp>
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
@@ -119,6 +120,12 @@ void LootSystem::check_loot_collision()
     {
       auto &pc_relic_count = getReg().get<Cmp::PlayerRelicCount>( effect.player_entity );
       pc_relic_count.increment_count( 1 );
+      m_sound_bank.get_effect( "get_loot" ).play();
+    }
+    else if ( effect.type == "CADAVER_DROP" )
+    {
+      auto &pc_cadaver_count = getReg().get<Cmp::PlayerCadaverCount>( effect.player_entity );
+      pc_cadaver_count.increment_count( 1 );
       m_sound_bank.get_effect( "get_loot" ).play();
     }
     else

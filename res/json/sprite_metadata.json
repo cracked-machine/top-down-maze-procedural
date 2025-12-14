@@ -407,6 +407,20 @@
         }
       }
     },
+    "CADAVER_DROP": {
+      "name": "CADAVER_DROP",
+      "weight": 40.0,
+      "multisprite": {
+        "texture_path": "res/textures/loot.png",
+        "sprite_indices": [9],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
     "EXPLOSION": {
       "name": "EXPLOSION",
       "weight": 1.0,
