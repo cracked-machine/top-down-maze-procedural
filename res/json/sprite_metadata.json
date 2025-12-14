@@ -1022,6 +1022,25 @@
           "height": 4
         }
       }
+    },
+    "BAPHOMET": {
+      "name": "BAPHOMET",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/baphomet.png",
+        "sprite_indices": [0],
+        "solid_mask": [
+                       false, false, false,
+                       false, false, false,
+                       true, true, true
+                     ],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 3,
+          "height": 3
+        }
+      }
     }
   }
 }

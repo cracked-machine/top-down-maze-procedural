@@ -1,7 +1,8 @@
 #ifndef __COMPONENTS_SYSTEM_HPP__
 #define __COMPONENTS_SYSTEM_HPP__
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
 class System
 {
@@ -14,6 +15,7 @@ public:
   bool minimap_enabled = false;
   bool player_stuck = false;
   bool level_complete = false;
+  bool dark_mode_enabled = true; // F9
 };
 
 } // namespace ProceduralMaze::Cmp

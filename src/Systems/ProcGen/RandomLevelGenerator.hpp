@@ -64,6 +64,7 @@ public:
   void gen_grave_obstacles();
   void gen_altar_obstacles();
   void gen_crypt_obstacles();
+  void gen_crypt_main_objective( sf::Vector2u map_grid_size );
 
   // Iterate all position (excluding playable characters) and randomly assign an obstacle component
   void gen_small_obstacles();

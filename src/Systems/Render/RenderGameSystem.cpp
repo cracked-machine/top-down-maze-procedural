@@ -121,6 +121,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
     m_show_armed_obstacles = _sys.show_armed_obstacles;
     m_minimap_enabled = _sys.minimap_enabled;
     m_show_debug_stats = _sys.show_debug_stats;
+    m_render_dark_mode_enabled = _sys.dark_mode_enabled;
   }
 
   sf::FloatRect player_position( { 0.f, 0.f }, Constants::kGridSquareSizePixelsF );
@@ -184,7 +185,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_wormhole_effect( floormap );
       render_arrow_compass();
       render_mist( player_position );
-      if ( dark_mode == DarkMode::ON ) { render_dark_mode_shader(); }
+      if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
     }
     // local view end
 

@@ -93,6 +93,8 @@ protected:
   bool m_show_armed_obstacles{ false };
   bool m_minimap_enabled{ false };
   bool m_show_debug_stats{ false };
+  //! @brief Allow user to disable dark mode for debugging purposes
+  bool m_render_dark_mode_enabled{ true };
 
   //! @brief Renders text to the screen with specified formatting and alignment options.
   //!

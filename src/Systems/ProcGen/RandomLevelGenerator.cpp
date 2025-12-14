@@ -1,3 +1,5 @@
+#include <Components/CryptObjectiveMultiBlock.hpp>
+#include <Components/CryptObjectiveSegment.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
@@ -29,6 +31,7 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
 #include <Utils/Random.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys::ProcGen
 {
@@ -53,6 +56,7 @@ void RandomLevelGenerator::generate( RandomLevelGenerator::AreaShape shape, sf::
       break;
     case AreaShape::CROSS:
       gen_cross_gamearea( map_grid_size );
+      gen_crypt_main_objective( map_grid_size );
       break;
   }
   // gen_cross_gamearea( map_grid_size, 5, 0.5, 0.25, 20 );
@@ -262,6 +266,12 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
         if ( crypt_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
+      for ( auto [entity, crypt_obj_cmp, crypt_obj_pos_cmp] :
+            getReg().view<Cmp::CryptObjectiveSegment, Cmp::Position>().each() )
+      {
+        if ( crypt_obj_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
+      }
+
       // Return false for reserved position collisions
       for ( auto [entity, reserved_cmp, reserved_pos_cmp] :
             getReg().view<Cmp::ReservedPosition, Cmp::Position>().each() )
@@ -380,8 +390,29 @@ void RandomLevelGenerator::gen_crypt_obstacles()
   }
 }
 
+void RandomLevelGenerator::gen_crypt_main_objective( sf::Vector2u map_grid_size )
+{
+  auto map_grid_sizef = sf::Vector2f( static_cast<float>( map_grid_size.x ) * Constants::kGridSquareSizePixelsF.x,
+                                      static_cast<float>( map_grid_size.y ) * Constants::kGridSquareSizePixelsF.y );
+
+  // target position for the objective: always center top of the map
+  const auto &ms = m_sprite_factory.get_multisprite_by_type( "BAPHOMET" );
+  Cmp::Position objective_position( { map_grid_sizef.x / 2.f, Constants::kGridSquareSizePixelsF.y * 2.f },
+                                    ms.getSpriteSizePixels() );
+
+  auto entity = getReg().create();
+  getReg().emplace_or_replace<Cmp::Position>( entity, objective_position.position, objective_position.size );
+
+  SPDLOG_INFO( "Placing main crypt objective at position ({}, {})", objective_position.position.x,
+               objective_position.position.y );
+  Factory::createMultiblock<Cmp::CryptObjectiveMultiBlock>( getReg(), entity, objective_position, ms );
+  Factory::createMultiblockSegments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>(
+      getReg(), entity, objective_position, ms );
+}
+
 void RandomLevelGenerator::gen_small_obstacles()
 {
+
   auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
   for ( auto [entity, pos_cmp] : position_view.each() )
   {

@@ -26,8 +26,7 @@ namespace ProceduralMaze::Sys
 {
 
 SceneInputRouter::SceneInputRouter( entt::registry &reg, sf::RenderWindow &m_window,
-                                    Sprites::SpriteFactory &sprite_factory,
-                                    Audio::SoundBank &sound_bank,
+                                    Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
                                     entt::dispatcher &nav_event_dispatcher,
                                     entt::dispatcher &scenemanager_event_dispatcher )
     : Sys::BaseSystem( reg, m_window, sprite_factory, sound_bank ),
@@ -129,8 +128,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.show_path_distances = not _sys.show_path_distances;
-          SPDLOG_INFO( "Show player distances is now {}",
-                       _sys.show_path_distances ? "ENABLED" : "DISABLED" );
+          SPDLOG_INFO( "Show player distances is now {}", _sys.show_path_distances ? "ENABLED" : "DISABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 )
@@ -138,8 +136,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.show_armed_obstacles = not _sys.show_armed_obstacles;
-          SPDLOG_INFO( "Show armed obstacles is now {}",
-                       _sys.show_armed_obstacles ? "ENABLED" : "DISABLED" );
+          SPDLOG_INFO( "Show armed obstacles is now {}", _sys.show_armed_obstacles ? "ENABLED" : "DISABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
@@ -147,8 +144,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.show_debug_stats = not _sys.show_debug_stats;
-          SPDLOG_INFO( "Show debug stats is now {}",
-                       _sys.show_debug_stats ? "ENABLED" : "DISABLED" );
+          SPDLOG_INFO( "Show debug stats is now {}", _sys.show_debug_stats ? "ENABLED" : "DISABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F10 )
@@ -158,8 +154,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
         for ( auto [pkey_count_entity, pkey_count_cmp] : player_key_view.each() )
         {
           pkey_count_cmp.increment_count(
-              Sys::PersistSystem::get_persist_cmp<Cmp::Persist::ExitKeyRequirement>( getReg() )
-                  .get_value() );
+              Sys::PersistSystem::get_persist_cmp<Cmp::Persist::ExitKeyRequirement>( getReg() ).get_value() );
         }
         auto exit_cmp = getReg().view<Cmp::Exit>();
         for ( auto [exit_entt, exit_cmp] : exit_cmp.each() )
@@ -184,8 +179,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
       {
-        for ( auto [pc_entity, pc_candle_count_cmp] :
-              getReg().view<Cmp::PlayerCandlesCount>().each() )
+        for ( auto [pc_entity, pc_candle_count_cmp] : getReg().view<Cmp::PlayerCandlesCount>().each() )
         {
           pc_candle_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a candle (player cheated)" );
@@ -245,38 +239,23 @@ void SceneInputRouter::graveyard_scene_state_handler()
   {
     direction.x = 0;
     direction.y = 0;
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) )
-    {
-      direction.y = -1;
-    } // move player up
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) )
-    {
-      direction.x = -1;
-    } // move player left
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) )
-    {
-      direction.x = 1;
-    } // move player right
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) )
-    {
-      direction.y = 1;
-    } // move player down
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) ) { direction.y = -1; } // move player up
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) ) { direction.x = -1; } // move player left
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; }  // move player right
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; }  // move player down
   }
 
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Space ) )
   {
-    get_systems_event_queue().trigger(
-        Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
+    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
   }
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
   {
-    get_systems_event_queue().trigger(
-        Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
+    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
   }
   if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
   {
-    get_systems_event_queue().trigger(
-        Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
+    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
   }
 }
 
@@ -308,8 +287,7 @@ void SceneInputRouter::crypt_scene_state_handler()
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.show_path_distances = not _sys.show_path_distances;
-          SPDLOG_INFO( "Show player distances is now {}",
-                       _sys.show_path_distances ? "ENABLED" : "DISABLED" );
+          SPDLOG_INFO( "Show player distances is now {}", _sys.show_path_distances ? "ENABLED" : "DISABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 )
@@ -317,8 +295,7 @@ void SceneInputRouter::crypt_scene_state_handler()
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.show_armed_obstacles = not _sys.show_armed_obstacles;
-          SPDLOG_INFO( "Show armed obstacles is now {}",
-                       _sys.show_armed_obstacles ? "ENABLED" : "DISABLED" );
+          SPDLOG_INFO( "Show armed obstacles is now {}", _sys.show_armed_obstacles ? "ENABLED" : "DISABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
@@ -326,8 +303,15 @@ void SceneInputRouter::crypt_scene_state_handler()
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.show_debug_stats = not _sys.show_debug_stats;
-          SPDLOG_INFO( "Show debug stats is now {}",
-                       _sys.show_debug_stats ? "ENABLED" : "DISABLED" );
+          SPDLOG_INFO( "Show debug stats is now {}", _sys.show_debug_stats ? "ENABLED" : "DISABLED" );
+        }
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 )
+      {
+        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
+        {
+          _sys.dark_mode_enabled = not _sys.dark_mode_enabled;
+          SPDLOG_INFO( "Dark mode is now {}", _sys.dark_mode_enabled ? "ENABLED" : "DISABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
@@ -344,8 +328,7 @@ void SceneInputRouter::crypt_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
       {
-        for ( auto [pc_entity, pc_candle_count_cmp] :
-              getReg().view<Cmp::PlayerCandlesCount>().each() )
+        for ( auto [pc_entity, pc_candle_count_cmp] : getReg().view<Cmp::PlayerCandlesCount>().each() )
         {
           pc_candle_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a candle (player cheated)" );
@@ -405,38 +388,23 @@ void SceneInputRouter::crypt_scene_state_handler()
   {
     direction.x = 0;
     direction.y = 0;
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) )
-    {
-      direction.y = -1;
-    } // move player up
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) )
-    {
-      direction.x = -1;
-    } // move player left
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) )
-    {
-      direction.x = 1;
-    } // move player right
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) )
-    {
-      direction.y = 1;
-    } // move player down
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) ) { direction.y = -1; } // move player up
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) ) { direction.x = -1; } // move player left
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; }  // move player right
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; }  // move player down
   }
 
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Space ) )
   {
-    get_systems_event_queue().trigger(
-        Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
+    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
   }
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
   {
-    get_systems_event_queue().trigger(
-        Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
+    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
   }
   if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
   {
-    get_systems_event_queue().trigger(
-        Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
+    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
   }
 }
 
