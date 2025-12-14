@@ -225,7 +225,7 @@
       "name": "DETONATED",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/floor2.png",
+        "texture_path": "res/textures/graveyardfloor.png",
         "sprite_indices": [3],
         "sprites_per_frame": 1,
         "sprites_per_sequence": 1,
@@ -239,7 +239,7 @@
       "name": "PLAYERSPAWN",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/floor2.png",
+        "texture_path": "res/textures/graveyardfloor.png",
         "sprite_indices": [4],
         "sprites_per_frame": 1,
         "sprites_per_sequence": 1,

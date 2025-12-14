@@ -37,7 +37,8 @@ void GraveyardScene::on_init()
   cellauto_parser.iterate( 5, GraveyardScene::kMapGridSize,
                            Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR );
 
-  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, GraveyardScene::kMapGridSize );
+  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, GraveyardScene::kMapGridSize,
+                                            "res/json/graveyard_tilemap_config.json" );
 
   m_system_store.find<Sys::SystemStore::Type::ExitSystem>().spawn_exit();
 

@@ -1,0 +1,15 @@
+{
+  "tilemap": {
+    "texture_path": "res/textures/cryptfloor.png",
+    "tile_size": {
+      "width": 16,
+      "height": 16
+    },
+    "floor_tile_pool": [
+      4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+      4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+      0,1,5,6,7,8,9,10,11,12,13,14,15
+    ],
+    "random_seed": 0
+  }
+}

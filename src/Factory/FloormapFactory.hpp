@@ -10,9 +10,9 @@ class FloormapFactory
 {
 public:
   static void CreateFloormap( entt::registry &registry, Sprites::Containers::TileMap &floormap,
-                              sf::Vector2u map_dimensions )
+                              sf::Vector2u map_dimensions, std::string config_path )
   {
-    floormap.load( registry, map_dimensions, "res/json/tilemap_config.json" );
+    floormap.load( registry, map_dimensions, config_path );
   }
 
   static void ClearFloormap( Sprites::Containers::TileMap &floormap ) { floormap.clear(); }

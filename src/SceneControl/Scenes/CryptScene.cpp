@@ -29,7 +29,8 @@ void CryptScene::on_init()
   cellauto_parser.set_random_level_generator( &random_level_sys );
   cellauto_parser.iterate( 5, CryptScene::kMapGridSize, Sys::ProcGen::RandomLevelGenerator::SceneType::CRYPT_INTERIOR );
 
-  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, CryptScene::kMapGridSize );
+  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, CryptScene::kMapGridSize,
+                                            "res/json/crypt_tilemap_config.json" );
 
   // pass concrete spawn position to exit spawner
   m_system_store.find<Sys::SystemStore::Type::CryptSystem>().spawn_exit(

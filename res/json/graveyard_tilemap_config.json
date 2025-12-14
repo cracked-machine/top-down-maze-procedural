@@ -1,6 +1,6 @@
 {
   "tilemap": {
-    "texture_path": "res/textures/floor2.png",
+    "texture_path": "res/textures/graveyardfloor.png",
     "tile_size": {
       "width": 16,
       "height": 16
