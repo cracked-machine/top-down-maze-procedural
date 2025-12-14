@@ -11,6 +11,7 @@
 #include <Components/NoPathFinding.hpp>
 #include <Components/PCDetectionBounds.hpp>
 #include <Components/PlayableCharacter.hpp>
+#include <Components/PlayerCadaverCount.hpp>
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerDistance.hpp>
 #include <Components/PlayerHealth.hpp>
@@ -62,9 +63,8 @@ public:
     for ( auto entity : source_registry.storage<entt::entity>() )
     {
       // this is a list of components that we do NOT want to copy over
-      if ( source_registry
-               .any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::Neighbours,
-                       Cmp::NoPathFinding, Cmp::FootStepTimer, Cmp::FootStepAlpha>( entity ) )
+      if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::Neighbours,
+                                  Cmp::NoPathFinding, Cmp::FootStepTimer, Cmp::FootStepAlpha>( entity ) )
       {
         skipped_cmp++;
         continue; // Skip player entity
@@ -84,11 +84,7 @@ public:
             SPDLOG_DEBUG( "Copied component: {}", source_storage.type().name() );
             copied_cmp.emplace_back( source_storage.type().name() );
           }
-          else
-          {
-            SPDLOG_WARN( "No storage found in target registry for component: {}",
-                         source_storage.type().name() );
-          }
+          else { SPDLOG_WARN( "No storage found in target registry for component: {}", source_storage.type().name() ); }
         }
       }
     }
@@ -120,15 +116,13 @@ public:
     {
       // No player exists, create new one
       target_entity = to_registry.create();
-      SPDLOG_INFO( "Created new player entity (#{}) in target registry",
-                   static_cast<uint32_t>( target_entity ) );
+      SPDLOG_INFO( "Created new player entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
     }
     else
     {
       // Player exists, use existing entity
       target_entity = target_player_view.front();
-      SPDLOG_INFO( "Using existing player entity (#{}) in target registry",
-                   static_cast<uint32_t>( target_entity ) );
+      SPDLOG_INFO( "Using existing player entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
     }
 
     // Ensure all known player component storages exist in target registry
@@ -158,10 +152,7 @@ public:
 
           SPDLOG_DEBUG( "Successfully transferred component: {}", source_storage.type().name() );
         }
-        else
-        {
-          SPDLOG_WARN( "No storage found in target reg for cmp: {}", source_storage.type().name() );
-        }
+        else { SPDLOG_WARN( "No storage found in target reg for cmp: {}", source_storage.type().name() ); }
       }
     }
     SPDLOG_INFO( "Component transfer completed: {} removed", removed_cmps.size() );
@@ -188,6 +179,7 @@ private:
     registry.storage<Cmp::PlayerCandlesCount>();
     registry.storage<Cmp::PlayerMortality>();
     registry.storage<Cmp::PlayerRelicCount>();
+    registry.storage<Cmp::PlayerCadaverCount>();
     registry.storage<Cmp::SpriteAnimation>();
     registry.storage<Cmp::WeaponLevel>();
     registry.storage<Cmp::ZOrderValue>();

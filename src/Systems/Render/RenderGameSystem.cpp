@@ -1,4 +1,5 @@
 #include <Components/Persistent/DisplayResolution.hpp>
+#include <Components/PlayerCadaverCount.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
@@ -199,6 +200,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       int blast_radius = 0;
       int new_weapon_level = 0;
       int player_candles_count = 0;
+      int player_cadaver_count = 0;
       int player_keys_count = 0;
       int player_relic_count = 0;
       sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
@@ -217,22 +219,27 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
         new_weapon_level = weapon_level.m_level;
       }
 
-      auto pc_candles_cmp = getReg().view<Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount, Cmp::PlayerRelicCount>();
-      for ( auto [entity, candles_cmp, keys_cmp, relic_cmp] : pc_candles_cmp.each() )
+      auto pc_candles_cmp = getReg()
+                                .view<Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount, Cmp::PlayerRelicCount,
+                                      Cmp::PlayerCadaverCount>();
+      for ( auto [entity, candles_cmp, keys_cmp, relic_cmp, cadaver_cmp] : pc_candles_cmp.each() )
       {
         player_candles_count = candles_cmp.get_count();
         player_keys_count = keys_cmp.get_count();
         player_relic_count = relic_cmp.get_count();
+        player_candles_count = candles_cmp.get_count();
+        player_cadaver_count = cadaver_cmp.get_count();
       }
 
       // render metrics
-      render_overlay_sys.render_ui_background_overlay( { 20.f, 20.f }, { 300.f, 270.f } );
+      render_overlay_sys.render_ui_background_overlay( { 20.f, 20.f }, { 300.f, 310.f } );
       render_overlay_sys.render_health_overlay( player_health, { 40.f, 40.f }, { 200.f, 20.f } );
       render_overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, 80.f }, { 200.f, 20.f } );
       render_overlay_sys.render_bomb_overlay( bomb_inventory, blast_radius, { 40.f, 120.f } );
       render_overlay_sys.render_player_candles_overlay( player_candles_count, { 40.f, 160.f } );
       render_overlay_sys.render_key_count_overlay( player_keys_count, { 40.f, 200.f } );
       render_overlay_sys.render_relic_count_overlay( player_relic_count, { 40.f, 240.f } );
+      render_overlay_sys.render_cadaver_count_overlay( player_cadaver_count, { 40.f, 280.f } );
 
       if ( m_show_debug_stats )
       {

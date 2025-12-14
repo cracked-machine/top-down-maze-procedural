@@ -149,7 +149,7 @@ void RenderOverlaySystem::render_relic_count_overlay( unsigned int relic_count, 
 {
   auto sprite_metatype = "ICONS";
   auto position = sf::FloatRect{ pos, Constants::kGridSquareSizePixelsF };
-  auto sprite_index = 5; // artifact icon
+  auto sprite_index = 5; // relic icon
   auto scale = sf::Vector2f( 2.f, 2.f );
   RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
 
@@ -157,6 +157,25 @@ void RenderOverlaySystem::render_relic_count_overlay( unsigned int relic_count, 
   sf::Vector2f score_meter_offset{ 50.f, -2.f };
   sf::Text player_score_text( m_font, "", 30 );
   player_score_text.setString( " =   " + std::to_string( relic_count ) );
+  player_score_text.setPosition( pos + score_meter_offset );
+  player_score_text.setFillColor( sf::Color::White );
+  player_score_text.setOutlineColor( sf::Color::Black );
+  player_score_text.setOutlineThickness( 2.f );
+  m_window.draw( player_score_text );
+}
+
+void RenderOverlaySystem::render_cadaver_count_overlay( unsigned int cadaver_count, sf::Vector2f pos )
+{
+  auto sprite_metatype = "ICONS";
+  auto position = sf::FloatRect{ pos, Constants::kGridSquareSizePixelsF };
+  auto sprite_index = 6; // cadaver icon
+  auto scale = sf::Vector2f( 2.f, 2.f );
+  RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
+
+  // text - slightly offset the y-axis to center with icon
+  sf::Vector2f score_meter_offset{ 50.f, -2.f };
+  sf::Text player_score_text( m_font, "", 30 );
+  player_score_text.setString( " =   " + std::to_string( cadaver_count ) );
   player_score_text.setPosition( pos + score_meter_offset );
   player_score_text.setFillColor( sf::Color::White );
   player_score_text.setOutlineColor( sf::Color::Black );

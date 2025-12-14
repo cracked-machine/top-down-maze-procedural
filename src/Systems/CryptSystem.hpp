@@ -27,12 +27,14 @@ public:
     // Handle player actions related to crypts here if needed
     // For now, this function is a placeholder
     if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) unlock_crypt_door();
+    if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) check_objective_activation( event.action );
   }
   virtual void onPause() override {}
   virtual void onResume() override {}
   void unlock_crypt_door();
   void check_entrance_collision();
   void check_exit_collision();
+  void check_objective_activation( Events::PlayerActionEvent::GameActions action );
   void spawn_exit( sf::Vector2u spawn_position );
 
 private:

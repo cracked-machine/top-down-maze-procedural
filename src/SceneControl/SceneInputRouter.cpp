@@ -3,6 +3,7 @@
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayableCharacter.hpp>
+#include <Components/PlayerCadaverCount.hpp>
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
@@ -212,6 +213,15 @@ void SceneInputRouter::graveyard_scene_state_handler()
           SPDLOG_INFO( "Player gained a relic (player cheated)" );
         }
       }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad5 )
+      {
+        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] :
+              getReg().view<Cmp::PlayableCharacter, Cmp::PlayerCadaverCount>().each() )
+        {
+          pc_cadaver_count_cmp.increment_count( 1 );
+          SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
+        }
+      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
       {
         m_scenemanager_event_dispatcher.enqueue(
@@ -359,6 +369,15 @@ void SceneInputRouter::crypt_scene_state_handler()
         {
           pc_relic_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a relic (player cheated)" );
+        }
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad5 )
+      {
+        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] :
+              getReg().view<Cmp::PlayableCharacter, Cmp::PlayerCadaverCount>().each() )
+        {
+          pc_cadaver_count_cmp.increment_count( 1 );
+          SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )

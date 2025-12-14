@@ -1,8 +1,10 @@
 #include <Components/AltarMultiBlock.hpp>
 #include <Components/CryptExit.hpp>
 #include <Components/CryptMultiBlock.hpp>
+#include <Components/CryptObjectiveMultiBlock.hpp>
 #include <Components/CryptSegment.hpp>
 #include <Components/Exit.hpp>
+#include <Components/PlayerCadaverCount.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SpriteAnimation.hpp>
@@ -149,6 +151,32 @@ void CryptSystem::check_exit_collision()
       SPDLOG_INFO( "check_exit_collision: Player exiting crypt to graveyard at position ({}, {})",
                    pc_pos_cmp.position.x, pc_pos_cmp.position.y );
       m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_CRYPT );
+    }
+  }
+}
+
+void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameActions action )
+{
+  if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
+
+  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCadaverCount>();
+  auto grave_view = getReg().view<Cmp::CryptObjectiveMultiBlock>();
+
+  for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_cadaver_cmp] : player_view.each() )
+  {
+    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
+
+    for ( auto [objective_entity, objective_cmp] : grave_view.each() )
+    {
+      // did we already get the cadaver from this objective?
+      if ( objective_cmp.get_activation_count() >= objective_cmp.get_activation_threshold() ) continue;
+
+      if ( player_hitbox.findIntersection( objective_cmp ) )
+      {
+        pc_cadaver_cmp.increment_count( 1 );
+        objective_cmp.increment_activation_count();
+        SPDLOG_INFO( "Player activated crypt objective. Total cadavers collected: {}", pc_cadaver_cmp.get_count() );
+      }
     }
   }
 }

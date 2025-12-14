@@ -8,6 +8,7 @@
 #include <Components/Persistent/PlayerDetectionScale.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayableCharacter.hpp>
+#include <Components/PlayerCadaverCount.hpp>
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
@@ -34,22 +35,17 @@ void CreatePlayer( entt::registry &registry )
   // start position must be pixel coordinates within the screen resolution (kDisplaySize),
   // but also grid aligned (kMapGridSize) to avoid collision detection errors.
   // So we must recalc start position to the nearest grid position here
-  auto start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>(
-      registry );
+  auto start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( registry );
   start_pos = Utils::snap_to_grid( start_pos );
   registry.emplace<Cmp::Position>( entity, start_pos, Constants::kGridSquareSizePixelsF );
 
-  auto &bomb_inventory = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::BombInventory>(
-      registry );
+  auto &bomb_inventory = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::BombInventory>( registry );
   auto &blast_radius = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::BlastRadius>( registry );
-  registry.emplace<Cmp::PlayableCharacter>( entity, bomb_inventory.get_value(),
-                                            blast_radius.get_value() );
+  registry.emplace<Cmp::PlayableCharacter>( entity, bomb_inventory.get_value(), blast_radius.get_value() );
 
   registry.emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
 
-  auto
-      &pc_detection_scale = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerDetectionScale>(
-          registry );
+  auto &pc_detection_scale = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerDetectionScale>( registry );
 
   registry.emplace<Cmp::PCDetectionBounds>( entity, start_pos, Constants::kGridSquareSizePixelsF,
                                             pc_detection_scale.get_value() );
@@ -58,6 +54,7 @@ void CreatePlayer( entt::registry &registry )
   registry.emplace<Cmp::PlayerCandlesCount>( entity, 0 );
   registry.emplace<Cmp::PlayerKeysCount>( entity, 0 );
   registry.emplace<Cmp::PlayerRelicCount>( entity, 0 );
+  registry.emplace<Cmp::PlayerCadaverCount>( entity, 0 );
   registry.emplace<Cmp::PlayerHealth>( entity, 100 );
   registry.emplace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );
   registry.emplace<Cmp::WeaponLevel>( entity, 100.f );

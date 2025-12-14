@@ -16,7 +16,7 @@ public:
   CryptObjectiveMultiBlock( const sf::Vector2f &position, const sf::Vector2f &size )
       : sf::FloatRect( position, size )
   {
-    m_activation_threshold = ( size.x / 16 ) * ( size.y / 16 ); // each block is 16x16 pixels
+    m_activation_threshold = 1;
   }
 
   void increment_activation_count() { ++m_activation_count; }
