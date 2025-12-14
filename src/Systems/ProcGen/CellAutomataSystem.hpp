@@ -35,7 +35,7 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
-  void iterate( unsigned int iterations, const sf::Vector2u kMapGridSize );
+  void iterate( unsigned int iterations, const sf::Vector2u kMapGridSize, RandomLevelGenerator::SceneType scene_type );
 
   void set_random_level_generator( RandomLevelGenerator *random_level ) { m_random_level = random_level; }
 
@@ -44,7 +44,7 @@ private:
 
   void find_neighbours( const sf::Vector2u kMapGridSize );
 
-  void apply_rules();
+  void apply_rules( RandomLevelGenerator::SceneType scene_type );
 };
 
 } // namespace ProceduralMaze::Sys::ProcGen

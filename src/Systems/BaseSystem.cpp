@@ -1,3 +1,4 @@
+#include <Components/CryptInteriorSegment.hpp>
 #include <Components/CryptObjectiveSegment.hpp>
 #include <Components/CryptSegment.hpp>
 #include <Components/LerpPosition.hpp>
@@ -100,6 +101,13 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
   {
     if ( not crypt_obj_cmp.isSolidMask() ) continue;
     if ( crypt_obj_pos_cmp.findIntersection( target_position ) ) { return false; }
+  }
+
+  auto crypt_int_view = getReg().view<Cmp::CryptInteriorSegment, Cmp::Position>();
+  for ( auto [entity, crypt_int_cmp, crypt_int_pos_cmp] : crypt_int_view.each() )
+  {
+    if ( not crypt_int_cmp.isSolidMask() ) continue;
+    if ( crypt_int_pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
   return true;

@@ -27,12 +27,13 @@ class RandomLevelGenerator : public BaseSystem
 {
 public:
   enum class AreaShape { RECTANGLE, CIRCLE, CROSS };
+  enum class SceneType { GRAVEYARD_EXTERIOR, CRYPT_INTERIOR };
 
   RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
                         Audio::SoundBank &sound_bank );
   ~RandomLevelGenerator() = default;
 
-  void generate( AreaShape shape, sf::Vector2u map_grid_size, bool gen_graves, bool gen_altars, bool gen_crypts );
+  void generate( AreaShape shape, sf::Vector2u map_grid_size, SceneType scene_type );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}
@@ -54,20 +55,16 @@ public:
   void gen_cross_gamearea( sf::Vector2u map_grid_size, int vertArmHalfWidth = 10, int horizArmHalfWidth = 5,
                            int horizOffset = 10 );
 
-  // Find a valid spawn location for a large obstacle given a seed
-  std::pair<entt::entity, Cmp::Position> find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed );
-
   // Generate a large obstacle at a random valid position (graves, shrines, crypts)
-  void gen_large_obstacle( const Sprites::MultiSprite &ms, unsigned long seed );
 
   // Iterate and generate large obstacles (graves, shrines, crypts)
-  void gen_grave_obstacles();
-  void gen_altar_obstacles();
-  void gen_crypt_obstacles();
-  void gen_crypt_main_objective( sf::Vector2u map_grid_size );
+  void gen_graveyard_exterior_obstacles();
+  void gen_graveyard_exterior_multiblocks();
+  void do_gen_graveyard_exterior_multiblock( const Sprites::MultiSprite &ms, unsigned long seed );
 
-  // Iterate all position (excluding playable characters) and randomly assign an obstacle component
-  void gen_small_obstacles();
+  void gen_crypt_interior_obstacles();
+  void gen_crypt_main_objective( sf::Vector2u map_grid_size );
+  void gen_crypt_interior_multiblocks();
 
   // Iterate and generate loot containers
   void gen_loot_containers( sf::Vector2u map_grid_size );
@@ -77,6 +74,9 @@ public:
 
   // Helper functions to add wall and door entities
   void add_wall_entity( const sf::Vector2f &pos, std::size_t sprite_index );
+
+  // Find a valid spawn location for a large obstacle given a seed
+  std::pair<entt::entity, Cmp::Position> find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed );
 
   std::optional<entt::entity> at( std::size_t idx )
   {

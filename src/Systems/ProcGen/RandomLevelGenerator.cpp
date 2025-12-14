@@ -1,3 +1,5 @@
+#include <Components/CryptInteriorMultiBlock.hpp>
+#include <Components/CryptInteriorSegment.hpp>
 #include <Components/CryptObjectiveMultiBlock.hpp>
 #include <Components/CryptObjectiveSegment.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
@@ -42,8 +44,8 @@ RandomLevelGenerator::RandomLevelGenerator( entt::registry &reg, sf::RenderWindo
 {
 }
 
-void RandomLevelGenerator::generate( RandomLevelGenerator::AreaShape shape, sf::Vector2u map_grid_size, bool gen_graves,
-                                     bool gen_altars, bool gen_crypts )
+void RandomLevelGenerator::generate( RandomLevelGenerator::AreaShape shape, sf::Vector2u map_grid_size,
+                                     SceneType scene_type )
 {
   m_data.clear();
   switch ( shape )
@@ -56,16 +58,21 @@ void RandomLevelGenerator::generate( RandomLevelGenerator::AreaShape shape, sf::
       break;
     case AreaShape::CROSS:
       gen_cross_gamearea( map_grid_size );
-      gen_crypt_main_objective( map_grid_size );
+      if ( scene_type == SceneType::CRYPT_INTERIOR )
+      {
+        gen_crypt_main_objective( map_grid_size );
+        gen_crypt_interior_multiblocks();
+      }
       break;
   }
   // gen_cross_gamearea( map_grid_size, 5, 0.5, 0.25, 20 );
-  if ( gen_graves ) gen_grave_obstacles();
-  if ( gen_altars ) gen_altar_obstacles();
-  if ( gen_crypts ) gen_crypt_obstacles();
+  if ( scene_type == SceneType::GRAVEYARD_EXTERIOR ) { gen_graveyard_exterior_multiblocks(); }
   gen_loot_containers( map_grid_size );
   gen_npc_containers( map_grid_size );
-  gen_small_obstacles(); // these are post-processed by cellular automaton system
+
+  // these are post-processed by cellular automaton system
+  if ( scene_type == SceneType::GRAVEYARD_EXTERIOR ) { gen_graveyard_exterior_obstacles(); }
+  else if ( scene_type == SceneType::CRYPT_INTERIOR ) { gen_crypt_interior_obstacles(); }
 }
 
 void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
@@ -223,6 +230,215 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int v
   }
 }
 
+void RandomLevelGenerator::gen_graveyard_exterior_obstacles()
+{
+
+  auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
+  for ( auto [entity, pos_cmp] : position_view.each() )
+  {
+    // clang-format off
+    auto [obst_type, rand_obst_tex_idx] = 
+      m_sprite_factory.get_random_type_and_texture_index( { 
+        "ROCK"
+      } );
+    // clang-format on
+
+    if ( Cmp::RandomInt{ 0, 1 }.gen() == 1 )
+    {
+      float zorder = m_sprite_factory.get_sprite_size_by_type( "ROCK" ).y;
+      // Set the z-order value so that the rock obstacles are rendered above everything else
+      Factory::createObstacle( getReg(), entity, pos_cmp, obst_type, rand_obst_tex_idx, ( zorder * 2.f ) );
+    }
+  }
+}
+
+void RandomLevelGenerator::gen_graveyard_exterior_multiblocks()
+{
+  auto grave_num_multiplier = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::GraveNumMultiplier>( getReg() );
+  auto max_num_altars = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumAltars>( getReg() );
+  auto max_num_crypts = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumCrypts>( getReg() );
+
+  // GRAVES
+  auto grave_meta_types = m_sprite_factory.get_all_sprite_types_by_pattern( "^GRAVE\\d+\\.closed$" );
+  if ( grave_meta_types.empty() ) { SPDLOG_WARN( "No GRAVE multisprites found in SpriteFactory" ); }
+  else
+  {
+    uint8_t max_num_graves = max_num_altars.get_value() * grave_num_multiplier.get_value();
+    for ( std::size_t i = 0; i < max_num_graves; ++i )
+    {
+      auto [sprite_metatype, unused_index] = m_sprite_factory.get_random_type_and_texture_index( grave_meta_types );
+      auto &multisprite = m_sprite_factory.get_multisprite_by_type( sprite_metatype );
+      do_gen_graveyard_exterior_multiblock( multisprite, 0 );
+    }
+  }
+
+  // ALTARS
+  auto &altar_multisprite = m_sprite_factory.get_multisprite_by_type( "ALTAR.inactive" );
+  for ( std::size_t i = 0; i < max_num_altars.get_value(); ++i )
+  {
+    do_gen_graveyard_exterior_multiblock( altar_multisprite, 0 );
+  }
+
+  // CRYPTS - note: we use keys from altars to open crypts so the number should be equal
+  auto &crypt_multisprite = m_sprite_factory.get_multisprite_by_type( "CRYPT.closed" );
+  for ( std::size_t i = 0; i < max_num_crypts.get_value(); ++i )
+  {
+    do_gen_graveyard_exterior_multiblock( crypt_multisprite, 0 );
+  }
+}
+
+void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::MultiSprite &ms, unsigned long seed )
+{
+  auto [random_entity, random_origin_position] = find_spawn_location( ms, seed );
+  if ( random_entity == entt::null )
+  {
+    SPDLOG_ERROR( "Failed to find valid spawn position for {}.", ms.get_sprite_type() );
+    return;
+  }
+
+  if ( ms.get_sprite_type().contains( "ALTAR" ) )
+  {
+    Factory::createMultiblock<Cmp::AltarMultiBlock>( getReg(), random_entity, random_origin_position, ms );
+    Factory::createMultiblockSegments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( getReg(), random_entity,
+                                                                                random_origin_position, ms );
+  }
+  else if ( ms.get_sprite_type().contains( "GRAVE" ) )
+  {
+    Factory::createMultiblock<Cmp::GraveMultiBlock>( getReg(), random_entity, random_origin_position, ms );
+    Factory::createMultiblockSegments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( getReg(), random_entity,
+                                                                                random_origin_position, ms );
+  }
+  else if ( ms.get_sprite_type().contains( "CRYPT" ) )
+  {
+    Factory::createMultiblock<Cmp::CryptMultiBlock>( getReg(), random_entity, random_origin_position, ms );
+    Factory::createMultiblockSegments<Cmp::CryptMultiBlock, Cmp::CryptSegment>( getReg(), random_entity,
+                                                                                random_origin_position, ms );
+  }
+  else
+  {
+    SPDLOG_ERROR( "gen_large_obstacle called with unsupported multisprite type: {}", ms.get_sprite_type() );
+    return;
+  }
+}
+
+void RandomLevelGenerator::gen_crypt_interior_obstacles()
+{
+  SPDLOG_INFO( "Generating crypt interior obstacles." );
+  auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
+  for ( auto [entity, pos_cmp] : position_view.each() )
+  {
+    // clang-format off
+    auto [obst_type, rand_obst_tex_idx] = 
+      m_sprite_factory.get_random_type_and_texture_index( { 
+        "CRYPT.interior_sb"
+      } );
+    // clang-format on
+
+    if ( Cmp::RandomInt{ 0, 1 }.gen() == 1 )
+    {
+      float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
+      // Set the z-order value so that the rock obstacles are rendered above everything else
+      Factory::createObstacle( getReg(), entity, pos_cmp, obst_type, rand_obst_tex_idx, ( zorder * 2.f ) );
+    }
+  }
+}
+
+void RandomLevelGenerator::gen_crypt_main_objective( sf::Vector2u map_grid_size )
+{
+  auto map_grid_sizef = sf::Vector2f( static_cast<float>( map_grid_size.x ) * Constants::kGridSquareSizePixelsF.x,
+                                      static_cast<float>( map_grid_size.y ) * Constants::kGridSquareSizePixelsF.y );
+
+  // target position for the objective: always center top of the map
+  const auto &ms = m_sprite_factory.get_multisprite_by_type( "BAPHOMET" );
+  Cmp::Position objective_position( { map_grid_sizef.x / 2.f, Constants::kGridSquareSizePixelsF.y * 2.f },
+                                    ms.getSpriteSizePixels() );
+
+  auto entity = getReg().create();
+  getReg().emplace_or_replace<Cmp::Position>( entity, objective_position.position, objective_position.size );
+
+  SPDLOG_INFO( "Placing main crypt objective at position ({}, {})", objective_position.position.x,
+               objective_position.position.y );
+  Factory::createMultiblock<Cmp::CryptObjectiveMultiBlock>( getReg(), entity, objective_position, ms );
+  Factory::createMultiblockSegments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>(
+      getReg(), entity, objective_position, ms );
+}
+
+void RandomLevelGenerator::gen_crypt_interior_multiblocks()
+{
+
+  for ( int i = 0; i < 30; i++ )
+  {
+    auto [ms_type, ms_idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_mb1x3" } );
+    auto &ms = m_sprite_factory.get_multisprite_by_type( ms_type );
+    auto [random_entity, random_origin_position] = find_spawn_location( ms, 0 );
+    if ( random_entity == entt::null )
+    {
+      SPDLOG_ERROR( "Failed to find valid spawn position for {}.", ms.get_sprite_type() );
+      return;
+    }
+    Factory::createMultiblock<Cmp::CryptInteriorMultiBlock>( getReg(), random_entity, random_origin_position, ms,
+                                                             ms_idx );
+    Factory::createMultiblockSegments<Cmp::CryptInteriorMultiBlock, Cmp::CryptInteriorSegment>(
+        getReg(), random_entity, random_origin_position, ms );
+  }
+}
+
+void RandomLevelGenerator::gen_loot_containers( sf::Vector2u map_grid_size )
+{
+  auto num_loot_containers = map_grid_size.x * map_grid_size.y / 60; // one loot container per 60 grid squares
+
+  for ( std::size_t i = 0; i < num_loot_containers; ++i )
+  {
+    auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
+        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
+
+    // pick a random loot container type and texture index
+    // clang-format off
+    auto [loot_type, rand_loot_tex_idx] = 
+      m_sprite_factory.get_random_type_and_texture_index( { 
+        "POT"
+      } );
+    // clang-format on
+
+    float zorder = m_sprite_factory.get_sprite_size_by_type( loot_type ).y;
+
+    Factory::createLootContainer( getReg(), random_entity, random_origin_position, loot_type, rand_loot_tex_idx,
+                                  zorder );
+  }
+}
+
+void RandomLevelGenerator::gen_npc_containers( sf::Vector2u map_grid_size )
+{
+  auto num_npc_containers = map_grid_size.x * map_grid_size.y / 200; // one NPC container per 200 grid squares
+
+  for ( std::size_t i = 0; i < num_npc_containers; ++i )
+  {
+    auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
+        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
+
+    // pick a random loot container type and texture index
+    // clang-format off
+    auto [npc_type, rand_npc_tex_idx] =
+      m_sprite_factory.get_random_type_and_texture_index( {
+        "BONES"
+      } );
+    // clang-format on
+
+    Factory::createNpcContainer( getReg(), random_entity, random_origin_position, npc_type, rand_npc_tex_idx, 0.f );
+  }
+}
+
+void RandomLevelGenerator::add_wall_entity( const sf::Vector2f &pos, std::size_t sprite_index )
+{
+  auto entity = getReg().create();
+  getReg().emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSquareSizePixelsF );
+  getReg().emplace_or_replace<Cmp::Wall>( entity );
+  getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", sprite_index );
+  getReg().emplace_or_replace<Cmp::ReservedPosition>( entity );
+  getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos.y );
+  getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
+}
+
 std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location( const Sprites::MultiSprite &ms,
                                                                                   unsigned long seed )
 {
@@ -312,180 +528,6 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
   SPDLOG_ERROR( "Failed to find valid large obstacle spawn location after {} attempts (original seed: {})",
                 kMaxAttempts, seed );
   return { entt::null, Cmp::Position{ { 0.f, 0.f }, { 0.f, 0.f } } };
-}
-
-void RandomLevelGenerator::gen_large_obstacle( const Sprites::MultiSprite &ms, unsigned long seed )
-{
-  auto [random_entity, random_origin_position] = find_spawn_location( ms, seed );
-  if ( random_entity == entt::null )
-  {
-    SPDLOG_ERROR( "Failed to find valid spawn position for {}.", ms.get_sprite_type() );
-    return;
-  }
-
-  if ( ms.get_sprite_type().contains( "ALTAR" ) )
-  {
-    Factory::createMultiblock<Cmp::AltarMultiBlock>( getReg(), random_entity, random_origin_position, ms );
-    Factory::createMultiblockSegments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( getReg(), random_entity,
-                                                                                random_origin_position, ms );
-  }
-  else if ( ms.get_sprite_type().contains( "GRAVE" ) )
-  {
-    Factory::createMultiblock<Cmp::GraveMultiBlock>( getReg(), random_entity, random_origin_position, ms );
-    Factory::createMultiblockSegments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( getReg(), random_entity,
-                                                                                random_origin_position, ms );
-  }
-  else if ( ms.get_sprite_type().contains( "CRYPT" ) )
-  {
-    Factory::createMultiblock<Cmp::CryptMultiBlock>( getReg(), random_entity, random_origin_position, ms );
-    Factory::createMultiblockSegments<Cmp::CryptMultiBlock, Cmp::CryptSegment>( getReg(), random_entity,
-                                                                                random_origin_position, ms );
-  }
-  else
-  {
-    SPDLOG_ERROR( "gen_large_obstacle called with unsupported multisprite type: {}", ms.get_sprite_type() );
-    return;
-  }
-}
-
-void RandomLevelGenerator::gen_grave_obstacles()
-{
-  auto grave_num_multiplier = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::GraveNumMultiplier>( getReg() );
-  auto max_num_altars = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumAltars>( getReg() );
-
-  // GRAVES
-  auto grave_meta_types = m_sprite_factory.get_all_sprite_types_by_pattern( "^GRAVE\\d+\\.closed$" );
-  if ( grave_meta_types.empty() ) { SPDLOG_WARN( "No GRAVE multisprites found in SpriteFactory" ); }
-  else
-  {
-    uint8_t max_num_graves = max_num_altars.get_value() * grave_num_multiplier.get_value();
-    for ( std::size_t i = 0; i < max_num_graves; ++i )
-    {
-      auto [sprite_metatype, unused_index] = m_sprite_factory.get_random_type_and_texture_index( grave_meta_types );
-      auto &multisprite = m_sprite_factory.get_multisprite_by_type( sprite_metatype );
-      gen_large_obstacle( multisprite, 0 );
-    }
-  }
-}
-
-void RandomLevelGenerator::gen_altar_obstacles()
-{
-  auto max_num_altars = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumAltars>( getReg() );
-  // ALTARS
-  auto &altar_multisprite = m_sprite_factory.get_multisprite_by_type( "ALTAR.inactive" );
-  for ( std::size_t i = 0; i < max_num_altars.get_value(); ++i )
-  {
-    gen_large_obstacle( altar_multisprite, 0 );
-  }
-}
-
-void RandomLevelGenerator::gen_crypt_obstacles()
-{
-  auto max_num_crypts = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumCrypts>( getReg() );
-  // CRYPTS - note: we use keys from altars to open crypts so the number should be equal
-  auto &crypt_multisprite = m_sprite_factory.get_multisprite_by_type( "CRYPT.closed" );
-  for ( std::size_t i = 0; i < max_num_crypts.get_value(); ++i )
-  {
-    gen_large_obstacle( crypt_multisprite, 0 );
-  }
-}
-
-void RandomLevelGenerator::gen_crypt_main_objective( sf::Vector2u map_grid_size )
-{
-  auto map_grid_sizef = sf::Vector2f( static_cast<float>( map_grid_size.x ) * Constants::kGridSquareSizePixelsF.x,
-                                      static_cast<float>( map_grid_size.y ) * Constants::kGridSquareSizePixelsF.y );
-
-  // target position for the objective: always center top of the map
-  const auto &ms = m_sprite_factory.get_multisprite_by_type( "BAPHOMET" );
-  Cmp::Position objective_position( { map_grid_sizef.x / 2.f, Constants::kGridSquareSizePixelsF.y * 2.f },
-                                    ms.getSpriteSizePixels() );
-
-  auto entity = getReg().create();
-  getReg().emplace_or_replace<Cmp::Position>( entity, objective_position.position, objective_position.size );
-
-  SPDLOG_INFO( "Placing main crypt objective at position ({}, {})", objective_position.position.x,
-               objective_position.position.y );
-  Factory::createMultiblock<Cmp::CryptObjectiveMultiBlock>( getReg(), entity, objective_position, ms );
-  Factory::createMultiblockSegments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>(
-      getReg(), entity, objective_position, ms );
-}
-
-void RandomLevelGenerator::gen_small_obstacles()
-{
-
-  auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
-  for ( auto [entity, pos_cmp] : position_view.each() )
-  {
-    // clang-format off
-    auto [obst_type, rand_obst_tex_idx] = 
-      m_sprite_factory.get_random_type_and_texture_index( { 
-        "ROCK"
-      } );
-    // clang-format on
-
-    if ( Cmp::RandomInt{ 0, 1 }.gen() == 1 )
-    {
-      float zorder = m_sprite_factory.get_sprite_size_by_type( "ROCK" ).y;
-      // Set the z-order value so that the rock obstacles are rendered above everything else
-      Factory::createObstacle( getReg(), entity, pos_cmp, obst_type, rand_obst_tex_idx, ( zorder * 2.f ) );
-    }
-  }
-}
-
-void RandomLevelGenerator::gen_loot_containers( sf::Vector2u map_grid_size )
-{
-  auto num_loot_containers = map_grid_size.x * map_grid_size.y / 60; // one loot container per 60 grid squares
-
-  for ( std::size_t i = 0; i < num_loot_containers; ++i )
-  {
-    auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
-        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
-
-    // pick a random loot container type and texture index
-    // clang-format off
-    auto [loot_type, rand_loot_tex_idx] = 
-      m_sprite_factory.get_random_type_and_texture_index( { 
-        "POT"
-      } );
-    // clang-format on
-
-    float zorder = m_sprite_factory.get_sprite_size_by_type( loot_type ).y;
-
-    Factory::createLootContainer( getReg(), random_entity, random_origin_position, loot_type, rand_loot_tex_idx,
-                                  zorder );
-  }
-}
-
-void RandomLevelGenerator::gen_npc_containers( sf::Vector2u map_grid_size )
-{
-  auto num_npc_containers = map_grid_size.x * map_grid_size.y / 200; // one NPC container per 200 grid squares
-
-  for ( std::size_t i = 0; i < num_npc_containers; ++i )
-  {
-    auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
-        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
-
-    // pick a random loot container type and texture index
-    // clang-format off
-    auto [npc_type, rand_npc_tex_idx] =
-      m_sprite_factory.get_random_type_and_texture_index( {
-        "BONES"
-      } );
-    // clang-format on
-
-    Factory::createNpcContainer( getReg(), random_entity, random_origin_position, npc_type, rand_npc_tex_idx, 0.f );
-  }
-}
-
-void RandomLevelGenerator::add_wall_entity( const sf::Vector2f &pos, std::size_t sprite_index )
-{
-  auto entity = getReg().create();
-  getReg().emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSquareSizePixelsF );
-  getReg().emplace_or_replace<Cmp::Wall>( entity );
-  getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", sprite_index );
-  getReg().emplace_or_replace<Cmp::ReservedPosition>( entity );
-  getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos.y );
-  getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
 }
 
 } // namespace ProceduralMaze::Sys::ProcGen

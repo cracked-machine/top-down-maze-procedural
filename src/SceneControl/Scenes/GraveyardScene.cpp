@@ -30,11 +30,12 @@ void GraveyardScene::on_init()
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
   random_level_sys.generate( Sys::ProcGen::RandomLevelGenerator::AreaShape::RECTANGLE, GraveyardScene::kMapGridSize,
-                             true, true, true );
+                             Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR );
 
   auto &cellauto_parser = m_system_store.find<Sys::SystemStore::Type::CellAutomataSystem>();
   cellauto_parser.set_random_level_generator( &random_level_sys );
-  cellauto_parser.iterate( 5, GraveyardScene::kMapGridSize );
+  cellauto_parser.iterate( 5, GraveyardScene::kMapGridSize,
+                           Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, GraveyardScene::kMapGridSize );
 

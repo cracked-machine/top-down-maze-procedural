@@ -12,7 +12,7 @@ class CryptScene : public Scene<Events::ProcessCryptSceneInputEvent>
 {
 public:
   //! @brief The size of the crypt map grid in number of squares
-  inline static constexpr sf::Vector2u kMapGridSize{ 32u, 64u };
+  inline static constexpr sf::Vector2u kMapGridSize{ 32u, 56u };
 
   //! @brief The size of the crypt map grid in number of squares as floats
   inline static constexpr sf::Vector2f kMapGridSizeF{ static_cast<float>( kMapGridSize.x ),

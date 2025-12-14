@@ -18,12 +18,12 @@ namespace ProceduralMaze::Factory
 {
 
 template <typename MULTIBLOCK>
-void createMultiblock( entt::registry &registry, entt::entity entity, Cmp::Position pos,
-                       const Sprites::MultiSprite &ms )
+void createMultiblock( entt::registry &registry, entt::entity entity, Cmp::Position pos, const Sprites::MultiSprite &ms,
+                       int ms_idx = 0 )
 {
 
   auto large_obst_grid_size = ms.get_grid_size();
-  registry.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, ms.get_sprite_type(), 0 );
+  registry.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, ms.get_sprite_type(), ms_idx );
   registry.emplace_or_replace<MULTIBLOCK>( entity, pos.position,
                                            large_obst_grid_size.componentWiseMul( Constants::kGridSquareSizePixels ) );
   registry.emplace_or_replace<Cmp::ZOrderValue>( entity, pos.position.y + ms.getSpriteSizePixels().y );

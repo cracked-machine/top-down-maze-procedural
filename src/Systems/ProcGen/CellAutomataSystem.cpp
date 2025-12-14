@@ -8,13 +8,14 @@
 namespace ProceduralMaze::Sys::ProcGen
 {
 
-void CellAutomataSystem::iterate( unsigned int iterations, const sf::Vector2u kMapGridSize )
+void CellAutomataSystem::iterate( unsigned int iterations, const sf::Vector2u kMapGridSize,
+                                  RandomLevelGenerator::SceneType scene_type )
 {
   sf::Clock iteration_timer;
   for ( unsigned int i = 0; i < iterations; i++ )
   {
     find_neighbours( kMapGridSize );
-    apply_rules();
+    apply_rules( scene_type );
     SPDLOG_INFO( "Iteration #{} took {}ms", i, iteration_timer.restart().asMilliseconds() );
   }
 
@@ -201,7 +202,7 @@ void CellAutomataSystem::find_neighbours( const sf::Vector2u kMapGridSize )
 #endif
 }
 
-void CellAutomataSystem::apply_rules()
+void CellAutomataSystem::apply_rules( RandomLevelGenerator::SceneType scene_type )
 {
   // 2. apply rules
   auto non_reserved_view = getReg().view<Cmp::Position, Cmp::Neighbours>(
@@ -210,13 +211,32 @@ void CellAutomataSystem::apply_rules()
   {
     if ( neighbour_cmp.count() <= 2 )
     {
-      Factory::createObstacle( getReg(), entity, pos_cmp, "ROCK", 0, pos_cmp.position.y );
+      if ( scene_type == RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
+      {
+        Factory::createObstacle( getReg(), entity, pos_cmp, "ROCK", 0, pos_cmp.position.y );
+      }
+      else if ( scene_type == RandomLevelGenerator::SceneType::CRYPT_INTERIOR )
+      {
+        auto [type, idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
+        Factory::createObstacle( getReg(), entity, pos_cmp, type, idx, pos_cmp.position.y );
+      }
     }
     else if ( neighbour_cmp.count() > 2 and neighbour_cmp.count() < 5 )
     {
       Factory::destroyObstacle( getReg(), entity );
     }
-    else { Factory::createObstacle( getReg(), entity, pos_cmp, "ROCK", 0, pos_cmp.position.y ); }
+    else
+    {
+      if ( scene_type == RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
+      {
+        Factory::createObstacle( getReg(), entity, pos_cmp, "ROCK", 0, pos_cmp.position.y );
+      }
+      else if ( scene_type == RandomLevelGenerator::SceneType::CRYPT_INTERIOR )
+      {
+        auto [type, idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
+        Factory::createObstacle( getReg(), entity, pos_cmp, type, idx, pos_cmp.position.y );
+      }
+    }
   }
   SPDLOG_DEBUG( "Finished applying Cellular Automata rules!" );
 }

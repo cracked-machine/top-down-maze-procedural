@@ -29,6 +29,58 @@
         }
       }
     },
+    "CRYPT.interior_sb": {
+      "name": "CRYPT.interior_sb",
+      "weight": 40.0,
+      "multisprite": {
+        "texture_path": "res/textures/crypt_interior.png",
+        "sprite_indices": [0,1,2,3,4],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CRYPT.interior_mb1x3": {
+      "name": "CRYPT.interior_mb1x3",
+      "weight": 40.0,
+      "multisprite": {
+        "texture_path": "res/textures/crypt_interior.png",
+        "sprite_indices": [6,7,8,9,10,11],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "solid_mask": [
+          false, 
+          false, 
+          true
+        ],
+        "grid_size": {
+          "width": 1,
+          "height": 3
+        }
+      }
+    },
+    "CRYPT.interior_mb1x2": {
+      "name": "CRYPT.interior_mb1x2",
+      "weight": 40.0,
+      "multisprite": {
+        "texture_path": "res/textures/crypt_interior.png",
+        "sprite_indices": [24,25,26,27,28,29],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "solid_mask": [
+          false, 
+          false, 
+          true
+        ],
+        "grid_size": {
+          "width": 1,
+          "height": 3
+        }
+      }
+    },
     "POT": {
       "name": "POT",
       "weight": 1.0,
