@@ -77,7 +77,8 @@ void CryptScene::do_update( [[maybe_unused]] sf::Time dt )
   // clang-format off
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().render_game( 
     dt,
-    m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>() , m_floormap
+    m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>() , m_floormap,
+    Sys::RenderGameSystem::DarkMode::ON
   );
   // clang-format on
 }

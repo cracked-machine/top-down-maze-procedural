@@ -77,7 +77,7 @@ void RenderGameSystem::refresh_z_order_queue()
 void RenderGameSystem::init_views()
 {
   // init local view dimensions
-  m_local_view = sf::View( { kLocalMapViewSize.x * 0.5f, kLocalMapViewSize.y * 0.5f }, kLocalMapViewSize );
+  m_local_view = sf::View( { kLocalMapViewSizeF.x * 0.5f, kLocalMapViewSizeF.y * 0.5f }, kLocalMapViewSizeF );
   m_local_view.setViewport( sf::FloatRect( { 0.f, 0.f }, { 1.f, 1.f } ) );
 
   // init minimap view dimensions
@@ -104,10 +104,13 @@ void RenderGameSystem::init_shaders()
 
   m_mist_shader.resize_texture( display_res );
   m_mist_shader.setup();
+
+  m_dark_mode_shader.resize_texture( display_res );
+  m_dark_mode_shader.setup();
 }
 
 void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys,
-                                    Sprites::Containers::TileMap &floormap )
+                                    Sprites::Containers::TileMap &floormap, DarkMode dark_mode )
 {
   using namespace Sprites;
 
@@ -126,7 +129,11 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
     player_position = pc_pos_cmp;
   }
 
-  m_local_view.setCenter( player_position.position );
+  // make sure the local view is centered on the player mid-point and not at their top-left corner
+  // (otherwise this makes views, shaders, etc look off-center)
+  m_local_view.setCenter( player_position.position + Constants::kGridSquareSizePixelsF * 0.5f );
+
+  // re-populate the z-order queue with the latest entity/component data
   refresh_z_order_queue();
 
   // main render begin
@@ -177,6 +184,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_wormhole_effect( floormap );
       render_arrow_compass();
       render_mist( player_position );
+      if ( dark_mode == DarkMode::ON ) { render_dark_mode_shader(); }
     }
     // local view end
 
@@ -429,6 +437,16 @@ void RenderGameSystem::render_arrow_compass()
       safe_render_sprite( "ARROW", arrow_rect, sprite_index, scale, alpha, origin, angle_radians );
     }
   }
+}
+
+void RenderGameSystem::render_dark_mode_shader()
+{
+  // Update dark mode shader with proper parameters
+  auto shader_local_position = m_local_view.getCenter() - m_local_view.getSize() * 0.5f;
+  sf::Vector2f aperture_half_size( Constants::kGridSquareSizePixelsF * 1.5f );
+  auto display_res = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
+  m_dark_mode_shader.update( shader_local_position, aperture_half_size, kLocalMapViewSize, display_res );
+  m_window.draw( m_dark_mode_shader );
 }
 
 } // namespace ProceduralMaze::Sys

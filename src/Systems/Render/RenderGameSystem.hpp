@@ -6,6 +6,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #include <Shaders/BackgroundShader.hpp>
+#include <Shaders/DarkModeShader.hpp>
 #include <Shaders/MistShader.hpp>
 #include <Shaders/PulsingShader.hpp>
 #include <Shaders/ViewFragmentShader.hpp>
@@ -24,6 +25,8 @@ namespace ProceduralMaze::Sys
 class RenderGameSystem : public RenderSystem
 {
 public:
+  enum class DarkMode { OFF = 0, ON = 1 };
+
   RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
                     Audio::SoundBank &sound_bank );
   ~RenderGameSystem() = default;
@@ -49,7 +52,7 @@ public:
   //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc..
   //! as well as death animations/effects
   void render_game( sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys,
-                    Sprites::Containers::TileMap &floormap );
+                    Sprites::Containers::TileMap &floormap, DarkMode dark_mode = DarkMode::OFF );
 
 private:
   //! @brief Renders the game world floor
@@ -70,6 +73,8 @@ private:
   void render_arrow_compass();
 
   void render_wormhole_effect( Sprites::Containers::TileMap &floormap );
+
+  void render_dark_mode_shader();
 
   //! @brief Adds visible entities of a specific component type to the Z-order queue
   //! Optimized (single-type view) query on entt components for visibility check and Z-order queue
@@ -96,7 +101,9 @@ private:
   sf::View m_local_view;
 
   //! @brief m_local_view dimension
-  const sf::Vector2f kLocalMapViewSize{ 300.f, 200.f };
+  const sf::Vector2u kLocalMapViewSize{ 300u, 200u };
+  const sf::Vector2f kLocalMapViewSizeF{ static_cast<float>( kLocalMapViewSize.x ),
+                                         static_cast<float>( kLocalMapViewSize.y ) };
 
   // unused?
   const float kMiniMapViewZoomFactor = 0.25f;
@@ -108,6 +115,7 @@ private:
                                                  Constants::kGridSquareSizePixels.componentWiseMul( { 3u, 3u } ) };
   Sprites::PulsingShader m_pulsing_shader{ "res/shaders/RedPulsingSand.frag", { 1u, 1u } };
   Sprites::MistShader m_mist_shader{ "res/shaders/MistShader.frag", { 1u, 1u } };
+  Sprites::DarkModeShader m_dark_mode_shader{ "res/shaders/DarkMode.frag", { 1u, 1u } };
 
   // optimize the debug overlay updates to every n milliseconds
   const sf::Time m_debug_update_interval{ sf::milliseconds( 10 ) };
