@@ -29,43 +29,43 @@ void main()
   float outline_thickness = 3.0;
 
   // Check if we're on the border of the shader
-  bool on_border = ( local_coord.x < outline_thickness || local_coord.x > local_resolution.x - outline_thickness ||
-                     local_coord.y < outline_thickness || local_coord.y > local_resolution.y - outline_thickness );
+  // bool on_border = ( local_coord.x < outline_thickness || local_coord.x > local_resolution.x - outline_thickness ||
+  //                    local_coord.y < outline_thickness || local_coord.y > local_resolution.y - outline_thickness );
 
-  if ( on_border )
-  {
-    // Red outline
-    // gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
-  }
-  else
-  {
-    // Candlelight flickering effect
-    float flicker_speed = 4.0;
-    float flicker_intensity = 0.1;
+  // if ( on_border )
+  // {
+  //   Red outline
+  //   gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
+  // }
+  // else
+  // {
+  // Candlelight flickering effect
+  float flicker_speed = 4.0;
+  float flicker_intensity = 0.1;
 
-    // Combine multiple noise frequencies for more realistic flicker
-    float flicker = noise( time * flicker_speed ) * 0.5 + noise( time * flicker_speed * 2.3 ) * 0.3 +
-                    noise( time * flicker_speed * 0.7 ) * 0.2;
+  // Combine multiple noise frequencies for more realistic flicker
+  float flicker = noise( time * flicker_speed ) * 0.5 + noise( time * flicker_speed * 2.3 ) * 0.3 +
+                  noise( time * flicker_speed * 0.7 ) * 0.2;
 
-    // Apply flicker to adjust the effective aperture radius
-    float flickered_radius = aperture_radius * ( 1.0 + flicker * flicker_intensity );
+  // Apply flicker to adjust the effective aperture radius
+  float flickered_radius = aperture_radius * ( 1.0 + flicker * flicker_intensity );
 
-    // Blur edge width
-    float blur_width = 20.0;
+  // Blur edge width
+  float blur_width = 20.0;
 
-    // Create smooth transition from transparent to black using the flickered radius
-    float alpha = smoothstep( flickered_radius - blur_width, flickered_radius + blur_width, distance_from_center );
+  // Create smooth transition from transparent to black using the flickered radius
+  float alpha = smoothstep( flickered_radius - blur_width, flickered_radius + blur_width, distance_from_center );
 
-    // Warm white tint (candlelight color)
-    vec3 warm_white = vec3( 1.0, 0.9, 0.7 ); // Slightly orange-tinted white
-    float tint_intensity = 0.5;              // How strong the tint is
+  // Warm white tint (candlelight color)
+  vec3 warm_white = vec3( 1.0, 0.9, 0.7 ); // Slightly orange-tinted white
+  float tint_intensity = 0.5;              // How strong the tint is
 
-    // Calculate how much tint to apply (inverse of alpha - more tint where it's more transparent)
-    float tint_amount = ( 1.0 - alpha ) * tint_intensity;
+  // Calculate how much tint to apply (inverse of alpha - more tint where it's more transparent)
+  float tint_amount = ( 1.0 - alpha ) * tint_intensity;
 
-    // Mix warm white tint with black based on the aperture area
-    vec3 color = mix( vec3( 0.0 ), warm_white, tint_amount );
+  // Mix warm white tint with black based on the aperture area
+  vec3 color = mix( vec3( 0.0 ), warm_white, tint_amount );
 
-    gl_FragColor = vec4( color, alpha );
-  }
+  gl_FragColor = vec4( color, alpha );
+  // }
 }
