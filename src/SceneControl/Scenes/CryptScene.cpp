@@ -25,9 +25,10 @@ void CryptScene::on_init()
   random_level_sys.generate( Sys::ProcGen::RandomLevelGenerator::AreaShape::CROSS, CryptScene::kMapGridSize,
                              Sys::ProcGen::RandomLevelGenerator::SceneType::CRYPT_INTERIOR );
 
-  auto &cellauto_parser = m_system_store.find<Sys::SystemStore::Type::CellAutomataSystem>();
-  cellauto_parser.set_random_level_generator( &random_level_sys );
-  cellauto_parser.iterate( 5, CryptScene::kMapGridSize, Sys::ProcGen::RandomLevelGenerator::SceneType::CRYPT_INTERIOR );
+  // auto &cellauto_parser = m_system_store.find<Sys::SystemStore::Type::CellAutomataSystem>();
+  // cellauto_parser.set_random_level_generator( &random_level_sys );
+  // cellauto_parser.iterate( 5, CryptScene::kMapGridSize, Sys::ProcGen::RandomLevelGenerator::SceneType::CRYPT_INTERIOR
+  // );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, CryptScene::kMapGridSize,
                                             "res/json/crypt_tilemap_config.json" );

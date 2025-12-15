@@ -1,5 +1,6 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteRotation.hpp>
+#include <Components/CryptRoom.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Neighbours.hpp>
 #include <Components/PCDetectionBounds.hpp>

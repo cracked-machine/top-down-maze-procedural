@@ -42,7 +42,7 @@ private:
 
   inline static constexpr sf::Vector2f m_player_start_position = sf::Vector2f(
       ( CryptScene::kMapGridSizeF.x / 2.f ) * Constants::kGridSquareSizePixels.x,
-      ( CryptScene::kMapGridSizeF.y - 5.f ) * Constants::kGridSquareSizePixels.y );
+      ( CryptScene::kMapGridSizeF.y - 3.f ) * Constants::kGridSquareSizePixels.y );
 };
 
 } // namespace ProceduralMaze::Scene

@@ -1,6 +1,8 @@
 #include <Components/CryptInteriorMultiBlock.hpp>
+#include <Components/CryptRoom.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/PlayerCadaverCount.hpp>
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
@@ -189,6 +191,18 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_arrow_compass();
       render_mist( player_position );
       if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
+      auto room_view = getReg().view<Cmp::CryptRoom>();
+      for ( auto [existing_entity, existing_room] : room_view.each() )
+      {
+
+        sf::RectangleShape rectangle;
+        rectangle.setSize( existing_room.size );
+        rectangle.setPosition( existing_room.position );
+        rectangle.setFillColor( sf::Color::Transparent );
+        rectangle.setOutlineColor( sf::Color::Red );
+        rectangle.setOutlineThickness( 1.f );
+        m_window.draw( rectangle );
+      }
     }
     // local view end
 

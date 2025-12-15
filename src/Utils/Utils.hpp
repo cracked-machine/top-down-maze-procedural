@@ -20,6 +20,18 @@ inline static constexpr sf::Vector2u kFallbackDisplaySize{ 1920, 1080 };
 namespace ProceduralMaze::Utils
 {
 
+inline bool isInBounds( const sf::Vector2f &position, const sf::Vector2f &size, const sf::Vector2u &map_grid_size )
+{
+  float map_width = static_cast<float>( map_grid_size.x ) * Constants::kGridSquareSizePixelsF.x;
+  float map_height = static_cast<float>( map_grid_size.y ) * Constants::kGridSquareSizePixelsF.y;
+
+  if ( position.x < 0.f || position.y < 0.f ) return false;
+  if ( position.x + size.x > map_width ) return false;
+  if ( position.y + size.y > map_height ) return false;
+
+  return true;
+}
+
 //! @brief Snaps a rectangle's position to the nearest grid cell.
 //!
 //! Computes a new rectangle whose top-left corner is moved to the nearest grid

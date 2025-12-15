@@ -62,6 +62,7 @@ public:
   void gen_graveyard_exterior_multiblocks();
   void do_gen_graveyard_exterior_multiblock( const Sprites::MultiSprite &ms, unsigned long seed );
 
+  void gen_crypt_interior_map( sf::Vector2u map_grid_size );
   void gen_crypt_interior_obstacles();
   void gen_crypt_main_objective( sf::Vector2u map_grid_size );
   void gen_crypt_interior_multiblocks();
