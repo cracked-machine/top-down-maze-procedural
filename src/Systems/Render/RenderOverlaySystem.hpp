@@ -7,6 +7,7 @@
 
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Utils.hpp>
 #include <set>
 
 namespace ProceduralMaze::Sys
@@ -15,8 +16,7 @@ namespace ProceduralMaze::Sys
 class RenderOverlaySystem : public RenderSystem
 {
 public:
-  RenderOverlaySystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                       Audio::SoundBank &sound_bank )
+  RenderOverlaySystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
       : RenderSystem( reg, window, sprite_factory, sound_bank )
   {
     // Pre-warm font texture atlas with all glyphs used in debug overlays
@@ -54,8 +54,7 @@ public:
   void render_player_position_overlay( sf::Vector2f player_position, sf::Vector2f pos );
   void render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos );
   void render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3, sf::Vector2f pos4 );
-  void render_zorder_values_overlay( sf::Vector2f pos, std::vector<ZOrder> &zorder_queue,
-                                     std::set<Sprites::SpriteMetaType> exclusions = {} );
+  void render_zorder_values_overlay( sf::Vector2f pos, std::vector<ZOrder> &zorder_queue, std::set<Sprites::SpriteMetaType> exclusions = {} );
   void render_npc_list_overlay( sf::Vector2f pos );
   void render_obstacle_markers();
   void render_player_distances();
@@ -63,8 +62,7 @@ public:
   void render_lerp_positions();
 
   template <typename Component>
-  void render_square_for_entity( entt::entity entity, sf::Color square_color = sf::Color::Red,
-                                 float square_thickness = 1.f )
+  void render_square_for_entity( entt::entity entity, sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )
   {
     if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
     {
@@ -75,6 +73,25 @@ public:
         sf::RectangleShape rectangle;
         rectangle.setSize( Constants::kGridSquareSizePixelsF );
         rectangle.setPosition( pos_cmp->position );
+        rectangle.setFillColor( sf::Color::Transparent );
+        rectangle.setOutlineColor( square_color );
+        rectangle.setOutlineThickness( square_thickness );
+        m_window.draw( rectangle );
+      }
+    }
+  }
+
+  template <typename Component>
+  void render_square_for_vector2f_cmp( sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )
+  {
+    auto requested_view = getReg().view<Component>();
+    for ( auto [entity, requested_cmp] : requested_view.each() )
+    {
+      if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
+      {
+        sf::RectangleShape rectangle;
+        rectangle.setSize( Constants::kGridSquareSizePixelsF );
+        rectangle.setPosition( requested_cmp );
         rectangle.setFillColor( sf::Color::Transparent );
         rectangle.setOutlineColor( square_color );
         rectangle.setOutlineThickness( square_thickness );

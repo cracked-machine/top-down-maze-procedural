@@ -1,4 +1,5 @@
 #include <Components/CryptInteriorMultiBlock.hpp>
+#include <Components/CryptPassageBlock.hpp>
 #include <Components/CryptRoomClosed.hpp>
 #include <Components/CryptRoomEnd.hpp>
 #include <Components/CryptRoomOpen.hpp>
@@ -57,8 +58,8 @@
 namespace ProceduralMaze::Sys
 {
 
-RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &window,
-                                    Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                                    Audio::SoundBank &sound_bank )
     : RenderSystem( reg, window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "RenderGameSystem initialized" );
@@ -78,8 +79,7 @@ void RenderGameSystem::refresh_z_order_queue()
   // add other components as normal
   add_visible_entity_to_z_order_queue<Cmp::Position>( m_zorder_queue_, view_bounds );
 
-  std::sort( m_zorder_queue_.begin(), m_zorder_queue_.end(),
-             []( const ZOrder &a, const ZOrder &b ) { return a.z < b.z; } );
+  std::sort( m_zorder_queue_.begin(), m_zorder_queue_.end(), []( const ZOrder &a, const ZOrder &b ) { return a.z < b.z; } );
 }
 
 void RenderGameSystem::init_views()
@@ -177,8 +177,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
           auto new_angle_cmp = getReg().try_get<Cmp::AbsoluteRotation>( entity );
           if ( new_angle_cmp ) new_angle_value = sf::degrees( new_angle_cmp->getAngle() );
 
-          safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp,
-                              anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame, { 1.f, 1.f }, alpha_value,
+          safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame, { 1.f, 1.f }, alpha_value,
                               new_origin_value, new_angle_value );
         }
       }
@@ -199,6 +198,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
       render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
       render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
+      render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Cyan, 1.f );
     }
     // local view end
 
@@ -231,9 +231,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
         new_weapon_level = weapon_level.m_level;
       }
 
-      auto pc_candles_cmp = getReg()
-                                .view<Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount, Cmp::PlayerRelicCount,
-                                      Cmp::PlayerCadaverCount>();
+      auto pc_candles_cmp = getReg().view<Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount, Cmp::PlayerRelicCount, Cmp::PlayerCadaverCount>();
       for ( auto [entity, candles_cmp, keys_cmp, relic_cmp, cadaver_cmp] : pc_candles_cmp.each() )
       {
         player_candles_count = candles_cmp.get_count();
@@ -259,8 +257,8 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
         render_overlay_sys.render_player_position_overlay( player_position.position, { 40.f, 300.f } );
         render_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 340.f } );
         render_overlay_sys.render_stats_overlay( { 40.f, 380.f }, { 40.f, 420.f }, { 40.f, 460.f }, { 40.f, 500.f } );
-        render_overlay_sys.render_zorder_values_overlay(
-            { 40.f, 600.f }, m_zorder_queue_, { "ROCK", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED" } );
+        render_overlay_sys.render_zorder_values_overlay( { 40.f, 600.f }, m_zorder_queue_,
+                                                         { "ROCK", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED" } );
         sf::Vector2u display_size = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
         render_overlay_sys.render_npc_list_overlay( { display_size.x - 600.f, 200.f } );
       }
@@ -362,8 +360,8 @@ void RenderGameSystem::render_wormhole_effect( Sprites::Containers::TileMap &flo
       // Draw background onto shader texture
       floormap.draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
 
-      safe_render_sprite_to_target( m_wormhole_shader.get_render_texture(), wormhole_sprite.get_sprite_type(),
-                                    wormhole_cmp, anim_cmp.m_current_frame );
+      safe_render_sprite_to_target( m_wormhole_shader.get_render_texture(), wormhole_sprite.get_sprite_type(), wormhole_cmp,
+                                    anim_cmp.m_current_frame );
 
       // Update and draw shader
       Sprites::UniformBuilder builder;
@@ -404,8 +402,7 @@ void RenderGameSystem::render_arrow_compass()
       // Get view bounds in world coordinates
       sf::Vector2f view_center = m_local_view.getCenter();
       sf::Vector2f view_size = m_local_view.getSize();
-      sf::FloatRect view_bounds{ { view_center.x - view_size.x / 2.0f, view_center.y - view_size.y / 2.0f },
-                                 view_size };
+      sf::FloatRect view_bounds{ { view_center.x - view_size.x / 2.0f, view_center.y - view_size.y / 2.0f }, view_size };
 
       // Add margin from edge
       float margin = 32.0f;
@@ -437,22 +434,20 @@ void RenderGameSystem::render_arrow_compass()
       auto angle_radians = direction.angle();
 
       // Center the arrow sprite at the calculated position
-      sf::FloatRect arrow_rect{ arrow_position - sf::Vector2f{ Constants::kGridSquareSizePixelsF.x / 2.0f,
-                                                               Constants::kGridSquareSizePixelsF.y / 2.0f },
+      sf::FloatRect arrow_rect{ arrow_position -
+                                    sf::Vector2f{ Constants::kGridSquareSizePixelsF.x / 2.0f, Constants::kGridSquareSizePixelsF.y / 2.0f },
                                 Constants::kGridSquareSizePixelsF };
 
       // Map sin(time) from [-1, 1] to [0.2, 1.0]
       // Formula: min + (max - min) * (sin(freq * time) + 1) / 2
       auto time = m_compass_osc_clock.getElapsedTime().asSeconds();
       auto sine = std::sin( m_compass_freq * time );
-      float oscillating_scale = m_compass_min_scale +
-                                ( m_compass_max_scale - m_compass_min_scale ) * ( sine + 1.0f ) / 2.0f;
+      float oscillating_scale = m_compass_min_scale + ( m_compass_max_scale - m_compass_min_scale ) * ( sine + 1.0f ) / 2.0f;
       auto scale = sf::Vector2f{ oscillating_scale, oscillating_scale };
 
       auto sprite_index = 0;
       auto alpha = 255;
-      auto origin = sf::Vector2f{ Constants::kGridSquareSizePixelsF.x / 2.0f,
-                                  Constants::kGridSquareSizePixelsF.y / 2.0f };
+      auto origin = sf::Vector2f{ Constants::kGridSquareSizePixelsF.x / 2.0f, Constants::kGridSquareSizePixelsF.y / 2.0f };
 
       safe_render_sprite( "ARROW", arrow_rect, sprite_index, scale, alpha, origin, angle_radians );
     }

@@ -34,8 +34,7 @@
 namespace ProceduralMaze::Sys
 {
 
-NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                      Audio::SoundBank &sound_bank )
+NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "NpcSystem initialized" );
@@ -148,8 +147,7 @@ void NpcSystem::check_bones_reanimation()
       auto &npc_activate_scale = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcActivateScale>( getReg() );
       // we just create a temporary RectBounds here instead of a component because we only need it
       // for this one comparison and it already contains the needed scaling logic
-      auto npc_activate_bounds = Cmp::RectBounds( npccontainer_pos_cmp.position, Constants::kGridSquareSizePixelsF,
-                                                  npc_activate_scale.get_value() );
+      auto npc_activate_bounds = Cmp::RectBounds( npccontainer_pos_cmp.position, Constants::kGridSquareSizePixelsF, npc_activate_scale.get_value() );
 
       if ( pc_pos_cmp.findIntersection( npc_activate_bounds.getBounds() ) )
       {
@@ -162,9 +160,7 @@ void NpcSystem::check_bones_reanimation()
 
 void NpcSystem::check_player_to_npc_collision()
 {
-  auto player_collision_view = getReg()
-                                   .view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position,
-                                         Cmp::Direction>();
+  auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position, Cmp::Direction>();
   auto npc_collision_view = getReg().view<Cmp::NPC, Cmp::Position>();
   auto &npc_push_back = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcPushBack>( getReg() );
   auto &pc_damage_cooldown = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>( getReg() );
@@ -194,8 +190,7 @@ void NpcSystem::check_player_to_npc_collision()
       pc_cmp.m_damage_cooldown_timer.restart();
 
       // Find a valid pushback position by checking all 8 directions
-      sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp.position, npc_pos_cmp.position, dir_cmp,
-                                                                     npc_push_back.get_value() );
+      sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp.position, npc_pos_cmp.position, dir_cmp, npc_push_back.get_value() );
 
       // Update player position if we found a valid pushback position
       if ( target_push_back_pos != pc_pos_cmp.position ) { pc_pos_cmp.position = target_push_back_pos; }
@@ -203,8 +198,8 @@ void NpcSystem::check_player_to_npc_collision()
   }
 }
 
-sf::Vector2f NpcSystem::findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos,
-                                                   const sf::Vector2f &player_direction, float pushback_distance )
+sf::Vector2f NpcSystem::findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos, const sf::Vector2f &player_direction,
+                                                   float pushback_distance )
 {
   // Define all 8 directions (N, NE, E, SE, S, SW, W, NW)
   std::vector<sf::Vector2f> directions = {
@@ -396,25 +391,20 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
         bool is_diagonal = ( candidate_dir.x != 0.0f ) && ( candidate_dir.y != 0.0f );
         if ( is_diagonal && isDiagonalBlocked( sf::FloatRect{ npc_pos->position, npc_pos->size }, candidate_dir ) )
         {
-          SPDLOG_DEBUG( "Blocking diagonal movement for NPC at ({}, {}) towards ({}, {})", npc_pos->position.x,
-                        npc_pos->position.y, move_candidate_pixel_pos.value().x, move_candidate_pixel_pos.value().y );
+          SPDLOG_DEBUG( "Blocking diagonal movement for NPC at ({}, {}) towards ({}, {})", npc_pos->position.x, npc_pos->position.y,
+                        move_candidate_pixel_pos.value().x, move_candidate_pixel_pos.value().y );
           continue; // Skip this target and try the next one
         }
 
-        auto horizontal_hitbox = Cmp::RectBounds(
-            sf::Vector2f{ npc_pos->position.x + ( candidate_dir.x * 16 ), npc_pos->position.y },
-            Constants::kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
+        auto horizontal_hitbox = Cmp::RectBounds( sf::Vector2f{ npc_pos->position.x + ( candidate_dir.x * 16 ), npc_pos->position.y },
+                                                  Constants::kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
-        auto vertical_hitbox = Cmp::RectBounds(
-            sf::Vector2f{ npc_pos->position.x, npc_pos->position.y + ( candidate_dir.y * 16 ) },
-            Constants::kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
-        SPDLOG_DEBUG( "Checking distance {} - NPC at ({}, {}), Target at ({}, {}), Dir ({}, {})",
-                      nearest_obstacle.first, npc_pos->position.x, npc_pos->position.y,
-                      move_candidate_pixel_pos.value().x, move_candidate_pixel_pos.value().y, candidate_dir.x,
-                      candidate_dir.y );
-        SPDLOG_DEBUG( "Horizontal hitbox at ({}, {}), Vertical hitbox at ({}, {})",
-                      npc_pos->position.x + ( candidate_dir.x * 16 ), npc_pos->position.y, npc_pos->position.x,
-                      npc_pos->position.y + ( candidate_dir.y * 16 ) );
+        auto vertical_hitbox = Cmp::RectBounds( sf::Vector2f{ npc_pos->position.x, npc_pos->position.y + ( candidate_dir.y * 16 ) },
+                                                Constants::kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
+        SPDLOG_DEBUG( "Checking distance {} - NPC at ({}, {}), Target at ({}, {}), Dir ({}, {})", nearest_obstacle.first, npc_pos->position.x,
+                      npc_pos->position.y, move_candidate_pixel_pos.value().x, move_candidate_pixel_pos.value().y, candidate_dir.x, candidate_dir.y );
+        SPDLOG_DEBUG( "Horizontal hitbox at ({}, {}), Vertical hitbox at ({}, {})", npc_pos->position.x + ( candidate_dir.x * 16 ),
+                      npc_pos->position.y, npc_pos->position.x, npc_pos->position.y + ( candidate_dir.y * 16 ) );
 
         bool horizontal_collision = false;
         bool vertical_collision = false;
@@ -449,8 +439,7 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
   }
 }
 
-void NpcSystem::add_candidate_lerp( entt::entity npc_entity, Cmp::Direction candidate_dir,
-                                    Cmp::LerpPosition candidate_lerp_pos )
+void NpcSystem::add_candidate_lerp( entt::entity npc_entity, Cmp::Direction candidate_dir, Cmp::LerpPosition candidate_lerp_pos )
 {
   getReg().emplace_or_replace<Cmp::Direction>( npc_entity, std::move( candidate_dir ) );
   getReg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, std::move( candidate_lerp_pos ) );

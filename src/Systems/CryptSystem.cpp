@@ -3,6 +3,7 @@
 #include <Components/CryptMultiBlock.hpp>
 #include <Components/CryptObjectiveMultiBlock.hpp>
 #include <Components/CryptObjectiveSegment.hpp>
+#include <Components/CryptPassageBlock.hpp>
 #include <Components/CryptRoomClosed.hpp>
 #include <Components/CryptRoomEnd.hpp>
 #include <Components/CryptRoomOpen.hpp>
@@ -11,6 +12,7 @@
 #include <Components/Exit.hpp>
 #include <Components/PlayerCadaverCount.hpp>
 #include <Components/PlayerKeysCount.hpp>
+#include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
@@ -21,9 +23,11 @@
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
+#include <entt/entity/fwd.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -215,7 +219,7 @@ void CryptSystem::spawn_exit( sf::Vector2u spawn_position )
   return;
 }
 
-void CryptSystem::closeOpenedRooms()
+void CryptSystem::closeAllRooms()
 {
 
   std::vector<std::pair<entt::entity, Cmp::CryptRoomOpen>> rooms_to_close;
@@ -253,7 +257,7 @@ void CryptSystem::closeOpenedRooms()
   }
 }
 
-void CryptSystem::openClosedRooms( std::set<entt::entity> selected_rooms )
+void CryptSystem::openSelectedRooms( std::set<entt::entity> selected_rooms )
 {
   std::vector<std::pair<entt::entity, Cmp::CryptRoomClosed>> rooms_to_open;
   auto closed_room_view = getReg().view<Cmp::CryptRoomClosed>();
@@ -278,6 +282,213 @@ void CryptSystem::openClosedRooms( std::set<entt::entity> selected_rooms )
   {
     getReg().emplace<Cmp::CryptRoomOpen>( room_entt, room_cmp.position, room_cmp.size );
     getReg().remove<Cmp::CryptRoomClosed>( room_entt );
+  }
+}
+
+bool CryptSystem::place_passage_block( float x, float y, std::vector<entt::entity> &new_block_list )
+{
+
+  auto block_list_unwind = [&]()
+  {
+    for ( auto &passage_block_entity : new_block_list )
+    {
+      getReg().destroy( passage_block_entity );
+    }
+    new_block_list.clear();
+  };
+
+  Cmp::Position next_passage_block_cmp( { x, y }, Constants::kGridSquareSizePixelsF );
+
+  // Check if a block already exists at this position
+  auto block_view = getReg().view<Cmp::CryptPassageBlock>();
+  for ( auto [passage_block_entt, passage_block_cmp] : block_view.each() )
+  {
+    Cmp::Position found_passage_block_pos_cmp( passage_block_cmp, Constants::kGridSquareSizePixelsF );
+    if ( found_passage_block_pos_cmp.findIntersection( next_passage_block_cmp ) )
+    {
+      SPDLOG_INFO( "CryptPassageBlock already exists at {},{}", x, y );
+      block_list_unwind();
+      return false;
+    }
+  }
+
+  // Allow placement in open rooms (passages connect to rooms)
+  // Only block placement if there's a wall collision
+  auto wall_view = getReg().view<Cmp::Wall, Cmp::Position>();
+  for ( auto [wall_entt, wall_cmp, wall_pos_cmp] : wall_view.each() )
+  {
+    if ( wall_pos_cmp.findIntersection( next_passage_block_cmp ) )
+    {
+      SPDLOG_INFO( "Wall collision: Cannot place CryptPassageBlock at {},{}", x, y );
+      block_list_unwind();
+      return false;
+    }
+  }
+
+  entt::entity new_entt = getReg().create();
+  getReg().emplace_or_replace<Cmp::CryptPassageBlock>( new_entt, next_passage_block_cmp.position );
+  new_block_list.push_back( new_entt );
+  SPDLOG_INFO( "Placed CryptPassageBlock at {},{}", x, y );
+
+  return true;
+};
+
+bool CryptSystem::createDogLegPassage( std::pair<Cmp::CryptPassageDirection, sf::Vector2f> start,
+                                       std::pair<Cmp::CryptPassageDirection, sf::Vector2f> end )
+{
+  SPDLOG_INFO( "Entered createDogLegPassage from ({},{}) to ({},{})", start.second.x, start.second.y, end.second.x, end.second.y );
+
+  std::vector<entt::entity> new_block_list;
+
+  float dx = end.second.x - start.second.x;
+  float dy = end.second.y - start.second.y;
+  const auto kSquareSizePx = Constants::kGridSquareSizePixelsF;
+
+  if ( std::abs( dx ) > std::abs( dy ) )
+  {
+    SPDLOG_INFO( "start with horizontal leg" );
+    // First leg: horizontal
+    if ( dx > 0 )
+    {
+      for ( float x = start.second.x; x <= end.second.x; x += kSquareSizePx.x )
+      {
+        if ( not place_passage_block( x, start.second.y, new_block_list ) ) { return false; }
+      }
+    }
+    else
+    {
+      for ( float x = start.second.x; x >= end.second.x; x -= kSquareSizePx.x )
+      {
+        if ( not place_passage_block( x, start.second.y, new_block_list ) ) { return false; }
+      }
+    }
+    SPDLOG_INFO( "switch to vertical leg" );
+    // Second leg: vertical from end.x to end.y
+    if ( dy > 0 )
+    {
+      for ( float y = start.second.y + kSquareSizePx.y; y <= end.second.y; y += kSquareSizePx.y )
+      {
+        if ( not place_passage_block( end.second.x, y, new_block_list ) ) { return false; }
+      }
+    }
+    else
+    {
+      for ( float y = start.second.y - kSquareSizePx.y; y >= end.second.y; y -= kSquareSizePx.y )
+      {
+        if ( not place_passage_block( end.second.x, y, new_block_list ) ) { return false; }
+      }
+    }
+  }
+  else
+  {
+    SPDLOG_INFO( "start with vertical leg" );
+    // First leg: vertical
+    if ( dy > 0 )
+    {
+      for ( float y = start.second.y; y <= end.second.y; y += kSquareSizePx.y )
+      {
+        if ( not place_passage_block( start.second.x, y, new_block_list ) ) { return false; }
+      }
+    }
+    else
+    {
+      for ( float y = start.second.y; y >= end.second.y; y -= kSquareSizePx.y )
+      {
+        if ( not place_passage_block( start.second.x, y, new_block_list ) ) { return false; }
+      }
+    }
+    SPDLOG_INFO( "switch to horizontal leg" );
+    // Second leg: horizontal from start.x to end.x
+    if ( dx > 0 )
+    {
+      for ( float x = start.second.x + kSquareSizePx.x; x <= end.second.x; x += kSquareSizePx.x )
+      {
+        if ( not place_passage_block( x, end.second.y, new_block_list ) ) { return false; }
+      }
+    }
+    else
+    {
+      for ( float x = start.second.x - kSquareSizePx.x; x >= end.second.x; x -= kSquareSizePx.x )
+      {
+        if ( not place_passage_block( x, end.second.y, new_block_list ) ) { return false; }
+      }
+    }
+  }
+
+  return true;
+}
+
+void CryptSystem::openRandomPassages()
+{
+  auto start_room_view = getReg().view<Cmp::CryptRoomStart>();
+  {
+    auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
+
+    for ( auto [start_room_entt, start_room_cmp] : start_room_view.each() )
+    {
+      // Skip if player not in start room
+      if ( not Utils::get_player_position( getReg() ).findIntersection( start_room_cmp ) ) continue;
+
+      // Connect to at most 2-3 nearby open rooms to avoid over-connection
+
+      for ( auto [other_room_entt, other_room_cmp] : open_room_view.each() )
+      {
+
+        // try to connect each start midpoint with one other open room midpoint
+        for ( auto &start_midpoint : start_room_cmp.m_midpoints )
+        {
+          if ( start_room_cmp.m_midpoints[start_midpoint.first].is_used ) continue;
+          for ( auto &end_midpoint : other_room_cmp.m_midpoints )
+          {
+            if ( other_room_cmp.m_midpoints[end_midpoint.first].is_used ) continue;
+            if ( createDogLegPassage( start_midpoint, end_midpoint ) )
+            {
+              
+              start_room_cmp.m_midpoints[start_midpoint.first].is_used = true;
+              for ( auto &midpoints : other_room_cmp.m_midpoints )
+              {
+                midpoints.second.is_used = true;
+              }
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+void CryptSystem::closeAllPassages()
+{
+  std::vector<entt::entity> shit_list;
+  // get all Cmp::CryptPassageBlocks
+  auto crypt_passage_block_view = getReg().view<Cmp::CryptPassageBlock>();
+  for ( auto [entt, block_cmp] : crypt_passage_block_view.each() )
+  {
+    //! @todo Add obstacles
+
+    // stash for later
+    shit_list.push_back( entt );
+  }
+
+  // Remove Cmp::CryptPassageBlocks safely
+  for ( auto entt : shit_list )
+  {
+    getReg().destroy( entt );
+  }
+}
+
+void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
+{
+  if ( event.type == Events::CryptRoomEvent::Type::SWAP )
+  {
+    auto selected_rooms = Utils::Rnd::get_n_rand_components<Cmp::CryptRoomClosed>(
+        getReg(), 4, {}, Utils::Rnd::ExcludePack<Cmp::CryptRoomStart, Cmp::CryptRoomEnd>{}, 0 );
+    closeAllRooms();
+    openSelectedRooms( selected_rooms );
+    SPDLOG_INFO( "~~~~~~~~~~~ STARTING PASSAGE GEN ~~~~~~~~~~~~~~~" );
+    closeAllPassages();
+    openRandomPassages();
   }
 }
 

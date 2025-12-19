@@ -47,18 +47,21 @@ void create_initial_crypt_rooms( entt::registry &reg, sf::Vector2u map_grid_size
         overlaps_existing = true;
         break;
       }
+
       // check for intersection with existing rooms
       if ( new_room.findIntersection( existing_room ) )
       {
         overlaps_existing = true;
         break;
       }
+
       // check for minimum distance between rooms
       if ( not is_min_distance_ok( existing_room, new_room ) )
       {
         overlaps_existing = true;
         break;
       }
+
       // check for intersection with walls
       auto wall_view = reg.view<Cmp::Wall, Cmp::Position>();
       for ( auto [wall_entity, wall_cmp, wall_pos_cmp] : wall_view.each() )
@@ -74,6 +77,7 @@ void create_initial_crypt_rooms( entt::registry &reg, sf::Vector2u map_grid_size
           break;
         }
       }
+
       // check for intersection with start room
       auto start_room_view = reg.view<Cmp::CryptRoomStart>();
       for ( auto [start_room_entity, start_room_cmp] : start_room_view.each() )
@@ -89,6 +93,7 @@ void create_initial_crypt_rooms( entt::registry &reg, sf::Vector2u map_grid_size
           break;
         }
       }
+
       // check for intersection with end room
       auto end_room_view = reg.view<Cmp::CryptRoomEnd>();
       for ( auto [end_room_entity, end_room_cmp] : end_room_view.each() )

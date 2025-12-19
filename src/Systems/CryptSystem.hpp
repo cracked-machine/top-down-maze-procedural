@@ -2,14 +2,18 @@
 #define SRC_SYSTEMS_CRYPTSYSTEM_HPP__
 
 #include <Components/CryptEntrance.hpp>
+#include <Components/CryptPassageDoor.hpp>
 #include <Components/CryptRoomClosed.hpp>
 #include <Components/CryptRoomEnd.hpp>
+#include <Components/CryptRoomOpen.hpp>
 #include <Components/CryptRoomStart.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Sprites/TileMap.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <Utils/Maths.hpp>
 #include <Utils/Random.hpp>
+#include <queue>
 #include <set>
 
 namespace ProceduralMaze::Sys
@@ -18,6 +22,9 @@ namespace ProceduralMaze::Sys
 class CryptSystem : public ProceduralMaze::Sys::BaseSystem
 {
 public:
+  using RoomDistanceQueue = std::priority_queue<std::pair<float, sf::Vector2f>, std::vector<std::pair<float, sf::Vector2f>>,
+                                                Utils::Maths::DistanceVector2fComparator>;
+
   CryptSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
                entt::dispatcher &scenemanager_event_dispatcher )
       : ProceduralMaze::Sys::BaseSystem( reg, window, sprite_factory, sound_bank ),
@@ -36,16 +43,7 @@ public:
     if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) check_objective_activation( event.action );
   }
 
-  void on_room_event( Events::CryptRoomEvent &event )
-  {
-    if ( event.type == Events::CryptRoomEvent::Type::SWAP )
-    {
-      auto selected_rooms = Utils::Rnd::get_n_rand_components<Cmp::CryptRoomClosed>(
-          getReg(), 4, {}, Utils::Rnd::ExcludePack<Cmp::CryptRoomStart, Cmp::CryptRoomEnd>{}, 0 );
-      closeOpenedRooms();
-      openClosedRooms( selected_rooms );
-    }
-  }
+  void on_room_event( Events::CryptRoomEvent &event );
 
   virtual void onPause() override {}
   virtual void onResume() override {}
@@ -54,8 +52,14 @@ public:
   void check_exit_collision();
   void check_objective_activation( Events::PlayerActionEvent::GameActions action );
   void spawn_exit( sf::Vector2u spawn_position );
-  void closeOpenedRooms();
-  void openClosedRooms( std::set<entt::entity> selected_rooms );
+  void closeAllRooms();
+  void openSelectedRooms( std::set<entt::entity> selected_rooms );
+
+  void openRandomPassages();
+  void closeAllPassages();
+  bool place_passage_block( float x, float y, std::vector<entt::entity> &new_block_list );
+  bool createDogLegPassage( std::pair<Cmp::CryptPassageDirection, sf::Vector2f> start, std::pair<Cmp::CryptPassageDirection, sf::Vector2f> end );
+  bool createDrunkWalkPassage( sf::Vector2f start, sf::Vector2f end );
 
 private:
   entt::dispatcher &m_scenemanager_event_dispatcher;

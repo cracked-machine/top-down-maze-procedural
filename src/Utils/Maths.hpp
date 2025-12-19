@@ -8,6 +8,14 @@
 namespace ProceduralMaze::Utils::Maths
 {
 
+struct DistanceVector2fComparator
+{
+  bool operator()( const std::pair<float, sf::Vector2f> &a, const std::pair<float, sf::Vector2f> &b ) const
+  {
+    return a.first > b.first; // For min-heap (smallest distance first)
+  }
+};
+
 //! @brief Get the Manhattan Distance between two positions.
 //! Creates a grid-like distance metric:
 //! ┌────┬────┬────┐
