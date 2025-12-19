@@ -1,5 +1,5 @@
-#ifndef CRYPT_ROOM_HPP
-#define CRYPT_ROOM_HPP
+#ifndef SRC_COMPONENTS_CRYPTROOMOPEN_HPP
+#define SRC_COMPONENTS_CRYPTROOMOPEN_HPP
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -7,12 +7,12 @@
 namespace ProceduralMaze::Cmp
 {
 
-class CryptRoom : public sf::FloatRect
+class CryptRoomOpen : public sf::FloatRect
 {
 public:
-  CryptRoom( sf::FloatRect bounds )
+  CryptRoomOpen( sf::FloatRect bounds )
       : sf::FloatRect( bounds ) {};
-  CryptRoom( sf::Vector2f position, sf::Vector2f size )
+  CryptRoomOpen( sf::Vector2f position, sf::Vector2f size )
       : sf::FloatRect( position, size ) {};
 
   sf::FloatRect getBounds() const;
@@ -23,4 +23,4 @@ private:
 
 } // namespace ProceduralMaze::Cmp
 
-#endif // CRYPT_ROOM_HPP
+#endif // SRC_COMPONENTS_CRYPTROOMOPEN_HPP

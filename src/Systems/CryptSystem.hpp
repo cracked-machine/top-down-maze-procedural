@@ -2,9 +2,15 @@
 #define SRC_SYSTEMS_CRYPTSYSTEM_HPP__
 
 #include <Components/CryptEntrance.hpp>
+#include <Components/CryptRoomClosed.hpp>
+#include <Components/CryptRoomEnd.hpp>
+#include <Components/CryptRoomStart.hpp>
+#include <Events/CryptRoomEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Sprites/TileMap.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <Utils/Random.hpp>
+#include <set>
 
 namespace ProceduralMaze::Sys
 {
@@ -12,14 +18,14 @@ namespace ProceduralMaze::Sys
 class CryptSystem : public ProceduralMaze::Sys::BaseSystem
 {
 public:
-  CryptSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-               Audio::SoundBank &sound_bank, entt::dispatcher &scenemanager_event_dispatcher )
+  CryptSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
+               entt::dispatcher &scenemanager_event_dispatcher )
       : ProceduralMaze::Sys::BaseSystem( reg, window, sprite_factory, sound_bank ),
         m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
   {
     // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-    std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&CryptSystem::on_player_action>(
-        this );
+    std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&CryptSystem::on_player_action>( this );
+    std::ignore = get_systems_event_queue().sink<Events::CryptRoomEvent>().connect<&CryptSystem::on_room_event>( this );
   }
 
   void on_player_action( Events::PlayerActionEvent &event )
@@ -29,6 +35,18 @@ public:
     if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) unlock_crypt_door();
     if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) check_objective_activation( event.action );
   }
+
+  void on_room_event( Events::CryptRoomEvent &event )
+  {
+    if ( event.type == Events::CryptRoomEvent::Type::SWAP )
+    {
+      auto selected_rooms = Utils::Rnd::get_n_rand_components<Cmp::CryptRoomClosed>(
+          getReg(), 4, {}, Utils::Rnd::ExcludePack<Cmp::CryptRoomStart, Cmp::CryptRoomEnd>{}, 0 );
+      closeOpenedRooms();
+      openClosedRooms( selected_rooms );
+    }
+  }
+
   virtual void onPause() override {}
   virtual void onResume() override {}
   void unlock_crypt_door();
@@ -36,6 +54,8 @@ public:
   void check_exit_collision();
   void check_objective_activation( Events::PlayerActionEvent::GameActions action );
   void spawn_exit( sf::Vector2u spawn_position );
+  void closeOpenedRooms();
+  void openClosedRooms( std::set<entt::entity> selected_rooms );
 
 private:
   entt::dispatcher &m_scenemanager_event_dispatcher;

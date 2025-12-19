@@ -63,8 +63,8 @@ public:
   void render_lerp_positions();
 
   template <typename Component>
-  void render_square_for_component( entt::entity entity, sf::Color square_color = sf::Color::Red,
-                                    float square_thickness = 1.f )
+  void render_square_for_entity( entt::entity entity, sf::Color square_color = sf::Color::Red,
+                                 float square_thickness = 1.f )
   {
     if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
     {
@@ -75,6 +75,25 @@ public:
         sf::RectangleShape rectangle;
         rectangle.setSize( Constants::kGridSquareSizePixelsF );
         rectangle.setPosition( pos_cmp->position );
+        rectangle.setFillColor( sf::Color::Transparent );
+        rectangle.setOutlineColor( square_color );
+        rectangle.setOutlineThickness( square_thickness );
+        m_window.draw( rectangle );
+      }
+    }
+  }
+
+  template <typename Component>
+  void render_square_for_floatrect_cmp( sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )
+  {
+    auto requested_view = getReg().view<Component>();
+    for ( auto [entity, requested_cmp] : requested_view.each() )
+    {
+      if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
+      {
+        sf::RectangleShape rectangle;
+        rectangle.setSize( requested_cmp.size );
+        rectangle.setPosition( requested_cmp.position );
         rectangle.setFillColor( sf::Color::Transparent );
         rectangle.setOutlineColor( square_color );
         rectangle.setOutlineThickness( square_thickness );

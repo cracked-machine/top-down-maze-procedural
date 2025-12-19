@@ -10,6 +10,7 @@
 #include <Components/PlayerMortality.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/Position.hpp>
+#include <Events/CryptRoomEvent.hpp>
 #include <Events/SaveSettingsEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
 #include <SceneControl/Events/ProcessCryptSceneInputEvent.hpp>
@@ -389,6 +390,10 @@ void SceneInputRouter::crypt_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
       {
         // not implemented yet
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::R )
+      {
+        get_systems_event_queue().trigger( Events::CryptRoomEvent( Events::CryptRoomEvent::Type::SWAP ) );
       }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )

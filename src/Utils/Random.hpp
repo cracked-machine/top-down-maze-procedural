@@ -1,11 +1,15 @@
 #ifndef SRC_UTILS_RANDOM_HPP__
 #define SRC_UTILS_RANDOM_HPP__
 
+#include <Components/CryptRoomClosed.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <SFML/Graphics/Rect.hpp>
+#include <cstddef>
 #include <entt/entity/registry.hpp>
+#include <set>
 #include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Utils::Rnd
@@ -50,8 +54,8 @@ struct ExcludePack
  * @note Uses SPDLOG_DEBUG to log the number of matching positions found.
  */
 template <typename... Include, typename... Exclude>
-static std::pair<entt::entity, Cmp::Position> get_random_position( entt::registry &reg, IncludePack<Include...>,
-                                                                   ExcludePack<Exclude...>, unsigned long seed = 0 )
+static std::pair<entt::entity, Cmp::Position> get_random_position( entt::registry &reg, IncludePack<Include...>, ExcludePack<Exclude...>,
+                                                                   unsigned long seed = 0 )
 {
   auto random_view = reg.view<Cmp::Position, Include...>( entt::exclude<Exclude...> );
 
@@ -83,9 +87,71 @@ static std::pair<entt::entity, Cmp::Position> get_random_position( entt::registr
   return { random_entity, random_position };
 }
 
+//! @brief Get the n random components of a specific type from the registry
+//! @note If result_size > 70% of the sample space then this function may be inefficient.
+//!       See "coupon collector" problem for more details
+//! @tparam Component The type of component to retrieve
+//! @tparam Include Additional types of components that must be included
+//! @tparam Exclude Additional types of components that must be excluded
+//! @param reg The entity registry
+//! @param result_size The number of random components to retrieve
+//! @param seed Optional seed value for random number generation
+//! @return std::map<entt::entity, Component> A map of entities to their corresponding components
+template <typename Component, typename... Include, typename... Exclude>
+static std::set<entt::entity> get_n_rand_components( entt::registry &reg, std::size_t result_size, IncludePack<Include...>, ExcludePack<Exclude...>,
+                                                     unsigned long seed = 0 )
+{
+  std::set<entt::entity> results;
+  if ( result_size == 0 )
+  {
+    SPDLOG_WARN( "Requested 0 random components. Returning empty result set." );
+    return results;
+  }
+
+  auto cmp_view = reg.view<Component, Include...>( entt::exclude<Exclude...> );
+  auto cmp_view_size = std::distance( cmp_view.begin(), cmp_view.end() );
+  SPDLOG_DEBUG( "Found {} components in the maze.", cmp_view_size );
+
+  // clamp result size if there are fewer components available
+  if ( cmp_view_size < result_size )
+  {
+    SPDLOG_WARN( "Requested {} random components, but only {} available. Returning all available components.", result_size, cmp_view_size );
+    result_size = cmp_view_size;
+  }
+  if ( cmp_view_size == result_size )
+  {
+    // If the number of available entities matches the requested size, return all of them
+    for ( auto entity : cmp_view )
+    {
+      results.insert( entity );
+    }
+    return results;
+  }
+
+  // Set seed for random generator
+  Cmp::RandomInt seed_picker( 0, static_cast<int>( cmp_view_size - 1 ) );
+  if ( seed != 0 ) { seed_picker.seed( seed ); }
+  else { seed_picker.seed( std::random_device{}() ); }
+
+  // keep picking random components until we reach the desired result size of unique components
+  while ( results.size() < result_size )
+  {
+    // pick random index and advance iterator to that position
+    int random_index = std::clamp( seed_picker.gen(), 0, static_cast<int>( cmp_view_size - 1 ) );
+    auto it = cmp_view.begin();
+    std::advance( it, random_index );
+
+    // Get the random entity and position component
+    entt::entity random_entity = *it;
+    if ( results.find( random_entity ) != results.end() ) continue; // already have this one
+
+    results.insert( random_entity );
+  }
+  return results;
+}
+
 template <typename... Include, typename... Exclude>
-entt::entity get_random_nearby_disabled_obstacle( entt::registry &reg, sf::FloatRect search_area,
-                                                  IncludePack<Include...>, ExcludePack<Exclude...> )
+entt::entity get_random_nearby_disabled_obstacle( entt::registry &reg, sf::FloatRect search_area, IncludePack<Include...>, ExcludePack<Exclude...> )
 {
 
   auto obst_view = reg.view<Cmp::Obstacle, Cmp::Position, Include...>( entt::exclude<Exclude...> );

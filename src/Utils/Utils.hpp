@@ -1,14 +1,17 @@
 #ifndef SRC_UTILS_UTILS_HPP__
 #define SRC_UTILS_UTILS_HPP__
 
+#include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/View.hpp>
 // #include <Systems/BaseSystem.hpp>
 
 #include <cmath>
+#include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
+#include <stdexcept>
 
 namespace ProceduralMaze::Constants
 {
@@ -83,9 +86,8 @@ static std::optional<sf::Vector2<Signedness>> getGridPosition( entt::registry &r
   auto pos = registry.try_get<Cmp::Position>( entity );
   if ( pos )
   {
-    return std::optional<sf::Vector2<Signedness>>{
-        { static_cast<Signedness>( pos->position.x / Constants::kGridSquareSizePixels.x ),
-          static_cast<Signedness>( pos->position.y / Constants::kGridSquareSizePixels.y ) } };
+    return std::optional<sf::Vector2<Signedness>>{ { static_cast<Signedness>( pos->position.x / Constants::kGridSquareSizePixels.x ),
+                                                     static_cast<Signedness>( pos->position.y / Constants::kGridSquareSizePixels.y ) } };
   }
   else { SPDLOG_ERROR( "Entity {} does not have a Position component", static_cast<int>( entity ) ); }
   return std::nullopt;
@@ -100,6 +102,19 @@ static std::optional<sf::Vector2f> getPixelPosition( entt::registry &registry, e
   auto pos = registry.try_get<Cmp::Position>( entity );
   if ( pos ) { return ( *pos ).position; }
   return std::nullopt;
+}
+
+static entt::entity get_player_entity( entt::registry &reg )
+{
+  auto player_view = reg.view<Cmp::PlayableCharacter, Cmp::Position>();
+  if (player_view.front() == entt::null) throw std::runtime_error("Player entity could not be found");
+  return player_view.front();
+}
+
+static Cmp::Position get_player_position( entt::registry &reg )
+{
+  auto player_view = reg.view<Cmp::PlayableCharacter, Cmp::Position>();
+  return player_view.get<Cmp::Position>( get_player_entity( reg ) );
 }
 
 } // namespace ProceduralMaze::Utils

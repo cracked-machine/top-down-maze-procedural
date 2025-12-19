@@ -4,7 +4,10 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Armable.hpp>
-#include <Components/CryptRoom.hpp>
+#include <Components/CryptRoomClosed.hpp>
+#include <Components/CryptRoomEnd.hpp>
+#include <Components/CryptRoomOpen.hpp>
+#include <Components/CryptRoomStart.hpp>
 #include <Components/Direction.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
@@ -65,8 +68,8 @@ public:
     {
       // this is a list of components that we do NOT want to copy over
       if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::Neighbours,
-                                  Cmp::NoPathFinding, Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::CryptRoom>(
-               entity ) )
+                                  Cmp::NoPathFinding, Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::CryptRoomOpen,
+                                  Cmp::CryptRoomClosed, Cmp::CryptRoomStart, Cmp::CryptRoomEnd>( entity ) )
       {
         skipped_cmp++;
         continue; // Skip player entity

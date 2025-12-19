@@ -3,19 +3,26 @@
 #include <Components/CryptMultiBlock.hpp>
 #include <Components/CryptObjectiveMultiBlock.hpp>
 #include <Components/CryptObjectiveSegment.hpp>
+#include <Components/CryptRoomClosed.hpp>
+#include <Components/CryptRoomEnd.hpp>
+#include <Components/CryptRoomOpen.hpp>
+#include <Components/CryptRoomStart.hpp>
 #include <Components/CryptSegment.hpp>
 #include <Components/Exit.hpp>
 #include <Components/PlayerCadaverCount.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/LootFactory.hpp>
+#include <Factory/ObstacleFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Optimizations.hpp>
+#include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
@@ -39,8 +46,7 @@ void CryptSystem::unlock_crypt_door()
 
       // Player can't intersect with a closed crypt door so expand their hitbox slightly to facilitate collision
       // detection
-      auto increased_player_bounds = Cmp::RectBounds( pc_pos_cmp.position, pc_pos_cmp.size, 1.5f,
-                                                      Cmp::RectBounds::ScaleCardinality::VERTICAL );
+      auto increased_player_bounds = Cmp::RectBounds( pc_pos_cmp.position, pc_pos_cmp.size, 1.5f, Cmp::RectBounds::ScaleCardinality::VERTICAL );
       if ( not increased_player_bounds.findIntersection( door_pos_cmp ) ) continue;
 
       // Crypt door is already opened
@@ -90,8 +96,7 @@ void CryptSystem::unlock_crypt_door()
         if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;
         anim_cmp.m_sprite_type = "CRYPT.opened";
 
-        SPDLOG_INFO( "Updated crypt multi-block sprite to open state at ({}, {})", crypt_cmp.position.x,
-                     crypt_cmp.position.y );
+        SPDLOG_INFO( "Updated crypt multi-block sprite to open state at ({}, {})", crypt_cmp.position.x, crypt_cmp.position.y );
         break;
       }
     }
@@ -110,9 +115,8 @@ void CryptSystem::check_entrance_collision()
       // optimize: skip if not visible
       if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), crypt_door_pos_cmp ) ) continue;
 
-      Cmp::RectBounds decreased_entrance_bounds(
-          crypt_door_pos_cmp.position, crypt_door_pos_cmp.size, 0.1f,
-          Cmp::RectBounds::ScaleCardinality::BOTH ); // shrink entrance bounds slightly for better UX
+      Cmp::RectBounds decreased_entrance_bounds( crypt_door_pos_cmp.position, crypt_door_pos_cmp.size, 0.1f,
+                                                 Cmp::RectBounds::ScaleCardinality::BOTH ); // shrink entrance bounds slightly for better UX
 
       if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
 
@@ -120,10 +124,9 @@ void CryptSystem::check_entrance_collision()
       // m_player_last_known_graveyard_pos = sf::Vector2f( pc_pos_cmp.position.x,
       //                                                   pc_pos_cmp.position.y + Constants::kGridSquareSizePixels.y );
 
-      SPDLOG_INFO( "check_entrance_collision: Player entering crypt from graveyard at position ({}, {})",
-                   pc_pos_cmp.position.x, pc_pos_cmp.position.y );
-      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>(
-          Events::SceneManagerEvent::Type::ENTER_CRYPT );
+      SPDLOG_INFO( "check_entrance_collision: Player entering crypt from graveyard at position ({}, {})", pc_pos_cmp.position.x,
+                   pc_pos_cmp.position.y );
+      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_CRYPT );
     }
   }
 }
@@ -140,9 +143,8 @@ void CryptSystem::check_exit_collision()
       // optimize: skip if not visible
       if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), crypt_door_pos_cmp ) ) continue;
 
-      Cmp::RectBounds decreased_entrance_bounds(
-          crypt_door_pos_cmp.position, crypt_door_pos_cmp.size, 0.1f,
-          Cmp::RectBounds::ScaleCardinality::BOTH ); // shrink entrance bounds slightly for better UX
+      Cmp::RectBounds decreased_entrance_bounds( crypt_door_pos_cmp.position, crypt_door_pos_cmp.size, 0.1f,
+                                                 Cmp::RectBounds::ScaleCardinality::BOTH ); // shrink entrance bounds slightly for better UX
 
       if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
 
@@ -150,8 +152,7 @@ void CryptSystem::check_exit_collision()
       // pc_pos_cmp.position = sf::Vector2f(
       //     static_cast<float>( m_player_last_known_graveyard_pos.x ) * Constants::kGridSquareSizePixels.x,
       //     static_cast<float>( m_player_last_known_graveyard_pos.y ) * Constants::kGridSquareSizePixels.y );
-      SPDLOG_INFO( "check_exit_collision: Player exiting crypt to graveyard at position ({}, {})",
-                   pc_pos_cmp.position.x, pc_pos_cmp.position.y );
+      SPDLOG_INFO( "check_exit_collision: Player exiting crypt to graveyard at position ({}, {})", pc_pos_cmp.position.x, pc_pos_cmp.position.y );
       m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_CRYPT );
     }
   }
@@ -175,10 +176,9 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
 
       if ( player_hitbox.findIntersection( objective_cmp ) )
       {
-        auto obst_entity = Factory::createLootDrop(
-            getReg(), Cmp::SpriteAnimation{ 0, 0, true, "CADAVER_DROP", 0 },
-            sf::FloatRect{ objective_cmp.position, objective_cmp.size }, Factory::IncludePack<>{},
-            Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::CryptObjectiveSegment>{} );
+        auto obst_entity = Factory::createLootDrop( getReg(), Cmp::SpriteAnimation{ 0, 0, true, "CADAVER_DROP", 0 },
+                                                    sf::FloatRect{ objective_cmp.position, objective_cmp.size }, Factory::IncludePack<>{},
+                                                    Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::CryptObjectiveSegment>{} );
         if ( obst_entity != entt::null )
         {
           m_sound_bank.get_effect( "drop_loot" ).play();
@@ -193,10 +193,9 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
 void CryptSystem::spawn_exit( sf::Vector2u spawn_position )
 {
 
-  sf::FloatRect spawn_pos_px = sf::FloatRect(
-      { static_cast<float>( spawn_position.x ) * Constants::kGridSquareSizePixels.x,
-        static_cast<float>( spawn_position.y ) * Constants::kGridSquareSizePixels.y },
-      Constants::kGridSquareSizePixelsF );
+  sf::FloatRect spawn_pos_px = sf::FloatRect( { static_cast<float>( spawn_position.x ) * Constants::kGridSquareSizePixels.x,
+                                                static_cast<float>( spawn_position.y ) * Constants::kGridSquareSizePixels.y },
+                                              Constants::kGridSquareSizePixelsF );
 
   // remove any wall
   for ( auto [entt, wall_cmp, pos_cmp] : getReg().view<Cmp::Wall, Cmp::Position>().each() )
@@ -214,6 +213,72 @@ void CryptSystem::spawn_exit( sf::Vector2u spawn_position )
 
   SPDLOG_INFO( "Exit spawned at position ({}, {})", spawn_position.x, spawn_position.y );
   return;
+}
+
+void CryptSystem::closeOpenedRooms()
+{
+
+  std::vector<std::pair<entt::entity, Cmp::CryptRoomOpen>> rooms_to_close;
+  auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
+  for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
+  {
+    if ( open_room_cmp.findIntersection( Utils::get_player_position( getReg() ) ) ) continue;
+
+    // close all opened room by adding obstacle within its boundary
+    auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
+    for ( auto [entity, pos_cmp] : position_view.each() )
+    {
+      if ( not pos_cmp.findIntersection( open_room_cmp ) ) continue;
+
+      // clang-format off
+      auto [obst_type, rand_obst_tex_idx] = 
+        m_sprite_factory.get_random_type_and_texture_index( { 
+          "CRYPT.interior_sb"
+        } );
+      // clang-format on
+
+      float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
+      Factory::createObstacle( getReg(), entity, pos_cmp, obst_type, 5, ( zorder * 2.f ) );
+    }
+
+    // save the CryptRoomOpen entities we want change to CryptRoomClosed
+    rooms_to_close.push_back( { open_room_entt, open_room_cmp } );
+  }
+
+  // close the entities safely outside of view
+  for ( auto [room_entt, room_cmp] : rooms_to_close )
+  {
+    getReg().emplace<Cmp::CryptRoomClosed>( room_entt, room_cmp.position, room_cmp.size );
+    getReg().remove<Cmp::CryptRoomOpen>( room_entt );
+  }
+}
+
+void CryptSystem::openClosedRooms( std::set<entt::entity> selected_rooms )
+{
+  std::vector<std::pair<entt::entity, Cmp::CryptRoomClosed>> rooms_to_open;
+  auto closed_room_view = getReg().view<Cmp::CryptRoomClosed>();
+  for ( auto [closed_room_entt, closed_room_cmp] : closed_room_view.each() )
+  {
+    if ( selected_rooms.find( closed_room_entt ) == selected_rooms.end() ) continue;
+
+    // open the selected room by removing any obstacles inside its boundary
+    auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position>();
+    for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : obstacle_view.each() )
+    {
+      if ( not closed_room_cmp.findIntersection( obst_pos_cmp ) ) continue;
+      Factory::destroyObstacle( getReg(), obst_entity );
+    }
+
+    // save the CryptRoomClosed entities we want to change to CryptRoomOpen
+    rooms_to_open.push_back( { closed_room_entt, closed_room_cmp } );
+  }
+
+  // open the room safely outside of view loop
+  for ( auto [room_entt, room_cmp] : rooms_to_open )
+  {
+    getReg().emplace<Cmp::CryptRoomOpen>( room_entt, room_cmp.position, room_cmp.size );
+    getReg().remove<Cmp::CryptRoomClosed>( room_entt );
+  }
 }
 
 } // namespace ProceduralMaze::Sys

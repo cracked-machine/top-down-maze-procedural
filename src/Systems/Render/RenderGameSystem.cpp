@@ -1,5 +1,8 @@
 #include <Components/CryptInteriorMultiBlock.hpp>
-#include <Components/CryptRoom.hpp>
+#include <Components/CryptRoomClosed.hpp>
+#include <Components/CryptRoomEnd.hpp>
+#include <Components/CryptRoomOpen.hpp>
+#include <Components/CryptRoomStart.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/PlayerCadaverCount.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -183,7 +186,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       for ( const auto &zorder_entry : m_zorder_queue_ )
       {
         if ( getReg().all_of<Cmp::CryptEntrance>( zorder_entry.e ) )
-          render_overlay_sys.render_square_for_component<Cmp::CryptEntrance>( zorder_entry.e, sf::Color::Magenta, 1.f );
+          render_overlay_sys.render_square_for_entity<Cmp::CryptEntrance>( zorder_entry.e, sf::Color::Magenta, 1.f );
       }
 
       render_armed();
@@ -191,18 +194,11 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_arrow_compass();
       render_mist( player_position );
       if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
-      auto room_view = getReg().view<Cmp::CryptRoom>();
-      for ( auto [existing_entity, existing_room] : room_view.each() )
-      {
 
-        sf::RectangleShape rectangle;
-        rectangle.setSize( existing_room.size );
-        rectangle.setPosition( existing_room.position );
-        rectangle.setFillColor( sf::Color::Transparent );
-        rectangle.setOutlineColor( sf::Color::Red );
-        rectangle.setOutlineThickness( 1.f );
-        m_window.draw( rectangle );
-      }
+      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
+      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
+      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
+      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
     }
     // local view end
 

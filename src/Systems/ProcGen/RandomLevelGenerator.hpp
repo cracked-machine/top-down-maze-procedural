@@ -29,8 +29,7 @@ public:
   enum class AreaShape { RECTANGLE, CIRCLE, CROSS };
   enum class SceneType { GRAVEYARD_EXTERIOR, CRYPT_INTERIOR };
 
-  RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                        Audio::SoundBank &sound_bank );
+  RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~RandomLevelGenerator() = default;
 
   void generate( AreaShape shape, sf::Vector2u map_grid_size, SceneType scene_type );
@@ -52,8 +51,7 @@ public:
   //! @param horizHalfLengthModifier modifier for horizontal arm half-length, i.e. 0.25 = quarter
   //! the map width
   //! @param horizOffset move horizontal arm up by N tiles (positive pushes it downward)
-  void gen_cross_gamearea( sf::Vector2u map_grid_size, int vertArmHalfWidth = 10, int horizArmHalfWidth = 5,
-                           int horizOffset = 10 );
+  void gen_cross_gamearea( sf::Vector2u map_grid_size, int vertArmHalfWidth = 10, int horizArmHalfWidth = 5, int horizOffset = 10 );
 
   // Generate a large obstacle at a random valid position (graves, shrines, crypts)
 
@@ -62,8 +60,8 @@ public:
   void gen_graveyard_exterior_multiblocks();
   void do_gen_graveyard_exterior_multiblock( const Sprites::MultiSprite &ms, unsigned long seed );
 
-  void gen_crypt_interior_map( sf::Vector2u map_grid_size );
-  void gen_crypt_interior_obstacles();
+  void gen_crypt_interior_rooms( sf::Vector2u map_grid_size );
+  void gen_crypt_initial_interior();
   void gen_crypt_main_objective( sf::Vector2u map_grid_size );
   void gen_crypt_interior_multiblocks();
 
