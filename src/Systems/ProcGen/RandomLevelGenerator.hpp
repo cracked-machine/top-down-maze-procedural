@@ -53,16 +53,26 @@ public:
   //! @param horizOffset move horizontal arm up by N tiles (positive pushes it downward)
   void gen_cross_gamearea( sf::Vector2u map_grid_size, int vertArmHalfWidth = 10, int horizArmHalfWidth = 5, int horizOffset = 10 );
 
-  // Generate a large obstacle at a random valid position (graves, shrines, crypts)
-
-  // Iterate and generate large obstacles (graves, shrines, crypts)
+  //! @brief create common obstacles (i.e. rock) for the graeyard
   void gen_graveyard_exterior_obstacles();
+  
+  //! @brief create multiblock sprites (i.e. graves, altars, crypts) for the graveyard scene.
   void gen_graveyard_exterior_multiblocks();
+
+  //! @brief internal function for `gen_graveyard_exterior_multiblocks`
+  //! @param ms
+  //! @param seed
   void do_gen_graveyard_exterior_multiblock( const Sprites::MultiSprite &ms, unsigned long seed );
 
-  void gen_crypt_interior_rooms( sf::Vector2u map_grid_size );
+  //! @brief Generate the initial Crypt interior walls (fills in Cmp::CryptRoomsClosed)
+  //! @note Except for start/end rooms, all other rooms should start as Cmp::CryptRoomsClosed
   void gen_crypt_initial_interior();
+
+  //! @brief Generate the main objective for the Crypt
+  //! @param map_grid_size
   void gen_crypt_main_objective( sf::Vector2u map_grid_size );
+
+  //! @brief add multiblock sprites (pillars, etc...) to the Crypt
   void gen_crypt_interior_multiblocks();
 
   // Iterate and generate loot containers
