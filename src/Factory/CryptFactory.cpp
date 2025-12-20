@@ -36,74 +36,63 @@ void create_initial_crypt_rooms( entt::registry &reg, sf::Vector2u map_grid_size
       return distance >= static_cast<float>( max_distance_between_rooms ) * grid_square_size.x;
     };
 
+    auto check_collision = [&]( const auto &existing_object ) -> bool
+    { return new_room.findIntersection( existing_object ) || !is_min_distance_ok( existing_object, new_room ); };
+
     bool overlaps_existing = false;
-    auto room_view = reg.view<Cmp::CryptRoomClosed>();
-    for ( auto [existing_entity, existing_room] : room_view.each() )
+
+    // make sure new_room area does not fall outside map_grid_size
+    if ( !Utils::isInBounds( new_room.position, new_room.size, map_grid_size ) ) { overlaps_existing = true; }
+
+    // check for intersection with existing rooms
+    if ( !overlaps_existing )
     {
-
-      // make sure new_room area does not fall outside map_grid_size
-      if ( !Utils::isInBounds( new_room.position, new_room.size, map_grid_size ) )
+      auto room_view = reg.view<Cmp::CryptRoomClosed>();
+      for ( auto [existing_entity, existing_room] : room_view.each() )
       {
-        overlaps_existing = true;
-        break;
+        if ( check_collision( existing_room ) )
+        {
+          overlaps_existing = true;
+          break;
+        }
       }
+    }
 
-      // check for intersection with existing rooms
-      if ( new_room.findIntersection( existing_room ) )
-      {
-        overlaps_existing = true;
-        break;
-      }
-
-      // check for minimum distance between rooms
-      if ( not is_min_distance_ok( existing_room, new_room ) )
-      {
-        overlaps_existing = true;
-        break;
-      }
-
-      // check for intersection with walls
+    // check for intersection with walls
+    if ( !overlaps_existing )
+    {
       auto wall_view = reg.view<Cmp::Wall, Cmp::Position>();
       for ( auto [wall_entity, wall_cmp, wall_pos_cmp] : wall_view.each() )
       {
-        if ( new_room.findIntersection( wall_pos_cmp ) )
-        {
-          overlaps_existing = true;
-          break;
-        }
-        if ( not is_min_distance_ok( wall_pos_cmp, new_room ) )
+        if ( check_collision( wall_pos_cmp ) )
         {
           overlaps_existing = true;
           break;
         }
       }
+    }
 
-      // check for intersection with start room
+    // check for intersection with start room
+    if ( !overlaps_existing )
+    {
       auto start_room_view = reg.view<Cmp::CryptRoomStart>();
       for ( auto [start_room_entity, start_room_cmp] : start_room_view.each() )
       {
-        if ( new_room.findIntersection( start_room_cmp ) )
-        {
-          overlaps_existing = true;
-          break;
-        }
-        if ( not is_min_distance_ok( start_room_cmp, new_room ) )
+        if ( check_collision( start_room_cmp ) )
         {
           overlaps_existing = true;
           break;
         }
       }
+    }
 
-      // check for intersection with end room
+    // check for intersection with end room
+    if ( !overlaps_existing )
+    {
       auto end_room_view = reg.view<Cmp::CryptRoomEnd>();
       for ( auto [end_room_entity, end_room_cmp] : end_room_view.each() )
       {
-        if ( new_room.findIntersection( end_room_cmp ) )
-        {
-          overlaps_existing = true;
-          break;
-        }
-        if ( not is_min_distance_ok( end_room_cmp, new_room ) )
+        if ( check_collision( end_room_cmp ) )
         {
           overlaps_existing = true;
           break;

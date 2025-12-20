@@ -15,6 +15,7 @@
 #include <Utils/Random.hpp>
 #include <queue>
 #include <set>
+#include <stdexcept>
 
 namespace ProceduralMaze::Sys
 {
@@ -58,10 +59,29 @@ public:
   void openRandomPassages();
   void closeAllPassages();
   bool place_passage_block( float x, float y, std::vector<entt::entity> &new_block_list );
-  bool createDogLegPassage( std::pair<Cmp::CryptPassageDirection, sf::Vector2f> start, std::pair<Cmp::CryptPassageDirection, sf::Vector2f> end );
+  bool createDogLegPassage( sf::Vector2f start, sf::Vector2f end );
   bool createDrunkWalkPassage( sf::Vector2f start, sf::Vector2f end );
+  void add_cardinal_passage( Cmp::CryptPassageDoor &start_passage_door, const sf::FloatRect search_quadrant );
 
 private:
+  //! @brief Get the single Cmp::CryptRoomStart component
+  //! @return Cmp::CryptRoomStart&
+  Cmp::CryptRoomStart &get_crypt_room_start()
+  {
+    auto start_room_view = getReg().view<Cmp::CryptRoomStart>();
+    if ( start_room_view.front() == entt::null ) throw std::runtime_error( "CryptSystem::get_crypt_room_start - Unable to get Cmp::CryptRoomStart" );
+    return getReg().get<Cmp::CryptRoomStart>( start_room_view.front() );
+  }
+
+  //! @brief Get the single Cmp::CryptRoomEnd component
+  //! @return Cmp::CryptRoomEnd&
+  Cmp::CryptRoomEnd &get_crypt_room_end()
+  {
+    auto start_room_view = getReg().view<Cmp::CryptRoomEnd>();
+    if ( start_room_view.front() == entt::null ) throw std::runtime_error( "CryptSystem::get_crypt_room_end - Unable to get Cmp::CryptRoomEnd" );
+    return getReg().get<Cmp::CryptRoomEnd>( start_room_view.front() );
+  }
+
   entt::dispatcher &m_scenemanager_event_dispatcher;
   sf::Clock m_door_cooldown_timer;
   float m_door_cooldown_time{ 1.0f }; // 1 second cooldown

@@ -4,6 +4,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <algorithm>
 #include <cmath>
+#include <queue>
 
 namespace ProceduralMaze::Utils::Maths
 {

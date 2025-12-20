@@ -26,6 +26,14 @@ public:
 
   sf::FloatRect getBounds() const;
 
+  void set_all_doors_used( bool used )
+  {
+    for ( auto &midpoint : m_midpoints )
+    {
+      midpoint.second.is_used = used;
+    }
+  }
+
   void init_mid_points()
   {
     float half_width = size.x / 2;

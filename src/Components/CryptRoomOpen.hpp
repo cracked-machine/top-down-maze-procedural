@@ -23,6 +23,24 @@ public:
     init_mid_points();
   };
 
+  void set_all_doors_used( bool used )
+  {
+    for ( auto &midpoint : m_midpoints )
+    {
+      midpoint.second.is_used = used;
+    }
+  }
+
+  bool are_all_doors_used()
+  {
+    bool result = true;
+    for ( auto &midpoint : m_midpoints )
+    {
+      if ( not midpoint.second.is_used ) result = false;
+    }
+    return result;
+  }
+
   void init_mid_points()
   {
     float half_width = size.x / 2;

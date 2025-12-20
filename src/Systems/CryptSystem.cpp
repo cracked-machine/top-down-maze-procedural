@@ -20,7 +20,10 @@
 #include <Components/ZOrderValue.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
+#include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Maths.hpp>
@@ -28,6 +31,7 @@
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 #include <entt/entity/fwd.hpp>
+#include <functional>
 
 namespace ProceduralMaze::Sys
 {
@@ -333,15 +337,14 @@ bool CryptSystem::place_passage_block( float x, float y, std::vector<entt::entit
   return true;
 };
 
-bool CryptSystem::createDogLegPassage( std::pair<Cmp::CryptPassageDirection, sf::Vector2f> start,
-                                       std::pair<Cmp::CryptPassageDirection, sf::Vector2f> end )
+bool CryptSystem::createDogLegPassage( sf::Vector2f start, sf::Vector2f end )
 {
-  SPDLOG_INFO( "Entered createDogLegPassage from ({},{}) to ({},{})", start.second.x, start.second.y, end.second.x, end.second.y );
+  SPDLOG_INFO( "Entered createDogLegPassage from ({},{}) to ({},{})", start.x, start.y, end.x, end.y );
 
   std::vector<entt::entity> new_block_list;
 
-  float dx = end.second.x - start.second.x;
-  float dy = end.second.y - start.second.y;
+  float dx = end.x - start.x;
+  float dy = end.y - start.y;
   const auto kSquareSizePx = Constants::kGridSquareSizePixelsF;
 
   if ( std::abs( dx ) > std::abs( dy ) )
@@ -350,32 +353,32 @@ bool CryptSystem::createDogLegPassage( std::pair<Cmp::CryptPassageDirection, sf:
     // First leg: horizontal
     if ( dx > 0 )
     {
-      for ( float x = start.second.x; x <= end.second.x; x += kSquareSizePx.x )
+      for ( float x = start.x; x <= end.x; x += kSquareSizePx.x )
       {
-        if ( not place_passage_block( x, start.second.y, new_block_list ) ) { return false; }
+        if ( not place_passage_block( x, start.y, new_block_list ) ) { return false; }
       }
     }
     else
     {
-      for ( float x = start.second.x; x >= end.second.x; x -= kSquareSizePx.x )
+      for ( float x = start.x; x >= end.x; x -= kSquareSizePx.x )
       {
-        if ( not place_passage_block( x, start.second.y, new_block_list ) ) { return false; }
+        if ( not place_passage_block( x, start.y, new_block_list ) ) { return false; }
       }
     }
     SPDLOG_INFO( "switch to vertical leg" );
     // Second leg: vertical from end.x to end.y
     if ( dy > 0 )
     {
-      for ( float y = start.second.y + kSquareSizePx.y; y <= end.second.y; y += kSquareSizePx.y )
+      for ( float y = start.y + kSquareSizePx.y; y <= end.y; y += kSquareSizePx.y )
       {
-        if ( not place_passage_block( end.second.x, y, new_block_list ) ) { return false; }
+        if ( not place_passage_block( end.x, y, new_block_list ) ) { return false; }
       }
     }
     else
     {
-      for ( float y = start.second.y - kSquareSizePx.y; y >= end.second.y; y -= kSquareSizePx.y )
+      for ( float y = start.y - kSquareSizePx.y; y >= end.y; y -= kSquareSizePx.y )
       {
-        if ( not place_passage_block( end.second.x, y, new_block_list ) ) { return false; }
+        if ( not place_passage_block( end.x, y, new_block_list ) ) { return false; }
       }
     }
   }
@@ -385,32 +388,32 @@ bool CryptSystem::createDogLegPassage( std::pair<Cmp::CryptPassageDirection, sf:
     // First leg: vertical
     if ( dy > 0 )
     {
-      for ( float y = start.second.y; y <= end.second.y; y += kSquareSizePx.y )
+      for ( float y = start.y; y <= end.y; y += kSquareSizePx.y )
       {
-        if ( not place_passage_block( start.second.x, y, new_block_list ) ) { return false; }
+        if ( not place_passage_block( start.x, y, new_block_list ) ) { return false; }
       }
     }
     else
     {
-      for ( float y = start.second.y; y >= end.second.y; y -= kSquareSizePx.y )
+      for ( float y = start.y; y >= end.y; y -= kSquareSizePx.y )
       {
-        if ( not place_passage_block( start.second.x, y, new_block_list ) ) { return false; }
+        if ( not place_passage_block( start.x, y, new_block_list ) ) { return false; }
       }
     }
     SPDLOG_INFO( "switch to horizontal leg" );
     // Second leg: horizontal from start.x to end.x
     if ( dx > 0 )
     {
-      for ( float x = start.second.x + kSquareSizePx.x; x <= end.second.x; x += kSquareSizePx.x )
+      for ( float x = start.x + kSquareSizePx.x; x <= end.x; x += kSquareSizePx.x )
       {
-        if ( not place_passage_block( x, end.second.y, new_block_list ) ) { return false; }
+        if ( not place_passage_block( x, end.y, new_block_list ) ) { return false; }
       }
     }
     else
     {
-      for ( float x = start.second.x - kSquareSizePx.x; x >= end.second.x; x -= kSquareSizePx.x )
+      for ( float x = start.x - kSquareSizePx.x; x >= end.x; x -= kSquareSizePx.x )
       {
-        if ( not place_passage_block( x, end.second.y, new_block_list ) ) { return false; }
+        if ( not place_passage_block( x, end.y, new_block_list ) ) { return false; }
       }
     }
   }
@@ -420,40 +423,55 @@ bool CryptSystem::createDogLegPassage( std::pair<Cmp::CryptPassageDirection, sf:
 
 void CryptSystem::openRandomPassages()
 {
-  auto start_room_view = getReg().view<Cmp::CryptRoomStart>();
+
+  auto start_room_cmp = get_crypt_room_start();
+  if ( not Utils::get_player_position( getReg() ).findIntersection( start_room_cmp ) ) return;
+
+  // get view of all "other" rooms i.e. open rooms - this is a small number 3-4
+  const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSquareSizePixelsF );
+
+  // divide the gamrarea into 3 quadrants - again there are only three because startroom is southern most position in the game area
+  auto west_quadrant = sf::FloatRect( { 0.f, 0.f }, { start_room_cmp.position.x, world_size.y } );
+  SPDLOG_INFO( "west_quadrant: {},{} : {},{}", west_quadrant.position.x, west_quadrant.position.y, west_quadrant.size.x, west_quadrant.size.y );
+  auto east_quadrant = sf::FloatRect( { start_room_cmp.position.x + start_room_cmp.size.x, 0.f },
+                                      { world_size.x - ( start_room_cmp.position.x + start_room_cmp.size.x ), world_size.y } );
+  SPDLOG_INFO( "east_quadrant: {},{} : {},{}", east_quadrant.position.x, east_quadrant.position.y, east_quadrant.size.x, east_quadrant.size.y );
+  auto north_quadrant = sf::FloatRect( { 0.f, 0.f }, { world_size.x, start_room_cmp.position.y } );
+  SPDLOG_INFO( "north_quadrant: {},{} : {},{}", north_quadrant.position.x, north_quadrant.position.y, north_quadrant.size.x, north_quadrant.size.y );
+
+  add_cardinal_passage( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::WEST], west_quadrant );
+  add_cardinal_passage( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::EAST], east_quadrant );
+  add_cardinal_passage( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH], north_quadrant );
+}
+
+void CryptSystem::add_cardinal_passage( Cmp::CryptPassageDoor &start_passage_door, const sf::FloatRect search_quadrant )
+{
+  // clang-format off
+  using MidPointDistanceQueue = std::priority_queue < 
+    std::pair<float, entt::entity>,
+    std::vector<std::pair<float, entt::entity>>, 
+    std::greater<std::pair<float, entt::entity>>
+  >;
+  // clang-format on
+
+  MidPointDistanceQueue dist_pqueue;
+  auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
+  for ( auto [other_room_entt, other_room_cmp] : open_room_view.each() )
   {
-    auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
+    if ( not other_room_cmp.findIntersection( search_quadrant ) ) continue;
+    if ( other_room_cmp.are_all_doors_used() ) continue;
+    dist_pqueue.push( { Utils::Maths::getEuclideanDistance( start_passage_door, other_room_cmp.getCenter() ), other_room_entt } );
+  }
 
-    for ( auto [start_room_entt, start_room_cmp] : start_room_view.each() )
+  SPDLOG_INFO( "north_dist_pqueue - size:{}", dist_pqueue.size() );
+  if ( not dist_pqueue.empty() )
+  {
+    auto nearest_north_other_room_entt = dist_pqueue.top().second;
+    auto &nearest_north_other_room_cmp = getReg().get<Cmp::CryptRoomOpen>( nearest_north_other_room_entt );
+    if ( createDogLegPassage( start_passage_door, nearest_north_other_room_cmp.getCenter() ) )
     {
-      // Skip if player not in start room
-      if ( not Utils::get_player_position( getReg() ).findIntersection( start_room_cmp ) ) continue;
-
-      // Connect to at most 2-3 nearby open rooms to avoid over-connection
-
-      for ( auto [other_room_entt, other_room_cmp] : open_room_view.each() )
-      {
-
-        // try to connect each start midpoint with one other open room midpoint
-        for ( auto &start_midpoint : start_room_cmp.m_midpoints )
-        {
-          if ( start_room_cmp.m_midpoints[start_midpoint.first].is_used ) continue;
-          for ( auto &end_midpoint : other_room_cmp.m_midpoints )
-          {
-            if ( other_room_cmp.m_midpoints[end_midpoint.first].is_used ) continue;
-            if ( createDogLegPassage( start_midpoint, end_midpoint ) )
-            {
-              
-              start_room_cmp.m_midpoints[start_midpoint.first].is_used = true;
-              for ( auto &midpoints : other_room_cmp.m_midpoints )
-              {
-                midpoints.second.is_used = true;
-              }
-              break;
-            }
-          }
-        }
-      }
+      start_passage_door.is_used = true;
+      nearest_north_other_room_cmp.set_all_doors_used( true ); // prevent more passages
     }
   }
 }
@@ -461,21 +479,23 @@ void CryptSystem::openRandomPassages()
 void CryptSystem::closeAllPassages()
 {
   std::vector<entt::entity> shit_list;
-  // get all Cmp::CryptPassageBlocks
+
   auto crypt_passage_block_view = getReg().view<Cmp::CryptPassageBlock>();
   for ( auto [entt, block_cmp] : crypt_passage_block_view.each() )
   {
-    //! @todo Add obstacles
+    //! @todo ReAdd obstacles
 
-    // stash for later
     shit_list.push_back( entt );
   }
 
   // Remove Cmp::CryptPassageBlocks safely
   for ( auto entt : shit_list )
   {
+    getReg().remove<Cmp::CryptPassageBlock>( entt );
     getReg().destroy( entt );
   }
+  auto crypt_passage_block_view_remaining = getReg().view<Cmp::CryptPassageBlock>();
+  SPDLOG_INFO( "Remaining Cmp::CryptPassageBlock entities: {}", crypt_passage_block_view_remaining.size() );
 }
 
 void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
