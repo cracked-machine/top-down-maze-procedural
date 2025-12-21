@@ -73,9 +73,9 @@ public:
                             AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
   bool createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRect end_bounds,
                             AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
-  bool createDrunkWalkPassage( sf::Vector2f start, sf::Vector2f end );
-  bool place_passage_block( float x, float y, std::vector<entt::entity> &new_block_list,
-                            AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
+  bool createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::FloatRect end_bounds,
+                                 AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
+  bool place_passage_block( float x, float y, AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
 
 private:
   //! @brief Get the single Cmp::CryptRoomStart component

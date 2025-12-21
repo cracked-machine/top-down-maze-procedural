@@ -34,6 +34,7 @@
 #include <Utils/Utils.hpp>
 #include <entt/entity/fwd.hpp>
 #include <functional>
+#include <unordered_map>
 
 namespace ProceduralMaze::Sys
 {
@@ -291,8 +292,10 @@ void CryptSystem::openSelectedRooms( std::set<entt::entity> selected_rooms )
   }
 }
 
-bool CryptSystem::place_passage_block( float x, float y, std::vector<entt::entity> &new_block_list, AllowDuplicatePassages duplicates_policy )
+bool CryptSystem::place_passage_block( float x, float y, AllowDuplicatePassages duplicates_policy )
 {
+  // track additions so we can roll them back if a violation is found
+  std::vector<entt::entity> new_block_list;
 
   auto block_list_unwind = [&]()
   {
@@ -344,7 +347,6 @@ bool CryptSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRec
 {
   SPDLOG_INFO( "createDogLegPassage from ({},{}) to ({},{})", start.x, start.y, end_bounds.getCenter().x, end_bounds.getCenter().y );
 
-  std::vector<entt::entity> new_block_list;
   const auto kSquareSizePx = Constants::kGridSquareSizePixelsF;
 
   // always prioritize nearer direction
@@ -358,7 +360,7 @@ bool CryptSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRec
       furthest_pos_x = end_bounds.position.x + end_bounds.size.x;
       for ( float x = start.x; x <= furthest_pos_x; x += kSquareSizePx.x )
       {
-        if ( not place_passage_block( x, start.y, new_block_list, duplicates_policy ) ) { return false; }
+        if ( not place_passage_block( x, start.y, duplicates_policy ) ) { return false; }
       }
     }
     else if ( start.m_direction == Cmp::CryptPassageDirection::WEST )
@@ -366,7 +368,7 @@ bool CryptSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRec
       furthest_pos_x = end_bounds.position.x;
       for ( float x = start.x; x >= furthest_pos_x; x -= kSquareSizePx.x )
       {
-        if ( not place_passage_block( x, start.y, new_block_list, duplicates_policy ) ) { return false; }
+        if ( not place_passage_block( x, start.y, duplicates_policy ) ) { return false; }
       }
     }
     SPDLOG_INFO( "Second leg: vertical from end.x to end.y" );
@@ -375,14 +377,14 @@ bool CryptSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRec
     {
       for ( float y = start.y + kSquareSizePx.y; y <= end_bounds.getCenter().y; y += kSquareSizePx.y )
       {
-        if ( not place_passage_block( furthest_pos_x, y, new_block_list, duplicates_policy ) ) { return false; }
+        if ( not place_passage_block( furthest_pos_x, y, duplicates_policy ) ) { return false; }
       }
     }
     else
     {
       for ( float y = start.y - kSquareSizePx.y; y >= end_bounds.getCenter().y; y -= kSquareSizePx.y )
       {
-        if ( not place_passage_block( furthest_pos_x, y, new_block_list, duplicates_policy ) ) { return false; }
+        if ( not place_passage_block( furthest_pos_x, y, duplicates_policy ) ) { return false; }
       }
     }
   }
@@ -396,7 +398,7 @@ bool CryptSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRec
       furthest_pos_y = end_bounds.position.y + end_bounds.size.y;
       for ( float y = start.y; y <= furthest_pos_y; y += kSquareSizePx.y )
       {
-        if ( not place_passage_block( start.x, y, new_block_list, duplicates_policy ) ) { return false; }
+        if ( not place_passage_block( start.x, y, duplicates_policy ) ) { return false; }
       }
     }
     else if ( start.m_direction == Cmp::CryptPassageDirection::NORTH )
@@ -404,7 +406,7 @@ bool CryptSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRec
       furthest_pos_y = end_bounds.position.y;
       for ( float y = start.y; y >= furthest_pos_y; y -= kSquareSizePx.y )
       {
-        if ( not place_passage_block( start.x, y, new_block_list, duplicates_policy ) ) { return false; }
+        if ( not place_passage_block( start.x, y, duplicates_policy ) ) { return false; }
       }
     }
     SPDLOG_INFO( "Second leg: horizontal from start.x to end.x" );
@@ -413,18 +415,124 @@ bool CryptSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRec
     {
       for ( float x = start.x + kSquareSizePx.x; x <= end_bounds.getCenter().x; x += kSquareSizePx.x )
       {
-        if ( not place_passage_block( x, furthest_pos_y, new_block_list, duplicates_policy ) ) { return false; }
+        if ( not place_passage_block( x, furthest_pos_y, duplicates_policy ) ) { return false; }
       }
     }
     else
     {
       for ( float x = start.x - kSquareSizePx.x; x >= end_bounds.getCenter().x; x -= kSquareSizePx.x )
       {
-        if ( not place_passage_block( x, furthest_pos_y, new_block_list, duplicates_policy ) ) { return false; }
+        if ( not place_passage_block( x, furthest_pos_y, duplicates_policy ) ) { return false; }
       }
     }
   }
 
+  return true;
+}
+
+bool CryptSystem::createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::FloatRect end_bounds, AllowDuplicatePassages duplicates_policy )
+{
+  std::unordered_map<Cmp::CryptPassageDirection, Cmp::Direction> direction_dictionary = {
+      { Cmp::CryptPassageDirection::NORTH, Cmp::Direction( { 0.f, -1.f } ) },
+      { Cmp::CryptPassageDirection::EAST, Cmp::Direction( { 1.f, 0.f } ) },
+      { Cmp::CryptPassageDirection::SOUTH, Cmp::Direction( { 0.f, 1.f } ) },
+      { Cmp::CryptPassageDirection::WEST, Cmp::Direction( { -1.f, 0.f } ) } };
+
+  std::vector<Cmp::Direction> direction_choices = { Cmp::Direction( { 0.f, -1.f } ), Cmp::Direction( { 1.f, 0.f } ), Cmp::Direction( { 0.f, 1.f } ),
+                                                    Cmp::Direction( { -1.f, 0.f } ) };
+
+  const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSquareSizePixelsF );
+  sf::FloatRect walk_bounds( { 0.f, 0.f }, world_size );
+
+  // Calculate walk_bounds to contain both start and end positions
+  float min_x = std::min( start.x, end_bounds.position.x );
+  float min_y = std::min( start.y, end_bounds.position.y );
+  float max_x = std::max( start.x + Constants::kGridSquareSizePixelsF.x, end_bounds.position.x + end_bounds.size.x );
+  float max_y = std::max( start.y + Constants::kGridSquareSizePixelsF.y, end_bounds.position.y + end_bounds.size.y );
+
+  walk_bounds = sf::FloatRect( sf::Vector2f( min_x, min_y ), sf::Vector2f( max_x - min_x, max_y - min_y ) );
+
+  SPDLOG_INFO( "walk_bounds = {},{} to {},{}", walk_bounds.position.x, walk_bounds.position.y, walk_bounds.position.x + walk_bounds.size.x,
+               walk_bounds.position.y + walk_bounds.size.y );
+
+  place_passage_block( start.x, start.y, duplicates_policy );
+  sf::FloatRect current_pos( { start.x, start.y }, Constants::kGridSquareSizePixelsF );
+
+  auto direction_picker = Cmp::RandomInt( 0, 99 ); // 0-99 for percentage-based selection
+
+  // Parameters to control oscillation
+  const float bias_strength = 0.6f;     // 60% chance to move toward target
+  const float momentum_strength = 0.2f; // 20% chance to continue in same direction
+  sf::Vector2f last_move_direction( 0.f, 0.f );
+
+  // keep walking until we reach our target
+  while ( not current_pos.findIntersection( end_bounds ) )
+  {
+    sf::FloatRect candidate_pos( { -16.f, -16.f }, Constants::kGridSquareSizePixelsF );
+    int attempts = 0;
+    const int max_attempts = 100;
+
+    do
+    {
+      // Calculate direction towards target
+      sf::Vector2f target_center = end_bounds.getCenter();
+      sf::Vector2f current_center = sf::Vector2f( current_pos.position.x + current_pos.size.x / 2, current_pos.position.y + current_pos.size.y / 2 );
+      sf::Vector2f to_target = target_center - current_center;
+
+      sf::Vector2f chosen_direction;
+      int random_choice = direction_picker.gen();
+
+      if ( random_choice < static_cast<int>( bias_strength * 100 ) )
+      {
+        // Bias toward target: choose direction that reduces distance to target
+        if ( std::abs( to_target.x ) > std::abs( to_target.y ) )
+        {
+          // Move horizontally toward target
+          chosen_direction = ( to_target.x > 0 ) ? sf::Vector2f( 1.f, 0.f ) : sf::Vector2f( -1.f, 0.f );
+        }
+        else
+        {
+          // Move vertically toward target
+          chosen_direction = ( to_target.y > 0 ) ? sf::Vector2f( 0.f, 1.f ) : sf::Vector2f( 0.f, -1.f );
+        }
+      }
+      else if ( random_choice < static_cast<int>( ( bias_strength + momentum_strength ) * 100 ) &&
+                ( last_move_direction.x != 0.f || last_move_direction.y != 0.f ) )
+      {
+        // Continue in same direction (momentum)
+        chosen_direction = last_move_direction;
+      }
+      else
+      {
+        // Random direction
+        auto random_dir_idx = Cmp::RandomInt( 0, direction_choices.size() - 1 );
+        chosen_direction = direction_choices[random_dir_idx.gen()];
+      }
+
+      auto chosen_magnitude = chosen_direction.componentWiseMul( Constants::kGridSquareSizePixelsF );
+      candidate_pos.position.x = current_pos.position.x + chosen_magnitude.x;
+      candidate_pos.position.y = current_pos.position.y + chosen_magnitude.y;
+      attempts++;
+
+      if ( attempts >= max_attempts )
+      {
+        SPDLOG_WARN( "createDrunkWalkPassage: Max attempts reached, breaking to prevent infinite loop" );
+        return false;
+      }
+    } while ( not walk_bounds.contains( candidate_pos.position ) ||
+              candidate_pos.position.x + candidate_pos.size.x > walk_bounds.position.x + walk_bounds.size.x ||
+              candidate_pos.position.y + candidate_pos.size.y > walk_bounds.position.y + walk_bounds.size.y );
+
+    // Update position and remember the direction we moved
+    sf::Vector2f old_pos = current_pos.position;
+    current_pos.position = candidate_pos.position;
+    last_move_direction = sf::Vector2f( ( current_pos.position.x - old_pos.x ) / Constants::kGridSquareSizePixelsF.x,
+                                        ( current_pos.position.y - old_pos.y ) / Constants::kGridSquareSizePixelsF.y );
+
+    place_passage_block( current_pos.position.x, current_pos.position.y, duplicates_policy );
+  }
+
+  SPDLOG_INFO( "++++++++++++++++++++ Target Reached +++++++++++++++" );
   return true;
 }
 
@@ -528,7 +636,7 @@ void CryptSystem::openFinalPassage()
 
     // no need to search for suitable target, we already have it
     auto current_passage_door = current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH];
-    createDogLegPassage( current_passage_door, crypt_end_room_cmp );
+    createDrunkenWalkPassage( current_passage_door, crypt_end_room_cmp );
   }
 }
 
@@ -558,7 +666,7 @@ void CryptSystem::find_passage_target( Cmp::CryptPassageDoor &start_passage_door
   {
     auto nearest_other_room_entt = dist_pqueue.top().second;
     auto &nearest_other_room_cmp = getReg().get<Cmp::CryptRoomOpen>( nearest_other_room_entt );
-    if ( createDogLegPassage( start_passage_door, nearest_other_room_cmp, duplicates_policy ) )
+    if ( createDrunkenWalkPassage( start_passage_door, nearest_other_room_cmp, duplicates_policy ) )
     {
       start_passage_door.is_used = true;
       if ( passage_limit == CryptSystem::OnePassagePerTargetRoom::YES )

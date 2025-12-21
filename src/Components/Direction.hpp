@@ -7,12 +7,14 @@
 #include <SFML/System/Vector2.hpp>
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
 // {1,0} right, {-1,0} left, {0,-1} up, {0,1} down
 class Direction : public sf::Vector2f
 {
 public:
+  Direction() = default;
   Direction( const sf::Vector2f &dir )
       : sf::Vector2f( dir )
   {
