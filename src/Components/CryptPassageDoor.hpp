@@ -12,19 +12,23 @@ enum class CryptPassageDirection { NORTH, EAST, WEST, SOUTH };
 class CryptPassageDoor : public sf::Vector2f
 {
 public:
+  //! @brief default constructor for std::unordered_map
   CryptPassageDoor()
       : sf::Vector2f( 0.f, 0.f ),
         is_used( false )
   {
   }
-  CryptPassageDoor( sf::Vector2f pos, bool used )
+  CryptPassageDoor( sf::Vector2f pos, bool used, CryptPassageDirection direction )
       : sf::Vector2f( pos ),
-        is_used( used ) {};
-  CryptPassageDoor( float x, float y, bool used )
+        is_used( used ),
+        m_direction( direction ) {};
+  CryptPassageDoor( float x, float y, bool used, CryptPassageDirection direction )
       : sf::Vector2f( x, y ),
-        is_used( used ) {};
+        is_used( used ),
+        m_direction( direction ) {};
 
   bool is_used{ false };
+  CryptPassageDirection m_direction;
 };
 
 } // namespace ProceduralMaze::Cmp

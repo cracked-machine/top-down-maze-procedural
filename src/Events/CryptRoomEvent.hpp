@@ -8,7 +8,7 @@ namespace ProceduralMaze::Events
 class CryptRoomEvent
 {
 public:
-  enum class Type { SWAP };
+  enum class Type { SHUFFLE_PASSAGES, FINAL_PASSAGE, EXIT_ALL_PASSAGES };
   Type type;
   explicit CryptRoomEvent( Type t )
       : type( t )

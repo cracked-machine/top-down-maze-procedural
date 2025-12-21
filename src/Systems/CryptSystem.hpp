@@ -26,6 +26,9 @@ public:
   using RoomDistanceQueue = std::priority_queue<std::pair<float, sf::Vector2f>, std::vector<std::pair<float, sf::Vector2f>>,
                                                 Utils::Maths::DistanceVector2fComparator>;
 
+  enum class OnePassagePerTargetRoom { YES, NO };
+  enum class AllowDuplicatePassages { YES, NO };
+
   CryptSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
                entt::dispatcher &scenemanager_event_dispatcher )
       : ProceduralMaze::Sys::BaseSystem( reg, window, sprite_factory, sound_bank ),
@@ -53,33 +56,44 @@ public:
   void check_exit_collision();
   void check_objective_activation( Events::PlayerActionEvent::GameActions action );
   void spawn_exit( sf::Vector2u spawn_position );
+
+  //! @brief Close all open rooms (except the one occupied by the player)
   void closeAllRooms();
   void openSelectedRooms( std::set<entt::entity> selected_rooms );
+  void openAllRooms();
 
-  void openRandomPassages();
+  bool openRandomStartPassages();
+  bool openRandomMiddlePassages();
+  void openAllMiddlePassages();
+  void openFinalPassage();
   void closeAllPassages();
-  bool place_passage_block( float x, float y, std::vector<entt::entity> &new_block_list );
-  bool createDogLegPassage( sf::Vector2f start, sf::Vector2f end );
+
+  void find_passage_target( Cmp::CryptPassageDoor &start_passage_door, const sf::FloatRect search_quadrant, entt::entity exclude_entt,
+                            OnePassagePerTargetRoom one_passage = OnePassagePerTargetRoom::YES,
+                            AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
+  bool createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRect end_bounds,
+                            AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
   bool createDrunkWalkPassage( sf::Vector2f start, sf::Vector2f end );
-  void add_cardinal_passage( Cmp::CryptPassageDoor &start_passage_door, const sf::FloatRect search_quadrant );
+  bool place_passage_block( float x, float y, std::vector<entt::entity> &new_block_list,
+                            AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
 
 private:
   //! @brief Get the single Cmp::CryptRoomStart component
   //! @return Cmp::CryptRoomStart&
-  Cmp::CryptRoomStart &get_crypt_room_start()
+  std::pair<entt::entity, Cmp::CryptRoomStart &> get_crypt_room_start()
   {
     auto start_room_view = getReg().view<Cmp::CryptRoomStart>();
     if ( start_room_view.front() == entt::null ) throw std::runtime_error( "CryptSystem::get_crypt_room_start - Unable to get Cmp::CryptRoomStart" );
-    return getReg().get<Cmp::CryptRoomStart>( start_room_view.front() );
+    return { start_room_view.front(), getReg().get<Cmp::CryptRoomStart>( start_room_view.front() ) };
   }
 
   //! @brief Get the single Cmp::CryptRoomEnd component
   //! @return Cmp::CryptRoomEnd&
-  Cmp::CryptRoomEnd &get_crypt_room_end()
+  std::pair<entt::entity, Cmp::CryptRoomEnd &> get_crypt_room_end()
   {
-    auto start_room_view = getReg().view<Cmp::CryptRoomEnd>();
-    if ( start_room_view.front() == entt::null ) throw std::runtime_error( "CryptSystem::get_crypt_room_end - Unable to get Cmp::CryptRoomEnd" );
-    return getReg().get<Cmp::CryptRoomEnd>( start_room_view.front() );
+    auto end_room_view = getReg().view<Cmp::CryptRoomEnd>();
+    if ( end_room_view.front() == entt::null ) throw std::runtime_error( "CryptSystem::get_crypt_room_end - Unable to get Cmp::CryptRoomEnd" );
+    return { end_room_view.front(), getReg().get<Cmp::CryptRoomEnd>( end_room_view.front() ) };
   }
 
   entt::dispatcher &m_scenemanager_event_dispatcher;
@@ -90,3 +104,10 @@ private:
 
 } // namespace ProceduralMaze::Sys
 #endif // SRC_SYSTEMS_CRYPTSYSTEM_HPP__
+
+/// Issues:
+// 1. CryptPassageBlock offset/alignment
+// 2. Passages going through open rooms?
+// 3. Dog leg passages don't extend out from the left/right sides properly (limitation? Try drunken walk instead?)
+// 4. Remove obstacles for newly opened passages
+// 5. restore obstacles for newly closed passages

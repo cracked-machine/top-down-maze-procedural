@@ -35,6 +35,7 @@ inline bool isInBounds( const sf::Vector2f &position, const sf::Vector2f &size, 
   return true;
 }
 
+enum class Rounding { TOWARDS_ZERO, AWAY_ZERO };
 //! @brief Snaps a rectangle's position to the nearest grid cell.
 //!
 //! Computes a new rectangle whose top-left corner is moved to the nearest grid
@@ -51,13 +52,22 @@ inline bool isInBounds( const sf::Vector2f &position, const sf::Vector2f &size, 
 //!
 //! @note If the grid is not square, only the x component of
 //!       BaseSystem::kGridSquareSizePixels is used for both axes.
-inline constexpr sf::FloatRect snap_to_grid( const sf::FloatRect &position ) noexcept
+inline constexpr sf::FloatRect snap_to_grid( const sf::FloatRect &position, Rounding rounding = Rounding::AWAY_ZERO ) noexcept
 {
-  float grid_size = Constants::kGridSquareSizePixels.x; // Assuming square grid
-  sf::Vector2f snapped_pos{ std::round( position.position.x / Constants::kGridSquareSizePixels.x ) * grid_size,
-                            std::round( position.position.y / Constants::kGridSquareSizePixels.y ) * grid_size };
 
-  return sf::FloatRect( snapped_pos, position.size );
+  float grid_size = Constants::kGridSquareSizePixels.x; // Assuming square grid
+  if ( rounding == Rounding::TOWARDS_ZERO )
+  {
+    sf::Vector2f snapped_pos{ std::trunc( position.position.x / Constants::kGridSquareSizePixels.x ) * grid_size,
+                              std::trunc( position.position.y / Constants::kGridSquareSizePixels.y ) * grid_size };
+    return sf::FloatRect( snapped_pos, position.size );
+  }
+  else
+  {
+    sf::Vector2f snapped_pos{ std::round( position.position.x / Constants::kGridSquareSizePixels.x ) * grid_size,
+                              std::round( position.position.y / Constants::kGridSquareSizePixels.y ) * grid_size };
+    return sf::FloatRect( snapped_pos, position.size );
+  }
 }
 
 //! @brief Snap a given position to the nearest grid square.
@@ -67,13 +77,21 @@ inline constexpr sf::FloatRect snap_to_grid( const sf::FloatRect &position ) noe
 //!
 //! @param position The position to snap, as an sf::Vector2f.
 //! @return sf::Vector2f The snapped position aligned to the grid.
-inline constexpr sf::Vector2f snap_to_grid( const sf::Vector2f &position ) noexcept
+inline constexpr sf::Vector2f snap_to_grid( const sf::Vector2f &position, Rounding rounding = Rounding::AWAY_ZERO ) noexcept
 {
   float grid_size = Constants::kGridSquareSizePixels.x; // Assuming square grid
-  sf::Vector2f snapped_pos{ std::round( position.x / Constants::kGridSquareSizePixels.x ) * grid_size,
-                            std::round( position.y / Constants::kGridSquareSizePixels.y ) * grid_size };
-
-  return snapped_pos;
+  if ( rounding == Rounding::TOWARDS_ZERO )
+  {
+    sf::Vector2f snapped_pos{ std::trunc( position.x / Constants::kGridSquareSizePixels.x ) * grid_size,
+                              std::trunc( position.y / Constants::kGridSquareSizePixels.y ) * grid_size };
+    return snapped_pos;
+  }
+  else
+  {
+    sf::Vector2f snapped_pos{ std::round( position.x / Constants::kGridSquareSizePixels.x ) * grid_size,
+                              std::round( position.y / Constants::kGridSquareSizePixels.y ) * grid_size };
+    return snapped_pos;
+  }
 }
 
 //! @brief Get the Grid Position object
@@ -107,7 +125,7 @@ static std::optional<sf::Vector2f> getPixelPosition( entt::registry &registry, e
 static entt::entity get_player_entity( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayableCharacter, Cmp::Position>();
-  if (player_view.front() == entt::null) throw std::runtime_error("Player entity could not be found");
+  if ( player_view.front() == entt::null ) throw std::runtime_error( "Player entity could not be found" );
   return player_view.front();
 }
 

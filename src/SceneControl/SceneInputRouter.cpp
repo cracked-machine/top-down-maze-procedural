@@ -27,9 +27,8 @@
 namespace ProceduralMaze::Sys
 {
 
-SceneInputRouter::SceneInputRouter( entt::registry &reg, sf::RenderWindow &m_window,
-                                    Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
-                                    entt::dispatcher &nav_event_dispatcher,
+SceneInputRouter::SceneInputRouter( entt::registry &reg, sf::RenderWindow &m_window, Sprites::SpriteFactory &sprite_factory,
+                                    Audio::SoundBank &sound_bank, entt::dispatcher &nav_event_dispatcher,
                                     entt::dispatcher &scenemanager_event_dispatcher )
     : Sys::BaseSystem( reg, m_window, sprite_factory, sound_bank ),
       m_nav_event_dispatcher( nav_event_dispatcher ),
@@ -62,18 +61,15 @@ void SceneInputRouter::title_scene_input_handler()
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::Enter )
       {
-        m_scenemanager_event_dispatcher.enqueue(
-            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::START_GAME ) );
+        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::START_GAME ) );
       }
       else if ( keyPressed->scancode == sf::Keyboard::Scancode::Q )
       {
-        m_scenemanager_event_dispatcher.enqueue(
-            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_GAME ) );
+        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_GAME ) );
       }
       else if ( keyPressed->scancode == sf::Keyboard::Scancode::S )
       {
-        m_scenemanager_event_dispatcher.enqueue(
-            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::SETTINGS_MENU ) );
+        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::SETTINGS_MENU ) );
       }
     }
   }
@@ -95,8 +91,7 @@ void SceneInputRouter::settings_scene_state_handler()
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape )
       {
-        m_scenemanager_event_dispatcher.enqueue(
-            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_SETTINGS_MENU ) );
+        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_SETTINGS_MENU ) );
       }
     }
   }
@@ -155,8 +150,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
         auto player_key_view = getReg().view<Cmp::PlayerKeysCount>();
         for ( auto [pkey_count_entity, pkey_count_cmp] : player_key_view.each() )
         {
-          pkey_count_cmp.increment_count(
-              Sys::PersistSystem::get_persist_cmp<Cmp::Persist::ExitKeyRequirement>( getReg() ).get_value() );
+          pkey_count_cmp.increment_count( Sys::PersistSystem::get_persist_cmp<Cmp::Persist::ExitKeyRequirement>( getReg() ).get_value() );
         }
         auto exit_cmp = getReg().view<Cmp::Exit>();
         for ( auto [exit_entt, exit_cmp] : exit_cmp.each() )
@@ -171,8 +165,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       {
         // dont set PlayerMortality::State directly, instead update health/death_progress and let
         // the PlayerSystem logic handle it
-        for ( auto [entity, pc_mort_cmp, pc_health_cmp] :
-              getReg().view<Cmp::PlayerMortality, Cmp::PlayerHealth>().each() )
+        for ( auto [entity, pc_mort_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerMortality, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = 0;
           pc_mort_cmp.death_progress = 1.0f;
@@ -198,8 +191,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] :
-              getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = std::clamp( 10, pc_health_cmp.health + 10, 100 );
           SPDLOG_INFO( "Player gained health (player cheated)" );
@@ -207,8 +199,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_relic_count_cmp] :
-              getReg().view<Cmp::PlayableCharacter, Cmp::PlayerRelicCount>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_relic_count_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerRelicCount>().each() )
         {
           pc_relic_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a relic (player cheated)" );
@@ -216,8 +207,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad5 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] :
-              getReg().view<Cmp::PlayableCharacter, Cmp::PlayerCadaverCount>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerCadaverCount>().each() )
         {
           pc_cadaver_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
@@ -225,21 +215,18 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
       {
-        m_scenemanager_event_dispatcher.enqueue(
-            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_CRYPT ) );
+        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_CRYPT ) );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
       {
-        m_scenemanager_event_dispatcher.enqueue(
-            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::QUIT_GAME ) );
+        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::QUIT_GAME ) );
       }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
       {
-        m_scenemanager_event_dispatcher.enqueue(
-            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::PAUSE_GAME ) );
+        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::PAUSE_GAME ) );
       }
     }
   }
@@ -329,8 +316,7 @@ void SceneInputRouter::crypt_scene_state_handler()
       {
         // dont set PlayerMortality::State directly, instead update health/death_progress and let
         // the PlayerSystem logic handle it
-        for ( auto [entity, pc_mort_cmp, pc_health_cmp] :
-              getReg().view<Cmp::PlayerMortality, Cmp::PlayerHealth>().each() )
+        for ( auto [entity, pc_mort_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerMortality, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = 0;
           pc_mort_cmp.death_progress = 1.0f;
@@ -356,8 +342,7 @@ void SceneInputRouter::crypt_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] :
-              getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = std::clamp( 10, pc_health_cmp.health + 10, 100 );
           SPDLOG_INFO( "Player gained health (player cheated)" );
@@ -365,8 +350,7 @@ void SceneInputRouter::crypt_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_relic_count_cmp] :
-              getReg().view<Cmp::PlayableCharacter, Cmp::PlayerRelicCount>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_relic_count_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerRelicCount>().each() )
         {
           pc_relic_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a relic (player cheated)" );
@@ -374,8 +358,7 @@ void SceneInputRouter::crypt_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad5 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] :
-              getReg().view<Cmp::PlayableCharacter, Cmp::PlayerCadaverCount>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerCadaverCount>().each() )
         {
           pc_cadaver_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
@@ -384,8 +367,7 @@ void SceneInputRouter::crypt_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
       {
 
-        m_scenemanager_event_dispatcher.enqueue(
-            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_CRYPT ) );
+        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_CRYPT ) );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
       {
@@ -393,15 +375,22 @@ void SceneInputRouter::crypt_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::R )
       {
-        get_systems_event_queue().trigger( Events::CryptRoomEvent( Events::CryptRoomEvent::Type::SWAP ) );
+        get_systems_event_queue().trigger( Events::CryptRoomEvent( Events::CryptRoomEvent::Type::SHUFFLE_PASSAGES ) );
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::T )
+      {
+        get_systems_event_queue().trigger( Events::CryptRoomEvent( Events::CryptRoomEvent::Type::FINAL_PASSAGE ) );
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Y )
+      {
+        get_systems_event_queue().trigger( Events::CryptRoomEvent( Events::CryptRoomEvent::Type::EXIT_ALL_PASSAGES ) );
       }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
       {
-        m_scenemanager_event_dispatcher.enqueue(
-            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::PAUSE_GAME ) );
+        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::PAUSE_GAME ) );
       }
     }
   }
@@ -449,8 +438,7 @@ void SceneInputRouter::paused_scene_state_handler()
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
       {
-        m_scenemanager_event_dispatcher.enqueue(
-            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::RESUME_GAME ) );
+        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::RESUME_GAME ) );
       }
     }
   }
@@ -472,8 +460,7 @@ void SceneInputRouter::game_over_scene_state_handler()
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::R )
       {
-        m_scenemanager_event_dispatcher.enqueue(
-            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::RETURN_TO_TITLE ) );
+        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::RETURN_TO_TITLE ) );
       }
     }
   }
@@ -495,8 +482,7 @@ void SceneInputRouter::level_complete_scene_state_handler()
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::R )
       {
-        m_scenemanager_event_dispatcher.enqueue(
-            Events::SceneManagerEvent( Events::SceneManagerEvent::Type::RETURN_TO_TITLE ) );
+        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::RETURN_TO_TITLE ) );
       }
     }
   }

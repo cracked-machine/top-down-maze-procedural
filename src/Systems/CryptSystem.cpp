@@ -4,6 +4,7 @@
 #include <Components/CryptObjectiveMultiBlock.hpp>
 #include <Components/CryptObjectiveSegment.hpp>
 #include <Components/CryptPassageBlock.hpp>
+#include <Components/CryptPassageDoor.hpp>
 #include <Components/CryptRoomClosed.hpp>
 #include <Components/CryptRoomEnd.hpp>
 #include <Components/CryptRoomOpen.hpp>
@@ -18,6 +19,7 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Events/CryptRoomEvent.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -289,7 +291,7 @@ void CryptSystem::openSelectedRooms( std::set<entt::entity> selected_rooms )
   }
 }
 
-bool CryptSystem::place_passage_block( float x, float y, std::vector<entt::entity> &new_block_list )
+bool CryptSystem::place_passage_block( float x, float y, std::vector<entt::entity> &new_block_list, AllowDuplicatePassages duplicates_policy )
 {
 
   auto block_list_unwind = [&]()
@@ -301,14 +303,15 @@ bool CryptSystem::place_passage_block( float x, float y, std::vector<entt::entit
     new_block_list.clear();
   };
 
-  Cmp::Position next_passage_block_cmp( { x, y }, Constants::kGridSquareSizePixelsF );
+  Cmp::Position next_passage_block_cmp( Utils::snap_to_grid( { x, y }, Utils::Rounding::TOWARDS_ZERO ), Constants::kGridSquareSizePixelsF );
 
   // Check if a block already exists at this position
   auto block_view = getReg().view<Cmp::CryptPassageBlock>();
   for ( auto [passage_block_entt, passage_block_cmp] : block_view.each() )
   {
     Cmp::Position found_passage_block_pos_cmp( passage_block_cmp, Constants::kGridSquareSizePixelsF );
-    if ( found_passage_block_pos_cmp.findIntersection( next_passage_block_cmp ) )
+    if ( ( found_passage_block_pos_cmp.findIntersection( next_passage_block_cmp ) ) and
+         ( duplicates_policy == CryptSystem::AllowDuplicatePassages::NO ) )
     {
       SPDLOG_INFO( "CryptPassageBlock already exists at {},{}", x, y );
       block_list_unwind();
@@ -337,83 +340,87 @@ bool CryptSystem::place_passage_block( float x, float y, std::vector<entt::entit
   return true;
 };
 
-bool CryptSystem::createDogLegPassage( sf::Vector2f start, sf::Vector2f end )
+bool CryptSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRect end_bounds, AllowDuplicatePassages duplicates_policy )
 {
-  SPDLOG_INFO( "Entered createDogLegPassage from ({},{}) to ({},{})", start.x, start.y, end.x, end.y );
+  SPDLOG_INFO( "createDogLegPassage from ({},{}) to ({},{})", start.x, start.y, end_bounds.getCenter().x, end_bounds.getCenter().y );
 
   std::vector<entt::entity> new_block_list;
-
-  float dx = end.x - start.x;
-  float dy = end.y - start.y;
   const auto kSquareSizePx = Constants::kGridSquareSizePixelsF;
 
-  if ( std::abs( dx ) > std::abs( dy ) )
+  // always prioritize nearer direction
+  if ( start.m_direction == Cmp::CryptPassageDirection::EAST or start.m_direction == Cmp::CryptPassageDirection::WEST )
   {
-    SPDLOG_INFO( "start with horizontal leg" );
-    // First leg: horizontal
-    if ( dx > 0 )
+    SPDLOG_INFO( "First leg: horizontal" );
+    // try to prevent hitting another open room before reaching the target room
+    float furthest_pos_x;
+    if ( start.m_direction == Cmp::CryptPassageDirection::EAST )
     {
-      for ( float x = start.x; x <= end.x; x += kSquareSizePx.x )
+      furthest_pos_x = end_bounds.position.x + end_bounds.size.x;
+      for ( float x = start.x; x <= furthest_pos_x; x += kSquareSizePx.x )
       {
-        if ( not place_passage_block( x, start.y, new_block_list ) ) { return false; }
+        if ( not place_passage_block( x, start.y, new_block_list, duplicates_policy ) ) { return false; }
       }
     }
-    else
+    else if ( start.m_direction == Cmp::CryptPassageDirection::WEST )
     {
-      for ( float x = start.x; x >= end.x; x -= kSquareSizePx.x )
+      furthest_pos_x = end_bounds.position.x;
+      for ( float x = start.x; x >= furthest_pos_x; x -= kSquareSizePx.x )
       {
-        if ( not place_passage_block( x, start.y, new_block_list ) ) { return false; }
+        if ( not place_passage_block( x, start.y, new_block_list, duplicates_policy ) ) { return false; }
       }
     }
-    SPDLOG_INFO( "switch to vertical leg" );
-    // Second leg: vertical from end.x to end.y
+    SPDLOG_INFO( "Second leg: vertical from end.x to end.y" );
+    float dy = end_bounds.getCenter().y - start.y;
     if ( dy > 0 )
     {
-      for ( float y = start.y + kSquareSizePx.y; y <= end.y; y += kSquareSizePx.y )
+      for ( float y = start.y + kSquareSizePx.y; y <= end_bounds.getCenter().y; y += kSquareSizePx.y )
       {
-        if ( not place_passage_block( end.x, y, new_block_list ) ) { return false; }
+        if ( not place_passage_block( furthest_pos_x, y, new_block_list, duplicates_policy ) ) { return false; }
       }
     }
     else
     {
-      for ( float y = start.y - kSquareSizePx.y; y >= end.y; y -= kSquareSizePx.y )
+      for ( float y = start.y - kSquareSizePx.y; y >= end_bounds.getCenter().y; y -= kSquareSizePx.y )
       {
-        if ( not place_passage_block( end.x, y, new_block_list ) ) { return false; }
+        if ( not place_passage_block( furthest_pos_x, y, new_block_list, duplicates_policy ) ) { return false; }
       }
     }
   }
   else
   {
-    SPDLOG_INFO( "start with vertical leg" );
-    // First leg: vertical
-    if ( dy > 0 )
+    SPDLOG_INFO( "First leg: vertical" );
+    // try to prevent hitting another open room before reaching the target room
+    float furthest_pos_y;
+    if ( start.m_direction == Cmp::CryptPassageDirection::SOUTH )
     {
-      for ( float y = start.y; y <= end.y; y += kSquareSizePx.y )
+      furthest_pos_y = end_bounds.position.y + end_bounds.size.y;
+      for ( float y = start.y; y <= furthest_pos_y; y += kSquareSizePx.y )
       {
-        if ( not place_passage_block( start.x, y, new_block_list ) ) { return false; }
+        if ( not place_passage_block( start.x, y, new_block_list, duplicates_policy ) ) { return false; }
       }
     }
-    else
+    else if ( start.m_direction == Cmp::CryptPassageDirection::NORTH )
     {
-      for ( float y = start.y; y >= end.y; y -= kSquareSizePx.y )
+      furthest_pos_y = end_bounds.position.y;
+      for ( float y = start.y; y >= furthest_pos_y; y -= kSquareSizePx.y )
       {
-        if ( not place_passage_block( start.x, y, new_block_list ) ) { return false; }
+        if ( not place_passage_block( start.x, y, new_block_list, duplicates_policy ) ) { return false; }
       }
     }
-    SPDLOG_INFO( "switch to horizontal leg" );
-    // Second leg: horizontal from start.x to end.x
+    SPDLOG_INFO( "Second leg: horizontal from start.x to end.x" );
+    float dx = end_bounds.getCenter().x - start.x;
     if ( dx > 0 )
     {
-      for ( float x = start.x + kSquareSizePx.x; x <= end.x; x += kSquareSizePx.x )
+      for ( float x = start.x + kSquareSizePx.x; x <= end_bounds.getCenter().x; x += kSquareSizePx.x )
       {
-        if ( not place_passage_block( x, end.y, new_block_list ) ) { return false; }
+        if ( not place_passage_block( x, furthest_pos_y, new_block_list, duplicates_policy ) ) { return false; }
       }
     }
     else
     {
-      for ( float x = start.x - kSquareSizePx.x; x >= end.x; x -= kSquareSizePx.x )
+      for ( float x = start.x - kSquareSizePx.x; x >= end_bounds.getCenter().x; x -= kSquareSizePx.x )
       {
-        if ( not place_passage_block( x, end.y, new_block_list ) ) { return false; }
+        if ( not place_passage_block( x, furthest_pos_y, new_block_list, duplicates_policy ) ) { return false; }
       }
     }
   }
@@ -421,30 +428,112 @@ bool CryptSystem::createDogLegPassage( sf::Vector2f start, sf::Vector2f end )
   return true;
 }
 
-void CryptSystem::openRandomPassages()
+bool CryptSystem::openRandomStartPassages()
 {
 
-  auto start_room_cmp = get_crypt_room_start();
-  if ( not Utils::get_player_position( getReg() ).findIntersection( start_room_cmp ) ) return;
+  auto [start_room_entt, start_room_cmp] = get_crypt_room_start();
+  if ( not Utils::get_player_position( getReg() ).findIntersection( start_room_cmp ) ) return false;
 
-  // get view of all "other" rooms i.e. open rooms - this is a small number 3-4
   const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSquareSizePixelsF );
 
   // divide the gamrarea into 3 quadrants - again there are only three because startroom is southern most position in the game area
   auto west_quadrant = sf::FloatRect( { 0.f, 0.f }, { start_room_cmp.position.x, world_size.y } );
   SPDLOG_INFO( "west_quadrant: {},{} : {},{}", west_quadrant.position.x, west_quadrant.position.y, west_quadrant.size.x, west_quadrant.size.y );
+
   auto east_quadrant = sf::FloatRect( { start_room_cmp.position.x + start_room_cmp.size.x, 0.f },
                                       { world_size.x - ( start_room_cmp.position.x + start_room_cmp.size.x ), world_size.y } );
   SPDLOG_INFO( "east_quadrant: {},{} : {},{}", east_quadrant.position.x, east_quadrant.position.y, east_quadrant.size.x, east_quadrant.size.y );
+
   auto north_quadrant = sf::FloatRect( { 0.f, 0.f }, { world_size.x, start_room_cmp.position.y } );
   SPDLOG_INFO( "north_quadrant: {},{} : {},{}", north_quadrant.position.x, north_quadrant.position.y, north_quadrant.size.x, north_quadrant.size.y );
 
-  add_cardinal_passage( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::WEST], west_quadrant );
-  add_cardinal_passage( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::EAST], east_quadrant );
-  add_cardinal_passage( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH], north_quadrant );
+  find_passage_target( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::WEST], west_quadrant, start_room_entt );
+  find_passage_target( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::EAST], east_quadrant, start_room_entt );
+  find_passage_target( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH], north_quadrant, start_room_entt );
+
+  return true;
 }
 
-void CryptSystem::add_cardinal_passage( Cmp::CryptPassageDoor &start_passage_door, const sf::FloatRect search_quadrant )
+bool CryptSystem::openRandomMiddlePassages()
+{
+  const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSquareSizePixelsF );
+
+  // find the open room that the player is in (if any)
+  bool found_player = false;
+  auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
+  for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
+  {
+    if ( not Utils::get_player_position( getReg() ).findIntersection( open_room_cmp ) ) continue;
+
+    auto &current_room_cmp = open_room_cmp;
+    found_player = true;
+
+    // divide the gamrarea into 4 quadrants
+    auto west_quadrant = sf::FloatRect( { 0.f, 0.f }, { current_room_cmp.position.x, world_size.y } );
+    SPDLOG_INFO( "west_quadrant: {},{} : {},{}", west_quadrant.position.x, west_quadrant.position.y, west_quadrant.size.x, west_quadrant.size.y );
+
+    auto east_quadrant = sf::FloatRect( { current_room_cmp.position.x + current_room_cmp.size.x, 0.f },
+                                        { world_size.x - ( current_room_cmp.position.x + current_room_cmp.size.x ), world_size.y } );
+    SPDLOG_INFO( "east_quadrant: {},{} : {},{}", east_quadrant.position.x, east_quadrant.position.y, east_quadrant.size.x, east_quadrant.size.y );
+
+    auto north_quadrant = sf::FloatRect( { 0.f, 0.f }, { world_size.x, current_room_cmp.position.y } );
+    SPDLOG_INFO( "north_quadrant: {},{} : {},{}", north_quadrant.position.x, north_quadrant.position.y, north_quadrant.size.x,
+                 north_quadrant.size.y );
+
+    auto south_quadrant = sf::FloatRect(
+        { current_room_cmp.position.x, current_room_cmp.position.y + current_room_cmp.size.y },
+        { current_room_cmp.position.x + current_room_cmp.size.x, world_size.y - ( current_room_cmp.position.y + current_room_cmp.size.y ) } );
+    SPDLOG_INFO( "south_quadrant: {},{} : {},{}", south_quadrant.position.x, south_quadrant.position.y, south_quadrant.size.x,
+                 south_quadrant.size.y );
+
+    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::WEST], west_quadrant, open_room_entt );
+    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::EAST], east_quadrant, open_room_entt );
+    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH], north_quadrant, open_room_entt );
+    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::SOUTH], south_quadrant, open_room_entt );
+  }
+
+  return found_player;
+}
+
+void CryptSystem::openAllMiddlePassages()
+{
+  const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSquareSizePixelsF );
+  const auto world_area = sf::FloatRect( { 0, 0 }, world_size );
+
+  auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
+  for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
+  {
+    auto &current_room_cmp = open_room_cmp;
+    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::WEST], world_area, open_room_entt, OnePassagePerTargetRoom::NO,
+                         AllowDuplicatePassages::YES );
+    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::EAST], world_area, open_room_entt, OnePassagePerTargetRoom::NO,
+                         AllowDuplicatePassages::YES );
+    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH], world_area, open_room_entt, OnePassagePerTargetRoom::NO,
+                         AllowDuplicatePassages::YES );
+    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::SOUTH], world_area, open_room_entt, OnePassagePerTargetRoom::NO,
+                         AllowDuplicatePassages::YES );
+    current_room_cmp.set_all_doors_used( true );
+  }
+}
+
+void CryptSystem::openFinalPassage()
+{
+  auto [crypt_room_end_entt, crypt_end_room_cmp] = get_crypt_room_end();
+
+  auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
+  for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
+  {
+    if ( not Utils::get_player_position( getReg() ).findIntersection( open_room_cmp ) ) continue;
+    auto &current_room_cmp = open_room_cmp;
+
+    // no need to search for suitable target, we already have it
+    auto current_passage_door = current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH];
+    createDogLegPassage( current_passage_door, crypt_end_room_cmp );
+  }
+}
+
+void CryptSystem::find_passage_target( Cmp::CryptPassageDoor &start_passage_door, const sf::FloatRect search_quadrant, entt::entity exclude_entt,
+                                       OnePassagePerTargetRoom passage_limit, AllowDuplicatePassages duplicates_policy )
 {
   // clang-format off
   using MidPointDistanceQueue = std::priority_queue < 
@@ -458,6 +547,7 @@ void CryptSystem::add_cardinal_passage( Cmp::CryptPassageDoor &start_passage_doo
   auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
   for ( auto [other_room_entt, other_room_cmp] : open_room_view.each() )
   {
+    if ( other_room_entt == exclude_entt ) continue;
     if ( not other_room_cmp.findIntersection( search_quadrant ) ) continue;
     if ( other_room_cmp.are_all_doors_used() ) continue;
     dist_pqueue.push( { Utils::Maths::getEuclideanDistance( start_passage_door, other_room_cmp.getCenter() ), other_room_entt } );
@@ -466,12 +556,15 @@ void CryptSystem::add_cardinal_passage( Cmp::CryptPassageDoor &start_passage_doo
   SPDLOG_INFO( "north_dist_pqueue - size:{}", dist_pqueue.size() );
   if ( not dist_pqueue.empty() )
   {
-    auto nearest_north_other_room_entt = dist_pqueue.top().second;
-    auto &nearest_north_other_room_cmp = getReg().get<Cmp::CryptRoomOpen>( nearest_north_other_room_entt );
-    if ( createDogLegPassage( start_passage_door, nearest_north_other_room_cmp.getCenter() ) )
+    auto nearest_other_room_entt = dist_pqueue.top().second;
+    auto &nearest_other_room_cmp = getReg().get<Cmp::CryptRoomOpen>( nearest_other_room_entt );
+    if ( createDogLegPassage( start_passage_door, nearest_other_room_cmp, duplicates_policy ) )
     {
       start_passage_door.is_used = true;
-      nearest_north_other_room_cmp.set_all_doors_used( true ); // prevent more passages
+      if ( passage_limit == CryptSystem::OnePassagePerTargetRoom::YES )
+      {
+        nearest_other_room_cmp.set_all_doors_used( true ); // prevent more passages
+      }
     }
   }
 }
@@ -500,7 +593,7 @@ void CryptSystem::closeAllPassages()
 
 void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
 {
-  if ( event.type == Events::CryptRoomEvent::Type::SWAP )
+  if ( event.type == Events::CryptRoomEvent::Type::SHUFFLE_PASSAGES )
   {
     auto selected_rooms = Utils::Rnd::get_n_rand_components<Cmp::CryptRoomClosed>(
         getReg(), 4, {}, Utils::Rnd::ExcludePack<Cmp::CryptRoomStart, Cmp::CryptRoomEnd>{}, 0 );
@@ -508,7 +601,31 @@ void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
     openSelectedRooms( selected_rooms );
     SPDLOG_INFO( "~~~~~~~~~~~ STARTING PASSAGE GEN ~~~~~~~~~~~~~~~" );
     closeAllPassages();
-    openRandomPassages();
+    // try to open passages for the occupied room: try start room first, the other open rooms
+    if ( openRandomStartPassages() ) {}
+    else if ( openRandomMiddlePassages() ) {}
+  }
+  else if ( event.type == Events::CryptRoomEvent::Type::FINAL_PASSAGE )
+  {
+
+    closeAllRooms();
+    SPDLOG_INFO( "~~~~~~~~~~~ OPENING FINAL PASSAGE ~~~~~~~~~~~~~~~" );
+    closeAllPassages();
+    openFinalPassage();
+  }
+  else if ( event.type == Events::CryptRoomEvent::Type::EXIT_ALL_PASSAGES )
+  {
+    // we need to open all rooms, its easier to reuse existing code: close all rooms and then use 'openSelectedRooms()' using a set of ALL rooms
+    //! @todo This could be opotimized to be more efficient.
+    closeAllRooms();
+    std::set<entt::entity> all_rooms;
+    for ( auto [closed_room_entt, closed_room_cmp] : getReg().view<Cmp::CryptRoomClosed>().each() )
+    {
+      all_rooms.insert( closed_room_entt );
+    }
+    openSelectedRooms( all_rooms );
+    openRandomStartPassages(); // make sure there is passage way to start room for exit
+    openAllMiddlePassages();
   }
 }
 
