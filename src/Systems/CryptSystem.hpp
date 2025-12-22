@@ -7,6 +7,7 @@
 #include <Components/CryptRoomEnd.hpp>
 #include <Components/CryptRoomOpen.hpp>
 #include <Components/CryptRoomStart.hpp>
+#include <Components/Direction.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Sprites/TileMap.hpp>
@@ -68,14 +69,14 @@ public:
   void openFinalPassage();
   void closeAllPassages();
 
-  void find_passage_target( Cmp::CryptPassageDoor &start_passage_door, const sf::FloatRect search_quadrant, entt::entity exclude_entt,
+  void find_passage_target( Cmp::CryptPassageDoor &start_passage_door, const sf::FloatRect search_quadrant, std::set<entt::entity> exclude_entts,
                             OnePassagePerTargetRoom one_passage = OnePassagePerTargetRoom::YES,
                             AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
   bool createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRect end_bounds,
                             AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
-  bool createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::FloatRect end_bounds,
+  bool createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::FloatRect end_bounds, std::set<entt::entity> exclude_entts,
                                  AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
-  bool place_passage_block( float x, float y, AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
+  bool place_passage_block( unsigned int passage_id, float x, float y, AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
 
 private:
   //! @brief Get the single Cmp::CryptRoomStart component
@@ -100,14 +101,25 @@ private:
   sf::Clock m_door_cooldown_timer;
   float m_door_cooldown_time{ 1.0f }; // 1 second cooldown
   sf::Vector2f m_player_last_known_graveyard_pos{ 0, 0 };
+  unsigned int m_current_passage_id{ 0 };
+
+  std::unordered_map<Cmp::CryptPassageDirection, Cmp::Direction> m_direction_dictionary = {
+      { Cmp::CryptPassageDirection::NORTH, Cmp::Direction( { 0.f, -1.f } ) },
+      { Cmp::CryptPassageDirection::EAST, Cmp::Direction( { 1.f, 0.f } ) },
+      { Cmp::CryptPassageDirection::SOUTH, Cmp::Direction( { 0.f, 1.f } ) },
+      { Cmp::CryptPassageDirection::WEST, Cmp::Direction( { -1.f, 0.f } ) } };
+
+  std::vector<Cmp::Direction> m_direction_choices = { Cmp::Direction( { 0.f, -1.f } ), Cmp::Direction( { 1.f, 0.f } ), Cmp::Direction( { 0.f, 1.f } ),
+                                                      Cmp::Direction( { -1.f, 0.f } ) };
 };
 
 } // namespace ProceduralMaze::Sys
 #endif // SRC_SYSTEMS_CRYPTSYSTEM_HPP__
 
 /// Issues:
-// 1. CryptPassageBlock offset/alignment
+// 1. CryptPassageBlock offset/alignment DONE
 // 2. Passages going through open rooms?
-// 3. Dog leg passages don't extend out from the left/right sides properly (limitation? Try drunken walk instead?)
-// 4. Remove obstacles for newly opened passages
-// 5. restore obstacles for newly closed passages
+// 3. Dog leg passages don't extend out from the left/right sides properly DONE
+// 4. Try drunken walk
+// 5. Remove obstacles for newly opened passages
+// 6. restore obstacles for newly closed passages

@@ -292,7 +292,7 @@ void CryptSystem::openSelectedRooms( std::set<entt::entity> selected_rooms )
   }
 }
 
-bool CryptSystem::place_passage_block( float x, float y, AllowDuplicatePassages duplicates_policy )
+bool CryptSystem::place_passage_block( unsigned int passage_id, float x, float y, AllowDuplicatePassages duplicates_policy )
 {
   // track additions so we can roll them back if a violation is found
   std::vector<entt::entity> new_block_list;
@@ -336,16 +336,19 @@ bool CryptSystem::place_passage_block( float x, float y, AllowDuplicatePassages 
   }
 
   entt::entity new_entt = getReg().create();
-  getReg().emplace_or_replace<Cmp::CryptPassageBlock>( new_entt, next_passage_block_cmp.position );
+  getReg().emplace_or_replace<Cmp::CryptPassageBlock>( new_entt, next_passage_block_cmp.position, passage_id );
   new_block_list.push_back( new_entt );
-  SPDLOG_INFO( "Placed CryptPassageBlock at {},{}", x, y );
+  SPDLOG_INFO( "Placed CryptPassageBlock at {},{} (id:{})", x, y, passage_id );
 
   return true;
 };
 
 bool CryptSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRect end_bounds, AllowDuplicatePassages duplicates_policy )
 {
-  SPDLOG_INFO( "createDogLegPassage from ({},{}) to ({},{})", start.x, start.y, end_bounds.getCenter().x, end_bounds.getCenter().y );
+
+  m_current_passage_id++;
+  SPDLOG_INFO( "createDogLegPassage (id:{}) from ({},{}) to ({},{})", m_current_passage_id, start.x, start.y, end_bounds.getCenter().x,
+               end_bounds.getCenter().y );
 
   const auto kSquareSizePx = Constants::kGridSquareSizePixelsF;
 
@@ -360,7 +363,7 @@ bool CryptSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRec
       furthest_pos_x = end_bounds.position.x + end_bounds.size.x;
       for ( float x = start.x; x <= furthest_pos_x; x += kSquareSizePx.x )
       {
-        if ( not place_passage_block( x, start.y, duplicates_policy ) ) { return false; }
+        if ( not place_passage_block( m_current_passage_id, x, start.y, duplicates_policy ) ) { return false; }
       }
     }
     else if ( start.m_direction == Cmp::CryptPassageDirection::WEST )
@@ -368,7 +371,7 @@ bool CryptSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRec
       furthest_pos_x = end_bounds.position.x;
       for ( float x = start.x; x >= furthest_pos_x; x -= kSquareSizePx.x )
       {
-        if ( not place_passage_block( x, start.y, duplicates_policy ) ) { return false; }
+        if ( not place_passage_block( m_current_passage_id, x, start.y, duplicates_policy ) ) { return false; }
       }
     }
     SPDLOG_INFO( "Second leg: vertical from end.x to end.y" );
@@ -377,14 +380,14 @@ bool CryptSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRec
     {
       for ( float y = start.y + kSquareSizePx.y; y <= end_bounds.getCenter().y; y += kSquareSizePx.y )
       {
-        if ( not place_passage_block( furthest_pos_x, y, duplicates_policy ) ) { return false; }
+        if ( not place_passage_block( m_current_passage_id, furthest_pos_x, y, duplicates_policy ) ) { return false; }
       }
     }
     else
     {
       for ( float y = start.y - kSquareSizePx.y; y >= end_bounds.getCenter().y; y -= kSquareSizePx.y )
       {
-        if ( not place_passage_block( furthest_pos_x, y, duplicates_policy ) ) { return false; }
+        if ( not place_passage_block( m_current_passage_id, furthest_pos_x, y, duplicates_policy ) ) { return false; }
       }
     }
   }
@@ -398,7 +401,7 @@ bool CryptSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRec
       furthest_pos_y = end_bounds.position.y + end_bounds.size.y;
       for ( float y = start.y; y <= furthest_pos_y; y += kSquareSizePx.y )
       {
-        if ( not place_passage_block( start.x, y, duplicates_policy ) ) { return false; }
+        if ( not place_passage_block( m_current_passage_id, start.x, y, duplicates_policy ) ) { return false; }
       }
     }
     else if ( start.m_direction == Cmp::CryptPassageDirection::NORTH )
@@ -406,7 +409,7 @@ bool CryptSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRec
       furthest_pos_y = end_bounds.position.y;
       for ( float y = start.y; y >= furthest_pos_y; y -= kSquareSizePx.y )
       {
-        if ( not place_passage_block( start.x, y, duplicates_policy ) ) { return false; }
+        if ( not place_passage_block( m_current_passage_id, start.x, y, duplicates_policy ) ) { return false; }
       }
     }
     SPDLOG_INFO( "Second leg: horizontal from start.x to end.x" );
@@ -415,14 +418,14 @@ bool CryptSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRec
     {
       for ( float x = start.x + kSquareSizePx.x; x <= end_bounds.getCenter().x; x += kSquareSizePx.x )
       {
-        if ( not place_passage_block( x, furthest_pos_y, duplicates_policy ) ) { return false; }
+        if ( not place_passage_block( m_current_passage_id, x, furthest_pos_y, duplicates_policy ) ) { return false; }
       }
     }
     else
     {
       for ( float x = start.x - kSquareSizePx.x; x >= end_bounds.getCenter().x; x -= kSquareSizePx.x )
       {
-        if ( not place_passage_block( x, furthest_pos_y, duplicates_policy ) ) { return false; }
+        if ( not place_passage_block( m_current_passage_id, x, furthest_pos_y, duplicates_policy ) ) { return false; }
       }
     }
   }
@@ -430,98 +433,202 @@ bool CryptSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRec
   return true;
 }
 
-bool CryptSystem::createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::FloatRect end_bounds, AllowDuplicatePassages duplicates_policy )
+bool CryptSystem::createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::FloatRect end_bounds, std::set<entt::entity> exclude_entts,
+                                            AllowDuplicatePassages duplicates_policy )
 {
-  std::unordered_map<Cmp::CryptPassageDirection, Cmp::Direction> direction_dictionary = {
-      { Cmp::CryptPassageDirection::NORTH, Cmp::Direction( { 0.f, -1.f } ) },
-      { Cmp::CryptPassageDirection::EAST, Cmp::Direction( { 1.f, 0.f } ) },
-      { Cmp::CryptPassageDirection::SOUTH, Cmp::Direction( { 0.f, 1.f } ) },
-      { Cmp::CryptPassageDirection::WEST, Cmp::Direction( { -1.f, 0.f } ) } };
+  // Generate unique walk ID
+  m_current_passage_id++;
+  SPDLOG_INFO( "createDrunkenWalkPassage (id:{}) from ({},{}) to ({},{})", m_current_passage_id, start.x, start.y, end_bounds.getCenter().x,
+               end_bounds.getCenter().y );
 
-  std::vector<Cmp::Direction> direction_choices = { Cmp::Direction( { 0.f, -1.f } ), Cmp::Direction( { 1.f, 0.f } ), Cmp::Direction( { 0.f, 1.f } ),
-                                                    Cmp::Direction( { -1.f, 0.f } ) };
+  const float min_distance_between_walks = Constants::kGridSquareSizePixelsF.x * 2.0f;
+  const int max_walk_length = 100; // Prevent infinite walks
+  int walk_step_count = 0;
+
+  // Check if this new walk would start too close to any existing walk from different walk IDs
+  auto existing_blocks = getReg().view<Cmp::CryptPassageBlock>();
 
   const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSquareSizePixelsF );
   sf::FloatRect walk_bounds( { 0.f, 0.f }, world_size );
 
-  // Calculate walk_bounds to contain both start and end positions
-  float min_x = std::min( start.x, end_bounds.position.x );
-  float min_y = std::min( start.y, end_bounds.position.y );
-  float max_x = std::max( start.x + Constants::kGridSquareSizePixelsF.x, end_bounds.position.x + end_bounds.size.x );
-  float max_y = std::max( start.y + Constants::kGridSquareSizePixelsF.y, end_bounds.position.y + end_bounds.size.y );
+  // Calculate expanded walk_bounds with some padding
+  float padding = Constants::kGridSquareSizePixelsF.x * 2.0f;
+  float min_x = std::min( start.x, end_bounds.position.x ) - padding;
+  float min_y = std::min( start.y, end_bounds.position.y ) - padding;
+  float max_x = std::max( start.x + Constants::kGridSquareSizePixelsF.x, end_bounds.position.x + end_bounds.size.x ) + padding;
+  float max_y = std::max( start.y + Constants::kGridSquareSizePixelsF.y, end_bounds.position.y + end_bounds.size.y ) + padding;
+
+  // Clamp to world bounds
+  min_x = std::max( 0.f, min_x );
+  min_y = std::max( 0.f, min_y );
+  max_x = std::min( world_size.x, max_x );
+  max_y = std::min( world_size.y, max_y );
 
   walk_bounds = sf::FloatRect( sf::Vector2f( min_x, min_y ), sf::Vector2f( max_x - min_x, max_y - min_y ) );
 
   SPDLOG_INFO( "walk_bounds = {},{} to {},{}", walk_bounds.position.x, walk_bounds.position.y, walk_bounds.position.x + walk_bounds.size.x,
                walk_bounds.position.y + walk_bounds.size.y );
 
-  place_passage_block( start.x, start.y, duplicates_policy );
+  place_passage_block( m_current_passage_id, start.x, start.y, duplicates_policy );
   sf::FloatRect current_pos( { start.x, start.y }, Constants::kGridSquareSizePixelsF );
 
   auto direction_picker = Cmp::RandomInt( 0, 99 ); // 0-99 for percentage-based selection
 
   // Parameters to control oscillation
   const float bias_strength = 0.6f;     // 60% chance to move toward target
-  const float momentum_strength = 0.2f; // 20% chance to continue in same direction
+  const float momentum_strength = 0.1f; // 10% chance to continue in same direction
   sf::Vector2f last_move_direction( 0.f, 0.f );
 
-  // keep walking until we reach our target
-  while ( not current_pos.findIntersection( end_bounds ) )
+  // Track recent positions to avoid immediate backtracking
+  std::vector<sf::Vector2f> recent_positions;
+  const size_t max_recent_positions = 5;
+
+  // keep walking until we reach our target or hit limits
+  while ( not current_pos.findIntersection( end_bounds ) && walk_step_count < max_walk_length )
   {
     sf::FloatRect candidate_pos( { -16.f, -16.f }, Constants::kGridSquareSizePixelsF );
     int attempts = 0;
-    const int max_attempts = 100;
+    const int max_attempts = 50;
+    bool is_candidate_rejected = false;
+    bool found_valid_candidate = false;
 
     do
     {
       // Calculate direction towards target
-      sf::Vector2f target_center = end_bounds.getCenter();
-      sf::Vector2f current_center = sf::Vector2f( current_pos.position.x + current_pos.size.x / 2, current_pos.position.y + current_pos.size.y / 2 );
-      sf::Vector2f to_target = target_center - current_center;
+      sf::Vector2f to_target = end_bounds.getCenter() - current_pos.getCenter();
 
       sf::Vector2f chosen_direction;
       int random_choice = direction_picker.gen();
 
-      if ( random_choice < static_cast<int>( bias_strength * 100 ) )
+      // Force initial steps to go in orthogonal direction from start
+      if ( walk_step_count < 3 ) { chosen_direction = m_direction_dictionary[start.m_direction]; }
+      else
       {
-        // Bias toward target: choose direction that reduces distance to target
-        if ( std::abs( to_target.x ) > std::abs( to_target.y ) )
+        if ( random_choice < static_cast<int>( bias_strength * 100 ) )
         {
-          // Move horizontally toward target
-          chosen_direction = ( to_target.x > 0 ) ? sf::Vector2f( 1.f, 0.f ) : sf::Vector2f( -1.f, 0.f );
+          // Bias toward target: choose direction that reduces distance to target
+          if ( std::abs( to_target.x ) > std::abs( to_target.y ) )
+          {
+            chosen_direction = ( to_target.x > 0 ) ? sf::Vector2f( 1.f, 0.f ) : sf::Vector2f( -1.f, 0.f );
+          }
+          else { chosen_direction = ( to_target.y > 0 ) ? sf::Vector2f( 0.f, 1.f ) : sf::Vector2f( 0.f, -1.f ); }
+        }
+        else if ( random_choice < static_cast<int>( ( bias_strength + momentum_strength ) * 100 ) &&
+                  ( last_move_direction.x != 0.f || last_move_direction.y != 0.f ) )
+        {
+          // Continue in same direction (momentum)
+          chosen_direction = last_move_direction;
         }
         else
         {
-          // Move vertically toward target
-          chosen_direction = ( to_target.y > 0 ) ? sf::Vector2f( 0.f, 1.f ) : sf::Vector2f( 0.f, -1.f );
+          // Random direction
+          auto random_dir_idx = Cmp::RandomInt( 0, m_direction_choices.size() - 1 );
+          chosen_direction = m_direction_choices[random_dir_idx.gen()];
         }
-      }
-      else if ( random_choice < static_cast<int>( ( bias_strength + momentum_strength ) * 100 ) &&
-                ( last_move_direction.x != 0.f || last_move_direction.y != 0.f ) )
-      {
-        // Continue in same direction (momentum)
-        chosen_direction = last_move_direction;
-      }
-      else
-      {
-        // Random direction
-        auto random_dir_idx = Cmp::RandomInt( 0, direction_choices.size() - 1 );
-        chosen_direction = direction_choices[random_dir_idx.gen()];
       }
 
       auto chosen_magnitude = chosen_direction.componentWiseMul( Constants::kGridSquareSizePixelsF );
       candidate_pos.position.x = current_pos.position.x + chosen_magnitude.x;
       candidate_pos.position.y = current_pos.position.y + chosen_magnitude.y;
+
+      // Check if candidate is within bounds
+      if ( !walk_bounds.contains( candidate_pos.position ) ||
+           candidate_pos.position.x + candidate_pos.size.x > walk_bounds.position.x + walk_bounds.size.x ||
+           candidate_pos.position.y + candidate_pos.size.y > walk_bounds.position.y + walk_bounds.size.y )
+      {
+        attempts++;
+        continue;
+      }
+
+      // Check if candidate was recently visited (avoid immediate backtracking)
+      bool is_recent = false;
+      for ( const auto &recent_pos : recent_positions )
+      {
+        if ( std::abs( recent_pos.x - candidate_pos.position.x ) < Constants::kGridSquareSizePixelsF.x * 0.5f &&
+             std::abs( recent_pos.y - candidate_pos.position.y ) < Constants::kGridSquareSizePixelsF.y * 0.5f )
+        {
+          is_recent = true;
+          break;
+        }
+      }
+
+      if ( is_recent && attempts < max_attempts * 0.7f ) // Allow recent positions if we're running out of attempts
+      {
+        attempts++;
+        continue;
+      }
+
+      // Check constraints
+      is_candidate_rejected = false;
+
+      // Check minimum distance from blocks belonging to different walks only
+      if ( duplicates_policy == AllowDuplicatePassages::NO )
+      {
+        for ( auto [block_entt, block_cmp] : existing_blocks.each() )
+        {
+          if ( block_cmp.m_passage_id != m_current_passage_id )
+          {
+            float distance = Utils::Maths::getEuclideanDistance( candidate_pos.position, block_cmp );
+            if ( distance < min_distance_between_walks )
+            {
+              is_candidate_rejected = true;
+              SPDLOG_WARN( "Candidate rejected for passage id :{} - PassageBlock {},{} too close to candidate {},{}", m_current_passage_id,
+                           block_cmp.x, block_cmp.y, candidate_pos.position.x, candidate_pos.position.y );
+              break;
+            }
+          }
+        }
+
+        if ( !is_candidate_rejected )
+        {
+          for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
+          {
+            if ( exclude_entts.contains( open_room_entt ) ) continue;
+            if ( walk_step_count > 3 )
+            {
+              Cmp::RectBounds scaled_candidate_pos( candidate_pos.position, candidate_pos.size, 2.f );
+              if ( scaled_candidate_pos.findIntersection( open_room_cmp ) )
+              {
+                is_candidate_rejected = true;
+                SPDLOG_WARN( "Candidate rejected for passage id :{} - Open room {},{} too close to candidate {},{}", m_current_passage_id,
+                             open_room_cmp.position.x, open_room_cmp.position.y, candidate_pos.position.x, candidate_pos.position.y );
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      if ( !is_candidate_rejected )
+      {
+        for ( auto [wall_entt, wall_cmp, wall_pos_cmp] : getReg().view<Cmp::Wall, Cmp::Position>().each() )
+        {
+          if ( candidate_pos.findIntersection( wall_pos_cmp ) )
+          {
+            is_candidate_rejected = true;
+            SPDLOG_WARN( "Candidate rejected for passage id :{} - Wall {},{} too close to candidate {},{}", m_current_passage_id,
+                         wall_pos_cmp.position.x, wall_pos_cmp.position.y, candidate_pos.position.x, candidate_pos.position.y );
+            break;
+          }
+        }
+      }
+
+      if ( !is_candidate_rejected )
+      {
+        found_valid_candidate = true;
+        break;
+      }
+
       attempts++;
 
-      if ( attempts >= max_attempts )
-      {
-        SPDLOG_WARN( "createDrunkWalkPassage: Max attempts reached, breaking to prevent infinite loop" );
-        return false;
-      }
-    } while ( not walk_bounds.contains( candidate_pos.position ) ||
-              candidate_pos.position.x + candidate_pos.size.x > walk_bounds.position.x + walk_bounds.size.x ||
-              candidate_pos.position.y + candidate_pos.size.y > walk_bounds.position.y + walk_bounds.size.y );
+    } while ( attempts < max_attempts );
+
+    if ( !found_valid_candidate )
+    {
+      SPDLOG_WARN( "createDrunkenWalkPassage (id:{}): No valid candidate found after {} attempts, terminating walk", m_current_passage_id,
+                   max_attempts );
+      return false;
+    }
 
     // Update position and remember the direction we moved
     sf::Vector2f old_pos = current_pos.position;
@@ -529,10 +636,21 @@ bool CryptSystem::createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::Flo
     last_move_direction = sf::Vector2f( ( current_pos.position.x - old_pos.x ) / Constants::kGridSquareSizePixelsF.x,
                                         ( current_pos.position.y - old_pos.y ) / Constants::kGridSquareSizePixelsF.y );
 
-    place_passage_block( current_pos.position.x, current_pos.position.y, duplicates_policy );
+    // Track recent positions
+    recent_positions.push_back( current_pos.position );
+    if ( recent_positions.size() > max_recent_positions ) { recent_positions.erase( recent_positions.begin() ); }
+
+    place_passage_block( m_current_passage_id, current_pos.position.x, current_pos.position.y, duplicates_policy );
+    walk_step_count++;
   }
 
-  SPDLOG_INFO( "++++++++++++++++++++ Target Reached +++++++++++++++" );
+  if ( walk_step_count >= max_walk_length )
+  {
+    SPDLOG_WARN( "createDrunkenWalkPassage (id:{}): Maximum walk length reached, terminating", m_current_passage_id );
+    return false;
+  }
+
+  SPDLOG_INFO( "++++++++++++++++++++ Target Reached (id:{}) +++++++++++++++", m_current_passage_id );
   return true;
 }
 
@@ -555,9 +673,9 @@ bool CryptSystem::openRandomStartPassages()
   auto north_quadrant = sf::FloatRect( { 0.f, 0.f }, { world_size.x, start_room_cmp.position.y } );
   SPDLOG_INFO( "north_quadrant: {},{} : {},{}", north_quadrant.position.x, north_quadrant.position.y, north_quadrant.size.x, north_quadrant.size.y );
 
-  find_passage_target( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::WEST], west_quadrant, start_room_entt );
-  find_passage_target( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::EAST], east_quadrant, start_room_entt );
-  find_passage_target( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH], north_quadrant, start_room_entt );
+  find_passage_target( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::WEST], west_quadrant, { start_room_entt } );
+  find_passage_target( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::EAST], east_quadrant, { start_room_entt } );
+  find_passage_target( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH], north_quadrant, { start_room_entt } );
 
   return true;
 }
@@ -594,10 +712,10 @@ bool CryptSystem::openRandomMiddlePassages()
     SPDLOG_INFO( "south_quadrant: {},{} : {},{}", south_quadrant.position.x, south_quadrant.position.y, south_quadrant.size.x,
                  south_quadrant.size.y );
 
-    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::WEST], west_quadrant, open_room_entt );
-    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::EAST], east_quadrant, open_room_entt );
-    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH], north_quadrant, open_room_entt );
-    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::SOUTH], south_quadrant, open_room_entt );
+    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::WEST], west_quadrant, { open_room_entt } );
+    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::EAST], east_quadrant, { open_room_entt } );
+    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH], north_quadrant, { open_room_entt } );
+    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::SOUTH], south_quadrant, { open_room_entt } );
   }
 
   return found_player;
@@ -612,13 +730,13 @@ void CryptSystem::openAllMiddlePassages()
   for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
   {
     auto &current_room_cmp = open_room_cmp;
-    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::WEST], world_area, open_room_entt, OnePassagePerTargetRoom::NO,
+    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::WEST], world_area, { open_room_entt }, OnePassagePerTargetRoom::NO,
                          AllowDuplicatePassages::YES );
-    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::EAST], world_area, open_room_entt, OnePassagePerTargetRoom::NO,
+    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::EAST], world_area, { open_room_entt }, OnePassagePerTargetRoom::NO,
                          AllowDuplicatePassages::YES );
-    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH], world_area, open_room_entt, OnePassagePerTargetRoom::NO,
+    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH], world_area, { open_room_entt }, OnePassagePerTargetRoom::NO,
                          AllowDuplicatePassages::YES );
-    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::SOUTH], world_area, open_room_entt, OnePassagePerTargetRoom::NO,
+    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::SOUTH], world_area, { open_room_entt }, OnePassagePerTargetRoom::NO,
                          AllowDuplicatePassages::YES );
     current_room_cmp.set_all_doors_used( true );
   }
@@ -636,12 +754,13 @@ void CryptSystem::openFinalPassage()
 
     // no need to search for suitable target, we already have it
     auto current_passage_door = current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH];
-    createDrunkenWalkPassage( current_passage_door, crypt_end_room_cmp );
+    createDrunkenWalkPassage( current_passage_door, crypt_end_room_cmp, { open_room_entt, crypt_room_end_entt } );
   }
 }
 
-void CryptSystem::find_passage_target( Cmp::CryptPassageDoor &start_passage_door, const sf::FloatRect search_quadrant, entt::entity exclude_entt,
-                                       OnePassagePerTargetRoom passage_limit, AllowDuplicatePassages duplicates_policy )
+void CryptSystem::find_passage_target( Cmp::CryptPassageDoor &start_passage_door, const sf::FloatRect search_quadrant,
+                                       std::set<entt::entity> exclude_entts, OnePassagePerTargetRoom passage_limit,
+                                       AllowDuplicatePassages duplicates_policy )
 {
   // clang-format off
   using MidPointDistanceQueue = std::priority_queue < 
@@ -655,7 +774,7 @@ void CryptSystem::find_passage_target( Cmp::CryptPassageDoor &start_passage_door
   auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
   for ( auto [other_room_entt, other_room_cmp] : open_room_view.each() )
   {
-    if ( other_room_entt == exclude_entt ) continue;
+    if ( exclude_entts.contains( other_room_entt ) ) continue;
     if ( not other_room_cmp.findIntersection( search_quadrant ) ) continue;
     if ( other_room_cmp.are_all_doors_used() ) continue;
     dist_pqueue.push( { Utils::Maths::getEuclideanDistance( start_passage_door, other_room_cmp.getCenter() ), other_room_entt } );
@@ -666,7 +785,7 @@ void CryptSystem::find_passage_target( Cmp::CryptPassageDoor &start_passage_door
   {
     auto nearest_other_room_entt = dist_pqueue.top().second;
     auto &nearest_other_room_cmp = getReg().get<Cmp::CryptRoomOpen>( nearest_other_room_entt );
-    if ( createDrunkenWalkPassage( start_passage_door, nearest_other_room_cmp, duplicates_policy ) )
+    if ( createDrunkenWalkPassage( start_passage_door, nearest_other_room_cmp, { nearest_other_room_entt }, duplicates_policy ) )
     {
       start_passage_door.is_used = true;
       if ( passage_limit == CryptSystem::OnePassagePerTargetRoom::YES )
@@ -701,6 +820,7 @@ void CryptSystem::closeAllPassages()
 
 void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
 {
+  m_current_passage_id = 0;
   if ( event.type == Events::CryptRoomEvent::Type::SHUFFLE_PASSAGES )
   {
     auto selected_rooms = Utils::Rnd::get_n_rand_components<Cmp::CryptRoomClosed>(
