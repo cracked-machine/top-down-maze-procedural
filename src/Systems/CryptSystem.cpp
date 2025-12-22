@@ -28,6 +28,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
+#include <Sprites/MultiSprite.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Maths.hpp>
@@ -890,6 +891,80 @@ void CryptSystem::tidyPassageBlocks( bool include_closed_rooms )
   }
 }
 
+void CryptSystem::createRoomBorders()
+{
+  SPDLOG_INFO( "createRoomBorders" );
+  auto add_border = [&]<typename Component>( entt::entity pos_entt, Cmp::Position &pos_cmp, Component &room_cmp, Sprites::SpriteMetaType sprite_type,
+                                             size_t sprite_index )
+  {
+    bool is_border = false;
+
+    float room_left = room_cmp.position.x;
+    float room_right = room_cmp.position.x + room_cmp.size.x;
+    float room_top = room_cmp.position.y;
+    float room_bottom = room_cmp.position.y + room_cmp.size.y;
+
+    // clang-format off
+    // left border
+    if ( ( pos_cmp.position.x == room_left - Constants::kGridSquareSizePixelsF.x ) and
+         ( pos_cmp.position.y >= room_top - Constants::kGridSquareSizePixelsF.y
+           and pos_cmp.position.y <= room_bottom ) )
+    {
+      is_border = true;
+    }
+    // right border
+    else if ( ( pos_cmp.position.x == room_right ) and
+              ( pos_cmp.position.y >= room_top - Constants::kGridSquareSizePixelsF.y and 
+                pos_cmp.position.y <= room_bottom ) )
+    {
+      is_border = true;
+    }
+    // top border
+    else if ( ( pos_cmp.position.y == room_top - Constants::kGridSquareSizePixelsF.y ) and
+              ( pos_cmp.position.x >= room_left - Constants::kGridSquareSizePixelsF.x and 
+                pos_cmp.position.x <= room_right ) )
+    {
+      is_border = true;
+    }
+    // bottom border
+    else if ( ( pos_cmp.position.y == room_bottom ) and
+              ( pos_cmp.position.x >= room_left - Constants::kGridSquareSizePixelsF.x and 
+                pos_cmp.position.x <= room_right ) )
+    {
+      is_border = true;
+    }
+    // clang-format on
+
+    if ( is_border )
+    {
+      auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { sprite_type } );
+      float zorder = m_sprite_factory.get_sprite_size_by_type( sprite_type ).y;
+      Factory::createObstacle( getReg(), pos_entt, pos_cmp, obst_type, sprite_index, ( zorder * 2.f ) );
+      SPDLOG_INFO( "Created Border" );
+    }
+    else { SPDLOG_INFO( "Failed to create border" ); }
+  };
+
+  for ( auto [pos_entt, pos_cmp] : getReg().view<Cmp::Position>().each() )
+  {
+    // replace closed room borders with regular sprites
+    for ( auto [closed_room_entt, closed_room_cmp] : getReg().view<Cmp::CryptRoomClosed>().each() )
+    {
+      add_border( pos_entt, pos_cmp, closed_room_cmp, "CRYPT.interior_sb", 5 );
+    }
+    // Always add end room border
+    for ( auto [end_room_entt, end_room_cmp] : getReg().view<Cmp::CryptRoomEnd>().each() )
+    {
+      add_border( pos_entt, pos_cmp, end_room_cmp, "WALL", 0 );
+    }
+    // replace open room borders with actual border sprite
+    for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
+    {
+      add_border( pos_entt, pos_cmp, open_room_cmp, "WALL", 0 );
+    }
+  }
+}
+
 void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
 {
   m_current_passage_id = 0;
@@ -907,6 +982,7 @@ void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
     // open new rooms/passages
     openSelectedRooms( selected_rooms );
     emptyOpenRooms();
+    createRoomBorders();
     SPDLOG_INFO( "~~~~~~~~~~~ STARTING PASSAGE GEN ~~~~~~~~~~~~~~~" );
     // try to open passages for the occupied room: only do start room if player is currently there
     auto [start_room_entt, start_room_cmp] = get_crypt_room_start();
@@ -921,6 +997,7 @@ void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
     fillClosedRooms();
     fillAllPassages();
     removeAllPassageBlocks();
+    createRoomBorders();
 
     // open new rooms/passages
     SPDLOG_INFO( "~~~~~~~~~~~ OPENING FINAL PASSAGE ~~~~~~~~~~~~~~~" );
@@ -939,6 +1016,7 @@ void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
     }
     openSelectedRooms( all_rooms );
     emptyOpenRooms();
+    createRoomBorders();
     connectPassagesBetweenStartAndOpenRooms(); // make sure player can reach exit
     connectPassagesBetweenAllOpenRooms();
     emptyOpenPassages();

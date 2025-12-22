@@ -127,6 +127,8 @@ public:
   void emptyOpenPassages();
   void fillAllPassages();
 
+  void createRoomBorders();
+
   void tidyPassageBlocks( bool exclude_closed_rooms = false );
 
 private:
@@ -178,5 +180,8 @@ private:
 // 2. Passages going through open rooms? DONE
 // 3. Dog leg passages don't extend out from the left/right sides properly DONE
 // 4. Try drunken walk DONE
-// 5. Remove obstacles for newly opened passages
-// 6. restore obstacles for newly closed passages
+// 5. Remove obstacles for newly opened passages DONE
+// 6. restore obstacles for newly closed passages DONE
+// 7. fix z-fighting with obstacles
+// 8. add sxf for room change
+// 9. pick better blocks
