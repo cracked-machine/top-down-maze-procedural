@@ -11,6 +11,7 @@
 #include <Components/CryptRoomStart.hpp>
 #include <Components/CryptSegment.hpp>
 #include <Components/Exit.hpp>
+#include <Components/FootStepAlpha.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCadaverCount.hpp>
@@ -748,6 +749,9 @@ void CryptSystem::fillClosedRooms()
   auto obstacle_view = getReg().view<Cmp::Position>();
   for ( auto [pos_entt, pos_cmp] : obstacle_view.each() )
   {
+    // don't add obstacles to footstep entities
+    if ( getReg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
+
     for ( auto [closed_room_entt, closed_room_cmp] : getReg().view<Cmp::CryptRoomClosed>().each() )
     {
       // skip position outside closed room area or if position already has existing obstacle
@@ -841,6 +845,9 @@ void CryptSystem::fillAllPassages()
   auto obstacle_view = getReg().view<Cmp::Position>();
   for ( auto [pos_entt, pos_cmp] : obstacle_view.each() )
   {
+    // don't add obstacles to footstep entities
+    if ( getReg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
+
     auto pblock_view = getReg().view<Cmp::CryptPassageBlock>();
     for ( auto [pblock_entt, pblock_cmp] : pblock_view.each() )
     {
@@ -947,6 +954,9 @@ void CryptSystem::createRoomBorders()
 
   for ( auto [pos_entt, pos_cmp] : getReg().view<Cmp::Position>().each() )
   {
+    // don't add obstacles to footstep entities
+    if ( getReg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
+
     // replace closed room borders with regular sprites
     for ( auto [closed_room_entt, closed_room_cmp] : getReg().view<Cmp::CryptRoomClosed>().each() )
     {
@@ -1021,6 +1031,7 @@ void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
     connectPassagesBetweenAllOpenRooms();
     emptyOpenPassages();
   }
+  else if ( event.type == Events::CryptRoomEvent::Type::EXIT_ALL_PASSAGES ) { removeAllPassageBlocks(); }
 }
 
 } // namespace ProceduralMaze::Sys

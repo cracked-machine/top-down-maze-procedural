@@ -50,8 +50,7 @@ class RenderSystem : public BaseSystem
 public:
   //! @brief Construct a new Render System object
   //! @param reg
-  RenderSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                Audio::SoundBank &sound_bank );
+  RenderSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief polymorphic destructor for derived classes
   virtual ~RenderSystem() = default;
@@ -107,19 +106,16 @@ protected:
   //! @param fill_color Optional color for the text fill (default: White)
   //! @param outline_color Optional color for the text outline (default:
   //! Transparent). Outline thickness is 0.f if set to Transparent.
-  void render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align,
-                    float letter_spacing = 1.f, sf::Color fill_color = sf::Color::White,
-                    sf::Color outline_color = sf::Color::Transparent );
+  void render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align, float letter_spacing = 1.f,
+                    sf::Color fill_color = sf::Color::White, sf::Color outline_color = sf::Color::Transparent );
 
   // Variant that renders to a specific render target (shader, texture, etc.)
-  void safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type,
-                                     const sf::FloatRect &pos_cmp, std::size_t sprite_index = 0,
-                                     sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255,
+  void safe_render_sprite_to_target( sf::RenderTarget &target, const std::string &sprite_type, const sf::FloatRect &pos_cmp,
+                                     std::size_t sprite_index = 0, sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255,
                                      sf::Vector2f origin = { 0.f, 0.f }, sf::Angle angle = sf::degrees( 0.f ) );
 
   // Fallback rendering for missing sprites (also target-aware)
-  void render_fallback_square_to_target( sf::RenderTarget &target, const sf::FloatRect &pos_cmp,
-                                         const sf::Color &color = sf::Color::Magenta );
+  void render_fallback_square_to_target( sf::RenderTarget &target, const sf::FloatRect &pos_cmp, const sf::Color &color = sf::Color::Magenta );
 
   // Safe sprite accessor that renders a fallback square if sprite is missing
   void safe_render_sprite( const std::string &sprite_type, const sf::FloatRect &position, std::size_t sprite_index = 0,
@@ -130,10 +126,7 @@ protected:
   void render_fallback_square( const sf::FloatRect &pos_cmp, const sf::Color &color = sf::Color::Magenta );
 
   //! @brief Common window options for ImGui windows
-  const int kImGuiWindowOptions = ImGuiWindowFlags_NoTitleBar
-      // | ImGuiWindowFlags_NoResize
-      // | ImGuiWindowFlags_NoMove
-      ;
+  const int kImGuiWindowOptions = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 };
 
 } // namespace ProceduralMaze::Sys

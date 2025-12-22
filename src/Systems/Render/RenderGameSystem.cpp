@@ -256,9 +256,9 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       if ( m_show_debug_stats )
       {
 
-        render_overlay_sys.render_player_position_overlay( player_position.position, { 40.f, 300.f } );
-        render_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 340.f } );
-        render_overlay_sys.render_stats_overlay( { 40.f, 380.f }, { 40.f, 420.f }, { 40.f, 460.f }, { 40.f, 500.f } );
+        render_overlay_sys.render_player_position_overlay( player_position.position, { 40.f, 340.f } );
+        render_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 380.f } );
+        render_overlay_sys.render_stats_overlay( { 40.f, 420.f }, { 40.f, 460.f }, { 40.f, 500.f }, { 40.f, 540.f } );
         render_overlay_sys.render_zorder_values_overlay( { 40.f, 600.f }, m_zorder_queue_,
                                                          { "ROCK", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED" } );
         sf::Vector2u display_size = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );

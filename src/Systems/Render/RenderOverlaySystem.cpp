@@ -1,3 +1,4 @@
+#include <Components/CryptPassageBlock.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SpriteAnimation.hpp>
@@ -16,6 +17,7 @@
 
 #include <iomanip>
 #include <sstream>
+#include <string>
 
 namespace ProceduralMaze::Sys
 {
@@ -218,8 +220,8 @@ void RenderOverlaySystem::render_player_position_overlay( sf::Vector2f player_po
   // text
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
   {
-    m_player_position_text.setString( "Player Position: [ " + std::to_string( static_cast<int>( player_pos.x ) ) +
-                                      " , " + std::to_string( static_cast<int>( player_pos.y ) ) + " ]" );
+    m_player_position_text.setString( "Player Position: [ " + std::to_string( static_cast<int>( player_pos.x ) ) + " , " +
+                                      std::to_string( static_cast<int>( player_pos.y ) ) + " ]" );
   }
   m_player_position_text.setPosition( pos );
   m_player_position_text.setFillColor( sf::Color::White );
@@ -234,8 +236,8 @@ void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_posi
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
   {
 
-    m_mouse_position_text.setString( "Mouse Position: [ " + std::to_string( static_cast<int>( mouse_position.x ) ) +
-                                     " , " + std::to_string( static_cast<int>( mouse_position.y ) ) + " ]" );
+    m_mouse_position_text.setString( "Mouse Position: [ " + std::to_string( static_cast<int>( mouse_position.x ) ) + " , " +
+                                     std::to_string( static_cast<int>( mouse_position.y ) ) + " ]" );
   }
   m_mouse_position_text.setPosition( pos );
   m_mouse_position_text.setFillColor( sf::Color::White );
@@ -244,8 +246,7 @@ void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_posi
   m_window.draw( m_mouse_position_text );
 }
 
-void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3,
-                                                sf::Vector2f pos4 )
+void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3, sf::Vector2f pos4 )
 {
   // only gather stats every interval
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
@@ -255,6 +256,7 @@ void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f 
     auto position_count = getReg().view<Cmp::Position>().size();
     auto corruption_count = getReg().view<Cmp::CorruptionCell>().size();
     auto sinkhole_count = getReg().view<Cmp::SinkholeCell>().size();
+    auto crypt_passage_block_count = getReg().view<Cmp::CryptPassageBlock>().size();
 
     auto obst_view = getReg().view<Cmp::Obstacle>();
     auto obstacle_count = obst_view.size();
@@ -264,12 +266,12 @@ void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f 
       "E: " + std::to_string( entity_count ) + 
       "   P: " + std::to_string( position_count ) );
     m_stats_text2.setString( 
-      "O: "         + std::to_string( obstacle_count ) + 
-      ")" );
-      m_stats_text3.setString( 
-           "N: " + std::to_string( npc_count ) +
-        "   C: " + std::to_string( corruption_count ) + 
-        "   S: " + std::to_string( sinkhole_count ) );
+      "O: "         + std::to_string( obstacle_count ));
+    m_stats_text3.setString( 
+      "CPB: " + std::to_string(crypt_passage_block_count) +
+      "   N: " + std::to_string( npc_count ) +
+      "   C: " + std::to_string( corruption_count ) + 
+      "   S: " + std::to_string( sinkhole_count ) );
     // clang-format on
 
     auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::ZOrderValue>();
