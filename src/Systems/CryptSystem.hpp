@@ -170,6 +170,27 @@ private:
   //! @brief Direction random pool for drunken walk passage creation
   std::vector<Cmp::Direction> m_direction_choices = { Cmp::Direction( { 0.f, -1.f } ), Cmp::Direction( { 1.f, 0.f } ), Cmp::Direction( { 0.f, 1.f } ),
                                                       Cmp::Direction( { -1.f, 0.f } ) };
+
+  //! @brief Drunken walk roulette picker for direction
+  //! @note undefined odds are used to select a random direction
+  Cmp::RandomInt m_direction_picker{ 0, 99 };
+  //! @brief Drunken walk roulette odds for moving towards target: 60%
+  const float m_roulette_target_bias_odds = 0.6f;
+  //! @brief Drunken walk roulette odds for continuing in the same direction
+  const float m_roulette_same_direction_odds = 0.1f;
+
+  //! @brief Prevent infinite walks
+  const int kMaxStepsPerWalk{ 100 };
+  //! @brief Prevent drunken walk from getting stuck
+  const int kMaxAttemptsPerStep{ 200 };
+  //! @brief Minimum passage-to-passage distance
+  const float kMinBlockDistanceBetweenPassages{ Constants::kGridSquareSizePixelsF.x * 2.0f };
+  //! @brief Force drunken walk to initially stay in orthogonal direction e.g. north, east, west, south from starting point
+  const int kMinInitialOrthogonalSteps{ 3 };
+  //! @brief Minimum passage-to-room distance: scale factor of 16x16 block
+  const float kMinPassageRoomsDistanceScaleFactor{ 2.f };
+  //! @brief Number of steps to delay 'kMinPassageRoomsDistanceScaleFactor' use
+  const int kMinPassageRoomsDistanceDelay{ 3 };
 };
 
 } // namespace ProceduralMaze::Sys
