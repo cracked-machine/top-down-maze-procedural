@@ -418,7 +418,7 @@ bool CryptSystem::createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::Flo
   {
     sf::FloatRect candidate_pos( { -16.f, -16.f }, Constants::kGridSquareSizePixelsF );
     int attempts = 0;
-    const int max_attempts = 50;
+    const int max_attempts = 200;
     bool is_candidate_rejected = false;
     bool found_valid_candidate = false;
 
@@ -947,9 +947,7 @@ void CryptSystem::createRoomBorders()
       auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { sprite_type } );
       float zorder = m_sprite_factory.get_sprite_size_by_type( sprite_type ).y;
       Factory::createObstacle( getReg(), pos_entt, pos_cmp, obst_type, sprite_index, ( zorder * 2.f ) );
-      SPDLOG_INFO( "Created Border" );
     }
-    else { SPDLOG_INFO( "Failed to create border" ); }
   };
 
   for ( auto [pos_entt, pos_cmp] : getReg().view<Cmp::Position>().each() )

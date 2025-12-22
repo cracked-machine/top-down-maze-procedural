@@ -411,17 +411,13 @@ void SceneInputRouter::crypt_scene_state_handler()
     if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; }  // move player down
   }
 
-  if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Space ) )
-  {
-    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_BOMB ) );
-  }
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
   {
     get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
   }
   if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
   {
-    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
+    // get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
   }
 }
 

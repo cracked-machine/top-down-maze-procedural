@@ -182,6 +182,6 @@ private:
 // 4. Try drunken walk DONE
 // 5. Remove obstacles for newly opened passages DONE
 // 6. restore obstacles for newly closed passages DONE
-// 7. fix z-fighting with obstacles
+// 7. fix z-fighting with obstacles  DONE
 // 8. add sxf for room change
 // 9. pick better blocks
