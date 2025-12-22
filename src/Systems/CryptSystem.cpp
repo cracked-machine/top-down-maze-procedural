@@ -1026,7 +1026,7 @@ void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
     connectPassagesBetweenAllOpenRooms();
     emptyOpenPassages();
   }
-  else if ( event.type == Events::CryptRoomEvent::Type::EXIT_ALL_PASSAGES ) { removeAllPassageBlocks(); }
+  m_sound_bank.get_effect( "crypt_room_shuffle" ).play();
 }
 
 } // namespace ProceduralMaze::Sys

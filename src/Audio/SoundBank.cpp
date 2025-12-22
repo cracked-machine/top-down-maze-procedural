@@ -39,10 +39,11 @@ void SoundBank::init()
 
   sounds.emplace( "crypt_open", EffectsData{ "res/audio/crypt_open2.wav" } );
   sounds.emplace( "crypt_locked", EffectsData{ "res/audio/crypt_locked.wav" } );
+  sounds.emplace( "crypt_room_shuffle", EffectsData{ "res/audio/crypt_room_shuffle.wav" } );
 
   // Initialize music (can't use initializer list because sf::Music is move-only)
-  music.emplace( "title_music", MusicData{ "res/audio/EerieScifi.wav" } );
-  music.emplace( "game_music", MusicData{ "res/audio/SadWindyOrgan.wav" } );
+  music.emplace( "title_music", MusicData{ "res/audio/EerieScifi.mp3" } );
+  music.emplace( "game_music", MusicData{ "res/audio/SadWindyOrgan.mp3" } );
 }
 
 void SoundBank::update_effects_volume( float volume )
