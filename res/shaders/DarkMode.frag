@@ -40,8 +40,8 @@ void main()
   // else
   // {
   // Candlelight flickering effect
-  float flicker_speed = 4.0;
-  float flicker_intensity = 0.1;
+  float flicker_speed = 3.0;
+  float flicker_intensity = 0.05;
 
   // Combine multiple noise frequencies for more realistic flicker
   float flicker = noise( time * flicker_speed ) * 0.5 + noise( time * flicker_speed * 2.3 ) * 0.3 +
@@ -57,7 +57,7 @@ void main()
   float alpha = smoothstep( flickered_radius - blur_width, flickered_radius + blur_width, distance_from_center );
 
   // Warm white tint (candlelight color)
-  vec3 warm_white = vec3( 1.0, 0.9, 0.7 ); // Slightly orange-tinted white
+  vec3 warm_white = vec3( 1.0, 0.9, 0.1 ); // Slightly orange-tinted white
   float tint_intensity = 0.5;              // How strong the tint is
 
   // Calculate how much tint to apply (inverse of alpha - more tint where it's more transparent)

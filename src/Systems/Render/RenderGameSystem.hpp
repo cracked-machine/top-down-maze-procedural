@@ -27,8 +27,7 @@ class RenderGameSystem : public RenderSystem
 public:
   enum class DarkMode { OFF = 0, ON = 1 };
 
-  RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                    Audio::SoundBank &sound_bank );
+  RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~RenderGameSystem() = default;
 
   //! @brief event handlers for pausing system clocks
@@ -51,8 +50,8 @@ public:
   //! info, etc..
   //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc..
   //! as well as death animations/effects
-  void render_game( sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys,
-                    Sprites::Containers::TileMap &floormap, DarkMode dark_mode = DarkMode::OFF );
+  void render_game( sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap,
+                    DarkMode dark_mode = DarkMode::OFF );
 
 private:
   //! @brief Renders the game world floor
@@ -102,12 +101,7 @@ private:
 
   //! @brief m_local_view dimension
   const sf::Vector2u kLocalMapViewSize{ 300u, 200u };
-  const sf::Vector2f kLocalMapViewSizeF{ static_cast<float>( kLocalMapViewSize.x ),
-                                         static_cast<float>( kLocalMapViewSize.y ) };
-
-  // unused?
-  const float kMiniMapViewZoomFactor = 0.25f;
-  sf::View m_minimap_view;
+  const sf::Vector2f kLocalMapViewSizeF{ static_cast<float>( kLocalMapViewSize.x ), static_cast<float>( kLocalMapViewSize.y ) };
 
   // Shaders - we dont know the size of the texture yet so set to 1,1 and resize later
   Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", { 1u, 1u } };

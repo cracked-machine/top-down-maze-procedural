@@ -88,15 +88,8 @@ void RenderGameSystem::init_views()
   m_local_view = sf::View( { kLocalMapViewSizeF.x * 0.5f, kLocalMapViewSizeF.y * 0.5f }, kLocalMapViewSizeF );
   m_local_view.setViewport( sf::FloatRect( { 0.f, 0.f }, { 1.f, 1.f } ) );
 
-  // init minimap view dimensions
-  auto display_res = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
-  m_minimap_view = sf::View( { display_res.x * 0.5f, display_res.y * 0.5f },
-                             { display_res.x * kMiniMapViewZoomFactor, display_res.y * kMiniMapViewZoomFactor } );
-  m_minimap_view.setViewport( sf::FloatRect( { 0.75f, 0.f }, { 0.25f, 0.25f } ) );
-
   auto start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( getReg() );
   m_local_view.setCenter( start_pos );
-  m_minimap_view.setCenter( start_pos );
 }
 
 void RenderGameSystem::init_shaders()
@@ -460,7 +453,7 @@ void RenderGameSystem::render_dark_mode_shader()
 {
   // Update dark mode shader with proper parameters
   auto shader_local_position = m_local_view.getCenter() - m_local_view.getSize() * 0.5f;
-  sf::Vector2f aperture_half_size( Constants::kGridSquareSizePixelsF * 1.5f );
+  sf::Vector2f aperture_half_size( Constants::kGridSquareSizePixelsF * 3.f );
   auto display_res = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
   m_dark_mode_shader.update( shader_local_position, aperture_half_size, kLocalMapViewSize, display_res );
   m_window.draw( m_dark_mode_shader );
