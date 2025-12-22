@@ -58,15 +58,6 @@ public:
   void check_objective_activation( Events::PlayerActionEvent::GameActions action );
   void spawn_exit( sf::Vector2u spawn_position );
 
-  //! @brief Change all Cmp::CryptRoomOpen to Cmp::CryptRoomClosed (except the one occupied by the player)
-  //! @note Adds Cmp::Obstacle
-  void closeAllRooms();
-
-  //! @brief Change selected Cmp::CryptRoomClosed to Cmp::CryptRoomOpen.
-  //! @param selected_rooms Set of entity ids to open
-  //! @note Removes Cmp::Obstacle
-  void openSelectedRooms( std::set<entt::entity> selected_rooms );
-
   //! @brief Create west, north, east passages for the start room via find_passage_target()
   void connectPassagesBetweenStartAndOpenRooms();
 
@@ -78,10 +69,6 @@ public:
 
   //! @brief Create north passage for occupied room to the end room. Calls createDrunkenWalkPassage() directly.
   void connectPassageBetweenOccupiedAndEndRoom();
-
-  //! @brief Removes all Cmp::CryptPassageBlock entities
-  //! @note Adds Cmp::Obstacle
-  void closeAllPassages();
 
   //! @brief Searches quadrant for nearest open room (Cmp::CryptRoomOpen) and creates a passage to it
   //! @param start_passage_door The starting position and direction for the passage
@@ -120,6 +107,27 @@ public:
   //! @return true if the passage block was placed successfully
   //! @return false if the passage block could not be placed
   bool place_passage_block( unsigned int passage_id, float x, float y, AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
+
+  //! @brief Change all Cmp::CryptRoomOpen to Cmp::CryptRoomClosed
+  //! @note Excludes start/end rooms and the open room occupied by the player)
+  void closeOpenRooms();
+
+  void fillClosedRooms();
+
+  //! @brief Change selected Cmp::CryptRoomClosed to Cmp::CryptRoomOpen.
+  //! @param selected_rooms Set of entity ids to open
+  //! @note Removes Cmp::Obstacle
+  void openSelectedRooms( std::set<entt::entity> selected_rooms );
+
+  void emptyOpenRooms();
+
+  //! @brief Removes all Cmp::CryptPassageBlock entities
+  void removeAllPassageBlocks();
+
+  void emptyOpenPassages();
+  void fillAllPassages();
+
+  void tidyPassageBlocks( bool exclude_closed_rooms = false );
 
 private:
   //! @brief Get the single Cmp::CryptRoomStart component

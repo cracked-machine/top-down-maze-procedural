@@ -110,5 +110,6 @@
     },
 
     // stop tripping over the hover pages when browsing the code
-    "editor.hover.delay": 1000
+    "editor.hover.delay": 1000,
+    "editor.inlineSuggest.enabled": false
 }
