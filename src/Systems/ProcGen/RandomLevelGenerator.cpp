@@ -212,7 +212,7 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int v
       sf::Vector2f new_pos( x * kGridSquareSizePixels.x, y * kGridSquareSizePixels.y );
 
       bool inside = inCross( x, y );
-      if ( !inside ) continue; // outside cross, skip
+      if ( !inside ) continue; //Factory::createVoidPosition( getReg(), new_pos ); // outside cross, skip
 
       // 1-tile border: any 4-neighbor outside the cross
       bool isBorder = !inCross( x - 1, y ) || !inCross( x + 1, y ) || !inCross( x, y - 1 ) || !inCross( x, y + 1 );

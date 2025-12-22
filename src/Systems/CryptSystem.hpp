@@ -118,8 +118,8 @@ private:
 
 /// Issues:
 // 1. CryptPassageBlock offset/alignment DONE
-// 2. Passages going through open rooms?
+// 2. Passages going through open rooms? DONE
 // 3. Dog leg passages don't extend out from the left/right sides properly DONE
-// 4. Try drunken walk
+// 4. Try drunken walk DONE
 // 5. Remove obstacles for newly opened passages
 // 6. restore obstacles for newly closed passages

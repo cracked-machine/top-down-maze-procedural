@@ -6,7 +6,6 @@
 #include <SFML/System/Vector2.hpp>
 #include <Utils/Utils.hpp>
 #include <unordered_map>
-#include <vector>
 
 namespace ProceduralMaze::Cmp
 {

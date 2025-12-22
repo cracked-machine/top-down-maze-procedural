@@ -11,6 +11,8 @@
 #include <Components/CryptRoomStart.hpp>
 #include <Components/CryptSegment.hpp>
 #include <Components/Exit.hpp>
+#include <Components/Obstacle.hpp>
+#include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCadaverCount.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/Random.hpp>
@@ -658,7 +660,7 @@ bool CryptSystem::openRandomStartPassages()
 {
 
   auto [start_room_entt, start_room_cmp] = get_crypt_room_start();
-  if ( not Utils::get_player_position( getReg() ).findIntersection( start_room_cmp ) ) return false;
+  // if ( not Utils::get_player_position( getReg() ).findIntersection( start_room_cmp ) ) return false;
 
   const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSquareSizePixelsF );
 
@@ -798,24 +800,43 @@ void CryptSystem::find_passage_target( Cmp::CryptPassageDoor &start_passage_door
 
 void CryptSystem::closeAllPassages()
 {
-  std::vector<entt::entity> shit_list;
+  std::vector<entt::entity> passage_block_remove_list;
 
+  // find all Cmp::CryptPassageBlocks
   auto crypt_passage_block_view = getReg().view<Cmp::CryptPassageBlock>();
   for ( auto [entt, block_cmp] : crypt_passage_block_view.each() )
   {
-    //! @todo ReAdd obstacles
-
-    shit_list.push_back( entt );
+    passage_block_remove_list.push_back( entt );
   }
 
   // Remove Cmp::CryptPassageBlocks safely
-  for ( auto entt : shit_list )
+  for ( auto entt : passage_block_remove_list )
   {
     getReg().remove<Cmp::CryptPassageBlock>( entt );
     getReg().destroy( entt );
   }
   auto crypt_passage_block_view_remaining = getReg().view<Cmp::CryptPassageBlock>();
   SPDLOG_INFO( "Remaining Cmp::CryptPassageBlock entities: {}", crypt_passage_block_view_remaining.size() );
+
+  //! @todo ReAdd obstacles that were previously removed by Cmp::CryptPassageBlocks
+  auto pos_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::Wall, Cmp::ReservedPosition, Cmp::PlayableCharacter, Cmp::CryptExit> );
+  for ( auto [pos_entt, pos_cmp] : pos_view.each() )
+  {
+    if ( getReg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
+    for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
+    {
+      if ( open_room_cmp.findIntersection( pos_cmp ) ) continue;
+
+      // clang-format off
+      auto [obst_type, rand_obst_tex_idx] = 
+        m_sprite_factory.get_random_type_and_texture_index( { 
+          "CRYPT.interior_sb"
+        } );
+      // clang-format on
+      float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
+      Factory::createObstacle( getReg(), pos_entt, pos_cmp, obst_type, 5, ( zorder * 2.f ) );
+    }
+  }
 }
 
 void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
@@ -826,12 +847,12 @@ void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
     auto selected_rooms = Utils::Rnd::get_n_rand_components<Cmp::CryptRoomClosed>(
         getReg(), 4, {}, Utils::Rnd::ExcludePack<Cmp::CryptRoomStart, Cmp::CryptRoomEnd>{}, 0 );
     closeAllRooms();
+    closeAllPassages();
     openSelectedRooms( selected_rooms );
     SPDLOG_INFO( "~~~~~~~~~~~ STARTING PASSAGE GEN ~~~~~~~~~~~~~~~" );
-    closeAllPassages();
     // try to open passages for the occupied room: try start room first, the other open rooms
-    if ( openRandomStartPassages() ) {}
-    else if ( openRandomMiddlePassages() ) {}
+    openRandomStartPassages();
+    openRandomMiddlePassages();
   }
   else if ( event.type == Events::CryptRoomEvent::Type::FINAL_PASSAGE )
   {
@@ -854,6 +875,18 @@ void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
     openSelectedRooms( all_rooms );
     openRandomStartPassages(); // make sure there is passage way to start room for exit
     openAllMiddlePassages();
+  }
+
+  for ( auto [obst_entt, obst_cmp, obst_pos_cmp] : getReg().view<Cmp::Obstacle, Cmp::Position>().each() )
+  {
+    for ( auto [passage_block_entt, passage_block_cmp] : getReg().view<Cmp::CryptPassageBlock>().each() )
+    {
+      auto passage_block_rect = sf::FloatRect( { passage_block_cmp.x, passage_block_cmp.y }, Constants::kGridSquareSizePixelsF );
+      if ( passage_block_rect.findIntersection( obst_pos_cmp ) ) { Factory::destroyObstacle( getReg(), obst_entt ); }
+    }
+    auto end_room_cmp = get_crypt_room_end();
+    auto end_room_rect = sf::FloatRect( end_room_cmp.second.position, end_room_cmp.second.size );
+    if ( obst_pos_cmp.findIntersection( end_room_rect ) ) Factory::destroyObstacle( getReg(), obst_entt );
   }
 }
 

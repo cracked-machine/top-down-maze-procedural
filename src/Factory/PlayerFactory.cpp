@@ -47,8 +47,7 @@ void CreatePlayer( entt::registry &registry )
 
   auto &pc_detection_scale = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerDetectionScale>( registry );
 
-  registry.emplace<Cmp::PCDetectionBounds>( entity, start_pos, Constants::kGridSquareSizePixelsF,
-                                            pc_detection_scale.get_value() );
+  registry.emplace<Cmp::PCDetectionBounds>( entity, start_pos, Constants::kGridSquareSizePixelsF, pc_detection_scale.get_value() );
 
   registry.emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYER.walk.south" );
   registry.emplace<Cmp::PlayerCandlesCount>( entity, 0 );
@@ -68,6 +67,14 @@ entt::entity createWorldPosition( entt::registry &registry, const sf::Vector2f &
   auto entity = registry.create();
   registry.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSquareSizePixelsF );
   registry.emplace_or_replace<Cmp::Neighbours>( entity );
+  return entity;
+}
+
+entt::entity createVoidPosition( entt::registry &registry, const sf::Vector2f &pos )
+{
+  auto entity = registry.create();
+  registry.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSquareSizePixelsF );
+  registry.emplace_or_replace<Cmp::ReservedPosition>( entity );
   return entity;
 }
 
