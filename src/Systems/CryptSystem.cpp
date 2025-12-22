@@ -957,6 +957,11 @@ void CryptSystem::createRoomBorders()
     {
       add_border( pos_entt, pos_cmp, end_room_cmp, "WALL", 0 );
     }
+    // Always add end room border
+    for ( auto [start_room_entt, start_room_cmp] : getReg().view<Cmp::CryptRoomStart>().each() )
+    {
+      add_border( pos_entt, pos_cmp, start_room_cmp, "WALL", 0 );
+    }
     // replace open room borders with actual border sprite
     for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
     {

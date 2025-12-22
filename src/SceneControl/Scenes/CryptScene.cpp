@@ -48,6 +48,8 @@ void CryptScene::on_enter()
   {
     pos_cmp.position = m_player_start_position;
   }
+
+  m_system_store.find<Sys::SystemStore::Type::CryptSystem>().createRoomBorders();
 }
 
 void CryptScene::on_exit()
