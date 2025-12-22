@@ -133,10 +133,6 @@ void CryptSystem::check_entrance_collision()
 
       if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
 
-      // make sure player returns just below the crypt entrance to prevent infinite re-entry
-      // m_player_last_known_graveyard_pos = sf::Vector2f( pc_pos_cmp.position.x,
-      //                                                   pc_pos_cmp.position.y + Constants::kGridSquareSizePixels.y );
-
       SPDLOG_INFO( "check_entrance_collision: Player entering crypt from graveyard at position ({}, {})", pc_pos_cmp.position.x,
                    pc_pos_cmp.position.y );
       m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_CRYPT );
@@ -161,10 +157,6 @@ void CryptSystem::check_exit_collision()
 
       if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
 
-      // // set player position as they return to the graveyard
-      // pc_pos_cmp.position = sf::Vector2f(
-      //     static_cast<float>( m_player_last_known_graveyard_pos.x ) * Constants::kGridSquareSizePixels.x,
-      //     static_cast<float>( m_player_last_known_graveyard_pos.y ) * Constants::kGridSquareSizePixels.y );
       SPDLOG_INFO( "check_exit_collision: Player exiting crypt to graveyard at position ({}, {})", pc_pos_cmp.position.x, pc_pos_cmp.position.y );
       m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_CRYPT );
     }
@@ -242,7 +234,7 @@ void CryptSystem::closeAllRooms()
     for ( auto [entity, pos_cmp] : position_view.each() )
     {
       if ( not pos_cmp.findIntersection( open_room_cmp ) ) continue;
-
+      if ( getReg().all_of<Cmp::Obstacle>( entity ) ) continue; // avoid double-stacking obstacles
       // clang-format off
       auto [obst_type, rand_obst_tex_idx] = 
         m_sprite_factory.get_random_type_and_texture_index( { 
@@ -652,78 +644,77 @@ bool CryptSystem::createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::Flo
     return false;
   }
 
+  // Tidy up any Cmp::CryptPassageBlocks that were added to target room; Avoids problems when later adding/removing Cmp::Obstacles for rooms/passages
+  for ( auto [pblock_entt, pblock_cmp] : getReg().view<Cmp::CryptPassageBlock>().each() )
+  {
+    auto pblock_cmp_rect = sf::FloatRect( pblock_cmp, Constants::kGridSquareSizePixelsF );
+    if ( pblock_cmp_rect.findIntersection( end_bounds ) ) getReg().remove<Cmp::CryptPassageBlock>( pblock_entt );
+  }
+
   SPDLOG_INFO( "++++++++++++++++++++ Target Reached (id:{}) +++++++++++++++", m_current_passage_id );
   return true;
 }
 
-bool CryptSystem::openRandomStartPassages()
+void CryptSystem::connectPassagesBetweenStartAndOpenRooms()
 {
 
   auto [start_room_entt, start_room_cmp] = get_crypt_room_start();
-  // if ( not Utils::get_player_position( getReg() ).findIntersection( start_room_cmp ) ) return false;
 
   const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSquareSizePixelsF );
+  const auto start_room_right_pos_x = start_room_cmp.position.x + start_room_cmp.size.x;
 
   // divide the gamrarea into 3 quadrants - again there are only three because startroom is southern most position in the game area
-  auto west_quadrant = sf::FloatRect( { 0.f, 0.f }, { start_room_cmp.position.x, world_size.y } );
-  SPDLOG_INFO( "west_quadrant: {},{} : {},{}", west_quadrant.position.x, west_quadrant.position.y, west_quadrant.size.x, west_quadrant.size.y );
+  auto west_quad = sf::FloatRect( { 0.f, 0.f }, { start_room_cmp.position.x, world_size.y } );
+  SPDLOG_INFO( "west_quadrant: {},{} : {},{}", west_quad.position.x, west_quad.position.y, west_quad.size.x, west_quad.size.y );
 
-  auto east_quadrant = sf::FloatRect( { start_room_cmp.position.x + start_room_cmp.size.x, 0.f },
-                                      { world_size.x - ( start_room_cmp.position.x + start_room_cmp.size.x ), world_size.y } );
-  SPDLOG_INFO( "east_quadrant: {},{} : {},{}", east_quadrant.position.x, east_quadrant.position.y, east_quadrant.size.x, east_quadrant.size.y );
+  auto east_quad = sf::FloatRect( { start_room_right_pos_x, 0.f }, { world_size.x - ( start_room_right_pos_x ), world_size.y } );
+  SPDLOG_INFO( "east_quadrant: {},{} : {},{}", east_quad.position.x, east_quad.position.y, east_quad.size.x, east_quad.size.y );
 
-  auto north_quadrant = sf::FloatRect( { 0.f, 0.f }, { world_size.x, start_room_cmp.position.y } );
-  SPDLOG_INFO( "north_quadrant: {},{} : {},{}", north_quadrant.position.x, north_quadrant.position.y, north_quadrant.size.x, north_quadrant.size.y );
+  auto north_quad = sf::FloatRect( { 0.f, 0.f }, { world_size.x, start_room_cmp.position.y } );
+  SPDLOG_INFO( "north_quadrant: {},{} : {},{}", north_quad.position.x, north_quad.position.y, north_quad.size.x, north_quad.size.y );
 
-  find_passage_target( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::WEST], west_quadrant, { start_room_entt } );
-  find_passage_target( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::EAST], east_quadrant, { start_room_entt } );
-  find_passage_target( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH], north_quadrant, { start_room_entt } );
-
-  return true;
+  find_passage_target( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::WEST], west_quad, { start_room_entt } );
+  find_passage_target( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::EAST], east_quad, { start_room_entt } );
+  find_passage_target( start_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH], north_quad, { start_room_entt } );
 }
 
-bool CryptSystem::openRandomMiddlePassages()
+void CryptSystem::connectPassagesBetweenOccupiedAndOpenRooms()
 {
   const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSquareSizePixelsF );
 
   // find the open room that the player is in (if any)
-  bool found_player = false;
   auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
   for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
   {
     if ( not Utils::get_player_position( getReg() ).findIntersection( open_room_cmp ) ) continue;
 
-    auto &current_room_cmp = open_room_cmp;
-    found_player = true;
+    auto &occupied_room_cmp = open_room_cmp;
+
+    const auto current_room_right_pos_x = occupied_room_cmp.position.x + occupied_room_cmp.size.x;
+    const auto current_room_bottom_pos_y = occupied_room_cmp.position.y + occupied_room_cmp.size.y;
 
     // divide the gamrarea into 4 quadrants
-    auto west_quadrant = sf::FloatRect( { 0.f, 0.f }, { current_room_cmp.position.x, world_size.y } );
-    SPDLOG_INFO( "west_quadrant: {},{} : {},{}", west_quadrant.position.x, west_quadrant.position.y, west_quadrant.size.x, west_quadrant.size.y );
+    auto west_quad = sf::FloatRect( { 0.f, 0.f }, { occupied_room_cmp.position.x, world_size.y } );
+    SPDLOG_INFO( "west_quadrant: {},{} : {},{}", west_quad.position.x, west_quad.position.y, west_quad.size.x, west_quad.size.y );
 
-    auto east_quadrant = sf::FloatRect( { current_room_cmp.position.x + current_room_cmp.size.x, 0.f },
-                                        { world_size.x - ( current_room_cmp.position.x + current_room_cmp.size.x ), world_size.y } );
-    SPDLOG_INFO( "east_quadrant: {},{} : {},{}", east_quadrant.position.x, east_quadrant.position.y, east_quadrant.size.x, east_quadrant.size.y );
+    auto east_quad = sf::FloatRect( { current_room_right_pos_x, 0.f }, { world_size.x - ( current_room_right_pos_x ), world_size.y } );
+    SPDLOG_INFO( "east_quadrant: {},{} : {},{}", east_quad.position.x, east_quad.position.y, east_quad.size.x, east_quad.size.y );
 
-    auto north_quadrant = sf::FloatRect( { 0.f, 0.f }, { world_size.x, current_room_cmp.position.y } );
-    SPDLOG_INFO( "north_quadrant: {},{} : {},{}", north_quadrant.position.x, north_quadrant.position.y, north_quadrant.size.x,
-                 north_quadrant.size.y );
+    auto north_quad = sf::FloatRect( { 0.f, 0.f }, { world_size.x, occupied_room_cmp.position.y } );
+    SPDLOG_INFO( "north_quadrant: {},{} : {},{}", north_quad.position.x, north_quad.position.y, north_quad.size.x, north_quad.size.y );
 
-    auto south_quadrant = sf::FloatRect(
-        { current_room_cmp.position.x, current_room_cmp.position.y + current_room_cmp.size.y },
-        { current_room_cmp.position.x + current_room_cmp.size.x, world_size.y - ( current_room_cmp.position.y + current_room_cmp.size.y ) } );
-    SPDLOG_INFO( "south_quadrant: {},{} : {},{}", south_quadrant.position.x, south_quadrant.position.y, south_quadrant.size.x,
-                 south_quadrant.size.y );
+    auto south_quad = sf::FloatRect( { occupied_room_cmp.position.x, current_room_bottom_pos_y },
+                                     { current_room_right_pos_x, world_size.y - ( current_room_bottom_pos_y ) } );
+    SPDLOG_INFO( "south_quadrant: {},{} : {},{}", south_quad.position.x, south_quad.position.y, south_quad.size.x, south_quad.size.y );
 
-    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::WEST], west_quadrant, { open_room_entt } );
-    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::EAST], east_quadrant, { open_room_entt } );
-    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH], north_quadrant, { open_room_entt } );
-    find_passage_target( current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::SOUTH], south_quadrant, { open_room_entt } );
+    find_passage_target( occupied_room_cmp.m_midpoints[Cmp::CryptPassageDirection::WEST], west_quad, { open_room_entt } );
+    find_passage_target( occupied_room_cmp.m_midpoints[Cmp::CryptPassageDirection::EAST], east_quad, { open_room_entt } );
+    find_passage_target( occupied_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH], north_quad, { open_room_entt } );
+    find_passage_target( occupied_room_cmp.m_midpoints[Cmp::CryptPassageDirection::SOUTH], south_quad, { open_room_entt } );
   }
-
-  return found_player;
 }
 
-void CryptSystem::openAllMiddlePassages()
+void CryptSystem::connectPassagesBetweenAllOpenRooms()
 {
   const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSquareSizePixelsF );
   const auto world_area = sf::FloatRect( { 0, 0 }, world_size );
@@ -744,7 +735,7 @@ void CryptSystem::openAllMiddlePassages()
   }
 }
 
-void CryptSystem::openFinalPassage()
+void CryptSystem::connectPassageBetweenOccupiedAndEndRoom()
 {
   auto [crypt_room_end_entt, crypt_end_room_cmp] = get_crypt_room_end();
 
@@ -752,10 +743,10 @@ void CryptSystem::openFinalPassage()
   for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
   {
     if ( not Utils::get_player_position( getReg() ).findIntersection( open_room_cmp ) ) continue;
-    auto &current_room_cmp = open_room_cmp;
+    auto &occupied_room_cmp = open_room_cmp;
 
     // no need to search for suitable target, we already have it
-    auto current_passage_door = current_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH];
+    auto current_passage_door = occupied_room_cmp.m_midpoints[Cmp::CryptPassageDirection::NORTH];
     createDrunkenWalkPassage( current_passage_door, crypt_end_room_cmp, { open_room_entt, crypt_room_end_entt } );
   }
 }
@@ -850,9 +841,10 @@ void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
     closeAllPassages();
     openSelectedRooms( selected_rooms );
     SPDLOG_INFO( "~~~~~~~~~~~ STARTING PASSAGE GEN ~~~~~~~~~~~~~~~" );
-    // try to open passages for the occupied room: try start room first, the other open rooms
-    openRandomStartPassages();
-    openRandomMiddlePassages();
+    // try to open passages for the occupied room: only do start room if player is currently there
+    auto [start_room_entt, start_room_cmp] = get_crypt_room_start();
+    if ( Utils::get_player_position( getReg() ).findIntersection( start_room_cmp ) ) { connectPassagesBetweenStartAndOpenRooms(); }
+    else { connectPassagesBetweenOccupiedAndOpenRooms(); }
   }
   else if ( event.type == Events::CryptRoomEvent::Type::FINAL_PASSAGE )
   {
@@ -860,7 +852,7 @@ void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
     closeAllRooms();
     SPDLOG_INFO( "~~~~~~~~~~~ OPENING FINAL PASSAGE ~~~~~~~~~~~~~~~" );
     closeAllPassages();
-    openFinalPassage();
+    connectPassageBetweenOccupiedAndEndRoom();
   }
   else if ( event.type == Events::CryptRoomEvent::Type::EXIT_ALL_PASSAGES )
   {
@@ -873,8 +865,8 @@ void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
       all_rooms.insert( closed_room_entt );
     }
     openSelectedRooms( all_rooms );
-    openRandomStartPassages(); // make sure there is passage way to start room for exit
-    openAllMiddlePassages();
+    connectPassagesBetweenStartAndOpenRooms(); // make sure player can reach exit
+    connectPassagesBetweenAllOpenRooms();
   }
 
   for ( auto [obst_entt, obst_cmp, obst_pos_cmp] : getReg().view<Cmp::Obstacle, Cmp::Position>().each() )

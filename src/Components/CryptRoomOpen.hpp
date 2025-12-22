@@ -47,18 +47,31 @@ public:
     float half_width = size.x / 2;
     float half_height = size.y / 2;
 
-    m_midpoints[CryptPassageDirection::NORTH] = CryptPassageDoor(
-        Utils::snap_to_grid( sf::Vector2f{ position.x + half_width, position.y }, Utils::Rounding::TOWARDS_ZERO ), false,
-        CryptPassageDirection::NORTH );
-    m_midpoints[CryptPassageDirection::SOUTH] = CryptPassageDoor(
-        Utils::snap_to_grid( sf::Vector2f( position.x + half_width, position.y + size.y ), Utils::Rounding::TOWARDS_ZERO ), false,
-        CryptPassageDirection::SOUTH );
-    m_midpoints[CryptPassageDirection::EAST] = CryptPassageDoor(
-        Utils::snap_to_grid( sf::Vector2f{ position.x + size.x, position.y + half_height }, Utils::Rounding::TOWARDS_ZERO ), false,
-        CryptPassageDirection::EAST );
-    m_midpoints[CryptPassageDirection::WEST] = CryptPassageDoor(
-        Utils::snap_to_grid( sf::Vector2f{ position.x, position.y + half_height }, Utils::Rounding::TOWARDS_ZERO ), false,
-        CryptPassageDirection::WEST );
+    // clang-format off
+    m_midpoints[CryptPassageDirection::NORTH] = 
+      CryptPassageDoor(Utils::snap_to_grid( sf::Vector2f{ position.x + half_width, position.y - Constants::kGridSquareSizePixelsF.y },
+                                            Utils::Rounding::TOWARDS_ZERO ), 
+                                            false, 
+                                            CryptPassageDirection::NORTH );
+
+    m_midpoints[CryptPassageDirection::EAST] = 
+      CryptPassageDoor(Utils::snap_to_grid( sf::Vector2f{ position.x + size.x, position.y + half_height }, 
+                                            Utils::Rounding::TOWARDS_ZERO ), 
+                                            false,
+                                            CryptPassageDirection::EAST );
+
+    m_midpoints[CryptPassageDirection::WEST] = 
+      CryptPassageDoor(Utils::snap_to_grid( sf::Vector2f{ position.x - Constants::kGridSquareSizePixelsF.x, position.y + half_height },
+                                            Utils::Rounding::TOWARDS_ZERO ),
+                                            false, 
+                                            CryptPassageDirection::WEST );
+
+    m_midpoints[CryptPassageDirection::SOUTH] = 
+      CryptPassageDoor(Utils::snap_to_grid( sf::Vector2f( position.x + half_width, position.y + size.y ), 
+                                            Utils::Rounding::TOWARDS_ZERO ), 
+                                            false,
+                                            CryptPassageDirection::SOUTH );
+    // clang-format on  
   }
 
   std::unordered_map<CryptPassageDirection, CryptPassageDoor> m_midpoints;
