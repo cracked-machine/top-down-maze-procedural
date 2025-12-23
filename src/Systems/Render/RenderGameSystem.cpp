@@ -175,12 +175,6 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
         }
       }
 
-      for ( const auto &zorder_entry : m_zorder_queue_ )
-      {
-        if ( getReg().all_of<Cmp::CryptEntrance>( zorder_entry.e ) )
-          render_overlay_sys.render_square_for_entity<Cmp::CryptEntrance>( zorder_entry.e, sf::Color::Magenta, 1.f );
-      }
-
       render_armed();
       render_wormhole_effect( floormap );
       render_arrow_compass();
@@ -453,7 +447,7 @@ void RenderGameSystem::render_dark_mode_shader()
 {
   // Update dark mode shader with proper parameters
   auto shader_local_position = m_local_view.getCenter() - m_local_view.getSize() * 0.5f;
-  sf::Vector2f aperture_half_size( Constants::kGridSquareSizePixelsF * 3.f );
+  sf::Vector2f aperture_half_size( Constants::kGridSquareSizePixelsF * 4.f );
   auto display_res = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
   m_dark_mode_shader.update( shader_local_position, aperture_half_size, kLocalMapViewSize, display_res );
   m_window.draw( m_dark_mode_shader );

@@ -29,16 +29,14 @@ void GraveyardScene::on_init()
   m_reg.emplace<Cmp::System>( entity );
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
-  random_level_sys.generate( Sys::ProcGen::RandomLevelGenerator::AreaShape::RECTANGLE, GraveyardScene::kMapGridSize,
+  random_level_sys.generate( Sys::ProcGen::RandomLevelGenerator::AreaShape::CIRCLE, GraveyardScene::kMapGridSize,
                              Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR );
 
   auto &cellauto_parser = m_system_store.find<Sys::SystemStore::Type::CellAutomataSystem>();
   cellauto_parser.set_random_level_generator( &random_level_sys );
-  cellauto_parser.iterate( 5, GraveyardScene::kMapGridSize,
-                           Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR );
+  cellauto_parser.iterate( 5, GraveyardScene::kMapGridSize, Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR );
 
-  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, GraveyardScene::kMapGridSize,
-                                            "res/json/graveyard_tilemap_config.json" );
+  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, GraveyardScene::kMapGridSize, "res/json/graveyard_tilemap_config.json" );
 
   m_system_store.find<Sys::SystemStore::Type::ExitSystem>().spawn_exit();
 
@@ -63,10 +61,7 @@ void GraveyardScene::on_enter()
   m_persistent_sys.load_state();
 
   m_sound_bank.get_music( "title_music" ).stop();
-  if ( m_sound_bank.get_music( "game_music" ).getStatus() != sf::Sound::Status::Playing )
-  {
-    m_sound_bank.get_music( "game_music" ).play();
-  }
+  if ( m_sound_bank.get_music( "game_music" ).getStatus() != sf::Sound::Status::Playing ) { m_sound_bank.get_music( "game_music" ).play(); }
 
   auto player_view = m_reg.view<Cmp::PlayableCharacter, Cmp::Position>();
   for ( auto [player_entity, pc_cmp, pos_cmp] : player_view.each() )
@@ -108,8 +103,8 @@ void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
       static sf::Vector2f last_position = pos_cmp.position;
       if ( pos_cmp.position != last_position )
       {
-        SPDLOG_DEBUG( "Player position changed after {}: ({}, {}) -> ({}, {})", system_name, last_position.x,
-                      last_position.y, pos_cmp.position.x, pos_cmp.position.y );
+        SPDLOG_DEBUG( "Player position changed after {}: ({}, {}) -> ({}, {})", system_name, last_position.x, last_position.y, pos_cmp.position.x,
+                      pos_cmp.position.y );
         last_position = pos_cmp.position;
       }
     }

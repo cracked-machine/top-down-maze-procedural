@@ -11,6 +11,7 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/WeaponLevel.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Events/CryptRoomEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Systems/LootSystem.hpp>
@@ -21,8 +22,7 @@
 namespace ProceduralMaze::Sys
 {
 
-LootSystem::LootSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                        Audio::SoundBank &sound_bank )
+LootSystem::LootSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "LootSystem initialized" );
@@ -46,8 +46,7 @@ void LootSystem::check_loot_collision()
   auto loot_collision_view = getReg().view<Cmp::Loot, Cmp::Position, Cmp::SpriteAnimation>();
   // clang-format on
 
-  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_weapon_level, pc_keys_count, pc_candles_count] :
-        player_collision_view.each() )
+  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_weapon_level, pc_keys_count, pc_candles_count] : player_collision_view.each() )
   {
     for ( auto [loot_entt, loot_cmp, loot_pos_cmp, loot_sprite_anim] : loot_collision_view.each() )
     {
@@ -127,6 +126,8 @@ void LootSystem::check_loot_collision()
       auto &pc_cadaver_count = getReg().get<Cmp::PlayerCadaverCount>( effect.player_entity );
       pc_cadaver_count.increment_count( 1 );
       m_sound_bank.get_effect( "get_loot" ).play();
+      m_sound_bank.get_effect( "secret" ).play();
+      get_systems_event_queue().trigger( Events::CryptRoomEvent( Events::CryptRoomEvent::Type::EXIT_ALL_PASSAGES ) );
     }
     else
     {

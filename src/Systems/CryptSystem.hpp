@@ -204,5 +204,7 @@ private:
 // 5. Remove obstacles for newly opened passages DONE
 // 6. restore obstacles for newly closed passages DONE
 // 7. fix z-fighting with obstacles  DONE
-// 8. add sxf for room change
-// 9. pick better blocks
+// 8. add sxf for room change DONE
+// 9. pick better blocks DONE
+// 10. Spawn NPCs on exit
+// 11. Spawn chest loot crates in open rooms

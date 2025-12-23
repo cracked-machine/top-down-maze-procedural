@@ -385,10 +385,6 @@ void SceneInputRouter::crypt_scene_state_handler()
       {
         get_systems_event_queue().trigger( Events::CryptRoomEvent( Events::CryptRoomEvent::Type::EXIT_ALL_PASSAGES ) );
       }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::U )
-      {
-        get_systems_event_queue().trigger( Events::CryptRoomEvent( Events::CryptRoomEvent::Type::CLEAR_PASSAGES ) );
-      }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {

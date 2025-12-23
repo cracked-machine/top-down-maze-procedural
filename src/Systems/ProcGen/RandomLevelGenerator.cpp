@@ -33,6 +33,7 @@
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -104,7 +105,7 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
 
       // condition for left, right, top, bottom borders
       bool isBorder = ( x == 0 ) || ( y == 0 ) || ( x == w - 1 ) || ( y == h - 1 );
-      if ( isBorder ) { add_wall_entity( new_pos, 0 ); }
+      if ( isBorder ) { add_wall_entity( new_pos, "WALL", 0 ); }
       else
       {
         // create world position entity, mark spawn area if in player start area
@@ -160,7 +161,7 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size )
         // track the contiguous creation order entities so we can easily find its neighbours later
         m_data.push_back( entity );
       }
-      else if ( d2 <= rOuter2 ) { add_wall_entity( new_pos, 0 ); }
+      else if ( d2 <= rOuter2 ) { add_wall_entity( new_pos, "WALL", 0 ); }
       else
       {
         // outside circle (no tile)
@@ -212,12 +213,12 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int v
       sf::Vector2f new_pos( x * kGridSquareSizePixels.x, y * kGridSquareSizePixels.y );
 
       bool inside = inCross( x, y );
-      if ( !inside ) continue; //Factory::createVoidPosition( getReg(), new_pos ); // outside cross, skip
+      if ( !inside ) continue; // Factory::createVoidPosition( getReg(), new_pos ); // outside cross, skip
 
       // 1-tile border: any 4-neighbor outside the cross
       bool isBorder = !inCross( x - 1, y ) || !inCross( x + 1, y ) || !inCross( x, y - 1 ) || !inCross( x, y + 1 );
 
-      if ( isBorder ) { add_wall_entity( new_pos, 0 ); }
+      if ( isBorder ) { add_wall_entity( new_pos, "CRYPT.interior_sb", 0 ); }
       else
       {
         // create world position entity, mark spawn area if in player start area
@@ -347,16 +348,10 @@ void RandomLevelGenerator::gen_crypt_initial_interior()
 
     if ( add_interior_wall )
     {
-      // clang-format off
-      auto [obst_type, rand_obst_tex_idx] = 
-        m_sprite_factory.get_random_type_and_texture_index( { 
-          "CRYPT.interior_sb"
-        } );
-      // clang-format on
-
+      auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
       float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
       // Set the z-order value so that the obstacles are rendered above everything else
-      Factory::createObstacle( getReg(), entity, pos_cmp, obst_type, 5, ( zorder * 2.f ) );
+      Factory::createObstacle( getReg(), entity, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
     }
   }
 }
@@ -449,12 +444,12 @@ void RandomLevelGenerator::gen_npc_containers( sf::Vector2u map_grid_size )
   }
 }
 
-void RandomLevelGenerator::add_wall_entity( const sf::Vector2f &pos, std::size_t sprite_index )
+void RandomLevelGenerator::add_wall_entity( const sf::Vector2f &pos, Sprites::SpriteMetaType sprite_type, std::size_t sprite_index )
 {
   auto entity = getReg().create();
   getReg().emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSquareSizePixelsF );
   getReg().emplace_or_replace<Cmp::Wall>( entity );
-  getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", sprite_index );
+  getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_type, sprite_index );
   getReg().emplace_or_replace<Cmp::ReservedPosition>( entity );
   getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos.y );
   getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );

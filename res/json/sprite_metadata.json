@@ -34,7 +34,7 @@
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/crypt_interior.png",
-        "sprite_indices": [0,1,2,3,4,5],
+        "sprite_indices": [0,1,2,3,24],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {

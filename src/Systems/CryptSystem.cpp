@@ -183,8 +183,9 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
 
       if ( player_hitbox.findIntersection( objective_cmp ) )
       {
-        auto obst_entity = Factory::createLootDrop( getReg(), Cmp::SpriteAnimation{ 0, 0, true, "CADAVER_DROP", 0 },
-                                                    sf::FloatRect{ objective_cmp.position, objective_cmp.size }, Factory::IncludePack<>{},
+        Cmp::RectBounds expanded_search( objective_cmp.position, objective_cmp.size, 2.f );
+        auto obst_entity = Factory::createLootDrop( getReg(), Cmp::SpriteAnimation{ 0, 0, true, "CADAVER_DROP", 0 }, expanded_search.getBounds(),
+                                                    Factory::IncludePack<>{},
                                                     Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::CryptObjectiveSegment>{} );
         if ( obst_entity != entt::null )
         {
@@ -213,7 +214,7 @@ void CryptSystem::spawn_exit( sf::Vector2u spawn_position )
   auto entity = getReg().create();
   getReg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, Constants::kGridSquareSizePixelsF );
   getReg().emplace_or_replace<Cmp::Exit>( entity, false ); // unlocked at start
-  getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", 1 );
+  getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "CRYPT.interior_sb", 1 );
   getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.position.y );
   getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
   getReg().emplace_or_replace<Cmp::CryptExit>( entity );
@@ -752,7 +753,7 @@ void CryptSystem::fillClosedRooms()
 
       auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
       float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
-      Factory::createObstacle( getReg(), pos_entt, pos_cmp, obst_type, 5, ( zorder * 2.f ) );
+      Factory::createObstacle( getReg(), pos_entt, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
     }
   }
 }
@@ -850,7 +851,7 @@ void CryptSystem::fillAllPassages()
 
       auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
       float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
-      Factory::createObstacle( getReg(), pos_entt, pos_cmp, obst_type, 5, ( zorder * 2.f ) );
+      Factory::createObstacle( getReg(), pos_entt, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
     }
   }
 }
@@ -946,26 +947,28 @@ void CryptSystem::createRoomBorders()
   {
     // don't add obstacles to footstep entities
     if ( getReg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
+    // don't replace wall/exit entities
+    if ( getReg().any_of<Cmp::Wall, Cmp::CryptExit>( pos_entt ) ) continue;
 
     // replace closed room borders with regular sprites
     for ( auto [closed_room_entt, closed_room_cmp] : getReg().view<Cmp::CryptRoomClosed>().each() )
     {
-      add_border( pos_entt, pos_cmp, closed_room_cmp, "CRYPT.interior_sb", 5 );
+      add_border( pos_entt, pos_cmp, closed_room_cmp, "CRYPT.interior_sb", 2 );
     }
     // Always add end room border
     for ( auto [end_room_entt, end_room_cmp] : getReg().view<Cmp::CryptRoomEnd>().each() )
     {
-      add_border( pos_entt, pos_cmp, end_room_cmp, "WALL", 0 );
+      add_border( pos_entt, pos_cmp, end_room_cmp, "CRYPT.interior_sb", 3 );
     }
     // Always add end room border
     for ( auto [start_room_entt, start_room_cmp] : getReg().view<Cmp::CryptRoomStart>().each() )
     {
-      add_border( pos_entt, pos_cmp, start_room_cmp, "WALL", 0 );
+      add_border( pos_entt, pos_cmp, start_room_cmp, "CRYPT.interior_sb", 3 );
     }
     // replace open room borders with actual border sprite
     for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
     {
-      add_border( pos_entt, pos_cmp, open_room_cmp, "WALL", 0 );
+      add_border( pos_entt, pos_cmp, open_room_cmp, "CRYPT.interior_sb", 3 );
     }
   }
 }

@@ -55,7 +55,7 @@ public:
 
   //! @brief create common obstacles (i.e. rock) for the graeyard
   void gen_graveyard_exterior_obstacles();
-  
+
   //! @brief create multiblock sprites (i.e. graves, altars, crypts) for the graveyard scene.
   void gen_graveyard_exterior_multiblocks();
 
@@ -82,7 +82,7 @@ public:
   void gen_npc_containers( sf::Vector2u map_grid_size );
 
   // Helper functions to add wall and door entities
-  void add_wall_entity( const sf::Vector2f &pos, std::size_t sprite_index );
+  void add_wall_entity( const sf::Vector2f &pos, Sprites::SpriteMetaType sprite_type, std::size_t sprite_index );
 
   // Find a valid spawn location for a large obstacle given a seed
   std::pair<entt::entity, Cmp::Position> find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed );
