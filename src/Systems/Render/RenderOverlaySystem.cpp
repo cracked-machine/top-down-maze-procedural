@@ -320,8 +320,8 @@ void RenderOverlaySystem::render_zorder_values_overlay( sf::Vector2f pos, std::v
       if ( exclusions.find( sprite_anim_cmp.m_sprite_type ) != exclusions.end() ) { continue; }
 
       std::stringstream ss;
-      ss << std::fixed << std::setprecision( 1 ) << zorder_entry.z << " | ";
-      ss << static_cast<uint32_t>( zorder_entry.e ) << " | ";
+      ss << "z: " << std::fixed << std::setprecision( 1 ) << zorder_entry.z << " | ";
+      ss << "e: " << static_cast<uint32_t>( zorder_entry.e ) << " | ";
       ss << sprite_anim_cmp.m_sprite_type << " | ";
       sf::Text m_z_text{ m_font, ss.str(), font_size };
       m_z_text.setFillColor( sf::Color::White );

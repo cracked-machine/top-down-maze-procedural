@@ -90,8 +90,16 @@ private:
     {
       if ( Utils::is_visible_in_view( view_bounds, component ) )
       {
-        auto z_order_cmp = getReg().try_get<Cmp::ZOrderValue>( entity );
-        if ( z_order_cmp ) { zorder_queue.push_back( ZOrder{ z_order_cmp->getZOrder(), entity } ); }
+        // check the component entity has required components: Cmp::SpriteAnimation and Cmp::Position
+        auto sprite_cmp = getReg().try_get<Cmp::SpriteAnimation>( entity );
+        auto pos_cmp = getReg().try_get<Cmp::Position>( entity );
+
+        if ( sprite_cmp && pos_cmp )
+        {
+          auto z_order_cmp = getReg().try_get<Cmp::ZOrderValue>( entity );
+          if ( z_order_cmp ) { zorder_queue.push_back( ZOrder{ z_order_cmp->getZOrder(), entity } ); }
+        }
+ 
       }
     }
   }

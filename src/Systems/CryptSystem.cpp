@@ -183,8 +183,9 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
 
       if ( player_hitbox.findIntersection( objective_cmp ) )
       {
-        Cmp::RectBounds expanded_search( objective_cmp.position, objective_cmp.size, 2.f );
-        auto obst_entity = Factory::createLootDrop( getReg(), Cmp::SpriteAnimation{ 0, 0, true, "CADAVER_DROP", 0 }, expanded_search.getBounds(),
+        sf::FloatRect expanded_search( sf::Vector2f{ objective_cmp.position.x, objective_cmp.position.y + objective_cmp.size.y },
+                                       sf::Vector2f{ objective_cmp.size.x, Constants::kGridSquareSizePixelsF.y * 2.f } );
+        auto obst_entity = Factory::createLootDrop( getReg(), Cmp::SpriteAnimation{ 0, 0, true, "CADAVER_DROP", 0 }, expanded_search,
                                                     Factory::IncludePack<>{},
                                                     Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::CryptObjectiveSegment>{} );
         if ( obst_entity != entt::null )
@@ -192,6 +193,9 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
           m_sound_bank.get_effect( "drop_loot" ).play();
           objective_cmp.increment_activation_count();
           SPDLOG_INFO( "Player activated crypt objective." );
+
+          const auto &ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_objective_opened" );
+          getReg().emplace_or_replace<Cmp::SpriteAnimation>( objective_entity, 0, 0, true, ms.get_sprite_type(), 0 );
         }
       }
     }

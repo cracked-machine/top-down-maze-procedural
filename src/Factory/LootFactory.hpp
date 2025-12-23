@@ -37,7 +37,7 @@ void destroyLootContainer( entt::registry &registry, entt::entity loot_entity );
  */
 template <typename... Include, typename... Exclude>
 inline entt::entity createLootDrop( entt::registry &registry, Cmp::SpriteAnimation &&loot_anim_cmp, sf::FloatRect search, IncludePack<Include...>,
-                                    ExcludePack<Exclude...> )
+                                    ExcludePack<Exclude...>, float zorder_offset = -8.f )
 {
   entt::entity new_loot_entity = entt::null;
   auto pos_view = registry.view<Cmp::Position, Include...>( entt::exclude<Exclude...> );
@@ -52,7 +52,7 @@ inline entt::entity createLootDrop( entt::registry &registry, Cmp::SpriteAnimati
       new_loot_entity = registry.create();
       registry.emplace<Cmp::Position>( new_loot_entity, pos_cmp.position, pos_cmp.size );
       registry.emplace<Cmp::SpriteAnimation>( new_loot_entity, loot_anim_cmp );
-      registry.emplace<Cmp::ZOrderValue>( new_loot_entity, pos_cmp.position.y - 8.f );
+      registry.emplace<Cmp::ZOrderValue>( new_loot_entity, pos_cmp.position.y + zorder_offset );
       registry.emplace<Cmp::Loot>( new_loot_entity );
       SPDLOG_DEBUG( "Created loot entity {} of type {} at position ({}, {})", static_cast<int>( new_loot_entity ), loot_anim_cmp.m_sprite_type,
                     pos_cmp.position.x, pos_cmp.position.y );

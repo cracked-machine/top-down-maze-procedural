@@ -239,15 +239,10 @@ void RandomLevelGenerator::gen_graveyard_exterior_obstacles()
   auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
   for ( auto [entity, pos_cmp] : position_view.each() )
   {
-    // clang-format off
-    auto [obst_type, rand_obst_tex_idx] = 
-      m_sprite_factory.get_random_type_and_texture_index( { 
-        "ROCK"
-      } );
-    // clang-format on
 
     if ( Cmp::RandomInt{ 0, 1 }.gen() == 1 )
     {
+      auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "ROCK" } );
       float zorder = m_sprite_factory.get_sprite_size_by_type( "ROCK" ).y;
       // Set the z-order value so that the rock obstacles are rendered above everything else
       Factory::createObstacle( getReg(), entity, pos_cmp, obst_type, rand_obst_tex_idx, ( zorder * 2.f ) );
@@ -360,26 +355,27 @@ void RandomLevelGenerator::gen_crypt_main_objective( sf::Vector2u map_grid_size 
 {
   auto map_grid_sizef = sf::Vector2f( static_cast<float>( map_grid_size.x ) * Constants::kGridSquareSizePixelsF.x,
                                       static_cast<float>( map_grid_size.y ) * Constants::kGridSquareSizePixelsF.y );
-
+  auto kGridSquareSizePixelsF = Constants::kGridSquareSizePixelsF;
   // target position for the objective: always center top of the map
-  const auto &ms = m_sprite_factory.get_multisprite_by_type( "BAPHOMET" );
-  Cmp::Position objective_position( { map_grid_sizef.x / 2.f, Constants::kGridSquareSizePixelsF.y * 2.f }, ms.getSpriteSizePixels() );
+  const auto &ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_objective_closed" );
+
+  float centered_x = ( map_grid_sizef.x / 2.f ) - ( ms.getSpriteSizePixels().x / 2.f ) + kGridSquareSizePixelsF.x;
+  Cmp::Position objective_position( { centered_x, kGridSquareSizePixelsF.y * 2.f }, ms.getSpriteSizePixels() );
 
   auto entity = getReg().create();
   getReg().emplace_or_replace<Cmp::Position>( entity, objective_position.position, objective_position.size );
 
   SPDLOG_INFO( "Placing main crypt objective at position ({}, {})", objective_position.position.x, objective_position.position.y );
-  Factory::createMultiblock<Cmp::CryptObjectiveMultiBlock>( getReg(), entity, objective_position, ms );
+  Factory::createMultiblock<Cmp::CryptObjectiveMultiBlock>( getReg(), entity, objective_position, ms, -160.f );
   Factory::createMultiblockSegments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( getReg(), entity, objective_position, ms );
 
   // while we're here, carve out a room for the objective sprite. These position/size modifiers are trial and error
   // whilst we decide on the final objective MB sprite dimensions
-  auto kGridSquareSizePixelsF = Constants::kGridSquareSizePixelsF;
+
   auto end_room_entity = getReg().create();
   getReg().emplace_or_replace<Cmp::CryptRoomEnd>(
-      end_room_entity,
-      sf::Vector2f{ objective_position.position.x - kGridSquareSizePixelsF.x * 4.f, objective_position.position.y - kGridSquareSizePixelsF.y },
-      sf::Vector2f{ objective_position.size.x + kGridSquareSizePixelsF.x * 8.f, objective_position.size.y + kGridSquareSizePixelsF.y * 3.f } );
+      end_room_entity, sf::Vector2f{ objective_position.position.x, objective_position.position.y },
+      sf::Vector2f{ objective_position.size.x, objective_position.size.y + ( kGridSquareSizePixelsF.y * 2.f ) } );
 }
 
 void RandomLevelGenerator::gen_crypt_interior_multiblocks()

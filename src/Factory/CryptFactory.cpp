@@ -24,7 +24,7 @@ void create_initial_crypt_rooms( entt::registry &reg, sf::Vector2u map_grid_size
     int room_height = Cmp::RandomInt{ min_room_height, max_room_height }.gen();
     auto [entt, pos] = Utils::Rnd::get_random_position( reg, Utils::Rnd::IncludePack<Cmp::Neighbours>{}, {}, 0 );
     Cmp::CryptRoomClosed new_room( pos.position, { room_width * grid_square_size.x, room_height * grid_square_size.y } );
-    SPDLOG_INFO( "Generated new room at ({}, {}) size ({}, {})", new_room.position.x, new_room.position.y, new_room.size.x, new_room.size.y );
+    SPDLOG_DEBUG( "Generated new room at ({}, {}) size ({}, {})", new_room.position.x, new_room.position.y, new_room.size.x, new_room.size.y );
 
     auto is_min_distance_ok = [&]( const Cmp::CryptRoomClosed &existing_room, const Cmp::CryptRoomClosed &new_room ) -> bool
     {
@@ -111,7 +111,7 @@ void create_initial_crypt_rooms( entt::registry &reg, sf::Vector2u map_grid_size
     }
     else
     {
-      SPDLOG_INFO( "New room overlaps existing room, discarded. ({}/{})", current_attempt, max_attempts );
+      SPDLOG_DEBUG( "New room overlaps existing room, discarded. ({}/{})", current_attempt, max_attempts );
       current_attempt++;
     }
     if ( current_attempt >= max_attempts )

@@ -1,4 +1,5 @@
 #include <Components/CryptInteriorMultiBlock.hpp>
+#include <Components/CryptObjectiveMultiBlock.hpp>
 #include <Components/CryptPassageBlock.hpp>
 #include <Components/CryptRoomClosed.hpp>
 #include <Components/CryptRoomEnd.hpp>
@@ -75,6 +76,7 @@ void RenderGameSystem::refresh_z_order_queue()
   add_visible_entity_to_z_order_queue<Cmp::CryptMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::GraveMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::CryptInteriorMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::CryptObjectiveMultiBlock>( m_zorder_queue_, view_bounds );
 
   // add other components as normal
   add_visible_entity_to_z_order_queue<Cmp::Position>( m_zorder_queue_, view_bounds );
@@ -246,8 +248,8 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
         render_overlay_sys.render_player_position_overlay( player_position.position, { 40.f, 340.f } );
         render_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 380.f } );
         render_overlay_sys.render_stats_overlay( { 40.f, 420.f }, { 40.f, 460.f }, { 40.f, 500.f }, { 40.f, 540.f } );
-        render_overlay_sys.render_zorder_values_overlay( { 40.f, 600.f }, m_zorder_queue_,
-                                                         { "ROCK", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED" } );
+        render_overlay_sys.render_zorder_values_overlay(
+            { 40.f, 600.f }, m_zorder_queue_, { "ROCK", "CRYPT.interior_sb", "WALL", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED" } );
         sf::Vector2u display_size = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
         render_overlay_sys.render_npc_list_overlay( { display_size.x - 600.f, 200.f } );
       }
