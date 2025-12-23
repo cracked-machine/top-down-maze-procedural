@@ -112,6 +112,7 @@ public:
   //! @note Excludes start/end rooms and the open room occupied by the player)
   void closeOpenRooms();
 
+  //! @brief Restores missing Cmp::Obstacles components to Cmp::CryptRoomClosed areas
   void fillClosedRooms();
 
   //! @brief Change selected Cmp::CryptRoomClosed to Cmp::CryptRoomOpen.
@@ -119,16 +120,23 @@ public:
   //! @note Removes Cmp::Obstacle
   void openSelectedRooms( std::set<entt::entity> selected_rooms );
 
+  //! @brief Removes Cmp::Obstacles from Cmp::CryptRoomOpen areas
   void emptyOpenRooms();
 
   //! @brief Removes all Cmp::CryptPassageBlock entities
   void removeAllPassageBlocks();
 
+  //! @brief Removes Cmp::Obstacles from Cmp::CryptPassageBlock areas
   void emptyOpenPassages();
+
+  //! @brief Restores missing Cmp::Obstacles components to Cmp::CryptPassageBlock areas
   void fillAllPassages();
 
+  //! @brief Restores border Cmp::Obstacles to Cmp::CryptRoomEnd, Cmp::CryptRoomStart and Cmp::CryptRoomOpen areas
   void createRoomBorders();
 
+  //! @brief Removes any Cmp::CryptPassageBlock components added inside rooms
+  //! @param exclude_closed_rooms
   void tidyPassageBlocks( bool exclude_closed_rooms = false );
 
 private:
