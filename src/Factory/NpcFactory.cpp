@@ -19,8 +19,8 @@
 namespace ProceduralMaze::Factory
 {
 
-void createNpcContainer( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp,
-                         Sprites::SpriteMetaType sprite_type, std::size_t sprite_tile_idx, float zorder )
+void createNpcContainer( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
+                         std::size_t sprite_tile_idx, float zorder )
 {
   registry.emplace_or_replace<Cmp::ReservedPosition>( entt );
   registry.emplace_or_replace<Cmp::Armable>( entt );
@@ -52,8 +52,7 @@ void createNPC( entt::registry &registry, entt::entity position_entity, const Sp
   registry.emplace<Cmp::Armable>( new_pos_entity );
   registry.emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 0, 0 } );
   auto &npc_scan_scale = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcScanScale>( registry );
-  registry.emplace_or_replace<Cmp::NPCScanBounds>( new_pos_entity, pos_cmp->position, Constants::kGridSquareSizePixelsF,
-                                                   npc_scan_scale.get_value() );
+  registry.emplace_or_replace<Cmp::NPCScanBounds>( new_pos_entity, pos_cmp->position, Constants::kGridSquareSizePixelsF, npc_scan_scale.get_value() );
   if ( type == "NPCGHOST" )
   {
     registry.emplace_or_replace<Cmp::NPC>( new_pos_entity );
@@ -70,16 +69,31 @@ void createNPC( entt::registry &registry, entt::entity position_entity, const Sp
     registry.remove<Cmp::NpcContainer>( position_entity );
     registry.remove<Cmp::ZOrderValue>( position_entity );
   }
+  else if ( type == "NPCPRIEST" )
+  {
+    registry.emplace_or_replace<Cmp::NPC>( new_pos_entity );
+    registry.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, false, "NPCPRIEST" );
+    registry.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
+
+    // Remove the npc container component from the original entity
+    registry.remove<Cmp::NpcContainer>( position_entity );
+    registry.remove<Cmp::ZOrderValue>( position_entity );
+  }
 
   if ( type == "NPCGHOST" )
   {
-    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type,
-                 pos_cmp->position.x, pos_cmp->position.y );
+    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
+                 pos_cmp->position.y );
   }
   else if ( type == "NPCSKELE" )
   {
-    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type,
-                 pos_cmp->position.x, pos_cmp->position.y );
+    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
+                 pos_cmp->position.y );
+  }
+  else if ( type == "NPCPRIEST" )
+  {
+    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
+                 pos_cmp->position.y );
   }
 }
 
@@ -89,11 +103,7 @@ entt::entity destroyNPC( entt::registry &registry, entt::entity npc_entity )
   // check for position component
   entt::entity loot_entity = entt::null;
   auto npc_pos_cmp = registry.try_get<Cmp::Position>( npc_entity );
-  if ( not npc_pos_cmp )
-  {
-    SPDLOG_WARN( "Cannot process loot drop for NPC entity {} without a Position component",
-                 static_cast<int>( npc_entity ) );
-  }
+  if ( not npc_pos_cmp ) { SPDLOG_WARN( "Cannot process loot drop for NPC entity {} without a Position component", static_cast<int>( npc_entity ) ); }
   else
   {
     // 1 in 20 chance of dropping a relic

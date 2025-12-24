@@ -135,6 +135,9 @@ public:
   //! @brief Restores border Cmp::Obstacles to Cmp::CryptRoomEnd, Cmp::CryptRoomStart and Cmp::CryptRoomOpen areas
   void createRoomBorders();
 
+  //! @brief Spawn NPCs in each open room in the game area
+  void spawnNpcInOpenRooms();
+
   //! @brief Removes any Cmp::CryptPassageBlock components added inside rooms
   //! @param exclude_closed_rooms
   void tidyPassageBlocks( bool exclude_closed_rooms = false );

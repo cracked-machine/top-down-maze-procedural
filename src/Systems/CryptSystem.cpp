@@ -977,6 +977,18 @@ void CryptSystem::createRoomBorders()
   }
 }
 
+void CryptSystem::spawnNpcInOpenRooms()
+{
+  for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
+  {
+    auto spawn_position = Utils::snap_to_grid( open_room_cmp.getCenter() );
+    auto position_entity = getReg().create();
+    Cmp::Position position_cmp = getReg().emplace<Cmp::Position>( position_entity, spawn_position, Constants::kGridSquareSizePixelsF );
+    [[maybe_unused]] Cmp::ZOrderValue zorder_cmp = getReg().emplace<Cmp::ZOrderValue>( position_entity, position_cmp.position.y );
+    Factory::createNPC( getReg(), position_entity, "NPCPRIEST" );
+  }
+}
+
 void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
 {
   m_current_passage_id = 0;
@@ -1032,6 +1044,7 @@ void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
     connectPassagesBetweenStartAndOpenRooms(); // make sure player can reach exit
     connectPassagesBetweenAllOpenRooms();
     emptyOpenPassages();
+    spawnNpcInOpenRooms();
   }
   m_sound_bank.get_effect( "crypt_room_shuffle" ).play();
 }
