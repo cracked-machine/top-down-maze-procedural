@@ -76,7 +76,6 @@ void RenderGameSystem::refresh_z_order_queue()
   add_visible_entity_to_z_order_queue<Cmp::CryptMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::GraveMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::CryptInteriorMultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::CryptObjectiveMultiBlock>( m_zorder_queue_, view_bounds );
 
   // add other components as normal
   add_visible_entity_to_z_order_queue<Cmp::Position>( m_zorder_queue_, view_bounds );

@@ -366,7 +366,7 @@ void RandomLevelGenerator::gen_crypt_main_objective( sf::Vector2u map_grid_size 
   getReg().emplace_or_replace<Cmp::Position>( entity, objective_position.position, objective_position.size );
 
   SPDLOG_INFO( "Placing main crypt objective at position ({}, {})", objective_position.position.x, objective_position.position.y );
-  Factory::createMultiblock<Cmp::CryptObjectiveMultiBlock>( getReg(), entity, objective_position, ms, -160.f );
+  Factory::createMultiblock<Cmp::CryptObjectiveMultiBlock>( getReg(), entity, objective_position, ms );
   Factory::createMultiblockSegments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( getReg(), entity, objective_position, ms );
 
   // while we're here, carve out a room for the objective sprite. These position/size modifiers are trial and error
@@ -524,7 +524,8 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
       {
         SPDLOG_WARN( "Large Obstacle spawn: original seed {} was invalid, used seed {} instead (attempt {})", seed, current_seed, attempts + 1 );
       }
-      return { random_entity, random_pos };
+      auto new_entt = getReg().create();
+      return { new_entt, getReg().emplace_or_replace<Cmp::Position>( new_entt, random_pos.position, random_pos.size ) };
     }
 
     attempts++;
