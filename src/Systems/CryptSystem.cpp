@@ -540,19 +540,83 @@ void CryptSystem::addLeverOpenRooms()
       if ( not open_room_cmp.findIntersection( pos_cmp ) ) continue;
       if ( open_room_cmp.findIntersection( Utils::get_player_position( getReg() ) ) ) continue;
       if ( pos_cmp.findIntersection( Utils::get_player_position( getReg() ) ) ) continue;
-      internal_room_entts.push_back( pos_entt );
+
+      // Find passage blocks for this room to determine opposite placement
+      sf::Vector2f passage_center{ 0, 0 };
+      int passage_count = 0;
+
+      auto passage_view = getReg().view<Cmp::CryptPassageBlock, Cmp::Position>();
+      for ( auto [passage_entt, passage_cmp, passage_pos_cmp] : passage_view.each() )
+      {
+        // Check if passage block is on the border of this open room
+        float room_left = open_room_cmp.position.x;
+        float room_right = open_room_cmp.position.x + open_room_cmp.size.x;
+        float room_top = open_room_cmp.position.y;
+        float room_bottom = open_room_cmp.position.y + open_room_cmp.size.y;
+
+        // Check if passage is adjacent to room border
+        bool is_adjacent = false;
+        if ( ( passage_pos_cmp.position.x >= room_left - Constants::kGridSquareSizePixelsF.x && passage_pos_cmp.position.x <= room_right ) &&
+             ( passage_pos_cmp.position.y >= room_top - Constants::kGridSquareSizePixelsF.y && passage_pos_cmp.position.y <= room_bottom ) )
+        {
+          is_adjacent = true;
+        }
+
+        if ( is_adjacent )
+        {
+          passage_center.x += passage_pos_cmp.position.x + passage_pos_cmp.size.x / 2.0f;
+          passage_center.y += passage_pos_cmp.position.y + passage_pos_cmp.size.y / 2.0f;
+          passage_count++;
+        }
+      }
+
+      // If we found passages, calculate their average center
+      if ( passage_count > 0 )
+      {
+        passage_center.x /= passage_count;
+        passage_center.y /= passage_count;
+
+        // Get room center
+        sf::Vector2f room_center = open_room_cmp.getCenter();
+
+        // Calculate which side the passages are on relative to room center
+        sf::Vector2f passage_direction = passage_center - room_center;
+
+        // Determine opposite position preference
+        sf::Vector2f opposite_target = room_center - passage_direction;
+
+        // Only add positions that are closer to the opposite side
+        sf::Vector2f pos_center = pos_cmp.position + pos_cmp.size / 2.0f;
+        float dist_to_opposite = Utils::Maths::getEuclideanDistance( pos_center, opposite_target );
+        float dist_to_passage = Utils::Maths::getEuclideanDistance( pos_center, passage_center );
+
+        // Only include positions that are closer to opposite side than to passages
+        if ( dist_to_opposite < dist_to_passage ) { internal_room_entts.push_back( pos_entt ); }
+      }
+      else
+      {
+        // No passages found for this room, any position is valid
+        internal_room_entts.push_back( pos_entt );
+      }
     }
   }
 
-  // add one lever for all candidates
+  if ( internal_room_entts.empty() )
+  {
+    SPDLOG_WARN( "No valid positions found for lever placement" );
+    return;
+  }
+
   Sprites::SpriteMetaType lever_sprite_type = "LEVER";
   unsigned int disabled_lever_sprite_idx = 0;
   float zorder = m_sprite_factory.get_sprite_size_by_type( lever_sprite_type ).y;
 
+  // add one lever to one room picked from the pool of candidates room positions
   Cmp::RandomInt room_position_picker( 0, internal_room_entts.size() - 1 );
   auto selected_entt = internal_room_entts[room_position_picker.gen()];
   auto room_pos = getReg().get<Cmp::Position>( selected_entt );
   Factory::CreateCryptLever( getReg(), room_pos.position, lever_sprite_type, disabled_lever_sprite_idx, zorder );
+  SPDLOG_INFO( "Added lever to position: {},{}", room_pos.position.x, room_pos.position.y );
 }
 
 void CryptSystem::removeLeverOpenRooms()
