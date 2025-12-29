@@ -50,6 +50,7 @@
 #include <Components/WormholeSingularity.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Sprites/MultiSprite.hpp>
+#include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Optimizations.hpp>
@@ -240,6 +241,9 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_overlay_sys.render_key_count_overlay( player_keys_count, { 40.f, 200.f } );
       render_overlay_sys.render_relic_count_overlay( player_relic_count, { 40.f, 240.f } );
       render_overlay_sys.render_cadaver_count_overlay( player_cadaver_count, { 40.f, 280.f } );
+
+      auto display_size = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
+      render_overlay_sys.render_crypt_maze_timer( { static_cast<float>( display_size.x / 2.f ), static_cast<float>( 0 ) }, 100 );
 
       if ( m_show_debug_stats )
       {

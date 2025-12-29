@@ -1,22 +1,17 @@
 #ifndef SRC_SYSTEMS_CRYPTSYSTEM_HPP__
 #define SRC_SYSTEMS_CRYPTSYSTEM_HPP__
 
-#include <Components/CryptEntrance.hpp>
-#include <Components/CryptPassageDoor.hpp>
-#include <Components/CryptRoomClosed.hpp>
 #include <Components/CryptRoomEnd.hpp>
-#include <Components/CryptRoomOpen.hpp>
 #include <Components/CryptRoomStart.hpp>
-#include <Components/Direction.hpp>
+
 #include <Events/CryptRoomEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
-#include <Sprites/TileMap.hpp>
+
 #include <Systems/BaseSystem.hpp>
 #include <Utils/Maths.hpp>
-#include <Utils/Random.hpp>
+
 #include <queue>
 #include <set>
-#include <stdexcept>
 
 namespace ProceduralMaze::Sys
 {
@@ -36,6 +31,8 @@ public:
     std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&CryptSystem::on_player_action>( this );
     std::ignore = get_systems_event_queue().sink<Events::CryptRoomEvent>().connect<&CryptSystem::on_room_event>( this );
   }
+
+  void update();
 
   //! @brief Handle player action events
   //! @param event
@@ -72,10 +69,16 @@ public:
   virtual void onPause() override {}
   virtual void onResume() override {}
 
-private:
   //! @brief Shuffle the rooms and passages
   void shuffle_rooms_passages();
 
+  void reset_maze()
+  {
+    m_maze_unlocked = false;
+    m_enabled_levers = 0;
+  }
+
+private:
   //! @brief Unlock the objective passage
   void unlock_objective_passage();
 
@@ -105,6 +108,9 @@ private:
 
   //! @brief Removes Cmp::Lever components from Cmp::CryptRoomOpen areas
   void removeLeverOpenRooms();
+
+  //! @brief Removes ALL levers.
+  void removeAllLevers();
 
   //! @brief Spawn NPCs in each open room in the game area
   void spawnNpcInOpenRooms();
@@ -136,9 +142,6 @@ private:
 
   //! @brief Number of enabled levers
   unsigned int m_enabled_levers{ 0 };
-
-  //! @brief Indicates if a new lever has been spawned in this cycle
-  bool m_new_lever_available{ false };
 
   //! @brief Indicates if the maze was unlocked this cycle
   bool m_maze_unlocked{ false };

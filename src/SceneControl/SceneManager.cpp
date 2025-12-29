@@ -3,6 +3,7 @@
 #include <Components/PlayerRelicCount.hpp>
 #include <SceneControl/IScene.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
+#include <SceneControl/Scene.hpp>
 #include <SceneControl/SceneManager.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <SceneControl/Scenes/GameOverScene.hpp>
@@ -14,6 +15,20 @@
 
 namespace ProceduralMaze::Scene
 {
+
+SceneManager::SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher,
+                            entt::dispatcher &scenemanager_event_dispatcher )
+    : m_window( w ),
+      m_sound_bank( sound_bank ),
+      m_system_store( system_store ),
+      m_nav_event_dispatcher( nav_event_dispatcher ),
+      m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
+{
+  m_scenemanager_event_dispatcher.sink<Events::SceneManagerEvent>().connect<&SceneManager::handle_events>( this );
+
+  // clock is only displayed when running and we only want it displayed when in CryptScene
+  CryptScene::get_maze_timer().stop();
+}
 
 void SceneManager::update( sf::Time dt )
 {
@@ -44,8 +59,7 @@ void SceneManager::push( std::unique_ptr<IScene> new_scene, RegCopyMode mode )
 
   if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
-    loading_screen( [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); },
-                    m_splash_texture );
+    loading_screen( [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); }, m_splash_texture );
   }
 
   loading_screen( [&]() { m_scene_stack.current().on_init(); }, m_splash_texture );
@@ -66,8 +80,7 @@ void SceneManager::push_no_exit( std::unique_ptr<IScene> new_scene, RegCopyMode 
 
   if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
-    loading_screen( [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); },
-                    m_splash_texture );
+    loading_screen( [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); }, m_splash_texture );
   }
 
   loading_screen( [&]() { m_scene_stack.current().on_init(); }, m_splash_texture );
@@ -88,8 +101,7 @@ void SceneManager::pop( RegCopyMode mode )
 
   if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
-    loading_screen( [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); },
-                    m_splash_texture );
+    loading_screen( [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); }, m_splash_texture );
   }
 
   if ( !m_scene_stack.empty() )
@@ -111,8 +123,7 @@ void SceneManager::pop_no_exit( RegCopyMode mode )
 
   if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
-    loading_screen( [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); },
-                    m_splash_texture );
+    loading_screen( [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); }, m_splash_texture );
   }
 
   loading_screen( [&]() { m_scene_stack.current().on_enter(); }, m_splash_texture );
@@ -136,8 +147,7 @@ void SceneManager::replace( std::unique_ptr<IScene> new_scene, RegCopyMode mode 
 
   if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
-    loading_screen( [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); },
-                    m_splash_texture );
+    loading_screen( [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); }, m_splash_texture );
   }
 
   loading_screen( [&]() { m_scene_stack.current().on_enter(); }, m_splash_texture );
@@ -158,8 +168,7 @@ void SceneManager::replace_no_exit( std::unique_ptr<IScene> new_scene, RegCopyMo
 
   if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
-    loading_screen( [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); },
-                    m_splash_texture );
+    loading_screen( [&]() { m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() ); }, m_splash_texture );
   }
 
   loading_screen( [&]() { m_scene_stack.current().on_enter(); }, m_splash_texture );
@@ -233,8 +242,7 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
     }
     case Events::SceneManagerEvent::Type::LEVEL_COMPLETE: {
       SPDLOG_INFO( "##### SceneManager: Events::SceneManagerEvent::Type::LEVEL_COMPLETE requested" );
-      auto level_complete_scene = std::make_unique<LevelCompleteScene>( m_sound_bank, m_system_store,
-                                                                        m_nav_event_dispatcher );
+      auto level_complete_scene = std::make_unique<LevelCompleteScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher );
       replace_no_exit( std::move( level_complete_scene ), RegCopyMode::PLAYER_ONLY );
       break;
     }
@@ -252,10 +260,7 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
 
 void SceneManager::inject_current_scene_registry_into_systems()
 {
-  if ( m_scene_stack.empty() )
-  {
-    throw std::runtime_error( "SceneManager::inject_registry: No current scene available" );
-  }
+  if ( m_scene_stack.empty() ) { throw std::runtime_error( "SceneManager::inject_registry: No current scene available" ); }
   entt::registry &reg = m_scene_stack.current().registry();
   for ( auto &sys : m_system_store )
     sys.second->setReg( reg ); // pass the unique_ptr by reference

@@ -7,6 +7,7 @@
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/PassageSystem.hpp>
 #include <queue>
+#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys
 {
@@ -218,7 +219,7 @@ bool PassageSystem::place_passage_block( unsigned int passage_id, float x, float
   entt::entity new_entt = getReg().create();
   getReg().emplace_or_replace<Cmp::CryptPassageBlock>( new_entt, next_passage_block_cmp.position, passage_id );
   new_block_list.push_back( new_entt );
-  SPDLOG_INFO( "Placed CryptPassageBlock at {},{} (id:{})", x, y, passage_id );
+  SPDLOG_DEBUG( "Placed CryptPassageBlock at {},{} (id:{})", x, y, passage_id );
 
   return true;
 };
@@ -442,8 +443,8 @@ bool PassageSystem::createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::F
             if ( distance < kMinBlockDistanceBetweenPassages )
             {
               is_candidate_rejected = true;
-              SPDLOG_WARN( "Candidate rejected for passage id :{} - PassageBlock {},{} too close to candidate {},{}", m_current_passage_id,
-                           block_cmp.x, block_cmp.y, candidate_pos.position.x, candidate_pos.position.y );
+              SPDLOG_DEBUG( "Candidate rejected for passage id :{} - PassageBlock {},{} too close to candidate {},{}", m_current_passage_id,
+                            block_cmp.x, block_cmp.y, candidate_pos.position.x, candidate_pos.position.y );
               break;
             }
           }
@@ -461,8 +462,8 @@ bool PassageSystem::createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::F
               if ( scaled_candidate_pos.findIntersection( open_room_cmp ) )
               {
                 is_candidate_rejected = true;
-                SPDLOG_WARN( "Candidate rejected for passage id :{} - Open room {},{} too close to candidate {},{}", m_current_passage_id,
-                             open_room_cmp.position.x, open_room_cmp.position.y, candidate_pos.position.x, candidate_pos.position.y );
+                SPDLOG_DEBUG( "Candidate rejected for passage id :{} - Open room {},{} too close to candidate {},{}", m_current_passage_id,
+                              open_room_cmp.position.x, open_room_cmp.position.y, candidate_pos.position.x, candidate_pos.position.y );
                 break;
               }
             }
@@ -478,8 +479,8 @@ bool PassageSystem::createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::F
           if ( candidate_pos.findIntersection( wall_pos_cmp ) )
           {
             is_candidate_rejected = true;
-            SPDLOG_WARN( "Candidate rejected for passage id :{} - Wall {},{} too close to candidate {},{}", m_current_passage_id,
-                         wall_pos_cmp.position.x, wall_pos_cmp.position.y, candidate_pos.position.x, candidate_pos.position.y );
+            SPDLOG_DEBUG( "Candidate rejected for passage id :{} - Wall {},{} too close to candidate {},{}", m_current_passage_id,
+                          wall_pos_cmp.position.x, wall_pos_cmp.position.y, candidate_pos.position.x, candidate_pos.position.y );
             break;
           }
         }

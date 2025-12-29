@@ -1,10 +1,12 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
+#include <Events/CryptRoomEvent.hpp>
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Systems/SystemStore.hpp>
 
 namespace ProceduralMaze::Scene
 {
@@ -50,12 +52,18 @@ void CryptScene::on_enter()
   }
 
   m_system_store.find<Sys::SystemStore::Type::CryptSystem>().createRoomBorders();
+
+  // make sure player has been situated in start room first
+  m_system_store.find<Sys::SystemStore::Type::CryptSystem>().shuffle_rooms_passages();
+  m_system_store.find<Sys::SystemStore::Type::CryptSystem>().reset_maze();
+  s_maze_timer.restart();
 }
 
 void CryptScene::on_exit()
 {
   // Cleanup any resources or entities specific to the CryptScene
   SPDLOG_INFO( "Exiting {}", get_name() );
+  s_maze_timer.stop();
 }
 
 void CryptScene::do_update( sf::Time dt )
@@ -66,6 +74,7 @@ void CryptScene::do_update( sf::Time dt )
   m_system_store.find<Sys::SystemStore::Type::FootstepSystem>().update();
   m_system_store.find<Sys::SystemStore::Type::LootSystem>().check_loot_collision();
   m_system_store.find<Sys::SystemStore::Type::CryptSystem>().check_exit_collision();
+  m_system_store.find<Sys::SystemStore::Type::CryptSystem>().update();
 
   // Note: this enqueues 'Events::SceneManagerEvent::Type::GAME_OVER' if player is dead
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt );
@@ -80,5 +89,7 @@ void CryptScene::do_update( sf::Time dt )
 }
 
 entt::registry &CryptScene::registry() { return m_reg; }
+
+sf::Clock CryptScene::s_maze_timer;
 
 } // namespace ProceduralMaze::Scene

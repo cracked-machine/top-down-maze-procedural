@@ -8,6 +8,7 @@
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Utils.hpp>
+
 #include <set>
 
 namespace ProceduralMaze::Sys
@@ -60,6 +61,8 @@ public:
   void render_player_distances();
   void render_scan_detection_bounds();
   void render_lerp_positions();
+
+  void render_crypt_maze_timer( sf::Vector2f pos, unsigned int size );
 
   template <typename Component>
   void render_square_for_entity( entt::entity entity, sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )

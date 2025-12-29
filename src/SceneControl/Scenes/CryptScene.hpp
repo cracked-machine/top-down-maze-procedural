@@ -15,8 +15,7 @@ public:
   inline static constexpr sf::Vector2u kMapGridSize{ 32u, 56u };
 
   //! @brief The size of the crypt map grid in number of squares as floats
-  inline static constexpr sf::Vector2f kMapGridSizeF{ static_cast<float>( kMapGridSize.x ),
-                                                      static_cast<float>( kMapGridSize.y ) };
+  inline static constexpr sf::Vector2f kMapGridSizeF{ static_cast<float>( kMapGridSize.x ), static_cast<float>( kMapGridSize.y ) };
 
   CryptScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher )
       : Scene( nav_event_dispatcher ),
@@ -32,6 +31,9 @@ public:
 
   entt::registry &registry() override;
 
+  static sf::Clock &get_maze_timer() { return s_maze_timer; }
+  static bool is_maze_timer_expired() { return s_maze_timer.getElapsedTime() > s_maze_timer_cooldown ? true : false; }
+
 protected:
   void do_update( [[maybe_unused]] sf::Time dt ) override;
 
@@ -43,6 +45,9 @@ private:
   inline static constexpr sf::Vector2f m_player_start_position = sf::Vector2f(
       ( CryptScene::kMapGridSizeF.x / 2.f ) * Constants::kGridSquareSizePixels.x,
       ( CryptScene::kMapGridSizeF.y - 3.f ) * Constants::kGridSquareSizePixels.y );
+
+  static sf::Clock s_maze_timer;
+  constexpr static sf::Time s_maze_timer_cooldown{ sf::seconds( 10.f ) };
 };
 
 } // namespace ProceduralMaze::Scene

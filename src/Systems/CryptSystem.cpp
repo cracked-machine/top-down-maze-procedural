@@ -1,4 +1,5 @@
 #include <Components/AltarMultiBlock.hpp>
+#include <Components/CryptEntrance.hpp>
 #include <Components/CryptExit.hpp>
 #include <Components/CryptLever.hpp>
 #include <Components/CryptMultiBlock.hpp>
@@ -11,6 +12,7 @@
 #include <Components/CryptRoomOpen.hpp>
 #include <Components/CryptRoomStart.hpp>
 #include <Components/CryptSegment.hpp>
+#include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/Obstacle.hpp>
@@ -38,12 +40,20 @@
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>
-#include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 #include <entt/entity/fwd.hpp>
 
 namespace ProceduralMaze::Sys
 {
+
+void CryptSystem::update()
+{
+  if ( not m_maze_unlocked and Scene::CryptScene::is_maze_timer_expired() )
+  {
+    //
+    shuffle_rooms_passages();
+  }
+}
 
 void CryptSystem::on_player_action( Events::PlayerActionEvent &event )
 {
@@ -58,7 +68,78 @@ void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
   if ( event.type == Events::CryptRoomEvent::Type::SHUFFLE_PASSAGES ) { shuffle_rooms_passages(); }
   else if ( event.type == Events::CryptRoomEvent::Type::FINAL_PASSAGE ) { unlock_objective_passage(); }
   else if ( event.type == Events::CryptRoomEvent::Type::EXIT_ALL_PASSAGES ) { unlock_exit_passage(); }
-  m_sound_bank.get_effect( "crypt_room_shuffle" ).play();
+}
+
+void CryptSystem::check_entrance_collision()
+{
+  auto pc_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto cryptdoor_view = getReg().view<Cmp::CryptEntrance, Cmp::Position>();
+
+  for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
+  {
+    for ( auto [door_entity, cryptdoor_cmp, crypt_door_pos_cmp] : cryptdoor_view.each() )
+    {
+      // optimize: skip if not visible
+      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), crypt_door_pos_cmp ) ) continue;
+
+      Cmp::RectBounds decreased_entrance_bounds( crypt_door_pos_cmp.position, crypt_door_pos_cmp.size, 0.1f,
+                                                 Cmp::RectBounds::ScaleCardinality::BOTH ); // shrink entrance bounds slightly for better UX
+
+      if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
+
+      SPDLOG_INFO( "check_entrance_collision: Player entering crypt from graveyard at position ({}, {})", pc_pos_cmp.position.x,
+                   pc_pos_cmp.position.y );
+      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_CRYPT );
+    }
+  }
+}
+
+void CryptSystem::check_exit_collision()
+{
+  auto pc_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto cryptdoor_view = getReg().view<Cmp::CryptExit, Cmp::Position>();
+
+  for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
+  {
+    for ( auto [door_entity, cryptdoor_cmp, crypt_door_pos_cmp] : cryptdoor_view.each() )
+    {
+      // optimize: skip if not visible
+      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), crypt_door_pos_cmp ) ) continue;
+
+      Cmp::RectBounds decreased_entrance_bounds( crypt_door_pos_cmp.position, crypt_door_pos_cmp.size, 0.1f,
+                                                 Cmp::RectBounds::ScaleCardinality::BOTH ); // shrink entrance bounds slightly for better UX
+
+      if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
+
+      SPDLOG_INFO( "check_exit_collision: Player exiting crypt to graveyard at position ({}, {})", pc_pos_cmp.position.x, pc_pos_cmp.position.y );
+      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_CRYPT );
+    }
+  }
+}
+
+void CryptSystem::spawn_exit( sf::Vector2u spawn_position )
+{
+
+  sf::FloatRect spawn_pos_px = sf::FloatRect( { static_cast<float>( spawn_position.x ) * Constants::kGridSquareSizePixels.x,
+                                                static_cast<float>( spawn_position.y ) * Constants::kGridSquareSizePixels.y },
+                                              Constants::kGridSquareSizePixelsF );
+
+  // remove any wall
+  for ( auto [entt, wall_cmp, pos_cmp] : getReg().view<Cmp::Wall, Cmp::Position>().each() )
+  {
+    if ( spawn_pos_px.findIntersection( pos_cmp ) ) { getReg().destroy( entt ); }
+  }
+
+  auto entity = getReg().create();
+  getReg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, Constants::kGridSquareSizePixelsF );
+  getReg().emplace_or_replace<Cmp::Exit>( entity, false ); // unlocked at start
+  getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "CRYPT.interior_sb", 1 );
+  getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.position.y );
+  getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
+  getReg().emplace_or_replace<Cmp::CryptExit>( entity );
+
+  SPDLOG_INFO( "Exit spawned at position ({}, {})", spawn_position.x, spawn_position.y );
+  return;
 }
 
 void CryptSystem::unlock_crypt_door()
@@ -136,53 +217,6 @@ void CryptSystem::unlock_crypt_door()
   }
 }
 
-void CryptSystem::check_entrance_collision()
-{
-  auto pc_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
-  auto cryptdoor_view = getReg().view<Cmp::CryptEntrance, Cmp::Position>();
-
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
-  {
-    for ( auto [door_entity, cryptdoor_cmp, crypt_door_pos_cmp] : cryptdoor_view.each() )
-    {
-      // optimize: skip if not visible
-      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), crypt_door_pos_cmp ) ) continue;
-
-      Cmp::RectBounds decreased_entrance_bounds( crypt_door_pos_cmp.position, crypt_door_pos_cmp.size, 0.1f,
-                                                 Cmp::RectBounds::ScaleCardinality::BOTH ); // shrink entrance bounds slightly for better UX
-
-      if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
-
-      SPDLOG_INFO( "check_entrance_collision: Player entering crypt from graveyard at position ({}, {})", pc_pos_cmp.position.x,
-                   pc_pos_cmp.position.y );
-      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_CRYPT );
-    }
-  }
-}
-
-void CryptSystem::check_exit_collision()
-{
-  auto pc_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
-  auto cryptdoor_view = getReg().view<Cmp::CryptExit, Cmp::Position>();
-
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
-  {
-    for ( auto [door_entity, cryptdoor_cmp, crypt_door_pos_cmp] : cryptdoor_view.each() )
-    {
-      // optimize: skip if not visible
-      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), crypt_door_pos_cmp ) ) continue;
-
-      Cmp::RectBounds decreased_entrance_bounds( crypt_door_pos_cmp.position, crypt_door_pos_cmp.size, 0.1f,
-                                                 Cmp::RectBounds::ScaleCardinality::BOTH ); // shrink entrance bounds slightly for better UX
-
-      if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
-
-      SPDLOG_INFO( "check_exit_collision: Player exiting crypt to graveyard at position ({}, {})", pc_pos_cmp.position.x, pc_pos_cmp.position.y );
-      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_CRYPT );
-    }
-  }
-}
-
 void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameActions action )
 {
   if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
@@ -223,7 +257,6 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
 void CryptSystem::check_lever_activation( Events::PlayerActionEvent::GameActions action )
 {
   if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
-  if ( not m_new_lever_available ) return;
   if ( m_maze_unlocked ) return;
 
   auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
@@ -235,53 +268,178 @@ void CryptSystem::check_lever_activation( Events::PlayerActionEvent::GameActions
     for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : lever_view.each() )
     {
       // prevent player from spamming lever twice
-      if ( not m_new_lever_available ) return;
-      if ( player_hitbox.findIntersection( lever_pos_cmp ) )
+      if ( lever_cmp.isEnabled() ) continue;
+      if ( not player_hitbox.findIntersection( lever_pos_cmp ) ) continue;
+
+      lever_cmp.setEnabled( true );
+      m_enabled_levers++;
+
+      // update the sprite
+      Sprites::SpriteMetaType lever_sprite_type = "LEVER";
+      unsigned int enabled_lever_sprite_idx = 1;
+      getReg().emplace_or_replace<Cmp::SpriteAnimation>( lever_entt, 0, 0, true, lever_sprite_type, enabled_lever_sprite_idx );
+
+      m_sound_bank.get_effect( "crypt_lever_open" ).play();
+      SPDLOG_INFO( "Lever enabled at {},{} - Count:{}", lever_pos_cmp.position.x, lever_pos_cmp.position.y, m_enabled_levers );
+
+      // check if we have activated enough levers to access the maze objective
+      if ( m_enabled_levers > 2 and not m_maze_unlocked )
       {
-        lever_cmp.setEnabled( true );
-        m_enabled_levers++;
+        m_maze_unlocked = true;
 
-        // update the sprite
-        Sprites::SpriteMetaType lever_sprite_type = "LEVER";
-        unsigned int enabled_lever_sprite_idx = 1;
-        getReg().emplace_or_replace<Cmp::SpriteAnimation>( lever_entt, 0, 0, true, lever_sprite_type, enabled_lever_sprite_idx );
-        m_sound_bank.get_effect( "crypt_lever_open" ).play();
-        m_new_lever_available = false;
-        SPDLOG_INFO( "Lever enabled at {},{} - Count:{}", lever_pos_cmp.position.x, lever_pos_cmp.position.y, m_enabled_levers );
-
-        if ( ( m_enabled_levers > 2 ) and ( not m_maze_unlocked ) )
-        {
-          m_maze_unlocked = true;
-          unlock_objective_passage();
-        }
+        unlock_objective_passage();
+        Scene::CryptScene::get_maze_timer().reset();
       }
+      else { shuffle_rooms_passages(); }
     }
   }
 }
 
-void CryptSystem::spawn_exit( sf::Vector2u spawn_position )
+void CryptSystem::createRoomBorders()
 {
-
-  sf::FloatRect spawn_pos_px = sf::FloatRect( { static_cast<float>( spawn_position.x ) * Constants::kGridSquareSizePixels.x,
-                                                static_cast<float>( spawn_position.y ) * Constants::kGridSquareSizePixels.y },
-                                              Constants::kGridSquareSizePixelsF );
-
-  // remove any wall
-  for ( auto [entt, wall_cmp, pos_cmp] : getReg().view<Cmp::Wall, Cmp::Position>().each() )
+  SPDLOG_INFO( "createRoomBorders" );
+  auto add_border = [&]<typename Component>( entt::entity pos_entt, Cmp::Position &pos_cmp, Component &room_cmp, Sprites::SpriteMetaType sprite_type,
+                                             size_t sprite_index )
   {
-    if ( spawn_pos_px.findIntersection( pos_cmp ) ) { getReg().destroy( entt ); }
+    bool is_border = false;
+
+    float room_left = room_cmp.position.x;
+    float room_right = room_cmp.position.x + room_cmp.size.x;
+    float room_top = room_cmp.position.y;
+    float room_bottom = room_cmp.position.y + room_cmp.size.y;
+
+    // clang-format off
+    // left border
+    if ( ( pos_cmp.position.x == room_left - Constants::kGridSquareSizePixelsF.x ) and
+         ( pos_cmp.position.y >= room_top - Constants::kGridSquareSizePixelsF.y
+           and pos_cmp.position.y <= room_bottom ) )
+    {
+      is_border = true;
+    }
+    // right border
+    else if ( ( pos_cmp.position.x == room_right ) and
+              ( pos_cmp.position.y >= room_top - Constants::kGridSquareSizePixelsF.y and 
+                pos_cmp.position.y <= room_bottom ) )
+    {
+      is_border = true;
+    }
+    // top border
+    else if ( ( pos_cmp.position.y == room_top - Constants::kGridSquareSizePixelsF.y ) and
+              ( pos_cmp.position.x >= room_left - Constants::kGridSquareSizePixelsF.x and 
+                pos_cmp.position.x <= room_right ) )
+    {
+      is_border = true;
+    }
+    // bottom border
+    else if ( ( pos_cmp.position.y == room_bottom ) and
+              ( pos_cmp.position.x >= room_left - Constants::kGridSquareSizePixelsF.x and 
+                pos_cmp.position.x <= room_right ) )
+    {
+      is_border = true;
+    }
+    // clang-format on
+
+    if ( is_border )
+    {
+      auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { sprite_type } );
+      float zorder = m_sprite_factory.get_sprite_size_by_type( sprite_type ).y;
+      Factory::createObstacle( getReg(), pos_entt, pos_cmp, obst_type, sprite_index, ( zorder * 2.f ) );
+    }
+  };
+
+  for ( auto [pos_entt, pos_cmp] : getReg().view<Cmp::Position>().each() )
+  {
+    // don't add obstacles to footstep entities
+    if ( getReg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
+    // don't replace wall/exit entities
+    if ( getReg().any_of<Cmp::Wall, Cmp::CryptExit>( pos_entt ) ) continue;
+
+    // replace closed room borders with regular sprites
+    for ( auto [closed_room_entt, closed_room_cmp] : getReg().view<Cmp::CryptRoomClosed>().each() )
+    {
+      add_border( pos_entt, pos_cmp, closed_room_cmp, "CRYPT.interior_sb", 2 );
+    }
+    // Always add end room border
+    for ( auto [end_room_entt, end_room_cmp] : getReg().view<Cmp::CryptRoomEnd>().each() )
+    {
+      add_border( pos_entt, pos_cmp, end_room_cmp, "CRYPT.interior_sb", 3 );
+    }
+    // Always add end room border
+    for ( auto [start_room_entt, start_room_cmp] : getReg().view<Cmp::CryptRoomStart>().each() )
+    {
+      add_border( pos_entt, pos_cmp, start_room_cmp, "CRYPT.interior_sb", 3 );
+    }
+    // replace open room borders with actual border sprite
+    for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
+    {
+      add_border( pos_entt, pos_cmp, open_room_cmp, "CRYPT.interior_sb", 3 );
+    }
   }
+}
 
-  auto entity = getReg().create();
-  getReg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, Constants::kGridSquareSizePixelsF );
-  getReg().emplace_or_replace<Cmp::Exit>( entity, false ); // unlocked at start
-  getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "CRYPT.interior_sb", 1 );
-  getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.position.y );
-  getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
-  getReg().emplace_or_replace<Cmp::CryptExit>( entity );
+/// PRIVATE FUNCTIONS
 
-  SPDLOG_INFO( "Exit spawned at position ({}, {})", spawn_position.x, spawn_position.y );
-  return;
+void CryptSystem::shuffle_rooms_passages()
+{
+  auto selected_rooms = Utils::Rnd::get_n_rand_components<Cmp::CryptRoomClosed>(
+      getReg(), 4, {}, Utils::Rnd::ExcludePack<Cmp::CryptRoomStart, Cmp::CryptRoomEnd>{}, 0 );
+
+  // reset rooms/passages
+  closeOpenRooms();
+  removeLeverOpenRooms();
+  fillClosedRooms();
+  get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::REMOVE_PASSAGES ) );
+
+  // open new rooms/passages
+  openSelectedRooms( selected_rooms );
+  emptyOpenRooms();
+  createRoomBorders();
+  addLeverOpenRooms();
+
+  // try to open passages for the occupied room: only do start room if player is currently there
+  SPDLOG_INFO( "~~~~~~~~~~~ STARTING PASSAGE GEN ~~~~~~~~~~~~~~~" );
+  auto [start_room_entt, start_room_cmp] = get_crypt_room_start();
+  if ( Utils::get_player_position( getReg() ).findIntersection( start_room_cmp ) )
+  {
+    get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_START_TO_OPENROOMS, start_room_entt ) );
+  }
+  else { get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_OCCUPIED_TO_OPENROOMS ) ); }
+
+  get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::OPEN_PASSAGES ) );
+  m_sound_bank.get_effect( "crypt_room_shuffle" ).play();
+  Scene::CryptScene::get_maze_timer().restart();
+}
+
+void CryptSystem::unlock_objective_passage()
+{
+  // reset rooms/passages
+  closeOpenRooms();
+  removeAllLevers();
+  fillClosedRooms();
+  get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::REMOVE_PASSAGES ) );
+  createRoomBorders();
+
+  // open new rooms/passages
+  SPDLOG_INFO( "~~~~~~~~~~~ OPENING FINAL PASSAGE ~~~~~~~~~~~~~~~" );
+  get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_OCCUPIED_TO_ENDROOM, get_crypt_room_end().first ) );
+  get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::OPEN_PASSAGES ) );
+  m_sound_bank.get_effect( "crypt_room_shuffle" ).play();
+}
+
+void CryptSystem::unlock_exit_passage()
+{
+  closeOpenRooms();
+  removeLeverOpenRooms();
+  openAllRooms();
+  emptyOpenRooms();
+  createRoomBorders();
+
+  // make sure player can reach exit
+  get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_START_TO_OPENROOMS, get_crypt_room_start().first ) );
+  get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_ALL_OPENROOMS ) );
+  get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::OPEN_PASSAGES ) );
+
+  spawnNpcInOpenRooms();
 }
 
 void CryptSystem::closeOpenRooms()
@@ -395,7 +553,6 @@ void CryptSystem::addLeverOpenRooms()
   auto selected_entt = internal_room_entts[room_position_picker.gen()];
   auto room_pos = getReg().get<Cmp::Position>( selected_entt );
   Factory::CreateCryptLever( getReg(), room_pos.position, lever_sprite_type, disabled_lever_sprite_idx, zorder );
-  m_new_lever_available = true;
 }
 
 void CryptSystem::removeLeverOpenRooms()
@@ -405,91 +562,18 @@ void CryptSystem::removeLeverOpenRooms()
     for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
     {
       if ( not open_room_cmp.findIntersection( lever_pos_cmp ) ) continue;
-      // if ( open_room_cmp.findIntersection( Utils::get_player_position( getReg() ) ) ) continue;
+      if ( open_room_cmp.findIntersection( Utils::get_player_position( getReg() ) ) ) continue;
+
       Factory::DestroyCryptLever( getReg(), lever_entt );
     }
   }
 }
 
-void CryptSystem::createRoomBorders()
+void CryptSystem::removeAllLevers()
 {
-  SPDLOG_INFO( "createRoomBorders" );
-  auto add_border = [&]<typename Component>( entt::entity pos_entt, Cmp::Position &pos_cmp, Component &room_cmp, Sprites::SpriteMetaType sprite_type,
-                                             size_t sprite_index )
+  for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : getReg().view<Cmp::CryptLever, Cmp::Position>().each() )
   {
-    bool is_border = false;
-
-    float room_left = room_cmp.position.x;
-    float room_right = room_cmp.position.x + room_cmp.size.x;
-    float room_top = room_cmp.position.y;
-    float room_bottom = room_cmp.position.y + room_cmp.size.y;
-
-    // clang-format off
-    // left border
-    if ( ( pos_cmp.position.x == room_left - Constants::kGridSquareSizePixelsF.x ) and
-         ( pos_cmp.position.y >= room_top - Constants::kGridSquareSizePixelsF.y
-           and pos_cmp.position.y <= room_bottom ) )
-    {
-      is_border = true;
-    }
-    // right border
-    else if ( ( pos_cmp.position.x == room_right ) and
-              ( pos_cmp.position.y >= room_top - Constants::kGridSquareSizePixelsF.y and 
-                pos_cmp.position.y <= room_bottom ) )
-    {
-      is_border = true;
-    }
-    // top border
-    else if ( ( pos_cmp.position.y == room_top - Constants::kGridSquareSizePixelsF.y ) and
-              ( pos_cmp.position.x >= room_left - Constants::kGridSquareSizePixelsF.x and 
-                pos_cmp.position.x <= room_right ) )
-    {
-      is_border = true;
-    }
-    // bottom border
-    else if ( ( pos_cmp.position.y == room_bottom ) and
-              ( pos_cmp.position.x >= room_left - Constants::kGridSquareSizePixelsF.x and 
-                pos_cmp.position.x <= room_right ) )
-    {
-      is_border = true;
-    }
-    // clang-format on
-
-    if ( is_border )
-    {
-      auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { sprite_type } );
-      float zorder = m_sprite_factory.get_sprite_size_by_type( sprite_type ).y;
-      Factory::createObstacle( getReg(), pos_entt, pos_cmp, obst_type, sprite_index, ( zorder * 2.f ) );
-    }
-  };
-
-  for ( auto [pos_entt, pos_cmp] : getReg().view<Cmp::Position>().each() )
-  {
-    // don't add obstacles to footstep entities
-    if ( getReg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
-    // don't replace wall/exit entities
-    if ( getReg().any_of<Cmp::Wall, Cmp::CryptExit>( pos_entt ) ) continue;
-
-    // replace closed room borders with regular sprites
-    for ( auto [closed_room_entt, closed_room_cmp] : getReg().view<Cmp::CryptRoomClosed>().each() )
-    {
-      add_border( pos_entt, pos_cmp, closed_room_cmp, "CRYPT.interior_sb", 2 );
-    }
-    // Always add end room border
-    for ( auto [end_room_entt, end_room_cmp] : getReg().view<Cmp::CryptRoomEnd>().each() )
-    {
-      add_border( pos_entt, pos_cmp, end_room_cmp, "CRYPT.interior_sb", 3 );
-    }
-    // Always add end room border
-    for ( auto [start_room_entt, start_room_cmp] : getReg().view<Cmp::CryptRoomStart>().each() )
-    {
-      add_border( pos_entt, pos_cmp, start_room_cmp, "CRYPT.interior_sb", 3 );
-    }
-    // replace open room borders with actual border sprite
-    for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
-    {
-      add_border( pos_entt, pos_cmp, open_room_cmp, "CRYPT.interior_sb", 3 );
-    }
+    Factory::DestroyCryptLever( getReg(), lever_entt );
   }
 }
 
@@ -503,66 +587,6 @@ void CryptSystem::spawnNpcInOpenRooms()
     [[maybe_unused]] Cmp::ZOrderValue zorder_cmp = getReg().emplace<Cmp::ZOrderValue>( position_entity, position_cmp.position.y );
     Factory::createNPC( getReg(), position_entity, "NPCPRIEST" );
   }
-}
-
-void CryptSystem::shuffle_rooms_passages()
-{
-  auto selected_rooms = Utils::Rnd::get_n_rand_components<Cmp::CryptRoomClosed>(
-      getReg(), 4, {}, Utils::Rnd::ExcludePack<Cmp::CryptRoomStart, Cmp::CryptRoomEnd>{}, 0 );
-
-  // reset rooms/passages
-  closeOpenRooms();
-  removeLeverOpenRooms();
-  fillClosedRooms();
-  get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::REMOVE_PASSAGES ) );
-
-  // open new rooms/passages
-  openSelectedRooms( selected_rooms );
-  emptyOpenRooms();
-  createRoomBorders();
-  addLeverOpenRooms();
-
-  // try to open passages for the occupied room: only do start room if player is currently there
-  SPDLOG_INFO( "~~~~~~~~~~~ STARTING PASSAGE GEN ~~~~~~~~~~~~~~~" );
-  auto [start_room_entt, start_room_cmp] = get_crypt_room_start();
-  if ( Utils::get_player_position( getReg() ).findIntersection( start_room_cmp ) )
-  {
-    get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_START_TO_OPENROOMS, start_room_entt ) );
-  }
-  else { get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_OCCUPIED_TO_OPENROOMS ) ); }
-
-  get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::OPEN_PASSAGES ) );
-}
-
-void CryptSystem::unlock_objective_passage()
-{
-  // reset rooms/passages
-  closeOpenRooms();
-  removeLeverOpenRooms();
-  fillClosedRooms();
-  get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::REMOVE_PASSAGES ) );
-  createRoomBorders();
-
-  // open new rooms/passages
-  SPDLOG_INFO( "~~~~~~~~~~~ OPENING FINAL PASSAGE ~~~~~~~~~~~~~~~" );
-  get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_OCCUPIED_TO_ENDROOM, get_crypt_room_end().first ) );
-  get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::OPEN_PASSAGES ) );
-}
-
-void CryptSystem::unlock_exit_passage()
-{
-  closeOpenRooms();
-  removeLeverOpenRooms();
-  openAllRooms();
-  emptyOpenRooms();
-  createRoomBorders();
-
-  // make sure player can reach exit
-  get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_START_TO_OPENROOMS, get_crypt_room_start().first ) );
-  get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_ALL_OPENROOMS ) );
-  get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::OPEN_PASSAGES ) );
-
-  spawnNpcInOpenRooms();
 }
 
 } // namespace ProceduralMaze::Sys
