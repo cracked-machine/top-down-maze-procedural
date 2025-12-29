@@ -373,6 +373,10 @@ void SceneInputRouter::crypt_scene_state_handler()
       {
         // not implemented yet
       }
+      else if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
+      {
+        get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
+      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::R )
       {
         get_systems_event_queue().trigger( Events::CryptRoomEvent( Events::CryptRoomEvent::Type::SHUFFLE_PASSAGES ) );

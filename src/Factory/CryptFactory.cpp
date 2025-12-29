@@ -1,6 +1,13 @@
+#include <Components/CryptLever.hpp>
 #include <Components/CryptRoomEnd.hpp>
 #include <Components/CryptRoomStart.hpp>
+#include <Components/Position.hpp>
+#include <Components/SpriteAnimation.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Factory/CryptFactory.hpp>
+#include <Sprites/MultiSprite.hpp>
+#include <Utils/Utils.hpp>
+#include <entt/entity/fwd.hpp>
 
 namespace ProceduralMaze::Factory
 {
@@ -123,6 +130,25 @@ void create_initial_crypt_rooms( entt::registry &reg, sf::Vector2u map_grid_size
 
   SPDLOG_INFO( "Total rooms: {}", room_count );
   // Currently no special logic needed; placeholder for future use
+}
+
+entt::entity CreateCryptLever( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder )
+{
+  auto entt = reg.create();
+  reg.emplace_or_replace<Cmp::Position>( entt, pos, Constants::kGridSquareSizePixelsF );
+  reg.emplace_or_replace<Cmp::CryptLever>( entt );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( entt, 0, 0, true, sprite_type, sprite_idx );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
+  return entt;
+}
+
+void DestroyCryptLever( entt::registry &reg, entt::entity entt )
+{
+  if ( reg.all_of<Cmp::Position>( entt ) ) { reg.remove<Cmp::Position>( entt ); }
+  if ( reg.all_of<Cmp::CryptLever>( entt ) ) { reg.remove<Cmp::CryptLever>( entt ); }
+  if ( reg.all_of<Cmp::SpriteAnimation>( entt ) ) { reg.remove<Cmp::SpriteAnimation>( entt ); }
+  if ( reg.all_of<Cmp::ZOrderValue>( entt ) ) { reg.remove<Cmp::ZOrderValue>( entt ); }
+  reg.destroy( entt );
 }
 
 } // namespace ProceduralMaze::Factory

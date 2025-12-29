@@ -1,3 +1,4 @@
+#include <Audio/EffectsItem.hpp>
 #include <Audio/SoundBank.hpp>
 #include <SFML/Audio/PlaybackDevice.hpp>
 #include <SFML/Audio/SoundChannel.hpp>
@@ -40,6 +41,7 @@ void SoundBank::init()
   sounds.emplace( "crypt_open", EffectsData{ "res/audio/crypt_open2.wav" } );
   sounds.emplace( "crypt_locked", EffectsData{ "res/audio/crypt_locked.wav" } );
   sounds.emplace( "crypt_room_shuffle", EffectsData{ "res/audio/crypt_room_shuffle.wav" } );
+  sounds.emplace( "crypt_lever_open", EffectsData{ "res/audio/crypt_lever_open.mp3" } );
 
   // Initialize music (can't use initializer list because sf::Music is move-only)
   music.emplace( "title_music", MusicData{ "res/audio/EerieScifi.mp3" } );

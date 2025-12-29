@@ -109,6 +109,20 @@
         }
       }
     },
+    "LEVER": {
+      "name": "LEVER",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/lever.png",
+        "sprite_indices": [0,1],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
     "NPCPRIEST": {
       "name": "NPCPRIEST",
       "weight": 1.0,

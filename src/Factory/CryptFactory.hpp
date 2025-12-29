@@ -26,6 +26,9 @@ namespace ProceduralMaze::Factory
 //! @param map_grid_size
 void create_initial_crypt_rooms( entt::registry &reg, sf::Vector2u map_grid_size );
 
+entt::entity CreateCryptLever( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder );
+void DestroyCryptLever( entt::registry &reg, entt::entity entity );
+
 } // namespace ProceduralMaze::Factory
 
 #endif // SRC_FACTORY_CRYPTFACTORY_HPP__
