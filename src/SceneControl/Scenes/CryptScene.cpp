@@ -67,14 +67,14 @@ void CryptScene::on_enter()
   // make sure player has been situated in start room first
   m_system_store.find<Sys::SystemStore::Type::CryptSystem>().shuffle_rooms_passages();
   m_system_store.find<Sys::SystemStore::Type::CryptSystem>().reset_maze();
-  s_maze_timer.restart();
+  get_maze_timer().restart();
 }
 
 void CryptScene::on_exit()
 {
   // Cleanup any resources or entities specific to the CryptScene
   SPDLOG_INFO( "Exiting {}", get_name() );
-  s_maze_timer.stop();
+  get_maze_timer().reset();
 }
 
 void CryptScene::do_update( sf::Time dt )

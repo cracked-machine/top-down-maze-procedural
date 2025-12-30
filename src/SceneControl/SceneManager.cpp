@@ -192,7 +192,7 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
     }
     case Events::SceneManagerEvent::Type::EXIT_CRYPT: {
       SPDLOG_INFO( "##### SceneManager: Events::SceneManagerEvent::Type::EXIT_CRYPT requested" );
-      pop_no_exit( RegCopyMode::PLAYER_ONLY );
+      pop( RegCopyMode::PLAYER_ONLY );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_GAME: {
