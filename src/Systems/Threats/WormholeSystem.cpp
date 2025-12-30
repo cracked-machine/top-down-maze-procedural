@@ -186,9 +186,10 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   getReg().emplace_or_replace<Cmp::WormholeMultiBlock>( random_entity, random_pos.position,
                                                         wormhole_ms.get_grid_size().componentWiseMul( Constants::kGridSquareSizePixels ) );
   getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, "WORMHOLE" );
-  getReg().emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - random_pos.size.y );
+  getReg().emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 16 );
 
-  SPDLOG_INFO( "Wormhole spawned at position ({}, {})", random_pos.position.x, random_pos.position.y );
+  SPDLOG_INFO( "Wormhole spawned at position ({}, {}) with zorder: {}", random_pos.position.x, random_pos.position.y,
+               random_pos.position.y - random_pos.size.y );
 }
 
 void WormholeSystem::check_player_wormhole_collision()
