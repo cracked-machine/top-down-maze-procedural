@@ -1,3 +1,6 @@
+#include <Components/Persistent/EffectsVolume.hpp>
+#include <Events/PauseClocksEvent.hpp>
+#include <Events/ResumeClocksEvent.hpp>
 #include <SceneControl/Scenes/PausedMenuScene.hpp>
 
 #include <Audio/SoundBank.hpp>
@@ -5,6 +8,7 @@
 #include <SceneControl/Events/ProcessPausedMenuSceneInputEvent.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
+#include <Systems/Render/RenderMenuSystem.hpp>
 #include <Systems/SystemStore.hpp>
 
 namespace ProceduralMaze::Scene

@@ -9,13 +9,13 @@
 #include <imgui-SFML.h>
 #include <spdlog/spdlog.h>
 
-#include <Components/Direction.hpp>
-#include <Components/Persistent/GameState.hpp>
-#include <Components/PlayableCharacter.hpp>
-#include <Components/Position.hpp>
-#include <Components/System.hpp>
-#include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>
+
+// clang-format off
+namespace ProceduralMaze::Sprites { class SpriteFactory; }
+namespace ProceduralMaze::Sys { class SystemStore; }
+namespace ProceduralMaze::Audio { class SoundBank; }
+// clang-format on
 
 namespace ProceduralMaze::Sys
 {
@@ -25,10 +25,8 @@ class SceneInputRouter : public Sys::BaseSystem
 public:
   enum class NavigationActions { NONE, TITLE, SETTINGS, CRYPT, PAUSE, RESUME, GAMEOVER, EXIT };
 
-  SceneInputRouter( entt::registry &reg, sf::RenderWindow &window,
-                    Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
-                    entt::dispatcher &nav_event_dispatcher,
-                    entt::dispatcher &scenemanager_event_dispatcher );
+  SceneInputRouter( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
+                    entt::dispatcher &nav_event_dispatcher, entt::dispatcher &scenemanager_event_dispatcher );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}

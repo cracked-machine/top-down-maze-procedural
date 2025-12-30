@@ -15,6 +15,7 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/SystemStore.hpp>
 
+#include <Utils/Utils.hpp>
 #include <future>
 #include <memory>
 

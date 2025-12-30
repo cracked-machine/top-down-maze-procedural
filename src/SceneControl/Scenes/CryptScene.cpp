@@ -4,12 +4,20 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
+#include <Components/System.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Systems/AnimSystem.hpp>
+#include <Systems/CryptSystem.hpp>
+#include <Systems/LootSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
+#include <Systems/PlayerSystem.hpp>
+#include <Systems/ProcGen/RandomLevelGenerator.hpp>
+#include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/SystemStore.hpp>
+#include <Systems/Threats/NpcSystem.hpp>
 
 namespace ProceduralMaze::Scene
 {

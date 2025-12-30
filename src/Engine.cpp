@@ -6,15 +6,16 @@
 #include <Engine.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
+#include <SFML/Window/WindowEnums.hpp>
 #include <SceneControl/SceneManager.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <SceneControl/Scenes/GraveyardScene.hpp>
 #include <SceneControl/Scenes/TitleScene.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <Systems/SystemStore.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
-
-#include <SFML/Window/WindowEnums.hpp>
+#include <imgui-SFML.h>
 
 #include <memory>
 #include <stacktrace>

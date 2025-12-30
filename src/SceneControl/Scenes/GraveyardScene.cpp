@@ -1,3 +1,4 @@
+#include <Components/LerpPosition.hpp>
 #include <SceneControl/Scenes/GraveyardScene.hpp>
 
 #include <Audio/SoundBank.hpp>
@@ -6,11 +7,21 @@
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
+#include <Systems/AnimSystem.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <Systems/CryptSystem.hpp>
+#include <Systems/DiggingSystem.hpp>
+#include <Systems/ExitSystem.hpp>
+#include <Systems/LootSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
+#include <Systems/PlayerSystem.hpp>
+#include <Systems/ProcGen/CellAutomataSystem.hpp>
+#include <Systems/ProcGen/RandomLevelGenerator.hpp>
 #include <Systems/SystemStore.hpp>
+#include <Systems/Threats/BombSystem.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
+#include <Systems/Threats/WormholeSystem.hpp>
 
 namespace ProceduralMaze::Scene
 {

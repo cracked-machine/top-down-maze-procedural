@@ -1,5 +1,7 @@
+#include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Persistent/ExitKeyRequirement.hpp>
+#include <Components/Persistent/GameState.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayableCharacter.hpp>
@@ -10,7 +12,9 @@
 #include <Components/PlayerMortality.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/Position.hpp>
+#include <Components/System.hpp>
 #include <Events/CryptRoomEvent.hpp>
+#include <Events/PlayerActionEvent.hpp>
 #include <Events/SaveSettingsEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
 #include <SceneControl/Events/ProcessCryptSceneInputEvent.hpp>
