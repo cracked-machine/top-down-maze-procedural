@@ -1,7 +1,9 @@
+#include <SceneControl/Scenes/PausedMenuScene.hpp>
 
 #include <Components/Persistent/MusicVolume.hpp>
 #include <SceneControl/Events/ProcessPausedMenuSceneInputEvent.hpp>
-#include <SceneControl/Scenes/PausedMenuScene.hpp>
+#include <Systems/PersistSystem.hpp>
+#include <Systems/PersistSystemImpl.hpp>
 
 namespace ProceduralMaze::Scene
 {
@@ -43,11 +45,9 @@ void PausedMenuScene::do_update( [[maybe_unused]] sf::Time dt )
   persistent_sys.save_state();
 
   // update music/sfx volumes with persistent settings
-  auto &effects_volume = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::EffectsVolume>( m_reg )
-                             .get_value();
+  auto &effects_volume = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::EffectsVolume>( m_reg ).get_value();
   m_sound_bank.update_effects_volume( effects_volume );
-  auto &music_volume = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MusicVolume>( m_reg )
-                           .get_value();
+  auto &music_volume = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MusicVolume>( m_reg ).get_value();
   m_sound_bank.update_music_volume( music_volume );
 
   // globalFrameClock.start();

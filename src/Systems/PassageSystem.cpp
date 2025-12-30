@@ -6,7 +6,10 @@
 #include <Components/FootStepAlpha.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/PassageSystem.hpp>
+#include <Systems/PersistSystem.hpp>
+#include <Systems/PersistSystemImpl.hpp>
 #include <Utils/Utils.hpp>
+
 #include <queue>
 #include <spdlog/spdlog.h>
 

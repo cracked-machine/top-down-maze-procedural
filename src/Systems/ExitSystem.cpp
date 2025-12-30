@@ -1,30 +1,32 @@
-#include <Components/Persistent/ExitKeyRequirement.hpp>
-#include <Components/Position.hpp>
-#include <Components/SpriteAnimation.hpp>
-#include <Components/ZOrderValue.hpp>
-#include <SFML/System/Vector2.hpp>
+#include <Systems/ExitSystem.hpp>
 
 #include <Components/Exit.hpp>
 #include <Components/NPC.hpp>
 #include <Components/NoPathFinding.hpp>
+#include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerKeysCount.hpp>
+#include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
-#include <Systems/ExitSystem.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 #include <entt/entity/entity.hpp>
 
-namespace ProceduralMaze::Sys
-{
+#include <SFML/System/Vector2.hpp>
 
+namespace ProceduralMaze::Sys
+
+{
 ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
                         entt::dispatcher &scenemanager_event_dispatcher )
     : BaseSystem( reg, window, sprite_factory, sound_bank ),

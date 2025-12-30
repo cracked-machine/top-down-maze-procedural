@@ -1,3 +1,5 @@
+#include <Systems/FootstepSystem.hpp>
+
 #include <Components/AbsoluteOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/FootStepAlpha.hpp>
@@ -9,11 +11,12 @@
 #include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <SFML/System/Time.hpp>
 #include <Sprites/MultiSprite.hpp>
-#include <Systems/FootstepSystem.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Systems/PersistSystemImpl.hpp>
 #include <Utils/Utils.hpp>
+
+#include <SFML/System/Time.hpp>
 
 namespace ProceduralMaze::Sys
 {

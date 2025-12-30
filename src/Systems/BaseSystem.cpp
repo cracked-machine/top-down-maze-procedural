@@ -1,22 +1,24 @@
+#include <Systems/BaseSystem.hpp>
+
+#include <Components/AltarSegment.hpp>
 #include <Components/CryptInteriorSegment.hpp>
 #include <Components/CryptObjectiveSegment.hpp>
 #include <Components/CryptSegment.hpp>
+#include <Components/Exit.hpp>
+#include <Components/GraveSegment.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/NPC.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/RectBounds.hpp>
-#include <Utils/Utils.hpp>
-#include <entt/entity/registry.hpp>
-
-#include <Components/AltarSegment.hpp>
-#include <Components/Exit.hpp>
-#include <Components/GraveSegment.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Wall.hpp>
-#include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Systems/PersistSystemImpl.hpp>
+#include <Utils/Utils.hpp>
+
+#include <entt/entity/registry.hpp>
 
 namespace ProceduralMaze::Sys
 {

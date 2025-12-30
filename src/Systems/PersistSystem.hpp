@@ -3,8 +3,11 @@
 
 #include <Events/SaveSettingsEvent.hpp>
 #include <Systems/BaseSystem.hpp>
+
 #include <entt/entity/registry.hpp>
+#include <functional>
 #include <nlohmann/json_fwd.hpp>
+#include <unordered_map>
 
 namespace ProceduralMaze::Sys
 {
@@ -59,14 +62,12 @@ public:
    */
   void initializeComponentRegistry();
 
+  // Only declare templates in public API
   //! @brief Add a persistent component to the registry's context if it doesn't already exist
   //!
   //! @tparam T
   template <typename T>
-  static void add_persist_cmp( entt::registry &reg )
-  {
-    if ( not reg.ctx().contains<T>() ) { reg.ctx().emplace<T>(); }
-  }
+  static void add_persist_cmp( entt::registry &reg );
 
   //! @brief Add a persistent component with constructor arguments
   //!
@@ -74,25 +75,14 @@ public:
   //! @tparam Args
   //! @param args
   template <typename T, typename... Args>
-  static void add_persist_cmp( entt::registry &reg, Args &&...args )
-  {
-    if ( not reg.ctx().contains<T>() ) { reg.ctx().emplace<T>( std::forward<Args>( args )... ); }
-  }
+  static void add_persist_cmp( entt::registry &reg, Args &&...args );
 
   //! @brief Get the persistent component object
   //!
   //! @tparam T
   //! @return T&
   template <typename T>
-  static T &get_persist_cmp( entt::registry &reg )
-  {
-    if ( not reg.ctx().contains<T>() )
-    {
-      SPDLOG_CRITICAL( "Attempting to access non-existent persistent component: {}", typeid( T ).name() );
-      throw std::runtime_error( "Persistent component not found: " + std::string( typeid( T ).name() ) );
-    }
-    return reg.ctx().get<T>();
-  }
+  static T &get_persist_cmp( entt::registry &reg );
 
 private:
   /**
@@ -125,25 +115,7 @@ private:
    *       initialize the component from a JSON value.
    */
   template <typename ComponentType, typename... DefaultArgTypes>
-  void registerComponent( const std::string &key, DefaultArgTypes &&...default_args )
-  {
-    // Capture args in a tuple to preserve them for later use
-    auto args_tuple = std::make_tuple( std::forward<DefaultArgTypes>( default_args )... );
-
-    std::apply( [this]( auto &&...unpacked_args )
-                { Sys::PersistSystem::add_persist_cmp<ComponentType>( getReg(), std::forward<decltype( unpacked_args )>( unpacked_args )... ); },
-                args_tuple );
-
-    // move the tuple into the lambda to avoid copies (pack copy forbidden by lambda)
-    m_component_loaders[key] = [this, args_tuple = std::move( args_tuple )]( const nlohmann::json &persistent_object )
-    {
-      // Component already exists, just update it
-      auto &component = get_persist_cmp<ComponentType>( getReg() );
-      component.deserialize( persistent_object );
-      auto deserialized_value = component.get_value();
-      SPDLOG_DEBUG( "Loaded {} from JSON with value {}", component.class_name(), deserialized_value );
-    };
-  }
+  void registerComponent( const std::string &key, DefaultArgTypes &&...default_args );
 };
 
 } // namespace ProceduralMaze::Sys

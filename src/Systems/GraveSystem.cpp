@@ -7,6 +7,8 @@
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Systems/GraveSystem.hpp>
+#include <Systems/PersistSystem.hpp>
+#include <Systems/PersistSystemImpl.hpp>
 #include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys

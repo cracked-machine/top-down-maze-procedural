@@ -1,5 +1,8 @@
-#include <SceneControl/Events/ProcessLevelCompleteSceneInputEvent.hpp>
 #include <SceneControl/Scenes/LevelCompleteScene.hpp>
+
+#include <SceneControl/Events/ProcessLevelCompleteSceneInputEvent.hpp>
+#include <Systems/PersistSystem.hpp>
+#include <Systems/PersistSystemImpl.hpp>
 
 namespace ProceduralMaze::Scene
 {

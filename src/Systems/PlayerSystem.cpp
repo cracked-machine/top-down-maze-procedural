@@ -1,3 +1,5 @@
+#include <Systems/PlayerSystem.hpp>
+
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Direction.hpp>
@@ -31,7 +33,7 @@
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
-#include <Systems/PlayerSystem.hpp>
+#include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>

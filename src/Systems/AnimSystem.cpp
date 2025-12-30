@@ -1,27 +1,28 @@
-#include <Components/GraveSegment.hpp>
-#include <Components/Persistent/PcDamageDelay.hpp>
-#include <Components/WormholeMultiBlock.hpp>
-#include <Components/ZOrderValue.hpp>
-#include <spdlog/spdlog.h>
+#include <Systems/AnimSystem.hpp>
 
 #include <SFML/System/Time.hpp>
+#include <spdlog/spdlog.h>
 
 #include <Components/AltarSegment.hpp>
+#include <Components/GraveSegment.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/NPC.hpp>
 #include <Components/NpcDeathPosition.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
 #include <Components/Persistent/NpcGhostAnimFramerate.hpp>
 #include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
+#include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Components/WormholeMultiBlock.hpp>
 #include <Components/WormholeSingularity.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Sprites/SpriteFactory.hpp>
-#include <Systems/AnimSystem.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Optimizations.hpp>
 

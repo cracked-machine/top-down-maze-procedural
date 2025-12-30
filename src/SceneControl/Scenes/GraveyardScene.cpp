@@ -1,10 +1,13 @@
+#include <SceneControl/Scenes/GraveyardScene.hpp>
+
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
-#include <SceneControl/Scenes/GraveyardScene.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <Systems/PersistSystem.hpp>
+#include <Systems/PersistSystemImpl.hpp>
 
 namespace ProceduralMaze::Scene
 {

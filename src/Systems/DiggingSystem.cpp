@@ -1,26 +1,27 @@
+
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/System/Time.hpp>
+#include <spdlog/spdlog.h>
+
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/Persistent/DiggingCooldownThreshold.hpp>
+#include <Components/Persistent/DiggingDamagePerHit.hpp>
+#include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/PlayableCharacter.hpp>
+#include <Components/RectBounds.hpp>
+#include <Components/ReservedPosition.hpp>
+#include <Components/SelectedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/WeaponLevel.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/BombFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
-#include <SFML/Audio/Sound.hpp>
-#include <SFML/System/Time.hpp>
-
-#include <Systems/PersistSystem.hpp>
-#include <spdlog/spdlog.h>
-
-#include <Components/Persistent/DiggingCooldownThreshold.hpp>
-#include <Components/Persistent/DiggingDamagePerHit.hpp>
-#include <Components/Persistent/WeaponDegradePerHit.hpp>
-#include <Components/RectBounds.hpp>
-#include <Components/ReservedPosition.hpp>
-#include <Components/SelectedPosition.hpp>
 #include <Systems/DiggingSystem.hpp>
+#include <Systems/PersistSystem.hpp>
+#include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
 namespace ProceduralMaze::Sys

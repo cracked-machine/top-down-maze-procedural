@@ -1,11 +1,13 @@
+#include <SceneControl/Scenes/CryptScene.hpp>
+
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
-#include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Systems/PersistSystemImpl.hpp>
 #include <Systems/SystemStore.hpp>
 
 namespace ProceduralMaze::Scene

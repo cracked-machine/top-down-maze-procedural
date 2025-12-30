@@ -1,3 +1,5 @@
+#include <Systems/AltarSystem.hpp>
+
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AltarMultiBlock.hpp>
 #include <Components/AltarSegment.hpp>
@@ -17,29 +19,27 @@
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
-#include <Systems/AltarSystem.hpp>
+#include <Systems/PersistSystem.hpp>
+#include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Optimizations.hpp>
 
 namespace ProceduralMaze::Sys
 {
 
-AltarSystem::AltarSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                          Audio::SoundBank &sound_bank )
+AltarSystem::AltarSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
   // the constructor
-  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&AltarSystem::on_player_action>(
-      this );
+  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&AltarSystem::on_player_action>( this );
 }
 
 void AltarSystem::check_player_collision( Events::PlayerActionEvent::GameActions action )
 {
   if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
 
-  auto player_view = getReg()
-                         .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount>();
+  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount>();
   auto altar_view = getReg().view<Cmp::AltarMultiBlock>();
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_candles_cmp, pc_keys_cmp] : player_view.each() )
@@ -57,12 +57,10 @@ void AltarSystem::check_player_collision( Events::PlayerActionEvent::GameActions
   }
 }
 
-void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp::AltarMultiBlock &altar_cmp,
-                                                 Cmp::PlayerCandlesCount &pc_candles_cmp )
+void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp::AltarMultiBlock &altar_cmp, Cmp::PlayerCandlesCount &pc_candles_cmp )
 {
 
-  SPDLOG_DEBUG( "Checking altar activation: {}/{}", altar_cmp.get_activation_count(),
-                altar_cmp.get_activation_threshold() );
+  SPDLOG_DEBUG( "Checking altar activation: {}/{}", altar_cmp.get_activation_count(), altar_cmp.get_activation_threshold() );
   if ( altar_cmp.get_activation_count() < altar_cmp.get_activation_threshold() )
   {
     if ( pc_candles_cmp.get_count() < 1 ) return;
@@ -153,10 +151,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     {
       SPDLOG_DEBUG( "Checking for special power activation." );
       auto anim_sprite_cmp = getReg().try_get<Cmp::SpriteAnimation>( altar_entity );
-      if ( anim_sprite_cmp && m_altar_activation_clock.getElapsedTime() > m_altar_activation_cooldown )
-      {
-        activate_altar_special_power();
-      }
+      if ( anim_sprite_cmp && m_altar_activation_clock.getElapsedTime() > m_altar_activation_cooldown ) { activate_altar_special_power(); }
     }
   }
 }
@@ -205,8 +200,7 @@ bool AltarSystem::activate_altar_special_power()
             } );
           // clang-format on
 
-          Factory::createObstacle( getReg(), destroyed_entity, destroyed_pos_cmp, obst_type, rand_obst_tex_idx,
-                                   destroyed_pos_cmp.position.y );
+          Factory::createObstacle( getReg(), destroyed_entity, destroyed_pos_cmp, obst_type, rand_obst_tex_idx, destroyed_pos_cmp.position.y );
         }
       }
     }

@@ -1,3 +1,5 @@
+#include <Systems/LootSystem.hpp>
+
 #include <Components/Armable.hpp>
 #include <Components/Persistent/BombBonus.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
@@ -14,8 +16,8 @@
 #include <Events/CryptRoomEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
 #include <Factory/LootFactory.hpp>
-#include <Systems/LootSystem.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Optimizations.hpp>
 

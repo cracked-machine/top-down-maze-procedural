@@ -1,16 +1,8 @@
-#include <Components/Persistent/CorruptionSeed.hpp>
-#include <Components/Persistent/DisplayResolution.hpp>
-#include <Components/Persistent/EffectsVolume.hpp>
-#include <Components/Persistent/ExitKeyRequirement.hpp>
-#include <Components/Persistent/GraveNumMultiplier.hpp>
-#include <Components/Persistent/MaxNumCrypts.hpp>
-#include <Components/Persistent/PlayerFootstepAddDelay.hpp>
-#include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
-#include <Components/Persistent/SinkholeSeed.hpp>
-#include <Components/Persistent/WeaponDegradePerHit.hpp>
-#include <Components/Persistent/WormholeSeed.hpp>
-#include <Systems/BaseSystem.hpp>
+#include <Systems/PersistSystem.hpp>
+
 #define JSON_NOEXCEPTION
+#include <fstream>
+#include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
 #include <Components/Persistent/ArmedOffDelay.hpp>
@@ -20,12 +12,18 @@
 #include <Components/Persistent/BombDamage.hpp>
 #include <Components/Persistent/BombInventory.hpp>
 #include <Components/Persistent/CorruptionDamage.hpp>
+#include <Components/Persistent/CorruptionSeed.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
+#include <Components/Persistent/DisplayResolution.hpp>
+#include <Components/Persistent/EffectsVolume.hpp>
+#include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Persistent/FuseDelay.hpp>
 #include <Components/Persistent/GameState.hpp>
+#include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
+#include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Components/Persistent/MusicVolume.hpp>
 #include <Components/Persistent/NpcActivateScale.hpp>
 #include <Components/Persistent/NpcDamage.hpp>
@@ -39,14 +37,18 @@
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
 #include <Components/Persistent/PlayerDetectionScale.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
+#include <Components/Persistent/PlayerFootstepAddDelay.hpp>
+#include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
 #include <Components/Persistent/PlayerLerpSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
+#include <Components/Persistent/SinkholeSeed.hpp>
+#include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
-#include <Systems/PersistSystem.hpp>
+#include <Components/Persistent/WormholeSeed.hpp>
+#include <Systems/BaseSystem.hpp>
+#include <Systems/PersistSystemImpl.hpp>
 #include <Utils/Utils.hpp>
-#include <fstream>
-#include <nlohmann/json.hpp>
 
 namespace ProceduralMaze::Sys
 {

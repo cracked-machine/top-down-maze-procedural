@@ -1,14 +1,23 @@
+
 #include <Components/AltarSegment.hpp>
 #include <Components/CryptSegment.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/HazardFieldCell.hpp>
+#include <Components/LerpPosition.hpp>
 #include <Components/LootContainer.hpp>
+#include <Components/NPC.hpp>
 #include <Components/NPCScanBounds.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/NpcContainer.hpp>
+#include <Components/Obstacle.hpp>
+#include <Components/Persistent/WormholeSeed.hpp>
+#include <Components/PlayableCharacter.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/ReservedPosition.hpp>
+#include <Components/SpriteAnimation.hpp>
+#include <Components/Wall.hpp>
 #include <Components/WormholeJump.hpp>
 #include <Components/WormholeMultiBlock.hpp>
 #include <Components/WormholeSingularity.hpp>
@@ -18,21 +27,14 @@
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
-#include <SFML/System/Vector2.hpp>
-
-#include <Components/LerpPosition.hpp>
-#include <Components/NPC.hpp>
-#include <Components/Obstacle.hpp>
-#include <Components/Persistent/WormholeSeed.hpp>
-#include <Components/PlayableCharacter.hpp>
-#include <Components/ReservedPosition.hpp>
-#include <Components/SpriteAnimation.hpp>
-#include <Components/Wall.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/WormholeSystem.hpp>
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
+
+#include <SFML/System/Vector2.hpp>
 
 namespace ProceduralMaze::Sys
 {
