@@ -437,6 +437,10 @@ void CryptSystem::unlock_objective_passage()
 
 void CryptSystem::unlock_exit_passage()
 {
+  // if we unlocked the maze by picking up the cadaver, then cancel the timer
+  Scene::CryptScene::get_maze_timer().reset();
+  m_maze_unlocked = true;
+
   closeOpenRooms();
   removeLeverOpenRooms();
   openAllRooms();
@@ -652,14 +656,22 @@ void CryptSystem::removeAllLevers()
 
 void CryptSystem::spawnNpcInOpenRooms()
 {
-  for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
+  auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
+  Cmp::RandomInt room_picker( 0, getReg().view<Cmp::CryptRoomOpen>().size() - 1 );
+  std::vector<Cmp::CryptRoomOpen> open_room_list;
+
+  for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
   {
-    auto spawn_position = Utils::snap_to_grid( open_room_cmp.getCenter() );
-    auto position_entity = getReg().create();
-    Cmp::Position position_cmp = getReg().emplace<Cmp::Position>( position_entity, spawn_position, Constants::kGridSquareSizePixelsF );
-    [[maybe_unused]] Cmp::ZOrderValue zorder_cmp = getReg().emplace<Cmp::ZOrderValue>( position_entity, position_cmp.position.y );
-    Factory::createNPC( getReg(), position_entity, "NPCPRIEST" );
+    open_room_list.push_back( open_room_cmp );
   }
+
+  auto selected_open_room_cmp = open_room_list[room_picker.gen()];
+
+  auto spawn_position = Utils::snap_to_grid( selected_open_room_cmp.getCenter() );
+  auto position_entity = getReg().create();
+  Cmp::Position position_cmp = getReg().emplace<Cmp::Position>( position_entity, spawn_position, Constants::kGridSquareSizePixelsF );
+  [[maybe_unused]] Cmp::ZOrderValue zorder_cmp = getReg().emplace<Cmp::ZOrderValue>( position_entity, position_cmp.position.y );
+  Factory::createNPC( getReg(), position_entity, "NPCPRIEST" );
 }
 
 } // namespace ProceduralMaze::Sys
