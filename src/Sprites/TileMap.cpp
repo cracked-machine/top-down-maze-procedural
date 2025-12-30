@@ -1,15 +1,20 @@
+#include <Sprites/TileMap.hpp>
+
 #include <Components/Neighbours.hpp>
 #include <Components/Position.hpp>
-#include <Sprites/TileMap.hpp>
+#include <Components/Random.hpp>
+
 #include <entt/entity/registry.hpp>
+#include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
+
 #include <fstream>
 #include <stdexcept>
 
 namespace ProceduralMaze::Sprites::Containers
 {
 
-void TileMap::load( entt::registry &registry, sf::Vector2u map_dimensions,
-                    const std::filesystem::path &config_path )
+void TileMap::load( entt::registry &registry, sf::Vector2u map_dimensions, const std::filesystem::path &config_path )
 {
   try
   {
@@ -67,20 +72,14 @@ TileMap::TileMapConfig TileMap::load_config( const std::filesystem::path &config
   }
 
   // Validate required fields exist
-  if ( !j.contains( "tilemap" ) )
-  {
-    throw std::runtime_error( "Missing 'tilemap' section in config" );
-  }
+  if ( !j.contains( "tilemap" ) ) { throw std::runtime_error( "Missing 'tilemap' section in config" ); }
 
   const auto &tilemap = j["tilemap"];
   std::vector<std::string> required_fields = { "texture_path", "tile_size", "floor_tile_pool" };
 
   for ( const auto &field : required_fields )
   {
-    if ( !tilemap.contains( field ) )
-    {
-      throw std::runtime_error( "Missing required field: " + field );
-    }
+    if ( !tilemap.contains( field ) ) { throw std::runtime_error( "Missing required field: " + field ); }
   }
 
   TileMapConfig config;
@@ -99,15 +98,11 @@ TileMap::TileMapConfig TileMap::load_config( const std::filesystem::path &config
   }
 
   // Validate config values
-  if ( config.tile_size.x == 0 || config.tile_size.y == 0 )
-  {
-    throw std::runtime_error( "Invalid tile size" );
-  }
+  if ( config.tile_size.x == 0 || config.tile_size.y == 0 ) { throw std::runtime_error( "Invalid tile size" ); }
 
   if ( config.floor_tile_pool.empty() ) { throw std::runtime_error( "Empty floor tile pool" ); }
 
-  SPDLOG_DEBUG( "Loaded config: texture={}, tile_size={}x{}, pool_size={}",
-                config.texture_path.string(), config.tile_size.x, config.tile_size.y,
+  SPDLOG_DEBUG( "Loaded config: texture={}, tile_size={}x{}, pool_size={}", config.texture_path.string(), config.tile_size.x, config.tile_size.y,
                 config.floor_tile_pool.size() );
 
   return config;
@@ -130,8 +125,7 @@ void TileMap::initialize( entt::registry &registry, const TileMapConfig &config 
   }
 
   // Reserve capacity for performance
-  const size_t total_tiles = static_cast<size_t>( config.map_dimensions.x ) *
-                             config.map_dimensions.y;
+  const size_t total_tiles = static_cast<size_t>( config.map_dimensions.x ) * config.map_dimensions.y;
   m_floortile_choices.reserve( total_tiles );
 
   Cmp::RandomInt floortile_picker{ 0, static_cast<int>( config.floor_tile_pool.size() - 1 ) };
@@ -154,16 +148,14 @@ void TileMap::initialize( entt::registry &registry, const TileMapConfig &config 
 
   if ( m_floortile_choices.size() != total_tiles )
   {
-    SPDLOG_CRITICAL( "Tile choice pool size {} does not match expected total tiles {}",
-                     m_floortile_choices.size(), total_tiles );
+    SPDLOG_CRITICAL( "Tile choice pool size {} does not match expected total tiles {}", m_floortile_choices.size(), total_tiles );
     throw std::runtime_error( "Tile choice pool size mismatch" );
   }
 
   create( registry, config.tile_size, config.map_dimensions.x, config.map_dimensions.y );
 }
 
-void TileMap::create( entt::registry &registry, sf::Vector2u tile_size, unsigned int width,
-                      unsigned int height )
+void TileMap::create( entt::registry &registry, sf::Vector2u tile_size, unsigned int width, unsigned int height )
 {
   if ( width == 0 || height == 0 )
   {
@@ -207,8 +199,7 @@ void TileMap::create( entt::registry &registry, sf::Vector2u tile_size, unsigned
     // Validate tile index
     if ( tile_number > max_tile_index )
     {
-      SPDLOG_WARN( "Tile index {} exceeds max index {} for texture size {}x{}", tile_number,
-                   max_tile_index, texture_size.x, texture_size.y );
+      SPDLOG_WARN( "Tile index {} exceeds max index {} for texture size {}x{}", tile_number, max_tile_index, texture_size.x, texture_size.y );
       continue; // Skip invalid tiles
     }
 
@@ -247,8 +238,7 @@ void TileMap::create( entt::registry &registry, sf::Vector2u tile_size, unsigned
     triangles[5].texCoords = sf::Vector2f( tex_right, tex_bottom );
   }
 
-  SPDLOG_INFO( "Created tilemap: {}x{} tiles, {} vertices", width, height,
-               m_vertices.getVertexCount() );
+  SPDLOG_INFO( "Created tilemap: {}x{} tiles, {} vertices", width, height, m_vertices.getVertexCount() );
 }
 
 } // namespace ProceduralMaze::Sprites::Containers
