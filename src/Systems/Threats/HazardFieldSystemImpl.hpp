@@ -1,6 +1,7 @@
 #ifndef SRC_SYSTEMS_HAZARDFIELDSYSTEMIMPL_HPP__
 #define SRC_SYSTEMS_HAZARDFIELDSYSTEMIMPL_HPP__
 
+#include <Audio/SoundBank.hpp>
 #include <Components/Exit.hpp>
 #include <Components/NPC.hpp>
 #include <Components/NoPathFinding.hpp>
@@ -193,9 +194,21 @@ void HazardFieldSystem<HazardType>::check_npc_hazard_field_collision()
   }
 }
 
-// Type aliases
-using SinkHoleHazardSystem = HazardFieldSystem<Cmp::SinkholeCell>;
-using CorruptionHazardSystem = HazardFieldSystem<Cmp::CorruptionCell>;
+//! @brief Concrete derived HazardFieldSystem using CRTP
+class SinkHoleHazardSystem final : public HazardFieldSystem<Cmp::SinkholeCell>
+{
+public:
+  using HazardFieldSystem<Cmp::SinkholeCell>::HazardFieldSystem;
+};
+
+//! @brief Concrete derived HazardFieldSystem using CRTP
+class CorruptionHazardSystem final : public HazardFieldSystem<Cmp::CorruptionCell>
+{
+public:
+  using HazardFieldSystem<Cmp::CorruptionCell>::HazardFieldSystem;
+
+  // Add corruption-specific methods here if needed
+};
 
 } // namespace ProceduralMaze::Sys
 
