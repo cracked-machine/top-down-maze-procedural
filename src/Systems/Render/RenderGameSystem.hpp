@@ -7,6 +7,7 @@
 
 #include <Shaders/BackgroundShader.hpp>
 #include <Shaders/DarkModeShader.hpp>
+#include <Shaders/FloodWaterShader.hpp>
 #include <Shaders/MistShader.hpp>
 #include <Shaders/PulsingShader.hpp>
 #include <Shaders/ViewFragmentShader.hpp>
@@ -99,7 +100,6 @@ private:
           auto z_order_cmp = getReg().try_get<Cmp::ZOrderValue>( entity );
           if ( z_order_cmp ) { zorder_queue.push_back( ZOrder{ z_order_cmp->getZOrder(), entity } ); }
         }
- 
       }
     }
   }

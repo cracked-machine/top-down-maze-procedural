@@ -20,9 +20,11 @@
 #include <Components/PlayerDistance.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerMortality.hpp>
+#include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SinkholeCell.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/PauseClocksEvent.hpp>
@@ -96,16 +98,13 @@ public:
   //! @param reg Smart pointer to the entt registry
   //! @param window Reference to the SFML render window
   //! @param sprite_factory Reference to the sprite factory
-  HazardFieldSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                     Audio::SoundBank &sound_bank )
+  HazardFieldSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
       : Sys::BaseSystem( reg, window, sprite_factory, sound_bank )
   {
     // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
     // the constructor
-    get_systems_event_queue().sink<Events::PauseClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onPause>(
-        this );
-    get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onResume>(
-        this );
+    get_systems_event_queue().sink<Events::PauseClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onPause>( this );
+    get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onResume>( this );
   }
 
   void update()
@@ -133,8 +132,7 @@ public:
     unsigned long seed = Sys::PersistSystem::get_persist_cmp<typename Traits::SeedType>( getReg() ).get_value();
     auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
         getReg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{},
-        Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(),
-        seed );
+        Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
     if ( random_entity == entt::null ) { return; }
 
     Factory::destroyObstacle( getReg(), random_entity );
@@ -142,8 +140,7 @@ public:
     getReg().template emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, Traits::sprite_type, 0 );
     getReg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 1.f );
     getReg().template emplace_or_replace<Cmp::NoPathFinding>( random_entity );
-    SPDLOG_INFO( "{} hazard spawned at position [{}, {}].", Traits::sprite_type, random_pos.position.x,
-                 random_pos.position.y );
+    SPDLOG_INFO( "{} hazard spawned at position [{}, {}].", Traits::sprite_type, random_pos.position.x, random_pos.position.y );
   }
 
   //! @brief event handlers for pausing hazard spread clocks
@@ -187,8 +184,7 @@ private:
         {
           Factory::destroyObstacle( getReg(), obstacle_entity );
           getReg().template emplace_or_replace<HazardType>( obstacle_entity );
-          getReg().template emplace_or_replace<Cmp::SpriteAnimation>( obstacle_entity, 0, 0, true, Traits::sprite_type,
-                                                                      0 );
+          getReg().template emplace_or_replace<Cmp::SpriteAnimation>( obstacle_entity, 0, 0, true, Traits::sprite_type, 0 );
           getReg().template emplace_or_replace<Cmp::ZOrderValue>( obstacle_entity, obst_pos_cmp.position.y - 1.f );
           getReg().template emplace_or_replace<Cmp::NoPathFinding>( obstacle_entity );
           if ( getReg().template all_of<Cmp::PlayerDistance>( obstacle_entity ) )
@@ -219,9 +215,7 @@ private:
   void check_player_hazard_field_collision()
   {
     auto hazard_view = getReg().template view<HazardType, Cmp::Position>();
-    auto player_view = getReg()
-                           .template view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality,
-                                          Cmp::Position>();
+    auto player_view = getReg().template view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
 
     for ( auto [pc_entt, player_cmp, player_health_cmp, player_mort_cmp, player_pos_cmp] : player_view.each() )
     {
@@ -244,10 +238,9 @@ private:
         }
         else if constexpr ( Traits::sprite_type == "CORRUPTION" )
         {
-          player_health_cmp.health -= Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CorruptionDamage>( getReg() )
-                                          .get_value();
-          SPDLOG_DEBUG( "Player took corruption damage at position ({}, {})! Health is now {}.", hazard_pos_cmp.x,
-                        hazard_pos_cmp.y, player_health_cmp.health );
+          player_health_cmp.health -= Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CorruptionDamage>( getReg() ).get_value();
+          SPDLOG_DEBUG( "Player took corruption damage at position ({}, {})! Health is now {}.", hazard_pos_cmp.x, hazard_pos_cmp.y,
+                        player_health_cmp.health );
           return;
         }
       }

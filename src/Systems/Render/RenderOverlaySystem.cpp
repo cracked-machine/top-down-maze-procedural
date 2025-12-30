@@ -1,5 +1,7 @@
 #include <Components/CryptPassageBlock.hpp>
 #include <Components/LerpPosition.hpp>
+#include <Components/NPCScanBounds.hpp>
+#include <Components/PCDetectionBounds.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>

@@ -16,12 +16,14 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCandlesCount.hpp>
+#include <Components/PlayerDistance.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerMortality.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/Position.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Components/System.hpp>
 #include <Components/WeaponLevel.hpp>
 #include <Components/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -40,8 +42,8 @@
 namespace ProceduralMaze::Sys
 {
 
-PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                            Audio::SoundBank &sound_bank, entt::dispatcher &scenemanager_event_dispatcher )
+PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
+                            entt::dispatcher &scenemanager_event_dispatcher )
     : BaseSystem( reg, window, sprite_factory, sound_bank ),
       m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
 {
@@ -90,11 +92,9 @@ void PlayerSystem::localTransforms()
 {
 
   auto blinking_player_view = getReg()
-                                  .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::SpriteAnimation,
-                                        Cmp::PlayerMortality, Cmp::AbsoluteAlpha, Cmp::AbsoluteRotation,
-                                        Cmp::PlayerHealth>();
-  for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, anim_cmp, mortality_cmp, alpha_cmp, rotation_cmp, player_health_cmp] :
-        blinking_player_view.each() )
+                                  .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::SpriteAnimation, Cmp::PlayerMortality,
+                                        Cmp::AbsoluteAlpha, Cmp::AbsoluteRotation, Cmp::PlayerHealth>();
+  for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, anim_cmp, mortality_cmp, alpha_cmp, rotation_cmp, player_health_cmp] : blinking_player_view.each() )
   {
     // // normal do nothing
     // if ( mortality_cmp.state != Cmp::PlayerMortality::State::ALIVE ) continue;
@@ -119,11 +119,8 @@ void PlayerSystem::localTransforms()
     else
     {
       auto &pc_damage_cooldown = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>( getReg() );
-      bool is_in_damage_cooldown = pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() <
-                                   pc_damage_cooldown.get_value();
-      int blink_visible = static_cast<int>( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asMilliseconds() / 100 ) %
-                              2 ==
-                          0;
+      bool is_in_damage_cooldown = pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value();
+      int blink_visible = static_cast<int>( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asMilliseconds() / 100 ) % 2 == 0;
       if ( !is_in_damage_cooldown || ( is_in_damage_cooldown && blink_visible ) ) { alpha_cmp = 255; }
       else { alpha_cmp = 0; }
     }
@@ -135,9 +132,7 @@ void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool skip_colli
 
   const float dt = globalDeltaTime.asSeconds();
 
-  auto player_view = getReg()
-                         .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds,
-                               Cmp::SpriteAnimation>();
+  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds, Cmp::SpriteAnimation>();
   for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, pc_detection_bounds, anim_cmp] : player_view.each() )
   {
     // always set the player, even if not moving
@@ -184,10 +179,8 @@ void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool skip_colli
       bool diagonal_between_obstacles = is_diagonal && isDiagonalMovementBetweenObstacles( pos_cmp, dir_cmp );
 
       auto &player_lerp_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerLerpSpeed>( getReg() );
-      auto &diagonal_lerp_speed_modifier = Sys::PersistSystem::get_persist_cmp<
-          Cmp::Persist::PlayerDiagonalLerpSpeedModifier>( getReg() );
-      auto &shortcut_lerp_speed_modifier = Sys::PersistSystem::get_persist_cmp<
-          Cmp::Persist::PlayerShortcutLerpSpeedModifier>( getReg() );
+      auto &diagonal_lerp_speed_modifier = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerDiagonalLerpSpeedModifier>( getReg() );
+      auto &shortcut_lerp_speed_modifier = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerShortcutLerpSpeedModifier>( getReg() );
 
       float speed_modifier = 1.0f;
       if ( diagonal_between_obstacles )
@@ -271,8 +264,7 @@ void PlayerSystem::refreshPlayerDistances()
           if ( !Utils::is_visible_in_view( viewBounds, path_pos_cmp ) ) continue; // optimization
 
           // calculate the distance from the position to the player
-          auto distance = std::floor(
-              Utils::Maths::getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
+          auto distance = std::floor( Utils::Maths::getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
           getReg().emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
         }
       }

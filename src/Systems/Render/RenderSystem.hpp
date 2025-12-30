@@ -4,43 +4,19 @@
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <entt/entity/fwd.hpp>
 
-#include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <SFML/Window/WindowEnums.hpp>
 
-#include <imgui-SFML.h>
 #include <imgui.h>
-#include <spdlog/spdlog.h>
 
-#include <Components/Armed.hpp>
-#include <Components/Direction.hpp>
 #include <Components/Font.hpp>
-#include <Components/Loot.hpp>
-#include <Components/NPC.hpp>
-#include <Components/NPCScanBounds.hpp>
-#include <Components/Neighbours.hpp>
-#include <Components/Obstacle.hpp>
-#include <Components/PCDetectionBounds.hpp>
-#include <Components/PlayableCharacter.hpp>
-#include <Components/PlayerDistance.hpp>
-#include <Components/Position.hpp>
-#include <Components/System.hpp>
-#include <Components/WaterLevel.hpp>
-#include <Shaders/FloodWaterShader.hpp>
-#include <Sprites/BasicSprite.hpp>
-#include <Sprites/MultiSprite.hpp>
+
 #include <Sprites/SpriteFactory.hpp>
-#include <Sprites/TileMap.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <Systems/PersistSystem.hpp>
-#include <Systems/PlayerSystem.hpp>
-#include <Systems/Render/RenderBuffer.hpp>
 
 namespace ProceduralMaze::Sys
 {

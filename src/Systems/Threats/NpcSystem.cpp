@@ -1,3 +1,5 @@
+#include <Components/PCDetectionBounds.hpp>
+#include <Components/PlayerDistance.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
 #include <Components/AltarSegment.hpp>
@@ -22,6 +24,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Components/System.hpp>
 #include <Components/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/NpcFactory.hpp>

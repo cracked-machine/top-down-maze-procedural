@@ -1,3 +1,4 @@
+#include <Components/Armed.hpp>
 #include <Components/CryptInteriorMultiBlock.hpp>
 #include <Components/CryptObjectiveMultiBlock.hpp>
 #include <Components/CryptPassageBlock.hpp>
@@ -44,18 +45,18 @@
 #include <Components/SinkholeCell.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Components/WeaponLevel.hpp>
 #include <Components/WormholeMultiBlock.hpp>
 #include <Components/WormholeSingularity.hpp>
 #include <Components/ZOrderValue.hpp>
+
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Optimizations.hpp>
-
-#include <string>
 
 namespace ProceduralMaze::Sys
 {
@@ -184,11 +185,23 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
       if ( m_show_debug_stats )
       {
-        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
+        // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
         render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Cyan, 1.f );
+
+        for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
+        {
+          Cmp::RectBounds lava_bounds( open_room_cmp.position, open_room_cmp.size, 1.f );
+          sf::RectangleShape rectangle;
+          rectangle.setSize( lava_bounds.size() );
+          rectangle.setPosition( lava_bounds.position() );
+          rectangle.setFillColor( sf::Color::Transparent );
+          rectangle.setOutlineColor( sf::Color( 255, 128, 32 ) );
+          rectangle.setOutlineThickness( 2.f );
+          m_window.draw( rectangle );
+        }
       }
     }
     // local view end
