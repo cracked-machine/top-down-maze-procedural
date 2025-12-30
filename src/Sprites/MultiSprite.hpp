@@ -1,15 +1,8 @@
 #ifndef __SPRITES_MULTISPRITE2_HPP__
 #define __SPRITES_MULTISPRITE2_HPP__
 
-#include <spdlog/spdlog.h>
-
-#include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
-#include <SFML/Graphics/Texture.hpp>
-#include <SFML/Graphics/Transform.hpp>
-#include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
-#include <SFML/System/Vector2.hpp>
 
 #include <cstdint>
 #include <filesystem>
@@ -25,14 +18,8 @@ typedef struct SpriteSize
 {
   unsigned int width{ 1 };
   unsigned int height{ 1 };
-  sf::Vector2f componentWiseMul( sf::Vector2f rhs ) const
-  {
-    return sf::Vector2f( width * rhs.x, height * rhs.y );
-  }
-  sf::Vector2f componentWiseMul( sf::Vector2u rhs ) const
-  {
-    return sf::Vector2f( width * rhs.x, height * rhs.y );
-  }
+  sf::Vector2f componentWiseMul( sf::Vector2f rhs ) const { return sf::Vector2f( width * rhs.x, height * rhs.y ); }
+  sf::Vector2f componentWiseMul( sf::Vector2u rhs ) const { return sf::Vector2f( width * rhs.x, height * rhs.y ); }
 } SpriteSize;
 
 class MultiSprite : public sf::Drawable, public sf::Transformable
@@ -49,15 +36,12 @@ public:
    *
    * @throws std::runtime_error If the tilemap fails to load or is invalid
    */
-  explicit MultiSprite( SpriteMetaType type, const std::filesystem::path &tilemap_path,
-                        const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size = { 1, 1 },
-                        unsigned int sprites_per_frame = 1, unsigned int sprites_per_sequence = 1,
+  explicit MultiSprite( SpriteMetaType type, const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks,
+                        SpriteSize grid_size = { 1, 1 }, unsigned int sprites_per_frame = 1, unsigned int sprites_per_sequence = 1,
                         std::vector<bool> solid_mask = {} );
 
-  explicit MultiSprite( SpriteMetaType type, sf::Texture tilemap_texture,
-                        const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size = { 1, 1 },
-                        unsigned int sprites_per_frame = 1, unsigned int sprites_per_sequence = 1,
-                        std::vector<bool> solid_mask = {} );
+  explicit MultiSprite( SpriteMetaType type, sf::Texture tilemap_texture, const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size = { 1, 1 },
+                        unsigned int sprites_per_frame = 1, unsigned int sprites_per_sequence = 1, std::vector<bool> solid_mask = {} );
 
   MultiSprite( MultiSprite && ) = default;
   MultiSprite &operator=( MultiSprite && ) = default;
