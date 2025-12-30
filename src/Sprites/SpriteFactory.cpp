@@ -1,3 +1,4 @@
+#include <Components/Random.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
@@ -108,8 +109,7 @@ std::vector<SpriteMetaType> SpriteFactory::get_all_sprite_types_by_pattern( cons
     {
       if ( std::regex_search( type, pattern_regex ) ) { types.push_back( type ); }
     }
-  }
-  catch ( const std::regex_error &e )
+  } catch ( const std::regex_error &e )
   {
     // If regex fails, fallback to substring matching (current behavior)
     SPDLOG_DEBUG( "Pattern '{}' is not valid regex, using substring matching", pattern );

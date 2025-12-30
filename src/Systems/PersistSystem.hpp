@@ -4,6 +4,7 @@
 #include <Events/SaveSettingsEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <entt/entity/registry.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 namespace ProceduralMaze::Sys
 {

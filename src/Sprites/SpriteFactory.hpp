@@ -1,13 +1,10 @@
 #ifndef __SPRITES_SPRITE_FACTORY_HPP__
 #define __SPRITES_SPRITE_FACTORY_HPP__
 
-#include <SFML/Graphics/Sprite.hpp>
+#include <Sprites/MultiSprite.hpp>
+
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <nlohmann/json.hpp>
-
-#include <Components/Random.hpp>
-#include <Sprites/MultiSprite.hpp>
 
 #include <string>
 #include <unordered_map>
@@ -44,8 +41,7 @@ public:
   //!               If no weights are provided, weights are either taken from initial values
   //!               or default to 1.0f.
   //! @return A pair containing the selected SpriteMetaType and its associated texture index
-  std::pair<SpriteMetaType, std::size_t> get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list,
-                                                                            std::vector<float> weights = {} );
+  std::pair<SpriteMetaType, std::size_t> get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list, std::vector<float> weights = {} );
 
   //! @brief Get the all sprite types by pattern object
   //! Supports regex and plain text matching.
@@ -68,10 +64,7 @@ public:
 
   // Returns the pixel bounds of first sprite in array. Assumes that all sprites in the multi-sprite have the same size
 
-  sf::Vector2f get_sprite_size_by_type( const SpriteMetaType &type )
-  {
-    return get_spritedata_by_type( type ).m_multisprite.getSpriteSizePixels();
-  }
+  sf::Vector2f get_sprite_size_by_type( const SpriteMetaType &type ) { return get_spritedata_by_type( type ).m_multisprite.getSpriteSizePixels(); }
 
 private:
   //! @brief Metadata for a single sprite. This is mainly a legacy struct to hold the MultiSprite along with its weight.
