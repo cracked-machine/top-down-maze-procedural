@@ -17,6 +17,7 @@
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
+#include <Utils/Utils.hpp>
 
 #include <iomanip>
 #include <sstream>

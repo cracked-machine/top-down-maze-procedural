@@ -2,28 +2,15 @@
 #define SRC_SYSTEMS_BASESYSTEM_HPP__
 
 #include <Audio/SoundBank.hpp>
-#include <Components/NoPathFinding.hpp>
-#include <Components/PlayableCharacter.hpp>
-#include <Components/SpriteAnimation.hpp>
-#include <Components/ZOrderValue.hpp>
 #include <_mingw_stat64.h>
 #include <entt/entity/fwd.hpp>
-#include <entt/entity/registry.hpp>
 #include <entt/signal/dispatcher.hpp>
-
-#include <functional>
-#include <spdlog/spdlog.h>
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <Components/Loot.hpp>
-#include <Components/Obstacle.hpp>
-#include <Components/Position.hpp>
-#include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
-#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze
 {
@@ -36,14 +23,10 @@ class BaseSystem
 {
 public:
   //! @brief Construct a new Base System object
-  BaseSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-              Audio::SoundBank &sound_bank );
+  BaseSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief polymorphic destructor for derived classes
-  virtual ~BaseSystem()
-  {
-    SPDLOG_INFO( "BaseSystem destructor called for system at {}", static_cast<void *>( this ) );
-  };
+  virtual ~BaseSystem() { SPDLOG_INFO( "BaseSystem destructor called for system at {}", static_cast<void *>( this ) ); };
 
   //! @brief Event handler for pausing system clocks. Must be implemented by derived classes.
   //! @note If you register this handler with the event dispatcher, this function is automcatically

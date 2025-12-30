@@ -9,11 +9,14 @@
 #include <Components/CryptObjectiveSegment.hpp>
 #include <Components/CryptSegment.hpp>
 #include <Components/GraveSegment.hpp>
+#include <Components/NoPathFinding.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Systems/BaseSystem.hpp>
 
+#include <Utils/Utils.hpp>
 #include <entt/entt.hpp>
 
 namespace ProceduralMaze::Factory

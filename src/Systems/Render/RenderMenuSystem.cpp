@@ -47,6 +47,7 @@
 #include <Components/Persistent/WormholeSeed.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
 #include <Systems/Threats/BombSystem.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
 {

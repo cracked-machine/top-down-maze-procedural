@@ -1,14 +1,13 @@
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <Utils/Utils.hpp>
 #include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sprites
 {
 
-MultiSprite::MultiSprite( SpriteMetaType type, const std::filesystem::path &tilemap_path,
-                          const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size,
-                          unsigned int sprites_per_frame, unsigned int sprites_per_sequence,
-                          std::vector<bool> solid_mask )
+MultiSprite::MultiSprite( SpriteMetaType type, const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks,
+                          SpriteSize grid_size, unsigned int sprites_per_frame, unsigned int sprites_per_sequence, std::vector<bool> solid_mask )
     : m_sprite_type{ type },
       m_grid_size{ grid_size.width, grid_size.height },
       m_sprites_per_frame{ sprites_per_frame },
@@ -29,10 +28,8 @@ MultiSprite::MultiSprite( SpriteMetaType type, const std::filesystem::path &tile
   }
 }
 
-MultiSprite::MultiSprite( SpriteMetaType type, sf::Texture tilemap_texture,
-                          const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size,
-                          unsigned int sprites_per_frame, unsigned int sprites_per_sequence,
-                          std::vector<bool> solid_mask )
+MultiSprite::MultiSprite( SpriteMetaType type, sf::Texture tilemap_texture, const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size,
+                          unsigned int sprites_per_frame, unsigned int sprites_per_sequence, std::vector<bool> solid_mask )
     : m_sprite_type{ type },
       m_grid_size{ grid_size.width, grid_size.height },
       m_sprites_per_frame{ sprites_per_frame },
@@ -65,8 +62,7 @@ bool MultiSprite::add_sprite( const std::vector<uint32_t> &tilemap_picks )
     sf::VertexArray current_va( sf::PrimitiveType::Triangles, 6 );
 
     // Calculate texture coordinates based on 16x16 base tile grid (not sprite grid)
-    const int base_tiles_per_row = m_tilemap_texture->getSize().x /
-                                   Constants::kGridSquareSizePixels.x;
+    const int base_tiles_per_row = m_tilemap_texture->getSize().x / Constants::kGridSquareSizePixels.x;
     const int base_tile_x = tile_idx % base_tiles_per_row;
     const int base_tile_y = tile_idx / base_tiles_per_row;
 
@@ -86,12 +82,11 @@ bool MultiSprite::add_sprite( const std::vector<uint32_t> &tilemap_picks )
     current_va[2].texCoords = sf::Vector2f( tu, tv + kGridSquareSizePixels.y );
     current_va[3].texCoords = sf::Vector2f( tu, tv + kGridSquareSizePixels.y );
     current_va[4].texCoords = sf::Vector2f( tu + kGridSquareSizePixels.x, tv );
-    current_va[5].texCoords = sf::Vector2f( tu + kGridSquareSizePixels.x,
-                                            tv + kGridSquareSizePixels.y );
+    current_va[5].texCoords = sf::Vector2f( tu + kGridSquareSizePixels.x, tv + kGridSquareSizePixels.y );
 
     SPDLOG_DEBUG( "Added sprite index {} at texture coords ({}, {})", tile_idx, tu, tv );
-    SPDLOG_DEBUG( "Sprite vertex positions: [({}, {}) to  ({}, {})]", current_va[0].position.x,
-                  current_va[0].position.y, current_va[5].position.x, current_va[5].position.y );
+    SPDLOG_DEBUG( "Sprite vertex positions: [({}, {}) to  ({}, {})]", current_va[0].position.x, current_va[0].position.y, current_va[5].position.x,
+                  current_va[5].position.y );
 
     m_va_list.push_back( current_va );
   }

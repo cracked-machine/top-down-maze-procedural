@@ -1,5 +1,7 @@
 #include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Position.hpp>
+#include <Components/SpriteAnimation.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <Components/Exit.hpp>
@@ -17,20 +19,20 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Random.hpp>
+#include <Utils/Utils.hpp>
 #include <entt/entity/entity.hpp>
 
 namespace ProceduralMaze::Sys
 {
 
-ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                        Audio::SoundBank &sound_bank, entt::dispatcher &scenemanager_event_dispatcher )
+ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
+                        entt::dispatcher &scenemanager_event_dispatcher )
     : BaseSystem( reg, window, sprite_factory, sound_bank ),
       m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
   // the constructor
-  std::ignore = get_systems_event_queue().sink<Events::UnlockDoorEvent>().connect<&ExitSystem::on_door_unlock_event>(
-      this );
+  std::ignore = get_systems_event_queue().sink<Events::UnlockDoorEvent>().connect<&ExitSystem::on_door_unlock_event>( this );
   SPDLOG_DEBUG( "ExitSystem initialized" );
 }
 
@@ -38,10 +40,9 @@ void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
 {
   if ( spawn_position )
   {
-    sf::FloatRect spawn_pos_px = sf::FloatRect(
-        { static_cast<float>( spawn_position->x ) * Constants::kGridSquareSizePixels.x,
-          static_cast<float>( spawn_position->y ) * Constants::kGridSquareSizePixels.y },
-        Constants::kGridSquareSizePixelsF );
+    sf::FloatRect spawn_pos_px = sf::FloatRect( { static_cast<float>( spawn_position->x ) * Constants::kGridSquareSizePixels.x,
+                                                  static_cast<float>( spawn_position->y ) * Constants::kGridSquareSizePixels.y },
+                                                Constants::kGridSquareSizePixelsF );
 
     // remove any wall
     for ( auto [entt, wall_cmp, pos_cmp] : getReg().view<Cmp::Wall, Cmp::Position>().each() )
@@ -62,8 +63,7 @@ void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
   else
   {
     auto [rand_entity, rand_pos_cmp] = Utils::Rnd::get_random_position(
-        getReg(), {},
-        Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, 0 );
+        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, 0 );
 
     auto existing_obstacle_cmp = getReg().try_get<Cmp::Obstacle>( rand_entity );
     if ( existing_obstacle_cmp ) { getReg().remove<Cmp::Obstacle>( rand_entity ); }
@@ -82,8 +82,7 @@ void ExitSystem::unlock_exit()
   auto player_key_view = getReg().view<Cmp::PlayerKeysCount>();
   for ( auto [pk_entity, pk_cmp] : player_key_view.each() )
   {
-    if ( pk_cmp.get_count() <
-         Sys::PersistSystem::get_persist_cmp<Cmp::Persist::ExitKeyRequirement>( getReg() ).get_value() )
+    if ( pk_cmp.get_count() < Sys::PersistSystem::get_persist_cmp<Cmp::Persist::ExitKeyRequirement>( getReg() ).get_value() )
     {
       SPDLOG_DEBUG( "Not enough keys to unlock exit ({} / {})", pk_cmp.get_count(),
                     get_persistent_component<Cmp::Persist::ExitKeyRequirement>().get_value() );
@@ -117,8 +116,7 @@ void ExitSystem::check_exit_collision()
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
           _sys.level_complete = true;
-          m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>(
-              Events::SceneManagerEvent::Type::LEVEL_COMPLETE );
+          m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::LEVEL_COMPLETE );
         }
       }
     }

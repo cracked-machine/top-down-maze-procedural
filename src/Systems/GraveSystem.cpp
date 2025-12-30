@@ -7,24 +7,22 @@
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Systems/GraveSystem.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
 {
 
-GraveSystem::GraveSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                          Audio::SoundBank &sound_bank )
+GraveSystem::GraveSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
-  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&GraveSystem::on_player_action>(
-      this );
+  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&GraveSystem::on_player_action>( this );
 }
 
 void GraveSystem::check_player_collision( Events::PlayerActionEvent::GameActions action )
 {
   if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
 
-  auto player_view = getReg()
-                         .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount>();
+  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount>();
   auto grave_view = getReg().view<Cmp::GraveMultiBlock>();
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_candles_cmp, pc_keys_cmp] : player_view.each() )
@@ -42,15 +40,13 @@ void GraveSystem::check_player_collision( Events::PlayerActionEvent::GameActions
   }
 }
 
-void GraveSystem::check_player_grave_activation( entt::entity &grave_entity, Cmp::GraveMultiBlock &grave_cmp,
-                                                 Cmp::PlayableCharacter &pc_cmp )
+void GraveSystem::check_player_grave_activation( entt::entity &grave_entity, Cmp::GraveMultiBlock &grave_cmp, Cmp::PlayableCharacter &pc_cmp )
 {
   if ( grave_cmp.are_powers_active() ) return;
   if ( grave_cmp.get_activation_count() < grave_cmp.get_activation_threshold() )
   {
 
-    SPDLOG_DEBUG( "Activating grave sprite {}/{}.", grave_cmp.get_activated_sprite_count() + 1,
-                  grave_cmp.get_activation_threshold() );
+    SPDLOG_DEBUG( "Activating grave sprite {}/{}.", grave_cmp.get_activated_sprite_count() + 1, grave_cmp.get_activation_threshold() );
     grave_cmp.set_activation_count( grave_cmp.get_activation_threshold() );
 
     auto anim_cmp = getReg().try_get<Cmp::SpriteAnimation>( grave_entity );
@@ -80,8 +76,7 @@ void GraveSystem::check_player_grave_activation( entt::entity &grave_entity, Cmp
         case 2:
           SPDLOG_DEBUG( "Grave activated bomb trap." );
           pc_cmp.bomb_inventory += 1;
-          get_systems_event_queue().trigger(
-              Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) );
+          get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) );
           break;
         case 3:
 

@@ -1,6 +1,7 @@
 #include <Components/GraveSegment.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/WormholeMultiBlock.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <spdlog/spdlog.h>
 
 #include <SFML/System/Time.hpp>
@@ -70,13 +71,11 @@ void AnimSystem::update( sf::Time globalDeltaTime )
       sf::Time frame_rate = sf::Time::Zero;
       if ( anim_cmp.m_sprite_type.contains( "NPCSKELE" ) )
       {
-        frame_rate = sf::seconds(
-            Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcSkeleAnimFramerate>( getReg() ).get_value() );
+        frame_rate = sf::seconds( Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcSkeleAnimFramerate>( getReg() ).get_value() );
       }
       else if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) )
       {
-        frame_rate = sf::seconds(
-            Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcGhostAnimFramerate>( getReg() ).get_value() );
+        frame_rate = sf::seconds( Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcGhostAnimFramerate>( getReg() ).get_value() );
       }
       const auto &npc_walk_sequence = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
       update_single_sequence( anim_cmp, globalDeltaTime, npc_walk_sequence, frame_rate );
@@ -85,15 +84,13 @@ void AnimSystem::update( sf::Time globalDeltaTime )
 
   // Player Movement
   // TODO: Add death animations depending on the mortality state
-  auto moving_player_view = getReg()
-                                .view<Cmp::PlayableCharacter, Cmp::Direction, Cmp::SpriteAnimation, Cmp::Position>();
+  auto moving_player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Direction, Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [entity, pc_cmp, dir_cmp, anim_cmp, pos_cmp] : moving_player_view.each() )
   {
 
     if ( not anim_cmp.m_animation_active ) continue;
     if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
-    auto frame_rate = sf::seconds(
-        Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerAnimFramerate>( getReg() ).get_value() );
+    auto frame_rate = sf::seconds( Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerAnimFramerate>( getReg() ).get_value() );
     const auto &player_walk_sequence = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
     update_single_sequence( anim_cmp, globalDeltaTime, player_walk_sequence, frame_rate );
   }
@@ -105,8 +102,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
     if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
 
     const auto &wormhole_sprite_metadata = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
-    auto frame_rate = sf::seconds(
-        Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WormholeAnimFramerate>( getReg() ).get_value() );
+    auto frame_rate = sf::seconds( Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WormholeAnimFramerate>( getReg() ).get_value() );
 
     update_single_sequence( anim_cmp, globalDeltaTime, wormhole_sprite_metadata, frame_rate );
   }
@@ -120,15 +116,13 @@ void AnimSystem::update( sf::Time globalDeltaTime )
 
     SPDLOG_DEBUG( "Explosion animation active for entity {} - current_frame: {}, sprites_per_frame: {}, "
                   "sprites_per_sequence: {}, frame_rate: {}s",
-                  static_cast<int>( entity ), anim_cmp.m_current_frame,
-                  explosion_sprite_metadata.get_sprites_per_frame(),
+                  static_cast<int>( entity ), anim_cmp.m_current_frame, explosion_sprite_metadata.get_sprites_per_frame(),
                   explosion_sprite_metadata.get_sprites_per_sequence(), frame_rate.asSeconds() );
 
     // Update the frame first
     update_single_sequence( anim_cmp, globalDeltaTime, explosion_sprite_metadata, frame_rate );
 
-    SPDLOG_DEBUG( "After update_frame - current_frame: {}, elapsed_time: {}s", anim_cmp.m_current_frame,
-                  anim_cmp.m_elapsed_time.asSeconds() );
+    SPDLOG_DEBUG( "After update_frame - current_frame: {}, elapsed_time: {}s", anim_cmp.m_current_frame, anim_cmp.m_elapsed_time.asSeconds() );
 
     // have we completed the animation?
     if ( anim_cmp.m_current_frame == explosion_sprite_metadata.get_sprites_per_sequence() - 1 )
@@ -143,8 +137,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
   }
 }
 
-void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime,
-                                         const Sprites::MultiSprite &ms, sf::Time frame_rate )
+void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const Sprites::MultiSprite &ms, sf::Time frame_rate )
 {
   anim.m_elapsed_time += globalDeltaTime;
 
@@ -168,8 +161,7 @@ void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time gl
   }
 }
 
-void AnimSystem::update_grouped_sequences( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime,
-                                           const Sprites::MultiSprite &ms, sf::Time frame_rate )
+void AnimSystem::update_grouped_sequences( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const Sprites::MultiSprite &ms, sf::Time frame_rate )
 {
   anim.m_elapsed_time += globalDeltaTime;
 

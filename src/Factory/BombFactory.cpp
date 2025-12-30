@@ -1,9 +1,12 @@
 #include <Components/Armed.hpp>
 #include <Components/DestroyedObstacle.hpp>
+#include <Components/NoPathFinding.hpp>
 #include <Components/Persistent/ArmedOffDelay.hpp>
 #include <Components/Persistent/ArmedOnDelay.hpp>
 #include <Components/Persistent/FuseDelay.hpp>
 #include <Components/Position.hpp>
+#include <Components/SpriteAnimation.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Factory/BombFactory.hpp>
 #include <Systems/PersistSystem.hpp>
 
@@ -12,8 +15,7 @@
 namespace ProceduralMaze::Factory
 {
 
-void createArmed( entt::registry &registry, entt::entity entity, Cmp::Armed::EpiCenter epi_center,
-                  int sequence, int zorder )
+void createArmed( entt::registry &registry, entt::entity entity, Cmp::Armed::EpiCenter epi_center, int sequence, int zorder )
 {
 
   // get persistent settings
@@ -40,8 +42,7 @@ void createArmed( entt::registry &registry, entt::entity entity, Cmp::Armed::Epi
     );
   // clang-format on
 
-  registry.emplace_or_replace<Cmp::Position>( new_armed_entity,
-                                              registry.get<Cmp::Position>( entity ).position,
+  registry.emplace_or_replace<Cmp::Position>( new_armed_entity, registry.get<Cmp::Position>( entity ).position,
                                               registry.get<Cmp::Position>( entity ).size );
 
   if ( epi_center == Cmp::Armed::EpiCenter::YES )
@@ -58,10 +59,7 @@ void destroyArmed( entt::registry &reg, entt::entity armed_entity )
   reg.remove<Cmp::Armed>( armed_entity );
   reg.remove<Cmp::SpriteAnimation>( armed_entity );
   reg.remove<Cmp::ZOrderValue>( armed_entity );
-  if ( reg.all_of<Cmp::NoPathFinding>( armed_entity ) )
-  {
-    reg.remove<Cmp::NoPathFinding>( armed_entity );
-  }
+  if ( reg.all_of<Cmp::NoPathFinding>( armed_entity ) ) { reg.remove<Cmp::NoPathFinding>( armed_entity ); }
 }
 
 void createDetonated( entt::registry &reg, entt::entity armed_entity, Cmp::Position &armed_pos_cmp )

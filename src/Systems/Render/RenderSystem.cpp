@@ -1,5 +1,6 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <Utils/Utils.hpp>
 #include <imgui-SFML.h>
 
 #include <Systems/PersistSystem.hpp>

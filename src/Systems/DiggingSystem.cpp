@@ -1,6 +1,7 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/NoPathFinding.hpp>
+#include <Components/Obstacle.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/WeaponLevel.hpp>

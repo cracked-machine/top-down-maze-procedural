@@ -2,14 +2,18 @@
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
+#include <Components/NoPathFinding.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/SpawnArea.hpp>
+#include <Components/SpriteAnimation.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <SFML/System/Time.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
 {

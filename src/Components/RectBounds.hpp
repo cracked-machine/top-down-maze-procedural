@@ -6,6 +6,7 @@
 
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Cmp
 {
@@ -36,8 +37,7 @@ public:
    * @param size The base size vector before scaling is applied
    * @param ScaleFactor The scaling factor to apply to the size dimensions
    */
-  RectBounds( sf::Vector2f position, sf::Vector2f size, float ScaleFactor,
-              ScaleCardinality scale_cardinality = ScaleCardinality::BOTH )
+  RectBounds( sf::Vector2f position, sf::Vector2f size, float ScaleFactor, ScaleCardinality scale_cardinality = ScaleCardinality::BOTH )
       : m_scale_factor( ScaleFactor ),
         m_scale_cardinality( scale_cardinality )
   {
@@ -47,15 +47,13 @@ public:
       case ScaleCardinality::HORIZONTAL:
         m_bounds.size.x = size.x * m_scale_factor;
         m_bounds.size.y = size.y * 1;
-        m_bounds.position.x = position.x -
-                              Constants::kGridSquareSizePixelsF.x * kPositionOffsetFactor;
+        m_bounds.position.x = position.x - Constants::kGridSquareSizePixelsF.x * kPositionOffsetFactor;
         m_bounds.position.y = position.y;
         break;
       case ScaleCardinality::VERTICAL:
         m_bounds.size.y = size.y * m_scale_factor;
         m_bounds.size.x = size.x * 1;
-        m_bounds.position.y = position.y -
-                              Constants::kGridSquareSizePixelsF.y * kPositionOffsetFactor;
+        m_bounds.position.y = position.y - Constants::kGridSquareSizePixelsF.y * kPositionOffsetFactor;
         m_bounds.position.x = position.x;
         break;
       case ScaleCardinality::BOTH:
@@ -77,10 +75,7 @@ public:
    *
    * @param new_position The new position to set for the bounds
    */
-  void position( sf::Vector2f new_position )
-  {
-    m_bounds.position = new_position - Constants::kGridSquareSizePixelsF * kPositionOffsetFactor;
-  }
+  void position( sf::Vector2f new_position ) { m_bounds.position = new_position - Constants::kGridSquareSizePixelsF * kPositionOffsetFactor; }
   sf::Vector2f position() const { return m_bounds.position; }
 
   /**
@@ -97,10 +92,7 @@ public:
   sf::Vector2f size() const { return m_bounds.size; }
 
   //! @brief Checks for intersection with another rectangle.
-  std::optional<sf::FloatRect> findIntersection( const sf::FloatRect &rectangle )
-  {
-    return m_bounds.findIntersection( rectangle );
-  }
+  std::optional<sf::FloatRect> findIntersection( const sf::FloatRect &rectangle ) { return m_bounds.findIntersection( rectangle ); }
 
   //! @brief Retrieves the underlying FloatRect bounds.
   sf::FloatRect getBounds() const { return m_bounds; }

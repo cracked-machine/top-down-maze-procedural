@@ -13,6 +13,7 @@
 #include <Components/FootStepTimer.hpp>
 #include <Components/Neighbours.hpp>
 #include <Components/NoPathFinding.hpp>
+#include <Components/Obstacle.hpp>
 #include <Components/PCDetectionBounds.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCadaverCount.hpp>
@@ -67,9 +68,8 @@ public:
     for ( auto entity : source_registry.storage<entt::entity>() )
     {
       // this is a list of components that we do NOT want to copy over
-      if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::Neighbours,
-                                  Cmp::NoPathFinding, Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::CryptRoomOpen,
-                                  Cmp::CryptRoomClosed, Cmp::CryptRoomStart, Cmp::CryptRoomEnd>( entity ) )
+      if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::Neighbours, Cmp::NoPathFinding, Cmp::FootStepTimer,
+                                  Cmp::FootStepAlpha, Cmp::CryptRoomOpen, Cmp::CryptRoomClosed, Cmp::CryptRoomStart, Cmp::CryptRoomEnd>( entity ) )
       {
         skipped_cmp++;
         continue; // Skip player entity

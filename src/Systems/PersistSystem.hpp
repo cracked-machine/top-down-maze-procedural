@@ -3,6 +3,7 @@
 
 #include <Events/SaveSettingsEvent.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <entt/entity/registry.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -10,8 +11,7 @@ namespace ProceduralMaze::Sys
 class PersistSystem : public BaseSystem
 {
 public:
-  PersistSystem( entt::registry &reg, sf::RenderWindow &window,
-                 Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
+  PersistSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}
@@ -87,10 +87,8 @@ public:
   {
     if ( not reg.ctx().contains<T>() )
     {
-      SPDLOG_CRITICAL( "Attempting to access non-existent persistent component: {}",
-                       typeid( T ).name() );
-      throw std::runtime_error( "Persistent component not found: " +
-                                std::string( typeid( T ).name() ) );
+      SPDLOG_CRITICAL( "Attempting to access non-existent persistent component: {}", typeid( T ).name() );
+      throw std::runtime_error( "Persistent component not found: " + std::string( typeid( T ).name() ) );
     }
     return reg.ctx().get<T>();
   }
@@ -108,8 +106,7 @@ private:
    * processes where JSON data needs to be converted back into component objects within
    * an entity-component system or similar architecture.
    */
-  std::unordered_map<std::string, std::function<void( const nlohmann::json & )>>
-      m_component_loaders;
+  std::unordered_map<std::string, std::function<void( const nlohmann::json & )>> m_component_loaders;
 
   /**
    * @brief Registers a persistent component loader with default arguments.
@@ -132,24 +129,18 @@ private:
     // Capture args in a tuple to preserve them for later use
     auto args_tuple = std::make_tuple( std::forward<DefaultArgTypes>( default_args )... );
 
-    std::apply(
-        [this]( auto &&...unpacked_args )
-        {
-          Sys::PersistSystem::add_persist_cmp<ComponentType>(
-              getReg(), std::forward<decltype( unpacked_args )>( unpacked_args )... );
-        },
-        args_tuple );
+    std::apply( [this]( auto &&...unpacked_args )
+                { Sys::PersistSystem::add_persist_cmp<ComponentType>( getReg(), std::forward<decltype( unpacked_args )>( unpacked_args )... ); },
+                args_tuple );
 
     // move the tuple into the lambda to avoid copies (pack copy forbidden by lambda)
-    m_component_loaders[key] =
-        [this, args_tuple = std::move( args_tuple )]( const nlohmann::json &persistent_object )
+    m_component_loaders[key] = [this, args_tuple = std::move( args_tuple )]( const nlohmann::json &persistent_object )
     {
       // Component already exists, just update it
       auto &component = get_persist_cmp<ComponentType>( getReg() );
       component.deserialize( persistent_object );
       auto deserialized_value = component.get_value();
-      SPDLOG_DEBUG( "Loaded {} from JSON with value {}", component.class_name(),
-                    deserialized_value );
+      SPDLOG_DEBUG( "Loaded {} from JSON with value {}", component.class_name(), deserialized_value );
     };
   }
 };

@@ -3,6 +3,7 @@
 #include <Components/Direction.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/LerpPosition.hpp>
+#include <Components/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/PCDetectionBounds.hpp>
 #include <Components/Persistent/BlastRadius.hpp>

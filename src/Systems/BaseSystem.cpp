@@ -3,9 +3,11 @@
 #include <Components/CryptSegment.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/NPC.hpp>
+#include <Components/Obstacle.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/RectBounds.hpp>
+#include <Utils/Utils.hpp>
 #include <entt/entity/registry.hpp>
 
 #include <Components/AltarSegment.hpp>
@@ -19,8 +21,7 @@
 namespace ProceduralMaze::Sys
 {
 
-BaseSystem::BaseSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                        Audio::SoundBank &sound_bank )
+BaseSystem::BaseSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : m_reg( reg ),
       m_window( window ),
       m_sprite_factory( sprite_factory ),
@@ -120,11 +121,11 @@ bool BaseSystem::isDiagonalMovementBetweenObstacles( const sf::FloatRect &curren
   sf::Vector2f grid_size{ Constants::kGridSquareSizePixels };
 
   // Calculate the two orthogonal positions the diagonal movement would "cut through"
-  sf::FloatRect horizontal_check = sf::FloatRect{
-      sf::Vector2f{ current_pos.position.x + ( direction.x * grid_size.x ), current_pos.position.y }, grid_size };
+  sf::FloatRect horizontal_check = sf::FloatRect{ sf::Vector2f{ current_pos.position.x + ( direction.x * grid_size.x ), current_pos.position.y },
+                                                  grid_size };
 
-  sf::FloatRect vertical_check = sf::FloatRect{
-      sf::Vector2f{ current_pos.position.x, current_pos.position.y + ( direction.y * grid_size.y ) }, grid_size };
+  sf::FloatRect vertical_check = sf::FloatRect{ sf::Vector2f{ current_pos.position.x, current_pos.position.y + ( direction.y * grid_size.y ) },
+                                                grid_size };
 
   // Check if both orthogonal positions have obstacles
   bool horizontal_blocked = !is_valid_move( horizontal_check );

@@ -44,21 +44,19 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Utils/Utils.hpp>
 #include <fstream>
 #include <nlohmann/json.hpp>
 
 namespace ProceduralMaze::Sys
 {
 
-PersistSystem::PersistSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                              Audio::SoundBank &sound_bank )
+PersistSystem::PersistSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
   // the constructor
-  std::ignore = get_systems_event_queue()
-                    .sink<Events::SaveSettingsEvent>()
-                    .connect<&Sys::PersistSystem::on_save_settings_event>( this );
+  std::ignore = get_systems_event_queue().sink<Events::SaveSettingsEvent>().connect<&Sys::PersistSystem::on_save_settings_event>( this );
   SPDLOG_DEBUG( "PersistSystem initialized" );
 }
 

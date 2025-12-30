@@ -2,6 +2,7 @@
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Neighbours.hpp>
+#include <Components/NoPathFinding.hpp>
 #include <Components/PCDetectionBounds.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
 #include <Components/Persistent/BombInventory.hpp>
@@ -16,7 +17,9 @@
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpawnArea.hpp>
+#include <Components/SpriteAnimation.hpp>
 #include <Components/WeaponLevel.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Systems/PersistSystem.hpp>
