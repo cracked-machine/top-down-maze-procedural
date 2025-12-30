@@ -48,11 +48,11 @@ template <typename MULTIBLOCK, typename MBSEGMENT>
 void createMultiblockSegments( entt::registry &registry, entt::entity multiblock_entity, Cmp::Position pos, const Sprites::MultiSprite &ms )
 {
   MULTIBLOCK new_multiblock_bounds = registry.get<MULTIBLOCK>( multiblock_entity );
-  SPDLOG_INFO( "createMultiblockSegments called with MULTIBLOCK type: {} for {},{}", typeid( MBSEGMENT ).name(), pos.position.x, pos.position.y );
+  SPDLOG_DEBUG( "createMultiblockSegments called with MULTIBLOCK type: {} for {},{}", typeid( MBSEGMENT ).name(), pos.position.x, pos.position.y );
 
   auto pos_view = registry.view<Cmp::Position>();
 
-  int intersection_count = 0;
+  [[maybe_unused]] int intersection_count = 0;
   for ( auto [entity, pos_cmp] : pos_view.each() )
   {
 
@@ -93,20 +93,20 @@ void createMultiblockSegments( entt::registry &registry, entt::entity multiblock
       registry.emplace_or_replace<Cmp::NoPathFinding>( entity );
     }
     registry.emplace_or_replace<Cmp::Armable>( entity );
-    SPDLOG_INFO( "Modifying entity {}, sprite type {}, zorder to {}", static_cast<int>( entity ), ms.get_sprite_type(),
-                 pos_cmp.position.y + ms.getSpriteSizePixels().y );
+    SPDLOG_DEBUG( "Modifying entity {}, sprite type {}, zorder to {}", static_cast<int>( entity ), ms.get_sprite_type(),
+                  pos_cmp.position.y + ms.getSpriteSizePixels().y );
 
     // NOTE that this is a bit shit: hardcoded door placement for crypts.
     // If we add new MultiBlock sprites with 9+ segments they might suddenly sprout CryptDoors
     if ( calculated_grid_index == 10 )
     {
       registry.emplace_or_replace<Cmp::CryptEntrance>( entity );
-      SPDLOG_INFO( "Adding Cmp::CryptEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
+      SPDLOG_DEBUG( "Adding Cmp::CryptEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
     }
 
     registry.emplace_or_replace<Cmp::ReservedPosition>( entity );
 
-    SPDLOG_INFO( "Processed {} intersecting entities for multiblock {}", intersection_count, typeid( MULTIBLOCK ).name() );
+    SPDLOG_DEBUG( "Processed {} intersecting entities for multiblock {}", intersection_count, typeid( MULTIBLOCK ).name() );
   }
 }
 

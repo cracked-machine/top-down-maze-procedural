@@ -6,7 +6,12 @@
 #include <SceneControl/Scene.hpp>
 #include <Sprites/TileMap.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <Systems/SystemStore.hpp>
+#include <Utils/Utils.hpp>
+
+// clang-format off
+namespace ProceduralMaze::Sys { class SystemStore; }
+namespace ProceduralMaze::Audio { class SoundBank; }
+// clang-format on
 
 namespace ProceduralMaze::Scene
 {

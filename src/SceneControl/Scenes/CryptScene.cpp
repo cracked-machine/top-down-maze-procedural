@@ -1,5 +1,6 @@
 #include <SceneControl/Scenes/CryptScene.hpp>
 
+#include <Audio/SoundBank.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>

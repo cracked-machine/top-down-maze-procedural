@@ -8,34 +8,13 @@
 #include <SFML/System/Time.hpp>
 
 #include <Components/CorruptionCell.hpp>
-#include <Components/Exit.hpp>
 #include <Components/HazardFieldCell.hpp>
-#include <Components/NPC.hpp>
-#include <Components/NoPathFinding.hpp>
-#include <Components/Obstacle.hpp>
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/Persistent/CorruptionSeed.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
-#include <Components/PlayableCharacter.hpp>
-#include <Components/PlayerDistance.hpp>
-#include <Components/PlayerHealth.hpp>
 #include <Components/PlayerMortality.hpp>
-#include <Components/RectBounds.hpp>
-#include <Components/ReservedPosition.hpp>
 #include <Components/SinkholeCell.hpp>
-#include <Components/SpriteAnimation.hpp>
-#include <Components/System.hpp>
-#include <Components/Wall.hpp>
-#include <Components/ZOrderValue.hpp>
-#include <Events/PauseClocksEvent.hpp>
-#include <Events/ResumeClocksEvent.hpp>
-#include <Factory/NpcFactory.hpp>
-#include <Factory/ObstacleFactory.hpp>
-#include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <Systems/PersistSystem.hpp>
-#include <Systems/Render/RenderSystem.hpp>
-#include <Utils/Optimizations.hpp>
 
 //! @brief HazardFields are environmental dangers that spread throughout the maze,
 //! posing threats to both the player and NPCs. Examples include sinkholes (composed of many
@@ -58,28 +37,6 @@ concept ValidHazard = requires {
   { HazardTraits<T>::sprite_type } -> std::convertible_to<Sprites::SpriteMetaType>;
 };
 
-// Traits for Sinkhole hazard field types
-template <>
-struct HazardTraits<Cmp::SinkholeCell>
-{
-  using SeedType = Cmp::Persist::SinkholeSeed;
-  using ExcludeHazard = Cmp::CorruptionCell;
-  static constexpr bool kills_instantly = true;
-  static constexpr Cmp::PlayerMortality::State mortality_state = Cmp::PlayerMortality::State::FALLING;
-  static constexpr Sprites::SpriteMetaType sprite_type = "SINKHOLE";
-};
-
-// Traits for Corruption hazard field types
-template <>
-struct HazardTraits<Cmp::CorruptionCell>
-{
-  using SeedType = Cmp::Persist::CorruptionSeed;
-  using ExcludeHazard = Cmp::SinkholeCell;
-  static constexpr bool kills_instantly = false;
-  static constexpr Cmp::PlayerMortality::State mortality_state = Cmp::PlayerMortality::State::DECAYING;
-  static constexpr Sprites::SpriteMetaType sprite_type = "CORRUPTION";
-};
-
 /**
  * @brief A templated system that manages the creation and spread of hazard
  * fields in a procedural maze.
@@ -98,55 +55,12 @@ public:
   //! @param reg Smart pointer to the entt registry
   //! @param window Reference to the SFML render window
   //! @param sprite_factory Reference to the sprite factory
-  HazardFieldSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-      : Sys::BaseSystem( reg, window, sprite_factory, sound_bank )
-  {
-    // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
-    // the constructor
-    get_systems_event_queue().sink<Events::PauseClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onPause>( this );
-    get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::HazardFieldSystem<HazardType>::onResume>( this );
-  }
+  HazardFieldSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
-  void update()
-  {
-    update_hazard_field();
-    check_npc_hazard_field_collision();
-
-    for ( auto [_ent, _sys] : getReg().template view<Cmp::System>().each() )
-    {
-      if ( _sys.collisions_enabled ) { check_player_hazard_field_collision(); }
-    }
-  }
-
-  //! @brief Initialise the hazard field. This is done only once at the start of the game:
-  //! 1. Get view of all entities that own obstacles and position components
-  //! 2. Return if there is already a hazard field component present
-  //! 3. Pick a random entity from the view (using seed).
-  //! 4. Add hazard cell component to the random entity.
-  //! 5. Remove obstacle component from the random entity.
-  void init_hazard_field()
-  {
-    auto hazard_field_view = getReg().template view<HazardType>( entt::exclude<typename Traits::ExcludeHazard> );
-    if ( hazard_field_view.size_hint() > 0 ) { return; }
-
-    unsigned long seed = Sys::PersistSystem::get_persist_cmp<typename Traits::SeedType>( getReg() ).get_value();
-    auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
-        getReg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{},
-        Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
-    if ( random_entity == entt::null ) { return; }
-
-    Factory::destroyObstacle( getReg(), random_entity );
-    getReg().template emplace<HazardType>( random_entity );
-    getReg().template emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, Traits::sprite_type, 0 );
-    getReg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 1.f );
-    getReg().template emplace_or_replace<Cmp::NoPathFinding>( random_entity );
-    SPDLOG_INFO( "{} hazard spawned at position [{}, {}].", Traits::sprite_type, random_pos.position.x, random_pos.position.y );
-  }
-
-  //! @brief event handlers for pausing hazard spread clocks
-  void onPause() override { m_spread_update_clock.stop(); }
-  //! @brief event handlers for resuming hazard spread clocks
-  void onResume() override { m_spread_update_clock.start(); }
+  void update();
+  void init_hazard_field();
+  void onPause() override;
+  void onResume() override;
 
 private:
   //! @brief Update the hazard field by spreading it to adjacent positions.
@@ -157,123 +71,13 @@ private:
   //!   b. Use a random chance (1 in 8) to convert an adjacent obstacle into a new hazard cell.
   //!   c. Count adjacent hazard fields; if surrounded by 2 or more, mark as inactive to stop
   //!   further spreading.
-  void update_hazard_field()
-  {
-    if ( m_spread_update_clock.getElapsedTime() < m_update_period ) return;
-    m_spread_update_clock.restart();
-
-    auto hazard_view = getReg().template view<HazardType, Cmp::Position>();
-    auto obstacle_view = getReg().template view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::ReservedPosition> );
-
-    Cmp::RandomInt hazard_spread_picker( 0, 7 ); // 1 in 8 chance for picking an adjacent obstacle
-
-    for ( auto [hazard_entity, hazard_cmp, position_cmp] : hazard_view.each() )
-    {
-      if ( not hazard_cmp.active ) continue;
-
-      // make the hazard field hitbox slightly larger to find adjacent obstacles
-      auto hazard_hitbox = sf::FloatRect( position_cmp.position, Constants::kGridSquareSizePixelsF * 2.f );
-      int adjacent_hazard_fields = 0;
-
-      // add new hazard cell
-      for ( auto [obstacle_entity, obstacle_cmp, obst_pos_cmp] : obstacle_view.each() )
-      {
-        if ( not hazard_hitbox.findIntersection( obst_pos_cmp ) ) continue;
-        if ( getReg().template try_get<HazardType>( obstacle_entity ) ) continue;
-        if ( hazard_spread_picker.gen() == 0 )
-        {
-          Factory::destroyObstacle( getReg(), obstacle_entity );
-          getReg().template emplace_or_replace<HazardType>( obstacle_entity );
-          getReg().template emplace_or_replace<Cmp::SpriteAnimation>( obstacle_entity, 0, 0, true, Traits::sprite_type, 0 );
-          getReg().template emplace_or_replace<Cmp::ZOrderValue>( obstacle_entity, obst_pos_cmp.position.y - 1.f );
-          getReg().template emplace_or_replace<Cmp::NoPathFinding>( obstacle_entity );
-          if ( getReg().template all_of<Cmp::PlayerDistance>( obstacle_entity ) )
-          {
-            getReg().template remove<Cmp::PlayerDistance>( obstacle_entity );
-          }
-
-          SPDLOG_DEBUG( "New hazard field created at entity {}", static_cast<uint32_t>( obstacle_entity ) );
-          return; // only add one hazard cell per update period
-        }
-      }
-
-      // update adjacent hazard cell count
-      for ( auto [adj_hazard_entity, adj_hazard_cmp, adj_pos_cmp] : hazard_view.each() )
-      {
-        if ( hazard_entity == adj_hazard_entity ) continue;
-        if ( hazard_hitbox.findIntersection( adj_pos_cmp ) ) { adjacent_hazard_fields++; }
-      }
-
-      // if the hazard field is surrounded by hazard fields, then we can exclude it from future
-      // searches
-      if ( adjacent_hazard_fields >= 2 ) { hazard_cmp.active = false; }
-    }
-  }
-
+  void update_hazard_field();
   //! @brief Check for player collision with hazard fields.
   //! If a collision is detected, apply damage or instant death based on hazard type.
-  void check_player_hazard_field_collision()
-  {
-    auto hazard_view = getReg().template view<HazardType, Cmp::Position>();
-    auto player_view = getReg().template view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
-
-    for ( auto [pc_entt, player_cmp, player_health_cmp, player_mort_cmp, player_pos_cmp] : player_view.each() )
-    {
-      // optimization
-      // if ( player_mort_cmp.state != Cmp::PlayerMortality::State::ALIVE ) return;
-      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), player_pos_cmp ) ) continue;
-
-      // reduce the player hitbox so that you have to be almost centered over it to fall in
-      auto player_hitbox_redux = Cmp::RectBounds( player_pos_cmp.position, player_pos_cmp.size, 0.1f );
-      for ( auto [hazard_entt, hazard_cmp, hazard_pos_cmp] : hazard_view.each() )
-      {
-        // reduce the hazaard hotbox so that you have to be almost centered over it to fall in
-        auto hazard_hitbox_redux = Cmp::RectBounds( hazard_pos_cmp.position, hazard_pos_cmp.size, 0.1f );
-        if ( not player_hitbox_redux.findIntersection( hazard_hitbox_redux.getBounds() ) ) continue;
-
-        if constexpr ( Traits::sprite_type == "SINKHOLE" )
-        {
-          player_mort_cmp.state = Traits::mortality_state;
-          SPDLOG_DEBUG( "Player fell into a hazard field at position ({}, {})!", hazard_pos_cmp.x, hazard_pos_cmp.y );
-        }
-        else if constexpr ( Traits::sprite_type == "CORRUPTION" )
-        {
-          player_health_cmp.health -= Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CorruptionDamage>( getReg() ).get_value();
-          SPDLOG_DEBUG( "Player took corruption damage at position ({}, {})! Health is now {}.", hazard_pos_cmp.x, hazard_pos_cmp.y,
-                        player_health_cmp.health );
-          return;
-        }
-      }
-    }
-  }
-
+  void check_player_hazard_field_collision();
   //! @brief Check for NPC collision with hazard fields.
   //! If a collision is detected, trigger NPC death event.
-  void check_npc_hazard_field_collision()
-  {
-    auto hazard_view = getReg().template view<HazardType, Cmp::Position>();
-    auto npc_view = getReg().template view<Cmp::NPC, Cmp::Position>();
-
-    for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : npc_view.each() )
-    {
-      // optimization
-      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) ) continue;
-
-      for ( auto [hazard_entt, hazard_cmp, hazard_pos_cmp] : hazard_view.each() )
-      {
-        if ( not npc_pos_cmp.findIntersection( hazard_pos_cmp ) ) continue;
-
-        auto loot_entity = Factory::destroyNPC( getReg(), npc_entt );
-        if ( loot_entity != entt::null )
-        {
-          SPDLOG_INFO( "Dropped RELIC_DROP loot at NPC death position." );
-          m_sound_bank.get_effect( "drop_relic" ).play();
-        }
-        SPDLOG_DEBUG( "NPC fell into a hazard field at position ({}, {})!", hazard_pos_cmp.x, hazard_pos_cmp.y );
-        return;
-      }
-    }
-  }
+  void check_npc_hazard_field_collision();
 
   //! @brief Clock used to track time for hazard field updates.
   //!
@@ -283,14 +87,6 @@ private:
   //!
   const sf::Time m_update_period{ sf::seconds( 5.0f ) }; // seconds between adding new hazard fields
 };
-
-//! @brief Sinkhole hazard system.
-//! Specialization of HazardFieldSystem for Cmp::SinkholeCell.
-using SinkHoleHazardSystem = HazardFieldSystem<Cmp::SinkholeCell>;
-
-//! @brief Corruption hazard system.
-//! Specialization of HazardFieldSystem for Cmp::CorruptionCell.
-using CorruptionHazardSystem = HazardFieldSystem<Cmp::CorruptionCell>;
 
 } // namespace ProceduralMaze::Sys
 

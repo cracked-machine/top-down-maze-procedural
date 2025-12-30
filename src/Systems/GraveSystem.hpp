@@ -5,6 +5,11 @@
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
+namespace ProceduralMaze::Cmp
+{
+class PlayableCharacter;
+}
+
 namespace ProceduralMaze::Sys
 {
 

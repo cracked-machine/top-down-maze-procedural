@@ -3,7 +3,11 @@
 
 #include <SceneControl/Events/ProcessTitleSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
-#include <Systems/SystemStore.hpp>
+
+// clang-format off
+namespace ProceduralMaze::Sys { class SystemStore; }
+namespace ProceduralMaze::Audio { class SoundBank; }
+// clang-format on
 
 namespace ProceduralMaze::Scene
 {

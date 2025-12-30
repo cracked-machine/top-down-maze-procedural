@@ -15,6 +15,8 @@
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepAlpha.hpp>
+#include <Components/FootStepTimer.hpp>
+#include <Components/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCadaverCount.hpp>
@@ -29,12 +31,14 @@
 #include <Events/CryptRoomEvent.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/LootFactory.hpp>
+#include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/CryptSystem.hpp>
+#include <Systems/Events/PassageEvent.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>

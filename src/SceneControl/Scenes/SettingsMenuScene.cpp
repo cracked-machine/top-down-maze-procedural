@@ -1,5 +1,6 @@
 #include <SceneControl/Scenes/SettingsMenuScene.hpp>
 
+#include <Audio/SoundBank.hpp>
 #include <SceneControl/Events/ProcessSettingsMenuSceneInputEvent.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>

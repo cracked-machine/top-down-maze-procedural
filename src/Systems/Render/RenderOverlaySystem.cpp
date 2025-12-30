@@ -1,7 +1,11 @@
 #include <Components/CryptPassageBlock.hpp>
+#include <Components/Direction.hpp>
 #include <Components/LerpPosition.hpp>
+#include <Components/NPC.hpp>
 #include <Components/NPCScanBounds.hpp>
+#include <Components/Obstacle.hpp>
 #include <Components/PCDetectionBounds.hpp>
+#include <Components/PlayerDistance.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -16,6 +20,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Sprites/MultiSprite.hpp>
+#include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Utils/Utils.hpp>
 

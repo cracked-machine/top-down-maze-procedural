@@ -1,9 +1,11 @@
 #include <SceneControl/Scenes/TitleScene.hpp>
 
+#include <Audio/SoundBank.hpp>
 #include <Components/Persistent/MusicVolume.hpp>
 #include <SceneControl/Events/ProcessTitleSceneInputEvent.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
+#include <Systems/SystemStore.hpp>
 
 namespace ProceduralMaze::Scene
 {

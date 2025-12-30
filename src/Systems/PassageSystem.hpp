@@ -4,6 +4,7 @@
 #include <Components/CryptPassageDoor.hpp>
 #include <Components/CryptRoomStart.hpp>
 #include <Components/Direction.hpp>
+#include <Components/Random.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Events/PassageEvent.hpp>
 

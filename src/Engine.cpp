@@ -12,6 +12,7 @@
 #include <SceneControl/Scenes/TitleScene.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
+#include <Systems/Threats/HazardFieldSystemImpl.hpp>
 
 #include <SFML/Window/WindowEnums.hpp>
 
@@ -56,8 +57,7 @@ bool Engine::run()
   {
     loading_screen( [this]() { this->init_systems(); }, m_splash_texture );
 
-    m_scene_manager->push(
-        std::make_unique<Scene::TitleScene>( *m_sound_bank, *m_system_store, m_nav_event_dispatcher ) );
+    m_scene_manager->push( std::make_unique<Scene::TitleScene>( *m_sound_bank, *m_system_store, m_nav_event_dispatcher ) );
     sf::Clock globalFrameClock;
 
     /// MAIN LOOP BEGINS
@@ -97,10 +97,10 @@ void Engine::init_systems()
   m_sprite_factory = std::make_unique<Sprites::SpriteFactory>();
   m_sprite_factory->init();
   m_sound_bank->init();
-  m_system_store = std::make_unique<Sys::SystemStore>( *m_window, *m_sprite_factory, *m_sound_bank,
-                                                       m_nav_event_dispatcher, m_scenemanager_event_queue );
-  m_scene_manager = std::make_unique<Scene::SceneManager>( *m_window, *m_sound_bank, *m_system_store,
-                                                           m_nav_event_dispatcher, m_scenemanager_event_queue );
+  m_system_store = std::make_unique<Sys::SystemStore>( *m_window, *m_sprite_factory, *m_sound_bank, m_nav_event_dispatcher,
+                                                       m_scenemanager_event_queue );
+  m_scene_manager = std::make_unique<Scene::SceneManager>( *m_window, *m_sound_bank, *m_system_store, m_nav_event_dispatcher,
+                                                           m_scenemanager_event_queue );
 
   SPDLOG_DEBUG( "Lazy initialization of systems complete" );
 }
@@ -119,8 +119,7 @@ void Engine::show_error_screen( const std::string &error_msg )
   }
 
   // Show only the error message on screen, not the stack trace
-  std::string screen_message = "Fatal Error\n\n" + error_msg + "\n\nPress any key to exit" +
-                               "\n\nFull stack trace saved to log.txt";
+  std::string screen_message = "Fatal Error\n\n" + error_msg + "\n\nPress any key to exit" + "\n\nFull stack trace saved to log.txt";
 
   sf::Text error_text( font, screen_message, 24 );
   error_text.setFillColor( sf::Color::White );

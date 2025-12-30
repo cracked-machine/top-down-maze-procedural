@@ -2,6 +2,7 @@
 #define __SYS_RENDEROVERSYSTEM_HPP__
 
 #include <Components/ZOrderValue.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Vector2.hpp>
 

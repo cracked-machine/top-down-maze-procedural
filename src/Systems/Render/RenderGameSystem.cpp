@@ -51,6 +51,7 @@
 #include <Components/WormholeMultiBlock.hpp>
 #include <Components/WormholeSingularity.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Systems/Threats/HazardFieldSystemImpl.hpp>
 #include <Utils/Utils.hpp>
 
 #include <Sprites/MultiSprite.hpp>

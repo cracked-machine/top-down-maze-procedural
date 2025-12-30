@@ -4,10 +4,16 @@
 #include <Components/CryptRoomOpen.hpp>
 #include <Components/CryptRoomStart.hpp>
 #include <Components/FootStepAlpha.hpp>
+#include <Components/FootStepTimer.hpp>
+#include <Components/Obstacle.hpp>
+#include <Components/RectBounds.hpp>
+#include <Components/Wall.hpp>
+#include <Factory/ObstacleFactory.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/PassageSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
+#include <Utils/Maths.hpp>
 #include <Utils/Utils.hpp>
 
 #include <queue>

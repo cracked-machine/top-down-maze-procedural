@@ -1,8 +1,10 @@
 #include <SceneControl/Scenes/GameOverScene.hpp>
 
+#include <Audio/SoundBank.hpp>
 #include <SceneControl/Events/ProcessGameoverSceneInputEvent.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
+#include <Systems/SystemStore.hpp>
 
 namespace ProceduralMaze::Scene
 {

@@ -20,7 +20,7 @@
 #include <Systems/Render/RenderMenuSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/Threats/BombSystem.hpp>
-#include <Systems/Threats/HazardFieldSystem.hpp>
+#include <Systems/Threats/HazardFieldSystemImpl.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Systems/Threats/WormholeSystem.hpp>
 

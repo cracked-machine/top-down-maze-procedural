@@ -1,5 +1,6 @@
 #include <SceneControl/Scenes/GraveyardScene.hpp>
 
+#include <Audio/SoundBank.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Factory/FloormapFactory.hpp>
@@ -8,6 +9,8 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
+#include <Systems/SystemStore.hpp>
+#include <Systems/Threats/HazardFieldSystemImpl.hpp>
 
 namespace ProceduralMaze::Scene
 {
