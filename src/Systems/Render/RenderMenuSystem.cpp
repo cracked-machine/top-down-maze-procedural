@@ -1,4 +1,7 @@
 #include <Components/Persistent/ArmedOffDelay.hpp>
+#include <Components/Persistent/NpcShockwaveFreq.hpp>
+#include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
+#include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
 
 #include <SFML/System/Angle.hpp>
@@ -272,6 +275,18 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     auto &npc_damage = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcDamage>( getReg() );
     ImGui::SliderScalar( "NPC Damage", ImGuiDataType_U8, npc_damage.get_value_ptr(), npc_damage.get_min_value_ptr(), npc_damage.get_max_value_ptr(),
                          "%d" );
+
+    auto &npc_shockwave_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveSpeed>( getReg() );
+    ImGui::SliderScalar( "NPC Shockwave Speed (ms per px)", ImGuiDataType_U16, npc_shockwave_speed.get_value_ptr(),
+                         npc_shockwave_speed.get_min_value_ptr(), npc_shockwave_speed.get_max_value_ptr(), "%d" );
+
+    auto &npc_shockwave_freq = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveFreq>( getReg() );
+    ImGui::SliderScalar( "NPC Shockwave Freq", ImGuiDataType_U16, npc_shockwave_freq.get_value_ptr(), npc_shockwave_freq.get_min_value_ptr(),
+                         npc_shockwave_freq.get_max_value_ptr(), "%d" );
+
+    auto &npc_shockwave_max_radius = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveMaxRadius>( getReg() );
+    ImGui::SliderScalar( "NPC Shockwave Max Radius", ImGuiDataType_Float, npc_shockwave_max_radius.get_value_ptr(),
+                         npc_shockwave_max_radius.get_min_value_ptr(), npc_shockwave_max_radius.get_max_value_ptr(), "%.1f" );
 
     auto &npc_push_back = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcPushBack>( getReg() );
     if ( ImGui::SliderScalar( "NPC Push Back Distance", ImGuiDataType_Float, npc_push_back.get_value_ptr(), npc_push_back.get_min_value_ptr(),

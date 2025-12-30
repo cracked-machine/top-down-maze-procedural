@@ -4,6 +4,7 @@
 #include <Components/NPCScanBounds.hpp>
 #include <Components/NpcContainer.hpp>
 #include <Components/NpcDeathPosition.hpp>
+#include <Components/NpcShockwave.hpp>
 #include <Components/Persistent/NpcScanScale.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Factory/Factory.hpp>
@@ -34,6 +35,19 @@ void destroyNpcContainer( entt::registry &registry, entt::entity npc_container_e
   registry.remove<Cmp::NpcContainer>( npc_container_entity );
   registry.remove<Cmp::SpriteAnimation>( npc_container_entity );
   registry.remove<Cmp::ZOrderValue>( npc_container_entity );
+}
+
+void createShockwave( entt::registry &registry, entt::entity npc_entt )
+{
+  auto npc_pos = registry.try_get<Cmp::Position>( npc_entt );
+  if ( not npc_pos )
+  {
+    SPDLOG_WARN( "Unable to get position from NPC entity" );
+    return;
+  }
+  auto npc_sw_entt = registry.create();
+  registry.emplace_or_replace<Cmp::Position>( npc_sw_entt, npc_pos->position, npc_pos->size );
+  registry.emplace_or_replace<Cmp::NpcShockwave>( npc_sw_entt, npc_pos->position );
 }
 
 void createNPC( entt::registry &registry, entt::entity position_entity, const Sprites::SpriteMetaType &type )
@@ -78,6 +92,8 @@ void createNPC( entt::registry &registry, entt::entity position_entity, const Sp
     // Remove the npc container component from the original entity
     registry.remove<Cmp::NpcContainer>( position_entity );
     registry.remove<Cmp::ZOrderValue>( position_entity );
+
+    Factory::createShockwave( registry, position_entity );
   }
 
   if ( type == "NPCGHOST" )

@@ -82,6 +82,18 @@
     "type": "int",
     "value": 15
   },  
+  "NpcShockwaveSpeed": {
+    "type":"int",
+    "value": 100
+  },
+  "NpcShockwaveFreq": {
+    "type":"int",
+    "value": 100
+  },
+  "NpcShockwaveMaxRadius": {
+    "type":"float",
+    "value": 100.0
+  },
   "PcDamageDelay": {
     "type": "float",
     "value": 3.0

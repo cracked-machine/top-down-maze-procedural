@@ -1,3 +1,6 @@
+#include <Components/Persistent/NpcShockwaveFreq.hpp>
+#include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
+#include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Systems/PersistSystem.hpp>
 
 #define JSON_NOEXCEPTION
@@ -32,6 +35,7 @@
 #include <Components/Persistent/NpcLerpSpeed.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
 #include <Components/Persistent/NpcScanScale.hpp>
+#include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
@@ -95,6 +99,9 @@ void PersistSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persist::NpcPushBack>( "NpcPushBack" );
   registerComponent<Cmp::Persist::NpcScanScale>( "NpcScanScale" );
   registerComponent<Cmp::Persist::NpcSkeleAnimFramerate>( "NpcSkeleAnimFramerate" );
+  registerComponent<Cmp::Persist::NpcShockwaveSpeed>( "NpcShockwaveSpeed" );
+  registerComponent<Cmp::Persist::NpcShockwaveFreq>( "NpcShockwaveFreq" );
+  registerComponent<Cmp::Persist::NpcShockwaveMaxRadius>( "NpcShockwaveMaxRadius" );
   registerComponent<Cmp::Persist::PcDamageDelay>( "PcDamageDelay" );
   registerComponent<Cmp::Persist::PlayerAnimFramerate>( "PlayerAnimFramerate" );
   registerComponent<Cmp::Persist::PlayerDetectionScale>( "PlayerDetectionScale" );
@@ -176,6 +183,9 @@ void PersistSystem::save_state()
   serializeComponent.template operator()<Cmp::Persist::NpcPushBack>( "NpcPushBack" );
   serializeComponent.template operator()<Cmp::Persist::NpcScanScale>( "NpcScanScale" );
   serializeComponent.template operator()<Cmp::Persist::NpcSkeleAnimFramerate>( "NpcSkeleAnimFramerate" );
+  serializeComponent.template operator()<Cmp::Persist::NpcShockwaveSpeed>( "NpcShockwaveSpeed" );
+  serializeComponent.template operator()<Cmp::Persist::NpcShockwaveFreq>( "NpcShockwaveFreq" );
+  serializeComponent.template operator()<Cmp::Persist::NpcShockwaveMaxRadius>( "NpcShockwaveMaxRadius" );
   serializeComponent.template operator()<Cmp::Persist::PcDamageDelay>( "PcDamageDelay" );
   serializeComponent.template operator()<Cmp::Persist::PlayerAnimFramerate>( "PlayerAnimFramerate" );
   serializeComponent.template operator()<Cmp::Persist::PlayerDetectionScale>( "PlayerDetectionScale" );

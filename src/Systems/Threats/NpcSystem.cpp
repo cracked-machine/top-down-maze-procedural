@@ -10,12 +10,16 @@
 #include <Components/NPC.hpp>
 #include <Components/NPCScanBounds.hpp>
 #include <Components/NpcContainer.hpp>
+#include <Components/NpcShockwave.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/PCDetectionBounds.hpp>
 #include <Components/Persistent/NpcActivateScale.hpp>
 #include <Components/Persistent/NpcDamage.hpp>
 #include <Components/Persistent/NpcLerpSpeed.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
+#include <Components/Persistent/NpcShockwaveFreq.hpp>
+#include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
+#include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerDistance.hpp>
@@ -30,6 +34,7 @@
 #include <Components/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/NpcFactory.hpp>
+#include <SFML/System/Time.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -68,6 +73,12 @@ void NpcSystem::update( sf::Time dt )
   {
     if ( _sys.collisions_enabled ) { check_player_to_npc_collision(); }
   }
+
+  for ( auto npc_entt : getReg().view<Cmp::NPC>() )
+  {
+    emit_shockwave( npc_entt );
+  }
+  update_shockwaves();
 }
 
 //! @brief Check if diagonal movement should be blocked due to adjacent obstacles
@@ -455,6 +466,38 @@ void NpcSystem::add_candidate_lerp( entt::entity npc_entity, Cmp::Direction cand
 {
   getReg().emplace_or_replace<Cmp::Direction>( npc_entity, std::move( candidate_dir ) );
   getReg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, std::move( candidate_lerp_pos ) );
+}
+
+void NpcSystem::emit_shockwave( entt::entity npc_entt )
+{
+  sf::Time sw_emit_freq{ sf::milliseconds( Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveFreq>( getReg() ).get_value() ) };
+  if ( shockwave_create_clock.getElapsedTime() > sw_emit_freq )
+  {
+    Factory::createShockwave( getReg(), npc_entt );
+    shockwave_create_clock.restart();
+  }
+}
+
+void NpcSystem::update_shockwaves()
+{
+  auto shockwave_increments = 1;
+  sf::Time sw_update_threshold{ sf::milliseconds( Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveSpeed>( getReg() ).get_value() ) };
+  auto max_radius = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveMaxRadius>( getReg() );
+
+  if ( shockwave_update_clock.getElapsedTime() > sw_update_threshold )
+  {
+    for ( auto entt : getReg().view<Cmp::NpcShockwave>() )
+    {
+      auto &sw_cmp = getReg().get<Cmp::NpcShockwave>( entt );
+      float new_radius = sw_cmp.getRadius() + shockwave_increments;
+      auto new_pos = sf::Vector2f{ sw_cmp.getPosition().x - shockwave_increments, sw_cmp.getPosition().y - shockwave_increments };
+      sw_cmp.setRadius( new_radius );
+      sw_cmp.setPosition( new_pos );
+      SPDLOG_INFO( "Current shockwave: {},{} and {}", new_pos.x, new_pos.y, new_radius );
+      if ( new_radius > max_radius.get_value() ) { getReg().destroy( entt ); }
+    }
+    shockwave_update_clock.restart();
+  }
 }
 
 } // namespace ProceduralMaze::Sys

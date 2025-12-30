@@ -67,6 +67,11 @@ private:
   //! @param candidate_dir The candidate direction to move
   //! @param candidate_lerp_pos The candidate lerp position to move to
   void add_candidate_lerp( entt::entity npc_entity, Cmp::Direction candidate_dir, Cmp::LerpPosition candidate_lerp_pos );
+
+  void emit_shockwave( entt::entity npc_entt );
+  void update_shockwaves();
+  sf::Clock shockwave_update_clock;
+  sf::Clock shockwave_create_clock;
 };
 
 } // namespace ProceduralMaze::Sys

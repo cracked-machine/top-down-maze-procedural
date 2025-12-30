@@ -14,6 +14,7 @@ void destroyNpcContainer( entt::registry &registry, entt::entity npc_container_e
 void createNPC( entt::registry &registry, entt::entity position_entity, const std::string &type );
 entt::entity destroyNPC( entt::registry &registry, entt::entity npc_entity );
 void createNpcExplosion( entt::registry &registry, Cmp::Position npc_position_cmp );
+void createShockwave( entt::registry &registry, entt::entity npc_entt );
 } // namespace ProceduralMaze::Factory
 
 #endif // SRC_FACTORY_NPCFACTORY_HPP
