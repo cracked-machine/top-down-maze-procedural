@@ -1,6 +1,10 @@
 #ifndef SRC_SYSTEMS_NPCSYSTEM_HPP__
 #define SRC_SYSTEMS_NPCSYSTEM_HPP__
 
+#include <Components/Direction.hpp>
+#include <Components/LerpPosition.hpp>
+#include <Systems/BaseSystem.hpp>
+
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
 
@@ -9,24 +13,14 @@
 
 #include <spdlog/spdlog.h>
 
-#include <Components/Direction.hpp>
-#include <Components/LerpPosition.hpp>
-#include <Components/NPC.hpp>
-#include <Components/Persistent/EffectsVolume.hpp>
-#include <Components/Persistent/NpcActivateScale.hpp>
-#include <Components/Persistent/NpcScanScale.hpp>
-#include <Components/Position.hpp>
-#include <Sprites/MultiSprite.hpp>
-#include <Sprites/SpriteFactory.hpp>
-#include <Systems/BaseSystem.hpp>
-
-#include <queue>
+// clang-format off
+namespace ProceduralMaze::Sprites { class SpriteFactory; }
+namespace ProceduralMaze::Sys { class SystemStore; }
+namespace ProceduralMaze::Audio { class SoundBank; }
+// clang-format on
 
 namespace ProceduralMaze::Sys
 {
-
-using PlayerDistanceQueue = std::priority_queue<std::pair<int, entt::entity>, std::vector<std::pair<int, entt::entity>>,
-                                                std::greater<std::pair<int, entt::entity>>>;
 
 class NpcSystem : public BaseSystem
 {

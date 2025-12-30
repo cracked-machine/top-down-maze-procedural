@@ -1,3 +1,5 @@
+
+#include <Audio/SoundBank.hpp>
 #include <Components/AltarMultiBlock.hpp>
 #include <Components/CryptEntrance.hpp>
 #include <Components/CryptExit.hpp>

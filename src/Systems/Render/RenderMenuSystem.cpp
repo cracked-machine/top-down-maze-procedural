@@ -1,3 +1,4 @@
+#include <Components/Persistent/ArmedOffDelay.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
 
 #include <SFML/System/Angle.hpp>

@@ -1,4 +1,5 @@
 
+#include <Audio/SoundBank.hpp>
 #include <Components/AltarSegment.hpp>
 #include <Components/CryptSegment.hpp>
 #include <Components/Direction.hpp>

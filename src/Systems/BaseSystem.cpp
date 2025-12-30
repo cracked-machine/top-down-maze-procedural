@@ -1,5 +1,6 @@
 #include <Systems/BaseSystem.hpp>
 
+#include <Audio/SoundBank.hpp>
 #include <Components/AltarSegment.hpp>
 #include <Components/CryptInteriorSegment.hpp>
 #include <Components/CryptObjectiveSegment.hpp>
@@ -14,6 +15,7 @@
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Wall.hpp>
+#include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Utils/Utils.hpp>

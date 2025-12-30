@@ -1,6 +1,7 @@
 #include <Components/CryptSegment.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Exit.hpp>
+#include <Components/NPC.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/PlayerHealth.hpp>
@@ -21,6 +22,7 @@
 #include <optional>
 #include <spdlog/spdlog.h>
 
+#include <Audio/SoundBank.hpp>
 #include <Components/AltarSegment.hpp>
 #include <Components/Armable.hpp>
 #include <Components/Armed.hpp>
@@ -32,6 +34,7 @@
 #include <Components/Persistent/BombDamage.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Threats/BombSystem.hpp>
 
@@ -39,14 +42,12 @@ namespace ProceduralMaze::Sys
 {
 using entt::exclude;
 
-BombSystem::BombSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                        Audio::SoundBank &sound_bank )
+BombSystem::BombSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
   // the constructor
-  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>(
-      this );
+  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>( this );
   std::ignore = get_systems_event_queue().sink<Events::PauseClocksEvent>().connect<&Sys::BombSystem::onPause>( this );
   std::ignore = get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::BombSystem::onResume>( this );
   SPDLOG_DEBUG( "BombSystem initialized" );
@@ -54,10 +55,8 @@ BombSystem::BombSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
 
 void BombSystem::onPause()
 {
-  if ( m_sound_bank.get_effect( "bomb_fuse" ).getStatus() == sf::Sound::Status::Playing )
-    m_sound_bank.get_effect( "bomb_fuse" ).pause();
-  if ( m_sound_bank.get_effect( "bomb_detonate" ).getStatus() == sf::Sound::Status::Playing )
-    m_sound_bank.get_effect( "bomb_detonate" ).pause();
+  if ( m_sound_bank.get_effect( "bomb_fuse" ).getStatus() == sf::Sound::Status::Playing ) m_sound_bank.get_effect( "bomb_fuse" ).pause();
+  if ( m_sound_bank.get_effect( "bomb_detonate" ).getStatus() == sf::Sound::Status::Playing ) m_sound_bank.get_effect( "bomb_detonate" ).pause();
   auto armed_view = getReg().view<Cmp::Armed>();
   for ( auto [entt, armed_cmp] : armed_view.each() )
   {
@@ -73,10 +72,8 @@ void BombSystem::onPause()
 }
 void BombSystem::onResume()
 {
-  if ( m_sound_bank.get_effect( "bomb_fuse" ).getStatus() == sf::Sound::Status::Paused )
-    m_sound_bank.get_effect( "bomb_fuse" ).play();
-  if ( m_sound_bank.get_effect( "bomb_detonate" ).getStatus() == sf::Sound::Status::Paused )
-    m_sound_bank.get_effect( "bomb_detonate" ).play();
+  if ( m_sound_bank.get_effect( "bomb_fuse" ).getStatus() == sf::Sound::Status::Paused ) m_sound_bank.get_effect( "bomb_fuse" ).play();
+  if ( m_sound_bank.get_effect( "bomb_detonate" ).getStatus() == sf::Sound::Status::Paused ) m_sound_bank.get_effect( "bomb_detonate" ).play();
   auto armed_view = getReg().view<Cmp::Armed>();
   for ( auto [entt, armed_cmp] : armed_view.each() )
   {
@@ -107,13 +104,12 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
     if ( event.action == Events::PlayerActionEvent::GameActions::GRAVE_BOMB )
     {
       auto search_area = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 3.f );
-      candidate_entity = Utils::Rnd::get_random_nearby_disabled_obstacle( getReg(), search_area.getBounds(),
-                                                                          Utils::Rnd::IncludePack<Cmp::Armable>{},
+      candidate_entity = Utils::Rnd::get_random_nearby_disabled_obstacle( getReg(), search_area.getBounds(), Utils::Rnd::IncludePack<Cmp::Armable>{},
                                                                           Utils::Rnd::ExcludePack<Cmp::Exit>{} );
       auto pos_cmp = getReg().try_get<Cmp::Position>( candidate_entity );
       if ( pos_cmp )
-        SPDLOG_DEBUG( "Returned candidate entity: {}, pos: {},{}", static_cast<uint32_t>( candidate_entity ),
-                      pos_cmp->position.x, pos_cmp->position.y );
+        SPDLOG_DEBUG( "Returned candidate entity: {}, pos: {},{}", static_cast<uint32_t>( candidate_entity ), pos_cmp->position.x,
+                      pos_cmp->position.y );
     }
     // then use the candidate entity to place the booby trap bomb
     if ( candidate_entity != entt::null )
@@ -143,8 +139,7 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
           m_sound_bank.get_effect( "bomb_fuse" ).play();
 
           auto armed_epicenter_entity = getReg().create();
-          getReg().emplace<Cmp::Position>( armed_epicenter_entity, destructable_pos_cmp.position,
-                                           destructable_pos_cmp.size );
+          getReg().emplace<Cmp::Position>( armed_epicenter_entity, destructable_pos_cmp.position, destructable_pos_cmp.size );
           place_concentric_bomb_pattern( armed_epicenter_entity, pc_cmp.blast_radius );
 
           pc_cmp.m_bombdeploycooldowntimer.restart();
@@ -276,8 +271,7 @@ void BombSystem::update()
       {
         Factory::createNpcExplosion( getReg(), npc_pos_cmp );
 
-        SPDLOG_INFO( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ), npc_pos_cmp.position.x,
-                     npc_pos_cmp.position.y );
+        SPDLOG_INFO( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ), npc_pos_cmp.position.x, npc_pos_cmp.position.y );
         auto loot_entity = Factory::destroyNPC( getReg(), npc_entt );
         if ( loot_entity != entt::null )
         {

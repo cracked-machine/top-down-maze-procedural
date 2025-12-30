@@ -1,5 +1,6 @@
 #include <Systems/PlayerSystem.hpp>
 
+#include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Direction.hpp>
@@ -39,6 +40,7 @@
 #include <Utils/Optimizations.hpp>
 #include <Utils/Utils.hpp>
 
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 

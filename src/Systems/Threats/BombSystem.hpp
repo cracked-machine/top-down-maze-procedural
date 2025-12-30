@@ -2,7 +2,10 @@
 #define SRC_SYSTEMS_BOMBSYSTEM_HPP__
 
 #include <Components/Persistent/EffectsVolume.hpp>
+#include <Systems/BaseSystem.hpp>
+#include <Systems/Threats/NpcSystem.hpp>
 #include <Utils/Utils.hpp>
+
 #include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
@@ -15,21 +18,13 @@
 
 #include <spdlog/spdlog.h>
 
-#include <Components/Armed.hpp>
-#include <Components/Loot.hpp>
-#include <Components/NPC.hpp>
-#include <Components/Neighbours.hpp>
-#include <Components/Obstacle.hpp>
-#include <Components/Persistent/ArmedOffDelay.hpp>
-#include <Components/Persistent/ArmedOnDelay.hpp>
-#include <Components/Persistent/BombDamage.hpp>
-#include <Components/Persistent/FuseDelay.hpp>
-#include <Components/PlayableCharacter.hpp>
-#include <Components/Position.hpp>
 #include <Events/PlayerActionEvent.hpp>
-#include <Sprites/SpriteFactory.hpp>
-#include <Systems/BaseSystem.hpp>
-#include <Systems/Threats/NpcSystem.hpp>
+
+// clang-format off
+namespace ProceduralMaze::Sprites { class SpriteFactory; }
+namespace ProceduralMaze::Sys { class SystemStore; }
+namespace ProceduralMaze::Audio { class SoundBank; }
+// clang-format on
 
 namespace ProceduralMaze::Sys
 {

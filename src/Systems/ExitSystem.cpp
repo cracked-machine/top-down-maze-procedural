@@ -1,5 +1,4 @@
-#include <Systems/ExitSystem.hpp>
-
+#include <Audio/SoundBank.hpp>
 #include <Components/Exit.hpp>
 #include <Components/NPC.hpp>
 #include <Components/NoPathFinding.hpp>
@@ -15,6 +14,7 @@
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
+#include <Systems/ExitSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>

@@ -1,6 +1,8 @@
+#include <SFML/Graphics.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Utils/Utils.hpp>
+
 #include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sprites

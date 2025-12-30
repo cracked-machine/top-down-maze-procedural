@@ -1,6 +1,7 @@
 #ifndef SRC_SYSTEMS_WORMHOLESYSTEM_HPP__
 #define SRC_SYSTEMS_WORMHOLESYSTEM_HPP__
 
+#include <Components/Position.hpp>
 #include <entt/entity/registry.hpp>
 
 #include <spdlog/spdlog.h>
@@ -18,19 +19,14 @@ namespace ProceduralMaze::Sys
 class WormholeSystem : public BaseSystem
 {
 public:
-  WormholeSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                  Audio::SoundBank &sound_bank );
+  WormholeSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override;
   //! @brief event handlers for resuming system clocks
   void onResume() override;
 
-  enum class SpawnPhase
-  {
-    InitialSpawn,
-    Respawn
-  };
+  enum class SpawnPhase { InitialSpawn, Respawn };
   // 1. pick a random position component in the maze
   // 2. get the entity at that position
   // 3. remove the entities obstacle component

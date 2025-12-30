@@ -1,16 +1,20 @@
 #ifndef SRC_SYSTEMS_BASESYSTEM_HPP__
 #define SRC_SYSTEMS_BASESYSTEM_HPP__
 
-#include <Audio/SoundBank.hpp>
-#include <_mingw_stat64.h>
-#include <entt/entity/fwd.hpp>
+#include <entt/entity/registry.hpp>
 #include <entt/signal/dispatcher.hpp>
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <Sprites/SpriteFactory.hpp>
+#include <spdlog/spdlog.h>
+
+// clang-format off
+namespace ProceduralMaze::Sprites { class SpriteFactory; }
+namespace ProceduralMaze::Sys { class SystemStore; }
+namespace ProceduralMaze::Audio { class SoundBank; }
+// clang-format on
 
 namespace ProceduralMaze
 {

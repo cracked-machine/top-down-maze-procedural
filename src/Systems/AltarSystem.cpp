@@ -1,5 +1,6 @@
 #include <Systems/AltarSystem.hpp>
 
+#include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AltarMultiBlock.hpp>
 #include <Components/AltarSegment.hpp>

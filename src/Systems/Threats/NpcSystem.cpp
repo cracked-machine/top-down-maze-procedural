@@ -1,7 +1,5 @@
-#include <Components/PCDetectionBounds.hpp>
-#include <Components/PlayerDistance.hpp>
-#include <SFML/Graphics/Rect.hpp>
 
+#include <Audio/SoundBank.hpp>
 #include <Components/AltarSegment.hpp>
 #include <Components/Armable.hpp>
 #include <Components/CryptSegment.hpp>
@@ -9,14 +7,18 @@
 #include <Components/FootStepTimer.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/LerpPosition.hpp>
+#include <Components/NPC.hpp>
 #include <Components/NPCScanBounds.hpp>
 #include <Components/NpcContainer.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/PCDetectionBounds.hpp>
+#include <Components/Persistent/NpcActivateScale.hpp>
 #include <Components/Persistent/NpcDamage.hpp>
 #include <Components/Persistent/NpcLerpSpeed.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/PlayableCharacter.hpp>
+#include <Components/PlayerDistance.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerMortality.hpp>
 #include <Components/Random.hpp>
@@ -28,14 +30,21 @@
 #include <Components/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/NpcFactory.hpp>
+#include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Utils.hpp>
 
+#include <SFML/Graphics/Rect.hpp>
+#include <queue>
+
 namespace ProceduralMaze::Sys
 {
+
+using PlayerDistanceQueue = std::priority_queue<std::pair<int, entt::entity>, std::vector<std::pair<int, entt::entity>>,
+                                                std::greater<std::pair<int, entt::entity>>>;
 
 NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )

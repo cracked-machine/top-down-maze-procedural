@@ -3,6 +3,7 @@
 #include <SFML/System/Time.hpp>
 #include <spdlog/spdlog.h>
 
+#include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/NoPathFinding.hpp>
