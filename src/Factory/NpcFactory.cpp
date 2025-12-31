@@ -5,7 +5,9 @@
 #include <Components/NpcContainer.hpp>
 #include <Components/NpcDeathPosition.hpp>
 #include <Components/NpcShockwave.hpp>
+#include <Components/NpcShockwaveTimer.hpp>
 #include <Components/Persistent/NpcScanScale.hpp>
+#include <Components/Persistent/NpcShockwaveFreq.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Factory/Factory.hpp>
@@ -40,15 +42,31 @@ void destroyNpcContainer( entt::registry &registry, entt::entity npc_container_e
 
 void createShockwave( entt::registry &registry, entt::entity npc_entt )
 {
-  auto npc_pos = registry.try_get<Cmp::Position>( npc_entt );
-  if ( not npc_pos )
+  // get the shockwave timer for the NPC
+  auto shockwave_timer = registry.try_get<Cmp::NpcShockwaveTimer>( npc_entt );
+  if ( not shockwave_timer )
   {
-    SPDLOG_WARN( "Unable to get position from NPC entity" );
+    SPDLOG_WARN( "Unable to get Cmp::NpcShockwaveTimer from NPC entity" );
     return;
   }
-  auto npc_sw_entt = registry.create();
-  int circle_resolution = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveResolution>( registry ).get_value();
-  registry.emplace_or_replace<Cmp::NpcShockwave>( npc_sw_entt, npc_pos->getCenter(), circle_resolution );
+
+  // check cooldown on this NPC shockwave timer
+  sf::Time sw_emit_freq{ sf::milliseconds( Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveFreq>( registry ).get_value() ) };
+  if ( shockwave_timer->getElapsedTime() > sw_emit_freq )
+  {
+    // create a new entity for adding the shockwave component to the NPC position
+    auto npc_pos = registry.try_get<Cmp::Position>( npc_entt );
+    if ( not npc_pos )
+    {
+      SPDLOG_WARN( "Unable to get position from NPC entity" );
+      return;
+    }
+    auto npc_sw_entt = registry.create();
+    int circle_resolution = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveResolution>( registry ).get_value();
+    registry.emplace_or_replace<Cmp::NpcShockwave>( npc_sw_entt, npc_pos->getCenter(), circle_resolution );
+
+    shockwave_timer->restart(); // make sure we restart the timer
+  }
 }
 
 void createNPC( entt::registry &registry, entt::entity position_entity, const Sprites::SpriteMetaType &type )
@@ -94,6 +112,7 @@ void createNPC( entt::registry &registry, entt::entity position_entity, const Sp
     registry.remove<Cmp::NpcContainer>( position_entity );
     registry.remove<Cmp::ZOrderValue>( position_entity );
 
+    registry.emplace_or_replace<Cmp::NpcShockwaveTimer>( new_pos_entity );
     Factory::createShockwave( registry, position_entity );
   }
 

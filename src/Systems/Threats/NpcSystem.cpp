@@ -469,12 +469,8 @@ void NpcSystem::add_candidate_lerp( entt::entity npc_entity, Cmp::Direction cand
 
 void NpcSystem::emit_shockwave( entt::entity npc_entt )
 {
-  sf::Time sw_emit_freq{ sf::milliseconds( Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveFreq>( getReg() ).get_value() ) };
-  if ( shockwave_create_clock.getElapsedTime() > sw_emit_freq )
-  {
-    Factory::createShockwave( getReg(), npc_entt );
-    shockwave_create_clock.restart();
-  }
+  // cooldown is handled in Factory function via Cmp::NpcShockwaveTimer per NPC
+  Factory::createShockwave( getReg(), npc_entt );
 }
 
 void NpcSystem::update_shockwaves()

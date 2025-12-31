@@ -1,4 +1,5 @@
 #include <Components/Persistent/ArmedOffDelay.hpp>
+#include <Components/Persistent/CryptNpcSpawnCount.hpp>
 #include <Components/Persistent/NpcShockwaveFreq.hpp>
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
@@ -276,6 +277,10 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     auto &npc_damage = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcDamage>( getReg() );
     ImGui::SliderScalar( "NPC Damage", ImGuiDataType_U8, npc_damage.get_value_ptr(), npc_damage.get_min_value_ptr(), npc_damage.get_max_value_ptr(),
                          "%d" );
+
+    auto &crypt_npc_spawn_count = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CryptNpcSpawnCount>( getReg() );
+    ImGui::SliderScalar( "NPC Crypt Spawn Count", ImGuiDataType_U16, crypt_npc_spawn_count.get_value_ptr(), crypt_npc_spawn_count.get_min_value_ptr(),
+                         crypt_npc_spawn_count.get_max_value_ptr(), "%d" );
 
     auto &npc_shockwave_resolution = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveResolution>( getReg() );
     ImGui::SliderScalar( "NPC Shockwave Resolution", ImGuiDataType_U16, npc_shockwave_resolution.get_value_ptr(),

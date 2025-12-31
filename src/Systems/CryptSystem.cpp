@@ -1,4 +1,3 @@
-
 #include <Audio/SoundBank.hpp>
 #include <Components/AltarMultiBlock.hpp>
 #include <Components/CryptEntrance.hpp>
@@ -20,6 +19,7 @@
 #include <Components/FootStepTimer.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/Persistent/CryptNpcSpawnCount.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCadaverCount.hpp>
 #include <Components/PlayerKeysCount.hpp>
@@ -657,21 +657,50 @@ void CryptSystem::removeAllLevers()
 void CryptSystem::spawnNpcInOpenRooms()
 {
   auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
-  Cmp::RandomInt room_picker( 0, getReg().view<Cmp::CryptRoomOpen>().size() - 1 );
   std::vector<Cmp::CryptRoomOpen> open_room_list;
 
+  // Collect all open rooms
   for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
   {
     open_room_list.push_back( open_room_cmp );
   }
 
-  auto selected_open_room_cmp = open_room_list[room_picker.gen()];
+  // Early return if not enough rooms
+  if ( open_room_list.size() < 2 )
+  {
+    SPDLOG_WARN( "Not enough open rooms to spawn 2 NPCs. Available rooms: {}", open_room_list.size() );
+    return;
+  }
 
-  auto spawn_position = Utils::snap_to_grid( selected_open_room_cmp.getCenter() );
-  auto position_entity = getReg().create();
-  Cmp::Position position_cmp = getReg().emplace<Cmp::Position>( position_entity, spawn_position, Constants::kGridSquareSizePixelsF );
-  [[maybe_unused]] Cmp::ZOrderValue zorder_cmp = getReg().emplace<Cmp::ZOrderValue>( position_entity, position_cmp.position.y );
-  Factory::createNPC( getReg(), position_entity, "NPCPRIEST" );
+  // Spawn user specified number of NPCs or the max number of rooms: whichever is smallest.
+  const int npcs_to_spawn = std::min( Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CryptNpcSpawnCount>( getReg() ).get_value(),
+                                      static_cast<unsigned short>( open_room_list.size() ) );
+
+  for ( int r = 0; r < npcs_to_spawn; r++ )
+  {
+    // Select a random room from remaining rooms
+    Cmp::RandomInt room_picker( 0, open_room_list.size() - 1 );
+    std::size_t selected_idx = room_picker.gen();
+
+    // Extract the selected room
+    auto extracted_open_room_cmp = std::move( open_room_list[selected_idx] );
+
+    if ( selected_idx < open_room_list.size() - 1 )
+    {
+      // Remove selected room using swap and pop to maintain efficiency
+      open_room_list[selected_idx] = std::move( open_room_list.back() );
+    }
+    open_room_list.pop_back();
+
+    // Spawn NPC in the selected room
+    auto spawn_position = Utils::snap_to_grid( extracted_open_room_cmp.getCenter() );
+    auto position_entity = getReg().create();
+    Cmp::Position position_cmp = getReg().emplace<Cmp::Position>( position_entity, spawn_position, Constants::kGridSquareSizePixelsF );
+    [[maybe_unused]] Cmp::ZOrderValue zorder_cmp = getReg().emplace<Cmp::ZOrderValue>( position_entity, position_cmp.position.y );
+    Factory::createNPC( getReg(), position_entity, "NPCPRIEST" );
+
+    SPDLOG_INFO( "Spawned NPC {} at position ({}, {})", r + 1, spawn_position.x, spawn_position.y );
+  }
 }
 
 } // namespace ProceduralMaze::Sys

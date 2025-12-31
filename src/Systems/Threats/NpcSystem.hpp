@@ -72,7 +72,6 @@ private:
   void emit_shockwave( entt::entity npc_entt );
   void update_shockwaves();
   sf::Clock shockwave_update_clock;
-  sf::Clock shockwave_create_clock;
 
   void checkShockwaveObstacleCollision( entt::entity shockwave_entity, Cmp::NpcShockwave &shockwave );
 };

@@ -1,3 +1,4 @@
+#include <Components/Persistent/CryptNpcSpawnCount.hpp>
 #include <Components/Persistent/NpcShockwaveFreq.hpp>
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
@@ -69,7 +70,7 @@ PersistSystem::PersistSystem( entt::registry &reg, sf::RenderWindow &window, Spr
 
 void PersistSystem::initializeComponentRegistry()
 {
-  // Register a JSON key and its derived Cmp::Persist::BasePersistent class for deserialization.
+  // Register a JSON key and its derived Cmp::Persist::BasePersistent class for deserialization (load).
   // Note: You can set default values here but they will be overridden when loading from json file.
   // If you want these defaults to be used then you must override the deserialize() function in the
   // derived Cmp::Persist::BasePersistent class. See PlayerStartPosition component as an example.
@@ -81,6 +82,7 @@ void PersistSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persist::BombDamage>( "BombDamage" );
   registerComponent<Cmp::Persist::BombInventory>( "BombInventory" );
   registerComponent<Cmp::Persist::CorruptionDamage>( "CorruptionDamage" );
+  registerComponent<Cmp::Persist::CryptNpcSpawnCount>( "CryptNpcSpawnCount" );
   registerComponent<Cmp::Persist::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
   registerComponent<Cmp::Persist::DiggingDamagePerHit>( "DiggingDamagePerHit" );
   registerComponent<Cmp::Persist::DisplayResolution>( "DisplayResolution", Constants::kFallbackDisplaySize );
@@ -157,7 +159,7 @@ void PersistSystem::save_state()
     }
   };
 
-  // Serialize all registered components
+  // Serialize (save) all registered components
   // clang-format off
   serializeComponent.template operator()<Cmp::Persist::ArmedOffDelay>( "ArmedOffDelay" );
   serializeComponent.template operator()<Cmp::Persist::ArmedOnDelay>( "ArmedOnDelay" );
@@ -166,6 +168,7 @@ void PersistSystem::save_state()
   serializeComponent.template operator()<Cmp::Persist::BombDamage>( "BombDamage" );
   serializeComponent.template operator()<Cmp::Persist::BombInventory>( "BombInventory" );
   serializeComponent.template operator()<Cmp::Persist::CorruptionDamage>( "CorruptionDamage" );
+  serializeComponent.template operator()<Cmp::Persist::CryptNpcSpawnCount>( "CryptNpcSpawnCount" );
   serializeComponent.template operator()<Cmp::Persist::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
   serializeComponent.template operator()<Cmp::Persist::DiggingDamagePerHit>( "DiggingDamagePerHit" );
   serializeComponent.template operator()<Cmp::Persist::DisplayResolution>( "DisplayResolution" );
