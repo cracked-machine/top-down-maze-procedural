@@ -3,6 +3,7 @@
 
 #include <Components/Direction.hpp>
 #include <Components/LerpPosition.hpp>
+#include <Components/NpcShockwave.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <SFML/Audio/Sound.hpp>
@@ -72,6 +73,8 @@ private:
   void update_shockwaves();
   sf::Clock shockwave_update_clock;
   sf::Clock shockwave_create_clock;
+
+  void checkShockwaveObstacleCollision( entt::entity shockwave_entity, Cmp::NpcShockwave &shockwave );
 };
 
 } // namespace ProceduralMaze::Sys

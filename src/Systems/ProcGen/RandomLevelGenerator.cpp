@@ -154,15 +154,21 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size )
       if ( d2 <= rInner2 )
       {
 
-        // create world position entity, mark spawn area if in player start area
+        // Create world position entity
+        // We don't add any "CRYPT.interior_sb" obstacles until CryptSystem.
         auto entity = Factory::createWorldPosition( getReg(), new_pos );
         auto &pos_cmp = getReg().get<Cmp::Position>( entity );
+        // Mark this position as spawn area if in player start area
         if ( pos_cmp.findIntersection( player_start_area.getBounds() ) ) { Factory::addSpawnArea( getReg(), entity, new_pos.y - 16.0f ); }
 
         // track the contiguous creation order entities so we can easily find its neighbours later
         m_data.push_back( entity );
       }
-      else if ( d2 <= rOuter2 ) { add_wall_entity( new_pos, "WALL", 0 ); }
+      else if ( d2 <= rOuter2 )
+      {
+        // but we do add "CRYPT.interior_sb" for walls
+        add_wall_entity( new_pos, "CRYPT.interior_sb", 0 );
+      }
       else
       {
         // outside circle (no tile)
@@ -446,6 +452,7 @@ void RandomLevelGenerator::add_wall_entity( const sf::Vector2f &pos, Sprites::Sp
   auto entity = getReg().create();
   getReg().emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSquareSizePixelsF );
   getReg().emplace_or_replace<Cmp::Wall>( entity );
+  getReg().emplace_or_replace<Cmp::Obstacle>( entity );
   getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_type, sprite_index );
   getReg().emplace_or_replace<Cmp::ReservedPosition>( entity );
   getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos.y );

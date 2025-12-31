@@ -1,4 +1,3 @@
-
 #include <Audio/SoundBank.hpp>
 #include <Components/AltarSegment.hpp>
 #include <Components/Armable.hpp>
@@ -481,22 +480,69 @@ void NpcSystem::emit_shockwave( entt::entity npc_entt )
 void NpcSystem::update_shockwaves()
 {
   auto shockwave_increments = 1;
-  sf::Time sw_update_threshold{ sf::milliseconds( Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveSpeed>( getReg() ).get_value() ) };
+
+  // Invert the interval - larger values = faster updates, smaller values = slower updates
+  auto speed_value = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveSpeed>( getReg() ).get_value();
+  sf::Time shockwave_update_interval{ sf::milliseconds( static_cast<int>( 1000.0f / speed_value ) ) };
+
   auto max_radius = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveMaxRadius>( getReg() );
 
-  if ( shockwave_update_clock.getElapsedTime() > sw_update_threshold )
+  if ( shockwave_update_clock.getElapsedTime() > shockwave_update_interval )
   {
     for ( auto entt : getReg().view<Cmp::NpcShockwave>() )
     {
       auto &sw_cmp = getReg().get<Cmp::NpcShockwave>( entt );
       float new_radius = sw_cmp.getRadius() + shockwave_increments;
-      auto new_pos = sf::Vector2f{ sw_cmp.getPosition().x - shockwave_increments, sw_cmp.getPosition().y - shockwave_increments };
       sw_cmp.setRadius( new_radius );
-      sw_cmp.setPosition( new_pos );
-      SPDLOG_INFO( "Current shockwave: {},{} and {}", new_pos.x, new_pos.y, new_radius );
+
+      // Check for collisions with specific obstacles
+      checkShockwaveObstacleCollision( entt, sw_cmp );
+
       if ( new_radius > max_radius.get_value() ) { getReg().destroy( entt ); }
     }
     shockwave_update_clock.restart();
+  }
+}
+
+void NpcSystem::checkShockwaveObstacleCollision( [[maybe_unused]] entt::entity shockwave_entity, Cmp::NpcShockwave &shockwave )
+{
+  auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position, Cmp::SpriteAnimation>();
+
+  for ( auto [obstacle_entity, obstacle_cmp, obstacle_pos, sprite_anim] : obstacle_view.each() )
+  {
+    // Check if this is the specific obstacle type and index we care about
+    if ( ( sprite_anim.m_sprite_type == "CRYPT.interior_sb" && sprite_anim.getFrameIndexOffset() == 3 ) or
+         ( sprite_anim.m_sprite_type == "CRYPT.interior_sb" && sprite_anim.getFrameIndexOffset() == 0 ) )
+    {
+      sf::FloatRect obstacle_rect( obstacle_pos.position, obstacle_pos.size );
+
+      SPDLOG_DEBUG( "Checking obstacle at ({}, {}) size ({}, {}) against shockwave at ({}, {}) radius {}", obstacle_rect.position.x,
+                    obstacle_rect.position.y, obstacle_rect.size.x, obstacle_rect.size.y, shockwave.getPosition().x, shockwave.getPosition().y,
+                    shockwave.getRadius() );
+
+      // Calculate distance from circle center to rectangle
+      sf::Vector2f circle_center = shockwave.getPosition();
+      float circle_radius = shockwave.getRadius();
+
+      // Find closest point on rectangle to circle center
+      sf::Vector2f closest_point;
+      closest_point.x = std::max( obstacle_rect.position.x, std::min( circle_center.x, obstacle_rect.position.x + obstacle_rect.size.x ) );
+      closest_point.y = std::max( obstacle_rect.position.y, std::min( circle_center.y, obstacle_rect.position.y + obstacle_rect.size.y ) );
+
+      // Calculate distance from circle center to closest point
+      sf::Vector2f diff = circle_center - closest_point;
+      float distance = std::sqrt( diff.x * diff.x + diff.y * diff.y );
+
+      // Check if circle intersects with rectangle (accounting for outline thickness)
+      float effective_radius = circle_radius + shockwave.getOutlineThickness() / 2.0f;
+
+      if ( distance <= effective_radius )
+      {
+        SPDLOG_DEBUG( "Shockwave INTERSECTS with obstacle (distance: {}, effective_radius: {})", distance, effective_radius );
+        shockwave.removeIntersectingSegments( obstacle_rect );
+      }
+      else { SPDLOG_DEBUG( "Shockwave does NOT intersect with obstacle (distance: {}, effective_radius: {})", distance, effective_radius ); }
+    }
   }
 }
 

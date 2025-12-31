@@ -46,8 +46,9 @@ void createShockwave( entt::registry &registry, entt::entity npc_entt )
     return;
   }
   auto npc_sw_entt = registry.create();
-  registry.emplace_or_replace<Cmp::Position>( npc_sw_entt, npc_pos->position, npc_pos->size );
-  registry.emplace_or_replace<Cmp::NpcShockwave>( npc_sw_entt, npc_pos->position );
+  // sf::Vector2f new_pos = { npc_pos->position.x + Constants::kGridSquareSizePixelsF.x, npc_pos->position.y + Constants::kGridSquareSizePixelsF.y };
+  // registry.emplace_or_replace<Cmp::Position>( npc_sw_entt, npc_pos->getCenter(), npc_pos->size );
+  registry.emplace_or_replace<Cmp::NpcShockwave>( npc_sw_entt, npc_pos->getCenter() );
 }
 
 void createNPC( entt::registry &registry, entt::entity position_entity, const Sprites::SpriteMetaType &type )

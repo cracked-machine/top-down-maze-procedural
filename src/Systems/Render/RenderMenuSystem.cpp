@@ -277,8 +277,8 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
                          "%d" );
 
     auto &npc_shockwave_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveSpeed>( getReg() );
-    ImGui::SliderScalar( "NPC Shockwave Speed (ms per px)", ImGuiDataType_U16, npc_shockwave_speed.get_value_ptr(),
-                         npc_shockwave_speed.get_min_value_ptr(), npc_shockwave_speed.get_max_value_ptr(), "%d" );
+    ImGui::SliderScalar( "NPC Shockwave Speed", ImGuiDataType_U16, npc_shockwave_speed.get_value_ptr(), npc_shockwave_speed.get_min_value_ptr(),
+                         npc_shockwave_speed.get_max_value_ptr(), "%d" );
 
     auto &npc_shockwave_freq = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveFreq>( getReg() );
     ImGui::SliderScalar( "NPC Shockwave Freq", ImGuiDataType_U16, npc_shockwave_freq.get_value_ptr(), npc_shockwave_freq.get_min_value_ptr(),
