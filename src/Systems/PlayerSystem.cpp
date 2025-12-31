@@ -57,12 +57,17 @@ PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
 
 void PlayerSystem::update( sf::Time globalDeltaTime )
 {
+  entt::entity system_entt = entt::null;
+  Cmp::System *system_cmp = nullptr;
+  auto system_view = getReg().view<Cmp::System>();
+  if ( not system_view->empty() ) { system_entt = system_view.front(); }
+  if ( system_entt != entt::null ) { system_cmp = getReg().try_get<Cmp::System>( system_entt ); }
+
   // process changes to player position and related transforms
   localTransforms();
-  for ( auto [_ent, _sys] : getReg().view<Cmp::System>().each() )
-  {
-    globalTranslations( globalDeltaTime, !_sys.collisions_enabled );
-  }
+
+  // process global movement, disable collision detection if option set
+  if ( system_cmp ) { globalTranslations( globalDeltaTime, system_cmp->collisions_enabled ); }
 
   // update path tracking data
   if ( m_debug_info_timer.getElapsedTime() >= sf::milliseconds( 100 ) )
@@ -71,10 +76,13 @@ void PlayerSystem::update( sf::Time globalDeltaTime )
     m_debug_info_timer.restart();
   }
 
-  // update player health if hit by shockwave
-  for ( auto entt : getReg().view<Cmp::NpcShockwave>() )
+  if ( system_cmp && system_cmp->collisions_enabled )
   {
-    checkShockwavePlayerCollision( getReg().get<Cmp::NpcShockwave>( entt ) );
+    // update player health if hit by shockwave
+    for ( auto entt : getReg().view<Cmp::NpcShockwave>() )
+    {
+      checkShockwavePlayerCollision( getReg().get<Cmp::NpcShockwave>( entt ) );
+    }
   }
 
   // did player die?
@@ -138,7 +146,7 @@ void PlayerSystem::localTransforms()
   }
 }
 
-void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool skip_collision_check )
+void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool collision_detection )
 {
 
   const float dt = globalDeltaTime.asSeconds();
@@ -182,7 +190,7 @@ void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool skip_colli
       new_pos.position.y = pos_cmp.position.y + ( dir_cmp.y * Constants::kGridSquareSizePixels.y );
 
       // Check collision ONCE
-      bool can_move = skip_collision_check || is_valid_move( new_pos );
+      bool can_move = not collision_detection || is_valid_move( new_pos );
       if ( !can_move ) continue; // Early exit if blocked
 
       // Check if moving diagonally AFTER we know movement is valid

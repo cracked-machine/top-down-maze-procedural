@@ -29,7 +29,7 @@
   },
   "CryptNpcSpawnCount": {
     "type": "int",
-    "value": 1
+    "value": 5
   },
   "DiggingCooldownThreshold":{
     "type": "float",

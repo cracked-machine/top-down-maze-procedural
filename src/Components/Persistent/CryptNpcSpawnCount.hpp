@@ -11,7 +11,7 @@ namespace ProceduralMaze::Cmp::Persist
 class CryptNpcSpawnCount : public BasePersistent<uint16_t>
 {
 public:
-  CryptNpcSpawnCount( uint16_t value = 2, uint16_t min_value = 1, uint16_t max_value = 10 )
+  CryptNpcSpawnCount( uint16_t value = 5, uint16_t min_value = 1, uint16_t max_value = 10 )
       : BasePersistent<uint16_t>( value, min_value, max_value )
   {
   }

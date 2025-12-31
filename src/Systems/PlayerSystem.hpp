@@ -36,7 +36,9 @@ private:
   void localTransforms();
 
   //! @brief Position updates, lerping, etc
-  void globalTranslations( sf::Time globalDeltaTime, bool skip_collision_check = false );
+  //! @param globalDeltaTime
+  //! @param collision_detection disabled if false, enabled if true
+  void globalTranslations( sf::Time globalDeltaTime, bool collision_detection );
 
   //! @brief Refresh the PlayerDistance components for positions near the player
   void refreshPlayerDistances();
