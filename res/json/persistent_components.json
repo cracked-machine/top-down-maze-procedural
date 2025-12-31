@@ -88,7 +88,7 @@
   },  
   "NpcShockwaveSpeed": {
     "type":"int",
-    "value": 100
+    "value": 500
   },
   "NpcShockwaveResolution": {
     "type":"int",

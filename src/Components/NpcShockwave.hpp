@@ -2,6 +2,7 @@
 #define SRC_CMPS_NPCSHOCKWAVE_
 
 #include <SFML/Graphics/CircleShape.hpp>
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
@@ -21,11 +22,128 @@ public:
     float end_angle;
     bool visible;
 
+    // Vertex caching members
+    mutable std::vector<sf::Vertex> cached_vertices;
+    mutable bool vertices_dirty = true;
+    mutable float cached_radius = -1.0f;
+    mutable float cached_outline_thickness = -1.0f;
+    mutable sf::Vector2f cached_position = { -1.0f, -1.0f };
+    mutable sf::Color cached_color = sf::Color::Transparent;
+
     CircleSegment( float start, float end, bool vis = true )
         : start_angle( start ),
           end_angle( end ),
           visible( vis )
     {
+    }
+
+    sf::FloatRect getBounds( sf::Vector2f center, float radius, float outline_thickness ) const
+    {
+      // Calculate the bounding box for this angular segment
+      float inner_radius = radius - outline_thickness / 2.0f;
+      float outer_radius = radius + outline_thickness / 2.0f;
+
+      // Sample a few points along the arc to find min/max bounds
+      constexpr int sample_points = 8;
+      float min_x = std::numeric_limits<float>::max();
+      float min_y = std::numeric_limits<float>::max();
+      float max_x = std::numeric_limits<float>::lowest();
+      float max_y = std::numeric_limits<float>::lowest();
+
+      float angle_range = end_angle - start_angle;
+
+      for ( int i = 0; i <= sample_points; ++i )
+      {
+        float t = static_cast<float>( i ) / sample_points;
+        float angle = start_angle + t * angle_range;
+
+        // Check both inner and outer radius points
+        sf::Vector2f inner_point = center + sf::Vector2f( std::cos( angle ) * inner_radius, std::sin( angle ) * inner_radius );
+        sf::Vector2f outer_point = center + sf::Vector2f( std::cos( angle ) * outer_radius, std::sin( angle ) * outer_radius );
+
+        min_x = std::min( { min_x, inner_point.x, outer_point.x } );
+        min_y = std::min( { min_y, inner_point.y, outer_point.y } );
+        max_x = std::max( { max_x, inner_point.x, outer_point.x } );
+        max_y = std::max( { max_y, inner_point.y, outer_point.y } );
+      }
+
+      return sf::FloatRect( { min_x, min_y }, { max_x - min_x, max_y - min_y } );
+    }
+
+    void draw( sf::RenderTarget &target, sf::RenderStates states, sf::Vector2f center, float radius, float outline_thickness, sf::Color color,
+               int points_per_segment ) const
+    {
+      if ( !visible ) return;
+
+      // Generate vertices if needed (using cached vertices)
+      if ( vertices_dirty || cached_radius != radius || cached_outline_thickness != outline_thickness || cached_position != center ||
+           cached_color != color )
+      {
+        generateVertices( center, radius, outline_thickness, color, points_per_segment );
+      }
+
+      // Draw the cached vertices
+      if ( !cached_vertices.empty() )
+      {
+        sf::VertexArray vertex_array( sf::PrimitiveType::Triangles );
+        for ( const auto &vertex : cached_vertices )
+        {
+          vertex_array.append( vertex );
+        }
+        target.draw( vertex_array, states );
+      }
+    }
+
+    void invalidateCache() const { vertices_dirty = true; }
+
+  private:
+    sf::Vector2f start_point;
+    sf::Vector2f end_point;
+
+    void generateVertices( sf::Vector2f center, float radius, float outline_thickness, sf::Color color, int points_per_segment ) const
+    {
+      cached_vertices.clear();
+
+      float angle_range = end_angle - start_angle;
+      if ( angle_range <= 0 ) return;
+
+      int num_points = std::max( 2, static_cast<int>( points_per_segment * angle_range / ( 2 * std::numbers::pi ) ) );
+
+      float inner_radius = radius - outline_thickness / 2.0f;
+      float outer_radius = radius + outline_thickness / 2.0f;
+
+      for ( int i = 0; i < num_points - 1; ++i )
+      {
+        float t1 = static_cast<float>( i ) / ( num_points - 1 );
+        float t2 = static_cast<float>( i + 1 ) / ( num_points - 1 );
+
+        float angle1 = start_angle + t1 * angle_range;
+        float angle2 = start_angle + t2 * angle_range;
+
+        // Calculate inner and outer points for both angles
+        sf::Vector2f inner1 = center + sf::Vector2f( std::cos( angle1 ) * inner_radius, std::sin( angle1 ) * inner_radius );
+        sf::Vector2f outer1 = center + sf::Vector2f( std::cos( angle1 ) * outer_radius, std::sin( angle1 ) * outer_radius );
+        sf::Vector2f inner2 = center + sf::Vector2f( std::cos( angle2 ) * inner_radius, std::sin( angle2 ) * inner_radius );
+        sf::Vector2f outer2 = center + sf::Vector2f( std::cos( angle2 ) * outer_radius, std::sin( angle2 ) * outer_radius );
+
+        // Create two triangles to form a quad segment
+        // Triangle 1: inner1, outer1, inner2
+        cached_vertices.emplace_back( inner1, color );
+        cached_vertices.emplace_back( outer1, color );
+        cached_vertices.emplace_back( inner2, color );
+
+        // Triangle 2: outer1, outer2, inner2
+        cached_vertices.emplace_back( outer1, color );
+        cached_vertices.emplace_back( outer2, color );
+        cached_vertices.emplace_back( inner2, color );
+      }
+
+      // Update cache state
+      vertices_dirty = false;
+      cached_radius = radius;
+      cached_outline_thickness = outline_thickness;
+      cached_position = center;
+      cached_color = color;
     }
   };
 
@@ -38,49 +156,11 @@ private:
   mutable sf::VertexArray m_vertices;
   int m_points_per_segment;
 
-  void updateVertices() const
+  void invalidateAllSegments()
   {
-
-    m_vertices.clear();
-    m_vertices.setPrimitiveType( sf::PrimitiveType::Triangles );
-
-    for ( const auto &segment : m_segments )
+    for ( auto &segment : m_segments )
     {
-      if ( !segment.visible ) continue;
-
-      float angle_range = segment.end_angle - segment.start_angle;
-      if ( angle_range <= 0 ) continue;
-
-      int num_points = std::max( 2, static_cast<int>( m_points_per_segment * angle_range / ( 2 * std::numbers::pi ) ) );
-
-      float inner_radius = m_radius - m_outline_thickness / 2.0f;
-      float outer_radius = m_radius + m_outline_thickness / 2.0f;
-
-      for ( int i = 0; i < num_points - 1; ++i )
-      {
-        float t1 = static_cast<float>( i ) / ( num_points - 1 );
-        float t2 = static_cast<float>( i + 1 ) / ( num_points - 1 );
-
-        float angle1 = segment.start_angle + t1 * angle_range;
-        float angle2 = segment.start_angle + t2 * angle_range;
-
-        // Calculate inner and outer points for both angles
-        sf::Vector2f inner1 = m_position + sf::Vector2f( std::cos( angle1 ) * inner_radius, std::sin( angle1 ) * inner_radius );
-        sf::Vector2f outer1 = m_position + sf::Vector2f( std::cos( angle1 ) * outer_radius, std::sin( angle1 ) * outer_radius );
-        sf::Vector2f inner2 = m_position + sf::Vector2f( std::cos( angle2 ) * inner_radius, std::sin( angle2 ) * inner_radius );
-        sf::Vector2f outer2 = m_position + sf::Vector2f( std::cos( angle2 ) * outer_radius, std::sin( angle2 ) * outer_radius );
-
-        // Create two triangles to form a quad segment
-        // Triangle 1: inner1, outer1, inner2
-        m_vertices.append( sf::Vertex( inner1, m_outline_color ) );
-        m_vertices.append( sf::Vertex( outer1, m_outline_color ) );
-        m_vertices.append( sf::Vertex( inner2, m_outline_color ) );
-
-        // Triangle 2: outer1, outer2, inner2
-        m_vertices.append( sf::Vertex( outer1, m_outline_color ) );
-        m_vertices.append( sf::Vertex( outer2, m_outline_color ) );
-        m_vertices.append( sf::Vertex( inner2, m_outline_color ) );
-      }
+      segment.invalidateCache();
     }
   }
 
@@ -97,17 +177,37 @@ public:
     m_segments.emplace_back( 0.0f, 2 * std::numbers::pi, true );
   }
 
-  void setPosition( sf::Vector2f pos ) { m_position = pos; }
+  int getPointsPerSegment() { return m_points_per_segment; }
+  void setPosition( sf::Vector2f pos )
+  {
+    m_position = pos;
+    invalidateAllSegments();
+  }
 
   sf::Vector2f getPosition() const { return m_position; }
 
-  void setRadius( float radius ) { m_radius = radius; }
+  void setRadius( float radius )
+  {
+    m_radius = radius;
+    invalidateAllSegments();
+  }
 
   float getRadius() const { return m_radius; }
 
-  void setOutlineColor( sf::Color color ) { m_outline_color = color; }
+  void setOutlineColor( sf::Color color )
+  {
+    m_outline_color = color;
+    invalidateAllSegments();
+  }
 
-  void setOutlineThickness( float thickness ) { m_outline_thickness = thickness; }
+  sf::Color getOutlineColor() { return m_outline_color; }
+
+  void setOutlineThickness( float thickness )
+  {
+    m_outline_thickness = thickness;
+    invalidateAllSegments();
+  }
+
   float getOutlineThickness() { return m_outline_thickness; }
 
   // Check if a point intersects with the circle outline
@@ -309,11 +409,7 @@ private:
   }
 
 public:
-  virtual void draw( sf::RenderTarget &target, sf::RenderStates states ) const override
-  {
-    updateVertices();
-    target.draw( m_vertices, states );
-  }
+  virtual void draw( sf::RenderTarget &target, sf::RenderStates states ) const override { target.draw( m_vertices, states ); }
 };
 
 } // namespace ProceduralMaze::Cmp

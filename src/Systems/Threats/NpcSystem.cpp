@@ -488,10 +488,16 @@ void NpcSystem::update_shockwaves()
     for ( auto entt : getReg().view<Cmp::NpcShockwave>() )
     {
       auto &sw_cmp = getReg().get<Cmp::NpcShockwave>( entt );
-      float new_radius = sw_cmp.getRadius() + shockwave_increments;
+      float current_radius = sw_cmp.getRadius();
+
+      // Exponential scaling - shockwave accelerates as it grows
+      // This creates a natural acceleration that maintains the visual impression of constant speed as the circumference grows.
+      float normalized_radius = current_radius / max_radius.get_value();
+      float speed_multiplier = 1.0f + normalized_radius * normalized_radius; // Quadratic acceleration
+
+      float new_radius = current_radius + ( shockwave_increments * speed_multiplier );
       sw_cmp.setRadius( new_radius );
 
-      // Check for collisions with specific obstacles
       checkShockwaveObstacleCollision( entt, sw_cmp );
 
       if ( new_radius > max_radius.get_value() ) { getReg().destroy( entt ); }
