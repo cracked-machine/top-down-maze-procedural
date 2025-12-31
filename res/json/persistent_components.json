@@ -86,6 +86,10 @@
     "type":"int",
     "value": 100
   },
+  "NpcShockwaveResolution": {
+    "type":"int",
+    "value": 48
+  },
   "NpcShockwaveFreq": {
     "type":"int",
     "value": 5000

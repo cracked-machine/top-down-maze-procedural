@@ -6,6 +6,7 @@
 #include <Components/NpcDeathPosition.hpp>
 #include <Components/NpcShockwave.hpp>
 #include <Components/Persistent/NpcScanScale.hpp>
+#include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Factory/Factory.hpp>
 #include <Factory/LootFactory.hpp>
@@ -46,9 +47,8 @@ void createShockwave( entt::registry &registry, entt::entity npc_entt )
     return;
   }
   auto npc_sw_entt = registry.create();
-  // sf::Vector2f new_pos = { npc_pos->position.x + Constants::kGridSquareSizePixelsF.x, npc_pos->position.y + Constants::kGridSquareSizePixelsF.y };
-  // registry.emplace_or_replace<Cmp::Position>( npc_sw_entt, npc_pos->getCenter(), npc_pos->size );
-  registry.emplace_or_replace<Cmp::NpcShockwave>( npc_sw_entt, npc_pos->getCenter() );
+  int circle_resolution = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveResolution>( registry ).get_value();
+  registry.emplace_or_replace<Cmp::NpcShockwave>( npc_sw_entt, npc_pos->getCenter(), circle_resolution );
 }
 
 void createNPC( entt::registry &registry, entt::entity position_entity, const Sprites::SpriteMetaType &type )

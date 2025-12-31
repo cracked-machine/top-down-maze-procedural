@@ -36,10 +36,11 @@ private:
   float m_outline_thickness;
   std::vector<CircleSegment> m_segments;
   mutable sf::VertexArray m_vertices;
-  static constexpr int POINTS_PER_SEGMENT = 32;
+  int m_points_per_segment;
 
   void updateVertices() const
   {
+
     m_vertices.clear();
     m_vertices.setPrimitiveType( sf::PrimitiveType::Triangles );
 
@@ -50,7 +51,7 @@ private:
       float angle_range = segment.end_angle - segment.start_angle;
       if ( angle_range <= 0 ) continue;
 
-      int num_points = std::max( 2, static_cast<int>( POINTS_PER_SEGMENT * angle_range / ( 2 * std::numbers::pi ) ) );
+      int num_points = std::max( 2, static_cast<int>( m_points_per_segment * angle_range / ( 2 * std::numbers::pi ) ) );
 
       float inner_radius = m_radius - m_outline_thickness / 2.0f;
       float outer_radius = m_radius + m_outline_thickness / 2.0f;
@@ -84,12 +85,13 @@ private:
   }
 
 public:
-  NpcShockwave( sf::Vector2f pos )
+  NpcShockwave( sf::Vector2f pos, int points_per_segment )
       : m_position( pos ),
         m_radius( Constants::kGridSquareSizePixelsF.x ),
         m_outline_color( sf::Color::Red ),
         m_outline_thickness( 2.f ),
-        m_vertices( sf::PrimitiveType::Lines )
+        m_vertices( sf::PrimitiveType::Lines ),
+        m_points_per_segment( points_per_segment )
   {
     // Initialize with full circle
     m_segments.emplace_back( 0.0f, 2 * std::numbers::pi, true );
@@ -157,12 +159,12 @@ public:
       if ( not segment.visible ) continue;
 
       // Sample points along this visible segment
-      constexpr int samples = 32;
+
       float angle_range = segment.end_angle - segment.start_angle;
 
-      for ( int i = 0; i < samples; ++i )
+      for ( int i = 0; i < m_points_per_segment; ++i )
       {
-        float t = static_cast<float>( i ) / ( samples - 1 );
+        float t = static_cast<float>( i ) / ( m_points_per_segment - 1 );
         float angle = segment.start_angle + t * angle_range;
 
         // Check both inner and outer radius points to account for thickness
