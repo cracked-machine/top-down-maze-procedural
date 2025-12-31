@@ -71,6 +71,12 @@ void PlayerSystem::update( sf::Time globalDeltaTime )
     m_debug_info_timer.restart();
   }
 
+  // update player health if hit by shockwave
+  for ( auto entt : getReg().view<Cmp::NpcShockwave>() )
+  {
+    checkShockwavePlayerCollision( getReg().get<Cmp::NpcShockwave>( entt ) );
+  }
+
   // did player die?
   checkPlayerMortality();
 
@@ -297,6 +303,26 @@ void PlayerSystem::checkPlayerMortality()
       SPDLOG_DEBUG( "Player has progressed to deadness." );
       m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::GAME_OVER );
     }
+  }
+}
+
+void PlayerSystem::checkShockwavePlayerCollision( Cmp::NpcShockwave &shockwave )
+{
+  auto &pc_damage_cooldown = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>( getReg() );
+  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerHealth>();
+
+  for ( auto [player_entity, player_cmp, player_pos, player_health] : player_view.each() )
+  {
+    if ( player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
+    if ( shockwave.intersectsWithVisibleSegments( player_pos ) )
+    {
+      player_health.health -= 10;
+      m_sound_bank.get_effect( "damage_player" ).play();
+      player_cmp.m_damage_cooldown_timer.restart();
+      SPDLOG_INFO( "Player (health:{}) INTERSECTS with Shockwave (position: {},{} - effective_radius: {})", player_health.health,
+                   shockwave.getPosition().x, shockwave.getPosition().y, shockwave.getRadius() );
+    }
+    else { SPDLOG_DEBUG( "Player does NOT intersect with shockwave (distance: {}, effective_radius: {})", distance, effective_radius ); }
   }
 }
 

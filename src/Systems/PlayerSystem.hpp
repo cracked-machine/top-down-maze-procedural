@@ -1,6 +1,7 @@
 #ifndef SRC_SYSTEMS_PLAYERSYSTEM_HPP__
 #define SRC_SYSTEMS_PLAYERSYSTEM_HPP__
 
+#include <Components/NpcShockwave.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/PlayerMortality.hpp>
 #include <Components/Position.hpp>
@@ -42,6 +43,8 @@ private:
 
   //! @brief Check if the player is mortal or dead
   void checkPlayerMortality();
+
+  void checkShockwavePlayerCollision( Cmp::NpcShockwave &shockwave );
 
   //! @brief Use this to send events to the scene manager
   entt::dispatcher &m_scenemanager_event_dispatcher;

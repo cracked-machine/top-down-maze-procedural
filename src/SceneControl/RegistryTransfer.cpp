@@ -1,3 +1,6 @@
+#include <Components/CryptLever.hpp>
+#include <Components/CryptObjectiveMultiBlock.hpp>
+#include <Components/CryptPassageBlock.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
 
 #include <spdlog/spdlog.h>
@@ -26,6 +29,7 @@
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Components/System.hpp>
 #include <Components/WeaponLevel.hpp>
 #include <Components/ZOrderValue.hpp>
 
@@ -47,7 +51,8 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
   {
     // this is a list of components that we do NOT want to copy over
     if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::Neighbours, Cmp::NoPathFinding, Cmp::FootStepTimer,
-                                Cmp::FootStepAlpha, Cmp::CryptRoomOpen, Cmp::CryptRoomClosed, Cmp::CryptRoomStart, Cmp::CryptRoomEnd>( entity ) )
+                                Cmp::FootStepAlpha, Cmp::CryptRoomOpen, Cmp::CryptRoomClosed, Cmp::CryptRoomStart, Cmp::CryptRoomEnd,
+                                Cmp::CryptPassageBlock, Cmp::CryptLever, Cmp::CryptObjectiveMultiBlock>( entity ) )
     {
       skipped_cmp++;
       continue; // Skip player entity
@@ -160,6 +165,7 @@ void RegistryTransfer::ensure_player_component_storages( entt::registry &registr
   registry.storage<Cmp::SpriteAnimation>();
   registry.storage<Cmp::WeaponLevel>();
   registry.storage<Cmp::ZOrderValue>();
+  registry.storage<Cmp::System>();
   // Add other player-related components as needed
 }
 

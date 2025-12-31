@@ -149,6 +149,91 @@ public:
     return false;
   }
 
+  // Check if a rectangle intersects with any visible segment of the circle
+  bool intersectsWithVisibleSegments( const sf::FloatRect &rect ) const
+  {
+    for ( const auto &segment : m_segments )
+    {
+      if ( not segment.visible ) continue;
+
+      // Sample points along this visible segment
+      constexpr int samples = 32;
+      float angle_range = segment.end_angle - segment.start_angle;
+
+      for ( int i = 0; i < samples; ++i )
+      {
+        float t = static_cast<float>( i ) / ( samples - 1 );
+        float angle = segment.start_angle + t * angle_range;
+
+        // Check both inner and outer radius points to account for thickness
+        float inner_radius = m_radius - m_outline_thickness / 2.0f;
+        float outer_radius = m_radius + m_outline_thickness / 2.0f;
+
+        sf::Vector2f inner_point = m_position + sf::Vector2f( std::cos( angle ) * inner_radius, std::sin( angle ) * inner_radius );
+        sf::Vector2f outer_point = m_position + sf::Vector2f( std::cos( angle ) * outer_radius, std::sin( angle ) * outer_radius );
+
+        if ( rect.contains( inner_point ) || rect.contains( outer_point ) ) { return true; }
+      }
+    }
+    return false;
+  }
+
+  // Get a list of all visible segments (for debugging or other purposes)
+  std::vector<CircleSegment> getVisibleSegments() const
+  {
+    std::vector<CircleSegment> visible_segments;
+    for ( const auto &segment : m_segments )
+    {
+      if ( segment.visible ) { visible_segments.push_back( segment ); }
+    }
+    return visible_segments;
+  }
+
+  // Check if a point intersects with any visible segment
+  bool pointIntersectsVisibleSegments( sf::Vector2f point ) const
+  {
+    float distance = std::sqrt( std::pow( point.x - m_position.x, 2 ) + std::pow( point.y - m_position.y, 2 ) );
+
+    // Check if point is at the right distance from center
+    if ( std::abs( distance - m_radius ) > m_outline_thickness / 2.0f ) { return false; }
+
+    // Calculate angle of the point relative to center
+    float point_angle = std::atan2( point.y - m_position.y, point.x - m_position.x );
+    if ( point_angle < 0 ) point_angle += 2 * std::numbers::pi;
+
+    // Check if this angle falls within any visible segment
+    for ( const auto &segment : m_segments )
+    {
+      if ( not segment.visible ) continue;
+
+      float start_angle = segment.start_angle;
+      float end_angle = segment.end_angle;
+
+      // Normalize angles to [0, 2π]
+      while ( start_angle < 0 )
+        start_angle += 2 * std::numbers::pi;
+      while ( end_angle < 0 )
+        end_angle += 2 * std::numbers::pi;
+      while ( start_angle >= 2 * std::numbers::pi )
+        start_angle -= 2 * std::numbers::pi;
+      while ( end_angle >= 2 * std::numbers::pi )
+        end_angle -= 2 * std::numbers::pi;
+
+      // Handle wrap-around case
+      if ( start_angle <= end_angle )
+      {
+        if ( point_angle >= start_angle && point_angle <= end_angle ) { return true; }
+      }
+      else
+      {
+        // Segment wraps around 0
+        if ( point_angle >= start_angle || point_angle <= end_angle ) { return true; }
+      }
+    }
+
+    return false;
+  }
+
   // Remove segments that intersect with the given rectangle
   void removeIntersectingSegments( const sf::FloatRect &obstacle_rect )
   {
