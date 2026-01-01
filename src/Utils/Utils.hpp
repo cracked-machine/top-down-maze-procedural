@@ -2,13 +2,16 @@
 #define SRC_UTILS_UTILS_HPP__
 
 #include <Components/PlayableCharacter.hpp>
+#include <Components/PlayerHealth.hpp>
 #include <Components/Position.hpp>
+#include <Components/System.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/View.hpp>
 // #include <Systems/BaseSystem.hpp>
 
 #include <cmath>
 #include <entt/entity/entity.hpp>
+#include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
 #include <stdexcept>
@@ -133,6 +136,24 @@ static Cmp::Position get_player_position( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayableCharacter, Cmp::Position>();
   return player_view.get<Cmp::Position>( get_player_entity( reg ) );
+}
+
+static Cmp::PlayerHealth &get_player_health( entt::registry &reg )
+{
+  auto player_view = reg.view<Cmp::PlayerHealth>();
+  return player_view.get<Cmp::PlayerHealth>( get_player_entity( reg ) );
+}
+
+static Cmp::System &getSystemCmp( entt::registry &reg )
+{
+  entt::entity system_entt = entt::null;
+  Cmp::System *system_cmp = nullptr;
+  auto system_view = reg.view<Cmp::System>();
+  if ( system_view->empty() ) { throw std::runtime_error( "Unable to get component Cmp::System!" ); }
+  system_entt = system_view.front();
+  if ( system_entt == entt::null ) { throw std::runtime_error( "Unable to get entity for Cmp::System!" ); }
+  system_cmp = reg.try_get<Cmp::System>( system_entt );
+  return *system_cmp;
 }
 
 } // namespace ProceduralMaze::Utils

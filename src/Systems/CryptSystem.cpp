@@ -442,7 +442,7 @@ void CryptSystem::unlock_exit_passage()
   m_maze_unlocked = true;
 
   closeOpenRooms();
-  removeLeverOpenRooms();
+  removeAllLevers();
   openAllRooms();
   emptyOpenRooms();
   createRoomBorders();

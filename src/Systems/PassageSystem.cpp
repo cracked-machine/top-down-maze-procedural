@@ -616,6 +616,7 @@ void PassageSystem::emptyOpenPassages()
 
 void PassageSystem::fillAllPassages()
 {
+
   auto obstacle_view = getReg().view<Cmp::Position>();
   for ( auto [pos_entt, pos_cmp] : obstacle_view.each() )
   {
@@ -633,6 +634,15 @@ void PassageSystem::fillAllPassages()
       auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
       float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
       Factory::createObstacle( getReg(), pos_entt, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
+
+      if ( Utils::getSystemCmp( getReg() ).collisions_enabled )
+      {
+        if ( Utils::get_player_position( getReg() ).findIntersection( pblock_cmp_rect ) )
+        {
+          // player got squished
+          Utils::get_player_health( getReg() ).health = 0;
+        }
+      }
     }
   }
 }

@@ -58,17 +58,12 @@ PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
 
 void PlayerSystem::update( sf::Time globalDeltaTime )
 {
-  entt::entity system_entt = entt::null;
-  Cmp::System *system_cmp = nullptr;
-  auto system_view = getReg().view<Cmp::System>();
-  if ( not system_view->empty() ) { system_entt = system_view.front(); }
-  if ( system_entt != entt::null ) { system_cmp = getReg().try_get<Cmp::System>( system_entt ); }
 
   // process changes to player position and related transforms
   localTransforms();
 
   // process global movement, disable collision detection if option set
-  if ( system_cmp ) { globalTranslations( globalDeltaTime, system_cmp->collisions_enabled ); }
+  globalTranslations( globalDeltaTime, Utils::getSystemCmp( getReg() ).collisions_enabled );
 
   // update path tracking data
   if ( m_debug_info_timer.getElapsedTime() >= sf::milliseconds( 100 ) )
@@ -77,7 +72,7 @@ void PlayerSystem::update( sf::Time globalDeltaTime )
     m_debug_info_timer.restart();
   }
 
-  if ( system_cmp && system_cmp->collisions_enabled )
+  if ( Utils::getSystemCmp( getReg() ).collisions_enabled )
   {
     // update player health if hit by shockwave
     for ( auto entt : getReg().view<Cmp::NpcShockwave>() )
