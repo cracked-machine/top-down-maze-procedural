@@ -90,13 +90,8 @@ void CryptScene::do_update( sf::Time dt )
   // Note: this enqueues 'Events::SceneManagerEvent::Type::GAME_OVER' if player is dead
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt );
 
-  // clang-format off
-  m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().render_game( 
-    dt,
-    m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>() , m_floormap,
-    Sys::RenderGameSystem::DarkMode::ON
-  );
-  // clang-format on
+  auto &overlay_sys = m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>();
+  m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::RenderGameSystem::DarkMode::ON );
 }
 
 entt::registry &CryptScene::registry() { return m_reg; }

@@ -112,62 +112,24 @@ void GraveyardScene::on_exit()
 
 void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
 {
-  auto check_position = [this]( [[maybe_unused]] const std::string &system_name )
-  {
-    auto player_view = m_reg.view<Cmp::PlayableCharacter, Cmp::Position>();
-    for ( auto [player_entity, pc_cmp, pos_cmp] : player_view.each() )
-    {
-      static sf::Vector2f last_position = pos_cmp.position;
-      if ( pos_cmp.position != last_position )
-      {
-        SPDLOG_DEBUG( "Player position changed after {}: ({}, {}) -> ({}, {})", system_name, last_position.x, last_position.y, pos_cmp.position.x,
-                      pos_cmp.position.y );
-        last_position = pos_cmp.position;
-      }
-    }
-  };
-
-  check_position( "START" );
-
   m_system_store.find<Sys::SystemStore::Type::AnimSystem>().update( dt );
-  check_position( "AnimSystem" );
-
   m_system_store.find<Sys::SystemStore::Type::SinkHoleHazardSystem>().update();
-  check_position( "SinkHoleHazardSystem" );
-
   m_system_store.find<Sys::SystemStore::Type::CorruptionHazardSystem>().update();
-  check_position( "CorruptionHazardSystem" );
-
   m_system_store.find<Sys::SystemStore::Type::BombSystem>().update();
-  check_position( "BombSystem" );
-
   m_system_store.find<Sys::SystemStore::Type::ExitSystem>().check_exit_collision();
-  check_position( "ExitSystem" );
-
   m_system_store.find<Sys::SystemStore::Type::LootSystem>().check_loot_collision();
-  check_position( "LootSystem" );
-
   m_system_store.find<Sys::SystemStore::Type::NpcSystem>().update( dt );
-  check_position( "NpcSystem" );
-
   m_system_store.find<Sys::SystemStore::Type::WormholeSystem>().check_player_wormhole_collision();
-  check_position( "WormholeSystem" );
-
   m_system_store.find<Sys::SystemStore::Type::DiggingSystem>().update();
-  check_position( "DiggingSystem" );
-
   m_system_store.find<Sys::SystemStore::Type::FootstepSystem>().update();
-  check_position( "FootstepSystem" );
 
   if ( m_scene_exit_cooldown.getElapsedTime() >= m_scene_exit_cooldown_time )
   {
     m_system_store.find<Sys::SystemStore::Type::CryptSystem>().check_entrance_collision();
   }
-  check_position( "CryptSystem" );
 
   // Note: this enqueues 'Events::SceneManagerEvent::Type::GAME_OVER' if player is dead
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt );
-  check_position( "PlayerSystem" );
 
   // clang-format off
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().render_game( 
@@ -176,7 +138,6 @@ void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
     Sys::RenderGameSystem::DarkMode::OFF
   );
   // clang-format on
-  check_position( "RenderGameSystem" );
 }
 
 entt::registry &GraveyardScene::registry() { return m_reg; }

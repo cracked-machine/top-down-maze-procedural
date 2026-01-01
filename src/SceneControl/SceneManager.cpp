@@ -230,25 +230,22 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
     case Events::SceneManagerEvent::Type::GAME_OVER: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::GAME_OVER requested" );
       auto game_over_scene = std::make_unique<GameOverScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher );
-
-      // pop back to the graveyard scene
-      while ( m_scene_stack.size() > 2 )
-      {
-        pop( RegCopyMode::PLAYER_ONLY );
-      }
-      // then replace the graveyard scene with the game over scene
-      replace_no_exit( std::move( game_over_scene ), RegCopyMode::PLAYER_ONLY );
+      push_no_exit( std::move( game_over_scene ), RegCopyMode::PLAYER_ONLY );
       break;
     }
     case Events::SceneManagerEvent::Type::LEVEL_COMPLETE: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::LEVEL_COMPLETE requested" );
       auto level_complete_scene = std::make_unique<LevelCompleteScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher );
-      replace_no_exit( std::move( level_complete_scene ), RegCopyMode::PLAYER_ONLY );
+      push_no_exit( std::move( level_complete_scene ), RegCopyMode::PLAYER_ONLY );
       break;
     }
     case Events::SceneManagerEvent::Type::RETURN_TO_TITLE: {
-      SPDLOG_INFO( "!!!!!!!!!!SceneManager: Events::SceneManagerEvent::Type::RETURN_TO_TITLE requested" );
-      pop_no_exit();
+      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::RETURN_TO_TITLE requested" );
+      // assume last scene is always title scene
+      while ( m_scene_stack.size() > 1 )
+      {
+        pop();
+      }
       break;
     }
     default:
