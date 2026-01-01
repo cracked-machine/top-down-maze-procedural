@@ -10,6 +10,7 @@
 #include <Components/RectBounds.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/PauseClocksEvent.hpp>
+#include <Events/PlayerMortalityEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
 #include <Factory/BombFactory.hpp>
 #include <Factory/LootFactory.hpp>
@@ -258,7 +259,11 @@ void BombSystem::update()
       {
         auto &bomb_damage = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::BombDamage>( getReg() );
         pc_health_cmp.health -= bomb_damage.get_value();
-        if ( pc_health_cmp.health <= 0 ) { pc_mort_cmp.state = Cmp::PlayerMortality::State::EXPLODING; }
+        if ( pc_health_cmp.health <= 0 )
+        {
+          // pc_mort_cmp.state = Cmp::PlayerMortality::State::EXPLODING;
+          get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::EXPLODING ) );
+        }
       }
       pc_cmp.has_active_bomb = false;
     }

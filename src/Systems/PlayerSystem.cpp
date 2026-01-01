@@ -1,3 +1,4 @@
+
 #include <Systems/PlayerSystem.hpp>
 
 #include <Audio/SoundBank.hpp>
@@ -31,6 +32,7 @@
 #include <Components/WeaponLevel.hpp>
 #include <Components/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -54,6 +56,71 @@ PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
       m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
 {
   SPDLOG_DEBUG( "PlayerSystem initialized" );
+  std::ignore = get_systems_event_queue().sink<ProceduralMaze::Events::PlayerMortalityEvent>().connect<&PlayerSystem::on_player_mortality_event>(
+      this );
+  m_post_death_timer.reset();
+}
+
+void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMortalityEvent ev )
+{
+
+  // clang-format off
+  auto common_death_throes = [&]()
+  {
+    m_post_death_timer.restart();
+    getReg().remove<Cmp::SpriteAnimation>( Utils::get_player_entity( getReg() ) );
+    Utils::get_player_health( getReg() ).health = 0;
+    Utils::get_player_mortality( getReg() ).state = Cmp::PlayerMortality::State::DEAD;
+  };
+  // clang-format on
+
+  switch ( ev.m_new_state )
+  {
+    case Cmp::PlayerMortality::State::ALIVE:
+      break;
+
+    case Cmp::PlayerMortality::State::FALLING:
+
+      Factory::createPlayerExplosion( getReg(), Utils::get_player_position( getReg() ) );
+      m_sound_bank.get_effect("bomb_detonate").play();
+      common_death_throes();
+      break;
+
+    case Cmp::PlayerMortality::State::DECAYING:
+      Factory::createPlayerExplosion( getReg(), Utils::get_player_position( getReg() ) );
+      m_sound_bank.get_effect("bomb_detonate").play();
+      common_death_throes();
+      break;
+
+    case Cmp::PlayerMortality::State::HAUNTED:
+      Factory::createPlayerExplosion( getReg(), Utils::get_player_position( getReg() ) );
+      m_sound_bank.get_effect("bomb_detonate").play();
+      common_death_throes();
+      break;
+
+    case Cmp::PlayerMortality::State::EXPLODING:
+      Factory::createPlayerExplosion( getReg(), Utils::get_player_position( getReg() ) );
+      m_sound_bank.get_effect("bomb_detonate").play();
+      common_death_throes();
+      break;
+
+    case Cmp::PlayerMortality::State::DROWNING:
+      break;
+
+    case Cmp::PlayerMortality::State::SQUISHED:
+      Factory::createPlayerExplosion( getReg(), Utils::get_player_position( getReg() ) );
+      m_sound_bank.get_effect("bomb_detonate").play();
+      common_death_throes();
+      break;
+
+    case Cmp::PlayerMortality::State::SUICIDE:
+      Factory::createPlayerExplosion( getReg(), Utils::get_player_position( getReg() ) );
+      m_sound_bank.get_effect("bomb_detonate").play();
+      common_death_throes();
+
+    case Cmp::PlayerMortality::State::DEAD:
+      break;
+  }
 }
 
 void PlayerSystem::update( sf::Time globalDeltaTime )
@@ -62,34 +129,54 @@ void PlayerSystem::update( sf::Time globalDeltaTime )
   // process changes to player position and related transforms
   localTransforms();
 
-  // process global movement, disable collision detection if option set
-  globalTranslations( globalDeltaTime, Utils::getSystemCmp( getReg() ).collisions_enabled );
-
-  // update path tracking data
-  if ( m_debug_info_timer.getElapsedTime() >= sf::milliseconds( 100 ) )
+  if ( not m_post_death_timer.isRunning() )
   {
-    refreshPlayerDistances();
-    m_debug_info_timer.restart();
-  }
 
-  if ( Utils::getSystemCmp( getReg() ).collisions_enabled )
-  {
-    // update player health if hit by shockwave
-    for ( auto entt : getReg().view<Cmp::NpcShockwave>() )
+    // process global movement, disable collision detection if option set
+    globalTranslations( globalDeltaTime, Utils::getSystemCmp( getReg() ).collisions_enabled );
+    // footstep sfx
+    auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Direction>();
+    for ( auto [pc_entity, pc_cmp, dir_cmp] : player_view.each() )
     {
-      checkShockwavePlayerCollision( getReg().get<Cmp::NpcShockwave>( entt ) );
+      if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) ) { stopFootstepsSound(); }
+      else { playFootstepsSound(); }
+    }
+    // update path tracking data
+    if ( m_debug_info_timer.getElapsedTime() >= sf::milliseconds( 100 ) )
+    {
+      refreshPlayerDistances();
+      m_debug_info_timer.restart();
+    }
+
+    if ( Utils::getSystemCmp( getReg() ).collisions_enabled )
+    {
+      // update player health if hit by shockwave
+      for ( auto entt : getReg().view<Cmp::NpcShockwave>() )
+      {
+        checkShockwavePlayerCollision( getReg().get<Cmp::NpcShockwave>( entt ) );
+      }
     }
   }
 
   // did player die?
   checkPlayerMortality();
+}
 
-  // footstep sfx
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Direction>();
-  for ( auto [pc_entity, pc_cmp, dir_cmp] : player_view.each() )
+void PlayerSystem::checkPlayerMortality()
+{
+  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
+  for ( auto [entity, pc_cmp, health_cmp, mortality_cmp, player_pos_cmp] : player_view.each() )
   {
-    if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) ) { stopFootstepsSound(); }
-    else { playFootstepsSound(); }
+
+    if ( ( mortality_cmp.state == Cmp::PlayerMortality::State::DEAD ) and ( m_post_death_timer.getElapsedTime() > sf::seconds( 5.f ) ) )
+    {
+
+      SPDLOG_DEBUG( "Player has progressed to deadness." );
+      m_post_death_timer.reset();
+      stopFootstepsSound();
+
+      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::GAME_OVER );
+    }
   }
 }
 
@@ -130,9 +217,9 @@ void PlayerSystem::localTransforms()
       mortality_cmp.state = Cmp::PlayerMortality::State::DEAD;
       return;
     }
-    // damage cooldown blink effect
     else
     {
+      // damage cooldown blink effect
       auto &pc_damage_cooldown = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>( getReg() );
       bool is_in_damage_cooldown = pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value();
       int blink_visible = static_cast<int>( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asMilliseconds() / 100 ) % 2 == 0;
@@ -292,20 +379,6 @@ void PlayerSystem::refreshPlayerDistances()
       if ( getReg().all_of<Cmp::FootStepTimer>( path_entt ) ) continue;
       // otherwise tidy up any out of range player distances
       if ( not pc_db_cmp.findIntersection( path_pos_cmp ) ) { getReg().remove<Cmp::PlayerDistance>( path_entt ); }
-    }
-  }
-}
-
-void PlayerSystem::checkPlayerMortality()
-{
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality>();
-  for ( auto [entity, pc_cmp, health_cmp, mortality_cmp] : player_view.each() )
-  {
-    if ( health_cmp.health <= 0 )
-    {
-      mortality_cmp.state = Cmp::PlayerMortality::State::DEAD;
-      SPDLOG_DEBUG( "Player has progressed to deadness." );
-      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::GAME_OVER );
     }
   }
 }

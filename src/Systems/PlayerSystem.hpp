@@ -5,6 +5,7 @@
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/PlayerMortality.hpp>
 #include <Components/Position.hpp>
+#include <Events/PlayerMortalityEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <SFML/Audio/Sound.hpp>
@@ -48,10 +49,14 @@ private:
 
   void checkShockwavePlayerCollision( Cmp::NpcShockwave &shockwave );
 
+  void on_player_mortality_event( ProceduralMaze::Events::PlayerMortalityEvent ev );
+
   //! @brief Use this to send events to the scene manager
   entt::dispatcher &m_scenemanager_event_dispatcher;
 
   sf::Clock m_debug_info_timer;
+
+  sf::Clock m_post_death_timer;
 };
 
 } // namespace ProceduralMaze::Sys

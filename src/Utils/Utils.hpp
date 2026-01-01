@@ -3,6 +3,7 @@
 
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerHealth.hpp>
+#include <Components/PlayerMortality.hpp>
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -142,6 +143,12 @@ static Cmp::PlayerHealth &get_player_health( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerHealth>();
   return player_view.get<Cmp::PlayerHealth>( get_player_entity( reg ) );
+}
+
+static Cmp::PlayerMortality &get_player_mortality( entt::registry &reg )
+{
+  auto player_view = reg.view<Cmp::PlayerMortality>();
+  return player_view.get<Cmp::PlayerMortality>( get_player_entity( reg ) );
 }
 
 static Cmp::System &getSystemCmp( entt::registry &reg )

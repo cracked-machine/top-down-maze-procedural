@@ -32,6 +32,7 @@
 #include <Components/System.hpp>
 #include <Components/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <SFML/System/Time.hpp>
 #include <Sprites/SpriteFactory.hpp>
@@ -207,6 +208,7 @@ void NpcSystem::check_player_to_npc_collision()
       if ( pc_health_cmp.health <= 0 )
       {
         pc_mort_cmp.state = Cmp::PlayerMortality::State::HAUNTED;
+        get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED ) );
         return;
       }
 

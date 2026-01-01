@@ -13,6 +13,7 @@ void CreatePlayer( entt::registry &registry );
 entt::entity createWorldPosition( entt::registry &registry, const sf::Vector2f &pos );
 entt::entity createVoidPosition( entt::registry &registry, const sf::Vector2f &pos );
 void addSpawnArea( entt::registry &registry, entt::entity entity, float zorder );
+void createPlayerExplosion( entt::registry &registry, Cmp::Position npc_pos_cmp );
 
 } // namespace ProceduralMaze::Factory
 

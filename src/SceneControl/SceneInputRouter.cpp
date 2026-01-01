@@ -15,6 +15,7 @@
 #include <Components/System.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
+#include <Events/PlayerMortalityEvent.hpp>
 #include <Events/SaveSettingsEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
 #include <SceneControl/Events/ProcessCryptSceneInputEvent.hpp>
@@ -167,14 +168,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
       {
-        // dont set PlayerMortality::State directly, instead update health/death_progress and let
-        // the PlayerSystem logic handle it
-        for ( auto [entity, pc_mort_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerMortality, Cmp::PlayerHealth>().each() )
-        {
-          pc_health_cmp.health = 0;
-          pc_mort_cmp.death_progress = 1.0f;
-          SPDLOG_INFO( "Player committed suicide" );
-        }
+        get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE ) );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
       {

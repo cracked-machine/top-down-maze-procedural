@@ -2,14 +2,14 @@
 #define __CMP_PLAYERMORTALITY_HPP__
 
 #include <cstdint>
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
 class PlayerMortality
 {
 
 public:
-  enum class State : uint8_t
-  {
+  enum class State : uint8_t {
     //! @brief Player is alive and well. Game is ongoing.
     ALIVE = 0,
     //! @brief Death in process: Player is falling
@@ -22,6 +22,8 @@ public:
     EXPLODING = 4,
     //! @brief Death in process: Player is drowning
     DROWNING = 5,
+    SQUISHED = 6,
+    SUICIDE = 7,
     //! @brief Player is dead. final state. end the game.
     DEAD = 255
   };

@@ -6,8 +6,10 @@
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/PlayerMortality.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/Wall.hpp>
+#include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/PassageSystem.hpp>
@@ -640,7 +642,7 @@ void PassageSystem::fillAllPassages()
         if ( Utils::get_player_position( getReg() ).findIntersection( pblock_cmp_rect ) )
         {
           // player got squished
-          Utils::get_player_health( getReg() ).health = 0;
+          get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SQUISHED ) );
         }
       }
     }

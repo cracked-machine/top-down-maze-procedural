@@ -3,6 +3,7 @@
 #include <Components/Direction.hpp>
 #include <Components/Neighbours.hpp>
 #include <Components/NoPathFinding.hpp>
+#include <Components/NpcDeathPosition.hpp>
 #include <Components/PCDetectionBounds.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
 #include <Components/Persistent/BombInventory.hpp>
@@ -89,6 +90,15 @@ void addSpawnArea( entt::registry &registry, entt::entity entity, float zorder )
   registry.emplace_or_replace<Cmp::NoPathFinding>( entity );
   registry.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYERSPAWN", 0 );
   registry.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
+}
+
+void createPlayerExplosion( entt::registry &registry, Cmp::Position npc_pos_cmp )
+{
+  auto npc_death_entity = registry.create();
+  registry.emplace<Cmp::Position>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
+  registry.emplace_or_replace<Cmp::NpcDeathPosition>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
+  registry.emplace_or_replace<Cmp::SpriteAnimation>( npc_death_entity, 0, 0, true, "EXPLOSION", 0 );
+  registry.emplace_or_replace<Cmp::ZOrderValue>( npc_death_entity, npc_pos_cmp.position.y * 3 ); // always infront
 }
 
 } // namespace ProceduralMaze::Factory
