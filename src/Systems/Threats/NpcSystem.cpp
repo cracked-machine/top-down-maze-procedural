@@ -38,6 +38,7 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
+#include <Systems/Threats/ShockwaveSystem.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Utils.hpp>
 
@@ -488,7 +489,7 @@ void NpcSystem::update_shockwaves()
     for ( auto entt : getReg().view<Cmp::NpcShockwave>() )
     {
       auto &sw_cmp = getReg().get<Cmp::NpcShockwave>( entt );
-      float current_radius = sw_cmp.getRadius();
+      float current_radius = sw_cmp.sprite.getRadius();
 
       // Exponential scaling - shockwave accelerates as it grows
       // This creates a natural acceleration that maintains the visual impression of constant speed as the circumference grows.
@@ -496,7 +497,7 @@ void NpcSystem::update_shockwaves()
       float speed_multiplier = 1.0f + normalized_radius * normalized_radius; // Quadratic acceleration
 
       float new_radius = current_radius + ( shockwave_increments * speed_multiplier );
-      sw_cmp.setRadius( new_radius );
+      sw_cmp.sprite.setRadius( new_radius );
 
       checkShockwaveObstacleCollision( entt, sw_cmp );
 
@@ -523,8 +524,8 @@ void NpcSystem::checkShockwaveObstacleCollision( [[maybe_unused]] entt::entity s
                     shockwave.getRadius() );
 
       // Calculate distance from circle center to rectangle
-      sf::Vector2f circle_center = shockwave.getPosition();
-      float circle_radius = shockwave.getRadius();
+      sf::Vector2f circle_center = shockwave.sprite.getPosition();
+      float circle_radius = shockwave.sprite.getRadius();
 
       // Find closest point on rectangle to circle center
       sf::Vector2f closest_point;
@@ -536,12 +537,12 @@ void NpcSystem::checkShockwaveObstacleCollision( [[maybe_unused]] entt::entity s
       float distance = std::sqrt( diff.x * diff.x + diff.y * diff.y );
 
       // Check if circle intersects with rectangle (accounting for outline thickness)
-      float effective_radius = circle_radius + shockwave.getOutlineThickness() / 2.0f;
+      float effective_radius = circle_radius + shockwave.sprite.getOutlineThickness() / 2.0f;
 
       if ( distance <= effective_radius )
       {
         SPDLOG_DEBUG( "Shockwave INTERSECTS with obstacle (distance: {}, effective_radius: {})", distance, effective_radius );
-        shockwave.removeIntersectingSegments( obstacle_rect );
+        Sys::ShockwaveSystem::removeIntersectingSegments( obstacle_rect, shockwave );
       }
       else { SPDLOG_DEBUG( "Shockwave does NOT intersect with obstacle (distance: {}, effective_radius: {})", distance, effective_radius ); }
     }

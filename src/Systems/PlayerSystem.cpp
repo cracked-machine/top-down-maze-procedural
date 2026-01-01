@@ -36,6 +36,7 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Systems/Threats/ShockwaveSystem.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Utils.hpp>
@@ -322,13 +323,13 @@ void PlayerSystem::checkShockwavePlayerCollision( Cmp::NpcShockwave &shockwave )
   for ( auto [player_entity, player_cmp, player_pos, player_health] : player_view.each() )
   {
     if ( player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
-    if ( shockwave.intersectsWithVisibleSegments( player_pos ) )
+    if ( Sys::ShockwaveSystem::intersectsWithVisibleSegments( shockwave, player_pos ) )
     {
       player_health.health -= 10;
       m_sound_bank.get_effect( "damage_player" ).play();
       player_cmp.m_damage_cooldown_timer.restart();
       SPDLOG_INFO( "Player (health:{}) INTERSECTS with Shockwave (position: {},{} - effective_radius: {})", player_health.health,
-                   shockwave.getPosition().x, shockwave.getPosition().y, shockwave.getRadius() );
+                   shockwave.sprite.getPosition().x, shockwave.sprite.getPosition().y, shockwave.sprite.getRadius() );
     }
     else { SPDLOG_DEBUG( "Player does NOT intersect with shockwave (distance: {}, effective_radius: {})", distance, effective_radius ); }
   }
