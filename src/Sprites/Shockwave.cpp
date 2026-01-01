@@ -1,4 +1,5 @@
 #include <Sprites/Shockwave.hpp>
+#include <numbers>
 
 namespace ProceduralMaze::Sprites
 {
@@ -8,7 +9,6 @@ Shockwave::Shockwave( sf::Vector2f pos, int points_per_segment )
       m_radius( Constants::kGridSquareSizePixelsF.x ),
       m_outline_color( sf::Color::Red ),
       m_outline_thickness( 2.f ),
-      m_vertices( sf::PrimitiveType::Lines ),
       m_points_per_segment( points_per_segment )
 {
   // Initialize with full circle

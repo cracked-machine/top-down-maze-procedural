@@ -61,7 +61,7 @@ public:
 
   //! @brief Get the Outline Color object
   //! @return sf::Color
-  sf::Color getOutlineColor() { return m_outline_color; }
+  sf::Color getOutlineColor() const { return m_outline_color; }
 
   //! @brief Set the Outline Thickness object
   //! @param thickness
@@ -72,12 +72,16 @@ public:
   }
 
   //! @brief Get the Segments object
-  //! @return CircleSegments
-  CircleSegments getSegments() { return m_segments; }
+  //! @return const CircleSegments&
+  const CircleSegments &getSegments() const { return m_segments; }
 
   //! @brief Set the Segments object
   //! @param segments
-  void setSegments( CircleSegments &&segments ) { m_segments = segments; }
+  void setSegments( CircleSegments &&segments )
+  {
+    m_segments = std::move( segments );
+    invalidateAllSegments();
+  }
 
   //! @brief Get the Outline Thickness object
   //! @return float
@@ -105,9 +109,9 @@ private:
   sf::Color m_outline_color;
   float m_outline_thickness;
   CircleSegments m_segments;
-  mutable sf::VertexArray m_vertices;
   int m_points_per_segment;
 
+  //! @brief Invalidate all segment caches
   void invalidateAllSegments();
 };
 

@@ -1,10 +1,16 @@
 #include "ShockwaveSystem.hpp"
 #include <Components/NpcShockwave.hpp>
 #include <Sprites/Shockwave.hpp>
-#include <numbers>
+#include <Utils/Maths.hpp>
 
 namespace ProceduralMaze::Sys
 {
+
+ShockwaveSystem::ShockwaveSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
+                                  Audio::SoundBank &sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank )
+{
+}
 
 Sprites::Shockwave::CircleSegments ShockwaveSystem::splitSegmentByObstacle( const Sprites::CircleSegment &segment, const sf::FloatRect &obstacle_rect,
                                                                             sf::Vector2f shockwave_position, float radius, const int samples )
@@ -67,23 +73,13 @@ bool ShockwaveSystem::pointIntersectsVisibleSegments( const Cmp::NpcShockwave &s
 
   // Calculate angle of the point relative to center
   float point_angle = std::atan2( point.y - position.y, point.x - position.x );
-  if ( point_angle < 0 ) point_angle += 2 * std::numbers::pi;
+  point_angle = Utils::Maths::normalizeAngle( point_angle );
 
   // Check if this angle falls within any visible segment
   for ( const auto &segment : shockwave.sprite.getVisibleSegments() )
   {
-    float start_angle = segment.getStartAngle();
-    float end_angle = segment.getEndAngle();
-
-    // Normalize angles to [0, 2π]
-    while ( start_angle < 0 )
-      start_angle += 2 * std::numbers::pi;
-    while ( end_angle < 0 )
-      end_angle += 2 * std::numbers::pi;
-    while ( start_angle >= 2 * std::numbers::pi )
-      start_angle -= 2 * std::numbers::pi;
-    while ( end_angle >= 2 * std::numbers::pi )
-      end_angle -= 2 * std::numbers::pi;
+    float start_angle = Utils::Maths::normalizeAngle( segment.getStartAngle() );
+    float end_angle = Utils::Maths::normalizeAngle( segment.getEndAngle() );
 
     // Handle wrap-around case
     if ( start_angle <= end_angle )

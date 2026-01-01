@@ -75,6 +75,13 @@ constexpr inline T getEuclideanDistance( sf::Vector2<T> posA, sf::Vector2<T> pos
   T dy = posA.y - posB.y;
   return static_cast<T>( std::sqrt( dx * dx + dy * dy ) );
 }
+
+static float normalizeAngle( float angle )
+{
+  angle = std::fmod( angle, 2.0f * std::numbers::pi );
+  return angle < 0 ? angle + 2.0f * std::numbers::pi : angle;
+}
+
 } // namespace ProceduralMaze::Utils::Maths
 
 #endif // SRC_UTILS_MATHS_HPP__

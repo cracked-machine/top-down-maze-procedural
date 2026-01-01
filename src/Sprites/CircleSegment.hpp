@@ -69,9 +69,6 @@ private:
   mutable sf::Vector2f cached_position = { -1.0f, -1.0f };
   mutable sf::Color cached_color = sf::Color::Transparent;
 
-  sf::Vector2f start_point;
-  sf::Vector2f end_point;
-
   void generateVertices( sf::Vector2f center, float radius, float outline_thickness, sf::Color color, int points_per_segment ) const;
 };
 
