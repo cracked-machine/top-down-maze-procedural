@@ -24,6 +24,7 @@
 #include <Components/CryptEntrance.hpp>
 #include <Components/CryptMultiBlock.hpp>
 #include <Components/CryptSegment.hpp>
+#include <Components/DeathPosition.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
@@ -32,7 +33,6 @@
 #include <Components/HazardFieldCell.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NpcContainer.hpp>
-#include <Components/NpcDeathPosition.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>

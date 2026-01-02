@@ -1,9 +1,9 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteRotation.hpp>
+#include <Components/DeathPosition.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Neighbours.hpp>
 #include <Components/NoPathFinding.hpp>
-#include <Components/NpcDeathPosition.hpp>
 #include <Components/PCDetectionBounds.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
 #include <Components/Persistent/BombInventory.hpp>
@@ -23,6 +23,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Utils/Utils.hpp>
 #include <entt/entity/fwd.hpp>
@@ -92,13 +93,16 @@ void addSpawnArea( entt::registry &registry, entt::entity entity, float zorder )
   registry.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
 }
 
-void createPlayerExplosion( entt::registry &registry, Cmp::Position npc_pos_cmp )
+void createPlayerBloodSplat( entt::registry &registry, Cmp::Position player_pos_cmp, sf::Vector2f sprite_size )
 {
-  auto npc_death_entity = registry.create();
-  registry.emplace<Cmp::Position>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
-  registry.emplace_or_replace<Cmp::NpcDeathPosition>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
-  registry.emplace_or_replace<Cmp::SpriteAnimation>( npc_death_entity, 0, 0, true, "EXPLOSION", 0 );
-  registry.emplace_or_replace<Cmp::ZOrderValue>( npc_death_entity, npc_pos_cmp.position.y * 3 ); // always infront
+  auto player_blood_splat_entity = registry.create();
+  sf::Vector2f offset;
+  if ( sprite_size == Constants::kGridSquareSizePixelsF ) { offset = sf::Vector2f{ 0, 0 }; }
+  else { offset = ( sprite_size - Constants::kGridSquareSizePixelsF ) / 2.f; }
+  registry.emplace<Cmp::Position>( player_blood_splat_entity, player_pos_cmp.position - offset, player_pos_cmp.size );
+  registry.emplace_or_replace<Cmp::DeathPosition>( player_blood_splat_entity, player_pos_cmp.position - offset, player_pos_cmp.size );
+  registry.emplace_or_replace<Cmp::SpriteAnimation>( player_blood_splat_entity, 0, 0, true, "BLOOD", 0 );
+  registry.emplace_or_replace<Cmp::ZOrderValue>( player_blood_splat_entity, player_pos_cmp.position.y * 3 ); // always infront
 }
 
 } // namespace ProceduralMaze::Factory

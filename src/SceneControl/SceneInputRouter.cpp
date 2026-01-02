@@ -191,8 +191,16 @@ void SceneInputRouter::graveyard_scene_state_handler()
       {
         for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
         {
-          pc_health_cmp.health = std::clamp( 10, pc_health_cmp.health + 10, 100 );
+          pc_health_cmp.health = std::clamp( pc_health_cmp.health + 10, 0, 100 );
           SPDLOG_INFO( "Player gained health (player cheated)" );
+        }
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::NumpadDecimal )
+      {
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+        {
+          pc_health_cmp.health = std::clamp( pc_health_cmp.health - 10, 0, 100 );
+          SPDLOG_INFO( "Player lost health (player cheated)" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 )
@@ -208,6 +216,14 @@ void SceneInputRouter::graveyard_scene_state_handler()
         for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerCadaverCount>().each() )
         {
           pc_cadaver_count_cmp.increment_count( 1 );
+          SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
+        }
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad6 )
+      {
+        for ( auto [pc_entity, pc_cmp] : getReg().view<Cmp::PlayableCharacter>().each() )
+        {
+          pc_cmp.bomb_inventory++;
           SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
         }
       }
@@ -342,8 +358,16 @@ void SceneInputRouter::crypt_scene_state_handler()
       {
         for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
         {
-          pc_health_cmp.health = std::clamp( 10, pc_health_cmp.health + 10, 100 );
+          pc_health_cmp.health = std::clamp( pc_health_cmp.health + 10, 0, 100 );
           SPDLOG_INFO( "Player gained health (player cheated)" );
+        }
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::NumpadDecimal )
+      {
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+        {
+          pc_health_cmp.health = std::clamp( pc_health_cmp.health - 10, 0, 100 );
+          SPDLOG_INFO( "Player lost health (player cheated)" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 )
@@ -359,6 +383,14 @@ void SceneInputRouter::crypt_scene_state_handler()
         for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerCadaverCount>().each() )
         {
           pc_cadaver_count_cmp.increment_count( 1 );
+          SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
+        }
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad6 )
+      {
+        for ( auto [pc_entity, pc_cmp] : getReg().view<Cmp::PlayableCharacter>().each() )
+        {
+          pc_cmp.bomb_inventory++;
           SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
         }
       }

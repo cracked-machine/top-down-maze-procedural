@@ -4,10 +4,10 @@
 #include <spdlog/spdlog.h>
 
 #include <Components/AltarSegment.hpp>
+#include <Components/DeathPosition.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/NPC.hpp>
-#include <Components/NpcDeathPosition.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
 #include <Components/Persistent/NpcGhostAnimFramerate.hpp>
 #include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
@@ -109,30 +109,30 @@ void AnimSystem::update( sf::Time globalDeltaTime )
   }
 
   // NPC Death Explosion Animation
-  auto explosion_view = getReg().view<Cmp::NpcDeathPosition, Cmp::SpriteAnimation>();
+  auto explosion_view = getReg().view<Cmp::DeathPosition, Cmp::SpriteAnimation>();
   for ( auto [entity, explosion_cmp, anim_cmp] : explosion_view.each() )
   {
     const auto &explosion_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
     auto frame_rate = sf::seconds( getReg().ctx().get<Cmp::Persist::NpcDeathAnimFramerate>().get_value() );
 
-    SPDLOG_DEBUG( "Explosion animation active for entity {} - current_frame: {}, sprites_per_frame: {}, "
-                  "sprites_per_sequence: {}, frame_rate: {}s",
-                  static_cast<int>( entity ), anim_cmp.m_current_frame, explosion_sprite_metadata.get_sprites_per_frame(),
-                  explosion_sprite_metadata.get_sprites_per_sequence(), frame_rate.asSeconds() );
+    SPDLOG_INFO( "Explosion animation active for entity {} - current_frame: {}, sprites_per_frame: {}, "
+                 "sprites_per_sequence: {}, frame_rate: {}s",
+                 static_cast<int>( entity ), anim_cmp.m_current_frame, explosion_sprite_metadata.get_sprites_per_frame(),
+                 explosion_sprite_metadata.get_sprites_per_sequence(), frame_rate.asSeconds() );
 
     // Update the frame first
     update_single_sequence( anim_cmp, globalDeltaTime, explosion_sprite_metadata, frame_rate );
 
-    SPDLOG_DEBUG( "After update_frame - current_frame: {}, elapsed_time: {}s", anim_cmp.m_current_frame, anim_cmp.m_elapsed_time.asSeconds() );
+    SPDLOG_INFO( "After update_frame - current_frame: {}, elapsed_time: {}s", anim_cmp.m_current_frame, anim_cmp.m_elapsed_time.asSeconds() );
 
     // have we completed the animation?
     if ( anim_cmp.m_current_frame == explosion_sprite_metadata.get_sprites_per_sequence() - 1 )
     {
-      getReg().remove<Cmp::NpcDeathPosition>( entity );
+      getReg().remove<Cmp::DeathPosition>( entity );
       getReg().remove<Cmp::SpriteAnimation>( entity );
       getReg().remove<Cmp::ZOrderValue>( entity );
       getReg().remove<Cmp::Position>( entity );
-      SPDLOG_DEBUG( "Explosion animation complete, removing component from entity {}", static_cast<int>( entity ) );
+      SPDLOG_INFO( "Explosion animation complete, removing component from entity {}", static_cast<int>( entity ) );
       continue;
     }
   }
@@ -144,40 +144,21 @@ void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time gl
 
   if ( anim.m_elapsed_time >= frame_rate )
   {
-    // SPDLOG_INFO( "Before: current_frame={}, elapsed_time={}s, sprites_per_frame={},
-    // total_sprites={}", anim.m_current_frame,
-    //              anim.m_elapsed_time.asSeconds(), sprites_per_frame, total_sprites );
+    SPDLOG_INFO( "Before: current_frame={}, elapsed_time={}s, sprites_per_frame={}, total_sprites = {} ", anim.m_current_frame,
+                 anim.m_elapsed_time.asSeconds(), ms.get_sprites_per_frame(), ms.get_sprites_per_sequence() );
 
     unsigned int num_animation_frames = ms.get_sprites_per_sequence() / ms.get_sprites_per_frame();
     unsigned int current_anim_frame = anim.m_current_frame / ms.get_sprites_per_frame();
     unsigned int next_anim_frame = ( current_anim_frame + 1 ) % num_animation_frames;
+    SPDLOG_INFO( "Next: next_anim_frame={}", next_anim_frame );
 
-    if ( next_anim_frame == 0 ) { next_anim_frame = anim.m_base_frame; }
+    // Only reset to base frame for looping animations, not for one-shot animations like explosions
+    if ( next_anim_frame == 0 && anim.m_sprite_type.find( "BLOOD" ) == std::string::npos ) { next_anim_frame = anim.m_base_frame; }
 
     anim.m_current_frame = next_anim_frame * ms.get_sprites_per_frame();
     anim.m_elapsed_time -= frame_rate;
 
-    // SPDLOG_INFO( "After: current_frame={}, base_frame={}", anim.m_current_frame,
-    // anim.m_base_frame );
-  }
-}
-
-void AnimSystem::update_grouped_sequences( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const Sprites::MultiSprite &ms, sf::Time frame_rate )
-{
-  anim.m_elapsed_time += globalDeltaTime;
-
-  if ( anim.m_elapsed_time >= frame_rate )
-  {
-    // Increment frame. Wrap around to zero at anim.m_frame_count
-    anim.m_current_frame = ( anim.m_current_frame + ms.get_sprites_per_frame() ) % ms.get_sprites_per_sequence();
-
-    // Subtract frame_rate instead of resetting to Zero to maintain precise timing
-    // i.e. this carries the time overflow from previous update:
-    // Example: if frame_rate = 0.1 seconds (100ms per frame)
-    // Frame N: deltaTime = 0.05s
-    //   elapsed_time = 0.07 + 0.05 = 0.12s  // >= 0.1, advance frame!
-    //   elapsed_time = 0.12 - 0.10 = 0.02s  // Keep the 0.02s "overflow"
-    anim.m_elapsed_time -= frame_rate;
+    SPDLOG_INFO( "After: current_frame={}, base_frame={}", anim.m_current_frame, anim.m_base_frame );
   }
 }
 

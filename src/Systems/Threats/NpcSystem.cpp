@@ -77,7 +77,8 @@ void NpcSystem::update( sf::Time dt )
 
   for ( auto npc_entt : getReg().view<Cmp::NPC>() )
   {
-    emit_shockwave( npc_entt );
+    auto npc_sprite_anim = getReg().try_get<Cmp::SpriteAnimation>( npc_entt );
+    if ( npc_sprite_anim && npc_sprite_anim->m_sprite_type == "NPCPRIEST" ) { emit_shockwave( npc_entt ); }
   }
   update_shockwaves();
 }

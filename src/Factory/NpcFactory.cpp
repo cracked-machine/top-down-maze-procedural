@@ -1,9 +1,9 @@
 #include <Components/Armable.hpp>
+#include <Components/DeathPosition.hpp>
 #include <Components/Direction.hpp>
 #include <Components/NPC.hpp>
 #include <Components/NPCScanBounds.hpp>
 #include <Components/NpcContainer.hpp>
-#include <Components/NpcDeathPosition.hpp>
 #include <Components/NpcShockwave.hpp>
 #include <Components/NpcShockwaveTimer.hpp>
 #include <Components/Persistent/NpcScanScale.hpp>
@@ -173,7 +173,7 @@ void createNpcExplosion( entt::registry &registry, Cmp::Position npc_pos_cmp )
 {
   auto npc_death_entity = registry.create();
   registry.emplace<Cmp::Position>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
-  registry.emplace_or_replace<Cmp::NpcDeathPosition>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
+  registry.emplace_or_replace<Cmp::DeathPosition>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
   registry.emplace_or_replace<Cmp::SpriteAnimation>( npc_death_entity, 0, 0, true, "EXPLOSION", 0 );
   registry.emplace_or_replace<Cmp::ZOrderValue>( npc_death_entity, npc_pos_cmp.position.y );
 }

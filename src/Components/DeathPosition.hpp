@@ -7,10 +7,10 @@
 namespace ProceduralMaze::Cmp
 {
 
-class NpcDeathPosition : public sf::FloatRect
+class DeathPosition : public sf::FloatRect
 {
 public:
-  NpcDeathPosition( const sf::Vector2f &pos, const sf::Vector2f &size )
+  DeathPosition( const sf::Vector2f &pos, const sf::Vector2f &size )
       : sf::FloatRect( pos, size )
   {
   }

@@ -27,10 +27,10 @@
 #include <Components/AltarSegment.hpp>
 #include <Components/Armable.hpp>
 #include <Components/Armed.hpp>
+#include <Components/DeathPosition.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NpcContainer.hpp>
-#include <Components/NpcDeathPosition.hpp>
 #include <Components/Persistent/ArmedOffDelay.hpp>
 #include <Components/Persistent/BombDamage.hpp>
 #include <Components/ReservedPosition.hpp>

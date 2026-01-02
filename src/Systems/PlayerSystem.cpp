@@ -81,26 +81,26 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
 
     case Cmp::PlayerMortality::State::FALLING:
 
-      Factory::createPlayerExplosion( getReg(), Utils::get_player_position( getReg() ) );
-      m_sound_bank.get_effect("bomb_detonate").play();
+      Factory::createPlayerBloodSplat( getReg(), Utils::get_player_position( getReg() ), m_sprite_factory.get_sprite_size_by_type( "BLOOD" ) );
+      m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
 
     case Cmp::PlayerMortality::State::DECAYING:
-      Factory::createPlayerExplosion( getReg(), Utils::get_player_position( getReg() ) );
-      m_sound_bank.get_effect("bomb_detonate").play();
+      Factory::createPlayerBloodSplat( getReg(), Utils::get_player_position( getReg() ), m_sprite_factory.get_sprite_size_by_type( "BLOOD" ) );
+      m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
 
     case Cmp::PlayerMortality::State::HAUNTED:
-      Factory::createPlayerExplosion( getReg(), Utils::get_player_position( getReg() ) );
-      m_sound_bank.get_effect("bomb_detonate").play();
+      Factory::createPlayerBloodSplat( getReg(), Utils::get_player_position( getReg() ), m_sprite_factory.get_sprite_size_by_type( "BLOOD" ) );
+      m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
 
     case Cmp::PlayerMortality::State::EXPLODING:
-      Factory::createPlayerExplosion( getReg(), Utils::get_player_position( getReg() ) );
-      m_sound_bank.get_effect("bomb_detonate").play();
+      Factory::createPlayerBloodSplat( getReg(), Utils::get_player_position( getReg() ), m_sprite_factory.get_sprite_size_by_type( "BLOOD" ) );
+      m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
 
@@ -108,14 +108,14 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
       break;
 
     case Cmp::PlayerMortality::State::SQUISHED:
-      Factory::createPlayerExplosion( getReg(), Utils::get_player_position( getReg() ) );
-      m_sound_bank.get_effect("bomb_detonate").play();
+      Factory::createPlayerBloodSplat( getReg(), Utils::get_player_position( getReg() ), m_sprite_factory.get_sprite_size_by_type( "BLOOD" ) );
+      m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
 
     case Cmp::PlayerMortality::State::SUICIDE:
-      Factory::createPlayerExplosion( getReg(), Utils::get_player_position( getReg() ) );
-      m_sound_bank.get_effect("bomb_detonate").play();
+      Factory::createPlayerBloodSplat( getReg(), Utils::get_player_position( getReg() ), m_sprite_factory.get_sprite_size_by_type( "BLOOD" ) );
+      m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
 
     case Cmp::PlayerMortality::State::DEAD:

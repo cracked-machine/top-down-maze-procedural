@@ -515,6 +515,38 @@
         }
       }
     },
+    "BLOOD": {
+      "name": "BLOOD",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/blood_splash_3.png",
+        "sprite_indices": 
+        [
+          0,
+          3,
+          6,
+          9,  
+          36, 
+          39,
+          42,
+          45,
+          72,
+          75,
+          78,
+          81,
+          108,
+          111,
+          114,
+          117
+        ],
+        "sprites_per_sequence": 16,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 3,
+          "height": 3
+        }
+      }
+    },
     "FOOTSTEPS": {
       "name": "FOOTSTEPS",
       "weight": 1.0,
