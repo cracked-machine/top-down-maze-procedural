@@ -23,6 +23,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Utils/Utils.hpp>
@@ -93,15 +94,19 @@ void addSpawnArea( entt::registry &registry, entt::entity entity, float zorder )
   registry.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
 }
 
-void createPlayerBloodSplat( entt::registry &registry, Cmp::Position player_pos_cmp, sf::Vector2f sprite_size )
+void createPlayerDeathAnim( entt::registry &registry, Cmp::Position player_pos_cmp, const Sprites::MultiSprite &sprite )
 {
   auto player_blood_splat_entity = registry.create();
   sf::Vector2f offset;
-  if ( sprite_size == Constants::kGridSquareSizePixelsF ) { offset = sf::Vector2f{ 0, 0 }; }
-  else { offset = ( sprite_size - Constants::kGridSquareSizePixelsF ) / 2.f; }
+  if ( ( sprite.getSpriteSizePixels().x == Constants::kGridSquareSizePixelsF.x ) and
+       ( sprite.getSpriteSizePixels().y == Constants::kGridSquareSizePixelsF.y ) )
+  {
+    offset = sf::Vector2f{ 0, 0 };
+  }
+  else { offset = sprite.getSpriteSizePixels() / 2.f; }
   registry.emplace<Cmp::Position>( player_blood_splat_entity, player_pos_cmp.position - offset, player_pos_cmp.size );
   registry.emplace_or_replace<Cmp::DeathPosition>( player_blood_splat_entity, player_pos_cmp.position - offset, player_pos_cmp.size );
-  registry.emplace_or_replace<Cmp::SpriteAnimation>( player_blood_splat_entity, 0, 0, true, "BLOOD", 0 );
+  registry.emplace_or_replace<Cmp::SpriteAnimation>( player_blood_splat_entity, 0, 0, true, sprite.get_sprite_type(), 0 );
   registry.emplace_or_replace<Cmp::ZOrderValue>( player_blood_splat_entity, player_pos_cmp.position.y * 3 ); // always infront
 }
 

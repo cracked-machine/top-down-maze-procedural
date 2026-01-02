@@ -262,7 +262,8 @@ void BombSystem::update()
         if ( pc_health_cmp.health <= 0 )
         {
           // pc_mort_cmp.state = Cmp::PlayerMortality::State::EXPLODING;
-          get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::EXPLODING ) );
+          get_systems_event_queue().enqueue(
+              Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::EXPLODING, Utils::get_player_position( getReg() ) ) );
         }
       }
       pc_cmp.has_active_bomb = false;

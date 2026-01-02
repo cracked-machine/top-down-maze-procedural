@@ -2,6 +2,7 @@
 #define __SYS_RENDERGAMESYSTEM_HPP__
 
 #include <Components/Persistent/DisplayResolution.hpp>
+#include <Components/SpriteAnimation.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 
@@ -61,6 +62,8 @@ private:
 
   //! @brief Renders the armed obstacles in the game world
   void render_armed();
+
+  void render_shockwaves();
 
   //! @brief Renders the flood water background effect
   //! @param player_position

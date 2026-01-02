@@ -69,6 +69,7 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
   {
     m_post_death_timer.restart();
     getReg().remove<Cmp::SpriteAnimation>( Utils::get_player_entity( getReg() ) );
+    stopFootstepsSound();
     Utils::get_player_health( getReg() ).health = 0;
     Utils::get_player_mortality( getReg() ).state = Cmp::PlayerMortality::State::DEAD;
   };
@@ -79,47 +80,61 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
     case Cmp::PlayerMortality::State::ALIVE:
       break;
 
-    case Cmp::PlayerMortality::State::FALLING:
-
-      Factory::createPlayerBloodSplat( getReg(), Utils::get_player_position( getReg() ), m_sprite_factory.get_sprite_size_by_type( "BLOOD" ) );
+    case Cmp::PlayerMortality::State::FALLING: {
+      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
+      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
-
-    case Cmp::PlayerMortality::State::DECAYING:
-      Factory::createPlayerBloodSplat( getReg(), Utils::get_player_position( getReg() ), m_sprite_factory.get_sprite_size_by_type( "BLOOD" ) );
+    }
+    case Cmp::PlayerMortality::State::DECAYING: {
+      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
+      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
-
-    case Cmp::PlayerMortality::State::HAUNTED:
-      Factory::createPlayerBloodSplat( getReg(), Utils::get_player_position( getReg() ), m_sprite_factory.get_sprite_size_by_type( "BLOOD" ) );
+    }
+    case Cmp::PlayerMortality::State::HAUNTED: {
+      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
+      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
-
-    case Cmp::PlayerMortality::State::EXPLODING:
-      Factory::createPlayerBloodSplat( getReg(), Utils::get_player_position( getReg() ), m_sprite_factory.get_sprite_size_by_type( "BLOOD" ) );
+    }
+    case Cmp::PlayerMortality::State::EXPLODING: {
+      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
+      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
-
-    case Cmp::PlayerMortality::State::DROWNING:
+    }
+    case Cmp::PlayerMortality::State::DROWNING: {
       break;
-
-    case Cmp::PlayerMortality::State::SQUISHED:
-      Factory::createPlayerBloodSplat( getReg(), Utils::get_player_position( getReg() ), m_sprite_factory.get_sprite_size_by_type( "BLOOD" ) );
+    }
+    case Cmp::PlayerMortality::State::SQUISHED: {
+      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
+      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
-
-    case Cmp::PlayerMortality::State::SUICIDE:
-      Factory::createPlayerBloodSplat( getReg(), Utils::get_player_position( getReg() ), m_sprite_factory.get_sprite_size_by_type( "BLOOD" ) );
+    }
+    case Cmp::PlayerMortality::State::SUICIDE: {
+      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
+      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
-
-    case Cmp::PlayerMortality::State::DEAD:
       break;
+    }
+    case Cmp::PlayerMortality::State::IGNITED: {
+      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.lavaflames" );
+      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
+      m_sound_bank.get_effect( "shrine_lighting" ).play();
+      common_death_throes();
+      break;
+    }
+    case Cmp::PlayerMortality::State::DEAD: {
+      break;
+    }
   }
 }
 

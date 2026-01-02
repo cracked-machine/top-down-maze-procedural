@@ -43,6 +43,20 @@
         }
       }
     },
+    "CRYPT.interior_lava": {
+      "name": "CRYPT.interior_lava",
+      "weight": 40.0,
+      "multisprite": {
+        "texture_path": "res/textures/crypt_interior_lava.png",
+        "sprite_indices": [0],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
     "CRYPT.interior_mb1x3": {
       "name": "CRYPT.interior_mb1x3",
       "weight": 40.0,
@@ -515,8 +529,8 @@
         }
       }
     },
-    "BLOOD": {
-      "name": "BLOOD",
+    "PLAYERDEATH.bloodsplat": {
+      "name": "PLAYERDEATH.bloodsplat",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/blood_splash_3.png",
@@ -544,6 +558,23 @@
         "grid_size": {
           "width": 3,
           "height": 3
+        }
+      }
+    },
+    "PLAYERDEATH.lavaflames": {
+      "name": "PLAYERDEATH.lavaflames",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
+        "sprite_indices": 
+        [
+          10,11,12,13
+        ],
+        "sprites_per_sequence": 4,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
         }
       }
     },

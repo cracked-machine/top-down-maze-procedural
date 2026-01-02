@@ -4,6 +4,8 @@
 #include <Components/CryptPassageBlock.hpp>
 #include <Components/CryptRoomClosed.hpp>
 #include <Components/CryptRoomEnd.hpp>
+#include <Components/CryptRoomLavaPit.hpp>
+#include <Components/CryptRoomLavaPitCell.hpp>
 #include <Components/CryptRoomOpen.hpp>
 #include <Components/CryptRoomStart.hpp>
 #include <Components/NpcShockwave.hpp>
@@ -182,44 +184,31 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       }
 
       render_armed();
-
-      for ( auto [npc_sh_entt, npc_sw_cmp] : getReg().view<Cmp::NpcShockwave>().each() )
-      {
-        for ( const auto &segment : npc_sw_cmp.sprite.getVisibleSegments() )
-        {
-          sf::FloatRect segment_bounds = segment.getBounds( npc_sw_cmp.sprite.getPosition(), npc_sw_cmp.sprite.getRadius(),
-                                                            npc_sw_cmp.sprite.getOutlineThickness() );
-
-          if ( Utils::is_visible_in_view( RenderSystem::getGameView(), segment_bounds ) )
-          {
-            segment.draw( m_window, sf::RenderStates::Default, npc_sw_cmp.sprite.getPosition(), npc_sw_cmp.sprite.getRadius(),
-                          npc_sw_cmp.sprite.getOutlineThickness(), npc_sw_cmp.sprite.getOutlineColor(), npc_sw_cmp.sprite.getPointsPerSegment() );
-          }
-        }
-      }
-
+      render_shockwaves();
       render_arrow_compass();
       render_mist( player_position );
       if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
+      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 64, 64, 64 ), 0.5f );
+
+      auto player_pos_cmp = Utils::get_player_position( getReg() );
+      Cmp::RectBounds player_hitbox( player_pos_cmp.position, player_pos_cmp.size, 3.f );
+      sf::RectangleShape rectangle;
+      rectangle.setSize( player_hitbox.size() );
+      rectangle.setPosition( player_hitbox.position() );
+      rectangle.setFillColor( sf::Color::Transparent );
+      rectangle.setOutlineColor( sf::Color::Green );
+      rectangle.setOutlineThickness( 1.f );
+      m_window.draw( rectangle );
+
+      // show crypt component boundaries
       if ( m_show_debug_stats )
       {
-        // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
+        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
+        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
         render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Cyan, 1.f );
-
-        for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
-        {
-          Cmp::RectBounds lava_bounds( open_room_cmp.position, open_room_cmp.size, 1.f );
-          sf::RectangleShape rectangle;
-          rectangle.setSize( lava_bounds.size() );
-          rectangle.setPosition( lava_bounds.position() );
-          rectangle.setFillColor( sf::Color::Transparent );
-          rectangle.setOutlineColor( sf::Color( 255, 128, 32 ) );
-          rectangle.setOutlineThickness( 2.f );
-          m_window.draw( rectangle );
-        }
       }
     }
     // local view end
@@ -346,6 +335,24 @@ void RenderGameSystem::render_armed()
     }
     temp_square.setOutlineThickness( 1.f );
     m_window.draw( temp_square );
+  }
+}
+
+void RenderGameSystem::render_shockwaves()
+{
+  for ( auto [npc_sh_entt, npc_sw_cmp] : getReg().view<Cmp::NpcShockwave>().each() )
+  {
+    for ( const auto &segment : npc_sw_cmp.sprite.getVisibleSegments() )
+    {
+      sf::FloatRect segment_bounds = segment.getBounds( npc_sw_cmp.sprite.getPosition(), npc_sw_cmp.sprite.getRadius(),
+                                                        npc_sw_cmp.sprite.getOutlineThickness() );
+
+      if ( Utils::is_visible_in_view( RenderSystem::getGameView(), segment_bounds ) )
+      {
+        segment.draw( m_window, sf::RenderStates::Default, npc_sw_cmp.sprite.getPosition(), npc_sw_cmp.sprite.getRadius(),
+                      npc_sw_cmp.sprite.getOutlineThickness(), npc_sw_cmp.sprite.getOutlineColor(), npc_sw_cmp.sprite.getPointsPerSegment() );
+      }
+    }
   }
 }
 

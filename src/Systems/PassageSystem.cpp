@@ -642,7 +642,8 @@ void PassageSystem::fillAllPassages()
         if ( Utils::get_player_position( getReg() ).findIntersection( pblock_cmp_rect ) )
         {
           // player got squished
-          get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SQUISHED ) );
+          get_systems_event_queue().enqueue(
+              Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SQUISHED, Utils::get_player_position( getReg() ) ) );
         }
       }
     }

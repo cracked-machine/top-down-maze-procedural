@@ -63,6 +63,8 @@ public:
   //! @param action
   void check_lever_activation( Events::PlayerActionEvent::GameActions action );
 
+  void check_lava_pit_collision();
+
   //! @brief Restores border Cmp::Obstacles to Cmp::CryptRoomEnd, Cmp::CryptRoomStart and Cmp::CryptRoomOpen areas
   void createRoomBorders();
 
@@ -105,6 +107,10 @@ private:
 
   //! @brief Adds Cmp::Lever components to Cmp::CryptRoomOpen areas
   void addLeverOpenRooms();
+
+  void addLavaPitOpenRooms();
+  void removeLavaPitOpenRooms();
+  void checkLavaPitActivationByProximity();
 
   //! @brief Removes Cmp::Lever components from Cmp::CryptRoomOpen areas
   void removeLeverOpenRooms();

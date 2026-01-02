@@ -15,6 +15,8 @@ namespace ProceduralMaze::Sys
 class AnimSystem : public BaseSystem
 {
 public:
+  enum class AnimType { ONESHOT, LOOP };
+
   AnimSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
       : BaseSystem( reg, window, sprite_factory, sound_bank )
   {
@@ -37,7 +39,8 @@ private:
   //! @param anim
   //! @param globalDeltaTime
   //! @param frame_rate
-  void update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const Sprites::MultiSprite &ms, sf::Time frame_rate );
+  void update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const Sprites::MultiSprite &ms, sf::Time frame_rate,
+                               AnimType type = AnimType::LOOP );
 };
 
 } // namespace ProceduralMaze::Sys

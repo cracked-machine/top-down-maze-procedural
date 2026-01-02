@@ -23,6 +23,12 @@ GraveSystem::GraveSystem( entt::registry &reg, sf::RenderWindow &window, Sprites
   std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&GraveSystem::on_player_action>( this );
 }
 
+void GraveSystem::on_player_action( const Events::PlayerActionEvent &event )
+{
+  if ( Utils::get_player_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) return;
+  if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) { check_player_collision( event.action ); }
+}
+
 void GraveSystem::check_player_collision( Events::PlayerActionEvent::GameActions action )
 {
   if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;

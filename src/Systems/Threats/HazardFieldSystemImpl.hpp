@@ -155,7 +155,7 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
       if constexpr ( Traits::sprite_type == "SINKHOLE" )
       {
         // player_mort_cmp.state = Traits::mortality_state;
-        get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Traits::mortality_state ) );
+        get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Traits::mortality_state, Utils::get_player_position( getReg() ) ) );
         SPDLOG_DEBUG( "Player fell into a hazard field at position ({}, {})!", hazard_pos_cmp.x, hazard_pos_cmp.y );
       }
       else if constexpr ( Traits::sprite_type == "CORRUPTION" )

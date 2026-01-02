@@ -1,7 +1,14 @@
 #include <Components/CryptLever.hpp>
 #include <Components/CryptRoomEnd.hpp>
+#include <Components/CryptRoomLavaPit.hpp>
+#include <Components/CryptRoomLavaPitCell.hpp>
+#include <Components/CryptRoomOpen.hpp>
 #include <Components/CryptRoomStart.hpp>
+#include <Components/FootStepAlpha.hpp>
+#include <Components/FootStepTimer.hpp>
+#include <Components/NoPathFinding.hpp>
 #include <Components/Position.hpp>
+#include <Components/RectBounds.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/CryptFactory.hpp>
@@ -148,6 +155,45 @@ void DestroyCryptLever( entt::registry &reg, entt::entity entt )
   if ( reg.all_of<Cmp::CryptLever>( entt ) ) { reg.remove<Cmp::CryptLever>( entt ); }
   if ( reg.all_of<Cmp::SpriteAnimation>( entt ) ) { reg.remove<Cmp::SpriteAnimation>( entt ); }
   if ( reg.all_of<Cmp::ZOrderValue>( entt ) ) { reg.remove<Cmp::ZOrderValue>( entt ); }
+  reg.destroy( entt );
+}
+
+void createCryptLavaPit( entt::registry &reg, const Cmp::CryptRoomOpen &room )
+{
+  // add the lava pit area
+  sf::Vector2f adjusted_position = { room.position.x + Constants::kGridSquareSizePixelsF.x, room.position.y + Constants::kGridSquareSizePixelsF.y };
+  sf::Vector2f adjusted_size = { room.size.x - ( Constants::kGridSquareSizePixelsF.x * 2 ),
+                                 room.size.y - ( Constants::kGridSquareSizePixelsF.y * 2 ) };
+  sf::FloatRect lava_pit_bounds( adjusted_position, adjusted_size );
+
+  auto lava_pit_entt = reg.create();
+  reg.emplace<Cmp::CryptRoomLavaPit>( lava_pit_entt, lava_pit_bounds );
+
+  // add the inidividual lava cells
+  for ( auto [pos_entt, pos_cmp] : reg.view<Cmp::Position>().each() )
+  {
+    if ( reg.all_of<Cmp::FootStepTimer>( pos_entt ) ) continue;      // dont add lava to footstep positions
+    if ( not lava_pit_bounds.findIntersection( pos_cmp ) ) continue; // only add lava to this lava pit
+    auto lava_cell_entt = reg.create();
+    reg.emplace_or_replace<Cmp::Position>( lava_cell_entt, pos_cmp.position, pos_cmp.size );
+    reg.emplace_or_replace<Cmp::NoPathFinding>( lava_cell_entt );
+    reg.emplace_or_replace<Cmp::CryptRoomLavaPitCell>( lava_cell_entt, pos_cmp.position, pos_cmp.size );
+    reg.emplace_or_replace<Cmp::SpriteAnimation>( lava_cell_entt, 0, 0, true, "CRYPT.interior_lava", 0 );
+    // reg.emplace<Cmp::ZOrderValue>( lava_cell_entt, pos_cmp.size.y );
+  }
+}
+
+void destroyCryptLavaPit( entt::registry &reg, entt::entity entt )
+{
+  auto lava_pit_cmp = reg.try_get<Cmp::CryptRoomLavaPit>( entt );
+  if ( lava_pit_cmp )
+  {
+    for ( auto [lava_Cell_entt, lava_cell_cmp] : reg.view<Cmp::CryptRoomLavaPitCell>().each() )
+    {
+      if ( not lava_cell_cmp.findIntersection( *lava_pit_cmp ) ) continue;
+      reg.destroy( lava_Cell_entt );
+    }
+  }
   reg.destroy( entt );
 }
 

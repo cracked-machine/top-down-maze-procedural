@@ -41,6 +41,7 @@ public:
 
   static sf::Clock &get_maze_timer() { return s_maze_timer; }
   static bool is_maze_timer_expired() { return s_maze_timer.getElapsedTime() > s_maze_timer_cooldown ? true : false; }
+  static void stop_maze_timer() { s_maze_timer.reset(); }
 
 protected:
   void do_update( [[maybe_unused]] sf::Time dt ) override;

@@ -23,10 +23,7 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
-  void on_player_action( const Events::PlayerActionEvent &event )
-  {
-    if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) { check_player_collision( event.action ); }
-  }
+  void on_player_action( const Events::PlayerActionEvent &event );
 
 private:
   void check_player_collision( Events::PlayerActionEvent::GameActions action );

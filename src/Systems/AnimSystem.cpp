@@ -121,7 +121,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
                  explosion_sprite_metadata.get_sprites_per_sequence(), frame_rate.asSeconds() );
 
     // Update the frame first
-    update_single_sequence( anim_cmp, globalDeltaTime, explosion_sprite_metadata, frame_rate );
+    update_single_sequence( anim_cmp, globalDeltaTime, explosion_sprite_metadata, frame_rate, AnimType::ONESHOT );
 
     SPDLOG_INFO( "After update_frame - current_frame: {}, elapsed_time: {}s", anim_cmp.m_current_frame, anim_cmp.m_elapsed_time.asSeconds() );
 
@@ -138,7 +138,8 @@ void AnimSystem::update( sf::Time globalDeltaTime )
   }
 }
 
-void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const Sprites::MultiSprite &ms, sf::Time frame_rate )
+void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const Sprites::MultiSprite &ms, sf::Time frame_rate,
+                                         AnimType type )
 {
   anim.m_elapsed_time += globalDeltaTime;
 
@@ -153,7 +154,7 @@ void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time gl
     SPDLOG_INFO( "Next: next_anim_frame={}", next_anim_frame );
 
     // Only reset to base frame for looping animations, not for one-shot animations like explosions
-    if ( next_anim_frame == 0 && anim.m_sprite_type.find( "BLOOD" ) == std::string::npos ) { next_anim_frame = anim.m_base_frame; }
+    if ( next_anim_frame == 0 && type == AnimSystem::AnimType::ONESHOT ) { next_anim_frame = anim.m_base_frame; }
 
     anim.m_current_frame = next_anim_frame * ms.get_sprites_per_frame();
     anim.m_elapsed_time -= frame_rate;

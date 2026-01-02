@@ -21,9 +21,10 @@ public:
     //! @brief Death in process: Player is exploding
     EXPLODING = 4,
     //! @brief Death in process: Player is drowning
-    DROWNING = 5,
-    SQUISHED = 6,
-    SUICIDE = 7,
+    DROWNING = 5, // unimplemented
+    SQUISHED = 6, // crypt walls closed on player
+    SUICIDE = 7,  // user-specified
+    IGNITED = 8,  // lava
     //! @brief Player is dead. final state. end the game.
     DEAD = 255
   };

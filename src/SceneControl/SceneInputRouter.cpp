@@ -28,6 +28,7 @@
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/SceneInputRouter.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -168,7 +169,8 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
       {
-        get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE ) );
+        get_systems_event_queue().enqueue(
+            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::get_player_position( getReg() ) ) );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
       {

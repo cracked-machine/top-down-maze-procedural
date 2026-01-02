@@ -44,6 +44,7 @@ void SoundBank::init()
   sounds.emplace( "crypt_lever_open", EffectsData{ "res/audio/crypt_lever_open.mp3" } );
 
   sounds.emplace( "player_blood_splat", EffectsData{ "res/audio/player_blood_splat.mp3" } );
+  sounds.emplace( "bubbling_lava", EffectsData{ "res/audio/underwater.wav" } );
 
   // Initialize music (can't use initializer list because sf::Music is move-only)
   music.emplace( "title_music", MusicData{ "res/audio/EerieScifi.mp3" } );
@@ -68,14 +69,20 @@ void SoundBank::update_music_volume( float volume )
 
 sf::Sound &SoundBank::get_effect( const std::string &name )
 {
-  if ( sounds.find( name ) != sounds.end() ) { return sounds.at( name ).control; }
+  if ( sounds.find( name ) != sounds.end() )
+  {
+    return sounds.at( name ).control;
+  }
   SPDLOG_CRITICAL( "Audio effect {} not found!", name );
   throw std::runtime_error( "Audio effect not found: " + name );
 }
 
 sf::Music &SoundBank::get_music( const std::string &name )
 {
-  if ( music.find( name ) != music.end() ) { return music.at( name ).control; }
+  if ( music.find( name ) != music.end() )
+  {
+    return music.at( name ).control;
+  }
   SPDLOG_CRITICAL( "Music {} not found!", name );
   throw std::runtime_error( "Music not found: " + name );
 }
@@ -97,7 +104,10 @@ sf::SoundBuffer SoundBank::generate_tone( float frequency, float duration, unsig
   }
 
   sf::SoundBuffer buffer;
-  if ( buffer.loadFromSamples( samples.data(), sample_count, 1, sample_rate, { sf::SoundChannel::Mono } ) ) { return buffer; }
+  if ( buffer.loadFromSamples( samples.data(), sample_count, 1, sample_rate, { sf::SoundChannel::Mono } ) )
+  {
+    return buffer;
+  }
   SPDLOG_CRITICAL( "Failed to generate tone" );
   throw std::runtime_error( "Failed to generate tone" );
 }

@@ -62,12 +62,15 @@ void CryptScene::on_enter()
     pos_cmp.position = m_player_start_position;
   }
 
-  m_system_store.find<Sys::SystemStore::Type::CryptSystem>().createRoomBorders();
+  if ( Utils::get_player_mortality( m_reg ).state != Cmp::PlayerMortality::State::DEAD )
+  {
+    m_system_store.find<Sys::SystemStore::Type::CryptSystem>().createRoomBorders();
 
-  // make sure player has been situated in start room first
-  m_system_store.find<Sys::SystemStore::Type::CryptSystem>().shuffle_rooms_passages();
-  m_system_store.find<Sys::SystemStore::Type::CryptSystem>().reset_maze();
-  get_maze_timer().restart();
+    // make sure player has been situated in start room first
+    m_system_store.find<Sys::SystemStore::Type::CryptSystem>().shuffle_rooms_passages();
+    m_system_store.find<Sys::SystemStore::Type::CryptSystem>().reset_maze();
+    get_maze_timer().restart();
+  }
 }
 
 void CryptScene::on_exit()

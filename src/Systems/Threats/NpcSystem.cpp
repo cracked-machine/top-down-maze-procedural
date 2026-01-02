@@ -209,7 +209,8 @@ void NpcSystem::check_player_to_npc_collision()
       if ( pc_health_cmp.health <= 0 )
       {
         pc_mort_cmp.state = Cmp::PlayerMortality::State::HAUNTED;
-        get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED ) );
+        get_systems_event_queue().enqueue(
+            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED, Utils::get_player_position( getReg() ) ) );
         return;
       }
 

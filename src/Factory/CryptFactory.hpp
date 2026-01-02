@@ -29,6 +29,11 @@ void create_initial_crypt_rooms( entt::registry &reg, sf::Vector2u map_grid_size
 entt::entity CreateCryptLever( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder );
 void DestroyCryptLever( entt::registry &reg, entt::entity entity );
 
+void createCryptLavaPit( entt::registry &reg, const Cmp::CryptRoomOpen &room );
+void destroyCryptLavaPit( entt::registry &reg, entt::entity entt );
+void addCryptLavaPitCells( entt::registry &reg, const entt::entity lava_pit_entt );
+void removeCryptLavaPitCells( entt::registry &reg, const entt::entity lava_pit_entt );
+
 } // namespace ProceduralMaze::Factory
 
 #endif // SRC_FACTORY_CRYPTFACTORY_HPP__
