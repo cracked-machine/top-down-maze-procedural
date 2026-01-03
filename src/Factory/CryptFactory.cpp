@@ -153,11 +153,11 @@ entt::entity CreateCryptLever( entt::registry &reg, sf::Vector2f pos, Sprites::S
 
 void DestroyCryptLever( entt::registry &reg, entt::entity entt )
 {
-  if ( reg.all_of<Cmp::Position>( entt ) ) { reg.remove<Cmp::Position>( entt ); }
-  if ( reg.all_of<Cmp::CryptLever>( entt ) ) { reg.remove<Cmp::CryptLever>( entt ); }
-  if ( reg.all_of<Cmp::SpriteAnimation>( entt ) ) { reg.remove<Cmp::SpriteAnimation>( entt ); }
-  if ( reg.all_of<Cmp::ZOrderValue>( entt ) ) { reg.remove<Cmp::ZOrderValue>( entt ); }
-  reg.destroy( entt );
+  // if ( reg.all_of<Cmp::Position>( entt ) ) { reg.remove<Cmp::Position>( entt ); }
+  // if ( reg.all_of<Cmp::CryptLever>( entt ) ) { reg.remove<Cmp::CryptLever>( entt ); }
+  // if ( reg.all_of<Cmp::SpriteAnimation>( entt ) ) { reg.remove<Cmp::SpriteAnimation>( entt ); }
+  // if ( reg.all_of<Cmp::ZOrderValue>( entt ) ) { reg.remove<Cmp::ZOrderValue>( entt ); }
+  if ( reg.valid( entt ) ) { reg.destroy( entt ); }
 }
 
 void createCryptLavaPit( entt::registry &reg, const Cmp::CryptRoomOpen &room )
