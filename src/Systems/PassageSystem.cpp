@@ -230,7 +230,7 @@ bool PassageSystem::place_passage_block( unsigned int passage_id, float x, float
     Cmp::Position found_passage_block_pos_cmp( passage_block_cmp, Constants::kGridSquareSizePixelsF );
     if ( ( found_passage_block_pos_cmp.findIntersection( next_passage_block_cmp ) ) and ( duplicates_policy == AllowDuplicatePassages::NO ) )
     {
-      SPDLOG_INFO( "CryptPassageBlock already exists at {},{}", x, y );
+      // SPDLOG_INFO( "CryptPassageBlock already exists at {},{}", x, y );
       block_list_unwind();
       return false;
     }
@@ -615,8 +615,6 @@ void PassageSystem::removeAllPassageBlocks()
     getReg().remove<Cmp::CryptPassageBlock>( entt );
     getReg().destroy( entt );
   }
-  auto crypt_passage_block_view_remaining = getReg().view<Cmp::CryptPassageBlock>();
-  SPDLOG_INFO( "Remaining Cmp::CryptPassageBlock entities: {}", crypt_passage_block_view_remaining.size() );
 }
 
 void PassageSystem::emptyOpenPassages()

@@ -325,7 +325,6 @@ void CryptSystem::check_lever_activation( Events::PlayerActionEvent::GameActions
 
 void CryptSystem::createRoomBorders()
 {
-  SPDLOG_INFO( "createRoomBorders" );
   auto add_border = [&]<typename Component>( entt::entity pos_entt, Cmp::Position &pos_cmp, Component &room_cmp, Sprites::SpriteMetaType sprite_type,
                                              size_t sprite_index )
   {
@@ -423,7 +422,6 @@ void CryptSystem::shuffle_rooms_passages()
   openSelectedRooms( selected_rooms );
   emptyOpenRooms();
   createRoomBorders();
-  addLeverOpenRooms();
   addLavaPitOpenRooms();
 
   // try to open passages for the occupied room: only do start room if player is currently there
@@ -436,6 +434,9 @@ void CryptSystem::shuffle_rooms_passages()
   else { get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_OCCUPIED_TO_OPENROOMS ) ); }
 
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::OPEN_PASSAGES ) );
+
+  addLeverOpenRooms();
+
   m_sound_bank.get_effect( "crypt_room_shuffle" ).play();
   Scene::CryptScene::get_maze_timer().restart();
 }
@@ -680,43 +681,124 @@ void CryptSystem::addLeverOpenRooms()
 {
   // find all candidate positions in open rooms
   std::vector<entt::entity> internal_room_entts;
-  auto obstacle_view = getReg().view<Cmp::Position>();
-  for ( auto [pos_entt, pos_cmp] : obstacle_view.each() )
+  auto pos_view = getReg().view<Cmp::Position>();
+  for ( auto [pos_entt, pos_cmp] : pos_view.each() )
   {
     for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
     {
-      if ( not open_room_cmp.findIntersection( pos_cmp ) ) continue;
-      if ( open_room_cmp.findIntersection( Utils::get_player_position( getReg() ) ) ) continue;
-      if ( pos_cmp.findIntersection( Utils::get_player_position( getReg() ) ) ) continue;
+      if ( not pos_cmp.findIntersection( open_room_cmp ) ) continue;
+      if ( Utils::get_player_position( getReg() ).findIntersection( open_room_cmp ) ) continue;
+      if ( Utils::get_player_position( getReg() ).findIntersection( pos_cmp ) ) continue;
 
-      // Find passage blocks for this room to determine opposite placement
+      // Check if position is exactly one grid square inside the room border
+      float room_left = open_room_cmp.position.x;
+      float room_right = open_room_cmp.position.x + open_room_cmp.size.x;
+      float room_top = open_room_cmp.position.y;
+      float room_bottom = open_room_cmp.position.y + open_room_cmp.size.y;
+
+      float pos_x = pos_cmp.position.x;
+      float pos_y = pos_cmp.position.y;
+
+      // Position must be exactly one grid square away from at least one border
+      bool is_adjacent_to_border = false;
+
+      // Check if adjacent to left border
+      if ( pos_x == room_left && pos_y >= room_top && pos_y < room_bottom - Constants::kGridSquareSizePixelsF.y ) { is_adjacent_to_border = true; }
+      // Check if adjacent to right border
+      else if ( pos_x == room_right - Constants::kGridSquareSizePixelsF.x && pos_y >= room_top &&
+                pos_y < room_bottom - Constants::kGridSquareSizePixelsF.y )
+      {
+        is_adjacent_to_border = true;
+      }
+      // Check if adjacent to top border
+      else if ( pos_y == room_top && pos_x >= room_left && pos_x < room_right - Constants::kGridSquareSizePixelsF.x )
+      {
+        is_adjacent_to_border = true;
+      }
+      // Check if adjacent to bottom border
+      else if ( pos_y == room_bottom - Constants::kGridSquareSizePixelsF.y && pos_x >= room_left &&
+                pos_x < room_right - Constants::kGridSquareSizePixelsF.x )
+      {
+        is_adjacent_to_border = true;
+      }
+
+      if ( not is_adjacent_to_border ) continue;
+
+      SPDLOG_INFO( "Position {},{} is adjacent to border of room at {},{}", pos_x, pos_y, room_left, room_top );
+
+      // Check if this position is adjacent to any passage block (doorway)
+      bool is_adjacent_to_passage = false;
+      auto passage_check_view = getReg().view<Cmp::CryptPassageBlock>();
+      for ( auto [pblock_entt, pblock_cmp] : passage_check_view.each() )
+      {
+        // CryptPassageBlock inherits from sf::Vector2f, so it IS the position
+        float passage_left = pblock_cmp.x;
+        float passage_right = pblock_cmp.x + Constants::kGridSquareSizePixelsF.x;
+        float passage_top = pblock_cmp.y;
+        float passage_bottom = pblock_cmp.y + Constants::kGridSquareSizePixelsF.y;
+
+        // Check if position is directly adjacent to or overlapping with passage block
+        bool adjacent_horizontal = ( pos_x + Constants::kGridSquareSizePixelsF.x == passage_left || pos_x == passage_right ) &&
+                                   ( pos_y < passage_bottom && pos_y + Constants::kGridSquareSizePixelsF.y > passage_top );
+
+        bool adjacent_vertical = ( pos_y + Constants::kGridSquareSizePixelsF.y == passage_top || pos_y == passage_bottom ) &&
+                                 ( pos_x < passage_right && pos_x + Constants::kGridSquareSizePixelsF.x > passage_left );
+
+        bool overlapping = ( pos_x < passage_right && pos_x + Constants::kGridSquareSizePixelsF.x > passage_left ) &&
+                           ( pos_y < passage_bottom && pos_y + Constants::kGridSquareSizePixelsF.y > passage_top );
+
+        if ( adjacent_horizontal || adjacent_vertical || overlapping )
+        {
+          SPDLOG_DEBUG( "Position {},{} rejected: adjacent to passage at {},{}", pos_x, pos_y, passage_left, passage_top );
+          is_adjacent_to_passage = true;
+          break;
+        }
+      }
+
+      // Skip positions that are adjacent to passage blocks (doorways)
+      if ( is_adjacent_to_passage ) continue;
+
+      SPDLOG_INFO( "Position {},{} passed passage adjacency check", pos_x, pos_y );
+
+      // Find passage blocks for this room to determine opposite placement preference
       sf::Vector2f passage_center{ 0, 0 };
       int passage_count = 0;
 
-      auto passage_view = getReg().view<Cmp::CryptPassageBlock, Cmp::Position>();
-      for ( auto [passage_entt, passage_cmp, passage_pos_cmp] : passage_view.each() )
+      auto passage_only_view = getReg().view<Cmp::CryptPassageBlock>();
+      for ( auto [pblock_entt, pblock_cmp] : passage_only_view.each() )
       {
-        // Check if passage block is on the border of this open room
-        float room_left = open_room_cmp.position.x;
-        float room_right = open_room_cmp.position.x + open_room_cmp.size.x;
-        float room_top = open_room_cmp.position.y;
-        float room_bottom = open_room_cmp.position.y + open_room_cmp.size.y;
+        // CryptPassageBlock inherits from sf::Vector2f
+        float passage_x = pblock_cmp.x;
+        float passage_y = pblock_cmp.y;
 
-        // Check if passage is adjacent to room border
-        bool is_adjacent = false;
-        if ( ( passage_pos_cmp.position.x >= room_left - Constants::kGridSquareSizePixelsF.x && passage_pos_cmp.position.x <= room_right ) &&
-             ( passage_pos_cmp.position.y >= room_top - Constants::kGridSquareSizePixelsF.y && passage_pos_cmp.position.y <= room_bottom ) )
-        {
-          is_adjacent = true;
-        }
+        // Create a rect for the passage block
+        sf::FloatRect passage_rect( { passage_x, passage_y }, Constants::kGridSquareSizePixelsF );
 
-        if ( is_adjacent )
+        // Create an expanded room rect that includes one grid square outside the room border
+        sf::FloatRect expanded_room_rect(
+            { room_left - Constants::kGridSquareSizePixelsF.x, room_top - Constants::kGridSquareSizePixelsF.y },
+            { open_room_cmp.size.x + 2 * Constants::kGridSquareSizePixelsF.x, open_room_cmp.size.y + 2 * Constants::kGridSquareSizePixelsF.y } );
+
+        // Create the inner room rect (excluding the border)
+        sf::FloatRect inner_room_rect(
+            { room_left + Constants::kGridSquareSizePixelsF.x, room_top + Constants::kGridSquareSizePixelsF.y },
+            { open_room_cmp.size.x - 2 * Constants::kGridSquareSizePixelsF.x, open_room_cmp.size.y - 2 * Constants::kGridSquareSizePixelsF.y } );
+
+        // Passage is adjacent if it's within expanded room but NOT inside inner room
+        // (i.e., it's on the border or just outside)
+        bool in_expanded = expanded_room_rect.findIntersection( passage_rect ).has_value();
+        bool in_inner = inner_room_rect.findIntersection( passage_rect ).has_value();
+
+        if ( in_expanded && !in_inner )
         {
-          passage_center.x += passage_pos_cmp.position.x + passage_pos_cmp.size.x / 2.0f;
-          passage_center.y += passage_pos_cmp.position.y + passage_pos_cmp.size.y / 2.0f;
+          SPDLOG_DEBUG( "Found passage at {},{} adjacent to room at {},{}", passage_x, passage_y, room_left, room_top );
+          passage_center.x += passage_x + Constants::kGridSquareSizePixelsF.x / 2.0f;
+          passage_center.y += passage_y + Constants::kGridSquareSizePixelsF.y / 2.0f;
           passage_count++;
         }
       }
+
+      SPDLOG_INFO( "Room at {},{} has {} passages", room_left, room_top, passage_count );
 
       // If we found passages, calculate their average center
       if ( passage_count > 0 )
@@ -738,12 +820,19 @@ void CryptSystem::addLeverOpenRooms()
         float dist_to_opposite = Utils::Maths::getEuclideanDistance( pos_center, opposite_target );
         float dist_to_passage = Utils::Maths::getEuclideanDistance( pos_center, passage_center );
 
+        SPDLOG_INFO( "Position {},{} dist_to_opposite={}, dist_to_passage={}", pos_x, pos_y, dist_to_opposite, dist_to_passage );
+
         // Only include positions that are closer to opposite side than to passages
-        if ( dist_to_opposite < dist_to_passage ) { internal_room_entts.push_back( pos_entt ); }
+        if ( dist_to_opposite < dist_to_passage )
+        {
+          SPDLOG_INFO( "Lever candidate pos found: {},{}", pos_cmp.position.x, pos_cmp.position.y );
+          internal_room_entts.push_back( pos_entt );
+        }
       }
       else
       {
-        // No passages found for this room, any position is valid
+        SPDLOG_INFO( "Lever candidate pos found (no passages): {},{}", pos_cmp.position.x, pos_cmp.position.y );
+        // Add un-connected open rooms to the lever candidate list
         internal_room_entts.push_back( pos_entt );
       }
     }

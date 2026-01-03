@@ -170,13 +170,13 @@ void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time gl
 
   if ( anim.m_elapsed_time >= frame_rate )
   {
-    SPDLOG_INFO( "Before: current_frame={}, elapsed_time={}s, sprites_per_frame={}, total_sprites = {} ", anim.m_current_frame,
-                 anim.m_elapsed_time.asSeconds(), ms.get_sprites_per_frame(), ms.get_sprites_per_sequence() );
+    // SPDLOG_INFO( "Before: current_frame={}, elapsed_time={}s, sprites_per_frame={}, total_sprites = {} ", anim.m_current_frame,
+    //              anim.m_elapsed_time.asSeconds(), ms.get_sprites_per_frame(), ms.get_sprites_per_sequence() );
 
     unsigned int num_animation_frames = ms.get_sprites_per_sequence() / ms.get_sprites_per_frame();
     unsigned int current_anim_frame = anim.m_current_frame / ms.get_sprites_per_frame();
     unsigned int next_anim_frame = ( current_anim_frame + 1 ) % num_animation_frames;
-    SPDLOG_INFO( "Next: next_anim_frame={}", next_anim_frame );
+    // SPDLOG_INFO( "Next: next_anim_frame={}", next_anim_frame );
 
     // Only reset to base frame for looping animations, not for one-shot animations like explosions
     if ( next_anim_frame == 0 && type == AnimSystem::AnimType::ONESHOT ) { next_anim_frame = anim.m_base_frame; }
@@ -184,7 +184,7 @@ void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time gl
     anim.m_current_frame = next_anim_frame * ms.get_sprites_per_frame();
     anim.m_elapsed_time -= frame_rate;
 
-    SPDLOG_INFO( "After: current_frame={}, base_frame={}", anim.m_current_frame, anim.m_base_frame );
+    // SPDLOG_INFO( "After: current_frame={}, base_frame={}", anim.m_current_frame, anim.m_base_frame );
   }
 }
 
