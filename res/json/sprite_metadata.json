@@ -57,6 +57,20 @@
         }
       }
     },
+    "CRYPT.interior_spiketrap": {
+      "name": "CRYPT.interior_spiketrap",
+      "weight": 40.0,
+      "multisprite": {
+        "texture_path": "res/textures/crypt_interior.png",
+        "sprite_indices": [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41],
+        "sprites_per_sequence": 12,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
     "CRYPT.interior_mb1x3": {
       "name": "CRYPT.interior_mb1x3",
       "weight": 40.0,

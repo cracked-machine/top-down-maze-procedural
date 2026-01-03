@@ -20,7 +20,7 @@ SpacesInAngles: false
 BreakTemplateDeclarations : Yes
 SpacesInParentheses: true
 AllowShortIfStatementsOnASingleLine: true
-AllowShortBlocksOnASingleLine: false
+AllowShortBlocksOnASingleLine: true
 AllowShortEnumsOnASingleLine: true
 BinPackArguments : true
 BinPackParameters: true

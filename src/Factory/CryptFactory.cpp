@@ -1,4 +1,6 @@
 #include <Components/CryptLever.hpp>
+#include <Components/CryptPassageBlock.hpp>
+#include <Components/CryptPassageSpikeTrap.hpp>
 #include <Components/CryptRoomEnd.hpp>
 #include <Components/CryptRoomLavaPit.hpp>
 #include <Components/CryptRoomLavaPitCell.hpp>
@@ -195,6 +197,19 @@ void destroyCryptLavaPit( entt::registry &reg, entt::entity entt )
     }
   }
   reg.destroy( entt );
+}
+
+void addSpikeTrap( entt::registry &reg, const entt::entity entt, const int passage_id )
+{
+  auto pblock_cmp = reg.try_get<Cmp::CryptPassageBlock>( entt );
+  if ( not pblock_cmp ) return;
+  sf::Vector2f position = *pblock_cmp;
+
+  auto spike_entt = reg.create();
+  reg.emplace_or_replace<Cmp::Position>( spike_entt, position, Constants::kGridSquareSizePixelsF );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( spike_entt, 0, 0, false, "CRYPT.interior_spiketrap", 0 );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( spike_entt, position.y - 16.f ); // always behind player
+  reg.emplace_or_replace<Cmp::CryptPassageSpikeTrap>( spike_entt, position, passage_id );
 }
 
 } // namespace ProceduralMaze::Factory

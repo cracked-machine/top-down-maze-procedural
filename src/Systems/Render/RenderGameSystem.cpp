@@ -2,6 +2,7 @@
 #include <Components/CryptInteriorMultiBlock.hpp>
 #include <Components/CryptObjectiveMultiBlock.hpp>
 #include <Components/CryptPassageBlock.hpp>
+#include <Components/CryptPassageSpikeTrap.hpp>
 #include <Components/CryptRoomClosed.hpp>
 #include <Components/CryptRoomEnd.hpp>
 #include <Components/CryptRoomLavaPit.hpp>
@@ -188,19 +189,10 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_arrow_compass();
       render_mist( player_position );
       if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
+      // lava pit outline
       render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 64, 64, 64 ), 0.5f );
 
-      auto player_pos_cmp = Utils::get_player_position( getReg() );
-      Cmp::RectBounds player_hitbox( player_pos_cmp.position, player_pos_cmp.size, 3.f );
-      sf::RectangleShape rectangle;
-      rectangle.setSize( player_hitbox.size() );
-      rectangle.setPosition( player_hitbox.position() );
-      rectangle.setFillColor( sf::Color::Transparent );
-      rectangle.setOutlineColor( sf::Color::Green );
-      rectangle.setOutlineThickness( 1.f );
-      m_window.draw( rectangle );
-
-      // show crypt component boundaries
+      // debug: show crypt component boundaries
       if ( m_show_debug_stats )
       {
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );

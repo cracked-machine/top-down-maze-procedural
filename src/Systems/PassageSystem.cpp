@@ -7,11 +7,14 @@
 #include <Components/FootStepTimer.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/PlayerMortality.hpp>
+#include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/Wall.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
+#include <Factory/CryptFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
+#include <Systems/Events/PassageEvent.hpp>
 #include <Systems/PassageSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
@@ -47,6 +50,9 @@ void PassageSystem::on_passage_event( Events::PassageEvent &event )
     case Events::PassageEvent::Type::CONNECT_ALL_OPENROOMS:
       connectPassagesBetweenAllOpenRooms();
       break;
+    case Events::PassageEvent::Type::ADD_SPIKE_TRAPS:
+      addSpikeTraps();
+      break;
   }
 }
 
@@ -60,6 +66,21 @@ void PassageSystem::open_passages()
 {
   //
   emptyOpenPassages();
+}
+
+void PassageSystem::addSpikeTraps()
+{
+  auto passage_picker = Cmp::RandomInt( 0, m_current_passage_id );
+  // static int max_num_spike_traps = 3;
+  std::set<int> passage_ids_used;
+
+  auto pblock_view = getReg().view<Cmp::CryptPassageBlock>();
+  for ( auto [pblock_entt, pblock_cmp] : pblock_view.each() )
+  {
+    if ( passage_ids_used.contains( pblock_cmp.m_passage_id ) ) continue;
+    passage_ids_used.insert( pblock_cmp.m_passage_id );
+    Factory::addSpikeTrap( getReg(), pblock_entt, pblock_cmp.m_passage_id );
+  }
 }
 
 void PassageSystem::connectPassagesBetweenStartAndOpenRooms( entt::entity start_room_entt )

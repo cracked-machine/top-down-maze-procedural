@@ -8,6 +8,7 @@
 #include <Components/CryptObjectiveSegment.hpp>
 #include <Components/CryptPassageBlock.hpp>
 #include <Components/CryptPassageDoor.hpp>
+#include <Components/CryptPassageSpikeTrap.hpp>
 #include <Components/CryptRoomClosed.hpp>
 #include <Components/CryptRoomEnd.hpp>
 #include <Components/CryptRoomLavaPit.hpp>
@@ -71,9 +72,11 @@ void CryptSystem::update()
   // check collisions with lava pit
   if ( Utils::getSystemCmp( getReg() ).collisions_enabled )
   {
-    check_lava_pit_collision();
+    checkLavaPitCollision();
+    checkSpikeTrapCollision();
   }
   checkLavaPitActivationByProximity();
+  checkSpikeTrapActivationByProximity();
 }
 
 void CryptSystem::on_player_action( Events::PlayerActionEvent &event )
@@ -89,18 +92,9 @@ void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
 {
   if ( Utils::get_player_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) return;
 
-  if ( event.type == Events::CryptRoomEvent::Type::SHUFFLE_PASSAGES )
-  {
-    shuffle_rooms_passages();
-  }
-  else if ( event.type == Events::CryptRoomEvent::Type::FINAL_PASSAGE )
-  {
-    unlock_objective_passage();
-  }
-  else if ( event.type == Events::CryptRoomEvent::Type::EXIT_ALL_PASSAGES )
-  {
-    unlock_exit_passage();
-  }
+  if ( event.type == Events::CryptRoomEvent::Type::SHUFFLE_PASSAGES ) { shuffle_rooms_passages(); }
+  else if ( event.type == Events::CryptRoomEvent::Type::FINAL_PASSAGE ) { unlock_objective_passage(); }
+  else if ( event.type == Events::CryptRoomEvent::Type::EXIT_ALL_PASSAGES ) { unlock_exit_passage(); }
 }
 
 void CryptSystem::check_entrance_collision()
@@ -115,8 +109,9 @@ void CryptSystem::check_entrance_collision()
       // optimize: skip if not visible
       if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), crypt_door_pos_cmp ) ) continue;
 
+      // shrink entrance bounds slightly for better UX
       Cmp::RectBounds decreased_entrance_bounds( crypt_door_pos_cmp.position, crypt_door_pos_cmp.size, 0.1f,
-                                                 Cmp::RectBounds::ScaleCardinality::BOTH ); // shrink entrance bounds slightly for better UX
+                                                 Cmp::RectBounds::ScaleCardinality::BOTH );
 
       if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
 
@@ -160,10 +155,7 @@ void CryptSystem::spawn_exit( sf::Vector2u spawn_position )
   // remove any wall
   for ( auto [entt, wall_cmp, pos_cmp] : getReg().view<Cmp::Wall, Cmp::Position>().each() )
   {
-    if ( spawn_pos_px.findIntersection( pos_cmp ) )
-    {
-      getReg().destroy( entt );
-    }
+    if ( spawn_pos_px.findIntersection( pos_cmp ) ) { getReg().destroy( entt ); }
   }
 
   auto entity = getReg().create();
@@ -326,24 +318,8 @@ void CryptSystem::check_lever_activation( Events::PlayerActionEvent::GameActions
         unlock_objective_passage();
         Scene::CryptScene::get_maze_timer().reset();
       }
-      else
-      {
-        shuffle_rooms_passages();
-      }
+      else { shuffle_rooms_passages(); }
     }
-  }
-}
-
-void CryptSystem::check_lava_pit_collision()
-{
-  if ( Utils::get_player_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) return;
-
-  Cmp::RectBounds player_hitbox( Utils::get_player_position( getReg() ).position, Utils::get_player_position( getReg() ).size, 0.5f );
-  for ( auto [lava_cell_entt, lava_cell_cmp] : getReg().view<Cmp::CryptRoomLavaPitCell>().each() )
-  {
-    if ( not player_hitbox.findIntersection( lava_cell_cmp ) ) continue;
-    Scene::CryptScene::stop_maze_timer();
-    get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::IGNITED, lava_cell_cmp ) );
   }
 }
 
@@ -457,10 +433,7 @@ void CryptSystem::shuffle_rooms_passages()
   {
     get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_START_TO_OPENROOMS, start_room_entt ) );
   }
-  else
-  {
-    get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_OCCUPIED_TO_OPENROOMS ) );
-  }
+  else { get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_OCCUPIED_TO_OPENROOMS ) ); }
 
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::OPEN_PASSAGES ) );
   m_sound_bank.get_effect( "crypt_room_shuffle" ).play();
@@ -501,6 +474,7 @@ void CryptSystem::unlock_exit_passage()
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_START_TO_OPENROOMS, get_crypt_room_start().first ) );
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_ALL_OPENROOMS ) );
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::OPEN_PASSAGES ) );
+  get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::ADD_SPIKE_TRAPS ) );
 
   spawnNpcInOpenRooms();
 }
@@ -616,6 +590,19 @@ void CryptSystem::removeLavaPitOpenRooms()
   }
 }
 
+void CryptSystem::checkLavaPitCollision()
+{
+  if ( Utils::get_player_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) return;
+
+  Cmp::RectBounds player_hitbox( Utils::get_player_position( getReg() ).position, Utils::get_player_position( getReg() ).size, 0.5f );
+  for ( auto [lava_cell_entt, lava_cell_cmp] : getReg().view<Cmp::CryptRoomLavaPitCell>().each() )
+  {
+    if ( not player_hitbox.findIntersection( lava_cell_cmp ) ) continue;
+    Scene::CryptScene::stop_maze_timer();
+    get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::IGNITED, lava_cell_cmp ) );
+  }
+}
+
 void CryptSystem::checkLavaPitActivationByProximity()
 {
   auto player_pos_cmp = Utils::get_player_position( getReg() );
@@ -639,6 +626,52 @@ void CryptSystem::checkLavaPitActivationByProximity()
         getReg().remove<Cmp::ZOrderValue>( lava_cell_entt );
         // m_sound_bank.get_effect( "bubbling_lava" ).stop();
       }
+    }
+  }
+}
+
+void CryptSystem::checkSpikeTrapCollision()
+{
+  if ( Utils::get_player_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) return;
+
+  Cmp::Position player_pos = Utils::get_player_position( getReg() );
+  Cmp::RectBounds player_hitbox( player_pos.position, player_pos.size, 0.5f );
+  for ( auto [spike_trap_entt, spike_trap_cmp, spike_trap_anim_cmp] : getReg().view<Cmp::CryptPassageSpikeTrap, Cmp::SpriteAnimation>().each() )
+  {
+    if ( not spike_trap_anim_cmp.m_animation_active ) continue;
+
+    Cmp::Position spike_trap_hitbox( spike_trap_cmp, Constants::kGridSquareSizePixelsF );
+    if ( not player_hitbox.findIntersection( spike_trap_hitbox ) ) continue;
+    Scene::CryptScene::stop_maze_timer();
+    get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SKEWERED, spike_trap_hitbox ) );
+  }
+}
+
+void CryptSystem::checkSpikeTrapActivationByProximity()
+{
+  auto player_pos_cmp = Utils::get_player_position( getReg() );
+  Cmp::RectBounds player_hitbox_enable( player_pos_cmp.position, player_pos_cmp.size, 2.f );
+  Cmp::RectBounds player_hitbox_disable( player_pos_cmp.position, player_pos_cmp.size, 5.f );
+  for ( auto [spike_trap_entt, spike_trap_cmp, spike_trap_anim_cmp] : getReg().view<Cmp::CryptPassageSpikeTrap, Cmp::SpriteAnimation>().each() )
+  {
+    auto spike_trap_hitbox = sf::FloatRect( spike_trap_cmp, Constants::kGridSquareSizePixelsF );
+    if ( player_hitbox_enable.findIntersection( spike_trap_hitbox ) and
+         spike_trap_cmp.m_cooldown_timer.getElapsedTime() > spike_trap_cmp.m_cooldown_threshold )
+    {
+      // re-activate the threat
+      SPDLOG_INFO( "Reactivating spike: {}", static_cast<int>( spike_trap_entt ) );
+      spike_trap_anim_cmp.m_animation_active = true;
+      spike_trap_cmp.m_cooldown_timer.reset();
+
+      auto sfx_status = m_sound_bank.get_effect( "spike_trap" ).getStatus();
+      if ( sfx_status != sf::Sound::Status::Playing ) { m_sound_bank.get_effect( "spike_trap" ).play(); }
+    }
+    else if ( not player_hitbox_disable.findIntersection( spike_trap_hitbox ) )
+    {
+      // de-activate the threat
+      spike_trap_anim_cmp.m_animation_active = false;
+      spike_trap_anim_cmp.m_current_frame = spike_trap_anim_cmp.m_base_frame;
+      spike_trap_cmp.m_cooldown_timer.restart();
     }
   }
 }
@@ -706,10 +739,7 @@ void CryptSystem::addLeverOpenRooms()
         float dist_to_passage = Utils::Maths::getEuclideanDistance( pos_center, passage_center );
 
         // Only include positions that are closer to opposite side than to passages
-        if ( dist_to_opposite < dist_to_passage )
-        {
-          internal_room_entts.push_back( pos_entt );
-        }
+        if ( dist_to_opposite < dist_to_passage ) { internal_room_entts.push_back( pos_entt ); }
       }
       else
       {

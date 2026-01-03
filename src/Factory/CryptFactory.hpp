@@ -31,8 +31,8 @@ void DestroyCryptLever( entt::registry &reg, entt::entity entity );
 
 void createCryptLavaPit( entt::registry &reg, const Cmp::CryptRoomOpen &room );
 void destroyCryptLavaPit( entt::registry &reg, entt::entity entt );
-void addCryptLavaPitCells( entt::registry &reg, const entt::entity lava_pit_entt );
-void removeCryptLavaPitCells( entt::registry &reg, const entt::entity lava_pit_entt );
+
+void addSpikeTrap( entt::registry &reg, const entt::entity entt, const int passage_id );
 
 } // namespace ProceduralMaze::Factory
 

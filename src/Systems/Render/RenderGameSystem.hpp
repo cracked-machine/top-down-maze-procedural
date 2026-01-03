@@ -101,7 +101,10 @@ private:
         if ( sprite_cmp && pos_cmp )
         {
           auto z_order_cmp = getReg().try_get<Cmp::ZOrderValue>( entity );
-          if ( z_order_cmp ) { zorder_queue.push_back( ZOrder{ z_order_cmp->getZOrder(), entity } ); }
+          if ( z_order_cmp )
+          {
+            zorder_queue.push_back( ZOrder{ z_order_cmp->getZOrder(), entity } );
+          }
         }
       }
     }

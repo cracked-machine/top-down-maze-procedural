@@ -63,8 +63,6 @@ public:
   //! @param action
   void check_lever_activation( Events::PlayerActionEvent::GameActions action );
 
-  void check_lava_pit_collision();
-
   //! @brief Restores border Cmp::Obstacles to Cmp::CryptRoomEnd, Cmp::CryptRoomStart and Cmp::CryptRoomOpen areas
   void createRoomBorders();
 
@@ -108,9 +106,24 @@ private:
   //! @brief Adds Cmp::Lever components to Cmp::CryptRoomOpen areas
   void addLeverOpenRooms();
 
+  //! @brief Add lava pits to open rooms
   void addLavaPitOpenRooms();
+
+  //! @brief Remove lava pits from open rooms
   void removeLavaPitOpenRooms();
+
+  //! @brief Check player collision with lava pits
+  void checkLavaPitCollision();
+
+  //! @brief Activate/deactivate the lava pit if player is close
   void checkLavaPitActivationByProximity();
+
+  //! @brief Check player collision with the spike traps
+  void checkSpikeTrapCollision();
+
+  //! @brief Activate/deactivate the spike trap if player is close
+  //! @note This uses animation component `m_animation_active` member.
+  void checkSpikeTrapActivationByProximity();
 
   //! @brief Removes Cmp::Lever components from Cmp::CryptRoomOpen areas
   void removeLeverOpenRooms();

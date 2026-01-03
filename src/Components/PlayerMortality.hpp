@@ -25,6 +25,7 @@ public:
     SQUISHED = 6, // crypt walls closed on player
     SUICIDE = 7,  // user-specified
     IGNITED = 8,  // lava
+    SKEWERED = 9, // spike trap
     //! @brief Player is dead. final state. end the game.
     DEAD = 255
   };

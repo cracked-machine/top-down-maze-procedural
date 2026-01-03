@@ -43,6 +43,8 @@ public:
   //! @param end_room_entt The entity ID of the end room
   void connectPassageBetweenOccupiedAndEndRoom( entt::entity end_room_entt );
 
+  void addSpikeTraps();
+
   virtual void onPause() override {}
   virtual void onResume() override {}
 

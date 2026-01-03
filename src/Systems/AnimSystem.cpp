@@ -1,3 +1,4 @@
+#include <Components/CryptPassageSpikeTrap.hpp>
 #include <Systems/AnimSystem.hpp>
 
 #include <SFML/System/Time.hpp>
@@ -31,6 +32,30 @@ namespace ProceduralMaze::Sys
 
 void AnimSystem::update( sf::Time globalDeltaTime )
 {
+
+  // Crypt Spike Trap Animation
+  auto spiketrap_view = getReg().view<Cmp::CryptPassageSpikeTrap, Cmp::SpriteAnimation, Cmp::Position>();
+  for ( auto [spike_trap_entt, spike_trap_cmp, anim_cmp, pos_cmp] : spiketrap_view.each() )
+  {
+    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
+    if ( anim_cmp.m_animation_active )
+    {
+      const auto &spiketrap_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
+      auto frame_rate = sf::seconds( 0.2f );
+
+      update_single_sequence( anim_cmp, globalDeltaTime, spiketrap_sprite_metadata, frame_rate );
+
+      // one shot animation, then pause for N seconds,
+      // then wait for player proximity to reactivate. See CryptSystem::checkSpikeTrapActivationByProximity().
+      if ( anim_cmp.m_current_frame == spiketrap_sprite_metadata.get_sprites_per_sequence() - 1 )
+      {
+        SPDLOG_INFO( "Deactivating spike: {}", static_cast<int>( spike_trap_entt ) );
+        anim_cmp.m_animation_active = false;
+        spike_trap_cmp.m_cooldown_timer.restart();
+        anim_cmp.m_current_frame = anim_cmp.m_base_frame;
+      }
+    }
+  }
 
   // Shrine Animation
   auto shrine_view = getReg().view<Cmp::AltarSegment, Cmp::SpriteAnimation, Cmp::Position>();
