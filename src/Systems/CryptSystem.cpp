@@ -730,51 +730,60 @@ std::vector<entt::entity> CryptSystem::getAvailableRoomPositions()
 {
   // find all candidate positions in open rooms
   std::vector<entt::entity> internal_room_entts;
-  for ( auto [pos_entt, pos_cmp] : getReg().view<Cmp::Position>().each() )
+  for ( auto [pos_entt, candidate_pos_cmp] : getReg().view<Cmp::Position>().each() )
   {
     for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
     {
       if ( Utils::get_player_position( getReg() ).findIntersection( open_room_cmp ) ) continue;
-      if ( not pos_cmp.findIntersection( open_room_cmp ) ) continue;
+      if ( not candidate_pos_cmp.findIntersection( open_room_cmp ) ) continue;
 
-      // Check if position intersects with ANY lava pit
+      // search all Cmp::CryptRoomLavaPit for collision with positions in this open room
       bool intersects_lava = false;
       for ( auto [lava_pit_entt, lava_pit_cmp] : getReg().view<Cmp::CryptRoomLavaPit>().each() )
       {
-        if ( pos_cmp.findIntersection( lava_pit_cmp ) )
+        if ( candidate_pos_cmp.findIntersection( lava_pit_cmp ) )
         {
           intersects_lava = true;
+          SPDLOG_DEBUG( "{},{} conflict with existing lava", candidate_pos_cmp.position.x, candidate_pos_cmp.position.y );
           break;
         }
       }
 
+      // search all Cmp::CryptLever for collision with positions in this open room
       bool intersects_lever = false;
       for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : getReg().view<Cmp::CryptLever, Cmp::Position>().each() )
       {
-        if ( pos_cmp.findIntersection( lever_pos_cmp ) )
+        if ( candidate_pos_cmp.findIntersection( lever_pos_cmp ) )
         {
           intersects_lever = true;
+          SPDLOG_DEBUG( "{},{} conflict with existing lever", candidate_pos_cmp.position.x, candidate_pos_cmp.position.y );
           break;
         }
       }
 
+      // search all Cmp::CryptChest for collision with positions in this open room
       bool intersects_chest = false;
       for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : getReg().view<Cmp::CryptChest, Cmp::Position>().each() )
       {
-        if ( pos_cmp.findIntersection( chest_pos_cmp ) )
+        if ( candidate_pos_cmp.findIntersection( chest_pos_cmp ) )
         {
           intersects_chest = true;
+          SPDLOG_DEBUG( "{},{} conflict with existing chest", candidate_pos_cmp.position.x, candidate_pos_cmp.position.y );
           break;
         }
       }
 
+      // search all Cmp::CryptPassageBlock for collision with positions in this open room
+      // Note: Cmp::CryptPassageBlock-owning entities do not own Cmp::Position components
       bool intersects_passageblock = false;
-      for ( auto [pblock_entt, pblock_cmp, pblock_pos_cmp] : getReg().view<Cmp::CryptPassageBlock, Cmp::Position>().each() )
+      for ( auto [pblock_entt, pblock_cmp] : getReg().view<Cmp::CryptPassageBlock>().each() )
       {
-        Cmp::RectBounds expand_pos_hitbox( pblock_pos_cmp.position, pblock_pos_cmp.size, 5.f );
-        if ( expand_pos_hitbox.findIntersection( pblock_pos_cmp ) )
+        Cmp::RectBounds expanded_candidate_pos_hitbox( candidate_pos_cmp.position, candidate_pos_cmp.size, 4.f );
+
+        if ( expanded_candidate_pos_hitbox.findIntersection( sf::FloatRect( pblock_cmp, Constants::kGridSquareSizePixelsF ) ) )
         {
           intersects_passageblock = true;
+          SPDLOG_DEBUG( "{},{} conflict with existing passageblock", candidate_pos_cmp.position.x, candidate_pos_cmp.position.y );
           break;
         }
       }

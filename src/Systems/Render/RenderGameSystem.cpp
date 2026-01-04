@@ -1,5 +1,6 @@
 #include <Components/Armed.hpp>
 #include <Components/CryptInteriorMultiBlock.hpp>
+#include <Components/CryptLever.hpp>
 #include <Components/CryptObjectiveMultiBlock.hpp>
 #include <Components/CryptPassageBlock.hpp>
 #include <Components/CryptPassageSpikeTrap.hpp>
@@ -202,6 +203,18 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
         render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Cyan, 1.f );
+
+        for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : getReg().view<Cmp::CryptLever, Cmp::Position>().each() )
+        {
+          Cmp::RectBounds expand_lever_pos_hitbox( lever_pos_cmp.position, lever_pos_cmp.size, 4.f );
+          sf::RectangleShape rectangle;
+          rectangle.setSize( expand_lever_pos_hitbox.size() );
+          rectangle.setPosition( expand_lever_pos_hitbox.position() );
+          rectangle.setFillColor( sf::Color::Transparent );
+          rectangle.setOutlineColor( sf::Color::White );
+          rectangle.setOutlineThickness( 2.f );
+          m_window.draw( rectangle );
+        }
       }
     }
     // local view end
