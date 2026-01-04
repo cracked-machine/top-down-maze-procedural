@@ -311,7 +311,7 @@ void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::
     Factory::createMultiblock<Cmp::GraveMultiBlock>( getReg(), random_entity, random_origin_position, ms );
     Factory::createMultiblockSegments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( getReg(), random_entity, random_origin_position, ms );
   }
-  else if ( ms.get_sprite_type().contains( "CRYPT" ) )
+  else if ( ms.get_sprite_type() == "CRYPT.closed" )
   {
     Factory::createMultiblock<Cmp::CryptMultiBlock>( getReg(), random_entity, random_origin_position, ms );
     Factory::createMultiblockSegments<Cmp::CryptMultiBlock, Cmp::CryptSegment>( getReg(), random_entity, random_origin_position, ms );

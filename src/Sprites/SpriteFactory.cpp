@@ -44,7 +44,7 @@ void SpriteFactory::init()
 
     // Use the JSON key directly as the sprite type
     m_sprite_metadata_map[key] = std::move( meta );
-    SPDLOG_DEBUG( "Loaded sprite metadata for type: {}, texture path: {}", key, texture_path.string() );
+    SPDLOG_INFO( "Loaded sprite metadata for type: {}, texture path: {}", key, texture_path.string() );
   }
 
   create_error_sprite();

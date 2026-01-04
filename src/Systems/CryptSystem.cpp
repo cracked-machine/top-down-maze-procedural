@@ -763,12 +763,26 @@ std::vector<entt::entity> CryptSystem::getAvailableRoomPositions()
       {
         if ( pos_cmp.findIntersection( chest_pos_cmp ) )
         {
-          intersects_lever = true;
+          intersects_chest = true;
           break;
         }
       }
 
-      if ( not intersects_lava and not intersects_lever and not intersects_chest ) { internal_room_entts.push_back( pos_entt ); }
+      bool intersects_passageblock = false;
+      for ( auto [pblock_entt, pblock_cmp, pblock_pos_cmp] : getReg().view<Cmp::CryptPassageBlock, Cmp::Position>().each() )
+      {
+        Cmp::RectBounds expand_pos_hitbox( pblock_pos_cmp.position, pblock_pos_cmp.size, 5.f );
+        if ( expand_pos_hitbox.findIntersection( pblock_pos_cmp ) )
+        {
+          intersects_passageblock = true;
+          break;
+        }
+      }
+
+      if ( not intersects_lava and not intersects_lever and not intersects_chest and not intersects_passageblock )
+      {
+        internal_room_entts.push_back( pos_entt );
+      }
     }
   }
 

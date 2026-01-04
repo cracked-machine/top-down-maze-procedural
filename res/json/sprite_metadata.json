@@ -1186,7 +1186,7 @@
       "name": "CRYPT.closed",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/crypt.png",
+        "texture_path": "res/textures/CRYPT.exterior_building.png",
         "sprite_indices": [0],
         "solid_mask": [
                 false, false, false,
@@ -1206,7 +1206,7 @@
       "name": "CRYPT.opened",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/crypt.png",
+        "texture_path": "res/textures/CRYPT.exterior_building.png",
         "sprite_indices": [12],
         "solid_mask": [
                        false, false, false,
