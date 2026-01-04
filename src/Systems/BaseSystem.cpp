@@ -123,12 +123,6 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
     if ( crypt_chest_pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
-  auto crypt_lever_view = getReg().view<Cmp::CryptLever, Cmp::Position>();
-  for ( auto [entity, crypt_lever_cmp, crypt_lever_pos_cmp] : crypt_lever_view.each() )
-  {
-    if ( crypt_lever_pos_cmp.findIntersection( target_position ) ) { return false; }
-  }
-
   return true;
 }
 

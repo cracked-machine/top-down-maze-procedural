@@ -151,11 +151,11 @@
         }
       }
     },
-    "LEVER": {
-      "name": "LEVER",
+    "CRYPT.interior_lever": {
+      "name": "CRYPT.interior_lever",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/lever.png",
+        "texture_path": "res/textures/CRYPT.interior_lever.png",
         "sprite_indices": [0,1],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,

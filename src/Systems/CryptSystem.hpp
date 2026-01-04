@@ -61,7 +61,7 @@ public:
 
   //! @brief Check for lever activation
   //! @param action
-  void check_lever_activation( Events::PlayerActionEvent::GameActions action );
+  void check_lever_activation();
 
   void check_chest_activation( Events::PlayerActionEvent::GameActions action );
 

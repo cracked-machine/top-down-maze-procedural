@@ -75,6 +75,7 @@ void CryptSystem::update()
   {
     checkLavaPitCollision();
     checkSpikeTrapCollision();
+    check_lever_activation();
   }
   checkLavaPitActivationByProximity();
   checkSpikeTrapActivationByProximity();
@@ -86,7 +87,6 @@ void CryptSystem::on_player_action( Events::PlayerActionEvent &event )
 
   if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) unlock_crypt_door();
   if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) check_objective_activation( event.action );
-  if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) check_lever_activation( event.action );
   if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) check_chest_activation( event.action );
 }
 
@@ -284,28 +284,26 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
   }
 }
 
-void CryptSystem::check_lever_activation( Events::PlayerActionEvent::GameActions action )
+void CryptSystem::check_lever_activation()
 {
-  if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
   if ( m_maze_unlocked ) return;
 
   auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
   auto lever_view = getReg().view<Cmp::CryptLever, Cmp::Position>();
 
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : player_view.each() )
+  for ( auto [pc_entity, player_cmp, player_pos_cmp] : player_view.each() )
   {
-    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
+    auto player_hitbox = Cmp::RectBounds( player_pos_cmp.position, Constants::kGridSquareSizePixelsF, 0.5f );
     for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : lever_view.each() )
     {
       // prevent player from spamming lever twice
-      if ( lever_cmp.isEnabled() ) continue;
-      if ( not player_hitbox.findIntersection( lever_pos_cmp ) ) continue;
-
+      if ( lever_cmp.isEnabled() ) { continue; }
+      if ( not player_hitbox.findIntersection( lever_pos_cmp ) ) { continue; }
       lever_cmp.setEnabled( true );
       m_enabled_levers++;
 
       // update the sprite
-      Sprites::SpriteMetaType lever_sprite_type = "LEVER";
+      Sprites::SpriteMetaType lever_sprite_type = "CRYPT.interior_lever";
       unsigned int enabled_lever_sprite_idx = 1;
       getReg().emplace_or_replace<Cmp::SpriteAnimation>( lever_entt, 0, 0, true, lever_sprite_type, enabled_lever_sprite_idx );
 
@@ -783,7 +781,7 @@ void CryptSystem::addChestToOpenRooms()
 void CryptSystem::addLeverToOpenRooms()
 {
   auto internal_room_entts = getAvailableRoomPositions();
-  Sprites::SpriteMetaType lever_sprite_type = "LEVER";
+  Sprites::SpriteMetaType lever_sprite_type = "CRYPT.interior_lever";
   unsigned int disabled_lever_sprite_idx = 0;
   float zorder = m_sprite_factory.get_sprite_size_by_type( lever_sprite_type ).y;
 
