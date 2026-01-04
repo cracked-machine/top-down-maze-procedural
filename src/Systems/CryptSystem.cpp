@@ -646,25 +646,37 @@ void CryptSystem::checkLavaPitActivationByProximity()
   auto player_pos_cmp = Utils::get_player_position( getReg() );
   Cmp::RectBounds player_hitbox_enable( player_pos_cmp.position, player_pos_cmp.size, 2.f );
   Cmp::RectBounds player_hitbox_disable( player_pos_cmp.position, player_pos_cmp.size, 5.f );
+  int num_lava_pits_intersect = 0;
   for ( auto [lava_pit_entt, lava_pit_cmp] : getReg().view<Cmp::CryptRoomLavaPit>().each() )
   {
+    if ( player_hitbox_enable.findIntersection( lava_pit_cmp ) ) num_lava_pits_intersect++;
     for ( auto [lava_cell_entt, lava_cell_cmp] : getReg().view<Cmp::CryptRoomLavaPitCell>().each() )
     {
 
       if ( not lava_cell_cmp.findIntersection( lava_pit_cmp ) ) continue;
       if ( player_hitbox_enable.findIntersection( lava_pit_cmp ) )
       {
+        // enable rendering of this cell by adding a zorder component
         getReg().emplace_or_replace<Cmp::ZOrderValue>( lava_cell_entt, lava_cell_cmp.position.y );
-        auto sfx_status = m_sound_bank.get_effect( "bubbling_lava" ).getStatus();
-        if ( sfx_status == sf::Sound::Status::Playing ) continue;
-        m_sound_bank.get_effect( "bubbling_lava" ).play();
       }
       else if ( not player_hitbox_disable.findIntersection( lava_pit_cmp ) )
       {
+        // disable the rendering of this cell by removing its zorder component
         getReg().remove<Cmp::ZOrderValue>( lava_cell_entt );
-        // m_sound_bank.get_effect( "bubbling_lava" ).stop();
       }
     }
+  }
+
+  // finally play/stop sound if any/all lava pits activated/deactivated
+  if ( num_lava_pits_intersect > 0 )
+  {
+    auto sfx_status = m_sound_bank.get_effect( "bubbling_lava" ).getStatus();
+    if ( sfx_status != sf::Sound::Status::Playing ) m_sound_bank.get_effect( "bubbling_lava" ).play();
+  }
+  else
+  {
+    //
+    m_sound_bank.get_effect( "bubbling_lava" ).stop();
   }
 }
 
