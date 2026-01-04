@@ -14,6 +14,7 @@
 #include <Components/CryptRoomEnd.hpp>
 #include <Components/CryptRoomLavaPit.hpp>
 #include <Components/CryptRoomLavaPitCell.hpp>
+#include <Components/CryptRoomLavaPitCellEffect.hpp>
 #include <Components/CryptRoomOpen.hpp>
 #include <Components/CryptRoomStart.hpp>
 #include <Components/CryptSegment.hpp>
@@ -78,6 +79,7 @@ void CryptSystem::update()
     check_lever_activation();
   }
   checkLavaPitActivationByProximity();
+  doLavaPitAnimation();
   checkSpikeTrapActivationByProximity();
 }
 
@@ -609,6 +611,42 @@ void CryptSystem::addLavaPitOpenRooms()
   for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
   {
     Factory::createCryptLavaPit( getReg(), open_room_cmp );
+  }
+}
+
+void CryptSystem::doLavaPitAnimation()
+{
+  // remove any pre-existing lava anim entities
+  auto lava_anim_view = getReg().view<Cmp::CryptRoomLavaPitCellEffect, Cmp::SpriteAnimation>();
+  for ( auto [lava_anim_entt, lava_cell_anim_cmp, lava_anim_cmp] : lava_anim_view.each() )
+  {
+    // only delete the entity if it has finished its animation sequence
+    if ( lava_anim_cmp.m_animation_active == true ) continue;
+    if ( getReg().valid( lava_anim_entt ) ) getReg().destroy( lava_anim_entt );
+  }
+
+  if ( m_lava_effect_cooldown_timer.getElapsedTime() > m_lava_effect_cooldown_threshold )
+  {
+    // add N new lava anim entities
+    auto found_lava_cell_entts = Utils::Rnd::get_n_rand_components<Cmp::CryptRoomLavaPitCell>( getReg(), 1, {}, {} );
+
+    for ( auto lava_cell_entt : found_lava_cell_entts )
+    {
+      // disabled CryptRoomLavaPitCells have no zorder
+      auto lava_zorder_cmp = getReg().try_get<Cmp::ZOrderValue>( lava_cell_entt );
+      if ( not lava_zorder_cmp ) continue;
+
+      auto lava_cell_cmp = getReg().try_get<Cmp::CryptRoomLavaPitCell>( lava_cell_entt );
+      if ( not lava_cell_cmp ) continue;
+
+      auto lava_anim_entt = getReg().create();
+
+      getReg().emplace_or_replace<Cmp::CryptRoomLavaPitCellEffect>( lava_anim_entt );
+      getReg().emplace_or_replace<Cmp::Position>( lava_anim_entt, lava_cell_cmp->position, lava_cell_cmp->size );
+      getReg().emplace_or_replace<Cmp::SpriteAnimation>( lava_anim_entt, 0, 0, true, "CRYPT.lava_anim", 0 );
+      getReg().emplace_or_replace<Cmp::ZOrderValue>( lava_anim_entt, lava_cell_cmp->position.y + 64.f );
+    }
+    m_lava_effect_cooldown_timer.restart();
   }
 }
 

@@ -620,6 +620,23 @@
         }
       }
     },
+    "CRYPT.lava_anim": {
+      "name": "CRYPT.lava_anim",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
+        "sprite_indices": 
+        [
+          24,25,26,27,28,29
+        ],
+        "sprites_per_sequence": 6,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
     "FOOTSTEPS": {
       "name": "FOOTSTEPS",
       "weight": 1.0,

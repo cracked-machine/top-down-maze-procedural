@@ -112,6 +112,7 @@ private:
 
   //! @brief Add lava pits to open rooms
   void addLavaPitOpenRooms();
+  void doLavaPitAnimation();
 
   //! @brief Remove lava pits from open rooms
   void removeLavaPitOpenRooms();
@@ -168,6 +169,9 @@ private:
 
   //! @brief Indicates if the maze was unlocked this cycle
   bool m_maze_unlocked{ false };
+
+  sf::Clock m_lava_effect_cooldown_timer;
+  sf::Time m_lava_effect_cooldown_threshold{ sf::seconds( 1.f ) };
 };
 
 } // namespace ProceduralMaze::Sys

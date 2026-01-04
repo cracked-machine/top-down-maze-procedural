@@ -1,5 +1,7 @@
 #include <Components/CryptChest.hpp>
 #include <Components/CryptPassageSpikeTrap.hpp>
+#include <Components/CryptRoomLavaPitCell.hpp>
+#include <Components/CryptRoomLavaPitCellEffect.hpp>
 #include <Systems/AnimSystem.hpp>
 
 #include <SFML/System/Time.hpp>
@@ -58,7 +60,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
     }
   }
 
-  // Crypt Spike Trap Animation
+  // Crypt chest Animation
   auto crypt_chest_view = getReg().view<Cmp::CryptChest, Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [crypt_chest_entt, crypt_chest_cmp, anim_cmp, pos_cmp] : crypt_chest_view.each() )
   {
@@ -72,6 +74,23 @@ void AnimSystem::update( sf::Time globalDeltaTime )
 
       // one shot animation, then disable
       // See CryptSystem::check_chest_activation()
+      if ( anim_cmp.m_current_frame == spiketrap_sprite_metadata.get_sprites_per_sequence() - 1 ) { anim_cmp.m_animation_active = false; }
+    }
+  }
+
+  // Crypt lava cell animation effect
+  auto crypt_lava_view = getReg().view<Cmp::CryptRoomLavaPitCellEffect, Cmp::SpriteAnimation, Cmp::Position>();
+  for ( auto [crypt_lava_anim_entt, crypt_lava_anim_cmp, anim_cmp, pos_cmp] : crypt_lava_view.each() )
+  {
+    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
+    if ( anim_cmp.m_animation_active )
+    {
+      const auto &spiketrap_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
+      auto frame_rate = sf::seconds( 0.1f );
+
+      update_single_sequence( anim_cmp, globalDeltaTime, spiketrap_sprite_metadata, frame_rate );
+
+      // one shot animation, then disable. See CryptSystem::doLavaPitAnimation()
       if ( anim_cmp.m_current_frame == spiketrap_sprite_metadata.get_sprites_per_sequence() - 1 ) { anim_cmp.m_animation_active = false; }
     }
   }
