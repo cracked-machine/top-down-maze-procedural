@@ -351,7 +351,9 @@ void CryptSystem::check_chest_activation( Events::PlayerActionEvent::GameActions
         Cmp::SpriteAnimation( 0, 0, true, "LOOT.goldcoin", 0 ),                                        
         Cmp::RectBounds{ chest_pos_cmp.position, chest_pos_cmp.size, 3.f }.getBounds(), 
         Factory::IncludePack<>{},
-        Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::CryptChest, Cmp::CryptRoomLavaPitCell>{} , 64.f);
+        Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::CryptChest, Cmp::CryptRoomLavaPitCell, Cmp::CryptPassageBlock>{} ,
+        Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::CryptChest, Cmp::CryptRoomLavaPitCell, Cmp::CryptPassageBlock>{},
+        64.f);
       // clang-format on
 
       if ( loot_entt != entt::null ) m_sound_bank.get_effect( "drop_loot" ).play();
