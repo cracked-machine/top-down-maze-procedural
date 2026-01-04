@@ -133,7 +133,7 @@ static entt::entity get_player_entity( entt::registry &reg )
   return player_view.front();
 }
 
-static Cmp::Position get_player_position( entt::registry &reg )
+static Cmp::Position &get_player_position( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayableCharacter, Cmp::Position>();
   return player_view.get<Cmp::Position>( get_player_entity( reg ) );

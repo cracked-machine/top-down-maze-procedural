@@ -1,7 +1,9 @@
 #include "ShockwaveSystem.hpp"
 #include <Components/NpcShockwave.hpp>
+#include <Components/Obstacle.hpp>
 #include <Sprites/Shockwave.hpp>
 #include <Utils/Maths.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -96,7 +98,7 @@ bool ShockwaveSystem::pointIntersectsVisibleSegments( const Cmp::NpcShockwave &s
   return false;
 }
 
-bool ShockwaveSystem::intersectsWithVisibleSegments( const Cmp::NpcShockwave &shockwave, const sf::FloatRect &rect )
+bool ShockwaveSystem::intersectsWithVisibleSegments( entt::registry &reg, const Cmp::NpcShockwave &shockwave, const sf::FloatRect &rect )
 {
   sf::Vector2f position = shockwave.sprite.getPosition();
   float radius = shockwave.sprite.getRadius();
@@ -119,7 +121,29 @@ bool ShockwaveSystem::intersectsWithVisibleSegments( const Cmp::NpcShockwave &sh
       sf::Vector2f inner_point = position + sf::Vector2f( std::cos( angle ) * inner_radius, std::sin( angle ) * inner_radius );
       sf::Vector2f outer_point = position + sf::Vector2f( std::cos( angle ) * outer_radius, std::sin( angle ) * outer_radius );
 
-      if ( rect.contains( inner_point ) || rect.contains( outer_point ) ) { return true; }
+      if ( rect.contains( inner_point ) || rect.contains( outer_point ) )
+      {
+        // do shockwave/player knockback
+        sf::Vector2f shockwave_direction( std::cos( angle ), std::sin( angle ) );
+        shockwave_direction = shockwave_direction.normalized();
+
+        auto &player_pos_cmp = Utils::get_player_position( reg );
+        auto new_position = Utils::snap_to_grid( player_pos_cmp.position +
+                                                 ( shockwave_direction.componentWiseMul( Constants::kGridSquareSizePixelsF ) ) );
+        SPDLOG_DEBUG( "Player position was {},{} - Knockback direction is {}, {} - New Position should be {},{}", player_pos_cmp.position.x,
+                      player_pos_cmp.position.y, normalised_direction.x, normalised_direction.y, new_position.x, new_position.y );
+
+        // make sure player isnt knocked into an obstacle
+        bool is_valid = true;
+        for ( auto [obstacle_entt, obstacle_cmp, obstacle_pos_cmp] : reg.view<Cmp::Obstacle, Cmp::Position>().each() )
+        {
+          if ( sf::FloatRect( new_position, Constants::kGridSquareSizePixelsF ).findIntersection( obstacle_pos_cmp ) ) is_valid = false;
+        }
+        if ( is_valid ) { player_pos_cmp.position = new_position; }
+        else { SPDLOG_DEBUG( "New Position was invalid so cancelled" ); }
+
+        return true;
+      }
     }
   }
   return false;

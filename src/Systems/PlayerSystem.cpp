@@ -413,7 +413,7 @@ void PlayerSystem::checkShockwavePlayerCollision( Cmp::NpcShockwave &shockwave )
   for ( auto [player_entity, player_cmp, player_pos, player_health] : player_view.each() )
   {
     if ( player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
-    if ( Sys::ShockwaveSystem::intersectsWithVisibleSegments( shockwave, player_pos ) )
+    if ( Sys::ShockwaveSystem::intersectsWithVisibleSegments( getReg(), shockwave, player_pos ) )
     {
       player_health.health -= 10;
       m_sound_bank.get_effect( "damage_player" ).play();

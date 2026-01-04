@@ -16,7 +16,7 @@ public:
   ShockwaveSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   // Collision detection utilities
   static bool pointIntersectsVisibleSegments( const Cmp::NpcShockwave &shockwave, sf::Vector2f point );
-  static bool intersectsWithVisibleSegments( const Cmp::NpcShockwave &shockwave, const sf::FloatRect &rect );
+  static bool intersectsWithVisibleSegments( entt::registry &reg, const Cmp::NpcShockwave &shockwave, const sf::FloatRect &rect );
 
   // Segment manipulation utilities
   static void removeIntersectingSegments( const sf::FloatRect &obstacle_rect, Cmp::NpcShockwave &shockwave );
