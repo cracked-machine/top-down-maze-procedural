@@ -1,4 +1,5 @@
 #include <Components/Armed.hpp>
+#include <Components/CryptChest.hpp>
 #include <Components/CryptInteriorMultiBlock.hpp>
 #include <Components/CryptLever.hpp>
 #include <Components/CryptObjectiveMultiBlock.hpp>
@@ -190,9 +191,9 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_shockwaves( floormap );
       render_arrow_compass();
       render_mist( player_position );
-      if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
       // lava pit outline
       render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 64, 64, 64 ), 0.5f );
+      if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
 
       // debug: show crypt component boundaries
       if ( m_show_debug_stats )
@@ -206,13 +207,25 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
 
         for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : getReg().view<Cmp::CryptLever, Cmp::Position>().each() )
         {
-          Cmp::RectBounds expand_lever_pos_hitbox( lever_pos_cmp.position, lever_pos_cmp.size, 4.f );
+          Cmp::RectBounds expand_lever_pos_hitbox( lever_pos_cmp.position, lever_pos_cmp.size, 1.f );
           sf::RectangleShape rectangle;
           rectangle.setSize( expand_lever_pos_hitbox.size() );
           rectangle.setPosition( expand_lever_pos_hitbox.position() );
           rectangle.setFillColor( sf::Color::Transparent );
           rectangle.setOutlineColor( sf::Color::White );
-          rectangle.setOutlineThickness( 2.f );
+          rectangle.setOutlineThickness( 1.f );
+          m_window.draw( rectangle );
+        }
+
+        for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : getReg().view<Cmp::CryptChest, Cmp::Position>().each() )
+        {
+          Cmp::RectBounds expand_lever_pos_hitbox( chest_pos_cmp.position, chest_pos_cmp.size, 1.f );
+          sf::RectangleShape rectangle;
+          rectangle.setSize( expand_lever_pos_hitbox.size() );
+          rectangle.setPosition( expand_lever_pos_hitbox.position() );
+          rectangle.setFillColor( sf::Color::Transparent );
+          rectangle.setOutlineColor( sf::Color::Magenta );
+          rectangle.setOutlineThickness( 1.f );
           m_window.draw( rectangle );
         }
       }

@@ -132,9 +132,11 @@ private:
 
   //! @brief Removes Cmp::Lever components from Cmp::CryptRoomOpen areas
   void removeLeverOpenRooms();
+  void removeChestOpenRooms();
 
   //! @brief Removes ALL levers.
   void removeAllLevers();
+  void removeAllChests();
 
   //! @brief Spawn NPCs in each open room in the game area
   void spawnNpcInOpenRooms();

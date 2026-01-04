@@ -154,7 +154,10 @@ entt::entity CreateCryptLever( entt::registry &reg, sf::Vector2f pos, Sprites::S
 
 void DestroyCryptLever( entt::registry &reg, entt::entity entt )
 {
-  if ( not reg.all_of<Cmp::CryptLever>( entt ) ) return;
+  if ( reg.all_of<Cmp::CryptLever>( entt ) ) reg.remove<Cmp::CryptLever>( entt );
+  if ( reg.all_of<Cmp::Position>( entt ) ) reg.remove<Cmp::Position>( entt );
+  if ( reg.all_of<Cmp::SpriteAnimation>( entt ) ) reg.remove<Cmp::SpriteAnimation>( entt );
+  if ( reg.all_of<Cmp::ZOrderValue>( entt ) ) reg.remove<Cmp::ZOrderValue>( entt );
   if ( reg.valid( entt ) ) { reg.destroy( entt ); }
 }
 
@@ -170,7 +173,10 @@ entt::entity CreateCryptChest( entt::registry &reg, sf::Vector2f pos, Sprites::S
 
 void DestroyCryptChest( entt::registry &reg, entt::entity entt )
 {
-  if ( not reg.all_of<Cmp::CryptChest>( entt ) ) return;
+  if ( reg.all_of<Cmp::CryptChest>( entt ) ) reg.remove<Cmp::CryptLever>( entt );
+  if ( reg.all_of<Cmp::Position>( entt ) ) reg.remove<Cmp::Position>( entt );
+  if ( reg.all_of<Cmp::SpriteAnimation>( entt ) ) reg.remove<Cmp::SpriteAnimation>( entt );
+  if ( reg.all_of<Cmp::ZOrderValue>( entt ) ) reg.remove<Cmp::ZOrderValue>( entt );
   if ( reg.valid( entt ) ) { reg.destroy( entt ); }
 }
 

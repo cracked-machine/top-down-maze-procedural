@@ -68,7 +68,7 @@ void CryptSystem::update()
   if ( not m_maze_unlocked and Scene::CryptScene::is_maze_timer_expired() )
   {
     //
-    // shuffle_rooms_passages();
+    shuffle_rooms_passages();
   }
 
   // check collisions with lava pit
@@ -452,6 +452,7 @@ void CryptSystem::shuffle_rooms_passages()
   // reset rooms/passages
   removeLavaPitOpenRooms();
   removeLeverOpenRooms();
+  removeChestOpenRooms();
   closeOpenRooms();
   fillClosedRooms();
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::REMOVE_PASSAGES ) );
@@ -484,6 +485,8 @@ void CryptSystem::unlock_objective_passage()
 {
   // reset rooms/passages
   removeLavaPitOpenRooms();
+  removeLeverOpenRooms();
+  removeChestOpenRooms();
   closeOpenRooms();
   removeAllLevers();
   fillClosedRooms();
@@ -504,6 +507,7 @@ void CryptSystem::unlock_exit_passage()
   m_maze_unlocked = true;
 
   closeOpenRooms();
+  removeAllChests();
   removeAllLevers();
   removeLavaPitOpenRooms();
   openAllRooms();
@@ -880,7 +884,29 @@ void CryptSystem::removeLeverOpenRooms()
   }
 }
 
+void CryptSystem::removeChestOpenRooms()
+{
+  for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : getReg().view<Cmp::CryptChest, Cmp::Position>().each() )
+  {
+    for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
+    {
+      if ( not open_room_cmp.findIntersection( chest_pos_cmp ) ) continue;
+      if ( open_room_cmp.findIntersection( Utils::get_player_position( getReg() ) ) ) continue;
+
+      Factory::DestroyCryptLever( getReg(), chest_entt );
+    }
+  }
+}
+
 void CryptSystem::removeAllLevers()
+{
+  for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : getReg().view<Cmp::CryptChest, Cmp::Position>().each() )
+  {
+    Factory::DestroyCryptLever( getReg(), chest_entt );
+  }
+}
+
+void CryptSystem::removeAllChests()
 {
   for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : getReg().view<Cmp::CryptLever, Cmp::Position>().each() )
   {

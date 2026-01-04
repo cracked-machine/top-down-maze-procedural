@@ -120,7 +120,11 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
   auto crypt_chest_view = getReg().view<Cmp::CryptChest, Cmp::Position>();
   for ( auto [entity, crypt_chest_cmp, crypt_chest_pos_cmp] : crypt_chest_view.each() )
   {
-    if ( crypt_chest_pos_cmp.findIntersection( target_position ) ) { return false; }
+    if ( crypt_chest_pos_cmp.findIntersection( target_position ) )
+    {
+      SPDLOG_INFO( "Blocking player at {},{} with CryptChest", crypt_chest_pos_cmp.position.x, crypt_chest_pos_cmp.position.y );
+      return false;
+    }
   }
 
   return true;
