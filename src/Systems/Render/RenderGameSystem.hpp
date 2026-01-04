@@ -63,7 +63,7 @@ private:
   //! @brief Renders the armed obstacles in the game world
   void render_armed();
 
-  void render_shockwaves();
+  void render_shockwaves( Sprites::Containers::TileMap &floormap );
 
   //! @brief Renders the flood water background effect
   //! @param player_position
@@ -101,10 +101,7 @@ private:
         if ( sprite_cmp && pos_cmp )
         {
           auto z_order_cmp = getReg().try_get<Cmp::ZOrderValue>( entity );
-          if ( z_order_cmp )
-          {
-            zorder_queue.push_back( ZOrder{ z_order_cmp->getZOrder(), entity } );
-          }
+          if ( z_order_cmp ) { zorder_queue.push_back( ZOrder{ z_order_cmp->getZOrder(), entity } ); }
         }
       }
     }
@@ -121,6 +118,8 @@ private:
   Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", { 1u, 1u } };
   Sprites::ViewFragmentShader m_wormhole_shader{ "res/shaders/SimpleDistortionField.frag",
                                                  Constants::kGridSquareSizePixels.componentWiseMul( { 3u, 3u } ) };
+  Sprites::ViewFragmentShader m_shockwave_shader{ "res/shaders/SimpleDistortionField.frag",
+                                                  Constants::kGridSquareSizePixels.componentWiseMul( { 1u, 1u } ) };
   Sprites::PulsingShader m_pulsing_shader{ "res/shaders/RedPulsingSand.frag", { 1u, 1u } };
   Sprites::MistShader m_mist_shader{ "res/shaders/MistShader.frag", { 1u, 1u } };
   Sprites::DarkModeShader m_dark_mode_shader{ "res/shaders/DarkMode.frag", { 1u, 1u } };

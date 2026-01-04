@@ -187,7 +187,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       }
 
       render_armed();
-      render_shockwaves();
+      render_shockwaves( floormap );
       render_arrow_compass();
       render_mist( player_position );
       if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
@@ -347,7 +347,7 @@ void RenderGameSystem::render_armed()
   }
 }
 
-void RenderGameSystem::render_shockwaves()
+void RenderGameSystem::render_shockwaves( [[maybe_unused]] Sprites::Containers::TileMap &floormap )
 {
   for ( auto [npc_sh_entt, npc_sw_cmp] : getReg().view<Cmp::NpcShockwave>().each() )
   {
@@ -358,6 +358,15 @@ void RenderGameSystem::render_shockwaves()
 
       if ( Utils::is_visible_in_view( RenderSystem::getGameView(), segment_bounds ) )
       {
+        // m_shockwave_shader.update_shader_position( segment_bounds.position, Sprites::ViewFragmentShader::Align::TOPLEFT );
+        // // m_shockwave_shader.resize_texture( sf::Vector2u{ segment_bounds.size } );
+        // // floormap.draw( m_shockwave_shader.get_render_texture(), sf::RenderStates::Default );
+        // segment.draw( m_shockwave_shader.get_render_texture(), sf::RenderStates::Default, npc_sw_cmp.sprite.getPosition(),
+        //               npc_sw_cmp.sprite.getRadius(), npc_sw_cmp.sprite.getOutlineThickness(), npc_sw_cmp.sprite.getOutlineColor(),
+        //               npc_sw_cmp.sprite.getPointsPerSegment() );
+
+        // m_window.draw( m_shockwave_shader );
+
         segment.draw( m_window, sf::RenderStates::Default, npc_sw_cmp.sprite.getPosition(), npc_sw_cmp.sprite.getRadius(),
                       npc_sw_cmp.sprite.getOutlineThickness(), npc_sw_cmp.sprite.getOutlineColor(), npc_sw_cmp.sprite.getPointsPerSegment() );
       }
