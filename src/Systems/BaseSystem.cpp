@@ -1,3 +1,5 @@
+#include <Components/CryptChest.hpp>
+#include <Components/CryptLever.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <Audio/SoundBank.hpp>
@@ -113,6 +115,18 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
   {
     if ( not crypt_int_cmp.isSolidMask() ) continue;
     if ( crypt_int_pos_cmp.findIntersection( target_position ) ) { return false; }
+  }
+
+  auto crypt_chest_view = getReg().view<Cmp::CryptChest, Cmp::Position>();
+  for ( auto [entity, crypt_chest_cmp, crypt_chest_pos_cmp] : crypt_chest_view.each() )
+  {
+    if ( crypt_chest_pos_cmp.findIntersection( target_position ) ) { return false; }
+  }
+
+  auto crypt_lever_view = getReg().view<Cmp::CryptLever, Cmp::Position>();
+  for ( auto [entity, crypt_lever_cmp, crypt_lever_pos_cmp] : crypt_lever_view.each() )
+  {
+    if ( crypt_lever_pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
   return true;

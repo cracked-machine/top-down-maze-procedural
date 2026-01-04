@@ -1,3 +1,4 @@
+#include <Components/PlayerWealth.hpp>
 #include <Systems/LootSystem.hpp>
 
 #include <Audio/SoundBank.hpp>
@@ -131,6 +132,12 @@ void LootSystem::check_loot_collision()
       m_sound_bank.get_effect( "get_loot" ).play();
       m_sound_bank.get_effect( "secret" ).play();
       get_systems_event_queue().trigger( Events::CryptRoomEvent( Events::CryptRoomEvent::Type::EXIT_ALL_PASSAGES ) );
+    }
+    else if ( effect.type == "LOOT.goldcoin" )
+    {
+      auto &wealth_cmp = getReg().get<Cmp::PlayerWealth>( effect.player_entity );
+      wealth_cmp.wealth += 1;
+      m_sound_bank.get_effect( "get_loot" ).play();
     }
     else
     {

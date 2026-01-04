@@ -1,5 +1,6 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/AltarMultiBlock.hpp>
+#include <Components/CryptChest.hpp>
 #include <Components/CryptEntrance.hpp>
 #include <Components/CryptExit.hpp>
 #include <Components/CryptLever.hpp>
@@ -86,6 +87,7 @@ void CryptSystem::on_player_action( Events::PlayerActionEvent &event )
   if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) unlock_crypt_door();
   if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) check_objective_activation( event.action );
   if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) check_lever_activation( event.action );
+  if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) check_chest_activation( event.action );
 }
 
 void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
@@ -323,6 +325,40 @@ void CryptSystem::check_lever_activation( Events::PlayerActionEvent::GameActions
   }
 }
 
+void CryptSystem::check_chest_activation( Events::PlayerActionEvent::GameActions action )
+{
+  if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
+
+  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto chest_view = getReg().view<Cmp::CryptChest, Cmp::Position, Cmp::SpriteAnimation>();
+
+  for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : player_view.each() )
+  {
+    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
+    for ( auto [chest_entt, chest_cmp, chest_pos_cmp, chest_anim_cmp] : chest_view.each() )
+    {
+      // prevent player from spamming chest twice
+      if ( chest_cmp.open == true ) continue;
+      if ( not player_hitbox.findIntersection( chest_pos_cmp ) ) continue;
+
+      chest_cmp.open = true;
+      chest_anim_cmp.m_animation_active = true;
+      m_sound_bank.get_effect( "crypt_chest_open" ).play();
+
+      // clang-format off
+      auto loot_entt = Factory::createLootDrop( 
+        getReg(), 
+        Cmp::SpriteAnimation( 0, 0, true, "LOOT.goldcoin", 0 ),                                        
+        Cmp::RectBounds{ chest_pos_cmp.position, chest_pos_cmp.size, 3.f }.getBounds(), 
+        Factory::IncludePack<>{},
+        Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::CryptChest, Cmp::CryptRoomLavaPitCell>{} , 64.f);
+      // clang-format on
+
+      if ( loot_entt != entt::null ) m_sound_bank.get_effect( "drop_loot" ).play();
+    }
+  }
+}
+
 void CryptSystem::createRoomBorders()
 {
   auto add_border = [&]<typename Component>( entt::entity pos_entt, Cmp::Position &pos_cmp, Component &room_cmp, Sprites::SpriteMetaType sprite_type,
@@ -435,7 +471,8 @@ void CryptSystem::shuffle_rooms_passages()
 
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::OPEN_PASSAGES ) );
 
-  addLeverOpenRooms();
+  addLeverToOpenRooms();
+  addChestToOpenRooms();
 
   m_sound_bank.get_effect( "crypt_room_shuffle" ).play();
   Scene::CryptScene::get_maze_timer().restart();
@@ -660,7 +697,7 @@ void CryptSystem::checkSpikeTrapActivationByProximity()
          spike_trap_cmp.m_cooldown_timer.getElapsedTime() > spike_trap_cmp.m_cooldown_threshold )
     {
       // re-activate the threat
-      SPDLOG_INFO( "Reactivating spike: {}", static_cast<int>( spike_trap_entt ) );
+      SPDLOG_DEBUG( "Reactivating spike: {}", static_cast<int>( spike_trap_entt ) );
       spike_trap_anim_cmp.m_animation_active = true;
       spike_trap_cmp.m_cooldown_timer.reset();
 
@@ -677,7 +714,7 @@ void CryptSystem::checkSpikeTrapActivationByProximity()
   }
 }
 
-void CryptSystem::addLeverOpenRooms()
+std::vector<entt::entity> CryptSystem::getAvailableRoomPositions()
 {
   // find all candidate positions in open rooms
   std::vector<entt::entity> internal_room_entts;
@@ -699,10 +736,51 @@ void CryptSystem::addLeverOpenRooms()
         }
       }
 
-      if ( not intersects_lava ) { internal_room_entts.push_back( pos_entt ); }
+      bool intersects_lever = false;
+      for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : getReg().view<Cmp::CryptLever, Cmp::Position>().each() )
+      {
+        if ( pos_cmp.findIntersection( lever_pos_cmp ) )
+        {
+          intersects_lever = true;
+          break;
+        }
+      }
+
+      bool intersects_chest = false;
+      for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : getReg().view<Cmp::CryptChest, Cmp::Position>().each() )
+      {
+        if ( pos_cmp.findIntersection( chest_pos_cmp ) )
+        {
+          intersects_lever = true;
+          break;
+        }
+      }
+
+      if ( not intersects_lava and not intersects_lever and not intersects_chest ) { internal_room_entts.push_back( pos_entt ); }
     }
   }
 
+  return internal_room_entts;
+}
+
+void CryptSystem::addChestToOpenRooms()
+{
+  auto internal_room_entts = getAvailableRoomPositions();
+  Sprites::SpriteMetaType lever_sprite_type = "CRYPT.interior_chest";
+  unsigned int disabled_lever_sprite_idx = 0;
+  float zorder = m_sprite_factory.get_sprite_size_by_type( lever_sprite_type ).y;
+
+  // add one lever to one room picked from the pool of candidates room positions
+  Cmp::RandomInt room_position_picker( 0, internal_room_entts.size() - 1 );
+  auto selected_entt = internal_room_entts[room_position_picker.gen()];
+  auto room_pos = getReg().get<Cmp::Position>( selected_entt );
+  Factory::CreateCryptChest( getReg(), room_pos.position, lever_sprite_type, disabled_lever_sprite_idx, zorder );
+  SPDLOG_INFO( "Added chest to position: {},{}", room_pos.position.x, room_pos.position.y );
+}
+
+void CryptSystem::addLeverToOpenRooms()
+{
+  auto internal_room_entts = getAvailableRoomPositions();
   Sprites::SpriteMetaType lever_sprite_type = "LEVER";
   unsigned int disabled_lever_sprite_idx = 0;
   float zorder = m_sprite_factory.get_sprite_size_by_type( lever_sprite_type ).y;

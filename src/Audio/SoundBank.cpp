@@ -42,6 +42,7 @@ void SoundBank::init()
   sounds.emplace( "crypt_locked", EffectsData{ "res/audio/crypt_locked.wav" } );
   sounds.emplace( "crypt_room_shuffle", EffectsData{ "res/audio/crypt_room_shuffle.wav" } );
   sounds.emplace( "crypt_lever_open", EffectsData{ "res/audio/crypt_lever_open.mp3" } );
+  sounds.emplace( "crypt_chest_open", EffectsData{ "res/audio/crypt_chest_open.wav" } );
 
   sounds.emplace( "player_blood_splat", EffectsData{ "res/audio/player_blood_splat.mp3" } );
   sounds.emplace( "bubbling_lava", EffectsData{ "res/audio/underwater.wav" } );

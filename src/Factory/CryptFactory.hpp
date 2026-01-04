@@ -34,6 +34,9 @@ void destroyCryptLavaPit( entt::registry &reg, entt::entity entt );
 
 void addSpikeTrap( entt::registry &reg, const entt::entity entt, const int passage_id );
 
+entt::entity CreateCryptChest( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder );
+void DestroyCryptChest( entt::registry &reg, entt::entity entt );
+
 } // namespace ProceduralMaze::Factory
 
 #endif // SRC_FACTORY_CRYPTFACTORY_HPP__

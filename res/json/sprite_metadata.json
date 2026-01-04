@@ -71,6 +71,20 @@
         }
       }
     },
+    "CRYPT.interior_chest": {
+      "name": "CRYPT.interior_chest",
+      "weight": 40.0,
+      "multisprite": {
+        "texture_path": "res/textures/crypt_interior.png",
+        "sprite_indices": [24,25,26],
+        "sprites_per_sequence": 3,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
     "CRYPT.interior_mb1x3": {
       "name": "CRYPT.interior_mb1x3",
       "weight": 40.0,
@@ -366,7 +380,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/icons.png",
-        "sprite_indices": [0,1,2,3,4,5,6],
+        "sprite_indices": [0,1,2,3,4,5,6,7],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -521,6 +535,20 @@
       "multisprite": {
         "texture_path": "res/textures/loot.png",
         "sprite_indices": [9],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "LOOT.goldcoin": {
+      "name": "LOOT.goldcoin",
+      "weight": 40.0,
+      "multisprite": {
+        "texture_path": "res/textures/loot.png",
+        "sprite_indices": [10],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {

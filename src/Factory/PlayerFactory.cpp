@@ -16,6 +16,7 @@
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerMortality.hpp>
 #include <Components/PlayerRelicCount.hpp>
+#include <Components/PlayerWealth.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
@@ -61,6 +62,7 @@ void CreatePlayer( entt::registry &registry )
   registry.emplace<Cmp::PlayerRelicCount>( entity, 0 );
   registry.emplace<Cmp::PlayerCadaverCount>( entity, 0 );
   registry.emplace<Cmp::PlayerHealth>( entity, 100 );
+  registry.emplace<Cmp::PlayerWealth>( entity, 0 );
   registry.emplace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );
   registry.emplace<Cmp::WeaponLevel>( entity, 100.f );
   registry.emplace<Cmp::ZOrderValue>( entity, start_pos.y ); // z-order based on y-position

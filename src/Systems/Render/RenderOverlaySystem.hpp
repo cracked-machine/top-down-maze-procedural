@@ -51,6 +51,7 @@ public:
   void render_key_count_overlay( unsigned int key_count, sf::Vector2f pos );
   void render_relic_count_overlay( unsigned int relic_count, sf::Vector2f pos );
   void render_cadaver_count_overlay( unsigned int cadaver_count, sf::Vector2f pos );
+  void render_wealth_overlay( unsigned int wealth_value, sf::Vector2f pos );
   void render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size );
 
   void render_player_position_overlay( sf::Vector2f player_position, sf::Vector2f pos );

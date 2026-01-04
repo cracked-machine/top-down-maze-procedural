@@ -1,6 +1,7 @@
 #include <Components/CryptLever.hpp>
 #include <Components/CryptObjectiveMultiBlock.hpp>
 #include <Components/CryptPassageBlock.hpp>
+#include <Components/PlayerWealth.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
 
 #include <spdlog/spdlog.h>
@@ -157,6 +158,7 @@ void RegistryTransfer::ensure_player_component_storages( entt::registry &registr
   registry.storage<Cmp::PlayerDistance>();
   registry.storage<Cmp::PlayableCharacter>();
   registry.storage<Cmp::PlayerHealth>();
+  registry.storage<Cmp::PlayerWealth>();
   registry.storage<Cmp::PlayerKeysCount>();
   registry.storage<Cmp::PlayerCandlesCount>();
   registry.storage<Cmp::PlayerMortality>();

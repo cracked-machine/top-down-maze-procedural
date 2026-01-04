@@ -54,8 +54,8 @@ inline entt::entity createLootDrop( entt::registry &registry, Cmp::SpriteAnimati
       registry.emplace<Cmp::SpriteAnimation>( new_loot_entity, loot_anim_cmp );
       registry.emplace<Cmp::ZOrderValue>( new_loot_entity, pos_cmp.position.y + zorder_offset );
       registry.emplace<Cmp::Loot>( new_loot_entity );
-      SPDLOG_DEBUG( "Created loot entity {} of type {} at position ({}, {})", static_cast<int>( new_loot_entity ), loot_anim_cmp.m_sprite_type,
-                    pos_cmp.position.x, pos_cmp.position.y );
+      SPDLOG_INFO( "Created loot entity {} of type {} at position ({}, {})", static_cast<int>( new_loot_entity ), loot_anim_cmp.m_sprite_type,
+                   pos_cmp.position.x, pos_cmp.position.y );
       return new_loot_entity;
     }
   }

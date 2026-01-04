@@ -1,3 +1,4 @@
+#include <Components/CryptChest.hpp>
 #include <Components/CryptLever.hpp>
 #include <Components/CryptPassageBlock.hpp>
 #include <Components/CryptPassageSpikeTrap.hpp>
@@ -153,10 +154,23 @@ entt::entity CreateCryptLever( entt::registry &reg, sf::Vector2f pos, Sprites::S
 
 void DestroyCryptLever( entt::registry &reg, entt::entity entt )
 {
-  // if ( reg.all_of<Cmp::Position>( entt ) ) { reg.remove<Cmp::Position>( entt ); }
-  // if ( reg.all_of<Cmp::CryptLever>( entt ) ) { reg.remove<Cmp::CryptLever>( entt ); }
-  // if ( reg.all_of<Cmp::SpriteAnimation>( entt ) ) { reg.remove<Cmp::SpriteAnimation>( entt ); }
-  // if ( reg.all_of<Cmp::ZOrderValue>( entt ) ) { reg.remove<Cmp::ZOrderValue>( entt ); }
+  if ( not reg.all_of<Cmp::CryptLever>( entt ) ) return;
+  if ( reg.valid( entt ) ) { reg.destroy( entt ); }
+}
+
+entt::entity CreateCryptChest( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder )
+{
+  auto entt = reg.create();
+  reg.emplace_or_replace<Cmp::Position>( entt, pos, Constants::kGridSquareSizePixelsF );
+  reg.emplace_or_replace<Cmp::CryptChest>( entt );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( entt, 0, 0, false, sprite_type, sprite_idx );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
+  return entt;
+}
+
+void DestroyCryptChest( entt::registry &reg, entt::entity entt )
+{
+  if ( not reg.all_of<Cmp::CryptChest>( entt ) ) return;
   if ( reg.valid( entt ) ) { reg.destroy( entt ); }
 }
 

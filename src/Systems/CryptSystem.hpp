@@ -63,6 +63,8 @@ public:
   //! @param action
   void check_lever_activation( Events::PlayerActionEvent::GameActions action );
 
+  void check_chest_activation( Events::PlayerActionEvent::GameActions action );
+
   //! @brief Restores border Cmp::Obstacles to Cmp::CryptRoomEnd, Cmp::CryptRoomStart and Cmp::CryptRoomOpen areas
   void createRoomBorders();
 
@@ -103,8 +105,10 @@ private:
   //! @brief Removes Cmp::Obstacles from Cmp::CryptRoomOpen areas
   void emptyOpenRooms();
 
+  std::vector<entt::entity> getAvailableRoomPositions();
   //! @brief Adds Cmp::Lever components to Cmp::CryptRoomOpen areas
-  void addLeverOpenRooms();
+  void addLeverToOpenRooms();
+  void addChestToOpenRooms();
 
   //! @brief Add lava pits to open rooms
   void addLavaPitOpenRooms();

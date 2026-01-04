@@ -1,3 +1,4 @@
+#include <Components/CryptChest.hpp>
 #include <Components/CryptPassageSpikeTrap.hpp>
 #include <Systems/AnimSystem.hpp>
 
@@ -49,11 +50,29 @@ void AnimSystem::update( sf::Time globalDeltaTime )
       // then wait for player proximity to reactivate. See CryptSystem::checkSpikeTrapActivationByProximity().
       if ( anim_cmp.m_current_frame == spiketrap_sprite_metadata.get_sprites_per_sequence() - 1 )
       {
-        SPDLOG_INFO( "Deactivating spike: {}", static_cast<int>( spike_trap_entt ) );
+        SPDLOG_DEBUG( "Deactivating spike: {}", static_cast<int>( spike_trap_entt ) );
         anim_cmp.m_animation_active = false;
         spike_trap_cmp.m_cooldown_timer.restart();
         anim_cmp.m_current_frame = anim_cmp.m_base_frame;
       }
+    }
+  }
+
+  // Crypt Spike Trap Animation
+  auto crypt_chest_view = getReg().view<Cmp::CryptChest, Cmp::SpriteAnimation, Cmp::Position>();
+  for ( auto [crypt_chest_entt, crypt_chest_cmp, anim_cmp, pos_cmp] : crypt_chest_view.each() )
+  {
+    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
+    if ( anim_cmp.m_animation_active )
+    {
+      const auto &spiketrap_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
+      auto frame_rate = sf::seconds( 0.1f );
+
+      update_single_sequence( anim_cmp, globalDeltaTime, spiketrap_sprite_metadata, frame_rate );
+
+      // one shot animation, then disable
+      // See CryptSystem::check_chest_activation()
+      if ( anim_cmp.m_current_frame == spiketrap_sprite_metadata.get_sprites_per_sequence() - 1 ) { anim_cmp.m_animation_active = false; }
     }
   }
 
