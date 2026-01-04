@@ -7,8 +7,8 @@ namespace ProceduralMaze::Sprites
 Shockwave::Shockwave( sf::Vector2f pos, int points_per_segment )
     : m_position( pos ),
       m_radius( Constants::kGridSquareSizePixelsF.x ),
-      m_outline_color( sf::Color::Red ),
-      m_outline_thickness( 2.f ),
+      m_outline_color( sf::Color{ 254, 64, 64, 128 } ),
+      m_outline_thickness( 6.f ),
       m_points_per_segment( points_per_segment )
 {
   // Initialize with full circle
