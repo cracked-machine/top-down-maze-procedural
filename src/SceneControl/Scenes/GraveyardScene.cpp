@@ -1,3 +1,4 @@
+#include <Components/Inventory/CarryItem.hpp>
 #include <Components/LerpPosition.hpp>
 #include <SceneControl/Scenes/GraveyardScene.hpp>
 
@@ -22,6 +23,7 @@
 #include <Systems/Threats/BombSystem.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
 #include <Systems/Threats/WormholeSystem.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Scene
 {
@@ -67,6 +69,12 @@ void GraveyardScene::on_init()
 
   auto &wormhole_sys = m_system_store.find<Sys::SystemStore::Type::WormholeSystem>();
   wormhole_sys.spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
+
+  Factory::createCarryItem( m_reg, Cmp::Position( m_player_start_position + sf::Vector2f{ 16.f, 16.f }, Constants::kGridSquareSizePixelsF ),
+                            Cmp::CarryItemType::SHOVEL );
+
+  Factory::createCarryItem( m_reg, Cmp::Position( m_player_start_position - sf::Vector2f{ 16.f, 16.f }, Constants::kGridSquareSizePixelsF ),
+                            Cmp::CarryItemType::AXE );
 }
 
 void GraveyardScene::on_enter()

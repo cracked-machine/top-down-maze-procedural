@@ -1,4 +1,6 @@
 
+#include <Components/Inventory/CarryItem.hpp>
+#include <Events/PlayerActionEvent.hpp>
 #include <Systems/PlayerSystem.hpp>
 
 #include <Audio/SoundBank.hpp>
@@ -41,11 +43,13 @@
 #include <Systems/Threats/ShockwaveSystem.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>
+#include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys
 {
@@ -56,8 +60,8 @@ PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
       m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
 {
   SPDLOG_DEBUG( "PlayerSystem initialized" );
-  std::ignore = get_systems_event_queue().sink<ProceduralMaze::Events::PlayerMortalityEvent>().connect<&PlayerSystem::on_player_mortality_event>(
-      this );
+  std::ignore = get_systems_event_queue().sink<Events::PlayerMortalityEvent>().connect<&PlayerSystem::on_player_mortality_event>( this );
+  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&PlayerSystem::on_player_action_event>( this );
   m_post_death_timer.reset();
 }
 
@@ -143,6 +147,41 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
       break;
     }
   }
+}
+
+void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionEvent ev )
+{
+  if ( ev.action != ProceduralMaze::Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
+  if ( m_inventory_cooldown_timer.getElapsedTime() < sf::milliseconds( 750.f ) ) return;
+
+  auto player_pos = Utils::get_player_position( getReg() );
+
+  // drop inventory if we have one
+  auto inventory_view = getReg().view<Cmp::PlayerInventorySlot>();
+  SPDLOG_INFO( "inventory_view: {} ", inventory_view.size() );
+  for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
+  {
+
+    auto dropped_entt = Factory::dropCarryItem( getReg(), player_pos, m_sprite_factory.get_multisprite_by_type( "INVENTORY" ), inventory_entt );
+    if ( dropped_entt != entt::null )
+    {
+      m_sound_bank.get_effect( "drop_relic" ).play();
+      m_inventory_cooldown_timer.restart();
+      return;
+    }
+  }
+  SPDLOG_INFO( "inventory_view: {} ", inventory_view.size() );
+
+  // pickup inventory
+  auto world_carryitem_view = getReg().view<Cmp::CarryItem, Cmp::Position>();
+  for ( auto [carryitem_entt, carryitem_cmp, pos_cmp] : world_carryitem_view.each() )
+  {
+    if ( inventory_view.size() > 0 ) { break; } // don't pickup another if we already have one
+    if ( not player_pos.findIntersection( pos_cmp ) ) continue;
+    if ( Factory::pickupCarryItem( getReg(), carryitem_entt ) != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
+  }
+  m_inventory_cooldown_timer.restart();
+  SPDLOG_INFO( "inventory_view: {} ", inventory_view.size() );
 }
 
 void PlayerSystem::update( sf::Time globalDeltaTime )

@@ -160,7 +160,6 @@ entt::entity get_random_nearby_disabled_obstacle( entt::registry &reg, sf::Float
   {
     auto &obst_cmp = obst_view.template get<Cmp::Obstacle>( obst_entity );
     auto &obst_pos_cmp = obst_view.template get<Cmp::Position>( obst_entity );
-    if ( obst_cmp.m_enabled ) continue; // only drop the loot at disabled (traversable) obstacle
     if ( not search_area.findIntersection( obst_pos_cmp ) ) continue;
 
     return obst_entity;

@@ -1,5 +1,6 @@
 #include <Components/CryptPassageBlock.hpp>
 #include <Components/Direction.hpp>
+#include <Components/Inventory/CarryItem.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/NPC.hpp>
 #include <Components/NPCScanBounds.hpp>
@@ -213,6 +214,35 @@ void RenderOverlaySystem::render_wealth_overlay( unsigned int wealth_value, sf::
   m_window.draw( player_score_text );
 }
 
+void RenderOverlaySystem::render_inventory_overlay( [[maybe_unused]] sf::Vector2f icon_pos )
+{
+
+  sf::Vector2f icon_size( Constants::kGridSquareSizePixelsF );
+  sf::Vector2f icon_scale( 5.f, 5.f );
+  sf::Vector2f ui_offset( 10.f, 10.f );
+  sf::Vector2f ui_size( sf::Vector2f( icon_size * 5.f ) + ui_offset );
+  sf::Vector2f ui_pos( icon_pos - ui_offset );
+
+  auto ui_background = sf::RectangleShape( ui_size );
+  ui_background.setPosition( ui_pos );
+  ui_background.setFillColor( sf::Color( 48, 48, 64, 128 ) );
+  m_window.draw( ui_background );
+
+  auto ui_edge = sf::RectangleShape( ui_size );
+  ui_edge.setPosition( ui_pos );
+  ui_edge.setFillColor( sf::Color( sf::Color::Transparent ) );
+  ui_edge.setOutlineColor( sf::Color::Black );
+  ui_edge.setOutlineThickness( 5.f );
+  m_window.draw( ui_edge );
+
+  auto inventory_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::SpriteAnimation>();
+  for ( auto [inventory_entt, inventory_cmp, anim_cmp] : inventory_view.each() )
+  {
+    RenderSystem::safe_render_sprite( anim_cmp.m_sprite_type, { icon_pos, Constants::kGridSquareSizePixelsF }, static_cast<int>( inventory_cmp.type ),
+                                      icon_scale );
+  }
+}
+
 void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size )
 {
   // text
@@ -274,7 +304,7 @@ void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_posi
   m_window.draw( m_mouse_position_text );
 }
 
-void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2, sf::Vector2f pos3, sf::Vector2f pos4 )
+void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2 )
 {
   // only gather stats every interval
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
@@ -292,22 +322,14 @@ void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f 
     // clang-format off
     m_stats_text1.setString( 
       "E: " + std::to_string( entity_count ) + 
-      "   P: " + std::to_string( position_count ) );
+      "   P: " + std::to_string( position_count ) +
+      "   O: " + std::to_string( obstacle_count ));
     m_stats_text2.setString( 
-      "O: "         + std::to_string( obstacle_count ));
-    m_stats_text3.setString( 
       "CPB: " + std::to_string(crypt_passage_block_count) +
       "   N: " + std::to_string( npc_count ) +
       "   C: " + std::to_string( corruption_count ) + 
       "   S: " + std::to_string( sinkhole_count ) );
     // clang-format on
-
-    auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::ZOrderValue>();
-    for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_zorder_cmp] : player_view.each() )
-    {
-      m_stats_text4.setString( "Player: " + std::to_string( entt::to_integral( pc_entity ) ) +
-                               "   Z: " + std::to_string( pc_zorder_cmp.getZOrder() ) );
-    }
 
     m_stats_text1.setPosition( pos1 );
     m_stats_text1.setFillColor( sf::Color::White );
@@ -320,18 +342,6 @@ void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f 
     m_stats_text2.setOutlineColor( sf::Color::Black );
     m_stats_text2.setOutlineThickness( 2.f );
     m_window.draw( m_stats_text2 );
-
-    m_stats_text3.setPosition( pos3 );
-    m_stats_text3.setFillColor( sf::Color::White );
-    m_stats_text3.setOutlineColor( sf::Color::Black );
-    m_stats_text3.setOutlineThickness( 2.f );
-    m_window.draw( m_stats_text3 );
-
-    m_stats_text4.setPosition( pos4 );
-    m_stats_text4.setFillColor( sf::Color::White );
-    m_stats_text4.setOutlineColor( sf::Color::Black );
-    m_stats_text4.setOutlineThickness( 2.f );
-    m_window.draw( m_stats_text4 );
   }
 }
 

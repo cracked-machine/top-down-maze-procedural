@@ -274,15 +274,18 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       }
 
       // render metrics
-      render_overlay_sys.render_ui_background_overlay( { 20.f, 20.f }, { 300.f, 350.f } );
-      render_overlay_sys.render_health_overlay( player_health, { 40.f, 40.f }, { 200.f, 20.f } );
-      render_overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, 80.f }, { 200.f, 20.f } );
-      render_overlay_sys.render_bomb_overlay( bomb_inventory, blast_radius, { 40.f, 120.f } );
-      render_overlay_sys.render_player_candles_overlay( player_candles_count, { 40.f, 160.f } );
-      render_overlay_sys.render_key_count_overlay( player_keys_count, { 40.f, 200.f } );
-      render_overlay_sys.render_relic_count_overlay( player_relic_count, { 40.f, 240.f } );
-      render_overlay_sys.render_cadaver_count_overlay( player_cadaver_count, { 40.f, 280.f } );
-      render_overlay_sys.render_wealth_overlay( player_wealth_value, { 40.f, 320.f } );
+      float start_y_pos = 0;
+      render_overlay_sys.render_ui_background_overlay( { 20.f, start_y_pos += 20.f }, { 300.f, 350.f } );
+      render_overlay_sys.render_health_overlay( player_health, { 40.f, start_y_pos += 20.f }, { 200.f, 20.f } );
+      render_overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, start_y_pos += 40.f }, { 200.f, 20.f } );
+      render_overlay_sys.render_bomb_overlay( bomb_inventory, blast_radius, { 40.f, start_y_pos += 40.f } );
+      render_overlay_sys.render_player_candles_overlay( player_candles_count, { 40.f, start_y_pos += 40.f } );
+      render_overlay_sys.render_key_count_overlay( player_keys_count, { 40.f, start_y_pos += 40.f } );
+      render_overlay_sys.render_relic_count_overlay( player_relic_count, { 40.f, start_y_pos += 40.f } );
+      render_overlay_sys.render_cadaver_count_overlay( player_cadaver_count, { 40.f, start_y_pos += 40.f } );
+      render_overlay_sys.render_wealth_overlay( player_wealth_value, { 40.f, start_y_pos += 40.f } );
+
+      render_overlay_sys.render_inventory_overlay( { 40.f, start_y_pos += 80.f } );
 
       auto display_size = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
       render_overlay_sys.render_crypt_maze_timer( { static_cast<float>( display_size.x / 2.f ), static_cast<float>( 0 ) }, 100 );
@@ -290,11 +293,16 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       if ( m_show_debug_stats )
       {
 
-        render_overlay_sys.render_player_position_overlay( player_position.position, { 40.f, 370.f } );
-        render_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, 410.f } );
-        render_overlay_sys.render_stats_overlay( { 40.f, 450.f }, { 40.f, 480.f }, { 40.f, 530.f }, { 40.f, 570.f } );
-        render_overlay_sys.render_zorder_values_overlay( { 40.f, 630.f }, m_zorder_queue_,
-                                                         { "ROCK", "CRYPT.interior_sb", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED" } );
+        render_overlay_sys.render_player_position_overlay( player_position.position, { 40.f, start_y_pos += 80.f } );
+        render_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, start_y_pos += 40.f } );
+
+        sf::Vector2f stats_pos1{ 40.f, start_y_pos += 40.f };
+        sf::Vector2f stats_pos2{ 40.f, start_y_pos += 40.f };
+        render_overlay_sys.render_stats_overlay( stats_pos1, stats_pos2);
+
+        render_overlay_sys.render_zorder_values_overlay(
+            { 40.f, start_y_pos += 40.f }, m_zorder_queue_,
+            { "ROCK", "CRYPT.interior_sb", "WALL", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED" } );
         sf::Vector2u display_size = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
         render_overlay_sys.render_npc_list_overlay( { display_size.x - 600.f, 200.f } );
       }

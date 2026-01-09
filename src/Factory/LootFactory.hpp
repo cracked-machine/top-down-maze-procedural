@@ -63,7 +63,6 @@ inline entt::entity createLootDrop( entt::registry &registry, Cmp::SpriteAnimati
 
     // Skip non-traversable obstacles
     auto obst_cmp = registry.try_get<Cmp::Obstacle>( pos_entity );
-    if ( obst_cmp and obst_cmp->m_enabled ) continue;
 
     // Skip positions occupied by spatially excluded entities
     if ( detail::hasAnySpatialExcludedAtPosition( registry, pos_cmp, spatial_exclude ) ) continue;
