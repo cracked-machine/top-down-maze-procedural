@@ -155,27 +155,26 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
   if ( m_inventory_cooldown_timer.getElapsedTime() < sf::milliseconds( 750.f ) ) return;
 
   auto player_pos = Utils::get_player_position( getReg() );
+  Cmp::CarryItemType existing_player_inventory_type = Cmp::CarryItemType::NONE;
 
   // drop inventory if we have one
   auto inventory_view = getReg().view<Cmp::PlayerInventorySlot>();
   for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
   {
-
+    existing_player_inventory_type = inventory_cmp.type;
     auto dropped_entt = Factory::dropCarryItem( getReg(), player_pos, m_sprite_factory.get_multisprite_by_type( "INVENTORY" ), inventory_entt );
-    if ( dropped_entt != entt::null )
-    {
-      m_sound_bank.get_effect( "drop_relic" ).play();
-      m_inventory_cooldown_timer.restart();
-      return;
-    }
+    if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
   }
 
   // pickup inventory
   auto world_carryitem_view = getReg().view<Cmp::CarryItem, Cmp::Position>();
   for ( auto [carryitem_entt, carryitem_cmp, pos_cmp] : world_carryitem_view.each() )
   {
-    if ( inventory_view.size() > 0 ) { break; } // don't pickup another if we already have one
-    if ( not player_pos.findIntersection( pos_cmp ) ) continue;
+    if ( not player_pos.findIntersection( pos_cmp ) ) continue;           // is there something to pick up?
+    if ( carryitem_cmp.type == existing_player_inventory_type ) continue; // dont pick up the one we just dropped
+    if ( inventory_view.size() > 0 ) { break; }                           // don't pickup another if we already have one
+
+    // ok pick it up
     if ( Factory::pickupCarryItem( getReg(), carryitem_entt ) != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
   }
   m_inventory_cooldown_timer.restart();

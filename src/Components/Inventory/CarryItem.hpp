@@ -9,7 +9,8 @@ namespace ProceduralMaze::Cmp
 enum class CarryItemType {
   PICKAXE, // default
   AXE,
-  SHOVEL
+  SHOVEL,
+  NONE // always at end
 };
 
 // Keeping the type generic allows easy qeury/view on all components in the game
