@@ -1,4 +1,5 @@
 
+#include <Components/Inventory/CarryItem.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Time.hpp>
 #include <spdlog/spdlog.h>
@@ -58,6 +59,14 @@ void DiggingSystem::update()
 
 void DiggingSystem::check_player_dig_obstacle_collision()
 {
+  auto inventory_view = getReg().view<Cmp::PlayerInventorySlot>();
+  bool has_pickaxe = false;
+  for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
+  {
+    if ( inventory_cmp.type == Cmp::CarryItemType::PICKAXE ) { has_pickaxe = true; }
+  }
+  if ( not has_pickaxe ) { return; }
+
   auto weapon_view = getReg().view<Cmp::WeaponLevel>();
   for ( auto [weapons_entity, weapons_level] : weapon_view.each() )
   {

@@ -158,7 +158,6 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
 
   // drop inventory if we have one
   auto inventory_view = getReg().view<Cmp::PlayerInventorySlot>();
-  SPDLOG_INFO( "inventory_view: {} ", inventory_view.size() );
   for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
   {
 
@@ -170,7 +169,6 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
       return;
     }
   }
-  SPDLOG_INFO( "inventory_view: {} ", inventory_view.size() );
 
   // pickup inventory
   auto world_carryitem_view = getReg().view<Cmp::CarryItem, Cmp::Position>();
