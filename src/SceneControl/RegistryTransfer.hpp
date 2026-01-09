@@ -32,6 +32,7 @@ public:
   //! @param from_registry Source registry
   //! @param to_registry Target registry
   void xfer_player_entt( entt::registry &from_registry, entt::registry &to_registry );
+  void xfer_inventory_entt( entt::registry &from_registry, entt::registry &to_registry );
 
 private:
   //! @brief Ensure all known player component storages exist in the given registry

@@ -7,6 +7,7 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/DestroyedObstacle.hpp>
+#include <Components/InventoryWearLevel.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
@@ -17,7 +18,6 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
-#include <Components/WeaponLevel.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/BombFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
@@ -67,10 +67,10 @@ void DiggingSystem::check_player_dig_obstacle_collision()
   }
   if ( not has_pickaxe ) { return; }
 
-  auto weapon_view = getReg().view<Cmp::WeaponLevel>();
-  for ( auto [weapons_entity, weapons_level] : weapon_view.each() )
+  auto inventory_wear_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
+  for ( auto [weapons_entity, inventory_slot, wear_level] : inventory_wear_view.each() )
   {
-    if ( weapons_level.m_level <= 0 )
+    if ( wear_level.m_level <= 0 )
     {
       SPDLOG_DEBUG( "Player weapons level is {}, cannot dig!", weapons_level.m_level );
       return;
@@ -138,11 +138,11 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       SPDLOG_DEBUG( "Applied {} digging damage to obstacle at position ({}, {}), new alpha is {}.", damage_per_dig, obst_pos_cmp.position.x,
                     obst_pos_cmp.position.y, alpha_cmp.getAlpha() );
 
-      auto player_weapons_view = getReg().view<Cmp::WeaponLevel, Cmp::PlayableCharacter>();
-      for ( auto [weapons_entity, weapons_level, pc_cmp] : player_weapons_view.each() )
+      auto inventory_wear_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
+      for ( auto [weapons_entity, inventory_slot, wear_level] : inventory_wear_view.each() )
       {
         // Decrease weapons level based on damage dealt
-        weapons_level.m_level -= Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
+        wear_level.m_level -= Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
         SPDLOG_DEBUG( "Player weapons level decreased to {} after digging!", weapons_level.m_level );
       }
 

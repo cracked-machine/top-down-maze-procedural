@@ -4,6 +4,7 @@
 #include <Components/DeathPosition.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Inventory/CarryItem.hpp>
+#include <Components/InventoryWearLevel.hpp>
 #include <Components/Neighbours.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/PCDetectionBounds.hpp>
@@ -23,7 +24,6 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
-#include <Components/WeaponLevel.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -67,13 +67,14 @@ void CreatePlayer( entt::registry &registry )
   registry.emplace<Cmp::PlayerHealth>( entity, 100 );
   registry.emplace<Cmp::PlayerWealth>( entity, 0 );
   registry.emplace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );
-  registry.emplace<Cmp::WeaponLevel>( entity, 100.f );
+
   registry.emplace<Cmp::ZOrderValue>( entity, start_pos.y ); // z-order based on y-position
   registry.emplace<Cmp::AbsoluteAlpha>( entity, 255 );       // fully opaque
   registry.emplace<Cmp::AbsoluteRotation>( entity, 0 );
 
   auto inventory_entity = registry.create();
   registry.emplace<Cmp::PlayerInventorySlot>( inventory_entity, Cmp::CarryItemType::PICKAXE );
+  registry.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, 100.f );
   registry.emplace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, true, "INVENTORY", static_cast<int>( Cmp::CarryItemType::PICKAXE ) );
 }
 
@@ -126,6 +127,10 @@ entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, Cmp::Carry
   reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, "INVENTORY", static_cast<int>( type ) );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f );
   reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, type );
+  if ( type == Cmp::CarryItemType::AXE || type == Cmp::CarryItemType::PICKAXE || type == Cmp::CarryItemType::SHOVEL )
+  {
+    reg.emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, 50.f );
+  }
 
   return world_carry_item_entt;
 }
@@ -133,6 +138,8 @@ entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, Cmp::Carry
 entt::entity dropCarryItem( entt::registry &reg, Cmp::Position pos, const Sprites::MultiSprite &sprite, entt::entity inventory_slot_cmp_entt )
 {
   auto inventory_slot_cmp = reg.try_get<Cmp::PlayerInventorySlot>( inventory_slot_cmp_entt );
+  auto inventory_slot_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( inventory_slot_cmp_entt );
+
   if ( not inventory_slot_cmp ) return entt::null;
 
   auto world_carry_item_entt = reg.create();
@@ -141,6 +148,7 @@ entt::entity dropCarryItem( entt::registry &reg, Cmp::Position pos, const Sprite
                                                 static_cast<int>( inventory_slot_cmp->type ) );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f );
   reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, inventory_slot_cmp->type );
+  if ( inventory_slot_level_cmp ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, inventory_slot_level_cmp->m_level ); }
 
   reg.destroy( inventory_slot_cmp_entt );
 
@@ -150,11 +158,14 @@ entt::entity dropCarryItem( entt::registry &reg, Cmp::Position pos, const Sprite
 entt::entity pickupCarryItem( entt::registry &reg, entt::entity carryitem_entt )
 {
   auto carryitem_cmp = reg.try_get<Cmp::CarryItem>( carryitem_entt );
+  auto carryitem_slot_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( carryitem_entt );
+
   if ( not carryitem_cmp ) return entt::null;
 
   auto inventory_entity = reg.create();
   reg.emplace<Cmp::PlayerInventorySlot>( inventory_entity, carryitem_cmp->type );
   reg.emplace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, true, "INVENTORY", static_cast<int>( carryitem_cmp->type ) );
+  if ( carryitem_slot_level_cmp ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, carryitem_slot_level_cmp->m_level ); }
 
   reg.destroy( carryitem_entt );
 

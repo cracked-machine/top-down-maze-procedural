@@ -11,6 +11,7 @@
 #include <Components/CryptRoomLavaPitCell.hpp>
 #include <Components/CryptRoomOpen.hpp>
 #include <Components/CryptRoomStart.hpp>
+#include <Components/Inventory/CarryItem.hpp>
 #include <Components/NpcShockwave.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/PlayerCadaverCount.hpp>
@@ -37,6 +38,7 @@
 #include <Components/GraveMultiBlock.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/HazardFieldCell.hpp>
+#include <Components/InventoryWearLevel.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/NpcContainer.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
@@ -54,7 +56,6 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
-#include <Components/WeaponLevel.hpp>
 #include <Components/WormholeMultiBlock.hpp>
 #include <Components/WormholeSingularity.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -258,9 +259,10 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
         player_wealth_value = wealth_cmp.wealth;
       }
 
-      for ( auto [entity, weapon_level, pc_cmp] : getReg().view<Cmp::WeaponLevel, Cmp::PlayableCharacter>().each() )
+      auto inventory_wear_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
+      for ( auto [weapons_entity, inventory_slot, wear_level] : inventory_wear_view.each() )
       {
-        new_weapon_level = weapon_level.m_level;
+        new_weapon_level = wear_level.m_level;
       }
 
       auto pc_candles_cmp = getReg().view<Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount, Cmp::PlayerRelicCount, Cmp::PlayerCadaverCount>();
@@ -298,7 +300,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
 
         sf::Vector2f stats_pos1{ 40.f, start_y_pos += 40.f };
         sf::Vector2f stats_pos2{ 40.f, start_y_pos += 40.f };
-        render_overlay_sys.render_stats_overlay( stats_pos1, stats_pos2);
+        render_overlay_sys.render_stats_overlay( stats_pos1, stats_pos2 );
 
         render_overlay_sys.render_zorder_values_overlay(
             { 40.f, start_y_pos += 40.f }, m_zorder_queue_,

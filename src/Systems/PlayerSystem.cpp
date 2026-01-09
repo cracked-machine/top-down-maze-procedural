@@ -8,6 +8,7 @@
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Direction.hpp>
 #include <Components/FootStepTimer.hpp>
+#include <Components/InventoryWearLevel.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
@@ -31,7 +32,6 @@
 #include <Components/Position.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>
-#include <Components/WeaponLevel.hpp>
 #include <Components/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/PlayerFactory.hpp>

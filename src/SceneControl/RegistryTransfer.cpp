@@ -1,6 +1,7 @@
 #include <Components/CryptLever.hpp>
 #include <Components/CryptObjectiveMultiBlock.hpp>
 #include <Components/CryptPassageBlock.hpp>
+#include <Components/Inventory/CarryItem.hpp>
 #include <Components/PlayerWealth.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
 
@@ -16,6 +17,7 @@
 #include <Components/Direction.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
+#include <Components/InventoryWearLevel.hpp>
 #include <Components/Neighbours.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
@@ -31,7 +33,6 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>
-#include <Components/WeaponLevel.hpp>
 #include <Components/ZOrderValue.hpp>
 
 namespace ProceduralMaze::Scene
@@ -147,6 +148,80 @@ void RegistryTransfer::xfer_player_entt( entt::registry &from_registry, entt::re
   pretty_print( transferred_cmps );
 }
 
+void RegistryTransfer::xfer_inventory_entt( entt::registry &source_registry, entt::registry &target_registry )
+{
+  auto source_inventory_view = source_registry.view<Cmp::PlayerInventorySlot>();
+  if ( source_inventory_view.empty() )
+  {
+    SPDLOG_WARN( "Player inventory is empty in source regsitry. Removing inventory in target registry" );
+    // Note, this kills all slots in target registry of the next scene, but since we only have one slot this doesnt matter
+    // If we add more slots, you would compare slot ids here.
+    auto target_inventory_view = target_registry.view<Cmp::PlayerInventorySlot>();
+    for ( auto inventory_entity : target_inventory_view )
+    {
+      target_registry.destroy( inventory_entity );
+    }
+    return;
+  }
+
+  // auto source_entity = inventory_view.front();
+  for ( auto source_entity : source_inventory_view )
+  {
+
+    // Check if player entity already exists in target registry
+    auto target_inventory_view = target_registry.view<Cmp::PlayerInventorySlot>();
+    entt::entity target_entity;
+
+    if ( target_inventory_view.empty() )
+    {
+      // No player exists, create new one
+      target_entity = target_registry.create();
+      SPDLOG_INFO( "Created new inventory entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
+    }
+    else
+    {
+      // Player exists, use existing entity
+      target_entity = target_inventory_view.front();
+      SPDLOG_INFO( "Using existing inventory entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
+    }
+
+    // Ensure all known player component storages exist in target registry
+    ensure_player_component_storages( target_registry );
+
+    // Create a copy of an entity component by component (from entt wiki)
+    std::vector<std::string> transferred_cmps;
+    std::vector<std::string> removed_cmps;
+    for ( auto &&curr : source_registry.storage() )
+    {
+      if ( auto &source_storage = curr.second; source_storage.contains( source_entity ) )
+      {
+        SPDLOG_DEBUG( "Transferring component: {}", source_storage.type().name() );
+
+        auto type_hash = curr.first;
+
+        if ( auto *target_storage = target_registry.storage( type_hash ) )
+        {
+          if ( target_storage->contains( target_entity ) )
+          {
+            target_storage->erase( target_entity );
+            SPDLOG_DEBUG( "Removed existing component: {}", source_storage.type().name() );
+            removed_cmps.emplace_back( source_storage.type().name() );
+          }
+          target_storage->push( target_entity, source_storage.value( source_entity ) );
+          transferred_cmps.emplace_back( source_storage.type().name() );
+
+          SPDLOG_DEBUG( "Successfully transferred component: {}", source_storage.type().name() );
+        }
+        else { SPDLOG_WARN( "No storage found in target reg for cmp: {}", source_storage.type().name() ); }
+      }
+    }
+    SPDLOG_INFO( "Component transfer completed: {} removed", removed_cmps.size() );
+    pretty_print( removed_cmps );
+    SPDLOG_INFO( "Component transfer completed: {} transferred", transferred_cmps.size() );
+    pretty_print( transferred_cmps );
+  }
+}
+
 void RegistryTransfer::ensure_player_component_storages( entt::registry &registry )
 {
   // Force storage creation by accessing storage for each known component type
@@ -165,7 +240,9 @@ void RegistryTransfer::ensure_player_component_storages( entt::registry &registr
   registry.storage<Cmp::PlayerRelicCount>();
   registry.storage<Cmp::PlayerCadaverCount>();
   registry.storage<Cmp::SpriteAnimation>();
-  registry.storage<Cmp::WeaponLevel>();
+  registry.storage<Cmp::PlayerInventorySlot>();
+  registry.storage<Cmp::CarryItem>();
+  registry.storage<Cmp::InventoryWearLevel>();
   registry.storage<Cmp::ZOrderValue>();
   registry.storage<Cmp::System>();
   // Add other player-related components as needed

@@ -1,8 +1,10 @@
+#include <Components/Inventory/CarryItem.hpp>
 #include <Components/PlayerWealth.hpp>
 #include <Systems/LootSystem.hpp>
 
 #include <Audio/SoundBank.hpp>
 #include <Components/Armable.hpp>
+#include <Components/InventoryWearLevel.hpp>
 #include <Components/Persistent/BombBonus.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
 #include <Components/PlayableCharacter.hpp>
@@ -13,7 +15,6 @@
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/Position.hpp>
 #include <Components/SpriteAnimation.hpp>
-#include <Components/WeaponLevel.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
@@ -46,11 +47,11 @@ void LootSystem::check_loot_collision()
 
   // First pass: detect collisions and gather effects to apply
   // clang-format off
-  auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::WeaponLevel, Cmp::PlayerKeysCount,Cmp::PlayerCandlesCount>();
+  auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerKeysCount,Cmp::PlayerCandlesCount>();
   auto loot_collision_view = getReg().view<Cmp::Loot, Cmp::Position, Cmp::SpriteAnimation>();
   // clang-format on
 
-  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_weapon_level, pc_keys_count, pc_candles_count] : player_collision_view.each() )
+  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_keys_count, pc_candles_count] : player_collision_view.each() )
   {
     for ( auto [loot_entt, loot_cmp, loot_pos_cmp, loot_sprite_anim] : loot_collision_view.each() )
     {
@@ -71,7 +72,6 @@ void LootSystem::check_loot_collision()
 
     auto &pc_cmp = getReg().get<Cmp::PlayableCharacter>( effect.player_entity );
     auto &pc_health_cmp = getReg().get<Cmp::PlayerHealth>( effect.player_entity );
-    auto &weapon_level_cmp = getReg().get<Cmp::WeaponLevel>( effect.player_entity );
 
     // Apply the effect
     if ( effect.type == "EXTRA_HEALTH" )
@@ -80,6 +80,23 @@ void LootSystem::check_loot_collision()
       pc_health_cmp.health = std::min( pc_health_cmp.health + health_bonus.get_value(), 100 );
       m_sound_bank.get_effect( "get_loot" ).play();
     }
+
+    // update the wear level of the player inventory, if any
+    auto inventory_view = getReg().view<Cmp::PlayerInventorySlot>();
+    if ( inventory_view.size() > 0 )
+    {
+      for ( auto [weapons_entity, inventory_slot] : inventory_view.each() )
+      {
+        auto wear_level_cmp = getReg().try_get<Cmp::InventoryWearLevel>( weapons_entity );
+        if ( wear_level_cmp and effect.type == "WEAPON_BOOST" )
+        {
+          // increase weapon level by 50, up to max level 100
+          wear_level_cmp->m_level = std::clamp( wear_level_cmp->m_level + 50.f, 0.f, 100.f );
+          m_sound_bank.get_effect( "get_loot" ).play();
+        }
+      }
+    }
+
     else if ( effect.type == "EXTRA_BOMBS" )
     {
       auto &bomb_bonus = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::BombBonus>( getReg() );
@@ -97,12 +114,6 @@ void LootSystem::check_loot_collision()
     else if ( effect.type == "CHAIN_BOMBS" )
     {
       pc_cmp.blast_radius = std::clamp( pc_cmp.blast_radius + 1, 0, 3 );
-      m_sound_bank.get_effect( "get_loot" ).play();
-    }
-    else if ( effect.type == "WEAPON_BOOST" )
-    {
-      // increase weapon level by 50, up to max level 100
-      weapon_level_cmp.m_level = std::clamp( weapon_level_cmp.m_level + 50.f, 0.f, 100.f );
       m_sound_bank.get_effect( "get_loot" ).play();
     }
     else if ( effect.type == "CANDLE_DROP" )
