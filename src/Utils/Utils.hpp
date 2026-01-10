@@ -1,6 +1,8 @@
 #ifndef SRC_UTILS_UTILS_HPP__
 #define SRC_UTILS_UTILS_HPP__
 
+#include <Components/Exit.hpp>
+#include <Components/Inventory/CarryItem.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerMortality.hpp>
@@ -126,6 +128,16 @@ static std::optional<sf::Vector2f> getPixelPosition( entt::registry &registry, e
   return std::nullopt;
 }
 
+static bool is_graveyard_exit_locked( entt::registry &reg )
+{
+  auto exit_view = reg.view<Cmp::Exit>();
+  for ( auto [exit_entt, exit_cmp] : exit_view.each() )
+  {
+    return exit_cmp.m_locked;
+  }
+  throw std::runtime_error( "No exit was found in the game!" );
+}
+
 static entt::entity get_player_entity( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayableCharacter, Cmp::Position>();
@@ -161,6 +173,20 @@ static Cmp::System &getSystemCmp( entt::registry &reg )
   if ( system_entt == entt::null ) { throw std::runtime_error( "Unable to get entity for Cmp::System!" ); }
   system_cmp = reg.try_get<Cmp::System>( system_entt );
   return *system_cmp;
+}
+
+static std::pair<entt::entity, Cmp::CarryItemType> get_player_inventory_type( entt::registry &reg )
+{
+  auto inv_view = reg.view<Cmp::PlayerInventorySlot>();
+  Cmp::CarryItemType found_type = Cmp::CarryItemType::NONE;
+  entt::entity found_entt = entt::null;
+  // this assumes there is only one slot in the inventory, so warn if there is a bug somewhere
+  if ( inv_view.size() > 1 ) SPDLOG_WARN( "Found multiple slots in signle slot inventory" );
+  for ( auto [inv_entt, inv_cmp] : inv_view.each() )
+  {
+    found_type = inv_cmp.type;
+  }
+  return { found_entt, found_type };
 }
 
 } // namespace ProceduralMaze::Utils

@@ -22,6 +22,7 @@
 #include <Components/Exit.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
+#include <Components/Inventory/CarryItem.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/CryptNpcSpawnCount.hpp>
@@ -42,6 +43,7 @@
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <Factory/PlayerFactory.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
@@ -87,7 +89,6 @@ void CryptSystem::on_player_action( Events::PlayerActionEvent &event )
 {
   if ( Utils::get_player_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) return;
 
-  if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) unlock_crypt_door();
   if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) check_objective_activation( event.action );
   if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) check_chest_activation( event.action );
 }
@@ -179,6 +180,9 @@ void CryptSystem::unlock_crypt_door()
   auto pc_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
   auto cryptdoor_view = getReg().view<Cmp::CryptEntrance, Cmp::Position>();
 
+  auto [inv_entt, inv_type] = Utils::get_player_inventory_type( getReg() );
+  if ( inv_type != Cmp::CarryItemType::CRYPTKEY ) return;
+
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
   {
     for ( auto [door_entity, cryptdoor_cmp, door_pos_cmp] : cryptdoor_view.each() )
@@ -186,14 +190,9 @@ void CryptSystem::unlock_crypt_door()
       // optimize: skip if not visible
       if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), door_pos_cmp ) ) continue;
 
-      // prevent spamming the activate key
-      if ( m_door_cooldown_timer.getElapsedTime().asSeconds() < m_door_cooldown_time ) continue;
-      m_door_cooldown_timer.restart();
-
-      // Player can't intersect with a closed crypt door so expand their hitbox slightly to facilitate collision
-      // detection
-      auto increased_player_bounds = Cmp::RectBounds( pc_pos_cmp.position, pc_pos_cmp.size, 1.5f, Cmp::RectBounds::ScaleCardinality::VERTICAL );
-      if ( not increased_player_bounds.findIntersection( door_pos_cmp ) ) continue;
+      // Player can't intersect with a closed crypt door so expand their hitbox to facilitate collision detection
+      auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, pc_pos_cmp.size, 5.f );
+      if ( not player_hitbox.findIntersection( door_pos_cmp ) ) continue;
 
       // Crypt door is already opened
       if ( cryptdoor_cmp.is_open() )
@@ -218,17 +217,11 @@ void CryptSystem::unlock_crypt_door()
         }
       }
 
-      // No keys to open the crypt door
-      auto player_key_count = getReg().try_get<Cmp::PlayerKeysCount>( pc_entity );
-      if ( player_key_count && player_key_count->get_count() == 0 )
-      {
-        m_sound_bank.get_effect( "crypt_locked" ).play();
-        continue;
-      }
-
       // unlock the crypt door
       SPDLOG_INFO( "Player unlocked a crypt door at ({}, {})", door_pos_cmp.position.x, door_pos_cmp.position.y );
-      player_key_count->decrement_count( 1 );
+      Factory::destroyInventory( getReg(), Cmp::CarryItemType::CRYPTKEY );
+
+      // player_key_count->decrement_count( 1 );
       m_sound_bank.get_effect( "crypt_open" ).play();
       cryptdoor_cmp.set_is_open( true );
 

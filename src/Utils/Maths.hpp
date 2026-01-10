@@ -1,6 +1,7 @@
 #ifndef SRC_UTILS_MATHS_HPP__
 #define SRC_UTILS_MATHS_HPP__
 
+#include <Components/Position.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <algorithm>
 #include <cmath>
@@ -12,6 +13,14 @@ namespace ProceduralMaze::Utils::Maths
 struct DistanceVector2fComparator
 {
   bool operator()( const std::pair<float, sf::Vector2f> &a, const std::pair<float, sf::Vector2f> &b ) const
+  {
+    return a.first > b.first; // For min-heap (smallest distance first)
+  }
+};
+
+struct DistancePositionComparator
+{
+  bool operator()( const std::pair<float, Cmp::Position> &a, const std::pair<float, Cmp::Position> &b ) const
   {
     return a.first > b.first; // For min-heap (smallest distance first)
   }

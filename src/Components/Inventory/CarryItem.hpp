@@ -12,8 +12,8 @@ enum class CarryItemType {
   AXE,
   SHOVEL,
   BOMB,
-  RESERVED1,
-  RESERVED2,
+  EXITKEY,
+  CRYPTKEY,
   PLANT1,
   PLANT2,
   PLANT3,
@@ -30,11 +30,10 @@ enum class CarryItemType {
 };
 
 const static std::vector<Cmp::CarryItemType> kCarryItemTypeList{
-    Cmp::CarryItemType::PICKAXE,   Cmp::CarryItemType::AXE,       Cmp::CarryItemType::SHOVEL, Cmp::CarryItemType::BOMB,
-    Cmp::CarryItemType::RESERVED1, Cmp::CarryItemType::RESERVED2, Cmp::CarryItemType::PLANT1, Cmp::CarryItemType::PLANT2,
-    Cmp::CarryItemType::PLANT3,    Cmp::CarryItemType::PLANT4,    Cmp::CarryItemType::PLANT5, Cmp::CarryItemType::PLANT6,
-    Cmp::CarryItemType::PLANT7,    Cmp::CarryItemType::PLANT8,    Cmp::CarryItemType::PLANT9, Cmp::CarryItemType::PLANT10,
-    Cmp::CarryItemType::PLANT11,   Cmp::CarryItemType::PLANT12,
+    Cmp::CarryItemType::PICKAXE,  Cmp::CarryItemType::AXE,     Cmp::CarryItemType::SHOVEL,  Cmp::CarryItemType::BOMB,   Cmp::CarryItemType::EXITKEY,
+    Cmp::CarryItemType::CRYPTKEY, Cmp::CarryItemType::PLANT1,  Cmp::CarryItemType::PLANT2,  Cmp::CarryItemType::PLANT3, Cmp::CarryItemType::PLANT4,
+    Cmp::CarryItemType::PLANT5,   Cmp::CarryItemType::PLANT6,  Cmp::CarryItemType::PLANT7,  Cmp::CarryItemType::PLANT8, Cmp::CarryItemType::PLANT9,
+    Cmp::CarryItemType::PLANT10,  Cmp::CarryItemType::PLANT11, Cmp::CarryItemType::PLANT12,
 };
 
 // Keeping the type generic allows easy qeury/view on all components in the game

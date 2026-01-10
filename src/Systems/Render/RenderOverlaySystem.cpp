@@ -135,25 +135,6 @@ void RenderOverlaySystem::render_player_candles_overlay( unsigned int candle_cou
   m_window.draw( player_score_text );
 }
 
-void RenderOverlaySystem::render_key_count_overlay( unsigned int key_count, sf::Vector2f pos )
-{
-  auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, Constants::kGridSquareSizePixelsF };
-  auto sprite_index = 4; // key icon
-  auto scale = sf::Vector2f( 2.f, 2.f );
-  RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
-
-  // text - slightly offset the y-axis to center with icon
-  sf::Vector2f score_meter_offset{ 50.f, -2.f };
-  sf::Text player_score_text( m_font, "", 30 );
-  player_score_text.setString( " =   " + std::to_string( key_count ) );
-  player_score_text.setPosition( pos + score_meter_offset );
-  player_score_text.setFillColor( sf::Color::White );
-  player_score_text.setOutlineColor( sf::Color::Black );
-  player_score_text.setOutlineThickness( 2.f );
-  m_window.draw( player_score_text );
-}
-
 void RenderOverlaySystem::render_relic_count_overlay( unsigned int relic_count, sf::Vector2f pos )
 {
   auto sprite_metatype = "ICONS";

@@ -48,7 +48,6 @@ public:
   void render_weapons_meter_overlay( float weapons_level, sf::Vector2f pos, sf::Vector2f size );
   void render_bomb_overlay( int radius_value, sf::Vector2f pos );
   void render_player_candles_overlay( unsigned int candle_count, sf::Vector2f pos );
-  void render_key_count_overlay( unsigned int key_count, sf::Vector2f pos );
   void render_relic_count_overlay( unsigned int relic_count, sf::Vector2f pos );
   void render_cadaver_count_overlay( unsigned int cadaver_count, sf::Vector2f pos );
   void render_wealth_overlay( unsigned int wealth_value, sf::Vector2f pos );

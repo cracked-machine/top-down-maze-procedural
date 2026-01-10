@@ -410,15 +410,6 @@ void RenderMenuSystem::render_defeat_screen()
     start_text.setPosition( { display_size.x / 4.f, 200.f } );
     m_window.draw( start_text );
 
-    auto key_view = getReg().view<Cmp::PlayerKeysCount>();
-    for ( auto [entity, keycount] : key_view.each() )
-    {
-      sf::Text player_score_text( m_font, "KeyCount: " + std::to_string( keycount.get_count() ), 24 );
-      player_score_text.setFillColor( sf::Color::White );
-      player_score_text.setPosition( { display_size.x / 4.f, 500.f } );
-      m_window.draw( player_score_text );
-    }
-
     auto candle_view = getReg().view<Cmp::PlayerCandlesCount>();
     for ( auto [entity, candlecount] : candle_view.each() )
     {
@@ -458,15 +449,6 @@ void RenderMenuSystem::render_victory_screen()
   start_text.setFillColor( sf::Color::White );
   start_text.setPosition( { display_size.x / 4.f, 200.f } );
   m_window.draw( start_text );
-
-  auto key_view = getReg().view<Cmp::PlayerKeysCount>();
-  for ( auto [entity, keycount] : key_view.each() )
-  {
-    sf::Text player_score_text( m_font, "KeyCount: " + std::to_string( keycount.get_count() ), 24 );
-    player_score_text.setFillColor( sf::Color::White );
-    player_score_text.setPosition( { display_size.x / 4.f, 500.f } );
-    m_window.draw( player_score_text );
-  }
 
   auto candle_view = getReg().view<Cmp::PlayerCandlesCount>();
   for ( auto [entity, candlecount] : candle_view.each() )

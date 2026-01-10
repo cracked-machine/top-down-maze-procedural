@@ -1,5 +1,6 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Exit.hpp>
+#include <Components/Inventory/CarryItem.hpp>
 #include <Components/NPC.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Persistent/ExitKeyRequirement.hpp>
@@ -8,11 +9,14 @@
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
+#include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Events/PlayerActionEvent.hpp>
+#include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Systems/ExitSystem.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -32,9 +36,6 @@ ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
     : BaseSystem( reg, window, sprite_factory, sound_bank ),
       m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
 {
-  // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
-  // the constructor
-  std::ignore = get_systems_event_queue().sink<Events::UnlockDoorEvent>().connect<&ExitSystem::on_door_unlock_event>( this );
   SPDLOG_DEBUG( "ExitSystem initialized" );
 }
 
@@ -78,28 +79,28 @@ void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
   }
 }
 
-void ExitSystem::unlock_exit()
+void ExitSystem::check_player_can_unlock_exit()
 {
 
-  auto player_key_view = getReg().view<Cmp::PlayerKeysCount>();
-  for ( auto [pk_entity, pk_cmp] : player_key_view.each() )
-  {
-    if ( pk_cmp.get_count() < Sys::PersistSystem::get_persist_cmp<Cmp::Persist::ExitKeyRequirement>( getReg() ).get_value() )
-    {
-      SPDLOG_DEBUG( "Not enough keys to unlock exit ({} / {})", pk_cmp.get_count(),
-                    get_persistent_component<Cmp::Persist::ExitKeyRequirement>().get_value() );
-      return;
-    }
-  }
-
-  // otherwise unlock the exit
   auto exit_view = getReg().view<Cmp::Exit, Cmp::Position>();
-  for ( auto [entity, exit_cmp, pos_cmp] : exit_view.each() )
+  for ( auto [entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
   {
-    exit_cmp.m_locked = false;
-    getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", 1 );
-    getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y - 16.f );
-    m_sound_bank.get_effect( "secret" ).play();
+    auto player_pos = Utils::get_player_position( getReg() );
+    Cmp::RectBounds player_hitbox( player_pos.position, player_pos.size, 1.5f );
+    auto [found_entt, found_carryitem_type] = Utils::get_player_inventory_type( getReg() );
+    if ( player_hitbox.findIntersection( exit_pos_cmp ) and found_carryitem_type == Cmp::CarryItemType::EXITKEY )
+    {
+      // otherwise unlock the exit
+      auto exit_view = getReg().view<Cmp::Exit, Cmp::Position>();
+      for ( auto [entity, exit_cmp, pos_cmp] : exit_view.each() )
+      {
+        exit_cmp.m_locked = false;
+        getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", 1 );
+        getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y - 16.f );
+        if ( m_sound_bank.get_effect( "secret" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "secret" ).play();
+        Factory::destroyInventory( getReg(), Cmp::CarryItemType::EXITKEY );
+      }
+    }
   }
 }
 
@@ -108,7 +109,6 @@ void ExitSystem::check_exit_collision()
   auto exit_view = getReg().view<Cmp::Exit, Cmp::Position>();
   for ( auto [entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
   {
-    auto max_num_shrines = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumAltars>( getReg() );
     if ( exit_cmp.m_locked == true ) return;
     for ( auto [player_entity, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
     {

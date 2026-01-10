@@ -47,11 +47,11 @@ void LootSystem::check_loot_collision()
 
   // First pass: detect collisions and gather effects to apply
   // clang-format off
-  auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerKeysCount,Cmp::PlayerCandlesCount>();
+  auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount>();
   auto loot_collision_view = getReg().view<Cmp::Loot, Cmp::Position, Cmp::SpriteAnimation>();
   // clang-format on
 
-  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_keys_count, pc_candles_count] : player_collision_view.each() )
+  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_candles_count] : player_collision_view.each() )
   {
     for ( auto [loot_entt, loot_cmp, loot_pos_cmp, loot_sprite_anim] : loot_collision_view.each() )
     {
@@ -113,15 +113,6 @@ void LootSystem::check_loot_collision()
       pc_candles_count.increment_count( 1 );
       m_sound_bank.get_effect( "get_loot" ).play();
       Factory::destroyLootDrop( getReg(), effect.loot_entity );
-    }
-    else if ( effect.type == "KEY_DROP" )
-    {
-      auto &pc_keys_count = getReg().get<Cmp::PlayerKeysCount>( effect.player_entity );
-      pc_keys_count.increment_count( 1 );
-      m_sound_bank.get_effect( "get_key" ).play();
-      Factory::destroyLootDrop( getReg(), effect.loot_entity );
-      // unlock the door (internally checks if we activated all of the shrines)
-      get_systems_event_queue().trigger( Events::UnlockDoorEvent() );
     }
     else if ( effect.type == "RELIC_DROP" )
     {

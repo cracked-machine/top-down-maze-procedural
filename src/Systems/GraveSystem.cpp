@@ -33,10 +33,10 @@ void GraveSystem::check_player_collision( Events::PlayerActionEvent::GameActions
 {
   if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
 
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount>();
+  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount>();
   auto grave_view = getReg().view<Cmp::GraveMultiBlock>();
 
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_candles_cmp, pc_keys_cmp] : player_view.each() )
+  for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_candles_cmp] : player_view.each() )
   {
     auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
 

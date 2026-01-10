@@ -60,6 +60,7 @@
 #include <Components/WormholeSingularity.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
+#include <Utils/Maths.hpp>
 #include <Utils/Utils.hpp>
 
 #include <Sprites/MultiSprite.hpp>
@@ -67,6 +68,7 @@
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Optimizations.hpp>
+#include <queue>
 
 namespace ProceduralMaze::Sys
 {
@@ -243,7 +245,6 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       int new_weapon_level = 0;
       int player_candles_count = 0;
       int player_cadaver_count = 0;
-      int player_keys_count = 0;
       int player_relic_count = 0;
       int player_wealth_value = 0;
       sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
@@ -263,11 +264,10 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
         new_weapon_level = wear_level.m_level;
       }
 
-      auto pc_candles_cmp = getReg().view<Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount, Cmp::PlayerRelicCount, Cmp::PlayerCadaverCount>();
-      for ( auto [entity, candles_cmp, keys_cmp, relic_cmp, cadaver_cmp] : pc_candles_cmp.each() )
+      auto pc_candles_cmp = getReg().view<Cmp::PlayerCandlesCount, Cmp::PlayerRelicCount, Cmp::PlayerCadaverCount>();
+      for ( auto [entity, candles_cmp, relic_cmp, cadaver_cmp] : pc_candles_cmp.each() )
       {
         player_candles_count = candles_cmp.get_count();
-        player_keys_count = keys_cmp.get_count();
         player_relic_count = relic_cmp.get_count();
         player_candles_count = candles_cmp.get_count();
         player_cadaver_count = cadaver_cmp.get_count();
@@ -275,12 +275,11 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
 
       // render metrics
       float start_y_pos = 0;
-      render_overlay_sys.render_ui_background_overlay( { 20.f, start_y_pos += 20.f }, { 300.f, 350.f } );
+      render_overlay_sys.render_ui_background_overlay( { 20.f, start_y_pos += 20.f }, { 300.f, 310.f } );
       render_overlay_sys.render_health_overlay( player_health, { 40.f, start_y_pos += 20.f }, { 200.f, 20.f } );
       render_overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, start_y_pos += 40.f }, { 200.f, 20.f } );
       render_overlay_sys.render_bomb_overlay( blast_radius, { 40.f, start_y_pos += 40.f } );
       render_overlay_sys.render_player_candles_overlay( player_candles_count, { 40.f, start_y_pos += 40.f } );
-      render_overlay_sys.render_key_count_overlay( player_keys_count, { 40.f, start_y_pos += 40.f } );
       render_overlay_sys.render_relic_count_overlay( player_relic_count, { 40.f, start_y_pos += 40.f } );
       render_overlay_sys.render_cadaver_count_overlay( player_cadaver_count, { 40.f, start_y_pos += 40.f } );
       render_overlay_sys.render_wealth_overlay( player_wealth_value, { 40.f, start_y_pos += 40.f } );
@@ -454,74 +453,97 @@ void RenderGameSystem::render_arrow_compass()
 {
   auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
   auto exit_view = getReg().view<Cmp::Exit, Cmp::Position>();
+  auto crypt_view = getReg().view<Cmp::CryptEntrance, Cmp::Position>();
 
-  for ( auto [player_entity, pc_cmp, pc_pos_cmp] : player_view.each() )
+  auto [found_entt, found_carryitem_type] = Utils::get_player_inventory_type( getReg() );
+  if ( found_carryitem_type != Cmp::CarryItemType::EXITKEY and found_carryitem_type != Cmp::CarryItemType::CRYPTKEY ) return;
+
+  // if exitkey then target the exit pos
+  Cmp::Position arrow_target( { 0.f, 0.f }, { 0.f, 0.f } );
+  if ( found_carryitem_type == Cmp::CarryItemType::EXITKEY )
   {
     for ( auto [exit_entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
     {
-      // only show the compass arrow if we unlocked the door (to reward player and help them find
-      // exit)
-      if ( exit_cmp.m_locked ) continue;
-
-      // dont show the compass arrow pointing to the exit if the exit is on-screen....we can see it
-      if ( Utils::is_visible_in_view( getGameView(), exit_pos_cmp ) ) return;
-
-      auto player_pos_center = pc_pos_cmp.getCenter();
-      sf::Vector2f exit_pos_center = exit_pos_cmp.getCenter();
-      sf::Vector2f direction = ( exit_pos_center - player_pos_center ).normalized();
-
-      // Get view bounds in world coordinates
-      sf::Vector2f view_center = m_local_view.getCenter();
-      sf::Vector2f view_size = m_local_view.getSize();
-      sf::FloatRect view_bounds{ { view_center.x - view_size.x / 2.0f, view_center.y - view_size.y / 2.0f }, view_size };
-
-      // Add margin from edge
-      float margin = 32.0f;
-      view_bounds.position.x += margin;
-      view_bounds.position.y += margin;
-      view_bounds.size.x -= margin * 2.0f;
-      view_bounds.size.y -= margin * 2.0f;
-
-      // Calculate intersection with screen bounds
-      sf::Vector2f arrow_position = player_pos_center;
-
-      // Calculate distances to each edge
-      float t_left = ( view_bounds.position.x - player_pos_center.x ) / direction.x;
-      float t_right = ( view_bounds.position.x + view_bounds.size.x - player_pos_center.x ) / direction.x;
-      float t_top = ( view_bounds.position.y - player_pos_center.y ) / direction.y;
-      float t_bottom = ( view_bounds.position.y + view_bounds.size.y - player_pos_center.y ) / direction.y;
-
-      // Find the smallest positive t (closest intersection)
-      float t = std::numeric_limits<float>::max();
-      if ( t_left > 0 ) t = std::min( t, t_left );
-      if ( t_right > 0 ) t = std::min( t, t_right );
-      if ( t_top > 0 ) t = std::min( t, t_top );
-      if ( t_bottom > 0 ) t = std::min( t, t_bottom );
-
-      // Calculate final arrow position at screen edge
-      if ( t < std::numeric_limits<float>::max() ) { arrow_position = player_pos_center + direction * t; }
-
-      // Use SFML's angle() function to get the angle directly
-      auto angle_radians = direction.angle();
-
-      // Center the arrow sprite at the calculated position
-      sf::FloatRect arrow_rect{ arrow_position -
-                                    sf::Vector2f{ Constants::kGridSquareSizePixelsF.x / 2.0f, Constants::kGridSquareSizePixelsF.y / 2.0f },
-                                Constants::kGridSquareSizePixelsF };
-
-      // Map sin(time) from [-1, 1] to [0.2, 1.0]
-      // Formula: min + (max - min) * (sin(freq * time) + 1) / 2
-      auto time = m_compass_osc_clock.getElapsedTime().asSeconds();
-      auto sine = std::sin( m_compass_freq * time );
-      float oscillating_scale = m_compass_min_scale + ( m_compass_max_scale - m_compass_min_scale ) * ( sine + 1.0f ) / 2.0f;
-      auto scale = sf::Vector2f{ oscillating_scale, oscillating_scale };
-
-      auto sprite_index = 0;
-      auto alpha = 255;
-      auto origin = sf::Vector2f{ Constants::kGridSquareSizePixelsF.x / 2.0f, Constants::kGridSquareSizePixelsF.y / 2.0f };
-
-      safe_render_sprite( "ARROW", arrow_rect, sprite_index, scale, alpha, origin, angle_radians );
+      arrow_target = exit_pos_cmp;
     }
+  }
+
+  // if cryptkey then target the nearest inactive crypt
+  if ( found_carryitem_type == Cmp::CarryItemType::CRYPTKEY )
+  {
+    using CryptDistanceQueue = std::priority_queue<std::pair<float, Cmp::Position>, std::vector<std::pair<float, Cmp::Position>>,
+                                                   Utils::Maths::DistancePositionComparator>;
+    CryptDistanceQueue distance_queue;
+    for ( auto [crypt_entity, crypt_cmp, crypt_pos_cmp] : crypt_view.each() )
+    {
+      if ( crypt_cmp.is_open() ) continue;
+      auto float_distance = Utils::Maths::getEuclideanDistance( crypt_pos_cmp.position, Utils::get_player_position( getReg() ).position );
+      distance_queue.emplace( float_distance, crypt_pos_cmp );
+    }
+    if ( distance_queue.empty() ) return; // there are no suitable crypts so give up
+    arrow_target = distance_queue.top().second;
+  }
+
+  for ( auto [player_entity, pc_cmp, pc_pos_cmp] : player_view.each() )
+  {
+
+    // dont show the compass arrow pointing to the exit if the exit is on-screen....we can see it
+    if ( Utils::is_visible_in_view( getGameView(), arrow_target ) ) return;
+
+    auto player_pos_center = pc_pos_cmp.getCenter();
+    sf::Vector2f exit_pos_center = arrow_target.getCenter();
+    sf::Vector2f direction = ( exit_pos_center - player_pos_center ).normalized();
+
+    // Get view bounds in world coordinates
+    sf::Vector2f view_center = m_local_view.getCenter();
+    sf::Vector2f view_size = m_local_view.getSize();
+    sf::FloatRect view_bounds{ { view_center.x - view_size.x / 2.0f, view_center.y - view_size.y / 2.0f }, view_size };
+
+    // Add margin from edge
+    float margin = 32.0f;
+    view_bounds.position.x += margin;
+    view_bounds.position.y += margin;
+    view_bounds.size.x -= margin * 2.0f;
+    view_bounds.size.y -= margin * 2.0f;
+
+    // Calculate intersection with screen bounds
+    sf::Vector2f arrow_position = player_pos_center;
+
+    // Calculate distances to each edge
+    float t_left = ( view_bounds.position.x - player_pos_center.x ) / direction.x;
+    float t_right = ( view_bounds.position.x + view_bounds.size.x - player_pos_center.x ) / direction.x;
+    float t_top = ( view_bounds.position.y - player_pos_center.y ) / direction.y;
+    float t_bottom = ( view_bounds.position.y + view_bounds.size.y - player_pos_center.y ) / direction.y;
+
+    // Find the smallest positive t (closest intersection)
+    float t = std::numeric_limits<float>::max();
+    if ( t_left > 0 ) t = std::min( t, t_left );
+    if ( t_right > 0 ) t = std::min( t, t_right );
+    if ( t_top > 0 ) t = std::min( t, t_top );
+    if ( t_bottom > 0 ) t = std::min( t, t_bottom );
+
+    // Calculate final arrow position at screen edge
+    if ( t < std::numeric_limits<float>::max() ) { arrow_position = player_pos_center + direction * t; }
+
+    // Use SFML's angle() function to get the angle directly
+    auto angle_radians = direction.angle();
+
+    // Center the arrow sprite at the calculated position
+    sf::FloatRect arrow_rect{ arrow_position - sf::Vector2f{ Constants::kGridSquareSizePixelsF.x / 2.0f, Constants::kGridSquareSizePixelsF.y / 2.0f },
+                              Constants::kGridSquareSizePixelsF };
+
+    // Map sin(time) from [-1, 1] to [0.2, 1.0]
+    // Formula: min + (max - min) * (sin(freq * time) + 1) / 2
+    auto time = m_compass_osc_clock.getElapsedTime().asSeconds();
+    auto sine = std::sin( m_compass_freq * time );
+    float oscillating_scale = m_compass_min_scale + ( m_compass_max_scale - m_compass_min_scale ) * ( sine + 1.0f ) / 2.0f;
+    auto scale = sf::Vector2f{ oscillating_scale, oscillating_scale };
+
+    auto sprite_index = 0;
+    auto alpha = 255;
+    auto origin = sf::Vector2f{ Constants::kGridSquareSizePixelsF.x / 2.0f, Constants::kGridSquareSizePixelsF.y / 2.0f };
+
+    safe_render_sprite( "ARROW", arrow_rect, sprite_index, scale, alpha, origin, angle_radians );
   }
 }
 

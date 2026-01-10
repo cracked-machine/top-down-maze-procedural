@@ -125,6 +125,7 @@ void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
   m_system_store.find<Sys::SystemStore::Type::CorruptionHazardSystem>().update();
   m_system_store.find<Sys::SystemStore::Type::BombSystem>().update();
   m_system_store.find<Sys::SystemStore::Type::ExitSystem>().check_exit_collision();
+  m_system_store.find<Sys::SystemStore::Type::ExitSystem>().check_player_can_unlock_exit();
   m_system_store.find<Sys::SystemStore::Type::LootSystem>().check_loot_collision();
   m_system_store.find<Sys::SystemStore::Type::NpcSystem>().update( dt );
   m_system_store.find<Sys::SystemStore::Type::WormholeSystem>().check_player_wormhole_collision();
@@ -135,6 +136,7 @@ void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
   {
     m_system_store.find<Sys::SystemStore::Type::CryptSystem>().check_entrance_collision();
   }
+  m_system_store.find<Sys::SystemStore::Type::CryptSystem>().unlock_crypt_door();
 
   // Note: this enqueues 'Events::SceneManagerEvent::Type::GAME_OVER' if player is dead
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt );

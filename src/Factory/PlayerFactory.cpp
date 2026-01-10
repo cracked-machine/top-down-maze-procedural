@@ -62,7 +62,6 @@ void CreatePlayer( entt::registry &registry )
 
   registry.emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYER.walk.south" );
   registry.emplace<Cmp::PlayerCandlesCount>( entity, 0 );
-  registry.emplace<Cmp::PlayerKeysCount>( entity, 0 );
   registry.emplace<Cmp::PlayerRelicCount>( entity, 0 );
   registry.emplace<Cmp::PlayerCadaverCount>( entity, 0 );
   registry.emplace<Cmp::PlayerHealth>( entity, 100 );

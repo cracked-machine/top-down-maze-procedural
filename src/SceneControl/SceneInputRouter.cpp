@@ -150,23 +150,6 @@ void SceneInputRouter::graveyard_scene_state_handler()
           SPDLOG_INFO( "Show debug stats is now {}", _sys.show_debug_stats ? "ENABLED" : "DISABLED" );
         }
       }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F10 )
-      {
-        // UnlockDoorEvent will check player key count so give player 3 keys first
-        auto player_key_view = getReg().view<Cmp::PlayerKeysCount>();
-        for ( auto [pkey_count_entity, pkey_count_cmp] : player_key_view.each() )
-        {
-          pkey_count_cmp.increment_count( Sys::PersistSystem::get_persist_cmp<Cmp::Persist::ExitKeyRequirement>( getReg() ).get_value() );
-        }
-        auto exit_cmp = getReg().view<Cmp::Exit>();
-        for ( auto [exit_entt, exit_cmp] : exit_cmp.each() )
-        {
-          // exit already unlocked
-          if ( exit_cmp.m_locked == false ) continue;
-        }
-        get_systems_event_queue().trigger( Events::UnlockDoorEvent() );
-        SPDLOG_INFO( "Player cheated and unlocked exit" );
-      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
       {
         get_systems_event_queue().enqueue(
@@ -178,15 +161,6 @@ void SceneInputRouter::graveyard_scene_state_handler()
         {
           pc_candle_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a candle (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
-      {
-        for ( auto [pc_entity, pc_key_count_cmp] : getReg().view<Cmp::PlayerKeysCount>().each() )
-        {
-          pc_key_count_cmp.increment_count( 1 );
-          SPDLOG_INFO( "Player gained a key (player cheated)" );
-          get_systems_event_queue().trigger( Events::UnlockDoorEvent() );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
@@ -337,15 +311,6 @@ void SceneInputRouter::crypt_scene_state_handler()
         {
           pc_candle_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a candle (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
-      {
-        for ( auto [pc_entity, pc_key_count_cmp] : getReg().view<Cmp::PlayerKeysCount>().each() )
-        {
-          pc_key_count_cmp.increment_count( 1 );
-          SPDLOG_INFO( "Player gained a key (player cheated)" );
-          get_systems_event_queue().trigger( Events::UnlockDoorEvent() );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )

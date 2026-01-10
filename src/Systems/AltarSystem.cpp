@@ -1,3 +1,5 @@
+#include <Components/Inventory/CarryItem.hpp>
+#include <Factory/PlayerFactory.hpp>
 #include <Systems/AltarSystem.hpp>
 
 #include <Audio/SoundBank.hpp>
@@ -24,6 +26,7 @@
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Optimizations.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -40,10 +43,10 @@ void AltarSystem::check_player_collision( Events::PlayerActionEvent::GameActions
 {
   if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
 
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount, Cmp::PlayerKeysCount>();
+  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount>();
   auto altar_view = getReg().view<Cmp::AltarMultiBlock>();
 
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_candles_cmp, pc_keys_cmp] : player_view.each() )
+  for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_candles_cmp] : player_view.each() )
   {
     auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
 
@@ -132,18 +135,29 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     {
       SPDLOG_DEBUG( "Altar fully activated!" );
       m_sound_bank.get_effect( "shrine_lighting" ).play();
-      // drop the key loot
-      auto altar_cmp_bounds = Cmp::RectBounds( altar_cmp.position, altar_cmp.size, 2.f );
-      // clang-format off
-      auto obst_entity = Factory::createLootDrop(getReg(),
-        Cmp::SpriteAnimation{0,0,true, "KEY_DROP", 0 },
-        sf::FloatRect{ altar_cmp_bounds.position(), 
-        altar_cmp_bounds.size() }, 
-        Factory::IncludePack<>{},
-        Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::AltarSegment, Cmp::SpawnArea>{} 
-      );
-      // clang-format on
-      if ( obst_entity != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
+
+      // drop an exit or crypt key
+      Cmp::RandomInt key_picker( 0, 1 );
+      auto key_choice = key_picker.gen();
+      entt::entity key_entt = entt::null;
+
+      // dont keep spawning exit keys if the exit is was already open
+      if ( not Utils::is_graveyard_exit_locked( getReg() ) )
+      {
+        key_entt = Factory::createCarryItem( getReg(), Utils::get_player_position( getReg() ), Cmp::CarryItemType::CRYPTKEY );
+      }
+      else
+      {
+        // otherwise if the exit is locked, its 50/50
+        if ( key_choice == 0 )
+        {
+          key_entt = Factory::createCarryItem( getReg(), Utils::get_player_position( getReg() ), Cmp::CarryItemType::EXITKEY );
+        }
+        else { key_entt = Factory::createCarryItem( getReg(), Utils::get_player_position( getReg() ), Cmp::CarryItemType::CRYPTKEY ); }
+      }
+
+      if ( key_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
+
       altar_cmp.set_powers_active();
       m_altar_activation_clock.restart();
     }

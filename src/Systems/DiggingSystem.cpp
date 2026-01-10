@@ -388,7 +388,6 @@ void DiggingSystem::on_player_action( const Events::PlayerActionEvent &event )
 {
   if ( event.action == Events::PlayerActionEvent::GameActions::DIG )
   {
-    SPDLOG_INFO( "Received Events::PlayerActionEvent::GameActions::DIG" );
     // Check for collisions with diggable obstacles
     check_player_dig_obstacle_collision();
     check_player_dig_plant_collision();
