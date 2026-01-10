@@ -1,5 +1,6 @@
 #include <Components/CryptChest.hpp>
 #include <Components/CryptLever.hpp>
+#include <Components/PlantObstacle.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <Audio/SoundBank.hpp>
@@ -115,6 +116,12 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
   {
     if ( not crypt_int_cmp.isSolidMask() ) continue;
     if ( crypt_int_pos_cmp.findIntersection( target_position ) ) { return false; }
+  }
+
+  auto plant_view = getReg().view<Cmp::PlantObstacle, Cmp::Position>();
+  for ( auto [entity, plant_cmp, plant_pos_cmp] : plant_view.each() )
+  {
+    if ( plant_pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 
   auto crypt_chest_view = getReg().view<Cmp::CryptChest, Cmp::Position>();

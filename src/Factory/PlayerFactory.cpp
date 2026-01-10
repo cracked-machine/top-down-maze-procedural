@@ -1,4 +1,5 @@
 #include <Components/AbsoluteAlpha.hpp>
+#include <Components/AbsoluteOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
 
 #include <Components/DeathPosition.hpp>
@@ -25,6 +26,7 @@
 #include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Sprites/MultiSprite.hpp>
@@ -141,17 +143,32 @@ entt::entity dropCarryItem( entt::registry &reg, Cmp::Position pos, const Sprite
 
   if ( not inventory_slot_cmp ) return entt::null;
 
-  auto world_carry_item_entt = reg.create();
-  reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, sprite.get_sprite_type(),
-                                                static_cast<int>( inventory_slot_cmp->type ) );
-  reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f );
-  reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, inventory_slot_cmp->type );
-  if ( inventory_slot_level_cmp ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, inventory_slot_level_cmp->m_level ); }
+  // if plant then replant it in the ground
+  if ( inventory_slot_cmp->type == Cmp::CarryItemType::PLANT1 or inventory_slot_cmp->type == Cmp::CarryItemType::PLANT2 or
+       inventory_slot_cmp->type == Cmp::CarryItemType::PLANT3 or inventory_slot_cmp->type == Cmp::CarryItemType::PLANT4 or
+       inventory_slot_cmp->type == Cmp::CarryItemType::PLANT5 or inventory_slot_cmp->type == Cmp::CarryItemType::PLANT6 or
+       inventory_slot_cmp->type == Cmp::CarryItemType::PLANT7 or inventory_slot_cmp->type == Cmp::CarryItemType::PLANT8 or
+       inventory_slot_cmp->type == Cmp::CarryItemType::PLANT9 or inventory_slot_cmp->type == Cmp::CarryItemType::PLANT10 or
+       inventory_slot_cmp->type == Cmp::CarryItemType::PLANT11 or inventory_slot_cmp->type == Cmp::CarryItemType::PLANT12 )
+  {
+    auto world_carry_item_entt = Factory::createPlantObstacle( reg, pos, "INVENTORY", inventory_slot_cmp->type, 0.f );
+    reg.destroy( inventory_slot_cmp_entt );
+    return world_carry_item_entt;
+  }
+  else
+  {
+    // otherwise just drop it as a Re-pickupable item
+    auto world_carry_item_entt = reg.create();
+    reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
+    reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, sprite.get_sprite_type(),
+                                                  static_cast<int>( inventory_slot_cmp->type ) );
+    reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f );
+    reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, inventory_slot_cmp->type );
 
-  reg.destroy( inventory_slot_cmp_entt );
-
-  return world_carry_item_entt;
+    if ( inventory_slot_level_cmp ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, inventory_slot_level_cmp->m_level ); }
+    reg.destroy( inventory_slot_cmp_entt );
+    return world_carry_item_entt;
+  }
 }
 
 entt::entity pickupCarryItem( entt::registry &reg, entt::entity carryitem_entt )

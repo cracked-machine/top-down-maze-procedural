@@ -6,6 +6,7 @@
 #include <Components/CryptRoomEnd.hpp>
 #include <Components/CryptRoomOpen.hpp>
 #include <Components/CryptRoomStart.hpp>
+#include <Components/Inventory/CarryItem.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Factory/CryptFactory.hpp>
@@ -73,12 +74,13 @@ void RandomLevelGenerator::generate( RandomLevelGenerator::AreaShape shape, sf::
       break;
   }
 
-  // gen_cross_gamearea( map_grid_size, 5, 0.5, 0.25, 20 );
+  // spawn loot/npc/plants/structures
   if ( scene_type == SceneType::GRAVEYARD_EXTERIOR )
   {
     gen_graveyard_exterior_multiblocks();
     gen_loot_containers( map_grid_size );
     gen_npc_containers( map_grid_size );
+    gen_plants( map_grid_size );
   }
 
   // these are post-processed by cellular automaton system
@@ -444,6 +446,24 @@ void RandomLevelGenerator::gen_npc_containers( sf::Vector2u map_grid_size )
     // clang-format on
 
     Factory::createNpcContainer( getReg(), random_entity, random_origin_position, npc_type, rand_npc_tex_idx, 0.f );
+  }
+}
+
+void RandomLevelGenerator::gen_plants( sf::Vector2u map_grid_size )
+{
+  auto num_plants = map_grid_size.x * map_grid_size.y / 200;
+
+  for ( std::size_t i = 0; i < num_plants; ++i )
+  {
+    auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
+        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
+
+    // select a random number within the range of possible flora CarryItems
+    Cmp::RandomInt random_picker( static_cast<int>( Cmp::CarryItemType::PLANT1 ), static_cast<int>( Cmp::CarryItemType::PLANT12 ) );
+    auto selected_plant_index = random_picker.gen();
+
+    Factory::createPlantObstacle( getReg(), random_pos, "INVENTORY", Cmp::kCarryItemTypeList.at( selected_plant_index ), 0.f );
+    SPDLOG_INFO( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
   }
 }
 

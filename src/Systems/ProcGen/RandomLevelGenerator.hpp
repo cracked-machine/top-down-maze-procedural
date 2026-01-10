@@ -81,6 +81,8 @@ public:
   // Iterate and generate npc containers
   void gen_npc_containers( sf::Vector2u map_grid_size );
 
+  void gen_plants( sf::Vector2u map_grid_size );
+
   // Helper functions to add wall and door entities
   void add_wall_entity( const sf::Vector2f &pos, Sprites::SpriteMetaType sprite_type, std::size_t sprite_index );
 

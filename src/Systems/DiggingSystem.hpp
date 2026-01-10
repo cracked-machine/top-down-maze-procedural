@@ -47,6 +47,7 @@ private:
    * Events::PlayerActionEvent::DIG (see on_player_action).
    */
   void check_player_dig_obstacle_collision();
+  void check_player_dig_plant_collision();
   void check_player_smash_pot();
 
   // Cooldown clock to manage digging intervals
