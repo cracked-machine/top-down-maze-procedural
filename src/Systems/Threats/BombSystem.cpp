@@ -1,6 +1,7 @@
 #include <Components/CryptSegment.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Exit.hpp>
+#include <Components/Inventory/CarryItem.hpp>
 #include <Components/NPC.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
@@ -16,6 +17,7 @@
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <Factory/PlayerFactory.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Random.hpp>
@@ -64,12 +66,6 @@ void BombSystem::onPause()
     if ( armed_cmp.m_fuse_delay_clock.isRunning() ) armed_cmp.m_fuse_delay_clock.stop();
     if ( armed_cmp.m_warning_delay_clock.isRunning() ) armed_cmp.m_warning_delay_clock.stop();
   }
-
-  auto player_collision_view = getReg().view<Cmp::PlayableCharacter>();
-  for ( auto [entt, player] : player_collision_view.each() )
-  {
-    if ( player.m_bombdeploycooldowntimer.isRunning() ) player.m_bombdeploycooldowntimer.stop();
-  }
 }
 void BombSystem::onResume()
 {
@@ -81,26 +77,25 @@ void BombSystem::onResume()
     if ( not armed_cmp.m_fuse_delay_clock.isRunning() ) armed_cmp.m_fuse_delay_clock.start();
     if ( not armed_cmp.m_warning_delay_clock.isRunning() ) armed_cmp.m_warning_delay_clock.start();
   }
-
-  auto player_collision_view = getReg().view<Cmp::PlayableCharacter>();
-  for ( auto [entt, player] : player_collision_view.each() )
-  {
-    if ( not player.m_bombdeploycooldowntimer.isRunning() ) player.m_bombdeploycooldowntimer.start();
-  }
 }
 
 void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerActionEvent &event )
 {
+  auto inventory_view = getReg().view<Cmp::PlayerInventorySlot>();
+  bool player_has_bomb_inventory = false;
+  if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB )
+  {
+    for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
+    {
+      if ( inventory_cmp.type == Cmp::CarryItemType::BOMB ) player_has_bomb_inventory = true;
+    }
+    if ( not player_has_bomb_inventory ) return;
+  }
+  
   auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
   for ( const auto [pc_entity, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
   {
-    if ( event.action != Events::PlayerActionEvent::GameActions::GRAVE_BOMB && pc_cmp.has_active_bomb )
-      continue; // skip if player already placed a bomb
-    if ( event.action != Events::PlayerActionEvent::GameActions::GRAVE_BOMB && pc_cmp.bomb_inventory == 0 )
-      continue; // skip if player has no bombs left, -1 is infini bombs
-
-    // for booby trapped graves, first try to find a random nearby disabled destructable obstacle
-    // for candidate bomb epicenter
+    // for booby trapped graves, first try to find a random nearby disabled destructable obstacle for candidate bomb epicenter
     entt::entity candidate_entity = entt::null;
     if ( event.action == Events::PlayerActionEvent::GameActions::GRAVE_BOMB )
     {
@@ -134,21 +129,16 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
         // are we standing on a destructable tile?
         if ( player_hitbox.findIntersection( destructable_pos_cmp ) )
         {
-
-          SPDLOG_DEBUG( "Checking cooldown timer for bomb placement." );
-          if ( pc_cmp.m_bombdeploycooldowntimer.getElapsedTime() < pc_cmp.m_bombdeploydelay ) continue;
           m_sound_bank.get_effect( "bomb_fuse" ).play();
 
           auto armed_epicenter_entity = getReg().create();
           getReg().emplace<Cmp::Position>( armed_epicenter_entity, destructable_pos_cmp.position, destructable_pos_cmp.size );
           place_concentric_bomb_pattern( armed_epicenter_entity, pc_cmp.blast_radius );
-
-          pc_cmp.m_bombdeploycooldowntimer.restart();
-          pc_cmp.has_active_bomb = true;
-          pc_cmp.bomb_inventory = ( pc_cmp.bomb_inventory > 0 ) ? pc_cmp.bomb_inventory - 1 : pc_cmp.bomb_inventory;
         }
       }
     }
+    // remove the used bomb carry item from the player inventory
+    Factory::destroyInventory( getReg(), Cmp::CarryItemType::BOMB );
   }
 }
 
@@ -227,7 +217,7 @@ void BombSystem::update()
       if ( not loot_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
 
       auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
-          std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "WEAPON_BOOST" } );
+          std::vector<std::string>{ "EXTRA_HEALTH", "CHAIN_BOMBS", "WEAPON_BOOST" } );
 
       // clang-format off
       auto loot_entt = Factory::createLootDrop( 
@@ -261,12 +251,10 @@ void BombSystem::update()
         pc_health_cmp.health -= bomb_damage.get_value();
         if ( pc_health_cmp.health <= 0 )
         {
-          // pc_mort_cmp.state = Cmp::PlayerMortality::State::EXPLODING;
           get_systems_event_queue().enqueue(
               Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::EXPLODING, Utils::get_player_position( getReg() ) ) );
         }
       }
-      pc_cmp.has_active_bomb = false;
     }
 
     // Check if NPC was killed by explosion

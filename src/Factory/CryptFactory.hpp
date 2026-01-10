@@ -7,7 +7,6 @@
 #include <Components/CryptRoomStart.hpp>
 
 #include <Components/Neighbours.hpp>
-#include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Wall.hpp>

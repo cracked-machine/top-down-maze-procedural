@@ -49,9 +49,8 @@ void CreatePlayer( entt::registry &registry )
   start_pos = Utils::snap_to_grid( start_pos );
   registry.emplace<Cmp::Position>( entity, start_pos, Constants::kGridSquareSizePixelsF );
 
-  auto &bomb_inventory = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::BombInventory>( registry );
   auto &blast_radius = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::BlastRadius>( registry );
-  registry.emplace<Cmp::PlayableCharacter>( entity, bomb_inventory.get_value(), blast_radius.get_value() );
+  registry.emplace<Cmp::PlayableCharacter>( entity, blast_radius.get_value() );
 
   registry.emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
 
@@ -170,6 +169,15 @@ entt::entity pickupCarryItem( entt::registry &reg, entt::entity carryitem_entt )
   reg.destroy( carryitem_entt );
 
   return inventory_entity;
+}
+
+void destroyInventory( entt::registry &reg, const Cmp::CarryItemType type )
+{
+  auto inventory_view = reg.view<Cmp::PlayerInventorySlot>();
+  for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
+  {
+    if ( inventory_cmp.type == type ) reg.destroy( inventory_entt );
+  }
 }
 
 } // namespace ProceduralMaze::Factory

@@ -79,54 +79,47 @@ void LootSystem::check_loot_collision()
       auto &health_bonus = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::HealthBonus>( getReg() );
       pc_health_cmp.health = std::min( pc_health_cmp.health + health_bonus.get_value(), 100 );
       m_sound_bank.get_effect( "get_loot" ).play();
+      Factory::destroyLootDrop( getReg(), effect.loot_entity );
     }
-
-    // update the wear level of the player inventory, if any
-    auto inventory_view = getReg().view<Cmp::PlayerInventorySlot>();
-    if ( inventory_view.size() > 0 )
+    else if ( effect.type == "WEAPON_BOOST" )
     {
+      // update the wear level of the player inventory, if any
+      auto inventory_view = getReg().view<Cmp::PlayerInventorySlot>();
       for ( auto [weapons_entity, inventory_slot] : inventory_view.each() )
       {
-        auto wear_level_cmp = getReg().try_get<Cmp::InventoryWearLevel>( weapons_entity );
-        if ( wear_level_cmp and effect.type == "WEAPON_BOOST" )
+        if ( inventory_slot.type == Cmp::CarryItemType::AXE or inventory_slot.type == Cmp::CarryItemType::PICKAXE or
+             inventory_slot.type == Cmp::CarryItemType::SHOVEL )
         {
-          // increase weapon level by 50, up to max level 100
-          wear_level_cmp->m_level = std::clamp( wear_level_cmp->m_level + 50.f, 0.f, 100.f );
-          m_sound_bank.get_effect( "get_loot" ).play();
+          auto wear_level_cmp = getReg().try_get<Cmp::InventoryWearLevel>( weapons_entity );
+          if ( wear_level_cmp )
+          {
+            // increase weapon level by 50, up to max level 100
+            wear_level_cmp->m_level = std::clamp( wear_level_cmp->m_level + 50.f, 0.f, 100.f );
+            m_sound_bank.get_effect( "get_loot" ).play();
+            Factory::destroyLootDrop( getReg(), effect.loot_entity );
+          }
         }
       }
-    }
-
-    else if ( effect.type == "EXTRA_BOMBS" )
-    {
-      auto &bomb_bonus = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::BombBonus>( getReg() );
-      if ( pc_cmp.bomb_inventory >= 0 )
-      {
-        pc_cmp.bomb_inventory += bomb_bonus.get_value();
-        m_sound_bank.get_effect( "get_loot" ).play();
-      }
-    }
-    else if ( effect.type == "INFINI_BOMBS" )
-    {
-      pc_cmp.bomb_inventory = -1;
-      m_sound_bank.get_effect( "get_loot" ).play();
     }
     else if ( effect.type == "CHAIN_BOMBS" )
     {
       pc_cmp.blast_radius = std::clamp( pc_cmp.blast_radius + 1, 0, 3 );
       m_sound_bank.get_effect( "get_loot" ).play();
+      Factory::destroyLootDrop( getReg(), effect.loot_entity );
     }
     else if ( effect.type == "CANDLE_DROP" )
     {
       auto &pc_candles_count = getReg().get<Cmp::PlayerCandlesCount>( effect.player_entity );
       pc_candles_count.increment_count( 1 );
       m_sound_bank.get_effect( "get_loot" ).play();
+      Factory::destroyLootDrop( getReg(), effect.loot_entity );
     }
     else if ( effect.type == "KEY_DROP" )
     {
       auto &pc_keys_count = getReg().get<Cmp::PlayerKeysCount>( effect.player_entity );
       pc_keys_count.increment_count( 1 );
       m_sound_bank.get_effect( "get_key" ).play();
+      Factory::destroyLootDrop( getReg(), effect.loot_entity );
       // unlock the door (internally checks if we activated all of the shrines)
       get_systems_event_queue().trigger( Events::UnlockDoorEvent() );
     }
@@ -135,12 +128,14 @@ void LootSystem::check_loot_collision()
       auto &pc_relic_count = getReg().get<Cmp::PlayerRelicCount>( effect.player_entity );
       pc_relic_count.increment_count( 1 );
       m_sound_bank.get_effect( "get_loot" ).play();
+      Factory::destroyLootDrop( getReg(), effect.loot_entity );
     }
     else if ( effect.type == "CADAVER_DROP" )
     {
       auto &pc_cadaver_count = getReg().get<Cmp::PlayerCadaverCount>( effect.player_entity );
       pc_cadaver_count.increment_count( 1 );
       m_sound_bank.get_effect( "get_loot" ).play();
+      Factory::destroyLootDrop( getReg(), effect.loot_entity );
       m_sound_bank.get_effect( "secret" ).play();
       get_systems_event_queue().trigger( Events::CryptRoomEvent( Events::CryptRoomEvent::Type::EXIT_ALL_PASSAGES ) );
     }
@@ -149,15 +144,13 @@ void LootSystem::check_loot_collision()
       auto &wealth_cmp = getReg().get<Cmp::PlayerWealth>( effect.player_entity );
       wealth_cmp.wealth += 1;
       m_sound_bank.get_effect( "get_loot" ).play();
+      Factory::destroyLootDrop( getReg(), effect.loot_entity );
     }
     else
     {
       SPDLOG_WARN( "Unknown loot type encountered during pickup: {}", effect.type );
       continue;
     }
-
-    // Remove the loot entity
-    Factory::destroyLootDrop( getReg(), effect.loot_entity );
   }
 }
 

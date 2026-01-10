@@ -96,7 +96,7 @@ void RenderOverlaySystem::render_weapons_meter_overlay( float new_weapon_level, 
   m_window.draw( weaponsbar_border );
 }
 
-void RenderOverlaySystem::render_bomb_overlay( int bomb_count, int radius_value, sf::Vector2f pos )
+void RenderOverlaySystem::render_bomb_overlay( int radius_value, sf::Vector2f pos )
 {
 
   auto sprite_metatype = "ICONS";
@@ -108,10 +108,7 @@ void RenderOverlaySystem::render_bomb_overlay( int bomb_count, int radius_value,
   // text - slightly offset the y-axis to center with icon
   sf::Vector2f bomb_meter_offset{ 50.f, -2.f };
   sf::Text bomb_count_text( m_font, "", 30 );
-  if ( bomb_count < 0 )
-    bomb_count_text.setString( " INFINITE " );
-  else
-    bomb_count_text.setString( " =   " + std::to_string( bomb_count ) + " x " + std::to_string( radius_value ) );
+  bomb_count_text.setString( std::to_string( radius_value ) );
   bomb_count_text.setPosition( pos + bomb_meter_offset );
   bomb_count_text.setFillColor( sf::Color::White );
   bomb_count_text.setOutlineColor( sf::Color::Black );

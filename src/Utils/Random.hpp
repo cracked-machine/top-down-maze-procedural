@@ -3,7 +3,6 @@
 
 #include <Components/CryptRoomClosed.hpp>
 #include <Components/Obstacle.hpp>
-#include <Components/PlayableCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <SFML/Graphics/Rect.hpp>

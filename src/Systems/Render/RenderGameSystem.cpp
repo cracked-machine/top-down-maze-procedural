@@ -239,7 +239,6 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
 
       // init metrics
       int player_health = 0;
-      int bomb_inventory = 0;
       int blast_radius = 0;
       int new_weapon_level = 0;
       int player_candles_count = 0;
@@ -254,7 +253,6 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       for ( auto [pc_entt, pc_cmp, pc_health_cmp, wealth_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerWealth>().each() )
       {
         player_health = pc_health_cmp.health;
-        bomb_inventory = pc_cmp.bomb_inventory;
         blast_radius = pc_cmp.blast_radius;
         player_wealth_value = wealth_cmp.wealth;
       }
@@ -280,7 +278,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_overlay_sys.render_ui_background_overlay( { 20.f, start_y_pos += 20.f }, { 300.f, 350.f } );
       render_overlay_sys.render_health_overlay( player_health, { 40.f, start_y_pos += 20.f }, { 200.f, 20.f } );
       render_overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, start_y_pos += 40.f }, { 200.f, 20.f } );
-      render_overlay_sys.render_bomb_overlay( bomb_inventory, blast_radius, { 40.f, start_y_pos += 40.f } );
+      render_overlay_sys.render_bomb_overlay( blast_radius, { 40.f, start_y_pos += 40.f } );
       render_overlay_sys.render_player_candles_overlay( player_candles_count, { 40.f, start_y_pos += 40.f } );
       render_overlay_sys.render_key_count_overlay( player_keys_count, { 40.f, start_y_pos += 40.f } );
       render_overlay_sys.render_relic_count_overlay( player_relic_count, { 40.f, start_y_pos += 40.f } );

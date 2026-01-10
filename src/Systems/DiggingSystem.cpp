@@ -1,5 +1,8 @@
 
 #include <Components/Inventory/CarryItem.hpp>
+#include <Components/LootContainer.hpp>
+#include <Factory/LootFactory.hpp>
+#include <Factory/PlayerFactory.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Time.hpp>
 #include <spdlog/spdlog.h>
@@ -54,6 +57,98 @@ void DiggingSystem::update()
   {
     getReg().remove<Cmp::SelectedPosition>( existing_sel_entity );
     SPDLOG_DEBUG( "Removing previous Cmp::SelectedPosition {},{} from entity {}", sel_cmp.x, sel_cmp.y, static_cast<int>( existing_sel_entity ) );
+  }
+}
+
+void DiggingSystem::check_player_smash_pot()
+{
+  auto inventory_view = getReg().view<Cmp::PlayerInventorySlot>();
+  bool has_tool = false;
+  for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
+  {
+    if ( inventory_cmp.type == Cmp::CarryItemType::PICKAXE or inventory_cmp.type == Cmp::CarryItemType::AXE or
+         inventory_cmp.type == Cmp::CarryItemType::SHOVEL )
+    {
+      has_tool = true;
+    }
+  }
+  if ( not has_tool ) { return; }
+
+  auto inventory_wear_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
+  for ( auto [weapons_entity, inventory_slot, wear_level] : inventory_wear_view.each() )
+  {
+    if ( wear_level.m_level <= 0 )
+    {
+      SPDLOG_DEBUG( "Player weapons level is {}, cannot dig!", weapons_level.m_level );
+      return;
+    }
+  }
+
+  // abort if still in cooldown
+  auto digging_cooldown_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
+  if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
+
+  // detonate loot containers - component removal is handled by LootSystem
+  auto loot_container_view = getReg().view<Cmp::LootContainer, Cmp::Position>();
+  for ( auto [loot_entity, loot_cmp, loot_pos_cmp] : loot_container_view.each() )
+  {
+    // Remap the mouse position to game view coordinates (a subset of the actual game area)
+    sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
+    sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::getGameView() );
+
+    // Check if the mouse position intersects with the entity's position
+    auto mouse_position_bounds = sf::FloatRect( mouse_world_pos, sf::Vector2f( 2.f, 2.f ) );
+    if ( mouse_position_bounds.findIntersection( loot_pos_cmp ) )
+    {
+      SPDLOG_INFO( "Found lootable entity at position: [{}, {}]!", loot_pos_cmp.position.x, loot_pos_cmp.position.y );
+
+      // TODO: check player is facing the obstacle
+      // Check player proximity to the entity
+      auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
+      bool player_nearby = false;
+      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_view.each() )
+      {
+        auto half_sprite_size = Constants::kGridSquareSizePixelsF;
+        auto player_horizontal_bounds = Cmp::RectBounds( pc_pos_cmp.position, half_sprite_size, 1.5f, Cmp::RectBounds::ScaleCardinality::HORIZONTAL );
+        auto player_vertical_bounds = Cmp::RectBounds( pc_pos_cmp.position, half_sprite_size, 1.5f, Cmp::RectBounds::ScaleCardinality::VERTICAL );
+        if ( player_horizontal_bounds.findIntersection( loot_pos_cmp ) || player_vertical_bounds.findIntersection( loot_pos_cmp ) )
+        {
+          player_nearby = true;
+          break;
+        }
+      }
+
+      // skip this iteration of the loop if player too far away
+      if ( not player_nearby )
+      {
+        SPDLOG_INFO( " Player not close enough to loot at position ({}, {})!", loot_pos_cmp.position.x, loot_pos_cmp.position.y );
+        continue;
+      }
+
+      auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
+          std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "WEAPON_BOOST" } );
+
+      // // clang-format off
+      // [[maybe_unused]] auto loot_entt = Factory::createLootDrop(
+      //   getReg(),
+      //   Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),
+      //   sf::FloatRect{ loot_pos_cmp.position, loot_pos_cmp.size },
+      //   Factory::IncludePack<>{},
+      //   Factory::ExcludePack<>{} );
+      // // clang-format on
+
+      Factory::createCarryItem( getReg(), loot_pos_cmp, Cmp::CarryItemType::BOMB );
+
+      m_sound_bank.get_effect( "break_pot" ).play();
+      auto inventory_wear_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
+      for ( auto [weapons_entity, inventory_slot, wear_level] : inventory_wear_view.each() )
+      {
+        // Decrease weapons level based on damage dealt
+        wear_level.m_level -= Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
+        SPDLOG_DEBUG( "Player wear level decreased to {} after digging!", weapons_level.m_level );
+      }
+      Factory::destroyLootContainer( getReg(), loot_entity );
+    }
   }
 }
 
@@ -143,7 +238,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       {
         // Decrease weapons level based on damage dealt
         wear_level.m_level -= Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
-        SPDLOG_DEBUG( "Player weapons level decreased to {} after digging!", weapons_level.m_level );
+        SPDLOG_DEBUG( "Player wear level decreased to {} after digging!", weapons_level.m_level );
       }
 
       if ( alpha_cmp.getAlpha() == 0 )
@@ -170,6 +265,7 @@ void DiggingSystem::on_player_action( const Events::PlayerActionEvent &event )
   {
     // Check for collisions with diggable obstacles
     check_player_dig_obstacle_collision();
+    check_player_smash_pot();
   }
 }
 

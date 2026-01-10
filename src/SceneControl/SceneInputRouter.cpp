@@ -221,14 +221,6 @@ void SceneInputRouter::graveyard_scene_state_handler()
           SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
         }
       }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad6 )
-      {
-        for ( auto [pc_entity, pc_cmp] : getReg().view<Cmp::PlayableCharacter>().each() )
-        {
-          pc_cmp.bomb_inventory++;
-          SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
-        }
-      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
       {
         m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_CRYPT ) );
@@ -388,17 +380,8 @@ void SceneInputRouter::crypt_scene_state_handler()
           SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
         }
       }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad6 )
-      {
-        for ( auto [pc_entity, pc_cmp] : getReg().view<Cmp::PlayableCharacter>().each() )
-        {
-          pc_cmp.bomb_inventory++;
-          SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
-        }
-      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
       {
-
         m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_CRYPT ) );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )

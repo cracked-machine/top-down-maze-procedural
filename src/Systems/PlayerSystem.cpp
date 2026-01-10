@@ -178,7 +178,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
     if ( Factory::pickupCarryItem( getReg(), carryitem_entt ) != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
   }
   m_inventory_cooldown_timer.restart();
-  SPDLOG_INFO( "inventory_view: {} ", inventory_view.size() );
+  SPDLOG_DEBUG( "inventory_view: {} ", inventory_view.size() );
 }
 
 void PlayerSystem::update( sf::Time globalDeltaTime )

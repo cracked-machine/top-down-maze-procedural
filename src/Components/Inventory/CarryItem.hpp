@@ -10,6 +10,7 @@ enum class CarryItemType {
   PICKAXE, // default
   AXE,
   SHOVEL,
+  BOMB,
   NONE // always at end
 };
 

@@ -51,7 +51,8 @@ void GraveSystem::check_player_collision( Events::PlayerActionEvent::GameActions
   }
 }
 
-void GraveSystem::check_player_grave_activation( entt::entity &grave_entity, Cmp::GraveMultiBlock &grave_cmp, Cmp::PlayableCharacter &pc_cmp )
+void GraveSystem::check_player_grave_activation( entt::entity &grave_entity, Cmp::GraveMultiBlock &grave_cmp,
+                                                 [[maybe_unused]] Cmp::PlayableCharacter &pc_cmp )
 {
   if ( grave_cmp.are_powers_active() ) return;
   if ( grave_cmp.get_activation_count() < grave_cmp.get_activation_threshold() )
@@ -86,7 +87,6 @@ void GraveSystem::check_player_grave_activation( entt::entity &grave_entity, Cmp
           break;
         case 2:
           SPDLOG_DEBUG( "Grave activated bomb trap." );
-          pc_cmp.bomb_inventory += 1;
           get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) );
           break;
         case 3:

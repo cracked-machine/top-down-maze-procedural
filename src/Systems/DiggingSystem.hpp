@@ -21,8 +21,7 @@ namespace ProceduralMaze::Sys
 class DiggingSystem : public BaseSystem
 {
 public:
-  DiggingSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                 Audio::SoundBank &sound_bank );
+  DiggingSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}
@@ -48,6 +47,7 @@ private:
    * Events::PlayerActionEvent::DIG (see on_player_action).
    */
   void check_player_dig_obstacle_collision();
+  void check_player_smash_pot();
 
   // Cooldown clock to manage digging intervals
   sf::Clock m_dig_cooldown_clock;
