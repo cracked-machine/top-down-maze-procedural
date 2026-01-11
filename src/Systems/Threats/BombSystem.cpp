@@ -115,6 +115,10 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
       auto destructable_view = getReg().view<Cmp::Armable, Cmp::Position>();
       for ( auto [destructable_entity, destructable_cmp, destructable_pos_cmp] : destructable_view.each() )
       {
+
+        auto [inventory_entt, inventory_type] = Utils::get_player_inventory_type( getReg() );
+        if ( inventory_type != "CARRYITEM.bomb" ) return;
+
         // make a copy and reduce/center the player hitbox to avoid arming a neighbouring location
         auto player_hitbox = sf::FloatRect( pc_pos_cmp );
         player_hitbox.size.x /= 2.f;
@@ -130,8 +134,8 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
           auto armed_epicenter_entity = getReg().create();
           getReg().emplace<Cmp::Position>( armed_epicenter_entity, destructable_pos_cmp.position, destructable_pos_cmp.size );
           place_concentric_bomb_pattern( armed_epicenter_entity, pc_cmp.blast_radius );
-          // remove the used bomb carry item from the player inventory - Factory::createArmed drops a new bomb
           Factory::destroyInventory( getReg(), "CARRYITEM.bomb" );
+          // remove the used bomb carry item from the player inventory - Factory::createArmed drops a new bomb
         }
       }
     }
@@ -208,25 +212,13 @@ void BombSystem::update()
 
     // detonate loot containers - component removal is handled by LootSystem
     auto loot_container_view = getReg().view<Cmp::LootContainer, Cmp::Position>();
-    for ( auto [loot_entity, loot_cmp, loot_pos_cmp] : loot_container_view.each() )
+    for ( auto [loot_entt, loot_cmp, loot_pos_cmp] : loot_container_view.each() )
     {
       if ( not loot_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
 
-      auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
-          std::vector<std::string>{ "EXTRA_HEALTH", "CHAIN_BOMBS", "WEAPON_BOOST" } );
-
-      // clang-format off
-      auto loot_entt = Factory::createLootDrop( 
-        getReg(), 
-        Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),                                        
-        sf::FloatRect{ loot_pos_cmp.position, loot_pos_cmp.size }, 
-        Factory::IncludePack<>{},
-        Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition>{} );
-      // clang-format on
-
       if ( loot_entt != entt::null ) { m_sound_bank.get_effect( "break_pot" ).play(); }
 
-      Factory::destroyLootContainer( getReg(), loot_entity );
+      Factory::destroyLootContainer( getReg(), loot_entt );
     }
 
     // detonate npc containers - these are activated by proximity so just destroy them
@@ -278,11 +270,28 @@ void BombSystem::update()
         Factory::createNpcExplosion( getReg(), npc_pos_cmp );
 
         SPDLOG_INFO( "NPC entity {} exploded at {},{}", static_cast<int>( npc_entt ), npc_pos_cmp.position.x, npc_pos_cmp.position.y );
-        auto loot_entity = Factory::destroyNPC( getReg(), npc_entt );
-        if ( loot_entity != entt::null )
+        Factory::destroyNPC( getReg(), npc_entt );
+
+        auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
+            std::vector<std::string>{ "EXTRA_HEALTH", "CHAIN_BOMBS", "WEAPON_BOOST" } );
+
+        Cmp::RandomInt do_drop( 0, 2 ); // 1 in 3 chance of no drop
+        if ( do_drop.gen() == 0 )
         {
-          SPDLOG_INFO( "Dropped RELIC_DROP loot at NPC death position." );
-          m_sound_bank.get_effect( "drop_relic" ).play();
+          // clang-format off
+          auto dropped_loot_entt = Factory::createLootDrop( 
+            getReg(), 
+            Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),                                        
+            sf::FloatRect{ npc_pos_cmp.position, npc_pos_cmp.size }, 
+            Factory::IncludePack<>{},
+            Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition>{} );
+          // clang-format on
+
+          if ( dropped_loot_entt != entt::null )
+          {
+            SPDLOG_INFO( "Dropped RELIC_DROP loot at NPC death position." );
+            m_sound_bank.get_effect( "drop_relic" ).play();
+          }
         }
       }
     }

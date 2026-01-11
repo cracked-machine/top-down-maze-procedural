@@ -446,33 +446,53 @@ void RenderGameSystem::render_wormhole_effect( Sprites::Containers::TileMap &flo
 void RenderGameSystem::render_arrow_compass()
 {
   auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
-  auto exit_view = getReg().view<Cmp::Exit, Cmp::Position>();
-  auto crypt_view = getReg().view<Cmp::CryptEntrance, Cmp::Position>();
 
   auto [found_entt, found_carryitem_type] = Utils::get_player_inventory_type( getReg() );
-  if ( not found_carryitem_type.contains( "exitkey" ) and not found_carryitem_type.contains( "cryptkey" ) ) return;
+  if ( not found_carryitem_type.contains( "exitkey" ) and not found_carryitem_type.contains( "cryptkey" ) and
+       not found_carryitem_type.contains( "CARRYITEM.relic" ) )
+    return;
 
-  // if exitkey then target the exit pos
+  // if holding an exitkey then target the exit pos
   Cmp::Position arrow_target( { 0.f, 0.f }, { 0.f, 0.f } );
   if ( found_carryitem_type.contains( "exitkey" ) )
   {
+    auto exit_view = getReg().view<Cmp::Exit, Cmp::Position>();
     for ( auto [exit_entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
     {
       arrow_target = exit_pos_cmp;
     }
   }
 
-  // if cryptkey then target the nearest inactive crypt
+  // if holding a cryptkey then target the nearest inactive crypt
   if ( found_carryitem_type.contains( "cryptkey" ) )
   {
     using CryptDistanceQueue = std::priority_queue<std::pair<float, Cmp::Position>, std::vector<std::pair<float, Cmp::Position>>,
                                                    Utils::Maths::DistancePositionComparator>;
     CryptDistanceQueue distance_queue;
+    auto crypt_view = getReg().view<Cmp::CryptEntrance, Cmp::Position>();
     for ( auto [crypt_entity, crypt_cmp, crypt_pos_cmp] : crypt_view.each() )
     {
       if ( crypt_cmp.is_open() ) continue;
       auto float_distance = Utils::Maths::getEuclideanDistance( crypt_pos_cmp.position, Utils::get_player_position( getReg() ).position );
       distance_queue.emplace( float_distance, crypt_pos_cmp );
+    }
+    if ( distance_queue.empty() ) return; // there are no suitable crypts so give up
+    arrow_target = distance_queue.top().second;
+  }
+
+  // if holding a relic then target the nearest inactive altar
+  if ( found_carryitem_type.contains( "CARRYITEM.relic" ) )
+  {
+    SPDLOG_INFO( "Player is holding a relic" );
+    using AltarDistanceQueue = std::priority_queue<std::pair<float, Cmp::Position>, std::vector<std::pair<float, Cmp::Position>>,
+                                                   Utils::Maths::DistancePositionComparator>;
+    AltarDistanceQueue distance_queue;
+    auto crypt_view = getReg().view<Cmp::AltarMultiBlock>();
+    for ( auto [altar_entity, altar_cmp] : crypt_view.each() )
+    {
+      if ( altar_cmp.are_powers_active() ) continue;
+      auto float_distance = Utils::Maths::getEuclideanDistance( altar_cmp.position, Utils::get_player_position( getReg() ).position );
+      distance_queue.emplace( float_distance, Cmp::Position( altar_cmp.position, altar_cmp.size ) );
     }
     if ( distance_queue.empty() ) return; // there are no suitable crypts so give up
     arrow_target = distance_queue.top().second;

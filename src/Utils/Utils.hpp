@@ -201,7 +201,7 @@ static float get_player_inventory_wear_level( entt::registry &reg )
   {
     return wear_level.m_level;
   }
-  SPDLOG_WARN( "Player Inventory slot has no appropriate InventoryWearLevel component" );
+  SPDLOG_DEBUG( "Player Inventory slot has no appropriate InventoryWearLevel component" );
   return -1;
 }
 
@@ -212,7 +212,7 @@ static void reduce_player_inventory_wear_level( entt::registry &reg, float amoun
   {
     wear_level.m_level -= amount;
   }
-  SPDLOG_WARN( "Player Inventory slot has no appropriate InventoryWearLevel component" );
+  SPDLOG_DEBUG( "Player Inventory slot has no appropriate InventoryWearLevel component" );
 }
 
 static sf::FloatRect get_mouse_bounds_in_gameview( const sf::RenderWindow &window, const sf::View &gameview )
@@ -229,7 +229,7 @@ static sf::FloatRect get_mouse_bounds_in_gameview( const sf::RenderWindow &windo
 static uint8_t to_percent( float max_value, uint8_t convert )
 {
   auto converted = std::round( ( max_value / 100 ) * convert );
-  SPDLOG_INFO( "Converted {} (max: {}) to {}%", convert, max_value, converted );
+  SPDLOG_DEBUG( "Converted {} (max: {}) to {}%", convert, max_value, converted );
   return converted;
 }
 

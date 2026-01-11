@@ -68,7 +68,7 @@ void GraveSystem::check_player_grave_collision()
     auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::getGameView() );
     if ( mouse_position_bounds.findIntersection( grave_cmp ) )
     {
-      SPDLOG_INFO( "Found diggable entity at position: [{}, {}]!", grave_cmp.position.x, grave_cmp.position.y );
+      SPDLOG_DEBUG( "Found diggable entity at position: [{}, {}]!", grave_cmp.position.x, grave_cmp.position.y );
 
       // TODO: check player is facing the obstacle
       // Check player proximity to the entity
@@ -107,7 +107,7 @@ void GraveSystem::check_player_grave_collision()
         if ( std::string::size_type n = grave_anim_cmp.m_sprite_type.find( "." ); n != std::string::npos )
         {
           grave_anim_cmp.m_sprite_type = grave_anim_cmp.m_sprite_type.substr( 0, n ) + ".opened";
-          SPDLOG_INFO( "Grave Cmp::SpriteAnimation changed to opened type: {}", grave_anim_cmp.m_sprite_type );
+          SPDLOG_DEBUG( "Grave Cmp::SpriteAnimation changed to opened type: {}", grave_anim_cmp.m_sprite_type );
 
           // select the final smash sound
           m_sound_bank.get_effect( "pickaxe_final" ).play();
