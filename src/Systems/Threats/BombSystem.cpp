@@ -254,8 +254,9 @@ void BombSystem::update()
     }
 
     // Check if NPC was killed by explosion
-    for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : getReg().view<Cmp::NPC, Cmp::Position>().each() )
+    for ( auto [npc_entt, npc_cmp, npc_pos_cmp, npc_anim_cmp] : getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>().each() )
     {
+      if ( npc_anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) continue;
       // notify npc system of death
       if ( npc_pos_cmp.findIntersection( armed_pos_cmp ) )
       {

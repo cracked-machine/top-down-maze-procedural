@@ -52,7 +52,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
       // one shot animation then deactivate, this is then destroyed by `DiggingSystem::check_player_smash_pot`
       if ( loot_con_anim_cmp.m_current_frame == pot_sprite_metadata.get_sprites_per_sequence() - 1 )
       {
-        SPDLOG_INFO( "Deactivating pot animation: {}", static_cast<int>( loot_con_entt ) );
+        SPDLOG_DEBUG( "Deactivating pot animation: {}", static_cast<int>( loot_con_entt ) );
         loot_con_anim_cmp.m_animation_active = false;
         loot_con_anim_cmp.m_current_frame = loot_con_anim_cmp.m_base_frame;
       }
@@ -201,15 +201,15 @@ void AnimSystem::update( sf::Time globalDeltaTime )
     const auto &explosion_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
     auto frame_rate = sf::seconds( getReg().ctx().get<Cmp::Persist::NpcDeathAnimFramerate>().get_value() );
 
-    SPDLOG_INFO( "Explosion animation active for entity {} - current_frame: {}, sprites_per_frame: {}, "
-                 "sprites_per_sequence: {}, frame_rate: {}s",
-                 static_cast<int>( entity ), anim_cmp.m_current_frame, explosion_sprite_metadata.get_sprites_per_frame(),
-                 explosion_sprite_metadata.get_sprites_per_sequence(), frame_rate.asSeconds() );
+    SPDLOG_DEBUG( "Explosion animation active for entity {} - current_frame: {}, sprites_per_frame: {}, "
+                  "sprites_per_sequence: {}, frame_rate: {}s",
+                  static_cast<int>( entity ), anim_cmp.m_current_frame, explosion_sprite_metadata.get_sprites_per_frame(),
+                  explosion_sprite_metadata.get_sprites_per_sequence(), frame_rate.asSeconds() );
 
     // Update the frame first
     update_single_sequence( anim_cmp, globalDeltaTime, explosion_sprite_metadata, frame_rate, AnimType::ONESHOT );
 
-    SPDLOG_INFO( "After update_frame - current_frame: {}, elapsed_time: {}s", anim_cmp.m_current_frame, anim_cmp.m_elapsed_time.asSeconds() );
+    SPDLOG_DEBUG( "After update_frame - current_frame: {}, elapsed_time: {}s", anim_cmp.m_current_frame, anim_cmp.m_elapsed_time.asSeconds() );
 
     // have we completed the animation?
     if ( anim_cmp.m_current_frame == explosion_sprite_metadata.get_sprites_per_sequence() - 1 )
@@ -218,7 +218,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
       getReg().remove<Cmp::SpriteAnimation>( entity );
       getReg().remove<Cmp::ZOrderValue>( entity );
       getReg().remove<Cmp::Position>( entity );
-      SPDLOG_INFO( "Explosion animation complete, removing component from entity {}", static_cast<int>( entity ) );
+      SPDLOG_DEBUG( "Explosion animation complete, removing component from entity {}", static_cast<int>( entity ) );
       continue;
     }
   }
