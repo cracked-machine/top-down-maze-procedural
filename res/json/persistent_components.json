@@ -37,7 +37,7 @@
   },
   "DiggingDamagePerHit":{
     "type": "int",
-    "value": 64
+    "value": 25
   },
   "DisplayResolution": {
     "type": "sf::Vector2u",

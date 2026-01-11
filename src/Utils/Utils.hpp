@@ -3,15 +3,19 @@
 
 #include <Components/Exit.hpp>
 #include <Components/Inventory/CarryItem.hpp>
+#include <Components/InventoryWearLevel.hpp>
+#include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerMortality.hpp>
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
 #include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/View.hpp>
 // #include <Systems/BaseSystem.hpp>
 
+#include <SFML/Window/Mouse.hpp>
 #include <cmath>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>
@@ -187,6 +191,45 @@ static std::pair<entt::entity, Cmp::CarryItemType> get_player_inventory_type( en
     found_type = inv_cmp.type;
   }
   return { found_entt, found_type };
+}
+
+static float get_player_inventory_wear_level( entt::registry &reg )
+{
+  auto inventory_wear_view = reg.view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
+  for ( auto [inventory_entity, inventory_slot, wear_level] : inventory_wear_view.each() )
+  {
+    return wear_level.m_level;
+  }
+  SPDLOG_WARN( "Player Inventory slot has no appropriate InventoryWearLevel component" );
+  return -1;
+}
+
+static void reduce_player_inventory_wear_level( entt::registry &reg, float amount )
+{
+  auto inventory_wear_view = reg.view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
+  for ( auto [inventory_entity, inventory_slot, wear_level] : inventory_wear_view.each() )
+  {
+    wear_level.m_level -= amount;
+  }
+  SPDLOG_WARN( "Player Inventory slot has no appropriate InventoryWearLevel component" );
+}
+
+static sf::FloatRect get_mouse_bounds_in_gameview( const sf::RenderWindow &window, const sf::View &gameview )
+{
+  sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( window );
+  sf::Vector2f mouse_world_pos = window.mapPixelToCoords( mouse_pixel_pos, gameview );
+
+  // Check if the mouse position intersects with the entity's grave multiblock sprite
+  auto mouse_position_bounds = sf::FloatRect( mouse_world_pos, sf::Vector2f( 2.f, 2.f ) );
+
+  return mouse_position_bounds;
+}
+
+static uint8_t to_percent( float max_value, uint8_t convert )
+{
+  auto converted = std::round( ( max_value / 100 ) * convert );
+  SPDLOG_INFO( "Converted {} (max: {}) to {}%", convert, max_value, converted );
+  return converted;
 }
 
 } // namespace ProceduralMaze::Utils

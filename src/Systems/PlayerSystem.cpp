@@ -163,7 +163,19 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
   {
     existing_player_inventory_type = inventory_cmp.type;
     auto dropped_entt = Factory::dropCarryItem( getReg(), player_pos, m_sprite_factory.get_multisprite_by_type( "INVENTORY" ), inventory_entt );
-    if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
+    if ( dropped_entt != entt::null )
+    {
+      if ( existing_player_inventory_type == Cmp::CarryItemType::PLANT1 or existing_player_inventory_type == Cmp::CarryItemType::PLANT2 or
+           existing_player_inventory_type == Cmp::CarryItemType::PLANT3 or existing_player_inventory_type == Cmp::CarryItemType::PLANT4 or
+           existing_player_inventory_type == Cmp::CarryItemType::PLANT5 or existing_player_inventory_type == Cmp::CarryItemType::PLANT6 or
+           existing_player_inventory_type == Cmp::CarryItemType::PLANT7 or existing_player_inventory_type == Cmp::CarryItemType::PLANT8 or
+           existing_player_inventory_type == Cmp::CarryItemType::PLANT9 or existing_player_inventory_type == Cmp::CarryItemType::PLANT10 or
+           existing_player_inventory_type == Cmp::CarryItemType::PLANT11 or existing_player_inventory_type == Cmp::CarryItemType::PLANT12 )
+      {
+        m_sound_bank.get_effect( "digging_earth" ).play();
+      }
+      else { m_sound_bank.get_effect( "drop_relic" ).play(); }
+    }
   }
 
   // pickup inventory

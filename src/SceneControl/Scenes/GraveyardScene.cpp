@@ -13,6 +13,7 @@
 #include <Systems/CryptSystem.hpp>
 #include <Systems/DiggingSystem.hpp>
 #include <Systems/ExitSystem.hpp>
+#include <Systems/GraveSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>

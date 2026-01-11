@@ -9,7 +9,7 @@ namespace ProceduralMaze::Cmp
 // Loot container concept
 struct LootContainer
 {
-  [[maybe_unused]] bool active = true;
+  int hp{ 100 };
 };
 
 } // namespace ProceduralMaze::Cmp

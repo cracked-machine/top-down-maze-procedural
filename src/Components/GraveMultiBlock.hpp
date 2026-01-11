@@ -28,6 +28,9 @@ public:
   void set_powers_active( bool activate = true ) { m_powers_active = activate; }
   bool are_powers_active() const { return m_powers_active; }
 
+  //! @brief hit points/health until opened
+  int hp{ 100 };
+
 private:
   // Track the number of activated sprites in this altar multi-block
   // Callees are responsible for managing max thresholds

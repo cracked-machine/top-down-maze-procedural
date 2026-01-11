@@ -6,9 +6,10 @@
 namespace ProceduralMaze::Cmp::Persist
 {
 
+//! @brief A percentage of damage that should be done to an item that is hit by player with tools
 struct DiggingDamagePerHit : public BasePersistent<uint8_t>
 {
-  DiggingDamagePerHit( uint8_t value = 32, uint8_t min_value = 64, uint8_t max_value = 128 )
+  DiggingDamagePerHit( uint8_t value = 25, uint8_t min_value = 1, uint8_t max_value = 100 )
       : BasePersistent<uint8_t>( value, min_value, max_value )
   {
   }

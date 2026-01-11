@@ -29,6 +29,11 @@ void SoundBank::init()
   sounds.emplace( "get_loot", EffectsData{ "res/audio/get_loot.wav" } );
   sounds.emplace( "get_key", EffectsData{ "res/audio/get_key.wav" } );
   sounds.emplace( "break_pot", EffectsData{ "res/audio/break_pot.wav" } );
+  sounds.emplace( "hit_pot", EffectsData{ "res/audio/hit_pot.mp3" } );
+  sounds.emplace( "hit_grave", EffectsData{ "res/audio/hit_grave.mp3" } );
+  sounds.emplace( "digging_earth", EffectsData{ "res/audio/digging_earth.mp3" } );
+  sounds.emplace( "chopping", EffectsData{ "res/audio/chopping.mp3" } );
+  sounds.emplace( "chopping_final", EffectsData{ "res/audio/chopping_final.mp3" } );
 
   sounds.emplace( "pickaxe1", EffectsData{ "res/audio/pickaxe1.wav" } );
   sounds.emplace( "pickaxe2", EffectsData{ "res/audio/pickaxe2.wav" } );

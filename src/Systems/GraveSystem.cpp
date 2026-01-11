@@ -1,17 +1,30 @@
 
 
 #include <Audio/SoundBank.hpp>
+#include <Components/AbsoluteAlpha.hpp>
 #include <Components/GraveMultiBlock.hpp>
 #include <Components/GraveSegment.hpp>
+#include <Components/Inventory/CarryItem.hpp>
+#include <Components/InventoryWearLevel.hpp>
+#include <Components/Persistent/DiggingCooldownThreshold.hpp>
+#include <Components/Persistent/DiggingDamagePerHit.hpp>
+#include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/ReservedPosition.hpp>
+#include <Components/SelectedPosition.hpp>
 #include <Components/SpawnArea.hpp>
+#include <Components/SpriteAnimation.hpp>
+#include <Events/PlayerActionEvent.hpp>
+#include <Factory/BombFactory.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
+#include <Factory/ObstacleFactory.hpp>
 #include <Systems/GraveSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
+#include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
@@ -23,90 +36,122 @@ GraveSystem::GraveSystem( entt::registry &reg, sf::RenderWindow &window, Sprites
   std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&GraveSystem::on_player_action>( this );
 }
 
-void GraveSystem::on_player_action( const Events::PlayerActionEvent &event )
+void GraveSystem::check_player_grave_collision()
 {
-  if ( Utils::get_player_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) return;
-  if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) { check_player_collision( event.action ); }
-}
-
-void GraveSystem::check_player_collision( Events::PlayerActionEvent::GameActions action )
-{
-  if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
-
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount>();
-  auto grave_view = getReg().view<Cmp::GraveMultiBlock>();
-
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_candles_cmp] : player_view.each() )
+  auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
+  if ( inventory_slot_type != Cmp::CarryItemType::PICKAXE and inventory_slot_type != Cmp::CarryItemType::AXE and
+       inventory_slot_type != Cmp::CarryItemType::SHOVEL )
   {
-    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
+    return;
+  }
 
-    for ( auto [grave_entity, grave_cmp] : grave_view.each() )
+  if ( Utils::get_player_inventory_wear_level( getReg() ) <= 0 ) { return; }
+
+  // abort if still in cooldown
+  auto digging_cooldown_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
+  if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
+
+  // Cooldown has expired: Remove any existing SelectedPosition components from the registry
+  auto selected_position_view = getReg().view<Cmp::SelectedPosition>();
+  for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
+  {
+    getReg().remove<Cmp::SelectedPosition>( existing_sel_entity );
+  }
+
+  // Iterate through all closed grave entities
+  auto position_view = getReg().view<Cmp::Position, Cmp::GraveMultiBlock, Cmp::SpriteAnimation>( entt::exclude<Cmp::SelectedPosition> );
+  for ( auto [grave_entity, grave_pos_cmp, grave_cmp, grave_anim_cmp] : position_view.each() )
+  {
+    if ( grave_anim_cmp.m_sprite_type.contains( ".opened" ) ) continue;
+
+    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::getGameView() );
+    if ( mouse_position_bounds.findIntersection( grave_cmp ) )
     {
-      if ( player_hitbox.findIntersection( grave_cmp ) )
+      SPDLOG_INFO( "Found diggable entity at position: [{}, {}]!", grave_cmp.position.x, grave_cmp.position.y );
+
+      // TODO: check player is facing the obstacle
+      // Check player proximity to the entity
+      bool player_nearby = false;
+      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
       {
-        SPDLOG_DEBUG( "Player collided with Grave at ({}, {})", grave_cmp.position.x, grave_cmp.position.y );
-        check_player_grave_activation( grave_entity, grave_cmp, pc_cmp );
+        auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
+        if ( player_hitbox.findIntersection( grave_cmp ) )
+        {
+          player_nearby = true;
+          break;
+        }
+      }
+
+      // skip this iteration of the loop if player too far away
+      if ( not player_nearby ) { continue; }
+
+      // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
+      // Add a new SelectedPosition component to the entity
+      getReg().emplace_or_replace<Cmp::SelectedPosition>( grave_entity, grave_pos_cmp.position );
+      m_dig_cooldown_clock.restart();
+
+      float reduction_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
+      Utils::reduce_player_inventory_wear_level( getReg(), reduction_amount );
+
+      grave_cmp.hp -= Utils::to_percent( 255.f, Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingDamagePerHit>( getReg() ).get_value() );
+
+      if ( grave_cmp.hp > 0 )
+      {
+        // play bashing animation
+        m_sound_bank.get_effect( "hit_grave" ).play();
+      }
+      else
+      {
+
+        if ( std::string::size_type n = grave_anim_cmp.m_sprite_type.find( "." ); n != std::string::npos )
+        {
+          grave_anim_cmp.m_sprite_type = grave_anim_cmp.m_sprite_type.substr( 0, n ) + ".opened";
+          SPDLOG_INFO( "Grave Cmp::SpriteAnimation changed to opened type: {}", grave_anim_cmp.m_sprite_type );
+
+          // select the final smash sound
+          m_sound_bank.get_effect( "pickaxe_final" ).play();
+        }
+
+        auto grave_activation_rng = Cmp::RandomInt( 1, 3 );
+        auto consequence = grave_activation_rng.gen();
+        switch ( consequence )
+        {
+          case 1:
+            SPDLOG_DEBUG( "Grave activated NPC trap." );
+            Factory::createNPC( getReg(), grave_entity, "NPCGHOST" );
+            m_sound_bank.get_effect( "spawn_ghost" ).play();
+            break;
+          case 2:
+            SPDLOG_DEBUG( "Grave activated bomb trap." );
+            get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) );
+            break;
+          case 3:
+
+            auto grave_cmp_bounds = Cmp::RectBounds( grave_cmp.position, grave_cmp.size, 2.f );
+            // clang-format off
+            auto obst_entity = Factory::createLootDrop(getReg(),
+              Cmp::SpriteAnimation{ 0,0,true,"CANDLE_DROP", 0 },
+              sf::FloatRect{ grave_cmp_bounds.position(),
+              grave_cmp_bounds.size() },
+              Factory::IncludePack<>{},
+              Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::GraveSegment, Cmp::SpawnArea>{}
+            );
+            // clang-format on
+
+            if ( obst_entity != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
+            break;
+        }
       }
     }
   }
 }
 
-void GraveSystem::check_player_grave_activation( entt::entity &grave_entity, Cmp::GraveMultiBlock &grave_cmp,
-                                                 [[maybe_unused]] Cmp::PlayableCharacter &pc_cmp )
+void GraveSystem::on_player_action( const Events::PlayerActionEvent &event )
 {
-  if ( grave_cmp.are_powers_active() ) return;
-  if ( grave_cmp.get_activation_count() < grave_cmp.get_activation_threshold() )
+  if ( event.action == Events::PlayerActionEvent::GameActions::DIG )
   {
-
-    SPDLOG_DEBUG( "Activating grave sprite {}/{}.", grave_cmp.get_activated_sprite_count() + 1, grave_cmp.get_activation_threshold() );
-    grave_cmp.set_activation_count( grave_cmp.get_activation_threshold() );
-
-    auto anim_cmp = getReg().try_get<Cmp::SpriteAnimation>( grave_entity );
-    if ( anim_cmp )
-    {
-      if ( std::string::size_type n = anim_cmp->m_sprite_type.find( "." ); n != std::string::npos )
-      {
-        anim_cmp->m_sprite_type = anim_cmp->m_sprite_type.substr( 0, n ) + ".opened";
-        SPDLOG_DEBUG( "Grave Cmp::SpriteAnimation changed to opened type: {}", anim_cmp->m_sprite_type );
-      }
-    }
-
-    grave_cmp.set_powers_active( true );
-
-    // choose a random consequence for activating graves: spawn npc, drop bomb, give candles
-    if ( grave_cmp.are_powers_active() )
-    {
-      auto grave_activation_rng = Cmp::RandomInt( 1, 3 );
-      auto consequence = grave_activation_rng.gen();
-      switch ( consequence )
-      {
-        case 1:
-          SPDLOG_DEBUG( "Grave activated NPC trap." );
-          Factory::createNPC( getReg(), grave_entity, "NPCGHOST" );
-          m_sound_bank.get_effect( "spawn_ghost" ).play();
-          break;
-        case 2:
-          SPDLOG_DEBUG( "Grave activated bomb trap." );
-          get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) );
-          break;
-        case 3:
-
-          auto grave_cmp_bounds = Cmp::RectBounds( grave_cmp.position, grave_cmp.size, 2.f );
-          // clang-format off
-              auto obst_entity = Factory::createLootDrop(getReg(), 
-                Cmp::SpriteAnimation{ 0,0,true,"CANDLE_DROP", 0 },
-                sf::FloatRect{ grave_cmp_bounds.position(), 
-                grave_cmp_bounds.size() }, 
-                Factory::IncludePack<>{},
-                Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::GraveSegment, Cmp::SpawnArea>{}
-              );
-          // clang-format on
-
-          if ( obst_entity != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
-          break;
-      }
-      // }
-    }
+    // Check for collisions with diggable obstacles
+    check_player_grave_collision();
   }
 }
 
