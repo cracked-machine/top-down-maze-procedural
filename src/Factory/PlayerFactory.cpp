@@ -133,7 +133,7 @@ entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, Sprites::S
   reg.emplace_or_replace<Cmp::NoPathFinding>( world_carry_item_entt );
   if ( type == "CARRYITEM.axe" || type == "CARRYITEM.pickaxe" || type == "CARRYITEM.shovel" )
   {
-    reg.emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, 50.f );
+    reg.emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, 100.f );
   }
 
   return world_carry_item_entt;

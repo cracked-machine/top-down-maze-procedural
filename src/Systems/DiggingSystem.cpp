@@ -1,6 +1,7 @@
 
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/LootContainer.hpp>
+#include <Components/NPC.hpp>
 #include <Components/PlantObstacle.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
@@ -314,6 +315,81 @@ void DiggingSystem::check_player_dig_plant_collision()
   }
 }
 
+void DiggingSystem::check_player_axe_npc_collision()
+{
+  auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
+  if ( inventory_slot_type != "CARRYITEM.axe" ) { return; }
+
+  if ( Utils::get_player_inventory_wear_level( getReg() ) <= 0 ) { return; }
+
+  // abort if still in cooldown
+  auto digging_cooldown_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
+  if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
+  {
+    SPDLOG_DEBUG( "Still in cooldown" );
+    return;
+  }
+
+  // Cooldown has expired: Remove any existing SelectedPosition components from the registry
+  auto selected_position_view = getReg().view<Cmp::SelectedPosition>();
+  for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
+  {
+    getReg().remove<Cmp::SelectedPosition>( existing_sel_entity );
+  }
+
+  // Iterate through all entities with Position and Obstacle components
+  auto position_view = getReg().view<Cmp::Position, Cmp::NPC>( entt::exclude<Cmp::SelectedPosition> );
+  SPDLOG_DEBUG( "position_view size: {}", position_view.size_hint() );
+  for ( auto [obst_entity, obst_pos_cmp, obst_cmp] : position_view.each() )
+  {
+    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::getGameView() );
+    if ( mouse_position_bounds.findIntersection( obst_pos_cmp ) )
+    {
+      SPDLOG_DEBUG( "Found NPC entity at position: [{}, {}]!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
+
+      // TODO: check player is facing the obstacle
+      // Check player proximity to the entity
+      bool player_nearby = false;
+      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+      {
+        auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
+        if ( player_hitbox.findIntersection( obst_pos_cmp ) )
+        {
+          player_nearby = true;
+          break;
+        }
+      }
+
+      // skip this iteration of the loop if player too far away
+      if ( not player_nearby ) { continue; }
+
+      // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
+      // Add a new SelectedPosition component to the entity
+      getReg().emplace_or_replace<Cmp::SelectedPosition>( obst_entity, obst_pos_cmp.position );
+
+      // Apply digging damage, play a sound depending on whether the obstacle was destroyed
+      m_dig_cooldown_clock.restart();
+
+      float reduction_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
+      Utils::reduce_player_inventory_wear_level( getReg(), reduction_amount );
+
+      // select the final smash sound
+      m_sound_bank.get_effect( "axe_whip" ).play();
+      m_sound_bank.get_effect( "skele_death" ).play();
+      auto inventory_wear_view = getReg().view<Cmp::PlayerInventorySlot>();
+      for ( auto [inventory_entt, inventory_slot] : inventory_wear_view.each() )
+      {
+        if ( inventory_slot.type == "CARRYITEM.axe" )
+        {
+          if ( getReg().valid( obst_entity ) ) getReg().destroy( obst_entity );
+        }
+      }
+
+      SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
+    }
+  }
+}
+
 void DiggingSystem::on_player_action( const Events::PlayerActionEvent &event )
 {
   if ( event.action == Events::PlayerActionEvent::GameActions::DIG )
@@ -322,6 +398,7 @@ void DiggingSystem::on_player_action( const Events::PlayerActionEvent &event )
     check_player_dig_obstacle_collision();
     check_player_dig_plant_collision();
     check_player_smash_pot();
+    check_player_axe_npc_collision();
   }
 }
 

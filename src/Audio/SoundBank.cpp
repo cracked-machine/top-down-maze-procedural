@@ -34,6 +34,8 @@ void SoundBank::init()
   sounds.emplace( "digging_earth", EffectsData{ "res/audio/digging_earth.mp3" } );
   sounds.emplace( "chopping", EffectsData{ "res/audio/chopping.mp3" } );
   sounds.emplace( "chopping_final", EffectsData{ "res/audio/chopping_final.mp3" } );
+  sounds.emplace( "axe_whip", EffectsData{ "res/audio/axe_whip.wav" } );
+  sounds.emplace( "skele_death", EffectsData{ "res/audio/skele_death.wav" } );
 
   sounds.emplace( "pickaxe1", EffectsData{ "res/audio/pickaxe1.wav" } );
   sounds.emplace( "pickaxe2", EffectsData{ "res/audio/pickaxe2.wav" } );
