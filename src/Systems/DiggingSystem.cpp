@@ -338,10 +338,11 @@ void DiggingSystem::check_player_axe_npc_collision()
   }
 
   // Iterate through all entities with Position and Obstacle components
-  auto position_view = getReg().view<Cmp::Position, Cmp::NPC>( entt::exclude<Cmp::SelectedPosition> );
+  auto position_view = getReg().view<Cmp::Position, Cmp::NPC, Cmp::SpriteAnimation>( entt::exclude<Cmp::SelectedPosition> );
   SPDLOG_DEBUG( "position_view size: {}", position_view.size_hint() );
-  for ( auto [obst_entity, obst_pos_cmp, obst_cmp] : position_view.each() )
+  for ( auto [obst_entity, obst_pos_cmp, obst_cmp, anim_cmp] : position_view.each() )
   {
+    if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) continue;
     auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::getGameView() );
     if ( mouse_position_bounds.findIntersection( obst_pos_cmp ) )
     {
