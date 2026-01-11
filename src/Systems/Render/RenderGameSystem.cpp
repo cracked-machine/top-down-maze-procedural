@@ -45,7 +45,6 @@
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayableCharacter.hpp>
-#include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/Position.hpp>
@@ -243,7 +242,6 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       int player_health = 0;
       int blast_radius = 0;
       int new_weapon_level = 0;
-      int player_candles_count = 0;
       int player_cadaver_count = 0;
       int player_relic_count = 0;
       int player_wealth_value = 0;
@@ -264,22 +262,18 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
         new_weapon_level = wear_level.m_level;
       }
 
-      auto pc_candles_cmp = getReg().view<Cmp::PlayerCandlesCount, Cmp::PlayerRelicCount, Cmp::PlayerCadaverCount>();
-      for ( auto [entity, candles_cmp, relic_cmp, cadaver_cmp] : pc_candles_cmp.each() )
+      for ( auto [entity, relic_cmp, cadaver_cmp] : getReg().view<Cmp::PlayerRelicCount, Cmp::PlayerCadaverCount>().each() )
       {
-        player_candles_count = candles_cmp.get_count();
         player_relic_count = relic_cmp.get_count();
-        player_candles_count = candles_cmp.get_count();
         player_cadaver_count = cadaver_cmp.get_count();
       }
 
       // render metrics
       float start_y_pos = 0;
-      render_overlay_sys.render_ui_background_overlay( { 20.f, start_y_pos += 20.f }, { 300.f, 310.f } );
+      render_overlay_sys.render_ui_background_overlay( { 20.f, start_y_pos += 20.f }, { 300.f, 270.f } );
       render_overlay_sys.render_health_overlay( player_health, { 40.f, start_y_pos += 20.f }, { 200.f, 20.f } );
       render_overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, start_y_pos += 40.f }, { 200.f, 20.f } );
       render_overlay_sys.render_bomb_overlay( blast_radius, { 40.f, start_y_pos += 40.f } );
-      render_overlay_sys.render_player_candles_overlay( player_candles_count, { 40.f, start_y_pos += 40.f } );
       render_overlay_sys.render_relic_count_overlay( player_relic_count, { 40.f, start_y_pos += 40.f } );
       render_overlay_sys.render_cadaver_count_overlay( player_cadaver_count, { 40.f, start_y_pos += 40.f } );
       render_overlay_sys.render_wealth_overlay( player_wealth_value, { 40.f, start_y_pos += 40.f } );

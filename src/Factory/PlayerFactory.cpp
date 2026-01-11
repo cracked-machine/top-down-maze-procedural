@@ -15,7 +15,6 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCadaverCount.hpp>
-#include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerMortality.hpp>
@@ -61,7 +60,6 @@ void CreatePlayer( entt::registry &registry )
   registry.emplace<Cmp::PCDetectionBounds>( entity, start_pos, Constants::kGridSquareSizePixelsF, pc_detection_scale.get_value() );
 
   registry.emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYER.walk.south" );
-  registry.emplace<Cmp::PlayerCandlesCount>( entity, 0 );
   registry.emplace<Cmp::PlayerRelicCount>( entity, 0 );
   registry.emplace<Cmp::PlayerCadaverCount>( entity, 0 );
   registry.emplace<Cmp::PlayerHealth>( entity, 100 );
@@ -125,13 +123,14 @@ void createPlayerDeathAnim( entt::registry &registry, Cmp::Position player_pos_c
 //! @param pos the position to place the new item
 //! @param type the item type. See "CARRYITEM.xxxx" in res/json/sprite_metadata.json
 //! @return entt::entity
-entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, Sprites::SpriteMetaType type )
+entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, Sprites::SpriteMetaType type, float zorder )
 {
   auto world_carry_item_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
   reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, type, 0 );
-  reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
   reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, type );
+  reg.emplace_or_replace<Cmp::NoPathFinding>( world_carry_item_entt );
   if ( type == "CARRYITEM.axe" || type == "CARRYITEM.pickaxe" || type == "CARRYITEM.shovel" )
   {
     reg.emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, 50.f );
@@ -168,6 +167,7 @@ entt::entity dropCarryItem( entt::registry &reg, Cmp::Position pos, const Sprite
     reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, false, sprite.get_sprite_type(), 0 );
     reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f );
     reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, inventory_slot_cmp->type );
+    reg.emplace_or_replace<Cmp::NoPathFinding>( world_carry_item_entt );
 
     if ( inventory_slot_level_cmp ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, inventory_slot_level_cmp->m_level ); }
     reg.destroy( inventory_slot_cmp_entt );

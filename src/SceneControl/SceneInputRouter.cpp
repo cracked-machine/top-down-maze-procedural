@@ -6,7 +6,6 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCadaverCount.hpp>
-#include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerMortality.hpp>
@@ -155,14 +154,6 @@ void SceneInputRouter::graveyard_scene_state_handler()
         get_systems_event_queue().enqueue(
             Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::get_player_position( getReg() ) ) );
       }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
-      {
-        for ( auto [pc_entity, pc_candle_count_cmp] : getReg().view<Cmp::PlayerCandlesCount>().each() )
-        {
-          pc_candle_count_cmp.increment_count( 1 );
-          SPDLOG_INFO( "Player gained a candle (player cheated)" );
-        }
-      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
       {
         for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
@@ -303,14 +294,6 @@ void SceneInputRouter::crypt_scene_state_handler()
           pc_health_cmp.health = 0;
           pc_mort_cmp.death_progress = 1.0f;
           SPDLOG_INFO( "Player committed suicide" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
-      {
-        for ( auto [pc_entity, pc_candle_count_cmp] : getReg().view<Cmp::PlayerCandlesCount>().each() )
-        {
-          pc_candle_count_cmp.increment_count( 1 );
-          SPDLOG_INFO( "Player gained a candle (player cheated)" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )

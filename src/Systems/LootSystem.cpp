@@ -9,7 +9,6 @@
 #include <Components/Persistent/HealthBonus.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCadaverCount.hpp>
-#include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
@@ -47,11 +46,11 @@ void LootSystem::check_loot_collision()
 
   // First pass: detect collisions and gather effects to apply
   // clang-format off
-  auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount>();
+  auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
   auto loot_collision_view = getReg().view<Cmp::Loot, Cmp::Position, Cmp::SpriteAnimation>();
   // clang-format on
 
-  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_candles_count] : player_collision_view.each() )
+  for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
   {
     for ( auto [loot_entt, loot_cmp, loot_pos_cmp, loot_sprite_anim] : loot_collision_view.each() )
     {
@@ -103,13 +102,6 @@ void LootSystem::check_loot_collision()
     else if ( effect.type == "CHAIN_BOMBS" )
     {
       pc_cmp.blast_radius = std::clamp( pc_cmp.blast_radius + 1, 0, 3 );
-      m_sound_bank.get_effect( "get_loot" ).play();
-      Factory::destroyLootDrop( getReg(), effect.loot_entity );
-    }
-    else if ( effect.type == "CANDLE_DROP" )
-    {
-      auto &pc_candles_count = getReg().get<Cmp::PlayerCandlesCount>( effect.player_entity );
-      pc_candles_count.increment_count( 1 );
       m_sound_bank.get_effect( "get_loot" ).play();
       Factory::destroyLootDrop( getReg(), effect.loot_entity );
     }

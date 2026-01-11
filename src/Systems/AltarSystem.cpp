@@ -12,7 +12,6 @@
 #include <Components/NPC.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/PlayableCharacter.hpp>
-#include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Components/RectBounds.hpp>
@@ -34,94 +33,66 @@ namespace ProceduralMaze::Sys
 AltarSystem::AltarSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
-  // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
-  // the constructor
-  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&AltarSystem::on_player_action>( this );
 }
 
-void AltarSystem::check_player_collision( Events::PlayerActionEvent::GameActions action )
+void AltarSystem::check_player_collision()
 {
-  if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
-
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCandlesCount>();
   auto altar_view = getReg().view<Cmp::AltarMultiBlock>();
+  auto player_hitbox = Cmp::RectBounds( Utils::get_player_position( getReg() ).position, Constants::kGridSquareSizePixelsF, 1.5f );
 
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_candles_cmp] : player_view.each() )
+  for ( auto [altar_entity, altar_cmp] : altar_view.each() )
   {
-    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
-
-    for ( auto [altar_entity, altar_cmp] : altar_view.each() )
+    if ( player_hitbox.findIntersection( altar_cmp ) )
     {
-      if ( player_hitbox.findIntersection( altar_cmp ) )
-      {
-        SPDLOG_DEBUG( "Player collided with Altar at ({}, {})", altar_cmp.position.x, altar_cmp.position.y );
-        check_player_altar_activation( altar_entity, altar_cmp, pc_candles_cmp );
-      }
+      SPDLOG_DEBUG( "Player collided with Altar at ({}, {})", altar_cmp.position.x, altar_cmp.position.y );
+      check_player_altar_activation( altar_entity, altar_cmp );
     }
   }
 }
 
-void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp::AltarMultiBlock &altar_cmp, Cmp::PlayerCandlesCount &pc_candles_cmp )
+void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp::AltarMultiBlock &altar_cmp )
 {
 
   SPDLOG_DEBUG( "Checking altar activation: {}/{}", altar_cmp.get_activation_count(), altar_cmp.get_activation_threshold() );
   if ( altar_cmp.get_activation_count() < altar_cmp.get_activation_threshold() )
   {
-    if ( pc_candles_cmp.get_count() < 1 ) return;
+    auto [inventory_entt, inventory_type] = Utils::get_player_inventory_type( getReg() );
+    if ( not inventory_type.contains( "CARRYITEM.relic" ) ) return;
+
+    auto common_activation = [&]()
+    {
+      Factory::destroyInventory( getReg(), inventory_type );
+      Cmp::Position new_pos( altar_cmp.getCenter() - sf::Vector2{ 8.f, 8.f }, Constants::kGridSquareSizePixelsF );
+      Factory::createCarryItem( getReg(), new_pos, inventory_type, 2.f );
+      m_sound_bank.get_effect( "shrine_lighting" ).play();
+    };
+
     switch ( altar_cmp.get_activation_count() )
     {
       case 0:
-        // clang-format off
-          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { 
-            altar_cmp.set_activation_count( 1 );
-          } );
-          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) {
-            anim_cmp.m_sprite_type = "ALTAR.one";
-          } );
-
-        // clang-format on
-        pc_candles_cmp.decrement_count( 1 );
+        getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_activation_count( 1 ); } );
+        getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.one"; } );
         SPDLOG_DEBUG( "Altar activated to state ONE." );
+        common_activation();
         break;
       case 1:
-        // clang-format off
-          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { 
-            altar_cmp.set_activation_count( 2 );
-          } );
-          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) {
-            anim_cmp.m_sprite_type = "ALTAR.two";
-          } );
-
-        // clang-format on
-        pc_candles_cmp.decrement_count( 1 );
+        getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_activation_count( 2 ); } );
+        getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.two"; } );
         SPDLOG_DEBUG( "Altar activated to state TWO." );
+        common_activation();
         break;
 
       case 2:
-        // clang-format off
-          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { 
-            altar_cmp.set_activation_count( 3 ); 
-          } );
-          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) {
-            anim_cmp.m_sprite_type = "ALTAR.three";
-          } );
-
-        // clang-format on
-        pc_candles_cmp.decrement_count( 1 );
+        getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_activation_count( 3 ); } );
+        getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.three"; } );
         SPDLOG_DEBUG( "Altar activated to state THREE." );
+        common_activation();
         break;
       case 3:
-        // clang-format off
-          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { 
-            altar_cmp.set_activation_count( 4 ); 
-          } );
-          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) {
-            anim_cmp.m_sprite_type = "ALTAR.four";
-          } );
-
-        // clang-format on
-        pc_candles_cmp.decrement_count( 1 );
+        getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_activation_count( 4 ); } );
+        getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.four"; } );
         SPDLOG_DEBUG( "Altar activated to state FOUR." );
+        common_activation();
         break;
       default:
         break;
@@ -134,7 +105,6 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     if ( not altar_cmp.are_powers_active() )
     {
       SPDLOG_DEBUG( "Altar fully activated!" );
-      m_sound_bank.get_effect( "shrine_lighting" ).play();
 
       // drop an exit or crypt key
       Cmp::RandomInt key_picker( 0, 1 );

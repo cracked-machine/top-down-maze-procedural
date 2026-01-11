@@ -2,7 +2,6 @@
 #define SRC_SYSTEMS_ALTARSYSTEM_HPP__
 
 #include <Components/AltarMultiBlock.hpp>
-#include <Components/PlayerCandlesCount.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -19,14 +18,10 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
-  void on_player_action( const Events::PlayerActionEvent &event )
-  {
-    if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) { check_player_collision( event.action ); }
-  }
+  void check_player_collision();
 
 private:
-  void check_player_collision( Events::PlayerActionEvent::GameActions action );
-  void check_player_altar_activation( entt::entity altar_entity, Cmp::AltarMultiBlock &altar_cmp, Cmp::PlayerCandlesCount &pc_candles_cmp );
+  void check_player_altar_activation( entt::entity altar_entity, Cmp::AltarMultiBlock &altar_cmp );
   bool activate_altar_special_power();
 
   sf::Clock m_altar_activation_clock;

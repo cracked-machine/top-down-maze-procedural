@@ -8,6 +8,7 @@
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
+#include <Systems/AltarSystem.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/CryptSystem.hpp>
@@ -62,14 +63,9 @@ void GraveyardScene::on_init()
 
   render_game_system.init_views();
 
-  auto &sinkhole_sys = m_system_store.find<Sys::SystemStore::Type::SinkHoleHazardSystem>();
-  sinkhole_sys.init_hazard_field();
-
-  auto &corruption_sys = m_system_store.find<Sys::SystemStore::Type::CorruptionHazardSystem>();
-  corruption_sys.init_hazard_field();
-
-  auto &wormhole_sys = m_system_store.find<Sys::SystemStore::Type::WormholeSystem>();
-  wormhole_sys.spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
+  m_system_store.find<Sys::SystemStore::Type::SinkHoleHazardSystem>().init_hazard_field();
+  m_system_store.find<Sys::SystemStore::Type::CorruptionHazardSystem>().init_hazard_field();
+  m_system_store.find<Sys::SystemStore::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
   Factory::createCarryItem( m_reg, Cmp::Position( m_player_start_position + sf::Vector2f{ 16.f, 16.f }, Constants::kGridSquareSizePixelsF ),
                             "CARRYITEM.shovel" );
@@ -138,6 +134,7 @@ void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
     m_system_store.find<Sys::SystemStore::Type::CryptSystem>().check_entrance_collision();
   }
   m_system_store.find<Sys::SystemStore::Type::CryptSystem>().unlock_crypt_door();
+  m_system_store.find<Sys::SystemStore::Type::AltarSystem>().check_player_collision();
 
   // Note: this enqueues 'Events::SceneManagerEvent::Type::GAME_OVER' if player is dead
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt );

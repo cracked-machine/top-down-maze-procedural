@@ -237,6 +237,21 @@ void BombSystem::update()
       Factory::destroyNpcContainer( getReg(), npc_entity );
     }
 
+    // detonate nearby carryitems - cruel but fair
+    auto carryitem_view = getReg().view<Cmp::CarryItem, Cmp::Position>();
+    for ( auto [carryitem_entity, carryitem_cmp, carryitem_pos_cmp] : carryitem_view.each() )
+    {
+      if ( not carryitem_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
+      if ( carryitem_cmp.type == "CARRYITEM.pickaxe" or carryitem_cmp.type == "CARRYITEM.axe" or carryitem_cmp.type == "CARRYITEM.shovel" )
+      {
+        Utils::reduce_player_inventory_wear_level( getReg(), Sys::PersistSystem::get_persist_cmp<Cmp::Persist::BombDamage>( getReg() ).get_value() );
+      }
+      else
+      {
+        if ( getReg().valid( carryitem_entity ) ) { getReg().destroy( carryitem_entity ); }
+      }
+    }
+
     // Check player explosion damage
     auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
     for ( auto [pc_entt, pc_cmp, pc_health_cmp, pc_mort_cmp, pc_pos_cmp] : player_view.each() )

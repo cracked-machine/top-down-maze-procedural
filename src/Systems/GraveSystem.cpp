@@ -9,8 +9,8 @@
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
-#include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerKeysCount.hpp>
+#include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
@@ -21,6 +21,8 @@
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <Factory/PlayerFactory.hpp>
+#include <Sprites/MultiSprite.hpp>
 #include <Systems/GraveSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
@@ -127,17 +129,13 @@ void GraveSystem::check_player_grave_collision()
           case 3:
 
             auto grave_cmp_bounds = Cmp::RectBounds( grave_cmp.position, grave_cmp.size, 2.f );
-            // clang-format off
-            auto obst_entity = Factory::createLootDrop(getReg(),
-              Cmp::SpriteAnimation{ 0,0,true,"CANDLE_DROP", 0 },
-              sf::FloatRect{ grave_cmp_bounds.position(),
-              grave_cmp_bounds.size() },
-              Factory::IncludePack<>{},
-              Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::GraveSegment, Cmp::SpawnArea>{}
-            );
-            // clang-format on
+            std::vector<Sprites::SpriteMetaType> relic_selection_list{ "CARRYITEM.relic.hand", "CARRYITEM.relic.head", "CARRYITEM.relic.bone",
+                                                                       "CARRYITEM.relic.ribcage" };
+            Cmp::RandomInt relic_picker( 0, relic_selection_list.size() - 1 );
+            auto selected_relic = relic_picker.gen();
+            auto relic_entt = Factory::createCarryItem( getReg(), Utils::get_player_position( getReg() ), relic_selection_list.at( selected_relic ) );
 
-            if ( obst_entity != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
+            if ( relic_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
             break;
         }
       }

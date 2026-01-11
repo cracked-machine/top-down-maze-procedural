@@ -24,7 +24,6 @@
 #include <Components/PCDetectionBounds.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerCadaverCount.hpp>
-#include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerDistance.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
@@ -234,7 +233,6 @@ void RegistryTransfer::ensure_player_component_storages( entt::registry &registr
   registry.storage<Cmp::PlayableCharacter>();
   registry.storage<Cmp::PlayerHealth>();
   registry.storage<Cmp::PlayerWealth>();
-  registry.storage<Cmp::PlayerCandlesCount>();
   registry.storage<Cmp::PlayerMortality>();
   registry.storage<Cmp::PlayerRelicCount>();
   registry.storage<Cmp::PlayerCadaverCount>();

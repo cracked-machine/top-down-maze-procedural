@@ -49,7 +49,6 @@
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
-#include <Components/PlayerCandlesCount.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerRelicCount.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -410,15 +409,6 @@ void RenderMenuSystem::render_defeat_screen()
     start_text.setPosition( { display_size.x / 4.f, 200.f } );
     m_window.draw( start_text );
 
-    auto candle_view = getReg().view<Cmp::PlayerCandlesCount>();
-    for ( auto [entity, candlecount] : candle_view.each() )
-    {
-      sf::Text player_score_text( m_font, "CandleCount: " + std::to_string( candlecount.get_count() ), 24 );
-      player_score_text.setFillColor( sf::Color::White );
-      player_score_text.setPosition( { display_size.x / 4.f, 550.f } );
-      m_window.draw( player_score_text );
-    }
-
     auto relic_view = getReg().view<Cmp::PlayerRelicCount>();
     for ( auto [entity, reliccount] : relic_view.each() )
     {
@@ -450,14 +440,11 @@ void RenderMenuSystem::render_victory_screen()
   start_text.setPosition( { display_size.x / 4.f, 200.f } );
   m_window.draw( start_text );
 
-  auto candle_view = getReg().view<Cmp::PlayerCandlesCount>();
-  for ( auto [entity, candlecount] : candle_view.each() )
-  {
-    sf::Text player_score_text( m_font, "CandleCount: " + std::to_string( candlecount.get_count() ), 24 );
-    player_score_text.setFillColor( sf::Color::White );
-    player_score_text.setPosition( { display_size.x / 4.f, 550.f } );
-    m_window.draw( player_score_text );
-  }
+  auto [inventory_entt, inventory_type] = Utils::get_player_inventory_type( getReg() );
+  sf::Text player_inventory_text( m_font, "Player Inventory: " + ( inventory_type = "" ? "None" : inventory_type ), 24 );
+  player_inventory_text.setFillColor( sf::Color::White );
+  player_inventory_text.setPosition( { display_size.x / 4.f, 550.f } );
+  m_window.draw( player_inventory_text );
 
   auto relic_view = getReg().view<Cmp::PlayerRelicCount>();
   for ( auto [entity, reliccount] : relic_view.each() )
