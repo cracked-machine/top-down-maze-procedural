@@ -47,7 +47,7 @@ void createArmed( entt::registry &registry, entt::entity entity, Cmp::Armed::Epi
 
   if ( epi_center == Cmp::Armed::EpiCenter::YES )
   {
-    registry.emplace_or_replace<Cmp::SpriteAnimation>( new_armed_entity, 0, 0, true, "BOMB", 0 );
+    registry.emplace_or_replace<Cmp::SpriteAnimation>( new_armed_entity, 0, 0, true, "CARRYITEM.bomb", 0 );
     registry.emplace_or_replace<Cmp::ZOrderValue>( new_armed_entity, zorder );
   }
 

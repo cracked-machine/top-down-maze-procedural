@@ -181,7 +181,7 @@ void CryptSystem::unlock_crypt_door()
   auto cryptdoor_view = getReg().view<Cmp::CryptEntrance, Cmp::Position>();
 
   auto [inv_entt, inv_type] = Utils::get_player_inventory_type( getReg() );
-  if ( inv_type != Cmp::CarryItemType::CRYPTKEY ) return;
+  if ( inv_type != "CARRYITEM.cryptkey" ) return;
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
   {
@@ -219,7 +219,7 @@ void CryptSystem::unlock_crypt_door()
 
       // unlock the crypt door
       SPDLOG_INFO( "Player unlocked a crypt door at ({}, {})", door_pos_cmp.position.x, door_pos_cmp.position.y );
-      Factory::destroyInventory( getReg(), Cmp::CarryItemType::CRYPTKEY );
+      Factory::destroyInventory( getReg(), "CARRYITEM.cryptkey" );
 
       // player_key_count->decrement_count( 1 );
       m_sound_bank.get_effect( "crypt_open" ).play();

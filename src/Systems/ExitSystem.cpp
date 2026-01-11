@@ -88,7 +88,7 @@ void ExitSystem::check_player_can_unlock_exit()
     auto player_pos = Utils::get_player_position( getReg() );
     Cmp::RectBounds player_hitbox( player_pos.position, player_pos.size, 1.5f );
     auto [found_entt, found_carryitem_type] = Utils::get_player_inventory_type( getReg() );
-    if ( player_hitbox.findIntersection( exit_pos_cmp ) and found_carryitem_type == Cmp::CarryItemType::EXITKEY )
+    if ( player_hitbox.findIntersection( exit_pos_cmp ) and found_carryitem_type.contains( "exitkey" ) )
     {
       // otherwise unlock the exit
       auto exit_view = getReg().view<Cmp::Exit, Cmp::Position>();
@@ -98,7 +98,7 @@ void ExitSystem::check_player_can_unlock_exit()
         getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", 1 );
         getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y - 16.f );
         if ( m_sound_bank.get_effect( "secret" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "secret" ).play();
-        Factory::destroyInventory( getReg(), Cmp::CarryItemType::EXITKEY );
+        Factory::destroyInventory( getReg(), "CARRYITEM.exitkey" );
       }
     }
   }

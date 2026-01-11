@@ -81,17 +81,13 @@ void BombSystem::onResume()
 
 void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerActionEvent &event )
 {
-  auto inventory_view = getReg().view<Cmp::PlayerInventorySlot>();
-  bool player_has_bomb_inventory = false;
+
+  auto [inventory_entt, inventory_type] = Utils::get_player_inventory_type( getReg() );
   if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB )
   {
-    for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
-    {
-      if ( inventory_cmp.type == Cmp::CarryItemType::BOMB ) player_has_bomb_inventory = true;
-    }
-    if ( not player_has_bomb_inventory ) return;
+    if ( inventory_type != "CARRYITEM.bomb" ) return;
   }
-  
+
   auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
   for ( const auto [pc_entity, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
   {
@@ -134,11 +130,11 @@ void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerAct
           auto armed_epicenter_entity = getReg().create();
           getReg().emplace<Cmp::Position>( armed_epicenter_entity, destructable_pos_cmp.position, destructable_pos_cmp.size );
           place_concentric_bomb_pattern( armed_epicenter_entity, pc_cmp.blast_radius );
+          // remove the used bomb carry item from the player inventory - Factory::createArmed drops a new bomb
+          Factory::destroyInventory( getReg(), "CARRYITEM.bomb" );
         }
       }
     }
-    // remove the used bomb carry item from the player inventory
-    Factory::destroyInventory( getReg(), Cmp::CarryItemType::BOMB );
   }
 }
 

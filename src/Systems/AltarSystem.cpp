@@ -144,16 +144,13 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       // dont keep spawning exit keys if the exit is was already open
       if ( not Utils::is_graveyard_exit_locked( getReg() ) )
       {
-        key_entt = Factory::createCarryItem( getReg(), Utils::get_player_position( getReg() ), Cmp::CarryItemType::CRYPTKEY );
+        key_entt = Factory::createCarryItem( getReg(), Utils::get_player_position( getReg() ), "CARRYITEM.cryptkey" );
       }
       else
       {
         // otherwise if the exit is locked, its 50/50
-        if ( key_choice == 0 )
-        {
-          key_entt = Factory::createCarryItem( getReg(), Utils::get_player_position( getReg() ), Cmp::CarryItemType::EXITKEY );
-        }
-        else { key_entt = Factory::createCarryItem( getReg(), Utils::get_player_position( getReg() ), Cmp::CarryItemType::CRYPTKEY ); }
+        if ( key_choice == 0 ) { key_entt = Factory::createCarryItem( getReg(), Utils::get_player_position( getReg() ), "CARRYITEM.exitkey" ); }
+        else { key_entt = Factory::createCarryItem( getReg(), Utils::get_player_position( getReg() ), "CARRYITEM.cryptkey" ); }
       }
 
       if ( key_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }

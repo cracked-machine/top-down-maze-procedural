@@ -16,6 +16,7 @@
 // #include <Systems/BaseSystem.hpp>
 
 #include <SFML/Window/Mouse.hpp>
+#include <Sprites/MultiSprite.hpp>
 #include <cmath>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>
@@ -179,10 +180,10 @@ static Cmp::System &getSystemCmp( entt::registry &reg )
   return *system_cmp;
 }
 
-static std::pair<entt::entity, Cmp::CarryItemType> get_player_inventory_type( entt::registry &reg )
+static std::pair<entt::entity, Sprites::SpriteMetaType> get_player_inventory_type( entt::registry &reg )
 {
   auto inv_view = reg.view<Cmp::PlayerInventorySlot>();
-  Cmp::CarryItemType found_type = Cmp::CarryItemType::NONE;
+  Sprites::SpriteMetaType found_type = "";
   entt::entity found_entt = entt::null;
   // this assumes there is only one slot in the inventory, so warn if there is a bug somewhere
   if ( inv_view.size() > 1 ) SPDLOG_WARN( "Found multiple slots in signle slot inventory" );

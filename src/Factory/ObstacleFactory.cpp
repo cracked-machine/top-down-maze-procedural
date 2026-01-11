@@ -39,18 +39,17 @@ void destroyObstacle( entt::registry &registry, entt::entity obstacle_entity )
   registry.emplace_or_replace<Cmp::Armable>( obstacle_entity );
 }
 
-entt::entity createPlantObstacle( entt::registry &reg, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type, Cmp::CarryItemType carryitem_type,
-                                  float zorder )
+entt::entity createPlantObstacle( entt::registry &reg, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type, float zorder )
 {
   auto plant_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( plant_entt, pos_cmp.position, pos_cmp.size );
   reg.emplace_or_replace<Cmp::PlantObstacle>( plant_entt );
-  reg.emplace_or_replace<Cmp::CarryItem>( plant_entt, carryitem_type );
+  reg.emplace_or_replace<Cmp::CarryItem>( plant_entt, sprite_type );
   reg.emplace_or_replace<Cmp::ReservedPosition>( plant_entt );
   reg.emplace_or_replace<Cmp::ZOrderValue>( plant_entt, pos_cmp.position.y + zorder );
   reg.emplace_or_replace<Cmp::NoPathFinding>( plant_entt );
   reg.emplace_or_replace<Cmp::AbsoluteAlpha>( plant_entt, 255 );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( plant_entt, 0, 0, true, sprite_type, static_cast<int>( carryitem_type ) );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( plant_entt, 0, 0, true, sprite_type, 0 );
   reg.emplace_or_replace<Cmp::Armable>( plant_entt );
   return plant_entt;
 }

@@ -13,7 +13,7 @@ void createLootContainer( entt::registry &registry, entt::entity entt, Cmp::Posi
   registry.emplace_or_replace<Cmp::ReservedPosition>( entt );
   registry.emplace_or_replace<Cmp::Armable>( entt );
   registry.emplace_or_replace<Cmp::LootContainer>( entt );
-  registry.emplace_or_replace<Cmp::SpriteAnimation>( entt, 0, 0, true, sprite_type, sprite_tile_idx );
+  registry.emplace_or_replace<Cmp::SpriteAnimation>( entt, 0, 0, false, sprite_type, sprite_tile_idx );
   registry.emplace_or_replace<Cmp::ZOrderValue>( entt, pos_cmp.position.y - zorder );
 }
 

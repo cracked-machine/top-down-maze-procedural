@@ -87,8 +87,7 @@ void LootSystem::check_loot_collision()
       auto inventory_view = getReg().view<Cmp::PlayerInventorySlot>();
       for ( auto [weapons_entity, inventory_slot] : inventory_view.each() )
       {
-        if ( inventory_slot.type == Cmp::CarryItemType::AXE or inventory_slot.type == Cmp::CarryItemType::PICKAXE or
-             inventory_slot.type == Cmp::CarryItemType::SHOVEL )
+        if ( inventory_slot.type.contains( "axe" ) or inventory_slot.type.contains( "pickaxe" ) or inventory_slot.type.contains( "shovel" ) )
         {
           auto wear_level_cmp = getReg().try_get<Cmp::InventoryWearLevel>( weapons_entity );
           if ( wear_level_cmp )

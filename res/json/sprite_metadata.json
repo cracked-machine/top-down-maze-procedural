@@ -127,9 +127,9 @@
       "name": "POT",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/obstacles.png",
-        "sprite_indices": [8,9,10],
-        "sprites_per_sequence": 1,
+        "texture_path": "res/textures/pot.png",
+        "sprite_indices": [0,1,2,3,4,5,6],
+        "sprites_per_sequence": 7,
         "sprites_per_frame": 1,
         "grid_size": {
           "width": 1,
@@ -389,12 +389,12 @@
         }
       }
     },
-    "INVENTORY": {
-      "name": "INVENTORY",
+    "CARRYITEM.pickaxe": {
+      "name": "CARRYITEM.pickaxe",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/inventory.png",
-        "sprite_indices": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17],
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [0],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -403,12 +403,236 @@
         }
       }
     },
-    "BOMB": {
-      "name": "BOMB",
+    "CARRYITEM.axe": {
+      "name": "CARRYITEM.axe",
       "weight": 1.0,
       "multisprite": {
-        "texture_path": "res/textures/bomb.png",
-        "sprite_indices": [0],
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [10],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.shovel": {
+      "name": "CARRYITEM.shovel",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [20],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.bomb": {
+      "name": "CARRYITEM.bomb",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [30],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },    
+    "CARRYITEM.exitkey": {
+      "name": "CARRYITEM.exitkey",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [40],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.cryptkey": {
+      "name": "CARRYITEM.cryptkey",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [50],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.plant1": {
+      "name": "CARRYITEM.plant1",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [60],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.plant2": {
+      "name": "CARRYITEM.plant2",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [70],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.plant3": {
+      "name": "CARRYITEM.plant3",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [80],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.plant4": {
+      "name": "CARRYITEM.plant4",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [90],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.plant5": {
+      "name": "CARRYITEM.plant5",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [100],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.plant6": {
+      "name": "CARRYITEM.plant6",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [110],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.plant7": {
+      "name": "CARRYITEM.plant7",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [120],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.plant8": {
+      "name": "CARRYITEM.plant8",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [130],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.plant9": {
+      "name": "CARRYITEM.plant9",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [140],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.plant10": {
+      "name": "CARRYITEM.plant10",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [150],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.plant11": {
+      "name": "CARRYITEM.plant11",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [160],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.plant12": {
+      "name": "CARRYITEM.plant12",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [170],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {

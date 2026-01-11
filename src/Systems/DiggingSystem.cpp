@@ -66,8 +66,7 @@ void DiggingSystem::check_player_smash_pot()
 {
 
   auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
-  if ( inventory_slot_type != Cmp::CarryItemType::PICKAXE and inventory_slot_type != Cmp::CarryItemType::AXE and
-       inventory_slot_type != Cmp::CarryItemType::SHOVEL )
+  if ( not inventory_slot_type.contains( "pickaxe" ) and not inventory_slot_type.contains( "axe" ) and not inventory_slot_type.contains( "shovel" ) )
   {
     return;
   }
@@ -78,8 +77,8 @@ void DiggingSystem::check_player_smash_pot()
   auto digging_cooldown_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
 
-  auto loot_container_view = getReg().view<Cmp::LootContainer, Cmp::Position>();
-  for ( auto [loot_entity, loot_cmp, loot_pos_cmp] : loot_container_view.each() )
+  auto loot_container_view = getReg().view<Cmp::LootContainer, Cmp::Position, Cmp::SpriteAnimation>();
+  for ( auto [loot_entity, loot_cmp, loot_pos_cmp, loot_anim_cmp] : loot_container_view.each() )
   {
     auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::getGameView() );
     if ( mouse_position_bounds.findIntersection( loot_pos_cmp ) )
@@ -110,7 +109,8 @@ void DiggingSystem::check_player_smash_pot()
 
       if ( loot_cmp.hp > 0 )
       {
-        // play non-breaking sound and animation
+        loot_anim_cmp.m_animation_active = true;
+
         if ( m_sound_bank.get_effect( "hit_pot" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "hit_pot" ).play();
       }
       else
@@ -119,7 +119,7 @@ void DiggingSystem::check_player_smash_pot()
         auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
             std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "WEAPON_BOOST" } );
 
-        Factory::createCarryItem( getReg(), loot_pos_cmp, Cmp::CarryItemType::BOMB );
+        Factory::createCarryItem( getReg(), loot_pos_cmp, "CARRYITEM.bomb" );
 
         m_sound_bank.get_effect( "break_pot" ).play();
         auto inventory_wear_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
@@ -138,7 +138,7 @@ void DiggingSystem::check_player_smash_pot()
 void DiggingSystem::check_player_dig_obstacle_collision()
 {
   auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
-  if ( inventory_slot_type != Cmp::CarryItemType::PICKAXE ) { return; }
+  if ( not inventory_slot_type.contains( "pickaxe" ) ) { return; }
 
   if ( Utils::get_player_inventory_wear_level( getReg() ) <= 0 ) { return; }
 
@@ -216,7 +216,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
 void DiggingSystem::check_player_dig_plant_collision()
 {
   auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
-  if ( inventory_slot_type != Cmp::CarryItemType::SHOVEL ) { return; }
+  if ( not inventory_slot_type.contains( "shovel" ) ) { return; }
 
   if ( Utils::get_player_inventory_wear_level( getReg() ) <= 0 ) { return; }
 
@@ -284,9 +284,9 @@ void DiggingSystem::check_player_dig_plant_collision()
         auto inventory_wear_view = getReg().view<Cmp::PlayerInventorySlot>();
         for ( auto [inventory_entt, inventory_slot] : inventory_wear_view.each() )
         {
-          if ( inventory_slot.type == Cmp::CarryItemType::SHOVEL )
+          if ( inventory_slot.type == "CARRYITEM.shovel" )
           {
-            Factory::dropCarryItem( getReg(), obst_pos_cmp, m_sprite_factory.get_multisprite_by_type( "INVENTORY" ), inventory_entt );
+            Factory::dropCarryItem( getReg(), obst_pos_cmp, m_sprite_factory.get_multisprite_by_type( inventory_slot.type ), inventory_entt );
           }
         }
         if ( Factory::pickupCarryItem( getReg(), obst_entity ) == entt::null ) { SPDLOG_INFO( "Could not pick up item" ); }

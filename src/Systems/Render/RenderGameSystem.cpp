@@ -351,7 +351,7 @@ void RenderGameSystem::render_armed()
   auto armed_view = getReg().view<Cmp::Armed, Cmp::Position>();
   for ( auto [entity, armed_cmp, pos_cmp] : armed_view.each() )
   {
-    if ( armed_cmp.m_display_bomb_sprite ) { safe_render_sprite( "BOMB", pos_cmp, 0 ); }
+    if ( armed_cmp.m_display_bomb_sprite ) { safe_render_sprite( "CARRYITEM.bomb", pos_cmp, 0 ); }
 
     sf::RectangleShape temp_square( Constants::kGridSquareSizePixelsF );
     temp_square.setPosition( pos_cmp.position );
@@ -456,11 +456,11 @@ void RenderGameSystem::render_arrow_compass()
   auto crypt_view = getReg().view<Cmp::CryptEntrance, Cmp::Position>();
 
   auto [found_entt, found_carryitem_type] = Utils::get_player_inventory_type( getReg() );
-  if ( found_carryitem_type != Cmp::CarryItemType::EXITKEY and found_carryitem_type != Cmp::CarryItemType::CRYPTKEY ) return;
+  if ( not found_carryitem_type.contains( "exitkey" ) and not found_carryitem_type.contains( "cryptkey" ) ) return;
 
   // if exitkey then target the exit pos
   Cmp::Position arrow_target( { 0.f, 0.f }, { 0.f, 0.f } );
-  if ( found_carryitem_type == Cmp::CarryItemType::EXITKEY )
+  if ( found_carryitem_type.contains( "exitkey" ) )
   {
     for ( auto [exit_entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
     {
@@ -469,7 +469,7 @@ void RenderGameSystem::render_arrow_compass()
   }
 
   // if cryptkey then target the nearest inactive crypt
-  if ( found_carryitem_type == Cmp::CarryItemType::CRYPTKEY )
+  if ( found_carryitem_type.contains( "cryptkey" ) )
   {
     using CryptDistanceQueue = std::priority_queue<std::pair<float, Cmp::Position>, std::vector<std::pair<float, Cmp::Position>>,
                                                    Utils::Maths::DistancePositionComparator>;

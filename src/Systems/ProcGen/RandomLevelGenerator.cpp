@@ -414,17 +414,9 @@ void RandomLevelGenerator::gen_loot_containers( sf::Vector2u map_grid_size )
     auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
         getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
 
-    // pick a random loot container type and texture index
-    // clang-format off
-    auto [loot_type, rand_loot_tex_idx] = 
-      m_sprite_factory.get_random_type_and_texture_index( { 
-        "POT"
-      } );
-    // clang-format on
+    float zorder = m_sprite_factory.get_sprite_size_by_type( "POT" ).y;
 
-    float zorder = m_sprite_factory.get_sprite_size_by_type( loot_type ).y;
-
-    Factory::createLootContainer( getReg(), random_entity, random_origin_position, loot_type, rand_loot_tex_idx, zorder );
+    Factory::createLootContainer( getReg(), random_entity, random_origin_position, "POT", 0, zorder );
   }
 }
 
@@ -459,10 +451,11 @@ void RandomLevelGenerator::gen_plants( sf::Vector2u map_grid_size )
         getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
 
     // select a random number within the range of possible flora CarryItems
-    Cmp::RandomInt random_picker( static_cast<int>( Cmp::CarryItemType::PLANT1 ), static_cast<int>( Cmp::CarryItemType::PLANT12 ) );
-    auto selected_plant_index = random_picker.gen();
+    auto [rand_plant_type, rnd_plant_idx] = m_sprite_factory.get_random_type_and_texture_index(
+        { "CARRYITEM.plant1", "CARRYITEM.plant2", "CARRYITEM.plant3", "CARRYITEM.plant4", "CARRYITEM.plant5", "CARRYITEM.plant6", "CARRYITEM.plant7",
+          "CARRYITEM.plant8", "CARRYITEM.plant9", "CARRYITEM.plant10", "CARRYITEM.plant11", "CARRYITEM.plant12" } );
 
-    Factory::createPlantObstacle( getReg(), random_pos, "INVENTORY", Cmp::kCarryItemTypeList.at( selected_plant_index ), 0.f );
+    Factory::createPlantObstacle( getReg(), random_pos, rand_plant_type, 0.f );
     SPDLOG_INFO( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
   }
 }

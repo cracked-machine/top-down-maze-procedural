@@ -39,8 +39,7 @@ GraveSystem::GraveSystem( entt::registry &reg, sf::RenderWindow &window, Sprites
 void GraveSystem::check_player_grave_collision()
 {
   auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
-  if ( inventory_slot_type != Cmp::CarryItemType::PICKAXE and inventory_slot_type != Cmp::CarryItemType::AXE and
-       inventory_slot_type != Cmp::CarryItemType::SHOVEL )
+  if ( not inventory_slot_type.contains( "pickaxe" ) and not inventory_slot_type.contains( "axe" ) and not inventory_slot_type.contains( "shovel" ) )
   {
     return;
   }

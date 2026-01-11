@@ -2,6 +2,7 @@
 #include <Components/CryptPassageSpikeTrap.hpp>
 #include <Components/CryptRoomLavaPitCell.hpp>
 #include <Components/CryptRoomLavaPitCellEffect.hpp>
+#include <Components/LootContainer.hpp>
 #include <Systems/AnimSystem.hpp>
 
 #include <SFML/System/Time.hpp>
@@ -35,6 +36,28 @@ namespace ProceduralMaze::Sys
 
 void AnimSystem::update( sf::Time globalDeltaTime )
 {
+
+  // Grave Pot hit Animation
+  auto loot_container_anim_view = getReg().view<Cmp::LootContainer, Cmp::SpriteAnimation, Cmp::Position>();
+  for ( auto [loot_con_entt, loot_con_cmp, loot_con_anim_cmp, loot_con_pos_cmp] : loot_container_anim_view.each() )
+  {
+    if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), loot_con_pos_cmp ) ) continue;
+    if ( loot_con_anim_cmp.m_sprite_type == "POT" and loot_con_anim_cmp.m_animation_active == true )
+    {
+      const auto &pot_sprite_metadata = m_sprite_factory.get_multisprite_by_type( loot_con_anim_cmp.m_sprite_type );
+      auto frame_rate = sf::seconds( 0.2f );
+
+      update_single_sequence( loot_con_anim_cmp, globalDeltaTime, pot_sprite_metadata, frame_rate );
+
+      // one shot animation then deactivate, this is then destroyed by `DiggingSystem::check_player_smash_pot`
+      if ( loot_con_anim_cmp.m_current_frame == pot_sprite_metadata.get_sprites_per_sequence() - 1 )
+      {
+        SPDLOG_INFO( "Deactivating pot animation: {}", static_cast<int>( loot_con_entt ) );
+        loot_con_anim_cmp.m_animation_active = false;
+        loot_con_anim_cmp.m_current_frame = loot_con_anim_cmp.m_base_frame;
+      }
+    }
+  }
 
   // Crypt Spike Trap Animation
   auto spiketrap_view = getReg().view<Cmp::CryptPassageSpikeTrap, Cmp::SpriteAnimation, Cmp::Position>();

@@ -13,8 +13,7 @@ void createObstacle( entt::registry &registry, entt::entity entity, Cmp::Positio
 
 void destroyObstacle( entt::registry &registry, entt::entity obstacle_entity );
 
-entt::entity createPlantObstacle( entt::registry &reg, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type, Cmp::CarryItemType carryitem_type,
-                                  float zorder );
+entt::entity createPlantObstacle( entt::registry &reg, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type, float zorder );
 
 } // namespace ProceduralMaze::Factory
 

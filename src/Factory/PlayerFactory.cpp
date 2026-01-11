@@ -73,9 +73,9 @@ void CreatePlayer( entt::registry &registry )
   registry.emplace<Cmp::AbsoluteRotation>( entity, 0 );
 
   auto inventory_entity = registry.create();
-  registry.emplace<Cmp::PlayerInventorySlot>( inventory_entity, Cmp::CarryItemType::PICKAXE );
+  registry.emplace<Cmp::PlayerInventorySlot>( inventory_entity, "CARRYITEM.pickaxe" );
   registry.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, 100.f );
-  registry.emplace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, true, "INVENTORY", static_cast<int>( Cmp::CarryItemType::PICKAXE ) );
+  registry.emplace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, true, "CARRYITEM.pickaxe", 0 );
 }
 
 entt::entity createWorldPosition( entt::registry &registry, const sf::Vector2f &pos )
@@ -120,14 +120,19 @@ void createPlayerDeathAnim( entt::registry &registry, Cmp::Position player_pos_c
   registry.emplace_or_replace<Cmp::ZOrderValue>( player_blood_splat_entity, player_pos_cmp.position.y * 3 ); // always infront
 }
 
-entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, Cmp::CarryItemType type )
+//! @brief Create a Carry Item object in the world
+//! @param reg the ECS registry
+//! @param pos the position to place the new item
+//! @param type the item type. See "CARRYITEM.xxxx" in res/json/sprite_metadata.json
+//! @return entt::entity
+entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, Sprites::SpriteMetaType type )
 {
   auto world_carry_item_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, "INVENTORY", static_cast<int>( type ) );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, type, 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f );
   reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, type );
-  if ( type == Cmp::CarryItemType::AXE || type == Cmp::CarryItemType::PICKAXE || type == Cmp::CarryItemType::SHOVEL )
+  if ( type == "CARRYITEM.axe" || type == "CARRYITEM.pickaxe" || type == "CARRYITEM.shovel" )
   {
     reg.emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, 50.f );
   }
@@ -135,6 +140,12 @@ entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, Cmp::Carry
   return world_carry_item_entt;
 }
 
+//! @brief Remove the CarryItem from player inventory and place it into the world
+//! @param reg the ECS registry
+//! @param pos the postion to place the item
+//! @param sprite the multisprite object
+//! @param inventory_slot_cmp_entt the player inventory slot entt
+//! @return entt::entity
 entt::entity dropCarryItem( entt::registry &reg, Cmp::Position pos, const Sprites::MultiSprite &sprite, entt::entity inventory_slot_cmp_entt )
 {
   auto inventory_slot_cmp = reg.try_get<Cmp::PlayerInventorySlot>( inventory_slot_cmp_entt );
@@ -143,14 +154,9 @@ entt::entity dropCarryItem( entt::registry &reg, Cmp::Position pos, const Sprite
   if ( not inventory_slot_cmp ) return entt::null;
 
   // if plant then replant it in the ground
-  if ( inventory_slot_cmp->type == Cmp::CarryItemType::PLANT1 or inventory_slot_cmp->type == Cmp::CarryItemType::PLANT2 or
-       inventory_slot_cmp->type == Cmp::CarryItemType::PLANT3 or inventory_slot_cmp->type == Cmp::CarryItemType::PLANT4 or
-       inventory_slot_cmp->type == Cmp::CarryItemType::PLANT5 or inventory_slot_cmp->type == Cmp::CarryItemType::PLANT6 or
-       inventory_slot_cmp->type == Cmp::CarryItemType::PLANT7 or inventory_slot_cmp->type == Cmp::CarryItemType::PLANT8 or
-       inventory_slot_cmp->type == Cmp::CarryItemType::PLANT9 or inventory_slot_cmp->type == Cmp::CarryItemType::PLANT10 or
-       inventory_slot_cmp->type == Cmp::CarryItemType::PLANT11 or inventory_slot_cmp->type == Cmp::CarryItemType::PLANT12 )
+  if ( inventory_slot_cmp->type.contains( "plant" ) )
   {
-    auto world_carry_item_entt = Factory::createPlantObstacle( reg, pos, "INVENTORY", inventory_slot_cmp->type, 0.f );
+    auto world_carry_item_entt = Factory::createPlantObstacle( reg, pos, inventory_slot_cmp->type, 0.f );
     reg.destroy( inventory_slot_cmp_entt );
     return world_carry_item_entt;
   }
@@ -159,8 +165,7 @@ entt::entity dropCarryItem( entt::registry &reg, Cmp::Position pos, const Sprite
     // otherwise just drop it as a Re-pickupable item
     auto world_carry_item_entt = reg.create();
     reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
-    reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, sprite.get_sprite_type(),
-                                                  static_cast<int>( inventory_slot_cmp->type ) );
+    reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, false, sprite.get_sprite_type(), 0 );
     reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f );
     reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, inventory_slot_cmp->type );
 
@@ -170,6 +175,10 @@ entt::entity dropCarryItem( entt::registry &reg, Cmp::Position pos, const Sprite
   }
 }
 
+//! @brief Remove the CarryItem from the world and add it to the player inventory
+//! @param reg the ECS registry
+//! @param carryitem_entt the CarryItem entt from the world
+//! @return entt::entity
 entt::entity pickupCarryItem( entt::registry &reg, entt::entity carryitem_entt )
 {
   auto carryitem_cmp = reg.try_get<Cmp::CarryItem>( carryitem_entt );
@@ -179,7 +188,7 @@ entt::entity pickupCarryItem( entt::registry &reg, entt::entity carryitem_entt )
 
   auto inventory_entity = reg.create();
   reg.emplace<Cmp::PlayerInventorySlot>( inventory_entity, carryitem_cmp->type );
-  reg.emplace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, true, "INVENTORY", static_cast<int>( carryitem_cmp->type ) );
+  reg.emplace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, false, carryitem_cmp->type, 0 );
   if ( carryitem_slot_level_cmp ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, carryitem_slot_level_cmp->m_level ); }
 
   reg.destroy( carryitem_entt );
@@ -187,7 +196,10 @@ entt::entity pickupCarryItem( entt::registry &reg, entt::entity carryitem_entt )
   return inventory_entity;
 }
 
-void destroyInventory( entt::registry &reg, const Cmp::CarryItemType type )
+//! @brief Destroy all player inventory slots matching a type. See "CARRYITEM.xxxx" in res/json/sprite_metadata.json
+//! @param reg the ECS registry
+//! @param type the type to destroy
+void destroyInventory( entt::registry &reg, const Sprites::SpriteMetaType type )
 {
   auto inventory_view = reg.view<Cmp::PlayerInventorySlot>();
   for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )

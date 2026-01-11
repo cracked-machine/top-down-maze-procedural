@@ -17,8 +17,8 @@ void addSpawnArea( entt::registry &registry, entt::entity entity, float zorder )
 void createPlayerDeathAnim( entt::registry &registry, Cmp::Position player_pos_cmp, const Sprites::MultiSprite &sprite );
 entt::entity dropCarryItem( entt::registry &reg, Cmp::Position pos, const Sprites::MultiSprite &sprite, entt::entity inventory_slot_cmp_entt );
 entt::entity pickupCarryItem( entt::registry &reg, entt::entity carryitem_entt );
-entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, Cmp::CarryItemType type );
-void destroyInventory( entt::registry &reg, const Cmp::CarryItemType type );
+entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, const Sprites::SpriteMetaType type );
+void destroyInventory( entt::registry &reg, const Sprites::SpriteMetaType type );
 
 } // namespace ProceduralMaze::Factory
 

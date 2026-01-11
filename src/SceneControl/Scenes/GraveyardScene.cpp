@@ -72,10 +72,10 @@ void GraveyardScene::on_init()
   wormhole_sys.spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
   Factory::createCarryItem( m_reg, Cmp::Position( m_player_start_position + sf::Vector2f{ 16.f, 16.f }, Constants::kGridSquareSizePixelsF ),
-                            Cmp::CarryItemType::SHOVEL );
+                            "CARRYITEM.shovel" );
 
   Factory::createCarryItem( m_reg, Cmp::Position( m_player_start_position - sf::Vector2f{ 16.f, 16.f }, Constants::kGridSquareSizePixelsF ),
-                            Cmp::CarryItemType::AXE );
+                            "CARRYITEM.axe" );
 }
 
 void GraveyardScene::on_enter()

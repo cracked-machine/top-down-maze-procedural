@@ -216,8 +216,7 @@ void RenderOverlaySystem::render_inventory_overlay( [[maybe_unused]] sf::Vector2
   auto inventory_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::SpriteAnimation>();
   for ( auto [inventory_entt, inventory_cmp, anim_cmp] : inventory_view.each() )
   {
-    RenderSystem::safe_render_sprite( anim_cmp.m_sprite_type, { icon_pos, Constants::kGridSquareSizePixelsF }, static_cast<int>( inventory_cmp.type ),
-                                      icon_scale );
+    RenderSystem::safe_render_sprite( anim_cmp.m_sprite_type, { icon_pos, Constants::kGridSquareSizePixelsF }, 0, icon_scale );
   }
 }
 
