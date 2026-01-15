@@ -1585,7 +1585,7 @@
         }
       }
     },
-        "CRYPT.interior_objective_opened": {
+    "CRYPT.interior_objective_opened": {
       "name": "CRYPT.interior_objective_opened",
       "weight": 1.0,
       "multisprite": {
@@ -1616,6 +1616,22 @@
         "grid_size": {
           "width": 18,
           "height": 8
+        }
+      }
+    },
+    "ALTAR.sacrifice.anim": {
+      "name": "ALTAR.sacrifice.anim",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
+        "sprite_indices": [
+          383, 384, 385, 386, 387
+        ],
+        "sprites_per_sequence": 5,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 3
         }
       }
     }

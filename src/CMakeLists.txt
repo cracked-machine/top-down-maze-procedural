@@ -53,6 +53,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Factory/ObstacleFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/BombFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/CryptFactory.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/AltarFactory.cpp
 )
 
 target_link_libraries(${TARGET} PRIVATE 

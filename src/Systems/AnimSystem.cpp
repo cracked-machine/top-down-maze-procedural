@@ -1,3 +1,4 @@
+#include <Components/AltarSacrifice.hpp>
 #include <Components/CryptChest.hpp>
 #include <Components/CryptPassageSpikeTrap.hpp>
 #include <Components/CryptRoomLavaPitCell.hpp>
@@ -36,6 +37,28 @@ namespace ProceduralMaze::Sys
 
 void AnimSystem::update( sf::Time globalDeltaTime )
 {
+
+  // Grave Pot hit Animation
+  auto altar_sacrifice_anim_view = getReg().view<Cmp::AltarSacrifice, Cmp::SpriteAnimation, Cmp::Position>();
+  for ( auto [altar_sacrifice_entt, altar_sacrifice_cmp, altar_sacrifice_anim_cmp, altar_sacrifice_pos_cmp] : altar_sacrifice_anim_view.each() )
+  {
+    if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), altar_sacrifice_pos_cmp ) ) continue;
+    if ( altar_sacrifice_anim_cmp.m_sprite_type == "ALTAR.sacrifice.anim" and altar_sacrifice_anim_cmp.m_animation_active == true )
+    {
+      const auto &altar_sacrifice_sprite_metadata = m_sprite_factory.get_multisprite_by_type( altar_sacrifice_anim_cmp.m_sprite_type );
+      auto frame_rate = sf::seconds( 0.2f );
+
+      update_single_sequence( altar_sacrifice_anim_cmp, globalDeltaTime, altar_sacrifice_sprite_metadata, frame_rate );
+
+      // one shot animation then deactivate, this is then destroyed by `AltarSystem`
+      if ( altar_sacrifice_anim_cmp.m_current_frame == altar_sacrifice_sprite_metadata.get_sprites_per_sequence() - 1 )
+      {
+        SPDLOG_DEBUG( "Deactivating altar sacrifice animation: {}", static_cast<int>( loot_con_entt ) );
+        altar_sacrifice_anim_cmp.m_animation_active = false;
+        altar_sacrifice_anim_cmp.m_current_frame = altar_sacrifice_anim_cmp.m_base_frame;
+      }
+    }
+  }
 
   // Grave Pot hit Animation
   auto loot_container_anim_view = getReg().view<Cmp::LootContainer, Cmp::SpriteAnimation, Cmp::Position>();

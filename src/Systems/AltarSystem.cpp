@@ -1,4 +1,7 @@
+#include <Components/AltarSacrifice.hpp>
 #include <Components/Inventory/CarryItem.hpp>
+#include <Components/SpriteAnimation.hpp>
+#include <Factory/AltarFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Systems/AltarSystem.hpp>
 
@@ -37,6 +40,16 @@ AltarSystem::AltarSystem( entt::registry &reg, sf::RenderWindow &window, Sprites
 
 void AltarSystem::check_player_collision()
 {
+  // tidy up any dead altar sacrifice animations
+  auto altar_sacrifice_view = getReg().view<Cmp::AltarSacrifice, Cmp::SpriteAnimation>();
+  for ( auto [altar_sacrifice_entt, altar_sacrifice_cmp, altar_sacrifice_anim_cmp] : altar_sacrifice_view.each() )
+  {
+    if ( not altar_sacrifice_anim_cmp.m_animation_active )
+    {
+      if ( getReg().valid( altar_sacrifice_entt ) ) { getReg().destroy( altar_sacrifice_entt ); }
+    }
+  }
+
   auto altar_view = getReg().view<Cmp::AltarMultiBlock>();
   auto player_hitbox = Cmp::RectBounds( Utils::get_player_position( getReg() ).position, Constants::kGridSquareSizePixelsF, 1.5f );
 
@@ -62,9 +75,13 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     auto common_activation = [&]()
     {
       Factory::destroyInventory( getReg(), inventory_type );
-      Cmp::Position new_pos( altar_cmp.getCenter() - sf::Vector2{ 8.f, 8.f }, Constants::kGridSquareSizePixelsF );
-      Factory::createCarryItem( getReg(), new_pos, inventory_type, 2.f );
+      float altar_sacrifice_anim_height = m_sprite_factory.get_multisprite_by_type( "ALTAR.sacrifice.anim" ).getSpriteSizePixels().y;
+      // get the center (topleft coord), then adjust to center the altar_sacrifice_anim, then adjust for altar_sacrifice_anim height
+      Cmp::Position new_pos( altar_cmp.getCenter() - sf::Vector2{ 8.f, 8.f } - sf::Vector2{ 0.f, altar_sacrifice_anim_height },
+                             Constants::kGridSquareSizePixelsF );
+      // Factory::createCarryItem( getReg(), new_pos, inventory_type, 2.f );
       m_sound_bank.get_effect( "shrine_lighting" ).play();
+      Factory::createAltarSacrificeAnimation( getReg(), new_pos );
     };
 
     switch ( altar_cmp.get_activation_count() )
