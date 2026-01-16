@@ -79,6 +79,8 @@ private:
 
   void render_dark_mode_shader();
 
+  void render_scryingball_doglegs();
+
   //! @brief Adds visible entities of a specific component type to the Z-order queue
   //! Optimized (single-type view) query on entt components for visibility check and Z-order queue
   //! addition

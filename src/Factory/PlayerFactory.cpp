@@ -5,6 +5,7 @@
 #include <Components/DeathPosition.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/ScryingBall.hpp>
 #include <Components/InventoryWearLevel.hpp>
 #include <Components/Neighbours.hpp>
 #include <Components/NoPathFinding.hpp>
@@ -123,6 +124,34 @@ void createPlayerDeathAnim( entt::registry &registry, Cmp::Position player_pos_c
 //! @return entt::entity
 entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, Sprites::SpriteMetaType type, float zorder )
 {
+  if ( type == "CARRYITEM.scryingball" )
+  {
+    // Check if we can create a scrying ball with a unique target BEFORE creating the entity
+    std::vector<Cmp::ScryingBall::Target> exclude_list;
+    for ( auto [scryingball_entt, scryingball_cmp] : reg.view<Cmp::ScryingBall>().each() )
+    {
+      exclude_list.push_back( scryingball_cmp.target );
+    }
+    auto pick = Cmp::ScryingBall::random_pick( exclude_list );
+    if ( pick == Cmp::ScryingBall::Target::NONE )
+    {
+      SPDLOG_WARN( "Cannot create scrying ball - all targets already assigned" );
+      return entt::null;
+    }
+
+    // Now create the entity with the valid target
+    auto world_carry_item_entt = reg.create();
+    reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
+    reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, type, 0 );
+    reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
+    reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, type );
+    reg.emplace_or_replace<Cmp::NoPathFinding>( world_carry_item_entt );
+    reg.emplace_or_replace<Cmp::ScryingBall>( world_carry_item_entt, false, pick );
+
+    SPDLOG_INFO( "Placed {} at {},{}", type, pos.position.x, pos.position.y );
+    return world_carry_item_entt;
+  }
+
   auto world_carry_item_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
   reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, type, 0 );
@@ -134,6 +163,8 @@ entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, Sprites::S
     reg.emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, 100.f );
   }
 
+  SPDLOG_INFO( "Placed {} at {},{}", type, pos.position.x, pos.position.y );
+
   return world_carry_item_entt;
 }
 
@@ -143,10 +174,10 @@ entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, Sprites::S
 //! @param sprite the multisprite object
 //! @param inventory_slot_cmp_entt the player inventory slot entt
 //! @return entt::entity
-entt::entity dropCarryItem( entt::registry &reg, Cmp::Position pos, const Sprites::MultiSprite &sprite, entt::entity inventory_slot_cmp_entt )
+entt::entity dropInventorySlotIntoWorld( entt::registry &reg, Cmp::Position pos, const Sprites::MultiSprite &sprite,
+                                         entt::entity inventory_slot_entt )
 {
-  auto inventory_slot_cmp = reg.try_get<Cmp::PlayerInventorySlot>( inventory_slot_cmp_entt );
-  auto inventory_slot_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( inventory_slot_cmp_entt );
+  auto inventory_slot_cmp = reg.try_get<Cmp::PlayerInventorySlot>( inventory_slot_entt );
 
   if ( not inventory_slot_cmp ) return entt::null;
 
@@ -154,7 +185,7 @@ entt::entity dropCarryItem( entt::registry &reg, Cmp::Position pos, const Sprite
   if ( inventory_slot_cmp->type.contains( "plant" ) )
   {
     auto world_carry_item_entt = Factory::createPlantObstacle( reg, pos, inventory_slot_cmp->type, 0.f );
-    reg.destroy( inventory_slot_cmp_entt );
+    reg.destroy( inventory_slot_entt );
     return world_carry_item_entt;
   }
   else
@@ -167,8 +198,15 @@ entt::entity dropCarryItem( entt::registry &reg, Cmp::Position pos, const Sprite
     reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, inventory_slot_cmp->type );
     reg.emplace_or_replace<Cmp::NoPathFinding>( world_carry_item_entt );
 
+    // try to copy any relevant components over to the new world carryitem entt
+    auto inventory_slot_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( inventory_slot_entt );
     if ( inventory_slot_level_cmp ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, inventory_slot_level_cmp->m_level ); }
-    reg.destroy( inventory_slot_cmp_entt );
+
+    auto inventory_scryingball_cmp = reg.try_get<Cmp::ScryingBall>( inventory_slot_entt );
+    if ( inventory_scryingball_cmp ) { reg.emplace_or_replace<Cmp::ScryingBall>( world_carry_item_entt, true, inventory_scryingball_cmp->target ); }
+
+    // now destroy the inventory slot
+    reg.destroy( inventory_slot_entt );
     return world_carry_item_entt;
   }
 }
@@ -180,15 +218,21 @@ entt::entity dropCarryItem( entt::registry &reg, Cmp::Position pos, const Sprite
 entt::entity pickupCarryItem( entt::registry &reg, entt::entity carryitem_entt )
 {
   auto carryitem_cmp = reg.try_get<Cmp::CarryItem>( carryitem_entt );
-  auto carryitem_slot_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( carryitem_entt );
-
   if ( not carryitem_cmp ) return entt::null;
 
+  // create the basic inventory slot entt
   auto inventory_entity = reg.create();
   reg.emplace<Cmp::PlayerInventorySlot>( inventory_entity, carryitem_cmp->type );
   reg.emplace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, false, carryitem_cmp->type, 0 );
+
+  // get any carryitem-specific components that we want to copy across into the inventory entt
+  auto carryitem_slot_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( carryitem_entt );
   if ( carryitem_slot_level_cmp ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, carryitem_slot_level_cmp->m_level ); }
 
+  auto carryitem_scryingball_cmp = reg.try_get<Cmp::ScryingBall>( carryitem_entt );
+  if ( carryitem_scryingball_cmp ) { reg.emplace_or_replace<Cmp::ScryingBall>( inventory_entity, false, carryitem_scryingball_cmp->target ); }
+
+  // now destroy the carryitem entt
   reg.destroy( carryitem_entt );
 
   return inventory_entity;

@@ -71,6 +71,9 @@ void GraveyardScene::on_init()
 
   Factory::createCarryItem( m_reg, Cmp::Position( m_player_start_position - sf::Vector2f{ 16.f, 16.f }, Constants::kGridSquareSizePixelsF ),
                             "CARRYITEM.axe" );
+
+  Factory::createCarryItem( m_reg, Cmp::Position( m_player_start_position - sf::Vector2f{ 32.f, 16.f }, Constants::kGridSquareSizePixelsF ),
+                            "CARRYITEM.scryingball" );
 }
 
 void GraveyardScene::on_enter()

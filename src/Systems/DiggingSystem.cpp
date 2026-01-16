@@ -3,10 +3,12 @@
 #include <Components/LootContainer.hpp>
 #include <Components/NPC.hpp>
 #include <Components/PlantObstacle.hpp>
+#include <Components/Random.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Time.hpp>
+#include <Sprites/MultiSprite.hpp>
 #include <Utils/Utils.hpp>
 #include <spdlog/spdlog.h>
 
@@ -117,10 +119,10 @@ void DiggingSystem::check_player_smash_pot()
       else
       {
         // pot was broken by player
-        auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
-            std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "WEAPON_BOOST" } );
-
-        Factory::createCarryItem( getReg(), loot_pos_cmp, "CARRYITEM.bomb" );
+        std::vector<Sprites::SpriteMetaType> luckydip{ "CARRYITEM.bomb", "CARRYITEM.scryingball", "CARRYITEM.cursetablet" };
+        Cmp::RandomInt picker( 0, luckydip.size() - 1 );
+        Sprites::SpriteMetaType selection = luckydip.at( picker.gen() );
+        Factory::createCarryItem( getReg(), loot_pos_cmp, selection );
 
         m_sound_bank.get_effect( "break_pot" ).play();
         auto inventory_wear_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
@@ -295,7 +297,8 @@ void DiggingSystem::check_player_dig_plant_collision()
         {
           if ( inventory_slot.type == "CARRYITEM.shovel" )
           {
-            Factory::dropCarryItem( getReg(), obst_pos_cmp, m_sprite_factory.get_multisprite_by_type( inventory_slot.type ), inventory_entt );
+            Factory::dropInventorySlotIntoWorld( getReg(), obst_pos_cmp, m_sprite_factory.get_multisprite_by_type( inventory_slot.type ),
+                                                 inventory_entt );
           }
           else if ( inventory_slot.type == "CARRYITEM.axe" )
           {
@@ -311,104 +314,6 @@ void DiggingSystem::check_player_dig_plant_collision()
         // play digging sound and animation
         m_sound_bank.get_effect( "digging_earth" ).play();
       }
-    }
-  }
-}
-
-void DiggingSystem::check_player_axe_npc_collision()
-{
-  auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
-  if ( inventory_slot_type != "CARRYITEM.axe" ) { return; }
-
-  if ( Utils::get_player_inventory_wear_level( getReg() ) <= 0 ) { return; }
-
-  // abort if still in cooldown
-  auto digging_cooldown_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
-  if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
-  {
-    SPDLOG_DEBUG( "Still in cooldown" );
-    return;
-  }
-
-  // Cooldown has expired: Remove any existing SelectedPosition components from the registry
-  auto selected_position_view = getReg().view<Cmp::SelectedPosition>();
-  for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
-  {
-    getReg().remove<Cmp::SelectedPosition>( existing_sel_entity );
-  }
-
-  // Iterate through all entities with Position and Obstacle components
-  auto position_view = getReg().view<Cmp::Position, Cmp::NPC, Cmp::SpriteAnimation>( entt::exclude<Cmp::SelectedPosition> );
-  SPDLOG_DEBUG( "position_view size: {}", position_view.size_hint() );
-  for ( auto [npc_entity, npc_pos_cmp, npc_cmp, anim_cmp] : position_view.each() )
-  {
-    if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) continue;
-    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::getGameView() );
-    if ( mouse_position_bounds.findIntersection( npc_pos_cmp ) )
-    {
-      SPDLOG_DEBUG( "Found NPC entity at position: [{}, {}]!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
-
-      // TODO: check player is facing the obstacle
-      // Check player proximity to the entity
-      bool player_nearby = false;
-      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
-      {
-        auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
-        if ( player_hitbox.findIntersection( npc_pos_cmp ) )
-        {
-          player_nearby = true;
-          break;
-        }
-      }
-
-      // skip this iteration of the loop if player too far away
-      if ( not player_nearby ) { continue; }
-
-      // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
-      // Add a new SelectedPosition component to the entity
-      getReg().emplace_or_replace<Cmp::SelectedPosition>( npc_entity, npc_pos_cmp.position );
-
-      // Apply digging damage, play a sound depending on whether the obstacle was destroyed
-      m_dig_cooldown_clock.restart();
-
-      float reduction_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
-      Utils::reduce_player_inventory_wear_level( getReg(), reduction_amount );
-
-      // select the final smash sound
-      m_sound_bank.get_effect( "axe_whip" ).play();
-      m_sound_bank.get_effect( "skele_death" ).play();
-
-      auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
-      if ( inventory_slot_type == "CARRYITEM.axe" )
-      {
-        // drop loot - 1 in 3 chance
-        auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
-            std::vector<std::string>{ "EXTRA_HEALTH", "CHAIN_BOMBS", "WEAPON_BOOST" } );
-
-        Cmp::RandomInt do_drop( 0, 2 );
-        if ( do_drop.gen() == 0 )
-        {
-          // clang-format off
-          auto dropped_loot_entt = Factory::createLootDrop( 
-            getReg(), 
-            Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),                                        
-            sf::FloatRect{ npc_pos_cmp.position, npc_pos_cmp.size }, 
-            Factory::IncludePack<>{},
-            Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition>{} );
-          // clang-format on
-
-          if ( dropped_loot_entt != entt::null )
-          {
-            SPDLOG_INFO( "NPC dropped loot." );
-            m_sound_bank.get_effect( "drop_loot" ).play();
-          }
-        }
-
-        // now destroy the NPC
-        if ( getReg().valid( npc_entity ) ) getReg().destroy( npc_entity );
-      }
-
-      SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
     }
   }
 }

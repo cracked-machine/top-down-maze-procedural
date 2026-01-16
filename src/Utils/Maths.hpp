@@ -2,6 +2,8 @@
 #define SRC_UTILS_MATHS_HPP__
 
 #include <Components/Position.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <algorithm>
 #include <cmath>
@@ -90,6 +92,45 @@ static float normalizeAngle( float angle )
   angle = std::fmod( angle, 2.0f * std::numbers::pi );
   return angle < 0 ? angle + 2.0f * std::numbers::pi : angle;
 }
+
+//! @brief Create a thick line rect object
+//! @example `m_window.draw( Utils::Maths::thick_line_rect( source_pos, corner, color, thickness ) );`
+//! @param start
+//! @param end
+//! @param color
+//! @param thickness
+//! @return sf::RectangleShape
+static sf::RectangleShape thick_line_rect( sf::Vector2f start, sf::Vector2f end, sf::Color color, float thickness )
+{
+  sf::Vector2f direction = end - start;
+  float length = direction.length();
+  sf::Angle angle = direction.angle();
+
+  sf::RectangleShape line( { length, thickness } );
+  line.setPosition( start );
+  line.setOrigin( { 0.f, thickness / 2.f } ); // center vertically
+  line.setRotation( angle );
+  line.setFillColor( color );
+  return line;
+};
+
+//! @brief Create a thick line quad object
+//! @example `m_window.draw( Utils::Maths::thick_line_quad(quad.data(), quad.size(), sf::PrimitiveType::TriangleStrip) );`
+//! @param start
+//! @param end
+//! @param color
+//! @param thickness
+//! @return std::array<sf::Vertex, 4>
+static std::array<sf::Vertex, 4> thick_line_quad( sf::Vector2f start, sf::Vector2f end, sf::Color color, float thickness )
+{
+  sf::Vector2f direction = ( end - start ).normalized();
+  sf::Vector2f perpendicular{ -direction.y, direction.x };
+  sf::Vector2f offset = perpendicular * ( thickness / 2.f );
+
+  std::array<sf::Vertex, 4> quad = { sf::Vertex{ start - offset, color }, sf::Vertex{ start + offset, color }, sf::Vertex{ end - offset, color },
+                                     sf::Vertex{ end + offset, color } };
+  return quad;
+};
 
 } // namespace ProceduralMaze::Utils::Maths
 

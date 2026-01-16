@@ -6,7 +6,7 @@ namespace ProceduralMaze::Events
 
 struct PlayerActionEvent
 {
-  enum class GameActions { DROP_BOMB, GRAVE_BOMB, ACTIVATE, DIG, ATTACK };
+  enum class GameActions { DROP_BOMB, GRAVE_BOMB, ACTIVATE, DIG, ATTACK, DROP_CARRYITEM };
 
   GameActions action;
   explicit PlayerActionEvent( GameActions act )

@@ -697,6 +697,34 @@
         }
       }
     },
+    "CARRYITEM.scryingball": {
+      "name": "CARRYITEM.scryingball",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [220],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.cursetablet": {
+      "name": "CARRYITEM.cursetablet",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [230],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
     "EXTRA_HEALTH": {
       "name": "EXTRA_HEALTH",
       "weight": 30.0,

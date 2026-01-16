@@ -1,5 +1,6 @@
 
 #include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/ScryingBall.hpp>
 #include <Components/NPC.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
@@ -157,7 +158,7 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
 void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionEvent ev )
 {
 
-  if ( ev.action == ProceduralMaze::Events::PlayerActionEvent::GameActions::ACTIVATE )
+  if ( ev.action == Events::PlayerActionEvent::GameActions::DROP_CARRYITEM )
   {
     if ( m_inventory_cooldown_timer.getElapsedTime() < sf::milliseconds( 750.f ) ) return;
 
@@ -169,8 +170,8 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
     for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
     {
       existing_player_inventory_type = inventory_cmp.type;
-      auto dropped_entt = Factory::dropCarryItem( getReg(), player_pos, m_sprite_factory.get_multisprite_by_type( inventory_cmp.type ),
-                                                  inventory_entt );
+      auto dropped_entt = Factory::dropInventorySlotIntoWorld( getReg(), player_pos, m_sprite_factory.get_multisprite_by_type( inventory_cmp.type ),
+                                                               inventory_entt );
       if ( dropped_entt != entt::null )
       {
         if ( existing_player_inventory_type.contains( "plant" ) ) { m_sound_bank.get_effect( "digging_earth" ).play(); }
@@ -178,7 +179,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
       }
     }
 
-    // pickup inventory
+    // pickup inventory if there is something at this position
     auto world_carryitem_view = getReg().view<Cmp::CarryItem, Cmp::Position>();
     for ( auto [carryitem_entt, carryitem_cmp, pos_cmp] : world_carryitem_view.each() )
     {
@@ -486,14 +487,6 @@ void PlayerSystem::check_player_axe_npc_kill()
 
   if ( Utils::get_player_inventory_wear_level( getReg() ) <= 0 ) { return; }
 
-  // // abort if still in cooldown
-  // auto digging_cooldown_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
-  // if ( m_attack_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
-  // {
-  //   SPDLOG_DEBUG( "Still in cooldown" );
-  //   return;
-  // }
-
   // Cooldown has expired: Remove any existing SelectedPosition components from the registry
   auto selected_position_view = getReg().view<Cmp::SelectedPosition>();
   for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
@@ -531,9 +524,6 @@ void PlayerSystem::check_player_axe_npc_kill()
       // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
       // Add a new SelectedPosition component to the entity
       getReg().emplace_or_replace<Cmp::SelectedPosition>( npc_entity, npc_pos_cmp.position );
-
-      // Apply digging damage, play a sound depending on whether the obstacle was destroyed
-      // m_attack_cooldown_clock.restart();
 
       float reduction_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
       Utils::reduce_player_inventory_wear_level( getReg(), reduction_amount );

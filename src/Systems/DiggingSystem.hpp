@@ -49,7 +49,6 @@ private:
   void check_player_dig_obstacle_collision();
   void check_player_dig_plant_collision();
   void check_player_smash_pot();
-  void check_player_axe_npc_collision();
 
   // Cooldown clock to manage digging intervals
   sf::Clock m_dig_cooldown_clock;

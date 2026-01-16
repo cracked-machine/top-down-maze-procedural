@@ -12,11 +12,13 @@
 #include <Components/CryptRoomOpen.hpp>
 #include <Components/CryptRoomStart.hpp>
 #include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/ScryingBall.hpp>
 #include <Components/NpcShockwave.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/PlayerCadaverCount.hpp>
 #include <Components/PlayerWealth.hpp>
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
@@ -162,6 +164,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
 
       render_background_water( player_position );
       render_floormap( floormap, { 0, 0 } );
+      render_scryingball_doglegs();
 
       for ( const auto &zorder_entry : m_zorder_queue_ )
       {
@@ -565,6 +568,57 @@ void RenderGameSystem::render_dark_mode_shader()
   auto display_res = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
   m_dark_mode_shader.update( shader_local_position, aperture_half_size, kLocalMapViewSize, display_res );
   m_window.draw( m_dark_mode_shader );
+}
+
+void RenderGameSystem::render_scryingball_doglegs()
+{
+  auto draw_dogleg = [this]( sf::Vector2f source_pos, sf::Vector2f target_pos, sf::Color color, float thickness )
+  {
+    sf::Vector2f corner{};
+    if ( target_pos.y - source_pos.y < target_pos.x - source_pos.x ) { corner = sf::Vector2f{ source_pos.x, target_pos.y }; }
+    else { corner = sf::Vector2f{ target_pos.x, source_pos.y }; }
+
+    m_window.draw( Utils::Maths::thick_line_rect( source_pos, corner, color, thickness ) );
+    m_window.draw( Utils::Maths::thick_line_rect( corner, target_pos, color, thickness ) );
+  };
+
+  constexpr float kLineThickness = 3.f;
+  for ( auto [scryingball_ent, scryingball_cmp, scryingball_pos_cmp] : getReg().view<Cmp::ScryingBall, Cmp::Position>().each() )
+  {
+    if ( not scryingball_cmp.active ) continue;
+    switch ( scryingball_cmp.target )
+    {
+      case Cmp::ScryingBall::Target::YELLOW: {
+        auto altar_view = getReg().view<Cmp::AltarMultiBlock>();
+        for ( auto [altar_entt, altar_cmp] : altar_view.each() )
+        {
+          // yellow for altar paths
+          draw_dogleg( scryingball_pos_cmp.getCenter(), altar_cmp.getCenter(), sf::Color( 0, 255, 255, 128 ), kLineThickness );
+        }
+        break;
+      }
+      case Cmp::ScryingBall::Target::RED: {
+        auto crypt_view = getReg().view<Cmp::CryptEntrance, Cmp::Position>();
+        for ( auto [crypt_entt, crypt_cmp, crypt_pos_cmp] : crypt_view.each() )
+        {
+          // red for crypt paths
+          draw_dogleg( scryingball_pos_cmp.getCenter(), crypt_pos_cmp.getCenter(), sf::Color( 255, 0, 0, 128 ), kLineThickness );
+        }
+        break;
+      }
+      case Cmp::ScryingBall::Target::GREEN: {
+        auto exit_view = getReg().view<Cmp::Exit, Cmp::Position>();
+        for ( auto [exit_entt, exit_cmp, exit_pos_cmp] : exit_view.each() )
+        {
+          draw_dogleg( scryingball_pos_cmp.getCenter(), exit_pos_cmp.getCenter(), sf::Color( 0, 255, 0, 128 ), kLineThickness );
+        }
+        break;
+      }
+      case Cmp::ScryingBall::Target::NONE: {
+        break;
+      }
+    }
+  }
 }
 
 } // namespace ProceduralMaze::Sys
