@@ -340,11 +340,11 @@ void DiggingSystem::check_player_axe_npc_collision()
   // Iterate through all entities with Position and Obstacle components
   auto position_view = getReg().view<Cmp::Position, Cmp::NPC, Cmp::SpriteAnimation>( entt::exclude<Cmp::SelectedPosition> );
   SPDLOG_DEBUG( "position_view size: {}", position_view.size_hint() );
-  for ( auto [obst_entity, obst_pos_cmp, obst_cmp, anim_cmp] : position_view.each() )
+  for ( auto [npc_entity, npc_pos_cmp, npc_cmp, anim_cmp] : position_view.each() )
   {
     if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) continue;
     auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::getGameView() );
-    if ( mouse_position_bounds.findIntersection( obst_pos_cmp ) )
+    if ( mouse_position_bounds.findIntersection( npc_pos_cmp ) )
     {
       SPDLOG_DEBUG( "Found NPC entity at position: [{}, {}]!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
 
@@ -354,7 +354,7 @@ void DiggingSystem::check_player_axe_npc_collision()
       for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
       {
         auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
-        if ( player_hitbox.findIntersection( obst_pos_cmp ) )
+        if ( player_hitbox.findIntersection( npc_pos_cmp ) )
         {
           player_nearby = true;
           break;
@@ -366,7 +366,7 @@ void DiggingSystem::check_player_axe_npc_collision()
 
       // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
       // Add a new SelectedPosition component to the entity
-      getReg().emplace_or_replace<Cmp::SelectedPosition>( obst_entity, obst_pos_cmp.position );
+      getReg().emplace_or_replace<Cmp::SelectedPosition>( npc_entity, npc_pos_cmp.position );
 
       // Apply digging damage, play a sound depending on whether the obstacle was destroyed
       m_dig_cooldown_clock.restart();
@@ -377,13 +377,35 @@ void DiggingSystem::check_player_axe_npc_collision()
       // select the final smash sound
       m_sound_bank.get_effect( "axe_whip" ).play();
       m_sound_bank.get_effect( "skele_death" ).play();
-      auto inventory_wear_view = getReg().view<Cmp::PlayerInventorySlot>();
-      for ( auto [inventory_entt, inventory_slot] : inventory_wear_view.each() )
+
+      auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
+      if ( inventory_slot_type == "CARRYITEM.axe" )
       {
-        if ( inventory_slot.type == "CARRYITEM.axe" )
+        // drop loot - 1 in 3 chance
+        auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
+            std::vector<std::string>{ "EXTRA_HEALTH", "CHAIN_BOMBS", "WEAPON_BOOST" } );
+
+        Cmp::RandomInt do_drop( 0, 2 );
+        if ( do_drop.gen() == 0 )
         {
-          if ( getReg().valid( obst_entity ) ) getReg().destroy( obst_entity );
+          // clang-format off
+          auto dropped_loot_entt = Factory::createLootDrop( 
+            getReg(), 
+            Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),                                        
+            sf::FloatRect{ npc_pos_cmp.position, npc_pos_cmp.size }, 
+            Factory::IncludePack<>{},
+            Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition>{} );
+          // clang-format on
+
+          if ( dropped_loot_entt != entt::null )
+          {
+            SPDLOG_INFO( "NPC dropped loot." );
+            m_sound_bank.get_effect( "drop_loot" ).play();
+          }
         }
+
+        // now destroy the NPC
+        if ( getReg().valid( npc_entity ) ) getReg().destroy( npc_entity );
       }
 
       SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );

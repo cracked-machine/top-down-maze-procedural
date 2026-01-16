@@ -289,8 +289,8 @@ void BombSystem::update()
 
           if ( dropped_loot_entt != entt::null )
           {
-            SPDLOG_INFO( "Dropped RELIC_DROP loot at NPC death position." );
-            m_sound_bank.get_effect( "drop_relic" ).play();
+            SPDLOG_INFO( "NPC dropped loot." );
+            m_sound_bank.get_effect( "drop_loot" ).play();
           }
         }
       }

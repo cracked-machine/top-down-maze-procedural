@@ -2,6 +2,7 @@
 #include <Components/LootContainer.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Factory/LootFactory.hpp>
+#include <Sprites/MultiSprite.hpp>
 
 namespace ProceduralMaze::Factory
 {
