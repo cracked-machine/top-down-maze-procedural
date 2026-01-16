@@ -55,7 +55,7 @@ private:
   void on_player_action_event( ProceduralMaze::Events::PlayerActionEvent ev );
 
   // Cooldown clock to manage attack intervals
-  sf::Clock m_attack_cooldown_clock;
+  // sf::Clock m_attack_cooldown_clock;
 
   //! @brief Use this to send events to the scene manager
   entt::dispatcher &m_scenemanager_event_dispatcher;

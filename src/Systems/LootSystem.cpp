@@ -1,5 +1,6 @@
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/PlayerWealth.hpp>
+#include <Components/RectBounds.hpp>
 #include <Systems/LootSystem.hpp>
 
 #include <Audio/SoundBank.hpp>
@@ -51,6 +52,8 @@ void LootSystem::check_loot_collision()
 
   for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
   {
+    // reduce hitbox to prevent premature pickup
+    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, pc_pos_cmp.size, 0.5f );
     for ( auto [loot_entt, loot_cmp, loot_pos_cmp, loot_sprite_anim] : loot_collision_view.each() )
     {
       if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), loot_pos_cmp ) ) continue;

@@ -3,6 +3,7 @@
 #include <Components/NPC.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
+#include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
 #include <Events/PlayerActionEvent.hpp>
@@ -485,13 +486,13 @@ void PlayerSystem::check_player_axe_npc_kill()
 
   if ( Utils::get_player_inventory_wear_level( getReg() ) <= 0 ) { return; }
 
-  // abort if still in cooldown
-  auto digging_cooldown_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
-  if ( m_attack_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
-  {
-    SPDLOG_DEBUG( "Still in cooldown" );
-    return;
-  }
+  // // abort if still in cooldown
+  // auto digging_cooldown_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
+  // if ( m_attack_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
+  // {
+  //   SPDLOG_DEBUG( "Still in cooldown" );
+  //   return;
+  // }
 
   // Cooldown has expired: Remove any existing SelectedPosition components from the registry
   auto selected_position_view = getReg().view<Cmp::SelectedPosition>();
@@ -532,7 +533,7 @@ void PlayerSystem::check_player_axe_npc_kill()
       getReg().emplace_or_replace<Cmp::SelectedPosition>( npc_entity, npc_pos_cmp.position );
 
       // Apply digging damage, play a sound depending on whether the obstacle was destroyed
-      m_attack_cooldown_clock.restart();
+      // m_attack_cooldown_clock.restart();
 
       float reduction_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
       Utils::reduce_player_inventory_wear_level( getReg(), reduction_amount );
@@ -555,14 +556,16 @@ void PlayerSystem::check_player_axe_npc_kill()
           auto dropped_loot_entt = Factory::createLootDrop( 
             getReg(), 
             Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),                                        
-            sf::FloatRect{ npc_pos_cmp.position, npc_pos_cmp.size }, 
+            Cmp::RectBounds(npc_pos_cmp.position, npc_pos_cmp.size, 2.f).getBounds(),
             Factory::IncludePack<>{},
-            Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition>{} );
+            Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{},
+            Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{} );
           // clang-format on
 
           if ( dropped_loot_entt != entt::null )
           {
-            SPDLOG_INFO( "NPC dropped loot." );
+            auto player_pos = Utils::get_player_position( getReg() );
+            SPDLOG_INFO( "Player position was at {},{} when loot was dropped", player_pos.position.x, player_pos.position.y );
             m_sound_bank.get_effect( "drop_loot" ).play();
           }
         }
