@@ -49,9 +49,13 @@ private:
   void checkPlayerMortality();
 
   void checkShockwavePlayerCollision( Cmp::NpcShockwave &shockwave );
+  void check_player_axe_npc_kill();
 
   void on_player_mortality_event( ProceduralMaze::Events::PlayerMortalityEvent ev );
   void on_player_action_event( ProceduralMaze::Events::PlayerActionEvent ev );
+
+  // Cooldown clock to manage attack intervals
+  sf::Clock m_attack_cooldown_clock;
 
   //! @brief Use this to send events to the scene manager
   entt::dispatcher &m_scenemanager_event_dispatcher;

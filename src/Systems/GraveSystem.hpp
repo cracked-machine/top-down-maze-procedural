@@ -28,10 +28,6 @@ public:
 
   // Cooldown clock to manage digging intervals
   sf::Clock m_dig_cooldown_clock;
-
-private:
-  // void check_player_collision( Events::PlayerActionEvent::GameActions action );
-  // void check_player_grave_activation( entt::entity &grave_entity, Cmp::GraveMultiBlock &grave_cmp, Cmp::PlayableCharacter &pc_cmp );
 };
 
 } // namespace ProceduralMaze::Sys

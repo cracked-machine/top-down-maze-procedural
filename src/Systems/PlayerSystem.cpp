@@ -1,5 +1,10 @@
 
 #include <Components/Inventory/CarryItem.hpp>
+#include <Components/NPC.hpp>
+#include <Components/Persistent/DiggingCooldownThreshold.hpp>
+#include <Components/Persistent/WeaponDegradePerHit.hpp>
+#include <Components/ReservedPosition.hpp>
+#include <Components/SelectedPosition.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/PlayerSystem.hpp>
 
@@ -32,6 +37,7 @@
 #include <Components/System.hpp>
 #include <Components/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Factory/LootFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Sprites/SpriteFactory.hpp>
@@ -149,39 +155,47 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
 
 void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionEvent ev )
 {
-  if ( ev.action != ProceduralMaze::Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
-  if ( m_inventory_cooldown_timer.getElapsedTime() < sf::milliseconds( 750.f ) ) return;
 
-  auto player_pos = Utils::get_player_position( getReg() );
-  Sprites::SpriteMetaType existing_player_inventory_type = "";
-
-  // drop inventory if we have one
-  auto inventory_view = getReg().view<Cmp::PlayerInventorySlot>();
-  for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
+  if ( ev.action == ProceduralMaze::Events::PlayerActionEvent::GameActions::ACTIVATE )
   {
-    existing_player_inventory_type = inventory_cmp.type;
-    auto dropped_entt = Factory::dropCarryItem( getReg(), player_pos, m_sprite_factory.get_multisprite_by_type( inventory_cmp.type ),
-                                                inventory_entt );
-    if ( dropped_entt != entt::null )
+    if ( m_inventory_cooldown_timer.getElapsedTime() < sf::milliseconds( 750.f ) ) return;
+
+    auto player_pos = Utils::get_player_position( getReg() );
+    Sprites::SpriteMetaType existing_player_inventory_type = "";
+
+    // drop inventory if we have one
+    auto inventory_view = getReg().view<Cmp::PlayerInventorySlot>();
+    for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
     {
-      if ( existing_player_inventory_type.contains( "plant" ) ) { m_sound_bank.get_effect( "digging_earth" ).play(); }
-      else { m_sound_bank.get_effect( "drop_relic" ).play(); }
+      existing_player_inventory_type = inventory_cmp.type;
+      auto dropped_entt = Factory::dropCarryItem( getReg(), player_pos, m_sprite_factory.get_multisprite_by_type( inventory_cmp.type ),
+                                                  inventory_entt );
+      if ( dropped_entt != entt::null )
+      {
+        if ( existing_player_inventory_type.contains( "plant" ) ) { m_sound_bank.get_effect( "digging_earth" ).play(); }
+        else { m_sound_bank.get_effect( "drop_relic" ).play(); }
+      }
     }
-  }
 
-  // pickup inventory
-  auto world_carryitem_view = getReg().view<Cmp::CarryItem, Cmp::Position>();
-  for ( auto [carryitem_entt, carryitem_cmp, pos_cmp] : world_carryitem_view.each() )
+    // pickup inventory
+    auto world_carryitem_view = getReg().view<Cmp::CarryItem, Cmp::Position>();
+    for ( auto [carryitem_entt, carryitem_cmp, pos_cmp] : world_carryitem_view.each() )
+    {
+      if ( not player_pos.findIntersection( pos_cmp ) ) continue;           // is there something to pick up?
+      if ( carryitem_cmp.type == existing_player_inventory_type ) continue; // dont pick up the one we just dropped
+      if ( inventory_view.size() > 0 ) { break; }                           // don't pickup another if we already have one
+
+      // ok pick it up
+      if ( Factory::pickupCarryItem( getReg(), carryitem_entt ) != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
+    }
+    m_inventory_cooldown_timer.restart();
+    SPDLOG_DEBUG( "inventory_view: {} ", inventory_view.size() );
+  }
+  else if ( ev.action == ProceduralMaze::Events::PlayerActionEvent::GameActions::ATTACK )
   {
-    if ( not player_pos.findIntersection( pos_cmp ) ) continue;           // is there something to pick up?
-    if ( carryitem_cmp.type == existing_player_inventory_type ) continue; // dont pick up the one we just dropped
-    if ( inventory_view.size() > 0 ) { break; }                           // don't pickup another if we already have one
-
-    // ok pick it up
-    if ( Factory::pickupCarryItem( getReg(), carryitem_entt ) != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
+    // axe attack?!
+    check_player_axe_npc_kill();
   }
-  m_inventory_cooldown_timer.restart();
-  SPDLOG_DEBUG( "inventory_view: {} ", inventory_view.size() );
 }
 
 void PlayerSystem::update( sf::Time globalDeltaTime )
@@ -461,6 +475,104 @@ void PlayerSystem::checkShockwavePlayerCollision( Cmp::NpcShockwave &shockwave )
                    shockwave.sprite.getPosition().x, shockwave.sprite.getPosition().y, shockwave.sprite.getRadius() );
     }
     else { SPDLOG_DEBUG( "Player does NOT intersect with shockwave (distance: {}, effective_radius: {})", distance, effective_radius ); }
+  }
+}
+
+void PlayerSystem::check_player_axe_npc_kill()
+{
+  auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
+  if ( inventory_slot_type != "CARRYITEM.axe" ) { return; }
+
+  if ( Utils::get_player_inventory_wear_level( getReg() ) <= 0 ) { return; }
+
+  // abort if still in cooldown
+  auto digging_cooldown_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
+  if ( m_attack_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
+  {
+    SPDLOG_DEBUG( "Still in cooldown" );
+    return;
+  }
+
+  // Cooldown has expired: Remove any existing SelectedPosition components from the registry
+  auto selected_position_view = getReg().view<Cmp::SelectedPosition>();
+  for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
+  {
+    getReg().remove<Cmp::SelectedPosition>( existing_sel_entity );
+  }
+
+  // Iterate through all entities with Position and Obstacle components
+  auto position_view = getReg().view<Cmp::Position, Cmp::NPC, Cmp::SpriteAnimation>( entt::exclude<Cmp::SelectedPosition> );
+  SPDLOG_DEBUG( "position_view size: {}", position_view.size_hint() );
+  for ( auto [npc_entity, npc_pos_cmp, npc_cmp, anim_cmp] : position_view.each() )
+  {
+    if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) continue;
+    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::getGameView() );
+    if ( mouse_position_bounds.findIntersection( npc_pos_cmp ) )
+    {
+      SPDLOG_DEBUG( "Found NPC entity at position: [{}, {}]!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
+
+      // TODO: check player is facing the obstacle
+      // Check player proximity to the entity
+      bool player_nearby = false;
+      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+      {
+        auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
+        if ( player_hitbox.findIntersection( npc_pos_cmp ) )
+        {
+          player_nearby = true;
+          break;
+        }
+      }
+
+      // skip this iteration of the loop if player too far away
+      if ( not player_nearby ) { continue; }
+
+      // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
+      // Add a new SelectedPosition component to the entity
+      getReg().emplace_or_replace<Cmp::SelectedPosition>( npc_entity, npc_pos_cmp.position );
+
+      // Apply digging damage, play a sound depending on whether the obstacle was destroyed
+      m_attack_cooldown_clock.restart();
+
+      float reduction_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
+      Utils::reduce_player_inventory_wear_level( getReg(), reduction_amount );
+
+      // select the final smash sound
+      m_sound_bank.get_effect( "axe_whip" ).play();
+      m_sound_bank.get_effect( "skele_death" ).play();
+
+      auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
+      if ( inventory_slot_type == "CARRYITEM.axe" )
+      {
+        // drop loot - 1 in 3 chance
+        auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
+            std::vector<std::string>{ "EXTRA_HEALTH", "CHAIN_BOMBS", "WEAPON_BOOST" } );
+
+        Cmp::RandomInt do_drop( 0, 2 );
+        if ( do_drop.gen() == 0 )
+        {
+          // clang-format off
+          auto dropped_loot_entt = Factory::createLootDrop( 
+            getReg(), 
+            Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),                                        
+            sf::FloatRect{ npc_pos_cmp.position, npc_pos_cmp.size }, 
+            Factory::IncludePack<>{},
+            Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition>{} );
+          // clang-format on
+
+          if ( dropped_loot_entt != entt::null )
+          {
+            SPDLOG_INFO( "NPC dropped loot." );
+            m_sound_bank.get_effect( "drop_loot" ).play();
+          }
+        }
+
+        // now destroy the NPC
+        if ( getReg().valid( npc_entity ) ) getReg().destroy( npc_entity );
+      }
+
+      SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
+    }
   }
 }
 

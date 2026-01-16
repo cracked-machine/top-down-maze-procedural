@@ -217,6 +217,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
   }
   if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
   {
+    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ATTACK ) );
     get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG ) );
   }
 }

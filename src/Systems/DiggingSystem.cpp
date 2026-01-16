@@ -421,7 +421,6 @@ void DiggingSystem::on_player_action( const Events::PlayerActionEvent &event )
     check_player_dig_obstacle_collision();
     check_player_dig_plant_collision();
     check_player_smash_pot();
-    check_player_axe_npc_collision();
   }
 }
 
