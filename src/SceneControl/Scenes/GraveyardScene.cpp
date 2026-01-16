@@ -4,7 +4,6 @@
 
 #include <Audio/SoundBank.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
-#include <Components/PlayerRelicCount.hpp>
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>

@@ -407,7 +407,7 @@ void RandomLevelGenerator::gen_crypt_interior_multiblocks()
 
 void RandomLevelGenerator::gen_loot_containers( sf::Vector2u map_grid_size )
 {
-  auto num_loot_containers = map_grid_size.x * map_grid_size.y / 60; // one loot container per 60 grid squares
+  auto num_loot_containers = map_grid_size.x * map_grid_size.y / 120; // one loot container per N grid squares
 
   for ( std::size_t i = 0; i < num_loot_containers; ++i )
   {
@@ -422,7 +422,7 @@ void RandomLevelGenerator::gen_loot_containers( sf::Vector2u map_grid_size )
 
 void RandomLevelGenerator::gen_npc_containers( sf::Vector2u map_grid_size )
 {
-  auto num_npc_containers = map_grid_size.x * map_grid_size.y / 200; // one NPC container per 200 grid squares
+  auto num_npc_containers = map_grid_size.x * map_grid_size.y / 120; // one NPC container per N grid squares
 
   for ( std::size_t i = 0; i < num_npc_containers; ++i )
   {

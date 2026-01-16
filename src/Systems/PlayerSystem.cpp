@@ -27,7 +27,6 @@
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerMortality.hpp>
-#include <Components/PlayerRelicCount.hpp>
 #include <Components/Position.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>

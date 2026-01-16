@@ -11,7 +11,6 @@
 #include <Components/PlayerCadaverCount.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
-#include <Components/PlayerRelicCount.hpp>
 #include <Components/Position.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -102,13 +101,6 @@ void LootSystem::check_loot_collision()
     else if ( effect.type == "CHAIN_BOMBS" )
     {
       pc_cmp.blast_radius = std::clamp( pc_cmp.blast_radius + 1, 0, 3 );
-      m_sound_bank.get_effect( "get_loot" ).play();
-      Factory::destroyLootDrop( getReg(), effect.loot_entity );
-    }
-    else if ( effect.type == "RELIC_DROP" )
-    {
-      auto &pc_relic_count = getReg().get<Cmp::PlayerRelicCount>( effect.player_entity );
-      pc_relic_count.increment_count( 1 );
       m_sound_bank.get_effect( "get_loot" ).play();
       Factory::destroyLootDrop( getReg(), effect.loot_entity );
     }

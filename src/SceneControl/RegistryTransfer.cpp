@@ -28,7 +28,6 @@
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerMortality.hpp>
-#include <Components/PlayerRelicCount.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>
@@ -234,7 +233,6 @@ void RegistryTransfer::ensure_player_component_storages( entt::registry &registr
   registry.storage<Cmp::PlayerHealth>();
   registry.storage<Cmp::PlayerWealth>();
   registry.storage<Cmp::PlayerMortality>();
-  registry.storage<Cmp::PlayerRelicCount>();
   registry.storage<Cmp::PlayerCadaverCount>();
   registry.storage<Cmp::SpriteAnimation>();
   registry.storage<Cmp::PlayerInventorySlot>();

@@ -16,7 +16,6 @@
 #include <Components/NoPathFinding.hpp>
 #include <Components/PlayableCharacter.hpp>
 #include <Components/PlayerKeysCount.hpp>
-#include <Components/PlayerRelicCount.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpawnArea.hpp>
@@ -145,109 +144,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       altar_cmp.set_powers_active();
       m_altar_activation_clock.restart();
     }
-
-    if ( altar_cmp.are_powers_active() )
-    {
-      SPDLOG_DEBUG( "Checking for special power activation." );
-      auto anim_sprite_cmp = getReg().try_get<Cmp::SpriteAnimation>( altar_entity );
-      if ( anim_sprite_cmp && m_altar_activation_clock.getElapsedTime() > m_altar_activation_cooldown ) { activate_altar_special_power(); }
-    }
   }
-}
-
-bool AltarSystem::activate_altar_special_power()
-{
-
-  for ( auto [pc_entity, pc_relic_count_cmp] : getReg().view<Cmp::PlayerRelicCount>().each() )
-  {
-
-    if ( pc_relic_count_cmp.get_count() < 1 ) return false;
-
-    SPDLOG_DEBUG( "Activating altar special power!" );
-    // consume a relic
-    pc_relic_count_cmp.decrement_count( 1 );
-
-    SPDLOG_DEBUG( "Special Power: Re-enable all nearby obstacles!" );
-    auto obstacle_view = getReg().view<Cmp::DestroyedObstacle, Cmp::Position>(
-        entt::exclude<Cmp::PlayableCharacter, Cmp::NPC, Cmp::LootContainer, Cmp::Loot, Cmp::ReservedPosition> );
-
-    for ( auto [destroyed_entity, destroyed_cmp, destroyed_pos_cmp] : obstacle_view.each() )
-    {
-      if ( Utils::is_visible_in_view( RenderSystem::getGameView(), destroyed_pos_cmp ) )
-      {
-        auto obst_cmp = getReg().try_get<Cmp::Obstacle>( destroyed_entity );
-        if ( not obst_cmp )
-        {
-          // skip if player or npc is occupying the position
-          bool skip_position = false;
-          auto npc_view = getReg().view<Cmp::NPC, Cmp::Position>();
-          for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_view.each() )
-          {
-            if ( npc_pos_cmp.findIntersection( destroyed_pos_cmp ) ) skip_position = true;
-          }
-          auto playable_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
-          for ( auto [playable_entity, playable_cmp, playable_pos_cmp] : playable_view.each() )
-          {
-            if ( playable_pos_cmp.findIntersection( destroyed_pos_cmp ) ) skip_position = true;
-          }
-          if ( skip_position ) continue;
-
-          // clang-format off
-          auto [obst_type, rand_obst_tex_idx] = 
-            m_sprite_factory.get_random_type_and_texture_index( { 
-              "ROCK"
-            } );
-          // clang-format on
-
-          Factory::createObstacle( getReg(), destroyed_entity, destroyed_pos_cmp, obst_type, rand_obst_tex_idx, destroyed_pos_cmp.position.y );
-        }
-      }
-    }
-  }
-
-  SPDLOG_DEBUG( "Special Power: Kill all nearby NPCs!" );
-  auto npc_view = getReg().view<Cmp::NPC, Cmp::Position>();
-  for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_view.each() )
-  {
-    if ( Utils::is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) )
-    {
-      SPDLOG_DEBUG( "Killed NPC at ({}, {})", npc_pos_cmp.position.x, npc_pos_cmp.position.y );
-      auto loot_entity = Factory::destroyNPC( getReg(), npc_entity );
-      if ( loot_entity != entt::null )
-      {
-        SPDLOG_INFO( "Dropped RELIC_DROP loot at NPC death position." );
-        m_sound_bank.get_effect( "drop_relic" ).play();
-      }
-    }
-  }
-
-  SPDLOG_DEBUG( "Special Power: Open all loot containers!" );
-  auto loot_container_view = getReg().view<Cmp::LootContainer, Cmp::Position>();
-  for ( auto [lc_entity, lc_cmp, lc_pos_cmp] : loot_container_view.each() )
-  {
-    if ( Utils::is_visible_in_view( RenderSystem::getGameView(), lc_pos_cmp ) )
-    {
-      SPDLOG_DEBUG( "Opened loot container at ({}, {})", lc_pos_cmp.position.x, lc_pos_cmp.position.y );
-      auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
-          std::vector<std::string>{ "EXTRA_HEALTH", "EXTRA_BOMBS", "INFINI_BOMBS", "CHAIN_BOMBS", "WEAPON_BOOST" } );
-
-      // clang-format off
-      auto loot_entt = Factory::createLootDrop( 
-        getReg(), 
-        Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),                                        
-        sf::FloatRect{ lc_pos_cmp.position, lc_pos_cmp.size }, 
-        Factory::IncludePack<>{},
-        Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition>{} );
-      // clang-format on
-
-      if ( loot_entt != entt::null ) { m_sound_bank.get_effect( "break_pot" ).play(); }
-
-      Factory::destroyLootContainer( getReg(), lc_entity );
-    }
-  }
-
-  m_altar_activation_clock.restart();
-  return true;
 }
 
 } // namespace ProceduralMaze::Sys

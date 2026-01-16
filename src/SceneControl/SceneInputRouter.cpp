@@ -9,7 +9,6 @@
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerMortality.hpp>
-#include <Components/PlayerRelicCount.hpp>
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
 #include <Events/CryptRoomEvent.hpp>
@@ -170,14 +169,6 @@ void SceneInputRouter::graveyard_scene_state_handler()
           SPDLOG_INFO( "Player lost health (player cheated)" );
         }
       }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_relic_count_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerRelicCount>().each() )
-        {
-          pc_relic_count_cmp.increment_count( 1 );
-          SPDLOG_INFO( "Player gained a relic (player cheated)" );
-        }
-      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad5 )
       {
         for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerCadaverCount>().each() )
@@ -310,14 +301,6 @@ void SceneInputRouter::crypt_scene_state_handler()
         {
           pc_health_cmp.health = std::clamp( pc_health_cmp.health - 10, 0, 100 );
           SPDLOG_INFO( "Player lost health (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_relic_count_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerRelicCount>().each() )
-        {
-          pc_relic_count_cmp.increment_count( 1 );
-          SPDLOG_INFO( "Player gained a relic (player cheated)" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad5 )

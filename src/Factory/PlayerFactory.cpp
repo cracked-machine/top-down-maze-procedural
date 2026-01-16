@@ -18,7 +18,6 @@
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
 #include <Components/PlayerMortality.hpp>
-#include <Components/PlayerRelicCount.hpp>
 #include <Components/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -60,7 +59,6 @@ void CreatePlayer( entt::registry &registry )
   registry.emplace<Cmp::PCDetectionBounds>( entity, start_pos, Constants::kGridSquareSizePixelsF, pc_detection_scale.get_value() );
 
   registry.emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYER.walk.south" );
-  registry.emplace<Cmp::PlayerRelicCount>( entity, 0 );
   registry.emplace<Cmp::PlayerCadaverCount>( entity, 0 );
   registry.emplace<Cmp::PlayerHealth>( entity, 100 );
   registry.emplace<Cmp::PlayerWealth>( entity, 0 );

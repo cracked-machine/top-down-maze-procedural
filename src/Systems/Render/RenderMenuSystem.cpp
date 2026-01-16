@@ -50,7 +50,6 @@
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
 #include <Components/PlayerKeysCount.hpp>
-#include <Components/PlayerRelicCount.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Threats/BombSystem.hpp>
@@ -408,15 +407,6 @@ void RenderMenuSystem::render_defeat_screen()
     start_text.setFillColor( sf::Color::White );
     start_text.setPosition( { display_size.x / 4.f, 200.f } );
     m_window.draw( start_text );
-
-    auto relic_view = getReg().view<Cmp::PlayerRelicCount>();
-    for ( auto [entity, reliccount] : relic_view.each() )
-    {
-      sf::Text player_score_text( m_font, "RelicCount: " + std::to_string( reliccount.get_count() ), 24 );
-      player_score_text.setFillColor( sf::Color::White );
-      player_score_text.setPosition( { display_size.x / 4.f, 600.f } );
-      m_window.draw( player_score_text );
-    }
   }
 
   m_window.display();
@@ -445,15 +435,6 @@ void RenderMenuSystem::render_victory_screen()
   player_inventory_text.setFillColor( sf::Color::White );
   player_inventory_text.setPosition( { display_size.x / 4.f, 550.f } );
   m_window.draw( player_inventory_text );
-
-  auto relic_view = getReg().view<Cmp::PlayerRelicCount>();
-  for ( auto [entity, reliccount] : relic_view.each() )
-  {
-    sf::Text player_score_text( m_font, "RelicCount: " + std::to_string( reliccount.get_count() ), 24 );
-    player_score_text.setFillColor( sf::Color::White );
-    player_score_text.setPosition( { display_size.x / 4.f, 600.f } );
-    m_window.draw( player_score_text );
-  }
 
   m_window.display();
   // main render end
