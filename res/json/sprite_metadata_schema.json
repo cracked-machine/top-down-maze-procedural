@@ -23,7 +23,7 @@
       "type": "object",
       "description": "Metadata for a single sprite type",
       "properties": {
-        "name": {
+        "displayname": {
           "type": "string",
           "description": "Human-readable sprite name",
           "minLength": 1
@@ -92,7 +92,7 @@
           "additionalProperties": false
         }
       },
-      "required": ["name", "weight", "multisprite"],
+      "required": ["displayname", "weight", "multisprite"],
       "additionalProperties": false
     }
   }

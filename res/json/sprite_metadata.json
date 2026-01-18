@@ -1,7 +1,7 @@
 {
   "sprites": {
     "WALL": {
-      "name": "WALL",
+      "displayname": "WALL",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/obstacles.png",
@@ -16,7 +16,7 @@
     },
 
     "ROCK": {
-      "name": "ROCK",
+      "displayname": "ROCK",
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/obstacles.png",
@@ -30,7 +30,7 @@
       }
     },
     "CRYPT.interior_sb": {
-      "name": "CRYPT.interior_sb",
+      "displayname": "CRYPT.interior_sb",
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/crypt_interior.png",
@@ -44,7 +44,7 @@
       }
     },
     "CRYPT.interior_lava": {
-      "name": "CRYPT.interior_lava",
+      "displayname": "CRYPT.interior_lava",
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/crypt_interior_lava.png",
@@ -58,7 +58,7 @@
       }
     },
     "CRYPT.interior_spiketrap": {
-      "name": "CRYPT.interior_spiketrap",
+      "displayname": "CRYPT.interior_spiketrap",
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/crypt_interior.png",
@@ -72,7 +72,7 @@
       }
     },
     "CRYPT.interior_chest": {
-      "name": "CRYPT.interior_chest",
+      "displayname": "CRYPT.interior_chest",
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/crypt_interior.png",
@@ -86,7 +86,7 @@
       }
     },
     "CRYPT.interior_mb1x3": {
-      "name": "CRYPT.interior_mb1x3",
+      "displayname": "CRYPT.interior_mb1x3",
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/crypt_interior.png",
@@ -105,7 +105,7 @@
       }
     },
     "CRYPT.interior_mb1x2": {
-      "name": "CRYPT.interior_mb1x2",
+      "displayname": "CRYPT.interior_mb1x2",
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/crypt_interior.png",
@@ -124,7 +124,7 @@
       }
     },
     "POT": {
-      "name": "POT",
+      "displayname": "POT",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/pot.png",
@@ -138,7 +138,7 @@
       }
     },
     "BONES": {
-      "name": "BONES",
+      "displayname": "BONES",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/obstacles.png",
@@ -152,7 +152,7 @@
       }
     },
     "CRYPT.interior_lever": {
-      "name": "CRYPT.interior_lever",
+      "displayname": "CRYPT.interior_lever",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CRYPT.interior_lever.png",
@@ -166,7 +166,7 @@
       }
     },
     "NPCPRIEST": {
-      "name": "NPCPRIEST",
+      "displayname": "NPCPRIEST",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/npcpriest.png",
@@ -180,7 +180,7 @@
       }
     },
     "NPCGHOST.walk.south": {
-      "name": "NPCGHOST.walk.south",
+      "displayname": "NPCGHOST.walk.south",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/npcghost.png",
@@ -194,7 +194,7 @@
       }
     },
     "NPCGHOST.walk.north": {
-      "name": "NPCGHOST.walk.north",
+      "displayname": "NPCGHOST.walk.north",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/npcghost.png",
@@ -208,7 +208,7 @@
       }
     },
     "NPCGHOST.walk.east": {
-      "name": "NPCGHOST.walk.east",
+      "displayname": "NPCGHOST.walk.east",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/npcghost.png",
@@ -222,7 +222,7 @@
       }
     },
     "NPCGHOST.walk.west": {
-      "name": "NPCGHOST.walk.west",
+      "displayname": "NPCGHOST.walk.west",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/npcghost.png",
@@ -236,7 +236,7 @@
       }
     },
     "NPCSKELE.walk.south": {
-      "name": "NPCSKELE.walk.south",
+      "displayname": "NPCSKELE.walk.south",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/npcskele.png",
@@ -250,7 +250,7 @@
       }
     },
     "NPCSKELE.walk.north": {
-      "name": "NPCSKELE.walk.north",
+      "displayname": "NPCSKELE.walk.north",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/npcskele.png",
@@ -264,7 +264,7 @@
       }
     },
     "NPCSKELE.walk.east": {
-      "name": "NPCSKELE.walk.east",
+      "displayname": "NPCSKELE.walk.east",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/npcskele.png",
@@ -278,7 +278,7 @@
       }
     },
     "NPCSKELE.walk.west": {
-      "name": "NPCSKELE.walk.west",
+      "displayname": "NPCSKELE.walk.west",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/npcskele.png",
@@ -292,7 +292,7 @@
       }
     },
     "DETONATED": {
-      "name": "DETONATED",
+      "displayname": "DETONATED",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graveyardfloor.png",
@@ -306,7 +306,7 @@
       }
     },
     "PLAYERSPAWN": {
-      "name": "PLAYERSPAWN",
+      "displayname": "PLAYERSPAWN",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graveyardfloor.png",
@@ -320,7 +320,7 @@
       }
     },
     "PLAYER.walk.south": {
-      "name": "PLAYER.walk.south",
+      "displayname": "PLAYER.walk.south",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/conjurer1.png",
@@ -334,7 +334,7 @@
       }
     },
     "PLAYER.walk.north": {
-      "name": "PLAYER.walk.north",
+      "displayname": "PLAYER.walk.north",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/conjurer1.png",
@@ -348,7 +348,7 @@
       }
     },
     "PLAYER.walk.east": {
-      "name": "PLAYER.walk.west",
+      "displayname": "PLAYER.walk.west",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/conjurer1.png",
@@ -362,7 +362,7 @@
       }
     },
     "PLAYER.walk.west": {
-      "name": "PLAYER.walk.east",
+      "displayname": "PLAYER.walk.east",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/conjurer1.png",
@@ -376,7 +376,7 @@
       }
     },
     "ICONS": {
-      "name": "ICONS",
+      "displayname": "ICONS",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/icons.png",
@@ -390,7 +390,7 @@
       }
     },
     "CARRYITEM.pickaxe": {
-      "name": "CARRYITEM.pickaxe",
+      "displayname": "Pickaxe",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -404,7 +404,7 @@
       }
     },
     "CARRYITEM.axe": {
-      "name": "CARRYITEM.axe",
+      "displayname": "Axe",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -418,7 +418,7 @@
       }
     },
     "CARRYITEM.shovel": {
-      "name": "CARRYITEM.shovel",
+      "displayname": "Shovel",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -432,7 +432,7 @@
       }
     },
     "CARRYITEM.bomb": {
-      "name": "CARRYITEM.bomb",
+      "displayname": "Dynamite",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -446,7 +446,7 @@
       }
     },    
     "CARRYITEM.exitkey": {
-      "name": "CARRYITEM.exitkey",
+      "displayname": "Exit Key",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -460,7 +460,7 @@
       }
     },
     "CARRYITEM.cryptkey": {
-      "name": "CARRYITEM.cryptkey",
+      "displayname": "Crypt Key",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -474,7 +474,7 @@
       }
     },
     "CARRYITEM.plant1": {
-      "name": "CARRYITEM.plant1",
+      "displayname": "Plant1",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -488,7 +488,7 @@
       }
     },
     "CARRYITEM.plant2": {
-      "name": "CARRYITEM.plant2",
+      "displayname": "Plant2",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -502,7 +502,7 @@
       }
     },
     "CARRYITEM.plant3": {
-      "name": "CARRYITEM.plant3",
+      "displayname": "Plant3",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -516,7 +516,7 @@
       }
     },
     "CARRYITEM.plant4": {
-      "name": "CARRYITEM.plant4",
+      "displayname": "Plant4",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -530,7 +530,7 @@
       }
     },
     "CARRYITEM.plant5": {
-      "name": "CARRYITEM.plant5",
+      "displayname": "Plant5",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -544,7 +544,7 @@
       }
     },
     "CARRYITEM.plant6": {
-      "name": "CARRYITEM.plant6",
+      "displayname": "Plant6",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -558,7 +558,7 @@
       }
     },
     "CARRYITEM.plant7": {
-      "name": "CARRYITEM.plant7",
+      "displayname": "Plant7",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -572,7 +572,7 @@
       }
     },
     "CARRYITEM.plant8": {
-      "name": "CARRYITEM.plant8",
+      "displayname": "Plant8",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -586,7 +586,7 @@
       }
     },
     "CARRYITEM.plant9": {
-      "name": "CARRYITEM.plant9",
+      "displayname": "Plant9",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -600,7 +600,7 @@
       }
     },
     "CARRYITEM.plant10": {
-      "name": "CARRYITEM.plant10",
+      "displayname": "Plant10",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -614,7 +614,7 @@
       }
     },
     "CARRYITEM.plant11": {
-      "name": "CARRYITEM.plant11",
+      "displayname": "Plant11",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -628,7 +628,7 @@
       }
     },
     "CARRYITEM.plant12": {
-      "name": "CARRYITEM.plant12",
+      "displayname": "Plant12",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -642,7 +642,7 @@
       }
     },
     "CARRYITEM.relic.hand": {
-      "name": "CARRYITEM.relic.hand",
+      "displayname": "Relic: Hand",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -656,7 +656,7 @@
       }
     },
     "CARRYITEM.relic.head": {
-      "name": "CARRYITEM.relic.head",
+      "displayname": "Relic: Head",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -670,7 +670,7 @@
       }
     },
     "CARRYITEM.relic.bone": {
-      "name": "CARRYITEM.relic.bone",
+      "displayname": "Relic: Bone",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -684,7 +684,7 @@
       }
     },
     "CARRYITEM.relic.ribcage": {
-      "name": "CARRYITEM.relic.ribcage",
+      "displayname": "Relic: Ribcage",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -698,7 +698,7 @@
       }
     },
     "CARRYITEM.scryingball": {
-      "name": "CARRYITEM.scryingball",
+      "displayname": "Seeing Stone",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -712,7 +712,7 @@
       }
     },
     "CARRYITEM.cursetablet": {
-      "name": "CARRYITEM.cursetablet",
+      "displayname": "Curse Tablet",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -726,7 +726,7 @@
       }
     },
     "EXTRA_HEALTH": {
-      "name": "EXTRA_HEALTH",
+      "displayname": "EXTRA_HEALTH",
       "weight": 30.0,
       "multisprite": {
         "texture_path": "res/textures/loot.png",
@@ -740,7 +740,7 @@
       }
     },
     "EXTRA_BOMBS": {
-      "name": "EXTRA_BOMBS",
+      "displayname": "EXTRA_BOMBS",
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/loot.png",
@@ -754,7 +754,7 @@
       }
     },
     "INFINI_BOMBS": {
-      "name": "INFINI_BOMBS",
+      "displayname": "INFINI_BOMBS",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/loot.png",
@@ -768,7 +768,7 @@
       }
     },
     "CHAIN_BOMBS": {
-      "name": "CHAIN_BOMBS",
+      "displayname": "CHAIN_BOMBS",
       "weight": 20.0,
       "multisprite": {
         "texture_path": "res/textures/loot.png",
@@ -782,7 +782,7 @@
       }
     },
     "LOWER_WATER": {
-      "name": "LOWER_WATER",
+      "displayname": "LOWER_WATER",
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/loot.png",
@@ -796,7 +796,7 @@
       }
     },
     "WEAPON_BOOST": {
-      "name": "WEAPON_BOOST",
+      "displayname": "WEAPON_BOOST",
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/loot.png",
@@ -810,7 +810,7 @@
       }
     },
     "CANDLE_DROP": {
-      "name": "CANDLE_DROP",
+      "displayname": "CANDLE_DROP",
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/loot.png",
@@ -824,7 +824,7 @@
       }
     },
     "KEY_DROP": {
-      "name": "KEY_DROP",
+      "displayname": "KEY_DROP",
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/loot.png",
@@ -838,7 +838,7 @@
       }
     },
     "CADAVER_DROP": {
-      "name": "CADAVER_DROP",
+      "displayname": "CADAVER_DROP",
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/loot.png",
@@ -852,7 +852,7 @@
       }
     },
     "LOOT.goldcoin": {
-      "name": "LOOT.goldcoin",
+      "displayname": "LOOT.goldcoin",
       "weight": 40.0,
       "multisprite": {
         "texture_path": "res/textures/loot.png",
@@ -866,7 +866,7 @@
       }
     },
     "EXPLOSION": {
-      "name": "EXPLOSION",
+      "displayname": "EXPLOSION",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
@@ -880,7 +880,7 @@
       }
     },
     "PLAYERDEATH.bloodsplat": {
-      "name": "PLAYERDEATH.bloodsplat",
+      "displayname": "PLAYERDEATH.bloodsplat",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/blood_splash_3.png",
@@ -912,7 +912,7 @@
       }
     },
     "PLAYERDEATH.lavaflames": {
-      "name": "PLAYERDEATH.lavaflames",
+      "displayname": "PLAYERDEATH.lavaflames",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
@@ -929,7 +929,7 @@
       }
     },
     "CRYPT.lava_anim": {
-      "name": "CRYPT.lava_anim",
+      "displayname": "CRYPT.lava_anim",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
@@ -946,7 +946,7 @@
       }
     },
     "FOOTSTEPS": {
-      "name": "FOOTSTEPS",
+      "displayname": "FOOTSTEPS",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/footsteps_tileset.png",
@@ -960,7 +960,7 @@
       }
     },
     "SINKHOLE": {
-      "name": "SINKHOLE",
+      "displayname": "SINKHOLE",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/sinkhole.png",
@@ -974,7 +974,7 @@
       }
     },
     "CORRUPTION": {
-      "name": "CORRUPTION",
+      "displayname": "CORRUPTION",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/corruption.png",
@@ -988,7 +988,7 @@
       }
     },
     "WORMHOLE": {
-      "name": "WORMHOLE",
+      "displayname": "WORMHOLE",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/wormhole-Sheet.png",
@@ -1015,7 +1015,7 @@
       }
     },
     "ALTAR.inactive": {
-      "name": "ALTAR.inactive",
+      "displayname": "ALTAR.inactive",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/altar.png",
@@ -1034,7 +1034,7 @@
       }
     },
     "ALTAR.one": {
-      "name": "ALTAR.one",
+      "displayname": "ALTAR.one",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/altar.png",
@@ -1059,7 +1059,7 @@
       }
     },
     "ALTAR.two": {
-      "name": "ALTAR.two",
+      "displayname": "ALTAR.two",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/altar.png",
@@ -1084,7 +1084,7 @@
       }
     },
     "ALTAR.three": {
-      "name": "ALTAR.three",
+      "displayname": "ALTAR.three",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/altar.png",
@@ -1109,7 +1109,7 @@
       }
     },
     "ALTAR.four": {
-      "name": "ALTAR.four",
+      "displayname": "ALTAR.four",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/altar.png",
@@ -1134,7 +1134,7 @@
       }
     },
     "GRAVE1.closed": {
-      "name": "GRAVE1.closed",
+      "displayname": "GRAVE1.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1149,7 +1149,7 @@
       }
     },
     "GRAVE1.opened": {
-      "name": "GRAVE1.opened",
+      "displayname": "GRAVE1.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1164,7 +1164,7 @@
       }
     },
     "GRAVE2.closed": {
-      "name": "GRAVE2.closed",
+      "displayname": "GRAVE2.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1179,7 +1179,7 @@
       }
     },
     "GRAVE2.opened": {
-      "name": "GRAVE2.opened",
+      "displayname": "GRAVE2.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1194,7 +1194,7 @@
       }
     },
     "GRAVE3.closed": {
-      "name": "GRAVE3.closed",
+      "displayname": "GRAVE3.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1209,7 +1209,7 @@
       }
     },
     "GRAVE3.opened": {
-      "name": "GRAVE3.opened",
+      "displayname": "GRAVE3.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1224,7 +1224,7 @@
       }
     },
     "GRAVE4.closed": {
-      "name": "GRAVE4.closed",
+      "displayname": "GRAVE4.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1239,7 +1239,7 @@
       }
     },
     "GRAVE4.opened": {
-      "name": "GRAVE4.opened",
+      "displayname": "GRAVE4.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1254,7 +1254,7 @@
       }
     },
     "GRAVE5.closed": {
-      "name": "GRAVE5.closed",
+      "displayname": "GRAVE5.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1269,7 +1269,7 @@
       }
     },
     "GRAVE5.opened": {
-      "name": "GRAVE5.opened",
+      "displayname": "GRAVE5.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1284,7 +1284,7 @@
       }
     },
     "GRAVE6.closed": {
-      "name": "GRAVE6.closed",
+      "displayname": "GRAVE6.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1299,7 +1299,7 @@
       }
     },
     "GRAVE6.opened": {
-      "name": "GRAVE6.opened",
+      "displayname": "GRAVE6.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1314,7 +1314,7 @@
       }
     },
     "GRAVE7.closed": {
-      "name": "GRAVE7.closed",
+      "displayname": "GRAVE7.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1329,7 +1329,7 @@
       }
     },
     "GRAVE7.opened": {
-      "name": "GRAVE7.opened",
+      "displayname": "GRAVE7.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1344,7 +1344,7 @@
       }
     },
     "GRAVE8.closed": {
-      "name": "GRAVE8.closed",
+      "displayname": "GRAVE8.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1359,7 +1359,7 @@
       }
     },
     "GRAVE8.opened": {
-      "name": "GRAVE8.opened",
+      "displayname": "GRAVE8.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1374,7 +1374,7 @@
       }
     },
     "GRAVE9.closed": {
-      "name": "GRAVE9.closed",
+      "displayname": "GRAVE9.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1389,7 +1389,7 @@
       }
     },
     "GRAVE9.opened": {
-      "name": "GRAVE9.opened",
+      "displayname": "GRAVE9.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1404,7 +1404,7 @@
       }
     },
     "GRAVE10.closed": {
-      "name": "GRAVE10.closed",
+      "displayname": "GRAVE10.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1419,7 +1419,7 @@
       }
     },
     "GRAVE10.opened": {
-      "name": "GRAVE10.opened",
+      "displayname": "GRAVE10.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1434,7 +1434,7 @@
       }
     },
     "GRAVE11.closed": {
-      "name": "GRAVE11.closed",
+      "displayname": "GRAVE11.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1449,7 +1449,7 @@
       }
     },
     "GRAVE11.opened": {
-      "name": "GRAVE11.opened",
+      "displayname": "GRAVE11.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1464,7 +1464,7 @@
       }
     },
     "GRAVE12.closed": {
-      "name": "GRAVE12.closed",
+      "displayname": "GRAVE12.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1479,7 +1479,7 @@
       }
     },
     "GRAVE12.opened": {
-      "name": "GRAVE12.opened",
+      "displayname": "GRAVE12.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/graves.png",
@@ -1494,7 +1494,7 @@
       }
     },
     "ARROW": {
-      "name": "ARROW",
+      "displayname": "ARROW",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/arrow.png",
@@ -1508,7 +1508,7 @@
       }
     },
     "CRYPT.closed": {
-      "name": "CRYPT.closed",
+      "displayname": "CRYPT.closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CRYPT.exterior_building.png",
@@ -1528,7 +1528,7 @@
       }
     },
     "CRYPT.opened": {
-      "name": "CRYPT.opened",
+      "displayname": "CRYPT.opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CRYPT.exterior_building.png",
@@ -1548,7 +1548,7 @@
       }
     },
     "BAPHOMET": {
-      "name": "BAPHOMET",
+      "displayname": "BAPHOMET",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/baphomet.png",
@@ -1567,7 +1567,7 @@
       }
     },
     "CRYPT.interior_objective_closed": {
-      "name": "CRYPT.interior_objective_closed",
+      "displayname": "CRYPT.interior_objective_closed",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/crypt_objective.png",
@@ -1600,7 +1600,7 @@
       }
     },
     "CRYPT.interior_objective_opened": {
-      "name": "CRYPT.interior_objective_opened",
+      "displayname": "CRYPT.interior_objective_opened",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/crypt_objective.png",
@@ -1634,7 +1634,7 @@
       }
     },
     "ALTAR.sacrifice.anim": {
-      "name": "ALTAR.sacrifice.anim",
+      "displayname": "ALTAR.sacrifice.anim",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",

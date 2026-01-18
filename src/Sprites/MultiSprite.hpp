@@ -36,12 +36,13 @@ public:
    *
    * @throws std::runtime_error If the tilemap fails to load or is invalid
    */
-  explicit MultiSprite( SpriteMetaType type, const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks,
+  explicit MultiSprite( SpriteMetaType type, std::string display_name, const std::filesystem::path &tilemap_path,
+                        const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size = { 1, 1 }, unsigned int sprites_per_frame = 1,
+                        unsigned int sprites_per_sequence = 1, std::vector<bool> solid_mask = {} );
+
+  explicit MultiSprite( SpriteMetaType type, std::string display_name, sf::Texture tilemap_texture, const std::vector<uint32_t> &tilemap_picks,
                         SpriteSize grid_size = { 1, 1 }, unsigned int sprites_per_frame = 1, unsigned int sprites_per_sequence = 1,
                         std::vector<bool> solid_mask = {} );
-
-  explicit MultiSprite( SpriteMetaType type, sf::Texture tilemap_texture, const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size = { 1, 1 },
-                        unsigned int sprites_per_frame = 1, unsigned int sprites_per_sequence = 1, std::vector<bool> solid_mask = {} );
 
   MultiSprite( MultiSprite && ) = default;
   MultiSprite &operator=( MultiSprite && ) = default;
@@ -54,6 +55,7 @@ public:
   const std::vector<bool> &get_solid_mask() const { return m_solid_mask; }
 
   const sf::Texture &get_texture() const { return *m_tilemap_texture; }
+  std::string get_display_name() const { return m_display_name; }
   /**
    * @brief Default dimensions for sprite frames in pixels.
    *
@@ -78,6 +80,7 @@ private:
 
   SpriteMetaType m_sprite_type;
 
+  std::string m_display_name{};
   // width and height grid size for the multi-sprite
   SpriteSize m_grid_size{ 1, 1 };
 

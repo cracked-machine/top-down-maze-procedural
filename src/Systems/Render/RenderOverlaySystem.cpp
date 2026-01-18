@@ -154,14 +154,13 @@ void RenderOverlaySystem::render_wealth_overlay( unsigned int wealth_value, sf::
   m_window.draw( player_score_text );
 }
 
-void RenderOverlaySystem::render_inventory_overlay( [[maybe_unused]] sf::Vector2f icon_pos )
+void RenderOverlaySystem::render_inventory_overlay( sf::Vector2f pos )
 {
-
-  sf::Vector2f icon_size( Constants::kGridSquareSizePixelsF );
-  sf::Vector2f icon_scale( 5.f, 5.f );
-  sf::Vector2f ui_offset( 10.f, 10.f );
-  sf::Vector2f ui_size( sf::Vector2f( icon_size * 5.f ) + ui_offset );
-  sf::Vector2f ui_pos( icon_pos - ui_offset );
+  float ui_padding = 5.f;
+  float icon_scale = 5.f;
+  sf::Vector2f ui_pos( pos );
+  sf::Vector2f ui_size( ( Constants::kGridSquareSizePixelsF * icon_scale ) + ( sf::Vector2f( ui_padding, ui_padding ) ) );
+  sf::Vector2f icon_pos( pos.x + ui_padding, pos.y + ui_padding );
 
   auto ui_background = sf::RectangleShape( ui_size );
   ui_background.setPosition( ui_pos );
@@ -178,7 +177,17 @@ void RenderOverlaySystem::render_inventory_overlay( [[maybe_unused]] sf::Vector2
   auto inventory_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::SpriteAnimation>();
   for ( auto [inventory_entt, inventory_cmp, anim_cmp] : inventory_view.each() )
   {
-    RenderSystem::safe_render_sprite( anim_cmp.m_sprite_type, { icon_pos, Constants::kGridSquareSizePixelsF }, 0, icon_scale );
+    RenderSystem::safe_render_sprite( anim_cmp.m_sprite_type, { icon_pos, Constants::kGridSquareSizePixelsF }, 0,
+                                      sf::Vector2f{ icon_scale, icon_scale } );
+    sf::Text display_name( m_font, m_sprite_factory.get_display_name_by_type( inventory_cmp.type ), 30 );
+    // Calculate the center of the scaled icon
+    float icon_center_x = icon_pos.x + ( Constants::kGridSquareSizePixelsF.x * icon_scale ) / 2.f;
+    // Center the text horizontally relative to the icon center
+    float text_x = icon_center_x - display_name.getLocalBounds().size.x / 2.f;
+    display_name.setPosition( sf::Vector2f{ text_x, icon_pos.y + ui_size.y + ui_padding } );
+
+    display_name.setFillColor( sf::Color::White );
+    m_window.draw( display_name );
   }
 }
 

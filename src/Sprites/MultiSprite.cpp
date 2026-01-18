@@ -8,9 +8,11 @@
 namespace ProceduralMaze::Sprites
 {
 
-MultiSprite::MultiSprite( SpriteMetaType type, const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks,
-                          SpriteSize grid_size, unsigned int sprites_per_frame, unsigned int sprites_per_sequence, std::vector<bool> solid_mask )
+MultiSprite::MultiSprite( SpriteMetaType type, std::string display_name, const std::filesystem::path &tilemap_path,
+                          const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size, unsigned int sprites_per_frame,
+                          unsigned int sprites_per_sequence, std::vector<bool> solid_mask )
     : m_sprite_type{ type },
+      m_display_name( display_name ),
       m_grid_size{ grid_size.width, grid_size.height },
       m_sprites_per_frame{ sprites_per_frame },
       m_sprites_per_sequence{ sprites_per_sequence },
@@ -30,9 +32,10 @@ MultiSprite::MultiSprite( SpriteMetaType type, const std::filesystem::path &tile
   }
 }
 
-MultiSprite::MultiSprite( SpriteMetaType type, sf::Texture tilemap_texture, const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size,
-                          unsigned int sprites_per_frame, unsigned int sprites_per_sequence, std::vector<bool> solid_mask )
+MultiSprite::MultiSprite( SpriteMetaType type, std::string display_name, sf::Texture tilemap_texture, const std::vector<uint32_t> &tilemap_picks,
+                          SpriteSize grid_size, unsigned int sprites_per_frame, unsigned int sprites_per_sequence, std::vector<bool> solid_mask )
     : m_sprite_type{ type },
+      m_display_name( display_name ),
       m_grid_size{ grid_size.width, grid_size.height },
       m_sprites_per_frame{ sprites_per_frame },
       m_sprites_per_sequence{ sprites_per_sequence },

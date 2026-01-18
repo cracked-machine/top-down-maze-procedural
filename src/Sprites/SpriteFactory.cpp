@@ -36,11 +36,13 @@ void SpriteFactory::init()
     SpriteSize grid_size = { value["multisprite"]["grid_size"]["width"], value["multisprite"]["grid_size"]["height"] };
     unsigned int sprites_per_frame = value["multisprite"]["sprites_per_frame"];
     unsigned int sprites_per_sequence = value["multisprite"]["sprites_per_sequence"];
+    std::string display_name = value["displayname"];
 
     std::vector<bool> solid_mask{};
     if ( value["multisprite"].contains( "solid_mask" ) ) { solid_mask = value["multisprite"]["solid_mask"].get<std::vector<bool>>(); }
 
-    meta.m_multisprite = MultiSprite{ key, texture_path, sprite_indices, grid_size, sprites_per_frame, sprites_per_sequence, solid_mask };
+    meta.m_multisprite = MultiSprite{ key,       display_name,      texture_path,         sprite_indices,
+                                      grid_size, sprites_per_frame, sprites_per_sequence, solid_mask };
 
     // Use the JSON key directly as the sprite type
     m_sprite_metadata_map[key] = std::move( meta );
@@ -69,6 +71,7 @@ void SpriteFactory::create_error_sprite()
 
   // Create error sprite using the procedural texture
   m_error_metadata = SpriteMetaData{ 1.0f, MultiSprite{ "ERROR_SPRITE",
+                                                        "Error Sprite",
                                                         m_error_texture, // Use the in-memory texture
                                                         { 0 },
                                                         { 1, 1 },
