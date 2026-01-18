@@ -15,7 +15,7 @@
 namespace ProceduralMaze::Factory
 {
 
-void createArmed( entt::registry &registry, entt::entity entity, Cmp::Armed::EpiCenter epi_center, int sequence, int zorder )
+entt::entity createArmed( entt::registry &registry, entt::entity entity, Cmp::Armed::EpiCenter epi_center, int sequence, int zorder )
 {
 
   // get persistent settings
@@ -53,6 +53,8 @@ void createArmed( entt::registry &registry, entt::entity entity, Cmp::Armed::Epi
   }
 
   registry.emplace_or_replace<Cmp::NoPathFinding>( new_armed_entity );
+
+  return new_armed_entity;
 }
 
 void destroyArmed( entt::registry &reg, entt::entity armed_entity )

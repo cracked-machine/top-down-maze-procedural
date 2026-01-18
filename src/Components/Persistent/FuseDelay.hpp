@@ -10,7 +10,7 @@ namespace ProceduralMaze::Cmp::Persist
 class FuseDelay : public BasePersistent<float>
 {
 public:
-  FuseDelay( float value = 3.0f, float min_value = 1.0f, float max_value = 10.0f )
+  FuseDelay( float value = 2.5f, float min_value = 1.0f, float max_value = 10.0f )
       : BasePersistent<float>( value, min_value, max_value )
   {
   }

@@ -1,7 +1,7 @@
 {
   "ArmedOffDelay": {
     "type": "float",
-    "value": 0.075
+    "value": 0.05
   },
   "ArmedOnDelay": {
     "type": "float",
@@ -56,7 +56,7 @@
   },
   "FuseDelay": {
     "type": "float",
-    "value": 3.0
+    "value": 2.5
   },
   "GraveNumMultiplier": {
     "type": "int",

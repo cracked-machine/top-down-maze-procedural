@@ -2,6 +2,7 @@
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/Explosive.hpp>
 #include <Components/NPC.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
@@ -82,42 +83,27 @@ void BombSystem::onResume()
 
 void BombSystem::on_bomb_event( const Events::PlayerActionEvent &event )
 {
-  if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB )
-  {
-    auto [inventory_entt, inventory_type] = Utils::get_player_inventory_type( getReg() );
-    if ( inventory_type != "CARRYITEM.bomb" ) return;
-    arm_player_bomb();
-  }
-  else if ( event.action == Events::PlayerActionEvent::GameActions::GRAVE_BOMB )
-  {
-    //
-    arm_grave_bomb();
-  }
+  if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB ) { arm_player_bomb(); }
+  else if ( event.action == Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) { arm_grave_bomb(); }
 }
 
 void BombSystem::arm_grave_bomb()
 {
   auto player_entt = Utils::get_player_entity( getReg() );
-  auto player_pos = Utils::get_player_position( getReg() );
+  m_sound_bank.get_effect( "bomb_fuse" ).play();
+  place_concentric_bomb_pattern( player_entt, getReg().get<Cmp::PlayerBlastRadius>( player_entt ).value );
+}
 
-  // for booby trapped graves, first try to find a random nearby disabled destructable obstacle for candidate bomb epicenter
-  entt::entity candidate_entity = entt::null;
-
-  auto search_area = Cmp::RectBounds( player_pos.position, Constants::kGridSquareSizePixelsF, 3.f );
-  candidate_entity = Utils::Rnd::get_random_nearby_disabled_obstacle( getReg(), search_area.getBounds(), Utils::Rnd::IncludePack<Cmp::Armable>{},
-                                                                      Utils::Rnd::ExcludePack<Cmp::Exit>{} );
-  auto pos_cmp = getReg().try_get<Cmp::Position>( candidate_entity );
-  if ( pos_cmp )
-  {
-    SPDLOG_DEBUG( "Returned candidate entity: {}, pos: {},{}", static_cast<uint32_t>( candidate_entity ), pos_cmp->position.x, pos_cmp->position.y );
-  }
+void BombSystem::arm_entt( entt::entity target_entt )
+{
+  auto player_entt = Utils::get_player_entity( getReg() );
 
   // then use the candidate entity to place the booby trap bomb
-  if ( candidate_entity != entt::null )
+  if ( target_entt != entt::null )
   {
     m_sound_bank.get_effect( "bomb_fuse" ).play();
 
-    place_concentric_bomb_pattern( candidate_entity, getReg().get<Cmp::PlayerBlastRadius>( player_entt ).value );
+    place_concentric_bomb_pattern( target_entt, getReg().get<Cmp::PlayerBlastRadius>( player_entt ).value );
   }
 }
 
@@ -154,15 +140,30 @@ void BombSystem::arm_player_bomb()
   }
 }
 
-void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, const int blast_radius )
+void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_entity, const int blast_radius, int depth )
 {
-  sf::Vector2i centerTile = Utils::getGridPosition<int>( getReg(), epicenter_entity ).value();
+  constexpr int kZOrderOffset = 64;
+
+  SPDLOG_INFO( "Recursive call {}", depth );
+  constexpr int kMaxRecursionDepth = 10;
+  if ( depth >= kMaxRecursionDepth ) return;
+
+  // Validate epicenter entity
+  if ( !getReg().valid( epicenter_entity ) ) return;
+
+  // Skip if this entity is already armed (prevents re-processing)
+  if ( getReg().any_of<Cmp::Armed>( epicenter_entity ) ) return;
+
+  auto grid_pos_opt = Utils::getGridPosition<int>( getReg(), epicenter_entity );
+  if ( !grid_pos_opt.has_value() ) return;
+  sf::Vector2i centerTile = grid_pos_opt.value();
+
+  // Mark epicenter as armed FIRST before any recursive processing
   int sequence_counter = 0;
-  Factory::createArmed( getReg(), epicenter_entity, Cmp::Armed::EpiCenter::YES, sequence_counter++, centerTile.y - 64 );
+  Factory::createArmed( getReg(), epicenter_entity, Cmp::Armed::EpiCenter::YES, sequence_counter++, centerTile.y - kZOrderOffset );
 
   // We dont detonate ReservedPositions so dont arm them in the first place
-  // Also exclude NPCs since they're handled separately and may be missing Position component during
-  // death animation
+  // Also exclude NPCs since they're handled separately and may be missing Position component during death animation
   auto all_obstacle_view = getReg().view<Cmp::Armable, Cmp::Position>( exclude<Cmp::NPC, Cmp::Exit> );
 
   // For each layer from 1 to BLAST_RADIUS
@@ -189,26 +190,29 @@ void BombSystem::place_concentric_bomb_pattern( entt::entity &epicenter_entity, 
     }
     SPDLOG_DEBUG( "Layer {}: Found {} entities to arm", layer, layer_entities.size() );
 
+    // clang-format off
     // Sort entities in clockwise order
     std::sort( layer_entities.begin(), layer_entities.end(),
-               [centerTile]( const auto &a, const auto &b )
-               {
-                 // Calculate angles from center to points
-                 float angleA = std::atan2( a.second.y - centerTile.y, a.second.x - centerTile.x );
-                 float angleB = std::atan2( b.second.y - centerTile.y, b.second.x - centerTile.x );
-                 return angleA < angleB;
-               } );
+      [centerTile]( const auto &a, const auto &b )
+      {
+        // Calculate angles from center to points
+        float angleA = std::atan2( a.second.y - centerTile.y, a.second.x - centerTile.x );
+        float angleB = std::atan2( b.second.y - centerTile.y, b.second.x - centerTile.x );
+        return angleA < angleB;
+      } );
+    // clang-format on
 
     // Arm each entity in the layer in clockwise order
     for ( const auto &[entity, pos] : layer_entities )
     {
-      Factory::createArmed( getReg(), entity, Cmp::Armed::EpiCenter::NO, sequence_counter++, centerTile.y - 64 );
+      Factory::createArmed( getReg(), entity, Cmp::Armed::EpiCenter::NO, sequence_counter++, centerTile.y - kZOrderOffset );
     }
   }
 }
 
 void BombSystem::update()
 {
+
   auto armed_view = getReg().view<Cmp::Armed, Cmp::Position>();
   for ( auto [armed_entt, armed_cmp, armed_pos_cmp] : armed_view.each() )
   {
@@ -243,16 +247,40 @@ void BombSystem::update()
 
     // detonate nearby carryitems - cruel but fair
     auto carryitem_view = getReg().view<Cmp::CarryItem, Cmp::Position>();
-    for ( auto [carryitem_entity, carryitem_cmp, carryitem_pos_cmp] : carryitem_view.each() )
+    for ( auto [carryitem_entt, carryitem_cmp, carryitem_pos_cmp] : carryitem_view.each() )
     {
       if ( not carryitem_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
       if ( carryitem_cmp.type == "CARRYITEM.pickaxe" or carryitem_cmp.type == "CARRYITEM.axe" or carryitem_cmp.type == "CARRYITEM.shovel" )
       {
         Utils::reduce_player_inventory_wear_level( getReg(), Sys::PersistSystem::get_persist_cmp<Cmp::Persist::BombDamage>( getReg() ).get_value() );
       }
+      else if ( carryitem_cmp.type == "CARRYITEM.bomb" )
+      {
+        // process other explosives lying around - chain reaction!
+        auto explosive_cmp = getReg().try_get<Cmp::Explosive>( carryitem_entt );
+        if ( not explosive_cmp ) continue;
+        SPDLOG_DEBUG( "Found explosive component {}", static_cast<int>( carryitem_entt ) );
+
+        // Skip if this carryitem was already armed (already processed or being processed)
+        if ( explosive_cmp->armed and armed_pos_cmp.findIntersection( carryitem_pos_cmp ) )
+        {
+          if ( getReg().valid( carryitem_entt ) ) { getReg().destroy( carryitem_entt ); }
+        }
+        SPDLOG_DEBUG( "Explosive candidate not already armed {}", static_cast<int>( carryitem_entt ) );
+
+        // Check if this bomb is within the blast radius of THIS explosion (not just any armed position)
+        if ( not armed_pos_cmp.findIntersection( carryitem_pos_cmp ) ) continue;
+        SPDLOG_DEBUG( "Found explosive candidate {}", static_cast<int>( carryitem_entt ) );
+
+        // IMMEDIATELY mark as armed to prevent other recursive calls from processing it
+        explosive_cmp->armed = true;
+        Factory::createArmed( getReg(), carryitem_entt, Cmp::Armed::EpiCenter::YES, 0, carryitem_pos_cmp.position.y - 64 );
+        arm_entt( carryitem_entt );
+        SPDLOG_INFO( "Chain reaction triggered for bomb entity {} ", static_cast<int>( carryitem_entt ) );
+      }
       else
       {
-        if ( getReg().valid( carryitem_entity ) ) { getReg().destroy( carryitem_entity ); }
+        if ( getReg().valid( carryitem_entt ) ) { getReg().destroy( carryitem_entt ); }
       }
     }
 

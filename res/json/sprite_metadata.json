@@ -433,7 +433,7 @@
     },
     "CARRYITEM.bomb": {
       "displayname": "Dynamite",
-      "weight": 1.0,
+      "weight": 3.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [30],
@@ -699,7 +699,7 @@
     },
     "CARRYITEM.scryingball": {
       "displayname": "Seeing Stone",
-      "weight": 1.0,
+      "weight": 0.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [220],
@@ -713,7 +713,7 @@
     },
     "CARRYITEM.cursetablet": {
       "displayname": "Curse Tablet",
-      "weight": 1.0,
+      "weight": 0.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [230],

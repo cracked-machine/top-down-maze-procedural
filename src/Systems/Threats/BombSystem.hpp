@@ -42,7 +42,9 @@ public:
 
   void arm_grave_bomb();
   void arm_player_bomb();
-  void place_concentric_bomb_pattern( entt::entity &epicenter_entity, const int blast_radius );
+  void arm_entt( entt::entity target_entt );
+
+  void place_concentric_bomb_pattern( const entt::entity &epicenter_entity, const int blast_radius, int depth = 0 );
   void update();
 
   /// EVENTS

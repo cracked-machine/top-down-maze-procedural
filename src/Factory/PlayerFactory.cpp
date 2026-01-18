@@ -5,6 +5,7 @@
 #include <Components/DeathPosition.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/Explosive.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/InventoryWearLevel.hpp>
 #include <Components/Neighbours.hpp>
@@ -119,6 +120,49 @@ void createPlayerDeathAnim( entt::registry &registry, Cmp::Position player_pos_c
   registry.emplace_or_replace<Cmp::ZOrderValue>( player_blood_splat_entity, player_pos_cmp.position.y * 3 ); // always infront
 }
 
+entt::entity create_seeing_stone( entt::registry &reg, Cmp::Position pos, Sprites::SpriteMetaType type, float zorder )
+{
+  // Check if we can create a scrying ball with a unique target BEFORE creating the entity
+  std::vector<Cmp::ScryingBall::Target> exclude_list;
+  for ( auto [scryingball_entt, scryingball_cmp] : reg.view<Cmp::ScryingBall>().each() )
+  {
+    exclude_list.push_back( scryingball_cmp.target );
+  }
+  auto pick = Cmp::ScryingBall::random_pick( exclude_list );
+  if ( pick == Cmp::ScryingBall::Target::NONE )
+  {
+    SPDLOG_WARN( "Cannot create scrying ball - all targets already assigned" );
+    return entt::null;
+  }
+
+  // Now create the entity with the valid target
+  auto world_carry_item_entt = reg.create();
+  reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, type, 0 );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
+  reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, type );
+  reg.emplace_or_replace<Cmp::NoPathFinding>( world_carry_item_entt );
+  reg.emplace_or_replace<Cmp::ScryingBall>( world_carry_item_entt, false, pick );
+
+  SPDLOG_INFO( "Placed {} at {},{}", type, pos.position.x, pos.position.y );
+  return world_carry_item_entt;
+}
+
+entt::entity create_explosive( entt::registry &reg, Cmp::Position pos, Sprites::SpriteMetaType type, float zorder )
+{
+  // Now create the entity with the valid target
+  auto world_carry_item_entt = reg.create();
+  reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, type, 0 );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
+  reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, type );
+  reg.emplace_or_replace<Cmp::NoPathFinding>( world_carry_item_entt );
+  reg.emplace_or_replace<Cmp::Explosive>( world_carry_item_entt, false );
+
+  SPDLOG_INFO( "Placed {} at {},{}", type, pos.position.x, pos.position.y );
+  return world_carry_item_entt;
+}
+
 //! @brief Create a Carry Item object in the world
 //! @param reg the ECS registry
 //! @param pos the position to place the new item
@@ -126,33 +170,8 @@ void createPlayerDeathAnim( entt::registry &registry, Cmp::Position player_pos_c
 //! @return entt::entity
 entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, Sprites::SpriteMetaType type, float zorder )
 {
-  if ( type == "CARRYITEM.scryingball" )
-  {
-    // Check if we can create a scrying ball with a unique target BEFORE creating the entity
-    std::vector<Cmp::ScryingBall::Target> exclude_list;
-    for ( auto [scryingball_entt, scryingball_cmp] : reg.view<Cmp::ScryingBall>().each() )
-    {
-      exclude_list.push_back( scryingball_cmp.target );
-    }
-    auto pick = Cmp::ScryingBall::random_pick( exclude_list );
-    if ( pick == Cmp::ScryingBall::Target::NONE )
-    {
-      SPDLOG_WARN( "Cannot create scrying ball - all targets already assigned" );
-      return entt::null;
-    }
-
-    // Now create the entity with the valid target
-    auto world_carry_item_entt = reg.create();
-    reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
-    reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, type, 0 );
-    reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
-    reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, type );
-    reg.emplace_or_replace<Cmp::NoPathFinding>( world_carry_item_entt );
-    reg.emplace_or_replace<Cmp::ScryingBall>( world_carry_item_entt, false, pick );
-
-    SPDLOG_INFO( "Placed {} at {},{}", type, pos.position.x, pos.position.y );
-    return world_carry_item_entt;
-  }
+  if ( type == "CARRYITEM.scryingball" ) { return create_seeing_stone( reg, pos, type, zorder ); }
+  else if ( type == "CARRYITEM.bomb" ) { return create_explosive( reg, pos, type, zorder ); }
 
   auto world_carry_item_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
@@ -207,6 +226,9 @@ entt::entity dropInventorySlotIntoWorld( entt::registry &reg, Cmp::Position pos,
     auto inventory_scryingball_cmp = reg.try_get<Cmp::ScryingBall>( inventory_slot_entt );
     if ( inventory_scryingball_cmp ) { reg.emplace_or_replace<Cmp::ScryingBall>( world_carry_item_entt, true, inventory_scryingball_cmp->target ); }
 
+    auto inventory_explosive_cmp = reg.try_get<Cmp::Explosive>( inventory_slot_entt );
+    if ( inventory_explosive_cmp ) { reg.emplace_or_replace<Cmp::Explosive>( world_carry_item_entt, false ); }
+
     // now destroy the inventory slot
     reg.destroy( inventory_slot_entt );
     return world_carry_item_entt;
@@ -233,6 +255,9 @@ entt::entity pickupCarryItem( entt::registry &reg, entt::entity carryitem_entt )
 
   auto carryitem_scryingball_cmp = reg.try_get<Cmp::ScryingBall>( carryitem_entt );
   if ( carryitem_scryingball_cmp ) { reg.emplace_or_replace<Cmp::ScryingBall>( inventory_entity, false, carryitem_scryingball_cmp->target ); }
+
+  auto carryitem_explosive_cmp = reg.try_get<Cmp::Explosive>( carryitem_entt );
+  if ( carryitem_explosive_cmp ) { reg.emplace_or_replace<Cmp::Explosive>( inventory_entity, false ); }
 
   // now destroy the carryitem entt
   reg.destroy( carryitem_entt );

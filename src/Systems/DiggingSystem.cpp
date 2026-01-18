@@ -120,7 +120,7 @@ void DiggingSystem::check_player_smash_pot()
       else
       {
         const Sprites::SpriteMetaType selected_type = m_sprite_factory.get_random_type(
-            { "CARRYITEM.bomb", "CARRYITEM.scryingball", "CARRYITEM.cursetablet" }, { 5, 1, 1 } );
+            { "CARRYITEM.bomb", "CARRYITEM.scryingball", "CARRYITEM.cursetablet" } );
         Factory::createCarryItem( getReg(), loot_pos_cmp, selected_type );
 
         m_sound_bank.get_effect( "break_pot" ).play();
