@@ -64,6 +64,8 @@ public:
 
   void render_crypt_maze_timer( sf::Vector2f pos, unsigned int size );
 
+  void render_wear_level( Cmp::InventoryWearLevel &wearlevel, const Cmp::Position &pos );
+
   template <typename Component>
   void render_square_for_entity( entt::entity entity, sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )
   {

@@ -499,4 +499,19 @@ void RenderOverlaySystem::render_crypt_maze_timer( sf::Vector2f pos, unsigned in
   }
 }
 
+void RenderOverlaySystem::render_wear_level( [[maybe_unused]] Cmp::InventoryWearLevel &wearlevel, const Cmp::Position &pos )
+{
+  float icon_border = 0.f;
+  float padding = 1.f;
+  float icon_height = 2.f;
+  float icon_width = Constants::kGridSquareSizePixelsF.x - ( padding * 2 );
+
+  sf::RectangleShape icon( { ( icon_width / 100.f ) * wearlevel.m_level, icon_height } );
+  icon.setOutlineColor( sf::Color::Black );
+  icon.setOutlineThickness( icon_border );
+  icon.setFillColor( sf::Color( 255, 0, 0, 224 ) );
+  icon.setPosition( { pos.position.x + ( padding ), pos.position.y + Constants::kGridSquareSizePixelsF.y - icon_height - ( padding ) } );
+  m_window.draw( icon );
+}
+
 } // namespace ProceduralMaze::Sys

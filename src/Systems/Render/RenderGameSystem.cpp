@@ -188,6 +188,11 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
 
           safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame, { 1.f, 1.f }, alpha_value,
                               new_origin_value, new_angle_value );
+
+          if ( getReg().any_of<Cmp::InventoryWearLevel>( entity ) )
+          {
+            render_overlay_sys.render_wear_level( getReg().get<Cmp::InventoryWearLevel>( entity ), pos_cmp );
+          }
         }
       }
 
@@ -593,7 +598,7 @@ void RenderGameSystem::render_scryingball_doglegs()
         for ( auto [altar_entt, altar_cmp] : altar_view.each() )
         {
           // yellow for altar paths
-          draw_dogleg( scryingball_pos_cmp.getCenter(), altar_cmp.getCenter(), sf::Color( 0, 255, 255, 128 ), kLineThickness );
+          draw_dogleg( scryingball_pos_cmp.getCenter(), altar_cmp.getCenter(), sf::Color( 255, 255, 0, 128 ), kLineThickness );
         }
         break;
       }
