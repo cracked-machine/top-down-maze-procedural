@@ -9,6 +9,7 @@
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Time.hpp>
 #include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteFactory.hpp>
 #include <Utils/Utils.hpp>
 #include <spdlog/spdlog.h>
 
@@ -118,11 +119,9 @@ void DiggingSystem::check_player_smash_pot()
       }
       else
       {
-        // pot was broken by player
-        std::vector<Sprites::SpriteMetaType> luckydip{ "CARRYITEM.bomb", "CARRYITEM.scryingball", "CARRYITEM.cursetablet" };
-        Cmp::RandomInt picker( 0, luckydip.size() - 1 );
-        Sprites::SpriteMetaType selection = luckydip.at( picker.gen() );
-        Factory::createCarryItem( getReg(), loot_pos_cmp, selection );
+        const Sprites::SpriteMetaType selected_type = m_sprite_factory.get_random_type(
+            { "CARRYITEM.bomb", "CARRYITEM.scryingball", "CARRYITEM.cursetablet" }, { 5, 1, 1 } );
+        Factory::createCarryItem( getReg(), loot_pos_cmp, selected_type );
 
         m_sound_bank.get_effect( "break_pot" ).play();
         auto inventory_wear_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();

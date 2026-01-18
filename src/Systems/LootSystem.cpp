@@ -1,4 +1,5 @@
 #include <Components/Inventory/CarryItem.hpp>
+#include <Components/PlayerBlastRadius.hpp>
 #include <Components/PlayerWealth.hpp>
 #include <Components/RectBounds.hpp>
 #include <Systems/LootSystem.hpp>
@@ -71,7 +72,7 @@ void LootSystem::check_loot_collision()
   {
     if ( !getReg().valid( effect.player_entity ) ) continue;
 
-    auto &pc_cmp = getReg().get<Cmp::PlayableCharacter>( effect.player_entity );
+    auto blast_radius = getReg().get<Cmp::PlayerBlastRadius>( effect.player_entity );
     auto &pc_health_cmp = getReg().get<Cmp::PlayerHealth>( effect.player_entity );
 
     // Apply the effect
@@ -103,7 +104,7 @@ void LootSystem::check_loot_collision()
     }
     else if ( effect.type == "CHAIN_BOMBS" )
     {
-      pc_cmp.blast_radius = std::clamp( pc_cmp.blast_radius + 1, 0, 3 );
+      blast_radius.value = std::clamp( blast_radius.value + 1, 0, 3 );
       m_sound_bank.get_effect( "get_loot" ).play();
       Factory::destroyLootDrop( getReg(), effect.loot_entity );
     }

@@ -43,6 +43,8 @@ public:
   //! @return A pair containing the selected SpriteMetaType and its associated texture index
   std::pair<SpriteMetaType, std::size_t> get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list, std::vector<float> weights = {} );
 
+  SpriteMetaType get_random_type( std::vector<SpriteMetaType> type_list, std::vector<float> weights = {} );
+
   //! @brief Get the all sprite types by pattern object
   //! Supports regex and plain text matching.
   //!
@@ -65,7 +67,7 @@ public:
   // Returns the pixel bounds of first sprite in array. Assumes that all sprites in the multi-sprite have the same size
 
   sf::Vector2f get_sprite_size_by_type( const SpriteMetaType &type ) { return get_spritedata_by_type( type ).m_multisprite.getSpriteSizePixels(); }
-  std::string get_display_name_by_type( const SpriteMetaType type ) { return get_spritedata_by_type( type ).m_multisprite.get_display_name(); }
+  std::string get_display_name_by_type( const SpriteMetaType &type ) { return get_spritedata_by_type( type ).m_multisprite.get_display_name(); }
 
 private:
   //! @brief Metadata for a single sprite. This is mainly a legacy struct to hold the MultiSprite along with its weight.

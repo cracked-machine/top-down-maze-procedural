@@ -15,6 +15,7 @@
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/NpcShockwave.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
+#include <Components/PlayerBlastRadius.hpp>
 #include <Components/PlayerCadaverCount.hpp>
 #include <Components/PlayerWealth.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -255,10 +256,11 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::getGameView() );
 
       // gather metrics from components
-      for ( auto [pc_entt, pc_cmp, pc_health_cmp, wealth_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerWealth>().each() )
+      for ( auto [pc_entt, player_blast_radius, pc_health_cmp, wealth_cmp] :
+            getReg().view<Cmp::PlayerBlastRadius, Cmp::PlayerHealth, Cmp::PlayerWealth>().each() )
       {
         player_health = pc_health_cmp.health;
-        blast_radius = pc_cmp.blast_radius;
+        blast_radius = player_blast_radius.value;
         player_wealth_value = wealth_cmp.wealth;
       }
 

@@ -13,24 +13,15 @@ namespace ProceduralMaze::Cmp
 class PlayableCharacter
 {
 public:
-  // blast radius for bomb explosions
-  int blast_radius{};
-
   bool has_active_bomb{ false };
 
   bool underwater{ false };
 
   sf::Clock m_damage_cooldown_timer;
 
-  PlayableCharacter( int blast_rad )
-      : blast_radius( blast_rad )
-  {
-  }
-
   // Custom copy constructor to handle sf::Clock
   PlayableCharacter( const PlayableCharacter &other )
-      : blast_radius( other.blast_radius ),
-        has_active_bomb( other.has_active_bomb ),
+      : has_active_bomb( other.has_active_bomb ),
         underwater( other.underwater ),
         m_damage_cooldown_timer() // Reset clocks on copy
   {
@@ -41,7 +32,7 @@ public:
   {
     if ( this != &other )
     {
-      blast_radius = other.blast_radius;
+
       has_active_bomb = other.has_active_bomb;
       underwater = other.underwater;
       m_damage_cooldown_timer.restart();

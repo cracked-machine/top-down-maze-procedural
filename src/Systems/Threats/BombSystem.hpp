@@ -40,17 +40,13 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override;
 
-  void arm_occupied_location( const Events::PlayerActionEvent &event );
+  void arm_grave_bomb();
+  void arm_player_bomb();
   void place_concentric_bomb_pattern( entt::entity &epicenter_entity, const int blast_radius );
   void update();
 
   /// EVENTS
-  void on_player_action( const Events::PlayerActionEvent &event )
-  {
-    SPDLOG_DEBUG( "Player Action Event received" );
-    if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB ) { arm_occupied_location( event ); }
-    if ( event.action == Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) { arm_occupied_location( event ); }
-  }
+  void on_bomb_event( const Events::PlayerActionEvent &event );
 
 private:
   const sf::Vector2f max_explosion_zone_size{ Constants::kGridSquareSizePixels.x * 3.f, Constants::kGridSquareSizePixels.y * 3.f };

@@ -5,6 +5,7 @@
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayableCharacter.hpp>
+#include <Components/PlayerBlastRadius.hpp>
 #include <Components/PlayerCadaverCount.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
@@ -152,6 +153,14 @@ void SceneInputRouter::graveyard_scene_state_handler()
       {
         get_systems_event_queue().enqueue(
             Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::get_player_position( getReg() ) ) );
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
+      {
+        for ( auto [pc_entity, pc_cmp, pc_blast_radius] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerBlastRadius>().each() )
+        {
+          pc_blast_radius.value = std::clamp( pc_blast_radius.value + 1, 0, 3 );
+          SPDLOG_INFO( "Player gained blast radius (player cheated)" );
+        }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
       {

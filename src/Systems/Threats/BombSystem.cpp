@@ -5,6 +5,7 @@
 #include <Components/NPC.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
+#include <Components/PlayerBlastRadius.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerMortality.hpp>
 #include <Components/Position.hpp>
@@ -50,7 +51,7 @@ BombSystem::BombSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
 {
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
   // the constructor
-  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_player_action>( this );
+  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&Sys::BombSystem::on_bomb_event>( this );
   std::ignore = get_systems_event_queue().sink<Events::PauseClocksEvent>().connect<&Sys::BombSystem::onPause>( this );
   std::ignore = get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::BombSystem::onResume>( this );
   SPDLOG_DEBUG( "BombSystem initialized" );
@@ -79,65 +80,76 @@ void BombSystem::onResume()
   }
 }
 
-void BombSystem::arm_occupied_location( [[maybe_unused]] const Events::PlayerActionEvent &event )
+void BombSystem::on_bomb_event( const Events::PlayerActionEvent &event )
 {
-
-  auto [inventory_entt, inventory_type] = Utils::get_player_inventory_type( getReg() );
   if ( event.action == Events::PlayerActionEvent::GameActions::DROP_BOMB )
   {
+    auto [inventory_entt, inventory_type] = Utils::get_player_inventory_type( getReg() );
     if ( inventory_type != "CARRYITEM.bomb" ) return;
+    arm_player_bomb();
+  }
+  else if ( event.action == Events::PlayerActionEvent::GameActions::GRAVE_BOMB )
+  {
+    //
+    arm_grave_bomb();
+  }
+}
+
+void BombSystem::arm_grave_bomb()
+{
+  auto player_entt = Utils::get_player_entity( getReg() );
+  auto player_pos = Utils::get_player_position( getReg() );
+
+  // for booby trapped graves, first try to find a random nearby disabled destructable obstacle for candidate bomb epicenter
+  entt::entity candidate_entity = entt::null;
+
+  auto search_area = Cmp::RectBounds( player_pos.position, Constants::kGridSquareSizePixelsF, 3.f );
+  candidate_entity = Utils::Rnd::get_random_nearby_disabled_obstacle( getReg(), search_area.getBounds(), Utils::Rnd::IncludePack<Cmp::Armable>{},
+                                                                      Utils::Rnd::ExcludePack<Cmp::Exit>{} );
+  auto pos_cmp = getReg().try_get<Cmp::Position>( candidate_entity );
+  if ( pos_cmp )
+  {
+    SPDLOG_DEBUG( "Returned candidate entity: {}, pos: {},{}", static_cast<uint32_t>( candidate_entity ), pos_cmp->position.x, pos_cmp->position.y );
   }
 
-  auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
-  for ( const auto [pc_entity, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
+  // then use the candidate entity to place the booby trap bomb
+  if ( candidate_entity != entt::null )
   {
-    // for booby trapped graves, first try to find a random nearby disabled destructable obstacle for candidate bomb epicenter
-    entt::entity candidate_entity = entt::null;
-    if ( event.action == Events::PlayerActionEvent::GameActions::GRAVE_BOMB )
-    {
-      auto search_area = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 3.f );
-      candidate_entity = Utils::Rnd::get_random_nearby_disabled_obstacle( getReg(), search_area.getBounds(), Utils::Rnd::IncludePack<Cmp::Armable>{},
-                                                                          Utils::Rnd::ExcludePack<Cmp::Exit>{} );
-      auto pos_cmp = getReg().try_get<Cmp::Position>( candidate_entity );
-      if ( pos_cmp )
-        SPDLOG_DEBUG( "Returned candidate entity: {}, pos: {},{}", static_cast<uint32_t>( candidate_entity ), pos_cmp->position.x,
-                      pos_cmp->position.y );
-    }
-    // then use the candidate entity to place the booby trap bomb
-    if ( candidate_entity != entt::null )
+    m_sound_bank.get_effect( "bomb_fuse" ).play();
+
+    place_concentric_bomb_pattern( candidate_entity, getReg().get<Cmp::PlayerBlastRadius>( player_entt ).value );
+  }
+}
+
+void BombSystem::arm_player_bomb()
+{
+  auto player_entt = Utils::get_player_entity( getReg() );
+  auto player_pos = Utils::get_player_position( getReg() );
+
+  auto destructable_view = getReg().view<Cmp::Armable, Cmp::Position>();
+  for ( auto [destructable_entity, destructable_cmp, destructable_pos_cmp] : destructable_view.each() )
+  {
+
+    auto [inventory_entt, inventory_type] = Utils::get_player_inventory_type( getReg() );
+    if ( inventory_type != "CARRYITEM.bomb" ) return;
+
+    // make a copy and reduce/center the player hitbox to avoid arming a neighbouring location
+    auto player_hitbox = sf::FloatRect( player_pos );
+    player_hitbox.size.x /= 2.f;
+    player_hitbox.size.y /= 2.f;
+    player_hitbox.position.x += 4.f;
+    player_hitbox.position.y += 4.f;
+
+    // are we standing on a destructable tile?
+    if ( player_hitbox.findIntersection( destructable_pos_cmp ) )
     {
       m_sound_bank.get_effect( "bomb_fuse" ).play();
-      place_concentric_bomb_pattern( candidate_entity, pc_cmp.blast_radius );
-    }
-    // fallback to the normal bomb placement at player's current location
-    else
-    {
-      auto destructable_view = getReg().view<Cmp::Armable, Cmp::Position>();
-      for ( auto [destructable_entity, destructable_cmp, destructable_pos_cmp] : destructable_view.each() )
-      {
 
-        auto [inventory_entt, inventory_type] = Utils::get_player_inventory_type( getReg() );
-        if ( inventory_type != "CARRYITEM.bomb" ) return;
-
-        // make a copy and reduce/center the player hitbox to avoid arming a neighbouring location
-        auto player_hitbox = sf::FloatRect( pc_pos_cmp );
-        player_hitbox.size.x /= 2.f;
-        player_hitbox.size.y /= 2.f;
-        player_hitbox.position.x += 4.f;
-        player_hitbox.position.y += 4.f;
-
-        // are we standing on a destructable tile?
-        if ( player_hitbox.findIntersection( destructable_pos_cmp ) )
-        {
-          m_sound_bank.get_effect( "bomb_fuse" ).play();
-
-          auto armed_epicenter_entity = getReg().create();
-          getReg().emplace<Cmp::Position>( armed_epicenter_entity, destructable_pos_cmp.position, destructable_pos_cmp.size );
-          place_concentric_bomb_pattern( armed_epicenter_entity, pc_cmp.blast_radius );
-          Factory::destroyInventory( getReg(), "CARRYITEM.bomb" );
-          // remove the used bomb carry item from the player inventory - Factory::createArmed drops a new bomb
-        }
-      }
+      auto armed_epicenter_entity = getReg().create();
+      getReg().emplace<Cmp::Position>( armed_epicenter_entity, destructable_pos_cmp.position, destructable_pos_cmp.size );
+      place_concentric_bomb_pattern( armed_epicenter_entity, getReg().get<Cmp::PlayerBlastRadius>( player_entt ).value );
+      Factory::destroyInventory( getReg(), "CARRYITEM.bomb" );
+      // remove the used bomb carry item from the player inventory - Factory::createArmed drops a new bomb
     }
   }
 }

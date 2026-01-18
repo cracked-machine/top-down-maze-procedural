@@ -99,6 +99,13 @@ std::pair<SpriteMetaType, std::size_t> SpriteFactory::get_random_type_and_textur
   return { "ERROR_SPRITE", 0 };
 }
 
+SpriteMetaType SpriteFactory::get_random_type( std::vector<SpriteMetaType> type_list, std::vector<float> weights )
+{
+  const SpriteMetaData &selected_data = get_random_spritedata( type_list, weights );
+
+  return selected_data.m_multisprite.get_sprite_type();
+}
+
 std::vector<SpriteMetaType> SpriteFactory::get_all_sprite_types_by_pattern( const std::string &pattern )
 {
   std::vector<SpriteMetaType> types;

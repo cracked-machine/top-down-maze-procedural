@@ -15,6 +15,7 @@
 #include <Components/Persistent/PlayerDetectionScale.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/PlayableCharacter.hpp>
+#include <Components/PlayerBlastRadius.hpp>
 #include <Components/PlayerCadaverCount.hpp>
 #include <Components/PlayerHealth.hpp>
 #include <Components/PlayerKeysCount.hpp>
@@ -51,7 +52,8 @@ void CreatePlayer( entt::registry &registry )
   registry.emplace<Cmp::Position>( entity, start_pos, Constants::kGridSquareSizePixelsF );
 
   auto &blast_radius = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::BlastRadius>( registry );
-  registry.emplace<Cmp::PlayableCharacter>( entity, blast_radius.get_value() );
+  registry.emplace<Cmp::PlayableCharacter>( entity );
+  registry.emplace<Cmp::PlayerBlastRadius>( entity, blast_radius.get_value() );
 
   registry.emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
 
