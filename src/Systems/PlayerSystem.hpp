@@ -23,6 +23,7 @@ public:
                 entt::dispatcher &scenemanager_event_dispatcher );
 
   //! @brief Update the player system.
+  //! @note This enqueues 'Events::SceneManagerEvent::Type::GAME_OVER' if player is dead
   void update( sf::Time globalDeltaTime );
 
   void playFootstepsSound();

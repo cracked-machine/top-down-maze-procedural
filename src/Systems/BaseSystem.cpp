@@ -1,5 +1,6 @@
 #include <Components/CryptChest.hpp>
 #include <Components/CryptLever.hpp>
+#include <Components/HolyWell/HolyWellSegment.hpp>
 #include <Components/PlantObstacle.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -101,6 +102,13 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
   for ( auto [entity, crypt_cmp, pos_cmp] : crypt_view.each() )
   {
     if ( not crypt_cmp.isSolidMask() ) continue;
+    if ( pos_cmp.findIntersection( target_position ) ) { return false; }
+  }
+
+  auto holywell_view = getReg().view<Cmp::HolyWellSegment, Cmp::Position>();
+  for ( auto [entity, holywell_cmp, pos_cmp] : holywell_view.each() )
+  {
+    if ( not holywell_cmp.isSolidMask() ) continue;
     if ( pos_cmp.findIntersection( target_position ) ) { return false; }
   }
 

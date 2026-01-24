@@ -1547,6 +1547,46 @@
         }
       }
     },
+    "HOLYWELL.exterior_building": {
+      "displayname": "HOLYWELL.exterior_building",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/HOLYWELL.exterior_building.png",
+        "sprite_indices": [0],
+        "solid_mask": [
+                       true, true, true,
+                       true, true, true,
+                       true, true, true,
+                       true, false, true
+                     ],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 3,
+          "height": 4
+        }
+      }
+    },
+    "HOLYWELL.interior_well": {
+      "displayname": "HOLYWELL.interior_well",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/HOLYWELL.interior_well.png",
+        "sprite_indices": [0, 3, 6, 9],
+        "solid_mask": [
+          false, true, false, 
+          true, true, true, 
+          true, true, true, 
+          true, true, true
+        ],
+        "sprites_per_sequence": 4,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 3,
+          "height": 4
+        }
+      }
+    },
     "BAPHOMET": {
       "displayname": "BAPHOMET",
       "weight": 1.0,

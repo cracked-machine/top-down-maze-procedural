@@ -25,7 +25,7 @@ class SceneManager
 {
 public:
   explicit SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher,
-                         entt::dispatcher &scenemanager_event_dispatcher );
+                         entt::dispatcher &scenemanager_event_dispatcher, Sprites::SpriteFactory &sprite_factory );
 
   // Update the current scene
   void update( sf::Time dt );
@@ -126,6 +126,8 @@ private:
 
   //! @brief Used to transfer components from outgoing scene registry to an incoming scene registry
   RegistryTransfer m_reg_xfer;
+
+  Sprites::SpriteFactory &m_sprite_factory;
 };
 
 } // namespace ProceduralMaze::Scene

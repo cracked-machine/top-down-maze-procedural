@@ -14,6 +14,7 @@
 #include <Systems/DiggingSystem.hpp>
 #include <Systems/ExitSystem.hpp>
 #include <Systems/GraveSystem.hpp>
+#include <Systems/HolyWellSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
@@ -137,8 +138,8 @@ void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
   }
   m_system_store.find<Sys::SystemStore::Type::CryptSystem>().unlock_crypt_door();
   m_system_store.find<Sys::SystemStore::Type::AltarSystem>().check_player_collision();
+  m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().check_entrance_collision();
 
-  // Note: this enqueues 'Events::SceneManagerEvent::Type::GAME_OVER' if player is dead
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt );
 
   // clang-format off

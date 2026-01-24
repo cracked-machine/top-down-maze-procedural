@@ -5,8 +5,7 @@ namespace ProceduralMaze::Events
 
 struct SceneManagerEvent
 {
-  enum class Type
-  {
+  enum class Type {
     EXIT_GAME,
     SETTINGS_MENU,
     EXIT_SETTINGS_MENU,
@@ -18,6 +17,8 @@ struct SceneManagerEvent
     LEVEL_COMPLETE,
     ENTER_CRYPT,
     EXIT_CRYPT,
+    ENTER_HOLYWELL,
+    EXIT_HOLYWELL,
     RETURN_TO_TITLE
   };
 

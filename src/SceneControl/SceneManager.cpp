@@ -7,21 +7,24 @@
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <SceneControl/Scenes/GameOverScene.hpp>
 #include <SceneControl/Scenes/GraveyardScene.hpp>
+#include <SceneControl/Scenes/HolyWellScene.hpp>
 #include <SceneControl/Scenes/LevelCompleteScene.hpp>
 #include <SceneControl/Scenes/PausedMenuScene.hpp>
 #include <SceneControl/Scenes/SettingsMenuScene.hpp>
 #include <SceneControl/Scenes/TitleScene.hpp>
+#include <Sprites/SpriteFactory.hpp>
 
 namespace ProceduralMaze::Scene
 {
 
 SceneManager::SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher,
-                            entt::dispatcher &scenemanager_event_dispatcher )
+                            entt::dispatcher &scenemanager_event_dispatcher, Sprites::SpriteFactory &sprite_factory )
     : m_window( w ),
       m_sound_bank( sound_bank ),
       m_system_store( system_store ),
       m_nav_event_dispatcher( nav_event_dispatcher ),
-      m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
+      m_scenemanager_event_dispatcher( scenemanager_event_dispatcher ),
+      m_sprite_factory( sprite_factory )
 {
   m_scenemanager_event_dispatcher.sink<Events::SceneManagerEvent>().connect<&SceneManager::handle_events>( this );
 
@@ -227,6 +230,17 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
     }
     case Events::SceneManagerEvent::Type::EXIT_CRYPT: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_CRYPT requested" );
+      pop( RegCopyMode::PLAYER_ONLY );
+      break;
+    }
+    case Events::SceneManagerEvent::Type::ENTER_HOLYWELL: {
+      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_HOLYWELL requested" );
+      auto holywell_scene = std::make_unique<HolyWellScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
+      push_no_exit( std::move( holywell_scene ), RegCopyMode::PLAYER_ONLY );
+      break;
+    }
+    case Events::SceneManagerEvent::Type::EXIT_HOLYWELL: {
+      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_HOLYWELL requested" );
       pop( RegCopyMode::PLAYER_ONLY );
       break;
     }

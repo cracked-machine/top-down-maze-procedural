@@ -34,6 +34,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/AltarSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/LootSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/CryptSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/HolyWellSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/PassageSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/SystemStore.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/ShockwaveSystem.cpp
@@ -46,6 +47,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/TitleScene.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/LevelCompleteScene.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/CryptScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/HolyWellScene.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/RegistryTransfer.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/PlayerFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/NpcFactory.cpp

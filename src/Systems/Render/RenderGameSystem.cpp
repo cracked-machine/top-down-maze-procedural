@@ -11,6 +11,7 @@
 #include <Components/CryptRoomLavaPitCell.hpp>
 #include <Components/CryptRoomOpen.hpp>
 #include <Components/CryptRoomStart.hpp>
+#include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/NpcShockwave.hpp>
@@ -90,6 +91,7 @@ void RenderGameSystem::refresh_z_order_queue()
   add_visible_entity_to_z_order_queue<Cmp::AltarMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::CryptMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::GraveMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::HolyWellMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::CryptInteriorMultiBlock>( m_zorder_queue_, view_bounds );
 
   // add other components as normal

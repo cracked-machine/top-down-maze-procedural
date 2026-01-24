@@ -1,3 +1,4 @@
+#include <Systems/HolyWellSystem.hpp>
 #include <Systems/SystemStore.hpp>
 
 #include <SceneControl/SceneInputRouter.hpp>
@@ -9,6 +10,7 @@
 #include <Systems/ExitSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/GraveSystem.hpp>
+#include <Systems/HolyWellSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/PassageSystem.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -41,6 +43,7 @@ SystemStore::SystemStore( sf::RenderWindow &window, Sprites::SpriteFactory &spri
     m_sysmap.emplace( Type::ExitSystem, std::make_unique<ExitSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
     m_sysmap.emplace( Type::FootstepSystem, std::make_unique<FootstepSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::GraveSystem, std::make_unique<GraveSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::HolyWellSystem, std::make_unique<HolyWellSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
     m_sysmap.emplace( Type::LootSystem, std::make_unique<LootSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::NpcSystem, std::make_unique<NpcSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::PassageSystem, std::make_unique<PassageSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );

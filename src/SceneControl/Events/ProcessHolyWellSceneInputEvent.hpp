@@ -1,0 +1,13 @@
+#ifndef _SRC_SCENECONTROL_EVENTS_PROCESSHOLYWELLSCENEINPUTEVENT_HPP_
+#define _SRC_SCENECONTROL_EVENTS_PROCESSHOLYWELLSCENEINPUTEVENT_HPP_
+
+namespace ProceduralMaze::Events
+{
+
+struct ProcessHolyWellSceneInputEvent
+{
+};
+
+} // namespace ProceduralMaze::Events
+
+#endif // _SRC_SCENECONTROL_EVENTS_PROCESSHOLYWELLSCENEINPUTEVENT_HPP_

@@ -27,7 +27,7 @@ class RandomLevelGenerator : public BaseSystem
 {
 public:
   enum class AreaShape { RECTANGLE, CIRCLE, CROSS };
-  enum class SceneType { GRAVEYARD_EXTERIOR, CRYPT_INTERIOR };
+  enum class SceneType { GRAVEYARD_EXTERIOR, CRYPT_INTERIOR, HOLYWELL_INTERIOR };
 
   RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~RandomLevelGenerator() = default;

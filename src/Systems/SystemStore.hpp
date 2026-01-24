@@ -29,6 +29,7 @@ class DiggingSystem;
 class ExitSystem;
 class FootstepSystem;
 class GraveSystem;
+class HolyWellSystem;
 class LootSystem;
 class NpcSystem;
 class PassageSystem;
@@ -56,6 +57,7 @@ public:
     ExitSystem,
     FootstepSystem,
     GraveSystem,
+    HolyWellSystem,
     LootSystem,
     NpcSystem,
     PassageSystem,
@@ -111,6 +113,7 @@ template<> struct SystemStore::SystemTraits<SystemStore::Type::DiggingSystem>   
 template<> struct SystemStore::SystemTraits<SystemStore::Type::ExitSystem>             { using type = ExitSystem; };
 template<> struct SystemStore::SystemTraits<SystemStore::Type::FootstepSystem>         { using type = FootstepSystem; };
 template<> struct SystemStore::SystemTraits<SystemStore::Type::GraveSystem>            { using type = GraveSystem; };
+template<> struct SystemStore::SystemTraits<SystemStore::Type::HolyWellSystem>         { using type = HolyWellSystem; };
 template<> struct SystemStore::SystemTraits<SystemStore::Type::LootSystem>             { using type = LootSystem; };
 template<> struct SystemStore::SystemTraits<SystemStore::Type::NpcSystem>              { using type = NpcSystem; };
 template<> struct SystemStore::SystemTraits<SystemStore::Type::PassageSystem>          { using type = ProceduralMaze::Sys::PassageSystem; };

@@ -6,6 +6,8 @@
 #include <Components/CryptRoomEnd.hpp>
 #include <Components/CryptRoomOpen.hpp>
 #include <Components/CryptRoomStart.hpp>
+#include <Components/HolyWell/HolyWellMultiBlock.hpp>
+#include <Components/HolyWell/HolyWellSegment.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
@@ -60,6 +62,10 @@ void RandomLevelGenerator::generate( RandomLevelGenerator::AreaShape shape, sf::
   {
     case AreaShape::RECTANGLE:
       gen_rectangle_gamearea( map_grid_size );
+      if ( scene_type == SceneType::HOLYWELL_INTERIOR )
+      {
+        // gen holywell
+      }
       break;
     case AreaShape::CIRCLE:
       gen_circular_gamearea( map_grid_size );
@@ -264,6 +270,7 @@ void RandomLevelGenerator::gen_graveyard_exterior_multiblocks()
   auto grave_num_multiplier = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::GraveNumMultiplier>( getReg() );
   auto max_num_altars = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumAltars>( getReg() );
   auto max_num_crypts = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumCrypts>( getReg() );
+  std::size_t max_number_holywells = 1;
 
   // GRAVES
   auto grave_meta_types = m_sprite_factory.get_all_sprite_types_by_pattern( "^GRAVE\\d+\\.closed$" );
@@ -292,6 +299,12 @@ void RandomLevelGenerator::gen_graveyard_exterior_multiblocks()
   {
     do_gen_graveyard_exterior_multiblock( crypt_multisprite, 0 );
   }
+
+  auto &holywell_multisprite = m_sprite_factory.get_multisprite_by_type( "HOLYWELL.exterior_building" );
+  for ( std::size_t i = 0; i < max_number_holywells; ++i )
+  {
+    do_gen_graveyard_exterior_multiblock( holywell_multisprite, 0 );
+  }
 }
 
 void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::MultiSprite &ms, unsigned long seed )
@@ -317,6 +330,11 @@ void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::
   {
     Factory::createMultiblock<Cmp::CryptMultiBlock>( getReg(), random_entity, random_origin_position, ms );
     Factory::createMultiblockSegments<Cmp::CryptMultiBlock, Cmp::CryptSegment>( getReg(), random_entity, random_origin_position, ms );
+  }
+  else if ( ms.get_sprite_type() == "HOLYWELL.exterior_building" )
+  {
+    Factory::createMultiblock<Cmp::HolyWellMultiBlock>( getReg(), random_entity, random_origin_position, ms );
+    Factory::createMultiblockSegments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( getReg(), random_entity, random_origin_position, ms );
   }
   else
   {

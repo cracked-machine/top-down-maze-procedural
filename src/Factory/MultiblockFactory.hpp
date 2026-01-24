@@ -5,10 +5,13 @@
 #include <Components/AltarSegment.hpp>
 #include <Components/Armable.hpp>
 #include <Components/CryptEntrance.hpp>
+#include <Components/CryptMultiBlock.hpp>
 #include <Components/CryptObjectiveMultiBlock.hpp>
 #include <Components/CryptObjectiveSegment.hpp>
 #include <Components/CryptSegment.hpp>
 #include <Components/GraveSegment.hpp>
+#include <Components/HolyWell/HolyWellEntrance.hpp>
+#include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -98,10 +101,22 @@ void createMultiblockSegments( entt::registry &registry, entt::entity multiblock
 
     // NOTE that this is a bit shit: hardcoded door placement for crypts.
     // If we add new MultiBlock sprites with 9+ segments they might suddenly sprout CryptDoors
-    if ( calculated_grid_index == 10 )
+    if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::CryptMultiBlock> )
     {
-      registry.emplace_or_replace<Cmp::CryptEntrance>( entity );
-      SPDLOG_DEBUG( "Adding Cmp::CryptEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
+      if ( calculated_grid_index == 10 )
+      {
+        registry.emplace_or_replace<Cmp::CryptEntrance>( entity );
+        SPDLOG_DEBUG( "Adding Cmp::CryptEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
+      }
+    }
+    else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::HolyWellMultiBlock> )
+    {
+      if ( calculated_grid_index == 10 )
+      {
+        registry.emplace_or_replace<Cmp::HollyWellEntrance>( entity );
+        SPDLOG_DEBUG( "Adding Cmp::HollyWellEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y,
+                      calculated_grid_index );
+      }
     }
 
     registry.emplace_or_replace<Cmp::ReservedPosition>( entity );

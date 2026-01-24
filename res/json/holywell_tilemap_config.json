@@ -1,0 +1,13 @@
+{
+  "tilemap": {
+    "texture_path": "res/textures/HOLYWELL.interior_floor.png",
+    "tile_size": {
+      "width": 16,
+      "height": 16
+    },
+    "floor_tile_pool": [
+      0,1,2,3
+    ],
+    "random_seed": 0
+  }
+}

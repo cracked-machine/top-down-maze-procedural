@@ -3,6 +3,7 @@
 #include <Components/CryptPassageSpikeTrap.hpp>
 #include <Components/CryptRoomLavaPitCell.hpp>
 #include <Components/CryptRoomLavaPitCellEffect.hpp>
+#include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/LootContainer.hpp>
 #include <Systems/AnimSystem.hpp>
 
@@ -152,6 +153,20 @@ void AnimSystem::update( sf::Time globalDeltaTime )
       auto frame_rate = sf::seconds( 0.1f );
 
       update_single_sequence( anim_cmp, globalDeltaTime, shrine_sprite_metadata, frame_rate );
+    }
+  }
+
+  // HolyWell Animation
+  auto holywell_view = getReg().view<Cmp::HolyWellMultiBlock, Cmp::SpriteAnimation, Cmp::Position>();
+  for ( auto [entity, holywell_cmp, anim_cmp, pos_cmp] : holywell_view.each() )
+  {
+    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
+    if ( anim_cmp.m_animation_active )
+    {
+      const auto &holywell_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
+      auto frame_rate = sf::seconds( 0.1f );
+
+      update_single_sequence( anim_cmp, globalDeltaTime, holywell_sprite_metadata, frame_rate );
     }
   }
 
