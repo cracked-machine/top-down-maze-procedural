@@ -14,6 +14,7 @@
 #include <Factory/CryptFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Factory/WallFactory.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <Components/AltarMultiBlock.hpp>
@@ -55,49 +56,6 @@ RandomLevelGenerator::RandomLevelGenerator( entt::registry &reg, sf::RenderWindo
 {
 }
 
-void RandomLevelGenerator::generate( RandomLevelGenerator::AreaShape shape, sf::Vector2u map_grid_size, SceneType scene_type )
-{
-  m_data.clear();
-  switch ( shape )
-  {
-    case AreaShape::RECTANGLE:
-      gen_rectangle_gamearea( map_grid_size );
-      if ( scene_type == SceneType::HOLYWELL_INTERIOR )
-      {
-        // gen holywell
-      }
-      break;
-    case AreaShape::CIRCLE:
-      gen_circular_gamearea( map_grid_size );
-      break;
-    case AreaShape::CROSS:
-      gen_cross_gamearea( map_grid_size );
-      if ( scene_type == SceneType::CRYPT_INTERIOR )
-      {
-        gen_crypt_main_objective( map_grid_size );
-        // gen_crypt_interior_multiblocks();
-      }
-      break;
-  }
-
-  // spawn loot/npc/plants/structures
-  if ( scene_type == SceneType::GRAVEYARD_EXTERIOR )
-  {
-    gen_graveyard_exterior_multiblocks();
-    gen_loot_containers( map_grid_size );
-    gen_npc_containers( map_grid_size );
-    gen_plants( map_grid_size );
-  }
-
-  // these are post-processed by cellular automaton system
-  if ( scene_type == SceneType::GRAVEYARD_EXTERIOR ) { gen_graveyard_exterior_obstacles(); }
-  else if ( scene_type == SceneType::CRYPT_INTERIOR )
-  {
-    Factory::create_initial_crypt_rooms( getReg(), map_grid_size );
-    gen_crypt_initial_interior();
-  }
-}
-
 void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
 {
   sf::Vector2f player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( getReg() );
@@ -114,7 +72,7 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
 
       // condition for left, right, top, bottom borders
       bool isBorder = ( x == 0 ) || ( y == 0 ) || ( x == w - 1 ) || ( y == h - 1 );
-      if ( isBorder ) { add_wall_entity( new_pos, "WALL", 0 ); }
+      if ( isBorder ) { Factory::add_wall_entity( new_pos, "WALL", 0 ); }
       else
       {
         // create world position entity, mark spawn area if in player start area
@@ -175,7 +133,7 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size )
       else if ( d2 <= rOuter2 )
       {
         // but we do add "CRYPT.interior_sb" for walls
-        add_wall_entity( new_pos, "CRYPT.interior_sb", 0 );
+        Factory::add_wall_entity( new_pos, "CRYPT.interior_sb", 0 );
       }
       else
       {
@@ -233,7 +191,7 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int v
       // 1-tile border: any 4-neighbor outside the cross
       bool isBorder = !inCross( x - 1, y ) || !inCross( x + 1, y ) || !inCross( x, y - 1 ) || !inCross( x, y + 1 );
 
-      if ( isBorder ) { add_wall_entity( new_pos, "CRYPT.interior_sb", 0 ); }
+      if ( isBorder ) { Factory::add_wall_entity( new_pos, "CRYPT.interior_sb", 0 ); }
       else
       {
         // create world position entity, mark spawn area if in player start area
@@ -476,18 +434,6 @@ void RandomLevelGenerator::gen_plants( sf::Vector2u map_grid_size )
     Factory::createPlantObstacle( getReg(), random_pos, rand_plant_type, 0.f );
     SPDLOG_INFO( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
   }
-}
-
-void RandomLevelGenerator::add_wall_entity( const sf::Vector2f &pos, Sprites::SpriteMetaType sprite_type, std::size_t sprite_index )
-{
-  auto entity = getReg().create();
-  getReg().emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSquareSizePixelsF );
-  getReg().emplace_or_replace<Cmp::Wall>( entity );
-  getReg().emplace_or_replace<Cmp::Obstacle>( entity );
-  getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_type, sprite_index );
-  getReg().emplace_or_replace<Cmp::ReservedPosition>( entity );
-  getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos.y );
-  getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
 }
 
 std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed )

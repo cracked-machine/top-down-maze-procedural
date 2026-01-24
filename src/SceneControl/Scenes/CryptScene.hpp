@@ -5,6 +5,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SceneControl/Events/ProcessCryptSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
+#include <Sprites/SpriteFactory.hpp>
 #include <Sprites/TileMap.hpp>
 #include <Utils/Utils.hpp>
 
@@ -25,10 +26,12 @@ public:
   //! @brief The size of the crypt map grid in number of squares as floats
   inline static constexpr sf::Vector2f kMapGridSizeF{ static_cast<float>( kMapGridSize.x ), static_cast<float>( kMapGridSize.y ) };
 
-  CryptScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher )
+  CryptScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher,
+              Sprites::SpriteFactory &sprite_Factory )
       : Scene( nav_event_dispatcher ),
         m_sound_bank( sound_bank ),
-        m_system_store( system_store )
+        m_system_store( system_store ),
+        m_sprite_Factory( sprite_Factory )
   {
   }
 
@@ -49,6 +52,7 @@ protected:
 private:
   Audio::SoundBank &m_sound_bank;
   Sys::SystemStore &m_system_store;
+  Sprites::SpriteFactory &m_sprite_Factory;
   Sprites::Containers::TileMap m_floormap{};
 
   inline static constexpr sf::Vector2f m_player_start_position = sf::Vector2f(

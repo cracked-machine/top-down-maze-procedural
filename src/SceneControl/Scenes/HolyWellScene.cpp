@@ -37,16 +37,16 @@ void HolyWellScene::on_init()
   Sys::PersistSystem::add_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_start_position );
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
-  random_level_sys.generate( Sys::ProcGen::RandomLevelGenerator::AreaShape::RECTANGLE, HolyWellScene::kMapGridSize,
-                             Sys::ProcGen::RandomLevelGenerator::SceneType::HOLYWELL_INTERIOR );
-
-  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, HolyWellScene::kMapGridSize, "res/json/holywell_tilemap_config.json" );
+  random_level_sys.reset();
+  random_level_sys.gen_rectangle_gamearea( HolyWellScene::kMapGridSize );
 
   // pass concrete spawn position to exit spawner
   m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().spawn_exit(
       sf::Vector2u{ HolyWellScene::kMapGridSize.x / 2, HolyWellScene::kMapGridSize.y - 1 } );
 
   m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().spawn_well( sf::Vector2u{ ( HolyWellScene::kMapGridSize.x / 2 ) - 1, 4 } );
+
+  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, HolyWellScene::kMapGridSize, "res/json/holywell_tilemap_config.json" );
 }
 
 void HolyWellScene::on_enter()

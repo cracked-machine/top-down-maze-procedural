@@ -32,8 +32,6 @@ public:
   RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~RandomLevelGenerator() = default;
 
-  void generate( AreaShape shape, sf::Vector2u map_grid_size, SceneType scene_type );
-
   //! @brief event handlers for pausing system clocks
   void onPause() override {}
   //! @brief event handlers for resuming system clocks
@@ -83,9 +81,6 @@ public:
 
   void gen_plants( sf::Vector2u map_grid_size );
 
-  // Helper functions to add wall and door entities
-  void add_wall_entity( const sf::Vector2f &pos, Sprites::SpriteMetaType sprite_type, std::size_t sprite_index );
-
   // Find a valid spawn location for a large obstacle given a seed
   std::pair<entt::entity, Cmp::Position> find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed );
 
@@ -100,6 +95,9 @@ public:
   auto begin() { return m_data.begin(); }
   auto end() { return m_data.end(); }
   auto size() { return m_data.size(); }
+
+  //! @brief Call this to make sure the level data is reset before regenerating a new scene
+  void reset() { m_data.clear(); }
 
 private:
   std::vector<entt::entity> m_data;

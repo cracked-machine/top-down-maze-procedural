@@ -218,13 +218,13 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
   {
     case Events::SceneManagerEvent::Type::START_GAME: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::START_GAME requested" );
-      auto graveyard_scene = std::make_unique<GraveyardScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher );
+      auto graveyard_scene = std::make_unique<GraveyardScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
       push( std::move( graveyard_scene ) );
       break;
     }
     case Events::SceneManagerEvent::Type::ENTER_CRYPT: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_CRYPT requested" );
-      auto crypt_scene = std::make_unique<CryptScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher );
+      auto crypt_scene = std::make_unique<CryptScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
       push_no_exit( std::move( crypt_scene ), RegCopyMode::PLAYER_ONLY );
       break;
     }

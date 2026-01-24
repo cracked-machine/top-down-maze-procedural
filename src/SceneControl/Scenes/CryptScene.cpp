@@ -1,3 +1,4 @@
+#include <Factory/CryptFactory.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 
 #include <Audio/SoundBank.hpp>
@@ -33,9 +34,13 @@ void CryptScene::on_init()
 
   Sys::PersistSystem::add_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_start_position );
 
+  // create the level contents
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
-  random_level_sys.generate( Sys::ProcGen::RandomLevelGenerator::AreaShape::CROSS, CryptScene::kMapGridSize,
-                             Sys::ProcGen::RandomLevelGenerator::SceneType::CRYPT_INTERIOR );
+  random_level_sys.reset();
+  random_level_sys.gen_cross_gamearea( CryptScene::kMapGridSize );
+  random_level_sys.gen_crypt_main_objective( CryptScene::kMapGridSize );
+  Factory::create_initial_crypt_rooms( m_reg, CryptScene::kMapGridSize );
+  random_level_sys.gen_crypt_initial_interior();
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, CryptScene::kMapGridSize, "res/json/crypt_tilemap_config.json" );
 

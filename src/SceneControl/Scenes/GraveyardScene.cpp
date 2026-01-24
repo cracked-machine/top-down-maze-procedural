@@ -49,10 +49,17 @@ void GraveyardScene::on_init()
   auto entity = m_reg.create();
   m_reg.emplace<Cmp::System>( entity );
 
+  // create the level contents
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
-  random_level_sys.generate( Sys::ProcGen::RandomLevelGenerator::AreaShape::CIRCLE, GraveyardScene::kMapGridSize,
-                             Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR );
+  random_level_sys.reset();
+  random_level_sys.gen_circular_gamearea( GraveyardScene::kMapGridSize );
+  random_level_sys.gen_graveyard_exterior_multiblocks();
+  random_level_sys.gen_loot_containers( GraveyardScene::kMapGridSize );
+  random_level_sys.gen_npc_containers( GraveyardScene::kMapGridSize );
+  random_level_sys.gen_plants( GraveyardScene::kMapGridSize );
+  random_level_sys.gen_graveyard_exterior_obstacles();
 
+  // now use cellular automata on the exterior obstacles
   auto &cellauto_parser = m_system_store.find<Sys::SystemStore::Type::CellAutomataSystem>();
   cellauto_parser.set_random_level_generator( &random_level_sys );
   cellauto_parser.iterate( 5, GraveyardScene::kMapGridSize, Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR );
