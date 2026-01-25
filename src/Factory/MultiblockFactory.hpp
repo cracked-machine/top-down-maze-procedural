@@ -15,6 +15,8 @@
 #include <Components/NoPathFinding.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/Ruin/RuinEntrance.hpp>
+#include <Components/Ruin/RuinMultiBlock.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -116,6 +118,14 @@ void createMultiblockSegments( entt::registry &registry, entt::entity multiblock
         registry.emplace_or_replace<Cmp::HollyWellEntrance>( entity );
         SPDLOG_DEBUG( "Adding Cmp::HollyWellEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y,
                       calculated_grid_index );
+      }
+    }
+    else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::RuinMultiBlock> )
+    {
+      if ( calculated_grid_index == 29 )
+      {
+        registry.emplace_or_replace<Cmp::RuinEntrance>( entity );
+        SPDLOG_DEBUG( "Adding Cmp::RuinEntrance at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );
       }
     }
 

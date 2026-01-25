@@ -1,6 +1,6 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/System.hpp>
-#include <SceneControl/Scenes/HolyWellScene.hpp>
+#include <SceneControl/Scenes/RuinScene.hpp>
 
 #include <Audio/SoundBank.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
@@ -25,7 +25,7 @@
 namespace ProceduralMaze::Scene
 {
 
-void HolyWellScene::on_init()
+void RuinScene::on_init()
 {
   auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
@@ -38,18 +38,16 @@ void HolyWellScene::on_init()
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_rectangle_gamearea( HolyWellScene::kMapGridSize );
+  random_level_sys.gen_rectangle_gamearea( RuinScene::kMapGridSize );
 
   // pass concrete spawn position to exit spawner
   m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().spawn_exit(
-      sf::Vector2u{ HolyWellScene::kMapGridSize.x / 2, HolyWellScene::kMapGridSize.y - 1 } );
+      sf::Vector2u{ RuinScene::kMapGridSize.x / 2, RuinScene::kMapGridSize.y - 1 } );
 
-  m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().spawn_well( sf::Vector2u{ ( HolyWellScene::kMapGridSize.x / 2 ) - 1, 4 } );
-
-  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, HolyWellScene::kMapGridSize, "res/json/holywell_tilemap_config.json" );
+  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinScene::kMapGridSize, "res/json/holywell_tilemap_config.json" );
 }
 
-void HolyWellScene::on_enter()
+void RuinScene::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
 
@@ -66,13 +64,13 @@ void HolyWellScene::on_enter()
   }
 }
 
-void HolyWellScene::on_exit()
+void RuinScene::on_exit()
 {
   SPDLOG_INFO( "Exiting {}", get_name() );
   m_reg.clear();
 }
 
-void HolyWellScene::do_update( [[maybe_unused]] sf::Time dt )
+void RuinScene::do_update( [[maybe_unused]] sf::Time dt )
 {
   m_system_store.find<Sys::SystemStore::Type::AnimSystem>().update( dt );
   m_system_store.find<Sys::SystemStore::Type::NpcSystem>().update( dt );
@@ -86,6 +84,6 @@ void HolyWellScene::do_update( [[maybe_unused]] sf::Time dt )
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::RenderGameSystem::DarkMode::OFF );
 }
 
-entt::registry &HolyWellScene::registry() { return m_reg; }
+entt::registry &RuinScene::registry() { return m_reg; }
 
 } // namespace ProceduralMaze::Scene

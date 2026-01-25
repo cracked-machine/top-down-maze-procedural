@@ -19,6 +19,8 @@ struct SceneManagerEvent
     EXIT_CRYPT,
     ENTER_HOLYWELL,
     EXIT_HOLYWELL,
+    ENTER_RUIN,
+    EXIT_RUIN,
     RETURN_TO_TITLE
   };
 

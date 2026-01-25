@@ -1,6 +1,7 @@
 #ifndef SRC_SYSTEMS_SYSTEMSTORE_HPP_
 #define SRC_SYSTEMS_SYSTEMSTORE_HPP_
 
+#include <Systems/RuinSystem.hpp>
 #include <entt/entity/registry.hpp>
 #include <entt/signal/fwd.hpp>
 #include <map>
@@ -58,6 +59,7 @@ public:
     FootstepSystem,
     GraveSystem,
     HolyWellSystem,
+    RuinSystem,
     LootSystem,
     NpcSystem,
     PassageSystem,
@@ -114,6 +116,7 @@ template<> struct SystemStore::SystemTraits<SystemStore::Type::ExitSystem>      
 template<> struct SystemStore::SystemTraits<SystemStore::Type::FootstepSystem>         { using type = FootstepSystem; };
 template<> struct SystemStore::SystemTraits<SystemStore::Type::GraveSystem>            { using type = GraveSystem; };
 template<> struct SystemStore::SystemTraits<SystemStore::Type::HolyWellSystem>         { using type = HolyWellSystem; };
+template<> struct SystemStore::SystemTraits<SystemStore::Type::RuinSystem>         { using type = RuinSystem; };
 template<> struct SystemStore::SystemTraits<SystemStore::Type::LootSystem>             { using type = LootSystem; };
 template<> struct SystemStore::SystemTraits<SystemStore::Type::NpcSystem>              { using type = NpcSystem; };
 template<> struct SystemStore::SystemTraits<SystemStore::Type::PassageSystem>          { using type = ProceduralMaze::Sys::PassageSystem; };

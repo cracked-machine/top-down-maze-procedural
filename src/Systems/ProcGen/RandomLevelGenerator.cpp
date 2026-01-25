@@ -11,6 +11,8 @@
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
+#include <Components/Ruin/RuinMultiBlock.hpp>
+#include <Components/Ruin/RuinSegment.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
@@ -72,7 +74,7 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
 
       // condition for left, right, top, bottom borders
       bool isBorder = ( x == 0 ) || ( y == 0 ) || ( x == w - 1 ) || ( y == h - 1 );
-      if ( isBorder ) { Factory::add_wall_entity( new_pos, "WALL", 0 ); }
+      if ( isBorder ) { Factory::add_wall_entity( getReg(), new_pos, "WALL", 0 ); }
       else
       {
         // create world position entity, mark spawn area if in player start area
@@ -133,7 +135,7 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size )
       else if ( d2 <= rOuter2 )
       {
         // but we do add "CRYPT.interior_sb" for walls
-        Factory::add_wall_entity( new_pos, "CRYPT.interior_sb", 0 );
+        Factory::add_wall_entity( getReg(), new_pos, "CRYPT.interior_sb", 0 );
       }
       else
       {
@@ -191,7 +193,7 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int v
       // 1-tile border: any 4-neighbor outside the cross
       bool isBorder = !inCross( x - 1, y ) || !inCross( x + 1, y ) || !inCross( x, y - 1 ) || !inCross( x, y + 1 );
 
-      if ( isBorder ) { Factory::add_wall_entity( new_pos, "CRYPT.interior_sb", 0 ); }
+      if ( isBorder ) { Factory::add_wall_entity( getReg(), new_pos, "CRYPT.interior_sb", 0 ); }
       else
       {
         // create world position entity, mark spawn area if in player start area
@@ -229,6 +231,7 @@ void RandomLevelGenerator::gen_graveyard_exterior_multiblocks()
   auto max_num_altars = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumAltars>( getReg() );
   auto max_num_crypts = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumCrypts>( getReg() );
   std::size_t max_number_holywells = 1;
+  std::size_t max_number_ruins = 1;
 
   // GRAVES
   auto grave_meta_types = m_sprite_factory.get_all_sprite_types_by_pattern( "^GRAVE\\d+\\.closed$" );
@@ -263,6 +266,12 @@ void RandomLevelGenerator::gen_graveyard_exterior_multiblocks()
   {
     do_gen_graveyard_exterior_multiblock( holywell_multisprite, 0 );
   }
+
+  auto &ruin_multisprite = m_sprite_factory.get_multisprite_by_type( "RUIN.exterior_building" );
+  for ( std::size_t i = 0; i < max_number_ruins; ++i )
+  {
+    do_gen_graveyard_exterior_multiblock( ruin_multisprite, 0 );
+  }
 }
 
 void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::MultiSprite &ms, unsigned long seed )
@@ -293,6 +302,11 @@ void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::
   {
     Factory::createMultiblock<Cmp::HolyWellMultiBlock>( getReg(), random_entity, random_origin_position, ms );
     Factory::createMultiblockSegments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( getReg(), random_entity, random_origin_position, ms );
+  }
+  else if ( ms.get_sprite_type() == "RUIN.exterior_building" )
+  {
+    Factory::createMultiblock<Cmp::RuinMultiBlock>( getReg(), random_entity, random_origin_position, ms );
+    Factory::createMultiblockSegments<Cmp::RuinMultiBlock, Cmp::RuinSegment>( getReg(), random_entity, random_origin_position, ms );
   }
   else
   {
@@ -475,6 +489,16 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
       for ( auto [entity, crypt_cmp, crypt_pos_cmp] : getReg().view<Cmp::CryptSegment, Cmp::Position>().each() )
       {
         if ( crypt_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
+      }
+
+      for ( auto [entity, holywell_cmp, holywell_pos_cmp] : getReg().view<Cmp::HolyWellSegment, Cmp::Position>().each() )
+      {
+        if ( holywell_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
+      }
+
+      for ( auto [entity, ruin_cmp, ruin_pos_cmp] : getReg().view<Cmp::RuinSegment, Cmp::Position>().each() )
+      {
+        if ( ruin_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       for ( auto [entity, crypt_obj_cmp, crypt_obj_pos_cmp] : getReg().view<Cmp::CryptObjectiveSegment, Cmp::Position>().each() )

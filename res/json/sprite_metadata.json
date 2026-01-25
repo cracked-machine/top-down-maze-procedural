@@ -1547,6 +1547,27 @@
         }
       }
     },
+    "RUIN.exterior_building": {
+      "displayname": "RUIN.exterior_building",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/RUIN.exterior_building.png",
+        "sprite_indices": [0],
+        "solid_mask": [
+          false, false, false, false, false, false, false, false,
+          false, false, false, false, false, false, false, false,
+          false, true, true, true, true, true, true, false,
+          true, true, true, true, true, false, true, false,
+          false, true, true, true, false, false, false, false                    
+        ],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 8,
+          "height": 5
+        }
+      }
+    },
     "HOLYWELL.exterior_building": {
       "displayname": "HOLYWELL.exterior_building",
       "weight": 1.0,
