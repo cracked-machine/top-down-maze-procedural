@@ -7,6 +7,7 @@
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerHealth.hpp>
+#include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
@@ -150,10 +151,23 @@ static entt::entity get_player_entity( entt::registry &reg )
   return player_view.front();
 }
 
+//! @brief Get the player position object
+//! @note Make sure your l-value is a reference if you need to modify the return value
+//! @param reg
+//! @return Cmp::Position&
 static Cmp::Position &get_player_position( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayableCharacter, Cmp::Position>();
   return player_view.get<Cmp::Position>( get_player_entity( reg ) );
+}
+
+//! @brief Get the player last graveyard position object. Return may be nullptr if non-existent.
+//! @param reg
+//! @return Cmp::PlayerLastGraveyardPosition*
+static Cmp::PlayerLastGraveyardPosition *get_player_last_graveyard_position( entt::registry &reg )
+{
+  auto player_entt = get_player_entity( reg );
+  return reg.try_get<Cmp::PlayerLastGraveyardPosition>( player_entt );
 }
 
 static Cmp::PlayerHealth &get_player_health( entt::registry &reg )

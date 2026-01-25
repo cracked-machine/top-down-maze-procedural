@@ -21,6 +21,10 @@ entt::entity pickupCarryItem( entt::registry &reg, entt::entity carryitem_entt )
 entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, const Sprites::SpriteMetaType type, float zorder = 0.f );
 void destroyInventory( entt::registry &reg, const Sprites::SpriteMetaType type );
 
+void add_player_last_graveyard_pos( entt::registry &reg, Cmp::Position &last_known_pos,
+                                    sf::Vector2f offset = { 0.f, Constants::kGridSquareSizePixelsF.y } );
+void remove_player_last_graveyard_pos( entt::registry &reg );
+
 } // namespace ProceduralMaze::Factory
 
 #endif // SRC_FACTORY_PLAYERFACTORY_HPP

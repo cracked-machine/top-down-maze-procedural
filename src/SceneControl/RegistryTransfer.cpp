@@ -2,6 +2,7 @@
 #include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
 #include <Components/Crypt/CryptPassageBlock.hpp>
 #include <Components/Inventory/CarryItem.hpp>
+#include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Player/PlayerWealth.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
 
@@ -240,6 +241,7 @@ void RegistryTransfer::ensure_player_component_storages( entt::registry &registr
   registry.storage<Cmp::InventoryWearLevel>();
   registry.storage<Cmp::ZOrderValue>();
   registry.storage<Cmp::System>();
+  registry.storage<Cmp::PlayerLastGraveyardPosition>();
   // Add other player-related components as needed
 }
 

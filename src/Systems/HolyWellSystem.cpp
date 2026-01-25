@@ -4,15 +4,18 @@
 #include <Components/HolyWell/HolyWellSegment.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/Wall.hpp>
 #include <Factory/MultiblockFactory.hpp>
+#include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/HolyWellSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Utils/Optimizations.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -81,6 +84,8 @@ void HolyWellSystem::check_entrance_collision()
       SPDLOG_INFO( "check_entrance_collision: Player entering holywell from graveyard at position ({}, {})", pc_pos_cmp.position.x,
                    pc_pos_cmp.position.y );
       m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_HOLYWELL );
+
+      Factory::add_player_last_graveyard_pos( getReg(), holywell_door_pos_cmp );
     }
   }
 }

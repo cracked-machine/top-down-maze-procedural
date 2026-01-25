@@ -1,6 +1,7 @@
 #include <Components/RectBounds.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/Ruin/RuinMultiBlock.hpp>
+#include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/RuinSystem.hpp>
@@ -40,6 +41,7 @@ void RuinSystem::update()
         SPDLOG_INFO( "check_entrance_collision: Player entering ruin from graveyard at position ({}, {})", player_pos.position.x,
                      player_pos.position.y );
         m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_RUIN );
+        Factory::add_player_last_graveyard_pos( getReg(), door_pos_cmp );
       }
       else { getReg().emplace_or_replace<Cmp::ZOrderValue>( ruin_mb_entity, player_pos.position.y + 16.f ); }
     }

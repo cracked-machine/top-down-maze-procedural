@@ -6,8 +6,8 @@
 #include <Components/Direction.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/Explosive.hpp>
-#include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Neighbours.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
@@ -20,6 +20,7 @@
 #include <Components/Player/PlayerDetectionBounds.hpp>
 #include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
+#include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
@@ -275,6 +276,20 @@ void destroyInventory( entt::registry &reg, const Sprites::SpriteMetaType type )
   {
     if ( inventory_cmp.type == type ) reg.destroy( inventory_entt );
   }
+}
+
+void add_player_last_graveyard_pos( entt::registry &reg, Cmp::Position &last_known_pos, sf::Vector2f offset )
+{
+  auto player_rentry_pos = sf::Vector2f{ last_known_pos.position.x + offset.x, last_known_pos.position.y + offset.y };
+  SPDLOG_INFO( "Player will re-enter grave yard at {},{}", player_rentry_pos.x, player_rentry_pos.y );
+  auto player_entt = Utils::get_player_entity( reg );
+  reg.emplace_or_replace<Cmp::PlayerLastGraveyardPosition>( player_entt, player_rentry_pos, Constants::kGridSquareSizePixelsF );
+}
+
+void remove_player_last_graveyard_pos( entt::registry &reg )
+{
+  auto player_entt = Utils::get_player_entity( reg );
+  reg.remove<Cmp::PlayerLastGraveyardPosition>( player_entt );
 }
 
 } // namespace ProceduralMaze::Factory

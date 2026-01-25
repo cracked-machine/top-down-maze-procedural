@@ -123,6 +123,7 @@ void CryptSystem::check_entrance_collision()
       SPDLOG_INFO( "check_entrance_collision: Player entering crypt from graveyard at position ({}, {})", pc_pos_cmp.position.x,
                    pc_pos_cmp.position.y );
       m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_CRYPT );
+      Factory::add_player_last_graveyard_pos( getReg(), crypt_door_pos_cmp );
     }
   }
 }

@@ -17,6 +17,7 @@
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Events/SaveSettingsEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
+#include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/ProcessCryptSceneInputEvent.hpp>
 #include <SceneControl/Events/ProcessGameoverSceneInputEvent.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
@@ -132,14 +133,17 @@ void SceneInputRouter::graveyard_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
       {
         m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_CRYPT ) );
+        Factory::add_player_last_graveyard_pos( getReg(), Utils::get_player_position( getReg() ), { 0.f, 0.f } );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 )
       {
         m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_HOLYWELL ) );
+        Factory::add_player_last_graveyard_pos( getReg(), Utils::get_player_position( getReg() ), { 0.f, 0.f } );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 )
       {
         m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_RUIN ) );
+        Factory::add_player_last_graveyard_pos( getReg(), Utils::get_player_position( getReg() ), { 0.f, 0.f } );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
       {
