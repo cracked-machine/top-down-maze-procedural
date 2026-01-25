@@ -3,11 +3,11 @@
 
 #include <Components/Exit.hpp>
 #include <Components/Inventory/CarryItem.hpp>
-#include <Components/InventoryWearLevel.hpp>
+#include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
-#include <Components/PlayableCharacter.hpp>
-#include <Components/PlayerHealth.hpp>
-#include <Components/PlayerMortality.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/PlayerHealth.hpp>
+#include <Components/Player/PlayerMortality.hpp>
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
 #include <SFML/Graphics/Rect.hpp>

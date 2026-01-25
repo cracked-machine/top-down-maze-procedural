@@ -1,9 +1,9 @@
 #ifndef SRC_SYSTEMS_PLAYERSYSTEM_HPP__
 #define SRC_SYSTEMS_PLAYERSYSTEM_HPP__
 
-#include <Components/NpcShockwave.hpp>
+#include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
-#include <Components/PlayerMortality.hpp>
+#include <Components/Player/PlayerMortality.hpp>
 #include <Components/Position.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>

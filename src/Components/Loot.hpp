@@ -6,6 +6,7 @@
 namespace ProceduralMaze::Cmp
 {
 
+//! @brief Mark an entity as a dropped loot item
 struct Loot
 {
   [[maybe_unused]] bool active = true;

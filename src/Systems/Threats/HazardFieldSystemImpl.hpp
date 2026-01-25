@@ -3,10 +3,10 @@
 
 #include <Audio/SoundBank.hpp>
 #include <Components/Exit.hpp>
-#include <Components/NPC.hpp>
 #include <Components/NoPathFinding.hpp>
-#include <Components/PlayerDistance.hpp>
-#include <Components/PlayerHealth.hpp>
+#include <Components/Npc/Npc.hpp>
+#include <Components/Player/PlayerDistance.hpp>
+#include <Components/Player/PlayerHealth.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>

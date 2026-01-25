@@ -1,18 +1,18 @@
 #include <Components/Inventory/CarryItem.hpp>
-#include <Components/PlayerBlastRadius.hpp>
-#include <Components/PlayerWealth.hpp>
+#include <Components/Player/PlayerBlastRadius.hpp>
+#include <Components/Player/PlayerWealth.hpp>
 #include <Components/RectBounds.hpp>
 #include <Systems/LootSystem.hpp>
 
 #include <Audio/SoundBank.hpp>
 #include <Components/Armable.hpp>
-#include <Components/InventoryWearLevel.hpp>
+#include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Persistent/BombBonus.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
-#include <Components/PlayableCharacter.hpp>
-#include <Components/PlayerCadaverCount.hpp>
-#include <Components/PlayerHealth.hpp>
-#include <Components/PlayerKeysCount.hpp>
+#include <Components/Player/PlayerCadaverCount.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/PlayerHealth.hpp>
+#include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Position.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>

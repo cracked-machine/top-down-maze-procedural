@@ -19,18 +19,18 @@
 #include <Factory/WallFactory.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <Components/AltarMultiBlock.hpp>
-#include <Components/AltarSegment.hpp>
+#include <Components/Altar/AltarMultiBlock.hpp>
+#include <Components/Altar/AltarSegment.hpp>
 #include <Components/Armable.hpp>
 #include <Components/Crypt/CryptEntrance.hpp>
 #include <Components/Crypt/CryptMultiBlock.hpp>
 #include <Components/Crypt/CryptSegment.hpp>
-#include <Components/GraveMultiBlock.hpp>
-#include <Components/GraveSegment.hpp>
+#include <Components/Grave/GraveMultiBlock.hpp>
+#include <Components/Grave/GraveSegment.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
-#include <Components/PlayableCharacter.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>

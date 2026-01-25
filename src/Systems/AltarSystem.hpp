@@ -1,7 +1,7 @@
 #ifndef SRC_SYSTEMS_ALTARSYSTEM_HPP__
 #define SRC_SYSTEMS_ALTARSYSTEM_HPP__
 
-#include <Components/AltarMultiBlock.hpp>
+#include <Components/Altar/AltarMultiBlock.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 

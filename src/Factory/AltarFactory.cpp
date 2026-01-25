@@ -1,4 +1,4 @@
-#include <Components/AltarSacrifice.hpp>
+#include <Components/Altar/AltarSacrifice.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/AltarFactory.hpp>

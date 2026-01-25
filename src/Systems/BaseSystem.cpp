@@ -6,17 +6,17 @@
 #include <Systems/BaseSystem.hpp>
 
 #include <Audio/SoundBank.hpp>
-#include <Components/AltarSegment.hpp>
+#include <Components/Altar/AltarSegment.hpp>
 #include <Components/Crypt/CryptInteriorSegment.hpp>
 #include <Components/Crypt/CryptObjectiveSegment.hpp>
 #include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Exit.hpp>
-#include <Components/GraveSegment.hpp>
+#include <Components/Grave/GraveSegment.hpp>
 #include <Components/LerpPosition.hpp>
-#include <Components/NPC.hpp>
+#include <Components/Npc/Npc.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
-#include <Components/PlayableCharacter.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Wall.hpp>

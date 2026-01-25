@@ -2,11 +2,11 @@
 #include <Components/Direction.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/LerpPosition.hpp>
-#include <Components/NPC.hpp>
-#include <Components/NPCScanBounds.hpp>
+#include <Components/Npc/Npc.hpp>
+#include <Components/Npc/NpcScanBounds.hpp>
 #include <Components/Obstacle.hpp>
-#include <Components/PCDetectionBounds.hpp>
-#include <Components/PlayerDistance.hpp>
+#include <Components/Player/PlayerDetectionBounds.hpp>
+#include <Components/Player/PlayerDistance.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -14,10 +14,10 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
 
-#include <Components/CorruptionCell.hpp>
-#include <Components/HazardFieldCell.hpp>
+#include <Components/Hazard/CorruptionCell.hpp>
+#include <Components/Hazard/HazardFieldCell.hpp>
+#include <Components/Hazard/SinkholeCell.hpp>
 #include <Components/Position.hpp>
-#include <Components/SinkholeCell.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Sprites/MultiSprite.hpp>

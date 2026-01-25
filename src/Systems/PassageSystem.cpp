@@ -6,7 +6,7 @@
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Obstacle.hpp>
-#include <Components/PlayerMortality.hpp>
+#include <Components/Player/PlayerMortality.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/Wall.hpp>

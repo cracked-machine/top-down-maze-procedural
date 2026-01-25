@@ -1,7 +1,7 @@
 
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/LootContainer.hpp>
-#include <Components/NPC.hpp>
+#include <Components/Npc/Npc.hpp>
 #include <Components/PlantObstacle.hpp>
 #include <Components/Random.hpp>
 #include <Factory/LootFactory.hpp>
@@ -16,13 +16,13 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/DestroyedObstacle.hpp>
-#include <Components/InventoryWearLevel.hpp>
+#include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
-#include <Components/PlayableCharacter.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>

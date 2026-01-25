@@ -49,7 +49,7 @@
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
-#include <Components/PlayerKeysCount.hpp>
+#include <Components/Player/PlayerKeysCount.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Threats/BombSystem.hpp>

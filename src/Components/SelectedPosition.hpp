@@ -3,9 +3,10 @@
 
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
-// Coordinate
+//! @brief Used for marking an entity as selected by mouse pointer, e.g. when digging, etc...
 class SelectedPosition : public sf::Vector2f
 {
 public:

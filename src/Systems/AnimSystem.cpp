@@ -1,4 +1,4 @@
-#include <Components/AltarSacrifice.hpp>
+#include <Components/Altar/AltarSacrifice.hpp>
 #include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptPassageSpikeTrap.hpp>
 #include <Components/Crypt/CryptRoomLavaPitCell.hpp>
@@ -10,22 +10,22 @@
 #include <SFML/System/Time.hpp>
 #include <spdlog/spdlog.h>
 
-#include <Components/AltarSegment.hpp>
+#include <Components/Altar/AltarSegment.hpp>
 #include <Components/DeathPosition.hpp>
-#include <Components/GraveSegment.hpp>
+#include <Components/Grave/GraveSegment.hpp>
 #include <Components/LerpPosition.hpp>
-#include <Components/NPC.hpp>
+#include <Components/Npc/Npc.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
 #include <Components/Persistent/NpcGhostAnimFramerate.hpp>
 #include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
-#include <Components/PlayableCharacter.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Components/SpriteAnimation.hpp>
-#include <Components/WormholeMultiBlock.hpp>
-#include <Components/WormholeSingularity.hpp>
+#include <Components/Wormhole/WormholeMultiBlock.hpp>
+#include <Components/Wormhole/WormholeSingularity.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>

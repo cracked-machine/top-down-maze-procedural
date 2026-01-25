@@ -2,7 +2,7 @@
 #include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
 #include <Components/Crypt/CryptPassageBlock.hpp>
 #include <Components/Inventory/CarryItem.hpp>
-#include <Components/PlayerWealth.hpp>
+#include <Components/Player/PlayerWealth.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
 
 #include <spdlog/spdlog.h>
@@ -17,17 +17,17 @@
 #include <Components/Direction.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
-#include <Components/InventoryWearLevel.hpp>
+#include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Neighbours.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
-#include <Components/PCDetectionBounds.hpp>
-#include <Components/PlayableCharacter.hpp>
-#include <Components/PlayerCadaverCount.hpp>
-#include <Components/PlayerDistance.hpp>
-#include <Components/PlayerHealth.hpp>
-#include <Components/PlayerKeysCount.hpp>
-#include <Components/PlayerMortality.hpp>
+#include <Components/Player/PlayerCadaverCount.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/PlayerDetectionBounds.hpp>
+#include <Components/Player/PlayerDistance.hpp>
+#include <Components/Player/PlayerHealth.hpp>
+#include <Components/Player/PlayerKeysCount.hpp>
+#include <Components/Player/PlayerMortality.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>

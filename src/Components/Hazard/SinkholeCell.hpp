@@ -1,9 +1,10 @@
 #ifndef __COMPONENTS_SINKHOLE_CELL_HPP__
 #define __COMPONENTS_SINKHOLE_CELL_HPP__
 
-#include <Components/HazardFieldCell.hpp>
+#include <Components/Hazard/HazardFieldCell.hpp>
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
 struct SinkholeCell : public HazardFieldCell
 {

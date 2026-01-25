@@ -8,22 +8,14 @@
 #include <map>
 #include <string>
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
+//! @brief Holds neighbour info for an entity. Used by CellAutomata
 class Neighbours
 {
 public:
-  enum class Dir
-  {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
-    UP_LEFT,
-    UP_RIGHT,
-    DOWN_LEFT,
-    DOWN_RIGHT
-  };
+  enum class Dir { UP, DOWN, LEFT, RIGHT, UP_LEFT, UP_RIGHT, DOWN_LEFT, DOWN_RIGHT };
 
   void set( Dir dir, entt::entity entity_u32 ) { m_entities[dir] = entity_u32; }
 

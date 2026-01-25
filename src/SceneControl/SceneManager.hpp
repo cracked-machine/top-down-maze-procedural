@@ -6,7 +6,7 @@
 
 #include <Audio/SoundBank.hpp>
 #include <Components/Font.hpp>
-#include <Components/PlayerKeysCount.hpp>
+#include <Components/Player/PlayerKeysCount.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/IScene.hpp>
 #include <SceneControl/RegistryTransfer.hpp>

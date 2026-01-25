@@ -1,5 +1,5 @@
 #include <Audio/SoundBank.hpp>
-#include <Components/AltarMultiBlock.hpp>
+#include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptEntrance.hpp>
 #include <Components/Crypt/CryptExit.hpp>
@@ -26,10 +26,10 @@
 #include <Components/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/CryptNpcSpawnCount.hpp>
-#include <Components/PlayableCharacter.hpp>
-#include <Components/PlayerCadaverCount.hpp>
-#include <Components/PlayerKeysCount.hpp>
-#include <Components/PlayerMortality.hpp>
+#include <Components/Player/PlayerCadaverCount.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/PlayerKeysCount.hpp>
+#include <Components/Player/PlayerMortality.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>

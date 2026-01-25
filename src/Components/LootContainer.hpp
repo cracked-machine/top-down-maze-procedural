@@ -6,7 +6,7 @@
 namespace ProceduralMaze::Cmp
 {
 
-// Loot container concept
+//! @brief Mark entity that can be broken in order to drop loot
 struct LootContainer
 {
   int hp{ 100 };

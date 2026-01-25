@@ -3,12 +3,12 @@
 #include <Components/Exit.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/Explosive.hpp>
-#include <Components/NPC.hpp>
 #include <Components/NoPathFinding.hpp>
+#include <Components/Npc/Npc.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
-#include <Components/PlayerBlastRadius.hpp>
-#include <Components/PlayerHealth.hpp>
-#include <Components/PlayerMortality.hpp>
+#include <Components/Player/PlayerBlastRadius.hpp>
+#include <Components/Player/PlayerHealth.hpp>
+#include <Components/Player/PlayerMortality.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -28,13 +28,13 @@
 #include <spdlog/spdlog.h>
 
 #include <Audio/SoundBank.hpp>
-#include <Components/AltarSegment.hpp>
+#include <Components/Altar/AltarSegment.hpp>
 #include <Components/Armable.hpp>
 #include <Components/Armed.hpp>
 #include <Components/DeathPosition.hpp>
-#include <Components/GraveSegment.hpp>
+#include <Components/Grave/GraveSegment.hpp>
 #include <Components/LootContainer.hpp>
-#include <Components/NpcContainer.hpp>
+#include <Components/Npc/NpcContainer.hpp>
 #include <Components/Persistent/ArmedOffDelay.hpp>
 #include <Components/Persistent/BombDamage.hpp>
 #include <Components/ReservedPosition.hpp>

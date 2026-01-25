@@ -7,13 +7,13 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 
-#include <Components/CorruptionCell.hpp>
-#include <Components/HazardFieldCell.hpp>
+#include <Components/Hazard/CorruptionCell.hpp>
+#include <Components/Hazard/HazardFieldCell.hpp>
+#include <Components/Hazard/SinkholeCell.hpp>
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/Persistent/CorruptionSeed.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
-#include <Components/PlayerMortality.hpp>
-#include <Components/SinkholeCell.hpp>
+#include <Components/Player/PlayerMortality.hpp>
 #include <Systems/BaseSystem.hpp>
 
 //! @brief HazardFields are environmental dangers that spread throughout the maze,

@@ -1,7 +1,7 @@
 
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
-#include <Components/NPC.hpp>
+#include <Components/Npc/Npc.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/RectBounds.hpp>
@@ -15,11 +15,10 @@
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Direction.hpp>
 #include <Components/FootStepTimer.hpp>
-#include <Components/InventoryWearLevel.hpp>
+#include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
-#include <Components/PCDetectionBounds.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
 #include <Components/Persistent/BombInventory.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
@@ -29,15 +28,16 @@
 #include <Components/Persistent/PlayerLerpSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
-#include <Components/PlayableCharacter.hpp>
-#include <Components/PlayerDistance.hpp>
-#include <Components/PlayerHealth.hpp>
-#include <Components/PlayerKeysCount.hpp>
-#include <Components/PlayerMortality.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/PlayerDetectionBounds.hpp>
+#include <Components/Player/PlayerDistance.hpp>
+#include <Components/Player/PlayerHealth.hpp>
+#include <Components/Player/PlayerKeysCount.hpp>
+#include <Components/Player/PlayerMortality.hpp>
 #include <Components/Position.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>
-#include <Components/WormholeJump.hpp>
+#include <Components/Wormhole/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/PlayerFactory.hpp>

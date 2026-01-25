@@ -8,8 +8,10 @@
 #include <Components/Position.hpp>
 #include <Sprites/SpriteFactory.hpp>
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
+//! @brief Used to prevent algorithmic changes to this entities components.
 class ReservedPosition
 {
 public:

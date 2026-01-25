@@ -12,7 +12,7 @@
 namespace ProceduralMaze::Cmp
 {
 
-// Obstacle concept
+// Mark the entity as a Rock obstacle
 struct Obstacle
 {
 

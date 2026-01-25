@@ -1,4 +1,4 @@
-#include <Components/AltarSacrifice.hpp>
+#include <Components/Altar/AltarSacrifice.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Factory/AltarFactory.hpp>
@@ -7,15 +7,15 @@
 
 #include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
-#include <Components/AltarMultiBlock.hpp>
-#include <Components/AltarSegment.hpp>
+#include <Components/Altar/AltarMultiBlock.hpp>
+#include <Components/Altar/AltarSegment.hpp>
 #include <Components/Armable.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/LootContainer.hpp>
-#include <Components/NPC.hpp>
 #include <Components/NoPathFinding.hpp>
-#include <Components/PlayableCharacter.hpp>
-#include <Components/PlayerKeysCount.hpp>
+#include <Components/Npc/Npc.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpawnArea.hpp>

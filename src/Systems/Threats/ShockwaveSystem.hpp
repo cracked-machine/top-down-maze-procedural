@@ -1,7 +1,7 @@
 #ifndef SRC_SYSTEMS_THREATS_SHOCKWAVESYSTEM_HPP_
 #define SRC_SYSTEMS_THREATS_SHOCKWAVESYSTEM_HPP_
 
-#include <Components/NpcShockwave.hpp>
+#include <Components/Npc/NpcShockwave.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Sprites/Shockwave.hpp>

@@ -7,7 +7,7 @@
 #include <Components/NoPathFinding.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
-#include <Components/PlayableCharacter.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>

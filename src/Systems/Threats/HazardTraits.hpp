@@ -1,11 +1,11 @@
 #ifndef SRC_SYSTEMS_HAZARDTRAITS_HPP__
 #define SRC_SYSTEMS_HAZARDTRAITS_HPP__
 
-#include <Components/CorruptionCell.hpp>
+#include <Components/Hazard/CorruptionCell.hpp>
+#include <Components/Hazard/SinkholeCell.hpp>
 #include <Components/Persistent/CorruptionSeed.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
-#include <Components/PlayerMortality.hpp>
-#include <Components/SinkholeCell.hpp>
+#include <Components/Player/PlayerMortality.hpp>
 #include <Sprites/MultiSprite.hpp>
 
 namespace ProceduralMaze::Sys

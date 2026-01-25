@@ -1,8 +1,8 @@
-#include <Components/CorruptionCell.hpp>
+#include <Components/Hazard/CorruptionCell.hpp>
+#include <Components/Hazard/SinkholeCell.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/MusicVolume.hpp>
-#include <Components/PlayerMortality.hpp>
-#include <Components/SinkholeCell.hpp>
+#include <Components/Player/PlayerMortality.hpp>
 #include <Engine.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>

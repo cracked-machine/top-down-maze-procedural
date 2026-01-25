@@ -3,9 +3,10 @@
 
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
-// Set the m_start position after construction
+//! @brief Holds in-motion lerp data for a given entity (player, npc, etc..)
 struct LerpPosition
 {
   LerpPosition( sf::Vector2f target, float speed = 1.0f )
@@ -18,7 +19,7 @@ struct LerpPosition
   float m_lerp_factor{ 0.0f };
   // Lerp completion speed - affects how fast lerp completes
   float m_lerp_speed{};
-  // Store the initial position
+  // Store the initial position. This should be set after construction
   sf::Vector2f m_start;
 };
 

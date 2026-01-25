@@ -1,15 +1,15 @@
 #ifndef SRC_FACTORY_MULTIBLOCKFACTORY_HPP
 #define SRC_FACTORY_MULTIBLOCKFACTORY_HPP
 
-#include <Components/AltarMultiBlock.hpp>
-#include <Components/AltarSegment.hpp>
+#include <Components/Altar/AltarMultiBlock.hpp>
+#include <Components/Altar/AltarSegment.hpp>
 #include <Components/Armable.hpp>
 #include <Components/Crypt/CryptEntrance.hpp>
 #include <Components/Crypt/CryptMultiBlock.hpp>
 #include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
 #include <Components/Crypt/CryptObjectiveSegment.hpp>
 #include <Components/Crypt/CryptSegment.hpp>
-#include <Components/GraveSegment.hpp>
+#include <Components/Grave/GraveSegment.hpp>
 #include <Components/HolyWell/HolyWellEntrance.hpp>
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/NoPathFinding.hpp>

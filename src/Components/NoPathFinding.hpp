@@ -3,10 +3,10 @@
 
 namespace ProceduralMaze::Cmp
 {
-// Component to mark entities that should be ignored by pathfinding systems
+
+//! @brief Mark entity that should not be included in Npc pathfinding algorithms
 struct NoPathFinding
 {
-
   bool active{ true };
 };
 

@@ -1,9 +1,10 @@
 #ifndef __COMPONENTS_CORRUPTION_CELL_HPP__
 #define __COMPONENTS_CORRUPTION_CELL_HPP__
 
-#include <Components/HazardFieldCell.hpp>
+#include <Components/Hazard/HazardFieldCell.hpp>
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
 struct CorruptionCell : public HazardFieldCell
 {

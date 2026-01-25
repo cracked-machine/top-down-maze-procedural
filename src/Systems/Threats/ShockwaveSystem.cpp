@@ -1,5 +1,5 @@
 #include "ShockwaveSystem.hpp"
-#include <Components/NpcShockwave.hpp>
+#include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Obstacle.hpp>
 #include <Sprites/Shockwave.hpp>
 #include <Utils/Maths.hpp>

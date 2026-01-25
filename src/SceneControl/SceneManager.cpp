@@ -1,5 +1,5 @@
 
-#include <Components/PlayerKeysCount.hpp>
+#include <Components/Player/PlayerKeysCount.hpp>
 #include <SceneControl/IScene.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
 #include <SceneControl/Scene.hpp>

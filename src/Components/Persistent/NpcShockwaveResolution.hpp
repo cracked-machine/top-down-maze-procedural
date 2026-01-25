@@ -1,7 +1,7 @@
 #ifndef SRC_CMPS_PERSISTENT_NPCSHOCKWAVERESOLUTION_
 #define SRC_CMPS_PERSISTENT_NPCSHOCKWAVERESOLUTION_
 
-#include <Components/NpcShockwave.hpp>
+#include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Persistent/BasePersistent.hpp>
 #include <cstdint>
 

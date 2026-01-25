@@ -3,7 +3,7 @@
 
 #include <Components/Direction.hpp>
 #include <Components/LerpPosition.hpp>
-#include <Components/NpcShockwave.hpp>
+#include <Components/Npc/NpcShockwave.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <SFML/Audio/Sound.hpp>

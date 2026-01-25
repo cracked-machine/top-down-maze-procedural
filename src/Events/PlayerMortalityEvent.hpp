@@ -1,7 +1,7 @@
 #ifndef SRC_EVENTS_PLAYERMORTALITYEVENT_
 #define SRC_EVENTS_PLAYERMORTALITYEVENT_
 
-#include <Components/PlayerMortality.hpp>
+#include <Components/Player/PlayerMortality.hpp>
 #include <Components/Position.hpp>
 #include <SFML/System/Vector2.hpp>
 

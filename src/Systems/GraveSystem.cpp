@@ -2,14 +2,14 @@
 
 #include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
-#include <Components/GraveMultiBlock.hpp>
-#include <Components/GraveSegment.hpp>
+#include <Components/Grave/GraveMultiBlock.hpp>
+#include <Components/Grave/GraveSegment.hpp>
 #include <Components/Inventory/CarryItem.hpp>
-#include <Components/InventoryWearLevel.hpp>
+#include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
-#include <Components/PlayerKeysCount.hpp>
+#include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>

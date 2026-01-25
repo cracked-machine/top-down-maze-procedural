@@ -1,7 +1,7 @@
 #ifndef SRC_CMPS_PERSISTENT_CRYPTNPCSPAWNCOUNT_
 #define SRC_CMPS_PERSISTENT_CRYPTNPCSPAWNCOUNT_
 
-#include <Components/NpcShockwave.hpp>
+#include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Persistent/BasePersistent.hpp>
 #include <cstdint>
 

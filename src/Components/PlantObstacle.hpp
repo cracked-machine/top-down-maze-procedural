@@ -4,7 +4,7 @@
 namespace ProceduralMaze::Cmp
 {
 
-// Obstacle concept
+//! @brief Mark the entity as a plant obstacle
 struct PlantObstacle
 {
 

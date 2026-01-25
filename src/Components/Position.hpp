@@ -1,13 +1,13 @@
 #ifndef __COMPONENTS_POSITION_HPP__
 #define __COMPONENTS_POSITION_HPP__
 
-
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
-// Coordinate
+//! @brief Component used to contain a grid position (in pixels). Also contains the size of the grid square (usually 16x16px)
 class Position : public sf::FloatRect
 {
 public:

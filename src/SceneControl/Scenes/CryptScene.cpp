@@ -3,7 +3,7 @@
 
 #include <Audio/SoundBank.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
-#include <Components/PlayerKeysCount.hpp>
+#include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/System.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Factory/FloormapFactory.hpp>

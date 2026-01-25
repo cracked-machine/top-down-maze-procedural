@@ -1,7 +1,7 @@
 #ifndef SRC_SYSTEMS_GRAVESYSTEM_HPP__
 #define SRC_SYSTEMS_GRAVESYSTEM_HPP__
 
-#include <Components/GraveMultiBlock.hpp>
+#include <Components/Grave/GraveMultiBlock.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 

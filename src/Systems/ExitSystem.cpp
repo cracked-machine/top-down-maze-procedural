@@ -1,12 +1,12 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Inventory/CarryItem.hpp>
-#include <Components/NPC.hpp>
 #include <Components/NoPathFinding.hpp>
+#include <Components/Npc/Npc.hpp>
 #include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
-#include <Components/PlayableCharacter.hpp>
-#include <Components/PlayerKeysCount.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
