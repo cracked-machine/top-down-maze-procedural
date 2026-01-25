@@ -58,10 +58,8 @@ RandomLevelGenerator::RandomLevelGenerator( entt::registry &reg, sf::RenderWindo
 {
 }
 
-void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
+void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area )
 {
-  sf::Vector2f player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( getReg() );
-  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF, 5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
   unsigned int w = map_grid_size.x;
   unsigned int h = map_grid_size.y;
@@ -90,10 +88,8 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size )
   SPDLOG_INFO( "Generated {} positions for random level.", m_data.size() );
 }
 
-void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size )
+void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area )
 {
-  auto player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( getReg() );
-  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF, 5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
   unsigned int w = map_grid_size.x;
   unsigned int h = map_grid_size.y;
@@ -145,10 +141,9 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size )
   }
 }
 
-void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, int vertArmHalfWidth, int horizArmHalfWidth, int horizOffset )
+void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area, int vertArmHalfWidth,
+                                               int horizArmHalfWidth, int horizOffset )
 {
-  auto player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( getReg() );
-  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF, 3.f, Cmp::RectBounds::ScaleCardinality::BOTH );
   auto start_room_entity = getReg().create();
   getReg().emplace_or_replace<Cmp::CryptRoomStart>( start_room_entity, player_start_area.position(), player_start_area.size() );
 

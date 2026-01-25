@@ -1,6 +1,7 @@
 #ifndef __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 #define __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 
+#include <Components/RectBounds.hpp>
 #include <entt/entity/registry.hpp>
 
 #include <SFML/System/Vector2.hpp>
@@ -38,8 +39,8 @@ public:
   void onResume() override {}
 
   // Generate position components for the entire map grid and add player spawn
-  void gen_rectangle_gamearea( sf::Vector2u map_grid_size );
-  void gen_circular_gamearea( sf::Vector2u map_grid_size );
+  void gen_rectangle_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area );
+  void gen_circular_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area );
 
   //! @brief Generate a cross-shaped game area
   //! @param map_grid_size size of the total map grid in tiles
@@ -49,7 +50,8 @@ public:
   //! @param horizHalfLengthModifier modifier for horizontal arm half-length, i.e. 0.25 = quarter
   //! the map width
   //! @param horizOffset move horizontal arm up by N tiles (positive pushes it downward)
-  void gen_cross_gamearea( sf::Vector2u map_grid_size, int vertArmHalfWidth = 10, int horizArmHalfWidth = 5, int horizOffset = 10 );
+  void gen_cross_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area, int vertArmHalfWidth = 10, int horizArmHalfWidth = 5,
+                           int horizOffset = 10 );
 
   //! @brief create common obstacles (i.e. rock) for the graeyard
   void gen_graveyard_exterior_obstacles();

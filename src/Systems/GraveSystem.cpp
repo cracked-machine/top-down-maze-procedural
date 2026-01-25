@@ -113,20 +113,22 @@ void GraveSystem::check_player_grave_collision()
           m_sound_bank.get_effect( "pickaxe_final" ).play();
         }
 
-        auto grave_activation_rng = Cmp::RandomInt( 1, 3 );
+        auto grave_activation_rng = Cmp::RandomInt( 1, 4 );
         auto consequence = grave_activation_rng.gen();
         switch ( consequence )
         {
-          case 1:
+          case 1: {
             SPDLOG_DEBUG( "Grave activated NPC trap." );
             Factory::createNPC( getReg(), grave_entity, "NPCGHOST" );
             m_sound_bank.get_effect( "spawn_ghost" ).play();
             break;
-          case 2:
+          }
+          case 2: {
             SPDLOG_DEBUG( "Grave activated bomb trap." );
             get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::GRAVE_BOMB ) );
             break;
-          case 3:
+          }
+          case 3: {
 
             auto grave_cmp_bounds = Cmp::RectBounds( grave_cmp.position, grave_cmp.size, 2.f );
             std::vector<Sprites::SpriteMetaType> relic_selection_list{ "CARRYITEM.relic.hand", "CARRYITEM.relic.head", "CARRYITEM.relic.bone",
@@ -137,6 +139,21 @@ void GraveSystem::check_player_grave_collision()
 
             if ( relic_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
             break;
+          }
+          case 4: {
+            auto grave_cmp_bounds = Cmp::RectBounds( grave_cmp.position, grave_cmp.size, 2.f );
+            std::vector<Sprites::SpriteMetaType> jewelry_selection_list{
+                "CARRYITEM.jewelry_sapphire_necklace", "CARRYITEM.jewelry_amephyst_ring",    "CARRYITEM.jewelry_ruby_ring",
+                "CARRYITEM.jewelry_emerald_necklace",  "CARRYITEM.jewelry_emerald_gemstone", "CARRYITEM.jewelry_sapphire_gemstone",
+                "CARRYITEM.jewelry_diamond_gemstone",  "CARRYITEM.jewelry_amephyst_gemstone" };
+            Cmp::RandomInt jewelry_picker( 0, jewelry_selection_list.size() - 1 );
+            auto selected_jewelry = jewelry_picker.gen();
+            auto jewelry_entt = Factory::createCarryItem( getReg(), Utils::get_player_position( getReg() ),
+                                                          jewelry_selection_list.at( selected_jewelry ) );
+
+            if ( jewelry_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
+            break;
+          }
         }
       }
     }

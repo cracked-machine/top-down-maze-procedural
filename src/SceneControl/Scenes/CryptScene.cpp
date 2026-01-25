@@ -33,11 +33,13 @@ void CryptScene::on_init()
   m_reg.emplace<Cmp::System>( entity );
 
   Sys::PersistSystem::add_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_start_position );
+  auto player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg );
+  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF, 3.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
   // create the level contents
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_cross_gamearea( CryptScene::kMapGridSize );
+  random_level_sys.gen_cross_gamearea( CryptScene::kMapGridSize, player_start_area );
   random_level_sys.gen_crypt_main_objective( CryptScene::kMapGridSize );
   Factory::create_initial_crypt_rooms( m_reg, CryptScene::kMapGridSize );
   random_level_sys.gen_crypt_initial_interior();

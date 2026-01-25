@@ -725,6 +725,118 @@
         }
       }
     },
+    "CARRYITEM.jewelry_sapphire_necklace": {
+      "displayname": "Sapphire Necklace",
+      "weight": 0.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [270],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.jewelry_amephyst_ring": {
+      "displayname": "Amephyst Ring",
+      "weight": 0.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [280],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.jewelry_ruby_ring": {
+      "displayname": "Ruby Ring",
+      "weight": 0.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [290],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.jewelry_emerald_necklace": {
+      "displayname": "Emerald Necklace",
+      "weight": 0.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [300],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.jewelry_emerald_gemstone": {
+      "displayname": "Emerald Gemstone",
+      "weight": 0.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [310],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.jewelry_sapphire_gemstone": {
+      "displayname": "Sapphire Gemstone",
+      "weight": 0.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [320],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.jewelry_diamond_gemstone": {
+      "displayname": "Diamond Gemstone",
+      "weight": 0.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [330],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.jewelry_amephyst_gemstone": {
+      "displayname": "Amephyst Gemstone",
+      "weight": 0.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [340],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
     "EXTRA_HEALTH": {
       "displayname": "EXTRA_HEALTH",
       "weight": 30.0,

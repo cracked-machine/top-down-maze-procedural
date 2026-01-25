@@ -38,21 +38,23 @@ void GraveyardScene::on_init()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  Sys::PersistSystem::add_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_start_position );
-
   auto &render_game_system = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
   SPDLOG_INFO( "Got render_game_system at {}", static_cast<void *>( &render_game_system ) );
   render_game_system.init_shaders();
 
-  Factory::CreatePlayer( m_reg );
-
   auto entity = m_reg.create();
   m_reg.emplace<Cmp::System>( entity );
+
+  Sys::PersistSystem::add_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_start_position );
+  auto player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg );
+  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF, 5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
+
+  Factory::CreatePlayer( m_reg );
 
   // create the level contents
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_circular_gamearea( GraveyardScene::kMapGridSize );
+  random_level_sys.gen_circular_gamearea( GraveyardScene::kMapGridSize, player_start_area );
   random_level_sys.gen_graveyard_exterior_multiblocks();
   random_level_sys.gen_loot_containers( GraveyardScene::kMapGridSize );
   random_level_sys.gen_npc_containers( GraveyardScene::kMapGridSize );
