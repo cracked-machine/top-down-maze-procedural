@@ -204,6 +204,7 @@ static std::pair<entt::entity, Sprites::SpriteMetaType> get_player_inventory_typ
   for ( auto [inv_entt, inv_cmp] : inv_view.each() )
   {
     found_type = inv_cmp.type;
+    found_entt = inv_entt;
   }
   return { found_entt, found_type };
 }

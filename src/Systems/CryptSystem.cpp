@@ -123,7 +123,14 @@ void CryptSystem::check_entrance_collision()
       SPDLOG_INFO( "check_entrance_collision: Player entering crypt from graveyard at position ({}, {})", pc_pos_cmp.position.x,
                    pc_pos_cmp.position.y );
       m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_CRYPT );
-      Factory::add_player_last_graveyard_pos( getReg(), crypt_door_pos_cmp );
+
+      // remember player position
+      auto last_player_pos = Factory::add_player_last_graveyard_pos( getReg(), crypt_door_pos_cmp );
+      // drop any inventory
+      auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
+      auto dropped_entt = Factory::dropInventorySlotIntoWorld( getReg(), last_player_pos,
+                                                               m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
+      if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
     }
   }
 }

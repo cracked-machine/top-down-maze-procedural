@@ -201,7 +201,11 @@ entt::entity dropInventorySlotIntoWorld( entt::registry &reg, Cmp::Position pos,
 {
   auto inventory_slot_cmp = reg.try_get<Cmp::PlayerInventorySlot>( inventory_slot_entt );
 
-  if ( not inventory_slot_cmp ) return entt::null;
+  if ( not inventory_slot_cmp )
+  {
+    SPDLOG_INFO( "Player has no inventory" );
+    return entt::null;
+  }
 
   // if plant then replant it in the ground
   if ( inventory_slot_cmp->type.contains( "plant" ) )
@@ -278,12 +282,14 @@ void destroyInventory( entt::registry &reg, const Sprites::SpriteMetaType type )
   }
 }
 
-void add_player_last_graveyard_pos( entt::registry &reg, Cmp::Position &last_known_pos, sf::Vector2f offset )
+Cmp::Position add_player_last_graveyard_pos( entt::registry &reg, Cmp::Position &last_known_pos, sf::Vector2f offset )
 {
-  auto player_rentry_pos = sf::Vector2f{ last_known_pos.position.x + offset.x, last_known_pos.position.y + offset.y };
-  SPDLOG_INFO( "Player will re-enter grave yard at {},{}", player_rentry_pos.x, player_rentry_pos.y );
+  auto player_rentry_pos = Cmp::Position( { last_known_pos.position.x + offset.x, last_known_pos.position.y + offset.y },
+                                          Constants::kGridSquareSizePixelsF );
+  SPDLOG_INFO( "Player will re-enter grave yard at {},{}", player_rentry_pos.position.x, player_rentry_pos.position.y );
   auto player_entt = Utils::get_player_entity( reg );
-  reg.emplace_or_replace<Cmp::PlayerLastGraveyardPosition>( player_entt, player_rentry_pos, Constants::kGridSquareSizePixelsF );
+  reg.emplace_or_replace<Cmp::PlayerLastGraveyardPosition>( player_entt, player_rentry_pos.position, player_rentry_pos.size );
+  return player_rentry_pos;
 }
 
 void remove_player_last_graveyard_pos( entt::registry &reg )

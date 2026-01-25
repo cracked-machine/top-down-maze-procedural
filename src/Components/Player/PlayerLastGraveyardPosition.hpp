@@ -6,11 +6,11 @@
 namespace ProceduralMaze::Cmp
 {
 
-class PlayerLastGraveyardPosition : public sf::FloatRect
+class PlayerLastGraveyardPosition : public Cmp::Position
 {
 public:
   PlayerLastGraveyardPosition( const sf::Vector2f &pos, const sf::Vector2f &size )
-      : sf::FloatRect( pos, size )
+      : Cmp::Position( pos, size )
   {
   }
 };
