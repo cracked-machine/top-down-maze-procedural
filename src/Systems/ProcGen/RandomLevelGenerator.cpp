@@ -58,7 +58,7 @@ RandomLevelGenerator::RandomLevelGenerator( entt::registry &reg, sf::RenderWindo
 {
 }
 
-void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area )
+void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area, Sprites::SpriteMetaType wall_type )
 {
 
   unsigned int w = map_grid_size.x;
@@ -72,7 +72,8 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, C
 
       // condition for left, right, top, bottom borders
       bool isBorder = ( x == 0 ) || ( y == 0 ) || ( x == w - 1 ) || ( y == h - 1 );
-      if ( isBorder ) { Factory::add_wall_entity( getReg(), new_pos, "WALL", 0 ); }
+      auto [sprite_type, sprite_idx] = m_sprite_factory.get_random_type_and_texture_index( { wall_type } );
+      if ( isBorder ) { Factory::add_wall_entity( getReg(), new_pos, sprite_type, sprite_idx ); }
       else
       {
         // create world position entity, mark spawn area if in player start area

@@ -725,6 +725,48 @@
         }
       }
     },
+    "CARRYITEM.boots": {
+      "displayname": "Dead Man's Boots",
+      "weight": 0.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [240],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.witchesjar": {
+      "displayname": "Witches Jar",
+      "weight": 0.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [250, 251, 252, 253, 254],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "CARRYITEM.preservedcat": {
+      "displayname": "Preserved Cat",
+      "weight": 0.0,
+      "multisprite": {
+        "texture_path": "res/textures/CARRYITEMS.png",
+        "sprite_indices": [260, 261, 262, 263, 264],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
     "CARRYITEM.jewelry_sapphire_necklace": {
       "displayname": "Sapphire Necklace",
       "weight": 0.0,
@@ -1677,6 +1719,62 @@
         "grid_size": {
           "width": 8,
           "height": 5
+        }
+      }
+    },
+    "RUIN.interior_wall": {
+      "displayname": "RUIN.interior_wall",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/RUIN.interior.png",
+        "sprite_indices": [0,1,2,3,4],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "RUIN.interior_cobweb1": {
+      "displayname": "RUIN.interior_cobweb1",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/RUIN.interior.png",
+        "sprite_indices": [12],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 2
+        }
+      }
+    },
+    "RUIN.interior_cobweb2": {
+      "displayname": "RUIN.interior_cobweb2",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/RUIN.interior.png",
+        "sprite_indices": [13],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 2,
+          "height": 2
+        }
+      }
+    },
+    "RUIN.interior_hexagram3x3": {
+      "displayname": "RUIN.interior_hexagram3x3",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/RUIN.interior.png",
+        "sprite_indices": [15],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 3,
+          "height": 3
         }
       }
     },

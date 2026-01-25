@@ -47,8 +47,8 @@ private:
   Sprites::Containers::TileMap m_floormap{};
 
   sf::Vector2f m_player_start_position = Utils::snap_to_grid(
-      sf::Vector2f( ( RuinScene::kMapGridSizeF.x / 2.f ) * Constants::kGridSquareSizePixels.x,
-                    ( RuinScene::kMapGridSizeF.y - 3.f ) * Constants::kGridSquareSizePixels.y ) );
+      sf::Vector2f( ( RuinScene::kMapGridSizeF.x / 2.f ) * Constants::kGridSquareSizePixels.x - Constants::kGridSquareSizePixels.x,
+                    ( RuinScene::kMapGridSizeF.y - 2.f ) * Constants::kGridSquareSizePixels.y ) );
 };
 
 } // namespace ProceduralMaze::Scene
