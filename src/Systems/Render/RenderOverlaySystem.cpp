@@ -179,7 +179,7 @@ void RenderOverlaySystem::render_inventory_overlay( sf::Vector2f pos )
   {
     RenderSystem::safe_render_sprite( anim_cmp.m_sprite_type, { icon_pos, Constants::kGridSquareSizePixelsF }, 0,
                                       sf::Vector2f{ icon_scale, icon_scale } );
-    sf::Text display_name( m_font, m_sprite_factory.get_display_name_by_type( inventory_cmp.type ), 30 );
+    sf::Text display_name( m_font, m_sprite_factory.get_display_name_by_type( inventory_cmp.type ), 20 );
     // Calculate the center of the scaled icon
     float icon_center_x = icon_pos.x + ( Constants::kGridSquareSizePixelsF.x * icon_scale ) / 2.f;
     // Center the text horizontally relative to the icon center

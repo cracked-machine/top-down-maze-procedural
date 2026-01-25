@@ -131,8 +131,8 @@ void GraveSystem::check_player_grave_collision()
           case 3: {
 
             auto grave_cmp_bounds = Cmp::RectBounds( grave_cmp.position, grave_cmp.size, 2.f );
-            std::vector<Sprites::SpriteMetaType> relic_selection_list{ "CARRYITEM.relic.hand", "CARRYITEM.relic.head", "CARRYITEM.relic.bone",
-                                                                       "CARRYITEM.relic.ribcage" };
+            std::vector<Sprites::SpriteMetaType> relic_selection_list{ "CARRYITEM.relic1", "CARRYITEM.relic2", "CARRYITEM.relic3",
+                                                                       "CARRYITEM.relic4" };
             Cmp::RandomInt relic_picker( 0, relic_selection_list.size() - 1 );
             auto selected_relic = relic_picker.gen();
             auto relic_entt = Factory::createCarryItem( getReg(), Utils::get_player_position( getReg() ), relic_selection_list.at( selected_relic ) );

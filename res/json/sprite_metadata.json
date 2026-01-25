@@ -641,8 +641,8 @@
         }
       }
     },
-    "CARRYITEM.relic.hand": {
-      "displayname": "Relic: Hand",
+    "CARRYITEM.relic1": {
+      "displayname": "Relic: Saint's Blood",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -655,8 +655,8 @@
         }
       }
     },
-    "CARRYITEM.relic.head": {
-      "displayname": "Relic: Head",
+    "CARRYITEM.relic2": {
+      "displayname": "Relic: Saint's Eyeball",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -669,8 +669,8 @@
         }
       }
     },
-    "CARRYITEM.relic.bone": {
-      "displayname": "Relic: Bone",
+    "CARRYITEM.relic3": {
+      "displayname": "Relic: Saint's Bone",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
@@ -683,8 +683,8 @@
         }
       }
     },
-    "CARRYITEM.relic.ribcage": {
-      "displayname": "Relic: Ribcage",
+    "CARRYITEM.relic4": {
+      "displayname": "Relic: Saint's Hand",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/CARRYITEMS.png",
