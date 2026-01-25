@@ -1,8 +1,8 @@
 #include <Components/AltarSacrifice.hpp>
-#include <Components/CryptChest.hpp>
-#include <Components/CryptPassageSpikeTrap.hpp>
-#include <Components/CryptRoomLavaPitCell.hpp>
-#include <Components/CryptRoomLavaPitCellEffect.hpp>
+#include <Components/Crypt/CryptChest.hpp>
+#include <Components/Crypt/CryptPassageSpikeTrap.hpp>
+#include <Components/Crypt/CryptRoomLavaPitCell.hpp>
+#include <Components/Crypt/CryptRoomLavaPitCellEffect.hpp>
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/LootContainer.hpp>
 #include <Systems/AnimSystem.hpp>

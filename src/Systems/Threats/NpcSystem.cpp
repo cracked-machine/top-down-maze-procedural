@@ -1,7 +1,7 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/AltarSegment.hpp>
 #include <Components/Armable.hpp>
-#include <Components/CryptSegment.hpp>
+#include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Direction.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/GraveSegment.hpp>

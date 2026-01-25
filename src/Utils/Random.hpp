@@ -1,7 +1,7 @@
 #ifndef SRC_UTILS_RANDOM_HPP__
 #define SRC_UTILS_RANDOM_HPP__
 
-#include <Components/CryptRoomClosed.hpp>
+#include <Components/Crypt/CryptRoomClosed.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>

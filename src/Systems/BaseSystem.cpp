@@ -1,5 +1,5 @@
-#include <Components/CryptChest.hpp>
-#include <Components/CryptLever.hpp>
+#include <Components/Crypt/CryptChest.hpp>
+#include <Components/Crypt/CryptLever.hpp>
 #include <Components/HolyWell/HolyWellSegment.hpp>
 #include <Components/PlantObstacle.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
@@ -7,9 +7,9 @@
 
 #include <Audio/SoundBank.hpp>
 #include <Components/AltarSegment.hpp>
-#include <Components/CryptInteriorSegment.hpp>
-#include <Components/CryptObjectiveSegment.hpp>
-#include <Components/CryptSegment.hpp>
+#include <Components/Crypt/CryptInteriorSegment.hpp>
+#include <Components/Crypt/CryptObjectiveSegment.hpp>
+#include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Exit.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/LerpPosition.hpp>

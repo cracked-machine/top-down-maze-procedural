@@ -1,4 +1,4 @@
-#include <Components/CryptPassageBlock.hpp>
+#include <Components/Crypt/CryptPassageBlock.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/LerpPosition.hpp>

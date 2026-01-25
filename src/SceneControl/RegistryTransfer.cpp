@@ -1,6 +1,6 @@
-#include <Components/CryptLever.hpp>
-#include <Components/CryptObjectiveMultiBlock.hpp>
-#include <Components/CryptPassageBlock.hpp>
+#include <Components/Crypt/CryptLever.hpp>
+#include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
+#include <Components/Crypt/CryptPassageBlock.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/PlayerWealth.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
@@ -10,10 +10,10 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Armable.hpp>
-#include <Components/CryptRoomClosed.hpp>
-#include <Components/CryptRoomEnd.hpp>
-#include <Components/CryptRoomOpen.hpp>
-#include <Components/CryptRoomStart.hpp>
+#include <Components/Crypt/CryptRoomClosed.hpp>
+#include <Components/Crypt/CryptRoomEnd.hpp>
+#include <Components/Crypt/CryptRoomOpen.hpp>
+#include <Components/Crypt/CryptRoomStart.hpp>
 #include <Components/Direction.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>

@@ -4,11 +4,11 @@
 #include <Components/AltarMultiBlock.hpp>
 #include <Components/AltarSegment.hpp>
 #include <Components/Armable.hpp>
-#include <Components/CryptEntrance.hpp>
-#include <Components/CryptMultiBlock.hpp>
-#include <Components/CryptObjectiveMultiBlock.hpp>
-#include <Components/CryptObjectiveSegment.hpp>
-#include <Components/CryptSegment.hpp>
+#include <Components/Crypt/CryptEntrance.hpp>
+#include <Components/Crypt/CryptMultiBlock.hpp>
+#include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
+#include <Components/Crypt/CryptObjectiveSegment.hpp>
+#include <Components/Crypt/CryptSegment.hpp>
 #include <Components/GraveSegment.hpp>
 #include <Components/HolyWell/HolyWellEntrance.hpp>
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>

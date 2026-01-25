@@ -1,8 +1,8 @@
-#include <Components/CryptPassageBlock.hpp>
-#include <Components/CryptRoomClosed.hpp>
-#include <Components/CryptRoomEnd.hpp>
-#include <Components/CryptRoomOpen.hpp>
-#include <Components/CryptRoomStart.hpp>
+#include <Components/Crypt/CryptPassageBlock.hpp>
+#include <Components/Crypt/CryptRoomClosed.hpp>
+#include <Components/Crypt/CryptRoomEnd.hpp>
+#include <Components/Crypt/CryptRoomOpen.hpp>
+#include <Components/Crypt/CryptRoomStart.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Obstacle.hpp>

@@ -1,10 +1,10 @@
 #ifndef SRC_FACTORY_CRYPTFACTORY_HPP__
 #define SRC_FACTORY_CRYPTFACTORY_HPP__
 
-#include <Components/CryptRoomClosed.hpp>
-#include <Components/CryptRoomEnd.hpp>
-#include <Components/CryptRoomOpen.hpp>
-#include <Components/CryptRoomStart.hpp>
+#include <Components/Crypt/CryptRoomClosed.hpp>
+#include <Components/Crypt/CryptRoomEnd.hpp>
+#include <Components/Crypt/CryptRoomOpen.hpp>
+#include <Components/Crypt/CryptRoomStart.hpp>
 
 #include <Components/Neighbours.hpp>
 #include <Components/Position.hpp>

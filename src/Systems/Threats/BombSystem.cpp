@@ -1,4 +1,4 @@
-#include <Components/CryptSegment.hpp>
+#include <Components/Crypt/CryptSegment.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Inventory/CarryItem.hpp>

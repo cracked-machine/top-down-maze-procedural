@@ -1,8 +1,8 @@
 #ifndef SRC_SYSTEMS_PASSAGESYSTEM_HPP
 #define SRC_SYSTEMS_PASSAGESYSTEM_HPP
 
-#include <Components/CryptPassageDoor.hpp>
-#include <Components/CryptRoomStart.hpp>
+#include <Components/Crypt/CryptPassageDoor.hpp>
+#include <Components/Crypt/CryptRoomStart.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Random.hpp>
 #include <Systems/BaseSystem.hpp>
