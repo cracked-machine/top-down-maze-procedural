@@ -21,6 +21,7 @@
 #include <Systems/Threats/NpcSystem.hpp>
 
 #include <Systems/SystemStore.hpp>
+#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Scene
 {
@@ -45,6 +46,9 @@ void RuinScene::on_init()
   // pass concrete spawn position to exit spawner
   m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().spawn_exit(
       sf::Vector2u{ RuinScene::kMapGridSize.x / 2, RuinScene::kMapGridSize.y - 1 } );
+
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_objective(
+      Utils::snap_to_grid( {32.f, 32.f } ) );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinScene::kMapGridSize, "res/json/holywell_tilemap_config.json" );
 }

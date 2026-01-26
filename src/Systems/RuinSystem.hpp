@@ -20,6 +20,8 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
+  void spawn_objective( sf::Vector2f spawn_position );
+
 private:
   //! @brief Dispatcher reference for scene management events
   entt::dispatcher &m_scenemanager_event_dispatcher;

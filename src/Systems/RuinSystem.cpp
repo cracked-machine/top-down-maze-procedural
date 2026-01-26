@@ -55,4 +55,10 @@ void RuinSystem::update()
   }
 }
 
+void RuinSystem::spawn_objective( sf::Vector2f spawn_position )
+{
+  auto selected_ms_type = m_sprite_factory.get_random_type( { "CARRYITEM.boots", "CARRYITEM.witchesjar", "CARRYITEM.preservedcat" }, { 1, 1, 1 } );
+  Factory::createCarryItem( getReg(), Cmp::Position( spawn_position, Constants::kGridSquareSizePixelsF ), selected_ms_type );
+}
+
 } // namespace ProceduralMaze::Sys
