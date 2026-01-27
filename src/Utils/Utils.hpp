@@ -5,10 +5,12 @@
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
+#include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Player/PlayerMortality.hpp>
+#include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -174,6 +176,18 @@ static Cmp::PlayerHealth &get_player_health( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerHealth>();
   return player_view.get<Cmp::PlayerHealth>( get_player_entity( reg ) );
+}
+
+static Cmp::PlayerWealth &get_player_wealth( entt::registry &reg )
+{
+  auto player_view = reg.view<Cmp::PlayerWealth>();
+  return player_view.get<Cmp::PlayerWealth>( get_player_entity( reg ) );
+}
+
+static Cmp::PlayerBlastRadius &get_player_blast_radius( entt::registry &reg )
+{
+  auto player_view = reg.view<Cmp::PlayerBlastRadius>();
+  return player_view.get<Cmp::PlayerBlastRadius>( get_player_entity( reg ) );
 }
 
 static Cmp::PlayerMortality &get_player_mortality( entt::registry &reg )

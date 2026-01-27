@@ -2,6 +2,7 @@
 #include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
 #include <Components/Crypt/CryptPassageBlock.hpp>
 #include <Components/Inventory/CarryItem.hpp>
+#include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Player/PlayerWealth.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
@@ -233,6 +234,7 @@ void RegistryTransfer::ensure_player_component_storages( entt::registry &registr
   registry.storage<Cmp::PlayableCharacter>();
   registry.storage<Cmp::PlayerHealth>();
   registry.storage<Cmp::PlayerWealth>();
+  registry.storage<Cmp::PlayerBlastRadius>();
   registry.storage<Cmp::PlayerMortality>();
   registry.storage<Cmp::PlayerCadaverCount>();
   registry.storage<Cmp::SpriteAnimation>();

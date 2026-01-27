@@ -251,22 +251,16 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
     {
 
       // init metrics
-      int player_health = 0;
-      int blast_radius = 0;
+
       int new_weapon_level = 0;
       int player_cadaver_count = 0;
-      int player_wealth_value = 0;
+
       sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
       sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::getGameView() );
 
-      // gather metrics from components
-      for ( auto [pc_entt, player_blast_radius, pc_health_cmp, wealth_cmp] :
-            getReg().view<Cmp::PlayerBlastRadius, Cmp::PlayerHealth, Cmp::PlayerWealth>().each() )
-      {
-        player_health = pc_health_cmp.health;
-        blast_radius = player_blast_radius.value;
-        player_wealth_value = wealth_cmp.wealth;
-      }
+      auto player_blast_radius = Utils::get_player_blast_radius( getReg() );
+      auto player_health = Utils::get_player_health( getReg() );
+      auto player_wealth = Utils::get_player_wealth( getReg() );
 
       auto inventory_wear_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
       for ( auto [weapons_entity, inventory_slot, wear_level] : inventory_wear_view.each() )
@@ -282,11 +276,11 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       // render metrics
       float start_y_pos = 0;
       render_overlay_sys.render_ui_background_overlay( { 20.f, start_y_pos += 20.f }, { 300.f, 230.f } );
-      render_overlay_sys.render_health_overlay( player_health, { 40.f, start_y_pos += 20.f }, { 200.f, 20.f } );
+      render_overlay_sys.render_health_overlay( player_health.health, { 40.f, start_y_pos += 20.f }, { 200.f, 20.f } );
       render_overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, start_y_pos += 40.f }, { 200.f, 20.f } );
-      render_overlay_sys.render_bomb_overlay( blast_radius, { 40.f, start_y_pos += 40.f } );
+      render_overlay_sys.render_bomb_overlay( player_blast_radius.value, { 40.f, start_y_pos += 40.f } );
       render_overlay_sys.render_cadaver_count_overlay( player_cadaver_count, { 40.f, start_y_pos += 40.f } );
-      render_overlay_sys.render_wealth_overlay( player_wealth_value, { 40.f, start_y_pos += 40.f } );
+      render_overlay_sys.render_wealth_overlay( player_wealth.wealth, { 40.f, start_y_pos += 40.f } );
 
       render_overlay_sys.render_inventory_overlay( { 40.f, start_y_pos += 80.f } );
 
