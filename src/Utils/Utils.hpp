@@ -4,6 +4,7 @@
 #include <Components/Exit.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/LerpPosition.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
@@ -194,6 +195,17 @@ static Cmp::PlayerMortality &get_player_mortality( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerMortality>();
   return player_view.get<Cmp::PlayerMortality>( get_player_entity( reg ) );
+}
+
+static void remove_player_lerp_cmp( entt::registry &reg )
+{
+  // Clear any ongoing lerp from the previous scene to prevent invalid player re-positioning
+  auto player_entt = Utils::get_player_entity( reg );
+  if ( reg.any_of<Cmp::LerpPosition>( player_entt ) )
+  {
+    reg.remove<Cmp::LerpPosition>( player_entt );
+    SPDLOG_DEBUG( "Cleared LerpPosition component to prevent position interpolation" );
+  }
 }
 
 static Cmp::System &getSystemCmp( entt::registry &reg )

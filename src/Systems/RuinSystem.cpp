@@ -1,6 +1,7 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
+#include <Components/Ruin/RuinFloorAccess.hpp>
 #include <Components/Ruin/RuinMultiBlock.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
@@ -41,7 +42,7 @@ void RuinSystem::update()
         getReg().emplace_or_replace<Cmp::ZOrderValue>( ruin_mb_entity, player_pos.position.y - 16.f );
         SPDLOG_INFO( "check_entrance_collision: Player entering ruin from graveyard at position ({}, {})", player_pos.position.x,
                      player_pos.position.y );
-        m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_RUIN );
+        m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER );
         // remember player position
         auto last_player_pos = Factory::add_player_last_graveyard_pos( getReg(), door_pos_cmp );
         // drop any inventory outside the door
@@ -59,6 +60,35 @@ void RuinSystem::spawn_objective( sf::Vector2f spawn_position )
 {
   auto selected_ms_type = m_sprite_factory.get_random_type( { "CARRYITEM.boots", "CARRYITEM.witchesjar", "CARRYITEM.preservedcat" }, { 1, 1, 1 } );
   Factory::createCarryItem( getReg(), Cmp::Position( spawn_position, Constants::kGridSquareSizePixelsF ), selected_ms_type );
+}
+
+void RuinSystem::spawn_floor_access( sf::Vector2f spawn_position, Cmp::RuinFloorAccess::Direction dir )
+{
+  auto floor_access_entt = getReg().create();
+  getReg().emplace_or_replace<Cmp::RuinFloorAccess>( floor_access_entt, spawn_position, Constants::kGridSquareSizePixelsF, dir );
+  SPDLOG_INFO( "Spawning floor access at {},{}", spawn_position.x, spawn_position.y );
+}
+
+void RuinSystem::check_floor_access_collision()
+{
+  if ( m_floor_access_cooldown.getElapsedTime().asSeconds() < kFloorAccessCooldownSeconds ) { return; }
+
+  auto player_pos = Utils::get_player_position( getReg() );
+  for ( auto [access_entt, access_cmp] : getReg().view<Cmp::RuinFloorAccess>().each() )
+  {
+    if ( player_pos.findIntersection( access_cmp ) )
+    {
+      switch ( access_cmp.m_direction )
+      {
+        case Cmp::RuinFloorAccess::Direction::TO_UPPER:
+          m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_RUIN_UPPER );
+          break;
+        case Cmp::RuinFloorAccess::Direction::TO_LOWER:
+          m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_RUIN_UPPER );
+          break;
+      }
+    }
+  }
 }
 
 } // namespace ProceduralMaze::Sys

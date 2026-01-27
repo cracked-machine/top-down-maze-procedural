@@ -10,7 +10,8 @@
 #include <SceneControl/Scenes/HolyWellScene.hpp>
 #include <SceneControl/Scenes/LevelCompleteScene.hpp>
 #include <SceneControl/Scenes/PausedMenuScene.hpp>
-#include <SceneControl/Scenes/RuinScene.hpp>
+#include <SceneControl/Scenes/RuinSceneLowerFloor.hpp>
+#include <SceneControl/Scenes/RuinSceneUpperFloor.hpp>
 #include <SceneControl/Scenes/SettingsMenuScene.hpp>
 #include <SceneControl/Scenes/TitleScene.hpp>
 #include <Sprites/SpriteFactory.hpp>
@@ -245,10 +246,21 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
       pop( RegCopyMode::PLAYER_ONLY );
       break;
     }
-    case Events::SceneManagerEvent::Type::ENTER_RUIN: {
-      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_RUIN requested" );
-      auto ruin_scene = std::make_unique<RuinScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
+    case Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER: {
+      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER requested" );
+      auto ruin_scene = std::make_unique<RuinSceneLowerFloor>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
       push_no_exit( std::move( ruin_scene ), RegCopyMode::PLAYER_ONLY );
+      break;
+    }
+    case Events::SceneManagerEvent::Type::ENTER_RUIN_UPPER: {
+      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_RUIN_UPPER requested" );
+      auto ruin_scene = std::make_unique<RuinSceneUpperFloor>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
+      push_no_exit( std::move( ruin_scene ), RegCopyMode::PLAYER_ONLY );
+      break;
+    }
+    case Events::SceneManagerEvent::Type::EXIT_RUIN_UPPER: {
+      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_RUIN_UPPER requested" );
+      pop( RegCopyMode::PLAYER_ONLY );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_RUIN: {

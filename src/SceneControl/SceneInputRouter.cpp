@@ -25,7 +25,8 @@
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/Events/ProcessLevelCompleteSceneInputEvent.hpp>
 #include <SceneControl/Events/ProcessPausedMenuSceneInputEvent.hpp>
-#include <SceneControl/Events/ProcessRuinSceneInputEvent.hpp>
+#include <SceneControl/Events/ProcessRuinSceneLowerInputEvent.hpp>
+#include <SceneControl/Events/ProcessRuinSceneUpperInputEvent.hpp>
 #include <SceneControl/Events/ProcessSettingsMenuSceneInputEvent.hpp>
 #include <SceneControl/Events/ProcessTitleSceneInputEvent.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
@@ -52,7 +53,8 @@ SceneInputRouter::SceneInputRouter( entt::registry &reg, sf::RenderWindow &m_win
   m_nav_event_dispatcher.sink<Events::ProcessLevelCompleteSceneInputEvent>().connect<&SceneInputRouter::level_complete_scene_state_handler>( this );
   m_nav_event_dispatcher.sink<Events::ProcessCryptSceneInputEvent>().connect<&SceneInputRouter::crypt_scene_state_handler>( this );
   m_nav_event_dispatcher.sink<Events::ProcessHolyWellSceneInputEvent>().connect<&SceneInputRouter::holywell_scene_state_handler>( this );
-  m_nav_event_dispatcher.sink<Events::ProcessRuinSceneInputEvent>().connect<&SceneInputRouter::ruin_scene_state_handler>( this );
+  m_nav_event_dispatcher.sink<Events::ProcessRuinSceneLowerInputEvent>().connect<&SceneInputRouter::ruin_scene_state_handler>( this );
+  m_nav_event_dispatcher.sink<Events::ProcessRuinSceneUpperInputEvent>().connect<&SceneInputRouter::ruin_scene_state_handler>( this );
   // clang-format on
 }
 
@@ -155,7 +157,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 )
       {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_RUIN ) );
+        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER ) );
         // remember the player position
         Factory::add_player_last_graveyard_pos( getReg(), Utils::get_player_position( getReg() ), { 0.f, 0.f } );
         // drop any inventory

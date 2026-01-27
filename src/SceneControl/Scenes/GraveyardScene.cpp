@@ -97,13 +97,8 @@ void GraveyardScene::on_enter()
   m_sound_bank.get_music( "title_music" ).stop();
   if ( m_sound_bank.get_music( "game_music" ).getStatus() != sf::Sound::Status::Playing ) { m_sound_bank.get_music( "game_music" ).play(); }
 
-  // Clear any ongoing lerp from the previous scene to prevent invalid player re-positioning
-  auto player_entt = Utils::get_player_entity( m_reg );
-  if ( m_reg.any_of<Cmp::LerpPosition>( player_entt ) )
-  {
-    m_reg.remove<Cmp::LerpPosition>( player_entt );
-    SPDLOG_INFO( "Cleared LerpPosition component to prevent position interpolation" );
-  }
+  // prevent residual lerp movements from previous scene causing havoc in the new one
+  Utils::remove_player_lerp_cmp( m_reg );
 
   // Respawn player back in the graveyard: either at the last position when they left, or fallback to their start position
   auto &player_pos = Utils::get_player_position( m_reg );

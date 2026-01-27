@@ -1,6 +1,7 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
+#include <Components/Ruin/RuinFloorAccess.hpp>
 #include <Components/System.hpp>
-#include <SceneControl/Scenes/RuinScene.hpp>
+#include <SceneControl/Scenes/RuinSceneLowerFloor.hpp>
 
 #include <Audio/SoundBank.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
@@ -26,7 +27,7 @@
 namespace ProceduralMaze::Scene
 {
 
-void RuinScene::on_init()
+void RuinSceneLowerFloor::on_init()
 {
   auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
@@ -41,19 +42,20 @@ void RuinScene::on_init()
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_rectangle_gamearea( RuinScene::kMapGridSize, player_start_area, "RUIN.interior_wall" );
+  random_level_sys.gen_rectangle_gamearea( RuinSceneLowerFloor::kMapGridSize, player_start_area, "RUIN.interior_wall" );
 
   // pass concrete spawn position to exit spawner
   m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().spawn_exit(
-      sf::Vector2u{ RuinScene::kMapGridSize.x / 2, RuinScene::kMapGridSize.y - 1 } );
+      sf::Vector2u{ RuinSceneLowerFloor::kMapGridSize.x / 2, RuinSceneLowerFloor::kMapGridSize.y - 1 } );
 
-  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_objective(
-      Utils::snap_to_grid( {32.f, 32.f } ) );
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_floor_access(
+      { RuinSceneLowerFloor::kMapGridSizeF.x - ( 2 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y },
+      Cmp::RuinFloorAccess::Direction::TO_UPPER );
 
-  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinScene::kMapGridSize, "res/json/holywell_tilemap_config.json" );
+  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneLowerFloor::kMapGridSize, "res/json/holywell_tilemap_config.json" );
 }
 
-void RuinScene::on_enter()
+void RuinSceneLowerFloor::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
 
@@ -63,26 +65,30 @@ void RuinScene::on_enter()
 
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().init_views();
 
-  auto player_view = m_reg.view<Cmp::PlayableCharacter, Cmp::Position>();
-  for ( auto [player_entity, pc_cmp, pos_cmp] : player_view.each() )
-  {
-    pos_cmp.position = m_player_start_position;
-  }
+  // prevent residual lerp movements from previous scene causing havoc in the new one
+  Utils::remove_player_lerp_cmp( m_reg );
+
+  auto &player_pos = Utils::get_player_position( m_reg );
+  player_pos.position = m_player_start_position;
+  SPDLOG_INFO( "Player entered RuinSceneLowerFloor at position ({}, {})", player_pos.position.x, player_pos.position.y );
+
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().reset_floor_access_cooldown();
 }
 
-void RuinScene::on_exit()
+void RuinSceneLowerFloor::on_exit()
 {
   SPDLOG_INFO( "Exiting {}", get_name() );
   m_reg.clear();
 }
 
-void RuinScene::do_update( [[maybe_unused]] sf::Time dt )
+void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
 {
   m_system_store.find<Sys::SystemStore::Type::AnimSystem>().update( dt );
   m_system_store.find<Sys::SystemStore::Type::NpcSystem>().update( dt );
   m_system_store.find<Sys::SystemStore::Type::FootstepSystem>().update();
   m_system_store.find<Sys::SystemStore::Type::LootSystem>().check_loot_collision();
   m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().check_exit_collision();
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().check_floor_access_collision();
 
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt );
 
@@ -90,6 +96,6 @@ void RuinScene::do_update( [[maybe_unused]] sf::Time dt )
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::RenderGameSystem::DarkMode::OFF );
 }
 
-entt::registry &RuinScene::registry() { return m_reg; }
+entt::registry &RuinSceneLowerFloor::registry() { return m_reg; }
 
 } // namespace ProceduralMaze::Scene

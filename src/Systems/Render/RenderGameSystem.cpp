@@ -19,6 +19,7 @@
 #include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerWealth.hpp>
+#include <Components/Ruin/RuinFloorAccess.hpp>
 #include <Components/Ruin/RuinMultiBlock.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
@@ -207,6 +208,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_mist( player_position );
       // lava pit outline
       render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 64, 64, 64 ), 0.5f );
+      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::RuinFloorAccess>( sf::Color::Red, 0.5f );
       if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
 
       // debug: show crypt component boundaries

@@ -49,7 +49,8 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/LevelCompleteScene.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/CryptScene.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/HolyWellScene.cpp
-    ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/RuinScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/RuinSceneLowerFloor.cpp
+    ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/RuinSceneUpperFloor.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/RegistryTransfer.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/PlayerFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/NpcFactory.cpp
