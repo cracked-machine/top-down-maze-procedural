@@ -15,8 +15,10 @@ namespace ProceduralMaze::Scene
 class RuinSceneLowerFloor : public Scene<Events::ProcessRuinSceneLowerInputEvent>
 {
 public:
+  enum class EntryMode { FROM_DOOR, FROM_UPPER_FLOOR };
+
   //! @brief The size of the crypt map grid in number of squares
-  inline static constexpr sf::Vector2u kMapGridSize{ 9u, 5u };
+  inline static constexpr sf::Vector2u kMapGridSize{ 13u, 10u };
 
   //! @brief The size of the crypt map grid in number of squares as floats
   inline static constexpr sf::Vector2f kMapGridSizeF{ static_cast<float>( kMapGridSize.x * Constants::kGridSquareSizePixelsF.x ),
@@ -38,6 +40,8 @@ public:
 
   entt::registry &registry() override;
 
+  void set_entry_mode( EntryMode entry_mode ) { m_entry_mode = entry_mode; }
+
 protected:
   void do_update( [[maybe_unused]] sf::Time dt ) override;
 
@@ -47,9 +51,16 @@ private:
   Sprites::SpriteFactory &m_sprite_Factory;
   Sprites::Containers::TileMap m_floormap{};
 
-  sf::Vector2f m_player_start_position = Utils::snap_to_grid(
+  EntryMode m_entry_mode;
+  //! @brief Player position after entering through the front door
+  sf::Vector2f m_player_door_position = Utils::snap_to_grid(
       sf::Vector2f( ( RuinSceneLowerFloor::kMapGridSizeF.x / 2.f ) - Constants::kGridSquareSizePixels.x,
                     ( RuinSceneLowerFloor::kMapGridSizeF.y - ( 2.f * Constants::kGridSquareSizePixels.y ) ) ) );
+
+  //! @brief Player position after entering from upper floor
+  sf::Vector2f m_player_stair_position = Utils::snap_to_grid(
+      { RuinSceneLowerFloor::kMapGridSizeF.x - ( 2 * Constants::kGridSquareSizePixelsF.x ),
+        RuinSceneLowerFloor::kMapGridSizeF.y - ( 2 * Constants::kGridSquareSizePixelsF.y ) } );
 };
 
 } // namespace ProceduralMaze::Scene

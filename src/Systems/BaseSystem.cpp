@@ -3,6 +3,7 @@
 #include <Components/HolyWell/HolyWellSegment.hpp>
 #include <Components/PlantObstacle.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
+#include <Components/Ruin/RuinStairsSegment.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <Audio/SoundBank.hpp>
@@ -115,6 +116,13 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
 
   auto ruin_view = getReg().view<Cmp::RuinSegment, Cmp::Position>();
   for ( auto [entity, ruin_cmp, pos_cmp] : ruin_view.each() )
+  {
+    if ( not ruin_cmp.isSolidMask() ) continue;
+    if ( pos_cmp.findIntersection( target_position ) ) { return false; }
+  }
+
+  auto ruin_stair_view = getReg().view<Cmp::RuinStairsSegment, Cmp::Position>();
+  for ( auto [entity, ruin_cmp, pos_cmp] : ruin_stair_view.each() )
   {
     if ( not ruin_cmp.isSolidMask() ) continue;
     if ( pos_cmp.findIntersection( target_position ) ) { return false; }

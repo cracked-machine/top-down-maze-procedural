@@ -21,6 +21,7 @@
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Ruin/RuinFloorAccess.hpp>
 #include <Components/Ruin/RuinMultiBlock.hpp>
+#include <Components/Ruin/RuinSegment.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -208,7 +209,21 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_mist( player_position );
       // lava pit outline
       render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 64, 64, 64 ), 0.5f );
-      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::RuinFloorAccess>( sf::Color::Red, 0.5f );
+      // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::RuinFloorAccess>( sf::Color::Red, 0.5f );
+      // for ( auto [ruin_entt, ruin_seg, ruin_pos] : getReg().view<Cmp::RuinSegment, Cmp::Position>().each() )
+      // {
+      //   if ( ruin_seg.isSolidMask() )
+      //   {
+      //     sf::RectangleShape rectangle;
+      //     rectangle.setSize( ruin_pos.size );
+      //     rectangle.setPosition( ruin_pos.position );
+      //     rectangle.setFillColor( sf::Color::Transparent );
+      //     rectangle.setOutlineColor( sf::Color::Blue );
+      //     rectangle.setOutlineThickness( 1.f );
+      //     m_window.draw( rectangle );
+      //   }
+      // }
+
       if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
 
       // debug: show crypt component boundaries

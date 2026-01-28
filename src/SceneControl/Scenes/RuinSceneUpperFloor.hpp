@@ -16,7 +16,7 @@ class RuinSceneUpperFloor : public Scene<Events::ProcessRuinSceneUpperInputEvent
 {
 public:
   //! @brief The size of the map grid in number of squares
-  inline static constexpr sf::Vector2u kMapGridSize{ 9u, 5u };
+  inline static constexpr sf::Vector2u kMapGridSize{ 13u, 10u };
 
   //! @brief The size of the map grid in number of squares as floats
   inline static constexpr sf::Vector2f kMapGridSizeF{ static_cast<float>( kMapGridSize.x * Constants::kGridSquareSizePixels.x ),
@@ -48,8 +48,7 @@ private:
   Sprites::Containers::TileMap m_floormap{};
 
   sf::Vector2f m_player_start_position = Utils::snap_to_grid(
-      sf::Vector2f( ( RuinSceneUpperFloor::kMapGridSizeF.x / 2.f ) - Constants::kGridSquareSizePixels.x,
-                    ( RuinSceneUpperFloor::kMapGridSizeF.y - ( 2.f * Constants::kGridSquareSizePixels.y ) ) ) );
+      sf::Vector2f( RuinSceneUpperFloor::kMapGridSizeF.x - ( 2 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y ) );
 };
 
 } // namespace ProceduralMaze::Scene

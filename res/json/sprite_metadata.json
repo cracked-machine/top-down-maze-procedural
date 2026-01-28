@@ -1736,6 +1736,24 @@
         }
       }
     },
+    "RUIN.interior_staircase": {
+      "displayname": "RUIN.interior_staircase",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/RUIN.interior.png",
+        "sprite_indices": [30],
+        "solid_mask": [
+          true, false, false,
+          true, false, false
+        ],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 3,
+          "height": 2
+        }
+      }
+    },
     "RUIN.interior_cobweb1": {
       "displayname": "RUIN.interior_cobweb1",
       "weight": 1.0,

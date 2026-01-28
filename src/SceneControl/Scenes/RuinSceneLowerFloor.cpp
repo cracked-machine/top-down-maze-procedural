@@ -36,7 +36,7 @@ void RuinSceneLowerFloor::on_init()
   auto entity = m_reg.create();
   m_reg.emplace<Cmp::System>( entity );
 
-  Sys::PersistSystem::add_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_start_position );
+  Sys::PersistSystem::add_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_door_position );
   sf::Vector2f player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
@@ -51,6 +51,19 @@ void RuinSceneLowerFloor::on_init()
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_floor_access(
       { RuinSceneLowerFloor::kMapGridSizeF.x - ( 2 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y },
       Cmp::RuinFloorAccess::Direction::TO_UPPER );
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_floor_access(
+      { RuinSceneLowerFloor::kMapGridSizeF.x - ( 3 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y },
+      Cmp::RuinFloorAccess::Direction::TO_UPPER );
+
+  // const Sprites::MultiSprite &stairs_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase" );
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase(
+      { RuinSceneLowerFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y } );
+  // m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase(
+  //     { RuinSceneLowerFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ),
+  //       Constants::kGridSquareSizePixelsF.y + stairs_ms.getSpriteSizePixels().y } );
+  // m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase(
+  //     { RuinSceneLowerFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ),
+  //       Constants::kGridSquareSizePixelsF.y + stairs_ms.getSpriteSizePixels().y * 2 } );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneLowerFloor::kMapGridSize, "res/json/holywell_tilemap_config.json" );
 }
@@ -69,7 +82,19 @@ void RuinSceneLowerFloor::on_enter()
   Utils::remove_player_lerp_cmp( m_reg );
 
   auto &player_pos = Utils::get_player_position( m_reg );
-  player_pos.position = m_player_start_position;
+  switch ( m_entry_mode )
+  {
+    case EntryMode::FROM_DOOR: {
+      SPDLOG_INFO( "Player entering from door" );
+      player_pos.position = m_player_door_position;
+      break;
+    }
+    case EntryMode::FROM_UPPER_FLOOR: {
+      SPDLOG_INFO( "Player entering from upper floor" );
+      player_pos.position = m_player_stair_position;
+      break;
+    }
+  }
   SPDLOG_INFO( "Player entered RuinSceneLowerFloor at position ({}, {})", player_pos.position.x, player_pos.position.y );
 
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().reset_floor_access_cooldown();

@@ -17,6 +17,8 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/Ruin/RuinMultiBlock.hpp>
+#include <Components/Ruin/RuinSegment.hpp>
+#include <Components/Ruin/RuinStairsSegment.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -72,10 +74,11 @@ void createMultiblockSegments( entt::registry &registry, entt::entity multiblock
     {
       if ( entity == multiblock_entity ) continue;
     }
-    else
+    else if constexpr ( std::is_same_v<MBSEGMENT, Cmp::RuinStairsSegment> )
     {
-      // For other segments, skip the multiblock entity to avoid z-order conflicts
+      if ( entity == multiblock_entity ) continue;
     }
+    // else {}
 
     // Calculate relative pixel positions within the large obstacle grid
     float rel_x = pos_cmp.position.x - pos.position.x;

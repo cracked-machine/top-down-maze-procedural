@@ -1,4 +1,5 @@
 
+#include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <SceneControl/IScene.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
@@ -15,6 +16,7 @@
 #include <SceneControl/Scenes/SettingsMenuScene.hpp>
 #include <SceneControl/Scenes/TitleScene.hpp>
 #include <Sprites/SpriteFactory.hpp>
+#include <Systems/PersistSystem.hpp>
 
 namespace ProceduralMaze::Scene
 {
@@ -249,6 +251,7 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
     case Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER requested" );
       auto ruin_scene = std::make_unique<RuinSceneLowerFloor>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
+      ruin_scene->set_entry_mode( RuinSceneLowerFloor::EntryMode::FROM_DOOR );
       push_no_exit( std::move( ruin_scene ), RegCopyMode::PLAYER_ONLY );
       break;
     }
@@ -260,6 +263,7 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
     }
     case Events::SceneManagerEvent::Type::EXIT_RUIN_UPPER: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_RUIN_UPPER requested" );
+      static_cast<RuinSceneLowerFloor *>( m_scene_stack.previous() )->set_entry_mode( RuinSceneLowerFloor::EntryMode::FROM_UPPER_FLOOR );
       pop( RegCopyMode::PLAYER_ONLY );
       break;
     }

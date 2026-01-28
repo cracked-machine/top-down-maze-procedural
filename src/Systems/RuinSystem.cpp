@@ -3,8 +3,13 @@
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/Ruin/RuinFloorAccess.hpp>
 #include <Components/Ruin/RuinMultiBlock.hpp>
+#include <Components/Ruin/RuinSegment.hpp>
+#include <Components/Ruin/RuinStairsSegment.hpp>
+#include <Factory/MultiblockFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Factory/RuinFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
+#include <Sprites/MultiSprite.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/RuinSystem.hpp>
 #include <Utils/Optimizations.hpp>
@@ -67,6 +72,16 @@ void RuinSystem::spawn_floor_access( sf::Vector2f spawn_position, Cmp::RuinFloor
   auto floor_access_entt = getReg().create();
   getReg().emplace_or_replace<Cmp::RuinFloorAccess>( floor_access_entt, spawn_position, Constants::kGridSquareSizePixelsF, dir );
   SPDLOG_INFO( "Spawning floor access at {},{}", spawn_position.x, spawn_position.y );
+}
+
+void RuinSystem::spawn_staircase( sf::Vector2f spawn_position )
+{
+  const Sprites::MultiSprite &stairs_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.interior_staircase" );
+  auto stairs_entt = getReg().create();
+  Cmp::Position stairs_pos( spawn_position, stairs_ms.getSpriteSizePixels() );
+  getReg().emplace_or_replace<Cmp::Position>( stairs_entt, spawn_position, stairs_ms.getSpriteSizePixels() );
+  Factory::createMultiblock<Cmp::RuinMultiBlock>( getReg(), stairs_entt, stairs_pos, stairs_ms );
+  Factory::createMultiblockSegments<Cmp::RuinMultiBlock, Cmp::RuinStairsSegment>( getReg(), stairs_entt, stairs_pos, stairs_ms );
 }
 
 void RuinSystem::check_floor_access_collision()

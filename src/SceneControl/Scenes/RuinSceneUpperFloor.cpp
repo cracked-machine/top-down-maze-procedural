@@ -44,8 +44,14 @@ void RuinSceneUpperFloor::on_init()
   random_level_sys.gen_rectangle_gamearea( RuinSceneUpperFloor::kMapGridSize, player_start_area, "RUIN.interior_wall" );
 
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_objective( Utils::snap_to_grid( { 32.f, 32.f } ) );
+
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_floor_access(
-      { RuinSceneUpperFloor::kMapGridSizeF.x - ( 2 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y },
+      { RuinSceneUpperFloor::kMapGridSizeF.x - ( 2 * Constants::kGridSquareSizePixelsF.x ),
+        RuinSceneUpperFloor::kMapGridSizeF.y - ( 2 * Constants::kGridSquareSizePixelsF.y ) },
+      Cmp::RuinFloorAccess::Direction::TO_LOWER );
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_floor_access(
+      { RuinSceneUpperFloor::kMapGridSizeF.x - ( 3 * Constants::kGridSquareSizePixelsF.x ),
+        RuinSceneUpperFloor::kMapGridSizeF.y - ( 2 * Constants::kGridSquareSizePixelsF.y ) },
       Cmp::RuinFloorAccess::Direction::TO_LOWER );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneUpperFloor::kMapGridSize, "res/json/holywell_tilemap_config.json" );
