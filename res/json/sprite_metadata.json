@@ -1736,13 +1736,19 @@
         }
       }
     },
-    "RUIN.interior_staircase": {
-      "displayname": "RUIN.interior_staircase",
+    "RUIN.interior_staircase_going_down": {
+      "displayname": "RUIN.interior_staircase_going_down",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/RUIN.interior.png",
-        "sprite_indices": [30],
+        "sprite_indices": [33],
         "solid_mask": [
+          false, false, false,
+          false, false, false,
+          true, false, false,
+          true, false, false,
+          true, false, false,
+          true, false, false,
           true, false, false,
           true, false, false
         ],
@@ -1750,7 +1756,48 @@
         "sprites_per_frame": 1,
         "grid_size": {
           "width": 3,
-          "height": 2
+          "height": 8
+        }
+      }
+    },
+    "RUIN.interior_staircase_going_up": {
+      "displayname": "RUIN.interior_staircase_going_up",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/RUIN.interior.png",
+        "sprite_indices": [30],
+        "solid_mask": [
+          true, false, false,
+          true, false, false,
+          true, false, false,
+          true, false, false,
+          true, false, false,
+          true, false, false,
+          false, false, false,
+          false, false, false
+        ],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 3,
+          "height": 8
+        }
+      }
+    },
+    "RUIN.interior_staircase_spindle": {
+      "displayname": "RUIN.interior_staircase_spindle",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/RUIN.interior.png",
+        "sprite_indices": [24],
+        "solid_mask": [
+          false
+        ],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
         }
       }
     },
