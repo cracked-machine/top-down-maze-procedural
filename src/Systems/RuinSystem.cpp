@@ -5,6 +5,7 @@
 #include <Components/Ruin/RuinMultiBlock.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
 #include <Components/Ruin/RuinStairsSegment.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
@@ -81,6 +82,11 @@ void RuinSystem::spawn_staircase( sf::Vector2f spawn_position, const Sprites::Mu
   getReg().emplace_or_replace<Cmp::Position>( stairs_entt, spawn_position, stairs_ms.getSpriteSizePixels() );
   Factory::createMultiblock<Cmp::RuinMultiBlock>( getReg(), stairs_entt, stairs_pos, stairs_ms );
   Factory::createMultiblockSegments<Cmp::RuinMultiBlock, Cmp::RuinStairsSegment>( getReg(), stairs_entt, stairs_pos, stairs_ms );
+
+  for ( auto [stairs_entt, stairs_cmp, stairs_zorder] : getReg().view<Cmp::RuinMultiBlock, Cmp::ZOrderValue>().each() )
+  {
+    stairs_zorder.setZOrder( 0 );
+  }
 }
 
 void RuinSystem::check_floor_access_collision()
