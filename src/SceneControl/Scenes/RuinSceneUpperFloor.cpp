@@ -54,6 +54,10 @@ void RuinSceneUpperFloor::on_init()
         RuinSceneUpperFloor::kMapGridSizeF.y - ( 2 * Constants::kGridSquareSizePixelsF.y ) },
       Cmp::RuinFloorAccess::Direction::TO_LOWER );
 
+  const Sprites::MultiSprite &stairs_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_going_down" );
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase(
+      { RuinSceneUpperFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, stairs_ms );
+
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneUpperFloor::kMapGridSize, "res/json/holywell_tilemap_config.json" );
 }
 

@@ -2,6 +2,7 @@
 #define SRC_SYSTEMS_RUINSYSTEM_HPP_
 
 #include <Components/Ruin/RuinFloorAccess.hpp>
+#include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 
 namespace ProceduralMaze::Sys
@@ -23,7 +24,7 @@ public:
 
   void spawn_objective( sf::Vector2f spawn_position );
   void spawn_floor_access( sf::Vector2f spawn_position, Cmp::RuinFloorAccess::Direction dir );
-  void spawn_staircase( sf::Vector2f spawn_position );
+  void spawn_staircase( sf::Vector2f spawn_position, const Sprites::MultiSprite &stairs_ms );
 
   void check_floor_access_collision();
 

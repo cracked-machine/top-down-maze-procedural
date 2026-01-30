@@ -55,15 +55,9 @@ void RuinSceneLowerFloor::on_init()
       { RuinSceneLowerFloor::kMapGridSizeF.x - ( 3 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y },
       Cmp::RuinFloorAccess::Direction::TO_UPPER );
 
-  // const Sprites::MultiSprite &stairs_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase" );
+  const Sprites::MultiSprite &stairs_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_going_up" );
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase(
-      { RuinSceneLowerFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y } );
-  // m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase(
-  //     { RuinSceneLowerFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ),
-  //       Constants::kGridSquareSizePixelsF.y + stairs_ms.getSpriteSizePixels().y } );
-  // m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase(
-  //     { RuinSceneLowerFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ),
-  //       Constants::kGridSquareSizePixelsF.y + stairs_ms.getSpriteSizePixels().y * 2 } );
+      { RuinSceneLowerFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, stairs_ms );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneLowerFloor::kMapGridSize, "res/json/holywell_tilemap_config.json" );
 }

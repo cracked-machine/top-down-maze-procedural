@@ -13,7 +13,8 @@ enum class RegCopyMode {
   //! @brief Copy no components
   NONE,
   //! @brief Copy only player components
-  PLAYER_ONLY
+  PLAYER_ONLY,
+  ALL
 };
 
 class RegistryTransfer

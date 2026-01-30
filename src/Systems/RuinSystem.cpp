@@ -74,9 +74,8 @@ void RuinSystem::spawn_floor_access( sf::Vector2f spawn_position, Cmp::RuinFloor
   SPDLOG_INFO( "Spawning floor access at {},{}", spawn_position.x, spawn_position.y );
 }
 
-void RuinSystem::spawn_staircase( sf::Vector2f spawn_position )
+void RuinSystem::spawn_staircase( sf::Vector2f spawn_position, const Sprites::MultiSprite &stairs_ms )
 {
-  const Sprites::MultiSprite &stairs_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.interior_staircase" );
   auto stairs_entt = getReg().create();
   Cmp::Position stairs_pos( spawn_position, stairs_ms.getSpriteSizePixels() );
   getReg().emplace_or_replace<Cmp::Position>( stairs_entt, spawn_position, stairs_ms.getSpriteSizePixels() );

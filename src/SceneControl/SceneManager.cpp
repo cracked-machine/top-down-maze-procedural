@@ -63,7 +63,7 @@ void SceneManager::push( std::unique_ptr<IScene> new_scene, RegCopyMode mode )
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
+  if ( reg_copy && mode != RegCopyMode::NONE )
   {
     loading_screen(
         [&]()
@@ -90,7 +90,7 @@ void SceneManager::push_no_exit( std::unique_ptr<IScene> new_scene, RegCopyMode 
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
+  if ( reg_copy && mode != RegCopyMode::NONE )
   {
     loading_screen(
         [&]()
@@ -117,7 +117,7 @@ void SceneManager::pop( RegCopyMode mode )
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
+  if ( reg_copy && mode != RegCopyMode::NONE )
   {
     loading_screen(
         [&]()
@@ -145,7 +145,7 @@ void SceneManager::pop_no_exit( RegCopyMode mode )
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
+  if ( reg_copy && mode != RegCopyMode::NONE )
   {
     loading_screen(
         [&]()
@@ -175,7 +175,7 @@ void SceneManager::replace( std::unique_ptr<IScene> new_scene, RegCopyMode mode 
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
+  if ( reg_copy && mode != RegCopyMode::NONE )
   {
     loading_screen(
         [&]()
@@ -202,7 +202,7 @@ void SceneManager::replace_no_exit( std::unique_ptr<IScene> new_scene, RegCopyMo
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
+  if ( reg_copy && mode != RegCopyMode::NONE )
   {
     loading_screen(
         [&]()
