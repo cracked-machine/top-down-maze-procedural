@@ -49,8 +49,7 @@ void RuinSceneLowerFloor::on_init()
       sf::Vector2u{ RuinSceneLowerFloor::kMapGridSize.x / 2, RuinSceneLowerFloor::kMapGridSize.y - 1 } );
 
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_floor_access(
-      Utils::snap_to_grid(
-          { RuinSceneLowerFloor::kMapGridSizeF.x - ( 3 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y } ),
+      Utils::snap_to_grid( { RuinSceneLowerFloor::kMapGridSizeF.x - ( 3 * Constants::kGridSquareSizePixelsF.x ), 0 } ),
       { ( 2 * Constants::kGridSquareSizePixelsF.x ), RuinSceneLowerFloor::kMapGridSizeF.y / 2 }, Cmp::RuinFloorAccess::Direction::TO_LOWER );
 
   const Sprites::MultiSprite &stairs_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_going_up" );
