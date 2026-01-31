@@ -39,6 +39,7 @@ Engine::Engine()
   if ( not ImGui::SFML::Init( *m_window ) )
   {
     SPDLOG_CRITICAL( "ImGui-SFML initialization failed" );
+    ImGui::SFML::Shutdown();
     std::terminate();
   }
 
@@ -137,6 +138,7 @@ void Engine::show_error_screen( const std::string &error_msg )
     {
       if ( event->is<sf::Event::Closed>() || event->is<sf::Event::KeyPressed>() )
       {
+        ImGui::SFML::Shutdown();
         m_window->close();
         return;
       }

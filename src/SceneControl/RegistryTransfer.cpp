@@ -71,7 +71,7 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
         if ( auto *target_storage = registry_copy->storage( type_hash ) )
         {
           target_storage->push( new_entity, source_storage.value( entity ) );
-          SPDLOG_DEBUG( "Copied component: {}", source_storage.type().name() );
+          SPDLOG_INFO( "Copied component: {}", source_storage.type().name() );
           copied_cmp.emplace_back( source_storage.type().name() );
         }
         else { SPDLOG_WARN( "No storage found in target registry for component: {}", source_storage.type().name() ); }
@@ -122,7 +122,7 @@ void RegistryTransfer::xfer_player_entt( entt::registry &from_registry, entt::re
   {
     if ( auto &source_storage = curr.second; source_storage.contains( source_entity ) )
     {
-      SPDLOG_DEBUG( "Transferring component: {}", source_storage.type().name() );
+      SPDLOG_INFO( "Transferring component: {}", source_storage.type().name() );
 
       auto type_hash = curr.first;
 
@@ -131,13 +131,13 @@ void RegistryTransfer::xfer_player_entt( entt::registry &from_registry, entt::re
         if ( target_storage->contains( target_entity ) )
         {
           target_storage->erase( target_entity );
-          SPDLOG_DEBUG( "Removed existing component: {}", source_storage.type().name() );
+          SPDLOG_INFO( "Removed existing component: {}", source_storage.type().name() );
           removed_cmps.emplace_back( source_storage.type().name() );
         }
         target_storage->push( target_entity, source_storage.value( source_entity ) );
         transferred_cmps.emplace_back( source_storage.type().name() );
 
-        SPDLOG_DEBUG( "Successfully transferred component: {}", source_storage.type().name() );
+        SPDLOG_INFO( "Successfully transferred component: {}", source_storage.type().name() );
       }
       else { SPDLOG_WARN( "No storage found in target reg for cmp: {}", source_storage.type().name() ); }
     }
@@ -195,7 +195,7 @@ void RegistryTransfer::xfer_inventory_entt( entt::registry &source_registry, ent
     {
       if ( auto &source_storage = curr.second; source_storage.contains( source_entity ) )
       {
-        SPDLOG_DEBUG( "Transferring component: {}", source_storage.type().name() );
+        SPDLOG_INFO( "Transferring component: {}", source_storage.type().name() );
 
         auto type_hash = curr.first;
 
@@ -204,13 +204,13 @@ void RegistryTransfer::xfer_inventory_entt( entt::registry &source_registry, ent
           if ( target_storage->contains( target_entity ) )
           {
             target_storage->erase( target_entity );
-            SPDLOG_DEBUG( "Removed existing component: {}", source_storage.type().name() );
+            SPDLOG_INFO( "Removed existing component: {}", source_storage.type().name() );
             removed_cmps.emplace_back( source_storage.type().name() );
           }
           target_storage->push( target_entity, source_storage.value( source_entity ) );
           transferred_cmps.emplace_back( source_storage.type().name() );
 
-          SPDLOG_DEBUG( "Successfully transferred component: {}", source_storage.type().name() );
+          SPDLOG_INFO( "Successfully transferred component: {}", source_storage.type().name() );
         }
         else { SPDLOG_WARN( "No storage found in target reg for cmp: {}", source_storage.type().name() ); }
       }
@@ -244,6 +244,7 @@ void RegistryTransfer::ensure_player_component_storages( entt::registry &registr
   registry.storage<Cmp::ZOrderValue>();
   registry.storage<Cmp::System>();
   registry.storage<Cmp::PlayerLastGraveyardPosition>();
+  registry.storage<Cmp::PlayerRuinLocation>();
   // Add other player-related components as needed
 }
 

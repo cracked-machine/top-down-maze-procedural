@@ -11,6 +11,7 @@
 #include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Player/PlayerMortality.hpp>
+#include <Components/Player/PlayerRuinLocation.hpp>
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
@@ -162,6 +163,13 @@ static Cmp::Position &get_player_position( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayableCharacter, Cmp::Position>();
   return player_view.get<Cmp::Position>( get_player_entity( reg ) );
+}
+
+static Cmp::PlayerRuinLocation::Floor get_player_ruin_location( entt::registry &reg )
+{
+  auto player_location = reg.try_get<Cmp::PlayerRuinLocation>( get_player_entity( reg ) );
+  if ( player_location ) { return player_location->m_floor; }
+  else { return Cmp::PlayerRuinLocation::Floor::NONE; }
 }
 
 //! @brief Get the player last graveyard position object. Return may be nullptr if non-existent.

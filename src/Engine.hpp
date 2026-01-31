@@ -1,6 +1,7 @@
 #ifndef __ENGINE_HPP__
 #define __ENGINE_HPP__
 
+#include "imgui-SFML.h"
 #include <Audio/SoundBank.hpp>
 #include <SceneControl/SceneManager.hpp>
 #include <Systems/LootSystem.hpp>
@@ -56,8 +57,7 @@ private:
     sf::Text loading_text( font, "Loading", 48 );
     loading_text.setFillColor( sf::Color::White );
     // use fallback resolution for loading screen position since we dont have registry access at this point
-    loading_text.setPosition(
-        { Constants::kFallbackDisplaySize.x / 2.f - 50.f, Constants::kFallbackDisplaySize.y / 2.f + 100.f } );
+    loading_text.setPosition( { Constants::kFallbackDisplaySize.x / 2.f - 50.f, Constants::kFallbackDisplaySize.y / 2.f + 100.f } );
 
     sf::Clock clock;
     const float text_update_interval = 1.f; // 1 second between dot updates
@@ -74,6 +74,7 @@ private:
       {
         if ( event->is<sf::Event::Closed>() )
         {
+          ImGui::SFML::Shutdown();
           m_window->close();
           return;
         }
@@ -102,8 +103,8 @@ private:
 
   // Create the opengl window
   // use fallback resolution for loading screen position since we dont have registry access at this point
-  std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>(
-      sf::VideoMode( Constants::kFallbackDisplaySize ), "ProceduralMaze", sf::State::Fullscreen );
+  std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( Constants::kFallbackDisplaySize ), "ProceduralMaze",
+                                                                                   sf::State::Fullscreen );
 
   // create MultiSprite resources
   std::unique_ptr<Sprites::SpriteFactory> m_sprite_factory;

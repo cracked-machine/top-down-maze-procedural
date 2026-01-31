@@ -49,11 +49,9 @@ void RuinSceneLowerFloor::on_init()
       sf::Vector2u{ RuinSceneLowerFloor::kMapGridSize.x / 2, RuinSceneLowerFloor::kMapGridSize.y - 1 } );
 
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_floor_access(
-      { RuinSceneLowerFloor::kMapGridSizeF.x - ( 2 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y },
-      Cmp::RuinFloorAccess::Direction::TO_UPPER );
-  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_floor_access(
-      { RuinSceneLowerFloor::kMapGridSizeF.x - ( 3 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y },
-      Cmp::RuinFloorAccess::Direction::TO_UPPER );
+      Utils::snap_to_grid(
+          { RuinSceneLowerFloor::kMapGridSizeF.x - ( 3 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y } ),
+      { ( 2 * Constants::kGridSquareSizePixelsF.x ), RuinSceneLowerFloor::kMapGridSizeF.y / 2 }, Cmp::RuinFloorAccess::Direction::TO_LOWER );
 
   const Sprites::MultiSprite &stairs_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_going_up" );
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase(
@@ -70,10 +68,15 @@ void RuinSceneLowerFloor::on_enter()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
+  SPDLOG_INFO( "Entering2 {}", get_name() );
+
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().init_views();
 
+  SPDLOG_INFO( "Entering3 {}", get_name() );
   // prevent residual lerp movements from previous scene causing havoc in the new one
   Utils::remove_player_lerp_cmp( m_reg );
+
+  SPDLOG_INFO( "Entering4 {}", get_name() );
 
   auto &player_pos = Utils::get_player_position( m_reg );
   switch ( m_entry_mode )
@@ -85,11 +88,14 @@ void RuinSceneLowerFloor::on_enter()
     }
     case EntryMode::FROM_UPPER_FLOOR: {
       SPDLOG_INFO( "Player entering from upper floor" );
-      player_pos.position = m_player_stair_position;
+      // player_pos.position = Utils::get_player_position( m_reg ).position;
       break;
     }
   }
   SPDLOG_INFO( "Player entered RuinSceneLowerFloor at position ({}, {})", player_pos.position.x, player_pos.position.y );
+
+  auto player_entt = Utils::get_player_entity( m_reg );
+  m_reg.emplace_or_replace<Cmp::PlayerRuinLocation>( player_entt, Cmp::PlayerRuinLocation::Floor::LOWER );
 
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().reset_floor_access_cooldown();
 }
@@ -107,7 +113,7 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_system_store.find<Sys::SystemStore::Type::FootstepSystem>().update();
   m_system_store.find<Sys::SystemStore::Type::LootSystem>().check_loot_collision();
   m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().check_exit_collision();
-  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().check_floor_access_collision();
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().check_floor_access_collision( Cmp::RuinFloorAccess::Direction::TO_UPPER );
 
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt );
 

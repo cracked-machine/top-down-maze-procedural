@@ -1,4 +1,5 @@
 #include <Audio/SoundBank.hpp>
+#include <Components/Player/PlayerRuinLocation.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/Ruin/RuinFloorAccess.hpp>
@@ -49,13 +50,18 @@ void RuinSystem::update()
         SPDLOG_INFO( "check_entrance_collision: Player entering ruin from graveyard at position ({}, {})", player_pos.position.x,
                      player_pos.position.y );
         m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER );
+
         // remember player position
         auto last_player_pos = Factory::add_player_last_graveyard_pos( getReg(), door_pos_cmp );
+
         // drop any inventory outside the door
         auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
         auto dropped_entt = Factory::dropInventorySlotIntoWorld( getReg(), last_player_pos,
                                                                  m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
         if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
+
+        auto player_entt = Utils::get_player_entity( getReg() );
+        getReg().emplace_or_replace<Cmp::PlayerRuinLocation>( player_entt, Cmp::PlayerRuinLocation::Floor::LOWER );
       }
       else { getReg().emplace_or_replace<Cmp::ZOrderValue>( ruin_mb_entity, player_pos.position.y + 16.f ); }
     }
@@ -68,10 +74,10 @@ void RuinSystem::spawn_objective( sf::Vector2f spawn_position )
   Factory::createCarryItem( getReg(), Cmp::Position( spawn_position, Constants::kGridSquareSizePixelsF ), selected_ms_type );
 }
 
-void RuinSystem::spawn_floor_access( sf::Vector2f spawn_position, Cmp::RuinFloorAccess::Direction dir )
+void RuinSystem::spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f size, Cmp::RuinFloorAccess::Direction dir )
 {
   auto floor_access_entt = getReg().create();
-  getReg().emplace_or_replace<Cmp::RuinFloorAccess>( floor_access_entt, spawn_position, Constants::kGridSquareSizePixelsF, dir );
+  getReg().emplace_or_replace<Cmp::RuinFloorAccess>( floor_access_entt, spawn_position, size, dir );
   SPDLOG_INFO( "Spawning floor access at {},{}", spawn_position.x, spawn_position.y );
 }
 
@@ -89,26 +95,44 @@ void RuinSystem::spawn_staircase( sf::Vector2f spawn_position, const Sprites::Mu
   }
 }
 
-void RuinSystem::check_floor_access_collision()
+void RuinSystem::check_floor_access_collision( Cmp::RuinFloorAccess::Direction direction )
 {
   if ( m_floor_access_cooldown.getElapsedTime().asSeconds() < kFloorAccessCooldownSeconds ) { return; }
 
   auto player_pos = Utils::get_player_position( getReg() );
+  bool currently_on_floor_access = false;
+
   for ( auto [access_entt, access_cmp] : getReg().view<Cmp::RuinFloorAccess>().each() )
   {
     if ( player_pos.findIntersection( access_cmp ) )
     {
-      switch ( access_cmp.m_direction )
+      currently_on_floor_access = true;
+
+      // Only trigger if player wasn't already on floor access (must leave and re-enter)
+      if ( m_was_on_floor_access ) { continue; }
+
+      switch ( Utils::get_player_ruin_location( getReg() ) )
       {
-        case Cmp::RuinFloorAccess::Direction::TO_UPPER:
-          m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_RUIN_UPPER );
+        case Cmp::PlayerRuinLocation::Floor::LOWER:
+          if ( direction == Cmp::RuinFloorAccess::Direction::TO_UPPER )
+          {
+            m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_RUIN_UPPER );
+          }
           break;
-        case Cmp::RuinFloorAccess::Direction::TO_LOWER:
-          m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_RUIN_UPPER );
+        case Cmp::PlayerRuinLocation::Floor::UPPER:
+          if ( direction == Cmp::RuinFloorAccess::Direction::TO_LOWER )
+          {
+            m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_RUIN_UPPER );
+          }
+          break;
+        case Cmp::PlayerRuinLocation::Floor::NONE:
           break;
       }
     }
   }
+
+  // Update tracking - player must leave floor access area before it can trigger again
+  m_was_on_floor_access = currently_on_floor_access;
 }
 
 } // namespace ProceduralMaze::Sys

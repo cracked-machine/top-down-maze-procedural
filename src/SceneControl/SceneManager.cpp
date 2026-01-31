@@ -63,15 +63,18 @@ void SceneManager::push( std::unique_ptr<IScene> new_scene, RegCopyMode mode )
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode != RegCopyMode::NONE )
+  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
-    loading_screen(
-        [&]()
-        {
-          m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-          m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
-        },
-        m_splash_texture );
+    m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+
+    // loading_screen(
+    //     [&]()
+    //     {
+    //       m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
+    //       m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+    //     },
+    //     m_splash_texture );
   }
 
   loading_screen( [&]() { m_scene_stack.current().on_init(); }, m_splash_texture );
@@ -90,15 +93,17 @@ void SceneManager::push_no_exit( std::unique_ptr<IScene> new_scene, RegCopyMode 
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode != RegCopyMode::NONE )
+  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
-    loading_screen(
-        [&]()
-        {
-          m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-          m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
-        },
-        m_splash_texture );
+    m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+    // loading_screen(
+    //     [&]()
+    //     {
+    //       m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
+    //       m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+    //     },
+    //     m_splash_texture );
   }
 
   loading_screen( [&]() { m_scene_stack.current().on_init(); }, m_splash_texture );
@@ -117,15 +122,17 @@ void SceneManager::pop( RegCopyMode mode )
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode != RegCopyMode::NONE )
+  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
-    loading_screen(
-        [&]()
-        {
-          m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-          m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
-        },
-        m_splash_texture );
+    m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+    // loading_screen(
+    //     [&]()
+    //     {
+    //       m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
+    //       m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+    //     },
+    //     m_splash_texture );
   }
 
   if ( !m_scene_stack.empty() )
@@ -145,15 +152,17 @@ void SceneManager::pop_no_exit( RegCopyMode mode )
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode != RegCopyMode::NONE )
+  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
-    loading_screen(
-        [&]()
-        {
-          m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-          m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
-        },
-        m_splash_texture );
+    m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+    // loading_screen(
+    //     [&]()
+    //     {
+    //       m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
+    //       m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+    //     },
+    //     m_splash_texture );
   }
 
   loading_screen( [&]() { m_scene_stack.current().on_enter(); }, m_splash_texture );
@@ -175,15 +184,17 @@ void SceneManager::replace( std::unique_ptr<IScene> new_scene, RegCopyMode mode 
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode != RegCopyMode::NONE )
+  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
-    loading_screen(
-        [&]()
-        {
-          m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-          m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
-        },
-        m_splash_texture );
+    m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+    // loading_screen(
+    //     [&]()
+    //     {
+    //       m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
+    //       m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+    //     },
+    //     m_splash_texture );
   }
 
   loading_screen( [&]() { m_scene_stack.current().on_enter(); }, m_splash_texture );
@@ -202,15 +213,17 @@ void SceneManager::replace_no_exit( std::unique_ptr<IScene> new_scene, RegCopyMo
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode != RegCopyMode::NONE )
+  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
   {
-    loading_screen(
-        [&]()
-        {
-          m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-          m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
-        },
-        m_splash_texture );
+    m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+    // loading_screen(
+    //     [&]()
+    //     {
+    //       m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
+    //       m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+    //     },
+    //     m_splash_texture );
   }
 
   loading_screen( [&]() { m_scene_stack.current().on_enter(); }, m_splash_texture );
@@ -256,6 +269,11 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
       break;
     }
     case Events::SceneManagerEvent::Type::ENTER_RUIN_UPPER: {
+      if ( m_scene_stack.current().get_name() == "RuinSceneUpperFloor" )
+      {
+        SPDLOG_WARN( "Already in RuinSceneUpperFloor, ignoring duplicate ENTER_RUIN_UPPER" );
+        break;
+      }
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_RUIN_UPPER requested" );
       auto ruin_scene = std::make_unique<RuinSceneUpperFloor>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
       push_no_exit( std::move( ruin_scene ), RegCopyMode::PLAYER_ONLY );
