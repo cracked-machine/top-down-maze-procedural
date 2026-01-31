@@ -42,7 +42,8 @@ void RuinSceneLowerFloor::on_init()
 
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_rectangle_gamearea( RuinSceneLowerFloor::kMapGridSize, player_start_area, "RUIN.interior_wall" );
+  random_level_sys.gen_rectangle_gamearea( RuinSceneLowerFloor::kMapGridSize, player_start_area, "RUIN.interior_wall",
+                                           Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
   // pass concrete spawn position to exit spawner
   m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().spawn_exit(

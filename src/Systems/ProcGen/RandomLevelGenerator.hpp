@@ -29,6 +29,7 @@ class RandomLevelGenerator : public BaseSystem
 public:
   enum class AreaShape { RECTANGLE, CIRCLE, CROSS };
   enum class SceneType { GRAVEYARD_EXTERIOR, CRYPT_INTERIOR, HOLYWELL_INTERIOR };
+  enum class SpawnArea { TRUE, FALSE };
 
   RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~RandomLevelGenerator() = default;
@@ -39,7 +40,8 @@ public:
   void onResume() override {}
 
   // Generate position components for the entire map grid and add player spawn
-  void gen_rectangle_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area, Sprites::SpriteMetaType wall_type );
+  void gen_rectangle_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area, Sprites::SpriteMetaType wall_type,
+                               SpawnArea spawnarea = SpawnArea::TRUE );
   void gen_circular_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area );
 
   //! @brief Generate a cross-shaped game area

@@ -58,7 +58,8 @@ RandomLevelGenerator::RandomLevelGenerator( entt::registry &reg, sf::RenderWindo
 {
 }
 
-void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area, Sprites::SpriteMetaType wall_type )
+void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area, Sprites::SpriteMetaType wall_type,
+                                                   SpawnArea spawnarea )
 {
 
   unsigned int w = map_grid_size.x;
@@ -79,8 +80,10 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, C
         // create world position entity, mark spawn area if in player start area
         auto entity = Factory::createWorldPosition( getReg(), new_pos );
         auto &pos_cmp = getReg().get<Cmp::Position>( entity );
-        if ( pos_cmp.findIntersection( player_start_area.getBounds() ) ) { Factory::addSpawnArea( getReg(), entity, new_pos.y - 16.0f ); }
-
+        if ( spawnarea == SpawnArea::TRUE )
+        {
+          if ( pos_cmp.findIntersection( player_start_area.getBounds() ) ) { Factory::addSpawnArea( getReg(), entity, new_pos.y - 16.0f ); }
+        }
         // track contiguous list of positions for proc gen
         m_data.push_back( entity );
       }
