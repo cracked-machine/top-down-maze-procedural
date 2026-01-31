@@ -49,9 +49,10 @@ void RuinSceneLowerFloor::on_init()
   m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().spawn_exit(
       sf::Vector2u{ RuinSceneLowerFloor::kMapGridSize.x / 2, RuinSceneLowerFloor::kMapGridSize.y - 1 } );
 
+  // spawn access hitbox just above horizontal centerpoint
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_floor_access(
-      Utils::snap_to_grid(
-          { RuinSceneLowerFloor::kMapGridSizeF.x - ( 3 * Constants::kGridSquareSizePixelsF.x ), RuinSceneLowerFloor::kMapGridSizeF.y / 2 } ),
+      Utils::snap_to_grid( { RuinSceneLowerFloor::kMapGridSizeF.x - ( 3 * Constants::kGridSquareSizePixelsF.x ),
+                             ( RuinSceneLowerFloor::kMapGridSizeF.y / 2 ) - Constants::kGridSquareSizePixelsF.y } ),
       { ( 2 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, Cmp::RuinFloorAccess::Direction::TO_UPPER );
 
   const Sprites::MultiSprite &stairs_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_going_up" );
