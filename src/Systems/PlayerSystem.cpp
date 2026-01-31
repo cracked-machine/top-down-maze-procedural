@@ -212,7 +212,7 @@ void PlayerSystem::update( sf::Time globalDeltaTime )
     // process global movement, disable collision detection if option set
     globalTranslations( globalDeltaTime, Utils::getSystemCmp( getReg() ).collisions_enabled );
     // footstep sfx
-    auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Direction>();
+    auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
     for ( auto [pc_entity, pc_cmp, dir_cmp] : player_view.each() )
     {
       if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) ) { stopFootstepsSound(); }
@@ -241,7 +241,7 @@ void PlayerSystem::update( sf::Time globalDeltaTime )
 
 void PlayerSystem::checkPlayerMortality()
 {
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
+  auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
   for ( auto [entity, pc_cmp, health_cmp, mortality_cmp, player_pos_cmp] : player_view.each() )
   {
 
@@ -271,7 +271,7 @@ void PlayerSystem::localTransforms()
 {
 
   auto blinking_player_view = getReg()
-                                  .view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::SpriteAnimation, Cmp::PlayerMortality,
+                                  .view<Cmp::PlayerCharacter, Cmp::Position, Cmp::Direction, Cmp::SpriteAnimation, Cmp::PlayerMortality,
                                         Cmp::AbsoluteAlpha, Cmp::AbsoluteRotation, Cmp::PlayerHealth>();
   for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, anim_cmp, mortality_cmp, alpha_cmp, rotation_cmp, player_health_cmp] : blinking_player_view.each() )
   {
@@ -311,7 +311,7 @@ void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool collision_
 
   const float dt = globalDeltaTime.asSeconds();
 
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds, Cmp::SpriteAnimation>();
+  auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds, Cmp::SpriteAnimation>();
   for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, pc_detection_bounds, anim_cmp] : player_view.each() )
   {
     // always set the player, even if not moving
@@ -423,7 +423,7 @@ void PlayerSystem::refreshPlayerDistances()
 {
   const auto viewBounds = Utils::calculate_view_bounds( RenderSystem::getGameView() );
 
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PCDetectionBounds>();
+  auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::PCDetectionBounds>();
   for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_db_cmp] : player_view.each() )
   {
     auto add_path_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::NoPathFinding> );
@@ -463,7 +463,7 @@ void PlayerSystem::refreshPlayerDistances()
 void PlayerSystem::checkShockwavePlayerCollision( Cmp::NpcShockwave &shockwave )
 {
   auto &pc_damage_cooldown = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>( getReg() );
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerHealth>();
+  auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::PlayerHealth>();
 
   for ( auto [player_entity, player_cmp, player_pos, player_health] : player_view.each() )
   {
@@ -508,7 +508,7 @@ void PlayerSystem::check_player_axe_npc_kill()
       // TODO: check player is facing the obstacle
       // Check player proximity to the entity
       bool player_nearby = false;
-      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
       {
         auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
         if ( player_hitbox.findIntersection( npc_pos_cmp ) )
@@ -548,8 +548,8 @@ void PlayerSystem::check_player_axe_npc_kill()
             Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),                                        
             Cmp::RectBounds(npc_pos_cmp.position, npc_pos_cmp.size, 2.f).getBounds(),
             Factory::IncludePack<>{},
-            Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{},
-            Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{} );
+            Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{},
+            Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{} );
           // clang-format on
 
           if ( dropped_loot_entt != entt::null )

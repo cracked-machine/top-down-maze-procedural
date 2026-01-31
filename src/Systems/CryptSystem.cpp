@@ -104,7 +104,7 @@ void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
 
 void CryptSystem::check_entrance_collision()
 {
-  auto pc_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto pc_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
   auto cryptdoor_view = getReg().view<Cmp::CryptEntrance, Cmp::Position>();
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
@@ -137,7 +137,7 @@ void CryptSystem::check_entrance_collision()
 
 void CryptSystem::check_exit_collision()
 {
-  auto pc_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto pc_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
   auto cryptdoor_view = getReg().view<Cmp::CryptExit, Cmp::Position>();
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
@@ -185,7 +185,7 @@ void CryptSystem::spawn_exit( sf::Vector2u spawn_position )
 
 void CryptSystem::unlock_crypt_door()
 {
-  auto pc_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto pc_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
   auto cryptdoor_view = getReg().view<Cmp::CryptEntrance, Cmp::Position>();
 
   auto [inv_entt, inv_type] = Utils::get_player_inventory_type( getReg() );
@@ -254,7 +254,7 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
 {
   if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
 
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::PlayerCadaverCount>();
+  auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::PlayerCadaverCount>();
   auto grave_view = getReg().view<Cmp::CryptObjectiveMultiBlock>();
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_cadaver_cmp] : player_view.each() )
@@ -272,7 +272,7 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
                                        sf::Vector2f{ objective_cmp.size.x, Constants::kGridSquareSizePixelsF.y * 2.f } );
         auto obst_entity = Factory::createLootDrop( getReg(), Cmp::SpriteAnimation{ 0, 0, true, "CADAVER_DROP", 0 }, expanded_search,
                                                     Factory::IncludePack<>{},
-                                                    Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::CryptObjectiveSegment>{} );
+                                                    Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::CryptObjectiveSegment>{} );
         if ( obst_entity != entt::null )
         {
           m_sound_bank.get_effect( "drop_loot" ).play();
@@ -291,7 +291,7 @@ void CryptSystem::check_lever_activation()
 {
   if ( m_maze_unlocked ) return;
 
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
   auto lever_view = getReg().view<Cmp::CryptLever, Cmp::Position>();
 
   for ( auto [pc_entity, player_cmp, player_pos_cmp] : player_view.each() )
@@ -330,7 +330,7 @@ void CryptSystem::check_chest_activation( Events::PlayerActionEvent::GameActions
 {
   if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
 
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
   auto chest_view = getReg().view<Cmp::CryptChest, Cmp::Position, Cmp::SpriteAnimation>();
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : player_view.each() )
@@ -352,8 +352,8 @@ void CryptSystem::check_chest_activation( Events::PlayerActionEvent::GameActions
         Cmp::SpriteAnimation( 0, 0, true, "LOOT.goldcoin", 0 ),                                        
         Cmp::RectBounds{ chest_pos_cmp.position, chest_pos_cmp.size, 3.f }.getBounds(), 
         Factory::IncludePack<>{},
-        Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::CryptChest, Cmp::CryptRoomLavaPitCell, Cmp::CryptPassageBlock>{} ,
-        Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::CryptChest, Cmp::CryptRoomLavaPitCell, Cmp::CryptPassageBlock>{},
+        Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::CryptChest, Cmp::CryptRoomLavaPitCell, Cmp::CryptPassageBlock>{} ,
+        Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::CryptChest, Cmp::CryptRoomLavaPitCell, Cmp::CryptPassageBlock>{},
         64.f);
       // clang-format on
 

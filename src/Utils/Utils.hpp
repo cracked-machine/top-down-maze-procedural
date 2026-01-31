@@ -150,7 +150,7 @@ static bool is_graveyard_exit_locked( entt::registry &reg )
 
 static entt::entity get_player_entity( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::Position>();
   if ( player_view.front() == entt::null ) throw std::runtime_error( "Player entity could not be found" );
   return player_view.front();
 }
@@ -161,7 +161,7 @@ static entt::entity get_player_entity( entt::registry &reg )
 //! @return Cmp::Position&
 static Cmp::Position &get_player_position( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::Position>();
   return player_view.get<Cmp::Position>( get_player_entity( reg ) );
 }
 

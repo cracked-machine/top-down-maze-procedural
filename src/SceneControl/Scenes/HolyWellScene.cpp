@@ -61,7 +61,7 @@ void HolyWellScene::on_enter()
 
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().init_views();
 
-  auto player_view = m_reg.view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto player_view = m_reg.view<Cmp::PlayerCharacter, Cmp::Position>();
   for ( auto [player_entity, pc_cmp, pos_cmp] : player_view.each() )
   {
     pos_cmp.position = m_player_start_position;

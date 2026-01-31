@@ -86,7 +86,7 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
 
 void RegistryTransfer::xfer_player_entt( entt::registry &from_registry, entt::registry &to_registry )
 {
-  auto player_view = from_registry.view<Cmp::PlayableCharacter>();
+  auto player_view = from_registry.view<Cmp::PlayerCharacter>();
   if ( player_view.empty() )
   {
     SPDLOG_WARN( "No player entity found to transfer" );
@@ -96,7 +96,7 @@ void RegistryTransfer::xfer_player_entt( entt::registry &from_registry, entt::re
   auto source_entity = player_view.front();
 
   // Check if player entity already exists in target registry
-  auto target_player_view = to_registry.view<Cmp::PlayableCharacter>();
+  auto target_player_view = to_registry.view<Cmp::PlayerCharacter>();
   entt::entity target_entity;
 
   if ( target_player_view.empty() )
@@ -231,7 +231,7 @@ void RegistryTransfer::ensure_player_component_storages( entt::registry &registr
   registry.storage<Cmp::PCDetectionBounds>();
   registry.storage<Cmp::Position>();
   registry.storage<Cmp::PlayerDistance>();
-  registry.storage<Cmp::PlayableCharacter>();
+  registry.storage<Cmp::PlayerCharacter>();
   registry.storage<Cmp::PlayerHealth>();
   registry.storage<Cmp::PlayerWealth>();
   registry.storage<Cmp::PlayerBlastRadius>();

@@ -126,7 +126,7 @@ void FootstepSystem::update()
 {
 
   // add new footstep for player
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position, Cmp::Direction>();
+  auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::Direction>();
   for ( auto [entity, player, pos_cmp, dir_cmp] : player_view.each() )
   {
     if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { continue; }

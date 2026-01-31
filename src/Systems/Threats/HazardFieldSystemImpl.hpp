@@ -58,7 +58,7 @@ void HazardFieldSystem<HazardType>::init_hazard_field()
   unsigned long seed = Sys::PersistSystem::get_persist_cmp<typename Traits::SeedType>( getReg() ).get_value();
   auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
       getReg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{},
-      Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
+      Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
   if ( random_entity == entt::null ) { return; }
 
   Factory::destroyObstacle( getReg(), random_entity );
@@ -136,7 +136,7 @@ template <ValidHazard HazardType>
 void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
 {
   auto hazard_view = getReg().template view<HazardType, Cmp::Position>();
-  auto player_view = getReg().template view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
+  auto player_view = getReg().template view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
 
   for ( auto [pc_entt, player_cmp, player_health_cmp, player_mort_cmp, player_pos_cmp] : player_view.each() )
   {

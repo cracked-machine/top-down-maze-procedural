@@ -47,7 +47,7 @@ void LootSystem::check_loot_collision()
 
   // First pass: detect collisions and gather effects to apply
   // clang-format off
-  auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto player_collision_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
   auto loot_collision_view = getReg().view<Cmp::Loot, Cmp::Position, Cmp::SpriteAnimation>();
   // clang-format on
 

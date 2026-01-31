@@ -207,7 +207,7 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, Cmp::
 void RandomLevelGenerator::gen_graveyard_exterior_obstacles()
 {
 
-  auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
+  auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition> );
   for ( auto [entity, pos_cmp] : position_view.each() )
   {
 
@@ -314,7 +314,7 @@ void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::
 void RandomLevelGenerator::gen_crypt_initial_interior()
 {
   SPDLOG_INFO( "Generating crypt interior obstacles." );
-  auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayableCharacter, Cmp::ReservedPosition> );
+  auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition> );
   // auto room_view = getReg().view<Cmp::CryptRoomClosed>();
   for ( auto [entity, pos_cmp] : position_view.each() )
   {
@@ -398,7 +398,7 @@ void RandomLevelGenerator::gen_loot_containers( sf::Vector2u map_grid_size )
   for ( std::size_t i = 0; i < num_loot_containers; ++i )
   {
     auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
-        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
+        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
 
     float zorder = m_sprite_factory.get_sprite_size_by_type( "POT" ).y;
 
@@ -413,7 +413,7 @@ void RandomLevelGenerator::gen_npc_containers( sf::Vector2u map_grid_size )
   for ( std::size_t i = 0; i < num_npc_containers; ++i )
   {
     auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
-        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
+        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
 
     // pick a random loot container type and texture index
     // clang-format off
@@ -434,7 +434,7 @@ void RandomLevelGenerator::gen_plants( sf::Vector2u map_grid_size )
   for ( std::size_t i = 0; i < num_plants; ++i )
   {
     auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
-        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
+        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
 
     // select a random number within the range of possible flora CarryItems
     auto [rand_plant_type, rnd_plant_idx] = m_sprite_factory.get_random_type_and_texture_index(
@@ -455,7 +455,7 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
   while ( attempts < kMaxAttempts )
   {
     auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
-        getReg(), Utils::Rnd::IncludePack<>{}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::ReservedPosition, Cmp::PlayableCharacter>{}, current_seed );
+        getReg(), Utils::Rnd::IncludePack<>{}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::ReservedPosition, Cmp::PlayerCharacter>{}, current_seed );
 
     auto lo_sprite_size = m_sprite_factory.get_sprite_size_by_type( ms.get_sprite_type() );
     Cmp::RectBounds new_lo_hitbox( random_pos.position, lo_sprite_size, 1.f );
@@ -515,7 +515,7 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
       }
 
       // Return false for playable character collisions
-      for ( auto [entity, player_cmp, player_pos_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+      for ( auto [entity, player_cmp, player_pos_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
       {
         if ( player_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }

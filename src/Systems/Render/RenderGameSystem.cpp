@@ -148,7 +148,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
   }
 
   sf::FloatRect player_position( { 0.f, 0.f }, Constants::kGridSquareSizePixelsF );
-  for ( auto [entity, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+  for ( auto [entity, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
   {
     player_position = pc_pos_cmp;
   }
@@ -464,7 +464,7 @@ void RenderGameSystem::render_wormhole_effect( Sprites::Containers::TileMap &flo
 
 void RenderGameSystem::render_arrow_compass()
 {
-  auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
 
   auto [found_entt, found_carryitem_type] = Utils::get_player_inventory_type( getReg() );
   if ( not found_carryitem_type.contains( "exitkey" ) and not found_carryitem_type.contains( "cryptkey" ) and

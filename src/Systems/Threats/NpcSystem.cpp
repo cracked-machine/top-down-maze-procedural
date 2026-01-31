@@ -62,7 +62,7 @@ void NpcSystem::update( sf::Time dt )
 {
   check_bones_reanimation();
 
-  auto player_entity_view = getReg().view<Cmp::PlayableCharacter>();
+  auto player_entity_view = getReg().view<Cmp::PlayerCharacter>();
   for ( auto player_entity : player_entity_view )
   {
     scanForPlayers( player_entity );
@@ -111,7 +111,7 @@ bool NpcSystem::isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::V
 
 void NpcSystem::update_movement( sf::Time globalDeltaTime )
 {
-  auto exclusions = entt::exclude<Cmp::AltarSegment, Cmp::CryptSegment, Cmp::SpawnArea, Cmp::PlayableCharacter>;
+  auto exclusions = entt::exclude<Cmp::AltarSegment, Cmp::CryptSegment, Cmp::SpawnArea, Cmp::PlayerCharacter>;
   auto view = getReg().view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds, Cmp::Direction>( exclusions );
 
   for ( auto [entity, pos_cmp, lerp_pos_cmp, npc_scan_bounds, dir_cmp] : view.each() )
@@ -161,7 +161,7 @@ void NpcSystem::update_movement( sf::Time globalDeltaTime )
 
 void NpcSystem::check_bones_reanimation()
 {
-  auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto player_collision_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
   auto npccontainer_collision_view = getReg().view<Cmp::NpcContainer, Cmp::Position>();
   for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_collision_view.each() )
   {
@@ -185,7 +185,7 @@ void NpcSystem::check_bones_reanimation()
 
 void NpcSystem::check_player_to_npc_collision()
 {
-  auto player_collision_view = getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position, Cmp::Direction>();
+  auto player_collision_view = getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position, Cmp::Direction>();
   auto npc_collision_view = getReg().view<Cmp::NPC, Cmp::Position>();
   auto &npc_push_back = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcPushBack>( getReg() );
   auto &pc_damage_cooldown = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>( getReg() );
@@ -345,7 +345,7 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
 
     // gather up any PlayerDistance components from within range obstacles
     PlayerDistanceQueue distance_queue;
-    auto pd_view = getReg().view<Cmp::Position, Cmp::PlayerDistance>( entt::exclude<Cmp::NPC, Cmp::PlayableCharacter> );
+    auto pd_view = getReg().view<Cmp::Position, Cmp::PlayerDistance>( entt::exclude<Cmp::NPC, Cmp::PlayerCharacter> );
     for ( auto [entity, pos_cmp, pd_cmp] : pd_view.each() )
     {
       // footsteps are always tracked, everything else needs to be within scan bounds

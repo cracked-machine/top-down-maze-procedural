@@ -66,7 +66,7 @@ void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
   else
   {
     auto [rand_entity, rand_pos_cmp] = Utils::Rnd::get_random_position(
-        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, 0 );
+        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, 0 );
 
     auto existing_obstacle_cmp = getReg().try_get<Cmp::Obstacle>( rand_entity );
     if ( existing_obstacle_cmp ) { getReg().remove<Cmp::Obstacle>( rand_entity ); }
@@ -110,7 +110,7 @@ void ExitSystem::check_exit_collision()
   for ( auto [entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
   {
     if ( exit_cmp.m_locked == true ) return;
-    for ( auto [player_entity, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::Position>().each() )
+    for ( auto [player_entity, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
     {
       if ( pc_pos_cmp.findIntersection( exit_pos_cmp ) )
       {

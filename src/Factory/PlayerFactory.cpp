@@ -54,7 +54,7 @@ void CreatePlayer( entt::registry &registry )
   registry.emplace<Cmp::Position>( entity, start_pos, Constants::kGridSquareSizePixelsF );
 
   auto &blast_radius = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::BlastRadius>( registry );
-  registry.emplace<Cmp::PlayableCharacter>( entity );
+  registry.emplace<Cmp::PlayerCharacter>( entity );
   registry.emplace<Cmp::PlayerBlastRadius>( entity, blast_radius.get_value() );
 
   registry.emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );

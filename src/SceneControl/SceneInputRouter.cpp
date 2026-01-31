@@ -189,7 +189,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_blast_radius] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerBlastRadius>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_blast_radius] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerBlastRadius>().each() )
         {
           pc_blast_radius.value = std::clamp( pc_blast_radius.value + 1, 0, 3 );
           SPDLOG_INFO( "Player gained blast radius (player cheated)" );
@@ -197,7 +197,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = std::clamp( pc_health_cmp.health + 10, 0, 100 );
           SPDLOG_INFO( "Player gained health (player cheated)" );
@@ -205,7 +205,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::NumpadDecimal )
       {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = std::clamp( pc_health_cmp.health - 10, 0, 100 );
           SPDLOG_INFO( "Player lost health (player cheated)" );
@@ -213,7 +213,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad5 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerCadaverCount>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerCadaverCount>().each() )
         {
           pc_cadaver_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
@@ -234,7 +234,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
   }
 
   // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
-  auto player_direction_view = getReg().view<Cmp::PlayableCharacter, Cmp::Direction>();
+  auto player_direction_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
   for ( auto [entity, player, direction] : player_direction_view.each() )
   {
     direction.x = 0;
@@ -329,7 +329,7 @@ void SceneInputRouter::crypt_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = std::clamp( pc_health_cmp.health + 10, 0, 100 );
           SPDLOG_INFO( "Player gained health (player cheated)" );
@@ -337,7 +337,7 @@ void SceneInputRouter::crypt_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::NumpadDecimal )
       {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = std::clamp( pc_health_cmp.health - 10, 0, 100 );
           SPDLOG_INFO( "Player lost health (player cheated)" );
@@ -345,7 +345,7 @@ void SceneInputRouter::crypt_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad5 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerCadaverCount>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerCadaverCount>().each() )
         {
           pc_cadaver_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
@@ -386,7 +386,7 @@ void SceneInputRouter::crypt_scene_state_handler()
   }
 
   // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
-  auto player_direction_view = getReg().view<Cmp::PlayableCharacter, Cmp::Direction>();
+  auto player_direction_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
   for ( auto [entity, player, direction] : player_direction_view.each() )
   {
     direction.x = 0;
@@ -469,7 +469,7 @@ void SceneInputRouter::holywell_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_blast_radius] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerBlastRadius>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_blast_radius] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerBlastRadius>().each() )
         {
           pc_blast_radius.value = std::clamp( pc_blast_radius.value + 1, 0, 3 );
           SPDLOG_INFO( "Player gained blast radius (player cheated)" );
@@ -477,7 +477,7 @@ void SceneInputRouter::holywell_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = std::clamp( pc_health_cmp.health + 10, 0, 100 );
           SPDLOG_INFO( "Player gained health (player cheated)" );
@@ -485,7 +485,7 @@ void SceneInputRouter::holywell_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::NumpadDecimal )
       {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = std::clamp( pc_health_cmp.health - 10, 0, 100 );
           SPDLOG_INFO( "Player lost health (player cheated)" );
@@ -493,7 +493,7 @@ void SceneInputRouter::holywell_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad5 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerCadaverCount>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerCadaverCount>().each() )
         {
           pc_cadaver_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
@@ -514,7 +514,7 @@ void SceneInputRouter::holywell_scene_state_handler()
   }
 
   // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
-  auto player_direction_view = getReg().view<Cmp::PlayableCharacter, Cmp::Direction>();
+  auto player_direction_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
   for ( auto [entity, player, direction] : player_direction_view.each() )
   {
     direction.x = 0;
@@ -598,7 +598,7 @@ void SceneInputRouter::ruin_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_blast_radius] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerBlastRadius>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_blast_radius] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerBlastRadius>().each() )
         {
           pc_blast_radius.value = std::clamp( pc_blast_radius.value + 1, 0, 3 );
           SPDLOG_INFO( "Player gained blast radius (player cheated)" );
@@ -606,7 +606,7 @@ void SceneInputRouter::ruin_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = std::clamp( pc_health_cmp.health + 10, 0, 100 );
           SPDLOG_INFO( "Player gained health (player cheated)" );
@@ -614,7 +614,7 @@ void SceneInputRouter::ruin_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::NumpadDecimal )
       {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
         {
           pc_health_cmp.health = std::clamp( pc_health_cmp.health - 10, 0, 100 );
           SPDLOG_INFO( "Player lost health (player cheated)" );
@@ -622,7 +622,7 @@ void SceneInputRouter::ruin_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad5 )
       {
-        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayableCharacter, Cmp::PlayerCadaverCount>().each() )
+        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerCadaverCount>().each() )
         {
           pc_cadaver_count_cmp.increment_count( 1 );
           SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
@@ -643,7 +643,7 @@ void SceneInputRouter::ruin_scene_state_handler()
   }
 
   // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
-  auto player_direction_view = getReg().view<Cmp::PlayableCharacter, Cmp::Direction>();
+  auto player_direction_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
   for ( auto [entity, player, direction] : player_direction_view.each() )
   {
     direction.x = 0;

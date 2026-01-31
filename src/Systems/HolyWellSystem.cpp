@@ -66,7 +66,7 @@ void HolyWellSystem::spawn_well( sf::Vector2u spawn_position )
 
 void HolyWellSystem::check_entrance_collision()
 {
-  auto pc_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto pc_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
   auto holywelldoor_view = getReg().view<Cmp::HollyWellEntrance, Cmp::Position>();
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
@@ -101,7 +101,7 @@ void HolyWellSystem::check_entrance_collision()
 
 void HolyWellSystem::check_exit_collision()
 {
-  auto pc_view = getReg().view<Cmp::PlayableCharacter, Cmp::Position>();
+  auto pc_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
   auto holywelldoor_view = getReg().view<Cmp::HolyWellExit, Cmp::Position>();
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )

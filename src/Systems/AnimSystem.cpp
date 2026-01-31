@@ -209,7 +209,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
 
   // Player Movement
   // TODO: Add death animations depending on the mortality state
-  auto moving_player_view = getReg().view<Cmp::PlayableCharacter, Cmp::Direction, Cmp::SpriteAnimation, Cmp::Position>();
+  auto moving_player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction, Cmp::SpriteAnimation, Cmp::Position>();
   for ( auto [entity, pc_cmp, dir_cmp, anim_cmp, pos_cmp] : moving_player_view.each() )
   {
 

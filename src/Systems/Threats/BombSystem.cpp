@@ -285,7 +285,7 @@ void BombSystem::update()
     }
 
     // Check player explosion damage
-    auto player_view = getReg().view<Cmp::PlayableCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
+    auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
     for ( auto [pc_entt, pc_cmp, pc_health_cmp, pc_mort_cmp, pc_pos_cmp] : player_view.each() )
     {
       if ( pc_pos_cmp.findIntersection( armed_pos_cmp ) )
@@ -324,7 +324,7 @@ void BombSystem::update()
             Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),                                        
             sf::FloatRect{ npc_pos_cmp.position, npc_pos_cmp.size }, 
             Factory::IncludePack<>{},
-            Factory::ExcludePack<Cmp::PlayableCharacter, Cmp::ReservedPosition>{} );
+            Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition>{} );
           // clang-format on
 
           if ( dropped_loot_entt != entt::null )

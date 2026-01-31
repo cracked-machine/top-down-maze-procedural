@@ -1,5 +1,5 @@
-#ifndef __COMPONENTS_PLAYABLECHARACTER_HPP__
-#define __COMPONENTS_PLAYABLECHARACTER_HPP__
+#ifndef SRC_CMPS_PLAYER_PLAYERCHARACTER_HPP_
+#define SRC_CMPS_PLAYER_PLAYERCHARACTER_HPP_
 
 #include <spdlog/spdlog.h>
 
@@ -10,7 +10,7 @@ namespace ProceduralMaze::Cmp
 {
 
 // See PlayerSystem.hpp for initilization values
-class PlayableCharacter
+class PlayerCharacter
 {
 public:
   bool has_active_bomb{ false };
@@ -20,7 +20,7 @@ public:
   sf::Clock m_damage_cooldown_timer;
 
   // Custom copy constructor to handle sf::Clock
-  PlayableCharacter( const PlayableCharacter &other )
+  PlayerCharacter( const PlayerCharacter &other )
       : has_active_bomb( other.has_active_bomb ),
         underwater( other.underwater ),
         m_damage_cooldown_timer() // Reset clocks on copy
@@ -28,7 +28,7 @@ public:
   }
 
   // Custom copy assignment operator
-  PlayableCharacter &operator=( const PlayableCharacter &other )
+  PlayerCharacter &operator=( const PlayerCharacter &other )
   {
     if ( this != &other )
     {
@@ -41,9 +41,9 @@ public:
   }
 
   // Default constructor
-  PlayableCharacter() = default;
+  PlayerCharacter() = default;
 };
 
 } // namespace ProceduralMaze::Cmp
 
-#endif // __COMPONENTS_PLAYABLECHARACTER_HPP__
+#endif // SRC_CMPS_PLAYER_PLAYERCHARACTER_HPP_

@@ -7,7 +7,7 @@
 
 namespace ProceduralMaze::Cmp
 {
-class PlayableCharacter;
+class PlayerCharacter;
 }
 
 namespace ProceduralMaze::Sys

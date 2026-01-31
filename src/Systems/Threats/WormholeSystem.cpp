@@ -84,7 +84,7 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
   {
     auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
         getReg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{},
-        Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, current_seed );
+        Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, current_seed );
 
     auto &wormhole_ms = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
     Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_grid_size().componentWiseMul( Constants::kGridSquareSizePixels ) );
@@ -274,7 +274,7 @@ void WormholeSystem::check_player_wormhole_collision()
 
       // Get unique random position for this actor entity
       auto [new_spawn_entity, new_spawn_pos_cmp] = Utils::Rnd::get_random_position(
-          getReg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayableCharacter, Cmp::NPC>{}, 0 );
+          getReg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC>{}, 0 );
 
       Factory::destroyObstacle( getReg(), new_spawn_entity );
       getReg().emplace_or_replace<Cmp::SpriteAnimation>( new_spawn_entity, 0, 0, true, "DETONATED", 0 );
