@@ -1,3 +1,5 @@
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
+
 #include <Components/Crypt/CryptLever.hpp>
 #include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
 #include <Components/Crypt/CryptPassageBlock.hpp>
@@ -5,6 +7,7 @@
 #include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Player/PlayerWealth.hpp>
+#include <Components/Ruin/RuinObjectiveType.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
 
 #include <spdlog/spdlog.h>
@@ -140,9 +143,9 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
   return registry_copy;
 }
 
-void RegistryTransfer::xfer_player_entt( entt::registry &from_registry, entt::registry &to_registry )
+void RegistryTransfer::xfer_player_entt( entt::registry &source_registry, entt::registry &target_registry )
 {
-  auto player_view = from_registry.view<Cmp::PlayerCharacter>();
+  auto player_view = source_registry.view<Cmp::PlayerCharacter>();
   if ( player_view.empty() )
   {
     SPDLOG_WARN( "No player entity found to transfer" );
@@ -152,13 +155,13 @@ void RegistryTransfer::xfer_player_entt( entt::registry &from_registry, entt::re
   auto source_entity = player_view.front();
 
   // Check if player entity already exists in target registry
-  auto target_player_view = to_registry.view<Cmp::PlayerCharacter>();
+  auto target_player_view = target_registry.view<Cmp::PlayerCharacter>();
   entt::entity target_entity;
 
   if ( target_player_view.empty() )
   {
     // No player exists, create new one
-    target_entity = to_registry.create();
+    target_entity = target_registry.create();
     SPDLOG_DEBUG( "Created new player entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
   }
   else
@@ -169,12 +172,12 @@ void RegistryTransfer::xfer_player_entt( entt::registry &from_registry, entt::re
   }
 
   // Ensure all known player component storages exist in target registry
-  init_missing_cmp_storages( to_registry );
+  init_missing_cmp_storages( target_registry );
 
   // Create a copy of an entity component by component (from entt wiki)
   std::vector<std::string> transferred_cmps;
   std::vector<std::string> removed_cmps;
-  for ( auto &&curr : from_registry.storage() )
+  for ( auto &&curr : source_registry.storage() )
   {
     if ( auto &source_storage = curr.second; source_storage.contains( source_entity ) )
     {
@@ -182,7 +185,7 @@ void RegistryTransfer::xfer_player_entt( entt::registry &from_registry, entt::re
 
       auto type_hash = curr.first;
 
-      if ( auto *target_storage = to_registry.storage( type_hash ) )
+      if ( auto *target_storage = target_registry.storage( type_hash ) )
       {
         if ( target_storage->contains( target_entity ) )
         {
@@ -202,80 +205,6 @@ void RegistryTransfer::xfer_player_entt( entt::registry &from_registry, entt::re
   pretty_print( removed_cmps );
   SPDLOG_DEBUG( "Component transfer completed: {} transferred", transferred_cmps.size() );
   pretty_print( transferred_cmps );
-}
-
-void RegistryTransfer::xfer_inventory_entt( entt::registry &source_registry, entt::registry &target_registry )
-{
-  auto source_inventory_view = source_registry.view<Cmp::PlayerInventorySlot>();
-  if ( source_inventory_view.empty() )
-  {
-    SPDLOG_WARN( "Player inventory is empty in source regsitry. Removing inventory in target registry" );
-    // Note, this kills all slots in target registry of the next scene, but since we only have one slot this doesnt matter
-    // If we add more slots, you would compare slot ids here.
-    auto target_inventory_view = target_registry.view<Cmp::PlayerInventorySlot>();
-    for ( auto inventory_entity : target_inventory_view )
-    {
-      target_registry.destroy( inventory_entity );
-    }
-    return;
-  }
-
-  // auto source_entity = inventory_view.front();
-  for ( auto source_entity : source_inventory_view )
-  {
-
-    // Check if player entity already exists in target registry
-    auto target_inventory_view = target_registry.view<Cmp::PlayerInventorySlot>();
-    entt::entity target_entity;
-
-    if ( target_inventory_view.empty() )
-    {
-      // No player exists, create new one
-      target_entity = target_registry.create();
-      SPDLOG_DEBUG( "Created new inventory entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
-    }
-    else
-    {
-      // Player exists, use existing entity
-      target_entity = target_inventory_view.front();
-      SPDLOG_DEBUG( "Using existing inventory entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
-    }
-
-    // Ensure all known player component storages exist in target registry
-    init_missing_cmp_storages( target_registry );
-
-    // Create a copy of an entity component by component (from entt wiki)
-    std::vector<std::string> transferred_cmps;
-    std::vector<std::string> removed_cmps;
-    for ( auto &&curr : source_registry.storage() )
-    {
-      if ( auto &source_storage = curr.second; source_storage.contains( source_entity ) )
-      {
-        SPDLOG_DEBUG( "Transferring component: {}", source_storage.type().name() );
-
-        auto type_hash = curr.first;
-
-        if ( auto *target_storage = target_registry.storage( type_hash ) )
-        {
-          if ( target_storage->contains( target_entity ) )
-          {
-            target_storage->erase( target_entity );
-            SPDLOG_DEBUG( "Removed existing component: {}", source_storage.type().name() );
-            removed_cmps.emplace_back( source_storage.type().name() );
-          }
-          target_storage->push( target_entity, source_storage.value( source_entity ) );
-          transferred_cmps.emplace_back( source_storage.type().name() );
-
-          SPDLOG_DEBUG( "Successfully transferred component: {}", source_storage.type().name() );
-        }
-        else { SPDLOG_WARN( "No storage found in target reg for cmp: {}", source_storage.type().name() ); }
-      }
-    }
-    SPDLOG_DEBUG( "Component transfer completed: {} removed", removed_cmps.size() );
-    pretty_print( removed_cmps );
-    SPDLOG_DEBUG( "Component transfer completed: {} transferred", transferred_cmps.size() );
-    pretty_print( transferred_cmps );
-  }
 }
 
 void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
@@ -301,6 +230,7 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   registry.storage<Cmp::System>();
   registry.storage<Cmp::PlayerLastGraveyardPosition>();
   registry.storage<Cmp::PlayerRuinLocation>();
+  registry.storage<Cmp::RuinObjectiveType>();
   // Add other player-related components as needed
 }
 

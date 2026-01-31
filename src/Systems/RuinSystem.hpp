@@ -22,7 +22,7 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
-  void spawn_objective( sf::Vector2f spawn_position );
+  // void spawn_objective( sf::Vector2f spawn_position, Sprites::SpriteMetaType type );
   void spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f size, Cmp::RuinFloorAccess::Direction dir );
   void spawn_staircase( sf::Vector2f spawn_position, const Sprites::MultiSprite &stairs_ms );
 

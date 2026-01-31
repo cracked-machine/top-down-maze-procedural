@@ -1,6 +1,8 @@
 
+#include <Components/Inventory/CarryItem.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
+#include <Components/Ruin/RuinObjectiveType.hpp>
 #include <SceneControl/IScene.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
 #include <SceneControl/Scene.hpp>
@@ -66,7 +68,8 @@ void SceneManager::push( std::unique_ptr<IScene> new_scene, RegCopyMode mode )
   if ( reg_copy && mode == RegCopyMode::ALL )
   {
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-    m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_component_entt<Cmp::PlayerInventorySlot>( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_component_entt<Cmp::RuinObjectiveType>( *reg_copy, m_scene_stack.current().registry() );
 
     // loading_screen(
     //     [&]()
@@ -96,7 +99,8 @@ void SceneManager::push_no_exit( std::unique_ptr<IScene> new_scene, RegCopyMode 
   if ( reg_copy && mode == RegCopyMode::ALL )
   {
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-    m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_component_entt<Cmp::PlayerInventorySlot>( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_component_entt<Cmp::RuinObjectiveType>( *reg_copy, m_scene_stack.current().registry() );
     // loading_screen(
     //     [&]()
     //     {
@@ -125,7 +129,8 @@ void SceneManager::pop( RegCopyMode mode )
   if ( reg_copy && mode == RegCopyMode::ALL )
   {
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-    m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_component_entt<Cmp::PlayerInventorySlot>( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_component_entt<Cmp::RuinObjectiveType>( *reg_copy, m_scene_stack.current().registry() );
     // loading_screen(
     //     [&]()
     //     {
@@ -155,7 +160,8 @@ void SceneManager::pop_no_exit( RegCopyMode mode )
   if ( reg_copy && mode == RegCopyMode::ALL )
   {
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-    m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_component_entt<Cmp::PlayerInventorySlot>( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_component_entt<Cmp::RuinObjectiveType>( *reg_copy, m_scene_stack.current().registry() );
     // loading_screen(
     //     [&]()
     //     {
@@ -187,7 +193,8 @@ void SceneManager::replace( std::unique_ptr<IScene> new_scene, RegCopyMode mode 
   if ( reg_copy && mode == RegCopyMode::ALL )
   {
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-    m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_component_entt<Cmp::PlayerInventorySlot>( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_component_entt<Cmp::RuinObjectiveType>( *reg_copy, m_scene_stack.current().registry() );
     // loading_screen(
     //     [&]()
     //     {
@@ -216,7 +223,8 @@ void SceneManager::replace_no_exit( std::unique_ptr<IScene> new_scene, RegCopyMo
   if ( reg_copy && mode == RegCopyMode::ALL )
   {
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-    m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_component_entt<Cmp::PlayerInventorySlot>( *reg_copy, m_scene_stack.current().registry() );
+    m_reg_xfer.xfer_component_entt<Cmp::RuinObjectiveType>( *reg_copy, m_scene_stack.current().registry() );
     // loading_screen(
     //     [&]()
     //     {

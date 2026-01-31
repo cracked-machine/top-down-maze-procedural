@@ -1,4 +1,5 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
+#include <Components/Ruin/RuinObjectiveType.hpp>
 #include <Components/System.hpp>
 #include <SceneControl/Scenes/RuinSceneUpperFloor.hpp>
 
@@ -44,7 +45,14 @@ void RuinSceneUpperFloor::on_init()
   random_level_sys.gen_rectangle_gamearea( RuinSceneUpperFloor::kMapGridSize, player_start_area, "RUIN.interior_wall",
                                            Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
-  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_objective( Utils::snap_to_grid( { 32.f, 32.f } ) );
+  // m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_objective( Utils::snap_to_grid( { 32.f, 32.f } ) );
+  // place the objective that was picked in RuinSceneLowerFloor scene
+  auto ruin_objective_view = m_reg.view<Cmp::RuinObjectiveType>();
+  SPDLOG_INFO( "ruin_objective_view: {}", ruin_objective_view->size() );
+  for ( auto [ruin_obj_entt, ruin_obj_cmp] : ruin_objective_view.each() )
+  {
+    Factory::createCarryItem( m_reg, Cmp::Position( Utils::snap_to_grid( { 32.f, 32.f } ), Constants::kGridSquareSizePixelsF ), ruin_obj_cmp.m_type );
+  }
 
   // spawn access hitbox just below horizontal centerpoint
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_floor_access(
@@ -52,6 +60,7 @@ void RuinSceneUpperFloor::on_init()
                              ( RuinSceneUpperFloor::kMapGridSizeF.y / 2 ) + Constants::kGridSquareSizePixelsF.y } ),
       { ( 2 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, Cmp::RuinFloorAccess::Direction::TO_LOWER );
 
+  // add the straircase sprite for upper floor
   const Sprites::MultiSprite &stairs_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_going_down" );
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase(
       { RuinSceneUpperFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, stairs_ms );
@@ -67,16 +76,10 @@ void RuinSceneUpperFloor::on_enter()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  SPDLOG_INFO( "Entering2 {}", get_name() );
-
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().init_views();
-
-  SPDLOG_INFO( "Entering3 {}", get_name() );
 
   // prevent residual lerp movements from previous scene causing havoc in the new one
   Utils::remove_player_lerp_cmp( m_reg );
-
-  SPDLOG_INFO( "Entering4 {}", get_name() );
 
   auto &player_pos = Utils::get_player_position( m_reg );
   player_pos.position = Utils::snap_to_grid( player_pos.position );

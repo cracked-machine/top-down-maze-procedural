@@ -68,11 +68,11 @@ void RuinSystem::update()
   }
 }
 
-void RuinSystem::spawn_objective( sf::Vector2f spawn_position )
-{
-  auto selected_ms_type = m_sprite_factory.get_random_type( { "CARRYITEM.boots", "CARRYITEM.witchesjar", "CARRYITEM.preservedcat" }, { 1, 1, 1 } );
-  Factory::createCarryItem( getReg(), Cmp::Position( spawn_position, Constants::kGridSquareSizePixelsF ), selected_ms_type );
-}
+// void RuinSystem::spawn_objective( sf::Vector2f spawn_position, Sprites::SpriteMetaType type )
+// {
+
+//   Factory::createCarryItem( getReg(), Cmp::Position( spawn_position, Constants::kGridSquareSizePixelsF ), type );
+// }
 
 void RuinSystem::spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f size, Cmp::RuinFloorAccess::Direction dir )
 {

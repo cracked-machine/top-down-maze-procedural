@@ -1,5 +1,6 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Ruin/RuinFloorAccess.hpp>
+#include <Components/Ruin/RuinObjectiveType.hpp>
 #include <Components/System.hpp>
 #include <SceneControl/Scenes/RuinSceneLowerFloor.hpp>
 
@@ -40,6 +41,13 @@ void RuinSceneLowerFloor::on_init()
   sf::Vector2f player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
+  // select the objective type that will be spawned in the RuinSceneUpperFloor scene
+  auto selected_objective_ms_type = m_sprite_factory.get_random_type( { "CARRYITEM.boots", "CARRYITEM.witchesjar", "CARRYITEM.preservedcat" },
+                                                                      { 1, 1, 1 } );
+  auto ruin_objective_entt = m_reg.create();
+  m_reg.emplace_or_replace<Cmp::RuinObjectiveType>( ruin_objective_entt, selected_objective_ms_type );
+
+  // generate the scene boundaries
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
   random_level_sys.reset();
   random_level_sys.gen_rectangle_gamearea( RuinSceneLowerFloor::kMapGridSize, player_start_area, "RUIN.interior_wall",
@@ -55,7 +63,8 @@ void RuinSceneLowerFloor::on_init()
                              ( RuinSceneLowerFloor::kMapGridSizeF.y / 2 ) - Constants::kGridSquareSizePixelsF.y } ),
       { ( 2 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, Cmp::RuinFloorAccess::Direction::TO_UPPER );
 
-  const Sprites::MultiSprite &stairs_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_going_up" );
+  // add the straircase sprite for lower floor
+  const Sprites::MultiSprite &stairs_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.interior_staircase_going_up" );
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase(
       { RuinSceneLowerFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, stairs_ms );
 
@@ -70,15 +79,10 @@ void RuinSceneLowerFloor::on_enter()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  SPDLOG_INFO( "Entering2 {}", get_name() );
-
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().init_views();
 
-  SPDLOG_INFO( "Entering3 {}", get_name() );
   // prevent residual lerp movements from previous scene causing havoc in the new one
   Utils::remove_player_lerp_cmp( m_reg );
-
-  SPDLOG_INFO( "Entering4 {}", get_name() );
 
   auto &player_pos = Utils::get_player_position( m_reg );
   switch ( m_entry_mode )
