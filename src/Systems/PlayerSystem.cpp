@@ -200,7 +200,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
   }
 }
 
-void PlayerSystem::update( sf::Time globalDeltaTime )
+void PlayerSystem::update( sf::Time globalDeltaTime, FootStepSfx footstep_sfx )
 {
 
   // process changes to player position and related transforms
@@ -216,7 +216,7 @@ void PlayerSystem::update( sf::Time globalDeltaTime )
     for ( auto [pc_entity, pc_cmp, dir_cmp] : player_view.each() )
     {
       if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) ) { stopFootstepsSound(); }
-      else { playFootstepsSound(); }
+      else { playFootstepsSound( footstep_sfx ); }
     }
     // update path tracking data
     if ( m_debug_info_timer.getElapsedTime() >= sf::milliseconds( 100 ) )
@@ -257,15 +257,34 @@ void PlayerSystem::checkPlayerMortality()
   }
 }
 
-void PlayerSystem::playFootstepsSound()
+void PlayerSystem::playFootstepsSound( FootStepSfx type )
 {
-  // Restarting prematurely creates a stutter effect, so check first
-  auto &footsteps = m_sound_bank.get_effect( "footsteps" );
-  if ( footsteps.getStatus() == sf::Sound::Status::Playing ) return;
-  footsteps.play();
+  switch ( type )
+  {
+    case FootStepSfx::NONE:
+      break;
+    case FootStepSfx::GRAVEL: {
+      // Restarting prematurely creates a stutter effect, so check first
+      auto &footsteps = m_sound_bank.get_effect( "footsteps" );
+      if ( footsteps.getStatus() == sf::Sound::Status::Playing ) return;
+      footsteps.play();
+      break;
+    }
+    case FootStepSfx::FLOORBOARDS: {
+      // // Restarting prematurely creates a stutter effect, so check first
+      // auto &footsteps = m_sound_bank.get_effect( "footsteps" );
+      // if ( footsteps.getStatus() == sf::Sound::Status::Playing ) return;
+      // footsteps.play();
+      break;
+    }
+  }
 }
 
-void PlayerSystem::stopFootstepsSound() { m_sound_bank.get_effect( "footsteps" ).stop(); }
+void PlayerSystem::stopFootstepsSound()
+{
+  // add more footstep sfx here when needed
+  m_sound_bank.get_effect( "footsteps" ).stop();
+}
 
 void PlayerSystem::localTransforms()
 {

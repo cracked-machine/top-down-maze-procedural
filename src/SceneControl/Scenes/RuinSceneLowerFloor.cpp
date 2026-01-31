@@ -116,12 +116,12 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
 {
   m_system_store.find<Sys::SystemStore::Type::AnimSystem>().update( dt );
   m_system_store.find<Sys::SystemStore::Type::NpcSystem>().update( dt );
-  m_system_store.find<Sys::SystemStore::Type::FootstepSystem>().update();
+  // m_system_store.find<Sys::SystemStore::Type::FootstepSystem>().update();
   m_system_store.find<Sys::SystemStore::Type::LootSystem>().check_loot_collision();
   m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().check_exit_collision();
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().check_floor_access_collision( Cmp::RuinFloorAccess::Direction::TO_UPPER );
 
-  m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt );
+  m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt, Sys::PlayerSystem::FootStepSfx::NONE );
 
   auto &overlay_sys = m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>();
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::RenderGameSystem::DarkMode::OFF );

@@ -19,14 +19,15 @@ namespace ProceduralMaze::Sys
 class PlayerSystem : public BaseSystem
 {
 public:
+  enum class FootStepSfx { NONE, GRAVEL, FLOORBOARDS };
   PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
                 entt::dispatcher &scenemanager_event_dispatcher );
 
   //! @brief Update the player system.
   //! @note This enqueues 'Events::SceneManagerEvent::Type::GAME_OVER' if player is dead
-  void update( sf::Time globalDeltaTime );
+  void update( sf::Time globalDeltaTime, FootStepSfx footstep_sfx = FootStepSfx::GRAVEL );
 
-  void playFootstepsSound();
+  void playFootstepsSound( FootStepSfx type );
   void stopFootstepsSound();
 
   //! @brief event handlers for pausing system clocks
