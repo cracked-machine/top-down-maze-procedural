@@ -48,7 +48,7 @@ void RuinSceneUpperFloor::on_init()
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_floor_access(
       Utils::snap_to_grid(
           { RuinSceneUpperFloor::kMapGridSizeF.x - ( 3 * Constants::kGridSquareSizePixelsF.x ), RuinSceneUpperFloor::kMapGridSizeF.y / 2 } ),
-      { ( 2 * Constants::kGridSquareSizePixelsF.x ), RuinSceneUpperFloor::kMapGridSizeF.y / 2 }, Cmp::RuinFloorAccess::Direction::TO_UPPER );
+      { ( 2 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, Cmp::RuinFloorAccess::Direction::TO_LOWER );
 
   const Sprites::MultiSprite &stairs_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_going_down" );
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase(
@@ -76,9 +76,9 @@ void RuinSceneUpperFloor::on_enter()
 
   SPDLOG_INFO( "Entering4 {}", get_name() );
 
-  // auto &player_pos = Utils::get_player_position( m_reg );
-  // player_pos.position = player_pos.position;
-  // SPDLOG_INFO( "Player entered RuinSceneUpperFloor at position ({}, {})", player_pos.position.x, player_pos.position.y );
+  auto &player_pos = Utils::get_player_position( m_reg );
+  player_pos.position = Utils::snap_to_grid( player_pos.position );
+  SPDLOG_INFO( "Player entered RuinSceneUpperFloor at position ({}, {})", player_pos.position.x, player_pos.position.y );
 
   auto player_entt = Utils::get_player_entity( m_reg );
   m_reg.emplace_or_replace<Cmp::PlayerRuinLocation>( player_entt, Cmp::PlayerRuinLocation::Floor::UPPER );

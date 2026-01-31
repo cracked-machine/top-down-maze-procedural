@@ -74,4 +74,14 @@ Always use `to_integral` for serialization, logging, or storing entity IDs outsi
 To add Sprite types, edit the res/json/sprite_metadata_schema.json file
 and then update the mapping function (string_to_sprite_type) in src/sprite/sprite_factory.cpp
 
+## Installing and launching the game from remote build server
 
+After building the exe on a remote Linux build server, it is recommended to copy (install) the files onto the local windows workstation before launching the game. For performance reasons, it is not recommended to launch the game over a network/samba share. Using SCP can speed up this copy/install process:
+
+```
+del /q "C:\Users\chris\Desktop\Resurrectionist\bin"
+mkdir "C:\Users\chris\Desktop\Resurrectionist\bin"
+scp -r 192.168.1.106:/home/chris/projects/cpp/games/top-down-maze-procedural\build-x86_64-w64-mingw32\bin C:\Users\chris\Desktop\Resurrectionist
+
+start /wait /b /d "C:\Users\chris\Desktop\Resurrectionist\bin\" ProceduralMaze.exe
+```

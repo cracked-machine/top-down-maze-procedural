@@ -1,3 +1,5 @@
+// #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
+
 #include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptLever.hpp>
 #include <Components/HolyWell/HolyWellSegment.hpp>
@@ -65,14 +67,22 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
   auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position>();
   for ( auto [entity, obs_cmp, pos_cmp] : obstacle_view.each() )
   {
-    if ( pos_cmp.findIntersection( target_position ) ) { return false; }
+    if ( pos_cmp.findIntersection( target_position ) )
+    {
+      SPDLOG_DEBUG( "Player Collided Obstacle" );
+      return false;
+    }
   }
 
   // Check walls
   auto wall_view = getReg().view<Cmp::Wall, Cmp::Position>();
   for ( auto [entity, wall_cmp, pos_cmp] : wall_view.each() )
   {
-    if ( pos_cmp.findIntersection( target_position ) ) { return false; }
+    if ( pos_cmp.findIntersection( target_position ) )
+    {
+      SPDLOG_DEBUG( "Player Collided Wall" );
+      return false;
+    }
   }
 
   // Check doors
@@ -90,62 +100,98 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
   for ( auto [entity, grave_cmp, pos_cmp] : grave_view.each() )
   {
     if ( not grave_cmp.isSolidMask() ) continue;
-    if ( pos_cmp.findIntersection( target_position ) ) { return false; }
+    if ( pos_cmp.findIntersection( target_position ) )
+    {
+      SPDLOG_DEBUG( "Player Collided GraveSegment" );
+      return false;
+    }
   }
 
   auto altar_view = getReg().view<Cmp::AltarSegment, Cmp::Position>();
   for ( auto [entity, altar_cmp, pos_cmp] : altar_view.each() )
   {
     if ( not altar_cmp.isSolidMask() ) continue;
-    if ( pos_cmp.findIntersection( target_position ) ) { return false; }
+    if ( pos_cmp.findIntersection( target_position ) )
+    {
+      SPDLOG_DEBUG( "Player Collided AltarSegment" );
+      return false;
+    }
   }
 
   auto crypt_view = getReg().view<Cmp::CryptSegment, Cmp::Position>();
   for ( auto [entity, crypt_cmp, pos_cmp] : crypt_view.each() )
   {
     if ( not crypt_cmp.isSolidMask() ) continue;
-    if ( pos_cmp.findIntersection( target_position ) ) { return false; }
+    if ( pos_cmp.findIntersection( target_position ) )
+    {
+      SPDLOG_DEBUG( "Player Collided CryptSegment" );
+      return false;
+    }
   }
 
   auto holywell_view = getReg().view<Cmp::HolyWellSegment, Cmp::Position>();
   for ( auto [entity, holywell_cmp, pos_cmp] : holywell_view.each() )
   {
     if ( not holywell_cmp.isSolidMask() ) continue;
-    if ( pos_cmp.findIntersection( target_position ) ) { return false; }
+    if ( pos_cmp.findIntersection( target_position ) )
+    {
+      SPDLOG_DEBUG( "Player Collided HolyWellSegment" );
+      return false;
+    }
   }
 
   auto ruin_view = getReg().view<Cmp::RuinSegment, Cmp::Position>();
   for ( auto [entity, ruin_cmp, pos_cmp] : ruin_view.each() )
   {
     if ( not ruin_cmp.isSolidMask() ) continue;
-    if ( pos_cmp.findIntersection( target_position ) ) { return false; }
+    if ( pos_cmp.findIntersection( target_position ) )
+    {
+      SPDLOG_DEBUG( "Player Collided RuinSegment" );
+      return false;
+    }
   }
 
   auto ruin_stair_view = getReg().view<Cmp::RuinStairsSegment, Cmp::Position>();
   for ( auto [entity, ruin_cmp, pos_cmp] : ruin_stair_view.each() )
   {
     if ( not ruin_cmp.isSolidMask() ) continue;
-    if ( pos_cmp.findIntersection( target_position ) ) { return false; }
+    if ( pos_cmp.findIntersection( target_position ) )
+    {
+      SPDLOG_DEBUG( "Player Collided RuinStairsSegment" );
+      return false;
+    }
   }
 
   auto crypt_obj_view = getReg().view<Cmp::CryptObjectiveSegment, Cmp::Position>();
   for ( auto [entity, crypt_obj_cmp, crypt_obj_pos_cmp] : crypt_obj_view.each() )
   {
     if ( not crypt_obj_cmp.isSolidMask() ) continue;
-    if ( crypt_obj_pos_cmp.findIntersection( target_position ) ) { return false; }
+    if ( crypt_obj_pos_cmp.findIntersection( target_position ) )
+    {
+      SPDLOG_DEBUG( "Player Collided CryptObjectiveSegment" );
+      return false;
+    }
   }
 
   auto crypt_int_view = getReg().view<Cmp::CryptInteriorSegment, Cmp::Position>();
   for ( auto [entity, crypt_int_cmp, crypt_int_pos_cmp] : crypt_int_view.each() )
   {
     if ( not crypt_int_cmp.isSolidMask() ) continue;
-    if ( crypt_int_pos_cmp.findIntersection( target_position ) ) { return false; }
+    if ( crypt_int_pos_cmp.findIntersection( target_position ) )
+    {
+      SPDLOG_DEBUG( "Player Collided CryptInteriorSegment" );
+      return false;
+    }
   }
 
   auto plant_view = getReg().view<Cmp::PlantObstacle, Cmp::Position>();
   for ( auto [entity, plant_cmp, plant_pos_cmp] : plant_view.each() )
   {
-    if ( plant_pos_cmp.findIntersection( target_position ) ) { return false; }
+    if ( plant_pos_cmp.findIntersection( target_position ) )
+    {
+      SPDLOG_DEBUG( "Player Collided PlantObstacle " );
+      return false;
+    }
   }
 
   auto crypt_chest_view = getReg().view<Cmp::CryptChest, Cmp::Position>();
@@ -153,7 +199,7 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
   {
     if ( crypt_chest_pos_cmp.findIntersection( target_position ) )
     {
-      SPDLOG_INFO( "Blocking player at {},{} with CryptChest", crypt_chest_pos_cmp.position.x, crypt_chest_pos_cmp.position.y );
+      SPDLOG_DEBUG( "Blocking player at {},{} with CryptChest", crypt_chest_pos_cmp.position.x, crypt_chest_pos_cmp.position.y );
       return false;
     }
   }

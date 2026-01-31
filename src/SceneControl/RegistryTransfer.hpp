@@ -27,6 +27,7 @@ public:
   //! @param scene The scene to copy the registry from
   //! @param copy_mode The mode to use for copying
   //! @return RegCopy A unique pointer to the copied registry
+  RegCopy copy_reg_old( IScene &scene, RegCopyMode copy_mode = RegCopyMode::NONE );
   RegCopy copy_reg( IScene &scene, RegCopyMode copy_mode = RegCopyMode::NONE );
 
   //! @brief Transfer player entity components from one registry to another
@@ -38,7 +39,7 @@ public:
 private:
   //! @brief Ensure all known player component storages exist in the given registry
   //! @param registry
-  void ensure_player_component_storages( entt::registry &registry );
+  void init_missing_cmp_storages( entt::registry &registry );
 
   //! @brief Print python style list of component type names
   //! @param components Vector of component type names

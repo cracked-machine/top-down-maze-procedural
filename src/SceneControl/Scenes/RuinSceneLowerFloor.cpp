@@ -49,8 +49,9 @@ void RuinSceneLowerFloor::on_init()
       sf::Vector2u{ RuinSceneLowerFloor::kMapGridSize.x / 2, RuinSceneLowerFloor::kMapGridSize.y - 1 } );
 
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_floor_access(
-      Utils::snap_to_grid( { RuinSceneLowerFloor::kMapGridSizeF.x - ( 3 * Constants::kGridSquareSizePixelsF.x ), 0 } ),
-      { ( 2 * Constants::kGridSquareSizePixelsF.x ), RuinSceneLowerFloor::kMapGridSizeF.y / 2 }, Cmp::RuinFloorAccess::Direction::TO_LOWER );
+      Utils::snap_to_grid(
+          { RuinSceneLowerFloor::kMapGridSizeF.x - ( 3 * Constants::kGridSquareSizePixelsF.x ), RuinSceneLowerFloor::kMapGridSizeF.y / 2 } ),
+      { ( 2 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, Cmp::RuinFloorAccess::Direction::TO_UPPER );
 
   const Sprites::MultiSprite &stairs_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_going_up" );
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase(
@@ -82,12 +83,12 @@ void RuinSceneLowerFloor::on_enter()
   {
     case EntryMode::FROM_DOOR: {
       SPDLOG_INFO( "Player entering from door" );
-      player_pos.position = m_player_door_position;
+      player_pos.position = Utils::snap_to_grid( m_player_door_position );
       break;
     }
     case EntryMode::FROM_UPPER_FLOOR: {
       SPDLOG_INFO( "Player entering from upper floor" );
-      // player_pos.position = Utils::get_player_position( m_reg ).position;
+      player_pos.position = Utils::snap_to_grid( player_pos.position );
       break;
     }
   }

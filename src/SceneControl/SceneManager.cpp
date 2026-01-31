@@ -63,7 +63,7 @@ void SceneManager::push( std::unique_ptr<IScene> new_scene, RegCopyMode mode )
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
+  if ( reg_copy && mode == RegCopyMode::ALL )
   {
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
@@ -93,7 +93,7 @@ void SceneManager::push_no_exit( std::unique_ptr<IScene> new_scene, RegCopyMode 
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
+  if ( reg_copy && mode == RegCopyMode::ALL )
   {
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
@@ -122,7 +122,7 @@ void SceneManager::pop( RegCopyMode mode )
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
+  if ( reg_copy && mode == RegCopyMode::ALL )
   {
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
@@ -152,7 +152,7 @@ void SceneManager::pop_no_exit( RegCopyMode mode )
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
+  if ( reg_copy && mode == RegCopyMode::ALL )
   {
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
@@ -184,7 +184,7 @@ void SceneManager::replace( std::unique_ptr<IScene> new_scene, RegCopyMode mode 
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
+  if ( reg_copy && mode == RegCopyMode::ALL )
   {
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
@@ -213,7 +213,7 @@ void SceneManager::replace_no_exit( std::unique_ptr<IScene> new_scene, RegCopyMo
 
   inject_current_scene_registry_into_systems();
 
-  if ( reg_copy && mode == RegCopyMode::PLAYER_ONLY )
+  if ( reg_copy && mode == RegCopyMode::ALL )
   {
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
@@ -242,30 +242,30 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
     case Events::SceneManagerEvent::Type::ENTER_CRYPT: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_CRYPT requested" );
       auto crypt_scene = std::make_unique<CryptScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
-      push_no_exit( std::move( crypt_scene ), RegCopyMode::PLAYER_ONLY );
+      push_no_exit( std::move( crypt_scene ), RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_CRYPT: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_CRYPT requested" );
-      pop( RegCopyMode::PLAYER_ONLY );
+      pop( RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::ENTER_HOLYWELL: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_HOLYWELL requested" );
       auto holywell_scene = std::make_unique<HolyWellScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
-      push_no_exit( std::move( holywell_scene ), RegCopyMode::PLAYER_ONLY );
+      push_no_exit( std::move( holywell_scene ), RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_HOLYWELL: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_HOLYWELL requested" );
-      pop( RegCopyMode::PLAYER_ONLY );
+      pop( RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER requested" );
       auto ruin_scene = std::make_unique<RuinSceneLowerFloor>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
       ruin_scene->set_entry_mode( RuinSceneLowerFloor::EntryMode::FROM_DOOR );
-      push_no_exit( std::move( ruin_scene ), RegCopyMode::PLAYER_ONLY );
+      push_no_exit( std::move( ruin_scene ), RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::ENTER_RUIN_UPPER: {
@@ -276,18 +276,18 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
       }
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_RUIN_UPPER requested" );
       auto ruin_scene = std::make_unique<RuinSceneUpperFloor>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
-      push_no_exit( std::move( ruin_scene ), RegCopyMode::PLAYER_ONLY );
+      push_no_exit( std::move( ruin_scene ), RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_RUIN_UPPER: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_RUIN_UPPER requested" );
       static_cast<RuinSceneLowerFloor *>( m_scene_stack.previous() )->set_entry_mode( RuinSceneLowerFloor::EntryMode::FROM_UPPER_FLOOR );
-      pop( RegCopyMode::PLAYER_ONLY );
+      pop( RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_RUIN: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_RUIN requested" );
-      pop( RegCopyMode::PLAYER_ONLY );
+      pop( RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::EXIT_GAME: {
@@ -325,13 +325,13 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
     case Events::SceneManagerEvent::Type::GAME_OVER: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::GAME_OVER requested" );
       auto game_over_scene = std::make_unique<GameOverScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher );
-      push_no_exit( std::move( game_over_scene ), RegCopyMode::PLAYER_ONLY );
+      push_no_exit( std::move( game_over_scene ), RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::LEVEL_COMPLETE: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::LEVEL_COMPLETE requested" );
       auto level_complete_scene = std::make_unique<LevelCompleteScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher );
-      push_no_exit( std::move( level_complete_scene ), RegCopyMode::PLAYER_ONLY );
+      push_no_exit( std::move( level_complete_scene ), RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::RETURN_TO_TITLE: {

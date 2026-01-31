@@ -38,6 +38,25 @@
 namespace ProceduralMaze::Scene
 {
 
+//! @brief Creates a deep copy of selected entities from a scene's ECS registry into a new standalone registry. The function supports different copy
+//! modes to control what gets transferred during scene transitions — either just the player entity's state, all non-blacklisted entities, or nothing
+//! at all.
+//! @details
+//! 1. Early exit check — Returns nullptr if copy_mode is NONE
+//! 2. Initialize target registry — Creates a new entt::registry and pre-registers known component storages via init_missing_cmp_storages()
+//! 3. Copy player entity (for PLAYER_ONLY or ALL modes):
+//!   Find the entity with PlayerCharacter component
+//!   Create a new entity in the target registry
+//!   Iterate all component storages and copy each component the player has
+//!   Skip components without registered storage (e.g., LerpPosition)
+//! 4. Copy other entities (for ALL mode only):
+//!   Iterate all entities in source registry
+//!   Skip the player (already copied)
+//!   Skip entities with blacklisted components (map/crypt-specific data)
+//!   For each valid entity, create a new entity and copy all its components
+//! @param scene
+//! @param copy_mode
+//! @return RegistryTransfer::RegCopy
 RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegCopyMode copy_mode )
 {
   if ( copy_mode == RegCopyMode::NONE ) { return nullptr; }
@@ -45,40 +64,77 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
   auto registry_copy = std::make_unique<entt::registry>();
   auto &source_registry = scene.registry();
 
-  ensure_player_component_storages( *registry_copy );
+  init_missing_cmp_storages( *registry_copy );
 
-  int skipped_cmp = 0;
+  [[maybe_unused]] int skipped_cmp = 0;
   std::vector<std::string> copied_cmp;
-  for ( auto entity : source_registry.storage<entt::entity>() )
-  {
-    // this is a list of components that we do NOT want to copy over
-    if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::Neighbours, Cmp::NoPathFinding, Cmp::FootStepTimer,
-                                Cmp::FootStepAlpha, Cmp::CryptRoomOpen, Cmp::CryptRoomClosed, Cmp::CryptRoomStart, Cmp::CryptRoomEnd,
-                                Cmp::CryptPassageBlock, Cmp::CryptLever, Cmp::CryptObjectiveMultiBlock>( entity ) )
-    {
-      skipped_cmp++;
-      continue; // Skip player entity
-    }
-    auto new_entity = registry_copy->create();
 
-    // Copy all components from this entity
-    for ( auto &&curr : source_registry.storage() )
+  // Copy player entity (for PLAYER_ONLY and ALL modes)
+  if ( copy_mode == RegCopyMode::PLAYER_ONLY || copy_mode == RegCopyMode::ALL )
+  {
+    auto player_view = source_registry.view<Cmp::PlayerCharacter>();
+    if ( !player_view.empty() )
     {
-      if ( auto &source_storage = curr.second; source_storage.contains( entity ) )
+      auto player_entity = player_view.front();
+      auto new_entity = registry_copy->create();
+
+      // Copy all components from player entity
+      for ( auto &&curr : source_registry.storage() )
       {
-        auto type_hash = curr.first;
-        // Ensure storage exists in target registry
-        if ( auto *target_storage = registry_copy->storage( type_hash ) )
+        if ( auto &source_storage = curr.second; source_storage.contains( player_entity ) )
         {
-          target_storage->push( new_entity, source_storage.value( entity ) );
-          SPDLOG_INFO( "Copied component: {}", source_storage.type().name() );
-          copied_cmp.emplace_back( source_storage.type().name() );
+          auto type_hash = curr.first;
+          if ( auto *target_storage = registry_copy->storage( type_hash ) )
+          {
+            target_storage->push( new_entity, source_storage.value( player_entity ) );
+            SPDLOG_DEBUG( "Copied player component: {}", source_storage.type().name() );
+            copied_cmp.emplace_back( source_storage.type().name() );
+          }
+          else { SPDLOG_WARN( "No storage found in target registry for component: {}", source_storage.type().name() ); }
         }
-        else { SPDLOG_WARN( "No storage found in target registry for component: {}", source_storage.type().name() ); }
+      }
+      SPDLOG_DEBUG( "Player entity copied with {} components", copied_cmp.size() );
+    }
+    else { SPDLOG_WARN( "No player entity found in source registry to copy" ); }
+  }
+
+  // Copy other entities (for ALL mode only)
+  if ( copy_mode == RegCopyMode::ALL )
+  {
+    for ( auto entity : source_registry.storage<entt::entity>() )
+    {
+      // Skip player entity (already copied above)
+      if ( source_registry.any_of<Cmp::PlayerCharacter>( entity ) ) { continue; }
+
+      // Skip blacklisted components
+      if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::Neighbours, Cmp::NoPathFinding, Cmp::FootStepTimer,
+                                  Cmp::FootStepAlpha, Cmp::CryptRoomOpen, Cmp::CryptRoomClosed, Cmp::CryptRoomStart, Cmp::CryptRoomEnd,
+                                  Cmp::CryptPassageBlock, Cmp::CryptLever, Cmp::CryptObjectiveMultiBlock>( entity ) )
+      {
+        skipped_cmp++;
+        continue;
+      }
+
+      auto new_entity = registry_copy->create();
+
+      for ( auto &&curr : source_registry.storage() )
+      {
+        if ( auto &source_storage = curr.second; source_storage.contains( entity ) )
+        {
+          auto type_hash = curr.first;
+          if ( auto *target_storage = registry_copy->storage( type_hash ) )
+          {
+            target_storage->push( new_entity, source_storage.value( entity ) );
+            SPDLOG_DEBUG( "Copied component: {}", source_storage.type().name() );
+            copied_cmp.emplace_back( source_storage.type().name() );
+          }
+          else { SPDLOG_WARN( "No storage found in target registry for component: {}", source_storage.type().name() ); }
+        }
       }
     }
   }
-  SPDLOG_INFO( "Registry copy completed: {} copied, {} skipped", copied_cmp.size(), skipped_cmp );
+
+  SPDLOG_DEBUG( "Registry copy completed: {} copied, {} skipped", copied_cmp.size(), skipped_cmp );
   pretty_print( copied_cmp );
 
   return registry_copy;
@@ -103,17 +159,17 @@ void RegistryTransfer::xfer_player_entt( entt::registry &from_registry, entt::re
   {
     // No player exists, create new one
     target_entity = to_registry.create();
-    SPDLOG_INFO( "Created new player entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
+    SPDLOG_DEBUG( "Created new player entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
   }
   else
   {
     // Player exists, use existing entity
     target_entity = target_player_view.front();
-    SPDLOG_INFO( "Using existing player entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
+    SPDLOG_DEBUG( "Using existing player entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
   }
 
   // Ensure all known player component storages exist in target registry
-  ensure_player_component_storages( to_registry );
+  init_missing_cmp_storages( to_registry );
 
   // Create a copy of an entity component by component (from entt wiki)
   std::vector<std::string> transferred_cmps;
@@ -122,7 +178,7 @@ void RegistryTransfer::xfer_player_entt( entt::registry &from_registry, entt::re
   {
     if ( auto &source_storage = curr.second; source_storage.contains( source_entity ) )
     {
-      SPDLOG_INFO( "Transferring component: {}", source_storage.type().name() );
+      SPDLOG_DEBUG( "Transferring component: {}", source_storage.type().name() );
 
       auto type_hash = curr.first;
 
@@ -131,20 +187,20 @@ void RegistryTransfer::xfer_player_entt( entt::registry &from_registry, entt::re
         if ( target_storage->contains( target_entity ) )
         {
           target_storage->erase( target_entity );
-          SPDLOG_INFO( "Removed existing component: {}", source_storage.type().name() );
+          SPDLOG_DEBUG( "Removed existing component: {}", source_storage.type().name() );
           removed_cmps.emplace_back( source_storage.type().name() );
         }
         target_storage->push( target_entity, source_storage.value( source_entity ) );
         transferred_cmps.emplace_back( source_storage.type().name() );
 
-        SPDLOG_INFO( "Successfully transferred component: {}", source_storage.type().name() );
+        SPDLOG_DEBUG( "Successfully transferred component: {}", source_storage.type().name() );
       }
-      else { SPDLOG_WARN( "No storage found in target reg for cmp: {}", source_storage.type().name() ); }
+      else { SPDLOG_DEBUG( "No storage found in target reg for cmp: {}", source_storage.type().name() ); }
     }
   }
-  SPDLOG_INFO( "Component transfer completed: {} removed", removed_cmps.size() );
+  SPDLOG_DEBUG( "Component transfer completed: {} removed", removed_cmps.size() );
   pretty_print( removed_cmps );
-  SPDLOG_INFO( "Component transfer completed: {} transferred", transferred_cmps.size() );
+  SPDLOG_DEBUG( "Component transfer completed: {} transferred", transferred_cmps.size() );
   pretty_print( transferred_cmps );
 }
 
@@ -176,17 +232,17 @@ void RegistryTransfer::xfer_inventory_entt( entt::registry &source_registry, ent
     {
       // No player exists, create new one
       target_entity = target_registry.create();
-      SPDLOG_INFO( "Created new inventory entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
+      SPDLOG_DEBUG( "Created new inventory entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
     }
     else
     {
       // Player exists, use existing entity
       target_entity = target_inventory_view.front();
-      SPDLOG_INFO( "Using existing inventory entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
+      SPDLOG_DEBUG( "Using existing inventory entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
     }
 
     // Ensure all known player component storages exist in target registry
-    ensure_player_component_storages( target_registry );
+    init_missing_cmp_storages( target_registry );
 
     // Create a copy of an entity component by component (from entt wiki)
     std::vector<std::string> transferred_cmps;
@@ -195,7 +251,7 @@ void RegistryTransfer::xfer_inventory_entt( entt::registry &source_registry, ent
     {
       if ( auto &source_storage = curr.second; source_storage.contains( source_entity ) )
       {
-        SPDLOG_INFO( "Transferring component: {}", source_storage.type().name() );
+        SPDLOG_DEBUG( "Transferring component: {}", source_storage.type().name() );
 
         auto type_hash = curr.first;
 
@@ -204,25 +260,25 @@ void RegistryTransfer::xfer_inventory_entt( entt::registry &source_registry, ent
           if ( target_storage->contains( target_entity ) )
           {
             target_storage->erase( target_entity );
-            SPDLOG_INFO( "Removed existing component: {}", source_storage.type().name() );
+            SPDLOG_DEBUG( "Removed existing component: {}", source_storage.type().name() );
             removed_cmps.emplace_back( source_storage.type().name() );
           }
           target_storage->push( target_entity, source_storage.value( source_entity ) );
           transferred_cmps.emplace_back( source_storage.type().name() );
 
-          SPDLOG_INFO( "Successfully transferred component: {}", source_storage.type().name() );
+          SPDLOG_DEBUG( "Successfully transferred component: {}", source_storage.type().name() );
         }
         else { SPDLOG_WARN( "No storage found in target reg for cmp: {}", source_storage.type().name() ); }
       }
     }
-    SPDLOG_INFO( "Component transfer completed: {} removed", removed_cmps.size() );
+    SPDLOG_DEBUG( "Component transfer completed: {} removed", removed_cmps.size() );
     pretty_print( removed_cmps );
-    SPDLOG_INFO( "Component transfer completed: {} transferred", transferred_cmps.size() );
+    SPDLOG_DEBUG( "Component transfer completed: {} transferred", transferred_cmps.size() );
     pretty_print( transferred_cmps );
   }
 }
 
-void RegistryTransfer::ensure_player_component_storages( entt::registry &registry )
+void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
 {
   // Force storage creation by accessing storage for each known component type
   registry.storage<Cmp::AbsoluteAlpha>();

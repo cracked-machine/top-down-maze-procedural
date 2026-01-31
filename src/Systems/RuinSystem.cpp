@@ -111,21 +111,16 @@ void RuinSystem::check_floor_access_collision( Cmp::RuinFloorAccess::Direction d
       // Only trigger if player wasn't already on floor access (must leave and re-enter)
       if ( m_was_on_floor_access ) { continue; }
 
-      switch ( Utils::get_player_ruin_location( getReg() ) )
+      // Check if THIS floor access entity leads in the direction we're looking for
+      if ( access_cmp.m_direction != direction ) { continue; }
+
+      switch ( access_cmp.m_direction )
       {
-        case Cmp::PlayerRuinLocation::Floor::LOWER:
-          if ( direction == Cmp::RuinFloorAccess::Direction::TO_UPPER )
-          {
-            m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_RUIN_UPPER );
-          }
+        case Cmp::RuinFloorAccess::Direction::TO_UPPER:
+          m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_RUIN_UPPER );
           break;
-        case Cmp::PlayerRuinLocation::Floor::UPPER:
-          if ( direction == Cmp::RuinFloorAccess::Direction::TO_LOWER )
-          {
-            m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_RUIN_UPPER );
-          }
-          break;
-        case Cmp::PlayerRuinLocation::Floor::NONE:
+        case Cmp::RuinFloorAccess::Direction::TO_LOWER:
+          m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_RUIN_UPPER );
           break;
       }
     }
