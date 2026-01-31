@@ -133,7 +133,7 @@ void RenderGameSystem::init_shaders()
 }
 
 void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys,
-                                    Sprites::Containers::TileMap &floormap, DarkMode dark_mode )
+                                    Sprites::Containers::TileMap &floormap, DarkMode dark_mode, WeatherMode weather_mode )
 {
   using namespace Sprites;
 
@@ -206,34 +206,21 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_armed();
       render_shockwaves( floormap );
       render_arrow_compass();
-      render_mist( player_position );
+      if ( weather_mode == WeatherMode::ON ) { render_mist( player_position ); }
       // lava pit outline
       render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 64, 64, 64 ), 0.5f );
-      for ( auto [ruin_entt, segment_cmp, pos_cmp] : getReg().view<Cmp::RuinSegment, Cmp::Position>().each() )
-      {
-        if ( segment_cmp.isSolidMask() )
-        {
-          sf::RectangleShape rectangle;
-          rectangle.setSize( pos_cmp.size );
-          rectangle.setPosition( pos_cmp.position );
-          rectangle.setFillColor( sf::Color::Transparent );
-          rectangle.setOutlineThickness( 1.f );
-          rectangle.setOutlineColor( sf::Color::Yellow );
-          m_window.draw( rectangle );
-        }
-      }
 
-      for ( auto [ruin_entt, access_cmp] : getReg().view<Cmp::RuinFloorAccess>().each() )
-      {
-        sf::RectangleShape rectangle;
-        rectangle.setSize( access_cmp.size );
-        rectangle.setPosition( access_cmp.position );
-        rectangle.setFillColor( sf::Color::Transparent );
-        rectangle.setOutlineThickness( 1.f );
-        if ( access_cmp.m_direction == Cmp::RuinFloorAccess::Direction::TO_LOWER ) { rectangle.setOutlineColor( sf::Color::Blue ); }
-        else { rectangle.setOutlineColor( sf::Color::White ); }
-        m_window.draw( rectangle );
-      }
+      // for ( auto [ruin_entt, access_cmp] : getReg().view<Cmp::RuinFloorAccess>().each() )
+      // {
+      //   sf::RectangleShape rectangle;
+      //   rectangle.setSize( access_cmp.size );
+      //   rectangle.setPosition( access_cmp.position );
+      //   rectangle.setFillColor( sf::Color::Transparent );
+      //   rectangle.setOutlineThickness( 1.f );
+      //   if ( access_cmp.m_direction == Cmp::RuinFloorAccess::Direction::TO_LOWER ) { rectangle.setOutlineColor( sf::Color::Blue ); }
+      //   else { rectangle.setOutlineColor( sf::Color::White ); }
+      //   m_window.draw( rectangle );
+      // }
 
       if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
 

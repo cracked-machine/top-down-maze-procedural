@@ -28,6 +28,7 @@ class RenderGameSystem : public RenderSystem
 {
 public:
   enum class DarkMode { OFF = 0, ON = 1 };
+  enum class WeatherMode { OFF, ON };
 
   RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~RenderGameSystem() = default;
@@ -53,7 +54,7 @@ public:
   //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc..
   //! as well as death animations/effects
   void render_game( sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap,
-                    DarkMode dark_mode = DarkMode::OFF );
+                    DarkMode dark_mode = DarkMode::OFF, WeatherMode weather_mode = WeatherMode::ON );
 
 private:
   //! @brief Renders the game world floor
