@@ -1,0 +1,13 @@
+{
+  "tilemap": {
+    "texture_path": "res/textures/RUIN.interior_upper_floor.png",
+    "tile_size": {
+      "width": 16,
+      "height": 16
+    },
+    "floor_tile_pool": [
+      0,1,2,3,4
+    ],
+    "random_seed": 0
+  }
+}

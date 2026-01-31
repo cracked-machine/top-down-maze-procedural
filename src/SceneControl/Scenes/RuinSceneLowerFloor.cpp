@@ -68,7 +68,7 @@ void RuinSceneLowerFloor::on_init()
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase(
       { RuinSceneLowerFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, stairs_ms );
 
-  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneLowerFloor::kMapGridSize, "res/json/holywell_tilemap_config.json" );
+  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneLowerFloor::kMapGridSize, "res/json/ruin_lower_tilemap_config.json" );
 }
 
 void RuinSceneLowerFloor::on_enter()

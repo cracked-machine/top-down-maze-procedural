@@ -65,7 +65,7 @@ void RuinSceneUpperFloor::on_init()
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase(
       { RuinSceneUpperFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, stairs_ms );
 
-  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneUpperFloor::kMapGridSize, "res/json/holywell_tilemap_config.json" );
+  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneUpperFloor::kMapGridSize, "res/json/ruin_upper_tilemap_config.json" );
 }
 
 void RuinSceneUpperFloor::on_enter()
