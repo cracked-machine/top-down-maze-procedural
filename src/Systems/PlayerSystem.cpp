@@ -612,6 +612,9 @@ void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool collision_
 
       float adjusted_speed = player_lerp_speed.get_value() * speed_modifier;
 
+      // adjust for speed penalty
+      adjusted_speed *= Utils::get_player_speed_penalty( getReg() );
+
       getReg().emplace<Cmp::LerpPosition>( entity, new_pos.position, adjusted_speed );
       lerp_cmp = getReg().try_get<Cmp::LerpPosition>( entity );
 

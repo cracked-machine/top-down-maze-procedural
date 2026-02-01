@@ -12,6 +12,7 @@
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Player/PlayerRuinLocation.hpp>
+#include <Components/Player/PlayerSpeedPenalty.hpp>
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
@@ -203,6 +204,13 @@ static Cmp::PlayerMortality &get_player_mortality( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerMortality>();
   return player_view.get<Cmp::PlayerMortality>( get_player_entity( reg ) );
+}
+
+static float get_player_speed_penalty( entt::registry &reg )
+{
+  auto penalty_cmp = reg.try_get<Cmp::PlayerSpeedPenalty>( get_player_entity( reg ) );
+  if ( penalty_cmp ) { return penalty_cmp->m_penalty; }
+  else { return 1.f; }
 }
 
 static void remove_player_lerp_cmp( entt::registry &reg )

@@ -1,16 +1,23 @@
 #include <Audio/SoundBank.hpp>
+#include <Components/LerpPosition.hpp>
+#include <Components/Persistent/PlayerLerpSpeed.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerRuinLocation.hpp>
+#include <Components/Player/PlayerSpeedPenalty.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/Ruin/RuinFloorAccess.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
+#include <Components/Ruin/RuinStairsLowerMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsSegment.hpp>
+#include <Components/Ruin/RuinStairsUpperMultiBlock.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Sprites/MultiSprite.hpp>
+#include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/RuinSystem.hpp>
 #include <Utils/Optimizations.hpp>
@@ -46,8 +53,8 @@ void RuinSystem::update()
       if ( door_pos_cmp.findIntersection( ruin_mb_cmp ) )
       {
         getReg().emplace_or_replace<Cmp::ZOrderValue>( ruin_mb_entity, player_pos.position.y - 16.f );
-        SPDLOG_INFO( "check_entrance_collision: Player entering ruin from graveyard at position ({}, {})", player_pos.position.x,
-                     player_pos.position.y );
+        SPDLOG_DEBUG( "check_entrance_collision: Player entering ruin from graveyard at position ({}, {})", player_pos.position.x,
+                      player_pos.position.y );
         m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER );
 
         // remember player position
@@ -71,7 +78,7 @@ void RuinSystem::spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f s
 {
   auto floor_access_entt = getReg().create();
   getReg().emplace_or_replace<Cmp::RuinFloorAccess>( floor_access_entt, spawn_position, size, dir );
-  SPDLOG_INFO( "Spawning floor access at {},{}", spawn_position.x, spawn_position.y );
+  SPDLOG_DEBUG( "Spawning floor access at {},{}", spawn_position.x, spawn_position.y );
 }
 
 void RuinSystem::check_floor_access_collision( Cmp::RuinFloorAccess::Direction direction )
@@ -107,6 +114,31 @@ void RuinSystem::check_floor_access_collision( Cmp::RuinFloorAccess::Direction d
 
   // Update tracking - player must leave floor access area before it can trigger again
   m_was_on_floor_access = currently_on_floor_access;
+}
+
+void RuinSystem::check_starcase_multiblock_collision()
+{
+  bool slowdown = false;
+  auto player_pos = Utils::get_player_position( getReg() );
+  for ( auto [access_entt, access_cmp] : getReg().view<Cmp::RuinStairsLowerMultiBlock>().each() )
+  {
+    if ( player_pos.findIntersection( access_cmp ) ) { slowdown = true; }
+  }
+  for ( auto [access_entt, access_cmp] : getReg().view<Cmp::RuinStairsUpperMultiBlock>().each() )
+  {
+    if ( player_pos.findIntersection( access_cmp ) ) { slowdown = true; }
+  }
+
+  if ( slowdown )
+  {
+    auto player_entt = Utils::get_player_entity( getReg() );
+    getReg().emplace_or_replace<Cmp::PlayerSpeedPenalty>( player_entt, 0.7 );
+  }
+  else
+  {
+    auto player_entt = Utils::get_player_entity( getReg() );
+    if ( getReg().any_of<Cmp::PlayerSpeedPenalty>( player_entt ) ) { getReg().remove<Cmp::PlayerSpeedPenalty>( player_entt ); }
+  }
 }
 
 } // namespace ProceduralMaze::Sys

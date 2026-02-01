@@ -119,6 +119,7 @@ void RuinSceneUpperFloor::do_update( [[maybe_unused]] sf::Time dt )
   // m_system_store.find<Sys::SystemStore::Type::FootstepSystem>().update();
   m_system_store.find<Sys::SystemStore::Type::LootSystem>().check_loot_collision();
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().check_floor_access_collision( Cmp::RuinFloorAccess::Direction::TO_LOWER );
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().check_starcase_multiblock_collision();
 
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt, Sys::PlayerSystem::FootStepSfx::NONE );
 

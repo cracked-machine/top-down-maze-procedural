@@ -41,6 +41,7 @@ public:
   }
 
   void check_floor_access_collision( Cmp::RuinFloorAccess::Direction direction );
+  void check_starcase_multiblock_collision();
 
   //! @brief Reset the floor access cooldown (call when entering a ruin scene)
   void reset_floor_access_cooldown()
