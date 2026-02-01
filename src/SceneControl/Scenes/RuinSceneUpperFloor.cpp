@@ -1,5 +1,7 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Ruin/RuinObjectiveType.hpp>
+#include <Components/Ruin/RuinStairsBalustradeMultiBlock.hpp>
+#include <Components/Ruin/RuinStairsUpperMultiBlock.hpp>
 #include <Components/System.hpp>
 #include <Factory/WallFactory.hpp>
 #include <SceneControl/Scenes/RuinSceneUpperFloor.hpp>
@@ -47,13 +49,11 @@ void RuinSceneUpperFloor::on_init()
                                            Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
   // add two Cmp::NoPathFinding above the upper staircase landing to enforce perspective
-
   Factory::add_nopathfinding(
       m_reg, { RuinSceneUpperFloor::kMapGridSizeF.x - ( 2 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.x } );
   Factory::add_nopathfinding(
       m_reg, { RuinSceneUpperFloor::kMapGridSizeF.x - ( 3 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.x } );
 
-  // m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_objective( Utils::snap_to_grid( { 32.f, 32.f } ) );
   // place the objective that was picked in RuinSceneLowerFloor scene
   auto ruin_objective_view = m_reg.view<Cmp::RuinObjectiveType>();
   SPDLOG_INFO( "ruin_objective_view: {}", ruin_objective_view->size() );
@@ -69,10 +69,16 @@ void RuinSceneUpperFloor::on_init()
       { ( 2 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, Cmp::RuinFloorAccess::Direction::TO_LOWER );
 
   // add the straircase sprite for upper floor
-  const Sprites::MultiSprite &stairs_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_going_down" );
-  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase(
+  const Sprites::MultiSprite &stairs_upper_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_going_down" );
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase_multiblock<Cmp::RuinStairsUpperMultiBlock>(
       { RuinSceneUpperFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ), ( 2 * Constants::kGridSquareSizePixelsF.y ) },
-      stairs_ms );
+      stairs_upper_ms );
+
+  // add the straircase balustrade sprite for upper floor - make sure it is front of player
+  const Sprites::MultiSprite &stairs_balustrade_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_upper_balustrade" );
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase_multiblock<Cmp::RuinStairsBalustradeMultiBlock>(
+      { RuinSceneUpperFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ), ( 2 * Constants::kGridSquareSizePixelsF.y ) },
+      stairs_balustrade_ms, Utils::get_player_position( m_reg ).position.y + Constants::kGridSquareSizePixelsF.y );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneUpperFloor::kMapGridSize, "res/json/ruin_upper_tilemap_config.json" );
 }

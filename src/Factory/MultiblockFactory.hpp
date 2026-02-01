@@ -15,8 +15,8 @@
 #include <Components/NoPathFinding.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/Ruin/RuinBuildingMultiBlock.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
-#include <Components/Ruin/RuinMultiBlock.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
 #include <Components/Ruin/RuinStairsSegment.hpp>
 #include <Components/SpriteAnimation.hpp>
@@ -123,7 +123,7 @@ void createMultiblockSegments( entt::registry &registry, entt::entity multiblock
                       calculated_grid_index );
       }
     }
-    else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::RuinMultiBlock> )
+    else if constexpr ( std::is_same_v<MULTIBLOCK, Cmp::RuinBuildingMultiBlock> )
     {
       if ( calculated_grid_index == 29 )
       {

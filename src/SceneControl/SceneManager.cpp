@@ -70,14 +70,6 @@ void SceneManager::push( std::unique_ptr<IScene> new_scene, RegCopyMode mode )
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_component_entt<Cmp::PlayerInventorySlot>( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_component_entt<Cmp::RuinObjectiveType>( *reg_copy, m_scene_stack.current().registry() );
-
-    // loading_screen(
-    //     [&]()
-    //     {
-    //       m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-    //       m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
-    //     },
-    //     m_splash_texture );
   }
 
   loading_screen( [&]() { m_scene_stack.current().on_init(); }, m_splash_texture );
@@ -101,13 +93,6 @@ void SceneManager::push_no_exit( std::unique_ptr<IScene> new_scene, RegCopyMode 
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_component_entt<Cmp::PlayerInventorySlot>( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_component_entt<Cmp::RuinObjectiveType>( *reg_copy, m_scene_stack.current().registry() );
-    // loading_screen(
-    //     [&]()
-    //     {
-    //       m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-    //       m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
-    //     },
-    //     m_splash_texture );
   }
 
   loading_screen( [&]() { m_scene_stack.current().on_init(); }, m_splash_texture );
@@ -131,13 +116,6 @@ void SceneManager::pop( RegCopyMode mode )
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_component_entt<Cmp::PlayerInventorySlot>( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_component_entt<Cmp::RuinObjectiveType>( *reg_copy, m_scene_stack.current().registry() );
-    // loading_screen(
-    //     [&]()
-    //     {
-    //       m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-    //       m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
-    //     },
-    //     m_splash_texture );
   }
 
   if ( !m_scene_stack.empty() )
@@ -162,13 +140,6 @@ void SceneManager::pop_no_exit( RegCopyMode mode )
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_component_entt<Cmp::PlayerInventorySlot>( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_component_entt<Cmp::RuinObjectiveType>( *reg_copy, m_scene_stack.current().registry() );
-    // loading_screen(
-    //     [&]()
-    //     {
-    //       m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-    //       m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
-    //     },
-    //     m_splash_texture );
   }
 
   loading_screen( [&]() { m_scene_stack.current().on_enter(); }, m_splash_texture );
@@ -195,13 +166,6 @@ void SceneManager::replace( std::unique_ptr<IScene> new_scene, RegCopyMode mode 
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_component_entt<Cmp::PlayerInventorySlot>( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_component_entt<Cmp::RuinObjectiveType>( *reg_copy, m_scene_stack.current().registry() );
-    // loading_screen(
-    //     [&]()
-    //     {
-    //       m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-    //       m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
-    //     },
-    //     m_splash_texture );
   }
 
   loading_screen( [&]() { m_scene_stack.current().on_enter(); }, m_splash_texture );
@@ -225,13 +189,6 @@ void SceneManager::replace_no_exit( std::unique_ptr<IScene> new_scene, RegCopyMo
     m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_component_entt<Cmp::PlayerInventorySlot>( *reg_copy, m_scene_stack.current().registry() );
     m_reg_xfer.xfer_component_entt<Cmp::RuinObjectiveType>( *reg_copy, m_scene_stack.current().registry() );
-    // loading_screen(
-    //     [&]()
-    //     {
-    //       m_reg_xfer.xfer_player_entt( *reg_copy, m_scene_stack.current().registry() );
-    //       m_reg_xfer.xfer_inventory_entt( *reg_copy, m_scene_stack.current().registry() );
-    //     },
-    //     m_splash_texture );
   }
 
   loading_screen( [&]() { m_scene_stack.current().on_enter(); }, m_splash_texture );

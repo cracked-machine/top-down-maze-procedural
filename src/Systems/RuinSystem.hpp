@@ -2,6 +2,7 @@
 #define SRC_SYSTEMS_RUINSYSTEM_HPP_
 
 #include <Components/Ruin/RuinFloorAccess.hpp>
+#include <Factory/MultiblockFactory.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -22,9 +23,22 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
-  // void spawn_objective( sf::Vector2f spawn_position, Sprites::SpriteMetaType type );
   void spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f size, Cmp::RuinFloorAccess::Direction dir );
-  void spawn_staircase( sf::Vector2f spawn_position, const Sprites::MultiSprite &stairs_ms );
+
+  template <typename COMPONENT>
+  void spawn_staircase_multiblock( sf::Vector2f spawn_position, const Sprites::MultiSprite &stairs_ms, float zorder = 0 )
+  {
+    auto stairs_entt = getReg().create();
+    Cmp::Position stairs_pos( spawn_position, stairs_ms.getSpriteSizePixels() );
+    getReg().emplace_or_replace<Cmp::Position>( stairs_entt, spawn_position, stairs_ms.getSpriteSizePixels() );
+    Factory::createMultiblock<COMPONENT>( getReg(), stairs_entt, stairs_pos, stairs_ms );
+    Factory::createMultiblockSegments<COMPONENT, Cmp::RuinStairsSegment>( getReg(), stairs_entt, stairs_pos, stairs_ms );
+
+    for ( auto [stairs_entt, stairs_cmp, stairs_zorder] : getReg().view<COMPONENT, Cmp::ZOrderValue>().each() )
+    {
+      stairs_zorder.setZOrder( zorder );
+    }
+  }
 
   void check_floor_access_collision( Cmp::RuinFloorAccess::Direction direction );
 

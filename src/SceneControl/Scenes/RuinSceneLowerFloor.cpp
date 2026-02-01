@@ -1,6 +1,7 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Ruin/RuinFloorAccess.hpp>
 #include <Components/Ruin/RuinObjectiveType.hpp>
+#include <Components/Ruin/RuinStairsLowerMultiBlock.hpp>
 #include <Components/System.hpp>
 #include <SceneControl/Scenes/RuinSceneLowerFloor.hpp>
 
@@ -65,7 +66,7 @@ void RuinSceneLowerFloor::on_init()
 
   // add the straircase sprite for lower floor
   const Sprites::MultiSprite &stairs_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.interior_staircase_going_up" );
-  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase(
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase_multiblock<Cmp::RuinStairsLowerMultiBlock>(
       { RuinSceneLowerFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, stairs_ms );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneLowerFloor::kMapGridSize, "res/json/ruin_lower_tilemap_config.json" );

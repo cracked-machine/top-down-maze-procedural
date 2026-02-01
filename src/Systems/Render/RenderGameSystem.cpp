@@ -19,8 +19,8 @@
 #include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerWealth.hpp>
+#include <Components/Ruin/RuinBuildingMultiBlock.hpp>
 #include <Components/Ruin/RuinFloorAccess.hpp>
-#include <Components/Ruin/RuinMultiBlock.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
@@ -96,7 +96,7 @@ void RenderGameSystem::refresh_z_order_queue()
   add_visible_entity_to_z_order_queue<Cmp::GraveMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::HolyWellMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::CryptInteriorMultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::RuinMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::RuinBuildingMultiBlock>( m_zorder_queue_, view_bounds );
 
   // add other components as normal
   add_visible_entity_to_z_order_queue<Cmp::Position>( m_zorder_queue_, view_bounds );
@@ -313,7 +313,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
         render_overlay_sys.render_stats_overlay( stats_pos1, stats_pos2 );
 
         render_overlay_sys.render_zorder_values_overlay(
-            { 40.f, start_y_pos += 40.f }, m_zorder_queue_,
+            { display_size.x - 800.f, 40.f }, m_zorder_queue_,
             { "ROCK", "CRYPT.interior_sb", "WALL", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED" } );
         sf::Vector2u display_size = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
         render_overlay_sys.render_npc_list_overlay( { display_size.x - 600.f, 200.f } );

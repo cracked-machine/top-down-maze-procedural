@@ -3,7 +3,6 @@
 #include <Components/RectBounds.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/Ruin/RuinFloorAccess.hpp>
-#include <Components/Ruin/RuinMultiBlock.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
 #include <Components/Ruin/RuinStairsSegment.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -41,7 +40,7 @@ void RuinSystem::update()
     auto player_hitbox = Cmp::RectBounds( player_pos.position, player_pos.size, 0.5f );
     if ( not player_hitbox.findIntersection( door_pos_cmp ) ) continue;
 
-    auto ruin_mb_view = getReg().view<Cmp::RuinMultiBlock>();
+    auto ruin_mb_view = getReg().view<Cmp::RuinBuildingMultiBlock>();
     for ( auto [ruin_mb_entity, ruin_mb_cmp] : ruin_mb_view.each() )
     {
       if ( door_pos_cmp.findIntersection( ruin_mb_cmp ) )
@@ -68,31 +67,11 @@ void RuinSystem::update()
   }
 }
 
-// void RuinSystem::spawn_objective( sf::Vector2f spawn_position, Sprites::SpriteMetaType type )
-// {
-
-//   Factory::createCarryItem( getReg(), Cmp::Position( spawn_position, Constants::kGridSquareSizePixelsF ), type );
-// }
-
 void RuinSystem::spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f size, Cmp::RuinFloorAccess::Direction dir )
 {
   auto floor_access_entt = getReg().create();
   getReg().emplace_or_replace<Cmp::RuinFloorAccess>( floor_access_entt, spawn_position, size, dir );
   SPDLOG_INFO( "Spawning floor access at {},{}", spawn_position.x, spawn_position.y );
-}
-
-void RuinSystem::spawn_staircase( sf::Vector2f spawn_position, const Sprites::MultiSprite &stairs_ms )
-{
-  auto stairs_entt = getReg().create();
-  Cmp::Position stairs_pos( spawn_position, stairs_ms.getSpriteSizePixels() );
-  getReg().emplace_or_replace<Cmp::Position>( stairs_entt, spawn_position, stairs_ms.getSpriteSizePixels() );
-  Factory::createMultiblock<Cmp::RuinMultiBlock>( getReg(), stairs_entt, stairs_pos, stairs_ms );
-  Factory::createMultiblockSegments<Cmp::RuinMultiBlock, Cmp::RuinStairsSegment>( getReg(), stairs_entt, stairs_pos, stairs_ms );
-
-  for ( auto [stairs_entt, stairs_cmp, stairs_zorder] : getReg().view<Cmp::RuinMultiBlock, Cmp::ZOrderValue>().each() )
-  {
-    stairs_zorder.setZOrder( 0 );
-  }
 }
 
 void RuinSystem::check_floor_access_collision( Cmp::RuinFloorAccess::Direction direction )

@@ -11,7 +11,6 @@
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/NoPathFinding.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
-#include <Components/Ruin/RuinMultiBlock.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
@@ -92,55 +91,56 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, C
           BOTTOMFRONTRIGHT = 11,
         };
 
-        float player_ypos = Utils::get_player_position( getReg() ).position.y;
+        // new_pos.y + grid_height = in front of player
+        // new_pos.y - grid_height = behind the player
         float grid_height = Constants::kGridSquareSizePixelsF.y;
 
         // Top-left corner
-        if ( x == 0 && y == 0 ) Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPLEFT, player_ypos - grid_height );
+        if ( x == 0 && y == 0 ) Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPLEFT, new_pos.y + grid_height );
 
         // Top edge (excluding corners)
         else if ( x > 0 && x < w - 1 && y == 0 )
-          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPCENTER, player_ypos - grid_height );
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPCENTER, new_pos.y + grid_height );
 
         // Top front side (facing the player, excluding corners)
         else if ( x > 0 && x < w - 1 && y == 1 )
-          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPFRONT, -grid_height, Factory::SolidWall::FALSE );
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPFRONT, new_pos.y - 2 * grid_height, Factory::SolidWall::FALSE );
 
         // Top-right corner
         else if ( x == w - 1 && y == 0 )
-          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPRIGHT, player_ypos - grid_height );
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPRIGHT, new_pos.y + grid_height );
 
         // Left edge (excluding corners)
         else if ( x == 0 && y > 0 && y < h - 1 )
-          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::LEFT, player_ypos - grid_height );
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::LEFT, new_pos.y + grid_height );
 
         // Right edge (excluding corners)
         else if ( x == w - 1 && y > 0 && y < h - 1 )
-          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::RIGHT, player_ypos - grid_height );
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::RIGHT, new_pos.y + grid_height );
 
         // Bottom-left corner
         else if ( x == 0 && y == h - 2 )
-          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMLEFT, player_ypos + grid_height, Factory::SolidWall::FALSE );
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMLEFT, new_pos.y + grid_height, Factory::SolidWall::FALSE );
 
         // Bottom edge (excluding corners)
         else if ( x > 0 && x < w - 1 && y == h - 2 )
-          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMCENTER, player_ypos + grid_height, Factory::SolidWall::FALSE );
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMCENTER, new_pos.y + grid_height, Factory::SolidWall::FALSE );
 
         // Bottom-right corner
         else if ( x == w - 1 && y == h - 2 )
-          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMRIGHT, player_ypos + grid_height, Factory::SolidWall::FALSE );
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMRIGHT, new_pos.y + grid_height, Factory::SolidWall::FALSE );
 
         // Bottom-left front side corner (facing the player)
         else if ( x == 0 && y == h - 1 )
-          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMFRONTLEFT, player_ypos - grid_height );
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMFRONTLEFT, new_pos.y + grid_height );
 
         // Bottom front side (facing the player, excluding corners)
         else if ( x > 0 && x < w - 1 && y == h - 1 )
-          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMFRONTCENTER, player_ypos - grid_height );
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMFRONTCENTER, new_pos.y + grid_height );
 
         // Bottom-right front side corner (facing the player)
         else if ( x == w - 1 && y == h - 1 )
-          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMFRONTRIGHT, player_ypos - grid_height );
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMFRONTRIGHT, new_pos.y + grid_height );
       }
 
       bool isInside = ( x > 0 ) && ( y > 1 ) && ( x < w - 1 ) && ( y < h - 1 );
@@ -373,8 +373,8 @@ void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::
   }
   else if ( ms.get_sprite_type() == "RUIN.exterior_building" )
   {
-    Factory::createMultiblock<Cmp::RuinMultiBlock>( getReg(), random_entity, random_origin_position, ms );
-    Factory::createMultiblockSegments<Cmp::RuinMultiBlock, Cmp::RuinSegment>( getReg(), random_entity, random_origin_position, ms );
+    Factory::createMultiblock<Cmp::RuinBuildingMultiBlock>( getReg(), random_entity, random_origin_position, ms );
+    Factory::createMultiblockSegments<Cmp::RuinBuildingMultiBlock, Cmp::RuinSegment>( getReg(), random_entity, random_origin_position, ms );
   }
   else
   {
