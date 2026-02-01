@@ -89,6 +89,17 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
     }
   }
 
+  // arbitrary Cmp::NoPathFinding components
+  auto nppathfinding_view = getReg().view<Cmp::NoPathFinding, Cmp::Position>();
+  for ( auto [entt, nopath_cmp, pos_cmp] : nppathfinding_view.each() )
+  {
+    if ( pos_cmp.findIntersection( target_position ) )
+    {
+      SPDLOG_DEBUG( "Player Collided Cmp::NoPathFinding" );
+      return false;
+    }
+  }
+
   // Check doors
   auto door_view = getReg().view<Cmp::Exit, Cmp::Position>();
   for ( auto [entity, exit_cmp, pos_cmp] : door_view.each() )

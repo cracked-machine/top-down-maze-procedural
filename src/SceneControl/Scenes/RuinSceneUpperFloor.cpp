@@ -1,6 +1,7 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Ruin/RuinObjectiveType.hpp>
 #include <Components/System.hpp>
+#include <Factory/WallFactory.hpp>
 #include <SceneControl/Scenes/RuinSceneUpperFloor.hpp>
 
 #include <Audio/SoundBank.hpp>
@@ -45,6 +46,13 @@ void RuinSceneUpperFloor::on_init()
   random_level_sys.gen_rectangle_gamearea( RuinSceneUpperFloor::kMapGridSize, player_start_area, "RUIN.interior_wall",
                                            Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
+  // add two Cmp::NoPathFinding above the upper staircase landing to enforce perspective
+
+  Factory::add_nopathfinding(
+      m_reg, { RuinSceneUpperFloor::kMapGridSizeF.x - ( 2 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.x } );
+  Factory::add_nopathfinding(
+      m_reg, { RuinSceneUpperFloor::kMapGridSizeF.x - ( 3 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.x } );
+
   // m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_objective( Utils::snap_to_grid( { 32.f, 32.f } ) );
   // place the objective that was picked in RuinSceneLowerFloor scene
   auto ruin_objective_view = m_reg.view<Cmp::RuinObjectiveType>();
@@ -63,7 +71,8 @@ void RuinSceneUpperFloor::on_init()
   // add the straircase sprite for upper floor
   const Sprites::MultiSprite &stairs_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_going_down" );
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase(
-      { RuinSceneUpperFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, stairs_ms );
+      { RuinSceneUpperFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ), ( 2 * Constants::kGridSquareSizePixelsF.y ) },
+      stairs_ms );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneUpperFloor::kMapGridSize, "res/json/ruin_upper_tilemap_config.json" );
 }

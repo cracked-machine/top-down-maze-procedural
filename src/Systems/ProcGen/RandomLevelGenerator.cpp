@@ -104,7 +104,7 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, C
 
         // Top front side (facing the player, excluding corners)
         else if ( x > 0 && x < w - 1 && y == 1 )
-          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPFRONT, 0, Factory::SolidWall::FALSE );
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPFRONT, -grid_height, Factory::SolidWall::FALSE );
 
         // Top-right corner
         else if ( x == w - 1 && y == 0 )

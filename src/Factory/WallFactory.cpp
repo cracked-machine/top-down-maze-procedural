@@ -25,4 +25,11 @@ void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, Sprites::Spr
   if ( solid_wall == SolidWall::TRUE ) { reg.emplace_or_replace<Cmp::NoPathFinding>( entity ); }
 }
 
+void add_nopathfinding( entt::registry &reg, const sf::Vector2f &pos )
+{
+  auto entity = reg.create();
+  reg.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSquareSizePixelsF );
+  reg.emplace_or_replace<Cmp::NoPathFinding>( entity );
+}
+
 } // namespace ProceduralMaze::Factory
