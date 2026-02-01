@@ -497,6 +497,22 @@ void PlayerSystem::stopFootstepsSound()
   m_sound_bank.get_effect( "footsteps" ).stop();
 }
 
+void PlayerSystem::disable_damage_cooldown()
+{
+  for ( auto [player_entt, player_cmp] : getReg().view<Cmp::PlayerCharacter>().each() )
+  {
+    player_cmp.m_damage_cooldown_timer.stop();
+  }
+}
+
+void PlayerSystem::enable_damage_cooldown()
+{
+  for ( auto [player_entt, player_cmp] : getReg().view<Cmp::PlayerCharacter>().each() )
+  {
+    player_cmp.m_damage_cooldown_timer.restart();
+  }
+}
+
 void PlayerSystem::localTransforms()
 {
 

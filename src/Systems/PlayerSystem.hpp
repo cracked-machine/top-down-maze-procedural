@@ -47,6 +47,8 @@ public:
 
   void playFootstepsSound( FootStepSfx type );
   void stopFootstepsSound();
+  void disable_damage_cooldown();
+  void enable_damage_cooldown();
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}

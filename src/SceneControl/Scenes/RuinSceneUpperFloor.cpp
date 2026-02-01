@@ -122,6 +122,7 @@ void RuinSceneUpperFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().check_starcase_multiblock_collision();
 
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt, Sys::PlayerSystem::FootStepSfx::NONE );
+  m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().disable_damage_cooldown();
 
   auto &overlay_sys = m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>();
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::RenderGameSystem::DarkMode::OFF,
