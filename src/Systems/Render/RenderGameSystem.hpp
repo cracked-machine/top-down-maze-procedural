@@ -47,6 +47,11 @@ public:
   //! @brief Initializes the shaders used for rendering
   void init_shaders();
 
+  void updateCamera( sf::Time deltaTime );
+
+  // Camera smoothing settings
+  static constexpr float kCameraSmoothSpeed = 8.0f; // Higher = snappier, Lower = smoother
+
   //! @brief Entrypoint for rendering the game
   //! @param deltaTime
   //! @param render_overlay_sys anything that is not part of the game world itself. i.e. UI, debug
@@ -57,6 +62,9 @@ public:
                     DarkMode dark_mode = DarkMode::OFF, WeatherMode weather_mode = WeatherMode::ON );
 
 private:
+  sf::Vector2f m_camera_position{ 0.f, 0.f }; // Smoothed camera position
+  bool m_camera_initialized{ false };
+
   //! @brief Renders the game world floor
   //! @param offset The offset to apply to the floor rendering
   void render_floormap( Sprites::Containers::TileMap &floormap, const sf::Vector2f &offset = { 0.f, 0.f } );

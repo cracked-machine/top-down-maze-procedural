@@ -1,4 +1,3 @@
-
 #include <Components/Altar/AltarSegment.hpp>
 #include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptInteriorSegment.hpp>
@@ -626,16 +625,45 @@ void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool collision_
 
     update_player_animation( lerp_cmp, dir_cmp, anim_cmp );
 
-    // Only start new movement when not lerping
-    if ( wants_to_move && !lerp_cmp )
-    {
-      // disable new lerp starting during wormhole jump
-      if ( getReg().try_get<Cmp::WormholeJump>( entity ) ) return;
+    // disable new lerp starting during wormhole jump
+    if ( getReg().try_get<Cmp::WormholeJump>( entity ) ) continue;
 
-      // make a copy to determine if new target position is valid
-      sf::FloatRect new_pos{ pos_cmp };
-      new_pos.position.x = pos_cmp.position.x + ( dir_cmp.x * Constants::kGridSquareSizePixels.x );
-      new_pos.position.y = pos_cmp.position.y + ( dir_cmp.y * Constants::kGridSquareSizePixels.y );
+    // Check if player wants to change direction mid-lerp
+    // Only allow interruption in the first 30% of the lerp - after that, commit to current direction
+    constexpr float kInterruptThreshold = 0.25f;
+    if ( wants_to_move && lerp_cmp && lerp_cmp->m_lerp_factor < kInterruptThreshold )
+    {
+      // Calculate the direction of the current lerp
+      sf::Vector2f lerp_direction = lerp_cmp->m_target - lerp_cmp->m_start;
+      sf::Vector2f lerp_dir_normalized{ lerp_direction.x > 0.f ? 1.f : ( lerp_direction.x < 0.f ? -1.f : 0.f ),
+                                        lerp_direction.y > 0.f ? 1.f : ( lerp_direction.y < 0.f ? -1.f : 0.f ) };
+
+      // Different direction requested?
+      if ( lerp_dir_normalized != dir_cmp )
+      {
+        // Snap BACK to start position since we're early in the lerp
+        pos_cmp.position = lerp_cmp->m_start;
+        pc_detection_bounds.position( pos_cmp.position );
+
+        // Remove old lerp - will start fresh from grid position
+        getReg().remove<Cmp::LerpPosition>( entity );
+        lerp_cmp = nullptr;
+        // Fall through to "start new movement" block below
+      }
+    }
+
+    // Start new movement when not currently lerping
+    else if ( wants_to_move && !lerp_cmp )
+    {
+      // Ensure we start from a clean grid position
+      sf::Vector2f snapped_start = Utils::snap_to_grid( pos_cmp.position, Utils::Rounding::NEAREST );
+      pos_cmp.position = snapped_start;
+      pc_detection_bounds.position( snapped_start );
+
+      // Calculate target position from snapped start
+      sf::FloatRect new_pos{ snapped_start, pos_cmp.size };
+      new_pos.position.x = snapped_start.x + ( dir_cmp.x * Constants::kGridSquareSizePixels.x );
+      new_pos.position.y = snapped_start.y + ( dir_cmp.y * Constants::kGridSquareSizePixels.y );
 
       // Check collision ONCE
       bool can_move = not collision_detection || is_valid_move( new_pos );
@@ -644,38 +672,39 @@ void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool collision_
       float adjusted_speed = adjust_lerp_speed( pos_cmp, dir_cmp );
       if ( adjusted_speed == -1.f ) { continue; }
 
-      getReg().emplace_or_replace<Cmp::LerpPosition>( entity, new_pos.position, adjusted_speed );
-      lerp_cmp = getReg().try_get<Cmp::LerpPosition>( entity );
-
-      lerp_cmp->m_start = pos_cmp.position;
-      lerp_cmp->m_target = new_pos.position;
-      lerp_cmp->m_lerp_factor = 0.0f;
+      auto &new_lerp = getReg().emplace<Cmp::LerpPosition>( entity, new_pos.position, adjusted_speed );
+      new_lerp.m_start = snapped_start;
+      new_lerp.m_target = new_pos.position;
+      new_lerp.m_lerp_factor = 0.0f;
     }
 
-    // now we modify... ongoing lerp movement
+    // Process ongoing lerp movement
+    lerp_cmp = getReg().try_get<Cmp::LerpPosition>( entity ); // Re-fetch in case we just created it
     if ( lerp_cmp && lerp_cmp->m_lerp_factor < 1.0f )
     {
       lerp_cmp->m_lerp_factor += ( lerp_cmp->m_lerp_speed * dt );
-      lerp_cmp->m_lerp_factor = std::min( lerp_cmp->m_lerp_factor, 1.0f );
 
-      // interpolate to the new position
-      const float t = lerp_cmp->m_lerp_factor;
-      const float one_minus_t = 1.0f - t;
-
-      // Simple manual lerp - 33 lines of assembly vs 134 for std::lerp vs 54 for std::fma
-      // https://godbolt.org/z/YdeKco5d6
-      pos_cmp.position.x = one_minus_t * lerp_cmp->m_start.x + t * lerp_cmp->m_target.x;
-      pos_cmp.position.y = one_minus_t * lerp_cmp->m_start.y + t * lerp_cmp->m_target.y;
-
-      // Update detection bounds position during lerp to keep in sync
-      pc_detection_bounds.position( pos_cmp.position );
-
-      // if lerp is complete, finalize position
+      // Check if lerp will complete this frame
       if ( lerp_cmp->m_lerp_factor >= 1.0f )
       {
+        // Snap directly to target - no interpolation to avoid floating point drift
         pos_cmp.position = lerp_cmp->m_target;
         pc_detection_bounds.position( pos_cmp.position );
         getReg().remove<Cmp::LerpPosition>( entity );
+      }
+      else
+      {
+        // interpolate to the new position
+        const float t = lerp_cmp->m_lerp_factor;
+        const float one_minus_t = 1.0f - t;
+
+        // Simple manual lerp - 33 lines of assembly vs 134 for std::lerp vs 54 for std::fma
+        // https://godbolt.org/z/YdeKco5d6
+        pos_cmp.position.x = one_minus_t * lerp_cmp->m_start.x + t * lerp_cmp->m_target.x;
+        pos_cmp.position.y = one_minus_t * lerp_cmp->m_start.y + t * lerp_cmp->m_target.y;
+
+        // Update detection bounds position during lerp to keep in sync
+        pc_detection_bounds.position( pos_cmp.position );
       }
     }
   }

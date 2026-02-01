@@ -132,6 +132,41 @@ void RenderGameSystem::init_shaders()
   m_dark_mode_shader.setup();
 }
 
+void RenderGameSystem::updateCamera( sf::Time deltaTime )
+{
+  // Get the player's current position
+  auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
+  for ( auto [entity, pc_cmp, pos_cmp] : player_view.each() )
+  {
+    sf::Vector2f target_position = pos_cmp.position;
+
+    // Initialize camera position on first frame to avoid lerping from origin
+    if ( !m_camera_initialized )
+    {
+      m_camera_position = target_position;
+      m_camera_initialized = true;
+    }
+
+    // Smooth lerp toward target position
+    float dt = deltaTime.asSeconds();
+    float t = 1.0f - std::exp( -kCameraSmoothSpeed * dt ); // Exponential smoothing
+
+    m_camera_position.x += ( target_position.x - m_camera_position.x ) * t;
+    m_camera_position.y += ( target_position.y - m_camera_position.y ) * t;
+
+    // Snap to target if very close (prevents endless micro-adjustments)
+    constexpr float kSnapThreshold = 0.5f;
+    if ( std::abs( target_position.x - m_camera_position.x ) < kSnapThreshold &&
+         std::abs( target_position.y - m_camera_position.y ) < kSnapThreshold )
+    {
+      m_camera_position = target_position;
+    }
+
+    // Update the view center
+    m_local_view.setCenter( m_camera_position + ( pos_cmp.size / 2.f ) ); // Center on sprite center
+  }
+}
+
 void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys,
                                     Sprites::Containers::TileMap &floormap, DarkMode dark_mode, WeatherMode weather_mode )
 {
@@ -155,7 +190,8 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
 
   // make sure the local view is centered on the player mid-point and not at their top-left corner
   // (otherwise this makes views, shaders, etc look off-center)
-  m_local_view.setCenter( player_position.position + Constants::kGridSquareSizePixelsF * 0.5f );
+  // m_local_view.setCenter( player_position.position + Constants::kGridSquareSizePixelsF * 0.5f );
+  updateCamera( globalDeltaTime );
 
   // re-populate the z-order queue with the latest entity/component data
   refresh_z_order_queue();
