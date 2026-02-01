@@ -552,6 +552,26 @@ void PlayerSystem::localTransforms()
   }
 }
 
+void PlayerSystem::update_player_animation( Cmp::LerpPosition *lerp_cmp, Cmp::Direction &dir_cmp, Cmp::SpriteAnimation &anim_cmp )
+{
+  // update the animation state based on movement direction
+  if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) )
+  {
+    // player is not pressing any keys but sprite is still lerping to target position?
+    // keep animation active otherwise it has the effect of sliding to a stop
+    if ( lerp_cmp && lerp_cmp->m_lerp_factor < 1.0f ) { anim_cmp.m_animation_active = true; }
+    else { anim_cmp.m_animation_active = false; }
+  }
+  else
+  {
+    anim_cmp.m_animation_active = true;
+    if ( dir_cmp.x == 1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.east"; }
+    else if ( dir_cmp.x == -1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.west"; }
+    else if ( dir_cmp.y == -1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.north"; }
+    else if ( dir_cmp.y == 1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.south"; }
+  }
+}
+
 void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool collision_detection )
 {
 
@@ -567,22 +587,7 @@ void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool collision_
     auto lerp_cmp = getReg().try_get<Cmp::LerpPosition>( entity );
     bool wants_to_move = dir_cmp != sf::Vector2f( 0.0f, 0.0f );
 
-    // update the animation state based on movement direction
-    if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) )
-    {
-      // player is not pressing any keys but sprite is still lerping to target position?
-      // keep animation active otherwise it has the effect of sliding to a stop
-      if ( lerp_cmp && lerp_cmp->m_lerp_factor < 1.0f ) { anim_cmp.m_animation_active = true; }
-      else { anim_cmp.m_animation_active = false; }
-    }
-    else
-    {
-      anim_cmp.m_animation_active = true;
-      if ( dir_cmp.x == 1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.east"; }
-      else if ( dir_cmp.x == -1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.west"; }
-      else if ( dir_cmp.y == -1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.north"; }
-      else if ( dir_cmp.y == 1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.south"; }
-    }
+    update_player_animation( lerp_cmp, dir_cmp, anim_cmp );
 
     // Only start new movement when not lerping
     if ( wants_to_move && !lerp_cmp )

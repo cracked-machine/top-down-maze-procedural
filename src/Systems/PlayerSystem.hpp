@@ -64,6 +64,8 @@ private:
   //! @param collision_detection disabled if false, enabled if true
   void globalTranslations( sf::Time globalDeltaTime, bool collision_detection );
 
+  void update_player_animation( Cmp::LerpPosition *lerp_cmp, Cmp::Direction &dir_cmp, Cmp::SpriteAnimation &anim_cmp );
+
   //! @brief Refresh the PlayerDistance components for positions near the player
   void refreshPlayerDistances();
 
