@@ -7,7 +7,7 @@
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/WallFactory.hpp>
-#include <Utils/Utils.hpp>
+#include <Utils/Constants.hpp>
 #include <entt/entity/registry.hpp>
 
 namespace ProceduralMaze::Factory

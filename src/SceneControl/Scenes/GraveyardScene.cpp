@@ -25,7 +25,7 @@
 #include <Systems/Threats/BombSystem.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
 #include <Systems/Threats/WormholeSystem.hpp>
-#include <Utils/Utils.hpp>
+#include <Utils/Constants.hpp>
 
 namespace ProceduralMaze::Scene
 {

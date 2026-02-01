@@ -6,7 +6,7 @@
 
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <Utils/Utils.hpp>
+#include <Utils/Constants.hpp>
 
 namespace ProceduralMaze::Cmp
 {

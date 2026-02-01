@@ -12,8 +12,6 @@
 #include <Components/Wall.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Sprites/SpriteFactory.hpp>
-#include <Utils/Random.hpp>
-#include <Utils/Utils.hpp>
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
 

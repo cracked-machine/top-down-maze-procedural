@@ -7,7 +7,7 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 #include <Sprites/CircleSegment.hpp>
-#include <Utils/Utils.hpp>
+#include <Utils/Constants.hpp>
 
 namespace ProceduralMaze::Sprites
 {

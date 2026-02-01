@@ -1,4 +1,5 @@
 #include <Sprites/Shockwave.hpp>
+#include <cmath>
 #include <numbers>
 
 namespace ProceduralMaze::Sprites

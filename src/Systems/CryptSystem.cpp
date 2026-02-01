@@ -56,6 +56,7 @@
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>
+#include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 #include <entt/entity/fwd.hpp>
 

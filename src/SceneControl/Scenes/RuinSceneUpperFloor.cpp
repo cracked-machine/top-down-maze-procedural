@@ -25,7 +25,7 @@
 #include <Systems/Threats/NpcSystem.hpp>
 
 #include <Systems/SystemStore.hpp>
-#include <Utils/Utils.hpp>
+#include <Utils/Constants.hpp>
 
 namespace ProceduralMaze::Scene
 {

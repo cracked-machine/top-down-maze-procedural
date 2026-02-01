@@ -16,6 +16,7 @@
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
+#include <Components/ZOrderValue.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/View.hpp>
@@ -23,19 +24,13 @@
 
 #include <SFML/Window/Mouse.hpp>
 #include <Sprites/MultiSprite.hpp>
+#include <Utils/Constants.hpp>
 #include <cmath>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>
 #include <stdexcept>
-
-namespace ProceduralMaze::Constants
-{
-inline constexpr sf::Vector2u kGridSquareSizePixels{ 16u, 16u };
-inline static constexpr sf::Vector2f kGridSquareSizePixelsF{ 16.f, 16.f };
-inline static constexpr sf::Vector2u kFallbackDisplaySize{ 1920, 1080 };
-} // namespace ProceduralMaze::Constants
 
 namespace ProceduralMaze::Utils
 {
@@ -52,7 +47,11 @@ inline bool isInBounds( const sf::Vector2f &position, const sf::Vector2f &size, 
   return true;
 }
 
-enum class Rounding { TOWARDS_ZERO, AWAY_ZERO };
+enum class Rounding {
+  TOWARDS_ZERO, // Truncates towards zero (std::trunc)
+  AWAY_ZERO,    // Rounds away from zero (std::ceil for positive, std::floor for negative)
+  NEAREST       // Rounds to nearest grid position (std::round)
+};
 //! @brief Snaps a rectangle's position to the nearest grid cell.
 //!
 //! Computes a new rectangle whose top-left corner is moved to the nearest grid
@@ -69,22 +68,32 @@ enum class Rounding { TOWARDS_ZERO, AWAY_ZERO };
 //!
 //! @note If the grid is not square, only the x component of
 //!       BaseSystem::kGridSquareSizePixels is used for both axes.
-inline constexpr sf::FloatRect snap_to_grid( const sf::FloatRect &position, Rounding rounding = Rounding::AWAY_ZERO ) noexcept
+inline constexpr sf::FloatRect snap_to_grid( const sf::FloatRect &position, Rounding rounding = Rounding::NEAREST ) noexcept
 {
-
   float grid_size = Constants::kGridSquareSizePixels.x; // Assuming square grid
-  if ( rounding == Rounding::TOWARDS_ZERO )
+  sf::Vector2f snapped_pos;
+
+  switch ( rounding )
   {
-    sf::Vector2f snapped_pos{ std::trunc( position.position.x / Constants::kGridSquareSizePixels.x ) * grid_size,
-                              std::trunc( position.position.y / Constants::kGridSquareSizePixels.y ) * grid_size };
-    return sf::FloatRect( snapped_pos, position.size );
+    case Rounding::TOWARDS_ZERO:
+      snapped_pos = { std::trunc( position.position.x / grid_size ) * grid_size, std::trunc( position.position.y / grid_size ) * grid_size };
+      break;
+    case Rounding::AWAY_ZERO: {
+      auto away_from_zero = []( float val, float grid )
+      {
+        float divided = val / grid;
+        return ( val >= 0.f ? std::ceil( divided ) : std::floor( divided ) ) * grid;
+      };
+      snapped_pos = { away_from_zero( position.position.x, grid_size ), away_from_zero( position.position.y, grid_size ) };
+      break;
+    }
+    case Rounding::NEAREST:
+    default:
+      snapped_pos = { std::round( position.position.x / grid_size ) * grid_size, std::round( position.position.y / grid_size ) * grid_size };
+      break;
   }
-  else
-  {
-    sf::Vector2f snapped_pos{ std::round( position.position.x / Constants::kGridSquareSizePixels.x ) * grid_size,
-                              std::round( position.position.y / Constants::kGridSquareSizePixels.y ) * grid_size };
-    return sf::FloatRect( snapped_pos, position.size );
-  }
+
+  return sf::FloatRect( snapped_pos, position.size );
 }
 
 //! @brief Snap a given position to the nearest grid square.
@@ -94,20 +103,25 @@ inline constexpr sf::FloatRect snap_to_grid( const sf::FloatRect &position, Roun
 //!
 //! @param position The position to snap, as an sf::Vector2f.
 //! @return sf::Vector2f The snapped position aligned to the grid.
-inline constexpr sf::Vector2f snap_to_grid( const sf::Vector2f &position, Rounding rounding = Rounding::AWAY_ZERO ) noexcept
+inline constexpr sf::Vector2f snap_to_grid( const sf::Vector2f &position, Rounding rounding = Rounding::NEAREST ) noexcept
 {
   float grid_size = Constants::kGridSquareSizePixels.x; // Assuming square grid
-  if ( rounding == Rounding::TOWARDS_ZERO )
+
+  switch ( rounding )
   {
-    sf::Vector2f snapped_pos{ std::trunc( position.x / Constants::kGridSquareSizePixels.x ) * grid_size,
-                              std::trunc( position.y / Constants::kGridSquareSizePixels.y ) * grid_size };
-    return snapped_pos;
-  }
-  else
-  {
-    sf::Vector2f snapped_pos{ std::round( position.x / Constants::kGridSquareSizePixels.x ) * grid_size,
-                              std::round( position.y / Constants::kGridSquareSizePixels.y ) * grid_size };
-    return snapped_pos;
+    case Rounding::TOWARDS_ZERO:
+      return { std::trunc( position.x / grid_size ) * grid_size, std::trunc( position.y / grid_size ) * grid_size };
+    case Rounding::AWAY_ZERO: {
+      auto away_from_zero = []( float val, float grid )
+      {
+        float divided = val / grid;
+        return ( val >= 0.f ? std::ceil( divided ) : std::floor( divided ) ) * grid;
+      };
+      return { away_from_zero( position.x, grid_size ), away_from_zero( position.y, grid_size ) };
+    }
+    case Rounding::NEAREST:
+    default:
+      return { std::round( position.x / grid_size ) * grid_size, std::round( position.y / grid_size ) * grid_size };
   }
 }
 
@@ -204,6 +218,12 @@ static Cmp::PlayerMortality &get_player_mortality( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerMortality>();
   return player_view.get<Cmp::PlayerMortality>( get_player_entity( reg ) );
+}
+
+static Cmp::ZOrderValue &get_player_zorder( entt::registry &reg )
+{
+  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::ZOrderValue>();
+  return player_view.get<Cmp::ZOrderValue>( get_player_entity( reg ) );
 }
 
 static float get_player_speed_penalty( entt::registry &reg )

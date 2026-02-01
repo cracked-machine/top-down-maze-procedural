@@ -16,7 +16,8 @@
 #include <Components/ZOrderValue.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Sprites/MultiSprite.hpp>
-#include <Utils/Utils.hpp>
+#include <Utils/Constants.hpp>
+#include <Utils/Random.hpp>
 #include <entt/entity/fwd.hpp>
 
 namespace ProceduralMaze::Factory

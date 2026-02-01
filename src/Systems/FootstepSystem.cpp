@@ -11,12 +11,11 @@
 #include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <SFML/System/Time.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
-#include <Utils/Utils.hpp>
-
-#include <SFML/System/Time.hpp>
+#include <Utils/Constants.hpp>
 
 namespace ProceduralMaze::Sys
 {

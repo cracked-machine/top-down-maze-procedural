@@ -4,7 +4,6 @@
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
-#include <Utils/Utils.hpp>
 
 #include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>

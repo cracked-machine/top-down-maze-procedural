@@ -22,8 +22,7 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Systems/BaseSystem.hpp>
-
-#include <Utils/Utils.hpp>
+#include <Utils/Constants.hpp>
 #include <entt/entt.hpp>
 
 namespace ProceduralMaze::Factory

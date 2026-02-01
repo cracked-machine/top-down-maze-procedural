@@ -16,7 +16,6 @@
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
-#include <Utils/Utils.hpp>
 #include <entt/entity/entity.hpp>
 #include <spdlog/spdlog.h>
 

@@ -27,7 +27,6 @@
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
-#include <Utils/Utils.hpp>
 
 #include <entt/entity/registry.hpp>
 

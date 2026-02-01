@@ -1,6 +1,8 @@
 #ifndef __SYS_RENDEROVERSYSTEM_HPP__
 #define __SYS_RENDEROVERSYSTEM_HPP__
 
+#include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Position.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -8,8 +10,7 @@
 
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/Render/RenderSystem.hpp>
-#include <Utils/Utils.hpp>
-
+#include <Utils/Constants.hpp>
 #include <set>
 
 namespace ProceduralMaze::Sys
