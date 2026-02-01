@@ -12,7 +12,8 @@
 namespace ProceduralMaze::Factory
 {
 
-void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, Sprites::SpriteMetaType sprite_type, std::size_t sprite_index )
+void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, Sprites::SpriteMetaType sprite_type, std::size_t sprite_index, float zorder,
+                      SolidWall solid_wall )
 {
   auto entity = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSquareSizePixelsF );
@@ -20,8 +21,8 @@ void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, Sprites::Spr
   // reg.emplace_or_replace<Cmp::Obstacle>( entity );
   reg.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_type, sprite_index );
   reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
-  reg.emplace_or_replace<Cmp::ZOrderValue>( entity, pos.y );
-  reg.emplace_or_replace<Cmp::NoPathFinding>( entity );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
+  if ( solid_wall == SolidWall::TRUE ) { reg.emplace_or_replace<Cmp::NoPathFinding>( entity ); }
 }
 
 } // namespace ProceduralMaze::Factory

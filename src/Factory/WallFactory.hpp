@@ -8,7 +8,9 @@
 namespace ProceduralMaze::Factory
 {
 
-void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, Sprites::SpriteMetaType sprite_type, std::size_t sprite_index );
+enum class SolidWall { TRUE, FALSE };
+void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, Sprites::SpriteMetaType sprite_type, std::size_t sprite_index, float zorder,
+                      SolidWall solid_wall = SolidWall::TRUE );
 
 } // namespace ProceduralMaze::Factory
 

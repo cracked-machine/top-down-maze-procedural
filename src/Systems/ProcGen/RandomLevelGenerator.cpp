@@ -72,10 +72,79 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, C
       sf::Vector2f new_pos( { x * Constants::kGridSquareSizePixelsF.x, y * Constants::kGridSquareSizePixelsF.y } );
 
       // condition for left, right, top, bottom borders
-      bool isBorder = ( x == 0 ) || ( y == 0 ) || ( x == w - 1 ) || ( y == h - 1 );
-      auto [sprite_type, sprite_idx] = m_sprite_factory.get_random_type_and_texture_index( { wall_type } );
-      if ( isBorder ) { Factory::add_wall_entity( getReg(), new_pos, sprite_type, sprite_idx ); }
-      else
+      bool isBorder = ( x == 0 ) || ( y == 0 ) || ( y == 1 ) || ( x == w - 1 ) || ( y == h - 1 ) || ( y == h - 2 );
+
+      // auto [sprite_type, sprite_idx] = m_sprite_factory.get_random_type_and_texture_index( { wall_type } );
+      if ( isBorder )
+      {
+        enum SpriteIdx {
+          TOPLEFT = 0,
+          TOPCENTER = 1,
+          TOPRIGHT = 2,
+          LEFT = 3,
+          TOPFRONT = 4,
+          RIGHT = 5,
+          BOTTOMLEFT = 6,
+          BOTTOMCENTER = 7,
+          BOTTOMRIGHT = 8,
+          BOTTOMFRONTLEFT = 9,
+          BOTTOMFRONTCENTER = 10,
+          BOTTOMFRONTRIGHT = 11,
+        };
+
+        float player_ypos = Utils::get_player_position( getReg() ).position.y;
+        float grid_height = Constants::kGridSquareSizePixelsF.y;
+
+        // Top-left corner
+        if ( x == 0 && y == 0 ) Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPLEFT, player_ypos - grid_height );
+
+        // Top edge (excluding corners)
+        else if ( x > 0 && x < w - 1 && y == 0 )
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPCENTER, player_ypos - grid_height );
+
+        // Top front side (facing the player, excluding corners)
+        else if ( x > 0 && x < w - 1 && y == 1 )
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPFRONT, 0, Factory::SolidWall::FALSE );
+
+        // Top-right corner
+        else if ( x == w - 1 && y == 0 )
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPRIGHT, player_ypos - grid_height );
+
+        // Left edge (excluding corners)
+        else if ( x == 0 && y > 0 && y < h - 1 )
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::LEFT, player_ypos - grid_height );
+
+        // Right edge (excluding corners)
+        else if ( x == w - 1 && y > 0 && y < h - 1 )
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::RIGHT, player_ypos - grid_height );
+
+        // Bottom-left corner
+        else if ( x == 0 && y == h - 2 )
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMLEFT, player_ypos + grid_height, Factory::SolidWall::FALSE );
+
+        // Bottom edge (excluding corners)
+        else if ( x > 0 && x < w - 1 && y == h - 2 )
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMCENTER, player_ypos + grid_height, Factory::SolidWall::FALSE );
+
+        // Bottom-right corner
+        else if ( x == w - 1 && y == h - 2 )
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMRIGHT, player_ypos + grid_height, Factory::SolidWall::FALSE );
+
+        // Bottom-left front side corner (facing the player)
+        else if ( x == 0 && y == h - 1 )
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMFRONTLEFT, player_ypos - grid_height );
+
+        // Bottom front side (facing the player, excluding corners)
+        else if ( x > 0 && x < w - 1 && y == h - 1 )
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMFRONTCENTER, player_ypos - grid_height );
+
+        // Bottom-right front side corner (facing the player)
+        else if ( x == w - 1 && y == h - 1 )
+          Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMFRONTRIGHT, player_ypos - grid_height );
+      }
+
+      bool isInside = ( x > 0 ) && ( y > 1 ) && ( x < w - 1 ) && ( y < h - 1 );
+      if ( isInside )
       {
         // create world position entity, mark spawn area if in player start area
         auto entity = Factory::createWorldPosition( getReg(), new_pos );
@@ -135,7 +204,7 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size, Cm
       else if ( d2 <= rOuter2 )
       {
         // but we do add "CRYPT.interior_sb" for walls
-        Factory::add_wall_entity( getReg(), new_pos, "CRYPT.interior_sb", 0 );
+        Factory::add_wall_entity( getReg(), new_pos, "CRYPT.interior_sb", 0, Utils::get_player_position( getReg() ).position.y );
       }
       else
       {
@@ -192,7 +261,7 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, Cmp::
       // 1-tile border: any 4-neighbor outside the cross
       bool isBorder = !inCross( x - 1, y ) || !inCross( x + 1, y ) || !inCross( x, y - 1 ) || !inCross( x, y + 1 );
 
-      if ( isBorder ) { Factory::add_wall_entity( getReg(), new_pos, "CRYPT.interior_sb", 0 ); }
+      if ( isBorder ) { Factory::add_wall_entity( getReg(), new_pos, "CRYPT.interior_sb", 0, Utils::get_player_position( getReg() ).position.y ); }
       else
       {
         // create world position entity, mark spawn area if in player start area

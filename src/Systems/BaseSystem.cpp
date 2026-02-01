@@ -3,6 +3,7 @@
 #include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptLever.hpp>
 #include <Components/HolyWell/HolyWellSegment.hpp>
+#include <Components/NoPathFinding.hpp>
 #include <Components/PlantObstacle.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
 #include <Components/Ruin/RuinStairsSegment.hpp>
@@ -80,8 +81,11 @@ bool BaseSystem::is_valid_move( const sf::FloatRect &target_position )
   {
     if ( pos_cmp.findIntersection( target_position ) )
     {
-      SPDLOG_DEBUG( "Player Collided Wall" );
-      return false;
+      if ( getReg().any_of<Cmp::NoPathFinding>( entity ) )
+      {
+        SPDLOG_DEBUG( "Player Collided Wall" );
+        return false;
+      }
     }
   }
 
