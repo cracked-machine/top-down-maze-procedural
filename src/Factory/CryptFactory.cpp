@@ -9,7 +9,7 @@
 #include <Components/Crypt/CryptRoomStart.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
-#include <Components/NoPathFinding.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SpriteAnimation.hpp>
@@ -198,7 +198,7 @@ void createCryptLavaPit( entt::registry &reg, const Cmp::CryptRoomOpen &room )
     if ( not lava_pit_bounds.findIntersection( pos_cmp ) ) continue; // only add lava to this lava pit
     auto lava_cell_entt = reg.create();
     reg.emplace_or_replace<Cmp::Position>( lava_cell_entt, pos_cmp.position, pos_cmp.size );
-    reg.emplace_or_replace<Cmp::NoPathFinding>( lava_cell_entt );
+    reg.emplace_or_replace<Cmp::NpcNoPathFinding>( lava_cell_entt );
     reg.emplace_or_replace<Cmp::CryptRoomLavaPitCell>( lava_cell_entt, pos_cmp.position, pos_cmp.size );
     reg.emplace_or_replace<Cmp::SpriteAnimation>( lava_cell_entt, 0, 0, true, "CRYPT.interior_lava", 0 );
     // reg.emplace<Cmp::ZOrderValue>( lava_cell_entt, pos_cmp.size.y );

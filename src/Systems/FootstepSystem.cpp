@@ -4,7 +4,7 @@
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
-#include <Components/NoPathFinding.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
@@ -47,7 +47,7 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
        sf::seconds( Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerFootstepAddDelay>( getReg() ).get_value() ) )
   {
 
-    auto nopathfind_view = getReg().view<Cmp::NoPathFinding, Cmp::Position>();
+    auto nopathfind_view = getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>();
     for ( auto [nopath_entity, nopath_cmp, nopath_pos_cmp] : nopathfind_view.each() )
     {
       if ( nopath_pos_cmp.findIntersection( pos_cmp ) )

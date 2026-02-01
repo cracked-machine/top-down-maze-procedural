@@ -3,7 +3,7 @@
 #include <Components/HolyWell/HolyWellExit.hpp>
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/HolyWell/HolyWellSegment.hpp>
-#include <Components/NoPathFinding.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Position.hpp>
@@ -39,7 +39,7 @@ void HolyWellSystem::spawn_exit( sf::Vector2u spawn_position )
   getReg().emplace_or_replace<Cmp::Exit>( entity, false ); // unlocked at start
   getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "CRYPT.interior_sb", 1 );
   getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.position.y );
-  getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
+  getReg().emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
   getReg().emplace_or_replace<Cmp::HolyWellExit>( entity );
 
   SPDLOG_INFO( "Exit spawned at position ({}, {})", spawn_position.x, spawn_position.y );

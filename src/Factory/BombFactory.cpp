@@ -1,6 +1,6 @@
 #include <Components/Armed.hpp>
 #include <Components/DestroyedObstacle.hpp>
-#include <Components/NoPathFinding.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/ArmedOffDelay.hpp>
 #include <Components/Persistent/ArmedOnDelay.hpp>
 #include <Components/Persistent/FuseDelay.hpp>
@@ -49,10 +49,10 @@ entt::entity createArmed( entt::registry &registry, entt::entity entity, Cmp::Ar
   {
     registry.emplace_or_replace<Cmp::SpriteAnimation>( new_armed_entity, 0, 0, true, "CARRYITEM.bomb", 0 );
     registry.emplace_or_replace<Cmp::ZOrderValue>( new_armed_entity, zorder );
-    registry.emplace_or_replace<Cmp::NoPathFinding>( new_armed_entity );
+    registry.emplace_or_replace<Cmp::NpcNoPathFinding>( new_armed_entity );
   }
 
-  registry.emplace_or_replace<Cmp::NoPathFinding>( new_armed_entity );
+  registry.emplace_or_replace<Cmp::NpcNoPathFinding>( new_armed_entity );
 
   return new_armed_entity;
 }
@@ -62,7 +62,7 @@ void destroyArmed( entt::registry &reg, entt::entity armed_entity )
   reg.remove<Cmp::Armed>( armed_entity );
   reg.remove<Cmp::SpriteAnimation>( armed_entity );
   reg.remove<Cmp::ZOrderValue>( armed_entity );
-  if ( reg.all_of<Cmp::NoPathFinding>( armed_entity ) ) { reg.remove<Cmp::NoPathFinding>( armed_entity ); }
+  if ( reg.all_of<Cmp::NpcNoPathFinding>( armed_entity ) ) { reg.remove<Cmp::NpcNoPathFinding>( armed_entity ); }
 }
 
 void createDetonated( entt::registry &reg, entt::entity armed_entity, Cmp::Position &armed_pos_cmp )

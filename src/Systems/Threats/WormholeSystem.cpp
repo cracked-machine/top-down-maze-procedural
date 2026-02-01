@@ -8,9 +8,9 @@
 #include <Components/Hazard/HazardFieldCell.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/LootContainer.hpp>
-#include <Components/NoPathFinding.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcContainer.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Npc/NpcScanBounds.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>

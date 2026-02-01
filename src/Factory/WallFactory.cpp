@@ -1,5 +1,6 @@
-#include <Components/NoPathFinding.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
@@ -22,14 +23,14 @@ void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, Sprites::Spr
   reg.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_type, sprite_index );
   reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
-  if ( solid_wall == SolidWall::TRUE ) { reg.emplace_or_replace<Cmp::NoPathFinding>( entity ); }
+  if ( solid_wall == SolidWall::TRUE ) { reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity ); }
 }
 
 void add_nopathfinding( entt::registry &reg, const sf::Vector2f &pos )
 {
   auto entity = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSquareSizePixelsF );
-  reg.emplace_or_replace<Cmp::NoPathFinding>( entity );
+  reg.emplace_or_replace<Cmp::PlayerNoPath>( entity );
 }
 
 } // namespace ProceduralMaze::Factory

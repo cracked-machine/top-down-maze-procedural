@@ -3,7 +3,7 @@
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/Neighbours.hpp>
-#include <Components/NoPathFinding.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/PlantObstacle.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -22,7 +22,7 @@ void createObstacle( entt::registry &registry, entt::entity entity, Cmp::Positio
   if ( registry.all_of<Cmp::DestroyedObstacle>( entity ) ) { registry.remove<Cmp::DestroyedObstacle>( entity ); }
   registry.emplace_or_replace<Cmp::Obstacle>( entity );
   registry.emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y + zorder );
-  registry.emplace_or_replace<Cmp::NoPathFinding>( entity );
+  registry.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
   registry.emplace_or_replace<Cmp::AbsoluteAlpha>( entity, 255 );
   registry.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_type, sprite_tile_idx );
   registry.emplace_or_replace<Cmp::Armable>( entity );
@@ -32,7 +32,7 @@ void destroyObstacle( entt::registry &registry, entt::entity obstacle_entity )
 {
   if ( registry.all_of<Cmp::Obstacle>( obstacle_entity ) ) { registry.remove<Cmp::Obstacle>( obstacle_entity ); }
   if ( registry.all_of<Cmp::ZOrderValue>( obstacle_entity ) ) { registry.remove<Cmp::ZOrderValue>( obstacle_entity ); }
-  if ( registry.all_of<Cmp::NoPathFinding>( obstacle_entity ) ) { registry.remove<Cmp::NoPathFinding>( obstacle_entity ); }
+  if ( registry.all_of<Cmp::NpcNoPathFinding>( obstacle_entity ) ) { registry.remove<Cmp::NpcNoPathFinding>( obstacle_entity ); }
   if ( registry.all_of<Cmp::AbsoluteAlpha>( obstacle_entity ) ) { registry.remove<Cmp::AbsoluteAlpha>( obstacle_entity ); }
   if ( registry.all_of<Cmp::SpriteAnimation>( obstacle_entity ) ) { registry.remove<Cmp::SpriteAnimation>( obstacle_entity ); }
 
@@ -47,7 +47,7 @@ entt::entity createPlantObstacle( entt::registry &reg, Cmp::Position pos_cmp, Sp
   reg.emplace_or_replace<Cmp::CarryItem>( plant_entt, sprite_type );
   reg.emplace_or_replace<Cmp::ReservedPosition>( plant_entt );
   reg.emplace_or_replace<Cmp::ZOrderValue>( plant_entt, pos_cmp.position.y + zorder );
-  reg.emplace_or_replace<Cmp::NoPathFinding>( plant_entt );
+  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( plant_entt );
   reg.emplace_or_replace<Cmp::AbsoluteAlpha>( plant_entt, 255 );
   reg.emplace_or_replace<Cmp::SpriteAnimation>( plant_entt, 0, 0, true, sprite_type, 0 );
   reg.emplace_or_replace<Cmp::Armable>( plant_entt );

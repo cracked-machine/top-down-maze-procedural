@@ -3,8 +3,8 @@
 
 #include <Audio/SoundBank.hpp>
 #include <Components/Exit.hpp>
-#include <Components/NoPathFinding.hpp>
 #include <Components/Npc/Npc.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerDistance.hpp>
 #include <Components/Player/PlayerHealth.hpp>
 #include <Components/RectBounds.hpp>
@@ -65,7 +65,7 @@ void HazardFieldSystem<HazardType>::init_hazard_field()
   getReg().template emplace<HazardType>( random_entity );
   getReg().template emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, Traits::sprite_type, 0 );
   getReg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 1.f );
-  getReg().template emplace_or_replace<Cmp::NoPathFinding>( random_entity );
+  getReg().template emplace_or_replace<Cmp::NpcNoPathFinding>( random_entity );
   SPDLOG_INFO( "{} hazard spawned at position [{}, {}].", Traits::sprite_type, random_pos.position.x, random_pos.position.y );
 }
 
@@ -111,7 +111,7 @@ void HazardFieldSystem<HazardType>::update_hazard_field()
         getReg().template emplace_or_replace<HazardType>( obstacle_entity );
         getReg().template emplace_or_replace<Cmp::SpriteAnimation>( obstacle_entity, 0, 0, true, Traits::sprite_type, 0 );
         getReg().template emplace_or_replace<Cmp::ZOrderValue>( obstacle_entity, obst_pos_cmp.position.y - 1.f );
-        getReg().template emplace_or_replace<Cmp::NoPathFinding>( obstacle_entity );
+        getReg().template emplace_or_replace<Cmp::NpcNoPathFinding>( obstacle_entity );
         if ( getReg().template all_of<Cmp::PlayerDistance>( obstacle_entity ) ) { getReg().template remove<Cmp::PlayerDistance>( obstacle_entity ); }
 
         SPDLOG_DEBUG( "New hazard field created at entity {}", static_cast<uint32_t>( obstacle_entity ) );

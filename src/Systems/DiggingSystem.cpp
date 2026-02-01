@@ -17,7 +17,7 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
-#include <Components/NoPathFinding.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>

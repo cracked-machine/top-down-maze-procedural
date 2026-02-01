@@ -9,7 +9,7 @@
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/HolyWell/HolyWellSegment.hpp>
 #include <Components/Inventory/CarryItem.hpp>
-#include <Components/NoPathFinding.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
 #include <Factory/CryptFactory.hpp>

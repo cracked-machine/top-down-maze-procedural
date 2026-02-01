@@ -32,6 +32,13 @@ public:
   //! @param dt Delta time since last update call
   void update( sf::Time dt );
 
+  //! @brief Checks if the Npc's movement to a given position is valid
+  //! Validates whether the Npc can move to the specified position by checking
+  //! for collisions with walls, boundaries, or other obstacles in the game world.
+  //! @param player_position The target position to validate for Npc movement
+  //! @return true if the movement is valid and allowed, false otherwise
+  bool is_valid_move( const sf::FloatRect &player_position );
+
   //! @brief Check if diagonal movement should be blocked due to adjacent obstacles
   bool isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::Vector2f &diagonal_direction );
 

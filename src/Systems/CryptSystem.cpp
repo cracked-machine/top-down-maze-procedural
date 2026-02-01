@@ -23,7 +23,7 @@
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Inventory/CarryItem.hpp>
-#include <Components/NoPathFinding.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/CryptNpcSpawnCount.hpp>
 #include <Components/Player/PlayerCadaverCount.hpp>
@@ -176,7 +176,7 @@ void CryptSystem::spawn_exit( sf::Vector2u spawn_position )
   getReg().emplace_or_replace<Cmp::Exit>( entity, false ); // unlocked at start
   getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "CRYPT.interior_sb", 1 );
   getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.position.y );
-  getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
+  getReg().emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
   getReg().emplace_or_replace<Cmp::CryptExit>( entity );
 
   SPDLOG_INFO( "Exit spawned at position ({}, {})", spawn_position.x, spawn_position.y );

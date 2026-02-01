@@ -12,7 +12,7 @@
 #include <Components/Grave/GraveSegment.hpp>
 #include <Components/HolyWell/HolyWellEntrance.hpp>
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
-#include <Components/NoPathFinding.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinBuildingMultiBlock.hpp>
@@ -98,7 +98,7 @@ void createMultiblockSegments( entt::registry &registry, entt::entity multiblock
     if ( new_solid_mask )
     {
       registry.emplace_or_replace<MBSEGMENT>( entity, new_solid_mask );
-      registry.emplace_or_replace<Cmp::NoPathFinding>( entity );
+      registry.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
     }
     registry.emplace_or_replace<Cmp::Armable>( entity );
     SPDLOG_DEBUG( "Modifying entity {}, sprite type {}, zorder to {}", static_cast<int>( entity ), ms.get_sprite_type(),

@@ -9,7 +9,7 @@
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Neighbours.hpp>
-#include <Components/NoPathFinding.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
 #include <Components/Persistent/BombInventory.hpp>
 #include <Components/Persistent/PlayerDetectionScale.hpp>
@@ -100,7 +100,7 @@ void addSpawnArea( entt::registry &registry, entt::entity entity, float zorder )
   // We need to reserve these positions for the player start area
   registry.emplace_or_replace<Cmp::ReservedPosition>( entity );
   registry.emplace_or_replace<Cmp::SpawnArea>( entity, false );
-  registry.emplace_or_replace<Cmp::NoPathFinding>( entity );
+  registry.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
   registry.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYERSPAWN", 0 );
   registry.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
 }
@@ -142,7 +142,7 @@ entt::entity create_seeing_stone( entt::registry &reg, Cmp::Position pos, Sprite
   reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, type, 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
   reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, type );
-  reg.emplace_or_replace<Cmp::NoPathFinding>( world_carry_item_entt );
+  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
   reg.emplace_or_replace<Cmp::ScryingBall>( world_carry_item_entt, false, pick );
 
   SPDLOG_INFO( "Placed {} at {},{}", type, pos.position.x, pos.position.y );
@@ -157,7 +157,7 @@ entt::entity create_explosive( entt::registry &reg, Cmp::Position pos, Sprites::
   reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, type, 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
   reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, type );
-  reg.emplace_or_replace<Cmp::NoPathFinding>( world_carry_item_entt );
+  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
   reg.emplace_or_replace<Cmp::Explosive>( world_carry_item_entt, false );
 
   SPDLOG_INFO( "Placed {} at {},{}", type, pos.position.x, pos.position.y );
@@ -179,7 +179,7 @@ entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, Sprites::S
   reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, type, 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
   reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, type );
-  reg.emplace_or_replace<Cmp::NoPathFinding>( world_carry_item_entt );
+  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
   if ( type == "CARRYITEM.axe" || type == "CARRYITEM.pickaxe" || type == "CARRYITEM.shovel" )
   {
     reg.emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, 100.f );
@@ -222,7 +222,7 @@ entt::entity dropInventorySlotIntoWorld( entt::registry &reg, Cmp::Position pos,
     reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, false, sprite.get_sprite_type(), 0 );
     reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f );
     reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, inventory_slot_cmp->type );
-    reg.emplace_or_replace<Cmp::NoPathFinding>( world_carry_item_entt );
+    reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
 
     // try to copy any relevant components over to the new world carryitem entt
     auto inventory_slot_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( inventory_slot_entt );

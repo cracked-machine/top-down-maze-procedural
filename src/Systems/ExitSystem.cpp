@@ -1,8 +1,8 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Inventory/CarryItem.hpp>
-#include <Components/NoPathFinding.hpp>
 #include <Components/Npc/Npc.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
@@ -58,7 +58,7 @@ void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
     getReg().emplace_or_replace<Cmp::Exit>( entity, true ); // locked at start
     getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", 1 );
     getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.position.y );
-    getReg().emplace_or_replace<Cmp::NoPathFinding>( entity );
+    getReg().emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
 
     SPDLOG_INFO( "Exit spawned at position ({}, {})", spawn_position->x, spawn_position->y );
     return;
@@ -74,7 +74,7 @@ void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
     getReg().emplace_or_replace<Cmp::Exit>( rand_entity, true ); // locked at start
     getReg().emplace_or_replace<Cmp::SpriteAnimation>( rand_entity, 0, 0, true, "WALL", 0 );
     getReg().emplace_or_replace<Cmp::ZOrderValue>( rand_entity, rand_pos_cmp.position.y );
-    getReg().emplace_or_replace<Cmp::NoPathFinding>( rand_entity );
+    getReg().emplace_or_replace<Cmp::NpcNoPathFinding>( rand_entity );
     SPDLOG_INFO( "Exit spawned at position ({}, {})", rand_pos_cmp.position.x, rand_pos_cmp.position.y );
   }
 }

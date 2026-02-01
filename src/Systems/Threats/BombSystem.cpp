@@ -3,8 +3,8 @@
 #include <Components/Exit.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/Explosive.hpp>
-#include <Components/NoPathFinding.hpp>
 #include <Components/Npc/Npc.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerHealth.hpp>

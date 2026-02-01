@@ -12,8 +12,8 @@
 #include <Components/Armable.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/LootContainer.hpp>
-#include <Components/NoPathFinding.hpp>
 #include <Components/Npc/Npc.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/RectBounds.hpp>
