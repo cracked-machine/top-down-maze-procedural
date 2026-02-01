@@ -1,10 +1,13 @@
 #ifndef SRC_SYSTEMS_PLAYERSYSTEM_HPP__
 #define SRC_SYSTEMS_PLAYERSYSTEM_HPP__
 
+#include <Components/Direction.hpp>
+#include <Components/LerpPosition.hpp>
 #include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Position.hpp>
+#include <Components/SpriteAnimation.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -65,6 +68,7 @@ private:
   void globalTranslations( sf::Time globalDeltaTime, bool collision_detection );
 
   void update_player_animation( Cmp::LerpPosition *lerp_cmp, Cmp::Direction &dir_cmp, Cmp::SpriteAnimation &anim_cmp );
+  float adjust_lerp_speed( Cmp::Position &pos_cmp, Cmp::Direction &dir_cmp );
 
   //! @brief Refresh the PlayerDistance components for positions near the player
   void refreshPlayerDistances();

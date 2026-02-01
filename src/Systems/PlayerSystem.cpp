@@ -572,6 +572,43 @@ void PlayerSystem::update_player_animation( Cmp::LerpPosition *lerp_cmp, Cmp::Di
   }
 }
 
+float PlayerSystem::adjust_lerp_speed( Cmp::Position &pos_cmp, Cmp::Direction &dir_cmp )
+{
+  // Check if moving diagonally AFTER we know movement is valid
+  bool is_diagonal = ( dir_cmp.x != 0.0f ) && ( dir_cmp.y != 0.0f );
+  bool diagonal_between_obstacles = is_diagonal && isDiagonalMovementBetweenObstacles( pos_cmp, dir_cmp );
+
+  auto &player_lerp_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerLerpSpeed>( getReg() );
+  auto &diagonal_lerp_speed_modifier = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerDiagonalLerpSpeedModifier>( getReg() );
+  auto &shortcut_lerp_speed_modifier = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerShortcutLerpSpeedModifier>( getReg() );
+
+  float speed_modifier = 1.0f;
+  if ( diagonal_between_obstacles )
+  {
+    // Check if shortcut movement is disabled (speed modifier at or near zero)
+    if ( shortcut_lerp_speed_modifier.get_value() < 0.01f )
+    {
+      // Block this movement entirely instead of making it super slow
+      return -1.f; // Skip to next entity, don't start the movement
+    }
+
+    // Extra slow when squeezing between obstacles
+    speed_modifier = shortcut_lerp_speed_modifier.get_value();
+  }
+  else if ( is_diagonal )
+  {
+    // Normal diagonal slowdown
+    speed_modifier = diagonal_lerp_speed_modifier.get_value();
+  }
+
+  float adjusted_speed = player_lerp_speed.get_value() * speed_modifier;
+
+  // adjust for speed penalty
+  adjusted_speed *= Utils::get_player_speed_penalty( getReg() );
+
+  return adjusted_speed;
+}
+
 void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool collision_detection )
 {
 
@@ -604,39 +641,10 @@ void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool collision_
       bool can_move = not collision_detection || is_valid_move( new_pos );
       if ( !can_move ) continue; // Early exit if blocked
 
-      // Check if moving diagonally AFTER we know movement is valid
-      bool is_diagonal = ( dir_cmp.x != 0.0f ) && ( dir_cmp.y != 0.0f );
-      bool diagonal_between_obstacles = is_diagonal && isDiagonalMovementBetweenObstacles( pos_cmp, dir_cmp );
+      float adjusted_speed = adjust_lerp_speed( pos_cmp, dir_cmp );
+      if ( adjusted_speed == -1.f ) { continue; }
 
-      auto &player_lerp_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerLerpSpeed>( getReg() );
-      auto &diagonal_lerp_speed_modifier = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerDiagonalLerpSpeedModifier>( getReg() );
-      auto &shortcut_lerp_speed_modifier = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerShortcutLerpSpeedModifier>( getReg() );
-
-      float speed_modifier = 1.0f;
-      if ( diagonal_between_obstacles )
-      {
-        // Check if shortcut movement is disabled (speed modifier at or near zero)
-        if ( shortcut_lerp_speed_modifier.get_value() < 0.01f )
-        {
-          // Block this movement entirely instead of making it super slow
-          continue; // Skip to next entity, don't start the movement
-        }
-
-        // Extra slow when squeezing between obstacles
-        speed_modifier = shortcut_lerp_speed_modifier.get_value();
-      }
-      else if ( is_diagonal )
-      {
-        // Normal diagonal slowdown
-        speed_modifier = diagonal_lerp_speed_modifier.get_value();
-      }
-
-      float adjusted_speed = player_lerp_speed.get_value() * speed_modifier;
-
-      // adjust for speed penalty
-      adjusted_speed *= Utils::get_player_speed_penalty( getReg() );
-
-      getReg().emplace<Cmp::LerpPosition>( entity, new_pos.position, adjusted_speed );
+      getReg().emplace_or_replace<Cmp::LerpPosition>( entity, new_pos.position, adjusted_speed );
       lerp_cmp = getReg().try_get<Cmp::LerpPosition>( entity );
 
       lerp_cmp->m_start = pos_cmp.position;
