@@ -249,23 +249,23 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       // lava pit outline
       render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 64, 64, 64 ), 0.5f );
 
-      // for ( auto [ruin_entt, access_cmp] : getReg().view<Cmp::RuinFloorAccess>().each() )
-      // {
-      //   sf::RectangleShape rectangle;
-      //   rectangle.setSize( access_cmp.size );
-      //   rectangle.setPosition( access_cmp.position );
-      //   rectangle.setFillColor( sf::Color::Transparent );
-      //   rectangle.setOutlineThickness( 1.f );
-      //   if ( access_cmp.m_direction == Cmp::RuinFloorAccess::Direction::TO_LOWER ) { rectangle.setOutlineColor( sf::Color::Blue ); }
-      //   else { rectangle.setOutlineColor( sf::Color::White ); }
-      //   m_window.draw( rectangle );
-      // }
-
       if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
 
       // debug: show crypt component boundaries
       if ( m_show_debug_stats )
       {
+        for ( auto [ruin_entt, access_cmp] : getReg().view<Cmp::RuinFloorAccess>().each() )
+        {
+          sf::RectangleShape rectangle;
+          rectangle.setSize( access_cmp.size );
+          rectangle.setPosition( access_cmp.position );
+          rectangle.setFillColor( sf::Color::Transparent );
+          rectangle.setOutlineThickness( 1.f );
+          if ( access_cmp.m_direction == Cmp::RuinFloorAccess::Direction::TO_LOWER ) { rectangle.setOutlineColor( sf::Color::Blue ); }
+          else { rectangle.setOutlineColor( sf::Color::White ); }
+          m_window.draw( rectangle );
+        }
+
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );

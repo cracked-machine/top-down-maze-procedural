@@ -19,6 +19,7 @@
 #include <SceneControl/Scenes/TitleScene.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Systems/Render/RenderSystem.hpp>
 
 namespace ProceduralMaze::Scene
 {
@@ -57,7 +58,7 @@ void SceneManager::push( std::unique_ptr<IScene> new_scene, RegCopyMode mode )
   if ( not m_scene_stack.empty() )
   {
     reg_copy = m_reg_xfer.copy_reg( m_scene_stack.current(), mode );
-    m_scene_stack.current().on_exit();
+    loading_screen( [&]() { m_scene_stack.current().on_exit(); }, m_splash_texture );
   }
 
   m_scene_stack.push( std::move( new_scene ) );
@@ -104,7 +105,7 @@ void SceneManager::pop( RegCopyMode mode )
   if ( m_scene_stack.size() == 1 ) return;
 
   RegistryTransfer::RegCopy reg_copy = m_reg_xfer.copy_reg( m_scene_stack.current(), mode );
-  m_scene_stack.current().on_exit();
+  loading_screen( [&]() { m_scene_stack.current().on_exit(); }, m_splash_texture );
 
   m_scene_stack.pop();
   m_scene_stack.print_stack();
@@ -150,7 +151,7 @@ void SceneManager::replace( std::unique_ptr<IScene> new_scene, RegCopyMode mode 
   RegistryTransfer::RegCopy reg_copy = m_reg_xfer.copy_reg( m_scene_stack.current(), mode );
 
   // exit the current scene before popping
-  m_scene_stack.current().on_exit();
+  loading_screen( [&]() { m_scene_stack.current().on_exit(); }, m_splash_texture );
 
   // replace the current scene
   m_scene_stack.print_stack();

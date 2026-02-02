@@ -65,7 +65,7 @@ void RuinSceneUpperFloor::on_init()
   // spawn access hitbox just below horizontal centerpoint
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_floor_access(
       Utils::snap_to_grid( { RuinSceneUpperFloor::kMapGridSizeF.x - ( 3 * Constants::kGridSquareSizePixelsF.x ),
-                             RuinSceneUpperFloor::kMapGridSizeF.y - ( 2 * Constants::kGridSquareSizePixelsF.y ) } ),
+                             RuinSceneUpperFloor::kMapGridSizeF.y - ( 3 * Constants::kGridSquareSizePixelsF.y ) } ),
       { ( 2 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, Cmp::RuinFloorAccess::Direction::TO_LOWER );
 
   // add the straircase sprite for upper floor

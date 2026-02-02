@@ -50,6 +50,9 @@ void HolyWellScene::on_init()
   m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().spawn_well( sf::Vector2u{ ( HolyWellScene::kMapGridSize.x / 2 ) - 1, 4 } );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, HolyWellScene::kMapGridSize, "res/json/holywell_tilemap_config.json" );
+
+  // force the loading screen so that we hide any motion sickness inducing camera pan
+  std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
 
 void HolyWellScene::on_enter()
@@ -73,6 +76,9 @@ void HolyWellScene::on_exit()
 {
   SPDLOG_INFO( "Exiting {}", get_name() );
   m_reg.clear();
+
+  // force the loading screen so that we hide any motion sickness inducing camera pan
+  std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
 
 void HolyWellScene::do_update( [[maybe_unused]] sf::Time dt )

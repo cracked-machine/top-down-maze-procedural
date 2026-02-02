@@ -70,6 +70,9 @@ void RuinSceneLowerFloor::on_init()
       { RuinSceneLowerFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, stairs_ms );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneLowerFloor::kMapGridSize, "res/json/ruin_lower_tilemap_config.json" );
+
+  // force the loading screen so that we hide any motion sickness inducing camera pan
+  std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
 
 void RuinSceneLowerFloor::on_enter()
@@ -111,6 +114,9 @@ void RuinSceneLowerFloor::on_exit()
 {
   SPDLOG_INFO( "Exiting {}", get_name() );
   m_reg.clear();
+
+  // force the loading screen so that we hide any motion sickness inducing camera pan
+  std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
 
 void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )

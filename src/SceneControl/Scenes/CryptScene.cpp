@@ -84,6 +84,9 @@ void CryptScene::on_exit()
   // Cleanup any resources or entities specific to the CryptScene
   SPDLOG_INFO( "Exiting {}", get_name() );
   get_maze_timer().reset();
+
+  // force the loading screen so that we hide any motion sickness inducing camera pan
+  std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
 
 void CryptScene::do_update( sf::Time dt )
