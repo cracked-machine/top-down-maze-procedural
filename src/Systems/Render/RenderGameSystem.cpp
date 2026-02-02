@@ -113,8 +113,6 @@ void RenderGameSystem::init_views()
 
   auto start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( getReg() );
   m_local_view.setCenter( start_pos );
-
-  s_camera_smooth_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CameraSmoothSpeed>( getReg() ).get_value();
 }
 
 void RenderGameSystem::init_shaders()
@@ -137,6 +135,7 @@ void RenderGameSystem::init_shaders()
 
 void RenderGameSystem::updateCamera( sf::Time deltaTime )
 {
+
   // Get the player's current position
   auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
   for ( auto [entity, pc_cmp, pos_cmp] : player_view.each() )
@@ -152,7 +151,8 @@ void RenderGameSystem::updateCamera( sf::Time deltaTime )
 
     // Smooth lerp toward target position
     float dt = deltaTime.asSeconds();
-    float t = 1.0f - std::exp( -s_camera_smooth_speed * dt ); // Exponential smoothing
+    auto camera_smooth_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CameraSmoothSpeed>( getReg() ).get_value();
+    float t = 1.0f - std::exp( -camera_smooth_speed * dt ); // Exponential smoothing
 
     m_camera_position.x += ( target_position.x - m_camera_position.x ) * t;
     m_camera_position.y += ( target_position.y - m_camera_position.y ) * t;

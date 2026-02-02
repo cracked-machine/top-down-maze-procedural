@@ -110,15 +110,6 @@ void RenderSystem::render_fallback_square( const sf::FloatRect &pos_cmp, const s
   render_fallback_square_to_target( m_window, pos_cmp, color );
 }
 
-void RenderSystem::reset_camera_smooth_speed( entt::registry &reg )
-{
-  s_camera_smooth_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CameraSmoothSpeed>( reg ).get_value();
-}
-
 sf::View RenderSystem::s_game_view{};
-
-//! @brief Determines the smoothing speed used for camera panning.
-//! @details Initialised to Cmp::Persist::CameraSmoothSpeed in RenderGameSystem::init_views()
-float RenderSystem::s_camera_smooth_speed = 0;
 
 } // namespace ProceduralMaze::Sys
