@@ -5,6 +5,7 @@
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
+#include <Components/Persistent/PlayerLerpInterruptThreshold.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
 
 #include <SFML/System/Angle.hpp>
@@ -214,6 +215,10 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     auto &camera_smooth_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CameraSmoothSpeed>( getReg() );
     ImGui::SliderScalar( "Camera Smoothing Speed", ImGuiDataType_Float, camera_smooth_speed.get_value_ptr(), camera_smooth_speed.get_min_value_ptr(),
                          camera_smooth_speed.get_max_value_ptr(), "%.1f" );
+
+    auto &pc_lerp_int_threshold = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerLerpInterruptThreshold>( getReg() );
+    ImGui::SliderScalar( "PC Lerp Interrupt Threshold", ImGuiDataType_Float, pc_lerp_int_threshold.get_value_ptr(),
+                         pc_lerp_int_threshold.get_min_value_ptr(), pc_lerp_int_threshold.get_max_value_ptr(), "%.2f" );
 
     // Bomb Settings
     ImGui::SeparatorText( "Bomb Settings" );

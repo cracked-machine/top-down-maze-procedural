@@ -4,6 +4,7 @@
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
+#include <Components/Persistent/PlayerLerpInterruptThreshold.hpp>
 #include <Systems/PersistSystem.hpp>
 
 #define JSON_NOEXCEPTION
@@ -114,6 +115,7 @@ void PersistSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persist::PlayerFootstepAddDelay>( "PlayerFootstepAddDelay" );
   registerComponent<Cmp::Persist::PlayerFootstepFadeDelay>( "PlayerFootstepFadeDelay" );
   registerComponent<Cmp::Persist::PlayerLerpSpeed>( "PlayerLerpSpeed" );
+  registerComponent<Cmp::Persist::PlayerLerpInterruptThreshold>( "PlayerLerpInterruptThreshold" );
   registerComponent<Cmp::Persist::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
   registerComponent<Cmp::Persist::WeaponDegradePerHit>( "WeaponDegradePerHit" );
   registerComponent<Cmp::Persist::WormholeAnimFramerate>( "WormholeAnimFramerate" );
@@ -201,6 +203,7 @@ void PersistSystem::save_state()
   serializeComponent.template operator()<Cmp::Persist::PlayerFootstepAddDelay>( "PlayerFootstepAddDelay" );
   serializeComponent.template operator()<Cmp::Persist::PlayerFootstepFadeDelay>( "PlayerFootstepFadeDelay" );
   serializeComponent.template operator()<Cmp::Persist::PlayerLerpSpeed>( "PlayerLerpSpeed" );
+  serializeComponent.template operator()<Cmp::Persist::PlayerLerpInterruptThreshold>( "PlayerLerpInterruptThreshold" );
   serializeComponent.template operator()<Cmp::Persist::PlayerShortcutLerpSpeedModifier>( "PlayerShortcutLerpSpeedModifier" );
   serializeComponent.template operator()<Cmp::Persist::PlayerStartPosition>( "PlayerStartPosition" );
   serializeComponent.template operator()<Cmp::Persist::WeaponDegradePerHit>( "WeaponDegradePerHit" );
