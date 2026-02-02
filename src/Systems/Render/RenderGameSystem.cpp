@@ -15,6 +15,7 @@
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Npc/NpcShockwave.hpp>
+#include <Components/Persistent/CameraSmoothSpeed.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCadaverCount.hpp>
@@ -112,6 +113,8 @@ void RenderGameSystem::init_views()
 
   auto start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( getReg() );
   m_local_view.setCenter( start_pos );
+
+  s_camera_smooth_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CameraSmoothSpeed>( getReg() ).get_value();
 }
 
 void RenderGameSystem::init_shaders()
@@ -149,7 +152,7 @@ void RenderGameSystem::updateCamera( sf::Time deltaTime )
 
     // Smooth lerp toward target position
     float dt = deltaTime.asSeconds();
-    float t = 1.0f - std::exp( -kCameraSmoothSpeed * dt ); // Exponential smoothing
+    float t = 1.0f - std::exp( -s_camera_smooth_speed * dt ); // Exponential smoothing
 
     m_camera_position.x += ( target_position.x - m_camera_position.x ) * t;
     m_camera_position.y += ( target_position.y - m_camera_position.y ) * t;

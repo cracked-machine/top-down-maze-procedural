@@ -1,4 +1,5 @@
 #include <Components/Persistent/ArmedOffDelay.hpp>
+#include <Components/Persistent/CameraSmoothSpeed.hpp>
 #include <Components/Persistent/CryptNpcSpawnCount.hpp>
 #include <Components/Persistent/NpcShockwaveFreq.hpp>
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
@@ -209,6 +210,10 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     auto &pc_damage_cooldown = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>( getReg() );
     ImGui::SliderScalar( "PC Damage Cooldown", ImGuiDataType_Float, pc_damage_cooldown.get_value_ptr(), pc_damage_cooldown.get_min_value_ptr(),
                          pc_damage_cooldown.get_max_value_ptr(), "%.1f seconds" );
+
+    auto &camera_smooth_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CameraSmoothSpeed>( getReg() );
+    ImGui::SliderScalar( "Camera Smoothing Speed", ImGuiDataType_Float, camera_smooth_speed.get_value_ptr(), camera_smooth_speed.get_min_value_ptr(),
+                         camera_smooth_speed.get_max_value_ptr(), "%.1f" );
 
     // Bomb Settings
     ImGui::SeparatorText( "Bomb Settings" );

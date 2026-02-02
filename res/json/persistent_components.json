@@ -23,6 +23,10 @@
     "type": "int",
     "value": 10
   },
+  "CameraSmoothSpeed": {
+    "type": "float",
+    "value": 8.0
+  },
   "CorruptionDamage": {
     "type": "int",
     "value": 1

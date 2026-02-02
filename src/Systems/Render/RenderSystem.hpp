@@ -1,6 +1,7 @@
 #ifndef __SYSTEMS_RENDER_SYSTEM_HPP__
 #define __SYSTEMS_RENDER_SYSTEM_HPP__
 
+#include <Components/Persistent/CameraSmoothSpeed.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <entt/entity/fwd.hpp>
 
@@ -40,6 +41,9 @@ public:
   //! @return const sf::View&
   static const sf::View &getGameView() { return s_game_view; }
 
+  static void set_camera_smooth_speed( float speed ) { s_camera_smooth_speed = speed; }
+  static void reset_camera_smooth_speed( entt::registry &reg );
+
 protected:
   //! @brief Z-order entry for rendering queue
   struct ZOrder
@@ -59,6 +63,9 @@ protected:
   //! @brief Static view of the visible game area (not the entire game world)
   //! @return const sf::View&
   static sf::View s_game_view;
+
+  // Camera smoothing settings
+  static float s_camera_smooth_speed;
 
   //! @brief Default font for rendering text
   Cmp::Font m_font = Cmp::Font( "res/fonts/tuffy.ttf" );

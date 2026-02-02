@@ -49,9 +49,6 @@ public:
 
   void updateCamera( sf::Time deltaTime );
 
-  // Camera smoothing settings
-  static constexpr float kCameraSmoothSpeed = 8.0f; // Higher = snappier, Lower = smoother
-
   //! @brief Entrypoint for rendering the game
   //! @param deltaTime
   //! @param render_overlay_sys anything that is not part of the game world itself. i.e. UI, debug

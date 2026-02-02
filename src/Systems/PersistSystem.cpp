@@ -1,3 +1,4 @@
+#include <Components/Persistent/CameraSmoothSpeed.hpp>
 #include <Components/Persistent/CryptNpcSpawnCount.hpp>
 #include <Components/Persistent/NpcShockwaveFreq.hpp>
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
@@ -80,6 +81,7 @@ void PersistSystem::initializeComponentRegistry()
   registerComponent<Cmp::Persist::BombBonus>( "BombBonus" );
   registerComponent<Cmp::Persist::BombDamage>( "BombDamage" );
   registerComponent<Cmp::Persist::BombInventory>( "BombInventory" );
+  registerComponent<Cmp::Persist::CameraSmoothSpeed>( "CameraSmoothSpeed" );
   registerComponent<Cmp::Persist::CorruptionDamage>( "CorruptionDamage" );
   registerComponent<Cmp::Persist::CryptNpcSpawnCount>( "CryptNpcSpawnCount" );
   registerComponent<Cmp::Persist::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
@@ -166,6 +168,7 @@ void PersistSystem::save_state()
   serializeComponent.template operator()<Cmp::Persist::BombBonus>( "BombBonus" );
   serializeComponent.template operator()<Cmp::Persist::BombDamage>( "BombDamage" );
   serializeComponent.template operator()<Cmp::Persist::BombInventory>( "BombInventory" );
+  serializeComponent.template operator()<Cmp::Persist::CameraSmoothSpeed>( "CameraSmoothSpeed" );
   serializeComponent.template operator()<Cmp::Persist::CorruptionDamage>( "CorruptionDamage" );
   serializeComponent.template operator()<Cmp::Persist::CryptNpcSpawnCount>( "CryptNpcSpawnCount" );
   serializeComponent.template operator()<Cmp::Persist::DiggingCooldownThreshold>( "DiggingCooldownThreshold" );
