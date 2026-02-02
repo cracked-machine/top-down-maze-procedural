@@ -156,7 +156,7 @@
   },
   "PlayerLerpSpeed": {
     "type": "float",
-    "value": 4.0
+    "value": 3.0
   },
   "PlayerLerpInterruptThreshold": {
     "type": "float",
