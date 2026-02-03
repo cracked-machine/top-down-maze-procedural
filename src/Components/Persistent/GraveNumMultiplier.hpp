@@ -8,7 +8,7 @@ namespace ProceduralMaze::Cmp::Persist
 class GraveNumMultiplier : public BasePersistent<uint8_t>
 {
 public:
-  GraveNumMultiplier( uint8_t value = 30, uint8_t min_value = 20, uint8_t max_value = 100 )
+  GraveNumMultiplier( uint8_t value = 0, uint8_t min_value = 0, uint8_t max_value = 0 )
       : BasePersistent<uint8_t>( value, min_value, max_value )
   {
   }

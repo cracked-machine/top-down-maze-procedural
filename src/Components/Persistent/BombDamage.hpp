@@ -8,7 +8,7 @@ namespace ProceduralMaze::Cmp::Persist
 class BombDamage : public BasePersistent<uint8_t>
 {
 public:
-  BombDamage( uint8_t value = 10, uint8_t min_value = 1, uint8_t max_value = 50 )
+  BombDamage( uint8_t value = 0, uint8_t min_value = 0, uint8_t max_value = 0 )
       : BasePersistent<uint8_t>( value, min_value, max_value )
   {
   }

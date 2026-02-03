@@ -34,24 +34,6 @@ T &PersistSystem::get_persist_cmp( entt::registry &reg )
   return reg.ctx().get<T>();
 }
 
-template <typename ComponentType, typename... DefaultArgTypes>
-void PersistSystem::registerComponent( const std::string &key, DefaultArgTypes &&...default_args )
-{
-  auto args_tuple = std::make_tuple( std::forward<DefaultArgTypes>( default_args )... );
-
-  std::apply( [this]( auto &&...unpacked_args )
-              { Sys::PersistSystem::add_persist_cmp<ComponentType>( getReg(), std::forward<decltype( unpacked_args )>( unpacked_args )... ); },
-              args_tuple );
-
-  m_component_loaders[key] = [this, args_tuple = std::move( args_tuple )]( const nlohmann::json &persistent_object )
-  {
-    auto &component = get_persist_cmp<ComponentType>( getReg() );
-    component.deserialize( persistent_object );
-    auto deserialized_value = component.get_value();
-    SPDLOG_DEBUG( "Loaded {} from JSON with value {}", component.class_name(), deserialized_value );
-  };
-}
-
 } // namespace ProceduralMaze::Sys
 
 #endif // SRC_SYSTEMS_PERSISTENT_SYSTEM_IMPL_HPP

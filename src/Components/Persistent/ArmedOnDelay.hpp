@@ -9,7 +9,7 @@ namespace ProceduralMaze::Cmp::Persist
 class ArmedOnDelay : public BasePersistent<float>
 {
 public:
-  ArmedOnDelay( float value = 0.025f, float min_value = 0.001f, float max_value = 0.5f )
+  ArmedOnDelay( float value = 0.f, float min_value = 0.f, float max_value = 0.f )
       : BasePersistent<float>( value, min_value, max_value )
   {
   }

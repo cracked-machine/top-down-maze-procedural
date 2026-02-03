@@ -9,7 +9,7 @@ namespace ProceduralMaze::Cmp::Persist
 class BlastRadius : public BasePersistent<uint8_t>
 {
 public:
-  BlastRadius( uint8_t value = 1, uint8_t min_value = 1, uint8_t max_value = 5 )
+  BlastRadius( uint8_t value = 0, uint8_t min_value = 0, uint8_t max_value = 0 )
       : BasePersistent<uint8_t>( value, min_value, max_value )
   {
   }

@@ -8,7 +8,7 @@ namespace ProceduralMaze::Cmp::Persist
 class NpcLerpSpeed : public BasePersistent<float>
 {
 public:
-  NpcLerpSpeed( float value = 1.0f, float min_value = 0.1f, float max_value = 3.0f )
+  NpcLerpSpeed( float value = 0.f, float min_value = 0.f, float max_value = 0.f )
       : BasePersistent<float>( value, min_value, max_value )
   {
   }

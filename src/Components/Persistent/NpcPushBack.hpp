@@ -8,7 +8,7 @@ namespace ProceduralMaze::Cmp::Persist
 class NpcPushBack : public BasePersistent<float>
 {
 public:
-  NpcPushBack( float value = 16.0, float min_value = 0.0f, float max_value = 64.0f )
+  NpcPushBack( float value = 0.f, float min_value = 0.f, float max_value = 0.f )
       : BasePersistent<float>( value, min_value, max_value )
   {
   }

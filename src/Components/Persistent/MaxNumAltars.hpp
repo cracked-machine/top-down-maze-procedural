@@ -8,7 +8,7 @@ namespace ProceduralMaze::Cmp::Persist
 class MaxNumAltars : public BasePersistent<uint8_t>
 {
 public:
-  MaxNumAltars( uint8_t value = 5, uint8_t min_value = 1, uint8_t max_value = 10 )
+  MaxNumAltars( uint8_t value = 0, uint8_t min_value = 0, uint8_t max_value = 0 )
       : BasePersistent<uint8_t>( value, min_value, max_value )
   {
   }

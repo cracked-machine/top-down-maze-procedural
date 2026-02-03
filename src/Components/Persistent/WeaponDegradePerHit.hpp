@@ -8,7 +8,7 @@ namespace ProceduralMaze::Cmp::Persist
 
 struct WeaponDegradePerHit : public BasePersistent<float>
 {
-  WeaponDegradePerHit( float value = 2.f, float min_value = 0.01f, float max_value = 5.0f )
+  WeaponDegradePerHit( float value = 0.f, float min_value = 0.f, float max_value = 0.f )
       : BasePersistent<float>( value, min_value, max_value )
   {
   }

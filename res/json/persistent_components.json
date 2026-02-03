@@ -1,47 +1,69 @@
 {
   "ArmedOffDelay": {
     "type": "float",
-    "value": 0.05
+    "value": 0.05,
+    "min_value": 0.001,
+    "max_value": 0.5 
   },
   "ArmedOnDelay": {
     "type": "float",
-    "value": 0.025
+    "value": 0.025,
+    "min_value": 0.001,
+    "max_value": 0.5
   },
   "BlastRadius": {
     "type": "int",
-    "value": 1
+    "value": 2,
+    "min_value": 1,
+    "max_value": 5
   },
   "BombBonus": {
     "type": "int",
-    "value": 3
+    "value": 3,
+    "min_value": 0,
+    "max_value": 20
   },
   "BombDamage": {
     "type": "int",
-    "value": 10
+    "value": 10,
+    "min_value": 1,
+    "max_value": 50
   },
   "BombInventory": {
     "type": "int",
-    "value": 10
+    "value": 10,
+    "min_value": 0,
+    "max_value": 100
   },
   "CameraSmoothSpeed": {
     "type": "float",
-    "value": 8.0
+    "value": 8.0,
+    "min_value": 1,
+    "max_value": 20
   },
   "CorruptionDamage": {
     "type": "int",
-    "value": 1
+    "value": 1,
+    "min_value": 0,
+    "max_value": 10
   },
   "CryptNpcSpawnCount": {
     "type": "int",
-    "value": 5
+    "value": 5,
+    "min_value": 1,
+    "max_value": 10
   },
   "DiggingCooldownThreshold":{
     "type": "float",
-    "value": 0.4
+    "value": 0.4,
+    "min_value": 0.05,
+    "max_value": 1.0
   },
   "DiggingDamagePerHit":{
     "type": "int",
-    "value": 25
+    "value": 25,
+    "min_value": 1,
+    "max_value": 100
   },
   "DisplayResolution": {
     "type": "sf::Vector2u",
@@ -52,126 +74,188 @@
   },
   "EffectsVolume": {
     "type": "float",
-    "value": 20.0
+    "value": 20.0,
+    "min_value": 0.0,
+    "max_value": 100.0
   },
   "ExitKeyRequirement": {
     "type": "int",
-    "value": 3
+    "value": 3,
+    "min_value": 1,
+    "max_value": 10
   },
   "FuseDelay": {
     "type": "float",
-    "value": 2.5
+    "value": 2.5,
+    "min_value": 1.0,
+    "max_value": 10.0
   },
   "GraveNumMultiplier": {
     "type": "int",
-    "value": 30
+    "value": 30,
+    "min_value": 20,
+    "max_value": 100
   },
   "HealthBonus": {
     "type": "int",
-    "value": 25
+    "value": 25,
+    "min_value": 1,
+    "max_value": 50
   },
   "MaxNumAltars": {
     "type": "int",
-    "value": 5
+    "value": 5,
+    "min_value": 1,
+    "max_value": 10
   },
   "MaxNumCrypts": {
     "type": "int",
-    "value": 3
+    "value": 3,
+    "min_value": 1,
+    "max_value": 10
   },
   "MusicVolume": {
     "type": "float",
-    "value": 20.0
+    "value": 20.0,
+    "min_value": 0.0,
+    "max_value": 100.0
   },
   "NpcActivateScale": {
     "type": "float",
-    "value": 5.0
+    "value": 5.0,
+    "min_value": 1.0,
+    "max_value": 20.0
   },
   "NpcDamage": {
     "type": "int",
-    "value": 15
-  },  
-  "NpcShockwaveSpeed": {
-    "type":"int",
-    "value": 500
-  },
-  "NpcShockwaveResolution": {
-    "type":"int",
-    "value": 48
-  },
-  "NpcShockwaveFreq": {
-    "type":"int",
-    "value": 5000
-  },
-  "NpcShockwaveMaxRadius": {
-    "type":"float",
-    "value": 100.0
-  },
-  "PcDamageDelay": {
-    "type": "float",
-    "value": 3.0
+    "value": 15,
+    "min_value": 1,
+    "max_value": 50
   },  
   "NpcDeathAnimFramerate": {
     "type": "float",
-    "value": 0.1
+    "value": 0.1,
+    "min_value": 0.01,
+    "max_value": 0.5
   },
   "NpcGhostAnimFramerate": {
     "type": "float",
-    "value": 0.5
+    "value": 0.5,
+    "min_value": 0.01,
+    "max_value": 0.5
   },
   "NpcLerpSpeed": {
     "type": "float",
-    "value": 0.75
+    "value": 0.75,
+    "min_value": 0.1,
+    "max_value": 3.0
   },
   "NpcPushBack": {
     "type": "float",
-    "value": 16.0
+    "value": 16.0,
+    "min_value": 0.0,
+    "max_value": 64.0
   },  
   "NpcScanScale": {
     "type": "float",
-    "value": 2.5
+    "value": 2.5,
+    "min_value": 1.0,
+    "max_value": 3.0
   },
+  "NpcShockwaveFreq": {
+    "type":"int",
+    "value": 5000,
+    "min_value": 1,
+    "max_value": 10000
+  },
+  "NpcShockwaveMaxRadius": {
+    "type":"float",
+    "value": 100.0,
+    "min_value": 1.0,
+    "max_value": 1000.0
+  },
+  "NpcShockwaveResolution": {
+    "type":"int",
+    "value": 48,
+    "min_value": 32,
+    "max_value": 64
+  },
+  "NpcShockwaveSpeed": {
+    "type":"int",
+    "value": 500,
+    "min_value": 1,
+    "max_value": 1000
+  },
+  "PcDamageDelay": {
+    "type": "float",
+    "value": 3.0,
+    "min_value": 0.01,
+    "max_value": 0.5
+  },  
   "NpcSkeleAnimFramerate": {
     "type": "float",
-    "value": 0.1
+    "value": 0.1,
+    "min_value": 0.1,
+    "max_value": 2.0
   },
   "PlayerAnimFramerate": {
     "type": "float",
-    "value": 0.1
+    "value": 0.1,
+    "min_value": 0.01,
+    "max_value": 0.5
   },
   "PlayerDetectionScale": {
     "type": "float",
-    "value": 5.0
+    "value": 5.0,
+    "min_value": 1.0,
+    "max_value": 20.0
   },
   "PlayerDiagonalLerpSpeedModifier": {
     "type": "float",
-    "value": 0.707
+    "value": 0.707,
+    "min_value": 0.001,
+    "max_value": 1.0
   },
   "PlayerFootstepAddDelay": {
     "type": "float",
-    "value": 0.2
+    "value": 0.2,
+    "min_value": 0.01,
+    "max_value": 1.0
   },
   "PlayerFootstepFadeDelay": {
     "type": "float",
-    "value": 5.0
-  },
-  "PlayerLerpSpeed": {
-    "type": "float",
-    "value": 3.0
+    "value": 5.0,
+    "min_value": 0.1,
+    "max_value": 10.0
   },
   "PlayerLerpInterruptThreshold": {
     "type": "float",
-    "value": 0.3
+    "value": 0.3,
+    "min_value": 1.0,
+    "max_value": 1.0
+  },
+  "PlayerLerpSpeed": {
+    "type": "float",
+    "value": 3.0,
+    "min_value": 1.0,
+    "max_value": 10.0
   },
   "PlayerShortcutLerpSpeedModifier": {
     "type": "float",
-    "value": 0
+    "value": 0,
+    "min_value": 0.001,
+    "max_value": 1.0
   },
   "WeaponDegradePerHit": {
     "type": "float",
-    "value": 1.0
+    "value": 1.0,
+    "min_value": 0.01,
+    "max_value": 5.0
   },
   "WormholeAnimFramerate": {
     "type": "float",
-    "value": 0.1
+    "value": 0.1,
+    "min_value": 0.01,
+    "max_value": 0.5
   }
 }

@@ -6,7 +6,7 @@
 
 #include <entt/entity/registry.hpp>
 #include <functional>
-#include <nlohmann/json_fwd.hpp>
+#include <nlohmann/json.hpp>
 #include <unordered_map>
 
 namespace ProceduralMaze::Sys
@@ -85,6 +85,27 @@ public:
   static T &get_persist_cmp( entt::registry &reg );
 
 private:
+  void initializeTypeRegistry();
+
+  //! @brief registers the serialize/deserialize function with the given JSON object name and Component type.
+  //! @tparam T
+  //! @param name
+  //! @param config
+  template <typename T>
+  void registerTypes( const std::string &name )
+  {
+
+    // Register loader - pass the entire JSON object to deserialize (handles value, min_value, max_value)
+    m_component_loaders[name] = [this]( const nlohmann::json &j )
+    {
+      auto &cmp = Sys::PersistSystem::get_persist_cmp<T>( getReg() );
+      cmp.deserialize( j );
+    };
+
+    // Register serializer - uses component's serialize() which outputs type, value, min_value, max_value
+    m_component_serializers[name] = [this]() -> nlohmann::json { return Sys::PersistSystem::get_persist_cmp<T>( getReg() ).serialize(); };
+  }
+
   /**
    * @brief Map of component loader functions indexed by component type name.
    *
@@ -98,24 +119,8 @@ private:
    * an entity-component system or similar architecture.
    */
   std::unordered_map<std::string, std::function<void( const nlohmann::json & )>> m_component_loaders;
-
-  /**
-   * @brief Registers a persistent component loader with default arguments.
-   *
-   * This function associates a component loader with a given key. The loader captures
-   * the provided default arguments, constructing the initial component when invoked.
-   * The initial default value is overridden by the deserialized JSON data.
-   *
-   * @tparam ComponentType The type of the persistent component to register.
-   * @tparam DefaultArgTypes Variadic template parameter pack for default constructor arguments.
-   * @param key The unique string identifier for the component loader.
-   * @param default_args Default arguments to be forwarded to the component's constructor.
-   *
-   * @note The loader is stored internally and can be invoked later to create and
-   *       initialize the component from a JSON value.
-   */
-  template <typename ComponentType, typename... DefaultArgTypes>
-  void registerComponent( const std::string &key, DefaultArgTypes &&...default_args );
+  std::unordered_map<std::string, std::function<void( const nlohmann::json & )>> m_type_registry;
+  std::unordered_map<std::string, std::function<nlohmann::json()>> m_component_serializers;
 };
 
 } // namespace ProceduralMaze::Sys

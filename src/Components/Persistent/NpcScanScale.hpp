@@ -8,7 +8,7 @@ namespace ProceduralMaze::Cmp::Persist
 class NpcScanScale : public BasePersistent<float>
 {
 public:
-  NpcScanScale( float value = 2.5, float min_value = 1.0f, float max_value = 3.0f )
+  NpcScanScale( float value = 0.f, float min_value = 0.f, float max_value = 0.f )
       : BasePersistent<float>( value, min_value, max_value )
   {
   }

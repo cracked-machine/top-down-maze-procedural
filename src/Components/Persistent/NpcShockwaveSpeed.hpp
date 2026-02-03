@@ -11,7 +11,7 @@ namespace ProceduralMaze::Cmp::Persist
 class NpcShockwaveSpeed : public BasePersistent<uint16_t>
 {
 public:
-  NpcShockwaveSpeed( uint16_t value = 500, uint16_t min_value = 1, uint16_t max_value = 1000 )
+  NpcShockwaveSpeed( uint16_t value = 0, uint16_t min_value = 0, uint16_t max_value = 0 )
       : BasePersistent<uint16_t>( value, min_value, max_value )
   {
   }

@@ -11,7 +11,7 @@ namespace ProceduralMaze::Cmp::Persist
 class NpcShockwaveResolution : public BasePersistent<uint16_t>
 {
 public:
-  NpcShockwaveResolution( uint16_t value = 48, uint16_t min_value = 32, uint16_t max_value = 64 )
+  NpcShockwaveResolution( uint16_t value = 0, uint16_t min_value = 0, uint16_t max_value = 0 )
       : BasePersistent<uint16_t>( value, min_value, max_value )
   {
   }

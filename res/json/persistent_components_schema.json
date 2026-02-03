@@ -39,9 +39,47 @@
             }
           ],
           "description": "The default value of the persistent component"
+        },
+        "min_value": {
+          "oneOf": [
+            {
+              "type": "number",
+              "description": "Minimum numeric value for float or int types"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "x": {"type": "number"},
+                "y": {"type": "number"}
+              },
+              "required": ["x", "y"],
+              "additionalProperties": false,
+              "description": "Minimum vector value with x and y components"
+            }
+          ],
+          "description": "The minimum allowed value of the persistent component"
+        },
+        "max_value": {
+          "oneOf": [
+            {
+              "type": "number",
+              "description": "Maximum numeric value for float or int types"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "x": {"type": "number"},
+                "y": {"type": "number"}
+              },
+              "required": ["x", "y"],
+              "additionalProperties": false,
+              "description": "Maximum vector value with x and y components"
+            }
+          ],
+          "description": "The maximum allowed value of the persistent component"
         }
       },
-      "required": ["type", "value"],
+      "required": ["type", "value", "min_value", "max_value"],
       "additionalProperties": false,
       "allOf": [
         {
@@ -52,7 +90,9 @@
           },
           "then": {
             "properties": {
-              "value": {"type": "number"}
+              "value": {"type": "number"},
+              "min_value": {"type": "number"},
+              "max_value": {"type": "number"}
             }
           }
         },
@@ -64,7 +104,9 @@
           },
           "then": {
             "properties": {
-              "value": {"type": "integer"}
+              "value": {"type": "integer"},
+              "min_value": {"type": "integer"},
+              "max_value": {"type": "integer"}
             }
           }
         },
@@ -108,11 +150,29 @@
                 },
                 "required": ["x", "y"],
                 "additionalProperties": false
+              },
+              "min_value": {
+                "type": "object",
+                "properties": {
+                  "x": {"type": "number"},
+                  "y": {"type": "number"}
+                },
+                "required": ["x", "y"],
+                "additionalProperties": false
+              },
+              "max_value": {
+                "type": "object",
+                "properties": {
+                  "x": {"type": "number"},
+                  "y": {"type": "number"}
+                },
+                "required": ["x", "y"],
+                "additionalProperties": false
               }
             }
           }
         },
-    {
+        {
           "if": {
             "properties": {
               "type": {"const": "sf::Vector2u"}
@@ -121,6 +181,24 @@
           "then": {
             "properties": {
               "value": {
+                "type": "object",
+                "properties": {
+                  "x": {"type": "number"},
+                  "y": {"type": "number"}
+                },
+                "required": ["x", "y"],
+                "additionalProperties": false
+              },
+              "min_value": {
+                "type": "object",
+                "properties": {
+                  "x": {"type": "number"},
+                  "y": {"type": "number"}
+                },
+                "required": ["x", "y"],
+                "additionalProperties": false
+              },
+              "max_value": {
                 "type": "object",
                 "properties": {
                   "x": {"type": "number"},

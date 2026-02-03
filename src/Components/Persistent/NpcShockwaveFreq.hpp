@@ -11,7 +11,7 @@ namespace ProceduralMaze::Cmp::Persist
 class NpcShockwaveFreq : public BasePersistent<uint16_t>
 {
 public:
-  NpcShockwaveFreq( uint16_t value = 5000, uint16_t min_value = 1, uint16_t max_value = 10000 )
+  NpcShockwaveFreq( uint16_t value = 0, uint16_t min_value = 0, uint16_t max_value = 0 )
       : BasePersistent<uint16_t>( value, min_value, max_value )
   {
   }

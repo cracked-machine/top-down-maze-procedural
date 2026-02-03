@@ -8,7 +8,7 @@ namespace ProceduralMaze::Cmp::Persist
 class PcDamageDelay : public BasePersistent<float>
 {
 public:
-  PcDamageDelay( float value = 3.0f, float min_value = 0.1f, float max_value = 2.0f )
+  PcDamageDelay( float value = 0.f, float min_value = 0.f, float max_value = 0.f )
       : BasePersistent<float>( value, min_value, max_value )
   {
   }

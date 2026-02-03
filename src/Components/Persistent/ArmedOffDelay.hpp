@@ -9,7 +9,7 @@ namespace ProceduralMaze::Cmp::Persist
 class ArmedOffDelay : public BasePersistent<float>
 {
 public:
-  ArmedOffDelay( float delay = 0.075f, float min_value = 0.001f, float max_value = 0.5f )
+  ArmedOffDelay( float delay = 0.f, float min_value = 0.f, float max_value = 0.f )
       : BasePersistent<float>( delay, min_value, max_value )
   {
   }

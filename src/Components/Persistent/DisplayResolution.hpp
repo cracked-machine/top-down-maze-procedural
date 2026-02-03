@@ -10,7 +10,7 @@ namespace ProceduralMaze::Cmp::Persist
 class DisplayResolution : public sf::Vector2u
 {
 public:
-  
+  DisplayResolution() = default;
   DisplayResolution( unsigned int width, unsigned int height )
       : sf::Vector2u( width, height ) {};
   DisplayResolution( sf::Vector2u vec )

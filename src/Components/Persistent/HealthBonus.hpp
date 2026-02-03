@@ -8,7 +8,7 @@ namespace ProceduralMaze::Cmp::Persist
 class HealthBonus : public BasePersistent<uint8_t>
 {
 public:
-  HealthBonus( uint8_t value = 25, uint8_t min_value = 1, uint8_t max_value = 50 )
+  HealthBonus( uint8_t value = 0, uint8_t min_value = 0, uint8_t max_value = 0 )
       : BasePersistent<uint8_t>( value, min_value, max_value )
   {
   }

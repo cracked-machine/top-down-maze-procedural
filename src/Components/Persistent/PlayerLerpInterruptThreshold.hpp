@@ -13,7 +13,7 @@ namespace ProceduralMaze::Cmp::Persist
 //! 1.0 = can always interrupt (very responsive, but may feel jittery)
 struct PlayerLerpInterruptThreshold : BasePersistent<float>
 {
-  PlayerLerpInterruptThreshold( float value = 0.3, float min = 0.0, float max = 1.0 )
+  PlayerLerpInterruptThreshold( float value = 0.f, float min = 0.f, float max = 0.f )
       : BasePersistent( value, min, max )
   {
   }

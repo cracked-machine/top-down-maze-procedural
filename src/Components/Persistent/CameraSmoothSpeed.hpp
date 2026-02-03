@@ -9,7 +9,7 @@ namespace ProceduralMaze::Cmp::Persist
 //! @brief Controls the smoothing effect on the camera pan. Lower: smoother, Higher: snappier
 struct CameraSmoothSpeed : BasePersistent<float>
 {
-  CameraSmoothSpeed( float value = 8, float min_value = 1, float max_value = 20 )
+  CameraSmoothSpeed( float value = 0, float min_value = 0, float max_value = 0 )
       : BasePersistent( value, min_value, max_value )
   {
   }

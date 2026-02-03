@@ -10,7 +10,7 @@ namespace ProceduralMaze::Cmp::Persist
 class NpcShockwaveMaxRadius : public BasePersistent<float>
 {
 public:
-  NpcShockwaveMaxRadius( float value = 100.f, float min_value = 1.f, float max_value = 1000.f )
+  NpcShockwaveMaxRadius( float value = 0.f, float min_value = 0.f, float max_value = 0.f )
       : BasePersistent<float>( value, min_value, max_value )
   {
   }

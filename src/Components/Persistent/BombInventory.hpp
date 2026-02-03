@@ -8,7 +8,7 @@ namespace ProceduralMaze::Cmp::Persist
 class BombInventory : public BasePersistent<uint8_t>
 {
 public:
-  BombInventory( uint8_t value = 10, uint8_t min_value = 0, uint8_t max_value = 100 )
+  BombInventory( uint8_t value = 0, uint8_t min_value = 0, uint8_t max_value = 0 )
       : BasePersistent<uint8_t>( value, min_value, max_value )
   {
   }
