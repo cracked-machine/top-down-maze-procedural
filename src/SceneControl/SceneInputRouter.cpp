@@ -31,7 +31,6 @@
 #include <SceneControl/Events/ProcessTitleSceneInputEvent.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/SceneInputRouter.hpp>
-#include <Systems/PersistSystem.hpp>
 #include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys

@@ -19,7 +19,6 @@
 #include <Systems/CryptSystem.hpp>
 #include <Systems/HolyWellSystem.hpp>
 #include <Systems/LootSystem.hpp>
-#include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>

@@ -2,7 +2,6 @@
 
 #include <Audio/SoundBank.hpp>
 #include <SceneControl/Events/ProcessSettingsMenuSceneInputEvent.hpp>
-#include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
 #include <Systems/SystemStore.hpp>

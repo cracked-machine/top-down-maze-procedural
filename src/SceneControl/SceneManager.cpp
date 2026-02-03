@@ -18,7 +18,6 @@
 #include <SceneControl/Scenes/SettingsMenuScene.hpp>
 #include <SceneControl/Scenes/TitleScene.hpp>
 #include <Sprites/SpriteFactory.hpp>
-#include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
 namespace ProceduralMaze::Scene

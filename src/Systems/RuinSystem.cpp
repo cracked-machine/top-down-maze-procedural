@@ -17,7 +17,6 @@
 #include <Factory/RuinFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Sprites/MultiSprite.hpp>
-#include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/RuinSystem.hpp>
 #include <Utils/Optimizations.hpp>

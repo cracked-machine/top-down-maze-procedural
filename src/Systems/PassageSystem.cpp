@@ -16,7 +16,6 @@
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/Events/PassageEvent.hpp>
 #include <Systems/PassageSystem.hpp>
-#include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Utils.hpp>
