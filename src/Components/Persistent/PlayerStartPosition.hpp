@@ -53,6 +53,8 @@ public:
     json_data["value"]["y"] = y;
     return json_data;
   }
+
+  const std::string get_detail() const { return ""; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persist

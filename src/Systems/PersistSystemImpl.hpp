@@ -37,16 +37,21 @@ T &PersistSystem::get_persist_cmp( entt::registry &reg )
 template <typename T>
 void PersistSystem::registerTypes( const std::string &name )
 {
-
-  // Register loader - pass the entire JSON object to deserialize (handles value, min_value, max_value)
+  // Register loader
   m_component_loaders[name] = [this]( const nlohmann::json &j )
   {
     auto &cmp = Sys::PersistSystem::get_persist_cmp<T>( getReg() );
     cmp.deserialize( j );
   };
 
-  // Register serializer - uses component's serialize() which outputs type, value, min_value, max_value
+  // Register serializer
   m_component_serializers[name] = [this]() -> nlohmann::json { return Sys::PersistSystem::get_persist_cmp<T>( getReg() ).serialize(); };
+
+  // Only add to widget list if T inherits from IBasePersistent
+  if constexpr ( std::is_base_of_v<Cmp::Persist::IBasePersistent, T> )
+  {
+    m_registered_components.push_back( &Sys::PersistSystem::get_persist_cmp<T>( getReg() ) );
+  }
 }
 
 } // namespace ProceduralMaze::Sys

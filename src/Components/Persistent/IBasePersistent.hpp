@@ -69,6 +69,12 @@ public:
    * @return nlohmann::json A JSON object containing the serialized component data.
    */
   virtual nlohmann::json serialize() const = 0;
+
+  // render ImGui widget for this component
+  virtual void render_widget() = 0;
+
+  // get the display name for this component
+  virtual const std::string get_detail() const = 0;
 };
 
 } // namespace ProceduralMaze::Cmp::Persist

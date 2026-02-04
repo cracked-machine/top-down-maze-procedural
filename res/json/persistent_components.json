@@ -3,67 +3,89 @@
     "type": "float",
     "value": 0.05,
     "min_value": 0.001,
-    "max_value": 0.5 
+    "max_value": 0.5,
+    "detail": "Armed Off Delay",
+    "format": "%.3f"
   },
   "ArmedOnDelay": {
     "type": "float",
     "value": 0.025,
     "min_value": 0.001,
-    "max_value": 0.5
+    "max_value": 0.5,
+    "detail": "Armed Detonation Delay Increment",
+    "format": "%.3f"
   },
   "BlastRadius": {
     "type": "int",
     "value": 2,
     "min_value": 1,
-    "max_value": 5
+    "max_value": 5,
+    "detail": "Blast Radius",
+    "format": "%d"
   },
   "BombBonus": {
     "type": "int",
     "value": 3,
     "min_value": 0,
-    "max_value": 20
+    "max_value": 20,
+    "detail": "Bomb Bonus",
+    "format": "%d"
   },
   "BombDamage": {
     "type": "int",
     "value": 10,
     "min_value": 1,
-    "max_value": 50
+    "max_value": 50,
+    "detail": "Bomb Damage",
+    "format": "%d"
   },
   "BombInventory": {
     "type": "int",
     "value": 10,
     "min_value": 0,
-    "max_value": 100
+    "max_value": 100,
+    "detail": "Bomb Inventory",
+    "format": "%d"
   },
   "CameraSmoothSpeed": {
     "type": "float",
     "value": 8.0,
     "min_value": 1,
-    "max_value": 20
+    "max_value": 20,
+    "detail": "Camera Smoothing Speed",
+    "format": "%.1f"
   },
   "CorruptionDamage": {
     "type": "int",
     "value": 1,
     "min_value": 0,
-    "max_value": 10
+    "max_value": 10,
+    "detail": "Corruption Damage",
+    "format": "%d"
   },
   "CryptNpcSpawnCount": {
     "type": "int",
     "value": 5,
     "min_value": 1,
-    "max_value": 10
+    "max_value": 10,
+    "detail": "NPC Crypt Spawn Count",
+    "format": "%d"
   },
   "DiggingCooldownThreshold":{
     "type": "float",
     "value": 0.4,
     "min_value": 0.05,
-    "max_value": 1.0
+    "max_value": 1.0,
+    "detail": "Digging Cooldown",
+    "format": "%.2f seconds"
   },
   "DiggingDamagePerHit":{
     "type": "int",
     "value": 25,
     "min_value": 1,
-    "max_value": 100
+    "max_value": 100,
+    "detail": "Digging Damage Per Hit",
+    "format": "%d"
   },
   "DisplayResolution": {
     "type": "sf::Vector2u",
@@ -76,186 +98,248 @@
     "type": "float",
     "value": 20.0,
     "min_value": 0.0,
-    "max_value": 100.0
+    "max_value": 100.0,
+    "detail": "Effects Volume",
+    "format": "%.1f"
   },
   "ExitKeyRequirement": {
     "type": "int",
     "value": 3,
     "min_value": 1,
-    "max_value": 10
+    "max_value": 10,
+    "detail": "Exit Key Requirement",
+    "format": "%d"
   },
   "FuseDelay": {
     "type": "float",
     "value": 2.5,
     "min_value": 1.0,
-    "max_value": 10.0
+    "max_value": 10.0,
+    "detail": "Fuse Delay",
+    "format": "%.1f seconds"
   },
   "GraveNumMultiplier": {
     "type": "int",
     "value": 30,
     "min_value": 20,
-    "max_value": 100
+    "max_value": 100,
+    "detail": "Grave Number Multiplier",
+    "format": "%d"
   },
   "HealthBonus": {
     "type": "int",
     "value": 25,
     "min_value": 1,
-    "max_value": 50
+    "max_value": 50,
+    "detail": "Health Bonus",
+    "format": "%d"
   },
   "MaxNumAltars": {
     "type": "int",
     "value": 5,
     "min_value": 1,
-    "max_value": 10
+    "max_value": 10,
+    "detail": "Max NNumber of Altars",
+    "format": "%d"
   },
   "MaxNumCrypts": {
     "type": "int",
     "value": 3,
     "min_value": 1,
-    "max_value": 10
+    "max_value": 10,
+    "detail": "Max Number of Crypts",
+    "format": "%d"
   },
   "MusicVolume": {
     "type": "float",
     "value": 20.0,
     "min_value": 0.0,
-    "max_value": 100.0
+    "max_value": 100.0,
+    "detail": "Music Volume",
+    "format": "%.1f"
   },
   "NpcActivateScale": {
     "type": "float",
     "value": 5.0,
     "min_value": 1.0,
-    "max_value": 20.0
+    "max_value": 20.0,
+    "detail": "NPC Activation Bounding Box Scale Factor",
+    "format": "%.1f pixels"
   },
   "NpcDamage": {
     "type": "int",
     "value": 15,
     "min_value": 1,
-    "max_value": 50
+    "max_value": 50,
+    "detail": "NPC Damage",
+    "format": "%d"
   },  
   "NpcDeathAnimFramerate": {
     "type": "float",
     "value": 0.1,
     "min_value": 0.01,
-    "max_value": 0.5
+    "max_value": 0.5,
+    "detail": "NPC Death Animation Framerate",
+    "format": "%.2f"
   },
   "NpcGhostAnimFramerate": {
     "type": "float",
     "value": 0.5,
     "min_value": 0.01,
-    "max_value": 0.5
+    "max_value": 0.5,
+    "detail": "NPC Animation Ghost Framerate",
+    "format": "%.2f"
   },
   "NpcLerpSpeed": {
     "type": "float",
     "value": 0.75,
     "min_value": 0.1,
-    "max_value": 3.0
+    "max_value": 3.0,
+    "detail": "NPC Speed",
+    "format": "%.1f"
   },
   "NpcPushBack": {
     "type": "float",
     "value": 16.0,
     "min_value": 0.0,
-    "max_value": 64.0
+    "max_value": 64.0,
+    "detail": "NPC Push Back Distance",
+    "format": "%.1f pixels"
   },  
   "NpcScanScale": {
     "type": "float",
     "value": 2.5,
     "min_value": 1.0,
-    "max_value": 3.0
+    "max_value": 3.0,
+    "detail": "NPC Scan Bounding Box Scale Factor",
+    "format": "%.1f pixels"
   },
   "NpcShockwaveFreq": {
     "type":"int",
     "value": 5000,
     "min_value": 1,
-    "max_value": 10000
+    "max_value": 10000,
+    "detail": "NPC Shockwave Freq",
+    "format": "%d"
   },
   "NpcShockwaveMaxRadius": {
     "type":"float",
     "value": 100.0,
     "min_value": 1.0,
-    "max_value": 1000.0
+    "max_value": 1000.0,
+    "detail": "NPC Shockwave Max Radius",
+    "format": "%.1f"
   },
   "NpcShockwaveResolution": {
     "type":"int",
     "value": 48,
     "min_value": 32,
-    "max_value": 64
+    "max_value": 64,
+    "detail": "NPC Shockwave Resolution",
+    "format": "%d"
   },
   "NpcShockwaveSpeed": {
     "type":"int",
     "value": 500,
     "min_value": 1,
-    "max_value": 1000
+    "max_value": 1000,
+    "detail": "NPC Shockwave Speed",
+    "format": "%d"
   },
   "PcDamageDelay": {
     "type": "float",
     "value": 3.0,
     "min_value": 0.01,
-    "max_value": 0.5
+    "max_value": 0.5,
+    "detail": "Player Damage Cooldown",
+    "format": "%.1f seconds"
   },  
   "NpcSkeleAnimFramerate": {
     "type": "float",
     "value": 0.1,
     "min_value": 0.1,
-    "max_value": 2.0
+    "max_value": 2.0,
+    "detail": "NPC Animation Skeleton Framerate",
+    "format": "%.2f"
   },
   "PlayerAnimFramerate": {
     "type": "float",
     "value": 0.1,
     "min_value": 0.01,
-    "max_value": 0.5
+    "max_value": 0.5,
+    "detail": "Player Animation Framerate",
+    "format": "%.2f"
   },
   "PlayerDetectionScale": {
     "type": "float",
     "value": 5.0,
     "min_value": 1.0,
-    "max_value": 20.0
+    "max_value": 20.0,
+    "detail": "PC Detection Bounding Box Scale Factor",
+    "format": "%.1f pixels"
   },
   "PlayerDiagonalLerpSpeedModifier": {
     "type": "float",
     "value": 0.707,
     "min_value": 0.001,
-    "max_value": 1.0
+    "max_value": 1.0,
+    "detail": "Player Diagonal Lerp Speed Modifier",
+    "format": "%.2f"
   },
   "PlayerFootstepAddDelay": {
     "type": "float",
     "value": 0.2,
     "min_value": 0.01,
-    "max_value": 1.0
+    "max_value": 1.0,
+    "detail": "Player Footstep Add Delay",
+    "format": "%.2f seconds"
   },
   "PlayerFootstepFadeDelay": {
     "type": "float",
     "value": 5.0,
     "min_value": 0.1,
-    "max_value": 10.0
+    "max_value": 10.0,
+    "detail": "Player Footstep Fade Delay",
+    "format": "%.2f seconds"
   },
   "PlayerLerpInterruptThreshold": {
     "type": "float",
     "value": 0.3,
     "min_value": 1.0,
-    "max_value": 1.0
+    "max_value": 1.0,
+    "detail": "Player Lerp Interrupt Threshold",
+    "format": "%.2f"
   },
   "PlayerLerpSpeed": {
     "type": "float",
     "value": 3.0,
     "min_value": 1.0,
-    "max_value": 10.0
+    "max_value": 10.0,
+    "detail": "Player Lerp Speed",
+    "format": "%.1f"
   },
   "PlayerShortcutLerpSpeedModifier": {
     "type": "float",
     "value": 0,
     "min_value": 0.001,
-    "max_value": 1.0
+    "max_value": 1.0,
+    "detail": "Player Shortcut Lerp Speed Modifier",
+    "format": "%.2f seconds"
   },
   "WeaponDegradePerHit": {
     "type": "float",
     "value": 1.0,
     "min_value": 0.01,
-    "max_value": 5.0
+    "max_value": 5.0,
+    "detail": "Weapon Degrade Per Hit",
+    "format": "%.1f pixels"
   },
   "WormholeAnimFramerate": {
     "type": "float",
     "value": 0.1,
     "min_value": 0.01,
-    "max_value": 0.5
+    "max_value": 0.5,
+    "detail": "Wormhole Animation Framerate",
+    "format": "%.2f"
   }
 }

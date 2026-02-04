@@ -14,6 +14,7 @@ struct DiggingDamagePerHit : public BasePersistent<uint8_t>
   {
   }
   virtual std::string class_name() const override { return "DiggingDamagePerHit"; }
+  const std::string get_detail() const override { return ""; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persist

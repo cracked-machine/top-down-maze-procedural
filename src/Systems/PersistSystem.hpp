@@ -1,6 +1,7 @@
 #ifndef SRC_SYSTEMS_PERSISTENT_SYSTEM_HPP
 #define SRC_SYSTEMS_PERSISTENT_SYSTEM_HPP
 
+#include <Components/Persistent/IBasePersistent.hpp>
 #include <Events/SaveSettingsEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -84,6 +85,9 @@ public:
   template <typename T>
   static T &get_persist_cmp( entt::registry &reg );
 
+  // Accessor for RenderMenuSystem to iterate components
+  const std::vector<Cmp::Persist::IBasePersistent *> &get_registered_components() { return m_registered_components; }
+
 private:
   void initializeTypeRegistry();
 
@@ -109,6 +113,7 @@ private:
   std::unordered_map<std::string, std::function<void( const nlohmann::json & )>> m_component_loaders;
   std::unordered_map<std::string, std::function<void( const nlohmann::json & )>> m_type_registry;
   std::unordered_map<std::string, std::function<nlohmann::json()>> m_component_serializers;
+  std::vector<Cmp::Persist::IBasePersistent *> m_registered_components;
 };
 
 } // namespace ProceduralMaze::Sys

@@ -15,6 +15,7 @@ public:
   {
   }
   virtual std::string class_name() const override { return "WormholeSeed"; }
+  const std::string get_detail() const override { return ""; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persist

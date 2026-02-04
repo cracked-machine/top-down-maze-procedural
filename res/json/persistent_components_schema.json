@@ -77,6 +77,14 @@
             }
           ],
           "description": "The maximum allowed value of the persistent component"
+        },
+        "detail": {
+          "type": "string",
+          "description": "Display name"
+        },
+        "format": {
+          "type": "string",
+          "description": "Formmatter"
         }
       },
       "required": ["type", "value", "min_value", "max_value"],

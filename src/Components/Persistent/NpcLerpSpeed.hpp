@@ -13,6 +13,7 @@ public:
   {
   }
   virtual std::string class_name() const override { return "NpcLerpSpeed"; }
+  const std::string get_detail() const override { return ""; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persist

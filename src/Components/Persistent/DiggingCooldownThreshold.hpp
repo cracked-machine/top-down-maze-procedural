@@ -13,6 +13,7 @@ struct DiggingCooldownThreshold : public BasePersistent<float>
   {
   }
   virtual std::string class_name() const override { return "DiggingCooldownThreshold"; }
+  const std::string get_detail() const override { return ""; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persist

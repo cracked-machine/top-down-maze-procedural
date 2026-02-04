@@ -13,6 +13,7 @@ struct WeaponDegradePerHit : public BasePersistent<float>
   {
   }
   virtual std::string class_name() const override { return "WeaponDegradePerHit"; }
+  const std::string get_detail() const override { return ""; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persist

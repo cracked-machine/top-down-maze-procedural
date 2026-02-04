@@ -18,6 +18,7 @@ struct PlayerLerpInterruptThreshold : BasePersistent<float>
   {
   }
   virtual std::string class_name() const override { return "PlayerLerpInterruptThreshold"; }
+  const std::string get_detail() const override { return ""; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persist

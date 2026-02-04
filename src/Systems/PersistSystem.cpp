@@ -76,9 +76,9 @@ void PersistSystem::initializeTypeRegistry()
   {
     m_type_registry[name] = [this, name]( const nlohmann::json &json )
     {
-      registerTypes<T>( name );
       Sys::PersistSystem::add_persist_cmp<T>( getReg() );
       Sys::PersistSystem::get_persist_cmp<T>( getReg() ).deserialize( json );
+      registerTypes<T>( name );
     };
   };
 
@@ -132,6 +132,7 @@ void PersistSystem::initializeTypeRegistry()
 
 void PersistSystem::initializeComponentRegistry()
 {
+
   // First, set up the type registry (maps type names to factory functions)
   initializeTypeRegistry();
 
@@ -150,11 +151,7 @@ void PersistSystem::initializeComponentRegistry()
   // Register each component from the JSON file
   for ( const auto &[name, config] : definitions.items() )
   {
-    if ( m_type_registry.contains( name ) )
-    {
-      m_type_registry.at( name )( config );
-      SPDLOG_INFO( "Registered component: {}", name );
-    }
+    if ( m_type_registry.contains( name ) ) { m_type_registry.at( name )( config ); }
     else { SPDLOG_WARN( "Unknown component type in definitions: {}", name ); }
   }
 
