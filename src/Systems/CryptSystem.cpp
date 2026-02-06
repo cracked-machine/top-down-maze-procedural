@@ -355,8 +355,8 @@ void CryptSystem::check_chest_activation( Events::PlayerActionEvent::GameActions
         Cmp::SpriteAnimation( 0, 0, true, "LOOT.goldcoin", 0 ),                                        
         Cmp::RectBounds{ chest_pos_cmp.position, chest_pos_cmp.size, 3.f }.getBounds(), 
         Factory::IncludePack<>{},
-        Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::CryptChest, Cmp::CryptRoomLavaPitCell, Cmp::CryptPassageBlock>{} ,
-        Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::CryptChest, Cmp::CryptRoomLavaPitCell, Cmp::CryptPassageBlock>{},
+        Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::CryptChest, Cmp::CryptRoomLavaPitCell, Cmp::CryptPassageBlock, Cmp::Wall, Cmp::Obstacle>{} ,
+        Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::CryptChest, Cmp::CryptRoomLavaPitCell, Cmp::CryptPassageBlock, Cmp::Wall, Cmp::Obstacle>{},
         64.f);
       // clang-format on
 
@@ -502,6 +502,12 @@ void CryptSystem::unlock_objective_passage()
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_OCCUPIED_TO_ENDROOM, get_crypt_room_end().first ) );
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::OPEN_PASSAGES ) );
   m_sound_bank.get_effect( "crypt_room_shuffle" ).play();
+
+  // switch on the lights so we can see the objective in all its glory!
+  for ( auto [entt, sys_cmp] : getReg().view<Cmp::System>().each() )
+  {
+    sys_cmp.dark_mode_enabled = false;
+  }
 }
 
 void CryptSystem::unlock_exit_passage()
