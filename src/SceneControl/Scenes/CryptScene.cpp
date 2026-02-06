@@ -18,6 +18,7 @@
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/SystemStore.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
+#include <Systems/Threats/ShockwaveSystem.hpp>
 
 namespace ProceduralMaze::Scene
 {
@@ -98,7 +99,7 @@ void CryptScene::do_update( sf::Time dt )
   m_system_store.find<Sys::SystemStore::Type::LootSystem>().check_loot_collision();
   m_system_store.find<Sys::SystemStore::Type::CryptSystem>().check_exit_collision();
   m_system_store.find<Sys::SystemStore::Type::CryptSystem>().update();
-
+  m_system_store.find<Sys::SystemStore::Type::ShockwaveSystem>().checkShockwavePlayerCollision();
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt );
 
   auto &overlay_sys = m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>();

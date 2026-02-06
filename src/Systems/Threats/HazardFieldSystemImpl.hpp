@@ -137,6 +137,7 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
 {
   auto hazard_view = getReg().template view<HazardType, Cmp::Position>();
   auto player_view = getReg().template view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
+  const auto &player_position = Utils::get_player_position( getReg() );
 
   for ( auto [pc_entt, player_cmp, player_health_cmp, player_mort_cmp, player_pos_cmp] : player_view.each() )
   {
@@ -157,17 +158,18 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
 
       if constexpr ( Traits::sprite_type == "SINKHOLE" )
       {
-        // player_mort_cmp.state = Traits::mortality_state;
-        get_systems_event_queue().trigger(
-            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::FALLING, Utils::get_player_position( getReg() ) ) );
-        SPDLOG_INFO( "Player fell into a hazard field at position ({}, {})!", hazard_pos_cmp.position.x, hazard_pos_cmp.position.y );
+        // trigger death animation
+        get_systems_event_queue().trigger( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::FALLING, player_position ) );
         return;
       }
       else if constexpr ( Traits::sprite_type == "CORRUPTION" )
       {
         player_health_cmp.health -= Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CorruptionDamage>( getReg() ).get_value();
-        SPDLOG_DEBUG( "Player took corruption damage at position ({}, {})! Health is now {}.", hazard_pos_cmp.x, hazard_pos_cmp.y,
-                      player_health_cmp.health );
+        // trigger death animation
+        if ( player_health_cmp.health <= 0 )
+        {
+          get_systems_event_queue().trigger( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::DECAYING, player_position ) );
+        }
         return;
       }
     }

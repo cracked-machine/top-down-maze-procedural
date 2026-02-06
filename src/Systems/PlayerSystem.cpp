@@ -164,6 +164,13 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
       common_death_throes();
       break;
     }
+    case Cmp::PlayerMortality::State::SHOCKED: {
+      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
+      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
+      m_sound_bank.get_effect( "player_blood_splat" ).play();
+      common_death_throes();
+      break;
+    }
     case Cmp::PlayerMortality::State::DEAD: {
       break;
     }
@@ -238,15 +245,6 @@ void PlayerSystem::update( sf::Time globalDeltaTime, FootStepSfx footstep_sfx )
     {
       refreshPlayerDistances();
       m_debug_info_timer.restart();
-    }
-
-    if ( Utils::getSystemCmp( getReg() ).collisions_enabled )
-    {
-      // update player health if hit by shockwave
-      for ( auto entt : getReg().view<Cmp::NpcShockwave>() )
-      {
-        checkShockwavePlayerCollision( getReg().get<Cmp::NpcShockwave>( entt ) );
-      }
     }
   }
 
@@ -752,26 +750,6 @@ void PlayerSystem::refreshPlayerDistances()
       // otherwise tidy up any out of range player distances
       if ( not pc_db_cmp.findIntersection( path_pos_cmp ) ) { getReg().remove<Cmp::PlayerDistance>( path_entt ); }
     }
-  }
-}
-
-void PlayerSystem::checkShockwavePlayerCollision( Cmp::NpcShockwave &shockwave )
-{
-  auto &pc_damage_cooldown = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>( getReg() );
-  auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::PlayerHealth>();
-
-  for ( auto [player_entity, player_cmp, player_pos, player_health] : player_view.each() )
-  {
-    if ( player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
-    if ( Sys::ShockwaveSystem::intersectsWithVisibleSegments( getReg(), shockwave, player_pos ) )
-    {
-      player_health.health -= 10;
-      m_sound_bank.get_effect( "damage_player" ).play();
-      player_cmp.m_damage_cooldown_timer.restart();
-      SPDLOG_INFO( "Player (health:{}) INTERSECTS with Shockwave (position: {},{} - effective_radius: {})", player_health.health,
-                   shockwave.sprite.getPosition().x, shockwave.sprite.getPosition().y, shockwave.sprite.getRadius() );
-    }
-    else { SPDLOG_DEBUG( "Player does NOT intersect with shockwave (effective_radius: {})", shockwave.sprite.getRadius() ); }
   }
 }
 

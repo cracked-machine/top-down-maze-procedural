@@ -23,6 +23,8 @@ public:
   static Sprites::Shockwave::CircleSegments splitSegmentByObstacle( const Sprites::CircleSegment &segment, const sf::FloatRect &obstacle_rect,
                                                                     sf::Vector2f shockwave_position, float radius, const int samples );
 
+  void checkShockwavePlayerCollision();
+
   //! @brief event handlers for pausing system clocks
   void onPause() override {};
   //! @brief event handlers for resuming system clocks

@@ -73,10 +73,10 @@ private:
   //! @brief Refresh the PlayerDistance components for positions near the player
   void refreshPlayerDistances();
 
-  //! @brief Check if the player is mortal or dead
+  //! @brief Check if the player is dea
+  //! @note This checks if the Cmp::PlayerMortality == State::DEAD, not check Cmp::PlayerHealth (that is other system responsibility).
   void checkPlayerMortality();
 
-  void checkShockwavePlayerCollision( Cmp::NpcShockwave &shockwave );
   void check_player_axe_npc_kill();
 
   void on_player_mortality_event( ProceduralMaze::Events::PlayerMortalityEvent ev );

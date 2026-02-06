@@ -1,7 +1,12 @@
 #include "ShockwaveSystem.hpp"
+#include <Audio/SoundBank.hpp>
 #include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/Persistent/PcDamageDelay.hpp>
+#include <Components/Player/PlayerMortality.hpp>
+#include <Events/PlayerMortalityEvent.hpp>
 #include <Sprites/Shockwave.hpp>
+#include <Systems/PersistSystem.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Utils.hpp>
 
@@ -164,6 +169,38 @@ void ShockwaveSystem::removeIntersectingSegments( const sf::FloatRect &obstacle_
   }
 
   shockwave.sprite.setSegments( std::move( new_segments ) );
+}
+
+void ShockwaveSystem::checkShockwavePlayerCollision()
+{
+  for ( auto entt : getReg().view<Cmp::NpcShockwave>() )
+  {
+    Cmp::NpcShockwave &shockwave = getReg().get<Cmp::NpcShockwave>( entt );
+    auto &pc_damage_cooldown = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>( getReg() );
+    auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::PlayerHealth, Cmp::PlayerMortality>();
+
+    for ( auto [player_entity, player_cmp, player_pos, player_health, player_mort_cmp] : player_view.each() )
+    {
+      // dont spam death events if the player is already dead
+      if ( player_mort_cmp.state == Cmp::PlayerMortality::State::DEAD ) continue;
+      if ( player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
+      if ( Sys::ShockwaveSystem::intersectsWithVisibleSegments( getReg(), shockwave, player_pos ) )
+      {
+        player_health.health -= 10;
+        m_sound_bank.get_effect( "damage_player" ).play();
+        player_cmp.m_damage_cooldown_timer.restart();
+        SPDLOG_INFO( "Player (health:{}) INTERSECTS with Shockwave (position: {},{} - effective_radius: {})", player_health.health,
+                     shockwave.sprite.getPosition().x, shockwave.sprite.getPosition().y, shockwave.sprite.getRadius() );
+
+        // trigger death animation
+        if ( player_health.health <= 0 )
+        {
+          get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SHOCKED, player_pos ) );
+        }
+      }
+      else { SPDLOG_DEBUG( "Player does NOT intersect with shockwave (effective_radius: {})", shockwave.sprite.getRadius() ); }
+    }
+  }
 }
 
 } // namespace ProceduralMaze::Sys
