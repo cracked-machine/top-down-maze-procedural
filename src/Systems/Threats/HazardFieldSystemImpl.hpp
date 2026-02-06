@@ -144,6 +144,9 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
     // if ( player_mort_cmp.state != Cmp::PlayerMortality::State::ALIVE ) return;
     if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), player_pos_cmp ) ) continue;
 
+    // dont spam death events if the player is already dead
+    if ( player_mort_cmp.state == Cmp::PlayerMortality::State::DEAD ) continue;
+
     // reduce the player hitbox so that you have to be almost centered over it to fall in
     auto player_hitbox_redux = Cmp::RectBounds( player_pos_cmp.position, player_pos_cmp.size, 0.1f );
     for ( auto [hazard_entt, hazard_cmp, hazard_pos_cmp] : hazard_view.each() )
@@ -155,8 +158,10 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
       if constexpr ( Traits::sprite_type == "SINKHOLE" )
       {
         // player_mort_cmp.state = Traits::mortality_state;
-        get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Traits::mortality_state, Utils::get_player_position( getReg() ) ) );
-        SPDLOG_DEBUG( "Player fell into a hazard field at position ({}, {})!", hazard_pos_cmp.x, hazard_pos_cmp.y );
+        get_systems_event_queue().trigger(
+            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::FALLING, Utils::get_player_position( getReg() ) ) );
+        SPDLOG_INFO( "Player fell into a hazard field at position ({}, {})!", hazard_pos_cmp.position.x, hazard_pos_cmp.position.y );
+        return;
       }
       else if constexpr ( Traits::sprite_type == "CORRUPTION" )
       {
