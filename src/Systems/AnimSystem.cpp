@@ -1,3 +1,5 @@
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+
 #include <Components/Altar/AltarSacrifice.hpp>
 #include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptPassageSpikeTrap.hpp>

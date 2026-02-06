@@ -1,3 +1,5 @@
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+
 #include <Components/Altar/AltarSegment.hpp>
 #include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptInteriorSegment.hpp>
@@ -93,6 +95,7 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
     stopFootstepsSound();
     Utils::get_player_health( getReg() ).health = 0;
     Utils::get_player_mortality( getReg() ).state = Cmp::PlayerMortality::State::DEAD;
+    SPDLOG_INFO("Ploayer is dead");
   };
   // clang-format on
 
@@ -102,6 +105,7 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
       break;
 
     case Cmp::PlayerMortality::State::FALLING: {
+      SPDLOG_INFO( "Player is falling" );
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
       Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
@@ -451,10 +455,10 @@ bool PlayerSystem::isDiagonalMovementBetweenObstacles( const sf::FloatRect &curr
 
 void PlayerSystem::checkPlayerMortality()
 {
+
   auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
   for ( auto [entity, pc_cmp, health_cmp, mortality_cmp, player_pos_cmp] : player_view.each() )
   {
-
     if ( ( mortality_cmp.state == Cmp::PlayerMortality::State::DEAD ) and ( m_post_death_timer.getElapsedTime() > sf::seconds( 5.f ) ) )
     {
 
@@ -767,7 +771,7 @@ void PlayerSystem::checkShockwavePlayerCollision( Cmp::NpcShockwave &shockwave )
       SPDLOG_INFO( "Player (health:{}) INTERSECTS with Shockwave (position: {},{} - effective_radius: {})", player_health.health,
                    shockwave.sprite.getPosition().x, shockwave.sprite.getPosition().y, shockwave.sprite.getRadius() );
     }
-    else { SPDLOG_DEBUG( "Player does NOT intersect with shockwave (distance: {}, effective_radius: {})", distance, effective_radius ); }
+    else { SPDLOG_DEBUG( "Player does NOT intersect with shockwave (effective_radius: {})", shockwave.sprite.getRadius() ); }
   }
 }
 
@@ -794,7 +798,7 @@ void PlayerSystem::check_player_axe_npc_kill()
     auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::getGameView() );
     if ( mouse_position_bounds.findIntersection( npc_pos_cmp ) )
     {
-      SPDLOG_DEBUG( "Found NPC entity at position: [{}, {}]!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
+      SPDLOG_DEBUG( "Found NPC entity at position: [{}, {}]!", npc_pos_cmp.position.x, npc_pos_cmp.position.y );
 
       // TODO: check player is facing the obstacle
       // Check player proximity to the entity
@@ -855,7 +859,7 @@ void PlayerSystem::check_player_axe_npc_kill()
         if ( getReg().valid( npc_entity ) ) getReg().destroy( npc_entity );
       }
 
-      SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
+      SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", npc_pos_cmp.position.x, npc_pos_cmp.position.y );
     }
   }
 }

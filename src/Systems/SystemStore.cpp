@@ -1,3 +1,5 @@
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+
 #include <Systems/HolyWellSystem.hpp>
 #include <Systems/SystemStore.hpp>
 

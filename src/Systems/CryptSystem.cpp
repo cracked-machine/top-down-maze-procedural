@@ -1,3 +1,5 @@
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+
 #include <Audio/SoundBank.hpp>
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/Crypt/CryptChest.hpp>

@@ -1,3 +1,5 @@
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+
 #include <Audio/SoundBank.hpp>
 #include <Components/Exit.hpp>
 #include <Components/HolyWell/HolyWellEntrance.hpp>

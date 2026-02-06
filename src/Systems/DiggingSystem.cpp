@@ -1,4 +1,6 @@
 
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/Npc/Npc.hpp>

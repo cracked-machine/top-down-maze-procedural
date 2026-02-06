@@ -1,3 +1,5 @@
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+
 #include <Components/Altar/AltarSacrifice.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/SpriteAnimation.hpp>
