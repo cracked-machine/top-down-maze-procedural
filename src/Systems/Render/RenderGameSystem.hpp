@@ -63,7 +63,7 @@ private:
   bool m_camera_initialized{ false };
 
   //! @brief Renders the game world floor
-  //! @param offset The offset to apply to the floor rendering
+  //! @param offset The offset - in pixels - to apply to the floor rendering
   void render_floormap( Sprites::Containers::TileMap &floormap, const sf::Vector2f &offset = { 0.f, 0.f } );
 
   //! @brief Renders the armed obstacles in the game world

@@ -310,7 +310,7 @@ bool PassageSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatR
   {
     SPDLOG_INFO( "First leg: vertical" );
     // try to prevent hitting another open room before reaching the target room
-    float furthest_pos_y;
+    float furthest_pos_y = 0;
     if ( start.m_direction == Cmp::CryptPassageDirection::SOUTH )
     {
       furthest_pos_y = end_bounds.position.y + end_bounds.size.y;

@@ -9,36 +9,30 @@
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/HolyWell/HolyWellSegment.hpp>
 #include <Components/Inventory/CarryItem.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
-#include <Factory/CryptFactory.hpp>
+#include <Factory/LootFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
+#include <Factory/NpcFactory.hpp>
+#include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/WallFactory.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/Altar/AltarSegment.hpp>
-#include <Components/Armable.hpp>
-#include <Components/Crypt/CryptEntrance.hpp>
 #include <Components/Crypt/CryptMultiBlock.hpp>
 #include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
 #include <Components/Grave/GraveSegment.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
-#include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpawnArea.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/Wall.hpp>
-#include <Factory/LootFactory.hpp>
-#include <Factory/NpcFactory.hpp>
-#include <Factory/ObstacleFactory.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -220,31 +214,36 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, Cmp::
   auto start_room_entity = getReg().create();
   getReg().emplace_or_replace<Cmp::CryptRoomStart>( start_room_entity, player_start_area.position(), player_start_area.size() );
 
-  unsigned int w = map_grid_size.x; // in tiles
-  unsigned int h = map_grid_size.y; // in tiles
+  int w = map_grid_size.x; // in tiles
+  int h = map_grid_size.y; // in tiles
 
+  // horizontal midpoint
   int cx = w / 2;
+  // vertical midpoint
   int cy = h / 2;
 
   // arm half-length in tiles
-  int vertHalfLength = h;
-  int horizHalfLength = w;
+  [[maybe_unused]] int vertHalfLength = h;
+  [[maybe_unused]] int horizHalfLength = w;
 
   // helper: is (x,y) part of the cross?
   auto inCross = [&]( int x, int y ) -> bool
   {
-    if ( x < 0 || y < 0 || x >= static_cast<int>( w ) || y >= static_cast<int>( h ) ) return false;
+    // reject any coords outside rectangle boundary
+    if ( x < 0 || y < 0 || x >= w || y >= h ) return false;
 
-    int dx = x - cx;
-    int dy = y - cy;
+    int dx = x - cx;                  // signed horizontal distance from the current tile to the center column.
+    [[maybe_unused]] int dy = y - cy; // signed vertical distance from the current tile to the center row.
 
-    // Vertical arm (centered on cx, cy)
-    bool inVertical = std::abs( dx ) <= vertArmHalfWidth && std::abs( dy ) <= vertHalfLength;
+    // Vertical arm: runs full height, centered horizontally
+    bool inVerticalArm = ( dx >= -vertArmHalfWidth && dx <= vertArmHalfWidth );
 
-    // Horizontal arm (centered on cy + horizOffset)
-    bool inHorizontal = std::abs( ( dy - horizOffset ) ) <= horizArmHalfWidth && std::abs( dx ) <= horizHalfLength;
+    // Horizontal arm: runs full width, offset vertically from center
+    int horizArmCenterY = cy + horizOffset;
+    int distFromHorizArm = y - horizArmCenterY;
+    bool inHorizontalArm = ( distFromHorizArm >= -horizArmHalfWidth && distFromHorizArm <= horizArmHalfWidth );
 
-    return inVertical || inHorizontal;
+    return inVerticalArm || inHorizontalArm;
   };
 
   for ( int x = 0; x < static_cast<int>( w ); ++x )
@@ -255,14 +254,110 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, Cmp::
       auto kGridSquareSizePixels = Constants::kGridSquareSizePixels;
       sf::Vector2f new_pos( x * kGridSquareSizePixels.x, y * kGridSquareSizePixels.y );
 
-      bool inside = inCross( x, y );
-      if ( !inside ) continue; // Factory::createVoidPosition( getReg(), new_pos ); // outside cross, skip
+      enum SpriteIdx {
+        TOPLEFT = 0,
+        TOPCENTER = 1,
+        TOPRIGHT = 2,
+        LEFT = 3,
+        TOPFRONT = 4,
+        RIGHT = 5,
+        BOTTOMLEFT = 6,
+        BOTTOMCENTER = 7,
+        BOTTOMRIGHT = 8,
+        BOTTOMFRONTLEFT = 9,
+        BOTTOMFRONTCENTER = 10,
+        BOTTOMFRONTRIGHT = 11,
+        BOTTOMLEFTINSIDEEDGE = 12,
+        BOTTOMRIGHTINSIDEEDGE = 13,
+        BOTTOMLEFTINSIDEFRONT = 15,
+        BOTTOMRIGHTINSIDEFRONT = 16,
+        BOTTOMLEFTINSIDE = 18,
+        BOTTOMRIGHTINSIDE = 19,
+        BOTTOMLEFTOUTSIDEFRONT = 21,
+        BOTTOMRIGHTOUTSIDEFRONT = 22
+      };
 
-      // 1-tile border: any 4-neighbor outside the cross
+      float grid_height = Constants::kGridSquareSizePixelsF.y;
+      float edge_height = grid_height * 4;
+      Sprites::SpriteMetaType wall_type = "CRYPT.interior_wall";
+      int dx = x - cx;
+      // int dy = y - cy;
+
+      // TOP
+      if ( ( dx > -vertArmHalfWidth && dx < vertArmHalfWidth ) and y == 0 )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPCENTER, new_pos.y + edge_height );
+      if ( ( dx == -vertArmHalfWidth ) and y == 0 )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPLEFT, new_pos.y + grid_height );
+      if ( ( dx == vertArmHalfWidth ) and ( y == 0 ) )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPRIGHT, new_pos.y + grid_height );
+
+      int arm_top_edge = cy + ( horizOffset - horizArmHalfWidth );
+      int arm_bottom_edge = cy + ( horizOffset + horizArmHalfWidth );
+      // LEFT
+      if ( dx == -vertArmHalfWidth and ( ( y > 0 and y < arm_top_edge - 1 ) or ( y > arm_bottom_edge and y < h - 1 ) ) )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::LEFT, new_pos.y + grid_height );
+      if ( x == 0 and ( y >= arm_top_edge and y < arm_bottom_edge ) )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::LEFT, new_pos.y + grid_height );
+
+      // RIGHT
+      if ( dx == vertArmHalfWidth and ( ( y > 0 and y < arm_top_edge - 1 ) or ( y > arm_bottom_edge and y < h - 1 ) ) )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::RIGHT, new_pos.y + grid_height );
+      if ( x == w - 1 and ( y >= arm_top_edge and y < arm_bottom_edge ) )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::RIGHT, new_pos.y + grid_height );
+
+      // HORIZONTAL ARM TOP
+      if ( ( ( x > 0 and dx < -vertArmHalfWidth ) or ( dx > vertArmHalfWidth and x < w - 1 ) ) and y == arm_top_edge - 1 )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPCENTER, new_pos.y + edge_height );
+      if ( ( x > 0 and dx == -vertArmHalfWidth ) and y == arm_top_edge - 1 )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMRIGHTINSIDE, new_pos.y + edge_height );
+      if ( ( dx == vertArmHalfWidth and x < w - 1 ) and y == arm_top_edge - 1 )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMLEFTINSIDE, new_pos.y + edge_height );
+      if ( x == 0 and y == arm_top_edge - 1 ) Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPLEFT, new_pos.y + grid_height );
+      if ( x == w - 1 and y == arm_top_edge - 1 )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPRIGHT, new_pos.y + grid_height );
+
+      if ( ( ( x > 0 and dx < -vertArmHalfWidth ) or ( dx > vertArmHalfWidth and x < w - 1 ) ) and y == arm_top_edge )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPFRONT, new_pos.y - grid_height, Factory::SolidWall::FALSE );
+      if ( ( x > 0 and dx == -vertArmHalfWidth ) and y == arm_top_edge )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMRIGHTOUTSIDEFRONT, new_pos.y + edge_height,
+                                  Factory::SolidWall::FALSE );
+      if ( ( dx == vertArmHalfWidth and x < w - 1 ) and y == arm_top_edge )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMLEFTOUTSIDEFRONT, new_pos.y + edge_height,
+                                  Factory::SolidWall::FALSE );
+
+      // horizontal arm bottom edges
+      if ( ( ( x > 0 and dx < -vertArmHalfWidth ) or ( dx > vertArmHalfWidth and x < w - 1 ) ) and y == arm_bottom_edge - 1 )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPCENTER, new_pos.y + edge_height, Factory::SolidWall::FALSE );
+      if ( dx == -vertArmHalfWidth and y == arm_bottom_edge - 1 )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMRIGHTINSIDEEDGE, new_pos.y + edge_height,
+                                  Factory::SolidWall::FALSE );
+      if ( dx == vertArmHalfWidth and y == arm_bottom_edge - 1 )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMLEFTINSIDEEDGE, new_pos.y + edge_height, Factory::SolidWall::FALSE );
+
+      // horizontal arm bottom fronts
+      if ( x == 0 and y == arm_bottom_edge )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMFRONTLEFT, new_pos.y - grid_height );
+      if ( x == w - 1 and y == arm_bottom_edge )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMFRONTRIGHT, new_pos.y - grid_height );
+      if ( ( ( x > 0 and dx < -vertArmHalfWidth ) or ( dx > vertArmHalfWidth and x < w - 1 ) ) and y == arm_bottom_edge )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMFRONTCENTER, new_pos.y - grid_height );
+      if ( dx == -vertArmHalfWidth and y == arm_bottom_edge )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMRIGHTINSIDEFRONT, new_pos.y + edge_height );
+      if ( dx == vertArmHalfWidth and y == arm_bottom_edge )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMLEFTINSIDEFRONT, new_pos.y + edge_height );
+
+      // bottom map edge and fronts
+      if ( ( dx > -vertArmHalfWidth and dx < vertArmHalfWidth ) and y == h - 2 )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPCENTER, new_pos.y + edge_height, Factory::SolidWall::FALSE );
+      if ( ( dx > -vertArmHalfWidth and dx < vertArmHalfWidth ) and y == h - 1 )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMFRONTCENTER, new_pos.y - grid_height );
+      if ( ( dx == -vertArmHalfWidth ) and y == h - 1 )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMFRONTLEFT, new_pos.y - grid_height );
+      if ( ( dx == vertArmHalfWidth ) and y == h - 1 )
+        Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::BOTTOMFRONTRIGHT, new_pos.y - grid_height );
+
       bool isBorder = !inCross( x - 1, y ) || !inCross( x + 1, y ) || !inCross( x, y - 1 ) || !inCross( x, y + 1 );
-
-      if ( isBorder ) { Factory::add_wall_entity( getReg(), new_pos, "CRYPT.interior_sb", 0, Utils::get_player_position( getReg() ).position.y ); }
-      else
+      if ( not isBorder )
       {
         // create world position entity, mark spawn area if in player start area
         auto entity = Factory::createWorldPosition( getReg(), new_pos );

@@ -44,14 +44,25 @@ public:
                                SpawnArea spawnarea = SpawnArea::TRUE );
   void gen_circular_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area );
 
-  //! @brief Generate a cross-shaped game area
-  //! @param map_grid_size size of the total map grid in tiles
-  //! @param armHalfWidth arm half-thickness in tiles (cross thickness = 2*armHalfWidth+1)
-  //! @param vertHalfLengthModifier modifier for vertical arm half-length, i.e. 0.5 = half the map
-  //! height
-  //! @param horizHalfLengthModifier modifier for horizontal arm half-length, i.e. 0.25 = quarter
-  //! the map width
-  //! @param horizOffset move horizontal arm up by N tiles (positive pushes it downward)
+  //! @brief Generate a cross-shaped game area with walls and playable positions.
+  //!
+  //! Creates a cross-shaped level layout consisting of a vertical arm and a horizontal arm.
+  //! The vertical arm is centered on the map, while the horizontal arm can be offset vertically.
+  //! Border tiles are filled with wall entities, and interior tiles become world positions.
+  //! A CryptRoomStart component is created at the player_start_area location.
+  //!
+  //! @param map_grid_size The total size of the map grid in tiles (width x height).
+  //! @param player_start_area The rectangular bounds defining where the player starts.
+  //!        Positions within this area are marked as spawn areas.
+  //! @param vertArmHalfWidth Half-width of the vertical arm in tiles (default: 10).
+  //!        The full vertical arm width is 2 * vertArmHalfWidth + 1.
+  //! @param horizArmHalfWidth Half-width (height) of the horizontal arm in tiles (default: 5).
+  //!        The full horizontal arm height is 2 * horizArmHalfWidth + 1.
+  //! @param horizOffset Vertical offset of the horizontal arm's center from the map center
+  //!        in tiles (default: 10). Positive values shift the arm downward.
+  //!
+  //! @note Wall sprites use "CRYPT.interior_wall" type. Interior positions are tracked
+  //!       in m_data for later procedural generation operations.
   void gen_cross_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area, int vertArmHalfWidth = 10, int horizArmHalfWidth = 5,
                            int horizOffset = 10 );
 
