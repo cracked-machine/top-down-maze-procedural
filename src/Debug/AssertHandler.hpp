@@ -12,7 +12,8 @@
 #include <windows.h>
 #endif
 
-namespace Debug {
+namespace Debug
+{
 
 void stack_trace();
 
@@ -41,11 +42,13 @@ void stack_trace();
 } // namespace Debug
 
 // Define our custom assertion macro before including any EnTT headers
-#define ENTT_ASSERT( condition, msg )                                                                                  \
-  do                                                                                                                   \
-  {                                                                                                                    \
-    if ( !( condition ) ) { ::Debug::assert_handler( #condition, msg, __FILE__, __LINE__ ); }                          \
-  }                                                                                                                    \
-  while ( 0 )
+#ifdef ENTT_ASSERT
+#undef ENTT_ASSERT
+#endif
+#define ENTT_ASSERT( condition, msg )                                                                                                                \
+  do                                                                                                                                                 \
+  {                                                                                                                                                  \
+    if ( !( condition ) ) { ::Debug::assert_handler( #condition, msg, __FILE__, __LINE__ ); }                                                        \
+  } while ( 0 )
 
 #endif // DEBUG_ASSERT_HANDLER_HPP

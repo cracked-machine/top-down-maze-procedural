@@ -21,7 +21,7 @@ set(CMAKE_SYSTEM_LIBRARY_PATH /usr/${TARGET_TRIPLET}/lib)
 set(CMAKE_SYSTEM_INCLUDE_PATH /usr/${TARGET_TRIPLET}/include)
 
 # Ensure dbghelp is available
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -ldbghelp")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -ldbghelp -fno-lto")
 
 # Use install() to copy MinGW runtime DLLs
 file(COPY 

@@ -63,6 +63,24 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Factory/RuinFactory.cpp
 )
 
+target_precompile_headers(ProceduralMaze PRIVATE
+
+    # STL
+    <vector>
+    <queue>
+    <set>
+    <string>
+    <memory>
+    <algorithm>
+    <functional>
+    
+    # Heavy external libraries
+    <entt/entt.hpp>
+    <SFML/Graphics.hpp>
+    <SFML/System/Vector2.hpp>
+    <spdlog/spdlog.h>
+)
+
 target_link_libraries(${TARGET} PRIVATE 
     SFML::Graphics 
     SFML::Audio

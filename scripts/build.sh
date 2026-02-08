@@ -10,7 +10,7 @@ cmake -S . -B $BUILD_DIR -G Ninja \
     -DCMAKE_TOOLCHAIN_FILE=scripts/cmake-$ARCH.cmake \
     -DCMAKE_INSTALL_PREFIX=$BUILD_DIR/bin
 
-cmake --build $BUILD_DIR --parallel
+cmake --build $BUILD_DIR --parallel $(nproc)
 
 chmod 777 $BUILD_DIR/bin/*
 
