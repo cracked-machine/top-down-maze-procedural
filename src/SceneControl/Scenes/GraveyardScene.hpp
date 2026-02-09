@@ -31,7 +31,7 @@ public:
       : Scene( nav_event_dispatcher ),
         m_sound_bank( sound_bank ),
         m_system_store( system_store ),
-        m_sprite_Factory( sprite_Factory )
+        m_sprite_factory( sprite_Factory )
   {
   }
 
@@ -48,7 +48,7 @@ protected:
 private:
   Audio::SoundBank &m_sound_bank;
   Sys::SystemStore &m_system_store;
-  Sprites::SpriteFactory &m_sprite_Factory;
+  Sprites::SpriteFactory &m_sprite_factory;
 
   Sprites::Containers::TileMap m_floormap{};
 

@@ -29,6 +29,7 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Sprites/MultiSprite.hpp>

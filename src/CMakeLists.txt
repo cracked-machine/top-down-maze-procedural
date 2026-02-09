@@ -61,6 +61,8 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Factory/AltarFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/WallFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/RuinFactory.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/PlantFactory.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/MultiblockFactory.cpp
 )
 
 target_precompile_headers(ProceduralMaze PRIVATE
@@ -75,6 +77,7 @@ target_precompile_headers(ProceduralMaze PRIVATE
     <functional>
     
     # Heavy external libraries
+    <entt/entity/registry.hpp>
     <entt/entt.hpp>
     <SFML/Graphics.hpp>
     <SFML/System/Vector2.hpp>

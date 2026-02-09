@@ -1,5 +1,6 @@
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>

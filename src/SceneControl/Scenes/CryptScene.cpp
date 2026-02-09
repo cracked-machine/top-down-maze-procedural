@@ -41,9 +41,9 @@ void CryptScene::on_init()
   auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
   random_level_sys.reset();
   random_level_sys.gen_cross_gamearea( CryptScene::kMapGridSize, player_start_area );
-  random_level_sys.gen_crypt_main_objective( CryptScene::kMapGridSize );
+  Factory::gen_crypt_main_objective( m_reg, m_sprite_Factory, CryptScene::kMapGridSize );
   Factory::create_initial_crypt_rooms( m_reg, CryptScene::kMapGridSize );
-  random_level_sys.gen_crypt_initial_interior();
+  Factory::gen_crypt_initial_interior( m_reg, m_sprite_Factory );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, CryptScene::kMapGridSize, "res/json/crypt_tilemap_config.json" );
 

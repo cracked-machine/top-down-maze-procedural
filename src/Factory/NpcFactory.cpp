@@ -9,6 +9,7 @@
 #include <Components/Persistent/NpcScanScale.hpp>
 #include <Components/Persistent/NpcShockwaveFreq.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Factory/Factory.hpp>
 #include <Factory/LootFactory.hpp>
@@ -16,6 +17,7 @@
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Utils/Random.hpp>
 #include <entt/entity/entity.hpp>
 #include <spdlog/spdlog.h>
 
@@ -158,6 +160,27 @@ void createNpcExplosion( entt::registry &registry, Cmp::Position npc_pos_cmp )
   registry.emplace_or_replace<Cmp::DeathPosition>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
   registry.emplace_or_replace<Cmp::SpriteAnimation>( npc_death_entity, 0, 0, true, "EXPLOSION", 0 );
   registry.emplace_or_replace<Cmp::ZOrderValue>( npc_death_entity, npc_pos_cmp.position.y );
+}
+
+void gen_npc_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size )
+{
+  auto num_npc_containers = map_grid_size.x * map_grid_size.y / 120; // one NPC container per N grid squares
+
+  for ( std::size_t i = 0; i < num_npc_containers; ++i )
+  {
+    auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
+        reg, {}, Utils::Rnd::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
+
+    // pick a random loot container type and texture index
+    // clang-format off
+    auto [npc_type, rand_npc_tex_idx] =
+      sprite_factory.get_random_type_and_texture_index( {
+        "BONES"
+      } );
+    // clang-format on
+
+    Factory::createNpcContainer( reg, random_entity, random_origin_position, npc_type, rand_npc_tex_idx, 0.f );
+  }
 }
 
 } // namespace ProceduralMaze::Factory

@@ -1,4 +1,6 @@
 #include <Components/Crypt/CryptChest.hpp>
+#include <Components/Crypt/CryptInteriorMultiBlock.hpp>
+#include <Components/Crypt/CryptInteriorSegment.hpp>
 #include <Components/Crypt/CryptLever.hpp>
 #include <Components/Crypt/CryptPassageBlock.hpp>
 #include <Components/Crypt/CryptPassageSpikeTrap.hpp>
@@ -15,6 +17,7 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/CryptFactory.hpp>
+#include <Factory/MultiblockFactory.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Random.hpp>
@@ -231,6 +234,68 @@ void addSpikeTrap( entt::registry &reg, const entt::entity entt, const int passa
   reg.emplace_or_replace<Cmp::SpriteAnimation>( spike_entt, 0, 0, false, "CRYPT.interior_spiketrap", 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( spike_entt, position.y - 16.f ); // always behind player
   reg.emplace_or_replace<Cmp::CryptPassageSpikeTrap>( spike_entt, position, passage_id );
+}
+
+void gen_crypt_initial_interior( entt::registry &reg, Sprites::SpriteFactory &sprite_factory )
+{
+  SPDLOG_INFO( "Generating crypt interior obstacles." );
+  auto position_view = reg.view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition> );
+  // auto room_view = reg.view<Cmp::CryptRoomClosed>();
+  for ( auto [entity, pos_cmp] : position_view.each() )
+  {
+    // skip if inside a start/end/open room
+    bool add_interior_wall = true;
+    auto start_room_view = reg.view<Cmp::CryptRoomStart>();
+    for ( auto [start_room_entity, start_room_cmp] : start_room_view.each() )
+    {
+      if ( pos_cmp.findIntersection( start_room_cmp ) ) add_interior_wall = false;
+    }
+    auto end_room_view = reg.view<Cmp::CryptRoomEnd>();
+    for ( auto [end_room_entity, end_room_cmp] : end_room_view.each() )
+    {
+      if ( pos_cmp.findIntersection( end_room_cmp ) ) add_interior_wall = false;
+    }
+    auto open_room_view = reg.view<Cmp::CryptRoomOpen>();
+    for ( auto [open_room_entity, open_room_cmp] : open_room_view.each() )
+    {
+      if ( pos_cmp.findIntersection( open_room_cmp ) ) add_interior_wall = false;
+    }
+
+    if ( add_interior_wall )
+    {
+      auto [obst_type, rand_obst_tex_idx] = sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
+      float zorder = sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
+      // Set the z-order value so that the obstacles are rendered above everything else
+      Factory::createObstacle( reg, entity, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
+    }
+  }
+}
+
+void gen_crypt_main_objective( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size )
+{
+  auto map_grid_sizef = sf::Vector2f( static_cast<float>( map_grid_size.x ) * Constants::kGridSquareSizePixelsF.x,
+                                      static_cast<float>( map_grid_size.y ) * Constants::kGridSquareSizePixelsF.y );
+  auto kGridSquareSizePixelsF = Constants::kGridSquareSizePixelsF;
+  // target position for the objective: always center top of the map
+  const auto &ms = sprite_factory.get_multisprite_by_type( "CRYPT.interior_objective_closed" );
+
+  float centered_x = ( map_grid_sizef.x / 2.f ) - ( ms.getSpriteSizePixels().x / 2.f ) + kGridSquareSizePixelsF.x;
+  Cmp::Position objective_position( { centered_x, kGridSquareSizePixelsF.y * 2.f }, ms.getSpriteSizePixels() );
+
+  auto entity = reg.create();
+  reg.emplace_or_replace<Cmp::Position>( entity, objective_position.position, objective_position.size );
+
+  SPDLOG_INFO( "Placing main crypt objective at position ({}, {})", objective_position.position.x, objective_position.position.y );
+  Factory::createMultiblock<Cmp::CryptObjectiveMultiBlock>( reg, entity, objective_position, ms );
+  Factory::createMultiblockSegments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( reg, entity, objective_position, ms );
+
+  // while we're here, carve out a room for the objective sprite. These position/size modifiers are trial and error
+  // whilst we decide on the final objective MB sprite dimensions
+
+  auto end_room_entity = reg.create();
+  reg.emplace_or_replace<Cmp::CryptRoomEnd>(
+      end_room_entity, sf::Vector2f{ objective_position.position.x, objective_position.position.y },
+      sf::Vector2f{ objective_position.size.x, objective_position.size.y + ( kGridSquareSizePixelsF.y * 2.f ) } );
 }
 
 } // namespace ProceduralMaze::Factory

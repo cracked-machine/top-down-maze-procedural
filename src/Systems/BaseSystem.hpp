@@ -1,14 +1,12 @@
 #ifndef SRC_SYSTEMS_BASESYSTEM_HPP__
 #define SRC_SYSTEMS_BASESYSTEM_HPP__
 
-#include <entt/entity/registry.hpp>
+#include <entt/entity/fwd.hpp>
 #include <entt/signal/dispatcher.hpp>
 
-#include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/System/Vector2.hpp>
 
-#include <spdlog/spdlog.h>
+#include <spdlog/fwd.h>
 
 // clang-format off
 namespace ProceduralMaze::Sprites { class SpriteFactory; }

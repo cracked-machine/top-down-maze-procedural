@@ -5,13 +5,17 @@
 #include <Components/Altar/AltarSegment.hpp>
 #include <Components/Armable.hpp>
 #include <Components/Crypt/CryptEntrance.hpp>
+#include <Components/Crypt/CryptInteriorMultiBlock.hpp>
+#include <Components/Crypt/CryptInteriorSegment.hpp>
 #include <Components/Crypt/CryptMultiBlock.hpp>
 #include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
 #include <Components/Crypt/CryptObjectiveSegment.hpp>
 #include <Components/Crypt/CryptSegment.hpp>
+#include <Components/Grave/GraveMultiBlock.hpp>
 #include <Components/Grave/GraveSegment.hpp>
 #include <Components/HolyWell/HolyWellEntrance.hpp>
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
+#include <Components/HolyWell/HolyWellSegment.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -23,7 +27,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Utils/Constants.hpp>
-#include <entt/entt.hpp>
+#include <entt/fwd.hpp>
 
 namespace ProceduralMaze::Factory
 {
@@ -136,6 +140,25 @@ void createMultiblockSegments( entt::registry &registry, entt::entity multiblock
     SPDLOG_DEBUG( "Processed {} intersecting entities for multiblock {}", intersection_count, typeid( MULTIBLOCK ).name() );
   }
 }
+
+// clang-format off
+// Explicit instantiation declarations (extern = don't instantiate here)
+extern template void createMultiblock<Cmp::AltarMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
+extern template void createMultiblock<Cmp::CryptMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
+extern template void createMultiblock<Cmp::CryptInteriorMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
+extern template void createMultiblock<Cmp::CryptObjectiveMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
+extern template void createMultiblock<Cmp::GraveMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
+extern template void createMultiblock<Cmp::HolyWellMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
+extern template void createMultiblock<Cmp::RuinBuildingMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
+
+extern template void createMultiblockSegments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
+extern template void createMultiblockSegments<Cmp::CryptMultiBlock, Cmp::CryptSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
+extern template void createMultiblockSegments<Cmp::CryptInteriorMultiBlock, Cmp::CryptInteriorSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
+extern template void createMultiblockSegments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
+extern template void createMultiblockSegments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
+extern template void createMultiblockSegments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
+extern template void createMultiblockSegments<Cmp::RuinBuildingMultiBlock, Cmp::RuinSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
+// clang-format on
 
 } // namespace ProceduralMaze::Factory
 

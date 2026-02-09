@@ -5,8 +5,8 @@
 #include <Components/Position.hpp>
 #include <SFML/System/Time.hpp>
 #include <Sprites/MultiSprite.hpp>
-#include <entt/entt.hpp>
-#include <optional>
+#include <entt/fwd.hpp>
+
 
 namespace ProceduralMaze::Factory
 {

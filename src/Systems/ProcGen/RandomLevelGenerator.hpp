@@ -1,26 +1,30 @@
 #ifndef __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 #define __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 
-#include <Components/RectBounds.hpp>
 #include <entt/entity/registry.hpp>
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
 
-#include <spdlog/spdlog.h>
-
-#include <Components/Exit.hpp>
-#include <Components/Neighbours.hpp>
-#include <Components/Obstacle.hpp>
 #include <Components/Position.hpp>
-#include <Components/Random.hpp>
-#include <Components/Wall.hpp>
-#include <Sprites/MultiSprite.hpp>
-#include <Sprites/SpriteFactory.hpp>
+#include <Components/RectBounds.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <optional>
 
+// Forward declarations
+namespace sf
+{
+class RenderWindow;
+}
+
+namespace ProceduralMaze::Sprites
+{
+class MultiSprite;
+class SpriteFactory;
+} // namespace ProceduralMaze::Sprites
+
+// class definition
 namespace ProceduralMaze::Sys::ProcGen
 {
 
@@ -33,11 +37,6 @@ public:
 
   RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~RandomLevelGenerator() = default;
-
-  //! @brief event handlers for pausing system clocks
-  void onPause() override {}
-  //! @brief event handlers for resuming system clocks
-  void onResume() override {}
 
   // Generate position components for the entire map grid and add player spawn
   void gen_rectangle_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area, Sprites::SpriteMetaType wall_type,
@@ -77,24 +76,8 @@ public:
   //! @param seed
   void do_gen_graveyard_exterior_multiblock( const Sprites::MultiSprite &ms, unsigned long seed );
 
-  //! @brief Generate the initial Crypt interior walls (fills in Cmp::CryptRoomsClosed)
-  //! @note Except for start/end rooms, all other rooms should start as Cmp::CryptRoomsClosed
-  void gen_crypt_initial_interior();
-
-  //! @brief Generate the main objective for the Crypt
-  //! @param map_grid_size
-  void gen_crypt_main_objective( sf::Vector2u map_grid_size );
-
   //! @brief add multiblock sprites (pillars, etc...) to the Crypt
   void gen_crypt_interior_multiblocks();
-
-  // Iterate and generate loot containers
-  void gen_loot_containers( sf::Vector2u map_grid_size );
-
-  // Iterate and generate npc containers
-  void gen_npc_containers( sf::Vector2u map_grid_size );
-
-  void gen_plants( sf::Vector2u map_grid_size );
 
   // Find a valid spawn location for a large obstacle given a seed
   std::pair<entt::entity, Cmp::Position> find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed );
@@ -113,6 +96,11 @@ public:
 
   //! @brief Call this to make sure the level data is reset before regenerating a new scene
   void reset() { m_data.clear(); }
+
+  //! @brief event handlers for pausing system clocks
+  void onPause() override {}
+  //! @brief event handlers for resuming system clocks
+  void onResume() override {}
 
 private:
   std::vector<entt::entity> m_data;

@@ -34,6 +34,14 @@ void addSpikeTrap( entt::registry &reg, const entt::entity entt, const int passa
 entt::entity CreateCryptChest( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder );
 void DestroyCryptChest( entt::registry &reg, entt::entity entt );
 
+//! @brief Generate the initial Crypt interior walls (fills in Cmp::CryptRoomsClosed)
+//! @note Except for start/end rooms, all other rooms should start as Cmp::CryptRoomsClosed
+void gen_crypt_initial_interior( entt::registry &reg, Sprites::SpriteFactory &sprite_factory );
+
+//! @brief Generate the main objective for the Crypt
+//! @param map_grid_size
+void gen_crypt_main_objective( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size );
+
 } // namespace ProceduralMaze::Factory
 
 #endif // SRC_FACTORY_CRYPTFACTORY_HPP__

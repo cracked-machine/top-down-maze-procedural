@@ -11,9 +11,7 @@
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
-#include <Factory/LootFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
-#include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/WallFactory.hpp>
@@ -33,8 +31,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/Wall.hpp>
-#include <Sprites/MultiSprite.hpp>
-#include <Sprites/SpriteFactory.hpp>
+
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
@@ -278,7 +275,7 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, Cmp::
       };
 
       float grid_height = Constants::kGridSquareSizePixelsF.y;
-      float edge_height = grid_height * 4;
+      float edge_height = grid_height * 5;
       Sprites::SpriteMetaType wall_type = "CRYPT.interior_wall";
       int dx = x - cx;
       // int dy = y - cy;
@@ -478,68 +475,6 @@ void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::
   }
 }
 
-void RandomLevelGenerator::gen_crypt_initial_interior()
-{
-  SPDLOG_INFO( "Generating crypt interior obstacles." );
-  auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition> );
-  // auto room_view = getReg().view<Cmp::CryptRoomClosed>();
-  for ( auto [entity, pos_cmp] : position_view.each() )
-  {
-    // skip if inside a start/end/open room
-    bool add_interior_wall = true;
-    auto start_room_view = getReg().view<Cmp::CryptRoomStart>();
-    for ( auto [start_room_entity, start_room_cmp] : start_room_view.each() )
-    {
-      if ( pos_cmp.findIntersection( start_room_cmp ) ) add_interior_wall = false;
-    }
-    auto end_room_view = getReg().view<Cmp::CryptRoomEnd>();
-    for ( auto [end_room_entity, end_room_cmp] : end_room_view.each() )
-    {
-      if ( pos_cmp.findIntersection( end_room_cmp ) ) add_interior_wall = false;
-    }
-    auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
-    for ( auto [open_room_entity, open_room_cmp] : open_room_view.each() )
-    {
-      if ( pos_cmp.findIntersection( open_room_cmp ) ) add_interior_wall = false;
-    }
-
-    if ( add_interior_wall )
-    {
-      auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
-      float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
-      // Set the z-order value so that the obstacles are rendered above everything else
-      Factory::createObstacle( getReg(), entity, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
-    }
-  }
-}
-
-void RandomLevelGenerator::gen_crypt_main_objective( sf::Vector2u map_grid_size )
-{
-  auto map_grid_sizef = sf::Vector2f( static_cast<float>( map_grid_size.x ) * Constants::kGridSquareSizePixelsF.x,
-                                      static_cast<float>( map_grid_size.y ) * Constants::kGridSquareSizePixelsF.y );
-  auto kGridSquareSizePixelsF = Constants::kGridSquareSizePixelsF;
-  // target position for the objective: always center top of the map
-  const auto &ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_objective_closed" );
-
-  float centered_x = ( map_grid_sizef.x / 2.f ) - ( ms.getSpriteSizePixels().x / 2.f ) + kGridSquareSizePixelsF.x;
-  Cmp::Position objective_position( { centered_x, kGridSquareSizePixelsF.y * 2.f }, ms.getSpriteSizePixels() );
-
-  auto entity = getReg().create();
-  getReg().emplace_or_replace<Cmp::Position>( entity, objective_position.position, objective_position.size );
-
-  SPDLOG_INFO( "Placing main crypt objective at position ({}, {})", objective_position.position.x, objective_position.position.y );
-  Factory::createMultiblock<Cmp::CryptObjectiveMultiBlock>( getReg(), entity, objective_position, ms );
-  Factory::createMultiblockSegments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( getReg(), entity, objective_position, ms );
-
-  // while we're here, carve out a room for the objective sprite. These position/size modifiers are trial and error
-  // whilst we decide on the final objective MB sprite dimensions
-
-  auto end_room_entity = getReg().create();
-  getReg().emplace_or_replace<Cmp::CryptRoomEnd>(
-      end_room_entity, sf::Vector2f{ objective_position.position.x, objective_position.position.y },
-      sf::Vector2f{ objective_position.size.x, objective_position.size.y + ( kGridSquareSizePixelsF.y * 2.f ) } );
-}
-
 void RandomLevelGenerator::gen_crypt_interior_multiblocks()
 {
 
@@ -555,61 +490,6 @@ void RandomLevelGenerator::gen_crypt_interior_multiblocks()
     }
     Factory::createMultiblock<Cmp::CryptInteriorMultiBlock>( getReg(), random_entity, random_origin_position, ms, ms_idx );
     Factory::createMultiblockSegments<Cmp::CryptInteriorMultiBlock, Cmp::CryptInteriorSegment>( getReg(), random_entity, random_origin_position, ms );
-  }
-}
-
-void RandomLevelGenerator::gen_loot_containers( sf::Vector2u map_grid_size )
-{
-  auto num_loot_containers = map_grid_size.x * map_grid_size.y / 120; // one loot container per N grid squares
-
-  for ( std::size_t i = 0; i < num_loot_containers; ++i )
-  {
-    auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
-        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
-
-    float zorder = m_sprite_factory.get_sprite_size_by_type( "POT" ).y;
-
-    Factory::createLootContainer( getReg(), random_entity, random_origin_position, "POT", 0, zorder );
-  }
-}
-
-void RandomLevelGenerator::gen_npc_containers( sf::Vector2u map_grid_size )
-{
-  auto num_npc_containers = map_grid_size.x * map_grid_size.y / 120; // one NPC container per N grid squares
-
-  for ( std::size_t i = 0; i < num_npc_containers; ++i )
-  {
-    auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
-        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
-
-    // pick a random loot container type and texture index
-    // clang-format off
-    auto [npc_type, rand_npc_tex_idx] =
-      m_sprite_factory.get_random_type_and_texture_index( {
-        "BONES"
-      } );
-    // clang-format on
-
-    Factory::createNpcContainer( getReg(), random_entity, random_origin_position, npc_type, rand_npc_tex_idx, 0.f );
-  }
-}
-
-void RandomLevelGenerator::gen_plants( sf::Vector2u map_grid_size )
-{
-  auto num_plants = map_grid_size.x * map_grid_size.y / 200;
-
-  for ( std::size_t i = 0; i < num_plants; ++i )
-  {
-    auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
-        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
-
-    // select a random number within the range of possible flora CarryItems
-    auto [rand_plant_type, rnd_plant_idx] = m_sprite_factory.get_random_type_and_texture_index(
-        { "CARRYITEM.plant1", "CARRYITEM.plant2", "CARRYITEM.plant3", "CARRYITEM.plant4", "CARRYITEM.plant5", "CARRYITEM.plant6", "CARRYITEM.plant7",
-          "CARRYITEM.plant8", "CARRYITEM.plant9", "CARRYITEM.plant10", "CARRYITEM.plant11", "CARRYITEM.plant12" } );
-
-    Factory::createPlantObstacle( getReg(), random_pos, rand_plant_type, 0.f );
-    SPDLOG_INFO( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
   }
 }
 

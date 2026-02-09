@@ -5,7 +5,7 @@
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <entt/entity/fwd.hpp>
-#include <entt/entt.hpp>
+#include <entt/fwd.hpp>
 
 namespace ProceduralMaze::Factory
 {

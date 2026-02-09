@@ -11,6 +11,12 @@
 
 #include <entt/entity/registry.hpp>
 
+namespace ProceduralMaze::Sprites
+{
+class SpriteFactory;
+
+} // namespace ProceduralMaze::Sprites
+
 namespace ProceduralMaze::Factory
 {
 
@@ -82,6 +88,9 @@ inline entt::entity createLootDrop( entt::registry &registry, Cmp::SpriteAnimati
 }
 
 void destroyLootDrop( entt::registry &registry, entt::entity loot_entity );
+
+// Iterate and generate loot containers
+void gen_loot_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size );
 
 } // namespace ProceduralMaze::Factory
 

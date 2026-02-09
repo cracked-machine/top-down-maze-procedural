@@ -1,5 +1,7 @@
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/LerpPosition.hpp>
+#include <Factory/LootFactory.hpp>
+#include <Factory/PlantFactory.hpp>
 #include <SceneControl/Scenes/GraveyardScene.hpp>
 
 #include <Audio/SoundBank.hpp>
@@ -56,9 +58,9 @@ void GraveyardScene::on_init()
   random_level_sys.reset();
   random_level_sys.gen_circular_gamearea( GraveyardScene::kMapGridSize, player_start_area );
   random_level_sys.gen_graveyard_exterior_multiblocks();
-  random_level_sys.gen_loot_containers( GraveyardScene::kMapGridSize );
-  random_level_sys.gen_npc_containers( GraveyardScene::kMapGridSize );
-  random_level_sys.gen_plants( GraveyardScene::kMapGridSize );
+  Factory::gen_loot_containers( m_reg, m_sprite_factory, GraveyardScene::kMapGridSize );
+  Factory::gen_npc_containers( m_reg, m_sprite_factory, GraveyardScene::kMapGridSize );
+  Factory::gen_random_plants( m_reg, m_sprite_factory, GraveyardScene::kMapGridSize );
   random_level_sys.gen_graveyard_exterior_obstacles();
 
   // now use cellular automata on the exterior obstacles
