@@ -1,3 +1,11 @@
+#include <Components/Random.hpp>
+#include <Components/Ruin/RuinBookcase.hpp>
+#include <Components/Ruin/RuinCobweb.hpp>
+#include <Components/Wall.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <Utils/Constants.hpp>
+#include <Utils/Random.hpp>
+#include <entt/entity/fwd.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -139,6 +147,56 @@ void RuinSystem::check_starcase_multiblock_collision()
   {
     auto player_entt = Utils::get_player_entity( getReg() );
     if ( getReg().any_of<Cmp::PlayerSpeedPenalty>( player_entt ) ) { getReg().remove<Cmp::PlayerSpeedPenalty>( player_entt ); }
+  }
+}
+
+void RuinSystem::gen_lowerfloor_obstacles( sf::FloatRect scene_dimensions )
+{
+  using namespace std::views;
+  constexpr auto &gridsize = Constants::kGridSquareSizePixelsF;
+
+  auto check_existing_collisions = [&]( Cmp::RectBounds pos )
+  {
+    if ( Utils::check_pos_collision<Cmp::RuinStairsLowerMultiBlock>( getReg(), pos ) ) return true;
+    if ( Utils::check_cmp_collision<Cmp::RuinBookcase>( getReg(), pos ) ) return true;
+    if ( Utils::check_cmp_collision<Cmp::Wall>( getReg(), pos ) ) return true;
+    // ensure bookcase is inside scene
+    if ( not Cmp::RectBounds( pos.position(), pos.size(), 1.5 ).findIntersection( scene_dimensions ) ) return true;
+    return false;
+  };
+
+  SPDLOG_INFO( "gen_lowerfloor_obstacles" );
+  auto excludepack = Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::RuinBookcase, Cmp::RuinCobweb>{};
+  for ( auto _ : iota( 0, 100 ) )
+  {
+    auto [pos_entt, pos_cmp] = Utils::Rnd::get_random_position( getReg(), {}, excludepack, 0 );
+
+    // bookcase left edge - use a scaled temporary to check for adjacent bookcases, walls, etc...
+    Cmp::RectBounds left_side_pos( pos_cmp.position, pos_cmp.size, 1 );
+    if ( check_existing_collisions( Cmp::RectBounds( left_side_pos.position(), left_side_pos.size(), 1.5 ) ) ) continue;
+    Factory::create_bookcase( getReg(), left_side_pos.position(), m_sprite_factory.get_multisprite_by_type( "RUIN.bookcase_leftedge" ) );
+
+    Cmp::RectBounds mid_pos = left_side_pos;
+    Cmp::RandomInt bookcase_length( 2, 6 );
+    for ( auto col : iota( 1, bookcase_length.gen() ) )
+    {
+      // bookcase middle pieces - x1.5 scale provides space padding
+      mid_pos = Cmp::RectBounds( { pos_cmp.position.x + gridsize.x * col, pos_cmp.position.y }, gridsize, 1 );
+      std::vector<std::string> pick_list = { "RUIN.bookcase_cobweb", "RUIN.bookcase_jars", "RUIN.bookcase_potions", "RUIN.bookcase_scrolls" };
+      auto ms_type = m_sprite_factory.get_random_type( pick_list );
+      if ( check_existing_collisions( Cmp::RectBounds( mid_pos.position(), mid_pos.size(), 1, Cmp::RectBounds::ScaleCardinality::VERTICAL ) ) )
+      {
+        // we hit something, so undo the last X pos advance to prevent gaps between here and the end right edge piece
+        mid_pos = Cmp::RectBounds( { pos_cmp.position.x - gridsize.x, pos_cmp.position.y }, gridsize, 1 );
+        break;
+      }
+      Factory::create_bookcase( getReg(), mid_pos.position(), m_sprite_factory.get_multisprite_by_type( ms_type ) );
+    }
+
+    // bookcase right edge -
+    Cmp::RectBounds right_edge_pos( { mid_pos.position().x + gridsize.x, mid_pos.position().y }, gridsize, 1 );
+    if ( check_existing_collisions( right_edge_pos ) ) continue;
+    Factory::create_bookcase( getReg(), right_edge_pos.position(), m_sprite_factory.get_multisprite_by_type( "RUIN.bookcase_rightedge" ) );
   }
 }
 

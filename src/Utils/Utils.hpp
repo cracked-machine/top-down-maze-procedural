@@ -15,6 +15,7 @@
 #include <Components/Player/PlayerSpeedPenalty.hpp>
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
+#include <Components/RectBounds.hpp>
 #include <Components/System.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -308,6 +309,41 @@ static uint8_t to_percent( float max_value, uint8_t convert )
   auto converted = std::round( ( max_value / 100 ) * convert );
   SPDLOG_DEBUG( "Converted {} (max: {}) to {}%", convert, max_value, converted );
   return converted;
+}
+
+//! @brief Check if a position collides with a component type
+//! @tparam Component Associated entity must also own a Cmp::Position
+//! @param reg reference to the entt reg
+//! @param pos Does this position contain a `Component`
+//! @return requires
+template <typename Component>
+bool check_cmp_collision( entt::registry &reg, Cmp::RectBounds pos )
+{
+  for ( auto [candidate_entt, candidate_cmp, candidate_pos] : reg.view<Component, Cmp::Position>().each() )
+  {
+    if ( pos.findIntersection( candidate_pos ) ) { return true; }
+  }
+  return false;
+};
+
+// Concept to check if Component inherits from one of the valid position/bounds types
+template <typename T>
+concept HasPositionBounds = std::is_base_of_v<Cmp::Position, T> || std::is_base_of_v<Cmp::RectBounds, T> || std::is_base_of_v<sf::FloatRect, T>;
+
+//! @brief Check if a position collides with a component type
+//! @tparam Component Must inherit from Cmp::Position, Cmp::RectBounds, sf::FloatRect
+//! @param reg reference to the entt reg
+//! @param pos Does this position contain a `Component`
+//! @return requires
+template <typename Component>
+  requires HasPositionBounds<Component>
+bool check_pos_collision( entt::registry &reg, Cmp::RectBounds pos )
+{
+  for ( auto [candidate_entt, candidate_cmp] : reg.view<Component>().each() )
+  {
+    if ( pos.findIntersection( candidate_cmp ) ) { return true; }
+  }
+  return false;
 }
 
 } // namespace ProceduralMaze::Utils

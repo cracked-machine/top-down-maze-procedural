@@ -1838,31 +1838,143 @@
         }
       }
     },
-    "RUIN.interior_cobweb1": {
-      "displayname": "RUIN.interior_cobweb1",
+    "RUIN.cobweb_bottomleft": {
+      "displayname": "RUIN.cobweb_bottomleft",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/RUIN.interior.png",
-        "sprite_indices": [12],
+        "sprite_indices": [40],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
           "width": 1,
-          "height": 2
+          "height": 1
         }
       }
     },
-    "RUIN.interior_cobweb2": {
-      "displayname": "RUIN.interior_cobweb2",
+    "RUIN.cobweb_bottomright": {
+      "displayname": "RUIN.cobweb_bottomright",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/RUIN.interior.png",
-        "sprite_indices": [13],
+        "sprite_indices": [41],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 2,
-          "height": 2
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "RUIN.cobweb_topright": {
+      "displayname": "RUIN.cobweb_topright",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/RUIN.interior.png",
+        "sprite_indices": [42],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "RUIN.cobweb_topleft": {
+      "displayname": "RUIN.cobweb_topleft",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/RUIN.interior.png",
+        "sprite_indices": [43],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "RUIN.bookcase_leftedge": {
+      "displayname": "RUIN.bookcase_leftedge",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/RUIN.interior.png",
+        "sprite_indices": [30],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "RUIN.bookcase_cobweb": {
+      "displayname": "RUIN.bookcase_cobweb",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/RUIN.interior.png",
+        "sprite_indices": [31],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "RUIN.bookcase_jars": {
+      "displayname": "RUIN.bookcase_jars",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/RUIN.interior.png",
+        "sprite_indices": [32],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "RUIN.bookcase_potions": {
+      "displayname": "RUIN.bookcase_potions",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/RUIN.interior.png",
+        "sprite_indices": [33],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "RUIN.bookcase_scrolls": {
+      "displayname": "RUIN.bookcase_scrolls",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/RUIN.interior.png",
+        "sprite_indices": [34],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "RUIN.bookcase_rightedge": {
+      "displayname": "RUIN.bookcase_rightedge",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/RUIN.interior.png",
+        "sprite_indices": [35],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
         }
       }
     },
@@ -1871,7 +1983,7 @@
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/RUIN.interior.png",
-        "sprite_indices": [15],
+        "sprite_indices": [0],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {

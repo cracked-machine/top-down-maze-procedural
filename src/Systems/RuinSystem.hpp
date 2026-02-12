@@ -3,6 +3,7 @@
 
 #include <Components/Ruin/RuinFloorAccess.hpp>
 #include <Factory/MultiblockFactory.hpp>
+#include <SFML/Graphics/Rect.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -49,6 +50,8 @@ public:
     m_floor_access_cooldown.restart();
     m_was_on_floor_access = true; // Assume we just landed on a floor access
   }
+
+  void gen_lowerfloor_obstacles( sf::FloatRect scene_dimensions );
 
 private:
   //! @brief Dispatcher reference for scene management events

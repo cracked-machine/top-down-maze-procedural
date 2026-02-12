@@ -55,7 +55,7 @@ void RuinSceneLowerFloor::on_init()
 
   // pass concrete spawn position to exit spawner
   m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().spawn_exit(
-      sf::Vector2u{ RuinSceneLowerFloor::kMapGridSize.x / 2, RuinSceneLowerFloor::kMapGridSize.y - 1 } );
+      sf::Vector2u{ RuinSceneLowerFloor::kMapGridSize.x / 3, RuinSceneLowerFloor::kMapGridSize.y - 1 } );
 
   // spawn access hitbox just above horizontal centerpoint
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_floor_access(
@@ -70,6 +70,8 @@ void RuinSceneLowerFloor::on_init()
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneLowerFloor::kMapGridSize, "res/json/ruin_lower_tilemap_config.json" );
 
+  sf::FloatRect scene_dimensions( { 0, 0 }, { RuinSceneLowerFloor::kMapGridSizeF.x - 48, RuinSceneLowerFloor::kMapGridSizeF.y - 32 } );
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().gen_lowerfloor_obstacles( scene_dimensions );
   // force the loading screen so that we hide any motion sickness inducing camera pan
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }

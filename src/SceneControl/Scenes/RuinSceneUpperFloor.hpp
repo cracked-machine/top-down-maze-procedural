@@ -16,7 +16,7 @@ class RuinSceneUpperFloor : public Scene<Events::ProcessRuinSceneUpperInputEvent
 {
 public:
   //! @brief The size of the map grid in number of squares
-  inline static constexpr sf::Vector2u kMapGridSize{ 13u, 10u };
+  inline static constexpr sf::Vector2u kMapGridSize{ 19u, 10u };
 
   //! @brief The size of the map grid in number of squares as floats
   inline static constexpr sf::Vector2f kMapGridSizeF{ static_cast<float>( kMapGridSize.x * Constants::kGridSquareSizePixels.x ),
