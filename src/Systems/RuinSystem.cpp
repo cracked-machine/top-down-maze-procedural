@@ -152,51 +152,109 @@ void RuinSystem::check_starcase_multiblock_collision()
 
 void RuinSystem::gen_lowerfloor_obstacles( sf::FloatRect scene_dimensions )
 {
+  SPDLOG_INFO( "gen_lowerfloor_obstacles" );
   using namespace std::views;
-  constexpr auto &gridsize = Constants::kGridSquareSizePixelsF;
+  float collision_distance = 1.f;
 
-  auto check_existing_collisions = [&]( Cmp::RectBounds pos )
+  auto has_collision = [&]( Cmp::RectBounds pos )
   {
-    if ( Utils::check_pos_collision<Cmp::RuinStairsLowerMultiBlock>( getReg(), pos ) ) return true;
-    if ( Utils::check_cmp_collision<Cmp::RuinBookcase>( getReg(), pos ) ) return true;
-    if ( Utils::check_cmp_collision<Cmp::Wall>( getReg(), pos ) ) return true;
+    if ( Utils::check_cmp_collision<Cmp::RuinBookcase>( getReg(), pos ) )
+    {
+      SPDLOG_INFO( "RuinBookcase collision" );
+      return true;
+    }
+    if ( Utils::check_cmp_collision<Cmp::Wall>( getReg(), pos ) )
+    {
+      SPDLOG_INFO( "Wall collision" );
+      return true;
+    }
+
     // ensure bookcase is inside scene
-    if ( not Cmp::RectBounds( pos.position(), pos.size(), 1.5 ).findIntersection( scene_dimensions ) ) return true;
+    if ( not Cmp::RectBounds( pos.position(), pos.size(), 1.5 ).findIntersection( scene_dimensions ) )
+    {
+      SPDLOG_INFO( "Out of scene bounds" );
+      return true;
+    }
     return false;
   };
 
-  SPDLOG_INFO( "gen_lowerfloor_obstacles" );
-  auto excludepack = Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::RuinBookcase, Cmp::RuinCobweb>{};
-  for ( auto _ : iota( 0, 100 ) )
+  constexpr auto &gridsize = Constants::kGridSquareSizePixelsF;
+  constexpr auto ScaleCardinality_VERTICAL = Cmp::RectBounds::ScaleCardinality::VERTICAL;
+
+  int max_rows = scene_dimensions.size.y / gridsize.y;
+  int max_cols = scene_dimensions.size.x / gridsize.x;
+
+  for ( int row : iota( 1, max_rows ) )
   {
-    auto [pos_entt, pos_cmp] = Utils::Rnd::get_random_position( getReg(), {}, excludepack, 0 );
-
-    // bookcase left edge - use a scaled temporary to check for adjacent bookcases, walls, etc...
-    Cmp::RectBounds left_side_pos( pos_cmp.position, pos_cmp.size, 1 );
-    if ( check_existing_collisions( Cmp::RectBounds( left_side_pos.position(), left_side_pos.size(), 1.5 ) ) ) continue;
-    Factory::create_bookcase( getReg(), left_side_pos.position(), m_sprite_factory.get_multisprite_by_type( "RUIN.bookcase_leftedge" ) );
-
-    Cmp::RectBounds mid_pos = left_side_pos;
-    Cmp::RandomInt bookcase_length( 2, 6 );
-    for ( auto col : iota( 1, bookcase_length.gen() ) )
+    for ( int col = 1; col < max_cols; /* incremented in loop body */ )
     {
-      // bookcase middle pieces - x1.5 scale provides space padding
-      mid_pos = Cmp::RectBounds( { pos_cmp.position.x + gridsize.x * col, pos_cmp.position.y }, gridsize, 1 );
-      std::vector<std::string> pick_list = { "RUIN.bookcase_cobweb", "RUIN.bookcase_jars", "RUIN.bookcase_potions", "RUIN.bookcase_scrolls" };
-      auto ms_type = m_sprite_factory.get_random_type( pick_list );
-      if ( check_existing_collisions( Cmp::RectBounds( mid_pos.position(), mid_pos.size(), 1, Cmp::RectBounds::ScaleCardinality::VERTICAL ) ) )
-      {
-        // we hit something, so undo the last X pos advance to prevent gaps between here and the end right edge piece
-        mid_pos = Cmp::RectBounds( { pos_cmp.position.x - gridsize.x, pos_cmp.position.y }, gridsize, 1 );
-        break;
-      }
-      Factory::create_bookcase( getReg(), mid_pos.position(), m_sprite_factory.get_multisprite_by_type( ms_type ) );
-    }
+      std::vector<std::pair<Cmp::RectBounds, Sprites::SpriteMetaType>> bookshelf_row_candidate{};
+      bool valid_candidate = true;
 
-    // bookcase right edge -
-    Cmp::RectBounds right_edge_pos( { mid_pos.position().x + gridsize.x, mid_pos.position().y }, gridsize, 1 );
-    if ( check_existing_collisions( right_edge_pos ) ) continue;
-    Factory::create_bookcase( getReg(), right_edge_pos.position(), m_sprite_factory.get_multisprite_by_type( "RUIN.bookcase_rightedge" ) );
+      // column picker as we traverse row left->right: 1 in N chance of starting a new bookcase
+      Cmp::RandomInt column_pick( 0, 2 );
+      if ( column_pick.gen() )
+      {
+        SPDLOG_INFO( "Skipping col #{}", col );
+        ++col;
+        continue;
+      }
+
+      // bookcase left edge
+      Cmp::RectBounds bc_left_coord( { col * gridsize.x, row * gridsize.y }, gridsize, 1 );
+      SPDLOG_INFO( "Row #{} candidate left edge is {},{}", row, bc_left_coord.position().x, bc_left_coord.position().y );
+      if ( has_collision( Cmp::RectBounds( bc_left_coord.position(), bc_left_coord.size(), collision_distance ) ) )
+      {
+        SPDLOG_INFO( "Left edge rejected at {},{}", bc_left_coord.position().x, bc_left_coord.position().y );
+        ++col;
+        continue;
+      }
+      bookshelf_row_candidate.push_back( { bc_left_coord, "RUIN.bookcase_leftsection" } );
+
+      // bookcase middle pieces - advance N times from the left edge section coord
+      Cmp::RectBounds bc_mid_coord = bc_left_coord;
+      Cmp::RandomInt bookcase_length( 2, 4 );
+
+      for ( auto bc_mid_idx : iota( 1, bookcase_length.gen() ) )
+      {
+        bc_mid_coord = Cmp::RectBounds( { bc_left_coord.position().x + gridsize.x * bc_mid_idx, bc_left_coord.position().y }, gridsize, 1 );
+
+        if ( has_collision( Cmp::RectBounds( bc_mid_coord.position(), bc_mid_coord.size(), 1, ScaleCardinality_VERTICAL ) ) )
+        {
+          SPDLOG_INFO( "Mid section rejected at {},{}", bc_mid_coord.position().x, bc_mid_coord.position().y );
+          valid_candidate = false;
+          break;
+        }
+        bookshelf_row_candidate.push_back( { bc_mid_coord, "RUIN.bookcase_midsection" } );
+      }
+
+      if ( not valid_candidate )
+      {
+        ++col;
+        continue;
+      }
+
+      // bookcase right edge
+      Cmp::RectBounds bc_right_coord( { bc_mid_coord.position().x + gridsize.x, bc_mid_coord.position().y }, gridsize, 1 );
+      if ( has_collision( bc_right_coord ) )
+      {
+        SPDLOG_INFO( "Right edge rejected at {},{}", bc_right_coord.position().x, bc_right_coord.position().y );
+        ++col;
+        continue;
+      }
+      bookshelf_row_candidate.push_back( { bc_right_coord, "RUIN.bookcase_rightsection" } );
+
+      // add the line of bookshelf sprites
+      SPDLOG_INFO( "bookcase candidate of length: {}", bookshelf_row_candidate.size() );
+      for ( auto [point, type] : bookshelf_row_candidate )
+      {
+        auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { type } );
+        Factory::create_bookcase( getReg(), point.position(), m_sprite_factory.get_multisprite_by_type( ms ), idx );
+      }
+
+      // ensure we have one horizontal gap inbetween bookcases
+      col += bookshelf_row_candidate.size() + 1;
+    }
   }
 }
 

@@ -72,6 +72,7 @@ void RuinSceneLowerFloor::on_init()
 
   sf::FloatRect scene_dimensions( { 0, 0 }, { RuinSceneLowerFloor::kMapGridSizeF.x - 48, RuinSceneLowerFloor::kMapGridSizeF.y - 32 } );
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().gen_lowerfloor_obstacles( scene_dimensions );
+
   // force the loading screen so that we hide any motion sickness inducing camera pan
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
