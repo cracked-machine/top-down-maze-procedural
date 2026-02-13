@@ -7,7 +7,7 @@ namespace ProceduralMaze::Cmp
 // Wall concept
 struct Wall
 {
-  [[maybe_unused]] bool active = true;
+  [[maybe_unused]] bool blocking = true;
 };
 
 } // namespace ProceduralMaze::Cmp

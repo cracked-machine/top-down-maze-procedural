@@ -14,6 +14,7 @@
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Persistent/CameraSmoothSpeed.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
@@ -254,15 +255,14 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       // debug: show crypt component boundaries
       if ( m_show_debug_stats )
       {
-        for ( auto [ruin_entt, access_cmp] : getReg().view<Cmp::RuinFloorAccess>().each() )
+        for ( auto [ruin_entt, access_cmp, pos_cmp] : getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
         {
           sf::RectangleShape rectangle;
-          rectangle.setSize( access_cmp.size );
-          rectangle.setPosition( access_cmp.position );
+          rectangle.setSize( pos_cmp.size );
+          rectangle.setPosition( pos_cmp.position );
           rectangle.setFillColor( sf::Color::Transparent );
           rectangle.setOutlineThickness( 1.f );
-          if ( access_cmp.m_direction == Cmp::RuinFloorAccess::Direction::TO_LOWER ) { rectangle.setOutlineColor( sf::Color::Blue ); }
-          else { rectangle.setOutlineColor( sf::Color::White ); }
+          rectangle.setOutlineColor( sf::Color::Red );
           m_window.draw( rectangle );
         }
 

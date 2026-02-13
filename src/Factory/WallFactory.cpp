@@ -18,12 +18,11 @@ void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, Sprites::Spr
 {
   auto entity = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSquareSizePixelsF );
-  reg.emplace_or_replace<Cmp::Wall>( entity );
+  reg.emplace_or_replace<Cmp::Wall>( entity, static_cast<bool>( solid_wall ) );
   // reg.emplace_or_replace<Cmp::Obstacle>( entity );
   reg.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_type, sprite_index );
   reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
-  if ( solid_wall == SolidWall::TRUE ) { reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity ); }
 }
 
 void add_nopathfinding( entt::registry &reg, const sf::Vector2f &pos )
