@@ -1838,54 +1838,12 @@
         }
       }
     },
-    "RUIN.cobweb_bottomleft": {
-      "displayname": "RUIN.cobweb_bottomleft",
+    "RUIN.cobweb": {
+      "displayname": "RUIN.cobweb",
       "weight": 1.0,
       "multisprite": {
         "texture_path": "res/textures/RUIN.interior.png",
-        "sprite_indices": [40],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "RUIN.cobweb_bottomright": {
-      "displayname": "RUIN.cobweb_bottomright",
-      "weight": 1.0,
-      "multisprite": {
-        "texture_path": "res/textures/RUIN.interior.png",
-        "sprite_indices": [41],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "RUIN.cobweb_topright": {
-      "displayname": "RUIN.cobweb_topright",
-      "weight": 1.0,
-      "multisprite": {
-        "texture_path": "res/textures/RUIN.interior.png",
-        "sprite_indices": [42],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "RUIN.cobweb_topleft": {
-      "displayname": "RUIN.cobweb_topleft",
-      "weight": 1.0,
-      "multisprite": {
-        "texture_path": "res/textures/RUIN.interior.png",
-        "sprite_indices": [43],
+        "sprite_indices": [40, 41, 42, 43],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {

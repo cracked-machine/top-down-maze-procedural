@@ -70,8 +70,10 @@ void RuinSceneLowerFloor::on_init()
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneLowerFloor::kMapGridSize, "res/json/ruin_lower_tilemap_config.json" );
 
-  sf::FloatRect scene_dimensions( { 0, 0 }, { RuinSceneLowerFloor::kMapGridSizeF.x - 48, RuinSceneLowerFloor::kMapGridSizeF.y - 32 } );
-  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().gen_lowerfloor_obstacles( scene_dimensions );
+  sf::FloatRect bookcase_scene_dimensions( { 0, 0 }, { RuinSceneLowerFloor::kMapGridSizeF.x - 48, RuinSceneLowerFloor::kMapGridSizeF.y - 32 } );
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().gen_lowerfloor_bookcases( bookcase_scene_dimensions );
+  sf::FloatRect cobweb_scene_dimensions( { 0, 0 }, { RuinSceneLowerFloor::kMapGridSizeF.x - 48, RuinSceneLowerFloor::kMapGridSizeF.y - 32 } );
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().add_lowerfloor_cobwebs( cobweb_scene_dimensions );
 
   // force the loading screen so that we hide any motion sickness inducing camera pan
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
@@ -129,7 +131,7 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_system_store.find<Sys::SystemStore::Type::LootSystem>().check_loot_collision();
   m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().check_exit_collision();
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().check_floor_access_collision( Cmp::RuinFloorAccess::Direction::TO_UPPER );
-  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().check_starcase_multiblock_collision();
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().check_movement_slowdowns();
 
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt, Sys::PlayerSystem::FootStepSfx::NONE );
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().disable_damage_cooldown();

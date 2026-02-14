@@ -125,56 +125,50 @@ void RuinSystem::check_floor_access_collision( Cmp::RuinFloorAccess::Direction d
   m_was_on_floor_access = currently_on_floor_access;
 }
 
-void RuinSystem::check_starcase_multiblock_collision()
+void RuinSystem::check_movement_slowdowns()
 {
-  bool slowdown = false;
   auto player_pos = Utils::get_player_position( getReg() );
-  for ( auto [access_entt, access_cmp] : getReg().view<Cmp::RuinStairsLowerMultiBlock>().each() )
+  auto player_entt = Utils::get_player_entity( getReg() );
+
+  float slowdown_penalty = 0.0f;
+
+  // Check staircase collision
+  if ( Utils::check_pos_collision<Cmp::RuinStairsLowerMultiBlock>( getReg(), Cmp::RectBounds( player_pos.position, player_pos.size, 1 ) ) )
   {
-    if ( player_pos.findIntersection( access_cmp ) ) { slowdown = true; }
+    slowdown_penalty = std::max( slowdown_penalty, 0.5f );
   }
-  for ( auto [access_entt, access_cmp] : getReg().view<Cmp::RuinStairsUpperMultiBlock>().each() )
+  if ( Utils::check_pos_collision<Cmp::RuinStairsUpperMultiBlock>( getReg(), Cmp::RectBounds( player_pos.position, player_pos.size, 1 ) ) )
   {
-    if ( player_pos.findIntersection( access_cmp ) ) { slowdown = true; }
+    slowdown_penalty = std::max( slowdown_penalty, 0.5f );
   }
 
-  if ( slowdown )
+  // Check cobweb collision
+  if ( Utils::check_cmp_collision<Cmp::RuinCobweb>( getReg(), Cmp::RectBounds( player_pos.position, player_pos.size, 1 ),
+                                                    []( const Cmp::RuinCobweb &cobweb ) { return cobweb.integrity > 0; } ) )
   {
-    auto player_entt = Utils::get_player_entity( getReg() );
-    getReg().emplace_or_replace<Cmp::PlayerSpeedPenalty>( player_entt, 0.7 );
+    slowdown_penalty = std::max( slowdown_penalty, 0.25f );
   }
+
+  // Apply or remove penalty
+  if ( slowdown_penalty > 0.0f ) { getReg().emplace_or_replace<Cmp::PlayerSpeedPenalty>( player_entt, slowdown_penalty ); }
   else
   {
-    auto player_entt = Utils::get_player_entity( getReg() );
     if ( getReg().any_of<Cmp::PlayerSpeedPenalty>( player_entt ) ) { getReg().remove<Cmp::PlayerSpeedPenalty>( player_entt ); }
   }
 }
 
-void RuinSystem::gen_lowerfloor_obstacles( sf::FloatRect scene_dimensions )
+void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
 {
   SPDLOG_INFO( "gen_lowerfloor_obstacles" );
   using namespace std::views;
-  float collision_distance = 1.f;
 
   auto has_collision = [&]( Cmp::RectBounds pos )
   {
-    if ( Utils::check_cmp_collision<Cmp::RuinBookcase>( getReg(), pos ) )
-    {
-      SPDLOG_INFO( "RuinBookcase collision" );
-      return true;
-    }
-    if ( Utils::check_cmp_collision<Cmp::Wall>( getReg(), pos ) )
-    {
-      SPDLOG_INFO( "Wall collision" );
-      return true;
-    }
+    if ( Utils::check_cmp_collision<Cmp::RuinBookcase>( getReg(), pos ) ) { return true; }
+    if ( Utils::check_cmp_collision<Cmp::Wall>( getReg(), pos ) ) { return true; }
 
     // ensure bookcase is inside scene
-    if ( not Cmp::RectBounds( pos.position(), pos.size(), 1.5 ).findIntersection( scene_dimensions ) )
-    {
-      SPDLOG_INFO( "Out of scene bounds" );
-      return true;
-    }
+    if ( not Cmp::RectBounds( pos.position(), pos.size(), 1.5 ).findIntersection( scene_dimensions ) ) { return true; }
     return false;
   };
 
@@ -184,7 +178,7 @@ void RuinSystem::gen_lowerfloor_obstacles( sf::FloatRect scene_dimensions )
   int max_rows = scene_dimensions.size.y / gridsize.y;
   int max_cols = scene_dimensions.size.x / gridsize.x;
 
-  for ( int row : iota( 1, max_rows ) )
+  for ( int row : iota( 1, max_rows ) | std::views::stride( 2 ) )
   {
     for ( int col = 1; col < max_cols; /* incremented in loop body */ )
     {
@@ -192,20 +186,20 @@ void RuinSystem::gen_lowerfloor_obstacles( sf::FloatRect scene_dimensions )
       bool valid_candidate = true;
 
       // column picker as we traverse row left->right: 1 in N chance of starting a new bookcase
-      Cmp::RandomInt column_pick( 0, 2 );
+      Cmp::RandomInt column_pick( 0, 1 );
       if ( column_pick.gen() )
       {
-        SPDLOG_INFO( "Skipping col #{}", col );
+        SPDLOG_DEBUG( "Skipping col #{}", col );
         ++col;
         continue;
       }
 
       // bookcase left edge
       Cmp::RectBounds bc_left_coord( { col * gridsize.x, row * gridsize.y }, gridsize, 1 );
-      SPDLOG_INFO( "Row #{} candidate left edge is {},{}", row, bc_left_coord.position().x, bc_left_coord.position().y );
-      if ( has_collision( Cmp::RectBounds( bc_left_coord.position(), bc_left_coord.size(), collision_distance ) ) )
+      SPDLOG_DEBUG( "Row #{} candidate left edge is {},{}", row, bc_left_coord.position().x, bc_left_coord.position().y );
+      if ( has_collision( Cmp::RectBounds( bc_left_coord.position(), bc_left_coord.size(), 1.f ) ) )
       {
-        SPDLOG_INFO( "Left edge rejected at {},{}", bc_left_coord.position().x, bc_left_coord.position().y );
+        SPDLOG_DEBUG( "Left edge rejected at {},{}", bc_left_coord.position().x, bc_left_coord.position().y );
         ++col;
         continue;
       }
@@ -213,7 +207,7 @@ void RuinSystem::gen_lowerfloor_obstacles( sf::FloatRect scene_dimensions )
 
       // bookcase middle pieces - advance N times from the left edge section coord
       Cmp::RectBounds bc_mid_coord = bc_left_coord;
-      Cmp::RandomInt bookcase_length( 2, 4 );
+      Cmp::RandomInt bookcase_length( 2, 3 );
 
       for ( auto bc_mid_idx : iota( 1, bookcase_length.gen() ) )
       {
@@ -221,7 +215,7 @@ void RuinSystem::gen_lowerfloor_obstacles( sf::FloatRect scene_dimensions )
 
         if ( has_collision( Cmp::RectBounds( bc_mid_coord.position(), bc_mid_coord.size(), 1, ScaleCardinality_VERTICAL ) ) )
         {
-          SPDLOG_INFO( "Mid section rejected at {},{}", bc_mid_coord.position().x, bc_mid_coord.position().y );
+          SPDLOG_DEBUG( "Mid section rejected at {},{}", bc_mid_coord.position().x, bc_mid_coord.position().y );
           valid_candidate = false;
           break;
         }
@@ -238,14 +232,14 @@ void RuinSystem::gen_lowerfloor_obstacles( sf::FloatRect scene_dimensions )
       Cmp::RectBounds bc_right_coord( { bc_mid_coord.position().x + gridsize.x, bc_mid_coord.position().y }, gridsize, 1 );
       if ( has_collision( bc_right_coord ) )
       {
-        SPDLOG_INFO( "Right edge rejected at {},{}", bc_right_coord.position().x, bc_right_coord.position().y );
+        SPDLOG_DEBUG( "Right edge rejected at {},{}", bc_right_coord.position().x, bc_right_coord.position().y );
         ++col;
         continue;
       }
       bookshelf_row_candidate.push_back( { bc_right_coord, "RUIN.bookcase_rightsection" } );
 
       // add the line of bookshelf sprites
-      SPDLOG_INFO( "bookcase candidate of length: {}", bookshelf_row_candidate.size() );
+      SPDLOG_DEBUG( "bookcase candidate of length: {}", bookshelf_row_candidate.size() );
       for ( auto [point, type] : bookshelf_row_candidate )
       {
         auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { type } );
@@ -255,6 +249,33 @@ void RuinSystem::gen_lowerfloor_obstacles( sf::FloatRect scene_dimensions )
       // ensure we have one horizontal gap inbetween bookcases
       col += bookshelf_row_candidate.size() + 1;
     }
+  }
+}
+
+void RuinSystem::add_lowerfloor_cobwebs( sf::FloatRect scene_dimensions )
+{
+  auto has_collision = [&]( Cmp::RectBounds pos )
+  {
+    if ( Utils::check_cmp_collision<Cmp::RuinBookcase>( getReg(), pos ) ) { return true; }
+    if ( Utils::check_cmp_collision<Cmp::RuinStairsLowerMultiBlock>( getReg(), pos ) ) { return true; }
+    if ( Utils::check_cmp_collision<Cmp::Wall>( getReg(), pos, []( const Cmp::Wall &wall ) { return wall.blocking; } ) ) { return true; }
+    if ( Utils::check_cmp_collision<Cmp::RuinCobweb>( getReg(), pos ) ) { return true; }
+
+    // ensure bookcase is inside scene
+    if ( not Cmp::RectBounds( pos.position(), pos.size(), 1.5 ).findIntersection( scene_dimensions ) ) { return true; }
+    return false;
+  };
+
+  constexpr auto &gridsize = Constants::kGridSquareSizePixelsF;
+  int max_cobwebs = 500;
+  for ( auto _ : std::views::iota( 0, max_cobwebs ) )
+  {
+    auto [rnd_entt, rnd_pos] = Utils::Rnd::get_random_position( getReg(), {}, Utils::Rnd::ExcludePack<Cmp::RuinBookcase>{} );
+    if ( rnd_entt == entt::null ) continue;
+
+    if ( has_collision( Cmp::RectBounds( { rnd_pos.position }, gridsize, 1 ) ) ) continue;
+    auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { "RUIN.cobweb" } );
+    Factory::create_cobweb( getReg(), rnd_pos.position, m_sprite_factory.get_multisprite_by_type( ms ), idx );
   }
 }
 

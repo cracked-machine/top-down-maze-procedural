@@ -9,7 +9,7 @@ namespace ProceduralMaze::Cmp
 class RuinCobweb
 {
 public:
-  bool active{ true };
+  int integrity{ 100 };
 };
 
 } // namespace ProceduralMaze::Cmp

@@ -1,5 +1,6 @@
 #include <Components/Position.hpp>
 #include <Components/Ruin/RuinBookcase.hpp>
+#include <Components/Ruin/RuinCobweb.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/RuinFactory.hpp>
@@ -25,12 +26,13 @@ void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sp
   reg.emplace_or_replace<Cmp::RuinBookcase>( bookcase_entt );
 }
 
-void create_cobweb( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::MultiSprite &cobweb_ms )
+void create_cobweb( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::MultiSprite &cobweb_ms, int sprite_index )
 {
   auto cobweb_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( cobweb_entt, spawn_position, cobweb_ms.getSpriteSizePixels() );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( cobweb_entt, 0, 0, true, cobweb_ms.get_sprite_type(), 0 );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( cobweb_entt, 0, 0, true, cobweb_ms.get_sprite_type(), sprite_index );
   reg.emplace_or_replace<Cmp::ZOrderValue>( cobweb_entt, spawn_position.y );
+  reg.emplace_or_replace<Cmp::RuinCobweb>( cobweb_entt, 100 );
 }
 
 } // namespace ProceduralMaze::Factory

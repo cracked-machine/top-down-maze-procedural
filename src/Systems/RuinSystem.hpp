@@ -42,7 +42,6 @@ public:
   }
 
   void check_floor_access_collision( Cmp::RuinFloorAccess::Direction direction );
-  void check_starcase_multiblock_collision();
 
   //! @brief Reset the floor access cooldown (call when entering a ruin scene)
   void reset_floor_access_cooldown()
@@ -51,7 +50,9 @@ public:
     m_was_on_floor_access = true; // Assume we just landed on a floor access
   }
 
-  void gen_lowerfloor_obstacles( sf::FloatRect scene_dimensions );
+  void gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions );
+  void add_lowerfloor_cobwebs( sf::FloatRect scene_dimensions );
+  void check_movement_slowdowns();
 
 private:
   //! @brief Dispatcher reference for scene management events
