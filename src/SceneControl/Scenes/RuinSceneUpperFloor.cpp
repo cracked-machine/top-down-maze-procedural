@@ -1,26 +1,24 @@
+#include <Audio/SoundBank.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
+#include <Components/Player/PlayerRuinLocation.hpp>
 #include <Components/Ruin/RuinObjectiveType.hpp>
 #include <Components/Ruin/RuinStairsBalustradeMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsUpperMultiBlock.hpp>
 #include <Components/System.hpp>
-#include <Factory/WallFactory.hpp>
-#include <SceneControl/Scenes/RuinSceneUpperFloor.hpp>
-
-#include <Audio/SoundBank.hpp>
-#include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
-#include <Systems/PersistSystem.hpp>
-#include <Systems/PersistSystemImpl.hpp>
-#include <Systems/ProcGen/RandomLevelGenerator.hpp>
-#include <Systems/Render/RenderGameSystem.hpp>
-
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Factory/WallFactory.hpp>
+#include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
+#include <SceneControl/Scenes/RuinSceneUpperFloor.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/HolyWellSystem.hpp>
 #include <Systems/LootSystem.hpp>
+#include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/PlayerSystem.hpp>
+#include <Systems/ProcGen/RandomLevelGenerator.hpp>
+#include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 
 #include <Systems/SystemStore.hpp>

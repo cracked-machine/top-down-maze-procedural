@@ -3,21 +3,14 @@
 #endif
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
 
-#include <Components/Crypt/CryptLever.hpp>
-#include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
-#include <Components/Crypt/CryptPassageBlock.hpp>
-#include <Components/Inventory/CarryItem.hpp>
-#include <Components/Player/PlayerBlastRadius.hpp>
-#include <Components/Player/PlayerLastGraveyardPosition.hpp>
-#include <Components/Player/PlayerWealth.hpp>
-#include <Components/Ruin/RuinObjectiveType.hpp>
-#include <SceneControl/RegistryTransfer.hpp>
-
 #include <spdlog/spdlog.h>
 
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Armable.hpp>
+#include <Components/Crypt/CryptLever.hpp>
+#include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
+#include <Components/Crypt/CryptPassageBlock.hpp>
 #include <Components/Crypt/CryptRoomClosed.hpp>
 #include <Components/Crypt/CryptRoomEnd.hpp>
 #include <Components/Crypt/CryptRoomOpen.hpp>
@@ -25,21 +18,28 @@
 #include <Components/Direction.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
+#include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Neighbours.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
+#include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerDetectionBounds.hpp>
 #include <Components/Player/PlayerDistance.hpp>
 #include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
+#include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Player/PlayerMortality.hpp>
+#include <Components/Player/PlayerRuinLocation.hpp>
+#include <Components/Player/PlayerWealth.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/Ruin/RuinObjectiveType.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <SceneControl/RegistryTransfer.hpp>
 
 namespace ProceduralMaze::Scene
 {

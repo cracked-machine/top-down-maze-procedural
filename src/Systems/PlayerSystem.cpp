@@ -9,6 +9,7 @@
 #include <Components/Crypt/CryptObjectiveSegment.hpp>
 #include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Direction.hpp>
+#include <Components/Exit.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Grave/GraveSegment.hpp>
 #include <Components/HolyWell/HolyWellSegment.hpp>
@@ -49,6 +50,7 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Collision.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Random.hpp>
@@ -262,86 +264,86 @@ bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
 
   // clang-format off
   Cmp::RectBounds search_bounds( target_position.position, target_position.size, 1 );
-  if ( Utils::check_cmp_collision<Cmp::RuinBookcase>( getReg(), search_bounds ) ) 
+  if ( Utils::Collision::check_cmp<Cmp::RuinBookcase>( getReg(), search_bounds ) ) 
   { 
     return false; 
   }
 
-  if ( Utils::check_cmp_collision<Cmp::Obstacle>( getReg(), search_bounds ) ) 
+  if ( Utils::Collision::check_cmp<Cmp::Obstacle>( getReg(), search_bounds ) ) 
   { 
     return false; 
   }
 
-  if ( Utils::check_cmp_collision<Cmp::Wall>( getReg(), search_bounds, 
+  if ( Utils::Collision::check_cmp<Cmp::Wall>( getReg(), search_bounds, 
        []( const Cmp::Wall &wall ) { return wall.blocking; } ) )
   {
     return false;
   }  
 
-  if ( Utils::check_cmp_collision<Cmp::PlayerNoPath>( getReg(), search_bounds ) ) 
+  if ( Utils::Collision::check_cmp<Cmp::PlayerNoPath>( getReg(), search_bounds ) ) 
   { 
     return false; 
   }
 
-  if ( Utils::check_cmp_collision<Cmp::PlantObstacle>( getReg(), search_bounds ) )
+  if ( Utils::Collision::check_cmp<Cmp::PlantObstacle>( getReg(), search_bounds ) )
   { 
     return false; 
   }
 
-  if ( Utils::check_cmp_collision<Cmp::CryptChest>( getReg(), search_bounds ) ) 
+  if ( Utils::Collision::check_cmp<Cmp::CryptChest>( getReg(), search_bounds ) ) 
   { 
     return false; 
   }
 
-  if ( Utils::check_cmp_collision<Cmp::Exit>( getReg(), search_bounds, 
+  if ( Utils::Collision::check_cmp<Cmp::Exit>( getReg(), search_bounds, 
        []( const Cmp::Exit &exit ) { return exit.m_locked; } ) ) 
   { 
     return false; 
   }
 
-  if ( Utils::check_cmp_collision<Cmp::GraveSegment>( getReg(), search_bounds, 
+  if ( Utils::Collision::check_cmp<Cmp::GraveSegment>( getReg(), search_bounds, 
        []( const Cmp::GraveSegment &seg ) { return seg.isSolidMask(); } ) )
   {
     return false;
   }
 
-  if ( Utils::check_cmp_collision<Cmp::AltarSegment>( getReg(), search_bounds, 
+  if ( Utils::Collision::check_cmp<Cmp::AltarSegment>( getReg(), search_bounds, 
        []( const Cmp::AltarSegment &seg ) { return seg.isSolidMask(); } ) )
   {
     return false;
   }
 
-  if ( Utils::check_cmp_collision<Cmp::CryptSegment>( getReg(), search_bounds, 
+  if ( Utils::Collision::check_cmp<Cmp::CryptSegment>( getReg(), search_bounds, 
        []( const Cmp::CryptSegment &seg ) { return seg.isSolidMask(); } ) )
   {
     return false;
   }
 
-  if ( Utils::check_cmp_collision<Cmp::HolyWellSegment>( getReg(), search_bounds,
+  if ( Utils::Collision::check_cmp<Cmp::HolyWellSegment>( getReg(), search_bounds,
        []( const Cmp::HolyWellSegment &seg ) { return seg.isSolidMask(); } ))
   {
     return false;
   }
 
-  if ( Utils::check_cmp_collision<Cmp::RuinSegment>( getReg(), search_bounds, 
+  if ( Utils::Collision::check_cmp<Cmp::RuinSegment>( getReg(), search_bounds, 
        []( const Cmp::RuinSegment &seg ) { return seg.isSolidMask(); } ) )
   {
     return false;
   }
 
-  if ( Utils::check_cmp_collision<Cmp::RuinStairsSegment>( getReg(), search_bounds,
+  if ( Utils::Collision::check_cmp<Cmp::RuinStairsSegment>( getReg(), search_bounds,
        []( const Cmp::RuinStairsSegment &seg ) { return seg.isSolidMask(); } ) )
   {
     return false;
   }
 
-  if ( Utils::check_cmp_collision<Cmp::CryptObjectiveSegment>( getReg(), search_bounds,
+  if ( Utils::Collision::check_cmp<Cmp::CryptObjectiveSegment>( getReg(), search_bounds,
        []( const Cmp::CryptObjectiveSegment &seg ) { return seg.isSolidMask(); } ) )
   {
     return false;
   }
 
-  if ( Utils::check_cmp_collision<Cmp::CryptInteriorSegment>( getReg(), search_bounds,
+  if ( Utils::Collision::check_cmp<Cmp::CryptInteriorSegment>( getReg(), search_bounds,
        []( const Cmp::CryptInteriorSegment &seg ) { return seg.isSolidMask(); } ) )
   {
     return false;

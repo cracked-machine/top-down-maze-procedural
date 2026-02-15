@@ -1,4 +1,6 @@
+#include <Components/Neighbours.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Obstacle.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>

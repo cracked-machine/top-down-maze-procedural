@@ -11,6 +11,7 @@
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/CryptFactory.hpp>

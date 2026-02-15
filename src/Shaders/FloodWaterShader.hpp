@@ -1,8 +1,6 @@
 #ifndef __SPRITES_FLOODERWATERSHADER_HPP__
 #define __SPRITES_FLOODERWATERSHADER_HPP__
 
-#include <spdlog/spdlog.h>
-
 #include <SFML/System/Time.hpp>
 
 #include <Shaders/BaseFragmentShader.hpp>
@@ -23,13 +21,11 @@ public:
   void pre_setup_texture() override
   {
     m_render_texture.clear( sf::Color( 16, 32, 32 ) );
-    // std::ignore = m_texture.resize(texture_size);
   }
 
   void post_setup_shader() override
   {
     m_shader.setUniform( "resolution", sf::Vector2f{ m_render_texture.getSize() } );
-    SPDLOG_DEBUG( "FloodWaterShader initialized" );
   }
 
   void update( sf::Vector2f position )

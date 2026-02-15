@@ -1,7 +1,7 @@
 #ifndef __CMP_IBASEPERSISTENT_HPP__
 #define __CMP_IBASEPERSISTENT_HPP__
 
-#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <string>
 
 namespace ProceduralMaze::Cmp::Persist

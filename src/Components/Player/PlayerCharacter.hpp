@@ -1,10 +1,7 @@
 #ifndef SRC_CMPS_PLAYER_PLAYERCHARACTER_HPP_
 #define SRC_CMPS_PLAYER_PLAYERCHARACTER_HPP_
 
-#include <spdlog/spdlog.h>
-
 #include <SFML/System/Clock.hpp>
-#include <SFML/System/Time.hpp>
 
 namespace ProceduralMaze::Cmp
 {

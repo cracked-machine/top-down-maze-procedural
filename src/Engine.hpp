@@ -2,24 +2,18 @@
 #define __ENGINE_HPP__
 
 #include "imgui-SFML.h"
-#include <Audio/SoundBank.hpp>
-#include <SceneControl/SceneManager.hpp>
-#include <Systems/LootSystem.hpp>
-#include <entt/entity/registry.hpp>
-
 #include <SFML/Audio/Sound.hpp>
-#include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
-#include <SFML/System/Vector2.hpp>
+#include <entt/entity/fwd.hpp>
 
-#include <spdlog/spdlog.h>
-
-#include <Sprites/TileMap.hpp>
+#include <Audio/SoundBank.hpp>
+#include <Components/Font.hpp>
+#include <SceneControl/SceneManager.hpp>
 #include <Systems/SystemStore.hpp>
 
 #include <future>

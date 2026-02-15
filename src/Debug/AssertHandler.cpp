@@ -1,15 +1,15 @@
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 #include <spdlog/spdlog.h>
 
 #include <Debug/AssertHandler.hpp>
-#include <iomanip>
-#include <sstream>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <dbghelp.h>
 #include <windows.h>
 
-namespace Debug {
+namespace Debug
+{
 
 void stack_trace( void )
 {
@@ -65,8 +65,7 @@ void stack_trace( void )
 
   for ( size_t i = 0; i < 25; i++ )
   {
-    BOOL result = StackWalk64( image, process, thread, &stackframe, &context, NULL, SymFunctionTableAccess64,
-                               SymGetModuleBase64, NULL );
+    BOOL result = StackWalk64( image, process, thread, &stackframe, &context, NULL, SymFunctionTableAccess64, SymGetModuleBase64, NULL );
 
     if ( !result ) { break; }
 
@@ -113,12 +112,35 @@ void stack_trace( void )
   SymCleanup( process );
 }
 
+[[noreturn]] void assert_handler( const char *condition, const char *message, const char *file, const int line )
+{
+  SPDLOG_CRITICAL( "\n" );
+  SPDLOG_CRITICAL( "=== Assertion Failed ===" );
+  SPDLOG_CRITICAL( "Condition: {}", condition );
+  SPDLOG_CRITICAL( "Message: {}", message );
+  SPDLOG_CRITICAL( "Location: {}:{}", file, line );
+  SPDLOG_CRITICAL( "========================" );
+
+#ifdef _WIN32
+  // Break into debugger if attached (Windows)
+  if ( IsDebuggerPresent() ) { DebugBreak(); }
+#elif defined( __unix__ )
+  // Break into debugger if attached (Unix)
+  if ( std::getenv( "UNDER_GDB" ) || std::getenv( "UNDER_LLDB" ) ) { raise( SIGTRAP ); }
+#endif
+
+  Debug::stack_trace();
+
+  std::abort();
+}
+
 } // namespace Debug
 
 #else // For non-Windows platforms, we can use a placeholder or implement a
       // different stack trace mechanism
 #include <iostream>
-namespace Debug {
+namespace Debug
+{
 void stack_trace( void )
 {
   // Implement platform-specific stack trace for non-Windows platforms here

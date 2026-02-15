@@ -1,13 +1,13 @@
-#include <Factory/CryptFactory.hpp>
-#include <SceneControl/Scenes/CryptScene.hpp>
-
 #include <Audio/SoundBank.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/System.hpp>
 #include <Events/CryptRoomEvent.hpp>
+#include <Factory/CryptFactory.hpp>
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/LootSystem.hpp>

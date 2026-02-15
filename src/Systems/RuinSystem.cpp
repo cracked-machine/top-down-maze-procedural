@@ -1,12 +1,7 @@
-#include <Components/Random.hpp>
-#include <Components/Ruin/RuinBookcase.hpp>
-#include <Components/Ruin/RuinCobweb.hpp>
-#include <Components/Wall.hpp>
-#include <SFML/Graphics/Rect.hpp>
-#include <Utils/Constants.hpp>
-#include <Utils/Random.hpp>
-#include <entt/entity/fwd.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+
+#include <SFML/Graphics/Rect.hpp>
+#include <entt/entity/fwd.hpp>
 
 #include <Audio/SoundBank.hpp>
 #include <Components/LerpPosition.hpp>
@@ -14,13 +9,17 @@
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerRuinLocation.hpp>
 #include <Components/Player/PlayerSpeedPenalty.hpp>
+#include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/Ruin/RuinBookcase.hpp>
+#include <Components/Ruin/RuinCobweb.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/Ruin/RuinFloorAccess.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
 #include <Components/Ruin/RuinStairsLowerMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsSegment.hpp>
 #include <Components/Ruin/RuinStairsUpperMultiBlock.hpp>
+#include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
@@ -29,7 +28,10 @@
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/RuinSystem.hpp>
+#include <Utils/Collision.hpp>
+#include <Utils/Constants.hpp>
 #include <Utils/Optimizations.hpp>
+#include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
@@ -133,18 +135,18 @@ void RuinSystem::check_movement_slowdowns()
   float slowdown_penalty = 0.0f;
 
   // Check staircase collision
-  if ( Utils::check_pos_collision<Cmp::RuinStairsLowerMultiBlock>( getReg(), Cmp::RectBounds( player_pos.position, player_pos.size, 1 ) ) )
+  if ( Utils::Collision::check_pos<Cmp::RuinStairsLowerMultiBlock>( getReg(), Cmp::RectBounds( player_pos.position, player_pos.size, 1 ) ) )
   {
     slowdown_penalty = std::max( slowdown_penalty, 0.5f );
   }
-  if ( Utils::check_pos_collision<Cmp::RuinStairsUpperMultiBlock>( getReg(), Cmp::RectBounds( player_pos.position, player_pos.size, 1 ) ) )
+  if ( Utils::Collision::check_pos<Cmp::RuinStairsUpperMultiBlock>( getReg(), Cmp::RectBounds( player_pos.position, player_pos.size, 1 ) ) )
   {
     slowdown_penalty = std::max( slowdown_penalty, 0.5f );
   }
 
   // Check cobweb collision
-  if ( Utils::check_cmp_collision<Cmp::RuinCobweb>( getReg(), Cmp::RectBounds( player_pos.position, player_pos.size, 1 ),
-                                                    []( const Cmp::RuinCobweb &cobweb ) { return cobweb.integrity > 0; } ) )
+  if ( Utils::Collision::check_cmp<Cmp::RuinCobweb>( getReg(), Cmp::RectBounds( player_pos.position, player_pos.size, 1 ),
+                                                     []( const Cmp::RuinCobweb &cobweb ) { return cobweb.integrity > 0; } ) )
   {
     slowdown_penalty = std::max( slowdown_penalty, 0.25f );
   }
@@ -164,8 +166,8 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
 
   auto has_collision = [&]( Cmp::RectBounds pos )
   {
-    if ( Utils::check_cmp_collision<Cmp::RuinBookcase>( getReg(), pos ) ) { return true; }
-    if ( Utils::check_cmp_collision<Cmp::Wall>( getReg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::RuinBookcase>( getReg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::Wall>( getReg(), pos ) ) { return true; }
 
     // ensure bookcase is inside scene
     if ( not Cmp::RectBounds( pos.position(), pos.size(), 1.5 ).findIntersection( scene_dimensions ) ) { return true; }
@@ -256,10 +258,10 @@ void RuinSystem::add_lowerfloor_cobwebs( sf::FloatRect scene_dimensions )
 {
   auto has_collision = [&]( Cmp::RectBounds pos )
   {
-    if ( Utils::check_cmp_collision<Cmp::RuinBookcase>( getReg(), pos ) ) { return true; }
-    if ( Utils::check_cmp_collision<Cmp::RuinStairsLowerMultiBlock>( getReg(), pos ) ) { return true; }
-    if ( Utils::check_cmp_collision<Cmp::Wall>( getReg(), pos, []( const Cmp::Wall &wall ) { return wall.blocking; } ) ) { return true; }
-    if ( Utils::check_cmp_collision<Cmp::RuinCobweb>( getReg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::RuinBookcase>( getReg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::RuinStairsLowerMultiBlock>( getReg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::Wall>( getReg(), pos, []( const Cmp::Wall &wall ) { return wall.blocking; } ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::RuinCobweb>( getReg(), pos ) ) { return true; }
 
     // ensure bookcase is inside scene
     if ( not Cmp::RectBounds( pos.position(), pos.size(), 1.5 ).findIntersection( scene_dimensions ) ) { return true; }

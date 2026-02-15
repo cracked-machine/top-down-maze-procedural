@@ -1,17 +1,12 @@
 #ifndef __SYS__FXSYSTEM_HPP__
 #define __SYS__FXSYSTEM_HPP__
 
-#include <SFML/Audio/Music.hpp>
-#include <SFML/Audio/Sound.hpp>
-#include <SFML/Audio/SoundBuffer.hpp>
-#include <spdlog/spdlog.h>
-
 #include <Audio/EffectsItem.hpp>
 #include <Audio/MusicItem.hpp>
-
 #include <unordered_map>
 
-namespace ProceduralMaze::Audio {
+namespace ProceduralMaze::Audio
+{
 
 class SoundBank
 {
@@ -24,8 +19,7 @@ public:
   sf::Music &get_music( const std::string &name );
 
 private:
-  static sf::SoundBuffer generate_tone( float frequency = 440.0f, float duration = 0.5f,
-                                        unsigned int sample_rate = 44100 );
+  static sf::SoundBuffer generate_tone( float frequency = 440.0f, float duration = 0.5f, unsigned int sample_rate = 44100 );
 
   std::unordered_map<std::string, EffectsData> sounds;
   std::unordered_map<std::string, MusicData> music;

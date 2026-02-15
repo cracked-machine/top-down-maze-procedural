@@ -1,8 +1,6 @@
 #ifndef __SPRITES_DARKMODESHADER_HPP__
 #define __SPRITES_DARKMODESHADER_HPP__
 
-#include <spdlog/spdlog.h>
-
 #include <SFML/System/Time.hpp>
 
 #include <Shaders/BaseFragmentShader.hpp>
@@ -30,11 +28,9 @@ public:
   void post_setup_shader() override
   {
     // nothing special to do here
-    SPDLOG_DEBUG( "DarkModeShader initialized" );
   }
 
-  void update( sf::Vector2f shader_position, sf::Vector2f aperture_half_size, sf::Vector2u local_resolution,
-               sf::Vector2u display_resolution )
+  void update( sf::Vector2f shader_position, sf::Vector2f aperture_half_size, sf::Vector2u local_resolution, sf::Vector2u display_resolution )
   {
 
     m_sprite.setPosition( shader_position );

@@ -3,12 +3,9 @@
 
 #include <SFML/System/Time.hpp>
 
-#include <spdlog/spdlog.h>
-
 #include <Shaders/TitleScreenShader.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
-#include <Systems/Threats/BombSystem.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -33,11 +30,9 @@ public:
     }
   };
 
-  RenderMenuSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                    Audio::SoundBank &sound_bank )
+  RenderMenuSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
       : RenderSystem( reg, window, sprite_factory, sound_bank )
   {
-    SPDLOG_DEBUG( "RenderMenuSystem constructor called" );
   }
   ~RenderMenuSystem() = default;
 

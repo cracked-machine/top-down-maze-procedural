@@ -1,8 +1,6 @@
 #ifndef __SPRITES_BASEFRAGMENTSHADER_HPP__
 #define __SPRITES_BASEFRAGMENTSHADER_HPP__
 
-#include <spdlog/spdlog.h>
-
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/RenderTexture.hpp>
 #include <SFML/Graphics/Shader.hpp>
@@ -56,8 +54,7 @@ public:
       m_apply = [oldApply, name, value]( sf::Shader &shader )
       {
         if ( oldApply ) oldApply( shader );
-        shader.setUniform( name,
-                           sf::Glsl::Vec4( value.r / 255.0f, value.g / 255.0f, value.b / 255.0f, value.a / 255.0f ) );
+        shader.setUniform( name, sf::Glsl::Vec4( value.r / 255.0f, value.g / 255.0f, value.b / 255.0f, value.a / 255.0f ) );
       };
     }
     else
@@ -172,8 +169,7 @@ public:
             else if constexpr ( std::is_same_v<T, sf::Vector3f> ) { m_shader.setUniform( name, val ); }
             else if constexpr ( std::is_same_v<T, sf::Color> )
             {
-              m_shader.setUniform( name,
-                                   sf::Glsl::Vec4( val.r / 255.0f, val.g / 255.0f, val.b / 255.0f, val.a / 255.0f ) );
+              m_shader.setUniform( name, sf::Glsl::Vec4( val.r / 255.0f, val.g / 255.0f, val.b / 255.0f, val.a / 255.0f ) );
             }
           },
           value );
@@ -204,8 +200,8 @@ public:
   auto get_texture_size() const { return m_render_texture.getSize(); }
   void resize_texture( sf::Vector2u new_size )
   {
-    auto result = m_render_texture.resize( new_size );
-    SPDLOG_INFO( "Resized render texture to {}x{}, result: {}", new_size.x, new_size.y, result ? "Success" : "Failed" );
+    [[maybe_unused]] auto result = m_render_texture.resize( new_size );
+    // SPDLOG_INFO( "Resized render texture to {}x{}, result: {}", new_size.x, new_size.y, result ? "Success" : "Failed" );
     m_sprite.setTexture( m_render_texture.getTexture(), true );
   }
 

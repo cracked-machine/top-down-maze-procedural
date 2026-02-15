@@ -2,8 +2,8 @@
 #define SRC_SCENE_SCENESTACK_HPP_
 
 #include <SceneControl/IScene.hpp>
+
 #include <memory>
-#include <spdlog/spdlog.h>
 #include <stdexcept>
 #include <vector>
 

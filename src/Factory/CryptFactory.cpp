@@ -12,6 +12,7 @@
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SpriteAnimation.hpp>
@@ -21,7 +22,6 @@
 #include <Sprites/MultiSprite.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Random.hpp>
-#include <entt/entity/fwd.hpp>
 
 namespace ProceduralMaze::Factory
 {

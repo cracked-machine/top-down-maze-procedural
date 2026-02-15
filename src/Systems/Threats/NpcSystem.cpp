@@ -6,6 +6,7 @@
 #include <Components/Crypt/CryptObjectiveSegment.hpp>
 #include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Direction.hpp>
+#include <Components/Exit.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Grave/GraveSegment.hpp>
 #include <Components/HolyWell/HolyWellSegment.hpp>

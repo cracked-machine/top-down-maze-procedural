@@ -3,9 +3,6 @@
 
 #include <SFML/System/Time.hpp>
 
-#include <spdlog/spdlog.h>
-
-#include <Components/Random.hpp>
 #include <Shaders/BaseFragmentShader.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -27,11 +24,7 @@ public:
     // std::ignore = m_texture.resize(texture_size);
   }
 
-  void post_setup_shader() override
-  {
-    m_shader.setUniform( "texture", sf::Shader::CurrentTexture );
-    SPDLOG_DEBUG( "TitleScreenShader initialized" );
-  }
+  void post_setup_shader() override { m_shader.setUniform( "texture", sf::Shader::CurrentTexture ); }
 
   void update( sf::Vector2f mousePos )
   {

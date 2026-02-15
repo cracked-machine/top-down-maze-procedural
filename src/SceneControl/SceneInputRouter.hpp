@@ -6,9 +6,6 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Window.hpp>
 
-#include <imgui-SFML.h>
-#include <spdlog/spdlog.h>
-
 #include <Systems/BaseSystem.hpp>
 
 // clang-format off

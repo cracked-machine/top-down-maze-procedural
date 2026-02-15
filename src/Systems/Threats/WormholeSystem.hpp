@@ -2,9 +2,7 @@
 #define SRC_SYSTEMS_WORMHOLESYSTEM_HPP__
 
 #include <Components/Position.hpp>
-#include <entt/entity/registry.hpp>
-
-#include <spdlog/spdlog.h>
+#include <entt/entity/fwd.hpp>
 
 #include <Systems/BaseSystem.hpp>
 

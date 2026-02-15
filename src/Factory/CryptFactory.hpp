@@ -12,8 +12,8 @@
 #include <Components/Wall.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Sprites/SpriteFactory.hpp>
-#include <entt/entity/registry.hpp>
-#include <spdlog/spdlog.h>
+
+#include <entt/entity/fwd.hpp>
 
 namespace ProceduralMaze::Factory
 {

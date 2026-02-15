@@ -5,7 +5,8 @@
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <memory>
 
-namespace ProceduralMaze::Audio {
+namespace ProceduralMaze::Audio
+{
 
 struct EffectsData
 {

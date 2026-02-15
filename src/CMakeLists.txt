@@ -63,6 +63,11 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Factory/RuinFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/PlantFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/MultiblockFactory.cpp
+    ${CMAKE_SOURCE_DIR}/src/Utils/Utils.cpp
+    ${CMAKE_SOURCE_DIR}/src/Components/Font.cpp
+    ${CMAKE_SOURCE_DIR}/src/Components/Neighbours.cpp
+    ${CMAKE_SOURCE_DIR}/src/Components/Persistent/BasePersistent.cpp
+    ${CMAKE_SOURCE_DIR}/src/Components/Persistent/PlayerStartPosition.cpp
 )
 
 target_precompile_headers(ProceduralMaze PRIVATE
@@ -99,6 +104,8 @@ target_include_directories(${TARGET} SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/src/Logging
     ${CMAKE_SOURCE_DIR}/src/Debug
     ${CMAKE_SOURCE_DIR}/src/Logging
+    ${CMAKE_SOURCE_DIR}/src/Components
+    ${CMAKE_SOURCE_DIR}/src/Utils
 
     ${CMAKE_SOURCE_DIR}/inc
     ${CMAKE_SOURCE_DIR}/inc/Systems

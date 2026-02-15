@@ -7,6 +7,7 @@
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Position.hpp>

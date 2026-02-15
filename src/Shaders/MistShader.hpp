@@ -1,8 +1,6 @@
 #ifndef __SPRITES_MISTSHADER_HPP__
 #define __SPRITES_MISTSHADER_HPP__
 
-#include <spdlog/spdlog.h>
-
 #include <SFML/System/Time.hpp>
 
 #include <Shaders/BaseFragmentShader.hpp>
@@ -29,7 +27,6 @@ public:
   void post_setup_shader() override
   {
     m_shader.setUniform( "resolution", sf::Vector2f{ m_render_texture.getSize() } );
-    SPDLOG_DEBUG( "FloodWaterShader initialized" );
   }
 
   void update( sf::Vector2f position, float alpha )

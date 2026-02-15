@@ -32,6 +32,8 @@
 #include <SceneControl/SceneInputRouter.hpp>
 #include <Utils/Utils.hpp>
 
+#include <imgui-SFML.h>
+
 namespace ProceduralMaze::Sys
 {
 

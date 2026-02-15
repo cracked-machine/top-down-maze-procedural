@@ -9,10 +9,7 @@
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
 
-#include <entt/entity/registry.hpp>
-#include <entt/signal/dispatcher.hpp>
-
-#include <spdlog/spdlog.h>
+#include <entt/entity/fwd.hpp>
 
 // clang-format off
 namespace ProceduralMaze::Sprites { class SpriteFactory; }

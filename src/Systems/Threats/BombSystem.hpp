@@ -5,17 +5,13 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 
-#include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>
-#include <entt/entity/registry.hpp>
 
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
-
-#include <spdlog/spdlog.h>
 
 #include <Events/PlayerActionEvent.hpp>
 

@@ -1,16 +1,14 @@
 #ifndef __SPRITES_BACKGROUND_SHADER_HPP__
 #define __SPRITES_BACKGROUND_SHADER_HPP__
 
-#include <spdlog/spdlog.h>
-
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <Components/Random.hpp>
 #include <Shaders/BaseFragmentShader.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sprites {
+namespace ProceduralMaze::Sprites
+{
 
 class BackgroundShader : public BaseFragmentShader
 {
@@ -19,7 +17,6 @@ public:
       : BaseFragmentShader( shader_path, texture_size )
   {
     setup();
-    SPDLOG_INFO( "BackgroundShader initialized" );
   }
   ~BackgroundShader() override = default;
 

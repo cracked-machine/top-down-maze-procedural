@@ -5,6 +5,7 @@
 #include <Components/Exit.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerDistance.hpp>
 #include <Components/Player/PlayerHealth.hpp>
 #include <Components/RectBounds.hpp>

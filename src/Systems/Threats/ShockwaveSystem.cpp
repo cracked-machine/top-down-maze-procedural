@@ -3,6 +3,8 @@
 #include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Sprites/Shockwave.hpp>

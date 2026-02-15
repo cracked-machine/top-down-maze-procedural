@@ -5,9 +5,6 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <spdlog/spdlog.h>
-
-#include <Components/Random.hpp>
 #include <Shaders/BaseFragmentShader.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -71,11 +68,7 @@ public:
   void post_setup_shader() override { SPDLOG_DEBUG( "ViewFragmentShader initialized" ); }
   void update() override { /* unused */ }
 
-  enum class Align
-  {
-    CENTER,
-    TOPLEFT
-  };
+  enum class Align { CENTER, TOPLEFT };
 
   sf::Time getElapsedTime() const { return m_clock.getElapsedTime(); }
   sf::Vector2f get_view_size() const { return m_shader_view.getSize(); }
