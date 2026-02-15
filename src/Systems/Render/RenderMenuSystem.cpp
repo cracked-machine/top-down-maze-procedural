@@ -18,7 +18,6 @@
 #include <Components/Persistent/BlastRadius.hpp>
 #include <Components/Persistent/BombBonus.hpp>
 #include <Components/Persistent/BombDamage.hpp>
-#include <Components/Persistent/BombInventory.hpp>
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/Persistent/CorruptionSeed.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
@@ -159,7 +158,6 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
 
     ImGui::SeparatorText( "Player Settings" );
 
-    Sys::PersistSystem::get_persist_cmp<Cmp::Persist::BombInventory>( getReg() ).render_widget();
     Sys::PersistSystem::get_persist_cmp<Cmp::Persist::BlastRadius>( getReg() ).render_widget();
     Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerAnimFramerate>( getReg() ).render_widget();
     Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerLerpSpeed>( getReg() ).render_widget();

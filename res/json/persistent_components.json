@@ -39,14 +39,6 @@
     "detail": "Bomb Damage",
     "format": "%d"
   },
-  "BombInventory": {
-    "type": "int",
-    "value": 10,
-    "min_value": 0,
-    "max_value": 100,
-    "detail": "Bomb Inventory",
-    "format": "%d"
-  },
   "CameraSmoothSpeed": {
     "type": "float",
     "value": 8.0,

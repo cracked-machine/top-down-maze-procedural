@@ -11,7 +11,6 @@
 #include <Components/Neighbours.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
-#include <Components/Persistent/BombInventory.hpp>
 #include <Components/Persistent/PlayerDetectionScale.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>

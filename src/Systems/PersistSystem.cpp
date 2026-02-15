@@ -19,7 +19,6 @@
 #include <Components/Persistent/BlastRadius.hpp>
 #include <Components/Persistent/BombBonus.hpp>
 #include <Components/Persistent/BombDamage.hpp>
-#include <Components/Persistent/BombInventory.hpp>
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/Persistent/CorruptionSeed.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
@@ -89,7 +88,6 @@ void PersistSystem::initializeTypeRegistry()
   reg.operator()<BlastRadius>("BlastRadius");
   reg.operator()<BombBonus>("BombBonus");
   reg.operator()<BombDamage>("BombDamage");
-  reg.operator()<BombInventory>("BombInventory");
   reg.operator()<CameraSmoothSpeed>("CameraSmoothSpeed");
   reg.operator()<CorruptionDamage>("CorruptionDamage");
   reg.operator()<CryptNpcSpawnCount>("CryptNpcSpawnCount");

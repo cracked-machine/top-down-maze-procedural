@@ -34,7 +34,6 @@
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
-#include <Components/Persistent/BombInventory.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerDetectionScale.hpp>
