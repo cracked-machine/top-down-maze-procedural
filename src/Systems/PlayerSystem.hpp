@@ -1,21 +1,31 @@
 #ifndef SRC_SYSTEMS_PLAYERSYSTEM_HPP__
 #define SRC_SYSTEMS_PLAYERSYSTEM_HPP__
 
-#include <Components/Direction.hpp>
-#include <Components/LerpPosition.hpp>
-#include <Components/Npc/NpcShockwave.hpp>
-#include <Components/Persistent/EffectsVolume.hpp>
-#include <Components/Player/PlayerMortality.hpp>
-#include <Components/Position.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
-#include <entt/entity/registry.hpp>
+#include <entt/entity/fwd.hpp>
 
+// forward declarations
+namespace ProceduralMaze::Cmp
+{
+class Direction;
+class LerpPosition;
+class NpcShockwave;
+class Position;
+class PlayerMortality;
+class SpriteAnimation;
+} // namespace ProceduralMaze::Cmp
+
+namespace ProceduralMaze::Cmp::Peristent
+{
+class EffectsVolume;
+} // namespace ProceduralMaze::Cmp::Peristent
+
+// PlayerSystem
 namespace ProceduralMaze::Sys
 {
 
