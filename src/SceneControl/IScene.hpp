@@ -2,7 +2,7 @@
 #define SCENE_ISCENE_HPP_
 
 #include <SFML/System/Time.hpp>
-#include <entt/entity/registry.hpp>
+#include <entt/entity/fwd.hpp>
 #include <entt/signal/dispatcher.hpp>
 #include <string>
 

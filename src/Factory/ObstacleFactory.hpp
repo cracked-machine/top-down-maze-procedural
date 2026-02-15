@@ -3,8 +3,14 @@
 
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/Position.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteMetaType.hpp>
 #include <entt/fwd.hpp>
+
+namespace ProceduralMaze::Sprites
+{
+class MultiSprite;
+class SpriteFactory;
+} // namespace ProceduralMaze::Sprites
 
 namespace ProceduralMaze::Factory
 {

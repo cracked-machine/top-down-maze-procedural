@@ -5,11 +5,17 @@
 #include <SFML/System/Vector2.hpp>
 #include <SceneControl/Events/ProcessRuinSceneLowerInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
-#include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Sprites/TileMap.hpp>
 #include <Systems/SystemStore.hpp>
 #include <Utils/Utils.hpp>
+
+#include <Sprites/SpriteMetaType.hpp>
+namespace ProceduralMaze::Sprites
+{
+class MultiSprite;
+class SpriteFactory;
+} // namespace ProceduralMaze::Sprites
 
 namespace ProceduralMaze::Scene
 {

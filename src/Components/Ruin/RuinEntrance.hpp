@@ -1,9 +1,6 @@
 #ifndef SRC_COMPONENTS_RUINENTRANCE_HPP_
 #define SRC_COMPONENTS_RUINENTRANCE_HPP_
 
-#include <SFML/System/Clock.hpp>
-#include <Sprites/MultiSprite.hpp>
-
 namespace ProceduralMaze::Cmp
 {
 

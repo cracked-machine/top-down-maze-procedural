@@ -4,7 +4,6 @@
 #include <Components/Armed.hpp>
 #include <Components/Position.hpp>
 #include <SFML/System/Time.hpp>
-#include <Sprites/MultiSprite.hpp>
 #include <entt/fwd.hpp>
 
 

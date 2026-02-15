@@ -1,9 +1,6 @@
 #ifndef SRC_COMPONENTS_HOLYWELLENTRANCE_HPP__
 #define SRC_COMPONENTS_HOLYWELLENTRANCE_HPP__
 
-#include <SFML/System/Clock.hpp>
-#include <Sprites/MultiSprite.hpp>
-
 namespace ProceduralMaze::Cmp
 {
 

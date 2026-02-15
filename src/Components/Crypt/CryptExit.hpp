@@ -2,7 +2,6 @@
 #define SRC_COMPONENTS_CRYPTEXIT_HPP__
 
 #include <SFML/System/Clock.hpp>
-#include <Sprites/MultiSprite.hpp>
 
 namespace ProceduralMaze::Cmp
 {

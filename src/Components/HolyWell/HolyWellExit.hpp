@@ -1,8 +1,6 @@
 #ifndef SRC_COMPONENTS_HOLYWELLEXIT_HPP__
 #define SRC_COMPONENTS_HOLYWELLEXIT_HPP__
 
-#include <Sprites/MultiSprite.hpp>
-
 namespace ProceduralMaze::Cmp
 {
 

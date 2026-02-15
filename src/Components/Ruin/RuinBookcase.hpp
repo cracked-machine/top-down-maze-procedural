@@ -1,8 +1,6 @@
 #ifndef SRC_COMPONENTS_RUINBOOKCASE_HPP_
 #define SRC_COMPONENTS_RUINBOOKCASE_HPP_
 
-#include <Sprites/MultiSprite.hpp>
-
 namespace ProceduralMaze::Cmp
 {
 

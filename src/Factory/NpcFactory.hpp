@@ -2,8 +2,14 @@
 #define SRC_FACTORY_NPCFACTORY_HPP
 
 #include <Components/Position.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteMetaType.hpp>
 #include <entt/fwd.hpp>
+
+namespace ProceduralMaze::Sprites
+{
+class MultiSprite;
+class SpriteFactory;
+} // namespace ProceduralMaze::Sprites
 
 namespace ProceduralMaze::Sprites
 {

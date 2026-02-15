@@ -11,7 +11,13 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/Wall.hpp>
 #include <Factory/ObstacleFactory.hpp>
-#include <Sprites/SpriteFactory.hpp>
+#include <Sprites/SpriteMetaType.hpp>
+
+namespace ProceduralMaze::Sprites
+{
+class MultiSprite;
+class SpriteFactory;
+} // namespace ProceduralMaze::Sprites
 
 #include <entt/entity/fwd.hpp>
 

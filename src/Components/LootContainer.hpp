@@ -1,8 +1,6 @@
 #ifndef __COMPONENTS_LOOTCONTAINER_HPP__
 #define __COMPONENTS_LOOTCONTAINER_HPP__
 
-#include <Sprites/MultiSprite.hpp>
-
 namespace ProceduralMaze::Cmp
 {
 

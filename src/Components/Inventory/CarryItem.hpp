@@ -1,7 +1,7 @@
 #ifndef SRC_INVENTORY_CARRYITEM_HPP_
 #define SRC_INVENTORY_CARRYITEM_HPP_
 
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteMetaType.hpp>
 
 namespace ProceduralMaze::Cmp
 {

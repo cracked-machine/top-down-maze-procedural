@@ -4,18 +4,14 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
-#include <entt/entity/registry.hpp>
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
 class Armed
 {
 public:
-  enum class EpiCenter
-  {
-    YES,
-    NO
-  };
+  enum class EpiCenter { YES, NO };
 
   Armed( sf::Time fuse_delay, sf::Time warning_delay, bool display_bomb_sprite, sf::Color armed_color, int index,
          EpiCenter epicenter = EpiCenter::NO )

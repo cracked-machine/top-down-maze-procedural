@@ -1,7 +1,7 @@
 #ifndef SRC_CMP_RUIN_RUINOBJECTIVETYPE_HPP_
 #define SRC_CMP_RUIN_RUINOBJECTIVETYPE_HPP_
 
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteMetaType.hpp>
 
 namespace ProceduralMaze::Cmp
 {

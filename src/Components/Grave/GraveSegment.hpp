@@ -1,7 +1,6 @@
 #ifndef __CMP__GRAVE_SEGMENT_HPP__
 #define __CMP__GRAVE_SEGMENT_HPP__
 
-#include <Sprites/MultiSprite.hpp>
 namespace ProceduralMaze::Cmp
 {
 

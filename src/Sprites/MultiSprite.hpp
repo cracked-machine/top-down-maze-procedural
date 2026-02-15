@@ -1,6 +1,8 @@
 #ifndef __SPRITES_MULTISPRITE2_HPP__
 #define __SPRITES_MULTISPRITE2_HPP__
 
+#include <Sprites/SpriteMetaType.hpp>
+
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 
@@ -11,8 +13,6 @@
 
 namespace ProceduralMaze::Sprites
 {
-
-using SpriteMetaType = std::string;
 
 typedef struct SpriteSize
 {

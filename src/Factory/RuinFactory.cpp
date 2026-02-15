@@ -4,6 +4,7 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/RuinFactory.hpp>
+#include <Sprites/SpriteFactory.hpp>
 #include <entt/entity/registry.hpp>
 
 namespace ProceduralMaze::Factory

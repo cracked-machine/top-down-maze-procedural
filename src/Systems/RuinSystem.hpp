@@ -4,8 +4,14 @@
 #include <Components/Ruin/RuinFloorAccess.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <SFML/Graphics/Rect.hpp>
-#include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
+
+#include <Sprites/SpriteMetaType.hpp>
+namespace ProceduralMaze::Sprites
+{
+class MultiSprite;
+class SpriteFactory;
+} // namespace ProceduralMaze::Sprites
 
 namespace ProceduralMaze::Sys
 {

@@ -8,10 +8,17 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <Sprites/MultiSprite.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Constants.hpp>
 #include <set>
+
+#include <Sprites/SpriteMetaType.hpp>
+
+namespace ProceduralMaze::Sprites
+{
+class MultiSprite;
+class SpriteFactory;
+} // namespace ProceduralMaze::Sprites
 
 namespace ProceduralMaze::Sys
 {

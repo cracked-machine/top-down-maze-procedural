@@ -2,7 +2,7 @@
 #define INC_COMPONENTS_SPRITEANIMATION_HPP
 
 #include <SFML/System/Time.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteMetaType.hpp>
 
 namespace ProceduralMaze::Cmp
 {

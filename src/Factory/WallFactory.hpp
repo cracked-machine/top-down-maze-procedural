@@ -1,9 +1,15 @@
 #ifndef SRC_FACTORY_WALLFACTORY_HPP_
 #define SRC_FACTORY_WALLFACTORY_HPP_
+#include <entt/entity/fwd.hpp>
 
 #include <SFML/System/Vector2.hpp>
-#include <Sprites/MultiSprite.hpp>
-#include <entt/entity/fwd.hpp>
+#include <Sprites/SpriteMetaType.hpp>
+
+namespace ProceduralMaze::Sprites
+{
+class MultiSprite;
+class SpriteFactory;
+} // namespace ProceduralMaze::Sprites
 
 namespace ProceduralMaze::Factory
 {

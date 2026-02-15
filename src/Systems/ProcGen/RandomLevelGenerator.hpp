@@ -1,18 +1,22 @@
 #ifndef __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 #define __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
 
-#include <entt/entity/registry.hpp>
-
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
 
-#include <Components/Position.hpp>
-#include <Components/RectBounds.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <optional>
 
+#include <Sprites/SpriteMetaType.hpp>
+
 // Forward declarations
+namespace ProceduralMaze::Cmp
+{
+class Position;
+class RectBounds;
+} // namespace ProceduralMaze::Cmp
+
 namespace sf
 {
 class RenderWindow;

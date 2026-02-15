@@ -7,6 +7,7 @@
 
 #include <Components/Direction.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 
 namespace ProceduralMaze::Sys

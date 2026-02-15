@@ -12,7 +12,6 @@
 #include <Shaders/MistShader.hpp>
 #include <Shaders/PulsingShader.hpp>
 #include <Shaders/ViewFragmentShader.hpp>
-#include <Sprites/MultiSprite.hpp>
 #include <Sprites/TileMap.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
@@ -20,6 +19,13 @@
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
 #include <Utils/Optimizations.hpp>
+
+#include <Sprites/SpriteMetaType.hpp>
+namespace ProceduralMaze::Sprites
+{
+class MultiSprite;
+class SpriteFactory;
+} // namespace ProceduralMaze::Sprites
 
 namespace ProceduralMaze::Sys
 {
