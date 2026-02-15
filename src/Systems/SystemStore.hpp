@@ -2,8 +2,8 @@
 #define SRC_SYSTEMS_SYSTEMSTORE_HPP_
 
 #include <Systems/RuinSystem.hpp>
-#include <entt/entity/registry.hpp>
-#include <entt/signal/fwd.hpp>
+
+#include <entt/fwd.hpp>
 #include <map>
 #include <memory>
 #include <stdexcept>

@@ -5,9 +5,10 @@
 #include <Events/SaveSettingsEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
-#include <entt/entity/registry.hpp>
+#include <entt/entity/fwd.hpp>
+#include <nlohmann/json_fwd.hpp>
+
 #include <functional>
-#include <nlohmann/json.hpp>
 #include <unordered_map>
 
 namespace ProceduralMaze::Sys
