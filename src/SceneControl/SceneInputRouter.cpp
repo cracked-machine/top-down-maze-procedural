@@ -2,7 +2,6 @@
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Persistent/ExitKeyRequirement.hpp>
-#include <Components/Persistent/GameState.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>

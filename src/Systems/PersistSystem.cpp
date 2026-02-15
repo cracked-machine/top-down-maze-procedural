@@ -28,7 +28,6 @@
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Persistent/FuseDelay.hpp>
-#include <Components/Persistent/GameState.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
