@@ -7,6 +7,7 @@
 #include <Components/System.hpp>
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/Scenes/RuinSceneLowerFloor.hpp>
 #include <Systems/AnimSystem.hpp>
@@ -27,7 +28,10 @@ namespace ProceduralMaze::Scene
 
 void RuinSceneLowerFloor::on_init()
 {
-  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
+  auto gridsize = Constants::kGridSquareSizePixelsF;
+  using SystemStoreType = Sys::SystemStore::Type;
+
+  auto &m_persistent_sys = m_system_store.find<SystemStoreType::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
@@ -36,7 +40,7 @@ void RuinSceneLowerFloor::on_init()
 
   Sys::PersistSystem::add_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_door_position );
   sf::Vector2f player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg );
-  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
+  auto player_start_area = Cmp::RectBounds( player_start_pos, gridsize, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
   // select the objective type that will be spawned in the RuinSceneUpperFloor scene
   auto selected_objective_ms_type = m_sprite_factory.get_random_type( { "CARRYITEM.boots", "CARRYITEM.witchesjar", "CARRYITEM.preservedcat" },
@@ -45,32 +49,35 @@ void RuinSceneLowerFloor::on_init()
   m_reg.emplace_or_replace<Cmp::RuinObjectiveType>( ruin_objective_entt, selected_objective_ms_type );
 
   // generate the scene boundaries
-  auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
+  auto &random_level_sys = m_system_store.find<SystemStoreType::RandomLevelGenerator>();
   random_level_sys.reset();
   random_level_sys.gen_rectangle_gamearea( RuinSceneLowerFloor::kMapGridSize, player_start_area, "RUIN.interior_wall",
                                            Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
   // pass concrete spawn position to exit spawner
-  m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().spawn_exit(
+  m_system_store.find<SystemStoreType::HolyWellSystem>().spawn_exit(
       sf::Vector2u{ RuinSceneLowerFloor::kMapGridSize.x / 3, RuinSceneLowerFloor::kMapGridSize.y - 1 } );
 
   // spawn access hitbox just above horizontal centerpoint
-  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_floor_access(
-      Utils::snap_to_grid(
-          { RuinSceneLowerFloor::kMapGridSizeF.x - ( 3 * Constants::kGridSquareSizePixelsF.x ), 2 * Constants::kGridSquareSizePixelsF.y } ),
-      { ( 2 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, Cmp::RuinFloorAccess::Direction::TO_UPPER );
+  sf::Vector2f flooraccess_position( RuinSceneLowerFloor::kMapGridSizeF.x - ( 3 * gridsize.x ), 2 * gridsize.y );
+  sf::Vector2f flooraccess_size( ( 2 * gridsize.x ), gridsize.y );
+  m_system_store.find<SystemStoreType::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size,
+                                                                         Cmp::RuinFloorAccess::Direction::TO_UPPER );
 
   // add the straircase sprite for lower floor
   const Sprites::MultiSprite &stairs_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.interior_staircase_going_up" );
-  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().spawn_staircase_multiblock<Cmp::RuinStairsLowerMultiBlock>(
-      { RuinSceneLowerFloor::kMapGridSizeF.x - ( 4 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y }, stairs_ms );
+  sf::Vector2f stairs_position( RuinSceneLowerFloor::kMapGridSizeF.x - ( 4 * gridsize.x ), gridsize.y );
+  m_system_store.find<SystemStoreType::RuinSystem>().add_stairs<Cmp::RuinStairsLowerMultiBlock>( stairs_position, stairs_ms );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneLowerFloor::kMapGridSize, "res/json/ruin_lower_tilemap_config.json" );
 
-  sf::FloatRect bookcase_scene_dimensions( { 0, 0 }, { RuinSceneLowerFloor::kMapGridSizeF.x - 48, RuinSceneLowerFloor::kMapGridSizeF.y - 32 } );
-  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().gen_lowerfloor_bookcases( bookcase_scene_dimensions );
-  sf::FloatRect cobweb_scene_dimensions( { 0, 0 }, { RuinSceneLowerFloor::kMapGridSizeF.x - 48, RuinSceneLowerFloor::kMapGridSizeF.y - 32 } );
-  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().add_lowerfloor_cobwebs( cobweb_scene_dimensions );
+  sf::Vector2f bc_area_position( 0, 0 );
+  sf::Vector2f bc_area_size( RuinSceneLowerFloor::kMapGridSizeF.x - 48, RuinSceneLowerFloor::kMapGridSizeF.y - 32 );
+  m_system_store.find<SystemStoreType::RuinSystem>().gen_lowerfloor_bookcases( sf::FloatRect( bc_area_position, bc_area_size ) );
+
+  sf::Vector2f cobweb_area_position( 0, 0 );
+  sf::Vector2f cobweb_area_size( RuinSceneLowerFloor::kMapGridSizeF.x - 48, RuinSceneLowerFloor::kMapGridSizeF.y - 32 );
+  m_system_store.find<SystemStoreType::RuinSystem>().add_lowerfloor_cobwebs( sf::FloatRect( cobweb_area_position, cobweb_area_size ) );
 
   // force the loading screen so that we hide any motion sickness inducing camera pan
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );

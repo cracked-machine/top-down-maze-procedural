@@ -26,21 +26,21 @@ namespace ProceduralMaze::Factory
 
 // clang-format off
 // Explicit instantiation definitions
-template void createMultiblock<Cmp::AltarMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
-template void createMultiblock<Cmp::CryptMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
-template void createMultiblock<Cmp::CryptInteriorMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
-template void createMultiblock<Cmp::CryptObjectiveMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
-template void createMultiblock<Cmp::GraveMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
-template void createMultiblock<Cmp::HolyWellMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
-template void createMultiblock<Cmp::RuinBuildingMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
+// template void createMultiblock<Cmp::AltarMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
+// template void createMultiblock<Cmp::CryptMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
+// template void createMultiblock<Cmp::CryptInteriorMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
+// template void createMultiblock<Cmp::CryptObjectiveMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
+// template void createMultiblock<Cmp::GraveMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
+// template void createMultiblock<Cmp::HolyWellMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
+// template void createMultiblock<Cmp::RuinBuildingMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
 
-template void createMultiblockSegments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
-template void createMultiblockSegments<Cmp::CryptMultiBlock, Cmp::CryptSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
-template void createMultiblockSegments<Cmp::CryptInteriorMultiBlock, Cmp::CryptInteriorSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
-template void createMultiblockSegments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
-template void createMultiblockSegments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
-template void createMultiblockSegments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
-template void createMultiblockSegments<Cmp::RuinBuildingMultiBlock, Cmp::RuinSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
+// template void createMultiblockSegments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
+// template void createMultiblockSegments<Cmp::CryptMultiBlock, Cmp::CryptSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
+// template void createMultiblockSegments<Cmp::CryptInteriorMultiBlock, Cmp::CryptInteriorSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
+// template void createMultiblockSegments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
+// template void createMultiblockSegments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
+// template void createMultiblockSegments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
+// template void createMultiblockSegments<Cmp::RuinBuildingMultiBlock, Cmp::RuinSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & );
 // clang-format on
 
 } // namespace ProceduralMaze::Factory

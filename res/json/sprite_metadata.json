@@ -1900,6 +1900,11 @@
       "multisprite": {
         "texture_path": "res/textures/RUIN.interior.png",
         "sprite_indices": [0],
+        "solid_mask": [
+          false, false, false,
+          false, false, false,
+          false, false, false
+        ],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {

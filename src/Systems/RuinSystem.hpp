@@ -33,7 +33,7 @@ public:
   void spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f size, Cmp::RuinFloorAccess::Direction dir );
 
   template <typename COMPONENT>
-  void spawn_staircase_multiblock( sf::Vector2f spawn_position, const Sprites::MultiSprite &stairs_ms, float zorder = 0 )
+  void add_stairs( sf::Vector2f spawn_position, const Sprites::MultiSprite &stairs_ms, float zorder = 0 )
   {
     auto stairs_entt = getReg().create();
     Cmp::Position stairs_pos( spawn_position, stairs_ms.getSpriteSizePixels() );
