@@ -181,23 +181,6 @@ void CellAutomataSystem::find_neighbours( const sf::Vector2u kMapGridSize )
     }
   }
   SPDLOG_DEBUG( "Processed neighbours for {} entities.", m_random_level->size() );
-
-#ifdef NDEBUG
-
-  auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position, Cmp::Neighbours>();
-  for ( auto [entity, obstacle_cmp, pos_cmp, neighbour_cmp] : obstacle_view.each() )
-  {
-    // SPDLOG_INFO("Entity {} has {} neighbours", entt::to_integral(_entt),
-    // _nb.count());
-    std::string msg = std::to_string( entt::to_integral( entity ) ) + "(" + std::to_string( neighbour_cmp.count() ) + ") = ";
-
-    for ( auto [_dir, _nb_entt] : neighbour_cmp )
-    {
-      msg += "[" + neighbour_cmp.to_string( _dir ) + ":" + std::to_string( entt::to_integral( _nb_entt ) ) + "] ";
-    }
-    SPDLOG_TRACE( msg );
-  }
-#endif
 }
 
 void CellAutomataSystem::apply_rules( RandomLevelGenerator::SceneType scene_type )
