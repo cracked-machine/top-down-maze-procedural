@@ -21,7 +21,7 @@ set(CMAKE_SYSTEM_LIBRARY_PATH /usr/${TARGET_TRIPLET}/lib)
 set(CMAKE_SYSTEM_INCLUDE_PATH /usr/${TARGET_TRIPLET}/include)
 
 # Ensure dbghelp is available
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -ldbghelp -fno-lto")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -ldbghelp -fno-lto -Wl,-Map=${CMAKE_BINARY_DIR}/ProceduralMaze.map")
 
 # Use install() to copy MinGW runtime DLLs
 file(COPY 

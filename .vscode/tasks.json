@@ -23,6 +23,22 @@
             "command": [
                 "find . -not -path './build*' -regex '.*\\.\\(cpp\\|hpp\\|cc\\|cxx\\)' -exec clang-format -style=file -i {} \\;"
             ]
+        },
+        {
+            "label": "Analyse object files by count",
+            "detail": "Shows occurrence counts (how many times each .o file is referenced in the map file)",
+            "type": "shell",
+            "command": [
+                "grep -oP '[^ ]+\\.o' build-x86_64-w64-mingw32/ProceduralMaze.map | sort | uniq -c | sort -rn | head -30"
+            ]
+        },
+        {
+            "label": "Analyse object files by bytes",
+            "detail": "Shows the size in bytes of each compiled object file, which directly corresponds to how much each source file contributes to the final binary",
+            "type": "shell",
+            "command": [
+                "find build-x86_64-w64-mingw32 -name \"*.cpp.obj\" -printf \"%s %p\n\" | sort -rn | head -30"
+            ]
         }
     ],
     "inputs": [
