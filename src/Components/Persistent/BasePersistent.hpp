@@ -10,8 +10,7 @@ namespace ProceduralMaze::Cmp::Persist
 {
 
 // Logging helpers - defined in BasePersistent.cpp
-void log_debug_msg( const std::string &msg, const std::source_location &loc = std::source_location::current() );
-void log_warn_msg( const std::string &msg, const std::source_location &loc = std::source_location::current() );
+void log_msg( const std::string &msg, const std::source_location &loc = std::source_location::current() );
 
 // Base class for persistent settings
 // These types should be added to the registry as context variables

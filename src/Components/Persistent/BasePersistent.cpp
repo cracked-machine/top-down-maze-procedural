@@ -6,14 +6,12 @@
 namespace ProceduralMaze::Cmp::Persist
 {
 
-void log_debug_msg( const std::string &msg, const std::source_location &loc )
+void log_msg( const std::string &msg, const std::source_location &loc )
 {
-  spdlog::log( spdlog::source_loc{ loc.file_name(), static_cast<int>( loc.line() ), loc.function_name() }, spdlog::level::debug, "{}", msg );
-}
-
-void log_warn_msg( const std::string &msg, const std::source_location &loc )
-{
-  spdlog::log( spdlog::source_loc{ loc.file_name(), static_cast<int>( loc.line() ), loc.function_name() }, spdlog::level::warn, "{}", msg );
+  if ( spdlog::default_logger()->should_log( spdlog::level::debug ) )
+  {
+    spdlog::log( spdlog::source_loc{ loc.file_name(), static_cast<int>( loc.line() ), loc.function_name() }, spdlog::level::debug, "{}", msg );
+  }
 }
 
 template <typename T>
@@ -41,7 +39,6 @@ nlohmann::json BasePersistent<T>::serialize() const
 template <typename T>
 void BasePersistent<T>::deserialize( const nlohmann::json &json_data )
 {
-  log_debug_msg( "deserialize called with: " + json_data.dump() );
 
   if ( json_data.contains( "value" ) && json_data["value"].is_number() ) value = json_data["value"].get<T>();
 
@@ -51,28 +48,18 @@ void BasePersistent<T>::deserialize( const nlohmann::json &json_data )
 
   if ( json_data.contains( "detail" ) )
   {
-    log_debug_msg( "detail field exists, is_string=" + std::to_string( json_data["detail"].is_string() ) );
-    if ( json_data["detail"].is_string() )
-    {
-      detail = json_data["detail"].get<std::string>();
-      log_debug_msg( "detail set to: '" + detail + "'" );
-    }
+    if ( json_data["detail"].is_string() ) { detail = json_data["detail"].get<std::string>(); }
   }
-  else { log_warn_msg( "detail field NOT found in json" ); }
+  else { log_msg( "detail field NOT found in json" ); }
 
   if ( json_data.contains( "format" ) )
   {
-    log_debug_msg( "format field exists, is_string=" + std::to_string( json_data["format"].is_string() ) );
-    if ( json_data["format"].is_string() )
-    {
-      format = json_data["format"].get<std::string>();
-      log_debug_msg( "format set to: '" + format + "'" );
-    }
+    if ( json_data["format"].is_string() ) { format = json_data["format"].get<std::string>(); }
   }
-  else { log_warn_msg( "format field NOT found in json" ); }
+  else { log_msg( "format field NOT found in json" ); }
 
-  if ( format.empty() ) { log_warn_msg( "InvalidJSONField: 'format' for " + class_name() ); }
-  if ( detail.empty() ) { log_warn_msg( "InvalidJSONField: 'details' for " + class_name() ); }
+  if ( format.empty() ) { log_msg( "InvalidJSONField: 'format' for " + class_name() ); }
+  if ( detail.empty() ) { log_msg( "InvalidJSONField: 'details' for " + class_name() ); }
 }
 
 template <typename T>
