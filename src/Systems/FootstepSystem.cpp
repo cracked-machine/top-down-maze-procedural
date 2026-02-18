@@ -44,8 +44,7 @@ void FootstepSystem::onResume()
 
 void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Direction &direction )
 {
-  if ( update_clock.getElapsedTime() >=
-       sf::seconds( Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerFootstepAddDelay>( getReg() ).get_value() ) )
+  if ( update_clock.getElapsedTime() >= sf::seconds( Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepAddDelay>( getReg() ).get_value() ) )
   {
 
     auto nopathfind_view = getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>();
@@ -137,8 +136,7 @@ void FootstepSystem::update()
   auto view = getReg().view<Cmp::FootStepTimer, Cmp::FootStepAlpha>();
   for ( auto [entity, timer, alpha] : view.each() )
   {
-    if ( timer.m_clock.getElapsedTime() >
-         sf::seconds( Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerFootstepFadeDelay>( getReg() ).get_value() ) )
+    if ( timer.m_clock.getElapsedTime() > sf::seconds( Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepFadeDelay>( getReg() ).get_value() ) )
     {
       alpha.m_alpha -= kFootstepFadeFactor;
       if ( alpha.m_alpha <= 0.f )

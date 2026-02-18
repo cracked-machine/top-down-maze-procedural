@@ -80,7 +80,7 @@ void LootSystem::check_loot_collision()
     // Apply the effect
     if ( effect.type == "EXTRA_HEALTH" )
     {
-      auto &health_bonus = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::HealthBonus>( getReg() );
+      auto &health_bonus = Sys::PersistSystem::get<Cmp::Persist::HealthBonus>( getReg() );
       pc_health_cmp.health = std::min( pc_health_cmp.health + health_bonus.get_value(), 100 );
       m_sound_bank.get_effect( "get_loot" ).play();
       Factory::destroyLootDrop( getReg(), effect.loot_entity );

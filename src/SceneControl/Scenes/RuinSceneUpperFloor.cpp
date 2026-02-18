@@ -42,8 +42,8 @@ void RuinSceneUpperFloor::on_init()
   auto entity = m_reg.create();
   m_reg.emplace<Cmp::System>( entity );
 
-  Sys::PersistSystem::add_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_start_position );
-  sf::Vector2f player_start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( m_reg );
+  Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_start_position );
+  sf::Vector2f player_start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds( player_start_pos, gridsize, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
   auto &random_level_sys = m_system_store.find<SystemStoreType::RandomLevelGenerator>();

@@ -387,9 +387,9 @@ void RandomLevelGenerator::gen_graveyard_exterior_obstacles()
 
 void RandomLevelGenerator::gen_graveyard_exterior_multiblocks()
 {
-  auto grave_num_multiplier = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::GraveNumMultiplier>( getReg() );
-  auto max_num_altars = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumAltars>( getReg() );
-  auto max_num_crypts = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::MaxNumCrypts>( getReg() );
+  auto grave_num_multiplier = Sys::PersistSystem::get<Cmp::Persist::GraveNumMultiplier>( getReg() );
+  auto max_num_altars = Sys::PersistSystem::get<Cmp::Persist::MaxNumAltars>( getReg() );
+  auto max_num_crypts = Sys::PersistSystem::get<Cmp::Persist::MaxNumCrypts>( getReg() );
   std::size_t max_number_holywells = 1;
   std::size_t max_number_ruins = 1;
 

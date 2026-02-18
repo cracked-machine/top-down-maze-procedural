@@ -178,7 +178,7 @@ void ShockwaveSystem::checkShockwavePlayerCollision()
   for ( auto entt : getReg().view<Cmp::NpcShockwave>() )
   {
     Cmp::NpcShockwave &shockwave = getReg().get<Cmp::NpcShockwave>( entt );
-    auto &pc_damage_cooldown = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>( getReg() );
+    auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() );
     auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::PlayerHealth, Cmp::PlayerMortality>();
 
     for ( auto [player_entity, player_cmp, player_pos, player_health, player_mort_cmp] : player_view.each() )

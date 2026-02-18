@@ -56,7 +56,7 @@ void HazardFieldSystem<HazardType>::init_hazard_field()
   auto hazard_field_view = getReg().template view<HazardType>( entt::exclude<typename Traits::ExcludeHazard> );
   if ( hazard_field_view.size_hint() > 0 ) { return; }
 
-  unsigned long seed = Sys::PersistSystem::get_persist_cmp<typename Traits::SeedType>( getReg() ).get_value();
+  unsigned long seed = Sys::PersistSystem::get<typename Traits::SeedType>( getReg() ).get_value();
   auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
       getReg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{},
       Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
@@ -165,7 +165,7 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
       }
       else if constexpr ( Traits::sprite_type == "CORRUPTION" )
       {
-        player_health_cmp.health -= Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CorruptionDamage>( getReg() ).get_value();
+        player_health_cmp.health -= Sys::PersistSystem::get<Cmp::Persist::CorruptionDamage>( getReg() ).get_value();
         // trigger death animation
         if ( player_health_cmp.health <= 0 )
         {

@@ -247,7 +247,7 @@ bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
 {
 
   // Prevent the player from walking through NPCs
-  auto &pc_damage_delay = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>( getReg() );
+  auto &pc_damage_delay = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() );
   auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::LerpPosition>();
   auto pc_view = getReg().view<Cmp::PlayerCharacter>();
   for ( auto [pc_entity, pc_cmp] : pc_view.each() )
@@ -468,7 +468,7 @@ void PlayerSystem::localTransforms()
     else
     {
       // damage cooldown blink effect
-      auto &pc_damage_cooldown = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>( getReg() );
+      auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() );
       bool is_in_damage_cooldown = pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value();
       int blink_visible = static_cast<int>( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asMilliseconds() / 100 ) % 2 == 0;
       if ( !is_in_damage_cooldown || ( is_in_damage_cooldown && blink_visible ) ) { alpha_cmp = 255; }
@@ -503,9 +503,9 @@ float PlayerSystem::adjust_lerp_speed( Cmp::Position &pos_cmp, Cmp::Direction &d
   bool is_diagonal = ( dir_cmp.x != 0.0f ) && ( dir_cmp.y != 0.0f );
   bool diagonal_between_obstacles = is_diagonal && isDiagonalMovementBetweenObstacles( pos_cmp, dir_cmp );
 
-  auto &player_lerp_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerLerpSpeed>( getReg() );
-  auto &diagonal_lerp_speed_modifier = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerDiagonalLerpSpeedModifier>( getReg() );
-  auto &shortcut_lerp_speed_modifier = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerShortcutLerpSpeedModifier>( getReg() );
+  auto &player_lerp_speed = Sys::PersistSystem::get<Cmp::Persist::PlayerLerpSpeed>( getReg() );
+  auto &diagonal_lerp_speed_modifier = Sys::PersistSystem::get<Cmp::Persist::PlayerDiagonalLerpSpeedModifier>( getReg() );
+  auto &shortcut_lerp_speed_modifier = Sys::PersistSystem::get<Cmp::Persist::PlayerShortcutLerpSpeedModifier>( getReg() );
 
   float speed_modifier = 1.0f;
   if ( diagonal_between_obstacles )
@@ -722,7 +722,7 @@ void PlayerSystem::check_player_axe_npc_kill()
       // Add a new SelectedPosition component to the entity
       getReg().emplace_or_replace<Cmp::SelectedPosition>( npc_entity, npc_pos_cmp.position );
 
-      float reduction_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
+      float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
       Utils::reduce_player_inventory_wear_level( getReg(), reduction_amount );
 
       // select the final smash sound

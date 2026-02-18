@@ -76,8 +76,8 @@ void PersistSystem::initializeTypeRegistry()
   {
     m_type_registry[name] = [this, name]( const nlohmann::json &json )
     {
-      Sys::PersistSystem::add_persist_cmp<T>( getReg() );
-      Sys::PersistSystem::get_persist_cmp<T>( getReg() ).deserialize( json );
+      Sys::PersistSystem::add<T>( getReg() );
+      Sys::PersistSystem::get<T>( getReg() ).deserialize( json );
       registerTypes<T>( name );
     };
   };
@@ -155,9 +155,9 @@ void PersistSystem::initializeComponentRegistry()
   }
 
   // Add components not stored in JSON (runtime-only seeds)
-  Sys::PersistSystem::add_persist_cmp<Cmp::Persist::WormholeSeed>( getReg(), 0 );
-  Sys::PersistSystem::add_persist_cmp<Cmp::Persist::SinkholeSeed>( getReg(), 0 );
-  Sys::PersistSystem::add_persist_cmp<Cmp::Persist::CorruptionSeed>( getReg(), 0 );
+  Sys::PersistSystem::add<Cmp::Persist::WormholeSeed>( getReg(), 0 );
+  Sys::PersistSystem::add<Cmp::Persist::SinkholeSeed>( getReg(), 0 );
+  Sys::PersistSystem::add<Cmp::Persist::CorruptionSeed>( getReg(), 0 );
 }
 
 void PersistSystem::load_state()

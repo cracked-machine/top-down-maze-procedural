@@ -52,7 +52,7 @@ void GraveSystem::check_player_grave_collision()
   if ( Utils::get_player_inventory_wear_level( getReg() ) <= 0 ) { return; }
 
   // abort if still in cooldown
-  auto digging_cooldown_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
+  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
 
   // Cooldown has expired: Remove any existing SelectedPosition components from the registry
@@ -94,11 +94,10 @@ void GraveSystem::check_player_grave_collision()
       getReg().emplace_or_replace<Cmp::SelectedPosition>( grave_entity, grave_pos_cmp.position );
       m_dig_cooldown_clock.restart();
 
-      float reduction_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
+      float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
       Utils::reduce_player_inventory_wear_level( getReg(), reduction_amount );
 
-      grave_cmp.hp -= Utils::Maths::to_percent( 255.f,
-                                                Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingDamagePerHit>( getReg() ).get_value() );
+      grave_cmp.hp -= Utils::Maths::to_percent( 255.f, Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( getReg() ).get_value() );
 
       if ( grave_cmp.hp > 0 )
       {

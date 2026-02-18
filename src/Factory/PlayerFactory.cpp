@@ -49,17 +49,17 @@ void CreatePlayer( entt::registry &registry )
   // start position must be pixel coordinates within the screen resolution (kDisplaySize),
   // but also grid aligned (kMapGridSize) to avoid collision detection errors.
   // So we must recalc start position to the nearest grid position here
-  auto start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( registry );
+  auto start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( registry );
   start_pos = Utils::snap_to_grid( start_pos );
   registry.emplace<Cmp::Position>( entity, start_pos, Constants::kGridSquareSizePixelsF );
 
-  auto &blast_radius = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::BlastRadius>( registry );
+  auto &blast_radius = Sys::PersistSystem::get<Cmp::Persist::BlastRadius>( registry );
   registry.emplace<Cmp::PlayerCharacter>( entity );
   registry.emplace<Cmp::PlayerBlastRadius>( entity, blast_radius.get_value() );
 
   registry.emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
 
-  auto &pc_detection_scale = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerDetectionScale>( registry );
+  auto &pc_detection_scale = Sys::PersistSystem::get<Cmp::Persist::PlayerDetectionScale>( registry );
 
   registry.emplace<Cmp::PCDetectionBounds>( entity, start_pos, Constants::kGridSquareSizePixelsF, pc_detection_scale.get_value() );
 

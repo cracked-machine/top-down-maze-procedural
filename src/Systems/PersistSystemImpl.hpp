@@ -12,19 +12,19 @@ namespace ProceduralMaze::Sys
 {
 
 template <typename T>
-void PersistSystem::add_persist_cmp( entt::registry &reg )
+void PersistSystem::add( entt::registry &reg )
 {
   if ( not reg.ctx().contains<T>() ) { reg.ctx().emplace<T>(); }
 }
 
 template <typename T, typename... Args>
-void PersistSystem::add_persist_cmp( entt::registry &reg, Args &&...args )
+void PersistSystem::add( entt::registry &reg, Args &&...args )
 {
   if ( not reg.ctx().contains<T>() ) { reg.ctx().emplace<T>( std::forward<Args>( args )... ); }
 }
 
 template <typename T>
-T &PersistSystem::get_persist_cmp( entt::registry &reg )
+T &PersistSystem::get( entt::registry &reg )
 {
   if ( not reg.ctx().contains<T>() )
   {
@@ -40,17 +40,17 @@ void PersistSystem::registerTypes( const std::string &name )
   // Register loader
   m_component_loaders[name] = [this]( const nlohmann::json &j )
   {
-    auto &cmp = Sys::PersistSystem::get_persist_cmp<T>( getReg() );
+    auto &cmp = Sys::PersistSystem::get<T>( getReg() );
     cmp.deserialize( j );
   };
 
   // Register serializer
-  m_component_serializers[name] = [this]() -> nlohmann::json { return Sys::PersistSystem::get_persist_cmp<T>( getReg() ).serialize(); };
+  m_component_serializers[name] = [this]() -> nlohmann::json { return Sys::PersistSystem::get<T>( getReg() ).serialize(); };
 
   // Only add to widget list if T inherits from IBasePersistent
   if constexpr ( std::is_base_of_v<Cmp::Persist::IBasePersistent, T> )
   {
-    m_registered_components.push_back( &Sys::PersistSystem::get_persist_cmp<T>( getReg() ) );
+    m_registered_components.push_back( &Sys::PersistSystem::get<T>( getReg() ) );
   }
 }
 

@@ -112,13 +112,13 @@ void RenderGameSystem::init_views()
   m_local_view = sf::View( { kLocalMapViewSizeF.x * 0.5f, kLocalMapViewSizeF.y * 0.5f }, kLocalMapViewSizeF );
   m_local_view.setViewport( sf::FloatRect( { 0.f, 0.f }, { 1.f, 1.f } ) );
 
-  auto start_pos = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PlayerStartPosition>( getReg() );
+  auto start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( getReg() );
   m_local_view.setCenter( start_pos );
 }
 
 void RenderGameSystem::init_shaders()
 {
-  auto display_res = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
+  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
   m_water_shader.resize_texture( display_res );
   m_water_shader.setup();
 
@@ -152,7 +152,7 @@ void RenderGameSystem::updateCamera( sf::Time deltaTime )
 
     // Smooth lerp toward target position
     float dt = deltaTime.asSeconds();
-    auto camera_smooth_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CameraSmoothSpeed>( getReg() ).get_value();
+    auto camera_smooth_speed = Sys::PersistSystem::get<Cmp::Persist::CameraSmoothSpeed>( getReg() ).get_value();
     float t = 1.0f - std::exp( -camera_smooth_speed * dt ); // Exponential smoothing
 
     m_camera_position.x += ( target_position.x - m_camera_position.x ) * t;
@@ -338,7 +338,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
 
       render_overlay_sys.render_inventory_overlay( { 40.f, start_y_pos += 80.f } );
 
-      auto display_size = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
+      auto display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
       render_overlay_sys.render_crypt_maze_timer( { static_cast<float>( display_size.x / 2.f ), static_cast<float>( 0 ) }, 100 );
 
       if ( m_show_debug_stats )
@@ -354,7 +354,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
         render_overlay_sys.render_zorder_values_overlay(
             { display_size.x - 800.f, 40.f }, m_zorder_queue_,
             { "ROCK", "CRYPT.interior_sb", "WALL", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED" } );
-        sf::Vector2u display_size = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
+        sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
         render_overlay_sys.render_npc_list_overlay( { display_size.x - 600.f, 200.f } );
       }
       if ( m_show_path_finding )
@@ -624,7 +624,7 @@ void RenderGameSystem::render_dark_mode_shader()
   // Update dark mode shader with proper parameters
   auto shader_local_position = m_local_view.getCenter() - m_local_view.getSize() * 0.5f;
   sf::Vector2f aperture_half_size( Constants::kGridSquareSizePixelsF * 4.f );
-  auto display_res = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
+  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
   m_dark_mode_shader.update( shader_local_position, aperture_half_size, kLocalMapViewSize, display_res );
   m_window.draw( m_dark_mode_shader );
 }

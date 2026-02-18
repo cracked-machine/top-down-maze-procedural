@@ -52,7 +52,7 @@ void createShockwave( entt::registry &registry, entt::entity npc_entt )
   }
 
   // check cooldown on this NPC shockwave timer
-  sf::Time sw_emit_freq{ sf::milliseconds( Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveFreq>( registry ).get_value() ) };
+  sf::Time sw_emit_freq{ sf::milliseconds( Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveFreq>( registry ).get_value() ) };
   if ( shockwave_timer->getElapsedTime() > sw_emit_freq )
   {
     // create a new entity for adding the shockwave component to the NPC position
@@ -63,7 +63,7 @@ void createShockwave( entt::registry &registry, entt::entity npc_entt )
       return;
     }
     auto npc_sw_entt = registry.create();
-    int circle_resolution = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveResolution>( registry ).get_value();
+    int circle_resolution = Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveResolution>( registry ).get_value();
     registry.emplace_or_replace<Cmp::NpcShockwave>( npc_sw_entt, npc_pos->getCenter(), circle_resolution );
 
     shockwave_timer->restart(); // make sure we restart the timer
@@ -85,7 +85,7 @@ void createNPC( entt::registry &registry, entt::entity position_entity, const Sp
   registry.emplace<Cmp::Position>( new_pos_entity, pos_cmp->position, Constants::kGridSquareSizePixelsF );
   registry.emplace<Cmp::Armable>( new_pos_entity );
   registry.emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 0, 0 } );
-  auto &npc_scan_scale = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcScanScale>( registry );
+  auto &npc_scan_scale = Sys::PersistSystem::get<Cmp::Persist::NpcScanScale>( registry );
   registry.emplace_or_replace<Cmp::NPCScanBounds>( new_pos_entity, pos_cmp->position, Constants::kGridSquareSizePixelsF, npc_scan_scale.get_value() );
   if ( type == "NPCGHOST" )
   {

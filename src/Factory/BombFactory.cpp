@@ -21,9 +21,9 @@ entt::entity createArmed( entt::registry &registry, entt::entity entity, Cmp::Ar
   // get persistent settings
   // clang-format off
   sf::Color color = sf::Color( 255, 10 + ( sequence * 10 ) % 155, 255, 64 );
-  auto &fuse_delay = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::FuseDelay>( registry );
-  auto &armed_on_delay = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::ArmedOnDelay>( registry );
-  auto &armed_off_delay = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::ArmedOffDelay>( registry );
+  auto &fuse_delay = Sys::PersistSystem::get<Cmp::Persist::FuseDelay>( registry );
+  auto &armed_on_delay = Sys::PersistSystem::get<Cmp::Persist::ArmedOnDelay>( registry );
+  auto &armed_off_delay = Sys::PersistSystem::get<Cmp::Persist::ArmedOffDelay>( registry );
   auto new_fuse_delay = sf::seconds( fuse_delay.get_value() + ( sequence * armed_on_delay.get_value() ) );
   auto new_warning_delay = sf::seconds( armed_off_delay.get_value() + ( sequence * armed_off_delay.get_value() ) );
   // clang-format on

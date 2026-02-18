@@ -97,7 +97,7 @@ bool NpcSystem::is_valid_move( const sf::FloatRect &target_position )
 {
 
   // Prevent the player from walking through NPCs
-  auto &pc_damage_delay = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>( getReg() );
+  auto &pc_damage_delay = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() );
   auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::LerpPosition>();
   auto pc_view = getReg().view<Cmp::PlayerCharacter>();
   for ( auto [pc_entity, pc_cmp] : pc_view.each() )
@@ -355,7 +355,7 @@ void NpcSystem::check_bones_reanimation()
     {
       if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), npccontainer_pos_cmp ) ) continue;
 
-      auto &npc_activate_scale = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcActivateScale>( getReg() );
+      auto &npc_activate_scale = Sys::PersistSystem::get<Cmp::Persist::NpcActivateScale>( getReg() );
       // we just create a temporary RectBounds here instead of a component because we only need it
       // for this one comparison and it already contains the needed scaling logic
       auto npc_activate_bounds = Cmp::RectBounds( npccontainer_pos_cmp.position, Constants::kGridSquareSizePixelsF, npc_activate_scale.get_value() );
@@ -373,8 +373,8 @@ void NpcSystem::check_player_to_npc_collision()
 {
   auto player_collision_view = getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position, Cmp::Direction>();
   auto npc_collision_view = getReg().view<Cmp::NPC, Cmp::Position>();
-  auto &npc_push_back = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcPushBack>( getReg() );
-  auto &pc_damage_cooldown = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::PcDamageDelay>( getReg() );
+  auto &npc_push_back = Sys::PersistSystem::get<Cmp::Persist::NpcPushBack>( getReg() );
+  auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() );
 
   for ( auto [pc_entity, pc_cmp, pc_health_cmp, pc_mort_cmp, pc_pos_cmp, dir_cmp] : player_collision_view.each() )
   {
@@ -387,7 +387,7 @@ void NpcSystem::check_player_to_npc_collision()
 
       if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
 
-      auto &npc_damage = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcDamage>( getReg() );
+      auto &npc_damage = Sys::PersistSystem::get<Cmp::Persist::NpcDamage>( getReg() );
       pc_health_cmp.health -= npc_damage.get_value();
 
       m_sound_bank.get_effect( "damage_player" ).play();
@@ -589,7 +589,7 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
         }
 
         auto candidate_dir = Cmp::Direction( direction_to_target.normalized() );
-        auto npc_lerp_speed = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcLerpSpeed>( getReg() );
+        auto npc_lerp_speed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeed>( getReg() );
         auto candidate_lerp_pos = Cmp::LerpPosition( move_candidate_pixel_pos.value(), npc_lerp_speed.get_value() );
 
         if ( npc_anim_cmp->m_sprite_type.contains( "NPCGHOST" ) )
@@ -669,10 +669,10 @@ void NpcSystem::update_shockwaves()
   auto shockwave_increments = 1;
 
   // Invert the interval - larger values = faster updates, smaller values = slower updates
-  auto speed_value = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveSpeed>( getReg() ).get_value();
+  auto speed_value = Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveSpeed>( getReg() ).get_value();
   sf::Time shockwave_update_interval{ sf::milliseconds( static_cast<int>( 1000.0f / speed_value ) ) };
 
-  auto max_radius = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::NpcShockwaveMaxRadius>( getReg() );
+  auto max_radius = Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveMaxRadius>( getReg() );
 
   if ( shockwave_update_clock.getElapsedTime() > shockwave_update_interval )
   {

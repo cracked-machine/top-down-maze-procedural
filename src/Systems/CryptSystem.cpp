@@ -944,7 +944,7 @@ void CryptSystem::spawnNpcInOpenRooms()
   }
 
   // Spawn user specified number of NPCs or the max number of rooms: whichever is smallest.
-  const int npcs_to_spawn = std::min( Sys::PersistSystem::get_persist_cmp<Cmp::Persist::CryptNpcSpawnCount>( getReg() ).get_value(),
+  const int npcs_to_spawn = std::min( Sys::PersistSystem::get<Cmp::Persist::CryptNpcSpawnCount>( getReg() ).get_value(),
                                       static_cast<unsigned short>( open_room_list.size() ) );
 
   for ( int r = 0; r < npcs_to_spawn; r++ )

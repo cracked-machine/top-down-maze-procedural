@@ -253,7 +253,7 @@ void BombSystem::update()
       if ( not carryitem_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
       if ( carryitem_cmp.type == "CARRYITEM.pickaxe" or carryitem_cmp.type == "CARRYITEM.axe" or carryitem_cmp.type == "CARRYITEM.shovel" )
       {
-        Utils::reduce_player_inventory_wear_level( getReg(), Sys::PersistSystem::get_persist_cmp<Cmp::Persist::BombDamage>( getReg() ).get_value() );
+        Utils::reduce_player_inventory_wear_level( getReg(), Sys::PersistSystem::get<Cmp::Persist::BombDamage>( getReg() ).get_value() );
       }
       else if ( carryitem_cmp.type == "CARRYITEM.bomb" )
       {
@@ -291,7 +291,7 @@ void BombSystem::update()
     {
       if ( pc_pos_cmp.findIntersection( armed_pos_cmp ) )
       {
-        auto &bomb_damage = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::BombDamage>( getReg() );
+        auto &bomb_damage = Sys::PersistSystem::get<Cmp::Persist::BombDamage>( getReg() );
         pc_health_cmp.health -= bomb_damage.get_value();
         if ( pc_health_cmp.health <= 0 )
         {

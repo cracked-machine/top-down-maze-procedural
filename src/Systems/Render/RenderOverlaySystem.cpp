@@ -204,7 +204,7 @@ void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, s
   // water meter level is represented as a percentage (0-100) of the screen
   // display y-axis note: {0,0} is top left so we need to invert the Y
   // position
-  sf::Vector2u display_size = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DisplayResolution>( getReg() );
+  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
   float meter_meter_level = size.x - ( ( size.x / display_size.y ) * water_level );
   auto waterlvlbar = sf::RectangleShape( { meter_meter_level, size.y } );
   waterlvlbar.setPosition( pos + waterlvl_meter_offset );

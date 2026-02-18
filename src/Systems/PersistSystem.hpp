@@ -69,7 +69,7 @@ public:
   //!
   //! @tparam T
   template <typename T>
-  static void add_persist_cmp( entt::registry &reg );
+  static void add( entt::registry &reg );
 
   //! @brief Add a persistent component with constructor arguments
   //!
@@ -77,14 +77,14 @@ public:
   //! @tparam Args
   //! @param args
   template <typename T, typename... Args>
-  static void add_persist_cmp( entt::registry &reg, Args &&...args );
+  static void add( entt::registry &reg, Args &&...args );
 
   //! @brief Get the persistent component object
   //!
   //! @tparam T
   //! @return T&
   template <typename T>
-  static T &get_persist_cmp( entt::registry &reg );
+  static T &get( entt::registry &reg );
 
   // Accessor for RenderMenuSystem to iterate components
   const std::vector<Cmp::Persist::IBasePersistent *> &get_registered_components() { return m_registered_components; }
