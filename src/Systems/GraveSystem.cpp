@@ -1,4 +1,5 @@
 
+#include <Maths.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -96,7 +97,8 @@ void GraveSystem::check_player_grave_collision()
       float reduction_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
       Utils::reduce_player_inventory_wear_level( getReg(), reduction_amount );
 
-      grave_cmp.hp -= Utils::to_percent( 255.f, Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingDamagePerHit>( getReg() ).get_value() );
+      grave_cmp.hp -= Utils::Maths::to_percent( 255.f,
+                                                Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingDamagePerHit>( getReg() ).get_value() );
 
       if ( grave_cmp.hp > 0 )
       {

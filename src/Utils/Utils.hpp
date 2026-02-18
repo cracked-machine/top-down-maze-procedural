@@ -46,7 +46,6 @@ bool isInBounds( const sf::Vector2f &position, const sf::Vector2f &size, const s
 sf::FloatRect snap_to_grid( const sf::FloatRect &position, Rounding rounding = Rounding::NEAREST ) noexcept;
 sf::Vector2f snap_to_grid( const sf::Vector2f &position, Rounding rounding = Rounding::NEAREST ) noexcept;
 sf::FloatRect get_mouse_bounds_in_gameview( const sf::RenderWindow &window, const sf::View &gameview );
-uint8_t to_percent( float max_value, uint8_t convert );
 
 // Entity/registry utility functions - declarations only
 std::optional<sf::Vector2f> getPixelPosition( entt::registry &registry, entt::entity entity );

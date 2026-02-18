@@ -279,11 +279,4 @@ sf::FloatRect get_mouse_bounds_in_gameview( const sf::RenderWindow &window, cons
   return mouse_position_bounds;
 }
 
-uint8_t to_percent( float max_value, uint8_t convert )
-{
-  auto converted = std::round( ( max_value / 100 ) * convert );
-  SPDLOG_DEBUG( "Converted {} (max: {}) to {}%", convert, max_value, converted );
-  return static_cast<uint8_t>( converted );
-}
-
 } // namespace ProceduralMaze::Utils

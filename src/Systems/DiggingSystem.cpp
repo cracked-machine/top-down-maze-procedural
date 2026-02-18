@@ -1,4 +1,5 @@
 
+#include <Maths.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Components/Inventory/CarryItem.hpp>
@@ -108,7 +109,8 @@ void DiggingSystem::check_player_smash_pot()
       if ( not player_nearby ) { continue; }
 
       m_dig_cooldown_clock.restart();
-      loot_cmp.hp -= Utils::to_percent( 100.f, Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingDamagePerHit>( getReg() ).get_value() );
+      loot_cmp.hp -= Utils::Maths::to_percent( 100.f,
+                                               Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingDamagePerHit>( getReg() ).get_value() );
 
       float reduction_amount = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
       Utils::reduce_player_inventory_wear_level( getReg(), reduction_amount );
@@ -192,7 +194,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
 
       auto existing_alpha = alpha_cmp.getAlpha();
       auto damage_value = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingDamagePerHit>( getReg() ).get_value();
-      auto damage_percentage = Utils::to_percent( 255.f, damage_value );
+      auto damage_percentage = Utils::Maths::to_percent( 255.f, damage_value );
       auto adjusted_alpha = std::max( 0, existing_alpha - damage_percentage );
       alpha_cmp.setAlpha( adjusted_alpha );
 
@@ -276,7 +278,7 @@ void DiggingSystem::check_player_dig_plant_collision()
       {
         auto existing_alpha = alpha_cmp.getAlpha();
         auto damage_value = Sys::PersistSystem::get_persist_cmp<Cmp::Persist::DiggingDamagePerHit>( getReg() ).get_value();
-        auto damage_percentage = Utils::to_percent( 255.f, damage_value );
+        auto damage_percentage = Utils::Maths::to_percent( 255.f, damage_value );
         auto adjusted_alpha = std::max( 0, existing_alpha - damage_percentage );
         alpha_cmp.setAlpha( adjusted_alpha );
       }
