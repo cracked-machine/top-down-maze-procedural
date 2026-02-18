@@ -29,6 +29,7 @@
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Optimizations.hpp>
+#include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
@@ -52,7 +53,7 @@ void AltarSystem::check_player_collision()
   }
 
   auto altar_view = getReg().view<Cmp::AltarMultiBlock>();
-  auto player_hitbox = Cmp::RectBounds( Utils::get_player_position( getReg() ).position, Constants::kGridSizePxF, 1.5f );
+  auto player_hitbox = Cmp::RectBounds( Utils::Player::get_player_position( getReg() ).position, Constants::kGridSizePxF, 1.5f );
 
   for ( auto [altar_entity, altar_cmp] : altar_view.each() )
   {
@@ -70,7 +71,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   SPDLOG_DEBUG( "Checking altar activation: {}/{}", altar_cmp.get_activation_count(), altar_cmp.get_activation_threshold() );
   if ( altar_cmp.get_activation_count() < altar_cmp.get_activation_threshold() )
   {
-    auto [inventory_entt, inventory_type] = Utils::get_player_inventory_type( getReg() );
+    auto [inventory_entt, inventory_type] = Utils::Player::get_player_inventory_type( getReg() );
     if ( not inventory_type.contains( "CARRYITEM.relic" ) ) return;
 
     auto common_activation = [&]()
@@ -132,13 +133,16 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       // dont keep spawning exit keys if the exit is was already open
       if ( not Utils::is_graveyard_exit_locked( getReg() ) )
       {
-        key_entt = Factory::createCarryItem( getReg(), Utils::get_player_position( getReg() ), "CARRYITEM.cryptkey" );
+        key_entt = Factory::createCarryItem( getReg(), Utils::Player::get_player_position( getReg() ), "CARRYITEM.cryptkey" );
       }
       else
       {
         // otherwise if the exit is locked, its 50/50
-        if ( key_choice == 0 ) { key_entt = Factory::createCarryItem( getReg(), Utils::get_player_position( getReg() ), "CARRYITEM.exitkey" ); }
-        else { key_entt = Factory::createCarryItem( getReg(), Utils::get_player_position( getReg() ), "CARRYITEM.cryptkey" ); }
+        if ( key_choice == 0 )
+        {
+          key_entt = Factory::createCarryItem( getReg(), Utils::Player::get_player_position( getReg() ), "CARRYITEM.exitkey" );
+        }
+        else { key_entt = Factory::createCarryItem( getReg(), Utils::Player::get_player_position( getReg() ), "CARRYITEM.cryptkey" ); }
       }
 
       if ( key_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }

@@ -19,6 +19,7 @@
 #include <Systems/HolyWellSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Utils/Optimizations.hpp>
+#include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
@@ -93,7 +94,7 @@ void HolyWellSystem::check_entrance_collision()
       auto last_player_pos = Factory::add_player_last_graveyard_pos( getReg(), holywell_door_pos_cmp );
 
       // drop any inventory outside the door
-      auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
+      auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
       SPDLOG_INFO( "Player Inventory: {} - {}", static_cast<uint32_t>( inventory_entt ), inventory_slot_type );
       auto dropped_entt = Factory::dropInventorySlotIntoWorld( getReg(), last_player_pos,
                                                                m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );

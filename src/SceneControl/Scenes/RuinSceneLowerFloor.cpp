@@ -22,6 +22,7 @@
 #include <Systems/SystemStore.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Utils/Constants.hpp>
+#include <Utils/Player.hpp>
 
 namespace ProceduralMaze::Scene
 {
@@ -94,9 +95,9 @@ void RuinSceneLowerFloor::on_enter()
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().init_views();
 
   // prevent residual lerp movements from previous scene causing havoc in the new one
-  Utils::remove_player_lerp_cmp( m_reg );
+  Utils::Player::remove_player_lerp_cmp( m_reg );
 
-  auto &player_pos = Utils::get_player_position( m_reg );
+  auto &player_pos = Utils::Player::get_player_position( m_reg );
   switch ( m_entry_mode )
   {
     case EntryMode::FROM_DOOR: {
@@ -112,7 +113,7 @@ void RuinSceneLowerFloor::on_enter()
   }
   SPDLOG_INFO( "Player entered RuinSceneLowerFloor at position ({}, {})", player_pos.position.x, player_pos.position.y );
 
-  auto player_entt = Utils::get_player_entity( m_reg );
+  auto player_entt = Utils::Player::get_player_entity( m_reg );
   m_reg.emplace_or_replace<Cmp::PlayerRuinLocation>( player_entt, Cmp::PlayerRuinLocation::Floor::LOWER );
 
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().reset_floor_access_cooldown();

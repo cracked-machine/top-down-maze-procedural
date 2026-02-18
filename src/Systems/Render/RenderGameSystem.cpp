@@ -1,7 +1,13 @@
+#include <Components/AbsoluteAlpha.hpp>
+#include <Components/AbsoluteOffset.hpp>
+#include <Components/AbsoluteRotation.hpp>
+#include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/Armed.hpp>
 #include <Components/Crypt/CryptChest.hpp>
+#include <Components/Crypt/CryptEntrance.hpp>
 #include <Components/Crypt/CryptInteriorMultiBlock.hpp>
 #include <Components/Crypt/CryptLever.hpp>
+#include <Components/Crypt/CryptMultiBlock.hpp>
 #include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
 #include <Components/Crypt/CryptPassageBlock.hpp>
 #include <Components/Crypt/CryptPassageSpikeTrap.hpp>
@@ -11,34 +17,6 @@
 #include <Components/Crypt/CryptRoomLavaPitCell.hpp>
 #include <Components/Crypt/CryptRoomOpen.hpp>
 #include <Components/Crypt/CryptRoomStart.hpp>
-#include <Components/HolyWell/HolyWellMultiBlock.hpp>
-#include <Components/Inventory/CarryItem.hpp>
-#include <Components/Inventory/ScryingBall.hpp>
-#include <Components/Npc/NpcNoPathFinding.hpp>
-#include <Components/Npc/NpcShockwave.hpp>
-#include <Components/Persistent/CameraSmoothSpeed.hpp>
-#include <Components/Persistent/DisplayResolution.hpp>
-#include <Components/Player/PlayerBlastRadius.hpp>
-#include <Components/Player/PlayerCadaverCount.hpp>
-#include <Components/Player/PlayerWealth.hpp>
-#include <Components/Ruin/RuinBuildingMultiBlock.hpp>
-#include <Components/Ruin/RuinFloorAccess.hpp>
-#include <Components/Ruin/RuinSegment.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/PrimitiveType.hpp>
-#include <SFML/Graphics/Rect.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/RenderStates.hpp>
-#include <SFML/System/Angle.hpp>
-#include <SFML/System/Time.hpp>
-#include <SFML/System/Vector2.hpp>
-
-#include <Components/AbsoluteAlpha.hpp>
-#include <Components/AbsoluteOffset.hpp>
-#include <Components/AbsoluteRotation.hpp>
-#include <Components/Altar/AltarMultiBlock.hpp>
-#include <Components/Crypt/CryptEntrance.hpp>
-#include <Components/Crypt/CryptMultiBlock.hpp>
 #include <Components/Crypt/CryptSegment.hpp>
 #include <Components/DeathPosition.hpp>
 #include <Components/Exit.hpp>
@@ -48,16 +26,29 @@
 #include <Components/Grave/GraveSegment.hpp>
 #include <Components/Hazard/HazardFieldCell.hpp>
 #include <Components/Hazard/SinkholeCell.hpp>
+#include <Components/HolyWell/HolyWellMultiBlock.hpp>
+#include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/ScryingBall.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/Npc/NpcContainer.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Npc/NpcShockwave.hpp>
+#include <Components/Persistent/CameraSmoothSpeed.hpp>
+#include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
+#include <Components/Player/PlayerBlastRadius.hpp>
+#include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
+#include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/Ruin/RuinBuildingMultiBlock.hpp>
+#include <Components/Ruin/RuinFloorAccess.hpp>
+#include <Components/Ruin/RuinSegment.hpp>
 #include <Components/SelectedPosition.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
@@ -66,15 +57,23 @@
 #include <Components/Wormhole/WormholeMultiBlock.hpp>
 #include <Components/Wormhole/WormholeSingularity.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <Systems/Threats/HazardFieldSystemImpl.hpp>
-#include <Utils/Maths.hpp>
-#include <Utils/Utils.hpp>
-
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/PrimitiveType.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/RenderStates.hpp>
+#include <SFML/System/Angle.hpp>
+#include <SFML/System/Time.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Systems/Threats/HazardFieldSystemImpl.hpp>
+#include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>
+#include <Utils/Player.hpp>
+#include <Utils/Utils.hpp>
 #include <queue>
 
 namespace ProceduralMaze::Sys
@@ -312,9 +311,9 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
       sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::getGameView() );
 
-      auto player_blast_radius = Utils::get_player_blast_radius( getReg() );
-      auto player_health = Utils::get_player_health( getReg() );
-      auto player_wealth = Utils::get_player_wealth( getReg() );
+      auto player_blast_radius = Utils::Player::get_player_blast_radius( getReg() );
+      auto player_health = Utils::Player::get_player_health( getReg() );
+      auto player_wealth = Utils::Player::get_player_wealth( getReg() );
 
       auto inventory_wear_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
       for ( auto [weapons_entity, inventory_slot, wear_level] : inventory_wear_view.each() )
@@ -505,7 +504,7 @@ void RenderGameSystem::render_arrow_compass()
 {
   auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
 
-  auto [found_entt, found_carryitem_type] = Utils::get_player_inventory_type( getReg() );
+  auto [found_entt, found_carryitem_type] = Utils::Player::get_player_inventory_type( getReg() );
   if ( not found_carryitem_type.contains( "exitkey" ) and not found_carryitem_type.contains( "cryptkey" ) and
        not found_carryitem_type.contains( "CARRYITEM.relic" ) )
     return;
@@ -531,7 +530,7 @@ void RenderGameSystem::render_arrow_compass()
     for ( auto [crypt_entity, crypt_cmp, crypt_pos_cmp] : crypt_view.each() )
     {
       if ( crypt_cmp.is_open() ) continue;
-      auto float_distance = Utils::Maths::getEuclideanDistance( crypt_pos_cmp.position, Utils::get_player_position( getReg() ).position );
+      auto float_distance = Utils::Maths::getEuclideanDistance( crypt_pos_cmp.position, Utils::Player::get_player_position( getReg() ).position );
       distance_queue.emplace( float_distance, crypt_pos_cmp );
     }
     if ( distance_queue.empty() ) return; // there are no suitable crypts so give up
@@ -549,7 +548,7 @@ void RenderGameSystem::render_arrow_compass()
     for ( auto [altar_entity, altar_cmp] : crypt_view.each() )
     {
       if ( altar_cmp.are_powers_active() ) continue;
-      auto float_distance = Utils::Maths::getEuclideanDistance( altar_cmp.position, Utils::get_player_position( getReg() ).position );
+      auto float_distance = Utils::Maths::getEuclideanDistance( altar_cmp.position, Utils::Player::get_player_position( getReg() ).position );
       distance_queue.emplace( float_distance, Cmp::Position( altar_cmp.position, altar_cmp.size ) );
     }
     if ( distance_queue.empty() ) return; // there are no suitable crypts so give up

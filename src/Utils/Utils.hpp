@@ -50,21 +50,8 @@ sf::FloatRect get_mouse_bounds_in_gameview( const sf::RenderWindow &window, cons
 // Entity/registry utility functions - declarations only
 std::optional<sf::Vector2f> getPixelPosition( entt::registry &registry, entt::entity entity );
 bool is_graveyard_exit_locked( entt::registry &reg );
-entt::entity get_player_entity( entt::registry &reg );
-Cmp::Position &get_player_position( entt::registry &reg );
-int get_player_ruin_location( entt::registry &reg ); // Returns enum as int to avoid include
-Cmp::PlayerLastGraveyardPosition *get_player_last_graveyard_position( entt::registry &reg );
-Cmp::PlayerHealth &get_player_health( entt::registry &reg );
-Cmp::PlayerWealth &get_player_wealth( entt::registry &reg );
-Cmp::PlayerBlastRadius &get_player_blast_radius( entt::registry &reg );
-Cmp::PlayerMortality &get_player_mortality( entt::registry &reg );
-Cmp::ZOrderValue &get_player_zorder( entt::registry &reg );
-float get_player_speed_penalty( entt::registry &reg );
-void remove_player_lerp_cmp( entt::registry &reg );
+
 Cmp::System &getSystemCmp( entt::registry &reg );
-std::pair<entt::entity, Sprites::SpriteMetaType> get_player_inventory_type( entt::registry &reg );
-float get_player_inventory_wear_level( entt::registry &reg );
-void reduce_player_inventory_wear_level( entt::registry &reg, float amount );
 
 //! @brief Get the Grid Position object
 //! @param entity The entity to get the grid position for.

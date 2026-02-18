@@ -51,6 +51,7 @@
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Systems/Threats/ShockwaveSystem.hpp>
 #include <Utils/Optimizations.hpp>
+#include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 
 #include <SFML/Graphics/Rect.hpp>
@@ -396,7 +397,7 @@ void NpcSystem::check_player_to_npc_collision()
       {
         pc_mort_cmp.state = Cmp::PlayerMortality::State::HAUNTED;
         get_systems_event_queue().enqueue(
-            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED, Utils::get_player_position( getReg() ) ) );
+            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED, Utils::Player::get_player_position( getReg() ) ) );
         return;
       }
 

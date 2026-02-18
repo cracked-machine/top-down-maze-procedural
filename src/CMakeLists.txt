@@ -65,6 +65,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Factory/MultiblockFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Utils/Utils.cpp
     ${CMAKE_SOURCE_DIR}/src/Utils/Maths.cpp
+    ${CMAKE_SOURCE_DIR}/src/Utils/Player.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Font.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Neighbours.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Persistent/BasePersistent.cpp

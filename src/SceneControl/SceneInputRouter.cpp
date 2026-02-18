@@ -30,6 +30,7 @@
 #include <SceneControl/Events/ProcessTitleSceneInputEvent.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/SceneInputRouter.hpp>
+#include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 
 #include <imgui-SFML.h>
@@ -137,10 +138,10 @@ void SceneInputRouter::graveyard_scene_state_handler()
       {
         m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_CRYPT ) );
         // remember the player position
-        Factory::add_player_last_graveyard_pos( getReg(), Utils::get_player_position( getReg() ), { 0.f, 0.f } );
+        Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_player_position( getReg() ), { 0.f, 0.f } );
         // drop any inventory
-        auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
-        auto dropped_entt = Factory::dropInventorySlotIntoWorld( getReg(), Utils::get_player_position( getReg() ),
+        auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
+        auto dropped_entt = Factory::dropInventorySlotIntoWorld( getReg(), Utils::Player::get_player_position( getReg() ),
                                                                  m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
         if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
       }
@@ -148,10 +149,10 @@ void SceneInputRouter::graveyard_scene_state_handler()
       {
         m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_HOLYWELL ) );
         // remember the player position
-        Factory::add_player_last_graveyard_pos( getReg(), Utils::get_player_position( getReg() ), { 0.f, 0.f } );
+        Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_player_position( getReg() ), { 0.f, 0.f } );
         // drop any inventory
-        auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
-        auto dropped_entt = Factory::dropInventorySlotIntoWorld( getReg(), Utils::get_player_position( getReg() ),
+        auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
+        auto dropped_entt = Factory::dropInventorySlotIntoWorld( getReg(), Utils::Player::get_player_position( getReg() ),
                                                                  m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
         if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
       }
@@ -159,7 +160,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       {
         m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER ) );
         // remember the player position
-        Factory::add_player_last_graveyard_pos( getReg(), Utils::get_player_position( getReg() ), { 0.f, 0.f } );
+        Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_player_position( getReg() ), { 0.f, 0.f } );
         // drop any inventory
         // auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
         // auto dropped_entt = Factory::dropInventorySlotIntoWorld( getReg(), Utils::get_player_position( getReg() ),
@@ -185,7 +186,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
       {
         get_systems_event_queue().enqueue(
-            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::get_player_position( getReg() ) ) );
+            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::Player::get_player_position( getReg() ) ) );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
       {
@@ -465,7 +466,7 @@ void SceneInputRouter::holywell_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
       {
         get_systems_event_queue().enqueue(
-            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::get_player_position( getReg() ) ) );
+            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::Player::get_player_position( getReg() ) ) );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
       {
@@ -594,7 +595,7 @@ void SceneInputRouter::ruin_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
       {
         get_systems_event_queue().enqueue(
-            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::get_player_position( getReg() ) ) );
+            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::Player::get_player_position( getReg() ) ) );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
       {

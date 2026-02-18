@@ -34,6 +34,7 @@
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 #include <entt/entity/fwd.hpp>
 #include <spdlog/spdlog.h>
@@ -285,14 +286,14 @@ Cmp::Position add_player_last_graveyard_pos( entt::registry &reg, Cmp::Position 
 {
   auto player_rentry_pos = Cmp::Position( { last_known_pos.position.x + offset.x, last_known_pos.position.y + offset.y }, Constants::kGridSizePxF );
   SPDLOG_INFO( "Player will re-enter grave yard at {},{}", player_rentry_pos.position.x, player_rentry_pos.position.y );
-  auto player_entt = Utils::get_player_entity( reg );
+  auto player_entt = Utils::Player::get_player_entity( reg );
   reg.emplace_or_replace<Cmp::PlayerLastGraveyardPosition>( player_entt, player_rentry_pos.position, player_rentry_pos.size );
   return player_rentry_pos;
 }
 
 void remove_player_last_graveyard_pos( entt::registry &reg )
 {
-  auto player_entt = Utils::get_player_entity( reg );
+  auto player_entt = Utils::Player::get_player_entity( reg );
   reg.remove<Cmp::PlayerLastGraveyardPosition>( player_entt );
 }
 

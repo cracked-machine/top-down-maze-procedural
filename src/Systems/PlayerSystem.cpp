@@ -53,6 +53,7 @@
 #include <Utils/Collision.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>
+#include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 
@@ -82,10 +83,10 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
   auto common_death_throes = [&]()
   {
     m_post_death_timer.restart();
-    getReg().remove<Cmp::SpriteAnimation>( Utils::get_player_entity( getReg() ) );
+    getReg().remove<Cmp::SpriteAnimation>( Utils::Player::get_player_entity( getReg() ) );
     stopFootstepsSound();
-    Utils::get_player_health( getReg() ).health = 0;
-    Utils::get_player_mortality( getReg() ).state = Cmp::PlayerMortality::State::DEAD;
+    Utils::Player::get_player_health( getReg() ).health = 0;
+    Utils::Player::get_player_mortality( getReg() ).state = Cmp::PlayerMortality::State::DEAD;
     SPDLOG_INFO("Ploayer is dead");
   };
   // clang-format on
@@ -175,7 +176,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
   {
     if ( m_inventory_cooldown_timer.getElapsedTime() < sf::milliseconds( 750.f ) ) return;
 
-    auto player_pos = Utils::get_player_position( getReg() );
+    auto player_pos = Utils::Player::get_player_position( getReg() );
     Sprites::SpriteMetaType existing_player_inventory_type = "";
 
     // drop inventory if we have one
@@ -529,7 +530,7 @@ float PlayerSystem::adjust_lerp_speed( Cmp::Position &pos_cmp, Cmp::Direction &d
   float adjusted_speed = player_lerp_speed.get_value() * speed_modifier;
 
   // adjust for speed penalty
-  adjusted_speed *= Utils::get_player_speed_penalty( getReg() );
+  adjusted_speed *= Utils::Player::get_player_speed_penalty( getReg() );
 
   return adjusted_speed;
 }
@@ -679,10 +680,10 @@ void PlayerSystem::refreshPlayerDistances()
 
 void PlayerSystem::check_player_axe_npc_kill()
 {
-  auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
+  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
   if ( inventory_slot_type != "CARRYITEM.axe" ) { return; }
 
-  if ( Utils::get_player_inventory_wear_level( getReg() ) <= 0 ) { return; }
+  if ( Utils::Player::get_player_inventory_wear_level( getReg() ) <= 0 ) { return; }
 
   // Cooldown has expired: Remove any existing SelectedPosition components from the registry
   auto selected_position_view = getReg().view<Cmp::SelectedPosition>();
@@ -723,13 +724,13 @@ void PlayerSystem::check_player_axe_npc_kill()
       getReg().emplace_or_replace<Cmp::SelectedPosition>( npc_entity, npc_pos_cmp.position );
 
       float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
-      Utils::reduce_player_inventory_wear_level( getReg(), reduction_amount );
+      Utils::Player::reduce_player_inventory_wear_level( getReg(), reduction_amount );
 
       // select the final smash sound
       m_sound_bank.get_effect( "axe_whip" ).play();
       m_sound_bank.get_effect( "skele_death" ).play();
 
-      auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
+      auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
       if ( inventory_slot_type == "CARRYITEM.axe" )
       {
         // drop loot - 1 in 3 chance
@@ -751,7 +752,7 @@ void PlayerSystem::check_player_axe_npc_kill()
 
           if ( dropped_loot_entt != entt::null )
           {
-            auto player_pos = Utils::get_player_position( getReg() );
+            auto player_pos = Utils::Player::get_player_position( getReg() );
             SPDLOG_INFO( "Player position was at {},{} when loot was dropped", player_pos.position.x, player_pos.position.y );
             m_sound_bank.get_effect( "drop_loot" ).play();
           }

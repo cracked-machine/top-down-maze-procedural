@@ -19,6 +19,7 @@
 #include <Systems/SystemStore.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Systems/Threats/ShockwaveSystem.hpp>
+#include <Utils/Player.hpp>
 
 namespace ProceduralMaze::Scene
 {
@@ -69,7 +70,7 @@ void CryptScene::on_enter()
     pos_cmp.position = m_player_start_position;
   }
 
-  if ( Utils::get_player_mortality( m_reg ).state != Cmp::PlayerMortality::State::DEAD )
+  if ( Utils::Player::get_player_mortality( m_reg ).state != Cmp::PlayerMortality::State::DEAD )
   {
     m_system_store.find<Sys::SystemStore::Type::CryptSystem>().createRoomBorders();
 

@@ -21,6 +21,7 @@
 #include <Systems/PassageSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Utils/Maths.hpp>
+#include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 
 #include <queue>
@@ -126,7 +127,7 @@ void PassageSystem::connectPassagesBetweenOccupiedAndOpenRooms()
   auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
   for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
   {
-    if ( not Utils::get_player_position( getReg() ).findIntersection( open_room_cmp ) ) continue;
+    if ( not Utils::Player::get_player_position( getReg() ).findIntersection( open_room_cmp ) ) continue;
 
     auto &occupied_room_cmp = open_room_cmp;
 
@@ -196,7 +197,7 @@ void PassageSystem::connectPassageBetweenOccupiedAndEndRoom( entt::entity end_ro
   auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
   for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
   {
-    if ( not Utils::get_player_position( getReg() ).findIntersection( open_room_cmp ) ) continue;
+    if ( not Utils::Player::get_player_position( getReg() ).findIntersection( open_room_cmp ) ) continue;
     auto &occupied_room_cmp = open_room_cmp;
 
     // no need to search for suitable target, we already have it
@@ -660,11 +661,11 @@ void PassageSystem::fillAllPassages()
 
       if ( Utils::getSystemCmp( getReg() ).collisions_enabled )
       {
-        if ( Utils::get_player_position( getReg() ).findIntersection( pblock_cmp_rect ) )
+        if ( Utils::Player::get_player_position( getReg() ).findIntersection( pblock_cmp_rect ) )
         {
           // player got squished
           get_systems_event_queue().enqueue(
-              Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SQUISHED, Utils::get_player_position( getReg() ) ) );
+              Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SQUISHED, Utils::Player::get_player_position( getReg() ) ) );
         }
       }
     }

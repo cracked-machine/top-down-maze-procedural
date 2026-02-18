@@ -31,6 +31,7 @@
 #include <Utils/Collision.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Optimizations.hpp>
+#include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 
@@ -47,7 +48,7 @@ RuinSystem::RuinSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
 
 void RuinSystem::update()
 {
-  auto player_pos = Utils::get_player_position( getReg() );
+  auto player_pos = Utils::Player::get_player_position( getReg() );
   auto ruindoor_view = getReg().view<Cmp::RuinEntrance, Cmp::Position>();
   for ( auto [door_entity, ruindoor_cmp, door_pos_cmp] : ruindoor_view.each() )
   {
@@ -72,12 +73,12 @@ void RuinSystem::update()
         auto last_player_pos = Factory::add_player_last_graveyard_pos( getReg(), door_pos_cmp );
 
         // drop any inventory outside the door
-        auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
+        auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
         auto dropped_entt = Factory::dropInventorySlotIntoWorld( getReg(), last_player_pos,
                                                                  m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
         if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
 
-        auto player_entt = Utils::get_player_entity( getReg() );
+        auto player_entt = Utils::Player::get_player_entity( getReg() );
         getReg().emplace_or_replace<Cmp::PlayerRuinLocation>( player_entt, Cmp::PlayerRuinLocation::Floor::LOWER );
       }
       else { getReg().emplace_or_replace<Cmp::ZOrderValue>( ruin_mb_entity, player_pos.position.y + 16.f ); }
@@ -96,7 +97,7 @@ void RuinSystem::check_floor_access_collision( Cmp::RuinFloorAccess::Direction d
 {
   if ( m_floor_access_cooldown.getElapsedTime().asSeconds() < kFloorAccessCooldownSeconds ) { return; }
 
-  auto player_pos = Utils::get_player_position( getReg() );
+  auto player_pos = Utils::Player::get_player_position( getReg() );
   bool currently_on_floor_access = false;
 
   for ( auto [access_entt, access_cmp] : getReg().view<Cmp::RuinFloorAccess>().each() )
@@ -129,8 +130,8 @@ void RuinSystem::check_floor_access_collision( Cmp::RuinFloorAccess::Direction d
 
 void RuinSystem::check_movement_slowdowns()
 {
-  auto player_pos = Utils::get_player_position( getReg() );
-  auto player_entt = Utils::get_player_entity( getReg() );
+  auto player_pos = Utils::Player::get_player_position( getReg() );
+  auto player_entt = Utils::Player::get_player_entity( getReg() );
 
   float slowdown_penalty = 0.0f;
 

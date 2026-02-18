@@ -1,7 +1,5 @@
 
-#include <Maths.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
-
 #include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
@@ -30,6 +28,8 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Maths.hpp>
+#include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
@@ -43,13 +43,13 @@ GraveSystem::GraveSystem( entt::registry &reg, sf::RenderWindow &window, Sprites
 
 void GraveSystem::check_player_grave_collision()
 {
-  auto [inventory_entt, inventory_slot_type] = Utils::get_player_inventory_type( getReg() );
+  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
   if ( not inventory_slot_type.contains( "pickaxe" ) and not inventory_slot_type.contains( "axe" ) and not inventory_slot_type.contains( "shovel" ) )
   {
     return;
   }
 
-  if ( Utils::get_player_inventory_wear_level( getReg() ) <= 0 ) { return; }
+  if ( Utils::Player::get_player_inventory_wear_level( getReg() ) <= 0 ) { return; }
 
   // abort if still in cooldown
   auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
@@ -95,7 +95,7 @@ void GraveSystem::check_player_grave_collision()
       m_dig_cooldown_clock.restart();
 
       float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
-      Utils::reduce_player_inventory_wear_level( getReg(), reduction_amount );
+      Utils::Player::reduce_player_inventory_wear_level( getReg(), reduction_amount );
 
       grave_cmp.hp -= Utils::Maths::to_percent( 255.f, Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( getReg() ).get_value() );
 
@@ -138,7 +138,8 @@ void GraveSystem::check_player_grave_collision()
                                                                        "CARRYITEM.relic4" };
             Cmp::RandomInt relic_picker( 0, relic_selection_list.size() - 1 );
             auto selected_relic = relic_picker.gen();
-            auto relic_entt = Factory::createCarryItem( getReg(), Utils::get_player_position( getReg() ), relic_selection_list.at( selected_relic ) );
+            auto relic_entt = Factory::createCarryItem( getReg(), Utils::Player::get_player_position( getReg() ),
+                                                        relic_selection_list.at( selected_relic ) );
 
             if ( relic_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
             break;
@@ -151,7 +152,7 @@ void GraveSystem::check_player_grave_collision()
                 "CARRYITEM.jewelry_diamond_gemstone",  "CARRYITEM.jewelry_amephyst_gemstone" };
             Cmp::RandomInt jewelry_picker( 0, jewelry_selection_list.size() - 1 );
             auto selected_jewelry = jewelry_picker.gen();
-            auto jewelry_entt = Factory::createCarryItem( getReg(), Utils::get_player_position( getReg() ),
+            auto jewelry_entt = Factory::createCarryItem( getReg(), Utils::Player::get_player_position( getReg() ),
                                                           jewelry_selection_list.at( selected_jewelry ) );
 
             if ( jewelry_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }

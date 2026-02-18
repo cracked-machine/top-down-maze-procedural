@@ -10,6 +10,7 @@
 #include <Sprites/Shockwave.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Utils/Maths.hpp>
+#include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
@@ -134,7 +135,7 @@ bool ShockwaveSystem::intersectsWithVisibleSegments( entt::registry &reg, const 
         sf::Vector2f shockwave_direction( std::cos( angle ), std::sin( angle ) );
         shockwave_direction = shockwave_direction.normalized();
 
-        auto &player_pos_cmp = Utils::get_player_position( reg );
+        auto &player_pos_cmp = Utils::Player::get_player_position( reg );
         auto new_position = Utils::snap_to_grid( player_pos_cmp.position + ( shockwave_direction.componentWiseMul( Constants::kGridSizePxF ) ) );
         SPDLOG_DEBUG( "Player position was {},{} - Knockback direction is {}, {} - New Position should be {},{}", player_pos_cmp.position.x,
                       player_pos_cmp.position.y, normalised_direction.x, normalised_direction.y, new_position.x, new_position.y );
