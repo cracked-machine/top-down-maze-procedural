@@ -42,6 +42,9 @@ struct DistancePositionComparator
 template <typename T>
 constexpr inline T getManhattanDistance( sf::Vector2<T> posA, sf::Vector2<T> posB );
 
+extern template int getManhattanDistance<int>( sf::Vector2i, sf::Vector2i );
+extern template float getManhattanDistance<float>( sf::Vector2f, sf::Vector2f );
+
 //! @brief Get the Chebyshev Distance between two positions.
 //! Creates an equal-cost distance metric for all 8 directions:
 //! ┌────┬────┬────┐
@@ -57,6 +60,9 @@ constexpr inline T getManhattanDistance( sf::Vector2<T> posA, sf::Vector2<T> pos
 //! @return unsigned int The Chebyshev distance.
 template <typename T>
 constexpr inline T getChebyshevDistance( sf::Vector2<T> posA, sf::Vector2<T> posB );
+
+extern template int getChebyshevDistance<int>( sf::Vector2<int>, sf::Vector2<int> );
+extern template float getChebyshevDistance<float>( sf::Vector2<float>, sf::Vector2<float> );
 
 //! @brief Get the Euclidean Distance between two positions.
 //! Creates a straight-line distance metric:
@@ -74,6 +80,13 @@ constexpr inline T getChebyshevDistance( sf::Vector2<T> posA, sf::Vector2<T> pos
 template <typename T>
 constexpr inline T getEuclideanDistance( sf::Vector2<T> posA, sf::Vector2<T> posB );
 
+extern template int getEuclideanDistance<int>( sf::Vector2<int>, sf::Vector2<int> );
+extern template float getEuclideanDistance<float>( sf::Vector2<float>, sf::Vector2<float> );
+
+//! @brief Takes a floating-point angle and "wraps" it so that the result is always in the range [0, 2π).
+//! @details 1. get the remainder after dividing by a full circle 2. If the result is negative, add 2π to bring it into the positive range.
+//! @param angle +/- radians
+//! @return float normalised positive-only radians
 float normalizeAngle( float angle );
 
 //! @brief Create a thick line rect object
@@ -94,6 +107,10 @@ sf::RectangleShape thick_line_rect( sf::Vector2f start, sf::Vector2f end, sf::Co
 //! @return std::array<sf::Vertex, 4>
 std::array<sf::Vertex, 4> thick_line_quad( sf::Vector2f start, sf::Vector2f end, sf::Color color, float thickness );
 
+//! @brief Convert the value to a percent based on the max value as 100%
+//! @param max_value
+//! @param convert
+//! @return uint8_t
 uint8_t to_percent( float max_value, uint8_t convert );
 
 } // namespace ProceduralMaze::Utils::Maths

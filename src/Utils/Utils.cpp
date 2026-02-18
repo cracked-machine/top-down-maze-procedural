@@ -279,4 +279,25 @@ sf::FloatRect get_mouse_bounds_in_gameview( const sf::RenderWindow &window, cons
   return mouse_position_bounds;
 }
 
+//! @brief Get the Grid Position object
+//! @param entity The entity to get the grid position for.
+//! @tparam Signedness The signedness of the grid position coordinates (int or unsigned int).
+//! @return std::optional<sf::Vector2<Signedness>>
+template <typename Signedness>
+
+std::optional<sf::Vector2<Signedness>> getGridPosition( entt::registry &registry, entt::entity entity )
+{
+  auto pos = registry.try_get<Cmp::Position>( entity );
+  if ( pos )
+  {
+    return std::optional<sf::Vector2<Signedness>>{ { static_cast<Signedness>( pos->position.x / Constants::kGridSizePx.x ),
+                                                     static_cast<Signedness>( pos->position.y / Constants::kGridSizePx.y ) } };
+  }
+  else { SPDLOG_ERROR( "Entity {} does not have a Position component", static_cast<int>( entity ) ); }
+  return std::nullopt;
+}
+
+template std::optional<sf::Vector2<int>> getGridPosition( entt::registry &, entt::entity );
+template std::optional<sf::Vector2<unsigned int>> getGridPosition( entt::registry &, entt::entity );
+
 } // namespace ProceduralMaze::Utils
