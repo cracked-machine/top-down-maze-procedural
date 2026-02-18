@@ -50,7 +50,7 @@ void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2
 {
 
   auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, Constants::kGridSquareSizePixelsF };
+  auto position = sf::FloatRect{ pos, Constants::kGridSizePxF };
   auto sprite_index = 0; // health icon
   auto scale = sf::Vector2f( 2.f, 2.f );
   RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
@@ -74,7 +74,7 @@ void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2
 void RenderOverlaySystem::render_weapons_meter_overlay( float new_weapon_level, sf::Vector2f pos, sf::Vector2f size )
 {
   auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, Constants::kGridSquareSizePixelsF };
+  auto position = sf::FloatRect{ pos, Constants::kGridSizePxF };
   auto sprite_index = 1; // hammer icon
   auto scale = sf::Vector2f( 2.f, 2.f );
   RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
@@ -99,7 +99,7 @@ void RenderOverlaySystem::render_bomb_overlay( int radius_value, sf::Vector2f po
 {
 
   auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, Constants::kGridSquareSizePixelsF };
+  auto position = sf::FloatRect{ pos, Constants::kGridSizePxF };
   auto sprite_index = 2; // bomb icon
   auto scale = sf::Vector2f( 2.f, 2.f );
   RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
@@ -118,7 +118,7 @@ void RenderOverlaySystem::render_bomb_overlay( int radius_value, sf::Vector2f po
 void RenderOverlaySystem::render_cadaver_count_overlay( unsigned int cadaver_count, sf::Vector2f pos )
 {
   auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, Constants::kGridSquareSizePixelsF };
+  auto position = sf::FloatRect{ pos, Constants::kGridSizePxF };
   auto sprite_index = 6; // cadaver icon
   auto scale = sf::Vector2f( 2.f, 2.f );
   RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
@@ -137,7 +137,7 @@ void RenderOverlaySystem::render_cadaver_count_overlay( unsigned int cadaver_cou
 void RenderOverlaySystem::render_wealth_overlay( unsigned int wealth_value, sf::Vector2f pos )
 {
   auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, Constants::kGridSquareSizePixelsF };
+  auto position = sf::FloatRect{ pos, Constants::kGridSizePxF };
   auto sprite_index = 7; // gold coins icon
   auto scale = sf::Vector2f( 2.f, 2.f );
   RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
@@ -158,7 +158,7 @@ void RenderOverlaySystem::render_inventory_overlay( sf::Vector2f pos )
   float ui_padding = 5.f;
   float icon_scale = 5.f;
   sf::Vector2f ui_pos( pos );
-  sf::Vector2f ui_size( ( Constants::kGridSquareSizePixelsF * icon_scale ) + ( sf::Vector2f( ui_padding, ui_padding ) ) );
+  sf::Vector2f ui_size( ( Constants::kGridSizePxF * icon_scale ) + ( sf::Vector2f( ui_padding, ui_padding ) ) );
   sf::Vector2f icon_pos( pos.x + ui_padding, pos.y + ui_padding );
 
   auto ui_background = sf::RectangleShape( ui_size );
@@ -176,11 +176,10 @@ void RenderOverlaySystem::render_inventory_overlay( sf::Vector2f pos )
   auto inventory_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::SpriteAnimation>();
   for ( auto [inventory_entt, inventory_cmp, anim_cmp] : inventory_view.each() )
   {
-    RenderSystem::safe_render_sprite( anim_cmp.m_sprite_type, { icon_pos, Constants::kGridSquareSizePixelsF }, 0,
-                                      sf::Vector2f{ icon_scale, icon_scale } );
+    RenderSystem::safe_render_sprite( anim_cmp.m_sprite_type, { icon_pos, Constants::kGridSizePxF }, 0, sf::Vector2f{ icon_scale, icon_scale } );
     sf::Text display_name( m_font, m_sprite_factory.get_display_name_by_type( inventory_cmp.type ), 20 );
     // Calculate the center of the scaled icon
-    float icon_center_x = icon_pos.x + ( Constants::kGridSquareSizePixelsF.x * icon_scale ) / 2.f;
+    float icon_center_x = icon_pos.x + ( Constants::kGridSizePxF.x * icon_scale ) / 2.f;
     // Center the text horizontally relative to the icon center
     float text_x = icon_center_x - display_name.getLocalBounds().size.x / 2.f;
     display_name.setPosition( sf::Vector2f{ text_x, icon_pos.y + ui_size.y + ui_padding } );
@@ -373,7 +372,7 @@ void RenderOverlaySystem::render_obstacle_markers()
     auto obstacle_view = getReg().view<Cmp::Position, Cmp::Obstacle>();
     for ( auto [ob_entt, pos_cmp, obst_cmp] : obstacle_view.each() )
     {
-      sf::RectangleShape obstacle_shape( Constants::kGridSquareSizePixelsF );
+      sf::RectangleShape obstacle_shape( Constants::kGridSizePxF );
       obstacle_shape.setPosition( pos_cmp.position );
       obstacle_shape.setOutlineThickness( 1.f );
       m_window.draw( obstacle_shape );
@@ -429,14 +428,14 @@ void RenderOverlaySystem::render_lerp_positions()
   auto lerp_view = getReg().view<Cmp::LerpPosition, Cmp::Direction, Cmp::NPC, Cmp::Position>();
   for ( auto [entity, lerp_pos_cmp, dir_cmp, npc_cmp, npc_pos_cmp] : lerp_view.each() )
   {
-    sf::RectangleShape lerp_start_pos_rect( Constants::kGridSquareSizePixelsF );
+    sf::RectangleShape lerp_start_pos_rect( Constants::kGridSizePxF );
     lerp_start_pos_rect.setPosition( lerp_pos_cmp.m_start );
     lerp_start_pos_rect.setFillColor( sf::Color::Transparent );
     lerp_start_pos_rect.setOutlineColor( sf::Color::Yellow );
     lerp_start_pos_rect.setOutlineThickness( 1.f );
     m_window.draw( lerp_start_pos_rect );
 
-    sf::RectangleShape lerp_stop_pos_rect( Constants::kGridSquareSizePixelsF );
+    sf::RectangleShape lerp_stop_pos_rect( Constants::kGridSizePxF );
     lerp_stop_pos_rect.setPosition( lerp_pos_cmp.m_target );
     lerp_stop_pos_rect.setFillColor( sf::Color::Transparent );
     lerp_stop_pos_rect.setOutlineColor( sf::Color::Cyan );
@@ -446,16 +445,16 @@ void RenderOverlaySystem::render_lerp_positions()
     // clang-format off
     auto horizontal_hitbox = 
       Cmp::RectBounds( sf::Vector2f{ npc_pos_cmp.position.x + ( dir_cmp.x * 16 ), npc_pos_cmp.position.y },
-      Constants::kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
+      Constants::kGridSizePxF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
     auto vertical_hitbox = 
       Cmp::RectBounds( sf::Vector2f{ npc_pos_cmp.position.x, npc_pos_cmp.position.y + ( dir_cmp.y * 16 ) },
-      Constants::kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
+      Constants::kGridSizePxF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
     // clang-format on
 
     // auto hlerp_hitbox = Cmp::RectBounds( sf::Vector2f{ lerp_pos_cmp.m_target.x - ( dir_cmp.x * 8
     // ), lerp_pos_cmp.m_target.y },
-    //                                      kGridSquareSizePixelsF, 0.5f,
+    //                                      kGridSizePxF, 0.5f,
     //                                      Cmp::RectBounds::ScaleCardinality::BOTH );
     sf::RectangleShape lerp_diag_pos_hrect( horizontal_hitbox.size() );
     lerp_diag_pos_hrect.setPosition( horizontal_hitbox.position() );
@@ -466,7 +465,7 @@ void RenderOverlaySystem::render_lerp_positions()
 
     // auto vlerp_hitbox = Cmp::RectBounds( sf::Vector2f{ lerp_pos_cmp.m_target.x,
     // lerp_pos_cmp.m_target.y - ( dir_cmp.y * 8 ) },
-    //                                      kGridSquareSizePixelsF, 0.5f,
+    //                                      kGridSizePxF, 0.5f,
     //                                      Cmp::RectBounds::ScaleCardinality::BOTH );
     sf::RectangleShape lerp_diag_pos_vrect( vertical_hitbox.size() );
     lerp_diag_pos_vrect.setPosition( vertical_hitbox.position() );
@@ -503,13 +502,13 @@ void RenderOverlaySystem::render_wear_level( [[maybe_unused]] Cmp::InventoryWear
   float icon_border = 0.f;
   float padding = 1.f;
   float icon_height = 2.f;
-  float icon_width = Constants::kGridSquareSizePixelsF.x - ( padding * 2 );
+  float icon_width = Constants::kGridSizePxF.x - ( padding * 2 );
 
   sf::RectangleShape icon( { ( icon_width / 100.f ) * wearlevel.m_level, icon_height } );
   icon.setOutlineColor( sf::Color::Black );
   icon.setOutlineThickness( icon_border );
   icon.setFillColor( sf::Color( 255, 0, 0, 224 ) );
-  icon.setPosition( { pos.position.x + ( padding ), pos.position.y + Constants::kGridSquareSizePixelsF.y - icon_height - ( padding ) } );
+  icon.setPosition( { pos.position.x + ( padding ), pos.position.y + Constants::kGridSizePxF.y - icon_height - ( padding ) } );
   m_window.draw( icon );
 }
 

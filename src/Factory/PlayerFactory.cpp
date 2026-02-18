@@ -51,7 +51,7 @@ void CreatePlayer( entt::registry &registry )
   // So we must recalc start position to the nearest grid position here
   auto start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( registry );
   start_pos = Utils::snap_to_grid( start_pos );
-  registry.emplace<Cmp::Position>( entity, start_pos, Constants::kGridSquareSizePixelsF );
+  registry.emplace<Cmp::Position>( entity, start_pos, Constants::kGridSizePxF );
 
   auto &blast_radius = Sys::PersistSystem::get<Cmp::Persist::BlastRadius>( registry );
   registry.emplace<Cmp::PlayerCharacter>( entity );
@@ -61,7 +61,7 @@ void CreatePlayer( entt::registry &registry )
 
   auto &pc_detection_scale = Sys::PersistSystem::get<Cmp::Persist::PlayerDetectionScale>( registry );
 
-  registry.emplace<Cmp::PCDetectionBounds>( entity, start_pos, Constants::kGridSquareSizePixelsF, pc_detection_scale.get_value() );
+  registry.emplace<Cmp::PCDetectionBounds>( entity, start_pos, Constants::kGridSizePxF, pc_detection_scale.get_value() );
 
   registry.emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYER.walk.south" );
   registry.emplace<Cmp::PlayerCadaverCount>( entity, 0 );
@@ -82,7 +82,7 @@ void CreatePlayer( entt::registry &registry )
 entt::entity createWorldPosition( entt::registry &registry, const sf::Vector2f &pos )
 {
   auto entity = registry.create();
-  registry.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSquareSizePixelsF );
+  registry.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
   registry.emplace_or_replace<Cmp::Neighbours>( entity );
   return entity;
 }
@@ -90,7 +90,7 @@ entt::entity createWorldPosition( entt::registry &registry, const sf::Vector2f &
 entt::entity createVoidPosition( entt::registry &registry, const sf::Vector2f &pos )
 {
   auto entity = registry.create();
-  registry.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSquareSizePixelsF );
+  registry.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
   registry.emplace_or_replace<Cmp::ReservedPosition>( entity );
   return entity;
 }
@@ -109,8 +109,7 @@ void createPlayerDeathAnim( entt::registry &registry, Cmp::Position player_pos_c
 {
   auto player_blood_splat_entity = registry.create();
   sf::Vector2f offset;
-  if ( ( sprite.getSpriteSizePixels().x == Constants::kGridSquareSizePixelsF.x ) and
-       ( sprite.getSpriteSizePixels().y == Constants::kGridSquareSizePixelsF.y ) )
+  if ( ( sprite.getSpriteSizePixels().x == Constants::kGridSizePxF.x ) and ( sprite.getSpriteSizePixels().y == Constants::kGridSizePxF.y ) )
   {
     offset = sf::Vector2f{ 0, 0 };
   }
@@ -284,8 +283,7 @@ void destroyInventory( entt::registry &reg, const Sprites::SpriteMetaType type )
 
 Cmp::Position add_player_last_graveyard_pos( entt::registry &reg, Cmp::Position &last_known_pos, sf::Vector2f offset )
 {
-  auto player_rentry_pos = Cmp::Position( { last_known_pos.position.x + offset.x, last_known_pos.position.y + offset.y },
-                                          Constants::kGridSquareSizePixelsF );
+  auto player_rentry_pos = Cmp::Position( { last_known_pos.position.x + offset.x, last_known_pos.position.y + offset.y }, Constants::kGridSizePxF );
   SPDLOG_INFO( "Player will re-enter grave yard at {},{}", player_rentry_pos.position.x, player_rentry_pos.position.y );
   auto player_entt = Utils::get_player_entity( reg );
   reg.emplace_or_replace<Cmp::PlayerLastGraveyardPosition>( player_entt, player_rentry_pos.position, player_rentry_pos.size );

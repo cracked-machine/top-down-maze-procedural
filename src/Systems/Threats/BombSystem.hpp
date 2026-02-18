@@ -46,7 +46,7 @@ public:
   void on_bomb_event( const Events::PlayerActionEvent &event );
 
 private:
-  const sf::Vector2f max_explosion_zone_size{ Constants::kGridSquareSizePixels.x * 3.f, Constants::kGridSquareSizePixels.y * 3.f };
+  const sf::Vector2f max_explosion_zone_size{ Constants::kGridSizePx.x * 3.f, Constants::kGridSizePx.y * 3.f };
 };
 
 } // namespace ProceduralMaze::Sys

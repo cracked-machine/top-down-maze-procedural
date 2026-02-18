@@ -23,8 +23,8 @@ public:
   inline static constexpr sf::Vector2u kMapGridSize{ 100u, 124u };
 
   //! @brief The size of the graveyard map grid in number of squares as floats
-  inline static constexpr sf::Vector2f kMapGridSizeF{ static_cast<float>( GraveyardScene::kMapGridSize.x * Constants::kGridSquareSizePixels.x ),
-                                                      static_cast<float>( GraveyardScene::kMapGridSize.y *Constants::kGridSquareSizePixels.y ) };
+  inline static constexpr sf::Vector2f kMapGridSizeF{ static_cast<float>( GraveyardScene::kMapGridSize.x * Constants::kGridSizePx.x ),
+                                                      static_cast<float>( GraveyardScene::kMapGridSize.y *Constants::kGridSizePx.y ) };
 
   GraveyardScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher,
                   Sprites::SpriteFactory &sprite_Factory )

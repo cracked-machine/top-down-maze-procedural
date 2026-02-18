@@ -76,8 +76,8 @@ static std::optional<sf::Vector2<Signedness>> getGridPosition( entt::registry &r
   auto pos = registry.try_get<Cmp::Position>( entity );
   if ( pos )
   {
-    return std::optional<sf::Vector2<Signedness>>{ { static_cast<Signedness>( pos->position.x / Constants::kGridSquareSizePixels.x ),
-                                                     static_cast<Signedness>( pos->position.y / Constants::kGridSquareSizePixels.y ) } };
+    return std::optional<sf::Vector2<Signedness>>{ { static_cast<Signedness>( pos->position.x / Constants::kGridSizePx.x ),
+                                                     static_cast<Signedness>( pos->position.y / Constants::kGridSizePx.y ) } };
   }
   else { SPDLOG_ERROR( "Entity {} does not have a Position component", static_cast<int>( entity ) ); }
   return std::nullopt;

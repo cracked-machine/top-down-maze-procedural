@@ -99,7 +99,7 @@ void PassageSystem::connectPassagesBetweenStartAndOpenRooms( entt::entity start_
     return;
   }
 
-  const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSquareSizePixelsF );
+  const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSizePxF );
   const auto start_room_right_pos_x = start_room_cmp->position.x + start_room_cmp->size.x;
 
   // divide the gamrarea into 3 quadrants - again there are only three because startroom is southern most position in the game area
@@ -120,7 +120,7 @@ void PassageSystem::connectPassagesBetweenStartAndOpenRooms( entt::entity start_
 
 void PassageSystem::connectPassagesBetweenOccupiedAndOpenRooms()
 {
-  const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSquareSizePixelsF );
+  const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSizePxF );
 
   // find the open room that the player is in (if any)
   auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
@@ -158,7 +158,7 @@ void PassageSystem::connectPassagesBetweenOccupiedAndOpenRooms()
 
 void PassageSystem::connectPassagesBetweenAllOpenRooms()
 {
-  const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSquareSizePixelsF );
+  const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSizePxF );
   const auto world_area = sf::FloatRect( { 0, 0 }, world_size );
 
   auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
@@ -223,13 +223,13 @@ bool PassageSystem::place_passage_block( unsigned int passage_id, float x, float
     new_block_list.clear();
   };
 
-  Cmp::Position next_passage_block_cmp( Utils::snap_to_grid( { x, y }, Utils::Rounding::TOWARDS_ZERO ), Constants::kGridSquareSizePixelsF );
+  Cmp::Position next_passage_block_cmp( Utils::snap_to_grid( { x, y }, Utils::Rounding::TOWARDS_ZERO ), Constants::kGridSizePxF );
 
   // Check if a block already exists at this position
   auto block_view = getReg().view<Cmp::CryptPassageBlock>();
   for ( auto [passage_block_entt, passage_block_cmp] : block_view.each() )
   {
-    Cmp::Position found_passage_block_pos_cmp( passage_block_cmp, Constants::kGridSquareSizePixelsF );
+    Cmp::Position found_passage_block_pos_cmp( passage_block_cmp, Constants::kGridSizePxF );
     if ( ( found_passage_block_pos_cmp.findIntersection( next_passage_block_cmp ) ) and ( duplicates_policy == AllowDuplicatePassages::NO ) )
     {
       // SPDLOG_INFO( "CryptPassageBlock already exists at {},{}", x, y );
@@ -266,7 +266,7 @@ bool PassageSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatR
   SPDLOG_INFO( "createDogLegPassage (id:{}) from ({},{}) to ({},{})", m_current_passage_id, start.x, start.y, end_bounds.getCenter().x,
                end_bounds.getCenter().y );
 
-  const auto kSquareSizePx = Constants::kGridSquareSizePixelsF;
+  const auto kSquareSizePx = Constants::kGridSizePxF;
 
   // always prioritize nearer direction
   if ( start.m_direction == Cmp::CryptPassageDirection::EAST or start.m_direction == Cmp::CryptPassageDirection::WEST )
@@ -359,14 +359,14 @@ bool PassageSystem::createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::F
 
   int walk_step_count = 0;
 
-  const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSquareSizePixelsF );
+  const auto world_size = Scene::CryptScene::kMapGridSizeF.componentWiseMul( Constants::kGridSizePxF );
 
   // Calculate expanded walk_bounds with some padding
-  float padding = Constants::kGridSquareSizePixelsF.x * 2.0f;
+  float padding = Constants::kGridSizePxF.x * 2.0f;
   float min_x = std::min( start.x, end_bounds.position.x ) - padding;
   float min_y = std::min( start.y, end_bounds.position.y ) - padding;
-  float max_x = std::max( start.x + Constants::kGridSquareSizePixelsF.x, end_bounds.position.x + end_bounds.size.x ) + padding;
-  float max_y = std::max( start.y + Constants::kGridSquareSizePixelsF.y, end_bounds.position.y + end_bounds.size.y ) + padding;
+  float max_x = std::max( start.x + Constants::kGridSizePxF.x, end_bounds.position.x + end_bounds.size.x ) + padding;
+  float max_y = std::max( start.y + Constants::kGridSizePxF.y, end_bounds.position.y + end_bounds.size.y ) + padding;
 
   // Clamp to world bounds
   min_x = std::max( 0.f, min_x );
@@ -380,7 +380,7 @@ bool PassageSystem::createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::F
                walk_bounds.position.y + walk_bounds.size.y );
 
   place_passage_block( m_current_passage_id, start.x, start.y, duplicates_policy );
-  sf::FloatRect current_pos( { start.x, start.y }, Constants::kGridSquareSizePixelsF );
+  sf::FloatRect current_pos( { start.x, start.y }, Constants::kGridSizePxF );
 
   sf::Vector2f last_move_direction( 0.f, 0.f );
 
@@ -391,7 +391,7 @@ bool PassageSystem::createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::F
   // keep walking until we reach our target or hit limits
   while ( not current_pos.findIntersection( end_bounds ) && walk_step_count < kMaxStepsPerWalk )
   {
-    sf::FloatRect candidate_pos( { -16.f, -16.f }, Constants::kGridSquareSizePixelsF );
+    sf::FloatRect candidate_pos( { -16.f, -16.f }, Constants::kGridSizePxF );
     int step_attempts = 0;
     bool is_candidate_rejected = false;
     bool found_valid_candidate = false;
@@ -433,7 +433,7 @@ bool PassageSystem::createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::F
       }
 
       // Prepare the actual movement and run some final rule validation
-      auto chosen_magnitude = chosen_direction.componentWiseMul( Constants::kGridSquareSizePixelsF );
+      auto chosen_magnitude = chosen_direction.componentWiseMul( Constants::kGridSizePxF );
       candidate_pos.position.x = current_pos.position.x + chosen_magnitude.x;
       candidate_pos.position.y = current_pos.position.y + chosen_magnitude.y;
 
@@ -450,8 +450,8 @@ bool PassageSystem::createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::F
       bool is_recent = false;
       for ( const auto &recent_pos : recent_positions )
       {
-        if ( std::abs( recent_pos.x - candidate_pos.position.x ) < Constants::kGridSquareSizePixelsF.x * 0.5f &&
-             std::abs( recent_pos.y - candidate_pos.position.y ) < Constants::kGridSquareSizePixelsF.y * 0.5f )
+        if ( std::abs( recent_pos.x - candidate_pos.position.x ) < Constants::kGridSizePxF.x * 0.5f &&
+             std::abs( recent_pos.y - candidate_pos.position.y ) < Constants::kGridSizePxF.y * 0.5f )
         {
           is_recent = true;
           break;
@@ -541,8 +541,8 @@ bool PassageSystem::createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::F
     // Update position and remember the direction we moved
     sf::Vector2f old_pos = current_pos.position;
     current_pos.position = candidate_pos.position;
-    last_move_direction = sf::Vector2f( ( current_pos.position.x - old_pos.x ) / Constants::kGridSquareSizePixelsF.x,
-                                        ( current_pos.position.y - old_pos.y ) / Constants::kGridSquareSizePixelsF.y );
+    last_move_direction = sf::Vector2f( ( current_pos.position.x - old_pos.x ) / Constants::kGridSizePxF.x,
+                                        ( current_pos.position.y - old_pos.y ) / Constants::kGridSizePxF.y );
 
     // Track recent positions
     recent_positions.push_back( current_pos.position );
@@ -627,7 +627,7 @@ void PassageSystem::emptyOpenPassages()
     auto pblock_view = getReg().view<Cmp::CryptPassageBlock>();
     for ( auto [pblock_entt, pblock_cmp] : pblock_view.each() )
     {
-      auto pblock_cmp_rect = sf::FloatRect( pblock_cmp, Constants::kGridSquareSizePixelsF );
+      auto pblock_cmp_rect = sf::FloatRect( pblock_cmp, Constants::kGridSizePxF );
       // skip any positions that are not pblocks or do not have obstacles
       if ( not pblock_cmp_rect.findIntersection( pos_cmp ) ) continue;
       if ( not getReg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
@@ -649,7 +649,7 @@ void PassageSystem::fillAllPassages()
     auto pblock_view = getReg().view<Cmp::CryptPassageBlock>();
     for ( auto [pblock_entt, pblock_cmp] : pblock_view.each() )
     {
-      auto pblock_cmp_rect = sf::FloatRect( pblock_cmp, Constants::kGridSquareSizePixelsF );
+      auto pblock_cmp_rect = sf::FloatRect( pblock_cmp, Constants::kGridSizePxF );
       // skip any positions that are not pblocks or already have obstacles
       if ( not pblock_cmp_rect.findIntersection( pos_cmp ) ) continue;
       if ( getReg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
@@ -675,7 +675,7 @@ void PassageSystem::tidyPassageBlocks( bool include_closed_rooms )
 {
   for ( auto [pblock_entt, pblock_cmp] : getReg().view<Cmp::CryptPassageBlock>().each() )
   {
-    auto pblock_cmp_rect = sf::FloatRect( pblock_cmp, Constants::kGridSquareSizePixelsF );
+    auto pblock_cmp_rect = sf::FloatRect( pblock_cmp, Constants::kGridSizePxF );
 
     // open rooms
     for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )

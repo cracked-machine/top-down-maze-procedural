@@ -19,8 +19,8 @@ public:
   inline static constexpr sf::Vector2u kMapGridSize{ 19u, 10u };
 
   //! @brief The size of the map grid in number of squares as floats
-  inline static constexpr sf::Vector2f kMapGridSizeF{ static_cast<float>( kMapGridSize.x * Constants::kGridSquareSizePixels.x ),
-                                                      static_cast<float>( kMapGridSize.y *Constants::kGridSquareSizePixels.y ) };
+  inline static constexpr sf::Vector2f kMapGridSizeF{ static_cast<float>( kMapGridSize.x * Constants::kGridSizePx.x ),
+                                                      static_cast<float>( kMapGridSize.y *Constants::kGridSizePx.y ) };
 
   RuinSceneUpperFloor( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher,
                        Sprites::SpriteFactory &sprite_Factory )
@@ -48,7 +48,7 @@ private:
   Sprites::Containers::TileMap m_floormap{};
 
   sf::Vector2f m_player_start_position = Utils::snap_to_grid(
-      sf::Vector2f( RuinSceneUpperFloor::kMapGridSizeF.x - ( 2 * Constants::kGridSquareSizePixelsF.x ), Constants::kGridSquareSizePixelsF.y ) );
+      sf::Vector2f( RuinSceneUpperFloor::kMapGridSizeF.x - ( 2 * Constants::kGridSizePxF.x ), Constants::kGridSizePxF.y ) );
 };
 
 } // namespace ProceduralMaze::Scene

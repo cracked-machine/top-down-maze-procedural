@@ -34,8 +34,8 @@ namespace ProceduralMaze::Utils
 
 bool isInBounds( const sf::Vector2f &position, const sf::Vector2f &size, const sf::Vector2u &map_grid_size )
 {
-  float map_width = static_cast<float>( map_grid_size.x ) * Constants::kGridSquareSizePixelsF.x;
-  float map_height = static_cast<float>( map_grid_size.y ) * Constants::kGridSquareSizePixelsF.y;
+  float map_width = static_cast<float>( map_grid_size.x ) * Constants::kGridSizePxF.x;
+  float map_height = static_cast<float>( map_grid_size.y ) * Constants::kGridSizePxF.y;
 
   if ( position.x < 0.f || position.y < 0.f ) return false;
   if ( position.x + size.x > map_width ) return false;
@@ -62,7 +62,7 @@ bool isInBounds( const sf::Vector2f &position, const sf::Vector2f &size, const s
 //!       BaseSystem::kGridSquareSizePixels is used for both axes.
 sf::FloatRect snap_to_grid( const sf::FloatRect &position, Rounding rounding ) noexcept
 {
-  float grid_size = Constants::kGridSquareSizePixels.x; // Assuming square grid
+  float grid_size = Constants::kGridSizePx.x; // Assuming square grid
   sf::Vector2f snapped_pos;
 
   switch ( rounding )
@@ -97,7 +97,7 @@ sf::FloatRect snap_to_grid( const sf::FloatRect &position, Rounding rounding ) n
 //! @return sf::Vector2f The snapped position aligned to the grid.
 sf::Vector2f snap_to_grid( const sf::Vector2f &position, Rounding rounding ) noexcept
 {
-  float grid_size = Constants::kGridSquareSizePixels.x; // Assuming square grid
+  float grid_size = Constants::kGridSizePx.x; // Assuming square grid
 
   switch ( rounding )
   {

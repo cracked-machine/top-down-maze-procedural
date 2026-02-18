@@ -98,7 +98,7 @@ void HazardFieldSystem<HazardType>::update_hazard_field()
     if ( not hazard_cmp.active ) continue;
 
     // make the hazard field hitbox slightly larger to find adjacent obstacles
-    auto hazard_hitbox = sf::FloatRect( position_cmp.position, Constants::kGridSquareSizePixelsF * 2.f );
+    auto hazard_hitbox = sf::FloatRect( position_cmp.position, Constants::kGridSizePxF * 2.f );
     int adjacent_hazard_fields = 0;
 
     // add new hazard cell

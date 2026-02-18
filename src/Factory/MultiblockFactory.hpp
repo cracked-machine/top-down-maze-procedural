@@ -38,7 +38,7 @@ void createMultiblock( entt::registry &registry, entt::entity entity, Cmp::Posit
 
   auto large_obst_grid_size = ms.get_grid_size();
   registry.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, ms.get_sprite_type(), ms_idx );
-  registry.emplace_or_replace<MULTIBLOCK>( entity, pos.position, large_obst_grid_size.componentWiseMul( Constants::kGridSquareSizePixels ) );
+  registry.emplace_or_replace<MULTIBLOCK>( entity, pos.position, large_obst_grid_size.componentWiseMul( Constants::kGridSizePx ) );
   registry.emplace_or_replace<Cmp::ZOrderValue>( entity, pos.position.y );
 
   auto zorder_cmp = registry.get<Cmp::ZOrderValue>( entity );
@@ -88,8 +88,8 @@ void createMultiblockSegments( entt::registry &registry, entt::entity multiblock
     float rel_y = pos_cmp.position.y - pos.position.y;
 
     // Convert to relative grid coordinates
-    int rel_grid_x = static_cast<int>( rel_x / Constants::kGridSquareSizePixels.x );
-    int rel_grid_y = static_cast<int>( rel_y / Constants::kGridSquareSizePixels.y );
+    int rel_grid_x = static_cast<int>( rel_x / Constants::kGridSizePx.x );
+    int rel_grid_y = static_cast<int>( rel_y / Constants::kGridSizePx.y );
 
     std::size_t calculated_grid_index = rel_grid_y * ms.get_grid_size().width + rel_grid_x;
     SPDLOG_DEBUG( "  - Creating segment at ({}, {}) with sprite_index {}", pos_cmp.position.x, pos_cmp.position.y, calculated_grid_index );

@@ -52,7 +52,7 @@ void AltarSystem::check_player_collision()
   }
 
   auto altar_view = getReg().view<Cmp::AltarMultiBlock>();
-  auto player_hitbox = Cmp::RectBounds( Utils::get_player_position( getReg() ).position, Constants::kGridSquareSizePixelsF, 1.5f );
+  auto player_hitbox = Cmp::RectBounds( Utils::get_player_position( getReg() ).position, Constants::kGridSizePxF, 1.5f );
 
   for ( auto [altar_entity, altar_cmp] : altar_view.each() )
   {
@@ -79,7 +79,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       float altar_sacrifice_anim_height = m_sprite_factory.get_multisprite_by_type( "ALTAR.sacrifice.anim" ).getSpriteSizePixels().y;
       // get the center (topleft coord), then adjust to center the altar_sacrifice_anim, then adjust for altar_sacrifice_anim height
       Cmp::Position new_pos( altar_cmp.getCenter() - sf::Vector2{ 8.f, 8.f } - sf::Vector2{ 0.f, altar_sacrifice_anim_height },
-                             Constants::kGridSquareSizePixelsF );
+                             Constants::kGridSizePxF );
       // Factory::createCarryItem( getReg(), new_pos, inventory_type, 2.f );
       m_sound_bank.get_effect( "shrine_lighting" ).play();
       Factory::createAltarSacrificeAnimation( getReg(), new_pos );

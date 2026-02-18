@@ -212,7 +212,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     if ( ImGui::SliderScalar( "NPC Push Back Distance", ImGuiDataType_Float, npc_push_back.get_value_ptr(), npc_push_back.get_min_value_ptr(),
                               npc_push_back.get_max_value_ptr(), "%.1f pixels" ) )
     {
-      float step = Constants::kGridSquareSizePixelsF.x;
+      float step = Constants::kGridSizePxF.x;
       npc_push_back.get_value() = roundf( npc_push_back.get_value() / step ) * step;
     }
 

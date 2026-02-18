@@ -47,19 +47,19 @@ public:
       case ScaleCardinality::HORIZONTAL:
         m_bounds.size.x = size.x * m_scale_factor;
         m_bounds.size.y = size.y * 1;
-        m_bounds.position.x = position.x - Constants::kGridSquareSizePixelsF.x * kPositionOffsetFactor;
+        m_bounds.position.x = position.x - Constants::kGridSizePxF.x * kPositionOffsetFactor;
         m_bounds.position.y = position.y;
         break;
       case ScaleCardinality::VERTICAL:
         m_bounds.size.y = size.y * m_scale_factor;
         m_bounds.size.x = size.x * 1;
-        m_bounds.position.y = position.y - Constants::kGridSquareSizePixelsF.y * kPositionOffsetFactor;
+        m_bounds.position.y = position.y - Constants::kGridSizePxF.y * kPositionOffsetFactor;
         m_bounds.position.x = position.x;
         break;
       case ScaleCardinality::BOTH:
       default:
         m_bounds.size = size * m_scale_factor;
-        m_bounds.position = position - Constants::kGridSquareSizePixelsF * kPositionOffsetFactor;
+        m_bounds.position = position - Constants::kGridSizePxF * kPositionOffsetFactor;
         break;
     }
   }
@@ -75,7 +75,7 @@ public:
    *
    * @param new_position The new position to set for the bounds
    */
-  void position( sf::Vector2f new_position ) { m_bounds.position = new_position - Constants::kGridSquareSizePixelsF * kPositionOffsetFactor; }
+  void position( sf::Vector2f new_position ) { m_bounds.position = new_position - Constants::kGridSizePxF * kPositionOffsetFactor; }
   sf::Vector2f position() const { return m_bounds.position; }
 
   /**

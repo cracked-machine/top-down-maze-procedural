@@ -41,7 +41,7 @@ public:
 
     // clang-format off
     m_midpoints[CryptPassageDirection::NORTH] = 
-      CryptPassageDoor(Utils::snap_to_grid( sf::Vector2f{ position.x + half_width, position.y - Constants::kGridSquareSizePixelsF.y },
+      CryptPassageDoor(Utils::snap_to_grid( sf::Vector2f{ position.x + half_width, position.y - Constants::kGridSizePxF.y },
                                             Utils::Rounding::TOWARDS_ZERO ), 
                                             false, 
                                             CryptPassageDirection::NORTH );
@@ -53,7 +53,7 @@ public:
                                             CryptPassageDirection::EAST );
 
     m_midpoints[CryptPassageDirection::WEST] = 
-      CryptPassageDoor(Utils::snap_to_grid( sf::Vector2f{ position.x - Constants::kGridSquareSizePixelsF.x, position.y + half_height },
+      CryptPassageDoor(Utils::snap_to_grid( sf::Vector2f{ position.x - Constants::kGridSizePxF.x, position.y + half_height },
                                             Utils::Rounding::TOWARDS_ZERO ),
                                             false, 
                                             CryptPassageDirection::WEST );

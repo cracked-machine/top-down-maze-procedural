@@ -130,10 +130,8 @@ private:
 
   // Shaders - we dont know the size of the texture yet so set to 1,1 and resize later
   Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", { 1u, 1u } };
-  Sprites::ViewFragmentShader m_wormhole_shader{ "res/shaders/SimpleDistortionField.frag",
-                                                 Constants::kGridSquareSizePixels.componentWiseMul( { 3u, 3u } ) };
-  Sprites::ViewFragmentShader m_shockwave_shader{ "res/shaders/SimpleDistortionField.frag",
-                                                  Constants::kGridSquareSizePixels.componentWiseMul( { 1u, 1u } ) };
+  Sprites::ViewFragmentShader m_wormhole_shader{ "res/shaders/SimpleDistortionField.frag", Constants::kGridSizePx.componentWiseMul( { 3u, 3u } ) };
+  Sprites::ViewFragmentShader m_shockwave_shader{ "res/shaders/SimpleDistortionField.frag", Constants::kGridSizePx.componentWiseMul( { 1u, 1u } ) };
   Sprites::PulsingShader m_pulsing_shader{ "res/shaders/RedPulsingSand.frag", { 1u, 1u } };
   Sprites::MistShader m_mist_shader{ "res/shaders/MistShader.frag", { 1u, 1u } };
   Sprites::DarkModeShader m_dark_mode_shader{ "res/shaders/DarkMode.frag", { 1u, 1u } };

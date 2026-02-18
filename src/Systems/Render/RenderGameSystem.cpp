@@ -186,7 +186,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
     m_render_dark_mode_enabled = _sys.dark_mode_enabled;
   }
 
-  sf::FloatRect player_position( { 0.f, 0.f }, Constants::kGridSquareSizePixelsF );
+  sf::FloatRect player_position( { 0.f, 0.f }, Constants::kGridSizePxF );
   for ( auto [entity, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
   {
     player_position = pc_pos_cmp;
@@ -194,7 +194,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
 
   // make sure the local view is centered on the player mid-point and not at their top-left corner
   // (otherwise this makes views, shaders, etc look off-center)
-  // m_local_view.setCenter( player_position.position + Constants::kGridSquareSizePixelsF * 0.5f );
+  // m_local_view.setCenter( player_position.position + Constants::kGridSizePxF * 0.5f );
   updateCamera( globalDeltaTime );
 
   // re-populate the z-order queue with the latest entity/component data
@@ -405,7 +405,7 @@ void RenderGameSystem::render_armed()
   {
     if ( armed_cmp.m_display_bomb_sprite ) { safe_render_sprite( "CARRYITEM.bomb", pos_cmp, 0 ); }
 
-    sf::RectangleShape temp_square( Constants::kGridSquareSizePixelsF );
+    sf::RectangleShape temp_square( Constants::kGridSizePxF );
     temp_square.setPosition( pos_cmp.position );
     temp_square.setOutlineColor( sf::Color::Transparent );
     temp_square.setFillColor( sf::Color::Transparent );
@@ -601,8 +601,8 @@ void RenderGameSystem::render_arrow_compass()
     auto angle_radians = direction.angle();
 
     // Center the arrow sprite at the calculated position
-    sf::FloatRect arrow_rect{ arrow_position - sf::Vector2f{ Constants::kGridSquareSizePixelsF.x / 2.0f, Constants::kGridSquareSizePixelsF.y / 2.0f },
-                              Constants::kGridSquareSizePixelsF };
+    sf::FloatRect arrow_rect{ arrow_position - sf::Vector2f{ Constants::kGridSizePxF.x / 2.0f, Constants::kGridSizePxF.y / 2.0f },
+                              Constants::kGridSizePxF };
 
     // Map sin(time) from [-1, 1] to [0.2, 1.0]
     // Formula: min + (max - min) * (sin(freq * time) + 1) / 2
@@ -613,7 +613,7 @@ void RenderGameSystem::render_arrow_compass()
 
     auto sprite_index = 0;
     auto alpha = 255;
-    auto origin = sf::Vector2f{ Constants::kGridSquareSizePixelsF.x / 2.0f, Constants::kGridSquareSizePixelsF.y / 2.0f };
+    auto origin = sf::Vector2f{ Constants::kGridSizePxF.x / 2.0f, Constants::kGridSizePxF.y / 2.0f };
 
     safe_render_sprite( "ARROW", arrow_rect, sprite_index, scale, alpha, origin, angle_radians );
   }
@@ -623,7 +623,7 @@ void RenderGameSystem::render_dark_mode_shader()
 {
   // Update dark mode shader with proper parameters
   auto shader_local_position = m_local_view.getCenter() - m_local_view.getSize() * 0.5f;
-  sf::Vector2f aperture_half_size( Constants::kGridSquareSizePixelsF * 4.f );
+  sf::Vector2f aperture_half_size( Constants::kGridSizePxF * 4.f );
   auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
   m_dark_mode_shader.update( shader_local_position, aperture_half_size, kLocalMapViewSize, display_res );
   m_window.draw( m_dark_mode_shader );

@@ -6,8 +6,8 @@
 namespace ProceduralMaze::Constants
 {
 
-inline constexpr sf::Vector2u kGridSquareSizePixels{ 16u, 16u };
-inline static constexpr sf::Vector2f kGridSquareSizePixelsF{ 16.f, 16.f };
+inline constexpr sf::Vector2u kGridSizePx{ 16u, 16u };
+inline static constexpr sf::Vector2f kGridSizePxF{ 16.f, 16.f };
 inline static constexpr sf::Vector2u kFallbackDisplaySize{ 1920, 1080 };
 
 } // namespace ProceduralMaze::Constants

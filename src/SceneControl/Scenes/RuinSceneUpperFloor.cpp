@@ -32,7 +32,7 @@ namespace ProceduralMaze::Scene
 
 void RuinSceneUpperFloor::on_init()
 {
-  auto gridsize = Constants::kGridSquareSizePixelsF;
+  auto gridsize = Constants::kGridSizePxF;
   using SystemStoreType = Sys::SystemStore::Type;
 
   auto &m_persistent_sys = m_system_store.find<SystemStoreType::PersistSystem>();

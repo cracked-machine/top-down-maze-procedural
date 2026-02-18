@@ -90,7 +90,7 @@ void RenderSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const
 
 void RenderSystem::render_fallback_square_to_target( sf::RenderTarget &target, const sf::FloatRect &pos_cmp, const sf::Color &color )
 {
-  sf::RectangleShape fallback_square( Constants::kGridSquareSizePixelsF );
+  sf::RectangleShape fallback_square( Constants::kGridSizePxF );
   fallback_square.setPosition( pos_cmp.position );
   fallback_square.setFillColor( color );
   fallback_square.setOutlineColor( sf::Color::White );

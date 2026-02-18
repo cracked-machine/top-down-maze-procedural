@@ -87,7 +87,7 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
         Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, current_seed );
 
     auto &wormhole_ms = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
-    Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_grid_size().componentWiseMul( Constants::kGridSquareSizePixels ) );
+    Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_grid_size().componentWiseMul( Constants::kGridSizePx ) );
 
     // Check collisions with walls, graves, shrines
     auto is_valid = [&]() -> bool
@@ -161,7 +161,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   // 3. set the entities obstacle component to "broken" so we have something for the shader effect
   // to mangle
   auto &wormhole_ms = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
-  Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_grid_size().componentWiseMul( Constants::kGridSquareSizePixels ) );
+  Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_grid_size().componentWiseMul( Constants::kGridSizePx ) );
 
   auto obstacle_view = getReg().view<Cmp::Position>();
   for ( auto [entity, obstacle_pos] : obstacle_view.each() )
@@ -178,14 +178,14 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
 
   // 4. add the wormhole component to the entity
   // get the erntity that owns the center grid position of the 3x3 area
-  sf::Vector2f center_pos = random_pos.position + Constants::kGridSquareSizePixelsF;
+  sf::Vector2f center_pos = random_pos.position + Constants::kGridSizePxF;
   auto center_entity = getReg().create();
-  getReg().emplace<Cmp::Position>( center_entity, center_pos, Constants::kGridSquareSizePixelsF );
+  getReg().emplace<Cmp::Position>( center_entity, center_pos, Constants::kGridSizePxF );
   getReg().emplace<Cmp::WormholeSingularity>( center_entity );
 
   // getReg().emplace_or_replace<Cmp::WormholeSingularity>( random_entity );
   getReg().emplace_or_replace<Cmp::WormholeMultiBlock>( random_entity, random_pos.position,
-                                                        wormhole_ms.get_grid_size().componentWiseMul( Constants::kGridSquareSizePixels ) );
+                                                        wormhole_ms.get_grid_size().componentWiseMul( Constants::kGridSizePx ) );
   getReg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, "WORMHOLE" );
   getReg().emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 16 );
 

@@ -130,7 +130,7 @@ private:
   //! @brief Prevent drunken walk from getting stuck
   const int kMaxAttemptsPerStep{ 200 };
   //! @brief Minimum passage-to-passage distance
-  const float kMinBlockDistanceBetweenPassages{ Constants::kGridSquareSizePixelsF.x * 2.0f };
+  const float kMinBlockDistanceBetweenPassages{ Constants::kGridSizePxF.x * 2.0f };
   //! @brief Force drunken walk to initially stay in orthogonal direction e.g. north, east, west, south from starting point
   const int kMinInitialOrthogonalSteps{ 3 };
   //! @brief Minimum passage-to-room distance: scale factor of 16x16 block

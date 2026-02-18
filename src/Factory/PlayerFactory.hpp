@@ -22,7 +22,7 @@ entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, const Spri
 void destroyInventory( entt::registry &reg, const Sprites::SpriteMetaType type );
 
 Cmp::Position add_player_last_graveyard_pos( entt::registry &reg, Cmp::Position &last_known_pos,
-                                             sf::Vector2f offset = { 0.f, Constants::kGridSquareSizePixelsF.y } );
+                                             sf::Vector2f offset = { 0.f, Constants::kGridSizePxF.y } );
 void remove_player_last_graveyard_pos( entt::registry &reg );
 
 } // namespace ProceduralMaze::Factory

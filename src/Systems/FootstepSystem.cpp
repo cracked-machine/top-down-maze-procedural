@@ -62,7 +62,7 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
     getReg().emplace<Cmp::FootStepTimer>( entity );
     getReg().emplace<Cmp::FootStepAlpha>( entity );
     getReg().emplace<Cmp::ZOrderValue>( entity,
-                                        pos_cmp.position.y - Constants::kGridSquareSizePixelsF.y ); // footsteps render below player
+                                        pos_cmp.position.y - Constants::kGridSizePxF.y ); // footsteps render below player
     // select the footstep tilset index based on the players current direction
     // tileset indices: [0: right] [1: left] [2: down] [3: up]
     // We use absolute rotation component to rotate diagonal footsteps from the "right" sprite
@@ -93,28 +93,28 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
       getReg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "FOOTSTEPS", 0 );
       getReg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       getReg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
-      getReg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSquareSizePixels.x / 2.f, Constants::kGridSquareSizePixels.y / 2.f );
+      getReg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSizePx.x / 2.f, Constants::kGridSizePx.y / 2.f );
     }
     else if ( direction == sf::Vector2f( -1.f, 1.f ) )
     { // moving down/left
       getReg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "FOOTSTEPS", 2 );
       getReg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       getReg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
-      getReg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSquareSizePixels.x / 2.f, Constants::kGridSquareSizePixels.y / 2.f );
+      getReg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSizePx.x / 2.f, Constants::kGridSizePx.y / 2.f );
     }
     else if ( direction == sf::Vector2f( -1.f, -1.f ) )
     { // moving up/left
       getReg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "FOOTSTEPS", 1 );
       getReg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       getReg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
-      getReg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSquareSizePixels.x / 2.f, Constants::kGridSquareSizePixels.y / 2.f );
+      getReg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSizePx.x / 2.f, Constants::kGridSizePx.y / 2.f );
     }
     else if ( direction == sf::Vector2f( 1.f, -1.f ) )
     { // moving up/right
       getReg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "FOOTSTEPS", 3 );
       getReg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       getReg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
-      getReg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSquareSizePixels.x / 2.f, Constants::kGridSquareSizePixels.y / 2.f );
+      getReg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSizePx.x / 2.f, Constants::kGridSizePx.y / 2.f );
     }
 
     // Reset the timer to enforce discrete steps

@@ -29,8 +29,8 @@ public:
   inline static constexpr sf::Vector2u kMapGridSize{ 19u, 10u };
 
   //! @brief The size of the crypt map grid in number of squares as floats
-  inline static constexpr sf::Vector2f kMapGridSizeF{ static_cast<float>( kMapGridSize.x * Constants::kGridSquareSizePixelsF.x ),
-                                                      static_cast<float>( kMapGridSize.y *Constants::kGridSquareSizePixelsF.y ) };
+  inline static constexpr sf::Vector2f kMapGridSizeF{ static_cast<float>( kMapGridSize.x * Constants::kGridSizePxF.x ),
+                                                      static_cast<float>( kMapGridSize.y *Constants::kGridSizePxF.y ) };
 
   RuinSceneLowerFloor( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher,
                        Sprites::SpriteFactory &sprite_Factory )
@@ -62,13 +62,12 @@ private:
   EntryMode m_entry_mode;
   //! @brief Player position after entering through the front door
   sf::Vector2f m_player_door_position = Utils::snap_to_grid(
-      sf::Vector2f( ( RuinSceneLowerFloor::kMapGridSizeF.x / 3.f ) - Constants::kGridSquareSizePixels.x,
-                    ( RuinSceneLowerFloor::kMapGridSizeF.y - ( 2.f * Constants::kGridSquareSizePixels.y ) ) ) );
+      sf::Vector2f( ( RuinSceneLowerFloor::kMapGridSizeF.x / 3.f ) - Constants::kGridSizePx.x,
+                    ( RuinSceneLowerFloor::kMapGridSizeF.y - ( 2.f * Constants::kGridSizePx.y ) ) ) );
 
   //! @brief Player position after entering from upper floor
-  sf::Vector2f m_player_stair_position = Utils::snap_to_grid(
-      { RuinSceneLowerFloor::kMapGridSizeF.x - ( 2 * Constants::kGridSquareSizePixelsF.x ),
-        RuinSceneLowerFloor::kMapGridSizeF.y - ( 2 * Constants::kGridSquareSizePixelsF.y ) } );
+  sf::Vector2f m_player_stair_position = Utils::snap_to_grid( { RuinSceneLowerFloor::kMapGridSizeF.x - ( 2 * Constants::kGridSizePxF.x ),
+                                                                RuinSceneLowerFloor::kMapGridSizeF.y - ( 2 * Constants::kGridSizePxF.y ) } );
 };
 
 } // namespace ProceduralMaze::Scene

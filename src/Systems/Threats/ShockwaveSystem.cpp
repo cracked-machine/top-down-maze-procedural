@@ -135,8 +135,7 @@ bool ShockwaveSystem::intersectsWithVisibleSegments( entt::registry &reg, const 
         shockwave_direction = shockwave_direction.normalized();
 
         auto &player_pos_cmp = Utils::get_player_position( reg );
-        auto new_position = Utils::snap_to_grid( player_pos_cmp.position +
-                                                 ( shockwave_direction.componentWiseMul( Constants::kGridSquareSizePixelsF ) ) );
+        auto new_position = Utils::snap_to_grid( player_pos_cmp.position + ( shockwave_direction.componentWiseMul( Constants::kGridSizePxF ) ) );
         SPDLOG_DEBUG( "Player position was {},{} - Knockback direction is {}, {} - New Position should be {},{}", player_pos_cmp.position.x,
                       player_pos_cmp.position.y, normalised_direction.x, normalised_direction.y, new_position.x, new_position.y );
 
@@ -144,7 +143,7 @@ bool ShockwaveSystem::intersectsWithVisibleSegments( entt::registry &reg, const 
         bool is_valid = true;
         for ( auto [obstacle_entt, obstacle_cmp, obstacle_pos_cmp] : reg.view<Cmp::Obstacle, Cmp::Position>().each() )
         {
-          if ( sf::FloatRect( new_position, Constants::kGridSquareSizePixelsF ).findIntersection( obstacle_pos_cmp ) ) is_valid = false;
+          if ( sf::FloatRect( new_position, Constants::kGridSizePxF ).findIntersection( obstacle_pos_cmp ) ) is_valid = false;
         }
         if ( is_valid ) { player_pos_cmp.position = new_position; }
         else { SPDLOG_DEBUG( "New Position was invalid so cancelled" ); }

@@ -27,9 +27,9 @@ namespace ProceduralMaze::Sys
 void HolyWellSystem::spawn_exit( sf::Vector2u spawn_position )
 {
 
-  sf::FloatRect spawn_pos_px = sf::FloatRect( { static_cast<float>( spawn_position.x ) * Constants::kGridSquareSizePixels.x,
-                                                static_cast<float>( spawn_position.y ) * Constants::kGridSquareSizePixels.y },
-                                              Constants::kGridSquareSizePixelsF );
+  sf::FloatRect spawn_pos_px = sf::FloatRect(
+      { static_cast<float>( spawn_position.x ) * Constants::kGridSizePx.x, static_cast<float>( spawn_position.y ) * Constants::kGridSizePx.y },
+      Constants::kGridSizePxF );
 
   // remove any wall
   for ( auto [entt, wall_cmp, pos_cmp] : getReg().view<Cmp::Wall, Cmp::Position>().each() )
@@ -38,7 +38,7 @@ void HolyWellSystem::spawn_exit( sf::Vector2u spawn_position )
   }
 
   auto entity = getReg().create();
-  getReg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, Constants::kGridSquareSizePixelsF );
+  getReg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, Constants::kGridSizePxF );
   getReg().emplace_or_replace<Cmp::Exit>( entity, false ); // unlocked at start
   getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "CRYPT.interior_sb", 1 );
   getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.position.y );
@@ -53,9 +53,9 @@ void HolyWellSystem::spawn_well( sf::Vector2u spawn_position )
 {
 
   const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "HOLYWELL.interior_well" );
-  Cmp::Position spawn_pos_px( { static_cast<float>( spawn_position.x ) * Constants::kGridSquareSizePixels.x,
-                                static_cast<float>( spawn_position.y ) * Constants::kGridSquareSizePixels.y },
-                              ms.getSpriteSizePixels() );
+  Cmp::Position spawn_pos_px(
+      { static_cast<float>( spawn_position.x ) * Constants::kGridSizePx.x, static_cast<float>( spawn_position.y ) * Constants::kGridSizePx.y },
+      ms.getSpriteSizePixels() );
 
   auto entity = getReg().create();
   getReg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, spawn_pos_px.size );

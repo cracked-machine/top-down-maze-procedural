@@ -59,7 +59,7 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, C
   {
     for ( unsigned int y = 0; y < h; y++ )
     {
-      sf::Vector2f new_pos( { x * Constants::kGridSquareSizePixelsF.x, y * Constants::kGridSquareSizePixelsF.y } );
+      sf::Vector2f new_pos( { x * Constants::kGridSizePxF.x, y * Constants::kGridSizePxF.y } );
 
       // condition for left, right, top, bottom borders
       bool isBorder = ( x == 0 ) || ( y == 0 ) || ( y == 1 ) || ( x == w - 1 ) || ( y == h - 1 ) || ( y == h - 2 );
@@ -84,7 +84,7 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, C
 
         // new_pos.y + grid_height = in front of player
         // new_pos.y - grid_height = behind the player
-        float grid_height = Constants::kGridSquareSizePixelsF.y;
+        float grid_height = Constants::kGridSizePxF.y;
 
         // Top-left corner
         if ( x == 0 && y == 0 ) Factory::add_wall_entity( getReg(), new_pos, wall_type, SpriteIdx::TOPLEFT, new_pos.y + grid_height );
@@ -176,7 +176,7 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size, Cm
       int dy = static_cast<int>( y ) - cy;
       int d2 = dx * dx + dy * dy;
 
-      auto kGridSquareSizePixels = Constants::kGridSquareSizePixels;
+      auto kGridSquareSizePixels = Constants::kGridSizePx;
       sf::Vector2f new_pos( x * kGridSquareSizePixels.x, y * kGridSquareSizePixels.y );
 
       if ( d2 <= rInner2 )
@@ -248,7 +248,7 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, Cmp::
     for ( int y = 0; y < static_cast<int>( h ); ++y )
     {
 
-      auto kGridSquareSizePixels = Constants::kGridSquareSizePixels;
+      auto kGridSquareSizePixels = Constants::kGridSizePx;
       sf::Vector2f new_pos( x * kGridSquareSizePixels.x, y * kGridSquareSizePixels.y );
 
       enum SpriteIdx {
@@ -274,7 +274,7 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, Cmp::
         BOTTOMRIGHTOUTSIDEFRONT = 22
       };
 
-      float grid_height = Constants::kGridSquareSizePixelsF.y;
+      float grid_height = Constants::kGridSizePxF.y;
       float edge_height = grid_height * 5;
       Sprites::SpriteMetaType wall_type = "CRYPT.interior_wall";
       int dx = x - cx;

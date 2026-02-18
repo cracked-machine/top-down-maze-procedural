@@ -356,7 +356,7 @@ bool PlayerSystem::isDiagonalMovementBetweenObstacles( const sf::FloatRect &curr
 {
   if ( !( ( direction.x != 0.0f ) && ( direction.y != 0.0f ) ) ) return false; // Not diagonal
 
-  sf::Vector2f grid_size{ Constants::kGridSquareSizePixels };
+  sf::Vector2f grid_size{ Constants::kGridSizePx };
 
   // Calculate the two orthogonal positions the diagonal movement would "cut through"
   sf::FloatRect horizontal_check = sf::FloatRect{ sf::Vector2f{ current_pos.position.x + ( direction.x * grid_size.x ), current_pos.position.y },
@@ -588,8 +588,8 @@ void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool collision_
 
       // Calculate target position from snapped start
       sf::FloatRect new_pos{ snapped_start, pos_cmp.size };
-      new_pos.position.x = snapped_start.x + ( dir_cmp.x * Constants::kGridSquareSizePixels.x );
-      new_pos.position.y = snapped_start.y + ( dir_cmp.y * Constants::kGridSquareSizePixels.y );
+      new_pos.position.x = snapped_start.x + ( dir_cmp.x * Constants::kGridSizePx.x );
+      new_pos.position.y = snapped_start.y + ( dir_cmp.y * Constants::kGridSizePx.y );
 
       // Check collision ONCE
       bool can_move = not collision_detection || is_valid_move( new_pos );
@@ -707,7 +707,7 @@ void PlayerSystem::check_player_axe_npc_kill()
       bool player_nearby = false;
       for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
       {
-        auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
+        auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
         if ( player_hitbox.findIntersection( npc_pos_cmp ) )
         {
           player_nearby = true;

@@ -28,7 +28,7 @@ namespace ProceduralMaze::Factory
 
 void create_initial_crypt_rooms( entt::registry &reg, sf::Vector2u map_grid_size )
 {
-  const auto &grid_square_size = Constants::kGridSquareSizePixelsF;
+  const auto &grid_square_size = Constants::kGridSizePxF;
   const int min_room_width = 3;
   const int min_room_height = 3;
   const int max_room_width = 8;
@@ -149,7 +149,7 @@ void create_initial_crypt_rooms( entt::registry &reg, sf::Vector2u map_grid_size
 entt::entity CreateCryptLever( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder )
 {
   auto entt = reg.create();
-  reg.emplace_or_replace<Cmp::Position>( entt, pos, Constants::kGridSquareSizePixelsF );
+  reg.emplace_or_replace<Cmp::Position>( entt, pos, Constants::kGridSizePxF );
   reg.emplace_or_replace<Cmp::CryptLever>( entt );
   reg.emplace_or_replace<Cmp::SpriteAnimation>( entt, 0, 0, true, sprite_type, sprite_idx );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
@@ -168,7 +168,7 @@ void DestroyCryptLever( entt::registry &reg, entt::entity entt )
 entt::entity CreateCryptChest( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder )
 {
   auto entt = reg.create();
-  reg.emplace_or_replace<Cmp::Position>( entt, pos, Constants::kGridSquareSizePixelsF );
+  reg.emplace_or_replace<Cmp::Position>( entt, pos, Constants::kGridSizePxF );
   reg.emplace_or_replace<Cmp::CryptChest>( entt );
   reg.emplace_or_replace<Cmp::SpriteAnimation>( entt, 0, 0, false, sprite_type, sprite_idx );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
@@ -187,9 +187,8 @@ void DestroyCryptChest( entt::registry &reg, entt::entity entt )
 void createCryptLavaPit( entt::registry &reg, const Cmp::CryptRoomOpen &room )
 {
   // add the lava pit area
-  sf::Vector2f adjusted_position = { room.position.x + Constants::kGridSquareSizePixelsF.x, room.position.y + Constants::kGridSquareSizePixelsF.y };
-  sf::Vector2f adjusted_size = { room.size.x - ( Constants::kGridSquareSizePixelsF.x * 2 ),
-                                 room.size.y - ( Constants::kGridSquareSizePixelsF.y * 2 ) };
+  sf::Vector2f adjusted_position = { room.position.x + Constants::kGridSizePxF.x, room.position.y + Constants::kGridSizePxF.y };
+  sf::Vector2f adjusted_size = { room.size.x - ( Constants::kGridSizePxF.x * 2 ), room.size.y - ( Constants::kGridSizePxF.y * 2 ) };
   sf::FloatRect lava_pit_bounds( adjusted_position, adjusted_size );
 
   auto lava_pit_entt = reg.create();
@@ -230,7 +229,7 @@ void addSpikeTrap( entt::registry &reg, const entt::entity entt, const int passa
   sf::Vector2f position = *pblock_cmp;
 
   auto spike_entt = reg.create();
-  reg.emplace_or_replace<Cmp::Position>( spike_entt, position, Constants::kGridSquareSizePixelsF );
+  reg.emplace_or_replace<Cmp::Position>( spike_entt, position, Constants::kGridSizePxF );
   reg.emplace_or_replace<Cmp::SpriteAnimation>( spike_entt, 0, 0, false, "CRYPT.interior_spiketrap", 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( spike_entt, position.y - 16.f ); // always behind player
   reg.emplace_or_replace<Cmp::CryptPassageSpikeTrap>( spike_entt, position, passage_id );
@@ -273,14 +272,14 @@ void gen_crypt_initial_interior( entt::registry &reg, Sprites::SpriteFactory &sp
 
 void gen_crypt_main_objective( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size )
 {
-  auto map_grid_sizef = sf::Vector2f( static_cast<float>( map_grid_size.x ) * Constants::kGridSquareSizePixelsF.x,
-                                      static_cast<float>( map_grid_size.y ) * Constants::kGridSquareSizePixelsF.y );
-  auto kGridSquareSizePixelsF = Constants::kGridSquareSizePixelsF;
+  auto map_grid_sizef = sf::Vector2f( static_cast<float>( map_grid_size.x ) * Constants::kGridSizePxF.x,
+                                      static_cast<float>( map_grid_size.y ) * Constants::kGridSizePxF.y );
+  auto kGridSizePxF = Constants::kGridSizePxF;
   // target position for the objective: always center top of the map
   const auto &ms = sprite_factory.get_multisprite_by_type( "CRYPT.interior_objective_closed" );
 
-  float centered_x = ( map_grid_sizef.x / 2.f ) - ( ms.getSpriteSizePixels().x / 2.f ) + kGridSquareSizePixelsF.x;
-  Cmp::Position objective_position( { centered_x, kGridSquareSizePixelsF.y * 2.f }, ms.getSpriteSizePixels() );
+  float centered_x = ( map_grid_sizef.x / 2.f ) - ( ms.getSpriteSizePixels().x / 2.f ) + kGridSizePxF.x;
+  Cmp::Position objective_position( { centered_x, kGridSizePxF.y * 2.f }, ms.getSpriteSizePixels() );
 
   auto entity = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entity, objective_position.position, objective_position.size );
@@ -293,9 +292,8 @@ void gen_crypt_main_objective( entt::registry &reg, Sprites::SpriteFactory &spri
   // whilst we decide on the final objective MB sprite dimensions
 
   auto end_room_entity = reg.create();
-  reg.emplace_or_replace<Cmp::CryptRoomEnd>(
-      end_room_entity, sf::Vector2f{ objective_position.position.x, objective_position.position.y },
-      sf::Vector2f{ objective_position.size.x, objective_position.size.y + ( kGridSquareSizePixelsF.y * 2.f ) } );
+  reg.emplace_or_replace<Cmp::CryptRoomEnd>( end_room_entity, sf::Vector2f{ objective_position.position.x, objective_position.position.y },
+                                             sf::Vector2f{ objective_position.size.x, objective_position.size.y + ( kGridSizePxF.y * 2.f ) } );
 }
 
 } // namespace ProceduralMaze::Factory

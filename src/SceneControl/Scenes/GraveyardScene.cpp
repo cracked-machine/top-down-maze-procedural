@@ -49,7 +49,7 @@ void GraveyardScene::on_init()
 
   Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_start_position );
   auto player_start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
-  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSquareSizePixelsF, 5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
+  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSizePxF, 5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
   Factory::CreatePlayer( m_reg );
 
@@ -78,13 +78,12 @@ void GraveyardScene::on_init()
   m_system_store.find<Sys::SystemStore::Type::CorruptionHazardSystem>().init_hazard_field();
   m_system_store.find<Sys::SystemStore::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
-  Factory::createCarryItem( m_reg, Cmp::Position( m_player_start_position + sf::Vector2f{ 16.f, 16.f }, Constants::kGridSquareSizePixelsF ),
+  Factory::createCarryItem( m_reg, Cmp::Position( m_player_start_position + sf::Vector2f{ 16.f, 16.f }, Constants::kGridSizePxF ),
                             "CARRYITEM.shovel" );
 
-  Factory::createCarryItem( m_reg, Cmp::Position( m_player_start_position - sf::Vector2f{ 16.f, 16.f }, Constants::kGridSquareSizePixelsF ),
-                            "CARRYITEM.axe" );
+  Factory::createCarryItem( m_reg, Cmp::Position( m_player_start_position - sf::Vector2f{ 16.f, 16.f }, Constants::kGridSizePxF ), "CARRYITEM.axe" );
 
-  Factory::createCarryItem( m_reg, Cmp::Position( m_player_start_position - sf::Vector2f{ 32.f, 16.f }, Constants::kGridSquareSizePixelsF ),
+  Factory::createCarryItem( m_reg, Cmp::Position( m_player_start_position - sf::Vector2f{ 32.f, 16.f }, Constants::kGridSizePxF ),
                             "CARRYITEM.scryingball" );
 }
 

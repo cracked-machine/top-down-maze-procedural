@@ -44,9 +44,9 @@ void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
 {
   if ( spawn_position )
   {
-    sf::FloatRect spawn_pos_px = sf::FloatRect( { static_cast<float>( spawn_position->x ) * Constants::kGridSquareSizePixels.x,
-                                                  static_cast<float>( spawn_position->y ) * Constants::kGridSquareSizePixels.y },
-                                                Constants::kGridSquareSizePixelsF );
+    sf::FloatRect spawn_pos_px = sf::FloatRect(
+        { static_cast<float>( spawn_position->x ) * Constants::kGridSizePx.x, static_cast<float>( spawn_position->y ) * Constants::kGridSizePx.y },
+        Constants::kGridSizePxF );
 
     // remove any wall
     for ( auto [entt, wall_cmp, pos_cmp] : getReg().view<Cmp::Wall, Cmp::Position>().each() )
@@ -55,7 +55,7 @@ void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
     }
 
     auto entity = getReg().create();
-    getReg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, Constants::kGridSquareSizePixelsF );
+    getReg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, Constants::kGridSizePxF );
     getReg().emplace_or_replace<Cmp::Exit>( entity, true ); // locked at start
     getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", 1 );
     getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.position.y );

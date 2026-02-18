@@ -61,18 +61,17 @@ bool MultiSprite::add_sprite( const std::vector<uint32_t> &tilemap_picks )
   SPDLOG_INFO( "{} requested {} tiles", m_sprite_type, tilemap_picks.size() );
   for ( const auto &tile_idx : tilemap_picks )
   {
-    sf::Vector2u kGridSquareSizePixels{ Constants::kGridSquareSizePixels.x * m_grid_size.width,
-                                        Constants::kGridSquareSizePixels.y * m_grid_size.height };
+    sf::Vector2u kGridSquareSizePixels{ Constants::kGridSizePx.x * m_grid_size.width, Constants::kGridSizePx.y * m_grid_size.height };
 
     sf::VertexArray current_va( sf::PrimitiveType::Triangles, 6 );
 
     // Calculate texture coordinates based on 16x16 base tile grid (not sprite grid)
-    const int base_tiles_per_row = m_tilemap_texture->getSize().x / Constants::kGridSquareSizePixels.x;
+    const int base_tiles_per_row = m_tilemap_texture->getSize().x / Constants::kGridSizePx.x;
     const int base_tile_x = tile_idx % base_tiles_per_row;
     const int base_tile_y = tile_idx / base_tiles_per_row;
 
-    const int tu = base_tile_x * Constants::kGridSquareSizePixels.x;
-    const int tv = base_tile_y * Constants::kGridSquareSizePixels.y;
+    const int tu = base_tile_x * Constants::kGridSizePx.x;
+    const int tv = base_tile_y * Constants::kGridSizePx.y;
 
     // draw the two triangles within local space using the sprite dimensions
     current_va[0].position = sf::Vector2f( 0, 0 );

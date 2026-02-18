@@ -165,9 +165,9 @@ void CryptSystem::check_exit_collision()
 void CryptSystem::spawn_exit( sf::Vector2u spawn_position )
 {
 
-  sf::FloatRect spawn_pos_px = sf::FloatRect( { static_cast<float>( spawn_position.x ) * Constants::kGridSquareSizePixels.x,
-                                                static_cast<float>( spawn_position.y ) * Constants::kGridSquareSizePixels.y },
-                                              Constants::kGridSquareSizePixelsF );
+  sf::FloatRect spawn_pos_px = sf::FloatRect(
+      { static_cast<float>( spawn_position.x ) * Constants::kGridSizePx.x, static_cast<float>( spawn_position.y ) * Constants::kGridSizePx.y },
+      Constants::kGridSizePxF );
 
   // remove any wall
   for ( auto [entt, wall_cmp, pos_cmp] : getReg().view<Cmp::Wall, Cmp::Position>().each() )
@@ -176,7 +176,7 @@ void CryptSystem::spawn_exit( sf::Vector2u spawn_position )
   }
 
   auto entity = getReg().create();
-  getReg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, Constants::kGridSquareSizePixelsF );
+  getReg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, Constants::kGridSizePxF );
   getReg().emplace_or_replace<Cmp::Exit>( entity, false ); // unlocked at start
   getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "CRYPT.interior_sb", 1 );
   getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.position.y );
@@ -263,7 +263,7 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_cadaver_cmp] : player_view.each() )
   {
-    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
+    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
 
     for ( auto [objective_entity, objective_cmp] : grave_view.each() )
     {
@@ -273,7 +273,7 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
       if ( player_hitbox.findIntersection( objective_cmp ) )
       {
         sf::FloatRect expanded_search( sf::Vector2f{ objective_cmp.position.x, objective_cmp.position.y + objective_cmp.size.y },
-                                       sf::Vector2f{ objective_cmp.size.x, Constants::kGridSquareSizePixelsF.y * 2.f } );
+                                       sf::Vector2f{ objective_cmp.size.x, Constants::kGridSizePxF.y * 2.f } );
         auto obst_entity = Factory::createLootDrop( getReg(), Cmp::SpriteAnimation{ 0, 0, true, "CADAVER_DROP", 0 }, expanded_search,
                                                     Factory::IncludePack<>{},
                                                     Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::CryptObjectiveSegment>{} );
@@ -300,7 +300,7 @@ void CryptSystem::check_lever_activation()
 
   for ( auto [pc_entity, player_cmp, player_pos_cmp] : player_view.each() )
   {
-    auto player_hitbox = Cmp::RectBounds( player_pos_cmp.position, Constants::kGridSquareSizePixelsF, 0.5f );
+    auto player_hitbox = Cmp::RectBounds( player_pos_cmp.position, Constants::kGridSizePxF, 0.5f );
     for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : lever_view.each() )
     {
       // prevent player from spamming lever twice
@@ -339,7 +339,7 @@ void CryptSystem::check_chest_activation( Events::PlayerActionEvent::GameActions
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : player_view.each() )
   {
-    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSquareSizePixelsF, 1.5f );
+    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
     for ( auto [chest_entt, chest_cmp, chest_pos_cmp, chest_anim_cmp] : chest_view.each() )
     {
       // prevent player from spamming chest twice
@@ -380,29 +380,29 @@ void CryptSystem::createRoomBorders()
 
     // clang-format off
     // left border
-    if ( ( pos_cmp.position.x == room_left - Constants::kGridSquareSizePixelsF.x ) and
-         ( pos_cmp.position.y >= room_top - Constants::kGridSquareSizePixelsF.y
+    if ( ( pos_cmp.position.x == room_left - Constants::kGridSizePxF.x ) and
+         ( pos_cmp.position.y >= room_top - Constants::kGridSizePxF.y
            and pos_cmp.position.y <= room_bottom ) )
     {
       is_border = true;
     }
     // right border
     else if ( ( pos_cmp.position.x == room_right ) and
-              ( pos_cmp.position.y >= room_top - Constants::kGridSquareSizePixelsF.y and 
+              ( pos_cmp.position.y >= room_top - Constants::kGridSizePxF.y and 
                 pos_cmp.position.y <= room_bottom ) )
     {
       is_border = true;
     }
     // top border
-    else if ( ( pos_cmp.position.y == room_top - Constants::kGridSquareSizePixelsF.y ) and
-              ( pos_cmp.position.x >= room_left - Constants::kGridSquareSizePixelsF.x and 
+    else if ( ( pos_cmp.position.y == room_top - Constants::kGridSizePxF.y ) and
+              ( pos_cmp.position.x >= room_left - Constants::kGridSizePxF.x and 
                 pos_cmp.position.x <= room_right ) )
     {
       is_border = true;
     }
     // bottom border
     else if ( ( pos_cmp.position.y == room_bottom ) and
-              ( pos_cmp.position.x >= room_left - Constants::kGridSquareSizePixelsF.x and 
+              ( pos_cmp.position.x >= room_left - Constants::kGridSizePxF.x and 
                 pos_cmp.position.x <= room_right ) )
     {
       is_border = true;
@@ -743,7 +743,7 @@ void CryptSystem::checkSpikeTrapCollision()
   {
     if ( not spike_trap_anim_cmp.m_animation_active ) continue;
 
-    Cmp::Position spike_trap_hitbox( spike_trap_cmp, Constants::kGridSquareSizePixelsF );
+    Cmp::Position spike_trap_hitbox( spike_trap_cmp, Constants::kGridSizePxF );
     if ( not player_hitbox.findIntersection( spike_trap_hitbox ) ) continue;
     Scene::CryptScene::stop_maze_timer();
     get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SKEWERED, spike_trap_hitbox ) );
@@ -757,7 +757,7 @@ void CryptSystem::checkSpikeTrapActivationByProximity()
   Cmp::RectBounds player_hitbox_disable( player_pos_cmp.position, player_pos_cmp.size, 5.f );
   for ( auto [spike_trap_entt, spike_trap_cmp, spike_trap_anim_cmp] : getReg().view<Cmp::CryptPassageSpikeTrap, Cmp::SpriteAnimation>().each() )
   {
-    auto spike_trap_hitbox = sf::FloatRect( spike_trap_cmp, Constants::kGridSquareSizePixelsF );
+    auto spike_trap_hitbox = sf::FloatRect( spike_trap_cmp, Constants::kGridSizePxF );
     if ( player_hitbox_enable.findIntersection( spike_trap_hitbox ) and
          spike_trap_cmp.m_cooldown_timer.getElapsedTime() > spike_trap_cmp.m_cooldown_threshold )
     {
@@ -833,7 +833,7 @@ std::vector<entt::entity> CryptSystem::getAvailableRoomPositions()
       {
         Cmp::RectBounds expanded_candidate_pos_hitbox( candidate_pos_cmp.position, candidate_pos_cmp.size, 4.f );
 
-        if ( expanded_candidate_pos_hitbox.findIntersection( sf::FloatRect( pblock_cmp, Constants::kGridSquareSizePixelsF ) ) )
+        if ( expanded_candidate_pos_hitbox.findIntersection( sf::FloatRect( pblock_cmp, Constants::kGridSizePxF ) ) )
         {
           intersects_passageblock = true;
           SPDLOG_DEBUG( "{},{} conflict with existing passageblock", candidate_pos_cmp.position.x, candidate_pos_cmp.position.y );
@@ -966,7 +966,7 @@ void CryptSystem::spawnNpcInOpenRooms()
     // Spawn NPC in the selected room
     auto spawn_position = Utils::snap_to_grid( extracted_open_room_cmp.getCenter() );
     auto position_entity = getReg().create();
-    Cmp::Position position_cmp = getReg().emplace<Cmp::Position>( position_entity, spawn_position, Constants::kGridSquareSizePixelsF );
+    Cmp::Position position_cmp = getReg().emplace<Cmp::Position>( position_entity, spawn_position, Constants::kGridSizePxF );
     [[maybe_unused]] Cmp::ZOrderValue zorder_cmp = getReg().emplace<Cmp::ZOrderValue>( position_entity, position_cmp.position.y );
     Factory::createNPC( getReg(), position_entity, "NPCPRIEST" );
 

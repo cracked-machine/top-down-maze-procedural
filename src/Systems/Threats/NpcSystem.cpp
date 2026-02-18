@@ -283,10 +283,10 @@ bool NpcSystem::isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::V
 
   // Create test positions for the two cardinal directions
   sf::FloatRect horizontal_test = current_pos;
-  horizontal_test.position.x += diagonal_direction.x * Constants::kGridSquareSizePixelsF.x;
+  horizontal_test.position.x += diagonal_direction.x * Constants::kGridSizePxF.x;
 
   sf::FloatRect vertical_test = current_pos;
-  vertical_test.position.y += diagonal_direction.y * Constants::kGridSquareSizePixelsF.y;
+  vertical_test.position.y += diagonal_direction.y * Constants::kGridSizePxF.y;
 
   // If EITHER cardinal direction is blocked, block the diagonal
   bool horizontal_blocked = !is_valid_move( horizontal_test );
@@ -358,7 +358,7 @@ void NpcSystem::check_bones_reanimation()
       auto &npc_activate_scale = Sys::PersistSystem::get<Cmp::Persist::NpcActivateScale>( getReg() );
       // we just create a temporary RectBounds here instead of a component because we only need it
       // for this one comparison and it already contains the needed scaling logic
-      auto npc_activate_bounds = Cmp::RectBounds( npccontainer_pos_cmp.position, Constants::kGridSquareSizePixelsF, npc_activate_scale.get_value() );
+      auto npc_activate_bounds = Cmp::RectBounds( npccontainer_pos_cmp.position, Constants::kGridSizePxF, npc_activate_scale.get_value() );
 
       if ( pc_pos_cmp.findIntersection( npc_activate_bounds.getBounds() ) )
       {
@@ -507,7 +507,7 @@ sf::Vector2f NpcSystem::findValidPushbackPosition( const sf::Vector2f &player_po
   // Try each direction in priority order
   for ( const auto &push_dir : preferred_directions )
   {
-    sf::FloatRect candidate_pos{ player_pos + push_dir * pushback_distance, Constants::kGridSquareSizePixelsF };
+    sf::FloatRect candidate_pos{ player_pos + push_dir * pushback_distance, Constants::kGridSizePxF };
     candidate_pos = Utils::snap_to_grid( candidate_pos );
 
     // Check if this position is valid and different from current position
@@ -610,10 +610,10 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
         }
 
         auto horizontal_hitbox = Cmp::RectBounds( sf::Vector2f{ npc_pos->position.x + ( candidate_dir.x * 16 ), npc_pos->position.y },
-                                                  Constants::kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
+                                                  Constants::kGridSizePxF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
         auto vertical_hitbox = Cmp::RectBounds( sf::Vector2f{ npc_pos->position.x, npc_pos->position.y + ( candidate_dir.y * 16 ) },
-                                                Constants::kGridSquareSizePixelsF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
+                                                Constants::kGridSizePxF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
         SPDLOG_DEBUG( "Checking distance {} - NPC at ({}, {}), Target at ({}, {}), Dir ({}, {})", nearest_obstacle.first, npc_pos->position.x,
                       npc_pos->position.y, move_candidate_pixel_pos.value().x, move_candidate_pixel_pos.value().y, candidate_dir.x, candidate_dir.y );
         SPDLOG_DEBUG( "Horizontal hitbox at ({}, {}), Vertical hitbox at ({}, {})", npc_pos->position.x + ( candidate_dir.x * 16 ),

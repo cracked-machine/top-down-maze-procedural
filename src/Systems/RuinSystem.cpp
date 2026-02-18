@@ -174,7 +174,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
     return false;
   };
 
-  constexpr auto &gridsize = Constants::kGridSquareSizePixelsF;
+  constexpr auto &gridsize = Constants::kGridSizePxF;
   constexpr auto ScaleCardinality_VERTICAL = Cmp::RectBounds::ScaleCardinality::VERTICAL;
 
   int max_rows = scene_dimensions.size.y / gridsize.y;
@@ -268,7 +268,7 @@ void RuinSystem::add_lowerfloor_cobwebs( sf::FloatRect scene_dimensions )
     return false;
   };
 
-  constexpr auto &gridsize = Constants::kGridSquareSizePixelsF;
+  constexpr auto &gridsize = Constants::kGridSizePxF;
   int max_cobwebs = 500;
   for ( auto _ : std::views::iota( 0, max_cobwebs ) )
   {

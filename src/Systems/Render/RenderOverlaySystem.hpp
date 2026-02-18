@@ -84,7 +84,7 @@ public:
       if ( pos_cmp && requested_cmp )
       {
         sf::RectangleShape rectangle;
-        rectangle.setSize( Constants::kGridSquareSizePixelsF );
+        rectangle.setSize( Constants::kGridSizePxF );
         rectangle.setPosition( pos_cmp->position );
         rectangle.setFillColor( sf::Color::Transparent );
         rectangle.setOutlineColor( square_color );
@@ -103,7 +103,7 @@ public:
       if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
       {
         sf::RectangleShape rectangle;
-        rectangle.setSize( Constants::kGridSquareSizePixelsF );
+        rectangle.setSize( Constants::kGridSizePxF );
         rectangle.setPosition( requested_cmp );
         rectangle.setFillColor( sf::Color::Transparent );
         rectangle.setOutlineColor( square_color );

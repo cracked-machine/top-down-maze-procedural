@@ -82,11 +82,11 @@ void createNPC( entt::registry &registry, entt::entity position_entity, const Sp
 
   // create a new entity for the NPC using the existing position
   auto new_pos_entity = registry.create();
-  registry.emplace<Cmp::Position>( new_pos_entity, pos_cmp->position, Constants::kGridSquareSizePixelsF );
+  registry.emplace<Cmp::Position>( new_pos_entity, pos_cmp->position, Constants::kGridSizePxF );
   registry.emplace<Cmp::Armable>( new_pos_entity );
   registry.emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 0, 0 } );
   auto &npc_scan_scale = Sys::PersistSystem::get<Cmp::Persist::NpcScanScale>( registry );
-  registry.emplace_or_replace<Cmp::NPCScanBounds>( new_pos_entity, pos_cmp->position, Constants::kGridSquareSizePixelsF, npc_scan_scale.get_value() );
+  registry.emplace_or_replace<Cmp::NPCScanBounds>( new_pos_entity, pos_cmp->position, Constants::kGridSizePxF, npc_scan_scale.get_value() );
   if ( type == "NPCGHOST" )
   {
     registry.emplace_or_replace<Cmp::NPC>( new_pos_entity );
