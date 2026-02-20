@@ -7,6 +7,7 @@
 #include <Components/System.hpp>
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/Scenes/RuinSceneLowerFloor.hpp>
@@ -87,6 +88,12 @@ void RuinSceneLowerFloor::on_init()
 void RuinSceneLowerFloor::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
+  m_sound_bank.get_music( "game_music" ).stop();
+  if ( m_sound_bank.get_music( "creaking_rope" ).getStatus() != sf::Sound::Status::Playing )
+  {
+    m_sound_bank.get_music( "creaking_rope" ).play();
+    m_sound_bank.get_music( "creaking_rope" ).setLooping( true );
+  }
 
   auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
@@ -137,6 +144,7 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().check_exit_collision();
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().check_floor_access_collision( Cmp::RuinFloorAccess::Direction::TO_UPPER );
   m_system_store.find<Sys::SystemStore::Type::RuinSystem>().check_movement_slowdowns();
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().creaking_rope_update();
 
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt, Sys::PlayerSystem::FootStepSfx::NONE );
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().disable_damage_cooldown();

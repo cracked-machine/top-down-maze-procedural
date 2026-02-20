@@ -97,7 +97,11 @@ void GraveyardScene::on_enter()
   m_persistent_sys.load_state();
 
   m_sound_bank.get_music( "title_music" ).stop();
-  if ( m_sound_bank.get_music( "game_music" ).getStatus() != sf::Sound::Status::Playing ) { m_sound_bank.get_music( "game_music" ).play(); }
+  if ( m_sound_bank.get_music( "game_music" ).getStatus() != sf::Sound::Status::Playing )
+  {
+    m_sound_bank.get_music( "game_music" ).play();
+    m_sound_bank.get_music( "game_music" ).setLooping( true );
+  }
 
   // prevent residual lerp movements from previous scene causing havoc in the new one
   Utils::Player::remove_player_lerp_cmp( m_reg );
@@ -123,6 +127,8 @@ void GraveyardScene::on_exit()
   m_player_sys.stopFootstepsSound();
 
   Factory::FloormapFactory::ClearFloormap( m_floormap );
+
+  m_sound_bank.get_music( "game_music" ).stop();
 }
 
 void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )

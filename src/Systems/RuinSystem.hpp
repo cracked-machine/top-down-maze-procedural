@@ -2,7 +2,7 @@
 #define SRC_SYSTEMS_RUINSYSTEM_HPP_
 
 #include <Components/Ruin/RuinFloorAccess.hpp>
-#include <Factory/MultiblockFactory.hpp>
+
 #include <SFML/Graphics/Rect.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -12,6 +12,13 @@ namespace ProceduralMaze::Sprites
 class MultiSprite;
 class SpriteFactory;
 } // namespace ProceduralMaze::Sprites
+
+namespace ProceduralMaze::Cmp
+{
+class RuinStairsLowerMultiBlock;
+class RuinStairsUpperMultiBlock;
+class RuinStairsBalustradeMultiBlock;
+} // namespace ProceduralMaze::Cmp
 
 namespace ProceduralMaze::Sys
 {
@@ -33,19 +40,9 @@ public:
   void spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f size, Cmp::RuinFloorAccess::Direction dir );
 
   template <typename COMPONENT>
-  void add_stairs( sf::Vector2f spawn_position, const Sprites::MultiSprite &stairs_ms, float zorder = 0 )
-  {
-    auto stairs_entt = getReg().create();
-    Cmp::Position stairs_pos( spawn_position, stairs_ms.getSpriteSizePixels() );
-    getReg().emplace_or_replace<Cmp::Position>( stairs_entt, spawn_position, stairs_ms.getSpriteSizePixels() );
-    Factory::createMultiblock<COMPONENT>( getReg(), stairs_entt, stairs_pos, stairs_ms );
-    Factory::createMultiblockSegments<COMPONENT, Cmp::RuinStairsSegment>( getReg(), stairs_entt, stairs_pos, stairs_ms );
+  void add_stairs( sf::Vector2f spawn_position, const Sprites::MultiSprite &stairs_ms, float zorder = 0 );
 
-    for ( auto [stairs_entt, stairs_cmp, stairs_zorder] : getReg().view<COMPONENT, Cmp::ZOrderValue>().each() )
-    {
-      stairs_zorder.setZOrder( zorder );
-    }
-  }
+  void creaking_rope_update();
 
   void check_floor_access_collision( Cmp::RuinFloorAccess::Direction direction );
 
@@ -70,7 +67,13 @@ private:
 
   //! @brief Track if player was on floor access last frame (requires leaving before re-triggering)
   bool m_was_on_floor_access{ false };
+
+  sf::Clock m_creaking_rope_swing_timer{};
 };
+
+extern template void RuinSystem::add_stairs<Cmp::RuinStairsLowerMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
+extern template void RuinSystem::add_stairs<Cmp::RuinStairsUpperMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
+extern template void RuinSystem::add_stairs<Cmp::RuinStairsBalustradeMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
 
 } // namespace ProceduralMaze::Sys
 

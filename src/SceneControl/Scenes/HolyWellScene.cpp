@@ -54,6 +54,7 @@ void HolyWellScene::on_init()
 void HolyWellScene::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
+  m_sound_bank.get_music( "game_music" ).stop();
 
   auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();

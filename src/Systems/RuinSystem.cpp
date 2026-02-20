@@ -2,11 +2,9 @@
 
 #include <SFML/Graphics/Rect.hpp>
 #include <entt/entity/fwd.hpp>
+#include <numbers>
 
 #include <Audio/SoundBank.hpp>
-#include <Components/LerpPosition.hpp>
-#include <Components/Persistent/PlayerLerpSpeed.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerRuinLocation.hpp>
 #include <Components/Player/PlayerSpeedPenalty.hpp>
 #include <Components/Random.hpp>
@@ -15,7 +13,7 @@
 #include <Components/Ruin/RuinCobweb.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/Ruin/RuinFloorAccess.hpp>
-#include <Components/Ruin/RuinSegment.hpp>
+#include <Components/Ruin/RuinStairsBalustradeMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsLowerMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsSegment.hpp>
 #include <Components/Ruin/RuinStairsUpperMultiBlock.hpp>
@@ -29,11 +27,7 @@
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/RuinSystem.hpp>
 #include <Utils/Collision.hpp>
-#include <Utils/Constants.hpp>
-#include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
-#include <Utils/Random.hpp>
-#include <Utils/Utils.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -281,5 +275,35 @@ void RuinSystem::add_lowerfloor_cobwebs( sf::FloatRect scene_dimensions )
     Factory::create_cobweb( getReg(), rnd_pos.position, m_sprite_factory.get_multisprite_by_type( ms ), idx );
   }
 }
+
+template <typename COMPONENT>
+void RuinSystem::add_stairs( sf::Vector2f spawn_position, const Sprites::MultiSprite &stairs_ms, float zorder )
+{
+  auto stairs_entt = getReg().create();
+  Cmp::Position stairs_pos( spawn_position, stairs_ms.getSpriteSizePixels() );
+  getReg().emplace_or_replace<Cmp::Position>( stairs_entt, spawn_position, stairs_ms.getSpriteSizePixels() );
+  Factory::createMultiblock<COMPONENT>( getReg(), stairs_entt, stairs_pos, stairs_ms );
+  Factory::createMultiblockSegments<COMPONENT, Cmp::RuinStairsSegment>( getReg(), stairs_entt, stairs_pos, stairs_ms );
+
+  for ( auto [stairs_entt, stairs_cmp, stairs_zorder] : getReg().view<COMPONENT, Cmp::ZOrderValue>().each() )
+  {
+    stairs_zorder.setZOrder( zorder );
+  }
+}
+
+void RuinSystem::creaking_rope_update()
+{
+  static float m_creaking_rope_swing_freq{ 0.1f }; // oscillations per second
+  auto t = m_creaking_rope_swing_timer.getElapsedTime().asSeconds();
+
+  float stereo_pan_value = std::sin( t * m_creaking_rope_swing_freq * std::numbers::pi );
+
+  SPDLOG_INFO( "creaking_rope_update: {}", stereo_pan_value );
+  m_sound_bank.get_music( "creaking_rope" ).setPan( stereo_pan_value );
+}
+
+template void RuinSystem::add_stairs<Cmp::RuinStairsLowerMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
+template void RuinSystem::add_stairs<Cmp::RuinStairsUpperMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
+template void RuinSystem::add_stairs<Cmp::RuinStairsBalustradeMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
 
 } // namespace ProceduralMaze::Sys

@@ -31,7 +31,11 @@ void TitleScene::on_enter()
   auto &music_volume = Sys::PersistSystem::get<Cmp::Persist::MusicVolume>( m_reg ).get_value();
   m_sound_bank.update_music_volume( music_volume );
 
-  if ( m_sound_bank.get_music( "title_music" ).getStatus() != sf::Music::Status::Playing ) { m_sound_bank.get_music( "title_music" ).play(); }
+  if ( m_sound_bank.get_music( "title_music" ).getStatus() != sf::Music::Status::Playing )
+  {
+    m_sound_bank.get_music( "title_music" ).play();
+    m_sound_bank.get_music( "title_music" ).setLooping( true );
+  }
 }
 
 void TitleScene::on_exit()

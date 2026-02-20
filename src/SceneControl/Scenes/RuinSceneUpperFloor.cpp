@@ -91,6 +91,11 @@ void RuinSceneUpperFloor::on_init()
 void RuinSceneUpperFloor::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
+  if ( m_sound_bank.get_music( "creaking_rope" ).getStatus() != sf::Sound::Status::Playing )
+  {
+    m_sound_bank.get_music( "creaking_rope" ).play();
+    m_sound_bank.get_music( "creaking_rope" ).setLooping( true );
+  }
 
   auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();

@@ -14,6 +14,7 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Font.hpp>
 #include <SceneControl/SceneManager.hpp>
+#include <Sprites/SpriteFactory.hpp>
 #include <Systems/SystemStore.hpp>
 
 #include <future>

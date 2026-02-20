@@ -58,6 +58,7 @@ void SoundBank::init()
   // Initialize music (can't use initializer list because sf::Music is move-only)
   music.emplace( "title_music", MusicData{ "res/audio/EerieScifi.mp3" } );
   music.emplace( "game_music", MusicData{ "res/audio/SadWindyOrgan.mp3" } );
+  music.emplace( "creaking_rope", MusicData{ "res/audio/rope.mp3" } );
 }
 
 void SoundBank::update_effects_volume( float volume )
