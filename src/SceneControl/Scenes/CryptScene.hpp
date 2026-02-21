@@ -10,7 +10,7 @@
 #include <Utils/Utils.hpp>
 
 // clang-format off
-namespace ProceduralMaze::Sys { class SystemStore; }
+namespace ProceduralMaze::Sys { class Store; }
 namespace ProceduralMaze::Audio { class SoundBank; }
 // clang-format on
 
@@ -27,11 +27,10 @@ public:
   inline static constexpr sf::Vector2f kMapGridSizeF{ static_cast<float>( kMapGridSize.x * Constants::kGridSizePx.x ),
                                                       static_cast<float>( kMapGridSize.y *Constants::kGridSizePx.y ) };
 
-  CryptScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher,
-              Sprites::SpriteFactory &sprite_Factory )
+  CryptScene( Audio::SoundBank &sound_bank, Sys::Store &system_store, entt::dispatcher &nav_event_dispatcher, Sprites::SpriteFactory &sprite_Factory )
       : Scene( nav_event_dispatcher ),
         m_sound_bank( sound_bank ),
-        m_system_store( system_store ),
+        m_sys( system_store ),
         m_sprite_Factory( sprite_Factory )
   {
   }
@@ -52,7 +51,7 @@ protected:
 
 private:
   Audio::SoundBank &m_sound_bank;
-  Sys::SystemStore &m_system_store;
+  Sys::Store &m_sys;
   Sprites::SpriteFactory &m_sprite_Factory;
   Sprites::Containers::TileMap m_floormap{};
 

@@ -5,7 +5,7 @@
 #include <SceneControl/Scene.hpp>
 
 // clang-format off
-namespace ProceduralMaze::Sys { class SystemStore; }
+namespace ProceduralMaze::Sys { class Store; }
 namespace ProceduralMaze::Audio { class SoundBank; }
 // clang-format on
 
@@ -15,9 +15,9 @@ namespace ProceduralMaze::Scene
 class SettingsMenuScene : public Scene<Events::ProcessSettingsMenuSceneInputEvent>
 {
 public:
-  SettingsMenuScene( Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher )
+  SettingsMenuScene( Sys::Store &system_store, entt::dispatcher &nav_event_dispatcher )
       : Scene( nav_event_dispatcher ),
-        m_system_store( system_store )
+        m_sys( system_store )
   {
   }
 
@@ -32,7 +32,7 @@ protected:
   void do_update( [[maybe_unused]] sf::Time dt ) override;
 
 private:
-  Sys::SystemStore &m_system_store;
+  Sys::Store &m_sys;
 };
 
 } // namespace ProceduralMaze::Scene

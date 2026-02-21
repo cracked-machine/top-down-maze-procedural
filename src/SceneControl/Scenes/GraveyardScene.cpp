@@ -37,11 +37,11 @@ void GraveyardScene::on_init()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
 
-  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
+  auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  auto &render_game_system = m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>();
+  auto &render_game_system = m_sys.find<Sys::Store::Type::RenderGameSystem>();
   SPDLOG_INFO( "Got render_game_system at {}", static_cast<void *>( &render_game_system ) );
   render_game_system.init_shaders();
 
@@ -55,7 +55,7 @@ void GraveyardScene::on_init()
   Factory::CreatePlayer( m_reg );
 
   // create the level contents
-  auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
+  auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
   random_level_sys.gen_circular_gamearea( GraveyardScene::kMapGridSize, player_start_area );
   random_level_sys.gen_graveyard_exterior_multiblocks();
@@ -65,19 +65,19 @@ void GraveyardScene::on_init()
   random_level_sys.gen_graveyard_exterior_obstacles();
 
   // now use cellular automata on the exterior obstacles
-  auto &cellauto_parser = m_system_store.find<Sys::SystemStore::Type::CellAutomataSystem>();
+  auto &cellauto_parser = m_sys.find<Sys::Store::Type::CellAutomataSystem>();
   cellauto_parser.set_random_level_generator( &random_level_sys );
   cellauto_parser.iterate( 5, GraveyardScene::kMapGridSize, Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, GraveyardScene::kMapGridSize, "res/json/graveyard_tilemap_config.json" );
 
-  m_system_store.find<Sys::SystemStore::Type::ExitSystem>().spawn_exit();
+  m_sys.find<Sys::Store::Type::ExitSystem>().spawn_exit();
 
   render_game_system.init_views();
 
-  m_system_store.find<Sys::SystemStore::Type::SinkHoleHazardSystem>().init_hazard_field();
-  m_system_store.find<Sys::SystemStore::Type::CorruptionHazardSystem>().init_hazard_field();
-  m_system_store.find<Sys::SystemStore::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
+  m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().init_hazard_field();
+  m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().init_hazard_field();
+  m_sys.find<Sys::Store::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
   Factory::createCarryItem( m_reg, Cmp::Position( m_player_start_position + sf::Vector2f{ 16.f, 16.f }, Constants::kGridSizePxF ),
                             "CARRYITEM.shovel" );
@@ -92,7 +92,7 @@ void GraveyardScene::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
 
-  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
+  auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
@@ -123,7 +123,7 @@ void GraveyardScene::on_exit()
   m_sound_bank.get_music( "game_music" ).stop();
   m_sound_bank.get_music( "title_music" ).play();
 
-  auto &m_player_sys = m_system_store.find<Sys::SystemStore::Type::PlayerSystem>();
+  auto &m_player_sys = m_sys.find<Sys::Store::Type::PlayerSystem>();
   m_player_sys.stopFootstepsSound();
 
   Factory::FloormapFactory::ClearFloormap( m_floormap );
@@ -133,36 +133,31 @@ void GraveyardScene::on_exit()
 
 void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
 {
-  m_system_store.find<Sys::SystemStore::Type::AnimSystem>().update( dt );
-  m_system_store.find<Sys::SystemStore::Type::SinkHoleHazardSystem>().update();
-  m_system_store.find<Sys::SystemStore::Type::CorruptionHazardSystem>().update();
-  m_system_store.find<Sys::SystemStore::Type::BombSystem>().update();
-  m_system_store.find<Sys::SystemStore::Type::ExitSystem>().check_exit_collision();
-  m_system_store.find<Sys::SystemStore::Type::ExitSystem>().check_player_can_unlock_exit();
-  m_system_store.find<Sys::SystemStore::Type::LootSystem>().check_loot_collision();
-  m_system_store.find<Sys::SystemStore::Type::NpcSystem>().update( dt );
-  m_system_store.find<Sys::SystemStore::Type::WormholeSystem>().check_player_wormhole_collision();
-  m_system_store.find<Sys::SystemStore::Type::DiggingSystem>().update();
-  m_system_store.find<Sys::SystemStore::Type::FootstepSystem>().update();
+  m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().update();
+  m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().update();
+  m_sys.find<Sys::Store::Type::BombSystem>().update();
+  m_sys.find<Sys::Store::Type::ExitSystem>().check_exit_collision();
+  m_sys.find<Sys::Store::Type::ExitSystem>().check_player_can_unlock_exit();
+  m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
+  m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::WormholeSystem>().check_player_wormhole_collision();
+  m_sys.find<Sys::Store::Type::DiggingSystem>().update();
+  m_sys.find<Sys::Store::Type::FootstepSystem>().update();
 
   if ( m_scene_exit_cooldown.getElapsedTime() >= m_scene_exit_cooldown_time )
   {
-    m_system_store.find<Sys::SystemStore::Type::CryptSystem>().check_entrance_collision();
+    m_sys.find<Sys::Store::Type::CryptSystem>().check_entrance_collision();
   }
-  m_system_store.find<Sys::SystemStore::Type::CryptSystem>().unlock_crypt_door();
-  m_system_store.find<Sys::SystemStore::Type::AltarSystem>().check_player_collision();
-  m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().check_entrance_collision();
-  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().update();
+  m_sys.find<Sys::Store::Type::CryptSystem>().unlock_crypt_door();
+  m_sys.find<Sys::Store::Type::AltarSystem>().check_player_collision();
+  m_sys.find<Sys::Store::Type::HolyWellSystem>().check_entrance_collision();
+  m_sys.find<Sys::Store::Type::RuinSystem>().update();
 
-  m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
 
-  // clang-format off
-  m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().render_game( 
-    dt,
-    m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>(), m_floormap,
-    Sys::RenderGameSystem::DarkMode::OFF
-  );
-  // clang-format on
+  auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::OFF );
 }
 
 entt::registry &GraveyardScene::registry() { return m_reg; }

@@ -17,7 +17,7 @@
 
 // clang-format off
 namespace ProceduralMaze::Sprites { class SpriteFactory; }
-namespace ProceduralMaze::Sys { class SystemStore; }
+namespace ProceduralMaze::Sys { class Store; }
 namespace ProceduralMaze::Audio { class SoundBank; }
 // clang-format on
 

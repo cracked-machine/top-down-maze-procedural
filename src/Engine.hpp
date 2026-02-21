@@ -105,7 +105,7 @@ private:
   std::unique_ptr<Sprites::SpriteFactory> m_sprite_factory;
   std::unique_ptr<Audio::SoundBank> m_sound_bank = std::make_unique<Audio::SoundBank>();
 
-  std::unique_ptr<Sys::SystemStore> m_system_store;
+  std::unique_ptr<Sys::Store> m_system_store;
   std::unique_ptr<Scene::SceneManager> m_scene_manager;
 
   entt::dispatcher m_nav_event_dispatcher;

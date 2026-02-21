@@ -16,6 +16,7 @@ namespace ProceduralMaze::Audio { class SoundBank; }
 namespace sf { class RenderWindow; }
 namespace ProceduralMaze::Sys::ProcGen { class CellAutomataSystem; class RandomLevelGenerator; }
 // clang-format on
+
 namespace ProceduralMaze::Sys
 {
 
@@ -44,7 +45,7 @@ class SinkHoleHazardSystem;
 class ShockwaveSystem;
 class WormholeSystem;
 
-class SystemStore
+class Store
 {
 public:
   enum class Type {
@@ -79,8 +80,8 @@ public:
   template <Type T>
   struct SystemTraits;
 
-  SystemStore( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank, entt::dispatcher &nav_event_dispatcher,
-               entt::dispatcher &scenemanager_event_dispatcher );
+  Store( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank, entt::dispatcher &nav_event_dispatcher,
+         entt::dispatcher &scenemanager_event_dispatcher );
 
   template <Type T>
   auto &find()
@@ -105,31 +106,31 @@ private:
 
 // Explicit template specializations for SystemTraits
 // clang-format off
-template<> struct SystemStore::SystemTraits<SystemStore::Type::AltarSystem>            { using type = AltarSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::AnimSystem>             { using type = AnimSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::BombSystem>             { using type = BombSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::CellAutomataSystem>     { using type = ProcGen::CellAutomataSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::CorruptionHazardSystem> { using type = CorruptionHazardSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::CryptSystem>            { using type = ProceduralMaze::Sys::CryptSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::DiggingSystem>          { using type = DiggingSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::ExitSystem>             { using type = ExitSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::FootstepSystem>         { using type = FootstepSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::GraveSystem>            { using type = GraveSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::HolyWellSystem>         { using type = HolyWellSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::RuinSystem>         { using type = RuinSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::LootSystem>             { using type = LootSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::NpcSystem>              { using type = NpcSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::PassageSystem>          { using type = ProceduralMaze::Sys::PassageSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::PersistSystem>          { using type = PersistSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::PlayerSystem>           { using type = PlayerSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::RandomLevelGenerator>   { using type = ProcGen::RandomLevelGenerator; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::RenderGameSystem>       { using type = RenderGameSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::RenderOverlaySystem>    { using type = RenderOverlaySystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::RenderMenuSystem>       { using type = RenderMenuSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::SceneInputRouter>       { using type = SceneInputRouter; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::ShockwaveSystem>        { using type = ShockwaveSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::SinkHoleHazardSystem>   { using type = SinkHoleHazardSystem; };
-template<> struct SystemStore::SystemTraits<SystemStore::Type::WormholeSystem>         { using type = WormholeSystem; };
+template<> struct Store::SystemTraits<Store::Type::AltarSystem>            { using type = AltarSystem; };
+template<> struct Store::SystemTraits<Store::Type::AnimSystem>             { using type = AnimSystem; };
+template<> struct Store::SystemTraits<Store::Type::BombSystem>             { using type = BombSystem; };
+template<> struct Store::SystemTraits<Store::Type::CellAutomataSystem>     { using type = ProcGen::CellAutomataSystem; };
+template<> struct Store::SystemTraits<Store::Type::CorruptionHazardSystem> { using type = CorruptionHazardSystem; };
+template<> struct Store::SystemTraits<Store::Type::CryptSystem>            { using type = ProceduralMaze::Sys::CryptSystem; };
+template<> struct Store::SystemTraits<Store::Type::DiggingSystem>          { using type = DiggingSystem; };
+template<> struct Store::SystemTraits<Store::Type::ExitSystem>             { using type = ExitSystem; };
+template<> struct Store::SystemTraits<Store::Type::FootstepSystem>         { using type = FootstepSystem; };
+template<> struct Store::SystemTraits<Store::Type::GraveSystem>            { using type = GraveSystem; };
+template<> struct Store::SystemTraits<Store::Type::HolyWellSystem>         { using type = HolyWellSystem; };
+template<> struct Store::SystemTraits<Store::Type::RuinSystem>         { using type = RuinSystem; };
+template<> struct Store::SystemTraits<Store::Type::LootSystem>             { using type = LootSystem; };
+template<> struct Store::SystemTraits<Store::Type::NpcSystem>              { using type = NpcSystem; };
+template<> struct Store::SystemTraits<Store::Type::PassageSystem>          { using type = ProceduralMaze::Sys::PassageSystem; };
+template<> struct Store::SystemTraits<Store::Type::PersistSystem>          { using type = PersistSystem; };
+template<> struct Store::SystemTraits<Store::Type::PlayerSystem>           { using type = PlayerSystem; };
+template<> struct Store::SystemTraits<Store::Type::RandomLevelGenerator>   { using type = ProcGen::RandomLevelGenerator; };
+template<> struct Store::SystemTraits<Store::Type::RenderGameSystem>       { using type = RenderGameSystem; };
+template<> struct Store::SystemTraits<Store::Type::RenderOverlaySystem>    { using type = RenderOverlaySystem; };
+template<> struct Store::SystemTraits<Store::Type::RenderMenuSystem>       { using type = RenderMenuSystem; };
+template<> struct Store::SystemTraits<Store::Type::SceneInputRouter>       { using type = SceneInputRouter; };
+template<> struct Store::SystemTraits<Store::Type::ShockwaveSystem>        { using type = ShockwaveSystem; };
+template<> struct Store::SystemTraits<Store::Type::SinkHoleHazardSystem>   { using type = SinkHoleHazardSystem; };
+template<> struct Store::SystemTraits<Store::Type::WormholeSystem>         { using type = WormholeSystem; };
 // clang-format on
 
 } // namespace ProceduralMaze::Sys

@@ -18,11 +18,11 @@ void TitleScene::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
 
-  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
+  auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  auto &m_render_menu_sys = m_system_store.find<Sys::SystemStore::Type::RenderMenuSystem>();
+  auto &m_render_menu_sys = m_sys.find<Sys::Store::Type::RenderMenuSystem>();
   m_render_menu_sys.init_title();
 
   // update fx volumes with persistent settings
@@ -46,7 +46,7 @@ void TitleScene::on_exit()
 
 void TitleScene::do_update( [[maybe_unused]] sf::Time dt )
 {
-  auto &render_menu_sys = m_system_store.find<Sys::SystemStore::Type::RenderMenuSystem>();
+  auto &render_menu_sys = m_sys.find<Sys::Store::Type::RenderMenuSystem>();
   render_menu_sys.render_title();
 }
 

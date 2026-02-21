@@ -30,8 +30,8 @@
 namespace ProceduralMaze::Sys
 {
 
-SystemStore::SystemStore( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
-                          entt::dispatcher &nav_event_dispatcher, entt::dispatcher &scenemanager_event_dispatcher )
+Store::Store( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank, entt::dispatcher &nav_event_dispatcher,
+              entt::dispatcher &scenemanager_event_dispatcher )
 {
   // clang-format off
     m_sysmap.emplace( Type::AltarSystem, std::make_unique<AltarSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );

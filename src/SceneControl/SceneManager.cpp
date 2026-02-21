@@ -23,7 +23,7 @@
 namespace ProceduralMaze::Scene
 {
 
-SceneManager::SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher,
+SceneManager::SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::Store &system_store, entt::dispatcher &nav_event_dispatcher,
                             entt::dispatcher &scenemanager_event_dispatcher, Sprites::SpriteFactory &sprite_factory )
     : m_window( w ),
       m_sound_bank( sound_bank ),

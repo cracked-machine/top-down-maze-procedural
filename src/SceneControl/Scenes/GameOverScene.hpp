@@ -5,7 +5,7 @@
 #include <SceneControl/Scene.hpp>
 
 // clang-format off
-namespace ProceduralMaze::Sys { class SystemStore; }
+namespace ProceduralMaze::Sys { class Store; }
 namespace ProceduralMaze::Audio { class SoundBank; }
 // clang-format on
 
@@ -15,10 +15,10 @@ namespace ProceduralMaze::Scene
 class GameOverScene : public Scene<Events::ProcessGameoverSceneInputEvent>
 {
 public:
-  GameOverScene( Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher )
+  GameOverScene( Audio::SoundBank &sound_bank, Sys::Store &system_store, entt::dispatcher &nav_event_dispatcher )
       : Scene( nav_event_dispatcher ),
         m_sound_bank( sound_bank ),
-        m_system_store( system_store )
+        m_sys( system_store )
   {
   }
 
@@ -34,7 +34,7 @@ protected:
 
 private:
   Audio::SoundBank &m_sound_bank;
-  Sys::SystemStore &m_system_store;
+  Sys::Store &m_sys;
 };
 
 } // namespace ProceduralMaze::Scene

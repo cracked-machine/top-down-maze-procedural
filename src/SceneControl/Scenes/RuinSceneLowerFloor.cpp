@@ -34,9 +34,9 @@ namespace ProceduralMaze::Scene
 void RuinSceneLowerFloor::on_init()
 {
   auto gridsize = Constants::kGridSizePxF;
-  using SystemStoreType = Sys::SystemStore::Type;
+  using SystemStoreType = Sys::Store::Type;
 
-  auto &m_persistent_sys = m_system_store.find<SystemStoreType::PersistSystem>();
+  auto &m_persistent_sys = m_sys.find<SystemStoreType::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
@@ -53,35 +53,34 @@ void RuinSceneLowerFloor::on_init()
   m_reg.emplace_or_replace<Cmp::RuinObjectiveType>( ruin_objective_entt, selected_objective_ms_type );
 
   // generate the scene boundaries
-  auto &random_level_sys = m_system_store.find<SystemStoreType::RandomLevelGenerator>();
+  auto &random_level_sys = m_sys.find<SystemStoreType::RandomLevelGenerator>();
   random_level_sys.reset();
   random_level_sys.gen_rectangle_gamearea( RuinSceneLowerFloor::kMapGridSize, player_start_area, "RUIN.interior_wall",
                                            Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
   // pass concrete spawn position to exit spawner
-  m_system_store.find<SystemStoreType::HolyWellSystem>().spawn_exit(
+  m_sys.find<SystemStoreType::HolyWellSystem>().spawn_exit(
       sf::Vector2u{ RuinSceneLowerFloor::kMapGridSize.x / 3, RuinSceneLowerFloor::kMapGridSize.y - 1 } );
 
   // spawn access hitbox just above horizontal centerpoint
   sf::Vector2f flooraccess_position( RuinSceneLowerFloor::kMapGridSizeF.x - ( 3 * gridsize.x ), 2 * gridsize.y );
   sf::Vector2f flooraccess_size( ( 2 * gridsize.x ), gridsize.y );
-  m_system_store.find<SystemStoreType::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size,
-                                                                         Cmp::RuinFloorAccess::Direction::TO_UPPER );
+  m_sys.find<SystemStoreType::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size, Cmp::RuinFloorAccess::Direction::TO_UPPER );
 
   // add the straircase sprite for lower floor
   const Sprites::MultiSprite &stairs_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.interior_staircase_going_up" );
   sf::Vector2f stairs_position( RuinSceneLowerFloor::kMapGridSizeF.x - ( 4 * gridsize.x ), gridsize.y );
-  m_system_store.find<SystemStoreType::RuinSystem>().add_stairs<Cmp::RuinStairsLowerMultiBlock>( stairs_position, stairs_ms );
+  m_sys.find<SystemStoreType::RuinSystem>().add_stairs<Cmp::RuinStairsLowerMultiBlock>( stairs_position, stairs_ms );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneLowerFloor::kMapGridSize, "res/json/ruin_lower_tilemap_config.json" );
 
   sf::Vector2f bc_area_position( 0, 0 );
   sf::Vector2f bc_area_size( RuinSceneLowerFloor::kMapGridSizeF.x - 48, RuinSceneLowerFloor::kMapGridSizeF.y - 32 );
-  m_system_store.find<SystemStoreType::RuinSystem>().gen_lowerfloor_bookcases( sf::FloatRect( bc_area_position, bc_area_size ) );
+  m_sys.find<SystemStoreType::RuinSystem>().gen_lowerfloor_bookcases( sf::FloatRect( bc_area_position, bc_area_size ) );
 
   // sf::Vector2f cobweb_area_position( 0, 0 );
   // sf::Vector2f cobweb_area_size( RuinSceneLowerFloor::kMapGridSizeF.x - 48, RuinSceneLowerFloor::kMapGridSizeF.y - 32 );
-  // m_system_store.find<SystemStoreType::RuinSystem>().add_lowerfloor_cobwebs( sf::FloatRect( cobweb_area_position, cobweb_area_size ) );
+  // m_sys.find<SystemStoreType::RuinSystem>().add_lowerfloor_cobwebs( sf::FloatRect( cobweb_area_position, cobweb_area_size ) );
 
   // force the loading screen so that we hide any motion sickness inducing camera pan
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
@@ -91,7 +90,7 @@ void RuinSceneLowerFloor::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
   m_sound_bank.get_music( "game_music" ).stop();
-  if ( not m_system_store.find<Sys::SystemStore::Type::RuinSystem>().is_player_carrying_witches_jar() )
+  if ( not m_sys.find<Sys::Store::Type::RuinSystem>().is_player_carrying_witches_jar() )
   {
     if ( m_sound_bank.get_music( "ruin_creaking_rope" ).getStatus() != sf::Sound::Status::Playing )
     {
@@ -101,11 +100,11 @@ void RuinSceneLowerFloor::on_enter()
     if ( m_sound_bank.get_music( "ruin_music" ).getStatus() != sf::Sound::Status::Playing ) { m_sound_bank.get_music( "ruin_music" ).play(); }
   }
 
-  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
+  auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().init_views();
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().init_views();
 
   // prevent residual lerp movements from previous scene causing havoc in the new one
   Utils::Player::remove_player_lerp_cmp( m_reg );
@@ -129,7 +128,7 @@ void RuinSceneLowerFloor::on_enter()
   auto player_entt = Utils::Player::get_player_entity( m_reg );
   m_reg.emplace_or_replace<Cmp::PlayerRuinLocation>( player_entt, Cmp::PlayerRuinLocation::Floor::LOWER );
 
-  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().reset_floor_access_cooldown();
+  m_sys.find<Sys::Store::Type::RuinSystem>().reset_floor_access_cooldown();
 }
 
 void RuinSceneLowerFloor::on_exit()
@@ -145,23 +144,23 @@ void RuinSceneLowerFloor::on_exit()
 
 void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
 {
-  m_system_store.find<Sys::SystemStore::Type::AnimSystem>().update( dt );
-  m_system_store.find<Sys::SystemStore::Type::NpcSystem>().update( dt );
-  // m_system_store.find<Sys::SystemStore::Type::FootstepSystem>().update();
-  m_system_store.find<Sys::SystemStore::Type::LootSystem>().check_loot_collision();
-  m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().check_exit_collision();
-  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().check_floor_access_collision( Cmp::RuinFloorAccess::Direction::TO_UPPER );
-  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().check_movement_slowdowns();
-  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().creaking_rope_update();
+  using namespace Sys;
+  m_sys.find<Store::Type::AnimSystem>().update( dt );
+  m_sys.find<Store::Type::NpcSystem>().update( dt );
+  // m_sys.find<Sys::Store::Type::FootstepSystem>().update();
+  m_sys.find<Store::Type::LootSystem>().check_loot_collision();
+  m_sys.find<Store::Type::HolyWellSystem>().check_exit_collision();
+  m_sys.find<Store::Type::RuinSystem>().check_floor_access_collision( Cmp::RuinFloorAccess::Direction::TO_UPPER );
+  m_sys.find<Store::Type::RuinSystem>().check_movement_slowdowns();
+  m_sys.find<Store::Type::RuinSystem>().creaking_rope_update();
 
-  m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt, Sys::PlayerSystem::FootStepSfx::NONE );
-  m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().disable_damage_cooldown();
+  m_sys.find<Store::Type::PlayerSystem>().update( dt, Sys::PlayerSystem::FootStepSfx::NONE );
+  m_sys.find<Store::Type::PlayerSystem>().disable_damage_cooldown();
 
-  auto &overlay_sys = m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>();
-  m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::RenderGameSystem::DarkMode::OFF,
-                                                                               Sys::RenderGameSystem::WeatherMode::OFF );
+  auto &overlay_sys = m_sys.find<Store::Type::RenderOverlaySystem>();
+  m_sys.find<Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, DarkMode::OFF, WeatherMode::OFF, CursedMode::ON );
 
-  // if ( m_system_store.find<Sys::SystemStore::Type::RuinSystem>().is_player_carrying_witches_jar() )
+  // if ( m_sys.find<Sys::Store::Type::RuinSystem>().is_player_carrying_witches_jar() )
   // {
   //
   Factory::create_witch( m_reg, { 32, 32 } );

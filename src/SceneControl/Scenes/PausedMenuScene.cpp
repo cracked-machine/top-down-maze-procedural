@@ -19,7 +19,7 @@ void PausedMenuScene::on_init() { SPDLOG_INFO( "Initializing PausedMenuScene" );
 void PausedMenuScene::on_enter()
 {
   SPDLOG_INFO( "Entering  {}", get_name() );
-  auto &persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
+  auto &persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   persistent_sys.initializeComponentRegistry();
   persistent_sys.load_state();
 
@@ -29,7 +29,7 @@ void PausedMenuScene::on_enter()
 void PausedMenuScene::on_exit()
 {
   SPDLOG_INFO( "Exiting {}", get_name() );
-  auto &persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
+  auto &persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   persistent_sys.save_state();
 
   persistent_sys.get_systems_event_queue().trigger( Events::ResumeClocksEvent() );
@@ -40,14 +40,14 @@ void PausedMenuScene::do_update( [[maybe_unused]] sf::Time dt )
 
   // globalFrameClock.stop();
 
-  auto &render_menu_sys = m_system_store.find<Sys::SystemStore::Type::RenderMenuSystem>();
+  auto &render_menu_sys = m_sys.find<Sys::Store::Type::RenderMenuSystem>();
 
   // check for keyboard/window events to keep window responsive
   render_menu_sys.render_paused( dt );
   std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
 
   // save persistent settings
-  auto &persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
+  auto &persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   persistent_sys.save_state();
 
   // update music/sfx volumes with persistent settings

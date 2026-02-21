@@ -24,7 +24,7 @@ namespace ProceduralMaze::Scene
 class SceneManager
 {
 public:
-  explicit SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::SystemStore &system_store, entt::dispatcher &nav_event_dispatcher,
+  explicit SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::Store &system_store, entt::dispatcher &nav_event_dispatcher,
                          entt::dispatcher &scenemanager_event_dispatcher, Sprites::SpriteFactory &sprite_factory );
 
   // Update the current scene
@@ -110,7 +110,7 @@ private:
   Audio::SoundBank &m_sound_bank;
 
   //! @brief Non-owning reference to the system store
-  Sys::SystemStore &m_system_store;
+  Sys::Store &m_system_store;
 
   // Scene stack managing active scenes
   SceneStack m_scene_stack;

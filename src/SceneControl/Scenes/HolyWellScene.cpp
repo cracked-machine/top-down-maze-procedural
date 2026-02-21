@@ -23,7 +23,7 @@ namespace ProceduralMaze::Scene
 
 void HolyWellScene::on_init()
 {
-  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
+  auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
@@ -34,16 +34,15 @@ void HolyWellScene::on_init()
   sf::Vector2f player_start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSizePxF, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
-  auto &random_level_sys = m_system_store.find<Sys::SystemStore::Type::RandomLevelGenerator>();
+  auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
   random_level_sys.gen_rectangle_gamearea( HolyWellScene::kMapGridSize, player_start_area, "HOLYWELL.interior_wall",
                                            Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
   // pass concrete spawn position to exit spawner
-  m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().spawn_exit(
-      sf::Vector2u{ HolyWellScene::kMapGridSize.x / 2, HolyWellScene::kMapGridSize.y - 1 } );
+  m_sys.find<Sys::Store::Type::HolyWellSystem>().spawn_exit( sf::Vector2u{ HolyWellScene::kMapGridSize.x / 2, HolyWellScene::kMapGridSize.y - 1 } );
 
-  m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().spawn_well( sf::Vector2u{ ( HolyWellScene::kMapGridSize.x / 2 ) - 1, 4 } );
+  m_sys.find<Sys::Store::Type::HolyWellSystem>().spawn_well( sf::Vector2u{ ( HolyWellScene::kMapGridSize.x / 2 ) - 1, 4 } );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, HolyWellScene::kMapGridSize, "res/json/holywell_tilemap_config.json" );
 
@@ -56,11 +55,11 @@ void HolyWellScene::on_enter()
   SPDLOG_INFO( "Entering {}", get_name() );
   m_sound_bank.get_music( "game_music" ).stop();
 
-  auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
+  auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().init_views();
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().init_views();
 
   auto player_view = m_reg.view<Cmp::PlayerCharacter, Cmp::Position>();
   for ( auto [player_entity, pc_cmp, pos_cmp] : player_view.each() )
@@ -80,16 +79,16 @@ void HolyWellScene::on_exit()
 
 void HolyWellScene::do_update( [[maybe_unused]] sf::Time dt )
 {
-  m_system_store.find<Sys::SystemStore::Type::AnimSystem>().update( dt );
-  m_system_store.find<Sys::SystemStore::Type::NpcSystem>().update( dt );
-  m_system_store.find<Sys::SystemStore::Type::FootstepSystem>().update();
-  m_system_store.find<Sys::SystemStore::Type::LootSystem>().check_loot_collision();
-  m_system_store.find<Sys::SystemStore::Type::HolyWellSystem>().check_exit_collision();
+  m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::FootstepSystem>().update();
+  m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
+  m_sys.find<Sys::Store::Type::HolyWellSystem>().check_exit_collision();
 
-  m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
 
-  auto &overlay_sys = m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>();
-  m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::RenderGameSystem::DarkMode::OFF );
+  auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::OFF );
 }
 
 entt::registry &HolyWellScene::registry() { return m_reg; }
