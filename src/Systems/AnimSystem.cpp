@@ -1,3 +1,4 @@
+#include <Persistent/NpcWitchAnimFramerate.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Components/Altar/AltarSacrifice.hpp>
@@ -203,6 +204,10 @@ void AnimSystem::update( sf::Time globalDeltaTime )
       else if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) )
       {
         frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::NpcGhostAnimFramerate>( getReg() ).get_value() );
+      }
+      else if ( anim_cmp.m_sprite_type.contains( "NPCWITCH" ) )
+      {
+        frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::NpcWitchAnimFramerate>( getReg() ).get_value() );
       }
       const auto &npc_walk_sequence = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
       update_single_sequence( anim_cmp, globalDeltaTime, npc_walk_sequence, frame_rate );

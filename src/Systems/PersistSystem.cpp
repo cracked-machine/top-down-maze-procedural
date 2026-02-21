@@ -1,3 +1,4 @@
+#include <Persistent/NpcWitchAnimFramerate.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Components/Persistent/CameraSmoothSpeed.hpp>
@@ -114,6 +115,7 @@ void PersistSystem::initializeTypeRegistry()
   reg.operator()<NpcShockwaveResolution>("NpcShockwaveResolution");
   reg.operator()<NpcShockwaveSpeed>("NpcShockwaveSpeed");
   reg.operator()<NpcSkeleAnimFramerate>("NpcSkeleAnimFramerate");
+  reg.operator()<NpcWitchAnimFramerate>("NpcWitchAnimFramerate");
   reg.operator()<PcDamageDelay>("PcDamageDelay");
   reg.operator()<PlayerAnimFramerate>("PlayerAnimFramerate");
   reg.operator()<PlayerDetectionScale>("PlayerDetectionScale");

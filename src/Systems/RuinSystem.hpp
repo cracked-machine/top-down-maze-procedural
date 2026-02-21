@@ -59,6 +59,9 @@ public:
 
   bool is_player_carrying_witches_jar();
 
+  void update_shadow_hand_pos( float max_xpos, float pixels_per_frame );
+  void check_player_shadow_hand_collision();
+
 private:
   //! @brief Dispatcher reference for scene management events
   entt::dispatcher &m_scenemanager_event_dispatcher;

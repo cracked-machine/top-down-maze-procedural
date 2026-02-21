@@ -30,6 +30,7 @@
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Player/PlayerCurse.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>

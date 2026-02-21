@@ -3,6 +3,7 @@
 #include <Components/LerpPosition.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/PlayerCurse.hpp>
 #include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Player/PlayerMortality.hpp>
@@ -78,6 +79,12 @@ Cmp::ZOrderValue &get_player_zorder( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::ZOrderValue>();
   return player_view.get<Cmp::ZOrderValue>( get_player_entity( reg ) );
+}
+
+Cmp::PlayerCurse &get_player_curse( entt::registry &reg )
+{
+  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::PlayerCurse>();
+  return player_view.get<Cmp::PlayerCurse>( get_player_entity( reg ) );
 }
 
 float get_player_speed_penalty( entt::registry &reg )

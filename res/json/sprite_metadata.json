@@ -202,6 +202,20 @@
         }
       }
     },
+    "NPCWITCH": {
+      "displayname": "NPCWITCH",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/NPC.grave_revenant.png",
+        "sprite_indices": [0, 1, 2, 3],
+        "sprites_per_sequence": 4,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
     "NPCGHOST.walk.south": {
       "displayname": "NPCGHOST.walk.south",
       "weight": 1.0,
@@ -1891,6 +1905,20 @@
         "grid_size": {
           "width": 1,
           "height": 1
+        }
+      }
+    },
+    "RUIN.shadow_hand": {
+      "displayname": "RUIN.shadow_hand",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/RUIN.cursed_hand.png",
+        "sprite_indices": [0],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 20,
+          "height": 6
         }
       }
     },

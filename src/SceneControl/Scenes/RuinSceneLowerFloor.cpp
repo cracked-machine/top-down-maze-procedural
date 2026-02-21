@@ -6,7 +6,10 @@
 #include <Components/Ruin/RuinStairsLowerMultiBlock.hpp>
 #include <Components/System.hpp>
 #include <Factory/FloormapFactory.hpp>
+#include <Factory/NpcFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Factory/RuinFactory.hpp>
+#include <Npc/Npc.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
@@ -76,9 +79,9 @@ void RuinSceneLowerFloor::on_init()
   sf::Vector2f bc_area_size( RuinSceneLowerFloor::kMapGridSizeF.x - 48, RuinSceneLowerFloor::kMapGridSizeF.y - 32 );
   m_system_store.find<SystemStoreType::RuinSystem>().gen_lowerfloor_bookcases( sf::FloatRect( bc_area_position, bc_area_size ) );
 
-  sf::Vector2f cobweb_area_position( 0, 0 );
-  sf::Vector2f cobweb_area_size( RuinSceneLowerFloor::kMapGridSizeF.x - 48, RuinSceneLowerFloor::kMapGridSizeF.y - 32 );
-  m_system_store.find<SystemStoreType::RuinSystem>().add_lowerfloor_cobwebs( sf::FloatRect( cobweb_area_position, cobweb_area_size ) );
+  // sf::Vector2f cobweb_area_position( 0, 0 );
+  // sf::Vector2f cobweb_area_size( RuinSceneLowerFloor::kMapGridSizeF.x - 48, RuinSceneLowerFloor::kMapGridSizeF.y - 32 );
+  // m_system_store.find<SystemStoreType::RuinSystem>().add_lowerfloor_cobwebs( sf::FloatRect( cobweb_area_position, cobweb_area_size ) );
 
   // force the loading screen so that we hide any motion sickness inducing camera pan
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
@@ -132,6 +135,8 @@ void RuinSceneLowerFloor::on_enter()
 void RuinSceneLowerFloor::on_exit()
 {
   SPDLOG_INFO( "Exiting {}", get_name() );
+  m_sound_bank.get_music( "ruin_creaking_rope" ).stop();
+  m_sound_bank.get_music( "ruin_music" ).stop();
   m_reg.clear();
 
   // force the loading screen so that we hide any motion sickness inducing camera pan
@@ -155,6 +160,12 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   auto &overlay_sys = m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>();
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::RenderGameSystem::DarkMode::OFF,
                                                                                Sys::RenderGameSystem::WeatherMode::OFF );
+
+  // if ( m_system_store.find<Sys::SystemStore::Type::RuinSystem>().is_player_carrying_witches_jar() )
+  // {
+  //
+  Factory::create_witch( m_reg, { 32, 32 } );
+  // }
 }
 
 entt::registry &RuinSceneLowerFloor::registry() { return m_reg; }

@@ -6,6 +6,7 @@
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Persistent/PlayerLerpInterruptThreshold.hpp>
+#include <Persistent/NpcWitchAnimFramerate.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
 
 #include <SFML/System/Angle.hpp>
@@ -201,6 +202,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     ImGui::SeparatorText( "NPC Settings" );
 
     Sys::PersistSystem::get<Cmp::Persist::NpcSkeleAnimFramerate>( getReg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcWitchAnimFramerate>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcGhostAnimFramerate>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcDamage>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::CryptNpcSpawnCount>( getReg() ).render_widget();

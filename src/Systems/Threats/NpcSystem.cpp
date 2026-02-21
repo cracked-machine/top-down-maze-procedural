@@ -42,8 +42,10 @@
 #include <Components/Wall.hpp>
 #include <Components/Wormhole/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Constants.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/NpcFactory.hpp>
+#include <Ruin/RuinBookcase.hpp>
 #include <SFML/System/Time.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -97,45 +99,31 @@ void NpcSystem::update( sf::Time dt )
 bool NpcSystem::is_valid_move( const sf::FloatRect &target_position )
 {
 
-  // Prevent the player from walking through NPCs
-  auto &pc_damage_delay = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() );
-  auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::LerpPosition>();
-  auto pc_view = getReg().view<Cmp::PlayerCharacter>();
-  for ( auto [pc_entity, pc_cmp] : pc_view.each() )
-  {
-    // However if player is in damage cooldown (blinking), let player walk through NPCs to escape
-    if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_delay.get_value() ) continue;
-    for ( auto [entity, npc_cmp, pos_cmp, lerp_pos_cmp] : npc_view.each() )
-    {
-      // relaxed bounds to allow player to sneak past during lerp transition
-      Cmp::RectBounds npc_pos_cmp_bounds_current{ pos_cmp.position, pos_cmp.size, 0.1f };
-      if ( target_position.findIntersection( npc_pos_cmp_bounds_current.getBounds() ) ) { return false; }
-    }
-  }
-  // Check obstacles
-  auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position>();
-  for ( auto [entity, obs_cmp, pos_cmp] : obstacle_view.each() )
-  {
-    if ( pos_cmp.findIntersection( target_position ) )
-    {
-      SPDLOG_DEBUG( "Player Collided Obstacle" );
-      return false;
-    }
-  }
-
-  // Check walls
-  auto wall_view = getReg().view<Cmp::Wall, Cmp::Position>();
-  for ( auto [entity, wall_cmp, pos_cmp] : wall_view.each() )
-  {
-    if ( pos_cmp.findIntersection( target_position ) )
-    {
-      if ( getReg().any_of<Cmp::NpcNoPathFinding>( entity ) )
-      {
-        SPDLOG_DEBUG( "Player Collided Wall" );
-        return false;
-      }
-    }
-  }
+  // // Prevent the player from walking through NPCs
+  // auto &pc_damage_delay = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() );
+  // auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::LerpPosition>();
+  // auto pc_view = getReg().view<Cmp::PlayerCharacter>();
+  // for ( auto [pc_entity, pc_cmp] : pc_view.each() )
+  // {
+  //   // However if player is in damage cooldown (blinking), let player walk through NPCs to escape
+  //   if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_delay.get_value() ) continue;
+  //   for ( auto [entity, npc_cmp, pos_cmp, lerp_pos_cmp] : npc_view.each() )
+  //   {
+  //     // relaxed bounds to allow player to sneak past during lerp transition
+  //     Cmp::RectBounds npc_pos_cmp_bounds_current{ pos_cmp.position, pos_cmp.size, 0.1f };
+  //     if ( target_position.findIntersection( npc_pos_cmp_bounds_current.getBounds() ) ) { return false; }
+  //   }
+  // }
+  // // Check obstacles
+  // auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position>();
+  // for ( auto [entity, obs_cmp, pos_cmp] : obstacle_view.each() )
+  // {
+  //   if ( pos_cmp.findIntersection( target_position ) )
+  //   {
+  //     SPDLOG_INFO( "NPC collided Obstacle" );
+  //     return false;
+  //   }
+  // }
 
   // arbitrary Cmp::NoPathFinding components
   auto nppathfinding_view = getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>();
@@ -143,126 +131,7 @@ bool NpcSystem::is_valid_move( const sf::FloatRect &target_position )
   {
     if ( pos_cmp.findIntersection( target_position ) )
     {
-      SPDLOG_DEBUG( "Player Collided Cmp::NoPathFinding" );
-      return false;
-    }
-  }
-
-  // Check doors
-  auto door_view = getReg().view<Cmp::Exit, Cmp::Position>();
-  for ( auto [entity, exit_cmp, pos_cmp] : door_view.each() )
-  {
-    if ( pos_cmp.findIntersection( target_position ) )
-    {
-      if ( exit_cmp.m_locked == false ) { return true; }
-      else { return false; }
-    }
-  }
-
-  auto grave_view = getReg().view<Cmp::GraveSegment, Cmp::Position>();
-  for ( auto [entity, grave_cmp, pos_cmp] : grave_view.each() )
-  {
-    if ( not grave_cmp.isSolidMask() ) continue;
-    if ( pos_cmp.findIntersection( target_position ) )
-    {
-      SPDLOG_DEBUG( "Player Collided GraveSegment" );
-      return false;
-    }
-  }
-
-  auto altar_view = getReg().view<Cmp::AltarSegment, Cmp::Position>();
-  for ( auto [entity, altar_cmp, pos_cmp] : altar_view.each() )
-  {
-    if ( not altar_cmp.isSolidMask() ) continue;
-    if ( pos_cmp.findIntersection( target_position ) )
-    {
-      SPDLOG_DEBUG( "Player Collided AltarSegment" );
-      return false;
-    }
-  }
-
-  auto crypt_view = getReg().view<Cmp::CryptSegment, Cmp::Position>();
-  for ( auto [entity, crypt_cmp, pos_cmp] : crypt_view.each() )
-  {
-    if ( not crypt_cmp.isSolidMask() ) continue;
-    if ( pos_cmp.findIntersection( target_position ) )
-    {
-      SPDLOG_DEBUG( "Player Collided CryptSegment" );
-      return false;
-    }
-  }
-
-  auto holywell_view = getReg().view<Cmp::HolyWellSegment, Cmp::Position>();
-  for ( auto [entity, holywell_cmp, pos_cmp] : holywell_view.each() )
-  {
-    if ( not holywell_cmp.isSolidMask() ) continue;
-    if ( pos_cmp.findIntersection( target_position ) )
-    {
-      SPDLOG_DEBUG( "Player Collided HolyWellSegment" );
-      return false;
-    }
-  }
-
-  auto ruin_view = getReg().view<Cmp::RuinSegment, Cmp::Position>();
-  for ( auto [entity, ruin_cmp, pos_cmp] : ruin_view.each() )
-  {
-    if ( not ruin_cmp.isSolidMask() ) continue;
-    if ( pos_cmp.findIntersection( target_position ) )
-    {
-      SPDLOG_DEBUG( "Player Collided RuinSegment" );
-      return false;
-    }
-  }
-
-  auto ruin_stair_view = getReg().view<Cmp::RuinStairsSegment, Cmp::Position>();
-  for ( auto [entity, ruin_cmp, pos_cmp] : ruin_stair_view.each() )
-  {
-    if ( not ruin_cmp.isSolidMask() ) continue;
-    if ( pos_cmp.findIntersection( target_position ) )
-    {
-      SPDLOG_DEBUG( "Player Collided RuinStairsSegment" );
-      return false;
-    }
-  }
-
-  auto crypt_obj_view = getReg().view<Cmp::CryptObjectiveSegment, Cmp::Position>();
-  for ( auto [entity, crypt_obj_cmp, crypt_obj_pos_cmp] : crypt_obj_view.each() )
-  {
-    if ( not crypt_obj_cmp.isSolidMask() ) continue;
-    if ( crypt_obj_pos_cmp.findIntersection( target_position ) )
-    {
-      SPDLOG_DEBUG( "Player Collided CryptObjectiveSegment" );
-      return false;
-    }
-  }
-
-  auto crypt_int_view = getReg().view<Cmp::CryptInteriorSegment, Cmp::Position>();
-  for ( auto [entity, crypt_int_cmp, crypt_int_pos_cmp] : crypt_int_view.each() )
-  {
-    if ( not crypt_int_cmp.isSolidMask() ) continue;
-    if ( crypt_int_pos_cmp.findIntersection( target_position ) )
-    {
-      SPDLOG_DEBUG( "Player Collided CryptInteriorSegment" );
-      return false;
-    }
-  }
-
-  auto plant_view = getReg().view<Cmp::PlantObstacle, Cmp::Position>();
-  for ( auto [entity, plant_cmp, plant_pos_cmp] : plant_view.each() )
-  {
-    if ( plant_pos_cmp.findIntersection( target_position ) )
-    {
-      SPDLOG_DEBUG( "Player Collided PlantObstacle " );
-      return false;
-    }
-  }
-
-  auto crypt_chest_view = getReg().view<Cmp::CryptChest, Cmp::Position>();
-  for ( auto [entity, crypt_chest_cmp, crypt_chest_pos_cmp] : crypt_chest_view.each() )
-  {
-    if ( crypt_chest_pos_cmp.findIntersection( target_position ) )
-    {
-      SPDLOG_DEBUG( "Blocking player at {},{} with CryptChest", crypt_chest_pos_cmp.position.x, crypt_chest_pos_cmp.position.y );
+      SPDLOG_INFO( "NPC collided Cmp::NoPathFinding" );
       return false;
     }
   }
@@ -562,8 +431,23 @@ void NpcSystem::scanForPlayers( entt::entity player_entity )
       auto move_candidate_pixel_pos = Utils::getPixelPosition( getReg(), nearest_obstacle.second );
       if ( not move_candidate_pixel_pos ) continue; // Try next candidate
 
+      // block NPC path tracking by checking against "is_valid_move" restrictions
+      if ( not is_valid_move( sf::FloatRect( move_candidate_pixel_pos.value(), Constants::kGridSizePxF ) ) ) { continue; }
+
       // Calculate direction from NPC to target cell and update animation state
       auto direction_to_target = move_candidate_pixel_pos.value() - npc_pos->position;
+
+      // Calculate the swept rectangle (trajectory hitbox)
+      sf::Vector2f start = npc_pos->position;
+      sf::Vector2f end = move_candidate_pixel_pos.value();
+      sf::Vector2f min_pos( std::min( start.x, end.x ), std::min( start.y, end.y ) );
+      sf::Vector2f max_pos( std::max( start.x, end.x ), std::max( start.y, end.y ) );
+      sf::Vector2f size = max_pos - min_pos + npc_pos->size; // Add size to cover the whole NPC
+
+      sf::FloatRect trajectory_hitbox( min_pos, size );
+
+      if ( !is_valid_move( trajectory_hitbox ) ) { continue; }
+
       if ( direction_to_target == sf::Vector2f( 0.0f, 0.0f ) )
       {
         npc_anim_cmp->m_animation_active = false;

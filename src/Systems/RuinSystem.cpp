@@ -1,4 +1,9 @@
+#include <Constants.hpp>
+#include <Events/PlayerMortalityEvent.hpp>
 #include <Inventory/CarryItem.hpp>
+#include <Player/PlayerHealth.hpp>
+#include <Player/PlayerMortality.hpp>
+#include <Ruin/RuinShadowHand.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <SFML/Graphics/Rect.hpp>
@@ -133,18 +138,18 @@ void RuinSystem::check_movement_slowdowns()
   // Check staircase collision
   if ( Utils::Collision::check_pos<Cmp::RuinStairsLowerMultiBlock>( getReg(), Cmp::RectBounds( player_pos.position, player_pos.size, 1 ) ) )
   {
-    slowdown_penalty = std::max( slowdown_penalty, 0.5f );
+    slowdown_penalty = std::max( slowdown_penalty, 0.7f );
   }
   if ( Utils::Collision::check_pos<Cmp::RuinStairsUpperMultiBlock>( getReg(), Cmp::RectBounds( player_pos.position, player_pos.size, 1 ) ) )
   {
-    slowdown_penalty = std::max( slowdown_penalty, 0.5f );
+    slowdown_penalty = std::max( slowdown_penalty, 0.7f );
   }
 
   // Check cobweb collision
   if ( Utils::Collision::check_cmp<Cmp::RuinCobweb>( getReg(), Cmp::RectBounds( player_pos.position, player_pos.size, 1 ),
                                                      []( const Cmp::RuinCobweb &cobweb ) { return cobweb.integrity > 0; } ) )
   {
-    slowdown_penalty = std::max( slowdown_penalty, 0.25f );
+    slowdown_penalty = std::max( slowdown_penalty, 0.5f );
   }
 
   // Apply or remove penalty
@@ -315,6 +320,32 @@ bool RuinSystem::is_player_carrying_witches_jar()
     if ( inv_cmp.type == "CARRYITEM.witchesjar" ) { result = true; }
   }
   return result;
+}
+
+void RuinSystem::update_shadow_hand_pos( float max_xpos, float pixels_per_frame )
+{
+  for ( auto [hand_entt, hand_cmp, hand_pos] : getReg().view<Cmp::RuinShadowHand, Cmp::Position>().each() )
+  {
+    if ( hand_pos.position.x + pixels_per_frame < max_xpos ) { hand_pos.position.x += pixels_per_frame; }
+  }
+}
+
+void RuinSystem::check_player_shadow_hand_collision()
+{
+  // only trigger PlayerMortalityEvents if player is alive
+  if ( Utils::Player::get_player_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) { return; }
+
+  auto &player_health = Utils::Player::get_player_health( getReg() );
+  const auto player_pos = Utils::Player::get_player_position( getReg() );
+  if ( Utils::Collision::check_cmp<Cmp::RuinShadowHand>( getReg(), Cmp::RectBounds( player_pos.position, Constants::kGridSizePxF, 1.f ) ) )
+  {
+    // damage player
+    player_health.health -= 1.f;
+  }
+  if ( player_health.health <= 0.f )
+  {
+    get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SHADOWCURSED, player_pos ) );
+  }
 }
 
 } // namespace ProceduralMaze::Sys

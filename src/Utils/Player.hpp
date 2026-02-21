@@ -13,6 +13,7 @@ class PlayerBlastRadius;
 class PlayerMortality;
 class PlayerLastGraveyardPosition;
 class ZOrderValue;
+class PlayerCurse;
 } // namespace ProceduralMaze::Cmp
 
 namespace ProceduralMaze::Utils::Player
@@ -27,6 +28,7 @@ Cmp::PlayerWealth &get_player_wealth( entt::registry &reg );
 Cmp::PlayerBlastRadius &get_player_blast_radius( entt::registry &reg );
 Cmp::PlayerMortality &get_player_mortality( entt::registry &reg );
 Cmp::ZOrderValue &get_player_zorder( entt::registry &reg );
+Cmp::PlayerCurse &get_player_curse( entt::registry &reg );
 float get_player_speed_penalty( entt::registry &reg );
 void remove_player_lerp_cmp( entt::registry &reg );
 std::pair<entt::entity, Sprites::SpriteMetaType> get_player_inventory_type( entt::registry &reg );

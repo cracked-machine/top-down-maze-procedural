@@ -166,6 +166,12 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
     case Cmp::PlayerMortality::State::DEAD: {
       break;
     }
+    case Cmp::PlayerMortality::State::SHADOWCURSED:
+      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
+      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
+      m_sound_bank.get_effect( "player_blood_splat" ).play();
+      common_death_throes();
+      break;
   }
 }
 

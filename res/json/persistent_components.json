@@ -200,9 +200,9 @@
   },  
   "NpcScanScale": {
     "type": "float",
-    "value": 2.5,
+    "value": 5,
     "min_value": 1.0,
-    "max_value": 3.0,
+    "max_value": 10.0,
     "detail": "NPC Scan Bounding Box Scale Factor",
     "format": "%.1f pixels"
   },
@@ -254,6 +254,14 @@
     "detail": "NPC Animation Skeleton Framerate",
     "format": "%.2f"
   },
+  "NpcWitchAnimFramerate": {
+    "type": "float",
+    "value": 0.4,
+    "min_value": 0.1,
+    "max_value": 2.0,
+    "detail": "NPC Animation Witch Framerate",
+    "format": "%.2f"
+  },
   "PlayerAnimFramerate": {
     "type": "float",
     "value": 0.1,
@@ -264,7 +272,7 @@
   },
   "PlayerDetectionScale": {
     "type": "float",
-    "value": 5.0,
+    "value": 16.0,
     "min_value": 1.0,
     "max_value": 20.0,
     "detail": "PC Detection Bounding Box Scale Factor",

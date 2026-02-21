@@ -8,6 +8,7 @@
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Factory/RuinFactory.hpp>
 #include <Factory/WallFactory.hpp>
 #include <Ruin/RuinHexagramMultiBlock.hpp>
 #include <Ruin/RuinHexagramSegment.hpp>
@@ -56,7 +57,7 @@ void RuinSceneUpperFloor::on_init()
   Factory::add_nopathfinding( m_reg, { RuinSceneUpperFloor::kMapGridSizeF.x - ( 3 * gridsize.x ), gridsize.x } );
 
   const Sprites::MultiSprite &hexagram_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_hexagram3x3" );
-  sf::Vector2f hexagram_pos( gridsize.x * 2, RuinSceneUpperFloor::kMapGridSizeF.y - hexagram_ms.getSpriteSizePixels().y - ( gridsize.y * 2 ) );
+  sf::Vector2f hexagram_pos( gridsize.x * 2, RuinSceneUpperFloor::kMapGridSizeF.y - hexagram_ms.getSpriteSizePixels().y - ( gridsize.y * 3 ) );
   Factory::add_multiblock_with_segments<Cmp::RuinHexagramMultiBlock, Cmp::RuinHexagramSegment>( m_reg, hexagram_pos, hexagram_ms );
 
   // place the objective that was created when the player entered the RuinSceneLowerFloor scene
@@ -125,6 +126,8 @@ void RuinSceneUpperFloor::on_enter()
 void RuinSceneUpperFloor::on_exit()
 {
   SPDLOG_INFO( "Exiting {}", get_name() );
+  m_sound_bank.get_music( "ruin_creaking_rope" ).stop();
+  m_sound_bank.get_music( "ruin_music" ).stop();
   m_reg.clear();
 }
 
@@ -144,7 +147,19 @@ void RuinSceneUpperFloor::do_update( [[maybe_unused]] sf::Time dt )
   {
     m_sound_bank.get_music( "ruin_creaking_rope" ).stop();
     m_sound_bank.get_music( "ruin_music" ).stop();
+
+    const auto &hand_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.shadow_hand" );
+    const auto hand_ms_size = hand_ms.getSpriteSizePixels();
+    sf::Vector2f starting_pos = { 0 - hand_ms_size.x, RuinSceneUpperFloor::kMapGridSizeF.y / 2 - hand_ms_size.y / 2 };
+
+    Factory::create_shadow_hand( m_reg, starting_pos, hand_ms );
+
+    float shadow_hand_speed = 0.45f;
+    float max_shadow_hand_xpos = RuinSceneUpperFloor::kMapGridSizeF.x - hand_ms_size.x;
+    m_system_store.find<Sys::SystemStore::Type::RuinSystem>().update_shadow_hand_pos( max_shadow_hand_xpos, shadow_hand_speed );
   }
+
+  m_system_store.find<Sys::SystemStore::Type::RuinSystem>().check_player_shadow_hand_collision();
 
   auto &overlay_sys = m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>();
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::RenderGameSystem::DarkMode::OFF,

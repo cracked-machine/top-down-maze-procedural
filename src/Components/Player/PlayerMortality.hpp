@@ -27,6 +27,7 @@ public:
     IGNITED = 8,  // lava
     SKEWERED = 9, // spike trap
     SHOCKED = 10,
+    SHADOWCURSED = 11,
     //! @brief Player is dead. final state. end the game.
     DEAD = 255
   };

@@ -92,6 +92,8 @@ void createNPC( entt::registry &registry, entt::entity position_entity, const Sp
     registry.emplace_or_replace<Cmp::NPC>( new_pos_entity );
     registry.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, "NPCGHOST.walk.east" );
     registry.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
+    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
+                 pos_cmp->position.y );
   }
   else if ( type == "NPCSKELE" )
   {
@@ -102,6 +104,8 @@ void createNPC( entt::registry &registry, entt::entity position_entity, const Sp
     // Remove the npc container component from the original entity
     registry.remove<Cmp::NpcContainer>( position_entity );
     registry.remove<Cmp::ZOrderValue>( position_entity );
+    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
+                 pos_cmp->position.y );
   }
   else if ( type == "NPCPRIEST" )
   {
@@ -115,20 +119,18 @@ void createNPC( entt::registry &registry, entt::entity position_entity, const Sp
 
     registry.emplace_or_replace<Cmp::NpcShockwaveTimer>( new_pos_entity );
     Factory::createShockwave( registry, position_entity );
+    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
+                 pos_cmp->position.y );
   }
+  else if ( type == "NPCWITCH" )
+  {
+    registry.emplace_or_replace<Cmp::NPC>( new_pos_entity );
+    registry.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, false, "NPCWITCH" );
+    registry.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
 
-  if ( type == "NPCGHOST" )
-  {
-    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
-                 pos_cmp->position.y );
-  }
-  else if ( type == "NPCSKELE" )
-  {
-    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
-                 pos_cmp->position.y );
-  }
-  else if ( type == "NPCPRIEST" )
-  {
+    // Remove the npc container component from the original entity
+    registry.remove<Cmp::NpcContainer>( position_entity );
+    registry.remove<Cmp::ZOrderValue>( position_entity );
     SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
                  pos_cmp->position.y );
   }
