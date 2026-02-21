@@ -1,3 +1,4 @@
+#include <Inventory/CarryItem.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <SFML/Graphics/Rect.hpp>
@@ -290,20 +291,30 @@ void RuinSystem::add_stairs( sf::Vector2f spawn_position, const Sprites::MultiSp
     stairs_zorder.setZOrder( zorder );
   }
 }
+// Explicit function template instantiations
+template void RuinSystem::add_stairs<Cmp::RuinStairsLowerMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
+template void RuinSystem::add_stairs<Cmp::RuinStairsUpperMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
+template void RuinSystem::add_stairs<Cmp::RuinStairsBalustradeMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
 
 void RuinSystem::creaking_rope_update()
 {
-  static float m_creaking_rope_swing_freq{ 0.1f }; // oscillations per second
+  static float m_creaking_rope_swing_freq{ 0.075f }; // oscillations per second
   auto t = m_creaking_rope_swing_timer.getElapsedTime().asSeconds();
 
   float stereo_pan_value = std::sin( t * m_creaking_rope_swing_freq * std::numbers::pi );
 
-  SPDLOG_INFO( "creaking_rope_update: {}", stereo_pan_value );
-  m_sound_bank.get_music( "creaking_rope" ).setPan( stereo_pan_value );
+  // SPDLOG_INFO( "creaking_rope_update: {}", stereo_pan_value );
+  m_sound_bank.get_music( "ruin_creaking_rope" ).setPan( stereo_pan_value );
 }
 
-template void RuinSystem::add_stairs<Cmp::RuinStairsLowerMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
-template void RuinSystem::add_stairs<Cmp::RuinStairsUpperMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
-template void RuinSystem::add_stairs<Cmp::RuinStairsBalustradeMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
+bool RuinSystem::is_player_carrying_witches_jar()
+{
+  bool result = false;
+  for ( auto [inv_entt, inv_cmp] : getReg().view<Cmp::PlayerInventorySlot>().each() )
+  {
+    if ( inv_cmp.type == "CARRYITEM.witchesjar" ) { result = true; }
+  }
+  return result;
+}
 
 } // namespace ProceduralMaze::Sys

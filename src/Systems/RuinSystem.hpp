@@ -57,6 +57,8 @@ public:
   void add_lowerfloor_cobwebs( sf::FloatRect scene_dimensions );
   void check_movement_slowdowns();
 
+  bool is_player_carrying_witches_jar();
+
 private:
   //! @brief Dispatcher reference for scene management events
   entt::dispatcher &m_scenemanager_event_dispatcher;

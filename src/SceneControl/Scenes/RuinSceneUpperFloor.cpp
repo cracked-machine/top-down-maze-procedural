@@ -60,10 +60,13 @@ void RuinSceneUpperFloor::on_init()
   Factory::add_multiblock_with_segments<Cmp::RuinHexagramMultiBlock, Cmp::RuinHexagramSegment>( m_reg, hexagram_pos, hexagram_ms );
 
   // place the objective that was created when the player entered the RuinSceneLowerFloor scene
-  auto ruin_objective_view = m_reg.view<Cmp::RuinObjectiveType>();
-  for ( auto [ruin_obj_entt, ruin_obj_cmp] : ruin_objective_view.each() )
+  if ( not m_system_store.find<Sys::SystemStore::Type::RuinSystem>().is_player_carrying_witches_jar() )
   {
-    Factory::createCarryItem( m_reg, Cmp::Position( { hexagram_pos.x + gridsize.x, hexagram_pos.y + gridsize.y }, gridsize ), ruin_obj_cmp.m_type );
+    auto ruin_objective_view = m_reg.view<Cmp::RuinObjectiveType>();
+    for ( auto [ruin_obj_entt, ruin_obj_cmp] : ruin_objective_view.each() )
+    {
+      Factory::createCarryItem( m_reg, Cmp::Position( { hexagram_pos.x + gridsize.x, hexagram_pos.y + gridsize.y }, gridsize ), ruin_obj_cmp.m_type );
+    }
   }
 
   // spawn access hitbox just below horizontal centerpoint
@@ -91,12 +94,15 @@ void RuinSceneUpperFloor::on_init()
 void RuinSceneUpperFloor::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
-  if ( m_sound_bank.get_music( "creaking_rope" ).getStatus() != sf::Sound::Status::Playing )
+  if ( not m_system_store.find<Sys::SystemStore::Type::RuinSystem>().is_player_carrying_witches_jar() )
   {
-    m_sound_bank.get_music( "creaking_rope" ).play();
-    m_sound_bank.get_music( "creaking_rope" ).setLooping( true );
+    if ( m_sound_bank.get_music( "ruin_creaking_rope" ).getStatus() != sf::Sound::Status::Playing )
+    {
+      m_sound_bank.get_music( "ruin_creaking_rope" ).play();
+      m_sound_bank.get_music( "ruin_creaking_rope" ).setLooping( true );
+    }
+    if ( m_sound_bank.get_music( "ruin_music" ).getStatus() != sf::Sound::Status::Playing ) { m_sound_bank.get_music( "ruin_music" ).play(); }
   }
-
   auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
@@ -133,6 +139,12 @@ void RuinSceneUpperFloor::do_update( [[maybe_unused]] sf::Time dt )
 
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().update( dt, Sys::PlayerSystem::FootStepSfx::NONE );
   m_system_store.find<Sys::SystemStore::Type::PlayerSystem>().disable_damage_cooldown();
+
+  if ( m_system_store.find<Sys::SystemStore::Type::RuinSystem>().is_player_carrying_witches_jar() )
+  {
+    m_sound_bank.get_music( "ruin_creaking_rope" ).stop();
+    m_sound_bank.get_music( "ruin_music" ).stop();
+  }
 
   auto &overlay_sys = m_system_store.find<Sys::SystemStore::Type::RenderOverlaySystem>();
   m_system_store.find<Sys::SystemStore::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::RenderGameSystem::DarkMode::OFF,

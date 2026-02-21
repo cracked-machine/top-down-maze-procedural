@@ -45,8 +45,7 @@ void RuinSceneLowerFloor::on_init()
   auto player_start_area = Cmp::RectBounds( player_start_pos, gridsize, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
   // select the objective type that will be spawned in the RuinSceneUpperFloor scene
-  auto selected_objective_ms_type = m_sprite_factory.get_random_type( { "CARRYITEM.boots", "CARRYITEM.witchesjar", "CARRYITEM.preservedcat" },
-                                                                      { 1, 1, 1 } );
+  auto selected_objective_ms_type = m_sprite_factory.get_random_type( { "CARRYITEM.witchesjar" } );
   auto ruin_objective_entt = m_reg.create();
   m_reg.emplace_or_replace<Cmp::RuinObjectiveType>( ruin_objective_entt, selected_objective_ms_type );
 
@@ -89,10 +88,14 @@ void RuinSceneLowerFloor::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
   m_sound_bank.get_music( "game_music" ).stop();
-  if ( m_sound_bank.get_music( "creaking_rope" ).getStatus() != sf::Sound::Status::Playing )
+  if ( not m_system_store.find<Sys::SystemStore::Type::RuinSystem>().is_player_carrying_witches_jar() )
   {
-    m_sound_bank.get_music( "creaking_rope" ).play();
-    m_sound_bank.get_music( "creaking_rope" ).setLooping( true );
+    if ( m_sound_bank.get_music( "ruin_creaking_rope" ).getStatus() != sf::Sound::Status::Playing )
+    {
+      m_sound_bank.get_music( "ruin_creaking_rope" ).play();
+      m_sound_bank.get_music( "ruin_creaking_rope" ).setLooping( true );
+    }
+    if ( m_sound_bank.get_music( "ruin_music" ).getStatus() != sf::Sound::Status::Playing ) { m_sound_bank.get_music( "ruin_music" ).play(); }
   }
 
   auto &m_persistent_sys = m_system_store.find<Sys::SystemStore::Type::PersistSystem>();

@@ -241,11 +241,13 @@ entt::entity dropInventorySlotIntoWorld( entt::registry &reg, Cmp::Position pos,
 }
 
 //! @brief Remove the CarryItem from the world and add it to the player inventory
+//! @note This is a destructive operation so transfer any component properties before the function exits
 //! @param reg the ECS registry
 //! @param carryitem_entt the CarryItem entt from the world
 //! @return entt::entity
 entt::entity pickupCarryItem( entt::registry &reg, entt::entity carryitem_entt )
 {
+  // does this entity own a world item that can be carried?
   auto carryitem_cmp = reg.try_get<Cmp::CarryItem>( carryitem_entt );
   if ( not carryitem_cmp ) return entt::null;
 
@@ -254,7 +256,7 @@ entt::entity pickupCarryItem( entt::registry &reg, entt::entity carryitem_entt )
   reg.emplace<Cmp::PlayerInventorySlot>( inventory_entity, carryitem_cmp->type );
   reg.emplace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, false, carryitem_cmp->type, 0 );
 
-  // get any carryitem-specific components that we want to copy across into the inventory entt
+  // transfer any component properties from the world item that we want to retain before it is destroyed
   auto carryitem_slot_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( carryitem_entt );
   if ( carryitem_slot_level_cmp ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, carryitem_slot_level_cmp->m_level ); }
 
