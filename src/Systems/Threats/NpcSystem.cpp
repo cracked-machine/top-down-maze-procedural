@@ -131,7 +131,7 @@ bool NpcSystem::is_valid_move( const sf::FloatRect &target_position )
   {
     if ( pos_cmp.findIntersection( target_position ) )
     {
-      SPDLOG_INFO( "NPC collided Cmp::NoPathFinding" );
+      SPDLOG_DEBUG( "NPC collided Cmp::NoPathFinding" );
       return false;
     }
   }

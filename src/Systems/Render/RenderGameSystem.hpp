@@ -8,6 +8,7 @@
 
 #include <Shaders/BackgroundShader.hpp>
 #include <Shaders/DarkModeShader.hpp>
+#include <Shaders/DrippingBloodShader.hpp>
 #include <Shaders/FloodWaterShader.hpp>
 #include <Shaders/MistShader.hpp>
 #include <Shaders/PulsingShader.hpp>
@@ -30,12 +31,13 @@ class SpriteFactory;
 namespace ProceduralMaze::Sys
 {
 
+enum class DarkMode { OFF = 0, ON = 1 };
+enum class WeatherMode { OFF, ON };
+enum class CursedMode { OFF = 0, ON = 1 };
+
 class RenderGameSystem : public RenderSystem
 {
 public:
-  enum class DarkMode { OFF = 0, ON = 1 };
-  enum class WeatherMode { OFF, ON };
-
   RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~RenderGameSystem() = default;
 
@@ -62,7 +64,7 @@ public:
   //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc..
   //! as well as death animations/effects
   void render_game( sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap,
-                    DarkMode dark_mode = DarkMode::OFF, WeatherMode weather_mode = WeatherMode::ON );
+                    DarkMode dark_mode = DarkMode::OFF, WeatherMode weather_mode = WeatherMode::ON, CursedMode cursed_mode = CursedMode::OFF );
 
 private:
   sf::Vector2f m_camera_position{ 0.f, 0.f }; // Smoothed camera position
@@ -90,6 +92,8 @@ private:
   void render_wormhole_effect( Sprites::Containers::TileMap &floormap );
 
   void render_dark_mode_shader();
+
+  void render_cursed_mode_shader( sf::FloatRect player_position );
 
   void render_scryingball_doglegs();
 
@@ -135,6 +139,7 @@ private:
   Sprites::PulsingShader m_pulsing_shader{ "res/shaders/RedPulsingSand.frag", { 1u, 1u } };
   Sprites::MistShader m_mist_shader{ "res/shaders/MistShader.frag", { 1u, 1u } };
   Sprites::DarkModeShader m_dark_mode_shader{ "res/shaders/DarkMode.frag", { 1u, 1u } };
+  Sprites::DrippingBloodShader m_dripping_blood_shader{ "res/shaders/RedStaticEffect.frag", { 1u, 1u } };
 
   // optimize the debug overlay updates to every n milliseconds
   const sf::Time m_debug_update_interval{ sf::milliseconds( 10 ) };

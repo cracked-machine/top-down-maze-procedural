@@ -131,6 +131,9 @@ void RenderGameSystem::init_shaders()
 
   m_dark_mode_shader.resize_texture( display_res );
   m_dark_mode_shader.setup();
+
+  m_dripping_blood_shader.resize_texture( display_res );
+  m_dripping_blood_shader.setup();
 }
 
 void RenderGameSystem::updateCamera( sf::Time deltaTime )
@@ -171,7 +174,7 @@ void RenderGameSystem::updateCamera( sf::Time deltaTime )
 }
 
 void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys,
-                                    Sprites::Containers::TileMap &floormap, DarkMode dark_mode, WeatherMode weather_mode )
+                                    Sprites::Containers::TileMap &floormap, DarkMode dark_mode, WeatherMode weather_mode, CursedMode cursed_mode )
 {
   using namespace Sprites;
 
@@ -250,6 +253,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 64, 64, 64 ), 0.5f );
 
       if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
+      if ( cursed_mode == CursedMode::ON ) { render_cursed_mode_shader( player_position ); }
 
       // debug: show crypt component boundaries
       if ( m_show_debug_stats )
@@ -626,6 +630,16 @@ void RenderGameSystem::render_dark_mode_shader()
   auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
   m_dark_mode_shader.update( shader_local_position, aperture_half_size, kLocalMapViewSize, display_res );
   m_window.draw( m_dark_mode_shader );
+}
+
+void RenderGameSystem::render_cursed_mode_shader( sf::FloatRect player_position )
+{
+  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+  m_dripping_blood_shader.update( { player_position.position.x - m_mist_shader.get_texture_size().x / 2.f,
+                                    player_position.position.y - m_mist_shader.get_texture_size().y / 2.f },
+                                  0.5f, sf::Vector2f( display_res.x, display_res.y ) ); // Set the alpha value
+
+  m_window.draw( m_dripping_blood_shader );
 }
 
 void RenderGameSystem::render_scryingball_doglegs()
