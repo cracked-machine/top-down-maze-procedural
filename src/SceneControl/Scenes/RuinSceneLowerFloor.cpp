@@ -9,7 +9,9 @@
 #include <Factory/NpcFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
+#include <Factory/WallFactory.hpp>
 #include <Npc/Npc.hpp>
+#include <Player/PlayerCurse.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
@@ -63,24 +65,30 @@ void RuinSceneLowerFloor::on_init()
       sf::Vector2u{ RuinSceneLowerFloor::kMapGridSize.x / 3, RuinSceneLowerFloor::kMapGridSize.y - 1 } );
 
   // spawn access hitbox just above horizontal centerpoint
-  sf::Vector2f flooraccess_position( RuinSceneLowerFloor::kMapGridSizeF.x - ( 3 * gridsize.x ), 2 * gridsize.y );
+  sf::Vector2f flooraccess_position( kMapGridSizeF.x - ( 3 * gridsize.x ), 2 * gridsize.y );
   sf::Vector2f flooraccess_size( ( 2 * gridsize.x ), gridsize.y );
   m_sys.find<SystemStoreType::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size, Cmp::RuinFloorAccess::Direction::TO_UPPER );
 
   // add the straircase sprite for lower floor
   const Sprites::MultiSprite &stairs_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.interior_staircase_going_up" );
-  sf::Vector2f stairs_position( RuinSceneLowerFloor::kMapGridSizeF.x - ( 4 * gridsize.x ), gridsize.y );
+  sf::Vector2f stairs_position( kMapGridSizeF.x - ( 4 * gridsize.x ), gridsize.y );
   m_sys.find<SystemStoreType::RuinSystem>().add_stairs<Cmp::RuinStairsLowerMultiBlock>( stairs_position, stairs_ms );
+
+  // Make sure bookcaseses cant block access to the staircase
+  Factory::add_reservedposition( m_reg, { kMapGridSizeF.x - ( 5 * gridsize.x ), kMapGridSizeF.y - ( 2 * gridsize.x ) } );
+  Factory::add_reservedposition( m_reg, { kMapGridSizeF.x - ( 5 * gridsize.x ), kMapGridSizeF.y - ( 3 * gridsize.x ) } );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneLowerFloor::kMapGridSize, "res/json/ruin_lower_tilemap_config.json" );
 
   sf::Vector2f bc_area_position( 0, 0 );
-  sf::Vector2f bc_area_size( RuinSceneLowerFloor::kMapGridSizeF.x - 48, RuinSceneLowerFloor::kMapGridSizeF.y - 32 );
+  sf::Vector2f bc_area_size( kMapGridSizeF.x - 48, kMapGridSizeF.y - 16 );
   m_sys.find<SystemStoreType::RuinSystem>().gen_lowerfloor_bookcases( sf::FloatRect( bc_area_position, bc_area_size ) );
 
-  // sf::Vector2f cobweb_area_position( 0, 0 );
-  // sf::Vector2f cobweb_area_size( RuinSceneLowerFloor::kMapGridSizeF.x - 48, RuinSceneLowerFloor::kMapGridSizeF.y - 32 );
-  // m_sys.find<SystemStoreType::RuinSystem>().add_lowerfloor_cobwebs( sf::FloatRect( cobweb_area_position, cobweb_area_size ) );
+  sf::Vector2f cobweb_area_position( 0, 0 );
+  sf::Vector2f cobweb_area_size( kMapGridSizeF.x - 48, kMapGridSizeF.y - 32 );
+  m_sys.find<SystemStoreType::RuinSystem>().add_lowerfloor_cobwebs( 200, sf::FloatRect( cobweb_area_position, cobweb_area_size ) );
+
+  m_sys.find<Sys::Store::Type::RuinSystem>().reset_player_curse();
 
   // force the loading screen so that we hide any motion sickness inducing camera pan
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
@@ -89,6 +97,11 @@ void RuinSceneLowerFloor::on_init()
 void RuinSceneLowerFloor::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
+
+  auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
+  m_persistent_sys.initializeComponentRegistry();
+  m_persistent_sys.load_state();
+
   m_sound_bank.get_music( "game_music" ).stop();
   if ( not m_sys.find<Sys::Store::Type::RuinSystem>().is_player_carrying_witches_jar() )
   {
@@ -99,10 +112,6 @@ void RuinSceneLowerFloor::on_enter()
     }
     if ( m_sound_bank.get_music( "ruin_music" ).getStatus() != sf::Sound::Status::Playing ) { m_sound_bank.get_music( "ruin_music" ).play(); }
   }
-
-  auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
-  m_persistent_sys.initializeComponentRegistry();
-  m_persistent_sys.load_state();
 
   m_sys.find<Sys::Store::Type::RenderGameSystem>().init_views();
 
@@ -136,6 +145,7 @@ void RuinSceneLowerFloor::on_exit()
   SPDLOG_INFO( "Exiting {}", get_name() );
   m_sound_bank.get_music( "ruin_creaking_rope" ).stop();
   m_sound_bank.get_music( "ruin_music" ).stop();
+
   m_reg.clear();
 
   // force the loading screen so that we hide any motion sickness inducing camera pan
@@ -149,7 +159,7 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Store::Type::NpcSystem>().update( dt );
   // m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Store::Type::LootSystem>().check_loot_collision();
-  m_sys.find<Store::Type::HolyWellSystem>().check_exit_collision();
+
   m_sys.find<Store::Type::RuinSystem>().check_floor_access_collision( Cmp::RuinFloorAccess::Direction::TO_UPPER );
   m_sys.find<Store::Type::RuinSystem>().check_movement_slowdowns();
   m_sys.find<Store::Type::RuinSystem>().creaking_rope_update();
@@ -157,14 +167,17 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Store::Type::PlayerSystem>().update( dt, Sys::PlayerSystem::FootStepSfx::NONE );
   m_sys.find<Store::Type::PlayerSystem>().disable_damage_cooldown();
 
-  auto &overlay_sys = m_sys.find<Store::Type::RenderOverlaySystem>();
-  m_sys.find<Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, DarkMode::OFF, WeatherMode::OFF, CursedMode::ON );
+  bool is_player_cursed = m_sys.find<Sys::Store::Type::RuinSystem>().check_activate_player_curse( kMapGridSizeF );
+  if ( is_player_cursed ) { m_sys.find<Store::Type::RuinSystem>().check_create_witch( m_reg, sf::FloatRect( { 0, 0 }, kMapGridSizeF ) ); }
 
-  // if ( m_sys.find<Sys::Store::Type::RuinSystem>().is_player_carrying_witches_jar() )
-  // {
-  //
-  Factory::create_witch( m_reg, { 32, 32 } );
-  // }
+  // `check_exit_collision()` may reset the player curse so it must be called after `check_activate_player_curse()`
+  // or we incorrectly re-trigger the curse effects before we can leave this function and exit the scene.
+  // i.e. the witch scream triggers again as we leave the scene
+  m_sys.find<Store::Type::RuinSystem>().check_exit_collision();
+
+  auto &overlay_sys = m_sys.find<Store::Type::RenderOverlaySystem>();
+  m_sys.find<Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, DarkMode::OFF, WeatherMode::OFF,
+                                                           ( is_player_cursed ? CursedMode::ON : CursedMode::OFF ) );
 }
 
 entt::registry &RuinSceneLowerFloor::registry() { return m_reg; }

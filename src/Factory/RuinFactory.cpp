@@ -1,4 +1,5 @@
 #include <AbsoluteAlpha.hpp>
+#include <Collision.hpp>
 #include <Components/Position.hpp>
 #include <Components/Ruin/RuinBookcase.hpp>
 #include <Components/Ruin/RuinCobweb.hpp>
@@ -10,9 +11,13 @@
 #include <Npc/Npc.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
 #include <Obstacle.hpp>
+#include <RectBounds.hpp>
+#include <ReservedPosition.hpp>
 #include <Ruin/RuinShadowHand.hpp>
 #include <Sprites/SpriteFactory.hpp>
+#include <Utils/Random.hpp>
 #include <entt/entity/registry.hpp>
+#include <ranges>
 
 namespace ProceduralMaze::Factory
 {
@@ -44,7 +49,7 @@ void create_cobweb( entt::registry &reg, sf::Vector2f spawn_position, const Spri
   reg.emplace_or_replace<Cmp::RuinCobweb>( cobweb_entt, 100 );
 }
 
-void create_shadow_hand( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::MultiSprite &ms, int sprite_index )
+void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, const Sprites::MultiSprite &ms, int sprite_index )
 {
   bool exists = false;
   for ( auto [hand_entt, hand_cmp] : reg.view<Cmp::RuinShadowHand>().each() )
@@ -54,29 +59,15 @@ void create_shadow_hand( entt::registry &reg, sf::Vector2f spawn_position, const
 
   if ( not exists )
   {
+    const auto hand_ms_size = ms.getSpriteSizePixels();
+    sf::Vector2f starting_pos = { 0 - hand_ms_size.x, scene_dimensions.y / 2 - hand_ms_size.y / 2 };
+
     auto shadowhand_entt = reg.create();
-    reg.emplace_or_replace<Cmp::Position>( shadowhand_entt, spawn_position, ms.getSpriteSizePixels() );
+    reg.emplace_or_replace<Cmp::Position>( shadowhand_entt, starting_pos, ms.getSpriteSizePixels() );
     reg.emplace_or_replace<Cmp::SpriteAnimation>( shadowhand_entt, 0, 0, true, ms.get_sprite_type(), sprite_index );
-    reg.emplace_or_replace<Cmp::ZOrderValue>( shadowhand_entt, spawn_position.y * 100 ); // above everythign
+    reg.emplace_or_replace<Cmp::ZOrderValue>( shadowhand_entt, starting_pos.y * 100 ); // above everythign
     reg.emplace_or_replace<Cmp::AbsoluteAlpha>( shadowhand_entt, 200 );
     reg.emplace_or_replace<Cmp::RuinShadowHand>( shadowhand_entt );
-  }
-}
-
-void create_witch( entt::registry &reg, sf::Vector2f spawn_position )
-{
-
-  bool witch_exists = false;
-  for ( auto [npc_entt, npc_cmp, npc_sprite_cmp] : reg.view<Cmp::NPC, Cmp::SpriteAnimation>().each() )
-  {
-    if ( npc_sprite_cmp.m_sprite_type == "NPCWITCH" ) { witch_exists = true; }
-  }
-  if ( not witch_exists )
-  {
-    auto position_entity = reg.create();
-    Cmp::Position position_cmp = reg.emplace<Cmp::Position>( position_entity, spawn_position, Constants::kGridSizePxF );
-    [[maybe_unused]] Cmp::ZOrderValue zorder_cmp = reg.emplace<Cmp::ZOrderValue>( position_entity, position_cmp.position.y );
-    Factory::createNPC( reg, position_entity, "NPCWITCH" );
   }
 }
 

@@ -23,12 +23,7 @@ void create_cobweb( entt::registry &reg, sf::Vector2f spawn_position, const Spri
 //! @param spawn_position
 //! @param cobweb_ms
 //! @param sprite_index
-void create_shadow_hand( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::MultiSprite &cobweb_ms, int sprite_index = 0 );
-
-//! @brief Create a witch entt if none exist
-//! @param reg
-//! @param spawn_position
-void create_witch( entt::registry &reg, sf::Vector2f spawn_position );
+void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, const Sprites::MultiSprite &cobweb_ms, int sprite_index = 0 );
 
 } // namespace ProceduralMaze::Factory
 

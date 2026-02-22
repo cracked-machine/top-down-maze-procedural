@@ -10,8 +10,10 @@
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
 #include <Factory/WallFactory.hpp>
+#include <Player/PlayerCurse.hpp>
 #include <Ruin/RuinHexagramMultiBlock.hpp>
 #include <Ruin/RuinHexagramSegment.hpp>
+#include <SFML/Audio/Sound.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/Scenes/RuinSceneUpperFloor.hpp>
 #include <Systems/AnimSystem.hpp>
@@ -33,24 +35,24 @@ namespace ProceduralMaze::Scene
 
 void RuinSceneUpperFloor::on_init()
 {
+  using namespace Sys;
   auto gridsize = Constants::kGridSizePxF;
-  using SystemStoreType = Sys::Store::Type;
 
-  auto &m_persistent_sys = m_sys.find<SystemStoreType::PersistSystem>();
+  auto &m_persistent_sys = m_sys.find<Store::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
   auto entity = m_reg.create();
   m_reg.emplace<Cmp::System>( entity );
 
-  Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_start_position );
-  sf::Vector2f player_start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
+  PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_start_position );
+  sf::Vector2f player_start_pos = PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds( player_start_pos, gridsize, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
-  auto &random_level_sys = m_sys.find<SystemStoreType::RandomLevelGenerator>();
+  auto &random_level_sys = m_sys.find<Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
   random_level_sys.gen_rectangle_gamearea( RuinSceneUpperFloor::kMapGridSize, player_start_area, "RUIN.interior_wall",
-                                           Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
+                                           ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
   // add two Cmp::NoPathFinding above the upper staircase landing to enforce perspective
   Factory::add_nopathfinding( m_reg, { RuinSceneUpperFloor::kMapGridSizeF.x - ( 2 * gridsize.x ), gridsize.x } );
@@ -61,7 +63,7 @@ void RuinSceneUpperFloor::on_init()
   Factory::add_multiblock_with_segments<Cmp::RuinHexagramMultiBlock, Cmp::RuinHexagramSegment>( m_reg, hexagram_pos, hexagram_ms );
 
   // place the objective that was created when the player entered the RuinSceneLowerFloor scene
-  if ( not m_sys.find<Sys::Store::Type::RuinSystem>().is_player_carrying_witches_jar() )
+  if ( not m_sys.find<Store::Type::RuinSystem>().is_player_carrying_witches_jar() )
   {
     auto ruin_objective_view = m_reg.view<Cmp::RuinObjectiveType>();
     for ( auto [ruin_obj_entt, ruin_obj_cmp] : ruin_objective_view.each() )
@@ -74,19 +76,19 @@ void RuinSceneUpperFloor::on_init()
   sf::Vector2f flooraccess_position( RuinSceneUpperFloor::kMapGridSizeF.x - ( 3 * gridsize.x ),
                                      RuinSceneUpperFloor::kMapGridSizeF.y - ( 3 * gridsize.y ) );
   sf::Vector2f flooraccess_size( ( 2 * gridsize.x ), gridsize.y );
-  m_sys.find<SystemStoreType::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size, Cmp::RuinFloorAccess::Direction::TO_LOWER );
+  m_sys.find<Store::Type::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size, Cmp::RuinFloorAccess::Direction::TO_LOWER );
 
   // add the straircase sprite for upper floor
   const Sprites::MultiSprite &stairs_upper_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_going_down" );
   sf::Vector2f stairs_position( RuinSceneUpperFloor::kMapGridSizeF.x - ( 4 * gridsize.x ), ( 2 * gridsize.y ) );
-  m_sys.find<SystemStoreType::RuinSystem>().add_stairs<Cmp::RuinStairsUpperMultiBlock>( stairs_position, stairs_upper_ms );
+  m_sys.find<Store::Type::RuinSystem>().add_stairs<Cmp::RuinStairsUpperMultiBlock>( stairs_position, stairs_upper_ms );
 
   // add the straircase balustrade sprite for upper floor - make sure it is front of player
   const Sprites::MultiSprite &stairs_balustrade_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_upper_balustrade" );
   sf::Vector2f balustrade_position( RuinSceneUpperFloor::kMapGridSizeF.x - ( 4 * gridsize.x ), ( 2 * gridsize.y ) );
   auto balustrade_zorder = Utils::Player::get_player_position( m_reg ).position.y + gridsize.y;
-  m_sys.find<SystemStoreType::RuinSystem>().add_stairs<Cmp::RuinStairsBalustradeMultiBlock>( balustrade_position, stairs_balustrade_ms,
-                                                                                             balustrade_zorder );
+  m_sys.find<Store::Type::RuinSystem>().add_stairs<Cmp::RuinStairsBalustradeMultiBlock>( balustrade_position, stairs_balustrade_ms,
+                                                                                         balustrade_zorder );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneUpperFloor::kMapGridSize, "res/json/ruin_upper_tilemap_config.json" );
 }
@@ -94,7 +96,8 @@ void RuinSceneUpperFloor::on_init()
 void RuinSceneUpperFloor::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
-  if ( not m_sys.find<Sys::Store::Type::RuinSystem>().is_player_carrying_witches_jar() )
+  bool player_is_cursed = m_sys.find<Sys::Store::Type::RuinSystem>().is_player_carrying_witches_jar();
+  if ( not player_is_cursed )
   {
     if ( m_sound_bank.get_music( "ruin_creaking_rope" ).getStatus() != sf::Sound::Status::Playing )
     {
@@ -132,36 +135,25 @@ void RuinSceneUpperFloor::on_exit()
 
 void RuinSceneUpperFloor::do_update( [[maybe_unused]] sf::Time dt )
 {
-  m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
-  // m_sys.find<Sys::Store::Type::FootstepSystem>().update();
-  m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
-  m_sys.find<Sys::Store::Type::RuinSystem>().check_floor_access_collision( Cmp::RuinFloorAccess::Direction::TO_LOWER );
-  m_sys.find<Sys::Store::Type::RuinSystem>().check_movement_slowdowns();
+  using namespace Sys;
+  m_sys.find<Store::Type::AnimSystem>().update( dt );
+  m_sys.find<Store::Type::NpcSystem>().update( dt );
+  // m_sys.find<Store::Type::FootstepSystem>().update();
+  m_sys.find<Store::Type::LootSystem>().check_loot_collision();
+  m_sys.find<Store::Type::RuinSystem>().check_floor_access_collision( Cmp::RuinFloorAccess::Direction::TO_LOWER );
+  m_sys.find<Store::Type::RuinSystem>().check_movement_slowdowns();
 
-  m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt, Sys::PlayerSystem::FootStepSfx::NONE );
-  m_sys.find<Sys::Store::Type::PlayerSystem>().disable_damage_cooldown();
+  m_sys.find<Store::Type::PlayerSystem>().update( dt, PlayerSystem::FootStepSfx::NONE );
+  m_sys.find<Store::Type::PlayerSystem>().disable_damage_cooldown();
 
-  if ( m_sys.find<Sys::Store::Type::RuinSystem>().is_player_carrying_witches_jar() )
-  {
-    m_sound_bank.get_music( "ruin_creaking_rope" ).stop();
-    m_sound_bank.get_music( "ruin_music" ).stop();
+  bool player_curse_active = m_sys.find<Store::Type::RuinSystem>().check_activate_player_curse( RuinSceneUpperFloor::kMapGridSizeF );
 
-    const auto &hand_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.shadow_hand" );
-    const auto hand_ms_size = hand_ms.getSpriteSizePixels();
-    sf::Vector2f starting_pos = { 0 - hand_ms_size.x, RuinSceneUpperFloor::kMapGridSizeF.y / 2 - hand_ms_size.y / 2 };
+  m_sys.find<Store::Type::RuinSystem>().update_shadow_hand_pos( RuinSceneUpperFloor::kMapGridSizeF );
+  m_sys.find<Store::Type::RuinSystem>().check_player_shadow_hand_collision();
 
-    Factory::create_shadow_hand( m_reg, starting_pos, hand_ms );
-
-    float shadow_hand_speed = 0.45f;
-    float max_shadow_hand_xpos = RuinSceneUpperFloor::kMapGridSizeF.x - hand_ms_size.x;
-    m_sys.find<Sys::Store::Type::RuinSystem>().update_shadow_hand_pos( max_shadow_hand_xpos, shadow_hand_speed );
-  }
-
-  m_sys.find<Sys::Store::Type::RuinSystem>().check_player_shadow_hand_collision();
-
-  auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::OFF, Sys::WeatherMode::OFF );
+  auto &overlay_sys = m_sys.find<Store::Type::RenderOverlaySystem>();
+  m_sys.find<Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, DarkMode::OFF, WeatherMode::OFF,
+                                                           ( player_curse_active ? CursedMode::ON : CursedMode::OFF ) );
 }
 
 entt::registry &RuinSceneUpperFloor::registry() { return m_reg; }

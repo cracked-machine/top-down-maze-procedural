@@ -18,6 +18,8 @@ enum class SolidWall { FALSE = false, TRUE = true };
 void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, Sprites::SpriteMetaType sprite_type, std::size_t sprite_index, float zorder,
                       SolidWall solid_wall = SolidWall::TRUE );
 void add_nopathfinding( entt::registry &reg, const sf::Vector2f &pos );
+void add_nonpcpathfinding( entt::registry &reg, const sf::Vector2f &pos );
+void add_reservedposition( entt::registry &reg, const sf::Vector2f &pos );
 
 } // namespace ProceduralMaze::Factory
 

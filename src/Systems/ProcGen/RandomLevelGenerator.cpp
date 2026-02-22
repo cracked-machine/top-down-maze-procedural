@@ -276,7 +276,7 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, Cmp::
       };
 
       float grid_height = Constants::kGridSizePxF.y;
-      float edge_height = grid_height * 5;
+      float edge_height = grid_height * 10;
       Sprites::SpriteMetaType wall_type = "CRYPT.interior_wall";
       int dx = x - cx;
       // int dy = y - cy;

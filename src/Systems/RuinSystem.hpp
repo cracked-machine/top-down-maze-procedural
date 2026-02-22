@@ -7,6 +7,7 @@
 #include <Systems/BaseSystem.hpp>
 
 #include <Sprites/SpriteMetaType.hpp>
+#include <future>
 namespace ProceduralMaze::Sprites
 {
 class MultiSprite;
@@ -54,12 +55,27 @@ public:
   }
 
   void gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions );
-  void add_lowerfloor_cobwebs( sf::FloatRect scene_dimensions );
+  void add_lowerfloor_cobwebs( int max_attempts, sf::FloatRect scene_dimensions );
   void check_movement_slowdowns();
+  void reset_player_curse();
+  void check_exit_collision();
 
+  //! @brief Create a witch entt if none exist
+  //! @param reg
+  //! @param spawn_position
+  void check_create_witch( entt::registry &reg, sf::FloatRect scene_dimensions );
+
+  //! @brief One time, one shot function that asynchronously enables player curse and then sleeps for N seconds.
+  //!        This allows for cinematic pause after curse activation.
+  // First frame — future is invalid → launch async, future becomes valid
+  // Frames 2–N (still sleeping) — future is valid → skip launch, wait_for returns future_status::deferred or timeout
+  // Frame after 10s — future is valid → skip launch, wait_for returns future_status::ready → set player_curse.active = true
+  //! @param scene_dimensions
+  //! @return true
+  //! @return false
+  bool check_activate_player_curse( sf::Vector2f scene_dimensions );
   bool is_player_carrying_witches_jar();
-
-  void update_shadow_hand_pos( float max_xpos, float pixels_per_frame );
+  void update_shadow_hand_pos( sf::Vector2f scene_dimensions );
   void check_player_shadow_hand_collision();
 
 private:
@@ -74,6 +90,7 @@ private:
   bool m_was_on_floor_access{ false };
 
   sf::Clock m_creaking_rope_swing_timer{};
+  std::future<void> m_curse_activation_future;
 };
 
 extern template void RuinSystem::add_stairs<Cmp::RuinStairsLowerMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );

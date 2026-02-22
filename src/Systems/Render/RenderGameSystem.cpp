@@ -57,6 +57,7 @@
 #include <Components/Wormhole/WormholeMultiBlock.hpp>
 #include <Components/Wormhole/WormholeSingularity.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Player/PlayerCurse.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -260,16 +261,16 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       // debug: show crypt component boundaries
       if ( m_show_debug_stats )
       {
-        // for ( auto [ruin_entt, access_cmp, pos_cmp] : getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
-        // {
-        //   sf::RectangleShape rectangle;
-        //   rectangle.setSize( pos_cmp.size );
-        //   rectangle.setPosition( pos_cmp.position );
-        //   rectangle.setFillColor( sf::Color::Transparent );
-        //   rectangle.setOutlineThickness( 1.f );
-        //   rectangle.setOutlineColor( sf::Color::Red );
-        //   m_window.draw( rectangle );
-        // }
+        for ( auto [ruin_entt, access_cmp, pos_cmp] : getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
+        {
+          sf::RectangleShape rectangle;
+          rectangle.setSize( pos_cmp.size );
+          rectangle.setPosition( pos_cmp.position );
+          rectangle.setFillColor( sf::Color::Transparent );
+          rectangle.setOutlineThickness( 1.f );
+          rectangle.setOutlineColor( sf::Color::Red );
+          m_window.draw( rectangle );
+        }
 
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
@@ -638,10 +639,11 @@ void RenderGameSystem::render_dark_mode_shader()
 
 void RenderGameSystem::render_cursed_mode_shader( sf::FloatRect player_position )
 {
+  auto &player_curse = Utils::Player::get_player_curse( getReg() );
   auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
   m_dripping_blood_shader.update( { player_position.position.x - m_mist_shader.get_texture_size().x / 2.f,
                                     player_position.position.y - m_mist_shader.get_texture_size().y / 2.f },
-                                  0.5f, display_res ); // Set the alpha value
+                                  player_curse.shader_alpha.add( 0.01f ), display_res ); // Set the alpha value
 
   m_window.draw( m_dripping_blood_shader );
 }

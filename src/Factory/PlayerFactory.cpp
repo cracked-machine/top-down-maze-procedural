@@ -70,6 +70,7 @@ void CreatePlayer( entt::registry &registry )
   registry.emplace<Cmp::PlayerHealth>( entity, 100 );
   registry.emplace<Cmp::PlayerWealth>( entity, 0 );
   registry.emplace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );
+  registry.emplace<Cmp::PlayerCurse>( entity, false );
 
   registry.emplace<Cmp::ZOrderValue>( entity, start_pos.y ); // z-order based on y-position
   registry.emplace<Cmp::AbsoluteAlpha>( entity, 255 );       // fully opaque

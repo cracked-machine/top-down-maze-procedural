@@ -14,6 +14,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Utils/Player.hpp>
+#include <stdexcept>
 
 namespace ProceduralMaze::Utils::Player
 {
@@ -54,37 +55,57 @@ Cmp::PlayerLastGraveyardPosition *get_player_last_graveyard_position( entt::regi
 Cmp::PlayerHealth &get_player_health( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerHealth>();
+  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerHealth" );
   return player_view.get<Cmp::PlayerHealth>( get_player_entity( reg ) );
 }
 
 Cmp::PlayerWealth &get_player_wealth( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerWealth>();
+  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerWealth" );
   return player_view.get<Cmp::PlayerWealth>( get_player_entity( reg ) );
 }
 
 Cmp::PlayerBlastRadius &get_player_blast_radius( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerBlastRadius>();
+  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerBlastRadius" );
   return player_view.get<Cmp::PlayerBlastRadius>( get_player_entity( reg ) );
 }
 
 Cmp::PlayerMortality &get_player_mortality( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerMortality>();
+  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerMortality" );
   return player_view.get<Cmp::PlayerMortality>( get_player_entity( reg ) );
 }
 
 Cmp::ZOrderValue &get_player_zorder( entt::registry &reg )
 {
+  auto zorder_cmp = reg.try_get<Cmp::ZOrderValue>( get_player_entity( reg ) );
+  if ( not zorder_cmp ) throw std::runtime_error( "Player entt has no component: Cmp::ZOrderValue" );
+
   auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::ZOrderValue>();
   return player_view.get<Cmp::ZOrderValue>( get_player_entity( reg ) );
 }
 
 Cmp::PlayerCurse &get_player_curse( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::PlayerCurse>();
-  return player_view.get<Cmp::PlayerCurse>( get_player_entity( reg ) );
+  auto player_view = reg.view<Cmp::PlayerCurse>();
+  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerCurse" );
+  auto &curse = player_view.get<Cmp::PlayerCurse>( get_player_entity( reg ) );
+  SPDLOG_INFO( "Cmp::PlayerCurse == {}", curse.active );
+  return curse;
+}
+
+void reset_player_curse( entt::registry &reg )
+{
+  auto player_view = reg.view<Cmp::PlayerCurse>();
+  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerCurse" );
+  auto &curse = player_view.get<Cmp::PlayerCurse>( get_player_entity( reg ) );
+  curse.active = false;
+  curse.shader_alpha.reset();
+  SPDLOG_INFO( "Cmp::PlayerCurse == {}", curse.active );
 }
 
 float get_player_speed_penalty( entt::registry &reg )
