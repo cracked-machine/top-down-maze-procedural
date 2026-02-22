@@ -214,6 +214,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_background_water( player_position );
       render_floormap( floormap, { 0, 0 } );
       render_scryingball_doglegs();
+      render_wormhole_effect( floormap );
 
       for ( const auto &zorder_entry : m_zorder_queue_ )
       {
@@ -248,6 +249,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_armed();
       render_shockwaves( floormap );
       render_arrow_compass();
+
       if ( weather_mode == WeatherMode::ON ) { render_mist( player_position ); }
       // lava pit outline
       render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 64, 64, 64 ), 0.5f );
@@ -258,16 +260,16 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       // debug: show crypt component boundaries
       if ( m_show_debug_stats )
       {
-        for ( auto [ruin_entt, access_cmp, pos_cmp] : getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
-        {
-          sf::RectangleShape rectangle;
-          rectangle.setSize( pos_cmp.size );
-          rectangle.setPosition( pos_cmp.position );
-          rectangle.setFillColor( sf::Color::Transparent );
-          rectangle.setOutlineThickness( 1.f );
-          rectangle.setOutlineColor( sf::Color::Red );
-          m_window.draw( rectangle );
-        }
+        // for ( auto [ruin_entt, access_cmp, pos_cmp] : getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
+        // {
+        //   sf::RectangleShape rectangle;
+        //   rectangle.setSize( pos_cmp.size );
+        //   rectangle.setPosition( pos_cmp.position );
+        //   rectangle.setFillColor( sf::Color::Transparent );
+        //   rectangle.setOutlineThickness( 1.f );
+        //   rectangle.setOutlineColor( sf::Color::Red );
+        //   m_window.draw( rectangle );
+        // }
 
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
@@ -479,17 +481,18 @@ void RenderGameSystem::render_wormhole_effect( Sprites::Containers::TileMap &flo
   {
     try
     {
-      auto &wormhole_sprite = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
-      // Setup shader
+      // re-center the shader onto player position
       m_wormhole_shader.update_shader_position( pos_cmp.position, Sprites::ViewFragmentShader::Align::TOPLEFT );
 
-      // Draw background onto shader texture
+      // First draw background onto shader texture
       floormap.draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
 
+      // Next draw sprite onto shader texture
+      auto &wormhole_sprite = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
       safe_render_sprite_to_target( m_wormhole_shader.get_render_texture(), wormhole_sprite.get_sprite_type(), wormhole_cmp,
                                     anim_cmp.m_current_frame );
 
-      // Update and draw shader
+      // Finally Update shader and draw it onto RenderWindow
       Sprites::UniformBuilder builder;
       builder.set( "time", m_wormhole_shader.getElapsedTime().asSeconds() )
           .set( "screenSize", m_wormhole_shader.get_view_size() )

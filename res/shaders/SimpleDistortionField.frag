@@ -7,8 +7,9 @@ uniform vec2 centerPosition;
 
 void main()
 {
-  vec2 texCoord = gl_TexCoord[0].xy;
-  vec2 worldPos = texCoord * screenSize;
+  vec2 texSize = vec2( textureSize( texture, 0 ) );
+  // Normalize to [0,1]
+  vec2 texCoord = gl_TexCoord[0].xy / texSize;
 
   // Convert to centered coordinates (-1 to 1 range)
   vec2 uv = ( texCoord - 0.5 ) * 2.0;
@@ -45,11 +46,11 @@ void main()
   vec4 color;
   if ( distorted_texCoord.x >= 0.0 && distorted_texCoord.x <= 1.0 && distorted_texCoord.y >= 0.0 && distorted_texCoord.y <= 1.0 )
   {
-    color = texture2D( texture, distorted_texCoord );
+    color = texture2D( texture, distorted_texCoord * texSize );
   }
   else
   {
-    color = texture2D( texture, texCoord ); // Fallback to original
+    color = texture2D( texture, gl_TexCoord[0].xy );
   }
 
   gl_FragColor = color;
