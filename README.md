@@ -1,8 +1,26 @@
 # Build System
 
-This project is setup to build on a linux system but cross-compile for a windows target via MinGW.
+This project is setup to build on a linux system but cross-compile for a windows target via MinGW. The mingw version is tied to the Debian release. Rather than put out-of-date info here please check the Dockerfile and then look up that package version [here](https://packages.debian.org/search?keywords=g%2B%2B-mingw-w64-x86-64&searchon=names&suite=all&section=all).  
 
-You can use the VSCode project with the remote containers extension to build the project on a remote linux build host from a local windows client.  Theres nothing to stop you using Linux for both host and client, but obviously you need somewhere to run the windows executable.
+You can determine the CRT by running objdump on the binary output:
+
+```
+x86_64-w64-mingw32-objdump -p build-x86_64-w64-mingw32/bin/ProceduralMaze.exe | grep -iE 'msvcrt|ucrt|vcruntime|api-ms-win-crt'
+```
+
+The OpenGL loader used entirely depends on the runtime OS. This is printed in the log file when the game is executed. For example on Windows 11:
+
+```
+Engine.cpp:57 - OpenGL: 4.6.0 Compatibility Profile Context 26.1.1.251223
+Engine.cpp:58 - Renderer: AMD Radeon RX 7900 GRE
+Engine.cpp:59 - Vendor: ATI Technologies Inc.
+```
+
+This project should be run on a Linux PC. The cross-compiled output binary for Windows can be found in `build-x86_64-w64-mingw32/bin` and the native output binary for Linux is `build-x86_64-linux-gnu/bin`.
+
+The project ius configured to use VSCode remote extensions. This means you can run the build on a Linux PC from a Windows PC over SSH. You can build it natively from Linux if you wish but obviously if you want to test the cross-compiled windows binary you will need a Windows PC as well. Also note that this project is intended to be used from a Windows PC so of you run it directly in VSCode on Linux the task.json are not tested. 
+
+
 
 ## Samba
 
@@ -39,13 +57,23 @@ sudo systemctl restart smb
 
 ## Running the build in a debugger
 
-In theory you can get windows to create a crash dump, but trying to use this windows-only crash dump with MinGW gcc symbols is a PITA. Much simpler is to run the executable in GDB directly and observe the debugger when it crashes. Obviously this isn't much help after the fact.  
+In theory you can get windows to create a crash dump, but trying to use this windows-only crash dump with MinGW gcc symbols is a non-starter. Much simpler is to run the executable in GDB directly and observe the debugger when it crashes. Obviously this isn't much help after the fact.  
 
-1. install mingw and gdb on windows via msys
-1. change to the samba mapped directory - `cd X:\\path\\to\\build\\bin\\`
-1. Run gdb with the exe - `gdb X:\\cpp\\games\\temp\\build\\bin\\ProceduralMaze.exe -ex run`
-1. Or run with a breakpoint - `gdb /x/cpp/games/top-down-maze-procedural/build/bin/ProceduralMaze.exe -ex "break Engine.cpp:30" -ex "run" -ex "next" -ex "next"
-`
+1. install mingw and gdb on windows via msys - the version must be equal or higher than the mingw supplied by debian.
+1. Download the bin folder to your Windows PC (or use the Samba mapping)
+
+        - `cd /c/path/to/bin`
+        - `cd X:\\path\\to\\build\\bin\\`
+
+1. Run gdb with the exe - 
+
+        - `gdb X:\\cpp\\games\\temp\\build\\bin\\ProceduralMaze.exe -ex run`
+        - `/c/path/to/bin/ProceduralMaze.exe -ex run`
+
+1. Or run with a breakpoint - 
+
+        - `gdb /x/cpp/games/top-down-maze-procedural/build/bin/ProceduralMaze.exe -ex "break Engine.cpp:30" -ex "run" -ex "next" -ex "next"`
+        - `gdb /c/path/to/bin/ProceduralMaze.exe -ex "break Engine.cpp:30" -ex "run" -ex "next" -ex "next"`
 
 # Design 
 

@@ -3,17 +3,17 @@
 
 #include <SFML/System/Time.hpp>
 
-#include <Shaders/BaseFragmentShader.hpp>
+#include <Shaders/BaseShader.hpp>
 #include <Systems/BaseSystem.hpp>
 
 namespace ProceduralMaze::Sprites
 {
 
-class DarkModeShader : public BaseFragmentShader
+class DarkModeShader : public BaseShader
 {
 public:
-  DarkModeShader( std::filesystem::path shader_path, sf::Vector2u texture_size )
-      : BaseFragmentShader( shader_path, texture_size )
+  DarkModeShader( std::filesystem::path vert_shader_path, std::filesystem::path frag_shader_path, sf::Vector2u texture_size )
+      : BaseShader( vert_shader_path, frag_shader_path, texture_size )
   {
   }
 

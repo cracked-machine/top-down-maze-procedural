@@ -1,8 +1,11 @@
-#version 120
+#version 330
 
 uniform sampler2D texture;
 uniform float time;
 uniform float alpha;
+uniform vec2 resolution;
+
+out vec4 outColor;
 
 // Improved noise function for smoother clouds
 float hash( vec2 p ) { return fract( sin( dot( p, vec2( 127.1, 311.7 ) ) ) * 43758.5453123 ); }
@@ -41,13 +44,15 @@ float fbm( vec2 p )
 
 void main()
 {
-  vec2 texCoord = gl_TexCoord[0].xy;
+  // vec2 texCoord = gl_TexCoord[0].xy;
+  vec2 texCoord = gl_FragCoord.xy / resolution;
 
   // Sample the base texture
   vec4 color = texture2D( texture, texCoord );
 
   // Create horizontal scrolling right to left (slower)
-  vec2 mistCoord = texCoord * 8.0;
+  // Scale factor controls diffuseness: higher = more diffuse, lower = tighter
+  vec2 mistCoord = texCoord * 3.0;
   mistCoord.x -= time * 0.05;  // Slowed down from 0.12
   mistCoord.y += time * 0.008; // Slowed down vertical drift
 
@@ -86,5 +91,5 @@ void main()
   // Apply alpha uniform
   color.a *= alpha;
 
-  gl_FragColor = color;
+  outColor = color;
 }

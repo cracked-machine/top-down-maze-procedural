@@ -133,13 +133,26 @@ private:
   const sf::Vector2f kLocalMapViewSizeF{ static_cast<float>( kLocalMapViewSize.x ), static_cast<float>( kLocalMapViewSize.y ) };
 
   // Shaders - we dont know the size of the texture yet so set to 1,1 and resize later
-  Sprites::FloodWaterShader m_water_shader{ "res/shaders/FloodWater2.glsl", { 1u, 1u } };
-  Sprites::ViewFragmentShader m_wormhole_shader{ "res/shaders/SimpleDistortionField.frag", Constants::kGridSizePx.componentWiseMul( { 3u, 3u } ) };
-  Sprites::ViewFragmentShader m_shockwave_shader{ "res/shaders/SimpleDistortionField.frag", Constants::kGridSizePx.componentWiseMul( { 1u, 1u } ) };
-  Sprites::PulsingShader m_pulsing_shader{ "res/shaders/RedPulsingSand.frag", { 1u, 1u } };
-  Sprites::MistShader m_mist_shader{ "res/shaders/MistShader.frag", { 1u, 1u } };
-  Sprites::DarkModeShader m_dark_mode_shader{ "res/shaders/DarkMode.frag", { 1u, 1u } };
-  Sprites::DrippingBloodShader m_dripping_blood_shader{ "res/shaders/RedStaticEffect.frag", { 1u, 1u } };
+
+  Sprites::FloodWaterShader m_water_shader{ "res/shaders/Generic.vert", "res/shaders/FloodWater2.frag", { 1u, 1u } };
+  Sprites::ViewFragmentShader m_wormhole_shader{ "res/shaders/Generic.vert", "res/shaders/SimpleDistortionField.frag",
+                                                 Constants::kGridSizePx.componentWiseMul( { 3u, 3u } ) };
+  Sprites::ViewFragmentShader m_shockwave_shader{ "res/shaders/Generic.vert", "res/shaders/SimpleDistortionField.frag",
+                                                  Constants::kGridSizePx.componentWiseMul( { 1u, 1u } ) };
+  Sprites::PulsingShader m_pulsing_shader{ "res/shaders/Generic.vert", "res/shaders/RedPulsingSand.frag", { 1u, 1u } };
+  Sprites::MistShader m_mist_shader{ "res/shaders/Generic.vert", "res/shaders/MistShader.frag", { 1u, 1u } };
+  Sprites::DarkModeShader m_dark_mode_shader{ "res/shaders/Generic.vert", "res/shaders/DarkMode.frag", { 1u, 1u } };
+  Sprites::DrippingBloodShader m_dripping_blood_shader{ "res/shaders/Generic.vert", "res/shaders/RedStaticEffect.frag", { 1u, 1u } };
+
+  // Sprites::FloodWaterShader m_water_shader{ "res/shaders/Generic.vert", "res/shaders/Generic.frag", { 1u, 1u } };
+  // Sprites::ViewFragmentShader m_wormhole_shader{ "res/shaders/Generic.vert", "res/shaders/Generic.frag",
+  //                                                Constants::kGridSizePx.componentWiseMul( { 3u, 3u } ) };
+  // Sprites::ViewFragmentShader m_shockwave_shader{ "res/shaders/Generic.vert", "res/shaders/Generic.frag",
+  //                                                 Constants::kGridSizePx.componentWiseMul( { 1u, 1u } ) };
+  // Sprites::PulsingShader m_pulsing_shader{ "res/shaders/Generic.vert", "res/shaders/Generic.frag", { 1u, 1u } };
+  // Sprites::MistShader m_mist_shader{ "res/shaders/Generic.vert", "res/shaders/Generic.frag", { 1u, 1u } };
+  // Sprites::DarkModeShader m_dark_mode_shader{ "res/shaders/Generic.vert", "res/shaders/Generic.frag", { 1u, 1u } };
+  // Sprites::DrippingBloodShader m_dripping_blood_shader{ "res/shaders/Generic.vert", "res/shaders/Generic.frag", { 1u, 1u } };
 
   // optimize the debug overlay updates to every n milliseconds
   const sf::Time m_debug_update_interval{ sf::milliseconds( 10 ) };

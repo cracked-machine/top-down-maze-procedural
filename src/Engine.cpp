@@ -6,6 +6,7 @@
 #include <Engine.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/ResumeClocksEvent.hpp>
+#include <SFML/OpenGL.hpp>
 #include <SFML/Window/WindowEnums.hpp>
 #include <SceneControl/SceneManager.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
@@ -51,6 +52,11 @@ Engine::Engine()
   io.FontGlobalScale = 1.5f;
   io.IniFilename = "res/imgui.ini";
   std::ignore = ImGui::SFML::UpdateFontTexture();
+
+  // SPDLOG does not allow formatting raw pointers as strings for safety reasons.
+  SPDLOG_INFO( "OpenGL: {}", reinterpret_cast<const char *>( glGetString( GL_VERSION ) ) );
+  SPDLOG_INFO( "Renderer: {}", reinterpret_cast<const char *>( glGetString( GL_RENDERER ) ) );
+  SPDLOG_INFO( "Vendor: {}", reinterpret_cast<const char *>( glGetString( GL_VENDOR ) ) );
 }
 
 bool Engine::run()

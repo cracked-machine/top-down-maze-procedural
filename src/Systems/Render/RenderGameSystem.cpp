@@ -459,13 +459,14 @@ void RenderGameSystem::render_background_water( sf::FloatRect player_position )
 
 void RenderGameSystem::render_mist( sf::FloatRect player_position )
 {
+  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
   m_mist_shader.update( { player_position.position.x - m_mist_shader.get_texture_size().x / 2.f,
                           player_position.position.y - m_mist_shader.get_texture_size().y / 2.f },
-                        0.25 ); // Set the alpha value
+                        0.25, display_size ); // Set the alpha value
 
   m_pulsing_shader.update( { player_position.position.x - m_pulsing_shader.get_texture_size().x / 2.f,
                              player_position.position.y - m_pulsing_shader.get_texture_size().y / 2.f },
-                           0.5f ); // Set the alpha value
+                           0.5f, display_size ); // Set the alpha value
 
   m_window.draw( m_mist_shader );
   m_window.draw( m_pulsing_shader );
@@ -493,7 +494,7 @@ void RenderGameSystem::render_wormhole_effect( Sprites::Containers::TileMap &flo
       builder.set( "time", m_wormhole_shader.getElapsedTime().asSeconds() )
           .set( "screenSize", m_wormhole_shader.get_view_size() )
           .set( "centerPosition", m_wormhole_shader.get_view_center() );
-      m_wormhole_shader.Sprites::BaseFragmentShader::update( builder );
+      m_wormhole_shader.Sprites::BaseShader::update( builder );
 
       m_wormhole_shader.draw( m_window, sf::RenderStates::Default );
     } catch ( const std::out_of_range &e )
@@ -637,7 +638,7 @@ void RenderGameSystem::render_cursed_mode_shader( sf::FloatRect player_position 
   auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
   m_dripping_blood_shader.update( { player_position.position.x - m_mist_shader.get_texture_size().x / 2.f,
                                     player_position.position.y - m_mist_shader.get_texture_size().y / 2.f },
-                                  0.5f, sf::Vector2f( display_res.x, display_res.y ) ); // Set the alpha value
+                                  0.5f, display_res ); // Set the alpha value
 
   m_window.draw( m_dripping_blood_shader );
 }

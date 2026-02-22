@@ -1,4 +1,4 @@
-#version 120
+#version 330 compatibility
 
 uniform sampler2D texture;
 uniform float time;
@@ -11,7 +11,7 @@ float hash( vec2 p ) { return fract( sin( dot( p, vec2( 12.9898, 78.233 ) ) ) * 
 
 void main()
 {
-  vec2 texCoord = gl_TexCoord[0].xy;
+  vec2 texCoord = gl_FragCoord.xy;
   vec2 worldPos = texCoord * screenSize;
 
   // Sample original texture

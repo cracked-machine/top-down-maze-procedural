@@ -1,9 +1,12 @@
-#version 120
+#version 330
 
 uniform sampler2D texture;
 uniform vec2 mouse_cursor;
 uniform float pixel_threshold;
 uniform float time;
+uniform vec2 resolution;
+
+out vec4 outColor;
 
 // Mandelbrot-like fractal function
 float mandelbrot( vec2 c, int max_iter )
@@ -43,7 +46,8 @@ float sierpinski( vec2 p )
 
 void main()
 {
-  vec2 coord = gl_TexCoord[0].xy;
+  //
+  vec2 coord = gl_FragCoord.xy / resolution;
   vec2 uv = ( coord - 0.5 ) * 2.0; // Convert to -1 to 1 range
 
   // Mouse influence on zoom and offset
@@ -71,8 +75,7 @@ void main()
   float mouse_wave = sin( mouse_dist * 20.0 - t * 5.0 ) * 0.05 * pixel_threshold / 30.0;
 
   // Combine all circular distortions
-  vec2 distortion = vec2( wave1 + wave2 + radial_distort + mouse_wave,
-                          wave1 + wave3 - radial_distort + mouse_wave );
+  vec2 distortion = vec2( wave1 + wave2 + radial_distort + mouse_wave, wave1 + wave3 - radial_distort + mouse_wave );
 
   // Apply polar coordinate distortion
   float polar_distort = sin( dist * 10.0 + angle * 3.0 + t * 2.5 ) * 0.06;
@@ -85,8 +88,7 @@ void main()
   vec2 fractal_coord = ( uv + mouse_offset + distortion ) * mouse_zoom;
 
   // Pattern 1: Mandelbrot with circular distortion
-  vec2 mandel_coord = fractal_coord * ( 2.0 + sin( t + dist * 5.0 ) * 0.5 ) +
-                      vec2( cos( t * 0.3 ), sin( t * 0.4 ) ) * 0.3;
+  vec2 mandel_coord = fractal_coord * ( 2.0 + sin( t + dist * 5.0 ) * 0.5 ) + vec2( cos( t * 0.3 ), sin( t * 0.4 ) ) * 0.3;
   // Add more distortion to mandelbrot coordinates
   mandel_coord += vec2( sin( dist * 12.0 + t * 3.0 ), cos( dist * 8.0 - t * 2.0 ) ) * 0.1;
   float mandel = mandelbrot( mandel_coord, 32 );
@@ -95,8 +97,7 @@ void main()
   vec2 julia_coord = fractal_coord * ( 1.5 + cos( t * 0.8 + dist * 4.0 ) * 0.3 );
   // Apply spiral distortion to julia coordinates
   float spiral_distort = sin( angle * 4.0 + dist * 15.0 + t * 3.0 ) * 0.08;
-  julia_coord += vec2( cos( angle + spiral_distort ), sin( angle + spiral_distort ) ) *
-                 spiral_distort;
+  julia_coord += vec2( cos( angle + spiral_distort ), sin( angle + spiral_distort ) ) * spiral_distort;
   float jul = julia( julia_coord, julia_c, 24 );
 
   // Pattern 3: Sierpinski with wave distortion
@@ -116,10 +117,8 @@ void main()
   for ( int i = 0; i < 4; i++ )
   {
     // Apply circular distortion to each noise octave
-    vec2 distorted_coord = noise_coord +
-                           vec2( sin( dist * 10.0 + t ), cos( dist * 12.0 - t ) ) * 0.1;
-    noise += sin( distorted_coord.x * amplitude ) * cos( distorted_coord.y * amplitude ) /
-             amplitude;
+    vec2 distorted_coord = noise_coord + vec2( sin( dist * 10.0 + t ), cos( dist * 12.0 - t ) ) * 0.1;
+    noise += sin( distorted_coord.x * amplitude ) * cos( distorted_coord.y * amplitude ) / amplitude;
     noise_coord *= 2.0;
     amplitude *= 2.0;
   }
@@ -159,5 +158,5 @@ void main()
   vec3 base_color = vec3( 0.7, 0.7, 1.0 ); // Blue tint
   vec3 final_color = base_color * brightness;
 
-  gl_FragColor = vec4( final_color, 1.0 );
+  outColor = vec4( final_color, 1.0 );
 }

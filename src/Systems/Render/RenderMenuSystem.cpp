@@ -64,8 +64,8 @@ namespace ProceduralMaze::Sys
 void RenderMenuSystem::init_title()
 {
   sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
-  m_title_screen_shader = std::make_unique<Sprites::TitleScreenShader>( "res/shaders/TitleScreen.frag", display_size );
-  m_title_screen_shader->setup();
+  m_title_screen_shader.resize_texture( display_size );
+  m_title_screen_shader.setup();
 }
 
 void RenderMenuSystem::render_title()
@@ -74,15 +74,16 @@ void RenderMenuSystem::render_title()
   m_window.clear();
   {
     // shaders
-    m_title_screen_shader->set_position( { 0, 0 } );
+    m_title_screen_shader.set_position( { 0, 0 } );
+    sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+
     const auto mouse_pos = sf::Vector2f( sf::Mouse::getPosition( m_window ) ).componentWiseDiv( sf::Vector2f( m_window.getSize() ) );
-    m_title_screen_shader->update( mouse_pos );
-    m_window.draw( *m_title_screen_shader );
+    m_title_screen_shader.update( mouse_pos, display_size );
+    m_window.draw( m_title_screen_shader );
 
     // text
     sf::Color txt_color{ 64, 96, 184 };
     sf::Color txt_outline_color{ 48, 48, 48 };
-    sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
 
     render_text( "Nekropolis", display_size.x / 20, { display_size.x * 0.25f, display_size.y * 0.25f }, Alignment::CENTER, 2.f, txt_outline_color );
 
@@ -152,7 +153,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
 
       m_window.create( sf::VideoMode( display_resolution ), "Your Game Title", sf::State::Fullscreen );
       m_window.setVerticalSyncEnabled( true );
-      m_title_screen_shader->resize_texture( display_resolution );
+      m_title_screen_shader.resize_texture( display_resolution );
       init_title();
 
       SPDLOG_DEBUG( "Selected resolution: {}x{}", display_resolution.x, display_resolution.y );

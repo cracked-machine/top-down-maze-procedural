@@ -99,18 +99,18 @@ public:
  * @note If you need to update with additional uniforms,
  *     create a new update function in your derived class
  */
-class BaseFragmentShader : public sf::Drawable, public sf::Transformable
+class BaseShader : public sf::Drawable, public sf::Transformable
 {
 public:
-  BaseFragmentShader( std::filesystem::path shader_path, sf::Vector2u texture_size );
+  BaseShader( std::filesystem::path vertex_shader_path, std::filesystem::path frag_shader_path, sf::Vector2u texture_size );
 
-  BaseFragmentShader( const BaseFragmentShader & ) = delete;
-  BaseFragmentShader &operator=( const BaseFragmentShader & ) = delete;
-  BaseFragmentShader( BaseFragmentShader && ) = default;
-  BaseFragmentShader &operator=( BaseFragmentShader && ) = default;
+  BaseShader( const BaseShader & ) = delete;
+  BaseShader &operator=( const BaseShader & ) = delete;
+  BaseShader( BaseShader && ) = default;
+  BaseShader &operator=( BaseShader && ) = default;
 
   //! @brief polymorphic destructor for derived classes
-  virtual ~BaseFragmentShader() = default;
+  virtual ~BaseShader() = default;
 
   /**
    * @brief Prepares texture-related operations before the main texture setup process.
@@ -201,8 +201,11 @@ public:
   void resize_texture( sf::Vector2u new_size )
   {
     [[maybe_unused]] auto result = m_render_texture.resize( new_size );
-    // SPDLOG_INFO( "Resized render texture to {}x{}, result: {}", new_size.x, new_size.y, result ? "Success" : "Failed" );
+    SPDLOG_INFO( "Resized render texture to {}x{}, result: {}", new_size.x, new_size.y, result ? "Success" : "Failed" );
     m_sprite.setTexture( m_render_texture.getTexture(), true );
+    m_sprite.setTextureRect( sf::IntRect( { 0, 0 }, { static_cast<int>( new_size.x ), static_cast<int>( new_size.y ) } ) ); // <-- Add this line
+    // m_sprite.setPosition( { 0, 0 } );
+    // m_sprite.setScale( { 1.f, 1.f } );
   }
 
 protected:
@@ -210,13 +213,14 @@ protected:
   sf::RenderTexture m_render_texture;
   // the sprite that uses the texture
   sf::Sprite m_sprite{ m_render_texture.getTexture() };
-  // the shader to be applied to the sprite
+  // the vertex/fragment shader to be applied to the sprite
   sf::Shader m_shader;
   // clock for timing shader effects
   sf::Clock m_clock{};
 
 private:
-  std::filesystem::path m_shader_path{};
+  std::filesystem::path m_vert_shader_path{};
+  std::filesystem::path m_frag_shader_path{};
 
   void setup_shader();
 };

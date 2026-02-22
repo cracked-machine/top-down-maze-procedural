@@ -1,4 +1,4 @@
-#version 120
+#version 330 compatibility
 
 uniform sampler2D texture;
 uniform float time;
@@ -44,7 +44,7 @@ vec2 getParticlePosition( float particleId, float timeOffset )
 
 void main()
 {
-  vec2 texCoord = gl_TexCoord[0].xy;
+  vec2 texCoord = gl_FragCoord.xy;
 
   // Sample original texture
   vec4 color = texture2D( texture, texCoord );

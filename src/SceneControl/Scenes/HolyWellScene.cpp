@@ -88,7 +88,7 @@ void HolyWellScene::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::OFF );
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::OFF, Sys::WeatherMode::OFF );
 }
 
 entt::registry &HolyWellScene::registry() { return m_reg; }

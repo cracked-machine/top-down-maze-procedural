@@ -4,17 +4,17 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <Shaders/BaseFragmentShader.hpp>
+#include <Shaders/BaseShader.hpp>
 #include <Systems/BaseSystem.hpp>
 
 namespace ProceduralMaze::Sprites
 {
 
-class BackgroundShader : public BaseFragmentShader
+class BackgroundShader : public BaseShader
 {
 public:
-  BackgroundShader( std::filesystem::path shader_path, sf::Vector2u texture_size )
-      : BaseFragmentShader( shader_path, texture_size )
+  BackgroundShader( std::filesystem::path vert_shader_path, std::filesystem::path frag_shader_path, sf::Vector2u texture_size )
+      : BaseShader( vert_shader_path, frag_shader_path, texture_size )
   {
     setup();
   }

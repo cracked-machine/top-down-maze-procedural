@@ -1,4 +1,4 @@
-#version 120
+#version 330 compatibility
 
 uniform sampler2D texture;
 uniform float time;
@@ -80,7 +80,7 @@ float starShape( vec2 texCoord, vec2 starCenter, float rotation )
 
 void main()
 {
-  vec2 texCoord = gl_TexCoord[0].xy;
+  vec2 texCoord = gl_FragCoord.xy;
 
   // Sample original texture
   vec4 color = texture2D( texture, texCoord );
@@ -98,8 +98,7 @@ void main()
 
     // Add some random offset to each star
     float randomSeed = i * 17.0;
-    vec2 randomOffset = vec2( hash( vec2( randomSeed, randomSeed + 1.0 ) ) - 0.5,
-                              hash( vec2( randomSeed + 2.0, randomSeed + 3.0 ) ) - 0.5 ) *
+    vec2 randomOffset = vec2( hash( vec2( randomSeed, randomSeed + 1.0 ) ) - 0.5, hash( vec2( randomSeed + 2.0, randomSeed + 3.0 ) ) - 0.5 ) *
                         0.08; // Small random spread
 
     vec2 finalStarPos = starPos + randomOffset;

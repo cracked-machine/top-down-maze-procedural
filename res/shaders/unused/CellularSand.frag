@@ -1,4 +1,4 @@
-#version 120
+#version 330 compatibility
 
 // A hybrid sand effect where:
 
@@ -26,12 +26,7 @@ uniform float waveAmplitude; // Wave influence amplitude
 float hash( vec2 p ) { return fract( sin( dot( p, vec2( 12.9898, 78.233 ) ) ) * 43758.5453 ); }
 
 // Hash function for 2D random vectors
-vec2 hash2( vec2 p )
-{
-  return fract(
-      sin( vec2( dot( p, vec2( 12.9898, 78.233 ) ), dot( p, vec2( 93.9898, 67.345 ) ) ) ) *
-      43758.5453 );
-}
+vec2 hash2( vec2 p ) { return fract( sin( vec2( dot( p, vec2( 12.9898, 78.233 ) ), dot( p, vec2( 93.9898, 67.345 ) ) ) ) * 43758.5453 ); }
 
 vec2 getRandomDirectionWaveSmooth( vec2 coord, float timeOffset )
 {
@@ -70,22 +65,13 @@ vec4 sampleWithRandomMovement( vec2 texCoord, float intensity )
   vec2 worldPos = texCoord * screenSize;
 
   // Multiple layers of random movement at different scales
-  vec2 largeMovement =
-      getRandomDirectionWaveSmooth( worldPos * 0.5, floor( time * timeScale * 2.0 ) ) * intensity *
-      3.0;
-  vec2 mediumMovement =
-      getRandomDirectionWaveSmooth( worldPos * 1.0, floor( time * timeScale * 3.0 ) ) * intensity *
-      2.0;
-  vec2 fineMovement =
-      getRandomDirectionWaveSmooth( worldPos * 2.0, floor( time * timeScale * 4.0 ) ) * intensity *
-      1.0;
-  vec2 microMovement =
-      getRandomDirectionWaveSmooth( worldPos * 4.0, floor( time * timeScale * 6.0 ) ) * intensity *
-      0.5;
+  vec2 largeMovement = getRandomDirectionWaveSmooth( worldPos * 0.5, floor( time * timeScale * 2.0 ) ) * intensity * 3.0;
+  vec2 mediumMovement = getRandomDirectionWaveSmooth( worldPos * 1.0, floor( time * timeScale * 3.0 ) ) * intensity * 2.0;
+  vec2 fineMovement = getRandomDirectionWaveSmooth( worldPos * 2.0, floor( time * timeScale * 4.0 ) ) * intensity * 1.0;
+  vec2 microMovement = getRandomDirectionWaveSmooth( worldPos * 4.0, floor( time * timeScale * 6.0 ) ) * intensity * 0.5;
 
   // Combine movements
-  vec2 totalMovement =
-      ( largeMovement + mediumMovement + fineMovement + microMovement ) / screenSize;
+  vec2 totalMovement = ( largeMovement + mediumMovement + fineMovement + microMovement ) / screenSize;
 
   // Sample texture from displaced position
   vec2 displacedCoord = texCoord + totalMovement;
@@ -144,8 +130,7 @@ vec2 getAlternatingRotatingWindDirectionSmooth( vec2 pos, float timeOffset )
 
   // Add continuous slow rotation
   float continuousRotation = timeOffset * 0.25;
-  float finalAngle =
-      baseAngle + sin( continuousRotation ) * 1.2 + cos( continuousRotation * 0.8 ) * 0.9;
+  float finalAngle = baseAngle + sin( continuousRotation ) * 1.2 + cos( continuousRotation * 0.8 ) * 0.9;
 
   // Add position-based flow variation
   finalAngle += sin( pos.x * 0.002 + timeOffset * 0.05 ) * 0.5;
@@ -181,7 +166,7 @@ vec2 getWindInfluencedMovement( vec2 pos )
 
 void main()
 {
-  vec2 texCoord = gl_TexCoord[0].xy;
+  vec2 texCoord = gl_FragCoord.xy;
   vec2 worldPos = texCoord * screenSize;
 
   // Sample original texture
@@ -198,8 +183,7 @@ void main()
   float brightness = 0.85 + sandPattern * 0.3;
 
   // Sandy color variation
-  vec3 sandColor =
-      vec3( 1.0 + sandPattern * 0.2, 1.0 + sandPattern * 0.1, 0.95 - sandPattern * 0.05 );
+  vec3 sandColor = vec3( 1.0 + sandPattern * 0.2, 1.0 + sandPattern * 0.1, 0.95 - sandPattern * 0.05 );
 
   // Blend original and moved colors based on sand pattern
   vec4 color = mix( originalColor, movedColor, sandPattern * sandIntensity * 0.6 );

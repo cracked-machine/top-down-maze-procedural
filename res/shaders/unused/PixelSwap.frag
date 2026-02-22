@@ -1,4 +1,4 @@
-#version 120
+#version 330 compatibility
 
 uniform sampler2D texture;
 uniform float time;
@@ -13,7 +13,7 @@ float random( vec2 st, float seed ) { return fract( sin( dot( st.xy + seed, vec2
 
 void main()
 {
-  vec2 texCoord = gl_TexCoord[0].xy;
+  vec2 texCoord = gl_FragCoord.xy;
   vec2 pixelSize = 1.0 / textureSize;
 
   // Get current pixel position

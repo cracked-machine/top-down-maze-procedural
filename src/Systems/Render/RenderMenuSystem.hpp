@@ -1,6 +1,7 @@
 #ifndef __SYS_RENDERMENUSYSTEM_HPP__
 #define __SYS_RENDERMENUSYSTEM_HPP__
 
+#include <Constants.hpp>
 #include <SFML/System/Time.hpp>
 
 #include <Shaders/TitleScreenShader.hpp>
@@ -51,7 +52,8 @@ public:
   void render_victory_screen();
 
 private:
-  std::unique_ptr<Sprites::TitleScreenShader> m_title_screen_shader;
+  // std::unique_ptr<Sprites::TitleScreenShader> m_title_screen_shader;
+  Sprites::TitleScreenShader m_title_screen_shader{ "res/shaders/Generic.vert", "res/shaders/TitleScreen.frag", { 1u, 1u } };
 };
 
 } // namespace ProceduralMaze::Sys

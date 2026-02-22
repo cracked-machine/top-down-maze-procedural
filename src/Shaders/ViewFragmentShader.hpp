@@ -5,7 +5,7 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <Shaders/BaseFragmentShader.hpp>
+#include <Shaders/BaseShader.hpp>
 #include <Systems/BaseSystem.hpp>
 
 namespace ProceduralMaze::Sprites
@@ -53,11 +53,11 @@ namespace ProceduralMaze::Sprites
  * 3. Work entirely in texture space rather than trying to use world coordinates
  * @see BaseFragmentShader
  */
-class ViewFragmentShader : public BaseFragmentShader
+class ViewFragmentShader : public BaseShader
 {
 public:
-  ViewFragmentShader( std::filesystem::path shader_path, sf::Vector2u texture_size )
-      : BaseFragmentShader( shader_path, texture_size ),
+  ViewFragmentShader( std::filesystem::path vert_shader_path, std::filesystem::path frag_shader_path, sf::Vector2u texture_size )
+      : BaseShader( vert_shader_path, frag_shader_path, texture_size ),
         m_shader_view( sf::Vector2f{ 0.f, 0.f }, sf::Vector2f{ texture_size } )
   {
   }
@@ -93,8 +93,8 @@ public:
     }
 
     m_shader_view.setCenter( pos + sf::Vector2f{ m_shader_view.getSize() * 0.5f } );
-    BaseFragmentShader::set_texture_view( m_shader_view );
-    BaseFragmentShader::set_position( pos );
+    BaseShader::set_texture_view( m_shader_view );
+    BaseShader::set_position( pos );
   }
 
 private:

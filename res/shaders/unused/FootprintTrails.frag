@@ -1,4 +1,4 @@
-#version 120
+#version 330 compatibility
 
 uniform sampler2D texture;
 uniform float time;
@@ -33,10 +33,7 @@ vec2 getFootprintPosition( float timeOffset )
 float footprintShape( vec2 texCoord, vec2 footCenter, float rotation, bool isLeftFoot )
 {
   // Check if footprint is within texture bounds
-  if ( footCenter.x < 0.0 || footCenter.x > 1.0 || footCenter.y < 0.0 || footCenter.y > 1.0 )
-  {
-    return 0.0;
-  }
+  if ( footCenter.x < 0.0 || footCenter.x > 1.0 || footCenter.y < 0.0 || footCenter.y > 1.0 ) { return 0.0; }
 
   // Translate to foot center
   vec2 offset = texCoord - footCenter;
@@ -62,14 +59,12 @@ float footprintShape( vec2 texCoord, vec2 footCenter, float rotation, bool isLef
 
   // Arch (elongated middle part)
   vec2 archCenter = vec2( 0.0, 0.0 );
-  float archDist = length( vec2( rotated.x / ( footWidth * 0.4 ),
-                                 ( rotated.y - archCenter.y ) / ( footLength * 0.4 ) ) );
+  float archDist = length( vec2( rotated.x / ( footWidth * 0.4 ), ( rotated.y - archCenter.y ) / ( footLength * 0.4 ) ) );
   float arch = 1.0 - smoothstep( 0.7, 1.1, archDist );
 
   // Toes (front oval part)
   vec2 toeCenter = vec2( 0.0, footLength * 0.3 );
-  float toeDist = length(
-      vec2( rotated.x / ( toeWidth * 0.5 ), ( rotated.y - toeCenter.y ) / ( footLength * 0.25 ) ) );
+  float toeDist = length( vec2( rotated.x / ( toeWidth * 0.5 ), ( rotated.y - toeCenter.y ) / ( footLength * 0.25 ) ) );
   float toes = 1.0 - smoothstep( 0.8, 1.2, toeDist );
 
   // Individual toe marks
@@ -97,7 +92,7 @@ float footprintShape( vec2 texCoord, vec2 footCenter, float rotation, bool isLef
 
 void main()
 {
-  vec2 texCoord = gl_TexCoord[0].xy;
+  vec2 texCoord = gl_FragCoord.xy;
 
   // Sample original texture
   vec4 color = texture2D( texture, texCoord );
@@ -122,15 +117,13 @@ void main()
     vec2 sideOffset = vec2( footSide * sideOffsetDistance, 0.0 );
 
     // Calculate walking direction for footprint rotation
-    vec2 walkDir =
-        normalize( getFootprintPosition( timeOffset ) - getFootprintPosition( timeOffset + 0.2 ) );
+    vec2 walkDir = normalize( getFootprintPosition( timeOffset ) - getFootprintPosition( timeOffset + 0.2 ) );
     float rotation = atan( walkDir.y, walkDir.x );
 
     // Apply side offset with rotation
     float s = sin( rotation );
     float c = cos( rotation );
-    vec2 rotatedSideOffset =
-        vec2( sideOffset.x * c - sideOffset.y * s, sideOffset.x * s + sideOffset.y * c );
+    vec2 rotatedSideOffset = vec2( sideOffset.x * c - sideOffset.y * s, sideOffset.x * s + sideOffset.y * c );
 
     vec2 finalFootPos = footPos + rotatedSideOffset;
 

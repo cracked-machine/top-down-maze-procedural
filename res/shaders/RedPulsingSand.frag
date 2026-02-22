@@ -1,8 +1,11 @@
-#version 120
+#version 330
 
 uniform sampler2D texture;
 uniform float time;
-uniform float alpha; // Add alpha uniform
+uniform float alpha;
+uniform vec2 resolution;
+
+out vec4 outColor;
 
 // pseudo-random noise using a hash function
 float noise( vec2 st ) { return fract( sin( dot( st.xy, vec2( 12.9898, 78.233 ) ) ) * 43758.5453123 ); }
@@ -25,7 +28,7 @@ float smoothNoise( vec2 st )
 
 void main()
 {
-  vec2 texCoord = gl_TexCoord[0].xy;
+  vec2 texCoord = gl_FragCoord.xy / resolution;
 
   // Sample the texture normally
   vec4 color = texture2D( texture, texCoord );
@@ -43,5 +46,5 @@ void main()
   // Apply the alpha uniform
   color.a *= alpha;
 
-  gl_FragColor = color;
+  outColor = color;
 }

@@ -3,17 +3,17 @@
 
 #include <SFML/System/Time.hpp>
 
-#include <Shaders/BaseFragmentShader.hpp>
+#include <Shaders/BaseShader.hpp>
 #include <Systems/BaseSystem.hpp>
 
 namespace ProceduralMaze::Sprites
 {
 
-class PulsingShader : public BaseFragmentShader
+class PulsingShader : public BaseShader
 {
 public:
-  PulsingShader( std::filesystem::path shader_path, sf::Vector2u texture_size )
-      : BaseFragmentShader( shader_path, texture_size )
+  PulsingShader( std::filesystem::path vert_shader_path, std::filesystem::path frag_shader_path, sf::Vector2u texture_size )
+      : BaseShader( vert_shader_path, frag_shader_path, texture_size )
   {
   }
   ~PulsingShader() override = default;
@@ -24,15 +24,13 @@ public:
     // std::ignore = m_texture.resize(texture_size);
   }
 
-  void post_setup_shader() override
-  {
-    m_shader.setUniform( "resolution", sf::Vector2f{ m_render_texture.getSize() } );
-  }
+  void post_setup_shader() override { m_shader.setUniform( "resolution", sf::Vector2f{ m_render_texture.getSize() } ); }
 
-  void update( sf::Vector2f position, float alpha )
+  void update( sf::Vector2f position, float alpha, sf::Vector2u resolution )
   {
     m_shader.setUniform( "time", m_clock.getElapsedTime().asSeconds() );
     m_shader.setUniform( "alpha", alpha ); // Set the alpha value
+    m_shader.setUniform( "resolution", sf::Vector2f{ resolution } );
     m_sprite.setPosition( { position } );
   }
   void update() override { /* unused */ }

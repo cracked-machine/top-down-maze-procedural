@@ -7,7 +7,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Audio/MusicItem.cpp
     ${CMAKE_SOURCE_DIR}/src/Audio/SoundBank.cpp
     ${CMAKE_SOURCE_DIR}/src/Debug/AssertHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Shaders/BaseFragmentShader.cpp
+    ${CMAKE_SOURCE_DIR}/src/Shaders/BaseShader.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/MultiSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/SpriteFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/TileMap.cpp

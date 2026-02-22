@@ -1,4 +1,4 @@
-#version 120
+#version 330 compatibility
 
 uniform sampler2D texture;
 uniform float time;
@@ -43,7 +43,7 @@ float fbm( vec2 st )
 
 void main()
 {
-  vec2 texCoord = gl_TexCoord[0].xy;
+  vec2 texCoord = gl_FragCoord.xy;
 
   // Sample the texture normally
   vec4 color = texture2D( texture, texCoord );
@@ -95,8 +95,8 @@ void main()
   // Subtle color variation
   float colorNoise = fbm( noiseCoord1 * 0.13 + windDir1 * time * 0.08 );
 
-  vec3 sandColor =
-      vec3( 1.0 + colorNoise * 0.08 + sandGrain * 0.12, 1.0 + colorNoise * 0.04 + sandGrain * 0.08, 1.0 - colorNoise * 0.02 + sandGrain * 0.04 );
+  vec3 sandColor = vec3( 1.0 + colorNoise * 0.08 + sandGrain * 0.12, 1.0 + colorNoise * 0.04 + sandGrain * 0.08,
+                         1.0 - colorNoise * 0.02 + sandGrain * 0.04 );
 
   // Apply effects with enhanced grain visibility
   color.rgb *= mix( vec3( 1.0 ), sandColor, sandIntensity * 0.6 ); // Increased from 0.4

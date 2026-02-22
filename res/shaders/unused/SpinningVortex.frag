@@ -1,4 +1,4 @@
-#version 120
+#version 330 compatibility
 
 uniform sampler2D texture;
 uniform float time;
@@ -10,7 +10,7 @@ uniform float spinSpeed;
 
 void main()
 {
-  vec2 texCoord = gl_TexCoord[0].xy;
+  vec2 texCoord = gl_FragCoord.xy;
 
   // Work in texture coordinate space (0.0 to 1.0)
   vec2 center = vec2( 0.5, 0.5 ); // Always center of texture
@@ -34,11 +34,7 @@ void main()
 
   // Sample texture with vortex distortion
   vec4 color;
-  if ( newTexCoord.x >= 0.0 && newTexCoord.x <= 1.0 && newTexCoord.y >= 0.0 &&
-       newTexCoord.y <= 1.0 )
-  {
-    color = texture2D( texture, newTexCoord );
-  }
+  if ( newTexCoord.x >= 0.0 && newTexCoord.x <= 1.0 && newTexCoord.y >= 0.0 && newTexCoord.y <= 1.0 ) { color = texture2D( texture, newTexCoord ); }
   else
   {
     color = texture2D( texture, texCoord ); // Fallback to original position

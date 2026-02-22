@@ -1,9 +1,11 @@
-#version 130
+#version 330
 
 uniform vec2 local_resolution;
 uniform vec2 aperture_half_size;
 uniform vec2 display_resolution;
 uniform float time;
+
+out vec4 outColor;
 
 // Simple noise function for flickering effect
 float noise( float t ) { return sin( t * 6.28318 ) * 0.5 + 0.5; }
@@ -44,8 +46,7 @@ void main()
   float flicker_intensity = 0.05;
 
   // Combine multiple noise frequencies for more realistic flicker
-  float flicker = noise( time * flicker_speed ) * 0.5 + noise( time * flicker_speed * 2.3 ) * 0.3 +
-                  noise( time * flicker_speed * 0.7 ) * 0.2;
+  float flicker = noise( time * flicker_speed ) * 0.5 + noise( time * flicker_speed * 2.3 ) * 0.3 + noise( time * flicker_speed * 0.7 ) * 0.2;
 
   // Apply flicker to adjust the effective aperture radius
   float flickered_radius = aperture_radius * ( 1.0 + flicker * flicker_intensity );
@@ -66,6 +67,6 @@ void main()
   // Mix warm white tint with black based on the aperture area
   vec3 color = mix( vec3( 0.0 ), warm_white, tint_amount );
 
-  gl_FragColor = vec4( color, alpha );
+  outColor = vec4( color, alpha );
   // }
 }

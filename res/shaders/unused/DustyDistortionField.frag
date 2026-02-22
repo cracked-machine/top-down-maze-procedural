@@ -1,4 +1,4 @@
-#version 120
+#version 330 compatibility
 
 uniform sampler2D texture;
 uniform float time;
@@ -31,8 +31,7 @@ float createDustPattern( vec2 worldPos )
 {
   // Convert to polar coordinates for circular patterns
   vec2 center = worldPos;
-  float dist = length( worldPos - floor( worldPos / 32.0 ) * 32.0 -
-                       16.0 ); // Create repeating circular cells
+  float dist = length( worldPos - floor( worldPos / 32.0 ) * 32.0 - 16.0 ); // Create repeating circular cells
   float angle = atan( worldPos.y, worldPos.x );
 
   // Scale coordinates based on dust density
@@ -58,7 +57,7 @@ float createDustPattern( vec2 worldPos )
 
 void main()
 {
-  vec2 texCoord = gl_TexCoord[0].xy;
+  vec2 texCoord = gl_FragCoord.xy;
   vec2 worldPos = texCoord * screenSize;
 
   // Convert to centered coordinates (-1 to 1 range)
@@ -83,8 +82,7 @@ void main()
   float spiral_distort = sin( angle * 3.0 + dist * 10.0 + t * 2.0 ) * 0.05;
 
   // Combine all distortions
-  vec2 distortion = vec2( wave1 + wave2 + radial_distort + spiral_distort,
-                          wave1 + wave3 - radial_distort + spiral_distort );
+  vec2 distortion = vec2( wave1 + wave2 + radial_distort + spiral_distort, wave1 + wave3 - radial_distort + spiral_distort );
 
   // Apply polar coordinate distortion
   float polar_distort = sin( dist * 8.0 + angle * 2.0 + t * 2.0 ) * 0.04;
@@ -95,8 +93,7 @@ void main()
 
   // Sample texture with distortion
   vec4 color;
-  if ( distorted_texCoord.x >= 0.0 && distorted_texCoord.x <= 1.0 && distorted_texCoord.y >= 0.0 &&
-       distorted_texCoord.y <= 1.0 )
+  if ( distorted_texCoord.x >= 0.0 && distorted_texCoord.x <= 1.0 && distorted_texCoord.y >= 0.0 && distorted_texCoord.y <= 1.0 )
   {
     color = texture2D( texture, distorted_texCoord );
   }
