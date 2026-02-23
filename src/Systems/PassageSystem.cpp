@@ -659,7 +659,7 @@ void PassageSystem::fillAllPassages()
       float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
       Factory::createObstacle( getReg(), pos_entt, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
 
-      if ( Utils::getSystemCmp( getReg() ).collisions_enabled )
+      if ( not Utils::getSystemCmp( getReg() ).collisions_disabled )
       {
         if ( Utils::Player::get_player_position( getReg() ).findIntersection( pblock_cmp_rect ) )
         {

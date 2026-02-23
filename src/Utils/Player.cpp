@@ -12,6 +12,8 @@
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Direction.hpp>
+#include <Player/PlayerDetectionBounds.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Utils/Player.hpp>
 #include <stdexcept>
@@ -34,6 +36,24 @@ Cmp::Position &get_player_position( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::Position>();
   return player_view.get<Cmp::Position>( get_player_entity( reg ) );
+}
+
+Cmp::Direction &get_player_direction( entt::registry &reg )
+{
+  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::Direction>();
+  return player_view.get<Cmp::Direction>( get_player_entity( reg ) );
+}
+
+Cmp::SpriteAnimation &get_player_sprite_anim( entt::registry &reg )
+{
+  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::SpriteAnimation>();
+  return player_view.get<Cmp::SpriteAnimation>( get_player_entity( reg ) );
+}
+
+Cmp::PCDetectionBounds &get_player_distance_bounds( entt::registry &reg )
+{
+  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::PCDetectionBounds>();
+  return player_view.get<Cmp::PCDetectionBounds>( get_player_entity( reg ) );
 }
 
 int get_player_ruin_location( entt::registry &reg )

@@ -130,8 +130,8 @@ void SceneInputRouter::graveyard_scene_state_handler()
       {
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
-          _sys.collisions_enabled = not _sys.collisions_enabled;
-          SPDLOG_INFO( "Collisions are now {}", _sys.collisions_enabled ? "ENABLED" : "DISABLED" );
+          _sys.collisions_disabled = not _sys.collisions_disabled;
+          SPDLOG_INFO( "Collisions are now {}", _sys.collisions_disabled ? "DISABLED" : "ENABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
@@ -281,8 +281,8 @@ void SceneInputRouter::crypt_scene_state_handler()
       {
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
-          _sys.collisions_enabled = not _sys.collisions_enabled;
-          SPDLOG_INFO( "Collisions are now {}", _sys.collisions_enabled ? "ENABLED" : "DISABLED" );
+          _sys.collisions_disabled = not _sys.collisions_disabled;
+          SPDLOG_INFO( "Collisions are now {}", _sys.collisions_disabled ? "DISABLED" : "ENABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 )
@@ -427,8 +427,8 @@ void SceneInputRouter::holywell_scene_state_handler()
       {
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
-          _sys.collisions_enabled = not _sys.collisions_enabled;
-          SPDLOG_INFO( "Collisions are now {}", _sys.collisions_enabled ? "ENABLED" : "DISABLED" );
+          _sys.collisions_disabled = not _sys.collisions_disabled;
+          SPDLOG_INFO( "Collisions are now {}", _sys.collisions_disabled ? "DISABLED" : "ENABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 )
@@ -556,8 +556,8 @@ void SceneInputRouter::ruin_scene_state_handler()
       {
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
-          _sys.collisions_enabled = not _sys.collisions_enabled;
-          SPDLOG_INFO( "Collisions are now {}", _sys.collisions_enabled ? "ENABLED" : "DISABLED" );
+          _sys.collisions_disabled = not _sys.collisions_disabled;
+          SPDLOG_INFO( "Collisions are now {}", _sys.collisions_disabled ? "DISABLED" : "ENABLED" );
         }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 )

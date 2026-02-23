@@ -79,7 +79,7 @@ void CryptSystem::update()
   }
 
   // check collisions with lava pit
-  if ( Utils::getSystemCmp( getReg() ).collisions_enabled )
+  if ( not Utils::getSystemCmp( getReg() ).collisions_disabled )
   {
     checkLavaPitCollision();
     checkSpikeTrapCollision();

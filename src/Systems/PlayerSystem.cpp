@@ -1,3 +1,4 @@
+#include <SFML/Graphics/Rect.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -76,10 +77,173 @@ PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
   m_post_death_timer.reset();
 }
 
+void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, FootStepSfx footstep_sfx )
+{
+
+  // process changes to player position and related transforms
+  localTransforms();
+
+  if ( not m_post_death_timer.isRunning() )
+  {
+
+    update_player_movement( Utils::getSystemCmp( getReg() ).collisions_disabled );
+    update_player_animation();
+    update_player_zorder();
+    update_player_distance_bounds();
+
+    // footstep sfx
+    auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
+    for ( auto [pc_entity, pc_cmp, dir_cmp] : player_view.each() )
+    {
+      if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) ) { stopFootstepsSound(); }
+      else { playFootstepsSound( footstep_sfx ); }
+    }
+    // update path tracking data
+    if ( m_debug_info_timer.getElapsedTime() >= sf::milliseconds( 100 ) )
+    {
+      refreshPlayerDistances();
+      m_debug_info_timer.restart();
+    }
+  }
+
+  // did player die?
+  checkPlayerMortality();
+}
+
+void PlayerSystem::localTransforms()
+{
+
+  auto blinking_player_view = getReg()
+                                  .view<Cmp::PlayerCharacter, Cmp::Position, Cmp::Direction, Cmp::SpriteAnimation, Cmp::PlayerMortality,
+                                        Cmp::AbsoluteAlpha, Cmp::AbsoluteRotation, Cmp::PlayerHealth>();
+  for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, anim_cmp, mortality_cmp, alpha_cmp, rotation_cmp, player_health_cmp] : blinking_player_view.each() )
+  {
+    // // normal do nothing
+    // if ( mortality_cmp.state != Cmp::PlayerMortality::State::ALIVE ) continue;
+    // wormhole jump fade effect
+    auto *wormhole_jump = getReg().try_get<Cmp::WormholeJump>( entity );
+    if ( wormhole_jump )
+    {
+      // Calculate fade based on elapsed time vs total cooldown
+      float elapsed = wormhole_jump->jump_clock.getElapsedTime().asSeconds();
+      float cooldown = wormhole_jump->jump_cooldown.asSeconds();
+      float progress = std::min( elapsed / cooldown, 1.0f ); // 0.0 to 1.0
+      alpha_cmp = static_cast<uint8_t>( 255 * ( 1.0f - progress ) );
+    }
+    else if ( mortality_cmp.state == Cmp::PlayerMortality::State::FALLING )
+    {
+      // TODO: falling effect
+      player_health_cmp.health = 0;
+      mortality_cmp.state = Cmp::PlayerMortality::State::DEAD;
+      return;
+    }
+    else
+    {
+      // damage cooldown blink effect
+      auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() );
+      bool is_in_damage_cooldown = pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value();
+      int blink_visible = static_cast<int>( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asMilliseconds() / 100 ) % 2 == 0;
+      if ( !is_in_damage_cooldown || ( is_in_damage_cooldown && blink_visible ) ) { alpha_cmp = 255; }
+      else { alpha_cmp = 0; }
+    }
+  }
+}
+
+void PlayerSystem::update_player_movement( bool collision_disabled )
+{
+  Cmp::Position &player_pos = Utils::Player::get_player_position( getReg() );
+  const Cmp::Direction requested_direction = Utils::Player::get_player_direction( getReg() );
+
+  sf::FloatRect target_horizontal_move( { player_pos.position.x + requested_direction.x, player_pos.position.y }, player_pos.size );
+  sf::FloatRect target_vertical_move( { player_pos.position.x, player_pos.position.y + requested_direction.y }, player_pos.size );
+
+  bool can_move = false;
+  Cmp::Direction resolved_direction;
+  if ( is_valid_move( target_horizontal_move ) or collision_disabled )
+  {
+    can_move = true;
+    resolved_direction.x = requested_direction.x;
+  }
+  else if ( requested_direction.x != 0.0f && requested_direction.y == 0.0f )
+  {
+    // Horizontal blocked - check if Y misalignment is snagging us on a corner
+    sf::FloatRect snapped = Utils::snap_to_grid( player_pos );
+    float y_offset = snapped.position.y - player_pos.position.y;
+    if ( std::abs( y_offset ) > 0.01f )
+    {
+      sf::FloatRect nudged( { player_pos.position.x + requested_direction.x, snapped.position.y }, player_pos.size );
+      if ( is_valid_move( nudged ) )
+      {
+        can_move = true;
+        resolved_direction.x = requested_direction.x;
+        resolved_direction.y = y_offset;
+      }
+    }
+  }
+
+  if ( is_valid_move( target_vertical_move ) or collision_disabled )
+  {
+    can_move = true;
+    resolved_direction.y = requested_direction.y;
+  }
+  else if ( requested_direction.y != 0.0f && requested_direction.x == 0.0f )
+  {
+    // Vertical blocked - check if X misalignment is snagging us on a corner
+    sf::FloatRect snapped = Utils::snap_to_grid( player_pos );
+    float x_offset = snapped.position.x - player_pos.position.x;
+    if ( std::abs( x_offset ) > 0.01f )
+    {
+      sf::FloatRect nudged( { snapped.position.x, player_pos.position.y + requested_direction.y }, player_pos.size );
+      if ( is_valid_move( nudged ) )
+      {
+        can_move = true;
+        resolved_direction.x = x_offset;
+        resolved_direction.y = requested_direction.y;
+      }
+    }
+  }
+
+  if ( can_move )
+  {
+    // complete the movement if valid
+    player_pos.position += resolved_direction;
+  }
+}
+
+void PlayerSystem::update_player_animation()
+{
+  const Cmp::Direction direction_cmp = Utils::Player::get_player_direction( getReg() );
+  Cmp::SpriteAnimation &anim_cmp = Utils::Player::get_player_sprite_anim( getReg() );
+
+  // update the animation state based on movement direction
+  if ( direction_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { anim_cmp.m_animation_active = false; }
+  else
+  {
+    anim_cmp.m_animation_active = true;
+    if ( direction_cmp.x == 1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.east"; }
+    else if ( direction_cmp.x == -1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.west"; }
+    else if ( direction_cmp.y == -1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.north"; }
+    else if ( direction_cmp.y == 1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.south"; }
+  }
+}
+
+void PlayerSystem::update_player_zorder()
+{
+  Cmp::ZOrderValue &zorder_cmp = Utils::Player::get_player_zorder( getReg() );
+  const Cmp::Position player_pos = Utils::Player::get_player_position( getReg() );
+  zorder_cmp.setZOrder( player_pos.position.y );
+}
+
+void PlayerSystem::update_player_distance_bounds()
+{
+  Cmp::PCDetectionBounds &distance_bounds = Utils::Player::get_player_distance_bounds( getReg() );
+  const Cmp::Position player_pos = Utils::Player::get_player_position( getReg() );
+  distance_bounds.position( player_pos.position );
+}
+
 void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMortalityEvent ev )
 {
 
-  // clang-format off
   auto common_death_throes = [&]()
   {
     m_post_death_timer.restart();
@@ -87,9 +251,8 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
     stopFootstepsSound();
     Utils::Player::get_player_health( getReg() ).health = 0;
     Utils::Player::get_player_mortality( getReg() ).state = Cmp::PlayerMortality::State::DEAD;
-    SPDLOG_INFO("Ploayer is dead");
+    SPDLOG_INFO( "Ploayer is dead" );
   };
-  // clang-format on
 
   switch ( ev.m_new_state )
   {
@@ -220,36 +383,6 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
   }
 }
 
-void PlayerSystem::update( sf::Time globalDeltaTime, FootStepSfx footstep_sfx )
-{
-
-  // process changes to player position and related transforms
-  localTransforms();
-
-  if ( not m_post_death_timer.isRunning() )
-  {
-
-    // process global movement, disable collision detection if option set
-    globalTranslations( globalDeltaTime, Utils::getSystemCmp( getReg() ).collisions_enabled );
-    // footstep sfx
-    auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
-    for ( auto [pc_entity, pc_cmp, dir_cmp] : player_view.each() )
-    {
-      if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) ) { stopFootstepsSound(); }
-      else { playFootstepsSound( footstep_sfx ); }
-    }
-    // update path tracking data
-    if ( m_debug_info_timer.getElapsedTime() >= sf::milliseconds( 100 ) )
-    {
-      refreshPlayerDistances();
-      m_debug_info_timer.restart();
-    }
-  }
-
-  // did player die?
-  checkPlayerMortality();
-}
-
 bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
 {
 
@@ -269,116 +402,70 @@ bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
     }
   }
 
-  // clang-format off
   Cmp::RectBounds search_bounds( target_position.position, target_position.size, 1 );
-  if ( Utils::Collision::check_cmp<Cmp::RuinBookcase>( getReg(), search_bounds ) ) 
+  using namespace Utils::Collision;
+  // clang-format off
+  if ( check_cmp<Cmp::RuinBookcase>( getReg(), search_bounds ) ) 
   { 
     return false; 
   }
-
-  if ( Utils::Collision::check_cmp<Cmp::Obstacle>( getReg(), search_bounds ) ) 
+  if ( check_cmp<Cmp::Obstacle>( getReg(), search_bounds ) ) 
   { 
     return false; 
   }
-
-  if ( Utils::Collision::check_cmp<Cmp::Wall>( getReg(), search_bounds, 
-       []( const Cmp::Wall &wall ) { return wall.blocking; } ) )
-  {
-    return false;
-  }  
-
-  if ( Utils::Collision::check_cmp<Cmp::PlayerNoPath>( getReg(), search_bounds ) ) 
+  if ( check_cmp<Cmp::Wall>( getReg(), search_bounds, []( const Cmp::Wall &wall ) { return wall.blocking; } ) ) 
   { 
     return false; 
   }
-
-  if ( Utils::Collision::check_cmp<Cmp::PlantObstacle>( getReg(), search_bounds ) )
+  if ( check_cmp<Cmp::PlayerNoPath>( getReg(), search_bounds ) ) 
   { 
     return false; 
   }
-
-  if ( Utils::Collision::check_cmp<Cmp::CryptChest>( getReg(), search_bounds ) ) 
+  if ( check_cmp<Cmp::PlantObstacle>( getReg(), search_bounds ) ) 
   { 
     return false; 
   }
-
-  if ( Utils::Collision::check_cmp<Cmp::Exit>( getReg(), search_bounds, 
-       []( const Cmp::Exit &exit ) { return exit.m_locked; } ) ) 
+  if ( check_cmp<Cmp::CryptChest>( getReg(), search_bounds ) ) 
   { 
     return false; 
   }
-
-  if ( Utils::Collision::check_cmp<Cmp::GraveSegment>( getReg(), search_bounds, 
-       []( const Cmp::GraveSegment &seg ) { return seg.isSolidMask(); } ) )
+  if ( check_cmp<Cmp::Exit>( getReg(), search_bounds, []( const Cmp::Exit &exit ) { return exit.m_locked; } ) ) 
+  { 
+    return false; 
+  }
+  if ( check_cmp<Cmp::GraveSegment>( getReg(), search_bounds, []( const Cmp::GraveSegment &seg ) { return seg.isSolidMask(); } ) ) 
+  { 
+    return false; 
+  }
+  if ( check_cmp<Cmp::AltarSegment>( getReg(), search_bounds, []( const Cmp::AltarSegment &seg ) { return seg.isSolidMask(); } ) ) 
+  { 
+    return false; 
+  }
+  if ( check_cmp<Cmp::CryptSegment>( getReg(), search_bounds, []( const Cmp::CryptSegment &seg ) { return seg.isSolidMask(); } ) ) 
+  { 
+    return false; 
+  }
+  if ( check_cmp<Cmp::HolyWellSegment>( getReg(), search_bounds, []( const Cmp::HolyWellSegment &seg ) { return seg.isSolidMask(); } ) )
   {
     return false;
   }
-
-  if ( Utils::Collision::check_cmp<Cmp::AltarSegment>( getReg(), search_bounds, 
-       []( const Cmp::AltarSegment &seg ) { return seg.isSolidMask(); } ) )
+  if ( check_cmp<Cmp::RuinSegment>( getReg(), search_bounds, []( const Cmp::RuinSegment &seg ) { return seg.isSolidMask(); } ) )
+  { 
+    return false; 
+  }
+  if ( check_cmp<Cmp::RuinStairsSegment>( getReg(), search_bounds, []( const Cmp::RuinStairsSegment &seg ) { return seg.isSolidMask(); } ) )
   {
     return false;
   }
-
-  if ( Utils::Collision::check_cmp<Cmp::CryptSegment>( getReg(), search_bounds, 
-       []( const Cmp::CryptSegment &seg ) { return seg.isSolidMask(); } ) )
+  if ( check_cmp<Cmp::CryptObjectiveSegment>( getReg(), search_bounds, []( const Cmp::CryptObjectiveSegment &seg ) { return seg.isSolidMask(); } ) )
   {
     return false;
   }
-
-  if ( Utils::Collision::check_cmp<Cmp::HolyWellSegment>( getReg(), search_bounds,
-       []( const Cmp::HolyWellSegment &seg ) { return seg.isSolidMask(); } ))
+  if ( check_cmp<Cmp::CryptInteriorSegment>( getReg(), search_bounds, []( const Cmp::CryptInteriorSegment &seg ) { return seg.isSolidMask(); } ) )
   {
     return false;
   }
-
-  if ( Utils::Collision::check_cmp<Cmp::RuinSegment>( getReg(), search_bounds, 
-       []( const Cmp::RuinSegment &seg ) { return seg.isSolidMask(); } ) )
-  {
-    return false;
-  }
-
-  if ( Utils::Collision::check_cmp<Cmp::RuinStairsSegment>( getReg(), search_bounds,
-       []( const Cmp::RuinStairsSegment &seg ) { return seg.isSolidMask(); } ) )
-  {
-    return false;
-  }
-
-  if ( Utils::Collision::check_cmp<Cmp::CryptObjectiveSegment>( getReg(), search_bounds,
-       []( const Cmp::CryptObjectiveSegment &seg ) { return seg.isSolidMask(); } ) )
-  {
-    return false;
-  }
-
-  if ( Utils::Collision::check_cmp<Cmp::CryptInteriorSegment>( getReg(), search_bounds,
-       []( const Cmp::CryptInteriorSegment &seg ) { return seg.isSolidMask(); } ) )
-  {
-    return false;
-  }
-
-  return true;
-}
-
-bool PlayerSystem::isDiagonalMovementBetweenObstacles( const sf::FloatRect &current_pos, const sf::Vector2f &direction )
-{
-  if ( !( ( direction.x != 0.0f ) && ( direction.y != 0.0f ) ) ) return false; // Not diagonal
-
-  sf::Vector2f grid_size{ Constants::kGridSizePx };
-
-  // Calculate the two orthogonal positions the diagonal movement would "cut through"
-  sf::FloatRect horizontal_check = sf::FloatRect{ sf::Vector2f{ current_pos.position.x + ( direction.x * grid_size.x ), current_pos.position.y },
-                                                  grid_size };
-
-  sf::FloatRect vertical_check = sf::FloatRect{ sf::Vector2f{ current_pos.position.x, current_pos.position.y + ( direction.y * grid_size.y ) },
-                                                grid_size };
-
-  // Check if both orthogonal positions have obstacles
-  bool horizontal_blocked = !is_valid_move( horizontal_check );
-  if ( !horizontal_blocked ) return false;
-  bool vertical_blocked = !is_valid_move( vertical_check );
-  if ( !vertical_blocked ) return false;
-
-  // Both orthogonal paths are blocked, diagonal movement is between obstacles
+  // clang-format on
   return true;
 }
 
@@ -442,204 +529,6 @@ void PlayerSystem::enable_damage_cooldown()
   for ( auto [player_entt, player_cmp] : getReg().view<Cmp::PlayerCharacter>().each() )
   {
     player_cmp.m_damage_cooldown_timer.restart();
-  }
-}
-
-void PlayerSystem::localTransforms()
-{
-
-  auto blinking_player_view = getReg()
-                                  .view<Cmp::PlayerCharacter, Cmp::Position, Cmp::Direction, Cmp::SpriteAnimation, Cmp::PlayerMortality,
-                                        Cmp::AbsoluteAlpha, Cmp::AbsoluteRotation, Cmp::PlayerHealth>();
-  for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, anim_cmp, mortality_cmp, alpha_cmp, rotation_cmp, player_health_cmp] : blinking_player_view.each() )
-  {
-    // // normal do nothing
-    // if ( mortality_cmp.state != Cmp::PlayerMortality::State::ALIVE ) continue;
-    // wormhole jump fade effect
-    auto *wormhole_jump = getReg().try_get<Cmp::WormholeJump>( entity );
-    if ( wormhole_jump )
-    {
-      // Calculate fade based on elapsed time vs total cooldown
-      float elapsed = wormhole_jump->jump_clock.getElapsedTime().asSeconds();
-      float cooldown = wormhole_jump->jump_cooldown.asSeconds();
-      float progress = std::min( elapsed / cooldown, 1.0f ); // 0.0 to 1.0
-      alpha_cmp = static_cast<uint8_t>( 255 * ( 1.0f - progress ) );
-    }
-    else if ( mortality_cmp.state == Cmp::PlayerMortality::State::FALLING )
-    {
-      // TODO: falling effect
-      player_health_cmp.health = 0;
-      mortality_cmp.state = Cmp::PlayerMortality::State::DEAD;
-      return;
-    }
-    else
-    {
-      // damage cooldown blink effect
-      auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() );
-      bool is_in_damage_cooldown = pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value();
-      int blink_visible = static_cast<int>( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asMilliseconds() / 100 ) % 2 == 0;
-      if ( !is_in_damage_cooldown || ( is_in_damage_cooldown && blink_visible ) ) { alpha_cmp = 255; }
-      else { alpha_cmp = 0; }
-    }
-  }
-}
-
-void PlayerSystem::update_player_animation( Cmp::LerpPosition *lerp_cmp, Cmp::Direction &dir_cmp, Cmp::SpriteAnimation &anim_cmp )
-{
-  // update the animation state based on movement direction
-  if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) )
-  {
-    // player is not pressing any keys but sprite is still lerping to target position?
-    // keep animation active otherwise it has the effect of sliding to a stop
-    if ( lerp_cmp && lerp_cmp->m_lerp_factor < 1.0f ) { anim_cmp.m_animation_active = true; }
-    else { anim_cmp.m_animation_active = false; }
-  }
-  else
-  {
-    anim_cmp.m_animation_active = true;
-    if ( dir_cmp.x == 1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.east"; }
-    else if ( dir_cmp.x == -1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.west"; }
-    else if ( dir_cmp.y == -1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.north"; }
-    else if ( dir_cmp.y == 1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.south"; }
-  }
-}
-
-float PlayerSystem::adjust_lerp_speed( Cmp::Position &pos_cmp, Cmp::Direction &dir_cmp )
-{
-  // Check if moving diagonally AFTER we know movement is valid
-  bool is_diagonal = ( dir_cmp.x != 0.0f ) && ( dir_cmp.y != 0.0f );
-  bool diagonal_between_obstacles = is_diagonal && isDiagonalMovementBetweenObstacles( pos_cmp, dir_cmp );
-
-  auto &player_lerp_speed = Sys::PersistSystem::get<Cmp::Persist::PlayerLerpSpeed>( getReg() );
-  auto &diagonal_lerp_speed_modifier = Sys::PersistSystem::get<Cmp::Persist::PlayerDiagonalLerpSpeedModifier>( getReg() );
-  auto &shortcut_lerp_speed_modifier = Sys::PersistSystem::get<Cmp::Persist::PlayerShortcutLerpSpeedModifier>( getReg() );
-
-  float speed_modifier = 1.0f;
-  if ( diagonal_between_obstacles )
-  {
-    // Check if shortcut movement is disabled (speed modifier at or near zero)
-    if ( shortcut_lerp_speed_modifier.get_value() < 0.01f )
-    {
-      // Block this movement entirely instead of making it super slow
-      return -1.f; // Skip to next entity, don't start the movement
-    }
-
-    // Extra slow when squeezing between obstacles
-    speed_modifier = shortcut_lerp_speed_modifier.get_value();
-  }
-  else if ( is_diagonal )
-  {
-    // Normal diagonal slowdown
-    speed_modifier = diagonal_lerp_speed_modifier.get_value();
-  }
-
-  float adjusted_speed = player_lerp_speed.get_value() * speed_modifier;
-
-  // adjust for speed penalty
-  adjusted_speed *= Utils::Player::get_player_speed_penalty( getReg() );
-
-  return adjusted_speed;
-}
-
-void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool collision_detection )
-{
-
-  const float dt = globalDeltaTime.asSeconds();
-
-  auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds, Cmp::SpriteAnimation>();
-  for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, pc_detection_bounds, anim_cmp] : player_view.each() )
-  {
-    // always set the player, even if not moving
-    auto zorder_cmp = getReg().try_get<Cmp::ZOrderValue>( entity );
-    if ( zorder_cmp ) { zorder_cmp->setZOrder( pos_cmp.position.y ); }
-
-    auto lerp_cmp = getReg().try_get<Cmp::LerpPosition>( entity );
-    bool wants_to_move = dir_cmp != sf::Vector2f( 0.0f, 0.0f );
-
-    update_player_animation( lerp_cmp, dir_cmp, anim_cmp );
-
-    // disable new lerp starting during wormhole jump
-    if ( getReg().try_get<Cmp::WormholeJump>( entity ) ) continue;
-
-    // Check if player wants to change direction mid-lerp
-    // Only allow interruption in the first 30% of the lerp - after that, commit to current direction
-    constexpr float kInterruptThreshold = 0.25f;
-    if ( wants_to_move && lerp_cmp && lerp_cmp->m_lerp_factor < kInterruptThreshold )
-    {
-      // Calculate the direction of the current lerp
-      sf::Vector2f lerp_direction = lerp_cmp->m_target - lerp_cmp->m_start;
-      sf::Vector2f lerp_dir_normalized{ lerp_direction.x > 0.f ? 1.f : ( lerp_direction.x < 0.f ? -1.f : 0.f ),
-                                        lerp_direction.y > 0.f ? 1.f : ( lerp_direction.y < 0.f ? -1.f : 0.f ) };
-
-      // Different direction requested?
-      if ( lerp_dir_normalized != dir_cmp )
-      {
-        // Snap BACK to start position since we're early in the lerp
-        pos_cmp.position = lerp_cmp->m_start;
-        pc_detection_bounds.position( pos_cmp.position );
-
-        // Remove old lerp - will start fresh from grid position
-        getReg().remove<Cmp::LerpPosition>( entity );
-        lerp_cmp = nullptr;
-        // Fall through to "start new movement" block below
-      }
-    }
-
-    // Start new movement when not currently lerping
-    else if ( wants_to_move && !lerp_cmp )
-    {
-      // Ensure we start from a clean grid position
-      sf::Vector2f snapped_start = Utils::snap_to_grid( pos_cmp.position, Utils::Rounding::NEAREST );
-      pos_cmp.position = snapped_start;
-      pc_detection_bounds.position( snapped_start );
-
-      // Calculate target position from snapped start
-      sf::FloatRect new_pos{ snapped_start, pos_cmp.size };
-      new_pos.position.x = snapped_start.x + ( dir_cmp.x * Constants::kGridSizePx.x );
-      new_pos.position.y = snapped_start.y + ( dir_cmp.y * Constants::kGridSizePx.y );
-
-      // Check collision ONCE
-      bool can_move = not collision_detection || is_valid_move( new_pos );
-      if ( !can_move ) continue; // Early exit if blocked
-
-      float adjusted_speed = adjust_lerp_speed( pos_cmp, dir_cmp );
-      if ( adjusted_speed == -1.f ) { continue; }
-
-      auto &new_lerp = getReg().emplace<Cmp::LerpPosition>( entity, new_pos.position, adjusted_speed );
-      new_lerp.m_start = snapped_start;
-      new_lerp.m_target = new_pos.position;
-      new_lerp.m_lerp_factor = 0.0f;
-    }
-
-    // Process ongoing lerp movement
-    lerp_cmp = getReg().try_get<Cmp::LerpPosition>( entity ); // Re-fetch in case we just created it
-    if ( lerp_cmp && lerp_cmp->m_lerp_factor < 1.0f )
-    {
-      lerp_cmp->m_lerp_factor += ( lerp_cmp->m_lerp_speed * dt );
-
-      // Check if lerp will complete this frame
-      if ( lerp_cmp->m_lerp_factor >= 1.0f )
-      {
-        // Snap directly to target - no interpolation to avoid floating point drift
-        pos_cmp.position = lerp_cmp->m_target;
-        pc_detection_bounds.position( pos_cmp.position );
-        getReg().remove<Cmp::LerpPosition>( entity );
-      }
-      else
-      {
-        // interpolate to the new position
-        const float t = lerp_cmp->m_lerp_factor;
-        const float one_minus_t = 1.0f - t;
-
-        // Simple manual lerp - 33 lines of assembly vs 134 for std::lerp vs 54 for std::fma
-        // https://godbolt.org/z/YdeKco5d6
-        pos_cmp.position.x = one_minus_t * lerp_cmp->m_start.x + t * lerp_cmp->m_target.x;
-        pos_cmp.position.y = one_minus_t * lerp_cmp->m_start.y + t * lerp_cmp->m_target.y;
-
-        // Update detection bounds position during lerp to keep in sync
-        pc_detection_bounds.position( pos_cmp.position );
-      }
-    }
   }
 }
 
@@ -746,15 +635,11 @@ void PlayerSystem::check_player_axe_npc_kill()
         Cmp::RandomInt do_drop( 0, 2 );
         if ( do_drop.gen() == 0 )
         {
-          // clang-format off
-          auto dropped_loot_entt = Factory::createLootDrop( 
-            getReg(), 
-            Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),                                        
-            Cmp::RectBounds(npc_pos_cmp.position, npc_pos_cmp.size, 2.f).getBounds(),
-            Factory::IncludePack<>{},
-            Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{},
-            Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{} );
-          // clang-format on
+          auto dropped_loot_entt = Factory::createLootDrop( getReg(), Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),
+                                                            Cmp::RectBounds( npc_pos_cmp.position, npc_pos_cmp.size, 2.f ).getBounds(),
+                                                            Factory::IncludePack<>{},
+                                                            Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{},
+                                                            Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{} );
 
           if ( dropped_loot_entt != entt::null )
           {
@@ -772,5 +657,187 @@ void PlayerSystem::check_player_axe_npc_kill()
     }
   }
 }
+
+// void PlayerSystem::globalTranslations( sf::Time globalDeltaTime, bool collision_detection )
+// {
+
+//   const float dt = globalDeltaTime.asSeconds();
+
+//   auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::Direction, Cmp::PCDetectionBounds, Cmp::SpriteAnimation>();
+//   for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, pc_detection_bounds, anim_cmp] : player_view.each() )
+//   {
+//     // always set the player, even if not moving
+//     auto zorder_cmp = getReg().try_get<Cmp::ZOrderValue>( entity );
+//     if ( zorder_cmp ) { zorder_cmp->setZOrder( pos_cmp.position.y ); }
+
+//     auto lerp_cmp = getReg().try_get<Cmp::LerpPosition>( entity );
+//     bool wants_to_move = dir_cmp != sf::Vector2f( 0.0f, 0.0f );
+
+//     update_player_animation_old( lerp_cmp, dir_cmp, anim_cmp );
+
+//     // disable new lerp starting during wormhole jump
+//     if ( getReg().try_get<Cmp::WormholeJump>( entity ) ) continue;
+
+//     // Check if player wants to change direction mid-lerp
+//     // Only allow interruption in the first 30% of the lerp - after that, commit to current direction
+//     constexpr float kInterruptThreshold = 0.25f;
+//     if ( wants_to_move && lerp_cmp && lerp_cmp->m_lerp_factor < kInterruptThreshold )
+//     {
+//       // Calculate the direction of the current lerp
+//       sf::Vector2f lerp_direction = lerp_cmp->m_target - lerp_cmp->m_start;
+//       sf::Vector2f lerp_dir_normalized{ lerp_direction.x > 0.f ? 1.f : ( lerp_direction.x < 0.f ? -1.f : 0.f ),
+//                                         lerp_direction.y > 0.f ? 1.f : ( lerp_direction.y < 0.f ? -1.f : 0.f ) };
+
+//       // Different direction requested?
+//       if ( lerp_dir_normalized != dir_cmp )
+//       {
+//         // Snap BACK to start position since we're early in the lerp
+//         pos_cmp.position = lerp_cmp->m_start;
+//         pc_detection_bounds.position( pos_cmp.position );
+
+//         // Remove old lerp - will start fresh from grid position
+//         getReg().remove<Cmp::LerpPosition>( entity );
+//         lerp_cmp = nullptr;
+//         // Fall through to "start new movement" block below
+//       }
+//     }
+
+//     // Start new movement when not currently lerping
+//     else if ( wants_to_move && !lerp_cmp )
+//     {
+//       // Ensure we start from a clean grid position
+//       sf::Vector2f snapped_start = Utils::snap_to_grid( pos_cmp.position, Utils::Rounding::NEAREST );
+//       pos_cmp.position = snapped_start;
+//       pc_detection_bounds.position( snapped_start );
+
+//       // Calculate target position from snapped start
+//       sf::FloatRect new_pos{ snapped_start, pos_cmp.size };
+//       new_pos.position.x = snapped_start.x + ( dir_cmp.x * Constants::kGridSizePx.x );
+//       new_pos.position.y = snapped_start.y + ( dir_cmp.y * Constants::kGridSizePx.y );
+
+//       // Check collision ONCE
+//       bool can_move = not collision_detection || is_valid_move( new_pos );
+//       if ( !can_move ) continue; // Early exit if blocked
+
+//       float adjusted_speed = adjust_lerp_speed( pos_cmp, dir_cmp );
+//       if ( adjusted_speed == -1.f ) { continue; }
+
+//       auto &new_lerp = getReg().emplace<Cmp::LerpPosition>( entity, new_pos.position, adjusted_speed );
+//       new_lerp.m_start = snapped_start;
+//       new_lerp.m_target = new_pos.position;
+//       new_lerp.m_lerp_factor = 0.0f;
+//     }
+
+//     // Process ongoing lerp movement
+//     lerp_cmp = getReg().try_get<Cmp::LerpPosition>( entity ); // Re-fetch in case we just created it
+//     if ( lerp_cmp && lerp_cmp->m_lerp_factor < 1.0f )
+//     {
+//       lerp_cmp->m_lerp_factor += ( lerp_cmp->m_lerp_speed * dt );
+
+//       // Check if lerp will complete this frame
+//       if ( lerp_cmp->m_lerp_factor >= 1.0f )
+//       {
+//         // Snap directly to target - no interpolation to avoid floating point drift
+//         pos_cmp.position = lerp_cmp->m_target;
+//         pc_detection_bounds.position( pos_cmp.position );
+//         getReg().remove<Cmp::LerpPosition>( entity );
+//       }
+//       else
+//       {
+//         // interpolate to the new position
+//         const float t = lerp_cmp->m_lerp_factor;
+//         const float one_minus_t = 1.0f - t;
+
+//         // Simple manual lerp - 33 lines of assembly vs 134 for std::lerp vs 54 for std::fma
+//         // https://godbolt.org/z/YdeKco5d6
+//         pos_cmp.position.x = one_minus_t * lerp_cmp->m_start.x + t * lerp_cmp->m_target.x;
+//         pos_cmp.position.y = one_minus_t * lerp_cmp->m_start.y + t * lerp_cmp->m_target.y;
+
+//         // Update detection bounds position during lerp to keep in sync
+//         pc_detection_bounds.position( pos_cmp.position );
+//       }
+//     }
+//   }
+// }
+
+// bool PlayerSystem::isDiagonalMovementBetweenObstacles( const sf::FloatRect &current_pos, const sf::Vector2f &direction )
+// {
+//   if ( !( ( direction.x != 0.0f ) && ( direction.y != 0.0f ) ) ) return false; // Not diagonal
+
+//   sf::Vector2f grid_size{ Constants::kGridSizePx };
+
+//   // Calculate the two orthogonal positions the diagonal movement would "cut through"
+//   sf::FloatRect horizontal_check = sf::FloatRect{ sf::Vector2f{ current_pos.position.x + ( direction.x * grid_size.x ), current_pos.position.y },
+//                                                   grid_size };
+
+//   sf::FloatRect vertical_check = sf::FloatRect{ sf::Vector2f{ current_pos.position.x, current_pos.position.y + ( direction.y * grid_size.y ) },
+//                                                 grid_size };
+
+//   // Check if both orthogonal positions have obstacles
+//   bool horizontal_blocked = !is_valid_move( horizontal_check );
+//   if ( !horizontal_blocked ) return false;
+//   bool vertical_blocked = !is_valid_move( vertical_check );
+//   if ( !vertical_blocked ) return false;
+
+//   // Both orthogonal paths are blocked, diagonal movement is between obstacles
+//   return true;
+// }
+
+// float PlayerSystem::adjust_lerp_speed( Cmp::Position &pos_cmp, Cmp::Direction &dir_cmp )
+// {
+//   // Check if moving diagonally AFTER we know movement is valid
+//   bool is_diagonal = ( dir_cmp.x != 0.0f ) && ( dir_cmp.y != 0.0f );
+//   bool diagonal_between_obstacles = is_diagonal && isDiagonalMovementBetweenObstacles( pos_cmp, dir_cmp );
+
+//   auto &player_lerp_speed = Sys::PersistSystem::get<Cmp::Persist::PlayerLerpSpeed>( getReg() );
+//   auto &diagonal_lerp_speed_modifier = Sys::PersistSystem::get<Cmp::Persist::PlayerDiagonalLerpSpeedModifier>( getReg() );
+//   auto &shortcut_lerp_speed_modifier = Sys::PersistSystem::get<Cmp::Persist::PlayerShortcutLerpSpeedModifier>( getReg() );
+
+//   float speed_modifier = 1.0f;
+//   if ( diagonal_between_obstacles )
+//   {
+//     // Check if shortcut movement is disabled (speed modifier at or near zero)
+//     if ( shortcut_lerp_speed_modifier.get_value() < 0.01f )
+//     {
+//       // Block this movement entirely instead of making it super slow
+//       return -1.f; // Skip to next entity, don't start the movement
+//     }
+
+//     // Extra slow when squeezing between obstacles
+//     speed_modifier = shortcut_lerp_speed_modifier.get_value();
+//   }
+//   else if ( is_diagonal )
+//   {
+//     // Normal diagonal slowdown
+//     speed_modifier = diagonal_lerp_speed_modifier.get_value();
+//   }
+
+//   float adjusted_speed = player_lerp_speed.get_value() * speed_modifier;
+
+//   // adjust for speed penalty
+//   adjusted_speed *= Utils::Player::get_player_speed_penalty( getReg() );
+
+//   return adjusted_speed;
+// }
+
+// void PlayerSystem::update_player_animation_old( Cmp::LerpPosition *lerp_cmp, Cmp::Direction &dir_cmp, Cmp::SpriteAnimation &anim_cmp )
+// {
+//   // update the animation state based on movement direction
+//   if ( dir_cmp == sf::Vector2f( 0.0f, 0.0f ) )
+//   {
+//     // player is not pressing any keys but sprite is still lerping to target position?
+//     // keep animation active otherwise it has the effect of sliding to a stop
+//     if ( lerp_cmp && lerp_cmp->m_lerp_factor < 1.0f ) { anim_cmp.m_animation_active = true; }
+//     else { anim_cmp.m_animation_active = false; }
+//   }
+//   else
+//   {
+//     anim_cmp.m_animation_active = true;
+//     if ( dir_cmp.x == 1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.east"; }
+//     else if ( dir_cmp.x == -1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.west"; }
+//     else if ( dir_cmp.y == -1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.north"; }
+//     else if ( dir_cmp.y == 1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.south"; }
+//   }
+// }
 
 } // namespace ProceduralMaze::Sys

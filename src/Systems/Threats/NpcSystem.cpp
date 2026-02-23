@@ -85,7 +85,7 @@ void NpcSystem::update( sf::Time dt )
 
   for ( auto [_ent, _sys] : getReg().view<Cmp::System>().each() )
   {
-    if ( _sys.collisions_enabled ) { check_player_to_npc_collision(); }
+    if ( not _sys.collisions_disabled ) { check_player_to_npc_collision(); }
   }
 
   for ( auto npc_entt : getReg().view<Cmp::NPC>() )

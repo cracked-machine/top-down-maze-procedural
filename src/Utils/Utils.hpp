@@ -45,6 +45,7 @@ enum class Rounding { TOWARDS_ZERO, AWAY_ZERO, NEAREST };
 bool isInBounds( const sf::Vector2f &position, const sf::Vector2f &size, const sf::Vector2u &map_grid_size );
 sf::FloatRect snap_to_grid( const sf::FloatRect &position, Rounding rounding = Rounding::NEAREST ) noexcept;
 sf::Vector2f snap_to_grid( const sf::Vector2f &position, Rounding rounding = Rounding::NEAREST ) noexcept;
+sf::FloatRect snap_to_grid( const Cmp::Position &position, Rounding rounding ) noexcept;
 sf::FloatRect get_mouse_bounds_in_gameview( const sf::RenderWindow &window, const sf::View &gameview );
 
 // Entity/registry utility functions - declarations only

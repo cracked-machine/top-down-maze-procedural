@@ -47,7 +47,7 @@ void HazardFieldSystem<HazardType>::update()
 
   for ( auto [_ent, _sys] : getReg().template view<Cmp::System>().each() )
   {
-    if ( _sys.collisions_enabled ) { check_player_hazard_field_collision(); }
+    if ( not _sys.collisions_disabled ) { check_player_hazard_field_collision(); }
   }
 }
 

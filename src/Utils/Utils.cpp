@@ -88,6 +88,34 @@ sf::FloatRect snap_to_grid( const sf::FloatRect &position, Rounding rounding ) n
   return sf::FloatRect( snapped_pos, position.size );
 }
 
+sf::FloatRect snap_to_grid( const Cmp::Position &position, Rounding rounding ) noexcept
+{
+  float grid_size = Constants::kGridSizePx.x; // Assuming square grid
+  sf::Vector2f snapped_pos;
+
+  switch ( rounding )
+  {
+    case Rounding::TOWARDS_ZERO:
+      snapped_pos = { std::trunc( position.position.x / grid_size ) * grid_size, std::trunc( position.position.y / grid_size ) * grid_size };
+      break;
+    case Rounding::AWAY_ZERO: {
+      auto away_from_zero = []( float val, float grid )
+      {
+        float divided = val / grid;
+        return ( val >= 0.f ? std::ceil( divided ) : std::floor( divided ) ) * grid;
+      };
+      snapped_pos = { away_from_zero( position.position.x, grid_size ), away_from_zero( position.position.y, grid_size ) };
+      break;
+    }
+    case Rounding::NEAREST:
+    default:
+      snapped_pos = { std::round( position.position.x / grid_size ) * grid_size, std::round( position.position.y / grid_size ) * grid_size };
+      break;
+  }
+
+  return sf::FloatRect( snapped_pos, position.size );
+}
+
 //! @brief Snap a given position to the nearest grid square.
 //! This function takes a 2D position and rounds its coordinates to the nearest
 //! grid square based on the grid size defined in BaseSystem::kGridSquareSizePixels.
