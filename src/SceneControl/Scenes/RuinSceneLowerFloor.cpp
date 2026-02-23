@@ -157,7 +157,7 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   using namespace Sys;
   m_sys.find<Store::Type::AnimSystem>().update( dt );
   m_sys.find<Store::Type::NpcSystem>().update( dt );
-  // m_sys.find<Sys::Store::Type::FootstepSystem>().update();
+  m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Store::Type::LootSystem>().check_loot_collision();
 
   m_sys.find<Store::Type::RuinSystem>().check_floor_access_collision( Cmp::RuinFloorAccess::Direction::TO_UPPER );

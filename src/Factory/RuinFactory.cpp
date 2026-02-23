@@ -22,22 +22,23 @@
 namespace ProceduralMaze::Factory
 {
 
-// void create_staircase( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::MultiSprite &stairs_ms )
-// {
-//   auto stairs_entt = reg.create();
-//   reg.emplace_or_replace<Cmp::Position>( stairs_entt, spawn_position, stairs_ms.getSpriteSizePixels() );
-//   reg.emplace_or_replace<Cmp::SpriteAnimation>( stairs_entt, 0, 0, true, stairs_ms.get_sprite_type(), 0 );
-//   reg.emplace_or_replace<Cmp::ZOrderValue>( stairs_entt, spawn_position.y );
-// }
-
 void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::MultiSprite &bookcase_ms, int sprite_index )
 {
-  auto bookcase_entt = reg.create();
-  reg.emplace_or_replace<Cmp::Position>( bookcase_entt, spawn_position, bookcase_ms.getSpriteSizePixels() );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( bookcase_entt, 0, 0, true, bookcase_ms.get_sprite_type(), sprite_index );
-  reg.emplace_or_replace<Cmp::ZOrderValue>( bookcase_entt, -spawn_position.y * 10 );
-  reg.emplace_or_replace<Cmp::RuinBookcase>( bookcase_entt );
-  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( bookcase_entt );
+  // We must modify the **existing** Cmp::Position-owning entity so that we don't have
+  // new entity with Cmp::NpcNoPathFinding and existing entity without. This screws up path finding
+  Cmp::Position search_pos( spawn_position, bookcase_ms.getSpriteSizePixels() );
+  for ( auto [existing_entt, existing_pos_cmp] : reg.view<Cmp::Position>().each() )
+  {
+    if ( search_pos.findIntersection( existing_pos_cmp ) )
+    {
+      reg.emplace_or_replace<Cmp::Position>( existing_entt, spawn_position, bookcase_ms.getSpriteSizePixels() );
+      reg.emplace_or_replace<Cmp::SpriteAnimation>( existing_entt, 0, 0, true, bookcase_ms.get_sprite_type(), sprite_index );
+      reg.emplace_or_replace<Cmp::ZOrderValue>( existing_entt, -spawn_position.y * 10 );
+      reg.emplace_or_replace<Cmp::RuinBookcase>( existing_entt );
+      reg.emplace_or_replace<Cmp::NpcNoPathFinding>( existing_entt );
+      break;
+    }
+  }
 }
 
 void create_cobweb( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::MultiSprite &cobweb_ms, int sprite_index )

@@ -33,11 +33,6 @@ public:
   //! @brief Update the player system.
   void update();
 
-  //! @brief event handlers for pausing system clocks
-  void onPause() override {}
-  //! @brief event handlers for resuming system clocks
-  void onResume() override {}
-
   void spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f size, Cmp::RuinFloorAccess::Direction dir );
 
   template <typename COMPONENT>
@@ -77,6 +72,11 @@ public:
   bool is_player_carrying_witches_jar();
   void update_shadow_hand_pos( sf::Vector2f scene_dimensions );
   void check_player_shadow_hand_collision();
+
+  //! @brief event handlers for pausing system clocks
+  void onPause() override {}
+  //! @brief event handlers for resuming system clocks
+  void onResume() override {}
 
 private:
   //! @brief Dispatcher reference for scene management events

@@ -142,7 +142,7 @@ private:
   Sprites::PulsingShader m_pulsing_shader{ "res/shaders/Generic.vert", "res/shaders/RedPulsingSand.frag", { 1u, 1u } };
   Sprites::MistShader m_mist_shader{ "res/shaders/Generic.vert", "res/shaders/MistShader.frag", { 1u, 1u } };
   Sprites::DarkModeShader m_dark_mode_shader{ "res/shaders/Generic.vert", "res/shaders/DarkMode.frag", { 1u, 1u } };
-  Sprites::DrippingBloodShader m_dripping_blood_shader{ "res/shaders/Generic.vert", "res/shaders/RedStaticEffect.frag", { 1u, 1u } };
+  Sprites::DrippingBloodShader m_dripping_blood_shader{ "res/shaders/Generic.vert", "res/shaders/Generic.frag", { 1u, 1u } };
 
   // Sprites::FloodWaterShader m_water_shader{ "res/shaders/Generic.vert", "res/shaders/Generic.frag", { 1u, 1u } };
   // Sprites::ViewFragmentShader m_wormhole_shader{ "res/shaders/Generic.vert", "res/shaders/Generic.frag",
