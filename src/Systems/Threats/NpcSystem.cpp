@@ -93,99 +93,6 @@ void NpcSystem::update( [[maybe_unused]] sf::Time dt )
   update_shockwaves();
 }
 
-bool NpcSystem::is_valid_move( const sf::FloatRect &target_position )
-{
-
-  // arbitrary Cmp::NoPathFinding components
-  auto nppathfinding_view = getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>();
-  for ( auto [entt, nopath_cmp, pos_cmp] : nppathfinding_view.each() )
-  {
-    if ( pos_cmp.findIntersection( target_position ) )
-    {
-      SPDLOG_DEBUG( "NPC collided Cmp::NoPathFinding" );
-      return false;
-    }
-  }
-
-  return true;
-}
-
-//! @brief Check if diagonal movement should be blocked due to adjacent obstacles
-//! @param current_pos Current position rectangle
-//! @param diagonal_direction The diagonal direction vector (e.g., {1, -1} for up-right)
-//! @return true if diagonal movement is blocked by adjacent obstacles
-bool NpcSystem::isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::Vector2f &diagonal_direction )
-{
-  // Only check for diagonal movements (both x and y components non-zero)
-  if ( diagonal_direction.x == 0.f || diagonal_direction.y == 0.f )
-  {
-    return false; // Not a diagonal move
-  }
-
-  // Create test positions for the two cardinal directions
-  sf::FloatRect horizontal_test = current_pos;
-  horizontal_test.position.x += diagonal_direction.x * Constants::kGridSizePxF.x;
-
-  sf::FloatRect vertical_test = current_pos;
-  vertical_test.position.y += diagonal_direction.y * Constants::kGridSizePxF.y;
-
-  // If EITHER cardinal direction is blocked, block the diagonal
-  bool horizontal_blocked = !is_valid_move( horizontal_test );
-  bool vertical_blocked = !is_valid_move( vertical_test );
-
-  return horizontal_blocked || vertical_blocked;
-}
-
-void NpcSystem::update_movement( sf::Time globalDeltaTime )
-{
-  auto exclusions = entt::exclude<Cmp::AltarSegment, Cmp::CryptSegment, Cmp::SpawnArea, Cmp::PlayerCharacter>;
-  auto view = getReg().view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds, Cmp::Direction>( exclusions );
-
-  for ( auto [entity, pos_cmp, lerp_pos_cmp, npc_scan_bounds, dir_cmp] : view.each() )
-  {
-
-    // if there is an obstacle at this entity move onto the next entity
-    auto obst_cmp = getReg().try_get<Cmp::Obstacle>( entity );
-    if ( obst_cmp ) continue;
-
-    // If this is the first update, store the start position
-    if ( lerp_pos_cmp.m_lerp_factor == 0.0f )
-    {
-      // Allow NPCs to escape wormholes if they're mid-lerp.
-      if ( getReg().try_get<Cmp::WormholeJump>( entity ) ) continue;
-
-      lerp_pos_cmp.m_start = pos_cmp.position;
-    }
-
-    lerp_pos_cmp.m_lerp_factor += lerp_pos_cmp.m_lerp_speed * globalDeltaTime.asSeconds();
-
-    if ( lerp_pos_cmp.m_lerp_factor >= 1.0f )
-    {
-      pos_cmp.position = lerp_pos_cmp.m_target;
-      getReg().remove<Cmp::LerpPosition>( entity );
-    }
-    else
-    {
-      // Lerp from start to target directly
-      pos_cmp.position.x = std::lerp( lerp_pos_cmp.m_start.x, lerp_pos_cmp.m_target.x, lerp_pos_cmp.m_lerp_factor );
-      pos_cmp.position.y = std::lerp( lerp_pos_cmp.m_start.y, lerp_pos_cmp.m_target.y, lerp_pos_cmp.m_lerp_factor );
-    }
-
-    // clang-format off
-    getReg().patch<Cmp::NPCScanBounds>( entity, 
-    [&]( auto &npc_scan_bounds ) 
-    { 
-      npc_scan_bounds.position( pos_cmp.position ); 
-    });
-    getReg().patch<Cmp::ZOrderValue>( entity, 
-    [&]( auto &zorder_cmp ) 
-    { 
-      zorder_cmp.setZOrder( pos_cmp.position.y ); 
-    });
-    // clang-format on
-  }
-}
-
 void NpcSystem::check_bones_reanimation()
 {
   auto player_collision_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
@@ -208,155 +115,6 @@ void NpcSystem::check_bones_reanimation()
       }
     }
   }
-}
-
-void NpcSystem::check_player_to_npc_collision()
-{
-  auto player_collision_view = getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position, Cmp::Direction>();
-  auto npc_collision_view = getReg().view<Cmp::NPC, Cmp::Position>();
-  auto &npc_push_back = Sys::PersistSystem::get<Cmp::Persist::NpcPushBack>( getReg() );
-  auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() );
-
-  for ( auto [pc_entity, pc_cmp, pc_health_cmp, pc_mort_cmp, pc_pos_cmp, dir_cmp] : player_collision_view.each() )
-  {
-    if ( pc_mort_cmp.state != Cmp::PlayerMortality::State::ALIVE ) return;
-    for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_collision_view.each() )
-    {
-      // relaxed bounds to allow player to sneak past during lerp transition
-      Cmp::RectBounds npc_pos_cmp_bounds_current{ npc_pos_cmp.position, npc_pos_cmp.size, 0.1f };
-      if ( not pc_pos_cmp.findIntersection( npc_pos_cmp_bounds_current.getBounds() ) ) continue;
-
-      if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
-
-      auto &npc_damage = Sys::PersistSystem::get<Cmp::Persist::NpcDamage>( getReg() );
-      pc_health_cmp.health -= npc_damage.get_value();
-
-      m_sound_bank.get_effect( "damage_player" ).play();
-
-      if ( pc_health_cmp.health <= 0 )
-      {
-        pc_mort_cmp.state = Cmp::PlayerMortality::State::HAUNTED;
-        get_systems_event_queue().enqueue(
-            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED, Utils::Player::get_player_position( getReg() ) ) );
-        return;
-      }
-
-      pc_cmp.m_damage_cooldown_timer.restart();
-
-      // Find a valid pushback position by checking all 8 directions
-      sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp.position, npc_pos_cmp.position, dir_cmp, npc_push_back.get_value() );
-
-      // Update player position if we found a valid pushback position
-      if ( target_push_back_pos != pc_pos_cmp.position ) { pc_pos_cmp.position = target_push_back_pos; }
-    }
-  }
-}
-
-sf::Vector2f NpcSystem::findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos, const sf::Vector2f &player_direction,
-                                                   float pushback_distance )
-{
-  // Define all 8 directions (N, NE, E, SE, S, SW, W, NW)
-  std::vector<sf::Vector2f> directions = {
-      { 0.0f, -1.0f }, // North
-      { 1.0f, -1.0f }, // North-East
-      { 1.0f, 0.0f },  // East
-      { 1.0f, 1.0f },  // South-East
-      { 0.0f, 1.0f },  // South
-      { -1.0f, 1.0f }, // South-West
-      { -1.0f, 0.0f }, // West
-      { -1.0f, -1.0f } // North-West
-  };
-
-  // Priority order for direction selection
-  std::vector<sf::Vector2f> preferred_directions;
-
-  if ( player_direction != sf::Vector2f( 0.0f, 0.0f ) )
-  {
-    // Player is moving - prefer pushing opposite to movement direction
-    sf::Vector2f opposite_dir = -player_direction;
-
-    // Normalize for comparison
-    float mag = std::sqrt( opposite_dir.x * opposite_dir.x + opposite_dir.y * opposite_dir.y );
-    if ( mag > 0.0f )
-    {
-      opposite_dir.x /= mag;
-      opposite_dir.y /= mag;
-    }
-
-    // Find the closest matching cardinal/diagonal direction
-    float best_dot = -2.0f;
-    sf::Vector2f best_dir;
-    for ( const auto &dir : directions )
-    {
-      float dot = opposite_dir.x * dir.x + opposite_dir.y * dir.y;
-      if ( dot > best_dot )
-      {
-        best_dot = dot;
-        best_dir = dir;
-      }
-    }
-
-    preferred_directions.push_back( best_dir );
-
-    // Add perpendicular directions as secondary options
-    // Find directions that are perpendicular to best_dir
-    for ( const auto &dir : directions )
-    {
-      float dot = std::abs( best_dir.x * dir.x + best_dir.y * dir.y );
-      if ( dot < 0.1f ) // approximately perpendicular
-      {
-        preferred_directions.push_back( dir );
-      }
-    }
-  }
-  else
-  {
-    // Player is stationary - prefer pushing away from NPC
-    sf::Vector2f away_from_npc = player_pos - npc_pos;
-    if ( away_from_npc != sf::Vector2f( 0.0f, 0.0f ) )
-    {
-      // Normalize for comparison
-      float mag = std::sqrt( away_from_npc.x * away_from_npc.x + away_from_npc.y * away_from_npc.y );
-      if ( mag > 0.0f )
-      {
-        away_from_npc.x /= mag;
-        away_from_npc.y /= mag;
-      }
-
-      // Find the closest matching cardinal/diagonal direction
-      float best_dot = -2.0f;
-      sf::Vector2f best_dir;
-      for ( const auto &dir : directions )
-      {
-        float dot = away_from_npc.x * dir.x + away_from_npc.y * dir.y;
-        if ( dot > best_dot )
-        {
-          best_dot = dot;
-          best_dir = dir;
-        }
-      }
-      preferred_directions.push_back( best_dir );
-    }
-  }
-
-  // Add all 8 directions to ensure we check everything
-  for ( const auto &dir : directions )
-  {
-    preferred_directions.push_back( dir );
-  }
-
-  // Try each direction in priority order
-  for ( const auto &push_dir : preferred_directions )
-  {
-    sf::FloatRect candidate_pos{ player_pos + push_dir * pushback_distance, Constants::kGridSizePxF };
-    candidate_pos = Utils::snap_to_grid( candidate_pos );
-
-    // Check if this position is valid and different from current position
-    if ( candidate_pos.position != player_pos && is_valid_move( candidate_pos ) ) { return candidate_pos.position; }
-  }
-
-  // If no valid position found, return original position
-  return player_pos;
 }
 
 void NpcSystem::scan_npc_bounds( entt::entity player_entity )
@@ -508,6 +266,249 @@ void NpcSystem::scan_npc_bounds( entt::entity player_entity )
       }
     }
   }
+}
+
+void NpcSystem::update_movement( sf::Time globalDeltaTime )
+{
+  auto exclusions = entt::exclude<Cmp::AltarSegment, Cmp::CryptSegment, Cmp::SpawnArea, Cmp::PlayerCharacter>;
+  auto view = getReg().view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds, Cmp::Direction>( exclusions );
+
+  for ( auto [entity, pos_cmp, lerp_pos_cmp, npc_scan_bounds, dir_cmp] : view.each() )
+  {
+    if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), npc_scan_bounds.getBounds() ) ) continue;
+
+    // if there is an obstacle at this entity move onto the next entity
+    auto obst_cmp = getReg().try_get<Cmp::Obstacle>( entity );
+    if ( obst_cmp ) continue;
+
+    // If this is the first update, store the start position
+    if ( lerp_pos_cmp.m_lerp_factor == 0.0f )
+    {
+      // Allow NPCs to escape wormholes if they're mid-lerp.
+      if ( getReg().try_get<Cmp::WormholeJump>( entity ) ) continue;
+
+      lerp_pos_cmp.m_start = pos_cmp.position;
+    }
+
+    lerp_pos_cmp.m_lerp_factor += lerp_pos_cmp.m_lerp_speed * globalDeltaTime.asSeconds();
+
+    if ( lerp_pos_cmp.m_lerp_factor >= 1.0f )
+    {
+      pos_cmp.position = lerp_pos_cmp.m_target;
+      getReg().remove<Cmp::LerpPosition>( entity );
+    }
+    else
+    {
+      // Lerp from start to target directly
+      pos_cmp.position.x = std::lerp( lerp_pos_cmp.m_start.x, lerp_pos_cmp.m_target.x, lerp_pos_cmp.m_lerp_factor );
+      pos_cmp.position.y = std::lerp( lerp_pos_cmp.m_start.y, lerp_pos_cmp.m_target.y, lerp_pos_cmp.m_lerp_factor );
+    }
+
+    // clang-format off
+    getReg().patch<Cmp::NPCScanBounds>( entity, 
+    [&]( auto &npc_scan_bounds ) 
+    { 
+      npc_scan_bounds.position( pos_cmp.position ); 
+    });
+    getReg().patch<Cmp::ZOrderValue>( entity, 
+    [&]( auto &zorder_cmp ) 
+    { 
+      zorder_cmp.setZOrder( pos_cmp.position.y ); 
+    });
+    // clang-format on
+  }
+}
+
+bool NpcSystem::is_valid_move( const sf::FloatRect &target_position )
+{
+
+  // arbitrary Cmp::NoPathFinding components
+  auto nppathfinding_view = getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>();
+  for ( auto [entt, nopath_cmp, pos_cmp] : nppathfinding_view.each() )
+  {
+    if ( pos_cmp.findIntersection( target_position ) )
+    {
+      SPDLOG_DEBUG( "NPC collided Cmp::NoPathFinding" );
+      return false;
+    }
+  }
+
+  return true;
+}
+
+//! @brief Check if diagonal movement should be blocked due to adjacent obstacles
+//! @param current_pos Current position rectangle
+//! @param diagonal_direction The diagonal direction vector (e.g., {1, -1} for up-right)
+//! @return true if diagonal movement is blocked by adjacent obstacles
+bool NpcSystem::isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::Vector2f &diagonal_direction )
+{
+  // Only check for diagonal movements (both x and y components non-zero)
+  if ( diagonal_direction.x == 0.f || diagonal_direction.y == 0.f )
+  {
+    return false; // Not a diagonal move
+  }
+
+  // Create test positions for the two cardinal directions
+  sf::FloatRect horizontal_test = current_pos;
+  horizontal_test.position.x += diagonal_direction.x * Constants::kGridSizePxF.x;
+
+  sf::FloatRect vertical_test = current_pos;
+  vertical_test.position.y += diagonal_direction.y * Constants::kGridSizePxF.y;
+
+  // If EITHER cardinal direction is blocked, block the diagonal
+  bool horizontal_blocked = !is_valid_move( horizontal_test );
+  bool vertical_blocked = !is_valid_move( vertical_test );
+
+  return horizontal_blocked || vertical_blocked;
+}
+
+void NpcSystem::check_player_to_npc_collision()
+{
+  auto player_collision_view = getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position, Cmp::Direction>();
+  auto npc_collision_view = getReg().view<Cmp::NPC, Cmp::Position>();
+  auto &npc_push_back = Sys::PersistSystem::get<Cmp::Persist::NpcPushBack>( getReg() );
+  auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() );
+
+  for ( auto [pc_entity, pc_cmp, pc_health_cmp, pc_mort_cmp, pc_pos_cmp, dir_cmp] : player_collision_view.each() )
+  {
+    if ( pc_mort_cmp.state != Cmp::PlayerMortality::State::ALIVE ) return;
+    for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_collision_view.each() )
+    {
+      // relaxed bounds to allow player to sneak past during lerp transition
+      Cmp::RectBounds npc_pos_cmp_bounds_current{ npc_pos_cmp.position, npc_pos_cmp.size, 0.1f };
+      if ( not pc_pos_cmp.findIntersection( npc_pos_cmp_bounds_current.getBounds() ) ) continue;
+
+      if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
+
+      auto &npc_damage = Sys::PersistSystem::get<Cmp::Persist::NpcDamage>( getReg() );
+      pc_health_cmp.health -= npc_damage.get_value();
+
+      m_sound_bank.get_effect( "damage_player" ).play();
+
+      if ( pc_health_cmp.health <= 0 )
+      {
+        pc_mort_cmp.state = Cmp::PlayerMortality::State::HAUNTED;
+        get_systems_event_queue().enqueue(
+            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED, Utils::Player::get_player_position( getReg() ) ) );
+        return;
+      }
+
+      pc_cmp.m_damage_cooldown_timer.restart();
+
+      // Find a valid pushback position by checking all 8 directions
+      sf::Vector2f target_push_back_pos = findValidPushbackPosition( pc_pos_cmp.position, npc_pos_cmp.position, dir_cmp, npc_push_back.get_value() );
+
+      // Update player position if we found a valid pushback position
+      if ( target_push_back_pos != pc_pos_cmp.position ) { pc_pos_cmp.position = target_push_back_pos; }
+    }
+  }
+}
+
+sf::Vector2f NpcSystem::findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos, const sf::Vector2f &player_direction,
+                                                   float pushback_distance )
+{
+  // Define all 8 directions (N, NE, E, SE, S, SW, W, NW)
+  std::vector<sf::Vector2f> directions = {
+      { 0.0f, -1.0f }, // North
+      { 1.0f, -1.0f }, // North-East
+      { 1.0f, 0.0f },  // East
+      { 1.0f, 1.0f },  // South-East
+      { 0.0f, 1.0f },  // South
+      { -1.0f, 1.0f }, // South-West
+      { -1.0f, 0.0f }, // West
+      { -1.0f, -1.0f } // North-West
+  };
+
+  // Priority order for direction selection
+  std::vector<sf::Vector2f> preferred_directions;
+
+  if ( player_direction != sf::Vector2f( 0.0f, 0.0f ) )
+  {
+    // Player is moving - prefer pushing opposite to movement direction
+    sf::Vector2f opposite_dir = -player_direction;
+
+    // Normalize for comparison
+    float mag = std::sqrt( opposite_dir.x * opposite_dir.x + opposite_dir.y * opposite_dir.y );
+    if ( mag > 0.0f )
+    {
+      opposite_dir.x /= mag;
+      opposite_dir.y /= mag;
+    }
+
+    // Find the closest matching cardinal/diagonal direction
+    float best_dot = -2.0f;
+    sf::Vector2f best_dir;
+    for ( const auto &dir : directions )
+    {
+      float dot = opposite_dir.x * dir.x + opposite_dir.y * dir.y;
+      if ( dot > best_dot )
+      {
+        best_dot = dot;
+        best_dir = dir;
+      }
+    }
+
+    preferred_directions.push_back( best_dir );
+
+    // Add perpendicular directions as secondary options
+    // Find directions that are perpendicular to best_dir
+    for ( const auto &dir : directions )
+    {
+      float dot = std::abs( best_dir.x * dir.x + best_dir.y * dir.y );
+      if ( dot < 0.1f ) // approximately perpendicular
+      {
+        preferred_directions.push_back( dir );
+      }
+    }
+  }
+  else
+  {
+    // Player is stationary - prefer pushing away from NPC
+    sf::Vector2f away_from_npc = player_pos - npc_pos;
+    if ( away_from_npc != sf::Vector2f( 0.0f, 0.0f ) )
+    {
+      // Normalize for comparison
+      float mag = std::sqrt( away_from_npc.x * away_from_npc.x + away_from_npc.y * away_from_npc.y );
+      if ( mag > 0.0f )
+      {
+        away_from_npc.x /= mag;
+        away_from_npc.y /= mag;
+      }
+
+      // Find the closest matching cardinal/diagonal direction
+      float best_dot = -2.0f;
+      sf::Vector2f best_dir;
+      for ( const auto &dir : directions )
+      {
+        float dot = away_from_npc.x * dir.x + away_from_npc.y * dir.y;
+        if ( dot > best_dot )
+        {
+          best_dot = dot;
+          best_dir = dir;
+        }
+      }
+      preferred_directions.push_back( best_dir );
+    }
+  }
+
+  // Add all 8 directions to ensure we check everything
+  for ( const auto &dir : directions )
+  {
+    preferred_directions.push_back( dir );
+  }
+
+  // Try each direction in priority order
+  for ( const auto &push_dir : preferred_directions )
+  {
+    sf::FloatRect candidate_pos{ player_pos + push_dir * pushback_distance, Constants::kGridSizePxF };
+    candidate_pos = Utils::snap_to_grid( candidate_pos );
+
+    // Check if this position is valid and different from current position
+    if ( candidate_pos.position != player_pos && is_valid_move( candidate_pos ) ) { return candidate_pos.position; }
+  }
+
+  // If no valid position found, return original position
+  return player_pos;
 }
 
 void NpcSystem::add_candidate_lerp( entt::entity npc_entity, Cmp::Direction candidate_dir, Cmp::LerpPosition candidate_lerp_pos )
