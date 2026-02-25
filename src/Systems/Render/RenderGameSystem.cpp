@@ -58,6 +58,7 @@
 #include <Components/Wormhole/WormholeSingularity.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Player/PlayerCurse.hpp>
+#include <Player/PlayerNoPath.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -261,8 +262,9 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       // debug: show crypt component boundaries
       if ( m_show_debug_stats )
       {
-        for ( auto [ruin_entt, access_cmp, pos_cmp] : getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
+        for ( auto [ruin_entt, access_cmp, pos_cmp] : getReg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
         {
+          if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
           sf::RectangleShape rectangle;
           rectangle.setSize( pos_cmp.size );
           rectangle.setPosition( pos_cmp.position );

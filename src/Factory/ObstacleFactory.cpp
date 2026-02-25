@@ -10,6 +10,7 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <Player/PlayerNoPath.hpp>
 #include <entt/entity/fwd.hpp>
 
 namespace ProceduralMaze::Factory
@@ -23,20 +24,22 @@ void createObstacle( entt::registry &registry, entt::entity entity, Cmp::Positio
   registry.emplace_or_replace<Cmp::Obstacle>( entity );
   registry.emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y + zorder );
   registry.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
+  registry.emplace_or_replace<Cmp::PlayerNoPath>( entity );
   registry.emplace_or_replace<Cmp::AbsoluteAlpha>( entity, 255 );
   registry.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_type, sprite_tile_idx );
   registry.emplace_or_replace<Cmp::Armable>( entity );
 }
 
-void destroyObstacle( entt::registry &registry, entt::entity obstacle_entity )
+void destroyObstacle( entt::registry &reg, entt::entity entt )
 {
-  if ( registry.all_of<Cmp::Obstacle>( obstacle_entity ) ) { registry.remove<Cmp::Obstacle>( obstacle_entity ); }
-  if ( registry.all_of<Cmp::ZOrderValue>( obstacle_entity ) ) { registry.remove<Cmp::ZOrderValue>( obstacle_entity ); }
-  if ( registry.all_of<Cmp::NpcNoPathFinding>( obstacle_entity ) ) { registry.remove<Cmp::NpcNoPathFinding>( obstacle_entity ); }
-  if ( registry.all_of<Cmp::AbsoluteAlpha>( obstacle_entity ) ) { registry.remove<Cmp::AbsoluteAlpha>( obstacle_entity ); }
-  if ( registry.all_of<Cmp::SpriteAnimation>( obstacle_entity ) ) { registry.remove<Cmp::SpriteAnimation>( obstacle_entity ); }
+  if ( reg.all_of<Cmp::Obstacle>( entt ) ) { reg.remove<Cmp::Obstacle>( entt ); }
+  if ( reg.all_of<Cmp::ZOrderValue>( entt ) ) { reg.remove<Cmp::ZOrderValue>( entt ); }
+  if ( reg.all_of<Cmp::NpcNoPathFinding>( entt ) ) { reg.remove<Cmp::NpcNoPathFinding>( entt ); }
+  if ( reg.all_of<Cmp::PlayerNoPath>( entt ) ) { reg.remove<Cmp::PlayerNoPath>( entt ); }
+  if ( reg.all_of<Cmp::AbsoluteAlpha>( entt ) ) { reg.remove<Cmp::AbsoluteAlpha>( entt ); }
+  if ( reg.all_of<Cmp::SpriteAnimation>( entt ) ) { reg.remove<Cmp::SpriteAnimation>( entt ); }
 
-  registry.emplace_or_replace<Cmp::Armable>( obstacle_entity );
+  reg.emplace_or_replace<Cmp::Armable>( entt );
 }
 
 } // namespace ProceduralMaze::Factory

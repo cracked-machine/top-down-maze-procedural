@@ -58,13 +58,13 @@ public:
   void onResume() override {}
 
   // // deprecated
-  // bool isDiagonalMovementBetweenObstacles( const sf::FloatRect &current_pos, const sf::Vector2f &direction );
+  bool isDiagonalMovementBetweenObstacles( const sf::FloatRect &current_pos, const sf::Vector2f &direction );
 
 private:
   //! @brief Rotation, scaling, offset, alpha, etc
   void localTransforms();
 
-  void update_player_movement( bool collision_enabled );
+  void update_player_movement( sf::Time globalDeltaTime, bool collision_enabled );
   void update_player_animation();
   void update_player_zorder();
   void update_player_distance_bounds();
@@ -81,12 +81,12 @@ private:
   void on_player_mortality_event( ProceduralMaze::Events::PlayerMortalityEvent ev );
   void on_player_action_event( ProceduralMaze::Events::PlayerActionEvent ev );
 
-  // // deprecated
-  // void globalTranslations( sf::Time globalDeltaTime, bool collision_detection );
-  // // deprecated
-  // void update_player_animation_old( Cmp::LerpPosition *lerp_cmp, Cmp::Direction &dir_cmp, Cmp::SpriteAnimation &anim_cmp );
-  // // deprecated
-  // float adjust_lerp_speed( Cmp::Position &pos_cmp, Cmp::Direction &dir_cmp );
+  // deprecated
+  void globalTranslations( sf::Time globalDeltaTime, bool collision_detection );
+  // deprecated
+  void update_player_animation_old( Cmp::LerpPosition *lerp_cmp, Cmp::Direction &dir_cmp, Cmp::SpriteAnimation &anim_cmp );
+  // deprecated
+  float adjust_lerp_speed( Cmp::Position &pos_cmp, Cmp::Direction &dir_cmp );
 
   //! @brief Use this to send events to the scene manager
   entt::dispatcher &m_scenemanager_event_dispatcher;

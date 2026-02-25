@@ -22,7 +22,11 @@ void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, Sprites::Spr
   reg.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_type, sprite_index );
   reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
 
-  if ( solid_wall == SolidWall::TRUE ) { reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity ); }
+  if ( solid_wall == SolidWall::TRUE )
+  {
+    reg.emplace_or_replace<Cmp::PlayerNoPath>( entity );
+    reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
+  }
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
 }
 

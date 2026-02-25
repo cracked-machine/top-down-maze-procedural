@@ -1,13 +1,3 @@
-#include <Components/Persistent/ArmedOffDelay.hpp>
-#include <Components/Persistent/CameraSmoothSpeed.hpp>
-#include <Components/Persistent/CryptNpcSpawnCount.hpp>
-#include <Components/Persistent/NpcShockwaveFreq.hpp>
-#include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
-#include <Components/Persistent/NpcShockwaveResolution.hpp>
-#include <Components/Persistent/NpcShockwaveSpeed.hpp>
-#include <Components/Persistent/PlayerLerpInterruptThreshold.hpp>
-#include <Persistent/NpcWitchAnimFramerate.hpp>
-#include <Systems/Render/RenderMenuSystem.hpp>
 
 #include <SFML/System/Angle.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -15,12 +5,15 @@
 #include "imgui-SFML.h"
 #include <imgui.h>
 
+#include <Components/Persistent/ArmedOffDelay.hpp>
 #include <Components/Persistent/ArmedOnDelay.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
 #include <Components/Persistent/BombBonus.hpp>
 #include <Components/Persistent/BombDamage.hpp>
+#include <Components/Persistent/CameraSmoothSpeed.hpp>
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/Persistent/CorruptionSeed.hpp>
+#include <Components/Persistent/CryptNpcSpawnCount.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
@@ -38,6 +31,10 @@
 #include <Components/Persistent/NpcLerpSpeed.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
 #include <Components/Persistent/NpcScanScale.hpp>
+#include <Components/Persistent/NpcShockwaveFreq.hpp>
+#include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
+#include <Components/Persistent/NpcShockwaveResolution.hpp>
+#include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
@@ -45,6 +42,7 @@
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
+#include <Components/Persistent/PlayerLerpInterruptThreshold.hpp>
 #include <Components/Persistent/PlayerLerpSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
@@ -52,8 +50,11 @@
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
+#include <Persistent/NpcWitchAnimFramerate.hpp>
+#include <Persistent/PlayerMovementSpeed.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
+#include <Systems/Render/RenderMenuSystem.hpp>
 #include <Systems/Threats/BombSystem.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
@@ -164,6 +165,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     Sys::PersistSystem::get<Cmp::Persist::BlastRadius>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerAnimFramerate>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerLerpSpeed>( getReg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerDiagonalLerpSpeedModifier>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepAddDelay>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepFadeDelay>( getReg() ).render_widget();

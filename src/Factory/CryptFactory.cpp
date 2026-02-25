@@ -19,6 +19,8 @@
 #include <Components/ZOrderValue.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
+#include <Player.hpp>
+#include <Player/PlayerNoPath.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Random.hpp>
@@ -172,6 +174,7 @@ entt::entity CreateCryptChest( entt::registry &reg, sf::Vector2f pos, Sprites::S
   reg.emplace_or_replace<Cmp::CryptChest>( entt );
   reg.emplace_or_replace<Cmp::SpriteAnimation>( entt, 0, 0, false, sprite_type, sprite_idx );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
+  reg.emplace_or_replace<Cmp::PlayerNoPath>( entt );
   return entt;
 }
 
@@ -181,6 +184,7 @@ void DestroyCryptChest( entt::registry &reg, entt::entity entt )
   if ( reg.all_of<Cmp::Position>( entt ) ) reg.remove<Cmp::Position>( entt );
   if ( reg.all_of<Cmp::SpriteAnimation>( entt ) ) reg.remove<Cmp::SpriteAnimation>( entt );
   if ( reg.all_of<Cmp::ZOrderValue>( entt ) ) reg.remove<Cmp::ZOrderValue>( entt );
+  if ( reg.all_of<Cmp::PlayerNoPath>( entt ) ) { reg.remove<Cmp::PlayerNoPath>( entt ); }
   if ( reg.valid( entt ) ) { reg.destroy( entt ); }
 }
 
@@ -194,10 +198,14 @@ void createCryptLavaPit( entt::registry &reg, const Cmp::CryptRoomOpen &room )
   auto lava_pit_entt = reg.create();
   reg.emplace<Cmp::CryptRoomLavaPit>( lava_pit_entt, lava_pit_bounds );
 
+  const auto player_pos = Utils::Player::get_player_position( reg );
+
   // add the inidividual lava cells
   for ( auto [pos_entt, pos_cmp] : reg.view<Cmp::Position>().each() )
   {
-    if ( reg.all_of<Cmp::FootStepTimer>( pos_entt ) ) continue;      // dont add lava to footstep positions
+    if ( reg.all_of<Cmp::FootStepTimer>( pos_entt ) ) continue; // dont add lava to footstep positions
+    if ( player_pos.findIntersection( pos_cmp ) ) continue;     // dont add lava cell to player pos!
+
     if ( not lava_pit_bounds.findIntersection( pos_cmp ) ) continue; // only add lava to this lava pit
     auto lava_cell_entt = reg.create();
     reg.emplace_or_replace<Cmp::Position>( lava_cell_entt, pos_cmp.position, pos_cmp.size );

@@ -8,6 +8,7 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/PlantFactory.hpp>
+#include <Player/PlayerNoPath.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Utils/Random.hpp>
 
@@ -23,6 +24,7 @@ entt::entity createPlantObstacle( entt::registry &reg, Cmp::Position pos_cmp, Sp
   reg.emplace_or_replace<Cmp::ReservedPosition>( plant_entt );
   reg.emplace_or_replace<Cmp::ZOrderValue>( plant_entt, pos_cmp.position.y + zorder );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( plant_entt );
+  reg.emplace_or_replace<Cmp::PlayerNoPath>( plant_entt );
   reg.emplace_or_replace<Cmp::AbsoluteAlpha>( plant_entt, 255 );
   reg.emplace_or_replace<Cmp::SpriteAnimation>( plant_entt, 0, 0, true, sprite_type, 0 );
   reg.emplace_or_replace<Cmp::Armable>( plant_entt );

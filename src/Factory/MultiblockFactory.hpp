@@ -25,6 +25,7 @@
 #include <Components/Ruin/RuinStairsSegment.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Player/PlayerNoPath.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Utils/Constants.hpp>
 #include <entt/fwd.hpp>
@@ -102,6 +103,7 @@ void createMultiblockSegments( entt::registry &registry, entt::entity multiblock
     {
       registry.emplace_or_replace<MBSEGMENT>( entity, new_solid_mask );
       registry.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
+      registry.emplace_or_replace<Cmp::PlayerNoPath>( entity );
     }
     registry.emplace_or_replace<Cmp::Armable>( entity );
     SPDLOG_DEBUG( "Modifying entity {}, sprite type {}, zorder to {}", static_cast<int>( entity ), ms.get_sprite_type(),

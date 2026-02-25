@@ -49,6 +49,7 @@
 #include <SFML/System/Time.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Systems/Threats/ShockwaveSystem.hpp>
@@ -71,15 +72,11 @@ NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::Sp
   SPDLOG_DEBUG( "NpcSystem initialized" );
 }
 
-void NpcSystem::update( sf::Time dt )
+void NpcSystem::update( [[maybe_unused]] sf::Time dt )
 {
   check_bones_reanimation();
 
-  auto player_entity_view = getReg().view<Cmp::PlayerCharacter>();
-  for ( auto player_entity : player_entity_view )
-  {
-    scanForPlayers( player_entity );
-  }
+  scan_npc_bounds( Utils::Player::get_player_entity( getReg() ) );
 
   update_movement( dt );
 
@@ -98,32 +95,6 @@ void NpcSystem::update( sf::Time dt )
 
 bool NpcSystem::is_valid_move( const sf::FloatRect &target_position )
 {
-
-  // // Prevent the player from walking through NPCs
-  // auto &pc_damage_delay = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() );
-  // auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::LerpPosition>();
-  // auto pc_view = getReg().view<Cmp::PlayerCharacter>();
-  // for ( auto [pc_entity, pc_cmp] : pc_view.each() )
-  // {
-  //   // However if player is in damage cooldown (blinking), let player walk through NPCs to escape
-  //   if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_delay.get_value() ) continue;
-  //   for ( auto [entity, npc_cmp, pos_cmp, lerp_pos_cmp] : npc_view.each() )
-  //   {
-  //     // relaxed bounds to allow player to sneak past during lerp transition
-  //     Cmp::RectBounds npc_pos_cmp_bounds_current{ pos_cmp.position, pos_cmp.size, 0.1f };
-  //     if ( target_position.findIntersection( npc_pos_cmp_bounds_current.getBounds() ) ) { return false; }
-  //   }
-  // }
-  // // Check obstacles
-  // auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position>();
-  // for ( auto [entity, obs_cmp, pos_cmp] : obstacle_view.each() )
-  // {
-  //   if ( pos_cmp.findIntersection( target_position ) )
-  //   {
-  //     SPDLOG_INFO( "NPC collided Obstacle" );
-  //     return false;
-  //   }
-  // }
 
   // arbitrary Cmp::NoPathFinding components
   auto nppathfinding_view = getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>();
@@ -388,16 +359,18 @@ sf::Vector2f NpcSystem::findValidPushbackPosition( const sf::Vector2f &player_po
   return player_pos;
 }
 
-void NpcSystem::scanForPlayers( entt::entity player_entity )
+void NpcSystem::scan_npc_bounds( entt::entity player_entity )
 {
-  for ( auto [npc_entity, npc_cmp] : getReg().view<Cmp::NPC>().each() )
+  for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : getReg().view<Cmp::NPC, Cmp::Position>().each() )
   {
+    if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) ) continue;
+
     auto npc_scan_bounds = getReg().try_get<Cmp::NPCScanBounds>( npc_entity );
     auto pc_detection_bounds = getReg().try_get<Cmp::PCDetectionBounds>( player_entity );
     if ( not npc_scan_bounds || not pc_detection_bounds ) continue;
 
     // only continue if player is within detection distance
-    // if ( not npc_scan_bounds->findIntersection( pc_detection_bounds->getBounds() ) ) continue;
+    if ( not npc_scan_bounds->findIntersection( pc_detection_bounds->getBounds() ) ) continue;
 
     // gather up any PlayerDistance components from within range obstacles
     PlayerDistanceQueue distance_queue;

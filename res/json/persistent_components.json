@@ -152,7 +152,7 @@
   },
   "NpcActivateScale": {
     "type": "float",
-    "value": 5.0,
+    "value": 2.0,
     "min_value": 1.0,
     "max_value": 20.0,
     "detail": "NPC Activation Bounding Box Scale Factor",
@@ -272,7 +272,7 @@
   },
   "PlayerDetectionScale": {
     "type": "float",
-    "value": 16.0,
+    "value": 5.0,
     "min_value": 1.0,
     "max_value": 20.0,
     "detail": "PC Detection Bounding Box Scale Factor",
@@ -315,6 +315,14 @@
     "value": 10.0,
     "min_value": 1.0,
     "max_value": 10.0,
+    "detail": "Player Lerp Speed",
+    "format": "%.1f"
+  },
+  "PlayerMovementSpeed": {
+    "type": "float",
+    "value": 5.0,
+    "min_value": 0.1,
+    "max_value": 30.0,
     "detail": "Player Lerp Speed",
     "format": "%.1f"
   },

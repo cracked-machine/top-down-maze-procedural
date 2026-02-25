@@ -11,6 +11,7 @@
 #include <Npc/Npc.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
 #include <Obstacle.hpp>
+#include <Player/PlayerNoPath.hpp>
 #include <RectBounds.hpp>
 #include <ReservedPosition.hpp>
 #include <Ruin/RuinShadowHand.hpp>
@@ -36,6 +37,7 @@ void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sp
       reg.emplace_or_replace<Cmp::ZOrderValue>( existing_entt, -spawn_position.y * 10 );
       reg.emplace_or_replace<Cmp::RuinBookcase>( existing_entt );
       reg.emplace_or_replace<Cmp::NpcNoPathFinding>( existing_entt );
+      reg.emplace_or_replace<Cmp::PlayerNoPath>( existing_entt );
       break;
     }
   }

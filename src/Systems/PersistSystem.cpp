@@ -1,14 +1,4 @@
-#include <Persistent/NpcWitchAnimFramerate.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
-
-#include <Components/Persistent/CameraSmoothSpeed.hpp>
-#include <Components/Persistent/CryptNpcSpawnCount.hpp>
-#include <Components/Persistent/NpcShockwaveFreq.hpp>
-#include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
-#include <Components/Persistent/NpcShockwaveResolution.hpp>
-#include <Components/Persistent/NpcShockwaveSpeed.hpp>
-#include <Components/Persistent/PlayerLerpInterruptThreshold.hpp>
-#include <Systems/PersistSystem.hpp>
 
 #define JSON_NOEXCEPTION
 #include <fstream>
@@ -20,8 +10,10 @@
 #include <Components/Persistent/BlastRadius.hpp>
 #include <Components/Persistent/BombBonus.hpp>
 #include <Components/Persistent/BombDamage.hpp>
+#include <Components/Persistent/CameraSmoothSpeed.hpp>
 #include <Components/Persistent/CorruptionDamage.hpp>
 #include <Components/Persistent/CorruptionSeed.hpp>
+#include <Components/Persistent/CryptNpcSpawnCount.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
@@ -40,6 +32,9 @@
 #include <Components/Persistent/NpcLerpSpeed.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
 #include <Components/Persistent/NpcScanScale.hpp>
+#include <Components/Persistent/NpcShockwaveFreq.hpp>
+#include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
+#include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
@@ -48,6 +43,7 @@
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
+#include <Components/Persistent/PlayerLerpInterruptThreshold.hpp>
 #include <Components/Persistent/PlayerLerpSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
@@ -55,7 +51,10 @@
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
+#include <Persistent/NpcWitchAnimFramerate.hpp>
+#include <Persistent/PlayerMovementSpeed.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 
 namespace ProceduralMaze::Sys
@@ -123,6 +122,7 @@ void PersistSystem::initializeTypeRegistry()
   reg.operator()<PlayerFootstepAddDelay>("PlayerFootstepAddDelay");
   reg.operator()<PlayerFootstepFadeDelay>("PlayerFootstepFadeDelay");
   reg.operator()<PlayerLerpInterruptThreshold>("PlayerLerpInterruptThreshold");
+  reg.operator()<PlayerMovementSpeed>("PlayerMovementSpeed");
   reg.operator()<PlayerLerpSpeed>("PlayerLerpSpeed");
   reg.operator()<PlayerShortcutLerpSpeedModifier>("PlayerShortcutLerpSpeedModifier");
   reg.operator()<PlayerStartPosition>("PlayerStartPosition");

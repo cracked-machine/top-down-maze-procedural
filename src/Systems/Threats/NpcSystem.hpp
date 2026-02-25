@@ -65,7 +65,7 @@ private:
 
   //! @brief Scan for players within NPC scan bounds
   //! @param player_entity The entity of the player
-  void scanForPlayers( entt::entity player_entity );
+  void scan_npc_bounds( entt::entity player_entity );
 
   //! @brief Add candidate lerp position and direction to NPC
   //! @param npc_entity The entity of the NPC
