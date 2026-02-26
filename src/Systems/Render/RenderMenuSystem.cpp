@@ -111,11 +111,17 @@ void RenderMenuSystem::render_settings( sf::Time globalDeltaTime )
   title_text.setPosition( { 10.f, 10.f } );
   m_window.draw( title_text );
 
-  sf::Text start_text( m_font, "Press <Esc> key to go back", display_size.x / 40 );
-  start_text.setFillColor( sf::Color::White );
-  auto right_align_px = display_size.x - start_text.getGlobalBounds().size.x - 10.f;
-  start_text.setPosition( { right_align_px, 50.f } );
-  m_window.draw( start_text );
+  sf::Text restore_text( m_font, "Press <R> key to restore defaults", display_size.x / 40 );
+  restore_text.setFillColor( sf::Color::White );
+  auto restore_right_align_px = display_size.x - restore_text.getGlobalBounds().size.x - 10.f;
+  restore_text.setPosition( { restore_right_align_px, 30.f } );
+  m_window.draw( restore_text );
+
+  sf::Text exit_text( m_font, "Press <Esc> key to go back", display_size.x / 40 );
+  exit_text.setFillColor( sf::Color::White );
+  auto exit_right_align_px = display_size.x - exit_text.getGlobalBounds().size.x - 10.f;
+  exit_text.setPosition( { exit_right_align_px, 80.f } );
+  m_window.draw( exit_text );
 
   // ImGUI should be rendered before window.display() or SFML wipes the display buffer prematurely
   render_settings_widgets( globalDeltaTime, title_text.getLocalBounds() );

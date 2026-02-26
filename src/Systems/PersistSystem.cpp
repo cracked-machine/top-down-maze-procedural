@@ -51,6 +51,7 @@
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
+#include <Events/LoadSettingsEvent.hpp>
 #include <Persistent/NpcWitchAnimFramerate.hpp>
 #include <Persistent/PlayerMovementSpeed.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -64,6 +65,7 @@ PersistSystem::PersistSystem( entt::registry &reg, sf::RenderWindow &window, Spr
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   std::ignore = get_systems_event_queue().sink<Events::SaveSettingsEvent>().connect<&Sys::PersistSystem::on_save_settings_event>( this );
+  std::ignore = get_systems_event_queue().sink<Events::LoadSettingsEvent>().connect<&Sys::PersistSystem::on_load_settings_event>( this );
   SPDLOG_DEBUG( "PersistSystem initialized" );
 }
 

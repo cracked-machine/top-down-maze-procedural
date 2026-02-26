@@ -13,6 +13,7 @@
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
 #include <Events/CryptRoomEvent.hpp>
+#include <Events/LoadSettingsEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Events/SaveSettingsEvent.hpp>
@@ -30,6 +31,8 @@
 #include <SceneControl/Events/ProcessTitleSceneInputEvent.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/SceneInputRouter.hpp>
+#include <Systems/PersistSystem.hpp>
+#include <Systems/SystemStore.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 
@@ -105,7 +108,13 @@ void SceneInputRouter::settings_scene_state_handler()
     {
       if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape )
       {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_SETTINGS_MENU ) );
+        using namespace Events;
+        m_scenemanager_event_dispatcher.enqueue( SceneManagerEvent( SceneManagerEvent::Type::EXIT_SETTINGS_MENU ) );
+      }
+      else if ( keyPressed->scancode == sf::Keyboard::Scancode::R )
+      {
+        using namespace Events;
+        get_systems_event_queue().trigger( LoadSettingsEvent() );
       }
     }
   }

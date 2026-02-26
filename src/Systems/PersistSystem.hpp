@@ -2,6 +2,7 @@
 #define SRC_SYSTEMS_PERSISTENT_SYSTEM_HPP
 
 #include <Components/Persistent/IBasePersistent.hpp>
+#include <Events/LoadSettingsEvent.hpp>
 #include <Events/SaveSettingsEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -53,6 +54,11 @@ public:
   {
     SPDLOG_DEBUG( "Save Settings Event received" );
     save_state();
+  }
+  void on_load_settings_event( [[maybe_unused]] const Events::LoadSettingsEvent &event )
+  {
+    SPDLOG_DEBUG( "Load Settings Event received" );
+    load_state();
   }
   /**
    * @brief Initializes the component registry for the persistent system.
