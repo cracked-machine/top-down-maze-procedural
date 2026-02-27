@@ -320,10 +320,27 @@
   },
   "PlayerMovementSpeed": {
     "type": "float",
-    "value": 5.0,
+    "value": 60.0,
+    "min_value": 1.0,
+    "max_value": 120.0,
+    "detail": "Player Movement Speed",
+    "format": "%.1f"
+  },
+
+  "PlayerNudgeMaxFraction": {
+    "type": "float",
+    "value": 0.6,
     "min_value": 0.1,
-    "max_value": 30.0,
-    "detail": "Player Lerp Speed",
+    "max_value": 1.0,
+    "detail": "Player Nudge Max Fraction",
+    "format": "%.1f"
+  },
+  "PlayerNudgeSpeedMultiplier": {
+    "type": "float",
+    "value": 1.5,
+    "min_value": 0.1,
+    "max_value": 4.0,
+    "detail": "Player Nudge Speed Multiplier",
     "format": "%.1f"
   },
   "PlayerShortcutLerpSpeedModifier": {
@@ -332,7 +349,7 @@
     "min_value": 0.001,
     "max_value": 1.0,
     "detail": "Player Shortcut Lerp Speed Modifier",
-    "format": "%.2f seconds"
+    "format": "%.3f seconds"
   },
   "WeaponDegradePerHit": {
     "type": "float",

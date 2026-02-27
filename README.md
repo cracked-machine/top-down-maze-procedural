@@ -75,9 +75,48 @@ In theory you can get windows to create a crash dump, but trying to use this win
         - `gdb /x/cpp/games/top-down-maze-procedural/build/bin/ProceduralMaze.exe -ex "break Engine.cpp:30" -ex "run" -ex "next" -ex "next"`
         - `gdb /c/path/to/bin/ProceduralMaze.exe -ex "break Engine.cpp:30" -ex "run" -ex "next" -ex "next"`
 
+## Installing and launching the game from remote build server
+
+After building the exe on a remote Linux build server, it is recommended to copy (install) the files onto the local windows workstation before launching the game. For performance reasons, it is not recommended to launch the game over a network/samba share. Using SCP can speed up this copy/install process:
+
+```
+del /q "C:\Users\chris\Desktop\Resurrectionist\bin"
+mkdir "C:\Users\chris\Desktop\Resurrectionist\bin"
+scp -r 192.168.1.106:/home/chris/projects/cpp/games/top-down-maze-procedural\build-x86_64-w64-mingw32\bin C:\Users\chris\Desktop\Resurrectionist
+
+start /wait /b /d "C:\Users\chris\Desktop\Resurrectionist\bin\" ProceduralMaze.exe
+```
+
+
 # Design 
 
-## Finding the nearest neighbours
+## Message Architecture
+
+1. System Store
+
+Non-system classes can use the system store to call public methods of any System class. To use the SystemStore you need to pass it into your class and store it as a reference. This is how Scene (src/SceneControl/Scenes) classes call System class functions.
+
+1. System to System
+
+Systems can register and trigger/enqueue events between each other using the `m_systems_event_queue`. This event queue is defined in BaseSystem which is inherited by all System classes. 
+
+1. Scene User Input events
+
+User input needs to processed within the context of the current scene. For example, only user input relevant to the CryptScene should only be actioned when the CryptScene is the current scene.  Therefore, scene classes need to call a unique input handler at the end of the `update()` function. This is enqueued automatically by `src/SceneControl/Scene.hpp`, so concrete Scene classes (src/SceneControl/Scenes) do not have to remember. Concrete scene classes are defined as instantiations of their input handler type. For example:
+
+```
+class CryptScene : public Scene<Events::ProcessCryptSceneInputEvent>
+```
+
+This tells the base template class `Scene` to call the ProcessCryptSceneInputEvent handler registered in the `src/SceneControl/SceneInputRouter.cpp` constructor.
+
+## Sprite Factory
+
+## Scene Manager
+
+## Random Level Generation
+
+### Finding the nearest neighbours
 
 We need to find the neighbour of a given obstacle block. This is useful for our Cellular Autonomy algorithm but is also useful when we want to destroy neighbouring blocks (placing a bomb or using a pickaxe, for example)
 
@@ -102,14 +141,3 @@ Always use `to_integral` for serialization, logging, or storing entity IDs outsi
 To add Sprite types, edit the res/json/sprite_metadata_schema.json file
 and then update the mapping function (string_to_sprite_type) in src/sprite/sprite_factory.cpp
 
-## Installing and launching the game from remote build server
-
-After building the exe on a remote Linux build server, it is recommended to copy (install) the files onto the local windows workstation before launching the game. For performance reasons, it is not recommended to launch the game over a network/samba share. Using SCP can speed up this copy/install process:
-
-```
-del /q "C:\Users\chris\Desktop\Resurrectionist\bin"
-mkdir "C:\Users\chris\Desktop\Resurrectionist\bin"
-scp -r 192.168.1.106:/home/chris/projects/cpp/games/top-down-maze-procedural\build-x86_64-w64-mingw32\bin C:\Users\chris\Desktop\Resurrectionist
-
-start /wait /b /d "C:\Users\chris\Desktop\Resurrectionist\bin\" ProceduralMaze.exe
-```

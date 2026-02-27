@@ -14,7 +14,7 @@ public:
   {
   }
   virtual std::string class_name() const override { return "PlayerMovementSpeed"; }
-  const std::string get_detail() const override { return "PlayerMovementSpeed"; }
+  const std::string get_detail() const override { return detail; }
 };
 
 } // namespace ProceduralMaze::Cmp::Persist
