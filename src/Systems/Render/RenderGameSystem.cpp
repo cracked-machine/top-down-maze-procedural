@@ -57,6 +57,7 @@
 #include <Components/Wormhole/WormholeMultiBlock.hpp>
 #include <Components/Wormhole/WormholeSingularity.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Npc/NpcScanBounds.hpp>
 #include <Player/PlayerCurse.hpp>
 #include <Player/PlayerNoPath.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -262,17 +263,17 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       // debug: show crypt component boundaries
       if ( m_show_debug_stats )
       {
-        for ( auto [ruin_entt, access_cmp, pos_cmp] : getReg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
-        {
-          if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
-          sf::RectangleShape rectangle;
-          rectangle.setSize( pos_cmp.size );
-          rectangle.setPosition( pos_cmp.position );
-          rectangle.setFillColor( sf::Color::Transparent );
-          rectangle.setOutlineThickness( 1.f );
-          rectangle.setOutlineColor( sf::Color::Red );
-          m_window.draw( rectangle );
-        }
+        // for ( auto [ruin_entt, access_cmp, pos_cmp] : getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
+        // {
+        //   if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
+        //   sf::RectangleShape rectangle;
+        //   rectangle.setSize( pos_cmp.size );
+        //   rectangle.setPosition( pos_cmp.position );
+        //   rectangle.setFillColor( sf::Color::Transparent );
+        //   rectangle.setOutlineThickness( 1.f );
+        //   rectangle.setOutlineColor( sf::Color::Red );
+        //   m_window.draw( rectangle );
+        // }
 
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
@@ -343,7 +344,6 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       render_overlay_sys.render_bomb_overlay( player_blast_radius.value, { 40.f, start_y_pos += 40.f } );
       render_overlay_sys.render_cadaver_count_overlay( player_cadaver_count, { 40.f, start_y_pos += 40.f } );
       render_overlay_sys.render_wealth_overlay( player_wealth.wealth, { 40.f, start_y_pos += 40.f } );
-
       render_overlay_sys.render_inventory_overlay( { 40.f, start_y_pos += 80.f } );
 
       auto display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
@@ -375,6 +375,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
         render_overlay_sys.render_scan_detection_bounds();
         render_overlay_sys.render_player_distances();
         render_overlay_sys.render_lerp_positions();
+        render_overlay_sys.render_npc_trajectory_box();
 
         // Restore the previous view
         m_window.setView( previous_view );

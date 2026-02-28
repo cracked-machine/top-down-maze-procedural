@@ -45,6 +45,7 @@
 #include <Constants.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/NpcFactory.hpp>
+#include <Npc/NpcPathTrajectory.hpp>
 #include <Ruin/RuinBookcase.hpp>
 #include <SFML/System/Time.hpp>
 #include <Sprites/SpriteFactory.hpp>
@@ -176,6 +177,7 @@ void NpcSystem::scan_npc_bounds( entt::entity player_entity )
       sf::Vector2f size = max_pos - min_pos + npc_pos->size; // Add size to cover the whole NPC
 
       sf::FloatRect trajectory_hitbox( min_pos, size );
+      getReg().emplace_or_replace<Cmp::NpcPathTrajectory>( npc_entity, trajectory_hitbox );
 
       if ( !is_valid_move( trajectory_hitbox ) ) { continue; }
 

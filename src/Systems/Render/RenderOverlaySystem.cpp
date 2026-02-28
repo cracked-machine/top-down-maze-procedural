@@ -10,6 +10,7 @@
 #include <Components/RectBounds.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Npc/NpcPathTrajectory.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -420,6 +421,19 @@ void RenderOverlaySystem::render_scan_detection_bounds()
     scan_bounds_shape.setOutlineColor( sf::Color::Red );
     scan_bounds_shape.setOutlineThickness( 1.f );
     m_window.draw( scan_bounds_shape );
+  }
+}
+
+void RenderOverlaySystem::render_npc_trajectory_box()
+{
+  for ( auto [npc_entt, npc_cmp, npc_trajectory] : getReg().view<Cmp::NPC, Cmp::NpcPathTrajectory>().each() )
+  {
+    sf::RectangleShape bb( npc_trajectory.size );
+    bb.setPosition( npc_trajectory.position );
+    bb.setFillColor( sf::Color::Transparent );
+    bb.setOutlineColor( sf::Color::White );
+    bb.setOutlineThickness( 1.f );
+    m_window.draw( bb );
   }
 }
 

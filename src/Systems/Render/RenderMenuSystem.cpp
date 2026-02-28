@@ -1,8 +1,4 @@
 
-#include <Persistent/PlayerNudgeMaxFraction.hpp>
-#include <Persistent/PlayerNudgeSpeedMultiplier.hpp>
-#include <SFML/System/Angle.hpp>
-#include <SFML/System/Vector2.hpp>
 
 #include "imgui-SFML.h"
 #include <imgui.h>
@@ -60,6 +56,9 @@
 #include <Systems/Threats/BombSystem.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
+
+#include <SFML/System/Angle.hpp>
+#include <SFML/System/Vector2.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -174,8 +173,6 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     Sys::PersistSystem::get<Cmp::Persist::PlayerAnimFramerate>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerLerpSpeed>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::PlayerNudgeMaxFraction>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::PlayerNudgeSpeedMultiplier>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerDiagonalLerpSpeedModifier>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepAddDelay>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepFadeDelay>( getReg() ).render_widget();

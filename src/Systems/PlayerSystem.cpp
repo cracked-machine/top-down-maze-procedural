@@ -1,8 +1,3 @@
-#include <Persistent/PlayerMovementSpeed.hpp>
-#include <Persistent/PlayerNudgeMaxFraction.hpp>
-#include <Persistent/PlayerNudgeSpeedMultiplier.hpp>
-#include <SFML/Graphics/Rect.hpp>
-#include <Systems/Render/RenderGameSystem.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -50,10 +45,12 @@
 #include <Events/PlayerActionEvent.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Persistent/PlayerMovementSpeed.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
+#include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Collision.hpp>
 #include <Utils/Maths.hpp>
@@ -62,6 +59,7 @@
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 
+#include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -107,7 +105,7 @@ void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, FootStepSf
     // update path tracking data
     if ( m_debug_info_timer.getElapsedTime() >= sf::milliseconds( 100 ) )
     {
-      refreshPlayerDistances();
+      refresh_player_distances();
       m_debug_info_timer.restart();
     }
   }
@@ -489,20 +487,20 @@ void PlayerSystem::enable_damage_cooldown()
   }
 }
 
-void PlayerSystem::refreshPlayerDistances()
+void PlayerSystem::refresh_player_distances()
 {
   const auto viewBounds = Utils::calculate_view_bounds( RenderSystem::getGameView() );
 
   auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::PCDetectionBounds>();
   for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_db_cmp] : player_view.each() )
   {
-    auto add_path_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
+    auto add_path_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding, Cmp::NPC, Cmp::PlayerCharacter> );
     for ( auto [path_entt, path_pos_cmp] : add_path_view.each() )
     {
       if ( getReg().all_of<Cmp::FootStepTimer>( path_entt ) )
       {
         // always update footsteps distance to player
-        if ( !Utils::is_visible_in_view( viewBounds, path_pos_cmp ) ) continue;
+        if ( not Utils::is_visible_in_view( viewBounds, path_pos_cmp ) ) continue;
         auto distance = std::floor( Utils::Maths::getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
         getReg().emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
       }
@@ -510,7 +508,7 @@ void PlayerSystem::refreshPlayerDistances()
       {
         if ( pc_db_cmp.findIntersection( path_pos_cmp ) )
         {
-          if ( !Utils::is_visible_in_view( viewBounds, path_pos_cmp ) ) continue; // optimization
+          if ( not Utils::is_visible_in_view( viewBounds, path_pos_cmp ) ) continue; // optimization
 
           // calculate the distance from the position to the player
           auto distance = std::floor( Utils::Maths::getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );

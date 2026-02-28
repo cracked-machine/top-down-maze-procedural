@@ -69,6 +69,7 @@ public:
   void render_player_distances();
   void render_scan_detection_bounds();
   void render_lerp_positions();
+  void render_npc_trajectory_box();
 
   void render_crypt_maze_timer( sf::Vector2f pos, unsigned int size );
 
