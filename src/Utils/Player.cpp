@@ -14,6 +14,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Direction.hpp>
 #include <Player/PlayerDetectionBounds.hpp>
+#include <SpriteAnimation.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Utils/Player.hpp>
 #include <stdexcept>
@@ -29,30 +30,51 @@ entt::entity get_player_entity( entt::registry &reg )
 }
 
 //! @brief Get the player position object
-//! @note Make sure your l-value is a reference if you need to modify the return value
+//! @throws runtime_error if player has no Cmp::Position
 //! @param reg
 //! @return Cmp::Position&
 Cmp::Position &get_player_position( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::Position>();
-  return player_view.get<Cmp::Position>( get_player_entity( reg ) );
+  for ( auto [entt, player_cmp, pos_cmp] : player_view.each() )
+  {
+    return pos_cmp;
+  }
+  throw std::runtime_error( "Player entt has no component: Cmp::Position" );
 }
 
+//! @brief Get the player direction object
+//! @throws runtime_error if player has no Cmp::Direction
+//! @param reg
+//! @return Cmp::Direction&
 Cmp::Direction &get_player_direction( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::Direction>();
-  return player_view.get<Cmp::Direction>( get_player_entity( reg ) );
+  for ( auto [entt, player_cmp, dir_cmp] : player_view.each() )
+  {
+    return dir_cmp;
+  }
+  throw std::runtime_error( "Player entt has no component: Cmp::Direction" );
 }
 
+//! @brief Get the player sprite anim object
+//! @throws runtime_error if player has no Cmp::SpriteAnimation
+//! @param reg
+//! @return Cmp::SpriteAnimation&
 Cmp::SpriteAnimation &get_player_sprite_anim( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::SpriteAnimation>();
-  return player_view.get<Cmp::SpriteAnimation>( get_player_entity( reg ) );
+  for ( auto [entt, player_cmp, anim_cmp] : player_view.each() )
+  {
+    return anim_cmp;
+  }
+  throw std::runtime_error( "Player entt has no component: Cmp::SpriteAnimation" );
 }
 
 Cmp::PCDetectionBounds &get_player_distance_bounds( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::PCDetectionBounds>();
+  auto player_view = reg.view<Cmp::PCDetectionBounds>();
+  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PCDetectionBounds" );
   return player_view.get<Cmp::PCDetectionBounds>( get_player_entity( reg ) );
 }
 
