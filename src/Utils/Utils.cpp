@@ -210,4 +210,13 @@ std::optional<sf::Vector2<Signedness>> getGridPosition( entt::registry &registry
 template std::optional<sf::Vector2<int>> getGridPosition( entt::registry &, entt::entity );
 template std::optional<sf::Vector2<unsigned int>> getGridPosition( entt::registry &, entt::entity );
 
+entt::entity get_world_pos_entt( entt::registry &reg, Cmp::Position match )
+{
+  for ( auto [world_pos_entt, world_pos_cmp] : reg.view<Cmp::Position>().each() )
+  {
+    if ( world_pos_cmp.findIntersection( match ) ) return world_pos_entt;
+  }
+  return entt::null;
+}
+
 } // namespace ProceduralMaze::Utils
