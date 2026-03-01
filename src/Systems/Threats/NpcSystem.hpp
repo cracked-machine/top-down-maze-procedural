@@ -1,9 +1,6 @@
 #ifndef SRC_SYSTEMS_NPCSYSTEM_HPP__
 #define SRC_SYSTEMS_NPCSYSTEM_HPP__
 
-#include <Components/Direction.hpp>
-#include <Components/LerpPosition.hpp>
-#include <Components/Npc/NpcShockwave.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <SFML/Audio/Sound.hpp>
@@ -16,6 +13,13 @@ namespace ProceduralMaze::Sprites { class SpriteFactory; }
 namespace ProceduralMaze::Sys { class Store; }
 namespace ProceduralMaze::Audio { class SoundBank; }
 // clang-format on
+namespace ProceduralMaze::Cmp
+{
+class Direction;
+class LerpPosition;
+class NpcShockwave;
+
+} // namespace ProceduralMaze::Cmp
 
 namespace ProceduralMaze::Sys
 {
