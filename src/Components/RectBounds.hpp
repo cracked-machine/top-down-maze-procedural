@@ -92,7 +92,7 @@ public:
   sf::Vector2f size() const { return m_bounds.size; }
 
   //! @brief Checks for intersection with another rectangle.
-  std::optional<sf::FloatRect> findIntersection( const sf::FloatRect &rectangle ) { return m_bounds.findIntersection( rectangle ); }
+  std::optional<sf::FloatRect> findIntersection( const sf::FloatRect &rectangle ) const { return m_bounds.findIntersection( rectangle ); }
 
   //! @brief Retrieves the underlying FloatRect bounds.
   sf::FloatRect getBounds() const { return m_bounds; }

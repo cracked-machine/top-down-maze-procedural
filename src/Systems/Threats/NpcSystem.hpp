@@ -54,29 +54,22 @@ private:
   // Check for player collision with NPCs
   void check_player_to_npc_collision();
 
-  //! @brief Check for player collision with NPCs
-  //! @param player_pos The position of the player
-  //! @param npc_pos The position of the NPC
-  //! @param player_direction The direction the player is facing
-  //! @param pushback_distance The distance to push the player back
-  //! @return sf::Vector2f
-  sf::Vector2f findValidPushbackPosition( const sf::Vector2f &player_pos, const sf::Vector2f &npc_pos, const sf::Vector2f &player_direction,
-                                          float pushback_distance );
+  void find_pushback_position( const Cmp::Direction &npc_direction );
 
   //! @brief Scan for players within NPC scan bounds
   //! @param player_entity The entity of the player
-  void scan_npc_bounds( entt::entity player_entity );
+  void scan_player_distances( entt::entity player_entity );
 
-  //! @brief Add candidate lerp position and direction to NPC
-  //! @param npc_entity The entity of the NPC
-  //! @param candidate_dir The candidate direction to move
-  //! @param candidate_lerp_pos The candidate lerp position to move to
-  void add_candidate_lerp( entt::entity npc_entity, Cmp::Direction candidate_dir, Cmp::LerpPosition candidate_lerp_pos );
+  void update_animation();
 
   void update_shockwaves();
   sf::Clock shockwave_update_clock;
 
   void checkShockwaveObstacleCollision( entt::entity shockwave_entity, Cmp::NpcShockwave &shockwave );
+
+  sf::Time m_scan_accumulator;
+  sf::Time m_animation_accumulator;
+  sf::Time m_bones_accumulator;
 };
 
 } // namespace ProceduralMaze::Sys
