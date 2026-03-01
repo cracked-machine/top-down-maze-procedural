@@ -86,11 +86,6 @@ void NpcSystem::update( [[maybe_unused]] sf::Time dt )
     if ( not _sys.collisions_disabled ) { check_player_to_npc_collision(); }
   }
 
-  for ( auto npc_entt : getReg().view<Cmp::NPC>() )
-  {
-    auto npc_sprite_anim = getReg().try_get<Cmp::SpriteAnimation>( npc_entt );
-    if ( npc_sprite_anim && npc_sprite_anim->m_sprite_type == "NPCPRIEST" ) { emit_shockwave( npc_entt ); }
-  }
   update_shockwaves();
 }
 
@@ -519,14 +514,19 @@ void NpcSystem::add_candidate_lerp( entt::entity npc_entity, Cmp::Direction cand
   getReg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, std::move( candidate_lerp_pos ) );
 }
 
-void NpcSystem::emit_shockwave( entt::entity npc_entt )
-{
-  // cooldown is handled in Factory function via Cmp::NpcShockwaveTimer per NPC
-  Factory::createShockwave( getReg(), npc_entt );
-}
-
 void NpcSystem::update_shockwaves()
 {
+  // emit shockwaves from each NPC
+  for ( auto npc_entt : getReg().view<Cmp::NPC>() )
+  {
+    auto npc_sprite_anim = getReg().try_get<Cmp::SpriteAnimation>( npc_entt );
+    if ( npc_sprite_anim && npc_sprite_anim->m_sprite_type == "NPCPRIEST" )
+    {
+      // cooldown is handled in Factory function via Cmp::NpcShockwaveTimer per NPC
+      Factory::createShockwave( getReg(), npc_entt );
+    }
+  }
+
   auto shockwave_increments = 1;
 
   // Invert the interval - larger values = faster updates, smaller values = slower updates
