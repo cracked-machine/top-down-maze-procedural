@@ -3,7 +3,6 @@
 #include <Components/Direction.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcContainer.hpp>
-#include <Components/Npc/NpcScanBounds.hpp>
 #include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Npc/NpcShockwaveTimer.hpp>
 #include <Components/Persistent/NpcScanScale.hpp>
@@ -85,8 +84,6 @@ void createNPC( entt::registry &registry, entt::entity position_entity, const Sp
   registry.emplace<Cmp::Position>( new_pos_entity, pos_cmp->position, Constants::kGridSizePxF );
   registry.emplace<Cmp::Armable>( new_pos_entity );
   registry.emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 0, 0 } );
-  auto &npc_scan_scale = Sys::PersistSystem::get<Cmp::Persist::NpcScanScale>( registry );
-  registry.emplace_or_replace<Cmp::NPCScanBounds>( new_pos_entity, pos_cmp->position, Constants::kGridSizePxF, npc_scan_scale.get_value() );
   if ( type == "NPCGHOST" )
   {
     registry.emplace_or_replace<Cmp::NPC>( new_pos_entity );
@@ -147,7 +144,6 @@ entt::entity destroyNPC( entt::registry &registry, entt::entity npc_entity )
   // kill npc once we are done
   registry.remove<Cmp::NPC>( npc_entity );
   registry.remove<Cmp::Position>( npc_entity );
-  registry.remove<Cmp::NPCScanBounds>( npc_entity );
   registry.remove<Cmp::Direction>( npc_entity );
   registry.remove<Cmp::SpriteAnimation>( npc_entity );
   registry.remove<Cmp::ZOrderValue>( npc_entity );

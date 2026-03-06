@@ -7,7 +7,6 @@
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcContainer.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
-#include <Components/Npc/NpcScanBounds.hpp>
 #include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/NpcActivateScale.hpp>
@@ -205,11 +204,10 @@ void NpcSystem::update_pathfinding( entt::entity player_entity )
 void NpcSystem::update_movement( sf::Time dt )
 {
   auto exclusions = entt::exclude<Cmp::AltarSegment, Cmp::CryptSegment, Cmp::SpawnArea, Cmp::PlayerCharacter>;
-  auto view = getReg().view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds, Cmp::Direction>( exclusions );
+  auto view = getReg().view<Cmp::Position, Cmp::LerpPosition, Cmp::Direction>( exclusions );
 
-  for ( auto [npc_entt, pos_cmp, lerp_pos_cmp, npc_scan_bounds, dir_cmp] : view.each() )
+  for ( auto [npc_entt, pos_cmp, lerp_pos_cmp, dir_cmp] : view.each() )
   {
-    if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), npc_scan_bounds.getBounds() ) ) continue;
 
     // if there is an obstacle at this entity move onto the next entity
     auto obst_cmp = getReg().try_get<Cmp::Obstacle>( npc_entt );
@@ -244,7 +242,6 @@ void NpcSystem::update_movement( sf::Time dt )
       pos_cmp.position.y = one_minus_t * lerp_pos_cmp.m_start.y + t * lerp_pos_cmp.m_target.y;
     }
 
-    npc_scan_bounds.position( pos_cmp.position );
     getReg().patch<Cmp::ZOrderValue>( npc_entt, [&]( auto &zorder_cmp ) { zorder_cmp.setZOrder( pos_cmp.position.y ); } );
   }
 }

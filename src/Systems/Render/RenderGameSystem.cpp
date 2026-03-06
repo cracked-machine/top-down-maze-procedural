@@ -59,7 +59,6 @@
 #include <Components/Wormhole/WormholeSingularity.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Constants.hpp>
-#include <Npc/NpcScanBounds.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Pathfinding/NeighbourSearchArea.hpp>
 #include <Player/PlayerCurse.hpp>

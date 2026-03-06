@@ -11,7 +11,6 @@
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcContainer.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
-#include <Components/Npc/NpcScanBounds.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
@@ -285,8 +284,6 @@ void WormholeSystem::check_player_wormhole_collision()
       getReg().remove<Cmp::LerpPosition>( entity );
       getReg().emplace_or_replace<Cmp::Position>( entity, new_spawn_pos_cmp.position, new_spawn_pos_cmp.size );
       getReg().remove<Cmp::WormholeJump>( entity );
-      auto *npc_scan_bounds = getReg().try_get<Cmp::NPCScanBounds>( entity );
-      if ( npc_scan_bounds ) { npc_scan_bounds->position( new_spawn_pos_cmp.position ); }
 
       SPDLOG_INFO( "Entity {} - TELEPORT to ({}, {}) COMPLETE", static_cast<uint32_t>( entity ), new_spawn_pos_cmp.position.x,
                    new_spawn_pos_cmp.position.y );
