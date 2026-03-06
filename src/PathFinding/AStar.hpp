@@ -35,6 +35,15 @@ struct PathNode
 
   double f() const { return g + h; }
   bool operator==( const PathNode &other ) const { return pos.position.x == other.pos.position.x && pos.position.y == other.pos.position.y; }
+  struct PosHash
+  {
+    std::size_t operator()( const Cmp::Position &p ) const noexcept
+    {
+      std::size_t h1 = std::hash<float>{}( p.position.x );
+      std::size_t h2 = std::hash<float>{}( p.position.y );
+      return h1 ^ ( h2 << 1 );
+    }
+  };
 };
 
 std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHashGrid &grid, Cmp::Position start, Cmp::Position goal,

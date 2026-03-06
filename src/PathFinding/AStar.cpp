@@ -5,19 +5,19 @@
 #include <SpatialHashGrid.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Npc.hpp>
+#include <unordered_map>
 
 namespace ProceduralMaze::PathFinding
 {
+
+using ClosedList = std::unordered_map<Cmp::Position, PathNode, PathNode::PosHash>;
 
 std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHashGrid &spatial_grid, Cmp::Position start, Cmp::Position goal,
                              PathFinding::QueryCompass offset )
 {
 
-  auto contains = [&]( const std::list<PathNode> &vec, const PathNode &node )
-  { return std::any_of( vec.begin(), vec.end(), [&]( const PathNode &n ) { return n == node; } ); };
-
   std::vector<PathNode> openList;
-  std::list<PathNode> closedList;
+  ClosedList closedList;
 
   PathNode startNode( start, 0, Utils::Maths::getManhattanDistance( start.position, goal.position ) );
 
@@ -25,17 +25,17 @@ std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHash
 
   PathNode *endNode = nullptr;
 
-  while ( !openList.empty() )
+  while ( not openList.empty() )
   {
     // Find PathNode with smallest f
     auto currentIt = std::min_element( openList.begin(), openList.end(), []( const PathNode &a, const PathNode &b ) { return a.f() < b.f(); } );
     PathNode current = *currentIt;
     openList.erase( currentIt );
-    closedList.push_back( current );
+    closedList.emplace( current.pos, current );
 
     if ( current.x() == goal.x() && current.y() == goal.y() )
     {
-      endNode = &closedList.back();
+      endNode = &closedList.at( current.pos );
       break;
     }
 
@@ -46,12 +46,10 @@ std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHash
       auto *neighbour_pos = reg.try_get<Cmp::Position>( neighbour_entt );
       if ( not neighbour_pos ) continue;
 
-      // if ( !inBounds( nx, ny ) ) continue;
-
       auto heuristic = Utils::Maths::getManhattanDistance( neighbour_pos->position, goal.position );
-      PathNode new_neighbor( *neighbour_pos, current.g + 1, heuristic, &closedList.back() );
 
-      if ( contains( closedList, new_neighbor ) ) continue;
+      if ( closedList.count( *neighbour_pos ) > 0 ) continue;
+      PathNode new_neighbor( *neighbour_pos, current.g + 1, heuristic, &closedList.at( current.pos ) );
 
       auto it = std::find_if( openList.begin(), openList.end(),
                               // existence check
