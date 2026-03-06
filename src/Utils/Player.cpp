@@ -14,6 +14,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Direction.hpp>
 #include <Player/PlayerDetectionBounds.hpp>
+#include <SpawnArea.hpp>
 #include <SpriteAnimation.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Utils/Player.hpp>
@@ -203,6 +204,16 @@ void reduce_player_inventory_wear_level( entt::registry &reg, float amount )
     return;
   }
   SPDLOG_DEBUG( "Player Inventory slot has no appropriate InventoryWearLevel component" );
+}
+
+bool is_in_spawn( entt::registry &reg, const Cmp::Position &player_pos_cmp )
+{
+  bool result = false;
+  for ( auto [spawn_entt, spawn_cmp, spawn_pos_cmp] : reg.view<Cmp::SpawnArea, Cmp::Position>().each() )
+  {
+    if ( spawn_pos_cmp.findIntersection( player_pos_cmp ) ) result = true;
+  }
+  return result;
 }
 
 } // namespace ProceduralMaze::Utils::Player

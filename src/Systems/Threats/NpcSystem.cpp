@@ -31,6 +31,7 @@
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Npc/NpcPathTrajectory.hpp>
+#include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -79,7 +80,8 @@ void NpcSystem::update( [[maybe_unused]] sf::Time dt, PathFinding::SpatialHashGr
   m_scan_accumulator += dt;
   if ( m_scan_accumulator.asSeconds() >= kScanInterval )
   {
-    scan_player_distances( Utils::Player::get_player_entity( getReg() ) );
+    // scan_player_distances( );
+    update_pathfinding( Utils::Player::get_player_entity( getReg() ) );
     m_scan_accumulator = sf::Time::Zero;
   }
 
@@ -150,6 +152,43 @@ void NpcSystem::update_animation()
         else if ( npc_dir_cmp.x < 0 ) { anim_cmp.m_sprite_type = "NPCGHOST.walk.west"; }
         else if ( npc_dir_cmp.y < 0 ) { anim_cmp.m_sprite_type = "NPCGHOST.walk.north"; }
         else if ( npc_dir_cmp.y > 0 ) { anim_cmp.m_sprite_type = "NPCGHOST.walk.south"; }
+      }
+    }
+  }
+}
+
+void NpcSystem::update_pathfinding( entt::entity player_entity )
+{
+  const auto *pc_detection_bounds = getReg().try_get<Cmp::PCDetectionBounds>( player_entity );
+  if ( not pc_detection_bounds ) return;
+
+  const float npc_lerp_speed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeed>( getReg() ).get_value();
+
+  auto player_pos_cmp = Utils::Player::get_player_position( getReg() );
+  auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds>();
+  for ( auto [npc_entity, npc_cmp, npc_pos_cmp, npc_scan_bounds] : npc_view.each() )
+  {
+    if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) ) continue;
+    if ( m_spatial_grid )
+    {
+      auto *npc_lerp_pos_cmp = getReg().try_get<Cmp::LerpPosition>( npc_entity );
+      if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) continue;
+
+      std::vector<PathFinding::PathNode> path = PathFinding::astar( getReg(), *m_spatial_grid, npc_pos_cmp, player_pos_cmp );
+
+      // dont let NPC follow player into spawn but keep path in tact up to penultimate node
+      if ( Utils::Player::is_in_spawn( getReg(), player_pos_cmp ) and not path.empty() ) path.pop_back();
+      if ( path.size() > 1 )
+      {
+        // path[0] is the NPC current position, so go one forward
+        auto new_position_cmp = path[1].pos;
+        auto candidate_lerp_pos = Cmp::LerpPosition( new_position_cmp.position, npc_lerp_speed );
+        auto direction_to_target = new_position_cmp.position - npc_pos_cmp.position;
+        if ( direction_to_target == sf::Vector2f( 0.0f, 0.0f ) ) continue;
+
+        auto norm_direction = Cmp::Direction( direction_to_target.normalized() );
+        getReg().emplace_or_replace<Cmp::Direction>( npc_entity, std::move( norm_direction ) );
+        getReg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, std::move( candidate_lerp_pos ) );
       }
     }
   }

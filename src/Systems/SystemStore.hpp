@@ -35,7 +35,6 @@ class HolyWellSystem;
 class LootSystem;
 class NpcSystem;
 class PassageSystem;
-class PathSystem;
 class PersistSystem;
 class PlayerSystem;
 class RenderGameSystem;
@@ -65,7 +64,6 @@ public:
     LootSystem,
     NpcSystem,
     PassageSystem,
-    PathSystem,
     PersistSystem,
     PlayerSystem,
     RandomLevelGenerator,
@@ -123,7 +121,6 @@ template<> struct Store::SystemTraits<Store::Type::RuinSystem>             { usi
 template<> struct Store::SystemTraits<Store::Type::LootSystem>             { using type = LootSystem; };
 template<> struct Store::SystemTraits<Store::Type::NpcSystem>              { using type = NpcSystem; };
 template<> struct Store::SystemTraits<Store::Type::PassageSystem>          { using type = ProceduralMaze::Sys::PassageSystem; };
-template<> struct Store::SystemTraits<Store::Type::PathSystem>             { using type = ProceduralMaze::Sys::PathSystem; };
 template<> struct Store::SystemTraits<Store::Type::PersistSystem>          { using type = PersistSystem; };
 template<> struct Store::SystemTraits<Store::Type::PlayerSystem>           { using type = PlayerSystem; };
 template<> struct Store::SystemTraits<Store::Type::RandomLevelGenerator>   { using type = ProcGen::RandomLevelGenerator; };

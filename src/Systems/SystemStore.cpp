@@ -15,7 +15,6 @@
 #include <Systems/HolyWellSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/PassageSystem.hpp>
-#include <Systems/PathSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
@@ -50,7 +49,6 @@ Store::Store( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, 
     m_sysmap.emplace( Type::LootSystem, std::make_unique<LootSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::NpcSystem, std::make_unique<NpcSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::PassageSystem, std::make_unique<PassageSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
-    m_sysmap.emplace( Type::PathSystem, std::make_unique<PathSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::PlayerSystem, std::make_unique<PlayerSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
     m_sysmap.emplace( Type::PersistSystem, std::make_unique<PersistSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::RandomLevelGenerator, std::make_unique<ProcGen::RandomLevelGenerator>( m_initial_reg, window, sprite_factory, sound_bank ) );

@@ -15,6 +15,8 @@ public:
       : sf::FloatRect( pos, size )
   {
   }
+  float x() { return position.x; }
+  float y() { return position.y; }
 };
 
 } // namespace ProceduralMaze::Cmp

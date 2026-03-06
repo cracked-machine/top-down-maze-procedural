@@ -37,7 +37,6 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/HolyWellSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/RuinSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/PassageSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/PathSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/SystemStore.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/ShockwaveSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/SceneInputRouter.cpp
@@ -73,6 +72,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Components/Persistent/BasePersistent.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Persistent/PlayerStartPosition.cpp
     ${CMAKE_SOURCE_DIR}/src/PathFinding/SpatialHashGrid.cpp
+    ${CMAKE_SOURCE_DIR}/src/PathFinding/AStar.cpp
 )
 
 target_precompile_headers(ProceduralMaze PRIVATE

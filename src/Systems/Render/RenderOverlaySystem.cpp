@@ -22,6 +22,7 @@
 #include <Components/Position.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
+#include <SpatialHashGrid.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
@@ -493,7 +494,8 @@ void RenderOverlaySystem::render_lerp_positions()
 
 void RenderOverlaySystem::render_spatial_grid_neighbours( PathFinding::SpatialHashGrid &spatial_grid, const Cmp::Position &query_pos )
 {
-  std::vector<entt::entity> neighbours_list = spatial_grid.query( Cmp::Position( query_pos.position, query_pos.size ) );
+  std::vector<entt::entity> neighbours_list = spatial_grid.query( Cmp::Position( query_pos.position, query_pos.size ),
+                                                                  PathFinding::QueryOffset::CARD );
   for ( auto neighbour_entt : neighbours_list )
   {
     auto *neighbour_pos = getReg().try_get<Cmp::Position>( neighbour_entt );

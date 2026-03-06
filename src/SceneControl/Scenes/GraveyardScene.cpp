@@ -19,7 +19,6 @@
 #include <Systems/GraveSystem.hpp>
 #include <Systems/HolyWellSystem.hpp>
 #include <Systems/LootSystem.hpp>
-#include <Systems/PathSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/PlayerSystem.hpp>
@@ -163,7 +162,6 @@ void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Sys::Store::Type::AltarSystem>().check_player_collision();
   m_sys.find<Sys::Store::Type::HolyWellSystem>().check_entrance_collision();
   m_sys.find<Sys::Store::Type::RuinSystem>().update();
-  m_sys.find<Sys::Store::Type::PathSystem>().update( dt );
 
   // cache the player position so we can update the spatial grid afterwards.
   auto old_player_pos = Utils::Player::get_player_position( m_reg );

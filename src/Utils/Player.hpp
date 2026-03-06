@@ -41,6 +41,7 @@ void remove_player_lerp_cmp( entt::registry &reg );
 std::pair<entt::entity, Sprites::SpriteMetaType> get_player_inventory_type( entt::registry &reg );
 float get_player_inventory_wear_level( entt::registry &reg );
 void reduce_player_inventory_wear_level( entt::registry &reg, float amount );
+bool is_in_spawn( entt::registry &reg, const Cmp::Position &player_pos_cmp );
 
 } // namespace ProceduralMaze::Utils::Player
 
