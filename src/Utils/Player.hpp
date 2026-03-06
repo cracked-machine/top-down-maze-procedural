@@ -1,7 +1,6 @@
 #ifndef SRC_UTILS_PLAYER_HPP_
 #define SRC_UTILS_PLAYER_HPP_
 
-#include <Player/PlayerDetectionBounds.hpp>
 #include <SpriteAnimation.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 
@@ -26,7 +25,6 @@ entt::entity get_player_entity( entt::registry &reg );
 Cmp::Position &get_player_position( entt::registry &reg );
 Cmp::Direction &get_player_direction( entt::registry &reg );
 Cmp::SpriteAnimation &get_player_sprite_anim( entt::registry &reg );
-Cmp::PCDetectionBounds &get_player_distance_bounds( entt::registry &reg );
 int get_player_ruin_location( entt::registry &reg ); // Returns enum as int to avoid include
 Cmp::PlayerLastGraveyardPosition *get_player_last_graveyard_position( entt::registry &reg );
 Cmp::PlayerHealth &get_player_health( entt::registry &reg );

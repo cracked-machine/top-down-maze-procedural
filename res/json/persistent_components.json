@@ -271,14 +271,6 @@
     "detail": "Player Animation Framerate",
     "format": "%.2f"
   },
-  "PlayerDetectionScale": {
-    "type": "float",
-    "value": 5.0,
-    "min_value": 1.0,
-    "max_value": 20.0,
-    "detail": "PC Detection Bounding Box Scale Factor",
-    "format": "%.1f pixels"
-  },
   "PlayerDiagonalLerpSpeedModifier": {
     "type": "float",
     "value": 0.707,

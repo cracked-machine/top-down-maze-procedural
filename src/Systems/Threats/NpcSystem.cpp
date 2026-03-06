@@ -16,7 +16,6 @@
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerDetectionBounds.hpp>
 #include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/RectBounds.hpp>
@@ -150,10 +149,8 @@ void NpcSystem::update_animation()
   }
 }
 
-void NpcSystem::update_pathfinding( entt::entity player_entity )
+void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity )
 {
-  const auto *pc_detection_bounds = getReg().try_get<Cmp::PCDetectionBounds>( player_entity );
-  if ( not pc_detection_bounds ) return;
 
   const float npc_lerp_speed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeed>( getReg() ).get_value();
 

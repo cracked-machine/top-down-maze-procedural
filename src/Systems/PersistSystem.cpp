@@ -39,7 +39,6 @@
 #include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
-#include <Components/Persistent/PlayerDetectionScale.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
@@ -119,7 +118,6 @@ void PersistSystem::initializeTypeRegistry()
   reg.operator()<NpcWitchAnimFramerate>("NpcWitchAnimFramerate");
   reg.operator()<PcDamageDelay>("PcDamageDelay");
   reg.operator()<PlayerAnimFramerate>("PlayerAnimFramerate");
-  reg.operator()<PlayerDetectionScale>("PlayerDetectionScale");
   reg.operator()<PlayerDiagonalLerpSpeedModifier>("PlayerDiagonalLerpSpeedModifier");
   reg.operator()<PlayerFootstepAddDelay>("PlayerFootstepAddDelay");
   reg.operator()<PlayerFootstepFadeDelay>("PlayerFootstepFadeDelay");

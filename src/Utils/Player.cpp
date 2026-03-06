@@ -13,7 +13,6 @@
 #include <Components/Position.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Direction.hpp>
-#include <Player/PlayerDetectionBounds.hpp>
 #include <SpawnArea.hpp>
 #include <SpriteAnimation.hpp>
 #include <Sprites/SpriteMetaType.hpp>
@@ -70,13 +69,6 @@ Cmp::SpriteAnimation &get_player_sprite_anim( entt::registry &reg )
     return anim_cmp;
   }
   throw std::runtime_error( "Player entt has no component: Cmp::SpriteAnimation" );
-}
-
-Cmp::PCDetectionBounds &get_player_distance_bounds( entt::registry &reg )
-{
-  auto player_view = reg.view<Cmp::PCDetectionBounds>();
-  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PCDetectionBounds" );
-  return player_view.get<Cmp::PCDetectionBounds>( get_player_entity( reg ) );
 }
 
 int get_player_ruin_location( entt::registry &reg )

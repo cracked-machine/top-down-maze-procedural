@@ -73,7 +73,6 @@ public:
   void render_npc_list_overlay( sf::Vector2f pos );
   void render_obstacle_markers();
   void render_player_distances();
-  void render_scan_detection_bounds();
   void render_lerp_positions();
   void render_npc_trajectory_box();
 

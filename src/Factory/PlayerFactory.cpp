@@ -11,12 +11,10 @@
 #include <Components/Neighbours.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
-#include <Components/Persistent/PlayerDetectionScale.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerDetectionBounds.hpp>
 #include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
@@ -60,10 +58,6 @@ void CreatePlayer( entt::registry &registry )
   registry.emplace<Cmp::PlayerBlastRadius>( entity, blast_radius.get_value() );
 
   registry.emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
-
-  auto &pc_detection_scale = Sys::PersistSystem::get<Cmp::Persist::PlayerDetectionScale>( registry );
-
-  registry.emplace<Cmp::PCDetectionBounds>( entity, start_pos, Constants::kGridSizePxF, pc_detection_scale.get_value() );
 
   registry.emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYER.walk.south" );
   registry.emplace<Cmp::PlayerCadaverCount>( entity, 0 );

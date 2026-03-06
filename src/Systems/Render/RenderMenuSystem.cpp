@@ -35,7 +35,6 @@
 #include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
-#include <Components/Persistent/PlayerDetectionScale.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
@@ -179,7 +178,6 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::PlayerDetectionScale>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::CameraSmoothSpeed>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerLerpInterruptThreshold>( getReg() ).render_widget();

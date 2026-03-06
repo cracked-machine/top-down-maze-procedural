@@ -5,7 +5,6 @@
 #include <Components/LerpPosition.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Obstacle.hpp>
-#include <Components/Player/PlayerDetectionBounds.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -380,21 +379,6 @@ void RenderOverlaySystem::render_obstacle_markers()
       obstacle_shape.setOutlineThickness( 1.f );
       m_window.draw( obstacle_shape );
     }
-  }
-}
-
-void RenderOverlaySystem::render_scan_detection_bounds()
-{
-  auto player_view = getReg().view<Cmp::Direction, Cmp::PCDetectionBounds>();
-  for ( auto [entity, pc_pos_cmp, pc_detection_bounds] : player_view.each() )
-  {
-    sf::RectangleShape detection_bounds_shape;
-    detection_bounds_shape.setPosition( pc_detection_bounds.position() );
-    detection_bounds_shape.setSize( pc_detection_bounds.size() );
-    detection_bounds_shape.setFillColor( sf::Color::Transparent );
-    detection_bounds_shape.setOutlineColor( sf::Color::Blue );
-    detection_bounds_shape.setOutlineThickness( 1.f );
-    m_window.draw( detection_bounds_shape );
   }
 }
 
