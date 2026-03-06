@@ -18,7 +18,6 @@
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerDetectionBounds.hpp>
-#include <Components/Player/PlayerDistance.hpp>
 #include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/RectBounds.hpp>
@@ -46,14 +45,10 @@
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
-#include <queue>
 #include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys
 {
-
-using PlayerDistanceQueue = std::priority_queue<std::pair<int, entt::entity>, std::vector<std::pair<int, entt::entity>>,
-                                                std::greater<std::pair<int, entt::entity>>>;
 
 NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
@@ -80,7 +75,6 @@ void NpcSystem::update( [[maybe_unused]] sf::Time dt, PathFinding::SpatialHashGr
   m_scan_accumulator += dt;
   if ( m_scan_accumulator.asSeconds() >= kScanInterval )
   {
-    // scan_player_distances( );
     update_pathfinding( Utils::Player::get_player_entity( getReg() ) );
     m_scan_accumulator = sf::Time::Zero;
   }
@@ -165,104 +159,44 @@ void NpcSystem::update_pathfinding( entt::entity player_entity )
   const float npc_lerp_speed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeed>( getReg() ).get_value();
 
   auto player_pos_cmp = Utils::Player::get_player_position( getReg() );
-  auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds>();
-  for ( auto [npc_entity, npc_cmp, npc_pos_cmp, npc_scan_bounds] : npc_view.each() )
+  auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>();
+  for ( auto [npc_entity, npc_cmp, npc_pos_cmp, anim_cmp] : npc_view.each() )
   {
     if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) ) continue;
     if ( m_spatial_grid )
     {
+      // don't intterupt NPC mid-lerp or it causes indecisive pathfinding
       auto *npc_lerp_pos_cmp = getReg().try_get<Cmp::LerpPosition>( npc_entity );
       if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) continue;
 
-      std::vector<PathFinding::PathNode> path = PathFinding::astar( getReg(), *m_spatial_grid, npc_pos_cmp, player_pos_cmp );
+      // allow ghosts to sneak through gaps
+      auto query_compass = PathFinding::QueryCompass::CARDINAL;
+      if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) query_compass = PathFinding::QueryCompass::BOTH;
 
-      // dont let NPC follow player into spawn but keep path in tact up to penultimate node
+      // now get latest path vector for NPC -> player
+      std::vector<PathFinding::PathNode> path = PathFinding::astar( getReg(), *m_spatial_grid, npc_pos_cmp, player_pos_cmp, query_compass );
+
+      // dont let NPC follow player into spawn but keep pathfinding active up to penultimate path node
       if ( Utils::Player::is_in_spawn( getReg(), player_pos_cmp ) and not path.empty() ) path.pop_back();
       if ( path.size() > 1 )
       {
         // path[0] is the NPC current position, so go one forward
         auto new_position_cmp = path[1].pos;
-        auto candidate_lerp_pos = Cmp::LerpPosition( new_position_cmp.position, npc_lerp_speed );
-        auto direction_to_target = new_position_cmp.position - npc_pos_cmp.position;
-        if ( direction_to_target == sf::Vector2f( 0.0f, 0.0f ) ) continue;
 
-        auto norm_direction = Cmp::Direction( direction_to_target.normalized() );
+        // calculate the direction and update the NPC lerp
+        auto candidate_lerp_pos = Cmp::LerpPosition( new_position_cmp.position, npc_lerp_speed );
+        auto distance_to_target = new_position_cmp.position - npc_pos_cmp.position;
+        if ( distance_to_target == sf::Vector2f( 0.0f, 0.0f ) ) continue;
+
+        // prevent NPC warping via another NPCs pathfinding
+        const bool too_far = std::abs( distance_to_target.x ) >= Constants::kGridSizePxF.x * 1.5f ||
+                             std::abs( distance_to_target.y ) >= Constants::kGridSizePxF.y * 1.5f;
+        if ( too_far ) continue;
+
+        auto norm_direction = Cmp::Direction( distance_to_target.normalized() );
+
         getReg().emplace_or_replace<Cmp::Direction>( npc_entity, std::move( norm_direction ) );
         getReg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, std::move( candidate_lerp_pos ) );
-      }
-    }
-  }
-}
-
-void NpcSystem::scan_player_distances( entt::entity player_entity )
-{
-  const auto *pc_detection_bounds = getReg().try_get<Cmp::PCDetectionBounds>( player_entity );
-  if ( not pc_detection_bounds ) return;
-
-  const float npc_lerp_speed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeed>( getReg() ).get_value();
-
-  // auto obst_view = getReg().view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::PlayerDistance> );
-  auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::NPCScanBounds>();
-  for ( auto [npc_entity, npc_cmp, npc_pos_cmp, npc_scan_bounds] : npc_view.each() )
-  {
-    if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) ) continue;
-    if ( not npc_scan_bounds.findIntersection( pc_detection_bounds->getBounds() ) ) continue;
-
-    // gather up any PlayerDistance components from within range obstacles
-    PlayerDistanceQueue distance_queue;
-    auto pd_view = getReg().view<Cmp::Position, Cmp::PlayerDistance>( entt::exclude<Cmp::NPC, Cmp::PlayerCharacter> );
-    for ( auto [entt, pos_cmp, pd_cmp] : pd_view.each() )
-    {
-      // dont include footsteps (optimzation)
-      if ( not pos_cmp.findIntersection( npc_scan_bounds.getBounds() ) or getReg().all_of<Cmp::FootStepTimer>( entt ) ) continue;
-      distance_queue.push( { pd_cmp.distance, entt } );
-    }
-    SPDLOG_DEBUG( "Queue size {}", distance_queue.size() );
-    if ( distance_queue.empty() ) continue;
-
-    auto npc_pos = getReg().try_get<Cmp::Position>( npc_entity );
-    auto npc_lerp_pos_cmp = getReg().try_get<Cmp::LerpPosition>( npc_entity );
-    auto npc_anim_cmp = getReg().try_get<Cmp::SpriteAnimation>( npc_entity );
-    if ( not npc_pos || not npc_anim_cmp ) continue;
-    if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) continue; // still mid-lerp, wait until done
-
-    while ( not distance_queue.empty() )
-    {
-      // priority queue auto-sorts with the nearest PlayerDistance component at the top
-      auto nearest_obstacle = distance_queue.top();
-      distance_queue.pop(); // Pop immediately to prevent infinite loop
-
-      // Set the Direction vector and LerpPosition target Coords for next movement towards the player
-      auto move_candidate_pixel_pos = Utils::getPixelPosition( getReg(), nearest_obstacle.second );
-      if ( not move_candidate_pixel_pos ) continue; // Try next candidate
-
-      // block NPC path tracking by checking against "is_valid_move" restrictions
-      if ( not is_valid_move( sf::FloatRect( move_candidate_pixel_pos.value(), Constants::kGridSizePxF ) ) ) { continue; }
-
-      if ( not npc_anim_cmp->m_sprite_type.contains( "NPCGHOST" ) )
-      {
-        // Calculate if NPC pathfind past walls (Only ghosts can move through walls)
-        const sf::Vector2f start = npc_pos->position;
-        const sf::Vector2f end = move_candidate_pixel_pos.value();
-        const sf::FloatRect trajectory_hitbox( { std::min( start.x, end.x ), std::min( start.y, end.y ) },
-                                               { std::abs( end.x - start.x ) + npc_pos->size.x, std::abs( end.y - start.y ) + npc_pos->size.y } );
-
-        getReg().emplace_or_replace<Cmp::NpcPathTrajectory>( npc_entity, trajectory_hitbox );
-        if ( !is_valid_move( trajectory_hitbox ) ) { continue; }
-      }
-
-      // Calculate direction from NPC to target cell and update animation state
-      auto direction_to_target = move_candidate_pixel_pos.value() - npc_pos->position;
-      if ( direction_to_target != sf::Vector2f( 0.0f, 0.0f ) )
-      {
-        auto candidate_dir = Cmp::Direction( direction_to_target.normalized() );
-        auto candidate_lerp_pos = Cmp::LerpPosition( move_candidate_pixel_pos.value(), npc_lerp_speed );
-
-        // Target is valid
-        getReg().emplace_or_replace<Cmp::Direction>( npc_entity, std::move( candidate_dir ) );
-        getReg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, std::move( candidate_lerp_pos ) );
-
-        break;
       }
     }
   }

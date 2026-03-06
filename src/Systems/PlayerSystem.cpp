@@ -17,7 +17,6 @@
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerDistance.hpp>
 #include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
@@ -91,12 +90,6 @@ void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, PathFindin
     {
       if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) ) { stopFootstepsSound(); }
       else { playFootstepsSound( footstep_sfx ); }
-    }
-    // update path tracking data
-    if ( m_debug_info_timer.getElapsedTime() >= sf::milliseconds( 100 ) )
-    {
-      refresh_player_distances();
-      m_debug_info_timer.restart();
     }
   }
 
@@ -457,47 +450,6 @@ void PlayerSystem::enable_damage_cooldown()
   for ( auto [player_entt, player_cmp] : getReg().view<Cmp::PlayerCharacter>().each() )
   {
     player_cmp.m_damage_cooldown_timer.restart();
-  }
-}
-
-void PlayerSystem::refresh_player_distances()
-{
-  const auto viewBounds = Utils::calculate_view_bounds( RenderSystem::getGameView() );
-
-  auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::PCDetectionBounds>();
-  for ( auto [pc_entt, pc_cmp, pc_pos_cmp, pc_db_cmp] : player_view.each() )
-  {
-    auto add_path_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding, Cmp::NPC, Cmp::PlayerCharacter> );
-    for ( auto [path_entt, path_pos_cmp] : add_path_view.each() )
-    {
-      if ( getReg().all_of<Cmp::FootStepTimer>( path_entt ) )
-      {
-        // always update footsteps distance to player
-        if ( not Utils::is_visible_in_view( viewBounds, path_pos_cmp ) ) continue;
-        auto distance = std::floor( Utils::Maths::getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
-        getReg().emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
-      }
-      else
-      {
-        if ( pc_db_cmp.findIntersection( path_pos_cmp ) )
-        {
-          if ( not Utils::is_visible_in_view( viewBounds, path_pos_cmp ) ) continue; // optimization
-
-          // calculate the distance from the position to the player
-          auto distance = std::floor( Utils::Maths::getEuclideanDistance( pc_pos_cmp.position, path_pos_cmp.position ) );
-          getReg().emplace_or_replace<Cmp::PlayerDistance>( path_entt, distance );
-        }
-      }
-    }
-
-    auto remove_path_view = getReg().view<Cmp::Position>();
-    for ( auto [path_entt, path_pos_cmp] : remove_path_view.each() )
-    {
-      // keep playerdistance for footsteps always so NPC can track outside of the detection bounds
-      if ( getReg().all_of<Cmp::FootStepTimer>( path_entt ) ) continue;
-      // otherwise tidy up any out of range player distances
-      if ( not pc_db_cmp.findIntersection( path_pos_cmp ) ) { getReg().remove<Cmp::PlayerDistance>( path_entt ); }
-    }
   }
 }
 

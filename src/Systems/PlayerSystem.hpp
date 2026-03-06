@@ -74,9 +74,6 @@ private:
   void update_player_zorder();
   void update_player_distance_bounds();
 
-  //! @brief Refresh the PlayerDistance components for positions near the player
-  void refresh_player_distances();
-
   //! @brief Check if the player is dea
   //! @note This checks if the Cmp::PlayerMortality == State::DEAD, not check Cmp::PlayerHealth (that is other system responsibility).
   void checkPlayerMortality();

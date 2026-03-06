@@ -65,9 +65,6 @@ private:
 
   void find_pushback_position( const Cmp::Direction &npc_direction );
 
-  //! @brief Scan for players within NPC scan bounds
-  //! @param player_entity The entity of the player
-  void scan_player_distances( entt::entity player_entity );
   void update_pathfinding( entt::entity player_entity );
 
   void update_animation();

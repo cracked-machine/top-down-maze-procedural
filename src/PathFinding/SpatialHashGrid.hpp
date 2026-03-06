@@ -16,9 +16,10 @@ namespace ProceduralMaze::PathFinding
 {
 
 //! @brief Select Cardinal or All offsets for query function
-enum class QueryOffset {
-  CARD, // cardinal only
-  ALL   // include diagonals
+enum class QueryCompass {
+  CARDINAL, // cardinal only
+  ORDINAL,
+  BOTH // include diagonals
 };
 
 class SpatialHashGrid
@@ -46,7 +47,7 @@ public:
   //! @brief Using `pos` as a lookup, flattens neighbouring buckets (9 max) into single vector
   //! @param pos
   //! @return std::vector<entt::entity>
-  std::vector<entt::entity> query( const Cmp::Position &pos, QueryOffset offset = QueryOffset::ALL ) const;
+  std::vector<entt::entity> query( const Cmp::Position &pos, QueryCompass offset = QueryCompass::BOTH ) const;
 
 private:
   //! @brief dimensions of a single cell in the game area grid

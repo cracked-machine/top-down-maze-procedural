@@ -266,28 +266,6 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
       if ( cursed_mode == CursedMode::ON ) { render_cursed_mode_shader( player_position ); }
 
-      // render spatial grid neighbours for Player and NPCs
-      render_overlay_sys.render_spatial_grid_neighbours( spatial_grid, Cmp::Position( player_position.position, player_position.size ) );
-      for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : getReg().view<Cmp::NPC, Cmp::Position>().each() )
-      {
-        render_overlay_sys.render_spatial_grid_neighbours( spatial_grid, npc_pos_cmp );
-
-        if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) ) continue;
-        std::vector<PathFinding::PathNode> path = PathFinding::astar( getReg(), spatial_grid, npc_pos_cmp,
-                                                                      Cmp::Position( player_position.position, player_position.size ) );
-        for ( auto pathnode : path )
-        {
-          Cmp::RectBounds expand_lever_pos_hitbox( pathnode.pos.position, pathnode.pos.size, 1.f );
-          sf::RectangleShape rectangle;
-          rectangle.setSize( expand_lever_pos_hitbox.size() );
-          rectangle.setPosition( expand_lever_pos_hitbox.position() );
-          rectangle.setFillColor( sf::Color::Transparent );
-          rectangle.setOutlineColor( sf::Color::White );
-          rectangle.setOutlineThickness( 1.f );
-          m_window.draw( rectangle );
-        }
-      }
-
       // debug: show crypt component boundaries
       if ( m_show_debug_stats )
       {
@@ -388,10 +366,26 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
         // Set the game view for world-space rendering
         m_window.setView( RenderSystem::s_game_view );
 
-        render_overlay_sys.render_scan_detection_bounds();
-        render_overlay_sys.render_player_distances();
+        // render_overlay_sys.render_scan_detection_bounds();
+        // render_overlay_sys.render_player_distances();
         render_overlay_sys.render_lerp_positions();
         render_overlay_sys.render_npc_trajectory_box();
+
+        // render spatial grid neighbours for Player
+        render_overlay_sys.render_spatial_grid_neighbours( spatial_grid, Cmp::Position( player_position.position, player_position.size ),
+                                                           sf::Color::Cyan, PathFinding::QueryCompass::CARDINAL );
+        // ... and NPCs
+        for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>().each() )
+        {
+          auto query_compass = PathFinding::QueryCompass::CARDINAL;
+          if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) query_compass = PathFinding::QueryCompass::BOTH;
+
+          render_overlay_sys.render_spatial_grid_neighbours( spatial_grid, npc_pos_cmp, sf::Color::Magenta, query_compass );
+
+          // render the pathfinding vector for NPCs
+          render_overlay_sys.render_pathfinding_vector( spatial_grid, npc_pos_cmp, Cmp::Position( player_position.position, player_position.size ),
+                                                        sf::Color::White, query_compass );
+        }
 
         // Restore the previous view
         m_window.setView( previous_view );

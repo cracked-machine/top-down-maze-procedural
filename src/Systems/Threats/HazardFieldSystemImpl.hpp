@@ -6,7 +6,6 @@
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerDistance.hpp>
 #include <Components/Player/PlayerHealth.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -114,7 +113,6 @@ void HazardFieldSystem<HazardType>::update_hazard_field()
         getReg().template emplace_or_replace<Cmp::SpriteAnimation>( obstacle_entity, 0, 0, true, Traits::sprite_type, 0 );
         getReg().template emplace_or_replace<Cmp::ZOrderValue>( obstacle_entity, obst_pos_cmp.position.y - 1.f );
         getReg().template emplace_or_replace<Cmp::NpcNoPathFinding>( obstacle_entity );
-        if ( getReg().template all_of<Cmp::PlayerDistance>( obstacle_entity ) ) { getReg().template remove<Cmp::PlayerDistance>( obstacle_entity ); }
 
         SPDLOG_DEBUG( "New hazard field created at entity {}", static_cast<uint32_t>( obstacle_entity ) );
         return; // only add one hazard cell per update period

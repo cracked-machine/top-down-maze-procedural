@@ -2,6 +2,7 @@
 #define SRC_PATHFINDING_ASTAR_HPP_
 
 #include <Position.hpp>
+#include <SpatialHashGrid.hpp>
 #include <entt/entity/entity.hpp>
 
 /// Main class
@@ -36,7 +37,8 @@ struct PathNode
   bool operator==( const PathNode &other ) const { return pos.position.x == other.pos.position.x && pos.position.y == other.pos.position.y; }
 };
 
-std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHashGrid &grid, Cmp::Position start, Cmp::Position goal );
+std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHashGrid &grid, Cmp::Position start, Cmp::Position goal,
+                             PathFinding::QueryCompass query_compass = PathFinding::QueryCompass::CARDINAL );
 
 } // namespace ProceduralMaze::PathFinding
 

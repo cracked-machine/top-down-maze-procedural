@@ -80,7 +80,10 @@ public:
   void render_crypt_maze_timer( sf::Vector2f pos, unsigned int size );
 
   void render_wear_level( Cmp::InventoryWearLevel &wearlevel, const Cmp::Position &pos );
-  void render_spatial_grid_neighbours( PathFinding::SpatialHashGrid &spatial_grid, const Cmp::Position &query_pos );
+  void render_spatial_grid_neighbours( PathFinding::SpatialHashGrid &spatial_grid, const Cmp::Position &query_pos, sf::Color color,
+                                       PathFinding::QueryCompass query_compass );
+  void render_pathfinding_vector( PathFinding::SpatialHashGrid &spatial_grid, const Cmp::Position &start_pos_cmp, const Cmp::Position &end_pos_cmp,
+                                  sf::Color color, PathFinding::QueryCompass query_compass );
 
   template <typename Component>
   void render_square_for_entity( entt::entity entity, sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )

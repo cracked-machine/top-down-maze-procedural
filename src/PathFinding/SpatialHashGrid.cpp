@@ -26,7 +26,7 @@ void SpatialHashGrid::update( entt::entity e, const Cmp::Position &old_pos, cons
   insert( e, new_pos );
 }
 
-std::vector<entt::entity> SpatialHashGrid::query( const Cmp::Position &pos, QueryOffset offset ) const
+std::vector<entt::entity> SpatialHashGrid::query( const Cmp::Position &pos, QueryCompass offset ) const
 {
   std::vector<entt::entity> result;
   auto [cx, cy] = cell( pos );
@@ -61,7 +61,7 @@ std::vector<entt::entity> SpatialHashGrid::query( const Cmp::Position &pos, Quer
     }
   };
 
-  offset == QueryOffset::CARD ? query_offsets( cardinal_offsets ) : query_offsets( all_offsets );
+  offset == QueryCompass::CARDINAL ? query_offsets( cardinal_offsets ) : query_offsets( all_offsets );
 
   return result;
 }

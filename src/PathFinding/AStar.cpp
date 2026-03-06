@@ -9,7 +9,8 @@
 namespace ProceduralMaze::PathFinding
 {
 
-std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHashGrid &spatial_grid, Cmp::Position start, Cmp::Position goal )
+std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHashGrid &spatial_grid, Cmp::Position start, Cmp::Position goal,
+                             PathFinding::QueryCompass offset )
 {
 
   auto contains = [&]( const std::list<PathNode> &vec, const PathNode &node )
@@ -38,7 +39,7 @@ std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHash
       break;
     }
 
-    const std::vector<entt::entity> neighbours_list = spatial_grid.query( current.pos, PathFinding::QueryOffset::CARD );
+    const std::vector<entt::entity> neighbours_list = spatial_grid.query( current.pos, offset );
 
     for ( auto neighbour_entt : neighbours_list )
     {

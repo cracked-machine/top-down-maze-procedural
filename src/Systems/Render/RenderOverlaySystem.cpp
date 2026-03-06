@@ -1,3 +1,4 @@
+#include <AStar.hpp>
 #include <Components/Crypt/CryptPassageBlock.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Inventory/CarryItem.hpp>
@@ -6,11 +7,11 @@
 #include <Components/Npc/NpcScanBounds.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Player/PlayerDetectionBounds.hpp>
-#include <Components/Player/PlayerDistance.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Npc/NpcPathTrajectory.hpp>
+#include <Optimizations.hpp>
 #include <Player/PlayerCharacter.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -383,21 +384,6 @@ void RenderOverlaySystem::render_obstacle_markers()
   }
 }
 
-void RenderOverlaySystem::render_player_distances()
-{
-  auto obstacle_view = getReg().view<Cmp::Position, Cmp::PlayerDistance>();
-  for ( auto [ob_entt, pos_cmp, player_dist_cmp] : obstacle_view.each() )
-  {
-
-    m_distance_text.setString( std::to_string( player_dist_cmp.distance ) );
-    m_distance_text.setPosition( pos_cmp.position + sf::Vector2f{ 5.f, 0.f } );
-    m_distance_text.setFillColor( sf::Color::White );
-    m_distance_text.setOutlineColor( sf::Color::Black );
-    m_distance_text.setOutlineThickness( 1.f );
-    m_window.draw( m_distance_text );
-  }
-}
-
 void RenderOverlaySystem::render_scan_detection_bounds()
 {
   auto player_view = getReg().view<Cmp::Direction, Cmp::PCDetectionBounds>();
@@ -492,10 +478,10 @@ void RenderOverlaySystem::render_lerp_positions()
   }
 }
 
-void RenderOverlaySystem::render_spatial_grid_neighbours( PathFinding::SpatialHashGrid &spatial_grid, const Cmp::Position &query_pos )
+void RenderOverlaySystem::render_spatial_grid_neighbours( PathFinding::SpatialHashGrid &spatial_grid, const Cmp::Position &query_pos, sf::Color color,
+                                                          PathFinding::QueryCompass query_compass )
 {
-  std::vector<entt::entity> neighbours_list = spatial_grid.query( Cmp::Position( query_pos.position, query_pos.size ),
-                                                                  PathFinding::QueryOffset::CARD );
+  std::vector<entt::entity> neighbours_list = spatial_grid.query( Cmp::Position( query_pos.position, query_pos.size ), query_compass );
   for ( auto neighbour_entt : neighbours_list )
   {
     auto *neighbour_pos = getReg().try_get<Cmp::Position>( neighbour_entt );
@@ -507,7 +493,27 @@ void RenderOverlaySystem::render_spatial_grid_neighbours( PathFinding::SpatialHa
     rectangle.setPosition( neighbour_pos->position );
     rectangle.setFillColor( sf::Color::Transparent );
     rectangle.setOutlineThickness( 1.f );
-    rectangle.setOutlineColor( sf::Color::Cyan );
+    rectangle.setOutlineColor( color );
+    m_window.draw( rectangle );
+  }
+}
+
+void RenderOverlaySystem::render_pathfinding_vector( PathFinding::SpatialHashGrid &spatial_grid, const Cmp::Position &start_pos_cmp,
+                                                     const Cmp::Position &end_pos_cmp, sf::Color color, PathFinding::QueryCompass query_compass )
+{
+  if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), start_pos_cmp ) ) return;
+
+  std::vector<PathFinding::PathNode> path = PathFinding::astar( getReg(), spatial_grid, start_pos_cmp, end_pos_cmp, query_compass );
+
+  for ( auto pathnode : path )
+  {
+    Cmp::RectBounds expand_lever_pos_hitbox( pathnode.pos.position, pathnode.pos.size, 1.f );
+    sf::RectangleShape rectangle;
+    rectangle.setSize( expand_lever_pos_hitbox.size() );
+    rectangle.setPosition( expand_lever_pos_hitbox.position() );
+    rectangle.setFillColor( sf::Color::Transparent );
+    rectangle.setOutlineColor( color );
+    rectangle.setOutlineThickness( 1.f );
     m_window.draw( rectangle );
   }
 }

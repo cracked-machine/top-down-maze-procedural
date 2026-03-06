@@ -28,7 +28,6 @@
 #include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerDetectionBounds.hpp>
-#include <Components/Player/PlayerDistance.hpp>
 #include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
@@ -219,7 +218,6 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   registry.storage<Cmp::Direction>();
   registry.storage<Cmp::PCDetectionBounds>();
   registry.storage<Cmp::Position>();
-  registry.storage<Cmp::PlayerDistance>();
   registry.storage<Cmp::PlayerCharacter>();
   registry.storage<Cmp::PlayerHealth>();
   registry.storage<Cmp::PlayerWealth>();
