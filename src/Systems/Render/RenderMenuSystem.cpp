@@ -28,7 +28,6 @@
 #include <Components/Persistent/NpcGhostAnimFramerate.hpp>
 #include <Components/Persistent/NpcLerpSpeed.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
-#include <Components/Persistent/NpcScanScale.hpp>
 #include <Components/Persistent/NpcShockwaveFreq.hpp>
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
@@ -231,7 +230,6 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
 
     Sys::PersistSystem::get<Cmp::Persist::NpcDeathAnimFramerate>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcActivateScale>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcScanScale>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeed>( getReg() ).render_widget();
 
     // Audio

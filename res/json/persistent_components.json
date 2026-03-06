@@ -206,14 +206,6 @@
     "max_value": 64.0,
     "detail": "NPC Push Back Distance",
     "format": "%.1f pixels"
-  },  
-  "NpcScanScale": {
-    "type": "float",
-    "value": 5,
-    "min_value": 1.0,
-    "max_value": 10.0,
-    "detail": "NPC Scan Bounding Box Scale Factor",
-    "format": "%.1f pixels"
   },
   "NpcShockwaveFreq": {
     "type":"int",

@@ -5,7 +5,6 @@
 #include <Components/Npc/NpcContainer.hpp>
 #include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Npc/NpcShockwaveTimer.hpp>
-#include <Components/Persistent/NpcScanScale.hpp>
 #include <Components/Persistent/NpcShockwaveFreq.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/Player/PlayerCharacter.hpp>

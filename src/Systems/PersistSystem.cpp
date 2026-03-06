@@ -32,7 +32,6 @@
 #include <Components/Persistent/NpcGhostAnimFramerate.hpp>
 #include <Components/Persistent/NpcLerpSpeed.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
-#include <Components/Persistent/NpcScanScale.hpp>
 #include <Components/Persistent/NpcShockwaveFreq.hpp>
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
@@ -111,7 +110,6 @@ void PersistSystem::initializeTypeRegistry()
   reg.operator()<NpcGhostAnimFramerate>("NpcGhostAnimFramerate");
   reg.operator()<NpcLerpSpeed>("NpcLerpSpeed");
   reg.operator()<NpcPushBack>("NpcPushBack");
-  reg.operator()<NpcScanScale>("NpcScanScale");
   reg.operator()<NpcShockwaveFreq>("NpcShockwaveFreq");
   reg.operator()<NpcShockwaveMaxRadius>("NpcShockwaveMaxRadius");
   reg.operator()<NpcShockwaveResolution>("NpcShockwaveResolution");
