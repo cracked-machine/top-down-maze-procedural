@@ -1,5 +1,6 @@
 #include <Components/Position.hpp>
 #include <Constants.hpp>
+#include <Npc/Npc.hpp>
 #include <PathFinding/AStar.hpp>
 #include <Player/PlayerCharacter.hpp>
 #include <SpatialHashGrid.hpp>
@@ -46,10 +47,13 @@ std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHash
       auto *neighbour_pos = reg.try_get<Cmp::Position>( neighbour_entt );
       if ( not neighbour_pos ) continue;
 
+      // Skip other NPCs so they don't block each other's pathfinding
+      if ( reg.any_of<Cmp::NPC>( neighbour_entt ) ) continue;
+
       auto heuristic = Utils::Maths::getManhattanDistance( neighbour_pos->position, goal.position );
 
       if ( closedList.count( *neighbour_pos ) > 0 ) continue;
-      PathNode new_neighbor( *neighbour_pos, current.g + 1, heuristic, &closedList.at( current.pos ) );
+      PathNode new_neighbor( *neighbour_pos, current.g + Constants::kGridSizePxF.x, heuristic, &closedList.at( current.pos ) );
 
       auto it = std::find_if( openList.begin(), openList.end(),
                               // existence check
