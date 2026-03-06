@@ -41,6 +41,7 @@
 #include <Components/Persistent/BombDamage.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Threats/BombSystem.hpp>
@@ -212,8 +213,10 @@ void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_en
   }
 }
 
-void BombSystem::update()
+void BombSystem::update( PathFinding::SpatialHashGrid *spatial_grid )
 {
+  // update the grid for future use
+  m_spatial_grid = spatial_grid;
 
   auto armed_view = getReg().view<Cmp::Armed, Cmp::Position>();
   for ( auto [armed_entt, armed_cmp, armed_pos_cmp] : armed_view.each() )
@@ -225,7 +228,8 @@ void BombSystem::update()
     for ( auto [obst_entity, obst_cmp, obst_pos_cmp] : obstacle_view.each() )
     {
       if ( not obst_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
-      Factory::destroyObstacle( getReg(), obst_entity );
+      Factory::remove_obstacle( getReg(), obst_entity );
+      if ( m_spatial_grid ) m_spatial_grid->insert( obst_entity, obst_pos_cmp );
     }
 
     // detonate loot containers - component removal is handled by LootSystem

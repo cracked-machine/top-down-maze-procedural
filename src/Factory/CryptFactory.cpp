@@ -273,7 +273,7 @@ void gen_crypt_initial_interior( entt::registry &reg, Sprites::SpriteFactory &sp
       auto [obst_type, rand_obst_tex_idx] = sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
       float zorder = sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
       // Set the z-order value so that the obstacles are rendered above everything else
-      Factory::createObstacle( reg, entity, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
+      Factory::create_obstacle( reg, entity, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
     }
   }
 }

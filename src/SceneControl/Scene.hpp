@@ -2,6 +2,7 @@
 #define SRC_SCENECONTROL_SCENE_HPP_
 
 #include <SceneControl/IScene.hpp>
+#include <SpatialHashGrid.hpp>
 
 namespace ProceduralMaze::Scene
 {
@@ -34,6 +35,9 @@ public:
     // Notify SceneInputRouter that there may be new input events to process
     m_nav_event_dispatcher.enqueue( InputEventType() );
   }
+
+protected:
+  PathFinding::SpatialHashGrid m_spatial_grid;
 
 private:
   entt::dispatcher &m_nav_event_dispatcher;

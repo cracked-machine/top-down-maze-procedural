@@ -25,8 +25,7 @@
 #include <Factory/LootFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
-#include <SFML/Audio/Sound.hpp>
-#include <SFML/System/Time.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/DiggingSystem.hpp>
@@ -36,6 +35,9 @@
 #include <Utils/Maths.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
+
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/System/Time.hpp>
 #include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys
@@ -50,8 +52,11 @@ DiggingSystem::DiggingSystem( entt::registry &reg, sf::RenderWindow &window, Spr
   SPDLOG_DEBUG( "DiggingSystem initialized" );
 }
 
-void DiggingSystem::update()
+void DiggingSystem::update( PathFinding::SpatialHashGrid *spatial_grid )
 {
+  // update the class member for future use
+  m_spatial_grid = spatial_grid;
+
   // abort if still in cooldown
   auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
@@ -204,8 +209,14 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       {
         // select the final smash sound
         m_sound_bank.get_effect( "pickaxe_final" ).play();
-        Factory::destroyObstacle( getReg(), obst_entity );
+
+        // replace the obstacle with a detonated component
+        Factory::remove_obstacle( getReg(), obst_entity );
         Factory::createDetonated( getReg(), obst_entity, obst_pos_cmp );
+
+        // add the position to the spatial grid so it can be used in pathfinding
+        if ( m_spatial_grid ) m_spatial_grid->insert( obst_entity, obst_pos_cmp );
+
         SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
       }
       else

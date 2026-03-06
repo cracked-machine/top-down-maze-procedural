@@ -414,7 +414,7 @@ void CryptSystem::createRoomBorders()
     {
       auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { sprite_type } );
       float zorder = m_sprite_factory.get_sprite_size_by_type( sprite_type ).y;
-      Factory::createObstacle( getReg(), pos_entt, pos_cmp, obst_type, sprite_index, ( zorder * 2.f ) );
+      Factory::create_obstacle( getReg(), pos_entt, pos_cmp, obst_type, sprite_index, ( zorder * 2.f ) );
     }
   };
 
@@ -570,7 +570,7 @@ void CryptSystem::fillClosedRooms()
 
       auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
       float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
-      Factory::createObstacle( getReg(), pos_entt, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
+      Factory::create_obstacle( getReg(), pos_entt, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
     }
   }
 }
@@ -616,7 +616,7 @@ void CryptSystem::emptyOpenRooms()
       if ( not open_room_cmp.findIntersection( pos_cmp ) ) continue;
       if ( not getReg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
 
-      Factory::destroyObstacle( getReg(), pos_entt );
+      Factory::remove_obstacle( getReg(), pos_entt );
     }
   }
 }

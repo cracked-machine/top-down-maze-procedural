@@ -21,6 +21,11 @@ class NpcShockwave;
 
 } // namespace ProceduralMaze::Cmp
 
+namespace ProceduralMaze::PathFinding
+{
+class SpatialHashGrid;
+}
+
 namespace ProceduralMaze::Sys
 {
 
@@ -31,7 +36,7 @@ public:
 
   //! @brief Update the NpcSystem
   //! @param dt Delta time since last update call
-  void update( sf::Time dt );
+  void update( sf::Time dt, PathFinding::SpatialHashGrid *spatial_grid );
 
   //! @brief Checks if the Npc's movement to a given position is valid
   //! Validates whether the Npc can move to the specified position by checking
@@ -74,6 +79,8 @@ private:
   sf::Time m_scan_accumulator;
   sf::Time m_animation_accumulator;
   sf::Time m_bones_accumulator;
+
+  PathFinding::SpatialHashGrid *m_spatial_grid{ nullptr };
 };
 
 } // namespace ProceduralMaze::Sys

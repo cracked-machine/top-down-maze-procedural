@@ -16,8 +16,8 @@
 namespace ProceduralMaze::Factory
 {
 
-void createObstacle( entt::registry &registry, entt::entity entity, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
-                     std::size_t sprite_tile_idx, float zorder )
+void create_obstacle( entt::registry &registry, entt::entity entity, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
+                      std::size_t sprite_tile_idx, float zorder )
 
 {
   if ( registry.all_of<Cmp::DestroyedObstacle>( entity ) ) { registry.remove<Cmp::DestroyedObstacle>( entity ); }
@@ -30,7 +30,7 @@ void createObstacle( entt::registry &registry, entt::entity entity, Cmp::Positio
   registry.emplace_or_replace<Cmp::Armable>( entity );
 }
 
-void destroyObstacle( entt::registry &reg, entt::entity entt )
+void remove_obstacle( entt::registry &reg, entt::entity entt )
 {
   if ( reg.all_of<Cmp::Obstacle>( entt ) ) { reg.remove<Cmp::Obstacle>( entt ); }
   if ( reg.all_of<Cmp::ZOrderValue>( entt ) ) { reg.remove<Cmp::ZOrderValue>( entt ); }

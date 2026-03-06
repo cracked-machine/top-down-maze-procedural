@@ -4,6 +4,7 @@
 #include <SFML/System/Time.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
+
 #include <Sprites/TileMap.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Utils/Utils.hpp>
@@ -11,6 +12,7 @@
 // clang-format off
 namespace ProceduralMaze::Sys { class Store; }
 namespace ProceduralMaze::Audio { class SoundBank; }
+
 // clang-format on
 
 namespace ProceduralMaze::Scene

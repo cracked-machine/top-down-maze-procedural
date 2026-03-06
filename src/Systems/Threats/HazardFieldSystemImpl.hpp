@@ -63,7 +63,7 @@ void HazardFieldSystem<HazardType>::init_hazard_field()
       Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
   if ( random_entity == entt::null ) { return; }
 
-  Factory::destroyObstacle( getReg(), random_entity );
+  Factory::remove_obstacle( getReg(), random_entity );
   getReg().template emplace<HazardType>( random_entity );
   getReg().template emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, Traits::sprite_type, 0 );
   getReg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 1.f );
@@ -109,7 +109,7 @@ void HazardFieldSystem<HazardType>::update_hazard_field()
       if ( getReg().template try_get<HazardType>( obstacle_entity ) ) continue;
       if ( hazard_spread_picker.gen() == 0 )
       {
-        Factory::destroyObstacle( getReg(), obstacle_entity );
+        Factory::remove_obstacle( getReg(), obstacle_entity );
         getReg().template emplace_or_replace<HazardType>( obstacle_entity );
         getReg().template emplace_or_replace<Cmp::SpriteAnimation>( obstacle_entity, 0, 0, true, Traits::sprite_type, 0 );
         getReg().template emplace_or_replace<Cmp::ZOrderValue>( obstacle_entity, obst_pos_cmp.position.y - 1.f );

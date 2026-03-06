@@ -381,7 +381,7 @@ void RandomLevelGenerator::gen_graveyard_exterior_obstacles()
       auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "ROCK" } );
       float zorder = m_sprite_factory.get_sprite_size_by_type( "ROCK" ).y;
       // Set the z-order value so that the rock obstacles are rendered above everything else
-      Factory::createObstacle( getReg(), entity, pos_cmp, obst_type, rand_obst_tex_idx, ( zorder * 2.f ) );
+      Factory::create_obstacle( getReg(), entity, pos_cmp, obst_type, rand_obst_tex_idx, ( zorder * 2.f ) );
     }
   }
 }

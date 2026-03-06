@@ -11,6 +11,7 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Npc/NpcPathTrajectory.hpp>
+#include <Player/PlayerCharacter.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -457,11 +458,11 @@ void RenderOverlaySystem::render_lerp_positions()
     m_window.draw( lerp_stop_pos_rect );
 
     // // clang-format off
-    // auto horizontal_hitbox = 
+    // auto horizontal_hitbox =
     //   Cmp::RectBounds( sf::Vector2f{ npc_pos_cmp.position.x + ( dir_cmp.x * 16 ), npc_pos_cmp.position.y },
     //   Constants::kGridSizePxF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
-    // auto vertical_hitbox = 
+    // auto vertical_hitbox =
     //   Cmp::RectBounds( sf::Vector2f{ npc_pos_cmp.position.x, npc_pos_cmp.position.y + ( dir_cmp.y * 16 ) },
     //   Constants::kGridSizePxF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
     // // clang-format on
@@ -487,6 +488,25 @@ void RenderOverlaySystem::render_lerp_positions()
     // lerp_diag_pos_vrect.setOutlineColor( sf::Color::Green );
     // lerp_diag_pos_vrect.setOutlineThickness( 1.f );
     // m_window.draw( lerp_diag_pos_vrect );
+  }
+}
+
+void RenderOverlaySystem::render_spatial_grid_neighbours( PathFinding::SpatialHashGrid &spatial_grid, const Cmp::Position &query_pos )
+{
+  std::vector<entt::entity> neighbours_list = spatial_grid.query( Cmp::Position( query_pos.position, query_pos.size ) );
+  for ( auto neighbour_entt : neighbours_list )
+  {
+    auto *neighbour_pos = getReg().try_get<Cmp::Position>( neighbour_entt );
+    if ( not neighbour_pos ) continue;
+    if ( getReg().any_of<Cmp::PlayerCharacter, Cmp::NPC>( neighbour_entt ) ) continue;
+
+    sf::RectangleShape rectangle;
+    rectangle.setSize( neighbour_pos->size );
+    rectangle.setPosition( neighbour_pos->position );
+    rectangle.setFillColor( sf::Color::Transparent );
+    rectangle.setOutlineThickness( 1.f );
+    rectangle.setOutlineColor( sf::Color::Cyan );
+    m_window.draw( rectangle );
   }
 }
 

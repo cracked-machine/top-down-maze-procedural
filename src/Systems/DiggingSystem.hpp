@@ -2,15 +2,21 @@
 #define SRC_SYSTEMS_DIGGINGSYSTEM_HPP__
 
 #include <Components/Persistent/EffectsVolume.hpp>
+#include <Events/PlayerActionEvent.hpp>
+#include <SpatialHashGrid.hpp>
+#include <Systems/BaseSystem.hpp>
+
 #include <SFML/Audio/AudioResource.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/System/Clock.hpp>
-
-#include <Events/PlayerActionEvent.hpp>
-#include <Systems/BaseSystem.hpp>
-
 #include <filesystem>
+
+namespace ProceduralMaze::PathFinding
+{
+class SpatialHashGrid;
+}
+
 namespace ProceduralMaze::Sys
 {
 
@@ -30,7 +36,7 @@ public:
 
   // void load_sounds();
   // additional updates via the main game loop
-  void update();
+  void update( PathFinding::SpatialHashGrid *spatial_grid );
 
   // Event handler for player actions
   void on_player_action( const Events::PlayerActionEvent &event );
@@ -60,6 +66,8 @@ private:
     std::filesystem::path path;
     sf::SoundBuffer buffer;
   };
+
+  PathFinding::SpatialHashGrid *m_spatial_grid{ nullptr };
 };
 } // namespace ProceduralMaze::Sys
 

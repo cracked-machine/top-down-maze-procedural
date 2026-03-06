@@ -25,6 +25,11 @@ namespace ProceduralMaze::Cmp::Peristent
 class EffectsVolume;
 } // namespace ProceduralMaze::Cmp::Peristent
 
+namespace ProceduralMaze::PathFinding
+{
+class SpatialHashGrid;
+}
+
 // PlayerSystem
 namespace ProceduralMaze::Sys
 {
@@ -38,7 +43,7 @@ public:
 
   //! @brief Update the player system.
   //! @note This enqueues 'Events::SceneManagerEvent::Type::GAME_OVER' if player is dead
-  void update( sf::Time globalDeltaTime, FootStepSfx footstep_sfx = FootStepSfx::GRAVEL );
+  void update( sf::Time globalDeltaTime, PathFinding::SpatialHashGrid *spatial_grid, FootStepSfx footstep_sfx = FootStepSfx::GRAVEL );
 
   //! @brief Checks if the player's movement to a given position is valid
   //! Validates whether the player can move to the specified position by checking
@@ -96,6 +101,8 @@ private:
   sf::Clock m_post_death_timer;
 
   sf::Clock m_inventory_cooldown_timer;
+
+  PathFinding::SpatialHashGrid *m_spatial_grid{ nullptr };
 };
 
 } // namespace ProceduralMaze::Sys

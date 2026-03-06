@@ -8,6 +8,7 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#include <SpatialHashGrid.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Constants.hpp>
 #include <set>
@@ -19,6 +20,11 @@ namespace ProceduralMaze::Sprites
 class MultiSprite;
 class SpriteFactory;
 } // namespace ProceduralMaze::Sprites
+
+namespace ProceduralMaze::PathFinding
+{
+class SpatialHashGrid;
+}
 
 namespace ProceduralMaze::Sys
 {
@@ -74,6 +80,7 @@ public:
   void render_crypt_maze_timer( sf::Vector2f pos, unsigned int size );
 
   void render_wear_level( Cmp::InventoryWearLevel &wearlevel, const Cmp::Position &pos );
+  void render_spatial_grid_neighbours( PathFinding::SpatialHashGrid &spatial_grid, const Cmp::Position &query_pos );
 
   template <typename Component>
   void render_square_for_entity( entt::entity entity, sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )

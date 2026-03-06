@@ -94,16 +94,16 @@ void CryptScene::do_update( sf::Time dt )
 {
 
   m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::NpcSystem>().update( dt, &m_spatial_grid );
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
   m_sys.find<Sys::Store::Type::CryptSystem>().check_exit_collision();
   m_sys.find<Sys::Store::Type::CryptSystem>().update();
   m_sys.find<Sys::Store::Type::ShockwaveSystem>().checkShockwavePlayerCollision();
-  m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt, &m_spatial_grid );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::ON );
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, m_spatial_grid, Sys::DarkMode::ON );
 }
 
 entt::registry &CryptScene::registry() { return m_reg; }

@@ -57,7 +57,10 @@
 #include <Components/Wormhole/WormholeMultiBlock.hpp>
 #include <Components/Wormhole/WormholeSingularity.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Constants.hpp>
 #include <Npc/NpcScanBounds.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
+#include <Pathfinding/NeighbourSearchArea.hpp>
 #include <Player/PlayerCurse.hpp>
 #include <Player/PlayerNoPath.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -77,6 +80,7 @@
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
+
 #include <queue>
 
 namespace ProceduralMaze::Sys
@@ -177,7 +181,8 @@ void RenderGameSystem::updateCamera( sf::Time deltaTime )
 }
 
 void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys,
-                                    Sprites::Containers::TileMap &floormap, DarkMode dark_mode, WeatherMode weather_mode, CursedMode cursed_mode )
+                                    Sprites::Containers::TileMap &floormap, PathFinding::SpatialHashGrid &spatial_grid, DarkMode dark_mode,
+                                    WeatherMode weather_mode, CursedMode cursed_mode )
 {
   using namespace Sprites;
 
@@ -260,21 +265,16 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
       if ( cursed_mode == CursedMode::ON ) { render_cursed_mode_shader( player_position ); }
 
+      // render spatial grid neighbours for NPCs and Player
+      render_overlay_sys.render_spatial_grid_neighbours( spatial_grid, Cmp::Position( player_position.position, player_position.size ) );
+      for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : getReg().view<Cmp::NPC, Cmp::Position>().each() )
+      {
+        render_overlay_sys.render_spatial_grid_neighbours( spatial_grid, npc_pos_cmp );
+      }
+
       // debug: show crypt component boundaries
       if ( m_show_debug_stats )
       {
-        // for ( auto [ruin_entt, access_cmp, pos_cmp] : getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
-        // {
-        //   if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
-        //   sf::RectangleShape rectangle;
-        //   rectangle.setSize( pos_cmp.size );
-        //   rectangle.setPosition( pos_cmp.position );
-        //   rectangle.setFillColor( sf::Color::Transparent );
-        //   rectangle.setOutlineThickness( 1.f );
-        //   rectangle.setOutlineColor( sf::Color::Red );
-        //   m_window.draw( rectangle );
-        // }
-
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
@@ -363,7 +363,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
             { display_size.x - 800.f, 40.f }, m_zorder_queue_,
             { "ROCK", "CRYPT.interior_sb", "WALL", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED" } );
         sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
-        render_overlay_sys.render_npc_list_overlay( { display_size.x - 600.f, 200.f } );
+        render_overlay_sys.render_npc_list_overlay( { display_size.x - 500.f, 200.f } );
       }
       if ( m_show_path_finding )
       {

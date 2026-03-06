@@ -32,6 +32,7 @@
 #include <Events/PlayerActionEvent.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Persistent/PlayerMovementSpeed.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Sprites/SpriteFactory.hpp>
@@ -65,8 +66,11 @@ PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
   m_post_death_timer.reset();
 }
 
-void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, FootStepSfx footstep_sfx )
+void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, PathFinding::SpatialHashGrid *spatial_grid, FootStepSfx footstep_sfx )
 {
+
+  // update the grid for future use
+  m_spatial_grid = spatial_grid;
 
   // process changes to player position and related transforms
   localTransforms();
@@ -574,7 +578,11 @@ void PlayerSystem::check_player_axe_npc_kill()
         }
 
         // now destroy the NPC
-        if ( getReg().valid( npc_entity ) ) getReg().destroy( npc_entity );
+        if ( getReg().valid( npc_entity ) )
+        {
+          if ( m_spatial_grid ) m_spatial_grid->remove( npc_entity, npc_pos_cmp );
+          getReg().destroy( npc_entity );
+        }
       }
 
       SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", npc_pos_cmp.position.x, npc_pos_cmp.position.y );

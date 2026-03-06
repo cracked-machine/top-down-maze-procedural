@@ -2,6 +2,8 @@
 #define SRC_SYSTEMS_BOMBSYSTEM_HPP__
 
 #include <Components/Persistent/EffectsVolume.hpp>
+
+#include <Constants.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 
@@ -20,6 +22,11 @@ namespace ProceduralMaze::Sprites { class SpriteFactory; }
 namespace ProceduralMaze::Sys { class Store; }
 namespace ProceduralMaze::Audio { class SoundBank; }
 // clang-format on
+
+namespace ProceduralMaze::PathFinding
+{
+class SpatialHashGrid;
+}
 
 namespace ProceduralMaze::Sys
 {
@@ -40,13 +47,15 @@ public:
   void arm_entt( entt::entity target_entt );
 
   void place_concentric_bomb_pattern( const entt::entity &epicenter_entity, const int blast_radius, int depth = 0 );
-  void update();
+  void update( PathFinding::SpatialHashGrid *spatial_grid );
 
   /// EVENTS
   void on_bomb_event( const Events::PlayerActionEvent &event );
 
 private:
   const sf::Vector2f max_explosion_zone_size{ Constants::kGridSizePx.x * 3.f, Constants::kGridSizePx.y * 3.f };
+
+  PathFinding::SpatialHashGrid *m_spatial_grid{ nullptr };
 };
 
 } // namespace ProceduralMaze::Sys

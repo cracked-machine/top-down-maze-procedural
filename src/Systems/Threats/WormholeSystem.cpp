@@ -168,7 +168,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   {
     if ( obstacle_pos.findIntersection( wormhole_block ) )
     {
-      Factory::destroyObstacle( getReg(), entity );
+      Factory::remove_obstacle( getReg(), entity );
       Factory::destroyLootContainer( getReg(), entity );
       Factory::destroyNpcContainer( getReg(), entity );
 
@@ -276,7 +276,7 @@ void WormholeSystem::check_player_wormhole_collision()
       auto [new_spawn_entity, new_spawn_pos_cmp] = Utils::Rnd::get_random_position(
           getReg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC>{}, 0 );
 
-      Factory::destroyObstacle( getReg(), new_spawn_entity );
+      Factory::remove_obstacle( getReg(), new_spawn_entity );
       getReg().emplace_or_replace<Cmp::SpriteAnimation>( new_spawn_entity, 0, 0, true, "DETONATED", 0 );
       getReg().emplace_or_replace<Cmp::ZOrderValue>( new_spawn_entity, new_spawn_pos_cmp.position.y - 256.f );
 

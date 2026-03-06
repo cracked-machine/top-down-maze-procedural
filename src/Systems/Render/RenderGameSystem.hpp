@@ -13,6 +13,7 @@
 #include <Shaders/MistShader.hpp>
 #include <Shaders/PulsingShader.hpp>
 #include <Shaders/ViewFragmentShader.hpp>
+#include <SpatialHashGrid.hpp>
 #include <Sprites/TileMap.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
@@ -27,6 +28,11 @@ namespace ProceduralMaze::Sprites
 class MultiSprite;
 class SpriteFactory;
 } // namespace ProceduralMaze::Sprites
+
+namespace ProceduralMaze::PathFinding
+{
+class SpatialHashGrid;
+}
 
 namespace ProceduralMaze::Sys
 {
@@ -64,7 +70,8 @@ public:
   //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc..
   //! as well as death animations/effects
   void render_game( sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap,
-                    DarkMode dark_mode = DarkMode::OFF, WeatherMode weather_mode = WeatherMode::ON, CursedMode cursed_mode = CursedMode::OFF );
+                    PathFinding::SpatialHashGrid &spatial_grid, DarkMode dark_mode = DarkMode::OFF, WeatherMode weather_mode = WeatherMode::ON,
+                    CursedMode cursed_mode = CursedMode::OFF );
 
 private:
   sf::Vector2f m_camera_position{ 0.f, 0.f }; // Smoothed camera position

@@ -193,25 +193,25 @@ void CellAutomataSystem::apply_rules( RandomLevelGenerator::SceneType scene_type
     {
       if ( scene_type == RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
       {
-        Factory::createObstacle( getReg(), entity, pos_cmp, "ROCK", 0, pos_cmp.position.y );
+        Factory::create_obstacle( getReg(), entity, pos_cmp, "ROCK", 0, pos_cmp.position.y );
       }
       else if ( scene_type == RandomLevelGenerator::SceneType::CRYPT_INTERIOR )
       {
         auto [type, idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
-        Factory::createObstacle( getReg(), entity, pos_cmp, type, idx, pos_cmp.position.y );
+        Factory::create_obstacle( getReg(), entity, pos_cmp, type, idx, pos_cmp.position.y );
       }
     }
-    else if ( neighbour_cmp.count() > 2 and neighbour_cmp.count() < 5 ) { Factory::destroyObstacle( getReg(), entity ); }
+    else if ( neighbour_cmp.count() > 2 and neighbour_cmp.count() < 5 ) { Factory::remove_obstacle( getReg(), entity ); }
     else
     {
       if ( scene_type == RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
       {
-        Factory::createObstacle( getReg(), entity, pos_cmp, "ROCK", 0, pos_cmp.position.y );
+        Factory::create_obstacle( getReg(), entity, pos_cmp, "ROCK", 0, pos_cmp.position.y );
       }
       else if ( scene_type == RandomLevelGenerator::SceneType::CRYPT_INTERIOR )
       {
         auto [type, idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
-        Factory::createObstacle( getReg(), entity, pos_cmp, type, idx, pos_cmp.position.y );
+        Factory::create_obstacle( getReg(), entity, pos_cmp, type, idx, pos_cmp.position.y );
       }
     }
   }

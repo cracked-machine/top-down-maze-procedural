@@ -31,12 +31,14 @@
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Npc/NpcPathTrajectory.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Systems/Threats/ShockwaveSystem.hpp>
 #include <Utils/Constants.hpp>
+#include <Utils/Npc.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
@@ -58,8 +60,11 @@ NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::Sp
   SPDLOG_DEBUG( "NpcSystem initialized" );
 }
 
-void NpcSystem::update( [[maybe_unused]] sf::Time dt )
+void NpcSystem::update( [[maybe_unused]] sf::Time dt, PathFinding::SpatialHashGrid *spatial_grid )
 {
+  // update the class member for future use
+  m_spatial_grid = spatial_grid;
+
   // run skelton activation checks at 5Hz
   static constexpr float kBonesInterval = 0.20f;
   m_bones_accumulator += dt;
@@ -217,6 +222,7 @@ void NpcSystem::scan_player_distances( entt::entity player_entity )
         // Target is valid
         getReg().emplace_or_replace<Cmp::Direction>( npc_entity, std::move( candidate_dir ) );
         getReg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, std::move( candidate_lerp_pos ) );
+
         break;
       }
     }
@@ -228,29 +234,32 @@ void NpcSystem::update_movement( sf::Time dt )
   auto exclusions = entt::exclude<Cmp::AltarSegment, Cmp::CryptSegment, Cmp::SpawnArea, Cmp::PlayerCharacter>;
   auto view = getReg().view<Cmp::Position, Cmp::LerpPosition, Cmp::NPCScanBounds, Cmp::Direction>( exclusions );
 
-  for ( auto [entity, pos_cmp, lerp_pos_cmp, npc_scan_bounds, dir_cmp] : view.each() )
+  for ( auto [npc_entt, pos_cmp, lerp_pos_cmp, npc_scan_bounds, dir_cmp] : view.each() )
   {
     if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), npc_scan_bounds.getBounds() ) ) continue;
 
     // if there is an obstacle at this entity move onto the next entity
-    auto obst_cmp = getReg().try_get<Cmp::Obstacle>( entity );
+    auto obst_cmp = getReg().try_get<Cmp::Obstacle>( npc_entt );
     if ( obst_cmp ) continue;
 
     // If this is the first update, store the start position
     if ( lerp_pos_cmp.m_lerp_factor == 0.0f )
     {
       // Allow NPCs to escape wormholes if they're mid-lerp.
-      if ( getReg().try_get<Cmp::WormholeJump>( entity ) ) continue;
+      if ( getReg().try_get<Cmp::WormholeJump>( npc_entt ) ) continue;
 
       lerp_pos_cmp.m_start = pos_cmp.position;
     }
 
     lerp_pos_cmp.m_lerp_factor += lerp_pos_cmp.m_lerp_speed * dt.asSeconds();
 
+    // lerp has completed
     if ( lerp_pos_cmp.m_lerp_factor >= 1.0f )
     {
+      auto old_position = pos_cmp;
       pos_cmp.position = lerp_pos_cmp.m_target;
-      getReg().remove<Cmp::LerpPosition>( entity );
+      getReg().remove<Cmp::LerpPosition>( npc_entt );
+      if ( m_spatial_grid ) m_spatial_grid->update( npc_entt, old_position, pos_cmp );
     }
     else
     {
@@ -263,7 +272,7 @@ void NpcSystem::update_movement( sf::Time dt )
     }
 
     npc_scan_bounds.position( pos_cmp.position );
-    getReg().patch<Cmp::ZOrderValue>( entity, [&]( auto &zorder_cmp ) { zorder_cmp.setZOrder( pos_cmp.position.y ); } );
+    getReg().patch<Cmp::ZOrderValue>( npc_entt, [&]( auto &zorder_cmp ) { zorder_cmp.setZOrder( pos_cmp.position.y ); } );
   }
 }
 

@@ -37,6 +37,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/HolyWellSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/RuinSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/PassageSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/PathSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/SystemStore.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/ShockwaveSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/SceneInputRouter.cpp
@@ -66,10 +67,12 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Utils/Utils.cpp
     ${CMAKE_SOURCE_DIR}/src/Utils/Maths.cpp
     ${CMAKE_SOURCE_DIR}/src/Utils/Player.cpp
+    ${CMAKE_SOURCE_DIR}/src/Utils/Npc.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Font.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Neighbours.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Persistent/BasePersistent.cpp
     ${CMAKE_SOURCE_DIR}/src/Components/Persistent/PlayerStartPosition.cpp
+    ${CMAKE_SOURCE_DIR}/src/PathFinding/SpatialHashGrid.cpp
 )
 
 target_precompile_headers(ProceduralMaze PRIVATE
@@ -108,6 +111,7 @@ target_include_directories(${TARGET} SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/src/Logging
     ${CMAKE_SOURCE_DIR}/src/Components
     ${CMAKE_SOURCE_DIR}/src/Utils
+    ${CMAKE_SOURCE_DIR}/src/PathFinding
 
     ${CMAKE_SOURCE_DIR}/inc
     ${CMAKE_SOURCE_DIR}/inc/Systems

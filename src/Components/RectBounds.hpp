@@ -1,6 +1,7 @@
 #ifndef __CMP_RECTBOUNDS_HPP__
 #define __CMP_RECTBOUNDS_HPP__
 
+#include <Position.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
@@ -26,6 +27,13 @@ class RectBounds
 {
 public:
   enum class ScaleCardinality { HORIZONTAL, VERTICAL, BOTH };
+
+  RectBounds( Cmp::Position pos, float ScaleFactor, ScaleCardinality scale_cardinality = ScaleCardinality::BOTH )
+      : m_scale_factor( ScaleFactor ),
+        m_scale_cardinality( scale_cardinality )
+  {
+    RectBounds( pos.position, pos.size, ScaleFactor, scale_cardinality );
+  }
 
   /**
    * @brief Constructs a RectBounds object with specified position, size, and scale factor.
