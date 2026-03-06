@@ -43,7 +43,6 @@
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
 #include <Components/Persistent/PlayerLerpInterruptThreshold.hpp>
-#include <Components/Persistent/PlayerLerpSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
@@ -123,7 +122,6 @@ void PersistSystem::initializeTypeRegistry()
   reg.operator()<PlayerFootstepFadeDelay>("PlayerFootstepFadeDelay");
   reg.operator()<PlayerLerpInterruptThreshold>("PlayerLerpInterruptThreshold");
   reg.operator()<PlayerMovementSpeed>("PlayerMovementSpeed");
-  reg.operator()<PlayerLerpSpeed>("PlayerLerpSpeed");
   reg.operator()<PlayerShortcutLerpSpeedModifier>("PlayerShortcutLerpSpeedModifier");
   reg.operator()<PlayerStartPosition>("PlayerStartPosition");
   reg.operator()<WeaponDegradePerHit>("WeaponDegradePerHit");

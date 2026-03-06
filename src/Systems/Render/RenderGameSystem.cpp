@@ -368,7 +368,6 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
         // render_overlay_sys.render_scan_detection_bounds();
         // render_overlay_sys.render_player_distances();
         render_overlay_sys.render_lerp_positions();
-        render_overlay_sys.render_npc_trajectory_box();
 
         // render spatial grid neighbours for Player
         render_overlay_sys.render_spatial_grid_neighbours( spatial_grid, Cmp::Position( player_position.position, player_position.size ),

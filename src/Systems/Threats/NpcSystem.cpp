@@ -27,7 +27,6 @@
 #include <Components/ZOrderValue.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/NpcFactory.hpp>
-#include <Npc/NpcPathTrajectory.hpp>
 #include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteFactory.hpp>

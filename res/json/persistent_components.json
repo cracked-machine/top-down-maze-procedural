@@ -303,14 +303,6 @@
     "detail": "Player Lerp Interrupt Threshold",
     "format": "%.2f"
   },
-  "PlayerLerpSpeed": {
-    "type": "float",
-    "value": 10.0,
-    "min_value": 1.0,
-    "max_value": 10.0,
-    "detail": "Player Lerp Speed",
-    "format": "%.1f"
-  },
   "PlayerMovementSpeed": {
     "type": "float",
     "value": 60.0,

@@ -39,7 +39,6 @@
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
 #include <Components/Persistent/PlayerLerpInterruptThreshold.hpp>
-#include <Components/Persistent/PlayerLerpSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
@@ -169,7 +168,6 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
 
     Sys::PersistSystem::get<Cmp::Persist::BlastRadius>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerAnimFramerate>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::PlayerLerpSpeed>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerDiagonalLerpSpeedModifier>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepAddDelay>( getReg() ).render_widget();

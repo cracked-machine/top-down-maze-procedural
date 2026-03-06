@@ -8,7 +8,6 @@
 #include <Components/RectBounds.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <Npc/NpcPathTrajectory.hpp>
 #include <Optimizations.hpp>
 #include <Player/PlayerCharacter.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -379,19 +378,6 @@ void RenderOverlaySystem::render_obstacle_markers()
       obstacle_shape.setOutlineThickness( 1.f );
       m_window.draw( obstacle_shape );
     }
-  }
-}
-
-void RenderOverlaySystem::render_npc_trajectory_box()
-{
-  for ( auto [npc_entt, npc_cmp, npc_trajectory] : getReg().view<Cmp::NPC, Cmp::NpcPathTrajectory>().each() )
-  {
-    sf::RectangleShape bb( npc_trajectory.size );
-    bb.setPosition( npc_trajectory.position );
-    bb.setFillColor( sf::Color::Transparent );
-    bb.setOutlineColor( sf::Color::White );
-    bb.setOutlineThickness( 1.f );
-    m_window.draw( bb );
   }
 }
 
