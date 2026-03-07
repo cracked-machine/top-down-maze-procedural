@@ -8,14 +8,14 @@ namespace ProceduralMaze::PathFinding
 void SpatialHashGrid::insert( entt::entity e, const Cmp::Position &pos )
 {
   auto [cx, cy] = cell( pos );
-  grid[encode( cx, cy )].push_back( e );
+  m_grid[encode( cx, cy )].push_back( e );
 }
 
 void SpatialHashGrid::remove( entt::entity e, const Cmp::Position &pos )
 {
   auto [cx, cy] = cell( pos );
-  auto it = grid.find( encode( cx, cy ) );
-  if ( it == grid.end() ) return;
+  auto it = m_grid.find( encode( cx, cy ) );
+  if ( it == m_grid.end() ) return;
   auto &bucket = it->second;
   std::erase( bucket, e );
 }
@@ -55,8 +55,8 @@ std::vector<entt::entity> SpatialHashGrid::query( const Cmp::Position &pos, Quer
   {
     for ( auto [dx, dy] : offsets )
     {
-      auto it = grid.find( encode( cx + dx, cy + dy ) );
-      if ( it == grid.end() ) continue;
+      auto it = m_grid.find( encode( cx + dx, cy + dy ) );
+      if ( it == m_grid.end() ) continue;
       result.insert( result.end(), it->second.begin(), it->second.end() );
     }
   };

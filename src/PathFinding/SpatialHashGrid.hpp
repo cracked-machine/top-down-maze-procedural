@@ -54,7 +54,7 @@ private:
   static constexpr float m_cell_size{ Constants::kGridSizePxF.x };
 
   //! @brief spatial encoding of coords --> multiple entt bucket
-  std::unordered_map<long long, std::vector<entt::entity>> grid;
+  std::unordered_map<long long, std::vector<entt::entity>> m_grid;
 
   //! @brief Convert pixel coords into cell coords
   //! @param pos
