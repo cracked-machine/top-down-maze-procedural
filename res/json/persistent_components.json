@@ -193,7 +193,7 @@
   
   "NpcLerpSpeed": {
     "type": "float",
-    "value": 0.5,
+    "value": 0.8,
     "min_value": 0.1,
     "max_value": 3.0,
     "detail": "NPC Speed",
