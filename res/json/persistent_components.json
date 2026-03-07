@@ -152,7 +152,7 @@
   },
   "NpcActivateScale": {
     "type": "float",
-    "value": 2.0,
+    "value": 6.0,
     "min_value": 1.0,
     "max_value": 20.0,
     "detail": "NPC Activation Bounding Box Scale Factor",
