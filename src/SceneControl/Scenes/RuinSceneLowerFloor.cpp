@@ -1,5 +1,8 @@
 #include <Audio/SoundBank.hpp>
+#include <Components/Npc/Npc.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
+#include <Components/Player/PlayerCurse.hpp>
 #include <Components/Player/PlayerRuinLocation.hpp>
 #include <Components/Ruin/RuinFloorAccess.hpp>
 #include <Components/Ruin/RuinObjectiveType.hpp>
@@ -10,15 +13,11 @@
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
 #include <Factory/WallFactory.hpp>
-#include <Npc/Npc.hpp>
-#include <Npc/NpcNoPathFinding.hpp>
-#include <Player/PlayerCurse.hpp>
-#include <SFML/Audio/Sound.hpp>
-#include <SFML/System/Vector2.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/Scenes/RuinSceneLowerFloor.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/CryptSystem.hpp>
+#include <Systems/FootstepSystem.hpp>
 #include <Systems/HolyWellSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -26,10 +25,14 @@
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
+#include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/SystemStore.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
+
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/System/Vector2.hpp>
 
 namespace ProceduralMaze::Scene
 {

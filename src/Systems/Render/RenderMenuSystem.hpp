@@ -1,12 +1,11 @@
 #ifndef __SYS_RENDERMENUSYSTEM_HPP__
 #define __SYS_RENDERMENUSYSTEM_HPP__
 
-#include <Constants.hpp>
-#include <SFML/System/Time.hpp>
-
 #include <Shaders/TitleScreenShader.hpp>
-#include <Systems/BaseSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Constants.hpp>
+
+#include <SFML/System/Time.hpp>
 
 namespace ProceduralMaze::Sys
 {

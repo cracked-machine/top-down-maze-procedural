@@ -1,4 +1,4 @@
-#include <AStar.hpp>
+
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
@@ -9,60 +9,50 @@
 #include <Components/Crypt/CryptInteriorMultiBlock.hpp>
 #include <Components/Crypt/CryptLever.hpp>
 #include <Components/Crypt/CryptMultiBlock.hpp>
-#include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
 #include <Components/Crypt/CryptPassageBlock.hpp>
-#include <Components/Crypt/CryptPassageSpikeTrap.hpp>
 #include <Components/Crypt/CryptRoomClosed.hpp>
 #include <Components/Crypt/CryptRoomEnd.hpp>
 #include <Components/Crypt/CryptRoomLavaPit.hpp>
 #include <Components/Crypt/CryptRoomLavaPitCell.hpp>
 #include <Components/Crypt/CryptRoomOpen.hpp>
 #include <Components/Crypt/CryptRoomStart.hpp>
-#include <Components/Crypt/CryptSegment.hpp>
-#include <Components/DeathPosition.hpp>
 #include <Components/Exit.hpp>
-#include <Components/FootStepAlpha.hpp>
-#include <Components/FootStepTimer.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
-#include <Components/Grave/GraveSegment.hpp>
-#include <Components/Hazard/HazardFieldCell.hpp>
-#include <Components/Hazard/SinkholeCell.hpp>
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
-#include <Components/LootContainer.hpp>
-#include <Components/Npc/NpcContainer.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Persistent/CameraSmoothSpeed.hpp>
 #include <Components/Persistent/DisplayResolution.hpp>
-#include <Components/Persistent/NpcDeathAnimFramerate.hpp>
-#include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>
-#include <Components/Player/PlayerCadaverCount.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerKeysCount.hpp>
+#include <Components/Player/PlayerCurse.hpp>
+#include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/Ruin/RuinBuildingMultiBlock.hpp>
-#include <Components/Ruin/RuinFloorAccess.hpp>
-#include <Components/Ruin/RuinSegment.hpp>
-#include <Components/SelectedPosition.hpp>
-#include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Components/Wormhole/WormholeMultiBlock.hpp>
-#include <Components/Wormhole/WormholeSingularity.hpp>
 #include <Components/ZOrderValue.hpp>
-#include <Constants.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
-#include <Pathfinding/NeighbourSearchArea.hpp>
-#include <Player/PlayerCurse.hpp>
-#include <Player/PlayerNoPath.hpp>
+#include <Sprites/MultiSprite.hpp>
+#include <Sprites/TileMap.hpp>
+#include <Systems/PersistSystem.hpp>
+#include <Systems/Render/RenderGameSystem.hpp>
+#include <Systems/Render/RenderOverlaySystem.hpp>
+#include <Systems/Render/RenderSystem.hpp>
+#include <Systems/Threats/HazardFieldSystemImpl.hpp>
+#include <Utils/Constants.hpp>
+#include <Utils/Maths.hpp>
+#include <Utils/Optimizations.hpp>
+#include <Utils/Player.hpp>
+#include <Utils/Utils.hpp>
+
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -71,16 +61,6 @@
 #include <SFML/System/Angle.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <Sprites/MultiSprite.hpp>
-#include <Systems/PersistSystem.hpp>
-#include <Systems/Render/RenderGameSystem.hpp>
-#include <Systems/Render/RenderSystem.hpp>
-#include <Systems/Threats/HazardFieldSystemImpl.hpp>
-#include <Utils/Maths.hpp>
-#include <Utils/Optimizations.hpp>
-#include <Utils/Player.hpp>
-#include <Utils/Utils.hpp>
-
 #include <queue>
 
 namespace ProceduralMaze::Sys
@@ -196,11 +176,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
     m_show_npcnopath = sys_cmp.show_npcnopath;
   }
 
-  sf::FloatRect player_position( { 0.f, 0.f }, Constants::kGridSizePxF );
-  for ( auto [entity, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
-  {
-    player_position = pc_pos_cmp;
-  }
+  const Cmp::Position player_pos_cmp = Utils::Player::get_player_position( getReg() );
 
   // make sure the local view is centered on the player mid-point and not at their top-left corner
   // (otherwise this makes views, shaders, etc look off-center)
@@ -212,218 +188,164 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
 
   // main render begin
   m_window.clear();
+
+  // local view begin - this shows a smaller resolution view of the game world - determined by `LOCAL_MAP_VIEW_SIZE`
+  m_window.setView( m_local_view );
   {
-    // local view begin - this shows only a `LOCAL_MAP_VIEW_SIZE` of the game world
-    m_window.setView( m_local_view );
+    // update the static game view reference
+    RenderSystem::s_game_view = m_local_view;
+
+    // render these things first
+    render_background_water( player_pos_cmp );
+    render_floormap( floormap, { 0, 0 } );
+    render_scryingball_doglegs();
+    render_wormhole_effect( floormap );
+
+    // render anything with a ZOrderValue component in lowest value first order
+    for ( const auto &zorder_entry : m_zorder_queue_ )
     {
-      // update the static game view reference
-      RenderSystem::s_game_view = m_local_view;
-
-      render_background_water( player_position );
-      render_floormap( floormap, { 0, 0 } );
-      render_scryingball_doglegs();
-      render_wormhole_effect( floormap );
-
-      for ( const auto &zorder_entry : m_zorder_queue_ )
+      auto entity = zorder_entry.e;
+      if ( getReg().all_of<Cmp::Position, Cmp::SpriteAnimation>( entity ) )
       {
-        auto entity = zorder_entry.e;
-        if ( getReg().all_of<Cmp::Position, Cmp::SpriteAnimation>( entity ) )
+        const auto &pos_cmp = getReg().get<Cmp::Position>( entity );
+        const auto &anim_cmp = getReg().get<Cmp::SpriteAnimation>( entity );
+
+        uint8_t alpha_value = 255;
+        auto obst_cmp = getReg().try_get<Cmp::AbsoluteAlpha>( entity );
+        if ( obst_cmp ) alpha_value = static_cast<uint8_t>( obst_cmp->getAlpha() );
+
+        sf::Vector2f new_origin_value = { 0.F, 0.F };
+        auto new_offset_cmp = getReg().try_get<Cmp::AbsoluteOffset>( entity );
+        if ( new_offset_cmp ) new_origin_value = new_offset_cmp->getOffset();
+
+        sf::Angle new_angle_value = sf::degrees( 0.f );
+        auto new_angle_cmp = getReg().try_get<Cmp::AbsoluteRotation>( entity );
+        if ( new_angle_cmp ) new_angle_value = sf::degrees( new_angle_cmp->getAngle() );
+
+        safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame, { 1.f, 1.f }, alpha_value,
+                            new_origin_value, new_angle_value );
+
+        if ( getReg().any_of<Cmp::InventoryWearLevel>( entity ) )
         {
-          const auto &pos_cmp = getReg().get<Cmp::Position>( entity );
-          const auto &anim_cmp = getReg().get<Cmp::SpriteAnimation>( entity );
-
-          uint8_t alpha_value = 255;
-          auto obst_cmp = getReg().try_get<Cmp::AbsoluteAlpha>( entity );
-          if ( obst_cmp ) alpha_value = static_cast<uint8_t>( obst_cmp->getAlpha() );
-
-          sf::Vector2f new_origin_value = { 0.F, 0.F };
-          auto new_offset_cmp = getReg().try_get<Cmp::AbsoluteOffset>( entity );
-          if ( new_offset_cmp ) new_origin_value = new_offset_cmp->getOffset();
-
-          sf::Angle new_angle_value = sf::degrees( 0.f );
-          auto new_angle_cmp = getReg().try_get<Cmp::AbsoluteRotation>( entity );
-          if ( new_angle_cmp ) new_angle_value = sf::degrees( new_angle_cmp->getAngle() );
-
-          safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame, { 1.f, 1.f }, alpha_value,
-                              new_origin_value, new_angle_value );
-
-          if ( getReg().any_of<Cmp::InventoryWearLevel>( entity ) )
-          {
-            render_overlay_sys.render_wear_level( getReg().get<Cmp::InventoryWearLevel>( entity ), pos_cmp );
-          }
+          render_overlay_sys.render_wear_level( getReg().get<Cmp::InventoryWearLevel>( entity ), pos_cmp );
         }
-      }
-
-      render_armed();
-      render_shockwaves( floormap );
-      render_arrow_compass();
-
-      if ( weather_mode == WeatherMode::ON ) { render_mist( player_position ); }
-      // lava pit outline
-      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 64, 64, 64 ), 0.5f );
-
-      if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
-      if ( cursed_mode == CursedMode::ON ) { render_cursed_mode_shader( player_position ); }
-
-      if ( m_show_npcnopath )
-      {
-        for ( auto [entt, npcnopath_cmp, pos_cmp] : getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
-        {
-          Cmp::RectBounds expand_lever_pos_hitbox( pos_cmp.position, pos_cmp.size, 1.f );
-          sf::RectangleShape rectangle;
-          rectangle.setSize( expand_lever_pos_hitbox.size() );
-          rectangle.setPosition( expand_lever_pos_hitbox.position() );
-          rectangle.setFillColor( sf::Color::Transparent );
-          rectangle.setOutlineColor( sf::Color::Black );
-          rectangle.setOutlineThickness( 1.f );
-          m_window.draw( rectangle );
-        }
-      }
-
-      if ( m_show_playernopath )
-      {
-        for ( auto [entt, npcnopath_cmp, pos_cmp] : getReg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
-        {
-          Cmp::RectBounds expand_lever_pos_hitbox( pos_cmp.position, pos_cmp.size, 1.f );
-          sf::RectangleShape rectangle;
-          rectangle.setSize( expand_lever_pos_hitbox.size() );
-          rectangle.setPosition( expand_lever_pos_hitbox.position() );
-          rectangle.setFillColor( sf::Color::Transparent );
-          rectangle.setOutlineColor( sf::Color::Black );
-          rectangle.setOutlineThickness( 1.f );
-          m_window.draw( rectangle );
-        }
-      }
-
-      // debug: show crypt component boundaries
-      if ( m_show_debug_stats )
-      {
-        // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
-        // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
-        // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
-        // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
-        // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
-        // render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Black, 1.f );
-
-        // for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : getReg().view<Cmp::CryptLever, Cmp::Position>().each() )
-        // {
-        //   Cmp::RectBounds expand_lever_pos_hitbox( lever_pos_cmp.position, lever_pos_cmp.size, 1.f );
-        //   sf::RectangleShape rectangle;
-        //   rectangle.setSize( expand_lever_pos_hitbox.size() );
-        //   rectangle.setPosition( expand_lever_pos_hitbox.position() );
-        //   rectangle.setFillColor( sf::Color::Transparent );
-        //   rectangle.setOutlineColor( sf::Color::White );
-        //   rectangle.setOutlineThickness( 1.f );
-        //   m_window.draw( rectangle );
-        // }
-
-        // for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : getReg().view<Cmp::CryptChest, Cmp::Position>().each() )
-        // {
-        //   Cmp::RectBounds expand_lever_pos_hitbox( chest_pos_cmp.position, chest_pos_cmp.size, 1.f );
-        //   sf::RectangleShape rectangle;
-        //   rectangle.setSize( expand_lever_pos_hitbox.size() );
-        //   rectangle.setPosition( expand_lever_pos_hitbox.position() );
-        //   rectangle.setFillColor( sf::Color::Transparent );
-        //   rectangle.setOutlineColor( sf::Color::Magenta );
-        //   rectangle.setOutlineThickness( 1.f );
-        //   m_window.draw( rectangle );
-        // }
       }
     }
-    // local view end
 
-    // UI Overlays begin (these will always be displayed no matter where the player moves)
-    m_window.setView( m_window.getDefaultView() );
+    // finally render anything on top
+    render_armed();
+    render_shockwaves( floormap );
+    render_arrow_compass();
+
+    // lava pit outline
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 64, 64, 64 ), 0.5f );
+
+    // shader overlays
+    if ( weather_mode == WeatherMode::ON ) { render_mist( player_pos_cmp ); }
+    if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
+    if ( cursed_mode == CursedMode::ON ) { render_cursed_mode_shader( player_pos_cmp ); }
+
+    if ( m_show_npcnopath )
     {
+      for ( auto [entt, npcnopath_cmp, pos_cmp] : getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
+      {
+        Cmp::RectBounds rectbounds( pos_cmp.position, pos_cmp.size, 1.f );
+        render_rectbounds( rectbounds, sf::Color::Black );
+      }
+    }
 
-      // init metrics
+    if ( m_show_playernopath )
+    {
+      for ( auto [entt, npcnopath_cmp, pos_cmp] : getReg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
+      {
+        Cmp::RectBounds rectbounds( pos_cmp.position, pos_cmp.size, 1.f );
+        render_rectbounds( rectbounds, sf::Color::Black );
+      }
+    }
 
-      int new_weapon_level = 0;
-      int player_cadaver_count = 0;
+    // debug: show crypt component boundaries
+    if ( m_show_debug_stats )
+    {
+      // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
+      // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
+      // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
+      // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
+      // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
+      // render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Black, 1.f );
+
+      // for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : getReg().view<Cmp::CryptLever, Cmp::Position>().each() )
+      // {
+      //   Cmp::RectBounds expand_lever_pos_hitbox( lever_pos_cmp.position, lever_pos_cmp.size, 1.f );
+      //   render_rectbounds( rectbounds, sf::Color::White );
+      // }
+
+      // for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : getReg().view<Cmp::CryptChest, Cmp::Position>().each() )
+      // {
+      //   Cmp::RectBounds expand_lever_pos_hitbox( chest_pos_cmp.position, chest_pos_cmp.size, 1.f );
+      //   render_rectbounds( rectbounds, sf::Color::Magenta );
+      // }
+    }
+  }
+
+  if ( m_show_path_finding )
+  {
+    render_overlay_sys.render_lerp_positions();
+    render_overlay_sys.render_spatial_grid_neighbours( spatial_grid, player_pos_cmp, sf::Color::Cyan, PathFinding::QueryCompass::CARDINAL );
+
+    for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>().each() )
+    {
+      auto query_compass = PathFinding::QueryCompass::CARDINAL;
+      if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) query_compass = PathFinding::QueryCompass::BOTH;
+      render_overlay_sys.render_spatial_grid_neighbours( spatial_grid, npc_pos_cmp, sf::Color::Magenta, query_compass );
+      render_overlay_sys.render_pathfinding_vector( spatial_grid, npc_pos_cmp, player_pos_cmp, sf::Color::White, query_compass );
+    }
+  }
+  // local view end
+
+  // Default view begin (these are rendered at native resolution)
+  m_window.setView( m_window.getDefaultView() );
+  {
+
+    auto player_blast_radius = Utils::Player::get_player_blast_radius( getReg() );
+    auto player_health = Utils::Player::get_player_health( getReg() );
+    auto player_wealth = Utils::Player::get_player_wealth( getReg() );
+    auto player_cadaver_count = Utils::Player::get_cadaver_count( getReg() );
+    auto new_weapon_level = Utils::Player::get_player_inventory_wear_level( getReg() );
+
+    float start_y_pos = 0;
+    render_overlay_sys.render_ui_background_overlay( { 20.f, start_y_pos += 20.f }, { 300.f, 230.f } );
+    render_overlay_sys.render_health_overlay( player_health.health, { 40.f, start_y_pos += 20.f }, { 200.f, 20.f } );
+    render_overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, start_y_pos += 40.f }, { 200.f, 20.f } );
+    render_overlay_sys.render_bomb_overlay( player_blast_radius.value, { 40.f, start_y_pos += 40.f } );
+    render_overlay_sys.render_cadaver_count_overlay( player_cadaver_count, { 40.f, start_y_pos += 40.f } );
+    render_overlay_sys.render_wealth_overlay( player_wealth.wealth, { 40.f, start_y_pos += 40.f } );
+    render_overlay_sys.render_inventory_overlay( { 40.f, start_y_pos += 80.f } );
+
+    auto display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+    render_overlay_sys.render_crypt_maze_timer( { static_cast<float>( display_size.x / 2.f ), static_cast<float>( 0 ) }, 100 );
+
+    if ( m_show_debug_stats )
+    {
+      render_overlay_sys.render_player_position_overlay( player_pos_cmp.position, { 40.f, start_y_pos += 80.f } );
 
       sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
       sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::getGameView() );
+      render_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, start_y_pos += 40.f } );
 
-      auto player_blast_radius = Utils::Player::get_player_blast_radius( getReg() );
-      auto player_health = Utils::Player::get_player_health( getReg() );
-      auto player_wealth = Utils::Player::get_player_wealth( getReg() );
+      sf::Vector2f stats_pos1{ 40.f, start_y_pos += 40.f };
+      sf::Vector2f stats_pos2{ 40.f, start_y_pos += 40.f };
+      render_overlay_sys.render_stats_overlay( stats_pos1, stats_pos2 );
 
-      auto inventory_wear_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
-      for ( auto [weapons_entity, inventory_slot, wear_level] : inventory_wear_view.each() )
-      {
-        new_weapon_level = wear_level.m_level;
-      }
+      std::set<Sprites::SpriteMetaType> exclusion_list = { "ROCK", "CRYPT.interior_sb", "WALL", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED" };
+      render_overlay_sys.render_zorder_values_overlay( { display_size.x - 800.f, 40.f }, m_zorder_queue_, exclusion_list );
 
-      for ( auto [entity, cadaver_cmp] : getReg().view<Cmp::PlayerCadaverCount>().each() )
-      {
-        player_cadaver_count = cadaver_cmp.get_count();
-      }
-
-      // render metrics
-      float start_y_pos = 0;
-      render_overlay_sys.render_ui_background_overlay( { 20.f, start_y_pos += 20.f }, { 300.f, 230.f } );
-      render_overlay_sys.render_health_overlay( player_health.health, { 40.f, start_y_pos += 20.f }, { 200.f, 20.f } );
-      render_overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, start_y_pos += 40.f }, { 200.f, 20.f } );
-      render_overlay_sys.render_bomb_overlay( player_blast_radius.value, { 40.f, start_y_pos += 40.f } );
-      render_overlay_sys.render_cadaver_count_overlay( player_cadaver_count, { 40.f, start_y_pos += 40.f } );
-      render_overlay_sys.render_wealth_overlay( player_wealth.wealth, { 40.f, start_y_pos += 40.f } );
-      render_overlay_sys.render_inventory_overlay( { 40.f, start_y_pos += 80.f } );
-
-      auto display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
-      render_overlay_sys.render_crypt_maze_timer( { static_cast<float>( display_size.x / 2.f ), static_cast<float>( 0 ) }, 100 );
-
-      if ( m_show_debug_stats )
-      {
-
-        render_overlay_sys.render_player_position_overlay( player_position.position, { 40.f, start_y_pos += 80.f } );
-        render_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, start_y_pos += 40.f } );
-
-        sf::Vector2f stats_pos1{ 40.f, start_y_pos += 40.f };
-        sf::Vector2f stats_pos2{ 40.f, start_y_pos += 40.f };
-        render_overlay_sys.render_stats_overlay( stats_pos1, stats_pos2 );
-
-        render_overlay_sys.render_zorder_values_overlay(
-            { display_size.x - 800.f, 40.f }, m_zorder_queue_,
-            { "ROCK", "CRYPT.interior_sb", "WALL", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED" } );
-        sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
-        render_overlay_sys.render_npc_list_overlay( { display_size.x - 500.f, 200.f } );
-      }
-      if ( m_show_path_finding )
-      {
-        // Save the current view
-        sf::View previous_view = m_window.getView();
-        // Set the game view for world-space rendering
-        m_window.setView( RenderSystem::s_game_view );
-
-        // render_overlay_sys.render_scan_detection_bounds();
-        // render_overlay_sys.render_player_distances();
-        render_overlay_sys.render_lerp_positions();
-
-        // render spatial grid neighbours for Player
-        render_overlay_sys.render_spatial_grid_neighbours( spatial_grid, Cmp::Position( player_position.position, player_position.size ),
-                                                           sf::Color::Cyan, PathFinding::QueryCompass::CARDINAL );
-        // ... and NPCs
-        for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>().each() )
-        {
-          auto query_compass = PathFinding::QueryCompass::CARDINAL;
-          if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) query_compass = PathFinding::QueryCompass::BOTH;
-
-          render_overlay_sys.render_spatial_grid_neighbours( spatial_grid, npc_pos_cmp, sf::Color::Magenta, query_compass );
-
-          // render the pathfinding vector for NPCs
-          render_overlay_sys.render_pathfinding_vector( spatial_grid, npc_pos_cmp, Cmp::Position( player_position.position, player_position.size ),
-                                                        sf::Color::White, query_compass );
-        }
-
-        // Restore the previous view
-        m_window.setView( previous_view );
-      }
+      sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+      render_overlay_sys.render_npc_list_overlay( { display_size.x - 500.f, 200.f } );
     }
-    // UI Overlays end
   }
+  // Default view end
 
   m_window.display();
-  // main render end
 }
 
 void RenderGameSystem::render_floormap( Sprites::Containers::TileMap &floormap, const sf::Vector2f &offset )

@@ -1,29 +1,32 @@
-#include <AStar.hpp>
+
 #include <Components/Crypt/CryptPassageBlock.hpp>
 #include <Components/Direction.hpp>
-#include <Components/Inventory/CarryItem.hpp>
-#include <Components/LerpPosition.hpp>
-#include <Components/Npc/Npc.hpp>
-#include <Components/Obstacle.hpp>
-#include <Components/RectBounds.hpp>
-#include <Components/SpriteAnimation.hpp>
-#include <Components/ZOrderValue.hpp>
-#include <Optimizations.hpp>
-#include <Player/PlayerCharacter.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/Text.hpp>
-
 #include <Components/Hazard/CorruptionCell.hpp>
 #include <Components/Hazard/HazardFieldCell.hpp>
 #include <Components/Hazard/SinkholeCell.hpp>
+#include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/LerpPosition.hpp>
+#include <Components/Npc/Npc.hpp>
+#include <Components/Obstacle.hpp>
+#include <Components/Persistent/DisplayResolution.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Position.hpp>
-#include <SFML/System/Vector2.hpp>
+#include <Components/RectBounds.hpp>
+#include <Components/SpriteAnimation.hpp>
+#include <Components/ZOrderValue.hpp>
+#include <PathFinding/AStar.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
-#include <SpatialHashGrid.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
+#include <Utils/Optimizations.hpp>
+
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/System/Vector2.hpp>
 
 #include <iomanip>
 #include <sstream>

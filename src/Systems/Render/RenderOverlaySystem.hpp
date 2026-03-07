@@ -1,26 +1,32 @@
 #ifndef __SYS_RENDEROVERSYSTEM_HPP__
 #define __SYS_RENDEROVERSYSTEM_HPP__
 
-#include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Position.hpp>
-#include <Components/ZOrderValue.hpp>
+#include <Sprites/SpriteMetaType.hpp>
+#include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Constants.hpp>
+
+#include <set>
+
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <SpatialHashGrid.hpp>
-#include <Systems/Render/RenderSystem.hpp>
-#include <Utils/Constants.hpp>
-#include <set>
-
-#include <Sprites/SpriteMetaType.hpp>
-
+namespace ProceduralMaze::PathFinding
+{
+class SpatialHashGrid;
+enum class QueryCompass;
+} // namespace ProceduralMaze::PathFinding
+namespace ProceduralMaze::Cmp
+{
+class InventoryWearLevel;
+class ZOrderValue;
+} // namespace ProceduralMaze::Cmp
 namespace ProceduralMaze::Sprites
 {
 class MultiSprite;
 class SpriteFactory;
 } // namespace ProceduralMaze::Sprites
-
 namespace ProceduralMaze::PathFinding
 {
 class SpatialHashGrid;

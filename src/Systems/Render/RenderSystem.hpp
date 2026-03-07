@@ -1,8 +1,6 @@
 #ifndef __SYSTEMS_RENDER_SYSTEM_HPP__
 #define __SYSTEMS_RENDER_SYSTEM_HPP__
 
-#include <Components/Persistent/CameraSmoothSpeed.hpp>
-#include <Components/Persistent/DisplayResolution.hpp>
 #include <entt/entity/fwd.hpp>
 
 #include <SFML/Graphics/Color.hpp>
@@ -18,6 +16,11 @@
 
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
+
+namespace ProceduralMaze::Cmp
+{
+class RectBounds;
+}
 
 namespace ProceduralMaze::Sys
 {
@@ -102,6 +105,8 @@ protected:
 
   // Fallback rendering for missing sprites
   void render_fallback_square( const sf::FloatRect &pos_cmp, const sf::Color &color = sf::Color::Magenta );
+
+  void render_rectbounds( Cmp::RectBounds &bounds, sf::Color color );
 
   //! @brief Common window options for ImGui windows
   const int kImGuiWindowOptions = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;

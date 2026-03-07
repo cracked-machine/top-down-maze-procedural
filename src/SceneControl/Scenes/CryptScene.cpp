@@ -11,6 +11,7 @@
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/CryptSystem.hpp>
+#include <Systems/FootstepSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/PassageSystem.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -18,6 +19,7 @@
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
+#include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/SystemStore.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Systems/Threats/ShockwaveSystem.hpp>

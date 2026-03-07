@@ -40,6 +40,7 @@ std::pair<entt::entity, Sprites::SpriteMetaType> get_player_inventory_type( entt
 float get_player_inventory_wear_level( entt::registry &reg );
 void reduce_player_inventory_wear_level( entt::registry &reg, float amount );
 bool is_in_spawn( entt::registry &reg, const Cmp::Position &player_pos_cmp );
+uint8_t get_cadaver_count( entt::registry &reg );
 
 } // namespace ProceduralMaze::Utils::Player
 

@@ -8,6 +8,7 @@
 #include <SceneControl/Scenes/HolyWellScene.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/CryptSystem.hpp>
+#include <Systems/FootstepSystem.hpp>
 #include <Systems/HolyWellSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -15,6 +16,7 @@
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
+#include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/SystemStore.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 

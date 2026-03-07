@@ -1,41 +1,43 @@
 #ifndef __SYS_RENDERGAMESYSTEM_HPP__
 #define __SYS_RENDERGAMESYSTEM_HPP__
 
-#include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/SpriteAnimation.hpp>
-#include <SFML/System/Time.hpp>
-#include <SFML/System/Vector2.hpp>
-
-#include <Shaders/BackgroundShader.hpp>
 #include <Shaders/DarkModeShader.hpp>
 #include <Shaders/DrippingBloodShader.hpp>
 #include <Shaders/FloodWaterShader.hpp>
 #include <Shaders/MistShader.hpp>
 #include <Shaders/PulsingShader.hpp>
 #include <Shaders/ViewFragmentShader.hpp>
-#include <SpatialHashGrid.hpp>
-#include <Sprites/TileMap.hpp>
-#include <Systems/BaseSystem.hpp>
-#include <Systems/FootstepSystem.hpp>
-#include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
-#include <Systems/Threats/HazardFieldSystem.hpp>
+#include <Utils/Constants.hpp>
 #include <Utils/Optimizations.hpp>
 
-#include <Sprites/SpriteMetaType.hpp>
+#include <SFML/System/Time.hpp>
+#include <SFML/System/Vector2.hpp>
+
 namespace ProceduralMaze::Sprites
 {
 class MultiSprite;
 class SpriteFactory;
 } // namespace ProceduralMaze::Sprites
-
+namespace ProceduralMaze::Sprites::Containers
+{
+class TileMap;
+} // namespace ProceduralMaze::Sprites::Containers
 namespace ProceduralMaze::PathFinding
 {
 class SpatialHashGrid;
-}
+} // namespace ProceduralMaze::PathFinding
+namespace ProceduralMaze::Cmp
+{
+class ZOrderValue;
+class Position;
+} // namespace ProceduralMaze::Cmp
 
 namespace ProceduralMaze::Sys
 {
+
+class RenderOverlaySystem;
 
 enum class DarkMode { OFF = 0, ON = 1 };
 enum class WeatherMode { OFF, ON };

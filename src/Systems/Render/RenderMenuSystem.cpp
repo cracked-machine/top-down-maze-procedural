@@ -1,8 +1,5 @@
 
 
-#include "imgui-SFML.h"
-#include <imgui.h>
-
 #include <Components/Persistent/ArmedOffDelay.hpp>
 #include <Components/Persistent/ArmedOnDelay.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
@@ -14,6 +11,7 @@
 #include <Components/Persistent/CryptNpcSpawnCount.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
+#include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Persistent/ExitKeyRequirement.hpp>
 #include <Components/Persistent/FuseDelay.hpp>
@@ -56,6 +54,9 @@
 
 #include <SFML/System/Angle.hpp>
 #include <SFML/System/Vector2.hpp>
+
+#include "imgui-SFML.h"
+#include <imgui.h>
 
 namespace ProceduralMaze::Sys
 {

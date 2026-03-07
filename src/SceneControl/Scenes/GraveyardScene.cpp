@@ -16,6 +16,7 @@
 #include <Systems/CryptSystem.hpp>
 #include <Systems/DiggingSystem.hpp>
 #include <Systems/ExitSystem.hpp>
+#include <Systems/FootstepSystem.hpp>
 #include <Systems/GraveSystem.hpp>
 #include <Systems/HolyWellSystem.hpp>
 #include <Systems/LootSystem.hpp>
@@ -24,6 +25,7 @@
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
+#include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/SystemStore.hpp>
 #include <Systems/Threats/BombSystem.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>

@@ -1,6 +1,9 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
+#include <Components/Player/PlayerCurse.hpp>
 #include <Components/Player/PlayerRuinLocation.hpp>
+#include <Components/Ruin/RuinHexagramMultiBlock.hpp>
+#include <Components/Ruin/RuinHexagramSegment.hpp>
 #include <Components/Ruin/RuinObjectiveType.hpp>
 #include <Components/Ruin/RuinStairsBalustradeMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsUpperMultiBlock.hpp>
@@ -10,9 +13,6 @@
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
 #include <Factory/WallFactory.hpp>
-#include <Player/PlayerCurse.hpp>
-#include <Ruin/RuinHexagramMultiBlock.hpp>
-#include <Ruin/RuinHexagramSegment.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/Scenes/RuinSceneUpperFloor.hpp>
@@ -25,6 +25,7 @@
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
+#include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/SystemStore.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Utils/Constants.hpp>

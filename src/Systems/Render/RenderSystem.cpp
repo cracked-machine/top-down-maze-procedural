@@ -1,12 +1,14 @@
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
-#include <Utils/Constants.hpp>
-#include <entt/entity/fwd.hpp>
-#include <imgui-SFML.h>
-
+#include <Components/Persistent/DisplayResolution.hpp>
+#include <Components/RectBounds.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderBuffer.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Utils/Constants.hpp>
+
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <entt/entity/fwd.hpp>
+#include <imgui-SFML.h>
 
 namespace ProceduralMaze::Sys
 {
@@ -108,6 +110,17 @@ void RenderSystem::safe_render_sprite( const std::string &sprite_type, const sf:
 void RenderSystem::render_fallback_square( const sf::FloatRect &pos_cmp, const sf::Color &color )
 {
   render_fallback_square_to_target( m_window, pos_cmp, color );
+}
+
+void RenderSystem::render_rectbounds( Cmp::RectBounds &bounds, sf::Color color )
+{
+  sf::RectangleShape rect;
+  rect.setSize( bounds.size() );
+  rect.setPosition( bounds.position() );
+  rect.setFillColor( sf::Color::Transparent );
+  rect.setOutlineColor( color );
+  rect.setOutlineThickness( 1.f );
+  m_window.draw( rect );
 }
 
 sf::View RenderSystem::s_game_view{};
