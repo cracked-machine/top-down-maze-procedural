@@ -12,6 +12,7 @@
 #include <Systems/AnimSystem.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/LootSystem.hpp>
+#include <Systems/PassageSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/PlayerSystem.hpp>
@@ -43,9 +44,9 @@ void CryptScene::on_init()
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
   random_level_sys.gen_cross_gamearea( CryptScene::kMapGridSize, player_start_area );
-  Factory::gen_crypt_main_objective( m_reg, m_sprite_Factory, CryptScene::kMapGridSize );
-  Factory::create_initial_crypt_rooms( m_reg, CryptScene::kMapGridSize );
-  Factory::gen_crypt_initial_interior( m_reg, m_sprite_Factory );
+  m_sys.find<Sys::Store::Type::CryptSystem>().gen_crypt_main_objective( CryptScene::kMapGridSize );
+  m_sys.find<Sys::Store::Type::CryptSystem>().create_initial_crypt_rooms( CryptScene::kMapGridSize );
+  m_sys.find<Sys::Store::Type::CryptSystem>().gen_crypt_initial_interior();
 
   // create a spatial grid of the game area
   auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
@@ -78,15 +79,9 @@ void CryptScene::on_enter()
     pos_cmp.position = m_player_start_position;
   }
 
-  if ( Utils::Player::get_player_mortality( m_reg ).state != Cmp::PlayerMortality::State::DEAD )
-  {
-    m_sys.find<Sys::Store::Type::CryptSystem>().createRoomBorders();
-
-    // make sure player has been situated in start room first
-    m_sys.find<Sys::Store::Type::CryptSystem>().shuffle_rooms_passages();
-    m_sys.find<Sys::Store::Type::CryptSystem>().reset_maze();
-    get_maze_timer().restart();
-  }
+  m_sys.find<Sys::Store::Type::PassageSystem>().setup( &m_spatial_grid );
+  m_sys.find<Sys::Store::Type::CryptSystem>().setup( &m_spatial_grid );
+  get_maze_timer().restart();
 }
 
 void CryptScene::on_exit()
@@ -106,8 +101,8 @@ void CryptScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::NpcSystem>().update( dt, &m_spatial_grid );
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
-  m_sys.find<Sys::Store::Type::CryptSystem>().check_exit_collision();
-  m_sys.find<Sys::Store::Type::CryptSystem>().update();
+  m_sys.find<Sys::Store::Type::PassageSystem>().update( &m_spatial_grid );
+  m_sys.find<Sys::Store::Type::CryptSystem>().update( &m_spatial_grid );
   m_sys.find<Sys::Store::Type::ShockwaveSystem>().checkShockwavePlayerCollision();
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt, &m_spatial_grid );
 

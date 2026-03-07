@@ -7,6 +7,7 @@
 #include <Events/CryptRoomEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 
+#include <SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Utils/Maths.hpp>
 
@@ -32,7 +33,11 @@ public:
     std::ignore = get_systems_event_queue().sink<Events::CryptRoomEvent>().connect<&CryptSystem::on_room_event>( this );
   }
 
-  void update();
+  //! @brief Initial maze setup. Called from Scene::on_enter()
+  void setup( PathFinding::SpatialHashGrid *spatial_grid );
+
+  //! @brief Frame update. Called from Scene::do_update()
+  void update( PathFinding::SpatialHashGrid *spatial_grid );
 
   //! @brief Handle player action events
   //! @param event
@@ -73,6 +78,19 @@ public:
 
   //! @brief Shuffle the rooms and passages
   void shuffle_rooms_passages();
+
+  //! @brief Generate the initial Crypt interior walls (fills in Cmp::CryptRoomsClosed)
+  //! @note Except for start/end rooms, all other rooms should start as Cmp::CryptRoomsClosed
+  void gen_crypt_initial_interior();
+
+  //! @brief Create rooms that are NOT start/end rooms for the crypt game area.
+  //! @param reg
+  //! @param map_grid_size
+  void create_initial_crypt_rooms( sf::Vector2u map_grid_size );
+
+  //! @brief Generate the main objective for the Crypt
+  //! @param map_grid_size
+  void gen_crypt_main_objective( sf::Vector2u map_grid_size );
 
   void reset_maze()
   {
@@ -174,6 +192,8 @@ private:
 
   sf::Clock m_lava_effect_cooldown_timer;
   sf::Time m_lava_effect_cooldown_threshold{ sf::seconds( 1.f ) };
+
+  PathFinding::SpatialHashGrid *m_spatial_grid{ nullptr };
 };
 
 } // namespace ProceduralMaze::Sys

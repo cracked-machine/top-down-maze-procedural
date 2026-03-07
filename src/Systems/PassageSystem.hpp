@@ -5,6 +5,7 @@
 #include <Components/Crypt/CryptRoomStart.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Random.hpp>
+#include <SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Events/PassageEvent.hpp>
 
@@ -23,6 +24,12 @@ public:
   {
     std::ignore = get_systems_event_queue().sink<Events::PassageEvent>().connect<&PassageSystem::on_passage_event>( this );
   }
+
+  //! @brief Initial setup. Called from Scene::on_enter()
+  void setup( PathFinding::SpatialHashGrid *spatial_grid );
+
+  //! @brief Frame update. Called from Scene::do_update()
+  void update( PathFinding::SpatialHashGrid *spatial_grid );
 
   void on_passage_event( Events::PassageEvent &event );
 
@@ -137,6 +144,8 @@ private:
   const float kMinPassageRoomsDistanceScaleFactor{ 2.f };
   //! @brief Number of steps to delay 'kMinPassageRoomsDistanceScaleFactor' use
   const int kMinPassageRoomsDistanceDelay{ 3 };
+
+  PathFinding::SpatialHashGrid *m_spatial_grid{ nullptr };
 };
 
 } // namespace ProceduralMaze::Sys

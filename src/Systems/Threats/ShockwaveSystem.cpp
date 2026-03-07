@@ -8,6 +8,7 @@
 #include <Components/Player/PlayerMortality.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Sprites/Shockwave.hpp>
+#include <System.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Player.hpp>
@@ -175,6 +176,8 @@ void ShockwaveSystem::removeIntersectingSegments( const sf::FloatRect &obstacle_
 
 void ShockwaveSystem::checkShockwavePlayerCollision()
 {
+  if ( Utils::getSystemCmp( getReg() ).collisions_disabled ) return;
+
   for ( auto entt : getReg().view<Cmp::NpcShockwave>() )
   {
     Cmp::NpcShockwave &shockwave = getReg().get<Cmp::NpcShockwave>( entt );

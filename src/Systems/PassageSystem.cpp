@@ -30,6 +30,18 @@
 namespace ProceduralMaze::Sys
 {
 
+void PassageSystem::setup( PathFinding::SpatialHashGrid *spatial_grid )
+{
+  // update the grid
+  m_spatial_grid = spatial_grid;
+}
+
+void PassageSystem::update( PathFinding::SpatialHashGrid *spatial_grid )
+{
+  // update the grid
+  m_spatial_grid = spatial_grid;
+}
+
 void PassageSystem::on_passage_event( Events::PassageEvent &event )
 {
   switch ( event.type )
@@ -634,6 +646,7 @@ void PassageSystem::emptyOpenPassages()
       if ( not getReg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
 
       Factory::remove_obstacle( getReg(), pos_entt );
+      if ( m_spatial_grid ) m_spatial_grid->insert( pos_entt, pos_cmp );
     }
   }
 }
@@ -657,7 +670,9 @@ void PassageSystem::fillAllPassages()
 
       auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
       float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
+
       Factory::create_obstacle( getReg(), pos_entt, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
+      if ( m_spatial_grid ) m_spatial_grid->remove( pos_entt, pos_cmp );
 
       if ( not Utils::getSystemCmp( getReg() ).collisions_disabled )
       {

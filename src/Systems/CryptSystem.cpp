@@ -1,3 +1,4 @@
+#include <Factory/MultiblockFactory.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -70,8 +71,28 @@
 namespace ProceduralMaze::Sys
 {
 
-void CryptSystem::update()
+void CryptSystem::setup( PathFinding::SpatialHashGrid *spatial_grid )
 {
+  // update the grid
+  m_spatial_grid = spatial_grid;
+
+  if ( Utils::Player::get_player_mortality( m_reg ).state != Cmp::PlayerMortality::State::DEAD )
+  {
+    createRoomBorders();
+
+    // make sure player has been situated in start room first
+    shuffle_rooms_passages();
+    reset_maze();
+  }
+}
+
+void CryptSystem::update( PathFinding::SpatialHashGrid *spatial_grid )
+{
+  // update the grid
+  m_spatial_grid = spatial_grid;
+
+  check_exit_collision();
+
   if ( not m_maze_unlocked and Scene::CryptScene::is_maze_timer_expired() )
   {
     //
@@ -83,8 +104,8 @@ void CryptSystem::update()
   {
     checkLavaPitCollision();
     checkSpikeTrapCollision();
-    check_lever_activation();
   }
+  check_lever_activation(); // useful for debugging
   checkLavaPitActivationByProximity();
   doLavaPitAnimation();
   checkSpikeTrapActivationByProximity();
@@ -414,7 +435,9 @@ void CryptSystem::createRoomBorders()
     {
       auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { sprite_type } );
       float zorder = m_sprite_factory.get_sprite_size_by_type( sprite_type ).y;
+
       Factory::create_obstacle( getReg(), pos_entt, pos_cmp, obst_type, sprite_index, ( zorder * 2.f ) );
+      if ( m_spatial_grid ) m_spatial_grid->remove( pos_entt, pos_cmp );
     }
   };
 
@@ -447,8 +470,6 @@ void CryptSystem::createRoomBorders()
     }
   }
 }
-
-/// PRIVATE FUNCTIONS
 
 void CryptSystem::shuffle_rooms_passages()
 {
@@ -487,6 +508,188 @@ void CryptSystem::shuffle_rooms_passages()
   Scene::CryptScene::get_maze_timer().restart();
 }
 
+void CryptSystem::gen_crypt_initial_interior()
+{
+  SPDLOG_INFO( "Generating crypt interior obstacles." );
+  auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition> );
+  // auto room_view = getReg().view<Cmp::CryptRoomClosed>();
+  for ( auto [entity, pos_cmp] : position_view.each() )
+  {
+    // skip if inside a start/end/open room
+    bool add_interior_wall = true;
+    auto start_room_view = getReg().view<Cmp::CryptRoomStart>();
+    for ( auto [start_room_entity, start_room_cmp] : start_room_view.each() )
+    {
+      if ( pos_cmp.findIntersection( start_room_cmp ) ) add_interior_wall = false;
+    }
+    auto end_room_view = getReg().view<Cmp::CryptRoomEnd>();
+    for ( auto [end_room_entity, end_room_cmp] : end_room_view.each() )
+    {
+      if ( pos_cmp.findIntersection( end_room_cmp ) ) add_interior_wall = false;
+    }
+    auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
+    for ( auto [open_room_entity, open_room_cmp] : open_room_view.each() )
+    {
+      if ( pos_cmp.findIntersection( open_room_cmp ) ) add_interior_wall = false;
+    }
+
+    if ( add_interior_wall )
+    {
+      auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
+      float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
+      // Set the z-order value so that the obstacles are rendered above everything else
+      Factory::create_obstacle( getReg(), entity, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
+    }
+  }
+}
+
+void CryptSystem::create_initial_crypt_rooms( sf::Vector2u map_grid_size )
+{
+  const auto &grid_square_size = Constants::kGridSizePxF;
+  const int min_room_width = 3;
+  const int min_room_height = 3;
+  const int max_room_width = 8;
+  const int max_room_height = 8;
+  const int max_distance_between_rooms = 2;
+  const int max_attempts = 5000;
+
+  int room_count = 0;
+  int current_attempt = 0;
+  while ( room_count < 20 )
+  {
+
+    int room_width = Cmp::RandomInt{ min_room_width, max_room_width }.gen();
+    int room_height = Cmp::RandomInt{ min_room_height, max_room_height }.gen();
+    auto [entt, pos] = Utils::Rnd::get_random_position( getReg(), Utils::Rnd::IncludePack<Cmp::Neighbours>{}, {}, 0 );
+    Cmp::CryptRoomClosed new_room( pos.position, { room_width * grid_square_size.x, room_height * grid_square_size.y } );
+    SPDLOG_DEBUG( "Generated new room at ({}, {}) size ({}, {})", new_room.position.x, new_room.position.y, new_room.size.x, new_room.size.y );
+
+    auto is_min_distance_ok = [&]( const Cmp::CryptRoomClosed &existing_room, const Cmp::CryptRoomClosed &new_room ) -> bool
+    {
+      float distance_x = std::max( 0.f, std::max( existing_room.position.x - ( new_room.position.x + new_room.size.x ),
+                                                  new_room.position.x - ( existing_room.position.x + existing_room.size.x ) ) );
+      float distance_y = std::max( 0.f, std::max( existing_room.position.y - ( new_room.position.y + new_room.size.y ),
+                                                  new_room.position.y - ( existing_room.position.y + existing_room.size.y ) ) );
+      float distance = std::sqrt( distance_x * distance_x + distance_y * distance_y );
+      return distance >= static_cast<float>( max_distance_between_rooms ) * grid_square_size.x;
+    };
+
+    auto check_collision = [&]( const auto &existing_object ) -> bool
+    { return new_room.findIntersection( existing_object ) || !is_min_distance_ok( existing_object, new_room ); };
+
+    bool overlaps_existing = false;
+
+    // make sure new_room area does not fall outside map_grid_size
+    if ( !Utils::isInBounds( new_room.position, new_room.size, map_grid_size ) ) { overlaps_existing = true; }
+
+    // check for intersection with existing rooms
+    if ( !overlaps_existing )
+    {
+      auto room_view = getReg().view<Cmp::CryptRoomClosed>();
+      for ( auto [existing_entity, existing_room] : room_view.each() )
+      {
+        if ( check_collision( existing_room ) )
+        {
+          overlaps_existing = true;
+          break;
+        }
+      }
+    }
+
+    // check for intersection with walls
+    if ( !overlaps_existing )
+    {
+      auto wall_view = getReg().view<Cmp::Wall, Cmp::Position>();
+      for ( auto [wall_entity, wall_cmp, wall_pos_cmp] : wall_view.each() )
+      {
+        if ( check_collision( wall_pos_cmp ) )
+        {
+          overlaps_existing = true;
+          break;
+        }
+      }
+    }
+
+    // check for intersection with start room
+    if ( !overlaps_existing )
+    {
+      auto start_room_view = getReg().view<Cmp::CryptRoomStart>();
+      for ( auto [start_room_entity, start_room_cmp] : start_room_view.each() )
+      {
+        if ( check_collision( start_room_cmp ) )
+        {
+          overlaps_existing = true;
+          break;
+        }
+      }
+    }
+
+    // check for intersection with end room
+    if ( !overlaps_existing )
+    {
+      auto end_room_view = getReg().view<Cmp::CryptRoomEnd>();
+      for ( auto [end_room_entity, end_room_cmp] : end_room_view.each() )
+      {
+        if ( check_collision( end_room_cmp ) )
+        {
+          overlaps_existing = true;
+          break;
+        }
+      }
+    }
+
+    // now check the result
+    if ( !overlaps_existing )
+    {
+      auto entity = getReg().create();
+      getReg().emplace<Cmp::CryptRoomClosed>( entity, std::move( new_room ) );
+
+      room_count++;
+      SPDLOG_INFO( "Added new crypt room entity {}, total rooms: {}", entt::to_integral( entity ), room_count );
+    }
+    else
+    {
+      SPDLOG_DEBUG( "New room overlaps existing room, discarded. ({}/{})", current_attempt, max_attempts );
+      current_attempt++;
+    }
+    if ( current_attempt >= max_attempts )
+    {
+      SPDLOG_WARN( "Max attempts reached when generating crypt rooms, stopping." );
+      return;
+    }
+  }
+
+  SPDLOG_INFO( "Total rooms: {}", room_count );
+  // Currently no special logic needed; placeholder for future use
+}
+
+void CryptSystem::gen_crypt_main_objective( sf::Vector2u map_grid_size )
+{
+  auto map_grid_sizef = sf::Vector2f( static_cast<float>( map_grid_size.x ) * Constants::kGridSizePxF.x,
+                                      static_cast<float>( map_grid_size.y ) * Constants::kGridSizePxF.y );
+  auto kGridSizePxF = Constants::kGridSizePxF;
+  // target position for the objective: always center top of the map
+  const auto &ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_objective_closed" );
+
+  float centered_x = ( map_grid_sizef.x / 2.f ) - ( ms.getSpriteSizePixels().x / 2.f ) + kGridSizePxF.x;
+  Cmp::Position objective_position( { centered_x, kGridSizePxF.y * 2.f }, ms.getSpriteSizePixels() );
+
+  auto entity = getReg().create();
+  getReg().emplace_or_replace<Cmp::Position>( entity, objective_position.position, objective_position.size );
+
+  SPDLOG_INFO( "Placing main crypt objective at position ({}, {})", objective_position.position.x, objective_position.position.y );
+  Factory::createMultiblock<Cmp::CryptObjectiveMultiBlock>( getReg(), entity, objective_position, ms );
+  Factory::createMultiblockSegments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( getReg(), entity, objective_position, ms );
+
+  // while we're here, carve out a room for the objective sprite. These position/size modifiers are trial and error
+  // whilst we decide on the final objective MB sprite dimensions
+
+  auto end_room_entity = getReg().create();
+  getReg().emplace_or_replace<Cmp::CryptRoomEnd>( end_room_entity, sf::Vector2f{ objective_position.position.x, objective_position.position.y },
+                                                  sf::Vector2f{ objective_position.size.x, objective_position.size.y + ( kGridSizePxF.y * 2.f ) } );
+}
+
+/// PRIVATE FUNCTIONS
 void CryptSystem::unlock_objective_passage()
 {
   // reset rooms/passages
@@ -570,7 +773,9 @@ void CryptSystem::fillClosedRooms()
 
       auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
       float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
+
       Factory::create_obstacle( getReg(), pos_entt, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
+      if ( m_spatial_grid ) m_spatial_grid->remove( pos_entt, pos_cmp );
     }
   }
 }
@@ -617,6 +822,7 @@ void CryptSystem::emptyOpenRooms()
       if ( not getReg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
 
       Factory::remove_obstacle( getReg(), pos_entt );
+      if ( m_spatial_grid ) m_spatial_grid->insert( pos_entt, pos_cmp );
     }
   }
 }
@@ -626,7 +832,7 @@ void CryptSystem::addLavaPitOpenRooms()
   auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
   for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
   {
-    Factory::createCryptLavaPit( getReg(), open_room_cmp );
+    Factory::createCryptLavaPit( getReg(), open_room_cmp, m_spatial_grid );
   }
 }
 
@@ -677,7 +883,7 @@ void CryptSystem::removeLavaPitOpenRooms()
     for ( auto [lava_pit_entt, lava_pit_cmp] : lava_pit_view.each() )
     {
       if ( not open_room_cmp.findIntersection( lava_pit_cmp ) ) continue;
-      Factory::destroyCryptLavaPit( getReg(), lava_pit_entt );
+      Factory::destroyCryptLavaPit( getReg(), lava_pit_entt, m_spatial_grid );
     }
   }
 }
