@@ -83,8 +83,6 @@ void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, PathFindin
     update_player_animation();
     update_player_zorder();
 
-    // globalTranslations( globalDeltaTime, not Utils::getSystemCmp( getReg() ).collisions_disabled );
-
     // footstep sfx
     auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
     for ( auto [pc_entity, pc_cmp, dir_cmp] : player_view.each() )

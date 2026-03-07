@@ -42,6 +42,12 @@ public:
 
   entt::dispatcher &m_nav_event_dispatcher;
   entt::dispatcher &m_scenemanager_event_dispatcher;
+
+private:
+  void toggle_collision_detection();
+  void toggle_show_pathfinding();
+  void toggle_show_debug();
+  void toggle_show_nopath();
 };
 
 } // namespace ProceduralMaze::Sys

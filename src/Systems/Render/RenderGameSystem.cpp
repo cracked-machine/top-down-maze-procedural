@@ -187,11 +187,13 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
   using namespace Sprites;
 
   // check for updates to the System modes
-  for ( auto [_ent, _sys] : getReg().view<Cmp::System>().each() )
+  for ( auto [entt, sys_cmp] : getReg().view<Cmp::System>().each() )
   {
-    m_show_path_finding = _sys.show_path_finding;
-    m_show_debug_stats = _sys.show_debug_stats;
-    m_render_dark_mode_enabled = _sys.dark_mode_enabled;
+    m_show_path_finding = sys_cmp.show_path_finding;
+    m_show_debug_stats = sys_cmp.show_debug_stats;
+    m_render_dark_mode_enabled = sys_cmp.dark_mode_enabled;
+    m_show_playernopath = sys_cmp.show_playernopath;
+    m_show_npcnopath = sys_cmp.show_npcnopath;
   }
 
   sf::FloatRect player_position( { 0.f, 0.f }, Constants::kGridSizePxF );
@@ -263,39 +265,69 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
       if ( cursed_mode == CursedMode::ON ) { render_cursed_mode_shader( player_position ); }
 
+      if ( m_show_npcnopath )
+      {
+        for ( auto [entt, npcnopath_cmp, pos_cmp] : getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
+        {
+          Cmp::RectBounds expand_lever_pos_hitbox( pos_cmp.position, pos_cmp.size, 1.f );
+          sf::RectangleShape rectangle;
+          rectangle.setSize( expand_lever_pos_hitbox.size() );
+          rectangle.setPosition( expand_lever_pos_hitbox.position() );
+          rectangle.setFillColor( sf::Color::Transparent );
+          rectangle.setOutlineColor( sf::Color::Black );
+          rectangle.setOutlineThickness( 1.f );
+          m_window.draw( rectangle );
+        }
+      }
+
+      if ( m_show_playernopath )
+      {
+        for ( auto [entt, npcnopath_cmp, pos_cmp] : getReg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
+        {
+          Cmp::RectBounds expand_lever_pos_hitbox( pos_cmp.position, pos_cmp.size, 1.f );
+          sf::RectangleShape rectangle;
+          rectangle.setSize( expand_lever_pos_hitbox.size() );
+          rectangle.setPosition( expand_lever_pos_hitbox.position() );
+          rectangle.setFillColor( sf::Color::Transparent );
+          rectangle.setOutlineColor( sf::Color::Black );
+          rectangle.setOutlineThickness( 1.f );
+          m_window.draw( rectangle );
+        }
+      }
+
       // debug: show crypt component boundaries
       if ( m_show_debug_stats )
       {
-        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
-        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
-        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
-        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
-        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
-        render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Cyan, 1.f );
+        // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
+        // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
+        // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
+        // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
+        // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
+        // render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Black, 1.f );
 
-        for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : getReg().view<Cmp::CryptLever, Cmp::Position>().each() )
-        {
-          Cmp::RectBounds expand_lever_pos_hitbox( lever_pos_cmp.position, lever_pos_cmp.size, 1.f );
-          sf::RectangleShape rectangle;
-          rectangle.setSize( expand_lever_pos_hitbox.size() );
-          rectangle.setPosition( expand_lever_pos_hitbox.position() );
-          rectangle.setFillColor( sf::Color::Transparent );
-          rectangle.setOutlineColor( sf::Color::White );
-          rectangle.setOutlineThickness( 1.f );
-          m_window.draw( rectangle );
-        }
+        // for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : getReg().view<Cmp::CryptLever, Cmp::Position>().each() )
+        // {
+        //   Cmp::RectBounds expand_lever_pos_hitbox( lever_pos_cmp.position, lever_pos_cmp.size, 1.f );
+        //   sf::RectangleShape rectangle;
+        //   rectangle.setSize( expand_lever_pos_hitbox.size() );
+        //   rectangle.setPosition( expand_lever_pos_hitbox.position() );
+        //   rectangle.setFillColor( sf::Color::Transparent );
+        //   rectangle.setOutlineColor( sf::Color::White );
+        //   rectangle.setOutlineThickness( 1.f );
+        //   m_window.draw( rectangle );
+        // }
 
-        for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : getReg().view<Cmp::CryptChest, Cmp::Position>().each() )
-        {
-          Cmp::RectBounds expand_lever_pos_hitbox( chest_pos_cmp.position, chest_pos_cmp.size, 1.f );
-          sf::RectangleShape rectangle;
-          rectangle.setSize( expand_lever_pos_hitbox.size() );
-          rectangle.setPosition( expand_lever_pos_hitbox.position() );
-          rectangle.setFillColor( sf::Color::Transparent );
-          rectangle.setOutlineColor( sf::Color::Magenta );
-          rectangle.setOutlineThickness( 1.f );
-          m_window.draw( rectangle );
-        }
+        // for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : getReg().view<Cmp::CryptChest, Cmp::Position>().each() )
+        // {
+        //   Cmp::RectBounds expand_lever_pos_hitbox( chest_pos_cmp.position, chest_pos_cmp.size, 1.f );
+        //   sf::RectangleShape rectangle;
+        //   rectangle.setSize( expand_lever_pos_hitbox.size() );
+        //   rectangle.setPosition( expand_lever_pos_hitbox.position() );
+        //   rectangle.setFillColor( sf::Color::Transparent );
+        //   rectangle.setOutlineColor( sf::Color::Magenta );
+        //   rectangle.setOutlineThickness( 1.f );
+        //   m_window.draw( rectangle );
+        // }
       }
     }
     // local view end

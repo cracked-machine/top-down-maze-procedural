@@ -135,14 +135,10 @@ void SceneInputRouter::graveyard_scene_state_handler()
     }
     else if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
-      if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.collisions_disabled = not _sys.collisions_disabled;
-          SPDLOG_INFO( "Collisions are now {}", _sys.collisions_disabled ? "DISABLED" : "ENABLED" );
-        }
-      }
+      if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
       {
         m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_CRYPT ) );
@@ -175,22 +171,6 @@ void SceneInputRouter::graveyard_scene_state_handler()
         auto dropped_entt = Factory::dropInventorySlotIntoWorld( getReg(), Utils::Player::get_player_position( getReg() ),
                                                                  m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
         if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.show_path_finding = not _sys.show_path_finding;
-          SPDLOG_INFO( "Show Pathfinding is now {}", _sys.show_path_finding ? "ENABLED" : "DISABLED" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.show_debug_stats = not _sys.show_debug_stats;
-          SPDLOG_INFO( "Show debug stats is now {}", _sys.show_debug_stats ? "ENABLED" : "DISABLED" );
-        }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
       {
@@ -286,30 +266,10 @@ void SceneInputRouter::crypt_scene_state_handler()
     }
     else if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
-      if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.collisions_disabled = not _sys.collisions_disabled;
-          SPDLOG_INFO( "Collisions are now {}", _sys.collisions_disabled ? "DISABLED" : "ENABLED" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.show_path_finding = not _sys.show_path_finding;
-          SPDLOG_INFO( "Show Pathfinding is now {}", _sys.show_path_finding ? "ENABLED" : "DISABLED" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.show_debug_stats = not _sys.show_debug_stats;
-          SPDLOG_INFO( "Show debug stats is now {}", _sys.show_debug_stats ? "ENABLED" : "DISABLED" );
-        }
-      }
+      if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 )
       {
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
@@ -353,13 +313,9 @@ void SceneInputRouter::crypt_scene_state_handler()
           SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
         }
       }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
-      {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_CRYPT ) );
-      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
       {
-        // not implemented yet
+        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::QUIT_GAME ) );
       }
       else if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
       {
@@ -424,30 +380,10 @@ void SceneInputRouter::holywell_scene_state_handler()
     }
     else if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
-      if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.collisions_disabled = not _sys.collisions_disabled;
-          SPDLOG_INFO( "Collisions are now {}", _sys.collisions_disabled ? "DISABLED" : "ENABLED" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.show_path_finding = not _sys.show_path_finding;
-          SPDLOG_INFO( "Show Pathfinding is now {}", _sys.show_path_finding ? "ENABLED" : "DISABLED" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.show_debug_stats = not _sys.show_debug_stats;
-          SPDLOG_INFO( "Show debug stats is now {}", _sys.show_debug_stats ? "ENABLED" : "DISABLED" );
-        }
-      }
+      if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 )
       {
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
@@ -545,30 +481,10 @@ void SceneInputRouter::ruin_scene_state_handler()
     }
     else if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
-      if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.collisions_disabled = not _sys.collisions_disabled;
-          SPDLOG_INFO( "Collisions are now {}", _sys.collisions_disabled ? "DISABLED" : "ENABLED" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.show_path_finding = not _sys.show_path_finding;
-          SPDLOG_INFO( "Show Pathfinding is now {}", _sys.show_path_finding ? "ENABLED" : "DISABLED" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.show_debug_stats = not _sys.show_debug_stats;
-          SPDLOG_INFO( "Show debug stats is now {}", _sys.show_debug_stats ? "ENABLED" : "DISABLED" );
-        }
-      }
+      if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 )
       {
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
@@ -714,6 +630,59 @@ void SceneInputRouter::level_complete_scene_state_handler()
       {
         m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::RETURN_TO_TITLE ) );
       }
+    }
+  }
+}
+
+void SceneInputRouter::toggle_collision_detection()
+{
+  for ( auto [entt, sys_cmp] : getReg().view<Cmp::System>().each() )
+  {
+    sys_cmp.collisions_disabled = not sys_cmp.collisions_disabled;
+    SPDLOG_INFO( "Collisions are now {}", sys_cmp.collisions_disabled ? "DISABLED" : "ENABLED" );
+  }
+}
+
+void SceneInputRouter::toggle_show_pathfinding()
+{
+  for ( auto [entt, sys_cmp] : getReg().view<Cmp::System>().each() )
+  {
+    sys_cmp.show_path_finding = not sys_cmp.show_path_finding;
+    SPDLOG_INFO( "Show Pathfinding is now {}", sys_cmp.show_path_finding ? "ENABLED" : "DISABLED" );
+  }
+}
+
+void SceneInputRouter::toggle_show_debug()
+{
+  for ( auto [entt, sys_cmp] : getReg().view<Cmp::System>().each() )
+  {
+    sys_cmp.show_debug_stats = not sys_cmp.show_debug_stats;
+    SPDLOG_INFO( "Show debug stats is now {}", sys_cmp.show_debug_stats ? "ENABLED" : "DISABLED" );
+  }
+}
+
+void SceneInputRouter::toggle_show_nopath()
+{
+
+  for ( auto [entt, sys_cmp] : getReg().view<Cmp::System>().each() )
+  {
+    if ( not sys_cmp.show_npcnopath and not sys_cmp.show_playernopath )
+    {
+      sys_cmp.show_npcnopath = true;
+      sys_cmp.show_playernopath = false;
+      SPDLOG_INFO( "Show NpcNoPathFinding is now ENABLED" );
+    }
+    else if ( sys_cmp.show_npcnopath )
+    {
+      sys_cmp.show_npcnopath = false;
+      sys_cmp.show_playernopath = true;
+      SPDLOG_INFO( "Show PlayerNoPath is now ENABLED" );
+    }
+    else
+    {
+      sys_cmp.show_npcnopath = false;
+      sys_cmp.show_playernopath = false;
+      SPDLOG_INFO( "Show PlayerNoPath and NpcNoPathFinding are now DISABLED" );
     }
   }
 }

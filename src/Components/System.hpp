@@ -8,8 +8,10 @@ class System
 {
 public:
   bool collisions_disabled = false; // F1
-  bool show_path_finding = false;   // F5
-  bool show_debug_stats = false;    // F6
+  bool show_path_finding = false;   // F2
+  bool show_debug_stats = false;    // F3
+  bool show_npcnopath = false;      // F4 cycle
+  bool show_playernopath = false;   // F4 cycle
   bool level_complete = false;
   bool dark_mode_enabled = true; // F9
 };

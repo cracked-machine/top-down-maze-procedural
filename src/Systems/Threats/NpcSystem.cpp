@@ -383,7 +383,7 @@ void NpcSystem::update_shockwaves()
       float new_radius = current_radius + ( shockwave_increments * speed_multiplier );
       sw_cmp.sprite.setRadius( new_radius );
 
-      checkShockwaveObstacleCollision( entt, sw_cmp );
+      if ( not Utils::getSystemCmp( getReg() ).collisions_disabled ) { checkShockwaveObstacleCollision( entt, sw_cmp ); }
 
       if ( new_radius > max_radius.get_value() ) { getReg().destroy( entt ); }
     }

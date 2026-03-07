@@ -68,6 +68,8 @@ protected:
   bool m_show_path_finding{ false };
   bool m_minimap_enabled{ false };
   bool m_show_debug_stats{ false };
+  bool m_show_npcnopath{ false };
+  bool m_show_playernopath{ false };
   //! @brief Allow user to disable dark mode for debugging purposes
   bool m_render_dark_mode_enabled{ true };
 
