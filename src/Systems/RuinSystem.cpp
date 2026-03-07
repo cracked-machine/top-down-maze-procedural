@@ -57,7 +57,13 @@ RuinSystem::RuinSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
   SPDLOG_DEBUG( "PlayerSystem initialized" );
 }
 
-void RuinSystem::update()
+void RuinSystem::update( PathFinding::SpatialHashGrid *spatial_grid )
+{
+  // update the grid
+  m_spatial_grid = spatial_grid;
+}
+
+void RuinSystem::check_entrance_collision()
 {
   auto player_pos = Utils::Player::get_player_position( getReg() );
   auto ruindoor_view = getReg().view<Cmp::RuinEntrance, Cmp::Position>();

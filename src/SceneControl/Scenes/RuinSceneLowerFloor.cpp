@@ -11,6 +11,7 @@
 #include <Factory/RuinFactory.hpp>
 #include <Factory/WallFactory.hpp>
 #include <Npc/Npc.hpp>
+#include <Npc/NpcNoPathFinding.hpp>
 #include <Player/PlayerCurse.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -90,6 +91,14 @@ void RuinSceneLowerFloor::on_init()
 
   m_sys.find<Sys::Store::Type::RuinSystem>().reset_player_curse();
 
+  // create a spatial grid of the game area
+  auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
+  for ( auto entity : view )
+  {
+    const auto &pos = view.get<Cmp::Position>( entity );
+    m_spatial_grid.insert( entity, pos );
+  }
+
   // force the loading screen so that we hide any motion sickness inducing camera pan
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
@@ -160,6 +169,7 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Store::Type::LootSystem>().check_loot_collision();
 
+  m_sys.find<Store::Type::RuinSystem>().update( &m_spatial_grid );
   m_sys.find<Store::Type::RuinSystem>().check_floor_access_collision( Cmp::RuinFloorAccess::Direction::TO_UPPER );
   m_sys.find<Store::Type::RuinSystem>().check_movement_slowdowns();
   m_sys.find<Store::Type::RuinSystem>().creaking_rope_update();

@@ -4,6 +4,7 @@
 #include <Components/Ruin/RuinFloorAccess.hpp>
 
 #include <SFML/Graphics/Rect.hpp>
+#include <SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <Sprites/SpriteMetaType.hpp>
@@ -31,8 +32,9 @@ public:
               entt::dispatcher &scenemanager_event_dispatcher );
 
   //! @brief Update the player system.
-  void update();
+  void update( PathFinding::SpatialHashGrid *spatial_grid );
 
+  void check_entrance_collision();
   void spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f size, Cmp::RuinFloorAccess::Direction dir );
 
   template <typename COMPONENT>
@@ -91,6 +93,8 @@ private:
 
   sf::Clock m_creaking_rope_swing_timer{};
   std::future<void> m_curse_activation_future;
+
+  PathFinding::SpatialHashGrid *m_spatial_grid{ nullptr };
 };
 
 extern template void RuinSystem::add_stairs<Cmp::RuinStairsLowerMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );

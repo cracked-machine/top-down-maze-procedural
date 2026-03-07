@@ -161,7 +161,7 @@ void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Sys::Store::Type::CryptSystem>().unlock_crypt_door();
   m_sys.find<Sys::Store::Type::AltarSystem>().check_player_collision();
   m_sys.find<Sys::Store::Type::HolyWellSystem>().check_entrance_collision();
-  m_sys.find<Sys::Store::Type::RuinSystem>().update();
+  m_sys.find<Sys::Store::Type::RuinSystem>().check_entrance_collision();
 
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt, &m_spatial_grid );
 

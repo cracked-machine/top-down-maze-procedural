@@ -129,7 +129,7 @@ Cmp::PlayerCurse &get_player_curse( entt::registry &reg )
   auto player_view = reg.view<Cmp::PlayerCurse>();
   if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerCurse" );
   auto &curse = player_view.get<Cmp::PlayerCurse>( get_player_entity( reg ) );
-  SPDLOG_INFO( "Cmp::PlayerCurse == {}", curse.active );
+  SPDLOG_DEBUG( "Cmp::PlayerCurse == {}", curse.active );
   return curse;
 }
 
@@ -140,7 +140,7 @@ void reset_player_curse( entt::registry &reg )
   auto &curse = player_view.get<Cmp::PlayerCurse>( get_player_entity( reg ) );
   curse.active = false;
   curse.shader_alpha.reset();
-  SPDLOG_INFO( "Cmp::PlayerCurse == {}", curse.active );
+  SPDLOG_DEBUG( "Cmp::PlayerCurse == {}", curse.active );
 }
 
 float get_player_speed_penalty( entt::registry &reg )

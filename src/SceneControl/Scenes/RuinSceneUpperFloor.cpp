@@ -91,6 +91,14 @@ void RuinSceneUpperFloor::on_init()
                                                                                          balustrade_zorder );
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneUpperFloor::kMapGridSize, "res/json/ruin_upper_tilemap_config.json" );
+
+  // create a spatial grid of the game area
+  auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
+  for ( auto entity : view )
+  {
+    const auto &pos = view.get<Cmp::Position>( entity );
+    m_spatial_grid.insert( entity, pos );
+  }
 }
 
 void RuinSceneUpperFloor::on_enter()
@@ -139,6 +147,7 @@ void RuinSceneUpperFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Store::Type::AnimSystem>().update( dt );
   m_sys.find<Store::Type::NpcSystem>().update( dt, &m_spatial_grid );
   // m_sys.find<Store::Type::FootstepSystem>().update();
+  m_sys.find<Store::Type::RuinSystem>().update( &m_spatial_grid );
   m_sys.find<Store::Type::LootSystem>().check_loot_collision();
   m_sys.find<Store::Type::RuinSystem>().check_floor_access_collision( Cmp::RuinFloorAccess::Direction::TO_LOWER );
   m_sys.find<Store::Type::RuinSystem>().check_movement_slowdowns();
