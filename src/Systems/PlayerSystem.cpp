@@ -70,6 +70,9 @@ void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, PathFindin
   // update the grid for future use
   m_spatial_grid = spatial_grid;
 
+  // cache the player position so we can update the spatial grid afterwards.
+  auto old_player_pos = Utils::Player::get_player_position( m_reg );
+
   // process changes to player position and related transforms
   localTransforms();
 
@@ -93,6 +96,12 @@ void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, PathFindin
 
   // did player die?
   checkPlayerMortality();
+
+  if ( m_spatial_grid )
+  {
+    auto new_player_pos = Utils::Player::get_player_position( m_reg );
+    m_spatial_grid->update( Utils::Player::get_player_entity( m_reg ), old_player_pos, new_player_pos );
+  }
 }
 
 void PlayerSystem::localTransforms()

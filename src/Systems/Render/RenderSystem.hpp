@@ -66,7 +66,6 @@ protected:
 
   // System mode flags
   bool m_show_path_finding{ false };
-  bool m_show_armed_obstacles{ false };
   bool m_minimap_enabled{ false };
   bool m_show_debug_stats{ false };
   //! @brief Allow user to disable dark mode for debugging purposes

@@ -163,10 +163,7 @@ void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Sys::Store::Type::HolyWellSystem>().check_entrance_collision();
   m_sys.find<Sys::Store::Type::RuinSystem>().update();
 
-  // cache the player position so we can update the spatial grid afterwards.
-  auto old_player_pos = Utils::Player::get_player_position( m_reg );
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt, &m_spatial_grid );
-  m_spatial_grid.update( Utils::Player::get_player_entity( m_reg ), old_player_pos, Utils::Player::get_player_position( m_reg ) );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
   m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, m_spatial_grid, Sys::DarkMode::OFF );

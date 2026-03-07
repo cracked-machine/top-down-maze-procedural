@@ -189,9 +189,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
   // check for updates to the System modes
   for ( auto [_ent, _sys] : getReg().view<Cmp::System>().each() )
   {
-    m_show_path_finding = _sys.show_path_distances;
-    m_show_armed_obstacles = _sys.show_armed_obstacles;
-    m_minimap_enabled = _sys.minimap_enabled;
+    m_show_path_finding = _sys.show_path_finding;
     m_show_debug_stats = _sys.show_debug_stats;
     m_render_dark_mode_enabled = _sys.dark_mode_enabled;
   }
@@ -384,18 +382,6 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
           render_overlay_sys.render_pathfinding_vector( spatial_grid, npc_pos_cmp, Cmp::Position( player_position.position, player_position.size ),
                                                         sf::Color::White, query_compass );
         }
-
-        // Restore the previous view
-        m_window.setView( previous_view );
-      }
-      if ( m_show_armed_obstacles )
-      {
-        // Save the current view
-        sf::View previous_view = m_window.getView();
-        // Set the game view for world-space rendering
-        m_window.setView( RenderSystem::s_game_view );
-
-        render_overlay_sys.render_obstacle_markers();
 
         // Restore the previous view
         m_window.setView( previous_view );

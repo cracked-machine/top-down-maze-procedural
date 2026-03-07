@@ -7,13 +7,9 @@ namespace ProceduralMaze::Cmp
 class System
 {
 public:
-  bool collisions_disabled = false;  // F1
-  bool pause_flood = false;          // F2
-  bool show_path_distances = false;  // F3
-  bool show_armed_obstacles = false; // F4
-  bool show_debug_stats = false;     // F5
-  bool minimap_enabled = false;
-  bool player_stuck = false;
+  bool collisions_disabled = false; // F1
+  bool show_path_finding = false;   // F5
+  bool show_debug_stats = false;    // F6
   bool level_complete = false;
   bool dark_mode_enabled = true; // F9
 };

@@ -143,7 +143,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
           SPDLOG_INFO( "Collisions are now {}", _sys.collisions_disabled ? "DISABLED" : "ENABLED" );
         }
       }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
       {
         m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_CRYPT ) );
         // remember the player position
@@ -154,7 +154,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
                                                                  m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
         if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
       }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 )
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F6 )
       {
         m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_HOLYWELL ) );
         // remember the player position
@@ -165,7 +165,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
                                                                  m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
         if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
       }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 )
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F7 )
       {
         m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER ) );
         // remember the player position
@@ -176,15 +176,15 @@ void SceneInputRouter::graveyard_scene_state_handler()
                                                                  m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
         if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
       }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
       {
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
-          _sys.show_path_distances = not _sys.show_path_distances;
-          SPDLOG_INFO( "Show player distances is now {}", _sys.show_path_distances ? "ENABLED" : "DISABLED" );
+          _sys.show_path_finding = not _sys.show_path_finding;
+          SPDLOG_INFO( "Show Pathfinding is now {}", _sys.show_path_finding ? "ENABLED" : "DISABLED" );
         }
       }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F6 )
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 )
       {
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
@@ -294,23 +294,15 @@ void SceneInputRouter::crypt_scene_state_handler()
           SPDLOG_INFO( "Collisions are now {}", _sys.collisions_disabled ? "DISABLED" : "ENABLED" );
         }
       }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
+      {
+        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
+        {
+          _sys.show_path_finding = not _sys.show_path_finding;
+          SPDLOG_INFO( "Show Pathfinding is now {}", _sys.show_path_finding ? "ENABLED" : "DISABLED" );
+        }
+      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.show_path_distances = not _sys.show_path_distances;
-          SPDLOG_INFO( "Show player distances is now {}", _sys.show_path_distances ? "ENABLED" : "DISABLED" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.show_armed_obstacles = not _sys.show_armed_obstacles;
-          SPDLOG_INFO( "Show armed obstacles is now {}", _sys.show_armed_obstacles ? "ENABLED" : "DISABLED" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
       {
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
@@ -440,23 +432,15 @@ void SceneInputRouter::holywell_scene_state_handler()
           SPDLOG_INFO( "Collisions are now {}", _sys.collisions_disabled ? "DISABLED" : "ENABLED" );
         }
       }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
+      {
+        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
+        {
+          _sys.show_path_finding = not _sys.show_path_finding;
+          SPDLOG_INFO( "Show Pathfinding is now {}", _sys.show_path_finding ? "ENABLED" : "DISABLED" );
+        }
+      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.show_path_distances = not _sys.show_path_distances;
-          SPDLOG_INFO( "Show player distances is now {}", _sys.show_path_distances ? "ENABLED" : "DISABLED" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.show_armed_obstacles = not _sys.show_armed_obstacles;
-          SPDLOG_INFO( "Show armed obstacles is now {}", _sys.show_armed_obstacles ? "ENABLED" : "DISABLED" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
       {
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {
@@ -569,23 +553,15 @@ void SceneInputRouter::ruin_scene_state_handler()
           SPDLOG_INFO( "Collisions are now {}", _sys.collisions_disabled ? "DISABLED" : "ENABLED" );
         }
       }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 )
+      {
+        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
+        {
+          _sys.show_path_finding = not _sys.show_path_finding;
+          SPDLOG_INFO( "Show Pathfinding is now {}", _sys.show_path_finding ? "ENABLED" : "DISABLED" );
+        }
+      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.show_path_distances = not _sys.show_path_distances;
-          SPDLOG_INFO( "Show player distances is now {}", _sys.show_path_distances ? "ENABLED" : "DISABLED" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.show_armed_obstacles = not _sys.show_armed_obstacles;
-          SPDLOG_INFO( "Show armed obstacles is now {}", _sys.show_armed_obstacles ? "ENABLED" : "DISABLED" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
       {
         for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
         {

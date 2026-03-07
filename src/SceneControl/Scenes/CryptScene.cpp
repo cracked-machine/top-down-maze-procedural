@@ -7,6 +7,7 @@
 #include <Factory/CryptFactory.hpp>
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Npc/NpcNoPathFinding.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/CryptSystem.hpp>
@@ -45,6 +46,14 @@ void CryptScene::on_init()
   Factory::gen_crypt_main_objective( m_reg, m_sprite_Factory, CryptScene::kMapGridSize );
   Factory::create_initial_crypt_rooms( m_reg, CryptScene::kMapGridSize );
   Factory::gen_crypt_initial_interior( m_reg, m_sprite_Factory );
+
+  // create a spatial grid of the game area
+  auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
+  for ( auto entity : view )
+  {
+    const auto &pos = view.get<Cmp::Position>( entity );
+    m_spatial_grid.insert( entity, pos );
+  }
 
   Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, CryptScene::kMapGridSize, "res/json/crypt_tilemap_config.json" );
 
