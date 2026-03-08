@@ -29,10 +29,8 @@ public:
   enum class ScaleCardinality { HORIZONTAL, VERTICAL, BOTH };
 
   RectBounds( Cmp::Position pos, float ScaleFactor, ScaleCardinality scale_cardinality = ScaleCardinality::BOTH )
-      : m_scale_factor( ScaleFactor ),
-        m_scale_cardinality( scale_cardinality )
+      : RectBounds( pos.position, pos.size, ScaleFactor, scale_cardinality )
   {
-    RectBounds( pos.position, pos.size, ScaleFactor, scale_cardinality );
   }
 
   /**
