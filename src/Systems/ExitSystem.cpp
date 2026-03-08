@@ -1,3 +1,4 @@
+#include <Player/PlayerNoPath.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -88,7 +89,7 @@ void ExitSystem::check_player_can_unlock_exit()
   for ( auto [entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
   {
     auto player_pos = Utils::Player::get_position( getReg() );
-    Cmp::RectBounds player_hitbox( player_pos.position, player_pos.size, 1.5f );
+    Cmp::RectBounds player_hitbox( player_pos, 5.f );
     auto [found_entt, found_carryitem_type] = Utils::Player::get_inventory_type( getReg() );
     if ( player_hitbox.findIntersection( exit_pos_cmp ) and found_carryitem_type.contains( "exitkey" ) )
     {
@@ -99,6 +100,7 @@ void ExitSystem::check_player_can_unlock_exit()
         exit_cmp.m_locked = false;
         getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", 1 );
         getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y - 16.f );
+        getReg().remove<Cmp::PlayerNoPath>( entity );
         if ( m_sound_bank.get_effect( "secret" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "secret" ).play();
         Factory::destroy_inventory( getReg(), "CARRYITEM.exitkey" );
       }

@@ -97,14 +97,18 @@ void GraveyardScene::on_init()
   m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().init_hazard_field();
   m_sys.find<Sys::Store::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
-  Factory::create_carry_item( m_reg, Cmp::Position( m_player_start_position + sf::Vector2f{ 16.f, 16.f }, Constants::kGridSizePxF ),
-                              "CARRYITEM.shovel" );
-
-  Factory::create_carry_item( m_reg, Cmp::Position( m_player_start_position - sf::Vector2f{ 16.f, 16.f }, Constants::kGridSizePxF ),
-                              "CARRYITEM.axe" );
-
-  Factory::create_carry_item( m_reg, Cmp::Position( m_player_start_position - sf::Vector2f{ 32.f, 16.f }, Constants::kGridSizePxF ),
-                              "CARRYITEM.scryingball" );
+#ifndef NDEBUG
+  Cmp::Position shovel_pos_cmp( m_player_start_position + sf::Vector2f{ 32.f, 32.f }, Constants::kGridSizePxF );
+  Factory::create_carry_item( m_reg, shovel_pos_cmp, "CARRYITEM.shovel" );
+  Cmp::Position axe_pos_cmp( m_player_start_position + sf::Vector2f{ 32.f, -32.f }, Constants::kGridSizePxF );
+  Factory::create_carry_item( m_reg, axe_pos_cmp, "CARRYITEM.axe" );
+  Cmp::Position scryingball_pos_cmp( m_player_start_position + sf::Vector2f{ -32.f, 32.f }, Constants::kGridSizePxF );
+  Factory::create_carry_item( m_reg, scryingball_pos_cmp, "CARRYITEM.scryingball" );
+  Cmp::Position cryptkey_pos_cmp( m_player_start_position + sf::Vector2f{ -32.f, -32.f }, Constants::kGridSizePxF );
+  Factory::create_carry_item( m_reg, cryptkey_pos_cmp, "CARRYITEM.cryptkey" );
+  Cmp::Position exitkey_pos_cmp( m_player_start_position + sf::Vector2f{ -32.f, -16.f }, Constants::kGridSizePxF );
+  Factory::create_carry_item( m_reg, exitkey_pos_cmp, "CARRYITEM.exitkey" );
+#endif
 }
 
 void GraveyardScene::on_enter()

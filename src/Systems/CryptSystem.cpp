@@ -1,4 +1,5 @@
 #include <Factory/MultiblockFactory.hpp>
+#include <Player/PlayerNoPath.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -207,67 +208,74 @@ void CryptSystem::spawn_exit( sf::Vector2u spawn_position )
 
 void CryptSystem::unlock_crypt_door()
 {
-  auto pc_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
+
+  auto player_pos_cmp = Utils::Player::get_position( getReg() );
   auto cryptdoor_view = getReg().view<Cmp::CryptEntrance, Cmp::Position>();
 
   auto [inv_entt, inv_type] = Utils::Player::get_inventory_type( getReg() );
   if ( inv_type != "CARRYITEM.cryptkey" ) return;
 
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
+  for ( auto [door_entity, cryptdoor_cmp, door_pos_cmp] : cryptdoor_view.each() )
   {
-    for ( auto [door_entity, cryptdoor_cmp, door_pos_cmp] : cryptdoor_view.each() )
+    // optimize: skip if not visible
+    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), door_pos_cmp ) ) continue;
+
+    SPDLOG_INFO( "CryptSystem::unlock_crypt_door 1" );
+    // Player can't intersect with a closed crypt door so expand their hitbox to facilitate collision detection
+    auto player_hitbox = Cmp::RectBounds( player_pos_cmp, 5.f );
+    if ( not player_hitbox.findIntersection( door_pos_cmp ) ) continue;
+    SPDLOG_INFO( "CryptSystem::unlock_crypt_door 2" );
+
+    // Crypt door is already opened
+    if ( cryptdoor_cmp.is_open() )
     {
-      // optimize: skip if not visible
-      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), door_pos_cmp ) ) continue;
 
-      // Player can't intersect with a closed crypt door so expand their hitbox to facilitate collision detection
-      auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, pc_pos_cmp.size, 5.f );
-      if ( not player_hitbox.findIntersection( door_pos_cmp ) ) continue;
-
-      // Crypt door is already opened
-      if ( cryptdoor_cmp.is_open() )
-      {
-        // Set the z-order value
-        auto crypt_view = getReg().view<Cmp::CryptMultiBlock>();
-        for ( auto [crypt_entity, crypt_cmp] : crypt_view.each() )
-        {
-          if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;
-          getReg().emplace_or_replace<Cmp::ZOrderValue>( crypt_entity, crypt_cmp.position.y - 16.f );
-        }
-        continue;
-      }
-      else
-      {
-        // Set the z-order value
-        auto crypt_view = getReg().view<Cmp::CryptMultiBlock>();
-        for ( auto [crypt_entity, crypt_cmp] : crypt_view.each() )
-        {
-          if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;
-          getReg().emplace_or_replace<Cmp::ZOrderValue>( crypt_entity, crypt_cmp.position.y + 16.f );
-        }
-      }
-
-      // unlock the crypt door
-      SPDLOG_INFO( "Player unlocked a crypt door at ({}, {})", door_pos_cmp.position.x, door_pos_cmp.position.y );
-      Factory::destroy_inventory( getReg(), "CARRYITEM.cryptkey" );
-
-      // player_key_count->decrement_count( 1 );
-      m_sound_bank.get_effect( "crypt_open" ).play();
-      cryptdoor_cmp.set_is_open( true );
-
-      // make doorway non-solid and lower z-order so player walks over it
-      getReg().emplace_or_replace<Cmp::CryptSegment>( door_entity, Cmp::CryptSegment( false ) );
-
-      // find the crypt multi-block this door belongs to and update the sprite
-      auto crypt_view = getReg().view<Cmp::CryptMultiBlock, Cmp::SpriteAnimation>();
-      for ( auto [crypt_entity, crypt_cmp, anim_cmp] : crypt_view.each() )
+      // Set the z-order value
+      auto crypt_view = getReg().view<Cmp::CryptMultiBlock>();
+      for ( auto [crypt_entt, crypt_cmp] : crypt_view.each() )
       {
         if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;
-        anim_cmp.m_sprite_type = "CRYPT.opened";
-
-        SPDLOG_INFO( "Updated crypt multi-block sprite to open state at ({}, {})", crypt_cmp.position.x, crypt_cmp.position.y );
-        break;
+        getReg().emplace_or_replace<Cmp::ZOrderValue>( crypt_entt, crypt_cmp.position.y - 16.f );
+        if ( getReg().any_of<Cmp::PlayerNoPath>( crypt_entt ) )
+        {
+          SPDLOG_INFO( "CryptDoor is open" );
+          getReg().remove<Cmp::PlayerNoPath>( crypt_entt );
+        }
       }
+      continue;
+    }
+    else
+    {
+      // Set the z-order value
+      auto crypt_view = getReg().view<Cmp::CryptMultiBlock>();
+      for ( auto [crypt_entt, crypt_cmp] : crypt_view.each() )
+      {
+        if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;
+        getReg().emplace_or_replace<Cmp::ZOrderValue>( crypt_entt, crypt_cmp.position.y + 16.f );
+      }
+    }
+
+    // unlock the crypt door
+    SPDLOG_INFO( "Player unlocked a crypt door at ({}, {})", door_pos_cmp.position.x, door_pos_cmp.position.y );
+    Factory::destroy_inventory( getReg(), "CARRYITEM.cryptkey" );
+
+    // player_key_count->decrement_count( 1 );
+    m_sound_bank.get_effect( "crypt_open" ).play();
+    cryptdoor_cmp.set_is_open( true );
+    getReg().remove<Cmp::PlayerNoPath>( door_entity );
+
+    // make doorway non-solid and lower z-order so player walks over it
+    getReg().emplace_or_replace<Cmp::CryptSegment>( door_entity, Cmp::CryptSegment( false ) );
+
+    // find the crypt multi-block this door belongs to and update the sprite
+    auto crypt_view = getReg().view<Cmp::CryptMultiBlock, Cmp::SpriteAnimation>();
+    for ( auto [crypt_entity, crypt_cmp, anim_cmp] : crypt_view.each() )
+    {
+      if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;
+      anim_cmp.m_sprite_type = "CRYPT.opened";
+
+      SPDLOG_INFO( "Updated crypt multi-block sprite to open state at ({}, {})", crypt_cmp.position.x, crypt_cmp.position.y );
+      break;
     }
   }
 }
