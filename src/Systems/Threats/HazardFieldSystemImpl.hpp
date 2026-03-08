@@ -137,7 +137,7 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
 {
   auto hazard_view = getReg().template view<HazardType, Cmp::Position>();
   auto player_view = getReg().template view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
-  const auto &player_position = Utils::Player::get_player_position( getReg() );
+  const auto &player_position = Utils::Player::get_position( getReg() );
 
   for ( auto [pc_entt, player_cmp, player_health_cmp, player_mort_cmp, player_pos_cmp] : player_view.each() )
   {

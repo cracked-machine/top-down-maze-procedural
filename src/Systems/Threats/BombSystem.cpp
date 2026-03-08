@@ -92,14 +92,14 @@ void BombSystem::on_bomb_event( const Events::PlayerActionEvent &event )
 
 void BombSystem::arm_grave_bomb()
 {
-  auto player_entt = Utils::Player::get_player_entity( getReg() );
+  auto player_entt = Utils::Player::get_entity( getReg() );
   m_sound_bank.get_effect( "bomb_fuse" ).play();
   place_concentric_bomb_pattern( player_entt, getReg().get<Cmp::PlayerBlastRadius>( player_entt ).value );
 }
 
 void BombSystem::arm_entt( entt::entity target_entt )
 {
-  auto player_entt = Utils::Player::get_player_entity( getReg() );
+  auto player_entt = Utils::Player::get_entity( getReg() );
 
   // then use the candidate entity to place the booby trap bomb
   if ( target_entt != entt::null )
@@ -112,14 +112,14 @@ void BombSystem::arm_entt( entt::entity target_entt )
 
 void BombSystem::arm_player_bomb()
 {
-  auto player_entt = Utils::Player::get_player_entity( getReg() );
-  auto player_pos = Utils::Player::get_player_position( getReg() );
+  auto player_entt = Utils::Player::get_entity( getReg() );
+  auto player_pos = Utils::Player::get_position( getReg() );
 
   auto destructable_view = getReg().view<Cmp::Armable, Cmp::Position>();
   for ( auto [destructable_entity, destructable_cmp, destructable_pos_cmp] : destructable_view.each() )
   {
 
-    auto [inventory_entt, inventory_type] = Utils::Player::get_player_inventory_type( getReg() );
+    auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( getReg() );
     if ( inventory_type != "CARRYITEM.bomb" ) return;
 
     // make a copy and reduce/center the player hitbox to avoid arming a neighbouring location
@@ -258,7 +258,7 @@ void BombSystem::update( PathFinding::SpatialHashGrid *spatial_grid )
       if ( not carryitem_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
       if ( carryitem_cmp.type == "CARRYITEM.pickaxe" or carryitem_cmp.type == "CARRYITEM.axe" or carryitem_cmp.type == "CARRYITEM.shovel" )
       {
-        Utils::Player::reduce_player_inventory_wear_level( getReg(), Sys::PersistSystem::get<Cmp::Persist::BombDamage>( getReg() ).get_value() );
+        Utils::Player::reduce_inventory_wear_level( getReg(), Sys::PersistSystem::get<Cmp::Persist::BombDamage>( getReg() ).get_value() );
       }
       else if ( carryitem_cmp.type == "CARRYITEM.bomb" )
       {
@@ -301,7 +301,7 @@ void BombSystem::update( PathFinding::SpatialHashGrid *spatial_grid )
         if ( pc_health_cmp.health <= 0 )
         {
           get_systems_event_queue().enqueue(
-              Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::EXPLODING, Utils::Player::get_player_position( getReg() ) ) );
+              Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::EXPLODING, Utils::Player::get_position( getReg() ) ) );
         }
       }
     }

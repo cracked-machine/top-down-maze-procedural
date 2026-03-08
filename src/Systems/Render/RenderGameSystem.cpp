@@ -176,7 +176,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
     m_show_npcnopath = sys_cmp.show_npcnopath;
   }
 
-  const Cmp::Position player_pos_cmp = Utils::Player::get_player_position( getReg() );
+  const Cmp::Position player_pos_cmp = Utils::Player::get_position( getReg() );
 
   // make sure the local view is centered on the player mid-point and not at their top-left corner
   // (otherwise this makes views, shaders, etc look off-center)
@@ -306,11 +306,11 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
   m_window.setView( m_window.getDefaultView() );
   {
 
-    auto player_blast_radius = Utils::Player::get_player_blast_radius( getReg() );
-    auto player_health = Utils::Player::get_player_health( getReg() );
-    auto player_wealth = Utils::Player::get_player_wealth( getReg() );
+    auto player_blast_radius = Utils::Player::get_blast_radius( getReg() );
+    auto player_health = Utils::Player::get_health( getReg() );
+    auto player_wealth = Utils::Player::get_wealth( getReg() );
     auto player_cadaver_count = Utils::Player::get_cadaver_count( getReg() );
-    auto new_weapon_level = Utils::Player::get_player_inventory_wear_level( getReg() );
+    auto new_weapon_level = Utils::Player::get_inventory_wear_level( getReg() );
 
     float start_y_pos = 0;
     render_overlay_sys.render_ui_background_overlay( { 20.f, start_y_pos += 20.f }, { 300.f, 230.f } );
@@ -464,7 +464,7 @@ void RenderGameSystem::render_arrow_compass()
 {
   auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
 
-  auto [found_entt, found_carryitem_type] = Utils::Player::get_player_inventory_type( getReg() );
+  auto [found_entt, found_carryitem_type] = Utils::Player::get_inventory_type( getReg() );
   if ( not found_carryitem_type.contains( "exitkey" ) and not found_carryitem_type.contains( "cryptkey" ) and
        not found_carryitem_type.contains( "CARRYITEM.relic" ) )
     return;
@@ -490,7 +490,7 @@ void RenderGameSystem::render_arrow_compass()
     for ( auto [crypt_entity, crypt_cmp, crypt_pos_cmp] : crypt_view.each() )
     {
       if ( crypt_cmp.is_open() ) continue;
-      auto float_distance = Utils::Maths::getEuclideanDistance( crypt_pos_cmp.position, Utils::Player::get_player_position( getReg() ).position );
+      auto float_distance = Utils::Maths::getEuclideanDistance( crypt_pos_cmp.position, Utils::Player::get_position( getReg() ).position );
       distance_queue.emplace( float_distance, crypt_pos_cmp );
     }
     if ( distance_queue.empty() ) return; // there are no suitable crypts so give up
@@ -508,7 +508,7 @@ void RenderGameSystem::render_arrow_compass()
     for ( auto [altar_entity, altar_cmp] : crypt_view.each() )
     {
       if ( altar_cmp.are_powers_active() ) continue;
-      auto float_distance = Utils::Maths::getEuclideanDistance( altar_cmp.position, Utils::Player::get_player_position( getReg() ).position );
+      auto float_distance = Utils::Maths::getEuclideanDistance( altar_cmp.position, Utils::Player::get_position( getReg() ).position );
       distance_queue.emplace( float_distance, Cmp::Position( altar_cmp.position, altar_cmp.size ) );
     }
     if ( distance_queue.empty() ) return; // there are no suitable crypts so give up
@@ -590,7 +590,7 @@ void RenderGameSystem::render_dark_mode_shader()
 
 void RenderGameSystem::render_cursed_mode_shader( sf::FloatRect player_position )
 {
-  auto &player_curse = Utils::Player::get_player_curse( getReg() );
+  auto &player_curse = Utils::Player::get_curse( getReg() );
   auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
   m_dripping_blood_shader.update( { player_position.position.x - m_mist_shader.get_texture_size().x / 2.f,
                                     player_position.position.y - m_mist_shader.get_texture_size().y / 2.f },

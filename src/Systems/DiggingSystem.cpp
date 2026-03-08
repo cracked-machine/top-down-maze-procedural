@@ -77,13 +77,13 @@ void DiggingSystem::update( PathFinding::SpatialHashGrid *spatial_grid )
 void DiggingSystem::check_player_smash_pot()
 {
 
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
+  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
   if ( not inventory_slot_type.contains( "pickaxe" ) and not inventory_slot_type.contains( "axe" ) and not inventory_slot_type.contains( "shovel" ) )
   {
     return;
   }
 
-  if ( Utils::Player::get_player_inventory_wear_level( getReg() ) <= 0 ) { return; }
+  if ( Utils::Player::get_inventory_wear_level( getReg() ) <= 0 ) { return; }
 
   // abort if still in cooldown
   auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
@@ -117,7 +117,7 @@ void DiggingSystem::check_player_smash_pot()
       loot_cmp.hp -= Utils::Maths::to_percent( 100.f, Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( getReg() ).get_value() );
 
       float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
-      Utils::Player::reduce_player_inventory_wear_level( getReg(), reduction_amount );
+      Utils::Player::reduce_inventory_wear_level( getReg(), reduction_amount );
 
       if ( loot_cmp.hp > 0 )
       {
@@ -147,10 +147,10 @@ void DiggingSystem::check_player_smash_pot()
 
 void DiggingSystem::check_player_dig_obstacle_collision()
 {
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
+  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
   if ( not inventory_slot_type.contains( "pickaxe" ) ) { return; }
 
-  if ( Utils::Player::get_player_inventory_wear_level( getReg() ) <= 0 ) { return; }
+  if ( Utils::Player::get_inventory_wear_level( getReg() ) <= 0 ) { return; }
 
   // abort if still in cooldown
   auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
@@ -203,7 +203,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       alpha_cmp.setAlpha( adjusted_alpha );
 
       float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
-      Utils::Player::reduce_player_inventory_wear_level( getReg(), reduction_amount );
+      Utils::Player::reduce_inventory_wear_level( getReg(), reduction_amount );
 
       if ( alpha_cmp.getAlpha() == 0 )
       {
@@ -231,10 +231,10 @@ void DiggingSystem::check_player_dig_obstacle_collision()
 
 void DiggingSystem::check_player_dig_plant_collision()
 {
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
+  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
   if ( inventory_slot_type != "CARRYITEM.shovel" and inventory_slot_type != "CARRYITEM.axe" ) { return; }
 
-  if ( Utils::Player::get_player_inventory_wear_level( getReg() ) <= 0 ) { return; }
+  if ( Utils::Player::get_inventory_wear_level( getReg() ) <= 0 ) { return; }
 
   // abort if still in cooldown
   auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
@@ -299,7 +299,7 @@ void DiggingSystem::check_player_dig_plant_collision()
       }
 
       float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
-      Utils::Player::reduce_player_inventory_wear_level( getReg(), reduction_amount );
+      Utils::Player::reduce_inventory_wear_level( getReg(), reduction_amount );
 
       if ( alpha_cmp.getAlpha() == 0 )
       {

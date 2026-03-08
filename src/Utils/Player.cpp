@@ -23,7 +23,7 @@
 namespace ProceduralMaze::Utils::Player
 {
 
-entt::entity get_player_entity( entt::registry &reg )
+entt::entity get_entity( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::Position>();
   if ( player_view.front() == entt::null ) throw std::runtime_error( "Player entity could not be found" );
@@ -34,7 +34,7 @@ entt::entity get_player_entity( entt::registry &reg )
 //! @throws runtime_error if player has no Cmp::Position
 //! @param reg
 //! @return Cmp::Position&
-Cmp::Position &get_player_position( entt::registry &reg )
+Cmp::Position &get_position( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::Position>();
   for ( auto [entt, player_cmp, pos_cmp] : player_view.each() )
@@ -48,7 +48,7 @@ Cmp::Position &get_player_position( entt::registry &reg )
 //! @throws runtime_error if player has no Cmp::Direction
 //! @param reg
 //! @return Cmp::Direction&
-Cmp::Direction &get_player_direction( entt::registry &reg )
+Cmp::Direction &get_direction( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::Direction>();
   for ( auto [entt, player_cmp, dir_cmp] : player_view.each() )
@@ -62,7 +62,7 @@ Cmp::Direction &get_player_direction( entt::registry &reg )
 //! @throws runtime_error if player has no Cmp::SpriteAnimation
 //! @param reg
 //! @return Cmp::SpriteAnimation&
-Cmp::SpriteAnimation &get_player_sprite_anim( entt::registry &reg )
+Cmp::SpriteAnimation &get_sprite_anim( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::SpriteAnimation>();
   for ( auto [entt, player_cmp, anim_cmp] : player_view.each() )
@@ -72,9 +72,9 @@ Cmp::SpriteAnimation &get_player_sprite_anim( entt::registry &reg )
   throw std::runtime_error( "Player entt has no component: Cmp::SpriteAnimation" );
 }
 
-int get_player_ruin_location( entt::registry &reg )
+int get_ruin_location( entt::registry &reg )
 {
-  auto player_location = reg.try_get<Cmp::PlayerRuinLocation>( get_player_entity( reg ) );
+  auto player_location = reg.try_get<Cmp::PlayerRuinLocation>( get_entity( reg ) );
   if ( player_location ) { return static_cast<int>( player_location->m_floor ); }
   else { return static_cast<int>( Cmp::PlayerRuinLocation::Floor::NONE ); }
 }
@@ -82,79 +82,79 @@ int get_player_ruin_location( entt::registry &reg )
 //! @brief Get the player last graveyard position object. Return may be nullptr if non-existent.
 //! @param reg
 //! @return Cmp::PlayerLastGraveyardPosition*
-Cmp::PlayerLastGraveyardPosition *get_player_last_graveyard_position( entt::registry &reg )
+Cmp::PlayerLastGraveyardPosition *get_last_graveyard_pos( entt::registry &reg )
 {
-  auto player_entt = get_player_entity( reg );
+  auto player_entt = get_entity( reg );
   return reg.try_get<Cmp::PlayerLastGraveyardPosition>( player_entt );
 }
 
-Cmp::PlayerHealth &get_player_health( entt::registry &reg )
+Cmp::PlayerHealth &get_health( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerHealth>();
   if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerHealth" );
-  return player_view.get<Cmp::PlayerHealth>( get_player_entity( reg ) );
+  return player_view.get<Cmp::PlayerHealth>( get_entity( reg ) );
 }
 
-Cmp::PlayerWealth &get_player_wealth( entt::registry &reg )
+Cmp::PlayerWealth &get_wealth( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerWealth>();
   if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerWealth" );
-  return player_view.get<Cmp::PlayerWealth>( get_player_entity( reg ) );
+  return player_view.get<Cmp::PlayerWealth>( get_entity( reg ) );
 }
 
-Cmp::PlayerBlastRadius &get_player_blast_radius( entt::registry &reg )
+Cmp::PlayerBlastRadius &get_blast_radius( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerBlastRadius>();
   if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerBlastRadius" );
-  return player_view.get<Cmp::PlayerBlastRadius>( get_player_entity( reg ) );
+  return player_view.get<Cmp::PlayerBlastRadius>( get_entity( reg ) );
 }
 
-Cmp::PlayerMortality &get_player_mortality( entt::registry &reg )
+Cmp::PlayerMortality &get_mortality( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerMortality>();
   if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerMortality" );
-  return player_view.get<Cmp::PlayerMortality>( get_player_entity( reg ) );
+  return player_view.get<Cmp::PlayerMortality>( get_entity( reg ) );
 }
 
-Cmp::ZOrderValue &get_player_zorder( entt::registry &reg )
+Cmp::ZOrderValue &get_zorder( entt::registry &reg )
 {
-  auto zorder_cmp = reg.try_get<Cmp::ZOrderValue>( get_player_entity( reg ) );
+  auto zorder_cmp = reg.try_get<Cmp::ZOrderValue>( get_entity( reg ) );
   if ( not zorder_cmp ) throw std::runtime_error( "Player entt has no component: Cmp::ZOrderValue" );
 
   auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::ZOrderValue>();
-  return player_view.get<Cmp::ZOrderValue>( get_player_entity( reg ) );
+  return player_view.get<Cmp::ZOrderValue>( get_entity( reg ) );
 }
 
-Cmp::PlayerCurse &get_player_curse( entt::registry &reg )
+Cmp::PlayerCurse &get_curse( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerCurse>();
   if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerCurse" );
-  auto &curse = player_view.get<Cmp::PlayerCurse>( get_player_entity( reg ) );
+  auto &curse = player_view.get<Cmp::PlayerCurse>( get_entity( reg ) );
   SPDLOG_DEBUG( "Cmp::PlayerCurse == {}", curse.active );
   return curse;
 }
 
-void reset_player_curse( entt::registry &reg )
+void reset_curse( entt::registry &reg )
 {
   auto player_view = reg.view<Cmp::PlayerCurse>();
   if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerCurse" );
-  auto &curse = player_view.get<Cmp::PlayerCurse>( get_player_entity( reg ) );
+  auto &curse = player_view.get<Cmp::PlayerCurse>( get_entity( reg ) );
   curse.active = false;
   curse.shader_alpha.reset();
   SPDLOG_DEBUG( "Cmp::PlayerCurse == {}", curse.active );
 }
 
-float get_player_speed_penalty( entt::registry &reg )
+float get_speed_penalty( entt::registry &reg )
 {
-  auto penalty_cmp = reg.try_get<Cmp::PlayerSpeedPenalty>( get_player_entity( reg ) );
+  auto penalty_cmp = reg.try_get<Cmp::PlayerSpeedPenalty>( get_entity( reg ) );
   if ( penalty_cmp ) { return penalty_cmp->m_penalty; }
   else { return 1.f; }
 }
 
-void remove_player_lerp_cmp( entt::registry &reg )
+void remove_lerp_cmp( entt::registry &reg )
 {
   // Clear any ongoing lerp from the previous scene to prevent invalid player re-positioning
-  auto player_entt = get_player_entity( reg );
+  auto player_entt = get_entity( reg );
   if ( reg.any_of<Cmp::LerpPosition>( player_entt ) )
   {
     reg.remove<Cmp::LerpPosition>( player_entt );
@@ -162,7 +162,7 @@ void remove_player_lerp_cmp( entt::registry &reg )
   }
 }
 
-std::pair<entt::entity, Sprites::SpriteMetaType> get_player_inventory_type( entt::registry &reg )
+std::pair<entt::entity, Sprites::SpriteMetaType> get_inventory_type( entt::registry &reg )
 {
   auto inv_view = reg.view<Cmp::PlayerInventorySlot>();
   Sprites::SpriteMetaType found_type = "";
@@ -177,7 +177,7 @@ std::pair<entt::entity, Sprites::SpriteMetaType> get_player_inventory_type( entt
   return { found_entt, found_type };
 }
 
-float get_player_inventory_wear_level( entt::registry &reg )
+float get_inventory_wear_level( entt::registry &reg )
 {
   auto inventory_wear_view = reg.view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
   for ( auto [inventory_entity, inventory_slot, wear_level] : inventory_wear_view.each() )
@@ -188,7 +188,7 @@ float get_player_inventory_wear_level( entt::registry &reg )
   return -1;
 }
 
-void reduce_player_inventory_wear_level( entt::registry &reg, float amount )
+void reduce_inventory_wear_level( entt::registry &reg, float amount )
 {
   auto inventory_wear_view = reg.view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
   for ( auto [inventory_entity, inventory_slot, wear_level] : inventory_wear_view.each() )

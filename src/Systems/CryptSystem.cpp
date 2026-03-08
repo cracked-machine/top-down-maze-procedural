@@ -76,7 +76,7 @@ void CryptSystem::setup( PathFinding::SpatialHashGrid *spatial_grid )
   // update the grid
   m_spatial_grid = spatial_grid;
 
-  if ( Utils::Player::get_player_mortality( m_reg ).state != Cmp::PlayerMortality::State::DEAD )
+  if ( Utils::Player::get_mortality( m_reg ).state != Cmp::PlayerMortality::State::DEAD )
   {
     createRoomBorders();
 
@@ -113,7 +113,7 @@ void CryptSystem::update( PathFinding::SpatialHashGrid *spatial_grid )
 
 void CryptSystem::on_player_action( Events::PlayerActionEvent &event )
 {
-  if ( Utils::Player::get_player_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) return;
+  if ( Utils::Player::get_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) return;
 
   if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) check_objective_activation( event.action );
   if ( event.action == Events::PlayerActionEvent::GameActions::ACTIVATE ) check_chest_activation( event.action );
@@ -121,7 +121,7 @@ void CryptSystem::on_player_action( Events::PlayerActionEvent &event )
 
 void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
 {
-  if ( Utils::Player::get_player_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) return;
+  if ( Utils::Player::get_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) return;
 
   if ( event.type == Events::CryptRoomEvent::Type::SHUFFLE_PASSAGES ) { shuffle_rooms_passages(); }
   else if ( event.type == Events::CryptRoomEvent::Type::FINAL_PASSAGE ) { unlock_objective_passage(); }
@@ -153,7 +153,7 @@ void CryptSystem::check_entrance_collision()
       // remember player position
       auto last_player_pos = Factory::add_player_last_graveyard_pos( getReg(), crypt_door_pos_cmp );
       // drop any inventory
-      auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
+      auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
       auto dropped_entt = Factory::drop_inventory_slot_into_world( getReg(), last_player_pos,
                                                                    m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
       if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
@@ -214,7 +214,7 @@ void CryptSystem::unlock_crypt_door()
   auto pc_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
   auto cryptdoor_view = getReg().view<Cmp::CryptEntrance, Cmp::Position>();
 
-  auto [inv_entt, inv_type] = Utils::Player::get_player_inventory_type( getReg() );
+  auto [inv_entt, inv_type] = Utils::Player::get_inventory_type( getReg() );
   if ( inv_type != "CARRYITEM.cryptkey" ) return;
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
@@ -493,7 +493,7 @@ void CryptSystem::shuffle_rooms_passages()
   // try to open passages for the occupied room: only do start room if player is currently there
   SPDLOG_INFO( "~~~~~~~~~~~ STARTING PASSAGE GEN ~~~~~~~~~~~~~~~" );
   auto [start_room_entt, start_room_cmp] = get_crypt_room_start();
-  if ( Utils::Player::get_player_position( getReg() ).findIntersection( start_room_cmp ) )
+  if ( Utils::Player::get_position( getReg() ).findIntersection( start_room_cmp ) )
   {
     get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_START_TO_OPENROOMS, start_room_entt ) );
   }
@@ -745,7 +745,7 @@ void CryptSystem::closeOpenRooms()
   auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
   for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
   {
-    if ( open_room_cmp.findIntersection( Utils::Player::get_player_position( getReg() ) ) ) continue;
+    if ( open_room_cmp.findIntersection( Utils::Player::get_position( getReg() ) ) ) continue;
     rooms_to_close.push_back( { open_room_entt, open_room_cmp } );
   }
 
@@ -874,7 +874,7 @@ void CryptSystem::doLavaPitAnimation()
 
 void CryptSystem::removeLavaPitOpenRooms()
 {
-  auto player_pos_cmp = Utils::Player::get_player_position( getReg() );
+  auto player_pos_cmp = Utils::Player::get_position( getReg() );
   auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
   for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
   {
@@ -890,9 +890,9 @@ void CryptSystem::removeLavaPitOpenRooms()
 
 void CryptSystem::checkLavaPitCollision()
 {
-  if ( Utils::Player::get_player_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) return;
+  if ( Utils::Player::get_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) return;
 
-  Cmp::RectBounds player_hitbox( Utils::Player::get_player_position( getReg() ).position, Utils::Player::get_player_position( getReg() ).size, 0.5f );
+  Cmp::RectBounds player_hitbox( Utils::Player::get_position( getReg() ).position, Utils::Player::get_position( getReg() ).size, 0.5f );
   for ( auto [lava_cell_entt, lava_cell_cmp] : getReg().view<Cmp::CryptRoomLavaPitCell>().each() )
   {
     if ( not player_hitbox.findIntersection( lava_cell_cmp ) ) continue;
@@ -903,7 +903,7 @@ void CryptSystem::checkLavaPitCollision()
 
 void CryptSystem::checkLavaPitActivationByProximity()
 {
-  auto player_pos_cmp = Utils::Player::get_player_position( getReg() );
+  auto player_pos_cmp = Utils::Player::get_position( getReg() );
   Cmp::RectBounds player_hitbox_enable( player_pos_cmp.position, player_pos_cmp.size, 2.f );
   Cmp::RectBounds player_hitbox_disable( player_pos_cmp.position, player_pos_cmp.size, 5.f );
   int num_lava_pits_intersect = 0;
@@ -942,9 +942,9 @@ void CryptSystem::checkLavaPitActivationByProximity()
 
 void CryptSystem::checkSpikeTrapCollision()
 {
-  if ( Utils::Player::get_player_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) return;
+  if ( Utils::Player::get_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) return;
 
-  Cmp::Position player_pos = Utils::Player::get_player_position( getReg() );
+  Cmp::Position player_pos = Utils::Player::get_position( getReg() );
   Cmp::RectBounds player_hitbox( player_pos.position, player_pos.size, 0.5f );
   for ( auto [spike_trap_entt, spike_trap_cmp, spike_trap_anim_cmp] : getReg().view<Cmp::CryptPassageSpikeTrap, Cmp::SpriteAnimation>().each() )
   {
@@ -959,7 +959,7 @@ void CryptSystem::checkSpikeTrapCollision()
 
 void CryptSystem::checkSpikeTrapActivationByProximity()
 {
-  auto player_pos_cmp = Utils::Player::get_player_position( getReg() );
+  auto player_pos_cmp = Utils::Player::get_position( getReg() );
   Cmp::RectBounds player_hitbox_enable( player_pos_cmp.position, player_pos_cmp.size, 2.f );
   Cmp::RectBounds player_hitbox_disable( player_pos_cmp.position, player_pos_cmp.size, 5.f );
   for ( auto [spike_trap_entt, spike_trap_cmp, spike_trap_anim_cmp] : getReg().view<Cmp::CryptPassageSpikeTrap, Cmp::SpriteAnimation>().each() )
@@ -994,7 +994,7 @@ std::vector<entt::entity> CryptSystem::getAvailableRoomPositions()
   {
     for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
     {
-      if ( Utils::Player::get_player_position( getReg() ).findIntersection( open_room_cmp ) ) continue;
+      if ( Utils::Player::get_position( getReg() ).findIntersection( open_room_cmp ) ) continue;
       if ( not candidate_pos_cmp.findIntersection( open_room_cmp ) ) continue;
 
       // search all Cmp::CryptRoomLavaPit for collision with positions in this open room
@@ -1095,7 +1095,7 @@ void CryptSystem::removeLeverOpenRooms()
     for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
     {
       if ( not open_room_cmp.findIntersection( lever_pos_cmp ) ) continue;
-      if ( open_room_cmp.findIntersection( Utils::Player::get_player_position( getReg() ) ) ) continue;
+      if ( open_room_cmp.findIntersection( Utils::Player::get_position( getReg() ) ) ) continue;
 
       Factory::destroy_crypt_lever( getReg(), lever_entt );
     }
@@ -1109,7 +1109,7 @@ void CryptSystem::removeChestOpenRooms()
     for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
     {
       if ( not open_room_cmp.findIntersection( chest_pos_cmp ) ) continue;
-      if ( open_room_cmp.findIntersection( Utils::Player::get_player_position( getReg() ) ) ) continue;
+      if ( open_room_cmp.findIntersection( Utils::Player::get_position( getReg() ) ) ) continue;
 
       Factory::destroy_crypt_lever( getReg(), chest_entt );
     }

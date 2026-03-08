@@ -324,7 +324,7 @@ void RenderMenuSystem::render_victory_screen()
   start_text.setPosition( { display_size.x / 4.f, 200.f } );
   m_window.draw( start_text );
 
-  auto [inventory_entt, inventory_type] = Utils::Player::get_player_inventory_type( getReg() );
+  auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( getReg() );
   sf::Text player_inventory_text( m_font, "Player Inventory: " + ( inventory_type = "" ? "None" : inventory_type ), 24 );
   player_inventory_text.setFillColor( sf::Color::White );
   player_inventory_text.setPosition( { display_size.x / 4.f, 550.f } );

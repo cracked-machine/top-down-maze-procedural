@@ -66,7 +66,7 @@ void RuinSystem::update( PathFinding::SpatialHashGrid *spatial_grid )
 
 void RuinSystem::check_entrance_collision()
 {
-  auto player_pos = Utils::Player::get_player_position( getReg() );
+  auto player_pos = Utils::Player::get_position( getReg() );
   auto ruindoor_view = getReg().view<Cmp::RuinEntrance, Cmp::Position>();
   for ( auto [door_entity, ruindoor_cmp, door_pos_cmp] : ruindoor_view.each() )
   {
@@ -91,12 +91,12 @@ void RuinSystem::check_entrance_collision()
         auto last_player_pos = Factory::add_player_last_graveyard_pos( getReg(), door_pos_cmp );
 
         // drop any inventory outside the door
-        auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
+        auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
         auto dropped_entt = Factory::drop_inventory_slot_into_world(
             getReg(), last_player_pos, m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
         if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
 
-        auto player_entt = Utils::Player::get_player_entity( getReg() );
+        auto player_entt = Utils::Player::get_entity( getReg() );
         getReg().emplace_or_replace<Cmp::PlayerRuinLocation>( player_entt, Cmp::PlayerRuinLocation::Floor::LOWER );
       }
       else { getReg().emplace_or_replace<Cmp::ZOrderValue>( ruin_mb_entity, player_pos.position.y + 16.f ); }
@@ -115,7 +115,7 @@ void RuinSystem::check_floor_access_collision( Cmp::RuinFloorAccess::Direction d
 {
   if ( m_floor_access_cooldown.getElapsedTime().asSeconds() < kFloorAccessCooldownSeconds ) { return; }
 
-  auto player_pos = Utils::Player::get_player_position( getReg() );
+  auto player_pos = Utils::Player::get_position( getReg() );
   bool currently_on_floor_access = false;
 
   for ( auto [access_entt, access_cmp] : getReg().view<Cmp::RuinFloorAccess>().each() )
@@ -148,8 +148,8 @@ void RuinSystem::check_floor_access_collision( Cmp::RuinFloorAccess::Direction d
 
 void RuinSystem::check_movement_slowdowns()
 {
-  auto player_pos = Utils::Player::get_player_position( getReg() );
-  auto player_entt = Utils::Player::get_player_entity( getReg() );
+  auto player_pos = Utils::Player::get_position( getReg() );
+  auto player_entt = Utils::Player::get_entity( getReg() );
 
   float slowdown_penalty = 0.0f;
 
@@ -358,7 +358,7 @@ void RuinSystem::creaking_rope_update()
 
 bool RuinSystem::check_activate_player_curse( sf::Vector2f scene_dimensions )
 {
-  Cmp::PlayerCurse &player_curse = Utils::Player::get_player_curse( getReg() );
+  Cmp::PlayerCurse &player_curse = Utils::Player::get_curse( getReg() );
 
   if ( not player_curse.active && is_player_carrying_witches_jar() )
   {
@@ -400,7 +400,7 @@ bool RuinSystem::is_player_carrying_witches_jar()
 
 void RuinSystem::update_shadow_hand_pos( sf::Vector2f scene_dimensions )
 {
-  if ( not Utils::Player::get_player_curse( getReg() ).active ) return;
+  if ( not Utils::Player::get_curse( getReg() ).active ) return;
 
   const auto &hand_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.shadow_hand" );
   const auto hand_ms_size = hand_ms.getSpriteSizePixels();
@@ -417,10 +417,10 @@ void RuinSystem::update_shadow_hand_pos( sf::Vector2f scene_dimensions )
 void RuinSystem::check_player_shadow_hand_collision()
 {
   // only trigger PlayerMortalityEvents if player is alive
-  if ( Utils::Player::get_player_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) { return; }
+  if ( Utils::Player::get_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) { return; }
 
-  auto &player_health = Utils::Player::get_player_health( getReg() );
-  const auto player_pos = Utils::Player::get_player_position( getReg() );
+  auto &player_health = Utils::Player::get_health( getReg() );
+  const auto player_pos = Utils::Player::get_position( getReg() );
   if ( Utils::Collision::check_cmp<Cmp::RuinShadowHand>( getReg(), Cmp::RectBounds( player_pos.position, Constants::kGridSizePxF, 1.f ) ) )
   {
     // damage player
@@ -434,7 +434,7 @@ void RuinSystem::check_player_shadow_hand_collision()
 
 void RuinSystem::reset_player_curse()
 {
-  Utils::Player::reset_player_curse( getReg() );
+  Utils::Player::reset_curse( getReg() );
   m_curse_activation_future = std::future<void>{}; // allow re-entrant scene to trigger the future again
 }
 

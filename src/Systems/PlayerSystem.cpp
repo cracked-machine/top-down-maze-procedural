@@ -71,7 +71,7 @@ void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, PathFindin
   m_spatial_grid = spatial_grid;
 
   // cache the player position so we can update the spatial grid afterwards.
-  auto old_player_pos = Utils::Player::get_player_position( m_reg );
+  auto old_player_pos = Utils::Player::get_position( m_reg );
 
   // process changes to player position and related transforms
   localTransforms();
@@ -97,8 +97,8 @@ void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, PathFindin
 
   if ( m_spatial_grid )
   {
-    auto new_player_pos = Utils::Player::get_player_position( m_reg );
-    m_spatial_grid->update( Utils::Player::get_player_entity( m_reg ), old_player_pos, new_player_pos );
+    auto new_player_pos = Utils::Player::get_position( m_reg );
+    m_spatial_grid->update( Utils::Player::get_entity( m_reg ), old_player_pos, new_player_pos );
   }
 }
 
@@ -144,9 +144,9 @@ void PlayerSystem::localTransforms()
 void PlayerSystem::update_player_position( sf::Time globalDeltaTime, bool collision_disabled )
 {
 
-  Cmp::Position &player_pos = Utils::Player::get_player_position( getReg() );
+  Cmp::Position &player_pos = Utils::Player::get_position( getReg() );
 
-  const Cmp::Direction raw_direction = Utils::Player::get_player_direction( getReg() );
+  const Cmp::Direction raw_direction = Utils::Player::get_direction( getReg() );
   if ( raw_direction == sf::Vector2f( 0.f, 0.f ) ) return; // optimization
 
   auto &player_movement_speed = Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( getReg() );
@@ -214,8 +214,8 @@ void PlayerSystem::update_player_position( sf::Time globalDeltaTime, bool collis
 
 void PlayerSystem::update_player_animation()
 {
-  const Cmp::Direction direction_cmp = Utils::Player::get_player_direction( getReg() );
-  Cmp::SpriteAnimation &anim_cmp = Utils::Player::get_player_sprite_anim( getReg() );
+  const Cmp::Direction direction_cmp = Utils::Player::get_direction( getReg() );
+  Cmp::SpriteAnimation &anim_cmp = Utils::Player::get_sprite_anim( getReg() );
 
   // update the animation state based on movement direction
   if ( direction_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { anim_cmp.m_animation_active = false; }
@@ -231,8 +231,8 @@ void PlayerSystem::update_player_animation()
 
 void PlayerSystem::update_player_zorder()
 {
-  Cmp::ZOrderValue &zorder_cmp = Utils::Player::get_player_zorder( getReg() );
-  const Cmp::Position player_pos = Utils::Player::get_player_position( getReg() );
+  Cmp::ZOrderValue &zorder_cmp = Utils::Player::get_zorder( getReg() );
+  const Cmp::Position player_pos = Utils::Player::get_position( getReg() );
   zorder_cmp.setZOrder( player_pos.position.y );
 }
 
@@ -242,10 +242,10 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
   auto common_death_throes = [&]()
   {
     m_post_death_timer.restart();
-    getReg().remove<Cmp::SpriteAnimation>( Utils::Player::get_player_entity( getReg() ) );
+    getReg().remove<Cmp::SpriteAnimation>( Utils::Player::get_entity( getReg() ) );
     stopFootstepsSound();
-    Utils::Player::get_player_health( getReg() ).health = 0;
-    Utils::Player::get_player_mortality( getReg() ).state = Cmp::PlayerMortality::State::DEAD;
+    Utils::Player::get_health( getReg() ).health = 0;
+    Utils::Player::get_mortality( getReg() ).state = Cmp::PlayerMortality::State::DEAD;
     SPDLOG_INFO( "Ploayer is dead" );
   };
 
@@ -340,7 +340,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
   {
     if ( m_inventory_cooldown_timer.getElapsedTime() < sf::milliseconds( 750.f ) ) return;
 
-    auto player_pos = Utils::Player::get_player_position( getReg() );
+    auto player_pos = Utils::Player::get_position( getReg() );
     Sprites::SpriteMetaType existing_player_inventory_type = "";
 
     // drop inventory if we have one
@@ -453,10 +453,10 @@ void PlayerSystem::enable_damage_cooldown()
 
 void PlayerSystem::check_player_axe_npc_kill()
 {
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
+  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
   if ( inventory_slot_type != "CARRYITEM.axe" ) { return; }
 
-  if ( Utils::Player::get_player_inventory_wear_level( getReg() ) <= 0 ) { return; }
+  if ( Utils::Player::get_inventory_wear_level( getReg() ) <= 0 ) { return; }
 
   // Cooldown has expired: Remove any existing SelectedPosition components from the registry
   auto selected_position_view = getReg().view<Cmp::SelectedPosition>();
@@ -497,13 +497,13 @@ void PlayerSystem::check_player_axe_npc_kill()
       getReg().emplace_or_replace<Cmp::SelectedPosition>( npc_entity, npc_pos_cmp.position );
 
       float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
-      Utils::Player::reduce_player_inventory_wear_level( getReg(), reduction_amount );
+      Utils::Player::reduce_inventory_wear_level( getReg(), reduction_amount );
 
       // select the final smash sound
       m_sound_bank.get_effect( "axe_whip" ).play();
       m_sound_bank.get_effect( "skele_death" ).play();
 
-      auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
+      auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
       if ( inventory_slot_type == "CARRYITEM.axe" )
       {
         // drop loot - 1 in 3 chance
@@ -521,7 +521,7 @@ void PlayerSystem::check_player_axe_npc_kill()
 
           if ( dropped_loot_entt != entt::null )
           {
-            auto player_pos = Utils::Player::get_player_position( getReg() );
+            auto player_pos = Utils::Player::get_position( getReg() );
             SPDLOG_INFO( "Player position was at {},{} when loot was dropped", player_pos.position.x, player_pos.position.y );
             m_sound_bank.get_effect( "drop_loot" ).play();
           }

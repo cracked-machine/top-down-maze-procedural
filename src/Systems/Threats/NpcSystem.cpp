@@ -72,7 +72,7 @@ void NpcSystem::update( [[maybe_unused]] sf::Time dt, PathFinding::SpatialHashGr
   m_scan_accumulator += dt;
   if ( m_scan_accumulator.asSeconds() >= kScanInterval )
   {
-    update_pathfinding( Utils::Player::get_player_entity( getReg() ) );
+    update_pathfinding( Utils::Player::get_entity( getReg() ) );
     m_scan_accumulator = sf::Time::Zero;
   }
 
@@ -95,7 +95,7 @@ void NpcSystem::update( [[maybe_unused]] sf::Time dt, PathFinding::SpatialHashGr
 void NpcSystem::check_bones_reanimation()
 {
 
-  auto player_pos = Utils::Player::get_player_position( getReg() );
+  auto player_pos = Utils::Player::get_position( getReg() );
   auto npccontainer_collision_view = getReg().view<Cmp::NpcContainer, Cmp::Position>();
 
   for ( auto [npccontainer_entt, npccontainer_cmp, npccontainer_pos_cmp] : npccontainer_collision_view.each() )
@@ -153,7 +153,7 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
 
   const float npc_lerp_speed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeed>( getReg() ).get_value();
 
-  auto player_pos_cmp = Utils::Player::get_player_position( getReg() );
+  auto player_pos_cmp = Utils::Player::get_position( getReg() );
   auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>();
   for ( auto [npc_entity, npc_cmp, npc_pos_cmp, anim_cmp] : npc_view.each() )
   {
@@ -291,9 +291,9 @@ void NpcSystem::check_player_to_npc_collision()
   auto npc_collision_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::Direction>();
 
   auto &player_dmg_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() );
-  auto &player_pos = Utils::Player::get_player_position( getReg() );
-  auto &player_mort = Utils::Player::get_player_mortality( getReg() );
-  auto &player_health = Utils::Player::get_player_health( getReg() );
+  auto &player_pos = Utils::Player::get_position( getReg() );
+  auto &player_mort = Utils::Player::get_mortality( getReg() );
+  auto &player_health = Utils::Player::get_health( getReg() );
 
   for ( auto [pc_entity, pc_cmp] : player_collision_view.each() )
   {
@@ -317,7 +317,7 @@ void NpcSystem::check_player_to_npc_collision()
       {
         player_mort.state = Cmp::PlayerMortality::State::HAUNTED;
         get_systems_event_queue().enqueue(
-            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED, Utils::Player::get_player_position( getReg() ) ) );
+            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED, Utils::Player::get_position( getReg() ) ) );
         return;
       }
 
@@ -330,7 +330,7 @@ void NpcSystem::check_player_to_npc_collision()
 
 void NpcSystem::find_pushback_position( const Cmp::Direction &npc_direction )
 {
-  auto &player_pos = Utils::Player::get_player_position( getReg() );
+  auto &player_pos = Utils::Player::get_position( getReg() );
   auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position>();
 
   auto new_position = Utils::snap_to_grid( player_pos.position + ( npc_direction.componentWiseMul( Constants::kGridSizePxF ) ) );

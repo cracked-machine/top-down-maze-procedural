@@ -116,11 +116,11 @@ void GraveyardScene::on_enter()
   }
 
   // prevent residual lerp movements from previous scene causing havoc in the new one
-  Utils::Player::remove_player_lerp_cmp( m_reg );
+  Utils::Player::remove_lerp_cmp( m_reg );
 
   // Respawn player back in the graveyard: either at the last position when they left, or fallback to their start position
-  auto &player_pos = Utils::Player::get_player_position( m_reg );
-  auto player_last_graveyard_pos = Utils::Player::get_player_last_graveyard_position( m_reg );
+  auto &player_pos = Utils::Player::get_position( m_reg );
+  auto player_last_graveyard_pos = Utils::Player::get_last_graveyard_pos( m_reg );
   if ( player_last_graveyard_pos ) { player_pos.position = player_last_graveyard_pos->position; }
   else { player_pos.position = m_player_start_position; }
   SPDLOG_INFO( "Player entered graveyard at position ({}, {})", player_pos.position.x, player_pos.position.y );

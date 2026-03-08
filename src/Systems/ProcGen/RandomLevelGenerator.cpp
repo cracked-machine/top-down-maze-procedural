@@ -196,7 +196,7 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size, Cm
       else if ( d2 <= rOuter2 )
       {
         // but we do add "CRYPT.interior_sb" for walls
-        Factory::add_wall_entity( getReg(), new_pos, "CRYPT.interior_sb", 0, Utils::Player::get_player_position( getReg() ).position.y );
+        Factory::add_wall_entity( getReg(), new_pos, "CRYPT.interior_sb", 0, Utils::Player::get_position( getReg() ).position.y );
       }
       else
       {

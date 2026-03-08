@@ -79,7 +79,7 @@ void create_crypt_lava_pit( entt::registry &reg, const Cmp::CryptRoomOpen &room,
   reg.emplace<Cmp::CryptRoomLavaPit>( lava_pit_entt, lava_pit_bounds );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( lava_pit_entt );
 
-  const auto player_pos = Utils::Player::get_player_position( reg );
+  const auto player_pos = Utils::Player::get_position( reg );
 
   // add the inidividual lava cells
   for ( auto [pos_entt, pos_cmp] : reg.view<Cmp::Position>().each() )
