@@ -62,6 +62,10 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
+  //! @brief init the weak pointer for the spatial grid
+  //! @param spatial_grid_ptr
+  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_spatialgrid_wptr = spatial_grid_ptr; }
+
   void render_entt_distance_set_overlay( sf::Vector2f pos );
   void render_ui_background_overlay( sf::Vector2f pos, sf::Vector2f size );
   void render_health_overlay( float health_value, sf::Vector2f pos, sf::Vector2f size );
@@ -85,10 +89,9 @@ public:
   void render_crypt_maze_timer( sf::Vector2f pos, unsigned int size );
 
   void render_wear_level( Cmp::InventoryWearLevel &wearlevel, const Cmp::Position &pos );
-  void render_spatial_grid_neighbours( PathFinding::SpatialHashGrid &spatial_grid, const Cmp::Position &query_pos, sf::Color color,
-                                       PathFinding::QueryCompass query_compass );
-  void render_pathfinding_vector( PathFinding::SpatialHashGrid &spatial_grid, const Cmp::Position &start_pos_cmp, const Cmp::Position &end_pos_cmp,
-                                  sf::Color color, PathFinding::QueryCompass query_compass );
+  void render_spatial_grid_neighbours( const Cmp::Position &query_pos, sf::Color color, PathFinding::QueryCompass query_compass );
+  void render_pathfinding_vector( const Cmp::Position &start_pos_cmp, const Cmp::Position &end_pos_cmp, sf::Color color,
+                                  PathFinding::QueryCompass query_compass );
 
   template <typename Component>
   void render_square_for_entity( entt::entity entity, sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )
@@ -196,6 +199,8 @@ private:
   sf::Text m_stats_text3{ m_font, "", 30 };
   sf::Text m_stats_text4{ m_font, "", 30 };
   std::map<unsigned int, sf::Text> m_npc_list_text{};
+
+  PathFinding::SpatialHashGridWeakPtr m_spatialgrid_wptr;
 };
 
 } // namespace ProceduralMaze::Sys

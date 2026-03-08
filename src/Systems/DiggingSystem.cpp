@@ -52,10 +52,8 @@ DiggingSystem::DiggingSystem( entt::registry &reg, sf::RenderWindow &window, Spr
   SPDLOG_DEBUG( "DiggingSystem initialized" );
 }
 
-void DiggingSystem::update( PathFinding::SpatialHashGrid *spatial_grid )
+void DiggingSystem::update()
 {
-  // update the class member for future use
-  m_spatial_grid = spatial_grid;
 
   // abort if still in cooldown
   auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
@@ -215,7 +213,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
         Factory::create_detonated( getReg(), obst_entity, obst_pos_cmp );
 
         // add the position to the spatial grid so it can be used in pathfinding
-        if ( m_spatial_grid ) m_spatial_grid->insert( obst_entity, obst_pos_cmp );
+        if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() ) spatialgrid_ptr->insert( obst_entity, obst_pos_cmp );
 
         SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
       }

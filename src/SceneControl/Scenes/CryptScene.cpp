@@ -51,12 +51,18 @@ void CryptScene::on_init()
   m_sys.find<Sys::Store::Type::CryptSystem>().gen_crypt_initial_interior();
 
   // create a spatial grid of the game area
+  m_spatialgrid_ptr = std::make_shared<PathFinding::SpatialHashGrid>();
   auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
   for ( auto entity : view )
   {
     const auto &pos = view.get<Cmp::Position>( entity );
-    m_spatial_grid.insert( entity, pos );
+    m_spatialgrid_ptr->insert( entity, pos );
   }
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::PassageSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::CryptSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_spatialgrid_ptr );
 
   Factory::FloormapFactory::create_floormap( m_reg, m_floormap, CryptScene::kMapGridSize, "res/json/crypt_tilemap_config.json" );
 
@@ -81,8 +87,7 @@ void CryptScene::on_enter()
     pos_cmp.position = m_player_start_position;
   }
 
-  m_sys.find<Sys::Store::Type::PassageSystem>().setup( &m_spatial_grid );
-  m_sys.find<Sys::Store::Type::CryptSystem>().setup( &m_spatial_grid );
+  m_sys.find<Sys::Store::Type::CryptSystem>().setup();
   get_maze_timer().restart();
 }
 
@@ -100,16 +105,15 @@ void CryptScene::do_update( sf::Time dt )
 {
 
   m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::NpcSystem>().update( dt, &m_spatial_grid );
+  m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
-  m_sys.find<Sys::Store::Type::PassageSystem>().update( &m_spatial_grid );
-  m_sys.find<Sys::Store::Type::CryptSystem>().update( &m_spatial_grid );
+  m_sys.find<Sys::Store::Type::CryptSystem>().update();
   m_sys.find<Sys::Store::Type::ShockwaveSystem>().checkShockwavePlayerCollision();
-  m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt, &m_spatial_grid );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, m_spatial_grid, Sys::DarkMode::ON );
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::ON );
 }
 
 entt::registry &CryptScene::registry() { return m_reg; }

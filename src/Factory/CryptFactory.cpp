@@ -68,7 +68,8 @@ void destroy_crypt_chest( entt::registry &reg, entt::entity entt )
   if ( reg.valid( entt ) ) { reg.destroy( entt ); }
 }
 
-void create_crypt_lava_pit( entt::registry &reg, const Cmp::CryptRoomOpen &room, PathFinding::SpatialHashGrid *spatial_grid )
+void create_crypt_lava_pit( entt::registry &reg, const Cmp::CryptRoomOpen &room,
+                            std::shared_ptr<ProceduralMaze::PathFinding::SpatialHashGrid> spatial_grid )
 {
   // add the lava pit area
   sf::Vector2f adjusted_position = { room.position.x + Constants::kGridSizePxF.x, room.position.y + Constants::kGridSizePxF.y };
@@ -98,7 +99,7 @@ void create_crypt_lava_pit( entt::registry &reg, const Cmp::CryptRoomOpen &room,
   }
 }
 
-void destroy_crypt_lava_pit( entt::registry &reg, entt::entity entt, PathFinding::SpatialHashGrid *spatial_grid )
+void destroy_crypt_lava_pit( entt::registry &reg, entt::entity entt, std::shared_ptr<ProceduralMaze::PathFinding::SpatialHashGrid> spatial_grid )
 {
   auto lava_pit_cmp = reg.try_get<Cmp::CryptRoomLavaPit>( entt );
   if ( lava_pit_cmp )

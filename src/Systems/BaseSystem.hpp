@@ -4,14 +4,15 @@
 #include <entt/entity/fwd.hpp>
 #include <entt/signal/dispatcher.hpp>
 
+#include <PathFinding/SmartPointers.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
-
 #include <spdlog/fwd.h>
 
 // clang-format off
 namespace ProceduralMaze::Sprites { class SpriteFactory; }
 namespace ProceduralMaze::Sys { class Store; }
 namespace ProceduralMaze::Audio { class SoundBank; }
+namespace ProceduralMaze::PathFinding{ class SpatialHashGrid; }
 // clang-format on
 
 namespace ProceduralMaze

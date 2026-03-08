@@ -30,6 +30,7 @@
 #include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/SpriteFactory.hpp>
+#include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
@@ -53,10 +54,8 @@ NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::Sp
   SPDLOG_DEBUG( "NpcSystem initialized" );
 }
 
-void NpcSystem::update( [[maybe_unused]] sf::Time dt, PathFinding::SpatialHashGrid *spatial_grid )
+void NpcSystem::update( [[maybe_unused]] sf::Time dt )
 {
-  // update the class member for future use
-  m_spatial_grid = spatial_grid;
 
   // run skelton activation checks at 5Hz
   static constexpr float kBonesInterval = 0.20f;
@@ -153,46 +152,47 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
 
   const float npc_lerp_speed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeed>( getReg() ).get_value();
 
+  PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock();
+  if ( not spatialgrid_ptr ) return;
+
   auto player_pos_cmp = Utils::Player::get_position( getReg() );
   auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>();
   for ( auto [npc_entity, npc_cmp, npc_pos_cmp, anim_cmp] : npc_view.each() )
   {
     if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) ) continue;
-    if ( m_spatial_grid )
+
+    // don't intterupt NPC mid-lerp or it causes indecisive pathfinding
+    auto *npc_lerp_pos_cmp = getReg().try_get<Cmp::LerpPosition>( npc_entity );
+    if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) continue;
+
+    // allow ghosts to sneak through gaps
+    auto query_compass = PathFinding::QueryCompass::CARDINAL;
+    if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) query_compass = PathFinding::QueryCompass::BOTH;
+
+    // now get latest path vector for NPC -> player
+    std::vector<PathFinding::PathNode> path = PathFinding::astar( getReg(), *spatialgrid_ptr, npc_pos_cmp, player_pos_cmp, query_compass );
+
+    // dont let NPC follow player into spawn but keep pathfinding active up to penultimate path node
+    if ( Utils::Player::is_in_spawn( getReg(), player_pos_cmp ) and not path.empty() ) path.pop_back();
+    if ( path.size() > 1 )
     {
-      // don't intterupt NPC mid-lerp or it causes indecisive pathfinding
-      auto *npc_lerp_pos_cmp = getReg().try_get<Cmp::LerpPosition>( npc_entity );
-      if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) continue;
+      // path[0] is the NPC current position, so go one forward
+      auto new_position_cmp = path[1].pos;
 
-      // allow ghosts to sneak through gaps
-      auto query_compass = PathFinding::QueryCompass::CARDINAL;
-      if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) query_compass = PathFinding::QueryCompass::BOTH;
+      // calculate the direction and update the NPC lerp
+      auto candidate_lerp_pos = Cmp::LerpPosition( new_position_cmp.position, npc_lerp_speed );
+      auto distance_to_target = new_position_cmp.position - npc_pos_cmp.position;
+      if ( distance_to_target == sf::Vector2f( 0.0f, 0.0f ) ) continue;
 
-      // now get latest path vector for NPC -> player
-      std::vector<PathFinding::PathNode> path = PathFinding::astar( getReg(), *m_spatial_grid, npc_pos_cmp, player_pos_cmp, query_compass );
+      // prevent NPC warping via another NPCs pathfinding
+      const bool too_far = std::abs( distance_to_target.x ) >= Constants::kGridSizePxF.x * 1.5f ||
+                           std::abs( distance_to_target.y ) >= Constants::kGridSizePxF.y * 1.5f;
+      if ( too_far ) continue;
 
-      // dont let NPC follow player into spawn but keep pathfinding active up to penultimate path node
-      if ( Utils::Player::is_in_spawn( getReg(), player_pos_cmp ) and not path.empty() ) path.pop_back();
-      if ( path.size() > 1 )
-      {
-        // path[0] is the NPC current position, so go one forward
-        auto new_position_cmp = path[1].pos;
+      auto norm_direction = Cmp::Direction( distance_to_target.normalized() );
 
-        // calculate the direction and update the NPC lerp
-        auto candidate_lerp_pos = Cmp::LerpPosition( new_position_cmp.position, npc_lerp_speed );
-        auto distance_to_target = new_position_cmp.position - npc_pos_cmp.position;
-        if ( distance_to_target == sf::Vector2f( 0.0f, 0.0f ) ) continue;
-
-        // prevent NPC warping via another NPCs pathfinding
-        const bool too_far = std::abs( distance_to_target.x ) >= Constants::kGridSizePxF.x * 1.5f ||
-                             std::abs( distance_to_target.y ) >= Constants::kGridSizePxF.y * 1.5f;
-        if ( too_far ) continue;
-
-        auto norm_direction = Cmp::Direction( distance_to_target.normalized() );
-
-        getReg().emplace_or_replace<Cmp::Direction>( npc_entity, std::move( norm_direction ) );
-        getReg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, std::move( candidate_lerp_pos ) );
-      }
+      getReg().emplace_or_replace<Cmp::Direction>( npc_entity, std::move( norm_direction ) );
+      getReg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, std::move( candidate_lerp_pos ) );
     }
   }
 }
@@ -226,7 +226,8 @@ void NpcSystem::update_movement( sf::Time dt )
       auto old_position = pos_cmp;
       pos_cmp.position = lerp_pos_cmp.m_target;
       getReg().remove<Cmp::LerpPosition>( npc_entt );
-      if ( m_spatial_grid ) m_spatial_grid->update( npc_entt, old_position, pos_cmp );
+      if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() )
+        spatialgrid_ptr->update( npc_entt, old_position, pos_cmp );
     }
     else
     {

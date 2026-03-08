@@ -1,6 +1,7 @@
 #ifndef SRC_SCENECONTROL_SCENE_HPP_
 #define SRC_SCENECONTROL_SCENE_HPP_
 
+#include <PathFinding/SmartPointers.hpp>
 #include <SceneControl/IScene.hpp>
 #include <SpatialHashGrid.hpp>
 
@@ -37,7 +38,7 @@ public:
   }
 
 protected:
-  PathFinding::SpatialHashGrid m_spatial_grid;
+  PathFinding::SpatialHashGridSharedPtr m_spatialgrid_ptr;
 
 private:
   entt::dispatcher &m_nav_event_dispatcher;

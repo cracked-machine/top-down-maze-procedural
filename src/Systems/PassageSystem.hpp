@@ -25,11 +25,9 @@ public:
     std::ignore = get_systems_event_queue().sink<Events::PassageEvent>().connect<&PassageSystem::on_passage_event>( this );
   }
 
-  //! @brief Initial setup. Called from Scene::on_enter()
-  void setup( PathFinding::SpatialHashGrid *spatial_grid );
-
-  //! @brief Frame update. Called from Scene::do_update()
-  void update( PathFinding::SpatialHashGrid *spatial_grid );
+  //! @brief init the weak pointer for the spatial grid
+  //! @param spatial_grid_ptr
+  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_spatialgrid_wptr = spatial_grid_ptr; }
 
   void on_passage_event( Events::PassageEvent &event );
 
@@ -145,7 +143,7 @@ private:
   //! @brief Number of steps to delay 'kMinPassageRoomsDistanceScaleFactor' use
   const int kMinPassageRoomsDistanceDelay{ 3 };
 
-  PathFinding::SpatialHashGrid *m_spatial_grid{ nullptr };
+  PathFinding::SpatialHashGridWeakPtr m_spatialgrid_wptr;
 };
 
 } // namespace ProceduralMaze::Sys

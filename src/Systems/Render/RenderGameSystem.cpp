@@ -42,6 +42,7 @@
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/TileMap.hpp>
+#include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
@@ -161,8 +162,7 @@ void RenderGameSystem::updateCamera( sf::Time deltaTime )
 }
 
 void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys,
-                                    Sprites::Containers::TileMap &floormap, PathFinding::SpatialHashGrid &spatial_grid, DarkMode dark_mode,
-                                    WeatherMode weather_mode, CursedMode cursed_mode )
+                                    Sprites::Containers::TileMap &floormap, DarkMode dark_mode, WeatherMode weather_mode, CursedMode cursed_mode )
 {
   using namespace Sprites;
 
@@ -290,14 +290,14 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
   if ( m_show_path_finding )
   {
     render_overlay_sys.render_lerp_positions();
-    render_overlay_sys.render_spatial_grid_neighbours( spatial_grid, player_pos_cmp, sf::Color::Cyan, PathFinding::QueryCompass::CARDINAL );
+    render_overlay_sys.render_spatial_grid_neighbours( player_pos_cmp, sf::Color::Cyan, PathFinding::QueryCompass::CARDINAL );
 
     for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>().each() )
     {
       auto query_compass = PathFinding::QueryCompass::CARDINAL;
       if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) query_compass = PathFinding::QueryCompass::BOTH;
-      render_overlay_sys.render_spatial_grid_neighbours( spatial_grid, npc_pos_cmp, sf::Color::Magenta, query_compass );
-      render_overlay_sys.render_pathfinding_vector( spatial_grid, npc_pos_cmp, player_pos_cmp, sf::Color::White, query_compass );
+      render_overlay_sys.render_spatial_grid_neighbours( npc_pos_cmp, sf::Color::Magenta, query_compass );
+      render_overlay_sys.render_pathfinding_vector( npc_pos_cmp, player_pos_cmp, sf::Color::White, query_compass );
     }
   }
   // local view end

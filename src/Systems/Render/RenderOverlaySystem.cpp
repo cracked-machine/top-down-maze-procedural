@@ -19,6 +19,7 @@
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Sprites/MultiSprite.hpp>
+#include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Utils/Optimizations.hpp>
@@ -437,43 +438,48 @@ void RenderOverlaySystem::render_lerp_positions()
   }
 }
 
-void RenderOverlaySystem::render_spatial_grid_neighbours( PathFinding::SpatialHashGrid &spatial_grid, const Cmp::Position &query_pos, sf::Color color,
-                                                          PathFinding::QueryCompass query_compass )
+void RenderOverlaySystem::render_spatial_grid_neighbours( const Cmp::Position &query_pos, sf::Color color, PathFinding::QueryCompass query_compass )
 {
-  std::vector<entt::entity> neighbours_list = spatial_grid.query( Cmp::Position( query_pos.position, query_pos.size ), query_compass );
-  for ( auto neighbour_entt : neighbours_list )
+  if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() )
   {
-    auto *neighbour_pos = getReg().try_get<Cmp::Position>( neighbour_entt );
-    if ( not neighbour_pos ) continue;
-    if ( getReg().any_of<Cmp::PlayerCharacter, Cmp::NPC>( neighbour_entt ) ) continue;
+    std::vector<entt::entity> neighbours_list = spatialgrid_ptr->query( Cmp::Position( query_pos.position, query_pos.size ), query_compass );
+    for ( auto neighbour_entt : neighbours_list )
+    {
+      auto *neighbour_pos = getReg().try_get<Cmp::Position>( neighbour_entt );
+      if ( not neighbour_pos ) continue;
+      if ( getReg().any_of<Cmp::PlayerCharacter, Cmp::NPC>( neighbour_entt ) ) continue;
 
-    sf::RectangleShape rectangle;
-    rectangle.setSize( neighbour_pos->size );
-    rectangle.setPosition( neighbour_pos->position );
-    rectangle.setFillColor( sf::Color::Transparent );
-    rectangle.setOutlineThickness( 1.f );
-    rectangle.setOutlineColor( color );
-    m_window.draw( rectangle );
+      sf::RectangleShape rectangle;
+      rectangle.setSize( neighbour_pos->size );
+      rectangle.setPosition( neighbour_pos->position );
+      rectangle.setFillColor( sf::Color::Transparent );
+      rectangle.setOutlineThickness( 1.f );
+      rectangle.setOutlineColor( color );
+      m_window.draw( rectangle );
+    }
   }
 }
 
-void RenderOverlaySystem::render_pathfinding_vector( PathFinding::SpatialHashGrid &spatial_grid, const Cmp::Position &start_pos_cmp,
-                                                     const Cmp::Position &end_pos_cmp, sf::Color color, PathFinding::QueryCompass query_compass )
+void RenderOverlaySystem::render_pathfinding_vector( const Cmp::Position &start_pos_cmp, const Cmp::Position &end_pos_cmp, sf::Color color,
+                                                     PathFinding::QueryCompass query_compass )
 {
   if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), start_pos_cmp ) ) return;
 
-  std::vector<PathFinding::PathNode> path = PathFinding::astar( getReg(), spatial_grid, start_pos_cmp, end_pos_cmp, query_compass );
-
-  for ( auto pathnode : path )
+  if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() )
   {
-    Cmp::RectBounds expand_lever_pos_hitbox( pathnode.pos.position, pathnode.pos.size, 1.f );
-    sf::RectangleShape rectangle;
-    rectangle.setSize( expand_lever_pos_hitbox.size() );
-    rectangle.setPosition( expand_lever_pos_hitbox.position() );
-    rectangle.setFillColor( sf::Color::Transparent );
-    rectangle.setOutlineColor( color );
-    rectangle.setOutlineThickness( 1.f );
-    m_window.draw( rectangle );
+    std::vector<PathFinding::PathNode> path = PathFinding::astar( getReg(), *spatialgrid_ptr, start_pos_cmp, end_pos_cmp, query_compass );
+
+    for ( auto pathnode : path )
+    {
+      Cmp::RectBounds expand_lever_pos_hitbox( pathnode.pos.position, pathnode.pos.size, 1.f );
+      sf::RectangleShape rectangle;
+      rectangle.setSize( expand_lever_pos_hitbox.size() );
+      rectangle.setPosition( expand_lever_pos_hitbox.position() );
+      rectangle.setFillColor( sf::Color::Transparent );
+      rectangle.setOutlineColor( color );
+      rectangle.setOutlineThickness( 1.f );
+      m_window.draw( rectangle );
+    }
   }
 }
 

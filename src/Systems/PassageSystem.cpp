@@ -1,3 +1,4 @@
+#include <Systems/BaseSystem.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Components/Crypt/CryptPassageBlock.hpp>
@@ -29,18 +30,6 @@
 
 namespace ProceduralMaze::Sys
 {
-
-void PassageSystem::setup( PathFinding::SpatialHashGrid *spatial_grid )
-{
-  // update the grid
-  m_spatial_grid = spatial_grid;
-}
-
-void PassageSystem::update( PathFinding::SpatialHashGrid *spatial_grid )
-{
-  // update the grid
-  m_spatial_grid = spatial_grid;
-}
 
 void PassageSystem::on_passage_event( Events::PassageEvent &event )
 {
@@ -646,7 +635,7 @@ void PassageSystem::emptyOpenPassages()
       if ( not getReg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
 
       Factory::remove_obstacle( getReg(), pos_entt );
-      if ( m_spatial_grid ) m_spatial_grid->insert( pos_entt, pos_cmp );
+      if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() ) { spatialgrid_ptr->insert( pos_entt, pos_cmp ); }
     }
   }
 }
@@ -672,7 +661,7 @@ void PassageSystem::fillAllPassages()
       float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
 
       Factory::create_obstacle( getReg(), pos_entt, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
-      if ( m_spatial_grid ) m_spatial_grid->remove( pos_entt, pos_cmp );
+      if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() ) { spatialgrid_ptr->remove( pos_entt, pos_cmp ); }
 
       if ( not Utils::getSystemCmp( getReg() ).collisions_disabled )
       {

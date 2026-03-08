@@ -95,12 +95,16 @@ void RuinSceneLowerFloor::on_init()
   m_sys.find<Sys::Store::Type::RuinSystem>().reset_player_curse();
 
   // create a spatial grid of the game area
+  m_spatialgrid_ptr = std::make_shared<PathFinding::SpatialHashGrid>();
   auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
   for ( auto entity : view )
   {
     const auto &pos = view.get<Cmp::Position>( entity );
-    m_spatial_grid.insert( entity, pos );
+    m_spatialgrid_ptr->insert( entity, pos );
   }
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_spatialgrid_ptr );
 
   // force the loading screen so that we hide any motion sickness inducing camera pan
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
@@ -150,6 +154,11 @@ void RuinSceneLowerFloor::on_enter()
   m_reg.emplace_or_replace<Cmp::PlayerRuinLocation>( player_entt, Cmp::PlayerRuinLocation::Floor::LOWER );
 
   m_sys.find<Sys::Store::Type::RuinSystem>().reset_floor_access_cooldown();
+
+  // re-initialise the spatial grid weak_ptr for when we return from upper floor scene
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_spatialgrid_ptr );
 }
 
 void RuinSceneLowerFloor::on_exit()
@@ -168,16 +177,14 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
 {
   using namespace Sys;
   m_sys.find<Store::Type::AnimSystem>().update( dt );
-  m_sys.find<Store::Type::NpcSystem>().update( dt, &m_spatial_grid );
+  m_sys.find<Store::Type::NpcSystem>().update( dt );
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Store::Type::LootSystem>().check_loot_collision();
-
-  m_sys.find<Store::Type::RuinSystem>().update( &m_spatial_grid );
   m_sys.find<Store::Type::RuinSystem>().check_floor_access_collision( Cmp::RuinFloorAccess::Direction::TO_UPPER );
   m_sys.find<Store::Type::RuinSystem>().check_movement_slowdowns();
   m_sys.find<Store::Type::RuinSystem>().creaking_rope_update();
 
-  m_sys.find<Store::Type::PlayerSystem>().update( dt, &m_spatial_grid, Sys::PlayerSystem::FootStepSfx::NONE );
+  m_sys.find<Store::Type::PlayerSystem>().update( dt, Sys::PlayerSystem::FootStepSfx::NONE );
   m_sys.find<Store::Type::PlayerSystem>().disable_damage_cooldown();
 
   bool is_player_cursed = m_sys.find<Sys::Store::Type::RuinSystem>().check_activate_player_curse( kMapGridSizeF );
@@ -189,7 +196,7 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Store::Type::RuinSystem>().check_exit_collision();
 
   auto &overlay_sys = m_sys.find<Store::Type::RenderOverlaySystem>();
-  m_sys.find<Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, m_spatial_grid, DarkMode::OFF, WeatherMode::OFF,
+  m_sys.find<Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, DarkMode::OFF, WeatherMode::OFF,
                                                            ( is_player_cursed ? CursedMode::ON : CursedMode::OFF ) );
 }
 

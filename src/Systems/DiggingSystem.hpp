@@ -29,17 +29,21 @@ class DiggingSystem : public BaseSystem
 public:
   DiggingSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
+  //! @brief init the weak pointer for the spatial grid
+  //! @param spatial_grid_ptr
+  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_spatialgrid_wptr = spatial_grid_ptr; }
+
+  // void load_sounds();
+  // additional updates via the main game loop
+  void update();
+
+  // Event handler for player actions
+  void on_player_action( const Events::PlayerActionEvent &event );
+
   //! @brief event handlers for pausing system clocks
   void onPause() override {}
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
-
-  // void load_sounds();
-  // additional updates via the main game loop
-  void update( PathFinding::SpatialHashGrid *spatial_grid );
-
-  // Event handler for player actions
-  void on_player_action( const Events::PlayerActionEvent &event );
 
 private:
   /**
@@ -67,7 +71,7 @@ private:
     sf::SoundBuffer buffer;
   };
 
-  PathFinding::SpatialHashGrid *m_spatial_grid{ nullptr };
+  PathFinding::SpatialHashGridWeakPtr m_spatialgrid_wptr;
 };
 } // namespace ProceduralMaze::Sys
 

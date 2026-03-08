@@ -213,11 +213,14 @@ void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_en
   }
 }
 
-void BombSystem::update( PathFinding::SpatialHashGrid *spatial_grid )
+void BombSystem::update()
 {
-  // update the grid for future use
-  m_spatial_grid = spatial_grid;
-
+  PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock();
+  if ( not spatialgrid_ptr )
+  {
+    SPDLOG_WARN( "Unable to lock weakptr" );
+    return;
+  }
   auto armed_view = getReg().view<Cmp::Armed, Cmp::Position>();
   for ( auto [armed_entt, armed_cmp, armed_pos_cmp] : armed_view.each() )
   {
@@ -229,7 +232,7 @@ void BombSystem::update( PathFinding::SpatialHashGrid *spatial_grid )
     {
       if ( not obst_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
       Factory::remove_obstacle( getReg(), obst_entity );
-      if ( m_spatial_grid ) m_spatial_grid->insert( obst_entity, obst_pos_cmp );
+      spatialgrid_ptr->insert( obst_entity, obst_pos_cmp );
     }
 
     // detonate loot containers - component removal is handled by LootSystem

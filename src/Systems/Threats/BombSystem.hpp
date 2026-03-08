@@ -16,6 +16,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #include <Events/PlayerActionEvent.hpp>
+#include <spdlog/spdlog.h>
 
 // clang-format off
 namespace ProceduralMaze::Sprites { class SpriteFactory; }
@@ -37,25 +38,29 @@ class BombSystem : public BaseSystem
 public:
   BombSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
-  //! @brief event handlers for pausing system clocks
-  void onPause() override;
-  //! @brief event handlers for resuming system clocks
-  void onResume() override;
+  //! @brief init the weak pointer for the spatial grid
+  //! @param spatial_grid_ptr
+  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_spatialgrid_wptr = spatial_grid_ptr; }
 
   void arm_grave_bomb();
   void arm_player_bomb();
   void arm_entt( entt::entity target_entt );
 
   void place_concentric_bomb_pattern( const entt::entity &epicenter_entity, const int blast_radius, int depth = 0 );
-  void update( PathFinding::SpatialHashGrid *spatial_grid );
+  void update();
 
   /// EVENTS
   void on_bomb_event( const Events::PlayerActionEvent &event );
 
+  //! @brief event handlers for pausing system clocks
+  void onPause() override;
+  //! @brief event handlers for resuming system clocks
+  void onResume() override;
+
 private:
   const sf::Vector2f max_explosion_zone_size{ Constants::kGridSizePx.x * 3.f, Constants::kGridSizePx.y * 3.f };
 
-  PathFinding::SpatialHashGrid *m_spatial_grid{ nullptr };
+  PathFinding::SpatialHashGridWeakPtr m_spatialgrid_wptr;
 };
 
 } // namespace ProceduralMaze::Sys

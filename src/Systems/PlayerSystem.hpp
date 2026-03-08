@@ -41,9 +41,13 @@ public:
   PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
                 entt::dispatcher &scenemanager_event_dispatcher );
 
+  //! @brief init the weak pointer for the spatial grid
+  //! @param spatial_grid_ptr
+  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_spatialgrid_wptr = spatial_grid_ptr; }
+
   //! @brief Update the player system.
   //! @note This enqueues 'Events::SceneManagerEvent::Type::GAME_OVER' if player is dead
-  void update( sf::Time globalDeltaTime, PathFinding::SpatialHashGrid *spatial_grid, FootStepSfx footstep_sfx = FootStepSfx::GRAVEL );
+  void update( sf::Time globalDeltaTime, FootStepSfx footstep_sfx = FootStepSfx::GRAVEL );
 
   //! @brief Checks if the player's movement to a given position is valid
   //! Validates whether the player can move to the specified position by checking
@@ -88,7 +92,7 @@ private:
 
   sf::Clock m_inventory_cooldown_timer;
 
-  PathFinding::SpatialHashGrid *m_spatial_grid{ nullptr };
+  PathFinding::SpatialHashGridWeakPtr m_spatialgrid_wptr;
 };
 
 } // namespace ProceduralMaze::Sys

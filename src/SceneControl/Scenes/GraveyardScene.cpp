@@ -32,6 +32,7 @@
 #include <Systems/Threats/WormholeSystem.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
+#include <memory>
 
 namespace ProceduralMaze::Scene
 {
@@ -73,12 +74,18 @@ void GraveyardScene::on_init()
   cellauto_parser.iterate( 5, GraveyardScene::kMapGridSize, Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR );
 
   // create a spatial grid of the game area
+  m_spatialgrid_ptr = std::make_shared<PathFinding::SpatialHashGrid>();
   auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
   for ( auto entity : view )
   {
     const auto &pos = view.get<Cmp::Position>( entity );
-    m_spatial_grid.insert( entity, pos );
+    m_spatialgrid_ptr->insert( entity, pos );
   }
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::BombSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::DiggingSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_spatialgrid_ptr );
 
   Factory::FloormapFactory::create_floormap( m_reg, m_floormap, GraveyardScene::kMapGridSize, "res/json/graveyard_tilemap_config.json" );
 
@@ -148,13 +155,13 @@ void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
   m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().update();
   m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().update();
-  m_sys.find<Sys::Store::Type::BombSystem>().update( &m_spatial_grid );
+  m_sys.find<Sys::Store::Type::BombSystem>().update();
   m_sys.find<Sys::Store::Type::ExitSystem>().check_exit_collision();
   m_sys.find<Sys::Store::Type::ExitSystem>().check_player_can_unlock_exit();
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
-  m_sys.find<Sys::Store::Type::NpcSystem>().update( dt, &m_spatial_grid );
+  m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
   m_sys.find<Sys::Store::Type::WormholeSystem>().check_player_wormhole_collision();
-  m_sys.find<Sys::Store::Type::DiggingSystem>().update( &m_spatial_grid );
+  m_sys.find<Sys::Store::Type::DiggingSystem>().update();
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
 
   if ( m_scene_exit_cooldown.getElapsedTime() >= m_scene_exit_cooldown_time )
@@ -166,10 +173,10 @@ void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Sys::Store::Type::HolyWellSystem>().check_entrance_collision();
   m_sys.find<Sys::Store::Type::RuinSystem>().check_entrance_collision();
 
-  m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt, &m_spatial_grid );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, m_spatial_grid, Sys::DarkMode::OFF );
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::OFF );
 }
 
 entt::registry &GraveyardScene::registry() { return m_reg; }

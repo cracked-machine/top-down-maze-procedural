@@ -64,11 +64,8 @@ PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
   m_post_death_timer.reset();
 }
 
-void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, PathFinding::SpatialHashGrid *spatial_grid, FootStepSfx footstep_sfx )
+void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, FootStepSfx footstep_sfx )
 {
-
-  // update the grid for future use
-  m_spatial_grid = spatial_grid;
 
   // cache the player position so we can update the spatial grid afterwards.
   auto old_player_pos = Utils::Player::get_position( m_reg );
@@ -95,10 +92,10 @@ void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, PathFindin
   // did player die?
   checkPlayerMortality();
 
-  if ( m_spatial_grid )
+  if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() )
   {
     auto new_player_pos = Utils::Player::get_position( m_reg );
-    m_spatial_grid->update( Utils::Player::get_entity( m_reg ), old_player_pos, new_player_pos );
+    spatialgrid_ptr->update( Utils::Player::get_entity( m_reg ), old_player_pos, new_player_pos );
   }
 }
 
@@ -246,7 +243,7 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
     stopFootstepsSound();
     Utils::Player::get_health( getReg() ).health = 0;
     Utils::Player::get_mortality( getReg() ).state = Cmp::PlayerMortality::State::DEAD;
-    SPDLOG_INFO( "Ploayer is dead" );
+    SPDLOG_INFO( "Player is dead" );
   };
 
   switch ( ev.m_new_state )
@@ -453,6 +450,9 @@ void PlayerSystem::enable_damage_cooldown()
 
 void PlayerSystem::check_player_axe_npc_kill()
 {
+  PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock();
+  if ( not spatialgrid_ptr ) return;
+
   auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
   if ( inventory_slot_type != "CARRYITEM.axe" ) { return; }
 
@@ -530,7 +530,7 @@ void PlayerSystem::check_player_axe_npc_kill()
         // now destroy the NPC
         if ( getReg().valid( npc_entity ) )
         {
-          if ( m_spatial_grid ) m_spatial_grid->remove( npc_entity, npc_pos_cmp );
+          spatialgrid_ptr->remove( npc_entity, npc_pos_cmp );
           getReg().destroy( npc_entity );
         }
       }

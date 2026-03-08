@@ -71,10 +71,8 @@
 namespace ProceduralMaze::Sys
 {
 
-void CryptSystem::setup( PathFinding::SpatialHashGrid *spatial_grid )
+void CryptSystem::setup()
 {
-  // update the grid
-  m_spatial_grid = spatial_grid;
 
   if ( Utils::Player::get_mortality( m_reg ).state != Cmp::PlayerMortality::State::DEAD )
   {
@@ -86,10 +84,8 @@ void CryptSystem::setup( PathFinding::SpatialHashGrid *spatial_grid )
   }
 }
 
-void CryptSystem::update( PathFinding::SpatialHashGrid *spatial_grid )
+void CryptSystem::update()
 {
-  // update the grid
-  m_spatial_grid = spatial_grid;
 
   check_exit_collision();
 
@@ -437,7 +433,7 @@ void CryptSystem::createRoomBorders()
       float zorder = m_sprite_factory.get_sprite_size_by_type( sprite_type ).y;
 
       Factory::create_obstacle( getReg(), pos_entt, pos_cmp, obst_type, sprite_index, ( zorder * 2.f ) );
-      if ( m_spatial_grid ) m_spatial_grid->remove( pos_entt, pos_cmp );
+      if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() ) { spatialgrid_ptr->remove( pos_entt, pos_cmp ); }
     }
   };
 
@@ -775,7 +771,7 @@ void CryptSystem::fillClosedRooms()
       float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
 
       Factory::create_obstacle( getReg(), pos_entt, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
-      if ( m_spatial_grid ) m_spatial_grid->remove( pos_entt, pos_cmp );
+      if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() ) { spatialgrid_ptr->remove( pos_entt, pos_cmp ); }
     }
   }
 }
@@ -822,7 +818,7 @@ void CryptSystem::emptyOpenRooms()
       if ( not getReg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
 
       Factory::remove_obstacle( getReg(), pos_entt );
-      if ( m_spatial_grid ) m_spatial_grid->insert( pos_entt, pos_cmp );
+      if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() ) { spatialgrid_ptr->insert( pos_entt, pos_cmp ); }
     }
   }
 }
@@ -832,7 +828,10 @@ void CryptSystem::addLavaPitOpenRooms()
   auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
   for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
   {
-    Factory::create_crypt_lava_pit( getReg(), open_room_cmp, m_spatial_grid );
+    if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() )
+    {
+      Factory::create_crypt_lava_pit( getReg(), open_room_cmp, spatialgrid_ptr );
+    }
   }
 }
 
@@ -883,7 +882,10 @@ void CryptSystem::removeLavaPitOpenRooms()
     for ( auto [lava_pit_entt, lava_pit_cmp] : lava_pit_view.each() )
     {
       if ( not open_room_cmp.findIntersection( lava_pit_cmp ) ) continue;
-      Factory::destroy_crypt_lava_pit( getReg(), lava_pit_entt, m_spatial_grid );
+      if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() )
+      {
+        Factory::destroy_crypt_lava_pit( getReg(), lava_pit_entt, spatialgrid_ptr );
+      }
     }
   }
 }

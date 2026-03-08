@@ -4,6 +4,7 @@
 #include <Components/System.hpp>
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Npc/NpcNoPathFinding.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/Scenes/HolyWellScene.hpp>
 #include <Systems/AnimSystem.hpp>
@@ -48,6 +49,17 @@ void HolyWellScene::on_init()
 
   Factory::FloormapFactory::create_floormap( m_reg, m_floormap, HolyWellScene::kMapGridSize, "res/json/holywell_tilemap_config.json" );
 
+  m_spatialgrid_ptr = std::make_shared<PathFinding::SpatialHashGrid>();
+  auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
+  for ( auto entity : view )
+  {
+    const auto &pos = view.get<Cmp::Position>( entity );
+    m_spatialgrid_ptr->insert( entity, pos );
+  }
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_spatialgrid_ptr );
+
   // force the loading screen so that we hide any motion sickness inducing camera pan
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
@@ -82,16 +94,15 @@ void HolyWellScene::on_exit()
 void HolyWellScene::do_update( [[maybe_unused]] sf::Time dt )
 {
   m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::NpcSystem>().update( dt, &m_spatial_grid );
+  m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
   m_sys.find<Sys::Store::Type::HolyWellSystem>().check_exit_collision();
 
-  m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt, &m_spatial_grid );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, m_spatial_grid, Sys::DarkMode::OFF,
-                                                                Sys::WeatherMode::OFF );
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::OFF, Sys::WeatherMode::OFF );
 }
 
 entt::registry &HolyWellScene::registry() { return m_reg; }

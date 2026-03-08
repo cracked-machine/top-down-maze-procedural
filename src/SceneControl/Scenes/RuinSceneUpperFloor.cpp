@@ -95,12 +95,16 @@ void RuinSceneUpperFloor::on_init()
   Factory::FloormapFactory::create_floormap( m_reg, m_floormap, RuinSceneUpperFloor::kMapGridSize, "res/json/ruin_upper_tilemap_config.json" );
 
   // create a spatial grid of the game area
+  m_spatialgrid_ptr = std::make_shared<PathFinding::SpatialHashGrid>();
   auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
   for ( auto entity : view )
   {
     const auto &pos = view.get<Cmp::Position>( entity );
-    m_spatial_grid.insert( entity, pos );
+    m_spatialgrid_ptr->insert( entity, pos );
   }
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_spatialgrid_ptr );
 }
 
 void RuinSceneUpperFloor::on_enter()
@@ -147,14 +151,13 @@ void RuinSceneUpperFloor::do_update( [[maybe_unused]] sf::Time dt )
 {
   using namespace Sys;
   m_sys.find<Store::Type::AnimSystem>().update( dt );
-  m_sys.find<Store::Type::NpcSystem>().update( dt, &m_spatial_grid );
+  m_sys.find<Store::Type::NpcSystem>().update( dt );
   // m_sys.find<Store::Type::FootstepSystem>().update();
-  m_sys.find<Store::Type::RuinSystem>().update( &m_spatial_grid );
   m_sys.find<Store::Type::LootSystem>().check_loot_collision();
   m_sys.find<Store::Type::RuinSystem>().check_floor_access_collision( Cmp::RuinFloorAccess::Direction::TO_LOWER );
   m_sys.find<Store::Type::RuinSystem>().check_movement_slowdowns();
 
-  m_sys.find<Store::Type::PlayerSystem>().update( dt, &m_spatial_grid, PlayerSystem::FootStepSfx::NONE );
+  m_sys.find<Store::Type::PlayerSystem>().update( dt, PlayerSystem::FootStepSfx::NONE );
   m_sys.find<Store::Type::PlayerSystem>().disable_damage_cooldown();
 
   bool player_curse_active = m_sys.find<Store::Type::RuinSystem>().check_activate_player_curse( RuinSceneUpperFloor::kMapGridSizeF );
@@ -163,7 +166,7 @@ void RuinSceneUpperFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Store::Type::RuinSystem>().check_player_shadow_hand_collision();
 
   auto &overlay_sys = m_sys.find<Store::Type::RenderOverlaySystem>();
-  m_sys.find<Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, m_spatial_grid, DarkMode::OFF, WeatherMode::OFF,
+  m_sys.find<Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, DarkMode::OFF, WeatherMode::OFF,
                                                            ( player_curse_active ? CursedMode::ON : CursedMode::OFF ) );
 }
 

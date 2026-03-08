@@ -99,6 +99,8 @@ public:
   auto end() { return m_sysmap.end(); }
   auto size() const { return m_sysmap.size(); }
 
+  void init_weak_ptrs();
+
 private:
   std::map<Type, std::unique_ptr<BaseSystem>> m_sysmap;
   entt::registry m_initial_reg; // Temporary registry for initialization

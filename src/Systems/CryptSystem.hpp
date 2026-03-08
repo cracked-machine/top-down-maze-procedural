@@ -9,9 +9,7 @@
 
 #include <SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <Utils/Maths.hpp>
 
-#include <queue>
 #include <set>
 
 namespace ProceduralMaze::Sys
@@ -20,9 +18,6 @@ namespace ProceduralMaze::Sys
 class CryptSystem : public ProceduralMaze::Sys::BaseSystem
 {
 public:
-  using RoomDistanceQueue = std::priority_queue<std::pair<float, sf::Vector2f>, std::vector<std::pair<float, sf::Vector2f>>,
-                                                Utils::Maths::DistanceVector2fComparator>;
-
   CryptSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
                entt::dispatcher &scenemanager_event_dispatcher )
       : ProceduralMaze::Sys::BaseSystem( reg, window, sprite_factory, sound_bank ),
@@ -33,11 +28,15 @@ public:
     std::ignore = get_systems_event_queue().sink<Events::CryptRoomEvent>().connect<&CryptSystem::on_room_event>( this );
   }
 
+  //! @brief init the weak pointer for the spatial grid
+  //! @param spatial_grid_ptr
+  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_spatialgrid_wptr = spatial_grid_ptr; }
+
   //! @brief Initial maze setup. Called from Scene::on_enter()
-  void setup( PathFinding::SpatialHashGrid *spatial_grid );
+  void setup();
 
   //! @brief Frame update. Called from Scene::do_update()
-  void update( PathFinding::SpatialHashGrid *spatial_grid );
+  void update();
 
   //! @brief Handle player action events
   //! @param event
@@ -193,7 +192,7 @@ private:
   sf::Clock m_lava_effect_cooldown_timer;
   sf::Time m_lava_effect_cooldown_threshold{ sf::seconds( 1.f ) };
 
-  PathFinding::SpatialHashGrid *m_spatial_grid{ nullptr };
+  PathFinding::SpatialHashGridWeakPtr m_spatialgrid_wptr;
 };
 
 } // namespace ProceduralMaze::Sys
