@@ -100,7 +100,7 @@ void ExitSystem::check_player_can_unlock_exit()
         getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", 1 );
         getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y - 16.f );
         if ( m_sound_bank.get_effect( "secret" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "secret" ).play();
-        Factory::destroyInventory( getReg(), "CARRYITEM.exitkey" );
+        Factory::destroy_inventory( getReg(), "CARRYITEM.exitkey" );
       }
     }
   }

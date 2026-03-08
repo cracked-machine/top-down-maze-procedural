@@ -28,7 +28,7 @@
 namespace ProceduralMaze::Factory
 {
 
-entt::entity CreateCryptLever( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder )
+entt::entity create_crypt_lever( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder )
 {
   auto entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entt, pos, Constants::kGridSizePxF );
@@ -38,7 +38,7 @@ entt::entity CreateCryptLever( entt::registry &reg, sf::Vector2f pos, Sprites::S
   return entt;
 }
 
-void DestroyCryptLever( entt::registry &reg, entt::entity entt )
+void destroy_crypt_lever( entt::registry &reg, entt::entity entt )
 {
   if ( reg.all_of<Cmp::CryptLever>( entt ) ) reg.remove<Cmp::CryptLever>( entt );
   if ( reg.all_of<Cmp::Position>( entt ) ) reg.remove<Cmp::Position>( entt );
@@ -47,7 +47,7 @@ void DestroyCryptLever( entt::registry &reg, entt::entity entt )
   if ( reg.valid( entt ) ) { reg.destroy( entt ); }
 }
 
-entt::entity CreateCryptChest( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder )
+entt::entity create_crypt_chest( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder )
 {
   auto entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entt, pos, Constants::kGridSizePxF );
@@ -58,7 +58,7 @@ entt::entity CreateCryptChest( entt::registry &reg, sf::Vector2f pos, Sprites::S
   return entt;
 }
 
-void DestroyCryptChest( entt::registry &reg, entt::entity entt )
+void destroy_crypt_chest( entt::registry &reg, entt::entity entt )
 {
   if ( reg.all_of<Cmp::CryptChest>( entt ) ) reg.remove<Cmp::CryptLever>( entt );
   if ( reg.all_of<Cmp::Position>( entt ) ) reg.remove<Cmp::Position>( entt );
@@ -68,7 +68,7 @@ void DestroyCryptChest( entt::registry &reg, entt::entity entt )
   if ( reg.valid( entt ) ) { reg.destroy( entt ); }
 }
 
-void createCryptLavaPit( entt::registry &reg, const Cmp::CryptRoomOpen &room, PathFinding::SpatialHashGrid *spatial_grid )
+void create_crypt_lava_pit( entt::registry &reg, const Cmp::CryptRoomOpen &room, PathFinding::SpatialHashGrid *spatial_grid )
 {
   // add the lava pit area
   sf::Vector2f adjusted_position = { room.position.x + Constants::kGridSizePxF.x, room.position.y + Constants::kGridSizePxF.y };
@@ -98,7 +98,7 @@ void createCryptLavaPit( entt::registry &reg, const Cmp::CryptRoomOpen &room, Pa
   }
 }
 
-void destroyCryptLavaPit( entt::registry &reg, entt::entity entt, PathFinding::SpatialHashGrid *spatial_grid )
+void destroy_crypt_lava_pit( entt::registry &reg, entt::entity entt, PathFinding::SpatialHashGrid *spatial_grid )
 {
   auto lava_pit_cmp = reg.try_get<Cmp::CryptRoomLavaPit>( entt );
   if ( lava_pit_cmp )
@@ -113,7 +113,7 @@ void destroyCryptLavaPit( entt::registry &reg, entt::entity entt, PathFinding::S
   reg.destroy( entt );
 }
 
-void addSpikeTrap( entt::registry &reg, const entt::entity entt, const int passage_id )
+void add_spike_trap( entt::registry &reg, const entt::entity entt, const int passage_id )
 {
   auto pblock_cmp = reg.try_get<Cmp::CryptPassageBlock>( entt );
   if ( not pblock_cmp ) return;

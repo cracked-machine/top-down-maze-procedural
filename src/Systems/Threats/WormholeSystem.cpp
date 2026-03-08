@@ -168,8 +168,8 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
     if ( obstacle_pos.findIntersection( wormhole_block ) )
     {
       Factory::remove_obstacle( getReg(), entity );
-      Factory::destroyLootContainer( getReg(), entity );
-      Factory::destroyNpcContainer( getReg(), entity );
+      Factory::destroy_loot_container( getReg(), entity );
+      Factory::destroy_npc_container( getReg(), entity );
 
       SPDLOG_DEBUG( "Wormhole spawn: Destroying item at ({}, {})", obstacle_pos.position.x, obstacle_pos.position.y );
     }

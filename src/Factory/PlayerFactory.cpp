@@ -41,7 +41,7 @@
 namespace ProceduralMaze::Factory
 {
 
-void CreatePlayer( entt::registry &registry )
+void create_player( entt::registry &registry )
 {
   SPDLOG_INFO( "Creating player entity" );
   auto entity = registry.create();
@@ -76,7 +76,7 @@ void CreatePlayer( entt::registry &registry )
   registry.emplace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, true, "CARRYITEM.pickaxe", 0 );
 }
 
-entt::entity createWorldPosition( entt::registry &registry, const sf::Vector2f &pos )
+entt::entity create_world_pos( entt::registry &registry, const sf::Vector2f &pos )
 {
   auto entity = registry.create();
   registry.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
@@ -84,7 +84,7 @@ entt::entity createWorldPosition( entt::registry &registry, const sf::Vector2f &
   return entity;
 }
 
-entt::entity createVoidPosition( entt::registry &registry, const sf::Vector2f &pos )
+entt::entity create_void_pos( entt::registry &registry, const sf::Vector2f &pos )
 {
   auto entity = registry.create();
   registry.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
@@ -92,7 +92,7 @@ entt::entity createVoidPosition( entt::registry &registry, const sf::Vector2f &p
   return entity;
 }
 
-void addSpawnArea( entt::registry &registry, entt::entity entity, float zorder )
+void add_spawn_area( entt::registry &registry, entt::entity entity, float zorder )
 {
   // We need to reserve these positions for the player start area
   registry.emplace_or_replace<Cmp::ReservedPosition>( entity );
@@ -102,7 +102,7 @@ void addSpawnArea( entt::registry &registry, entt::entity entity, float zorder )
   registry.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
 }
 
-void createPlayerDeathAnim( entt::registry &registry, Cmp::Position player_pos_cmp, const Sprites::MultiSprite &sprite )
+void create_player_death_anim( entt::registry &registry, Cmp::Position player_pos_cmp, const Sprites::MultiSprite &sprite )
 {
   auto player_blood_splat_entity = registry.create();
   sf::Vector2f offset;
@@ -165,7 +165,7 @@ entt::entity create_explosive( entt::registry &reg, Cmp::Position pos, Sprites::
 //! @param pos the position to place the new item
 //! @param type the item type. See "CARRYITEM.xxxx" in res/json/sprite_metadata.json
 //! @return entt::entity
-entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, Sprites::SpriteMetaType type, float zorder )
+entt::entity create_carry_item( entt::registry &reg, Cmp::Position pos, Sprites::SpriteMetaType type, float zorder )
 {
   if ( type == "CARRYITEM.scryingball" ) { return create_seeing_stone( reg, pos, type, zorder ); }
   else if ( type == "CARRYITEM.bomb" ) { return create_explosive( reg, pos, type, zorder ); }
@@ -192,8 +192,8 @@ entt::entity createCarryItem( entt::registry &reg, Cmp::Position pos, Sprites::S
 //! @param sprite the multisprite object
 //! @param inventory_slot_cmp_entt the player inventory slot entt
 //! @return entt::entity
-entt::entity dropInventorySlotIntoWorld( entt::registry &reg, Cmp::Position pos, const Sprites::MultiSprite &sprite,
-                                         entt::entity inventory_slot_entt )
+entt::entity drop_inventory_slot_into_world( entt::registry &reg, Cmp::Position pos, const Sprites::MultiSprite &sprite,
+                                             entt::entity inventory_slot_entt )
 {
   auto inventory_slot_cmp = reg.try_get<Cmp::PlayerInventorySlot>( inventory_slot_entt );
 
@@ -206,7 +206,7 @@ entt::entity dropInventorySlotIntoWorld( entt::registry &reg, Cmp::Position pos,
   // if plant then replant it in the ground
   if ( inventory_slot_cmp->type.contains( "plant" ) )
   {
-    auto world_carry_item_entt = Factory::createPlantObstacle( reg, pos, inventory_slot_cmp->type, 0.f );
+    auto world_carry_item_entt = Factory::create_plant_obstacle( reg, pos, inventory_slot_cmp->type, 0.f );
     reg.destroy( inventory_slot_entt );
     return world_carry_item_entt;
   }
@@ -241,7 +241,7 @@ entt::entity dropInventorySlotIntoWorld( entt::registry &reg, Cmp::Position pos,
 //! @param reg the ECS registry
 //! @param carryitem_entt the CarryItem entt from the world
 //! @return entt::entity
-entt::entity pickupCarryItem( entt::registry &reg, entt::entity carryitem_entt )
+entt::entity pickup_carry_item( entt::registry &reg, entt::entity carryitem_entt )
 {
   // does this entity own a world item that can be carried?
   auto carryitem_cmp = reg.try_get<Cmp::CarryItem>( carryitem_entt );
@@ -271,7 +271,7 @@ entt::entity pickupCarryItem( entt::registry &reg, entt::entity carryitem_entt )
 //! @brief Destroy all player inventory slots matching a type. See "CARRYITEM.xxxx" in res/json/sprite_metadata.json
 //! @param reg the ECS registry
 //! @param type the type to destroy
-void destroyInventory( entt::registry &reg, const Sprites::SpriteMetaType type )
+void destroy_inventory( entt::registry &reg, const Sprites::SpriteMetaType type )
 {
   auto inventory_view = reg.view<Cmp::PlayerInventorySlot>();
   for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )

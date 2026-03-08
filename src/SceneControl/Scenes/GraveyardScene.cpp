@@ -55,7 +55,7 @@ void GraveyardScene::on_init()
   auto player_start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSizePxF, 5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
-  Factory::CreatePlayer( m_reg );
+  Factory::create_player( m_reg );
 
   // create the level contents
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
@@ -80,7 +80,7 @@ void GraveyardScene::on_init()
     m_spatial_grid.insert( entity, pos );
   }
 
-  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, GraveyardScene::kMapGridSize, "res/json/graveyard_tilemap_config.json" );
+  Factory::FloormapFactory::create_floormap( m_reg, m_floormap, GraveyardScene::kMapGridSize, "res/json/graveyard_tilemap_config.json" );
 
   m_sys.find<Sys::Store::Type::ExitSystem>().spawn_exit();
 
@@ -90,13 +90,14 @@ void GraveyardScene::on_init()
   m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().init_hazard_field();
   m_sys.find<Sys::Store::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
-  Factory::createCarryItem( m_reg, Cmp::Position( m_player_start_position + sf::Vector2f{ 16.f, 16.f }, Constants::kGridSizePxF ),
-                            "CARRYITEM.shovel" );
+  Factory::create_carry_item( m_reg, Cmp::Position( m_player_start_position + sf::Vector2f{ 16.f, 16.f }, Constants::kGridSizePxF ),
+                              "CARRYITEM.shovel" );
 
-  Factory::createCarryItem( m_reg, Cmp::Position( m_player_start_position - sf::Vector2f{ 16.f, 16.f }, Constants::kGridSizePxF ), "CARRYITEM.axe" );
+  Factory::create_carry_item( m_reg, Cmp::Position( m_player_start_position - sf::Vector2f{ 16.f, 16.f }, Constants::kGridSizePxF ),
+                              "CARRYITEM.axe" );
 
-  Factory::createCarryItem( m_reg, Cmp::Position( m_player_start_position - sf::Vector2f{ 32.f, 16.f }, Constants::kGridSizePxF ),
-                            "CARRYITEM.scryingball" );
+  Factory::create_carry_item( m_reg, Cmp::Position( m_player_start_position - sf::Vector2f{ 32.f, 16.f }, Constants::kGridSizePxF ),
+                              "CARRYITEM.scryingball" );
 }
 
 void GraveyardScene::on_enter()
@@ -137,7 +138,7 @@ void GraveyardScene::on_exit()
   auto &m_player_sys = m_sys.find<Sys::Store::Type::PlayerSystem>();
   m_player_sys.stopFootstepsSound();
 
-  Factory::FloormapFactory::ClearFloormap( m_floormap );
+  Factory::FloormapFactory::clear_floormap( m_floormap );
 
   m_sound_bank.get_music( "game_music" ).stop();
 }

@@ -76,14 +76,14 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
 
     auto common_activation = [&]()
     {
-      Factory::destroyInventory( getReg(), inventory_type );
+      Factory::destroy_inventory( getReg(), inventory_type );
       float altar_sacrifice_anim_height = m_sprite_factory.get_multisprite_by_type( "ALTAR.sacrifice.anim" ).getSpriteSizePixels().y;
       // get the center (topleft coord), then adjust to center the altar_sacrifice_anim, then adjust for altar_sacrifice_anim height
       Cmp::Position new_pos( altar_cmp.getCenter() - sf::Vector2{ 8.f, 8.f } - sf::Vector2{ 0.f, altar_sacrifice_anim_height },
                              Constants::kGridSizePxF );
       // Factory::createCarryItem( getReg(), new_pos, inventory_type, 2.f );
       m_sound_bank.get_effect( "shrine_lighting" ).play();
-      Factory::createAltarSacrificeAnimation( getReg(), new_pos );
+      Factory::create_altar_sacrifice_anim( getReg(), new_pos );
     };
 
     switch ( altar_cmp.get_activation_count() )
@@ -133,16 +133,16 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       // dont keep spawning exit keys if the exit is was already open
       if ( not Utils::is_graveyard_exit_locked( getReg() ) )
       {
-        key_entt = Factory::createCarryItem( getReg(), Utils::Player::get_player_position( getReg() ), "CARRYITEM.cryptkey" );
+        key_entt = Factory::create_carry_item( getReg(), Utils::Player::get_player_position( getReg() ), "CARRYITEM.cryptkey" );
       }
       else
       {
         // otherwise if the exit is locked, its 50/50
         if ( key_choice == 0 )
         {
-          key_entt = Factory::createCarryItem( getReg(), Utils::Player::get_player_position( getReg() ), "CARRYITEM.exitkey" );
+          key_entt = Factory::create_carry_item( getReg(), Utils::Player::get_player_position( getReg() ), "CARRYITEM.exitkey" );
         }
-        else { key_entt = Factory::createCarryItem( getReg(), Utils::Player::get_player_position( getReg() ), "CARRYITEM.cryptkey" ); }
+        else { key_entt = Factory::create_carry_item( getReg(), Utils::Player::get_player_position( getReg() ), "CARRYITEM.cryptkey" ); }
       }
 
       if ( key_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }

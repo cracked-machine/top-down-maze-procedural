@@ -139,11 +139,11 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, C
       if ( isInside )
       {
         // create world position entity, mark spawn area if in player start area
-        auto entity = Factory::createWorldPosition( getReg(), new_pos );
+        auto entity = Factory::create_world_pos( getReg(), new_pos );
         auto &pos_cmp = getReg().get<Cmp::Position>( entity );
         if ( spawnarea == SpawnArea::TRUE )
         {
-          if ( pos_cmp.findIntersection( player_start_area.getBounds() ) ) { Factory::addSpawnArea( getReg(), entity, new_pos.y - 16.0f ); }
+          if ( pos_cmp.findIntersection( player_start_area.getBounds() ) ) { Factory::add_spawn_area( getReg(), entity, new_pos.y - 16.0f ); }
         }
         // track contiguous list of positions for proc gen
         m_data.push_back( entity );
@@ -185,10 +185,10 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size, Cm
 
         // Create world position entity
         // We don't add any "CRYPT.interior_sb" obstacles until CryptSystem.
-        auto entity = Factory::createWorldPosition( getReg(), new_pos );
+        auto entity = Factory::create_world_pos( getReg(), new_pos );
         auto &pos_cmp = getReg().get<Cmp::Position>( entity );
         // Mark this position as spawn area if in player start area
-        if ( pos_cmp.findIntersection( player_start_area.getBounds() ) ) { Factory::addSpawnArea( getReg(), entity, new_pos.y - 16.0f ); }
+        if ( pos_cmp.findIntersection( player_start_area.getBounds() ) ) { Factory::add_spawn_area( getReg(), entity, new_pos.y - 16.0f ); }
 
         // track the contiguous creation order entities so we can easily find its neighbours later
         m_data.push_back( entity );
@@ -358,9 +358,9 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, Cmp::
       if ( not isBorder )
       {
         // create world position entity, mark spawn area if in player start area
-        auto entity = Factory::createWorldPosition( getReg(), new_pos );
+        auto entity = Factory::create_world_pos( getReg(), new_pos );
         auto &pos_cmp = getReg().get<Cmp::Position>( entity );
-        if ( pos_cmp.findIntersection( player_start_area.getBounds() ) ) { Factory::addSpawnArea( getReg(), entity, new_pos.y - 16.0f ); }
+        if ( pos_cmp.findIntersection( player_start_area.getBounds() ) ) { Factory::add_spawn_area( getReg(), entity, new_pos.y - 16.0f ); }
 
         // track the contiguous creation order entities so we can easily find its neighbours later
         m_data.push_back( entity );
@@ -446,28 +446,28 @@ void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::
 
   if ( ms.get_sprite_type().contains( "ALTAR" ) )
   {
-    Factory::createMultiblock<Cmp::AltarMultiBlock>( getReg(), random_entity, random_origin_position, ms );
-    Factory::createMultiblockSegments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( getReg(), random_entity, random_origin_position, ms );
+    Factory::create_multiblock<Cmp::AltarMultiBlock>( getReg(), random_entity, random_origin_position, ms );
+    Factory::create_multiblock_segments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( getReg(), random_entity, random_origin_position, ms );
   }
   else if ( ms.get_sprite_type().contains( "GRAVE" ) )
   {
-    Factory::createMultiblock<Cmp::GraveMultiBlock>( getReg(), random_entity, random_origin_position, ms );
-    Factory::createMultiblockSegments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( getReg(), random_entity, random_origin_position, ms );
+    Factory::create_multiblock<Cmp::GraveMultiBlock>( getReg(), random_entity, random_origin_position, ms );
+    Factory::create_multiblock_segments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( getReg(), random_entity, random_origin_position, ms );
   }
   else if ( ms.get_sprite_type() == "CRYPT.closed" )
   {
-    Factory::createMultiblock<Cmp::CryptMultiBlock>( getReg(), random_entity, random_origin_position, ms );
-    Factory::createMultiblockSegments<Cmp::CryptMultiBlock, Cmp::CryptSegment>( getReg(), random_entity, random_origin_position, ms );
+    Factory::create_multiblock<Cmp::CryptMultiBlock>( getReg(), random_entity, random_origin_position, ms );
+    Factory::create_multiblock_segments<Cmp::CryptMultiBlock, Cmp::CryptSegment>( getReg(), random_entity, random_origin_position, ms );
   }
   else if ( ms.get_sprite_type() == "HOLYWELL.exterior_building" )
   {
-    Factory::createMultiblock<Cmp::HolyWellMultiBlock>( getReg(), random_entity, random_origin_position, ms );
-    Factory::createMultiblockSegments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( getReg(), random_entity, random_origin_position, ms );
+    Factory::create_multiblock<Cmp::HolyWellMultiBlock>( getReg(), random_entity, random_origin_position, ms );
+    Factory::create_multiblock_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( getReg(), random_entity, random_origin_position, ms );
   }
   else if ( ms.get_sprite_type() == "RUIN.exterior_building" )
   {
-    Factory::createMultiblock<Cmp::RuinBuildingMultiBlock>( getReg(), random_entity, random_origin_position, ms );
-    Factory::createMultiblockSegments<Cmp::RuinBuildingMultiBlock, Cmp::RuinSegment>( getReg(), random_entity, random_origin_position, ms );
+    Factory::create_multiblock<Cmp::RuinBuildingMultiBlock>( getReg(), random_entity, random_origin_position, ms );
+    Factory::create_multiblock_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinSegment>( getReg(), random_entity, random_origin_position, ms );
   }
   else
   {
@@ -489,8 +489,9 @@ void RandomLevelGenerator::gen_crypt_interior_multiblocks()
       SPDLOG_ERROR( "Failed to find valid spawn position for {}.", ms.get_sprite_type() );
       return;
     }
-    Factory::createMultiblock<Cmp::CryptInteriorMultiBlock>( getReg(), random_entity, random_origin_position, ms, ms_idx );
-    Factory::createMultiblockSegments<Cmp::CryptInteriorMultiBlock, Cmp::CryptInteriorSegment>( getReg(), random_entity, random_origin_position, ms );
+    Factory::create_multiblock<Cmp::CryptInteriorMultiBlock>( getReg(), random_entity, random_origin_position, ms, ms_idx );
+    Factory::create_multiblock_segments<Cmp::CryptInteriorMultiBlock, Cmp::CryptInteriorSegment>( getReg(), random_entity, random_origin_position,
+                                                                                                  ms );
   }
 }
 

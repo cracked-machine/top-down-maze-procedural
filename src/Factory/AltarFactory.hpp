@@ -7,7 +7,7 @@
 namespace ProceduralMaze::Factory
 {
 
-void createAltarSacrificeAnimation( entt::registry &reg, Cmp::Position pos );
+void create_altar_sacrifice_anim( entt::registry &reg, Cmp::Position pos );
 
 } // namespace ProceduralMaze::Factory
 

@@ -69,7 +69,8 @@ void RuinSceneUpperFloor::on_init()
     auto ruin_objective_view = m_reg.view<Cmp::RuinObjectiveType>();
     for ( auto [ruin_obj_entt, ruin_obj_cmp] : ruin_objective_view.each() )
     {
-      Factory::createCarryItem( m_reg, Cmp::Position( { hexagram_pos.x + gridsize.x, hexagram_pos.y + gridsize.y }, gridsize ), ruin_obj_cmp.m_type );
+      Factory::create_carry_item( m_reg, Cmp::Position( { hexagram_pos.x + gridsize.x, hexagram_pos.y + gridsize.y }, gridsize ),
+                                  ruin_obj_cmp.m_type );
     }
   }
 
@@ -91,7 +92,7 @@ void RuinSceneUpperFloor::on_init()
   m_sys.find<Store::Type::RuinSystem>().add_stairs<Cmp::RuinStairsBalustradeMultiBlock>( balustrade_position, stairs_balustrade_ms,
                                                                                          balustrade_zorder );
 
-  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneUpperFloor::kMapGridSize, "res/json/ruin_upper_tilemap_config.json" );
+  Factory::FloormapFactory::create_floormap( m_reg, m_floormap, RuinSceneUpperFloor::kMapGridSize, "res/json/ruin_upper_tilemap_config.json" );
 
   // create a spatial grid of the game area
   auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );

@@ -61,8 +61,8 @@ void HolyWellSystem::spawn_well( sf::Vector2u spawn_position )
   auto entity = getReg().create();
   getReg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, spawn_pos_px.size );
 
-  Factory::createMultiblock<Cmp::HolyWellMultiBlock>( getReg(), entity, spawn_pos_px, ms );
-  Factory::createMultiblockSegments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( getReg(), entity, spawn_pos_px, ms );
+  Factory::create_multiblock<Cmp::HolyWellMultiBlock>( getReg(), entity, spawn_pos_px, ms );
+  Factory::create_multiblock_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( getReg(), entity, spawn_pos_px, ms );
 
   SPDLOG_INFO( "Well spawned at position ({}, {})", spawn_pos_px.position.x, spawn_pos_px.position.y );
   return;
@@ -96,8 +96,8 @@ void HolyWellSystem::check_entrance_collision()
       // drop any inventory outside the door
       auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
       SPDLOG_INFO( "Player Inventory: {} - {}", static_cast<uint32_t>( inventory_entt ), inventory_slot_type );
-      auto dropped_entt = Factory::dropInventorySlotIntoWorld( getReg(), last_player_pos,
-                                                               m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
+      auto dropped_entt = Factory::drop_inventory_slot_into_world( getReg(), last_player_pos,
+                                                                   m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
       if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
     }
   }

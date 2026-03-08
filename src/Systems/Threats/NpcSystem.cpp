@@ -109,7 +109,7 @@ void NpcSystem::check_bones_reanimation()
 
     if ( player_pos.findIntersection( npc_activate_bounds.getBounds() ) )
     {
-      Factory::createNPC( getReg(), npccontainer_entt, "NPCSKELE" );
+      Factory::create_npc( getReg(), npccontainer_entt, "NPCSKELE" );
       m_sound_bank.get_effect( "spawn_skeleton" ).play();
     }
   }
@@ -356,7 +356,7 @@ void NpcSystem::update_shockwaves()
     if ( npc_sprite_anim && npc_sprite_anim->m_sprite_type == "NPCPRIEST" )
     {
       // cooldown is handled in Factory function via Cmp::NpcShockwaveTimer per NPC
-      Factory::createShockwave( getReg(), npc_entt );
+      Factory::create_shockwave( getReg(), npc_entt );
     }
   }
 

@@ -15,7 +15,7 @@
 namespace ProceduralMaze::Factory
 {
 
-entt::entity createPlantObstacle( entt::registry &reg, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type, float zorder )
+entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type, float zorder )
 {
   auto plant_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( plant_entt, pos_cmp.position, pos_cmp.size );
@@ -45,7 +45,7 @@ void gen_random_plants( entt::registry &reg, Sprites::SpriteFactory &sprite_fact
         { "CARRYITEM.plant1", "CARRYITEM.plant2", "CARRYITEM.plant3", "CARRYITEM.plant4", "CARRYITEM.plant5", "CARRYITEM.plant6", "CARRYITEM.plant7",
           "CARRYITEM.plant8", "CARRYITEM.plant9", "CARRYITEM.plant10", "CARRYITEM.plant11", "CARRYITEM.plant12" } );
 
-    Factory::createPlantObstacle( reg, random_pos, rand_plant_type, 0.f );
+    Factory::create_plant_obstacle( reg, random_pos, rand_plant_type, 0.f );
     SPDLOG_INFO( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
   }
 }

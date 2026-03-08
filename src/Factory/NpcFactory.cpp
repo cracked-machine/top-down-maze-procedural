@@ -22,8 +22,8 @@
 namespace ProceduralMaze::Factory
 {
 
-void createNpcContainer( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
-                         std::size_t sprite_tile_idx, float zorder )
+void create_npc_container( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
+                           std::size_t sprite_tile_idx, float zorder )
 {
   registry.emplace_or_replace<Cmp::ReservedPosition>( entt );
   registry.emplace_or_replace<Cmp::Armable>( entt );
@@ -32,14 +32,14 @@ void createNpcContainer( entt::registry &registry, entt::entity entt, Cmp::Posit
   registry.emplace_or_replace<Cmp::ZOrderValue>( entt, pos_cmp.position.y - zorder );
 }
 
-void destroyNpcContainer( entt::registry &registry, entt::entity npc_container_entity )
+void destroy_npc_container( entt::registry &registry, entt::entity npc_container_entity )
 {
   registry.remove<Cmp::NpcContainer>( npc_container_entity );
   registry.remove<Cmp::SpriteAnimation>( npc_container_entity );
   registry.remove<Cmp::ZOrderValue>( npc_container_entity );
 }
 
-void createShockwave( entt::registry &registry, entt::entity npc_entt )
+void create_shockwave( entt::registry &registry, entt::entity npc_entt )
 {
   // get the shockwave timer for the NPC
   auto shockwave_timer = registry.try_get<Cmp::NpcShockwaveTimer>( npc_entt );
@@ -68,7 +68,7 @@ void createShockwave( entt::registry &registry, entt::entity npc_entt )
   }
 }
 
-void createNPC( entt::registry &registry, entt::entity position_entity, const Sprites::SpriteMetaType &type )
+void create_npc( entt::registry &registry, entt::entity position_entity, const Sprites::SpriteMetaType &type )
 {
 
   auto pos_cmp = registry.try_get<Cmp::Position>( position_entity );
@@ -114,7 +114,7 @@ void createNPC( entt::registry &registry, entt::entity position_entity, const Sp
     registry.remove<Cmp::ZOrderValue>( position_entity );
 
     registry.emplace_or_replace<Cmp::NpcShockwaveTimer>( new_pos_entity );
-    Factory::createShockwave( registry, position_entity );
+    Factory::create_shockwave( registry, position_entity );
     SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
                  pos_cmp->position.y );
   }
@@ -132,7 +132,7 @@ void createNPC( entt::registry &registry, entt::entity position_entity, const Sp
   }
 }
 
-entt::entity destroyNPC( entt::registry &registry, entt::entity npc_entity )
+entt::entity destroy_npc( entt::registry &registry, entt::entity npc_entity )
 {
 
   // check for position component
@@ -150,7 +150,7 @@ entt::entity destroyNPC( entt::registry &registry, entt::entity npc_entity )
   return loot_entity;
 }
 
-void createNpcExplosion( entt::registry &registry, Cmp::Position npc_pos_cmp )
+void create_npc_explosion( entt::registry &registry, Cmp::Position npc_pos_cmp )
 {
   auto npc_death_entity = registry.create();
   registry.emplace<Cmp::Position>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
@@ -176,7 +176,7 @@ void gen_npc_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_fac
       } );
     // clang-format on
 
-    Factory::createNpcContainer( reg, random_entity, random_origin_position, npc_type, rand_npc_tex_idx, 0.f );
+    Factory::create_npc_container( reg, random_entity, random_origin_position, npc_type, rand_npc_tex_idx, 0.f );
   }
 }
 

@@ -94,7 +94,7 @@ void PassageSystem::addSpikeTraps()
   {
     if ( passage_ids_used.contains( pblock_cmp.m_passage_id ) ) continue;
     passage_ids_used.insert( pblock_cmp.m_passage_id );
-    Factory::addSpikeTrap( getReg(), pblock_entt, pblock_cmp.m_passage_id );
+    Factory::add_spike_trap( getReg(), pblock_entt, pblock_cmp.m_passage_id );
   }
 }
 

@@ -9,8 +9,8 @@
 namespace ProceduralMaze::Factory
 {
 
-void createLootContainer( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
-                          std::size_t sprite_tile_idx, float zorder )
+void create_loot_container( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
+                            std::size_t sprite_tile_idx, float zorder )
 {
 
   registry.emplace_or_replace<Cmp::ReservedPosition>( entt );
@@ -20,7 +20,7 @@ void createLootContainer( entt::registry &registry, entt::entity entt, Cmp::Posi
   registry.emplace_or_replace<Cmp::ZOrderValue>( entt, pos_cmp.position.y - zorder );
 }
 
-void destroyLootContainer( entt::registry &registry, entt::entity loot_container_entity )
+void destroy_loot_container( entt::registry &registry, entt::entity loot_container_entity )
 {
   registry.remove<Cmp::LootContainer>( loot_container_entity );
   registry.remove<Cmp::ReservedPosition>( loot_container_entity );
@@ -28,7 +28,7 @@ void destroyLootContainer( entt::registry &registry, entt::entity loot_container
   registry.remove<Cmp::ZOrderValue>( loot_container_entity );
 }
 
-void destroyLootDrop( entt::registry &registry, entt::entity loot_entity ) { registry.destroy( loot_entity ); }
+void destroy_loot_drop( entt::registry &registry, entt::entity loot_entity ) { registry.destroy( loot_entity ); }
 
 void gen_loot_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size )
 {
@@ -41,7 +41,7 @@ void gen_loot_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_fa
 
     float zorder = sprite_factory.get_sprite_size_by_type( "POT" ).y;
 
-    Factory::createLootContainer( reg, random_entity, random_origin_position, "POT", 0, zorder );
+    Factory::create_loot_container( reg, random_entity, random_origin_position, "POT", 0, zorder );
   }
 }
 

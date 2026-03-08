@@ -20,13 +20,13 @@ class SpriteFactory;
 namespace ProceduralMaze::Factory
 {
 
-void createNpcContainer( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
-                         std::size_t sprite_tile_idx, float zorder );
-void destroyNpcContainer( entt::registry &registry, entt::entity npc_container_entity );
-void createNPC( entt::registry &registry, entt::entity position_entity, const std::string &type );
-entt::entity destroyNPC( entt::registry &registry, entt::entity npc_entity );
-void createNpcExplosion( entt::registry &registry, Cmp::Position npc_position_cmp );
-void createShockwave( entt::registry &registry, entt::entity npc_entt );
+void create_npc_container( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
+                           std::size_t sprite_tile_idx, float zorder );
+void destroy_npc_container( entt::registry &registry, entt::entity npc_container_entity );
+void create_npc( entt::registry &registry, entt::entity position_entity, const std::string &type );
+entt::entity destroy_npc( entt::registry &registry, entt::entity npc_entity );
+void create_npc_explosion( entt::registry &registry, Cmp::Position npc_position_cmp );
+void create_shockwave( entt::registry &registry, entt::entity npc_entt );
 
 // Iterate and generate npc containers
 void gen_npc_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size );

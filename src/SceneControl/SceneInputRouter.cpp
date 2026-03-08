@@ -146,8 +146,9 @@ void SceneInputRouter::graveyard_scene_state_handler()
         Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_player_position( getReg() ), { 0.f, 0.f } );
         // drop any inventory
         auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
-        auto dropped_entt = Factory::dropInventorySlotIntoWorld( getReg(), Utils::Player::get_player_position( getReg() ),
-                                                                 m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
+        auto dropped_entt = Factory::drop_inventory_slot_into_world( getReg(), Utils::Player::get_player_position( getReg() ),
+                                                                     m_sprite_factory.get_multisprite_by_type( inventory_slot_type ),
+                                                                     inventory_entt );
         if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F6 )
@@ -157,8 +158,9 @@ void SceneInputRouter::graveyard_scene_state_handler()
         Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_player_position( getReg() ), { 0.f, 0.f } );
         // drop any inventory
         auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
-        auto dropped_entt = Factory::dropInventorySlotIntoWorld( getReg(), Utils::Player::get_player_position( getReg() ),
-                                                                 m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
+        auto dropped_entt = Factory::drop_inventory_slot_into_world( getReg(), Utils::Player::get_player_position( getReg() ),
+                                                                     m_sprite_factory.get_multisprite_by_type( inventory_slot_type ),
+                                                                     inventory_entt );
         if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F7 )
@@ -168,8 +170,9 @@ void SceneInputRouter::graveyard_scene_state_handler()
         Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_player_position( getReg() ), { 0.f, 0.f } );
         // drop any inventory
         auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
-        auto dropped_entt = Factory::dropInventorySlotIntoWorld( getReg(), Utils::Player::get_player_position( getReg() ),
-                                                                 m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
+        auto dropped_entt = Factory::drop_inventory_slot_into_world( getReg(), Utils::Player::get_player_position( getReg() ),
+                                                                     m_sprite_factory.get_multisprite_by_type( inventory_slot_type ),
+                                                                     inventory_entt );
         if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )

@@ -25,16 +25,16 @@ class SpriteFactory;
 namespace ProceduralMaze::Factory
 {
 
-entt::entity CreateCryptLever( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder );
-void DestroyCryptLever( entt::registry &reg, entt::entity entity );
+entt::entity create_crypt_lever( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder );
+void destroy_crypt_lever( entt::registry &reg, entt::entity entity );
 
-void createCryptLavaPit( entt::registry &reg, const Cmp::CryptRoomOpen &room, PathFinding::SpatialHashGrid *spatial_grid );
-void destroyCryptLavaPit( entt::registry &reg, entt::entity entt, PathFinding::SpatialHashGrid *spatial_grid );
+void create_crypt_lava_pit( entt::registry &reg, const Cmp::CryptRoomOpen &room, PathFinding::SpatialHashGrid *spatial_grid );
+void destroy_crypt_lava_pit( entt::registry &reg, entt::entity entt, PathFinding::SpatialHashGrid *spatial_grid );
 
-void addSpikeTrap( entt::registry &reg, const entt::entity entt, const int passage_id );
+void add_spike_trap( entt::registry &reg, const entt::entity entt, const int passage_id );
 
-entt::entity CreateCryptChest( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder );
-void DestroyCryptChest( entt::registry &reg, entt::entity entt );
+entt::entity create_crypt_chest( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder );
+void destroy_crypt_chest( entt::registry &reg, entt::entity entt );
 
 } // namespace ProceduralMaze::Factory
 

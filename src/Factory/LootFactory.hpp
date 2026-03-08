@@ -20,15 +20,15 @@ class SpriteFactory;
 namespace ProceduralMaze::Factory
 {
 
-void createLootContainer( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
-                          std::size_t sprite_tile_idx, float zorder );
+void create_loot_container( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
+                            std::size_t sprite_tile_idx, float zorder );
 
-void destroyLootContainer( entt::registry &registry, entt::entity loot_entity );
+void destroy_loot_container( entt::registry &registry, entt::entity loot_entity );
 
 namespace detail
 {
 template <typename T>
-bool hasComponentAtPosition( entt::registry &registry, const Cmp::Position &pos )
+bool has_component_at_pos( entt::registry &registry, const Cmp::Position &pos )
 {
   for ( auto [entt, cmp, cmp_pos] : registry.view<T, Cmp::Position>().each() )
   {
@@ -38,9 +38,9 @@ bool hasComponentAtPosition( entt::registry &registry, const Cmp::Position &pos 
 }
 
 template <typename... SpatialExclude>
-bool hasAnySpatialExcludedAtPosition( entt::registry &registry, const Cmp::Position &pos, ExcludePack<SpatialExclude...> )
+bool has_any_spatial_excluded_at_pos( entt::registry &registry, const Cmp::Position &pos, ExcludePack<SpatialExclude...> )
 {
-  return ( hasComponentAtPosition<SpatialExclude>( registry, pos ) || ... );
+  return ( has_component_at_pos<SpatialExclude>( registry, pos ) || ... );
 }
 } // namespace detail
 
@@ -57,9 +57,9 @@ bool hasAnySpatialExcludedAtPosition( entt::registry &registry, const Cmp::Posit
  * @return The newly created loot entity, or entt::null if no suitable location was found.
  */
 template <typename... Include, typename... Exclude, typename... SpatialExclude>
-inline entt::entity createLootDrop( entt::registry &registry, Cmp::SpriteAnimation &&loot_anim_cmp, sf::FloatRect search, IncludePack<Include...>,
-                                    ExcludePack<Exclude...>, ExcludePack<SpatialExclude...> spatial_exclude = ExcludePack<>{},
-                                    float zorder_offset = -8.f )
+inline entt::entity create_loot_drop( entt::registry &registry, Cmp::SpriteAnimation &&loot_anim_cmp, sf::FloatRect search, IncludePack<Include...>,
+                                      ExcludePack<Exclude...>, ExcludePack<SpatialExclude...> spatial_exclude = ExcludePack<>{},
+                                      float zorder_offset = -8.f )
 {
   auto pos_view = registry.view<Cmp::Position, Include...>( entt::exclude<Exclude...> );
 
@@ -71,7 +71,7 @@ inline entt::entity createLootDrop( entt::registry &registry, Cmp::SpriteAnimati
     auto obst_cmp = registry.try_get<Cmp::Obstacle>( pos_entity );
 
     // Skip positions occupied by spatially excluded entities
-    if ( detail::hasAnySpatialExcludedAtPosition( registry, pos_cmp, spatial_exclude ) ) continue;
+    if ( detail::has_any_spatial_excluded_at_pos( registry, pos_cmp, spatial_exclude ) ) continue;
 
     auto new_loot_entity = registry.create();
     registry.emplace<Cmp::Position>( new_loot_entity, pos_cmp.position, pos_cmp.size );
@@ -87,7 +87,7 @@ inline entt::entity createLootDrop( entt::registry &registry, Cmp::SpriteAnimati
   return entt::null;
 }
 
-void destroyLootDrop( entt::registry &registry, entt::entity loot_entity );
+void destroy_loot_drop( entt::registry &registry, entt::entity loot_entity );
 
 // Iterate and generate loot containers
 void gen_loot_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size );

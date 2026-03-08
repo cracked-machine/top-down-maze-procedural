@@ -191,7 +191,7 @@ void HazardFieldSystem<HazardType>::check_npc_hazard_field_collision()
     {
       if ( not npc_pos_cmp.findIntersection( hazard_pos_cmp ) ) continue;
 
-      auto loot_entity = Factory::destroyNPC( getReg(), npc_entt );
+      auto loot_entity = Factory::destroy_npc( getReg(), npc_entt );
       if ( loot_entity != entt::null )
       {
         SPDLOG_INFO( "Dropped RELIC_DROP loot at NPC death position." );

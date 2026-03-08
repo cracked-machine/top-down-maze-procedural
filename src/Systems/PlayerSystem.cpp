@@ -257,28 +257,28 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
     case Cmp::PlayerMortality::State::FALLING: {
       SPDLOG_INFO( "Player is falling" );
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::DECAYING: {
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::HAUNTED: {
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::EXPLODING: {
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
@@ -288,35 +288,35 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
     }
     case Cmp::PlayerMortality::State::SQUISHED: {
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::SUICIDE: {
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::IGNITED: {
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.lavaflames" );
-      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "shrine_lighting" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::SKEWERED: {
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::SHOCKED: {
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
@@ -326,7 +326,7 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
     }
     case Cmp::PlayerMortality::State::SHADOWCURSED:
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::createPlayerDeathAnim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
@@ -348,8 +348,8 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
     for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
     {
       existing_player_inventory_type = inventory_cmp.type;
-      auto dropped_entt = Factory::dropInventorySlotIntoWorld( getReg(), player_pos, m_sprite_factory.get_multisprite_by_type( inventory_cmp.type ),
-                                                               inventory_entt );
+      auto dropped_entt = Factory::drop_inventory_slot_into_world( getReg(), player_pos,
+                                                                   m_sprite_factory.get_multisprite_by_type( inventory_cmp.type ), inventory_entt );
       if ( dropped_entt != entt::null )
       {
         if ( existing_player_inventory_type.contains( "plant" ) ) { m_sound_bank.get_effect( "digging_earth" ).play(); }
@@ -366,7 +366,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
       if ( inventory_view.size() > 0 ) { break; }                           // don't pickup another if we already have one
 
       // ok pick it up
-      if ( Factory::pickupCarryItem( getReg(), carryitem_entt ) != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
+      if ( Factory::pickup_carry_item( getReg(), carryitem_entt ) != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
     }
     m_inventory_cooldown_timer.restart();
     SPDLOG_DEBUG( "inventory_view: {} ", inventory_view.size() );
@@ -513,11 +513,11 @@ void PlayerSystem::check_player_axe_npc_kill()
         Cmp::RandomInt do_drop( 0, 2 );
         if ( do_drop.gen() == 0 )
         {
-          auto dropped_loot_entt = Factory::createLootDrop( getReg(), Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),
-                                                            Cmp::RectBounds( npc_pos_cmp.position, npc_pos_cmp.size, 2.f ).getBounds(),
-                                                            Factory::IncludePack<>{},
-                                                            Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{},
-                                                            Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{} );
+          auto dropped_loot_entt = Factory::create_loot_drop( getReg(), Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),
+                                                              Cmp::RectBounds( npc_pos_cmp.position, npc_pos_cmp.size, 2.f ).getBounds(),
+                                                              Factory::IncludePack<>{},
+                                                              Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{},
+                                                              Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{} );
 
           if ( dropped_loot_entt != entt::null )
           {

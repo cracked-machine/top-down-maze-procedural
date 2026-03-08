@@ -129,7 +129,7 @@ void DiggingSystem::check_player_smash_pot()
       {
         const Sprites::SpriteMetaType selected_type = m_sprite_factory.get_random_type(
             { "CARRYITEM.bomb", "CARRYITEM.scryingball", "CARRYITEM.cursetablet" } );
-        Factory::createCarryItem( getReg(), loot_pos_cmp, selected_type );
+        Factory::create_carry_item( getReg(), loot_pos_cmp, selected_type );
 
         m_sound_bank.get_effect( "break_pot" ).play();
         auto inventory_wear_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
@@ -139,7 +139,7 @@ void DiggingSystem::check_player_smash_pot()
           wear_level.m_level -= Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
           SPDLOG_DEBUG( "Player wear level decreased to {} after digging!", weapons_level.m_level );
         }
-        Factory::destroyLootContainer( getReg(), loot_entity );
+        Factory::destroy_loot_container( getReg(), loot_entity );
       }
     }
   }
@@ -212,7 +212,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
 
         // replace the obstacle with a detonated component
         Factory::remove_obstacle( getReg(), obst_entity );
-        Factory::createDetonated( getReg(), obst_entity, obst_pos_cmp );
+        Factory::create_detonated( getReg(), obst_entity, obst_pos_cmp );
 
         // add the position to the spatial grid so it can be used in pathfinding
         if ( m_spatial_grid ) m_spatial_grid->insert( obst_entity, obst_pos_cmp );
@@ -310,15 +310,15 @@ void DiggingSystem::check_player_dig_plant_collision()
         {
           if ( inventory_slot.type == "CARRYITEM.shovel" )
           {
-            Factory::dropInventorySlotIntoWorld( getReg(), obst_pos_cmp, m_sprite_factory.get_multisprite_by_type( inventory_slot.type ),
-                                                 inventory_entt );
+            Factory::drop_inventory_slot_into_world( getReg(), obst_pos_cmp, m_sprite_factory.get_multisprite_by_type( inventory_slot.type ),
+                                                     inventory_entt );
           }
           else if ( inventory_slot.type == "CARRYITEM.axe" )
           {
             if ( getReg().valid( obst_entity ) ) getReg().destroy( obst_entity );
           }
         }
-        if ( Factory::pickupCarryItem( getReg(), obst_entity ) == entt::null ) { SPDLOG_INFO( "Could not pick up item" ); }
+        if ( Factory::pickup_carry_item( getReg(), obst_entity ) == entt::null ) { SPDLOG_INFO( "Could not pick up item" ); }
 
         SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
       }

@@ -122,7 +122,7 @@ void GraveSystem::check_player_grave_collision()
         {
           case 1: {
             SPDLOG_DEBUG( "Grave activated NPC trap." );
-            Factory::createNPC( getReg(), grave_entity, "NPCGHOST" );
+            Factory::create_npc( getReg(), grave_entity, "NPCGHOST" );
             m_sound_bank.get_effect( "spawn_ghost" ).play();
             break;
           }
@@ -138,8 +138,8 @@ void GraveSystem::check_player_grave_collision()
                                                                        "CARRYITEM.relic4" };
             Cmp::RandomInt relic_picker( 0, relic_selection_list.size() - 1 );
             auto selected_relic = relic_picker.gen();
-            auto relic_entt = Factory::createCarryItem( getReg(), Utils::Player::get_player_position( getReg() ),
-                                                        relic_selection_list.at( selected_relic ) );
+            auto relic_entt = Factory::create_carry_item( getReg(), Utils::Player::get_player_position( getReg() ),
+                                                          relic_selection_list.at( selected_relic ) );
 
             if ( relic_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
             break;
@@ -152,8 +152,8 @@ void GraveSystem::check_player_grave_collision()
                 "CARRYITEM.jewelry_diamond_gemstone",  "CARRYITEM.jewelry_amephyst_gemstone" };
             Cmp::RandomInt jewelry_picker( 0, jewelry_selection_list.size() - 1 );
             auto selected_jewelry = jewelry_picker.gen();
-            auto jewelry_entt = Factory::createCarryItem( getReg(), Utils::Player::get_player_position( getReg() ),
-                                                          jewelry_selection_list.at( selected_jewelry ) );
+            auto jewelry_entt = Factory::create_carry_item( getReg(), Utils::Player::get_player_position( getReg() ),
+                                                            jewelry_selection_list.at( selected_jewelry ) );
 
             if ( jewelry_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
             break;

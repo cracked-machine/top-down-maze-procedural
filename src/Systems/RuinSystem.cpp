@@ -92,8 +92,8 @@ void RuinSystem::check_entrance_collision()
 
         // drop any inventory outside the door
         auto [inventory_entt, inventory_slot_type] = Utils::Player::get_player_inventory_type( getReg() );
-        auto dropped_entt = Factory::dropInventorySlotIntoWorld( getReg(), last_player_pos,
-                                                                 m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
+        auto dropped_entt = Factory::drop_inventory_slot_into_world(
+            getReg(), last_player_pos, m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
         if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
 
         auto player_entt = Utils::Player::get_player_entity( getReg() );
@@ -332,8 +332,8 @@ void RuinSystem::add_stairs( sf::Vector2f spawn_position, const Sprites::MultiSp
   auto stairs_entt = getReg().create();
   Cmp::Position stairs_pos( spawn_position, stairs_ms.getSpriteSizePixels() );
   getReg().emplace_or_replace<Cmp::Position>( stairs_entt, spawn_position, stairs_ms.getSpriteSizePixels() );
-  Factory::createMultiblock<COMPONENT>( getReg(), stairs_entt, stairs_pos, stairs_ms );
-  Factory::createMultiblockSegments<COMPONENT, Cmp::RuinStairsSegment>( getReg(), stairs_entt, stairs_pos, stairs_ms );
+  Factory::create_multiblock<COMPONENT>( getReg(), stairs_entt, stairs_pos, stairs_ms );
+  Factory::create_multiblock_segments<COMPONENT, Cmp::RuinStairsSegment>( getReg(), stairs_entt, stairs_pos, stairs_ms );
 
   for ( auto [stairs_entt, stairs_cmp, stairs_zorder] : getReg().view<COMPONENT, Cmp::ZOrderValue>().each() )
   {
@@ -493,7 +493,7 @@ void RuinSystem::check_create_witch( entt::registry &reg, sf::FloatRect scene_di
       auto new_witch_entity = reg.create();
       Cmp::Position position_cmp = reg.emplace<Cmp::Position>( new_witch_entity, rnd_pos_cmp.position, rnd_pos_cmp.size );
       [[maybe_unused]] Cmp::ZOrderValue zorder_cmp = reg.emplace<Cmp::ZOrderValue>( new_witch_entity, position_cmp.position.y );
-      Factory::createNPC( reg, new_witch_entity, "NPCWITCH" );
+      Factory::create_npc( reg, new_witch_entity, "NPCWITCH" );
       break;
     }
   }

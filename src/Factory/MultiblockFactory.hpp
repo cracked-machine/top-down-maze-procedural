@@ -34,7 +34,7 @@ namespace ProceduralMaze::Factory
 {
 
 template <typename MULTIBLOCK>
-void createMultiblock( entt::registry &registry, entt::entity entity, Cmp::Position pos, const Sprites::MultiSprite &ms, int ms_idx = 0 )
+void create_multiblock( entt::registry &registry, entt::entity entity, Cmp::Position pos, const Sprites::MultiSprite &ms, int ms_idx = 0 )
 {
 
   auto large_obst_grid_size = ms.get_grid_size();
@@ -56,7 +56,7 @@ void createMultiblock( entt::registry &registry, entt::entity entity, Cmp::Posit
 }
 
 template <typename MULTIBLOCK, typename MBSEGMENT>
-void createMultiblockSegments( entt::registry &registry, entt::entity multiblock_entity, Cmp::Position pos, const Sprites::MultiSprite &ms )
+void create_multiblock_segments( entt::registry &registry, entt::entity multiblock_entity, Cmp::Position pos, const Sprites::MultiSprite &ms )
 {
   MULTIBLOCK new_multiblock_bounds = registry.get<MULTIBLOCK>( multiblock_entity );
   SPDLOG_DEBUG( "createMultiblockSegments called with MULTIBLOCK type: {} for {},{}", typeid( MBSEGMENT ).name(), pos.position.x, pos.position.y );
@@ -149,8 +149,8 @@ void add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position, c
   auto entt = reg.create();
   Cmp::Position pos( position, ms.getSpriteSizePixels() );
   reg.emplace_or_replace<Cmp::Position>( entt, position, ms.getSpriteSizePixels() );
-  Factory::createMultiblock<COMPONENT>( reg, entt, pos, ms );
-  Factory::createMultiblockSegments<COMPONENT, SEGMENTS>( reg, entt, pos, ms );
+  Factory::create_multiblock<COMPONENT>( reg, entt, pos, ms );
+  Factory::create_multiblock_segments<COMPONENT, SEGMENTS>( reg, entt, pos, ms );
 
   for ( auto [view_entt, view_cmp, view_zorder] : reg.view<COMPONENT, Cmp::ZOrderValue>().each() )
   {

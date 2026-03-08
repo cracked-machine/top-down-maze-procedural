@@ -15,7 +15,7 @@
 namespace ProceduralMaze::Factory
 {
 
-entt::entity createArmed( entt::registry &registry, entt::entity entity, Cmp::Armed::EpiCenter epi_center, int sequence, int zorder )
+entt::entity create_armed( entt::registry &registry, entt::entity entity, Cmp::Armed::EpiCenter epi_center, int sequence, int zorder )
 {
 
   // get persistent settings
@@ -57,7 +57,7 @@ entt::entity createArmed( entt::registry &registry, entt::entity entity, Cmp::Ar
   return new_armed_entity;
 }
 
-void destroyArmed( entt::registry &reg, entt::entity armed_entity )
+void destroy_armed( entt::registry &reg, entt::entity armed_entity )
 {
   reg.remove<Cmp::Armed>( armed_entity );
   reg.remove<Cmp::SpriteAnimation>( armed_entity );
@@ -65,7 +65,7 @@ void destroyArmed( entt::registry &reg, entt::entity armed_entity )
   if ( reg.all_of<Cmp::NpcNoPathFinding>( armed_entity ) ) { reg.remove<Cmp::NpcNoPathFinding>( armed_entity ); }
 }
 
-void createDetonated( entt::registry &reg, entt::entity armed_entity, Cmp::Position &armed_pos_cmp )
+void create_detonated( entt::registry &reg, entt::entity armed_entity, Cmp::Position &armed_pos_cmp )
 {
   reg.emplace<Cmp::SpriteAnimation>( armed_entity, 0, 0, true, "DETONATED", 0 );
   reg.emplace<Cmp::ZOrderValue>( armed_entity, armed_pos_cmp.position.y - 256.f );

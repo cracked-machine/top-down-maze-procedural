@@ -82,7 +82,7 @@ void RuinSceneLowerFloor::on_init()
   Factory::add_reservedposition( m_reg, { kMapGridSizeF.x - ( 5 * gridsize.x ), kMapGridSizeF.y - ( 2 * gridsize.x ) } );
   Factory::add_reservedposition( m_reg, { kMapGridSizeF.x - ( 5 * gridsize.x ), kMapGridSizeF.y - ( 3 * gridsize.x ) } );
 
-  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, RuinSceneLowerFloor::kMapGridSize, "res/json/ruin_lower_tilemap_config.json" );
+  Factory::FloormapFactory::create_floormap( m_reg, m_floormap, RuinSceneLowerFloor::kMapGridSize, "res/json/ruin_lower_tilemap_config.json" );
 
   sf::Vector2f bc_area_position( 0, 0 );
   sf::Vector2f bc_area_size( kMapGridSizeF.x - 48, kMapGridSizeF.y - 16 );

@@ -58,7 +58,7 @@ void CryptScene::on_init()
     m_spatial_grid.insert( entity, pos );
   }
 
-  Factory::FloormapFactory::CreateFloormap( m_reg, m_floormap, CryptScene::kMapGridSize, "res/json/crypt_tilemap_config.json" );
+  Factory::FloormapFactory::create_floormap( m_reg, m_floormap, CryptScene::kMapGridSize, "res/json/crypt_tilemap_config.json" );
 
   // pass concrete spawn position to exit spawner
   m_sys.find<Sys::Store::Type::CryptSystem>().spawn_exit( sf::Vector2u{ CryptScene::kMapGridSize.x / 2, CryptScene::kMapGridSize.y - 1 } );
