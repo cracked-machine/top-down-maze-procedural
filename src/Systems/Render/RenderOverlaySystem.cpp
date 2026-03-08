@@ -471,7 +471,7 @@ void RenderOverlaySystem::render_pathfinding_vector( const Cmp::Position &start_
 
     for ( auto pathnode : path )
     {
-      Cmp::RectBounds expand_lever_pos_hitbox( pathnode.pos.position, pathnode.pos.size, 1.f );
+      Cmp::RectBounds expand_lever_pos_hitbox( pathnode.pos.position, pathnode.pos.size, 0.2f );
       sf::RectangleShape rectangle;
       rectangle.setSize( expand_lever_pos_hitbox.size() );
       rectangle.setPosition( expand_lever_pos_hitbox.position() );
