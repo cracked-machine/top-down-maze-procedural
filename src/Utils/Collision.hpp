@@ -9,7 +9,7 @@ namespace ProceduralMaze::Utils::Collision
 {
 
 //! @brief Check if `Component` position collides with another component
-//! @tparam Component Associated entity must also own a Cmp::Position
+//! @tparam Component
 //! @param reg reference to the entt reg
 //! @param pos Does this position contain a `Component`
 //! @param filter Optional callback to filter candidates. Return true to consider this entity, false to skip.

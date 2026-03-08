@@ -1,4 +1,5 @@
 #include <Audio/SoundBank.hpp>
+#include <Collision.hpp>
 #include <Components/Altar/AltarSegment.hpp>
 #include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Direction.hpp>
@@ -25,10 +26,13 @@
 #include <Components/Wall.hpp>
 #include <Components/Wormhole/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Crypt/CryptObjectiveSegment.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/NpcFactory.hpp>
+#include <Grave/GraveSegment.hpp>
 #include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
+#include <Ruin/RuinSegment.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -332,20 +336,21 @@ void NpcSystem::check_player_to_npc_collision()
 void NpcSystem::find_pushback_position( const Cmp::Direction &npc_direction )
 {
   auto &player_pos = Utils::Player::get_position( getReg() );
-  auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position>();
 
   auto new_position = Utils::snap_to_grid( player_pos.position + ( npc_direction.componentWiseMul( Constants::kGridSizePxF ) ) );
   SPDLOG_DEBUG( "Player position was {},{} - Knockback direction is {}, {} - New Position should be {},{}", player_pos.position.x,
                 player_pos.position.y, npc_direction.x, npc_direction.y, new_position.x, new_position.y );
 
-  // make sure player isnt knocked into an obstacle
-  bool is_valid = true;
-  for ( auto [obstacle_entt, obstacle_cmp, obstacle_pos_cmp] : obstacle_view.each() )
-  {
-    if ( sf::FloatRect( new_position, Constants::kGridSizePxF ).findIntersection( obstacle_pos_cmp ) ) is_valid = false;
-  }
-  if ( is_valid ) { player_pos.position = new_position; }
-  else { SPDLOG_DEBUG( "New Position was invalid so cancelled" ); }
+  // make sure player isnt knocked into an obstacle or multiblock
+  Cmp::RectBounds new_pos_rect( new_position, Constants::kGridSizePxF, 1.f );
+  if ( Utils::Collision::check_cmp<Cmp::Obstacle>( getReg(), new_pos_rect ) ) return;
+  if ( Utils::Collision::check_cmp<Cmp::AltarSegment>( getReg(), new_pos_rect ) ) return;
+  if ( Utils::Collision::check_cmp<Cmp::GraveSegment>( getReg(), new_pos_rect ) ) return;
+  if ( Utils::Collision::check_cmp<Cmp::CryptSegment>( getReg(), new_pos_rect ) ) return;
+  if ( Utils::Collision::check_cmp<Cmp::RuinSegment>( getReg(), new_pos_rect ) ) return;
+  if ( Utils::Collision::check_cmp<Cmp::CryptObjectiveSegment>( getReg(), new_pos_rect ) ) return;
+
+  player_pos.position = new_position;
 }
 
 void NpcSystem::update_shockwaves()
