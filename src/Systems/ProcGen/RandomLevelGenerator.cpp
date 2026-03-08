@@ -32,6 +32,7 @@
 #include <Components/SpawnArea.hpp>
 #include <Components/Wall.hpp>
 
+#include <SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>

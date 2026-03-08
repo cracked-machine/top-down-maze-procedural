@@ -8,6 +8,7 @@
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
+#include <ReservedPosition.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <SceneControl/Scenes/GraveyardScene.hpp>
 #include <Systems/AltarSystem.hpp>
@@ -30,6 +31,7 @@
 #include <Systems/Threats/BombSystem.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
 #include <Systems/Threats/WormholeSystem.hpp>
+#include <Utils.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
 #include <memory>
@@ -44,6 +46,9 @@ void GraveyardScene::on_init()
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
+
+  // create a spatial grid of the game area
+  m_spatialgrid_ptr = std::make_shared<PathFinding::SpatialHashGrid>();
 
   auto &render_game_system = m_sys.find<Sys::Store::Type::RenderGameSystem>();
   SPDLOG_INFO( "Got render_game_system at {}", static_cast<void *>( &render_game_system ) );
@@ -61,20 +66,39 @@ void GraveyardScene::on_init()
   // create the level contents
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_circular_gamearea( GraveyardScene::kMapGridSize, player_start_area );
+  random_level_sys.gen_circular_gamearea( kMapSize, player_start_area );
+
+  // Add rescue pickaxes at the polar coords of the game area
+  // clang-format off
+  std::vector<Cmp::Position> pickaxe_pos_cmp_list = { 
+    { { kMapSizeF.x / 2, Constants::kGridSizePxF.y * 15.f }, Constants::kGridSizePxF },                       // north
+    { { kMapSizeF.x - (Constants::kGridSizePxF.x * 5.f), kMapSizeF.y / 2.f }, Constants::kGridSizePxF },      // east
+    { { kMapSizeF.x / 2.f, kMapSizeF.y - (Constants::kGridSizePxF.y * 15.f) }, Constants::kGridSizePxF },     // south
+    { { Constants::kGridSizePxF.x * 5.f, kMapSizeF.y / 2.f }, Constants::kGridSizePxF }                       // west
+  };
+  // clang-format on
+  for ( auto pos_cmp : pickaxe_pos_cmp_list )
+  {
+    auto world_pos_entt = Utils::get_world_pos_entt( m_reg, pos_cmp );
+    if ( world_pos_entt != entt::null )
+    {
+      m_reg.emplace_or_replace<Cmp::ReservedPosition>( world_pos_entt );
+      auto carryitem_entt = Factory::create_carry_item( m_reg, pos_cmp, "CARRYITEM.pickaxe" );
+      m_spatialgrid_ptr->insert( carryitem_entt, pos_cmp );
+    }
+  }
+
   random_level_sys.gen_graveyard_exterior_multiblocks();
-  Factory::gen_loot_containers( m_reg, m_sprite_factory, GraveyardScene::kMapGridSize );
-  Factory::gen_npc_containers( m_reg, m_sprite_factory, GraveyardScene::kMapGridSize );
-  Factory::gen_random_plants( m_reg, m_sprite_factory, GraveyardScene::kMapGridSize );
+  Factory::gen_loot_containers( m_reg, m_sprite_factory, kMapSize );
+  Factory::gen_npc_containers( m_reg, m_sprite_factory, kMapSize );
+  Factory::gen_random_plants( m_reg, m_sprite_factory, kMapSize );
   random_level_sys.gen_graveyard_exterior_obstacles();
 
   // now use cellular automata on the exterior obstacles
   auto &cellauto_parser = m_sys.find<Sys::Store::Type::CellAutomataSystem>();
   cellauto_parser.set_random_level_generator( &random_level_sys );
-  cellauto_parser.iterate( 5, GraveyardScene::kMapGridSize, Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR );
+  cellauto_parser.iterate( 5, kMapSize, Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR );
 
-  // create a spatial grid of the game area
-  m_spatialgrid_ptr = std::make_shared<PathFinding::SpatialHashGrid>();
   auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
   for ( auto entity : view )
   {
@@ -87,7 +111,7 @@ void GraveyardScene::on_init()
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_spatialgrid_ptr );
   m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_spatialgrid_ptr );
 
-  Factory::FloormapFactory::create_floormap( m_reg, m_floormap, GraveyardScene::kMapGridSize, "res/json/graveyard_tilemap_config.json" );
+  Factory::FloormapFactory::create_floormap( m_reg, m_floormap, kMapSize, "res/json/graveyard_tilemap_config.json" );
 
   m_sys.find<Sys::Store::Type::ExitSystem>().spawn_exit();
 

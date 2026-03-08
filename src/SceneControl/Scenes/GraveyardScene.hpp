@@ -22,11 +22,11 @@ class GraveyardScene : public Scene<Events::ProcessGraveyardSceneInputEvent>
 {
 public:
   //! @brief The size of the graveyard map grid in number of squares
-  inline static constexpr sf::Vector2u kMapGridSize{ 100u, 124u };
+  inline static constexpr sf::Vector2u kMapSize{ 100u, 124u };
 
   //! @brief The size of the graveyard map grid in number of squares as floats
-  inline static constexpr sf::Vector2f kMapGridSizeF{ static_cast<float>( GraveyardScene::kMapGridSize.x * Constants::kGridSizePx.x ),
-                                                      static_cast<float>( GraveyardScene::kMapGridSize.y *Constants::kGridSizePx.y ) };
+  inline static constexpr sf::Vector2f kMapSizeF{ static_cast<float>( GraveyardScene::kMapSize.x * Constants::kGridSizePx.x ),
+                                                  static_cast<float>( GraveyardScene::kMapSize.y *Constants::kGridSizePx.y ) };
 
   GraveyardScene( Audio::SoundBank &sound_bank, Sys::Store &system_store, entt::dispatcher &nav_event_dispatcher,
                   Sprites::SpriteFactory &sprite_Factory )
@@ -54,8 +54,7 @@ private:
 
   Sprites::Containers::TileMap m_floormap{};
 
-  inline static constexpr sf::Vector2f m_player_start_position = sf::Vector2f( GraveyardScene::kMapGridSizeF.x / 2.f,
-                                                                               GraveyardScene::kMapGridSizeF.y / 2.f );
+  inline static constexpr sf::Vector2f m_player_start_position = sf::Vector2f( GraveyardScene::kMapSizeF.x / 2.f, GraveyardScene::kMapSizeF.y / 2.f );
 
   sf::Clock m_scene_exit_cooldown{};
   sf::Time m_scene_exit_cooldown_time{ sf::seconds( 2 ) };
