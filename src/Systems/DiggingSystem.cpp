@@ -213,7 +213,8 @@ void DiggingSystem::check_player_dig_obstacle_collision()
         Factory::create_detonated( getReg(), obst_entity, obst_pos_cmp );
 
         // add the position to the spatial grid so it can be used in pathfinding
-        if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() ) spatialgrid_ptr->insert( obst_entity, obst_pos_cmp );
+        if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
+          pathfinding_navmesh->insert( obst_entity, obst_pos_cmp );
 
         SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
       }

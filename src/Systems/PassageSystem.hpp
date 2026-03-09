@@ -26,8 +26,8 @@ public:
   }
 
   //! @brief init the weak pointer for the spatial grid
-  //! @param spatial_grid_ptr
-  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_spatialgrid_wptr = spatial_grid_ptr; }
+  //! @param pathfinding_navmesh
+  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh ) { m_pathfinding_navmesh = pathfinding_navmesh; }
 
   void on_passage_event( Events::PassageEvent &event );
 
@@ -143,7 +143,7 @@ private:
   //! @brief Number of steps to delay 'kMinPassageRoomsDistanceScaleFactor' use
   const int kMinPassageRoomsDistanceDelay{ 3 };
 
-  PathFinding::SpatialHashGridWeakPtr m_spatialgrid_wptr;
+  PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
 };
 
 } // namespace ProceduralMaze::Sys

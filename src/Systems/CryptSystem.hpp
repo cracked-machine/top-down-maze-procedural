@@ -30,7 +30,7 @@ public:
 
   //! @brief init the weak pointer for the spatial grid
   //! @param spatial_grid_ptr
-  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_spatialgrid_wptr = spatial_grid_ptr; }
+  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_pathfinding_navmesh = spatial_grid_ptr; }
 
   //! @brief Initial maze setup. Called from Scene::on_enter()
   void setup();
@@ -192,7 +192,7 @@ private:
   sf::Clock m_lava_effect_cooldown_timer;
   sf::Time m_lava_effect_cooldown_threshold{ sf::seconds( 1.f ) };
 
-  PathFinding::SpatialHashGridWeakPtr m_spatialgrid_wptr;
+  PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
 };
 
 } // namespace ProceduralMaze::Sys

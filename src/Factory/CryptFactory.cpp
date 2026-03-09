@@ -69,7 +69,7 @@ void destroy_crypt_chest( entt::registry &reg, entt::entity entt )
 }
 
 void create_crypt_lava_pit( entt::registry &reg, const Cmp::CryptRoomOpen &room,
-                            std::shared_ptr<ProceduralMaze::PathFinding::SpatialHashGrid> spatial_grid )
+                            std::shared_ptr<ProceduralMaze::PathFinding::SpatialHashGrid> pathfinding_navmesh )
 {
   // add the lava pit area
   sf::Vector2f adjusted_position = { room.position.x + Constants::kGridSizePxF.x, room.position.y + Constants::kGridSizePxF.y };
@@ -94,12 +94,13 @@ void create_crypt_lava_pit( entt::registry &reg, const Cmp::CryptRoomOpen &room,
     reg.emplace_or_replace<Cmp::NpcNoPathFinding>( lava_cell_entt );
     reg.emplace_or_replace<Cmp::CryptRoomLavaPitCell>( lava_cell_entt, pos_cmp.position, pos_cmp.size );
     reg.emplace_or_replace<Cmp::SpriteAnimation>( lava_cell_entt, 0, 0, true, "CRYPT.interior_lava", 0 );
-    if ( spatial_grid ) { spatial_grid->remove( pos_entt, pos_cmp ); }
+    if ( pathfinding_navmesh ) { pathfinding_navmesh->remove( pos_entt, pos_cmp ); }
     // reg.emplace<Cmp::ZOrderValue>( lava_cell_entt, pos_cmp.size.y );
   }
 }
 
-void destroy_crypt_lava_pit( entt::registry &reg, entt::entity entt, std::shared_ptr<ProceduralMaze::PathFinding::SpatialHashGrid> spatial_grid )
+void destroy_crypt_lava_pit( entt::registry &reg, entt::entity entt,
+                             std::shared_ptr<ProceduralMaze::PathFinding::SpatialHashGrid> pathfinding_navmesh )
 {
   auto lava_pit_cmp = reg.try_get<Cmp::CryptRoomLavaPit>( entt );
   if ( lava_pit_cmp )
@@ -107,7 +108,7 @@ void destroy_crypt_lava_pit( entt::registry &reg, entt::entity entt, std::shared
     for ( auto [lava_cell_entt, lava_cell_cmp] : reg.view<Cmp::CryptRoomLavaPitCell>().each() )
     {
       if ( not lava_cell_cmp.findIntersection( *lava_pit_cmp ) ) continue;
-      if ( spatial_grid ) { spatial_grid->remove( lava_cell_entt, lava_cell_cmp ); }
+      if ( pathfinding_navmesh ) { pathfinding_navmesh->remove( lava_cell_entt, lava_cell_cmp ); }
       reg.destroy( lava_cell_entt );
     }
   }

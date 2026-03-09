@@ -156,8 +156,8 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
 
   const float npc_lerp_speed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeed>( getReg() ).get_value();
 
-  PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock();
-  if ( not spatialgrid_ptr ) return;
+  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
+  if ( not pathfinding_navmesh ) return;
 
   auto player_pos_cmp = Utils::Player::get_position( getReg() );
   auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>();
@@ -174,7 +174,7 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
     if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) query_compass = PathFinding::QueryCompass::BOTH;
 
     // now get latest path vector for NPC -> player
-    std::vector<PathFinding::PathNode> path = PathFinding::astar( getReg(), *spatialgrid_ptr, npc_pos_cmp, player_pos_cmp, query_compass );
+    std::vector<PathFinding::PathNode> path = PathFinding::astar( getReg(), *pathfinding_navmesh, npc_pos_cmp, player_pos_cmp, query_compass );
 
     // dont let NPC follow player into spawn but keep pathfinding active up to penultimate path node
     if ( Utils::Player::is_in_spawn( getReg(), player_pos_cmp ) and not path.empty() ) path.pop_back();
@@ -230,8 +230,8 @@ void NpcSystem::update_movement( sf::Time dt )
       auto old_position = pos_cmp;
       pos_cmp.position = lerp_pos_cmp.m_target;
       getReg().remove<Cmp::LerpPosition>( npc_entt );
-      if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() )
-        spatialgrid_ptr->update( npc_entt, old_position, pos_cmp );
+      if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
+        pathfinding_navmesh->update( npc_entt, old_position, pos_cmp );
     }
     else
     {

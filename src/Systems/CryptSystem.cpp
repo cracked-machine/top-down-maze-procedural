@@ -441,7 +441,10 @@ void CryptSystem::createRoomBorders()
       float zorder = m_sprite_factory.get_sprite_size_by_type( sprite_type ).y;
 
       Factory::create_obstacle( getReg(), pos_entt, pos_cmp, obst_type, sprite_index, ( zorder * 2.f ) );
-      if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() ) { spatialgrid_ptr->remove( pos_entt, pos_cmp ); }
+      if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
+      {
+        pathfinding_navmesh->remove( pos_entt, pos_cmp );
+      }
     }
   };
 
@@ -779,7 +782,10 @@ void CryptSystem::fillClosedRooms()
       float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
 
       Factory::create_obstacle( getReg(), pos_entt, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
-      if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() ) { spatialgrid_ptr->remove( pos_entt, pos_cmp ); }
+      if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
+      {
+        pathfinding_navmesh->remove( pos_entt, pos_cmp );
+      }
     }
   }
 }
@@ -826,7 +832,10 @@ void CryptSystem::emptyOpenRooms()
       if ( not getReg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
 
       Factory::remove_obstacle( getReg(), pos_entt );
-      if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() ) { spatialgrid_ptr->insert( pos_entt, pos_cmp ); }
+      if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
+      {
+        pathfinding_navmesh->insert( pos_entt, pos_cmp );
+      }
     }
   }
 }
@@ -836,9 +845,9 @@ void CryptSystem::addLavaPitOpenRooms()
   auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
   for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
   {
-    if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() )
+    if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
     {
-      Factory::create_crypt_lava_pit( getReg(), open_room_cmp, spatialgrid_ptr );
+      Factory::create_crypt_lava_pit( getReg(), open_room_cmp, pathfinding_navmesh );
     }
   }
 }
@@ -890,9 +899,9 @@ void CryptSystem::removeLavaPitOpenRooms()
     for ( auto [lava_pit_entt, lava_pit_cmp] : lava_pit_view.each() )
     {
       if ( not open_room_cmp.findIntersection( lava_pit_cmp ) ) continue;
-      if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() )
+      if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
       {
-        Factory::destroy_crypt_lava_pit( getReg(), lava_pit_entt, spatialgrid_ptr );
+        Factory::destroy_crypt_lava_pit( getReg(), lava_pit_entt, pathfinding_navmesh );
       }
     }
   }

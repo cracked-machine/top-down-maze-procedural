@@ -440,7 +440,7 @@ void RenderOverlaySystem::render_lerp_positions()
 
 void RenderOverlaySystem::render_spatial_grid_neighbours( const Cmp::Position &query_pos, sf::Color color, PathFinding::QueryCompass query_compass )
 {
-  if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() )
+  if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_pathfinding_navmesh.lock() )
   {
     std::vector<entt::entity> neighbours_list = spatialgrid_ptr->query( Cmp::Position( query_pos.position, query_pos.size ), query_compass );
     for ( auto neighbour_entt : neighbours_list )
@@ -465,7 +465,7 @@ void RenderOverlaySystem::render_pathfinding_vector( const Cmp::Position &start_
 {
   if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), start_pos_cmp ) ) return;
 
-  if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() )
+  if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_pathfinding_navmesh.lock() )
   {
     std::vector<PathFinding::PathNode> path = PathFinding::astar( getReg(), *spatialgrid_ptr, start_pos_cmp, end_pos_cmp, query_compass );
 

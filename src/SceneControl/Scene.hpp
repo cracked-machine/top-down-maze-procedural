@@ -38,7 +38,7 @@ public:
   }
 
 protected:
-  PathFinding::SpatialHashGridSharedPtr m_spatialgrid_ptr;
+  PathFinding::SpatialHashGridSharedPtr m_pathfinding_navmesh;
 
 private:
   entt::dispatcher &m_nav_event_dispatcher;

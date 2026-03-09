@@ -215,8 +215,8 @@ void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_en
 
 void BombSystem::update()
 {
-  PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock();
-  if ( not spatialgrid_ptr )
+  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
+  if ( not pathfinding_navmesh )
   {
     SPDLOG_WARN( "Unable to lock weakptr" );
     return;
@@ -232,7 +232,7 @@ void BombSystem::update()
     {
       if ( not obst_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
       Factory::remove_obstacle( getReg(), obst_entity );
-      spatialgrid_ptr->insert( obst_entity, obst_pos_cmp );
+      pathfinding_navmesh->insert( obst_entity, obst_pos_cmp );
     }
 
     // detonate loot containers - component removal is handled by LootSystem

@@ -50,19 +50,19 @@ void CryptScene::on_init()
   m_sys.find<Sys::Store::Type::CryptSystem>().create_initial_crypt_rooms( CryptScene::kMapGridSize );
   m_sys.find<Sys::Store::Type::CryptSystem>().gen_crypt_initial_interior();
 
-  // create a spatial grid of the game area
-  m_spatialgrid_ptr = std::make_shared<PathFinding::SpatialHashGrid>();
+  // create a navmesh for pathfinding in the scene
+  m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
   auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
   for ( auto entity : view )
   {
     const auto &pos = view.get<Cmp::Position>( entity );
-    m_spatialgrid_ptr->insert( entity, pos );
+    m_pathfinding_navmesh->insert( entity, pos );
   }
-  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_spatialgrid_ptr );
-  m_sys.find<Sys::Store::Type::PassageSystem>().init( m_spatialgrid_ptr );
-  m_sys.find<Sys::Store::Type::CryptSystem>().init( m_spatialgrid_ptr );
-  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_spatialgrid_ptr );
-  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::PassageSystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::CryptSystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
 
   Factory::FloormapFactory::create_floormap( m_reg, m_floormap, CryptScene::kMapGridSize, "res/json/crypt_tilemap_config.json" );
 

@@ -62,9 +62,9 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
-  //! @brief init the weak pointer for the spatial grid
+  //! @brief init the weak pointer for the pathfinding navmesh
   //! @param spatial_grid_ptr
-  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_spatialgrid_wptr = spatial_grid_ptr; }
+  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_pathfinding_navmesh = spatial_grid_ptr; }
 
   void render_entt_distance_set_overlay( sf::Vector2f pos );
   void render_ui_background_overlay( sf::Vector2f pos, sf::Vector2f size );
@@ -200,7 +200,7 @@ private:
   sf::Text m_stats_text4{ m_font, "", 30 };
   std::map<unsigned int, sf::Text> m_npc_list_text{};
 
-  PathFinding::SpatialHashGridWeakPtr m_spatialgrid_wptr;
+  PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
 };
 
 } // namespace ProceduralMaze::Sys

@@ -94,17 +94,17 @@ void RuinSceneUpperFloor::on_init()
 
   Factory::FloormapFactory::create_floormap( m_reg, m_floormap, RuinSceneUpperFloor::kMapGridSize, "res/json/ruin_upper_tilemap_config.json" );
 
-  // create a spatial grid of the game area
-  m_spatialgrid_ptr = std::make_shared<PathFinding::SpatialHashGrid>();
+  // create a navmesh for pathfinding in the scene
+  m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
   auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
   for ( auto entity : view )
   {
     const auto &pos = view.get<Cmp::Position>( entity );
-    m_spatialgrid_ptr->insert( entity, pos );
+    m_pathfinding_navmesh->insert( entity, pos );
   }
-  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_spatialgrid_ptr );
-  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_spatialgrid_ptr );
-  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
 }
 
 void RuinSceneUpperFloor::on_enter()

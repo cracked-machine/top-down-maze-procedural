@@ -92,10 +92,10 @@ void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, FootStepSf
   // did player die?
   checkPlayerMortality();
 
-  if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() )
+  if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
   {
     auto new_player_pos = Utils::Player::get_position( m_reg );
-    spatialgrid_ptr->update( Utils::Player::get_entity( m_reg ), old_player_pos, new_player_pos );
+    pathfinding_navmesh->update( Utils::Player::get_entity( m_reg ), old_player_pos, new_player_pos );
   }
 }
 
@@ -450,8 +450,8 @@ void PlayerSystem::enable_damage_cooldown()
 
 void PlayerSystem::check_player_axe_npc_kill()
 {
-  PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock();
-  if ( not spatialgrid_ptr ) return;
+  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
+  if ( not pathfinding_navmesh ) return;
 
   auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
   if ( inventory_slot_type != "CARRYITEM.axe" ) { return; }
@@ -530,7 +530,7 @@ void PlayerSystem::check_player_axe_npc_kill()
         // now destroy the NPC
         if ( getReg().valid( npc_entity ) )
         {
-          spatialgrid_ptr->remove( npc_entity, npc_pos_cmp );
+          pathfinding_navmesh->remove( npc_entity, npc_pos_cmp );
           getReg().destroy( npc_entity );
         }
       }

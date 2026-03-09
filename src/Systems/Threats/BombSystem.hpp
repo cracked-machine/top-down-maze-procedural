@@ -38,9 +38,9 @@ class BombSystem : public BaseSystem
 public:
   BombSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
-  //! @brief init the weak pointer for the spatial grid
-  //! @param spatial_grid_ptr
-  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_spatialgrid_wptr = spatial_grid_ptr; }
+  //! @brief init the weak pointer for the pathfinding navmesh
+  //! @param pathfinding_navmesh
+  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh ) { m_pathfinding_navmesh = pathfinding_navmesh; }
 
   void arm_grave_bomb();
   void arm_player_bomb();
@@ -60,7 +60,7 @@ public:
 private:
   const sf::Vector2f max_explosion_zone_size{ Constants::kGridSizePx.x * 3.f, Constants::kGridSizePx.y * 3.f };
 
-  PathFinding::SpatialHashGridWeakPtr m_spatialgrid_wptr;
+  PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
 };
 
 } // namespace ProceduralMaze::Sys

@@ -34,9 +34,9 @@ class NpcSystem : public BaseSystem
 public:
   NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
-  //! @brief init the weak pointer for the spatial grid
-  //! @param spatial_grid_ptr
-  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_spatialgrid_wptr = spatial_grid_ptr; }
+  //! @brief init the weak pointer for the pathfinding navmesh
+  //! @param pathfinding_navmesh
+  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh ) { m_pathfinding_navmesh = pathfinding_navmesh; }
 
   //! @brief Update the NpcSystem
   //! @param dt Delta time since last update call
@@ -82,7 +82,7 @@ private:
   sf::Time m_animation_accumulator;
   sf::Time m_bones_accumulator;
 
-  PathFinding::SpatialHashGridWeakPtr m_spatialgrid_wptr;
+  PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
 };
 
 } // namespace ProceduralMaze::Sys

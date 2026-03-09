@@ -32,8 +32,8 @@ public:
               entt::dispatcher &scenemanager_event_dispatcher );
 
   //! @brief init the weak pointer for the spatial grid
-  //! @param spatial_grid_ptr
-  void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_spatialgrid_wptr = spatial_grid_ptr; }
+  //! @param pathfinding_navmesh
+  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh ) { m_pathfinding_navmesh = pathfinding_navmesh; }
 
   void check_entrance_collision();
   void spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f size, Cmp::RuinFloorAccess::Direction dir );
@@ -95,7 +95,7 @@ private:
   sf::Clock m_creaking_rope_swing_timer{};
   std::future<void> m_curse_activation_future;
 
-  PathFinding::SpatialHashGridWeakPtr m_spatialgrid_wptr;
+  PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
 };
 
 extern template void RuinSystem::add_stairs<Cmp::RuinStairsLowerMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );

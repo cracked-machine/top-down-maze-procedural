@@ -635,7 +635,10 @@ void PassageSystem::emptyOpenPassages()
       if ( not getReg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
 
       Factory::remove_obstacle( getReg(), pos_entt );
-      if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() ) { spatialgrid_ptr->insert( pos_entt, pos_cmp ); }
+      if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
+      {
+        pathfinding_navmesh->insert( pos_entt, pos_cmp );
+      }
     }
   }
 }
@@ -661,7 +664,10 @@ void PassageSystem::fillAllPassages()
       float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
 
       Factory::create_obstacle( getReg(), pos_entt, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
-      if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_spatialgrid_wptr.lock() ) { spatialgrid_ptr->remove( pos_entt, pos_cmp ); }
+      if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
+      {
+        pathfinding_navmesh->remove( pos_entt, pos_cmp );
+      }
 
       if ( not Utils::getSystemCmp( getReg() ).collisions_disabled )
       {

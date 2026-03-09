@@ -97,13 +97,13 @@ void GraveyardScene::on_init()
   auto &cellauto_parser = m_sys.find<Sys::Store::Type::CellAutomataSystem>();
   cellauto_parser.iterate( 5, Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR, random_level_sys.get_spatialmap() );
 
-  // create a spatial grid of the game area
-  m_spatialgrid_ptr = std::make_shared<PathFinding::SpatialHashGrid>();
+  // create a navmesh for pathfinding in the scene
+  m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
   auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
   for ( auto entity : view )
   {
     const auto &pos = view.get<Cmp::Position>( entity );
-    m_spatialgrid_ptr->insert( entity, pos );
+    m_pathfinding_navmesh->insert( entity, pos );
   }
   reinit_navmesh();
 
@@ -207,11 +207,11 @@ void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
 
 void GraveyardScene::reinit_navmesh()
 {
-  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_spatialgrid_ptr );
-  m_sys.find<Sys::Store::Type::BombSystem>().init( m_spatialgrid_ptr );
-  m_sys.find<Sys::Store::Type::DiggingSystem>().init( m_spatialgrid_ptr );
-  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_spatialgrid_ptr );
-  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::BombSystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::DiggingSystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
 }
 
 entt::registry &GraveyardScene::registry() { return m_reg; }
