@@ -2,6 +2,7 @@
 #define SRC_FACTORY_NPCFACTORY_HPP
 
 #include <Components/Position.hpp>
+#include <SpatialHashGrid.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <entt/fwd.hpp>
 
@@ -29,7 +30,7 @@ void create_npc_explosion( entt::registry &registry, Cmp::Position npc_position_
 void create_shockwave( entt::registry &registry, entt::entity npc_entt );
 
 // Iterate and generate npc containers
-void gen_npc_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size );
+std::vector<entt::entity> gen_npc_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size );
 
 } // namespace ProceduralMaze::Factory
 

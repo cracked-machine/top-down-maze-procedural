@@ -55,6 +55,7 @@ void create_player( entt::registry &registry )
 
   auto &blast_radius = Sys::PersistSystem::get<Cmp::Persist::BlastRadius>( registry );
   registry.emplace<Cmp::PlayerCharacter>( entity );
+  registry.emplace<Cmp::ReservedPosition>( entity );
   registry.emplace<Cmp::PlayerBlastRadius>( entity, blast_radius.get_value() );
 
   registry.emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
@@ -172,6 +173,7 @@ entt::entity create_carry_item( entt::registry &reg, Cmp::Position pos, Sprites:
 
   auto world_carry_item_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
+  reg.emplace_or_replace<Cmp::ReservedPosition>( world_carry_item_entt );
   reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, type, 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
   reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, type );

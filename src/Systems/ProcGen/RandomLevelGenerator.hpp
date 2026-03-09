@@ -5,9 +5,8 @@
 #include <SFML/Window/Window.hpp>
 
 #include <SmartPointers.hpp>
+#include <SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
-
-#include <optional>
 
 #include <Sprites/SpriteMetaType.hpp>
 
@@ -42,6 +41,8 @@ public:
 
   RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~RandomLevelGenerator() = default;
+
+  PathFinding::SpatialHashGrid &get_spatialmap();
 
   // Generate position components for the entire map grid and add player spawn
   void gen_rectangle_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area, Sprites::SpriteMetaType wall_type,
@@ -87,20 +88,8 @@ public:
   // Find a valid spawn location for a large obstacle given a seed
   std::pair<entt::entity, Cmp::Position> find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed );
 
-  std::optional<entt::entity> at( std::size_t idx )
-  {
-    if ( idx > m_data.size() )
-      return std::nullopt;
-    else
-      return m_data.at( idx );
-  }
-  auto data() { return m_data.data(); }
-  auto begin() { return m_data.begin(); }
-  auto end() { return m_data.end(); }
-  auto size() { return m_data.size(); }
-
   //! @brief Call this to make sure the level data is reset before regenerating a new scene
-  void reset() { m_data.clear(); }
+  void reset() { m_levelgen_sm = std::make_unique<PathFinding::SpatialHashGrid>(); }
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}
@@ -108,7 +97,8 @@ public:
   void onResume() override {}
 
 private:
-  std::vector<entt::entity> m_data;
+  //! @brief The spatial map used for level generation.
+  PathFinding::SpatialHashGridUniquePtr m_levelgen_sm;
 };
 
 } // namespace ProceduralMaze::Sys::ProcGen

@@ -26,6 +26,7 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Player/PlayerNoPath.hpp>
+#include <SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Utils/Constants.hpp>
 #include <entt/fwd.hpp>
@@ -56,10 +57,14 @@ void create_multiblock( entt::registry &registry, entt::entity entity, Cmp::Posi
 }
 
 template <typename MULTIBLOCK, typename MBSEGMENT>
-void create_multiblock_segments( entt::registry &registry, entt::entity multiblock_entity, Cmp::Position pos, const Sprites::MultiSprite &ms )
+std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, entt::entity multiblock_entity, Cmp::Position mb_pos_cmp,
+                                                      const Sprites::MultiSprite &ms )
 {
+  std::vector<entt::entity> created_entts;
+
   MULTIBLOCK new_multiblock_bounds = registry.get<MULTIBLOCK>( multiblock_entity );
-  SPDLOG_DEBUG( "createMultiblockSegments called with MULTIBLOCK type: {} for {},{}", typeid( MBSEGMENT ).name(), pos.position.x, pos.position.y );
+  SPDLOG_DEBUG( "createMultiblockSegments called with MULTIBLOCK type: {} for {},{}", typeid( MBSEGMENT ).name(), mb_pos_cmp.position.x,
+                mb_pos_cmp.position.y );
 
   auto pos_view = registry.view<Cmp::Position>();
 
@@ -85,8 +90,8 @@ void create_multiblock_segments( entt::registry &registry, entt::entity multiblo
     // else {}
 
     // Calculate relative pixel positions within the large obstacle grid
-    float rel_x = pos_cmp.position.x - pos.position.x;
-    float rel_y = pos_cmp.position.y - pos.position.y;
+    float rel_x = pos_cmp.position.x - mb_pos_cmp.position.x;
+    float rel_y = pos_cmp.position.y - mb_pos_cmp.position.y;
 
     // Convert to relative grid coordinates
     int rel_grid_x = static_cast<int>( rel_x / Constants::kGridSizePx.x );
@@ -138,9 +143,12 @@ void create_multiblock_segments( entt::registry &registry, entt::entity multiblo
     }
 
     registry.emplace_or_replace<Cmp::ReservedPosition>( entity );
+    created_entts.push_back( entity );
 
     SPDLOG_DEBUG( "Processed {} intersecting entities for multiblock {}", intersection_count, typeid( MULTIBLOCK ).name() );
   }
+
+  return created_entts;
 }
 
 template <typename COMPONENT, typename SEGMENTS>

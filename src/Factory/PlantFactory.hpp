@@ -2,6 +2,7 @@
 #define SRC_FACTORY_PLANTFACTORY_HPP_
 
 #include <Components/Position.hpp>
+#include <SpatialHashGrid.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 
 namespace ProceduralMaze::Sprites
@@ -20,7 +21,7 @@ namespace ProceduralMaze::Factory
 {
 entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type, float zorder );
 
-void gen_random_plants( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size );
+std::vector<entt::entity> gen_random_plants( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size );
 
 } // namespace ProceduralMaze::Factory
 

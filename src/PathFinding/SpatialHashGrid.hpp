@@ -49,6 +49,8 @@ public:
   //! @return std::vector<entt::entity>
   std::vector<entt::entity> query( const Cmp::Position &pos, QueryCompass offset = QueryCompass::BOTH ) const;
 
+  size_t size() { return m_grid.size(); }
+
 private:
   //! @brief dimensions of a single cell in the game area grid
   static constexpr float m_cell_size{ Constants::kGridSizePxF.x };

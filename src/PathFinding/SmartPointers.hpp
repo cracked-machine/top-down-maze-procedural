@@ -7,6 +7,7 @@ class SpatialHashGrid;
 
 using SpatialHashGridSharedPtr = std::shared_ptr<PathFinding::SpatialHashGrid>;
 using SpatialHashGridWeakPtr = std::weak_ptr<PathFinding::SpatialHashGrid>;
+using SpatialHashGridUniquePtr = std::unique_ptr<PathFinding::SpatialHashGrid>;
 
 } // namespace ProceduralMaze::PathFinding
 

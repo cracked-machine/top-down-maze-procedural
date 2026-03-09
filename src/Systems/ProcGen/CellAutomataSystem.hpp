@@ -1,6 +1,7 @@
 #ifndef __SYSTEMS_PROCGEN_CELLAUTO_SYSTEM_HPP__
 #define __SYSTEMS_PROCGEN_CELLAUTO_SYSTEM_HPP__
 
+#include <SpatialHashGrid.hpp>
 #include <entt/entity/fwd.hpp>
 
 #include <SFML/System/Clock.hpp>
@@ -34,16 +35,7 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
-  void iterate( unsigned int iterations, const sf::Vector2u kMapGridSize, RandomLevelGenerator::SceneType scene_type );
-
-  void set_random_level_generator( RandomLevelGenerator *random_level ) { m_random_level = random_level; }
-
-private:
-  RandomLevelGenerator *m_random_level;
-
-  void find_neighbours( const sf::Vector2u kMapGridSize );
-
-  void apply_rules( RandomLevelGenerator::SceneType scene_type );
+  void iterate( unsigned int iterations, RandomLevelGenerator::SceneType scene_type, PathFinding::SpatialHashGrid &levelgen_spatialgrid );
 };
 
 } // namespace ProceduralMaze::Sys::ProcGen

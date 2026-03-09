@@ -32,13 +32,15 @@
 #include <Components/SpawnArea.hpp>
 #include <Components/Wall.hpp>
 
-#include <SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
+#include <memory>
+
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys::ProcGen
@@ -46,9 +48,12 @@ namespace ProceduralMaze::Sys::ProcGen
 
 RandomLevelGenerator::RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
                                             Audio::SoundBank &sound_bank )
-    : BaseSystem( reg, window, sprite_factory, sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank ),
+      m_levelgen_sm( std::make_unique<PathFinding::SpatialHashGrid>() )
 {
 }
+
+PathFinding::SpatialHashGrid &RandomLevelGenerator::get_spatialmap() { return *m_levelgen_sm; }
 
 void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area, Sprites::SpriteMetaType wall_type,
                                                    SpawnArea spawnarea )
@@ -146,12 +151,9 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, C
         {
           if ( pos_cmp.findIntersection( player_start_area.getBounds() ) ) { Factory::add_spawn_area( getReg(), entity, new_pos.y - 16.0f ); }
         }
-        // track contiguous list of positions for proc gen
-        m_data.push_back( entity );
       }
     }
   }
-  SPDLOG_INFO( "Generated {} positions for random level.", m_data.size() );
 }
 
 void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area )
@@ -190,9 +192,6 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size, Cm
         auto &pos_cmp = getReg().get<Cmp::Position>( entity );
         // Mark this position as spawn area if in player start area
         if ( pos_cmp.findIntersection( player_start_area.getBounds() ) ) { Factory::add_spawn_area( getReg(), entity, new_pos.y - 16.0f ); }
-
-        // track the contiguous creation order entities so we can easily find its neighbours later
-        m_data.push_back( entity );
       }
       else if ( d2 <= rOuter2 )
       {
@@ -362,9 +361,6 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, Cmp::
         auto entity = Factory::create_world_pos( getReg(), new_pos );
         auto &pos_cmp = getReg().get<Cmp::Position>( entity );
         if ( pos_cmp.findIntersection( player_start_area.getBounds() ) ) { Factory::add_spawn_area( getReg(), entity, new_pos.y - 16.0f ); }
-
-        // track the contiguous creation order entities so we can easily find its neighbours later
-        m_data.push_back( entity );
       }
     }
   }
@@ -383,6 +379,7 @@ void RandomLevelGenerator::gen_graveyard_exterior_obstacles()
       float zorder = m_sprite_factory.get_sprite_size_by_type( "ROCK" ).y;
       // Set the z-order value so that the rock obstacles are rendered above everything else
       Factory::create_obstacle( getReg(), entity, pos_cmp, obst_type, rand_obst_tex_idx, ( zorder * 2.f ) );
+      m_levelgen_sm->insert( entity, pos_cmp );
     }
   }
 }

@@ -9,6 +9,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Player/PlayerNoPath.hpp>
+#include <SpatialHashGrid.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Utils/Random.hpp>
 
@@ -31,8 +32,10 @@ entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, 
   return plant_entt;
 }
 
-void gen_random_plants( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size )
+std::vector<entt::entity> gen_random_plants( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size )
 {
+  std::vector<entt::entity> assigned_entts;
+
   auto num_plants = map_grid_size.x * map_grid_size.y / 200;
 
   for ( std::size_t i = 0; i < num_plants; ++i )
@@ -47,7 +50,9 @@ void gen_random_plants( entt::registry &reg, Sprites::SpriteFactory &sprite_fact
 
     Factory::create_plant_obstacle( reg, random_pos, rand_plant_type, 0.f );
     SPDLOG_INFO( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
+    assigned_entts.push_back( random_entity );
   }
+  return assigned_entts;
 }
 
 } // namespace ProceduralMaze::Factory

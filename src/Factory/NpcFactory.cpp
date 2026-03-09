@@ -12,6 +12,7 @@
 #include <Factory/Factory.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
+#include <SpatialHashGrid.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -159,8 +160,10 @@ void create_npc_explosion( entt::registry &registry, Cmp::Position npc_pos_cmp )
   registry.emplace_or_replace<Cmp::ZOrderValue>( npc_death_entity, npc_pos_cmp.position.y );
 }
 
-void gen_npc_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size )
+std::vector<entt::entity> gen_npc_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size )
 {
+  std::vector<entt::entity> assigned_entts;
+
   auto num_npc_containers = map_grid_size.x * map_grid_size.y / 120; // one NPC container per N grid squares
 
   for ( std::size_t i = 0; i < num_npc_containers; ++i )
@@ -177,7 +180,9 @@ void gen_npc_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_fac
     // clang-format on
 
     Factory::create_npc_container( reg, random_entity, random_origin_position, npc_type, rand_npc_tex_idx, 0.f );
+    assigned_entts.push_back( random_entity );
   }
+  return assigned_entts;
 }
 
 } // namespace ProceduralMaze::Factory

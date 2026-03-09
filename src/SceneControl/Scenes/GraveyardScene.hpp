@@ -58,6 +58,8 @@ private:
 
   sf::Clock m_scene_exit_cooldown{};
   sf::Time m_scene_exit_cooldown_time{ sf::seconds( 2 ) };
+
+  void reinit_navmesh();
 };
 
 } // namespace ProceduralMaze::Scene

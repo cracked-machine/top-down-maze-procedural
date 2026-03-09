@@ -41,14 +41,11 @@ namespace ProceduralMaze::Scene
 
 void GraveyardScene::on_init()
 {
-  SPDLOG_INFO( "Entering {}", get_name() );
+  SPDLOG_INFO( "Init {}", get_name() );
 
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
-
-  // create a spatial grid of the game area
-  m_spatialgrid_ptr = std::make_shared<PathFinding::SpatialHashGrid>();
 
   auto &render_game_system = m_sys.find<Sys::Store::Type::RenderGameSystem>();
   SPDLOG_INFO( "Got render_game_system at {}", static_cast<void *>( &render_game_system ) );
@@ -65,6 +62,7 @@ void GraveyardScene::on_init()
 
   // create the level contents
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
+  SPDLOG_INFO( "LEVELGENSPATIALMAP: {}", random_level_sys.get_spatialmap().size() );
   random_level_sys.reset();
   random_level_sys.gen_circular_gamearea( kMapSize, player_start_area );
 
@@ -83,8 +81,7 @@ void GraveyardScene::on_init()
     if ( world_pos_entt != entt::null )
     {
       m_reg.emplace_or_replace<Cmp::ReservedPosition>( world_pos_entt );
-      auto carryitem_entt = Factory::create_carry_item( m_reg, pos_cmp, "CARRYITEM.pickaxe" );
-      m_spatialgrid_ptr->insert( carryitem_entt, pos_cmp );
+      Factory::create_carry_item( m_reg, pos_cmp, "CARRYITEM.pickaxe" );
     }
   }
 
@@ -92,25 +89,25 @@ void GraveyardScene::on_init()
   Factory::gen_loot_containers( m_reg, m_sprite_factory, kMapSize );
   Factory::gen_npc_containers( m_reg, m_sprite_factory, kMapSize );
   Factory::gen_random_plants( m_reg, m_sprite_factory, kMapSize );
+
   random_level_sys.gen_graveyard_exterior_obstacles();
+  SPDLOG_INFO( "LEVELGENSPATIALMAP: {}", random_level_sys.get_spatialmap().size() );
 
   // now use cellular automata on the exterior obstacles
   auto &cellauto_parser = m_sys.find<Sys::Store::Type::CellAutomataSystem>();
-  cellauto_parser.set_random_level_generator( &random_level_sys );
-  cellauto_parser.iterate( 5, kMapSize, Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR );
+  cellauto_parser.iterate( 5, Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR, random_level_sys.get_spatialmap() );
 
+  // create a spatial grid of the game area
+  m_spatialgrid_ptr = std::make_shared<PathFinding::SpatialHashGrid>();
   auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
   for ( auto entity : view )
   {
     const auto &pos = view.get<Cmp::Position>( entity );
     m_spatialgrid_ptr->insert( entity, pos );
   }
-  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_spatialgrid_ptr );
-  m_sys.find<Sys::Store::Type::BombSystem>().init( m_spatialgrid_ptr );
-  m_sys.find<Sys::Store::Type::DiggingSystem>().init( m_spatialgrid_ptr );
-  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_spatialgrid_ptr );
-  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_spatialgrid_ptr );
+  reinit_navmesh();
 
+  // create floor background
   Factory::FloormapFactory::create_floormap( m_reg, m_floormap, kMapSize, "res/json/graveyard_tilemap_config.json" );
 
   m_sys.find<Sys::Store::Type::ExitSystem>().spawn_exit();
@@ -138,6 +135,7 @@ void GraveyardScene::on_init()
 void GraveyardScene::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
+  reinit_navmesh();
 
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
@@ -205,6 +203,15 @@ void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
   m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::OFF );
+}
+
+void GraveyardScene::reinit_navmesh()
+{
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::BombSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::DiggingSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_spatialgrid_ptr );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_spatialgrid_ptr );
 }
 
 entt::registry &GraveyardScene::registry() { return m_reg; }
