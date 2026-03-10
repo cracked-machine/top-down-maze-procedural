@@ -53,7 +53,9 @@ std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHash
       auto heuristic = Utils::Maths::getManhattanDistance( neighbour_pos->position, goal.position );
 
       if ( closedList.count( *neighbour_pos ) > 0 ) continue;
-      PathNode new_neighbor( *neighbour_pos, current.g + Constants::kGridSizePxF.x, heuristic, &closedList.at( current.pos ) );
+
+      // +1 since we only care about relative difference between steps, not the actual pixel distance.
+      PathNode new_neighbor( *neighbour_pos, current.g + 1, heuristic, &closedList.at( current.pos ) );
 
       auto it = std::find_if( openList.begin(), openList.end(),
                               // existence check

@@ -33,14 +33,30 @@ struct PathNode
   {
   }
 
+  //! @brief get the combined g cost and heuristic estimate
+  //! @return double
   double f() const { return g + h; }
-  bool operator==( const PathNode &other ) const { return pos.position.x == other.pos.position.x && pos.position.y == other.pos.position.y; }
+
+  //! @brief Used for hash comparison in closedlist and std::find in openlist
+  //! @param other
+  //! @return true
+  //! @return false
+  bool operator==( const PathNode &other ) const
+  {
+    return static_cast<int>( pos.position.x ) == static_cast<int>( other.pos.position.x ) &&
+           static_cast<int>( pos.position.y ) == static_cast<int>( other.pos.position.y );
+  }
+
+  //! @brief Used to create a hash for the ClosedList key. Use int to prevent rounding errors (also faster)
   struct PosHash
   {
+    //! @brief
+    //! @param p
+    //! @return std::size_t
     std::size_t operator()( const Cmp::Position &p ) const noexcept
     {
-      std::size_t h1 = std::hash<float>{}( p.position.x );
-      std::size_t h2 = std::hash<float>{}( p.position.y );
+      std::size_t h1 = std::hash<int>{}( static_cast<int>( p.position.x ) );
+      std::size_t h2 = std::hash<int>{}( static_cast<int>( p.position.y ) );
       return h1 ^ ( h2 << 1 );
     }
   };
