@@ -11,6 +11,7 @@
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
+#include <Constants.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
@@ -49,16 +50,17 @@ namespace ProceduralMaze::Sys::ProcGen
 RandomLevelGenerator::RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
                                             Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank ),
-      m_levelgen_sm( std::make_unique<PathFinding::SpatialHashGrid>() )
+      m_obstacle_sm( std::make_unique<PathFinding::SpatialHashGrid>() ),
+      m_void_sm( std::make_unique<PathFinding::SpatialHashGrid>() )
 {
 }
 
-PathFinding::SpatialHashGrid &RandomLevelGenerator::get_spatialmap() { return *m_levelgen_sm; }
+PathFinding::SpatialHashGrid &RandomLevelGenerator::get_obstacle_sm() { return *m_obstacle_sm; }
+PathFinding::SpatialHashGrid &RandomLevelGenerator::get_void_sm() { return *m_void_sm; }
 
 void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area, Sprites::SpriteMetaType wall_type,
                                                    SpawnArea spawnarea )
 {
-
   unsigned int w = map_grid_size.x;
   unsigned int h = map_grid_size.y;
 
@@ -152,13 +154,19 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, C
           if ( pos_cmp.findIntersection( player_start_area.getBounds() ) ) { Factory::add_spawn_area( getReg(), entity, new_pos.y - 16.0f ); }
         }
       }
+      else
+      {
+        //
+        Cmp::Position new_pos_cmp( new_pos, Constants::kGridSizePxF );
+        auto entt = Factory::create_void_pos( getReg(), new_pos_cmp );
+        m_void_sm->insert( entt, new_pos_cmp );
+      }
     }
   }
 }
 
 void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area )
 {
-
   unsigned int w = map_grid_size.x;
   unsigned int h = map_grid_size.y;
 
@@ -180,8 +188,7 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size, Cm
       int dy = static_cast<int>( y ) - cy;
       int d2 = dx * dx + dy * dy;
 
-      auto kGridSquareSizePixels = Constants::kGridSizePx;
-      sf::Vector2f new_pos( x * kGridSquareSizePixels.x, y * kGridSquareSizePixels.y );
+      sf::Vector2f new_pos( x * Constants::kGridSizePx.x, y * Constants::kGridSizePx.y );
 
       if ( d2 <= rInner2 )
       {
@@ -200,7 +207,11 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size, Cm
       }
       else
       {
-        // outside circle (no tile)
+        // outside circle
+        Cmp::Position new_pos_cmp( new_pos, Constants::kGridSizePxF );
+        SPDLOG_INFO( "Adding Void to SM: {},{}", new_pos.x, new_pos.y );
+        auto entt = Factory::create_void_pos( getReg(), new_pos_cmp );
+        m_void_sm->insert( entt, new_pos_cmp );
       }
     }
   }
@@ -362,13 +373,19 @@ void RandomLevelGenerator::gen_cross_gamearea( sf::Vector2u map_grid_size, Cmp::
         auto &pos_cmp = getReg().get<Cmp::Position>( entity );
         if ( pos_cmp.findIntersection( player_start_area.getBounds() ) ) { Factory::add_spawn_area( getReg(), entity, new_pos.y - 16.0f ); }
       }
+      else
+      {
+        // outside cross
+        Cmp::Position new_pos_cmp( new_pos, Constants::kGridSizePxF );
+        auto entt = Factory::create_void_pos( getReg(), new_pos_cmp );
+        m_void_sm->insert( entt, new_pos_cmp );
+      }
     }
   }
 }
 
 void RandomLevelGenerator::gen_graveyard_exterior_obstacles()
 {
-
   auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition> );
   for ( auto [entity, pos_cmp] : position_view.each() )
   {
@@ -379,7 +396,7 @@ void RandomLevelGenerator::gen_graveyard_exterior_obstacles()
       float zorder = m_sprite_factory.get_sprite_size_by_type( "ROCK" ).y;
       // Set the z-order value so that the rock obstacles are rendered above everything else
       Factory::create_obstacle( getReg(), entity, pos_cmp, obst_type, rand_obst_tex_idx, ( zorder * 2.f ) );
-      m_levelgen_sm->insert( entity, pos_cmp );
+      m_obstacle_sm->insert( entity, pos_cmp );
     }
   }
 }
@@ -476,7 +493,6 @@ void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::
 
 void RandomLevelGenerator::gen_crypt_interior_multiblocks()
 {
-
   for ( int i = 0; i < 30; i++ )
   {
     auto [ms_type, ms_idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_mb1x3" } );

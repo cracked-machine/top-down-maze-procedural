@@ -20,11 +20,11 @@ class HolyWellScene : public Scene<Events::ProcessHolyWellSceneInputEvent>
 {
 public:
   //! @brief The size of the  map grid in number of squares
-  inline static constexpr sf::Vector2u kMapGridSize{ 15u, 15u };
+  inline static constexpr sf::Vector2u kMapSize{ 15u, 15u };
 
   //! @brief The size of the map grid in number of squares as floats
-  inline static constexpr sf::Vector2f kMapGridSizeF{ static_cast<float>( kMapGridSize.x * Constants::kGridSizePx.x ),
-                                                      static_cast<float>( kMapGridSize.y *Constants::kGridSizePx.y ) };
+  inline static constexpr sf::Vector2f kMapSizeF{ static_cast<float>( kMapSize.x * Constants::kGridSizePx.x ),
+                                                  static_cast<float>( kMapSize.y *Constants::kGridSizePx.y ) };
 
   HolyWellScene( Audio::SoundBank &sound_bank, Sys::Store &system_store, entt::dispatcher &nav_event_dispatcher,
                  Sprites::SpriteFactory &sprite_Factory )
@@ -52,8 +52,7 @@ private:
   Sprites::Containers::TileMap m_floormap{};
 
   sf::Vector2f m_player_start_position = Utils::snap_to_grid(
-      sf::Vector2f( ( HolyWellScene::kMapGridSizeF.x / 2.f ) - Constants::kGridSizePx.x,
-                    ( HolyWellScene::kMapGridSizeF.y - ( Constants::kGridSizePx.y * 2.f ) ) ) );
+      sf::Vector2f( ( kMapSizeF.x / 2.f ) - Constants::kGridSizePx.x, ( kMapSizeF.y - ( Constants::kGridSizePx.y * 2.f ) ) ) );
 };
 
 } // namespace ProceduralMaze::Scene

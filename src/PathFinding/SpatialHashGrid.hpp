@@ -22,6 +22,7 @@ enum class QueryCompass {
   BOTH // include diagonals
 };
 
+//! @brief Store buckets of entities using their pixel positions as a key
 class SpatialHashGrid
 {
 public:
@@ -44,10 +45,12 @@ public:
   //! @param new_pos
   void update( entt::entity e, const Cmp::Position &old_pos, const Cmp::Position &new_pos );
 
+  std::vector<entt::entity> at( const Cmp::Position &pos ) const;
+
   //! @brief Using `pos` as a lookup, flattens neighbouring buckets (9 max) into single vector
   //! @param pos
   //! @return std::vector<entt::entity>
-  std::vector<entt::entity> query( const Cmp::Position &pos, QueryCompass offset = QueryCompass::BOTH ) const;
+  std::vector<entt::entity> neighbours( const Cmp::Position &pos, QueryCompass offset = QueryCompass::BOTH ) const;
 
   size_t size() { return m_grid.size(); }
 

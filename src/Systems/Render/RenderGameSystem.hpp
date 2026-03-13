@@ -80,7 +80,7 @@ private:
 
   //! @brief Renders the game world floor
   //! @param offset The offset - in pixels - to apply to the floor rendering
-  void render_floormap( Sprites::Containers::TileMap &floormap, const sf::Vector2f &offset = { 0.f, 0.f } );
+  void render_floormap( Sprites::Containers::TileMap &floormap );
 
   //! @brief Renders the armed obstacles in the game world
   void render_armed();

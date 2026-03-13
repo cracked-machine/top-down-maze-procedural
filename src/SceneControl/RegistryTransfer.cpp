@@ -21,7 +21,6 @@
 #include <Components/FootStepTimer.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
-#include <Components/Neighbours.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>
@@ -112,9 +111,9 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
       if ( source_registry.any_of<Cmp::PlayerCharacter>( entity ) ) { continue; }
 
       // Skip blacklisted components
-      if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::Neighbours, Cmp::NpcNoPathFinding, Cmp::FootStepTimer,
-                                  Cmp::FootStepAlpha, Cmp::CryptRoomOpen, Cmp::CryptRoomClosed, Cmp::CryptRoomStart, Cmp::CryptRoomEnd,
-                                  Cmp::CryptPassageBlock, Cmp::CryptLever, Cmp::CryptObjectiveMultiBlock>( entity ) )
+      if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::NpcNoPathFinding, Cmp::FootStepTimer, Cmp::FootStepAlpha,
+                                  Cmp::CryptRoomOpen, Cmp::CryptRoomClosed, Cmp::CryptRoomStart, Cmp::CryptRoomEnd, Cmp::CryptPassageBlock,
+                                  Cmp::CryptLever, Cmp::CryptObjectiveMultiBlock>( entity ) )
       {
         skipped_cmp++;
         continue;

@@ -8,7 +8,6 @@
 #include <Components/Inventory/Explosive.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
-#include <Components/Neighbours.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/BlastRadius.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
@@ -75,22 +74,6 @@ void create_player( entt::registry &registry )
   registry.emplace<Cmp::PlayerInventorySlot>( inventory_entity, "CARRYITEM.pickaxe" );
   registry.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, 100.f );
   registry.emplace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, true, "CARRYITEM.pickaxe", 0 );
-}
-
-entt::entity create_world_pos( entt::registry &registry, const sf::Vector2f &pos )
-{
-  auto entity = registry.create();
-  registry.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
-  registry.emplace_or_replace<Cmp::Neighbours>( entity );
-  return entity;
-}
-
-entt::entity create_void_pos( entt::registry &registry, const sf::Vector2f &pos )
-{
-  auto entity = registry.create();
-  registry.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
-  registry.emplace_or_replace<Cmp::ReservedPosition>( entity );
-  return entity;
 }
 
 void add_spawn_area( entt::registry &registry, entt::entity entity, float zorder )

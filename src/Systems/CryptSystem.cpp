@@ -567,7 +567,7 @@ void CryptSystem::create_initial_crypt_rooms( sf::Vector2u map_grid_size )
 
     int room_width = Cmp::RandomInt{ min_room_width, max_room_width }.gen();
     int room_height = Cmp::RandomInt{ min_room_height, max_room_height }.gen();
-    auto [entt, pos] = Utils::Rnd::get_random_position( getReg(), Utils::Rnd::IncludePack<Cmp::Neighbours>{}, {}, 0 );
+    auto [entt, pos] = Utils::Rnd::get_random_position( getReg(), {}, {}, 0 );
     Cmp::CryptRoomClosed new_room( pos.position, { room_width * grid_square_size.x, room_height * grid_square_size.y } );
     SPDLOG_DEBUG( "Generated new room at ({}, {}) size ({}, {})", new_room.position.x, new_room.position.y, new_room.size.x, new_room.size.y );
 

@@ -9,10 +9,10 @@ namespace ProceduralMaze::Factory
 class FloormapFactory
 {
 public:
-  static void create_floormap( entt::registry &registry, Sprites::Containers::TileMap &floormap, sf::Vector2u map_dimensions,
+  static void create_floormap( const PathFinding::SpatialHashGrid &void_sm, Sprites::Containers::TileMap &floormap, sf::Vector2u map_dimensions,
                                std::string config_path )
   {
-    floormap.load( registry, map_dimensions, config_path );
+    floormap.load( void_sm, map_dimensions, config_path );
   }
 
   static void clear_floormap( Sprites::Containers::TileMap &floormap ) { floormap.clear(); }

@@ -5,6 +5,11 @@
 #include <SFML/System/Vector2.hpp>
 #include <entt/entity/fwd.hpp>
 
+namespace ProceduralMaze::PathFinding
+{
+class SpatialHashGrid;
+}
+
 namespace ProceduralMaze::Sprites::Containers
 {
 
@@ -13,16 +18,14 @@ class TileMap : public sf::Drawable, public sf::Transformable
 public:
   TileMap() = default;
 
-  void load( entt::registry &registry, sf::Vector2u map_dimensions, const std::filesystem::path &config_path = "res/json/tilemap_config.json" );
+  void load( const PathFinding::SpatialHashGrid &void_sm, sf::Vector2u map_dimensions,
+             const std::filesystem::path &config_path = "res/json/tilemap_config.json" );
 
   // Draw the sf::VertexArray to the render target (with optional state for shader)
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
 
-  void clear()
-  {
-    m_vertices.clear();
-    m_floortile_choices.clear();
-  }
+  void clear() { m_vertices.clear(); }
+  sf::Vector2u world_grid_offset{ 0, 0 };
 
 private:
   struct TileMapConfig
@@ -36,14 +39,12 @@ private:
 
   TileMapConfig load_config( const std::filesystem::path &config_path );
 
-  void initialize( entt::registry &registry, const TileMapConfig &config );
-
   // Create the tile map using a single large sf::VertexArray
-  void create( entt::registry &registry, sf::Vector2u tile_size, unsigned int width, unsigned int height );
+  void create( const PathFinding::SpatialHashGrid &void_sm );
 
+  TileMapConfig m_config;
   sf::VertexArray m_vertices;
   sf::Texture m_tileset;
-  std::vector<uint32_t> m_floortile_choices;
   sf::Clock m_clock{};
 };
 

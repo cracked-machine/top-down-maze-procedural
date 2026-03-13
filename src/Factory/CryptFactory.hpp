@@ -5,8 +5,6 @@
 #include <Components/Crypt/CryptRoomEnd.hpp>
 #include <Components/Crypt/CryptRoomOpen.hpp>
 #include <Components/Crypt/CryptRoomStart.hpp>
-
-#include <Components/Neighbours.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Wall.hpp>

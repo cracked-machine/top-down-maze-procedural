@@ -40,7 +40,7 @@ std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHash
       break;
     }
 
-    const std::vector<entt::entity> neighbours_list = spatial_grid.query( current.pos, offset );
+    const std::vector<entt::entity> neighbours_list = spatial_grid.neighbours( current.pos, offset );
 
     for ( auto neighbour_entt : neighbours_list )
     {

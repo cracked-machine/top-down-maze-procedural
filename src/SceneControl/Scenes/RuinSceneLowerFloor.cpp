@@ -61,35 +61,33 @@ void RuinSceneLowerFloor::on_init()
   // generate the scene boundaries
   auto &random_level_sys = m_sys.find<SystemStoreType::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_rectangle_gamearea( RuinSceneLowerFloor::kMapGridSize, player_start_area, "RUIN.interior_wall",
-                                           Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
+  random_level_sys.gen_rectangle_gamearea( kMapSize, player_start_area, "RUIN.interior_wall", Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
   // pass concrete spawn position to exit spawner
-  m_sys.find<SystemStoreType::HolyWellSystem>().spawn_exit(
-      sf::Vector2u{ RuinSceneLowerFloor::kMapGridSize.x / 3, RuinSceneLowerFloor::kMapGridSize.y - 1 } );
+  m_sys.find<SystemStoreType::HolyWellSystem>().spawn_exit( sf::Vector2u{ kMapSize.x / 3, kMapSize.y - 1 } );
 
   // spawn access hitbox just above horizontal centerpoint
-  sf::Vector2f flooraccess_position( kMapGridSizeF.x - ( 3 * gridsize.x ), 2 * gridsize.y );
+  sf::Vector2f flooraccess_position( kMapSizeF.x - ( 3 * gridsize.x ), 2 * gridsize.y );
   sf::Vector2f flooraccess_size( ( 2 * gridsize.x ), gridsize.y );
   m_sys.find<SystemStoreType::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size, Cmp::RuinFloorAccess::Direction::TO_UPPER );
 
   // add the straircase sprite for lower floor
   const Sprites::MultiSprite &stairs_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.interior_staircase_going_up" );
-  sf::Vector2f stairs_position( kMapGridSizeF.x - ( 4 * gridsize.x ), gridsize.y );
+  sf::Vector2f stairs_position( kMapSizeF.x - ( 4 * gridsize.x ), gridsize.y );
   m_sys.find<SystemStoreType::RuinSystem>().add_stairs<Cmp::RuinStairsLowerMultiBlock>( stairs_position, stairs_ms );
 
   // Make sure bookcaseses cant block access to the staircase
-  Factory::add_reservedposition( m_reg, { kMapGridSizeF.x - ( 5 * gridsize.x ), kMapGridSizeF.y - ( 2 * gridsize.x ) } );
-  Factory::add_reservedposition( m_reg, { kMapGridSizeF.x - ( 5 * gridsize.x ), kMapGridSizeF.y - ( 3 * gridsize.x ) } );
+  Factory::add_reservedposition( m_reg, { kMapSizeF.x - ( 5 * gridsize.x ), kMapSizeF.y - ( 2 * gridsize.x ) } );
+  Factory::add_reservedposition( m_reg, { kMapSizeF.x - ( 5 * gridsize.x ), kMapSizeF.y - ( 3 * gridsize.x ) } );
 
-  Factory::FloormapFactory::create_floormap( m_reg, m_floormap, RuinSceneLowerFloor::kMapGridSize, "res/json/ruin_lower_tilemap_config.json" );
+  Factory::FloormapFactory::create_floormap( random_level_sys.get_void_sm(), m_floormap, kMapSize, "res/json/ruin_lower_tilemap_config.json" );
 
   sf::Vector2f bc_area_position( 0, 0 );
-  sf::Vector2f bc_area_size( kMapGridSizeF.x - 48, kMapGridSizeF.y - 16 );
+  sf::Vector2f bc_area_size( kMapSizeF.x - 48, kMapSizeF.y - 16 );
   m_sys.find<SystemStoreType::RuinSystem>().gen_lowerfloor_bookcases( sf::FloatRect( bc_area_position, bc_area_size ) );
 
   sf::Vector2f cobweb_area_position( 0, 0 );
-  sf::Vector2f cobweb_area_size( kMapGridSizeF.x - 48, kMapGridSizeF.y - 32 );
+  sf::Vector2f cobweb_area_size( kMapSizeF.x - 48, kMapSizeF.y - 32 );
   m_sys.find<SystemStoreType::RuinSystem>().add_lowerfloor_cobwebs( 200, sf::FloatRect( cobweb_area_position, cobweb_area_size ) );
 
   m_sys.find<Sys::Store::Type::RuinSystem>().reset_player_curse();
@@ -187,8 +185,8 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Store::Type::PlayerSystem>().update( dt, Sys::PlayerSystem::FootStepSfx::NONE );
   m_sys.find<Store::Type::PlayerSystem>().disable_damage_cooldown();
 
-  bool is_player_cursed = m_sys.find<Sys::Store::Type::RuinSystem>().check_activate_player_curse( kMapGridSizeF );
-  if ( is_player_cursed ) { m_sys.find<Store::Type::RuinSystem>().check_create_witch( m_reg, sf::FloatRect( { 0, 0 }, kMapGridSizeF ) ); }
+  bool is_player_cursed = m_sys.find<Sys::Store::Type::RuinSystem>().check_activate_player_curse( kMapSizeF );
+  if ( is_player_cursed ) { m_sys.find<Store::Type::RuinSystem>().check_create_witch( m_reg, sf::FloatRect( { 0, 0 }, kMapSizeF ) ); }
 
   // `check_exit_collision()` may reset the player curse so it must be called after `check_activate_player_curse()`
   // or we incorrectly re-trigger the curse effects before we can leave this function and exit the scene.

@@ -15,6 +15,9 @@ class SpriteFactory;
 namespace ProceduralMaze::Factory
 {
 
+entt::entity create_world_pos( entt::registry &registry, const sf::Vector2f &pos );
+entt::entity create_void_pos( entt::registry &registry, const Cmp::Position &pos );
+
 //! @brief Create a Obstacle component at the given entt
 //! @param registry
 //! @param entity

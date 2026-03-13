@@ -1,4 +1,4 @@
-#include <Components/Neighbours.hpp>
+
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/ReservedPosition.hpp>
@@ -22,7 +22,7 @@ void CellAutomataSystem::iterate( unsigned int iterations, RandomLevelGenerator:
     for ( auto [pos_entt, pos_cmp] : getReg().view<Cmp::Position>().each() )
     {
       if ( getReg().any_of<Cmp::ReservedPosition>( pos_entt ) ) continue;
-      std::vector<entt::entity> neighbour_list = levelgen_spatialgrid.query( pos_cmp );
+      std::vector<entt::entity> neighbour_list = levelgen_spatialgrid.neighbours( pos_cmp );
       SPDLOG_DEBUG( "#{} at {},{} has {} nieghbours", static_cast<uint32_t>( pos_entt ), pos_cmp.x(), pos_cmp.y(), neighbour_list.size() );
 
       if ( neighbour_list.size() <= 2 )

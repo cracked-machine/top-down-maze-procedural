@@ -26,7 +26,17 @@ void SpatialHashGrid::update( entt::entity e, const Cmp::Position &old_pos, cons
   insert( e, new_pos );
 }
 
-std::vector<entt::entity> SpatialHashGrid::query( const Cmp::Position &pos, QueryCompass offset ) const
+std::vector<entt::entity> SpatialHashGrid::at( const Cmp::Position &pos ) const
+{
+  std::vector<entt::entity> result{};
+  auto [cx, cy] = cell( pos );
+  auto it = m_grid.find( encode( cx, cy ) );
+  if ( it == m_grid.end() ) return {};
+  result.insert( result.end(), it->second.begin(), it->second.end() );
+  return result;
+}
+
+std::vector<entt::entity> SpatialHashGrid::neighbours( const Cmp::Position &pos, QueryCompass offset ) const
 {
   std::vector<entt::entity> result;
   auto [cx, cy] = cell( pos );

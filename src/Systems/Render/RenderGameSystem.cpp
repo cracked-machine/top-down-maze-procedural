@@ -197,7 +197,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
 
     // render these things first
     render_background_water( player_pos_cmp );
-    render_floormap( floormap, { 0, 0 } );
+    render_floormap( floormap );
     render_scryingball_doglegs();
     render_wormhole_effect( floormap );
 
@@ -348,9 +348,10 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
   m_window.display();
 }
 
-void RenderGameSystem::render_floormap( Sprites::Containers::TileMap &floormap, const sf::Vector2f &offset )
+void RenderGameSystem::render_floormap( Sprites::Containers::TileMap &floormap )
 {
-  floormap.setPosition( offset );
+  sf::Vector2f adjusted{ floormap.world_grid_offset.x * Constants::kGridSizePxF.x, floormap.world_grid_offset.y * Constants::kGridSizePxF.y };
+  floormap.setPosition( adjusted );
   m_window.draw( floormap );
 }
 

@@ -442,7 +442,7 @@ void RenderOverlaySystem::render_spatial_grid_neighbours( const Cmp::Position &q
 {
   if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_pathfinding_navmesh.lock() )
   {
-    std::vector<entt::entity> neighbours_list = spatialgrid_ptr->query( Cmp::Position( query_pos.position, query_pos.size ), query_compass );
+    std::vector<entt::entity> neighbours_list = spatialgrid_ptr->neighbours( Cmp::Position( query_pos.position, query_pos.size ), query_compass );
     for ( auto neighbour_entt : neighbours_list )
     {
       auto *neighbour_pos = getReg().try_get<Cmp::Position>( neighbour_entt );

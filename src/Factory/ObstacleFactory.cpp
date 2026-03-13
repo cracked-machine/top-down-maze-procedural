@@ -2,19 +2,34 @@
 #include <Components/Armable.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Inventory/CarryItem.hpp>
-#include <Components/Neighbours.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/PlantObstacle.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Constants.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Player/PlayerNoPath.hpp>
+#include <VoidPosition.hpp>
 #include <entt/entity/fwd.hpp>
 
 namespace ProceduralMaze::Factory
 {
+
+entt::entity create_world_pos( entt::registry &registry, const sf::Vector2f &pos )
+{
+  auto entity = registry.create();
+  registry.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
+  return entity;
+}
+
+entt::entity create_void_pos( entt::registry &registry, const Cmp::Position &pos )
+{
+  auto entity = registry.create();
+  registry.emplace_or_replace<Cmp::VoidPosition>( entity, pos );
+  return entity;
+}
 
 void create_obstacle( entt::registry &registry, entt::entity entity, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
                       std::size_t sprite_tile_idx, float zorder )

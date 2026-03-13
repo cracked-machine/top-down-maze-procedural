@@ -62,7 +62,7 @@ void GraveyardScene::on_init()
 
   // create the level contents
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
-  SPDLOG_INFO( "LEVELGENSPATIALMAP: {}", random_level_sys.get_spatialmap().size() );
+  SPDLOG_INFO( "LEVELGENSPATIALMAP: {}", random_level_sys.get_obstacle_sm().size() );
   random_level_sys.reset();
   random_level_sys.gen_circular_gamearea( kMapSize, player_start_area );
 
@@ -91,11 +91,11 @@ void GraveyardScene::on_init()
   Factory::gen_random_plants( m_reg, m_sprite_factory, kMapSize );
 
   random_level_sys.gen_graveyard_exterior_obstacles();
-  SPDLOG_INFO( "LEVELGENSPATIALMAP: {}", random_level_sys.get_spatialmap().size() );
+  SPDLOG_INFO( "LEVELGENSPATIALMAP: {}", random_level_sys.get_obstacle_sm().size() );
 
   // now use cellular automata on the exterior obstacles
   auto &cellauto_parser = m_sys.find<Sys::Store::Type::CellAutomataSystem>();
-  cellauto_parser.iterate( 5, Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR, random_level_sys.get_spatialmap() );
+  cellauto_parser.iterate( 5, Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR, random_level_sys.get_obstacle_sm() );
 
   // create a navmesh for pathfinding in the scene
   m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
@@ -108,7 +108,7 @@ void GraveyardScene::on_init()
   reinit_navmesh();
 
   // create floor background
-  Factory::FloormapFactory::create_floormap( m_reg, m_floormap, kMapSize, "res/json/graveyard_tilemap_config.json" );
+  Factory::FloormapFactory::create_floormap( random_level_sys.get_void_sm(), m_floormap, kMapSize, "res/json/graveyard_tilemap_config.json" );
 
   m_sys.find<Sys::Store::Type::ExitSystem>().spawn_exit();
 

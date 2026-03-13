@@ -2,6 +2,7 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/System.hpp>
+#include <Constants.hpp>
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
@@ -39,15 +40,15 @@ void HolyWellScene::on_init()
 
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_rectangle_gamearea( HolyWellScene::kMapGridSize, player_start_area, "HOLYWELL.interior_wall",
+  random_level_sys.gen_rectangle_gamearea( kMapSize, player_start_area, "HOLYWELL.interior_wall",
                                            Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
   // pass concrete spawn position to exit spawner
-  m_sys.find<Sys::Store::Type::HolyWellSystem>().spawn_exit( sf::Vector2u{ HolyWellScene::kMapGridSize.x / 2, HolyWellScene::kMapGridSize.y - 1 } );
+  m_sys.find<Sys::Store::Type::HolyWellSystem>().spawn_exit( sf::Vector2u{ kMapSize.x / 2, kMapSize.y - 1 } );
 
-  m_sys.find<Sys::Store::Type::HolyWellSystem>().spawn_well( sf::Vector2u{ ( HolyWellScene::kMapGridSize.x / 2 ) - 1, 4 } );
+  m_sys.find<Sys::Store::Type::HolyWellSystem>().spawn_well( sf::Vector2u{ ( kMapSize.x / 2 ) - 1, 4 } );
 
-  Factory::FloormapFactory::create_floormap( m_reg, m_floormap, HolyWellScene::kMapGridSize, "res/json/holywell_tilemap_config.json" );
+  Factory::FloormapFactory::create_floormap( random_level_sys.get_void_sm(), m_floormap, kMapSize, "res/json/holywell_tilemap_config.json" );
 
   m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
   auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );

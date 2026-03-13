@@ -11,8 +11,7 @@ namespace ProceduralMaze::Factory
 {
 
 void create_player( entt::registry &registry );
-entt::entity create_world_pos( entt::registry &registry, const sf::Vector2f &pos );
-entt::entity create_void_pos( entt::registry &registry, const sf::Vector2f &pos );
+
 void add_spawn_area( entt::registry &registry, entt::entity entity, float zorder );
 void create_player_death_anim( entt::registry &registry, Cmp::Position player_pos_cmp, const Sprites::MultiSprite &sprite );
 entt::entity drop_inventory_slot_into_world( entt::registry &reg, Cmp::Position pos, const Sprites::MultiSprite &sprite,
