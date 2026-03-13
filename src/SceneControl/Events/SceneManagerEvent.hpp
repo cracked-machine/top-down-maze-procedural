@@ -23,6 +23,8 @@ struct SceneManagerEvent
     ENTER_RUIN_UPPER,
     EXIT_RUIN_UPPER,
     EXIT_RUIN,
+    ENTER_SHOP,
+    EXIT_SHOP,
     RETURN_TO_TITLE
   };
 

@@ -2,16 +2,14 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/System.hpp>
-#include <Constants.hpp>
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
-#include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
-#include <SceneControl/Scenes/HolyWellScene.hpp>
+#include <SceneControl/Events/ProcessShopSceneInputEvent.hpp>
+#include <SceneControl/Scenes/ShopScene.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
-#include <Systems/HolyWellSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
@@ -19,13 +17,14 @@
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
+#include <Systems/ShopSystem.hpp>
 #include <Systems/SystemStore.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 
 namespace ProceduralMaze::Scene
 {
 
-void HolyWellScene::on_init()
+void ShopScene::on_init()
 {
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initializeComponentRegistry();
@@ -43,10 +42,9 @@ void HolyWellScene::on_init()
   random_level_sys.gen_rectangle_gamearea( kMapSize, player_start_area, "HOLYWELL.interior_wall",
                                            Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
-  m_sys.find<Sys::Store::Type::HolyWellSystem>().spawn_exit( sf::Vector2u{ kMapSize.x / 2, kMapSize.y - 1 } );
-  m_sys.find<Sys::Store::Type::HolyWellSystem>().spawn_well( sf::Vector2u{ ( kMapSize.x / 2 ) - 1, 4 } );
+  m_sys.find<Sys::Store::Type::ShopSystem>().spawn_exit( sf::Vector2u{ kMapSize.x - 1, kMapSize.y / 2 } );
 
-  Factory::FloormapFactory::create_floormap( random_level_sys.get_void_sm(), m_floormap, kMapSize, "res/json/holywell_tilemap_config.json" );
+  Factory::FloormapFactory::create_floormap( random_level_sys.get_void_sm(), m_floormap, kMapSize, "res/json/shop_tilemap_config.json" );
 
   m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
   auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
@@ -63,7 +61,7 @@ void HolyWellScene::on_init()
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
 
-void HolyWellScene::on_enter()
+void ShopScene::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
   m_sound_bank.get_music( "game_music" ).stop();
@@ -81,7 +79,7 @@ void HolyWellScene::on_enter()
   }
 }
 
-void HolyWellScene::on_exit()
+void ShopScene::on_exit()
 {
   SPDLOG_INFO( "Exiting {}", get_name() );
   m_reg.clear();
@@ -90,13 +88,13 @@ void HolyWellScene::on_exit()
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
 
-void HolyWellScene::do_update( [[maybe_unused]] sf::Time dt )
+void ShopScene::do_update( [[maybe_unused]] sf::Time dt )
 {
   m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
   m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
-  m_sys.find<Sys::Store::Type::HolyWellSystem>().check_exit_collision();
+  m_sys.find<Sys::Store::Type::ShopSystem>().check_exit_collision();
 
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
 
@@ -104,6 +102,6 @@ void HolyWellScene::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::OFF, Sys::WeatherMode::OFF );
 }
 
-entt::registry &HolyWellScene::registry() { return m_reg; }
+entt::registry &ShopScene::registry() { return m_reg; }
 
 } // namespace ProceduralMaze::Scene

@@ -35,6 +35,7 @@ public:
   void graveyard_scene_state_handler();
   void crypt_scene_state_handler();
   void holywell_scene_state_handler();
+  void shop_scene_state_handler();
   void ruin_scene_state_handler();
   void paused_scene_state_handler();
   void game_over_scene_state_handler();

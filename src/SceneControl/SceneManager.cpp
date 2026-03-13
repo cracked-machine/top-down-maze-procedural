@@ -16,6 +16,7 @@
 #include <SceneControl/Scenes/RuinSceneLowerFloor.hpp>
 #include <SceneControl/Scenes/RuinSceneUpperFloor.hpp>
 #include <SceneControl/Scenes/SettingsMenuScene.hpp>
+#include <SceneControl/Scenes/ShopScene.hpp>
 #include <SceneControl/Scenes/TitleScene.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -223,6 +224,17 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
     }
     case Events::SceneManagerEvent::Type::EXIT_HOLYWELL: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_HOLYWELL requested" );
+      pop( RegCopyMode::ALL );
+      break;
+    }
+    case Events::SceneManagerEvent::Type::ENTER_SHOP: {
+      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::ENTER_SHOP requested" );
+      auto shop_scene = std::make_unique<ShopScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher, m_sprite_factory );
+      push_no_exit( std::move( shop_scene ), RegCopyMode::ALL );
+      break;
+    }
+    case Events::SceneManagerEvent::Type::EXIT_SHOP: {
+      SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::EXIT_SHOP requested" );
       pop( RegCopyMode::ALL );
       break;
     }

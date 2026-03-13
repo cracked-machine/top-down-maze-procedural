@@ -1,8 +1,5 @@
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
-#include <Systems/HolyWellSystem.hpp>
-#include <Systems/SystemStore.hpp>
-
 #include <SceneControl/SceneInputRouter.hpp>
 #include <Systems/AltarSystem.hpp>
 #include <Systems/AnimSystem.hpp>
@@ -21,6 +18,8 @@
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
+#include <Systems/ShopSystem.hpp>
+#include <Systems/SystemStore.hpp>
 #include <Systems/Threats/BombSystem.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
@@ -57,6 +56,7 @@ Store::Store( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, 
     m_sysmap.emplace( Type::RenderOverlaySystem, std::make_unique<RenderOverlaySystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::SceneInputRouter, std::make_unique<SceneInputRouter>( m_initial_reg, window, sprite_factory, sound_bank, nav_event_dispatcher, scenemanager_event_dispatcher ) );
     m_sysmap.emplace( Type::ShockwaveSystem, std::make_unique<ShockwaveSystem>( m_initial_reg, window, sprite_factory, sound_bank) );
+    m_sysmap.emplace( Type::ShopSystem, std::make_unique<ShopSystem>(  m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
     m_sysmap.emplace( Type::SinkHoleHazardSystem, std::make_unique<SinkHoleHazardSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::WormholeSystem, std::make_unique<WormholeSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
   // clang-format on

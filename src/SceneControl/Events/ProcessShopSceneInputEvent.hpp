@@ -1,0 +1,13 @@
+#ifndef _SRC_SCENECONTROL_EVENTS_PROCESSSHOPSCENEINPUTEVENT_HPP_
+#define _SRC_SCENECONTROL_EVENTS_PROCESSSHOPSCENEINPUTEVENT_HPP_
+
+namespace ProceduralMaze::Events
+{
+
+struct ProcessShopSceneInputEvent
+{
+};
+
+} // namespace ProceduralMaze::Events
+
+#endif // _SRC_SCENECONTROL_EVENTS_PROCESSSHOPSCENEINPUTEVENT_HPP_

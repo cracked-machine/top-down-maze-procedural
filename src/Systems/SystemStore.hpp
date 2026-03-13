@@ -43,6 +43,7 @@ class RenderOverlaySystem;
 class SceneInputRouter;
 class SinkHoleHazardSystem;
 class ShockwaveSystem;
+class ShopSystem;
 class WormholeSystem;
 
 class Store
@@ -72,6 +73,7 @@ public:
     RenderOverlaySystem,
     SceneInputRouter,
     ShockwaveSystem,
+    ShopSystem,
     SinkHoleHazardSystem,
     WormholeSystem,
   };
@@ -131,6 +133,7 @@ template<> struct Store::SystemTraits<Store::Type::RenderOverlaySystem>    { usi
 template<> struct Store::SystemTraits<Store::Type::RenderMenuSystem>       { using type = RenderMenuSystem; };
 template<> struct Store::SystemTraits<Store::Type::SceneInputRouter>       { using type = SceneInputRouter; };
 template<> struct Store::SystemTraits<Store::Type::ShockwaveSystem>        { using type = ShockwaveSystem; };
+template<> struct Store::SystemTraits<Store::Type::ShopSystem>             { using type = ShopSystem; };
 template<> struct Store::SystemTraits<Store::Type::SinkHoleHazardSystem>   { using type = SinkHoleHazardSystem; };
 template<> struct Store::SystemTraits<Store::Type::WormholeSystem>         { using type = WormholeSystem; };
 // clang-format on

@@ -28,6 +28,7 @@
 #include <SceneControl/Events/ProcessRuinSceneLowerInputEvent.hpp>
 #include <SceneControl/Events/ProcessRuinSceneUpperInputEvent.hpp>
 #include <SceneControl/Events/ProcessSettingsMenuSceneInputEvent.hpp>
+#include <SceneControl/Events/ProcessShopSceneInputEvent.hpp>
 #include <SceneControl/Events/ProcessTitleSceneInputEvent.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/SceneInputRouter.hpp>
@@ -59,6 +60,7 @@ SceneInputRouter::SceneInputRouter( entt::registry &reg, sf::RenderWindow &m_win
   m_nav_event_dispatcher.sink<Events::ProcessHolyWellSceneInputEvent>().connect<&SceneInputRouter::holywell_scene_state_handler>( this );
   m_nav_event_dispatcher.sink<Events::ProcessRuinSceneLowerInputEvent>().connect<&SceneInputRouter::ruin_scene_state_handler>( this );
   m_nav_event_dispatcher.sink<Events::ProcessRuinSceneUpperInputEvent>().connect<&SceneInputRouter::ruin_scene_state_handler>( this );
+  m_nav_event_dispatcher.sink<Events::ProcessShopSceneInputEvent>().connect<&SceneInputRouter::shop_scene_state_handler>( this );
   // clang-format on
 }
 
@@ -164,6 +166,17 @@ void SceneInputRouter::graveyard_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F7 )
       {
         m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER ) );
+        // remember the player position
+        Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
+        // drop any inventory
+        auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
+        auto dropped_entt = Factory::drop_inventory_slot_into_world(
+            getReg(), Utils::Player::get_position( getReg() ), m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
+        if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F8 )
+      {
+        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_SHOP ) );
         // remember the player position
         Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
         // drop any inventory
@@ -366,6 +379,107 @@ void SceneInputRouter::crypt_scene_state_handler()
 }
 
 void SceneInputRouter::holywell_scene_state_handler()
+{
+
+  using namespace sf::Keyboard;
+  while ( const std::optional event = m_window.pollEvent() )
+  {
+    ImGui::SFML::ProcessEvent( m_window, *event );
+    if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
+    else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
+    {
+      sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
+      m_window.setView( sf::View( visibleArea ) );
+    }
+    else if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
+    {
+      if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 )
+      {
+        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
+        {
+          _sys.dark_mode_enabled = not _sys.dark_mode_enabled;
+          SPDLOG_INFO( "Dark mode is now {}", _sys.dark_mode_enabled ? "ENABLED" : "DISABLED" );
+        }
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
+      {
+        get_systems_event_queue().enqueue(
+            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::Player::get_position( getReg() ) ) );
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
+      {
+        for ( auto [pc_entity, pc_cmp, pc_blast_radius] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerBlastRadius>().each() )
+        {
+          pc_blast_radius.value = std::clamp( pc_blast_radius.value + 1, 0, 3 );
+          SPDLOG_INFO( "Player gained blast radius (player cheated)" );
+        }
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
+      {
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
+        {
+          pc_health_cmp.health = std::clamp( pc_health_cmp.health + 10, 0, 100 );
+          SPDLOG_INFO( "Player gained health (player cheated)" );
+        }
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::NumpadDecimal )
+      {
+        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
+        {
+          pc_health_cmp.health = std::clamp( pc_health_cmp.health - 10, 0, 100 );
+          SPDLOG_INFO( "Player lost health (player cheated)" );
+        }
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad5 )
+      {
+        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerCadaverCount>().each() )
+        {
+          pc_cadaver_count_cmp.increment_count( 1 );
+          SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
+        }
+      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
+      {
+        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::QUIT_GAME ) );
+      }
+    }
+    else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
+    {
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
+      {
+        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::PAUSE_GAME ) );
+      }
+    }
+  }
+
+  // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
+  auto player_direction_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
+  for ( auto [entity, player, direction] : player_direction_view.each() )
+  {
+    direction.x = 0;
+    direction.y = 0;
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) ) { direction.y = -1; } // move player up
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) ) { direction.x = -1; } // move player left
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; }  // move player right
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; }  // move player down
+  }
+
+  if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
+  {
+    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
+    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_CARRYITEM ) );
+  }
+  if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
+  {
+    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ATTACK ) );
+  }
+}
+
+void SceneInputRouter::shop_scene_state_handler()
 {
 
   using namespace sf::Keyboard;
