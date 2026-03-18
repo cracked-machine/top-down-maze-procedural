@@ -12,7 +12,6 @@
 // clang-format off
 namespace ProceduralMaze::Sys { class Store; }
 namespace ProceduralMaze::Audio { class SoundBank; }
-
 // clang-format on
 
 namespace ProceduralMaze::Scene
@@ -21,13 +20,6 @@ namespace ProceduralMaze::Scene
 class GraveyardScene : public Scene<Events::ProcessGraveyardSceneInputEvent>
 {
 public:
-  //! @brief The size of the graveyard map grid in number of squares
-  inline static constexpr sf::Vector2u kMapSize{ 100u, 124u };
-
-  //! @brief The size of the graveyard map grid in number of squares as floats
-  inline static constexpr sf::Vector2f kMapSizeF{ static_cast<float>( GraveyardScene::kMapSize.x * Constants::kGridSizePx.x ),
-                                                  static_cast<float>( GraveyardScene::kMapSize.y *Constants::kGridSizePx.y ) };
-
   GraveyardScene( Audio::SoundBank &sound_bank, Sys::Store &system_store, entt::dispatcher &nav_event_dispatcher,
                   Sprites::SpriteFactory &sprite_Factory )
       : Scene( nav_event_dispatcher ),
@@ -45,7 +37,7 @@ public:
   entt::registry &registry() override;
 
 protected:
-  void do_update( [[maybe_unused]] sf::Time dt ) override;
+  void do_update( sf::Time dt ) override;
 
 private:
   Audio::SoundBank &m_sound_bank;
@@ -53,9 +45,6 @@ private:
   Sprites::SpriteFactory &m_sprite_factory;
 
   Sprites::Containers::TileMap m_floormap{};
-
-  inline static constexpr sf::Vector2f m_player_start_position = sf::Vector2f( GraveyardScene::kMapSizeF.x / 2.f, GraveyardScene::kMapSizeF.y / 2.f );
-
   sf::Clock m_scene_exit_cooldown{};
   sf::Time m_scene_exit_cooldown_time{ sf::seconds( 2 ) };
 

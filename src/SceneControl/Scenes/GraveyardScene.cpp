@@ -47,32 +47,39 @@ void GraveyardScene::on_init()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
+  m_scene_config = std::make_shared<SceneConfig>();
+  m_scene_config->load( "res/json/graveyard_scene_config.json" );
+  SPDLOG_INFO( "SceneConfig: {}", m_scene_config->get_texture_path().string() );
+
   auto &render_game_system = m_sys.find<Sys::Store::Type::RenderGameSystem>();
   SPDLOG_INFO( "Got render_game_system at {}", static_cast<void *>( &render_game_system ) );
   render_game_system.init_shaders();
 
-  auto entity = m_reg.create();
-  m_reg.emplace<Cmp::System>( entity );
+  auto sys_cmp_entt = m_reg.create();
+  m_reg.emplace<Cmp::System>( sys_cmp_entt );
 
-  Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_start_position );
-  auto player_start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
-  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSizePxF, 5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
+  auto [_, player_start_pos_px] = m_scene_config->get_player_start_position();
+  Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
+  auto player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
+  auto player_start_area = Cmp::RectBounds( player_start_position, Constants::kGridSizePxF, 5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
   Factory::create_player( m_reg );
+
+  auto [map_size_grid, map_size_pixel] = m_scene_config->get_map_size();
 
   // create the level contents
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   SPDLOG_INFO( "LEVELGENSPATIALMAP: {}", random_level_sys.get_obstacle_sm().size() );
   random_level_sys.reset();
-  random_level_sys.gen_circular_gamearea( kMapSize, player_start_area );
+  random_level_sys.gen_circular_gamearea( map_size_grid, player_start_area );
 
   // Add rescue pickaxes at the polar coords of the game area
   // clang-format off
   std::vector<Cmp::Position> pickaxe_pos_cmp_list = { 
-    { { kMapSizeF.x / 2, Constants::kGridSizePxF.y * 15.f }, Constants::kGridSizePxF },                       // north
-    { { kMapSizeF.x - (Constants::kGridSizePxF.x * 5.f), kMapSizeF.y / 2.f }, Constants::kGridSizePxF },      // east
-    { { kMapSizeF.x / 2.f, kMapSizeF.y - (Constants::kGridSizePxF.y * 15.f) }, Constants::kGridSizePxF },     // south
-    { { Constants::kGridSizePxF.x * 5.f, kMapSizeF.y / 2.f }, Constants::kGridSizePxF }                       // west
+    { { map_size_pixel.x / 2, Constants::kGridSizePxF.y * 15.f }, Constants::kGridSizePxF },                            // north
+    { { map_size_pixel.x - (Constants::kGridSizePxF.x * 5.f), map_size_pixel.y / 2.f }, Constants::kGridSizePxF },      // east
+    { { map_size_pixel.x / 2.f, map_size_pixel.y - (Constants::kGridSizePxF.y * 15.f) }, Constants::kGridSizePxF },     // south
+    { { Constants::kGridSizePxF.x * 5.f, map_size_pixel.y / 2.f }, Constants::kGridSizePxF }                            // west
   };
   // clang-format on
   for ( auto pos_cmp : pickaxe_pos_cmp_list )
@@ -86,9 +93,9 @@ void GraveyardScene::on_init()
   }
 
   random_level_sys.gen_graveyard_exterior_multiblocks();
-  Factory::gen_loot_containers( m_reg, m_sprite_factory, kMapSize );
-  Factory::gen_npc_containers( m_reg, m_sprite_factory, kMapSize );
-  Factory::gen_random_plants( m_reg, m_sprite_factory, kMapSize );
+  Factory::gen_loot_containers( m_reg, m_sprite_factory, map_size_grid );
+  Factory::gen_npc_containers( m_reg, m_sprite_factory, map_size_grid );
+  Factory::gen_random_plants( m_reg, m_sprite_factory, map_size_grid );
 
   random_level_sys.gen_graveyard_exterior_obstacles();
   SPDLOG_INFO( "LEVELGENSPATIALMAP: {}", random_level_sys.get_obstacle_sm().size() );
@@ -99,16 +106,14 @@ void GraveyardScene::on_init()
 
   // create a navmesh for pathfinding in the scene
   m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
-  for ( auto entity : view )
+  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> ).each() )
   {
-    const auto &pos = view.get<Cmp::Position>( entity );
-    m_pathfinding_navmesh->insert( entity, pos );
+    m_pathfinding_navmesh->insert( pos_entt, pos_cmp );
   }
   reinit_navmesh();
 
   // create floor background
-  Factory::FloormapFactory::create_floormap( random_level_sys.get_void_sm(), m_floormap, kMapSize, "res/json/graveyard_tilemap_config.json" );
+  m_floormap.create( random_level_sys.get_void_sm(), m_scene_config );
 
   m_sys.find<Sys::Store::Type::ExitSystem>().spawn_exit();
 
@@ -119,15 +124,15 @@ void GraveyardScene::on_init()
   m_sys.find<Sys::Store::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
 #ifndef NDEBUG
-  Cmp::Position shovel_pos_cmp( m_player_start_position + sf::Vector2f{ 32.f, 32.f }, Constants::kGridSizePxF );
+  Cmp::Position shovel_pos_cmp( player_start_position + sf::Vector2f{ 32.f, 32.f }, Constants::kGridSizePxF );
   Factory::create_carry_item( m_reg, shovel_pos_cmp, "CARRYITEM.shovel" );
-  Cmp::Position axe_pos_cmp( m_player_start_position + sf::Vector2f{ 32.f, -32.f }, Constants::kGridSizePxF );
+  Cmp::Position axe_pos_cmp( player_start_position + sf::Vector2f{ 32.f, -32.f }, Constants::kGridSizePxF );
   Factory::create_carry_item( m_reg, axe_pos_cmp, "CARRYITEM.axe" );
-  Cmp::Position scryingball_pos_cmp( m_player_start_position + sf::Vector2f{ -32.f, 32.f }, Constants::kGridSizePxF );
+  Cmp::Position scryingball_pos_cmp( player_start_position + sf::Vector2f{ -32.f, 32.f }, Constants::kGridSizePxF );
   Factory::create_carry_item( m_reg, scryingball_pos_cmp, "CARRYITEM.scryingball" );
-  Cmp::Position cryptkey_pos_cmp( m_player_start_position + sf::Vector2f{ -32.f, -32.f }, Constants::kGridSizePxF );
+  Cmp::Position cryptkey_pos_cmp( player_start_position + sf::Vector2f{ -32.f, -32.f }, Constants::kGridSizePxF );
   Factory::create_carry_item( m_reg, cryptkey_pos_cmp, "CARRYITEM.cryptkey" );
-  Cmp::Position exitkey_pos_cmp( m_player_start_position + sf::Vector2f{ -32.f, -16.f }, Constants::kGridSizePxF );
+  Cmp::Position exitkey_pos_cmp( player_start_position + sf::Vector2f{ -32.f, -16.f }, Constants::kGridSizePxF );
   Factory::create_carry_item( m_reg, exitkey_pos_cmp, "CARRYITEM.exitkey" );
 #endif
 }
@@ -155,7 +160,7 @@ void GraveyardScene::on_enter()
   auto &player_pos = Utils::Player::get_position( m_reg );
   auto player_last_graveyard_pos = Utils::Player::get_last_graveyard_pos( m_reg );
   if ( player_last_graveyard_pos ) { player_pos.position = player_last_graveyard_pos->position; }
-  else { player_pos.position = m_player_start_position; }
+  else { player_pos.position = sf::Vector2f( Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg ) ); }
   SPDLOG_INFO( "Player entered graveyard at position ({}, {})", player_pos.position.x, player_pos.position.y );
 
   m_scene_exit_cooldown.restart();
@@ -176,7 +181,7 @@ void GraveyardScene::on_exit()
   m_sound_bank.get_music( "game_music" ).stop();
 }
 
-void GraveyardScene::do_update( [[maybe_unused]] sf::Time dt )
+void GraveyardScene::do_update( sf::Time dt )
 {
   m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
   m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().update();

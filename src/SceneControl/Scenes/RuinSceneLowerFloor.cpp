@@ -46,59 +46,66 @@ void RuinSceneLowerFloor::on_init()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  auto entity = m_reg.create();
-  m_reg.emplace<Cmp::System>( entity );
+  m_scene_config = std::make_shared<SceneConfig>();
+  m_scene_config->load( "res/json/ruin_lower_scene_config.json" );
 
-  Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_door_position );
-  sf::Vector2f player_start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
-  auto player_start_area = Cmp::RectBounds( player_start_pos, gridsize, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
+  auto sys_cmp_entt = m_reg.create();
+  m_reg.emplace<Cmp::System>( sys_cmp_entt );
+
+  // initialise the persistent player start position from the scene configuration (json) data
+  auto [_, player_start_pos_px] = m_scene_config->get_player_start_position();
+  Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
+
+  auto [map_size_grid, map_size_pixel] = m_scene_config->get_map_size();
+
+  // generate the empty game area
+  sf::Vector2f player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
+  auto player_start_area = Cmp::RectBounds( player_start_position, gridsize, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
+  auto &random_level_sys = m_sys.find<SystemStoreType::RandomLevelGenerator>();
+  random_level_sys.reset();
+  random_level_sys.gen_rectangle_gamearea( map_size_grid, player_start_area, "RUIN.interior_wall",
+                                           Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
+
+  // pass config exit position to exit spawner
+  auto [exit_pos_grid, exit_pos_pixel] = m_scene_config->get_exit_position();
+  m_sys.find<SystemStoreType::HolyWellSystem>().spawn_exit( exit_pos_grid );
 
   // select the objective type that will be spawned in the RuinSceneUpperFloor scene
   auto selected_objective_ms_type = m_sprite_factory.get_random_type( { "CARRYITEM.witchesjar" } );
   auto ruin_objective_entt = m_reg.create();
   m_reg.emplace_or_replace<Cmp::RuinObjectiveType>( ruin_objective_entt, selected_objective_ms_type );
 
-  // generate the scene boundaries
-  auto &random_level_sys = m_sys.find<SystemStoreType::RandomLevelGenerator>();
-  random_level_sys.reset();
-  random_level_sys.gen_rectangle_gamearea( kMapSize, player_start_area, "RUIN.interior_wall", Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
-
-  // pass concrete spawn position to exit spawner
-  m_sys.find<SystemStoreType::HolyWellSystem>().spawn_exit( sf::Vector2u{ kMapSize.x / 3, kMapSize.y - 1 } );
-
   // spawn access hitbox just above horizontal centerpoint
-  sf::Vector2f flooraccess_position( kMapSizeF.x - ( 3 * gridsize.x ), 2 * gridsize.y );
+  sf::Vector2f flooraccess_position( map_size_pixel.x - ( 3 * gridsize.x ), 2 * gridsize.y );
   sf::Vector2f flooraccess_size( ( 2 * gridsize.x ), gridsize.y );
   m_sys.find<SystemStoreType::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size, Cmp::RuinFloorAccess::Direction::TO_UPPER );
 
   // add the straircase sprite for lower floor
   const Sprites::MultiSprite &stairs_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.interior_staircase_going_up" );
-  sf::Vector2f stairs_position( kMapSizeF.x - ( 4 * gridsize.x ), gridsize.y );
+  sf::Vector2f stairs_position( map_size_pixel.x - ( 4 * gridsize.x ), gridsize.y );
   m_sys.find<SystemStoreType::RuinSystem>().add_stairs<Cmp::RuinStairsLowerMultiBlock>( stairs_position, stairs_ms );
 
   // Make sure bookcaseses cant block access to the staircase
-  Factory::add_reservedposition( m_reg, { kMapSizeF.x - ( 5 * gridsize.x ), kMapSizeF.y - ( 2 * gridsize.x ) } );
-  Factory::add_reservedposition( m_reg, { kMapSizeF.x - ( 5 * gridsize.x ), kMapSizeF.y - ( 3 * gridsize.x ) } );
+  Factory::add_reservedposition( m_reg, { map_size_pixel.x - ( 5 * gridsize.x ), map_size_pixel.y - ( 2 * gridsize.x ) } );
+  Factory::add_reservedposition( m_reg, { map_size_pixel.x - ( 5 * gridsize.x ), map_size_pixel.y - ( 3 * gridsize.x ) } );
 
-  Factory::FloormapFactory::create_floormap( random_level_sys.get_void_sm(), m_floormap, kMapSize, "res/json/ruin_lower_tilemap_config.json" );
+  m_floormap.create( random_level_sys.get_void_sm(), m_scene_config );
 
   sf::Vector2f bc_area_position( 0, 0 );
-  sf::Vector2f bc_area_size( kMapSizeF.x - 48, kMapSizeF.y - 16 );
+  sf::Vector2f bc_area_size( map_size_pixel.x - 48, map_size_pixel.y - 16 );
   m_sys.find<SystemStoreType::RuinSystem>().gen_lowerfloor_bookcases( sf::FloatRect( bc_area_position, bc_area_size ) );
 
   sf::Vector2f cobweb_area_position( 0, 0 );
-  sf::Vector2f cobweb_area_size( kMapSizeF.x - 48, kMapSizeF.y - 32 );
+  sf::Vector2f cobweb_area_size( map_size_pixel.x - 48, map_size_pixel.y - 32 );
   m_sys.find<SystemStoreType::RuinSystem>().add_lowerfloor_cobwebs( 200, sf::FloatRect( cobweb_area_position, cobweb_area_size ) );
 
   m_sys.find<Sys::Store::Type::RuinSystem>().reset_player_curse();
 
   // create a navmesh for pathfinding in the scene
   m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
-  for ( auto entity : view )
+  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> ).each() )
   {
-    const auto &pos = view.get<Cmp::Position>( entity );
-    m_pathfinding_navmesh->insert( entity, pos );
+    m_pathfinding_navmesh->insert( pos_entt, pos_cmp );
   }
   m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh );
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
@@ -137,7 +144,7 @@ void RuinSceneLowerFloor::on_enter()
   {
     case EntryMode::FROM_DOOR: {
       SPDLOG_INFO( "Player entering from door" );
-      player_pos.position = Utils::snap_to_grid( m_player_door_position );
+      player_pos.position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
       break;
     }
     case EntryMode::FROM_UPPER_FLOOR: {
@@ -185,8 +192,10 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Store::Type::PlayerSystem>().update( dt, Sys::PlayerSystem::FootStepSfx::NONE );
   m_sys.find<Store::Type::PlayerSystem>().disable_damage_cooldown();
 
-  bool is_player_cursed = m_sys.find<Sys::Store::Type::RuinSystem>().check_activate_player_curse( kMapSizeF );
-  if ( is_player_cursed ) { m_sys.find<Store::Type::RuinSystem>().check_create_witch( m_reg, sf::FloatRect( { 0, 0 }, kMapSizeF ) ); }
+  auto [map_size_grid, map_size_pixel] = m_scene_config->get_map_size();
+
+  bool is_player_cursed = m_sys.find<Sys::Store::Type::RuinSystem>().check_activate_player_curse( map_size_pixel );
+  if ( is_player_cursed ) { m_sys.find<Store::Type::RuinSystem>().check_create_witch( m_reg, sf::FloatRect( { 0, 0 }, map_size_pixel ) ); }
 
   // `check_exit_collision()` may reset the player curse so it must be called after `check_activate_player_curse()`
   // or we incorrectly re-trigger the curse effects before we can leave this function and exit the scene.

@@ -3,6 +3,7 @@
 
 #include <PathFinding/SmartPointers.hpp>
 #include <SceneControl/IScene.hpp>
+#include <SceneControl/SceneConfig.hpp>
 #include <SpatialHashGrid.hpp>
 
 namespace ProceduralMaze::Scene
@@ -39,6 +40,7 @@ public:
 
 protected:
   PathFinding::SpatialHashGridSharedPtr m_pathfinding_navmesh;
+  SceneConfigSharedPtr m_scene_config;
 
 private:
   entt::dispatcher &m_nav_event_dispatcher;

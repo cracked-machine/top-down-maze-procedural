@@ -51,7 +51,6 @@ void create_player( entt::registry &registry )
   auto start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( registry );
   start_pos = Utils::snap_to_grid( start_pos );
   registry.emplace<Cmp::Position>( entity, start_pos, Constants::kGridSizePxF );
-
   auto &blast_radius = Sys::PersistSystem::get<Cmp::Persist::BlastRadius>( registry );
   registry.emplace<Cmp::PlayerCharacter>( entity );
   registry.emplace<Cmp::ReservedPosition>( entity );

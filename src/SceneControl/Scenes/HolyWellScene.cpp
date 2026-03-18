@@ -6,6 +6,7 @@
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
+#include <Player.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/Scenes/HolyWellScene.hpp>
 #include <Systems/AnimSystem.hpp>
@@ -31,29 +32,40 @@ void HolyWellScene::on_init()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  auto entity = m_reg.create();
-  m_reg.emplace<Cmp::System>( entity );
+  m_scene_config = std::make_shared<SceneConfig>();
+  m_scene_config->load( "res/json/holywell_scene_config.json" );
 
-  Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_start_position );
-  sf::Vector2f player_start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
-  auto player_start_area = Cmp::RectBounds( player_start_pos, Constants::kGridSizePxF, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
+  auto sys_cmp_entt = m_reg.create();
+  m_reg.emplace<Cmp::System>( sys_cmp_entt );
 
+  // initialise the persistent player start position from the scene configuration (json) data
+  auto [_, player_start_pos_px] = m_scene_config->get_player_start_position();
+  Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
+
+  auto [map_size_grid, map_size_pixel] = m_scene_config->get_map_size();
+
+  // create the empty game area
+  sf::Vector2f player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
+  auto player_start_area = Cmp::RectBounds( player_start_position, Constants::kGridSizePxF, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_rectangle_gamearea( kMapSize, player_start_area, "HOLYWELL.interior_wall",
+  random_level_sys.gen_rectangle_gamearea( map_size_grid, player_start_area, "HOLYWELL.interior_wall",
                                            Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
-  m_sys.find<Sys::Store::Type::HolyWellSystem>().spawn_exit( sf::Vector2u{ kMapSize.x / 2, kMapSize.y - 1 } );
-  m_sys.find<Sys::Store::Type::HolyWellSystem>().spawn_well( sf::Vector2u{ ( kMapSize.x / 2 ) - 1, 4 } );
+  // add some multiblocks to the game area
+  m_sys.find<Sys::Store::Type::HolyWellSystem>().spawn_well( sf::Vector2u{ ( map_size_grid.x / 2 ) - 1, 4 } );
 
-  Factory::FloormapFactory::create_floormap( random_level_sys.get_void_sm(), m_floormap, kMapSize, "res/json/holywell_tilemap_config.json" );
+  // pass config exit position to exit spawner
+  auto [exit_pos_grid, exit_pos_pixel] = m_scene_config->get_exit_position();
+  m_sys.find<Sys::Store::Type::HolyWellSystem>().spawn_exit( exit_pos_grid );
 
+  m_floormap.create( random_level_sys.get_void_sm(), m_scene_config );
+
+  // create a navmesh for pathfinding in the scene
   m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
-  for ( auto entity : view )
+  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> ).each() )
   {
-    const auto &pos = view.get<Cmp::Position>( entity );
-    m_pathfinding_navmesh->insert( entity, pos );
+    m_pathfinding_navmesh->insert( pos_entt, pos_cmp );
   }
   m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh );
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
@@ -74,11 +86,8 @@ void HolyWellScene::on_enter()
 
   m_sys.find<Sys::Store::Type::RenderGameSystem>().init_views();
 
-  auto player_view = m_reg.view<Cmp::PlayerCharacter, Cmp::Position>();
-  for ( auto [player_entity, pc_cmp, pos_cmp] : player_view.each() )
-  {
-    pos_cmp.position = m_player_start_position;
-  }
+  auto &player_pos = Utils::Player::get_position( m_reg );
+  player_pos.position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
 }
 
 void HolyWellScene::on_exit()
@@ -90,7 +99,7 @@ void HolyWellScene::on_exit()
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
 
-void HolyWellScene::do_update( [[maybe_unused]] sf::Time dt )
+void HolyWellScene::do_update( sf::Time dt )
 {
   m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
   m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );

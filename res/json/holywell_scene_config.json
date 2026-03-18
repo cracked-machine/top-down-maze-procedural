@@ -1,0 +1,25 @@
+{
+  "scene_config": {
+    "texture_path": "res/textures/HOLYWELL.interior_floor.png",
+    "tile_size": {
+      "width": 16,
+      "height": 16
+    },
+    "floor_tile_pool": [
+      0,1,2,3
+    ],
+    "random_seed": 0,
+    "map_size": {
+      "width": 15,
+      "height": 15
+    },
+    "player_start_position": {
+      "x": 7,
+      "y": 13
+    },
+    "exit_position": {
+      "x": 7, 
+      "y": 14
+    }
+  }
+}

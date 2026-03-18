@@ -209,7 +209,6 @@ void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size, Cm
       {
         // outside circle
         Cmp::Position new_pos_cmp( new_pos, Constants::kGridSizePxF );
-        SPDLOG_INFO( "Adding Void to SM: {},{}", new_pos.x, new_pos.y );
         auto entt = Factory::create_void_pos( getReg(), new_pos_cmp );
         m_void_sm->insert( entt, new_pos_cmp );
       }

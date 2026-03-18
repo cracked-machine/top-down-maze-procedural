@@ -18,15 +18,15 @@ public:
   {
   }
 
-  //! @brief event handlers for pausing system clocks
-  void onPause() override {}
-  //! @brief event handlers for resuming system clocks
-  void onResume() override {}
-
   void spawn_exit( sf::Vector2u spawn_position );
 
   //! @brief Check for collisions with the exit
   void check_exit_collision();
+
+  //! @brief event handlers for pausing system clocks
+  void onPause() override {}
+  //! @brief event handlers for resuming system clocks
+  void onResume() override {}
 
 private:
   //! @brief Dispatcher reference for scene management events

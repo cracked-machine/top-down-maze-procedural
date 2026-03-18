@@ -5,6 +5,7 @@
 #include <Components/Crypt/CryptRoomStart.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Random.hpp>
+#include <SceneControl/SceneConfig.hpp>
 #include <SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Events/PassageEvent.hpp>
@@ -27,7 +28,11 @@ public:
 
   //! @brief init the weak pointer for the spatial grid
   //! @param pathfinding_navmesh
-  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh ) { m_pathfinding_navmesh = pathfinding_navmesh; }
+  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh, const Scene::SceneConfigSharedPtr &crypt_scene_config )
+  {
+    m_pathfinding_navmesh = pathfinding_navmesh;
+    m_crypt_scene_config = crypt_scene_config;
+  }
 
   void on_passage_event( Events::PassageEvent &event );
 
@@ -144,6 +149,7 @@ private:
   const int kMinPassageRoomsDistanceDelay{ 3 };
 
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
+  Scene::SceneConfigWeakPtr m_crypt_scene_config;
 };
 
 } // namespace ProceduralMaze::Sys

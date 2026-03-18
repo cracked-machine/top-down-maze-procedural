@@ -43,23 +43,31 @@ void RuinSceneUpperFloor::on_init()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  auto entity = m_reg.create();
-  m_reg.emplace<Cmp::System>( entity );
+  m_scene_config = std::make_shared<SceneConfig>();
+  m_scene_config->load( "res/json/ruin_upper_scene_config.json" );
 
-  PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, m_player_start_position );
+  auto sys_cmp_entt = m_reg.create();
+  m_reg.emplace<Cmp::System>( sys_cmp_entt );
+
+  // initialise the persistent player start position from the scene configuration (json) data
+  auto [_, player_start_pos_px] = m_scene_config->get_player_start_position();
+  PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
+
+  auto [map_size_grid, map_size_pixel] = m_scene_config->get_map_size();
+
+  // generate the empty game area
   sf::Vector2f player_start_pos = PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds( player_start_pos, gridsize, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
-
   auto &random_level_sys = m_sys.find<Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_rectangle_gamearea( kMapSize, player_start_area, "RUIN.interior_wall", ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
+  random_level_sys.gen_rectangle_gamearea( map_size_grid, player_start_area, "RUIN.interior_wall", ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
   // add two Cmp::NoPathFinding above the upper staircase landing to enforce perspective
-  Factory::add_nopathfinding( m_reg, { kMapSizeF.x - ( 2 * gridsize.x ), gridsize.x } );
-  Factory::add_nopathfinding( m_reg, { kMapSizeF.x - ( 3 * gridsize.x ), gridsize.x } );
+  Factory::add_nopathfinding( m_reg, { map_size_pixel.x - ( 2 * gridsize.x ), gridsize.x } );
+  Factory::add_nopathfinding( m_reg, { map_size_pixel.x - ( 3 * gridsize.x ), gridsize.x } );
 
   const Sprites::MultiSprite &hexagram_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_hexagram3x3" );
-  sf::Vector2f hexagram_pos( gridsize.x * 2, kMapSizeF.y - hexagram_ms.getSpriteSizePixels().y - ( gridsize.y * 3 ) );
+  sf::Vector2f hexagram_pos( gridsize.x * 2, map_size_pixel.y - hexagram_ms.getSpriteSizePixels().y - ( gridsize.y * 3 ) );
   Factory::add_multiblock_with_segments<Cmp::RuinHexagramMultiBlock, Cmp::RuinHexagramSegment>( m_reg, hexagram_pos, hexagram_ms );
 
   // place the objective that was created when the player entered the RuinSceneLowerFloor scene
@@ -74,31 +82,29 @@ void RuinSceneUpperFloor::on_init()
   }
 
   // spawn access hitbox just below horizontal centerpoint
-  sf::Vector2f flooraccess_position( kMapSizeF.x - ( 3 * gridsize.x ), kMapSizeF.y - ( 3 * gridsize.y ) );
+  sf::Vector2f flooraccess_position( map_size_pixel.x - ( 3 * gridsize.x ), map_size_pixel.y - ( 3 * gridsize.y ) );
   sf::Vector2f flooraccess_size( ( 2 * gridsize.x ), gridsize.y );
   m_sys.find<Store::Type::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size, Cmp::RuinFloorAccess::Direction::TO_LOWER );
 
   // add the straircase sprite for upper floor
   const Sprites::MultiSprite &stairs_upper_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_going_down" );
-  sf::Vector2f stairs_position( kMapSizeF.x - ( 4 * gridsize.x ), ( 2 * gridsize.y ) );
+  sf::Vector2f stairs_position( map_size_pixel.x - ( 4 * gridsize.x ), ( 2 * gridsize.y ) );
   m_sys.find<Store::Type::RuinSystem>().add_stairs<Cmp::RuinStairsUpperMultiBlock>( stairs_position, stairs_upper_ms );
 
   // add the straircase balustrade sprite for upper floor - make sure it is front of player
   const Sprites::MultiSprite &stairs_balustrade_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_upper_balustrade" );
-  sf::Vector2f balustrade_position( kMapSizeF.x - ( 4 * gridsize.x ), ( 2 * gridsize.y ) );
+  sf::Vector2f balustrade_position( map_size_pixel.x - ( 4 * gridsize.x ), ( 2 * gridsize.y ) );
   auto balustrade_zorder = Utils::Player::get_position( m_reg ).position.y + gridsize.y;
   m_sys.find<Store::Type::RuinSystem>().add_stairs<Cmp::RuinStairsBalustradeMultiBlock>( balustrade_position, stairs_balustrade_ms,
                                                                                          balustrade_zorder );
 
-  Factory::FloormapFactory::create_floormap( random_level_sys.get_void_sm(), m_floormap, kMapSize, "res/json/ruin_upper_tilemap_config.json" );
+  m_floormap.create( random_level_sys.get_void_sm(), m_scene_config );
 
   // create a navmesh for pathfinding in the scene
   m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  auto view = m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> );
-  for ( auto entity : view )
+  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> ).each() )
   {
-    const auto &pos = view.get<Cmp::Position>( entity );
-    m_pathfinding_navmesh->insert( entity, pos );
+    m_pathfinding_navmesh->insert( pos_entt, pos_cmp );
   }
   m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh );
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
@@ -129,7 +135,6 @@ void RuinSceneUpperFloor::on_enter()
 
   auto &player_pos = Utils::Player::get_position( m_reg );
   player_pos.position = Utils::snap_to_grid( player_pos.position );
-  SPDLOG_INFO( "Player entered RuinSceneUpperFloor at position ({}, {})", player_pos.position.x, player_pos.position.y );
 
   auto player_entt = Utils::Player::get_entity( m_reg );
   m_reg.emplace_or_replace<Cmp::PlayerRuinLocation>( player_entt, Cmp::PlayerRuinLocation::Floor::UPPER );
@@ -145,7 +150,7 @@ void RuinSceneUpperFloor::on_exit()
   m_reg.clear();
 }
 
-void RuinSceneUpperFloor::do_update( [[maybe_unused]] sf::Time dt )
+void RuinSceneUpperFloor::do_update( sf::Time dt )
 {
   using namespace Sys;
   m_sys.find<Store::Type::AnimSystem>().update( dt );
@@ -158,9 +163,10 @@ void RuinSceneUpperFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Store::Type::PlayerSystem>().update( dt, PlayerSystem::FootStepSfx::NONE );
   m_sys.find<Store::Type::PlayerSystem>().disable_damage_cooldown();
 
-  bool player_curse_active = m_sys.find<Store::Type::RuinSystem>().check_activate_player_curse( kMapSizeF );
+  auto [_, map_size_pixel] = m_scene_config->get_map_size();
+  bool player_curse_active = m_sys.find<Store::Type::RuinSystem>().check_activate_player_curse( map_size_pixel );
 
-  m_sys.find<Store::Type::RuinSystem>().update_shadow_hand_pos( kMapSizeF );
+  m_sys.find<Store::Type::RuinSystem>().update_shadow_hand_pos( map_size_pixel );
   m_sys.find<Store::Type::RuinSystem>().check_player_shadow_hand_collision();
 
   auto &overlay_sys = m_sys.find<Store::Type::RenderOverlaySystem>();

@@ -19,13 +19,6 @@ namespace ProceduralMaze::Scene
 class ShopScene : public Scene<Events::ProcessShopSceneInputEvent>
 {
 public:
-  //! @brief The size of the  map grid in number of squares
-  inline static constexpr sf::Vector2u kMapSize{ 15u, 7u };
-
-  //! @brief The size of the map grid in number of squares as floats
-  inline static constexpr sf::Vector2f kMapSizeF{ static_cast<float>( kMapSize.x * Constants::kGridSizePx.x ),
-                                                  static_cast<float>( kMapSize.y *Constants::kGridSizePx.y ) };
-
   ShopScene( Audio::SoundBank &sound_bank, Sys::Store &system_store, entt::dispatcher &nav_event_dispatcher, Sprites::SpriteFactory &sprite_Factory )
       : Scene( nav_event_dispatcher ),
         m_sound_bank( sound_bank ),
@@ -49,8 +42,6 @@ private:
   Sys::Store &m_sys;
   Sprites::SpriteFactory &m_sprite_Factory;
   Sprites::Containers::TileMap m_floormap{};
-
-  sf::Vector2f m_player_start_position = Utils::snap_to_grid( sf::Vector2f( 2.f * Constants::kGridSizePx.x, Constants::kGridSizePx.y / 2.f ) );
 };
 
 } // namespace ProceduralMaze::Scene
