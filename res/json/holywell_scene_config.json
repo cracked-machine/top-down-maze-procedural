@@ -20,6 +20,12 @@
     "exit_position": {
       "x": 7, 
       "y": 14
-    }
+    },
+    "multiblock_positions": [
+      {
+        "name": "HOLYWELL.interior_well",
+        "position": { "x": 6, "y": 4}
+      }
+    ]    
   }
 }

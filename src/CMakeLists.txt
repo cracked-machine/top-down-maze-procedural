@@ -126,7 +126,7 @@ target_include_directories(${TARGET} SYSTEM PRIVATE
 
 target_compile_options(${TARGET} PRIVATE 
     $<$<COMPILE_LANGUAGE:CXX>:
-        -std=c++23
+        -std=c++2c
         -Werror                         # treat warnings as errors
         -Wpedantic                      # enable all warnings demanded by ISO C++ standard
         -Wall                           # enable all warnings

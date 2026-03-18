@@ -1,4 +1,5 @@
 #include <Player/PlayerCurse.hpp>
+#include <VoidPosition.hpp>
 #ifdef SPDLOG_ACTIVE_LEVEL
 #undef SPDLOG_ACTIVE_LEVEL
 #endif
@@ -113,7 +114,7 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
       // Skip blacklisted components
       if ( source_registry.any_of<Cmp::ReservedPosition, Cmp::Obstacle, Cmp::Armable, Cmp::NpcNoPathFinding, Cmp::FootStepTimer, Cmp::FootStepAlpha,
                                   Cmp::CryptRoomOpen, Cmp::CryptRoomClosed, Cmp::CryptRoomStart, Cmp::CryptRoomEnd, Cmp::CryptPassageBlock,
-                                  Cmp::CryptLever, Cmp::CryptObjectiveMultiBlock>( entity ) )
+                                  Cmp::CryptLever, Cmp::CryptObjectiveMultiBlock, Cmp::VoidPosition>( entity ) )
       {
         skipped_cmp++;
         continue;

@@ -4,6 +4,7 @@
 #include <Components/System.hpp>
 #include <Constants.hpp>
 #include <Factory/FloormapFactory.hpp>
+#include <Factory/MultiblockFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
 #include <Player.hpp>
@@ -53,7 +54,11 @@ void HolyWellScene::on_init()
                                            Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
   // add some multiblocks to the game area
-  m_sys.find<Sys::Store::Type::HolyWellSystem>().spawn_well( sf::Vector2u{ ( map_size_grid.x / 2 ) - 1, 4 } );
+  for ( auto [_, sprite_pos_pixel] : m_scene_config->get_sprite_position( "HOLYWELL.interior_well" ) )
+  {
+    auto &ms = m_sprite_Factory.get_multisprite_by_type( "HOLYWELL.interior_well" );
+    Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( m_reg, sprite_pos_pixel, ms );
+  }
 
   // pass config exit position to exit spawner
   auto [exit_pos_grid, exit_pos_pixel] = m_scene_config->get_exit_position();
@@ -71,7 +76,7 @@ void HolyWellScene::on_init()
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
   m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
 
-  // force the loading screen so that we hide any motion sickness inducing camera pan
+  // Hide the sudden position update/camera pan behind a forced loading screen.
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
 
@@ -95,7 +100,7 @@ void HolyWellScene::on_exit()
   SPDLOG_INFO( "Exiting {}", get_name() );
   m_reg.clear();
 
-  // force the loading screen so that we hide any motion sickness inducing camera pan
+  // Hide the sudden position update/camera pan behind a forced loading screen.
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
 

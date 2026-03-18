@@ -103,7 +103,7 @@ void CryptScene::on_exit()
   SPDLOG_INFO( "Exiting {}", get_name() );
   get_maze_timer().reset();
 
-  // force the loading screen so that we hide any motion sickness inducing camera pan
+  // Hide the sudden position update/camera pan behind a forced loading screen.
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
 

@@ -111,7 +111,7 @@ void RuinSceneLowerFloor::on_init()
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
   m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
 
-  // force the loading screen so that we hide any motion sickness inducing camera pan
+  // Hide the sudden position update/camera pan behind a forced loading screen.
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
 
@@ -174,7 +174,7 @@ void RuinSceneLowerFloor::on_exit()
 
   m_reg.clear();
 
-  // force the loading screen so that we hide any motion sickness inducing camera pan
+  // Hide the sudden position update/camera pan behind a forced loading screen.
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
 

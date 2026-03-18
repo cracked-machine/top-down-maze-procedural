@@ -217,6 +217,20 @@
         }
       }
     },
+    "NPC.dr_knox": {
+      "displayname": "NPC.dr_knox",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/NPC.dr_knox.png",
+        "sprite_indices": [0],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
     "NPCGHOST.walk.south": {
       "displayname": "NPCGHOST.walk.south",
       "weight": 1.0,

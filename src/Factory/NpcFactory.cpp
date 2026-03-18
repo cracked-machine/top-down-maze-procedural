@@ -12,6 +12,7 @@
 #include <Factory/Factory.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
+#include <Npc/NpcFriendly.hpp>
 #include <SpatialHashGrid.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -128,6 +129,16 @@ void create_npc( entt::registry &registry, entt::entity position_entity, const S
     // Remove the npc container component from the original entity
     registry.remove<Cmp::NpcContainer>( position_entity );
     registry.remove<Cmp::ZOrderValue>( position_entity );
+    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
+                 pos_cmp->position.y );
+  }
+  else if ( type == "NPC.dr_knox" )
+  {
+    registry.emplace_or_replace<Cmp::NPC>( new_pos_entity );
+    registry.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, false, "NPC.dr_knox" );
+    registry.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
+    registry.emplace_or_replace<Cmp::NpcFriendly>( new_pos_entity );
+
     SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
                  pos_cmp->position.y );
   }

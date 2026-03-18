@@ -9,8 +9,6 @@ namespace ProceduralMaze::Scene
 class SceneConfig
 {
 public:
-  enum class Translate { GRID, PIXEL };
-
   struct Config
   {
     std::filesystem::path texture_path;
@@ -20,6 +18,8 @@ public:
     sf::Vector2u map_size;
     sf::Vector2u player_start_position;
     sf::Vector2u exit_position;
+    std::multimap<std::string, sf::Vector2u> multiblock_positions;
+    std::multimap<std::string, sf::Vector2u> npc_positions;
   };
 
   void load( const std::filesystem::path &config_path );
@@ -43,6 +43,16 @@ public:
   //!         For example, {50,70} and {800.0,1120.0}
   //! @return std::pair<sf::Vector2u, sf::Vector2f>
   std::pair<sf::Vector2u, sf::Vector2f> get_exit_position() const;
+
+  //! @brief Get a range of multiblock_positions as grid/pixel positions that match the key
+  //! @param key
+  //! @return std::vector<std::pair<sf::Vector2u, sf::Vector2f>>
+  std::vector<std::pair<sf::Vector2u, sf::Vector2f>> get_sprite_position( std::string key );
+
+  //! @brief Get a range of npc_positions as grid/pixel positions that match the key
+  //! @param key
+  //! @return std::vector<std::pair<sf::Vector2u, sf::Vector2f>>
+  std::vector<std::pair<sf::Vector2u, sf::Vector2f>> get_npc_position( std::string key );
 
 private:
   Config m_config;

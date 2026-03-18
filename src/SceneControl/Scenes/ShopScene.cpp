@@ -2,7 +2,10 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/System.hpp>
+#include <Constants.hpp>
 #include <Factory/FloormapFactory.hpp>
+#include <Factory/MultiblockFactory.hpp>
+#include <Factory/NpcFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
 #include <Player.hpp>
@@ -51,8 +54,16 @@ void ShopScene::on_init()
   random_level_sys.gen_rectangle_gamearea( map_size_grid, player_start_area, "HOLYWELL.interior_wall",
                                            Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
-  auto [exit_pos_grid, exit_pos_pixel] = m_scene_config->get_exit_position();
+  auto [exit_pos_grid, _] = m_scene_config->get_exit_position();
   m_sys.find<Sys::Store::Type::ShopSystem>().spawn_exit( exit_pos_grid );
+
+  // add the shopkeeper NPC
+  for ( auto [_, sprite_pos_pixel] : m_scene_config->get_npc_position( "NPC.dr_knox" ) )
+  {
+    auto npc_entt = m_reg.create();
+    m_reg.emplace_or_replace<Cmp::Position>( npc_entt, sprite_pos_pixel, Constants::kGridSizePxF );
+    Factory::create_npc( m_reg, npc_entt, "NPC.dr_knox" );
+  }
 
   m_floormap.create( random_level_sys.get_void_sm(), m_scene_config );
 
@@ -66,7 +77,7 @@ void ShopScene::on_init()
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
   m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
 
-  // force the loading screen so that we hide any motion sickness inducing camera pan
+  // Hide the sudden position update/camera pan behind a forced loading screen.
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
 
@@ -90,7 +101,7 @@ void ShopScene::on_exit()
   SPDLOG_INFO( "Exiting {}", get_name() );
   m_reg.clear();
 
-  // force the loading screen so that we hide any motion sickness inducing camera pan
+  // Hide the sudden position update/camera pan behind a forced loading screen.
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }
 

@@ -49,9 +49,6 @@ public:
   //! @return true if the movement is valid and allowed, false otherwise
   bool is_valid_move( const sf::FloatRect &player_position );
 
-  //! @brief Check if diagonal movement should be blocked due to adjacent obstacles
-  bool isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::Vector2f &diagonal_direction );
-
   //! @brief event handlers for pausing system clocks
   void onPause() override {}
   //! @brief event handlers for resuming system clocks

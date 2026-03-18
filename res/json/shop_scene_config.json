@@ -20,6 +20,22 @@
     "exit_position": {
       "x": 14, 
       "y": 4
-    }
+    },
+    "multiblock_positions": [
+      {
+        "name": "HOLYWELL.interior_well",
+        "position": { "x": 3, "y": 2}
+      },
+      {
+        "name": "HOLYWELL.interior_well",
+        "position": { "x": 9, "y": 3}
+      }
+    ],
+    "npc_positions": [
+      {
+        "name": "NPC.dr_knox",
+        "position": { "x": 7, "y": 2}
+      }
+    ]
   }
 }

@@ -30,6 +30,7 @@
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Grave/GraveSegment.hpp>
+#include <Npc/NpcFriendly.hpp>
 #include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Ruin/RuinSegment.hpp>
@@ -58,7 +59,7 @@ NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::Sp
   SPDLOG_DEBUG( "NpcSystem initialized" );
 }
 
-void NpcSystem::update( [[maybe_unused]] sf::Time dt )
+void NpcSystem::update( sf::Time dt )
 {
 
   // run skelton activation checks at 5Hz
@@ -160,7 +161,7 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
   if ( not pathfinding_navmesh ) return;
 
   auto player_pos_cmp = Utils::Player::get_position( getReg() );
-  auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>();
+  auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>( entt::exclude<Cmp::NpcFriendly> );
   for ( auto [npc_entity, npc_cmp, npc_pos_cmp, anim_cmp] : npc_view.each() )
   {
     if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) ) continue;
@@ -264,36 +265,10 @@ bool NpcSystem::is_valid_move( const sf::FloatRect &target_position )
   return true;
 }
 
-//! @brief Check if diagonal movement should be blocked due to adjacent obstacles
-//! @param current_pos Current position rectangle
-//! @param diagonal_direction The diagonal direction vector (e.g., {1, -1} for up-right)
-//! @return true if diagonal movement is blocked by adjacent obstacles
-bool NpcSystem::isDiagonalBlocked( const sf::FloatRect &current_pos, const sf::Vector2f &diagonal_direction )
-{
-  // Only check for diagonal movements (both x and y components non-zero)
-  if ( diagonal_direction.x == 0.f || diagonal_direction.y == 0.f )
-  {
-    return false; // Not a diagonal move
-  }
-
-  // Create test positions for the two cardinal directions
-  sf::FloatRect horizontal_test = current_pos;
-  horizontal_test.position.x += diagonal_direction.x * Constants::kGridSizePxF.x;
-
-  sf::FloatRect vertical_test = current_pos;
-  vertical_test.position.y += diagonal_direction.y * Constants::kGridSizePxF.y;
-
-  // If EITHER cardinal direction is blocked, block the diagonal
-  bool horizontal_blocked = !is_valid_move( horizontal_test );
-  bool vertical_blocked = !is_valid_move( vertical_test );
-
-  return horizontal_blocked || vertical_blocked;
-}
-
 void NpcSystem::check_player_to_npc_collision()
 {
   auto player_collision_view = getReg().view<Cmp::PlayerCharacter>();
-  auto npc_collision_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::Direction>();
+  auto npc_collision_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::Direction>( entt::exclude<Cmp::NpcFriendly> );
 
   auto &player_dmg_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() );
   auto &player_pos = Utils::Player::get_position( getReg() );
