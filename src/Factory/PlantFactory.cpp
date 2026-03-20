@@ -49,7 +49,7 @@ std::vector<entt::entity> gen_random_plants( entt::registry &reg, Sprites::Sprit
           "CARRYITEM.plant8", "CARRYITEM.plant9", "CARRYITEM.plant10", "CARRYITEM.plant11", "CARRYITEM.plant12" } );
 
     Factory::create_plant_obstacle( reg, random_pos, rand_plant_type, 0.f );
-    SPDLOG_INFO( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
+    SPDLOG_DEBUG( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
     assigned_entts.push_back( random_entity );
   }
   return assigned_entts;

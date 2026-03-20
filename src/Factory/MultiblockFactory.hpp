@@ -43,9 +43,9 @@ void create_multiblock( entt::registry &registry, entt::entity entity, Cmp::Posi
   registry.emplace_or_replace<MULTIBLOCK>( entity, pos.position, large_obst_grid_size.componentWiseMul( Constants::kGridSizePx ) );
   registry.emplace_or_replace<Cmp::ZOrderValue>( entity, pos.position.y );
 
-  auto zorder_cmp = registry.get<Cmp::ZOrderValue>( entity );
+  [[maybe_unused]] auto zorder_cmp = registry.get<Cmp::ZOrderValue>( entity );
   // clang-format off
-  SPDLOG_INFO( "Placed {} at position ({}, {}). Grid size: {}x{} at z-order {}", 
+  SPDLOG_DEBUG( "Placed {} at position ({}, {}). Grid size: {}x{} at z-order {}", 
     ms.get_sprite_type(),
     pos.position.x,
     pos.position.y, 

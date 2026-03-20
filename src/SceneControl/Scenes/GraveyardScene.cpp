@@ -8,6 +8,8 @@
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
+#include <Player/PlayerCharacter.hpp>
+#include <Player/PlayerLevelDepth.hpp>
 #include <ReservedPosition.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <SceneControl/Scenes/GraveyardScene.hpp>
@@ -63,7 +65,14 @@ void GraveyardScene::on_init()
   auto player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds( player_start_position, Constants::kGridSizePxF, 5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
 
-  Factory::create_player( m_reg );
+  auto player_view = m_reg.view<Cmp::PlayerCharacter>();
+  if ( player_view.size() == 0 ) { Factory::create_player( m_reg ); }
+  else
+  {
+    auto &level_depth_cmp = Utils::Player::get_level_depth( m_reg );
+    level_depth_cmp.increment_count( 1 );
+    level_depth_cmp.display_timer.restart();
+  }
 
   auto [map_size_grid, map_size_pixel] = m_scene_config->get_map_size();
 

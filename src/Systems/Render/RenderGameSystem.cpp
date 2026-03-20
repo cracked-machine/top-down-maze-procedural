@@ -323,6 +323,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
     render_overlay_sys.render_cadaver_count_overlay( player_cadaver_count, { 40.f, start_y_pos += 40.f } );
     render_overlay_sys.render_wealth_overlay( player_wealth.wealth, { 40.f, start_y_pos += 40.f } );
     render_overlay_sys.render_inventory_overlay( { 40.f, start_y_pos += 80.f } );
+    render_overlay_sys.render_level_depth();
 
     auto display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
     render_overlay_sys.render_crypt_maze_timer( { static_cast<float>( display_size.x / 2.f ), static_cast<float>( 0 ) }, 100 );
@@ -504,7 +505,6 @@ void RenderGameSystem::render_arrow_compass()
   // if holding a relic then target the nearest inactive altar
   if ( found_carryitem_type.contains( "CARRYITEM.relic" ) )
   {
-    SPDLOG_INFO( "Player is holding a relic" );
     using AltarDistanceQueue = std::priority_queue<std::pair<float, Cmp::Position>, std::vector<std::pair<float, Cmp::Position>>,
                                                    Utils::Maths::DistancePositionComparator>;
     AltarDistanceQueue distance_queue;

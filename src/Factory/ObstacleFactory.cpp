@@ -10,6 +10,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Constants.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <Player/PlayerCharacter.hpp>
 #include <Player/PlayerNoPath.hpp>
 #include <VoidPosition.hpp>
 #include <entt/entity/fwd.hpp>
@@ -35,6 +36,7 @@ void create_obstacle( entt::registry &registry, entt::entity entity, Cmp::Positi
                       std::size_t sprite_tile_idx, float zorder )
 
 {
+  if ( registry.all_of<Cmp::PlayerCharacter>( entity ) ) { return; }
   if ( registry.all_of<Cmp::DestroyedObstacle>( entity ) ) { registry.remove<Cmp::DestroyedObstacle>( entity ); }
   registry.emplace_or_replace<Cmp::Obstacle>( entity );
   registry.emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y + zorder );

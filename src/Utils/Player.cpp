@@ -14,6 +14,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Direction.hpp>
 #include <Player/PlayerCadaverCount.hpp>
+#include <Player/PlayerLevelDepth.hpp>
 #include <SpawnArea.hpp>
 #include <SpriteAnimation.hpp>
 #include <Sprites/SpriteMetaType.hpp>
@@ -86,6 +87,13 @@ Cmp::PlayerLastGraveyardPosition *get_last_graveyard_pos( entt::registry &reg )
 {
   auto player_entt = get_entity( reg );
   return reg.try_get<Cmp::PlayerLastGraveyardPosition>( player_entt );
+}
+
+Cmp::PlayerLevelDepth &get_level_depth( entt::registry &reg )
+{
+  auto player_view = reg.view<Cmp::PlayerLevelDepth>();
+  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerLevelDepth" );
+  return player_view.get<Cmp::PlayerLevelDepth>( get_entity( reg ) );
 }
 
 Cmp::PlayerHealth &get_health( entt::registry &reg )

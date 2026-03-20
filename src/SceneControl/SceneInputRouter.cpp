@@ -147,12 +147,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
             getReg(), Utils::Player::get_position( getReg() ), m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
         if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
       }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F8 )
-      {
-        enqueue( Events::SceneManagerEvent::Type::ENTER_SHOP );
-        // remember the player position
-        Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
-      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F8 ) { enqueue( Events::SceneManagerEvent::Type::ENTER_SHOP ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( getReg() ).value += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( getReg() ).health += 1; }
@@ -413,7 +408,7 @@ void SceneInputRouter::level_complete_scene_state_handler()
     else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::R ) { enqueue( Events::SceneManagerEvent::Type::RETURN_TO_TITLE ); }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::R ) { enqueue( Events::SceneManagerEvent::Type::ENTER_SHOP ); }
     }
   }
 }

@@ -28,6 +28,7 @@
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Player/PlayerCurse.hpp>
+#include <Player/PlayerLevelDepth.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
@@ -65,6 +66,7 @@ void create_player( entt::registry &registry )
   registry.emplace<Cmp::PlayerWealth>( entity, 0 );
   registry.emplace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );
   registry.emplace<Cmp::PlayerCurse>( entity, false );
+  registry.emplace<Cmp::PlayerLevelDepth>( entity, 1 );
 
   registry.emplace<Cmp::ZOrderValue>( entity, start_pos.y ); // z-order based on y-position
   registry.emplace<Cmp::AbsoluteAlpha>( entity, 255 );       // fully opaque

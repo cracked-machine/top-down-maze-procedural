@@ -66,19 +66,29 @@ PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
 
 void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, FootStepSfx footstep_sfx )
 {
-
+  auto player_pos = Utils::Player::get_position( m_reg );
+  SPDLOG_INFO( "1. player_start_pos_px: {},{}", player_pos.position.x, player_pos.position.y );
   // cache the player position so we can update the spatial grid afterwards.
-  auto old_player_pos = Utils::Player::get_position( m_reg );
+  auto old_player_pos = Utils::Player::get_position( getReg() );
 
   // process changes to player position and related transforms
   localTransforms();
+
+  player_pos = Utils::Player::get_position( m_reg );
+  SPDLOG_INFO( "2. player_start_pos_px: {},{}", player_pos.position.x, player_pos.position.y );
 
   if ( not m_post_death_timer.isRunning() )
   {
 
     update_player_position( globalDeltaTime, Utils::getSystemCmp( getReg() ).collisions_disabled );
+    player_pos = Utils::Player::get_position( m_reg );
+    SPDLOG_INFO( "3. player_start_pos_px: {},{}", player_pos.position.x, player_pos.position.y );
     update_player_animation();
+    player_pos = Utils::Player::get_position( m_reg );
+    SPDLOG_INFO( "4. player_start_pos_px: {},{}", player_pos.position.x, player_pos.position.y );
     update_player_zorder();
+    player_pos = Utils::Player::get_position( m_reg );
+    SPDLOG_INFO( "5. player_start_pos_px: {},{}", player_pos.position.x, player_pos.position.y );
 
     // footstep sfx
     auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
@@ -87,6 +97,8 @@ void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, FootStepSf
       if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) ) { stopFootstepsSound(); }
       else { playFootstepsSound( footstep_sfx ); }
     }
+    player_pos = Utils::Player::get_position( m_reg );
+    SPDLOG_INFO( "6. player_start_pos_px: {},{}", player_pos.position.x, player_pos.position.y );
   }
 
   // did player die?
@@ -94,9 +106,11 @@ void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, FootStepSf
 
   if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
   {
-    auto new_player_pos = Utils::Player::get_position( m_reg );
-    pathfinding_navmesh->update( Utils::Player::get_entity( m_reg ), old_player_pos, new_player_pos );
+    auto new_player_pos = Utils::Player::get_position( getReg() );
+    pathfinding_navmesh->update( Utils::Player::get_entity( getReg() ), old_player_pos, new_player_pos );
   }
+  player_pos = Utils::Player::get_position( m_reg );
+  SPDLOG_INFO( "7. player_start_pos_px: {},{}", player_pos.position.x, player_pos.position.y );
 }
 
 void PlayerSystem::localTransforms()

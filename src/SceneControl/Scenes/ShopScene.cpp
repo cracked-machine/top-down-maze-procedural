@@ -49,6 +49,7 @@ void ShopScene::on_init()
   // initialise the persistent player start position from the scene configuration (json) data
   auto [_, player_start_pos_px] = m_scene_config->get_player_start_position();
   Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
+  SPDLOG_INFO( "player_start_pos_px: {},{}", player_start_pos_px.x, player_start_pos_px.y );
 
   auto [map_size_grid, map_size_pixel] = m_scene_config->get_map_size();
 
@@ -100,6 +101,7 @@ void ShopScene::on_enter()
 
   auto &player_pos = Utils::Player::get_position( m_reg );
   player_pos.position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
+  SPDLOG_INFO( "player_start_pos_px: {},{}", player_pos.position.x, player_pos.position.y );
 }
 
 void ShopScene::on_exit()
@@ -123,6 +125,8 @@ void ShopScene::do_update( [[maybe_unused]] sf::Time dt )
     else if ( not m_sys.find<Sys::Store::Type::ShopSystem>().check_shopkeeper_collision( sprite_pos_pixel ) ) { close_overlay(); }
   }
 
+  auto player_pos = Utils::Player::get_position( m_reg );
+  SPDLOG_INFO( "player_start_pos_px: {},{}", player_pos.position.x, player_pos.position.y );
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();

@@ -17,6 +17,7 @@ class ZOrderValue;
 class PlayerCurse;
 class Direction;
 class PlayerCadaverCount;
+class PlayerLevelDepth;
 } // namespace ProceduralMaze::Cmp
 
 namespace ProceduralMaze::Utils::Player
@@ -28,6 +29,7 @@ Cmp::Direction &get_direction( entt::registry &reg );
 Cmp::SpriteAnimation &get_sprite_anim( entt::registry &reg );
 int get_ruin_location( entt::registry &reg ); // Returns enum as int to avoid include
 Cmp::PlayerLastGraveyardPosition *get_last_graveyard_pos( entt::registry &reg );
+Cmp::PlayerLevelDepth &get_level_depth( entt::registry &reg );
 Cmp::PlayerHealth &get_health( entt::registry &reg );
 Cmp::PlayerWealth &get_wealth( entt::registry &reg );
 Cmp::PlayerBlastRadius &get_blast_radius( entt::registry &reg );
