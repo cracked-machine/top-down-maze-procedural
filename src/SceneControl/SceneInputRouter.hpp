@@ -46,7 +46,9 @@ public:
   entt::dispatcher &m_scenemanager_event_dispatcher;
 
 private:
+  //! @brief reset and process new user direction input
   void process_move_keys();
+
   void resize_window( sf::Vector2u size );
   void toggle_collision_detection();
   void toggle_show_pathfinding();

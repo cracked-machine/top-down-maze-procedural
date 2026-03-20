@@ -234,7 +234,7 @@ void RenderOverlaySystem::render_level_depth()
 
   auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
   sf::Text level_txt( m_font, "Nekropolis " + std::to_string( player_level_cmp.get_count() ), 100 );
-  level_txt.setPosition( { display_res.x / 2.f, display_res.y / 2.f } );
+  level_txt.setPosition( { ( display_res.x / 2.f ) - level_txt.getLocalBounds().getCenter().x, display_res.y / 2.f } );
   level_txt.setFillColor( sf::Color::Blue );
   m_window.draw( level_txt );
 }

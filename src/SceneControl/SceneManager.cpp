@@ -313,7 +313,7 @@ void SceneManager::handle_events( const Events::SceneManagerEvent &event )
     case Events::SceneManagerEvent::Type::LEVEL_COMPLETE: {
       SPDLOG_INFO( "SceneManager: Events::SceneManagerEvent::Type::LEVEL_COMPLETE requested" );
       auto level_complete_scene = std::make_unique<LevelCompleteScene>( m_sound_bank, m_system_store, m_nav_event_dispatcher );
-      push_no_exit( std::move( level_complete_scene ), RegCopyMode::ALL );
+      replace( std::move( level_complete_scene ), RegCopyMode::ALL );
       break;
     }
     case Events::SceneManagerEvent::Type::RETURN_TO_TITLE: {

@@ -107,8 +107,8 @@ std::pair<sf::Vector2u, sf::Vector2f> SceneConfig::get_player_start_position() c
   // clang-format off
   return { 
     m_config.player_start_position, 
-    sf::Vector2f{ static_cast<float>( m_config.player_start_position.x * Constants::kGridSizePx.x ),
-                  static_cast<float>( m_config.player_start_position.y * Constants::kGridSizePx.y ) } 
+    sf::Vector2f{ static_cast<float>( m_config.player_start_position.x * static_cast<float>(Constants::kGridSizePx.x) ),
+                  static_cast<float>( m_config.player_start_position.y * static_cast<float>(Constants::kGridSizePx.y) ) } 
   };
   // clang-format on
 }
@@ -118,8 +118,8 @@ std::pair<sf::Vector2u, sf::Vector2f> SceneConfig::get_map_size() const
   // clang-format off
   return { 
     m_config.map_size, 
-    sf::Vector2f{ static_cast<float>( m_config.map_size.x * Constants::kGridSizePx.x ),
-                  static_cast<float>( m_config.map_size.y * Constants::kGridSizePx.y ) } 
+    sf::Vector2f{ static_cast<float>( m_config.map_size.x * static_cast<float>(Constants::kGridSizePx.x) ),
+                  static_cast<float>( m_config.map_size.y * static_cast<float>(Constants::kGridSizePx.y) ) } 
   };
   // clang-format on
 }
@@ -129,8 +129,8 @@ std::pair<sf::Vector2u, sf::Vector2f> SceneConfig::get_exit_position() const
   // clang-format off
   return { 
     m_config.exit_position, 
-    sf::Vector2f{ static_cast<float>( m_config.exit_position.x * Constants::kGridSizePx.x ),
-                  static_cast<float>( m_config.exit_position.y * Constants::kGridSizePx.y ) } 
+    sf::Vector2f{ static_cast<float>( m_config.exit_position.x * static_cast<float>(Constants::kGridSizePx.x) ),
+                  static_cast<float>( m_config.exit_position.y * static_cast<float>(Constants::kGridSizePx.y) ) } 
   };
   // clang-format on
 }
@@ -144,8 +144,8 @@ std::vector<std::pair<sf::Vector2u, sf::Vector2f>> SceneConfig::get_sprite_posit
     // clang-format off
     results.push_back({
         it->second, 
-        sf::Vector2f {  static_cast<float>( it->second.x * Constants::kGridSizePx.x ), 
-                        static_cast<float>( it->second.y * Constants::kGridSizePx.y ) }               
+        sf::Vector2f {  static_cast<float>( it->second.x * static_cast<float>(Constants::kGridSizePx.x) ), 
+                        static_cast<float>( it->second.y * static_cast<float>(Constants::kGridSizePx.y) ) }               
     });
     // clang-format on
   }
@@ -161,8 +161,8 @@ std::vector<std::pair<sf::Vector2u, sf::Vector2f>> SceneConfig::get_npc_position
     // clang-format off
     results.push_back({
         it->second, 
-        sf::Vector2f {  static_cast<float>( it->second.x * Constants::kGridSizePx.x ), 
-                        static_cast<float>( it->second.y * Constants::kGridSizePx.y ) }               
+        sf::Vector2f {  static_cast<float>( it->second.x * static_cast<float>(Constants::kGridSizePx.x) ), 
+                        static_cast<float>( it->second.y * static_cast<float>(Constants::kGridSizePx.y) ) }               
     });
     // clang-format on
   }

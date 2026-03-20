@@ -411,6 +411,9 @@ void SceneInputRouter::level_complete_scene_state_handler()
       if ( keyPressed->scancode == sf::Keyboard::Scancode::R ) { enqueue( Events::SceneManagerEvent::Type::ENTER_SHOP ); }
     }
   }
+  // Even though there is no player movement in this scene, this function implicitly resets the Cmp::Direction.
+  // This prevents bad direction data which can cause the player to wander off unexpectedly
+  process_move_keys();
 }
 
 // PRIVATE
