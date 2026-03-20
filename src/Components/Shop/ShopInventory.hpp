@@ -62,8 +62,7 @@ public:
     m_config.slot_padding = total_padding_remainder / ( m_config.max_items + 1 );
   }
 
-  // std::vector<std::pair<Sprites::SpriteMetaType, uint32_t> get_;
-  std::unordered_map<Sprites::SpriteMetaType, uint32_t> m_slots;
+  std::vector<std::pair<Sprites::SpriteMetaType, uint32_t>> m_slots;
 
   [[maybe_unused]] Config m_config;
 

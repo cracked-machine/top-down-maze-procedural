@@ -5,6 +5,7 @@
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
+#include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/Shop/ShopExit.hpp>
@@ -22,7 +23,6 @@
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 
-#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <stdexcept>
@@ -87,6 +87,7 @@ struct adl_serializer<ProceduralMaze::Cmp::ShopInventory::Config>
     };
 
     get_field( "max_items", c.max_items );
+    if ( c.max_items > 5 ) { throw std::runtime_error( "Property 'inventory_config.max_items' is hard-clamped to 5." ); }
     get_field( "min_price", c.min_price );
     get_field( "max_price", c.max_price );
     get_field( "ui_mainlinesize", c.ui_mainlinesize );
@@ -139,18 +140,25 @@ Cmp::ShopInventory::Config ShopSystem::load_config( const std::filesystem::path 
   return config;
 }
 
+void ShopSystem::add_inventory_item( Cmp::ShopInventory &shop_inventory_cmp )
+{
+  auto carryitem_types = m_sprite_factory.get_all_sprite_types_by_pattern( "CARRYITEM" );
+  Cmp::RandomInt item_picker( 0, carryitem_types.size() - 1 );
+  Cmp::RandomInt price_picker( shop_inventory_cmp.m_config.min_price, shop_inventory_cmp.m_config.max_price );
+  auto item = item_picker.gen();
+  auto price = price_picker.gen();
+  SPDLOG_INFO( "Adding shop item - {} - for {}", carryitem_types.at( item ), price );
+  shop_inventory_cmp.m_slots.push_back( { carryitem_types.at( item ), price } );
+}
+
 void ShopSystem::create_inventory( entt::entity inventory_entt )
 {
   auto inventory_cmp = getReg().try_get<Cmp::ShopInventory>( inventory_entt );
-  auto carryitem_types = m_sprite_factory.get_all_sprite_types_by_pattern( "CARRYITEM" );
-  Cmp::RandomInt item_picker( 0, carryitem_types.size() - 1 );
-  Cmp::RandomInt price_picker( inventory_cmp->m_config.min_price, inventory_cmp->m_config.max_price );
+  if ( not inventory_cmp ) return;
+
   for ( auto _ : std::views::iota( 0, inventory_cmp->m_config.max_items ) )
   {
-    auto item = item_picker.gen();
-    auto price = price_picker.gen();
-    SPDLOG_INFO( "Adding shop item - {} - for {}", carryitem_types.at( item ), price );
-    inventory_cmp->m_slots.insert( { carryitem_types.at( item ), price } );
+    add_inventory_item( *inventory_cmp );
   }
 }
 
@@ -227,6 +235,57 @@ bool ShopSystem::check_shopkeeper_collision( sf::Vector2f shopkeeper_pos )
   auto player_pos = Utils::Player::get_position( getReg() );
   if ( not shopkeeper_hitbox.findIntersection( player_pos ) ) return result;
   return result = true;
+}
+
+void ShopSystem::buy_shop_item( uint8_t item_idx )
+{
+  auto inventory_view = getReg().view<Cmp::ShopInventory>().each();
+  for ( auto [inventory_entt, inventory_cmp] : inventory_view )
+  {
+    if ( not inventory_cmp.is_enabled ) continue;
+    if ( item_idx == 0 ) return;
+
+    // auto && required: std::views::enumerate returns a temporary tuple, auto & cannot bind to it
+    for ( auto &&[i, slot] : std::views::enumerate( inventory_cmp.m_slots ) )
+    {
+      // selections presented to the user are not zero-indexed so temp bump the idx when checking if it matches user selection
+      if ( i + 1 != item_idx ) continue;
+
+      // Found the inventory slot selected by user
+      auto &[item, price] = slot;
+
+      SPDLOG_INFO( "Found slot {}: {} - {}", item_idx, item, price );
+
+      // check if player has enough money
+      auto &player_wealth = Utils::Player::get_wealth( getReg() );
+      if ( player_wealth.wealth < static_cast<int32_t>( price ) ) { break; }
+      player_wealth.wealth -= price;
+
+      // player can only have one inventory slot so drop player inventory slot item first
+      auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
+      auto dropped_entt = Factory::drop_inventory_slot_into_world( getReg(), Utils::Player::get_position( getReg() ),
+                                                                   m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
+      if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
+
+      // add new carryitem into player inventory
+      Factory::add_inventory( getReg(), item );
+
+      // delete item from shop inventory
+      auto &slots = inventory_cmp.m_slots;
+      auto it = std::next( slots.begin(), i );
+      slots.erase( it );
+
+      // replace the shop stock
+      add_inventory_item( inventory_cmp );
+      break;
+    }
+
+    // ensure that the shop is always fully stocked.
+    while ( inventory_cmp.m_slots.size() < static_cast<size_t>( inventory_cmp.m_config.max_items ) )
+    {
+      add_inventory_item( inventory_cmp );
+    }
+  }
 }
 
 } // namespace ProceduralMaze::Sys

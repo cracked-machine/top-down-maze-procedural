@@ -31,7 +31,7 @@
     "inventory_config": {
     "max_items": 3,
     "min_price": 5,
-    "max_price": 100,
+    "max_price": 20,
     "ui_position": { "x": 2, "y": -2 },
     "ui_size": { "x": 11, "y": 4 },
     "ui_fontsize": 30,

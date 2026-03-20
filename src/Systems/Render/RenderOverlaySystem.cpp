@@ -488,38 +488,6 @@ void RenderOverlaySystem::render_lerp_positions()
     lerp_stop_pos_rect.setOutlineColor( sf::Color::Cyan );
     lerp_stop_pos_rect.setOutlineThickness( 1.f );
     m_window.draw( lerp_stop_pos_rect );
-
-    // // clang-format off
-    // auto horizontal_hitbox =
-    //   Cmp::RectBounds( sf::Vector2f{ npc_pos_cmp.position.x + ( dir_cmp.x * 16 ), npc_pos_cmp.position.y },
-    //   Constants::kGridSizePxF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
-
-    // auto vertical_hitbox =
-    //   Cmp::RectBounds( sf::Vector2f{ npc_pos_cmp.position.x, npc_pos_cmp.position.y + ( dir_cmp.y * 16 ) },
-    //   Constants::kGridSizePxF, 0.5f, Cmp::RectBounds::ScaleCardinality::BOTH );
-    // // clang-format on
-
-    // // auto hlerp_hitbox = Cmp::RectBounds( sf::Vector2f{ lerp_pos_cmp.m_target.x - ( dir_cmp.x * 8
-    // // ), lerp_pos_cmp.m_target.y },
-    // //                                      kGridSizePxF, 0.5f,
-    // //                                      Cmp::RectBounds::ScaleCardinality::BOTH );
-    // sf::RectangleShape lerp_diag_pos_hrect( horizontal_hitbox.size() );
-    // lerp_diag_pos_hrect.setPosition( horizontal_hitbox.position() );
-    // lerp_diag_pos_hrect.setFillColor( sf::Color::Transparent );
-    // lerp_diag_pos_hrect.setOutlineColor( sf::Color::Green );
-    // lerp_diag_pos_hrect.setOutlineThickness( 1.f );
-    // m_window.draw( lerp_diag_pos_hrect );
-
-    // // auto vlerp_hitbox = Cmp::RectBounds( sf::Vector2f{ lerp_pos_cmp.m_target.x,
-    // // lerp_pos_cmp.m_target.y - ( dir_cmp.y * 8 ) },
-    // //                                      kGridSizePxF, 0.5f,
-    // //                                      Cmp::RectBounds::ScaleCardinality::BOTH );
-    // sf::RectangleShape lerp_diag_pos_vrect( vertical_hitbox.size() );
-    // lerp_diag_pos_vrect.setPosition( vertical_hitbox.position() );
-    // lerp_diag_pos_vrect.setFillColor( sf::Color::Transparent );
-    // lerp_diag_pos_vrect.setOutlineColor( sf::Color::Green );
-    // lerp_diag_pos_vrect.setOutlineThickness( 1.f );
-    // m_window.draw( lerp_diag_pos_vrect );
   }
 }
 

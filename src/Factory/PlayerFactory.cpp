@@ -31,6 +31,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
+#include <Sprites/SpriteMetaType.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
@@ -68,11 +69,7 @@ void create_player( entt::registry &registry )
   registry.emplace<Cmp::ZOrderValue>( entity, start_pos.y ); // z-order based on y-position
   registry.emplace<Cmp::AbsoluteAlpha>( entity, 255 );       // fully opaque
   registry.emplace<Cmp::AbsoluteRotation>( entity, 0 );
-
-  auto inventory_entity = registry.create();
-  registry.emplace<Cmp::PlayerInventorySlot>( inventory_entity, "CARRYITEM.pickaxe" );
-  registry.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, 100.f );
-  registry.emplace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, true, "CARRYITEM.pickaxe", 0 );
+  add_inventory( registry, "CARRYITEM.pickaxe" );
 }
 
 void add_spawn_area( entt::registry &registry, entt::entity entity, float zorder )
@@ -250,6 +247,21 @@ entt::entity pickup_carry_item( entt::registry &reg, entt::entity carryitem_entt
   reg.destroy( carryitem_entt );
 
   return inventory_entity;
+}
+
+void add_inventory( entt::registry &reg, Sprites::SpriteMetaType item )
+{
+  auto inventory_entity = reg.create();
+  reg.emplace_or_replace<Cmp::PlayerInventorySlot>( inventory_entity, item );
+  if ( item.contains( "axe" ) or item.contains( "shovel" ) ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, 100.f ); }
+  if ( item.contains( "scryingball" ) )
+  {
+    Cmp::ScryingBall sb;
+    sb.target = sb.random_pick( {} );
+    reg.emplace_or_replace<Cmp::ScryingBall>( inventory_entity, sb );
+  }
+  if ( item.contains( "explosive" ) ) { reg.emplace_or_replace<Cmp::Explosive>( inventory_entity, false ); }
+  reg.emplace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, true, item, 0 );
 }
 
 //! @brief Destroy all player inventory slots matching a type. See "CARRYITEM.xxxx" in res/json/sprite_metadata.json

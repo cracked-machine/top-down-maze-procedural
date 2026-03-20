@@ -114,9 +114,7 @@ void ShopScene::on_exit()
 void ShopScene::do_update( [[maybe_unused]] sf::Time dt )
 {
   m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
-  m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
   m_sys.find<Sys::Store::Type::ShopSystem>().check_exit_collision();
 
   for ( auto [_, sprite_pos_pixel] : m_scene_config->get_npc_position( "NPC.dr_knox" ) )

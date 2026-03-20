@@ -12,6 +12,7 @@
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Position.hpp>
 #include <Components/System.hpp>
+#include <Events/BuyShopItemEvent.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Events/LoadSettingsEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
@@ -151,11 +152,6 @@ void SceneInputRouter::graveyard_scene_state_handler()
         enqueue( Events::SceneManagerEvent::Type::ENTER_SHOP );
         // remember the player position
         Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
-        // drop any inventory
-        auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
-        auto dropped_entt = Factory::drop_inventory_slot_into_world(
-            getReg(), Utils::Player::get_position( getReg() ), m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
-        if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( getReg() ).value += 1; }
@@ -309,6 +305,11 @@ void SceneInputRouter::shop_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( getReg() ).wealth += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( getReg() ).increment_count( 1 ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::QUIT_GAME ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Num1 ) { queue_buy_item_event( 1 ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Num2 ) { queue_buy_item_event( 2 ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Num3 ) { queue_buy_item_event( 3 ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Num4 ) { queue_buy_item_event( 4 ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Num5 ) { queue_buy_item_event( 5 ); }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
@@ -505,6 +506,12 @@ void SceneInputRouter::toggle_show_darkmode()
 void SceneInputRouter::queue_suicide_event()
 {
   get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::Player::get_position( getReg() ) ) );
+}
+
+void SceneInputRouter::queue_buy_item_event( uint8_t item_idx )
+{
+  //
+  get_systems_event_queue().enqueue( Events::BuyShopItemEvent( item_idx ) );
 }
 
 void SceneInputRouter::enqueue( Events::SceneManagerEvent::Type ev ) { m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( ev ) ); }

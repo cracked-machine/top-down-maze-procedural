@@ -1,5 +1,3 @@
-#include <Player/PlayerCurse.hpp>
-#include <VoidPosition.hpp>
 #ifdef SPDLOG_ACTIVE_LEVEL
 #undef SPDLOG_ACTIVE_LEVEL
 #endif
@@ -21,12 +19,15 @@
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/Explosive.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Player/PlayerCurse.hpp>
 #include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
@@ -37,6 +38,7 @@
 #include <Components/Ruin/RuinObjectiveType.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>
+#include <Components/VoidPosition.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
 
@@ -228,6 +230,8 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   registry.storage<Cmp::CarryItem>();
   registry.storage<Cmp::InventoryWearLevel>();
   registry.storage<Cmp::ZOrderValue>();
+  registry.storage<Cmp::ScryingBall>();
+  registry.storage<Cmp::Explosive>();
   registry.storage<Cmp::System>();
   registry.storage<Cmp::PlayerLastGraveyardPosition>();
   registry.storage<Cmp::PlayerRuinLocation>();
