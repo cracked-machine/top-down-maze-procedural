@@ -82,7 +82,11 @@ void RenderSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const
       sprite_buffer.setRotation( angle );
       target.draw( sprite_buffer );
     }
-    else { render_fallback_square_to_target( target, pos_cmp, sf::Color::Cyan ); }
+    else
+    {
+      SPDLOG_WARN( "Unable to get idx: {}. {} has sprite count = {}", sprite_index, sprite_type, sprite.get_sprite_count() );
+      render_fallback_square_to_target( target, pos_cmp, sf::Color::Cyan );
+    }
   } catch ( const std::out_of_range &e )
   {
     // SPDLOG_WARN( "Missing sprite '{}' in map, rendering fallback square", sprite_type );

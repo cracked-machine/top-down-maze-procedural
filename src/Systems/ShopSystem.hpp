@@ -2,6 +2,7 @@
 #define SRC_SYSTEMS_SHOPSYSTEM_HPP_
 
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
+#include <Components/Shop/ShopInventory.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -18,10 +19,16 @@ public:
   {
   }
 
+  Cmp::ShopInventory::Config load_config( const std::filesystem::path &config_path );
+  void create_inventory( entt::entity inventory_entt );
+
   void spawn_exit( sf::Vector2u spawn_position );
 
   //! @brief Check for collisions with the exit
   void check_exit_collision();
+
+  //! @brief If player has walked up to shop keeper and triggered shop overlay
+  bool check_shopkeeper_collision( sf::Vector2f shopkeeper_pos );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {}

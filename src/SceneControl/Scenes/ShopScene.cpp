@@ -11,6 +11,7 @@
 #include <Player.hpp>
 #include <SceneControl/Events/ProcessShopSceneInputEvent.hpp>
 #include <SceneControl/Scenes/ShopScene.hpp>
+#include <Shop/ShopInventory.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
@@ -36,6 +37,11 @@ void ShopScene::on_init()
 
   m_scene_config = std::make_shared<SceneConfig>();
   m_scene_config->load( "res/json/shop_scene_config.json" );
+
+  m_inventory_config = m_sys.find<Sys::Store::Type::ShopSystem>().load_config( "res/json/shop_scene_config.json" );
+  auto shop_inventory_entt = m_reg.create();
+  m_reg.emplace_or_replace<Cmp::ShopInventory>( shop_inventory_entt, m_inventory_config );
+  m_sys.find<Sys::Store::Type::ShopSystem>().create_inventory( shop_inventory_entt );
 
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
@@ -113,10 +119,36 @@ void ShopScene::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
   m_sys.find<Sys::Store::Type::ShopSystem>().check_exit_collision();
 
+  for ( auto [_, sprite_pos_pixel] : m_scene_config->get_npc_position( "NPC.dr_knox" ) )
+  {
+    if ( m_sys.find<Sys::Store::Type::ShopSystem>().check_shopkeeper_collision( sprite_pos_pixel ) and not is_overlay_open() ) { open_overlay(); }
+    else if ( not m_sys.find<Sys::Store::Type::ShopSystem>().check_shopkeeper_collision( sprite_pos_pixel ) ) { close_overlay(); }
+  }
+
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
   m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::OFF, Sys::WeatherMode::OFF );
+}
+
+void ShopScene::open_overlay()
+{
+  auto inventory_view = m_reg.view<Cmp::ShopInventory>().each();
+  for ( auto [inventory_entt, inventory_cmp] : inventory_view )
+  {
+    inventory_cmp.is_enabled = true;
+  }
+  m_overlay_open = true;
+}
+
+void ShopScene::close_overlay()
+{
+  auto inventory_view = m_reg.view<Cmp::ShopInventory>().each();
+  for ( auto [inventory_entt, inventory_cmp] : inventory_view )
+  {
+    inventory_cmp.is_enabled = false;
+  }
+  m_overlay_open = false;
 }
 
 entt::registry &ShopScene::registry() { return m_reg; }

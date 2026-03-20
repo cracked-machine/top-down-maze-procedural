@@ -1,4 +1,3 @@
-
 #include <Components/Crypt/CryptPassageBlock.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Hazard/CorruptionCell.hpp>
@@ -15,9 +14,11 @@
 #include <Components/RectBounds.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Constants.hpp>
 #include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
+#include <Shop/ShopInventory.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -222,6 +223,90 @@ void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, s
   waterlvlbar_border.setOutlineColor( sf::Color::Black );
   waterlvlbar_border.setOutlineThickness( 5.f );
   m_window.draw( waterlvlbar_border );
+}
+
+void RenderOverlaySystem::render_shop_inventory_overlay()
+{
+  auto inventory_view = getReg().view<Cmp::ShopInventory>().each();
+  for ( auto [inventory_entt, inventory_cmp] : inventory_view )
+  {
+    if ( not inventory_cmp.is_enabled ) continue;
+
+    auto game_view = m_window.getView();
+
+    auto [_, inventory_ui_pos] = inventory_cmp.m_config.get_position();
+    auto [_, inventory_ui_size] = inventory_cmp.m_config.get_size();
+
+    // Convert world-space positions to screen pixels
+    auto to_screen = [&]( sf::Vector2f world_pos ) -> sf::Vector2f { return sf::Vector2f( m_window.mapCoordsToPixel( world_pos, game_view ) ); };
+
+    // Convert world-space size to screen-space size
+    // (size is relative so we compute it as a delta from origin)
+    sf::Vector2f screen_origin = to_screen( inventory_ui_pos );
+    sf::Vector2f screen_corner = to_screen( inventory_ui_pos + inventory_ui_size );
+    sf::Vector2f screen_size = screen_corner - screen_origin;
+
+    m_window.setView( m_window.getDefaultView() );
+
+    sf::RectangleShape border;
+    border.setSize( screen_size );
+    border.setPosition( screen_origin );
+    border.setFillColor( inventory_cmp.m_config.ui_mainbgcolor );
+    border.setOutlineColor( inventory_cmp.m_config.ui_mainlinecolor );
+    border.setOutlineThickness( inventory_cmp.m_config.ui_mainlinesize );
+    m_window.draw( border );
+
+    auto current_slot_pos = inventory_ui_pos;
+    current_slot_pos.y += Constants::kGridSizePxF.y;
+
+    for ( auto [i, slot] : std::views::enumerate( inventory_cmp.m_slots ) )
+    {
+      auto &[item, price] = slot;
+
+      current_slot_pos.x += inventory_cmp.m_config.slot_padding;
+
+      sf::Vector2f screen_slot_pos = to_screen( current_slot_pos );
+      sf::Vector2f screen_slot_corner = to_screen( current_slot_pos + Constants::kGridSizePxF );
+      sf::Vector2f screen_slot_size = screen_slot_corner - screen_slot_pos;
+      float slot_center_x = screen_slot_pos.x + ( screen_slot_size.x / 2.f );
+
+      sf::Text slot_idx_txt( m_font, std::to_string( i + 1 ), inventory_cmp.m_config.ui_fontsize + 10 );
+      slot_idx_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
+      float idx_txt_x = slot_center_x - ( slot_idx_txt.getLocalBounds().size.x / 2.f );
+      if ( i == 0 ) idx_txt_x -= slot_idx_txt.getLocalBounds().position.x; // Correct offset for narrow glyphs like '1'
+      slot_idx_txt.setPosition( { idx_txt_x, static_cast<float>( screen_slot_pos.y - slot_idx_txt.getCharacterSize() * 1.5 ) } );
+      m_window.draw( slot_idx_txt );
+
+      sf::RectangleShape slot_rect;
+      slot_rect.setSize( screen_slot_size );
+      slot_rect.setPosition( screen_slot_pos );
+      slot_rect.setFillColor( inventory_cmp.m_config.ui_slotbgcolor );
+      slot_rect.setOutlineColor( inventory_cmp.m_config.ui_slotlinecolor );
+      slot_rect.setOutlineThickness( inventory_cmp.m_config.ui_slotlinesize );
+      m_window.draw( slot_rect );
+
+      sf::Text slot_desc_txt( m_font, m_sprite_factory.get_display_name_by_type( item ), inventory_cmp.m_config.ui_fontsize );
+      slot_desc_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
+      float desc_txt_x = slot_center_x - ( slot_desc_txt.getLocalBounds().size.x / 2.f );
+      slot_desc_txt.setPosition( { desc_txt_x, screen_slot_pos.y + screen_slot_size.y } );
+      m_window.draw( slot_desc_txt );
+
+      sf::Text slot_price_txt( m_font, std::to_string( price ), inventory_cmp.m_config.ui_fontsize );
+      slot_price_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
+      float price_txt_x = slot_center_x - ( slot_price_txt.getLocalBounds().size.x / 2.f );
+      slot_price_txt.setPosition( { price_txt_x, screen_slot_pos.y + screen_slot_size.y + slot_price_txt.getCharacterSize() * 2 } );
+      m_window.draw( slot_price_txt );
+
+      // Sprites need world-space view
+      m_window.setView( game_view );
+      RenderSystem::safe_render_sprite( item, { current_slot_pos, Constants::kGridSizePxF }, 0, sf::Vector2f{ 1, 1 } );
+      m_window.setView( m_window.getDefaultView() );
+
+      current_slot_pos.x += Constants::kGridSizePxF.x;
+    }
+
+    m_window.setView( game_view );
+  }
 }
 
 void RenderOverlaySystem::render_player_position_overlay( sf::Vector2f player_pos, sf::Vector2f pos )

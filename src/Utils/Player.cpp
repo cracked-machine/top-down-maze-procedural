@@ -209,14 +209,14 @@ bool is_in_spawn( entt::registry &reg, const Cmp::Position &player_pos_cmp )
   return result;
 }
 
-uint8_t get_cadaver_count( entt::registry &reg )
+Cmp::PlayerCadaverCount &get_cadaver_count( entt::registry &reg )
 {
-  auto result = 0;
-  for ( auto [entity, cadaver_cmp] : reg.view<Cmp::PlayerCadaverCount>().each() )
-  {
-    result = cadaver_cmp.get_count();
-  }
-  return result;
+
+  auto player_view = reg.view<Cmp::PlayerCadaverCount>();
+  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerCadaverCount" );
+  auto &curse = player_view.get<Cmp::PlayerCadaverCount>( get_entity( reg ) );
+  SPDLOG_DEBUG( "Cmp::PlayerCadaverCount == {}", curse.active );
+  return curse;
 }
 
 } // namespace ProceduralMaze::Utils::Player

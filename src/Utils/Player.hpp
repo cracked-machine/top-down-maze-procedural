@@ -16,6 +16,7 @@ class PlayerLastGraveyardPosition;
 class ZOrderValue;
 class PlayerCurse;
 class Direction;
+class PlayerCadaverCount;
 } // namespace ProceduralMaze::Cmp
 
 namespace ProceduralMaze::Utils::Player
@@ -40,7 +41,7 @@ std::pair<entt::entity, Sprites::SpriteMetaType> get_inventory_type( entt::regis
 float get_inventory_wear_level( entt::registry &reg );
 void reduce_inventory_wear_level( entt::registry &reg, float amount );
 bool is_in_spawn( entt::registry &reg, const Cmp::Position &player_pos_cmp );
-uint8_t get_cadaver_count( entt::registry &reg );
+Cmp::PlayerCadaverCount &get_cadaver_count( entt::registry &reg );
 
 } // namespace ProceduralMaze::Utils::Player
 

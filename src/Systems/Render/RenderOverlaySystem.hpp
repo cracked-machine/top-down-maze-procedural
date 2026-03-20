@@ -75,6 +75,7 @@ public:
   void render_wealth_overlay( unsigned int wealth_value, sf::Vector2f pos );
   void render_inventory_overlay( sf::Vector2f pos );
   void render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size );
+  void render_shop_inventory_overlay();
 
   void render_player_position_overlay( sf::Vector2f player_position, sf::Vector2f pos );
   void render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos );

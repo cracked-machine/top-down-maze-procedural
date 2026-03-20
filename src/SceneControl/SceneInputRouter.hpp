@@ -5,6 +5,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Window.hpp>
+#include <SceneControl/Events/SceneManagerEvent.hpp>
 
 #include <Systems/BaseSystem.hpp>
 
@@ -45,10 +46,16 @@ public:
   entt::dispatcher &m_scenemanager_event_dispatcher;
 
 private:
+  void process_move_keys();
+  void resize_window( sf::Vector2u size );
   void toggle_collision_detection();
   void toggle_show_pathfinding();
   void toggle_show_debug();
   void toggle_show_nopath();
+  void toggle_show_darkmode();
+  void queue_suicide_event();
+  void queue_quit_game_event();
+  void enqueue( Events::SceneManagerEvent::Type ev );
 };
 
 } // namespace ProceduralMaze::Sys

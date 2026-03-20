@@ -21,21 +21,27 @@
       "x": 14, 
       "y": 4
     },
-    "multiblock_positions": [
-      {
-        "name": "HOLYWELL.interior_well",
-        "position": { "x": 3, "y": 2}
-      },
-      {
-        "name": "HOLYWELL.interior_well",
-        "position": { "x": 9, "y": 3}
-      }
-    ],
     "npc_positions": [
       {
         "name": "NPC.dr_knox",
         "position": { "x": 7, "y": 2}
       }
     ]
+  },
+    "inventory_config": {
+    "max_items": 3,
+    "min_price": 5,
+    "max_price": 100,
+    "ui_position": { "x": 2, "y": -2 },
+    "ui_size": { "x": 11, "y": 4 },
+    "ui_fontsize": 30,
+    "ui_fontcolor": { "r": 0, "g": 0, "b": 0, "a": 255 },
+    "ui_mainbgcolor": { "r": 64, "g": 64, "b": 64, "a": 255 },
+    "ui_mainlinecolor": { "r": 0, "g": 0, "b": 0, "a": 255 },
+    "ui_mainlinesize": 3,
+    "ui_slotbgcolor": { "r": 64, "g": 64, "b": 64, "a": 64 },
+    "ui_slotlinecolor": { "r": 0, "g": 0, "b": 0, "a": 64 },
+    "ui_slotlinesize": 1
+    
   }
 }

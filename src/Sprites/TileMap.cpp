@@ -85,7 +85,9 @@ void TileMap::create( const PathFinding::SpatialHashGrid &void_sm, const Scene::
   {
     for ( unsigned int h = 0; h < map_size_grid.y; h++ )
     {
-      const unsigned int tile_number = sc->get_floor_tile_pool()[floortile_picker.gen()];
+      auto pick = floortile_picker.gen();
+      SPDLOG_DEBUG( "Chosen tile idx {}", pick );
+      const unsigned int tile_number = sc->get_floor_tile_pool()[pick];
 
       // check if we have anything in the void spatial map for this position
       Cmp::Position lookup_position( { w * Constants::kGridSizePxF.x, h * Constants::kGridSizePxF.y }, Constants::kGridSizePxF );

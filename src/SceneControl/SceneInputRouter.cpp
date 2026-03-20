@@ -19,6 +19,7 @@
 #include <Events/SaveSettingsEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Player/PlayerWealth.hpp>
 #include <SceneControl/Events/ProcessCryptSceneInputEvent.hpp>
 #include <SceneControl/Events/ProcessGameoverSceneInputEvent.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
@@ -71,25 +72,12 @@ void SceneInputRouter::title_scene_input_handler()
   {
     ImGui::SFML::ProcessEvent( m_window, *event );
     if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
-    {
-      sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
-      m_window.setView( sf::View( visibleArea ) );
-    }
+    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::Enter )
-      {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::START_GAME ) );
-      }
-      else if ( keyPressed->scancode == sf::Keyboard::Scancode::Q )
-      {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_GAME ) );
-      }
-      else if ( keyPressed->scancode == sf::Keyboard::Scancode::S )
-      {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::SETTINGS_MENU ) );
-      }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::Enter ) { enqueue( Events::SceneManagerEvent::Type::START_GAME ); }
+      else if ( keyPressed->scancode == sf::Keyboard::Scancode::Q ) { enqueue( Events::SceneManagerEvent::Type::EXIT_GAME ); }
+      else if ( keyPressed->scancode == sf::Keyboard::Scancode::S ) { enqueue( Events::SceneManagerEvent::Type::SETTINGS_MENU ); }
     }
   }
 }
@@ -101,23 +89,11 @@ void SceneInputRouter::settings_scene_state_handler()
   {
     ImGui::SFML::ProcessEvent( m_window, *event );
     if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
-    {
-      sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
-      m_window.setView( sf::View( visibleArea ) );
-    }
+    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape )
-      {
-        using namespace Events;
-        m_scenemanager_event_dispatcher.enqueue( SceneManagerEvent( SceneManagerEvent::Type::EXIT_SETTINGS_MENU ) );
-      }
-      else if ( keyPressed->scancode == sf::Keyboard::Scancode::R )
-      {
-        using namespace Events;
-        get_systems_event_queue().trigger( LoadSettingsEvent() );
-      }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::EXIT_SETTINGS_MENU ); }
+      else if ( keyPressed->scancode == sf::Keyboard::Scancode::R ) { get_systems_event_queue().trigger( Events::LoadSettingsEvent() ); }
     }
   }
 }
@@ -130,11 +106,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
   {
     ImGui::SFML::ProcessEvent( m_window, *event );
     if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
-    {
-      sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
-      m_window.setView( sf::View( visibleArea ) );
-    }
+    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
     else if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
       if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
@@ -143,7 +115,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
       {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_CRYPT ) );
+        enqueue( Events::SceneManagerEvent::Type::ENTER_CRYPT );
         // remember the player position
         Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
         // drop any inventory
@@ -154,7 +126,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F6 )
       {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_HOLYWELL ) );
+        enqueue( Events::SceneManagerEvent::Type::ENTER_HOLYWELL );
         // remember the player position
         Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
         // drop any inventory
@@ -165,7 +137,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F7 )
       {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER ) );
+        enqueue( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER );
         // remember the player position
         Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
         // drop any inventory
@@ -176,7 +148,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F8 )
       {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::ENTER_SHOP ) );
+        enqueue( Events::SceneManagerEvent::Type::ENTER_SHOP );
         // remember the player position
         Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
         // drop any inventory
@@ -185,68 +157,20 @@ void SceneInputRouter::graveyard_scene_state_handler()
             getReg(), Utils::Player::get_position( getReg() ), m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
         if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
       }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
-      {
-        get_systems_event_queue().enqueue(
-            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::Player::get_position( getReg() ) ) );
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_blast_radius] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerBlastRadius>().each() )
-        {
-          pc_blast_radius.value = std::clamp( pc_blast_radius.value + 1, 0, 3 );
-          SPDLOG_INFO( "Player gained blast radius (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
-        {
-          pc_health_cmp.health = std::clamp( pc_health_cmp.health + 10, 0, 100 );
-          SPDLOG_INFO( "Player gained health (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::NumpadDecimal )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
-        {
-          pc_health_cmp.health = std::clamp( pc_health_cmp.health - 10, 0, 100 );
-          SPDLOG_INFO( "Player lost health (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad5 )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerCadaverCount>().each() )
-        {
-          pc_cadaver_count_cmp.increment_count( 1 );
-          SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
-      {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::QUIT_GAME ) );
-      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( getReg() ).value += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( getReg() ).health += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( getReg() ).wealth += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( getReg() ).increment_count( 1 ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::QUIT_GAME ); }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
-      {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::PAUSE_GAME ) );
-      }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { enqueue( Events::SceneManagerEvent::Type::PAUSE_GAME ); }
     }
   }
 
-  // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
-  auto player_direction_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
-  for ( auto [entity, player, direction] : player_direction_view.each() )
-  {
-    direction.x = 0;
-    direction.y = 0;
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) ) { direction.y = -1; } // move player up
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) ) { direction.x = -1; } // move player left
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; }  // move player right
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; }  // move player down
-  }
+  process_move_keys();
 
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::Space ) )
   {
@@ -272,64 +196,20 @@ void SceneInputRouter::crypt_scene_state_handler()
   {
     ImGui::SFML::ProcessEvent( m_window, *event );
     if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
-    {
-      sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
-      m_window.setView( sf::View( visibleArea ) );
-    }
+    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
     else if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
       if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.dark_mode_enabled = not _sys.dark_mode_enabled;
-          SPDLOG_INFO( "Dark mode is now {}", _sys.dark_mode_enabled ? "ENABLED" : "DISABLED" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
-      {
-        // dont set PlayerMortality::State directly, instead update health/death_progress and let
-        // the PlayerSystem logic handle it
-        for ( auto [entity, pc_mort_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerMortality, Cmp::PlayerHealth>().each() )
-        {
-          pc_health_cmp.health = 0;
-          pc_mort_cmp.death_progress = 1.0f;
-          SPDLOG_INFO( "Player committed suicide" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
-        {
-          pc_health_cmp.health = std::clamp( pc_health_cmp.health + 10, 0, 100 );
-          SPDLOG_INFO( "Player gained health (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::NumpadDecimal )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
-        {
-          pc_health_cmp.health = std::clamp( pc_health_cmp.health - 10, 0, 100 );
-          SPDLOG_INFO( "Player lost health (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad5 )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerCadaverCount>().each() )
-        {
-          pc_cadaver_count_cmp.increment_count( 1 );
-          SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
-      {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::EXIT_CRYPT ) );
-      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_show_darkmode(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( getReg() ).value += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( getReg() ).health += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( getReg() ).wealth += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( getReg() ).increment_count( 1 ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::EXIT_CRYPT ); }
       else if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
       {
         get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
@@ -349,24 +229,11 @@ void SceneInputRouter::crypt_scene_state_handler()
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
-      {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::PAUSE_GAME ) );
-      }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { enqueue( Events::SceneManagerEvent::Type::PAUSE_GAME ); }
     }
   }
 
-  // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
-  auto player_direction_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
-  for ( auto [entity, player, direction] : player_direction_view.each() )
-  {
-    direction.x = 0;
-    direction.y = 0;
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) ) { direction.y = -1; } // move player up
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) ) { direction.x = -1; } // move player left
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; }  // move player right
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; }  // move player down
-  }
+  process_move_keys();
 
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
   {
@@ -386,87 +253,28 @@ void SceneInputRouter::holywell_scene_state_handler()
   {
     ImGui::SFML::ProcessEvent( m_window, *event );
     if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
-    {
-      sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
-      m_window.setView( sf::View( visibleArea ) );
-    }
+    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
     else if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
       if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.dark_mode_enabled = not _sys.dark_mode_enabled;
-          SPDLOG_INFO( "Dark mode is now {}", _sys.dark_mode_enabled ? "ENABLED" : "DISABLED" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
-      {
-        get_systems_event_queue().enqueue(
-            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::Player::get_position( getReg() ) ) );
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_blast_radius] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerBlastRadius>().each() )
-        {
-          pc_blast_radius.value = std::clamp( pc_blast_radius.value + 1, 0, 3 );
-          SPDLOG_INFO( "Player gained blast radius (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
-        {
-          pc_health_cmp.health = std::clamp( pc_health_cmp.health + 10, 0, 100 );
-          SPDLOG_INFO( "Player gained health (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::NumpadDecimal )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
-        {
-          pc_health_cmp.health = std::clamp( pc_health_cmp.health - 10, 0, 100 );
-          SPDLOG_INFO( "Player lost health (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad5 )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerCadaverCount>().each() )
-        {
-          pc_cadaver_count_cmp.increment_count( 1 );
-          SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
-      {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::QUIT_GAME ) );
-      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_show_darkmode(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( getReg() ).value += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( getReg() ).health += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( getReg() ).wealth += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( getReg() ).increment_count( 1 ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::QUIT_GAME ); }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
-      {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::PAUSE_GAME ) );
-      }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { enqueue( Events::SceneManagerEvent::Type::PAUSE_GAME ); }
     }
   }
 
-  // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
-  auto player_direction_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
-  for ( auto [entity, player, direction] : player_direction_view.each() )
-  {
-    direction.x = 0;
-    direction.y = 0;
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) ) { direction.y = -1; } // move player up
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) ) { direction.x = -1; } // move player left
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; }  // move player right
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; }  // move player down
-  }
+  process_move_keys();
 
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
   {
@@ -487,87 +295,28 @@ void SceneInputRouter::shop_scene_state_handler()
   {
     ImGui::SFML::ProcessEvent( m_window, *event );
     if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
-    {
-      sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
-      m_window.setView( sf::View( visibleArea ) );
-    }
+    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
     else if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
       if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.dark_mode_enabled = not _sys.dark_mode_enabled;
-          SPDLOG_INFO( "Dark mode is now {}", _sys.dark_mode_enabled ? "ENABLED" : "DISABLED" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
-      {
-        get_systems_event_queue().enqueue(
-            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::Player::get_position( getReg() ) ) );
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_blast_radius] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerBlastRadius>().each() )
-        {
-          pc_blast_radius.value = std::clamp( pc_blast_radius.value + 1, 0, 3 );
-          SPDLOG_INFO( "Player gained blast radius (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
-        {
-          pc_health_cmp.health = std::clamp( pc_health_cmp.health + 10, 0, 100 );
-          SPDLOG_INFO( "Player gained health (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::NumpadDecimal )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
-        {
-          pc_health_cmp.health = std::clamp( pc_health_cmp.health - 10, 0, 100 );
-          SPDLOG_INFO( "Player lost health (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad5 )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerCadaverCount>().each() )
-        {
-          pc_cadaver_count_cmp.increment_count( 1 );
-          SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
-      {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::QUIT_GAME ) );
-      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_show_darkmode(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( getReg() ).value += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( getReg() ).health += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( getReg() ).wealth += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( getReg() ).increment_count( 1 ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::QUIT_GAME ); }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
-      {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::PAUSE_GAME ) );
-      }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { enqueue( Events::SceneManagerEvent::Type::PAUSE_GAME ); }
     }
   }
 
-  // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
-  auto player_direction_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
-  for ( auto [entity, player, direction] : player_direction_view.each() )
-  {
-    direction.x = 0;
-    direction.y = 0;
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) ) { direction.y = -1; } // move player up
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) ) { direction.x = -1; } // move player left
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; }  // move player right
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; }  // move player down
-  }
+  process_move_keys();
 
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
   {
@@ -588,87 +337,28 @@ void SceneInputRouter::ruin_scene_state_handler()
   {
     ImGui::SFML::ProcessEvent( m_window, *event );
     if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
-    {
-      sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
-      m_window.setView( sf::View( visibleArea ) );
-    }
+    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
     else if ( const auto *keyReleased = event->getIf<sf::Event::KeyReleased>() )
     {
       if ( keyReleased->scancode == sf::Keyboard::Scancode::F1 ) { toggle_collision_detection(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 )
-      {
-        for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
-        {
-          _sys.dark_mode_enabled = not _sys.dark_mode_enabled;
-          SPDLOG_INFO( "Dark mode is now {}", _sys.dark_mode_enabled ? "ENABLED" : "DISABLED" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 )
-      {
-        get_systems_event_queue().enqueue(
-            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::Player::get_position( getReg() ) ) );
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_blast_radius] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerBlastRadius>().each() )
-        {
-          pc_blast_radius.value = std::clamp( pc_blast_radius.value + 1, 0, 3 );
-          SPDLOG_INFO( "Player gained blast radius (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
-        {
-          pc_health_cmp.health = std::clamp( pc_health_cmp.health + 10, 0, 100 );
-          SPDLOG_INFO( "Player gained health (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::NumpadDecimal )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_health_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth>().each() )
-        {
-          pc_health_cmp.health = std::clamp( pc_health_cmp.health - 10, 0, 100 );
-          SPDLOG_INFO( "Player lost health (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad5 )
-      {
-        for ( auto [pc_entity, pc_cmp, pc_cadaver_count_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::PlayerCadaverCount>().each() )
-        {
-          pc_cadaver_count_cmp.increment_count( 1 );
-          SPDLOG_INFO( "Player gained a cadaver (player cheated)" );
-        }
-      }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
-      {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::QUIT_GAME ) );
-      }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_show_darkmode(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( getReg() ).value += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( getReg() ).health += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( getReg() ).wealth += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( getReg() ).increment_count( 1 ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::QUIT_GAME ); }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
-      {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::PAUSE_GAME ) );
-      }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { enqueue( Events::SceneManagerEvent::Type::PAUSE_GAME ); }
     }
   }
 
-  // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
-  auto player_direction_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
-  for ( auto [entity, player, direction] : player_direction_view.each() )
-  {
-    direction.x = 0;
-    direction.y = 0;
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) ) { direction.y = -1; } // move player up
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) ) { direction.x = -1; } // move player left
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; }  // move player right
-    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; }  // move player down
-  }
+  process_move_keys();
 
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
   {
@@ -689,17 +379,10 @@ void SceneInputRouter::paused_scene_state_handler()
   {
     ImGui::SFML::ProcessEvent( m_window, *event );
     if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
-    {
-      sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
-      m_window.setView( sf::View( visibleArea ) );
-    }
+    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::P )
-      {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::RESUME_GAME ) );
-      }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::P ) { enqueue( Events::SceneManagerEvent::Type::RESUME_GAME ); }
     }
   }
 }
@@ -711,17 +394,10 @@ void SceneInputRouter::game_over_scene_state_handler()
   {
     ImGui::SFML::ProcessEvent( m_window, *event );
     if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
-    {
-      sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
-      m_window.setView( sf::View( visibleArea ) );
-    }
+    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::R )
-      {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::RETURN_TO_TITLE ) );
-      }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::R ) { enqueue( Events::SceneManagerEvent::Type::RETURN_TO_TITLE ); }
     }
   }
 }
@@ -733,19 +409,35 @@ void SceneInputRouter::level_complete_scene_state_handler()
   {
     ImGui::SFML::ProcessEvent( m_window, *event );
     if ( event->is<sf::Event::Closed>() ) { m_window.close(); }
-    else if ( const auto *resized = event->getIf<sf::Event::Resized>() )
-    {
-      sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( resized->size ) );
-      m_window.setView( sf::View( visibleArea ) );
-    }
+    else if ( const auto *resized = event->getIf<sf::Event::Resized>() ) { resize_window( resized->size ); }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
-      if ( keyPressed->scancode == sf::Keyboard::Scancode::R )
-      {
-        m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( Events::SceneManagerEvent::Type::RETURN_TO_TITLE ) );
-      }
+      if ( keyPressed->scancode == sf::Keyboard::Scancode::R ) { enqueue( Events::SceneManagerEvent::Type::RETURN_TO_TITLE ); }
     }
   }
+}
+
+// PRIVATE
+
+void SceneInputRouter::process_move_keys()
+{
+  // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
+  auto player_direction_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
+  for ( auto [entity, player, direction] : player_direction_view.each() )
+  {
+    direction.x = 0;
+    direction.y = 0;
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::W ) ) { direction.y = -1; } // move player up
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::A ) ) { direction.x = -1; } // move player left
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::D ) ) { direction.x = 1; }  // move player right
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::S ) ) { direction.y = 1; }  // move player down
+  }
+}
+
+void SceneInputRouter::resize_window( sf::Vector2u size )
+{
+  sf::FloatRect visibleArea( { 0.f, 0.f }, sf::Vector2f( size ) );
+  m_window.setView( sf::View( visibleArea ) );
 }
 
 void SceneInputRouter::toggle_collision_detection()
@@ -800,5 +492,21 @@ void SceneInputRouter::toggle_show_nopath()
     }
   }
 }
+
+void SceneInputRouter::toggle_show_darkmode()
+{
+  for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
+  {
+    _sys.dark_mode_enabled = not _sys.dark_mode_enabled;
+    SPDLOG_INFO( "Dark mode is now {}", _sys.dark_mode_enabled ? "ENABLED" : "DISABLED" );
+  }
+}
+
+void SceneInputRouter::queue_suicide_event()
+{
+  get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::Player::get_position( getReg() ) ) );
+}
+
+void SceneInputRouter::enqueue( Events::SceneManagerEvent::Type ev ) { m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( ev ) ); }
 
 } // namespace ProceduralMaze::Sys

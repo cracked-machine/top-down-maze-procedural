@@ -43,6 +43,8 @@ void SceneManager::update( sf::Time dt )
 {
 
   if ( m_scene_stack.empty() ) return;
+
+  // now draw the current scene on top
   m_scene_stack.current().update( dt );
 
   // Now safely consume any deferred events outside of Scene::update()

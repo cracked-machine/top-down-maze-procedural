@@ -2116,6 +2116,22 @@
           "height": 3
         }
       }
+    },
+    "SHOP.overlay": {
+      "displayname": "SHOP.overlay",
+      "weight": 1.0,
+      "multisprite": {
+        "texture_path": "res/textures/SHOP.overlay.png",
+        "sprite_indices": [
+          0
+        ],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
     }
   }
 }

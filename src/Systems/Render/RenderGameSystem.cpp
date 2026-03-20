@@ -28,6 +28,7 @@
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>
+#include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerCurse.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Player/PlayerWealth.hpp>
@@ -162,7 +163,8 @@ void RenderGameSystem::updateCamera( sf::Time deltaTime )
 }
 
 void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys,
-                                    Sprites::Containers::TileMap &floormap, DarkMode dark_mode, WeatherMode weather_mode, CursedMode cursed_mode )
+                                    Sprites::Containers::TileMap &floormap, DarkMode dark_mode, WeatherMode weather_mode, CursedMode cursed_mode,
+                                    BackGroundMode bg_mode )
 {
   using namespace Sprites;
 
@@ -196,7 +198,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
     RenderSystem::s_game_view = m_local_view;
 
     // render these things first
-    render_background_water( player_pos_cmp );
+    if ( bg_mode == BackGroundMode::ON ) { render_background_water( player_pos_cmp ); }
     render_floormap( floormap );
     render_scryingball_doglegs();
     render_wormhole_effect( floormap );
@@ -263,6 +265,8 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       }
     }
 
+    render_overlay_sys.render_shop_inventory_overlay();
+
     // debug: show crypt component boundaries
     if ( m_show_debug_stats )
     {
@@ -305,11 +309,10 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
   // Default view begin (these are rendered at native resolution)
   m_window.setView( m_window.getDefaultView() );
   {
-
     auto player_blast_radius = Utils::Player::get_blast_radius( getReg() );
     auto player_health = Utils::Player::get_health( getReg() );
     auto player_wealth = Utils::Player::get_wealth( getReg() );
-    auto player_cadaver_count = Utils::Player::get_cadaver_count( getReg() );
+    auto player_cadaver_count = Utils::Player::get_cadaver_count( getReg() ).get_count();
     auto new_weapon_level = Utils::Player::get_inventory_wear_level( getReg() );
 
     float start_y_pos = 0;

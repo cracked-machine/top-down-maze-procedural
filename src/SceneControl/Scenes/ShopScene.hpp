@@ -4,6 +4,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SceneControl/Events/ProcessShopSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
+#include <Shop/ShopInventory.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Sprites/TileMap.hpp>
 #include <Utils/Utils.hpp>
@@ -34,6 +35,10 @@ public:
 
   entt::registry &registry() override;
 
+  void open_overlay();
+  void close_overlay();
+  bool is_overlay_open() const { return m_overlay_open; }
+
 protected:
   void do_update( [[maybe_unused]] sf::Time dt ) override;
 
@@ -42,6 +47,9 @@ private:
   Sys::Store &m_sys;
   Sprites::SpriteFactory &m_sprite_Factory;
   Sprites::Containers::TileMap m_floormap{};
+
+  Cmp::ShopInventory::Config m_inventory_config;
+  bool m_overlay_open{ false };
 };
 
 } // namespace ProceduralMaze::Scene

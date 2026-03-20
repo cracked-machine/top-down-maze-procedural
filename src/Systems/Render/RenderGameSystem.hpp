@@ -39,6 +39,7 @@ namespace ProceduralMaze::Sys
 
 class RenderOverlaySystem;
 
+enum class BackGroundMode { OFF = 0, ON = 1 };
 enum class DarkMode { OFF = 0, ON = 1 };
 enum class WeatherMode { OFF, ON };
 enum class CursedMode { OFF = 0, ON = 1 };
@@ -72,7 +73,8 @@ public:
   //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc..
   //! as well as death animations/effects
   void render_game( sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap,
-                    DarkMode dark_mode = DarkMode::OFF, WeatherMode weather_mode = WeatherMode::ON, CursedMode cursed_mode = CursedMode::OFF );
+                    DarkMode dark_mode = DarkMode::OFF, WeatherMode weather_mode = WeatherMode::ON, CursedMode cursed_mode = CursedMode::OFF,
+                    BackGroundMode bg_mode = BackGroundMode::ON );
 
 private:
   sf::Vector2f m_camera_position{ 0.f, 0.f }; // Smoothed camera position
