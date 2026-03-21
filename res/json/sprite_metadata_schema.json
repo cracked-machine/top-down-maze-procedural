@@ -23,20 +23,15 @@
       "type": "object",
       "description": "Metadata for a single sprite type",
       "properties": {
-        "displayname": {
-          "type": "string",
-          "description": "Human-readable sprite name",
-          "minLength": 1
-        },
-        "weight": {
-          "type": "number",
-          "description": "Weight for random selection",
-          "minimum": 0
-        },
         "multisprite": {
           "type": "object",
           "description": "MultiSprite configuration",
           "properties": {
+            "displayname": {
+              "type": "string",
+              "description": "Human-readable sprite name",
+              "minLength": 1
+            },
             "sprites_per_frame": {
               "type": "integer",
               "description": "Number of sprites in each animation frame.",
@@ -88,11 +83,11 @@
               "uniqueItems": true
             }
           },
-          "required": ["texture_path", "sprite_indices", "grid_size", "sprites_per_frame", "sprites_per_sequence"],
+          "required": ["displayname", "texture_path", "sprite_indices", "grid_size", "sprites_per_frame", "sprites_per_sequence"],
           "additionalProperties": false
         }
       },
-      "required": ["displayname", "weight", "multisprite"],
+      "required": [ "multisprite"],
       "additionalProperties": false
     }
   }

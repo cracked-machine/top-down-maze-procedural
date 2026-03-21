@@ -71,6 +71,7 @@ public:
   sf::Vector2f getSpriteSizePixels() const { return m_va_list[0].getBounds().size; }
 
   SpriteMetaType get_sprite_type() const { return m_sprite_type; }
+  void set_sprite_type( SpriteMetaType type ) { m_sprite_type = type; }
   sf::VertexArray m_selected_vertices;
   std::vector<sf::VertexArray> m_va_list;
 
