@@ -89,7 +89,7 @@ void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, FootStepSf
   }
 
   // did player die?
-  checkPlayerMortality();
+  check_player_mortality();
 
   if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
   {
@@ -379,12 +379,13 @@ bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
   Cmp::RectBounds search_bounds( target_position.position, target_position.size, 1 );
   using namespace Utils::Collision;
 
-  if ( check_cmp<Cmp::PlayerNoPath>( getReg(), search_bounds ) ) { return false; }
+  auto is_active = []( const Cmp::PlayerNoPath &playernopath ) { return playernopath.active; };
+  if ( check_cmp<Cmp::PlayerNoPath>( getReg(), search_bounds, is_active ) ) { return false; }
 
   return true;
 }
 
-void PlayerSystem::checkPlayerMortality()
+void PlayerSystem::check_player_mortality()
 {
 
   auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();

@@ -201,7 +201,7 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
   m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
   m_sys.find<Sys::Store::Type::WormholeSystem>().check_player_wormhole_collision();
-  m_sys.find<Sys::Store::Type::DiggingSystem>().update();
+  m_sys.find<Sys::Store::Type::DiggingSystem>().update( dt );
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
 
   if ( m_scene_exit_cooldown.getElapsedTime() >= m_scene_exit_cooldown_time )

@@ -25,7 +25,7 @@ entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, 
   reg.emplace_or_replace<Cmp::ReservedPosition>( plant_entt );
   reg.emplace_or_replace<Cmp::ZOrderValue>( plant_entt, pos_cmp.position.y + zorder );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( plant_entt );
-  reg.emplace_or_replace<Cmp::PlayerNoPath>( plant_entt );
+  reg.emplace_or_replace<Cmp::PlayerNoPath>( plant_entt, false );
   reg.emplace_or_replace<Cmp::AbsoluteAlpha>( plant_entt, 255 );
   reg.emplace_or_replace<Cmp::SpriteAnimation>( plant_entt, 0, 0, true, sprite_type, 0 );
   reg.emplace_or_replace<Cmp::Armable>( plant_entt );

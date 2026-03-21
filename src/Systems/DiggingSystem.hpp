@@ -35,7 +35,7 @@ public:
 
   // void load_sounds();
   // additional updates via the main game loop
-  void update();
+  void update( sf::Time dt );
 
   // Event handler for player actions
   void on_player_action( const Events::PlayerActionEvent &event );
@@ -59,6 +59,8 @@ private:
   void check_player_dig_obstacle_collision();
   void check_player_dig_plant_collision();
   void check_player_smash_pot();
+
+  sf::Time m_plantcheck_accumulator;
 
   // Cooldown clock to manage digging intervals
   sf::Clock m_dig_cooldown_clock;

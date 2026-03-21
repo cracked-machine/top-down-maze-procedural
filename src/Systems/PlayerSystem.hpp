@@ -76,7 +76,7 @@ private:
 
   //! @brief Check if the player is dea
   //! @note This checks if the Cmp::PlayerMortality == State::DEAD, not check Cmp::PlayerHealth (that is other system responsibility).
-  void checkPlayerMortality();
+  void check_player_mortality();
 
   void check_player_axe_npc_kill();
 

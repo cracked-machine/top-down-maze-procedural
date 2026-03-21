@@ -1,4 +1,5 @@
 
+#include <Player/PlayerNoPath.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -52,7 +53,7 @@ DiggingSystem::DiggingSystem( entt::registry &reg, sf::RenderWindow &window, Spr
   SPDLOG_DEBUG( "DiggingSystem initialized" );
 }
 
-void DiggingSystem::update()
+void DiggingSystem::update( sf::Time dt )
 {
 
   // abort if still in cooldown
@@ -69,6 +70,23 @@ void DiggingSystem::update()
   {
     getReg().remove<Cmp::SelectedPosition>( existing_sel_entity );
     SPDLOG_DEBUG( "Removing previous Cmp::SelectedPosition {},{} from entity {}", sel_cmp.x, sel_cmp.y, static_cast<int>( existing_sel_entity ) );
+  }
+
+  static constexpr float kPlantCheckIntervalHz = 2.0f;
+  m_plantcheck_accumulator += dt;
+  if ( m_plantcheck_accumulator.asSeconds() >= 1.f / kPlantCheckIntervalHz )
+  {
+    // check if plant player path blocking should be activated
+    auto player_pos = Utils::Player::get_position( getReg() );
+    for ( auto [plant_entt, plant_cmp, plant_pos_cmp] : getReg().view<Cmp::PlantObstacle, Cmp::Position>().each() )
+    {
+      auto playernopath_cmp = getReg().try_get<Cmp::PlayerNoPath>( plant_entt );
+      if ( not playernopath_cmp ) continue;
+
+      // enable inactive pathblocking on the plant once the player has moved away from its bbox
+      if ( playernopath_cmp->active ) continue;
+      if ( not player_pos.findIntersection( plant_pos_cmp ) ) { playernopath_cmp->active = true; }
+    }
   }
 }
 
