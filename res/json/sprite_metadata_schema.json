@@ -32,13 +32,22 @@
               "description": "Human-readable sprite name",
               "minLength": 1
             },
+            "zorder": {
+              "type": "array",
+              "description": "Zorder value for rendering, one per sprite index",
+              "items": {
+                "type": "number",
+                "minimum": 0
+              },
+              "minItems": 1
+            },
             "sprites_per_frame": {
-              "type": "integer",
+              "type": "number",
               "description": "Number of sprites in each animation frame.",
               "minimum": 1
             },
             "sprites_per_sequence": {
-              "type": "integer",
+              "type": "number",
               "description": "Total number of sprites in the animation sequence. 1 = static sprite.",
               "minimum": 1
             },
@@ -47,11 +56,11 @@
               "description": "width and height grid size for the multi-sprite",
               "properties": {
                 "width": {
-                  "type": "integer",
+                  "type": "number",
                   "minimum": 1
                 },
                 "height": {
-                  "type": "integer",
+                  "type": "number",
                   "minimum": 1
                 }
               },
@@ -83,7 +92,7 @@
               "uniqueItems": true
             }
           },
-          "required": ["displayname", "texture_path", "sprite_indices", "grid_size", "sprites_per_frame", "sprites_per_sequence"],
+          "required": ["displayname", "zorder", "texture_path", "sprite_indices", "grid_size", "sprites_per_frame", "sprites_per_sequence"],
           "additionalProperties": false
         }
       },

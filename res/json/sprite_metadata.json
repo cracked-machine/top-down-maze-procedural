@@ -3,8 +3,9 @@
     "WALL": {
       "multisprite": {
         "displayname": "WALL",
+        "zorder": [0, 0],
         "texture_path": "res/textures/obstacles.png",
-        "sprite_indices": [14,15],
+        "sprite_indices": [14, 15],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -13,12 +14,12 @@
         }
       }
     },
-
     "ROCK": {
       "multisprite": {
         "displayname": "ROCK",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/obstacles.png",
-        "sprite_indices": [0,1,2,3,4,5,6,7],
+        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -30,8 +31,9 @@
     "CRYPT.interior_sb": {
       "multisprite": {
         "displayname": "CRYPT.interior_sb",
+        "zorder": [0, 0, 0, 0, 0],
         "texture_path": "res/textures/crypt_interior.png",
-        "sprite_indices": [0,1,2,3,24],
+        "sprite_indices": [0, 1, 2, 3, 24],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -43,18 +45,9 @@
     "CRYPT.interior_wall": {
       "multisprite": {
         "displayname": "CRYPT.interior_wall",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/CRYPT.interior_wall.png",
-        "sprite_indices": [
-          0,1,2,
-          3,4,5,
-          6,7,8,
-          9,10,11,
-          12,13,14,
-          15,16,17,
-          18,19,20,
-          21,22,23,
-          24
-        ],
+        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -66,6 +59,7 @@
     "CRYPT.interior_lava": {
       "multisprite": {
         "displayname": "CRYPT.interior_lava",
+        "zorder": [0],
         "texture_path": "res/textures/crypt_interior_lava.png",
         "sprite_indices": [0],
         "sprites_per_sequence": 1,
@@ -79,6 +73,7 @@
     "CRYPT.interior_spiketrap": {
       "multisprite": {
         "displayname": "CRYPT.interior_spiketrap",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/crypt_interior.png",
         "sprite_indices": [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41],
         "sprites_per_sequence": 12,
@@ -92,8 +87,9 @@
     "CRYPT.interior_chest": {
       "multisprite": {
         "displayname": "CRYPT.interior_chest",
+        "zorder": [0, 0, 0],
         "texture_path": "res/textures/crypt_interior.png",
-        "sprite_indices": [24,25,26],
+        "sprite_indices": [24, 25, 26],
         "sprites_per_sequence": 3,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -105,15 +101,12 @@
     "CRYPT.interior_mb1x3": {
       "multisprite": {
         "displayname": "CRYPT.interior_mb1x3",
+        "zorder": [0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/crypt_interior.png",
-        "sprite_indices": [6,7,8,9,10,11],
+        "sprite_indices": [6, 7, 8, 9, 10, 11],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
-        "solid_mask": [
-          false, 
-          false, 
-          true
-        ],
+        "solid_mask": [false, false, true],
         "grid_size": {
           "width": 1,
           "height": 3
@@ -123,15 +116,12 @@
     "CRYPT.interior_mb1x2": {
       "multisprite": {
         "displayname": "CRYPT.interior_mb1x2",
+        "zorder": [0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/crypt_interior.png",
-        "sprite_indices": [24,25,26,27,28,29],
+        "sprite_indices": [24, 25, 26, 27, 28, 29],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
-        "solid_mask": [
-          false, 
-          false, 
-          true
-        ],
+        "solid_mask": [false, false, true],
         "grid_size": {
           "width": 1,
           "height": 3
@@ -141,8 +131,9 @@
     "POT": {
       "multisprite": {
         "displayname": "POT",
+        "zorder": [0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/pot.png",
-        "sprite_indices": [0,1,2,3,4,5,6],
+        "sprite_indices": [0, 1, 2, 3, 4, 5, 6],
         "sprites_per_sequence": 7,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -154,8 +145,9 @@
     "BONES": {
       "multisprite": {
         "displayname": "BONES",
+        "zorder": [0, 0],
         "texture_path": "res/textures/obstacles.png",
-        "sprite_indices": [12,13],
+        "sprite_indices": [12, 13],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -167,8 +159,9 @@
     "CRYPT.interior_lever": {
       "multisprite": {
         "displayname": "CRYPT.interior_lever",
+        "zorder": [0, 0],
         "texture_path": "res/textures/CRYPT.interior_lever.png",
-        "sprite_indices": [0,1],
+        "sprite_indices": [0, 1],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -180,6 +173,7 @@
     "NPCPRIEST": {
       "multisprite": {
         "displayname": "NPCPRIEST",
+        "zorder": [0],
         "texture_path": "res/textures/npcpriest.png",
         "sprite_indices": [0],
         "sprites_per_sequence": 1,
@@ -193,6 +187,7 @@
     "NPCWITCH": {
       "multisprite": {
         "displayname": "NPCWITCH",
+        "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/NPC.grave_revenant.png",
         "sprite_indices": [0, 1, 2, 3],
         "sprites_per_sequence": 4,
@@ -206,6 +201,7 @@
     "NPC.dr_knox": {
       "multisprite": {
         "displayname": "NPC.dr_knox",
+        "zorder": [0],
         "texture_path": "res/textures/NPC.dr_knox.png",
         "sprite_indices": [0],
         "sprites_per_sequence": 1,
@@ -219,8 +215,9 @@
     "NPCGHOST.walk.south": {
       "multisprite": {
         "displayname": "NPCGHOST.walk.south",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcghost.png",
-        "sprite_indices": [0, 1, 2,3,4,5,6,7,8,9,10,11,12],
+        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
         "sprites_per_sequence": 13,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -232,8 +229,9 @@
     "NPCGHOST.walk.north": {
       "multisprite": {
         "displayname": "NPCGHOST.walk.north",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcghost.png",
-        "sprite_indices": [0, 1, 2,3,4,5,6,7,8,9,10,11,12],
+        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
         "sprites_per_sequence": 13,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -245,8 +243,9 @@
     "NPCGHOST.walk.east": {
       "multisprite": {
         "displayname": "NPCGHOST.walk.east",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcghost.png",
-        "sprite_indices": [0, 1, 2,3,4,5,6,7,8,9,10,11,12],
+        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
         "sprites_per_sequence": 13,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -258,6 +257,7 @@
     "NPCGHOST.walk.west": {
       "multisprite": {
         "displayname": "NPCGHOST.walk.west",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcghost.png",
         "sprite_indices": [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
         "sprites_per_sequence": 13,
@@ -271,6 +271,7 @@
     "NPCSKELE.walk.south": {
       "multisprite": {
         "displayname": "NPCSKELE.walk.south",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcskele.png",
         "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
         "sprites_per_sequence": 10,
@@ -284,6 +285,7 @@
     "NPCSKELE.walk.north": {
       "multisprite": {
         "displayname": "NPCSKELE.walk.north",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcskele.png",
         "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
         "sprites_per_sequence": 10,
@@ -297,6 +299,7 @@
     "NPCSKELE.walk.east": {
       "multisprite": {
         "displayname": "NPCSKELE.walk.east",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcskele.png",
         "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
         "sprites_per_sequence": 10,
@@ -310,6 +313,7 @@
     "NPCSKELE.walk.west": {
       "multisprite": {
         "displayname": "NPCSKELE.walk.west",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcskele.png",
         "sprite_indices": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
         "sprites_per_sequence": 10,
@@ -323,6 +327,7 @@
     "DETONATED": {
       "multisprite": {
         "displayname": "DETONATED",
+        "zorder": [0],
         "texture_path": "res/textures/graveyardfloor.png",
         "sprite_indices": [3],
         "sprites_per_frame": 1,
@@ -336,6 +341,7 @@
     "PLAYERSPAWN": {
       "multisprite": {
         "displayname": "PLAYERSPAWN",
+        "zorder": [0],
         "texture_path": "res/textures/graveyardfloor.png",
         "sprite_indices": [4],
         "sprites_per_frame": 1,
@@ -349,6 +355,7 @@
     "PLAYER.walk.south": {
       "multisprite": {
         "displayname": "PLAYER.walk.south",
+        "zorder": [0, 0, 0],
         "texture_path": "res/textures/conjurer1.png",
         "sprite_indices": [0, 1, 2],
         "sprites_per_sequence": 3,
@@ -362,8 +369,9 @@
     "PLAYER.walk.north": {
       "multisprite": {
         "displayname": "PLAYER.walk.north",
+        "zorder": [0, 0, 0],
         "texture_path": "res/textures/conjurer1.png",
-        "sprite_indices": [3,4,5],
+        "sprite_indices": [3, 4, 5],
         "sprites_per_sequence": 3,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -375,8 +383,9 @@
     "PLAYER.walk.east": {
       "multisprite": {
         "displayname": "PLAYER.walk.east",
+        "zorder": [0, 0, 0],
         "texture_path": "res/textures/conjurer1.png",
-        "sprite_indices": [6,7,8],
+        "sprite_indices": [6, 7, 8],
         "sprites_per_sequence": 3,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -388,8 +397,9 @@
     "PLAYER.walk.west": {
       "multisprite": {
         "displayname": "PLAYER.walk.west",
+        "zorder": [0, 0, 0],
         "texture_path": "res/textures/conjurer1.png",
-        "sprite_indices": [9,10,11],
+        "sprite_indices": [9, 10, 11],
         "sprites_per_sequence": 3,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -401,8 +411,9 @@
     "ICONS": {
       "multisprite": {
         "displayname": "ICONS",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/icons.png",
-        "sprite_indices": [0,1,2,3,4,5,6,7],
+        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -414,6 +425,7 @@
     "CARRYITEM.pickaxe": {
       "multisprite": {
         "displayname": "Pickaxe",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [0],
         "sprites_per_sequence": 1,
@@ -427,6 +439,7 @@
     "CARRYITEM.axe": {
       "multisprite": {
         "displayname": "Axe",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [10],
         "sprites_per_sequence": 1,
@@ -440,6 +453,7 @@
     "CARRYITEM.shovel": {
       "multisprite": {
         "displayname": "Shovel",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [20],
         "sprites_per_sequence": 1,
@@ -453,6 +467,7 @@
     "CARRYITEM.bomb": {
       "multisprite": {
         "displayname": "Dynamite",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [30],
         "sprites_per_sequence": 1,
@@ -462,10 +477,11 @@
           "height": 1
         }
       }
-    },    
+    },
     "CARRYITEM.exitkey": {
       "multisprite": {
         "displayname": "Exit Key",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [40],
         "sprites_per_sequence": 1,
@@ -479,6 +495,7 @@
     "CARRYITEM.cryptkey": {
       "multisprite": {
         "displayname": "Crypt Key",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [50],
         "sprites_per_sequence": 1,
@@ -492,6 +509,7 @@
     "CARRYITEM.plant1": {
       "multisprite": {
         "displayname": "Plant1",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [60],
         "sprites_per_sequence": 1,
@@ -505,6 +523,7 @@
     "CARRYITEM.plant2": {
       "multisprite": {
         "displayname": "Plant2",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [70],
         "sprites_per_sequence": 1,
@@ -518,6 +537,7 @@
     "CARRYITEM.plant3": {
       "multisprite": {
         "displayname": "Plant3",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [80],
         "sprites_per_sequence": 1,
@@ -531,6 +551,7 @@
     "CARRYITEM.plant4": {
       "multisprite": {
         "displayname": "Plant4",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [90],
         "sprites_per_sequence": 1,
@@ -544,6 +565,7 @@
     "CARRYITEM.plant5": {
       "multisprite": {
         "displayname": "Plant5",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [100],
         "sprites_per_sequence": 1,
@@ -557,6 +579,7 @@
     "CARRYITEM.plant6": {
       "multisprite": {
         "displayname": "Plant6",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [110],
         "sprites_per_sequence": 1,
@@ -570,6 +593,7 @@
     "CARRYITEM.plant7": {
       "multisprite": {
         "displayname": "Plant7",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [120],
         "sprites_per_sequence": 1,
@@ -583,6 +607,7 @@
     "CARRYITEM.plant8": {
       "multisprite": {
         "displayname": "Plant8",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [130],
         "sprites_per_sequence": 1,
@@ -596,6 +621,7 @@
     "CARRYITEM.plant9": {
       "multisprite": {
         "displayname": "Plant9",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [140],
         "sprites_per_sequence": 1,
@@ -609,6 +635,7 @@
     "CARRYITEM.plant10": {
       "multisprite": {
         "displayname": "Plant10",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [150],
         "sprites_per_sequence": 1,
@@ -622,6 +649,7 @@
     "CARRYITEM.plant11": {
       "multisprite": {
         "displayname": "Plant11",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [160],
         "sprites_per_sequence": 1,
@@ -635,6 +663,7 @@
     "CARRYITEM.plant12": {
       "multisprite": {
         "displayname": "Plant12",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [170],
         "sprites_per_sequence": 1,
@@ -648,6 +677,7 @@
     "CARRYITEM.relic1": {
       "multisprite": {
         "displayname": "Relic: Saint's Blood",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [180],
         "sprites_per_sequence": 1,
@@ -661,6 +691,7 @@
     "CARRYITEM.relic2": {
       "multisprite": {
         "displayname": "Relic: Saint's Eyeball",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [190],
         "sprites_per_sequence": 1,
@@ -674,6 +705,7 @@
     "CARRYITEM.relic3": {
       "multisprite": {
         "displayname": "Relic: Saint's Bone",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [200],
         "sprites_per_sequence": 1,
@@ -687,6 +719,7 @@
     "CARRYITEM.relic4": {
       "multisprite": {
         "displayname": "Relic: Saint's Hand",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [210],
         "sprites_per_sequence": 1,
@@ -700,6 +733,7 @@
     "CARRYITEM.scryingball": {
       "multisprite": {
         "displayname": "Seeing Stone",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [220],
         "sprites_per_sequence": 1,
@@ -713,6 +747,7 @@
     "CARRYITEM.cursetablet": {
       "multisprite": {
         "displayname": "Curse Tablet",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [230],
         "sprites_per_sequence": 1,
@@ -726,6 +761,7 @@
     "CARRYITEM.boots": {
       "multisprite": {
         "displayname": "Dead Man's Boots",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [240],
         "sprites_per_sequence": 1,
@@ -739,6 +775,7 @@
     "CARRYITEM.witchesjar": {
       "multisprite": {
         "displayname": "Witches Jar",
+        "zorder": [0, 0, 0, 0, 0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [250, 251, 252, 253, 254],
         "sprites_per_sequence": 1,
@@ -752,6 +789,7 @@
     "CARRYITEM.preservedcat": {
       "multisprite": {
         "displayname": "Preserved Cat",
+        "zorder": [0, 0, 0, 0, 0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [260, 261, 262, 263, 264],
         "sprites_per_sequence": 1,
@@ -765,6 +803,7 @@
     "CARRYITEM.jewelry_sapphire_necklace": {
       "multisprite": {
         "displayname": "Sapphire Necklace",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [270],
         "sprites_per_sequence": 1,
@@ -778,6 +817,7 @@
     "CARRYITEM.jewelry_amephyst_ring": {
       "multisprite": {
         "displayname": "Amephyst Ring",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [280],
         "sprites_per_sequence": 1,
@@ -791,6 +831,7 @@
     "CARRYITEM.jewelry_ruby_ring": {
       "multisprite": {
         "displayname": "Ruby Ring",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [290],
         "sprites_per_sequence": 1,
@@ -804,6 +845,7 @@
     "CARRYITEM.jewelry_emerald_necklace": {
       "multisprite": {
         "displayname": "Emerald Necklace",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [300],
         "sprites_per_sequence": 1,
@@ -817,6 +859,7 @@
     "CARRYITEM.jewelry_emerald_gemstone": {
       "multisprite": {
         "displayname": "Emerald Gemstone",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [310],
         "sprites_per_sequence": 1,
@@ -830,6 +873,7 @@
     "CARRYITEM.jewelry_sapphire_gemstone": {
       "multisprite": {
         "displayname": "Sapphire Gemstone",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [320],
         "sprites_per_sequence": 1,
@@ -843,6 +887,7 @@
     "CARRYITEM.jewelry_diamond_gemstone": {
       "multisprite": {
         "displayname": "Diamond Gemstone",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [330],
         "sprites_per_sequence": 1,
@@ -856,6 +901,7 @@
     "CARRYITEM.jewelry_amephyst_gemstone": {
       "multisprite": {
         "displayname": "Amephyst Gemstone",
+        "zorder": [0],
         "texture_path": "res/textures/CARRYITEMS.png",
         "sprite_indices": [340],
         "sprites_per_sequence": 1,
@@ -869,6 +915,7 @@
     "EXTRA_HEALTH": {
       "multisprite": {
         "displayname": "EXTRA_HEALTH",
+        "zorder": [0],
         "texture_path": "res/textures/loot.png",
         "sprite_indices": [0],
         "sprites_per_sequence": 1,
@@ -882,6 +929,7 @@
     "EXTRA_BOMBS": {
       "multisprite": {
         "displayname": "EXTRA_BOMBS",
+        "zorder": [0],
         "texture_path": "res/textures/loot.png",
         "sprite_indices": [1],
         "sprites_per_sequence": 1,
@@ -895,6 +943,7 @@
     "INFINI_BOMBS": {
       "multisprite": {
         "displayname": "INFINI_BOMBS",
+        "zorder": [0],
         "texture_path": "res/textures/loot.png",
         "sprite_indices": [4],
         "sprites_per_sequence": 1,
@@ -908,6 +957,7 @@
     "CHAIN_BOMBS": {
       "multisprite": {
         "displayname": "CHAIN_BOMBS",
+        "zorder": [0],
         "texture_path": "res/textures/loot.png",
         "sprite_indices": [3],
         "sprites_per_sequence": 1,
@@ -921,6 +971,7 @@
     "LOWER_WATER": {
       "multisprite": {
         "displayname": "LOWER_WATER",
+        "zorder": [0],
         "texture_path": "res/textures/loot.png",
         "sprite_indices": [5],
         "sprites_per_sequence": 1,
@@ -934,6 +985,7 @@
     "WEAPON_BOOST": {
       "multisprite": {
         "displayname": "WEAPON_BOOST",
+        "zorder": [0],
         "texture_path": "res/textures/loot.png",
         "sprite_indices": [2],
         "sprites_per_sequence": 1,
@@ -947,6 +999,7 @@
     "CANDLE_DROP": {
       "multisprite": {
         "displayname": "CANDLE_DROP",
+        "zorder": [0],
         "texture_path": "res/textures/loot.png",
         "sprite_indices": [6],
         "sprites_per_sequence": 1,
@@ -960,6 +1013,7 @@
     "KEY_DROP": {
       "multisprite": {
         "displayname": "KEY_DROP",
+        "zorder": [0],
         "texture_path": "res/textures/loot.png",
         "sprite_indices": [7],
         "sprites_per_sequence": 1,
@@ -973,6 +1027,7 @@
     "CADAVER_DROP": {
       "multisprite": {
         "displayname": "CADAVER_DROP",
+        "zorder": [0],
         "texture_path": "res/textures/loot.png",
         "sprite_indices": [9],
         "sprites_per_sequence": 1,
@@ -986,6 +1041,7 @@
     "LOOT.goldcoin": {
       "multisprite": {
         "displayname": "LOOT.goldcoin",
+        "zorder": [0],
         "texture_path": "res/textures/loot.png",
         "sprite_indices": [10],
         "sprites_per_sequence": 1,
@@ -999,6 +1055,7 @@
     "EXPLOSION": {
       "multisprite": {
         "displayname": "EXPLOSION",
+        "zorder": [0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
         "sprite_indices": [66, 67, 68, 69, 70, 71],
         "sprites_per_sequence": 6,
@@ -1012,26 +1069,9 @@
     "PLAYERDEATH.bloodsplat": {
       "multisprite": {
         "displayname": "PLAYERDEATH.bloodsplat",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/blood_splash_3.png",
-        "sprite_indices": 
-        [
-          0,
-          3,
-          6,
-          9,  
-          36, 
-          39,
-          42,
-          45,
-          72,
-          75,
-          78,
-          81,
-          108,
-          111,
-          114,
-          117
-        ],
+        "sprite_indices": [0, 3, 6, 9, 36, 39, 42, 45, 72, 75, 78, 81, 108, 111, 114, 117],
         "sprites_per_sequence": 16,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1043,11 +1083,9 @@
     "PLAYERDEATH.lavaflames": {
       "multisprite": {
         "displayname": "PLAYERDEATH.lavaflames",
+        "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
-        "sprite_indices": 
-        [
-          10,11,12,13
-        ],
+        "sprite_indices": [10, 11, 12, 13],
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1059,11 +1097,9 @@
     "CRYPT.lava_anim": {
       "multisprite": {
         "displayname": "CRYPT.lava_anim",
+        "zorder": [0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
-        "sprite_indices": 
-        [
-          24,25,26,27,28,29
-        ],
+        "sprite_indices": [24, 25, 26, 27, 28, 29],
         "sprites_per_sequence": 6,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1075,8 +1111,9 @@
     "FOOTSTEPS": {
       "multisprite": {
         "displayname": "FOOTSTEPS",
+        "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/footsteps_tileset.png",
-        "sprite_indices": [0,1,2,3],
+        "sprite_indices": [0, 1, 2, 3],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1088,6 +1125,7 @@
     "SINKHOLE": {
       "multisprite": {
         "displayname": "SINKHOLE",
+        "zorder": [0],
         "texture_path": "res/textures/sinkhole.png",
         "sprite_indices": [0],
         "sprites_per_sequence": 1,
@@ -1101,6 +1139,7 @@
     "CORRUPTION": {
       "multisprite": {
         "displayname": "CORRUPTION",
+        "zorder": [0],
         "texture_path": "res/textures/corruption.png",
         "sprite_indices": [0],
         "sprites_per_sequence": 1,
@@ -1114,21 +1153,9 @@
     "WORMHOLE": {
       "multisprite": {
         "displayname": "WORMHOLE",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/wormhole-Sheet.png",
-        "sprite_indices": [
-          0,
-          3,
-          6,
-          9,
-          12,
-          15,
-          18,
-          21,
-          24,
-          27,
-          30,
-          33
-        ],
+        "sprite_indices": [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33],
         "sprites_per_frame": 1,
         "sprites_per_sequence": 12,
         "grid_size": {
@@ -1140,13 +1167,10 @@
     "ALTAR.inactive": {
       "multisprite": {
         "displayname": "ALTAR.inactive",
+        "zorder": [0],
         "texture_path": "res/textures/altar.png",
-        "sprite_indices": [
-          0
-        ],
-        "solid_mask": [
-          true, true, true, true
-        ],
+        "sprite_indices": [0],
+        "solid_mask": [true, true, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1158,19 +1182,10 @@
     "ALTAR.one": {
       "multisprite": {
         "displayname": "ALTAR.one",
+        "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/altar.png",
-        "sprite_indices": [
-          16,
-          18,
-          20,
-          22
-        ],
-        "solid_mask": [
-          true, true, true, true,
-          true, true, true, true,
-          true, true, true, true,
-          true, true, true, true
-        ],
+        "sprite_indices": [16, 18, 20, 22],
+        "solid_mask": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1182,19 +1197,10 @@
     "ALTAR.two": {
       "multisprite": {
         "displayname": "ALTAR.two",
+        "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/altar.png",
-        "sprite_indices": [
-          32,
-          34,
-          36,
-          38
-        ],
-        "solid_mask": [
-          true, true, true, true,
-          true, true, true, true,
-          true, true, true, true,
-          true, true, true, true
-        ],
+        "sprite_indices": [32, 34, 36, 38],
+        "solid_mask": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1206,19 +1212,10 @@
     "ALTAR.three": {
       "multisprite": {
         "displayname": "ALTAR.three",
+        "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/altar.png",
-        "sprite_indices": [
-          48,
-          50, 
-          52,
-          54
-        ],
-        "solid_mask": [
-          true, true, true, true,
-          true, true, true, true,
-          true, true, true, true,
-          true, true, true, true
-        ],
+        "sprite_indices": [48, 50, 52, 54],
+        "solid_mask": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1230,19 +1227,10 @@
     "ALTAR.four": {
       "multisprite": {
         "displayname": "ALTAR.four",
+        "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/altar.png",
-        "sprite_indices": [
-          64, 
-          66,
-          68,
-          70
-        ],
-        "solid_mask": [
-          true, true, true, true,
-          true, true, true, true,
-          true, true, true, true,
-          true, true, true, true
-        ],
+        "sprite_indices": [64, 66, 68, 70],
+        "solid_mask": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1254,6 +1242,7 @@
     "GRAVE1.closed": {
       "multisprite": {
         "displayname": "GRAVE1.closed",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [0],
         "solid_mask": [false, true],
@@ -1268,6 +1257,7 @@
     "GRAVE1.opened": {
       "multisprite": {
         "displayname": "GRAVE1.opened",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [32],
         "solid_mask": [false, true],
@@ -1282,6 +1272,7 @@
     "GRAVE2.closed": {
       "multisprite": {
         "displayname": "GRAVE2.closed",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [1],
         "solid_mask": [false, true],
@@ -1296,6 +1287,7 @@
     "GRAVE2.opened": {
       "multisprite": {
         "displayname": "GRAVE2.opened",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [33],
         "solid_mask": [false, true],
@@ -1310,6 +1302,7 @@
     "GRAVE3.closed": {
       "multisprite": {
         "displayname": "GRAVE3.closed",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [2],
         "solid_mask": [false, true],
@@ -1324,6 +1317,7 @@
     "GRAVE3.opened": {
       "multisprite": {
         "displayname": "GRAVE3.opened",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [34],
         "solid_mask": [false, true],
@@ -1338,6 +1332,7 @@
     "GRAVE4.closed": {
       "multisprite": {
         "displayname": "GRAVE4.closed",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [3],
         "solid_mask": [false, true],
@@ -1352,6 +1347,7 @@
     "GRAVE4.opened": {
       "multisprite": {
         "displayname": "GRAVE4.opened",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [35],
         "solid_mask": [false, true],
@@ -1366,9 +1362,10 @@
     "GRAVE5.closed": {
       "multisprite": {
         "displayname": "GRAVE5.closed",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [4],
-       "solid_mask": [false, true],
+        "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1380,9 +1377,10 @@
     "GRAVE5.opened": {
       "multisprite": {
         "displayname": "GRAVE5.opened",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [36],
-       "solid_mask": [false, true],
+        "solid_mask": [false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1394,6 +1392,7 @@
     "GRAVE6.closed": {
       "multisprite": {
         "displayname": "GRAVE6.closed",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [5],
         "solid_mask": [false, true],
@@ -1408,6 +1407,7 @@
     "GRAVE6.opened": {
       "multisprite": {
         "displayname": "GRAVE6.opened",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [37],
         "solid_mask": [false, true],
@@ -1422,6 +1422,7 @@
     "GRAVE7.closed": {
       "multisprite": {
         "displayname": "GRAVE7.closed",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [6],
         "solid_mask": [false, false, true, true],
@@ -1436,6 +1437,7 @@
     "GRAVE7.opened": {
       "multisprite": {
         "displayname": "GRAVE7.opened",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [38],
         "solid_mask": [false, false, true, true],
@@ -1450,6 +1452,7 @@
     "GRAVE8.closed": {
       "multisprite": {
         "displayname": "GRAVE8.closed",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [8],
         "solid_mask": [false, false, true, true],
@@ -1464,6 +1467,7 @@
     "GRAVE8.opened": {
       "multisprite": {
         "displayname": "GRAVE8.opened",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [40],
         "solid_mask": [false, false, true, true],
@@ -1478,6 +1482,7 @@
     "GRAVE9.closed": {
       "multisprite": {
         "displayname": "GRAVE9.closed",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [10],
         "solid_mask": [false, true],
@@ -1492,6 +1497,7 @@
     "GRAVE9.opened": {
       "multisprite": {
         "displayname": "GRAVE9.opened",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [42],
         "solid_mask": [false, true],
@@ -1506,6 +1512,7 @@
     "GRAVE10.closed": {
       "multisprite": {
         "displayname": "GRAVE10.closed",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [11],
         "solid_mask": [false, true],
@@ -1520,6 +1527,7 @@
     "GRAVE10.opened": {
       "multisprite": {
         "displayname": "GRAVE10.opened",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [43],
         "solid_mask": [false, true],
@@ -1534,6 +1542,7 @@
     "GRAVE11.closed": {
       "multisprite": {
         "displayname": "GRAVE11.closed",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [12],
         "solid_mask": [false, false, true, true],
@@ -1548,6 +1557,7 @@
     "GRAVE11.opened": {
       "multisprite": {
         "displayname": "GRAVE11.opened",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [44],
         "solid_mask": [false, false, true, true],
@@ -1562,6 +1572,7 @@
     "GRAVE12.closed": {
       "multisprite": {
         "displayname": "GRAVE12.closed",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [14],
         "solid_mask": [false, false, true, true],
@@ -1576,6 +1587,7 @@
     "GRAVE12.opened": {
       "multisprite": {
         "displayname": "GRAVE12.opened",
+        "zorder": [0],
         "texture_path": "res/textures/graves.png",
         "sprite_indices": [46],
         "solid_mask": [false, false, true, true],
@@ -1590,6 +1602,7 @@
     "ARROW": {
       "multisprite": {
         "displayname": "ARROW",
+        "zorder": [0],
         "texture_path": "res/textures/arrow.png",
         "sprite_indices": [0],
         "sprites_per_sequence": 1,
@@ -1603,14 +1616,10 @@
     "CRYPT.closed": {
       "multisprite": {
         "displayname": "CRYPT.closed",
+        "zorder": [0],
         "texture_path": "res/textures/CRYPT.exterior_building.png",
         "sprite_indices": [0],
-        "solid_mask": [
-                false, false, false,
-                true, true, true,
-                true, true, true,
-                true, true, true
-              ],
+        "solid_mask": [false, false, false, true, true, true, true, true, true, true, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1622,14 +1631,10 @@
     "CRYPT.opened": {
       "multisprite": {
         "displayname": "CRYPT.opened",
+        "zorder": [0],
         "texture_path": "res/textures/CRYPT.exterior_building.png",
         "sprite_indices": [12],
-        "solid_mask": [
-                       false, false, false,
-                       true, true, true,
-                       true, true, true,
-                       true, false, true
-                     ],
+        "solid_mask": [false, false, false, true, true, true, true, true, true, true, false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1641,15 +1646,10 @@
     "RUIN.exterior_building": {
       "multisprite": {
         "displayname": "RUIN.exterior_building",
+        "zorder": [0],
         "texture_path": "res/textures/RUIN.exterior_building.png",
         "sprite_indices": [0],
-        "solid_mask": [
-          false, false, false, false, false, false, false, false,
-          false, false, false, false, false, false, false, false,
-          false, true, true, true, true, true, true, false,
-          true, true, true, true, true, false, true, false,
-          false, true, true, true, false, false, false, false                    
-        ],
+        "solid_mask": [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, false, true, true, true, true, true, false, true, false, false, true, true, true, false, false, false, false],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1661,13 +1661,9 @@
     "RUIN.interior_wall": {
       "multisprite": {
         "displayname": "RUIN.interior_wall",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/RUIN.interior_wall.png",
-        "sprite_indices": [
-          0,1,2,
-          3,4,5,
-          6,7,8,
-          9,10,11
-        ],
+        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1679,18 +1675,10 @@
     "RUIN.interior_staircase_going_down": {
       "multisprite": {
         "displayname": "RUIN.interior_staircase_going_down",
+        "zorder": [0],
         "texture_path": "res/textures/RUIN.interior.png",
         "sprite_indices": [53],
-        "solid_mask": [
-          false, false, false,
-          false, false, false,
-          true, false, false,
-          true, false, false,
-          true, false, false,
-          true, false, false,
-          true, false, false,
-          true, false, false
-        ],
+        "solid_mask": [false, false, false, false, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1702,18 +1690,10 @@
     "RUIN.interior_staircase_going_up": {
       "multisprite": {
         "displayname": "RUIN.interior_staircase_going_up",
+        "zorder": [0],
         "texture_path": "res/textures/RUIN.interior.png",
         "sprite_indices": [50],
-        "solid_mask": [
-          true, false, false,
-          true, false, false,
-          true, false, false,
-          true, false, false,
-          true, false, false,
-          true, false, false,
-          false, false, false,
-          false, false, false
-        ],
+        "solid_mask": [true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, false, false, false, false, false, false],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1725,20 +1705,10 @@
     "RUIN.interior_staircase_upper_balustrade": {
       "multisprite": {
         "displayname": "RUIN.interior_staircase_upper_balustrade",
+        "zorder": [0],
         "texture_path": "res/textures/RUIN.interior.png",
         "sprite_indices": [56],
-        "solid_mask": [
-          false,
-          false,
-          true,
-          true,
-          true,
-          true,
-          true,
-          true,
-          true,
-          true
-        ],
+        "solid_mask": [false, false, true, true, true, true, true, true, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1750,6 +1720,7 @@
     "RUIN.cobweb": {
       "multisprite": {
         "displayname": "RUIN.cobweb",
+        "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/RUIN.interior.png",
         "sprite_indices": [40, 41, 42, 43],
         "sprites_per_sequence": 1,
@@ -1763,8 +1734,9 @@
     "RUIN.bookcase_leftsection": {
       "multisprite": {
         "displayname": "RUIN.bookcase_leftsection",
+        "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/RUIN.interior.png",
-        "sprite_indices": [3,4,5,6],
+        "sprite_indices": [3, 4, 5, 6],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1776,8 +1748,9 @@
     "RUIN.bookcase_midsection": {
       "multisprite": {
         "displayname": "RUIN.bookcase_midsection",
+        "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/RUIN.interior.png",
-        "sprite_indices": [13,14,15,16],
+        "sprite_indices": [13, 14, 15, 16],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1789,8 +1762,9 @@
     "RUIN.bookcase_rightsection": {
       "multisprite": {
         "displayname": "RUIN.bookcase_rightsection",
+        "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/RUIN.interior.png",
-        "sprite_indices": [23,24,25,26],
+        "sprite_indices": [23, 24, 25, 26],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1802,6 +1776,7 @@
     "RUIN.shadow_hand": {
       "multisprite": {
         "displayname": "RUIN.shadow_hand",
+        "zorder": [0],
         "texture_path": "res/textures/RUIN.cursed_hand.png",
         "sprite_indices": [0],
         "sprites_per_sequence": 1,
@@ -1815,13 +1790,10 @@
     "RUIN.interior_hexagram3x3": {
       "multisprite": {
         "displayname": "RUIN.interior_hexagram3x3",
+        "zorder": [0],
         "texture_path": "res/textures/RUIN.interior.png",
         "sprite_indices": [0],
-        "solid_mask": [
-          false, false, false,
-          false, false, false,
-          false, false, false
-        ],
+        "solid_mask": [false, false, false, false, false, false, false, false, false],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1833,14 +1805,10 @@
     "HOLYWELL.exterior_building": {
       "multisprite": {
         "displayname": "HOLYWELL.exterior_building",
+        "zorder": [0],
         "texture_path": "res/textures/HOLYWELL.exterior_building.png",
         "sprite_indices": [0],
-        "solid_mask": [
-                       true, true, true,
-                       true, true, true,
-                       true, true, true,
-                       true, false, true
-                     ],
+        "solid_mask": [true, true, true, true, true, true, true, true, true, true, false, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1852,14 +1820,10 @@
     "HOLYWELL.interior_well": {
       "multisprite": {
         "displayname": "HOLYWELL.interior_well",
+        "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/HOLYWELL.interior_well.png",
         "sprite_indices": [0, 3, 6, 9],
-        "solid_mask": [
-          false, true, false, 
-          true, true, true, 
-          true, true, true, 
-          true, true, true
-        ],
+        "solid_mask": [false, true, false, true, true, true, true, true, true, true, true, true],
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1871,13 +1835,9 @@
     "HOLYWELL.interior_wall": {
       "multisprite": {
         "displayname": "HOLYWELL.interior_wall",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/HOLYWELL.interior_wall.png",
-        "sprite_indices": [
-          0,1,2,
-          3,4,5,
-          6,7,8,
-          9,10,11  
-        ],
+        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1889,13 +1849,10 @@
     "BAPHOMET": {
       "multisprite": {
         "displayname": "BAPHOMET",
+        "zorder": [0],
         "texture_path": "res/textures/baphomet.png",
         "sprite_indices": [0],
-        "solid_mask": [
-                       false, false, false,
-                       false, false, false,
-                       true, true, true
-                     ],
+        "solid_mask": [false, false, false, false, false, false, true, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1907,27 +1864,10 @@
     "CRYPT.interior_objective_closed": {
       "multisprite": {
         "displayname": "CRYPT.interior_objective_closed",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/crypt_objective.png",
-        "sprite_indices": [
-          0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17,
-          18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
-          36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53,
-          54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71,
-          72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89,
-          90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100,101,102,103,104,105,106,107,
-          108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,
-          126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143
-        ],
-        "solid_mask": [
-          true,true,true,true,true,true, true, true, true, true, true, true, true, true,true,true,true,true,
-          true,true,true,true,true,true, true, true, true, true, true, true, true, true,true,true,true,true,
-          true,true,true,true,true,true, true, true, true, true, true, true, true, true,true,true,true,true,
-          true,true,true,true,true,true, true, true, true, true, true, true, true, true,true,true,true,true,
-          true,true,true,true,true,true, true, true, true, true, true, true, true, true,true,true,true,true,
-          true,true,true,true,true,false,false,false,false,false,false,false,false,true,true,true,true,true,
-          true,true,true,true,true,false,false,false,false,false,false,false,false,true,true,true,true,true,
-          true,true,true,true,true,false,false,false,false,false,false,false,false,true,true,true,true,true
-        ],
+        "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143],
+        "solid_mask": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false, true, true, true, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1939,28 +1879,10 @@
     "CRYPT.interior_objective_opened": {
       "multisprite": {
         "displayname": "CRYPT.interior_objective_opened",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/crypt_objective.png",
-        "sprite_indices": [
-          144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,
-          162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,
-          180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,
-          198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,
-          216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,
-          234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,
-          252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,
-          270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287          
-        ],
-        "solid_mask": [
-
-          true,true,true,true,true,true, true, true, true, true, true, true, true, true,true,true,true,true,
-          true,true,true,true,true,true, true, true, true, true, true, true, true, true,true,true,true,true,
-          true,true,true,true,true,true, true, true, true, true, true, true, true, true,true,true,true,true,
-          true,true,true,true,true,true, true, true, true, true, true, true, true, true,true,true,true,true,
-          true,true,true,true,true,true, true, true, true, true, true, true, true, true,true,true,true,true,
-          true,true,true,true,true,false,false,false,false,false,false,false,false,true,true,true,true,true,
-          true,true,true,true,true,false,false,false,false,false,false,false,false,true,true,true,true,true,
-          true,true,true,true,true,false,false,false,false,false,false,false,false,true,true,true,true,true
-        ],
+        "sprite_indices": [144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287],
+        "solid_mask": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false, true, true, true, true, true],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1972,10 +1894,9 @@
     "ALTAR.sacrifice.anim": {
       "multisprite": {
         "displayname": "ALTAR.sacrifice.anim",
+        "zorder": [0, 0, 0, 0, 0],
         "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
-        "sprite_indices": [
-          383, 384, 385, 386, 387
-        ],
+        "sprite_indices": [383, 384, 385, 386, 387],
         "sprites_per_sequence": 5,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1987,10 +1908,9 @@
     "SHOP.overlay": {
       "multisprite": {
         "displayname": "SHOP.overlay",
+        "zorder": [0],
         "texture_path": "res/textures/SHOP.overlay.png",
-        "sprite_indices": [
-          0
-        ],
+        "sprite_indices": [0],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {

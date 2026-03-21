@@ -64,6 +64,9 @@ struct adl_serializer<ProceduralMaze::Sprites::MultiSprite>
     std::string display_name;
     get_field( "displayname", display_name );
 
+    std::vector<float> zorder_list{};
+    get_optional_list( "zorder", zorder_list );
+
     std::filesystem::path texture_path;
     get_field( "texture_path", texture_path );
 
@@ -82,7 +85,7 @@ struct adl_serializer<ProceduralMaze::Sprites::MultiSprite>
     ProceduralMaze::Sprites::SpriteSize grid_size;
     get_xy_field( "grid_size", grid_size );
 
-    ms = ProceduralMaze::Sprites::MultiSprite{ "",        display_name,      texture_path,         sprite_indices,
+    ms = ProceduralMaze::Sprites::MultiSprite{ "",        display_name,      zorder_list,          texture_path, sprite_indices,
                                                grid_size, sprites_per_frame, sprites_per_sequence, solid_mask };
 
     SPDLOG_INFO( "Loaded sprite metadata for type: {}, texture path: {}", "", texture_path.string() );
@@ -136,9 +139,9 @@ void SpriteFactory::create_error_sprite()
   [[maybe_unused]] bool result = m_error_texture.loadFromImage( error_image );
 
   // Create error sprite using the procedural texture
-  m_error_metadata = MultiSprite{ "ERROR_SPRITE",  "Error Sprite",
+  m_error_metadata = MultiSprite{ "ERROR_SPRITE",  "Error Sprite", { 0.0 },
                                   m_error_texture, // Use the in-memory texture
-                                  { 0 },           { 1, 1 },       1, 1, {} };
+                                  { 0 },           { 1, 1 },       1,       1, {} };
 }
 
 std::pair<SpriteMetaType, std::size_t> SpriteFactory::get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list )
