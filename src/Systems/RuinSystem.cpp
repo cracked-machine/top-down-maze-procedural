@@ -321,23 +321,14 @@ void RuinSystem::add_lowerfloor_cobwebs( int max_attempts, sf::FloatRect scene_d
 }
 
 template <typename COMPONENT>
-void RuinSystem::add_stairs( sf::Vector2f spawn_position, const Sprites::MultiSprite &stairs_ms, float zorder )
+void RuinSystem::add_stairs( sf::Vector2f spawn_position, const Sprites::MultiSprite &stairs_ms )
 {
-  auto stairs_entt = getReg().create();
-  Cmp::Position stairs_pos( spawn_position, stairs_ms.getSpriteSizePixels() );
-  getReg().emplace_or_replace<Cmp::Position>( stairs_entt, spawn_position, stairs_ms.getSpriteSizePixels() );
-  Factory::create_multiblock<COMPONENT>( getReg(), stairs_entt, stairs_pos, stairs_ms );
-  Factory::create_multiblock_segments<COMPONENT, Cmp::RuinStairsSegment>( getReg(), stairs_entt, stairs_pos, stairs_ms );
-
-  for ( auto [stairs_entt, stairs_cmp, stairs_zorder] : getReg().view<COMPONENT, Cmp::ZOrderValue>().each() )
-  {
-    stairs_zorder.setZOrder( zorder );
-  }
+  Factory::add_multiblock_with_segments<COMPONENT, Cmp::RuinStairsSegment>( getReg(), spawn_position, stairs_ms );
 }
 // Explicit function template instantiations
-template void RuinSystem::add_stairs<Cmp::RuinStairsLowerMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
-template void RuinSystem::add_stairs<Cmp::RuinStairsUpperMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
-template void RuinSystem::add_stairs<Cmp::RuinStairsBalustradeMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
+template void RuinSystem::add_stairs<Cmp::RuinStairsLowerMultiBlock>( sf::Vector2f, const Sprites::MultiSprite & );
+template void RuinSystem::add_stairs<Cmp::RuinStairsUpperMultiBlock>( sf::Vector2f, const Sprites::MultiSprite & );
+template void RuinSystem::add_stairs<Cmp::RuinStairsBalustradeMultiBlock>( sf::Vector2f, const Sprites::MultiSprite & );
 
 void RuinSystem::creaking_rope_update()
 {

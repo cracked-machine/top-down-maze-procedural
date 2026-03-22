@@ -46,7 +46,7 @@ public:
   PathFinding::SpatialHashGrid &get_void_sm();
 
   // Generate position components for the entire map grid and add player spawn
-  void gen_rectangle_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area, Sprites::SpriteMetaType wall_type,
+  void gen_rectangle_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area, const Sprites::MultiSprite &wall_ms,
                                SpawnArea spawnarea = SpawnArea::TRUE );
   void gen_circular_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area );
 

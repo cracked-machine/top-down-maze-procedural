@@ -18,15 +18,14 @@ namespace ProceduralMaze::Factory
 entt::entity create_world_pos( entt::registry &registry, const sf::Vector2f &pos );
 entt::entity create_void_pos( entt::registry &registry, const Cmp::Position &pos );
 
-//! @brief Create a Obstacle component at the given entt
+//! @brief Create a obstacle object
 //! @param registry
 //! @param entity
 //! @param pos_cmp
-//! @param sprite_type
+//! @param ms
 //! @param sprite_tile_idx
-//! @param zorder
-void create_obstacle( entt::registry &registry, entt::entity entity, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
-                      std::size_t sprite_tile_idx, float zorder );
+void create_obstacle( entt::registry &registry, entt::entity entity, Cmp::Position pos_cmp, const Sprites::MultiSprite &ms,
+                      std::size_t sprite_tile_idx );
 
 //! @brief Remove the obstacle component from the entity
 //! @param registry

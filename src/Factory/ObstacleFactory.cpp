@@ -12,6 +12,7 @@
 #include <Factory/ObstacleFactory.hpp>
 #include <Player/PlayerCharacter.hpp>
 #include <Player/PlayerNoPath.hpp>
+#include <Sprites/MultiSprite.hpp>
 #include <VoidPosition.hpp>
 #include <entt/entity/fwd.hpp>
 
@@ -32,18 +33,22 @@ entt::entity create_void_pos( entt::registry &registry, const Cmp::Position &pos
   return entity;
 }
 
-void create_obstacle( entt::registry &registry, entt::entity entity, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
-                      std::size_t sprite_tile_idx, float zorder )
-
+void create_obstacle( entt::registry &registry, entt::entity entity, Cmp::Position pos_cmp, const Sprites::MultiSprite &ms,
+                      std::size_t sprite_tile_idx )
 {
+
+  Cmp::ZOrderValue zorder( 0 );
+  if ( ms.get_zorder( sprite_tile_idx ) != 0 ) { zorder.setZOrder( ms.get_zorder( sprite_tile_idx ) ); }
+  else { zorder.setZOrder( pos_cmp.position.y ); }
+
   if ( registry.all_of<Cmp::PlayerCharacter>( entity ) ) { return; }
   if ( registry.all_of<Cmp::DestroyedObstacle>( entity ) ) { registry.remove<Cmp::DestroyedObstacle>( entity ); }
   registry.emplace_or_replace<Cmp::Obstacle>( entity );
-  registry.emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y + zorder );
+  registry.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
   registry.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
   registry.emplace_or_replace<Cmp::PlayerNoPath>( entity );
   registry.emplace_or_replace<Cmp::AbsoluteAlpha>( entity, 255 );
-  registry.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, sprite_type, sprite_tile_idx );
+  registry.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, ms.get_sprite_type(), sprite_tile_idx );
   registry.emplace_or_replace<Cmp::Armable>( entity );
 }
 

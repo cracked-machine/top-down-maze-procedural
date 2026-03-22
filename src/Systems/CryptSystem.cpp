@@ -1,5 +1,6 @@
 #include <Factory/MultiblockFactory.hpp>
 #include <Player/PlayerNoPath.hpp>
+#include <VoidPosition.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -437,10 +438,9 @@ void CryptSystem::createRoomBorders()
 
     if ( is_border )
     {
-      auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { sprite_type } );
-      float zorder = m_sprite_factory.get_sprite_size_by_type( sprite_type ).y;
-
-      Factory::create_obstacle( getReg(), pos_entt, pos_cmp, obst_type, sprite_index, ( zorder * 2.f ) );
+      // auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { sprite_type } );
+      const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( sprite_type );
+      Factory::create_obstacle( getReg(), pos_entt, pos_cmp, ms, sprite_index );
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
       {
         pathfinding_navmesh->remove( pos_entt, pos_cmp );
@@ -542,10 +542,10 @@ void CryptSystem::gen_crypt_initial_interior()
 
     if ( add_interior_wall )
     {
-      auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
-      float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
-      // Set the z-order value so that the obstacles are rendered above everything else
-      Factory::create_obstacle( getReg(), entity, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
+      // if non-zero use the sprites.json zorder value, else use the sprites y-xis pos
+      const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_sb" );
+
+      Factory::create_obstacle( getReg(), entity, pos_cmp, ms, 2 );
     }
   }
 }
@@ -681,16 +681,11 @@ void CryptSystem::gen_crypt_main_objective( sf::Vector2u map_grid_size )
   float centered_x = ( map_grid_sizef.x / 2.f ) - ( ms.getSpriteSizePixels().x / 2.f ) + kGridSizePxF.x;
   Cmp::Position objective_position( { centered_x, kGridSizePxF.y * 2.f }, ms.getSpriteSizePixels() );
 
-  auto entity = getReg().create();
-  getReg().emplace_or_replace<Cmp::Position>( entity, objective_position.position, objective_position.size );
-
   SPDLOG_INFO( "Placing main crypt objective at position ({}, {})", objective_position.position.x, objective_position.position.y );
-  Factory::create_multiblock<Cmp::CryptObjectiveMultiBlock>( getReg(), entity, objective_position, ms );
-  Factory::create_multiblock_segments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( getReg(), entity, objective_position, ms );
+  Factory::add_multiblock_with_segments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( getReg(), objective_position.position, ms );
 
   // while we're here, carve out a room for the objective sprite. These position/size modifiers are trial and error
   // whilst we decide on the final objective MB sprite dimensions
-
   auto end_room_entity = getReg().create();
   getReg().emplace_or_replace<Cmp::CryptRoomEnd>( end_room_entity, sf::Vector2f{ objective_position.position.x, objective_position.position.y },
                                                   sf::Vector2f{ objective_position.size.x, objective_position.size.y + ( kGridSizePxF.y * 2.f ) } );
@@ -778,10 +773,13 @@ void CryptSystem::fillClosedRooms()
       if ( not closed_room_cmp.findIntersection( pos_cmp ) ) continue;
       if ( getReg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
 
-      auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
-      float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
+      // auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
+      // float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
+      // Factory::create_obstacle( getReg(), pos_entt, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
 
-      Factory::create_obstacle( getReg(), pos_entt, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
+      const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_sb" );
+      Factory::create_obstacle( getReg(), pos_entt, pos_cmp, ms, 2 );
+
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
       {
         pathfinding_navmesh->remove( pos_entt, pos_cmp );

@@ -50,13 +50,13 @@ void HolyWellScene::on_init()
   auto player_start_area = Cmp::RectBounds( player_start_position, Constants::kGridSizePxF, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_rectangle_gamearea( map_size_grid, player_start_area, "HOLYWELL.interior_wall",
+  random_level_sys.gen_rectangle_gamearea( map_size_grid, player_start_area, m_sprite_factory.get_multisprite_by_type( "HOLYWELL.interior_wall" ),
                                            Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
   // add some multiblocks to the game area
   for ( auto [_, sprite_pos_pixel] : m_scene_config->get_sprite_position( "HOLYWELL.interior_well" ) )
   {
-    auto &ms = m_sprite_Factory.get_multisprite_by_type( "HOLYWELL.interior_well" );
+    auto &ms = m_sprite_factory.get_multisprite_by_type( "HOLYWELL.interior_well" );
     Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( m_reg, sprite_pos_pixel, ms );
   }
 

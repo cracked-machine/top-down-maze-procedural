@@ -60,13 +60,14 @@ void RuinSceneUpperFloor::on_init()
   auto player_start_area = Cmp::RectBounds( player_start_pos, gridsize, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
   auto &random_level_sys = m_sys.find<Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_rectangle_gamearea( map_size_grid, player_start_area, "RUIN.interior_wall", ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
+  random_level_sys.gen_rectangle_gamearea( map_size_grid, player_start_area, m_sprite_factory.get_multisprite_by_type( "RUIN.interior_wall" ),
+                                           ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
   // add two Cmp::NoPathFinding above the upper staircase landing to enforce perspective
   Factory::add_nopathfinding( m_reg, { map_size_pixel.x - ( 2 * gridsize.x ), gridsize.x } );
   Factory::add_nopathfinding( m_reg, { map_size_pixel.x - ( 3 * gridsize.x ), gridsize.x } );
 
-  const Sprites::MultiSprite &hexagram_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_hexagram3x3" );
+  const Sprites::MultiSprite &hexagram_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.interior_hexagram3x3" );
   sf::Vector2f hexagram_pos( gridsize.x * 2, map_size_pixel.y - hexagram_ms.getSpriteSizePixels().y - ( gridsize.y * 3 ) );
   Factory::add_multiblock_with_segments<Cmp::RuinHexagramMultiBlock, Cmp::RuinHexagramSegment>( m_reg, hexagram_pos, hexagram_ms );
 
@@ -87,16 +88,14 @@ void RuinSceneUpperFloor::on_init()
   m_sys.find<Store::Type::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size, Cmp::RuinFloorAccess::Direction::TO_LOWER );
 
   // add the straircase sprite for upper floor
-  const Sprites::MultiSprite &stairs_upper_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_going_down" );
+  const Sprites::MultiSprite &stairs_upper_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.interior_staircase_going_down" );
   sf::Vector2f stairs_position( map_size_pixel.x - ( 4 * gridsize.x ), ( 2 * gridsize.y ) );
   m_sys.find<Store::Type::RuinSystem>().add_stairs<Cmp::RuinStairsUpperMultiBlock>( stairs_position, stairs_upper_ms );
 
   // add the straircase balustrade sprite for upper floor - make sure it is front of player
-  const Sprites::MultiSprite &stairs_balustrade_ms = m_sprite_Factory.get_multisprite_by_type( "RUIN.interior_staircase_upper_balustrade" );
+  const Sprites::MultiSprite &stairs_balustrade_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.interior_staircase_upper_balustrade" );
   sf::Vector2f balustrade_position( map_size_pixel.x - ( 4 * gridsize.x ), ( 2 * gridsize.y ) );
-  auto balustrade_zorder = Utils::Player::get_position( m_reg ).position.y + gridsize.y;
-  m_sys.find<Store::Type::RuinSystem>().add_stairs<Cmp::RuinStairsBalustradeMultiBlock>( balustrade_position, stairs_balustrade_ms,
-                                                                                         balustrade_zorder );
+  m_sys.find<Store::Type::RuinSystem>().add_stairs<Cmp::RuinStairsBalustradeMultiBlock>( balustrade_position, stairs_balustrade_ms );
 
   m_floormap.create( random_level_sys.get_void_sm(), m_scene_config );
 

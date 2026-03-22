@@ -340,7 +340,10 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
       sf::Vector2f stats_pos2{ 40.f, start_y_pos += 40.f };
       render_overlay_sys.render_stats_overlay( stats_pos1, stats_pos2 );
 
-      std::set<Sprites::SpriteMetaType> exclusion_list = { "ROCK", "CRYPT.interior_sb", "WALL", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED" };
+      std::set<Sprites::SpriteMetaType> exclusion_list = { "ROCK",
+                                                           //  "CRYPT.interior_sb",
+                                                           "WALL", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED", "FOOTSTEPS",
+                                                           "HOLYWELL.interior_wall", "RUIN.interior_wall", "CRYPT.interior_wall" };
       render_overlay_sys.render_zorder_values_overlay( { display_size.x - 800.f, 40.f }, m_zorder_queue_, exclusion_list );
 
       sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );

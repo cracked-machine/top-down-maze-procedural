@@ -63,7 +63,7 @@ void RuinSceneLowerFloor::on_init()
   auto player_start_area = Cmp::RectBounds( player_start_position, gridsize, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
   auto &random_level_sys = m_sys.find<SystemStoreType::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_rectangle_gamearea( map_size_grid, player_start_area, "RUIN.interior_wall",
+  random_level_sys.gen_rectangle_gamearea( map_size_grid, player_start_area, m_sprite_factory.get_multisprite_by_type( "RUIN.interior_wall" ),
                                            Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
 
   // pass config exit position to exit spawner

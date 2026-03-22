@@ -34,7 +34,20 @@
 namespace ProceduralMaze::Factory
 {
 
+template <typename T>
+concept IsMBSegment = requires( T t ) {
+  { t.isSolidMask() } -> std::convertible_to<bool>;
+  { t.set_solid_mask( true ) } -> std::same_as<void>;
+};
+
+template <typename T>
+concept IsMB = std::derived_from<T, sf::FloatRect>;
+
+namespace detail
+{
+
 template <typename MULTIBLOCK>
+  requires IsMB<MULTIBLOCK>
 void create_multiblock( entt::registry &registry, entt::entity entity, Cmp::Position pos, const Sprites::MultiSprite &ms, int ms_idx = 0 )
 {
 
@@ -57,6 +70,7 @@ void create_multiblock( entt::registry &registry, entt::entity entity, Cmp::Posi
 }
 
 template <typename MULTIBLOCK, typename MBSEGMENT>
+  requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
 std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, entt::entity multiblock_entity, Cmp::Position mb_pos_cmp,
                                                       const Sprites::MultiSprite &ms )
 {
@@ -151,18 +165,22 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
   return created_entts;
 }
 
-template <typename COMPONENT, typename SEGMENTS>
-void add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position, const Sprites::MultiSprite &ms, float zorder = 0 )
+} // namespace detail
+
+template <typename MULTIBLOCK, typename MBSEGMENT>
+  requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
+void add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position, const Sprites::MultiSprite &ms, [[maybe_unused]] float zorder = 0 )
 {
   auto entt = reg.create();
   Cmp::Position pos( position, ms.getSpriteSizePixels() );
   reg.emplace_or_replace<Cmp::Position>( entt, position, ms.getSpriteSizePixels() );
-  Factory::create_multiblock<COMPONENT>( reg, entt, pos, ms );
-  Factory::create_multiblock_segments<COMPONENT, SEGMENTS>( reg, entt, pos, ms );
+  Factory::detail::create_multiblock<MULTIBLOCK>( reg, entt, pos, ms );
+  Factory::detail::create_multiblock_segments<MULTIBLOCK, MBSEGMENT>( reg, entt, pos, ms );
 
-  for ( auto [view_entt, view_cmp, view_zorder] : reg.view<COMPONENT, Cmp::ZOrderValue>().each() )
+  for ( auto [view_entt, view_cmp, view_zorder] : reg.view<MULTIBLOCK, Cmp::ZOrderValue>().each() )
   {
-    view_zorder.setZOrder( zorder );
+    if ( ms.get_zorder( 0 ) != 0 ) { view_zorder.setZOrder( ms.get_zorder( 0 ) ); }
+    else { view_zorder.setZOrder( view_cmp.position.y + ms.getSpriteSizePixels().y ); }
   }
 }
 

@@ -7,7 +7,9 @@
 #include <SFML/Graphics/VertexArray.hpp>
 
 #include <cstdint>
+#include <exception>
 #include <filesystem>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -56,7 +58,16 @@ public:
 
   const sf::Texture &get_texture() const { return *m_tilemap_texture; }
   std::string get_display_name() const { return m_display_name; }
-  float get_zorder( size_t idx ) const { return m_zorder_list.at( idx ); }
+  float get_zorder( size_t idx ) const
+  {
+    try
+    {
+      return m_zorder_list.at( idx );
+    } catch ( std::exception e )
+    {
+      throw std::runtime_error( std::string( m_sprite_type ) + " - " + e.what() );
+    }
+  }
 
   /**
    * @brief Default dimensions for sprite frames in pixels.

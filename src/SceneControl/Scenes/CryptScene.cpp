@@ -114,7 +114,7 @@ void CryptScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
-  m_sys.find<Sys::Store::Type::CryptSystem>().update();
+  // m_sys.find<Sys::Store::Type::CryptSystem>().update();
   m_sys.find<Sys::Store::Type::ShockwaveSystem>().checkShockwavePlayerCollision();
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
 

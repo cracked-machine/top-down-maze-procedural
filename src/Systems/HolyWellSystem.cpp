@@ -54,18 +54,9 @@ void HolyWellSystem::spawn_well( sf::Vector2u spawn_position )
 {
 
   const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "HOLYWELL.interior_well" );
-  Cmp::Position spawn_pos_px(
-      { static_cast<float>( spawn_position.x ) * Constants::kGridSizePx.x, static_cast<float>( spawn_position.y ) * Constants::kGridSizePx.y },
-      ms.getSpriteSizePixels() );
-
-  auto entity = getReg().create();
-  getReg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, spawn_pos_px.size );
-
-  Factory::create_multiblock<Cmp::HolyWellMultiBlock>( getReg(), entity, spawn_pos_px, ms );
-  Factory::create_multiblock_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( getReg(), entity, spawn_pos_px, ms );
-
-  SPDLOG_INFO( "Well spawned at position ({}, {})", spawn_pos_px.position.x, spawn_pos_px.position.y );
-  return;
+  const sf::Vector2f new_pos = { static_cast<float>( spawn_position.x ) * Constants::kGridSizePx.x,
+                                 static_cast<float>( spawn_position.y ) * Constants::kGridSizePx.y };
+  Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( getReg(), new_pos, ms );
 }
 
 void HolyWellSystem::check_entrance_collision()

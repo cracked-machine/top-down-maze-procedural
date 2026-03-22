@@ -39,7 +39,7 @@ public:
   void spawn_floor_access( sf::Vector2f spawn_position, sf::Vector2f size, Cmp::RuinFloorAccess::Direction dir );
 
   template <typename COMPONENT>
-  void add_stairs( sf::Vector2f spawn_position, const Sprites::MultiSprite &stairs_ms, float zorder = 0 );
+  void add_stairs( sf::Vector2f spawn_position, const Sprites::MultiSprite &stairs_ms );
 
   void creaking_rope_update();
 
@@ -98,9 +98,9 @@ private:
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
 };
 
-extern template void RuinSystem::add_stairs<Cmp::RuinStairsLowerMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
-extern template void RuinSystem::add_stairs<Cmp::RuinStairsUpperMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
-extern template void RuinSystem::add_stairs<Cmp::RuinStairsBalustradeMultiBlock>( sf::Vector2f, const Sprites::MultiSprite &, float );
+extern template void RuinSystem::add_stairs<Cmp::RuinStairsLowerMultiBlock>( sf::Vector2f, const Sprites::MultiSprite & );
+extern template void RuinSystem::add_stairs<Cmp::RuinStairsUpperMultiBlock>( sf::Vector2f, const Sprites::MultiSprite & );
+extern template void RuinSystem::add_stairs<Cmp::RuinStairsBalustradeMultiBlock>( sf::Vector2f, const Sprites::MultiSprite & );
 
 } // namespace ProceduralMaze::Sys
 

@@ -36,8 +36,7 @@
               "type": "array",
               "description": "Zorder value for rendering, one per sprite index",
               "items": {
-                "type": "number",
-                "minimum": 0
+                "type": "number"
               },
               "minItems": 1
             },

@@ -678,10 +678,13 @@ void PassageSystem::fillAllPassages()
       if ( not pblock_cmp_rect.findIntersection( pos_cmp ) ) continue;
       if ( getReg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
 
-      auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
-      float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
+      // auto [obst_type, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
+      // float zorder = m_sprite_factory.get_sprite_size_by_type( "CRYPT.interior_sb" ).y;
+      // Factory::create_obstacle( getReg(), pos_entt, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
 
-      Factory::create_obstacle( getReg(), pos_entt, pos_cmp, obst_type, 2, ( zorder * 2.f ) );
+      const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_sb" );
+      Factory::create_obstacle( getReg(), pos_entt, pos_cmp, ms, 2 );
+
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
       {
         pathfinding_navmesh->remove( pos_entt, pos_cmp );

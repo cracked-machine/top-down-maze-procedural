@@ -14,6 +14,8 @@ namespace ProceduralMaze::Sys::ProcGen
 void CellAutomataSystem::iterate( unsigned int iterations, RandomLevelGenerator::SceneType scene_type,
                                   PathFinding::SpatialHashGrid &levelgen_spatialgrid )
 {
+  const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "ROCK" );
+
   sf::Clock iteration_timer;
   for ( unsigned int i = 0; i < iterations; i++ )
   {
@@ -29,12 +31,13 @@ void CellAutomataSystem::iterate( unsigned int iterations, RandomLevelGenerator:
       {
         if ( scene_type == RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
         {
-          Factory::create_obstacle( getReg(), pos_entt, pos_cmp, "ROCK", 0, pos_cmp.position.y );
+          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "ROCK" } );
+          Factory::create_obstacle( getReg(), pos_entt, pos_cmp, ms, idx );
         }
         else if ( scene_type == RandomLevelGenerator::SceneType::CRYPT_INTERIOR )
         {
-          auto [type, idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
-          Factory::create_obstacle( getReg(), pos_entt, pos_cmp, type, idx, pos_cmp.position.y );
+          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
+          Factory::create_obstacle( getReg(), pos_entt, pos_cmp, ms, idx );
         }
       }
       else if ( neighbour_list.size() > 2 and neighbour_list.size() < 5 )
@@ -44,14 +47,16 @@ void CellAutomataSystem::iterate( unsigned int iterations, RandomLevelGenerator:
       }
       else
       {
+
         if ( scene_type == RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
         {
-          Factory::create_obstacle( getReg(), pos_entt, pos_cmp, "ROCK", 0, pos_cmp.position.y );
+          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "ROCK" } );
+          Factory::create_obstacle( getReg(), pos_entt, pos_cmp, ms, idx );
         }
         else if ( scene_type == RandomLevelGenerator::SceneType::CRYPT_INTERIOR )
         {
-          auto [type, idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
-          Factory::create_obstacle( getReg(), pos_entt, pos_cmp, type, idx, pos_cmp.position.y );
+          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
+          Factory::create_obstacle( getReg(), pos_entt, pos_cmp, ms, idx );
         }
       }
     }

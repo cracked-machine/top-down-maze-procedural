@@ -11,7 +11,7 @@
     "random_seed": 0,
     "map_size": {
       "width": 15,
-      "height": 7
+      "height": 10
     },
     "player_start_position": {
       "x": 3,
@@ -21,6 +21,12 @@
       "x": 14, 
       "y": 4
     },
+    "multiblock_positions": [
+      {
+        "name": "HOLYWELL.interior_well",
+        "position": { "x": 6, "y": 5}
+      }
+    ],
     "npc_positions": [
       {
         "name": "NPC.dr_knox",
@@ -28,7 +34,7 @@
       }
     ]
   },
-    "inventory_config": {
+  "inventory_config": {
     "max_items": 3,
     "min_price": 5,
     "max_price": 20,
@@ -43,5 +49,11 @@
     "ui_slotlinecolor": { "r": 0, "g": 0, "b": 0, "a": 64 },
     "ui_slotlinesize": 1
     
+  },
+  "prices_config": {
+    "cadaver_cost": 10,
+    "jewelry_tier3": 2,
+    "jewelry_tier2": 3,
+    "jewelry_tier1": 5
   }
 }
