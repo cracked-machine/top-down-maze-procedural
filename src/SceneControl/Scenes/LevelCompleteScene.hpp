@@ -35,6 +35,7 @@ protected:
 private:
   Audio::SoundBank &m_sound_bank;
   Sys::Store &m_sys;
+  sf::Time m_scorecheck_accumulator;
 };
 
 } // namespace ProceduralMaze::Scene

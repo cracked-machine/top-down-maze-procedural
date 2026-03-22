@@ -610,7 +610,7 @@ std::vector<entt::entity> RandomLevelGenerator::gen_random_plants( sf::Vector2u 
       getReg().emplace_or_replace<Cmp::ReservedPosition>( world_pos_entt );
 
       // now create the plant at a new entt
-      Factory::create_plant_obstacle( getReg(), random_pos, m_sprite_factory.get_multisprite_by_type( rand_plant_type ), 0.f );
+      Factory::create_plant_obstacle( getReg(), random_pos, m_sprite_factory.get_multisprite_by_type( rand_plant_type ) );
       SPDLOG_DEBUG( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
       assigned_entts.push_back( random_entity );
     }

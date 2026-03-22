@@ -11,7 +11,7 @@
     "random_seed": 0,
     "map_size": {
       "width": 15,
-      "height": 10
+      "height": 11
     },
     "player_start_position": {
       "x": 3,
@@ -49,11 +49,5 @@
     "ui_slotlinecolor": { "r": 0, "g": 0, "b": 0, "a": 64 },
     "ui_slotlinesize": 1
     
-  },
-  "prices_config": {
-    "cadaver_cost": 10,
-    "jewelry_tier3": 2,
-    "jewelry_tier2": 3,
-    "jewelry_tier1": 5
   }
 }

@@ -48,7 +48,7 @@ public:
   void render_settings( sf::Time globalDeltaTime );
   void render_paused( sf::Time globalDeltaTime );
   void render_defeat_screen();
-  void render_victory_screen();
+  void render_victory_screen( bool allow_continue );
 
 private:
   // std::unique_ptr<Sprites::TitleScreenShader> m_title_screen_shader;

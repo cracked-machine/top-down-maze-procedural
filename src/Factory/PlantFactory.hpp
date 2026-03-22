@@ -19,7 +19,7 @@ class SpriteFactory;
 
 namespace ProceduralMaze::Factory
 {
-entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, const Sprites::MultiSprite &ms, float zorder );
+entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, const Sprites::MultiSprite &ms );
 
 } // namespace ProceduralMaze::Factory
 

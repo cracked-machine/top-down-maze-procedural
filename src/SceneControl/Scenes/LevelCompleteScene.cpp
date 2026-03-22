@@ -1,3 +1,7 @@
+#include <Player.hpp>
+#include <Player/PlayerCadaverCount.hpp>
+#include <Player/PlayerWealth.hpp>
+#include <SFML/System/Time.hpp>
 #include <SceneControl/Scenes/LevelCompleteScene.hpp>
 
 #include <Audio/SoundBank.hpp>
@@ -30,12 +34,28 @@ void LevelCompleteScene::on_exit()
   player_sys.stopFootstepsSound();
 }
 
-void LevelCompleteScene::do_update( [[maybe_unused]] sf::Time dt )
+void LevelCompleteScene::do_update( sf::Time dt )
 {
   m_sound_bank.get_effect( "footsteps" ).stop();
 
+  auto &wealth = Utils::Player::get_wealth( m_reg );
+  auto &cadaver_count = Utils::Player::get_cadaver_count( m_reg );
+
+  static constexpr float kPlantCheckIntervalHz = 1.0f;
+  m_scorecheck_accumulator += dt;
+  if ( m_scorecheck_accumulator.asSeconds() >= 1.f / kPlantCheckIntervalHz )
+  {
+    if ( cadaver_count.get_count() > 0 )
+    {
+      cadaver_count.decrement_count( 1 );
+      wealth.wealth += 10;
+      m_sound_bank.get_effect( "get_loot" ).play();
+    }
+    m_scorecheck_accumulator = sf::Time::Zero;
+  }
+
   auto &render_menu_sys = m_sys.find<Sys::Store::Type::RenderMenuSystem>();
-  render_menu_sys.render_victory_screen();
+  render_menu_sys.render_victory_screen( ( cadaver_count.get_count() > 0 ? false : true ) );
 }
 
 entt::registry &LevelCompleteScene::registry() { return m_reg; }

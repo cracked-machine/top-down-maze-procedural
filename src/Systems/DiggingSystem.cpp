@@ -88,6 +88,7 @@ void DiggingSystem::update( sf::Time dt )
       if ( playernopath_cmp->active ) continue;
       if ( not player_pos.findIntersection( plant_pos_cmp ) ) { playernopath_cmp->active = true; }
     }
+    m_plantcheck_accumulator = sf::Time::Zero;
   }
 }
 

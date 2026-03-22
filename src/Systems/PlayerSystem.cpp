@@ -419,11 +419,11 @@ entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, ent
     return entt::null;
   }
 
-  // if plant then replant it in the ground
+  // if plant then replant it in the ground - snap to nearest grid to prevent collision issues
   if ( inventory_slot_cmp->type.contains( "plant" ) )
   {
-    auto world_carry_item_entt = Factory::create_plant_obstacle( getReg(), Cmp::Position( pos, Constants::kGridSizePxF ),
-                                                                 m_sprite_factory.get_multisprite_by_type( inventory_slot_cmp->type ), 0.f );
+    auto world_carry_item_entt = Factory::create_plant_obstacle( getReg(), Cmp::Position( Utils::snap_to_grid( pos ), Constants::kGridSizePxF ),
+                                                                 m_sprite_factory.get_multisprite_by_type( inventory_slot_cmp->type ) );
     getReg().destroy( inventory_slot_entt );
     return world_carry_item_entt;
   }

@@ -45,6 +45,8 @@
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Persistent/NpcWitchAnimFramerate.hpp>
 #include <Persistent/PlayerMovementSpeed.hpp>
+#include <Player/PlayerCadaverCount.hpp>
+#include <Player/PlayerWealth.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
@@ -307,28 +309,38 @@ void RenderMenuSystem::render_defeat_screen()
   // main render end
 }
 
-void RenderMenuSystem::render_victory_screen()
+void RenderMenuSystem::render_victory_screen( bool allow_continue )
 {
   // main render begin
   m_window.clear();
 
   sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
 
-  sf::Text title_text( m_font, "You won!", 96 );
+  sf::Text title_text( m_font, "Level Complete!", 96 );
   title_text.setFillColor( sf::Color::White );
   title_text.setPosition( { display_size.x / 4.f, 100.f } );
   m_window.draw( title_text );
 
-  sf::Text start_text( m_font, "Press <R> key to continue", 48 );
-  start_text.setFillColor( sf::Color::White );
-  start_text.setPosition( { display_size.x / 4.f, 200.f } );
-  m_window.draw( start_text );
+  if ( allow_continue )
+  {
+    sf::Text start_text( m_font, "Press <R> key to continue", 48 );
+    start_text.setFillColor( sf::Color::White );
+    start_text.setPosition( { display_size.x / 4.f, 200.f } );
+    m_window.draw( start_text );
+  }
 
-  auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( getReg() );
-  sf::Text player_inventory_text( m_font, "Player Inventory: " + ( inventory_type = "" ? "None" : inventory_type ), 24 );
-  player_inventory_text.setFillColor( sf::Color::White );
-  player_inventory_text.setPosition( { display_size.x / 4.f, 550.f } );
-  m_window.draw( player_inventory_text );
+  auto wealth = Utils::Player::get_wealth( m_reg );
+  auto cadaver_count = Utils::Player::get_cadaver_count( m_reg );
+
+  sf::Text cadaver_txt( m_font, "Cadaver count: " + std::to_string( cadaver_count.get_count() ), 24 );
+  cadaver_txt.setFillColor( sf::Color::White );
+  cadaver_txt.setPosition( { display_size.x / 4.f, 500.f } );
+  m_window.draw( cadaver_txt );
+
+  sf::Text wealth_txt( m_font, "Player wealth: " + std::to_string( wealth.wealth ), 24 );
+  wealth_txt.setFillColor( sf::Color::White );
+  wealth_txt.setPosition( { display_size.x / 4.f, 600.f } );
+  m_window.draw( wealth_txt );
 
   m_window.display();
   // main render end
