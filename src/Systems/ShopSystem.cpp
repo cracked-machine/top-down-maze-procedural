@@ -1,3 +1,4 @@
+#include <Events/DropInventoryEvent.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -261,11 +262,9 @@ void ShopSystem::buy_shop_item( uint8_t item_idx )
       if ( player_wealth.wealth < static_cast<int32_t>( price ) ) { break; }
       player_wealth.wealth -= price;
 
-      // player can only have one inventory slot so drop player inventory slot item first
       auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
-      auto dropped_entt = Factory::drop_inventory_slot_into_world( getReg(), Utils::Player::get_position( getReg() ),
-                                                                   m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
-      if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
+      auto player_pos = Utils::Player::get_position( getReg() ).position;
+      get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
 
       // add new carryitem into player inventory
       Factory::add_inventory( getReg(), item );

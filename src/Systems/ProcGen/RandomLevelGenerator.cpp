@@ -14,6 +14,7 @@
 #include <Constants.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/WallFactory.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -584,6 +585,37 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
 
   SPDLOG_ERROR( "Failed to find valid large obstacle spawn location after {} attempts (original seed: {})", kMaxAttempts, seed );
   return { entt::null, Cmp::Position{ { 0.f, 0.f }, { 0.f, 0.f } } };
+}
+
+std::vector<entt::entity> RandomLevelGenerator::gen_random_plants( sf::Vector2u map_grid_size )
+{
+  std::vector<entt::entity> assigned_entts;
+
+  auto num_plants = map_grid_size.x * map_grid_size.y / 200;
+
+  for ( std::size_t i = 0; i < num_plants; ++i )
+  {
+    auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
+        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
+
+    // select a random number within the range of possible flora CarryItems
+    auto [rand_plant_type, rnd_plant_idx] = m_sprite_factory.get_random_type_and_texture_index(
+        { "CARRYITEM.plant1", "CARRYITEM.plant2", "CARRYITEM.plant3", "CARRYITEM.plant4", "CARRYITEM.plant5", "CARRYITEM.plant6", "CARRYITEM.plant7",
+          "CARRYITEM.plant8", "CARRYITEM.plant9", "CARRYITEM.plant10", "CARRYITEM.plant11", "CARRYITEM.plant12" } );
+
+    auto world_pos_entt = Utils::get_world_pos_entt( getReg(), random_pos );
+    if ( world_pos_entt != entt::null )
+    {
+      // make sure we mark the *world* entt as reserved
+      getReg().emplace_or_replace<Cmp::ReservedPosition>( world_pos_entt );
+
+      // now create the plant at a new entt
+      Factory::create_plant_obstacle( getReg(), random_pos, m_sprite_factory.get_multisprite_by_type( rand_plant_type ), 0.f );
+      SPDLOG_DEBUG( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
+      assigned_entts.push_back( random_entity );
+    }
+  }
+  return assigned_entts;
 }
 
 } // namespace ProceduralMaze::Sys::ProcGen

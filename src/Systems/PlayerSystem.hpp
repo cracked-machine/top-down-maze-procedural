@@ -1,8 +1,10 @@
 #ifndef SRC_SYSTEMS_PLAYERSYSTEM_HPP__
 #define SRC_SYSTEMS_PLAYERSYSTEM_HPP__
 
+#include <Events/DropInventoryEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
+#include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <SFML/Audio/Sound.hpp>
@@ -10,6 +12,11 @@
 #include <entt/entity/fwd.hpp>
 
 // forward declarations
+namespace ProceduralMaze::Sprites
+{
+class MultiSprite;
+}
+
 namespace ProceduralMaze::Cmp
 {
 class Direction;
@@ -70,7 +77,7 @@ private:
   //! @brief Rotation, scaling, offset, alpha, etc
   void localTransforms();
 
-  void update_player_position( sf::Time globalDeltaTime, bool collision_enabled );
+  void update_player_position( sf::Time dt, bool collision_enabled );
   void update_player_animation();
   void update_player_zorder();
 
@@ -80,8 +87,17 @@ private:
 
   void check_player_axe_npc_kill();
 
+  //! @brief Remove the CarryItem from player inventory and place it into the world
+  //! @param reg the ECS registry
+  //! @param pos the postion to place the item
+  //! @param sprite the multisprite object
+  //! @param inventory_slot_cmp_entt the player inventory slot entt
+  //! @return entt::entity
+  entt::entity drop_inventory_slot_into_world( sf::Vector2f pos, entt::entity inventory_slot_cmp_entt );
+
   void on_player_mortality_event( ProceduralMaze::Events::PlayerMortalityEvent ev );
   void on_player_action_event( ProceduralMaze::Events::PlayerActionEvent ev );
+  void on_drop_inventory_event( ProceduralMaze::Events::DropInventoryEvent ev );
 
   //! @brief Use this to send events to the scene manager
   entt::dispatcher &m_scenemanager_event_dispatcher;

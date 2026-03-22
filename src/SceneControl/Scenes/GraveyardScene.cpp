@@ -107,7 +107,7 @@ void GraveyardScene::on_init()
   random_level_sys.gen_graveyard_exterior_multiblocks();
   Factory::gen_loot_containers( m_reg, m_sprite_factory, map_size_grid );
   Factory::gen_npc_containers( m_reg, m_sprite_factory, map_size_grid );
-  Factory::gen_random_plants( m_reg, m_sprite_factory, map_size_grid );
+  random_level_sys.gen_random_plants( map_size_grid );
 
   random_level_sys.gen_graveyard_exterior_obstacles();
   SPDLOG_INFO( "LEVELGENSPATIALMAP: {}", random_level_sys.get_obstacle_sm().size() );

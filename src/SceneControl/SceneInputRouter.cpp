@@ -14,6 +14,7 @@
 #include <Components/System.hpp>
 #include <Events/BuyShopItemEvent.hpp>
 #include <Events/CryptRoomEvent.hpp>
+#include <Events/DropInventoryEvent.hpp>
 #include <Events/LoadSettingsEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
@@ -116,36 +117,30 @@ void SceneInputRouter::graveyard_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
       {
-        enqueue( Events::SceneManagerEvent::Type::ENTER_CRYPT );
-        // remember the player position
-        Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
-        // drop any inventory
         auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
-        auto dropped_entt = Factory::drop_inventory_slot_into_world(
-            getReg(), Utils::Player::get_position( getReg() ), m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
-        if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
+        auto player_pos = Utils::Player::get_position( getReg() ).position;
+        get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
+        Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
+
+        enqueue( Events::SceneManagerEvent::Type::ENTER_CRYPT );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F6 )
       {
-        enqueue( Events::SceneManagerEvent::Type::ENTER_HOLYWELL );
-        // remember the player position
-        Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
-        // drop any inventory
         auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
-        auto dropped_entt = Factory::drop_inventory_slot_into_world(
-            getReg(), Utils::Player::get_position( getReg() ), m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
-        if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
+        auto player_pos = Utils::Player::get_position( getReg() ).position;
+        get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
+        Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
+
+        enqueue( Events::SceneManagerEvent::Type::ENTER_HOLYWELL );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F7 )
       {
-        enqueue( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER );
-        // remember the player position
-        Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
-        // drop any inventory
         auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
-        auto dropped_entt = Factory::drop_inventory_slot_into_world(
-            getReg(), Utils::Player::get_position( getReg() ), m_sprite_factory.get_multisprite_by_type( inventory_slot_type ), inventory_entt );
-        if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
+        auto player_pos = Utils::Player::get_position( getReg() ).position;
+        get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
+        Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
+
+        enqueue( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F8 ) { enqueue( Events::SceneManagerEvent::Type::ENTER_SHOP ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }

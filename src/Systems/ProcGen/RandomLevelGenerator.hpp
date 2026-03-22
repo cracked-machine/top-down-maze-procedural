@@ -89,6 +89,8 @@ public:
   // Find a valid spawn location for a large obstacle given a seed
   std::pair<entt::entity, Cmp::Position> find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed );
 
+  std::vector<entt::entity> gen_random_plants( sf::Vector2u map_grid_size );
+
   //! @brief Call this to make sure the level data is reset before regenerating a new scene
   void reset()
   {

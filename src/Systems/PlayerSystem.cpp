@@ -1,3 +1,9 @@
+#include <Constants.hpp>
+#include <Events/DropInventoryEvent.hpp>
+#include <Factory/PlantFactory.hpp>
+#include <Inventory/Explosive.hpp>
+#include <Inventory/InventoryWearLevel.hpp>
+#include <Inventory/ScryingBall.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -61,10 +67,11 @@ PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
   SPDLOG_DEBUG( "PlayerSystem initialized" );
   std::ignore = get_systems_event_queue().sink<Events::PlayerMortalityEvent>().connect<&PlayerSystem::on_player_mortality_event>( this );
   std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&PlayerSystem::on_player_action_event>( this );
+  std::ignore = get_systems_event_queue().sink<Events::DropInventoryEvent>().connect<&PlayerSystem::on_drop_inventory_event>( this );
   m_post_death_timer.reset();
 }
 
-void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, FootStepSfx footstep_sfx )
+void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
 {
 
   // cache the player position so we can update the spatial grid afterwards.
@@ -75,7 +82,7 @@ void PlayerSystem::update( [[maybe_unused]] sf::Time globalDeltaTime, FootStepSf
 
   if ( not m_post_death_timer.isRunning() )
   {
-    update_player_position( globalDeltaTime, Utils::getSystemCmp( getReg() ).collisions_disabled );
+    update_player_position( dt, Utils::getSystemCmp( getReg() ).collisions_disabled );
     update_player_animation();
     update_player_zorder();
 
@@ -344,8 +351,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
     for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
     {
       existing_player_inventory_type = inventory_cmp.type;
-      auto dropped_entt = Factory::drop_inventory_slot_into_world( getReg(), player_pos,
-                                                                   m_sprite_factory.get_multisprite_by_type( inventory_cmp.type ), inventory_entt );
+      auto dropped_entt = drop_inventory_slot_into_world( player_pos.position, inventory_entt );
       if ( dropped_entt != entt::null )
       {
         if ( existing_player_inventory_type.contains( "plant" ) ) { m_sound_bank.get_effect( "digging_earth" ).play(); }
@@ -401,6 +407,62 @@ void PlayerSystem::check_player_mortality()
       m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::GAME_OVER );
     }
   }
+}
+
+entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entity inventory_slot_entt )
+{
+  auto inventory_slot_cmp = getReg().try_get<Cmp::PlayerInventorySlot>( inventory_slot_entt );
+
+  if ( not inventory_slot_cmp )
+  {
+    SPDLOG_INFO( "Player has no inventory" );
+    return entt::null;
+  }
+
+  // if plant then replant it in the ground
+  if ( inventory_slot_cmp->type.contains( "plant" ) )
+  {
+    auto world_carry_item_entt = Factory::create_plant_obstacle( getReg(), Cmp::Position( pos, Constants::kGridSizePxF ),
+                                                                 m_sprite_factory.get_multisprite_by_type( inventory_slot_cmp->type ), 0.f );
+    getReg().destroy( inventory_slot_entt );
+    return world_carry_item_entt;
+  }
+  else
+  {
+    // otherwise just drop it as a Re-pickupable item
+    auto world_carry_item_entt = getReg().create();
+    getReg().emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos, Constants::kGridSizePxF );
+    getReg().emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, false, inventory_slot_cmp->type, 0 );
+    getReg().emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.y - 1.f );
+    getReg().emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, inventory_slot_cmp->type );
+    getReg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
+
+    // try to copy any relevant components over to the new world carryitem entt
+    auto inventory_slot_level_cmp = getReg().try_get<Cmp::InventoryWearLevel>( inventory_slot_entt );
+    if ( inventory_slot_level_cmp )
+    {
+      getReg().emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, inventory_slot_level_cmp->m_level );
+    }
+
+    auto inventory_scryingball_cmp = getReg().try_get<Cmp::ScryingBall>( inventory_slot_entt );
+    if ( inventory_scryingball_cmp )
+    {
+      getReg().emplace_or_replace<Cmp::ScryingBall>( world_carry_item_entt, true, inventory_scryingball_cmp->target );
+    }
+
+    auto inventory_explosive_cmp = getReg().try_get<Cmp::Explosive>( inventory_slot_entt );
+    if ( inventory_explosive_cmp ) { getReg().emplace_or_replace<Cmp::Explosive>( world_carry_item_entt, false ); }
+
+    // now destroy the inventory slot
+    getReg().destroy( inventory_slot_entt );
+    return world_carry_item_entt;
+  }
+}
+
+void PlayerSystem::on_drop_inventory_event( ProceduralMaze::Events::DropInventoryEvent ev )
+{
+  auto dropped_entt = drop_inventory_slot_into_world( ev.drop_pos, ev.inventory_slot_entt );
+  if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
 }
 
 void PlayerSystem::playFootstepsSound( FootStepSfx type )

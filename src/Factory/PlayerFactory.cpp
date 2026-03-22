@@ -169,56 +169,6 @@ entt::entity create_carry_item( entt::registry &reg, Cmp::Position pos, Sprites:
   return world_carry_item_entt;
 }
 
-//! @brief Remove the CarryItem from player inventory and place it into the world
-//! @param reg the ECS registry
-//! @param pos the postion to place the item
-//! @param sprite the multisprite object
-//! @param inventory_slot_cmp_entt the player inventory slot entt
-//! @return entt::entity
-entt::entity drop_inventory_slot_into_world( entt::registry &reg, Cmp::Position pos, const Sprites::MultiSprite &sprite,
-                                             entt::entity inventory_slot_entt )
-{
-  auto inventory_slot_cmp = reg.try_get<Cmp::PlayerInventorySlot>( inventory_slot_entt );
-
-  if ( not inventory_slot_cmp )
-  {
-    SPDLOG_INFO( "Player has no inventory" );
-    return entt::null;
-  }
-
-  // if plant then replant it in the ground
-  if ( inventory_slot_cmp->type.contains( "plant" ) )
-  {
-    auto world_carry_item_entt = Factory::create_plant_obstacle( reg, pos, inventory_slot_cmp->type, 0.f );
-    reg.destroy( inventory_slot_entt );
-    return world_carry_item_entt;
-  }
-  else
-  {
-    // otherwise just drop it as a Re-pickupable item
-    auto world_carry_item_entt = reg.create();
-    reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
-    reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, false, sprite.get_sprite_type(), 0 );
-    reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f );
-    reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, inventory_slot_cmp->type );
-    reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
-
-    // try to copy any relevant components over to the new world carryitem entt
-    auto inventory_slot_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( inventory_slot_entt );
-    if ( inventory_slot_level_cmp ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, inventory_slot_level_cmp->m_level ); }
-
-    auto inventory_scryingball_cmp = reg.try_get<Cmp::ScryingBall>( inventory_slot_entt );
-    if ( inventory_scryingball_cmp ) { reg.emplace_or_replace<Cmp::ScryingBall>( world_carry_item_entt, true, inventory_scryingball_cmp->target ); }
-
-    auto inventory_explosive_cmp = reg.try_get<Cmp::Explosive>( inventory_slot_entt );
-    if ( inventory_explosive_cmp ) { reg.emplace_or_replace<Cmp::Explosive>( world_carry_item_entt, false ); }
-
-    // now destroy the inventory slot
-    reg.destroy( inventory_slot_entt );
-    return world_carry_item_entt;
-  }
-}
-
 //! @brief Remove the CarryItem from the world and add it to the player inventory
 //! @note This is a destructive operation so transfer any component properties before the function exits
 //! @param reg the ECS registry

@@ -1,4 +1,5 @@
 
+#include <Events/DropInventoryEvent.hpp>
 #include <Player/PlayerNoPath.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
@@ -327,8 +328,9 @@ void DiggingSystem::check_player_dig_plant_collision()
         {
           if ( inventory_slot.type == "CARRYITEM.shovel" )
           {
-            Factory::drop_inventory_slot_into_world( getReg(), obst_pos_cmp, m_sprite_factory.get_multisprite_by_type( inventory_slot.type ),
-                                                     inventory_entt );
+            auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
+            auto player_pos = Utils::Player::get_position( getReg() ).position;
+            get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
           }
           else if ( inventory_slot.type == "CARRYITEM.axe" )
           {

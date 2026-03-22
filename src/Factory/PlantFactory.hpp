@@ -19,9 +19,7 @@ class SpriteFactory;
 
 namespace ProceduralMaze::Factory
 {
-entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type, float zorder );
-
-std::vector<entt::entity> gen_random_plants( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size );
+entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, const Sprites::MultiSprite &ms, float zorder );
 
 } // namespace ProceduralMaze::Factory
 
