@@ -15,6 +15,9 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Constants.hpp>
+#include <Inventory/FlashUICadaver.hpp>
+#include <Inventory/FlashUIRadius.hpp>
+#include <Inventory/FlashUIWealth.hpp>
 #include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Player.hpp>
@@ -103,7 +106,7 @@ void RenderOverlaySystem::render_weapons_meter_overlay( float new_weapon_level, 
   m_window.draw( weaponsbar_border );
 }
 
-void RenderOverlaySystem::render_bomb_overlay( int radius_value, sf::Vector2f pos )
+void RenderOverlaySystem::render_radius_overlay( sf::Time dt, int radius_value, sf::Vector2f pos )
 {
 
   auto sprite_metatype = "ICONS";
@@ -115,15 +118,35 @@ void RenderOverlaySystem::render_bomb_overlay( int radius_value, sf::Vector2f po
   // text - slightly offset the y-axis to center with icon
   sf::Vector2f bomb_meter_offset{ 50.f, -2.f };
   sf::Text bomb_count_text( m_font, "", 30 );
-  bomb_count_text.setString( std::to_string( radius_value ) );
+  bomb_count_text.setString( " =   " + std::to_string( radius_value ) );
   bomb_count_text.setPosition( pos + bomb_meter_offset );
   bomb_count_text.setFillColor( sf::Color::White );
   bomb_count_text.setOutlineColor( sf::Color::Black );
   bomb_count_text.setOutlineThickness( 2.f );
+
+  // flash the text if we just deposited something in a well
+  auto flash_view = getReg().view<Cmp::FlashUIRadius>();
+  if ( not flash_view.empty() )
+  {
+    auto flash_entt = flash_view.front();
+    auto &flash_cmp = flash_view.get<Cmp::FlashUIRadius>( flash_entt );
+    m_flash_radius_ui_interval += dt;
+    if ( m_flash_radius_ui_interval > flash_cmp.duration )
+    {
+      getReg().remove<Cmp::FlashUIRadius>( flash_entt );
+      m_flash_radius_ui_interval = sf::Time::Zero;
+    }
+    else if ( static_cast<int>( m_flash_radius_ui_interval.asMilliseconds() / 100 ) % 2 == 1 )
+    {
+      bomb_count_text.setFillColor( sf::Color::White );
+      bomb_count_text.setOutlineColor( sf::Color::White );
+    }
+  }
+
   m_window.draw( bomb_count_text );
 }
 
-void RenderOverlaySystem::render_cadaver_count_overlay( unsigned int cadaver_count, sf::Vector2f pos )
+void RenderOverlaySystem::render_cadaver_count_overlay( sf::Time dt, unsigned int cadaver_count, sf::Vector2f pos )
 {
   auto sprite_metatype = "ICONS";
   auto position = sf::FloatRect{ pos, Constants::kGridSizePxF };
@@ -136,14 +159,35 @@ void RenderOverlaySystem::render_cadaver_count_overlay( unsigned int cadaver_cou
   sf::Text player_score_text( m_font, "", 30 );
   player_score_text.setString( " =   " + std::to_string( cadaver_count ) );
   player_score_text.setPosition( pos + score_meter_offset );
+  player_score_text.setOutlineThickness( 2.f );
   player_score_text.setFillColor( sf::Color::White );
   player_score_text.setOutlineColor( sf::Color::Black );
-  player_score_text.setOutlineThickness( 2.f );
+
+  // flash the text if we just picked up a cadaver
+  auto flash_view = getReg().view<Cmp::FlashUICadaver>();
+  if ( not flash_view.empty() )
+  {
+    auto flash_entt = flash_view.front();
+    auto &flash_cmp = flash_view.get<Cmp::FlashUICadaver>( flash_entt );
+    m_flash_cadaver_ui_interval += dt;
+    if ( m_flash_cadaver_ui_interval > flash_cmp.duration )
+    {
+      getReg().remove<Cmp::FlashUICadaver>( flash_entt );
+      m_flash_cadaver_ui_interval = sf::Time::Zero;
+    }
+    else if ( static_cast<int>( m_flash_cadaver_ui_interval.asMilliseconds() / 100 ) % 2 == 1 )
+    {
+      player_score_text.setFillColor( sf::Color::White );
+      player_score_text.setOutlineColor( sf::Color::White );
+    }
+  }
+
   m_window.draw( player_score_text );
 }
 
-void RenderOverlaySystem::render_wealth_overlay( unsigned int wealth_value, sf::Vector2f pos )
+void RenderOverlaySystem::render_wealth_overlay( sf::Time dt, unsigned int wealth_value, sf::Vector2f pos )
 {
+
   auto sprite_metatype = "ICONS";
   auto position = sf::FloatRect{ pos, Constants::kGridSizePxF };
   auto sprite_index = 7; // gold coins icon
@@ -155,9 +199,28 @@ void RenderOverlaySystem::render_wealth_overlay( unsigned int wealth_value, sf::
   sf::Text player_score_text( m_font, "", 30 );
   player_score_text.setString( " =   " + std::to_string( wealth_value ) );
   player_score_text.setPosition( pos + score_meter_offset );
+  player_score_text.setOutlineThickness( 2.f );
   player_score_text.setFillColor( sf::Color::White );
   player_score_text.setOutlineColor( sf::Color::Black );
-  player_score_text.setOutlineThickness( 2.f );
+
+  // flash the text if we just deposited something in a well
+  auto flash_view = getReg().view<Cmp::FlashUIWealth>();
+  if ( not flash_view.empty() )
+  {
+    auto flash_entt = flash_view.front();
+    auto &flash_cmp = flash_view.get<Cmp::FlashUIWealth>( flash_entt );
+    m_flash_wealth__ui_interval += dt;
+    if ( m_flash_wealth__ui_interval > flash_cmp.duration )
+    {
+      getReg().remove<Cmp::FlashUIWealth>( flash_entt );
+      m_flash_wealth__ui_interval = sf::Time::Zero;
+    }
+    else if ( static_cast<int>( m_flash_wealth__ui_interval.asMilliseconds() / 100 ) % 2 == 1 )
+    {
+      player_score_text.setFillColor( sf::Color::White );
+      player_score_text.setOutlineColor( sf::Color::White );
+    }
+  }
   m_window.draw( player_score_text );
 }
 
@@ -172,14 +235,9 @@ void RenderOverlaySystem::render_inventory_overlay( sf::Vector2f pos )
   auto ui_background = sf::RectangleShape( ui_size );
   ui_background.setPosition( ui_pos );
   ui_background.setFillColor( sf::Color( 48, 48, 64, 128 ) );
+  ui_background.setOutlineColor( sf::Color::Black );
+  ui_background.setOutlineThickness( 5.f );
   m_window.draw( ui_background );
-
-  auto ui_edge = sf::RectangleShape( ui_size );
-  ui_edge.setPosition( ui_pos );
-  ui_edge.setFillColor( sf::Color( sf::Color::Transparent ) );
-  ui_edge.setOutlineColor( sf::Color::Black );
-  ui_edge.setOutlineThickness( 5.f );
-  m_window.draw( ui_edge );
 
   auto inventory_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::SpriteAnimation>();
   for ( auto [inventory_entt, inventory_cmp, anim_cmp] : inventory_view.each() )

@@ -29,10 +29,13 @@ public:
   //! @brief Check for collisions with the entrance
   void check_entrance_collision();
   void check_exit_collision();
+  void check_inventory_deposit( sf::Time dt );
 
 private:
   //! @brief Dispatcher reference for scene management events
   entt::dispatcher &m_scenemanager_event_dispatcher;
+
+  sf::Time m_inventory_deposit_interval{};
 };
 
 } // namespace ProceduralMaze::Sys

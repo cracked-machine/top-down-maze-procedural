@@ -1,26 +1,27 @@
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
-#include <Components/Inventory/CarryItem.hpp>
-#include <Components/Player/PlayerBlastRadius.hpp>
-#include <Components/Player/PlayerWealth.hpp>
-#include <Components/RectBounds.hpp>
-#include <Systems/LootSystem.hpp>
-
 #include <Audio/SoundBank.hpp>
 #include <Components/Armable.hpp>
+#include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/FlashUICadaver.hpp>
+#include <Components/Inventory/FlashUIRadius.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Persistent/BombBonus.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
+#include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
+#include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
+#include <Components/RectBounds.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
 #include <Factory/LootFactory.hpp>
+#include <Systems/LootSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -106,9 +107,13 @@ void LootSystem::check_loot_collision()
     }
     else if ( effect.type == "CHAIN_BOMBS" )
     {
-      blast_radius.value = std::clamp( blast_radius.value + 1, 0, 3 );
+      blast_radius.value = std::clamp( blast_radius.value + 1, 0, 5 );
       m_sound_bank.get_effect( "get_loot" ).play();
       Factory::destroy_loot_drop( getReg(), effect.loot_entity );
+
+      // signal UI to flash
+      auto flash_entt = getReg().create();
+      getReg().emplace_or_replace<Cmp::FlashUIRadius>( flash_entt );
     }
     else if ( effect.type == "CADAVER_DROP" )
     {
@@ -117,6 +122,11 @@ void LootSystem::check_loot_collision()
       m_sound_bank.get_effect( "get_loot" ).play();
       Factory::destroy_loot_drop( getReg(), effect.loot_entity );
       m_sound_bank.get_effect( "secret" ).play();
+
+      // signal UI to flash
+      auto flash_entt = getReg().create();
+      getReg().emplace_or_replace<Cmp::FlashUICadaver>( flash_entt );
+
       get_systems_event_queue().trigger( Events::CryptRoomEvent( Events::CryptRoomEvent::Type::EXIT_ALL_PASSAGES ) );
     }
     else if ( effect.type == "LOOT.goldcoin" )

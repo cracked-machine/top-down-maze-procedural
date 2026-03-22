@@ -1,4 +1,3 @@
-#include <Events/DropInventoryEvent.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -7,14 +6,17 @@
 #include <Components/HolyWell/HolyWellExit.hpp>
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/HolyWell/HolyWellSegment.hpp>
+#include <Components/Inventory/FlashUIWealth.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/Wall.hpp>
+#include <Events/DropInventoryEvent.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Player/PlayerWealth.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/HolyWellSystem.hpp>
@@ -22,6 +24,8 @@
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
+
+#include <SFML/System/Time.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -82,9 +86,6 @@ void HolyWellSystem::check_entrance_collision()
                    pc_pos_cmp.position.y );
       m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_HOLYWELL );
 
-      auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
-      auto player_pos = Utils::Player::get_position( getReg() ).position;
-      get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
       Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
     }
   }
@@ -110,6 +111,35 @@ void HolyWellSystem::check_exit_collision()
       SPDLOG_INFO( "check_exit_collision: Player exiting holywell to graveyard at position ({}, {})", pc_pos_cmp.position.x, pc_pos_cmp.position.y );
       m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_HOLYWELL );
     }
+  }
+}
+
+void HolyWellSystem::check_inventory_deposit( sf::Time dt )
+{
+  static constexpr sf::Time kDepositIntervalSec = sf::seconds( 0.5f );
+  m_inventory_deposit_interval += dt;
+  if ( m_inventory_deposit_interval >= kDepositIntervalSec )
+  {
+    // jewelry only
+    auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( getReg() );
+    if ( not inventory_type.contains( "CARRYITEM.jewelry" ) ) return;
+
+    auto &wealth = Utils::Player::get_wealth( m_reg );
+
+    // check if we're near a holywell
+    auto player_hitbox = Cmp::RectBounds( Utils::Player::get_position( getReg() ).position, Constants::kGridSizePxF, 1.5f );
+    for ( auto [well_entt, well_mb_cmp] : getReg().view<Cmp::HolyWellMultiBlock>().each() )
+    {
+      if ( not player_hitbox.findIntersection( well_mb_cmp ) ) continue;
+      Factory::destroy_inventory( getReg(), inventory_type );
+      wealth.wealth += 2;
+      m_sound_bank.get_effect( "get_key" ).play();
+
+      // signal UI to flash
+      auto flash_entt = getReg().create();
+      getReg().emplace_or_replace<Cmp::FlashUIWealth>( flash_entt );
+    }
+    m_inventory_deposit_interval = sf::Time::Zero;
   }
 }
 

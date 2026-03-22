@@ -70,9 +70,9 @@ public:
   void render_ui_background_overlay( sf::Vector2f pos, sf::Vector2f size );
   void render_health_overlay( float health_value, sf::Vector2f pos, sf::Vector2f size );
   void render_weapons_meter_overlay( float weapons_level, sf::Vector2f pos, sf::Vector2f size );
-  void render_bomb_overlay( int radius_value, sf::Vector2f pos );
-  void render_cadaver_count_overlay( unsigned int cadaver_count, sf::Vector2f pos );
-  void render_wealth_overlay( unsigned int wealth_value, sf::Vector2f pos );
+  void render_radius_overlay( sf::Time dt, int radius_value, sf::Vector2f pos );
+  void render_cadaver_count_overlay( sf::Time dt, unsigned int cadaver_count, sf::Vector2f pos );
+  void render_wealth_overlay( sf::Time dt, unsigned int wealth_value, sf::Vector2f pos );
   void render_inventory_overlay( sf::Vector2f pos );
   void render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size );
   void render_level_depth();
@@ -203,6 +203,10 @@ private:
   std::map<unsigned int, sf::Text> m_npc_list_text{};
 
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
+
+  sf::Time m_flash_wealth__ui_interval;
+  sf::Time m_flash_cadaver_ui_interval;
+  sf::Time m_flash_radius_ui_interval;
 };
 
 } // namespace ProceduralMaze::Sys

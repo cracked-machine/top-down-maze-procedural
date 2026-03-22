@@ -162,9 +162,8 @@ void RenderGameSystem::updateCamera( sf::Time deltaTime )
   }
 }
 
-void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys,
-                                    Sprites::Containers::TileMap &floormap, DarkMode dark_mode, WeatherMode weather_mode, CursedMode cursed_mode,
-                                    BackGroundMode bg_mode )
+void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap,
+                                    DarkMode dark_mode, WeatherMode weather_mode, CursedMode cursed_mode, BackGroundMode bg_mode )
 {
   using namespace Sprites;
 
@@ -183,7 +182,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
   // make sure the local view is centered on the player mid-point and not at their top-left corner
   // (otherwise this makes views, shaders, etc look off-center)
   // m_local_view.setCenter( player_position.position + Constants::kGridSizePxF * 0.5f );
-  updateCamera( globalDeltaTime );
+  updateCamera( dt );
 
   // re-populate the z-order queue with the latest entity/component data
   refresh_z_order_queue();
@@ -319,9 +318,9 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time globalDeltaTime, R
     render_overlay_sys.render_ui_background_overlay( { 20.f, start_y_pos += 20.f }, { 300.f, 230.f } );
     render_overlay_sys.render_health_overlay( player_health.health, { 40.f, start_y_pos += 20.f }, { 200.f, 20.f } );
     render_overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, start_y_pos += 40.f }, { 200.f, 20.f } );
-    render_overlay_sys.render_bomb_overlay( player_blast_radius.value, { 40.f, start_y_pos += 40.f } );
-    render_overlay_sys.render_cadaver_count_overlay( player_cadaver_count, { 40.f, start_y_pos += 40.f } );
-    render_overlay_sys.render_wealth_overlay( player_wealth.wealth, { 40.f, start_y_pos += 40.f } );
+    render_overlay_sys.render_radius_overlay( dt, player_blast_radius.value, { 40.f, start_y_pos += 40.f } );
+    render_overlay_sys.render_cadaver_count_overlay( dt, player_cadaver_count, { 40.f, start_y_pos += 40.f } );
+    render_overlay_sys.render_wealth_overlay( dt, player_wealth.wealth, { 40.f, start_y_pos += 40.f } );
     render_overlay_sys.render_inventory_overlay( { 40.f, start_y_pos += 80.f } );
     render_overlay_sys.render_level_depth();
 
