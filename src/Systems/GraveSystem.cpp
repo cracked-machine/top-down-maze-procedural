@@ -15,7 +15,6 @@
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
-#include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Factory/BombFactory.hpp>

@@ -21,7 +21,6 @@
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/SpawnArea.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>

@@ -161,9 +161,12 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
   if ( not pathfinding_navmesh ) return;
 
   auto player_pos_cmp = Utils::Player::get_position( getReg() );
+  auto player_in_spawn = Utils::Player::is_in_spawn( getReg(), player_pos_cmp );
+
   auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>( entt::exclude<Cmp::NpcFriendly> );
   for ( auto [npc_entity, npc_cmp, npc_pos_cmp, anim_cmp] : npc_view.each() )
   {
+
     if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) ) continue;
 
     // don't intterupt NPC mid-lerp or it causes indecisive pathfinding
@@ -178,7 +181,7 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
     std::vector<PathFinding::PathNode> path = PathFinding::astar( getReg(), *pathfinding_navmesh, npc_pos_cmp, player_pos_cmp, query_compass );
 
     // dont let NPC follow player into spawn but keep pathfinding active up to penultimate path node
-    if ( Utils::Player::is_in_spawn( getReg(), player_pos_cmp ) and not path.empty() ) path.pop_back();
+    if ( player_in_spawn and not path.empty() ) path.pop_back();
     if ( path.size() > 1 )
     {
       // path[0] is the NPC current position, so go one forward

@@ -10,7 +10,6 @@
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
-#include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <SFML/System/Time.hpp>
