@@ -166,7 +166,6 @@ void DiggingSystem::check_player_smash_pot()
 void DiggingSystem::check_player_dig_obstacle_collision()
 {
   auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
-  if ( not inventory_slot_type.contains( "pickaxe" ) ) { return; }
 
   if ( Utils::Player::get_inventory_wear_level( getReg() ) <= 0 ) { return; }
 
@@ -216,6 +215,8 @@ void DiggingSystem::check_player_dig_obstacle_collision()
 
       auto existing_alpha = alpha_cmp.getAlpha();
       auto damage_value = Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( getReg() ).get_value();
+      if ( inventory_slot_type.contains( "pickaxe" ) ) {}
+      else if ( inventory_slot_type.contains( "shovel" ) or inventory_slot_type.contains( "axe" ) ) { damage_value = damage_value / 10; }
       auto damage_percentage = Utils::Maths::to_percent( 255.f, damage_value );
       auto adjusted_alpha = std::max( 0, existing_alpha - damage_percentage );
       alpha_cmp.setAlpha( adjusted_alpha );
