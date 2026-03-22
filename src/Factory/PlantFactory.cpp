@@ -11,6 +11,7 @@
 #include <Player/PlayerNoPath.hpp>
 #include <SpatialHashGrid.hpp>
 #include <Sprites/SpriteFactory.hpp>
+#include <Utils.hpp>
 #include <Utils/Random.hpp>
 
 namespace ProceduralMaze::Factory
@@ -48,9 +49,17 @@ std::vector<entt::entity> gen_random_plants( entt::registry &reg, Sprites::Sprit
         { "CARRYITEM.plant1", "CARRYITEM.plant2", "CARRYITEM.plant3", "CARRYITEM.plant4", "CARRYITEM.plant5", "CARRYITEM.plant6", "CARRYITEM.plant7",
           "CARRYITEM.plant8", "CARRYITEM.plant9", "CARRYITEM.plant10", "CARRYITEM.plant11", "CARRYITEM.plant12" } );
 
-    Factory::create_plant_obstacle( reg, random_pos, rand_plant_type, 0.f );
-    SPDLOG_DEBUG( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
-    assigned_entts.push_back( random_entity );
+    auto world_pos_entt = Utils::get_world_pos_entt( reg, random_pos );
+    if ( world_pos_entt != entt::null )
+    {
+      // make sure we mark the *world* entt as reserved
+      reg.emplace_or_replace<Cmp::ReservedPosition>( world_pos_entt );
+
+      // now create the plant at a new entt
+      Factory::create_plant_obstacle( reg, random_pos, rand_plant_type, 0.f );
+      SPDLOG_DEBUG( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
+      assigned_entts.push_back( random_entity );
+    }
   }
   return assigned_entts;
 }

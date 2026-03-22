@@ -93,10 +93,13 @@ void GraveyardScene::on_init()
   // clang-format on
   for ( auto pos_cmp : pickaxe_pos_cmp_list )
   {
+    // make sure we mark the *world* entt as reserved
     auto world_pos_entt = Utils::get_world_pos_entt( m_reg, pos_cmp );
     if ( world_pos_entt != entt::null )
     {
       m_reg.emplace_or_replace<Cmp::ReservedPosition>( world_pos_entt );
+
+      // now create the pickaxe at a new entt
       Factory::create_carry_item( m_reg, pos_cmp, "CARRYITEM.pickaxe" );
     }
   }
