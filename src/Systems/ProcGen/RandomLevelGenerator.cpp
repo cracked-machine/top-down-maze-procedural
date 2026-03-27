@@ -44,6 +44,7 @@
 #include <memory>
 
 #include <PathFinding/SpatialHashGrid.hpp>
+#include <ranges>
 #include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys::ProcGen
@@ -167,54 +168,33 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, C
   }
 }
 
-void RandomLevelGenerator::gen_circular_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area )
+void RandomLevelGenerator::gen_scene_map( Scene::SceneMap scene_map )
 {
-  unsigned int w = map_grid_size.x;
-  unsigned int h = map_grid_size.y;
+  //
+  auto w = scene_map.get_width();
 
-  int cx = w / 2; // center in tiles
-  int cy = h / 2;
-  int r = std::min( w, h ) / 2; // radius in tiles
-
-  int border = 2; // thickness in tiles
-
-  int rOuter2 = r * r;
-  int rInner = r - border;
-  int rInner2 = rInner * rInner;
-
-  for ( unsigned int x = 0; x < w; ++x )
+  for ( auto [i, tile] : std::views::enumerate( scene_map.get_map() ) )
   {
-    for ( unsigned int y = 0; y < h; ++y )
+    int col = i % w; // wraps back to zero every 'w' tiles
+    int row = i / w; // increments every 'w' tiles
+    sf::Vector2f new_pos( col * Constants::kGridSizePxF.x, row * Constants::kGridSizePxF.y );
+    SPDLOG_INFO( "{}: {}", i, tile );
+    if ( tile == scene_map.get_voididx() )
     {
-      int dx = static_cast<int>( x ) - cx;
-      int dy = static_cast<int>( y ) - cy;
-      int d2 = dx * dx + dy * dy;
-
-      sf::Vector2f new_pos( x * Constants::kGridSizePx.x, y * Constants::kGridSizePx.y );
-
-      if ( d2 <= rInner2 )
-      {
-
-        // Create world position entity
-        // We don't add any "CRYPT.interior_sb" obstacles until CryptSystem.
-        auto entity = Factory::create_world_pos( getReg(), new_pos );
-        auto &pos_cmp = getReg().get<Cmp::Position>( entity );
-        // Mark this position as spawn area if in player start area
-        if ( pos_cmp.findIntersection( player_start_area.getBounds() ) ) { Factory::add_spawn_area( getReg(), entity, new_pos.y - 16.0f ); }
-      }
-      else if ( d2 <= rOuter2 )
-      {
-        // but we do add "CRYPT.interior_sb" for walls
-        const Sprites::MultiSprite &wall_ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_sb" );
-        Factory::add_wall_entity( getReg(), new_pos, wall_ms, 0 );
-      }
-      else
-      {
-        // outside circle
-        Cmp::Position new_pos_cmp( new_pos, Constants::kGridSizePxF );
-        auto entt = Factory::create_void_pos( getReg(), new_pos_cmp );
-        m_void_sm->insert( entt, new_pos_cmp );
-      }
+      Cmp::Position new_pos_cmp( new_pos, Constants::kGridSizePxF );
+      auto entt = Factory::create_void_pos( getReg(), new_pos_cmp );
+      m_void_sm->insert( entt, new_pos_cmp );
+    }
+    else if ( tile == scene_map.get_wallidx() )
+    {
+      const Sprites::MultiSprite &wall_ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_sb" );
+      Factory::add_wall_entity( getReg(), new_pos, wall_ms, 0 );
+    }
+    else if ( tile == scene_map.get_openidx() ) { Factory::create_world_pos( getReg(), new_pos ); }
+    else if ( tile == scene_map.get_spawnidx() )
+    {
+      auto entity = Factory::create_world_pos( getReg(), new_pos );
+      Factory::add_spawn_area( getReg(), entity, new_pos.y - 16.0f );
     }
   }
 }

@@ -19,8 +19,8 @@ std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHash
 
   std::vector<PathNode> openList;
   ClosedList closedList;
-
   closedList.reserve( 512 ); // prevent rehashing which invalidates parent pointers
+
   std::size_t nodesExpanded = 0;
 
   PathNode startNode( start, 0, Utils::Maths::getManhattanDistance( start.position, goal.position ) );
@@ -29,9 +29,11 @@ std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHash
 
   PathNode *endNode = nullptr;
   static constexpr std::size_t kMaxNodes = 256; // bail out if goal is unreachable
+
   while ( not openList.empty() )
   {
     if ( ++nodesExpanded > kMaxNodes ) break; // goal unreachable, don't exhaust search space
+
     // Find PathNode with smallest f
     auto currentIt = std::min_element( openList.begin(), openList.end(), []( const PathNode &a, const PathNode &b ) { return a.f() < b.f(); } );
     PathNode current = *currentIt;

@@ -53,6 +53,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/RuinSceneLowerFloor.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/RuinSceneUpperFloor.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/ShopScene.cpp
+    ${CMAKE_SOURCE_DIR}/src/SceneControl/SceneMap.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/RegistryTransfer.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/SceneConfig.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/PlayerFactory.cpp
