@@ -12,7 +12,7 @@
 #include <Player/PlayerLevelDepth.hpp>
 #include <ReservedPosition.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
-#include <SceneControl/SceneMap.hpp>
+#include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/GraveyardScene.hpp>
 #include <Systems/AltarSystem.hpp>
 #include <Systems/AnimSystem.hpp>
@@ -50,10 +50,6 @@ void GraveyardScene::on_init()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  m_scene_config = std::make_shared<SceneConfig>();
-  m_scene_config->load( "res/json/graveyard_scene_config.json" );
-  SPDLOG_INFO( "SceneConfig: {}", m_scene_config->get_texture_path().string() );
-
   auto &render_game_system = m_sys.find<Sys::Store::Type::RenderGameSystem>();
   SPDLOG_INFO( "Got render_game_system at {}", static_cast<void *>( &render_game_system ) );
   render_game_system.init_shaders();
@@ -61,7 +57,9 @@ void GraveyardScene::on_init()
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
 
-  auto [_, player_start_pos_px] = m_scene_config->get_player_start_position();
+  // create the level contents
+  m_scene_map_data = std::make_shared<SceneData>( "res/scenes/graveyard.json" );
+  auto [_, player_start_pos_px] = m_scene_map_data->get_player_start_position();
   Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
   auto player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds( player_start_position, Constants::kGridSizePxF, 5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
@@ -75,14 +73,13 @@ void GraveyardScene::on_init()
     level_depth_cmp.display_timer.restart();
   }
 
-  auto [map_size_grid, map_size_pixel] = m_scene_config->get_map_size();
+  auto [map_size_grid, map_size_pixel] = m_scene_map_data->map_size();
+  SPDLOG_INFO( "m_scene_map_data {},{} {},{}", map_size_grid.x, map_size_grid.y, map_size_pixel.x, map_size_pixel.y );
 
-  // create the level contents
-  SceneMap scene_map_data( "res/scenes/graveyard.json" );
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   SPDLOG_INFO( "LEVELGENSPATIALMAP: {}", random_level_sys.get_obstacle_sm().size() );
   random_level_sys.reset();
-  random_level_sys.gen_scene_map( scene_map_data );
+  random_level_sys.gen_scene_map( *m_scene_map_data );
   // random_level_sys.gen_circular_gamearea( map_size_grid, player_start_area );
 
   // Add rescue pickaxes at the polar coords of the game area
@@ -128,7 +125,7 @@ void GraveyardScene::on_init()
   reinit_navmesh();
 
   // create floor background
-  m_floormap.create( random_level_sys.get_void_sm(), m_scene_config );
+  m_floormap.create( random_level_sys.get_void_sm(), m_scene_map_data );
 
   m_sys.find<Sys::Store::Type::ExitSystem>().spawn_exit();
 

@@ -22,11 +22,11 @@ void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprite
   reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
   reg.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, ms.get_sprite_type(), sprite_index );
 
-  if ( solid_wall == SolidWall::TRUE )
-  {
-    reg.emplace_or_replace<Cmp::PlayerNoPath>( entity );
-    reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
-  }
+  // if ( solid_wall == SolidWall::TRUE )
+  // {
+  //   reg.emplace_or_replace<Cmp::PlayerNoPath>( entity );
+  //   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
+  // }
 
   Cmp::ZOrderValue zorder_cmp( 0 );
   if ( ms.get_zorder( sprite_index ) != 0 ) { zorder_cmp.setZOrder( ms.get_zorder( sprite_index ) ); }
@@ -53,6 +53,24 @@ void add_reservedposition( entt::registry &reg, const sf::Vector2f &pos )
   auto entity = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
   reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
+}
+
+entt::entity add_solid_player( entt::registry &reg, sf::FloatRect rect )
+{
+  auto entt = reg.create();
+  reg.emplace_or_replace<Cmp::PlayerNoPath>( entt );
+  reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
+  reg.emplace_or_replace<Cmp::Position>( entt, rect.position, rect.size );
+  return entt;
+}
+
+entt::entity add_solid_npc( entt::registry &reg, sf::FloatRect rect )
+{
+  auto entt = reg.create();
+  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entt );
+  reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
+  reg.emplace_or_replace<Cmp::Position>( entt, rect.position, rect.size );
+  return entt;
 }
 
 } // namespace ProceduralMaze::Factory

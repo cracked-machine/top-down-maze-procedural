@@ -181,11 +181,14 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
     std::vector<PathFinding::PathNode> path = PathFinding::astar( getReg(), *pathfinding_navmesh, npc_pos_cmp, player_pos_cmp, query_compass );
 
     // dont let NPC follow player into spawn but keep pathfinding active up to penultimate path node
-    if ( player_in_spawn and not path.empty() ) path.pop_back();
+    // if ( player_in_spawn and not path.empty() ) path.pop_back();
     if ( path.size() > 1 )
     {
       // path[0] is the NPC current position, so go one forward
       auto new_position_cmp = path[1].pos;
+
+      // If the player is in spawn, pathfind to them but not to final position
+      if ( player_in_spawn and player_pos_cmp == new_position_cmp ) continue;
 
       // calculate the direction and update the NPC lerp
       auto candidate_lerp_pos = Cmp::LerpPosition( new_position_cmp.position, npc_lerp_speed );

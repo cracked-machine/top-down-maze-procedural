@@ -1,4 +1,5 @@
 #include <Events/DropInventoryEvent.hpp>
+#include <Exit.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -423,7 +424,7 @@ void RuinSystem::reset_player_curse()
 void RuinSystem::check_exit_collision()
 {
   auto pc_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
-  auto holywelldoor_view = getReg().view<Cmp::HolyWellExit, Cmp::Position>();
+  auto holywelldoor_view = getReg().view<Cmp::Exit, Cmp::Position>();
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
   {

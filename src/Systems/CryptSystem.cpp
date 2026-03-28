@@ -160,7 +160,7 @@ void CryptSystem::check_entrance_collision()
 void CryptSystem::check_exit_collision()
 {
   auto pc_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
-  auto cryptdoor_view = getReg().view<Cmp::CryptExit, Cmp::Position>();
+  auto cryptdoor_view = getReg().view<Cmp::Exit, Cmp::Position>();
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
   {
@@ -178,31 +178,6 @@ void CryptSystem::check_exit_collision()
       m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_CRYPT );
     }
   }
-}
-
-void CryptSystem::spawn_exit( sf::Vector2u spawn_position )
-{
-
-  sf::FloatRect spawn_pos_px = sf::FloatRect(
-      { static_cast<float>( spawn_position.x ) * Constants::kGridSizePx.x, static_cast<float>( spawn_position.y ) * Constants::kGridSizePx.y },
-      Constants::kGridSizePxF );
-
-  // remove any wall
-  for ( auto [entt, wall_cmp, pos_cmp] : getReg().view<Cmp::Wall, Cmp::Position>().each() )
-  {
-    if ( spawn_pos_px.findIntersection( pos_cmp ) ) { getReg().destroy( entt ); }
-  }
-
-  auto entity = getReg().create();
-  getReg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, Constants::kGridSizePxF );
-  getReg().emplace_or_replace<Cmp::Exit>( entity, false ); // unlocked at start
-  getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "CRYPT.interior_sb", 1 );
-  getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.position.y );
-  getReg().emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
-  getReg().emplace_or_replace<Cmp::CryptExit>( entity );
-
-  SPDLOG_INFO( "Exit spawned at position ({}, {})", spawn_position.x, spawn_position.y );
-  return;
 }
 
 void CryptSystem::unlock_crypt_door()
@@ -668,7 +643,7 @@ void CryptSystem::create_initial_crypt_rooms( sf::Vector2u map_grid_size )
   // Currently no special logic needed; placeholder for future use
 }
 
-void CryptSystem::gen_crypt_main_objective( sf::Vector2u map_grid_size )
+void CryptSystem::create_end_room( sf::Vector2u map_grid_size )
 {
   auto map_grid_sizef = sf::Vector2f( static_cast<float>( map_grid_size.x ) * Constants::kGridSizePxF.x,
                                       static_cast<float>( map_grid_size.y ) * Constants::kGridSizePxF.y );
@@ -676,16 +651,12 @@ void CryptSystem::gen_crypt_main_objective( sf::Vector2u map_grid_size )
   // target position for the objective: always center top of the map
   const auto &ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_objective_closed" );
 
-  float centered_x = ( map_grid_sizef.x / 2.f ) - ( ms.getSpriteSizePixels().x / 2.f ) + kGridSizePxF.x;
+  float centered_x = ( map_grid_sizef.x / 2.f ) - ( ms.getSpriteSizePixels().x / 2.f );
   Cmp::Position objective_position( { centered_x, kGridSizePxF.y * 2.f }, ms.getSpriteSizePixels() );
 
-  SPDLOG_INFO( "Placing main crypt objective at position ({}, {})", objective_position.position.x, objective_position.position.y );
-  Factory::add_multiblock_with_segments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( getReg(), objective_position.position, ms );
-
-  // while we're here, carve out a room for the objective sprite. These position/size modifiers are trial and error
-  // whilst we decide on the final objective MB sprite dimensions
   auto end_room_entity = getReg().create();
-  getReg().emplace_or_replace<Cmp::CryptRoomEnd>( end_room_entity, sf::Vector2f{ objective_position.position.x, objective_position.position.y },
+  getReg().emplace_or_replace<Cmp::CryptRoomEnd>( end_room_entity,
+                                                  sf::Vector2f{ objective_position.position.x - kGridSizePxF.x, objective_position.position.y },
                                                   sf::Vector2f{ objective_position.size.x, objective_position.size.y + ( kGridSizePxF.y * 2.f ) } );
 }
 

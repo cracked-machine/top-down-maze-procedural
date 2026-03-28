@@ -46,29 +46,23 @@ void RuinSceneLowerFloor::on_init()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  m_scene_config = std::make_shared<SceneConfig>();
-  m_scene_config->load( "res/json/ruin_lower_scene_config.json" );
+  m_scene_map_data = std::make_shared<SceneData>( "res/scenes/ruinlower.json" );
 
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
 
   // initialise the persistent player start position from the scene configuration (json) data
-  auto [_, player_start_pos_px] = m_scene_config->get_player_start_position();
+  auto [_, player_start_pos_px] = m_scene_map_data->get_player_start_position();
   Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
 
-  auto [map_size_grid, map_size_pixel] = m_scene_config->get_map_size();
+  auto [map_size_grid, map_size_pixel] = m_scene_map_data->map_size();
 
   // generate the empty game area
   sf::Vector2f player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds( player_start_position, gridsize, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
   auto &random_level_sys = m_sys.find<SystemStoreType::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_rectangle_gamearea( map_size_grid, player_start_area, m_sprite_factory.get_multisprite_by_type( "RUIN.interior_wall" ),
-                                           Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
-
-  // pass config exit position to exit spawner
-  auto [exit_pos_grid, exit_pos_pixel] = m_scene_config->get_exit_position();
-  m_sys.find<SystemStoreType::HolyWellSystem>().spawn_exit( exit_pos_grid );
+  random_level_sys.gen_scene_map( *m_scene_map_data );
 
   // select the objective type that will be spawned in the RuinSceneUpperFloor scene
   auto selected_objective_ms_type = m_sprite_factory.get_random_type( { "CARRYITEM.witchesjar" } );
@@ -89,7 +83,7 @@ void RuinSceneLowerFloor::on_init()
   Factory::add_reservedposition( m_reg, { map_size_pixel.x - ( 5 * gridsize.x ), map_size_pixel.y - ( 2 * gridsize.x ) } );
   Factory::add_reservedposition( m_reg, { map_size_pixel.x - ( 5 * gridsize.x ), map_size_pixel.y - ( 3 * gridsize.x ) } );
 
-  m_floormap.create( random_level_sys.get_void_sm(), m_scene_config );
+  m_floormap.create( random_level_sys.get_void_sm(), m_scene_map_data );
 
   sf::Vector2f bc_area_position( 0, 0 );
   sf::Vector2f bc_area_size( map_size_pixel.x - 48, map_size_pixel.y - 16 );
@@ -192,7 +186,7 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Store::Type::PlayerSystem>().update( dt, Sys::PlayerSystem::FootStepSfx::NONE );
   m_sys.find<Store::Type::PlayerSystem>().disable_damage_cooldown();
 
-  auto [map_size_grid, map_size_pixel] = m_scene_config->get_map_size();
+  auto [_, map_size_pixel] = m_scene_map_data->map_size();
 
   bool is_player_cursed = m_sys.find<Sys::Store::Type::RuinSystem>().check_activate_player_curse( map_size_pixel );
   if ( is_player_cursed ) { m_sys.find<Store::Type::RuinSystem>().check_create_witch( m_reg, sf::FloatRect( { 0, 0 }, map_size_pixel ) ); }

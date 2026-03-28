@@ -59,11 +59,16 @@ static std::pair<entt::entity, Cmp::Position> get_random_position( entt::registr
   auto random_view = reg.view<Cmp::Position, Include...>( entt::exclude<Exclude...> );
 
   auto random_view_count = std::distance( random_view.begin(), random_view.end() );
-
   SPDLOG_DEBUG( "Found {} positions in the maze.", random_view_count );
 
-  // Get random index and advance iterator to that position
-  Cmp::RandomInt seed_picker( 0, static_cast<int>( random_view_count - 1 ) );
+  if ( random_view_count == 0 )
+  {
+    SPDLOG_ERROR( "No matching entities found for get_random_position()" );
+    throw std::runtime_error( "get_random_position: no matching entities in registry" );
+  }
+
+  int upper_limit = static_cast<int>( random_view_count - 1 );
+  Cmp::RandomInt seed_picker( 0, upper_limit );
   if ( seed != 0 ) { seed_picker.seed( seed ); }
   else { seed_picker.seed( std::random_device{}() ); }
 

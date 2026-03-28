@@ -26,8 +26,6 @@ public:
   void add_inventory_item( Cmp::ShopInventory &shop_inventory_cmp );
   void create_inventory( entt::entity inventory_entt );
 
-  void spawn_exit( sf::Vector2u spawn_position );
-
   //! @brief Check for collisions with the exit
   void check_exit_collision();
 

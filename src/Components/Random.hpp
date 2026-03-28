@@ -3,7 +3,8 @@
 
 #include <random>
 
-namespace ProceduralMaze::Cmp {
+namespace ProceduralMaze::Cmp
+{
 
 // Non-template base class holds shared static state
 // This allows all template instantiations to share a global seed (if set).
@@ -42,17 +43,17 @@ public:
   Random( T min, T max )
       : m_dist( min, max )
   {
+    if constexpr ( not std::is_integral_v<T> )
+    {
+      if ( min >= max ) throw std::invalid_argument( "Random<float>: min must be strictly less than max" );
+    }
     // Use shared global seed if set
     if ( s_global_seed_set ) { m_randgen.seed( s_global_seed + s_instance_counter++ ); }
     // else: already initialized with random_device in member initializer
   }
 
   // get the next random number
-  T gen()
-  {
-    if constexpr ( std::is_integral_v<T> ) { return m_dist( m_randgen ); }
-    else { return m_dist( m_randgen ); }
-  }
+  T gen() { return m_dist( m_randgen ); }
 
   // set the seed for this RNG instance
   void seed( unsigned long s ) { m_randgen = std::mt19937( s ); }

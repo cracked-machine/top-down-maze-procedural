@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <SceneControl/SceneConfig.hpp>
+#include <SceneControl/SceneData.hpp>
 #include <entt/entity/fwd.hpp>
 
 namespace ProceduralMaze::PathFinding
@@ -26,7 +26,7 @@ public:
   sf::Vector2u world_grid_offset{ 0, 0 };
 
   // Create the tile map using a single large sf::VertexArray
-  void create( const PathFinding::SpatialHashGrid &void_sm, const Scene::SceneConfigSharedPtr &sc );
+  void create( const PathFinding::SpatialHashGrid &void_sm, const Scene::SceneMapSharedPtr &scene_map );
 
 private:
   sf::VertexArray m_vertices;

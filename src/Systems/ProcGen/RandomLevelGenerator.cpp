@@ -12,7 +12,9 @@
 #include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
 #include <Constants.hpp>
+#include <Factory/CryptFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
+#include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
@@ -168,33 +170,69 @@ void RandomLevelGenerator::gen_rectangle_gamearea( sf::Vector2u map_grid_size, C
   }
 }
 
-void RandomLevelGenerator::gen_scene_map( Scene::SceneMap scene_map )
+void RandomLevelGenerator::gen_scene_map( const Scene::SceneData &scene_map )
 {
-  //
-  auto w = scene_map.get_width();
+  auto [map_size_grid, map_size_pixel] = scene_map.map_size();
+  auto w = map_size_grid.x;
 
-  for ( auto [i, tile] : std::views::enumerate( scene_map.get_map() ) )
+  bool added_wall_already = false;
+  [[maybe_unused]] const Sprites::MultiSprite &wall_ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_wall" );
+  for ( const auto [i, tile] : std::views::enumerate( scene_map.wall_tilelayer() ) )
+  {
+    added_wall_already = true;
+    int row = i / w; // increments every 'w' tiles
+    int col = i % w; // wraps back to zero every 'w' tiles
+    [[maybe_unused]] sf::Vector2f new_pos( { col * Constants::kGridSizePxF.x, row * Constants::kGridSizePxF.y } );
+    if ( tile >= scene_map.wall_first_gid() ) { Factory::add_wall_entity( getReg(), new_pos, wall_ms, tile - scene_map.wall_first_gid() ); }
+  }
+
+  for ( const auto &solid : scene_map.solid_objectlayer() )
+  {
+    Factory::add_solid_player( getReg(), solid );
+    Factory::add_solid_npc( getReg(), solid );
+  }
+
+  for ( const auto [i, tile] : std::views::enumerate( scene_map.levelgen_tilelayer() ) )
   {
     int col = i % w; // wraps back to zero every 'w' tiles
     int row = i / w; // increments every 'w' tiles
     sf::Vector2f new_pos( col * Constants::kGridSizePxF.x, row * Constants::kGridSizePxF.y );
-    SPDLOG_INFO( "{}: {}", i, tile );
-    if ( tile == scene_map.get_voididx() )
+    if ( tile == scene_map.void_tile_id() )
     {
       Cmp::Position new_pos_cmp( new_pos, Constants::kGridSizePxF );
       auto entt = Factory::create_void_pos( getReg(), new_pos_cmp );
       m_void_sm->insert( entt, new_pos_cmp );
     }
-    else if ( tile == scene_map.get_wallidx() )
+    else if ( not added_wall_already and tile == scene_map.wall_tile_id() )
     {
       const Sprites::MultiSprite &wall_ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_sb" );
       Factory::add_wall_entity( getReg(), new_pos, wall_ms, 0 );
     }
-    else if ( tile == scene_map.get_openidx() ) { Factory::create_world_pos( getReg(), new_pos ); }
-    else if ( tile == scene_map.get_spawnidx() )
+    else if ( tile == scene_map.open_tile_id() ) { Factory::create_world_pos( getReg(), new_pos ); }
+    else if ( tile == scene_map.spawn_tile_id() )
     {
       auto entity = Factory::create_world_pos( getReg(), new_pos );
       Factory::add_spawn_area( getReg(), entity, new_pos.y - 16.0f );
+    }
+    else if ( tile == scene_map.exit_tile_id() ) { Factory::create_crypt_exit( getReg(), new_pos ); }
+  }
+
+  for ( const auto &[ms_type, pos] : scene_map.multiblock_objectlayer() )
+  {
+    const auto &ms = m_sprite_factory.get_multisprite_by_type( ms_type );
+    if ( ms_type == "HOLYWELL.interior_well" )
+    {
+      Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( getReg(), pos, ms );
+    }
+    else if ( ms_type == "CRYPT.interior_objective_closed" )
+    {
+      Factory::add_multiblock_with_segments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( getReg(), pos, ms );
+    }
+    else if ( ms_type == "NPC.dr_knox" )
+    {
+      auto npc_entt = getReg().create();
+      getReg().emplace_or_replace<Cmp::Position>( npc_entt, pos, Constants::kGridSizePxF );
+      Factory::create_npc( m_reg, npc_entt, "NPC.dr_knox" );
     }
   }
 }

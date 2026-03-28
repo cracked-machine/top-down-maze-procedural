@@ -36,10 +36,9 @@ void ShopScene::on_init()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  m_scene_config = std::make_shared<SceneConfig>();
-  m_scene_config->load( "res/json/shop_scene_config.json" );
+  m_scene_map_data = std::make_shared<SceneData>( "res/scenes/shop.json" );
 
-  m_inventory_config = m_sys.find<Sys::Store::Type::ShopSystem>().load_config( "res/json/shop_scene_config.json" );
+  m_inventory_config = m_sys.find<Sys::Store::Type::ShopSystem>().load_config( "res/json/shop_overlay_config.json" );
   auto shop_inventory_entt = m_reg.create();
   m_reg.emplace_or_replace<Cmp::ShopInventory>( shop_inventory_entt, m_inventory_config );
   m_sys.find<Sys::Store::Type::ShopSystem>().create_inventory( shop_inventory_entt );
@@ -48,38 +47,18 @@ void ShopScene::on_init()
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
 
   // initialise the persistent player start position from the scene configuration (json) data
-  auto [_, player_start_pos_px] = m_scene_config->get_player_start_position();
+  auto [_, player_start_pos_px] = m_scene_map_data->get_player_start_position();
   Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
   SPDLOG_INFO( "player_start_pos_px: {},{}", player_start_pos_px.x, player_start_pos_px.y );
-
-  auto [map_size_grid, map_size_pixel] = m_scene_config->get_map_size();
 
   // create the empty game area
   sf::Vector2f player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds( player_start_position, Constants::kGridSizePxF, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_rectangle_gamearea( map_size_grid, player_start_area, m_sprite_factory.get_multisprite_by_type( "HOLYWELL.interior_wall" ),
-                                           Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
+  random_level_sys.gen_scene_map( *m_scene_map_data );
 
-  for ( auto [_, sprite_pos_pixel] : m_scene_config->get_sprite_position( "HOLYWELL.interior_well" ) )
-  {
-    auto &ms = m_sprite_factory.get_multisprite_by_type( "HOLYWELL.interior_well" );
-    Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( m_reg, sprite_pos_pixel, ms );
-  }
-
-  auto [exit_pos_grid, _] = m_scene_config->get_exit_position();
-  m_sys.find<Sys::Store::Type::ShopSystem>().spawn_exit( exit_pos_grid );
-
-  // add the shopkeeper NPC
-  for ( auto [_, sprite_pos_pixel] : m_scene_config->get_npc_position( "NPC.dr_knox" ) )
-  {
-    auto npc_entt = m_reg.create();
-    m_reg.emplace_or_replace<Cmp::Position>( npc_entt, sprite_pos_pixel, Constants::kGridSizePxF );
-    Factory::create_npc( m_reg, npc_entt, "NPC.dr_knox" );
-  }
-
-  m_floormap.create( random_level_sys.get_void_sm(), m_scene_config );
+  m_floormap.create( random_level_sys.get_void_sm(), m_scene_map_data );
 
   // create a navmesh for pathfinding in the scene
   m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
@@ -127,11 +106,15 @@ void ShopScene::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Sys::Store::Type::ShopSystem>().check_exit_collision();
 
-  for ( auto [_, sprite_pos_pixel] : m_scene_config->get_npc_position( "NPC.dr_knox" ) )
+  if ( m_scene_map_data )
   {
-    if ( m_sys.find<Sys::Store::Type::ShopSystem>().check_shopkeeper_collision( sprite_pos_pixel ) and not is_overlay_open() ) { open_overlay(); }
-    else if ( not m_sys.find<Sys::Store::Type::ShopSystem>().check_shopkeeper_collision( sprite_pos_pixel ) ) { close_overlay(); }
+    for ( const auto &[ms_type, pos] : m_scene_map_data->multiblock_objectlayer() )
+    {
+      if ( m_sys.find<Sys::Store::Type::ShopSystem>().check_shopkeeper_collision( pos ) and not is_overlay_open() ) { open_overlay(); }
+      else if ( not m_sys.find<Sys::Store::Type::ShopSystem>().check_shopkeeper_collision( pos ) ) { close_overlay(); }
+    }
   }
+  else { SPDLOG_WARN( "m_scene_map_data is not initialised" ); }
 
   auto player_pos = Utils::Player::get_position( m_reg );
   SPDLOG_INFO( "player_start_pos_px: {},{}", player_pos.position.x, player_pos.position.y );

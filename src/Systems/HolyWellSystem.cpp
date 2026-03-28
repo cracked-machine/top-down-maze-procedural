@@ -30,31 +30,6 @@
 namespace ProceduralMaze::Sys
 {
 
-void HolyWellSystem::spawn_exit( sf::Vector2u spawn_position )
-{
-
-  sf::FloatRect spawn_pos_px = sf::FloatRect(
-      { static_cast<float>( spawn_position.x ) * Constants::kGridSizePx.x, static_cast<float>( spawn_position.y ) * Constants::kGridSizePx.y },
-      Constants::kGridSizePxF );
-
-  // remove any wall
-  for ( auto [entt, wall_cmp, pos_cmp] : getReg().view<Cmp::Wall, Cmp::Position>().each() )
-  {
-    if ( spawn_pos_px.findIntersection( pos_cmp ) ) { getReg().destroy( entt ); }
-  }
-
-  auto entity = getReg().create();
-  getReg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, Constants::kGridSizePxF );
-  getReg().emplace_or_replace<Cmp::Exit>( entity, false ); // unlocked at start
-  getReg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "CRYPT.interior_sb", 1 );
-  getReg().emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.position.y );
-  getReg().emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
-  getReg().emplace_or_replace<Cmp::HolyWellExit>( entity );
-
-  SPDLOG_INFO( "Exit spawned at position ({}, {})", spawn_position.x, spawn_position.y );
-  return;
-}
-
 void HolyWellSystem::spawn_well( sf::Vector2u spawn_position )
 {
 
@@ -94,7 +69,7 @@ void HolyWellSystem::check_entrance_collision()
 void HolyWellSystem::check_exit_collision()
 {
   auto pc_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
-  auto holywelldoor_view = getReg().view<Cmp::HolyWellExit, Cmp::Position>();
+  auto holywelldoor_view = getReg().view<Cmp::Exit, Cmp::Position>();
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
   {

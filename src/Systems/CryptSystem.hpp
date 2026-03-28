@@ -52,10 +52,6 @@ public:
   //! @brief Check for collisions with the exit
   void check_exit_collision();
 
-  //! @brief Spawn the exit room
-  //! @param spawn_position
-  void spawn_exit( sf::Vector2u spawn_position );
-
   //! @brief Unlock the crypt door
   void unlock_crypt_door();
 
@@ -89,7 +85,7 @@ public:
 
   //! @brief Generate the main objective for the Crypt
   //! @param map_grid_size
-  void gen_crypt_main_objective( sf::Vector2u map_grid_size );
+  void create_end_room( sf::Vector2u map_grid_size );
 
   void reset_maze()
   {

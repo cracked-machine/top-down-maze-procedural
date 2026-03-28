@@ -18,7 +18,6 @@
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
-#include <SceneControl/SceneConfig.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/Events/PassageEvent.hpp>
 #include <Systems/PassageSystem.hpp>
@@ -103,9 +102,9 @@ void PassageSystem::connectPassagesBetweenStartAndOpenRooms( entt::entity start_
     return;
   }
 
-  Scene::SceneConfigSharedPtr crypt_scene_config = m_crypt_scene_config.lock();
-  if ( not crypt_scene_config ) std::runtime_error( "Unable to lock Scene::SceneConfigSharedPtr" );
-  auto [map_size_grid, map_size_pixel] = crypt_scene_config->get_map_size();
+  Scene::SceneMapSharedPtr crypt_scene_data = m_crypt_scene_data.lock();
+  if ( not crypt_scene_data ) std::runtime_error( "Unable to lock Scene::SceneConfigSharedPtr" );
+  auto [map_size_grid, map_size_pixel] = crypt_scene_data->map_size();
 
   const auto world_size = map_size_pixel.componentWiseMul( Constants::kGridSizePxF );
   const auto start_room_right_pos_x = start_room_cmp->position.x + start_room_cmp->size.x;
@@ -128,10 +127,10 @@ void PassageSystem::connectPassagesBetweenStartAndOpenRooms( entt::entity start_
 
 void PassageSystem::connectPassagesBetweenOccupiedAndOpenRooms()
 {
-  Scene::SceneConfigSharedPtr crypt_scene_config = m_crypt_scene_config.lock();
-  if ( not crypt_scene_config ) std::runtime_error( "Unable to lock Scene::SceneConfigSharedPtr" );
+  Scene::SceneMapSharedPtr crypt_scene_data = m_crypt_scene_data.lock();
+  if ( not crypt_scene_data ) std::runtime_error( "Unable to lock Scene::SceneConfigSharedPtr" );
 
-  auto [map_size_grid, map_size_pixel] = crypt_scene_config->get_map_size();
+  auto [map_size_grid, map_size_pixel] = crypt_scene_data->map_size();
   const auto world_size = map_size_pixel.componentWiseMul( Constants::kGridSizePxF );
 
   // find the open room that the player is in (if any)
@@ -170,9 +169,9 @@ void PassageSystem::connectPassagesBetweenOccupiedAndOpenRooms()
 
 void PassageSystem::connectPassagesBetweenAllOpenRooms()
 {
-  Scene::SceneConfigSharedPtr crypt_scene_config = m_crypt_scene_config.lock();
-  if ( not crypt_scene_config ) std::runtime_error( "Unable to lock Scene::SceneConfigSharedPtr" );
-  auto [map_size_grid, map_size_pixel] = crypt_scene_config->get_map_size();
+  Scene::SceneMapSharedPtr crypt_scene_data = m_crypt_scene_data.lock();
+  if ( not crypt_scene_data ) std::runtime_error( "Unable to lock Scene::SceneConfigSharedPtr" );
+  auto [map_size_grid, map_size_pixel] = crypt_scene_data->map_size();
 
   const auto world_size = map_size_pixel.componentWiseMul( Constants::kGridSizePxF );
   const auto world_area = sf::FloatRect( { 0, 0 }, world_size );
@@ -368,9 +367,9 @@ bool PassageSystem::createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatR
 bool PassageSystem::createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::FloatRect end_bounds, std::set<entt::entity> exclude_entts,
                                               AllowDuplicatePassages duplicates_policy )
 {
-  Scene::SceneConfigSharedPtr crypt_scene_config = m_crypt_scene_config.lock();
-  if ( not crypt_scene_config ) std::runtime_error( "Unable to lock Scene::SceneConfigSharedPtr" );
-  auto [map_size_grid, map_size_pixel] = crypt_scene_config->get_map_size();
+  Scene::SceneMapSharedPtr crypt_scene_data = m_crypt_scene_data.lock();
+  if ( not crypt_scene_data ) std::runtime_error( "Unable to lock Scene::SceneConfigSharedPtr" );
+  auto [map_size_grid, map_size_pixel] = crypt_scene_data->map_size();
 
   // Generate unique walk ID
   m_current_passage_id++;

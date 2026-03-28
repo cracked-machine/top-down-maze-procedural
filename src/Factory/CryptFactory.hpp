@@ -23,6 +23,7 @@ class SpriteFactory;
 namespace ProceduralMaze::Factory
 {
 
+entt::entity create_crypt_exit( entt::registry &reg, sf::Vector2f spawn_pos_px );
 entt::entity create_crypt_lever( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder );
 void destroy_crypt_lever( entt::registry &reg, entt::entity entity );
 

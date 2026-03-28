@@ -8,7 +8,7 @@
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
-#include <SceneControl/SceneConfig.hpp>
+#include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/CryptSystem.hpp>
@@ -36,27 +36,32 @@ void CryptScene::on_init()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  m_scene_config = std::make_shared<SceneConfig>();
-  m_scene_config->load( "res/json/crypt_scene_config.json" );
+  m_scene_map_data = std::make_shared<SceneData>( "res/scenes/crypt.json" );
+  SPDLOG_INFO( "get_floor_image: {}", m_scene_map_data->floor_tileset_image().string() );
+  SPDLOG_INFO( "levelgen_tilelayer size: {}", m_scene_map_data->levelgen_tilelayer().size() );
 
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
 
   // initialise the persistent player start position from the scene configuration (json) data
-  auto [_, player_start_pos_px] = m_scene_config->get_player_start_position();
+  auto [_, player_start_pos_px] = m_scene_map_data->get_player_start_position();
+  SPDLOG_INFO( "player start position {},{}", player_start_pos_px.x, player_start_pos_px.y );
   Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
 
-  auto [map_size_grid, map_size_pixel] = m_scene_config->get_map_size();
+  auto [map_size_grid, map_size_pixel] = m_scene_map_data->map_size();
 
   // create the empty game area
   auto player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds( player_start_position, Constants::kGridSizePxF, 3.f, Cmp::RectBounds::ScaleCardinality::BOTH );
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_cross_gamearea( map_size_grid, player_start_area );
+  random_level_sys.gen_scene_map( *m_scene_map_data );
 
-  // add some multiblocks to the game area
-  m_sys.find<Sys::Store::Type::CryptSystem>().gen_crypt_main_objective( map_size_grid );
+  auto start_room_entity = m_reg.create();
+  m_reg.emplace_or_replace<Cmp::CryptRoomStart>( start_room_entity, player_start_area.position(), player_start_area.size() );
+
+  // intialise the game area
+  m_sys.find<Sys::Store::Type::CryptSystem>().create_end_room( map_size_grid );
   m_sys.find<Sys::Store::Type::CryptSystem>().create_initial_crypt_rooms( map_size_grid );
   m_sys.find<Sys::Store::Type::CryptSystem>().gen_crypt_initial_interior();
 
@@ -67,16 +72,12 @@ void CryptScene::on_init()
     m_pathfinding_navmesh->insert( pos_entt, pos_cmp );
   }
   m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::PassageSystem>().init( m_pathfinding_navmesh, m_scene_config );
+  m_sys.find<Sys::Store::Type::PassageSystem>().init( m_pathfinding_navmesh, m_scene_map_data );
   m_sys.find<Sys::Store::Type::CryptSystem>().init( m_pathfinding_navmesh );
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
   m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
 
-  m_floormap.create( random_level_sys.get_void_sm(), m_scene_config );
-
-  // pass config exit position to exit spawner
-  auto [exit_pos_grid, exit_pos_pixel] = m_scene_config->get_exit_position();
-  m_sys.find<Sys::Store::Type::CryptSystem>().spawn_exit( exit_pos_grid );
+  m_floormap.create( random_level_sys.get_void_sm(), m_scene_map_data );
 }
 
 void CryptScene::on_enter()

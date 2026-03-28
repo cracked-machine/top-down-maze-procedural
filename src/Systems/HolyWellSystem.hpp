@@ -23,7 +23,6 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
-  void spawn_exit( sf::Vector2u spawn_position );
   void spawn_well( sf::Vector2u spawn_position );
 
   //! @brief Check for collisions with the entrance

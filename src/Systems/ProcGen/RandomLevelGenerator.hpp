@@ -8,7 +8,7 @@
 #include <SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
 
-#include <SceneControl/SceneMap.hpp>
+#include <SceneControl/SceneData.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 
 // Forward declarations
@@ -47,7 +47,7 @@ public:
   PathFinding::SpatialHashGrid &get_void_sm();
 
   // Generate position components for the entire map grid and add player spawn
-  void gen_scene_map( Scene::SceneMap scene_map );
+  void gen_scene_map( const Scene::SceneData &scene_map );
   void gen_rectangle_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area, const Sprites::MultiSprite &wall_ms,
                                SpawnArea spawnarea = SpawnArea::TRUE );
   void gen_circular_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area );

@@ -17,6 +17,8 @@
 #include <Components/RectBounds.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Crypt/CryptExit.hpp>
+#include <Exit.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Player.hpp>
@@ -27,6 +29,18 @@
 
 namespace ProceduralMaze::Factory
 {
+
+entt::entity create_crypt_exit( entt::registry &reg, sf::Vector2f spawn_pos_px )
+{
+  auto entity = reg.create();
+  reg.emplace_or_replace<Cmp::Position>( entity, spawn_pos_px, Constants::kGridSizePxF );
+  reg.emplace_or_replace<Cmp::Exit>( entity, false ); // unlocked at start
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "CRYPT.interior_sb", 1 );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.y );
+  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
+  reg.emplace_or_replace<Cmp::Exit>( entity );
+  return entity;
+}
 
 entt::entity create_crypt_lever( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder )
 {

@@ -2,7 +2,6 @@
 #include <Components/Random.hpp>
 #include <Constants.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
-#include <SceneControl/SceneConfig.hpp>
 #include <Sprites/TileMap.hpp>
 
 #include <SFML/Graphics/Color.hpp>
@@ -33,21 +32,21 @@ void TileMap::draw( sf::RenderTarget &target, sf::RenderStates states ) const
   target.draw( m_vertices, states );
 }
 
-void TileMap::create( const PathFinding::SpatialHashGrid &void_sm, const Scene::SceneConfigSharedPtr &sc )
+void TileMap::create( const PathFinding::SpatialHashGrid &void_sm, const Scene::SceneMapSharedPtr &sc )
 {
   if ( not sc ) throw std::runtime_error( "Scene::SceneConfigSharedPtr is not initialised" );
 
   // load the tilemap from the scene configuration object
   try
   {
-    if ( !std::filesystem::exists( sc->get_texture_path() ) )
+    if ( !std::filesystem::exists( sc->floor_tileset_image() ) )
     {
-      SPDLOG_CRITICAL( "Texture file does not exist: {}", sc->get_texture_path().string() );
+      SPDLOG_CRITICAL( "Texture file does not exist: {}", sc->floor_tileset_image().string() );
       throw std::runtime_error( "Texture file not found" );
     }
-    if ( !m_tileset.loadFromFile( sc->get_texture_path() ) )
+    if ( !m_tileset.loadFromFile( sc->floor_tileset_image() ) )
     {
-      SPDLOG_CRITICAL( "Unable to load tileset texture file: {}", sc->get_texture_path().string() );
+      SPDLOG_CRITICAL( "Unable to load tileset texture file: {}", sc->floor_tileset_image().string() );
       throw std::runtime_error( "Failed to load texture" );
     }
 
@@ -63,22 +62,22 @@ void TileMap::create( const PathFinding::SpatialHashGrid &void_sm, const Scene::
     SPDLOG_ERROR( "Tileset texture not loaded or invalid" );
     throw;
   }
-
+  const auto tile_size = Constants::kGridSizePx;
   const sf::Vector2u texture_size = m_tileset.getSize();
-  const unsigned int tiles_per_row = texture_size.x / sc->get_tile_size().x;
+  const unsigned int tiles_per_row = texture_size.x / tile_size.x;
 
-  Cmp::RandomInt floortile_picker{ 0, static_cast<int>( sc->get_floor_tile_pool().size() - 1 ) };
+  Cmp::RandomInt floortile_picker{ 0, static_cast<int>( sc->floor_tileset_pool().size() - 1 ) };
   // let json fix seed if specified as non-zero
-  if ( sc->get_random_seed() != 0 )
-  {
-    floortile_picker.seed( static_cast<unsigned long>( sc->get_random_seed() ) );
-    SPDLOG_DEBUG( "Using random seed: {}", sc->random_seed );
-  }
+  // if ( sc->get_random_seed() != 0 )
+  // {
+  //   floortile_picker.seed( static_cast<unsigned long>( sc->get_random_seed() ) );
+  //   SPDLOG_DEBUG( "Using random seed: {}", sc->random_seed );
+  // }
 
   // resize the vertex array for squares made of two triangles
   m_vertices.setPrimitiveType( sf::PrimitiveType::Triangles );
 
-  auto [map_size_grid, map_size_pixel] = sc->get_map_size();
+  auto [map_size_grid, map_size_pixel] = sc->map_size();
 
   SPDLOG_INFO( "Generating tilemap for {}x{}", map_size_grid.x, map_size_grid.y );
   for ( unsigned int w = 0; w < map_size_grid.x; w++ )
@@ -87,7 +86,7 @@ void TileMap::create( const PathFinding::SpatialHashGrid &void_sm, const Scene::
     {
       auto pick = floortile_picker.gen();
       SPDLOG_DEBUG( "Chosen tile idx {}", pick );
-      const unsigned int tile_number = sc->get_floor_tile_pool()[pick];
+      const unsigned int tile_number = sc->floor_tileset_pool()[pick];
 
       // check if we have anything in the void spatial map for this position
       Cmp::Position lookup_position( { w * Constants::kGridSizePxF.x, h * Constants::kGridSizePxF.y }, Constants::kGridSizePxF );
@@ -100,15 +99,15 @@ void TileMap::create( const PathFinding::SpatialHashGrid &void_sm, const Scene::
       const unsigned int tv = tile_number / tiles_per_row;
 
       // Cache position calculations
-      const float left = static_cast<float>( w * sc->get_tile_size().x );
-      const float top = static_cast<float>( h * sc->get_tile_size().y );
-      const float right = static_cast<float>( ( w + 1 ) * sc->get_tile_size().x );
-      const float bottom = static_cast<float>( ( h + 1 ) * sc->get_tile_size().y );
+      const float left = static_cast<float>( w * tile_size.x );
+      const float top = static_cast<float>( h * tile_size.y );
+      const float right = static_cast<float>( ( w + 1 ) * tile_size.x );
+      const float bottom = static_cast<float>( ( h + 1 ) * tile_size.y );
 
-      const float tex_left = static_cast<float>( tu * sc->get_tile_size().x );
-      const float tex_top = static_cast<float>( tv * sc->get_tile_size().y );
-      const float tex_right = static_cast<float>( ( tu + 1 ) * sc->get_tile_size().x );
-      const float tex_bottom = static_cast<float>( ( tv + 1 ) * sc->get_tile_size().y );
+      const float tex_left = static_cast<float>( tu * tile_size.x );
+      const float tex_top = static_cast<float>( tv * tile_size.y );
+      const float tex_right = static_cast<float>( ( tu + 1 ) * tile_size.x );
+      const float tex_bottom = static_cast<float>( ( tv + 1 ) * tile_size.y );
 
       // define the 6 corners of the two triangles (counter-clockwise)
       m_vertices.append( { { left, top }, sf::Color::White, { tex_left, tex_top } } );

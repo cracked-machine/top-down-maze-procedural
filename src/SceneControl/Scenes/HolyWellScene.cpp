@@ -33,38 +33,24 @@ void HolyWellScene::on_init()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  m_scene_config = std::make_shared<SceneConfig>();
-  m_scene_config->load( "res/json/holywell_scene_config.json" );
+  m_scene_map_data = std::make_shared<SceneData>( "res/scenes/well.json" );
+  SPDLOG_INFO( "wall_tilelayer size: {}", m_scene_map_data->wall_tilelayer().size() );
 
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
 
   // initialise the persistent player start position from the scene configuration (json) data
-  auto [_, player_start_pos_px] = m_scene_config->get_player_start_position();
+  auto [_, player_start_pos_px] = m_scene_map_data->get_player_start_position();
   Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
-
-  auto [map_size_grid, map_size_pixel] = m_scene_config->get_map_size();
 
   // create the empty game area
   sf::Vector2f player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds( player_start_position, Constants::kGridSizePxF, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_rectangle_gamearea( map_size_grid, player_start_area, m_sprite_factory.get_multisprite_by_type( "HOLYWELL.interior_wall" ),
-                                           Sys::ProcGen::RandomLevelGenerator::SpawnArea::FALSE );
+  random_level_sys.gen_scene_map( *m_scene_map_data );
 
-  // add some multiblocks to the game area
-  for ( auto [_, sprite_pos_pixel] : m_scene_config->get_sprite_position( "HOLYWELL.interior_well" ) )
-  {
-    auto &ms = m_sprite_factory.get_multisprite_by_type( "HOLYWELL.interior_well" );
-    Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( m_reg, sprite_pos_pixel, ms );
-  }
-
-  // pass config exit position to exit spawner
-  auto [exit_pos_grid, exit_pos_pixel] = m_scene_config->get_exit_position();
-  m_sys.find<Sys::Store::Type::HolyWellSystem>().spawn_exit( exit_pos_grid );
-
-  m_floormap.create( random_level_sys.get_void_sm(), m_scene_config );
+  m_floormap.create( random_level_sys.get_void_sm(), m_scene_map_data );
 
   // create a navmesh for pathfinding in the scene
   m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();

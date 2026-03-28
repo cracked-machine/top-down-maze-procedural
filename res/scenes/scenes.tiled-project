@@ -13,6 +13,26 @@
         {
             "color": "#ffa0a0a4",
             "drawFill": true,
+            "id": 11,
+            "members": [
+            ],
+            "name": "exit",
+            "type": "class",
+            "useAs": [
+                "property",
+                "map",
+                "layer",
+                "object",
+                "tile",
+                "tileset",
+                "wangcolor",
+                "wangset",
+                "project"
+            ]
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
             "id": 8,
             "members": [
                 {
@@ -22,6 +42,31 @@
                 }
             ],
             "name": "open",
+            "type": "class",
+            "useAs": [
+                "property",
+                "map",
+                "layer",
+                "object",
+                "tile",
+                "tileset",
+                "wangcolor",
+                "wangset",
+                "project"
+            ]
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 10,
+            "members": [
+                {
+                    "name": "description",
+                    "type": "string",
+                    "value": "player spawn locatio"
+                }
+            ],
+            "name": "player",
             "type": "class",
             "useAs": [
                 "property",
@@ -93,10 +138,30 @@
                 {
                     "name": "description",
                     "type": "string",
-                    "value": "game area bound"
+                    "value": "game area boundary"
                 }
             ],
             "name": "wall",
+            "type": "class",
+            "useAs": [
+                "property",
+                "map",
+                "layer",
+                "object",
+                "tile",
+                "tileset",
+                "wangcolor",
+                "wangset",
+                "project"
+            ]
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 12,
+            "members": [
+            ],
+            "name": "objective",
             "type": "class",
             "useAs": [
                 "property",

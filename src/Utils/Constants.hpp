@@ -10,6 +10,9 @@ inline constexpr sf::Vector2u kGridSizePx{ 16u, 16u };
 inline static constexpr sf::Vector2f kGridSizePxF{ 16.f, 16.f };
 inline static constexpr sf::Vector2u kFallbackDisplaySize{ 1920, 1080 };
 
+//! @brief the directory containing the game resources files
+inline static std::filesystem::path res_dir( "res" );
+
 } // namespace ProceduralMaze::Constants
 
 #endif //  SRC_UTILS_CONSTANTS_HPP_
