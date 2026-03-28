@@ -1,5 +1,5 @@
 {
-    "activeFile": "",
+    "activeFile": "shop.json",
     "expandedProjectPaths": [
         ".",
         "Tilesets"
@@ -33,6 +33,7 @@
         },
         "crypt.json": {
             "expandedObjectLayers": [
+                5,
                 3
             ],
             "scale": 3,
@@ -120,10 +121,10 @@
                 3
             ],
             "scale": 4,
-            "selectedLayer": 2,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 132.625,
-                "y": 116.375
+                "x": 111.625,
+                "y": 133.875
             }
         },
         "shop.json#floor": {
@@ -135,6 +136,7 @@
         },
         "well.json": {
             "expandedObjectLayers": [
+                5,
                 4
             ],
             "scale": 4,
@@ -166,18 +168,19 @@
         "crypt.json",
         "well.json",
         "graveyard.json",
+        "ruinupper.json",
         "shop.json"
     ],
     "project": "scenes.tiled-project",
     "property.type": "list",
     "recentFiles": [
-        "shop.json",
-        "ruinupperjson.json",
-        "ruinupper.json",
         "Tilesets/main.json",
         "crypt.json",
         "well.json",
         "graveyard.json",
+        "ruinupper.json",
+        "shop.json",
+        "ruinupperjson.json",
         "Tilesets/wall.json",
         "Tilesets/main2..tsj",
         "MainTileSet.json"
