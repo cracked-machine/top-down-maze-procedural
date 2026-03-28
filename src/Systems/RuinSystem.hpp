@@ -72,7 +72,7 @@ public:
   //! @return true
   //! @return false
   bool check_activate_player_curse( sf::Vector2f scene_dimensions );
-  bool is_player_carrying_witches_jar();
+
   void update_shadow_hand_pos( sf::Vector2f scene_dimensions );
   void check_player_shadow_hand_collision();
 

@@ -41,7 +41,7 @@
          "name":"player",
          "opacity":1,
          "type":"tilelayer",
-         "visible":true,
+         "visible":false,
          "width":19,
          "x":0,
          "y":0
@@ -63,7 +63,7 @@
          "name":"wall",
          "opacity":1,
          "type":"tilelayer",
-         "visible":true,
+         "visible":false,
          "width":19,
          "x":0,
          "y":0
@@ -110,7 +110,7 @@
                  "y":160
                 }, 
                 {
-                 "height":64,
+                 "height":144,
                  "id":4,
                  "name":"solid",
                  "opacity":1,
@@ -119,19 +119,94 @@
                  "visible":true,
                  "width":16,
                  "x":0,
-                 "y":96
+                 "y":16
                 }, 
                 {
-                 "height":64,
-                 "id":5,
+                 "height":16,
+                 "id":6,
+                 "name":"solid",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":256,
+                 "y":16
+                }, 
+                {
+                 "height":96,
+                 "id":9,
                  "name":"solid",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
-                 "x":0,
-                 "y":16
+                 "x":240,
+                 "y":64
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":5,
+         "name":"multiblock",
+         "objects":[
+                {
+                 "height":0,
+                 "id":7,
+                 "name":"RUIN.interior_staircase_going_down",
+                 "opacity":1,
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":240,
+                 "y":32
+                }, 
+                {
+                 "height":0,
+                 "id":8,
+                 "name":"RUIN.interior_staircase_upper_balustrade",
+                 "opacity":1,
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":240,
+                 "y":48
+                }, 
+                {
+                 "height":0,
+                 "id":10,
+                 "name":"RUIN.interior_hexagram3x3",
+                 "opacity":1,
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":32,
+                 "y":96
+                }, 
+                {
+                 "height":0,
+                 "id":11,
+                 "name":"CARRYITEM.witchesjar",
+                 "opacity":1,
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":48,
+                 "y":112
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -139,8 +214,8 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":5,
- "nextobjectid":6,
+ "nextlayerid":6,
+ "nextobjectid":12,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1",

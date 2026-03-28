@@ -57,7 +57,7 @@
             "scale": 0.25,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 792,
+                "x": 790,
                 "y": 790
             }
         },
@@ -83,12 +83,34 @@
         "graveyard.tmx#Tiles": {
             "dynamicWrapping": true
         },
-        "ruinupper.json": {
-            "scale": 2,
+        "ruinlower.json": {
+            "expandedObjectLayers": [
+                5,
+                4
+            ],
+            "scale": 2.9499999999999997,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 152,
-                "y": 87.75
+                "x": 227.96610169491527,
+                "y": 89.3220338983051
+            }
+        },
+        "ruinlower.json#floor": {
+            "scaleInDock": 1
+        },
+        "ruinlower.json#wall": {
+            "scaleInDock": 1
+        },
+        "ruinupper.json": {
+            "expandedObjectLayers": [
+                5,
+                4
+            ],
+            "scale": 4,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 123.875,
+                "y": 98.625
             }
         },
         "ruinupper.json#floor": {
@@ -121,7 +143,7 @@
                 3
             ],
             "scale": 4,
-            "selectedLayer": 0,
+            "selectedLayer": 3,
             "viewCenter": {
                 "x": 111.625,
                 "y": 133.875
@@ -174,12 +196,12 @@
     "project": "scenes.tiled-project",
     "property.type": "list",
     "recentFiles": [
-        "Tilesets/main.json",
+        "graveyard.json",
+        "shop.json",
         "crypt.json",
         "well.json",
-        "graveyard.json",
+        "Tilesets/main.json",
         "ruinupper.json",
-        "shop.json",
         "ruinupperjson.json",
         "Tilesets/wall.json",
         "Tilesets/main2..tsj",

@@ -116,13 +116,16 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
 
     bool new_solid_mask = true;
     auto solid_masks = ms.get_solid_mask();
-    if ( !solid_masks.empty() && solid_masks.size() > calculated_grid_index ) { new_solid_mask = solid_masks.at( calculated_grid_index ); }
-
-    if ( new_solid_mask )
+    if ( !solid_masks.empty() && solid_masks.size() > calculated_grid_index )
     {
-      registry.emplace_or_replace<MBSEGMENT>( entity, new_solid_mask );
-      registry.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
-      registry.emplace_or_replace<Cmp::PlayerNoPath>( entity );
+      new_solid_mask = solid_masks.at( calculated_grid_index );
+
+      if ( new_solid_mask )
+      {
+        registry.emplace_or_replace<MBSEGMENT>( entity, new_solid_mask );
+        registry.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
+        registry.emplace_or_replace<Cmp::PlayerNoPath>( entity );
+      }
     }
     registry.emplace_or_replace<Cmp::Armable>( entity );
     SPDLOG_DEBUG( "Modifying entity {}, sprite type {}, zorder to {}", static_cast<int>( entity ), ms.get_sprite_type(),

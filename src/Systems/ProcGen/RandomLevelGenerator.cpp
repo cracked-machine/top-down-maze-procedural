@@ -19,6 +19,11 @@
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/WallFactory.hpp>
+#include <Ruin/RuinHexagramMultiBlock.hpp>
+#include <Ruin/RuinHexagramSegment.hpp>
+#include <Ruin/RuinStairsBalustradeMultiBlock.hpp>
+#include <Ruin/RuinStairsLowerMultiBlock.hpp>
+#include <Ruin/RuinStairsUpperMultiBlock.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <Components/Altar/AltarMultiBlock.hpp>
@@ -127,6 +132,28 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
       auto npc_entt = getReg().create();
       getReg().emplace_or_replace<Cmp::Position>( npc_entt, pos, Constants::kGridSizePxF );
       Factory::create_npc( m_reg, npc_entt, "NPC.dr_knox" );
+    }
+    else if ( ms_type == "RUIN.interior_staircase_going_up" )
+    {
+      Factory::add_multiblock_with_segments<Cmp::RuinStairsLowerMultiBlock, Cmp::RuinStairsSegment>( getReg(), pos, ms );
+    }
+    else if ( ms_type == "RUIN.interior_staircase_going_down" )
+    {
+      Factory::add_multiblock_with_segments<Cmp::RuinStairsUpperMultiBlock, Cmp::RuinStairsSegment>( getReg(), pos, ms );
+    }
+    else if ( ms_type == "RUIN.interior_staircase_upper_balustrade" )
+    {
+      Factory::add_multiblock_with_segments<Cmp::RuinStairsBalustradeMultiBlock, Cmp::RuinStairsSegment>( getReg(), pos, ms );
+    }
+    else if ( ms_type == "RUIN.interior_hexagram3x3" )
+    {
+      Factory::add_multiblock_with_segments<Cmp::RuinHexagramMultiBlock, Cmp::RuinHexagramSegment>( m_reg, pos, ms );
+    }
+    else if ( ms_type == "CARRYITEM.witchesjar" )
+    {
+      auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( getReg() );
+      if ( inventory_type == "CARRYITEM.witchesjar" ) continue;
+      Factory::create_carry_item( m_reg, Cmp::Position( pos, Constants::kGridSizePxF ), ms_type );
     }
   }
 }

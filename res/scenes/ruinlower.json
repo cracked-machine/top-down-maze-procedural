@@ -25,6 +25,30 @@
          "y":0
         }, 
         {
+         "draworder":"topdown",
+         "id":5,
+         "name":"multiblock",
+         "objects":[
+                {
+                 "height":0,
+                 "id":6,
+                 "name":"RUIN.interior_staircase_going_up",
+                 "opacity":1,
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":240,
+                 "y":32
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
          "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -63,7 +87,7 @@
          "name":"wall",
          "opacity":1,
          "type":"tilelayer",
-         "visible":true,
+         "visible":false,
          "width":19,
          "x":0,
          "y":0
@@ -132,15 +156,27 @@
                  "width":16,
                  "x":0,
                  "y":16
+                }, 
+                {
+                 "height":112,
+                 "id":7,
+                 "name":"solid",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":240,
+                 "y":16
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":true,
+         "visible":false,
          "x":0,
          "y":0
         }],
- "nextlayerid":5,
- "nextobjectid":6,
+ "nextlayerid":6,
+ "nextobjectid":8,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1",

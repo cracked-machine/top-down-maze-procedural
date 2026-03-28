@@ -48,7 +48,7 @@ void RuinSceneUpperFloor::on_init()
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
 
-  // initialise the persistent player start position from the scene configuration (json) data
+  // initialise the persistent player start position from the scene data
   auto [_, player_start_pos_px] = m_scene_map_data->get_player_start_position();
   PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
 
@@ -61,39 +61,10 @@ void RuinSceneUpperFloor::on_init()
   random_level_sys.reset();
   random_level_sys.gen_game_area( *m_scene_map_data );
 
-  // add two Cmp::NoPathFinding above the upper staircase landing to enforce perspective
-  Factory::add_nopathfinding( m_reg, { map_size_pixel.x - ( 2 * gridsize.x ), gridsize.x } );
-  Factory::add_nopathfinding( m_reg, { map_size_pixel.x - ( 3 * gridsize.x ), gridsize.x } );
-
-  const Sprites::MultiSprite &hexagram_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.interior_hexagram3x3" );
-  sf::Vector2f hexagram_pos( gridsize.x * 2, map_size_pixel.y - hexagram_ms.getSpriteSizePixels().y - ( gridsize.y * 3 ) );
-  Factory::add_multiblock_with_segments<Cmp::RuinHexagramMultiBlock, Cmp::RuinHexagramSegment>( m_reg, hexagram_pos, hexagram_ms );
-
-  // place the objective that was created when the player entered the RuinSceneLowerFloor scene
-  if ( not m_sys.find<Store::Type::RuinSystem>().is_player_carrying_witches_jar() )
-  {
-    auto ruin_objective_view = m_reg.view<Cmp::RuinObjectiveType>();
-    for ( auto [ruin_obj_entt, ruin_obj_cmp] : ruin_objective_view.each() )
-    {
-      Factory::create_carry_item( m_reg, Cmp::Position( { hexagram_pos.x + gridsize.x, hexagram_pos.y + gridsize.y }, gridsize ),
-                                  ruin_obj_cmp.m_type );
-    }
-  }
-
-  // spawn access hitbox just below horizontal centerpoint
+  // add access hitbox just below horizontal centerpoint
   sf::Vector2f flooraccess_position( map_size_pixel.x - ( 3 * gridsize.x ), map_size_pixel.y - ( 3 * gridsize.y ) );
   sf::Vector2f flooraccess_size( ( 2 * gridsize.x ), gridsize.y );
   m_sys.find<Store::Type::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size, Cmp::RuinFloorAccess::Direction::TO_LOWER );
-
-  // add the straircase sprite for upper floor
-  const Sprites::MultiSprite &stairs_upper_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.interior_staircase_going_down" );
-  sf::Vector2f stairs_position( map_size_pixel.x - ( 4 * gridsize.x ), ( 2 * gridsize.y ) );
-  m_sys.find<Store::Type::RuinSystem>().add_stairs<Cmp::RuinStairsUpperMultiBlock>( stairs_position, stairs_upper_ms );
-
-  // add the straircase balustrade sprite for upper floor - make sure it is front of player
-  const Sprites::MultiSprite &stairs_balustrade_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.interior_staircase_upper_balustrade" );
-  sf::Vector2f balustrade_position( map_size_pixel.x - ( 4 * gridsize.x ), ( 2 * gridsize.y ) );
-  m_sys.find<Store::Type::RuinSystem>().add_stairs<Cmp::RuinStairsBalustradeMultiBlock>( balustrade_position, stairs_balustrade_ms );
 
   m_floormap.create( random_level_sys.get_void_sm(), m_scene_map_data );
 
@@ -111,8 +82,9 @@ void RuinSceneUpperFloor::on_init()
 void RuinSceneUpperFloor::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
-  bool player_is_cursed = m_sys.find<Sys::Store::Type::RuinSystem>().is_player_carrying_witches_jar();
-  if ( not player_is_cursed )
+
+  auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( m_reg );
+  if ( inventory_type != "CARRYITEM.witchesjar" )
   {
     if ( m_sound_bank.get_music( "ruin_creaking_rope" ).getStatus() != sf::Sound::Status::Playing )
     {

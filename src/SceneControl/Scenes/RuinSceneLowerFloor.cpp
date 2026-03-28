@@ -51,7 +51,7 @@ void RuinSceneLowerFloor::on_init()
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
 
-  // initialise the persistent player start position from the scene configuration (json) data
+  // initialise the persistent player start position from the scene data
   auto [_, player_start_pos_px] = m_scene_map_data->get_player_start_position();
   Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
 
@@ -64,24 +64,10 @@ void RuinSceneLowerFloor::on_init()
   random_level_sys.reset();
   random_level_sys.gen_game_area( *m_scene_map_data );
 
-  // select the objective type that will be spawned in the RuinSceneUpperFloor scene
-  auto selected_objective_ms_type = m_sprite_factory.get_random_type( { "CARRYITEM.witchesjar" } );
-  auto ruin_objective_entt = m_reg.create();
-  m_reg.emplace_or_replace<Cmp::RuinObjectiveType>( ruin_objective_entt, selected_objective_ms_type );
-
-  // spawn access hitbox just above horizontal centerpoint
+  // add access hitbox just above horizontal centerpoint
   sf::Vector2f flooraccess_position( map_size_pixel.x - ( 3 * gridsize.x ), 2 * gridsize.y );
   sf::Vector2f flooraccess_size( ( 2 * gridsize.x ), gridsize.y );
   m_sys.find<SystemStoreType::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size, Cmp::RuinFloorAccess::Direction::TO_UPPER );
-
-  // add the straircase sprite for lower floor
-  const Sprites::MultiSprite &stairs_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.interior_staircase_going_up" );
-  sf::Vector2f stairs_position( map_size_pixel.x - ( 4 * gridsize.x ), gridsize.y );
-  m_sys.find<SystemStoreType::RuinSystem>().add_stairs<Cmp::RuinStairsLowerMultiBlock>( stairs_position, stairs_ms );
-
-  // Make sure bookcaseses cant block access to the staircase
-  Factory::add_reservedposition( m_reg, { map_size_pixel.x - ( 5 * gridsize.x ), map_size_pixel.y - ( 2 * gridsize.x ) } );
-  Factory::add_reservedposition( m_reg, { map_size_pixel.x - ( 5 * gridsize.x ), map_size_pixel.y - ( 3 * gridsize.x ) } );
 
   m_floormap.create( random_level_sys.get_void_sm(), m_scene_map_data );
 
@@ -118,7 +104,9 @@ void RuinSceneLowerFloor::on_enter()
   m_persistent_sys.load_state();
 
   m_sound_bank.get_music( "game_music" ).stop();
-  if ( not m_sys.find<Sys::Store::Type::RuinSystem>().is_player_carrying_witches_jar() )
+
+  auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( m_reg );
+  if ( inventory_type != "CARRYITEM.witchesjar" )
   {
     if ( m_sound_bank.get_music( "ruin_creaking_rope" ).getStatus() != sf::Sound::Status::Playing )
     {

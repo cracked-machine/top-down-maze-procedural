@@ -344,7 +344,8 @@ bool RuinSystem::check_activate_player_curse( sf::Vector2f scene_dimensions )
 {
   Cmp::PlayerCurse &player_curse = Utils::Player::get_curse( getReg() );
 
-  if ( not player_curse.active && is_player_carrying_witches_jar() )
+  auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( m_reg );
+  if ( not player_curse.active && inventory_type == "CARRYITEM.witchesjar" )
   {
     if ( not m_curse_activation_future.valid() )
     {
@@ -370,16 +371,6 @@ bool RuinSystem::check_activate_player_curse( sf::Vector2f scene_dimensions )
   }
 
   return player_curse.active;
-}
-
-bool RuinSystem::is_player_carrying_witches_jar()
-{
-  bool result = false;
-  for ( auto [inv_entt, inv_cmp] : getReg().view<Cmp::PlayerInventorySlot>().each() )
-  {
-    if ( inv_cmp.type == "CARRYITEM.witchesjar" ) { result = true; }
-  }
-  return result;
 }
 
 void RuinSystem::update_shadow_hand_pos( sf::Vector2f scene_dimensions )
