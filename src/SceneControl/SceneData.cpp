@@ -29,6 +29,7 @@ struct adl_serializer<ProceduralMaze::Scene::SceneData::MainTileSet>
       else if ( type == "spawn" ) { ts.spawn_tile_id = id; }
       else if ( type == "player" ) { ts.player_tile_id = id; }
       else if ( type == "exit" ) { ts.exit_tile_id = id; }
+      else if ( type == "reserved" ) { ts.reserved_tile_id = id; }
       else { SPDLOG_WARN( "Unknown 'type' found in main tileset: {}", type ); }
     }
     // 'ts.wall_tile_id' should default to zero so no check needed
@@ -37,6 +38,7 @@ struct adl_serializer<ProceduralMaze::Scene::SceneData::MainTileSet>
     if ( ts.spawn_tile_id == 0 ) { throw std::runtime_error( "Missing JSON property 'type.spawn' in main tileset" ); }
     if ( ts.player_tile_id == 0 ) { throw std::runtime_error( "Missing JSON property 'type.player' in main tileset" ); }
     if ( ts.exit_tile_id == 0 ) { throw std::runtime_error( "Missing JSON property 'type.exit' in main tileset" ); }
+    if ( ts.reserved_tile_id == 0 ) { throw std::runtime_error( "Missing JSON property 'type.reserved' in main tileset" ); }
     if ( not j.contains( "tilewidth" ) ) throw std::runtime_error( "Missing JSON property 'tilewidth' in main tileset." );
     if ( not j.contains( "tileheight" ) ) throw std::runtime_error( "Missing JSON property 'tileheight' in main tileset." );
     ts.tile_size = sf::Vector2u( j.at( "tilewidth" ).get<uint32_t>(), j.at( "tileheight" ).get<uint32_t>() );

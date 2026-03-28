@@ -59,7 +59,7 @@ void RuinSceneUpperFloor::on_init()
   auto player_start_area = Cmp::RectBounds( player_start_pos, gridsize, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
   auto &random_level_sys = m_sys.find<Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_scene_map( *m_scene_map_data );
+  random_level_sys.gen_game_area( *m_scene_map_data );
 
   // add two Cmp::NoPathFinding above the upper staircase landing to enforce perspective
   Factory::add_nopathfinding( m_reg, { map_size_pixel.x - ( 2 * gridsize.x ), gridsize.x } );

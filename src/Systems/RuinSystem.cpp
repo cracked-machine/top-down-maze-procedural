@@ -179,6 +179,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
   {
     if ( Utils::Collision::check_cmp<Cmp::RuinBookcase>( getReg(), pos ) ) { return true; }
     if ( Utils::Collision::check_cmp<Cmp::NpcNoPathFinding>( getReg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::ReservedPosition>( getReg(), pos ) ) { return true; }
 
     // ensure bookcase is inside scene
     if ( not Cmp::RectBounds( pos.position(), pos.size(), 1.5 ).findIntersection( scene_dimensions ) ) { return true; }

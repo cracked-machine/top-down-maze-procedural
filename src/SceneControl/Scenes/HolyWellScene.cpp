@@ -48,7 +48,7 @@ void HolyWellScene::on_init()
   auto player_start_area = Cmp::RectBounds( player_start_position, Constants::kGridSizePxF, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_scene_map( *m_scene_map_data );
+  random_level_sys.gen_game_area( *m_scene_map_data );
 
   m_floormap.create( random_level_sys.get_void_sm(), m_scene_map_data );
 

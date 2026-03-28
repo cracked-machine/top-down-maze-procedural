@@ -19,6 +19,7 @@ public:
     int spawn_tile_id{ 0 };
     int player_tile_id{ 0 };
     int exit_tile_id{ 0 };
+    int reserved_tile_id{ 0 };
     sf::Vector2u tile_size;
   };
 
@@ -57,6 +58,7 @@ public:
   int spawn_tile_id() const { return m_map_data.main_tileset.spawn_tile_id + m_map_data.main_first_gid; }
   int player_tile_id() const { return m_map_data.main_tileset.player_tile_id + m_map_data.main_first_gid; }
   int exit_tile_id() const { return m_map_data.main_tileset.exit_tile_id + m_map_data.main_first_gid; }
+  int reserved_tile_id() const { return m_map_data.main_tileset.reserved_tile_id + m_map_data.main_first_gid; }
 
   std::multimap<Sprites::SpriteMetaType, sf::Vector2f> multiblock_objectlayer() const { return m_map_data.multiblock_objectlayer; }
   std::vector<sf::FloatRect> solid_objectlayer() const { return m_map_data.solid_objectlayer; }

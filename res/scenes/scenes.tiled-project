@@ -33,6 +33,26 @@
         {
             "color": "#ffa0a0a4",
             "drawFill": true,
+            "id": 12,
+            "members": [
+            ],
+            "name": "reserved",
+            "type": "class",
+            "useAs": [
+                "property",
+                "map",
+                "layer",
+                "object",
+                "tile",
+                "tileset",
+                "wangcolor",
+                "wangset",
+                "project"
+            ]
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
             "id": 8,
             "members": [
                 {
@@ -142,26 +162,6 @@
                 }
             ],
             "name": "wall",
-            "type": "class",
-            "useAs": [
-                "property",
-                "map",
-                "layer",
-                "object",
-                "tile",
-                "tileset",
-                "wangcolor",
-                "wangset",
-                "project"
-            ]
-        },
-        {
-            "color": "#ffa0a0a4",
-            "drawFill": true,
-            "id": 12,
-            "members": [
-            ],
-            "name": "objective",
             "type": "class",
             "useAs": [
                 "property",

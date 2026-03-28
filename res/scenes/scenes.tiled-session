@@ -37,10 +37,10 @@
                 3
             ],
             "scale": 3,
-            "selectedLayer": 3,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 237.83333333333334,
-                "y": 54.499999999999986
+                "x": 251.16666666666666,
+                "y": 499.16666666666663
             }
         },
         "crypt.json#floor": {
@@ -87,8 +87,8 @@
             "scale": 2,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 127.25,
-                "y": 84.75
+                "x": 152,
+                "y": 87.75
             }
         },
         "ruinupper.json#floor": {
@@ -142,8 +142,8 @@
             "scale": 4,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 105.625,
-                "y": 105.375
+                "x": 120,
+                "y": 120.125
             }
         },
         "well.json#floor": {

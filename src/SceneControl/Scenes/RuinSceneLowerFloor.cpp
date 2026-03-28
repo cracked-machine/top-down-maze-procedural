@@ -62,7 +62,7 @@ void RuinSceneLowerFloor::on_init()
   auto player_start_area = Cmp::RectBounds( player_start_position, gridsize, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
   auto &random_level_sys = m_sys.find<SystemStoreType::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_scene_map( *m_scene_map_data );
+  random_level_sys.gen_game_area( *m_scene_map_data );
 
   // select the objective type that will be spawned in the RuinSceneUpperFloor scene
   auto selected_objective_ms_type = m_sprite_factory.get_random_type( { "CARRYITEM.witchesjar" } );

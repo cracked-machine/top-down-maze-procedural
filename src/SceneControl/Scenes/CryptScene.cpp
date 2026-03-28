@@ -55,7 +55,7 @@ void CryptScene::on_init()
   auto player_start_area = Cmp::RectBounds( player_start_position, Constants::kGridSizePxF, 3.f, Cmp::RectBounds::ScaleCardinality::BOTH );
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
-  random_level_sys.gen_scene_map( *m_scene_map_data );
+  random_level_sys.gen_game_area( *m_scene_map_data );
 
   auto start_room_entity = m_reg.create();
   m_reg.emplace_or_replace<Cmp::CryptRoomStart>( start_room_entity, player_start_area.position(), player_start_area.size() );

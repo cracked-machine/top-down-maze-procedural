@@ -79,7 +79,7 @@ void GraveyardScene::on_init()
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   SPDLOG_INFO( "LEVELGENSPATIALMAP: {}", random_level_sys.get_obstacle_sm().size() );
   random_level_sys.reset();
-  random_level_sys.gen_scene_map( *m_scene_map_data );
+  random_level_sys.gen_game_area( *m_scene_map_data );
   // random_level_sys.gen_circular_gamearea( map_size_grid, player_start_area );
 
   // Add rescue pickaxes at the polar coords of the game area

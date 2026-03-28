@@ -32,6 +32,10 @@
         {
          "id":5,
          "type":"exit"
+        }, 
+        {
+         "id":6,
+         "type":"reserved"
         }],
  "tilewidth":16,
  "type":"tileset",
