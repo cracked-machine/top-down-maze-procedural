@@ -101,7 +101,7 @@ void ShopScene::on_exit()
 
 void ShopScene::do_update( [[maybe_unused]] sf::Time dt )
 {
-  m_sys.find<Sys::Store::Type::HolyWellSystem>().check_inventory_deposit( dt );
+  // m_sys.find<Sys::Store::Type::HolyWellSystem>().check_inventory_deposit( dt );
   m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Sys::Store::Type::ShopSystem>().check_exit_collision();

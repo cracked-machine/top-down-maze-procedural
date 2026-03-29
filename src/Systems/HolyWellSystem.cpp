@@ -39,6 +39,12 @@ void HolyWellSystem::spawn_well( sf::Vector2u spawn_position )
   Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( getReg(), new_pos, ms );
 }
 
+void HolyWellSystem::on_player_action( Events::PlayerActionEvent ev )
+{
+  if ( ev.action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
+  check_inventory_deposit();
+}
+
 void HolyWellSystem::check_entrance_collision()
 {
   auto pc_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
@@ -89,33 +95,28 @@ void HolyWellSystem::check_exit_collision()
   }
 }
 
-void HolyWellSystem::check_inventory_deposit( sf::Time dt )
+void HolyWellSystem::check_inventory_deposit()
 {
-  static constexpr sf::Time kDepositIntervalSec = sf::seconds( 0.5f );
-  m_inventory_deposit_interval += dt;
-  if ( m_inventory_deposit_interval >= kDepositIntervalSec )
+
+  auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( getReg() );
+  if ( not inventory_type.contains( "CARRYITEM.jewelry" ) ) return;
+
+  auto &wealth = Utils::Player::get_wealth( m_reg );
+
+  // check if we're near a holywell
+  auto player_hitbox = Cmp::RectBounds( Utils::Player::get_position( getReg() ).position, Constants::kGridSizePxF, 1.5f );
+  for ( auto [well_entt, well_mb_cmp] : getReg().view<Cmp::HolyWellMultiBlock>().each() )
   {
-    // jewelry only
-    auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( getReg() );
-    if ( not inventory_type.contains( "CARRYITEM.jewelry" ) ) return;
+    if ( not player_hitbox.findIntersection( well_mb_cmp ) ) continue;
+    Factory::destroy_inventory( getReg(), inventory_type );
+    wealth.wealth += 2;
+    m_sound_bank.get_effect( "get_key" ).play();
 
-    auto &wealth = Utils::Player::get_wealth( m_reg );
-
-    // check if we're near a holywell
-    auto player_hitbox = Cmp::RectBounds( Utils::Player::get_position( getReg() ).position, Constants::kGridSizePxF, 1.5f );
-    for ( auto [well_entt, well_mb_cmp] : getReg().view<Cmp::HolyWellMultiBlock>().each() )
-    {
-      if ( not player_hitbox.findIntersection( well_mb_cmp ) ) continue;
-      Factory::destroy_inventory( getReg(), inventory_type );
-      wealth.wealth += 2;
-      m_sound_bank.get_effect( "get_key" ).play();
-
-      // signal UI to flash
-      auto flash_entt = getReg().create();
-      getReg().emplace_or_replace<Cmp::FlashUIWealth>( flash_entt );
-    }
-    m_inventory_deposit_interval = sf::Time::Zero;
+    // signal UI to flash
+    auto flash_entt = getReg().create();
+    getReg().emplace_or_replace<Cmp::FlashUIWealth>( flash_entt );
   }
+  m_inventory_deposit_interval = sf::Time::Zero;
 }
 
 } // namespace ProceduralMaze::Sys

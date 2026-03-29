@@ -97,7 +97,7 @@ void HolyWellScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
   m_sys.find<Sys::Store::Type::HolyWellSystem>().check_exit_collision();
-  m_sys.find<Sys::Store::Type::HolyWellSystem>().check_inventory_deposit( dt );
+  // m_sys.find<Sys::Store::Type::HolyWellSystem>().check_inventory_deposit( dt );
 
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
 

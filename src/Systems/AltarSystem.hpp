@@ -20,6 +20,8 @@ public:
 
   void check_player_collision();
 
+  void on_player_action( Events::PlayerActionEvent ev );
+
 private:
   void check_player_altar_activation( entt::entity altar_entity, Cmp::AltarMultiBlock &altar_cmp );
   bool activate_altar_special_power();

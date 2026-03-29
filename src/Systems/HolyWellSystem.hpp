@@ -16,19 +16,22 @@ public:
       : ProceduralMaze::Sys::BaseSystem( reg, window, sprite_factory, sound_bank ),
         m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
   {
+    std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&HolyWellSystem::on_player_action>( this );
   }
 
-  //! @brief event handlers for pausing system clocks
-  void onPause() override {}
-  //! @brief event handlers for resuming system clocks
-  void onResume() override {}
+  void on_player_action( Events::PlayerActionEvent ev );
 
   void spawn_well( sf::Vector2u spawn_position );
 
   //! @brief Check for collisions with the entrance
   void check_entrance_collision();
   void check_exit_collision();
-  void check_inventory_deposit( sf::Time dt );
+  void check_inventory_deposit();
+
+  //! @brief event handlers for pausing system clocks
+  void onPause() override {}
+  //! @brief event handlers for resuming system clocks
+  void onResume() override {}
 
 private:
   //! @brief Dispatcher reference for scene management events

@@ -1,3 +1,4 @@
+#include <Events/PlayerActionEvent.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Components/Altar/AltarSacrifice.hpp>
@@ -37,6 +38,23 @@ namespace ProceduralMaze::Sys
 AltarSystem::AltarSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
+  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&AltarSystem::on_player_action>( this );
+}
+
+void AltarSystem::on_player_action( Events::PlayerActionEvent ev )
+{
+  if ( ev.action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
+
+  auto altar_view = getReg().view<Cmp::AltarMultiBlock>();
+  auto player_hitbox = Cmp::RectBounds( Utils::Player::get_position( getReg() ).position, Constants::kGridSizePxF, 1.5f );
+
+  for ( auto [altar_entity, altar_cmp] : altar_view.each() )
+  {
+    if ( not player_hitbox.findIntersection( altar_cmp ) ) continue;
+
+    SPDLOG_DEBUG( "Player collided with Altar at ({}, {})", altar_cmp.position.x, altar_cmp.position.y );
+    check_player_altar_activation( altar_entity, altar_cmp );
+  }
 }
 
 void AltarSystem::check_player_collision()
@@ -48,18 +66,6 @@ void AltarSystem::check_player_collision()
     if ( not altar_sacrifice_anim_cmp.m_animation_active )
     {
       if ( getReg().valid( altar_sacrifice_entt ) ) { getReg().destroy( altar_sacrifice_entt ); }
-    }
-  }
-
-  auto altar_view = getReg().view<Cmp::AltarMultiBlock>();
-  auto player_hitbox = Cmp::RectBounds( Utils::Player::get_position( getReg() ).position, Constants::kGridSizePxF, 1.5f );
-
-  for ( auto [altar_entity, altar_cmp] : altar_view.each() )
-  {
-    if ( player_hitbox.findIntersection( altar_cmp ) )
-    {
-      SPDLOG_DEBUG( "Player collided with Altar at ({}, {})", altar_cmp.position.x, altar_cmp.position.y );
-      check_player_altar_activation( altar_entity, altar_cmp );
     }
   }
 }
