@@ -149,11 +149,19 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
     {
       Factory::add_multiblock_with_segments<Cmp::RuinHexagramMultiBlock, Cmp::RuinHexagramSegment>( m_reg, pos, ms );
     }
-    else if ( ms_type == "CARRYITEM.witchesjar" )
+    else if ( ms_type.contains( "CARRYITEM" ) )
     {
       auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( getReg() );
+      // prevent infinite respawns in the RuinSceneUpperFloor
       if ( inventory_type == "CARRYITEM.witchesjar" ) continue;
-      Factory::create_carry_item( m_reg, Cmp::Position( pos, Constants::kGridSizePxF ), ms_type );
+
+      // make sure we mark the *world* entt as reserved
+      auto world_pos_entt = Utils::get_world_pos_entt( m_reg, Cmp::Position( pos, ms.getSpriteSizePixels() ) );
+      if ( world_pos_entt != entt::null )
+      {
+        getReg().emplace_or_replace<Cmp::ReservedPosition>( world_pos_entt );
+        Factory::create_carry_item( getReg(), Cmp::Position( pos, ms.getSpriteSizePixels() ), ms_type );
+      }
     }
   }
 }

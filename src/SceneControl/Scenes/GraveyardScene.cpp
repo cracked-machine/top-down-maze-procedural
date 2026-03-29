@@ -80,29 +80,6 @@ void GraveyardScene::on_init()
   SPDLOG_INFO( "LEVELGENSPATIALMAP: {}", random_level_sys.get_obstacle_sm().size() );
   random_level_sys.reset();
   random_level_sys.gen_game_area( *m_scene_map_data );
-  // random_level_sys.gen_circular_gamearea( map_size_grid, player_start_area );
-
-  // Add rescue pickaxes at the polar coords of the game area
-  // clang-format off
-  std::vector<sf::FloatRect> pickaxe_floatrect_list = { 
-    Utils::snap_to_grid({ {map_size_pixel.x / 2, Constants::kGridSizePxF.y * 4.f }, Constants::kGridSizePxF} ),                            // north
-    Utils::snap_to_grid({ { map_size_pixel.x - (Constants::kGridSizePxF.x * 4.f), map_size_pixel.y / 2.f}, Constants::kGridSizePxF} ),      // east
-    Utils::snap_to_grid({ { map_size_pixel.x / 2.f, map_size_pixel.y - (Constants::kGridSizePxF.y * 4.f) }, Constants::kGridSizePxF }),     // south
-    Utils::snap_to_grid({ { Constants::kGridSizePxF.x * 4.f, map_size_pixel.y / 2.f }, Constants::kGridSizePxF })                            // west
-  };
-  // clang-format on
-  for ( auto floatrect : pickaxe_floatrect_list )
-  {
-    // make sure we mark the *world* entt as reserved
-    auto world_pos_entt = Utils::get_world_pos_entt( m_reg, Cmp::Position( floatrect.position, floatrect.size ) );
-    if ( world_pos_entt != entt::null )
-    {
-      m_reg.emplace_or_replace<Cmp::ReservedPosition>( world_pos_entt );
-
-      // now create the pickaxe at a new entt
-      Factory::create_carry_item( m_reg, Cmp::Position( floatrect.position, floatrect.size ), "CARRYITEM.pickaxe" );
-    }
-  }
 
   random_level_sys.gen_graveyard_exterior_multiblocks();
   Factory::gen_loot_containers( m_reg, m_sprite_factory, map_size_grid );
@@ -134,19 +111,6 @@ void GraveyardScene::on_init()
   m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().init_hazard_field();
   m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().init_hazard_field();
   m_sys.find<Sys::Store::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
-
-#ifndef NDEBUG
-  Cmp::Position shovel_pos_cmp( player_start_position + sf::Vector2f{ 32.f, 32.f }, Constants::kGridSizePxF );
-  Factory::create_carry_item( m_reg, shovel_pos_cmp, "CARRYITEM.shovel" );
-  Cmp::Position axe_pos_cmp( player_start_position + sf::Vector2f{ 32.f, -32.f }, Constants::kGridSizePxF );
-  Factory::create_carry_item( m_reg, axe_pos_cmp, "CARRYITEM.axe" );
-  Cmp::Position scryingball_pos_cmp( player_start_position + sf::Vector2f{ -32.f, 32.f }, Constants::kGridSizePxF );
-  Factory::create_carry_item( m_reg, scryingball_pos_cmp, "CARRYITEM.scryingball" );
-  Cmp::Position cryptkey_pos_cmp( player_start_position + sf::Vector2f{ -32.f, -32.f }, Constants::kGridSizePxF );
-  Factory::create_carry_item( m_reg, cryptkey_pos_cmp, "CARRYITEM.cryptkey" );
-  Cmp::Position exitkey_pos_cmp( player_start_position + sf::Vector2f{ -32.f, -16.f }, Constants::kGridSizePxF );
-  Factory::create_carry_item( m_reg, exitkey_pos_cmp, "CARRYITEM.exitkey" );
-#endif
 }
 
 void GraveyardScene::on_enter()
