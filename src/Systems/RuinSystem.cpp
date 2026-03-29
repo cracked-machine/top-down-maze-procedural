@@ -300,6 +300,7 @@ void RuinSystem::add_lowerfloor_cobwebs( int max_attempts, sf::FloatRect scene_d
     if ( Utils::Collision::check_cmp<Cmp::RuinStairsLowerMultiBlock>( getReg(), pos ) ) { return true; }
     if ( Utils::Collision::check_cmp<Cmp::Wall>( getReg(), pos, []( const Cmp::Wall &wall ) { return wall.blocking; } ) ) { return true; }
     if ( Utils::Collision::check_cmp<Cmp::RuinCobweb>( getReg(), pos ) ) { return true; }
+    if ( Utils::Collision::check_cmp<Cmp::Exit>( getReg(), pos ) ) { return true; }
 
     // ensure bookcase is inside scene
     if ( not Cmp::RectBounds( pos.position(), pos.size(), 1.5 ).findIntersection( scene_dimensions ) ) { return true; }
@@ -318,16 +319,6 @@ void RuinSystem::add_lowerfloor_cobwebs( int max_attempts, sf::FloatRect scene_d
     Factory::create_cobweb( getReg(), rnd_pos.position, m_sprite_factory.get_multisprite_by_type( ms ), idx );
   }
 }
-
-template <typename COMPONENT>
-void RuinSystem::add_stairs( sf::Vector2f spawn_position, const Sprites::MultiSprite &stairs_ms )
-{
-  Factory::add_multiblock_with_segments<COMPONENT, Cmp::RuinStairsSegment>( getReg(), spawn_position, stairs_ms );
-}
-// Explicit function template instantiations
-template void RuinSystem::add_stairs<Cmp::RuinStairsLowerMultiBlock>( sf::Vector2f, const Sprites::MultiSprite & );
-template void RuinSystem::add_stairs<Cmp::RuinStairsUpperMultiBlock>( sf::Vector2f, const Sprites::MultiSprite & );
-template void RuinSystem::add_stairs<Cmp::RuinStairsBalustradeMultiBlock>( sf::Vector2f, const Sprites::MultiSprite & );
 
 void RuinSystem::creaking_rope_update()
 {
