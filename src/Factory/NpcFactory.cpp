@@ -3,6 +3,8 @@
 #include <Components/Direction.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcContainer.hpp>
+#include <Components/Npc/NpcFriendly.hpp>
+#include <Components/Npc/NpcLerpSpeed.hpp>
 #include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Npc/NpcShockwaveTimer.hpp>
 #include <Components/Persistent/NpcShockwaveFreq.hpp>
@@ -12,7 +14,10 @@
 #include <Factory/Factory.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
-#include <Npc/NpcFriendly.hpp>
+#include <Persistent/NpcLerpSpeedGhost.hpp>
+#include <Persistent/NpcLerpSpeedPriest.hpp>
+#include <Persistent/NpcLerpSpeedSkele.hpp>
+#include <Persistent/NpcLerpSpeedWitch.hpp>
 #include <SpatialHashGrid.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -90,6 +95,10 @@ void create_npc( entt::registry &registry, entt::entity position_entity, const S
     registry.emplace_or_replace<Cmp::NPC>( new_pos_entity );
     registry.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, "NPCGHOST.walk.east" );
     registry.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
+
+    float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedGhost>( registry ).get_value();
+    registry.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
+
     SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
                  pos_cmp->position.y );
   }
@@ -98,6 +107,9 @@ void create_npc( entt::registry &registry, entt::entity position_entity, const S
     registry.emplace_or_replace<Cmp::NPC>( new_pos_entity );
     registry.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, "NPCSKELE.walk.east" );
     registry.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
+
+    float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedSkele>( registry ).get_value();
+    registry.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
 
     // Remove the npc container component from the original entity
     registry.remove<Cmp::NpcContainer>( position_entity );
@@ -110,6 +122,9 @@ void create_npc( entt::registry &registry, entt::entity position_entity, const S
     registry.emplace_or_replace<Cmp::NPC>( new_pos_entity );
     registry.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, false, "NPCPRIEST" );
     registry.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
+
+    float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedPriest>( registry ).get_value();
+    registry.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
 
     // Remove the npc container component from the original entity
     registry.remove<Cmp::NpcContainer>( position_entity );
@@ -125,6 +140,9 @@ void create_npc( entt::registry &registry, entt::entity position_entity, const S
     registry.emplace_or_replace<Cmp::NPC>( new_pos_entity );
     registry.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, false, "NPCWITCH" );
     registry.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
+
+    float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedWitch>( registry ).get_value();
+    registry.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
 
     // Remove the npc container component from the original entity
     registry.remove<Cmp::NpcContainer>( position_entity );

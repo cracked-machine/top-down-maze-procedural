@@ -12,7 +12,6 @@
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/NpcActivateScale.hpp>
 #include <Components/Persistent/NpcDamage.hpp>
-#include <Components/Persistent/NpcLerpSpeed.hpp>
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
@@ -31,6 +30,7 @@
 #include <Factory/NpcFactory.hpp>
 #include <Grave/GraveSegment.hpp>
 #include <Npc/NpcFriendly.hpp>
+#include <Npc/NpcLerpSpeed.hpp>
 #include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Ruin/RuinSegment.hpp>
@@ -155,16 +155,14 @@ void NpcSystem::update_animation()
 void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity )
 {
 
-  const float npc_lerp_speed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeed>( getReg() ).get_value();
-
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
   if ( not pathfinding_navmesh ) return;
 
   auto player_pos_cmp = Utils::Player::get_position( getReg() );
   auto player_in_spawn = Utils::Player::is_in_spawn( getReg(), player_pos_cmp );
 
-  auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>( entt::exclude<Cmp::NpcFriendly> );
-  for ( auto [npc_entity, npc_cmp, npc_pos_cmp, anim_cmp] : npc_view.each() )
+  auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation, Cmp::NpcLerpSpeed>( entt::exclude<Cmp::NpcFriendly> );
+  for ( auto [npc_entity, npc_cmp, npc_pos_cmp, anim_cmp, lerp_speed_cmp] : npc_view.each() )
   {
 
     if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) ) continue;
@@ -191,7 +189,7 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
       if ( player_in_spawn and player_pos_cmp == new_position_cmp ) continue;
 
       // calculate the direction and update the NPC lerp
-      auto candidate_lerp_pos = Cmp::LerpPosition( new_position_cmp.position, npc_lerp_speed );
+      auto candidate_lerp_pos = Cmp::LerpPosition( new_position_cmp.position, lerp_speed_cmp.speed );
       auto distance_to_target = new_position_cmp.position - npc_pos_cmp.position;
       if ( distance_to_target == sf::Vector2f( 0.0f, 0.0f ) ) continue;
 

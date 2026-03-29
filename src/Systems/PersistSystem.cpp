@@ -1,3 +1,7 @@
+#include <Persistent/NpcLerpSpeedGhost.hpp>
+#include <Persistent/NpcLerpSpeedPriest.hpp>
+#include <Persistent/NpcLerpSpeedSkele.hpp>
+#include <Persistent/NpcLerpSpeedWitch.hpp>
 #include <Persistent/NpcSkeleGraveyardSpawnCount.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
@@ -30,7 +34,6 @@
 #include <Components/Persistent/NpcDamage.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
 #include <Components/Persistent/NpcGhostAnimFramerate.hpp>
-#include <Components/Persistent/NpcLerpSpeed.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
 #include <Components/Persistent/NpcShockwaveFreq.hpp>
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
@@ -106,7 +109,10 @@ void PersistSystem::initializeTypeRegistry()
   reg.operator()<NpcDamage>("NpcDamage");
   reg.operator()<NpcDeathAnimFramerate>("NpcDeathAnimFramerate");
   reg.operator()<NpcGhostAnimFramerate>("NpcGhostAnimFramerate");
-  reg.operator()<NpcLerpSpeed>("NpcLerpSpeed");
+  reg.operator()<NpcLerpSpeedSkele>("NpcLerpSpeedSkele");
+  reg.operator()<NpcLerpSpeedGhost>("NpcLerpSpeedGhost");
+  reg.operator()<NpcLerpSpeedWitch>("NpcLerpSpeedWitch");
+  reg.operator()<NpcLerpSpeedPriest>("NpcLerpSpeedPriest");
   reg.operator()<NpcPushBack>("NpcPushBack");
   reg.operator()<NpcShockwaveFreq>("NpcShockwaveFreq");
   reg.operator()<NpcShockwaveMaxRadius>("NpcShockwaveMaxRadius");

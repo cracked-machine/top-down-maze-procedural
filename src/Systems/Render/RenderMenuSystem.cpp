@@ -24,7 +24,6 @@
 #include <Components/Persistent/NpcDamage.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
 #include <Components/Persistent/NpcGhostAnimFramerate.hpp>
-#include <Components/Persistent/NpcLerpSpeed.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
 #include <Components/Persistent/NpcShockwaveFreq.hpp>
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
@@ -43,6 +42,10 @@
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
+#include <Persistent/NpcLerpSpeedGhost.hpp>
+#include <Persistent/NpcLerpSpeedPriest.hpp>
+#include <Persistent/NpcLerpSpeedSkele.hpp>
+#include <Persistent/NpcLerpSpeedWitch.hpp>
 #include <Persistent/NpcWitchAnimFramerate.hpp>
 #include <Persistent/PlayerMovementSpeed.hpp>
 #include <Player/PlayerCadaverCount.hpp>
@@ -229,7 +232,10 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
 
     Sys::PersistSystem::get<Cmp::Persist::NpcDeathAnimFramerate>( getReg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcActivateScale>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeed>( getReg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedSkele>( getReg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedGhost>( getReg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedWitch>( getReg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedPriest>( getReg() ).render_widget();
 
     // Audio
     ImGui::SeparatorText( "Audio" );

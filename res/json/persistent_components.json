@@ -73,7 +73,7 @@
   },
   "DiggingDamagePerHit":{
     "type": "int",
-    "value": 25,
+    "value": 100,
     "min_value": 1,
     "max_value": 100,
     "detail": "Digging Damage Per Hit",
@@ -191,12 +191,36 @@
     "format": "%.2f"
   },
   
-  "NpcLerpSpeed": {
+  "NpcLerpSpeedSkele": {
     "type": "float",
     "value": 0.8,
     "min_value": 0.1,
     "max_value": 3.0,
-    "detail": "NPC Speed",
+    "detail": "Skele Speed",
+    "format": "%.1f"
+  },
+  "NpcLerpSpeedGhost": {
+    "type": "float",
+    "value": 0.4,
+    "min_value": 0.1,
+    "max_value": 3.0,
+    "detail": "Ghost Speed",
+    "format": "%.1f"
+  },
+  "NpcLerpSpeedWitch": {
+    "type": "float",
+    "value": 1.5,
+    "min_value": 0.1,
+    "max_value": 3.0,
+    "detail": "Witch Speed",
+    "format": "%.1f"
+  },
+  "NpcLerpSpeedPriest": {
+    "type": "float",
+    "value": 1.0,
+    "min_value": 0.1,
+    "max_value": 3.0,
+    "detail": "Priest Speed",
     "format": "%.1f"
   },
   "NpcPushBack": {
