@@ -8,7 +8,6 @@
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptEntrance.hpp>
-#include <Components/Crypt/CryptExit.hpp>
 #include <Components/Crypt/CryptLever.hpp>
 #include <Components/Crypt/CryptMultiBlock.hpp>
 #include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
@@ -426,7 +425,7 @@ void CryptSystem::createRoomBorders()
     // don't add obstacles to footstep entities
     if ( getReg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
     // don't replace wall/exit entities
-    if ( getReg().any_of<Cmp::Wall, Cmp::CryptExit>( pos_entt ) ) continue;
+    if ( getReg().any_of<Cmp::Wall, Cmp::Exit>( pos_entt ) ) continue;
 
     // replace closed room borders with regular sprites
     for ( auto [closed_room_entt, closed_room_cmp] : getReg().view<Cmp::CryptRoomClosed>().each() )

@@ -54,11 +54,11 @@
             "expandedObjectLayers": [
                 7
             ],
-            "scale": 0.25,
-            "selectedLayer": 2,
+            "scale": 4,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 790,
-                "y": 790
+                "x": 810.375,
+                "y": 747.625
             }
         },
         "graveyard.json#Dummy": {

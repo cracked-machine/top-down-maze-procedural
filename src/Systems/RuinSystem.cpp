@@ -3,7 +3,6 @@
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
-#include <Components/HolyWell/HolyWellExit.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>

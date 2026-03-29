@@ -9,7 +9,6 @@
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/Shop/ShopExit.hpp>
 #include <Components/Wall.hpp>
 #include <Constants.hpp>
 #include <Factory/MultiblockFactory.hpp>

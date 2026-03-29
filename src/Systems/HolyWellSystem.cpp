@@ -3,7 +3,6 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Exit.hpp>
 #include <Components/HolyWell/HolyWellEntrance.hpp>
-#include <Components/HolyWell/HolyWellExit.hpp>
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/HolyWell/HolyWellSegment.hpp>
 #include <Components/Inventory/FlashUIWealth.hpp>
