@@ -1,4 +1,5 @@
 #include <Events/PlayerActionEvent.hpp>
+#include <Sprites/SpriteMetaType.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Components/Altar/AltarSacrifice.hpp>
@@ -72,85 +73,112 @@ void AltarSystem::check_player_collision()
 
 void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp::AltarMultiBlock &altar_cmp )
 {
+  if ( m_altar_activation_clock.getElapsedTime() < kActivationCooldownSeconds ) return;
+
+  auto [sacrifice_entt, sacrifice_type] = Utils::Player::get_inventory_type( getReg() );
+
+  enum class SacrificeAnimType { RELIC, KEY };
+  auto common_activation = [&]( SacrificeAnimType sacrifice_anim_type )
+  {
+    Sprites::SpriteMetaType sprite_type;
+    if ( sacrifice_anim_type == SacrificeAnimType::RELIC ) { sprite_type = "ALTAR.sacrifice.anim.relic"; }
+    else if ( sacrifice_anim_type == SacrificeAnimType::KEY ) { sprite_type = "ALTAR.sacrifice.anim.key"; }
+
+    Factory::destroy_inventory( getReg(), sacrifice_type );
+
+    float altar_sacrifice_anim_height = m_sprite_factory.get_multisprite_by_type( sprite_type ).getSpriteSizePixels().y;
+    // get the center (topleft coord), then adjust to center the altar_sacrifice_anim, then adjust for altar_sacrifice_anim height
+    Cmp::Position new_pos( altar_cmp.getCenter() - sf::Vector2{ 8.f, 4.f } - sf::Vector2{ 0.f, altar_sacrifice_anim_height },
+                           Constants::kGridSizePxF );
+    m_sound_bank.get_effect( "shrine_lighting" ).play();
+    Factory::create_altar_sacrifice_anim( getReg(), new_pos, sprite_type );
+    m_altar_activation_clock.restart();
+  };
 
   SPDLOG_DEBUG( "Checking altar activation: {}/{}", altar_cmp.get_activation_count(), altar_cmp.get_activation_threshold() );
-  if ( altar_cmp.get_activation_count() < altar_cmp.get_activation_threshold() )
+  // We still need to satisfy the relic sacrifice threshold to get an exitkey drop
+  if ( altar_cmp.get_sacrifice_count() < altar_cmp.get_exitkey_drop_threshold() )
   {
-    auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( getReg() );
-    if ( not inventory_type.contains( "CARRYITEM.relic" ) ) return;
-
-    auto common_activation = [&]()
+    if ( sacrifice_type.contains( "CARRYITEM.relic" ) )
     {
-      Factory::destroy_inventory( getReg(), inventory_type );
-      float altar_sacrifice_anim_height = m_sprite_factory.get_multisprite_by_type( "ALTAR.sacrifice.anim" ).getSpriteSizePixels().y;
-      // get the center (topleft coord), then adjust to center the altar_sacrifice_anim, then adjust for altar_sacrifice_anim height
-      Cmp::Position new_pos( altar_cmp.getCenter() - sf::Vector2{ 8.f, 8.f } - sf::Vector2{ 0.f, altar_sacrifice_anim_height },
-                             Constants::kGridSizePxF );
-      // Factory::createCarryItem( getReg(), new_pos, inventory_type, 2.f );
-      m_sound_bank.get_effect( "shrine_lighting" ).play();
-      Factory::create_altar_sacrifice_anim( getReg(), new_pos );
-    };
+      switch ( altar_cmp.get_sacrifice_count() )
+      {
+        case 0:
+          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 1 ); } );
+          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.one"; } );
+          SPDLOG_DEBUG( "Altar activated to state ONE." );
+          common_activation( SacrificeAnimType::RELIC );
+          break;
+        case 1:
+          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 2 ); } );
+          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.two"; } );
+          SPDLOG_DEBUG( "Altar activated to state TWO." );
+          common_activation( SacrificeAnimType::RELIC );
+          break;
 
-    switch ( altar_cmp.get_activation_count() )
+        case 2:
+          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 3 ); } );
+          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.three"; } );
+          SPDLOG_DEBUG( "Altar activated to state THREE." );
+          common_activation( SacrificeAnimType::RELIC );
+          break;
+        case 3:
+          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 4 ); } );
+          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.four"; } );
+          SPDLOG_DEBUG( "Altar activated to state FOUR." );
+          common_activation( SacrificeAnimType::RELIC );
+          break;
+      }
+    }
+  }
+  // We still need to satisfy the exitkey sacrifice threshold to get an cryptkey drop
+  else if ( altar_cmp.get_sacrifice_count() < altar_cmp.get_cryptkey_drop_threshold() )
+  {
+    if ( sacrifice_type.contains( "CARRYITEM.exitkey" ) )
     {
-      case 0:
-        getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_activation_count( 1 ); } );
-        getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.one"; } );
-        SPDLOG_DEBUG( "Altar activated to state ONE." );
-        common_activation();
-        break;
-      case 1:
-        getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_activation_count( 2 ); } );
-        getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.two"; } );
-        SPDLOG_DEBUG( "Altar activated to state TWO." );
-        common_activation();
-        break;
-
-      case 2:
-        getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_activation_count( 3 ); } );
-        getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.three"; } );
-        SPDLOG_DEBUG( "Altar activated to state THREE." );
-        common_activation();
-        break;
-      case 3:
-        getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_activation_count( 4 ); } );
-        getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.four"; } );
-        SPDLOG_DEBUG( "Altar activated to state FOUR." );
-        common_activation();
-        break;
-      default:
-        break;
+      switch ( altar_cmp.get_sacrifice_count() )
+      {
+        case 4:
+          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 5 ); } );
+          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.five"; } );
+          SPDLOG_DEBUG( "Altar activated to state FIVE." );
+          common_activation( SacrificeAnimType::KEY );
+        default:
+          break;
+      }
     }
   }
 
-  // allow this condition to be met in the same pass as the candle activation above
-  if ( altar_cmp.get_activation_count() >= altar_cmp.get_activation_threshold() )
+  // We have satisfied the relic sacrifice threshold to get an exitkey drop
+  if ( altar_cmp.get_sacrifice_count() == altar_cmp.get_exitkey_drop_threshold() )
   {
-    if ( not altar_cmp.are_powers_active() )
+    if ( not altar_cmp.is_exitkey_lockout() )
     {
-      SPDLOG_DEBUG( "Altar fully activated!" );
-
-      // drop an exit or crypt key
-      Cmp::RandomInt key_picker( 0, 1 );
-      auto key_choice = key_picker.gen();
       entt::entity key_entt = entt::null;
 
-      // dont keep spawning exit keys if the exit is was already open
-      if ( not Utils::is_graveyard_exit_locked( getReg() ) )
+      if ( sacrifice_type.contains( "CARRYITEM.relic" ) )
+      {
+        key_entt = Factory::create_carry_item( getReg(), Utils::Player::get_position( getReg() ), "CARRYITEM.exitkey" );
+        if ( key_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
+      }
+      SPDLOG_INFO( "Dropped CARRYITEM.exitkey" );
+      altar_cmp.set_exitkey_lockout();
+    }
+  }
+  // We have satisfied the exitkey sacrifice threshold to get an cryptkey drop
+  else if ( altar_cmp.get_sacrifice_count() >= altar_cmp.get_cryptkey_drop_threshold() )
+  {
+    if ( not altar_cmp.is_cryptkey_lockout() )
+    {
+      entt::entity key_entt = entt::null;
+
+      if ( sacrifice_type.contains( "CARRYITEM.exitkey" ) )
       {
         key_entt = Factory::create_carry_item( getReg(), Utils::Player::get_position( getReg() ), "CARRYITEM.cryptkey" );
+        if ( key_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
       }
-      else
-      {
-        // otherwise if the exit is locked, its 50/50
-        if ( key_choice == 0 ) { key_entt = Factory::create_carry_item( getReg(), Utils::Player::get_position( getReg() ), "CARRYITEM.exitkey" ); }
-        else { key_entt = Factory::create_carry_item( getReg(), Utils::Player::get_position( getReg() ), "CARRYITEM.cryptkey" ); }
-      }
-
-      if ( key_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
-
-      altar_cmp.set_powers_active();
-      m_altar_activation_clock.restart();
+      SPDLOG_INFO( "Dropped CARRYITEM.cryptkey" );
+      altar_cmp.set_cryptkey_lockout();
     }
   }
 }

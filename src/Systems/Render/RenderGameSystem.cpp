@@ -513,7 +513,7 @@ void RenderGameSystem::render_arrow_compass()
     auto crypt_view = getReg().view<Cmp::AltarMultiBlock>();
     for ( auto [altar_entity, altar_cmp] : crypt_view.each() )
     {
-      if ( altar_cmp.are_powers_active() ) continue;
+      if ( altar_cmp.is_exitkey_lockout() ) continue;
       auto float_distance = Utils::Maths::getEuclideanDistance( altar_cmp.position, Utils::Player::get_position( getReg() ).position );
       distance_queue.emplace( float_distance, Cmp::Position( altar_cmp.position, altar_cmp.size ) );
     }

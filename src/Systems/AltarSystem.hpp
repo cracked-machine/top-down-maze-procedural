@@ -27,7 +27,7 @@ private:
   bool activate_altar_special_power();
 
   sf::Clock m_altar_activation_clock;
-  sf::Time m_altar_activation_cooldown{ sf::seconds( 3.f ) };
+  const sf::Time kActivationCooldownSeconds{ sf::seconds( 3.f ) };
 };
 
 } // namespace ProceduralMaze::Sys
