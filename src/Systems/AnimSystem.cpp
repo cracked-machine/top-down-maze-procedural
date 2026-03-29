@@ -1,4 +1,5 @@
 #include <Persistent/NpcWitchAnimFramerate.hpp>
+#include <Ruin/RuinShadowHand.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Components/Altar/AltarSacrifice.hpp>
@@ -41,6 +42,28 @@ namespace ProceduralMaze::Sys
 
 void AnimSystem::update( sf::Time globalDeltaTime )
 {
+
+  // Shadow Hand Animation
+  auto ruin_shadowhand_anim_view = getReg().view<Cmp::RuinShadowHand, Cmp::SpriteAnimation, Cmp::Position>();
+  for ( auto [ruin_shadowhand_entt, ruin_shadowhand_cmp, ruin_shadowhand_anim_cmp, ruin_shadowhand_pos_cmp] : ruin_shadowhand_anim_view.each() )
+  {
+    if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), ruin_shadowhand_pos_cmp ) ) continue;
+    if ( ruin_shadowhand_anim_cmp.m_animation_active == true )
+    {
+      const auto &altar_sacrifice_sprite_metadata = m_sprite_factory.get_multisprite_by_type( ruin_shadowhand_anim_cmp.m_sprite_type );
+      auto frame_rate = sf::seconds( 0.2f );
+
+      update_single_sequence( ruin_shadowhand_anim_cmp, globalDeltaTime, altar_sacrifice_sprite_metadata, frame_rate );
+
+      // // one shot animation then deactivate, this is then destroyed by `AltarSystem`
+      // if ( ruin_shadowhand_anim_cmp.m_current_frame == altar_sacrifice_sprite_metadata.get_sprites_per_sequence() - 1 )
+      // {
+      //   SPDLOG_DEBUG( "Deactivating altar sacrifice animation: {}", static_cast<int>( loot_con_entt ) );
+      //   ruin_shadowhand_anim_cmp.m_animation_active = false;
+      //   ruin_shadowhand_anim_cmp.m_current_frame = ruin_shadowhand_anim_cmp.m_base_frame;
+      // }
+    }
+  }
 
   // AltarSacrifice Animation
   auto altar_sacrifice_anim_view = getReg().view<Cmp::AltarSacrifice, Cmp::SpriteAnimation, Cmp::Position>();

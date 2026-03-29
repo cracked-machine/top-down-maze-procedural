@@ -1,5 +1,7 @@
 #include <Events/DropInventoryEvent.hpp>
 #include <Exit.hpp>
+#include <System.hpp>
+#include <Utils.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -381,6 +383,8 @@ void RuinSystem::update_shadow_hand_pos( sf::Vector2f scene_dimensions )
 
 void RuinSystem::check_player_shadow_hand_collision()
 {
+  if ( Utils::getSystemCmp( getReg() ).collisions_disabled ) return;
+
   // only trigger PlayerMortalityEvents if player is alive
   if ( Utils::Player::get_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) { return; }
 

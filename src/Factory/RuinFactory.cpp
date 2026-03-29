@@ -68,7 +68,7 @@ void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, con
     auto shadowhand_entt = reg.create();
     reg.emplace_or_replace<Cmp::Position>( shadowhand_entt, starting_pos, ms.getSpriteSizePixels() );
     reg.emplace_or_replace<Cmp::SpriteAnimation>( shadowhand_entt, 0, 0, true, ms.get_sprite_type(), sprite_index );
-    reg.emplace_or_replace<Cmp::ZOrderValue>( shadowhand_entt, starting_pos.y * 100 ); // above everythign
+    reg.emplace_or_replace<Cmp::ZOrderValue>( shadowhand_entt, ms.get_zorder( 0 ) ); // above everythign
     reg.emplace_or_replace<Cmp::AbsoluteAlpha>( shadowhand_entt, 200 );
     reg.emplace_or_replace<Cmp::RuinShadowHand>( shadowhand_entt );
   }

@@ -1846,14 +1846,16 @@
     "RUIN.shadow_hand": {
       "multisprite": {
         "displayname": "RUIN.shadow_hand",
-        "zorder": [0],
-        "texture_path": "res/textures/RUIN.cursed_hand.png",
-        "sprite_indices": [0],
+        "zorder": [1000],
+        "texture_path": "res/textures/RUIN.shadow_hand.png",
+        "sprite_indices": [
+          0
+        ],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
-          "width": 20,
-          "height": 6
+          "width": 21,
+          "height": 8
         }
       }
     },
