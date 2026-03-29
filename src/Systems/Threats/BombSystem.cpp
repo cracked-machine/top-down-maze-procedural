@@ -1,10 +1,20 @@
+#include <Audio/SoundBank.hpp>
+#include <Components/Altar/AltarSegment.hpp>
+#include <Components/Armable.hpp>
+#include <Components/Armed.hpp>
 #include <Components/Crypt/CryptSegment.hpp>
+#include <Components/DeathPosition.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Exit.hpp>
+#include <Components/Grave/GraveSegment.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/Explosive.hpp>
+#include <Components/LootContainer.hpp>
 #include <Components/Npc/Npc.hpp>
+#include <Components/Npc/NpcContainer.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
+#include <Components/Persistent/ArmedOffDelay.hpp>
+#include <Components/Persistent/BombDamage.hpp>
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
@@ -12,6 +22,8 @@
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
+#include <Components/ReservedPosition.hpp>
+#include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
@@ -21,30 +33,18 @@
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <SFML/Graphics/Rect.hpp>
+#include <Sprites/SpriteFactory.hpp>
+#include <Systems/PersistSystem.hpp>
+#include <Systems/Threats/BombSystem.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
+
 #include <optional>
 #include <spdlog/spdlog.h>
-
-#include <Audio/SoundBank.hpp>
-#include <Components/Altar/AltarSegment.hpp>
-#include <Components/Armable.hpp>
-#include <Components/Armed.hpp>
-#include <Components/DeathPosition.hpp>
-#include <Components/Grave/GraveSegment.hpp>
-#include <Components/LootContainer.hpp>
-#include <Components/Npc/NpcContainer.hpp>
-#include <Components/Persistent/ArmedOffDelay.hpp>
-#include <Components/Persistent/BombDamage.hpp>
-#include <Components/ReservedPosition.hpp>
-#include <Components/SpriteAnimation.hpp>
-#include <PathFinding/SpatialHashGrid.hpp>
-#include <Sprites/SpriteFactory.hpp>
-#include <Systems/PersistSystem.hpp>
-#include <Systems/Threats/BombSystem.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -215,6 +215,13 @@ void BombSystem::place_concentric_bomb_pattern( const entt::entity &epicenter_en
 
 void BombSystem::update()
 {
+
+  // remove any finished explosions
+  for ( auto [death_entt, death_cmp, anim_cmp] : getReg().view<Cmp::DeathPosition, Cmp::SpriteAnimation>().each() )
+  {
+    if ( not anim_cmp.m_animation_active ) { Factory::remove_npc_explosion( getReg(), death_entt ); }
+  }
+
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
   if ( not pathfinding_navmesh )
   {

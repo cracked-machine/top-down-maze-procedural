@@ -40,176 +40,64 @@
 namespace ProceduralMaze::Sys
 {
 
-void AnimSystem::update( sf::Time globalDeltaTime )
+void AnimSystem::update( sf::Time dt )
 {
 
-  // Shadow Hand Animation
-  auto ruin_shadowhand_anim_view = getReg().view<Cmp::RuinShadowHand, Cmp::SpriteAnimation, Cmp::Position>();
-  for ( auto [ruin_shadowhand_entt, ruin_shadowhand_cmp, ruin_shadowhand_anim_cmp, ruin_shadowhand_pos_cmp] : ruin_shadowhand_anim_view.each() )
+  auto anim_view = getReg().view<Cmp::SpriteAnimation, Cmp::Position>( entt::exclude<Cmp::NPC> );
+  for ( auto [anim_entt, anim_cmp, pos_cmp] : anim_view.each() )
   {
-    if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), ruin_shadowhand_pos_cmp ) ) continue;
-    if ( ruin_shadowhand_anim_cmp.m_animation_active == true )
+    if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
+    if ( anim_cmp.m_animation_active == true )
     {
-      const auto &altar_sacrifice_sprite_metadata = m_sprite_factory.get_multisprite_by_type( ruin_shadowhand_anim_cmp.m_sprite_type );
-      auto frame_rate = sf::seconds( 0.2f );
+      const auto &ms = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
+      update_single_sequence( anim_cmp, dt, ms, sf::seconds( anim_cmp.get_framerate() ) );
 
-      update_single_sequence( ruin_shadowhand_anim_cmp, globalDeltaTime, altar_sacrifice_sprite_metadata, frame_rate );
-
-      // // one shot animation then deactivate, this is then destroyed by `AltarSystem`
-      // if ( ruin_shadowhand_anim_cmp.m_current_frame == altar_sacrifice_sprite_metadata.get_sprites_per_sequence() - 1 )
-      // {
-      //   SPDLOG_DEBUG( "Deactivating altar sacrifice animation: {}", static_cast<int>( loot_con_entt ) );
-      //   ruin_shadowhand_anim_cmp.m_animation_active = false;
-      //   ruin_shadowhand_anim_cmp.m_current_frame = ruin_shadowhand_anim_cmp.m_base_frame;
-      // }
-    }
-  }
-
-  // AltarSacrifice Animation
-  auto altar_sacrifice_anim_view = getReg().view<Cmp::AltarSacrifice, Cmp::SpriteAnimation, Cmp::Position>();
-  for ( auto [altar_sacrifice_entt, altar_sacrifice_cmp, altar_sacrifice_anim_cmp, altar_sacrifice_pos_cmp] : altar_sacrifice_anim_view.each() )
-  {
-    if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), altar_sacrifice_pos_cmp ) ) continue;
-    if ( altar_sacrifice_anim_cmp.m_animation_active == true )
-    {
-      const auto &altar_sacrifice_sprite_metadata = m_sprite_factory.get_multisprite_by_type( altar_sacrifice_anim_cmp.m_sprite_type );
-      auto frame_rate = sf::seconds( 0.2f );
-
-      update_single_sequence( altar_sacrifice_anim_cmp, globalDeltaTime, altar_sacrifice_sprite_metadata, frame_rate );
-
-      // one shot animation then deactivate, this is then destroyed by `AltarSystem`
-      if ( altar_sacrifice_anim_cmp.m_current_frame == altar_sacrifice_sprite_metadata.get_sprites_per_sequence() - 1 )
+      // disable oneshot animations at the end of their sequence
+      if ( anim_cmp.m_anim_type == Cmp::AnimType::LOOP ) continue;
+      if ( anim_cmp.m_current_frame == ms.get_sprites_per_sequence() - 1 )
       {
-        SPDLOG_DEBUG( "Deactivating altar sacrifice animation: {}", static_cast<int>( loot_con_entt ) );
-        altar_sacrifice_anim_cmp.m_animation_active = false;
-        altar_sacrifice_anim_cmp.m_current_frame = altar_sacrifice_anim_cmp.m_base_frame;
-      }
-    }
-  }
-
-  // Grave Pot hit Animation
-  auto loot_container_anim_view = getReg().view<Cmp::LootContainer, Cmp::SpriteAnimation, Cmp::Position>();
-  for ( auto [loot_con_entt, loot_con_cmp, loot_con_anim_cmp, loot_con_pos_cmp] : loot_container_anim_view.each() )
-  {
-    if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), loot_con_pos_cmp ) ) continue;
-    if ( loot_con_anim_cmp.m_sprite_type == "POT" and loot_con_anim_cmp.m_animation_active == true )
-    {
-      const auto &pot_sprite_metadata = m_sprite_factory.get_multisprite_by_type( loot_con_anim_cmp.m_sprite_type );
-      auto frame_rate = sf::seconds( 0.2f );
-
-      update_single_sequence( loot_con_anim_cmp, globalDeltaTime, pot_sprite_metadata, frame_rate );
-
-      // one shot animation then deactivate, this is then destroyed by `DiggingSystem::check_player_smash_pot`
-      if ( loot_con_anim_cmp.m_current_frame == pot_sprite_metadata.get_sprites_per_sequence() - 1 )
-      {
-        SPDLOG_DEBUG( "Deactivating pot animation: {}", static_cast<int>( loot_con_entt ) );
-        loot_con_anim_cmp.m_animation_active = false;
-        loot_con_anim_cmp.m_current_frame = loot_con_anim_cmp.m_base_frame;
-      }
-    }
-  }
-
-  // Crypt Spike Trap Animation
-  auto spiketrap_view = getReg().view<Cmp::CryptPassageSpikeTrap, Cmp::SpriteAnimation, Cmp::Position>();
-  for ( auto [spike_trap_entt, spike_trap_cmp, anim_cmp, pos_cmp] : spiketrap_view.each() )
-  {
-    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
-    if ( anim_cmp.m_animation_active )
-    {
-      const auto &spiketrap_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
-      auto frame_rate = sf::seconds( 0.2f );
-
-      update_single_sequence( anim_cmp, globalDeltaTime, spiketrap_sprite_metadata, frame_rate );
-
-      // one shot animation, then pause for N seconds,
-      // then wait for player proximity to reactivate. See CryptSystem::checkSpikeTrapActivationByProximity().
-      if ( anim_cmp.m_current_frame == spiketrap_sprite_metadata.get_sprites_per_sequence() - 1 )
-      {
-        SPDLOG_DEBUG( "Deactivating spike: {}", static_cast<int>( spike_trap_entt ) );
+        SPDLOG_DEBUG( "Deactivating animation: {}", static_cast<int>( anim_entt ) );
         anim_cmp.m_animation_active = false;
-        spike_trap_cmp.m_cooldown_timer.restart();
         anim_cmp.m_current_frame = anim_cmp.m_base_frame;
       }
     }
   }
 
-  // Crypt chest Animation
-  auto crypt_chest_view = getReg().view<Cmp::CryptChest, Cmp::SpriteAnimation, Cmp::Position>();
-  for ( auto [crypt_chest_entt, crypt_chest_cmp, anim_cmp, pos_cmp] : crypt_chest_view.each() )
-  {
-    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
-    if ( anim_cmp.m_animation_active )
-    {
-      const auto &spiketrap_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
-      auto frame_rate = sf::seconds( 0.1f );
+  //   // Shadow Hand Animation
+  //   auto ruin_shadowhand_anim_view = getReg().view<Cmp::RuinShadowHand, Cmp::SpriteAnimation, Cmp::Position>();
+  //   for ( auto [ruin_shadowhand_entt, ruin_shadowhand_cmp, ruin_shadowhand_anim_cmp, ruin_shadowhand_pos_cmp] : ruin_shadowhand_anim_view.each() )
+  //   {
+  //     if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), ruin_shadowhand_pos_cmp ) ) continue;
+  //     if ( ruin_shadowhand_anim_cmp.m_animation_active == true )
+  //     {
+  //       const auto &altar_sacrifice_sprite_metadata = m_sprite_factory.get_multisprite_by_type( ruin_shadowhand_anim_cmp.m_sprite_type );
+  //       auto frame_rate = sf::seconds( 0.2f );
 
-      update_single_sequence( anim_cmp, globalDeltaTime, spiketrap_sprite_metadata, frame_rate );
+  //       update_single_sequence( ruin_shadowhand_anim_cmp, globalDeltaTime, altar_sacrifice_sprite_metadata, frame_rate );
+  //     }
+  //   }
 
-      // one shot animation, then disable
-      // See CryptSystem::check_chest_activation()
-      if ( anim_cmp.m_current_frame == spiketrap_sprite_metadata.get_sprites_per_sequence() - 1 ) { anim_cmp.m_animation_active = false; }
-    }
-  }
+  //   // Grave Pot hit Animation
+  //   auto loot_container_anim_view = getReg().view<Cmp::LootContainer, Cmp::SpriteAnimation, Cmp::Position>();
+  //   for ( auto [loot_con_entt, loot_con_cmp, loot_con_anim_cmp, loot_con_pos_cmp] : loot_container_anim_view.each() )
+  //   {
+  //     if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), loot_con_pos_cmp ) ) continue;
+  //     if ( loot_con_anim_cmp.m_sprite_type == "POT" and loot_con_anim_cmp.m_animation_active == true )
+  //     {
+  //       const auto &pot_sprite_metadata = m_sprite_factory.get_multisprite_by_type( loot_con_anim_cmp.m_sprite_type );
+  //       auto frame_rate = sf::seconds( 0.2f );
 
-  // Crypt lava cell animation effect
-  auto crypt_lava_view = getReg().view<Cmp::CryptRoomLavaPitCellEffect, Cmp::SpriteAnimation, Cmp::Position>();
-  for ( auto [crypt_lava_anim_entt, crypt_lava_anim_cmp, anim_cmp, pos_cmp] : crypt_lava_view.each() )
-  {
-    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
-    if ( anim_cmp.m_animation_active )
-    {
-      const auto &spiketrap_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
-      auto frame_rate = sf::seconds( 0.1f );
+  //       update_single_sequence( loot_con_anim_cmp, globalDeltaTime, pot_sprite_metadata, frame_rate );
 
-      update_single_sequence( anim_cmp, globalDeltaTime, spiketrap_sprite_metadata, frame_rate );
-
-      // one shot animation, then disable. See CryptSystem::doLavaPitAnimation()
-      if ( anim_cmp.m_current_frame == spiketrap_sprite_metadata.get_sprites_per_sequence() - 1 ) { anim_cmp.m_animation_active = false; }
-    }
-  }
-
-  // Shrine Animation
-  auto shrine_view = getReg().view<Cmp::AltarSegment, Cmp::SpriteAnimation, Cmp::Position>();
-  for ( auto [entity, shrine_cmp, anim_cmp, pos_cmp] : shrine_view.each() )
-  {
-    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
-    if ( anim_cmp.m_animation_active )
-    {
-      const auto &shrine_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
-      auto frame_rate = sf::seconds( 0.1f );
-
-      update_single_sequence( anim_cmp, globalDeltaTime, shrine_sprite_metadata, frame_rate );
-    }
-  }
-
-  // HolyWell Animation
-  auto holywell_view = getReg().view<Cmp::HolyWellMultiBlock, Cmp::SpriteAnimation, Cmp::Position>();
-  for ( auto [entity, holywell_cmp, anim_cmp, pos_cmp] : holywell_view.each() )
-  {
-    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
-    if ( anim_cmp.m_animation_active )
-    {
-      const auto &holywell_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
-      auto frame_rate = sf::seconds( 0.1f );
-
-      update_single_sequence( anim_cmp, globalDeltaTime, holywell_sprite_metadata, frame_rate );
-    }
-  }
-
-  // Grave Animation
-  auto grave_view = getReg().view<Cmp::GraveSegment, Cmp::SpriteAnimation, Cmp::Position>();
-  for ( auto [entity, grave_cmp, anim_cmp, pos_cmp] : grave_view.each() )
-  {
-    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
-    if ( anim_cmp.m_animation_active )
-    {
-      SPDLOG_DEBUG( "Updating Grave animation for entity {}", static_cast<int>( entity ) );
-      const auto &grave_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
-      auto frame_rate = sf::seconds( 0.1f );
-
-      update_single_sequence( anim_cmp, globalDeltaTime, grave_sprite_metadata, frame_rate );
-    }
-  }
+  //       // one shot animation then deactivate, this is then destroyed by `DiggingSystem::check_player_smash_pot`
+  //       if ( loot_con_anim_cmp.m_current_frame == pot_sprite_metadata.get_sprites_per_sequence() - 1 )
+  //       {
+  //         SPDLOG_DEBUG( "Deactivating pot animation: {}", static_cast<int>( loot_con_entt ) );
+  //         loot_con_anim_cmp.m_animation_active = false;
+  //         loot_con_anim_cmp.m_current_frame = loot_con_anim_cmp.m_base_frame;
+  //       }
+  //     }
+  //   }
 
   // NPC Movement: only update animation for NPC that are actively pathfinding
   auto pathfinding_npc_view = getReg().view<Cmp::NPC, Cmp::LerpPosition, Cmp::SpriteAnimation, Cmp::Position>();
@@ -233,61 +121,7 @@ void AnimSystem::update( sf::Time globalDeltaTime )
         frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::NpcWitchAnimFramerate>( getReg() ).get_value() );
       }
       const auto &npc_walk_sequence = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
-      update_single_sequence( anim_cmp, globalDeltaTime, npc_walk_sequence, frame_rate );
-    }
-  }
-
-  // Player Movement
-  // TODO: Add death animations depending on the mortality state
-  auto moving_player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction, Cmp::SpriteAnimation, Cmp::Position>();
-  for ( auto [entity, pc_cmp, dir_cmp, anim_cmp, pos_cmp] : moving_player_view.each() )
-  {
-
-    if ( not anim_cmp.m_animation_active ) continue;
-    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
-    auto frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::PlayerAnimFramerate>( getReg() ).get_value() );
-    const auto &player_walk_sequence = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
-    update_single_sequence( anim_cmp, globalDeltaTime, player_walk_sequence, frame_rate );
-  }
-
-  // Wormhole
-  const auto wormhole_view = getReg().view<Cmp::WormholeMultiBlock, Cmp::SpriteAnimation, Cmp::Position>();
-  for ( auto [entity, wormhole_cmp, anim_cmp, pos_cmp] : wormhole_view.each() )
-  {
-    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
-
-    const auto &wormhole_sprite_metadata = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
-    auto frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::WormholeAnimFramerate>( getReg() ).get_value() );
-
-    update_single_sequence( anim_cmp, globalDeltaTime, wormhole_sprite_metadata, frame_rate );
-  }
-
-  // NPC Death Explosion Animation
-  auto explosion_view = getReg().view<Cmp::DeathPosition, Cmp::SpriteAnimation>();
-  for ( auto [entity, explosion_cmp, anim_cmp] : explosion_view.each() )
-  {
-    const auto &explosion_sprite_metadata = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
-    auto frame_rate = sf::seconds( getReg().ctx().get<Cmp::Persist::NpcDeathAnimFramerate>().get_value() );
-
-    SPDLOG_DEBUG( "Explosion animation active for entity {} - current_frame: {}, sprites_per_frame: {}, "
-                  "sprites_per_sequence: {}, frame_rate: {}s",
-                  static_cast<int>( entity ), anim_cmp.m_current_frame, explosion_sprite_metadata.get_sprites_per_frame(),
-                  explosion_sprite_metadata.get_sprites_per_sequence(), frame_rate.asSeconds() );
-
-    // Update the frame first
-    update_single_sequence( anim_cmp, globalDeltaTime, explosion_sprite_metadata, frame_rate, AnimType::ONESHOT );
-
-    SPDLOG_DEBUG( "After update_frame - current_frame: {}, elapsed_time: {}s", anim_cmp.m_current_frame, anim_cmp.m_elapsed_time.asSeconds() );
-
-    // have we completed the animation?
-    if ( anim_cmp.m_current_frame == explosion_sprite_metadata.get_sprites_per_sequence() - 1 )
-    {
-      getReg().remove<Cmp::DeathPosition>( entity );
-      getReg().remove<Cmp::SpriteAnimation>( entity );
-      getReg().remove<Cmp::ZOrderValue>( entity );
-      getReg().remove<Cmp::Position>( entity );
-      SPDLOG_DEBUG( "Explosion animation complete, removing component from entity {}", static_cast<int>( entity ) );
-      continue;
+      update_single_sequence( anim_cmp, dt, npc_walk_sequence, frame_rate );
     }
   }
 }

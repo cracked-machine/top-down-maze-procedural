@@ -1279,7 +1279,7 @@
         "displayname": "ALTAR.sacrifice.anim.relic",
         "zorder": [0, 0, 0, 0, 0],
         "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
-        "sprite_indices": [383, 384, 385, 386, 387],
+        "sprite_indices": [387, 386, 385, 384, 383],
         "sprites_per_sequence": 5,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1293,7 +1293,7 @@
         "displayname": "ALTAR.sacrifice.anim.key",
         "zorder": [0, 0, 0, 0, 0],
         "texture_path": "res/textures/water_effect_and_bullet_16x16.png",
-        "sprite_indices": [383, 384, 385, 386, 387],
+        "sprite_indices": [387, 386, 385, 384, 383],
         "sprites_per_sequence": 5,
         "sprites_per_frame": 1,
         "grid_size": {

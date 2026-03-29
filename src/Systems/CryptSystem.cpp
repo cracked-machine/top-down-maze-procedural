@@ -847,7 +847,7 @@ void CryptSystem::doLavaPitAnimation()
 
       getReg().emplace_or_replace<Cmp::CryptRoomLavaPitCellEffect>( lava_anim_entt );
       getReg().emplace_or_replace<Cmp::Position>( lava_anim_entt, lava_cell_cmp->position, lava_cell_cmp->size );
-      getReg().emplace_or_replace<Cmp::SpriteAnimation>( lava_anim_entt, 0, 0, true, "CRYPT.lava_anim", 0 );
+      getReg().emplace_or_replace<Cmp::SpriteAnimation>( lava_anim_entt, 0, 0, true, "CRYPT.lava_anim", 0, 0.2, Cmp::AnimType::ONESHOT );
       getReg().emplace_or_replace<Cmp::ZOrderValue>( lava_anim_entt, lava_cell_cmp->position.y + 64.f );
     }
     m_lava_effect_cooldown_timer.restart();

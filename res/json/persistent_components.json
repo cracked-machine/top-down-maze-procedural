@@ -170,15 +170,15 @@
     "type": "float",
     "value": 0.1,
     "min_value": 0.01,
-    "max_value": 0.5,
+    "max_value": 5.0,
     "detail": "NPC Death Animation Framerate",
     "format": "%.2f"
   },
   "NpcGhostAnimFramerate": {
     "type": "float",
-    "value": 0.5,
+    "value": 2.0,
     "min_value": 0.01,
-    "max_value": 0.5,
+    "max_value": 5.0,
     "detail": "NPC Animation Ghost Framerate",
     "format": "%.2f"
   },
@@ -275,7 +275,7 @@
     "type": "float",
     "value": 0.1,
     "min_value": 0.1,
-    "max_value": 2.0,
+    "max_value": 5.0,
     "detail": "NPC Animation Skeleton Framerate",
     "format": "%.2f"
   },
@@ -283,7 +283,7 @@
     "type": "float",
     "value": 0.4,
     "min_value": 0.1,
-    "max_value": 2.0,
+    "max_value": 5.0,
     "detail": "NPC Animation Witch Framerate",
     "format": "%.2f"
   },
@@ -291,7 +291,7 @@
     "type": "float",
     "value": 0.1,
     "min_value": 0.01,
-    "max_value": 0.5,
+    "max_value": 5.0,
     "detail": "Player Animation Framerate",
     "format": "%.2f"
   },
@@ -356,7 +356,7 @@
     "type": "float",
     "value": 0.1,
     "min_value": 0.01,
-    "max_value": 0.5,
+    "max_value": 5.0,
     "detail": "Wormhole Animation Framerate",
     "format": "%.2f"
   }

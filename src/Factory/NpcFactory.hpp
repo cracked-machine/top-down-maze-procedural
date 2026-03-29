@@ -26,7 +26,10 @@ void create_npc_container( entt::registry &registry, entt::entity entt, Cmp::Pos
 void destroy_npc_container( entt::registry &registry, entt::entity npc_container_entity );
 void create_npc( entt::registry &registry, entt::entity position_entity, const std::string &type );
 entt::entity destroy_npc( entt::registry &registry, entt::entity npc_entity );
-void create_npc_explosion( entt::registry &registry, Cmp::Position npc_position_cmp );
+
+entt::entity create_npc_explosion( entt::registry &registry, Cmp::Position npc_position_cmp );
+void remove_npc_explosion( entt::registry &registry, entt::entity entity );
+
 void create_shockwave( entt::registry &registry, entt::entity npc_entt );
 
 // Iterate and generate npc containers
