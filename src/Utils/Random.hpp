@@ -9,7 +9,9 @@
 #include <cstddef>
 #include <entt/entity/registry.hpp>
 #include <set>
+#include <source_location>
 #include <spdlog/spdlog.h>
+#include <sstream>
 
 namespace ProceduralMaze::Utils::Rnd
 {
@@ -54,7 +56,8 @@ struct ExcludePack
  */
 template <typename... Include, typename... Exclude>
 static std::pair<entt::entity, Cmp::Position> get_random_position( entt::registry &reg, IncludePack<Include...>, ExcludePack<Exclude...>,
-                                                                   unsigned long seed = 0 )
+                                                                   unsigned long seed = 0,
+                                                                   std::source_location loc = std::source_location::current() )
 {
   auto random_view = reg.view<Cmp::Position, Include...>( entt::exclude<Exclude...> );
 
@@ -63,8 +66,11 @@ static std::pair<entt::entity, Cmp::Position> get_random_position( entt::registr
 
   if ( random_view_count == 0 )
   {
-    SPDLOG_ERROR( "No matching entities found for get_random_position()" );
-    throw std::runtime_error( "get_random_position: no matching entities in registry" );
+    SPDLOG_ERROR( "get_random_position() called with no matching entities.\n  Called from: {}:{} in '{}'", loc.file_name(), loc.line(),
+                  loc.function_name() );
+    std::ostringstream ss;
+    ss << "get_random_position: no matching entities. Called from " << loc.file_name() << ":" << loc.line() << " in '" << loc.function_name() << "'";
+    throw std::runtime_error( ss.str() );
   }
 
   int upper_limit = static_cast<int>( random_view_count - 1 );
@@ -76,8 +82,12 @@ static std::pair<entt::entity, Cmp::Position> get_random_position( entt::registr
   SPDLOG_DEBUG( "Random index selected: {}", random_index );
   if ( random_index < 0 || random_index >= random_view_count )
   {
-    SPDLOG_CRITICAL( "Random index {} out of bounds (0 to {})", random_index, random_view_count - 1 );
-    throw std::out_of_range( "Random index out of bounds" );
+    SPDLOG_CRITICAL( "Random index {} out of bounds (0 to {}). Called from: {}:{} in '{}'", random_index, random_view_count - 1, loc.file_name(),
+                     loc.line(), loc.function_name() );
+    std::stringstream ss;
+    ss << "Random index " << random_index << " out of bounds. Called from " << loc.file_name() << ":" << loc.line() << " in '" << loc.function_name()
+       << "'";
+    throw std::out_of_range( ss.str() );
   }
   auto it = random_view.begin();
   std::advance( it, random_index );
@@ -136,6 +146,16 @@ static std::set<entt::entity> get_n_rand_components( entt::registry &reg, std::s
   Cmp::RandomInt seed_picker( 0, static_cast<int>( cmp_view_size - 1 ) );
   if ( seed != 0 ) { seed_picker.seed( seed ); }
   else { seed_picker.seed( std::random_device{}() ); }
+
+  // When result_size > some threshold (e.g., 50%), use index shuffle instead
+  if ( result_size > cmp_view_size / 2 )
+  {
+    std::vector<entt::entity> all_entities( cmp_view.begin(), cmp_view.end() );
+    // std::mt19937 rng( seed != 0 ? seed : std::random_device{}() );
+    std::shuffle( all_entities.begin(), all_entities.end(), seed_picker );
+    results.insert( all_entities.begin(), all_entities.begin() + result_size );
+    return results;
+  }
 
   // keep picking random components until we reach the desired result size of unique components
   while ( results.size() < result_size )

@@ -52,7 +52,13 @@ public:
     // else: already initialized with random_device in member initializer
   }
 
-  // get the next random number
+  //! @brief Returns raw bits - Satisfies UniformRandomBitGenerator — enables use with std::shuffle etc.
+  using result_type = typename std::mt19937::result_type;
+  result_type operator()() { return m_randgen(); }
+  static constexpr result_type min() { return std::mt19937::min(); }
+  static constexpr result_type max() { return std::mt19937::max(); }
+
+  //! @brief Returns a value in [min, max] via the uniform distribution
   T gen() { return m_dist( m_randgen ); }
 
   // set the seed for this RNG instance
