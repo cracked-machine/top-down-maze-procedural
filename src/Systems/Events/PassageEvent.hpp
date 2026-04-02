@@ -16,8 +16,9 @@ public:
     CONNECT_START_TO_OPENROOMS,    //< Connect passage from the start room to all open rooms
     CONNECT_OCCUPIED_TO_OPENROOMS, //< Connect passage from the occupied room to all open rooms
     CONNECT_OCCUPIED_TO_ENDROOM,   //< Connect passage from the occupied room to the end room
-    CONNECT_ALL_OPENROOMS,         //< Connect all open rooms with passages
-    ADD_SPIKE_TRAPS                //< Add spike traps to passages; should be called at the end of the passage creation cycle.
+    CONNECT_ALL_ROOMS,             //< Connect all open rooms with passages
+    CACHE_ALL_ROOM_CONNECTIONS,
+    ADD_SPIKE_TRAPS //< Add spike traps to passages; should be called at the end of the passage creation cycle.
   };
 
   //! @brief Construct a new Passage Event object

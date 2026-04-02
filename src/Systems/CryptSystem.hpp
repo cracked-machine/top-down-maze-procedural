@@ -77,6 +77,7 @@ public:
   //! @brief Generate the initial Crypt interior walls (fills in Cmp::CryptRoomsClosed)
   //! @note Except for start/end rooms, all other rooms should start as Cmp::CryptRoomsClosed
   void gen_crypt_initial_interior();
+  void cache_all_room_connections();
 
   //! @brief Create rooms that are NOT start/end rooms for the crypt game area.
   //! @param reg
@@ -189,6 +190,7 @@ private:
   sf::Time m_lava_effect_cooldown_threshold{ sf::seconds( 1.f ) };
 
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
+  PathFinding::SpatialHashGrid m_open_room_map;
 };
 
 } // namespace ProceduralMaze::Sys

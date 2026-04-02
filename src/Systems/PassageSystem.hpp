@@ -5,11 +5,13 @@
 #include <Components/Crypt/CryptRoomStart.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Random.hpp>
+#include <Crypt/CryptPassageBlock.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Events/PassageEvent.hpp>
 
+#include <Wall.hpp>
 #include <set>
 
 namespace ProceduralMaze::Sys
@@ -32,28 +34,37 @@ public:
   {
     m_pathfinding_navmesh = pathfinding_navmesh;
     m_crypt_scene_data = crypt_scene_data;
+
+    for ( auto [wall_entt, wall_cmp, wall_pos_cmp] : getReg().view<Cmp::Wall, Cmp::Position>().each() )
+    {
+      m_cached_wall_components.emplace_back( wall_pos_cmp.position, wall_pos_cmp.size );
+    }
   }
 
   void on_passage_event( Events::PassageEvent &event );
+
+  void update( sf::Time dt );
 
   void remove_passages();
   void open_passages();
 
   //! @brief Create west, north, east passages for the start room via find_passage_target()
   //! @param start_room_entt The entity ID of the start room
-  void connectPassagesBetweenStartAndOpenRooms( entt::entity start_room_entt );
+  void connect_start_and_open_rooms_passages( entt::entity start_room_entt );
 
   //! @brief Create west, north, east and south passages for the occupied room via find_passage_target()
-  void connectPassagesBetweenOccupiedAndOpenRooms();
+  void connect_occupied_and_open_room_passages();
 
   //! @brief Create west, north, east and south passages for all open rooms via find_passage_target()
-  void connectPassagesBetweenAllOpenRooms();
+  void cache_all_room_connections();
 
   //! @brief Create north passage for occupied room to the end room. Calls createDrunkenWalkPassage() directly.
   //! @param end_room_entt The entity ID of the end room
-  void connectPassageBetweenOccupiedAndEndRoom( entt::entity end_room_entt );
+  void connect_occupied_and_end_room_passages( entt::entity end_room_entt );
 
-  void addSpikeTraps();
+  void connect_end_room_to_nearest_closed_room();
+
+  void add_spike_traps();
 
   virtual void onPause() override {}
   virtual void onResume() override {}
@@ -61,6 +72,8 @@ public:
 private:
   enum class OnePassagePerTargetRoom { YES, NO };
   enum class AllowDuplicatePassages { YES, NO };
+  enum class WalkingType { DRUNK, DOGLEG };
+  enum class CachedOnly { TRUE, FALSE };
 
   //! @brief Searches quadrant for nearest open room (Cmp::CryptRoomOpen) and creates a passage to it
   //! @param start_passage_door The starting position and direction for the passage
@@ -70,7 +83,8 @@ private:
   //! @param duplicates_policy Whether to allow duplicate passages blocks, default: NO
   void find_passage_target( Cmp::CryptPassageDoor &start_passage_door, const sf::FloatRect search_quadrant, std::set<entt::entity> exclude_entts,
                             OnePassagePerTargetRoom one_passage = OnePassagePerTargetRoom::YES,
-                            AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
+                            AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO, WalkingType walktype = WalkingType::DRUNK,
+                            CachedOnly cached = CachedOnly::FALSE );
 
   //! @brief Create a Dog Leg Passage between start and end points
   //! @param start The starting position and direction for the passage
@@ -78,8 +92,8 @@ private:
   //! @param duplicates_policy Whether to allow duplicate passages blocks
   //! @return true if the passage was created successfully
   //! @return false if the passage could not be created
-  bool createDogLegPassage( Cmp::CryptPassageDoor start, sf::FloatRect end_bounds,
-                            AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
+  std::vector<Cmp::CryptPassageBlock> create_dog_leg( Cmp::CryptPassageDoor start, sf::FloatRect end_bounds,
+                                                      AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
 
   //! @brief Create a Drunken Walk Passage between start and end points
   //! @param start The starting position and direction for the passage
@@ -88,17 +102,18 @@ private:
   //! @param duplicates_policy Whether to allow duplicate passages blocks
   //! @return true if the passage was created successfully
   //! @return false if the passage could not be created
-  bool createDrunkenWalkPassage( Cmp::CryptPassageDoor start, sf::FloatRect end_bounds, std::set<entt::entity> exclude_entts,
-                                 AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
+  std::vector<Cmp::CryptPassageBlock> create_drunken_walk( Cmp::CryptPassageDoor start, sf::FloatRect end_bounds,
+                                                           std::set<entt::entity> exclude_entts,
+                                                           AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
 
   //! @brief Place a passage block at the specified position
   //! @param passage_id The ID of the passage to place
   //! @param x The x-coordinate of the position
   //! @param y The y-coordinate of the position
   //! @param duplicates_policy Whether to allow duplicate passages blocks
-  //! @return true if the passage block was placed successfully
-  //! @return false if the passage block could not be placed
-  bool place_passage_block( unsigned int passage_id, float x, float y, AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
+  //! @return Cmp::CryptPassageBlock
+  std::optional<Cmp::CryptPassageBlock> place_passage_block( unsigned int passage_id, float x, float y,
+                                                             AllowDuplicatePassages duplicates_policy = AllowDuplicatePassages::NO );
 
   //! @brief Removes all Cmp::CryptPassageBlock entities
   void removeAllPassageBlocks();
@@ -112,6 +127,9 @@ private:
   //! @brief Removes any Cmp::CryptPassageBlock components added inside rooms
   //! @param exclude_closed_rooms
   void tidyPassageBlocks( bool exclude_closed_rooms = false );
+
+  void create_uncached_passages();
+  void create_cached_passages();
 
   //! @brief Current passage ID for new passages
   unsigned int m_current_passage_id{ 0 };
@@ -136,11 +154,11 @@ private:
   const float m_roulette_same_direction_odds = 0.1f;
 
   //! @brief Prevent infinite walks
-  const int kMaxStepsPerWalk{ 100 };
+  const int kMaxStepsPerWalk{ 300 };
   //! @brief Prevent drunken walk from getting stuck
   const int kMaxAttemptsPerStep{ 200 };
   //! @brief Minimum passage-to-passage distance
-  const float kMinBlockDistanceBetweenPassages{ Constants::kGridSizePxF.x * 2.0f };
+  const float kMinBlockDistanceBetweenPassages{ Constants::kGridSizePxF.x };
   //! @brief Force drunken walk to initially stay in orthogonal direction e.g. north, east, west, south from starting point
   const int kMinInitialOrthogonalSteps{ 3 };
   //! @brief Minimum passage-to-room distance: scale factor of 16x16 block
@@ -150,6 +168,21 @@ private:
 
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
   Scene::SceneMapWeakPtr m_crypt_scene_data;
+
+  std::vector<sf::FloatRect> m_cached_wall_components;
+
+  std::vector<Cmp::CryptPassageBlock> m_uncached_passage_list;
+
+  // std::vector<sf::FloatRect> m_cached_passage_regions;
+  struct BlockRegion
+  {
+    sf::FloatRect region;
+    std::vector<Cmp::CryptPassageBlock> blocklist;
+  };
+  std::vector<BlockRegion> m_cached_passage_list;
+  int m_region_idx{ 0 };
+  bool m_connect_all_rooms{ false };
+  const int kMaxRegions{ 40 };
 };
 
 } // namespace ProceduralMaze::Sys

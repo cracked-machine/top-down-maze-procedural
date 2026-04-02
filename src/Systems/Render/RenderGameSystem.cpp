@@ -248,19 +248,27 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
 
     if ( m_show_npcnopath )
     {
-      for ( auto [entt, npcnopath_cmp, pos_cmp] : getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
+      if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
       {
-        Cmp::RectBounds rectbounds( pos_cmp.position, pos_cmp.size, 1.f );
-        render_rectbounds( rectbounds, sf::Color::Black );
+        for ( auto [entt, npcnopath_cmp, pos_cmp] : getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
+        {
+          Cmp::RectBounds rectbounds( pos_cmp.position, pos_cmp.size, 1.f );
+          render_rectbounds( rectbounds, sf::Color::Red );
+        }
+        m_debug_update_timer.restart();
       }
     }
 
     if ( m_show_playernopath )
     {
-      for ( auto [entt, npcnopath_cmp, pos_cmp] : getReg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
+      if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
       {
-        Cmp::RectBounds rectbounds( pos_cmp.position, pos_cmp.size, 1.f );
-        render_rectbounds( rectbounds, sf::Color::Black );
+        for ( auto [entt, npcnopath_cmp, pos_cmp] : getReg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
+        {
+          Cmp::RectBounds rectbounds( pos_cmp.position, pos_cmp.size, 1.f );
+          render_rectbounds( rectbounds, sf::Color::Red );
+        }
+        m_debug_update_timer.restart();
       }
     }
 
@@ -269,13 +277,16 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
     // debug: show crypt component boundaries
     if ( m_show_debug_stats )
     {
-      // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
-      // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
-      // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
-      // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
-      // render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
-      // render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Black, 1.f );
-
+      if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
+      {
+        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
+        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
+        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
+        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
+        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
+        render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Black, 1.f );
+        m_debug_update_timer.restart();
+      }
       // for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : getReg().view<Cmp::CryptLever, Cmp::Position>().each() )
       // {
       //   Cmp::RectBounds expand_lever_pos_hitbox( lever_pos_cmp.position, lever_pos_cmp.size, 1.f );

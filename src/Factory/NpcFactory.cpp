@@ -56,7 +56,7 @@ void create_shockwave( entt::registry &registry, entt::entity npc_entt )
   auto shockwave_timer = registry.try_get<Cmp::NpcShockwaveTimer>( npc_entt );
   if ( not shockwave_timer )
   {
-    SPDLOG_WARN( "Unable to get Cmp::NpcShockwaveTimer from NPC entity" );
+    SPDLOG_DEBUG( "Unable to get Cmp::NpcShockwaveTimer from NPC entity" );
     return;
   }
 
@@ -144,8 +144,8 @@ void create_npc( entt::registry &registry, entt::entity position_entity, const S
 
     registry.emplace_or_replace<Cmp::NpcShockwaveTimer>( new_pos_entity );
     Factory::create_shockwave( registry, position_entity );
-    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
-                 pos_cmp->position.y );
+    SPDLOG_DEBUG( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
+                  pos_cmp->position.y );
   }
   else if ( type == "NPCWITCH" )
   {

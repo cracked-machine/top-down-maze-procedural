@@ -57,14 +57,6 @@ void CryptScene::on_init()
   random_level_sys.reset();
   random_level_sys.gen_game_area( *m_scene_map_data );
 
-  auto start_room_entity = m_reg.create();
-  m_reg.emplace_or_replace<Cmp::CryptRoomStart>( start_room_entity, player_start_area.position(), player_start_area.size() );
-
-  // intialise the game area
-  m_sys.find<Sys::Store::Type::CryptSystem>().create_end_room( map_size_grid );
-  m_sys.find<Sys::Store::Type::CryptSystem>().create_initial_crypt_rooms( map_size_grid );
-  m_sys.find<Sys::Store::Type::CryptSystem>().gen_crypt_initial_interior();
-
   // create a navmesh for pathfinding in the scene
   m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
   for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> ).each() )
@@ -76,6 +68,14 @@ void CryptScene::on_init()
   m_sys.find<Sys::Store::Type::CryptSystem>().init( m_pathfinding_navmesh );
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
   m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
+
+  // intialise the game area
+  auto start_room_entity = m_reg.create();
+  m_reg.emplace_or_replace<Cmp::CryptRoomStart>( start_room_entity, player_start_area.position(), player_start_area.size() );
+  m_sys.find<Sys::Store::Type::CryptSystem>().create_end_room( map_size_grid );
+  m_sys.find<Sys::Store::Type::CryptSystem>().create_initial_crypt_rooms( map_size_grid );
+  m_sys.find<Sys::Store::Type::CryptSystem>().cache_all_room_connections();
+  m_sys.find<Sys::Store::Type::CryptSystem>().gen_crypt_initial_interior();
 
   m_floormap.create( random_level_sys.get_void_sm(), m_scene_map_data );
 }
@@ -118,6 +118,7 @@ void CryptScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::CryptSystem>().update();
   m_sys.find<Sys::Store::Type::ShockwaveSystem>().checkShockwavePlayerCollision();
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::PassageSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
   m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::ON );

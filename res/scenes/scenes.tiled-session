@@ -1,5 +1,5 @@
 {
-    "activeFile": "shop.json",
+    "activeFile": "crypt.json",
     "expandedProjectPaths": [
         ".",
         "Tilesets"
@@ -36,11 +36,11 @@
                 5,
                 3
             ],
-            "scale": 3,
-            "selectedLayer": 0,
+            "scale": 1,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 251.16666666666666,
-                "y": 499.16666666666663
+                "x": 375.5,
+                "y": 277.5
             }
         },
         "crypt.json#floor": {
@@ -52,13 +52,14 @@
         },
         "graveyard.json": {
             "expandedObjectLayers": [
+                9,
                 7
             ],
             "scale": 4,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 810.375,
-                "y": 747.625
+                "x": 792,
+                "y": 792.125
             }
         },
         "graveyard.json#Dummy": {
@@ -91,8 +92,8 @@
             "scale": 2.9499999999999997,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 111.35593220338981,
-                "y": 112.71186440677968
+                "x": 151.86440677966104,
+                "y": 87.96610169491525
             }
         },
         "ruinlower.json#floor": {
@@ -109,8 +110,8 @@
             "scale": 4,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 123.875,
-                "y": 98.625
+                "x": 152,
+                "y": 87.875
             }
         },
         "ruinupper.json#floor": {
@@ -186,22 +187,21 @@
     "map.tileWidth": 16,
     "map.width": 19,
     "openFiles": [
-        "Tilesets/main.json",
-        "crypt.json",
-        "well.json",
-        "graveyard.json",
+        "ruinlower.json",
         "ruinupper.json",
-        "shop.json"
+        "graveyard.json",
+        "crypt.json"
     ],
     "project": "scenes.tiled-project",
     "property.type": "list",
     "recentFiles": [
+        "ruinlower.json",
+        "ruinupper.json",
         "graveyard.json",
-        "shop.json",
         "crypt.json",
+        "shop.json",
         "well.json",
         "Tilesets/main.json",
-        "ruinupper.json",
         "ruinupperjson.json",
         "Tilesets/wall.json",
         "Tilesets/main2..tsj",
