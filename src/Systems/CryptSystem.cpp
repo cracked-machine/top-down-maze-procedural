@@ -481,7 +481,7 @@ void CryptSystem::create_initial_crypt_rooms( sf::Vector2u map_grid_size )
 
     int room_width = Cmp::RandomInt{ min_room_width, max_room_width }.gen();
     int room_height = Cmp::RandomInt{ min_room_height, max_room_height }.gen();
-    auto [entt, pos] = Utils::Rnd::get_random_position( getReg(), {}, {}, 0 );
+    auto [entt, pos] = Utils::Rnd::get_random_position( getReg(), {}, Utils::Rnd::ExcludePack<Cmp::ReservedPosition>{}, 0 );
     Cmp::CryptRoomClosed new_room( pos.position, { room_width * grid_square_size.x, room_height * grid_square_size.y } );
     SPDLOG_DEBUG( "Generated new room at ({}, {}) size ({}, {})", new_room.position.x, new_room.position.y, new_room.size.x, new_room.size.y );
 
@@ -684,21 +684,9 @@ void CryptSystem::unlock_exit_passage()
   emptyOpenRooms();
   createRoomBorders();
 
-  // // this is cheap but a bit shit.
-  // auto selection = Utils::Rnd::get_n_rand_components<Cmp::Obstacle>( getReg(), 300, {}, {} );
-  // for ( auto &entt : selection )
-  // {
-  //   Factory::remove_obstacle( getReg(), entt );
-  // }
-
   // make sure player can reach exit
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_START_TO_OPENROOMS, get_crypt_room_start().first ) );
-
-  // This is too expensive to run during game play but since the room positions dont change,
-  // we could precalculate a set of passageways between all rooms during scene load and then replay them now.
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_ALL_ROOMS ) );
-  // get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::OPEN_PASSAGES ) );
-  // get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::ADD_SPIKE_TRAPS ) );
 
   spawnNpcInOpenRooms();
 }
