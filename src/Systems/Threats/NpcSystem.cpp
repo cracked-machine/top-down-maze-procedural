@@ -368,7 +368,7 @@ void NpcSystem::update_shockwaves()
       float new_radius = current_radius + ( shockwave_increments * speed_multiplier );
       sw_cmp.sprite.setRadius( new_radius );
 
-      if ( not Utils::getSystemCmp( getReg() ).collisions_disabled ) { checkShockwaveObstacleCollision( entt, sw_cmp ); }
+      checkShockwaveObstacleCollision( entt, sw_cmp );
 
       if ( new_radius > max_radius.get_value() ) { getReg().destroy( entt ); }
     }
@@ -390,8 +390,8 @@ void NpcSystem::checkShockwaveObstacleCollision( [[maybe_unused]] entt::entity s
       sf::FloatRect obstacle_rect( obstacle_pos.position, obstacle_pos.size );
 
       SPDLOG_DEBUG( "Checking obstacle at ({}, {}) size ({}, {}) against shockwave at ({}, {}) radius {}", obstacle_rect.position.x,
-                    obstacle_rect.position.y, obstacle_rect.size.x, obstacle_rect.size.y, shockwave.getPosition().x, shockwave.getPosition().y,
-                    shockwave.getRadius() );
+                    obstacle_rect.position.y, obstacle_rect.size.x, obstacle_rect.size.y, shockwave.sprite.getPosition().x,
+                    shockwave.sprite.getPosition().y, shockwave.sprite.getRadius() );
 
       // Calculate distance from circle center to rectangle
       sf::Vector2f circle_center = shockwave.sprite.getPosition();
