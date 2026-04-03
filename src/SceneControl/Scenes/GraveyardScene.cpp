@@ -77,7 +77,6 @@ void GraveyardScene::on_init()
   SPDLOG_INFO( "m_scene_map_data {},{} {},{}", map_size_grid.x, map_size_grid.y, map_size_pixel.x, map_size_pixel.y );
 
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
-  SPDLOG_INFO( "LEVELGENSPATIALMAP: {}", random_level_sys.get_obstacle_sm().size() );
   random_level_sys.reset();
   random_level_sys.gen_game_area( *m_scene_map_data );
 
@@ -85,9 +84,7 @@ void GraveyardScene::on_init()
   Factory::gen_loot_containers( m_reg, m_sprite_factory, map_size_grid );
   Factory::gen_npc_containers( m_reg, m_sprite_factory, map_size_grid );
   random_level_sys.gen_random_plants( map_size_grid );
-
   random_level_sys.gen_graveyard_exterior_obstacles();
-  SPDLOG_INFO( "LEVELGENSPATIALMAP: {}", random_level_sys.get_obstacle_sm().size() );
 
   // now use cellular automata on the exterior obstacles
   auto &cellauto_parser = m_sys.find<Sys::Store::Type::CellAutomataSystem>();

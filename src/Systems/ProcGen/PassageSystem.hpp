@@ -32,13 +32,13 @@ public:
     std::ignore = get_systems_event_queue().sink<Events::PassageEvent>().connect<&PassageSystem::on_passage_event>( this );
   }
 
+  void init_scene_data( const Scene::SceneMapSharedPtr &crypt_scene_data ) { m_crypt_scene_data = crypt_scene_data; }
+
   //! @brief init the weak pointer for the spatial grid
   //! @param pathfinding_navmesh
-  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh, const Scene::SceneMapSharedPtr &crypt_scene_data )
+  void init_nav_mesh( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh )
   {
     m_pathfinding_navmesh = pathfinding_navmesh;
-    m_crypt_scene_data = crypt_scene_data;
-
     m_passage_algos.cache_wall_components( getReg() );
   }
 

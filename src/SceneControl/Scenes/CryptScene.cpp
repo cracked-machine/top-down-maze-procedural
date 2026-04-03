@@ -56,18 +56,7 @@ void CryptScene::on_init()
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
   random_level_sys.gen_game_area( *m_scene_map_data );
-
-  // create a navmesh for pathfinding in the scene
-  m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> ).each() )
-  {
-    m_pathfinding_navmesh->insert( pos_entt, pos_cmp );
-  }
-  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::PassageSystem>().init( m_pathfinding_navmesh, m_scene_map_data );
-  m_sys.find<Sys::Store::Type::CryptSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::PassageSystem>().init_scene_data( m_scene_map_data );
 
   // intialise the game area
   auto start_room_entity = m_reg.create();
@@ -76,6 +65,18 @@ void CryptScene::on_init()
   m_sys.find<Sys::Store::Type::CryptSystem>().create_initial_crypt_rooms( map_size_grid );
   m_sys.find<Sys::Store::Type::CryptSystem>().cache_all_room_connections();
   m_sys.find<Sys::Store::Type::CryptSystem>().gen_crypt_initial_interior();
+
+  // create a navmesh for pathfinding in the scene
+  m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
+  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> ).each() )
+  {
+    m_pathfinding_navmesh->insert( pos_entt, pos_cmp );
+  }
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::PassageSystem>().init_nav_mesh( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::CryptSystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
 
   m_floormap.create( random_level_sys.get_void_sm(), m_scene_map_data );
 }
