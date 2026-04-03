@@ -1,4 +1,5 @@
 #include <Events/PlayerActionEvent.hpp>
+#include <Inventory/FlashUIInventory.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
@@ -160,6 +161,9 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       {
         key_entt = Factory::create_carry_item( getReg(), Utils::Player::get_position( getReg() ), "CARRYITEM.exitkey" );
         if ( key_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
+        // signal UI to flash
+        auto flash_entt = getReg().create();
+        getReg().emplace_or_replace<Cmp::FlashUIInventory>( flash_entt );
       }
       SPDLOG_INFO( "Dropped CARRYITEM.exitkey" );
       altar_cmp.set_exitkey_lockout();
@@ -176,6 +180,9 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       {
         key_entt = Factory::create_carry_item( getReg(), Utils::Player::get_position( getReg() ), "CARRYITEM.cryptkey" );
         if ( key_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
+        // signal UI to flash
+        auto flash_entt = getReg().create();
+        getReg().emplace_or_replace<Cmp::FlashUIInventory>( flash_entt );
       }
       SPDLOG_INFO( "Dropped CARRYITEM.cryptkey" );
       altar_cmp.set_cryptkey_lockout();

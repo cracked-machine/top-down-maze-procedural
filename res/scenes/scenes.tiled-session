@@ -52,8 +52,8 @@
         },
         "graveyard.json": {
             "expandedObjectLayers": [
-                9,
-                7
+                7,
+                9
             ],
             "scale": 4,
             "selectedLayer": 3,

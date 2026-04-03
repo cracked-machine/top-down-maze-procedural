@@ -73,7 +73,7 @@ public:
   void render_radius_overlay( sf::Time dt, int radius_value, sf::Vector2f pos );
   void render_cadaver_count_overlay( sf::Time dt, unsigned int cadaver_count, sf::Vector2f pos );
   void render_wealth_overlay( sf::Time dt, unsigned int wealth_value, sf::Vector2f pos );
-  void render_inventory_overlay( sf::Vector2f pos );
+  void render_inventory_overlay( sf::Time dt, sf::Vector2f pos );
   void render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size );
   void render_level_depth();
   void render_shop_inventory_overlay();
@@ -206,7 +206,10 @@ private:
 
   sf::Time m_flash_wealth__ui_interval;
   sf::Time m_flash_cadaver_ui_interval;
+  sf::Time m_flash_inventory_ui_interval;
   sf::Time m_flash_radius_ui_interval;
+
+  int m_ui_flash_factor{ 300 };
 };
 
 } // namespace ProceduralMaze::Sys

@@ -16,6 +16,7 @@
 #include <Components/ZOrderValue.hpp>
 #include <Constants.hpp>
 #include <Inventory/FlashUICadaver.hpp>
+#include <Inventory/FlashUIInventory.hpp>
 #include <Inventory/FlashUIRadius.hpp>
 #include <Inventory/FlashUIWealth.hpp>
 #include <PathFinding/AStar.hpp>
@@ -136,7 +137,7 @@ void RenderOverlaySystem::render_radius_overlay( sf::Time dt, int radius_value, 
       getReg().remove<Cmp::FlashUIRadius>( flash_entt );
       m_flash_radius_ui_interval = sf::Time::Zero;
     }
-    else if ( static_cast<int>( m_flash_radius_ui_interval.asMilliseconds() / 100 ) % 2 == 1 )
+    else if ( static_cast<int>( m_flash_radius_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
     {
       bomb_count_text.setFillColor( sf::Color::White );
       bomb_count_text.setOutlineColor( sf::Color::White );
@@ -175,7 +176,7 @@ void RenderOverlaySystem::render_cadaver_count_overlay( sf::Time dt, unsigned in
       getReg().remove<Cmp::FlashUICadaver>( flash_entt );
       m_flash_cadaver_ui_interval = sf::Time::Zero;
     }
-    else if ( static_cast<int>( m_flash_cadaver_ui_interval.asMilliseconds() / 100 ) % 2 == 1 )
+    else if ( static_cast<int>( m_flash_cadaver_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
     {
       player_score_text.setFillColor( sf::Color::White );
       player_score_text.setOutlineColor( sf::Color::White );
@@ -215,7 +216,7 @@ void RenderOverlaySystem::render_wealth_overlay( sf::Time dt, unsigned int wealt
       getReg().remove<Cmp::FlashUIWealth>( flash_entt );
       m_flash_wealth__ui_interval = sf::Time::Zero;
     }
-    else if ( static_cast<int>( m_flash_wealth__ui_interval.asMilliseconds() / 100 ) % 2 == 1 )
+    else if ( static_cast<int>( m_flash_wealth__ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
     {
       player_score_text.setFillColor( sf::Color::White );
       player_score_text.setOutlineColor( sf::Color::White );
@@ -224,7 +225,7 @@ void RenderOverlaySystem::render_wealth_overlay( sf::Time dt, unsigned int wealt
   m_window.draw( player_score_text );
 }
 
-void RenderOverlaySystem::render_inventory_overlay( sf::Vector2f pos )
+void RenderOverlaySystem::render_inventory_overlay( sf::Time dt, sf::Vector2f pos )
 {
   float ui_padding = 5.f;
   float icon_scale = 5.f;
@@ -237,6 +238,7 @@ void RenderOverlaySystem::render_inventory_overlay( sf::Vector2f pos )
   ui_background.setFillColor( sf::Color( 48, 48, 64, 128 ) );
   ui_background.setOutlineColor( sf::Color::Black );
   ui_background.setOutlineThickness( 5.f );
+
   m_window.draw( ui_background );
 
   auto inventory_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::SpriteAnimation>();
@@ -249,8 +251,29 @@ void RenderOverlaySystem::render_inventory_overlay( sf::Vector2f pos )
     // Center the text horizontally relative to the icon center
     float text_x = icon_center_x - display_name.getLocalBounds().size.x / 2.f;
     display_name.setPosition( sf::Vector2f{ text_x, icon_pos.y + ui_size.y + ui_padding } );
-
+    display_name.setOutlineThickness( 2.f );
     display_name.setFillColor( sf::Color::White );
+    display_name.setOutlineColor( sf::Color::Black );
+
+    // flash the text if we just picked up a cadaver
+    auto flash_view = getReg().view<Cmp::FlashUIInventory>();
+    if ( not flash_view.empty() )
+    {
+      auto flash_entt = flash_view.front();
+      auto &flash_cmp = flash_view.get<Cmp::FlashUIInventory>( flash_entt );
+      m_flash_inventory_ui_interval += dt;
+      if ( m_flash_inventory_ui_interval > flash_cmp.duration )
+      {
+        getReg().remove<Cmp::FlashUIInventory>( flash_entt );
+        m_flash_inventory_ui_interval = sf::Time::Zero;
+      }
+      else if ( static_cast<int>( m_flash_inventory_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
+      {
+        display_name.setFillColor( sf::Color::Black );
+        display_name.setOutlineColor( sf::Color::White );
+      }
+    }
+
     m_window.draw( display_name );
   }
 }

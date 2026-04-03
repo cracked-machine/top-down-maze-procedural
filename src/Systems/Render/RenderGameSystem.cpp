@@ -332,7 +332,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
     render_overlay_sys.render_radius_overlay( dt, player_blast_radius.value, { 40.f, start_y_pos += 40.f } );
     render_overlay_sys.render_cadaver_count_overlay( dt, player_cadaver_count, { 40.f, start_y_pos += 40.f } );
     render_overlay_sys.render_wealth_overlay( dt, player_wealth.wealth, { 40.f, start_y_pos += 40.f } );
-    render_overlay_sys.render_inventory_overlay( { 40.f, start_y_pos += 80.f } );
+    render_overlay_sys.render_inventory_overlay( dt, { 40.f, start_y_pos += 80.f } );
     render_overlay_sys.render_level_depth();
 
     auto display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );

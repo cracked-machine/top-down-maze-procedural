@@ -117,6 +117,7 @@ entt::entity create_seeing_stone( entt::registry &reg, Cmp::Position pos, Sprite
   // Now create the entity with the valid target
   auto world_carry_item_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
+  reg.emplace_or_replace<Cmp::ReservedPosition>( world_carry_item_entt );
   reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, type, 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
   reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, type );
