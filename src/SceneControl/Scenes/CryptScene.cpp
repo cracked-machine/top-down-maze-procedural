@@ -1,4 +1,5 @@
 #include <Audio/SoundBank.hpp>
+#include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
@@ -7,17 +8,16 @@
 #include <Factory/CryptFactory.hpp>
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
-#include <Npc/NpcNoPathFinding.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/LootSystem.hpp>
-#include <Systems/PassageSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/PlayerSystem.hpp>
+#include <Systems/ProcGen/PassageSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>

@@ -15,6 +15,8 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Sprites/CircleSegment.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ProcGen/RandomLevelGenerator.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ProcGen/CellAutomataSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/ProcGen/PassageSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/ProcGen/PassageAlgorithms.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Render/RenderSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Render/RenderGameSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Render/RenderMenuSystem.cpp
@@ -36,7 +38,6 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/CryptSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/HolyWellSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/RuinSystem.cpp
-    ${CMAKE_SOURCE_DIR}/src/Systems/PassageSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/SystemStore.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ShopSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/ShockwaveSystem.cpp
