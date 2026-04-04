@@ -252,7 +252,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
       {
         for ( auto [entt, npcnopath_cmp, pos_cmp] : getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
         {
-          Cmp::RectBounds rectbounds( pos_cmp.position, pos_cmp.size, 1.f );
+          auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
           render_rectbounds( rectbounds, sf::Color::Red );
         }
         m_debug_update_timer.restart();
@@ -265,7 +265,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
       {
         for ( auto [entt, npcnopath_cmp, pos_cmp] : getReg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
         {
-          Cmp::RectBounds rectbounds( pos_cmp.position, pos_cmp.size, 1.f );
+          auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
           render_rectbounds( rectbounds, sf::Color::Red );
         }
         m_debug_update_timer.restart();
@@ -289,13 +289,13 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
       }
       // for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : getReg().view<Cmp::CryptLever, Cmp::Position>().each() )
       // {
-      //   Cmp::RectBounds expand_lever_pos_hitbox( lever_pos_cmp.position, lever_pos_cmp.size, 1.f );
+      //   Cmp::RectBounds::scaled expand_lever_pos_hitbox( lever_pos_cmp.position, lever_pos_cmp.size, 1.f );
       //   render_rectbounds( rectbounds, sf::Color::White );
       // }
 
       // for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : getReg().view<Cmp::CryptChest, Cmp::Position>().each() )
       // {
-      //   Cmp::RectBounds expand_lever_pos_hitbox( chest_pos_cmp.position, chest_pos_cmp.size, 1.f );
+      //   Cmp::RectBounds::scaled expand_lever_pos_hitbox( chest_pos_cmp.position, chest_pos_cmp.size, 1.f );
       //   render_rectbounds( rectbounds, sf::Color::Magenta );
       // }
     }

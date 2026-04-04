@@ -12,86 +12,105 @@
 namespace ProceduralMaze::Cmp
 {
 
-/**
- * @brief A wrapper class for sf::FloatRect that provides scaled bounds with position offset
- * calculations.
- *
- * RectBounds manages a rectangular boundary with automatic scaling and position offsetting
- * based on sprite dimensions. It provides convenient methods for updating position and size
- * while maintaining the scaling factor and offset calculations.
- *
- * The position offset is calculated to center the bounds relative to sprite dimensions,
- * taking into account the scale factor.
- */
+//! @brief  A wrapper class for sf::FloatRect that provides scaled bounds with position offset calculations.
+//! @note   RectBounds manages a rectangular boundary with automatic scaling and position offsetting
+//!         based on sprite dimensions. It provides convenient methods for updating position and size
+//!         while maintaining the scaling factor and offset calculations.
+//!         The position offset is calculated to center the bounds relative to sprite dimensions,
+//!         taking into account the scale factor.
 class RectBounds
 {
 public:
-  enum class ScaleCardinality { HORIZONTAL, VERTICAL, BOTH };
+  enum class ScaleAxis { X, Y, XY };
 
-  RectBounds( Cmp::Position pos, float ScaleFactor, ScaleCardinality scale_cardinality = ScaleCardinality::BOTH )
-      : RectBounds( pos.position, pos.size, ScaleFactor, scale_cardinality )
+  //! @brief Create a scaled hitbox centered on a grid-aligned entity
+  static RectBounds scaled( sf::Vector2f pos, sf::Vector2f size, float scale_factor, ScaleAxis scale_axis = ScaleAxis::XY )
   {
+    return RectBounds( pos, size, scale_factor, scale_axis );
   }
 
-  /**
-   * @brief Constructs a RectBounds object with specified position, size, and scale factor.
-   *
-   * Creates a rectangular bounds object by scaling the provided size and adjusting the position
-   * based on default sprite dimensions and a position offset.
-   *
-   * @param position The initial position vector for the bounds
-   * @param size The base size vector before scaling is applied
-   * @param ScaleFactor The scaling factor to apply to the size dimensions
-   */
-  RectBounds( sf::Vector2f position, sf::Vector2f size, float ScaleFactor, ScaleCardinality scale_cardinality = ScaleCardinality::BOTH )
-      : m_scale_factor( ScaleFactor ),
-        m_scale_cardinality( scale_cardinality )
+  //! @brief Create a scaled hitbox centered on a grid-aligned entity
+  static RectBounds scaled( const Cmp::Position &pos, float scale_factor, ScaleAxis scale_axis = ScaleAxis::XY )
   {
-    // calculate the bounds scale/offset for requested cardinality
-    switch ( m_scale_cardinality )
+    return RectBounds( pos.position, pos.size, scale_factor, scale_axis );
+  }
+
+  //! @brief Create a scaled hitbox centered on a grid-aligned entity
+  static RectBounds scaled( const sf::FloatRect &pos, float scale_factor, ScaleAxis scale_axis = ScaleAxis::XY )
+  {
+    return RectBounds( pos.position, pos.size, scale_factor, scale_axis );
+  }
+
+  //! @brief Create bounds expanded outward by N tiles in all directions
+  static RectBounds expanded( sf::Vector2f position, sf::Vector2f size, int tiles ) { return RectBounds( position, size, tiles ); }
+
+  //! @brief Create bounds directly from a FloatRect, expanded outward by N tiles
+  static RectBounds expanded( const sf::FloatRect &rect, int tiles ) { return RectBounds( rect.position, rect.size, tiles ); }
+
+  //! @brief Create bounds directly from a Cmp::Position, expanded outward by N tiles
+  static RectBounds expanded( const Cmp::Position &pos, int tiles ) { return RectBounds( pos.position, pos.size, tiles ); }
+
+  //! @brief Constructs a RectBounds object with specified position, size, and scale factor.
+  //! @note  Recommend you use the static helper classes
+  //! @param pos The initial position vector for the bounds
+  //! @param size The base size vector before scaling is applied
+  //! @param ScaleFactor The scaling factor to apply to the size dimensions
+  //! @param scale_scale_axis Whether to scale in x, y or both dimensions
+  RectBounds( sf::Vector2f pos, sf::Vector2f size, float ScaleFactor, ScaleAxis scale_scale_axis = ScaleAxis::XY )
+      : m_scale_factor( ScaleFactor ),
+        m_scale_scale_axis( scale_scale_axis )
+  {
+    // calculate the bounds scale/offset for requested scale_axis
+    switch ( m_scale_scale_axis )
     {
-      case ScaleCardinality::HORIZONTAL:
+      case ScaleAxis::X:
         m_bounds.size.x = size.x * m_scale_factor;
         m_bounds.size.y = size.y * 1;
-        m_bounds.position.x = position.x - Constants::kGridSizePxF.x * kPositionOffsetFactor;
-        m_bounds.position.y = position.y;
+        m_bounds.position.x = pos.x - Constants::kGridSizePxF.x * kPositionOffsetFactor;
+        m_bounds.position.y = pos.y;
         break;
-      case ScaleCardinality::VERTICAL:
+      case ScaleAxis::Y:
         m_bounds.size.y = size.y * m_scale_factor;
         m_bounds.size.x = size.x * 1;
-        m_bounds.position.y = position.y - Constants::kGridSizePxF.y * kPositionOffsetFactor;
-        m_bounds.position.x = position.x;
+        m_bounds.position.y = pos.y - Constants::kGridSizePxF.y * kPositionOffsetFactor;
+        m_bounds.position.x = pos.x;
         break;
-      case ScaleCardinality::BOTH:
+      case ScaleAxis::XY:
       default:
         m_bounds.size = size * m_scale_factor;
-        m_bounds.position = position - Constants::kGridSizePxF * kPositionOffsetFactor;
+        m_bounds.position = pos - Constants::kGridSizePxF * kPositionOffsetFactor;
         break;
     }
+  }
+
+  //! @brief Constructs a RectBounds expanded outward by N tiles in all directions, no scale/offset applied
+  //! @note  Recommend you use the static helper classes
+  //! @param pos The initial position vector for the bounds
+  //! @param size The base size vector before expansion is applied
+  //! @param expand_tiles The number of tile layers to add in the expansion
+  RectBounds( sf::Vector2f pos, sf::Vector2f size, int expand_tiles )
+      : m_scale_factor( 0.f ),
+        m_scale_scale_axis( ScaleAxis::XY )
+  {
+    float dx = Constants::kGridSizePxF.x * static_cast<float>( expand_tiles );
+    float dy = Constants::kGridSizePxF.y * static_cast<float>( expand_tiles );
+    m_bounds = sf::FloatRect( sf::Vector2f{ pos.x - dx, pos.y - dy }, sf::Vector2f{ size.x + dx * 2.f, size.y + dy * 2.f } );
   }
 
   //! @brief Polymorphic destructor for derived classes
   virtual ~RectBounds() = default;
 
-  /**
-   * @brief Sets the position of the rectangular bounds
-   *
-   * Updates the bounds position by applying an offset calculation based on the new position.
-   * The offset is calculated using the default sprite dimensions and `kPositionOffsetFactor`.
-   *
-   * @param new_position The new position to set for the bounds
-   */
+  //! @brief Sets the position of the rectangular bounds
+  //! @note Updates the bounds position by applying an offset calculation based on the new position.
+  //!       The offset is calculated using the default sprite dimensions and `kPositionOffsetFactor`.
+  //! @param new_position The new position to set for the bounds
   void position( sf::Vector2f new_position ) { m_bounds.position = new_position - Constants::kGridSizePxF * kPositionOffsetFactor; }
   sf::Vector2f position() const { return m_bounds.position; }
 
-  /**
-   * @brief Sets the size of the rectangular bounds.
-   *
-   * Updates the internal bounds size by applying the scale factor to the provided dimensions.
-   * The actual size stored will be the new_size multiplied by the current scale factor.
-   *
-   * @param new_size The desired size as a 2D vector (width, height) before scaling
-   */
+  //! @brief Sets the size of the rectangular bounds.
+  //! @note Updates the internal bounds size by applying the scale factor to the provided dimensions.
+  //!       The actual size stored will be the new_size multiplied by the current scale factor.
+  //! @param new_size
   void size( sf::Vector2f new_size ) { m_bounds.size = new_size * m_scale_factor; }
 
   //! @brief Retrieves the size of the rectangular bounds.
@@ -104,36 +123,17 @@ public:
   sf::FloatRect getBounds() const { return m_bounds; }
 
 private:
-  /**
-   * @brief The rectangular bounds of the component in world coordinates.
-   *
-   * This FloatRect defines the spatial boundaries of the component, typically used
-   * for collision detection, rendering bounds, or spatial queries. The rectangle
-   * is represented with floating-point precision for accurate positioning.
-   *
-   * @note The bounds are usually in world space coordinates and may be updated
-   *       when the component's position or size changes.
-   */
+  //! @brief The rectangular bounds of the component in world coordinates.
   sf::FloatRect m_bounds;
-  /**
-   * @brief Scale factor used to modify the size of the rectangular bounds.
-   *
-   * This factor is multiplied with the base dimensions to determine the actual
-   * size of the rectangular bounds. A value of 1.0 represents the original size,
-   * values greater than 1.0 increase the size, and values less than 1.0 decrease it.
-   */
+
+  //! @brief Scale factor used to modify the size of the rectangular bounds.
   float m_scale_factor;
-  /**
-   * @brief Offset value used to center objects based on scale factor.
-   *
-   * Calculates the position offset needed to properly center an object when its scale
-   * factor differs from 1.0. The offset is computed as half the scale factor minus 0.5,
-   * which accounts for the difference between the object's scaled size and its default size.
-   */
+
+  //! @brief Offset value used to center objects based on scale factor.
   float kPositionOffsetFactor{ ( m_scale_factor / 2.f ) - 0.5f };
 
-  //! @brief The cardinality of scaling applied to the bounds.
-  ScaleCardinality m_scale_cardinality;
+  //! @brief The scale_axis of scaling applied to the bounds.
+  ScaleAxis m_scale_scale_axis;
 };
 
 } // namespace ProceduralMaze::Cmp

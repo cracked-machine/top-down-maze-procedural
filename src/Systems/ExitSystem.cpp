@@ -89,7 +89,7 @@ void ExitSystem::check_player_can_unlock_exit()
   for ( auto [entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
   {
     auto player_pos = Utils::Player::get_position( getReg() );
-    Cmp::RectBounds player_hitbox( player_pos, 5.f );
+    auto player_hitbox = Cmp::RectBounds::scaled( player_pos, 5.f );
     auto [found_entt, found_carryitem_type] = Utils::Player::get_inventory_type( getReg() );
     if ( player_hitbox.findIntersection( exit_pos_cmp ) and found_carryitem_type.contains( "exitkey" ) )
     {

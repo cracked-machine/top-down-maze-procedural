@@ -214,7 +214,7 @@ void WormholeSystem::check_player_wormhole_collision()
 
     for ( auto [wormhole_entity, wormhole_cmp, wh_pos_cmp] : wormhole_view.each() )
     {
-      auto wh_hitbox_redux = Cmp::RectBounds( wh_pos_cmp.position, wh_pos_cmp.size, 1.f );
+      auto wh_hitbox_redux = Cmp::RectBounds::scaled( wh_pos_cmp.position, wh_pos_cmp.size, 1.f );
       if ( jump_pos_cmp && jump_pos_cmp->findIntersection( wh_hitbox_redux.getBounds() ) )
       {
         still_colliding = true;
@@ -236,7 +236,7 @@ void WormholeSystem::check_player_wormhole_collision()
     for ( auto [wormhole_entity, wormhole_cmp, wh_pos_cmp] : wormhole_view.each() )
     {
 
-      auto wh_hitbox_redux = Cmp::RectBounds( wh_pos_cmp.position, wh_pos_cmp.size, 1.f );
+      auto wh_hitbox_redux = Cmp::RectBounds::scaled( wh_pos_cmp.position, wh_pos_cmp.size, 1.f );
       if ( !actor_pos_cmp.findIntersection( wh_hitbox_redux.getBounds() ) ) continue;
 
       // Check if jump component already exists

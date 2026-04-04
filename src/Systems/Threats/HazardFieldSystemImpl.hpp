@@ -149,11 +149,11 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
     if ( player_mort_cmp.state == Cmp::PlayerMortality::State::DEAD ) continue;
 
     // reduce the player hitbox so that you have to be almost centered over it to fall in
-    auto player_hitbox_redux = Cmp::RectBounds( player_pos_cmp.position, player_pos_cmp.size, 0.1f );
+    auto player_hitbox_redux = Cmp::RectBounds::scaled( player_pos_cmp.position, player_pos_cmp.size, 0.1f );
     for ( auto [hazard_entt, hazard_cmp, hazard_pos_cmp] : hazard_view.each() )
     {
       // reduce the hazaard hotbox so that you have to be almost centered over it to fall in
-      auto hazard_hitbox_redux = Cmp::RectBounds( hazard_pos_cmp.position, hazard_pos_cmp.size, 0.1f );
+      auto hazard_hitbox_redux = Cmp::RectBounds::scaled( hazard_pos_cmp.position, hazard_pos_cmp.size, 0.1f );
       if ( not player_hitbox_redux.findIntersection( hazard_hitbox_redux.getBounds() ) ) continue;
 
       if constexpr ( Traits::sprite_type == "SINKHOLE" )

@@ -172,8 +172,8 @@ void ShopSystem::check_exit_collision()
     // optimize: skip if not visible
     if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), door_pos_cmp ) ) continue;
 
-    Cmp::RectBounds decreased_entrance_bounds( door_pos_cmp.position, door_pos_cmp.size, 0.1f,
-                                               Cmp::RectBounds::ScaleCardinality::BOTH ); // shrink entrance bounds slightly for better UX
+    auto decreased_entrance_bounds = Cmp::RectBounds::scaled( door_pos_cmp.position, door_pos_cmp.size, 0.1f,
+                                                              Cmp::RectBounds::ScaleAxis::XY ); // shrink entrance bounds slightly for better UX
 
     if ( not player_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
 
@@ -186,7 +186,7 @@ void ShopSystem::check_exit_collision()
 bool ShopSystem::check_shopkeeper_collision( sf::Vector2f shopkeeper_pos )
 {
   bool result = false;
-  Cmp::RectBounds shopkeeper_hitbox( shopkeeper_pos, Constants::kGridSizePxF, 3.f );
+  auto shopkeeper_hitbox = Cmp::RectBounds::scaled( shopkeeper_pos, Constants::kGridSizePxF, 3.f );
   auto player_pos = Utils::Player::get_position( getReg() );
   if ( not shopkeeper_hitbox.findIntersection( player_pos ) ) return result;
   return result = true;

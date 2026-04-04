@@ -57,8 +57,8 @@ void HolyWellSystem::check_entrance_collision()
       if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), holywell_door_pos_cmp ) ) continue;
 
       // shrink entrance bounds slightly for better UX
-      Cmp::RectBounds decreased_entrance_bounds( holywell_door_pos_cmp.position, holywell_door_pos_cmp.size, 0.1f,
-                                                 Cmp::RectBounds::ScaleCardinality::BOTH );
+      auto decreased_entrance_bounds = Cmp::RectBounds::scaled( holywell_door_pos_cmp.position, holywell_door_pos_cmp.size, 0.1f,
+                                                                Cmp::RectBounds::ScaleAxis::XY );
 
       if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
 
@@ -83,8 +83,8 @@ void HolyWellSystem::check_exit_collision()
       // optimize: skip if not visible
       if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), holywell_door_pos_cmp ) ) continue;
 
-      Cmp::RectBounds decreased_entrance_bounds( holywell_door_pos_cmp.position, holywell_door_pos_cmp.size, 0.1f,
-                                                 Cmp::RectBounds::ScaleCardinality::BOTH ); // shrink entrance bounds slightly for better UX
+      auto decreased_entrance_bounds = Cmp::RectBounds::scaled( holywell_door_pos_cmp.position, holywell_door_pos_cmp.size, 0.1f,
+                                                                Cmp::RectBounds::ScaleAxis::XY ); // shrink entrance bounds slightly for better UX
 
       if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
 
@@ -103,7 +103,7 @@ void HolyWellSystem::check_inventory_deposit()
   auto &wealth = Utils::Player::get_wealth( m_reg );
 
   // check if we're near a holywell
-  auto player_hitbox = Cmp::RectBounds( Utils::Player::get_position( getReg() ).position, Constants::kGridSizePxF, 1.5f );
+  auto player_hitbox = Cmp::RectBounds::scaled( Utils::Player::get_position( getReg() ).position, Constants::kGridSizePxF, 1.5f );
   for ( auto [well_entt, well_mb_cmp] : getReg().view<Cmp::HolyWellMultiBlock>().each() )
   {
     if ( not player_hitbox.findIntersection( well_mb_cmp ) ) continue;

@@ -77,7 +77,7 @@ void GraveSystem::check_player_grave_collision()
       bool player_nearby = false;
       for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
       {
-        auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
+        auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
         if ( player_hitbox.findIntersection( grave_cmp ) )
         {
           player_nearby = true;
@@ -132,7 +132,7 @@ void GraveSystem::check_player_grave_collision()
           }
           case 3: {
 
-            auto grave_cmp_bounds = Cmp::RectBounds( grave_cmp.position, grave_cmp.size, 2.f );
+            auto grave_cmp_bounds = Cmp::RectBounds::scaled( grave_cmp.position, grave_cmp.size, 2.f );
             std::vector<Sprites::SpriteMetaType> relic_selection_list{ "CARRYITEM.relic1", "CARRYITEM.relic2", "CARRYITEM.relic3",
                                                                        "CARRYITEM.relic4" };
             Cmp::RandomInt relic_picker( 0, relic_selection_list.size() - 1 );
@@ -144,7 +144,7 @@ void GraveSystem::check_player_grave_collision()
             break;
           }
           case 4: {
-            auto grave_cmp_bounds = Cmp::RectBounds( grave_cmp.position, grave_cmp.size, 2.f );
+            auto grave_cmp_bounds = Cmp::RectBounds::scaled( grave_cmp.position, grave_cmp.size, 2.f );
             std::vector<Sprites::SpriteMetaType> jewelry_selection_list{
                 "CARRYITEM.jewelry_sapphire_necklace", "CARRYITEM.jewelry_amephyst_ring",    "CARRYITEM.jewelry_ruby_ring",
                 "CARRYITEM.jewelry_emerald_necklace",  "CARRYITEM.jewelry_emerald_gemstone", "CARRYITEM.jewelry_sapphire_gemstone",

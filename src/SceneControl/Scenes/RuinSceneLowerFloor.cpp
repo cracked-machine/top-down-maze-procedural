@@ -59,7 +59,7 @@ void RuinSceneLowerFloor::on_init()
 
   // generate the empty game area
   sf::Vector2f player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
-  auto player_start_area = Cmp::RectBounds( player_start_position, gridsize, 1.f, Cmp::RectBounds::ScaleCardinality::BOTH );
+  auto player_start_area = Cmp::RectBounds::scaled( player_start_position, gridsize, 1.f, Cmp::RectBounds::ScaleAxis::XY );
   auto &random_level_sys = m_sys.find<SystemStoreType::RandomLevelGenerator>();
   random_level_sys.reset();
   random_level_sys.gen_game_area( *m_scene_map_data );

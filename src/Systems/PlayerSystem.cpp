@@ -382,7 +382,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
 
 bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
 {
-  Cmp::RectBounds search_bounds( target_position.position, target_position.size, 1 );
+  auto search_bounds = Cmp::RectBounds::scaled( target_position.position, target_position.size, 1 );
   using namespace Utils::Collision;
 
   auto is_active = []( const Cmp::PlayerNoPath &playernopath ) { return playernopath.active; };
@@ -543,7 +543,7 @@ void PlayerSystem::check_player_axe_npc_kill()
       bool player_nearby = false;
       for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
       {
-        auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
+        auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
         if ( player_hitbox.findIntersection( npc_pos_cmp ) )
         {
           player_nearby = true;
@@ -576,7 +576,7 @@ void PlayerSystem::check_player_axe_npc_kill()
         if ( do_drop.gen() == 0 )
         {
           auto dropped_loot_entt = Factory::create_loot_drop( getReg(), Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),
-                                                              Cmp::RectBounds( npc_pos_cmp.position, npc_pos_cmp.size, 2.f ).getBounds(),
+                                                              Cmp::RectBounds::scaled( npc_pos_cmp.position, npc_pos_cmp.size, 2.f ).getBounds(),
                                                               Factory::IncludePack<>{},
                                                               Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{},
                                                               Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{} );

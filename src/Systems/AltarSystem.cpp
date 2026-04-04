@@ -48,7 +48,7 @@ void AltarSystem::on_player_action( Events::PlayerActionEvent ev )
   if ( ev.action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
 
   auto altar_view = getReg().view<Cmp::AltarMultiBlock>();
-  auto player_hitbox = Cmp::RectBounds( Utils::Player::get_position( getReg() ).position, Constants::kGridSizePxF, 1.5f );
+  auto player_hitbox = Cmp::RectBounds::scaled( Utils::Player::get_position( getReg() ).position, Constants::kGridSizePxF, 1.5f );
 
   for ( auto [altar_entity, altar_cmp] : altar_view.each() )
   {

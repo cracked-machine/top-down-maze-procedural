@@ -139,8 +139,8 @@ void CryptSystem::check_entrance_collision()
       if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), crypt_door_pos_cmp ) ) continue;
 
       // shrink entrance bounds slightly for better UX
-      Cmp::RectBounds decreased_entrance_bounds( crypt_door_pos_cmp.position, crypt_door_pos_cmp.size, 0.1f,
-                                                 Cmp::RectBounds::ScaleCardinality::BOTH );
+      auto decreased_entrance_bounds = Cmp::RectBounds::scaled( crypt_door_pos_cmp.position, crypt_door_pos_cmp.size, 0.1f,
+                                                                Cmp::RectBounds::ScaleAxis::XY );
 
       if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
 
@@ -168,8 +168,8 @@ void CryptSystem::check_exit_collision()
       // optimize: skip if not visible
       if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), crypt_door_pos_cmp ) ) continue;
 
-      Cmp::RectBounds decreased_entrance_bounds( crypt_door_pos_cmp.position, crypt_door_pos_cmp.size, 0.1f,
-                                                 Cmp::RectBounds::ScaleCardinality::BOTH ); // shrink entrance bounds slightly for better UX
+      auto decreased_entrance_bounds = Cmp::RectBounds::scaled( crypt_door_pos_cmp.position, crypt_door_pos_cmp.size, 0.1f,
+                                                                Cmp::RectBounds::ScaleAxis::XY ); // shrink entrance bounds slightly for better UX
 
       if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
 
@@ -195,7 +195,7 @@ void CryptSystem::unlock_crypt_door()
 
     SPDLOG_INFO( "CryptSystem::unlock_crypt_door 1" );
     // Player can't intersect with a closed crypt door so expand their hitbox to facilitate collision detection
-    auto player_hitbox = Cmp::RectBounds( player_pos_cmp, 5.f );
+    auto player_hitbox = Cmp::RectBounds::scaled( player_pos_cmp, 5.f );
     if ( not player_hitbox.findIntersection( door_pos_cmp ) ) continue;
     SPDLOG_INFO( "CryptSystem::unlock_crypt_door 2" );
 
@@ -262,7 +262,7 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp, pc_cadaver_cmp] : player_view.each() )
   {
-    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
+    auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
 
     for ( auto [objective_entity, objective_cmp] : grave_view.each() )
     {
@@ -299,7 +299,7 @@ void CryptSystem::check_lever_activation()
 
   for ( auto [pc_entity, player_cmp, player_pos_cmp] : player_view.each() )
   {
-    auto player_hitbox = Cmp::RectBounds( player_pos_cmp.position, Constants::kGridSizePxF, 0.5f );
+    auto player_hitbox = Cmp::RectBounds::scaled( player_pos_cmp.position, Constants::kGridSizePxF, 0.5f );
     for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : lever_view.each() )
     {
       // prevent player from spamming lever twice
@@ -338,7 +338,7 @@ void CryptSystem::check_chest_activation( Events::PlayerActionEvent::GameActions
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : player_view.each() )
   {
-    auto player_hitbox = Cmp::RectBounds( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
+    auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
     for ( auto [chest_entt, chest_cmp, chest_pos_cmp, chest_anim_cmp] : chest_view.each() )
     {
       // prevent player from spamming chest twice
@@ -353,7 +353,7 @@ void CryptSystem::check_chest_activation( Events::PlayerActionEvent::GameActions
       auto loot_entt = Factory::create_loot_drop( 
         getReg(), 
         Cmp::SpriteAnimation( 0, 0, true, "LOOT.goldcoin", 0 ),                                        
-        Cmp::RectBounds{ chest_pos_cmp.position, chest_pos_cmp.size, 3.f }.getBounds(), 
+        Cmp::RectBounds::scaled( chest_pos_cmp, 3.f ).getBounds(), 
         Factory::IncludePack<>{},
         Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::CryptChest, Cmp::CryptRoomLavaPitCell, Cmp::CryptPassageBlock, Cmp::Wall, Cmp::Obstacle>{} ,
         Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::CryptChest, Cmp::CryptRoomLavaPitCell, Cmp::CryptPassageBlock, Cmp::Wall, Cmp::Obstacle>{},
@@ -862,7 +862,8 @@ void CryptSystem::check_lava_pit_collision()
 {
   if ( Utils::Player::get_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) return;
 
-  Cmp::RectBounds player_hitbox( Utils::Player::get_position( getReg() ).position, Utils::Player::get_position( getReg() ).size, 0.5f );
+  auto player_hitbox = Cmp::RectBounds::scaled( Utils::Player::get_position( getReg() ).position, Utils::Player::get_position( getReg() ).size,
+                                                0.5f );
   for ( auto [lava_cell_entt, lava_cell_cmp] : getReg().view<Cmp::CryptRoomLavaPitCell>().each() )
   {
     if ( not player_hitbox.findIntersection( lava_cell_cmp ) ) continue;
@@ -874,8 +875,8 @@ void CryptSystem::check_lava_pit_collision()
 void CryptSystem::check_lava_pit_activation_by_proximity()
 {
   auto player_pos_cmp = Utils::Player::get_position( getReg() );
-  Cmp::RectBounds player_hitbox_enable( player_pos_cmp.position, player_pos_cmp.size, 2.f );
-  Cmp::RectBounds player_hitbox_disable( player_pos_cmp.position, player_pos_cmp.size, 5.f );
+  auto player_hitbox_enable = Cmp::RectBounds::scaled( player_pos_cmp.position, player_pos_cmp.size, 2.f );
+  auto player_hitbox_disable = Cmp::RectBounds::scaled( player_pos_cmp.position, player_pos_cmp.size, 5.f );
   int num_lava_pits_intersect = 0;
   for ( auto [lava_pit_entt, lava_pit_cmp] : getReg().view<Cmp::CryptRoomLavaPit>().each() )
   {
@@ -915,7 +916,7 @@ void CryptSystem::check_spike_trap_collision()
   if ( Utils::Player::get_mortality( getReg() ).state == Cmp::PlayerMortality::State::DEAD ) return;
 
   Cmp::Position player_pos = Utils::Player::get_position( getReg() );
-  Cmp::RectBounds player_hitbox( player_pos.position, player_pos.size, 0.5f );
+  auto player_hitbox = Cmp::RectBounds::scaled( player_pos.position, player_pos.size, 0.5f );
   for ( auto [spike_trap_entt, spike_trap_cmp, spike_trap_anim_cmp] : getReg().view<Cmp::CryptPassageSpikeTrap, Cmp::SpriteAnimation>().each() )
   {
     if ( not spike_trap_anim_cmp.m_animation_active ) continue;
@@ -930,8 +931,8 @@ void CryptSystem::check_spike_trap_collision()
 void CryptSystem::check_spike_trap_activation_by_proximity()
 {
   auto player_pos_cmp = Utils::Player::get_position( getReg() );
-  Cmp::RectBounds player_hitbox_enable( player_pos_cmp.position, player_pos_cmp.size, 2.f );
-  Cmp::RectBounds player_hitbox_disable( player_pos_cmp.position, player_pos_cmp.size, 5.f );
+  auto player_hitbox_enable = Cmp::RectBounds::scaled( player_pos_cmp.position, player_pos_cmp.size, 2.f );
+  auto player_hitbox_disable = Cmp::RectBounds::scaled( player_pos_cmp.position, player_pos_cmp.size, 5.f );
   for ( auto [spike_trap_entt, spike_trap_cmp, spike_trap_anim_cmp] : getReg().view<Cmp::CryptPassageSpikeTrap, Cmp::SpriteAnimation>().each() )
   {
     auto spike_trap_hitbox = sf::FloatRect( spike_trap_cmp, Constants::kGridSizePxF );
@@ -1005,7 +1006,7 @@ std::vector<entt::entity> CryptSystem::get_available_room_positions()
       bool intersects_passageblock = false;
       for ( auto [pblock_entt, pblock_cmp] : getReg().view<Cmp::CryptPassageBlock>().each() )
       {
-        Cmp::RectBounds expanded_hitbox( pos_cmp.position, pos_cmp.size, 4.f );
+        auto expanded_hitbox = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 4.f );
         if ( expanded_hitbox.findIntersection( sf::FloatRect( pblock_cmp, Constants::kGridSizePxF ) ) )
         {
           intersects_passageblock = true;
@@ -1036,20 +1037,6 @@ void CryptSystem::add_chest_to_open_rooms()
     Factory::create_crypt_chest( getReg(), selected_pos.position, chest_sprite_type, 0, zorder );
     SPDLOG_INFO( "Added chest to position: {},{}", selected_pos.position.x, selected_pos.position.y );
   }
-
-  // place chest on top
-
-  // auto internal_room_entts = get_available_room_positions();
-  // Sprites::SpriteMetaType lever_sprite_type = "CRYPT.interior_chest";
-  // unsigned int disabled_lever_sprite_idx = 0;
-  // float zorder = m_sprite_factory.get_sprite_size_by_type( lever_sprite_type ).y;
-
-  // // add one chest to one room picked from the pool of candidates room positions
-  // Cmp::RandomInt room_position_picker( 0, internal_room_entts.size() - 1 );
-  // auto selected_entt = internal_room_entts[room_position_picker.gen()];
-  // auto room_pos = getReg().get<Cmp::Position>( selected_entt );
-  // Factory::create_crypt_chest( getReg(), room_pos.position, lever_sprite_type, disabled_lever_sprite_idx, zorder );
-  // SPDLOG_INFO( "Added chest to position: {},{}", room_pos.position.x, room_pos.position.y );
 }
 
 void CryptSystem::add_lever_to_open_rooms()
@@ -1083,30 +1070,47 @@ void CryptSystem::remove_lever_open_rooms()
 
 void CryptSystem::remove_chest_open_rooms()
 {
+  auto player_pos = Utils::Player::get_position( getReg() );
+
   for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : getReg().view<Cmp::CryptChest, Cmp::Position>().each() )
   {
+    bool player_in_same_room = false;
     for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
     {
-      // only process chest_entt if inside open_room_entt
-      if ( open_room_cmp.findIntersection( Utils::Player::get_position( getReg() ) ) ) continue;
-      Factory::destroy_crypt_chest( getReg(), chest_entt );
+      if ( not open_room_cmp.findIntersection( player_pos ) ) continue; // player not in this room
+
+      // expand room bounds by 1 tile to include border positions where chests are placed
+      // sf::FloatRect expanded_room(
+      //     sf::Vector2f{ open_room_cmp.position.x - Constants::kGridSizePxF.x, open_room_cmp.position.y - Constants::kGridSizePxF.y },
+      //     sf::Vector2f{ open_room_cmp.size.x + Constants::kGridSizePxF.x * 2.f, open_room_cmp.size.y + Constants::kGridSizePxF.y * 2.f } );
+
+      auto expanded_room = Cmp::RectBounds::expanded( open_room_cmp, 1 );
+
+      if ( expanded_room.findIntersection( chest_pos_cmp ) )
+      {
+        player_in_same_room = true;
+        break;
+      }
     }
+
+    if ( not player_in_same_room ) { Factory::destroy_crypt_chest( getReg(), chest_entt ); }
   }
 }
 
 void CryptSystem::remove_all_levers()
 {
-  for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : getReg().view<Cmp::CryptChest, Cmp::Position>().each() )
+  for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : getReg().view<Cmp::CryptLever, Cmp::Position>().each() )
+
   {
-    Factory::destroy_crypt_lever( getReg(), chest_entt );
+    Factory::destroy_crypt_lever( getReg(), lever_entt );
   }
 }
 
 void CryptSystem::remove_all_chests()
 {
-  for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : getReg().view<Cmp::CryptLever, Cmp::Position>().each() )
+  for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : getReg().view<Cmp::CryptChest, Cmp::Position>().each() )
   {
-    Factory::destroy_crypt_lever( getReg(), lever_entt );
+    Factory::destroy_crypt_chest( getReg(), chest_entt );
   }
 }
 

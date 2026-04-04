@@ -295,7 +295,7 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
         getReg(), Utils::Rnd::IncludePack<>{}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::ReservedPosition, Cmp::PlayerCharacter>{}, current_seed );
 
     auto lo_sprite_size = m_sprite_factory.get_sprite_size_by_type( ms.get_sprite_type() );
-    Cmp::RectBounds new_lo_hitbox( random_pos.position, lo_sprite_size, 1.f );
+    auto new_lo_hitbox = Cmp::RectBounds::scaled( random_pos.position, lo_sprite_size, 1.f );
 
     // Check collisions with walls, graves, shrines
     auto is_valid = [&]() -> bool

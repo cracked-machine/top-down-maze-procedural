@@ -30,7 +30,7 @@ template <typename T>
 concept HasPositionBounds = std::is_base_of_v<Cmp::Position, T> || std::is_base_of_v<Cmp::RectBounds, T> || std::is_base_of_v<sf::FloatRect, T>;
 
 //! @brief Check if a `Component` collides with another component type
-//! @tparam `Component` must inherit from Cmp::Position, Cmp::RectBounds, sf::FloatRect
+//! @tparam `Component` must inherit from Cmp::Position, Cmp::RectBounds::scaled, sf::FloatRect
 //! @param reg reference to the entt reg
 //! @param pos Does this position contain a `Component`
 //! @param filter Optional callback to filter candidates. Return true to consider this entity, false to skip.

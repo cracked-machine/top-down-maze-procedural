@@ -109,7 +109,7 @@ void NpcSystem::check_bones_reanimation()
     auto &npc_activate_scale = Sys::PersistSystem::get<Cmp::Persist::NpcActivateScale>( getReg() );
     // we just create a temporary RectBounds here instead of a component because we only need it
     // for this one comparison and it already contains the needed scaling logic
-    auto npc_activate_bounds = Cmp::RectBounds( npccontainer_pos_cmp.position, Constants::kGridSizePxF, npc_activate_scale.get_value() );
+    auto npc_activate_bounds = Cmp::RectBounds::scaled( npccontainer_pos_cmp.position, Constants::kGridSizePxF, npc_activate_scale.get_value() );
 
     if ( player_pos.findIntersection( npc_activate_bounds.getBounds() ) )
     {
@@ -287,7 +287,7 @@ void NpcSystem::check_player_to_npc_collision()
       if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) ) continue;
 
       // relaxed bounds to allow player to sneak past during lerp transition
-      Cmp::RectBounds npc_pos_cmp_bounds_current{ npc_pos_cmp.position, npc_pos_cmp.size, 0.1f };
+      auto npc_pos_cmp_bounds_current = Cmp::RectBounds::scaled( npc_pos_cmp.position, npc_pos_cmp.size, 0.1f );
       if ( not player_pos.findIntersection( npc_pos_cmp_bounds_current.getBounds() ) ) continue;
 
       if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < player_dmg_cooldown.get_value() ) continue;
@@ -321,7 +321,7 @@ void NpcSystem::find_pushback_position( const Cmp::Direction &npc_direction )
                 player_pos.position.y, npc_direction.x, npc_direction.y, new_position.x, new_position.y );
 
   // make sure player isnt knocked into an obstacle or multiblock
-  Cmp::RectBounds new_pos_rect( new_position, Constants::kGridSizePxF, 1.f );
+  auto new_pos_rect = Cmp::RectBounds::scaled( new_position, Constants::kGridSizePxF, 1.f );
   if ( Utils::Collision::check_cmp<Cmp::Obstacle>( getReg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::AltarSegment>( getReg(), new_pos_rect ) ) return;
   if ( Utils::Collision::check_cmp<Cmp::GraveSegment>( getReg(), new_pos_rect ) ) return;

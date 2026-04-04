@@ -62,7 +62,7 @@ void GraveyardScene::on_init()
   auto [_, player_start_pos_px] = m_scene_map_data->get_player_start_position();
   Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
   auto player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
-  auto player_start_area = Cmp::RectBounds( player_start_position, Constants::kGridSizePxF, 5.f, Cmp::RectBounds::ScaleCardinality::BOTH );
+  auto player_start_area = Cmp::RectBounds::scaled( player_start_position, Constants::kGridSizePxF, 5.f, Cmp::RectBounds::ScaleAxis::XY );
 
   auto player_view = m_reg.view<Cmp::PlayerCharacter>();
   if ( player_view.size() == 0 ) { Factory::create_player( m_reg ); }
