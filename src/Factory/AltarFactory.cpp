@@ -13,7 +13,7 @@ void create_altar_sacrifice_anim( entt::registry &reg, Cmp::Position pos, Sprite
   entt::entity entt = reg.create();
   reg.emplace_or_replace<Cmp::AltarSacrifice>( entt );
   reg.emplace_or_replace<Cmp::Position>( entt, pos.position, pos.size );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( entt, 0, 0, true, anim_type, 0, 0.2, Cmp::AnimType::ONESHOT );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( entt, 0, 0, true, anim_type, 0, 0.2, Cmp::AnimType::ONESHOTRESET );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, pos.position.y * 4.f );
 }
 

@@ -1,3 +1,4 @@
+#include <Crypt/CryptChest.hpp>
 #include <Crypt/CryptPassageDoor.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
@@ -449,6 +450,9 @@ void PassageSystem::remove_all_passage_blocks()
 
 void PassageSystem::empty_open_passages()
 {
+  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
+  if ( not pathfinding_navmesh ) return;
+
   auto obstacle_view = getReg().view<Cmp::Position>();
   for ( auto [pos_entt, pos_cmp] : obstacle_view.each() )
   {
@@ -456,13 +460,16 @@ void PassageSystem::empty_open_passages()
     for ( auto [pblock_entt, pblock_cmp] : pblock_view.each() )
     {
       auto pblock_cmp_rect = sf::FloatRect( pblock_cmp, Constants::kGridSizePxF );
-      // skip any positions that are not pblocks or do not have obstacles
+      // skip any positions that are not pblocks or do not have obstacles/chests
       if ( not pblock_cmp_rect.findIntersection( pos_cmp ) ) continue;
-      if ( not getReg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
-
-      Factory::remove_obstacle( getReg(), pos_entt );
-      if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
+      if ( getReg().any_of<Cmp::Obstacle>( pos_entt ) )
       {
+        Factory::remove_obstacle( getReg(), pos_entt );
+        pathfinding_navmesh->insert( pos_entt, pos_cmp );
+      }
+      if ( getReg().any_of<Cmp::CryptChest>( pos_entt ) )
+      {
+        Factory::destroy_crypt_chest( getReg(), pos_entt );
         pathfinding_navmesh->insert( pos_entt, pos_cmp );
       }
     }

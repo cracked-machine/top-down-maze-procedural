@@ -65,7 +65,7 @@ entt::entity create_crypt_chest( entt::registry &reg, sf::Vector2f pos, Sprites:
   auto entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entt, pos, Constants::kGridSizePxF );
   reg.emplace_or_replace<Cmp::CryptChest>( entt );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( entt, 0, 0, false, sprite_type, sprite_idx, 0.4, Cmp::AnimType::ONESHOT );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( entt, 0, 0, false, sprite_type, sprite_idx, 0.4, Cmp::AnimType::ONESHOTHOLD );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::PlayerNoPath>( entt );
   return entt;
@@ -136,7 +136,7 @@ void add_spike_trap( entt::registry &reg, const entt::entity entt, const int pas
 
   auto spike_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( spike_entt, position, Constants::kGridSizePxF );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( spike_entt, 0, 0, false, "CRYPT.interior_spiketrap", 0, 0.2, Cmp::AnimType::ONESHOT );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( spike_entt, 0, 0, false, "CRYPT.interior_spiketrap", 0, 0.2, Cmp::AnimType::ONESHOTRESET );
   reg.emplace_or_replace<Cmp::ZOrderValue>( spike_entt, position.y - 16.f ); // always behind player
   reg.emplace_or_replace<Cmp::CryptPassageSpikeTrap>( spike_entt, position, passage_id );
 }

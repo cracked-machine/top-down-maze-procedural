@@ -103,57 +103,57 @@ private:
 
   //! @brief Change all Cmp::CryptRoomOpen to Cmp::CryptRoomClosed
   //! @note Excludes start/end rooms and the open room occupied by the player)
-  void closeOpenRooms();
+  void close_open_rooms();
 
   //! @brief Restores missing Cmp::Obstacles components to Cmp::CryptRoomClosed areas
-  void fillClosedRooms();
+  void fill_closed_rooms();
 
   //! @brief Change selected Cmp::CryptRoomClosed to Cmp::CryptRoomOpen.
   //! @param selected_rooms Set of entity ids to open
   //! @note Removes Cmp::Obstacle
-  void openSelectedRooms( std::set<entt::entity> selected_rooms );
+  void open_selected_rooms( std::set<entt::entity> selected_rooms );
 
   //! @brief Open all rooms
-  void openAllRooms();
+  void open_all_rooms();
 
   //! @brief Removes Cmp::Obstacles from Cmp::CryptRoomOpen areas
-  void emptyOpenRooms();
+  void empty_open_rooms();
 
-  std::vector<entt::entity> getAvailableRoomPositions();
+  std::vector<entt::entity> get_available_room_positions();
   //! @brief Adds Cmp::Lever components to Cmp::CryptRoomOpen areas
-  void addLeverToOpenRooms();
-  void addChestToOpenRooms();
+  void add_lever_to_open_rooms();
+  void add_chest_to_open_rooms();
 
   //! @brief Add lava pits to open rooms
-  void addLavaPitOpenRooms();
-  void doLavaPitAnimation();
+  void add_lava_pit_open_rooms();
+  void do_lava_pit_animation();
 
   //! @brief Remove lava pits from open rooms
-  void removeLavaPitOpenRooms();
+  void remove_lava_pit_open_rooms();
 
   //! @brief Check player collision with lava pits
-  void checkLavaPitCollision();
+  void check_lava_pit_collision();
 
   //! @brief Activate/deactivate the lava pit if player is close
-  void checkLavaPitActivationByProximity();
+  void check_lava_pit_activation_by_proximity();
 
   //! @brief Check player collision with the spike traps
-  void checkSpikeTrapCollision();
+  void check_spike_trap_collision();
 
   //! @brief Activate/deactivate the spike trap if player is close
   //! @note This uses animation component `m_animation_active` member.
-  void checkSpikeTrapActivationByProximity();
+  void check_spike_trap_activation_by_proximity();
 
   //! @brief Removes Cmp::Lever components from Cmp::CryptRoomOpen areas
-  void removeLeverOpenRooms();
-  void removeChestOpenRooms();
+  void remove_lever_open_rooms();
+  void remove_chest_open_rooms();
 
   //! @brief Removes ALL levers.
-  void removeAllLevers();
-  void removeAllChests();
+  void remove_all_levers();
+  void remove_all_chests();
 
   //! @brief Spawn NPCs in each open room in the game area
-  void spawnNpcInOpenRooms();
+  void spawn_npc_in_open_rooms();
 
   //! @brief Get the single Cmp::CryptRoomStart component
   //! @return Pair of entt::entity and Cmp::CryptRoomStart&

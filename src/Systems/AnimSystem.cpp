@@ -58,7 +58,7 @@ void AnimSystem::update( sf::Time dt )
       {
         SPDLOG_DEBUG( "Deactivating animation: {}", static_cast<int>( anim_entt ) );
         anim_cmp.m_animation_active = false;
-        anim_cmp.m_current_frame = anim_cmp.m_base_frame;
+        if ( anim_cmp.m_anim_type == Cmp::AnimType::ONESHOTRESET ) { anim_cmp.m_current_frame = anim_cmp.m_base_frame; }
       }
     }
   }

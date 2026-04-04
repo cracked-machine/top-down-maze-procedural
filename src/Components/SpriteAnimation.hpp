@@ -7,7 +7,7 @@
 namespace ProceduralMaze::Cmp
 {
 
-enum class AnimType { LOOP, ONESHOT };
+enum class AnimType { LOOP, ONESHOTRESET, ONESHOTHOLD };
 
 struct SpriteAnimation
 {
