@@ -97,6 +97,10 @@ void CryptScene::on_enter()
 
   m_sys.find<Sys::Store::Type::CryptSystem>().setup();
   get_maze_timer().restart();
+
+  // prevent the player from wandering off before the scene has loaded
+  auto &player_dir = Utils::Player::get_direction( m_reg );
+  player_dir = Cmp::Direction{ { 0.f, 0.f } };
 }
 
 void CryptScene::on_exit()

@@ -87,8 +87,6 @@ struct adl_serializer<ProceduralMaze::Sprites::MultiSprite>
 
     ms = ProceduralMaze::Sprites::MultiSprite{ "",        display_name,      zorder_list,          texture_path, sprite_indices,
                                                grid_size, sprites_per_frame, sprites_per_sequence, solid_mask };
-
-    SPDLOG_INFO( "Loaded sprite metadata for type: {}, texture path: {}", "", texture_path.string() );
   }
 };
 } // namespace nlohmann
@@ -115,6 +113,7 @@ void SpriteFactory::init()
     const auto &multisprite = ms_object.at( "multisprite" );
     MultiSprite new_ms = multisprite.get<MultiSprite>();
     new_ms.set_sprite_type( ms_type );
+    SPDLOG_INFO( "Loaded sprite metadata for type: {}, tiles: {}", new_ms.get_sprite_type(), new_ms.get_sprite_count() );
     m_sprite_metadata_map[ms_type] = std::move( new_ms );
   }
 

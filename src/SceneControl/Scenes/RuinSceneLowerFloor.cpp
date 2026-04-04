@@ -121,6 +121,10 @@ void RuinSceneLowerFloor::on_enter()
   // prevent residual lerp movements from previous scene causing havoc in the new one
   Utils::Player::remove_lerp_cmp( m_reg );
 
+  // prevent the player from wandering off before the scene has loaded
+  auto &player_dir = Utils::Player::get_direction( m_reg );
+  player_dir = Cmp::Direction{ { 0.f, 0.f } };
+
   auto &player_pos = Utils::Player::get_position( m_reg );
   switch ( m_entry_mode )
   {

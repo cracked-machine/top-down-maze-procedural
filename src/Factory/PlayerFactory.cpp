@@ -229,13 +229,14 @@ void destroy_inventory( entt::registry &reg, const Sprites::SpriteMetaType type 
   }
 }
 
-Cmp::Position add_player_last_graveyard_pos( entt::registry &reg, Cmp::Position &last_known_pos, sf::Vector2f offset )
+Cmp::Position add_player_last_graveyard_pos( entt::registry &reg, Cmp::Position &last_known_pos, [[maybe_unused]] sf::Vector2f offset )
 {
-  auto player_rentry_pos = Cmp::Position( { last_known_pos.position.x + offset.x, last_known_pos.position.y + offset.y }, Constants::kGridSizePxF );
-  SPDLOG_INFO( "Player will re-enter grave yard at {},{}", player_rentry_pos.position.x, player_rentry_pos.position.y );
+  // auto player_rentry_pos = Cmp::Position( { last_known_pos.position.x + offset.x, last_known_pos.position.y + offset.y }, Constants::kGridSizePxF
+  // );
+  SPDLOG_INFO( "Player will re-enter grave yard at {},{}", last_known_pos.position.x, last_known_pos.position.y );
   auto player_entt = Utils::Player::get_entity( reg );
-  reg.emplace_or_replace<Cmp::PlayerLastGraveyardPosition>( player_entt, player_rentry_pos.position, player_rentry_pos.size );
-  return player_rentry_pos;
+  reg.emplace_or_replace<Cmp::PlayerLastGraveyardPosition>( player_entt, last_known_pos.position, last_known_pos.size );
+  return last_known_pos;
 }
 
 void remove_player_last_graveyard_pos( entt::registry &reg )

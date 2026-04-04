@@ -1,3 +1,4 @@
+#include <Constants.hpp>
 #include <Events/DropInventoryEvent.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Player/PlayerNoPath.hpp>
@@ -128,54 +129,52 @@ void CryptSystem::on_room_event( Events::CryptRoomEvent &event )
 
 void CryptSystem::check_entrance_collision()
 {
-  auto pc_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
-  auto cryptdoor_view = getReg().view<Cmp::CryptEntrance, Cmp::Position>();
+  auto player_pos = Utils::Player::get_position( getReg() );
+  auto door_view = getReg().view<Cmp::CryptEntrance, Cmp::Position>();
 
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
+  for ( auto [door_entity, door_cmp, door_pos_cmp] : door_view.each() )
   {
-    for ( auto [door_entity, cryptdoor_cmp, crypt_door_pos_cmp] : cryptdoor_view.each() )
-    {
-      // optimize: skip if not visible
-      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), crypt_door_pos_cmp ) ) continue;
+    // optimize: skip if not visible
+    if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), door_pos_cmp ) ) continue;
 
-      // shrink entrance bounds slightly for better UX
-      auto decreased_entrance_bounds = Cmp::RectBounds::scaled( crypt_door_pos_cmp.position, crypt_door_pos_cmp.size, 0.1f,
-                                                                Cmp::RectBounds::ScaleAxis::XY );
+    // shrink entrance bounds slightly for better UX
+    auto decreased_entrance_bounds = Cmp::RectBounds::scaled( door_pos_cmp.position, door_pos_cmp.size, 0.1f, Cmp::RectBounds::ScaleAxis::XY );
 
-      if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
+    if ( not player_pos.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
+    m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_CRYPT );
 
-      SPDLOG_INFO( "check_entrance_collision: Player entering crypt from graveyard at position ({}, {})", pc_pos_cmp.position.x,
-                   pc_pos_cmp.position.y );
-      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_CRYPT );
+    auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
+    auto player_pos = Utils::Player::get_position( getReg() ).position;
+    get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
 
-      auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
-      auto player_pos = Utils::Player::get_position( getReg() ).position;
-      get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
-      Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
-    }
+    Factory::remove_player_last_graveyard_pos( getReg() );
+    Cmp::Position last_known_pos(
+        {
+            door_pos_cmp.position.x,
+            door_pos_cmp.position.y + Constants::kGridSizePxF.y,
+        },
+        Constants::kGridSizePxF );
+    SPDLOG_INFO( "Last known graveyard position {}, {}", last_known_pos.position.x, last_known_pos.position.y );
+    Factory::add_player_last_graveyard_pos( getReg(), last_known_pos );
+    break;
   }
 }
 
 void CryptSystem::check_exit_collision()
 {
-  auto pc_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
-  auto cryptdoor_view = getReg().view<Cmp::Exit, Cmp::Position>();
+  auto player_pos = Utils::Player::get_position( getReg() );
+  auto door_view = getReg().view<Cmp::Exit, Cmp::Position>();
 
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
+  for ( auto [door_entity, door_cmp, door_pos_cmp] : door_view.each() )
   {
-    for ( auto [door_entity, cryptdoor_cmp, crypt_door_pos_cmp] : cryptdoor_view.each() )
-    {
-      // optimize: skip if not visible
-      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), crypt_door_pos_cmp ) ) continue;
+    // optimize: skip if not visible
+    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), door_pos_cmp ) ) continue;
 
-      auto decreased_entrance_bounds = Cmp::RectBounds::scaled( crypt_door_pos_cmp.position, crypt_door_pos_cmp.size, 0.1f,
-                                                                Cmp::RectBounds::ScaleAxis::XY ); // shrink entrance bounds slightly for better UX
+    auto decreased_entrance_bounds = Cmp::RectBounds::scaled( door_pos_cmp.position, door_pos_cmp.size, 0.1f,
+                                                              Cmp::RectBounds::ScaleAxis::XY ); // shrink entrance bounds slightly for better UX
 
-      if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
-
-      SPDLOG_INFO( "check_exit_collision: Player exiting crypt to graveyard at position ({}, {})", pc_pos_cmp.position.x, pc_pos_cmp.position.y );
-      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_CRYPT );
-    }
+    if ( not player_pos.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
+    m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_CRYPT );
   }
 }
 
@@ -193,11 +192,9 @@ void CryptSystem::unlock_crypt_door()
     // optimize: skip if not visible
     if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), door_pos_cmp ) ) continue;
 
-    SPDLOG_INFO( "CryptSystem::unlock_crypt_door 1" );
     // Player can't intersect with a closed crypt door so expand their hitbox to facilitate collision detection
     auto player_hitbox = Cmp::RectBounds::scaled( player_pos_cmp, 5.f );
     if ( not player_hitbox.findIntersection( door_pos_cmp ) ) continue;
-    SPDLOG_INFO( "CryptSystem::unlock_crypt_door 2" );
 
     // Crypt door is already opened
     if ( cryptdoor_cmp.is_open() )
@@ -211,7 +208,7 @@ void CryptSystem::unlock_crypt_door()
         getReg().emplace_or_replace<Cmp::ZOrderValue>( crypt_entt, crypt_cmp.position.y - 16.f );
         if ( getReg().any_of<Cmp::PlayerNoPath>( crypt_entt ) )
         {
-          SPDLOG_INFO( "CryptDoor is open" );
+          SPDLOG_DEBUG( "CryptDoor is open" );
           getReg().remove<Cmp::PlayerNoPath>( crypt_entt );
         }
       }
@@ -229,7 +226,7 @@ void CryptSystem::unlock_crypt_door()
     }
 
     // unlock the crypt door
-    SPDLOG_INFO( "Player unlocked a crypt door at ({}, {})", door_pos_cmp.position.x, door_pos_cmp.position.y );
+    SPDLOG_DEBUG( "Player unlocked a crypt door at ({}, {})", door_pos_cmp.position.x, door_pos_cmp.position.y );
     Factory::destroy_inventory( getReg(), "CARRYITEM.cryptkey" );
 
     // player_key_count->decrement_count( 1 );
@@ -247,7 +244,7 @@ void CryptSystem::unlock_crypt_door()
       if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;
       anim_cmp.m_sprite_type = "CRYPT.opened";
 
-      SPDLOG_INFO( "Updated crypt multi-block sprite to open state at ({}, {})", crypt_cmp.position.x, crypt_cmp.position.y );
+      SPDLOG_DEBUG( "Updated crypt multi-block sprite to open state at ({}, {})", crypt_cmp.position.x, crypt_cmp.position.y );
       break;
     }
   }
@@ -314,7 +311,7 @@ void CryptSystem::check_lever_activation()
       getReg().emplace_or_replace<Cmp::SpriteAnimation>( lever_entt, 0, 0, true, lever_sprite_type, enabled_lever_sprite_idx );
 
       m_sound_bank.get_effect( "crypt_lever_open" ).play();
-      SPDLOG_INFO( "Lever enabled at {},{} - Count:{}", lever_pos_cmp.position.x, lever_pos_cmp.position.y, m_enabled_levers );
+      SPDLOG_DEBUG( "Lever enabled at {},{} - Count:{}", lever_pos_cmp.position.x, lever_pos_cmp.position.y, m_enabled_levers );
 
       // check if we have activated enough levers to access the maze objective
       if ( m_enabled_levers > 2 and not m_maze_unlocked )
@@ -412,7 +409,7 @@ void CryptSystem::shuffle_rooms_passages()
   add_lava_pit_open_rooms();
 
   // try to open passages for the occupied room: only do start room if player is currently there
-  SPDLOG_INFO( "~~~~~~~~~~~ STARTING PASSAGE GEN ~~~~~~~~~~~~~~~" );
+  SPDLOG_DEBUG( "~~~~~~~~~~~ STARTING PASSAGE GEN ~~~~~~~~~~~~~~~" );
   auto [start_room_entt, start_room_cmp] = get_crypt_room_start();
   if ( Utils::Player::get_position( getReg() ).findIntersection( start_room_cmp ) )
   {
@@ -431,7 +428,7 @@ void CryptSystem::shuffle_rooms_passages()
 
 void CryptSystem::gen_crypt_initial_interior()
 {
-  SPDLOG_INFO( "Generating crypt interior obstacles." );
+  SPDLOG_DEBUG( "Generating crypt interior obstacles." );
   auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition> );
   // auto room_view = getReg().view<Cmp::CryptRoomClosed>();
   for ( auto [entity, pos_cmp] : position_view.each() )
@@ -600,8 +597,8 @@ void CryptSystem::create_initial_crypt_rooms( sf::Vector2u map_grid_size )
         }
       }
 
-      SPDLOG_INFO( "Added new crypt room entity {}, total rooms: {}, position count {}", entt::to_integral( entity ), room_count,
-                   new_room.m_position_list.size() );
+      SPDLOG_DEBUG( "Added new crypt room entity {}, total rooms: {}, position count {}", entt::to_integral( entity ), room_count,
+                    new_room.m_position_list.size() );
       getReg().emplace<Cmp::CryptRoomClosed>( entity, std::move( new_room ) );
       room_count++;
     }
@@ -617,13 +614,13 @@ void CryptSystem::create_initial_crypt_rooms( sf::Vector2u map_grid_size )
     }
   }
 
-  SPDLOG_INFO( "Total rooms: {}", room_count );
+  SPDLOG_DEBUG( "Total rooms: {}", room_count );
   // Currently no special logic needed; placeholder for future use
 }
 
 void CryptSystem::cache_all_room_connections()
 {
-  SPDLOG_INFO( "CryptSystem::cache_all_room_connections()" );
+  SPDLOG_DEBUG( "CryptSystem::cache_all_room_connections()" );
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CACHE_ALL_ROOM_CONNECTIONS ) );
 }
 
@@ -658,7 +655,7 @@ void CryptSystem::unlock_objective_passage()
   createRoomBorders();
 
   // open new rooms/passages
-  SPDLOG_INFO( "~~~~~~~~~~~ OPENING FINAL PASSAGE ~~~~~~~~~~~~~~~" );
+  SPDLOG_DEBUG( "~~~~~~~~~~~ OPENING FINAL PASSAGE ~~~~~~~~~~~~~~~" );
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_OCCUPIED_TO_ENDROOM, get_crypt_room_end().first ) );
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::OPEN_PASSAGES ) );
   m_sound_bank.get_effect( "crypt_room_shuffle" ).play();
@@ -1035,7 +1032,7 @@ void CryptSystem::add_chest_to_open_rooms()
     Cmp::RandomInt room_border_picker( 0, open_room_cmp.m_border_position_list.size() - 1 );
     auto [selected_entt, selected_pos] = open_room_cmp.m_border_position_list[room_border_picker.gen()];
     Factory::create_crypt_chest( getReg(), selected_pos.position, chest_sprite_type, 0, zorder );
-    SPDLOG_INFO( "Added chest to position: {},{}", selected_pos.position.x, selected_pos.position.y );
+    SPDLOG_DEBUG( "Added chest to position: {},{}", selected_pos.position.x, selected_pos.position.y );
   }
 }
 
@@ -1051,7 +1048,7 @@ void CryptSystem::add_lever_to_open_rooms()
   auto selected_entt = internal_room_entts[room_position_picker.gen()];
   auto room_pos = getReg().get<Cmp::Position>( selected_entt );
   Factory::create_crypt_lever( getReg(), room_pos.position, lever_sprite_type, disabled_lever_sprite_idx, zorder );
-  SPDLOG_INFO( "Added lever to position: {},{}", room_pos.position.x, room_pos.position.y );
+  SPDLOG_DEBUG( "Added lever to position: {},{}", room_pos.position.x, room_pos.position.y );
 }
 
 void CryptSystem::remove_lever_open_rooms()

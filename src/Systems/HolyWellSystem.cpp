@@ -29,7 +29,7 @@
 namespace ProceduralMaze::Sys
 {
 
-void HolyWellSystem::spawn_well( sf::Vector2u spawn_position )
+void HolyWellSystem::add_well_ms( sf::Vector2u spawn_position )
 {
 
   const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "HOLYWELL.interior_well" );
@@ -46,51 +46,48 @@ void HolyWellSystem::on_player_action( Events::PlayerActionEvent ev )
 
 void HolyWellSystem::check_entrance_collision()
 {
-  auto pc_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
-  auto holywelldoor_view = getReg().view<Cmp::HollyWellEntrance, Cmp::Position>();
+  auto player_pos = Utils::Player::get_position( getReg() );
+  auto door_view = getReg().view<Cmp::HollyWellEntrance, Cmp::Position>();
 
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
+  for ( auto [door_entity, door_cmp, door_pos_cmp] : door_view.each() )
   {
-    for ( auto [door_entity, holywelldoor_cmp, holywell_door_pos_cmp] : holywelldoor_view.each() )
-    {
-      // optimize: skip if not visible
-      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), holywell_door_pos_cmp ) ) continue;
+    // optimize: skip if not visible
+    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), door_pos_cmp ) ) continue;
 
-      // shrink entrance bounds slightly for better UX
-      auto decreased_entrance_bounds = Cmp::RectBounds::scaled( holywell_door_pos_cmp.position, holywell_door_pos_cmp.size, 0.1f,
-                                                                Cmp::RectBounds::ScaleAxis::XY );
+    // shrink entrance bounds slightly for better UX
+    auto decreased_entrance_bounds = Cmp::RectBounds::scaled( door_pos_cmp.position, door_pos_cmp.size, 0.1f, Cmp::RectBounds::ScaleAxis::XY );
 
-      if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
+    if ( not player_pos.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
+    m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_HOLYWELL );
 
-      SPDLOG_INFO( "check_entrance_collision: Player entering holywell from graveyard at position ({}, {})", pc_pos_cmp.position.x,
-                   pc_pos_cmp.position.y );
-      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_HOLYWELL );
-
-      Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
-    }
+    Factory::remove_player_last_graveyard_pos( getReg() );
+    Cmp::Position last_known_pos(
+        {
+            door_pos_cmp.position.x,
+            door_pos_cmp.position.y + Constants::kGridSizePxF.y,
+        },
+        Constants::kGridSizePxF );
+    SPDLOG_INFO( "Last known graveyard position {}, {}", last_known_pos.position.x, last_known_pos.position.y );
+    Factory::add_player_last_graveyard_pos( getReg(), last_known_pos );
+    break;
   }
 }
 
 void HolyWellSystem::check_exit_collision()
 {
-  auto pc_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
-  auto holywelldoor_view = getReg().view<Cmp::Exit, Cmp::Position>();
+  auto player_pos = Utils::Player::get_position( getReg() );
+  auto door_view = getReg().view<Cmp::Exit, Cmp::Position>();
 
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
+  for ( auto [door_entity, door_cmp, door_pos_cmp] : door_view.each() )
   {
-    for ( auto [door_entity, holywelldoor_cmp, holywell_door_pos_cmp] : holywelldoor_view.each() )
-    {
-      // optimize: skip if not visible
-      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), holywell_door_pos_cmp ) ) continue;
+    // optimize: skip if not visible
+    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), door_pos_cmp ) ) continue;
 
-      auto decreased_entrance_bounds = Cmp::RectBounds::scaled( holywell_door_pos_cmp.position, holywell_door_pos_cmp.size, 0.1f,
-                                                                Cmp::RectBounds::ScaleAxis::XY ); // shrink entrance bounds slightly for better UX
+    auto decreased_entrance_bounds = Cmp::RectBounds::scaled( door_pos_cmp.position, door_pos_cmp.size, 0.1f,
+                                                              Cmp::RectBounds::ScaleAxis::XY ); // shrink entrance bounds slightly for better UX
 
-      if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
-
-      SPDLOG_INFO( "check_exit_collision: Player exiting holywell to graveyard at position ({}, {})", pc_pos_cmp.position.x, pc_pos_cmp.position.y );
-      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_HOLYWELL );
-    }
+    if ( not player_pos.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
+    m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_HOLYWELL );
   }
 }
 

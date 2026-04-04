@@ -70,6 +70,10 @@ void ShopScene::on_init()
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
   m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
 
+  // prevent the player from wandering off before the scene has loaded
+  auto &player_dir = Utils::Player::get_direction( m_reg );
+  player_dir = Cmp::Direction{ { 0.f, 0.f } };
+
   // Hide the sudden position update/camera pan behind a forced loading screen.
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 }

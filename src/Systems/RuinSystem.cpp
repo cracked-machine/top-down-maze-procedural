@@ -64,8 +64,8 @@ RuinSystem::RuinSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
 void RuinSystem::check_entrance_collision()
 {
   auto player_pos = Utils::Player::get_position( getReg() );
-  auto ruindoor_view = getReg().view<Cmp::RuinEntrance, Cmp::Position>();
-  for ( auto [door_entity, ruindoor_cmp, door_pos_cmp] : ruindoor_view.each() )
+  auto door_view = getReg().view<Cmp::RuinEntrance, Cmp::Position>();
+  for ( auto [door_entity, door_cmp, door_pos_cmp] : door_view.each() )
   {
     // optimize: skip if not visible
     if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), door_pos_cmp ) ) continue;
@@ -73,27 +73,42 @@ void RuinSystem::check_entrance_collision()
     // Player can't intersect with a closed crypt door so expand their hitbox to facilitate collision detection
     auto player_hitbox = Cmp::RectBounds::scaled( player_pos.position, player_pos.size, 0.5f );
     if ( not player_hitbox.findIntersection( door_pos_cmp ) ) continue;
+    m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER );
 
-    auto ruin_mb_view = getReg().view<Cmp::RuinBuildingMultiBlock>();
-    for ( auto [ruin_mb_entity, ruin_mb_cmp] : ruin_mb_view.each() )
-    {
-      if ( door_pos_cmp.findIntersection( ruin_mb_cmp ) )
-      {
-        getReg().emplace_or_replace<Cmp::ZOrderValue>( ruin_mb_entity, player_pos.position.y - 16.f );
-        SPDLOG_DEBUG( "check_entrance_collision: Player entering ruin from graveyard at position ({}, {})", player_pos.position.x,
-                      player_pos.position.y );
-        m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER );
+    auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
+    auto player_pos = Utils::Player::get_position( getReg() ).position;
+    get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
 
-        auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
-        auto player_pos = Utils::Player::get_position( getReg() ).position;
-        get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
-        Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
+    Factory::remove_player_last_graveyard_pos( getReg() );
+    Cmp::Position last_known_pos(
+        {
+            door_pos_cmp.position.x,
+            door_pos_cmp.position.y + Constants::kGridSizePxF.y,
+        },
+        Constants::kGridSizePxF );
+    SPDLOG_INFO( "Last known graveyard position {}, {}", last_known_pos.position.x, last_known_pos.position.y );
+    Factory::add_player_last_graveyard_pos( getReg(), last_known_pos );
+    break;
+  }
+}
 
-        auto player_entt = Utils::Player::get_entity( getReg() );
-        getReg().emplace_or_replace<Cmp::PlayerRuinLocation>( player_entt, Cmp::PlayerRuinLocation::Floor::LOWER );
-      }
-      else { getReg().emplace_or_replace<Cmp::ZOrderValue>( ruin_mb_entity, player_pos.position.y + 16.f ); }
-    }
+void RuinSystem::check_exit_collision()
+{
+  auto player_pos = Utils::Player::get_position( getReg() );
+  auto door_view = getReg().view<Cmp::Exit, Cmp::Position>();
+
+  for ( auto [door_entity, door_cmp, door_pos_cmp] : door_view.each() )
+  {
+    // optimize: skip if not visible
+    if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), door_pos_cmp ) ) continue;
+
+    auto decreased_entrance_bounds = Cmp::RectBounds::scaled( door_pos_cmp.position, door_pos_cmp.size, 0.1f,
+                                                              Cmp::RectBounds::ScaleAxis::XY ); // shrink entrance bounds slightly for better UX
+
+    if ( not player_pos.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
+
+    m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_RUIN );
+    reset_player_curse();
   }
 }
 
@@ -405,31 +420,6 @@ void RuinSystem::reset_player_curse()
 {
   Utils::Player::reset_curse( getReg() );
   m_curse_activation_future = std::future<void>{}; // allow re-entrant scene to trigger the future again
-}
-
-void RuinSystem::check_exit_collision()
-{
-  auto pc_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
-  auto holywelldoor_view = getReg().view<Cmp::Exit, Cmp::Position>();
-
-  for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : pc_view.each() )
-  {
-    for ( auto [door_entity, holywelldoor_cmp, holywell_door_pos_cmp] : holywelldoor_view.each() )
-    {
-      // optimize: skip if not visible
-      if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), holywell_door_pos_cmp ) ) continue;
-
-      auto decreased_entrance_bounds = Cmp::RectBounds::scaled( holywell_door_pos_cmp.position, holywell_door_pos_cmp.size, 0.1f,
-                                                                Cmp::RectBounds::ScaleAxis::XY ); // shrink entrance bounds slightly for better UX
-
-      if ( not pc_pos_cmp.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
-
-      SPDLOG_INFO( "check_exit_collision: Player exiting holywell to graveyard at position ({}, {})", pc_pos_cmp.position.x, pc_pos_cmp.position.y );
-      m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_HOLYWELL );
-
-      reset_player_curse();
-    }
-  }
 }
 
 void RuinSystem::check_create_witch( entt::registry &reg, sf::FloatRect scene_dimensions )

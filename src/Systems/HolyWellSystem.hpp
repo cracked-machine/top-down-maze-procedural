@@ -21,7 +21,7 @@ public:
 
   void on_player_action( Events::PlayerActionEvent ev );
 
-  void spawn_well( sf::Vector2u spawn_position );
+  void add_well_ms( sf::Vector2u spawn_position );
 
   //! @brief Check for collisions with the entrance
   void check_entrance_collision();

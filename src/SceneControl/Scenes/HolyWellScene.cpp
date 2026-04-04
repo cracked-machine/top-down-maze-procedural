@@ -79,6 +79,10 @@ void HolyWellScene::on_enter()
 
   auto &player_pos = Utils::Player::get_position( m_reg );
   player_pos.position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
+
+  // prevent the player from wandering off before the scene has loaded
+  auto &player_dir = Utils::Player::get_direction( m_reg );
+  player_dir = Cmp::Direction{ { 0.f, 0.f } };
 }
 
 void HolyWellScene::on_exit()

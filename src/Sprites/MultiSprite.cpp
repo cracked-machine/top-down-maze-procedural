@@ -61,7 +61,7 @@ bool MultiSprite::add_sprite( const std::vector<uint32_t> &tilemap_picks )
     return false;
   }
 
-  SPDLOG_INFO( "{} requested {} tiles", m_sprite_type, tilemap_picks.size() );
+  SPDLOG_DEBUG( "{} requested {} tiles", m_sprite_type, tilemap_picks.size() );
   for ( const auto &tile_idx : tilemap_picks )
   {
     sf::Vector2u kGridSquareSizePixels{ Constants::kGridSizePx.x * m_grid_size.width, Constants::kGridSizePx.y * m_grid_size.height };

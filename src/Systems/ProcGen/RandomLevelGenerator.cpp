@@ -251,14 +251,17 @@ void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::
   else if ( ms.get_sprite_type() == "CRYPT.closed" )
   {
     Factory::add_multiblock_with_segments<Cmp::CryptMultiBlock, Cmp::CryptSegment>( getReg(), random_origin_position.position, ms );
+    SPDLOG_INFO("Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x,  random_origin_position.position.y);
   }
   else if ( ms.get_sprite_type() == "HOLYWELL.exterior_building" )
   {
     Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( getReg(), random_origin_position.position, ms );
+    SPDLOG_INFO( "Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y );
   }
   else if ( ms.get_sprite_type() == "RUIN.exterior_building" )
   {
     Factory::add_multiblock_with_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinSegment>( getReg(), random_origin_position.position, ms );
+    SPDLOG_INFO( "Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y );
   }
   else
   {

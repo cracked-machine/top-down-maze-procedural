@@ -1,4 +1,5 @@
 #include <Audio/SoundBank.hpp>
+#include <Components/Direction.hpp>
 #include <Components/Inventory/CarryItem.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
@@ -132,9 +133,20 @@ void GraveyardScene::on_enter()
   // Respawn player back in the graveyard: either at the last position when they left, or fallback to their start position
   auto &player_pos = Utils::Player::get_position( m_reg );
   auto player_last_graveyard_pos = Utils::Player::get_last_graveyard_pos( m_reg );
-  if ( player_last_graveyard_pos ) { player_pos.position = player_last_graveyard_pos->position; }
-  else { player_pos.position = sf::Vector2f( Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg ) ); }
-  SPDLOG_INFO( "Player entered graveyard at position ({}, {})", player_pos.position.x, player_pos.position.y );
+  if ( player_last_graveyard_pos )
+  {
+    player_pos.position = player_last_graveyard_pos->position;
+    SPDLOG_INFO( "Player re-entered graveyard at position ({}, {})", player_pos.position.x, player_pos.position.y );
+  }
+  else
+  {
+    player_pos.position = sf::Vector2f( Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg ) );
+    SPDLOG_INFO( "Player entered graveyard at position ({}, {})", player_pos.position.x, player_pos.position.y );
+  }
+
+  // prevent the player from wandering off before the scene has loaded
+  auto &player_dir = Utils::Player::get_direction( m_reg );
+  player_dir = Cmp::Direction{ { 0.f, 0.f } };
 
   m_scene_exit_cooldown.restart();
 }

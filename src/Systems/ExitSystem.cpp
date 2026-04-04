@@ -123,6 +123,7 @@ void ExitSystem::check_exit_collision()
         {
           _sys.level_complete = true;
           m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::LEVEL_COMPLETE );
+          Factory::remove_player_last_graveyard_pos( getReg() );
         }
       }
     }

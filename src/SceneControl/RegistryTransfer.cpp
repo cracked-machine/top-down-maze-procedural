@@ -95,13 +95,13 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
           if ( auto *target_storage = registry_copy->storage( type_hash ) )
           {
             target_storage->push( new_entity, source_storage.value( player_entity ) );
-            SPDLOG_INFO( "Copied player component: {}", source_storage.type().name() );
+            SPDLOG_DEBUG( "Copied player component: {}", source_storage.type().name() );
             copied_cmp.emplace_back( source_storage.type().name() );
           }
           else { SPDLOG_WARN( "No storage found in target registry for component: {}", source_storage.type().name() ); }
         }
       }
-      SPDLOG_INFO( "Player entity copied with {} components", copied_cmp.size() );
+      SPDLOG_DEBUG( "Player entity copied with {} components", copied_cmp.size() );
     }
     else { SPDLOG_WARN( "No player entity found in source registry to copy" ); }
   }
@@ -133,7 +133,7 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
           if ( auto *target_storage = registry_copy->storage( type_hash ) )
           {
             target_storage->push( new_entity, source_storage.value( entity ) );
-            SPDLOG_INFO( "Copied component: {}", source_storage.type().name() );
+            SPDLOG_DEBUG( "Copied component: {}", source_storage.type().name() );
             copied_cmp.emplace_back( source_storage.type().name() );
           }
           else { SPDLOG_WARN( "No storage found in target registry for component: {}", source_storage.type().name() ); }
@@ -142,7 +142,7 @@ RegistryTransfer::RegCopy RegistryTransfer::copy_reg( IScene &scene, Scene::RegC
     }
   }
 
-  SPDLOG_INFO( "Registry copy completed: {} copied, {} skipped", copied_cmp.size(), skipped_cmp );
+  SPDLOG_DEBUG( "Registry copy completed: {} copied, {} skipped", copied_cmp.size(), skipped_cmp );
   pretty_print( copied_cmp );
 
   return registry_copy;
@@ -167,13 +167,13 @@ void RegistryTransfer::xfer_player_entt( entt::registry &source_registry, entt::
   {
     // No player exists, create new one
     target_entity = target_registry.create();
-    SPDLOG_INFO( "Created new player entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
+    SPDLOG_DEBUG( "Created new player entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
   }
   else
   {
     // Player exists, use existing entity
     target_entity = target_player_view.front();
-    SPDLOG_INFO( "Using existing player entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
+    SPDLOG_DEBUG( "Using existing player entity (#{}) in target registry", static_cast<uint32_t>( target_entity ) );
   }
 
   // Ensure all known player component storages exist in target registry
@@ -186,7 +186,7 @@ void RegistryTransfer::xfer_player_entt( entt::registry &source_registry, entt::
   {
     if ( auto &source_storage = curr.second; source_storage.contains( source_entity ) )
     {
-      SPDLOG_INFO( "Transferring component: {}", source_storage.type().name() );
+      SPDLOG_DEBUG( "Transferring component: {}", source_storage.type().name() );
 
       auto type_hash = curr.first;
 
@@ -195,19 +195,19 @@ void RegistryTransfer::xfer_player_entt( entt::registry &source_registry, entt::
         if ( target_storage->contains( target_entity ) )
         {
           target_storage->erase( target_entity );
-          SPDLOG_INFO( "Removed existing component: {}", source_storage.type().name() );
+          SPDLOG_DEBUG( "Removed existing component: {}", source_storage.type().name() );
           removed_cmps.emplace_back( source_storage.type().name() );
         }
         target_storage->push( target_entity, source_storage.value( source_entity ) );
         transferred_cmps.emplace_back( source_storage.type().name() );
 
-        SPDLOG_INFO( "Successfully transferred component: {}", source_storage.type().name() );
+        SPDLOG_DEBUG( "Successfully transferred component: {}", source_storage.type().name() );
       }
-      else { SPDLOG_INFO( "No storage found in target reg for cmp: {}", source_storage.type().name() ); }
+      else { SPDLOG_DEBUG( "No storage found in target reg for cmp: {}", source_storage.type().name() ); }
     }
   }
-  SPDLOG_INFO( "Component transfer completed: {} removed", removed_cmps.size() );
-  pretty_print( removed_cmps );
+  SPDLOG_DEBUG( "Component transfer completed: {} removed", removed_cmps.size() );
+  // pretty_print( removed_cmps );
   SPDLOG_INFO( "Component transfer completed: {} transferred", transferred_cmps.size() );
   pretty_print( transferred_cmps );
 }
