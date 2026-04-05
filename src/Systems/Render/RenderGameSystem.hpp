@@ -76,6 +76,10 @@ public:
                     DarkMode dark_mode = DarkMode::OFF, WeatherMode weather_mode = WeatherMode::ON, CursedMode cursed_mode = CursedMode::OFF,
                     BackGroundMode bg_mode = BackGroundMode::ON );
 
+  //! @brief m_local_view dimension
+  constexpr static sf::Vector2u kLocalMapViewSize{ 300u, 200u };
+  constexpr static sf::Vector2f kLocalMapViewSizeF{ static_cast<float>( kLocalMapViewSize.x ), static_cast<float>( kLocalMapViewSize.y ) };
+
 private:
   sf::Vector2f m_camera_position{ 0.f, 0.f }; // Smoothed camera position
   bool m_camera_initialized{ false };
@@ -105,7 +109,10 @@ private:
 
   void render_cursed_mode_shader( sf::FloatRect player_position );
 
-  void render_scryingball_doglegs();
+  void render_seeingstone_doglegs();
+  void render_lightning_strike();
+
+  void render_screen_flash( sf::Color color );
 
   //! @brief Adds visible entities of a specific component type to the Z-order queue
   //! Optimized (single-type view) query on entt components for visibility check and Z-order queue
@@ -137,10 +144,6 @@ private:
 
   //! @brief This is the section of the game world that is visible to the player
   sf::View m_local_view;
-
-  //! @brief m_local_view dimension
-  const sf::Vector2u kLocalMapViewSize{ 300u, 200u };
-  const sf::Vector2f kLocalMapViewSizeF{ static_cast<float>( kLocalMapViewSize.x ), static_cast<float>( kLocalMapViewSize.y ) };
 
   // Shaders - we dont know the size of the texture yet so set to 1,1 and resize later
 

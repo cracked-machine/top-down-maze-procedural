@@ -1,16 +1,19 @@
 #include <Audio/EffectsItem.hpp>
 #include <spdlog/spdlog.h>
-namespace ProceduralMaze::Audio {
+namespace ProceduralMaze::Audio
+{
 
 EffectsData::EffectsData( const std::filesystem::path &filepath )
-    : buffer( [&filepath]() {
-        if ( not std::filesystem::exists( filepath ) )
-        {
-          SPDLOG_CRITICAL( "Sound effect file {} does not exist!", filepath.string() );
-          throw std::runtime_error( "Sound effect file not found: " + filepath.string() );
-        }
-        return std::make_unique<sf::SoundBuffer>( filepath );
-      }() ),
+    : buffer(
+          [&filepath]()
+          {
+            if ( not std::filesystem::exists( filepath ) )
+            {
+              SPDLOG_CRITICAL( "Sound effect file {} does not exist!", filepath.string() );
+              throw std::runtime_error( "Sound effect file not found: " + filepath.string() );
+            }
+            return std::make_unique<sf::SoundBuffer>( filepath );
+          }() ),
       control( *buffer )
 {
 }
@@ -21,10 +24,13 @@ EffectsData::EffectsData( EffectsData &&other ) noexcept
 {
 }
 
-EffectsData &EffectsData::operator=( EffectsData &&other ) noexcept
+auto EffectsData::operator=( EffectsData &&other ) noexcept -> EffectsData &
 {
   buffer = std::move( other.buffer );
+
+  // rebind control to the new buffer location
   control.setBuffer( *buffer );
+  // return the derefenced buffer object
   return *this;
 }
 

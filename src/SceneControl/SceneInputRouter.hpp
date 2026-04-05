@@ -5,8 +5,8 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Window.hpp>
-#include <SceneControl/Events/SceneManagerEvent.hpp>
 
+#include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
 // clang-format off

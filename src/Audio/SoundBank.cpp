@@ -56,6 +56,7 @@ void SoundBank::init()
   sounds.emplace( "spike_trap", EffectsData{ "res/audio/spike_trap.wav" } );
   sounds.emplace( "banging_smashing_sounds", EffectsData{ "res/audio/BangingSmashingSounds.mp3" } );
   sounds.emplace( "witch_scream", EffectsData{ "res/audio/witch_scream.mp3" } );
+  sounds.emplace( "lightning_strike", EffectsData{ "res/audio/lightning_strike.mp3" } );
 
   // Initialize music (can't use initializer list because sf::Music is move-only)
   music.emplace( "title_music", MusicData{ "res/audio/EerieScifi.mp3" } );

@@ -83,6 +83,19 @@ float normalizeAngle( float angle )
   return angle < 0 ? angle + 2.0f * std::numbers::pi : angle;
 }
 
+std::optional<sf::Vector2f> normalized( sf::Vector2f v )
+{
+  float len = v.length();
+  if ( len < 0.1f ) return std::nullopt;
+  return v / len;
+}
+
+[[nodiscard]] inline std::optional<sf::Angle> angle( sf::Vector2f v )
+{
+  if ( v.x == 0.f && v.y == 0.f ) return std::nullopt;
+  return v.angle();
+}
+
 //! @brief Create a thick line rect object
 //! @example `m_window.draw( Utils::Maths::thick_line_rect( source_pos, corner, color, thickness ) );`
 //! @param start
@@ -94,7 +107,10 @@ sf::RectangleShape thick_line_rect( sf::Vector2f start, sf::Vector2f end, sf::Co
 {
   sf::Vector2f direction = end - start;
   float length = direction.length();
-  sf::Angle angle = direction.angle();
+
+  auto maybe_angle = Utils::Maths::angle( direction );
+  if ( not maybe_angle.has_value() ) return sf::RectangleShape{};
+  sf::Angle angle = maybe_angle.value();
 
   sf::RectangleShape line( { length, thickness } );
   line.setPosition( start );

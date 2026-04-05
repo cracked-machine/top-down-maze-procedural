@@ -32,6 +32,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/NpcSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/HazardFieldSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/WormholeSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/Threats/LightningSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/GraveSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/AltarSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/LootSystem.cpp

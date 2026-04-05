@@ -3,6 +3,7 @@
 
 #include <Systems/RuinSystem.hpp>
 
+#include <Systems/Threats/LightningSystem.hpp>
 #include <entt/fwd.hpp>
 #include <map>
 #include <memory>
@@ -62,6 +63,7 @@ public:
     GraveSystem,
     HolyWellSystem,
     RuinSystem,
+    LightningSystem,
     LootSystem,
     NpcSystem,
     PassageSystem,
@@ -123,6 +125,7 @@ template<> struct Store::SystemTraits<Store::Type::GraveSystem>            { usi
 template<> struct Store::SystemTraits<Store::Type::HolyWellSystem>         { using type = HolyWellSystem; };
 template<> struct Store::SystemTraits<Store::Type::RuinSystem>             { using type = RuinSystem; };
 template<> struct Store::SystemTraits<Store::Type::LootSystem>             { using type = LootSystem; };
+template<> struct Store::SystemTraits<Store::Type::LightningSystem>        { using type = LightningSystem; };
 template<> struct Store::SystemTraits<Store::Type::NpcSystem>              { using type = NpcSystem; };
 template<> struct Store::SystemTraits<Store::Type::PassageSystem>          { using type = ProceduralMaze::Sys::PassageSystem; };
 template<> struct Store::SystemTraits<Store::Type::PersistSystem>          { using type = PersistSystem; };

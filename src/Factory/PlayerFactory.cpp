@@ -95,7 +95,8 @@ void create_player_death_anim( entt::registry &registry, Cmp::Position player_po
   else { offset = sprite.getSpriteSizePixels() / 2.f; }
   registry.emplace<Cmp::Position>( player_blood_splat_entity, player_pos_cmp.position - offset, player_pos_cmp.size );
   registry.emplace_or_replace<Cmp::DeathPosition>( player_blood_splat_entity, player_pos_cmp.position - offset, player_pos_cmp.size );
-  registry.emplace_or_replace<Cmp::SpriteAnimation>( player_blood_splat_entity, 0, 0, true, sprite.get_sprite_type(), 0 );
+  registry.emplace_or_replace<Cmp::SpriteAnimation>( player_blood_splat_entity, 0, 0, true, sprite.get_sprite_type(), 0, 0.1,
+                                                     Cmp::AnimType::ONESHOTHOLD );
   registry.emplace_or_replace<Cmp::ZOrderValue>( player_blood_splat_entity, player_pos_cmp.position.y * 3 ); // always infront
 }
 

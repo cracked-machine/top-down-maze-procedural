@@ -1,3 +1,4 @@
+#include <Systems/Threats/LightningSystem.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <SceneControl/SceneInputRouter.hpp>
@@ -22,6 +23,7 @@
 #include <Systems/SystemStore.hpp>
 #include <Systems/Threats/BombSystem.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
+#include <Systems/Threats/LightningSystem.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Systems/Threats/ShockwaveSystem.hpp>
 #include <Systems/Threats/WormholeSystem.hpp>
@@ -45,6 +47,7 @@ Store::Store( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, 
     m_sysmap.emplace( Type::GraveSystem, std::make_unique<GraveSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::HolyWellSystem, std::make_unique<HolyWellSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
     m_sysmap.emplace( Type::RuinSystem, std::make_unique<RuinSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
+    m_sysmap.emplace( Type::LightningSystem, std::make_unique<LightningSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::LootSystem, std::make_unique<LootSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::NpcSystem, std::make_unique<NpcSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::PassageSystem, std::make_unique<PassageSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );

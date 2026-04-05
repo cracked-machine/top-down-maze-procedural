@@ -190,6 +190,7 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::RuinSystem>().check_entrance_collision();
 
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::LightningSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
   m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::OFF );

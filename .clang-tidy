@@ -10,6 +10,8 @@ Checks: >
   performance-unnecessary-copy-initialization,
   performance-unnecessary-value-param,
   cppcoreguidelines-avoid-const-or-ref-data-members,
+  -modernize-use-trailing-return-type,
+  -readability-braces-around-statements
 WarningsAsErrors: ''
 HeaderFilterRegex: '.*'
 FormatStyle: file

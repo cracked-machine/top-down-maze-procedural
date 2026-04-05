@@ -28,11 +28,11 @@ struct EffectsData
   //! Need to define move assignment operator since we have unique_ptr
   //! @param other
   //! @return EffectsData&
-  EffectsData &operator=( EffectsData &&other ) noexcept;
+  auto operator=( EffectsData &&other ) noexcept -> EffectsData &;
 
   //! Delete copy constructor and copy assignment operator
   EffectsData( const EffectsData & ) = delete;
-  EffectsData &operator=( const EffectsData & ) = delete;
+  auto operator=( const EffectsData & ) -> EffectsData & = delete;
 };
 
 } // namespace ProceduralMaze::Audio

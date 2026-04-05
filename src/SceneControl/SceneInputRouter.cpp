@@ -15,6 +15,7 @@
 #include <Events/BuyShopItemEvent.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Events/DropInventoryEvent.hpp>
+#include <Events/LightningEvent.hpp>
 #include <Events/LoadSettingsEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
@@ -141,6 +142,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F8 ) { enqueue( Events::SceneManagerEvent::Type::ENTER_SHOP ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F12 ) { get_systems_event_queue().trigger( Events::LightningEvent() ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( getReg() ).value += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( getReg() ).health += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( getReg() ).wealth += 1; }
@@ -504,6 +506,9 @@ void SceneInputRouter::queue_buy_item_event( uint8_t item_idx )
   get_systems_event_queue().enqueue( Events::BuyShopItemEvent( item_idx ) );
 }
 
-void SceneInputRouter::enqueue( Events::SceneManagerEvent::Type ev ) { m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( ev ) ); }
+void SceneInputRouter::enqueue( Events::SceneManagerEvent::Type type )
+{
+  m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( type ) );
+}
 
 } // namespace ProceduralMaze::Sys

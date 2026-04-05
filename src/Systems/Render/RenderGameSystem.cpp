@@ -40,7 +40,10 @@
 #include <Components/Wall.hpp>
 #include <Components/Wormhole/WormholeMultiBlock.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <LightningStrike.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
+#include <Random.hpp>
+#include <SFML/Graphics/CircleShape.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/TileMap.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -64,6 +67,7 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <queue>
+#include <ranges>
 
 namespace ProceduralMaze::Sys
 {
@@ -199,7 +203,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
     // render these things first
     if ( bg_mode == BackGroundMode::ON ) { render_background_water( player_pos_cmp ); }
     render_floormap( floormap );
-    render_scryingball_doglegs();
+    render_seeingstone_doglegs();
     render_wormhole_effect( floormap );
 
     // render anything with a ZOrderValue component in lowest value first order
@@ -272,6 +276,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
       }
     }
 
+    render_lightning_strike();
     render_overlay_sys.render_shop_inventory_overlay();
 
     // debug: show crypt component boundaries
@@ -616,7 +621,7 @@ void RenderGameSystem::render_cursed_mode_shader( sf::FloatRect player_position 
   m_window.draw( m_dripping_blood_shader );
 }
 
-void RenderGameSystem::render_scryingball_doglegs()
+void RenderGameSystem::render_seeingstone_doglegs()
 {
   auto draw_dogleg = [this]( sf::Vector2f source_pos, sf::Vector2f target_pos, sf::Color color, float thickness )
   {
@@ -629,17 +634,17 @@ void RenderGameSystem::render_scryingball_doglegs()
   };
 
   constexpr float kLineThickness = 3.f;
-  for ( auto [scryingball_ent, scryingball_cmp, scryingball_pos_cmp] : getReg().view<Cmp::ScryingBall, Cmp::Position>().each() )
+  for ( auto [seeingstone_ent, seeingstone_cmp, seeingstone_pos_cmp] : getReg().view<Cmp::ScryingBall, Cmp::Position>().each() )
   {
-    if ( not scryingball_cmp.active ) continue;
-    switch ( scryingball_cmp.target )
+    if ( not seeingstone_cmp.active ) { continue; }
+    switch ( seeingstone_cmp.target )
     {
       case Cmp::ScryingBall::Target::YELLOW: {
         auto altar_view = getReg().view<Cmp::AltarMultiBlock>();
         for ( auto [altar_entt, altar_cmp] : altar_view.each() )
         {
           // yellow for altar paths
-          draw_dogleg( scryingball_pos_cmp.getCenter(), altar_cmp.getCenter(), sf::Color( 255, 255, 0, 128 ), kLineThickness );
+          draw_dogleg( seeingstone_pos_cmp.getCenter(), altar_cmp.getCenter(), sf::Color( 255, 255, 0, 128 ), kLineThickness );
         }
         break;
       }
@@ -648,7 +653,7 @@ void RenderGameSystem::render_scryingball_doglegs()
         for ( auto [crypt_entt, crypt_cmp, crypt_pos_cmp] : crypt_view.each() )
         {
           // red for crypt paths
-          draw_dogleg( scryingball_pos_cmp.getCenter(), crypt_pos_cmp.getCenter(), sf::Color( 255, 0, 0, 128 ), kLineThickness );
+          draw_dogleg( seeingstone_pos_cmp.getCenter(), crypt_pos_cmp.getCenter(), sf::Color( 255, 0, 0, 128 ), kLineThickness );
         }
         break;
       }
@@ -656,7 +661,7 @@ void RenderGameSystem::render_scryingball_doglegs()
         auto exit_view = getReg().view<Cmp::Exit, Cmp::Position>();
         for ( auto [exit_entt, exit_cmp, exit_pos_cmp] : exit_view.each() )
         {
-          draw_dogleg( scryingball_pos_cmp.getCenter(), exit_pos_cmp.getCenter(), sf::Color( 0, 255, 0, 128 ), kLineThickness );
+          draw_dogleg( seeingstone_pos_cmp.getCenter(), exit_pos_cmp.getCenter(), sf::Color( 0, 255, 0, 128 ), kLineThickness );
         }
         break;
       }
@@ -665,6 +670,92 @@ void RenderGameSystem::render_scryingball_doglegs()
       }
     }
   }
+}
+
+void RenderGameSystem::render_lightning_strike()
+{
+
+  const auto kAuxStrikeLineColor = sf::Color( 255, 255, 255, 255 );
+  const auto kMainStrikeLineColor = sf::Color( 0, 255, 255, 255 );
+
+  auto game_view = m_window.getView();
+
+  auto to_screen = [&]( sf::Vector2f world_pos ) -> sf::Vector2f { return sf::Vector2f( m_window.mapCoordsToPixel( world_pos, game_view ) ); };
+
+  auto draw_in_default_view = [&]( sf::Vector2f start, sf::Vector2f end, sf::Color color, float line )
+  {
+    m_window.setView( m_window.getDefaultView() );
+    m_window.draw( Utils::Maths::thick_line_rect( start, end, color, line ) );
+    m_window.setView( game_view );
+  };
+
+  const float kMainLineThickness = 10.f;
+  const float kAuxLineThickness = 3.f;
+
+  auto view = getReg().view<Cmp::LightningStrike>();
+  if ( view.size() == 0 ) return;
+  auto &cmp = getReg().get<Cmp::LightningStrike>( view.front() );
+  cmp.timer.start();
+
+  if ( cmp.sequence.size() < 2 )
+  {
+    SPDLOG_WARN( "Lightning component has empty sequence. Skipping rendering step." );
+    return;
+  }
+
+  render_screen_flash( sf::Color( 255, 255, 255, 180 ) );
+  
+  // Draw the sequence of vertices by iterating pairs of vertices from the current and next row.
+  // Main strike line is index zero (thick/blue). Aux strike lines are other indices (thin/white).
+  const auto &ls_seq_row = cmp.sequence;
+  for ( auto curr_row_iter = ls_seq_row.begin(); curr_row_iter < ls_seq_row.end(); curr_row_iter++ )
+  {
+    auto next_row_iter = std::next( curr_row_iter );
+    if ( next_row_iter == ls_seq_row.end() ) { break; }
+
+    // next row's convergence point - all vertices in the current row connect to this
+    sf::Vector2f converge_pos = to_screen( next_row_iter->at( 0 ).position );
+
+    for ( auto [curr_row_idx, current_vertex] : std::views::enumerate( *curr_row_iter ) )
+    {
+      sf::Vector2f first_pos = to_screen( current_vertex.position );
+
+      // always converge non-zero index vertex back to the main line (zero-index)
+      if ( curr_row_idx > 0 ) { draw_in_default_view( first_pos, converge_pos, kAuxStrikeLineColor, kAuxLineThickness ); }
+      else if ( curr_row_idx == 0 )
+      {
+        // always draw main line on zero-index
+        draw_in_default_view( first_pos, converge_pos, kMainStrikeLineColor, kMainLineThickness );
+
+        for ( auto [next_row_idx, next_vertex] : std::views::enumerate( *next_row_iter ) )
+        {
+          // always diverge zero-index vertex out to available non-zero index vertex on next row
+          if ( next_row_idx > 0 )
+          {
+            sf::Vector2f diverge_pos = to_screen( next_vertex.position );
+            draw_in_default_view( first_pos, diverge_pos, kAuxStrikeLineColor, kAuxLineThickness );
+          }
+        }
+      }
+
+      // SPDLOG_INFO( "{},{} -> {},{}", first_pos.x, first_pos.y, converge_pos.x, converge_pos.y );
+    }
+  }
+  m_window.setView( game_view );
+}
+
+void RenderGameSystem::render_screen_flash( sf::Color color )
+{
+  auto game_view = m_window.getView();
+
+  // draw flash in default view so it covers the whole screen in screen-space
+  m_window.setView( m_window.getDefaultView() );
+  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+  auto flash = sf::RectangleShape( sf::Vector2f( display_res.x, display_res.y ) );
+  flash.setPosition( { 0.f, 0.f } );
+  flash.setFillColor( color );
+  m_window.draw( flash );
+  m_window.setView( game_view );
 }
 
 } // namespace ProceduralMaze::Sys
