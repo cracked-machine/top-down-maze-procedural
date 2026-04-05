@@ -74,7 +74,8 @@
         "variant": "cpp"
     },
     "clangd.arguments": [
-        "-j", "24"
+        "-j", "24",
+        "--clang-tidy"
     ],
     "json.schemas": [
         {

@@ -1,0 +1,18 @@
+Checks: >
+  -*, 
+  performance-*,
+  modernize-*,
+  readability-*,
+  bugprone-*,
+  -readability-identifier-length,
+  -readability-uppercase-literal-suffix,
+  -readability-magic-numbers,
+  performance-unnecessary-copy-initialization,
+  performance-unnecessary-value-param,
+  cppcoreguidelines-avoid-const-or-ref-data-members,
+WarningsAsErrors: ''
+HeaderFilterRegex: '.*'
+FormatStyle: file
+CheckOptions:
+  - key: readability-identifier-naming.VariableCase
+    value: camelCase
