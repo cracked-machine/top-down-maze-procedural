@@ -36,11 +36,19 @@ class ParticleSpriteTest : public Cmp::ParticleSpriteBase<ParticleTest>
 public:
   //! @brief Construct a new Particle Sprite Test object
   ParticleSpriteTest( sf::Vector2f emitter_pos )
-      : ParticleSpriteBase( 1000, sf::seconds( 3 ), emitter_pos ) {};
+      : ParticleSpriteBase( 1000, sf::seconds( 3 ), emitter_pos )
+  {
+
+    // emit the particles early to prevent delayed start
+    // while we wait for particles to die first time
+    for ( auto &p : m_particles )
+    {
+      p.emit( m_emitter );
+    }
+  };
 
   void simulate( sf::Time dt ) override
   {
-    SPDLOG_DEBUG( "Updating {} particles", m_particles.size() );
     for ( auto &p : m_particles )
     {
       // update the particle lifetime
@@ -53,10 +61,9 @@ public:
       p.vertex.position += p.velocity * dt.asSeconds();
       p.vertex.color.a = 128;
 
-      // if I comment out these 3 lines below then it works?!? But only in white particles!
       p.vertex.color.r = 255;
-      p.vertex.color.g = 255;
-      p.vertex.color.b = 0;
+      p.vertex.color.g = 0;
+      p.vertex.color.b = 255;
     }
   }
 

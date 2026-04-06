@@ -38,6 +38,9 @@ public:
   //! @param position
   virtual void set_emitter( sf::Vector2f position ) = 0;
 
+  //! @brief Replaces the default translation function with a world -> screen translation function
+  //! @param window
+  //! @param world_view
   virtual void set_view_transform( const sf::RenderWindow &, const sf::View & ) = 0;
   virtual ~IParticleSprite() = default;
 };
@@ -62,6 +65,9 @@ public:
     SPDLOG_INFO( "Created {} particles in sprite", count );
   }
 
+  //! @brief Replaces the default translation function with a world -> screen translation function
+  //! @param window
+  //! @param world_view
   void set_emitter( sf::Vector2f position ) override { m_emitter = position; }
 
   ParticleSpriteBase() = default;
@@ -69,7 +75,6 @@ public:
 
   void set_view_transform( const sf::RenderWindow &window, const sf::View &world_view ) override
   {
-    // replace the default translation function with a world -> screen translation function
     m_world_to_screen = [&window, world_view]( sf::Vector2f world_pos ) -> sf::Vector2f
     { return sf::Vector2f( window.mapCoordsToPixel( world_pos, world_view ) ); };
   }
