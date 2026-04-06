@@ -31,6 +31,11 @@ public:
   //! @brief polymorphic destructor for derived classes
   virtual ~BaseSystem() { SPDLOG_INFO( "BaseSystem destructor called for system at {}", static_cast<void *>( this ) ); };
 
+  BaseSystem( const BaseSystem & ) = delete;
+  BaseSystem( BaseSystem && ) = delete;
+  BaseSystem &operator=( const BaseSystem & ) = delete;
+  BaseSystem &operator=( BaseSystem && ) = delete;
+
   //! @brief Event handler for pausing system clocks. Must be implemented by derived classes.
   //! @note If you register this handler with the event dispatcher, this function is automcatically
   //! called when the game is paused.
