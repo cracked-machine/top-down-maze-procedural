@@ -47,6 +47,7 @@
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/TileMap.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
@@ -277,6 +278,8 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
     }
 
     render_lightning_strike();
+    render_particle_sprites();
+
     render_overlay_sys.render_shop_inventory_overlay();
 
     // debug: show crypt component boundaries
@@ -692,6 +695,7 @@ void RenderGameSystem::render_lightning_strike()
   const float kMainLineThickness = 10.f;
   const float kAuxLineThickness = 3.f;
 
+  // Get the first LightningStrike only. Once it expires the next LightningStrike will be at the front.
   auto view = getReg().view<Cmp::LightningStrike>();
   if ( view.size() == 0 ) return;
   auto &cmp = getReg().get<Cmp::LightningStrike>( view.front() );
@@ -704,7 +708,7 @@ void RenderGameSystem::render_lightning_strike()
   }
 
   render_screen_flash( sf::Color( 255, 255, 255, 180 ) );
-  
+
   // Draw the sequence of vertices by iterating pairs of vertices from the current and next row.
   // Main strike line is index zero (thick/blue). Aux strike lines are other indices (thin/white).
   const auto &ls_seq_row = cmp.sequence;
@@ -742,6 +746,15 @@ void RenderGameSystem::render_lightning_strike()
     }
   }
   m_window.setView( game_view );
+}
+
+void RenderGameSystem::render_particle_sprites()
+{
+  // temp test: get the ParticleSprite component from the registry and draw it
+  for ( auto [entt, owner] : getReg().view<ParticleSpriteOwner>().each() )
+  {
+    m_window.draw( *owner.sprite );
+  }
 }
 
 void RenderGameSystem::render_screen_flash( sf::Color color )

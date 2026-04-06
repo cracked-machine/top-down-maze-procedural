@@ -15,11 +15,7 @@ namespace ProceduralMaze::Audio { class SoundBank; }
 namespace ProceduralMaze::PathFinding{ class SpatialHashGrid; }
 // clang-format on
 
-namespace ProceduralMaze
-{
-// using SharedEnttRegistry = std::shared_ptr<entt::basic_registry<entt::entity>>;
-
-namespace Sys
+namespace ProceduralMaze::Sys
 {
 
 class BaseSystem
@@ -83,7 +79,6 @@ private:
   static std::unique_ptr<entt::dispatcher> m_systems_event_queue;
 };
 
-} // namespace Sys
-} // namespace ProceduralMaze
+} // namespace ProceduralMaze::Sys
 
 #endif // SRC_SYSTEMS_BASESYSTEM_HPP__

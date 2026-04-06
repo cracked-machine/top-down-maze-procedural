@@ -1,6 +1,7 @@
 #ifndef SRC_SYSTEMS_SYSTEMSTORE_HPP_
 #define SRC_SYSTEMS_SYSTEMSTORE_HPP_
 
+#include <Systems/ParticleSystem.hpp>
 #include <Systems/RuinSystem.hpp>
 
 #include <Systems/Threats/LightningSystem.hpp>
@@ -35,6 +36,7 @@ class GraveSystem;
 class HolyWellSystem;
 class LootSystem;
 class NpcSystem;
+class ParticleSystem;
 class PassageSystem;
 class PersistSystem;
 class PlayerSystem;
@@ -66,6 +68,7 @@ public:
     LightningSystem,
     LootSystem,
     NpcSystem,
+    ParticleSystem,
     PassageSystem,
     PersistSystem,
     PlayerSystem,
@@ -127,6 +130,7 @@ template<> struct Store::SystemTraits<Store::Type::RuinSystem>             { usi
 template<> struct Store::SystemTraits<Store::Type::LootSystem>             { using type = LootSystem; };
 template<> struct Store::SystemTraits<Store::Type::LightningSystem>        { using type = LightningSystem; };
 template<> struct Store::SystemTraits<Store::Type::NpcSystem>              { using type = NpcSystem; };
+template<> struct Store::SystemTraits<Store::Type::ParticleSystem>         { using type = ParticleSystem; };
 template<> struct Store::SystemTraits<Store::Type::PassageSystem>          { using type = ProceduralMaze::Sys::PassageSystem; };
 template<> struct Store::SystemTraits<Store::Type::PersistSystem>          { using type = PersistSystem; };
 template<> struct Store::SystemTraits<Store::Type::PlayerSystem>           { using type = PlayerSystem; };

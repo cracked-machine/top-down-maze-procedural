@@ -112,6 +112,8 @@ private:
   void render_seeingstone_doglegs();
   void render_lightning_strike();
 
+  void render_particle_sprites();
+
   void render_screen_flash( sf::Color color );
 
   //! @brief Adds visible entities of a specific component type to the Z-order queue

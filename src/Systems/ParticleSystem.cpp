@@ -1,0 +1,39 @@
+#include <Systems/BaseSystem.hpp>
+#include <Systems/ParticleSystem.hpp>
+
+namespace ProceduralMaze::Sys
+{
+
+ParticleSystem::ParticleSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : BaseSystem( reg, window, sprite_factory, sound_bank )
+{
+}
+
+void ParticleSystem::add( std::vector<ParticleSpriteOwner> owners )
+{
+  for ( auto &owner : owners )
+  {
+    auto entt = getReg().create();
+    getReg().emplace<ParticleSpriteOwner>( entt, std::move( owner ) );
+    SPDLOG_INFO( "Created ParticleSprite {}", static_cast<uint32_t>( entt ) );
+  }
+}
+
+void ParticleSystem::update( sf::Time dt )
+{
+  for ( auto [entt, owner] : getReg().view<ParticleSpriteOwner>().each() )
+  {
+    owner.sprite->simulate( dt );
+  }
+}
+
+[[nodiscard]] Cmp::IParticleSprite *ParticleSystem::find( const std::string &tag )
+{
+  for ( auto [entt, owner] : getReg().view<ParticleSpriteOwner>().each() )
+  {
+    if ( owner.tag == tag ) return owner.sprite.get();
+  }
+  return nullptr;
+}
+
+} // namespace ProceduralMaze::Sys

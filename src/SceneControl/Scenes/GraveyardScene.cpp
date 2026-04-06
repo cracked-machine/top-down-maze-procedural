@@ -9,6 +9,7 @@
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
+#include <Particle/ParticleSpriteTest.hpp>
 #include <Player/PlayerCharacter.hpp>
 #include <Player/PlayerLevelDepth.hpp>
 #include <ReservedPosition.hpp>
@@ -109,6 +110,10 @@ void GraveyardScene::on_init()
   m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().init_hazard_field();
   m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().init_hazard_field();
   m_sys.find<Sys::Store::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
+
+  std::vector<Sys::ParticleSpriteOwner> owners;
+  owners.emplace_back( "particle_test", std::make_unique<Cmp::ParticleSpriteTest>( Utils::Player::get_position( m_reg ).getCenter() ) );
+  m_sys.find<Sys::Store::Type::ParticleSystem>().add( std::move( owners ) );
 }
 
 void GraveyardScene::on_enter()
@@ -132,8 +137,8 @@ void GraveyardScene::on_enter()
 
   // Respawn player back in the graveyard: either at the last position when they left, or fallback to their start position
   auto &player_pos = Utils::Player::get_position( m_reg );
-  auto player_last_graveyard_pos = Utils::Player::get_last_graveyard_pos( m_reg );
-  if ( player_last_graveyard_pos )
+  auto *player_last_graveyard_pos = Utils::Player::get_last_graveyard_pos( m_reg );
+  if ( player_last_graveyard_pos != nullptr )
   {
     player_pos.position = player_last_graveyard_pos->position;
     SPDLOG_INFO( "Player re-entered graveyard at position ({}, {})", player_pos.position.x, player_pos.position.y );
@@ -191,6 +196,13 @@ void GraveyardScene::do_update( sf::Time dt )
 
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
   m_sys.find<Sys::Store::Type::LightningSystem>().update( dt );
+
+  auto player_pos = Utils::Player::get_position( m_reg ).getCenter();
+
+  auto *particle_test = m_sys.find<Sys::Store::Type::ParticleSystem>().find( "particle_test" );
+  if ( particle_test != nullptr ) { particle_test->set_emitter( player_pos ); }
+
+  m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
   m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::OFF );

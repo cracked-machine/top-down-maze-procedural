@@ -41,6 +41,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/RuinSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/SystemStore.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ShopSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/ParticleSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/ShockwaveSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/SceneInputRouter.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/SceneManager.cpp
