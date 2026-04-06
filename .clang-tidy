@@ -11,10 +11,12 @@ Checks: >
   performance-unnecessary-value-param,
   cppcoreguidelines-avoid-const-or-ref-data-members,
   -modernize-use-trailing-return-type,
-  -readability-braces-around-statements
+  -readability-braces-around-statements,
 WarningsAsErrors: ''
 HeaderFilterRegex: '.*'
 FormatStyle: file
 CheckOptions:
   - key: readability-identifier-naming.VariableCase
     value: camelCase
+  - key: readability-implicit-bool-conversion.AllowPointerConditions
+    value : true

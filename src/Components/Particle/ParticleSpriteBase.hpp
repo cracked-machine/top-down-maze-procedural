@@ -62,27 +62,6 @@ public:
 
   void set_emitter( sf::Vector2f position ) override { m_emitter = position; }
 
-  //! @brief Allows this sprite to be passed into RenderWindow.draw()
-  //! @param target
-  //! @param states
-  void draw( sf::RenderTarget &target, sf::RenderStates states ) const override
-  {
-    states.transform *= getTransform();
-    states.texture = nullptr;
-
-    // project out just the vertices for drawing
-    std::vector<sf::Vertex> verts;
-    verts.reserve( m_particles.size() );
-    SPDLOG_DEBUG( "Drawing {} particles", m_particles.size() );
-
-    for ( const auto &p : m_particles )
-    {
-      verts.push_back( p.vertex );
-    }
-
-    target.draw( verts.data(), verts.size(), sf::PrimitiveType::Points, states );
-  }
-
   ParticleSpriteBase() = default;
   ~ParticleSpriteBase() {}
 

@@ -1,6 +1,7 @@
 #ifndef SRC_SYSTEM_PARTICLESPRITETEST_HPP_
 #define SRC_SYSTEM_PARTICLESPRITETEST_HPP_
 
+#include <SFML/Graphics/BlendMode.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <random>
 
@@ -50,11 +51,35 @@ public:
 
       // update the position of the corresponding vertex
       p.vertex.position += p.velocity * dt.asSeconds();
+      p.vertex.color.a = 255;
 
-      // update the alpha (transparency) of the particle according to its lifetime
-      float ratio = p.lifetime.asSeconds() / m_lifetime.asSeconds();
-      p.vertex.color.a = static_cast<std::uint8_t>( ratio * 255 );
+      // if I comment out these 3 lines below then it works?!? But only in white particles!
+      p.vertex.color.r = 255;
+      p.vertex.color.g = 255;
+      p.vertex.color.b = 0;
     }
+  }
+
+  //! @brief Allows this sprite to be passed into RenderWindow.draw()
+  //! @param target
+  //! @param states
+  void draw( sf::RenderTarget &target, sf::RenderStates states ) const override
+  {
+    states.transform *= getTransform();
+    states.texture = nullptr;
+    states.blendMode = sf::BlendAlpha;
+
+    // project out just the vertices for drawing
+    std::vector<sf::Vertex> verts;
+    verts.reserve( m_particles.size() );
+    SPDLOG_DEBUG( "Drawing {} particles", m_particles.size() );
+
+    for ( const auto &p : m_particles )
+    {
+      verts.push_back( p.vertex );
+    }
+
+    target.draw( verts.data(), verts.size(), sf::PrimitiveType::Points, states );
   }
 };
 

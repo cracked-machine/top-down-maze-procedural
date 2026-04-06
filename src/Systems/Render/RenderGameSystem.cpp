@@ -167,8 +167,10 @@ void RenderGameSystem::updateCamera( sf::Time deltaTime )
   }
 }
 
-void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap,
-                                    DarkMode dark_mode, WeatherMode weather_mode, CursedMode cursed_mode, BackGroundMode bg_mode )
+void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlaySystem &render_overlay_sys,
+                                    [[maybe_unused]] Sprites::Containers::TileMap &floormap, [[maybe_unused]] DarkMode dark_mode,
+                                    [[maybe_unused]] WeatherMode weather_mode, [[maybe_unused]] CursedMode cursed_mode,
+                                    [[maybe_unused]] BackGroundMode bg_mode )
 {
   using namespace Sprites;
 
@@ -204,6 +206,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
     // render these things first
     if ( bg_mode == BackGroundMode::ON ) { render_background_water( player_pos_cmp ); }
     render_floormap( floormap );
+
     render_seeingstone_doglegs();
     render_wormhole_effect( floormap );
 
@@ -295,17 +298,6 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
         render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Black, 1.f );
         m_debug_update_timer.restart();
       }
-      // for ( auto [lever_entt, lever_cmp, lever_pos_cmp] : getReg().view<Cmp::CryptLever, Cmp::Position>().each() )
-      // {
-      //   Cmp::RectBounds::scaled expand_lever_pos_hitbox( lever_pos_cmp.position, lever_pos_cmp.size, 1.f );
-      //   render_rectbounds( rectbounds, sf::Color::White );
-      // }
-
-      // for ( auto [chest_entt, chest_cmp, chest_pos_cmp] : getReg().view<Cmp::CryptChest, Cmp::Position>().each() )
-      // {
-      //   Cmp::RectBounds::scaled expand_lever_pos_hitbox( chest_pos_cmp.position, chest_pos_cmp.size, 1.f );
-      //   render_rectbounds( rectbounds, sf::Color::Magenta );
-      // }
     }
   }
 
@@ -327,19 +319,25 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
   // Default view begin (these are rendered at native resolution)
   m_window.setView( m_window.getDefaultView() );
   {
-    auto player_blast_radius = Utils::Player::get_blast_radius( getReg() );
-    auto player_health = Utils::Player::get_health( getReg() );
-    auto player_wealth = Utils::Player::get_wealth( getReg() );
-    auto player_cadaver_count = Utils::Player::get_cadaver_count( getReg() ).get_count();
-    auto new_weapon_level = Utils::Player::get_inventory_wear_level( getReg() );
 
     float start_y_pos = 0;
     render_overlay_sys.render_ui_background_overlay( { 20.f, start_y_pos += 20.f }, { 300.f, 230.f } );
+
+    auto player_health = Utils::Player::get_health( getReg() );
     render_overlay_sys.render_health_overlay( player_health.health, { 40.f, start_y_pos += 20.f }, { 200.f, 20.f } );
+
+    auto new_weapon_level = Utils::Player::get_inventory_wear_level( getReg() );
     render_overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, start_y_pos += 40.f }, { 200.f, 20.f } );
+
+    auto player_blast_radius = Utils::Player::get_blast_radius( getReg() );
     render_overlay_sys.render_radius_overlay( dt, player_blast_radius.value, { 40.f, start_y_pos += 40.f } );
+
+    auto player_cadaver_count = Utils::Player::get_cadaver_count( getReg() ).get_count();
     render_overlay_sys.render_cadaver_count_overlay( dt, player_cadaver_count, { 40.f, start_y_pos += 40.f } );
+
+    auto player_wealth = Utils::Player::get_wealth( getReg() );
     render_overlay_sys.render_wealth_overlay( dt, player_wealth.wealth, { 40.f, start_y_pos += 40.f } );
+
     render_overlay_sys.render_inventory_overlay( dt, { 40.f, start_y_pos += 80.f } );
     render_overlay_sys.render_level_depth();
 
@@ -750,6 +748,7 @@ void RenderGameSystem::render_lightning_strike()
 
 void RenderGameSystem::render_particle_sprites()
 {
+
   // temp test: get the ParticleSprite component from the registry and draw it
   for ( auto [entt, owner] : getReg().view<ParticleSpriteOwner>().each() )
   {
