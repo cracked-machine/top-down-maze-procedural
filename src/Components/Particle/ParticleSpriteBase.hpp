@@ -37,6 +37,8 @@ public:
   //! @brief Allow access to the emmitter without casting to the concrete type
   //! @param position
   virtual void set_emitter( sf::Vector2f position ) = 0;
+
+  virtual void set_view_transform( const sf::RenderWindow &, const sf::View & ) = 0;
   virtual ~IParticleSprite() = default;
 };
 
@@ -65,6 +67,13 @@ public:
   ParticleSpriteBase() = default;
   ~ParticleSpriteBase() {}
 
+  void set_view_transform( const sf::RenderWindow &window, const sf::View &world_view ) override
+  {
+    // replace the default translation function with a world -> screen translation function
+    m_world_to_screen = [&window, world_view]( sf::Vector2f world_pos ) -> sf::Vector2f
+    { return sf::Vector2f( window.mapCoordsToPixel( world_pos, world_view ) ); };
+  }
+
   //! @brief The list of particles in this sprite
   std::vector<TParticle> m_particles;
 
@@ -73,6 +82,10 @@ public:
 
   //! @brief The emitter position
   sf::Vector2f m_emitter;
+
+protected:
+  //! @brief Default translation function is a noop. See set_view_transform()
+  std::function<sf::Vector2f( sf::Vector2f )> m_world_to_screen = []( sf::Vector2f p ) { return p; };
 };
 } // namespace ProceduralMaze::Cmp
 

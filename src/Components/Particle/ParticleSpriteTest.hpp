@@ -51,7 +51,7 @@ public:
 
       // update the position of the corresponding vertex
       p.vertex.position += p.velocity * dt.asSeconds();
-      p.vertex.color.a = 255;
+      p.vertex.color.a = 128;
 
       // if I comment out these 3 lines below then it works?!? But only in white particles!
       p.vertex.color.r = 255;
@@ -65,7 +65,7 @@ public:
   //! @param states
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override
   {
-    states.transform *= getTransform();
+    // states.transform *= getTransform();
     states.texture = nullptr;
     states.blendMode = sf::BlendAlpha;
 
@@ -74,12 +74,25 @@ public:
     verts.reserve( m_particles.size() );
     SPDLOG_DEBUG( "Drawing {} particles", m_particles.size() );
 
+    constexpr float kSize = 2.f;
     for ( const auto &p : m_particles )
     {
-      verts.push_back( p.vertex );
+      // verts.push_back( p.vertex );
+
+      const auto pos = m_world_to_screen( p.vertex.position ); // map world -> screen
+      const auto col = p.vertex.color;
+
+      // triangle 1
+      verts.push_back( { { pos.x - kSize, pos.y - kSize }, col } );
+      verts.push_back( { { pos.x + kSize, pos.y - kSize }, col } );
+      verts.push_back( { { pos.x + kSize, pos.y + kSize }, col } );
+      // triangle 2
+      verts.push_back( { { pos.x - kSize, pos.y - kSize }, col } );
+      verts.push_back( { { pos.x + kSize, pos.y + kSize }, col } );
+      verts.push_back( { { pos.x - kSize, pos.y + kSize }, col } );
     }
 
-    target.draw( verts.data(), verts.size(), sf::PrimitiveType::Points, states );
+    target.draw( verts.data(), verts.size(), sf::PrimitiveType::Triangles, states );
   }
 };
 

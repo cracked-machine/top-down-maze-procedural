@@ -281,6 +281,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
     }
 
     render_lightning_strike();
+
     render_particle_sprites();
 
     render_overlay_sys.render_shop_inventory_overlay();
@@ -748,17 +749,19 @@ void RenderGameSystem::render_lightning_strike()
 
 void RenderGameSystem::render_particle_sprites()
 {
+  m_window.setView( m_window.getDefaultView() );
 
-  // temp test: get the ParticleSprite component from the registry and draw it
   for ( auto [entt, owner] : getReg().view<ParticleSpriteOwner>().each() )
   {
+    // pass the local view so the sprite can map world coords to screen coords
+    owner.sprite->set_view_transform( m_window, m_local_view );
     m_window.draw( *owner.sprite );
   }
+  m_window.setView( RenderSystem::getGameView() );
 }
 
 void RenderGameSystem::render_screen_flash( sf::Color color )
 {
-  auto game_view = m_window.getView();
 
   // draw flash in default view so it covers the whole screen in screen-space
   m_window.setView( m_window.getDefaultView() );
@@ -767,7 +770,7 @@ void RenderGameSystem::render_screen_flash( sf::Color color )
   flash.setPosition( { 0.f, 0.f } );
   flash.setFillColor( color );
   m_window.draw( flash );
-  m_window.setView( game_view );
+  m_window.setView( RenderSystem::getGameView() );
 }
 
 } // namespace ProceduralMaze::Sys
