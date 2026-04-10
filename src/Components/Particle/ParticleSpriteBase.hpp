@@ -1,12 +1,15 @@
 #ifndef SRC_SYSTEM_PARTICLESPRITEBASE_HPP_
 #define SRC_SYSTEM_PARTICLESPRITEBASE_HPP_
 
+#include <SFML/System/Angle.hpp>
 #include <SFML/System/Time.hpp>
+#include <unordered_map>
 
 namespace ProceduralMaze::Cmp
 {
 
 //! @brief Interface that all particle types must implement
+template <typename TProps>
 class IParticle
 {
 public:
@@ -14,40 +17,43 @@ public:
   //         E.g. intialise vertex, velocity and lifetime particle members.
   //!        Should be called by the ParticleSpriteBase<T>::simulate implementation.
   //! @param emitter
-  virtual void do_emit( sf::Vector2f emitter ) = 0;
+  virtual void do_emit( sf::Vector2f emitter, sf::Time lifetime, const TProps &props ) = 0;
   virtual ~IParticle() = default;
 
 protected:
 private:
-  virtual void emit( sf::Vector2f emitter ) = 0;
+  virtual void emit( sf::Vector2f emitter, sf::Time lifetime, const TProps &props ) = 0;
   virtual void idle( sf::Vector2f emitter ) = 0;
 };
 
 //! @brief Enforces that TParticle inherits from IParticle
-template <typename TParticle>
-concept ParticleConcept = std::derived_from<TParticle, IParticle> && requires( TParticle p ) {
-  { p.vertex } -> std::same_as<sf::Vertex &>;
-  { p.velocity } -> std::same_as<sf::Vector2f &>;
-  { p.lifetime } -> std::same_as<sf::Time &>;
+template <typename TParticle, typename TProps>
+concept ParticleConcept = std::derived_from<TParticle, IParticle<TProps>> && requires( TParticle p ) {
+  { p.m_vertex } -> std::same_as<sf::Vertex &>;
+  { p.m_velocity } -> std::same_as<sf::Vector2f &>;
+  { p.m_lifetime } -> std::same_as<sf::Time &>;
 };
 
-struct ParticleBase : public Cmp::IParticle
+template <typename TProps>
+struct ParticleBase : public Cmp::IParticle<TProps>
 {
-  sf::Vertex vertex;
-  sf::Vector2f velocity;
-  sf::Time lifetime;
-  void do_emit( [[maybe_unused]] sf::Vector2f emitter ) final
+
+  void do_emit( sf::Vector2f emitter, [[maybe_unused]] sf::Time lifetime, const TProps &props ) final
   {
-    if ( m_particle_active ) { emit( emitter ); }
+    if ( m_particle_active ) { emit( emitter, lifetime, props ); }
     else { idle( emitter ); }
   }
 
   //! @brief Disables IParticle::emit if false
   bool m_particle_active{ true };
 
+  sf::Vertex m_vertex;
+  sf::Vector2f m_velocity;
+  sf::Time m_lifetime;
+
 private:
-  void emit( sf::Vector2f emitter ) override = 0;
-  void idle( [[maybe_unused]] sf::Vector2f emitter ) override { vertex.color.a = 0; }
+  void emit( sf::Vector2f emitter, sf::Time lifetime, const TProps &props ) override = 0;
+  void idle( [[maybe_unused]] sf::Vector2f emitter ) override {}
 };
 
 //! @brief Non-template abstract base — allows ParticleSpriteOwner and find() to work without knowing TParticle
@@ -79,7 +85,7 @@ public:
 //! @tparam TParticle The particle object type.
 //! @note The derived class must implement the update function and
 //        provide its own IParticle implementation that satisfies ParticleConcept.
-template <ParticleConcept TParticle>
+template <typename TProps, ParticleConcept<TProps> TParticle>
 class ParticleSpriteBase : public IParticleSprite
 {
 public:
@@ -88,20 +94,17 @@ public:
   //! @param lifetime The lifetime of the particles in this sprite
   //! @param emitter_pos The initial position of the emitter for this sprite
   ParticleSpriteBase( size_t count, sf::Time lifetime, sf::Vector2f emitter_pos )
-      : m_particles( count ),
+      : m_max_particles( count ),
+        m_particles_list( count ),
         m_lifetime( lifetime ),
         m_emitter( emitter_pos )
   {
     SPDLOG_INFO( "Created {} particles in sprite", count );
   }
 
-  //! @brief Replaces the default translation function with a world -> screen translation function
-  //! @param window
-  //! @param world_view
-  void set_emitter( sf::Vector2f position ) override { m_emitter = position; }
-
-  // ParticleSpriteBase() = default;
   ~ParticleSpriteBase() {}
+
+  TProps m_props;
 
   void set_view_transform( const sf::RenderWindow &window, const sf::View &world_view ) override
   {
@@ -112,16 +115,18 @@ public:
   void stop() override
   {
     if ( not m_sprite_active ) return;
-
-    size_t dead_count = 0;
-    for ( auto &p : m_particles )
+    for ( auto &p : m_particles_list )
     {
+      // prevent emit() reseting the particle lifetime
       p.m_particle_active = false;
-      if ( p.lifetime <= sf::Time::Zero ) { dead_count++; }
     }
-    SPDLOG_INFO( "Paritcles dead: {}", dead_count );
-    if ( dead_count == m_particles.size() )
+
+    // remove dead particles
+    std::erase_if( m_particles_list, []( const TParticle &p ) { return p.m_lifetime <= sf::Time::Zero; } );
+
+    if ( m_particles_list.empty() )
     {
+      // signal ParticleSystem not to call simulate()
       m_sprite_active = false;
       SPDLOG_INFO( "Stopping ParticleSprite" );
     }
@@ -130,18 +135,61 @@ public:
   void restart() override
   {
     if ( m_sprite_active ) return;
-    for ( auto &p : m_particles )
+
+    m_particles_list = std::vector<TParticle>( m_max_particles );
+    for ( auto &p : m_particles_list )
     {
       p.m_particle_active = true;
     }
     m_sprite_active = true;
+
     SPDLOG_INFO( "Restarting ParticleSprite" );
   }
 
   bool is_active() override { return m_sprite_active; }
+  void set_emitter( sf::Vector2f position ) override { m_emitter = position; }
+
+  //! @brief Allows this sprite to be passed into RenderWindow.draw()
+  //! @param target
+  //! @param states
+  void draw( sf::RenderTarget &target, sf::RenderStates states ) const override
+  {
+
+    // states.transform *= getTransform();
+    states.texture = nullptr;
+    states.blendMode = sf::BlendAlpha;
+
+    // project out just the vertices for drawing
+    std::vector<sf::Vertex> verts;
+    verts.reserve( m_particles_list.size() );
+    SPDLOG_DEBUG( "Drawing {} particles", m_particles.size() );
+
+    constexpr float kSize = 2.f;
+    for ( const auto &p : m_particles_list )
+    {
+
+      // map world -> screen
+      const auto pos = m_world_to_screen( p.m_vertex.position );
+      const auto col = p.m_vertex.color;
+
+      // triangle 1
+      verts.push_back( { { pos.x - kSize, pos.y - kSize }, col } );
+      verts.push_back( { { pos.x + kSize, pos.y - kSize }, col } );
+      verts.push_back( { { pos.x + kSize, pos.y + kSize }, col } );
+      // triangle 2
+      verts.push_back( { { pos.x - kSize, pos.y - kSize }, col } );
+      verts.push_back( { { pos.x + kSize, pos.y + kSize }, col } );
+      verts.push_back( { { pos.x - kSize, pos.y + kSize }, col } );
+    }
+
+    target.draw( verts.data(), verts.size(), sf::PrimitiveType::Triangles, states );
+  }
+
+  //! @brief Max size of `m_particles_list`
+  size_t m_max_particles;
 
   //! @brief The list of particles in this sprite
-  std::vector<TParticle> m_particles;
+  std::vector<TParticle> m_particles_list;
 
   //! @brief The lifetime of the particles in this sprite
   sf::Time m_lifetime;
