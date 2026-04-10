@@ -50,6 +50,8 @@ public:
   //! @param dt
   void update( sf::Time dt );
 
+  void check_collsion( const sf::FloatRect &target );
+
   //! @brief Find a ParticleSpriteOwner by tag and return a pointer to ParticleSpriteBase<IParticle>, or nullptr if not found
   [[nodiscard]] static Cmp::IParticleSprite *find( entt::registry &reg, const std::string &tag );
 

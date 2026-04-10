@@ -1,8 +1,10 @@
 #ifndef SRC_SYSTEM_PARTICLESPRITEBASE_HPP_
 #define SRC_SYSTEM_PARTICLESPRITEBASE_HPP_
 
+#include <SFML/Graphics.hpp>
 #include <SFML/System/Angle.hpp>
 #include <SFML/System/Time.hpp>
+#include <SFML/System/Vector2.hpp>
 
 namespace ProceduralMaze::Cmp
 {
@@ -96,6 +98,8 @@ public:
   //! @brief Creates a new particle list, enables the particles and resumes the simulation.
   virtual void restart() = 0;
 
+  virtual void check_collision( const sf::FloatRect &target ) = 0;
+
   //! @brief Is simulation running?
   //! @return true
   //! @return false
@@ -121,6 +125,9 @@ public:
         m_emitter( emitter_pos )
   {
     SPDLOG_INFO( "Created {} particles in sprite", count );
+    static_assert( std::same_as<decltype( TParticle::m_vertex ), sf::Vertex>, "TParticle::m_vertex must be sf::Vertex" );
+    static_assert( std::same_as<decltype( TParticle::m_velocity ), sf::Vector2f>, "TParticle::m_velocity must be sf::Vector2f" );
+    static_assert( std::same_as<decltype( TParticle::m_lifetime ), sf::Time>, "TParticle::m_lifetime must be sf::Time" );
   }
 
   ~ParticleSpriteBase() {}
@@ -165,6 +172,16 @@ public:
     m_sprite_active = true;
 
     SPDLOG_INFO( "Restarting ParticleSprite" );
+  }
+
+  void check_collision( const sf::FloatRect &target ) override
+  {
+    //
+    for ( auto &p : m_particles_list )
+    {
+      if ( not target.contains( p.m_vertex.position ) ) continue;
+      p.m_lifetime = sf::Time::Zero;
+    }
   }
 
   bool is_active() override { return m_sprite_active; }

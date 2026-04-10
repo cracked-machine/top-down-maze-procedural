@@ -1,5 +1,7 @@
+#include <Optimizations.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
+#include <Systems/Render/RenderSystem.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -27,6 +29,19 @@ void ParticleSystem::update( sf::Time dt )
     {
       SPDLOG_DEBUG( "Simulating" );
       owner.sprite->simulate( dt );
+    }
+  }
+}
+
+void ParticleSystem::check_collsion( const sf::FloatRect &target )
+{
+  if ( not Utils::is_visible_in_view( Sys::RenderSystem::getGameView(), target ) ) return;
+  for ( auto [entt, owner] : getReg().view<ParticleSpriteOwner>().each() )
+  {
+    if ( owner.sprite->is_active() )
+    {
+      SPDLOG_DEBUG( "Simulating" );
+      owner.sprite->check_collision( target );
     }
   }
 }

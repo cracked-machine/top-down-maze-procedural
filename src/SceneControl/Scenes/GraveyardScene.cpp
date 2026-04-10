@@ -9,6 +9,8 @@
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
+#include <Obstacle.hpp>
+#include <Optimizations.hpp>
 #include <Particle/ParticleSpriteTest.hpp>
 #include <Player/PlayerCharacter.hpp>
 #include <Player/PlayerLevelDepth.hpp>
@@ -32,6 +34,7 @@
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
+#include <Systems/Render/RenderSystem.hpp>
 #include <Systems/SystemStore.hpp>
 #include <Systems/Threats/BombSystem.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
@@ -207,6 +210,10 @@ void GraveyardScene::do_update( sf::Time dt )
     particle_test->set_emitter( player_pos );
   }
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
+  for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::Obstacle, Cmp::Position>().each() )
+  {
+    m_sys.find<Sys::Store::Type::ParticleSystem>().check_collsion( pos_cmp );
+  }
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
   m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::OFF );
