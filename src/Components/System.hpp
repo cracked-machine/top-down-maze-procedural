@@ -14,6 +14,7 @@ public:
   bool show_playernopath = false;   // F4 cycle
   bool level_complete = false;
   bool dark_mode_enabled = true; // F9
+  bool particle_test_enabled = true;
 };
 
 } // namespace ProceduralMaze::Cmp

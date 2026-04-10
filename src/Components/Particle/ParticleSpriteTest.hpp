@@ -1,6 +1,7 @@
 #ifndef SRC_SYSTEM_PARTICLESPRITETEST_HPP_
 #define SRC_SYSTEM_PARTICLESPRITETEST_HPP_
 
+#include <Particle/ParticleSpriteBase.hpp>
 #include <SFML/Graphics/BlendMode.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <random>
@@ -8,11 +9,9 @@
 namespace ProceduralMaze::Cmp
 {
 
-struct ParticleTest : public Cmp::IParticle
+struct ParticleTest : public Cmp::ParticleBase
 {
-  sf::Vertex vertex;
-  sf::Vector2f velocity;
-  sf::Time lifetime;
+private:
   void emit( sf::Vector2f emitter ) override
   {
     // create random number generator
@@ -43,7 +42,7 @@ public:
     // while we wait for particles to die first time
     for ( auto &p : m_particles )
     {
-      p.emit( m_emitter );
+      p.do_emit( m_emitter );
     }
   };
 
@@ -55,7 +54,7 @@ public:
       p.lifetime -= dt;
 
       // if the particle is dead, respawn it
-      if ( p.lifetime <= sf::Time::Zero ) p.emit( m_emitter );
+      if ( p.lifetime <= sf::Time::Zero ) p.do_emit( m_emitter );
 
       // update the position of the corresponding vertex
       p.vertex.position += p.velocity * dt.asSeconds();
@@ -72,6 +71,7 @@ public:
   //! @param states
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override
   {
+
     // states.transform *= getTransform();
     states.texture = nullptr;
     states.blendMode = sf::BlendAlpha;

@@ -143,6 +143,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F8 ) { enqueue( Events::SceneManagerEvent::Type::ENTER_SHOP ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F12 ) { get_systems_event_queue().trigger( Events::LightningEvent() ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Home ) { toggle_particle_test(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( getReg() ).value += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( getReg() ).health += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( getReg() ).wealth += 1; }
@@ -509,6 +510,15 @@ void SceneInputRouter::queue_buy_item_event( uint8_t item_idx )
 void SceneInputRouter::enqueue( Events::SceneManagerEvent::Type type )
 {
   m_scenemanager_event_dispatcher.enqueue( Events::SceneManagerEvent( type ) );
+}
+
+void SceneInputRouter::toggle_particle_test()
+{
+  for ( auto [entt, sys] : getReg().view<Cmp::System>().each() )
+  {
+    sys.particle_test_enabled = not sys.particle_test_enabled;
+    SPDLOG_INFO( "Particle test is now {}", sys.particle_test_enabled ? "ENABLED" : "DISABLED" );
+  }
 }
 
 } // namespace ProceduralMaze::Sys

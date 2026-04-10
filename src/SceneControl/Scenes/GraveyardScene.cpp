@@ -199,9 +199,13 @@ void GraveyardScene::do_update( sf::Time dt )
 
   auto player_pos = Utils::Player::get_position( m_reg ).getCenter();
 
-  auto *particle_test = m_sys.find<Sys::Store::Type::ParticleSystem>().find( "particle_test" );
-  if ( particle_test != nullptr ) { particle_test->set_emitter( player_pos ); }
-
+  auto *particle_test = Sys::ParticleSystem::find( m_reg, "particle_test" );
+  if ( particle_test )
+  {
+    auto suspend = Utils::getSystemCmp( m_reg ).particle_test_enabled;
+    suspend ? particle_test->restart() : particle_test->stop();
+    particle_test->set_emitter( player_pos );
+  }
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();

@@ -23,13 +23,17 @@ void ParticleSystem::update( sf::Time dt )
 {
   for ( auto [entt, owner] : getReg().view<ParticleSpriteOwner>().each() )
   {
-    owner.sprite->simulate( dt );
+    if ( owner.sprite->is_active() )
+    {
+      SPDLOG_DEBUG( "Simulating" );
+      owner.sprite->simulate( dt );
+    }
   }
 }
 
-[[nodiscard]] Cmp::IParticleSprite *ParticleSystem::find( const std::string &tag )
+[[nodiscard]] Cmp::IParticleSprite *ParticleSystem::find( entt::registry &reg, const std::string &tag )
 {
-  for ( auto [entt, owner] : getReg().view<ParticleSpriteOwner>().each() )
+  for ( auto [entt, owner] : reg.view<ParticleSpriteOwner>().each() )
   {
     if ( owner.tag == tag ) return owner.sprite.get();
   }
