@@ -3,27 +3,37 @@
 
 #include <SFML/System/Angle.hpp>
 #include <SFML/System/Time.hpp>
-#include <unordered_map>
 
 namespace ProceduralMaze::Cmp
 {
+
+// ============================================================
+// IParticle — individual particle contract
+// ============================================================
 
 //! @brief Interface that all particle types must implement
 template <typename TProps>
 class IParticle
 {
 public:
-  //! @brief Implements the emission stage of a particle.
-  //         E.g. intialise vertex, velocity and lifetime particle members.
-  //!        Should be called by the ParticleSpriteBase<T>::simulate implementation.
-  //! @param emitter
-  virtual void do_emit( sf::Vector2f emitter, sf::Time lifetime, const TProps &props ) = 0;
   virtual ~IParticle() = default;
 
-protected:
+  //! @brief API for emitting the particle. Should be called by `simulate()` function of derived class.
+  //! @param emitter
+  //! @param lifetime
+  //! @param props
+  virtual void do_emit( sf::Vector2f emitter, sf::Time lifetime, const TProps &props ) = 0;
+
 private:
+  //! @brief Run when the particle is enabled and expired. Derived class of ParticleBase must implement it.
+  //! @param emitter
+  //! @param lifetime
+  //! @param props
   virtual void emit( sf::Vector2f emitter, sf::Time lifetime, const TProps &props ) = 0;
-  virtual void idle( sf::Vector2f emitter ) = 0;
+
+  //! @brief Run when the particle is disabled and expired
+  //! @param emitter
+  virtual void idle( sf::Vector2f emitter, [[maybe_unused]] sf::Time lifetime, const TProps &props ) = 0;
 };
 
 //! @brief Enforces that TParticle inherits from IParticle
@@ -41,7 +51,7 @@ struct ParticleBase : public Cmp::IParticle<TProps>
   void do_emit( sf::Vector2f emitter, [[maybe_unused]] sf::Time lifetime, const TProps &props ) final
   {
     if ( m_particle_active ) { emit( emitter, lifetime, props ); }
-    else { idle( emitter ); }
+    else { idle( emitter, lifetime, props ); }
   }
 
   //! @brief Disables IParticle::emit if false
@@ -53,8 +63,12 @@ struct ParticleBase : public Cmp::IParticle<TProps>
 
 private:
   void emit( sf::Vector2f emitter, sf::Time lifetime, const TProps &props ) override = 0;
-  void idle( [[maybe_unused]] sf::Vector2f emitter ) override {}
+  void idle( [[maybe_unused]] sf::Vector2f emitter, [[maybe_unused]] sf::Time lifetime, [[maybe_unused]] const TProps &props ) override {}
 };
+
+// ============================================================
+// IParticleSprite — particle sprite container contract
+// ============================================================
 
 //! @brief Non-template abstract base — allows ParticleSpriteOwner and find() to work without knowing TParticle
 class IParticleSprite : public sf::Drawable, public sf::Transformable
@@ -76,8 +90,15 @@ public:
   virtual void set_view_transform( const sf::RenderWindow &, const sf::View & ) = 0;
   virtual ~IParticleSprite() = default;
 
+  //! @brief Signals that particles should expire, deletes the expired particles, then stops the simulation.
   virtual void stop() = 0;
+
+  //! @brief Creates a new particle list, enables the particles and resumes the simulation.
   virtual void restart() = 0;
+
+  //! @brief Is simulation running?
+  //! @return true
+  //! @return false
   virtual bool is_active() = 0;
 };
 
@@ -154,8 +175,6 @@ public:
   //! @param states
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override
   {
-
-    // states.transform *= getTransform();
     states.texture = nullptr;
     states.blendMode = sf::BlendAlpha;
 
@@ -170,6 +189,7 @@ public:
 
       // map world -> screen
       const auto pos = m_world_to_screen( p.m_vertex.position );
+
       const auto col = p.m_vertex.color;
 
       // triangle 1
