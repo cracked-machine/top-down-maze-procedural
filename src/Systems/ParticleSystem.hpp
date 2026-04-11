@@ -27,9 +27,9 @@ namespace ProceduralMaze::Sys
 struct ParticleSpriteOwner
 {
   std::string tag; // identifies the sprite e.g. "player_dust", "explosion"
-  std::unique_ptr<Cmp::IParticleSprite> sprite;
+  std::unique_ptr<Cmp::Particle::IParticleSprite> sprite;
 
-  explicit ParticleSpriteOwner( std::string tag, std::unique_ptr<Cmp::IParticleSprite> sprite )
+  explicit ParticleSpriteOwner( std::string tag, std::unique_ptr<Cmp::Particle::IParticleSprite> sprite )
       : tag( std::move( tag ) ),
         sprite( std::move( sprite ) )
   {
@@ -53,7 +53,7 @@ public:
   void check_collsion( const sf::FloatRect &target );
 
   //! @brief Find a ParticleSpriteOwner by tag and return a pointer to ParticleSpriteBase<IParticle>, or nullptr if not found
-  [[nodiscard]] static Cmp::IParticleSprite *find( entt::registry &reg, const std::string &tag );
+  [[nodiscard]] static Cmp::Particle::IParticleSprite *find( entt::registry &reg, const std::string &tag );
 
   //! @brief event handlers for pausing system clocks
   void onPause() override {};

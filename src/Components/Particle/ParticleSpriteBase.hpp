@@ -6,7 +6,9 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Cmp
+#include <Particle/ParticleConcepts.hpp>
+
+namespace ProceduralMaze::Cmp::Particle
 {
 
 // ============================================================
@@ -14,7 +16,6 @@ namespace ProceduralMaze::Cmp
 // ============================================================
 
 //! @brief Interface that all particle types must implement
-template <typename TProps>
 class IParticle
 {
 public:
@@ -24,36 +25,27 @@ public:
   //! @param emitter
   //! @param lifetime
   //! @param props
-  virtual void do_emit( sf::Vector2f emitter, sf::Time lifetime, const TProps &props ) = 0;
+  virtual void do_emit( sf::Vector2f emitter, sf::Time lifetime ) = 0;
 
 private:
   //! @brief Run when the particle is enabled and expired. Derived class of ParticleBase must implement it.
   //! @param emitter
   //! @param lifetime
   //! @param props
-  virtual void emit( sf::Vector2f emitter, sf::Time lifetime, const TProps &props ) = 0;
+  virtual void emit( sf::Vector2f emitter, sf::Time lifetime ) = 0;
 
   //! @brief Run when the particle is disabled and expired
   //! @param emitter
-  virtual void idle( sf::Vector2f emitter, [[maybe_unused]] sf::Time lifetime, const TProps &props ) = 0;
+  virtual void idle( sf::Vector2f emitter, [[maybe_unused]] sf::Time lifetime ) = 0;
 };
 
-//! @brief Enforces that TParticle inherits from IParticle
-template <typename TParticle, typename TProps>
-concept ParticleConcept = std::derived_from<TParticle, IParticle<TProps>> && requires( TParticle p ) {
-  { p.m_vertex } -> std::same_as<sf::Vertex &>;
-  { p.m_velocity } -> std::same_as<sf::Vector2f &>;
-  { p.m_lifetime } -> std::same_as<sf::Time &>;
-};
-
-template <typename TProps>
-struct ParticleBase : public Cmp::IParticle<TProps>
+struct ParticleBase : public Cmp::Particle::IParticle
 {
 
-  void do_emit( sf::Vector2f emitter, [[maybe_unused]] sf::Time lifetime, const TProps &props ) final
+  void do_emit( sf::Vector2f emitter, [[maybe_unused]] sf::Time lifetime ) final
   {
-    if ( m_particle_active ) { emit( emitter, lifetime, props ); }
-    else { idle( emitter, lifetime, props ); }
+    if ( m_particle_active ) { emit( emitter, lifetime ); }
+    else { idle( emitter, lifetime ); }
   }
 
   //! @brief Disables IParticle::emit if false
@@ -64,8 +56,8 @@ struct ParticleBase : public Cmp::IParticle<TProps>
   sf::Time m_lifetime;
 
 private:
-  void emit( sf::Vector2f emitter, sf::Time lifetime, const TProps &props ) override = 0;
-  void idle( [[maybe_unused]] sf::Vector2f emitter, [[maybe_unused]] sf::Time lifetime, [[maybe_unused]] const TProps &props ) override {}
+  void emit( sf::Vector2f emitter, sf::Time lifetime ) override = 0;
+  void idle( [[maybe_unused]] sf::Vector2f emitter, [[maybe_unused]] sf::Time lifetime ) override {}
 };
 
 // ============================================================
@@ -110,7 +102,7 @@ public:
 //! @tparam TParticle The particle object type.
 //! @note The derived class must implement the update function and
 //        provide its own IParticle implementation that satisfies ParticleConcept.
-template <typename TProps, ParticleConcept<TProps> TParticle>
+template <ParticleConcept TParticle>
 class ParticleSpriteBase : public IParticleSprite
 {
 public:
@@ -125,14 +117,9 @@ public:
         m_emitter( emitter_pos )
   {
     SPDLOG_INFO( "Created {} particles in sprite", count );
-    static_assert( std::same_as<decltype( TParticle::m_vertex ), sf::Vertex>, "TParticle::m_vertex must be sf::Vertex" );
-    static_assert( std::same_as<decltype( TParticle::m_velocity ), sf::Vector2f>, "TParticle::m_velocity must be sf::Vector2f" );
-    static_assert( std::same_as<decltype( TParticle::m_lifetime ), sf::Time>, "TParticle::m_lifetime must be sf::Time" );
   }
 
   ~ParticleSpriteBase() {}
-
-  TProps m_props;
 
   void set_view_transform( const sf::RenderWindow &window, const sf::View &world_view ) override
   {
@@ -241,6 +228,6 @@ protected:
   //! @brief Disables IParticleSprite::simulate() if false
   bool m_sprite_active{ true };
 };
-} // namespace ProceduralMaze::Cmp
+} // namespace ProceduralMaze::Cmp::Particle
 
 #endif // SRC_SYSTEM_PARTICLESPRITEBASE_HPP_

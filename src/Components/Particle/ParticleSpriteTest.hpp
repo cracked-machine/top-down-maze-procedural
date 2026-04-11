@@ -1,25 +1,24 @@
-#ifndef SRC_SYSTEM_PARTICLESPRITETEST_HPP_
-#define SRC_SYSTEM_PARTICLESPRITETEST_HPP_
+#ifndef SRC_CMP_PARTICLE_PARTICLESPRITETEST_HPP_
+#define SRC_CMP_PARTICLE_PARTICLESPRITETEST_HPP_
 
 #include <Particle/ParticleSpriteBase.hpp>
 #include <SFML/Graphics/BlendMode.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <random>
 
-namespace ProceduralMaze::Cmp
+namespace ProceduralMaze::Cmp::Particle
 {
 
-struct ParticleTestProps
+struct ParticleTest : public Cmp::Particle::ParticleBase
 {
-  float max_speed{ 100.f };
-  sf::Angle max_angle{ sf::degrees( 360.f ) };
-};
-
-struct ParticleTest : public Cmp::ParticleBase<ParticleTestProps>
-{
+  struct Properties
+  {
+    float max_speed{ 100.f };
+    sf::Angle max_angle{ sf::degrees( 360.f ) };
+  } props;
 
 private:
-  void emit( sf::Vector2f emitter, sf::Time lifetime, const ParticleTestProps &props ) override
+  void emit( sf::Vector2f emitter, sf::Time lifetime ) override
   {
     // create random number generator
     static std::random_device rd;
@@ -34,7 +33,7 @@ private:
 };
 
 //! @brief
-class ParticleSpriteTest : public ParticleSpriteBase<ParticleTestProps, ParticleTest>
+class ParticleSpriteTest : public ParticleSpriteBase<ParticleTest>
 {
 public:
   //! @brief Construct a new Particle Sprite Test object
@@ -49,7 +48,7 @@ public:
       p.m_lifetime -= dt;
 
       // if the particle is dead, respawn it
-      if ( p.m_lifetime <= sf::Time::Zero ) p.do_emit( m_emitter, m_lifetime, m_props );
+      if ( p.m_lifetime <= sf::Time::Zero ) p.do_emit( m_emitter, m_lifetime );
 
       // update the position of the corresponding vertex
       p.m_vertex.position += p.m_velocity * dt.asSeconds();
@@ -62,6 +61,6 @@ public:
   }
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace ProceduralMaze::Cmp::Particle
 
-#endif // SRC_SYSTEM_PARTICLESPRITETEST_HPP_
+#endif // SRC_CMP_PARTICLE_PARTICLESPRITETEST_HPP_

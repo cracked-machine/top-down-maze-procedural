@@ -46,7 +46,7 @@ void ParticleSystem::check_collsion( const sf::FloatRect &target )
   }
 }
 
-[[nodiscard]] Cmp::IParticleSprite *ParticleSystem::find( entt::registry &reg, const std::string &tag )
+[[nodiscard]] Cmp::Particle::IParticleSprite *ParticleSystem::find( entt::registry &reg, const std::string &tag )
 {
   for ( auto [entt, owner] : reg.view<ParticleSpriteOwner>().each() )
   {
