@@ -1,19 +1,21 @@
-#ifndef SRC_CMP_PARTICLE_SMOKEWISP_HPP_
-#define SRC_CMP_PARTICLE_SMOKEWISP_HPP_
+#ifndef SRC_CMP_PARTICLE_FLAME_HPP_
+#define SRC_CMP_PARTICLE_FLAME_HPP_
 
 #include <Particle/ParticleSpriteBase.hpp>
 
 namespace ProceduralMaze::Cmp::Particle
 {
 
-struct SmokeWispParticle : public Cmp::Particle::ParticleBase
+struct FlameParticle : public Cmp::Particle::ParticleBase
 {
-  float m_phase{ 0.f };     // unique phase offset per particle
-  float m_wave_time{ 0.f }; // accumulates real time for the sine wave
+  // independent per particle
+  float m_wave_time{ 0.f };
+  float m_phase{ 0.f };
+  float m_frequency{ 0.5f };
 
   struct Properties
   {
-    float speed{ 50.f };
+    float speed{ 40.f };
     sf::Angle max_angle{ sf::degrees( 270.f ) };
   } props;
 
@@ -22,11 +24,11 @@ private:
 };
 
 //! @brief
-class SmokeWisp : public ParticleSpriteBase<SmokeWispParticle>
+class Flame : public ParticleSpriteBase<FlameParticle>
 {
 public:
   //! @brief Construct a new Particle Sprite Test object
-  SmokeWisp( sf::Vector2f emitter_pos );
+  Flame( sf::Vector2f emitter_pos );
   void simulate( sf::Time dt ) override;
 
   float m_wave_time{ 0.f }; // single shared wave time for all particles
@@ -34,4 +36,4 @@ public:
 
 } // namespace ProceduralMaze::Cmp::Particle
 
-#endif // SRC_CMP_PARTICLE_SMOKEWISP_HPP_
+#endif // SRC_CMP_PARTICLE_FLAME_HPP_
