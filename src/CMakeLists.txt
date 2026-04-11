@@ -6,7 +6,10 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Audio/EffectsItem.cpp
     ${CMAKE_SOURCE_DIR}/src/Audio/MusicItem.cpp
     ${CMAKE_SOURCE_DIR}/src/Audio/SoundBank.cpp
-    ${CMAKE_SOURCE_DIR}/src/Components/Particle/SmokeWisp.cpp
+    ${CMAKE_SOURCE_DIR}/src/Components/Particle/Flame.cpp
+    ${CMAKE_SOURCE_DIR}/src/Components/Particle/ShockWave.cpp
+    ${CMAKE_SOURCE_DIR}/src/Components/Particle/ParticleSpriteTest.cpp
+    ${CMAKE_SOURCE_DIR}/src/Components/Particle/Smoke.cpp
     ${CMAKE_SOURCE_DIR}/src/Debug/AssertHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Shaders/BaseShader.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/MultiSprite.cpp

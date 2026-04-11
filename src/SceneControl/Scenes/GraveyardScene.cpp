@@ -11,8 +11,10 @@
 #include <Npc/NpcNoPathFinding.hpp>
 #include <Obstacle.hpp>
 #include <Optimizations.hpp>
+#include <Particle/Flame.hpp>
 #include <Particle/ParticleSpriteTest.hpp>
-#include <Particle/SmokeWisp.hpp>
+#include <Particle/ShockWave.hpp>
+#include <Particle/Smoke.hpp>
 #include <Player/PlayerCharacter.hpp>
 #include <Player/PlayerLevelDepth.hpp>
 #include <ReservedPosition.hpp>
@@ -116,7 +118,7 @@ void GraveyardScene::on_init()
   m_sys.find<Sys::Store::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
   std::vector<Sys::ParticleSpriteOwner> owners;
-  owners.emplace_back( "particle_test", std::make_unique<Cmp::Particle::SmokeWisp>( Utils::Player::get_position( m_reg ).getCenter() ) );
+  owners.emplace_back( "ParticleSprite", std::make_unique<Cmp::Particle::ParticleSpriteTest>( Utils::Player::get_position( m_reg ).getCenter()) );
   m_sys.find<Sys::Store::Type::ParticleSystem>().add( std::move( owners ) );
 }
 
@@ -203,14 +205,10 @@ void GraveyardScene::do_update( sf::Time dt )
 
   auto player_pos = Utils::Player::get_position( m_reg ).getCenter();
 
-  auto *particle_test = Sys::ParticleSystem::find( m_reg, "particle_test" );
-  if ( particle_test )
-  {
-    auto suspend = Utils::getSystemCmp( m_reg ).particle_test_enabled;
-    suspend ? particle_test->restart() : particle_test->stop();
-    particle_test->set_emitter( player_pos );
-  }
+  auto *particle_test = Sys::ParticleSystem::find( m_reg, "ParticleSprite" );
+  if ( particle_test ) { particle_test->set_emitter( player_pos ); }
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
+
   for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::Obstacle, Cmp::Position>().each() )
   {
     m_sys.find<Sys::Store::Type::ParticleSystem>().check_collsion( pos_cmp );

@@ -1,6 +1,7 @@
 #ifndef SRC_SYSTEMS_PARTICLESYSTEM_HPP_
 #define SRC_SYSTEMS_PARTICLESYSTEM_HPP_
 
+#include <Events/ParticleEvents.hpp>
 #include <Particle/ParticleSpriteBase.hpp>
 #include <Systems/BaseSystem.hpp>
 

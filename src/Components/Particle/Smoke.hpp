@@ -1,5 +1,5 @@
-#ifndef SRC_CMP_PARTICLE_FLAME_HPP_
-#define SRC_CMP_PARTICLE_FLAME_HPP_
+#ifndef SRC_CMP_PARTICLE_SMOKEWISP_HPP_
+#define SRC_CMP_PARTICLE_SMOKEWISP_HPP_
 
 #include <Particle/ParticleSpriteBase.hpp>
 
@@ -9,7 +9,7 @@ namespace ProceduralMaze::Cmp::Particle
 //! @brief Implementation detail — do not use externally
 namespace detail
 {
-struct FlameParticle : public Cmp::Particle::ParticleBase
+struct SmokeParticle : public Cmp::Particle::ParticleBase
 {
   // independent per particle
   float m_wave_time{ 0.f };
@@ -28,11 +28,11 @@ private:
 } // namespace detail
 
 //! @brief
-class Flame : public ParticleSpriteBase<detail::FlameParticle>
+class Smoke : public ParticleSpriteBase<detail::SmokeParticle>
 {
 public:
   //! @brief Construct a new Particle Sprite Test object
-  Flame( sf::Vector2f emitter_pos );
+  Smoke( sf::Vector2f emitter_pos );
   void simulate( sf::Time dt ) override;
 
   float m_wave_time{ 0.f }; // single shared wave time for all particles
@@ -40,4 +40,4 @@ public:
 
 } // namespace ProceduralMaze::Cmp::Particle
 
-#endif // SRC_CMP_PARTICLE_FLAME_HPP_
+#endif // SRC_CMP_PARTICLE_SMOKEWISP_HPP_

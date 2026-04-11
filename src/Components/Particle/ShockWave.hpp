@@ -1,5 +1,5 @@
-#ifndef SRC_CMP_PARTICLE_PARTICLESPRITETEST_HPP_
-#define SRC_CMP_PARTICLE_PARTICLESPRITETEST_HPP_
+#ifndef SRC_CMP_PARTICLE_SHOCKWAVE_HPP_
+#define SRC_CMP_PARTICLE_SHOCKWAVE_HPP_
 
 #include <Particle/ParticleSpriteBase.hpp>
 #include <SFML/Graphics/BlendMode.hpp>
@@ -11,7 +11,7 @@ namespace ProceduralMaze::Cmp::Particle
 //! @brief Implementation detail — do not use externally
 namespace detail
 {
-struct ParticleTest : public Cmp::Particle::ParticleBase
+struct ShockWaveParticle : public Cmp::Particle::ParticleBase
 {
   struct Properties
   {
@@ -25,15 +25,15 @@ private:
 } // namespace detail
 
 //! @brief
-class ParticleSpriteTest : public ParticleSpriteBase<detail::ParticleTest>
+class ShockWave : public ParticleSpriteBase<detail::ShockWaveParticle>
 {
 public:
   //! @brief Construct a new Particle Sprite Test object
-  ParticleSpriteTest( sf::Vector2f emitter_pos );
+  ShockWave( sf::Vector2f emitter_pos, size_t generations );
 
   void simulate( sf::Time dt ) override;
 };
 
 } // namespace ProceduralMaze::Cmp::Particle
 
-#endif // SRC_CMP_PARTICLE_PARTICLESPRITETEST_HPP_
+#endif // SRC_CMP_PARTICLE_SHOCKWAVE_HPP_

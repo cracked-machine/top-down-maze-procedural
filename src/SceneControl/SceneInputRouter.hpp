@@ -59,7 +59,7 @@ private:
   void queue_buy_item_event( uint8_t item_idx );
   void queue_quit_game_event();
   void enqueue( Events::SceneManagerEvent::Type ev );
-  void toggle_particle_test();
+  void toggle_particle_test( bool enable );
 };
 
 } // namespace ProceduralMaze::Sys

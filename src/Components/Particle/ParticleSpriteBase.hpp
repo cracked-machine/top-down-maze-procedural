@@ -21,25 +21,23 @@ public:
   //! @param lifetime
   //! @param props
   virtual void do_emit( sf::Vector2f emitter, sf::Time lifetime ) = 0;
+  virtual size_t generations() = 0;
 
 private:
-  //! @brief Run when the particle is enabled and expired. Derived class of ParticleBase must implement it.
-  //! @param emitter
-  //! @param lifetime
-  //! @param props
+  // See ParticleBase for docstrings
   virtual void emit( sf::Vector2f emitter, sf::Time lifetime ) = 0;
-
-  //! @brief Run when the particle is disabled and expired
-  //! @param emitter
   virtual void idle( sf::Vector2f emitter, [[maybe_unused]] sf::Time lifetime ) = 0;
 };
 
 struct ParticleBase : public Cmp::Particle::IParticle
 {
-
   void do_emit( sf::Vector2f emitter, [[maybe_unused]] sf::Time lifetime ) final
   {
-    if ( m_particle_active ) { emit( emitter, lifetime ); }
+    if ( m_particle_active )
+    {
+      emit( emitter, lifetime );
+      m_generation++;
+    }
     else { idle( emitter, lifetime ); }
   }
 
@@ -50,8 +48,18 @@ struct ParticleBase : public Cmp::Particle::IParticle
   sf::Vector2f m_velocity;
   sf::Time m_lifetime;
 
+  size_t generations() override { return m_generation; }
+  size_t m_generation{ 0 };
+
 private:
+  //! @brief Run when the particle is enabled and expired. Derived class of ParticleBase must implement it.
+  //! @param emitter
+  //! @param lifetime
+  //! @param props
   void emit( sf::Vector2f emitter, sf::Time lifetime ) override = 0;
+
+  //! @brief Run when the particle is disabled and expired
+  //! @param emitter
   void idle( [[maybe_unused]] sf::Vector2f emitter, [[maybe_unused]] sf::Time lifetime ) override {}
 };
 
@@ -63,34 +71,23 @@ private:
 class IParticleSprite : public sf::Drawable, public sf::Transformable
 {
 public:
+  virtual ~IParticleSprite() = default;
+
   //! @brief  Implements the simulation stage of all particles.
   //          E.g. modify the vertex and velocity members of each particle,
   //          and reset the particle if its lifetime has expired
   //! @param dt
   virtual void simulate( sf::Time dt ) = 0;
 
-  //! @brief Allow access to the emmitter without casting to the concrete type
-  //! @param position
+  // Check ParticleSpriteBase for docstrings
   virtual void set_emitter( sf::Vector2f position ) = 0;
-
-  //! @brief Replaces the default translation function with a world -> screen translation function
-  //! @param window
-  //! @param world_view
   virtual void set_view_transform( const sf::RenderWindow &, const sf::View & ) = 0;
-  virtual ~IParticleSprite() = default;
-
-  //! @brief Signals that particles should expire, deletes the expired particles, then stops the simulation.
   virtual void stop() = 0;
-
-  //! @brief Creates a new particle list, enables the particles and resumes the simulation.
   virtual void restart() = 0;
-
-  virtual void check_collision( const sf::FloatRect &target ) = 0;
-
-  //! @brief Is simulation running?
-  //! @return true
-  //! @return false
+  virtual void prune_inactive_expired_particles() = 0;
+  virtual void check_particle_collision( const sf::FloatRect &target ) = 0;
   virtual bool is_active() = 0;
+  virtual void deactivate_extinct_particles() = 0;
 };
 
 //! @brief Defines the particle sprite base class template. This renders a list of TParticle vertices.
@@ -105,43 +102,59 @@ public:
   //! @param count Number of particles in this sprite
   //! @param lifetime The lifetime of the particles in this sprite
   //! @param emitter_pos The initial position of the emitter for this sprite
-  ParticleSpriteBase( size_t count, sf::Time lifetime, sf::Vector2f emitter_pos )
+  ParticleSpriteBase( size_t count, sf::Time lifetime, sf::Vector2f emitter_pos, size_t max_generations )
       : m_max_particles( count ),
         m_particles_list( count ),
         m_lifetime( lifetime ),
-        m_emitter( emitter_pos )
+        m_emitter( emitter_pos ),
+        m_max_generations( max_generations )
+
   {
     SPDLOG_INFO( "Created {} particles in sprite", count );
   }
 
   ~ParticleSpriteBase() {}
 
+  //! @brief Replaces the default translation function with a world -> screen translation function
+  //! @param window
+  //! @param world_view
   void set_view_transform( const sf::RenderWindow &window, const sf::View &world_view ) override
   {
     m_world_to_screen = [&window, world_view]( sf::Vector2f world_pos ) -> sf::Vector2f
     { return sf::Vector2f( window.mapCoordsToPixel( world_pos, world_view ) ); };
   }
 
+  //! @brief Disables the particles for this ParticleSprite (they will continue simulating until their lifetimes expire)
   void stop() override
   {
-    if ( not m_sprite_active ) return;
+    SPDLOG_INFO( "ParticleSprite Stop Signal Received" );
+
     for ( auto &p : m_particles_list )
     {
       // prevent emit() reseting the particle lifetime
       p.m_particle_active = false;
     }
+    SPDLOG_INFO( "Particles have been disabled" );
+  }
 
-    // remove dead particles
-    std::erase_if( m_particles_list, []( const TParticle &p ) { return p.m_lifetime <= sf::Time::Zero; } );
-
-    if ( m_particles_list.empty() )
+  //! @brief Remove inactive and dead particles for this ParticleSprite
+  void prune_inactive_expired_particles() override
+  {
+    for ( auto &p : m_particles_list )
     {
-      // signal ParticleSystem not to call simulate()
-      m_sprite_active = false;
-      SPDLOG_INFO( "Stopping ParticleSprite" );
+      std::erase_if( m_particles_list, []( const TParticle &p ) { return p.m_particle_active == false and p.m_lifetime <= sf::Time::Zero; } );
+
+      if ( m_particles_list.empty() )
+      {
+        SPDLOG_INFO( "Particles have been deleted" );
+        // prevent ParticleSystem from calling this->simulate()
+        m_sprite_active = false;
+        SPDLOG_INFO( "ParticleSprite has stopped" );
+      }
     }
   }
 
+  //! @brief Creates a new particle list, enables the particles, resets the generation counter and restarts the simulation.
   void restart() override
   {
     if ( m_sprite_active ) return;
@@ -156,7 +169,9 @@ public:
     SPDLOG_INFO( "Restarting ParticleSprite" );
   }
 
-  void check_collision( const sf::FloatRect &target ) override
+  //! @brief Check if the Particles from this ParticleSprite colide with the target
+  //! @param target Rectangle collision area
+  void check_particle_collision( const sf::FloatRect &target ) override
   {
     //
     for ( auto &p : m_particles_list )
@@ -166,8 +181,28 @@ public:
     }
   }
 
+  //! @brief Is simulation running for this ParticleSprite?
+  //! @return true
+  //! @return false
   bool is_active() override { return m_sprite_active; }
+
+  //! @brief Allow access to the emmitter without casting to the concrete type
+  //! @param position
   void set_emitter( sf::Vector2f position ) override { m_emitter = position; }
+
+  //! @brief Increase the generation count when the ParticleSprite lifetime has expired
+  void deactivate_extinct_particles() override
+  {
+    if ( m_max_generations == 0 ) return;
+
+    bool all_particles_last_generation = true;
+    for ( auto &p : m_particles_list )
+    {
+      if ( p.m_generation < m_max_generations ) { all_particles_last_generation = false; }
+    }
+
+    if ( all_particles_last_generation ) { stop(); }
+  }
 
   //! @brief Allows this sprite to be passed into RenderWindow.draw()
   //! @param target
@@ -222,6 +257,8 @@ protected:
 
   //! @brief Disables IParticleSprite::simulate() if false
   bool m_sprite_active{ true };
+
+  size_t m_max_generations;
 };
 } // namespace ProceduralMaze::Cmp::Particle
 

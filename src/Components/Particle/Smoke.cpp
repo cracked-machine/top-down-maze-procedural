@@ -1,4 +1,4 @@
-#include <Components/Particle/Flame.hpp>
+#include <Components/Particle/Smoke.hpp>
 
 #include <numbers>
 #include <random>
@@ -9,7 +9,7 @@ namespace ProceduralMaze::Cmp::Particle
 //! @brief Implementation detail — do not use externally
 namespace detail
 {
-void FlameParticle::emit( sf::Vector2f emitter, sf::Time lifetime )
+void SmokeParticle::emit( sf::Vector2f emitter, sf::Time lifetime )
 {
   static std::random_device rd;
   static std::mt19937 rng( rd() );
@@ -23,18 +23,18 @@ void FlameParticle::emit( sf::Vector2f emitter, sf::Time lifetime )
 };
 } // namespace detail
 
-Flame::Flame( sf::Vector2f emitter_pos )
+Smoke::Smoke( sf::Vector2f emitter_pos )
     : ParticleSpriteBase( 100, sf::seconds( 0.5 ), emitter_pos, 0 ) {};
 
-void Flame::simulate( sf::Time dt )
+void Smoke::simulate( sf::Time dt )
 {
   const float amplitude = 20.f;
 
-  const sf::Color start_flame_color{ 255, 255, 255 }; // white
-  const sf::Color final_flame_color{ 255, 0, 0 };     // red
+  const sf::Color start_Smoke_color{ 255, 255, 255 }; // white
+  const sf::Color final_Smoke_color{ 64, 64, 64 };    // red
   const sf::Color smoke_color{ 0, 0, 0 };
 
-  constexpr float k_flame_phase = 0.6f;   // first 50% of lifetime = flame
+  constexpr float k_Smoke_phase = 0.6f;   // first 50% of lifetime = Smoke
   constexpr float k_smoke_density = 0.1f; // 10% of particles visible in smoke phase
 
   static std::mt19937 rng( std::random_device{}() );
@@ -53,16 +53,16 @@ void Flame::simulate( sf::Time dt )
 
     p.m_vertex.position += sf::Vector2f{ wave_x, p.m_velocity.y } * dt.asSeconds();
 
-    if ( ratio > k_flame_phase )
+    if ( ratio > k_Smoke_phase )
     {
-      // flame phase — lerp white -> red, ratio 1.0 = white, k_flame_phase = red
-      const float t = 1.f - ( ( ratio - k_flame_phase ) / ( 1.f - k_flame_phase ) );
+      // Smoke phase — lerp white -> red, ratio 1.0 = white, k_Smoke_phase = red
+      const float t = 1.f - ( ( ratio - k_Smoke_phase ) / ( 1.f - k_Smoke_phase ) );
       p.m_vertex.color.r = static_cast<std::uint8_t>(
-          std::lerp( static_cast<float>( start_flame_color.r ), static_cast<float>( final_flame_color.r ), t ) );
+          std::lerp( static_cast<float>( start_Smoke_color.r ), static_cast<float>( final_Smoke_color.r ), t ) );
       p.m_vertex.color.g = static_cast<std::uint8_t>(
-          std::lerp( static_cast<float>( start_flame_color.g ), static_cast<float>( final_flame_color.g ), t ) );
+          std::lerp( static_cast<float>( start_Smoke_color.g ), static_cast<float>( final_Smoke_color.g ), t ) );
       p.m_vertex.color.b = static_cast<std::uint8_t>(
-          std::lerp( static_cast<float>( start_flame_color.b ), static_cast<float>( final_flame_color.b ), t ) );
+          std::lerp( static_cast<float>( start_Smoke_color.b ), static_cast<float>( final_Smoke_color.b ), t ) );
       p.m_vertex.color.a = static_cast<std::uint8_t>( ratio * 255 );
     }
     else

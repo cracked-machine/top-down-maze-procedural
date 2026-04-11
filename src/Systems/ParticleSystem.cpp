@@ -1,3 +1,4 @@
+
 #include <Optimizations.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
@@ -25,11 +26,11 @@ void ParticleSystem::update( sf::Time dt )
 {
   for ( auto [entt, owner] : getReg().view<ParticleSpriteOwner>().each() )
   {
-    if ( owner.sprite->is_active() )
-    {
-      SPDLOG_DEBUG( "Simulating" );
-      owner.sprite->simulate( dt );
-    }
+    if ( not owner.sprite->is_active() ) continue;
+
+    owner.sprite->simulate( dt );
+    owner.sprite->prune_inactive_expired_particles();
+    owner.sprite->deactivate_extinct_particles();
   }
 }
 
@@ -41,7 +42,7 @@ void ParticleSystem::check_collsion( const sf::FloatRect &target )
     if ( owner.sprite->is_active() )
     {
       SPDLOG_DEBUG( "Simulating" );
-      owner.sprite->check_collision( target );
+      owner.sprite->check_particle_collision( target );
     }
   }
 }
