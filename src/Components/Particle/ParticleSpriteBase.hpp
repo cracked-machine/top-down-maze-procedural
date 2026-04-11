@@ -1,11 +1,6 @@
 #ifndef SRC_SYSTEM_PARTICLESPRITEBASE_HPP_
 #define SRC_SYSTEM_PARTICLESPRITEBASE_HPP_
 
-#include <SFML/Graphics.hpp>
-#include <SFML/System/Angle.hpp>
-#include <SFML/System/Time.hpp>
-#include <SFML/System/Vector2.hpp>
-
 #include <Particle/ParticleConcepts.hpp>
 
 namespace ProceduralMaze::Cmp::Particle

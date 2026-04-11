@@ -12,6 +12,7 @@
 #include <Obstacle.hpp>
 #include <Optimizations.hpp>
 #include <Particle/ParticleSpriteTest.hpp>
+#include <Particle/SmokeWisp.hpp>
 #include <Player/PlayerCharacter.hpp>
 #include <Player/PlayerLevelDepth.hpp>
 #include <ReservedPosition.hpp>
@@ -115,7 +116,7 @@ void GraveyardScene::on_init()
   m_sys.find<Sys::Store::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
   std::vector<Sys::ParticleSpriteOwner> owners;
-  owners.emplace_back( "particle_test", std::make_unique<Cmp::ParticleSpriteTest>( Utils::Player::get_position( m_reg ).getCenter() ) );
+  owners.emplace_back( "particle_test", std::make_unique<Cmp::Particle::SmokeWisp>( Utils::Player::get_position( m_reg ).getCenter() ) );
   m_sys.find<Sys::Store::Type::ParticleSystem>().add( std::move( owners ) );
 }
 
