@@ -32,7 +32,7 @@ class Smoke : public ParticleSpriteBase<detail::SmokeParticle>
 {
 public:
   //! @brief Construct a new Particle Sprite Test object
-  Smoke( sf::Vector2f emitter_pos, size_t gen );
+  Smoke( size_t count );
   void simulate( sf::Time dt ) override;
 
   float m_wave_time{ 0.f };   // single shared wave time for all particles

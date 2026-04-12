@@ -23,8 +23,8 @@ void SmokeParticle::emit( sf::Vector2f emitter, sf::Time lifetime )
 };
 } // namespace detail
 
-Smoke::Smoke( sf::Vector2f emitter_pos, size_t gen )
-    : ParticleSpriteBase( 100, sf::seconds( 1 ), emitter_pos, gen ) {};
+Smoke::Smoke( size_t count )
+    : ParticleSpriteBase( count ) {};
 
 void Smoke::simulate( sf::Time dt )
 {

@@ -6,15 +6,12 @@
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/LootFactory.hpp>
+#include <Factory/ParticleFactory.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
 #include <Obstacle.hpp>
 #include <Optimizations.hpp>
-#include <Particle/Flame.hpp>
-#include <Particle/ParticleSpriteTest.hpp>
-#include <Particle/ShockWave.hpp>
-#include <Particle/Smoke.hpp>
 #include <Player/PlayerCharacter.hpp>
 #include <Player/PlayerLevelDepth.hpp>
 #include <ReservedPosition.hpp>
@@ -117,9 +114,17 @@ void GraveyardScene::on_init()
   m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().init_hazard_field();
   m_sys.find<Sys::Store::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
-  std::vector<Sys::ParticleSpriteOwner> owners;
-  owners.emplace_back( "ParticleSprite", std::make_unique<Cmp::Particle::Smoke>( Utils::Player::get_position( m_reg ).getCenter(), 7 ) );
-  m_sys.find<Sys::Store::Type::ParticleSystem>().add( std::move( owners ) );
+  auto &particle_system = m_sys.find<Sys::Store::Type::ParticleSystem>();
+  // Factory::Particle::add_test( m_reg, particle_system, "ParticleSprite" );
+  Factory::Particle::add_flame( m_reg, particle_system, "ParticleSprite" );
+  // Factory::Particle::add_smoke( m_reg, particle_system, "ParticleSprite" );
+  // Factory::Particle::add_shockwave( m_reg, particle_system, "ParticleSprite" );
+
+  // auto psprite = Cmp::Particle::ParticleSpriteTest();
+  // psprite.set_tag( "ParticleSprite" );
+  // psprite.set_position( Utils::Player::get_position( m_reg ).getCenter() );
+  // psprite.set_lifetime( sf::seconds( 3 ) );
+  // particle_system.add( psprite );
 }
 
 void GraveyardScene::on_enter()
@@ -205,7 +210,7 @@ void GraveyardScene::do_update( sf::Time dt )
 
   auto player_pos = Utils::Player::get_position( m_reg ).getCenter();
   auto *particle_test = Sys::ParticleSystem::find( m_reg, "ParticleSprite" );
-  if ( particle_test ) { particle_test->set_emitter( player_pos ); }
+  if ( particle_test ) { particle_test->set_position( player_pos ); }
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
 
   for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::Obstacle, Cmp::Position>().each() )

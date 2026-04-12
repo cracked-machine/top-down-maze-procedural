@@ -32,7 +32,7 @@ class Flame : public ParticleSpriteBase<detail::FlameParticle>
 {
 public:
   //! @brief Construct a new Particle Sprite Test object
-  Flame( sf::Vector2f emitter_pos );
+  Flame( size_t count );
   void simulate( sf::Time dt ) override;
 
   float m_wave_time{ 0.f }; // single shared wave time for all particles

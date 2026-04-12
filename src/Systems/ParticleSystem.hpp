@@ -4,6 +4,7 @@
 #include <Events/ParticleEvents.hpp>
 #include <Particle/ParticleSpriteBase.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <utility>
 
 #include <spdlog/spdlog.h>
 
@@ -27,12 +28,10 @@ namespace ProceduralMaze::Sys
 //!         ParticleSystem::find can retrieve ParticleSpriteBase<IParticle> via the specified `tag`
 struct ParticleSpriteOwner
 {
-  std::string tag; // identifies the sprite e.g. "player_dust", "explosion"
   std::unique_ptr<Cmp::Particle::IParticleSprite> sprite;
 
-  explicit ParticleSpriteOwner( std::string tag, std::unique_ptr<Cmp::Particle::IParticleSprite> sprite )
-      : tag( std::move( tag ) ),
-        sprite( std::move( sprite ) )
+  explicit ParticleSpriteOwner( std::unique_ptr<Cmp::Particle::IParticleSprite> sprite )
+      : sprite( std::move( sprite ) )
   {
   }
 };
@@ -43,9 +42,18 @@ class ParticleSystem : public BaseSystem
 public:
   ParticleSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
-  //! @brief Add ParticleSpriteBase<IParticle> via a list of ParticleSpriteOwner objects
-  //! @param owners Contains a tag identifier and a unique_ptr to ParticleSpriteBase<IParticle>.
-  void add( std::vector<ParticleSpriteOwner> owners );
+  template <typename... PARTICLESPRITES>
+  void add( const PARTICLESPRITES &...sprites )
+  {
+    auto add_one = [this]<typename T>( const T &ps )
+    {
+      std::vector<Sys::ParticleSpriteOwner> owners;
+      owners.emplace_back( std::make_unique<T>( ps ) );
+      add_to_registry( std::move( owners ) );
+    };
+
+    ( add_one( sprites ), ... );
+  }
 
   //! @brief Calls IParticle::update() function within all added ParticleSpriteBase<T>
   //! @param dt
@@ -60,6 +68,22 @@ public:
   void onPause() override {};
   //! @brief event handlers for resuming system clocks
   void onResume() override {};
+
+private:
+  // //! @brief Prepare registry insertion by wrapping with ParticleSpriteOwner
+  // //! @tparam PARTICLESPRITE
+  // //! @param ps
+  // template <typename PARTICLESPRITE>
+  // void add( const PARTICLESPRITE &ps )
+  // {
+  //   std::vector<Sys::ParticleSpriteOwner> owners;
+  //   owners.emplace_back( std::make_unique<PARTICLESPRITE>( ps ) );
+  //   add_to_registry( std::move( owners ) );
+  // }
+
+  //! @brief Add ParticleSpriteBase<IParticle> via a list of ParticleSpriteOwner objects
+  //! @param owners Contains a tag identifier and a unique_ptr to ParticleSpriteBase<IParticle>.
+  std::vector<entt::entity> add_to_registry( std::vector<ParticleSpriteOwner> owners );
 };
 
 } // namespace ProceduralMaze::Sys

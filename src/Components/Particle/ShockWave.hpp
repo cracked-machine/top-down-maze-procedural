@@ -29,7 +29,7 @@ class ShockWave : public ParticleSpriteBase<detail::ShockWaveParticle>
 {
 public:
   //! @brief Construct a new Particle Sprite Test object
-  ShockWave( sf::Vector2f emitter_pos, size_t generations );
+  ShockWave( size_t count );
 
   void simulate( sf::Time dt ) override;
 };

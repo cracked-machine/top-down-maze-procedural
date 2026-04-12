@@ -22,8 +22,8 @@ void ShockWaveParticle::emit( sf::Vector2f emitter, sf::Time lifetime )
 };
 } // namespace detail
 
-ShockWave::ShockWave( sf::Vector2f emitter_pos, size_t generations )
-    : ParticleSpriteBase( 1000, sf::seconds( 1 ), emitter_pos, generations ) {};
+ShockWave::ShockWave( size_t count )
+    : ParticleSpriteBase( count ) {};
 
 void ShockWave::simulate( sf::Time dt )
 {

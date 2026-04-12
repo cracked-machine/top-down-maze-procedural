@@ -3,6 +3,7 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <entt/entity/fwd.hpp>
 
 namespace ProceduralMaze::Sys
 {
@@ -12,14 +13,17 @@ ParticleSystem::ParticleSystem( entt::registry &reg, sf::RenderWindow &window, S
 {
 }
 
-void ParticleSystem::add( std::vector<ParticleSpriteOwner> owners )
+std::vector<entt::entity> ParticleSystem::add_to_registry( std::vector<ParticleSpriteOwner> owners )
 {
+  std::vector<entt::entity> entt_list;
   for ( auto &owner : owners )
   {
     auto entt = getReg().create();
     getReg().emplace<ParticleSpriteOwner>( entt, std::move( owner ) );
+    entt_list.push_back( entt );
     SPDLOG_INFO( "Created ParticleSprite {}", static_cast<uint32_t>( entt ) );
   }
+  return entt_list;
 }
 
 void ParticleSystem::update( sf::Time dt )
@@ -51,7 +55,7 @@ void ParticleSystem::check_collsion( const sf::FloatRect &target )
 {
   for ( auto [entt, owner] : reg.view<ParticleSpriteOwner>().each() )
   {
-    if ( owner.tag == tag ) return owner.sprite.get();
+    if ( owner.sprite->get_tag() == tag ) return owner.sprite.get();
   }
   return nullptr;
 }

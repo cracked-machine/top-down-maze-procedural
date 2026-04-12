@@ -29,7 +29,7 @@ class ParticleSpriteTest : public ParticleSpriteBase<detail::ParticleTest>
 {
 public:
   //! @brief Construct a new Particle Sprite Test object
-  ParticleSpriteTest( sf::Vector2f emitter_pos );
+  ParticleSpriteTest( size_t count );
 
   void simulate( sf::Time dt ) override;
 };

@@ -23,8 +23,8 @@ void FlameParticle::emit( sf::Vector2f emitter, sf::Time lifetime )
 };
 } // namespace detail
 
-Flame::Flame( sf::Vector2f emitter_pos )
-    : ParticleSpriteBase( 100, sf::seconds( 0.5 ), emitter_pos, 0 ) {};
+Flame::Flame( size_t count )
+    : ParticleSpriteBase( count ) {};
 
 void Flame::simulate( sf::Time dt )
 {

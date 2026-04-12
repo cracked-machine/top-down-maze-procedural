@@ -2,6 +2,7 @@
 #define SRC_SYSTEM_PARTICLESPRITEBASE_HPP_
 
 #include <Particle/ParticleConcepts.hpp>
+#include <SFML/System/Time.hpp>
 
 namespace ProceduralMaze::Cmp::Particle
 {
@@ -80,7 +81,8 @@ public:
   virtual void simulate( sf::Time dt ) = 0;
 
   // Check ParticleSpriteBase for docstrings
-  virtual void set_emitter( sf::Vector2f position ) = 0;
+  virtual void set_position( sf::Vector2f position ) = 0;
+  virtual void set_lifetime( sf::Time lifetime ) = 0;
   virtual void set_view_transform( const sf::RenderWindow &, const sf::View & ) = 0;
   virtual void stop() = 0;
   virtual void restart() = 0;
@@ -88,6 +90,10 @@ public:
   virtual void check_particle_collision( const sf::FloatRect &target ) = 0;
   virtual bool is_active() = 0;
   virtual void deactivate_extinct_particles() = 0;
+  virtual void set_tag( const std::string &tag ) = 0;
+  virtual std::string get_tag() const = 0;
+  virtual void set_generations( size_t gen ) = 0;
+  virtual size_t get_generations() = 0;
 };
 
 //! @brief Defines the particle sprite base class template. This renders a list of TParticle vertices.
@@ -98,16 +104,15 @@ template <ParticleConcept TParticle>
 class ParticleSpriteBase : public IParticleSprite
 {
 public:
+  ParticleSpriteBase() = delete;
+
   //! @brief Construct a new Particle Sprite Base object
   //! @param count Number of particles in this sprite
   //! @param lifetime The lifetime of the particles in this sprite
   //! @param emitter_pos The initial position of the emitter for this sprite
-  ParticleSpriteBase( size_t count, sf::Time lifetime, sf::Vector2f emitter_pos, size_t max_generations )
+  explicit ParticleSpriteBase( size_t count )
       : m_max_particles( count ),
-        m_particles_list( count ),
-        m_lifetime( lifetime ),
-        m_emitter( emitter_pos ),
-        m_max_generations( max_generations )
+        m_particles_list( count )
 
   {
     SPDLOG_INFO( "Created {} particles in sprite", count );
@@ -188,7 +193,9 @@ public:
 
   //! @brief Allow access to the emmitter without casting to the concrete type
   //! @param position
-  void set_emitter( sf::Vector2f position ) override { m_emitter = position; }
+  void set_position( sf::Vector2f position ) override { m_emitter = position; }
+
+  void set_lifetime( sf::Time lifetime ) override { m_lifetime = lifetime; }
 
   //! @brief Increase the generation count when the ParticleSprite lifetime has expired
   void deactivate_extinct_particles() override
@@ -246,10 +253,16 @@ public:
   std::vector<TParticle> m_particles_list;
 
   //! @brief The lifetime of the particles in this sprite
-  sf::Time m_lifetime;
+  sf::Time m_lifetime{ sf::Time::Zero };
 
   //! @brief The emitter position
-  sf::Vector2f m_emitter;
+  sf::Vector2f m_emitter{ 0, 0 };
+
+  void set_tag( const std::string &tag ) override { m_tag = tag; }
+  std::string get_tag() const override { return m_tag; }
+
+  void set_generations( size_t gen ) override { m_max_generations = gen; }
+  size_t get_generations() override { return m_max_generations; }
 
 protected:
   //! @brief Default translation function is a noop. See set_view_transform()
@@ -258,7 +271,9 @@ protected:
   //! @brief Disables IParticleSprite::simulate() if false
   bool m_sprite_active{ true };
 
-  size_t m_max_generations;
+private:
+  size_t m_max_generations{ 0 };
+  std::string m_tag;
 };
 } // namespace ProceduralMaze::Cmp::Particle
 

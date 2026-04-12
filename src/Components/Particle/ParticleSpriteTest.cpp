@@ -22,8 +22,8 @@ void ParticleTest::emit( sf::Vector2f emitter, sf::Time lifetime )
 };
 } // namespace detail
 
-ParticleSpriteTest::ParticleSpriteTest( sf::Vector2f emitter_pos )
-    : ParticleSpriteBase( 1000, sf::seconds( 3 ), emitter_pos, 0 ) {};
+ParticleSpriteTest::ParticleSpriteTest( size_t count )
+    : ParticleSpriteBase( count ) {};
 
 void ParticleSpriteTest::simulate( sf::Time dt )
 {
