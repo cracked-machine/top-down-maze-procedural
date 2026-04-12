@@ -388,6 +388,7 @@ public:
   void set_lifetime_ms( std::uniform_int_distribution<int> lifetime_dist ) override
   {
     m_lifetime_dist = lifetime_dist;
+    m_max_lifetime = sf::milliseconds( lifetime_dist.max() );
     static std::random_device rd;
     static std::mt19937 rng( rd() );
     m_lifetime = sf::milliseconds( m_lifetime_dist( rng ) );
@@ -399,6 +400,7 @@ public:
   void set_lifetime_ms( sf::Time lifetime ) override
   {
     m_lifetime = lifetime;
+    m_max_lifetime = lifetime;
     m_lifetime_dist = std::uniform_int_distribution<int>( lifetime.asMilliseconds(), lifetime.asMilliseconds() );
     for ( auto &p : m_particles_list )
     {
@@ -412,6 +414,7 @@ protected:
 
   //! @brief Disables IParticleSprite::simulate() if false
   bool m_sprite_active{ true };
+  sf::Time m_max_lifetime;
 
 private:
   size_t m_max_generations{ 0 };

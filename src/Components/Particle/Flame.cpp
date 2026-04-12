@@ -46,7 +46,7 @@ void Flame::simulate( sf::Time dt )
     p.m_wave_time += dt.asSeconds();
     if ( p.m_lifetime <= sf::Time::Zero ) p.do_emit();
 
-    const float ratio = p.m_lifetime.asSeconds() / m_lifetime.asSeconds();
+    const float ratio = p.m_lifetime.asSeconds() / m_max_lifetime.asSeconds();
 
     const float wave_x = ( ratio > 0.8f ) ? amplitude * std::sin( ( 2.f * std::numbers::pi_v<float> * p.m_frequency * p.m_wave_time ) + p.m_phase )
                                           : 0.f;
