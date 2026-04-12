@@ -118,7 +118,7 @@ void GraveyardScene::on_init()
   m_sys.find<Sys::Store::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
   std::vector<Sys::ParticleSpriteOwner> owners;
-  owners.emplace_back( "ParticleSprite", std::make_unique<Cmp::Particle::ParticleSpriteTest>( Utils::Player::get_position( m_reg ).getCenter()) );
+  owners.emplace_back( "ParticleSprite", std::make_unique<Cmp::Particle::Smoke>( Utils::Player::get_position( m_reg ).getCenter(), 7 ) );
   m_sys.find<Sys::Store::Type::ParticleSystem>().add( std::move( owners ) );
 }
 
@@ -204,7 +204,6 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::LightningSystem>().update( dt );
 
   auto player_pos = Utils::Player::get_position( m_reg ).getCenter();
-
   auto *particle_test = Sys::ParticleSystem::find( m_reg, "ParticleSprite" );
   if ( particle_test ) { particle_test->set_emitter( player_pos ); }
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );

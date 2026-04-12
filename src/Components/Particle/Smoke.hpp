@@ -18,7 +18,7 @@ struct SmokeParticle : public Cmp::Particle::ParticleBase
 
   struct Properties
   {
-    float speed{ 40.f };
+    float speed{ 20.f };
     sf::Angle max_angle{ sf::degrees( 270.f ) };
   } props;
 
@@ -32,10 +32,12 @@ class Smoke : public ParticleSpriteBase<detail::SmokeParticle>
 {
 public:
   //! @brief Construct a new Particle Sprite Test object
-  Smoke( sf::Vector2f emitter_pos );
+  Smoke( sf::Vector2f emitter_pos, size_t gen );
   void simulate( sf::Time dt ) override;
 
-  float m_wave_time{ 0.f }; // single shared wave time for all particles
+  float m_wave_time{ 0.f };   // single shared wave time for all particles
+  float m_elapsed{ 0.f };     // tracks total time elapsed
+  float m_rise_speed{ 20.f }; // pixels per second upward
 };
 
 } // namespace ProceduralMaze::Cmp::Particle
