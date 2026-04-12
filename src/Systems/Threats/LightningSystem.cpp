@@ -35,12 +35,11 @@ void LightningSystem::update( sf::Time dt )
     create_lightning_strike( dt );
     trigger_lightning = false;
 
-    auto &player_health = Utils::Player::get_health( getReg() );
+    auto &player_health = Utils::Player::get_health( reg() );
     player_health.health -= 25.f;
     if ( player_health.health <= 0 )
     {
-      get_systems_event_queue().trigger(
-          Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SHOCKED, Utils::Player::get_position( getReg() ) ) );
+      get_systems_event_queue().trigger( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SHOCKED, Utils::Player::get_position( reg() ) ) );
     }
   }
 
@@ -49,13 +48,13 @@ void LightningSystem::update( sf::Time dt )
 
 bool LightningSystem::lightning_strike_exists()
 {
-  auto ls_view = getReg().view<Cmp::LightningStrike>();
+  auto ls_view = reg().view<Cmp::LightningStrike>();
   return not ls_view.empty();
 }
 
 void LightningSystem::create_lightning_strike( [[maybe_unused]] sf::Time dt )
 {
-  auto player_position = Utils::Player::get_position( getReg() );
+  auto player_position = Utils::Player::get_position( reg() );
 
   // make sure the origin is within the game view (not world y=0!)
   auto origin_pos = sf::Vector2f( player_position.getCenter().x, player_position.y() - ( RenderGameSystem::kLocalMapViewSizeF.y / 2 ) );
@@ -76,8 +75,8 @@ void LightningSystem::create_lightning_strike( [[maybe_unused]] sf::Time dt )
     }
     SPDLOG_INFO( "Lightning strike main segment count: {}", ls_cmp_main.sequence.size() - 1 );
 
-    auto entt_main = getReg().create();
-    getReg().emplace_or_replace<Cmp::LightningStrike>( entt_main, ls_cmp_main );
+    auto entt_main = reg().create();
+    reg().emplace_or_replace<Cmp::LightningStrike>( entt_main, ls_cmp_main );
     SPDLOG_INFO( "Created lightning strike {}", static_cast<uint32_t>( entt_main ) );
   }
   m_sound_bank.get_effect( "lightning_strike" ).play();
@@ -86,14 +85,14 @@ void LightningSystem::create_lightning_strike( [[maybe_unused]] sf::Time dt )
 void LightningSystem::delete_expired_lightning_strikes()
 {
   std::vector<entt::entity> kill_list;
-  for ( auto [entt, cmp] : getReg().view<Cmp::LightningStrike>().each() )
+  for ( auto [entt, cmp] : reg().view<Cmp::LightningStrike>().each() )
   {
     if ( cmp.timer.getElapsedTime() >= cmp.duration ) { kill_list.push_back( entt ); }
   }
 
   for ( auto &entt : kill_list )
   {
-    getReg().destroy( entt );
+    reg().destroy( entt );
     SPDLOG_INFO( "Destroyed lightning strike {}", static_cast<uint32_t>( entt ) );
   }
 }

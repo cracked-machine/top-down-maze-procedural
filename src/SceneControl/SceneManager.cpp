@@ -337,7 +337,7 @@ void SceneManager::inject_current_scene_registry_into_systems()
   if ( m_scene_stack.empty() ) { throw std::runtime_error( "SceneManager::inject_registry: No current scene available" ); }
   entt::registry &reg = m_scene_stack.current().registry();
   for ( auto &sys : m_system_store )
-    sys.second->setReg( reg ); // pass the unique_ptr by reference
+    sys.second->reg( reg ); // pass the unique_ptr by reference
 
   SPDLOG_INFO( "Injected registry into {} systems for {}", m_system_store.size(), m_scene_stack.current().get_name() );
 }

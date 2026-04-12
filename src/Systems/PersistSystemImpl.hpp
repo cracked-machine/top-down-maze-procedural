@@ -40,18 +40,15 @@ void PersistSystem::registerTypes( const std::string &name )
   // Register loader
   m_component_loaders[name] = [this]( const nlohmann::json &j )
   {
-    auto &cmp = Sys::PersistSystem::get<T>( getReg() );
+    auto &cmp = Sys::PersistSystem::get<T>( reg() );
     cmp.deserialize( j );
   };
 
   // Register serializer
-  m_component_serializers[name] = [this]() -> nlohmann::json { return Sys::PersistSystem::get<T>( getReg() ).serialize(); };
+  m_component_serializers[name] = [this]() -> nlohmann::json { return Sys::PersistSystem::get<T>( reg() ).serialize(); };
 
   // Only add to widget list if T inherits from IBasePersistent
-  if constexpr ( std::is_base_of_v<Cmp::Persist::IBasePersistent, T> )
-  {
-    m_registered_components.push_back( &Sys::PersistSystem::get<T>( getReg() ) );
-  }
+  if constexpr ( std::is_base_of_v<Cmp::Persist::IBasePersistent, T> ) { m_registered_components.push_back( &Sys::PersistSystem::get<T>( reg() ) ); }
 }
 
 } // namespace ProceduralMaze::Sys

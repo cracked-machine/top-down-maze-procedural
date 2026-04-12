@@ -33,7 +33,7 @@ void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2
   if ( align == Alignment::CENTER )
   {
     sf::FloatRect text_bounds = title_text.getLocalBounds();
-    sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+    sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
     final_position.x = display_size.x * 0.5f;
     final_position.x -= text_bounds.size.x * 0.5f;
   }

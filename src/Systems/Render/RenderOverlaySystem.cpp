@@ -126,7 +126,7 @@ void RenderOverlaySystem::render_radius_overlay( sf::Time dt, int radius_value, 
   bomb_count_text.setOutlineThickness( 2.f );
 
   // flash the text if we just deposited something in a well
-  auto flash_view = getReg().view<Cmp::FlashUIRadius>();
+  auto flash_view = reg().view<Cmp::FlashUIRadius>();
   if ( not flash_view.empty() )
   {
     auto flash_entt = flash_view.front();
@@ -134,7 +134,7 @@ void RenderOverlaySystem::render_radius_overlay( sf::Time dt, int radius_value, 
     m_flash_radius_ui_interval += dt;
     if ( m_flash_radius_ui_interval > flash_cmp.duration )
     {
-      getReg().remove<Cmp::FlashUIRadius>( flash_entt );
+      reg().remove<Cmp::FlashUIRadius>( flash_entt );
       m_flash_radius_ui_interval = sf::Time::Zero;
     }
     else if ( static_cast<int>( m_flash_radius_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
@@ -165,7 +165,7 @@ void RenderOverlaySystem::render_cadaver_count_overlay( sf::Time dt, unsigned in
   player_score_text.setOutlineColor( sf::Color::Black );
 
   // flash the text if we just picked up a cadaver
-  auto flash_view = getReg().view<Cmp::FlashUICadaver>();
+  auto flash_view = reg().view<Cmp::FlashUICadaver>();
   if ( not flash_view.empty() )
   {
     auto flash_entt = flash_view.front();
@@ -173,7 +173,7 @@ void RenderOverlaySystem::render_cadaver_count_overlay( sf::Time dt, unsigned in
     m_flash_cadaver_ui_interval += dt;
     if ( m_flash_cadaver_ui_interval > flash_cmp.duration )
     {
-      getReg().remove<Cmp::FlashUICadaver>( flash_entt );
+      reg().remove<Cmp::FlashUICadaver>( flash_entt );
       m_flash_cadaver_ui_interval = sf::Time::Zero;
     }
     else if ( static_cast<int>( m_flash_cadaver_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
@@ -205,7 +205,7 @@ void RenderOverlaySystem::render_wealth_overlay( sf::Time dt, unsigned int wealt
   player_score_text.setOutlineColor( sf::Color::Black );
 
   // flash the text if we just deposited something in a well
-  auto flash_view = getReg().view<Cmp::FlashUIWealth>();
+  auto flash_view = reg().view<Cmp::FlashUIWealth>();
   if ( not flash_view.empty() )
   {
     auto flash_entt = flash_view.front();
@@ -213,7 +213,7 @@ void RenderOverlaySystem::render_wealth_overlay( sf::Time dt, unsigned int wealt
     m_flash_wealth__ui_interval += dt;
     if ( m_flash_wealth__ui_interval > flash_cmp.duration )
     {
-      getReg().remove<Cmp::FlashUIWealth>( flash_entt );
+      reg().remove<Cmp::FlashUIWealth>( flash_entt );
       m_flash_wealth__ui_interval = sf::Time::Zero;
     }
     else if ( static_cast<int>( m_flash_wealth__ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
@@ -241,7 +241,7 @@ void RenderOverlaySystem::render_inventory_overlay( sf::Time dt, sf::Vector2f po
 
   m_window.draw( ui_background );
 
-  auto inventory_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::SpriteAnimation>();
+  auto inventory_view = reg().view<Cmp::PlayerInventorySlot, Cmp::SpriteAnimation>();
   for ( auto [inventory_entt, inventory_cmp, anim_cmp] : inventory_view.each() )
   {
     RenderSystem::safe_render_sprite( anim_cmp.m_sprite_type, { icon_pos, Constants::kGridSizePxF }, 0, sf::Vector2f{ icon_scale, icon_scale } );
@@ -256,7 +256,7 @@ void RenderOverlaySystem::render_inventory_overlay( sf::Time dt, sf::Vector2f po
     display_name.setOutlineColor( sf::Color::Black );
 
     // flash the text if we just picked up a cadaver
-    auto flash_view = getReg().view<Cmp::FlashUIInventory>();
+    auto flash_view = reg().view<Cmp::FlashUIInventory>();
     if ( not flash_view.empty() )
     {
       auto flash_entt = flash_view.front();
@@ -264,7 +264,7 @@ void RenderOverlaySystem::render_inventory_overlay( sf::Time dt, sf::Vector2f po
       m_flash_inventory_ui_interval += dt;
       if ( m_flash_inventory_ui_interval > flash_cmp.duration )
       {
-        getReg().remove<Cmp::FlashUIInventory>( flash_entt );
+        reg().remove<Cmp::FlashUIInventory>( flash_entt );
         m_flash_inventory_ui_interval = sf::Time::Zero;
       }
       else if ( static_cast<int>( m_flash_inventory_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
@@ -292,7 +292,7 @@ void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, s
   // water meter level is represented as a percentage (0-100) of the screen
   // display y-axis note: {0,0} is top left so we need to invert the Y
   // position
-  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
   float meter_meter_level = size.x - ( ( size.x / display_size.y ) * water_level );
   auto waterlvlbar = sf::RectangleShape( { meter_meter_level, size.y } );
   waterlvlbar.setPosition( pos + waterlvl_meter_offset );
@@ -310,10 +310,10 @@ void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, s
 
 void RenderOverlaySystem::render_level_depth()
 {
-  auto player_level_cmp = Utils::Player::get_level_depth( getReg() );
+  auto player_level_cmp = Utils::Player::get_level_depth( reg() );
   if ( player_level_cmp.display_timer.getElapsedTime() >= player_level_cmp.display_cooldown ) { return; }
 
-  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
   sf::Text level_txt( m_font, "Nekropolis " + std::to_string( player_level_cmp.get_count() ), 100 );
   level_txt.setPosition( { ( display_res.x / 2.f ) - level_txt.getLocalBounds().getCenter().x, display_res.y / 2.f } );
   level_txt.setFillColor( sf::Color::Blue );
@@ -322,7 +322,7 @@ void RenderOverlaySystem::render_level_depth()
 
 void RenderOverlaySystem::render_shop_inventory_overlay()
 {
-  auto inventory_view = getReg().view<Cmp::ShopInventory>().each();
+  auto inventory_view = reg().view<Cmp::ShopInventory>().each();
   for ( auto [inventory_entt, inventory_cmp] : inventory_view )
   {
     if ( not inventory_cmp.is_enabled ) continue;
@@ -440,14 +440,14 @@ void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f 
   // only gather stats every interval
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
   {
-    auto entity_count = getReg().view<entt::entity>().size();
-    auto npc_count = getReg().view<Cmp::NPC>().size();
-    auto position_count = getReg().view<Cmp::Position>().size();
-    auto corruption_count = getReg().view<Cmp::CorruptionCell>().size();
-    auto sinkhole_count = getReg().view<Cmp::SinkholeCell>().size();
-    auto crypt_passage_block_count = getReg().view<Cmp::CryptPassageBlock>().size();
+    auto entity_count = reg().view<entt::entity>().size();
+    auto npc_count = reg().view<Cmp::NPC>().size();
+    auto position_count = reg().view<Cmp::Position>().size();
+    auto corruption_count = reg().view<Cmp::CorruptionCell>().size();
+    auto sinkhole_count = reg().view<Cmp::SinkholeCell>().size();
+    auto crypt_passage_block_count = reg().view<Cmp::CryptPassageBlock>().size();
 
-    auto obst_view = getReg().view<Cmp::Obstacle>();
+    auto obst_view = reg().view<Cmp::Obstacle>();
     auto obstacle_count = obst_view.size();
 
     // clang-format off
@@ -483,9 +483,9 @@ void RenderOverlaySystem::render_zorder_values_overlay( sf::Vector2f pos, std::v
   float count = 0;
   for ( const auto &zorder_entry : zorder_queue )
   {
-    if ( getReg().all_of<Cmp::SpriteAnimation>( zorder_entry.e ) )
+    if ( reg().all_of<Cmp::SpriteAnimation>( zorder_entry.e ) )
     {
-      auto &sprite_anim_cmp = getReg().get<Cmp::SpriteAnimation>( zorder_entry.e );
+      auto &sprite_anim_cmp = reg().get<Cmp::SpriteAnimation>( zorder_entry.e );
       if ( exclusions.find( sprite_anim_cmp.m_sprite_type ) != exclusions.end() ) { continue; }
 
       std::stringstream ss;
@@ -508,7 +508,7 @@ void RenderOverlaySystem::render_npc_list_overlay( sf::Vector2f text_start_pos )
   // refresh the list only at intervals
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
   {
-    auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>();
+    auto npc_view = reg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>();
     m_npc_list_text.clear();
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp, npc_anim_cmp] : npc_view.each() )
     {
@@ -554,7 +554,7 @@ void RenderOverlaySystem::render_obstacle_markers()
 {
   if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
   {
-    auto obstacle_view = getReg().view<Cmp::Position, Cmp::Obstacle>();
+    auto obstacle_view = reg().view<Cmp::Position, Cmp::Obstacle>();
     for ( auto [ob_entt, pos_cmp, obst_cmp] : obstacle_view.each() )
     {
       sf::RectangleShape obstacle_shape( Constants::kGridSizePxF );
@@ -567,7 +567,7 @@ void RenderOverlaySystem::render_obstacle_markers()
 
 void RenderOverlaySystem::render_lerp_positions()
 {
-  auto lerp_view = getReg().view<Cmp::LerpPosition, Cmp::Direction, Cmp::NPC, Cmp::Position>();
+  auto lerp_view = reg().view<Cmp::LerpPosition, Cmp::Direction, Cmp::NPC, Cmp::Position>();
   for ( auto [entity, lerp_pos_cmp, dir_cmp, npc_cmp, npc_pos_cmp] : lerp_view.each() )
   {
     sf::RectangleShape lerp_start_pos_rect( Constants::kGridSizePxF );
@@ -593,9 +593,9 @@ void RenderOverlaySystem::render_spatial_grid_neighbours( const Cmp::Position &q
     std::vector<entt::entity> neighbours_list = spatialgrid_ptr->neighbours( Cmp::Position( query_pos.position, query_pos.size ), query_compass );
     for ( auto neighbour_entt : neighbours_list )
     {
-      auto *neighbour_pos = getReg().try_get<Cmp::Position>( neighbour_entt );
+      auto *neighbour_pos = reg().try_get<Cmp::Position>( neighbour_entt );
       if ( not neighbour_pos ) continue;
-      if ( getReg().any_of<Cmp::PlayerCharacter, Cmp::NPC>( neighbour_entt ) ) continue;
+      if ( reg().any_of<Cmp::PlayerCharacter, Cmp::NPC>( neighbour_entt ) ) continue;
 
       sf::RectangleShape rectangle;
       rectangle.setSize( neighbour_pos->size );
@@ -615,7 +615,7 @@ void RenderOverlaySystem::render_pathfinding_vector( const Cmp::Position &start_
 
   if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_pathfinding_navmesh.lock() )
   {
-    std::vector<PathFinding::PathNode> path = PathFinding::astar( getReg(), *spatialgrid_ptr, start_pos_cmp, end_pos_cmp, query_compass );
+    std::vector<PathFinding::PathNode> path = PathFinding::astar( reg(), *spatialgrid_ptr, start_pos_cmp, end_pos_cmp, query_compass );
 
     for ( auto pathnode : path )
     {

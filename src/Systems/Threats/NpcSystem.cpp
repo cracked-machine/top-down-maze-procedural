@@ -76,7 +76,7 @@ void NpcSystem::update( sf::Time dt )
   m_scan_accumulator += dt;
   if ( m_scan_accumulator.asSeconds() >= kScanInterval )
   {
-    update_pathfinding( Utils::Player::get_entity( getReg() ) );
+    update_pathfinding( Utils::Player::get_entity( reg() ) );
     m_scan_accumulator = sf::Time::Zero;
   }
 
@@ -91,7 +91,7 @@ void NpcSystem::update( sf::Time dt )
 
   update_movement( dt );
 
-  if ( not Utils::getSystemCmp( getReg() ).collisions_disabled ) { check_player_to_npc_collision(); }
+  if ( not Utils::getSystemCmp( reg() ).collisions_disabled ) { check_player_to_npc_collision(); }
 
   update_shockwaves();
 }
@@ -99,21 +99,21 @@ void NpcSystem::update( sf::Time dt )
 void NpcSystem::check_bones_reanimation()
 {
 
-  auto player_pos = Utils::Player::get_position( getReg() );
-  auto npccontainer_collision_view = getReg().view<Cmp::NpcContainer, Cmp::Position>();
+  auto player_pos = Utils::Player::get_position( reg() );
+  auto npccontainer_collision_view = reg().view<Cmp::NpcContainer, Cmp::Position>();
 
   for ( auto [npccontainer_entt, npccontainer_cmp, npccontainer_pos_cmp] : npccontainer_collision_view.each() )
   {
     if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), npccontainer_pos_cmp ) ) continue;
 
-    auto &npc_activate_scale = Sys::PersistSystem::get<Cmp::Persist::NpcActivateScale>( getReg() );
+    auto &npc_activate_scale = Sys::PersistSystem::get<Cmp::Persist::NpcActivateScale>( reg() );
     // we just create a temporary RectBounds here instead of a component because we only need it
     // for this one comparison and it already contains the needed scaling logic
     auto npc_activate_bounds = Cmp::RectBounds::scaled( npccontainer_pos_cmp.position, Constants::kGridSizePxF, npc_activate_scale.get_value() );
 
     if ( player_pos.findIntersection( npc_activate_bounds.getBounds() ) )
     {
-      Factory::create_npc( getReg(), npccontainer_entt, "NPCSKELE" );
+      Factory::create_npc( reg(), npccontainer_entt, "NPCSKELE" );
       m_sound_bank.get_effect( "spawn_skeleton" ).play();
     }
   }
@@ -121,7 +121,7 @@ void NpcSystem::check_bones_reanimation()
 
 void NpcSystem::update_animation()
 {
-  for ( auto [npc_entt, npc_cmp, npc_dir_cmp, anim_cmp] : getReg().view<Cmp::NPC, Cmp::Direction, Cmp::SpriteAnimation>().each() )
+  for ( auto [npc_entt, npc_cmp, npc_dir_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Direction, Cmp::SpriteAnimation>().each() )
   {
 
     if ( npc_dir_cmp == sf::Vector2f( 0.0f, 0.0f ) )
@@ -158,17 +158,17 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
   if ( not pathfinding_navmesh ) return;
 
-  auto player_pos_cmp = Utils::Player::get_position( getReg() );
-  auto player_in_spawn = Utils::Player::is_in_spawn( getReg(), player_pos_cmp );
+  auto player_pos_cmp = Utils::Player::get_position( reg() );
+  auto player_in_spawn = Utils::Player::is_in_spawn( reg(), player_pos_cmp );
 
-  auto npc_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation, Cmp::NpcLerpSpeed>( entt::exclude<Cmp::NpcFriendly> );
+  auto npc_view = reg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation, Cmp::NpcLerpSpeed>( entt::exclude<Cmp::NpcFriendly> );
   for ( auto [npc_entity, npc_cmp, npc_pos_cmp, anim_cmp, lerp_speed_cmp] : npc_view.each() )
   {
 
     if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), npc_pos_cmp ) ) continue;
 
     // don't intterupt NPC mid-lerp or it causes indecisive pathfinding
-    auto *npc_lerp_pos_cmp = getReg().try_get<Cmp::LerpPosition>( npc_entity );
+    auto *npc_lerp_pos_cmp = reg().try_get<Cmp::LerpPosition>( npc_entity );
     if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) continue;
 
     // allow ghosts to sneak through gaps
@@ -176,7 +176,7 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
     if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) query_compass = PathFinding::QueryCompass::BOTH;
 
     // now get latest path vector for NPC -> player
-    std::vector<PathFinding::PathNode> path = PathFinding::astar( getReg(), *pathfinding_navmesh, npc_pos_cmp, player_pos_cmp, query_compass );
+    std::vector<PathFinding::PathNode> path = PathFinding::astar( reg(), *pathfinding_navmesh, npc_pos_cmp, player_pos_cmp, query_compass );
 
     // dont let NPC follow player into spawn but keep pathfinding active up to penultimate path node
     // if ( player_in_spawn and not path.empty() ) path.pop_back();
@@ -200,8 +200,8 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
 
       auto norm_direction = Cmp::Direction( distance_to_target.normalized() );
 
-      getReg().emplace_or_replace<Cmp::Direction>( npc_entity, std::move( norm_direction ) );
-      getReg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, std::move( candidate_lerp_pos ) );
+      reg().emplace_or_replace<Cmp::Direction>( npc_entity, std::move( norm_direction ) );
+      reg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, std::move( candidate_lerp_pos ) );
     }
   }
 }
@@ -209,20 +209,20 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
 void NpcSystem::update_movement( sf::Time dt )
 {
   auto exclusions = entt::exclude<Cmp::AltarSegment, Cmp::CryptSegment, Cmp::SpawnArea, Cmp::PlayerCharacter>;
-  auto view = getReg().view<Cmp::Position, Cmp::LerpPosition, Cmp::Direction>( exclusions );
+  auto view = reg().view<Cmp::Position, Cmp::LerpPosition, Cmp::Direction>( exclusions );
 
   for ( auto [npc_entt, pos_cmp, lerp_pos_cmp, dir_cmp] : view.each() )
   {
 
     // if there is an obstacle at this entity move onto the next entity
-    auto obst_cmp = getReg().try_get<Cmp::Obstacle>( npc_entt );
+    auto obst_cmp = reg().try_get<Cmp::Obstacle>( npc_entt );
     if ( obst_cmp ) continue;
 
     // If this is the first update, store the start position
     if ( lerp_pos_cmp.m_lerp_factor == 0.0f )
     {
       // Allow NPCs to escape wormholes if they're mid-lerp.
-      if ( getReg().try_get<Cmp::WormholeJump>( npc_entt ) ) continue;
+      if ( reg().try_get<Cmp::WormholeJump>( npc_entt ) ) continue;
 
       lerp_pos_cmp.m_start = pos_cmp.position;
     }
@@ -234,7 +234,7 @@ void NpcSystem::update_movement( sf::Time dt )
     {
       auto old_position = pos_cmp;
       pos_cmp.position = lerp_pos_cmp.m_target;
-      getReg().remove<Cmp::LerpPosition>( npc_entt );
+      reg().remove<Cmp::LerpPosition>( npc_entt );
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
         pathfinding_navmesh->update( npc_entt, old_position, pos_cmp );
     }
@@ -248,7 +248,7 @@ void NpcSystem::update_movement( sf::Time dt )
       pos_cmp.position.y = one_minus_t * lerp_pos_cmp.m_start.y + t * lerp_pos_cmp.m_target.y;
     }
 
-    getReg().patch<Cmp::ZOrderValue>( npc_entt, [&]( auto &zorder_cmp ) { zorder_cmp.setZOrder( pos_cmp.position.y ); } );
+    reg().patch<Cmp::ZOrderValue>( npc_entt, [&]( auto &zorder_cmp ) { zorder_cmp.setZOrder( pos_cmp.position.y ); } );
   }
 }
 
@@ -256,7 +256,7 @@ bool NpcSystem::is_valid_move( const sf::FloatRect &target_position )
 {
 
   // arbitrary Cmp::NoPathFinding components
-  auto nppathfinding_view = getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>();
+  auto nppathfinding_view = reg().view<Cmp::NpcNoPathFinding, Cmp::Position>();
   for ( auto [entt, nopath_cmp, pos_cmp] : nppathfinding_view.each() )
   {
     if ( pos_cmp.findIntersection( target_position ) )
@@ -271,13 +271,13 @@ bool NpcSystem::is_valid_move( const sf::FloatRect &target_position )
 
 void NpcSystem::check_player_to_npc_collision()
 {
-  auto player_collision_view = getReg().view<Cmp::PlayerCharacter>();
-  auto npc_collision_view = getReg().view<Cmp::NPC, Cmp::Position, Cmp::Direction>( entt::exclude<Cmp::NpcFriendly> );
+  auto player_collision_view = reg().view<Cmp::PlayerCharacter>();
+  auto npc_collision_view = reg().view<Cmp::NPC, Cmp::Position, Cmp::Direction>( entt::exclude<Cmp::NpcFriendly> );
 
-  auto &player_dmg_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() );
-  auto &player_pos = Utils::Player::get_position( getReg() );
-  auto &player_mort = Utils::Player::get_mortality( getReg() );
-  auto &player_health = Utils::Player::get_health( getReg() );
+  auto &player_dmg_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() );
+  auto &player_pos = Utils::Player::get_position( reg() );
+  auto &player_mort = Utils::Player::get_mortality( reg() );
+  auto &player_health = Utils::Player::get_health( reg() );
 
   for ( auto [pc_entity, pc_cmp] : player_collision_view.each() )
   {
@@ -292,7 +292,7 @@ void NpcSystem::check_player_to_npc_collision()
 
       if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < player_dmg_cooldown.get_value() ) continue;
 
-      auto &npc_damage = Sys::PersistSystem::get<Cmp::Persist::NpcDamage>( getReg() );
+      auto &npc_damage = Sys::PersistSystem::get<Cmp::Persist::NpcDamage>( reg() );
       player_health.health -= npc_damage.get_value();
 
       m_sound_bank.get_effect( "damage_player" ).play();
@@ -301,7 +301,7 @@ void NpcSystem::check_player_to_npc_collision()
       {
         player_mort.state = Cmp::PlayerMortality::State::HAUNTED;
         get_systems_event_queue().enqueue(
-            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED, Utils::Player::get_position( getReg() ) ) );
+            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED, Utils::Player::get_position( reg() ) ) );
         return;
       }
 
@@ -314,7 +314,7 @@ void NpcSystem::check_player_to_npc_collision()
 
 void NpcSystem::find_pushback_position( const Cmp::Direction &npc_direction )
 {
-  auto &player_pos = Utils::Player::get_position( getReg() );
+  auto &player_pos = Utils::Player::get_position( reg() );
 
   auto new_position = Utils::snap_to_grid( player_pos.position + ( npc_direction.componentWiseMul( Constants::kGridSizePxF ) ) );
   SPDLOG_DEBUG( "Player position was {},{} - Knockback direction is {}, {} - New Position should be {},{}", player_pos.position.x,
@@ -322,12 +322,12 @@ void NpcSystem::find_pushback_position( const Cmp::Direction &npc_direction )
 
   // make sure player isnt knocked into an obstacle or multiblock
   auto new_pos_rect = Cmp::RectBounds::scaled( new_position, Constants::kGridSizePxF, 1.f );
-  if ( Utils::Collision::check_cmp<Cmp::Obstacle>( getReg(), new_pos_rect ) ) return;
-  if ( Utils::Collision::check_cmp<Cmp::AltarSegment>( getReg(), new_pos_rect ) ) return;
-  if ( Utils::Collision::check_cmp<Cmp::GraveSegment>( getReg(), new_pos_rect ) ) return;
-  if ( Utils::Collision::check_cmp<Cmp::CryptSegment>( getReg(), new_pos_rect ) ) return;
-  if ( Utils::Collision::check_cmp<Cmp::RuinSegment>( getReg(), new_pos_rect ) ) return;
-  if ( Utils::Collision::check_cmp<Cmp::CryptObjectiveSegment>( getReg(), new_pos_rect ) ) return;
+  if ( Utils::Collision::check_cmp<Cmp::Obstacle>( reg(), new_pos_rect ) ) return;
+  if ( Utils::Collision::check_cmp<Cmp::AltarSegment>( reg(), new_pos_rect ) ) return;
+  if ( Utils::Collision::check_cmp<Cmp::GraveSegment>( reg(), new_pos_rect ) ) return;
+  if ( Utils::Collision::check_cmp<Cmp::CryptSegment>( reg(), new_pos_rect ) ) return;
+  if ( Utils::Collision::check_cmp<Cmp::RuinSegment>( reg(), new_pos_rect ) ) return;
+  if ( Utils::Collision::check_cmp<Cmp::CryptObjectiveSegment>( reg(), new_pos_rect ) ) return;
 
   player_pos.position = new_position;
 }
@@ -335,29 +335,29 @@ void NpcSystem::find_pushback_position( const Cmp::Direction &npc_direction )
 void NpcSystem::update_shockwaves()
 {
   // emit shockwaves from each NPC
-  for ( auto npc_entt : getReg().view<Cmp::NPC>() )
+  for ( auto npc_entt : reg().view<Cmp::NPC>() )
   {
-    auto npc_sprite_anim = getReg().try_get<Cmp::SpriteAnimation>( npc_entt );
+    auto npc_sprite_anim = reg().try_get<Cmp::SpriteAnimation>( npc_entt );
     if ( npc_sprite_anim && npc_sprite_anim->m_sprite_type == "NPCPRIEST" )
     {
       // cooldown is handled in Factory function via Cmp::NpcShockwaveTimer per NPC
-      Factory::create_shockwave( getReg(), npc_entt );
+      Factory::create_shockwave( reg(), npc_entt );
     }
   }
 
   auto shockwave_increments = 1;
 
   // Invert the interval - larger values = faster updates, smaller values = slower updates
-  auto speed_value = Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveSpeed>( getReg() ).get_value();
+  auto speed_value = Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveSpeed>( reg() ).get_value();
   sf::Time shockwave_update_interval{ sf::milliseconds( static_cast<int>( 1000.0f / speed_value ) ) };
 
-  auto max_radius = Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveMaxRadius>( getReg() );
+  auto max_radius = Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveMaxRadius>( reg() );
 
   if ( shockwave_update_clock.getElapsedTime() > shockwave_update_interval )
   {
-    for ( auto entt : getReg().view<Cmp::NpcShockwave>() )
+    for ( auto entt : reg().view<Cmp::NpcShockwave>() )
     {
-      auto &sw_cmp = getReg().get<Cmp::NpcShockwave>( entt );
+      auto &sw_cmp = reg().get<Cmp::NpcShockwave>( entt );
       float current_radius = sw_cmp.sprite.getRadius();
 
       // Exponential scaling - shockwave accelerates as it grows
@@ -370,7 +370,7 @@ void NpcSystem::update_shockwaves()
 
       checkShockwaveObstacleCollision( entt, sw_cmp );
 
-      if ( new_radius > max_radius.get_value() ) { getReg().destroy( entt ); }
+      if ( new_radius > max_radius.get_value() ) { reg().destroy( entt ); }
     }
     shockwave_update_clock.restart();
   }
@@ -378,7 +378,7 @@ void NpcSystem::update_shockwaves()
 
 void NpcSystem::checkShockwaveObstacleCollision( [[maybe_unused]] entt::entity shockwave_entity, Cmp::NpcShockwave &shockwave )
 {
-  auto obstacle_view = getReg().view<Cmp::Obstacle, Cmp::Position, Cmp::SpriteAnimation>();
+  auto obstacle_view = reg().view<Cmp::Obstacle, Cmp::Position, Cmp::SpriteAnimation>();
 
   for ( auto [obstacle_entity, obstacle_cmp, obstacle_pos, sprite_anim] : obstacle_view.each() )
   {

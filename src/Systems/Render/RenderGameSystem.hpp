@@ -127,17 +127,17 @@ private:
   template <typename Component>
   void add_visible_entity_to_z_order_queue( std::vector<ZOrder> &zorder_queue, sf::FloatRect view_bounds )
   {
-    for ( auto [entity, component] : getReg().view<Component>().each() )
+    for ( auto [entity, component] : reg().view<Component>().each() )
     {
       if ( Utils::is_visible_in_view( view_bounds, component ) )
       {
         // check the component entity has required components: Cmp::SpriteAnimation and Cmp::Position
-        auto sprite_cmp = getReg().try_get<Cmp::SpriteAnimation>( entity );
-        auto pos_cmp = getReg().try_get<Cmp::Position>( entity );
+        auto sprite_cmp = reg().try_get<Cmp::SpriteAnimation>( entity );
+        auto pos_cmp = reg().try_get<Cmp::Position>( entity );
 
         if ( sprite_cmp && pos_cmp )
         {
-          auto z_order_cmp = getReg().try_get<Cmp::ZOrderValue>( entity );
+          auto z_order_cmp = reg().try_get<Cmp::ZOrderValue>( entity );
           if ( z_order_cmp ) { zorder_queue.push_back( ZOrder{ z_order_cmp->getZOrder(), entity } ); }
         }
       }

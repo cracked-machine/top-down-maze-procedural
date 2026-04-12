@@ -39,7 +39,7 @@ public:
   void init_nav_mesh( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh )
   {
     m_pathfinding_navmesh = pathfinding_navmesh;
-    m_passage_algos.cache_wall_components( getReg() );
+    m_passage_algos.cache_wall_components( reg() );
   }
 
   void on_passage_event( Events::PassageEvent &event );

@@ -75,19 +75,19 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
 {
 
   // cache the player position so we can update the spatial grid afterwards.
-  auto old_player_pos = Utils::Player::get_position( getReg() );
+  auto old_player_pos = Utils::Player::get_position( reg() );
 
   // process changes to player position and related transforms
   localTransforms();
 
   if ( not m_post_death_timer.isRunning() )
   {
-    update_player_position( dt, Utils::getSystemCmp( getReg() ).collisions_disabled );
+    update_player_position( dt, Utils::getSystemCmp( reg() ).collisions_disabled );
     update_player_animation();
     update_player_zorder();
 
     // footstep sfx
-    auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
+    auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::Direction>();
     for ( auto [pc_entity, pc_cmp, dir_cmp] : player_view.each() )
     {
       if ( dir_cmp == sf::Vector2f( 0.f, 0.f ) ) { stopFootstepsSound(); }
@@ -100,15 +100,15 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
 
   if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
   {
-    auto new_player_pos = Utils::Player::get_position( getReg() );
-    pathfinding_navmesh->update( Utils::Player::get_entity( getReg() ), old_player_pos, new_player_pos );
+    auto new_player_pos = Utils::Player::get_position( reg() );
+    pathfinding_navmesh->update( Utils::Player::get_entity( reg() ), old_player_pos, new_player_pos );
   }
 }
 
 void PlayerSystem::localTransforms()
 {
 
-  auto blinking_player_view = getReg()
+  auto blinking_player_view = reg()
                                   .view<Cmp::PlayerCharacter, Cmp::Position, Cmp::Direction, Cmp::SpriteAnimation, Cmp::PlayerMortality,
                                         Cmp::AbsoluteAlpha, Cmp::AbsoluteRotation, Cmp::PlayerHealth>();
   for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, anim_cmp, mortality_cmp, alpha_cmp, rotation_cmp, player_health_cmp] : blinking_player_view.each() )
@@ -116,7 +116,7 @@ void PlayerSystem::localTransforms()
     // // normal do nothing
     // if ( mortality_cmp.state != Cmp::PlayerMortality::State::ALIVE ) continue;
     // wormhole jump fade effect
-    auto *wormhole_jump = getReg().try_get<Cmp::WormholeJump>( entity );
+    auto *wormhole_jump = reg().try_get<Cmp::WormholeJump>( entity );
     if ( wormhole_jump )
     {
       // Calculate fade based on elapsed time vs total cooldown
@@ -135,7 +135,7 @@ void PlayerSystem::localTransforms()
     else
     {
       // damage cooldown blink effect
-      auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() );
+      auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() );
       bool is_in_damage_cooldown = pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value();
       int blink_visible = static_cast<int>( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asMilliseconds() / 100 ) % 2 == 0;
       if ( !is_in_damage_cooldown || ( is_in_damage_cooldown && blink_visible ) ) { alpha_cmp = 255; }
@@ -147,12 +147,12 @@ void PlayerSystem::localTransforms()
 void PlayerSystem::update_player_position( sf::Time globalDeltaTime, bool collision_disabled )
 {
 
-  Cmp::Position &player_pos = Utils::Player::get_position( getReg() );
+  Cmp::Position &player_pos = Utils::Player::get_position( reg() );
 
-  const Cmp::Direction raw_direction = Utils::Player::get_direction( getReg() );
+  const Cmp::Direction raw_direction = Utils::Player::get_direction( reg() );
   if ( raw_direction == sf::Vector2f( 0.f, 0.f ) ) return; // optimization
 
-  auto &player_movement_speed = Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( getReg() );
+  auto &player_movement_speed = Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( reg() );
   const float step = player_movement_speed.get_value() * globalDeltaTime.asSeconds();
   const Cmp::Direction direction = raw_direction.componentWiseMul( { step, step } );
 
@@ -217,8 +217,8 @@ void PlayerSystem::update_player_position( sf::Time globalDeltaTime, bool collis
 
 void PlayerSystem::update_player_animation()
 {
-  const Cmp::Direction direction_cmp = Utils::Player::get_direction( getReg() );
-  Cmp::SpriteAnimation &anim_cmp = Utils::Player::get_sprite_anim( getReg() );
+  const Cmp::Direction direction_cmp = Utils::Player::get_direction( reg() );
+  Cmp::SpriteAnimation &anim_cmp = Utils::Player::get_sprite_anim( reg() );
 
   // update the animation state based on movement direction
   if ( direction_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { anim_cmp.m_animation_active = false; }
@@ -234,8 +234,8 @@ void PlayerSystem::update_player_animation()
 
 void PlayerSystem::update_player_zorder()
 {
-  Cmp::ZOrderValue &zorder_cmp = Utils::Player::get_zorder( getReg() );
-  const Cmp::Position player_pos = Utils::Player::get_position( getReg() );
+  Cmp::ZOrderValue &zorder_cmp = Utils::Player::get_zorder( reg() );
+  const Cmp::Position player_pos = Utils::Player::get_position( reg() );
   zorder_cmp.setZOrder( player_pos.position.y );
 }
 
@@ -245,10 +245,10 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
   auto common_death_throes = [&]()
   {
     m_post_death_timer.restart();
-    getReg().remove<Cmp::SpriteAnimation>( Utils::Player::get_entity( getReg() ) );
+    reg().remove<Cmp::SpriteAnimation>( Utils::Player::get_entity( reg() ) );
     stopFootstepsSound();
-    Utils::Player::get_health( getReg() ).health = 0;
-    Utils::Player::get_mortality( getReg() ).state = Cmp::PlayerMortality::State::DEAD;
+    Utils::Player::get_health( reg() ).health = 0;
+    Utils::Player::get_mortality( reg() ).state = Cmp::PlayerMortality::State::DEAD;
     SPDLOG_INFO( "Player is dead" );
   };
 
@@ -260,28 +260,28 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
     case Cmp::PlayerMortality::State::FALLING: {
       SPDLOG_INFO( "Player is falling" );
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::DECAYING: {
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::HAUNTED: {
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::EXPLODING: {
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
@@ -291,35 +291,35 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
     }
     case Cmp::PlayerMortality::State::SQUISHED: {
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::SUICIDE: {
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::IGNITED: {
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.lavaflames" );
-      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "shrine_lighting" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::SKEWERED: {
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::SHOCKED: {
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
@@ -329,7 +329,7 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
     }
     case Cmp::PlayerMortality::State::SHADOWCURSED:
       auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
-      Factory::create_player_death_anim( getReg(), ev.m_death_pos, sprite );
+      Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
@@ -343,11 +343,11 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
   {
     if ( m_inventory_cooldown_timer.getElapsedTime() < sf::milliseconds( 750.f ) ) return;
 
-    auto player_pos = Utils::Player::get_position( getReg() );
+    auto player_pos = Utils::Player::get_position( reg() );
     Sprites::SpriteMetaType existing_player_inventory_type = "";
 
     // drop inventory if we have one
-    auto inventory_view = getReg().view<Cmp::PlayerInventorySlot>();
+    auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
     for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
     {
       existing_player_inventory_type = inventory_cmp.type;
@@ -360,7 +360,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
     }
 
     // pickup inventory if there is something at this position
-    auto world_carryitem_view = getReg().view<Cmp::CarryItem, Cmp::Position>();
+    auto world_carryitem_view = reg().view<Cmp::CarryItem, Cmp::Position>();
     for ( auto [carryitem_entt, carryitem_cmp, pos_cmp] : world_carryitem_view.each() )
     {
       if ( not player_pos.findIntersection( pos_cmp ) ) continue;           // is there something to pick up?
@@ -368,7 +368,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
       if ( inventory_view.size() > 0 ) { break; }                           // don't pickup another if we already have one
 
       // ok pick it up
-      if ( Factory::pickup_carry_item( getReg(), carryitem_entt ) != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
+      if ( Factory::pickup_carry_item( reg(), carryitem_entt ) != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
     }
     m_inventory_cooldown_timer.restart();
     SPDLOG_DEBUG( "inventory_view: {} ", inventory_view.size() );
@@ -386,7 +386,7 @@ bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
   using namespace Utils::Collision;
 
   auto is_active = []( const Cmp::PlayerNoPath &playernopath ) { return playernopath.active; };
-  if ( check_cmp<Cmp::PlayerNoPath>( getReg(), search_bounds, is_active ) ) { return false; }
+  if ( check_cmp<Cmp::PlayerNoPath>( reg(), search_bounds, is_active ) ) { return false; }
 
   return true;
 }
@@ -394,7 +394,7 @@ bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
 void PlayerSystem::check_player_mortality()
 {
 
-  auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
+  auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
   for ( auto [entity, pc_cmp, health_cmp, mortality_cmp, player_pos_cmp] : player_view.each() )
   {
     if ( ( mortality_cmp.state == Cmp::PlayerMortality::State::DEAD ) and ( m_post_death_timer.getElapsedTime() > sf::seconds( 5.f ) ) )
@@ -411,7 +411,7 @@ void PlayerSystem::check_player_mortality()
 
 entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entity inventory_slot_entt )
 {
-  auto inventory_slot_cmp = getReg().try_get<Cmp::PlayerInventorySlot>( inventory_slot_entt );
+  auto inventory_slot_cmp = reg().try_get<Cmp::PlayerInventorySlot>( inventory_slot_entt );
 
   if ( not inventory_slot_cmp )
   {
@@ -422,39 +422,33 @@ entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, ent
   // if plant then replant it in the ground - snap to nearest grid to prevent collision issues
   if ( inventory_slot_cmp->type.contains( "plant" ) )
   {
-    auto world_carry_item_entt = Factory::create_plant_obstacle( getReg(), Cmp::Position( Utils::snap_to_grid( pos ), Constants::kGridSizePxF ),
+    auto world_carry_item_entt = Factory::create_plant_obstacle( reg(), Cmp::Position( Utils::snap_to_grid( pos ), Constants::kGridSizePxF ),
                                                                  m_sprite_factory.get_multisprite_by_type( inventory_slot_cmp->type ) );
-    getReg().destroy( inventory_slot_entt );
+    reg().destroy( inventory_slot_entt );
     return world_carry_item_entt;
   }
   else
   {
     // otherwise just drop it as a Re-pickupable item
-    auto world_carry_item_entt = getReg().create();
-    getReg().emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos, Constants::kGridSizePxF );
-    getReg().emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, false, inventory_slot_cmp->type, 0 );
-    getReg().emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.y - 1.f );
-    getReg().emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, inventory_slot_cmp->type );
-    getReg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
+    auto world_carry_item_entt = reg().create();
+    reg().emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos, Constants::kGridSizePxF );
+    reg().emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, false, inventory_slot_cmp->type, 0 );
+    reg().emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.y - 1.f );
+    reg().emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, inventory_slot_cmp->type );
+    reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
 
     // try to copy any relevant components over to the new world carryitem entt
-    auto inventory_slot_level_cmp = getReg().try_get<Cmp::InventoryWearLevel>( inventory_slot_entt );
-    if ( inventory_slot_level_cmp )
-    {
-      getReg().emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, inventory_slot_level_cmp->m_level );
-    }
+    auto inventory_slot_level_cmp = reg().try_get<Cmp::InventoryWearLevel>( inventory_slot_entt );
+    if ( inventory_slot_level_cmp ) { reg().emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, inventory_slot_level_cmp->m_level ); }
 
-    auto inventory_scryingball_cmp = getReg().try_get<Cmp::ScryingBall>( inventory_slot_entt );
-    if ( inventory_scryingball_cmp )
-    {
-      getReg().emplace_or_replace<Cmp::ScryingBall>( world_carry_item_entt, true, inventory_scryingball_cmp->target );
-    }
+    auto inventory_scryingball_cmp = reg().try_get<Cmp::ScryingBall>( inventory_slot_entt );
+    if ( inventory_scryingball_cmp ) { reg().emplace_or_replace<Cmp::ScryingBall>( world_carry_item_entt, true, inventory_scryingball_cmp->target ); }
 
-    auto inventory_explosive_cmp = getReg().try_get<Cmp::Explosive>( inventory_slot_entt );
-    if ( inventory_explosive_cmp ) { getReg().emplace_or_replace<Cmp::Explosive>( world_carry_item_entt, false ); }
+    auto inventory_explosive_cmp = reg().try_get<Cmp::Explosive>( inventory_slot_entt );
+    if ( inventory_explosive_cmp ) { reg().emplace_or_replace<Cmp::Explosive>( world_carry_item_entt, false ); }
 
     // now destroy the inventory slot
-    getReg().destroy( inventory_slot_entt );
+    reg().destroy( inventory_slot_entt );
     return world_carry_item_entt;
   }
 }
@@ -496,7 +490,7 @@ void PlayerSystem::stopFootstepsSound()
 
 void PlayerSystem::disable_damage_cooldown()
 {
-  for ( auto [player_entt, player_cmp] : getReg().view<Cmp::PlayerCharacter>().each() )
+  for ( auto [player_entt, player_cmp] : reg().view<Cmp::PlayerCharacter>().each() )
   {
     player_cmp.m_damage_cooldown_timer.stop();
   }
@@ -504,7 +498,7 @@ void PlayerSystem::disable_damage_cooldown()
 
 void PlayerSystem::enable_damage_cooldown()
 {
-  for ( auto [player_entt, player_cmp] : getReg().view<Cmp::PlayerCharacter>().each() )
+  for ( auto [player_entt, player_cmp] : reg().view<Cmp::PlayerCharacter>().each() )
   {
     player_cmp.m_damage_cooldown_timer.restart();
   }
@@ -515,20 +509,20 @@ void PlayerSystem::check_player_axe_npc_kill()
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
   if ( not pathfinding_navmesh ) return;
 
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
+  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
   if ( inventory_slot_type != "CARRYITEM.axe" ) { return; }
 
-  if ( Utils::Player::get_inventory_wear_level( getReg() ) <= 0 ) { return; }
+  if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
 
   // Cooldown has expired: Remove any existing SelectedPosition components from the registry
-  auto selected_position_view = getReg().view<Cmp::SelectedPosition>();
+  auto selected_position_view = reg().view<Cmp::SelectedPosition>();
   for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
   {
-    getReg().remove<Cmp::SelectedPosition>( existing_sel_entity );
+    reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
   }
 
   // Iterate through all entities with Position and Obstacle components
-  auto position_view = getReg().view<Cmp::Position, Cmp::NPC, Cmp::SpriteAnimation>( entt::exclude<Cmp::SelectedPosition> );
+  auto position_view = reg().view<Cmp::Position, Cmp::NPC, Cmp::SpriteAnimation>( entt::exclude<Cmp::SelectedPosition> );
   SPDLOG_DEBUG( "position_view size: {}", position_view.size_hint() );
   for ( auto [npc_entity, npc_pos_cmp, npc_cmp, anim_cmp] : position_view.each() )
   {
@@ -541,7 +535,7 @@ void PlayerSystem::check_player_axe_npc_kill()
       // TODO: check player is facing the obstacle
       // Check player proximity to the entity
       bool player_nearby = false;
-      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
+      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
       {
         auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
         if ( player_hitbox.findIntersection( npc_pos_cmp ) )
@@ -556,16 +550,16 @@ void PlayerSystem::check_player_axe_npc_kill()
 
       // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
       // Add a new SelectedPosition component to the entity
-      getReg().emplace_or_replace<Cmp::SelectedPosition>( npc_entity, npc_pos_cmp.position );
+      reg().emplace_or_replace<Cmp::SelectedPosition>( npc_entity, npc_pos_cmp.position );
 
-      float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
-      Utils::Player::reduce_inventory_wear_level( getReg(), reduction_amount );
+      float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
+      Utils::Player::reduce_inventory_wear_level( reg(), reduction_amount );
 
       // select the final smash sound
       m_sound_bank.get_effect( "axe_whip" ).play();
       m_sound_bank.get_effect( "skele_death" ).play();
 
-      auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
+      auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
       if ( inventory_slot_type == "CARRYITEM.axe" )
       {
         // drop loot - 1 in 3 chance
@@ -575,7 +569,7 @@ void PlayerSystem::check_player_axe_npc_kill()
         Cmp::RandomInt do_drop( 0, 2 );
         if ( do_drop.gen() == 0 )
         {
-          auto dropped_loot_entt = Factory::create_loot_drop( getReg(), Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),
+          auto dropped_loot_entt = Factory::create_loot_drop( reg(), Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),
                                                               Cmp::RectBounds::scaled( npc_pos_cmp.position, npc_pos_cmp.size, 2.f ).getBounds(),
                                                               Factory::IncludePack<>{},
                                                               Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{},
@@ -583,17 +577,17 @@ void PlayerSystem::check_player_axe_npc_kill()
 
           if ( dropped_loot_entt != entt::null )
           {
-            auto player_pos = Utils::Player::get_position( getReg() );
+            auto player_pos = Utils::Player::get_position( reg() );
             SPDLOG_INFO( "Player position was at {},{} when loot was dropped", player_pos.position.x, player_pos.position.y );
             m_sound_bank.get_effect( "drop_loot" ).play();
           }
         }
 
         // now destroy the NPC
-        if ( getReg().valid( npc_entity ) )
+        if ( reg().valid( npc_entity ) )
         {
           pathfinding_navmesh->remove( npc_entity, npc_pos_cmp );
-          getReg().destroy( npc_entity );
+          reg().destroy( npc_entity );
         }
       }
 

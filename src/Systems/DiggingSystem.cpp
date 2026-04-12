@@ -58,7 +58,7 @@ void DiggingSystem::update( sf::Time dt )
 {
 
   // abort if still in cooldown
-  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
+  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
   {
     SPDLOG_DEBUG( "Digging is on cooldown for {} more seconds!", ( digging_cooldown_amount - m_dig_cooldown_clock.getElapsedTime().asSeconds() ) );
@@ -66,10 +66,10 @@ void DiggingSystem::update( sf::Time dt )
   }
 
   // Cooldown has expired: Remove any existing SelectedPosition components from the registry
-  auto selected_position_view = getReg().view<Cmp::SelectedPosition>();
+  auto selected_position_view = reg().view<Cmp::SelectedPosition>();
   for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
   {
-    getReg().remove<Cmp::SelectedPosition>( existing_sel_entity );
+    reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
     SPDLOG_DEBUG( "Removing previous Cmp::SelectedPosition {},{} from entity {}", sel_cmp.x, sel_cmp.y, static_cast<int>( existing_sel_entity ) );
   }
 
@@ -78,10 +78,10 @@ void DiggingSystem::update( sf::Time dt )
   if ( m_plantcheck_accumulator.asSeconds() >= 1.f / kPlantCheckIntervalHz )
   {
     // check if plant player path blocking should be activated
-    auto player_pos = Utils::Player::get_position( getReg() );
-    for ( auto [plant_entt, plant_cmp, plant_pos_cmp] : getReg().view<Cmp::PlantObstacle, Cmp::Position>().each() )
+    auto player_pos = Utils::Player::get_position( reg() );
+    for ( auto [plant_entt, plant_cmp, plant_pos_cmp] : reg().view<Cmp::PlantObstacle, Cmp::Position>().each() )
     {
-      auto playernopath_cmp = getReg().try_get<Cmp::PlayerNoPath>( plant_entt );
+      auto playernopath_cmp = reg().try_get<Cmp::PlayerNoPath>( plant_entt );
       if ( not playernopath_cmp ) continue;
 
       // enable inactive pathblocking on the plant once the player has moved away from its bbox
@@ -95,19 +95,19 @@ void DiggingSystem::update( sf::Time dt )
 void DiggingSystem::check_player_smash_pot()
 {
 
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
+  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
   if ( not inventory_slot_type.contains( "pickaxe" ) and not inventory_slot_type.contains( "axe" ) and not inventory_slot_type.contains( "shovel" ) )
   {
     return;
   }
 
-  if ( Utils::Player::get_inventory_wear_level( getReg() ) <= 0 ) { return; }
+  if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
 
   // abort if still in cooldown
-  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
+  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
 
-  auto loot_container_view = getReg().view<Cmp::LootContainer, Cmp::Position, Cmp::SpriteAnimation>();
+  auto loot_container_view = reg().view<Cmp::LootContainer, Cmp::Position, Cmp::SpriteAnimation>();
   for ( auto [loot_entity, loot_cmp, loot_pos_cmp, loot_anim_cmp] : loot_container_view.each() )
   {
     auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::getGameView() );
@@ -118,7 +118,7 @@ void DiggingSystem::check_player_smash_pot()
       // TODO: check player is facing the obstacle
       // Check player proximity to the entity
       bool player_nearby = false;
-      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
+      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
       {
         auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
         if ( player_hitbox.findIntersection( loot_pos_cmp ) )
@@ -132,10 +132,10 @@ void DiggingSystem::check_player_smash_pot()
       if ( not player_nearby ) { continue; }
 
       m_dig_cooldown_clock.restart();
-      loot_cmp.hp -= Utils::Maths::to_percent( 100.f, Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( getReg() ).get_value() );
+      loot_cmp.hp -= Utils::Maths::to_percent( 100.f, Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value() );
 
-      float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
-      Utils::Player::reduce_inventory_wear_level( getReg(), reduction_amount );
+      float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
+      Utils::Player::reduce_inventory_wear_level( reg(), reduction_amount );
 
       if ( loot_cmp.hp > 0 )
       {
@@ -147,17 +147,17 @@ void DiggingSystem::check_player_smash_pot()
       {
         const Sprites::SpriteMetaType selected_type = m_sprite_factory.get_random_type(
             { "CARRYITEM.bomb", "CARRYITEM.scryingball", "CARRYITEM.cursetablet" } );
-        Factory::create_carry_item( getReg(), loot_pos_cmp, selected_type );
+        Factory::create_carry_item( reg(), loot_pos_cmp, selected_type );
 
         m_sound_bank.get_effect( "break_pot" ).play();
-        auto inventory_wear_view = getReg().view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
+        auto inventory_wear_view = reg().view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
         for ( auto [weapons_entity, inventory_slot, wear_level] : inventory_wear_view.each() )
         {
           // Decrease weapons level based on damage dealt
-          wear_level.m_level -= Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
+          wear_level.m_level -= Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
           SPDLOG_DEBUG( "Player wear level decreased to {} after digging!", weapons_level.m_level );
         }
-        Factory::destroy_loot_container( getReg(), loot_entity );
+        Factory::destroy_loot_container( reg(), loot_entity );
       }
     }
   }
@@ -165,23 +165,23 @@ void DiggingSystem::check_player_smash_pot()
 
 void DiggingSystem::check_player_dig_obstacle_collision()
 {
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
+  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
 
-  if ( Utils::Player::get_inventory_wear_level( getReg() ) <= 0 ) { return; }
+  if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
 
   // abort if still in cooldown
-  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
+  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
 
   // Cooldown has expired: Remove any existing SelectedPosition components from the registry
-  auto selected_position_view = getReg().view<Cmp::SelectedPosition>();
+  auto selected_position_view = reg().view<Cmp::SelectedPosition>();
   for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
   {
-    getReg().remove<Cmp::SelectedPosition>( existing_sel_entity );
+    reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
   }
 
   // Iterate through all entities with Position and Obstacle components
-  auto position_view = getReg().view<Cmp::Position, Cmp::Obstacle, Cmp::AbsoluteAlpha>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
+  auto position_view = reg().view<Cmp::Position, Cmp::Obstacle, Cmp::AbsoluteAlpha>( entt::exclude<Cmp::ReservedPosition, Cmp::SelectedPosition> );
   for ( auto [obst_entity, obst_pos_cmp, obst_cmp, alpha_cmp] : position_view.each() )
   {
 
@@ -193,7 +193,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
       // TODO: check player is facing the obstacle
       // Check player proximity to the entity
       bool player_nearby = false;
-      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
+      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
       {
         auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
         if ( player_hitbox.findIntersection( obst_pos_cmp ) )
@@ -208,21 +208,21 @@ void DiggingSystem::check_player_dig_obstacle_collision()
 
       // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
       // Add a new SelectedPosition component to the entity
-      getReg().emplace_or_replace<Cmp::SelectedPosition>( obst_entity, obst_pos_cmp.position );
+      reg().emplace_or_replace<Cmp::SelectedPosition>( obst_entity, obst_pos_cmp.position );
 
       // Apply digging damage, play a sound depending on whether the obstacle was destroyed
       m_dig_cooldown_clock.restart();
 
       auto existing_alpha = alpha_cmp.getAlpha();
-      auto damage_value = Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( getReg() ).get_value();
+      auto damage_value = Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value();
       if ( inventory_slot_type.contains( "pickaxe" ) ) {}
       else if ( inventory_slot_type.contains( "shovel" ) or inventory_slot_type.contains( "axe" ) ) { damage_value = damage_value / 10; }
       auto damage_percentage = Utils::Maths::to_percent( 255.f, damage_value );
       auto adjusted_alpha = std::max( 0, existing_alpha - damage_percentage );
       alpha_cmp.setAlpha( adjusted_alpha );
 
-      float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
-      Utils::Player::reduce_inventory_wear_level( getReg(), reduction_amount );
+      float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
+      Utils::Player::reduce_inventory_wear_level( reg(), reduction_amount );
 
       if ( alpha_cmp.getAlpha() == 0 )
       {
@@ -230,8 +230,8 @@ void DiggingSystem::check_player_dig_obstacle_collision()
         m_sound_bank.get_effect( "pickaxe_final" ).play();
 
         // replace the obstacle with a detonated component
-        Factory::remove_obstacle( getReg(), obst_entity );
-        Factory::create_detonated( getReg(), obst_entity, obst_pos_cmp );
+        Factory::remove_obstacle( reg(), obst_entity );
+        Factory::create_detonated( reg(), obst_entity, obst_pos_cmp );
 
         // add the position to the spatial grid so it can be used in pathfinding
         if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
@@ -251,13 +251,13 @@ void DiggingSystem::check_player_dig_obstacle_collision()
 
 void DiggingSystem::check_player_dig_plant_collision()
 {
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
+  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
   if ( inventory_slot_type != "CARRYITEM.shovel" and inventory_slot_type != "CARRYITEM.axe" ) { return; }
 
-  if ( Utils::Player::get_inventory_wear_level( getReg() ) <= 0 ) { return; }
+  if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
 
   // abort if still in cooldown
-  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
+  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) )
   {
     SPDLOG_DEBUG( "Still in cooldown" );
@@ -265,14 +265,14 @@ void DiggingSystem::check_player_dig_plant_collision()
   }
 
   // Cooldown has expired: Remove any existing SelectedPosition components from the registry
-  auto selected_position_view = getReg().view<Cmp::SelectedPosition>();
+  auto selected_position_view = reg().view<Cmp::SelectedPosition>();
   for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
   {
-    getReg().remove<Cmp::SelectedPosition>( existing_sel_entity );
+    reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
   }
 
   // Iterate through all entities with Position and Obstacle components
-  auto position_view = getReg().view<Cmp::Position, Cmp::PlantObstacle, Cmp::AbsoluteAlpha>( entt::exclude<Cmp::SelectedPosition> );
+  auto position_view = reg().view<Cmp::Position, Cmp::PlantObstacle, Cmp::AbsoluteAlpha>( entt::exclude<Cmp::SelectedPosition> );
   SPDLOG_DEBUG( "position_view size: {}", position_view.size_hint() );
   for ( auto [obst_entity, obst_pos_cmp, obst_cmp, alpha_cmp] : position_view.each() )
   {
@@ -284,7 +284,7 @@ void DiggingSystem::check_player_dig_plant_collision()
       // TODO: check player is facing the obstacle
       // Check player proximity to the entity
       bool player_nearby = false;
-      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
+      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
       {
         auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
         if ( player_hitbox.findIntersection( obst_pos_cmp ) )
@@ -299,7 +299,7 @@ void DiggingSystem::check_player_dig_plant_collision()
 
       // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
       // Add a new SelectedPosition component to the entity
-      getReg().emplace_or_replace<Cmp::SelectedPosition>( obst_entity, obst_pos_cmp.position );
+      reg().emplace_or_replace<Cmp::SelectedPosition>( obst_entity, obst_pos_cmp.position );
 
       // Apply digging damage, play a sound depending on whether the obstacle was destroyed
       m_dig_cooldown_clock.restart();
@@ -307,7 +307,7 @@ void DiggingSystem::check_player_dig_plant_collision()
       if ( inventory_slot_type == "CARRYITEM.shovel" )
       {
         auto existing_alpha = alpha_cmp.getAlpha();
-        auto damage_value = Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( getReg() ).get_value();
+        auto damage_value = Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value();
         auto damage_percentage = Utils::Maths::to_percent( 255.f, damage_value );
         auto adjusted_alpha = std::max( 0, existing_alpha - damage_percentage );
         alpha_cmp.setAlpha( adjusted_alpha );
@@ -318,28 +318,28 @@ void DiggingSystem::check_player_dig_plant_collision()
         alpha_cmp.setAlpha( 0 );
       }
 
-      float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
-      Utils::Player::reduce_inventory_wear_level( getReg(), reduction_amount );
+      float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
+      Utils::Player::reduce_inventory_wear_level( reg(), reduction_amount );
 
       if ( alpha_cmp.getAlpha() == 0 )
       {
         // select the final smash sound
         m_sound_bank.get_effect( "chopping_final" ).play();
-        auto inventory_wear_view = getReg().view<Cmp::PlayerInventorySlot>();
+        auto inventory_wear_view = reg().view<Cmp::PlayerInventorySlot>();
         for ( auto [inventory_entt, inventory_slot] : inventory_wear_view.each() )
         {
           if ( inventory_slot.type == "CARRYITEM.shovel" )
           {
-            auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
-            auto player_pos = Utils::Player::get_position( getReg() ).position;
+            auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+            auto player_pos = Utils::Player::get_position( reg() ).position;
             get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
           }
           else if ( inventory_slot.type == "CARRYITEM.axe" )
           {
-            if ( getReg().valid( obst_entity ) ) getReg().destroy( obst_entity );
+            if ( reg().valid( obst_entity ) ) reg().destroy( obst_entity );
           }
         }
-        if ( Factory::pickup_carry_item( getReg(), obst_entity ) == entt::null ) { SPDLOG_INFO( "Could not pick up item" ); }
+        if ( Factory::pickup_carry_item( reg(), obst_entity ) == entt::null ) { SPDLOG_INFO( "Could not pick up item" ); }
 
         SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
       }

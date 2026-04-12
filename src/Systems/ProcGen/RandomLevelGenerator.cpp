@@ -81,13 +81,13 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
     int row = i / w; // increments every 'w' tiles
     int col = i % w; // wraps back to zero every 'w' tiles
     [[maybe_unused]] sf::Vector2f new_pos( { col * Constants::kGridSizePxF.x, row * Constants::kGridSizePxF.y } );
-    if ( tile >= scene_map.wall_first_gid() ) { Factory::add_wall_entity( getReg(), new_pos, wall_ms, tile - scene_map.wall_first_gid() ); }
+    if ( tile >= scene_map.wall_first_gid() ) { Factory::add_wall_entity( reg(), new_pos, wall_ms, tile - scene_map.wall_first_gid() ); }
   }
 
   for ( const auto &solid : scene_map.solid_objectlayer() )
   {
-    Factory::add_solid_player( getReg(), solid );
-    Factory::add_solid_npc( getReg(), solid );
+    Factory::add_solid_player( reg(), solid );
+    Factory::add_solid_npc( reg(), solid );
   }
 
   for ( const auto [i, tile] : std::views::enumerate( scene_map.levelgen_tilelayer() ) )
@@ -98,22 +98,22 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
     if ( tile == scene_map.void_tile_id() )
     {
       Cmp::Position new_pos_cmp( new_pos, Constants::kGridSizePxF );
-      auto entt = Factory::create_void_pos( getReg(), new_pos_cmp );
+      auto entt = Factory::create_void_pos( reg(), new_pos_cmp );
       m_void_sm->insert( entt, new_pos_cmp );
     }
     else if ( not added_wall_already and tile == scene_map.wall_tile_id() )
     {
       const Sprites::MultiSprite &wall_ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_sb" );
-      Factory::add_wall_entity( getReg(), new_pos, wall_ms, 0 );
+      Factory::add_wall_entity( reg(), new_pos, wall_ms, 0 );
     }
-    else if ( tile == scene_map.open_tile_id() ) { Factory::create_world_pos( getReg(), new_pos ); }
+    else if ( tile == scene_map.open_tile_id() ) { Factory::create_world_pos( reg(), new_pos ); }
     else if ( tile == scene_map.spawn_tile_id() )
     {
-      auto entity = Factory::create_world_pos( getReg(), new_pos );
-      Factory::add_spawn_area( getReg(), entity, new_pos.y - 16.0f );
+      auto entity = Factory::create_world_pos( reg(), new_pos );
+      Factory::add_spawn_area( reg(), entity, new_pos.y - 16.0f );
     }
-    else if ( tile == scene_map.exit_tile_id() ) { Factory::create_crypt_exit( getReg(), new_pos ); }
-    else if ( tile == scene_map.reserved_tile_id() ) { Factory::add_reservedposition( getReg(), new_pos ); }
+    else if ( tile == scene_map.exit_tile_id() ) { Factory::create_crypt_exit( reg(), new_pos ); }
+    else if ( tile == scene_map.reserved_tile_id() ) { Factory::add_reservedposition( reg(), new_pos ); }
   }
 
   for ( const auto &[ms_type, pos] : scene_map.multiblock_objectlayer() )
@@ -121,29 +121,29 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
     const auto &ms = m_sprite_factory.get_multisprite_by_type( ms_type );
     if ( ms_type == "HOLYWELL.interior_well" )
     {
-      Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( getReg(), pos, ms );
+      Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( reg(), pos, ms );
     }
     else if ( ms_type == "CRYPT.interior_objective_closed" )
     {
-      Factory::add_multiblock_with_segments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( getReg(), pos, ms );
+      Factory::add_multiblock_with_segments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( reg(), pos, ms );
     }
     else if ( ms_type == "NPC.dr_knox" )
     {
-      auto npc_entt = getReg().create();
-      getReg().emplace_or_replace<Cmp::Position>( npc_entt, pos, Constants::kGridSizePxF );
+      auto npc_entt = reg().create();
+      reg().emplace_or_replace<Cmp::Position>( npc_entt, pos, Constants::kGridSizePxF );
       Factory::create_npc( m_reg, npc_entt, "NPC.dr_knox" );
     }
     else if ( ms_type == "RUIN.interior_staircase_going_up" )
     {
-      Factory::add_multiblock_with_segments<Cmp::RuinStairsLowerMultiBlock, Cmp::RuinStairsSegment>( getReg(), pos, ms );
+      Factory::add_multiblock_with_segments<Cmp::RuinStairsLowerMultiBlock, Cmp::RuinStairsSegment>( reg(), pos, ms );
     }
     else if ( ms_type == "RUIN.interior_staircase_going_down" )
     {
-      Factory::add_multiblock_with_segments<Cmp::RuinStairsUpperMultiBlock, Cmp::RuinStairsSegment>( getReg(), pos, ms );
+      Factory::add_multiblock_with_segments<Cmp::RuinStairsUpperMultiBlock, Cmp::RuinStairsSegment>( reg(), pos, ms );
     }
     else if ( ms_type == "RUIN.interior_staircase_upper_balustrade" )
     {
-      Factory::add_multiblock_with_segments<Cmp::RuinStairsBalustradeMultiBlock, Cmp::RuinStairsSegment>( getReg(), pos, ms );
+      Factory::add_multiblock_with_segments<Cmp::RuinStairsBalustradeMultiBlock, Cmp::RuinStairsSegment>( reg(), pos, ms );
     }
     else if ( ms_type == "RUIN.interior_hexagram3x3" )
     {
@@ -151,7 +151,7 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
     }
     else if ( ms_type.contains( "CARRYITEM" ) )
     {
-      auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( getReg() );
+      auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
       // prevent infinite respawns in the RuinSceneUpperFloor
       if ( inventory_type == "CARRYITEM.witchesjar" ) continue;
 
@@ -159,8 +159,8 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
       auto world_pos_entt = Utils::get_world_pos_entt( m_reg, Cmp::Position( pos, ms.getSpriteSizePixels() ) );
       if ( world_pos_entt != entt::null )
       {
-        getReg().emplace_or_replace<Cmp::ReservedPosition>( world_pos_entt );
-        Factory::create_carry_item( getReg(), Cmp::Position( pos, ms.getSpriteSizePixels() ), ms_type );
+        reg().emplace_or_replace<Cmp::ReservedPosition>( world_pos_entt );
+        Factory::create_carry_item( reg(), Cmp::Position( pos, ms.getSpriteSizePixels() ), ms_type );
       }
     }
   }
@@ -168,7 +168,7 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
 
 void RandomLevelGenerator::gen_graveyard_exterior_obstacles()
 {
-  auto position_view = getReg().view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition> );
+  auto position_view = reg().view<Cmp::Position>( entt::exclude<Cmp::PlayerCharacter, Cmp::ReservedPosition> );
   for ( auto [entity, pos_cmp] : position_view.each() )
   {
 
@@ -176,7 +176,7 @@ void RandomLevelGenerator::gen_graveyard_exterior_obstacles()
     {
       const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "ROCK" );
       auto [_, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "ROCK" } );
-      Factory::create_obstacle( getReg(), entity, pos_cmp, ms, rand_obst_tex_idx );
+      Factory::create_obstacle( reg(), entity, pos_cmp, ms, rand_obst_tex_idx );
       m_obstacle_sm->insert( entity, pos_cmp );
     }
   }
@@ -184,9 +184,9 @@ void RandomLevelGenerator::gen_graveyard_exterior_obstacles()
 
 void RandomLevelGenerator::gen_graveyard_exterior_multiblocks()
 {
-  auto grave_num_multiplier = Sys::PersistSystem::get<Cmp::Persist::GraveNumMultiplier>( getReg() );
-  auto max_num_altars = Sys::PersistSystem::get<Cmp::Persist::MaxNumAltars>( getReg() );
-  auto max_num_crypts = Sys::PersistSystem::get<Cmp::Persist::MaxNumCrypts>( getReg() );
+  auto grave_num_multiplier = Sys::PersistSystem::get<Cmp::Persist::GraveNumMultiplier>( reg() );
+  auto max_num_altars = Sys::PersistSystem::get<Cmp::Persist::MaxNumAltars>( reg() );
+  auto max_num_crypts = Sys::PersistSystem::get<Cmp::Persist::MaxNumCrypts>( reg() );
   std::size_t max_number_holywells = 1;
   std::size_t max_number_ruins = 1;
 
@@ -242,25 +242,25 @@ void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::
 
   if ( ms.get_sprite_type().contains( "ALTAR" ) )
   {
-    Factory::add_multiblock_with_segments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( getReg(), random_origin_position.position, ms );
+    Factory::add_multiblock_with_segments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( reg(), random_origin_position.position, ms );
   }
   else if ( ms.get_sprite_type().contains( "GRAVE" ) )
   {
-    Factory::add_multiblock_with_segments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( getReg(), random_origin_position.position, ms );
+    Factory::add_multiblock_with_segments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( reg(), random_origin_position.position, ms );
   }
   else if ( ms.get_sprite_type() == "CRYPT.closed" )
   {
-    Factory::add_multiblock_with_segments<Cmp::CryptMultiBlock, Cmp::CryptSegment>( getReg(), random_origin_position.position, ms );
-    SPDLOG_INFO("Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x,  random_origin_position.position.y);
+    Factory::add_multiblock_with_segments<Cmp::CryptMultiBlock, Cmp::CryptSegment>( reg(), random_origin_position.position, ms );
+    SPDLOG_INFO( "Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y );
   }
   else if ( ms.get_sprite_type() == "HOLYWELL.exterior_building" )
   {
-    Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( getReg(), random_origin_position.position, ms );
+    Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( reg(), random_origin_position.position, ms );
     SPDLOG_INFO( "Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y );
   }
   else if ( ms.get_sprite_type() == "RUIN.exterior_building" )
   {
-    Factory::add_multiblock_with_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinSegment>( getReg(), random_origin_position.position, ms );
+    Factory::add_multiblock_with_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinSegment>( reg(), random_origin_position.position, ms );
     SPDLOG_INFO( "Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y );
   }
   else
@@ -282,7 +282,7 @@ void RandomLevelGenerator::gen_crypt_interior_multiblocks()
       SPDLOG_ERROR( "Failed to find valid spawn position for {}.", ms.get_sprite_type() );
       return;
     }
-    Factory::add_multiblock_with_segments<Cmp::CryptInteriorMultiBlock, Cmp::CryptInteriorSegment>( getReg(), random_origin_position.position, ms );
+    Factory::add_multiblock_with_segments<Cmp::CryptInteriorMultiBlock, Cmp::CryptInteriorSegment>( reg(), random_origin_position.position, ms );
   }
 }
 
@@ -295,7 +295,7 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
   while ( attempts < kMaxAttempts )
   {
     auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
-        getReg(), Utils::Rnd::IncludePack<>{}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::ReservedPosition, Cmp::PlayerCharacter>{}, current_seed );
+        reg(), Utils::Rnd::IncludePack<>{}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::ReservedPosition, Cmp::PlayerCharacter>{}, current_seed );
 
     auto lo_sprite_size = m_sprite_factory.get_sprite_size_by_type( ms.get_sprite_type() );
     auto new_lo_hitbox = Cmp::RectBounds::scaled( random_pos.position, lo_sprite_size, 1.f );
@@ -304,58 +304,58 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
     auto is_valid = [&]() -> bool
     {
       // return false for wall collisions
-      for ( auto [entity, wall_cmp, wall_pos_cmp] : getReg().view<Cmp::Wall, Cmp::Position>().each() )
+      for ( auto [entity, wall_cmp, wall_pos_cmp] : reg().view<Cmp::Wall, Cmp::Position>().each() )
       {
         if ( wall_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       // Return false for grave collisions
-      for ( auto [entity, grave_cmp, grave_pos_cmp] : getReg().view<Cmp::GraveSegment, Cmp::Position>().each() )
+      for ( auto [entity, grave_cmp, grave_pos_cmp] : reg().view<Cmp::GraveSegment, Cmp::Position>().each() )
       {
         if ( grave_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       // Return false for altar collisions
-      for ( auto [entity, altar_cmp, altar_pos_cmp] : getReg().view<Cmp::AltarSegment, Cmp::Position>().each() )
+      for ( auto [entity, altar_cmp, altar_pos_cmp] : reg().view<Cmp::AltarSegment, Cmp::Position>().each() )
       {
         if ( altar_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       // Return false for crypt collisions
-      for ( auto [entity, crypt_cmp, crypt_pos_cmp] : getReg().view<Cmp::CryptSegment, Cmp::Position>().each() )
+      for ( auto [entity, crypt_cmp, crypt_pos_cmp] : reg().view<Cmp::CryptSegment, Cmp::Position>().each() )
       {
         if ( crypt_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
-      for ( auto [entity, holywell_cmp, holywell_pos_cmp] : getReg().view<Cmp::HolyWellSegment, Cmp::Position>().each() )
+      for ( auto [entity, holywell_cmp, holywell_pos_cmp] : reg().view<Cmp::HolyWellSegment, Cmp::Position>().each() )
       {
         if ( holywell_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
-      for ( auto [entity, ruin_cmp, ruin_pos_cmp] : getReg().view<Cmp::RuinSegment, Cmp::Position>().each() )
+      for ( auto [entity, ruin_cmp, ruin_pos_cmp] : reg().view<Cmp::RuinSegment, Cmp::Position>().each() )
       {
         if ( ruin_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
-      for ( auto [entity, crypt_obj_cmp, crypt_obj_pos_cmp] : getReg().view<Cmp::CryptObjectiveSegment, Cmp::Position>().each() )
+      for ( auto [entity, crypt_obj_cmp, crypt_obj_pos_cmp] : reg().view<Cmp::CryptObjectiveSegment, Cmp::Position>().each() )
       {
         if ( crypt_obj_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       // Return false for reserved position collisions
-      for ( auto [entity, reserved_cmp, reserved_pos_cmp] : getReg().view<Cmp::ReservedPosition, Cmp::Position>().each() )
+      for ( auto [entity, reserved_cmp, reserved_pos_cmp] : reg().view<Cmp::ReservedPosition, Cmp::Position>().each() )
       {
         if ( reserved_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       // Return false for spawn area collisions
-      for ( auto [entity, spawn_cmp, spawn_pos_cmp] : getReg().view<Cmp::SpawnArea, Cmp::Position>().each() )
+      for ( auto [entity, spawn_cmp, spawn_pos_cmp] : reg().view<Cmp::SpawnArea, Cmp::Position>().each() )
       {
         if ( spawn_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
 
       // Return false for playable character collisions
-      for ( auto [entity, player_cmp, player_pos_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
+      for ( auto [entity, player_cmp, player_pos_cmp] : reg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
       {
         if ( player_pos_cmp.findIntersection( new_lo_hitbox.getBounds() ) ) return false;
       }
@@ -369,8 +369,8 @@ std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location
       {
         SPDLOG_WARN( "Large Obstacle spawn: original seed {} was invalid, used seed {} instead (attempt {})", seed, current_seed, attempts + 1 );
       }
-      auto new_entt = getReg().create();
-      return { new_entt, getReg().emplace_or_replace<Cmp::Position>( new_entt, random_pos.position, random_pos.size ) };
+      auto new_entt = reg().create();
+      return { new_entt, reg().emplace_or_replace<Cmp::Position>( new_entt, random_pos.position, random_pos.size ) };
     }
 
     attempts++;
@@ -391,21 +391,21 @@ std::vector<entt::entity> RandomLevelGenerator::gen_random_plants( sf::Vector2u 
   for ( std::size_t i = 0; i < num_plants; ++i )
   {
     auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
-        getReg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
+        reg(), {}, Utils::Rnd::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
 
     // select a random number within the range of possible flora CarryItems
     auto [rand_plant_type, rnd_plant_idx] = m_sprite_factory.get_random_type_and_texture_index(
         { "CARRYITEM.plant1", "CARRYITEM.plant2", "CARRYITEM.plant3", "CARRYITEM.plant4", "CARRYITEM.plant5", "CARRYITEM.plant6", "CARRYITEM.plant7",
           "CARRYITEM.plant8", "CARRYITEM.plant9", "CARRYITEM.plant10", "CARRYITEM.plant11", "CARRYITEM.plant12" } );
 
-    auto world_pos_entt = Utils::get_world_pos_entt( getReg(), random_pos );
+    auto world_pos_entt = Utils::get_world_pos_entt( reg(), random_pos );
     if ( world_pos_entt != entt::null )
     {
       // make sure we mark the *world* entt as reserved
-      getReg().emplace_or_replace<Cmp::ReservedPosition>( world_pos_entt );
+      reg().emplace_or_replace<Cmp::ReservedPosition>( world_pos_entt );
 
       // now create the plant at a new entt
-      Factory::create_plant_obstacle( getReg(), random_pos, m_sprite_factory.get_multisprite_by_type( rand_plant_type ) );
+      Factory::create_plant_obstacle( reg(), random_pos, m_sprite_factory.get_multisprite_by_type( rand_plant_type ) );
       SPDLOG_DEBUG( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
       assigned_entts.push_back( random_entity );
     }

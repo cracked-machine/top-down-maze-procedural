@@ -43,7 +43,7 @@ namespace ProceduralMaze::Sys
 void AnimSystem::update( sf::Time dt )
 {
 
-  auto anim_view = getReg().view<Cmp::SpriteAnimation, Cmp::Position>( entt::exclude<Cmp::NPC> );
+  auto anim_view = reg().view<Cmp::SpriteAnimation, Cmp::Position>( entt::exclude<Cmp::NPC> );
   for ( auto [anim_entt, anim_cmp, pos_cmp] : anim_view.each() )
   {
     if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
@@ -100,7 +100,7 @@ void AnimSystem::update( sf::Time dt )
   //   }
 
   // NPC Movement: only update animation for NPC that are actively pathfinding
-  auto pathfinding_npc_view = getReg().view<Cmp::NPC, Cmp::LerpPosition, Cmp::SpriteAnimation, Cmp::Position>();
+  auto pathfinding_npc_view = reg().view<Cmp::NPC, Cmp::LerpPosition, Cmp::SpriteAnimation, Cmp::Position>();
   for ( [[maybe_unused]] auto [entity, npc_cmp, lerp_pos_cmp, anim_cmp, pos_cmp] : pathfinding_npc_view.each() )
   {
     if ( !Utils::is_visible_in_view( RenderSystem::getGameView(), pos_cmp ) ) continue;
@@ -110,15 +110,15 @@ void AnimSystem::update( sf::Time dt )
       sf::Time frame_rate = sf::Time::Zero;
       if ( anim_cmp.m_sprite_type.contains( "NPCSKELE" ) )
       {
-        frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::NpcSkeleAnimFramerate>( getReg() ).get_value() );
+        frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::NpcSkeleAnimFramerate>( reg() ).get_value() );
       }
       else if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) )
       {
-        frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::NpcGhostAnimFramerate>( getReg() ).get_value() );
+        frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::NpcGhostAnimFramerate>( reg() ).get_value() );
       }
       else if ( anim_cmp.m_sprite_type.contains( "NPCWITCH" ) )
       {
-        frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::NpcWitchAnimFramerate>( getReg() ).get_value() );
+        frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::NpcWitchAnimFramerate>( reg() ).get_value() );
       }
       const auto &npc_walk_sequence = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
       update_single_sequence( anim_cmp, dt, npc_walk_sequence, frame_rate );

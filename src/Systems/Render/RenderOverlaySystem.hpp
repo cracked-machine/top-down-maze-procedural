@@ -100,8 +100,8 @@ public:
   {
     if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
     {
-      auto pos_cmp = getReg().try_get<Cmp::Position>( entity );
-      auto requested_cmp = getReg().try_get<Component>( entity );
+      auto pos_cmp = reg().try_get<Cmp::Position>( entity );
+      auto requested_cmp = reg().try_get<Component>( entity );
       if ( pos_cmp && requested_cmp )
       {
         sf::RectangleShape rectangle;
@@ -118,7 +118,7 @@ public:
   template <typename Component>
   void render_square_for_vector2f_cmp( sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )
   {
-    auto requested_view = getReg().view<Component>();
+    auto requested_view = reg().view<Component>();
     for ( auto [entity, requested_cmp] : requested_view.each() )
     {
       if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
@@ -137,7 +137,7 @@ public:
   template <typename Component>
   void render_square_for_floatrect_cmp( sf::Color square_color = sf::Color::Red, float square_thickness = 1.f )
   {
-    auto requested_view = getReg().view<Component>();
+    auto requested_view = reg().view<Component>();
     for ( auto [entity, requested_cmp] : requested_view.each() )
     {
       if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
@@ -161,13 +161,13 @@ public:
     // Set the game view for world-space rendering
     m_window.setView( RenderSystem::s_game_view );
 
-    auto requested_view = getReg().view<Component>();
+    auto requested_view = reg().view<Component>();
     for ( auto [entity, requested_cmp] : requested_view.each() )
     {
-      if ( getReg().all_of<Cmp::Position, Cmp::ZOrderValue>( entity ) )
+      if ( reg().all_of<Cmp::Position, Cmp::ZOrderValue>( entity ) )
       {
-        auto &pos_cmp = getReg().get<Cmp::Position>( entity );
-        auto zorder_cmp = getReg().get<Cmp::ZOrderValue>( entity );
+        auto &pos_cmp = reg().get<Cmp::Position>( entity );
+        auto zorder_cmp = reg().get<Cmp::ZOrderValue>( entity );
         std::stringstream ss;
         ss << std::fixed << std::setprecision( precision ) << zorder_cmp.getZOrder();
         sf::Text m_z_text{ m_font, ss.str(), 7 };

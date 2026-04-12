@@ -75,63 +75,63 @@ void PersistSystem::initializeTypeRegistry()
   using namespace Cmp::Persist;
 
   //! @brief Helper function for SerDe and for initializing the component in the registry.
-  auto reg = [this]<typename T>( const char *name )
+  auto register_type = [this]<typename T>( const char *name )
   {
     m_type_registry[name] = [this, name]( const nlohmann::json &json )
     {
-      Sys::PersistSystem::add<T>( getReg() );
-      Sys::PersistSystem::get<T>( getReg() ).deserialize( json );
+      Sys::PersistSystem::add<T>( reg() );
+      Sys::PersistSystem::get<T>( reg() ).deserialize( json );
       registerTypes<T>( name );
     };
   };
 
   // clang-format off
-  reg.operator()<ArmedOffDelay>("ArmedOffDelay");
-  reg.operator()<ArmedOnDelay>("ArmedOnDelay");
-  reg.operator()<BlastRadius>("BlastRadius");
-  reg.operator()<BombBonus>("BombBonus");
-  reg.operator()<BombDamage>("BombDamage");
-  reg.operator()<CameraSmoothSpeed>("CameraSmoothSpeed");
-  reg.operator()<CorruptionDamage>("CorruptionDamage");
-  reg.operator()<CryptNpcSpawnCount>("CryptNpcSpawnCount");
-  reg.operator()<DiggingCooldownThreshold>("DiggingCooldownThreshold");
-  reg.operator()<DiggingDamagePerHit>("DiggingDamagePerHit");
-  reg.operator()<DisplayResolution>("DisplayResolution");
-  reg.operator()<EffectsVolume>("EffectsVolume");
-  reg.operator()<ExitKeyRequirement>("ExitKeyRequirement");
-  reg.operator()<FuseDelay>("FuseDelay");
-  reg.operator()<GraveNumMultiplier>("GraveNumMultiplier");
-  reg.operator()<HealthBonus>("HealthBonus");
-  reg.operator()<MaxNumAltars>("MaxNumAltars");
-  reg.operator()<MaxNumCrypts>("MaxNumCrypts");
-  reg.operator()<MusicVolume>("MusicVolume");
-  reg.operator()<NpcActivateScale>("NpcActivateScale");
-  reg.operator()<NpcDamage>("NpcDamage");
-  reg.operator()<NpcDeathAnimFramerate>("NpcDeathAnimFramerate");
-  reg.operator()<NpcGhostAnimFramerate>("NpcGhostAnimFramerate");
-  reg.operator()<NpcLerpSpeedSkele>("NpcLerpSpeedSkele");
-  reg.operator()<NpcLerpSpeedGhost>("NpcLerpSpeedGhost");
-  reg.operator()<NpcLerpSpeedWitch>("NpcLerpSpeedWitch");
-  reg.operator()<NpcLerpSpeedPriest>("NpcLerpSpeedPriest");
-  reg.operator()<NpcPushBack>("NpcPushBack");
-  reg.operator()<NpcShockwaveFreq>("NpcShockwaveFreq");
-  reg.operator()<NpcShockwaveMaxRadius>("NpcShockwaveMaxRadius");
-  reg.operator()<NpcShockwaveResolution>("NpcShockwaveResolution");
-  reg.operator()<NpcShockwaveSpeed>("NpcShockwaveSpeed");
-  reg.operator()<NpcSkeleAnimFramerate>("NpcSkeleAnimFramerate");
-  reg.operator()<NpcSkeleGraveyardSpawnCount>("NpcSkeleGraveyardSpawnCount");
-  reg.operator()<NpcWitchAnimFramerate>("NpcWitchAnimFramerate");
-  reg.operator()<PcDamageDelay>("PcDamageDelay");
-  reg.operator()<PlayerAnimFramerate>("PlayerAnimFramerate");
-  reg.operator()<PlayerDiagonalLerpSpeedModifier>("PlayerDiagonalLerpSpeedModifier");
-  reg.operator()<PlayerFootstepAddDelay>("PlayerFootstepAddDelay");
-  reg.operator()<PlayerFootstepFadeDelay>("PlayerFootstepFadeDelay");
-  reg.operator()<PlayerLerpInterruptThreshold>("PlayerLerpInterruptThreshold");
-  reg.operator()<PlayerMovementSpeed>("PlayerMovementSpeed");
-  reg.operator()<PlayerShortcutLerpSpeedModifier>("PlayerShortcutLerpSpeedModifier");
-  reg.operator()<PlayerStartPosition>("PlayerStartPosition");
-  reg.operator()<WeaponDegradePerHit>("WeaponDegradePerHit");
-  reg.operator()<WormholeAnimFramerate>("WormholeAnimFramerate");
+  register_type.operator()<ArmedOffDelay>("ArmedOffDelay");
+  register_type.operator()<ArmedOnDelay>("ArmedOnDelay");
+  register_type.operator()<BlastRadius>("BlastRadius");
+  register_type.operator()<BombBonus>("BombBonus");
+  register_type.operator()<BombDamage>("BombDamage");
+  register_type.operator()<CameraSmoothSpeed>("CameraSmoothSpeed");
+  register_type.operator()<CorruptionDamage>("CorruptionDamage");
+  register_type.operator()<CryptNpcSpawnCount>("CryptNpcSpawnCount");
+  register_type.operator()<DiggingCooldownThreshold>("DiggingCooldownThreshold");
+  register_type.operator()<DiggingDamagePerHit>("DiggingDamagePerHit");
+  register_type.operator()<DisplayResolution>("DisplayResolution");
+  register_type.operator()<EffectsVolume>("EffectsVolume");
+  register_type.operator()<ExitKeyRequirement>("ExitKeyRequirement");
+  register_type.operator()<FuseDelay>("FuseDelay");
+  register_type.operator()<GraveNumMultiplier>("GraveNumMultiplier");
+  register_type.operator()<HealthBonus>("HealthBonus");
+  register_type.operator()<MaxNumAltars>("MaxNumAltars");
+  register_type.operator()<MaxNumCrypts>("MaxNumCrypts");
+  register_type.operator()<MusicVolume>("MusicVolume");
+  register_type.operator()<NpcActivateScale>("NpcActivateScale");
+  register_type.operator()<NpcDamage>("NpcDamage");
+  register_type.operator()<NpcDeathAnimFramerate>("NpcDeathAnimFramerate");
+  register_type.operator()<NpcGhostAnimFramerate>("NpcGhostAnimFramerate");
+  register_type.operator()<NpcLerpSpeedSkele>("NpcLerpSpeedSkele");
+  register_type.operator()<NpcLerpSpeedGhost>("NpcLerpSpeedGhost");
+  register_type.operator()<NpcLerpSpeedWitch>("NpcLerpSpeedWitch");
+  register_type.operator()<NpcLerpSpeedPriest>("NpcLerpSpeedPriest");
+  register_type.operator()<NpcPushBack>("NpcPushBack");
+  register_type.operator()<NpcShockwaveFreq>("NpcShockwaveFreq");
+  register_type.operator()<NpcShockwaveMaxRadius>("NpcShockwaveMaxRadius");
+  register_type.operator()<NpcShockwaveResolution>("NpcShockwaveResolution");
+  register_type.operator()<NpcShockwaveSpeed>("NpcShockwaveSpeed");
+  register_type.operator()<NpcSkeleAnimFramerate>("NpcSkeleAnimFramerate");
+  register_type.operator()<NpcSkeleGraveyardSpawnCount>("NpcSkeleGraveyardSpawnCount");
+  register_type.operator()<NpcWitchAnimFramerate>("NpcWitchAnimFramerate");
+  register_type.operator()<PcDamageDelay>("PcDamageDelay");
+  register_type.operator()<PlayerAnimFramerate>("PlayerAnimFramerate");
+  register_type.operator()<PlayerDiagonalLerpSpeedModifier>("PlayerDiagonalLerpSpeedModifier");
+  register_type.operator()<PlayerFootstepAddDelay>("PlayerFootstepAddDelay");
+  register_type.operator()<PlayerFootstepFadeDelay>("PlayerFootstepFadeDelay");
+  register_type.operator()<PlayerLerpInterruptThreshold>("PlayerLerpInterruptThreshold");
+  register_type.operator()<PlayerMovementSpeed>("PlayerMovementSpeed");
+  register_type.operator()<PlayerShortcutLerpSpeedModifier>("PlayerShortcutLerpSpeedModifier");
+  register_type.operator()<PlayerStartPosition>("PlayerStartPosition");
+  register_type.operator()<WeaponDegradePerHit>("WeaponDegradePerHit");
+  register_type.operator()<WormholeAnimFramerate>("WormholeAnimFramerate");
   // clang-format on
 }
 
@@ -161,9 +161,9 @@ void PersistSystem::initializeComponentRegistry()
   }
 
   // Add components not stored in JSON (runtime-only seeds)
-  Sys::PersistSystem::add<Cmp::Persist::WormholeSeed>( getReg(), 0 );
-  Sys::PersistSystem::add<Cmp::Persist::SinkholeSeed>( getReg(), 0 );
-  Sys::PersistSystem::add<Cmp::Persist::CorruptionSeed>( getReg(), 0 );
+  Sys::PersistSystem::add<Cmp::Persist::WormholeSeed>( reg(), 0 );
+  Sys::PersistSystem::add<Cmp::Persist::SinkholeSeed>( reg(), 0 );
+  Sys::PersistSystem::add<Cmp::Persist::CorruptionSeed>( reg(), 0 );
 }
 
 void PersistSystem::load_state()

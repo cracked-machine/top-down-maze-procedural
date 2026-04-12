@@ -68,7 +68,7 @@ namespace ProceduralMaze::Sys
 
 void RenderMenuSystem::init_title()
 {
-  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
   m_title_screen_shader.resize_texture( display_size );
   m_title_screen_shader.setup();
 }
@@ -80,7 +80,7 @@ void RenderMenuSystem::render_title()
   {
     // shaders
     m_title_screen_shader.set_position( { 0, 0 } );
-    sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+    sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
 
     const auto mouse_pos = sf::Vector2f( sf::Mouse::getPosition( m_window ) ).componentWiseDiv( sf::Vector2f( m_window.getSize() ) );
     m_title_screen_shader.update( mouse_pos, display_size );
@@ -109,7 +109,7 @@ void RenderMenuSystem::render_title()
 void RenderMenuSystem::render_settings( sf::Time globalDeltaTime )
 {
   m_window.clear();
-  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
   sf::Text title_text( m_font, "Settings", display_size.x / 20 );
   title_text.setFillColor( sf::Color::White );
   title_text.setPosition( { 10.f, 10.f } );
@@ -145,7 +145,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
   try
   {
     // keep imgui window in sync with display resolution updates
-    auto &display_resolution = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+    auto &display_resolution = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
     const float kFontScaleFactor = 1280.f;
 
     ImVec2 window_size = ImVec2( display_resolution.x - padding_px, display_resolution.y - ( title_bounds.size.y * 2 ) - padding_px );
@@ -159,7 +159,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     if ( ImGui::Combo( "Display Resolution", &current_resolution, DisplaySettings::get, nullptr, DisplaySettings::resolutions.size() ) )
     {
       // Resolution changed - apply the selected resolution
-      auto &display_resolution = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+      auto &display_resolution = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
       display_resolution = DisplaySettings::resolutions[current_resolution];
 
       m_window.create( sf::VideoMode( display_resolution ), "Your Game Title", sf::State::Fullscreen );
@@ -172,57 +172,57 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
 
     ImGui::SeparatorText( "Player Settings" );
 
-    Sys::PersistSystem::get<Cmp::Persist::BlastRadius>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::PlayerAnimFramerate>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::PlayerDiagonalLerpSpeedModifier>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepAddDelay>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepFadeDelay>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::PlayerShortcutLerpSpeedModifier>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::CameraSmoothSpeed>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::PlayerLerpInterruptThreshold>( getReg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::BlastRadius>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::PlayerAnimFramerate>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::PlayerDiagonalLerpSpeedModifier>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepAddDelay>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::PlayerFootstepFadeDelay>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::PlayerShortcutLerpSpeedModifier>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::CameraSmoothSpeed>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::PlayerLerpInterruptThreshold>( reg() ).render_widget();
 
     // Bomb Settings
     ImGui::SeparatorText( "Bomb Settings" );
 
-    Sys::PersistSystem::get<Cmp::Persist::BombDamage>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::FuseDelay>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::ArmedOnDelay>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::ArmedOffDelay>( getReg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::BombDamage>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::FuseDelay>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::ArmedOnDelay>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::ArmedOffDelay>( reg() ).render_widget();
 
     // Hazard Settings
     ImGui::SeparatorText( "Hazard Settings" );
 
-    Sys::PersistSystem::get<Cmp::Persist::CorruptionDamage>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::WormholeAnimFramerate>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::WormholeSeed>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::CorruptionSeed>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::SinkholeSeed>( getReg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::CorruptionDamage>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::WormholeAnimFramerate>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::WormholeSeed>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::CorruptionSeed>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::SinkholeSeed>( reg() ).render_widget();
 
     // Loot Settings
     ImGui::SeparatorText( "Loot Settings" );
 
-    Sys::PersistSystem::get<Cmp::Persist::HealthBonus>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::BombBonus>( getReg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::HealthBonus>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::BombBonus>( reg() ).render_widget();
 
     // NPC Settings
     ImGui::SeparatorText( "NPC Settings" );
 
-    Sys::PersistSystem::get<Cmp::Persist::NpcSkeleAnimFramerate>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcWitchAnimFramerate>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcGhostAnimFramerate>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcDamage>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::CryptNpcSpawnCount>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveResolution>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveSpeed>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveFreq>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveMaxRadius>( getReg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcSkeleAnimFramerate>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcWitchAnimFramerate>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcGhostAnimFramerate>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcDamage>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::CryptNpcSpawnCount>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveResolution>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveSpeed>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveFreq>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveMaxRadius>( reg() ).render_widget();
 
-    auto &npc_push_back = Sys::PersistSystem::get<Cmp::Persist::NpcPushBack>( getReg() );
+    auto &npc_push_back = Sys::PersistSystem::get<Cmp::Persist::NpcPushBack>( reg() );
     if ( ImGui::SliderScalar( "NPC Push Back Distance", ImGuiDataType_Float, npc_push_back.get_value_ptr(), npc_push_back.get_min_value_ptr(),
                               npc_push_back.get_max_value_ptr(), "%.1f pixels" ) )
     {
@@ -230,26 +230,26 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
       npc_push_back.get_value() = roundf( npc_push_back.get_value() / step ) * step;
     }
 
-    Sys::PersistSystem::get<Cmp::Persist::NpcDeathAnimFramerate>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcActivateScale>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedSkele>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedGhost>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedWitch>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedPriest>( getReg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcDeathAnimFramerate>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcActivateScale>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedSkele>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedGhost>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedWitch>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedPriest>( reg() ).render_widget();
 
     // Audio
     ImGui::SeparatorText( "Audio" );
 
-    Sys::PersistSystem::get<Cmp::Persist::MusicVolume>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::EffectsVolume>( getReg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::MusicVolume>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::EffectsVolume>( reg() ).render_widget();
 
     // Procedural Generation
     ImGui::SeparatorText( "Procedural Generation" );
 
-    Sys::PersistSystem::get<Cmp::Persist::MaxNumAltars>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::GraveNumMultiplier>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::ExitKeyRequirement>( getReg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::MaxNumCrypts>( getReg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::MaxNumAltars>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::GraveNumMultiplier>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::ExitKeyRequirement>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::MaxNumCrypts>( reg() ).render_widget();
 
   } catch ( const std::exception &e )
   {
@@ -267,7 +267,7 @@ void RenderMenuSystem::render_paused( sf::Time globalDeltaTime )
   ImGui::SFML::Update( m_window, globalDeltaTime );
   ImGui::Begin( "PausedMenu", nullptr, kImGuiWindowOptions );
 
-  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
 
   sf::Text title_text( m_font, "Paused", 96 );
   title_text.setFillColor( sf::Color::White );
@@ -279,10 +279,10 @@ void RenderMenuSystem::render_paused( sf::Time globalDeltaTime )
   start_text.setPosition( { display_size.x / 4.f, 200.f } );
   m_window.draw( start_text );
 
-  auto &music_volume = Sys::PersistSystem::get<Cmp::Persist::MusicVolume>( getReg() );
+  auto &music_volume = Sys::PersistSystem::get<Cmp::Persist::MusicVolume>( reg() );
   ImGui::SliderFloat( "Music Volume", &music_volume.get_value(), 0.f, 100.f, "%.1f" );
 
-  auto &effects_volume = Sys::PersistSystem::get<Cmp::Persist::EffectsVolume>( getReg() );
+  auto &effects_volume = Sys::PersistSystem::get<Cmp::Persist::EffectsVolume>( reg() );
   ImGui::SliderFloat( "Effects Volume", &effects_volume.get_value(), 0.f, 100.f, "%.1f" );
 
   ImGui::End();
@@ -298,7 +298,7 @@ void RenderMenuSystem::render_defeat_screen()
   m_window.clear();
   {
 
-    sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+    sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
 
     sf::Text title_text( m_font, "You died...again!", 96 );
     title_text.setFillColor( sf::Color::White );
@@ -320,7 +320,7 @@ void RenderMenuSystem::render_victory_screen( bool allow_continue )
   // main render begin
   m_window.clear();
 
-  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
 
   sf::Text title_text( m_font, "Level Complete!", 96 );
   title_text.setFillColor( sf::Color::White );

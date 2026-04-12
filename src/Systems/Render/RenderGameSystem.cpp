@@ -105,13 +105,13 @@ void RenderGameSystem::init_views()
   m_local_view = sf::View( { kLocalMapViewSizeF.x * 0.5f, kLocalMapViewSizeF.y * 0.5f }, kLocalMapViewSizeF );
   m_local_view.setViewport( sf::FloatRect( { 0.f, 0.f }, { 1.f, 1.f } ) );
 
-  auto start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( getReg() );
+  auto start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( reg() );
   m_local_view.setCenter( start_pos );
 }
 
 void RenderGameSystem::init_shaders()
 {
-  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
   m_water_shader.resize_texture( display_res );
   m_water_shader.setup();
 
@@ -134,7 +134,7 @@ void RenderGameSystem::updateCamera( sf::Time deltaTime )
 {
 
   // Get the player's current position
-  auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
+  auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::Position>();
   for ( auto [entity, pc_cmp, pos_cmp] : player_view.each() )
   {
     sf::Vector2f target_position = pos_cmp.position;
@@ -148,7 +148,7 @@ void RenderGameSystem::updateCamera( sf::Time deltaTime )
 
     // Smooth lerp toward target position
     float dt = deltaTime.asSeconds();
-    auto camera_smooth_speed = Sys::PersistSystem::get<Cmp::Persist::CameraSmoothSpeed>( getReg() ).get_value();
+    auto camera_smooth_speed = Sys::PersistSystem::get<Cmp::Persist::CameraSmoothSpeed>( reg() ).get_value();
     float t = 1.0f - std::exp( -camera_smooth_speed * dt ); // Exponential smoothing
 
     m_camera_position.x += ( target_position.x - m_camera_position.x ) * t;
@@ -175,7 +175,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
   using namespace Sprites;
 
   // check for updates to the System modes
-  for ( auto [entt, sys_cmp] : getReg().view<Cmp::System>().each() )
+  for ( auto [entt, sys_cmp] : reg().view<Cmp::System>().each() )
   {
     m_show_path_finding = sys_cmp.show_path_finding;
     m_show_debug_stats = sys_cmp.show_debug_stats;
@@ -184,7 +184,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
     m_show_npcnopath = sys_cmp.show_npcnopath;
   }
 
-  const Cmp::Position player_pos_cmp = Utils::Player::get_position( getReg() );
+  const Cmp::Position player_pos_cmp = Utils::Player::get_position( reg() );
 
   // make sure the local view is centered on the player mid-point and not at their top-left corner
   // (otherwise this makes views, shaders, etc look off-center)
@@ -214,29 +214,29 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
     for ( const auto &zorder_entry : m_zorder_queue_ )
     {
       auto entity = zorder_entry.e;
-      if ( getReg().all_of<Cmp::Position, Cmp::SpriteAnimation>( entity ) )
+      if ( reg().all_of<Cmp::Position, Cmp::SpriteAnimation>( entity ) )
       {
-        const auto &pos_cmp = getReg().get<Cmp::Position>( entity );
-        const auto &anim_cmp = getReg().get<Cmp::SpriteAnimation>( entity );
+        const auto &pos_cmp = reg().get<Cmp::Position>( entity );
+        const auto &anim_cmp = reg().get<Cmp::SpriteAnimation>( entity );
 
         uint8_t alpha_value = 255;
-        auto obst_cmp = getReg().try_get<Cmp::AbsoluteAlpha>( entity );
+        auto obst_cmp = reg().try_get<Cmp::AbsoluteAlpha>( entity );
         if ( obst_cmp ) alpha_value = static_cast<uint8_t>( obst_cmp->getAlpha() );
 
         sf::Vector2f new_origin_value = { 0.F, 0.F };
-        auto new_offset_cmp = getReg().try_get<Cmp::AbsoluteOffset>( entity );
+        auto new_offset_cmp = reg().try_get<Cmp::AbsoluteOffset>( entity );
         if ( new_offset_cmp ) new_origin_value = new_offset_cmp->getOffset();
 
         sf::Angle new_angle_value = sf::degrees( 0.f );
-        auto new_angle_cmp = getReg().try_get<Cmp::AbsoluteRotation>( entity );
+        auto new_angle_cmp = reg().try_get<Cmp::AbsoluteRotation>( entity );
         if ( new_angle_cmp ) new_angle_value = sf::degrees( new_angle_cmp->getAngle() );
 
         safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame, { 1.f, 1.f }, alpha_value,
                             new_origin_value, new_angle_value );
 
-        if ( getReg().any_of<Cmp::InventoryWearLevel>( entity ) )
+        if ( reg().any_of<Cmp::InventoryWearLevel>( entity ) )
         {
-          render_overlay_sys.render_wear_level( getReg().get<Cmp::InventoryWearLevel>( entity ), pos_cmp );
+          render_overlay_sys.render_wear_level( reg().get<Cmp::InventoryWearLevel>( entity ), pos_cmp );
         }
       }
     }
@@ -258,7 +258,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
     {
       if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
       {
-        for ( auto [entt, npcnopath_cmp, pos_cmp] : getReg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
+        for ( auto [entt, npcnopath_cmp, pos_cmp] : reg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
         {
           auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
           render_rectbounds( rectbounds, sf::Color::Red );
@@ -271,7 +271,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
     {
       if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
       {
-        for ( auto [entt, npcnopath_cmp, pos_cmp] : getReg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
+        for ( auto [entt, npcnopath_cmp, pos_cmp] : reg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
         {
           auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
           render_rectbounds( rectbounds, sf::Color::Red );
@@ -307,7 +307,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
     render_overlay_sys.render_lerp_positions();
     render_overlay_sys.render_spatial_grid_neighbours( player_pos_cmp, sf::Color::Cyan, PathFinding::QueryCompass::CARDINAL );
 
-    for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : getReg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>().each() )
+    for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>().each() )
     {
       auto query_compass = PathFinding::QueryCompass::CARDINAL;
       if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) query_compass = PathFinding::QueryCompass::BOTH;
@@ -324,25 +324,25 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
     float start_y_pos = 0;
     render_overlay_sys.render_ui_background_overlay( { 20.f, start_y_pos += 20.f }, { 300.f, 230.f } );
 
-    auto player_health = Utils::Player::get_health( getReg() );
+    auto player_health = Utils::Player::get_health( reg() );
     render_overlay_sys.render_health_overlay( player_health.health, { 40.f, start_y_pos += 20.f }, { 200.f, 20.f } );
 
-    auto new_weapon_level = Utils::Player::get_inventory_wear_level( getReg() );
+    auto new_weapon_level = Utils::Player::get_inventory_wear_level( reg() );
     render_overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, start_y_pos += 40.f }, { 200.f, 20.f } );
 
-    auto player_blast_radius = Utils::Player::get_blast_radius( getReg() );
+    auto player_blast_radius = Utils::Player::get_blast_radius( reg() );
     render_overlay_sys.render_radius_overlay( dt, player_blast_radius.value, { 40.f, start_y_pos += 40.f } );
 
-    auto player_cadaver_count = Utils::Player::get_cadaver_count( getReg() ).get_count();
+    auto player_cadaver_count = Utils::Player::get_cadaver_count( reg() ).get_count();
     render_overlay_sys.render_cadaver_count_overlay( dt, player_cadaver_count, { 40.f, start_y_pos += 40.f } );
 
-    auto player_wealth = Utils::Player::get_wealth( getReg() );
+    auto player_wealth = Utils::Player::get_wealth( reg() );
     render_overlay_sys.render_wealth_overlay( dt, player_wealth.wealth, { 40.f, start_y_pos += 40.f } );
 
     render_overlay_sys.render_inventory_overlay( dt, { 40.f, start_y_pos += 80.f } );
     render_overlay_sys.render_level_depth();
 
-    auto display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+    auto display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
     render_overlay_sys.render_crypt_maze_timer( { static_cast<float>( display_size.x / 2.f ), static_cast<float>( 0 ) }, 100 );
 
     if ( m_show_debug_stats )
@@ -363,7 +363,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
                                                            "HOLYWELL.interior_wall", "RUIN.interior_wall", "CRYPT.interior_wall" };
       render_overlay_sys.render_zorder_values_overlay( { display_size.x - 800.f, 40.f }, m_zorder_queue_, exclusion_list );
 
-      sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+      sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
       render_overlay_sys.render_npc_list_overlay( { display_size.x - 500.f, 200.f } );
     }
   }
@@ -382,7 +382,7 @@ void RenderGameSystem::render_floormap( Sprites::Containers::TileMap &floormap )
 void RenderGameSystem::render_armed()
 {
   // render armed obstacles with debug outlines
-  auto armed_view = getReg().view<Cmp::Armed, Cmp::Position>();
+  auto armed_view = reg().view<Cmp::Armed, Cmp::Position>();
   for ( auto [entity, armed_cmp, pos_cmp] : armed_view.each() )
   {
     if ( armed_cmp.m_display_bomb_sprite ) { safe_render_sprite( "CARRYITEM.bomb", pos_cmp, 0 ); }
@@ -403,7 +403,7 @@ void RenderGameSystem::render_armed()
 
 void RenderGameSystem::render_shockwaves( [[maybe_unused]] Sprites::Containers::TileMap &floormap )
 {
-  for ( auto [npc_sh_entt, npc_sw_cmp] : getReg().view<Cmp::NpcShockwave>().each() )
+  for ( auto [npc_sh_entt, npc_sw_cmp] : reg().view<Cmp::NpcShockwave>().each() )
   {
     for ( const auto &segment : npc_sw_cmp.sprite.getVisibleSegments() )
     {
@@ -438,7 +438,7 @@ void RenderGameSystem::render_background_water( sf::FloatRect player_position )
 
 void RenderGameSystem::render_mist( sf::FloatRect player_position )
 {
-  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
   m_mist_shader.update( { player_position.position.x - m_mist_shader.get_texture_size().x / 2.f,
                           player_position.position.y - m_mist_shader.get_texture_size().y / 2.f },
                         0.25, display_size ); // Set the alpha value
@@ -453,7 +453,7 @@ void RenderGameSystem::render_mist( sf::FloatRect player_position )
 
 void RenderGameSystem::render_wormhole_effect( Sprites::Containers::TileMap &floormap )
 {
-  auto wormhole_view = getReg().view<Cmp::WormholeMultiBlock, Cmp::Position, Cmp::SpriteAnimation>();
+  auto wormhole_view = reg().view<Cmp::WormholeMultiBlock, Cmp::Position, Cmp::SpriteAnimation>();
   for ( auto [entity, wormhole_cmp, pos_cmp, anim_cmp] : wormhole_view.each() )
   {
     try
@@ -487,9 +487,9 @@ void RenderGameSystem::render_wormhole_effect( Sprites::Containers::TileMap &flo
 
 void RenderGameSystem::render_arrow_compass()
 {
-  auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position>();
+  auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::Position>();
 
-  auto [found_entt, found_carryitem_type] = Utils::Player::get_inventory_type( getReg() );
+  auto [found_entt, found_carryitem_type] = Utils::Player::get_inventory_type( reg() );
   if ( not found_carryitem_type.contains( "exitkey" ) and not found_carryitem_type.contains( "cryptkey" ) and
        not found_carryitem_type.contains( "CARRYITEM.relic" ) )
     return;
@@ -498,7 +498,7 @@ void RenderGameSystem::render_arrow_compass()
   Cmp::Position arrow_target( { 0.f, 0.f }, { 0.f, 0.f } );
   if ( found_carryitem_type.contains( "exitkey" ) )
   {
-    auto exit_view = getReg().view<Cmp::Exit, Cmp::Position>();
+    auto exit_view = reg().view<Cmp::Exit, Cmp::Position>();
     for ( auto [exit_entity, exit_cmp, exit_pos_cmp] : exit_view.each() )
     {
       arrow_target = exit_pos_cmp;
@@ -511,11 +511,11 @@ void RenderGameSystem::render_arrow_compass()
     using CryptDistanceQueue = std::priority_queue<std::pair<float, Cmp::Position>, std::vector<std::pair<float, Cmp::Position>>,
                                                    Utils::Maths::DistancePositionComparator>;
     CryptDistanceQueue distance_queue;
-    auto crypt_view = getReg().view<Cmp::CryptEntrance, Cmp::Position>();
+    auto crypt_view = reg().view<Cmp::CryptEntrance, Cmp::Position>();
     for ( auto [crypt_entity, crypt_cmp, crypt_pos_cmp] : crypt_view.each() )
     {
       if ( crypt_cmp.is_open() ) continue;
-      auto float_distance = Utils::Maths::getEuclideanDistance( crypt_pos_cmp.position, Utils::Player::get_position( getReg() ).position );
+      auto float_distance = Utils::Maths::getEuclideanDistance( crypt_pos_cmp.position, Utils::Player::get_position( reg() ).position );
       distance_queue.emplace( float_distance, crypt_pos_cmp );
     }
     if ( distance_queue.empty() ) return; // there are no suitable crypts so give up
@@ -528,11 +528,11 @@ void RenderGameSystem::render_arrow_compass()
     using AltarDistanceQueue = std::priority_queue<std::pair<float, Cmp::Position>, std::vector<std::pair<float, Cmp::Position>>,
                                                    Utils::Maths::DistancePositionComparator>;
     AltarDistanceQueue distance_queue;
-    auto crypt_view = getReg().view<Cmp::AltarMultiBlock>();
+    auto crypt_view = reg().view<Cmp::AltarMultiBlock>();
     for ( auto [altar_entity, altar_cmp] : crypt_view.each() )
     {
       if ( altar_cmp.is_exitkey_lockout() ) continue;
-      auto float_distance = Utils::Maths::getEuclideanDistance( altar_cmp.position, Utils::Player::get_position( getReg() ).position );
+      auto float_distance = Utils::Maths::getEuclideanDistance( altar_cmp.position, Utils::Player::get_position( reg() ).position );
       distance_queue.emplace( float_distance, Cmp::Position( altar_cmp.position, altar_cmp.size ) );
     }
     if ( distance_queue.empty() ) return; // there are no suitable crypts so give up
@@ -607,15 +607,15 @@ void RenderGameSystem::render_dark_mode_shader()
   // Update dark mode shader with proper parameters
   auto shader_local_position = m_local_view.getCenter() - m_local_view.getSize() * 0.5f;
   sf::Vector2f aperture_half_size( Constants::kGridSizePxF * 4.f );
-  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
   m_dark_mode_shader.update( shader_local_position, aperture_half_size, kLocalMapViewSize, display_res );
   m_window.draw( m_dark_mode_shader );
 }
 
 void RenderGameSystem::render_cursed_mode_shader( sf::FloatRect player_position )
 {
-  auto &player_curse = Utils::Player::get_curse( getReg() );
-  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+  auto &player_curse = Utils::Player::get_curse( reg() );
+  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
   m_dripping_blood_shader.update( { player_position.position.x - m_mist_shader.get_texture_size().x / 2.f,
                                     player_position.position.y - m_mist_shader.get_texture_size().y / 2.f },
                                   player_curse.shader_alpha.add( 0.01f ), display_res ); // Set the alpha value
@@ -636,13 +636,13 @@ void RenderGameSystem::render_seeingstone_doglegs()
   };
 
   constexpr float kLineThickness = 3.f;
-  for ( auto [seeingstone_ent, seeingstone_cmp, seeingstone_pos_cmp] : getReg().view<Cmp::ScryingBall, Cmp::Position>().each() )
+  for ( auto [seeingstone_ent, seeingstone_cmp, seeingstone_pos_cmp] : reg().view<Cmp::ScryingBall, Cmp::Position>().each() )
   {
     if ( not seeingstone_cmp.active ) { continue; }
     switch ( seeingstone_cmp.target )
     {
       case Cmp::ScryingBall::Target::YELLOW: {
-        auto altar_view = getReg().view<Cmp::AltarMultiBlock>();
+        auto altar_view = reg().view<Cmp::AltarMultiBlock>();
         for ( auto [altar_entt, altar_cmp] : altar_view.each() )
         {
           // yellow for altar paths
@@ -651,7 +651,7 @@ void RenderGameSystem::render_seeingstone_doglegs()
         break;
       }
       case Cmp::ScryingBall::Target::RED: {
-        auto crypt_view = getReg().view<Cmp::CryptEntrance, Cmp::Position>();
+        auto crypt_view = reg().view<Cmp::CryptEntrance, Cmp::Position>();
         for ( auto [crypt_entt, crypt_cmp, crypt_pos_cmp] : crypt_view.each() )
         {
           // red for crypt paths
@@ -660,7 +660,7 @@ void RenderGameSystem::render_seeingstone_doglegs()
         break;
       }
       case Cmp::ScryingBall::Target::GREEN: {
-        auto exit_view = getReg().view<Cmp::Exit, Cmp::Position>();
+        auto exit_view = reg().view<Cmp::Exit, Cmp::Position>();
         for ( auto [exit_entt, exit_cmp, exit_pos_cmp] : exit_view.each() )
         {
           draw_dogleg( seeingstone_pos_cmp.getCenter(), exit_pos_cmp.getCenter(), sf::Color( 0, 255, 0, 128 ), kLineThickness );
@@ -695,9 +695,9 @@ void RenderGameSystem::render_lightning_strike()
   const float kAuxLineThickness = 3.f;
 
   // Get the first LightningStrike only. Once it expires the next LightningStrike will be at the front.
-  auto view = getReg().view<Cmp::LightningStrike>();
+  auto view = reg().view<Cmp::LightningStrike>();
   if ( view.size() == 0 ) return;
-  auto &cmp = getReg().get<Cmp::LightningStrike>( view.front() );
+  auto &cmp = reg().get<Cmp::LightningStrike>( view.front() );
   cmp.timer.start();
 
   if ( cmp.sequence.size() < 2 )
@@ -751,7 +751,7 @@ void RenderGameSystem::render_particle_sprites()
 {
   m_window.setView( m_window.getDefaultView() );
 
-  for ( auto [entt, owner] : getReg().view<ParticleSpriteOwner>().each() )
+  for ( auto [entt, owner] : reg().view<ParticleSpriteOwner>().each() )
   {
     // pass the local view so the sprite can map world coords to screen coords
     owner.sprite->set_view_transform( m_window, m_local_view );
@@ -765,7 +765,7 @@ void RenderGameSystem::render_screen_flash( sf::Color color )
 
   // draw flash in default view so it covers the whole screen in screen-space
   m_window.setView( m_window.getDefaultView() );
-  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( getReg() );
+  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
   auto flash = sf::RectangleShape( sf::Vector2f( display_res.x, display_res.y ) );
   flash.setPosition( { 0.f, 0.f } );
   flash.setFillColor( color );

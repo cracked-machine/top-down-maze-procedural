@@ -118,25 +118,25 @@ void SceneInputRouter::graveyard_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F5 )
       {
-        auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
-        auto player_pos = Utils::Player::get_position( getReg() ).position;
+        auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+        auto player_pos = Utils::Player::get_position( reg() ).position;
         get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
-        Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
+        Factory::add_player_last_graveyard_pos( reg(), Utils::Player::get_position( reg() ), { 0.f, 0.f } );
 
         enqueue( Events::SceneManagerEvent::Type::ENTER_CRYPT );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F6 )
       {
-        Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
+        Factory::add_player_last_graveyard_pos( reg(), Utils::Player::get_position( reg() ), { 0.f, 0.f } );
 
         enqueue( Events::SceneManagerEvent::Type::ENTER_HOLYWELL );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F7 )
       {
-        auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
-        auto player_pos = Utils::Player::get_position( getReg() ).position;
+        auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+        auto player_pos = Utils::Player::get_position( reg() ).position;
         get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
-        Factory::add_player_last_graveyard_pos( getReg(), Utils::Player::get_position( getReg() ), { 0.f, 0.f } );
+        Factory::add_player_last_graveyard_pos( reg(), Utils::Player::get_position( reg() ), { 0.f, 0.f } );
 
         enqueue( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER );
       }
@@ -145,10 +145,10 @@ void SceneInputRouter::graveyard_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F12 ) { get_systems_event_queue().trigger( Events::LightningEvent() ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Home ) { toggle_particle_test( true ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::End ) { toggle_particle_test( false ); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( getReg() ).value += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( getReg() ).health += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( getReg() ).wealth += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( getReg() ).increment_count( 1 ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( reg() ).health += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::QUIT_GAME ); }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
@@ -192,10 +192,10 @@ void SceneInputRouter::crypt_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_show_darkmode(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( getReg() ).value += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( getReg() ).health += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( getReg() ).wealth += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( getReg() ).increment_count( 1 ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( reg() ).health += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::EXIT_CRYPT ); }
       else if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
       {
@@ -249,10 +249,10 @@ void SceneInputRouter::holywell_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_show_darkmode(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( getReg() ).value += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( getReg() ).health += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( getReg() ).wealth += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( getReg() ).increment_count( 1 ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( reg() ).health += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::QUIT_GAME ); }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
@@ -291,10 +291,10 @@ void SceneInputRouter::shop_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_show_darkmode(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( getReg() ).value += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( getReg() ).health += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( getReg() ).wealth += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( getReg() ).increment_count( 1 ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( reg() ).health += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::QUIT_GAME ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Num1 ) { queue_buy_item_event( 1 ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Num2 ) { queue_buy_item_event( 2 ); }
@@ -338,10 +338,10 @@ void SceneInputRouter::ruin_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_show_darkmode(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( getReg() ).value += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( getReg() ).health += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( getReg() ).wealth += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( getReg() ).increment_count( 1 ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( reg() ).health += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::QUIT_GAME ); }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
@@ -417,7 +417,7 @@ void SceneInputRouter::level_complete_scene_state_handler()
 void SceneInputRouter::process_move_keys()
 {
   // allow multiple changes to the direction vector, otherwise we get a delayed slurred movement
-  auto player_direction_view = getReg().view<Cmp::PlayerCharacter, Cmp::Direction>();
+  auto player_direction_view = reg().view<Cmp::PlayerCharacter, Cmp::Direction>();
   for ( auto [entity, player, direction] : player_direction_view.each() )
   {
     direction.x = 0;
@@ -437,7 +437,7 @@ void SceneInputRouter::resize_window( sf::Vector2u size )
 
 void SceneInputRouter::toggle_collision_detection()
 {
-  for ( auto [entt, sys_cmp] : getReg().view<Cmp::System>().each() )
+  for ( auto [entt, sys_cmp] : reg().view<Cmp::System>().each() )
   {
     sys_cmp.collisions_disabled = not sys_cmp.collisions_disabled;
     SPDLOG_INFO( "Collisions are now {}", sys_cmp.collisions_disabled ? "DISABLED" : "ENABLED" );
@@ -446,7 +446,7 @@ void SceneInputRouter::toggle_collision_detection()
 
 void SceneInputRouter::toggle_show_pathfinding()
 {
-  for ( auto [entt, sys_cmp] : getReg().view<Cmp::System>().each() )
+  for ( auto [entt, sys_cmp] : reg().view<Cmp::System>().each() )
   {
     sys_cmp.show_path_finding = not sys_cmp.show_path_finding;
     SPDLOG_INFO( "Show Pathfinding is now {}", sys_cmp.show_path_finding ? "ENABLED" : "DISABLED" );
@@ -455,7 +455,7 @@ void SceneInputRouter::toggle_show_pathfinding()
 
 void SceneInputRouter::toggle_show_debug()
 {
-  for ( auto [entt, sys_cmp] : getReg().view<Cmp::System>().each() )
+  for ( auto [entt, sys_cmp] : reg().view<Cmp::System>().each() )
   {
     sys_cmp.show_debug_stats = not sys_cmp.show_debug_stats;
     SPDLOG_INFO( "Show debug stats is now {}", sys_cmp.show_debug_stats ? "ENABLED" : "DISABLED" );
@@ -465,7 +465,7 @@ void SceneInputRouter::toggle_show_debug()
 void SceneInputRouter::toggle_show_nopath()
 {
 
-  for ( auto [entt, sys_cmp] : getReg().view<Cmp::System>().each() )
+  for ( auto [entt, sys_cmp] : reg().view<Cmp::System>().each() )
   {
     if ( not sys_cmp.show_npcnopath and not sys_cmp.show_playernopath )
     {
@@ -490,7 +490,7 @@ void SceneInputRouter::toggle_show_nopath()
 
 void SceneInputRouter::toggle_show_darkmode()
 {
-  for ( auto [_entt, _sys] : getReg().view<Cmp::System>().each() )
+  for ( auto [_entt, _sys] : reg().view<Cmp::System>().each() )
   {
     _sys.dark_mode_enabled = not _sys.dark_mode_enabled;
     SPDLOG_INFO( "Dark mode is now {}", _sys.dark_mode_enabled ? "ENABLED" : "DISABLED" );
@@ -499,7 +499,7 @@ void SceneInputRouter::toggle_show_darkmode()
 
 void SceneInputRouter::queue_suicide_event()
 {
-  get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::Player::get_position( getReg() ) ) );
+  get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::Player::get_position( reg() ) ) );
 }
 
 void SceneInputRouter::queue_buy_item_event( uint8_t item_idx )

@@ -153,7 +153,7 @@ void ShopSystem::add_inventory_item( Cmp::ShopInventory &shop_inventory_cmp )
 
 void ShopSystem::create_inventory( entt::entity inventory_entt )
 {
-  auto inventory_cmp = getReg().try_get<Cmp::ShopInventory>( inventory_entt );
+  auto inventory_cmp = reg().try_get<Cmp::ShopInventory>( inventory_entt );
   if ( not inventory_cmp ) return;
 
   for ( auto _ : std::views::iota( 0, inventory_cmp->m_config.max_items ) )
@@ -164,8 +164,8 @@ void ShopSystem::create_inventory( entt::entity inventory_entt )
 
 void ShopSystem::check_exit_collision()
 {
-  auto player_pos_cmp = Utils::Player::get_position( getReg() );
-  auto door_view = getReg().view<Cmp::Exit, Cmp::Position>();
+  auto player_pos_cmp = Utils::Player::get_position( reg() );
+  auto door_view = reg().view<Cmp::Exit, Cmp::Position>();
 
   for ( auto [door_entity, door_cmp, door_pos_cmp] : door_view.each() )
   {
@@ -187,14 +187,14 @@ bool ShopSystem::check_shopkeeper_collision( sf::Vector2f shopkeeper_pos )
 {
   bool result = false;
   auto shopkeeper_hitbox = Cmp::RectBounds::scaled( shopkeeper_pos, Constants::kGridSizePxF, 3.f );
-  auto player_pos = Utils::Player::get_position( getReg() );
+  auto player_pos = Utils::Player::get_position( reg() );
   if ( not shopkeeper_hitbox.findIntersection( player_pos ) ) return result;
   return result = true;
 }
 
 void ShopSystem::buy_shop_item( uint8_t item_idx )
 {
-  auto inventory_view = getReg().view<Cmp::ShopInventory>().each();
+  auto inventory_view = reg().view<Cmp::ShopInventory>().each();
   for ( auto [inventory_entt, inventory_cmp] : inventory_view )
   {
     if ( not inventory_cmp.is_enabled ) continue;
@@ -212,16 +212,16 @@ void ShopSystem::buy_shop_item( uint8_t item_idx )
       SPDLOG_INFO( "Found slot {}: {} - {}", item_idx, item, price );
 
       // check if player has enough money
-      auto &player_wealth = Utils::Player::get_wealth( getReg() );
+      auto &player_wealth = Utils::Player::get_wealth( reg() );
       if ( player_wealth.wealth < static_cast<int32_t>( price ) ) { break; }
       player_wealth.wealth -= price;
 
-      auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
-      auto player_pos = Utils::Player::get_position( getReg() ).position;
+      auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+      auto player_pos = Utils::Player::get_position( reg() ).position;
       get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
 
       // add new carryitem into player inventory
-      Factory::add_inventory( getReg(), item );
+      Factory::add_inventory( reg(), item );
 
       // delete item from shop inventory
       auto &slots = inventory_cmp.m_slots;

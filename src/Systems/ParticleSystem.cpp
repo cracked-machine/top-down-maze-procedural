@@ -18,8 +18,8 @@ std::vector<entt::entity> ParticleSystem::add_to_registry( std::vector<ParticleS
   std::vector<entt::entity> entt_list;
   for ( auto &owner : owners )
   {
-    auto entt = getReg().create();
-    getReg().emplace<ParticleSpriteOwner>( entt, std::move( owner ) );
+    auto entt = reg().create();
+    reg().emplace<ParticleSpriteOwner>( entt, std::move( owner ) );
     entt_list.push_back( entt );
     SPDLOG_INFO( "Created ParticleSprite {}", static_cast<uint32_t>( entt ) );
   }
@@ -28,7 +28,7 @@ std::vector<entt::entity> ParticleSystem::add_to_registry( std::vector<ParticleS
 
 void ParticleSystem::update( sf::Time dt )
 {
-  for ( auto [entt, owner] : getReg().view<ParticleSpriteOwner>().each() )
+  for ( auto [entt, owner] : reg().view<ParticleSpriteOwner>().each() )
   {
     if ( not owner.sprite->is_active() ) continue;
 
@@ -41,7 +41,7 @@ void ParticleSystem::update( sf::Time dt )
 void ParticleSystem::check_collsion( const sf::FloatRect &target )
 {
   if ( not Utils::is_visible_in_view( Sys::RenderSystem::getGameView(), target ) ) return;
-  for ( auto [entt, owner] : getReg().view<ParticleSpriteOwner>().each() )
+  for ( auto [entt, owner] : reg().view<ParticleSpriteOwner>().each() )
   {
     if ( owner.sprite->is_active() )
     {

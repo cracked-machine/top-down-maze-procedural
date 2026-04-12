@@ -176,20 +176,20 @@ void ShockwaveSystem::removeIntersectingSegments( const sf::FloatRect &obstacle_
 
 void ShockwaveSystem::checkShockwavePlayerCollision()
 {
-  if ( Utils::getSystemCmp( getReg() ).collisions_disabled ) return;
+  if ( Utils::getSystemCmp( reg() ).collisions_disabled ) return;
 
-  for ( auto entt : getReg().view<Cmp::NpcShockwave>() )
+  for ( auto entt : reg().view<Cmp::NpcShockwave>() )
   {
-    Cmp::NpcShockwave &shockwave = getReg().get<Cmp::NpcShockwave>( entt );
-    auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( getReg() );
-    auto player_view = getReg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::PlayerHealth, Cmp::PlayerMortality>();
+    Cmp::NpcShockwave &shockwave = reg().get<Cmp::NpcShockwave>( entt );
+    auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() );
+    auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::PlayerHealth, Cmp::PlayerMortality>();
 
     for ( auto [player_entity, player_cmp, player_pos, player_health, player_mort_cmp] : player_view.each() )
     {
       // dont spam death events if the player is already dead
       if ( player_mort_cmp.state == Cmp::PlayerMortality::State::DEAD ) continue;
       if ( player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
-      if ( Sys::ShockwaveSystem::intersectsWithVisibleSegments( getReg(), shockwave, player_pos ) )
+      if ( Sys::ShockwaveSystem::intersectsWithVisibleSegments( reg(), shockwave, player_pos ) )
       {
         player_health.health -= 10;
         m_sound_bank.get_effect( "damage_player" ).play();

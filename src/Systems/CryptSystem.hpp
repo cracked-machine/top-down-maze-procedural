@@ -159,18 +159,18 @@ private:
   //! @return Pair of entt::entity and Cmp::CryptRoomStart&
   std::pair<entt::entity, Cmp::CryptRoomStart &> get_crypt_room_start()
   {
-    auto start_room_view = getReg().view<Cmp::CryptRoomStart>();
+    auto start_room_view = reg().view<Cmp::CryptRoomStart>();
     if ( start_room_view.front() == entt::null ) throw std::runtime_error( "CryptSystem::get_crypt_room_start - Unable to get Cmp::CryptRoomStart" );
-    return { start_room_view.front(), getReg().get<Cmp::CryptRoomStart>( start_room_view.front() ) };
+    return { start_room_view.front(), reg().get<Cmp::CryptRoomStart>( start_room_view.front() ) };
   }
 
   //! @brief Get the single Cmp::CryptRoomEnd component
   //! @return Pair of entt::entity and Cmp::CryptRoomEnd&
   std::pair<entt::entity, Cmp::CryptRoomEnd &> get_crypt_room_end()
   {
-    auto end_room_view = getReg().view<Cmp::CryptRoomEnd>();
+    auto end_room_view = reg().view<Cmp::CryptRoomEnd>();
     if ( end_room_view.front() == entt::null ) throw std::runtime_error( "CryptSystem::get_crypt_room_end - Unable to get Cmp::CryptRoomEnd" );
-    return { end_room_view.front(), getReg().get<Cmp::CryptRoomEnd>( end_room_view.front() ) };
+    return { end_room_view.front(), reg().get<Cmp::CryptRoomEnd>( end_room_view.front() ) };
   }
 
   //! @brief Dispatcher reference for scene management events

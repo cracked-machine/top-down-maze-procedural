@@ -56,9 +56,9 @@ public:
     return *m_systems_event_queue;
   }
 
-  entt::registry &getReg() { return m_reg.get(); }
-  const entt::registry &getReg() const { return m_reg.get(); }
-  void setReg( entt::registry &reg ) { m_reg = std::ref( reg ); }
+  entt::registry &reg() { return m_reg.get(); }
+  [[nodiscard]] const entt::registry &reg() const { return m_reg.get(); }
+  void reg( entt::registry &reg ) { m_reg = std::ref( reg ); }
 
 protected:
   // Entity registry: non-owning, re-assignable reference (by SceneManager)

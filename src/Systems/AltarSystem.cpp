@@ -47,8 +47,8 @@ void AltarSystem::on_player_action( Events::PlayerActionEvent ev )
 {
   if ( ev.action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
 
-  auto altar_view = getReg().view<Cmp::AltarMultiBlock>();
-  auto player_hitbox = Cmp::RectBounds::scaled( Utils::Player::get_position( getReg() ).position, Constants::kGridSizePxF, 1.5f );
+  auto altar_view = reg().view<Cmp::AltarMultiBlock>();
+  auto player_hitbox = Cmp::RectBounds::scaled( Utils::Player::get_position( reg() ).position, Constants::kGridSizePxF, 1.5f );
 
   for ( auto [altar_entity, altar_cmp] : altar_view.each() )
   {
@@ -62,12 +62,12 @@ void AltarSystem::on_player_action( Events::PlayerActionEvent ev )
 void AltarSystem::check_player_collision()
 {
   // tidy up any dead altar sacrifice animations
-  auto altar_sacrifice_view = getReg().view<Cmp::AltarSacrifice, Cmp::SpriteAnimation>();
+  auto altar_sacrifice_view = reg().view<Cmp::AltarSacrifice, Cmp::SpriteAnimation>();
   for ( auto [altar_sacrifice_entt, altar_sacrifice_cmp, altar_sacrifice_anim_cmp] : altar_sacrifice_view.each() )
   {
     if ( not altar_sacrifice_anim_cmp.m_animation_active )
     {
-      if ( getReg().valid( altar_sacrifice_entt ) ) { getReg().destroy( altar_sacrifice_entt ); }
+      if ( reg().valid( altar_sacrifice_entt ) ) { reg().destroy( altar_sacrifice_entt ); }
     }
   }
 }
@@ -76,7 +76,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
 {
   if ( m_altar_activation_clock.getElapsedTime() < kActivationCooldownSeconds ) return;
 
-  auto [sacrifice_entt, sacrifice_type] = Utils::Player::get_inventory_type( getReg() );
+  auto [sacrifice_entt, sacrifice_type] = Utils::Player::get_inventory_type( reg() );
 
   enum class SacrificeAnimType { RELIC, KEY };
   auto common_activation = [&]( SacrificeAnimType sacrifice_anim_type )
@@ -85,14 +85,14 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     if ( sacrifice_anim_type == SacrificeAnimType::RELIC ) { sprite_type = "ALTAR.sacrifice.anim.relic"; }
     else if ( sacrifice_anim_type == SacrificeAnimType::KEY ) { sprite_type = "ALTAR.sacrifice.anim.key"; }
 
-    Factory::destroy_inventory( getReg(), sacrifice_type );
+    Factory::destroy_inventory( reg(), sacrifice_type );
 
     float altar_sacrifice_anim_height = m_sprite_factory.get_multisprite_by_type( sprite_type ).getSpriteSizePixels().y;
     // get the center (topleft coord), then adjust to center the altar_sacrifice_anim, then adjust for altar_sacrifice_anim height
     Cmp::Position new_pos( altar_cmp.getCenter() - sf::Vector2{ 8.f, 4.f } - sf::Vector2{ 0.f, altar_sacrifice_anim_height },
                            Constants::kGridSizePxF );
     m_sound_bank.get_effect( "shrine_lighting" ).play();
-    Factory::create_altar_sacrifice_anim( getReg(), new_pos, sprite_type );
+    Factory::create_altar_sacrifice_anim( reg(), new_pos, sprite_type );
     m_altar_activation_clock.restart();
   };
 
@@ -105,27 +105,27 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       switch ( altar_cmp.get_sacrifice_count() )
       {
         case 0:
-          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 1 ); } );
-          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.one"; } );
+          reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 1 ); } );
+          reg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.one"; } );
           SPDLOG_DEBUG( "Altar activated to state ONE." );
           common_activation( SacrificeAnimType::RELIC );
           break;
         case 1:
-          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 2 ); } );
-          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.two"; } );
+          reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 2 ); } );
+          reg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.two"; } );
           SPDLOG_DEBUG( "Altar activated to state TWO." );
           common_activation( SacrificeAnimType::RELIC );
           break;
 
         case 2:
-          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 3 ); } );
-          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.three"; } );
+          reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 3 ); } );
+          reg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.three"; } );
           SPDLOG_DEBUG( "Altar activated to state THREE." );
           common_activation( SacrificeAnimType::RELIC );
           break;
         case 3:
-          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 4 ); } );
-          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.four"; } );
+          reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 4 ); } );
+          reg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.four"; } );
           SPDLOG_DEBUG( "Altar activated to state FOUR." );
           common_activation( SacrificeAnimType::RELIC );
           break;
@@ -140,8 +140,8 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       switch ( altar_cmp.get_sacrifice_count() )
       {
         case 4:
-          getReg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 5 ); } );
-          getReg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.five"; } );
+          reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 5 ); } );
+          reg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.five"; } );
           SPDLOG_DEBUG( "Altar activated to state FIVE." );
           common_activation( SacrificeAnimType::KEY );
         default:
@@ -159,11 +159,11 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
 
       if ( sacrifice_type.contains( "CARRYITEM.relic" ) )
       {
-        key_entt = Factory::create_carry_item( getReg(), Utils::Player::get_position( getReg() ), "CARRYITEM.exitkey" );
+        key_entt = Factory::create_carry_item( reg(), Utils::Player::get_position( reg() ), "CARRYITEM.exitkey" );
         if ( key_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
         // signal UI to flash
-        auto flash_entt = getReg().create();
-        getReg().emplace_or_replace<Cmp::FlashUIInventory>( flash_entt );
+        auto flash_entt = reg().create();
+        reg().emplace_or_replace<Cmp::FlashUIInventory>( flash_entt );
       }
       SPDLOG_INFO( "Dropped CARRYITEM.exitkey" );
       altar_cmp.set_exitkey_lockout();
@@ -178,11 +178,11 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
 
       if ( sacrifice_type.contains( "CARRYITEM.exitkey" ) )
       {
-        key_entt = Factory::create_carry_item( getReg(), Utils::Player::get_position( getReg() ), "CARRYITEM.cryptkey" );
+        key_entt = Factory::create_carry_item( reg(), Utils::Player::get_position( reg() ), "CARRYITEM.cryptkey" );
         if ( key_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
         // signal UI to flash
-        auto flash_entt = getReg().create();
-        getReg().emplace_or_replace<Cmp::FlashUIInventory>( flash_entt );
+        auto flash_entt = reg().create();
+        reg().emplace_or_replace<Cmp::FlashUIInventory>( flash_entt );
       }
       SPDLOG_INFO( "Dropped CARRYITEM.cryptkey" );
       altar_cmp.set_cryptkey_lockout();

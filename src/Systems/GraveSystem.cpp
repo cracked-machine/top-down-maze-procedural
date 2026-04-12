@@ -42,27 +42,27 @@ GraveSystem::GraveSystem( entt::registry &reg, sf::RenderWindow &window, Sprites
 
 void GraveSystem::check_player_grave_collision()
 {
-  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( getReg() );
+  auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
   if ( not inventory_slot_type.contains( "pickaxe" ) and not inventory_slot_type.contains( "axe" ) and not inventory_slot_type.contains( "shovel" ) )
   {
     return;
   }
 
-  if ( Utils::Player::get_inventory_wear_level( getReg() ) <= 0 ) { return; }
+  if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
 
   // abort if still in cooldown
-  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( getReg() ).get_value();
+  auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
 
   // Cooldown has expired: Remove any existing SelectedPosition components from the registry
-  auto selected_position_view = getReg().view<Cmp::SelectedPosition>();
+  auto selected_position_view = reg().view<Cmp::SelectedPosition>();
   for ( auto [existing_sel_entity, sel_cmp] : selected_position_view.each() )
   {
-    getReg().remove<Cmp::SelectedPosition>( existing_sel_entity );
+    reg().remove<Cmp::SelectedPosition>( existing_sel_entity );
   }
 
   // Iterate through all closed grave entities
-  auto position_view = getReg().view<Cmp::Position, Cmp::GraveMultiBlock, Cmp::SpriteAnimation>( entt::exclude<Cmp::SelectedPosition> );
+  auto position_view = reg().view<Cmp::Position, Cmp::GraveMultiBlock, Cmp::SpriteAnimation>( entt::exclude<Cmp::SelectedPosition> );
   for ( auto [grave_entity, grave_pos_cmp, grave_cmp, grave_anim_cmp] : position_view.each() )
   {
     if ( grave_anim_cmp.m_sprite_type.contains( ".opened" ) ) continue;
@@ -75,7 +75,7 @@ void GraveSystem::check_player_grave_collision()
       // TODO: check player is facing the obstacle
       // Check player proximity to the entity
       bool player_nearby = false;
-      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : getReg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
+      for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : reg().view<Cmp::PlayerCharacter, Cmp::Position>().each() )
       {
         auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, Constants::kGridSizePxF, 1.5f );
         if ( player_hitbox.findIntersection( grave_cmp ) )
@@ -90,13 +90,13 @@ void GraveSystem::check_player_grave_collision()
 
       // We are in proximity to an entity that is a candidate for a new SelectedPosition component.
       // Add a new SelectedPosition component to the entity
-      getReg().emplace_or_replace<Cmp::SelectedPosition>( grave_entity, grave_pos_cmp.position );
+      reg().emplace_or_replace<Cmp::SelectedPosition>( grave_entity, grave_pos_cmp.position );
       m_dig_cooldown_clock.restart();
 
-      float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( getReg() ).get_value();
-      Utils::Player::reduce_inventory_wear_level( getReg(), reduction_amount );
+      float reduction_amount = Sys::PersistSystem::get<Cmp::Persist::WeaponDegradePerHit>( reg() ).get_value();
+      Utils::Player::reduce_inventory_wear_level( reg(), reduction_amount );
 
-      grave_cmp.hp -= Utils::Maths::to_percent( 255.f, Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( getReg() ).get_value() );
+      grave_cmp.hp -= Utils::Maths::to_percent( 255.f, Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value() );
 
       if ( grave_cmp.hp > 0 )
       {
@@ -121,7 +121,7 @@ void GraveSystem::check_player_grave_collision()
         {
           case 1: {
             SPDLOG_DEBUG( "Grave activated NPC trap." );
-            Factory::create_npc( getReg(), grave_entity, "NPCGHOST" );
+            Factory::create_npc( reg(), grave_entity, "NPCGHOST" );
             m_sound_bank.get_effect( "spawn_ghost" ).play();
             break;
           }
@@ -137,8 +137,7 @@ void GraveSystem::check_player_grave_collision()
                                                                        "CARRYITEM.relic4" };
             Cmp::RandomInt relic_picker( 0, relic_selection_list.size() - 1 );
             auto selected_relic = relic_picker.gen();
-            auto relic_entt = Factory::create_carry_item( getReg(), Utils::Player::get_position( getReg() ),
-                                                          relic_selection_list.at( selected_relic ) );
+            auto relic_entt = Factory::create_carry_item( reg(), Utils::Player::get_position( reg() ), relic_selection_list.at( selected_relic ) );
 
             if ( relic_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
             break;
@@ -151,7 +150,7 @@ void GraveSystem::check_player_grave_collision()
                 "CARRYITEM.jewelry_diamond_gemstone",  "CARRYITEM.jewelry_amephyst_gemstone" };
             Cmp::RandomInt jewelry_picker( 0, jewelry_selection_list.size() - 1 );
             auto selected_jewelry = jewelry_picker.gen();
-            auto jewelry_entt = Factory::create_carry_item( getReg(), Utils::Player::get_position( getReg() ),
+            auto jewelry_entt = Factory::create_carry_item( reg(), Utils::Player::get_position( reg() ),
                                                             jewelry_selection_list.at( selected_jewelry ) );
 
             if ( jewelry_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }

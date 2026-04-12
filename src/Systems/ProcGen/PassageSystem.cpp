@@ -62,7 +62,7 @@ void PassageSystem::on_passage_event( Events::PassageEvent &event )
       connect_occupied_and_open_room_passages();
       break;
     case Events::PassageEvent::Type::CONNECT_OCCUPIED_TO_ENDROOM:
-      connect_occupied_and_end_room_passages( getReg(), event.entity, map_size_pixel );
+      connect_occupied_and_end_room_passages( reg(), event.entity, map_size_pixel );
       tidy_passage_blocks();
       create_uncached_passages();
       break;
@@ -98,12 +98,12 @@ void PassageSystem::add_spike_traps()
   // static int max_num_spike_traps = 3;
   std::set<int> passage_ids_used;
 
-  auto pblock_view = getReg().view<Cmp::CryptPassageBlock>();
+  auto pblock_view = reg().view<Cmp::CryptPassageBlock>();
   for ( auto [pblock_entt, pblock_cmp] : pblock_view.each() )
   {
     if ( passage_ids_used.contains( pblock_cmp.m_passage_id ) ) continue;
     passage_ids_used.insert( pblock_cmp.m_passage_id );
-    Factory::add_spike_trap( getReg(), pblock_entt, pblock_cmp.m_passage_id );
+    Factory::add_spike_trap( reg(), pblock_entt, pblock_cmp.m_passage_id );
   }
 }
 
@@ -114,7 +114,7 @@ void PassageSystem::connect_start_and_open_rooms_passages( entt::entity start_ro
     SPDLOG_WARN( "start_room_entt is null" );
     return;
   }
-  auto start_room_cmp = getReg().try_get<Cmp::CryptRoomStart>( start_room_entt );
+  auto start_room_cmp = reg().try_get<Cmp::CryptRoomStart>( start_room_entt );
   if ( not start_room_cmp )
   {
     SPDLOG_WARN( "start_room_cmp is null" );
@@ -157,10 +157,10 @@ void PassageSystem::connect_occupied_and_open_room_passages()
   auto [map_size_grid, map_size_pixel] = crypt_scene_data->map_size();
 
   // find the open room that the player is in (if any)
-  auto open_room_view = getReg().view<Cmp::CryptRoomOpen>();
+  auto open_room_view = reg().view<Cmp::CryptRoomOpen>();
   for ( auto [open_room_entt, open_room_cmp] : open_room_view.each() )
   {
-    if ( not Utils::Player::get_position( getReg() ).findIntersection( open_room_cmp ) ) continue;
+    if ( not Utils::Player::get_position( reg() ).findIntersection( open_room_cmp ) ) continue;
 
     auto &occupied_room_cmp = open_room_cmp;
 
@@ -233,7 +233,7 @@ void PassageSystem::cache_all_room_connections()
   auto [map_size_grid, map_size_pixel] = crypt_scene_data->map_size();
   const auto world_area = sf::FloatRect( { 0, 0 }, map_size_pixel );
 
-  auto closed_room_view = getReg().view<Cmp::CryptRoomClosed>();
+  auto closed_room_view = reg().view<Cmp::CryptRoomClosed>();
   SPDLOG_INFO( "CryptRoomClosed count {}", closed_room_view.size() );
 
   std::vector<Cmp::CryptPassageDirection> directions = { Cmp::CryptPassageDirection::WEST, Cmp::CryptPassageDirection::EAST,
@@ -281,7 +281,7 @@ void PassageSystem::cache_all_room_connections()
 
 void PassageSystem::connect_end_room_to_nearest_closed_room()
 {
-  auto end_room_view = getReg().view<Cmp::CryptRoomEnd>();
+  auto end_room_view = reg().view<Cmp::CryptRoomEnd>();
   if ( end_room_view->empty() )
   {
     SPDLOG_WARN( "no end room found" );
@@ -327,8 +327,8 @@ void PassageSystem::create_uncached_passages()
 {
   for ( auto &passage_block_cmp : m_uncached_passage_list )
   {
-    auto entt = getReg().create();
-    getReg().emplace<Cmp::CryptPassageBlock>( entt, passage_block_cmp );
+    auto entt = reg().create();
+    reg().emplace<Cmp::CryptPassageBlock>( entt, passage_block_cmp );
   }
 }
 
@@ -347,8 +347,8 @@ void PassageSystem::create_cached_passages()
   SPDLOG_INFO( "Spawning region {} with {} blocks", m_region_idx, blocklist.size() );
   for ( auto &block : blocklist )
   {
-    auto entt = getReg().create();
-    getReg().emplace<Cmp::CryptPassageBlock>( entt, block );
+    auto entt = reg().create();
+    reg().emplace<Cmp::CryptPassageBlock>( entt, block );
   }
   m_region_idx++;
 }
@@ -359,7 +359,7 @@ ProcGen::MidPointDistanceQueue PassageSystem::find_room_distances( Cmp::CryptPas
 {
 
   ProcGen::MidPointDistanceQueue pqueue;
-  for ( auto [other_room_entt, other_room_cmp] : getReg().view<ROOMTYPE>().each() )
+  for ( auto [other_room_entt, other_room_cmp] : reg().view<ROOMTYPE>().each() )
   {
     if ( exclude_entts.contains( other_room_entt ) ) continue;
     if ( not other_room_cmp.findIntersection( search_quadrant ) ) continue;
@@ -389,9 +389,9 @@ std::vector<Cmp::CryptPassageBlock> PassageSystem::find_passages( Cmp::CryptPass
   {
     auto nearest_other_room_entt = dist_pqueue.top().second;
     dist_pqueue.pop();
-    if ( not getReg().valid( nearest_other_room_entt ) ) continue;
+    if ( not reg().valid( nearest_other_room_entt ) ) continue;
 
-    auto *other_room_bounds = getReg().try_get<ROOMTYPE>( nearest_other_room_entt );
+    auto *other_room_bounds = reg().try_get<ROOMTYPE>( nearest_other_room_entt );
     if ( not other_room_bounds ) continue;
 
     std::vector<Cmp::CryptPassageBlock> passage_list;
@@ -399,15 +399,15 @@ std::vector<Cmp::CryptPassageBlock> PassageSystem::find_passages( Cmp::CryptPass
     // try to create a room-to-room pathway
     if ( walktype == ProcGen::WalkingType::DRUNK )
     {
-      passage_list = m_passage_algos.create_drunken_walk( getReg(), start_passage_door, *other_room_bounds, map_size_pixel,
-                                                          { nearest_other_room_entt }, duplicates_policy );
+      passage_list = m_passage_algos.create_drunken_walk( reg(), start_passage_door, *other_room_bounds, map_size_pixel, { nearest_other_room_entt },
+                                                          duplicates_policy );
     }
-    else { passage_list = m_passage_algos.create_dog_leg( getReg(), start_passage_door, *other_room_bounds, duplicates_policy ); }
+    else { passage_list = m_passage_algos.create_dog_leg( reg(), start_passage_door, *other_room_bounds, duplicates_policy ); }
 
     // if the pathway was successfull in reaching goal
     if ( not passage_list.empty() )
     {
-      auto *room_cmp = getReg().try_get<ROOMTYPE>( nearest_other_room_entt );
+      auto *room_cmp = reg().try_get<ROOMTYPE>( nearest_other_room_entt );
       if ( passage_limit == ProcGen::OnePassagePerTargetRoom::YES && room_cmp ) { room_cmp->set_all_doors_used( true ); }
 
       final_passage_list.insert( final_passage_list.end(), passage_list.begin(), passage_list.end() );
@@ -434,7 +434,7 @@ void PassageSystem::remove_all_passage_blocks()
   std::vector<entt::entity> passage_block_remove_list;
 
   // find all Cmp::CryptPassageBlocks
-  auto crypt_passage_block_view = getReg().view<Cmp::CryptPassageBlock>();
+  auto crypt_passage_block_view = reg().view<Cmp::CryptPassageBlock>();
   for ( auto [entt, block_cmp] : crypt_passage_block_view.each() )
   {
     passage_block_remove_list.push_back( entt );
@@ -443,8 +443,8 @@ void PassageSystem::remove_all_passage_blocks()
   // Remove Cmp::CryptPassageBlocks safely
   for ( auto entt : passage_block_remove_list )
   {
-    getReg().remove<Cmp::CryptPassageBlock>( entt );
-    getReg().destroy( entt );
+    reg().remove<Cmp::CryptPassageBlock>( entt );
+    reg().destroy( entt );
   }
 }
 
@@ -453,23 +453,23 @@ void PassageSystem::empty_open_passages()
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
   if ( not pathfinding_navmesh ) return;
 
-  auto obstacle_view = getReg().view<Cmp::Position>();
+  auto obstacle_view = reg().view<Cmp::Position>();
   for ( auto [pos_entt, pos_cmp] : obstacle_view.each() )
   {
-    auto pblock_view = getReg().view<Cmp::CryptPassageBlock>();
+    auto pblock_view = reg().view<Cmp::CryptPassageBlock>();
     for ( auto [pblock_entt, pblock_cmp] : pblock_view.each() )
     {
       auto pblock_cmp_rect = sf::FloatRect( pblock_cmp, Constants::kGridSizePxF );
       // skip any positions that are not pblocks or do not have obstacles/chests
       if ( not pblock_cmp_rect.findIntersection( pos_cmp ) ) continue;
-      if ( getReg().any_of<Cmp::Obstacle>( pos_entt ) )
+      if ( reg().any_of<Cmp::Obstacle>( pos_entt ) )
       {
-        Factory::remove_obstacle( getReg(), pos_entt );
+        Factory::remove_obstacle( reg(), pos_entt );
         pathfinding_navmesh->insert( pos_entt, pos_cmp );
       }
-      if ( getReg().any_of<Cmp::CryptChest>( pos_entt ) )
+      if ( reg().any_of<Cmp::CryptChest>( pos_entt ) )
       {
-        Factory::destroy_crypt_chest( getReg(), pos_entt );
+        Factory::destroy_crypt_chest( reg(), pos_entt );
         pathfinding_navmesh->insert( pos_entt, pos_cmp );
       }
     }
@@ -479,35 +479,35 @@ void PassageSystem::empty_open_passages()
 void PassageSystem::fill_all_passages()
 {
 
-  auto obstacle_view = getReg().view<Cmp::Position>();
+  auto obstacle_view = reg().view<Cmp::Position>();
   for ( auto [pos_entt, pos_cmp] : obstacle_view.each() )
   {
     // don't add obstacles to footstep entities
-    if ( getReg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
+    if ( reg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
 
-    auto pblock_view = getReg().view<Cmp::CryptPassageBlock>();
+    auto pblock_view = reg().view<Cmp::CryptPassageBlock>();
     for ( auto [pblock_entt, pblock_cmp] : pblock_view.each() )
     {
       auto pblock_cmp_rect = sf::FloatRect( pblock_cmp, Constants::kGridSizePxF );
       // skip any positions that are not pblocks or already have obstacles
       if ( not pblock_cmp_rect.findIntersection( pos_cmp ) ) continue;
-      if ( getReg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
+      if ( reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
 
       const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_sb" );
-      Factory::create_obstacle( getReg(), pos_entt, pos_cmp, ms, 2 );
+      Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, 2 );
 
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
       {
         pathfinding_navmesh->remove( pos_entt, pos_cmp );
       }
 
-      if ( not Utils::getSystemCmp( getReg() ).collisions_disabled )
+      if ( not Utils::getSystemCmp( reg() ).collisions_disabled )
       {
-        if ( Utils::Player::get_position( getReg() ).findIntersection( pblock_cmp_rect ) )
+        if ( Utils::Player::get_position( reg() ).findIntersection( pblock_cmp_rect ) )
         {
           // player got squished
           get_systems_event_queue().enqueue(
-              Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SQUISHED, Utils::Player::get_position( getReg() ) ) );
+              Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SQUISHED, Utils::Player::get_position( reg() ) ) );
         }
       }
     }
@@ -516,35 +516,35 @@ void PassageSystem::fill_all_passages()
 
 void PassageSystem::tidy_passage_blocks( bool include_closed_rooms )
 {
-  for ( auto [pblock_entt, pblock_cmp] : getReg().view<Cmp::CryptPassageBlock>().each() )
+  for ( auto [pblock_entt, pblock_cmp] : reg().view<Cmp::CryptPassageBlock>().each() )
   {
     auto pblock_cmp_rect = sf::FloatRect( pblock_cmp, Constants::kGridSizePxF );
 
     // open rooms
-    for ( auto [open_room_entt, open_room_cmp] : getReg().view<Cmp::CryptRoomOpen>().each() )
+    for ( auto [open_room_entt, open_room_cmp] : reg().view<Cmp::CryptRoomOpen>().each() )
     {
-      if ( pblock_cmp_rect.findIntersection( open_room_cmp ) ) getReg().remove<Cmp::CryptPassageBlock>( pblock_entt );
+      if ( pblock_cmp_rect.findIntersection( open_room_cmp ) ) reg().remove<Cmp::CryptPassageBlock>( pblock_entt );
     }
 
     // closed rooms - this can interfere with passage creation so normal usescases don't need it
     if ( include_closed_rooms )
     {
-      for ( auto [closed_room_entt, closed_room_cmp] : getReg().view<Cmp::CryptRoomClosed>().each() )
+      for ( auto [closed_room_entt, closed_room_cmp] : reg().view<Cmp::CryptRoomClosed>().each() )
       {
-        if ( pblock_cmp_rect.findIntersection( closed_room_cmp ) ) getReg().remove<Cmp::CryptPassageBlock>( pblock_entt );
+        if ( pblock_cmp_rect.findIntersection( closed_room_cmp ) ) reg().remove<Cmp::CryptPassageBlock>( pblock_entt );
       }
     }
 
     // start rooms
-    for ( auto [start_room_entt, start_room_cmp] : getReg().view<Cmp::CryptRoomStart>().each() )
+    for ( auto [start_room_entt, start_room_cmp] : reg().view<Cmp::CryptRoomStart>().each() )
     {
-      if ( pblock_cmp_rect.findIntersection( start_room_cmp ) ) getReg().remove<Cmp::CryptPassageBlock>( pblock_entt );
+      if ( pblock_cmp_rect.findIntersection( start_room_cmp ) ) reg().remove<Cmp::CryptPassageBlock>( pblock_entt );
     }
 
     // end rooms
-    for ( auto [end_room_entt, end_room_cmp] : getReg().view<Cmp::CryptRoomEnd>().each() )
+    for ( auto [end_room_entt, end_room_cmp] : reg().view<Cmp::CryptRoomEnd>().each() )
     {
-      if ( pblock_cmp_rect.findIntersection( end_room_cmp ) ) getReg().remove<Cmp::CryptPassageBlock>( pblock_entt );
+      if ( pblock_cmp_rect.findIntersection( end_room_cmp ) ) reg().remove<Cmp::CryptPassageBlock>( pblock_entt );
     }
   }
 }

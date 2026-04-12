@@ -44,7 +44,7 @@ void HazardFieldSystem<HazardType>::update()
   update_hazard_field();
   check_npc_hazard_field_collision();
 
-  for ( auto [_ent, _sys] : getReg().template view<Cmp::System>().each() )
+  for ( auto [_ent, _sys] : reg().template view<Cmp::System>().each() )
   {
     if ( not _sys.collisions_disabled ) { check_player_hazard_field_collision(); }
   }
@@ -53,20 +53,20 @@ void HazardFieldSystem<HazardType>::update()
 template <ValidHazard HazardType>
 void HazardFieldSystem<HazardType>::init_hazard_field()
 {
-  auto hazard_field_view = getReg().template view<HazardType>( entt::exclude<typename Traits::ExcludeHazard> );
+  auto hazard_field_view = reg().template view<HazardType>( entt::exclude<typename Traits::ExcludeHazard> );
   if ( hazard_field_view.size_hint() > 0 ) { return; }
 
-  unsigned long seed = Sys::PersistSystem::get<typename Traits::SeedType>( getReg() ).get_value();
+  unsigned long seed = Sys::PersistSystem::get<typename Traits::SeedType>( reg() ).get_value();
   auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
-      getReg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{},
+      reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{},
       Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
   if ( random_entity == entt::null ) { return; }
 
-  Factory::remove_obstacle( getReg(), random_entity );
-  getReg().template emplace<HazardType>( random_entity );
-  getReg().template emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, Traits::sprite_type, 0 );
-  getReg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 1.f );
-  getReg().template emplace_or_replace<Cmp::NpcNoPathFinding>( random_entity );
+  Factory::remove_obstacle( reg(), random_entity );
+  reg().template emplace<HazardType>( random_entity );
+  reg().template emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, Traits::sprite_type, 0 );
+  reg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 1.f );
+  reg().template emplace_or_replace<Cmp::NpcNoPathFinding>( random_entity );
   SPDLOG_INFO( "{} hazard spawned at position [{}, {}].", Traits::sprite_type, random_pos.position.x, random_pos.position.y );
 }
 
@@ -88,8 +88,8 @@ void HazardFieldSystem<HazardType>::update_hazard_field()
   if ( m_spread_update_clock.getElapsedTime() < m_update_period ) return;
   m_spread_update_clock.restart();
 
-  auto hazard_view = getReg().template view<HazardType, Cmp::Position>();
-  auto obstacle_view = getReg().template view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::ReservedPosition> );
+  auto hazard_view = reg().template view<HazardType, Cmp::Position>();
+  auto obstacle_view = reg().template view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::ReservedPosition> );
 
   Cmp::RandomInt hazard_spread_picker( 0, 7 ); // 1 in 8 chance for picking an adjacent obstacle
 
@@ -105,14 +105,14 @@ void HazardFieldSystem<HazardType>::update_hazard_field()
     for ( auto [obstacle_entity, obstacle_cmp, obst_pos_cmp] : obstacle_view.each() )
     {
       if ( not hazard_hitbox.findIntersection( obst_pos_cmp ) ) continue;
-      if ( getReg().template try_get<HazardType>( obstacle_entity ) ) continue;
+      if ( reg().template try_get<HazardType>( obstacle_entity ) ) continue;
       if ( hazard_spread_picker.gen() == 0 )
       {
-        Factory::remove_obstacle( getReg(), obstacle_entity );
-        getReg().template emplace_or_replace<HazardType>( obstacle_entity );
-        getReg().template emplace_or_replace<Cmp::SpriteAnimation>( obstacle_entity, 0, 0, true, Traits::sprite_type, 0 );
-        getReg().template emplace_or_replace<Cmp::ZOrderValue>( obstacle_entity, obst_pos_cmp.position.y - 1.f );
-        getReg().template emplace_or_replace<Cmp::NpcNoPathFinding>( obstacle_entity );
+        Factory::remove_obstacle( reg(), obstacle_entity );
+        reg().template emplace_or_replace<HazardType>( obstacle_entity );
+        reg().template emplace_or_replace<Cmp::SpriteAnimation>( obstacle_entity, 0, 0, true, Traits::sprite_type, 0 );
+        reg().template emplace_or_replace<Cmp::ZOrderValue>( obstacle_entity, obst_pos_cmp.position.y - 1.f );
+        reg().template emplace_or_replace<Cmp::NpcNoPathFinding>( obstacle_entity );
 
         SPDLOG_DEBUG( "New hazard field created at entity {}", static_cast<uint32_t>( obstacle_entity ) );
         return; // only add one hazard cell per update period
@@ -135,9 +135,9 @@ void HazardFieldSystem<HazardType>::update_hazard_field()
 template <ValidHazard HazardType>
 void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
 {
-  auto hazard_view = getReg().template view<HazardType, Cmp::Position>();
-  auto player_view = getReg().template view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
-  const auto &player_position = Utils::Player::get_position( getReg() );
+  auto hazard_view = reg().template view<HazardType, Cmp::Position>();
+  auto player_view = reg().template view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
+  const auto &player_position = Utils::Player::get_position( reg() );
 
   for ( auto [pc_entt, player_cmp, player_health_cmp, player_mort_cmp, player_pos_cmp] : player_view.each() )
   {
@@ -164,7 +164,7 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
       }
       else if constexpr ( Traits::sprite_type == "CORRUPTION" )
       {
-        player_health_cmp.health -= Sys::PersistSystem::get<Cmp::Persist::CorruptionDamage>( getReg() ).get_value();
+        player_health_cmp.health -= Sys::PersistSystem::get<Cmp::Persist::CorruptionDamage>( reg() ).get_value();
         // trigger death animation
         if ( player_health_cmp.health <= 0 )
         {
@@ -179,8 +179,8 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
 template <ValidHazard HazardType>
 void HazardFieldSystem<HazardType>::check_npc_hazard_field_collision()
 {
-  auto hazard_view = getReg().template view<HazardType, Cmp::Position>();
-  auto npc_view = getReg().template view<Cmp::NPC, Cmp::Position>();
+  auto hazard_view = reg().template view<HazardType, Cmp::Position>();
+  auto npc_view = reg().template view<Cmp::NPC, Cmp::Position>();
 
   for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : npc_view.each() )
   {
@@ -191,7 +191,7 @@ void HazardFieldSystem<HazardType>::check_npc_hazard_field_collision()
     {
       if ( not npc_pos_cmp.findIntersection( hazard_pos_cmp ) ) continue;
 
-      auto loot_entity = Factory::destroy_npc( getReg(), npc_entt );
+      auto loot_entity = Factory::destroy_npc( reg(), npc_entt );
       if ( loot_entity != entt::null )
       {
         SPDLOG_INFO( "Dropped RELIC_DROP loot at NPC death position." );
