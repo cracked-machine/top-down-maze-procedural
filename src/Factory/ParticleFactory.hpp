@@ -16,6 +16,8 @@ void add_test( entt::registry &reg, Sys::ParticleSystem &psys, const std::string
   psprite.set_tag( tag );
   psprite.set_position( Utils::Player::get_position( reg ).getCenter() );
   psprite.set_lifetime( sf::seconds( 3 ) );
+  psprite.set_speed( std::uniform_real_distribution<float>( 1.f, 100.f ) );
+  psprite.set_angle( std::uniform_real_distribution<float>( 1.f, 360.f ) );
   psys.add( psprite );
 }
 
@@ -25,6 +27,10 @@ void add_flame( entt::registry &reg, Sys::ParticleSystem &psys, const std::strin
   psprite.set_tag( tag );
   psprite.set_position( Utils::Player::get_position( reg ).getCenter() );
   psprite.set_lifetime( sf::seconds( 0.5 ) );
+  psprite.set_speed( 40.f );
+  psprite.set_phase( std::uniform_real_distribution( 0.f, 2.f * std::numbers::pi_v<float> ) );
+  psprite.set_freq( std::uniform_real_distribution( 0.3f, 0.8f ) );
+
   psys.add( psprite );
 }
 
@@ -35,6 +41,10 @@ void add_smoke( entt::registry &reg, Sys::ParticleSystem &psys, const std::strin
   psprite.set_generations( 7 );
   psprite.set_position( Utils::Player::get_position( reg ).getCenter() );
   psprite.set_lifetime( sf::seconds( 1 ) );
+  psprite.set_speed( 20.f );
+  psprite.set_phase( std::uniform_real_distribution( 0.f, 2.f * std::numbers::pi_v<float> ) );
+  psprite.set_freq( std::uniform_real_distribution( 0.3f, 0.8f ) );
+
   psys.add( psprite );
 }
 
@@ -45,6 +55,8 @@ void add_shockwave( entt::registry &reg, Sys::ParticleSystem &psys, const std::s
   psprite.set_generations( 1 );
   psprite.set_position( Utils::Player::get_position( reg ).getCenter() );
   psprite.set_lifetime( sf::seconds( 1 ) );
+  psprite.set_speed( 100.f );
+  psprite.set_angle( std::uniform_real_distribution<float>( 1.f, 360.f ) );
   psys.add( psprite );
 }
 

@@ -15,9 +15,12 @@ void FlameParticle::emit( sf::Vector2f emitter, sf::Time lifetime )
   static std::mt19937 rng( rd() );
 
   m_wave_time = 0.f;
-  m_phase = std::uniform_real_distribution( 0.f, 2.f * std::numbers::pi_v<float> )( rng );
-  m_frequency = std::uniform_real_distribution( 0.3f, 0.8f )( rng );
-  m_velocity = sf::Vector2f( 0.f, -props.speed );
+
+  m_phase = m_phase_dist( rng );
+  m_frequency = m_freq_dist( rng );
+
+  m_velocity = sf::Vector2f( 0.f, -m_speed_dist( rng ) );
+
   m_lifetime = sf::milliseconds( std::uniform_int_distribution( 0, lifetime.asMilliseconds() )( rng ) );
   m_vertex.position = emitter;
 };

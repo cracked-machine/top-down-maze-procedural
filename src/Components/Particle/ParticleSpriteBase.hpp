@@ -3,6 +3,7 @@
 
 #include <Particle/ParticleConcepts.hpp>
 #include <SFML/System/Time.hpp>
+#include <random>
 
 namespace ProceduralMaze::Cmp::Particle
 {
@@ -24,6 +25,11 @@ public:
   virtual void do_emit( sf::Vector2f emitter, sf::Time lifetime ) = 0;
   virtual size_t generations() = 0;
 
+  virtual void set_speed_dist( std::uniform_real_distribution<float> speed_dist ) = 0;
+  virtual void set_angle_dist( std::uniform_real_distribution<float> angle_dist ) = 0;
+  virtual void set_phase_dist( std::uniform_real_distribution<float> phase_dist ) = 0;
+  virtual void set_freq_dist( std::uniform_real_distribution<float> freq_dist ) = 0;
+
 private:
   // See ParticleBase for docstrings
   virtual void emit( sf::Vector2f emitter, sf::Time lifetime ) = 0;
@@ -44,7 +50,10 @@ struct ParticleBase : public Cmp::Particle::IParticle
 
   //! @brief Disables IParticle::emit if false
   bool m_particle_active{ true };
-
+  void set_speed_dist( std::uniform_real_distribution<float> speed_dist ) override { m_speed_dist = speed_dist; }
+  void set_angle_dist( std::uniform_real_distribution<float> angle_dist ) override { m_angle_dist = angle_dist; }
+  void set_phase_dist( std::uniform_real_distribution<float> phase_dist ) override { m_phase_dist = phase_dist; }
+  void set_freq_dist( std::uniform_real_distribution<float> freq_dist ) override { m_freq_dist = freq_dist; }
   sf::Vertex m_vertex;
   sf::Vector2f m_velocity;
   sf::Time m_lifetime;
@@ -52,11 +61,16 @@ struct ParticleBase : public Cmp::Particle::IParticle
   size_t generations() override { return m_generation; }
   size_t m_generation{ 0 };
 
+protected:
+  std::uniform_real_distribution<float> m_speed_dist;
+  std::uniform_real_distribution<float> m_angle_dist;
+  std::uniform_real_distribution<float> m_phase_dist;
+  std::uniform_real_distribution<float> m_freq_dist;
+
 private:
   //! @brief Run when the particle is enabled and expired. Derived class of ParticleBase must implement it.
   //! @param emitter
   //! @param lifetime
-  //! @param props
   void emit( sf::Vector2f emitter, sf::Time lifetime ) override = 0;
 
   //! @brief Run when the particle is disabled and expired
@@ -94,6 +108,18 @@ public:
   virtual std::string get_tag() const = 0;
   virtual void set_generations( size_t gen ) = 0;
   virtual size_t get_generations() = 0;
+
+  virtual void set_speed( std::uniform_real_distribution<float> speed_dist ) = 0;
+  virtual void set_speed( float speed ) = 0;
+
+  virtual void set_angle( std::uniform_real_distribution<float> angle_dist ) = 0;
+  virtual void set_angle( float angle ) = 0;
+
+  virtual void set_phase( std::uniform_real_distribution<float> phase_dist ) = 0;
+  virtual void set_phase( float phase ) = 0;
+
+  virtual void set_freq( std::uniform_real_distribution<float> freq_dist ) = 0;
+  virtual void set_freq( float freq ) = 0;
 };
 
 //! @brief Defines the particle sprite base class template. This renders a list of TParticle vertices.
@@ -167,6 +193,11 @@ public:
     m_particles_list = std::vector<TParticle>( m_max_particles );
     for ( auto &p : m_particles_list )
     {
+      p.set_speed_dist( m_speed_dist );
+      p.set_angle_dist( m_angle_dist );
+      p.set_phase_dist( m_phase_dist );
+      p.set_freq_dist( m_freq_dist );
+
       p.m_particle_active = true;
     }
     m_sprite_active = true;
@@ -264,6 +295,78 @@ public:
   void set_generations( size_t gen ) override { m_max_generations = gen; }
   size_t get_generations() override { return m_max_generations; }
 
+  void set_speed( std::uniform_real_distribution<float> speed_dist ) override
+  {
+    m_speed_dist = speed_dist;
+    for ( auto &p : m_particles_list )
+    {
+      p.set_speed_dist( m_speed_dist );
+    }
+  }
+
+  void set_speed( float speed ) override
+  {
+    m_speed_dist = std::uniform_real_distribution<float>( speed, speed );
+    for ( auto &p : m_particles_list )
+    {
+      p.set_speed_dist( m_speed_dist );
+    }
+  }
+
+  void set_angle( std::uniform_real_distribution<float> angle_dist ) override
+  {
+    m_angle_dist = angle_dist;
+    for ( auto &p : m_particles_list )
+    {
+      p.set_angle_dist( m_angle_dist );
+    }
+  }
+
+  void set_angle( float angle ) override
+  {
+    m_angle_dist = std::uniform_real_distribution<float>( angle, angle );
+    for ( auto &p : m_particles_list )
+    {
+      p.set_angle_dist( m_angle_dist );
+    }
+  }
+
+  void set_phase( std::uniform_real_distribution<float> phase_dist ) override
+  {
+    m_phase_dist = phase_dist;
+    for ( auto &p : m_particles_list )
+    {
+      p.set_phase_dist( m_phase_dist );
+    }
+  }
+
+  void set_phase( float phase ) override
+  {
+    m_phase_dist = std::uniform_real_distribution<float>( phase, phase );
+    for ( auto &p : m_particles_list )
+    {
+      p.set_phase_dist( m_phase_dist );
+    }
+  }
+
+  void set_freq( std::uniform_real_distribution<float> freq_dist ) override
+  {
+    m_freq_dist = freq_dist;
+    for ( auto &p : m_particles_list )
+    {
+      p.set_freq_dist( m_freq_dist );
+    }
+  }
+
+  void set_freq( float freq ) override
+  {
+    m_freq_dist = std::uniform_real_distribution<float>( freq, freq );
+    for ( auto &p : m_particles_list )
+    {
+      p.set_freq_dist( m_freq_dist );
+    }
+  }
+
 protected:
   //! @brief Default translation function is a noop. See set_view_transform()
   std::function<sf::Vector2f( sf::Vector2f )> m_world_to_screen = []( sf::Vector2f p ) { return p; };
@@ -273,6 +376,10 @@ protected:
 
 private:
   size_t m_max_generations{ 0 };
+  std::uniform_real_distribution<float> m_speed_dist{ 0.f, 1.f };
+  std::uniform_real_distribution<float> m_angle_dist{ 0.f, 360.f };
+  std::uniform_real_distribution<float> m_phase_dist{ 0.f, 1.f };
+  std::uniform_real_distribution<float> m_freq_dist{ 0.f, 1.f };
   std::string m_tag;
 };
 } // namespace ProceduralMaze::Cmp::Particle

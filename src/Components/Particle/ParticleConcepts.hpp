@@ -21,19 +21,12 @@ concept HasParticleMembers = requires( TParticle p ) {
 };
 
 template <typename TParticle>
-concept HasParticleProperties = requires {
-  typename TParticle::Properties;
-  requires std::is_class_v<typename TParticle::Properties>;
-};
-
-template <typename TParticle>
 concept HasPrivateEmit = !requires( TParticle p, sf::Vector2f v, sf::Time t ) {
   p.emit( v, t ); // emit() must NOT be publicly accessible — keep it private (NVI idiom)
 };
 
 template <typename TParticle>
-concept ParticleConcept = std::derived_from<TParticle, IParticle> && HasParticleMembers<TParticle> && HasParticleProperties<TParticle> &&
-                          HasPrivateEmit<TParticle>;
+concept ParticleConcept = std::derived_from<TParticle, IParticle> && HasParticleMembers<TParticle> && HasPrivateEmit<TParticle>;
 
 } // namespace ProceduralMaze::Cmp::Particle
 

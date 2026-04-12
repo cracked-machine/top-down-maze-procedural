@@ -16,12 +16,6 @@ struct SmokeParticle : public Cmp::Particle::ParticleBase
   float m_phase{ 0.f };
   float m_frequency{ 0.5f };
 
-  struct Properties
-  {
-    float speed{ 20.f };
-    sf::Angle max_angle{ sf::degrees( 270.f ) };
-  } props;
-
 private:
   void emit( sf::Vector2f emitter, sf::Time lifetime ) override;
 };

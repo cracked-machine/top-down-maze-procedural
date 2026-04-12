@@ -14,9 +14,10 @@ void ShockWaveParticle::emit( sf::Vector2f emitter, sf::Time lifetime )
   static std::random_device rd;
   static std::mt19937 rng( rd() );
 
-  const sf::Angle angle = sf::degrees( std::uniform_real_distribution( 0.f, props.max_angle.asDegrees() )( rng ) );
-  const float speed = props.max_speed;
+  const sf::Angle angle = sf::degrees( m_angle_dist( rng ) );
+  const float speed = m_speed_dist( rng );
   m_velocity = sf::Vector2f( speed, angle );
+
   m_lifetime = sf::milliseconds( std::uniform_int_distribution( 0, lifetime.asMilliseconds() )( rng ) );
   m_vertex.position = emitter;
 };

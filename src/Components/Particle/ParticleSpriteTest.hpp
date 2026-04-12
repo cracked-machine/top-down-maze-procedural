@@ -13,11 +13,6 @@ namespace detail
 {
 struct ParticleTest : public Cmp::Particle::ParticleBase
 {
-  struct Properties
-  {
-    float max_speed{ 100.f };
-    sf::Angle max_angle{ sf::degrees( 360.f ) };
-  } props;
 
 private:
   void emit( sf::Vector2f emitter, sf::Time lifetime ) override;
