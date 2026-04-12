@@ -17,7 +17,7 @@ struct FlameParticle : public Cmp::Particle::ParticleBase
   float m_frequency{ 0.5f };
 
 private:
-  void emit( sf::Time lifetime ) override;
+  void emit() override;
 };
 } // namespace detail
 

@@ -23,32 +23,36 @@ public:
   //! @param emitter
   //! @param lifetime
   //! @param props
-  virtual void do_emit( sf::Time lifetime ) = 0;
+  virtual void do_emit() = 0;
   virtual size_t generations() = 0;
 
   virtual void set_speed_dist( std::uniform_real_distribution<float> speed_dist ) = 0;
   virtual void set_angle_dist( std::uniform_real_distribution<float> angle_dist ) = 0;
   virtual void set_phase_dist( std::uniform_real_distribution<float> phase_dist ) = 0;
   virtual void set_freq_dist( std::uniform_real_distribution<float> freq_dist ) = 0;
+  virtual void set_lifetime_dist( std::uniform_int_distribution<int> lifetime_dist ) = 0;
   virtual void set_emitter_position( sf::Vector2f emitter_position ) = 0;
 
 private:
   // See ParticleBase for docstrings
-  virtual void emit( sf::Time lifetime ) = 0;
-  virtual void idle( [[maybe_unused]] sf::Time lifetime ) = 0;
+  virtual void emit() = 0;
+  virtual void idle() = 0;
 };
 
 struct ParticleBase : public Cmp::Particle::IParticle
 {
-  void do_emit( [[maybe_unused]] sf::Time lifetime ) final
+  void do_emit() final
   {
     if ( m_particle_active )
     {
       m_vertex.position = m_emitter_position;
-      emit( lifetime );
+      static std::random_device rd;
+      static std::mt19937 rng( rd() );
+      m_lifetime = sf::milliseconds( m_lifetime_dist( rng ) );
+      emit();
       m_generation++;
     }
-    else { idle( lifetime ); }
+    else { idle(); }
   }
 
   //! @brief Disables IParticle::emit if false
@@ -58,6 +62,7 @@ struct ParticleBase : public Cmp::Particle::IParticle
   void set_phase_dist( std::uniform_real_distribution<float> phase_dist ) override { m_phase_dist = phase_dist; }
   void set_freq_dist( std::uniform_real_distribution<float> freq_dist ) override { m_freq_dist = freq_dist; }
   void set_emitter_position( sf::Vector2f emitter_position ) override { m_emitter_position = emitter_position; }
+  void set_lifetime_dist( std::uniform_int_distribution<int> lifetime_dist ) override { m_lifetime_dist = lifetime_dist; }
 
   sf::Vertex m_vertex;
   sf::Vector2f m_velocity;
@@ -72,16 +77,17 @@ protected:
   std::uniform_real_distribution<float> m_angle_dist;
   std::uniform_real_distribution<float> m_phase_dist;
   std::uniform_real_distribution<float> m_freq_dist;
+  std::uniform_int_distribution<int> m_lifetime_dist;
 
 private:
   //! @brief Run when the particle is enabled and expired. Derived class of ParticleBase must implement it.
   //! @param emitter
   //! @param lifetime
-  void emit( sf::Time lifetime ) override = 0;
+  void emit() override = 0;
 
   //! @brief Run when the particle is disabled and expired
   //! @param emitter
-  void idle( [[maybe_unused]] sf::Time lifetime ) override {}
+  void idle() override {}
 };
 
 // ============================================================
@@ -101,8 +107,6 @@ public:
   virtual void simulate( sf::Time dt ) = 0;
 
   // Check ParticleSpriteBase for docstrings
-  virtual void set_emitter_position( sf::Vector2f emitter_position ) = 0;
-  virtual void set_lifetime( sf::Time lifetime ) = 0;
   virtual void set_view_transform( const sf::RenderWindow &, const sf::View & ) = 0;
   virtual void stop() = 0;
   virtual void restart() = 0;
@@ -126,6 +130,11 @@ public:
 
   virtual void set_freq( std::uniform_real_distribution<float> freq_dist ) = 0;
   virtual void set_freq( float freq ) = 0;
+
+  virtual void set_emitter_position( sf::Vector2f emitter_position ) = 0;
+
+  virtual void set_lifetime_ms( sf::Time lifetime ) = 0;
+  virtual void set_lifetime_ms( std::uniform_int_distribution<int> life_dist ) = 0;
 };
 
 //! @brief Defines the particle sprite base class template. This renders a list of TParticle vertices.
@@ -204,6 +213,7 @@ public:
       p.set_phase_dist( m_phase_dist );
       p.set_freq_dist( m_freq_dist );
       p.set_emitter_position( m_emitter_position );
+      p.set_lifetime_dist( m_lifetime_dist );
       p.m_particle_active = true;
     }
     m_sprite_active = true;
@@ -227,8 +237,6 @@ public:
   //! @return true
   //! @return false
   bool is_active() override { return m_sprite_active; }
-
-  void set_lifetime( sf::Time lifetime ) override { m_lifetime = lifetime; }
 
   //! @brief Increase the generation count when the ParticleSprite lifetime has expired
   void deactivate_extinct_particles() override
@@ -377,6 +385,27 @@ public:
     }
   }
 
+  void set_lifetime_ms( std::uniform_int_distribution<int> lifetime_dist ) override
+  {
+    m_lifetime_dist = lifetime_dist;
+    static std::random_device rd;
+    static std::mt19937 rng( rd() );
+    m_lifetime = sf::milliseconds( m_lifetime_dist( rng ) );
+    for ( auto &p : m_particles_list )
+    {
+      p.set_lifetime_dist( lifetime_dist );
+    }
+  }
+  void set_lifetime_ms( sf::Time lifetime ) override
+  {
+    m_lifetime = lifetime;
+    m_lifetime_dist = std::uniform_int_distribution<int>( lifetime.asMilliseconds(), lifetime.asMilliseconds() );
+    for ( auto &p : m_particles_list )
+    {
+      p.set_lifetime_dist( m_lifetime_dist );
+    }
+  }
+
 protected:
   //! @brief Default translation function is a noop. See set_view_transform()
   std::function<sf::Vector2f( sf::Vector2f )> m_world_to_screen = []( sf::Vector2f p ) { return p; };
@@ -390,6 +419,7 @@ private:
   std::uniform_real_distribution<float> m_angle_dist{ 0.f, 360.f };
   std::uniform_real_distribution<float> m_phase_dist{ 0.f, 1.f };
   std::uniform_real_distribution<float> m_freq_dist{ 0.f, 1.f };
+  std::uniform_int_distribution<int> m_lifetime_dist{ 0, 1 };
   std::string m_tag;
   //! @brief The emitter position
   sf::Vector2f m_emitter_position{ 0, 0 };

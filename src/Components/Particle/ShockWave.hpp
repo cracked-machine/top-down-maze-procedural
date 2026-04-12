@@ -15,7 +15,7 @@ struct ShockWaveParticle : public Cmp::Particle::ParticleBase
 {
 
 private:
-  void emit( sf::Time lifetime ) override;
+  void emit() override;
 };
 } // namespace detail
 

@@ -116,9 +116,9 @@ void GraveyardScene::on_init()
 
   auto &particle_system = m_sys.find<Sys::Store::Type::ParticleSystem>();
   // Factory::Particle::add_test( m_reg, particle_system, "ParticleSprite" );
-  // Factory::Particle::add_flame( m_reg, particle_system, "ParticleSprite" );
+  Factory::Particle::add_flame( m_reg, particle_system, "ParticleSprite" );
   // Factory::Particle::add_smoke( m_reg, particle_system, "ParticleSprite" );
-  Factory::Particle::add_shockwave( m_reg, particle_system, "ParticleSprite" );
+  // Factory::Particle::add_shockwave( m_reg, particle_system, "ParticleSprite" );
 }
 
 void GraveyardScene::on_enter()

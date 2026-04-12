@@ -10,7 +10,7 @@ namespace ProceduralMaze::Cmp::Particle
 //! @brief Implementation detail — do not use externally
 namespace detail
 {
-void SmokeParticle::emit( sf::Time lifetime )
+void SmokeParticle::emit()
 {
   static std::random_device rd;
   static std::mt19937 rng( rd() );
@@ -21,7 +21,6 @@ void SmokeParticle::emit( sf::Time lifetime )
   m_frequency = m_freq_dist( rng );
 
   m_velocity = sf::Vector2f( 0.f, -m_speed_dist( rng ) );
-  m_lifetime = sf::milliseconds( std::uniform_int_distribution( 0, lifetime.asMilliseconds() )( rng ) );
 };
 } // namespace detail
 
@@ -45,7 +44,7 @@ void Smoke::simulate( sf::Time dt )
     p.m_lifetime -= dt;
     p.m_wave_time += dt.asSeconds();
     const float ratio = p.m_lifetime.asSeconds() / m_lifetime.asSeconds();
-    if ( p.m_lifetime <= sf::Time::Zero ) p.do_emit( m_lifetime );
+    if ( p.m_lifetime <= sf::Time::Zero ) p.do_emit();
 
     const float wave_x = ( ratio > 0.8f ) ? amplitude * std::sin( ( 2.f * std::numbers::pi_v<float> * p.m_frequency * p.m_wave_time ) + p.m_phase )
                                           : 0.f;
