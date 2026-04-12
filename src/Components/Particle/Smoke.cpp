@@ -1,5 +1,6 @@
 #include <Components/Particle/Smoke.hpp>
 
+#include <SFML/System/Vector2.hpp>
 #include <numbers>
 #include <random>
 
@@ -9,7 +10,7 @@ namespace ProceduralMaze::Cmp::Particle
 //! @brief Implementation detail — do not use externally
 namespace detail
 {
-void SmokeParticle::emit( sf::Vector2f emitter, sf::Time lifetime )
+void SmokeParticle::emit( sf::Time lifetime )
 {
   static std::random_device rd;
   static std::mt19937 rng( rd() );
@@ -21,8 +22,6 @@ void SmokeParticle::emit( sf::Vector2f emitter, sf::Time lifetime )
 
   m_velocity = sf::Vector2f( 0.f, -m_speed_dist( rng ) );
   m_lifetime = sf::milliseconds( std::uniform_int_distribution( 0, lifetime.asMilliseconds() )( rng ) );
-
-  m_vertex.position = emitter;
 };
 } // namespace detail
 
@@ -32,7 +31,6 @@ Smoke::Smoke( size_t count )
 void Smoke::simulate( sf::Time dt )
 {
   m_elapsed += dt.asSeconds();
-  m_emitter.y -= m_rise_speed * dt.asSeconds(); // move emitter upward over time
 
   const float amplitude = 20.f;
   const sf::Color smoke_color{ 0, 0, 0 };
@@ -43,10 +41,11 @@ void Smoke::simulate( sf::Time dt )
 
   for ( auto &p : m_particles_list )
   {
+    // p.m_emitter.y -= m_rise_speed * dt.asSeconds(); // move emitter upward over time
     p.m_lifetime -= dt;
     p.m_wave_time += dt.asSeconds();
     const float ratio = p.m_lifetime.asSeconds() / m_lifetime.asSeconds();
-    if ( p.m_lifetime <= sf::Time::Zero ) p.do_emit( { m_emitter.x, m_emitter.y }, m_lifetime );
+    if ( p.m_lifetime <= sf::Time::Zero ) p.do_emit( m_lifetime );
 
     const float wave_x = ( ratio > 0.8f ) ? amplitude * std::sin( ( 2.f * std::numbers::pi_v<float> * p.m_frequency * p.m_wave_time ) + p.m_phase )
                                           : 0.f;

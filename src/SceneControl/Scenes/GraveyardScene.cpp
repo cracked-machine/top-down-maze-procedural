@@ -202,9 +202,8 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
   m_sys.find<Sys::Store::Type::LightningSystem>().update( dt );
 
-  auto player_pos = Utils::Player::get_position( m_reg ).getCenter();
   auto *particle_test = Sys::ParticleSystem::find( m_reg, "ParticleSprite" );
-  if ( particle_test ) { particle_test->set_position( player_pos ); }
+  if ( particle_test ) { particle_test->set_emitter_position( Utils::Player::get_position( m_reg ).getCenter() ); }
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
 
   for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::Obstacle, Cmp::Position>().each() )

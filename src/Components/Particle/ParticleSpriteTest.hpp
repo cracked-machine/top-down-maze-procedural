@@ -15,7 +15,7 @@ struct ParticleTest : public Cmp::Particle::ParticleBase
 {
 
 private:
-  void emit( sf::Vector2f emitter, sf::Time lifetime ) override;
+  void emit( sf::Time lifetime ) override;
 };
 } // namespace detail
 

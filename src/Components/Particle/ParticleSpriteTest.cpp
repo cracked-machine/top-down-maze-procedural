@@ -8,7 +8,7 @@ namespace ProceduralMaze::Cmp::Particle
 //! @brief Implementation detail — do not use externally
 namespace detail
 {
-void ParticleTest::emit( sf::Vector2f emitter, sf::Time lifetime )
+void ParticleTest::emit( sf::Time lifetime )
 {
   // create random number generator
   static std::random_device rd;
@@ -19,7 +19,6 @@ void ParticleTest::emit( sf::Vector2f emitter, sf::Time lifetime )
   m_velocity = sf::Vector2f( speed, angle );
 
   m_lifetime = sf::milliseconds( std::uniform_int_distribution( 0, lifetime.asMilliseconds() )( rng ) );
-  m_vertex.position = emitter;
 };
 } // namespace detail
 
@@ -34,7 +33,7 @@ void ParticleSpriteTest::simulate( sf::Time dt )
     p.m_lifetime -= dt;
 
     // if the particle is dead, respawn it
-    if ( p.m_lifetime <= sf::Time::Zero ) p.do_emit( m_emitter, m_lifetime );
+    if ( p.m_lifetime <= sf::Time::Zero ) p.do_emit( m_lifetime );
 
     // update the position of the corresponding vertex
     p.m_vertex.position += p.m_velocity * dt.asSeconds();

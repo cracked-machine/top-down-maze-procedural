@@ -3,6 +3,7 @@
 
 #include <Particle/ParticleConcepts.hpp>
 #include <SFML/System/Time.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <random>
 
 namespace ProceduralMaze::Cmp::Particle
@@ -22,30 +23,32 @@ public:
   //! @param emitter
   //! @param lifetime
   //! @param props
-  virtual void do_emit( sf::Vector2f emitter, sf::Time lifetime ) = 0;
+  virtual void do_emit( sf::Time lifetime ) = 0;
   virtual size_t generations() = 0;
 
   virtual void set_speed_dist( std::uniform_real_distribution<float> speed_dist ) = 0;
   virtual void set_angle_dist( std::uniform_real_distribution<float> angle_dist ) = 0;
   virtual void set_phase_dist( std::uniform_real_distribution<float> phase_dist ) = 0;
   virtual void set_freq_dist( std::uniform_real_distribution<float> freq_dist ) = 0;
+  virtual void set_emitter_position( sf::Vector2f emitter_position ) = 0;
 
 private:
   // See ParticleBase for docstrings
-  virtual void emit( sf::Vector2f emitter, sf::Time lifetime ) = 0;
-  virtual void idle( sf::Vector2f emitter, [[maybe_unused]] sf::Time lifetime ) = 0;
+  virtual void emit( sf::Time lifetime ) = 0;
+  virtual void idle( [[maybe_unused]] sf::Time lifetime ) = 0;
 };
 
 struct ParticleBase : public Cmp::Particle::IParticle
 {
-  void do_emit( sf::Vector2f emitter, [[maybe_unused]] sf::Time lifetime ) final
+  void do_emit( [[maybe_unused]] sf::Time lifetime ) final
   {
     if ( m_particle_active )
     {
-      emit( emitter, lifetime );
+      m_vertex.position = m_emitter_position;
+      emit( lifetime );
       m_generation++;
     }
-    else { idle( emitter, lifetime ); }
+    else { idle( lifetime ); }
   }
 
   //! @brief Disables IParticle::emit if false
@@ -54,9 +57,12 @@ struct ParticleBase : public Cmp::Particle::IParticle
   void set_angle_dist( std::uniform_real_distribution<float> angle_dist ) override { m_angle_dist = angle_dist; }
   void set_phase_dist( std::uniform_real_distribution<float> phase_dist ) override { m_phase_dist = phase_dist; }
   void set_freq_dist( std::uniform_real_distribution<float> freq_dist ) override { m_freq_dist = freq_dist; }
+  void set_emitter_position( sf::Vector2f emitter_position ) override { m_emitter_position = emitter_position; }
+
   sf::Vertex m_vertex;
   sf::Vector2f m_velocity;
   sf::Time m_lifetime;
+  sf::Vector2f m_emitter_position;
 
   size_t generations() override { return m_generation; }
   size_t m_generation{ 0 };
@@ -71,11 +77,11 @@ private:
   //! @brief Run when the particle is enabled and expired. Derived class of ParticleBase must implement it.
   //! @param emitter
   //! @param lifetime
-  void emit( sf::Vector2f emitter, sf::Time lifetime ) override = 0;
+  void emit( sf::Time lifetime ) override = 0;
 
   //! @brief Run when the particle is disabled and expired
   //! @param emitter
-  void idle( [[maybe_unused]] sf::Vector2f emitter, [[maybe_unused]] sf::Time lifetime ) override {}
+  void idle( [[maybe_unused]] sf::Time lifetime ) override {}
 };
 
 // ============================================================
@@ -95,7 +101,7 @@ public:
   virtual void simulate( sf::Time dt ) = 0;
 
   // Check ParticleSpriteBase for docstrings
-  virtual void set_position( sf::Vector2f position ) = 0;
+  virtual void set_emitter_position( sf::Vector2f emitter_position ) = 0;
   virtual void set_lifetime( sf::Time lifetime ) = 0;
   virtual void set_view_transform( const sf::RenderWindow &, const sf::View & ) = 0;
   virtual void stop() = 0;
@@ -197,7 +203,7 @@ public:
       p.set_angle_dist( m_angle_dist );
       p.set_phase_dist( m_phase_dist );
       p.set_freq_dist( m_freq_dist );
-
+      p.set_emitter_position( m_emitter_position );
       p.m_particle_active = true;
     }
     m_sprite_active = true;
@@ -221,10 +227,6 @@ public:
   //! @return true
   //! @return false
   bool is_active() override { return m_sprite_active; }
-
-  //! @brief Allow access to the emmitter without casting to the concrete type
-  //! @param position
-  void set_position( sf::Vector2f position ) override { m_emitter = position; }
 
   void set_lifetime( sf::Time lifetime ) override { m_lifetime = lifetime; }
 
@@ -285,9 +287,6 @@ public:
 
   //! @brief The lifetime of the particles in this sprite
   sf::Time m_lifetime{ sf::Time::Zero };
-
-  //! @brief The emitter position
-  sf::Vector2f m_emitter{ 0, 0 };
 
   void set_tag( const std::string &tag ) override { m_tag = tag; }
   std::string get_tag() const override { return m_tag; }
@@ -367,6 +366,17 @@ public:
     }
   }
 
+  //! @brief
+  //! @param position
+  void set_emitter_position( sf::Vector2f emitter_position ) override
+  {
+    m_emitter_position = emitter_position;
+    for ( auto &p : m_particles_list )
+    {
+      p.set_emitter_position( emitter_position );
+    }
+  }
+
 protected:
   //! @brief Default translation function is a noop. See set_view_transform()
   std::function<sf::Vector2f( sf::Vector2f )> m_world_to_screen = []( sf::Vector2f p ) { return p; };
@@ -381,6 +391,8 @@ private:
   std::uniform_real_distribution<float> m_phase_dist{ 0.f, 1.f };
   std::uniform_real_distribution<float> m_freq_dist{ 0.f, 1.f };
   std::string m_tag;
+  //! @brief The emitter position
+  sf::Vector2f m_emitter_position{ 0, 0 };
 };
 } // namespace ProceduralMaze::Cmp::Particle
 
