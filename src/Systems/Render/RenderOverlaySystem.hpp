@@ -90,7 +90,7 @@ public:
 
   void render_crypt_maze_timer( sf::Vector2f pos, unsigned int size );
 
-  void render_wear_level( Cmp::InventoryWearLevel &wearlevel, const Cmp::Position &pos );
+  void render_wear_level( float wearlevel, const Cmp::Position &pos );
   void render_spatial_grid_neighbours( const Cmp::Position &query_pos, sf::Color color, PathFinding::QueryCompass query_compass );
   void render_pathfinding_vector( const Cmp::Position &start_pos_cmp, const Cmp::Position &end_pos_cmp, sf::Color color,
                                   PathFinding::QueryCompass query_compass );

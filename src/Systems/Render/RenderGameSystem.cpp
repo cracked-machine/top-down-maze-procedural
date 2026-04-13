@@ -236,7 +236,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
 
         if ( reg().any_of<Cmp::InventoryWearLevel>( entity ) )
         {
-          render_overlay_sys.render_wear_level( reg().get<Cmp::InventoryWearLevel>( entity ), pos_cmp );
+          render_overlay_sys.render_wear_level( reg().get<Cmp::InventoryWearLevel>( entity ).m_level, pos_cmp );
         }
       }
     }
@@ -322,13 +322,10 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
   {
 
     float start_y_pos = 0;
-    render_overlay_sys.render_ui_background_overlay( { 20.f, start_y_pos += 20.f }, { 300.f, 230.f } );
+    render_overlay_sys.render_ui_background_overlay( { 20.f, start_y_pos += 20.f }, { 300.f, 200.f } );
 
     auto player_health = Utils::Player::get_health( reg() );
     render_overlay_sys.render_health_overlay( player_health.health, { 40.f, start_y_pos += 20.f }, { 200.f, 20.f } );
-
-    auto new_weapon_level = Utils::Player::get_inventory_wear_level( reg() );
-    render_overlay_sys.render_weapons_meter_overlay( new_weapon_level, { 40.f, start_y_pos += 40.f }, { 200.f, 20.f } );
 
     auto player_blast_radius = Utils::Player::get_blast_radius( reg() );
     render_overlay_sys.render_radius_overlay( dt, player_blast_radius.value, { 40.f, start_y_pos += 40.f } );

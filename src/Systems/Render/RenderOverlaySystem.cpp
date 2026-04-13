@@ -227,10 +227,10 @@ void RenderOverlaySystem::render_wealth_overlay( sf::Time dt, unsigned int wealt
 
 void RenderOverlaySystem::render_inventory_overlay( sf::Time dt, sf::Vector2f pos )
 {
-  float ui_padding = 5.f;
+  float ui_padding = 10.f;
   float icon_scale = 5.f;
   sf::Vector2f ui_pos( pos );
-  sf::Vector2f ui_size( ( Constants::kGridSizePxF * icon_scale ) + ( sf::Vector2f( ui_padding, ui_padding ) ) );
+  sf::Vector2f ui_size( ( Constants::kGridSizePxF * icon_scale ) + ( sf::Vector2f( ui_padding * 2, ui_padding * 2 ) ) );
   sf::Vector2f icon_pos( pos.x + ui_padding, pos.y + ui_padding );
 
   auto ui_background = sf::RectangleShape( ui_size );
@@ -246,16 +246,28 @@ void RenderOverlaySystem::render_inventory_overlay( sf::Time dt, sf::Vector2f po
   {
     RenderSystem::safe_render_sprite( anim_cmp.m_sprite_type, { icon_pos, Constants::kGridSizePxF }, 0, sf::Vector2f{ icon_scale, icon_scale } );
     sf::Text display_name( m_font, m_sprite_factory.get_display_name_by_type( inventory_cmp.type ), 20 );
+
+    auto wear_level = Utils::Player::get_inventory_wear_level( reg() );
+    if ( wear_level >= 0 )
+    {
+      auto current_view = m_window.getView();
+      auto game_view = RenderSystem::getGameView();
+      sf::Vector2f world_icon_pos = m_window.mapPixelToCoords( sf::Vector2i( icon_pos.x - ui_padding, icon_pos.y + ui_padding ), game_view );
+      m_window.setView( RenderSystem::getGameView() );
+      render_wear_level( wear_level, { world_icon_pos, Constants::kGridSizePxF } );
+      m_window.setView( current_view );
+    }
+
     // Calculate the center of the scaled icon
-    float icon_center_x = icon_pos.x + ( Constants::kGridSizePxF.x * icon_scale ) / 2.f;
+    float icon_center_x = icon_pos.x + ( ( Constants::kGridSizePxF.x * icon_scale ) / 2.f );
     // Center the text horizontally relative to the icon center
-    float text_x = icon_center_x - display_name.getLocalBounds().size.x / 2.f;
+    float text_x = icon_center_x - ( display_name.getLocalBounds().size.x / 2.f );
     display_name.setPosition( sf::Vector2f{ text_x, icon_pos.y + ui_size.y + ui_padding } );
     display_name.setOutlineThickness( 2.f );
     display_name.setFillColor( sf::Color::White );
     display_name.setOutlineColor( sf::Color::Black );
 
-    // flash the text if we just picked up a cadaver
+    // flash the text if we just picked up a Key
     auto flash_view = reg().view<Cmp::FlashUIInventory>();
     if ( not flash_view.empty() )
     {
@@ -652,18 +664,21 @@ void RenderOverlaySystem::render_crypt_maze_timer( sf::Vector2f pos, unsigned in
   }
 }
 
-void RenderOverlaySystem::render_wear_level( [[maybe_unused]] Cmp::InventoryWearLevel &wearlevel, const Cmp::Position &pos )
+void RenderOverlaySystem::render_wear_level( float wearlevel, const Cmp::Position &pos )
 {
+
   float icon_border = 0.f;
   float padding = 1.f;
   float icon_height = 2.f;
   float icon_width = Constants::kGridSizePxF.x - ( padding * 2 );
 
-  sf::RectangleShape icon( { ( icon_width / 100.f ) * wearlevel.m_level, icon_height } );
+  sf::RectangleShape icon( { ( icon_width / 100.f ) * wearlevel, icon_height } );
   icon.setOutlineColor( sf::Color::Black );
   icon.setOutlineThickness( icon_border );
   icon.setFillColor( sf::Color( 255, 0, 0, 224 ) );
+
   icon.setPosition( { pos.position.x + ( padding ), pos.position.y + Constants::kGridSizePxF.y - icon_height - ( padding ) } );
+
   m_window.draw( icon );
 }
 
