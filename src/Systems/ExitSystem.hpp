@@ -23,10 +23,19 @@ public:
   //! @brief event handlers for resuming system clocks
   void onResume() override {}
 
+  //! @brief Event handler for unlocking the exit
+  //! @param ev
+  void on_player_action( Events::PlayerActionEvent ev );
+
+  //! @brief Create the exit in the game area
+  //! @param spawn_position
   void spawn_exit( std::optional<sf::Vector2u> spawn_position = std::nullopt );
+
+  //! @brief  This function is called via event trigger:
+  //!         `Events::PlayerActionEvent` from `SceneInputRouter::graveyard_scene_state_handler()`
   void check_player_can_unlock_exit();
 
-  // Check for player collision with exit to complete level
+  //! @brief Check for player collision with open exit to complete level
   void check_exit_collision();
 
 private:

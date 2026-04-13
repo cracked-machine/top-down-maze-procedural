@@ -182,8 +182,6 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().update();
   m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().update();
   m_sys.find<Sys::Store::Type::BombSystem>().update();
-  m_sys.find<Sys::Store::Type::ExitSystem>().check_exit_collision();
-  m_sys.find<Sys::Store::Type::ExitSystem>().check_player_can_unlock_exit();
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
   m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
   m_sys.find<Sys::Store::Type::WormholeSystem>().check_player_wormhole_collision();

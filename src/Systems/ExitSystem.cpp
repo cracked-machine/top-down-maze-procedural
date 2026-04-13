@@ -40,6 +40,7 @@ ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
       m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
 {
   SPDLOG_DEBUG( "ExitSystem initialized" );
+  std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&ExitSystem::on_player_action>( this );
 }
 
 void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
@@ -80,6 +81,12 @@ void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
     reg().emplace_or_replace<Cmp::NpcNoPathFinding>( rand_entity );
     SPDLOG_INFO( "Exit spawned at position ({}, {})", rand_pos_cmp.position.x, rand_pos_cmp.position.y );
   }
+}
+
+void ExitSystem::on_player_action( Events::PlayerActionEvent ev )
+{
+  auto [entt, inventory_ms] = Utils::Player::get_inventory_type( reg() );
+  if ( ev.action == Events::PlayerActionEvent::GameActions::ACTIVATE && inventory_ms == "CARRYITEM.exitkey" ) { check_player_can_unlock_exit(); }
 }
 
 void ExitSystem::check_player_can_unlock_exit()
