@@ -29,6 +29,7 @@ void TitleScene::on_enter()
   auto &effects_volume = Sys::PersistSystem::get<Cmp::Persist::EffectsVolume>( m_reg ).get_value();
   m_sound_bank.update_effects_volume( effects_volume );
   auto &music_volume = Sys::PersistSystem::get<Cmp::Persist::MusicVolume>( m_reg ).get_value();
+  m_sound_bank.get_music( "game_music" ).stop();
   m_sound_bank.update_music_volume( music_volume );
 
   if ( m_sound_bank.get_music( "title_music" ).getStatus() != sf::Music::Status::Playing )
