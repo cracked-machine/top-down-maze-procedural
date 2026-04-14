@@ -17,6 +17,7 @@ void GameOverScene::on_enter()
   auto &persistent_sys = static_cast<Sys::PersistSystem &>( m_sys.find<Sys::Store::Type::PersistSystem>() );
   persistent_sys.initializeComponentRegistry();
   persistent_sys.load_state();
+  m_sound_bank.get_effect( "bubbling_lava" ).stop();
 }
 void GameOverScene::on_exit()
 {
