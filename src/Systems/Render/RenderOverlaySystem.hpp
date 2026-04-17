@@ -40,36 +40,14 @@ public:
   RenderOverlaySystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
       : RenderSystem( reg, window, sprite_factory, sound_bank )
   {
-    // Pre-warm font texture atlas with all glyphs used in debug overlays
-    sf::Text warmup_30( m_font, "0123456789 [](),:.-=xyzEPONCSabcdefghijklmnopqrstuvwXYZ INFINITE", 30 );
-    warmup_30.setOutlineThickness( 2.f );
-    std::ignore = warmup_30.getGlobalBounds(); // Force glyph generation
-
-    sf::Text warmup_20( m_font, "0123456789 [](),:.-=xyzEPONCSabcdefghijklmnopqrstuvwXYZ", 20 );
-    warmup_20.setOutlineThickness( 1.f );
-    std::ignore = warmup_20.getGlobalBounds(); // Force glyph generation
-    SPDLOG_DEBUG( "RenderOverlaySystem initialized" );
-
-    sf::Text warmup_15( m_font, "0123456789 [](),:.-=xyzEPONCSabcdefghijklmnopqrstuvwXYZ", 15 );
-    warmup_15.setOutlineThickness( 1.f );
-    std::ignore = warmup_15.getGlobalBounds(); // Force glyph generation
-    SPDLOG_DEBUG( "RenderOverlaySystem initialized" );
-
     m_main_ui_data = std::make_unique<Render::UiData>( "res/ui/ui.json" );
     m_dbg_ui_data = std::make_unique<Render::UiData>( "res/ui/dbg.json" );
     m_shop_ui_data = std::make_unique<Render::UiData>( "res/ui/shop.json" );
   };
 
-  //! @brief event handlers for pausing system clocks
-  void onPause() override {}
-  //! @brief event handlers for resuming system clocks
-  void onResume() override {}
-
   //! @brief init the weak pointer for the pathfinding navmesh
   //! @param spatial_grid_ptr
   void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_pathfinding_navmesh = spatial_grid_ptr; }
-
-  void render_entt_distance_set_overlay( sf::Vector2f pos );
 
   void render_ui_outlines();
   void render_ui_icons();
@@ -80,11 +58,11 @@ public:
   void render_level_depth();
   void render_shop_inventory_overlay();
 
-  void render_player_position_overlay();
-  void render_mouse_position_overlay();
-  void render_stats_overlay();
-  void render_zorder_values_overlay( std::vector<ZOrder> &zorder_queue );
-  void render_npc_list_overlay();
+  void render_ui_player_position();
+  void render_ui_mouse_position();
+  void render_ui_stats();
+  void render_ui_zorder_list( std::vector<ZOrder> &zorder_queue );
+  void render_ui_npc_list();
 
   void render_obstacle_markers();
   void render_player_distances();
@@ -185,6 +163,11 @@ public:
     // Restore the previous view
     m_window.setView( previous_view );
   }
+
+  //! @brief event handlers for pausing system clocks
+  void onPause() override {}
+  //! @brief event handlers for resuming system clocks
+  void onResume() override {}
 
 private:
   // restrict the debug data update to every 1 second (optimization)

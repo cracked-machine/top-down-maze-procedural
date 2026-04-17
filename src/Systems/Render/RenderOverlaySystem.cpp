@@ -345,7 +345,7 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
   }
 }
 
-void RenderOverlaySystem::render_player_position_overlay()
+void RenderOverlaySystem::render_ui_player_position()
 {
   if ( not m_dbg_ui_data )
   {
@@ -368,7 +368,7 @@ void RenderOverlaySystem::render_player_position_overlay()
   }
 }
 
-void RenderOverlaySystem::render_mouse_position_overlay()
+void RenderOverlaySystem::render_ui_mouse_position()
 {
 
   if ( not m_dbg_ui_data )
@@ -396,7 +396,7 @@ void RenderOverlaySystem::render_mouse_position_overlay()
   }
 }
 
-void RenderOverlaySystem::render_stats_overlay()
+void RenderOverlaySystem::render_ui_stats()
 {
   if ( not m_dbg_ui_data )
   {
@@ -446,7 +446,7 @@ void RenderOverlaySystem::render_stats_overlay()
   }
 }
 
-void RenderOverlaySystem::render_zorder_values_overlay( std::vector<ZOrder> &zorder_queue )
+void RenderOverlaySystem::render_ui_zorder_list( std::vector<ZOrder> &zorder_queue )
 {
 
   if ( not m_dbg_ui_data )
@@ -488,7 +488,7 @@ void RenderOverlaySystem::render_zorder_values_overlay( std::vector<ZOrder> &zor
   }
 }
 
-void RenderOverlaySystem::render_npc_list_overlay()
+void RenderOverlaySystem::render_ui_npc_list()
 {
   if ( not m_dbg_ui_data )
   {

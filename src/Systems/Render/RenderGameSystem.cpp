@@ -329,11 +329,11 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
     {
       if ( debug_tick )
       {
-        render_overlay_sys.render_player_position_overlay();
-        render_overlay_sys.render_mouse_position_overlay();
-        render_overlay_sys.render_stats_overlay();
-        render_overlay_sys.render_zorder_values_overlay( m_zorder_queue_ );
-        render_overlay_sys.render_npc_list_overlay();
+        render_overlay_sys.render_ui_player_position();
+        render_overlay_sys.render_ui_mouse_position();
+        render_overlay_sys.render_ui_stats();
+        render_overlay_sys.render_ui_zorder_list( m_zorder_queue_ );
+        render_overlay_sys.render_ui_npc_list();
 
         m_debug_update_timer.restart();
       }
