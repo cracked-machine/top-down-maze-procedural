@@ -4,6 +4,7 @@
 #include <Components/Position.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Systems/Render/UiData.hpp>
 #include <Utils/Constants.hpp>
 
 #include <set>
@@ -55,6 +56,8 @@ public:
     warmup_15.setOutlineThickness( 1.f );
     std::ignore = warmup_15.getGlobalBounds(); // Force glyph generation
     SPDLOG_DEBUG( "RenderOverlaySystem initialized" );
+
+    m_ui_data = std::make_unique<Render::UiData>( "res/ui/ui.json" );
   };
 
   //! @brief event handlers for pausing system clocks
@@ -67,14 +70,13 @@ public:
   void init( const PathFinding::SpatialHashGridSharedPtr &spatial_grid_ptr ) { m_pathfinding_navmesh = spatial_grid_ptr; }
 
   void render_entt_distance_set_overlay( sf::Vector2f pos );
-  void render_ui_background_overlay( sf::Vector2f pos, sf::Vector2f size );
-  void render_health_overlay( float health_value, sf::Vector2f pos, sf::Vector2f size );
-  void render_weapons_meter_overlay( float weapons_level, sf::Vector2f pos, sf::Vector2f size );
-  void render_radius_overlay( sf::Time dt, int radius_value, sf::Vector2f pos );
-  void render_cadaver_count_overlay( sf::Time dt, unsigned int cadaver_count, sf::Vector2f pos );
-  void render_wealth_overlay( sf::Time dt, unsigned int wealth_value, sf::Vector2f pos );
-  void render_inventory_overlay( sf::Time dt, sf::Vector2f pos );
-  void render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size );
+
+  void render_ui_outlines();
+  void render_ui_icons();
+  void render_ui_inventory_icon();
+  void render_ui_meters();
+  void render_ui_values( sf::Time dt );
+
   void render_level_depth();
   void render_shop_inventory_overlay();
 
@@ -210,6 +212,8 @@ private:
   sf::Time m_flash_radius_ui_interval;
 
   int m_ui_flash_factor{ 300 };
+
+  std::unique_ptr<Render::UiData> m_ui_data;
 };
 
 } // namespace ProceduralMaze::Sys

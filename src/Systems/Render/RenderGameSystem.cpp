@@ -322,21 +322,24 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
   {
 
     float start_y_pos = 0;
-    render_overlay_sys.render_ui_background_overlay( { 20.f, start_y_pos += 20.f }, { 300.f, 200.f } );
+    render_overlay_sys.render_ui_outlines();
+    render_overlay_sys.render_ui_icons();
+    render_overlay_sys.render_ui_inventory_icon();
+    render_overlay_sys.render_ui_meters();
+    render_overlay_sys.render_ui_values( dt );
 
-    auto player_health = Utils::Player::get_health( reg() );
-    render_overlay_sys.render_health_overlay( player_health.health, { 40.f, start_y_pos += 20.f }, { 200.f, 20.f } );
+    // auto player_health = Utils::Player::get_health( reg() );
+    // render_overlay_sys.render_health_overlay( player_health.health, { 40.f, start_y_pos += 20.f }, { 200.f, 20.f } );
 
-    auto player_blast_radius = Utils::Player::get_blast_radius( reg() );
-    render_overlay_sys.render_radius_overlay( dt, player_blast_radius.value, { 40.f, start_y_pos += 40.f } );
+    // auto player_blast_radius = Utils::Player::get_blast_radius( reg() );
+    // render_overlay_sys.render_radius_overlay( dt, player_blast_radius.value, { 40.f, start_y_pos += 40.f } );
 
-    auto player_cadaver_count = Utils::Player::get_cadaver_count( reg() ).get_count();
-    render_overlay_sys.render_cadaver_count_overlay( dt, player_cadaver_count, { 40.f, start_y_pos += 40.f } );
+    // auto player_cadaver_count = Utils::Player::get_cadaver_count( reg() ).get_count();
+    // render_overlay_sys.render_cadaver_count_overlay( dt, player_cadaver_count, { 40.f, start_y_pos += 40.f } );
 
-    auto player_wealth = Utils::Player::get_wealth( reg() );
-    render_overlay_sys.render_wealth_overlay( dt, player_wealth.wealth, { 40.f, start_y_pos += 40.f } );
+    // auto player_wealth = Utils::Player::get_wealth( reg() );
+    // render_overlay_sys.render_wealth_overlay( dt, player_wealth.wealth, { 40.f, start_y_pos += 40.f } );
 
-    render_overlay_sys.render_inventory_overlay( dt, { 40.f, start_y_pos += 80.f } );
     render_overlay_sys.render_level_depth();
 
     auto display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );

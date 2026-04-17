@@ -22,7 +22,11 @@
 #include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Player.hpp>
+#include <Player/PlayerBlastRadius.hpp>
+#include <Player/PlayerCadaverCount.hpp>
+#include <Player/PlayerHealth.hpp>
 #include <Player/PlayerLevelDepth.hpp>
+#include <Player/PlayerWealth.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Shop/ShopInventory.hpp>
 #include <Sprites/MultiSprite.hpp>
@@ -43,236 +47,186 @@
 namespace ProceduralMaze::Sys
 {
 
-void RenderOverlaySystem::render_ui_background_overlay( sf::Vector2f pos, sf::Vector2f size )
+void RenderOverlaySystem::render_ui_outlines()
 {
-  auto ui_background = sf::RectangleShape( size );
-  ui_background.setPosition( pos );
-  ui_background.setFillColor( sf::Color( 48, 48, 64, 128 ) );
-  m_window.draw( ui_background );
-
-  auto ui_edge = sf::RectangleShape( size );
-  ui_edge.setPosition( pos );
-  ui_edge.setFillColor( sf::Color( sf::Color::Transparent ) );
-  ui_edge.setOutlineColor( sf::Color::Black );
-  ui_edge.setOutlineThickness( 5.f );
-  m_window.draw( ui_edge );
-}
-
-void RenderOverlaySystem::render_health_overlay( float health_value, sf::Vector2f pos, sf::Vector2f size )
-{
-
-  auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, Constants::kGridSizePxF };
-  auto sprite_index = 0; // health icon
-  auto scale = sf::Vector2f( 2.f, 2.f );
-  RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
-
-  // bar fill
-  sf::Vector2f healthbar_offset{ 50.f, 8.f };
-  auto healthbar = sf::RectangleShape( { ( ( size.x / 100 ) * health_value ), size.y } );
-  healthbar.setPosition( pos + healthbar_offset );
-  healthbar.setFillColor( sf::Color::Red );
-  m_window.draw( healthbar );
-
-  // bar outline
-  auto healthbar_border = sf::RectangleShape( size );
-  healthbar_border.setPosition( pos + healthbar_offset );
-  healthbar_border.setFillColor( sf::Color::Transparent );
-  healthbar_border.setOutlineColor( sf::Color::Black );
-  healthbar_border.setOutlineThickness( 5.f );
-  m_window.draw( healthbar_border );
-}
-
-void RenderOverlaySystem::render_weapons_meter_overlay( float new_weapon_level, sf::Vector2f pos, sf::Vector2f size )
-{
-  auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, Constants::kGridSizePxF };
-  auto sprite_index = 1; // hammer icon
-  auto scale = sf::Vector2f( 2.f, 2.f );
-  RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
-
-  // bar fill - weapons level is out of 100, but the bar is 200 pixels wide
-  sf::Vector2f weapons_meter_offset{ 50.f, 8.f };
-  auto weaponsbar = sf::RectangleShape( { new_weapon_level * 2, size.y } );
-  weaponsbar.setPosition( pos + weapons_meter_offset );
-  weaponsbar.setFillColor( sf::Color::Green );
-  m_window.draw( weaponsbar );
-
-  // bar outline
-  auto weaponsbar_border = sf::RectangleShape( size );
-  weaponsbar_border.setPosition( pos + weapons_meter_offset );
-  weaponsbar_border.setFillColor( sf::Color::Transparent );
-  weaponsbar_border.setOutlineColor( sf::Color::Black );
-  weaponsbar_border.setOutlineThickness( 5.f );
-  m_window.draw( weaponsbar_border );
-}
-
-void RenderOverlaySystem::render_radius_overlay( sf::Time dt, int radius_value, sf::Vector2f pos )
-{
-
-  auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, Constants::kGridSizePxF };
-  auto sprite_index = 2; // bomb icon
-  auto scale = sf::Vector2f( 2.f, 2.f );
-  RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
-
-  // text - slightly offset the y-axis to center with icon
-  sf::Vector2f bomb_meter_offset{ 50.f, -2.f };
-  sf::Text bomb_count_text( m_font, "", 30 );
-  bomb_count_text.setString( " =   " + std::to_string( radius_value ) );
-  bomb_count_text.setPosition( pos + bomb_meter_offset );
-  bomb_count_text.setFillColor( sf::Color::White );
-  bomb_count_text.setOutlineColor( sf::Color::Black );
-  bomb_count_text.setOutlineThickness( 2.f );
-
-  // flash the text if we just deposited something in a well
-  auto flash_view = reg().view<Cmp::FlashUIRadius>();
-  if ( not flash_view.empty() )
+  if ( not m_ui_data )
   {
-    auto flash_entt = flash_view.front();
-    auto &flash_cmp = flash_view.get<Cmp::FlashUIRadius>( flash_entt );
-    m_flash_radius_ui_interval += dt;
-    if ( m_flash_radius_ui_interval > flash_cmp.duration )
+    SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw Status Outline overlay" );
+    return;
+  }
+  for ( const auto &outline : m_ui_data->m_outlines )
+  {
+    auto rect = sf::RectangleShape( outline.rect.size );
+    rect.setPosition( outline.rect.position );
+    rect.setFillColor( sf::Color( 48, 48, 64, 128 ) );
+    rect.setOutlineColor( sf::Color::Black );
+    rect.setOutlineThickness( 5.f );
+    m_window.draw( rect );
+  }
+}
+
+void RenderOverlaySystem::render_ui_icons()
+{
+  if ( not m_ui_data )
+  {
+    SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw icon overlay" );
+    return;
+  }
+  for ( const auto &icon : m_ui_data->m_icons )
+  {
+    // we handle the inventory icon seperately from the others
+    if ( icon.name == "inventory_icon" ) continue;
+    RenderSystem::safe_render_sprite( icon.type, icon.rect, icon.index, { static_cast<float>( icon.scale ), static_cast<float>( icon.scale ) } );
+  }
+}
+
+void RenderOverlaySystem::render_ui_inventory_icon()
+{
+  if ( not m_ui_data )
+  {
+    SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw icon overlay" );
+    return;
+  }
+  for ( const auto &icon : m_ui_data->m_icons )
+  {
+
+    if ( icon.name != "inventory_icon" ) continue;
+
+    auto inventory_view = reg().view<Cmp::PlayerInventorySlot, Cmp::SpriteAnimation>();
+    for ( auto [inventory_entt, inventory_cmp, anim_cmp] : inventory_view.each() )
     {
-      reg().remove<Cmp::FlashUIRadius>( flash_entt );
-      m_flash_radius_ui_interval = sf::Time::Zero;
-    }
-    else if ( static_cast<int>( m_flash_radius_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
-    {
-      bomb_count_text.setFillColor( sf::Color::White );
-      bomb_count_text.setOutlineColor( sf::Color::White );
+      RenderSystem::safe_render_sprite( anim_cmp.m_sprite_type, { icon.rect.position, Constants::kGridSizePxF }, 0,
+                                        { static_cast<float>( icon.scale ), static_cast<float>( icon.scale ) } );
     }
   }
-
-  m_window.draw( bomb_count_text );
 }
 
-void RenderOverlaySystem::render_cadaver_count_overlay( sf::Time dt, unsigned int cadaver_count, sf::Vector2f pos )
+void RenderOverlaySystem::render_ui_meters()
 {
-  auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, Constants::kGridSizePxF };
-  auto sprite_index = 6; // cadaver icon
-  auto scale = sf::Vector2f( 2.f, 2.f );
-  RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
-
-  // text - slightly offset the y-axis to center with icon
-  sf::Vector2f score_meter_offset{ 50.f, -2.f };
-  sf::Text player_score_text( m_font, "", 30 );
-  player_score_text.setString( " =   " + std::to_string( cadaver_count ) );
-  player_score_text.setPosition( pos + score_meter_offset );
-  player_score_text.setOutlineThickness( 2.f );
-  player_score_text.setFillColor( sf::Color::White );
-  player_score_text.setOutlineColor( sf::Color::Black );
-
-  // flash the text if we just picked up a cadaver
-  auto flash_view = reg().view<Cmp::FlashUICadaver>();
-  if ( not flash_view.empty() )
+  if ( not m_ui_data )
   {
-    auto flash_entt = flash_view.front();
-    auto &flash_cmp = flash_view.get<Cmp::FlashUICadaver>( flash_entt );
-    m_flash_cadaver_ui_interval += dt;
-    if ( m_flash_cadaver_ui_interval > flash_cmp.duration )
-    {
-      reg().remove<Cmp::FlashUICadaver>( flash_entt );
-      m_flash_cadaver_ui_interval = sf::Time::Zero;
-    }
-    else if ( static_cast<int>( m_flash_cadaver_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
-    {
-      player_score_text.setFillColor( sf::Color::White );
-      player_score_text.setOutlineColor( sf::Color::White );
-    }
+    SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw icon overlay" );
+    return;
   }
-
-  m_window.draw( player_score_text );
-}
-
-void RenderOverlaySystem::render_wealth_overlay( sf::Time dt, unsigned int wealth_value, sf::Vector2f pos )
-{
-
-  auto sprite_metatype = "ICONS";
-  auto position = sf::FloatRect{ pos, Constants::kGridSizePxF };
-  auto sprite_index = 7; // gold coins icon
-  auto scale = sf::Vector2f( 2.f, 2.f );
-  RenderSystem::safe_render_sprite( sprite_metatype, position, sprite_index, scale );
-
-  // text - slightly offset the y-axis to center with icon
-  sf::Vector2f score_meter_offset{ 50.f, -2.f };
-  sf::Text player_score_text( m_font, "", 30 );
-  player_score_text.setString( " =   " + std::to_string( wealth_value ) );
-  player_score_text.setPosition( pos + score_meter_offset );
-  player_score_text.setOutlineThickness( 2.f );
-  player_score_text.setFillColor( sf::Color::White );
-  player_score_text.setOutlineColor( sf::Color::Black );
-
-  // flash the text if we just deposited something in a well
-  auto flash_view = reg().view<Cmp::FlashUIWealth>();
-  if ( not flash_view.empty() )
+  for ( const auto &meter : m_ui_data->m_meters )
   {
-    auto flash_entt = flash_view.front();
-    auto &flash_cmp = flash_view.get<Cmp::FlashUIWealth>( flash_entt );
-    m_flash_wealth__ui_interval += dt;
-    if ( m_flash_wealth__ui_interval > flash_cmp.duration )
+    float meter_value = 0;
+    sf::Color meter_inner_color;
+
+    if ( meter.name == "health_meter" )
     {
-      reg().remove<Cmp::FlashUIWealth>( flash_entt );
-      m_flash_wealth__ui_interval = sf::Time::Zero;
+      meter_value = static_cast<float>( Utils::Player::get_health( reg() ).health );
+      meter_inner_color = sf::Color::Red;
     }
-    else if ( static_cast<int>( m_flash_wealth__ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
+    else if ( meter.name == "inventory_meter" )
     {
-      player_score_text.setFillColor( sf::Color::White );
-      player_score_text.setOutlineColor( sf::Color::White );
+      meter_value = Utils::Player::get_inventory_wear_level( reg() );
+      meter_inner_color = sf::Color::Red;
     }
+
+    auto innermeter = sf::RectangleShape( { ( ( meter.rect.size.x / 100 ) * meter_value ), meter.rect.size.y } );
+    innermeter.setPosition( meter.rect.position );
+    innermeter.setFillColor( meter_inner_color );
+    m_window.draw( innermeter );
+
+    auto outermeter = sf::RectangleShape( meter.rect.size );
+    outermeter.setPosition( meter.rect.position );
+    outermeter.setFillColor( sf::Color::Transparent );
+    outermeter.setOutlineColor( sf::Color::Black );
+    outermeter.setOutlineThickness( 5.f );
+    m_window.draw( outermeter );
   }
-  m_window.draw( player_score_text );
 }
 
-void RenderOverlaySystem::render_inventory_overlay( sf::Time dt, sf::Vector2f pos )
+void RenderOverlaySystem::render_ui_values( [[maybe_unused]] sf::Time dt )
 {
-  float ui_padding = 10.f;
-  float icon_scale = 5.f;
-  sf::Vector2f ui_pos( pos );
-  sf::Vector2f ui_size( ( Constants::kGridSizePxF * icon_scale ) + ( sf::Vector2f( ui_padding * 2, ui_padding * 2 ) ) );
-  sf::Vector2f icon_pos( pos.x + ui_padding, pos.y + ui_padding );
-
-  auto ui_background = sf::RectangleShape( ui_size );
-  ui_background.setPosition( ui_pos );
-  ui_background.setFillColor( sf::Color( 48, 48, 64, 128 ) );
-  ui_background.setOutlineColor( sf::Color::Black );
-  ui_background.setOutlineThickness( 5.f );
-
-  m_window.draw( ui_background );
-
-  auto inventory_view = reg().view<Cmp::PlayerInventorySlot, Cmp::SpriteAnimation>();
-  for ( auto [inventory_entt, inventory_cmp, anim_cmp] : inventory_view.each() )
+  if ( not m_ui_data )
   {
-    RenderSystem::safe_render_sprite( anim_cmp.m_sprite_type, { icon_pos, Constants::kGridSizePxF }, 0, sf::Vector2f{ icon_scale, icon_scale } );
-    sf::Text display_name( m_font, m_sprite_factory.get_display_name_by_type( inventory_cmp.type ), 20 );
-
-    auto wear_level = Utils::Player::get_inventory_wear_level( reg() );
-    if ( wear_level >= 0 )
+    SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw value overlay" );
+    return;
+  }
+  for ( const auto &ui_value : m_ui_data->m_values )
+  {
+    std::string text_str;
+    if ( ui_value.name == "radius_value" ) { text_str = " =   " + std::to_string( Utils::Player::get_blast_radius( reg() ).value ); }
+    else if ( ui_value.name == "cadaver_value" ) { text_str = " =   " + std::to_string( Utils::Player::get_cadaver_count( reg() ).get_count() ); }
+    else if ( ui_value.name == "wealth_value" ) { text_str = " =   " + std::to_string( Utils::Player::get_wealth( reg() ).wealth ); }
+    else if ( ui_value.name == "inventory_value" )
     {
-      auto current_view = m_window.getView();
-      auto game_view = RenderSystem::getGameView();
-      sf::Vector2f world_icon_pos = m_window.mapPixelToCoords( sf::Vector2i( icon_pos.x - ui_padding, icon_pos.y + ui_padding ), game_view );
-      m_window.setView( RenderSystem::getGameView() );
-      render_wear_level( wear_level, { world_icon_pos, Constants::kGridSizePxF } );
-      m_window.setView( current_view );
+      auto [entt, type] = Utils::Player::get_inventory_type( reg() );
+      text_str = type;
     }
 
-    // Calculate the center of the scaled icon
-    float icon_center_x = icon_pos.x + ( ( Constants::kGridSizePxF.x * icon_scale ) / 2.f );
-    // Center the text horizontally relative to the icon center
-    float text_x = icon_center_x - ( display_name.getLocalBounds().size.x / 2.f );
-    display_name.setPosition( sf::Vector2f{ text_x, icon_pos.y + ui_size.y + ui_padding } );
-    display_name.setOutlineThickness( 2.f );
-    display_name.setFillColor( sf::Color::White );
-    display_name.setOutlineColor( sf::Color::Black );
+    sf::Text text( m_font, "", ui_value.font_size );
+    text.setString( text_str );
+    text.setPosition( ui_value.rect.position );
+    text.setFillColor( sf::Color::White );
+    text.setOutlineColor( sf::Color::Black );
+    text.setOutlineThickness( 2.f );
+
+    // flash the text if we just increased the bomb blast radius
+    auto radius_flash_view = reg().view<Cmp::FlashUIRadius>();
+    if ( ui_value.name == "radius_value" and not radius_flash_view.empty() )
+    {
+      auto flash_entt = radius_flash_view.front();
+      auto &flash_cmp = radius_flash_view.get<Cmp::FlashUIRadius>( flash_entt );
+      m_flash_radius_ui_interval += dt;
+      if ( m_flash_radius_ui_interval > flash_cmp.duration )
+      {
+        reg().remove<Cmp::FlashUIRadius>( flash_entt );
+        m_flash_radius_ui_interval = sf::Time::Zero;
+      }
+      else if ( static_cast<int>( m_flash_radius_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
+      {
+        text.setFillColor( sf::Color::White );
+        text.setOutlineColor( sf::Color::White );
+      }
+    }
+
+    // flash the text if we just picked up a cadaver
+    auto cadaver_flash_view = reg().view<Cmp::FlashUICadaver>();
+    if ( ui_value.name == "cadaver_value" and not cadaver_flash_view.empty() )
+    {
+      auto flash_entt = cadaver_flash_view.front();
+      auto &flash_cmp = cadaver_flash_view.get<Cmp::FlashUICadaver>( flash_entt );
+      m_flash_cadaver_ui_interval += dt;
+      if ( m_flash_cadaver_ui_interval > flash_cmp.duration )
+      {
+        reg().remove<Cmp::FlashUICadaver>( flash_entt );
+        m_flash_cadaver_ui_interval = sf::Time::Zero;
+      }
+      else if ( static_cast<int>( m_flash_cadaver_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
+      {
+        text.setFillColor( sf::Color::White );
+        text.setOutlineColor( sf::Color::White );
+      }
+    }
+
+    // flash the text if we just deposited something in a well
+    auto wealth_flash_view = reg().view<Cmp::FlashUIWealth>();
+    if ( ui_value.name == "wealth_value" and not wealth_flash_view.empty() )
+    {
+      auto flash_entt = wealth_flash_view.front();
+      auto &flash_cmp = wealth_flash_view.get<Cmp::FlashUIWealth>( flash_entt );
+      m_flash_wealth__ui_interval += dt;
+      if ( m_flash_wealth__ui_interval > flash_cmp.duration )
+      {
+        reg().remove<Cmp::FlashUIWealth>( flash_entt );
+        m_flash_wealth__ui_interval = sf::Time::Zero;
+      }
+      else if ( static_cast<int>( m_flash_wealth__ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
+      {
+        text.setFillColor( sf::Color::White );
+        text.setOutlineColor( sf::Color::White );
+      }
+    }
 
     // flash the text if we just picked up a Key
-    auto flash_view = reg().view<Cmp::FlashUIInventory>();
-    if ( not flash_view.empty() )
+    auto inventory_flash_view = reg().view<Cmp::FlashUIInventory>();
+    if ( ui_value.name == "inventory_value" and not inventory_flash_view.empty() )
     {
-      auto flash_entt = flash_view.front();
-      auto &flash_cmp = flash_view.get<Cmp::FlashUIInventory>( flash_entt );
+      auto flash_entt = inventory_flash_view.front();
+      auto &flash_cmp = inventory_flash_view.get<Cmp::FlashUIInventory>( flash_entt );
       m_flash_inventory_ui_interval += dt;
       if ( m_flash_inventory_ui_interval > flash_cmp.duration )
       {
@@ -281,43 +235,13 @@ void RenderOverlaySystem::render_inventory_overlay( sf::Time dt, sf::Vector2f po
       }
       else if ( static_cast<int>( m_flash_inventory_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
       {
-        display_name.setFillColor( sf::Color::Black );
-        display_name.setOutlineColor( sf::Color::White );
+        text.setFillColor( sf::Color::Black );
+        text.setOutlineColor( sf::Color::White );
       }
     }
 
-    m_window.draw( display_name );
+    m_window.draw( text );
   }
-}
-
-void RenderOverlaySystem::render_water_level_meter_overlay( float water_level, sf::Vector2f pos, sf::Vector2f size )
-{
-  // text
-  m_waterlvl_meter_text.setPosition( pos );
-  m_waterlvl_meter_text.setFillColor( sf::Color::White );
-  m_waterlvl_meter_text.setOutlineColor( sf::Color::Black );
-  m_waterlvl_meter_text.setOutlineThickness( 2.f );
-  m_window.draw( m_waterlvl_meter_text );
-
-  // bar fill
-  sf::Vector2f waterlvl_meter_offset{ 100.f, 10.f };
-  // water meter level is represented as a percentage (0-100) of the screen
-  // display y-axis note: {0,0} is top left so we need to invert the Y
-  // position
-  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-  float meter_meter_level = size.x - ( ( size.x / display_size.y ) * water_level );
-  auto waterlvlbar = sf::RectangleShape( { meter_meter_level, size.y } );
-  waterlvlbar.setPosition( pos + waterlvl_meter_offset );
-  waterlvlbar.setFillColor( sf::Color::Blue );
-  m_window.draw( waterlvlbar );
-
-  // bar outline
-  auto waterlvlbar_border = sf::RectangleShape( size );
-  waterlvlbar_border.setPosition( pos + waterlvl_meter_offset );
-  waterlvlbar_border.setFillColor( sf::Color::Transparent );
-  waterlvlbar_border.setOutlineColor( sf::Color::Black );
-  waterlvlbar_border.setOutlineThickness( 5.f );
-  m_window.draw( waterlvlbar_border );
 }
 
 void RenderOverlaySystem::render_level_depth()

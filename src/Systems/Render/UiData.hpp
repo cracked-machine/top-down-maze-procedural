@@ -1,0 +1,63 @@
+#ifndef SRC_SYSTEM_RENDER_UIDATA_HPP_
+#define SRC_SYSTEM_RENDER_UIDATA_HPP_
+
+#include <Sprites/SpriteMetaType.hpp>
+#include <nlohmann/json_fwd.hpp>
+#include <source_location>
+
+namespace ProceduralMaze::Render
+{
+
+class UiData
+{
+public:
+  struct Outline
+  {
+    sf::FloatRect rect;
+    std::string name;
+  };
+
+  struct Icon
+  {
+    sf::FloatRect rect;
+    std::string name;
+    Sprites::SpriteMetaType type;
+    int index;
+    int scale;
+  };
+
+  struct Value
+  {
+    sf::FloatRect rect;
+    std::string name;
+    int font_size;
+  };
+
+  struct Meter
+  {
+    sf::FloatRect rect;
+    std::string name;
+  };
+
+  UiData( const std::filesystem::path &map_file );
+  nlohmann::json load_json_file( const std::filesystem::path &json_file );
+  void deserialize( const std::filesystem::path &scene_tiledata_path );
+
+  std::string get_string( const nlohmann::json &json_object, const std::string &field, std::source_location loc = std::source_location::current() );
+  float get_float( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
+  int get_int( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
+
+  int get_int_property( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
+  std::string get_string_property( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
+
+  sf::FloatRect get_float_rect( const nlohmann::json &json_object );
+
+  std::vector<Outline> m_outlines;
+  std::vector<Value> m_values;
+  std::vector<Meter> m_meters;
+  std::vector<Icon> m_icons;
+};
+
+} // namespace ProceduralMaze::Render
+
+#endif // SRC_SYSTEM_RENDER_UIDATA_HPP_
