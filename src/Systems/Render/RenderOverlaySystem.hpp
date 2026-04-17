@@ -58,6 +58,7 @@ public:
     SPDLOG_DEBUG( "RenderOverlaySystem initialized" );
 
     m_ui_data = std::make_unique<Render::UiData>( "res/ui/ui.json" );
+    m_dbg_data = std::make_unique<Render::UiData>( "res/ui/dbg.json" );
   };
 
   //! @brief event handlers for pausing system clocks
@@ -80,11 +81,12 @@ public:
   void render_level_depth();
   void render_shop_inventory_overlay();
 
-  void render_player_position_overlay( sf::Vector2f player_position, sf::Vector2f pos );
-  void render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos );
-  void render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2 );
-  void render_zorder_values_overlay( sf::Vector2f pos, std::vector<ZOrder> &zorder_queue, std::set<Sprites::SpriteMetaType> exclusions = {} );
-  void render_npc_list_overlay( sf::Vector2f pos );
+  void render_player_position_overlay();
+  void render_mouse_position_overlay();
+  void render_stats_overlay();
+  void render_zorder_values_overlay( std::vector<ZOrder> &zorder_queue );
+  void render_npc_list_overlay();
+
   void render_obstacle_markers();
   void render_player_distances();
   void render_lerp_positions();
@@ -192,16 +194,7 @@ private:
 
   // overlay text
   sf::Text m_distance_text{ m_font, "", 7 };
-  sf::Text m_healthlvl_meter_text{ m_font, "Health:", 30 };
-  sf::Text m_waterlvl_meter_text{ m_font, "Flood:", 30 };
-  sf::Text m_bomb_inventory_text{ m_font, "Bombs:", 30 };
-  sf::Text m_bomb_radius_text{ m_font, "Blast Radius:", 30 };
-  sf::Text m_player_position_text{ m_font, "Player Pos:", 30 };
-  sf::Text m_mouse_position_text{ m_font, "", 30 };
-  sf::Text m_stats_text1{ m_font, "", 30 };
-  sf::Text m_stats_text2{ m_font, "", 30 };
-  sf::Text m_stats_text3{ m_font, "", 30 };
-  sf::Text m_stats_text4{ m_font, "", 30 };
+
   std::map<unsigned int, sf::Text> m_npc_list_text{};
 
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
@@ -214,6 +207,7 @@ private:
   int m_ui_flash_factor{ 300 };
 
   std::unique_ptr<Render::UiData> m_ui_data;
+  std::unique_ptr<Render::UiData> m_dbg_data;
 };
 
 } // namespace ProceduralMaze::Sys

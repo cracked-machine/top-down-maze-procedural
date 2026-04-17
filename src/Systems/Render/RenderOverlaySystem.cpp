@@ -345,42 +345,68 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
   }
 }
 
-void RenderOverlaySystem::render_player_position_overlay( sf::Vector2f player_pos, sf::Vector2f pos )
+void RenderOverlaySystem::render_player_position_overlay()
 {
-  // text
-  if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
+  if ( not m_dbg_data )
   {
-    m_player_position_text.setString( "Player Position: [ " + std::to_string( static_cast<int>( player_pos.x ) ) + " , " +
-                                      std::to_string( static_cast<int>( player_pos.y ) ) + " ]" );
+    SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw player position overlay" );
+    return;
   }
-  m_player_position_text.setPosition( pos );
-  m_player_position_text.setFillColor( sf::Color::White );
-  m_player_position_text.setOutlineColor( sf::Color::Black );
-  m_player_position_text.setOutlineThickness( 2.f );
-  m_window.draw( m_player_position_text );
+  auto player_pos = Utils::Player::get_position( reg() );
+
+  for ( const auto &ui_label : m_dbg_data->m_labels )
+  {
+    if ( ui_label.name != "player_position" ) { continue; }
+    sf::Text text( m_font, "Player Pos:", ui_label.font_size );
+    text.setString( "Player Position: [ " + std::to_string( static_cast<int>( player_pos.x() ) ) + " , " +
+                    std::to_string( static_cast<int>( player_pos.y() ) ) + " ]" );
+    text.setPosition( ui_label.rect.position );
+    text.setFillColor( sf::Color::White );
+    text.setOutlineColor( sf::Color::Black );
+    text.setOutlineThickness( 2.f );
+    m_window.draw( text );
+  }
 }
 
-void RenderOverlaySystem::render_mouse_position_overlay( sf::Vector2f mouse_position, sf::Vector2f pos )
+void RenderOverlaySystem::render_mouse_position_overlay()
 {
-  // text
-  if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
-  {
 
-    m_mouse_position_text.setString( "Mouse Position: [ " + std::to_string( static_cast<int>( mouse_position.x ) ) + " , " +
-                                     std::to_string( static_cast<int>( mouse_position.y ) ) + " ]" );
+  if ( not m_dbg_data )
+  {
+    SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw mouse position overlay" );
+    return;
   }
-  m_mouse_position_text.setPosition( pos );
-  m_mouse_position_text.setFillColor( sf::Color::White );
-  m_mouse_position_text.setOutlineColor( sf::Color::Black );
-  m_mouse_position_text.setOutlineThickness( 2.f );
-  m_window.draw( m_mouse_position_text );
+
+  sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
+  sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::getGameView() );
+
+  for ( const auto &ui_label : m_dbg_data->m_labels )
+  {
+    if ( ui_label.name != "mouse_position" ) { continue; }
+
+    sf::Text text( m_font, "Mouse Pos:", ui_label.font_size );
+    text.setString( "Mouse Position: [ " + std::to_string( static_cast<int>( mouse_world_pos.x ) ) + " , " +
+                    std::to_string( static_cast<int>( mouse_world_pos.y ) ) + " ]" );
+
+    text.setPosition( ui_label.rect.position );
+    text.setFillColor( sf::Color::White );
+    text.setOutlineColor( sf::Color::Black );
+    text.setOutlineThickness( 2.f );
+    m_window.draw( text );
+  }
 }
 
-void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f pos2 )
+void RenderOverlaySystem::render_stats_overlay()
 {
-  // only gather stats every interval
-  if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
+  if ( not m_dbg_data )
   {
+    SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw entity stats overlay" );
+    return;
+  }
+
+  for ( const auto &ui_label : m_dbg_data->m_labels )
+  {
+    if ( ui_label.name != "entity_stats" ) { continue; }
     auto entity_count = reg().view<entt::entity>().size();
     auto npc_count = reg().view<Cmp::NPC>().size();
     auto position_count = reg().view<Cmp::Position>().size();
@@ -392,68 +418,92 @@ void RenderOverlaySystem::render_stats_overlay( sf::Vector2f pos1, sf::Vector2f 
     auto obstacle_count = obst_view.size();
 
     // clang-format off
-    m_stats_text1.setString( 
+    sf::Text text1(m_font, "", ui_label.font_size);
+    text1.setString( 
       "E: " + std::to_string( entity_count ) + 
       "   P: " + std::to_string( position_count ) +
       "   O: " + std::to_string( obstacle_count ));
-    m_stats_text2.setString( 
+
+    sf::Text text2(m_font, "", ui_label.font_size);
+    text2.setString( 
       "CPB: " + std::to_string(crypt_passage_block_count) +
       "   N: " + std::to_string( npc_count ) +
       "   C: " + std::to_string( corruption_count ) + 
       "   S: " + std::to_string( sinkhole_count ) );
     // clang-format on
 
-    m_stats_text1.setPosition( pos1 );
-    m_stats_text1.setFillColor( sf::Color::White );
-    m_stats_text1.setOutlineColor( sf::Color::Black );
-    m_stats_text1.setOutlineThickness( 2.f );
-    m_window.draw( m_stats_text1 );
+    text1.setPosition( ui_label.rect.position );
+    text1.setFillColor( sf::Color::White );
+    text1.setOutlineColor( sf::Color::Black );
+    text1.setOutlineThickness( 2.f );
+    m_window.draw( text1 );
 
-    m_stats_text2.setPosition( pos2 );
-    m_stats_text2.setFillColor( sf::Color::White );
-    m_stats_text2.setOutlineColor( sf::Color::Black );
-    m_stats_text2.setOutlineThickness( 2.f );
-    m_window.draw( m_stats_text2 );
+    text2.setPosition( { ui_label.rect.position.x, ui_label.rect.position.y + 40 } );
+    text2.setFillColor( sf::Color::White );
+    text2.setOutlineColor( sf::Color::Black );
+    text2.setOutlineThickness( 2.f );
+    m_window.draw( text2 );
   }
 }
 
-void RenderOverlaySystem::render_zorder_values_overlay( sf::Vector2f pos, std::vector<ZOrder> &zorder_queue,
-                                                        std::set<Sprites::SpriteMetaType> exclusions )
+void RenderOverlaySystem::render_zorder_values_overlay( std::vector<ZOrder> &zorder_queue )
 {
-  uint32_t font_size = 15;
-  float count = 0;
-  for ( const auto &zorder_entry : zorder_queue )
-  {
-    if ( reg().all_of<Cmp::SpriteAnimation>( zorder_entry.e ) )
-    {
-      auto &sprite_anim_cmp = reg().get<Cmp::SpriteAnimation>( zorder_entry.e );
-      if ( exclusions.find( sprite_anim_cmp.m_sprite_type ) != exclusions.end() ) { continue; }
 
-      std::stringstream ss;
-      ss << "z: " << std::fixed << std::setprecision( 1 ) << zorder_entry.z << " | ";
-      ss << "e: " << static_cast<uint32_t>( zorder_entry.e ) << " | ";
-      ss << sprite_anim_cmp.m_sprite_type << " | ";
-      sf::Text m_z_text{ m_font, ss.str(), font_size };
-      m_z_text.setFillColor( sf::Color::White );
-      m_z_text.setPosition( { pos.x, pos.y + count } );
-      m_z_text.setOutlineColor( sf::Color::Black );
-      m_z_text.setOutlineThickness( 0.5f );
-      m_window.draw( m_z_text );
-      count += font_size; // Move down for the next entry
+  if ( not m_dbg_data )
+  {
+    SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw zorder list overlay" );
+    return;
+  }
+
+  std::set<Sprites::SpriteMetaType> exclusions = { "ROCK",
+                                                   //  "CRYPT.interior_sb",
+                                                   "WALL", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED", "FOOTSTEPS", "HOLYWELL.interior_wall",
+                                                   "RUIN.interior_wall", "CRYPT.interior_wall" };
+
+  for ( const auto &ui_label : m_dbg_data->m_labels )
+  {
+    if ( ui_label.name != "zorder_list" ) { continue; }
+
+    float count = 0;
+    for ( const auto &zorder_entry : zorder_queue )
+    {
+      if ( reg().all_of<Cmp::SpriteAnimation>( zorder_entry.e ) )
+      {
+        auto &sprite_anim_cmp = reg().get<Cmp::SpriteAnimation>( zorder_entry.e );
+        if ( exclusions.find( sprite_anim_cmp.m_sprite_type ) != exclusions.end() ) { continue; }
+
+        std::stringstream ss;
+        ss << "z: " << std::fixed << std::setprecision( 1 ) << zorder_entry.z << " | ";
+        ss << "e: " << static_cast<uint32_t>( zorder_entry.e ) << " | ";
+        ss << sprite_anim_cmp.m_sprite_type << " | ";
+        sf::Text m_z_text( m_font, ss.str(), ui_label.font_size );
+        m_z_text.setFillColor( sf::Color::White );
+        m_z_text.setPosition( { ui_label.rect.position.x, ui_label.rect.position.y + count } );
+        m_z_text.setOutlineColor( sf::Color::Black );
+        m_z_text.setOutlineThickness( 0.5f );
+        m_window.draw( m_z_text );
+        count += ui_label.font_size; // Move down for the next entry
+      }
     }
   }
 }
 
-void RenderOverlaySystem::render_npc_list_overlay( sf::Vector2f text_start_pos )
+void RenderOverlaySystem::render_npc_list_overlay()
 {
-  // refresh the list only at intervals
-  if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
+  if ( not m_dbg_data )
   {
+    SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw zorder list overlay" );
+    return;
+  }
+  for ( const auto &ui_label : m_dbg_data->m_labels )
+  {
+    if ( ui_label.name != "npc_list" ) { continue; }
+
     auto npc_view = reg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>();
     m_npc_list_text.clear();
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp, npc_anim_cmp] : npc_view.each() )
     {
-      sf::Text npc_text( m_font, "", 20 );
+      sf::Text npc_text( m_font, "", ui_label.font_size );
 
       // Pad the type name to consistent width
       std::string type_str = npc_anim_cmp.m_sprite_type;
@@ -479,15 +529,15 @@ void RenderOverlaySystem::render_npc_list_overlay( sf::Vector2f text_start_pos )
       npc_text.setOutlineThickness( 1.f );
       m_npc_list_text.emplace( entt::to_integral( npc_entity ), std::move( npc_text ) );
     }
-  }
 
-  // Render in sorted order (map automatically sorts by key)
-  int count = 0;
-  for ( auto &[key, npc_text] : m_npc_list_text )
-  {
-    npc_text.setPosition( text_start_pos + sf::Vector2f{ 0, count * 20.f } );
-    m_window.draw( npc_text );
-    ++count;
+    // Render in sorted order (map automatically sorts by key)
+    int count = 0;
+    for ( auto &[key, npc_text] : m_npc_list_text )
+    {
+      npc_text.setPosition( ui_label.rect.position + sf::Vector2f{ 0, count * 20.f } );
+      m_window.draw( npc_text );
+      ++count;
+    }
   }
 }
 

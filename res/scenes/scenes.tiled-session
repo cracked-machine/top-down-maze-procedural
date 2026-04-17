@@ -1,8 +1,8 @@
 {
     "activeFile": "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json",
     "expandedProjectPaths": [
-        "X:/cpp/games/top-down-maze-procedural/res/ui",
-        "."
+        ".",
+        "X:/cpp/games/top-down-maze-procedural/res/ui"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -31,12 +31,26 @@
             "scaleInDock": 2,
             "scaleInEditor": 1
         },
-        "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json": {
-            "scale": 23,
+        "X:/cpp/games/top-down-maze-procedural/res/ui/dbg.json": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 0.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": -47324.15217391304,
-                "y": 6703.804347826087
+                "x": 957,
+                "y": 585
+            }
+        },
+        "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 0.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 945,
+                "y": 353
             }
         },
         "crypt.json": {
@@ -47,8 +61,8 @@
             "scale": 1,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 336.5,
-                "y": 277.5
+                "x": 344,
+                "y": 456.5
             }
         },
         "crypt.json#floor": {
@@ -188,34 +202,35 @@
     "last.exportedFilePath": "X:/cpp/games/top-down-maze-procedural/res/scenes",
     "last.externalTilesetPath": "X:/cpp/games/top-down-maze-procedural/res/scenes/Tilesets",
     "last.imagePath": "X:/cpp/games/top-down-maze-procedural/res/textures",
-    "map.height": 11,
+    "map.height": 108,
     "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
     "map.lastUsedFormat": "json",
-    "map.tileHeight": 16,
-    "map.tileWidth": 16,
-    "map.width": 19,
+    "map.tileHeight": 10,
+    "map.tileWidth": 10,
+    "map.width": 192,
     "openFiles": [
         "ruinlower.json",
         "ruinupper.json",
         "graveyard.json",
         "crypt.json",
-        "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json"
+        "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json",
+        "X:/cpp/games/top-down-maze-procedural/res/ui/dbg.json"
     ],
     "project": "scenes.tiled-project",
     "property.type": "int",
     "recentFiles": [
-        "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json",
         "ruinlower.json",
         "ruinupper.json",
         "graveyard.json",
         "crypt.json",
+        "X:/cpp/games/top-down-maze-procedural/res/ui/dbg.json",
+        "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json",
+        "X:/cpp/games/top-down-maze-procedural/res/ui/debug.json",
         "shop.json",
         "well.json",
         "Tilesets/main.json",
         "ruinupperjson.json",
-        "Tilesets/wall.json",
-        "Tilesets/main2..tsj",
-        "MainTileSet.json"
+        "Tilesets/wall.json"
     ],
     "tileset.embedInMap": true,
     "tileset.lastUsedFilter": "JSON tileset files (*.tsj *.json)",

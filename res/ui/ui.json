@@ -256,25 +256,6 @@
                  "width":130,
                  "x":50,
                  "y":380
-                }, 
-                {
-                 "height":0,
-                 "id":19,
-                 "name":"inventory_label",
-                 "opacity":1,
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"font_size",
-                         "type":"int",
-                         "value":20
-                        }],
-                 "rotation":0,
-                 "type":"ui_label",
-                 "visible":true,
-                 "width":0,
-                 "x":40,
-                 "y":420
                 }],
          "opacity":1,
          "type":"objectgroup",

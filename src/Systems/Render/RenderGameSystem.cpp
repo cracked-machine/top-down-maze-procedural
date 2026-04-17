@@ -194,6 +194,8 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
   // re-populate the z-order queue with the latest entity/component data
   refresh_z_order_queue();
 
+  bool debug_tick = m_show_debug_stats && ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval );
+
   // main render begin
   m_window.clear();
 
@@ -254,32 +256,6 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
     if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
     if ( cursed_mode == CursedMode::ON ) { render_cursed_mode_shader( player_pos_cmp ); }
 
-    if ( m_show_npcnopath )
-    {
-      if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
-      {
-        for ( auto [entt, npcnopath_cmp, pos_cmp] : reg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
-        {
-          auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
-          render_rectbounds( rectbounds, sf::Color::Red );
-        }
-        m_debug_update_timer.restart();
-      }
-    }
-
-    if ( m_show_playernopath )
-    {
-      if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
-      {
-        for ( auto [entt, npcnopath_cmp, pos_cmp] : reg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
-        {
-          auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
-          render_rectbounds( rectbounds, sf::Color::Red );
-        }
-        m_debug_update_timer.restart();
-      }
-    }
-
     render_lightning_strike();
 
     render_particle_sprites();
@@ -289,7 +265,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
     // debug: show crypt component boundaries
     if ( m_show_debug_stats )
     {
-      if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
+      if ( debug_tick )
       {
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
@@ -297,7 +273,24 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
         render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
         render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Black, 1.f );
-        m_debug_update_timer.restart();
+
+        if ( m_show_npcnopath )
+        {
+          for ( auto [entt, npcnopath_cmp, pos_cmp] : reg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
+          {
+            auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
+            render_rectbounds( rectbounds, sf::Color::Red );
+          }
+        }
+
+        if ( m_show_playernopath )
+        {
+          for ( auto [entt, npcnopath_cmp, pos_cmp] : reg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
+          {
+            auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
+            render_rectbounds( rectbounds, sf::Color::Red );
+          }
+        }
       }
     }
   }
@@ -321,25 +314,12 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
   m_window.setView( m_window.getDefaultView() );
   {
 
-    float start_y_pos = 0;
+    // float start_y_pos = 0;
     render_overlay_sys.render_ui_outlines();
     render_overlay_sys.render_ui_icons();
     render_overlay_sys.render_ui_inventory_icon();
     render_overlay_sys.render_ui_meters();
     render_overlay_sys.render_ui_labels( dt );
-
-    // auto player_health = Utils::Player::get_health( reg() );
-    // render_overlay_sys.render_health_overlay( player_health.health, { 40.f, start_y_pos += 20.f }, { 200.f, 20.f } );
-
-    // auto player_blast_radius = Utils::Player::get_blast_radius( reg() );
-    // render_overlay_sys.render_radius_overlay( dt, player_blast_radius.value, { 40.f, start_y_pos += 40.f } );
-
-    // auto player_cadaver_count = Utils::Player::get_cadaver_count( reg() ).get_count();
-    // render_overlay_sys.render_cadaver_count_overlay( dt, player_cadaver_count, { 40.f, start_y_pos += 40.f } );
-
-    // auto player_wealth = Utils::Player::get_wealth( reg() );
-    // render_overlay_sys.render_wealth_overlay( dt, player_wealth.wealth, { 40.f, start_y_pos += 40.f } );
-
     render_overlay_sys.render_level_depth();
 
     auto display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
@@ -347,27 +327,22 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
 
     if ( m_show_debug_stats )
     {
-      render_overlay_sys.render_player_position_overlay( player_pos_cmp.position, { 40.f, start_y_pos += 80.f } );
+      if ( debug_tick )
+      {
+        render_overlay_sys.render_player_position_overlay();
+        render_overlay_sys.render_mouse_position_overlay();
+        render_overlay_sys.render_stats_overlay();
+        render_overlay_sys.render_zorder_values_overlay( m_zorder_queue_ );
+        render_overlay_sys.render_npc_list_overlay();
 
-      sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
-      sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::getGameView() );
-      render_overlay_sys.render_mouse_position_overlay( mouse_world_pos, { 40.f, start_y_pos += 40.f } );
-
-      sf::Vector2f stats_pos1{ 40.f, start_y_pos += 40.f };
-      sf::Vector2f stats_pos2{ 40.f, start_y_pos += 40.f };
-      render_overlay_sys.render_stats_overlay( stats_pos1, stats_pos2 );
-
-      std::set<Sprites::SpriteMetaType> exclusion_list = { "ROCK",
-                                                           //  "CRYPT.interior_sb",
-                                                           "WALL", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED", "FOOTSTEPS",
-                                                           "HOLYWELL.interior_wall", "RUIN.interior_wall", "CRYPT.interior_wall" };
-      render_overlay_sys.render_zorder_values_overlay( { display_size.x - 800.f, 40.f }, m_zorder_queue_, exclusion_list );
-
-      sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-      render_overlay_sys.render_npc_list_overlay( { display_size.x - 500.f, 200.f } );
+        m_debug_update_timer.restart();
+      }
     }
   }
   // Default view end
+
+  // restart once after all debug blocks
+  if ( debug_tick ) { m_debug_update_timer.restart(); }
 
   m_window.display();
 }

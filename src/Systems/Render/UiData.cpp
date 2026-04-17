@@ -72,8 +72,9 @@ sf::FloatRect UiData::get_float_rect( const nlohmann::json &object )
 
 std::string UiData::get_string_property( const nlohmann::json &json, const std::string &field, const std::source_location loc )
 {
-  std::string loc_string = std::string( loc.file_name() ) + ":" + std::to_string( loc.line() );
-  if ( not json.contains( "properties" ) ) throw std::runtime_error( loc_string + "Missing JSON property 'properties' in object" );
+  std::string loc_string = std::string( loc.file_name() ) + ":" + std::to_string( loc.line() ) + " ";
+  if ( not json.contains( "properties" ) )
+    throw std::runtime_error( loc_string + "Missing JSON property 'properties' in object " + get_string( json, "name" ) );
   for ( const auto &prop : json.at( "properties" ) )
   {
     if ( not prop.contains( "name" ) ) throw std::runtime_error( loc_string + "Missing JSON property 'name' in object property" );
@@ -86,8 +87,9 @@ std::string UiData::get_string_property( const nlohmann::json &json, const std::
 
 int UiData::get_int_property( const nlohmann::json &json, const std::string &field, const std::source_location loc )
 {
-  std::string loc_string = std::string( loc.file_name() ) + ":" + std::to_string( loc.line() );
-  if ( not json.contains( "properties" ) ) throw std::runtime_error( loc_string + "Missing JSON property 'properties' in object" );
+  std::string loc_string = std::string( loc.file_name() ) + ":" + std::to_string( loc.line() ) + " ";
+  if ( not json.contains( "properties" ) )
+    throw std::runtime_error( loc_string + "Missing JSON property 'properties' in object " + get_string( json, "name" ) );
   for ( const auto &prop : json.at( "properties" ) )
   {
     if ( not prop.contains( "name" ) ) throw std::runtime_error( loc_string + "Missing JSON property 'name' in object property" );
