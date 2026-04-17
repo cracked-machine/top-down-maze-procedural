@@ -49,12 +49,12 @@ namespace ProceduralMaze::Sys
 
 void RenderOverlaySystem::render_ui_outlines()
 {
-  if ( not m_ui_data )
+  if ( not m_main_ui_data )
   {
     SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw Status Outline overlay" );
     return;
   }
-  for ( const auto &outline : m_ui_data->m_outlines )
+  for ( const auto &outline : m_main_ui_data->m_outlines )
   {
     auto rect = sf::RectangleShape( outline.rect.size );
     rect.setPosition( outline.rect.position );
@@ -67,12 +67,12 @@ void RenderOverlaySystem::render_ui_outlines()
 
 void RenderOverlaySystem::render_ui_icons()
 {
-  if ( not m_ui_data )
+  if ( not m_main_ui_data )
   {
     SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw icon overlay" );
     return;
   }
-  for ( const auto &icon : m_ui_data->m_icons )
+  for ( const auto &icon : m_main_ui_data->m_icons )
   {
     // we handle the inventory icon seperately from the others
     if ( icon.name == "inventory_icon" ) continue;
@@ -82,12 +82,12 @@ void RenderOverlaySystem::render_ui_icons()
 
 void RenderOverlaySystem::render_ui_inventory_icon()
 {
-  if ( not m_ui_data )
+  if ( not m_main_ui_data )
   {
     SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw icon overlay" );
     return;
   }
-  for ( const auto &icon : m_ui_data->m_icons )
+  for ( const auto &icon : m_main_ui_data->m_icons )
   {
 
     if ( icon.name != "inventory_icon" ) continue;
@@ -103,12 +103,12 @@ void RenderOverlaySystem::render_ui_inventory_icon()
 
 void RenderOverlaySystem::render_ui_meters()
 {
-  if ( not m_ui_data )
+  if ( not m_main_ui_data )
   {
     SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw icon overlay" );
     return;
   }
-  for ( const auto &meter : m_ui_data->m_meters )
+  for ( const auto &meter : m_main_ui_data->m_meters )
   {
     float meter_value = 0;
     sf::Color meter_inner_color;
@@ -145,12 +145,12 @@ void RenderOverlaySystem::render_ui_meters()
 
 void RenderOverlaySystem::render_ui_labels( [[maybe_unused]] sf::Time dt )
 {
-  if ( not m_ui_data )
+  if ( not m_main_ui_data )
   {
     SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw value overlay" );
     return;
   }
-  for ( const auto &ui_label : m_ui_data->m_labels )
+  for ( const auto &ui_label : m_main_ui_data->m_labels )
   {
     std::string text_str;
     if ( ui_label.name == "radius_label" ) { text_str = " =   " + std::to_string( Utils::Player::get_blast_radius( reg() ).value ); }
@@ -213,13 +213,13 @@ void RenderOverlaySystem::render_ui_labels( [[maybe_unused]] sf::Time dt )
     {
       auto flash_entt = wealth_flash_view.front();
       auto &flash_cmp = wealth_flash_view.get<Cmp::FlashUIWealth>( flash_entt );
-      m_flash_wealth__ui_interval += dt;
-      if ( m_flash_wealth__ui_interval > flash_cmp.duration )
+      m_flash_wealth_ui_interval += dt;
+      if ( m_flash_wealth_ui_interval > flash_cmp.duration )
       {
         reg().remove<Cmp::FlashUIWealth>( flash_entt );
-        m_flash_wealth__ui_interval = sf::Time::Zero;
+        m_flash_wealth_ui_interval = sf::Time::Zero;
       }
-      else if ( static_cast<int>( m_flash_wealth__ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
+      else if ( static_cast<int>( m_flash_wealth_ui_interval.asMilliseconds() / m_ui_flash_factor ) % 2 == 1 )
       {
         text.setFillColor( sf::Color::White );
         text.setOutlineColor( sf::Color::White );
@@ -347,14 +347,14 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
 
 void RenderOverlaySystem::render_player_position_overlay()
 {
-  if ( not m_dbg_data )
+  if ( not m_dbg_ui_data )
   {
     SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw player position overlay" );
     return;
   }
   auto player_pos = Utils::Player::get_position( reg() );
 
-  for ( const auto &ui_label : m_dbg_data->m_labels )
+  for ( const auto &ui_label : m_dbg_ui_data->m_labels )
   {
     if ( ui_label.name != "player_position" ) { continue; }
     sf::Text text( m_font, "Player Pos:", ui_label.font_size );
@@ -371,7 +371,7 @@ void RenderOverlaySystem::render_player_position_overlay()
 void RenderOverlaySystem::render_mouse_position_overlay()
 {
 
-  if ( not m_dbg_data )
+  if ( not m_dbg_ui_data )
   {
     SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw mouse position overlay" );
     return;
@@ -380,7 +380,7 @@ void RenderOverlaySystem::render_mouse_position_overlay()
   sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
   sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::getGameView() );
 
-  for ( const auto &ui_label : m_dbg_data->m_labels )
+  for ( const auto &ui_label : m_dbg_ui_data->m_labels )
   {
     if ( ui_label.name != "mouse_position" ) { continue; }
 
@@ -398,13 +398,13 @@ void RenderOverlaySystem::render_mouse_position_overlay()
 
 void RenderOverlaySystem::render_stats_overlay()
 {
-  if ( not m_dbg_data )
+  if ( not m_dbg_ui_data )
   {
     SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw entity stats overlay" );
     return;
   }
 
-  for ( const auto &ui_label : m_dbg_data->m_labels )
+  for ( const auto &ui_label : m_dbg_ui_data->m_labels )
   {
     if ( ui_label.name != "entity_stats" ) { continue; }
     auto entity_count = reg().view<entt::entity>().size();
@@ -449,7 +449,7 @@ void RenderOverlaySystem::render_stats_overlay()
 void RenderOverlaySystem::render_zorder_values_overlay( std::vector<ZOrder> &zorder_queue )
 {
 
-  if ( not m_dbg_data )
+  if ( not m_dbg_ui_data )
   {
     SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw zorder list overlay" );
     return;
@@ -460,7 +460,7 @@ void RenderOverlaySystem::render_zorder_values_overlay( std::vector<ZOrder> &zor
                                                    "WALL", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED", "FOOTSTEPS", "HOLYWELL.interior_wall",
                                                    "RUIN.interior_wall", "CRYPT.interior_wall" };
 
-  for ( const auto &ui_label : m_dbg_data->m_labels )
+  for ( const auto &ui_label : m_dbg_ui_data->m_labels )
   {
     if ( ui_label.name != "zorder_list" ) { continue; }
 
@@ -490,12 +490,12 @@ void RenderOverlaySystem::render_zorder_values_overlay( std::vector<ZOrder> &zor
 
 void RenderOverlaySystem::render_npc_list_overlay()
 {
-  if ( not m_dbg_data )
+  if ( not m_dbg_ui_data )
   {
     SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw zorder list overlay" );
     return;
   }
-  for ( const auto &ui_label : m_dbg_data->m_labels )
+  for ( const auto &ui_label : m_dbg_ui_data->m_labels )
   {
     if ( ui_label.name != "npc_list" ) { continue; }
 

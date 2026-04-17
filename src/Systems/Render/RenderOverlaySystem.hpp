@@ -7,8 +7,6 @@
 #include <Systems/Render/UiData.hpp>
 #include <Utils/Constants.hpp>
 
-#include <set>
-
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -57,8 +55,9 @@ public:
     std::ignore = warmup_15.getGlobalBounds(); // Force glyph generation
     SPDLOG_DEBUG( "RenderOverlaySystem initialized" );
 
-    m_ui_data = std::make_unique<Render::UiData>( "res/ui/ui.json" );
-    m_dbg_data = std::make_unique<Render::UiData>( "res/ui/dbg.json" );
+    m_main_ui_data = std::make_unique<Render::UiData>( "res/ui/ui.json" );
+    m_dbg_ui_data = std::make_unique<Render::UiData>( "res/ui/dbg.json" );
+    m_shop_ui_data = std::make_unique<Render::UiData>( "res/ui/shop.json" );
   };
 
   //! @brief event handlers for pausing system clocks
@@ -104,7 +103,7 @@ public:
   {
     if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
     {
-      auto pos_cmp = reg().try_get<Cmp::Position>( entity );
+      auto *pos_cmp = reg().try_get<Cmp::Position>( entity );
       auto requested_cmp = reg().try_get<Component>( entity );
       if ( pos_cmp && requested_cmp )
       {
@@ -195,19 +194,20 @@ private:
   // overlay text
   sf::Text m_distance_text{ m_font, "", 7 };
 
-  std::map<unsigned int, sf::Text> m_npc_list_text{};
+  std::map<unsigned int, sf::Text> m_npc_list_text;
 
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
 
-  sf::Time m_flash_wealth__ui_interval;
+  sf::Time m_flash_wealth_ui_interval;
   sf::Time m_flash_cadaver_ui_interval;
   sf::Time m_flash_inventory_ui_interval;
   sf::Time m_flash_radius_ui_interval;
 
   int m_ui_flash_factor{ 300 };
 
-  std::unique_ptr<Render::UiData> m_ui_data;
-  std::unique_ptr<Render::UiData> m_dbg_data;
+  std::unique_ptr<Render::UiData> m_main_ui_data;
+  std::unique_ptr<Render::UiData> m_dbg_ui_data;
+  std::unique_ptr<Render::UiData> m_shop_ui_data;
 };
 
 } // namespace ProceduralMaze::Sys

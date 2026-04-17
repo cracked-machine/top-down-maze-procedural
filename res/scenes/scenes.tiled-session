@@ -35,11 +35,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 0.5,
+            "scale": 0.33,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 957,
-                "y": 585
+                "x": 843.9393939393941,
+                "y": 489.39393939393926
             }
         },
         "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json": {
