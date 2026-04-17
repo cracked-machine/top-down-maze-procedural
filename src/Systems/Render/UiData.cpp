@@ -122,10 +122,10 @@ void UiData::deserialize( const std::filesystem::path &scene_tiledata_path )
         SPDLOG_INFO( "Found ui_outline: {}", get_string( object, "name" ) );
         m_outlines.emplace_back( get_float_rect( object ), get_string( object, "name" ) );
       }
-      if ( get_string( object, "type" ) == "ui_value" )
+      if ( get_string( object, "type" ) == "ui_label" )
       {
-        SPDLOG_INFO( "Found ui_value: {}", get_string( object, "name" ) );
-        m_values.emplace_back( get_float_rect( object ), get_string( object, "name" ), get_int_property( object, "font_size" ) );
+        SPDLOG_INFO( "Found ui_label: {}", get_string( object, "name" ) );
+        m_labels.emplace_back( get_float_rect( object ), get_string( object, "name" ), get_int_property( object, "font_size" ) );
       }
       if ( get_string( object, "type" ) == "ui_meter" )
       {

@@ -26,7 +26,7 @@ public:
     int scale;
   };
 
-  struct Value
+  struct Label
   {
     sf::FloatRect rect;
     std::string name;
@@ -53,7 +53,7 @@ public:
   sf::FloatRect get_float_rect( const nlohmann::json &json_object );
 
   std::vector<Outline> m_outlines;
-  std::vector<Value> m_values;
+  std::vector<Label> m_labels;
   std::vector<Meter> m_meters;
   std::vector<Icon> m_icons;
 };

@@ -150,7 +150,7 @@
                 {
                  "height":0,
                  "id":12,
-                 "name":"radius_value",
+                 "name":"radius_label",
                  "opacity":1,
                  "point":true,
                  "properties":[
@@ -160,7 +160,7 @@
                          "value":30
                         }],
                  "rotation":0,
-                 "type":"ui_value",
+                 "type":"ui_label",
                  "visible":true,
                  "width":0,
                  "x":120,
@@ -169,7 +169,7 @@
                 {
                  "height":0,
                  "id":13,
-                 "name":"cadaver_value",
+                 "name":"cadaver_label",
                  "opacity":1,
                  "point":true,
                  "properties":[
@@ -179,7 +179,7 @@
                          "value":30
                         }],
                  "rotation":0,
-                 "type":"ui_value",
+                 "type":"ui_label",
                  "visible":true,
                  "width":0,
                  "x":120,
@@ -188,7 +188,7 @@
                 {
                  "height":0,
                  "id":14,
-                 "name":"wealth_value",
+                 "name":"wealth_label",
                  "opacity":1,
                  "point":true,
                  "properties":[
@@ -198,7 +198,7 @@
                          "value":30
                         }],
                  "rotation":0,
-                 "type":"ui_value",
+                 "type":"ui_label",
                  "visible":true,
                  "width":0,
                  "x":120,
@@ -242,11 +242,11 @@
                  "type":"ui_icon",
                  "visible":true,
                  "width":0,
-                 "x":50,
-                 "y":260
+                 "x":80,
+                 "y":270
                 }, 
                 {
-                 "height":20,
+                 "height":10,
                  "id":18,
                  "name":"inventory_meter",
                  "opacity":1,
@@ -255,22 +255,22 @@
                  "visible":true,
                  "width":130,
                  "x":50,
-                 "y":370
+                 "y":380
                 }, 
                 {
                  "height":0,
                  "id":19,
-                 "name":"inventory_value",
+                 "name":"inventory_label",
                  "opacity":1,
                  "point":true,
                  "properties":[
                         {
                          "name":"font_size",
                          "type":"int",
-                         "value":15
+                         "value":20
                         }],
                  "rotation":0,
-                 "type":"ui_value",
+                 "type":"ui_label",
                  "visible":true,
                  "width":0,
                  "x":40,

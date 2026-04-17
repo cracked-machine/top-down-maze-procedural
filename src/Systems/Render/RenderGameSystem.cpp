@@ -326,7 +326,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
     render_overlay_sys.render_ui_icons();
     render_overlay_sys.render_ui_inventory_icon();
     render_overlay_sys.render_ui_meters();
-    render_overlay_sys.render_ui_values( dt );
+    render_overlay_sys.render_ui_labels( dt );
 
     // auto player_health = Utils::Player::get_health( reg() );
     // render_overlay_sys.render_health_overlay( player_health.health, { 40.f, start_y_pos += 20.f }, { 200.f, 20.f } );

@@ -112,17 +112,22 @@ void RenderOverlaySystem::render_ui_meters()
   {
     float meter_value = 0;
     sf::Color meter_inner_color;
+    bool should_render = false;
 
     if ( meter.name == "health_meter" )
     {
       meter_value = static_cast<float>( Utils::Player::get_health( reg() ).health );
       meter_inner_color = sf::Color::Red;
+      should_render = true;
     }
     else if ( meter.name == "inventory_meter" )
     {
       meter_value = Utils::Player::get_inventory_wear_level( reg() );
+      if ( meter_value >= 0 ) { should_render = true; }
       meter_inner_color = sf::Color::Red;
     }
+
+    if ( not should_render ) { continue; }
 
     auto innermeter = sf::RectangleShape( { ( ( meter.rect.size.x / 100 ) * meter_value ), meter.rect.size.y } );
     innermeter.setPosition( meter.rect.position );
@@ -138,35 +143,35 @@ void RenderOverlaySystem::render_ui_meters()
   }
 }
 
-void RenderOverlaySystem::render_ui_values( [[maybe_unused]] sf::Time dt )
+void RenderOverlaySystem::render_ui_labels( [[maybe_unused]] sf::Time dt )
 {
   if ( not m_ui_data )
   {
     SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw value overlay" );
     return;
   }
-  for ( const auto &ui_value : m_ui_data->m_values )
+  for ( const auto &ui_label : m_ui_data->m_labels )
   {
     std::string text_str;
-    if ( ui_value.name == "radius_value" ) { text_str = " =   " + std::to_string( Utils::Player::get_blast_radius( reg() ).value ); }
-    else if ( ui_value.name == "cadaver_value" ) { text_str = " =   " + std::to_string( Utils::Player::get_cadaver_count( reg() ).get_count() ); }
-    else if ( ui_value.name == "wealth_value" ) { text_str = " =   " + std::to_string( Utils::Player::get_wealth( reg() ).wealth ); }
-    else if ( ui_value.name == "inventory_value" )
+    if ( ui_label.name == "radius_label" ) { text_str = " =   " + std::to_string( Utils::Player::get_blast_radius( reg() ).value ); }
+    else if ( ui_label.name == "cadaver_label" ) { text_str = " =   " + std::to_string( Utils::Player::get_cadaver_count( reg() ).get_count() ); }
+    else if ( ui_label.name == "wealth_label" ) { text_str = " =   " + std::to_string( Utils::Player::get_wealth( reg() ).wealth ); }
+    else if ( ui_label.name == "inventory_label" )
     {
       auto [entt, type] = Utils::Player::get_inventory_type( reg() );
       text_str = type;
     }
 
-    sf::Text text( m_font, "", ui_value.font_size );
+    sf::Text text( m_font, "", ui_label.font_size );
     text.setString( text_str );
-    text.setPosition( ui_value.rect.position );
+    text.setPosition( ui_label.rect.position );
     text.setFillColor( sf::Color::White );
     text.setOutlineColor( sf::Color::Black );
     text.setOutlineThickness( 2.f );
 
     // flash the text if we just increased the bomb blast radius
     auto radius_flash_view = reg().view<Cmp::FlashUIRadius>();
-    if ( ui_value.name == "radius_value" and not radius_flash_view.empty() )
+    if ( ui_label.name == "radius_label" and not radius_flash_view.empty() )
     {
       auto flash_entt = radius_flash_view.front();
       auto &flash_cmp = radius_flash_view.get<Cmp::FlashUIRadius>( flash_entt );
@@ -185,7 +190,7 @@ void RenderOverlaySystem::render_ui_values( [[maybe_unused]] sf::Time dt )
 
     // flash the text if we just picked up a cadaver
     auto cadaver_flash_view = reg().view<Cmp::FlashUICadaver>();
-    if ( ui_value.name == "cadaver_value" and not cadaver_flash_view.empty() )
+    if ( ui_label.name == "cadaver_label" and not cadaver_flash_view.empty() )
     {
       auto flash_entt = cadaver_flash_view.front();
       auto &flash_cmp = cadaver_flash_view.get<Cmp::FlashUICadaver>( flash_entt );
@@ -204,7 +209,7 @@ void RenderOverlaySystem::render_ui_values( [[maybe_unused]] sf::Time dt )
 
     // flash the text if we just deposited something in a well
     auto wealth_flash_view = reg().view<Cmp::FlashUIWealth>();
-    if ( ui_value.name == "wealth_value" and not wealth_flash_view.empty() )
+    if ( ui_label.name == "wealth_label" and not wealth_flash_view.empty() )
     {
       auto flash_entt = wealth_flash_view.front();
       auto &flash_cmp = wealth_flash_view.get<Cmp::FlashUIWealth>( flash_entt );
@@ -223,7 +228,7 @@ void RenderOverlaySystem::render_ui_values( [[maybe_unused]] sf::Time dt )
 
     // flash the text if we just picked up a Key
     auto inventory_flash_view = reg().view<Cmp::FlashUIInventory>();
-    if ( ui_value.name == "inventory_value" and not inventory_flash_view.empty() )
+    if ( ui_label.name == "inventory_label" and not inventory_flash_view.empty() )
     {
       auto flash_entt = inventory_flash_view.front();
       auto &flash_cmp = inventory_flash_view.get<Cmp::FlashUIInventory>( flash_entt );
