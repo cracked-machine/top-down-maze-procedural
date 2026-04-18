@@ -46,9 +46,8 @@ private:
   Audio::SoundBank &m_sound_bank;
   Sys::Store &m_sys;
   Sprites::SpriteFactory &m_sprite_factory;
-  Sprites::Containers::TileMap m_floormap{};
+  Sprites::Containers::TileMap m_floormap;
 
-  Cmp::ShopInventory::Config m_inventory_config;
   bool m_overlay_open{ false };
 };
 

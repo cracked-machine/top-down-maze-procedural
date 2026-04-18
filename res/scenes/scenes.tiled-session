@@ -42,15 +42,26 @@
                 "y": 489.39393939393926
             }
         },
+        "X:/cpp/games/top-down-maze-procedural/res/ui/shop.json": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 1028.25,
+                "y": 146.25
+            }
+        },
         "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json": {
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 0.5,
+            "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 945,
-                "y": 353
+                "x": 255.75,
+                "y": 188.75
             }
         },
         "crypt.json": {
@@ -219,6 +230,7 @@
     "project": "scenes.tiled-project",
     "property.type": "int",
     "recentFiles": [
+        "X:/cpp/games/top-down-maze-procedural/res/ui/shop.json",
         "ruinlower.json",
         "ruinupper.json",
         "graveyard.json",
@@ -229,8 +241,7 @@
         "shop.json",
         "well.json",
         "Tilesets/main.json",
-        "ruinupperjson.json",
-        "Tilesets/wall.json"
+        "ruinupperjson.json"
     ],
     "tileset.embedInMap": true,
     "tileset.lastUsedFilter": "JSON tileset files (*.tsj *.json)",

@@ -38,10 +38,11 @@ void ShopScene::on_init()
 
   m_scene_map_data = std::make_shared<SceneData>( "res/scenes/shop.json" );
 
-  m_inventory_config = m_sys.find<Sys::Store::Type::ShopSystem>().load_config( "res/json/shop_overlay_config.json" );
+  auto &shop_sys = m_sys.find<Sys::Store::Type::ShopSystem>();
+  shop_sys.load_config( "res/json/shop_overlay_config.json" );
   auto shop_inventory_entt = m_reg.create();
-  m_reg.emplace_or_replace<Cmp::ShopInventory>( shop_inventory_entt, m_inventory_config );
-  m_sys.find<Sys::Store::Type::ShopSystem>().create_inventory( shop_inventory_entt );
+  m_reg.emplace_or_replace<Cmp::ShopInventory>( shop_inventory_entt, shop_sys.get_inventory_config() );
+  shop_sys.create_inventory( shop_inventory_entt );
 
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );

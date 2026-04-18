@@ -109,7 +109,7 @@ struct adl_serializer<ProceduralMaze::Cmp::ShopInventory::Config>
 namespace ProceduralMaze::Sys
 {
 
-Cmp::ShopInventory::Config ShopSystem::load_config( const std::filesystem::path &config_path )
+void ShopSystem::load_config( const std::filesystem::path &config_path )
 {
   if ( not std::filesystem::exists( config_path ) )
   {
@@ -124,36 +124,33 @@ Cmp::ShopInventory::Config ShopSystem::load_config( const std::filesystem::path 
     throw std::runtime_error( "Cannot open config file: " + config_path.string() );
   }
 
-  Cmp::ShopInventory::Config config;
-
   //! @brief Attempt deserialise using the Argument-dependent lookup (ADL) serializer above
   try
   {
     nlohmann::json j;
     file >> j;
-    config = j.get<Cmp::ShopInventory::Config>();
+    m_shop_inventory_config = j.get<Cmp::ShopInventory::Config>();
   } catch ( const ::nlohmann::json::parse_error &e )
   {
     SPDLOG_ERROR( "JSON parse error in {}: {}", config_path.string(), e.what() );
     throw std::runtime_error( "Invalid JSON in config file" );
   }
-  return config;
 }
 
 void ShopSystem::add_inventory_item( Cmp::ShopInventory &shop_inventory_cmp )
 {
   auto carryitem_types = m_sprite_factory.get_all_sprite_types_by_pattern( "CARRYITEM" );
-  Cmp::RandomInt item_picker( 0, carryitem_types.size() - 1 );
+  Cmp::RandomInt item_picker( 0, static_cast<int>( carryitem_types.size() ) - 1 );
   Cmp::RandomInt price_picker( shop_inventory_cmp.m_config.min_price, shop_inventory_cmp.m_config.max_price );
   auto item = item_picker.gen();
   auto price = price_picker.gen();
   SPDLOG_INFO( "Adding shop item - {} - for {}", carryitem_types.at( item ), price );
-  shop_inventory_cmp.m_slots.push_back( { carryitem_types.at( item ), price } );
+  shop_inventory_cmp.m_slots.emplace_back( carryitem_types.at( item ), price );
 }
 
 void ShopSystem::create_inventory( entt::entity inventory_entt )
 {
-  auto inventory_cmp = reg().try_get<Cmp::ShopInventory>( inventory_entt );
+  auto *inventory_cmp = reg().try_get<Cmp::ShopInventory>( inventory_entt );
   if ( not inventory_cmp ) return;
 
   for ( auto _ : std::views::iota( 0, inventory_cmp->m_config.max_items ) )

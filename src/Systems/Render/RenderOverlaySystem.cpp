@@ -42,6 +42,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #include <iomanip>
+#include <ranges>
 #include <sstream>
 #include <string>
 
@@ -258,81 +259,93 @@ void RenderOverlaySystem::render_level_depth()
 
   auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
   sf::Text level_txt( m_font, "Nekropolis " + std::to_string( player_level_cmp.get_count() ), 100 );
-  level_txt.setPosition( { ( display_res.x / 2.f ) - level_txt.getLocalBounds().getCenter().x, display_res.y / 2.f } );
+  level_txt.setPosition( sf::Vector2f( ( static_cast<float>( display_res.x ) / 2.f ) - level_txt.getLocalBounds().getCenter().x,
+                                       static_cast<float>( display_res.y ) / 2.f ) );
   level_txt.setFillColor( sf::Color::Blue );
   draw_screen( level_txt );
 }
 
 void RenderOverlaySystem::render_shop_inventory_overlay()
 {
-  auto inventory_view = reg().view<Cmp::ShopInventory>().each();
-  for ( auto [inventory_entt, inventory_cmp] : inventory_view )
+
+  // only draw the shop if its enabled
+  auto inventory_view = reg().view<Cmp::ShopInventory>();
+  if ( inventory_view.empty() ) { return; }
+  auto &inventory_cmp = inventory_view.get<Cmp::ShopInventory>( inventory_view.front() );
+  if ( not inventory_cmp.is_enabled ) return;
+
+  if ( not m_shop_ui_data )
   {
-    if ( not inventory_cmp.is_enabled ) continue;
+    SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw value overlay" );
+    return;
+  }
 
-    auto [_, inventory_ui_pos] = inventory_cmp.m_config.get_position();
-    auto [_, inventory_ui_size] = inventory_cmp.m_config.get_size();
+  // Draw all UI outlines
+  for ( const auto &outline : m_shop_ui_data->m_outlines )
+  {
+    auto rect = sf::RectangleShape( outline.rect.size );
+    rect.setPosition( outline.rect.position );
+    rect.setFillColor( sf::Color( 48, 48, 64, 128 ) );
+    rect.setOutlineColor( sf::Color::Black );
+    rect.setOutlineThickness( 5.f );
+    draw_screen( rect );
+  }
 
-    // Convert world-space size to screen-space size
-    // (size is relative so we compute it as a delta from origin)
-    sf::Vector2f screen_origin = world_to_screen( inventory_ui_pos );
-    sf::Vector2f screen_corner = world_to_screen( inventory_ui_pos + inventory_ui_size );
-    sf::Vector2f screen_size = screen_corner - screen_origin;
+  // Draw all UI Icons
+  for ( auto [icon, slot] : std::views::zip( m_shop_ui_data->m_icons, inventory_cmp.m_slots ) )
+  {
+    auto &[sprite_type, price] = slot;
+    RenderSystem::safe_render_sprite_screen( sprite_type, { icon.rect.position, Constants::kGridSizePxF }, 0,
+                                             sf::Vector2f{ static_cast<float>( icon.scale ), static_cast<float>( icon.scale ) } );
+  }
 
-    // m_window.setView( get_screen_view() );
+  //! @brief Helper to draw predefined `sf_text` at `pos`
+  auto draw_label_text_at = [&]( sf::Text &sf_text, const sf::Vector2f &pos, bool centered = false )
+  {
+    if ( centered ) { sf_text.setPosition( { pos.x - sf_text.getLocalBounds().getCenter().x, pos.y } ); }
+    else { sf_text.setPosition( pos ); }
+    draw_screen( sf_text );
+  };
 
-    sf::RectangleShape border;
-    border.setSize( screen_size );
-    border.setPosition( screen_origin );
-    border.setFillColor( inventory_cmp.m_config.ui_mainbgcolor );
-    border.setOutlineColor( inventory_cmp.m_config.ui_mainlinecolor );
-    border.setOutlineThickness( inventory_cmp.m_config.ui_mainlinesize );
-    draw_screen( border );
+  // Draw all text labels (index, description, price)
+  for ( auto [i, slot] : std::views::enumerate( inventory_cmp.m_slots ) )
+  {
+    auto &[item, price] = slot;
 
-    auto current_slot_pos = inventory_ui_pos;
-    current_slot_pos.y += Constants::kGridSizePxF.y;
+    sf::Text slot_idx_txt( m_font, std::to_string( i + 1 ), inventory_cmp.m_config.ui_fontsize );
+    slot_idx_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
 
-    for ( auto [i, slot] : std::views::enumerate( inventory_cmp.m_slots ) )
+    sf::Text slot_desc_txt( m_font, m_sprite_factory.get_display_name_by_type( item ), inventory_cmp.m_config.ui_fontsize );
+    slot_desc_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
+
+    sf::Text slot_price_txt( m_font, std::to_string( price ), inventory_cmp.m_config.ui_fontsize );
+    slot_price_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
+
+    for ( const auto &ui_label : m_shop_ui_data->m_labels )
     {
-      auto &[item, price] = slot;
+      switch ( i )
+      {
+        case 0:
+          if ( ui_label.name.contains( "slot1_idx" ) ) { draw_label_text_at( slot_idx_txt, ui_label.rect.position ); }
+          if ( ui_label.name.contains( "slot1_desc" ) ) { draw_label_text_at( slot_desc_txt, ui_label.rect.position, true ); }
+          if ( ui_label.name.contains( "slot1_price" ) ) { draw_label_text_at( slot_price_txt, ui_label.rect.position, true ); }
 
-      current_slot_pos.x += inventory_cmp.m_config.slot_padding;
+          break;
+        case 1:
+          if ( ui_label.name.contains( "slot2_idx" ) ) { draw_label_text_at( slot_idx_txt, ui_label.rect.position ); }
+          if ( ui_label.name.contains( "slot2_desc" ) ) { draw_label_text_at( slot_desc_txt, ui_label.rect.position, true ); }
+          if ( ui_label.name.contains( "slot2_price" ) ) { draw_label_text_at( slot_price_txt, ui_label.rect.position, true ); }
+          break;
 
-      sf::Vector2f screen_slot_pos = world_to_screen( current_slot_pos );
-      sf::Vector2f screen_slot_corner = world_to_screen( current_slot_pos + Constants::kGridSizePxF );
-      sf::Vector2f screen_slot_size = screen_slot_corner - screen_slot_pos;
-      float slot_center_x = screen_slot_pos.x + ( screen_slot_size.x / 2.f );
+        case 2:
+          if ( ui_label.name.contains( "slot3_idx" ) ) { draw_label_text_at( slot_idx_txt, ui_label.rect.position ); }
+          if ( ui_label.name.contains( "slot3_desc" ) ) { draw_label_text_at( slot_desc_txt, ui_label.rect.position, true ); }
+          if ( ui_label.name.contains( "slot3_price" ) ) { draw_label_text_at( slot_price_txt, ui_label.rect.position, true ); }
+          break;
 
-      sf::Text slot_idx_txt( m_font, std::to_string( i + 1 ), inventory_cmp.m_config.ui_fontsize + 10 );
-      slot_idx_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
-      float idx_txt_x = slot_center_x - ( slot_idx_txt.getLocalBounds().size.x / 2.f );
-      if ( i == 0 ) idx_txt_x -= slot_idx_txt.getLocalBounds().position.x; // Correct offset for narrow glyphs like '1'
-      slot_idx_txt.setPosition( { idx_txt_x, static_cast<float>( screen_slot_pos.y - slot_idx_txt.getCharacterSize() * 1.5 ) } );
-      draw_screen( slot_idx_txt );
-
-      sf::RectangleShape slot_rect;
-      slot_rect.setSize( screen_slot_size );
-      slot_rect.setPosition( screen_slot_pos );
-      slot_rect.setFillColor( inventory_cmp.m_config.ui_slotbgcolor );
-      slot_rect.setOutlineColor( inventory_cmp.m_config.ui_slotlinecolor );
-      slot_rect.setOutlineThickness( inventory_cmp.m_config.ui_slotlinesize );
-      draw_screen( slot_rect );
-
-      sf::Text slot_desc_txt( m_font, m_sprite_factory.get_display_name_by_type( item ), inventory_cmp.m_config.ui_fontsize );
-      slot_desc_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
-      float desc_txt_x = slot_center_x - ( slot_desc_txt.getLocalBounds().size.x / 2.f );
-      slot_desc_txt.setPosition( { desc_txt_x, screen_slot_pos.y + screen_slot_size.y } );
-      draw_screen( slot_desc_txt );
-
-      sf::Text slot_price_txt( m_font, std::to_string( price ), inventory_cmp.m_config.ui_fontsize );
-      slot_price_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
-      float price_txt_x = slot_center_x - ( slot_price_txt.getLocalBounds().size.x / 2.f );
-      slot_price_txt.setPosition( { price_txt_x, screen_slot_pos.y + screen_slot_size.y + slot_price_txt.getCharacterSize() * 2 } );
-      draw_screen( slot_price_txt );
-
-      // Sprites need world-space view
-      RenderSystem::safe_render_sprite_world( item, { current_slot_pos, Constants::kGridSizePxF }, 0, sf::Vector2f{ 1, 1 } );
-      current_slot_pos.x += Constants::kGridSizePxF.x;
+        default:
+          break;
+      }
     }
   }
 }

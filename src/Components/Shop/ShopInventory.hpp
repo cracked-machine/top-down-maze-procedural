@@ -30,7 +30,7 @@ public:
     //! @brief Calculated from ui_size and max_items
     float slot_padding;
 
-    std::pair<sf::Vector2i, sf::Vector2f> get_position() const
+    [[nodiscard]] std::pair<sf::Vector2i, sf::Vector2f> get_position() const
     {
       // clang-format off
       return { 
@@ -40,7 +40,7 @@ public:
       };
       // clang-format on
     }
-    std::pair<sf::Vector2i, sf::Vector2f> get_size() const
+    [[nodiscard]] std::pair<sf::Vector2i, sf::Vector2f> get_size() const
     {
       // clang-format off
       return { 
@@ -57,12 +57,12 @@ public:
   {
     // given N slots and X width, pre-compute the max padding allow between slots (+1 for begin and end).
     auto [_, ui_size_px] = m_config.get_size();
-    float slot_width_sum = Constants::kGridSizePxF.x * m_config.max_items;
+    float slot_width_sum = Constants::kGridSizePxF.x * static_cast<float>( m_config.max_items );
     float total_padding_remainder = ui_size_px.x - slot_width_sum;
-    m_config.slot_padding = total_padding_remainder / ( m_config.max_items + 1 );
+    m_config.slot_padding = total_padding_remainder / ( static_cast<float>( m_config.max_items ) + 1 );
   }
 
-  std::vector<std::pair<Sprites::SpriteMetaType, uint32_t>> m_slots;
+  std::vector<std::pair<Sprites::SpriteMetaType, int32_t>> m_slots;
 
   [[maybe_unused]] Config m_config;
 
