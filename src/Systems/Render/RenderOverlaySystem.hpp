@@ -126,17 +126,19 @@ public:
         rectangle.setFillColor( sf::Color::Transparent );
         rectangle.setOutlineColor( square_color );
         rectangle.setOutlineThickness( square_thickness );
-        m_window.draw( rectangle );
+        draw_world( rectangle );
       }
     }
   }
 
+  //! @brief
+  //! @tparam Component
+  //! @param text_color
+  //! @param precision
   template <typename Component>
   void render_zorder_value( sf::Color text_color = sf::Color::White, int precision = 1 )
   {
-    // Save the current view
     sf::View previous_view = m_window.getView();
-    // Set the game view for world-space rendering
     m_window.setView( RenderSystem::s_world_view );
 
     auto requested_view = reg().view<Component>();
@@ -157,7 +159,6 @@ public:
       }
     }
 
-    // Restore the previous view
     m_window.setView( previous_view );
   }
 

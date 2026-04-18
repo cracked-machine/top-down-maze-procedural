@@ -1,5 +1,6 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <Sprites/CircleSegment.hpp>
+#include <Systems/Render/RenderSystem.hpp>
 #include <algorithm>
 #include <cmath>
 #include <numbers>
@@ -60,7 +61,11 @@ void CircleSegment::draw( sf::RenderTarget &target, sf::RenderStates states, sf:
     {
       vertex_array.append( vertex );
     }
+
+    sf::View previous_view = target.getView();
+    target.setView( Sys::RenderSystem::get_world_view() );
     target.draw( vertex_array, states );
+    target.setView( previous_view );
   }
 }
 

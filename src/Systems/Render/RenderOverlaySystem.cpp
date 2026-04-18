@@ -33,6 +33,7 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
+#include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Optimizations.hpp>
 
 #include <SFML/Graphics/Color.hpp>
@@ -61,7 +62,7 @@ void RenderOverlaySystem::render_ui_outlines()
     rect.setFillColor( sf::Color( 48, 48, 64, 128 ) );
     rect.setOutlineColor( sf::Color::Black );
     rect.setOutlineThickness( 5.f );
-    m_window.draw( rect );
+    draw_screen( rect );
   }
 }
 
@@ -76,7 +77,8 @@ void RenderOverlaySystem::render_ui_icons()
   {
     // we handle the inventory icon seperately from the others
     if ( icon.name == "inventory_icon" ) continue;
-    RenderSystem::safe_render_sprite( icon.type, icon.rect, icon.index, { static_cast<float>( icon.scale ), static_cast<float>( icon.scale ) } );
+    RenderSystem::safe_render_sprite_screen( icon.type, icon.rect, icon.index,
+                                             { static_cast<float>( icon.scale ), static_cast<float>( icon.scale ) } );
   }
 }
 
@@ -95,8 +97,8 @@ void RenderOverlaySystem::render_ui_inventory_icon()
     auto inventory_view = reg().view<Cmp::PlayerInventorySlot, Cmp::SpriteAnimation>();
     for ( auto [inventory_entt, inventory_cmp, anim_cmp] : inventory_view.each() )
     {
-      RenderSystem::safe_render_sprite( anim_cmp.m_sprite_type, { icon.rect.position, Constants::kGridSizePxF }, 0,
-                                        { static_cast<float>( icon.scale ), static_cast<float>( icon.scale ) } );
+      RenderSystem::safe_render_sprite_screen( anim_cmp.m_sprite_type, { icon.rect.position, Constants::kGridSizePxF }, 0,
+                                               { static_cast<float>( icon.scale ), static_cast<float>( icon.scale ) } );
     }
   }
 }
@@ -132,14 +134,14 @@ void RenderOverlaySystem::render_ui_meters()
     auto innermeter = sf::RectangleShape( { ( ( meter.rect.size.x / 100 ) * meter_value ), meter.rect.size.y } );
     innermeter.setPosition( meter.rect.position );
     innermeter.setFillColor( meter_inner_color );
-    m_window.draw( innermeter );
+    draw_screen( innermeter );
 
     auto outermeter = sf::RectangleShape( meter.rect.size );
     outermeter.setPosition( meter.rect.position );
     outermeter.setFillColor( sf::Color::Transparent );
     outermeter.setOutlineColor( sf::Color::Black );
     outermeter.setOutlineThickness( 5.f );
-    m_window.draw( outermeter );
+    draw_screen( outermeter );
   }
 }
 
@@ -245,7 +247,7 @@ void RenderOverlaySystem::render_ui_labels( [[maybe_unused]] sf::Time dt )
       }
     }
 
-    m_window.draw( text );
+    draw_screen( text );
   }
 }
 
@@ -258,7 +260,7 @@ void RenderOverlaySystem::render_level_depth()
   sf::Text level_txt( m_font, "Nekropolis " + std::to_string( player_level_cmp.get_count() ), 100 );
   level_txt.setPosition( { ( display_res.x / 2.f ) - level_txt.getLocalBounds().getCenter().x, display_res.y / 2.f } );
   level_txt.setFillColor( sf::Color::Blue );
-  m_window.draw( level_txt );
+  draw_screen( level_txt );
 }
 
 void RenderOverlaySystem::render_shop_inventory_overlay()
@@ -268,21 +270,16 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
   {
     if ( not inventory_cmp.is_enabled ) continue;
 
-    auto game_view = m_window.getView();
-
     auto [_, inventory_ui_pos] = inventory_cmp.m_config.get_position();
     auto [_, inventory_ui_size] = inventory_cmp.m_config.get_size();
 
-    // Convert world-space positions to screen pixels
-    auto to_screen = [&]( sf::Vector2f world_pos ) -> sf::Vector2f { return sf::Vector2f( m_window.mapCoordsToPixel( world_pos, game_view ) ); };
-
     // Convert world-space size to screen-space size
     // (size is relative so we compute it as a delta from origin)
-    sf::Vector2f screen_origin = to_screen( inventory_ui_pos );
-    sf::Vector2f screen_corner = to_screen( inventory_ui_pos + inventory_ui_size );
+    sf::Vector2f screen_origin = world_to_screen( inventory_ui_pos );
+    sf::Vector2f screen_corner = world_to_screen( inventory_ui_pos + inventory_ui_size );
     sf::Vector2f screen_size = screen_corner - screen_origin;
 
-    m_window.setView( get_screen_view() );
+    // m_window.setView( get_screen_view() );
 
     sf::RectangleShape border;
     border.setSize( screen_size );
@@ -290,7 +287,7 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
     border.setFillColor( inventory_cmp.m_config.ui_mainbgcolor );
     border.setOutlineColor( inventory_cmp.m_config.ui_mainlinecolor );
     border.setOutlineThickness( inventory_cmp.m_config.ui_mainlinesize );
-    m_window.draw( border );
+    draw_screen( border );
 
     auto current_slot_pos = inventory_ui_pos;
     current_slot_pos.y += Constants::kGridSizePxF.y;
@@ -301,8 +298,8 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
 
       current_slot_pos.x += inventory_cmp.m_config.slot_padding;
 
-      sf::Vector2f screen_slot_pos = to_screen( current_slot_pos );
-      sf::Vector2f screen_slot_corner = to_screen( current_slot_pos + Constants::kGridSizePxF );
+      sf::Vector2f screen_slot_pos = world_to_screen( current_slot_pos );
+      sf::Vector2f screen_slot_corner = world_to_screen( current_slot_pos + Constants::kGridSizePxF );
       sf::Vector2f screen_slot_size = screen_slot_corner - screen_slot_pos;
       float slot_center_x = screen_slot_pos.x + ( screen_slot_size.x / 2.f );
 
@@ -311,7 +308,7 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
       float idx_txt_x = slot_center_x - ( slot_idx_txt.getLocalBounds().size.x / 2.f );
       if ( i == 0 ) idx_txt_x -= slot_idx_txt.getLocalBounds().position.x; // Correct offset for narrow glyphs like '1'
       slot_idx_txt.setPosition( { idx_txt_x, static_cast<float>( screen_slot_pos.y - slot_idx_txt.getCharacterSize() * 1.5 ) } );
-      m_window.draw( slot_idx_txt );
+      draw_screen( slot_idx_txt );
 
       sf::RectangleShape slot_rect;
       slot_rect.setSize( screen_slot_size );
@@ -319,29 +316,24 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
       slot_rect.setFillColor( inventory_cmp.m_config.ui_slotbgcolor );
       slot_rect.setOutlineColor( inventory_cmp.m_config.ui_slotlinecolor );
       slot_rect.setOutlineThickness( inventory_cmp.m_config.ui_slotlinesize );
-      m_window.draw( slot_rect );
+      draw_screen( slot_rect );
 
       sf::Text slot_desc_txt( m_font, m_sprite_factory.get_display_name_by_type( item ), inventory_cmp.m_config.ui_fontsize );
       slot_desc_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
       float desc_txt_x = slot_center_x - ( slot_desc_txt.getLocalBounds().size.x / 2.f );
       slot_desc_txt.setPosition( { desc_txt_x, screen_slot_pos.y + screen_slot_size.y } );
-      m_window.draw( slot_desc_txt );
+      draw_screen( slot_desc_txt );
 
       sf::Text slot_price_txt( m_font, std::to_string( price ), inventory_cmp.m_config.ui_fontsize );
       slot_price_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
       float price_txt_x = slot_center_x - ( slot_price_txt.getLocalBounds().size.x / 2.f );
       slot_price_txt.setPosition( { price_txt_x, screen_slot_pos.y + screen_slot_size.y + slot_price_txt.getCharacterSize() * 2 } );
-      m_window.draw( slot_price_txt );
+      draw_screen( slot_price_txt );
 
       // Sprites need world-space view
-      m_window.setView( game_view );
-      RenderSystem::safe_render_sprite( item, { current_slot_pos, Constants::kGridSizePxF }, 0, sf::Vector2f{ 1, 1 } );
-      m_window.setView( get_screen_view() );
-
+      RenderSystem::safe_render_sprite_world( item, { current_slot_pos, Constants::kGridSizePxF }, 0, sf::Vector2f{ 1, 1 } );
       current_slot_pos.x += Constants::kGridSizePxF.x;
     }
-
-    m_window.setView( game_view );
   }
 }
 
@@ -364,7 +356,7 @@ void RenderOverlaySystem::render_ui_player_position()
     text.setFillColor( sf::Color::White );
     text.setOutlineColor( sf::Color::Black );
     text.setOutlineThickness( 2.f );
-    m_window.draw( text );
+    draw_screen( text );
   }
 }
 
@@ -392,7 +384,7 @@ void RenderOverlaySystem::render_ui_mouse_position()
     text.setFillColor( sf::Color::White );
     text.setOutlineColor( sf::Color::Black );
     text.setOutlineThickness( 2.f );
-    m_window.draw( text );
+    draw_screen( text );
   }
 }
 
@@ -436,13 +428,13 @@ void RenderOverlaySystem::render_ui_stats()
     text1.setFillColor( sf::Color::White );
     text1.setOutlineColor( sf::Color::Black );
     text1.setOutlineThickness( 2.f );
-    m_window.draw( text1 );
+    draw_screen( text1 );
 
     text2.setPosition( { ui_label.rect.position.x, ui_label.rect.position.y + 40 } );
     text2.setFillColor( sf::Color::White );
     text2.setOutlineColor( sf::Color::Black );
     text2.setOutlineThickness( 2.f );
-    m_window.draw( text2 );
+    draw_screen( text2 );
   }
 }
 
@@ -481,7 +473,7 @@ void RenderOverlaySystem::render_ui_zorder_list( std::vector<ZOrder> &zorder_que
         m_z_text.setPosition( { ui_label.rect.position.x, ui_label.rect.position.y + count } );
         m_z_text.setOutlineColor( sf::Color::Black );
         m_z_text.setOutlineThickness( 0.5f );
-        m_window.draw( m_z_text );
+        draw_screen( m_z_text );
         count += ui_label.font_size; // Move down for the next entry
       }
     }
@@ -535,7 +527,7 @@ void RenderOverlaySystem::render_ui_npc_list()
     for ( auto &[key, npc_text] : m_npc_list_text )
     {
       npc_text.setPosition( ui_label.rect.position + sf::Vector2f{ 0, count * 20.f } );
-      m_window.draw( npc_text );
+      draw_screen( npc_text );
       ++count;
     }
   }
@@ -551,14 +543,14 @@ void RenderOverlaySystem::render_lerp_positions()
     lerp_start_pos_rect.setFillColor( sf::Color::Transparent );
     lerp_start_pos_rect.setOutlineColor( sf::Color::Yellow );
     lerp_start_pos_rect.setOutlineThickness( 1.f );
-    m_window.draw( lerp_start_pos_rect );
+    draw_world( lerp_start_pos_rect );
 
     sf::RectangleShape lerp_stop_pos_rect( Constants::kGridSizePxF );
     lerp_stop_pos_rect.setPosition( lerp_pos_cmp.m_target );
     lerp_stop_pos_rect.setFillColor( sf::Color::Transparent );
     lerp_stop_pos_rect.setOutlineColor( sf::Color::Cyan );
     lerp_stop_pos_rect.setOutlineThickness( 1.f );
-    m_window.draw( lerp_stop_pos_rect );
+    draw_world( lerp_stop_pos_rect );
   }
 }
 
@@ -579,7 +571,7 @@ void RenderOverlaySystem::render_spatial_grid_neighbours( const Cmp::Position &q
       rectangle.setFillColor( sf::Color::Transparent );
       rectangle.setOutlineThickness( 1.f );
       rectangle.setOutlineColor( color );
-      m_window.draw( rectangle );
+      draw_world( rectangle );
     }
   }
 }
@@ -602,7 +594,7 @@ void RenderOverlaySystem::render_pathfinding_vector( const Cmp::Position &start_
       rectangle.setFillColor( sf::Color::Transparent );
       rectangle.setOutlineColor( color );
       rectangle.setOutlineThickness( 1.f );
-      m_window.draw( rectangle );
+      draw_world( rectangle );
     }
   }
 }
@@ -623,7 +615,7 @@ void RenderOverlaySystem::render_crypt_maze_timer( sf::Vector2f pos, unsigned in
       clock_text.setFillColor( sf::Color::Red );
       clock_text.setOutlineColor( sf::Color::Black );
       clock_text.setOutlineThickness( 2.f );
-      m_window.draw( clock_text );
+      draw_screen( clock_text );
     }
   }
 }
@@ -643,7 +635,7 @@ void RenderOverlaySystem::render_wear_level( float wearlevel, const Cmp::Positio
 
   icon.setPosition( { pos.position.x + ( padding ), pos.position.y + Constants::kGridSizePxF.y - icon_height - ( padding ) } );
 
-  m_window.draw( icon );
+  draw_world( icon );
 }
 
 } // namespace ProceduralMaze::Sys

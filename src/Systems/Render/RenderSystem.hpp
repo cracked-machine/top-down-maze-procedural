@@ -64,6 +64,19 @@ protected:
     CENTER
   };
 
+  //! @brief Convert the world position to the equivalent position in the screen view
+  //! @param world_pos
+  //! @return sf::Vector2f
+  sf::Vector2f world_to_screen( sf::Vector2f world_pos ) const { return sf::Vector2f( m_window.mapCoordsToPixel( world_pos, get_world_view() ) ); }
+
+  //! @brief Draw in screen view coordinates. This restores the view afterwards.
+  //! @param drawable
+  void draw_screen( const sf::Drawable &drawable );
+
+  //! @brief Draw in world view coordinates. This restores the view afterwards.
+  //! @param drawable
+  void draw_world( const sf::Drawable &drawable );
+
   //! @brief Current view of the game world.
   static sf::View s_world_view;
 
@@ -104,12 +117,16 @@ protected:
   void render_fallback_square_to_target( sf::RenderTarget &target, const sf::FloatRect &pos_cmp, const sf::Color &color = sf::Color::Magenta );
 
   // Safe sprite accessor that renders a fallback square if sprite is missing
-  void safe_render_sprite( const std::string &sprite_type, const sf::FloatRect &position, std::size_t sprite_index = 0,
-                           sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255, sf::Vector2f origin = { 0.f, 0.f },
-                           sf::Angle angle = sf::degrees( 0.f ) );
+  void safe_render_sprite_screen( const std::string &sprite_type, const sf::FloatRect &position, std::size_t sprite_index = 0,
+                                  sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255, sf::Vector2f origin = { 0.f, 0.f },
+                                  sf::Angle angle = sf::degrees( 0.f ) );
+
+  void safe_render_sprite_world( const std::string &sprite_type, const sf::FloatRect &position, std::size_t sprite_index = 0,
+                                 sf::Vector2f scale = { 1.f, 1.f }, uint8_t alpha = 255, sf::Vector2f origin = { 0.f, 0.f },
+                                 sf::Angle angle = sf::degrees( 0.f ) );
 
   // Fallback rendering for missing sprites
-  void render_fallback_square( const sf::FloatRect &pos_cmp, const sf::Color &color = sf::Color::Magenta );
+  void render_fallback_square_world( const sf::FloatRect &pos_cmp, const sf::Color &color = sf::Color::Magenta );
 
   void render_rectbounds( Cmp::RectBounds &bounds, sf::Color color );
 

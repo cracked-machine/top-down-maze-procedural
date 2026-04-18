@@ -56,8 +56,8 @@ public:
   //! info, etc..
   //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc..
   //! as well as death animations/effects
-  void render_game( sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap,
-                    DarkMode dark_mode = DarkMode::OFF, WeatherMode weather_mode = WeatherMode::ON, CursedMode cursed_mode = CursedMode::OFF,
+  void render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap, DarkMode dark_mode = DarkMode::OFF,
+                    WeatherMode weather_mode = WeatherMode::ON, CursedMode cursed_mode = CursedMode::OFF,
                     BackGroundMode bg_mode = BackGroundMode::ON );
 
   //! @brief Refreshes the Z-order rendering queue

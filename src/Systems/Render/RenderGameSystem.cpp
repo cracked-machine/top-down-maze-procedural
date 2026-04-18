@@ -80,10 +80,8 @@ RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &windo
   SPDLOG_DEBUG( "RenderGameSystem initialized" );
 }
 
-void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlaySystem &render_overlay_sys,
-                                    [[maybe_unused]] Sprites::Containers::TileMap &floormap, [[maybe_unused]] DarkMode dark_mode,
-                                    [[maybe_unused]] WeatherMode weather_mode, [[maybe_unused]] CursedMode cursed_mode,
-                                    [[maybe_unused]] BackGroundMode bg_mode )
+void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap, DarkMode dark_mode,
+                                    WeatherMode weather_mode, CursedMode cursed_mode, BackGroundMode bg_mode )
 {
   using namespace Sprites;
 
@@ -111,97 +109,88 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
   // main render begin
   m_window.clear();
 
-  // local view begin - this shows a smaller resolution view of the game world - determined by `LOCAL_MAP_VIEW_SIZE`
-  m_window.setView( s_world_view );
+  // render these things first
+  if ( bg_mode == BackGroundMode::ON ) { render_background_water( player_pos_cmp ); }
+
+  render_floormap( floormap );
+  render_seeingstone_doglegs();
+  render_wormhole_effect( floormap );
+
+  // render anything with a ZOrderValue component in lowest value first order
+  for ( const auto &zorder_entry : m_zorder_queue_ )
   {
-    // update the static game view reference
-    // RenderSystem::s_world_view = s_world_view;
-
-    // render these things first
-    if ( bg_mode == BackGroundMode::ON ) { render_background_water( player_pos_cmp ); }
-    render_floormap( floormap );
-
-    render_seeingstone_doglegs();
-    render_wormhole_effect( floormap );
-
-    // render anything with a ZOrderValue component in lowest value first order
-    for ( const auto &zorder_entry : m_zorder_queue_ )
+    auto entity = zorder_entry.e;
+    if ( reg().all_of<Cmp::Position, Cmp::SpriteAnimation>( entity ) )
     {
-      auto entity = zorder_entry.e;
-      if ( reg().all_of<Cmp::Position, Cmp::SpriteAnimation>( entity ) )
+      const auto &pos_cmp = reg().get<Cmp::Position>( entity );
+      const auto &anim_cmp = reg().get<Cmp::SpriteAnimation>( entity );
+
+      uint8_t alpha_value = 255;
+      auto *obst_cmp = reg().try_get<Cmp::AbsoluteAlpha>( entity );
+      if ( obst_cmp ) alpha_value = obst_cmp->getAlpha();
+
+      sf::Vector2f new_origin_value = { 0.F, 0.F };
+      auto *new_offset_cmp = reg().try_get<Cmp::AbsoluteOffset>( entity );
+      if ( new_offset_cmp ) new_origin_value = new_offset_cmp->getOffset();
+
+      sf::Angle new_angle_value = sf::degrees( 0.f );
+      auto *new_angle_cmp = reg().try_get<Cmp::AbsoluteRotation>( entity );
+      if ( new_angle_cmp ) new_angle_value = sf::degrees( new_angle_cmp->getAngle() );
+
+      safe_render_sprite_world( anim_cmp.m_sprite_type, pos_cmp, anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame, { 1.f, 1.f }, alpha_value,
+                                new_origin_value, new_angle_value );
+
+      if ( reg().any_of<Cmp::InventoryWearLevel>( entity ) )
       {
-        const auto &pos_cmp = reg().get<Cmp::Position>( entity );
-        const auto &anim_cmp = reg().get<Cmp::SpriteAnimation>( entity );
-
-        uint8_t alpha_value = 255;
-        auto obst_cmp = reg().try_get<Cmp::AbsoluteAlpha>( entity );
-        if ( obst_cmp ) alpha_value = static_cast<uint8_t>( obst_cmp->getAlpha() );
-
-        sf::Vector2f new_origin_value = { 0.F, 0.F };
-        auto new_offset_cmp = reg().try_get<Cmp::AbsoluteOffset>( entity );
-        if ( new_offset_cmp ) new_origin_value = new_offset_cmp->getOffset();
-
-        sf::Angle new_angle_value = sf::degrees( 0.f );
-        auto new_angle_cmp = reg().try_get<Cmp::AbsoluteRotation>( entity );
-        if ( new_angle_cmp ) new_angle_value = sf::degrees( new_angle_cmp->getAngle() );
-
-        safe_render_sprite( anim_cmp.m_sprite_type, pos_cmp, anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame, { 1.f, 1.f }, alpha_value,
-                            new_origin_value, new_angle_value );
-
-        if ( reg().any_of<Cmp::InventoryWearLevel>( entity ) )
-        {
-          render_overlay_sys.render_wear_level( reg().get<Cmp::InventoryWearLevel>( entity ).m_level, pos_cmp );
-        }
+        render_overlay_sys.render_wear_level( reg().get<Cmp::InventoryWearLevel>( entity ).m_level, pos_cmp );
       }
     }
+  }
 
-    // finally render anything on top
-    render_armed();
-    render_shockwaves( floormap );
-    render_arrow_compass();
+  // finally render anything on top
+  render_armed();
+  render_shockwaves( floormap );
+  render_arrow_compass();
 
-    // lava pit outline
-    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 64, 64, 64 ), 0.5f );
+  // lava pit outline
+  render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 64, 64, 64 ), 0.5f );
 
-    // shader overlays
-    if ( weather_mode == WeatherMode::ON ) { render_mist( player_pos_cmp ); }
-    if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
-    if ( cursed_mode == CursedMode::ON ) { render_cursed_mode_shader( player_pos_cmp ); }
+  // shader overlays
+  if ( weather_mode == WeatherMode::ON ) { render_mist( player_pos_cmp ); }
+  if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
+  if ( cursed_mode == CursedMode::ON ) { render_cursed_mode_shader( player_pos_cmp ); }
 
-    render_lightning_strike();
+  render_lightning_strike();
+  render_particle_sprites();
+  render_overlay_sys.render_shop_inventory_overlay();
 
-    render_particle_sprites();
-
-    render_overlay_sys.render_shop_inventory_overlay();
-
-    // debug: show crypt component boundaries
-    if ( m_show_debug_stats )
+  // debug: show crypt component boundaries
+  if ( m_show_debug_stats )
+  {
+    if ( debug_tick )
     {
-      if ( debug_tick )
+      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
+      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
+      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
+      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
+      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
+      render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Black, 1.f );
+
+      if ( m_show_npcnopath )
       {
-        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
-        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
-        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
-        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
-        render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
-        render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Black, 1.f );
-
-        if ( m_show_npcnopath )
+        for ( auto [entt, npcnopath_cmp, pos_cmp] : reg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
         {
-          for ( auto [entt, npcnopath_cmp, pos_cmp] : reg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
-          {
-            auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
-            render_rectbounds( rectbounds, sf::Color::Red );
-          }
+          auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
+          render_rectbounds( rectbounds, sf::Color::Red );
         }
+      }
 
-        if ( m_show_playernopath )
+      if ( m_show_playernopath )
+      {
+        for ( auto [entt, npcnopath_cmp, pos_cmp] : reg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
         {
-          for ( auto [entt, npcnopath_cmp, pos_cmp] : reg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
-          {
-            auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
-            render_rectbounds( rectbounds, sf::Color::Red );
-          }
+          auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
+          render_rectbounds( rectbounds, sf::Color::Red );
         }
       }
     }
@@ -220,38 +209,31 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
       render_overlay_sys.render_pathfinding_vector( npc_pos_cmp, player_pos_cmp, sf::Color::White, query_compass );
     }
   }
-  // local view end
 
-  // Default view begin (these are rendered at native resolution)
-  m_window.setView( get_screen_view() );
+  // float start_y_pos = 0;
+  render_overlay_sys.render_ui_outlines();
+  render_overlay_sys.render_ui_icons();
+  render_overlay_sys.render_ui_inventory_icon();
+  render_overlay_sys.render_ui_meters();
+  render_overlay_sys.render_ui_labels( dt );
+  render_overlay_sys.render_level_depth();
+
+  auto display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
+  render_overlay_sys.render_crypt_maze_timer( { static_cast<float>( display_size.x ) / 2.f, 0.f }, 100 );
+
+  if ( m_show_debug_stats )
   {
-
-    // float start_y_pos = 0;
-    render_overlay_sys.render_ui_outlines();
-    render_overlay_sys.render_ui_icons();
-    render_overlay_sys.render_ui_inventory_icon();
-    render_overlay_sys.render_ui_meters();
-    render_overlay_sys.render_ui_labels( dt );
-    render_overlay_sys.render_level_depth();
-
-    auto display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-    render_overlay_sys.render_crypt_maze_timer( { static_cast<float>( display_size.x / 2.f ), static_cast<float>( 0 ) }, 100 );
-
-    if ( m_show_debug_stats )
+    if ( debug_tick )
     {
-      if ( debug_tick )
-      {
-        render_overlay_sys.render_ui_player_position();
-        render_overlay_sys.render_ui_mouse_position();
-        render_overlay_sys.render_ui_stats();
-        render_overlay_sys.render_ui_zorder_list( m_zorder_queue_ );
-        render_overlay_sys.render_ui_npc_list();
+      render_overlay_sys.render_ui_player_position();
+      render_overlay_sys.render_ui_mouse_position();
+      render_overlay_sys.render_ui_stats();
+      render_overlay_sys.render_ui_zorder_list( m_zorder_queue_ );
+      render_overlay_sys.render_ui_npc_list();
 
-        m_debug_update_timer.restart();
-      }
+      m_debug_update_timer.restart();
     }
   }
-  // Default view end
 
   // restart once after all debug blocks
   if ( debug_tick ) { m_debug_update_timer.restart(); }
@@ -348,9 +330,10 @@ void RenderGameSystem::updateCamera( sf::Time deltaTime )
 
 void RenderGameSystem::render_floormap( Sprites::Containers::TileMap &floormap )
 {
-  sf::Vector2f adjusted{ floormap.world_grid_offset.x * Constants::kGridSizePxF.x, floormap.world_grid_offset.y * Constants::kGridSizePxF.y };
+  sf::Vector2f adjusted{ static_cast<float>( floormap.world_grid_offset.x ) * Constants::kGridSizePxF.x,
+                         static_cast<float>( floormap.world_grid_offset.y ) * Constants::kGridSizePxF.y };
   floormap.setPosition( adjusted );
-  m_window.draw( floormap );
+  draw_world( floormap );
 }
 
 void RenderGameSystem::render_armed()
@@ -359,7 +342,7 @@ void RenderGameSystem::render_armed()
   auto armed_view = reg().view<Cmp::Armed, Cmp::Position>();
   for ( auto [entity, armed_cmp, pos_cmp] : armed_view.each() )
   {
-    if ( armed_cmp.m_display_bomb_sprite ) { safe_render_sprite( "CARRYITEM.bomb", pos_cmp, 0 ); }
+    if ( armed_cmp.m_display_bomb_sprite ) { safe_render_sprite_world( "CARRYITEM.bomb", pos_cmp, 0 ); }
 
     sf::RectangleShape temp_square( Constants::kGridSizePxF );
     temp_square.setPosition( pos_cmp.position );
@@ -371,7 +354,7 @@ void RenderGameSystem::render_armed()
       temp_square.setFillColor( armed_cmp.m_armed_color );
     }
     temp_square.setOutlineThickness( 1.f );
-    m_window.draw( temp_square );
+    draw_world( temp_square );
   }
 }
 
@@ -386,15 +369,6 @@ void RenderGameSystem::render_shockwaves( [[maybe_unused]] Sprites::Containers::
 
       if ( Utils::is_visible_in_view( RenderSystem::get_world_view(), segment_bounds ) )
       {
-        // m_shockwave_shader.update_shader_position( segment_bounds.position, Sprites::ViewFragmentShader::Align::TOPLEFT );
-        // // m_shockwave_shader.resize_texture( sf::Vector2u{ segment_bounds.size } );
-        // // floormap.draw( m_shockwave_shader.get_render_texture(), sf::RenderStates::Default );
-        // segment.draw( m_shockwave_shader.get_render_texture(), sf::RenderStates::Default, npc_sw_cmp.sprite.getPosition(),
-        //               npc_sw_cmp.sprite.getRadius(), npc_sw_cmp.sprite.getOutlineThickness(), npc_sw_cmp.sprite.getOutlineColor(),
-        //               npc_sw_cmp.sprite.getPointsPerSegment() );
-
-        // m_window.draw( m_shockwave_shader );
-
         segment.draw( m_window, sf::RenderStates::Default, npc_sw_cmp.sprite.getPosition(), npc_sw_cmp.sprite.getRadius(),
                       npc_sw_cmp.sprite.getOutlineThickness(), npc_sw_cmp.sprite.getOutlineColor(), npc_sw_cmp.sprite.getPointsPerSegment() );
       }
@@ -405,28 +379,31 @@ void RenderGameSystem::render_shockwaves( [[maybe_unused]] Sprites::Containers::
 void RenderGameSystem::render_background_water( sf::FloatRect player_position )
 {
 
-  m_water_shader.update( { player_position.position.x - m_water_shader.get_texture_size().x / 2.f,
-                           player_position.position.y - m_water_shader.get_texture_size().y / 2.f } );
-  m_window.draw( m_water_shader );
+  m_water_shader.update( { player_position.position.x - ( static_cast<float>( m_water_shader.get_texture_size().x ) / 2.f ),
+                           player_position.position.y - ( static_cast<float>( m_water_shader.get_texture_size().y ) / 2.f ) } );
+  draw_world( m_water_shader );
 }
 
 void RenderGameSystem::render_mist( sf::FloatRect player_position )
 {
   sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-  m_mist_shader.update( { player_position.position.x - m_mist_shader.get_texture_size().x / 2.f,
-                          player_position.position.y - m_mist_shader.get_texture_size().y / 2.f },
+  m_mist_shader.update( { player_position.position.x - ( static_cast<float>( m_mist_shader.get_texture_size().x ) / 2.f ),
+                          player_position.position.y - ( static_cast<float>( m_mist_shader.get_texture_size().y ) / 2.f ) },
                         0.25, display_size ); // Set the alpha value
 
-  m_pulsing_shader.update( { player_position.position.x - m_pulsing_shader.get_texture_size().x / 2.f,
-                             player_position.position.y - m_pulsing_shader.get_texture_size().y / 2.f },
+  m_pulsing_shader.update( { player_position.position.x - ( static_cast<float>( m_pulsing_shader.get_texture_size().x ) / 2.f ),
+                             player_position.position.y - ( static_cast<float>( m_pulsing_shader.get_texture_size().y ) / 2.f ) },
                            0.5f, display_size ); // Set the alpha value
 
-  m_window.draw( m_mist_shader );
-  m_window.draw( m_pulsing_shader );
+  draw_world( m_mist_shader );
+  draw_world( m_pulsing_shader );
 }
 
 void RenderGameSystem::render_wormhole_effect( Sprites::Containers::TileMap &floormap )
 {
+  const sf::View previous_view = m_window.getView();
+  m_window.setView( get_world_view() );
+
   auto wormhole_view = reg().view<Cmp::WormholeMultiBlock, Cmp::Position, Cmp::SpriteAnimation>();
   for ( auto [entity, wormhole_cmp, pos_cmp, anim_cmp] : wormhole_view.each() )
   {
@@ -439,7 +416,7 @@ void RenderGameSystem::render_wormhole_effect( Sprites::Containers::TileMap &flo
       floormap.draw( m_wormhole_shader.get_render_texture(), sf::RenderStates::Default );
 
       // Next draw sprite onto shader texture
-      auto &wormhole_sprite = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
+      const auto &wormhole_sprite = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
       safe_render_sprite_to_target( m_wormhole_shader.get_render_texture(), wormhole_sprite.get_sprite_type(), wormhole_cmp,
                                     anim_cmp.m_current_frame );
 
@@ -454,9 +431,10 @@ void RenderGameSystem::render_wormhole_effect( Sprites::Containers::TileMap &flo
     } catch ( const std::out_of_range &e )
     {
       SPDLOG_WARN( "Missing wormhole sprite '{}' in map, rendering fallback square", "WORMHOLE" );
-      render_fallback_square( pos_cmp, sf::Color::Magenta );
+      render_fallback_square_world( pos_cmp, sf::Color::Magenta );
     }
   }
+  m_window.setView( previous_view );
 }
 
 void RenderGameSystem::render_arrow_compass()
@@ -565,14 +543,14 @@ void RenderGameSystem::render_arrow_compass()
     // Formula: min + (max - min) * (sin(freq * time) + 1) / 2
     auto time = m_compass_osc_clock.getElapsedTime().asSeconds();
     auto sine = std::sin( m_compass_freq * time );
-    float oscillating_scale = m_compass_min_scale + ( m_compass_max_scale - m_compass_min_scale ) * ( sine + 1.0f ) / 2.0f;
+    float oscillating_scale = m_compass_min_scale + ( ( m_compass_max_scale - m_compass_min_scale ) * ( sine + 1.0f ) / 2.0f );
     auto scale = sf::Vector2f{ oscillating_scale, oscillating_scale };
 
     auto sprite_index = 0;
     auto alpha = 255;
     auto origin = sf::Vector2f{ Constants::kGridSizePxF.x / 2.0f, Constants::kGridSizePxF.y / 2.0f };
 
-    safe_render_sprite( "ARROW", arrow_rect, sprite_index, scale, alpha, origin, angle_radians );
+    safe_render_sprite_world( "ARROW", arrow_rect, sprite_index, scale, alpha, origin, angle_radians );
   }
 }
 
@@ -583,18 +561,18 @@ void RenderGameSystem::render_dark_mode_shader()
   sf::Vector2f aperture_half_size( Constants::kGridSizePxF * 4.f );
   auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
   m_dark_mode_shader.update( shader_local_position, aperture_half_size, kWorldViewSize, display_res );
-  m_window.draw( m_dark_mode_shader );
+  draw_world( m_dark_mode_shader );
 }
 
 void RenderGameSystem::render_cursed_mode_shader( sf::FloatRect player_position )
 {
   auto &player_curse = Utils::Player::get_curse( reg() );
   auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-  m_dripping_blood_shader.update( { player_position.position.x - m_mist_shader.get_texture_size().x / 2.f,
-                                    player_position.position.y - m_mist_shader.get_texture_size().y / 2.f },
+  m_dripping_blood_shader.update( { player_position.position.x - ( static_cast<float>( m_mist_shader.get_texture_size().x ) / 2.f ),
+                                    player_position.position.y - ( static_cast<float>( m_mist_shader.get_texture_size().y ) / 2.f ) },
                                   player_curse.shader_alpha.add( 0.01f ), display_res ); // Set the alpha value
 
-  m_window.draw( m_dripping_blood_shader );
+  draw_world( m_dripping_blood_shader );
 }
 
 void RenderGameSystem::render_seeingstone_doglegs()
@@ -605,8 +583,8 @@ void RenderGameSystem::render_seeingstone_doglegs()
     if ( target_pos.y - source_pos.y < target_pos.x - source_pos.x ) { corner = sf::Vector2f{ source_pos.x, target_pos.y }; }
     else { corner = sf::Vector2f{ target_pos.x, source_pos.y }; }
 
-    m_window.draw( Utils::Maths::thick_line_rect( source_pos, corner, color, thickness ) );
-    m_window.draw( Utils::Maths::thick_line_rect( corner, target_pos, color, thickness ) );
+    draw_world( Utils::Maths::thick_line_rect( source_pos, corner, color, thickness ) );
+    draw_world( Utils::Maths::thick_line_rect( corner, target_pos, color, thickness ) );
   };
 
   constexpr float kLineThickness = 3.f;
@@ -654,17 +632,6 @@ void RenderGameSystem::render_lightning_strike()
   const auto kAuxStrikeLineColor = sf::Color( 255, 255, 255, 255 );
   const auto kMainStrikeLineColor = sf::Color( 0, 255, 255, 255 );
 
-  auto game_view = m_window.getView();
-
-  auto to_screen = [&]( sf::Vector2f world_pos ) -> sf::Vector2f { return sf::Vector2f( m_window.mapCoordsToPixel( world_pos, game_view ) ); };
-
-  auto draw_in_default_view = [&]( sf::Vector2f start, sf::Vector2f end, sf::Color color, float line )
-  {
-    m_window.setView( get_screen_view() );
-    m_window.draw( Utils::Maths::thick_line_rect( start, end, color, line ) );
-    m_window.setView( game_view );
-  };
-
   const float kMainLineThickness = 10.f;
   const float kAuxLineThickness = 3.f;
 
@@ -691,60 +658,52 @@ void RenderGameSystem::render_lightning_strike()
     if ( next_row_iter == ls_seq_row.end() ) { break; }
 
     // next row's convergence point - all vertices in the current row connect to this
-    sf::Vector2f converge_pos = to_screen( next_row_iter->at( 0 ).position );
+    sf::Vector2f converge_pos = world_to_screen( next_row_iter->at( 0 ).position );
 
     for ( auto [curr_row_idx, current_vertex] : std::views::enumerate( *curr_row_iter ) )
     {
-      sf::Vector2f first_pos = to_screen( current_vertex.position );
+      sf::Vector2f first_pos = world_to_screen( current_vertex.position );
 
       // always converge non-zero index vertex back to the main line (zero-index)
-      if ( curr_row_idx > 0 ) { draw_in_default_view( first_pos, converge_pos, kAuxStrikeLineColor, kAuxLineThickness ); }
+      if ( curr_row_idx > 0 ) { draw_screen( Utils::Maths::thick_line_rect( first_pos, converge_pos, kAuxStrikeLineColor, kAuxLineThickness ) ); }
       else if ( curr_row_idx == 0 )
       {
         // always draw main line on zero-index
-        draw_in_default_view( first_pos, converge_pos, kMainStrikeLineColor, kMainLineThickness );
+        draw_screen( Utils::Maths::thick_line_rect( first_pos, converge_pos, kMainStrikeLineColor, kMainLineThickness ) );
 
         for ( auto [next_row_idx, next_vertex] : std::views::enumerate( *next_row_iter ) )
         {
           // always diverge zero-index vertex out to available non-zero index vertex on next row
           if ( next_row_idx > 0 )
           {
-            sf::Vector2f diverge_pos = to_screen( next_vertex.position );
-            draw_in_default_view( first_pos, diverge_pos, kAuxStrikeLineColor, kAuxLineThickness );
+            sf::Vector2f diverge_pos = world_to_screen( next_vertex.position );
+            draw_screen( Utils::Maths::thick_line_rect( first_pos, diverge_pos, kAuxStrikeLineColor, kAuxLineThickness ) );
           }
         }
       }
-
-      // SPDLOG_INFO( "{},{} -> {},{}", first_pos.x, first_pos.y, converge_pos.x, converge_pos.y );
     }
   }
-  m_window.setView( game_view );
 }
 
 void RenderGameSystem::render_particle_sprites()
 {
-  m_window.setView( get_screen_view() );
-
   for ( auto [entt, owner] : reg().view<ParticleSpriteOwner>().each() )
   {
-    // pass the local view so the sprite can map world coords to screen coords
+    // pass the world view so the sprite can map world coords to screen coords
     owner.sprite->set_view_transform( m_window, s_world_view );
-    m_window.draw( *owner.sprite );
+    draw_screen( *owner.sprite );
   }
-  m_window.setView( RenderSystem::get_world_view() );
 }
 
 void RenderGameSystem::render_screen_flash( sf::Color color )
 {
 
-  // draw flash in default view so it covers the whole screen in screen-space
-  m_window.setView( get_screen_view() );
   auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-  auto flash = sf::RectangleShape( sf::Vector2f( display_res.x, display_res.y ) );
+  auto flash = sf::RectangleShape( sf::Vector2f( display_res ) );
   flash.setPosition( { 0.f, 0.f } );
   flash.setFillColor( color );
-  m_window.draw( flash );
-  m_window.setView( RenderSystem::get_world_view() );
+  // draw flash in screen view so it covers the whole screen in screen-space
+  draw_screen( flash );
 }
 
 } // namespace ProceduralMaze::Sys
