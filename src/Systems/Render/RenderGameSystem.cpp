@@ -223,7 +223,7 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
   // local view end
 
   // Default view begin (these are rendered at native resolution)
-  m_window.setView( m_window.getDefaultView() );
+  m_window.setView( get_screen_view() );
   {
 
     // float start_y_pos = 0;
@@ -281,7 +281,7 @@ void RenderGameSystem::refresh_z_order_queue()
 void RenderGameSystem::init_world_view()
 {
   // init local view dimensions
-  s_world_view = sf::View( { kLocalMapViewSizeF.x * 0.5f, kLocalMapViewSizeF.y * 0.5f }, kLocalMapViewSizeF );
+  s_world_view = sf::View( { kWorldViewSizeF.x * 0.5f, kWorldViewSizeF.y * 0.5f }, kWorldViewSizeF );
   s_world_view.setViewport( sf::FloatRect( { 0.f, 0.f }, { 1.f, 1.f } ) );
 
   auto start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( reg() );
@@ -384,7 +384,7 @@ void RenderGameSystem::render_shockwaves( [[maybe_unused]] Sprites::Containers::
       sf::FloatRect segment_bounds = segment.getBounds( npc_sw_cmp.sprite.getPosition(), npc_sw_cmp.sprite.getRadius(),
                                                         npc_sw_cmp.sprite.getOutlineThickness() );
 
-      if ( Utils::is_visible_in_view( RenderSystem::get_game_view(), segment_bounds ) )
+      if ( Utils::is_visible_in_view( RenderSystem::get_world_view(), segment_bounds ) )
       {
         // m_shockwave_shader.update_shader_position( segment_bounds.position, Sprites::ViewFragmentShader::Align::TOPLEFT );
         // // m_shockwave_shader.resize_texture( sf::Vector2u{ segment_bounds.size } );
@@ -517,7 +517,7 @@ void RenderGameSystem::render_arrow_compass()
   {
 
     // dont show the compass arrow pointing to the exit if the exit is on-screen....we can see it
-    if ( Utils::is_visible_in_view( get_game_view(), arrow_target ) ) return;
+    if ( Utils::is_visible_in_view( get_world_view(), arrow_target ) ) return;
 
     auto player_pos_center = pc_pos_cmp.getCenter();
     sf::Vector2f exit_pos_center = arrow_target.getCenter();
@@ -582,7 +582,7 @@ void RenderGameSystem::render_dark_mode_shader()
   auto shader_local_position = s_world_view.getCenter() - s_world_view.getSize() * 0.5f;
   sf::Vector2f aperture_half_size( Constants::kGridSizePxF * 4.f );
   auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-  m_dark_mode_shader.update( shader_local_position, aperture_half_size, kLocalMapViewSize, display_res );
+  m_dark_mode_shader.update( shader_local_position, aperture_half_size, kWorldViewSize, display_res );
   m_window.draw( m_dark_mode_shader );
 }
 
@@ -660,7 +660,7 @@ void RenderGameSystem::render_lightning_strike()
 
   auto draw_in_default_view = [&]( sf::Vector2f start, sf::Vector2f end, sf::Color color, float line )
   {
-    m_window.setView( m_window.getDefaultView() );
+    m_window.setView( get_screen_view() );
     m_window.draw( Utils::Maths::thick_line_rect( start, end, color, line ) );
     m_window.setView( game_view );
   };
@@ -723,7 +723,7 @@ void RenderGameSystem::render_lightning_strike()
 
 void RenderGameSystem::render_particle_sprites()
 {
-  m_window.setView( m_window.getDefaultView() );
+  m_window.setView( get_screen_view() );
 
   for ( auto [entt, owner] : reg().view<ParticleSpriteOwner>().each() )
   {
@@ -731,20 +731,20 @@ void RenderGameSystem::render_particle_sprites()
     owner.sprite->set_view_transform( m_window, s_world_view );
     m_window.draw( *owner.sprite );
   }
-  m_window.setView( RenderSystem::get_game_view() );
+  m_window.setView( RenderSystem::get_world_view() );
 }
 
 void RenderGameSystem::render_screen_flash( sf::Color color )
 {
 
   // draw flash in default view so it covers the whole screen in screen-space
-  m_window.setView( m_window.getDefaultView() );
+  m_window.setView( get_screen_view() );
   auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
   auto flash = sf::RectangleShape( sf::Vector2f( display_res.x, display_res.y ) );
   flash.setPosition( { 0.f, 0.f } );
   flash.setFillColor( color );
   m_window.draw( flash );
-  m_window.setView( RenderSystem::get_game_view() );
+  m_window.setView( RenderSystem::get_world_view() );
 }
 
 } // namespace ProceduralMaze::Sys

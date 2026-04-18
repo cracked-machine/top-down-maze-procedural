@@ -57,7 +57,7 @@ void LightningSystem::create_lightning_strike( [[maybe_unused]] sf::Time dt )
   auto player_position = Utils::Player::get_position( reg() );
 
   // make sure the origin is within the game view (not world y=0!)
-  auto origin_pos = sf::Vector2f( player_position.getCenter().x, player_position.y() - ( RenderGameSystem::kLocalMapViewSizeF.y / 2 ) );
+  auto origin_pos = sf::Vector2f( player_position.getCenter().x, player_position.y() - ( RenderSystem::get_world_view().getSize().y / 2 ) );
 
   auto lightning_strikes_count = 5;
   auto lightning_segment_divisor = 5; // 1 = 2 segments, 2 = 4 segment, 3 = 8 segments, 4 = 16 segments

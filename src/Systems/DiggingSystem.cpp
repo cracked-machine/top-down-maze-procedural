@@ -110,7 +110,7 @@ void DiggingSystem::check_player_smash_pot()
   auto loot_container_view = reg().view<Cmp::LootContainer, Cmp::Position, Cmp::SpriteAnimation>();
   for ( auto [loot_entity, loot_cmp, loot_pos_cmp, loot_anim_cmp] : loot_container_view.each() )
   {
-    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_game_view() );
+    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
     if ( mouse_position_bounds.findIntersection( loot_pos_cmp ) )
     {
       SPDLOG_INFO( "Found lootable entity at position: [{}, {}]!", loot_pos_cmp.position.x, loot_pos_cmp.position.y );
@@ -185,7 +185,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
   for ( auto [obst_entity, obst_pos_cmp, obst_cmp, alpha_cmp] : position_view.each() )
   {
 
-    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_game_view() );
+    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
     if ( mouse_position_bounds.findIntersection( obst_pos_cmp ) )
     {
       SPDLOG_DEBUG( "Found diggable entity at position: [{}, {}]!", pos_cmp.position.x, pos_cmp.position.y );
@@ -276,7 +276,7 @@ void DiggingSystem::check_player_dig_plant_collision()
   SPDLOG_DEBUG( "position_view size: {}", position_view.size_hint() );
   for ( auto [obst_entity, obst_pos_cmp, obst_cmp, alpha_cmp] : position_view.each() )
   {
-    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_game_view() );
+    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
     if ( mouse_position_bounds.findIntersection( obst_pos_cmp ) )
     {
       SPDLOG_DEBUG( "Found diggable entity at position: [{}, {}]!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );

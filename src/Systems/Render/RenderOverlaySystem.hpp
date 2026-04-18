@@ -64,10 +64,7 @@ public:
   void render_ui_zorder_list( std::vector<ZOrder> &zorder_queue );
   void render_ui_npc_list();
 
-  void render_obstacle_markers();
-  void render_player_distances();
   void render_lerp_positions();
-  void render_npc_trajectory_box();
 
   void render_crypt_maze_timer( sf::Vector2f pos, unsigned int size );
 

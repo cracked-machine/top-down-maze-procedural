@@ -135,7 +135,7 @@ void CryptSystem::check_entrance_collision()
   for ( auto [door_entity, door_cmp, door_pos_cmp] : door_view.each() )
   {
     // optimize: skip if not visible
-    if ( not Utils::is_visible_in_view( RenderSystem::get_game_view(), door_pos_cmp ) ) continue;
+    if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), door_pos_cmp ) ) continue;
 
     // shrink entrance bounds slightly for better UX
     auto decreased_entrance_bounds = Cmp::RectBounds::scaled( door_pos_cmp.position, door_pos_cmp.size, 0.1f, Cmp::RectBounds::ScaleAxis::XY );
@@ -168,7 +168,7 @@ void CryptSystem::check_exit_collision()
   for ( auto [door_entity, door_cmp, door_pos_cmp] : door_view.each() )
   {
     // optimize: skip if not visible
-    if ( !Utils::is_visible_in_view( RenderSystem::get_game_view(), door_pos_cmp ) ) continue;
+    if ( !Utils::is_visible_in_view( RenderSystem::get_world_view(), door_pos_cmp ) ) continue;
 
     auto decreased_entrance_bounds = Cmp::RectBounds::scaled( door_pos_cmp.position, door_pos_cmp.size, 0.1f,
                                                               Cmp::RectBounds::ScaleAxis::XY ); // shrink entrance bounds slightly for better UX
@@ -190,7 +190,7 @@ void CryptSystem::unlock_crypt_door()
   for ( auto [door_entity, cryptdoor_cmp, door_pos_cmp] : cryptdoor_view.each() )
   {
     // optimize: skip if not visible
-    if ( !Utils::is_visible_in_view( RenderSystem::get_game_view(), door_pos_cmp ) ) continue;
+    if ( !Utils::is_visible_in_view( RenderSystem::get_world_view(), door_pos_cmp ) ) continue;
 
     // Player can't intersect with a closed crypt door so expand their hitbox to facilitate collision detection
     auto player_hitbox = Cmp::RectBounds::scaled( player_pos_cmp, 5.f );

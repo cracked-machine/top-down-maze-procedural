@@ -170,7 +170,7 @@ void ShopSystem::check_exit_collision()
   for ( auto [door_entity, door_cmp, door_pos_cmp] : door_view.each() )
   {
     // optimize: skip if not visible
-    if ( !Utils::is_visible_in_view( RenderSystem::get_game_view(), door_pos_cmp ) ) continue;
+    if ( !Utils::is_visible_in_view( RenderSystem::get_world_view(), door_pos_cmp ) ) continue;
 
     auto decreased_entrance_bounds = Cmp::RectBounds::scaled( door_pos_cmp.position, door_pos_cmp.size, 0.1f,
                                                               Cmp::RectBounds::ScaleAxis::XY ); // shrink entrance bounds slightly for better UX

@@ -143,7 +143,7 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
   {
     // optimization
     // if ( player_mort_cmp.state != Cmp::PlayerMortality::State::ALIVE ) return;
-    if ( !Utils::is_visible_in_view( RenderSystem::get_game_view(), player_pos_cmp ) ) continue;
+    if ( !Utils::is_visible_in_view( RenderSystem::get_world_view(), player_pos_cmp ) ) continue;
 
     // dont spam death events if the player is already dead
     if ( player_mort_cmp.state == Cmp::PlayerMortality::State::DEAD ) continue;
@@ -185,7 +185,7 @@ void HazardFieldSystem<HazardType>::check_npc_hazard_field_collision()
   for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : npc_view.each() )
   {
     // optimization
-    if ( !Utils::is_visible_in_view( RenderSystem::get_game_view(), npc_pos_cmp ) ) continue;
+    if ( !Utils::is_visible_in_view( RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
 
     for ( auto [hazard_entt, hazard_cmp, hazard_pos_cmp] : hazard_view.each() )
     {

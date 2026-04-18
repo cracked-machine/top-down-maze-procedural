@@ -40,7 +40,7 @@ void ParticleSystem::update( sf::Time dt )
 
 void ParticleSystem::check_collsion( const sf::FloatRect &target )
 {
-  if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_game_view(), target ) ) return;
+  if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), target ) ) return;
   for ( auto [entt, owner] : reg().view<ParticleSpriteOwner>().each() )
   {
     if ( owner.sprite->is_active() )

@@ -46,7 +46,7 @@ void AnimSystem::update( sf::Time dt )
   auto anim_view = reg().view<Cmp::SpriteAnimation, Cmp::Position>( entt::exclude<Cmp::NPC> );
   for ( auto [anim_entt, anim_cmp, pos_cmp] : anim_view.each() )
   {
-    if ( not Utils::is_visible_in_view( RenderSystem::get_game_view(), pos_cmp ) ) continue;
+    if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), pos_cmp ) ) continue;
     if ( anim_cmp.m_animation_active == true )
     {
       const auto &ms = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
@@ -67,7 +67,7 @@ void AnimSystem::update( sf::Time dt )
   //   auto ruin_shadowhand_anim_view = getReg().view<Cmp::RuinShadowHand, Cmp::SpriteAnimation, Cmp::Position>();
   //   for ( auto [ruin_shadowhand_entt, ruin_shadowhand_cmp, ruin_shadowhand_anim_cmp, ruin_shadowhand_pos_cmp] : ruin_shadowhand_anim_view.each() )
   //   {
-  //     if ( not Utils::is_visible_in_view( RenderSystem::get_game_view(), ruin_shadowhand_pos_cmp ) ) continue;
+  //     if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), ruin_shadowhand_pos_cmp ) ) continue;
   //     if ( ruin_shadowhand_anim_cmp.m_animation_active == true )
   //     {
   //       const auto &altar_sacrifice_sprite_metadata = m_sprite_factory.get_multisprite_by_type( ruin_shadowhand_anim_cmp.m_sprite_type );
@@ -81,7 +81,7 @@ void AnimSystem::update( sf::Time dt )
   //   auto loot_container_anim_view = getReg().view<Cmp::LootContainer, Cmp::SpriteAnimation, Cmp::Position>();
   //   for ( auto [loot_con_entt, loot_con_cmp, loot_con_anim_cmp, loot_con_pos_cmp] : loot_container_anim_view.each() )
   //   {
-  //     if ( not Utils::is_visible_in_view( RenderSystem::get_game_view(), loot_con_pos_cmp ) ) continue;
+  //     if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), loot_con_pos_cmp ) ) continue;
   //     if ( loot_con_anim_cmp.m_sprite_type == "POT" and loot_con_anim_cmp.m_animation_active == true )
   //     {
   //       const auto &pot_sprite_metadata = m_sprite_factory.get_multisprite_by_type( loot_con_anim_cmp.m_sprite_type );
@@ -103,7 +103,7 @@ void AnimSystem::update( sf::Time dt )
   auto pathfinding_npc_view = reg().view<Cmp::NPC, Cmp::LerpPosition, Cmp::SpriteAnimation, Cmp::Position>();
   for ( [[maybe_unused]] auto [entity, npc_cmp, lerp_pos_cmp, anim_cmp, pos_cmp] : pathfinding_npc_view.each() )
   {
-    if ( !Utils::is_visible_in_view( RenderSystem::get_game_view(), pos_cmp ) ) continue;
+    if ( !Utils::is_visible_in_view( RenderSystem::get_world_view(), pos_cmp ) ) continue;
     if ( lerp_pos_cmp.m_lerp_factor > 0.f )
     {
 

@@ -40,9 +40,13 @@ public:
   //! @brief event handlers for resuming system clocks
   void on_resume() override {}
 
-  //! @brief Accessor for the static game view
+  //! @brief Get the current view of the game world. See RenderSystem::kWorldViewSize.
   //! @return const sf::View&
-  static const sf::View &get_game_view() { return s_world_view; }
+  static const sf::View &get_world_view() { return s_world_view; }
+
+  //! @brief Get the screen resolution view. See Cmp::Persist::DisplayResolution.
+  //! @return const sf::View&
+  const sf::View &get_screen_view() { return m_window.getDefaultView(); }
 
 protected:
   //! @brief Z-order entry for rendering queue
@@ -60,20 +64,21 @@ protected:
     CENTER
   };
 
-  //! @brief Static view of the visible game area (not the entire game world)
-  //! @return const sf::View&
+  //! @brief Current view of the game world.
   static sf::View s_world_view;
+
+  //! @brief Dimension for `s_world_view`.
+  constexpr static sf::Vector2u kWorldViewSize{ 300u, 200u };
+  constexpr static sf::Vector2f kWorldViewSizeF{ static_cast<float>( kWorldViewSize.x ), static_cast<float>( kWorldViewSize.y ) };
 
   //! @brief Default font for rendering text
   Cmp::Font m_font = Cmp::Font( "res/fonts/tuffy.ttf" );
 
   // System mode flags
   bool m_show_path_finding{ false };
-  bool m_minimap_enabled{ false };
   bool m_show_debug_stats{ false };
   bool m_show_npcnopath{ false };
   bool m_show_playernopath{ false };
-  //! @brief Allow user to disable dark mode for debugging purposes
   bool m_render_dark_mode_enabled{ true };
 
   //! @brief Renders text to the screen with specified formatting and alignment options.

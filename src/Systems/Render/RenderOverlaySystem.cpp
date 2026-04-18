@@ -282,7 +282,7 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
     sf::Vector2f screen_corner = to_screen( inventory_ui_pos + inventory_ui_size );
     sf::Vector2f screen_size = screen_corner - screen_origin;
 
-    m_window.setView( m_window.getDefaultView() );
+    m_window.setView( get_screen_view() );
 
     sf::RectangleShape border;
     border.setSize( screen_size );
@@ -336,7 +336,7 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
       // Sprites need world-space view
       m_window.setView( game_view );
       RenderSystem::safe_render_sprite( item, { current_slot_pos, Constants::kGridSizePxF }, 0, sf::Vector2f{ 1, 1 } );
-      m_window.setView( m_window.getDefaultView() );
+      m_window.setView( get_screen_view() );
 
       current_slot_pos.x += Constants::kGridSizePxF.x;
     }
@@ -378,7 +378,7 @@ void RenderOverlaySystem::render_ui_mouse_position()
   }
 
   sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
-  sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::get_game_view() );
+  sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::get_world_view() );
 
   for ( const auto &ui_label : m_dbg_ui_data->m_labels )
   {
@@ -541,21 +541,6 @@ void RenderOverlaySystem::render_ui_npc_list()
   }
 }
 
-void RenderOverlaySystem::render_obstacle_markers()
-{
-  if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
-  {
-    auto obstacle_view = reg().view<Cmp::Position, Cmp::Obstacle>();
-    for ( auto [ob_entt, pos_cmp, obst_cmp] : obstacle_view.each() )
-    {
-      sf::RectangleShape obstacle_shape( Constants::kGridSizePxF );
-      obstacle_shape.setPosition( pos_cmp.position );
-      obstacle_shape.setOutlineThickness( 1.f );
-      m_window.draw( obstacle_shape );
-    }
-  }
-}
-
 void RenderOverlaySystem::render_lerp_positions()
 {
   auto lerp_view = reg().view<Cmp::LerpPosition, Cmp::Direction, Cmp::NPC, Cmp::Position>();
@@ -602,7 +587,7 @@ void RenderOverlaySystem::render_spatial_grid_neighbours( const Cmp::Position &q
 void RenderOverlaySystem::render_pathfinding_vector( const Cmp::Position &start_pos_cmp, const Cmp::Position &end_pos_cmp, sf::Color color,
                                                      PathFinding::QueryCompass query_compass )
 {
-  if ( not Utils::is_visible_in_view( RenderSystem::get_game_view(), start_pos_cmp ) ) return;
+  if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), start_pos_cmp ) ) return;
 
   if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_pathfinding_navmesh.lock() )
   {

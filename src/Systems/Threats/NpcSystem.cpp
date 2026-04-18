@@ -104,7 +104,7 @@ void NpcSystem::check_bones_reanimation()
 
   for ( auto [npccontainer_entt, npccontainer_cmp, npccontainer_pos_cmp] : npccontainer_collision_view.each() )
   {
-    if ( !Utils::is_visible_in_view( RenderSystem::get_game_view(), npccontainer_pos_cmp ) ) continue;
+    if ( !Utils::is_visible_in_view( RenderSystem::get_world_view(), npccontainer_pos_cmp ) ) continue;
 
     auto &npc_activate_scale = Sys::PersistSystem::get<Cmp::Persist::NpcActivateScale>( reg() );
     // we just create a temporary RectBounds here instead of a component because we only need it
@@ -165,7 +165,7 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
   for ( auto [npc_entity, npc_cmp, npc_pos_cmp, anim_cmp, lerp_speed_cmp] : npc_view.each() )
   {
 
-    if ( not Utils::is_visible_in_view( RenderSystem::get_game_view(), npc_pos_cmp ) ) continue;
+    if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
 
     // don't intterupt NPC mid-lerp or it causes indecisive pathfinding
     auto *npc_lerp_pos_cmp = reg().try_get<Cmp::LerpPosition>( npc_entity );
@@ -284,7 +284,7 @@ void NpcSystem::check_player_to_npc_collision()
     if ( player_mort.state != Cmp::PlayerMortality::State::ALIVE ) return;
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp, npc_dir_cmp] : npc_collision_view.each() )
     {
-      if ( not Utils::is_visible_in_view( RenderSystem::get_game_view(), npc_pos_cmp ) ) continue;
+      if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
 
       // relaxed bounds to allow player to sneak past during lerp transition
       auto npc_pos_cmp_bounds_current = Cmp::RectBounds::scaled( npc_pos_cmp.position, npc_pos_cmp.size, 0.1f );

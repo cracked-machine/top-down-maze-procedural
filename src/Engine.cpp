@@ -66,13 +66,17 @@ bool Engine::run()
     loading_screen( [this]() { this->init_systems(); }, m_splash_texture );
 
     m_scene_manager->push( std::make_unique<Scene::TitleScene>( *m_sound_bank, *m_system_store, m_nav_event_dispatcher ) );
-    sf::Clock globalFrameClock;
+    sf::Clock tick;
 
     /// MAIN LOOP BEGINS
     while ( m_window->isOpen() )
     {
-      sf::Time globalDeltaTime = globalFrameClock.restart();
-      m_scene_manager->update( globalDeltaTime );
+      sf::Time dt = tick.restart();
+
+      // call the scene at the top of the scene manager stack
+      m_scene_manager->update( dt );
+
+      // trigger any enqueued events now we are outside of the scene update function.
       Sys::BaseSystem::get_systems_event_queue().update();
 
       // catch the resize events
@@ -86,6 +90,7 @@ bool Engine::run()
         }
       }
     } /// MAIN LOOP ENDS
+
   } catch ( const std::exception &e )
   {
     SPDLOG_CRITICAL( "Unhandled exception in Engine::run(): {}", e.what() );
