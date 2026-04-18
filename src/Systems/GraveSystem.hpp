@@ -19,9 +19,9 @@ public:
   GraveSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief event handlers for pausing system clocks
-  void onPause() override {}
+  void on_pause() override {}
   //! @brief event handlers for resuming system clocks
-  void onResume() override {}
+  void on_resume() override {}
 
   void on_player_action( const Events::PlayerActionEvent &event );
   void check_player_grave_collision();

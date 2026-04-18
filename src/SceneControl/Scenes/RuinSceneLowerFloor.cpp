@@ -116,7 +116,7 @@ void RuinSceneLowerFloor::on_enter()
     if ( m_sound_bank.get_music( "ruin_music" ).getStatus() != sf::Sound::Status::Playing ) { m_sound_bank.get_music( "ruin_music" ).play(); }
   }
 
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().init_views();
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().init_world_view();
 
   // prevent residual lerp movements from previous scene causing havoc in the new one
   Utils::Player::remove_lerp_cmp( m_reg );

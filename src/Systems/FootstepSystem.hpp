@@ -15,17 +15,16 @@ namespace ProceduralMaze::Sys
 class FootstepSystem : public BaseSystem
 {
 public:
-  FootstepSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
-                  Audio::SoundBank &sound_bank )
+  FootstepSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
       : BaseSystem( reg, window, sprite_factory, sound_bank )
   {
     SPDLOG_DEBUG( "FootstepSystem initialized" );
   }
 
   //! @brief event handlers for pausing footstep clocks
-  void onPause() override;
+  void on_pause() override;
   //! @brief event handlers for resuming footstep clocks
-  void onResume() override;
+  void on_resume() override;
 
   // create an entity with components: Position, Direction, FootstepTimer, FootstepAlpha
   void add_footstep( const Cmp::Position &position, const Cmp::Direction &direction );

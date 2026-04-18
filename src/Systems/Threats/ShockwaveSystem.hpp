@@ -26,9 +26,9 @@ public:
   void checkShockwavePlayerCollision();
 
   //! @brief event handlers for pausing system clocks
-  void onPause() override {};
+  void on_pause() override {};
   //! @brief event handlers for resuming system clocks
-  void onResume() override {};
+  void on_resume() override {};
 };
 
 } // namespace ProceduralMaze::Sys

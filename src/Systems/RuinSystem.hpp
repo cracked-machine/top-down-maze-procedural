@@ -74,9 +74,9 @@ public:
   void check_player_shadow_hand_collision();
 
   //! @brief event handlers for pausing system clocks
-  void onPause() override {}
+  void on_pause() override {}
   //! @brief event handlers for resuming system clocks
-  void onResume() override {}
+  void on_resume() override {}
 
 private:
   //! @brief Dispatcher reference for scene management events

@@ -68,8 +68,8 @@ public:
   //! @brief Restores border Cmp::Obstacles to Cmp::CryptRoomEnd, Cmp::CryptRoomStart and Cmp::CryptRoomOpen areas
   void createRoomBorders();
 
-  virtual void onPause() override {}
-  virtual void onResume() override {}
+  virtual void on_pause() override {}
+  virtual void on_resume() override {}
 
   //! @brief Shuffle the rooms and passages
   void shuffle_rooms_passages();

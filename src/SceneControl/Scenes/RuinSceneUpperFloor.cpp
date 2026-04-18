@@ -97,7 +97,7 @@ void RuinSceneUpperFloor::on_enter()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().init_views();
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().init_world_view();
 
   // prevent residual lerp movements from previous scene causing havoc in the new one
   Utils::Player::remove_lerp_cmp( m_reg );

@@ -27,9 +27,9 @@ public:
                     entt::dispatcher &nav_event_dispatcher, entt::dispatcher &scenemanager_event_dispatcher );
 
   //! @brief event handlers for pausing system clocks
-  void onPause() override {}
+  void on_pause() override {}
   //! @brief event handlers for resuming system clocks
-  void onResume() override {}
+  void on_resume() override {}
 
   void title_scene_input_handler();
   void settings_scene_state_handler();

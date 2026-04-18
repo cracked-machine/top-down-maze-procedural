@@ -31,9 +31,9 @@ public:
   }
 
   //! @brief event handlers for pausing system clocks
-  void onPause() override {}
+  void on_pause() override {}
   //! @brief event handlers for resuming system clocks
-  void onResume() override {}
+  void on_resume() override {}
 
   void iterate( unsigned int iterations, RandomLevelGenerator::SceneType scene_type, PathFinding::SpatialHashGrid &levelgen_spatialgrid );
 };

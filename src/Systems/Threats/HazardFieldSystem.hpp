@@ -59,8 +59,8 @@ public:
 
   void update();
   void init_hazard_field();
-  void onPause() override;
-  void onResume() override;
+  void on_pause() override;
+  void on_resume() override;
 
 private:
   //! @brief Update the hazard field by spreading it to adjacent positions.

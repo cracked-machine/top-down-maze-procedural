@@ -50,22 +50,6 @@ public:
   RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~RenderGameSystem() = default;
 
-  //! @brief event handlers for pausing system clocks
-  void onPause() override {}
-  //! @brief event handlers for resuming system clocks
-  void onResume() override {}
-
-  //! @brief Refreshes the Z-order rendering queue
-  void refresh_z_order_queue();
-
-  //! @brief Initializes the views used for rendering
-  void init_views();
-
-  //! @brief Initializes the shaders used for rendering
-  void init_shaders();
-
-  void updateCamera( sf::Time deltaTime );
-
   //! @brief Entrypoint for rendering the game
   //! @param deltaTime
   //! @param render_overlay_sys anything that is not part of the game world itself. i.e. UI, debug
@@ -75,6 +59,17 @@ public:
   void render_game( sf::Time globalDeltaTime, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap,
                     DarkMode dark_mode = DarkMode::OFF, WeatherMode weather_mode = WeatherMode::ON, CursedMode cursed_mode = CursedMode::OFF,
                     BackGroundMode bg_mode = BackGroundMode::ON );
+
+  //! @brief Refreshes the Z-order rendering queue
+  void refresh_z_order_queue();
+
+  //! @brief This should be called by scene "on enter" functions.
+  void init_world_view();
+
+  //! @brief Initializes the shaders used for rendering
+  void init_shaders();
+
+  void updateCamera( sf::Time deltaTime );
 
   //! @brief m_local_view dimension
   constexpr static sf::Vector2u kLocalMapViewSize{ 300u, 200u };
@@ -144,8 +139,10 @@ private:
     }
   }
 
-  //! @brief This is the section of the game world that is visible to the player
-  sf::View m_local_view;
+  //! @brief event handlers for pausing system clocks
+  void on_pause() override {}
+  //! @brief event handlers for resuming system clocks
+  void on_resume() override {}
 
   // Shaders - we dont know the size of the texture yet so set to 1,1 and resize later
 

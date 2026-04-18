@@ -22,15 +22,15 @@ public:
       : BaseSystem( reg, window, sprite_factory, sound_bank )
   {
     // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
-    std::ignore = get_systems_event_queue().sink<Events::PauseClocksEvent>().connect<&Sys::AnimSystem::onPause>( this );
-    std::ignore = get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::AnimSystem::onResume>( this );
+    std::ignore = get_systems_event_queue().sink<Events::PauseClocksEvent>().connect<&Sys::AnimSystem::on_pause>( this );
+    std::ignore = get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::AnimSystem::on_resume>( this );
     SPDLOG_DEBUG( "AnimSystem initialized" );
   }
 
   //! @brief event handlers for pausing system clocks
-  void onPause() override {}
+  void on_pause() override {}
   //! @brief event handlers for resuming system clocks
-  void onResume() override {}
+  void on_resume() override {}
 
   // update frames on all SpriteAnimation components
   void update( sf::Time globalDeltaTime );

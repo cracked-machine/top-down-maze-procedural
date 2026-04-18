@@ -38,7 +38,7 @@ public:
   /// For example:
   /// `std::ignore =
   /// getEventDispatcher().sink<Events::PauseClocksEvent>().connect<&Sys::DerivedSystem::onPause>(this);`
-  virtual void onPause() = 0;
+  virtual void on_pause() = 0;
 
   //! @brief Event handler for resuming system clocks. Must be implemented by derived classes.
   //! @note If you register this handler with the event dispatcher, this function is automcatically
@@ -46,7 +46,7 @@ public:
   /// For example:
   /// `std::ignore =
   /// getEventDispatcher().sink<Events::ResumeClocksEvent>().connect<&Sys::DerivedSystem::onResume>(this);`
-  virtual void onResume() = 0;
+  virtual void on_resume() = 0;
 
   // singleton event dispatcher
   // Use this to get temporary access to the dispatcher to register event handlers

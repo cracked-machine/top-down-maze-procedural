@@ -80,93 +80,6 @@ RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &windo
   SPDLOG_DEBUG( "RenderGameSystem initialized" );
 }
 
-void RenderGameSystem::refresh_z_order_queue()
-{
-  m_zorder_queue_.clear();
-  sf::FloatRect view_bounds = Utils::calculate_view_bounds( m_local_view );
-
-  // prevent pop-in/pop-outs when multiblock entities are near the edge of the view
-  add_visible_entity_to_z_order_queue<Cmp::AltarMultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::CryptMultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::GraveMultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::HolyWellMultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::CryptInteriorMultiBlock>( m_zorder_queue_, view_bounds );
-  add_visible_entity_to_z_order_queue<Cmp::RuinBuildingMultiBlock>( m_zorder_queue_, view_bounds );
-
-  // add other components as normal
-  add_visible_entity_to_z_order_queue<Cmp::Position>( m_zorder_queue_, view_bounds );
-
-  std::sort( m_zorder_queue_.begin(), m_zorder_queue_.end(), []( const ZOrder &a, const ZOrder &b ) { return a.z < b.z; } );
-}
-
-void RenderGameSystem::init_views()
-{
-  // init local view dimensions
-  m_local_view = sf::View( { kLocalMapViewSizeF.x * 0.5f, kLocalMapViewSizeF.y * 0.5f }, kLocalMapViewSizeF );
-  m_local_view.setViewport( sf::FloatRect( { 0.f, 0.f }, { 1.f, 1.f } ) );
-
-  auto start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( reg() );
-  m_local_view.setCenter( start_pos );
-}
-
-void RenderGameSystem::init_shaders()
-{
-  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-  m_water_shader.resize_texture( display_res );
-  m_water_shader.setup();
-
-  m_wormhole_shader.setup();
-
-  m_pulsing_shader.resize_texture( display_res );
-  m_pulsing_shader.setup();
-
-  m_mist_shader.resize_texture( display_res );
-  m_mist_shader.setup();
-
-  m_dark_mode_shader.resize_texture( display_res );
-  m_dark_mode_shader.setup();
-
-  m_dripping_blood_shader.resize_texture( display_res );
-  m_dripping_blood_shader.setup();
-}
-
-void RenderGameSystem::updateCamera( sf::Time deltaTime )
-{
-
-  // Get the player's current position
-  auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::Position>();
-  for ( auto [entity, pc_cmp, pos_cmp] : player_view.each() )
-  {
-    sf::Vector2f target_position = pos_cmp.position;
-
-    // Initialize camera position on first frame to avoid lerping from origin
-    if ( !m_camera_initialized )
-    {
-      m_camera_position = target_position;
-      m_camera_initialized = true;
-    }
-
-    // Smooth lerp toward target position
-    float dt = deltaTime.asSeconds();
-    auto camera_smooth_speed = Sys::PersistSystem::get<Cmp::Persist::CameraSmoothSpeed>( reg() ).get_value();
-    float t = 1.0f - std::exp( -camera_smooth_speed * dt ); // Exponential smoothing
-
-    m_camera_position.x += ( target_position.x - m_camera_position.x ) * t;
-    m_camera_position.y += ( target_position.y - m_camera_position.y ) * t;
-
-    // Snap to target if very close (prevents endless micro-adjustments)
-    constexpr float kSnapThreshold = 0.5f;
-    if ( std::abs( target_position.x - m_camera_position.x ) < kSnapThreshold &&
-         std::abs( target_position.y - m_camera_position.y ) < kSnapThreshold )
-    {
-      m_camera_position = target_position;
-    }
-
-    // Update the view center
-    m_local_view.setCenter( m_camera_position + ( pos_cmp.size / 2.f ) ); // Center on sprite center
-  }
-}
-
 void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlaySystem &render_overlay_sys,
                                     [[maybe_unused]] Sprites::Containers::TileMap &floormap, [[maybe_unused]] DarkMode dark_mode,
                                     [[maybe_unused]] WeatherMode weather_mode, [[maybe_unused]] CursedMode cursed_mode,
@@ -188,7 +101,6 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
 
   // make sure the local view is centered on the player mid-point and not at their top-left corner
   // (otherwise this makes views, shaders, etc look off-center)
-  // m_local_view.setCenter( player_position.position + Constants::kGridSizePxF * 0.5f );
   updateCamera( dt );
 
   // re-populate the z-order queue with the latest entity/component data
@@ -200,10 +112,10 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
   m_window.clear();
 
   // local view begin - this shows a smaller resolution view of the game world - determined by `LOCAL_MAP_VIEW_SIZE`
-  m_window.setView( m_local_view );
+  m_window.setView( s_world_view );
   {
     // update the static game view reference
-    RenderSystem::s_game_view = m_local_view;
+    // RenderSystem::s_world_view = s_world_view;
 
     // render these things first
     if ( bg_mode == BackGroundMode::ON ) { render_background_water( player_pos_cmp ); }
@@ -347,6 +259,93 @@ void RenderGameSystem::render_game( [[maybe_unused]] sf::Time dt, RenderOverlayS
   m_window.display();
 }
 
+void RenderGameSystem::refresh_z_order_queue()
+{
+  m_zorder_queue_.clear();
+  sf::FloatRect view_bounds = Utils::calculate_view_bounds( s_world_view );
+
+  // prevent pop-in/pop-outs when multiblock entities are near the edge of the view
+  add_visible_entity_to_z_order_queue<Cmp::AltarMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::CryptMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::GraveMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::HolyWellMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::CryptInteriorMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Cmp::RuinBuildingMultiBlock>( m_zorder_queue_, view_bounds );
+
+  // add other components as normal
+  add_visible_entity_to_z_order_queue<Cmp::Position>( m_zorder_queue_, view_bounds );
+
+  std::sort( m_zorder_queue_.begin(), m_zorder_queue_.end(), []( const ZOrder &a, const ZOrder &b ) { return a.z < b.z; } );
+}
+
+void RenderGameSystem::init_world_view()
+{
+  // init local view dimensions
+  s_world_view = sf::View( { kLocalMapViewSizeF.x * 0.5f, kLocalMapViewSizeF.y * 0.5f }, kLocalMapViewSizeF );
+  s_world_view.setViewport( sf::FloatRect( { 0.f, 0.f }, { 1.f, 1.f } ) );
+
+  auto start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( reg() );
+  s_world_view.setCenter( start_pos );
+}
+
+void RenderGameSystem::init_shaders()
+{
+  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
+  m_water_shader.resize_texture( display_res );
+  m_water_shader.setup();
+
+  m_wormhole_shader.setup();
+
+  m_pulsing_shader.resize_texture( display_res );
+  m_pulsing_shader.setup();
+
+  m_mist_shader.resize_texture( display_res );
+  m_mist_shader.setup();
+
+  m_dark_mode_shader.resize_texture( display_res );
+  m_dark_mode_shader.setup();
+
+  m_dripping_blood_shader.resize_texture( display_res );
+  m_dripping_blood_shader.setup();
+}
+
+void RenderGameSystem::updateCamera( sf::Time deltaTime )
+{
+
+  // Get the player's current position
+  auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::Position>();
+  for ( auto [entity, pc_cmp, pos_cmp] : player_view.each() )
+  {
+    sf::Vector2f target_position = pos_cmp.position;
+
+    // Initialize camera position on first frame to avoid lerping from origin
+    if ( !m_camera_initialized )
+    {
+      m_camera_position = target_position;
+      m_camera_initialized = true;
+    }
+
+    // Smooth lerp toward target position
+    float dt = deltaTime.asSeconds();
+    auto camera_smooth_speed = Sys::PersistSystem::get<Cmp::Persist::CameraSmoothSpeed>( reg() ).get_value();
+    float t = 1.0f - std::exp( -camera_smooth_speed * dt ); // Exponential smoothing
+
+    m_camera_position.x += ( target_position.x - m_camera_position.x ) * t;
+    m_camera_position.y += ( target_position.y - m_camera_position.y ) * t;
+
+    // Snap to target if very close (prevents endless micro-adjustments)
+    constexpr float kSnapThreshold = 0.5f;
+    if ( std::abs( target_position.x - m_camera_position.x ) < kSnapThreshold &&
+         std::abs( target_position.y - m_camera_position.y ) < kSnapThreshold )
+    {
+      m_camera_position = target_position;
+    }
+
+    // Update the view center
+    s_world_view.setCenter( m_camera_position + ( pos_cmp.size / 2.f ) ); // Center on sprite center
+  }
+}
+
 void RenderGameSystem::render_floormap( Sprites::Containers::TileMap &floormap )
 {
   sf::Vector2f adjusted{ floormap.world_grid_offset.x * Constants::kGridSizePxF.x, floormap.world_grid_offset.y * Constants::kGridSizePxF.y };
@@ -385,7 +384,7 @@ void RenderGameSystem::render_shockwaves( [[maybe_unused]] Sprites::Containers::
       sf::FloatRect segment_bounds = segment.getBounds( npc_sw_cmp.sprite.getPosition(), npc_sw_cmp.sprite.getRadius(),
                                                         npc_sw_cmp.sprite.getOutlineThickness() );
 
-      if ( Utils::is_visible_in_view( RenderSystem::getGameView(), segment_bounds ) )
+      if ( Utils::is_visible_in_view( RenderSystem::get_game_view(), segment_bounds ) )
       {
         // m_shockwave_shader.update_shader_position( segment_bounds.position, Sprites::ViewFragmentShader::Align::TOPLEFT );
         // // m_shockwave_shader.resize_texture( sf::Vector2u{ segment_bounds.size } );
@@ -518,16 +517,16 @@ void RenderGameSystem::render_arrow_compass()
   {
 
     // dont show the compass arrow pointing to the exit if the exit is on-screen....we can see it
-    if ( Utils::is_visible_in_view( getGameView(), arrow_target ) ) return;
+    if ( Utils::is_visible_in_view( get_game_view(), arrow_target ) ) return;
 
     auto player_pos_center = pc_pos_cmp.getCenter();
     sf::Vector2f exit_pos_center = arrow_target.getCenter();
     sf::Vector2f direction = ( exit_pos_center - player_pos_center ).normalized();
 
     // Get view bounds in world coordinates
-    sf::Vector2f view_center = m_local_view.getCenter();
-    sf::Vector2f view_size = m_local_view.getSize();
-    sf::FloatRect view_bounds{ { view_center.x - view_size.x / 2.0f, view_center.y - view_size.y / 2.0f }, view_size };
+    sf::Vector2f view_center = s_world_view.getCenter();
+    sf::Vector2f view_size = s_world_view.getSize();
+    sf::FloatRect view_bounds{ { view_center.x - ( view_size.x / 2.0f ), view_center.y - ( view_size.y / 2.0f ) }, view_size };
 
     // Add margin from edge
     float margin = 32.0f;
@@ -580,7 +579,7 @@ void RenderGameSystem::render_arrow_compass()
 void RenderGameSystem::render_dark_mode_shader()
 {
   // Update dark mode shader with proper parameters
-  auto shader_local_position = m_local_view.getCenter() - m_local_view.getSize() * 0.5f;
+  auto shader_local_position = s_world_view.getCenter() - s_world_view.getSize() * 0.5f;
   sf::Vector2f aperture_half_size( Constants::kGridSizePxF * 4.f );
   auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
   m_dark_mode_shader.update( shader_local_position, aperture_half_size, kLocalMapViewSize, display_res );
@@ -729,10 +728,10 @@ void RenderGameSystem::render_particle_sprites()
   for ( auto [entt, owner] : reg().view<ParticleSpriteOwner>().each() )
   {
     // pass the local view so the sprite can map world coords to screen coords
-    owner.sprite->set_view_transform( m_window, m_local_view );
+    owner.sprite->set_view_transform( m_window, s_world_view );
     m_window.draw( *owner.sprite );
   }
-  m_window.setView( RenderSystem::getGameView() );
+  m_window.setView( RenderSystem::get_game_view() );
 }
 
 void RenderGameSystem::render_screen_flash( sf::Color color )
@@ -745,7 +744,7 @@ void RenderGameSystem::render_screen_flash( sf::Color color )
   flash.setPosition( { 0.f, 0.f } );
   flash.setFillColor( color );
   m_window.draw( flash );
-  m_window.setView( RenderSystem::getGameView() );
+  m_window.setView( RenderSystem::get_game_view() );
 }
 
 } // namespace ProceduralMaze::Sys

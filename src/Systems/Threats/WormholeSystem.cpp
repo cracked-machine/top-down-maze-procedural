@@ -45,13 +45,13 @@ WormholeSystem::WormholeSystem( entt::registry &reg, sf::RenderWindow &window, S
 
   // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in
   // the constructor
-  get_systems_event_queue().sink<Events::PauseClocksEvent>().connect<&Sys::WormholeSystem::onPause>( this );
-  get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::WormholeSystem::onResume>( this );
+  get_systems_event_queue().sink<Events::PauseClocksEvent>().connect<&Sys::WormholeSystem::on_pause>( this );
+  get_systems_event_queue().sink<Events::ResumeClocksEvent>().connect<&Sys::WormholeSystem::on_resume>( this );
 
   SPDLOG_DEBUG( "WormholeSystem initialized" );
 }
 
-void WormholeSystem::onPause()
+void WormholeSystem::on_pause()
 {
   if ( m_sound_bank.get_effect( "wormhole_jump" ).getStatus() == sf::Sound::Status::Playing ) m_sound_bank.get_effect( "wormhole_jump" ).pause();
 
@@ -62,7 +62,7 @@ void WormholeSystem::onPause()
   }
 }
 
-void WormholeSystem::onResume()
+void WormholeSystem::on_resume()
 {
   if ( m_sound_bank.get_effect( "wormhole_jump" ).getStatus() == sf::Sound::Status::Paused ) m_sound_bank.get_effect( "wormhole_jump" ).play();
 

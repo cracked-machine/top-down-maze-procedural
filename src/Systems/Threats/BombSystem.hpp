@@ -53,9 +53,9 @@ public:
   void on_bomb_event( const Events::PlayerActionEvent &event );
 
   //! @brief event handlers for pausing system clocks
-  void onPause() override;
+  void on_pause() override;
   //! @brief event handlers for resuming system clocks
-  void onResume() override;
+  void on_resume() override;
 
 private:
   const sf::Vector2f max_explosion_zone_size{ Constants::kGridSizePx.x * 3.f, Constants::kGridSizePx.y * 3.f };

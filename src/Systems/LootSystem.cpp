@@ -60,7 +60,7 @@ void LootSystem::check_loot_collision()
     auto player_hitbox = Cmp::RectBounds::scaled( pc_pos_cmp.position, pc_pos_cmp.size, 0.5f );
     for ( auto [loot_entt, loot_cmp, loot_pos_cmp, loot_sprite_anim] : loot_collision_view.each() )
     {
-      if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), loot_pos_cmp ) ) continue;
+      if ( not Utils::is_visible_in_view( RenderSystem::get_game_view(), loot_pos_cmp ) ) continue;
 
       if ( pc_pos_cmp.findIntersection( loot_pos_cmp ) )
       {

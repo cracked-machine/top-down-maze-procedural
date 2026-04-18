@@ -36,13 +36,13 @@ public:
   virtual ~RenderSystem() = default;
 
   //! @brief event handlers for pausing system clocks
-  void onPause() override {}
+  void on_pause() override {}
   //! @brief event handlers for resuming system clocks
-  void onResume() override {}
+  void on_resume() override {}
 
   //! @brief Accessor for the static game view
   //! @return const sf::View&
-  static const sf::View &getGameView() { return s_game_view; }
+  static const sf::View &get_game_view() { return s_world_view; }
 
 protected:
   //! @brief Z-order entry for rendering queue
@@ -62,7 +62,7 @@ protected:
 
   //! @brief Static view of the visible game area (not the entire game world)
   //! @return const sf::View&
-  static sf::View s_game_view;
+  static sf::View s_world_view;
 
   //! @brief Default font for rendering text
   Cmp::Font m_font = Cmp::Font( "res/fonts/tuffy.ttf" );

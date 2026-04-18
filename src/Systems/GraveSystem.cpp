@@ -67,7 +67,7 @@ void GraveSystem::check_player_grave_collision()
   {
     if ( grave_anim_cmp.m_sprite_type.contains( ".opened" ) ) continue;
 
-    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::getGameView() );
+    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_game_view() );
     if ( mouse_position_bounds.findIntersection( grave_cmp ) )
     {
       SPDLOG_DEBUG( "Found diggable entity at position: [{}, {}]!", grave_cmp.position.x, grave_cmp.position.y );

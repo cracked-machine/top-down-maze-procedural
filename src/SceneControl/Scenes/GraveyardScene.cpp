@@ -108,7 +108,7 @@ void GraveyardScene::on_init()
 
   m_sys.find<Sys::Store::Type::ExitSystem>().spawn_exit();
 
-  render_game_system.init_views();
+  render_game_system.init_world_view();
 
   m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().init_hazard_field();
   m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().init_hazard_field();

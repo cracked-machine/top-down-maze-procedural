@@ -378,7 +378,7 @@ void RenderOverlaySystem::render_ui_mouse_position()
   }
 
   sf::Vector2i mouse_pixel_pos = sf::Mouse::getPosition( m_window );
-  sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::getGameView() );
+  sf::Vector2f mouse_world_pos = m_window.mapPixelToCoords( mouse_pixel_pos, RenderSystem::get_game_view() );
 
   for ( const auto &ui_label : m_dbg_ui_data->m_labels )
   {
@@ -602,7 +602,7 @@ void RenderOverlaySystem::render_spatial_grid_neighbours( const Cmp::Position &q
 void RenderOverlaySystem::render_pathfinding_vector( const Cmp::Position &start_pos_cmp, const Cmp::Position &end_pos_cmp, sf::Color color,
                                                      PathFinding::QueryCompass query_compass )
 {
-  if ( not Utils::is_visible_in_view( RenderSystem::getGameView(), start_pos_cmp ) ) return;
+  if ( not Utils::is_visible_in_view( RenderSystem::get_game_view(), start_pos_cmp ) ) return;
 
   if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_pathfinding_navmesh.lock() )
   {

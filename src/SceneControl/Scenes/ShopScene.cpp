@@ -87,7 +87,7 @@ void ShopScene::on_enter()
   m_persistent_sys.initializeComponentRegistry();
   m_persistent_sys.load_state();
 
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().init_views();
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().init_world_view();
 
   auto &player_pos = Utils::Player::get_position( m_reg );
   player_pos.position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );

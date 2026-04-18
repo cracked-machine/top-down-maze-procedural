@@ -21,7 +21,7 @@
 namespace ProceduralMaze::Sys
 {
 
-void FootstepSystem::onPause()
+void FootstepSystem::on_pause()
 {
   auto footstep_timer_view = reg().view<Cmp::FootStepTimer>();
   for ( auto [entity, timer] : footstep_timer_view.each() )
@@ -31,7 +31,7 @@ void FootstepSystem::onPause()
   }
 }
 
-void FootstepSystem::onResume()
+void FootstepSystem::on_resume()
 {
   auto footstep_timer_view = reg().view<Cmp::FootStepTimer>();
   for ( auto [entity, timer] : footstep_timer_view.each() )

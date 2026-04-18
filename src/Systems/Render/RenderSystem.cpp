@@ -127,6 +127,6 @@ void RenderSystem::render_rectbounds( Cmp::RectBounds &bounds, sf::Color color )
   m_window.draw( rect );
 }
 
-sf::View RenderSystem::s_game_view{};
+sf::View RenderSystem::s_world_view{};
 
 } // namespace ProceduralMaze::Sys

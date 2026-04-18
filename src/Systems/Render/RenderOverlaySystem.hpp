@@ -140,7 +140,7 @@ public:
     // Save the current view
     sf::View previous_view = m_window.getView();
     // Set the game view for world-space rendering
-    m_window.setView( RenderSystem::s_game_view );
+    m_window.setView( RenderSystem::s_world_view );
 
     auto requested_view = reg().view<Component>();
     for ( auto [entity, requested_cmp] : requested_view.each() )
@@ -165,9 +165,9 @@ public:
   }
 
   //! @brief event handlers for pausing system clocks
-  void onPause() override {}
+  void on_pause() override {}
   //! @brief event handlers for resuming system clocks
-  void onResume() override {}
+  void on_resume() override {}
 
 private:
   // restrict the debug data update to every 1 second (optimization)

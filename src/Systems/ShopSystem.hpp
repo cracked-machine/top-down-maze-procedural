@@ -36,9 +36,9 @@ public:
   void on_buy_shop_item( const Events::BuyShopItemEvent &ev ) { buy_shop_item( ev.m_item_idx ); }
 
   //! @brief event handlers for pausing system clocks
-  void onPause() override {}
+  void on_pause() override {}
   //! @brief event handlers for resuming system clocks
-  void onResume() override {}
+  void on_resume() override {}
 
 private:
   //! @brief Dispatcher reference for scene management events

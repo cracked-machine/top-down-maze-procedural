@@ -67,8 +67,8 @@ public:
 
   void add_spike_traps();
 
-  virtual void onPause() override {}
-  virtual void onResume() override {}
+  virtual void on_pause() override {}
+  virtual void on_resume() override {}
 
 private:
   //! @brief Removes all Cmp::CryptPassageBlock entities

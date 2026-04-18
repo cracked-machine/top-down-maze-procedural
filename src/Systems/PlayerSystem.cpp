@@ -527,7 +527,7 @@ void PlayerSystem::check_player_axe_npc_kill()
   for ( auto [npc_entity, npc_pos_cmp, npc_cmp, anim_cmp] : position_view.each() )
   {
     if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) continue;
-    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::getGameView() );
+    auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_game_view() );
     if ( mouse_position_bounds.findIntersection( npc_pos_cmp ) )
     {
       SPDLOG_DEBUG( "Found NPC entity at position: [{}, {}]!", npc_pos_cmp.position.x, npc_pos_cmp.position.y );
