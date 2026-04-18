@@ -15,6 +15,9 @@ public:
   {
     sf::FloatRect rect;
     std::string name;
+    sf::Color fill_color;
+    sf::Color line_color;
+    int line_thickness;
   };
 
   struct Icon
@@ -46,9 +49,11 @@ public:
   std::string get_string( const nlohmann::json &json_object, const std::string &field, std::source_location loc = std::source_location::current() );
   float get_float( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
   int get_int( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
+  sf::Color get_color( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
 
   int get_int_property( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
   std::string get_string_property( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
+  sf::Color get_color_property( const nlohmann::json &json, const std::string &field, std::source_location loc = std::source_location::current() );
 
   sf::FloatRect get_float_rect( const nlohmann::json &json_object );
 

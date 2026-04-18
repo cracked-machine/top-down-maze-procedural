@@ -60,9 +60,9 @@ void RenderOverlaySystem::render_ui_outlines()
   {
     auto rect = sf::RectangleShape( outline.rect.size );
     rect.setPosition( outline.rect.position );
-    rect.setFillColor( sf::Color( 48, 48, 64, 128 ) );
-    rect.setOutlineColor( sf::Color::Black );
-    rect.setOutlineThickness( 5.f );
+    rect.setFillColor( outline.fill_color );
+    rect.setOutlineColor( outline.line_color );
+    rect.setOutlineThickness( static_cast<float>( outline.line_thickness ) );
     draw_screen( rect );
   }
 }
@@ -285,9 +285,9 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
   {
     auto rect = sf::RectangleShape( outline.rect.size );
     rect.setPosition( outline.rect.position );
-    rect.setFillColor( sf::Color( 48, 48, 64, 128 ) );
-    rect.setOutlineColor( sf::Color::Black );
-    rect.setOutlineThickness( 5.f );
+    rect.setFillColor( outline.fill_color );
+    rect.setOutlineColor( outline.line_color );
+    rect.setOutlineThickness( static_cast<float>( outline.line_thickness ) );
     draw_screen( rect );
   }
 

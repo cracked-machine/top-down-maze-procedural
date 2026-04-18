@@ -38,7 +38,7 @@
             "scale": 0.33,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 843.9393939393941,
+                "x": 803.0303030303031,
                 "y": 489.39393939393926
             }
         },
@@ -46,11 +46,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 2,
+            "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1028.25,
-                "y": 146.25
+                "x": 937.3333333333333,
+                "y": 210.99999999999997
             }
         },
         "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json": {
@@ -60,7 +60,7 @@
             "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 255.75,
+                "x": 249,
                 "y": 188.75
             }
         },

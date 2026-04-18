@@ -12,6 +12,22 @@
                  "id":1,
                  "name":"shop_outline",
                  "opacity":1,
+                 "properties":[
+                        {
+                         "name":"fill_color",
+                         "type":"color",
+                         "value":"#ff404040"
+                        }, 
+                        {
+                         "name":"line_color",
+                         "type":"color",
+                         "value":"#ff000000"
+                        }, 
+                        {
+                         "name":"line_thickness",
+                         "type":"int",
+                         "value":5
+                        }],
                  "rotation":0,
                  "type":"ui_outline",
                  "visible":true,
@@ -24,6 +40,22 @@
                  "id":2,
                  "name":"slot1_outline",
                  "opacity":1,
+                 "properties":[
+                        {
+                         "name":"fill_color",
+                         "type":"color",
+                         "value":"#40404040"
+                        }, 
+                        {
+                         "name":"line_color",
+                         "type":"color",
+                         "value":"#ff000000"
+                        }, 
+                        {
+                         "name":"line_thickness",
+                         "type":"int",
+                         "value":5
+                        }],
                  "rotation":0,
                  "type":"ui_outline",
                  "visible":true,
@@ -36,6 +68,22 @@
                  "id":3,
                  "name":"slot2_outline",
                  "opacity":1,
+                 "properties":[
+                        {
+                         "name":"fill_color",
+                         "type":"color",
+                         "value":"#40404040"
+                        }, 
+                        {
+                         "name":"line_color",
+                         "type":"color",
+                         "value":"#ff000000"
+                        }, 
+                        {
+                         "name":"line_thickness",
+                         "type":"int",
+                         "value":5
+                        }],
                  "rotation":0,
                  "type":"ui_outline",
                  "visible":true,
@@ -48,6 +96,22 @@
                  "id":4,
                  "name":"slot3_outline",
                  "opacity":1,
+                 "properties":[
+                        {
+                         "name":"fill_color",
+                         "type":"color",
+                         "value":"#40404040"
+                        }, 
+                        {
+                         "name":"line_color",
+                         "type":"color",
+                         "value":"#ff000000"
+                        }, 
+                        {
+                         "name":"line_thickness",
+                         "type":"int",
+                         "value":5
+                        }],
                  "rotation":0,
                  "type":"ui_outline",
                  "visible":true,
