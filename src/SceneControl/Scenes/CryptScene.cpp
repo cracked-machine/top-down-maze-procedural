@@ -33,7 +33,7 @@ void CryptScene::on_init()
 {
 
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
-  m_persistent_sys.initializeComponentRegistry();
+  m_persistent_sys.initialize_component_registry();
   m_persistent_sys.load_state();
 
   m_scene_map_data = std::make_shared<SceneData>( "res/scenes/crypt.json" );
@@ -87,7 +87,7 @@ void CryptScene::on_enter()
   SPDLOG_INFO( "Entering {}", get_name() );
 
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
-  m_persistent_sys.initializeComponentRegistry();
+  m_persistent_sys.initialize_component_registry();
   m_persistent_sys.load_state();
 
   m_sys.find<Sys::Store::Type::RenderGameSystem>().init_world_view();

@@ -33,7 +33,7 @@ namespace ProceduralMaze::Scene
 void ShopScene::on_init()
 {
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
-  m_persistent_sys.initializeComponentRegistry();
+  m_persistent_sys.initialize_component_registry();
   m_persistent_sys.load_state();
 
   m_scene_map_data = std::make_shared<SceneData>( "res/scenes/shop.json" );
@@ -85,7 +85,7 @@ void ShopScene::on_enter()
   m_sound_bank.get_music( "game_music" ).stop();
 
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
-  m_persistent_sys.initializeComponentRegistry();
+  m_persistent_sys.initialize_component_registry();
   m_persistent_sys.load_state();
 
   m_sys.find<Sys::Store::Type::RenderGameSystem>().init_world_view();

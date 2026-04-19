@@ -273,10 +273,8 @@ void RenderGameSystem::init_world_view()
   s_world_view.setCenter( start_pos );
 }
 
-void RenderGameSystem::init_shaders()
+void RenderGameSystem::init_shaders( const Cmp::Persist::DisplayResolution &display_res )
 {
-  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-
   m_water_shader = std::make_unique<Sprites::FloodWaterShader>( "res/shaders/Generic.vert", "res/shaders/FloodWater2.frag", display_res );
   m_pulsing_shader = std::make_unique<Sprites::PulsingShader>( "res/shaders/Generic.vert", "res/shaders/RedPulsingSand.frag", display_res );
   m_mist_shader = std::make_unique<Sprites::MistShader>( "res/shaders/Generic.vert", "res/shaders/MistShader.frag", display_res );

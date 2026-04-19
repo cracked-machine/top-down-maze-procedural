@@ -40,7 +40,7 @@ void RuinSceneUpperFloor::on_init()
   auto gridsize = Constants::kGridSizePxF;
 
   auto &m_persistent_sys = m_sys.find<Store::Type::PersistSystem>();
-  m_persistent_sys.initializeComponentRegistry();
+  m_persistent_sys.initialize_component_registry();
   m_persistent_sys.load_state();
 
   m_scene_map_data = std::make_shared<SceneData>( "res/scenes/ruinupper.json" );
@@ -94,7 +94,7 @@ void RuinSceneUpperFloor::on_enter()
     if ( m_sound_bank.get_music( "ruin_music" ).getStatus() != sf::Sound::Status::Playing ) { m_sound_bank.get_music( "ruin_music" ).play(); }
   }
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
-  m_persistent_sys.initializeComponentRegistry();
+  m_persistent_sys.initialize_component_registry();
   m_persistent_sys.load_state();
 
   m_sys.find<Sys::Store::Type::RenderGameSystem>().init_world_view();

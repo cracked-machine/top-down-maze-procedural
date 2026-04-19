@@ -35,7 +35,7 @@ T &PersistSystem::get( entt::registry &reg )
 }
 
 template <typename T>
-void PersistSystem::registerTypes( const std::string &name )
+void PersistSystem::register_types( const std::string &name )
 {
   // Register loader
   m_component_loaders[name] = [this]( const nlohmann::json &j )

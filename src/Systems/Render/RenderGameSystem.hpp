@@ -2,6 +2,7 @@
 #define __SYS_RENDERGAMESYSTEM_HPP__
 
 #include <Components/SpriteAnimation.hpp>
+#include <Persistent/DisplayResolution.hpp>
 #include <Shaders/DarkModeShader.hpp>
 #include <Shaders/DrippingBloodShader.hpp>
 #include <Shaders/FloodWaterShader.hpp>
@@ -67,8 +68,9 @@ public:
   //! @brief This should be called by scene "on enter" functions.
   void init_world_view();
 
-  //! @brief Initializes the shaders used for rendering
-  void init_shaders();
+  //! @brief Initializes the shaders.
+  //! @param display_res Dimensions for initializing internal shader textures
+  void init_shaders( const Cmp::Persist::DisplayResolution &display_res );
 
   void updateCamera( sf::Time deltaTime );
 

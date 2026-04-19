@@ -70,7 +70,7 @@ PersistSystem::PersistSystem( entt::registry &reg, sf::RenderWindow &window, Spr
   SPDLOG_DEBUG( "PersistSystem initialized" );
 }
 
-void PersistSystem::initializeTypeRegistry()
+void PersistSystem::initialize_type_registry()
 {
   using namespace Cmp::Persist;
 
@@ -81,7 +81,7 @@ void PersistSystem::initializeTypeRegistry()
     {
       Sys::PersistSystem::add<T>( reg() );
       Sys::PersistSystem::get<T>( reg() ).deserialize( json );
-      registerTypes<T>( name );
+      register_types<T>( name );
     };
   };
 
@@ -135,11 +135,11 @@ void PersistSystem::initializeTypeRegistry()
   // clang-format on
 }
 
-void PersistSystem::initializeComponentRegistry()
+void PersistSystem::initialize_component_registry()
 {
 
   // First, set up the type registry (maps type names to factory functions)
-  initializeTypeRegistry();
+  initialize_type_registry();
 
   // Load component definitions from JSON
   std::ifstream inputFile( "res/json/persistent_components.json" );

@@ -12,6 +12,7 @@
 #include <Npc/NpcNoPathFinding.hpp>
 #include <Obstacle.hpp>
 #include <Optimizations.hpp>
+#include <Persistent/DisplayResolution.hpp>
 #include <Player/PlayerCharacter.hpp>
 #include <Player/PlayerLevelDepth.hpp>
 #include <ReservedPosition.hpp>
@@ -52,12 +53,11 @@ void GraveyardScene::on_init()
   SPDLOG_INFO( "Init {}", get_name() );
 
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
-  m_persistent_sys.initializeComponentRegistry();
+  m_persistent_sys.initialize_component_registry();
   m_persistent_sys.load_state();
 
-  auto &render_game_system = m_sys.find<Sys::Store::Type::RenderGameSystem>();
-  SPDLOG_INFO( "Got render_game_system at {}", static_cast<void *>( &render_game_system ) );
-  render_game_system.init_shaders();
+  // We only have access to DisplayResolution once the PersistSystem is initialized.
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().init_shaders( Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( m_reg ) );
 
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
@@ -108,7 +108,7 @@ void GraveyardScene::on_init()
 
   m_sys.find<Sys::Store::Type::ExitSystem>().spawn_exit();
 
-  render_game_system.init_world_view();
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().init_world_view();
 
   m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().init_hazard_field();
   m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().init_hazard_field();
@@ -127,7 +127,7 @@ void GraveyardScene::on_enter()
   reinit_navmesh();
 
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
-  m_persistent_sys.initializeComponentRegistry();
+  m_persistent_sys.initialize_component_registry();
   m_persistent_sys.load_state();
 
   m_sound_bank.get_music( "title_music" ).stop();

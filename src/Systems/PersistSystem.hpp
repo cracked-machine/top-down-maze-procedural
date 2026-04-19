@@ -20,11 +20,6 @@ class PersistSystem : public BaseSystem
 public:
   PersistSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
-  //! @brief event handlers for pausing system clocks
-  void on_pause() override {}
-  //! @brief event handlers for resuming system clocks
-  void on_resume() override {}
-
   /**
    * @brief Loads the persistent state data from storage.
    *
@@ -68,7 +63,7 @@ public:
    * system initialization to ensure all persistent components are properly
    * configured and available for use.
    */
-  void initializeComponentRegistry();
+  void initialize_component_registry();
 
   // Only declare templates in public API
   //! @brief Add a persistent component to the registry's context if it doesn't already exist
@@ -95,15 +90,20 @@ public:
   // Accessor for RenderMenuSystem to iterate components
   const std::vector<Cmp::Persist::IBasePersistent *> &get_registered_components() { return m_registered_components; }
 
+  //! @brief event handlers for pausing system clocks
+  void on_pause() override {}
+  //! @brief event handlers for resuming system clocks
+  void on_resume() override {}
+
 private:
-  void initializeTypeRegistry();
+  void initialize_type_registry();
 
   //! @brief registers the serialize/deserialize function with the given JSON object name and Component type.
   //! @tparam T
   //! @param name
   //! @param config
   template <typename T>
-  void registerTypes( const std::string &name );
+  void register_types( const std::string &name );
 
   /**
    * @brief Map of component loader functions indexed by component type name.

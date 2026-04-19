@@ -15,7 +15,7 @@ void SettingsMenuScene::on_enter()
 {
   SPDLOG_INFO( "Entering  {}", get_name() );
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
-  m_persistent_sys.initializeComponentRegistry();
+  m_persistent_sys.initialize_component_registry();
   m_persistent_sys.load_state();
 }
 void SettingsMenuScene::on_exit()

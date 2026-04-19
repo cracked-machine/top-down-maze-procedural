@@ -19,7 +19,7 @@ void LevelCompleteScene::on_enter()
 {
   SPDLOG_INFO( "Entering {}", get_name() );
   auto &persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
-  persistent_sys.initializeComponentRegistry();
+  persistent_sys.initialize_component_registry();
   persistent_sys.load_state();
   m_sound_bank.get_music( "game_music" ).stop();
   m_sound_bank.get_music( "title_music" ).play();
