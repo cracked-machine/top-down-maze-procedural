@@ -7,6 +7,11 @@
 
 #include <SFML/System/Time.hpp>
 
+namespace ProceduralMaze::Sprites
+{
+class TitleScreenShader;
+} // namespace ProceduralMaze::Sprites
+
 namespace ProceduralMaze::Sys
 {
 
@@ -34,14 +39,13 @@ public:
       : RenderSystem( reg, window, sprite_factory, sound_bank )
   {
   }
-  ~RenderMenuSystem() = default;
+  ~RenderMenuSystem();
 
   //! @brief event handlers for pausing system clocks
   void on_pause() override {}
   //! @brief event handlers for resuming system clocks
   void on_resume() override {}
 
-  void init_title();
   void render_title();
 
   void render_settings_widgets( sf::Time globalDeltaTime, sf::FloatRect title_text_dimensions );
@@ -50,9 +54,13 @@ public:
   void render_defeat_screen();
   void render_victory_screen( bool allow_continue );
 
+  //! @brief Initializes the shaders.
+  //! @param display_res Dimensions for initializing internal shader textures
+  void init_title_shaders( const Cmp::Persist::DisplayResolution &display_res );
+
 private:
-  // std::unique_ptr<Sprites::TitleScreenShader> m_title_screen_shader;
-  Sprites::TitleScreenShader m_title_screen_shader{ "res/shaders/Generic.vert", "res/shaders/TitleScreen.frag", { 1u, 1u } };
+  // Lazy initialize the shaders - RenderMenuSystem::init_shaders() - once we know the screen resolution.
+  std::unique_ptr<Sprites::TitleScreenShader> m_title_screen_shader;
 };
 
 } // namespace ProceduralMaze::Sys

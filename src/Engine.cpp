@@ -65,7 +65,9 @@ bool Engine::run()
   {
     loading_screen( [this]() { this->init_systems(); }, m_splash_texture );
 
-    m_scene_manager->push( std::make_unique<Scene::TitleScene>( *m_sound_bank, *m_system_store, m_nav_event_dispatcher ) );
+    auto title_scene = std::make_unique<Scene::TitleScene>( *m_sound_bank, *m_system_store, m_nav_event_dispatcher );
+    m_scene_manager->push( std::move( title_scene ) );
+
     sf::Clock tick;
 
     /// MAIN LOOP BEGINS

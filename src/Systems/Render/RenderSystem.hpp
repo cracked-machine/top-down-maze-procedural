@@ -1,6 +1,8 @@
 #ifndef __SYSTEMS_RENDER_SYSTEM_HPP__
 #define __SYSTEMS_RENDER_SYSTEM_HPP__
 
+#include <Persistent/DisplayResolution.hpp>
+#include <Shaders/TitleScreenShader.hpp>
 #include <entt/entity/fwd.hpp>
 
 #include <SFML/Graphics/Color.hpp>
@@ -33,7 +35,7 @@ public:
   RenderSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   //! @brief polymorphic destructor for derived classes
-  virtual ~RenderSystem() = default;
+  virtual ~RenderSystem();
 
   //! @brief event handlers for pausing system clocks
   void on_pause() override {}

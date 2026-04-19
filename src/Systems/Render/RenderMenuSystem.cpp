@@ -62,16 +62,17 @@
 
 #include "imgui-SFML.h"
 #include <imgui.h>
+#include <stdexcept>
 
 namespace ProceduralMaze::Sys
 {
 
-void RenderMenuSystem::init_title()
+void RenderMenuSystem::init_title_shaders( const Cmp::Persist::DisplayResolution &display_res )
 {
-  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-  m_title_screen_shader.resize_texture( display_size );
-  m_title_screen_shader.setup();
+  m_title_screen_shader = std::make_unique<Sprites::TitleScreenShader>( "res/shaders/Generic.vert", "res/shaders/TitleScreen.frag", display_res );
 }
+
+RenderMenuSystem::~RenderMenuSystem() = default;
 
 void RenderMenuSystem::render_title()
 {
@@ -79,12 +80,13 @@ void RenderMenuSystem::render_title()
   m_window.clear();
   {
     // shaders
-    m_title_screen_shader.set_position( { 0, 0 } );
+    if ( not m_title_screen_shader ) { throw std::runtime_error( "RenderMenuSystem::render_title - title shader is not initalised" ); }
+    m_title_screen_shader->set_position( { 0, 0 } );
     sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
 
     const auto mouse_pos = sf::Vector2f( sf::Mouse::getPosition( m_window ) ).componentWiseDiv( sf::Vector2f( m_window.getSize() ) );
-    m_title_screen_shader.update( mouse_pos, display_size );
-    m_window.draw( m_title_screen_shader );
+    m_title_screen_shader->update( mouse_pos, display_size );
+    m_window.draw( *m_title_screen_shader );
 
     // text
     sf::Color txt_color{ 64, 96, 184 };
@@ -164,8 +166,10 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
 
       m_window.create( sf::VideoMode( display_resolution ), "Your Game Title", sf::State::Fullscreen );
       m_window.setVerticalSyncEnabled( true );
-      m_title_screen_shader.resize_texture( display_resolution );
-      init_title();
+
+      // init_title_shaders( display_resolution );
+      if ( not m_title_screen_shader ) { throw std::runtime_error( "RenderMenuSystem::render_settings_widgets - title shader is not initalised" ); }
+      m_title_screen_shader->resize_texture( display_resolution );
 
       SPDLOG_DEBUG( "Selected resolution: {}x{}", display_resolution.x, display_resolution.y );
     }

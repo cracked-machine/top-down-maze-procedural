@@ -57,7 +57,7 @@ void GraveyardScene::on_init()
   m_persistent_sys.load_state();
 
   // We only have access to DisplayResolution once the PersistSystem is initialized.
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().init_shaders( Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( m_reg ) );
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().init_world_shaders( Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( m_reg ) );
 
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );

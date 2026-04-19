@@ -1,5 +1,12 @@
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/RectBounds.hpp>
+#include <Shaders/DarkModeShader.hpp>
+#include <Shaders/DrippingBloodShader.hpp>
+#include <Shaders/FloodWaterShader.hpp>
+#include <Shaders/MistShader.hpp>
+#include <Shaders/PulsingShader.hpp>
+#include <Shaders/TitleScreenShader.hpp>
+#include <Shaders/ViewFragmentShader.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderBuffer.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -18,6 +25,8 @@ RenderSystem::RenderSystem( entt::registry &reg, sf::RenderWindow &window, Sprit
 {
   SPDLOG_DEBUG( "RenderSystem constructor called" );
 }
+
+RenderSystem::~RenderSystem() = default;
 
 void RenderSystem::render_text( std::string text, unsigned int size, sf::Vector2f position, Alignment align, float letter_spacing,
                                 sf::Color fill_color, sf::Color outline_color )

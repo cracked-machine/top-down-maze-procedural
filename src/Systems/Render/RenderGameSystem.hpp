@@ -3,33 +3,36 @@
 
 #include <Components/SpriteAnimation.hpp>
 #include <Persistent/DisplayResolution.hpp>
-#include <Shaders/DarkModeShader.hpp>
-#include <Shaders/DrippingBloodShader.hpp>
-#include <Shaders/FloodWaterShader.hpp>
-#include <Shaders/MistShader.hpp>
-#include <Shaders/PulsingShader.hpp>
-#include <Shaders/ViewFragmentShader.hpp>
+
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Optimizations.hpp>
 
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <memory>
 
 namespace ProceduralMaze::Sprites
 {
 class MultiSprite;
 class SpriteFactory;
+class FloodWaterShader;
+class ViewFragmentShader;
+class PulsingShader;
+class MistShader;
+class DarkModeShader;
+class DrippingBloodShader;
 } // namespace ProceduralMaze::Sprites
+
 namespace ProceduralMaze::Sprites::Containers
 {
 class TileMap;
 } // namespace ProceduralMaze::Sprites::Containers
+
 namespace ProceduralMaze::PathFinding
 {
 class SpatialHashGrid;
 } // namespace ProceduralMaze::PathFinding
+
 namespace ProceduralMaze::Cmp
 {
 class ZOrderValue;
@@ -50,7 +53,7 @@ class RenderGameSystem : public RenderSystem
 {
 public:
   RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
-  ~RenderGameSystem() = default;
+  ~RenderGameSystem();
 
   //! @brief Entrypoint for rendering the game
   //! @param deltaTime
@@ -68,13 +71,21 @@ public:
   //! @brief This should be called by scene "on enter" functions.
   void init_world_view();
 
-  //! @brief Initializes the shaders.
-  //! @param display_res Dimensions for initializing internal shader textures
-  void init_shaders( const Cmp::Persist::DisplayResolution &display_res );
-
   void updateCamera( sf::Time deltaTime );
 
+  //! @brief Initializes the shaders.
+  //! @param display_res Dimensions for initializing internal shader textures
+  void init_world_shaders( const Cmp::Persist::DisplayResolution &display_res );
+
 private:
+  // Lazy initialize the shaders - RenderGameSystem::init_shaders() - once we know the screen resolution.
+  std::unique_ptr<Sprites::FloodWaterShader> m_water_shader;
+  std::unique_ptr<Sprites::ViewFragmentShader> m_wormhole_shader;
+  std::unique_ptr<Sprites::PulsingShader> m_pulsing_shader;
+  std::unique_ptr<Sprites::MistShader> m_mist_shader;
+  std::unique_ptr<Sprites::DarkModeShader> m_dark_mode_shader;
+  std::unique_ptr<Sprites::DrippingBloodShader> m_dripping_blood_shader;
+
   sf::Vector2f m_camera_position{ 0.f, 0.f }; // Smoothed camera position
   bool m_camera_initialized{ false };
 
@@ -142,14 +153,6 @@ private:
   void on_pause() override {}
   //! @brief event handlers for resuming system clocks
   void on_resume() override {}
-
-  // Lazy initialize the shaders - RenderGameSystem::init_shaders() - once we know the screen resolution.
-  std::unique_ptr<Sprites::FloodWaterShader> m_water_shader;
-  std::unique_ptr<Sprites::ViewFragmentShader> m_wormhole_shader;
-  std::unique_ptr<Sprites::PulsingShader> m_pulsing_shader;
-  std::unique_ptr<Sprites::MistShader> m_mist_shader;
-  std::unique_ptr<Sprites::DarkModeShader> m_dark_mode_shader;
-  std::unique_ptr<Sprites::DrippingBloodShader> m_dripping_blood_shader;
 
   // optimize the debug overlay updates to every n milliseconds
   const sf::Time m_debug_update_interval{ sf::milliseconds( 10 ) };

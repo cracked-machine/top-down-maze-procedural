@@ -12,7 +12,21 @@
 namespace ProceduralMaze::Scene
 {
 
-void TitleScene::on_init() { SPDLOG_INFO( "Initializing TitleScene" ); }
+void TitleScene::on_init()
+{
+
+  SPDLOG_INFO( "Initializing TitleScene" );
+
+  auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
+  m_persistent_sys.initialize_component_registry();
+  m_persistent_sys.load_state();
+
+  SPDLOG_INFO( "Initializing TitleScene" );
+
+  // We only have access to DisplayResolution once the PersistSystem is initialized.
+  m_sys.find<Sys::Store::Type::RenderMenuSystem>().init_title_shaders( Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( m_reg ) );
+  SPDLOG_INFO( "Initializing TitleScene" );
+}
 
 void TitleScene::on_enter()
 {
@@ -21,9 +35,6 @@ void TitleScene::on_enter()
   auto &m_persistent_sys = m_sys.find<Sys::Store::Type::PersistSystem>();
   m_persistent_sys.initialize_component_registry();
   m_persistent_sys.load_state();
-
-  auto &m_render_menu_sys = m_sys.find<Sys::Store::Type::RenderMenuSystem>();
-  m_render_menu_sys.init_title();
 
   // update fx volumes with persistent settings
   auto &effects_volume = Sys::PersistSystem::get<Cmp::Persist::EffectsVolume>( m_reg ).get_value();

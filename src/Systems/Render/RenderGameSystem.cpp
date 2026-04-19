@@ -44,8 +44,12 @@
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Random.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
+#include <Shaders/DarkModeShader.hpp>
+#include <Shaders/DrippingBloodShader.hpp>
 #include <Shaders/FloodWaterShader.hpp>
+#include <Shaders/MistShader.hpp>
 #include <Shaders/PulsingShader.hpp>
+#include <Shaders/ViewFragmentShader.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/TileMap.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -82,6 +86,8 @@ RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &windo
 {
   SPDLOG_DEBUG( "RenderGameSystem initialized" );
 }
+
+RenderGameSystem::~RenderGameSystem() = default;
 
 void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap, DarkMode dark_mode,
                                     WeatherMode weather_mode, CursedMode cursed_mode, BackGroundMode bg_mode )
@@ -271,17 +277,6 @@ void RenderGameSystem::init_world_view()
 
   auto start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( reg() );
   s_world_view.setCenter( start_pos );
-}
-
-void RenderGameSystem::init_shaders( const Cmp::Persist::DisplayResolution &display_res )
-{
-  m_water_shader = std::make_unique<Sprites::FloodWaterShader>( "res/shaders/Generic.vert", "res/shaders/FloodWater2.frag", display_res );
-  m_pulsing_shader = std::make_unique<Sprites::PulsingShader>( "res/shaders/Generic.vert", "res/shaders/RedPulsingSand.frag", display_res );
-  m_mist_shader = std::make_unique<Sprites::MistShader>( "res/shaders/Generic.vert", "res/shaders/MistShader.frag", display_res );
-  m_dark_mode_shader = std::make_unique<Sprites::DarkModeShader>( "res/shaders/Generic.vert", "res/shaders/DarkMode.frag", display_res );
-  m_dripping_blood_shader = std::make_unique<Sprites::DrippingBloodShader>( "res/shaders/Generic.vert", "res/shaders/Generic.frag", display_res );
-  m_wormhole_shader = std::make_unique<Sprites::ViewFragmentShader>( "res/shaders/Generic.vert", "res/shaders/SimpleDistortionField.frag",
-                                                                     Constants::kGridSizePx.componentWiseMul( { 3u, 3u } ) );
 }
 
 void RenderGameSystem::updateCamera( sf::Time deltaTime )
@@ -697,6 +692,17 @@ void RenderGameSystem::render_screen_flash( sf::Color color )
   flash.setFillColor( color );
   // draw flash in screen view so it covers the whole screen in screen-space
   draw_screen( flash );
+}
+
+void RenderGameSystem::init_world_shaders( const Cmp::Persist::DisplayResolution &display_res )
+{
+  m_water_shader = std::make_unique<Sprites::FloodWaterShader>( "res/shaders/Generic.vert", "res/shaders/FloodWater2.frag", display_res );
+  m_pulsing_shader = std::make_unique<Sprites::PulsingShader>( "res/shaders/Generic.vert", "res/shaders/RedPulsingSand.frag", display_res );
+  m_mist_shader = std::make_unique<Sprites::MistShader>( "res/shaders/Generic.vert", "res/shaders/MistShader.frag", display_res );
+  m_dark_mode_shader = std::make_unique<Sprites::DarkModeShader>( "res/shaders/Generic.vert", "res/shaders/DarkMode.frag", display_res );
+  m_dripping_blood_shader = std::make_unique<Sprites::DrippingBloodShader>( "res/shaders/Generic.vert", "res/shaders/Generic.frag", display_res );
+  m_wormhole_shader = std::make_unique<Sprites::ViewFragmentShader>( "res/shaders/Generic.vert", "res/shaders/SimpleDistortionField.frag",
+                                                                     Constants::kGridSizePx.componentWiseMul( { 3u, 3u } ) );
 }
 
 } // namespace ProceduralMaze::Sys
