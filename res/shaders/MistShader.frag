@@ -4,6 +4,8 @@ uniform sampler2D tex;
 uniform float time;
 uniform float alpha;
 uniform vec2 resolution;
+uniform vec2 viewTopLeft; // world-space top-left of the current view
+uniform vec2 viewSize;    // world-space size of the current view
 
 out vec4 outColor;
 
@@ -44,9 +46,14 @@ float fbm( vec2 p )
 
 void main()
 {
-  vec2 texCoord = gl_FragCoord.xy / resolution;
+  // Convert screen pixel to world position
+  vec2 normalizedScreen = gl_FragCoord.xy / resolution;
+  // Flip Y because gl_FragCoord Y is bottom-up, but world Y is top-down
+  normalizedScreen.y = 1.0 - normalizedScreen.y;
+  vec2 worldPos = viewTopLeft + normalizedScreen * viewSize;
 
-  vec2 mistCoord = texCoord * 3.0;
+  // Use world position for noise so mist is anchored to the world
+  vec2 mistCoord = worldPos * 0.01; // scale factor (higher = zoom out, lower = zoom in)
   mistCoord.x -= time * 0.05;
   mistCoord.y += time * 0.008;
 
@@ -61,6 +68,5 @@ void main()
   cloudDensity *= smoothstep( 0.45, 0.55, cloud2 );
   cloudDensity = pow( cloudDensity, 1.5 );
 
-  // No tex sampling - pure procedural noise fixed to screen space
   outColor = vec4( vec3( 0.95, 0.96, 0.98 ), cloudDensity * 0.65 * alpha );
 }

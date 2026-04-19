@@ -20,7 +20,7 @@ public:
 
   ~MistShader() override = default;
 
-  void pre_setup_texture() override { m_render_texture.clear( sf::Color( 16, 32, 32 ) ); }
+  void pre_setup_texture() override { m_render_texture.clear( sf::Color( 16, 128, 32 ) ); }
 
   void post_setup_shader() override {}
 };

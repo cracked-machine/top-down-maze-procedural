@@ -389,13 +389,18 @@ void RenderGameSystem::render_water_shader()
 void RenderGameSystem::render_mist()
 {
   sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
+  sf::Vector2f view_center = s_world_view.getCenter();
+  sf::Vector2f view_size = s_world_view.getSize();
+  sf::Vector2f view_top_left = { view_center.x - view_size.x / 2.f, view_center.y - view_size.y / 2.f };
 
   if ( not m_mist_shader ) { throw std::runtime_error( "RenderGameSystem::render_mist - mist shader is not initalised" ); }
   // clang-format off
   m_mist_shader->Sprites::BaseShader::update( 
     Sprites::UniformBuilder{}
-      .set( "alpha", 0.25f )
-      .set( "resolution", sf::Vector2f{ display_size } ) 
+      .set( "alpha", 0.75f )
+      .set( "resolution", sf::Vector2f{ display_size } )
+      .set( "viewTopLeft", view_top_left )
+      .set( "viewSize", view_size )
   );
   // clang-format on
   m_mist_shader->set_position( { 0, 0 } );
