@@ -75,7 +75,7 @@ public:
 
   //! @brief Initializes the shaders.
   //! @param display_res Dimensions for initializing internal shader textures
-  void init_world_shaders( const Cmp::Persist::DisplayResolution &display_res );
+  void init_world_shaders( const sf::Vector2u &map_size );
 
 private:
   // Lazy initialize the shaders - RenderGameSystem::init_shaders() - once we know the screen resolution.
@@ -95,27 +95,36 @@ private:
   //! @brief Renders the armed obstacles in the game world
   void render_armed();
 
+  //! @brief Used by CryptScene for Priest NPC weapon
+  //! @param floormap
   void render_shockwaves( Sprites::Containers::TileMap &floormap );
 
-  //! @brief Renders the flood water background effect
-  //! @param player_position
-  void render_water_shader( sf::FloatRect player_position );
+  //! @brief Used by GraveyardScene
+  void render_water_shader();
 
-  //! @brief Renders the mist effect over the game world
-  void render_mist( sf::FloatRect player_position );
+  //! @brief Used by GraveyardScene
+  void render_mist();
 
-  //! @brief Renders the arrow compass effect
-  void render_arrow_compass();
-
+  //! @brief Used by CryptScene
   void render_dark_mode_shader();
 
-  void render_cursed_mode_shader( sf::FloatRect player_position );
+  //! @brief Used by RuinScene
+  void render_cursed_mode_shader();
 
+  //! @brief Used by GraveyardScene when player has key and relic carryitems
+  void render_arrow_compass();
+
+  //! @brief Used by GraveyardScene when player places a seeing stone
   void render_seeingstone_doglegs();
+
+  //! @brief Used by GraveyardScene when player is struck by lightning
   void render_lightning_strike();
 
+  //! @brief Render all particle system sprites
   void render_particle_sprites();
 
+  //! @brief Flashes the screen
+  //! @param color
   void render_screen_flash( sf::Color color );
 
   //! @brief Adds visible entities of a specific component type to the Z-order queue

@@ -56,9 +56,6 @@ void GraveyardScene::on_init()
   m_persistent_sys.initialize_component_registry();
   m_persistent_sys.load_state();
 
-  // We only have access to DisplayResolution once the PersistSystem is initialized.
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().init_world_shaders( Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( m_reg ) );
-
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
 
@@ -80,6 +77,9 @@ void GraveyardScene::on_init()
 
   auto [map_size_grid, map_size_pixel] = m_scene_map_data->map_size();
   SPDLOG_INFO( "m_scene_map_data {},{} {},{}", map_size_grid.x, map_size_grid.y, map_size_pixel.x, map_size_pixel.y );
+
+  // We only have access to DisplayResolution once the PersistSystem is initialized.
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().init_world_shaders( map_size_grid.componentWiseMul( Constants::kGridSizePx ) );
 
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();

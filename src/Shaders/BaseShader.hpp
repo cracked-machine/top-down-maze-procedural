@@ -164,6 +164,9 @@ public:
   // override sf::Transformable::setPosition since that has no meaning in the context of this class
   // and we want to avoid unexpected behavior where the position of the sprite is not set correctly
   void setPosition( const sf::Vector2f &position );
+
+  void set_center_at_position( sf::Vector2f pos );
+
   // Use this to set the view of the internal render texture
   void set_texture_view( sf::View view_update );
   // internal draw function called by SFML
@@ -185,8 +188,8 @@ protected:
   sf::Clock m_clock{};
 
 private:
-  std::filesystem::path m_vert_shader_path{};
-  std::filesystem::path m_frag_shader_path{};
+  std::filesystem::path m_vert_shader_path;
+  std::filesystem::path m_frag_shader_path;
 
   void load_shader_files();
 };

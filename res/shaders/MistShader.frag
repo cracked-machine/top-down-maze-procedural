@@ -1,6 +1,6 @@
 #version 330
 
-uniform sampler2D texture;
+uniform sampler2D tex;
 uniform float time;
 uniform float alpha;
 uniform vec2 resolution;
@@ -44,52 +44,23 @@ float fbm( vec2 p )
 
 void main()
 {
-  // vec2 texCoord = gl_TexCoord[0].xy;
   vec2 texCoord = gl_FragCoord.xy / resolution;
 
-  // Sample the base texture
-  vec4 color = texture2D( texture, texCoord );
-
-  // Create horizontal scrolling right to left (slower)
-  // Scale factor controls diffuseness: higher = more diffuse, lower = tighter
   vec2 mistCoord = texCoord * 3.0;
-  mistCoord.x -= time * 0.05;  // Slowed down from 0.12
-  mistCoord.y += time * 0.008; // Slowed down vertical drift
+  mistCoord.x -= time * 0.05;
+  mistCoord.y += time * 0.008;
 
-  // Create rippled pattern with anisotropic scaling
-  vec2 rippleCoord = mistCoord;
-  rippleCoord.x *= 1.5; // Stretch horizontally for elongated clouds
+  vec2 rippleCoord = vec2( mistCoord.x * 1.5, mistCoord.y );
 
-  // Primary cloud layer with ripple pattern
   float cloud1 = fbm( rippleCoord );
-
-  // Secondary layer for variation
   float cloud2 = fbm( rippleCoord * 1.3 + vec2( 50.0, 25.0 ) );
-
-  // Add fine detail layer
   float detail = fbm( rippleCoord * 3.0 + vec2( 100.0, 50.0 ) );
 
-  // Combine layers to create rippled texture
   float cloudBase = cloud1 * 0.5 + cloud2 * 0.3 + detail * 0.2;
-
-  // Create distinct cloud formations with sharp edges
   float cloudDensity = smoothstep( 0.42, 0.58, cloudBase );
-
-  // Add variation to create gaps between cloud patches
-  float patchiness = smoothstep( 0.45, 0.55, cloud2 );
-  cloudDensity *= patchiness;
-
-  // Sharpen edges
+  cloudDensity *= smoothstep( 0.45, 0.55, cloud2 );
   cloudDensity = pow( cloudDensity, 1.5 );
 
-  // Apply bright cloud color with slight blue tint
-  vec3 mistColor = vec3( 0.95, 0.96, 0.98 );
-
-  // Blend with higher opacity for more visible clouds
-  color.rgb = mix( color.rgb, mistColor, cloudDensity * 0.65 );
-
-  // Apply alpha uniform
-  color.a *= alpha;
-
-  outColor = color;
+  // No tex sampling - pure procedural noise fixed to screen space
+  outColor = vec4( vec3( 0.95, 0.96, 0.98 ), cloudDensity * 0.65 * alpha );
 }

@@ -20,13 +20,9 @@ public:
 
   ~MistShader() override = default;
 
-  void pre_setup_texture() override
-  {
-    m_render_texture.clear( sf::Color( 16, 32, 32 ) );
-    // std::ignore = m_texture.resize(texture_size);
-  }
+  void pre_setup_texture() override { m_render_texture.clear( sf::Color( 16, 32, 32 ) ); }
 
-  void post_setup_shader() override { m_shader.setUniform( "resolution", sf::Vector2f{ m_render_texture.getSize() } ); }
+  void post_setup_shader() override {}
 };
 
 } // namespace ProceduralMaze::Sprites
