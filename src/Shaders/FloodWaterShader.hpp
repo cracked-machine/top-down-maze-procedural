@@ -22,14 +22,6 @@ public:
   void pre_setup_texture() override { m_render_texture.clear( sf::Color( 16, 32, 32 ) ); }
 
   void post_setup_shader() override { m_shader.setUniform( "resolution", sf::Vector2f{ m_render_texture.getSize() } ); }
-
-  void update( sf::Vector2f position )
-  {
-    m_shader.setUniform( "time", m_clock.getElapsedTime().asSeconds() );
-    m_shader.setUniform( "waterLevel", 0 );
-    m_sprite.setPosition( { position } );
-  }
-  void update() override { /* unused */ }
 };
 
 } // namespace ProceduralMaze::Sprites

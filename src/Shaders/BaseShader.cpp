@@ -58,6 +58,6 @@ void BaseShader::draw( sf::RenderTarget &target, sf::RenderStates states ) const
   target.draw( m_sprite, states );
 }
 
-void BaseShader::update( UniformBuilder &builder ) { builder.apply( m_shader ); }
+void BaseShader::update( UniformBuilder builder ) { builder.apply( m_shader ); }
 
 } // namespace ProceduralMaze::Sprites

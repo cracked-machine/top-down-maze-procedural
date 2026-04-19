@@ -145,21 +145,7 @@ public:
    */
   virtual void post_setup_shader() = 0;
 
-  /**
-   * @brief Updates the fragment shader state or parameters.
-   *
-   * This pure virtual function must be implemented by derived classes to handle
-   * shader-specific update logic such as uniform variables, time-based parameters,
-   * or other dynamic shader properties that need to be refreshed each frame.
-   *
-   * @note This function be called by the user from their game loop to ensure
-   *       dynamic shader effects are applied.
-   * @note If you need to update with additional uniforms, set this to {} and
-   *     create a new parameterized update function in your derived class
-   */
-  virtual void update() = 0;
-
-  void update( UniformBuilder &builder );
+  void update( UniformBuilder builder );
 
   /**
    * @brief Initializes and configures the base fragment shader.
@@ -185,6 +171,8 @@ public:
 
   auto get_texture_size() const { return m_render_texture.getSize(); }
   void resize_texture( sf::Vector2u new_size );
+
+  sf::Time elapsed() { return m_clock.getElapsedTime(); }
 
 protected:
   // this is the pallette texture that the shader will be applied to

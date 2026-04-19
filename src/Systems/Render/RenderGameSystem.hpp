@@ -80,11 +80,10 @@ public:
 private:
   // Lazy initialize the shaders - RenderGameSystem::init_shaders() - once we know the screen resolution.
   std::unique_ptr<Sprites::FloodWaterShader> m_water_shader;
-  std::unique_ptr<Sprites::ViewFragmentShader> m_wormhole_shader;
   std::unique_ptr<Sprites::PulsingShader> m_pulsing_shader;
   std::unique_ptr<Sprites::MistShader> m_mist_shader;
   std::unique_ptr<Sprites::DarkModeShader> m_dark_mode_shader;
-  std::unique_ptr<Sprites::DrippingBloodShader> m_dripping_blood_shader;
+  std::unique_ptr<Sprites::DrippingBloodShader> m_cursed_mode_shader;
 
   sf::Vector2f m_camera_position{ 0.f, 0.f }; // Smoothed camera position
   bool m_camera_initialized{ false };
@@ -100,15 +99,13 @@ private:
 
   //! @brief Renders the flood water background effect
   //! @param player_position
-  void render_background_water( sf::FloatRect player_position );
+  void render_water_shader( sf::FloatRect player_position );
 
   //! @brief Renders the mist effect over the game world
   void render_mist( sf::FloatRect player_position );
 
   //! @brief Renders the arrow compass effect
   void render_arrow_compass();
-
-  void render_wormhole_effect( Sprites::Containers::TileMap &floormap );
 
   void render_dark_mode_shader();
 

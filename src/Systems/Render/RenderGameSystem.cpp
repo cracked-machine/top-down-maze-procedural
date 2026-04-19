@@ -44,12 +44,12 @@
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Random.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
+#include <Shaders/BaseShader.hpp>
 #include <Shaders/DarkModeShader.hpp>
 #include <Shaders/DrippingBloodShader.hpp>
 #include <Shaders/FloodWaterShader.hpp>
 #include <Shaders/MistShader.hpp>
 #include <Shaders/PulsingShader.hpp>
-#include <Shaders/ViewFragmentShader.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/TileMap.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -119,11 +119,10 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   m_window.clear();
 
   // render these things first
-  if ( bg_mode == BackGroundMode::ON ) { render_background_water( player_pos_cmp ); }
+  if ( bg_mode == BackGroundMode::ON ) { render_water_shader( player_pos_cmp ); }
 
   render_floormap( floormap );
   render_seeingstone_doglegs();
-  render_wormhole_effect( floormap );
 
   // render anything with a ZOrderValue component in lowest value first order
   for ( const auto &zorder_entry : m_zorder_queue_ )
@@ -364,65 +363,45 @@ void RenderGameSystem::render_shockwaves( [[maybe_unused]] Sprites::Containers::
   }
 }
 
-void RenderGameSystem::render_background_water( sf::FloatRect player_position )
+void RenderGameSystem::render_water_shader( sf::FloatRect player_position )
 {
 
-  m_water_shader->update( { player_position.position.x - ( static_cast<float>( m_water_shader->get_texture_size().x ) / 2.f ),
-                            player_position.position.y - ( static_cast<float>( m_water_shader->get_texture_size().y ) / 2.f ) } );
+  if ( not m_water_shader ) { throw std::runtime_error( "RenderGameSystem::render_water_shader - water shader is not initalised" ); }
+
+  sf::Vector2f new_position = { player_position.position.x - ( static_cast<float>( m_water_shader->get_texture_size().x ) / 2.f ),
+                                player_position.position.y - ( static_cast<float>( m_water_shader->get_texture_size().y ) / 2.f ) };
+
+  // clang-format off
+  m_water_shader->Sprites::BaseShader::update( Sprites::UniformBuilder{}
+                                                      .set( "time", m_water_shader->elapsed().asSeconds() )
+                                                      .set( "waterLevel", 0 ));
+  // clang-format on
+  m_water_shader->set_position( new_position );
   draw_world( *m_water_shader );
 }
 
 void RenderGameSystem::render_mist( sf::FloatRect player_position )
 {
   sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-  m_mist_shader->update( { player_position.position.x - ( static_cast<float>( m_mist_shader->get_texture_size().x ) / 2.f ),
-                           player_position.position.y - ( static_cast<float>( m_mist_shader->get_texture_size().y ) / 2.f ) },
-                         0.25, display_size ); // Set the alpha value
 
-  m_pulsing_shader->update( { player_position.position.x - ( static_cast<float>( m_pulsing_shader->get_texture_size().x ) / 2.f ),
-                              player_position.position.y - ( static_cast<float>( m_pulsing_shader->get_texture_size().y ) / 2.f ) },
-                            0.5f, display_size ); // Set the alpha value
-
+  if ( not m_mist_shader ) { throw std::runtime_error( "RenderGameSystem::render_mist - mist shader is not initalised" ); }
+  m_mist_shader->Sprites::BaseShader::update( Sprites::UniformBuilder{}
+                                                  .set( "time", m_mist_shader->elapsed().asSeconds() )
+                                                  .set( "alpha", 0.25f )
+                                                  .set( "resolution", sf::Vector2f{ display_size } ) );
+  m_mist_shader->set_position( { player_position.position.x - ( static_cast<float>( m_mist_shader->get_texture_size().x ) / 2.f ),
+                                 player_position.position.y - ( static_cast<float>( m_mist_shader->get_texture_size().y ) / 2.f ) } );
   draw_world( *m_mist_shader );
+
+  if ( not m_pulsing_shader ) { throw std::runtime_error( "RenderGameSystem::render_mist - pulsing shader is not initalised" ); }
+  m_pulsing_shader->Sprites::BaseShader::update( Sprites::UniformBuilder{}
+                                                     .set( "time", m_pulsing_shader->elapsed().asSeconds() )
+                                                     .set( "alpha", 0.5f )
+                                                     .set( "resolution", sf::Vector2f{ display_size } ) );
+  m_pulsing_shader->set_position( { player_position.position.x - ( static_cast<float>( m_pulsing_shader->get_texture_size().x ) / 2.f ),
+                                    player_position.position.y - ( static_cast<float>( m_pulsing_shader->get_texture_size().y ) / 2.f ) } );
+
   draw_world( *m_pulsing_shader );
-}
-
-void RenderGameSystem::render_wormhole_effect( Sprites::Containers::TileMap &floormap )
-{
-  const sf::View previous_view = m_window.getView();
-  m_window.setView( get_world_view() );
-
-  auto wormhole_view = reg().view<Cmp::WormholeMultiBlock, Cmp::Position, Cmp::SpriteAnimation>();
-  for ( auto [entity, wormhole_cmp, pos_cmp, anim_cmp] : wormhole_view.each() )
-  {
-    try
-    {
-      // re-center the shader onto player position
-      m_wormhole_shader->update_shader_position( pos_cmp.position, Sprites::ViewFragmentShader::Align::TOPLEFT );
-
-      // First draw background onto shader texture
-      floormap.draw( m_wormhole_shader->get_render_texture(), sf::RenderStates::Default );
-
-      // Next draw sprite onto shader texture
-      const auto &wormhole_sprite = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
-      safe_render_sprite_to_target( m_wormhole_shader->get_render_texture(), wormhole_sprite.get_sprite_type(), wormhole_cmp,
-                                    anim_cmp.m_current_frame );
-
-      // Finally Update shader and draw it onto RenderWindow
-      Sprites::UniformBuilder builder;
-      builder.set( "time", m_wormhole_shader->getElapsedTime().asSeconds() )
-          .set( "screenSize", m_wormhole_shader->get_view_size() )
-          .set( "centerPosition", m_wormhole_shader->get_view_center() );
-      m_wormhole_shader->Sprites::BaseShader::update( builder );
-
-      m_wormhole_shader->draw( m_window, sf::RenderStates::Default );
-    } catch ( const std::out_of_range &e )
-    {
-      SPDLOG_WARN( "Missing wormhole sprite '{}' in map, rendering fallback square", "WORMHOLE" );
-      render_fallback_square_world( pos_cmp, sf::Color::Magenta );
-    }
-  }
-  m_window.setView( previous_view );
 }
 
 void RenderGameSystem::render_arrow_compass()
@@ -544,23 +523,38 @@ void RenderGameSystem::render_arrow_compass()
 
 void RenderGameSystem::render_dark_mode_shader()
 {
-  // Update dark mode shader with proper parameters
-  auto shader_local_position = s_world_view.getCenter() - s_world_view.getSize() * 0.5f;
+  auto display_res = sf::Vector2f( Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() ) );
+  sf::Vector2f shader_local_position = s_world_view.getCenter() - s_world_view.getSize() * 0.5f;
   sf::Vector2f aperture_half_size( Constants::kGridSizePxF * 4.f );
-  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-  m_dark_mode_shader->update( shader_local_position, aperture_half_size, kWorldViewSize, display_res );
+
+  if ( not m_dark_mode_shader ) { throw std::runtime_error( "RenderGameSystem::render_dark_mode_shader - darkmode shader is not initalised" ); }
+  m_dark_mode_shader->Sprites::BaseShader::update( Sprites::UniformBuilder{}
+                                                       .set( "local_resolution", get_world_view().getSize() )
+                                                       .set( "display_resolution", display_res )
+                                                       .set( "aperture_half_size", aperture_half_size )
+                                                       .set( "time", m_dark_mode_shader->elapsed().asSeconds() ) );
+  m_dark_mode_shader->set_position( shader_local_position );
   draw_world( *m_dark_mode_shader );
 }
 
 void RenderGameSystem::render_cursed_mode_shader( sf::FloatRect player_position )
 {
   auto &player_curse = Utils::Player::get_curse( reg() );
-  auto display_res = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-  m_dripping_blood_shader->update( { player_position.position.x - ( static_cast<float>( m_mist_shader->get_texture_size().x ) / 2.f ),
-                                     player_position.position.y - ( static_cast<float>( m_mist_shader->get_texture_size().y ) / 2.f ) },
-                                   player_curse.shader_alpha.add( 0.01f ), display_res ); // Set the alpha value
+  auto display_res = sf::Vector2f( Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() ) );
 
-  draw_world( *m_dripping_blood_shader );
+  if ( not m_cursed_mode_shader ) { throw std::runtime_error( "RenderGameSystem::render_cursed_mode_shader - cursed shader is not initalised" ); }
+
+  sf::Vector2f new_position = { player_position.position.x - ( static_cast<float>( m_cursed_mode_shader->get_texture_size().x ) / 2.f ),
+                                player_position.position.y - ( static_cast<float>( m_cursed_mode_shader->get_texture_size().y ) / 2.f ) };
+
+  // clang-format off
+  m_cursed_mode_shader->Sprites::BaseShader::update( Sprites::UniformBuilder{}
+                                                      .set( "time", m_cursed_mode_shader->elapsed().asSeconds() )
+                                                      .set( "alpha", player_curse.shader_alpha.add( 0.01f ) )
+                                                      .set( "resolution", display_res));
+  // clang-format on
+  m_cursed_mode_shader->set_position( new_position );
+  draw_world( *m_cursed_mode_shader );
 }
 
 void RenderGameSystem::render_seeingstone_doglegs()
@@ -700,9 +694,7 @@ void RenderGameSystem::init_world_shaders( const Cmp::Persist::DisplayResolution
   m_pulsing_shader = std::make_unique<Sprites::PulsingShader>( "res/shaders/Generic.vert", "res/shaders/RedPulsingSand.frag", display_res );
   m_mist_shader = std::make_unique<Sprites::MistShader>( "res/shaders/Generic.vert", "res/shaders/MistShader.frag", display_res );
   m_dark_mode_shader = std::make_unique<Sprites::DarkModeShader>( "res/shaders/Generic.vert", "res/shaders/DarkMode.frag", display_res );
-  m_dripping_blood_shader = std::make_unique<Sprites::DrippingBloodShader>( "res/shaders/Generic.vert", "res/shaders/Generic.frag", display_res );
-  m_wormhole_shader = std::make_unique<Sprites::ViewFragmentShader>( "res/shaders/Generic.vert", "res/shaders/SimpleDistortionField.frag",
-                                                                     Constants::kGridSizePx.componentWiseMul( { 3u, 3u } ) );
+  m_cursed_mode_shader = std::make_unique<Sprites::DrippingBloodShader>( "res/shaders/Generic.vert", "res/shaders/Generic.frag", display_res );
 }
 
 } // namespace ProceduralMaze::Sys

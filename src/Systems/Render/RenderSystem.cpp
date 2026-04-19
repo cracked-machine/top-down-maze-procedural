@@ -6,7 +6,6 @@
 #include <Shaders/MistShader.hpp>
 #include <Shaders/PulsingShader.hpp>
 #include <Shaders/TitleScreenShader.hpp>
-#include <Shaders/ViewFragmentShader.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderBuffer.hpp>
 #include <Systems/Render/RenderSystem.hpp>

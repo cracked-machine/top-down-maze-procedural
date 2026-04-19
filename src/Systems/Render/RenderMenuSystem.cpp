@@ -50,6 +50,7 @@
 #include <Persistent/PlayerMovementSpeed.hpp>
 #include <Player/PlayerCadaverCount.hpp>
 #include <Player/PlayerWealth.hpp>
+#include <Shaders/BaseShader.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
@@ -79,13 +80,17 @@ void RenderMenuSystem::render_title()
   // main render begin
   m_window.clear();
   {
+    auto display_size = sf::Vector2f( Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() ) );
+    const auto mouse_pos = sf::Vector2f( sf::Mouse::getPosition( m_window ) ).componentWiseDiv( sf::Vector2f( m_window.getSize() ) );
+
     // shaders
     if ( not m_title_screen_shader ) { throw std::runtime_error( "RenderMenuSystem::render_title - title shader is not initalised" ); }
+    m_title_screen_shader->Sprites::BaseShader::update( Sprites::UniformBuilder{}
+                                                            .set( "time", m_title_screen_shader->elapsed().asSeconds() )
+                                                            .set( "pixel_threshold", ( mouse_pos.x + mouse_pos.y ) / 30 )
+                                                            .set( "mouse_cursor", mouse_pos )
+                                                            .set( "resolution", display_size ) );
     m_title_screen_shader->set_position( { 0, 0 } );
-    sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-
-    const auto mouse_pos = sf::Vector2f( sf::Mouse::getPosition( m_window ) ).componentWiseDiv( sf::Vector2f( m_window.getSize() ) );
-    m_title_screen_shader->update( mouse_pos, display_size );
     m_window.draw( *m_title_screen_shader );
 
     // text

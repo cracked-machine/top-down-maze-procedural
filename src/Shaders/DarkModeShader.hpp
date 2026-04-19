@@ -30,17 +30,6 @@ public:
   {
     // nothing special to do here
   }
-
-  void update( sf::Vector2f shader_position, sf::Vector2f aperture_half_size, sf::Vector2u local_resolution, sf::Vector2u display_resolution )
-  {
-
-    m_sprite.setPosition( shader_position );
-    m_shader.setUniform( "local_resolution", sf::Vector2f{ local_resolution } );
-    m_shader.setUniform( "display_resolution", sf::Vector2f{ display_resolution } );
-    m_shader.setUniform( "aperture_half_size", aperture_half_size );
-    m_shader.setUniform( "time", m_clock.getElapsedTime().asSeconds() );
-  }
-  void update() override { /* unused */ }
 };
 
 } // namespace ProceduralMaze::Sprites

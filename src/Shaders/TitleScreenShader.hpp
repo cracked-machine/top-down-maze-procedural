@@ -26,16 +26,6 @@ public:
   }
 
   void post_setup_shader() override { m_shader.setUniform( "texture", sf::Shader::CurrentTexture ); }
-
-  void update( sf::Vector2f mousePos, sf::Vector2u resolution )
-  {
-    m_shader.setUniform( "time", m_clock.getElapsedTime().asSeconds() );
-    m_shader.setUniform( "pixel_threshold", ( mousePos.x + mousePos.y ) / 30 );
-    m_shader.setUniform( "mouse_cursor", mousePos );
-    m_shader.setUniform( "resolution", sf::Vector2f{ resolution } );
-  }
-
-  void update() override { /* unused */ }
 };
 
 } // namespace ProceduralMaze::Sprites

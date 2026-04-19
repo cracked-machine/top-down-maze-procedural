@@ -27,15 +27,6 @@ public:
   }
 
   void post_setup_shader() override { m_shader.setUniform( "resolution", sf::Vector2f{ m_render_texture.getSize() } ); }
-
-  void update( sf::Vector2f position, float alpha, sf::Vector2u resolution )
-  {
-    m_shader.setUniform( "time", m_clock.getElapsedTime().asSeconds() );
-    m_shader.setUniform( "alpha", alpha ); // Set the alpha value
-    m_shader.setUniform( "resolution", sf::Vector2f{ resolution } );
-    m_sprite.setPosition( { position } );
-  }
-  void update() override { /* unused */ }
 };
 
 } // namespace ProceduralMaze::Sprites
