@@ -15,6 +15,7 @@ public:
   DrippingBloodShader( std::filesystem::path vert_shader_path, std::filesystem::path frag_shader_path, sf::Vector2u texture_size )
       : BaseShader( vert_shader_path, frag_shader_path, texture_size )
   {
+    setup();
   }
   ~DrippingBloodShader() override = default;
 

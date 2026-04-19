@@ -14,6 +14,7 @@
 
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <memory>
 
 namespace ProceduralMaze::Sprites
 {
@@ -140,16 +141,13 @@ private:
   //! @brief event handlers for resuming system clocks
   void on_resume() override {}
 
-  // Shaders - we dont know the size of the texture yet so set to 1,1 and resize later
-  Sprites::FloodWaterShader m_water_shader{ "res/shaders/Generic.vert", "res/shaders/FloodWater2.frag", { 1u, 1u } };
-  Sprites::ViewFragmentShader m_wormhole_shader{ "res/shaders/Generic.vert", "res/shaders/SimpleDistortionField.frag",
-                                                 Constants::kGridSizePx.componentWiseMul( { 3u, 3u } ) };
-  Sprites::ViewFragmentShader m_shockwave_shader{ "res/shaders/Generic.vert", "res/shaders/SimpleDistortionField.frag",
-                                                  Constants::kGridSizePx.componentWiseMul( { 1u, 1u } ) };
-  Sprites::PulsingShader m_pulsing_shader{ "res/shaders/Generic.vert", "res/shaders/RedPulsingSand.frag", { 1u, 1u } };
-  Sprites::MistShader m_mist_shader{ "res/shaders/Generic.vert", "res/shaders/MistShader.frag", { 1u, 1u } };
-  Sprites::DarkModeShader m_dark_mode_shader{ "res/shaders/Generic.vert", "res/shaders/DarkMode.frag", { 1u, 1u } };
-  Sprites::DrippingBloodShader m_dripping_blood_shader{ "res/shaders/Generic.vert", "res/shaders/Generic.frag", { 1u, 1u } };
+  // Lazy initialize the shaders - RenderGameSystem::init_shaders() - once we know the screen resolution.
+  std::unique_ptr<Sprites::FloodWaterShader> m_water_shader;
+  std::unique_ptr<Sprites::ViewFragmentShader> m_wormhole_shader;
+  std::unique_ptr<Sprites::PulsingShader> m_pulsing_shader;
+  std::unique_ptr<Sprites::MistShader> m_mist_shader;
+  std::unique_ptr<Sprites::DarkModeShader> m_dark_mode_shader;
+  std::unique_ptr<Sprites::DrippingBloodShader> m_dripping_blood_shader;
 
   // optimize the debug overlay updates to every n milliseconds
   const sf::Time m_debug_update_interval{ sf::milliseconds( 10 ) };

@@ -41,27 +41,34 @@ namespace ProceduralMaze::Sprites
 class UniformBuilder
 {
 private:
-  std::function<void( sf::Shader & )> m_apply;
+  std::function<void( sf::Shader & )> m_chain;
 
 public:
+  //! @brief Update the chain with the new uniform. Save the existing chain,
+  //         build a new chain that calls the existing chain first,
+  //         then set this new uniform.
+  //! @tparam T
+  //! @param name
+  //! @param value
+  //! @return UniformBuilder&
   template <typename T>
   UniformBuilder &set( const std::string &name, const T &value )
   {
-    auto oldApply = std::move( m_apply );
+    auto existing_chain = std::move( m_chain );
 
     if constexpr ( std::is_same_v<T, sf::Color> )
     {
-      m_apply = [oldApply, name, value]( sf::Shader &shader )
+      m_chain = [existing_chain, name, value]( sf::Shader &shader )
       {
-        if ( oldApply ) oldApply( shader );
+        if ( existing_chain ) existing_chain( shader );
         shader.setUniform( name, sf::Glsl::Vec4( value.r / 255.0f, value.g / 255.0f, value.b / 255.0f, value.a / 255.0f ) );
       };
     }
     else
     {
-      m_apply = [oldApply, name, value]( sf::Shader &shader )
+      m_chain = [existing_chain, name, value]( sf::Shader &shader )
       {
-        if ( oldApply ) oldApply( shader );
+        if ( existing_chain ) existing_chain( shader );
         shader.setUniform( name, value );
       };
     }
@@ -70,12 +77,12 @@ public:
 
   void apply( sf::Shader &shader )
   {
-    if ( m_apply ) m_apply( shader );
+    if ( m_chain ) m_chain( shader );
   }
 };
 
 /**
- * @brief Abstract base class for fragment shader-based drawable objects in SFML.
+ * @brief Base class for fragment shader-based drawable objects in SFML.
  *
  * This class provides a framework for creating drawable objects that apply fragment shaders
  * to render textures.
@@ -152,29 +159,8 @@ public:
    */
   virtual void update() = 0;
 
-  void update( UniformBuilder &builder ) { builder.apply( m_shader ); }
+  void update( UniformBuilder &builder );
 
-  using UniformValue = std::variant<float, int, sf::Vector2f, sf::Vector3f, sf::Color>;
-  void update( const std::map<std::string, UniformValue> &uniforms )
-  {
-    for ( const auto &[name, value] : uniforms )
-    {
-      std::visit(
-          [&]( const auto &val )
-          {
-            using T = std::decay_t<decltype( val )>;
-            if constexpr ( std::is_same_v<T, float> ) { m_shader.setUniform( name, val ); }
-            else if constexpr ( std::is_same_v<T, int> ) { m_shader.setUniform( name, val ); }
-            else if constexpr ( std::is_same_v<T, sf::Vector2f> ) { m_shader.setUniform( name, val ); }
-            else if constexpr ( std::is_same_v<T, sf::Vector3f> ) { m_shader.setUniform( name, val ); }
-            else if constexpr ( std::is_same_v<T, sf::Color> )
-            {
-              m_shader.setUniform( name, sf::Glsl::Vec4( val.r / 255.0f, val.g / 255.0f, val.b / 255.0f, val.a / 255.0f ) );
-            }
-          },
-          value );
-    }
-  }
   /**
    * @brief Initializes and configures the base fragment shader.
    *
@@ -191,22 +177,14 @@ public:
   void set_position( const sf::Vector2f &position );
   // override sf::Transformable::setPosition since that has no meaning in the context of this class
   // and we want to avoid unexpected behavior where the position of the sprite is not set correctly
-  void setPosition( const sf::Vector2f &position ) { set_position( position ); }
+  void setPosition( const sf::Vector2f &position );
   // Use this to set the view of the internal render texture
-  void set_texture_view( sf::View view_update ) { m_render_texture.setView( view_update ); }
+  void set_texture_view( sf::View view_update );
   // internal draw function called by SFML
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
 
   auto get_texture_size() const { return m_render_texture.getSize(); }
-  void resize_texture( sf::Vector2u new_size )
-  {
-    [[maybe_unused]] auto result = m_render_texture.resize( new_size );
-    SPDLOG_INFO( "Resized render texture to {}x{}, result: {}", new_size.x, new_size.y, result ? "Success" : "Failed" );
-    m_sprite.setTexture( m_render_texture.getTexture(), true );
-    m_sprite.setTextureRect( sf::IntRect( { 0, 0 }, { static_cast<int>( new_size.x ), static_cast<int>( new_size.y ) } ) ); // <-- Add this line
-    // m_sprite.setPosition( { 0, 0 } );
-    // m_sprite.setScale( { 1.f, 1.f } );
-  }
+  void resize_texture( sf::Vector2u new_size );
 
 protected:
   // this is the pallette texture that the shader will be applied to
@@ -222,7 +200,7 @@ private:
   std::filesystem::path m_vert_shader_path{};
   std::filesystem::path m_frag_shader_path{};
 
-  void setup_shader();
+  void load_shader_files();
 };
 
 } // namespace ProceduralMaze::Sprites

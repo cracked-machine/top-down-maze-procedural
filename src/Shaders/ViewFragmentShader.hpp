@@ -60,6 +60,7 @@ public:
       : BaseShader( vert_shader_path, frag_shader_path, texture_size ),
         m_shader_view( sf::Vector2f{ 0.f, 0.f }, sf::Vector2f{ texture_size } )
   {
+    setup();
   }
   ~ViewFragmentShader() override = default;
 
