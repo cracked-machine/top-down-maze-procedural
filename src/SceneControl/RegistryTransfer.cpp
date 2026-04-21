@@ -1,4 +1,5 @@
 #include <Player/PlayerLevelDepth.hpp>
+#include <Stats/PlayerStats.hpp>
 #ifdef SPDLOG_ACTIVE_LEVEL
 #undef SPDLOG_ACTIVE_LEVEL
 #endif
@@ -29,7 +30,6 @@
 #include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerCurse.hpp>
-#include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Player/PlayerMortality.hpp>
@@ -221,7 +221,7 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   registry.storage<Cmp::Position>();
   registry.storage<Cmp::PlayerCharacter>();
   registry.storage<Cmp::PlayerLevelDepth>();
-  registry.storage<Cmp::PlayerHealth>();
+  registry.storage<Cmp::PlayerStats>();
   registry.storage<Cmp::PlayerWealth>();
   registry.storage<Cmp::PlayerCurse>();
   registry.storage<Cmp::PlayerBlastRadius>();

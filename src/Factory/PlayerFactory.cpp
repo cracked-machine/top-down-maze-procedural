@@ -1,7 +1,6 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
-
 #include <Components/DeathPosition.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Inventory/CarryItem.hpp>
@@ -14,7 +13,6 @@
 #include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Player/PlayerMortality.hpp>
@@ -23,55 +21,59 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpawnArea.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Components/Stats/PlayerStats.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Player/PlayerCurse.hpp>
 #include <Player/PlayerLevelDepth.hpp>
-#include <SFML/System/Vector2.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Sprites/SpriteMetaType.hpp>
+#include <Stats/BaseAction.hpp>
+#include <Stats/PlayerStats.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
+
+#include <SFML/System/Vector2.hpp>
 #include <entt/entity/fwd.hpp>
 #include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Factory
 {
 
-void create_player( entt::registry &registry )
+void create_player( entt::registry &reg )
 {
   SPDLOG_INFO( "Creating player entity" );
-  auto entity = registry.create();
+  auto entity = reg.create();
 
   // start position must be pixel coordinates within the screen resolution (kDisplaySize),
   // but also grid aligned (kMapGridSize) to avoid collision detection errors.
   // So we must recalc start position to the nearest grid position here
-  auto start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( registry );
+  auto start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( reg );
   start_pos = Utils::snap_to_grid( start_pos );
-  registry.emplace<Cmp::Position>( entity, start_pos, Constants::kGridSizePxF );
-  auto &blast_radius = Sys::PersistSystem::get<Cmp::Persist::BlastRadius>( registry );
-  registry.emplace<Cmp::PlayerCharacter>( entity );
-  registry.emplace<Cmp::ReservedPosition>( entity );
-  registry.emplace<Cmp::PlayerBlastRadius>( entity, blast_radius.get_value() );
+  reg.emplace<Cmp::Position>( entity, start_pos, Constants::kGridSizePxF );
+  auto &blast_radius = Sys::PersistSystem::get<Cmp::Persist::BlastRadius>( reg );
+  reg.emplace<Cmp::PlayerCharacter>( entity );
+  reg.emplace<Cmp::ReservedPosition>( entity );
+  reg.emplace<Cmp::PlayerBlastRadius>( entity, blast_radius.get_value() );
+  reg.emplace<Cmp::PlayerStats>( entity, Cmp::Stats::Health{ 100 }, Cmp::Stats::Fear{ 0 }, Cmp::Stats::Despair{ 0 }, Cmp::Stats::Infamy{ 0 } );
 
-  registry.emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
+  reg.emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
 
-  registry.emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYER.walk.south" );
-  registry.emplace<Cmp::PlayerCadaverCount>( entity, 0 );
-  registry.emplace<Cmp::PlayerHealth>( entity, 100 );
-  registry.emplace<Cmp::PlayerWealth>( entity, 0 );
-  registry.emplace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );
-  registry.emplace<Cmp::PlayerCurse>( entity, false );
-  registry.emplace<Cmp::PlayerLevelDepth>( entity, 1 );
+  reg.emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYER.walk.south" );
+  reg.emplace<Cmp::PlayerCadaverCount>( entity, 0 );
+  reg.emplace<Cmp::PlayerWealth>( entity, 0 );
+  reg.emplace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );
+  reg.emplace<Cmp::PlayerCurse>( entity, false );
+  reg.emplace<Cmp::PlayerLevelDepth>( entity, 1 );
 
-  registry.emplace<Cmp::ZOrderValue>( entity, start_pos.y ); // z-order based on y-position
-  registry.emplace<Cmp::AbsoluteAlpha>( entity, 255 );       // fully opaque
-  registry.emplace<Cmp::AbsoluteRotation>( entity, 0 );
-  add_inventory( registry, "CARRYITEM.pickaxe" );
+  reg.emplace<Cmp::ZOrderValue>( entity, start_pos.y ); // z-order based on y-position
+  reg.emplace<Cmp::AbsoluteAlpha>( entity, 255 );       // fully opaque
+  reg.emplace<Cmp::AbsoluteRotation>( entity, 0 );
+  add_inventory( reg, "CARRYITEM.pickaxe" );
 }
 
 void add_spawn_area( entt::registry &registry, entt::entity entity, float zorder )
@@ -149,10 +151,10 @@ entt::entity create_explosive( entt::registry &reg, Cmp::Position pos, Sprites::
 //! @param pos the position to place the new item
 //! @param type the item type. See "CARRYITEM.xxxx" in res/json/sprite_metadata.json
 //! @return entt::entity
-entt::entity create_carry_item( entt::registry &reg, Cmp::Position pos, Sprites::SpriteMetaType type, float zorder )
+entt::entity create_carry_item( entt::registry &reg, Cmp::Position pos, const Sprites::SpriteMetaType &type, float zorder )
 {
   if ( type == "CARRYITEM.scryingball" ) { return create_seeing_stone( reg, pos, type, zorder ); }
-  else if ( type == "CARRYITEM.bomb" ) { return create_explosive( reg, pos, type, zorder ); }
+  if ( type == "CARRYITEM.bomb" ) { return create_explosive( reg, pos, type, zorder ); }
 
   auto world_carry_item_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
@@ -179,7 +181,7 @@ entt::entity create_carry_item( entt::registry &reg, Cmp::Position pos, Sprites:
 entt::entity pickup_carry_item( entt::registry &reg, entt::entity carryitem_entt )
 {
   // does this entity own a world item that can be carried?
-  auto carryitem_cmp = reg.try_get<Cmp::CarryItem>( carryitem_entt );
+  auto *carryitem_cmp = reg.try_get<Cmp::CarryItem>( carryitem_entt );
   if ( not carryitem_cmp ) return entt::null;
 
   // create the basic inventory slot entt
@@ -188,13 +190,13 @@ entt::entity pickup_carry_item( entt::registry &reg, entt::entity carryitem_entt
   reg.emplace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, false, carryitem_cmp->type, 0 );
 
   // transfer any component properties from the world item that we want to retain before it is destroyed
-  auto carryitem_slot_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( carryitem_entt );
+  auto *carryitem_slot_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( carryitem_entt );
   if ( carryitem_slot_level_cmp ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, carryitem_slot_level_cmp->m_level ); }
 
-  auto carryitem_scryingball_cmp = reg.try_get<Cmp::ScryingBall>( carryitem_entt );
+  auto *carryitem_scryingball_cmp = reg.try_get<Cmp::ScryingBall>( carryitem_entt );
   if ( carryitem_scryingball_cmp ) { reg.emplace_or_replace<Cmp::ScryingBall>( inventory_entity, false, carryitem_scryingball_cmp->target ); }
 
-  auto carryitem_explosive_cmp = reg.try_get<Cmp::Explosive>( carryitem_entt );
+  auto *carryitem_explosive_cmp = reg.try_get<Cmp::Explosive>( carryitem_entt );
   if ( carryitem_explosive_cmp ) { reg.emplace_or_replace<Cmp::Explosive>( inventory_entity, false ); }
 
   // now destroy the carryitem entt
@@ -211,7 +213,7 @@ void add_inventory( entt::registry &reg, Sprites::SpriteMetaType item )
   if ( item.contains( "scryingball" ) )
   {
     Cmp::ScryingBall sb;
-    sb.target = sb.random_pick( {} );
+    sb.target = ProceduralMaze::Cmp::ScryingBall::random_pick( {} );
     reg.emplace_or_replace<Cmp::ScryingBall>( inventory_entity, sb );
   }
   if ( item.contains( "explosive" ) ) { reg.emplace_or_replace<Cmp::Explosive>( inventory_entity, false ); }
@@ -221,7 +223,7 @@ void add_inventory( entt::registry &reg, Sprites::SpriteMetaType item )
 //! @brief Destroy all player inventory slots matching a type. See "CARRYITEM.xxxx" in res/json/sprite_metadata.json
 //! @param reg the ECS registry
 //! @param type the type to destroy
-void destroy_inventory( entt::registry &reg, const Sprites::SpriteMetaType type )
+void destroy_inventory( entt::registry &reg, const Sprites::SpriteMetaType &type )
 {
   auto inventory_view = reg.view<Cmp::PlayerInventorySlot>();
   for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )

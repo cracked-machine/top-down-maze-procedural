@@ -6,7 +6,6 @@
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerHealth.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
@@ -136,10 +135,10 @@ template <ValidHazard HazardType>
 void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
 {
   auto hazard_view = reg().template view<HazardType, Cmp::Position>();
-  auto player_view = reg().template view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
+  auto player_view = reg().template view<Cmp::PlayerCharacter, Cmp::PlayerStats, Cmp::PlayerMortality, Cmp::Position>();
   const auto &player_position = Utils::Player::get_position( reg() );
 
-  for ( auto [pc_entt, player_cmp, player_health_cmp, player_mort_cmp, player_pos_cmp] : player_view.each() )
+  for ( auto [pc_entt, player_cmp, player_stats_cmp, player_mort_cmp, player_pos_cmp] : player_view.each() )
   {
     // optimization
     // if ( player_mort_cmp.state != Cmp::PlayerMortality::State::ALIVE ) return;
@@ -164,9 +163,11 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
       }
       else if constexpr ( Traits::sprite_type == "CORRUPTION" )
       {
-        player_health_cmp.health -= Sys::PersistSystem::get<Cmp::Persist::CorruptionDamage>( reg() ).get_value();
+        auto corruption_dmg = Sys::PersistSystem::get<Cmp::Persist::CorruptionDamage>( reg() ).get_value();
+        player_stats_cmp.action( Cmp::BaseAction( Cmp::Stats::Health{ -corruption_dmg }, {}, {}, {} ) );
+
         // trigger death animation
-        if ( player_health_cmp.health <= 0 )
+        if ( player_stats_cmp.health() <= 0 )
         {
           get_systems_event_queue().trigger( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::DECAYING, player_position ) );
         }

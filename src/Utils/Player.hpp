@@ -3,6 +3,7 @@
 
 #include <SpriteAnimation.hpp>
 #include <Sprites/SpriteMetaType.hpp>
+#include <Stats/PlayerStats.hpp>
 
 namespace ProceduralMaze::Cmp
 {
@@ -30,7 +31,6 @@ Cmp::SpriteAnimation &get_sprite_anim( entt::registry &reg );
 int get_ruin_location( entt::registry &reg ); // Returns enum as int to avoid include
 Cmp::PlayerLastGraveyardPosition *get_last_graveyard_pos( entt::registry &reg );
 Cmp::PlayerLevelDepth &get_level_depth( entt::registry &reg );
-Cmp::PlayerHealth &get_health( entt::registry &reg );
 Cmp::PlayerWealth &get_wealth( entt::registry &reg );
 Cmp::PlayerBlastRadius &get_blast_radius( entt::registry &reg );
 Cmp::PlayerMortality &get_mortality( entt::registry &reg );
@@ -44,6 +44,7 @@ float get_inventory_wear_level( entt::registry &reg );
 void reduce_inventory_wear_level( entt::registry &reg, float amount );
 bool is_in_spawn( entt::registry &reg, const Cmp::Position &player_pos_cmp );
 Cmp::PlayerCadaverCount &get_cadaver_count( entt::registry &reg );
+Cmp::PlayerStats &get_player_stats( entt::registry &reg );
 
 } // namespace ProceduralMaze::Utils::Player
 

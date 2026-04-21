@@ -7,7 +7,6 @@
 #include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Position.hpp>
@@ -36,6 +35,7 @@
 #include <SceneControl/Events/ProcessTitleSceneInputEvent.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/SceneInputRouter.hpp>
+#include <Stats/BaseAction.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/SystemStore.hpp>
 #include <Utils/Player.hpp>
@@ -146,7 +146,10 @@ void SceneInputRouter::graveyard_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Home ) { toggle_particle_test( true ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::End ) { toggle_particle_test( false ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( reg() ).health += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
+      {
+        Utils::Player::get_player_stats( reg() ).action( Cmp::BaseAction( Cmp::Stats::Health{ 1 }, {}, {}, {} ) );
+      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::QUIT_GAME ); }
@@ -193,7 +196,10 @@ void SceneInputRouter::crypt_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_show_darkmode(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( reg() ).health += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
+      {
+        Utils::Player::get_player_stats( reg() ).action( Cmp::BaseAction( Cmp::Stats::Health{ 1 }, {}, {}, {} ) );
+      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::EXIT_CRYPT ); }
@@ -250,7 +256,10 @@ void SceneInputRouter::holywell_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_show_darkmode(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( reg() ).health += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
+      {
+        Utils::Player::get_player_stats( reg() ).action( Cmp::BaseAction( Cmp::Stats::Health{ 1 }, {}, {}, {} ) );
+      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::QUIT_GAME ); }
@@ -292,7 +301,10 @@ void SceneInputRouter::shop_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_show_darkmode(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( reg() ).health += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
+      {
+        Utils::Player::get_player_stats( reg() ).action( Cmp::BaseAction( Cmp::Stats::Health{ 1 }, {}, {}, {} ) );
+      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::QUIT_GAME ); }
@@ -339,7 +351,10 @@ void SceneInputRouter::ruin_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_show_darkmode(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 ) { Utils::Player::get_health( reg() ).health += 1; }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
+      {
+        Utils::Player::get_player_stats( reg() ).action( Cmp::BaseAction( Cmp::Stats::Health{ 1 }, {}, {}, {} ) );
+      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::QUIT_GAME ); }

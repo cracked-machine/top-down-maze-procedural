@@ -4,7 +4,6 @@
 #include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerCurse.hpp>
-#include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Player/PlayerRuinLocation.hpp>
@@ -94,13 +93,6 @@ Cmp::PlayerLevelDepth &get_level_depth( entt::registry &reg )
   auto player_view = reg.view<Cmp::PlayerLevelDepth>();
   if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerLevelDepth" );
   return player_view.get<Cmp::PlayerLevelDepth>( get_entity( reg ) );
-}
-
-Cmp::PlayerHealth &get_health( entt::registry &reg )
-{
-  auto player_view = reg.view<Cmp::PlayerHealth>();
-  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::PlayerHealth" );
-  return player_view.get<Cmp::PlayerHealth>( get_entity( reg ) );
 }
 
 Cmp::PlayerWealth &get_wealth( entt::registry &reg )
@@ -225,6 +217,16 @@ Cmp::PlayerCadaverCount &get_cadaver_count( entt::registry &reg )
   auto &curse = player_view.get<Cmp::PlayerCadaverCount>( get_entity( reg ) );
   SPDLOG_DEBUG( "Cmp::PlayerCadaverCount == {}", curse.active );
   return curse;
+}
+
+Cmp::PlayerStats &get_player_stats( entt::registry &reg )
+{
+  auto player_stats_view = reg.view<Cmp::PlayerStats>();
+  for ( auto [entity, cmp] : player_stats_view.each() )
+  {
+    if ( reg.all_of<Cmp::PlayerCharacter>( entity ) ) { return cmp; }
+  }
+  throw std::runtime_error( "Player entt has no component: Cmp::PlayerStats" );
 }
 
 } // namespace ProceduralMaze::Utils::Player

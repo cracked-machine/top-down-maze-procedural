@@ -18,7 +18,6 @@
 #include <Components/Persistent/EffectsVolume.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
@@ -301,14 +300,15 @@ void BombSystem::update()
     }
 
     // Check player explosion damage
-    auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
-    for ( auto [pc_entt, pc_cmp, pc_health_cmp, pc_mort_cmp, pc_pos_cmp] : player_view.each() )
+    auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::PlayerStats, Cmp::PlayerMortality, Cmp::Position>();
+    for ( auto [pc_entt, pc_cmp, player_stats_cmp, pc_mort_cmp, pc_pos_cmp] : player_view.each() )
     {
       if ( pc_pos_cmp.findIntersection( armed_pos_cmp ) )
       {
         auto &bomb_damage = Sys::PersistSystem::get<Cmp::Persist::BombDamage>( reg() );
-        pc_health_cmp.health -= bomb_damage.get_value();
-        if ( pc_health_cmp.health <= 0 )
+        // pc_health_cmp.health -= bomb_damage.get_value();
+        player_stats_cmp.action( Cmp::BaseAction( Cmp::Stats::Health{ -bomb_damage.get_value() }, {}, {}, {} ) );
+        if ( player_stats_cmp.health() <= 0 )
         {
           get_systems_event_queue().enqueue(
               Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::EXPLODING, Utils::Player::get_position( reg() ) ) );

@@ -24,7 +24,6 @@
 #include <Player.hpp>
 #include <Player/PlayerBlastRadius.hpp>
 #include <Player/PlayerCadaverCount.hpp>
-#include <Player/PlayerHealth.hpp>
 #include <Player/PlayerLevelDepth.hpp>
 #include <Player/PlayerWealth.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
@@ -119,7 +118,7 @@ void RenderOverlaySystem::render_ui_meters()
 
     if ( meter.name == "health_meter" )
     {
-      meter_value = static_cast<float>( Utils::Player::get_health( reg() ).health );
+      meter_value = static_cast<float>( Utils::Player::get_player_stats( reg() ).health() );
       meter_inner_color = sf::Color::Red;
       should_render = true;
     }

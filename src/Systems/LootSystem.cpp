@@ -1,3 +1,4 @@
+#include <Player.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -11,7 +12,6 @@
 #include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCadaverCount.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
@@ -76,13 +76,14 @@ void LootSystem::check_loot_collision()
     if ( !reg().valid( effect.player_entity ) ) continue;
 
     auto blast_radius = reg().get<Cmp::PlayerBlastRadius>( effect.player_entity );
-    auto &pc_health_cmp = reg().get<Cmp::PlayerHealth>( effect.player_entity );
 
     // Apply the effect
     if ( effect.type == "EXTRA_HEALTH" )
     {
       auto &health_bonus = Sys::PersistSystem::get<Cmp::Persist::HealthBonus>( reg() );
-      pc_health_cmp.health = std::min( pc_health_cmp.health + health_bonus.get_value(), 100 );
+
+      // pc_health_cmp.health = std::min( pc_health_cmp.health + health_bonus.get_value(), 100 );
+      Utils::Player::get_player_stats( reg() ).action( Cmp::BaseAction( Cmp::Stats::Health{ health_bonus.get_value() }, {}, {}, {} ) );
       m_sound_bank.get_effect( "get_loot" ).play();
       Factory::destroy_loot_drop( reg(), effect.loot_entity );
     }

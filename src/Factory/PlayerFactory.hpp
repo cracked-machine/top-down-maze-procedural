@@ -15,8 +15,8 @@ void create_player( entt::registry &registry );
 void add_spawn_area( entt::registry &registry, entt::entity entity, float zorder );
 void create_player_death_anim( entt::registry &registry, Cmp::Position player_pos_cmp, const Sprites::MultiSprite &sprite );
 entt::entity pickup_carry_item( entt::registry &reg, entt::entity carryitem_entt );
-entt::entity create_carry_item( entt::registry &reg, Cmp::Position pos, const Sprites::SpriteMetaType type, float zorder = 0.f );
-void destroy_inventory( entt::registry &reg, const Sprites::SpriteMetaType type );
+entt::entity create_carry_item( entt::registry &reg, Cmp::Position pos, const Sprites::SpriteMetaType &type, float zorder = 0.f );
+void destroy_inventory( entt::registry &reg, const Sprites::SpriteMetaType &type );
 void add_inventory( entt::registry &reg, Sprites::SpriteMetaType item );
 Cmp::Position add_player_last_graveyard_pos( entt::registry &reg, Cmp::Position &last_known_pos,
                                              sf::Vector2f offset = { 0.f, Constants::kGridSizePxF.y } );

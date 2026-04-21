@@ -2,6 +2,8 @@
 #define SRC_INVENTORY_CARRYITEM_HPP_
 
 #include <Sprites/SpriteMetaType.hpp>
+#include <Stats/BaseAction.hpp>
+#include <utility>
 
 namespace ProceduralMaze::Cmp
 {
@@ -11,11 +13,14 @@ class CarryItem
 {
 public:
   CarryItem( Sprites::SpriteMetaType type )
-      : type( type )
+      : type( std::move( type ) )
   {
   }
 
   Sprites::SpriteMetaType type;
+
+  //! @brief The action and its effects that can be applied to the player
+  std::set<BaseAction> action_fx_list;
 };
 
 // Represents a single slot in the player inventory. If we want multiple slots we would need a "slot id",
@@ -24,7 +29,7 @@ class PlayerInventorySlot : public CarryItem
 {
 public:
   PlayerInventorySlot( Sprites::SpriteMetaType type )
-      : CarryItem( type )
+      : CarryItem( std::move( type ) )
   {
   }
 };

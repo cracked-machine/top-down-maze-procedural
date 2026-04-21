@@ -4,7 +4,6 @@
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Sprites/Shockwave.hpp>
@@ -182,23 +181,23 @@ void ShockwaveSystem::checkShockwavePlayerCollision()
   {
     Cmp::NpcShockwave &shockwave = reg().get<Cmp::NpcShockwave>( entt );
     auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() );
-    auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::PlayerHealth, Cmp::PlayerMortality>();
+    auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::Position, Cmp::PlayerStats, Cmp::PlayerMortality>();
 
-    for ( auto [player_entity, player_cmp, player_pos, player_health, player_mort_cmp] : player_view.each() )
+    for ( auto [player_entity, player_cmp, player_pos, player_stats_cmp, player_mort_cmp] : player_view.each() )
     {
       // dont spam death events if the player is already dead
       if ( player_mort_cmp.state == Cmp::PlayerMortality::State::DEAD ) continue;
       if ( player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
       if ( Sys::ShockwaveSystem::intersectsWithVisibleSegments( reg(), shockwave, player_pos ) )
       {
-        player_health.health -= 10;
+        player_stats_cmp.action( Cmp::BaseAction( Cmp::Stats::Health{ -10 }, {}, {}, {} ) );
         m_sound_bank.get_effect( "damage_player" ).play();
         player_cmp.m_damage_cooldown_timer.restart();
-        SPDLOG_INFO( "Player (health:{}) INTERSECTS with Shockwave (position: {},{} - effective_radius: {})", player_health.health,
+        SPDLOG_INFO( "Player (health:{}) INTERSECTS with Shockwave (position: {},{} - effective_radius: {})", player_stats_cmp.health(),
                      shockwave.sprite.getPosition().x, shockwave.sprite.getPosition().y, shockwave.sprite.getRadius() );
 
         // trigger death animation
-        if ( player_health.health <= 0 )
+        if ( player_stats_cmp.health() <= 0 )
         {
           get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SHOCKED, player_pos ) );
         }

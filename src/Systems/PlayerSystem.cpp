@@ -4,6 +4,7 @@
 #include <Inventory/Explosive.hpp>
 #include <Inventory/InventoryWearLevel.hpp>
 #include <Inventory/ScryingBall.hpp>
+#include <Stats/BaseAction.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -22,7 +23,6 @@
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/WeaponDegradePerHit.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Position.hpp>
@@ -110,8 +110,8 @@ void PlayerSystem::localTransforms()
 
   auto blinking_player_view = reg()
                                   .view<Cmp::PlayerCharacter, Cmp::Position, Cmp::Direction, Cmp::SpriteAnimation, Cmp::PlayerMortality,
-                                        Cmp::AbsoluteAlpha, Cmp::AbsoluteRotation, Cmp::PlayerHealth>();
-  for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, anim_cmp, mortality_cmp, alpha_cmp, rotation_cmp, player_health_cmp] : blinking_player_view.each() )
+                                        Cmp::AbsoluteAlpha, Cmp::AbsoluteRotation, Cmp::PlayerStats>();
+  for ( auto [entity, pc_cmp, pos_cmp, dir_cmp, anim_cmp, mortality_cmp, alpha_cmp, rotation_cmp, player_stats_cmp] : blinking_player_view.each() )
   {
     // // normal do nothing
     // if ( mortality_cmp.state != Cmp::PlayerMortality::State::ALIVE ) continue;
@@ -128,7 +128,7 @@ void PlayerSystem::localTransforms()
     else if ( mortality_cmp.state == Cmp::PlayerMortality::State::FALLING )
     {
       // TODO: falling effect
-      player_health_cmp.health = 0;
+      player_stats_cmp.action( Cmp::BaseAction( Cmp::Stats::Health{ -100 }, {}, {}, {} ) );
       mortality_cmp.state = Cmp::PlayerMortality::State::DEAD;
       return;
     }
@@ -247,7 +247,7 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
     m_post_death_timer.restart();
     reg().remove<Cmp::SpriteAnimation>( Utils::Player::get_entity( reg() ) );
     stopFootstepsSound();
-    Utils::Player::get_health( reg() ).health = 0;
+    Utils::Player::get_player_stats( reg() ).action( Cmp::BaseAction( Cmp::Stats::Health{ -100 }, {}, {}, {} ) );
     Utils::Player::get_mortality( reg() ).state = Cmp::PlayerMortality::State::DEAD;
     SPDLOG_INFO( "Player is dead" );
   };
@@ -259,28 +259,28 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
 
     case Cmp::PlayerMortality::State::FALLING: {
       SPDLOG_INFO( "Player is falling" );
-      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::DECAYING: {
-      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::HAUNTED: {
-      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::EXPLODING: {
-      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
@@ -290,35 +290,35 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
       break;
     }
     case Cmp::PlayerMortality::State::SQUISHED: {
-      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::SUICIDE: {
-      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::IGNITED: {
-      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.lavaflames" );
+      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.lavaflames" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "shrine_lighting" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::SKEWERED: {
-      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::SHOCKED: {
-      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
@@ -328,7 +328,7 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
       break;
     }
     case Cmp::PlayerMortality::State::SHADOWCURSED:
-      auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "PLAYERDEATH.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
@@ -344,7 +344,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
     if ( m_inventory_cooldown_timer.getElapsedTime() < sf::milliseconds( 750.f ) ) return;
 
     auto player_pos = Utils::Player::get_position( reg() );
-    Sprites::SpriteMetaType existing_player_inventory_type = "";
+    Sprites::SpriteMetaType existing_player_inventory_type;
 
     // drop inventory if we have one
     auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
@@ -386,16 +386,14 @@ bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
   using namespace Utils::Collision;
 
   auto is_active = []( const Cmp::PlayerNoPath &playernopath ) { return playernopath.active; };
-  if ( check_cmp<Cmp::PlayerNoPath>( reg(), search_bounds, is_active ) ) { return false; }
-
-  return true;
+  return not check_cmp<Cmp::PlayerNoPath>( reg(), search_bounds, is_active );
 }
 
 void PlayerSystem::check_player_mortality()
 {
 
-  auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::PlayerHealth, Cmp::PlayerMortality, Cmp::Position>();
-  for ( auto [entity, pc_cmp, health_cmp, mortality_cmp, player_pos_cmp] : player_view.each() )
+  auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::PlayerMortality, Cmp::Position>();
+  for ( auto [entity, pc_cmp, mortality_cmp, player_pos_cmp] : player_view.each() )
   {
     if ( ( mortality_cmp.state == Cmp::PlayerMortality::State::DEAD ) and ( m_post_death_timer.getElapsedTime() > sf::seconds( 5.f ) ) )
     {
@@ -411,7 +409,7 @@ void PlayerSystem::check_player_mortality()
 
 entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entity inventory_slot_entt )
 {
-  auto inventory_slot_cmp = reg().try_get<Cmp::PlayerInventorySlot>( inventory_slot_entt );
+  auto *inventory_slot_cmp = reg().try_get<Cmp::PlayerInventorySlot>( inventory_slot_entt );
 
   if ( not inventory_slot_cmp )
   {
@@ -427,30 +425,28 @@ entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, ent
     reg().destroy( inventory_slot_entt );
     return world_carry_item_entt;
   }
-  else
-  {
-    // otherwise just drop it as a Re-pickupable item
-    auto world_carry_item_entt = reg().create();
-    reg().emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos, Constants::kGridSizePxF );
-    reg().emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, false, inventory_slot_cmp->type, 0 );
-    reg().emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.y - 1.f );
-    reg().emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, inventory_slot_cmp->type );
-    reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
 
-    // try to copy any relevant components over to the new world carryitem entt
-    auto inventory_slot_level_cmp = reg().try_get<Cmp::InventoryWearLevel>( inventory_slot_entt );
-    if ( inventory_slot_level_cmp ) { reg().emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, inventory_slot_level_cmp->m_level ); }
+  // otherwise just drop it as a Re-pickupable item
+  auto world_carry_item_entt = reg().create();
+  reg().emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos, Constants::kGridSizePxF );
+  reg().emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, false, inventory_slot_cmp->type, 0 );
+  reg().emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.y - 1.f );
+  reg().emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, inventory_slot_cmp->type );
+  reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
 
-    auto inventory_scryingball_cmp = reg().try_get<Cmp::ScryingBall>( inventory_slot_entt );
-    if ( inventory_scryingball_cmp ) { reg().emplace_or_replace<Cmp::ScryingBall>( world_carry_item_entt, true, inventory_scryingball_cmp->target ); }
+  // try to copy any relevant components over to the new world carryitem entt
+  auto *inventory_slot_level_cmp = reg().try_get<Cmp::InventoryWearLevel>( inventory_slot_entt );
+  if ( inventory_slot_level_cmp ) { reg().emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, inventory_slot_level_cmp->m_level ); }
 
-    auto inventory_explosive_cmp = reg().try_get<Cmp::Explosive>( inventory_slot_entt );
-    if ( inventory_explosive_cmp ) { reg().emplace_or_replace<Cmp::Explosive>( world_carry_item_entt, false ); }
+  auto *inventory_scryingball_cmp = reg().try_get<Cmp::ScryingBall>( inventory_slot_entt );
+  if ( inventory_scryingball_cmp ) { reg().emplace_or_replace<Cmp::ScryingBall>( world_carry_item_entt, true, inventory_scryingball_cmp->target ); }
 
-    // now destroy the inventory slot
-    reg().destroy( inventory_slot_entt );
-    return world_carry_item_entt;
-  }
+  auto *inventory_explosive_cmp = reg().try_get<Cmp::Explosive>( inventory_slot_entt );
+  if ( inventory_explosive_cmp ) { reg().emplace_or_replace<Cmp::Explosive>( world_carry_item_entt, false ); }
+
+  // now destroy the inventory slot
+  reg().destroy( inventory_slot_entt );
+  return world_carry_item_entt;
 }
 
 void PlayerSystem::on_drop_inventory_event( ProceduralMaze::Events::DropInventoryEvent ev )

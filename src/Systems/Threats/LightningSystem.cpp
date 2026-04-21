@@ -3,7 +3,6 @@
 #include <Events/PlayerMortalityEvent.hpp>
 #include <LightningStrike.hpp>
 #include <Player.hpp>
-#include <Player/PlayerHealth.hpp>
 #include <Player/PlayerMortality.hpp>
 #include <Position.hpp>
 #include <Random.hpp>
@@ -35,9 +34,9 @@ void LightningSystem::update( sf::Time dt )
     create_lightning_strike( dt );
     trigger_lightning = false;
 
-    auto &player_health = Utils::Player::get_health( reg() );
-    player_health.health -= 25.f;
-    if ( player_health.health <= 0 )
+    Utils::Player::get_player_stats( reg() ).action( Cmp::BaseAction( Cmp::Stats::Health{ -25 }, {}, {}, {} ) );
+
+    if ( Utils::Player::get_player_stats( reg() ).health() <= 0 )
     {
       get_systems_event_queue().trigger( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SHOCKED, Utils::Player::get_position( reg() ) ) );
     }

@@ -82,7 +82,7 @@ private:
   void update_player_zorder();
 
   //! @brief Check if the player is dea
-  //! @note This checks if the Cmp::PlayerMortality == State::DEAD, not check Cmp::PlayerHealth (that is other system responsibility).
+  //! @note This checks if the Cmp::PlayerMortality == State::DEAD, not check Cmp:PlayerStats (that is other system responsibility).
   void check_player_mortality();
 
   void check_player_axe_npc_kill();

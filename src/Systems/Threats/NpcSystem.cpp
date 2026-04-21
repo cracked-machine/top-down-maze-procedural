@@ -16,7 +16,6 @@
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SpawnArea.hpp>
@@ -277,7 +276,6 @@ void NpcSystem::check_player_to_npc_collision()
   auto &player_dmg_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() );
   auto &player_pos = Utils::Player::get_position( reg() );
   auto &player_mort = Utils::Player::get_mortality( reg() );
-  auto &player_health = Utils::Player::get_health( reg() );
 
   for ( auto [pc_entity, pc_cmp] : player_collision_view.each() )
   {
@@ -293,11 +291,11 @@ void NpcSystem::check_player_to_npc_collision()
       if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < player_dmg_cooldown.get_value() ) continue;
 
       auto &npc_damage = Sys::PersistSystem::get<Cmp::Persist::NpcDamage>( reg() );
-      player_health.health -= npc_damage.get_value();
+      Utils::Player::get_player_stats( reg() ).action( Cmp::BaseAction( Cmp::Stats::Health{ -npc_damage.get_value() }, {}, {}, {} ) );
 
       m_sound_bank.get_effect( "damage_player" ).play();
 
-      if ( player_health.health <= 0 )
+      if ( Utils::Player::get_player_stats( reg() ).health() <= 0 )
       {
         player_mort.state = Cmp::PlayerMortality::State::HAUNTED;
         get_systems_event_queue().enqueue(

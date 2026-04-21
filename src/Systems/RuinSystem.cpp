@@ -1,5 +1,6 @@
 #include <Events/DropInventoryEvent.hpp>
 #include <Exit.hpp>
+#include <Stats/BaseAction.hpp>
 #include <System.hpp>
 #include <Utils.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
@@ -10,7 +11,6 @@
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Player/PlayerCurse.hpp>
-#include <Components/Player/PlayerHealth.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Player/PlayerRuinLocation.hpp>
 #include <Components/Player/PlayerSpeedPenalty.hpp>
@@ -403,14 +403,13 @@ void RuinSystem::check_player_shadow_hand_collision()
   // only trigger PlayerMortalityEvents if player is alive
   if ( Utils::Player::get_mortality( reg() ).state == Cmp::PlayerMortality::State::DEAD ) { return; }
 
-  auto &player_health = Utils::Player::get_health( reg() );
   const auto player_pos = Utils::Player::get_position( reg() );
   if ( Utils::Collision::check_cmp<Cmp::RuinShadowHand>( reg(), Cmp::RectBounds::scaled( player_pos.position, Constants::kGridSizePxF, 1.f ) ) )
   {
     // damage player
-    player_health.health -= 1.f;
+    Utils::Player::get_player_stats( reg() ).action( Cmp::BaseAction( Cmp::Stats::Health{ -1 }, {}, {}, {} ) );
   }
-  if ( player_health.health <= 0.f )
+  if ( Utils::Player::get_player_stats( reg() ).health() <= 0 )
   {
     get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SHADOWCURSED, player_pos ) );
   }
