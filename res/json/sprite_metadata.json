@@ -442,7 +442,7 @@
         }
       }
     },
-    "CARRYITEM.pickaxe": {
+    "sprite.item.pickaxe": {
       "multisprite": {
         "displayname": "Pickaxe",
         "zorder": [0],
@@ -456,7 +456,7 @@
         }
       }
     },
-    "CARRYITEM.axe": {
+    "sprite.item.axe": {
       "multisprite": {
         "displayname": "Axe",
         "zorder": [0],
@@ -470,7 +470,7 @@
         }
       }
     },
-    "CARRYITEM.shovel": {
+    "sprite.item.shovel": {
       "multisprite": {
         "displayname": "Shovel",
         "zorder": [0],
@@ -484,7 +484,7 @@
         }
       }
     },
-    "CARRYITEM.bomb": {
+    "sprite.item.bomb": {
       "multisprite": {
         "displayname": "Dynamite",
         "zorder": [0],
@@ -498,7 +498,7 @@
         }
       }
     },
-    "CARRYITEM.exitkey": {
+    "sprite.item.exitkey": {
       "multisprite": {
         "displayname": "Exit Key",
         "zorder": [0],
@@ -512,7 +512,7 @@
         }
       }
     },
-    "CARRYITEM.cryptkey": {
+    "sprite.item.cryptkey": {
       "multisprite": {
         "displayname": "Crypt Key",
         "zorder": [0],
@@ -526,7 +526,7 @@
         }
       }
     },
-    "CARRYITEM.plant1": {
+    "sprite.item.plant1": {
       "multisprite": {
         "displayname": "Plant1",
         "zorder": [0],
@@ -540,7 +540,7 @@
         }
       }
     },
-    "CARRYITEM.plant2": {
+    "sprite.item.plant2": {
       "multisprite": {
         "displayname": "Plant2",
         "zorder": [0],
@@ -554,7 +554,7 @@
         }
       }
     },
-    "CARRYITEM.plant3": {
+    "sprite.item.plant3": {
       "multisprite": {
         "displayname": "Plant3",
         "zorder": [0],
@@ -568,7 +568,7 @@
         }
       }
     },
-    "CARRYITEM.plant4": {
+    "sprite.item.plant4": {
       "multisprite": {
         "displayname": "Plant4",
         "zorder": [0],
@@ -582,7 +582,7 @@
         }
       }
     },
-    "CARRYITEM.plant5": {
+    "sprite.item.plant5": {
       "multisprite": {
         "displayname": "Plant5",
         "zorder": [0],
@@ -596,7 +596,7 @@
         }
       }
     },
-    "CARRYITEM.plant6": {
+    "sprite.item.plant6": {
       "multisprite": {
         "displayname": "Plant6",
         "zorder": [0],
@@ -610,7 +610,7 @@
         }
       }
     },
-    "CARRYITEM.plant7": {
+    "sprite.item.plant7": {
       "multisprite": {
         "displayname": "Plant7",
         "zorder": [0],
@@ -624,7 +624,7 @@
         }
       }
     },
-    "CARRYITEM.plant8": {
+    "sprite.item.plant8": {
       "multisprite": {
         "displayname": "Plant8",
         "zorder": [0],
@@ -638,7 +638,7 @@
         }
       }
     },
-    "CARRYITEM.plant9": {
+    "sprite.item.plant9": {
       "multisprite": {
         "displayname": "Plant9",
         "zorder": [0],
@@ -652,7 +652,7 @@
         }
       }
     },
-    "CARRYITEM.plant10": {
+    "sprite.item.plant10": {
       "multisprite": {
         "displayname": "Plant10",
         "zorder": [0],
@@ -666,7 +666,7 @@
         }
       }
     },
-    "CARRYITEM.plant11": {
+    "sprite.item.plant11": {
       "multisprite": {
         "displayname": "Plant11",
         "zorder": [0],
@@ -680,7 +680,7 @@
         }
       }
     },
-    "CARRYITEM.plant12": {
+    "sprite.item.plant12": {
       "multisprite": {
         "displayname": "Plant12",
         "zorder": [0],
@@ -694,7 +694,7 @@
         }
       }
     },
-    "CARRYITEM.relic1": {
+    "sprite.item.relic1": {
       "multisprite": {
         "displayname": "Relic: Saint's Blood",
         "zorder": [0],
@@ -708,7 +708,7 @@
         }
       }
     },
-    "CARRYITEM.relic2": {
+    "sprite.item.relic2": {
       "multisprite": {
         "displayname": "Relic: Saint's Eyeball",
         "zorder": [0],
@@ -722,7 +722,7 @@
         }
       }
     },
-    "CARRYITEM.relic3": {
+    "sprite.item.relic3": {
       "multisprite": {
         "displayname": "Relic: Saint's Bone",
         "zorder": [0],
@@ -736,7 +736,7 @@
         }
       }
     },
-    "CARRYITEM.relic4": {
+    "sprite.item.relic4": {
       "multisprite": {
         "displayname": "Relic: Saint's Hand",
         "zorder": [0],
@@ -750,7 +750,7 @@
         }
       }
     },
-    "CARRYITEM.scryingball": {
+    "sprite.item.seeingstone": {
       "multisprite": {
         "displayname": "Seeing Stone",
         "zorder": [0],
@@ -764,7 +764,7 @@
         }
       }
     },
-    "CARRYITEM.cursetablet": {
+    "sprite.item.cursetablet": {
       "multisprite": {
         "displayname": "Curse Tablet",
         "zorder": [0],
@@ -778,7 +778,7 @@
         }
       }
     },
-    "CARRYITEM.boots": {
+    "sprite.item.boots": {
       "multisprite": {
         "displayname": "Dead Man's Boots",
         "zorder": [0],
@@ -792,7 +792,7 @@
         }
       }
     },
-    "CARRYITEM.witchesjar": {
+    "sprite.item.witchesjar": {
       "multisprite": {
         "displayname": "Witches Jar",
         "zorder": [0, 0, 0, 0, 0],
@@ -806,7 +806,7 @@
         }
       }
     },
-    "CARRYITEM.preservedcat": {
+    "sprite.item.preservedcat": {
       "multisprite": {
         "displayname": "Preserved Cat",
         "zorder": [0, 0, 0, 0, 0],
@@ -820,7 +820,7 @@
         }
       }
     },
-    "CARRYITEM.jewelry_sapphire_necklace": {
+    "sprite.item.jewelry_sapphire_necklace": {
       "multisprite": {
         "displayname": "Sapphire Necklace",
         "zorder": [0],
@@ -834,7 +834,7 @@
         }
       }
     },
-    "CARRYITEM.jewelry_amephyst_ring": {
+    "sprite.item.jewelry_amephyst_ring": {
       "multisprite": {
         "displayname": "Amephyst Ring",
         "zorder": [0],
@@ -848,7 +848,7 @@
         }
       }
     },
-    "CARRYITEM.jewelry_ruby_ring": {
+    "sprite.item.jewelry_ruby_ring": {
       "multisprite": {
         "displayname": "Ruby Ring",
         "zorder": [0],
@@ -862,7 +862,7 @@
         }
       }
     },
-    "CARRYITEM.jewelry_emerald_necklace": {
+    "sprite.item.jewelry_emerald_necklace": {
       "multisprite": {
         "displayname": "Emerald Necklace",
         "zorder": [0],
@@ -876,7 +876,7 @@
         }
       }
     },
-    "CARRYITEM.jewelry_emerald_gemstone": {
+    "sprite.item.jewelry_emerald_gemstone": {
       "multisprite": {
         "displayname": "Emerald Gemstone",
         "zorder": [0],
@@ -890,7 +890,7 @@
         }
       }
     },
-    "CARRYITEM.jewelry_sapphire_gemstone": {
+    "sprite.item.jewelry_sapphire_gemstone": {
       "multisprite": {
         "displayname": "Sapphire Gemstone",
         "zorder": [0],
@@ -904,7 +904,7 @@
         }
       }
     },
-    "CARRYITEM.jewelry_diamond_gemstone": {
+    "sprite.item.jewelry_diamond_gemstone": {
       "multisprite": {
         "displayname": "Diamond Gemstone",
         "zorder": [0],
@@ -918,7 +918,7 @@
         }
       }
     },
-    "CARRYITEM.jewelry_amephyst_gemstone": {
+    "sprite.item.jewelry_amephyst_gemstone": {
       "multisprite": {
         "displayname": "Amephyst Gemstone",
         "zorder": [0],

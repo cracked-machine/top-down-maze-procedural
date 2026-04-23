@@ -1,0 +1,18 @@
+{
+  "sprites": "res/json/sprite_metadata.json",
+  "items": "res/json/inventory_items.json",
+  "persistent": "res/json/persistent_components.json",
+  "ui": [
+    "res/ui/main.json",
+    "res/ui/debug.json",
+    "res/ui/shop.json"
+  ],
+  "scenes": [
+    "res/scenes/crypt.json",
+    "res/scenes/graveyard.json",
+    "res/scenes/ruinlower.json",
+    "res/scenes/ruinupper.json",
+    "res/scenes/shop.json",
+    "res/scenes/well.json"
+  ]
+}

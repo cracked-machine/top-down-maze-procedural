@@ -95,6 +95,12 @@
                 "**/tilemap_config.json"
             ],
             "url": "./res/json/tilemap_config_schema.json"
+        },
+        {
+            "fileMatch": [
+                "**/items.json"
+            ],
+            "url": "./res/json/items_schema.json"
         }
     ],
     "doxdocgen.c.triggerSequence": "//",

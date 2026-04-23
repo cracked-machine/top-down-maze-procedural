@@ -1,6 +1,6 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Direction.hpp>
-#include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
@@ -28,6 +28,7 @@
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/GraveSystem.hpp>
 #include <Systems/HolyWellSystem.hpp>
+#include <Systems/ItemSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
@@ -58,6 +59,8 @@ void GraveyardScene::on_init()
 
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
+
+  m_sys.find<Sys::Store::Type::ItemSystem>().init_item_store();
 
   // create the level contents
   m_scene_map_data = std::make_shared<SceneData>( "res/scenes/graveyard.json" );

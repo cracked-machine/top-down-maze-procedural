@@ -7,8 +7,8 @@
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Grave/GraveSegment.hpp>
-#include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/Explosive.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcContainer.hpp>
@@ -119,7 +119,7 @@ void BombSystem::arm_player_bomb()
   {
 
     auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
-    if ( inventory_type != "CARRYITEM.bomb" ) return;
+    if ( inventory_type != "sprite.item.bomb" ) return;
 
     // make a copy and reduce/center the player hitbox to avoid arming a neighbouring location
     auto player_hitbox = sf::FloatRect( player_pos );
@@ -136,7 +136,7 @@ void BombSystem::arm_player_bomb()
       auto armed_epicenter_entity = reg().create();
       reg().emplace<Cmp::Position>( armed_epicenter_entity, destructable_pos_cmp.position, destructable_pos_cmp.size );
       place_concentric_bomb_pattern( armed_epicenter_entity, reg().get<Cmp::PlayerBlastRadius>( player_entt ).value );
-      Factory::destroy_inventory( reg(), "CARRYITEM.bomb" );
+      Factory::destroy_inventory( reg(), "sprite.item.bomb" );
       // remove the used bomb carry item from the player inventory - Factory::createArmed drops a new bomb
     }
   }
@@ -261,15 +261,15 @@ void BombSystem::update()
     }
 
     // detonate nearby carryitems - cruel but fair
-    auto carryitem_view = reg().view<Cmp::CarryItem, Cmp::Position>();
+    auto carryitem_view = reg().view<Cmp::InventoryItem, Cmp::Position>();
     for ( auto [carryitem_entt, carryitem_cmp, carryitem_pos_cmp] : carryitem_view.each() )
     {
       if ( not carryitem_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
-      if ( carryitem_cmp.type == "CARRYITEM.pickaxe" or carryitem_cmp.type == "CARRYITEM.axe" or carryitem_cmp.type == "CARRYITEM.shovel" )
+      if ( carryitem_cmp.type == "sprite.item.pickaxe" or carryitem_cmp.type == "sprite.item.axe" or carryitem_cmp.type == "sprite.item.shovel" )
       {
         Utils::Player::reduce_inventory_wear_level( reg(), Sys::PersistSystem::get<Cmp::Persist::BombDamage>( reg() ).get_value() );
       }
-      else if ( carryitem_cmp.type == "CARRYITEM.bomb" )
+      else if ( carryitem_cmp.type == "sprite.item.bomb" )
       {
         // process other explosives lying around - chain reaction!
         auto explosive_cmp = reg().try_get<Cmp::Explosive>( carryitem_entt );

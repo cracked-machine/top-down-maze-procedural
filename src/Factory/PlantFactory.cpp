@@ -1,6 +1,6 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/Armable.hpp>
-#include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/PlantObstacle.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
@@ -22,7 +22,7 @@ entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, 
   auto plant_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( plant_entt, pos_cmp.position, pos_cmp.size );
   reg.emplace_or_replace<Cmp::PlantObstacle>( plant_entt );
-  reg.emplace_or_replace<Cmp::CarryItem>( plant_entt, ms.get_sprite_type() );
+  reg.emplace_or_replace<Cmp::InventoryItem>( plant_entt, ms.get_sprite_type() );
   reg.emplace_or_replace<Cmp::ReservedPosition>( plant_entt );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( plant_entt );
   reg.emplace_or_replace<Cmp::PlayerNoPath>( plant_entt, false );

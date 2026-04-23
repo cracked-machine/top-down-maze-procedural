@@ -28,7 +28,7 @@
 #include <Components/Exit.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
-#include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/CryptNpcSpawnCount.hpp>
@@ -185,7 +185,7 @@ void CryptSystem::unlock_crypt_door()
   auto cryptdoor_view = reg().view<Cmp::CryptEntrance, Cmp::Position>();
 
   auto [inv_entt, inv_type] = Utils::Player::get_inventory_type( reg() );
-  if ( inv_type != "CARRYITEM.cryptkey" ) return;
+  if ( inv_type != "sprite.item.cryptkey" ) return;
 
   for ( auto [door_entity, cryptdoor_cmp, door_pos_cmp] : cryptdoor_view.each() )
   {
@@ -227,7 +227,7 @@ void CryptSystem::unlock_crypt_door()
 
     // unlock the crypt door
     SPDLOG_DEBUG( "Player unlocked a crypt door at ({}, {})", door_pos_cmp.position.x, door_pos_cmp.position.y );
-    Factory::destroy_inventory( reg(), "CARRYITEM.cryptkey" );
+    Factory::destroy_inventory( reg(), "sprite.item.cryptkey" );
 
     // player_key_count->decrement_count( 1 );
     m_sound_bank.get_effect( "crypt_open" ).play();

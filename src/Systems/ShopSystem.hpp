@@ -26,7 +26,7 @@ public:
   //! @return Cmp::ShopInventory::Config
   void load_config( const std::filesystem::path &config_path );
 
-  //! @brief Pick a random CARRYITEM sprite and price and insert in the inventory component
+  //! @brief Pick a random "sprite.item." sprite and price and insert in the inventory component
   //! @param shop_inventory_cmp The inventory component
   void add_inventory_item( Cmp::ShopInventory &shop_inventory_cmp );
 

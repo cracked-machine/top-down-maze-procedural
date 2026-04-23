@@ -8,11 +8,12 @@ namespace ProceduralMaze::Cmp
 class PlayerStats
 {
 public:
-  PlayerStats( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy )
+  PlayerStats( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Disease disease = Stats::Disease::NONE )
       : m_health( std::clamp( health.value, 0, 100 ) ),
         m_fear( std::clamp( fear.value, 0, 100 ) ),
         m_despair( std::clamp( despair.value, 0, 100 ) ),
-        m_infamy( std::clamp( infamy.value, 0, 100 ) )
+        m_infamy( std::clamp( infamy.value, 0, 100 ) ),
+        m_disease( disease )
   {
   }
   ~PlayerStats() {}
@@ -21,6 +22,7 @@ public:
   [[nodiscard]] int fear() const { return m_fear; }
   [[nodiscard]] int despair() const { return m_despair; }
   [[nodiscard]] int infamy() const { return m_infamy; }
+  [[nodiscard]] Stats::Disease disease() const { return m_disease; }
 
   void action( const BaseAction &action )
   {
@@ -29,6 +31,7 @@ public:
     m_fear = std::clamp( m_fear + action.fear(), 0, 100 );
     m_despair = std::clamp( m_despair + action.despair(), 0, 100 );
     m_infamy = std::clamp( m_infamy + action.infamy(), 0, 100 );
+    if ( m_disease != Stats::Disease::NONE ) { m_disease = action.disease(); }
   }
 
 private:
@@ -36,6 +39,7 @@ private:
   int m_fear{ 0 };
   int m_despair{ 0 };
   int m_infamy{ 0 };
+  Stats::Disease m_disease{ Stats::Disease::NONE };
 };
 
 } // namespace ProceduralMaze::Cmp

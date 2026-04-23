@@ -13,7 +13,7 @@
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepTimer.hpp>
-#include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
@@ -350,7 +350,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
     auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
     for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
     {
-      existing_player_inventory_type = inventory_cmp.type;
+      existing_player_inventory_type = inventory_cmp.m_item.type;
       auto dropped_entt = drop_inventory_slot_into_world( player_pos.position, inventory_entt );
       if ( dropped_entt != entt::null )
       {
@@ -360,7 +360,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
     }
 
     // pickup inventory if there is something at this position
-    auto world_carryitem_view = reg().view<Cmp::CarryItem, Cmp::Position>();
+    auto world_carryitem_view = reg().view<Cmp::InventoryItem, Cmp::Position>();
     for ( auto [carryitem_entt, carryitem_cmp, pos_cmp] : world_carryitem_view.each() )
     {
       if ( not player_pos.findIntersection( pos_cmp ) ) continue;           // is there something to pick up?
@@ -368,7 +368,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
       if ( inventory_view.size() > 0 ) { break; }                           // don't pickup another if we already have one
 
       // ok pick it up
-      if ( Factory::pickup_carry_item( reg(), carryitem_entt ) != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
+      if ( Factory::pickup_world_item( reg(), carryitem_entt ) != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
     }
     m_inventory_cooldown_timer.restart();
     SPDLOG_DEBUG( "inventory_view: {} ", inventory_view.size() );
@@ -418,35 +418,35 @@ entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, ent
   }
 
   // if plant then replant it in the ground - snap to nearest grid to prevent collision issues
-  if ( inventory_slot_cmp->type.contains( "plant" ) )
+  if ( inventory_slot_cmp->m_item.type.contains( "plant" ) )
   {
-    auto world_carry_item_entt = Factory::create_plant_obstacle( reg(), Cmp::Position( Utils::snap_to_grid( pos ), Constants::kGridSizePxF ),
-                                                                 m_sprite_factory.get_multisprite_by_type( inventory_slot_cmp->type ) );
+    auto world_item_entt = Factory::create_plant_obstacle( reg(), Cmp::Position( Utils::snap_to_grid( pos ), Constants::kGridSizePxF ),
+                                                           m_sprite_factory.get_multisprite_by_type( inventory_slot_cmp->m_item.type ) );
     reg().destroy( inventory_slot_entt );
-    return world_carry_item_entt;
+    return world_item_entt;
   }
 
   // otherwise just drop it as a Re-pickupable item
-  auto world_carry_item_entt = reg().create();
-  reg().emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos, Constants::kGridSizePxF );
-  reg().emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, false, inventory_slot_cmp->type, 0 );
-  reg().emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.y - 1.f );
-  reg().emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, inventory_slot_cmp->type );
-  reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
+  auto world_item_entt = reg().create();
+  reg().emplace_or_replace<Cmp::Position>( world_item_entt, pos, Constants::kGridSizePxF );
+  reg().emplace_or_replace<Cmp::SpriteAnimation>( world_item_entt, 0, 0, false, inventory_slot_cmp->m_item.type, 0 );
+  reg().emplace_or_replace<Cmp::ZOrderValue>( world_item_entt, pos.y - 1.f );
+  reg().emplace_or_replace<Cmp::InventoryItem>( world_item_entt, inventory_slot_cmp->m_item );
+  reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_item_entt );
 
   // try to copy any relevant components over to the new world carryitem entt
   auto *inventory_slot_level_cmp = reg().try_get<Cmp::InventoryWearLevel>( inventory_slot_entt );
-  if ( inventory_slot_level_cmp ) { reg().emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, inventory_slot_level_cmp->m_level ); }
+  if ( inventory_slot_level_cmp ) { reg().emplace_or_replace<Cmp::InventoryWearLevel>( world_item_entt, inventory_slot_level_cmp->m_level ); }
 
   auto *inventory_scryingball_cmp = reg().try_get<Cmp::ScryingBall>( inventory_slot_entt );
-  if ( inventory_scryingball_cmp ) { reg().emplace_or_replace<Cmp::ScryingBall>( world_carry_item_entt, true, inventory_scryingball_cmp->target ); }
+  if ( inventory_scryingball_cmp ) { reg().emplace_or_replace<Cmp::ScryingBall>( world_item_entt, true, inventory_scryingball_cmp->target ); }
 
   auto *inventory_explosive_cmp = reg().try_get<Cmp::Explosive>( inventory_slot_entt );
-  if ( inventory_explosive_cmp ) { reg().emplace_or_replace<Cmp::Explosive>( world_carry_item_entt, false ); }
+  if ( inventory_explosive_cmp ) { reg().emplace_or_replace<Cmp::Explosive>( world_item_entt, false ); }
 
   // now destroy the inventory slot
   reg().destroy( inventory_slot_entt );
-  return world_carry_item_entt;
+  return world_item_entt;
 }
 
 void PlayerSystem::on_drop_inventory_event( ProceduralMaze::Events::DropInventoryEvent ev )
@@ -506,7 +506,7 @@ void PlayerSystem::check_player_axe_npc_kill()
   if ( not pathfinding_navmesh ) return;
 
   auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-  if ( inventory_slot_type != "CARRYITEM.axe" ) { return; }
+  if ( inventory_slot_type != "sprite.item.axe" ) { return; }
 
   if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
 
@@ -556,7 +556,7 @@ void PlayerSystem::check_player_axe_npc_kill()
       m_sound_bank.get_effect( "skele_death" ).play();
 
       auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-      if ( inventory_slot_type == "CARRYITEM.axe" )
+      if ( inventory_slot_type == "sprite.item.axe" )
       {
         // drop loot - 1 in 3 chance
         auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(

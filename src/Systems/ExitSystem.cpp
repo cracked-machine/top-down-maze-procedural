@@ -3,7 +3,7 @@
 
 #include <Audio/SoundBank.hpp>
 #include <Components/Exit.hpp>
-#include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/ExitKeyRequirement.hpp>
@@ -86,7 +86,7 @@ void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
 void ExitSystem::on_player_action( Events::PlayerActionEvent ev )
 {
   auto [entt, inventory_ms] = Utils::Player::get_inventory_type( reg() );
-  if ( ev.action == Events::PlayerActionEvent::GameActions::ACTIVATE && inventory_ms == "CARRYITEM.exitkey" ) { check_player_can_unlock_exit(); }
+  if ( ev.action == Events::PlayerActionEvent::GameActions::ACTIVATE && inventory_ms == "sprite.item.exitkey" ) { check_player_can_unlock_exit(); }
 }
 
 void ExitSystem::check_player_can_unlock_exit()
@@ -109,7 +109,7 @@ void ExitSystem::check_player_can_unlock_exit()
         reg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y - 16.f );
         reg().remove<Cmp::PlayerNoPath>( entity );
         if ( m_sound_bank.get_effect( "secret" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "secret" ).play();
-        Factory::destroy_inventory( reg(), "CARRYITEM.exitkey" );
+        Factory::destroy_inventory( reg(), "sprite.item.exitkey" );
       }
     }
   }

@@ -5,12 +5,17 @@
 
 namespace ProceduralMaze::Cmp
 {
-
+//! @brief Construct a new Sacrifice Action object
+//! @param health
+//! @param fear
+//! @param despair
+//! @param infamy
 class SacrificeAction : public BaseAction
 {
 public:
-  SacrificeAction( Health health, Fear fear, Despair despair, Infamy infamy )
-      : BaseAction( health, fear, despair, infamy )
+  SacrificeAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy,
+                   Stats::Disease disease = Stats::Disease::NONE )
+      : BaseAction( health, fear, despair, infamy, disease )
   {
   }
   ~SacrificeAction() {}

@@ -19,6 +19,7 @@ class PlayerCurse;
 class Direction;
 class PlayerCadaverCount;
 class PlayerLevelDepth;
+class PlayerInventorySlot;
 } // namespace ProceduralMaze::Cmp
 
 namespace ProceduralMaze::Utils::Player

@@ -4,7 +4,7 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
 #include <Components/Grave/GraveSegment.hpp>
-#include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>
@@ -133,24 +133,23 @@ void GraveSystem::check_player_grave_collision()
           case 3: {
 
             auto grave_cmp_bounds = Cmp::RectBounds::scaled( grave_cmp.position, grave_cmp.size, 2.f );
-            std::vector<Sprites::SpriteMetaType> relic_selection_list{ "CARRYITEM.relic1", "CARRYITEM.relic2", "CARRYITEM.relic3",
-                                                                       "CARRYITEM.relic4" };
+            std::vector<Sprites::SpriteMetaType> relic_selection_list{ "item.relic1", "item.relic2", "item.relic3", "item.relic4" };
             Cmp::RandomInt relic_picker( 0, relic_selection_list.size() - 1 );
             auto selected_relic = relic_picker.gen();
-            auto relic_entt = Factory::create_carry_item( reg(), Utils::Player::get_position( reg() ), relic_selection_list.at( selected_relic ) );
+            auto relic_entt = Factory::create_world_item( reg(), Utils::Player::get_position( reg() ), relic_selection_list.at( selected_relic ) );
 
             if ( relic_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
             break;
           }
           case 4: {
             auto grave_cmp_bounds = Cmp::RectBounds::scaled( grave_cmp.position, grave_cmp.size, 2.f );
-            std::vector<Sprites::SpriteMetaType> jewelry_selection_list{
-                "CARRYITEM.jewelry_sapphire_necklace", "CARRYITEM.jewelry_amephyst_ring",    "CARRYITEM.jewelry_ruby_ring",
-                "CARRYITEM.jewelry_emerald_necklace",  "CARRYITEM.jewelry_emerald_gemstone", "CARRYITEM.jewelry_sapphire_gemstone",
-                "CARRYITEM.jewelry_diamond_gemstone",  "CARRYITEM.jewelry_amephyst_gemstone" };
+            std::vector<Sprites::SpriteMetaType> jewelry_selection_list{ "item.jewelry_sapphire_necklace", "item.jewelry_amephyst_ring",
+                                                                         "item.jewelry_ruby_ring",         "item.jewelry_emerald_necklace",
+                                                                         "item.jewelry_emerald_gemstone",  "item.jewelry_sapphire_gemstone",
+                                                                         "item.jewelry_diamond_gemstone",  "item.jewelry_amephyst_gemstone" };
             Cmp::RandomInt jewelry_picker( 0, jewelry_selection_list.size() - 1 );
             auto selected_jewelry = jewelry_picker.gen();
-            auto jewelry_entt = Factory::create_carry_item( reg(), Utils::Player::get_position( reg() ),
+            auto jewelry_entt = Factory::create_world_item( reg(), Utils::Player::get_position( reg() ),
                                                             jewelry_selection_list.at( selected_jewelry ) );
 
             if ( jewelry_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }

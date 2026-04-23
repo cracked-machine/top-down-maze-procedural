@@ -1,7 +1,7 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/Armable.hpp>
 #include <Components/DestroyedObstacle.hpp>
-#include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/PlantObstacle.hpp>

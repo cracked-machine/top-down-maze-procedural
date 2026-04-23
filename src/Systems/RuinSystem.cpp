@@ -6,7 +6,7 @@
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
-#include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
@@ -352,7 +352,7 @@ bool RuinSystem::check_activate_player_curse( sf::Vector2f scene_dimensions )
   Cmp::PlayerCurse &player_curse = Utils::Player::get_curse( reg() );
 
   auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( m_reg );
-  if ( not player_curse.active && inventory_type == "CARRYITEM.witchesjar" )
+  if ( not player_curse.active && inventory_type == "sprite.item.witchesjar" )
   {
     if ( not m_curse_activation_future.valid() )
     {

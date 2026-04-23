@@ -1,4 +1,5 @@
 #include <Events/DropInventoryEvent.hpp>
+#include <Systems/ItemSystem.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -139,13 +140,14 @@ void ShopSystem::load_config( const std::filesystem::path &config_path )
 
 void ShopSystem::add_inventory_item( Cmp::ShopInventory &shop_inventory_cmp )
 {
-  auto carryitem_types = m_sprite_factory.get_all_sprite_types_by_pattern( "CARRYITEM" );
-  Cmp::RandomInt item_picker( 0, static_cast<int>( carryitem_types.size() ) - 1 );
+  // auto carryitem_types = m_sprite_factory.get_all_sprite_types_by_pattern( "sprite.item." );
+  auto item_types = Sys::ItemSystem::instance().get_all_item_keys();
+  Cmp::RandomInt item_picker( 0, static_cast<int>( item_types.size() ) - 1 );
   Cmp::RandomInt price_picker( shop_inventory_cmp.m_config.min_price, shop_inventory_cmp.m_config.max_price );
-  auto item = item_picker.gen();
+  auto selected_item = item_picker.gen();
   auto price = price_picker.gen();
-  SPDLOG_INFO( "Adding shop item - {} - for {}", carryitem_types.at( item ), price );
-  shop_inventory_cmp.m_slots.emplace_back( carryitem_types.at( item ), price );
+  SPDLOG_INFO( "Adding shop item - {} - for {}", item_types.at( selected_item ), price );
+  shop_inventory_cmp.m_slots.emplace_back( item_types.at( selected_item ), price );
 }
 
 void ShopSystem::create_inventory( entt::entity inventory_entt )

@@ -3,9 +3,9 @@
 
 #include <Audio/SoundBank.hpp>
 #include <Components/Armable.hpp>
-#include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/FlashUICadaver.hpp>
 #include <Components/Inventory/FlashUIRadius.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Persistent/BombBonus.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
@@ -93,7 +93,8 @@ void LootSystem::check_loot_collision()
       auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
       for ( auto [weapons_entity, inventory_slot] : inventory_view.each() )
       {
-        if ( inventory_slot.type.contains( "axe" ) or inventory_slot.type.contains( "pickaxe" ) or inventory_slot.type.contains( "shovel" ) )
+        if ( inventory_slot.m_item.type.contains( "axe" ) or inventory_slot.m_item.type.contains( "pickaxe" ) or
+             inventory_slot.m_item.type.contains( "shovel" ) )
         {
           auto wear_level_cmp = reg().try_get<Cmp::InventoryWearLevel>( weapons_entity );
           if ( wear_level_cmp )

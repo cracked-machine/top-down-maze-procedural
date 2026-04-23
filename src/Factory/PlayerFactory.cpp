@@ -3,8 +3,8 @@
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/DeathPosition.hpp>
 #include <Components/Direction.hpp>
-#include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/Explosive.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
@@ -33,6 +33,8 @@
 #include <Sprites/SpriteMetaType.hpp>
 #include <Stats/BaseAction.hpp>
 #include <Stats/PlayerStats.hpp>
+#include <Stats/SacrificeAction.hpp>
+#include <Systems/ItemSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
@@ -54,26 +56,27 @@ void create_player( entt::registry &reg )
   // So we must recalc start position to the nearest grid position here
   auto start_pos = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( reg );
   start_pos = Utils::snap_to_grid( start_pos );
-  reg.emplace<Cmp::Position>( entity, start_pos, Constants::kGridSizePxF );
+  reg.emplace_or_replace<Cmp::Position>( entity, start_pos, Constants::kGridSizePxF );
   auto &blast_radius = Sys::PersistSystem::get<Cmp::Persist::BlastRadius>( reg );
-  reg.emplace<Cmp::PlayerCharacter>( entity );
-  reg.emplace<Cmp::ReservedPosition>( entity );
-  reg.emplace<Cmp::PlayerBlastRadius>( entity, blast_radius.get_value() );
-  reg.emplace<Cmp::PlayerStats>( entity, Cmp::Stats::Health{ 100 }, Cmp::Stats::Fear{ 0 }, Cmp::Stats::Despair{ 0 }, Cmp::Stats::Infamy{ 0 } );
+  reg.emplace_or_replace<Cmp::PlayerCharacter>( entity );
+  reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
+  reg.emplace_or_replace<Cmp::PlayerBlastRadius>( entity, blast_radius.get_value() );
+  reg.emplace_or_replace<Cmp::PlayerStats>( entity, Cmp::Stats::Health{ 100 }, Cmp::Stats::Fear{ 0 }, Cmp::Stats::Despair{ 0 },
+                                            Cmp::Stats::Infamy{ 0 } );
 
-  reg.emplace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
+  reg.emplace_or_replace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
 
-  reg.emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYER.walk.south" );
-  reg.emplace<Cmp::PlayerCadaverCount>( entity, 0 );
-  reg.emplace<Cmp::PlayerWealth>( entity, 0 );
-  reg.emplace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );
-  reg.emplace<Cmp::PlayerCurse>( entity, false );
-  reg.emplace<Cmp::PlayerLevelDepth>( entity, 1 );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYER.walk.south" );
+  reg.emplace_or_replace<Cmp::PlayerCadaverCount>( entity, 0 );
+  reg.emplace_or_replace<Cmp::PlayerWealth>( entity, 0 );
+  reg.emplace_or_replace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );
+  reg.emplace_or_replace<Cmp::PlayerCurse>( entity, false );
+  reg.emplace_or_replace<Cmp::PlayerLevelDepth>( entity, 1 );
 
-  reg.emplace<Cmp::ZOrderValue>( entity, start_pos.y ); // z-order based on y-position
-  reg.emplace<Cmp::AbsoluteAlpha>( entity, 255 );       // fully opaque
-  reg.emplace<Cmp::AbsoluteRotation>( entity, 0 );
-  add_inventory( reg, "CARRYITEM.pickaxe" );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entity, start_pos.y ); // z-order based on y-position
+  reg.emplace_or_replace<Cmp::AbsoluteAlpha>( entity, 255 );       // fully opaque
+  reg.emplace_or_replace<Cmp::AbsoluteRotation>( entity, 0 );
+  add_inventory( reg, "item.pickaxe" );
 }
 
 void add_spawn_area( entt::registry &registry, entt::entity entity, float zorder )
@@ -95,14 +98,14 @@ void create_player_death_anim( entt::registry &registry, Cmp::Position player_po
     offset = sf::Vector2f{ 0, 0 };
   }
   else { offset = sprite.getSpriteSizePixels() / 2.f; }
-  registry.emplace<Cmp::Position>( player_blood_splat_entity, player_pos_cmp.position - offset, player_pos_cmp.size );
+  registry.emplace_or_replace<Cmp::Position>( player_blood_splat_entity, player_pos_cmp.position - offset, player_pos_cmp.size );
   registry.emplace_or_replace<Cmp::DeathPosition>( player_blood_splat_entity, player_pos_cmp.position - offset, player_pos_cmp.size );
   registry.emplace_or_replace<Cmp::SpriteAnimation>( player_blood_splat_entity, 0, 0, true, sprite.get_sprite_type(), 0, 0.1,
                                                      Cmp::AnimType::ONESHOTHOLD );
   registry.emplace_or_replace<Cmp::ZOrderValue>( player_blood_splat_entity, player_pos_cmp.position.y * 3 ); // always infront
 }
 
-entt::entity create_seeing_stone( entt::registry &reg, Cmp::Position pos, Sprites::SpriteMetaType type, float zorder )
+entt::entity create_seeing_stone( entt::registry &reg, Cmp::Position pos, const std::string &item, float zorder )
 {
   // Check if we can create a scrying ball with a unique target BEFORE creating the entity
   std::vector<Cmp::ScryingBall::Target> exclude_list;
@@ -121,56 +124,63 @@ entt::entity create_seeing_stone( entt::registry &reg, Cmp::Position pos, Sprite
   auto world_carry_item_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
   reg.emplace_or_replace<Cmp::ReservedPosition>( world_carry_item_entt );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, type, 0 );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, Sys::ItemSystem::instance().get_item( item ).type, 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
-  reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, type );
+  reg.emplace_or_replace<Cmp::InventoryItem>( world_carry_item_entt, Sys::ItemSystem::instance().get_item( item ) );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
   reg.emplace_or_replace<Cmp::ScryingBall>( world_carry_item_entt, false, pick );
 
-  SPDLOG_INFO( "Placed {} at {},{}", type, pos.position.x, pos.position.y );
+  SPDLOG_INFO( "Placed {} at {},{}", item, pos.position.x, pos.position.y );
   return world_carry_item_entt;
 }
 
-entt::entity create_explosive( entt::registry &reg, Cmp::Position pos, Sprites::SpriteMetaType type, float zorder )
+entt::entity create_explosive( entt::registry &reg, Cmp::Position pos, const std::string &item, float zorder )
 {
   // Now create the entity with the valid target
   auto world_carry_item_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, type, 0 );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, Sys::ItemSystem::instance().get_item( item ).type, 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
-  reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, type );
+  reg.emplace_or_replace<Cmp::InventoryItem>( world_carry_item_entt, Sys::ItemSystem::instance().get_item( item ) );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
   reg.emplace_or_replace<Cmp::Explosive>( world_carry_item_entt, false );
 
-  SPDLOG_INFO( "Placed {} at {},{}", type, pos.position.x, pos.position.y );
+  SPDLOG_INFO( "Placed {} at {},{}", item, pos.position.x, pos.position.y );
   return world_carry_item_entt;
 }
 
 //! @brief Create a Carry Item object in the world
 //! @param reg the ECS registry
 //! @param pos the position to place the new item
-//! @param type the item type. See "CARRYITEM.xxxx" in res/json/sprite_metadata.json
+//! @param type the item type. See "sprite.item.xxxx" in res/json/sprite_metadata.json
 //! @return entt::entity
-entt::entity create_carry_item( entt::registry &reg, Cmp::Position pos, const Sprites::SpriteMetaType &type, float zorder )
+entt::entity create_world_item( entt::registry &reg, Cmp::Position pos, const std::string &item, float zorder )
 {
-  if ( type == "CARRYITEM.scryingball" ) { return create_seeing_stone( reg, pos, type, zorder ); }
-  if ( type == "CARRYITEM.bomb" ) { return create_explosive( reg, pos, type, zorder ); }
+  if ( item == "item.seeingstone" ) { return create_seeing_stone( reg, pos, item, zorder ); }
+  if ( item == "item.bomb" ) { return create_explosive( reg, pos, item, zorder ); }
 
-  auto world_carry_item_entt = reg.create();
-  reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
-  reg.emplace_or_replace<Cmp::ReservedPosition>( world_carry_item_entt );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, type, 0 );
-  reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
-  reg.emplace_or_replace<Cmp::CarryItem>( world_carry_item_entt, type );
-  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
-  if ( type == "CARRYITEM.axe" || type == "CARRYITEM.pickaxe" || type == "CARRYITEM.shovel" )
+  auto world_item_entt = reg.create();
+  reg.emplace_or_replace<Cmp::Position>( world_item_entt, pos.position, pos.size );
+  reg.emplace_or_replace<Cmp::ReservedPosition>( world_item_entt );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_item_entt, 0, 0, true, Sys::ItemSystem::instance().get_item( item ).type, 0 );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( world_item_entt, pos.position.y - 1.f + zorder );
+  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_item_entt );
+  if ( item == "item.axe" || item == "item.pickaxe" || item == "item.shovel" )
   {
-    reg.emplace_or_replace<Cmp::InventoryWearLevel>( world_carry_item_entt, 100.f );
+    reg.emplace_or_replace<Cmp::InventoryWearLevel>( world_item_entt, 100.f );
   }
 
-  SPDLOG_INFO( "Placed {} at {},{}", type, pos.position.x, pos.position.y );
+  // Cmp::InventoryItem item_cmp( type );
+  // if ( type.contains( "relic" ) )
+  // {
+  //   Cmp::SacrificeAction action( { -10 }, {}, { 5 }, { 5 } );
+  //   item_cmp.action_fx_map.insert_or_assign( std::type_index( typeid( Cmp::SacrificeAction ) ), std::move( action ) );
+  // }
+  reg.emplace_or_replace<Cmp::InventoryItem>( world_item_entt, Sys::ItemSystem::instance().get_item( item ) );
 
-  return world_carry_item_entt;
+  SPDLOG_INFO( "Placed {} at {},{}", item, pos.position.x, pos.position.y );
+
+  return world_item_entt;
 }
 
 //! @brief Remove the CarryItem from the world and add it to the player inventory
@@ -178,37 +188,37 @@ entt::entity create_carry_item( entt::registry &reg, Cmp::Position pos, const Sp
 //! @param reg the ECS registry
 //! @param carryitem_entt the CarryItem entt from the world
 //! @return entt::entity
-entt::entity pickup_carry_item( entt::registry &reg, entt::entity carryitem_entt )
+entt::entity pickup_world_item( entt::registry &reg, entt::entity world_item_entt )
 {
   // does this entity own a world item that can be carried?
-  auto *carryitem_cmp = reg.try_get<Cmp::CarryItem>( carryitem_entt );
-  if ( not carryitem_cmp ) return entt::null;
+  auto *world_item_cmp = reg.try_get<Cmp::InventoryItem>( world_item_entt );
+  if ( not world_item_cmp ) return entt::null;
 
   // create the basic inventory slot entt
   auto inventory_entity = reg.create();
-  reg.emplace<Cmp::PlayerInventorySlot>( inventory_entity, carryitem_cmp->type );
-  reg.emplace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, false, carryitem_cmp->type, 0 );
+  reg.emplace_or_replace<Cmp::PlayerInventorySlot>( inventory_entity, *world_item_cmp );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, false, world_item_cmp->type, 0 );
 
   // transfer any component properties from the world item that we want to retain before it is destroyed
-  auto *carryitem_slot_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( carryitem_entt );
-  if ( carryitem_slot_level_cmp ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, carryitem_slot_level_cmp->m_level ); }
+  auto *wear_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( world_item_entt );
+  if ( wear_level_cmp ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, wear_level_cmp->m_level ); }
 
-  auto *carryitem_scryingball_cmp = reg.try_get<Cmp::ScryingBall>( carryitem_entt );
-  if ( carryitem_scryingball_cmp ) { reg.emplace_or_replace<Cmp::ScryingBall>( inventory_entity, false, carryitem_scryingball_cmp->target ); }
+  auto *scryingball_cmp = reg.try_get<Cmp::ScryingBall>( world_item_entt );
+  if ( scryingball_cmp ) { reg.emplace_or_replace<Cmp::ScryingBall>( inventory_entity, false, scryingball_cmp->target ); }
 
-  auto *carryitem_explosive_cmp = reg.try_get<Cmp::Explosive>( carryitem_entt );
-  if ( carryitem_explosive_cmp ) { reg.emplace_or_replace<Cmp::Explosive>( inventory_entity, false ); }
+  auto *explosive_cmp = reg.try_get<Cmp::Explosive>( world_item_entt );
+  if ( explosive_cmp ) { reg.emplace_or_replace<Cmp::Explosive>( inventory_entity, false ); }
 
   // now destroy the carryitem entt
-  reg.destroy( carryitem_entt );
+  reg.destroy( world_item_entt );
 
   return inventory_entity;
 }
 
-void add_inventory( entt::registry &reg, Sprites::SpriteMetaType item )
+void add_inventory( entt::registry &reg, const std::string &item )
 {
   auto inventory_entity = reg.create();
-  reg.emplace_or_replace<Cmp::PlayerInventorySlot>( inventory_entity, item );
+  reg.emplace_or_replace<Cmp::PlayerInventorySlot>( inventory_entity, Sys::ItemSystem::instance().get_item( item ) );
   if ( item.contains( "axe" ) or item.contains( "shovel" ) ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, 100.f ); }
   if ( item.contains( "scryingball" ) )
   {
@@ -217,10 +227,10 @@ void add_inventory( entt::registry &reg, Sprites::SpriteMetaType item )
     reg.emplace_or_replace<Cmp::ScryingBall>( inventory_entity, sb );
   }
   if ( item.contains( "explosive" ) ) { reg.emplace_or_replace<Cmp::Explosive>( inventory_entity, false ); }
-  reg.emplace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, true, item, 0 );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, true, Sys::ItemSystem::instance().get_item( item ).type, 0 );
 }
 
-//! @brief Destroy all player inventory slots matching a type. See "CARRYITEM.xxxx" in res/json/sprite_metadata.json
+//! @brief Destroy all player inventory slots matching a type. See "sprite.item.xxxx" in res/json/sprite_metadata.json
 //! @param reg the ECS registry
 //! @param type the type to destroy
 void destroy_inventory( entt::registry &reg, const Sprites::SpriteMetaType &type )
@@ -228,7 +238,7 @@ void destroy_inventory( entt::registry &reg, const Sprites::SpriteMetaType &type
   auto inventory_view = reg.view<Cmp::PlayerInventorySlot>();
   for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
   {
-    if ( inventory_cmp.type == type ) reg.destroy( inventory_entt );
+    if ( inventory_cmp.m_item.type == type ) reg.destroy( inventory_entt );
   }
 }
 

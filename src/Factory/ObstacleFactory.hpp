@@ -1,7 +1,7 @@
 #ifndef SRC_FACTORY_OBSTACLEFACTORY_HPP
 #define SRC_FACTORY_OBSTACLEFACTORY_HPP
 
-#include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Position.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <entt/fwd.hpp>

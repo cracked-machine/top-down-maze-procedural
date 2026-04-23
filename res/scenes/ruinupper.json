@@ -198,7 +198,7 @@
                 {
                  "height":0,
                  "id":11,
-                 "name":"CARRYITEM.witchesjar",
+                 "name":"item.witchesjar",
                  "opacity":1,
                  "point":true,
                  "rotation":0,

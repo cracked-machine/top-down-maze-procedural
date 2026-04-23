@@ -9,8 +9,8 @@ namespace ProceduralMaze::Cmp
 class ConsumeAction : public BaseAction
 {
 public:
-  ConsumeAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy )
-      : BaseAction( health, fear, despair, infamy )
+  ConsumeAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Disease disease = Stats::Disease::NONE )
+      : BaseAction( health, fear, despair, infamy, disease )
   {
   }
   ~ConsumeAction() {}

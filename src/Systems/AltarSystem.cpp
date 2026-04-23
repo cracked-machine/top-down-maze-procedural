@@ -4,7 +4,7 @@
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Components/Altar/AltarSacrifice.hpp>
-#include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Factory/AltarFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
@@ -100,7 +100,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   // We still need to satisfy the relic sacrifice threshold to get an exitkey drop
   if ( altar_cmp.get_sacrifice_count() < altar_cmp.get_exitkey_drop_threshold() )
   {
-    if ( sacrifice_type.contains( "CARRYITEM.relic" ) )
+    if ( sacrifice_type.contains( "sprite.item.relic" ) )
     {
       switch ( altar_cmp.get_sacrifice_count() )
       {
@@ -135,7 +135,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   // We still need to satisfy the exitkey sacrifice threshold to get an cryptkey drop
   else if ( altar_cmp.get_sacrifice_count() < altar_cmp.get_cryptkey_drop_threshold() )
   {
-    if ( sacrifice_type.contains( "CARRYITEM.exitkey" ) )
+    if ( sacrifice_type.contains( "sprite.item.exitkey" ) )
     {
       switch ( altar_cmp.get_sacrifice_count() )
       {
@@ -157,15 +157,15 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     {
       entt::entity key_entt = entt::null;
 
-      if ( sacrifice_type.contains( "CARRYITEM.relic" ) )
+      if ( sacrifice_type.contains( "sprite.item.relic" ) )
       {
-        key_entt = Factory::create_carry_item( reg(), Utils::Player::get_position( reg() ), "CARRYITEM.exitkey" );
+        key_entt = Factory::create_world_item( reg(), Utils::Player::get_position( reg() ), "item.exitkey" );
         if ( key_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
         // signal UI to flash
         auto flash_entt = reg().create();
         reg().emplace_or_replace<Cmp::FlashUIInventory>( flash_entt );
       }
-      SPDLOG_INFO( "Dropped CARRYITEM.exitkey" );
+      SPDLOG_INFO( "Dropped sprite.item.exitkey" );
       altar_cmp.set_exitkey_lockout();
     }
   }
@@ -176,15 +176,15 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     {
       entt::entity key_entt = entt::null;
 
-      if ( sacrifice_type.contains( "CARRYITEM.exitkey" ) )
+      if ( sacrifice_type.contains( "sprite.item.exitkey" ) )
       {
-        key_entt = Factory::create_carry_item( reg(), Utils::Player::get_position( reg() ), "CARRYITEM.cryptkey" );
+        key_entt = Factory::create_world_item( reg(), Utils::Player::get_position( reg() ), "item.cryptkey" );
         if ( key_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
         // signal UI to flash
         auto flash_entt = reg().create();
         reg().emplace_or_replace<Cmp::FlashUIInventory>( flash_entt );
       }
-      SPDLOG_INFO( "Dropped CARRYITEM.cryptkey" );
+      SPDLOG_INFO( "Dropped sprite.item.cryptkey" );
       altar_cmp.set_cryptkey_lockout();
     }
   }

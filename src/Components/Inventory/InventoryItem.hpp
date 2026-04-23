@@ -3,16 +3,20 @@
 
 #include <Sprites/SpriteMetaType.hpp>
 #include <Stats/BaseAction.hpp>
+
+#include <typeindex>
+#include <unordered_map>
 #include <utility>
 
 namespace ProceduralMaze::Cmp
 {
 
 // Keeping the type generic allows easy qeury/view on all components in the game
-class CarryItem
+class InventoryItem
 {
 public:
-  CarryItem( Sprites::SpriteMetaType type )
+  InventoryItem() = default;
+  InventoryItem( Sprites::SpriteMetaType type )
       : type( std::move( type ) )
   {
   }
@@ -20,18 +24,14 @@ public:
   Sprites::SpriteMetaType type;
 
   //! @brief The action and its effects that can be applied to the player
-  std::set<BaseAction> action_fx_list;
+  std::unordered_map<std::type_index, BaseAction> action_fx_map;
 };
 
 // Represents a single slot in the player inventory. If we want multiple slots we would need a "slot id",
 // and this would be handled in `PlayerFactory` and `RegistryTransfer::xfer_inventory_entt`
-class PlayerInventorySlot : public CarryItem
+struct PlayerInventorySlot
 {
-public:
-  PlayerInventorySlot( Sprites::SpriteMetaType type )
-      : CarryItem( std::move( type ) )
-  {
-  }
+  InventoryItem m_item;
 };
 
 } // namespace ProceduralMaze::Cmp

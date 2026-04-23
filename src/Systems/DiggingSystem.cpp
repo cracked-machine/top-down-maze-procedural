@@ -1,12 +1,13 @@
 
 #include <Events/DropInventoryEvent.hpp>
 #include <Player/PlayerNoPath.hpp>
+#include <Systems/ItemSystem.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/DestroyedObstacle.hpp>
-#include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/Npc/Npc.hpp>
@@ -145,9 +146,10 @@ void DiggingSystem::check_player_smash_pot()
       }
       else
       {
-        const Sprites::SpriteMetaType selected_type = m_sprite_factory.get_random_type(
-            { "CARRYITEM.bomb", "CARRYITEM.scryingball", "CARRYITEM.cursetablet" } );
-        Factory::create_carry_item( reg(), loot_pos_cmp, selected_type );
+        const std::string selected_type = Sys::ItemSystem::instance().get_random_item_from_list(
+            { "item.bomb", "item.seeingstone", "item.cursetablet" } );
+        SPDLOG_INFO( "Pot revealed {}", selected_type );
+        Factory::create_world_item( reg(), loot_pos_cmp, selected_type );
 
         m_sound_bank.get_effect( "break_pot" ).play();
         auto inventory_wear_view = reg().view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
@@ -252,7 +254,7 @@ void DiggingSystem::check_player_dig_obstacle_collision()
 void DiggingSystem::check_player_dig_plant_collision()
 {
   auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
-  if ( inventory_slot_type != "CARRYITEM.shovel" and inventory_slot_type != "CARRYITEM.axe" ) { return; }
+  if ( inventory_slot_type != "sprite.item.shovel" and inventory_slot_type != "sprite.item.axe" ) { return; }
 
   if ( Utils::Player::get_inventory_wear_level( reg() ) <= 0 ) { return; }
 
@@ -304,7 +306,7 @@ void DiggingSystem::check_player_dig_plant_collision()
       // Apply digging damage, play a sound depending on whether the obstacle was destroyed
       m_dig_cooldown_clock.restart();
 
-      if ( inventory_slot_type == "CARRYITEM.shovel" )
+      if ( inventory_slot_type == "sprite.item.shovel" )
       {
         auto existing_alpha = alpha_cmp.getAlpha();
         auto damage_value = Sys::PersistSystem::get<Cmp::Persist::DiggingDamagePerHit>( reg() ).get_value();
@@ -312,7 +314,7 @@ void DiggingSystem::check_player_dig_plant_collision()
         auto adjusted_alpha = std::max( 0, existing_alpha - damage_percentage );
         alpha_cmp.setAlpha( adjusted_alpha );
       }
-      else if ( inventory_slot_type == "CARRYITEM.axe" )
+      else if ( inventory_slot_type == "sprite.item.axe" )
       {
         // axe will instakill all plants
         alpha_cmp.setAlpha( 0 );
@@ -328,18 +330,18 @@ void DiggingSystem::check_player_dig_plant_collision()
         auto inventory_wear_view = reg().view<Cmp::PlayerInventorySlot>();
         for ( auto [inventory_entt, inventory_slot] : inventory_wear_view.each() )
         {
-          if ( inventory_slot.type == "CARRYITEM.shovel" )
+          if ( inventory_slot.m_item.type == "sprite.item.shovel" )
           {
             auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
             auto player_pos = Utils::Player::get_position( reg() ).position;
             get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
           }
-          else if ( inventory_slot.type == "CARRYITEM.axe" )
+          else if ( inventory_slot.m_item.type == "sprite.item.axe" )
           {
             if ( reg().valid( obst_entity ) ) reg().destroy( obst_entity );
           }
         }
-        if ( Factory::pickup_carry_item( reg(), obst_entity ) == entt::null ) { SPDLOG_INFO( "Could not pick up item" ); }
+        if ( Factory::pickup_world_item( reg(), obst_entity ) == entt::null ) { SPDLOG_INFO( "Could not pick up item" ); }
 
         SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
       }

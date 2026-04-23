@@ -1661,7 +1661,7 @@
                 {
                  "height":0,
                  "id":251,
-                 "name":"CARRYITEM.pickaxe",
+                 "name":"item.pickaxe",
                  "opacity":1,
                  "point":true,
                  "rotation":0,
@@ -1674,7 +1674,7 @@
                 {
                  "height":0,
                  "id":256,
-                 "name":"CARRYITEM.pickaxe",
+                 "name":"item.pickaxe",
                  "opacity":1,
                  "point":true,
                  "rotation":0,
@@ -1687,7 +1687,7 @@
                 {
                  "height":0,
                  "id":257,
-                 "name":"CARRYITEM.pickaxe",
+                 "name":"item.pickaxe",
                  "opacity":1,
                  "point":true,
                  "rotation":0,
@@ -1700,7 +1700,7 @@
                 {
                  "height":0,
                  "id":258,
-                 "name":"CARRYITEM.pickaxe",
+                 "name":"item.pickaxe",
                  "opacity":1,
                  "point":true,
                  "rotation":0,
@@ -1713,7 +1713,7 @@
                 {
                  "height":0,
                  "id":259,
-                 "name":"CARRYITEM.shovel",
+                 "name":"item.shovel",
                  "opacity":1,
                  "point":true,
                  "rotation":0,
@@ -1726,7 +1726,7 @@
                 {
                  "height":0,
                  "id":260,
-                 "name":"CARRYITEM.axe",
+                 "name":"item.axe",
                  "opacity":1,
                  "point":true,
                  "rotation":0,
@@ -1739,7 +1739,7 @@
                 {
                  "height":0,
                  "id":261,
-                 "name":"CARRYITEM.scryingball",
+                 "name":"item.seeingstone",
                  "opacity":1,
                  "point":true,
                  "rotation":0,
@@ -1752,7 +1752,7 @@
                 {
                  "height":0,
                  "id":262,
-                 "name":"CARRYITEM.cryptkey",
+                 "name":"item.cryptkey",
                  "opacity":1,
                  "point":true,
                  "rotation":0,
@@ -1765,7 +1765,7 @@
                 {
                  "height":0,
                  "id":263,
-                 "name":"CARRYITEM.exitkey",
+                 "name":"item.exitkey",
                  "opacity":1,
                  "point":true,
                  "rotation":0,
@@ -1778,7 +1778,7 @@
                 {
                  "height":0,
                  "id":264,
-                 "name":"CARRYITEM.relic1",
+                 "name":"item.relic1",
                  "opacity":1,
                  "point":true,
                  "rotation":0,
@@ -1791,7 +1791,7 @@
                 {
                  "height":0,
                  "id":265,
-                 "name":"CARRYITEM.relic2",
+                 "name":"item.relic2",
                  "opacity":1,
                  "point":true,
                  "rotation":0,
@@ -1804,7 +1804,7 @@
                 {
                  "height":0,
                  "id":266,
-                 "name":"CARRYITEM.relic3",
+                 "name":"item.relic3",
                  "opacity":1,
                  "point":true,
                  "rotation":0,
@@ -1817,7 +1817,7 @@
                 {
                  "height":0,
                  "id":267,
-                 "name":"CARRYITEM.relic4",
+                 "name":"item.relic4",
                  "opacity":1,
                  "point":true,
                  "rotation":0,

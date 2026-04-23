@@ -8,7 +8,7 @@
          "name":"overlay",
          "objects":[
                 {
-                 "height":180,
+                 "height":360,
                  "id":1,
                  "name":"status_outline",
                  "opacity":1,
@@ -61,7 +61,7 @@
                  "visible":true,
                  "width":170,
                  "x":30,
-                 "y":240
+                 "y":430
                 }, 
                 {
                  "height":0,
@@ -119,7 +119,7 @@
                  "visible":true,
                  "width":0,
                  "x":50,
-                 "y":80
+                 "y":270
                 }, 
                 {
                  "height":0,
@@ -148,7 +148,7 @@
                  "visible":true,
                  "width":0,
                  "x":50,
-                 "y":120
+                 "y":310
                 }, 
                 {
                  "height":0,
@@ -177,7 +177,7 @@
                  "visible":true,
                  "width":0,
                  "x":50,
-                 "y":160
+                 "y":350
                 }, 
                 {
                  "height":0,
@@ -196,7 +196,7 @@
                  "visible":true,
                  "width":0,
                  "x":120,
-                 "y":80
+                 "y":270
                 }, 
                 {
                  "height":0,
@@ -215,7 +215,7 @@
                  "visible":true,
                  "width":0,
                  "x":120,
-                 "y":120
+                 "y":310
                 }, 
                 {
                  "height":0,
@@ -234,7 +234,7 @@
                  "visible":true,
                  "width":0,
                  "x":120,
-                 "y":160
+                 "y":350
                 }, 
                 {
                  "height":20,
@@ -275,7 +275,7 @@
                  "visible":true,
                  "width":0,
                  "x":80,
-                 "y":270
+                 "y":460
                 }, 
                 {
                  "height":10,
@@ -287,7 +287,149 @@
                  "visible":true,
                  "width":130,
                  "x":50,
-                 "y":380
+                 "y":570
+                }, 
+                {
+                 "height":0,
+                 "id":20,
+                 "name":"fear_icon",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"sprite_index",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"sprite_scale",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"sprite_type",
+                         "type":"string",
+                         "value":"ICONS"
+                        }],
+                 "rotation":0,
+                 "type":"ui_icon",
+                 "visible":true,
+                 "width":0,
+                 "x":50,
+                 "y":80
+                }, 
+                {
+                 "height":20,
+                 "id":21,
+                 "name":"fear_meter",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"ui_meter",
+                 "visible":true,
+                 "width":150,
+                 "x":120,
+                 "y":80
+                }, 
+                {
+                 "height":0,
+                 "id":22,
+                 "name":"infamy_icon",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"sprite_index",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"sprite_scale",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"sprite_type",
+                         "type":"string",
+                         "value":"ICONS"
+                        }],
+                 "rotation":0,
+                 "type":"ui_icon",
+                 "visible":true,
+                 "width":0,
+                 "x":50,
+                 "y":130
+                }, 
+                {
+                 "height":20,
+                 "id":23,
+                 "name":"infamy_meter",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"ui_meter",
+                 "visible":true,
+                 "width":150,
+                 "x":120,
+                 "y":130
+                }, 
+                {
+                 "height":0,
+                 "id":24,
+                 "name":"despair_icon",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"sprite_index",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"sprite_scale",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"sprite_type",
+                         "type":"string",
+                         "value":"ICONS"
+                        }],
+                 "rotation":0,
+                 "type":"ui_icon",
+                 "visible":true,
+                 "width":0,
+                 "x":50,
+                 "y":180
+                }, 
+                {
+                 "height":20,
+                 "id":25,
+                 "name":"despair_meter",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"ui_meter",
+                 "visible":true,
+                 "width":150,
+                 "x":120,
+                 "y":180
+                }, 
+                {
+                 "height":0,
+                 "id":26,
+                 "name":"inventory_label",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"font_size",
+                         "type":"int",
+                         "value":30
+                        }],
+                 "rotation":0,
+                 "type":"ui_label",
+                 "visible":true,
+                 "width":0,
+                 "x":30,
+                 "y":610
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -296,7 +438,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":20,
+ "nextobjectid":27,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1",

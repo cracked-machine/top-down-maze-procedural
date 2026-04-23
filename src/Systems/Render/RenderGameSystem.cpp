@@ -19,7 +19,7 @@
 #include <Components/Exit.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
-#include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
@@ -329,7 +329,7 @@ void RenderGameSystem::render_armed()
   auto armed_view = reg().view<Cmp::Armed, Cmp::Position>();
   for ( auto [entity, armed_cmp, pos_cmp] : armed_view.each() )
   {
-    if ( armed_cmp.m_display_bomb_sprite ) { safe_render_sprite_world( "CARRYITEM.bomb", pos_cmp, 0 ); }
+    if ( armed_cmp.m_display_bomb_sprite ) { safe_render_sprite_world( "sprite.item.bomb", pos_cmp, 0 ); }
 
     sf::RectangleShape temp_square( Constants::kGridSizePxF );
     temp_square.setPosition( pos_cmp.position );
@@ -460,7 +460,7 @@ void RenderGameSystem::render_arrow_compass()
 
   auto [found_entt, found_carryitem_type] = Utils::Player::get_inventory_type( reg() );
   if ( not found_carryitem_type.contains( "exitkey" ) and not found_carryitem_type.contains( "cryptkey" ) and
-       not found_carryitem_type.contains( "CARRYITEM.relic" ) )
+       not found_carryitem_type.contains( "sprite.item.relic" ) )
     return;
 
   // if holding an exitkey then target the exit pos
@@ -492,7 +492,7 @@ void RenderGameSystem::render_arrow_compass()
   }
 
   // if holding a relic then target the nearest inactive altar
-  if ( found_carryitem_type.contains( "CARRYITEM.relic" ) )
+  if ( found_carryitem_type.contains( "sprite.item.relic" ) )
   {
     using AltarDistanceQueue = std::priority_queue<std::pair<float, Cmp::Position>, std::vector<std::pair<float, Cmp::Position>>,
                                                    Utils::Maths::DistancePositionComparator>;

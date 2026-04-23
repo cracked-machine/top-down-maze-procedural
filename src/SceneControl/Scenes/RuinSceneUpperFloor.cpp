@@ -84,7 +84,7 @@ void RuinSceneUpperFloor::on_enter()
   SPDLOG_INFO( "Entering {}", get_name() );
 
   auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( m_reg );
-  if ( inventory_type != "CARRYITEM.witchesjar" )
+  if ( inventory_type != "sprite.item.witchesjar" )
   {
     if ( m_sound_bank.get_music( "ruin_creaking_rope" ).getStatus() != sf::Sound::Status::Playing )
     {

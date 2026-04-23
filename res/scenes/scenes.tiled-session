@@ -1,5 +1,5 @@
 {
-    "activeFile": "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json",
+    "activeFile": "graveyard.json",
     "expandedProjectPaths": [
         ".",
         "X:/cpp/games/top-down-maze-procedural/res/ui"
@@ -38,8 +38,8 @@
             "scale": 0.33,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 803.0303030303031,
-                "y": 489.39393939393926
+                "x": 960.6060606060606,
+                "y": 540.909090909091
             }
         },
         "X:/cpp/games/top-down-maze-procedural/res/ui/shop.json": {
@@ -57,11 +57,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 2,
+            "scale": 1,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 249,
-                "y": 188.75
+                "x": 960,
+                "y": 540.5
             }
         },
         "crypt.json": {
@@ -88,11 +88,11 @@
                 7,
                 9
             ],
-            "scale": 4,
+            "scale": 0.33,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 792,
-                "y": 792.125
+                "x": 960.6060606060606,
+                "y": 416.6666666666665
             }
         },
         "graveyard.json#Dummy": {
@@ -119,8 +119,8 @@
         },
         "ruinlower.json": {
             "expandedObjectLayers": [
-                5,
-                4
+                4,
+                5
             ],
             "scale": 2.9499999999999997,
             "selectedLayer": 1,
@@ -137,8 +137,8 @@
         },
         "ruinupper.json": {
             "expandedObjectLayers": [
-                5,
-                4
+                4,
+                5
             ],
             "scale": 4,
             "selectedLayer": 4,
@@ -230,13 +230,13 @@
     "project": "scenes.tiled-project",
     "property.type": "int",
     "recentFiles": [
-        "X:/cpp/games/top-down-maze-procedural/res/ui/shop.json",
         "ruinlower.json",
         "ruinupper.json",
-        "graveyard.json",
-        "crypt.json",
         "X:/cpp/games/top-down-maze-procedural/res/ui/dbg.json",
         "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json",
+        "crypt.json",
+        "graveyard.json",
+        "X:/cpp/games/top-down-maze-procedural/res/ui/shop.json",
         "X:/cpp/games/top-down-maze-procedural/res/ui/debug.json",
         "shop.json",
         "well.json",

@@ -3,7 +3,7 @@
 #include <Components/Hazard/CorruptionCell.hpp>
 #include <Components/Hazard/HazardFieldCell.hpp>
 #include <Components/Hazard/SinkholeCell.hpp>
-#include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Npc/Npc.hpp>
@@ -30,6 +30,7 @@
 #include <Shop/ShopInventory.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <Systems/ItemSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -122,6 +123,24 @@ void RenderOverlaySystem::render_ui_meters()
       meter_inner_color = sf::Color::Red;
       should_render = true;
     }
+    else if ( meter.name == "fear_meter" )
+    {
+      meter_value = static_cast<float>( Utils::Player::get_player_stats( reg() ).fear() );
+      meter_inner_color = sf::Color::Blue;
+      should_render = true;
+    }
+    else if ( meter.name == "infamy_meter" )
+    {
+      meter_value = static_cast<float>( Utils::Player::get_player_stats( reg() ).infamy() );
+      meter_inner_color = sf::Color::Green;
+      should_render = true;
+    }
+    else if ( meter.name == "despair_meter" )
+    {
+      meter_value = static_cast<float>( Utils::Player::get_player_stats( reg() ).despair() );
+      meter_inner_color = sf::Color::Yellow;
+      should_render = true;
+    }
     else if ( meter.name == "inventory_meter" )
     {
       meter_value = Utils::Player::get_inventory_wear_level( reg() );
@@ -161,7 +180,8 @@ void RenderOverlaySystem::render_ui_labels( [[maybe_unused]] sf::Time dt )
     else if ( ui_label.name == "inventory_label" )
     {
       auto [entt, type] = Utils::Player::get_inventory_type( reg() );
-      text_str = type;
+      text_str = m_sprite_factory.get_multisprite_by_type( type ).get_display_name();
+      ;
     }
 
     sf::Text text( m_font, "", ui_label.font_size );
@@ -293,8 +313,8 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
   // Draw all UI Icons
   for ( auto [icon, slot] : std::views::zip( m_shop_ui_data->m_icons, inventory_cmp.m_slots ) )
   {
-    auto &[sprite_type, price] = slot;
-    RenderSystem::safe_render_sprite_screen( sprite_type, { icon.rect.position, Constants::kGridSizePxF }, 0,
+    auto &[item, price] = slot;
+    RenderSystem::safe_render_sprite_screen( Sys::ItemSystem::instance().get_item( item ).type, { icon.rect.position, Constants::kGridSizePxF }, 0,
                                              sf::Vector2f{ static_cast<float>( icon.scale ), static_cast<float>( icon.scale ) } );
   }
 

@@ -8,7 +8,7 @@
 #include <Components/Crypt/CryptRoomStart.hpp>
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/HolyWell/HolyWellSegment.hpp>
-#include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
 #include <Constants.hpp>
@@ -149,18 +149,18 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
     {
       Factory::add_multiblock_with_segments<Cmp::RuinHexagramMultiBlock, Cmp::RuinHexagramSegment>( m_reg, pos, ms );
     }
-    else if ( ms_type.contains( "CARRYITEM" ) )
+    else if ( ms_type.contains( "item." ) )
     {
       auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
       // prevent infinite respawns in the RuinSceneUpperFloor
-      if ( inventory_type == "CARRYITEM.witchesjar" ) continue;
+      if ( inventory_type == "item.witchesjar" ) continue;
 
       // make sure we mark the *world* entt as reserved
       auto world_pos_entt = Utils::get_world_pos_entt( m_reg, Cmp::Position( pos, ms.getSpriteSizePixels() ) );
       if ( world_pos_entt != entt::null )
       {
         reg().emplace_or_replace<Cmp::ReservedPosition>( world_pos_entt );
-        Factory::create_carry_item( reg(), Cmp::Position( pos, ms.getSpriteSizePixels() ), ms_type );
+        Factory::create_world_item( reg(), Cmp::Position( pos, ms.getSpriteSizePixels() ), ms_type );
       }
     }
   }
@@ -395,8 +395,8 @@ std::vector<entt::entity> RandomLevelGenerator::gen_random_plants( sf::Vector2u 
 
     // select a random number within the range of possible flora CarryItems
     auto [rand_plant_type, rnd_plant_idx] = m_sprite_factory.get_random_type_and_texture_index(
-        { "CARRYITEM.plant1", "CARRYITEM.plant2", "CARRYITEM.plant3", "CARRYITEM.plant4", "CARRYITEM.plant5", "CARRYITEM.plant6", "CARRYITEM.plant7",
-          "CARRYITEM.plant8", "CARRYITEM.plant9", "CARRYITEM.plant10", "CARRYITEM.plant11", "CARRYITEM.plant12" } );
+        { "sprite.item.plant1", "sprite.item.plant2", "sprite.item.plant3", "sprite.item.plant4", "sprite.item.plant5", "sprite.item.plant6",
+          "sprite.item.plant7", "sprite.item.plant8", "sprite.item.plant9", "sprite.item.plant10", "sprite.item.plant11", "sprite.item.plant12" } );
 
     auto world_pos_entt = Utils::get_world_pos_entt( reg(), random_pos );
     if ( world_pos_entt != entt::null )

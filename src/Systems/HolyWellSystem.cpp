@@ -95,7 +95,7 @@ void HolyWellSystem::check_inventory_deposit()
 {
 
   auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
-  if ( not inventory_type.contains( "CARRYITEM.jewelry" ) ) return;
+  if ( not inventory_type.contains( "sprite.item.jewelry" ) ) return;
 
   auto &wealth = Utils::Player::get_wealth( m_reg );
 

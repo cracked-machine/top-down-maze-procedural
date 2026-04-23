@@ -20,8 +20,8 @@
 #include <Components/Direction.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
-#include <Components/Inventory/CarryItem.hpp>
 #include <Components/Inventory/Explosive.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
@@ -229,7 +229,7 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   registry.storage<Cmp::PlayerCadaverCount>();
   registry.storage<Cmp::SpriteAnimation>();
   registry.storage<Cmp::PlayerInventorySlot>();
-  registry.storage<Cmp::CarryItem>();
+  registry.storage<Cmp::InventoryItem>();
   registry.storage<Cmp::InventoryWearLevel>();
   registry.storage<Cmp::ZOrderValue>();
   registry.storage<Cmp::ScryingBall>();

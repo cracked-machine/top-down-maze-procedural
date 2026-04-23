@@ -1,5 +1,5 @@
 
-#include <Components/Inventory/CarryItem.hpp>
+#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Ruin/RuinObjectiveType.hpp>

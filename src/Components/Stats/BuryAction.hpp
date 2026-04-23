@@ -9,8 +9,8 @@ namespace ProceduralMaze::Cmp
 class BuryAction : public BaseAction
 {
 public:
-  BuryAction( Health health, Fear fear, Despair despair, Infamy infamy )
-      : BaseAction( health, fear, despair, infamy )
+  BuryAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Disease disease = Stats::Disease::NONE )
+      : BaseAction( health, fear, despair, infamy, disease )
   {
   }
   ~BuryAction() {}
