@@ -214,6 +214,11 @@
                  "point":true,
                  "properties":[
                         {
+                         "name":"align",
+                         "type":"string",
+                         "value":"left"
+                        }, 
+                        {
                          "name":"font_size",
                          "type":"int",
                          "value":30
@@ -232,6 +237,11 @@
                  "opacity":1,
                  "point":true,
                  "properties":[
+                        {
+                         "name":"align",
+                         "type":"string",
+                         "value":"left"
+                        }, 
                         {
                          "name":"font_size",
                          "type":"int",
@@ -252,6 +262,11 @@
                  "point":true,
                  "properties":[
                         {
+                         "name":"align",
+                         "type":"string",
+                         "value":"left"
+                        }, 
+                        {
                          "name":"font_size",
                          "type":"int",
                          "value":30
@@ -270,6 +285,11 @@
                  "opacity":1,
                  "point":true,
                  "properties":[
+                        {
+                         "name":"align",
+                         "type":"string",
+                         "value":"center"
+                        }, 
                         {
                          "name":"font_size",
                          "type":"int",
@@ -290,6 +310,11 @@
                  "point":true,
                  "properties":[
                         {
+                         "name":"align",
+                         "type":"string",
+                         "value":"center"
+                        }, 
+                        {
                          "name":"font_size",
                          "type":"int",
                          "value":30
@@ -308,6 +333,11 @@
                  "opacity":1,
                  "point":true,
                  "properties":[
+                        {
+                         "name":"align",
+                         "type":"string",
+                         "value":"center"
+                        }, 
                         {
                          "name":"font_size",
                          "type":"int",
@@ -328,6 +358,11 @@
                  "point":true,
                  "properties":[
                         {
+                         "name":"align",
+                         "type":"string",
+                         "value":"center"
+                        }, 
+                        {
                          "name":"font_size",
                          "type":"int",
                          "value":30
@@ -347,6 +382,11 @@
                  "point":true,
                  "properties":[
                         {
+                         "name":"align",
+                         "type":"string",
+                         "value":"center"
+                        }, 
+                        {
                          "name":"font_size",
                          "type":"int",
                          "value":30
@@ -365,6 +405,11 @@
                  "opacity":1,
                  "point":true,
                  "properties":[
+                        {
+                         "name":"align",
+                         "type":"string",
+                         "value":"center"
+                        }, 
                         {
                          "name":"font_size",
                          "type":"int",

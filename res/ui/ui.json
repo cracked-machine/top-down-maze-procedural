@@ -59,7 +59,7 @@
                  "rotation":0,
                  "type":"ui_outline",
                  "visible":true,
-                 "width":170,
+                 "width":180,
                  "x":30,
                  "y":430
                 }, 
@@ -187,6 +187,11 @@
                  "point":true,
                  "properties":[
                         {
+                         "name":"align",
+                         "type":"string",
+                         "value":"left"
+                        }, 
+                        {
                          "name":"font_size",
                          "type":"int",
                          "value":30
@@ -206,6 +211,11 @@
                  "point":true,
                  "properties":[
                         {
+                         "name":"align",
+                         "type":"string",
+                         "value":"left"
+                        }, 
+                        {
                          "name":"font_size",
                          "type":"int",
                          "value":30
@@ -224,6 +234,11 @@
                  "opacity":1,
                  "point":true,
                  "properties":[
+                        {
+                         "name":"align",
+                         "type":"string",
+                         "value":"left"
+                        }, 
                         {
                          "name":"font_size",
                          "type":"int",
@@ -420,6 +435,11 @@
                  "point":true,
                  "properties":[
                         {
+                         "name":"align",
+                         "type":"string",
+                         "value":"center"
+                        }, 
+                        {
                          "name":"font_size",
                          "type":"int",
                          "value":30
@@ -428,7 +448,7 @@
                  "type":"ui_label",
                  "visible":true,
                  "width":0,
-                 "x":30,
+                 "x":120,
                  "y":610
                 }],
          "opacity":1,

@@ -34,6 +34,7 @@ public:
     sf::FloatRect rect;
     std::string name;
     int font_size;
+    std::string align;
   };
 
   struct Meter

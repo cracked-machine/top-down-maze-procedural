@@ -35,11 +35,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 0.33,
+            "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 960.6060606060606,
-                "y": 540.909090909091
+                "x": 574.6666666666666,
+                "y": 156.99999999999997
             }
         },
         "X:/cpp/games/top-down-maze-procedural/res/ui/shop.json": {
@@ -49,19 +49,19 @@
             "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 937.3333333333333,
-                "y": 210.99999999999997
+                "x": 1016.6666666666665,
+                "y": 142.33333333333331
             }
         },
         "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json": {
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 1,
+            "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 960,
-                "y": 540.5
+                "x": 207,
+                "y": 357.75
             }
         },
         "crypt.json": {
@@ -228,7 +228,7 @@
         "X:/cpp/games/top-down-maze-procedural/res/ui/dbg.json"
     ],
     "project": "scenes.tiled-project",
-    "property.type": "int",
+    "property.type": "string",
     "recentFiles": [
         "ruinlower.json",
         "ruinupper.json",

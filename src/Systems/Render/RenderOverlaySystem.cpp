@@ -181,12 +181,19 @@ void RenderOverlaySystem::render_ui_labels( [[maybe_unused]] sf::Time dt )
     {
       auto [entt, type] = Utils::Player::get_inventory_type( reg() );
       text_str = m_sprite_factory.get_multisprite_by_type( type ).get_display_name();
-      ;
     }
 
     sf::Text text( m_font, "", ui_label.font_size );
     text.setString( text_str );
-    text.setPosition( ui_label.rect.position );
+    if ( ui_label.align == "center" )
+    {
+      text.setPosition( { ui_label.rect.position.x - text.getLocalBounds().getCenter().x, ui_label.rect.position.y } );
+    }
+    else if ( ui_label.align == "left" ) { text.setPosition( ui_label.rect.position ); }
+    else if ( ui_label.align == "right" )
+    {
+      text.setPosition( { ui_label.rect.position.x - text.getLocalBounds().size.x, ui_label.rect.position.y } );
+    }
     text.setFillColor( sf::Color::White );
     text.setOutlineColor( sf::Color::Black );
     text.setOutlineThickness( 2.f );
@@ -319,10 +326,12 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
   }
 
   //! @brief Helper to draw predefined `sf_text` at `pos`
-  auto draw_label_text_at = [&]( sf::Text &sf_text, const sf::Vector2f &pos, bool centered = false )
+  auto draw_label_text_at = [&]( sf::Text &sf_text, const sf::Vector2f &pos, const std::string &align = "left" )
   {
-    if ( centered ) { sf_text.setPosition( { pos.x - sf_text.getLocalBounds().getCenter().x, pos.y } ); }
-    else { sf_text.setPosition( pos ); }
+    if ( align == "center" ) { sf_text.setPosition( { pos.x - sf_text.getLocalBounds().getCenter().x, pos.y } ); }
+    else if ( align == "left" ) { sf_text.setPosition( pos ); }
+    else if ( align == "right" ) { sf_text.setPosition( { pos.x - sf_text.getLocalBounds().size.x, pos.y } ); }
+
     draw_screen( sf_text );
   };
 
@@ -345,21 +354,21 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
       switch ( i )
       {
         case 0:
-          if ( ui_label.name.contains( "slot1_idx" ) ) { draw_label_text_at( slot_idx_txt, ui_label.rect.position ); }
-          if ( ui_label.name.contains( "slot1_desc" ) ) { draw_label_text_at( slot_desc_txt, ui_label.rect.position, true ); }
-          if ( ui_label.name.contains( "slot1_price" ) ) { draw_label_text_at( slot_price_txt, ui_label.rect.position, true ); }
+          if ( ui_label.name.contains( "slot1_idx" ) ) { draw_label_text_at( slot_idx_txt, ui_label.rect.position, ui_label.align ); }
+          if ( ui_label.name.contains( "slot1_desc" ) ) { draw_label_text_at( slot_desc_txt, ui_label.rect.position, ui_label.align ); }
+          if ( ui_label.name.contains( "slot1_price" ) ) { draw_label_text_at( slot_price_txt, ui_label.rect.position, ui_label.align ); }
 
           break;
         case 1:
-          if ( ui_label.name.contains( "slot2_idx" ) ) { draw_label_text_at( slot_idx_txt, ui_label.rect.position ); }
-          if ( ui_label.name.contains( "slot2_desc" ) ) { draw_label_text_at( slot_desc_txt, ui_label.rect.position, true ); }
-          if ( ui_label.name.contains( "slot2_price" ) ) { draw_label_text_at( slot_price_txt, ui_label.rect.position, true ); }
+          if ( ui_label.name.contains( "slot2_idx" ) ) { draw_label_text_at( slot_idx_txt, ui_label.rect.position, ui_label.align ); }
+          if ( ui_label.name.contains( "slot2_desc" ) ) { draw_label_text_at( slot_desc_txt, ui_label.rect.position, ui_label.align ); }
+          if ( ui_label.name.contains( "slot2_price" ) ) { draw_label_text_at( slot_price_txt, ui_label.rect.position, ui_label.align ); }
           break;
 
         case 2:
-          if ( ui_label.name.contains( "slot3_idx" ) ) { draw_label_text_at( slot_idx_txt, ui_label.rect.position ); }
-          if ( ui_label.name.contains( "slot3_desc" ) ) { draw_label_text_at( slot_desc_txt, ui_label.rect.position, true ); }
-          if ( ui_label.name.contains( "slot3_price" ) ) { draw_label_text_at( slot_price_txt, ui_label.rect.position, true ); }
+          if ( ui_label.name.contains( "slot3_idx" ) ) { draw_label_text_at( slot_idx_txt, ui_label.rect.position, ui_label.align ); }
+          if ( ui_label.name.contains( "slot3_desc" ) ) { draw_label_text_at( slot_desc_txt, ui_label.rect.position, ui_label.align ); }
+          if ( ui_label.name.contains( "slot3_price" ) ) { draw_label_text_at( slot_price_txt, ui_label.rect.position, ui_label.align ); }
           break;
 
         default:
