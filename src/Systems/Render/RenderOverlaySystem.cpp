@@ -200,6 +200,7 @@ void RenderOverlaySystem::render_ui_labels( sf::Time dt )
     {
       auto [entt, type] = Utils::Player::get_inventory_type( reg() );
       text_str = m_sprite_factory.get_multisprite_by_type( type ).get_display_name();
+      if ( text_str == "Error Sprite" ) { text_str = ""; }
     }
 
     sf::Text text( m_font, "", ui_label.font_size );
@@ -362,7 +363,8 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
     sf::Text slot_idx_txt( m_font, std::to_string( i + 1 ), inventory_cmp.m_config.ui_fontsize );
     slot_idx_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
 
-    sf::Text slot_desc_txt( m_font, m_sprite_factory.get_display_name_by_type( item ), inventory_cmp.m_config.ui_fontsize );
+    Sprites::SpriteMetaType sprite_mtype = Sys::ItemStore::instance().get_item( item ).type;
+    sf::Text slot_desc_txt( m_font, m_sprite_factory.get_display_name_by_type( sprite_mtype ), inventory_cmp.m_config.ui_fontsize );
     slot_desc_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
 
     sf::Text slot_price_txt( m_font, std::to_string( price ), inventory_cmp.m_config.ui_fontsize );
@@ -509,8 +511,8 @@ void RenderOverlaySystem::render_ui_zorder_list( std::vector<ZOrder> &zorder_que
 
   std::set<Sprites::SpriteMetaType> exclusions = { "ROCK",
                                                    //  "CRYPT.interior_sb",
-                                                   "WALL", "PLAYERSPAWN", "NPCSKELE", "NPCGHOST", "DETONATED", "FOOTSTEPS", "HOLYWELL.interior_wall",
-                                                   "RUIN.interior_wall", "CRYPT.interior_wall" };
+                                                   "WALL", "PLAYERSPAWN", "sprite.skeleton", "sprite.ghost", "DETONATED", "FOOTSTEPS",
+                                                   "HOLYWELL.interior_wall", "RUIN.interior_wall", "CRYPT.interior_wall" };
 
   for ( const auto &ui_label : m_dbg_ui_data->m_labels )
   {

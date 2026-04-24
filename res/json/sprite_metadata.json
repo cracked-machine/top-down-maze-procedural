@@ -190,9 +190,9 @@
         }
       }
     },
-    "NPCPRIEST": {
+    "sprite.priest": {
       "multisprite": {
-        "displayname": "NPCPRIEST",
+        "displayname": "sprite.priest",
         "zorder": [0],
         "texture_path": "res/textures/npcpriest.png",
         "sprite_indices": [0],
@@ -204,9 +204,9 @@
         }
       }
     },
-    "NPCWITCH": {
+    "sprite.witch": {
       "multisprite": {
-        "displayname": "NPCWITCH",
+        "displayname": "sprite.witch",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/NPC.grave_revenant.png",
         "sprite_indices": [0, 1, 2, 3],
@@ -218,9 +218,9 @@
         }
       }
     },
-    "NPC.dr_knox": {
+    "sprite.drknox": {
       "multisprite": {
-        "displayname": "NPC.dr_knox",
+        "displayname": "sprite.drknox",
         "zorder": [0],
         "texture_path": "res/textures/NPC.dr_knox.png",
         "sprite_indices": [0],
@@ -232,9 +232,9 @@
         }
       }
     },
-    "NPCGHOST.walk.south": {
+    "sprite.ghost.walk.south": {
       "multisprite": {
-        "displayname": "NPCGHOST.walk.south",
+        "displayname": "sprite.ghost.walk.south",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcghost.png",
         "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -246,9 +246,9 @@
         }
       }
     },
-    "NPCGHOST.walk.north": {
+    "sprite.ghost.walk.north": {
       "multisprite": {
-        "displayname": "NPCGHOST.walk.north",
+        "displayname": "sprite.ghost.walk.north",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcghost.png",
         "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -260,9 +260,9 @@
         }
       }
     },
-    "NPCGHOST.walk.east": {
+    "sprite.ghost.walk.east": {
       "multisprite": {
-        "displayname": "NPCGHOST.walk.east",
+        "displayname": "sprite.ghost.walk.east",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcghost.png",
         "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -274,9 +274,9 @@
         }
       }
     },
-    "NPCGHOST.walk.west": {
+    "sprite.ghost.walk.west": {
       "multisprite": {
-        "displayname": "NPCGHOST.walk.west",
+        "displayname": "sprite.ghost.walk.west",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcghost.png",
         "sprite_indices": [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
@@ -288,9 +288,9 @@
         }
       }
     },
-    "NPCSKELE.walk.south": {
+    "sprite.skeleton.walk.south": {
       "multisprite": {
-        "displayname": "NPCSKELE.walk.south",
+        "displayname": "sprite.skeleton.walk.south",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcskele.png",
         "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -302,9 +302,9 @@
         }
       }
     },
-    "NPCSKELE.walk.north": {
+    "sprite.skeleton.walk.north": {
       "multisprite": {
-        "displayname": "NPCSKELE.walk.north",
+        "displayname": "sprite.skeleton.walk.north",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcskele.png",
         "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -316,9 +316,9 @@
         }
       }
     },
-    "NPCSKELE.walk.east": {
+    "sprite.skeleton.walk.east": {
       "multisprite": {
-        "displayname": "NPCSKELE.walk.east",
+        "displayname": "sprite.skeleton.walk.east",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcskele.png",
         "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -330,9 +330,9 @@
         }
       }
     },
-    "NPCSKELE.walk.west": {
+    "sprite.skeleton.walk.west": {
       "multisprite": {
-        "displayname": "NPCSKELE.walk.west",
+        "displayname": "sprite.skeleton.walk.west",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcskele.png",
         "sprite_indices": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],

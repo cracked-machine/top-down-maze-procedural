@@ -112,7 +112,7 @@ void NpcSystem::check_bones_reanimation()
 
     if ( player_pos.findIntersection( npc_activate_bounds.getBounds() ) )
     {
-      Factory::create_npc( reg(), npccontainer_entt, "NPCSKELE" );
+      Factory::create_npc( reg(), npccontainer_entt, "npc.skeleton" );
       m_sound_bank.get_effect( "spawn_skeleton" ).play();
     }
   }
@@ -131,21 +131,21 @@ void NpcSystem::update_animation()
     else
     {
       anim_cmp.m_animation_active = true;
-      if ( anim_cmp.m_sprite_type.contains( "NPCSKELE" ) )
+      if ( anim_cmp.m_sprite_type.contains( "sprite.skeleton" ) )
       {
 
-        if ( npc_dir_cmp.x > 0 ) { anim_cmp.m_sprite_type = "NPCSKELE.walk.east"; }
-        else if ( npc_dir_cmp.x < 0 ) { anim_cmp.m_sprite_type = "NPCSKELE.walk.west"; }
-        else if ( npc_dir_cmp.y < 0 ) { anim_cmp.m_sprite_type = "NPCSKELE.walk.north"; }
-        else if ( npc_dir_cmp.y > 0 ) { anim_cmp.m_sprite_type = "NPCSKELE.walk.south"; }
+        if ( npc_dir_cmp.x > 0 ) { anim_cmp.m_sprite_type = "sprite.skeleton.walk.east"; }
+        else if ( npc_dir_cmp.x < 0 ) { anim_cmp.m_sprite_type = "sprite.skeleton.walk.west"; }
+        else if ( npc_dir_cmp.y < 0 ) { anim_cmp.m_sprite_type = "sprite.skeleton.walk.north"; }
+        else if ( npc_dir_cmp.y > 0 ) { anim_cmp.m_sprite_type = "sprite.skeleton.walk.south"; }
       }
-      else if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) )
+      else if ( anim_cmp.m_sprite_type.contains( "sprite.ghost" ) )
       {
         // Ghost NPCs face cardinal directions only
-        if ( npc_dir_cmp.x > 0 ) { anim_cmp.m_sprite_type = "NPCGHOST.walk.east"; }
-        else if ( npc_dir_cmp.x < 0 ) { anim_cmp.m_sprite_type = "NPCGHOST.walk.west"; }
-        else if ( npc_dir_cmp.y < 0 ) { anim_cmp.m_sprite_type = "NPCGHOST.walk.north"; }
-        else if ( npc_dir_cmp.y > 0 ) { anim_cmp.m_sprite_type = "NPCGHOST.walk.south"; }
+        if ( npc_dir_cmp.x > 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.east"; }
+        else if ( npc_dir_cmp.x < 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.west"; }
+        else if ( npc_dir_cmp.y < 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.north"; }
+        else if ( npc_dir_cmp.y > 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.south"; }
       }
     }
   }
@@ -172,7 +172,7 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
 
     // allow ghosts to sneak through gaps
     auto query_compass = PathFinding::QueryCompass::CARDINAL;
-    if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) query_compass = PathFinding::QueryCompass::BOTH;
+    if ( anim_cmp.m_sprite_type.contains( "sprite.ghost" ) ) query_compass = PathFinding::QueryCompass::BOTH;
 
     // now get latest path vector for NPC -> player
     std::vector<PathFinding::PathNode> path = PathFinding::astar( reg(), *pathfinding_navmesh, npc_pos_cmp, player_pos_cmp, query_compass );
@@ -336,7 +336,7 @@ void NpcSystem::update_shockwaves()
   for ( auto npc_entt : reg().view<Cmp::NPC>() )
   {
     auto npc_sprite_anim = reg().try_get<Cmp::SpriteAnimation>( npc_entt );
-    if ( npc_sprite_anim && npc_sprite_anim->m_sprite_type == "NPCPRIEST" )
+    if ( npc_sprite_anim && npc_sprite_anim->m_sprite_type == "sprite.priest" )
     {
       // cooldown is handled in Factory function via Cmp::NpcShockwaveTimer per NPC
       Factory::create_shockwave( reg(), npc_entt );

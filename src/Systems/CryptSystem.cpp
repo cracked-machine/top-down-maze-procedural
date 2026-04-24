@@ -1153,7 +1153,7 @@ void CryptSystem::spawn_npc_in_open_rooms()
     auto position_entity = reg().create();
     Cmp::Position position_cmp = reg().emplace<Cmp::Position>( position_entity, spawn_position, Constants::kGridSizePxF );
     [[maybe_unused]] Cmp::ZOrderValue zorder_cmp = reg().emplace<Cmp::ZOrderValue>( position_entity, position_cmp.position.y );
-    Factory::create_npc( reg(), position_entity, "NPCPRIEST" );
+    Factory::create_npc( reg(), position_entity, "npc.priest" );
 
     SPDLOG_DEBUG( "Spawned NPC {} at position ({}, {})", r + 1, spawn_position.x, spawn_position.y );
   }

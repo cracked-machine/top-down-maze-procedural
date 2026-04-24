@@ -108,15 +108,15 @@ void AnimSystem::update( sf::Time dt )
     {
 
       sf::Time frame_rate = sf::Time::Zero;
-      if ( anim_cmp.m_sprite_type.contains( "NPCSKELE" ) )
+      if ( anim_cmp.m_sprite_type.contains( "sprite.skeleton" ) )
       {
         frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::NpcSkeleAnimFramerate>( reg() ).get_value() );
       }
-      else if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) )
+      else if ( anim_cmp.m_sprite_type.contains( "sprite.ghost" ) )
       {
         frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::NpcGhostAnimFramerate>( reg() ).get_value() );
       }
-      else if ( anim_cmp.m_sprite_type.contains( "NPCWITCH" ) )
+      else if ( anim_cmp.m_sprite_type.contains( "sprite.witch" ) )
       {
         frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::NpcWitchAnimFramerate>( reg() ).get_value() );
       }

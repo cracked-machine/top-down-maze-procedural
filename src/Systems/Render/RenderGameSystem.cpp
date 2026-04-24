@@ -212,7 +212,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
     for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>().each() )
     {
       auto query_compass = PathFinding::QueryCompass::CARDINAL;
-      if ( anim_cmp.m_sprite_type.contains( "NPCGHOST" ) ) query_compass = PathFinding::QueryCompass::BOTH;
+      if ( anim_cmp.m_sprite_type.contains( "sprite.ghost" ) ) query_compass = PathFinding::QueryCompass::BOTH;
       render_overlay_sys.render_spatial_grid_neighbours( npc_pos_cmp, sf::Color::Magenta, query_compass );
       render_overlay_sys.render_pathfinding_vector( npc_pos_cmp, player_pos_cmp, sf::Color::White, query_compass );
     }

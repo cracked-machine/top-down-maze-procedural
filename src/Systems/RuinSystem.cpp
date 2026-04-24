@@ -438,7 +438,7 @@ void RuinSystem::check_create_witch( entt::registry &reg, sf::FloatRect scene_di
   bool witch_exists = false;
   for ( auto [npc_entt, npc_cmp, npc_sprite_cmp] : reg.view<Cmp::NPC, Cmp::SpriteAnimation>().each() )
   {
-    if ( npc_sprite_cmp.m_sprite_type == "NPCWITCH" ) { witch_exists = true; }
+    if ( npc_sprite_cmp.m_sprite_type == "sprite.witch" ) { witch_exists = true; }
   }
   if ( not witch_exists )
   {
@@ -451,7 +451,7 @@ void RuinSystem::check_create_witch( entt::registry &reg, sf::FloatRect scene_di
       auto new_witch_entity = reg.create();
       Cmp::Position position_cmp = reg.emplace<Cmp::Position>( new_witch_entity, rnd_pos_cmp.position, rnd_pos_cmp.size );
       [[maybe_unused]] Cmp::ZOrderValue zorder_cmp = reg.emplace<Cmp::ZOrderValue>( new_witch_entity, position_cmp.position.y );
-      Factory::create_npc( reg, new_witch_entity, "NPCWITCH" );
+      Factory::create_npc( reg, new_witch_entity, "npc.witch" );
       break;
     }
   }

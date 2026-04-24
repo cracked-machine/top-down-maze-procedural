@@ -127,11 +127,11 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
     {
       Factory::add_multiblock_with_segments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( reg(), pos, ms );
     }
-    else if ( ms_type == "NPC.dr_knox" )
+    else if ( ms_type == "npc.drknox" )
     {
       auto npc_entt = reg().create();
       reg().emplace_or_replace<Cmp::Position>( npc_entt, pos, Constants::kGridSizePxF );
-      Factory::create_npc( m_reg, npc_entt, "NPC.dr_knox" );
+      Factory::create_npc( m_reg, npc_entt, ms_type );
     }
     else if ( ms_type == "RUIN.interior_staircase_going_up" )
     {

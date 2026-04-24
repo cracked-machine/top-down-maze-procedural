@@ -149,11 +149,6 @@ entt::entity create_explosive( entt::registry &reg, Cmp::Position pos, const std
   return world_carry_item_entt;
 }
 
-//! @brief Create a Carry Item object in the world
-//! @param reg the ECS registry
-//! @param pos the position to place the new item
-//! @param type the item type. See "sprite.item.xxxx" in res/json/sprite_metadata.json
-//! @return entt::entity
 entt::entity create_world_item( entt::registry &reg, Cmp::Position pos, const std::string &item, float zorder )
 {
   if ( item == "item.seeingstone" ) { return create_seeing_stone( reg, pos, item, zorder ); }
@@ -169,25 +164,12 @@ entt::entity create_world_item( entt::registry &reg, Cmp::Position pos, const st
   {
     reg.emplace_or_replace<Cmp::InventoryWearLevel>( world_item_entt, 100.f );
   }
-
-  // Cmp::InventoryItem item_cmp( type );
-  // if ( type.contains( "relic" ) )
-  // {
-  //   Cmp::SacrificeAction action( { -10 }, {}, { 5 }, { 5 } );
-  //   item_cmp.action_fx_map.insert_or_assign( std::type_index( typeid( Cmp::SacrificeAction ) ), std::move( action ) );
-  // }
   reg.emplace_or_replace<Cmp::InventoryItem>( world_item_entt, Sys::ItemStore::instance().get_item( item ) );
 
   SPDLOG_INFO( "Placed {} at {},{}", item, pos.position.x, pos.position.y );
-
   return world_item_entt;
 }
 
-//! @brief Remove the CarryItem from the world and add it to the player inventory
-//! @note This is a destructive operation so transfer any component properties before the function exits
-//! @param reg the ECS registry
-//! @param carryitem_entt the CarryItem entt from the world
-//! @return entt::entity
 entt::entity pickup_world_item( entt::registry &reg, entt::entity world_item_entt )
 {
   // does this entity own a world item that can be carried?
@@ -230,9 +212,6 @@ void add_inventory( entt::registry &reg, const std::string &item )
   reg.emplace_or_replace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, true, Sys::ItemStore::instance().get_item( item ).type, 0 );
 }
 
-//! @brief Destroy all player inventory slots matching a type. See "sprite.item.xxxx" in res/json/sprite_metadata.json
-//! @param reg the ECS registry
-//! @param type the type to destroy
 void destroy_inventory( entt::registry &reg, const Sprites::SpriteMetaType &type )
 {
   auto inventory_view = reg.view<Cmp::PlayerInventorySlot>();
@@ -244,8 +223,6 @@ void destroy_inventory( entt::registry &reg, const Sprites::SpriteMetaType &type
 
 Cmp::Position add_player_last_graveyard_pos( entt::registry &reg, Cmp::Position &last_known_pos, [[maybe_unused]] sf::Vector2f offset )
 {
-  // auto player_rentry_pos = Cmp::Position( { last_known_pos.position.x + offset.x, last_known_pos.position.y + offset.y }, Constants::kGridSizePxF
-  // );
   SPDLOG_INFO( "Player will re-enter grave yard at {},{}", last_known_pos.position.x, last_known_pos.position.y );
   auto player_entt = Utils::Player::get_entity( reg );
   reg.emplace_or_replace<Cmp::PlayerLastGraveyardPosition>( player_entt, last_known_pos.position, last_known_pos.size );

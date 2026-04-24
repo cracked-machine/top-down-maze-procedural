@@ -124,7 +124,7 @@ void GraveSystem::check_player_grave_collision()
         {
           case 1: {
             SPDLOG_DEBUG( "Grave activated NPC trap." );
-            Factory::create_npc( reg(), grave_entity, "NPCGHOST" );
+            Factory::create_npc( reg(), grave_entity, "npc.ghost" );
             m_sound_bank.get_effect( "spawn_ghost" ).play();
             break;
           }
