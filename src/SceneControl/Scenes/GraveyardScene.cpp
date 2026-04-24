@@ -28,7 +28,6 @@
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/GraveSystem.hpp>
 #include <Systems/HolyWellSystem.hpp>
-#include <Systems/ItemSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
@@ -37,6 +36,8 @@
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Systems/Stores/ItemStore.hpp>
+#include <Systems/Stores/NpcStore.hpp>
 #include <Systems/SystemStore.hpp>
 #include <Systems/Threats/BombSystem.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
@@ -44,6 +45,7 @@
 #include <Utils.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
+
 #include <memory>
 
 namespace ProceduralMaze::Scene
@@ -60,7 +62,8 @@ void GraveyardScene::on_init()
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
 
-  m_sys.find<Sys::Store::Type::ItemSystem>().init_item_store();
+  m_sys.find<Sys::Store::Type::ItemStore>().init_store();
+  m_sys.find<Sys::Store::Type::NpcStore>().init_store();
 
   // create the level contents
   m_scene_map_data = std::make_shared<SceneData>( "res/scenes/graveyard.json" );

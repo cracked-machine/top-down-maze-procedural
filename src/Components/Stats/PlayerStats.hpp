@@ -8,6 +8,12 @@ namespace ProceduralMaze::Cmp
 class PlayerStats
 {
 public:
+  //! @brief Construct a new Player Stats object
+  //! @param health
+  //! @param fear
+  //! @param despair
+  //! @param infamy
+  //! @param disease
   PlayerStats( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Disease disease = Stats::Disease::NONE )
       : m_health( std::clamp( health.value, 0, 100 ) ),
         m_fear( std::clamp( fear.value, 0, 100 ) ),
@@ -24,6 +30,8 @@ public:
   [[nodiscard]] int infamy() const { return m_infamy; }
   [[nodiscard]] Stats::Disease disease() const { return m_disease; }
 
+  //! @brief Update the player stats with the BaseAction object
+  //! @param action
   void action( const BaseAction &action )
   {
     m_health = std::clamp( m_health + action.health(), 0, 100 );

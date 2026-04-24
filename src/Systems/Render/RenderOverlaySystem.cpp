@@ -30,10 +30,10 @@
 #include <Shop/ShopInventory.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <Systems/ItemSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Systems/Stores/ItemStore.hpp>
 #include <Utils/Optimizations.hpp>
 
 #include <SFML/Graphics/Color.hpp>
@@ -164,7 +164,26 @@ void RenderOverlaySystem::render_ui_meters()
   }
 }
 
-void RenderOverlaySystem::render_ui_labels( [[maybe_unused]] sf::Time dt )
+void RenderOverlaySystem::render_ui_texts()
+{
+  if ( not m_main_ui_data )
+  {
+    SPDLOG_CRITICAL( "UiData object is not initialised. Cannot draw value overlay" );
+    return;
+  }
+
+  for ( const auto &ui_text : m_main_ui_data->m_texts )
+  {
+    sf::Text text( m_font, ui_text.value, ui_text.font_size );
+    text.setPosition( ui_text.rect.position );
+    text.setFillColor( sf::Color::White );
+    text.setOutlineColor( sf::Color::Black );
+    text.setOutlineThickness( 2.f );
+    draw_screen( text );
+  }
+}
+
+void RenderOverlaySystem::render_ui_labels( sf::Time dt )
 {
   if ( not m_main_ui_data )
   {
@@ -321,7 +340,7 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
   for ( auto [icon, slot] : std::views::zip( m_shop_ui_data->m_icons, inventory_cmp.m_slots ) )
   {
     auto &[item, price] = slot;
-    RenderSystem::safe_render_sprite_screen( Sys::ItemSystem::instance().get_item( item ).type, { icon.rect.position, Constants::kGridSizePxF }, 0,
+    RenderSystem::safe_render_sprite_screen( Sys::ItemStore::instance().get_item( item ).type, { icon.rect.position, Constants::kGridSizePxF }, 0,
                                              sf::Vector2f{ static_cast<float>( icon.scale ), static_cast<float>( icon.scale ) } );
   }
 

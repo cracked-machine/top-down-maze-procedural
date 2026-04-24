@@ -1,5 +1,5 @@
 #include <Events/DropInventoryEvent.hpp>
-#include <Systems/ItemSystem.hpp>
+#include <Systems/Stores/ItemStore.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -141,7 +141,7 @@ void ShopSystem::load_config( const std::filesystem::path &config_path )
 void ShopSystem::add_inventory_item( Cmp::ShopInventory &shop_inventory_cmp )
 {
   // auto carryitem_types = m_sprite_factory.get_all_sprite_types_by_pattern( "sprite.item." );
-  auto item_types = Sys::ItemSystem::instance().get_all_item_keys();
+  auto item_types = Sys::ItemStore::instance().get_all_item_keys();
   Cmp::RandomInt item_picker( 0, static_cast<int>( item_types.size() ) - 1 );
   Cmp::RandomInt price_picker( shop_inventory_cmp.m_config.min_price, shop_inventory_cmp.m_config.max_price );
   auto selected_item = item_picker.gen();

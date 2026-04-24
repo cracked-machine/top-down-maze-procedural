@@ -1,4 +1,7 @@
 
+#include <Stats/ExhumeAction.hpp>
+#include <Systems/Stores/ItemStore.hpp>
+#include <typeindex>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 #include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
@@ -138,6 +141,10 @@ void GraveSystem::check_player_grave_collision()
             auto selected_relic = relic_picker.gen();
             auto relic_entt = Factory::create_world_item( reg(), Utils::Player::get_position( reg() ), relic_selection_list.at( selected_relic ) );
 
+            // Apply the effects from exhuming this item to the player stats
+            auto item = Sys::ItemStore::instance().get_item( relic_selection_list.at( selected_relic ) );
+            Utils::Player::get_player_stats( reg() ).action( item.action_fx_map.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ) );
+
             if ( relic_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
             break;
           }
@@ -151,6 +158,10 @@ void GraveSystem::check_player_grave_collision()
             auto selected_jewelry = jewelry_picker.gen();
             auto jewelry_entt = Factory::create_world_item( reg(), Utils::Player::get_position( reg() ),
                                                             jewelry_selection_list.at( selected_jewelry ) );
+
+            // Apply the effects from exhuming this item to the player stats
+            auto item = Sys::ItemStore::instance().get_item( jewelry_selection_list.at( selected_jewelry ) );
+            Utils::Player::get_player_stats( reg() ).action( item.action_fx_map.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ) );
 
             if ( jewelry_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
             break;

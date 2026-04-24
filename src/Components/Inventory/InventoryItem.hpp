@@ -11,7 +11,8 @@
 namespace ProceduralMaze::Cmp
 {
 
-// Keeping the type generic allows easy qeury/view on all components in the game
+//! @brief An item found in the world or placed in a players inventory slot.
+//         This defines both the sprite type and the action effects associated with the item.
 class InventoryItem
 {
 public:
@@ -21,6 +22,7 @@ public:
   {
   }
 
+  //! @brief The associated sprite
   Sprites::SpriteMetaType type;
 
   //! @brief The action and its effects that can be applied to the player

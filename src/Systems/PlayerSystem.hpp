@@ -54,14 +54,14 @@ public:
 
   //! @brief Update the player system.
   //! @note This enqueues 'Events::SceneManagerEvent::Type::GAME_OVER' if player is dead
-  void update( sf::Time globalDeltaTime, FootStepSfx footstep_sfx = FootStepSfx::GRAVEL );
+  void update( sf::Time dt, FootStepSfx footstep_sfx = FootStepSfx::GRAVEL );
 
   //! @brief Checks if the player's movement to a given position is valid
   //! Validates whether the player can move to the specified position by checking
   //! for collisions with walls, boundaries, or other obstacles in the game world.
   //! @param player_position The target position to validate for player movement
   //! @return true if the movement is valid and allowed, false otherwise
-  bool is_valid_move( const sf::FloatRect &player_position );
+  bool is_valid_move( const sf::FloatRect &target_position );
 
   void playFootstepsSound( FootStepSfx type );
   void stopFootstepsSound();
@@ -77,13 +77,15 @@ private:
   //! @brief Rotation, scaling, offset, alpha, etc
   void localTransforms();
 
-  void update_player_position( sf::Time dt, bool collision_enabled );
+  void update_player_position( sf::Time dt, bool collision_disabled );
   void update_player_animation();
   void update_player_zorder();
 
   //! @brief Check if the player is dea
   //! @note This checks if the Cmp::PlayerMortality == State::DEAD, not check Cmp:PlayerStats (that is other system responsibility).
   void check_player_mortality();
+
+  void check_action_side_effects( sf::Time dt );
 
   void check_player_axe_npc_kill();
 
@@ -109,6 +111,8 @@ private:
   sf::Clock m_inventory_cooldown_timer;
 
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
+
+  sf::Time m_action_effects_time;
 };
 
 } // namespace ProceduralMaze::Sys

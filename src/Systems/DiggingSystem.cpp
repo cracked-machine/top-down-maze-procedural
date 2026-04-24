@@ -1,7 +1,7 @@
 
 #include <Events/DropInventoryEvent.hpp>
 #include <Player/PlayerNoPath.hpp>
-#include <Systems/ItemSystem.hpp>
+#include <Systems/Stores/ItemStore.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -146,7 +146,7 @@ void DiggingSystem::check_player_smash_pot()
       }
       else
       {
-        const std::string selected_type = Sys::ItemSystem::instance().get_random_item_from_list(
+        const std::string selected_type = Sys::ItemStore::instance().get_random_item_from_list(
             { "item.bomb", "item.seeingstone", "item.cursetablet" } );
         SPDLOG_INFO( "Pot revealed {}", selected_type );
         Factory::create_world_item( reg(), loot_pos_cmp, selected_type );

@@ -1,6 +1,7 @@
 #include <Events/PlayerActionEvent.hpp>
 #include <Inventory/FlashUIInventory.hpp>
 #include <Sprites/SpriteMetaType.hpp>
+#include <Stats/SacrificeAction.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Components/Altar/AltarSacrifice.hpp>
@@ -30,6 +31,7 @@
 #include <Factory/ObstacleFactory.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Systems/Stores/ItemStore.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
@@ -93,6 +95,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
                            Constants::kGridSizePxF );
     m_sound_bank.get_effect( "shrine_lighting" ).play();
     Factory::create_altar_sacrifice_anim( reg(), new_pos, sprite_type );
+
     m_altar_activation_clock.restart();
   };
 
@@ -104,31 +107,62 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
     {
       switch ( altar_cmp.get_sacrifice_count() )
       {
-        case 0:
+        case 0: {
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 1 ); } );
           reg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.one"; } );
           SPDLOG_DEBUG( "Altar activated to state ONE." );
+          // Apply the effects from exhuming this item to the player stats
+          auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
+          for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
+          {
+            auto &player_stats = Utils::Player::get_player_stats( reg() );
+            player_stats.action( inventory_cmp.m_item.action_fx_map.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ) );
+          }
           common_activation( SacrificeAnimType::RELIC );
           break;
-        case 1:
+        }
+        case 1: {
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 2 ); } );
           reg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.two"; } );
           SPDLOG_DEBUG( "Altar activated to state TWO." );
+          // Apply the effects from exhuming this item to the player stats
+          auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
+          for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
+          {
+            auto &player_stats = Utils::Player::get_player_stats( reg() );
+            player_stats.action( inventory_cmp.m_item.action_fx_map.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ) );
+          }
           common_activation( SacrificeAnimType::RELIC );
           break;
-
-        case 2:
+        }
+        case 2: {
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 3 ); } );
           reg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.three"; } );
           SPDLOG_DEBUG( "Altar activated to state THREE." );
+          // Apply the effects from exhuming this item to the player stats
+          auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
+          for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
+          {
+            auto &player_stats = Utils::Player::get_player_stats( reg() );
+            player_stats.action( inventory_cmp.m_item.action_fx_map.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ) );
+          }
           common_activation( SacrificeAnimType::RELIC );
           break;
-        case 3:
+        }
+        case 3: {
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 4 ); } );
           reg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.four"; } );
           SPDLOG_DEBUG( "Altar activated to state FOUR." );
+          // Apply the effects from exhuming this item to the player stats
+          auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
+          for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
+          {
+            auto &player_stats = Utils::Player::get_player_stats( reg() );
+            player_stats.action( inventory_cmp.m_item.action_fx_map.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ) );
+          }
           common_activation( SacrificeAnimType::RELIC );
           break;
+        }
       }
     }
   }

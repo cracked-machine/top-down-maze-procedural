@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NPC objects",
+  "type": "object",
+  "patternProperties": {
+    "^npc\\..+$": {
+      "type": "object",
+      "required": ["sprites", "actions"],
+      "additionalProperties": false,
+      "properties": {
+        "sprites": {
+          "type": "array",
+          "description": "The list of sprite identifiers for the item",
+          "minItems": 1
+        },
+        "actions": {
+          "type": "array",
+          "description": "List of actions available for this item",
+          "minItems": 6,
+          "maxItems": 6,
+          "allOf": [
+            { "contains": { "required": ["bury_action"] } },
+            { "contains": { "required": ["carry_action"] } },
+            { "contains": { "required": ["consume_action"] } },
+            { "contains": { "required": ["destroy_action"] } },
+            { "contains": { "required": ["exhume_action"] } },
+            { "contains": { "required": ["sacrifice_action"] } }
+          ],
+          "items": {
+            "type": "object",
+            "maxProperties": 1,
+            "patternProperties": {
+              "^(bury|carry|consume|destroy|exhume|sacrifice)_action$": {
+                "type": "object",
+                "required": ["health", "fear", "despair", "infamy", "disease"],
+                "additionalProperties": false,
+                "properties": {
+                  "health":  { "type": "number" },
+                  "fear":    { "type": "number" },
+                  "despair": { "type": "number" },
+                  "infamy":  { "type": "number" },
+                  "disease": { 
+                    "type": "string",
+                    "enum": ["none", "rabies", "plague", "leprosy"]
+                  }
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

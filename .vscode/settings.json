@@ -101,6 +101,12 @@
                 "**/items.json"
             ],
             "url": "./res/json/items_schema.json"
+        },
+        {
+            "fileMatch": [
+                "**/npc.json"
+            ],
+            "url": "./res/json/npc_schema.json"
         }
     ],
     "doxdocgen.c.triggerSequence": "//",

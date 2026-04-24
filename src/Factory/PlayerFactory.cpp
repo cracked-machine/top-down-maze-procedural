@@ -34,8 +34,8 @@
 #include <Stats/BaseAction.hpp>
 #include <Stats/PlayerStats.hpp>
 #include <Stats/SacrificeAction.hpp>
-#include <Systems/ItemSystem.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Systems/Stores/ItemStore.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 
@@ -124,9 +124,9 @@ entt::entity create_seeing_stone( entt::registry &reg, Cmp::Position pos, const 
   auto world_carry_item_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
   reg.emplace_or_replace<Cmp::ReservedPosition>( world_carry_item_entt );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, Sys::ItemSystem::instance().get_item( item ).type, 0 );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).type, 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
-  reg.emplace_or_replace<Cmp::InventoryItem>( world_carry_item_entt, Sys::ItemSystem::instance().get_item( item ) );
+  reg.emplace_or_replace<Cmp::InventoryItem>( world_carry_item_entt, Sys::ItemStore::instance().get_item( item ) );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
   reg.emplace_or_replace<Cmp::ScryingBall>( world_carry_item_entt, false, pick );
 
@@ -139,9 +139,9 @@ entt::entity create_explosive( entt::registry &reg, Cmp::Position pos, const std
   // Now create the entity with the valid target
   auto world_carry_item_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, Sys::ItemSystem::instance().get_item( item ).type, 0 );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).type, 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
-  reg.emplace_or_replace<Cmp::InventoryItem>( world_carry_item_entt, Sys::ItemSystem::instance().get_item( item ) );
+  reg.emplace_or_replace<Cmp::InventoryItem>( world_carry_item_entt, Sys::ItemStore::instance().get_item( item ) );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
   reg.emplace_or_replace<Cmp::Explosive>( world_carry_item_entt, false );
 
@@ -162,7 +162,7 @@ entt::entity create_world_item( entt::registry &reg, Cmp::Position pos, const st
   auto world_item_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( world_item_entt, pos.position, pos.size );
   reg.emplace_or_replace<Cmp::ReservedPosition>( world_item_entt );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_item_entt, 0, 0, true, Sys::ItemSystem::instance().get_item( item ).type, 0 );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).type, 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_item_entt, pos.position.y - 1.f + zorder );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_item_entt );
   if ( item == "item.axe" || item == "item.pickaxe" || item == "item.shovel" )
@@ -176,7 +176,7 @@ entt::entity create_world_item( entt::registry &reg, Cmp::Position pos, const st
   //   Cmp::SacrificeAction action( { -10 }, {}, { 5 }, { 5 } );
   //   item_cmp.action_fx_map.insert_or_assign( std::type_index( typeid( Cmp::SacrificeAction ) ), std::move( action ) );
   // }
-  reg.emplace_or_replace<Cmp::InventoryItem>( world_item_entt, Sys::ItemSystem::instance().get_item( item ) );
+  reg.emplace_or_replace<Cmp::InventoryItem>( world_item_entt, Sys::ItemStore::instance().get_item( item ) );
 
   SPDLOG_INFO( "Placed {} at {},{}", item, pos.position.x, pos.position.y );
 
@@ -218,7 +218,7 @@ entt::entity pickup_world_item( entt::registry &reg, entt::entity world_item_ent
 void add_inventory( entt::registry &reg, const std::string &item )
 {
   auto inventory_entity = reg.create();
-  reg.emplace_or_replace<Cmp::PlayerInventorySlot>( inventory_entity, Sys::ItemSystem::instance().get_item( item ) );
+  reg.emplace_or_replace<Cmp::PlayerInventorySlot>( inventory_entity, Sys::ItemStore::instance().get_item( item ) );
   if ( item.contains( "axe" ) or item.contains( "shovel" ) ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, 100.f ); }
   if ( item.contains( "scryingball" ) )
   {
@@ -227,7 +227,7 @@ void add_inventory( entt::registry &reg, const std::string &item )
     reg.emplace_or_replace<Cmp::ScryingBall>( inventory_entity, sb );
   }
   if ( item.contains( "explosive" ) ) { reg.emplace_or_replace<Cmp::Explosive>( inventory_entity, false ); }
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, true, Sys::ItemSystem::instance().get_item( item ).type, 0 );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, true, Sys::ItemStore::instance().get_item( item ).type, 0 );
 }
 
 //! @brief Destroy all player inventory slots matching a type. See "sprite.item.xxxx" in res/json/sprite_metadata.json

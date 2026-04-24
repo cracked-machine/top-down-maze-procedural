@@ -53,6 +53,7 @@ public:
   void render_ui_icons();
   void render_ui_inventory_icon();
   void render_ui_meters();
+  void render_ui_texts();
   void render_ui_labels( sf::Time dt );
 
   void render_level_depth();

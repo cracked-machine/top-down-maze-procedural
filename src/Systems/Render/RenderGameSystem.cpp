@@ -224,6 +224,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   render_overlay_sys.render_ui_inventory_icon();
   render_overlay_sys.render_ui_meters();
   render_overlay_sys.render_ui_labels( dt );
+  render_overlay_sys.render_ui_texts();
   render_overlay_sys.render_level_depth();
 
   auto display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );

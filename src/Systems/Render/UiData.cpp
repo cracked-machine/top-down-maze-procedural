@@ -170,6 +170,12 @@ void UiData::deserialize( const std::filesystem::path &scene_tiledata_path )
         m_labels.emplace_back( get_float_rect( object ), get_string( object, "name" ), get_int_property( object, "font_size" ),
                                get_string_property( object, "align" ) );
       }
+      if ( get_string( object, "type" ) == "ui_text" )
+      {
+        SPDLOG_INFO( "Found ui_text: {}", get_string( object, "name" ) );
+        m_texts.emplace_back( get_float_rect( object ), get_string( object, "name" ), get_string_property( object, "value" ),
+                              get_int_property( object, "font_size" ) );
+      }
       if ( get_string( object, "type" ) == "ui_meter" )
       {
         SPDLOG_INFO( "Found ui_meter: {}", get_string( object, "name" ) );

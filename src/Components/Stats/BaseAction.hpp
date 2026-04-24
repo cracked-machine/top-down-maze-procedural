@@ -16,6 +16,12 @@ enum class Disease { NONE, RABIES, PLAGUE, LEPROSY };
 
 } // namespace Stats
 
+//! @brief Construct a new Base Action object
+//! @param health
+//! @param fear
+//! @param despair
+//! @param infamy
+//! @param disease
 class BaseAction
 {
 public:

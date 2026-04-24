@@ -1,0 +1,57 @@
+{
+  "npc.skeleton": {
+    "sprites": ["NPCSKELE.walk.south", "NPCSKELE.walk.north", "NPCSKELE.walk.east", "NPCSKELE.walk.west"],
+    "actions": [
+      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "destroy_action":     { "health": 0, "fear": -2, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "exhume_action":      { "health": 0, "fear": 2, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+    ]
+  },
+  "npc.ghost": {
+    "sprites": ["NPCGHOST.walk.south", "NPCGHOST.walk.north", "NPCGHOST.walk.east", "NPCGHOST.walk.west"],
+    "actions": [
+      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "exhume_action":      { "health": 0, "fear": 2, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+    ]
+  },
+  "npc.priest": {
+    "sprites": ["NPCPRIEST"],
+    "actions": [
+      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "exhume_action":      { "health": 0, "fear": 2, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+    ]
+  },
+  "npc.witch": {
+    "sprites": ["NPCWITCH"],
+    "actions": [
+      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "exhume_action":      { "health": 0, "fear": 2, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+    ]
+  },
+  "npc.drknox": {
+    "sprites": ["NPC.dr_knox"],
+    "actions": [
+      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+    ]
+  }
+}

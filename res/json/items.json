@@ -201,44 +201,44 @@
     "sprite": "sprite.item.relic1",
     "actions": [
       { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 5, "infamy": 0, "disease": "none" }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }}
     ]
   },
   "item.relic2": {
     "sprite": "sprite.item.relic2",
     "actions": [
       { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 5, "infamy": 0, "disease": "none" }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }}
     ]
   },
   "item.relic3": {
     "sprite": "sprite.item.relic3",
     "actions": [
       { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 5, "infamy": 0, "disease": "none" }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }}
     ]
   },
   "item.relic4": {
     "sprite": "sprite.item.relic4",
     "actions": [
       { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 5, "infamy": 0, "disease": "none" }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }}
     ]
   },
   "item.seeingstone": {
@@ -303,8 +303,8 @@
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }}
     ]
   },
   "item.jewelry_amephyst_ring": {
@@ -314,8 +314,8 @@
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }}
     ]
   },
   "item.jewelry_ruby_ring": {
@@ -325,8 +325,8 @@
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }}
     ]
   },
   "item.jewelry_emerald_necklace": {
@@ -336,8 +336,8 @@
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }}
     ]
   },
   "item.jewelry_emerald_gemstone": {
@@ -347,8 +347,8 @@
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }}
     ]
   },
   "item.jewelry_sapphire_gemstone": {
@@ -358,8 +358,8 @@
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }}
     ]
   },
   "item.jewelry_diamond_gemstone": {
@@ -369,8 +369,8 @@
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }}
     ]
   },
   "item.jewelry_amephyst_gemstone": {
@@ -380,8 +380,8 @@
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
       { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 2, "disease": "none" }}
     ]
   },
   "ERROR_SPRITE": {

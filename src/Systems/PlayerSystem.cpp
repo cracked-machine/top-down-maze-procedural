@@ -1,10 +1,13 @@
 #include <Constants.hpp>
 #include <Events/DropInventoryEvent.hpp>
+#include <Factory/NpcFactory.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Inventory/Explosive.hpp>
 #include <Inventory/InventoryWearLevel.hpp>
 #include <Inventory/ScryingBall.hpp>
 #include <Stats/BaseAction.hpp>
+#include <Stats/CarryAction.hpp>
+#include <Stats/PlayerStats.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -98,6 +101,8 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
   // did player die?
   check_player_mortality();
 
+  check_action_side_effects( dt );
+
   if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
   {
     auto new_player_pos = Utils::Player::get_position( reg() );
@@ -137,14 +142,14 @@ void PlayerSystem::localTransforms()
       // damage cooldown blink effect
       auto &pc_damage_cooldown = Sys::PersistSystem::get<Cmp::Persist::PcDamageDelay>( reg() );
       bool is_in_damage_cooldown = pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value();
-      int blink_visible = static_cast<int>( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asMilliseconds() / 100 ) % 2 == 0;
-      if ( !is_in_damage_cooldown || ( is_in_damage_cooldown && blink_visible ) ) { alpha_cmp = 255; }
+      bool blink_visible = ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asMilliseconds() / 100 ) % 2 == 0;
+      if ( not is_in_damage_cooldown || ( is_in_damage_cooldown && blink_visible ) ) { alpha_cmp = 255; }
       else { alpha_cmp = 0; }
     }
   }
 }
 
-void PlayerSystem::update_player_position( sf::Time globalDeltaTime, bool collision_disabled )
+void PlayerSystem::update_player_position( sf::Time dt, bool collision_disabled )
 {
 
   Cmp::Position &player_pos = Utils::Player::get_position( reg() );
@@ -153,7 +158,7 @@ void PlayerSystem::update_player_position( sf::Time globalDeltaTime, bool collis
   if ( raw_direction == sf::Vector2f( 0.f, 0.f ) ) return; // optimization
 
   auto &player_movement_speed = Sys::PersistSystem::get<Cmp::Persist::PlayerMovementSpeed>( reg() );
-  const float step = player_movement_speed.get_value() * globalDeltaTime.asSeconds();
+  const float step = player_movement_speed.get_value() * dt.asSeconds();
   const Cmp::Direction direction = raw_direction.componentWiseMul( { step, step } );
 
   const sf::FloatRect next_horizontal_move( { player_pos.position.x + direction.x, player_pos.position.y }, player_pos.size );
@@ -407,6 +412,21 @@ void PlayerSystem::check_player_mortality()
   }
 }
 
+void PlayerSystem::check_action_side_effects( [[maybe_unused]] sf::Time dt )
+{
+  static constexpr float kActionEffectInterval = 60.f;
+  m_action_effects_time += dt;
+  if ( m_action_effects_time.asSeconds() < kActionEffectInterval ) { return; }
+
+  for ( auto [slot_entt, slot_cmp] : reg().view<Cmp::PlayerInventorySlot>().each() )
+  {
+    Cmp::PlayerStats &stats_cmp = Utils::Player::get_player_stats( reg() );
+    Cmp::BaseAction carry_action = slot_cmp.m_item.action_fx_map.at( std::type_index( typeid( Cmp::CarryAction ) ) );
+    stats_cmp.action( carry_action );
+  }
+  m_action_effects_time = sf::Time::Zero;
+}
+
 entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entity inventory_slot_entt )
 {
   auto *inventory_slot_cmp = reg().try_get<Cmp::PlayerInventorySlot>( inventory_slot_entt );
@@ -583,7 +603,7 @@ void PlayerSystem::check_player_axe_npc_kill()
         if ( reg().valid( npc_entity ) )
         {
           pathfinding_navmesh->remove( npc_entity, npc_pos_cmp );
-          reg().destroy( npc_entity );
+          Factory::destroy_npc( reg(), npc_entity );
         }
       }
 
