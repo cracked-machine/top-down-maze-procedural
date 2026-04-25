@@ -34,34 +34,39 @@ void ItemStore::init_store()
       {
         if ( action_key == "bury_action" )
         {
-          carryitem.actions.emplace( typeid( Cmp::BuryAction ), Cmp::BuryAction( { health( action_value ) }, { fear( action_value ) },
-                                                                                 { despair( action_value ) }, { infamy( action_value ) } ) );
+          carryitem.actions.emplace( typeid( Cmp::BuryAction ),
+                                     Cmp::BuryAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) },
+                                                      { infamy( action_value ) }, disease( action_value ), tick( action_value ) ) );
         }
         else if ( action_key == "carry_action" )
         {
-          carryitem.actions.emplace( typeid( Cmp::CarryAction ), Cmp::CarryAction( { health( action_value ) }, { fear( action_value ) },
-                                                                                   { despair( action_value ) }, { infamy( action_value ) } ) );
+          carryitem.actions.emplace( typeid( Cmp::CarryAction ),
+                                     Cmp::CarryAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) },
+                                                       { infamy( action_value ) }, disease( action_value ), tick( action_value ) ) );
         }
         else if ( action_key == "consume_action" )
         {
-          carryitem.actions.emplace( typeid( Cmp::ConsumeAction ), Cmp::ConsumeAction( { health( action_value ) }, { fear( action_value ) },
-                                                                                       { despair( action_value ) }, { infamy( action_value ) } ) );
+          carryitem.actions.emplace( typeid( Cmp::ConsumeAction ),
+                                     Cmp::ConsumeAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) },
+                                                         { infamy( action_value ) }, disease( action_value ), tick( action_value ) ) );
         }
         else if ( action_key == "destroy_action" )
         {
-          carryitem.actions.emplace( typeid( Cmp::DestroyAction ), Cmp::DestroyAction( { health( action_value ) }, { fear( action_value ) },
-                                                                                       { despair( action_value ) }, { infamy( action_value ) } ) );
+          carryitem.actions.emplace( typeid( Cmp::DestroyAction ),
+                                     Cmp::DestroyAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) },
+                                                         { infamy( action_value ) }, disease( action_value ), tick( action_value ) ) );
         }
         else if ( action_key == "exhume_action" )
         {
-          carryitem.actions.emplace( typeid( Cmp::ExhumeAction ), Cmp::ExhumeAction( { health( action_value ) }, { fear( action_value ) },
-                                                                                     { despair( action_value ) }, { infamy( action_value ) } ) );
+          carryitem.actions.emplace( typeid( Cmp::ExhumeAction ),
+                                     Cmp::ExhumeAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) },
+                                                        { infamy( action_value ) }, disease( action_value ), tick( action_value ) ) );
         }
         else if ( action_key == "sacrifice_action" )
         {
-          carryitem.actions.emplace(
-              typeid( Cmp::SacrificeAction ),
-              Cmp::SacrificeAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) }, { infamy( action_value ) } ) );
+          carryitem.actions.emplace( typeid( Cmp::SacrificeAction ),
+                                     Cmp::SacrificeAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) },
+                                                           { infamy( action_value ) }, disease( action_value ), tick( action_value ) ) );
         }
         else { SPDLOG_WARN( "Unknown action key: {}", action_key ); }
       }

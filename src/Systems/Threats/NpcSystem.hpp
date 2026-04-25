@@ -61,8 +61,17 @@ private:
   // Check for player collision proximity with NPC containers
   void check_bones_reanimation();
 
-  // Check for player collision with NPCs
-  void check_player_to_npc_collision();
+  //! @brief Check Player/NPC collision for Cmp::CollisionActions::Tick::ONCE
+  //! @note Player cooldown and knockback are ENABLED.
+  void check_once_collision();
+
+  //! @brief Check Player/NPC collision for Cmp::CollisionActions::Tick::SLOW
+  //! @note Player cooldown and knockback are DISABLED.
+  void check_slow_collision( sf::Time dt );
+
+  //! @brief Check Player/NPC collision for Cmp::CollisionActions::Tick::FAST
+  //! @note Player cooldown and knockback are DISABLED.
+  void check_fast_collision( sf::Time dt );
 
   void find_pushback_position( const Cmp::Direction &npc_direction );
 
@@ -80,6 +89,9 @@ private:
   sf::Time m_bones_accumulator;
 
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
+
+  sf::Time m_slow_tick_action_effects_time;
+  sf::Time m_fast_tick_action_effects_time;
 };
 
 } // namespace ProceduralMaze::Sys

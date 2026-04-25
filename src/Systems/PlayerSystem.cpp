@@ -7,8 +7,10 @@
 #include <Inventory/ScryingBall.hpp>
 #include <Stats/BaseAction.hpp>
 #include <Stats/CarryAction.hpp>
+#include <Stats/CollisionAction.hpp>
 #include <Stats/ExhumeAction.hpp>
 #include <Stats/PlayerStats.hpp>
+#include <Stats/ProjectileAction.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -102,7 +104,8 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
   // did player die?
   check_player_mortality();
 
-  check_action_side_effects( dt );
+  check_slow_tick_action_side_effects( dt );
+  check_fast_tick_action_side_effects( dt );
 
   if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
   {
@@ -413,30 +416,65 @@ void PlayerSystem::check_player_mortality()
   }
 }
 
-void PlayerSystem::check_action_side_effects( [[maybe_unused]] sf::Time dt )
+void PlayerSystem::check_slow_tick_action_side_effects( sf::Time dt )
 {
   static constexpr float kActionEffectInterval = 60.f;
-  m_action_effects_time += dt;
-  if ( m_action_effects_time.asSeconds() < kActionEffectInterval ) { return; }
+  m_slow_tick_action_effects_time += dt;
+  if ( m_slow_tick_action_effects_time.asSeconds() < kActionEffectInterval ) { return; }
 
   Cmp::PlayerStats &stats_cmp = Utils::Player::get_player_stats( reg() );
   for ( auto [slot_entt, slot_cmp] : reg().view<Cmp::PlayerInventorySlot>().each() )
   {
-    Cmp::BaseAction carry_action = slot_cmp.m_item.actions.at( std::type_index( typeid( Cmp::CarryAction ) ) );
-    stats_cmp.apply_modifiers( carry_action );
+    for ( auto &[action_type, action] : slot_cmp.m_item.actions )
+    {
+      if ( action_type == std::type_index( typeid( Cmp::CollisionAction ) ) ) continue;
+      if ( action_type == std::type_index( typeid( Cmp::ProjectileAction ) ) ) continue;
+      if ( action.tick() != Cmp::Stats::Tick::SLOW ) continue;
+      stats_cmp.apply_modifiers( action );
+    }
   }
   for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
   {
-    for ( auto &sprite_type : npc_cmp.sprite_type_list )
+    for ( auto &[action_type, action] : npc_cmp.actions )
     {
-      if ( sprite_type.contains( "witch" ) )
-      {
-        Cmp::BaseAction exhume_action = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
-        stats_cmp.apply_modifiers( exhume_action );
-      }
+      if ( action_type == std::type_index( typeid( Cmp::CollisionAction ) ) ) continue;
+      if ( action_type == std::type_index( typeid( Cmp::ProjectileAction ) ) ) continue;
+      if ( action.tick() != Cmp::Stats::Tick::SLOW ) continue;
+      stats_cmp.apply_modifiers( action );
     }
   }
-  m_action_effects_time = sf::Time::Zero;
+  m_slow_tick_action_effects_time = sf::Time::Zero;
+}
+
+void PlayerSystem::check_fast_tick_action_side_effects( sf::Time dt )
+{
+  static constexpr float kActionEffectInterval = 0.05f;
+  m_fast_tick_action_effects_time += dt;
+  if ( m_fast_tick_action_effects_time.asSeconds() < kActionEffectInterval ) { return; }
+
+  Cmp::PlayerStats &stats_cmp = Utils::Player::get_player_stats( reg() );
+  for ( auto [slot_entt, slot_cmp] : reg().view<Cmp::PlayerInventorySlot>().each() )
+  {
+    for ( auto &[action_type, action] : slot_cmp.m_item.actions )
+    {
+      if ( action_type == std::type_index( typeid( Cmp::CollisionAction ) ) ) continue;
+      if ( action_type == std::type_index( typeid( Cmp::ProjectileAction ) ) ) continue;
+      if ( action.tick() != Cmp::Stats::Tick::FAST ) continue;
+      stats_cmp.apply_modifiers( action );
+    }
+  }
+  for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
+  {
+    for ( auto &[action_type, action] : npc_cmp.actions )
+    {
+      if ( action_type == std::type_index( typeid( Cmp::CollisionAction ) ) ) continue;
+      if ( action_type == std::type_index( typeid( Cmp::ProjectileAction ) ) ) continue;
+      if ( action.tick() != Cmp::Stats::Tick::FAST ) continue;
+      stats_cmp.apply_modifiers( action );
+    }
+  }
+
+  m_fast_tick_action_effects_time = sf::Time::Zero;
 }
 
 entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entity inventory_slot_entt )

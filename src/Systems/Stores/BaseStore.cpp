@@ -6,6 +6,7 @@
 #include <Components/Stats/DestroyAction.hpp>
 #include <Components/Stats/ExhumeAction.hpp>
 #include <Components/Stats/SacrificeAction.hpp>
+#include <Stats/BaseAction.hpp>
 #include <Systems/Stores/BaseStore.hpp>
 
 #include <fstream>
@@ -44,5 +45,22 @@ int BaseStore::health( const nlohmann::json &item ) { return item.at( "health" )
 int BaseStore::fear( const nlohmann::json &item ) { return item.at( "fear" ).get<int>(); }
 int BaseStore::despair( const nlohmann::json &item ) { return item.at( "despair" ).get<int>(); }
 int BaseStore::infamy( const nlohmann::json &item ) { return item.at( "infamy" ).get<int>(); }
+Cmp::Stats::Disease BaseStore::disease( const nlohmann::json &item )
+{
+  std::string disease = item.at( "disease" ).get<std::string>();
+  if ( disease == "none" ) return Cmp::Stats::Disease::NONE;
+  if ( disease == "leprosy" ) return Cmp::Stats::Disease::LEPROSY;
+  if ( disease == "plague" ) return Cmp::Stats::Disease::PLAGUE;
+  if ( disease == "rabies" ) return Cmp::Stats::Disease::RABIES;
+  return Cmp::Stats::Disease::NONE;
+}
+Cmp::Stats::Tick BaseStore::tick( const nlohmann::json &item )
+{
+  std::string tick = item.at( "tick" ).get<std::string>();
+  if ( tick == "once" ) return Cmp::Stats::Tick::ONCE;
+  if ( tick == "slow" ) return Cmp::Stats::Tick::SLOW;
+  if ( tick == "fast" ) return Cmp::Stats::Tick::FAST;
+  return Cmp::Stats::Tick::ONCE;
+}
 
 } // namespace ProceduralMaze::Sys

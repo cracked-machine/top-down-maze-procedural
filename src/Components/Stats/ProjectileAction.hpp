@@ -14,8 +14,8 @@ class ProjectileAction : public BaseAction
 {
 public:
   ProjectileAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy,
-                    Stats::Disease disease = Stats::Disease::NONE )
-      : BaseAction( health, fear, despair, infamy, disease )
+                    Stats::Disease disease = Stats::Disease::NONE, Stats::Tick tick = Stats::Tick::ONCE )
+      : BaseAction( health, fear, despair, infamy, disease, tick )
   {
   }
   ~ProjectileAction() {}

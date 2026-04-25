@@ -13,6 +13,7 @@ struct Infamy  { int value{ 0 }; };
 // clang-format on
 
 enum class Disease { NONE, RABIES, PLAGUE, LEPROSY };
+enum class Tick { ONCE, SLOW, FAST };
 
 } // namespace Stats
 
@@ -25,12 +26,14 @@ enum class Disease { NONE, RABIES, PLAGUE, LEPROSY };
 class BaseAction
 {
 public:
-  BaseAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Disease disease = Stats::Disease::NONE )
+  BaseAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Disease disease = Stats::Disease::NONE,
+              Stats::Tick tick = Stats::Tick::ONCE )
       : m_health( health.value ),
         m_fear( fear.value ),
         m_despair( despair.value ),
         m_infamy( infamy.value ),
-        m_disease( disease )
+        m_disease( disease ),
+        m_tick( tick )
   {
   }
   ~BaseAction() {}
@@ -40,6 +43,7 @@ public:
   [[nodiscard]] int despair() const { return m_despair; }
   [[nodiscard]] int infamy() const { return m_infamy; }
   [[nodiscard]] Stats::Disease disease() const { return m_disease; }
+  [[nodiscard]] Stats::Tick tick() const { return m_tick; }
 
 private:
   int m_health{ 0 };
@@ -47,6 +51,7 @@ private:
   int m_despair{ 0 };
   int m_infamy{ 0 };
   Stats::Disease m_disease{ Stats::Disease::NONE };
+  Stats::Tick m_tick{ Stats::Tick::ONCE };
 };
 
 } // namespace ProceduralMaze::Cmp
