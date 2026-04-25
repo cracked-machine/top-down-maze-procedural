@@ -34,7 +34,7 @@ void LightningSystem::update( sf::Time dt )
     create_lightning_strike( dt );
     trigger_lightning = false;
 
-    Utils::Player::get_player_stats( reg() ).action( Cmp::BaseAction( Cmp::Stats::Health{ -25 }, {}, {}, {} ) );
+    Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -25 }, {}, {}, {} } );
 
     if ( Utils::Player::get_player_stats( reg() ).health() <= 0 )
     {

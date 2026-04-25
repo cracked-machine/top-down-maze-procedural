@@ -13,21 +13,21 @@ class NPC
 {
 public:
   NPC() = default;
-  NPC( Sprites::SpriteMetaType type )
-      : type( std::vector<Sprites::SpriteMetaType>{ std::move( type ) } )
+  NPC( Sprites::SpriteMetaType sprite_type )
+      : sprite_type_list( std::vector<Sprites::SpriteMetaType>{ std::move( sprite_type ) } )
   {
   }
-  NPC( std::vector<Sprites::SpriteMetaType> type_list )
-      : type( std::move( type_list ) )
+  NPC( std::vector<Sprites::SpriteMetaType> sprite_type_list )
+      : sprite_type_list( std::move( sprite_type_list ) )
   {
   }
   // bool active = true;
 
   //! @brief The associated sprite
-  std::vector<Sprites::SpriteMetaType> type;
+  std::vector<Sprites::SpriteMetaType> sprite_type_list;
 
   //! @brief The action and its effects that can be applied to the player
-  std::unordered_map<std::type_index, BaseAction> action_fx_map;
+  std::unordered_map<std::type_index, BaseAction> actions;
 };
 } // namespace ProceduralMaze::Cmp
 

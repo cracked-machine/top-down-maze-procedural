@@ -1,5 +1,5 @@
 {
-    "activeFile": "graveyard.json",
+    "activeFile": "X:/cpp/games/top-down-maze-procedural/res/ui/shop.json",
     "expandedProjectPaths": [
         ".",
         "X:/cpp/games/top-down-maze-procedural/res/ui"
@@ -49,8 +49,8 @@
             "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1016.6666666666665,
-                "y": 142.33333333333331
+                "x": 838,
+                "y": 164.99999999999997
             }
         },
         "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json": {
@@ -225,20 +225,22 @@
         "graveyard.json",
         "crypt.json",
         "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json",
-        "X:/cpp/games/top-down-maze-procedural/res/ui/dbg.json"
+        "X:/cpp/games/top-down-maze-procedural/res/ui/dbg.json",
+        "X:/cpp/games/top-down-maze-procedural/res/ui/shop.json",
+        "shop.json"
     ],
     "project": "scenes.tiled-project",
     "property.type": "string",
     "recentFiles": [
         "ruinlower.json",
         "ruinupper.json",
-        "X:/cpp/games/top-down-maze-procedural/res/ui/dbg.json",
-        "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json",
-        "crypt.json",
         "graveyard.json",
+        "crypt.json",
+        "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json",
+        "X:/cpp/games/top-down-maze-procedural/res/ui/dbg.json",
+        "shop.json",
         "X:/cpp/games/top-down-maze-procedural/res/ui/shop.json",
         "X:/cpp/games/top-down-maze-procedural/res/ui/debug.json",
-        "shop.json",
         "well.json",
         "Tilesets/main.json",
         "ruinupperjson.json"

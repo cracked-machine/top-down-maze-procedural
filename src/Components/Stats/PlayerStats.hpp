@@ -31,8 +31,9 @@ public:
   [[nodiscard]] Stats::Disease disease() const { return m_disease; }
 
   //! @brief Update the player stats with the BaseAction object
+  //! @note  BaseAction: health, fear, despair, infamy, disease
   //! @param action
-  void action( const BaseAction &action )
+  void apply_modifiers( const BaseAction &action )
   {
     m_health = std::clamp( m_health + action.health(), 0, 100 );
     SPDLOG_INFO( "Player health = {}", m_health );

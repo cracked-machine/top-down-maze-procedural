@@ -38,34 +38,33 @@ void NpcStore::init_store()
       {
         if ( action_key == "bury_action" )
         {
-          npc.action_fx_map.emplace( typeid( Cmp::BuryAction ), Cmp::BuryAction( { health( action_value ) }, { fear( action_value ) },
-                                                                                 { despair( action_value ) }, { infamy( action_value ) } ) );
+          npc.actions.emplace( typeid( Cmp::BuryAction ), Cmp::BuryAction( { health( action_value ) }, { fear( action_value ) },
+                                                                           { despair( action_value ) }, { infamy( action_value ) } ) );
         }
         else if ( action_key == "carry_action" )
         {
-          npc.action_fx_map.emplace( typeid( Cmp::CarryAction ), Cmp::CarryAction( { health( action_value ) }, { fear( action_value ) },
-                                                                                   { despair( action_value ) }, { infamy( action_value ) } ) );
+          npc.actions.emplace( typeid( Cmp::CarryAction ), Cmp::CarryAction( { health( action_value ) }, { fear( action_value ) },
+                                                                             { despair( action_value ) }, { infamy( action_value ) } ) );
         }
         else if ( action_key == "consume_action" )
         {
-          npc.action_fx_map.emplace( typeid( Cmp::ConsumeAction ), Cmp::ConsumeAction( { health( action_value ) }, { fear( action_value ) },
-                                                                                       { despair( action_value ) }, { infamy( action_value ) } ) );
+          npc.actions.emplace( typeid( Cmp::ConsumeAction ), Cmp::ConsumeAction( { health( action_value ) }, { fear( action_value ) },
+                                                                                 { despair( action_value ) }, { infamy( action_value ) } ) );
         }
         else if ( action_key == "destroy_action" )
         {
-          npc.action_fx_map.emplace( typeid( Cmp::DestroyAction ), Cmp::DestroyAction( { health( action_value ) }, { fear( action_value ) },
-                                                                                       { despair( action_value ) }, { infamy( action_value ) } ) );
+          npc.actions.emplace( typeid( Cmp::DestroyAction ), Cmp::DestroyAction( { health( action_value ) }, { fear( action_value ) },
+                                                                                 { despair( action_value ) }, { infamy( action_value ) } ) );
         }
         else if ( action_key == "exhume_action" )
         {
-          npc.action_fx_map.emplace( typeid( Cmp::ExhumeAction ), Cmp::ExhumeAction( { health( action_value ) }, { fear( action_value ) },
-                                                                                     { despair( action_value ) }, { infamy( action_value ) } ) );
+          npc.actions.emplace( typeid( Cmp::ExhumeAction ), Cmp::ExhumeAction( { health( action_value ) }, { fear( action_value ) },
+                                                                               { despair( action_value ) }, { infamy( action_value ) } ) );
         }
         else if ( action_key == "sacrifice_action" )
         {
-          npc.action_fx_map.emplace(
-              typeid( Cmp::SacrificeAction ),
-              Cmp::SacrificeAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) }, { infamy( action_value ) } ) );
+          npc.actions.emplace( typeid( Cmp::SacrificeAction ), Cmp::SacrificeAction( { health( action_value ) }, { fear( action_value ) },
+                                                                                     { despair( action_value ) }, { infamy( action_value ) } ) );
         }
         else { SPDLOG_WARN( "Unknown action key: {}", action_key ); }
       }

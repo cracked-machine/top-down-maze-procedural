@@ -157,7 +157,7 @@
     "max_value": 20.0,
     "detail": "NPC Activation Bounding Box Scale Factor",
     "format": "%.1f pixels"
-  },
+    },
   "NpcDamage": {
     "type": "int",
     "value": 15,
@@ -230,7 +230,7 @@
     "max_value": 64.0,
     "detail": "NPC Push Back Distance",
     "format": "%.1f pixels"
-  },
+  },  
   "NpcShockwaveFreq": {
     "type":"int",
     "value": 5000,
@@ -329,7 +329,7 @@
   },
   "PlayerMovementSpeed": {
     "type": "float",
-    "value": 60.0,
+    "value": 100.0,
     "min_value": 1.0,
     "max_value": 120.0,
     "detail": "Player Movement Speed",

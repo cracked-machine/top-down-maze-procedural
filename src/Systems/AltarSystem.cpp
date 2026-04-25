@@ -116,7 +116,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
           for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
           {
             auto &player_stats = Utils::Player::get_player_stats( reg() );
-            player_stats.action( inventory_cmp.m_item.action_fx_map.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ) );
+            player_stats.apply_modifiers( inventory_cmp.m_item.actions.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ) );
           }
           common_activation( SacrificeAnimType::RELIC );
           break;
@@ -130,7 +130,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
           for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
           {
             auto &player_stats = Utils::Player::get_player_stats( reg() );
-            player_stats.action( inventory_cmp.m_item.action_fx_map.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ) );
+            player_stats.apply_modifiers( inventory_cmp.m_item.actions.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ) );
           }
           common_activation( SacrificeAnimType::RELIC );
           break;
@@ -144,7 +144,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
           for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
           {
             auto &player_stats = Utils::Player::get_player_stats( reg() );
-            player_stats.action( inventory_cmp.m_item.action_fx_map.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ) );
+            player_stats.apply_modifiers( inventory_cmp.m_item.actions.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ) );
           }
           common_activation( SacrificeAnimType::RELIC );
           break;
@@ -158,7 +158,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
           for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
           {
             auto &player_stats = Utils::Player::get_player_stats( reg() );
-            player_stats.action( inventory_cmp.m_item.action_fx_map.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ) );
+            player_stats.apply_modifiers( inventory_cmp.m_item.actions.at( std::type_index( typeid( Cmp::SacrificeAction ) ) ) );
           }
           common_activation( SacrificeAnimType::RELIC );
           break;

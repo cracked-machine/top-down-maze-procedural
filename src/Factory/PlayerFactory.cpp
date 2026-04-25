@@ -31,7 +31,6 @@
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Sprites/SpriteMetaType.hpp>
-#include <Stats/BaseAction.hpp>
 #include <Stats/PlayerStats.hpp>
 #include <Stats/SacrificeAction.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -124,7 +123,7 @@ entt::entity create_seeing_stone( entt::registry &reg, Cmp::Position pos, const 
   auto world_carry_item_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
   reg.emplace_or_replace<Cmp::ReservedPosition>( world_carry_item_entt );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).type, 0 );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).sprite_type, 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
   reg.emplace_or_replace<Cmp::InventoryItem>( world_carry_item_entt, Sys::ItemStore::instance().get_item( item ) );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
@@ -139,7 +138,7 @@ entt::entity create_explosive( entt::registry &reg, Cmp::Position pos, const std
   // Now create the entity with the valid target
   auto world_carry_item_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).type, 0 );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).sprite_type, 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
   reg.emplace_or_replace<Cmp::InventoryItem>( world_carry_item_entt, Sys::ItemStore::instance().get_item( item ) );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
@@ -157,7 +156,7 @@ entt::entity create_world_item( entt::registry &reg, Cmp::Position pos, const st
   auto world_item_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( world_item_entt, pos.position, pos.size );
   reg.emplace_or_replace<Cmp::ReservedPosition>( world_item_entt );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).type, 0 );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( world_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).sprite_type, 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_item_entt, pos.position.y - 1.f + zorder );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_item_entt );
   if ( item == "item.axe" || item == "item.pickaxe" || item == "item.shovel" )
@@ -179,7 +178,7 @@ entt::entity pickup_world_item( entt::registry &reg, entt::entity world_item_ent
   // create the basic inventory slot entt
   auto inventory_entity = reg.create();
   reg.emplace_or_replace<Cmp::PlayerInventorySlot>( inventory_entity, *world_item_cmp );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, false, world_item_cmp->type, 0 );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, false, world_item_cmp->sprite_type, 0 );
 
   // transfer any component properties from the world item that we want to retain before it is destroyed
   auto *wear_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( world_item_entt );
@@ -209,7 +208,7 @@ void add_inventory( entt::registry &reg, const std::string &item )
     reg.emplace_or_replace<Cmp::ScryingBall>( inventory_entity, sb );
   }
   if ( item.contains( "explosive" ) ) { reg.emplace_or_replace<Cmp::Explosive>( inventory_entity, false ); }
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, true, Sys::ItemStore::instance().get_item( item ).type, 0 );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, true, Sys::ItemStore::instance().get_item( item ).sprite_type, 0 );
 }
 
 void destroy_inventory( entt::registry &reg, const Sprites::SpriteMetaType &type )
@@ -217,7 +216,7 @@ void destroy_inventory( entt::registry &reg, const Sprites::SpriteMetaType &type
   auto inventory_view = reg.view<Cmp::PlayerInventorySlot>();
   for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
   {
-    if ( inventory_cmp.m_item.type == type ) reg.destroy( inventory_entt );
+    if ( inventory_cmp.m_item.sprite_type == type ) reg.destroy( inventory_entt );
   }
 }
 

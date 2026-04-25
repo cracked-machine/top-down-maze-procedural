@@ -25,7 +25,6 @@
 #include <SpatialHashGrid.hpp>
 #include <SpriteAnimation.hpp>
 #include <Sprites/MultiSprite.hpp>
-#include <Stats/BaseAction.hpp>
 #include <Stats/DestroyAction.hpp>
 #include <Stats/ExhumeAction.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -105,7 +104,7 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
     reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
 
     auto framerate = Sys::PersistSystem::get<Cmp::Persist::NpcGhostAnimFramerate>( reg ).get_value();
-    reg.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, npc_cmp.type.front(), framerate );
+    reg.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, npc_cmp.sprite_type_list.front(), framerate );
 
     reg.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
 
@@ -115,7 +114,7 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
     SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), npc_type, pos_cmp->position.x,
                  pos_cmp->position.y );
 
-    Utils::Player::get_player_stats( reg ).action( npc_cmp.action_fx_map.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ) );
+    Utils::Player::get_player_stats( reg ).apply_modifiers( npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ) );
   }
   else if ( npc_type == "npc.skeleton" )
   {
@@ -123,7 +122,7 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
     reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
 
     auto framerate = Sys::PersistSystem::get<Cmp::Persist::NpcSkeleAnimFramerate>( reg ).get_value();
-    reg.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, npc_cmp.type.front(), framerate );
+    reg.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, npc_cmp.sprite_type_list.front(), framerate );
 
     reg.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
 
@@ -135,14 +134,14 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
     reg.remove<Cmp::ZOrderValue>( position_entity );
     SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), npc_type, pos_cmp->position.x,
                  pos_cmp->position.y );
-    Utils::Player::get_player_stats( reg ).action( npc_cmp.action_fx_map.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ) );
+    Utils::Player::get_player_stats( reg ).apply_modifiers( npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ) );
   }
   else if ( npc_type == "npc.priest" )
   {
     auto npc_cmp = Sys::NpcStore::instance().get_item( npc_type );
     reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
 
-    reg.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, false, npc_cmp.type.front() );
+    reg.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, false, npc_cmp.sprite_type_list.front() );
 
     reg.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
 
@@ -157,7 +156,7 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
     Factory::create_shockwave( reg, position_entity );
     SPDLOG_DEBUG( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
                   pos_cmp->position.y );
-    Utils::Player::get_player_stats( reg ).action( npc_cmp.action_fx_map.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ) );
+    Utils::Player::get_player_stats( reg ).apply_modifiers( npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ) );
   }
   else if ( npc_type == "npc.witch" )
   {
@@ -165,7 +164,7 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
     reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
 
     auto framerate = Sys::PersistSystem::get<Cmp::Persist::NpcWitchAnimFramerate>( reg ).get_value();
-    reg.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, false, npc_cmp.type.front(), framerate );
+    reg.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, false, npc_cmp.sprite_type_list.front(), framerate );
     reg.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
 
     float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedWitch>( reg ).get_value();
@@ -176,20 +175,20 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
     reg.remove<Cmp::ZOrderValue>( position_entity );
     SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), npc_type, pos_cmp->position.x,
                  pos_cmp->position.y );
-    Utils::Player::get_player_stats( reg ).action( npc_cmp.action_fx_map.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ) );
+    Utils::Player::get_player_stats( reg ).apply_modifiers( npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ) );
   }
   else if ( npc_type == "npc.drknox" )
   {
     auto npc_cmp = Sys::NpcStore::instance().get_item( npc_type );
     reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
 
-    reg.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, false, npc_cmp.type.front() );
+    reg.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, false, npc_cmp.sprite_type_list.front() );
     reg.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
     reg.emplace_or_replace<Cmp::NpcFriendly>( new_pos_entity );
 
     SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), npc_type, pos_cmp->position.x,
                  pos_cmp->position.y );
-    Utils::Player::get_player_stats( reg ).action( npc_cmp.action_fx_map.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ) );
+    Utils::Player::get_player_stats( reg ).apply_modifiers( npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ) );
   }
 }
 
@@ -203,7 +202,7 @@ entt::entity destroy_npc( entt::registry &reg, entt::entity npc_entity )
 
   // apply destroy action effect to player
   auto *npc_cmp = reg.try_get<Cmp::NPC>( npc_entity );
-  if ( npc_cmp ) { Utils::Player::get_player_stats( reg ).action( npc_cmp->action_fx_map.at( std::type_index( typeid( Cmp::DestroyAction ) ) ) ); }
+  if ( npc_cmp ) { Utils::Player::get_player_stats( reg ).apply_modifiers( npc_cmp->actions.at( std::type_index( typeid( Cmp::DestroyAction ) ) ) ); }
 
   // kill npc once we are done
   reg.remove<Cmp::NPC>( npc_entity );

@@ -265,11 +265,12 @@ void BombSystem::update()
     for ( auto [carryitem_entt, carryitem_cmp, carryitem_pos_cmp] : carryitem_view.each() )
     {
       if ( not carryitem_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;
-      if ( carryitem_cmp.type == "sprite.item.pickaxe" or carryitem_cmp.type == "sprite.item.axe" or carryitem_cmp.type == "sprite.item.shovel" )
+      if ( carryitem_cmp.sprite_type == "sprite.item.pickaxe" or carryitem_cmp.sprite_type == "sprite.item.axe" or
+           carryitem_cmp.sprite_type == "sprite.item.shovel" )
       {
         Utils::Player::reduce_inventory_wear_level( reg(), Sys::PersistSystem::get<Cmp::Persist::BombDamage>( reg() ).get_value() );
       }
-      else if ( carryitem_cmp.type == "sprite.item.bomb" )
+      else if ( carryitem_cmp.sprite_type == "sprite.item.bomb" )
       {
         // process other explosives lying around - chain reaction!
         auto explosive_cmp = reg().try_get<Cmp::Explosive>( carryitem_entt );
@@ -307,7 +308,7 @@ void BombSystem::update()
       {
         auto &bomb_damage = Sys::PersistSystem::get<Cmp::Persist::BombDamage>( reg() );
         // pc_health_cmp.health -= bomb_damage.get_value();
-        player_stats_cmp.action( Cmp::BaseAction( Cmp::Stats::Health{ -bomb_damage.get_value() }, {}, {}, {} ) );
+        player_stats_cmp.apply_modifiers( { Cmp::Stats::Health{ -bomb_damage.get_value() }, {}, {}, {} } );
         if ( player_stats_cmp.health() <= 0 )
         {
           get_systems_event_queue().enqueue(

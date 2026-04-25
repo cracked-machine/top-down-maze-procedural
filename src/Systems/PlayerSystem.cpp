@@ -134,7 +134,7 @@ void PlayerSystem::localTransforms()
     else if ( mortality_cmp.state == Cmp::PlayerMortality::State::FALLING )
     {
       // TODO: falling effect
-      player_stats_cmp.action( Cmp::BaseAction( Cmp::Stats::Health{ -100 }, {}, {}, {} ) );
+      player_stats_cmp.apply_modifiers( { Cmp::Stats::Health{ -100 }, {}, {}, {} } );
       mortality_cmp.state = Cmp::PlayerMortality::State::DEAD;
       return;
     }
@@ -253,7 +253,7 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
     m_post_death_timer.restart();
     reg().remove<Cmp::SpriteAnimation>( Utils::Player::get_entity( reg() ) );
     stopFootstepsSound();
-    Utils::Player::get_player_stats( reg() ).action( Cmp::BaseAction( Cmp::Stats::Health{ -100 }, {}, {}, {} ) );
+    Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -100 }, {}, {}, {} } );
     Utils::Player::get_mortality( reg() ).state = Cmp::PlayerMortality::State::DEAD;
     SPDLOG_INFO( "Player is dead" );
   };
@@ -356,7 +356,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
     auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
     for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
     {
-      existing_player_inventory_type = inventory_cmp.m_item.type;
+      existing_player_inventory_type = inventory_cmp.m_item.sprite_type;
       auto dropped_entt = drop_inventory_slot_into_world( player_pos.position, inventory_entt );
       if ( dropped_entt != entt::null )
       {
@@ -369,9 +369,9 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
     auto world_carryitem_view = reg().view<Cmp::InventoryItem, Cmp::Position>();
     for ( auto [carryitem_entt, carryitem_cmp, pos_cmp] : world_carryitem_view.each() )
     {
-      if ( not player_pos.findIntersection( pos_cmp ) ) continue;           // is there something to pick up?
-      if ( carryitem_cmp.type == existing_player_inventory_type ) continue; // dont pick up the one we just dropped
-      if ( inventory_view.size() > 0 ) { break; }                           // don't pickup another if we already have one
+      if ( not player_pos.findIntersection( pos_cmp ) ) continue;                  // is there something to pick up?
+      if ( carryitem_cmp.sprite_type == existing_player_inventory_type ) continue; // dont pick up the one we just dropped
+      if ( inventory_view.size() > 0 ) { break; }                                  // don't pickup another if we already have one
 
       // ok pick it up
       if ( Factory::pickup_world_item( reg(), carryitem_entt ) != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
@@ -422,17 +422,17 @@ void PlayerSystem::check_action_side_effects( [[maybe_unused]] sf::Time dt )
   Cmp::PlayerStats &stats_cmp = Utils::Player::get_player_stats( reg() );
   for ( auto [slot_entt, slot_cmp] : reg().view<Cmp::PlayerInventorySlot>().each() )
   {
-    Cmp::BaseAction carry_action = slot_cmp.m_item.action_fx_map.at( std::type_index( typeid( Cmp::CarryAction ) ) );
-    stats_cmp.action( carry_action );
+    Cmp::BaseAction carry_action = slot_cmp.m_item.actions.at( std::type_index( typeid( Cmp::CarryAction ) ) );
+    stats_cmp.apply_modifiers( carry_action );
   }
   for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
   {
-    for ( auto &sprite_type : npc_cmp.type )
+    for ( auto &sprite_type : npc_cmp.sprite_type_list )
     {
       if ( sprite_type.contains( "witch" ) )
       {
-        Cmp::BaseAction exhume_action = npc_cmp.action_fx_map.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
-        stats_cmp.action( exhume_action );
+        Cmp::BaseAction exhume_action = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
+        stats_cmp.apply_modifiers( exhume_action );
       }
     }
   }
@@ -450,10 +450,10 @@ entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, ent
   }
 
   // if plant then replant it in the ground - snap to nearest grid to prevent collision issues
-  if ( inventory_slot_cmp->m_item.type.contains( "plant" ) )
+  if ( inventory_slot_cmp->m_item.sprite_type.contains( "plant" ) )
   {
     auto world_item_entt = Factory::create_plant_obstacle( reg(), Cmp::Position( Utils::snap_to_grid( pos ), Constants::kGridSizePxF ),
-                                                           m_sprite_factory.get_multisprite_by_type( inventory_slot_cmp->m_item.type ) );
+                                                           m_sprite_factory.get_multisprite_by_type( inventory_slot_cmp->m_item.sprite_type ) );
     reg().destroy( inventory_slot_entt );
     return world_item_entt;
   }
@@ -461,7 +461,7 @@ entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, ent
   // otherwise just drop it as a Re-pickupable item
   auto world_item_entt = reg().create();
   reg().emplace_or_replace<Cmp::Position>( world_item_entt, pos, Constants::kGridSizePxF );
-  reg().emplace_or_replace<Cmp::SpriteAnimation>( world_item_entt, 0, 0, false, inventory_slot_cmp->m_item.type, 0 );
+  reg().emplace_or_replace<Cmp::SpriteAnimation>( world_item_entt, 0, 0, false, inventory_slot_cmp->m_item.sprite_type, 0 );
   reg().emplace_or_replace<Cmp::ZOrderValue>( world_item_entt, pos.y - 1.f );
   reg().emplace_or_replace<Cmp::InventoryItem>( world_item_entt, inventory_slot_cmp->m_item );
   reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_item_entt );

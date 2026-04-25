@@ -190,7 +190,7 @@ void ShockwaveSystem::checkShockwavePlayerCollision()
       if ( player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
       if ( Sys::ShockwaveSystem::intersectsWithVisibleSegments( reg(), shockwave, player_pos ) )
       {
-        player_stats_cmp.action( Cmp::BaseAction( Cmp::Stats::Health{ -10 }, {}, {}, {} ) );
+        player_stats_cmp.apply_modifiers( { Cmp::Stats::Health{ -10 }, {}, {}, {} } );
         m_sound_bank.get_effect( "damage_player" ).play();
         player_cmp.m_damage_cooldown_timer.restart();
         SPDLOG_INFO( "Player (health:{}) INTERSECTS with Shockwave (position: {},{} - effective_radius: {})", player_stats_cmp.health(),

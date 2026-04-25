@@ -341,8 +341,8 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
   for ( auto [icon, slot] : std::views::zip( m_shop_ui_data->m_icons, inventory_cmp.m_slots ) )
   {
     auto &[item, price] = slot;
-    RenderSystem::safe_render_sprite_screen( Sys::ItemStore::instance().get_item( item ).type, { icon.rect.position, Constants::kGridSizePxF }, 0,
-                                             sf::Vector2f{ static_cast<float>( icon.scale ), static_cast<float>( icon.scale ) } );
+    RenderSystem::safe_render_sprite_screen( Sys::ItemStore::instance().get_item( item ).sprite_type, { icon.rect.position, Constants::kGridSizePxF },
+                                             0, sf::Vector2f{ static_cast<float>( icon.scale ), static_cast<float>( icon.scale ) } );
   }
 
   //! @brief Helper to draw predefined `sf_text` at `pos`
@@ -363,7 +363,7 @@ void RenderOverlaySystem::render_shop_inventory_overlay()
     sf::Text slot_idx_txt( m_font, std::to_string( i + 1 ), inventory_cmp.m_config.ui_fontsize );
     slot_idx_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
 
-    Sprites::SpriteMetaType sprite_mtype = Sys::ItemStore::instance().get_item( item ).type;
+    Sprites::SpriteMetaType sprite_mtype = Sys::ItemStore::instance().get_item( item ).sprite_type;
     sf::Text slot_desc_txt( m_font, m_sprite_factory.get_display_name_by_type( sprite_mtype ), inventory_cmp.m_config.ui_fontsize );
     slot_desc_txt.setFillColor( inventory_cmp.m_config.ui_fontcolor );
 

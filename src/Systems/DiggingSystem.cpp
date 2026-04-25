@@ -330,13 +330,13 @@ void DiggingSystem::check_player_dig_plant_collision()
         auto inventory_wear_view = reg().view<Cmp::PlayerInventorySlot>();
         for ( auto [inventory_entt, inventory_slot] : inventory_wear_view.each() )
         {
-          if ( inventory_slot.m_item.type == "sprite.item.shovel" )
+          if ( inventory_slot.m_item.sprite_type == "sprite.item.shovel" )
           {
             auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
             auto player_pos = Utils::Player::get_position( reg() ).position;
             get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos ) );
           }
-          else if ( inventory_slot.m_item.type == "sprite.item.axe" )
+          else if ( inventory_slot.m_item.sprite_type == "sprite.item.axe" )
           {
             if ( reg().valid( obst_entity ) ) reg().destroy( obst_entity );
           }

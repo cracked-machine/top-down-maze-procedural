@@ -171,7 +171,7 @@ std::pair<entt::entity, Sprites::SpriteMetaType> get_inventory_type( entt::regis
   if ( inv_view.size() > 1 ) SPDLOG_WARN( "Found multiple slots in signle slot inventory" );
   for ( auto [inv_entt, inv_cmp] : inv_view.each() )
   {
-    found_type = inv_cmp.m_item.type;
+    found_type = inv_cmp.m_item.sprite_type;
     found_entt = inv_entt;
   }
   return { found_entt, found_type };

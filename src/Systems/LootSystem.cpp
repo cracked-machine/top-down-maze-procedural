@@ -83,7 +83,7 @@ void LootSystem::check_loot_collision()
       auto &health_bonus = Sys::PersistSystem::get<Cmp::Persist::HealthBonus>( reg() );
 
       // pc_health_cmp.health = std::min( pc_health_cmp.health + health_bonus.get_value(), 100 );
-      Utils::Player::get_player_stats( reg() ).action( Cmp::BaseAction( Cmp::Stats::Health{ health_bonus.get_value() }, {}, {}, {} ) );
+      Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ health_bonus.get_value() }, {}, {}, {} } );
       m_sound_bank.get_effect( "get_loot" ).play();
       Factory::destroy_loot_drop( reg(), effect.loot_entity );
     }
@@ -93,8 +93,8 @@ void LootSystem::check_loot_collision()
       auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
       for ( auto [weapons_entity, inventory_slot] : inventory_view.each() )
       {
-        if ( inventory_slot.m_item.type.contains( "axe" ) or inventory_slot.m_item.type.contains( "pickaxe" ) or
-             inventory_slot.m_item.type.contains( "shovel" ) )
+        if ( inventory_slot.m_item.sprite_type.contains( "axe" ) or inventory_slot.m_item.sprite_type.contains( "pickaxe" ) or
+             inventory_slot.m_item.sprite_type.contains( "shovel" ) )
         {
           auto wear_level_cmp = reg().try_get<Cmp::InventoryWearLevel>( weapons_entity );
           if ( wear_level_cmp )

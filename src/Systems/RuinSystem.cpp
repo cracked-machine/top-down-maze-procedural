@@ -407,7 +407,7 @@ void RuinSystem::check_player_shadow_hand_collision()
   if ( Utils::Collision::check_cmp<Cmp::RuinShadowHand>( reg(), Cmp::RectBounds::scaled( player_pos.position, Constants::kGridSizePxF, 1.f ) ) )
   {
     // damage player
-    Utils::Player::get_player_stats( reg() ).action( Cmp::BaseAction( Cmp::Stats::Health{ -1 }, {}, {}, {} ) );
+    Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -1 }, {}, {}, {} } );
   }
   if ( Utils::Player::get_player_stats( reg() ).health() <= 0 )
   {
