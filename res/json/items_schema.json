@@ -38,9 +38,17 @@
                   "fear":    { "type": "number" },
                   "despair": { "type": "number" },
                   "infamy":  { "type": "number" },
-                  "disease": { 
-                    "type": "string",
-                    "enum": ["none", "rabies", "plague", "leprosy"]
+                  "disease": {
+                    "type": "object",
+                    "required": ["type", "tick"],
+                    "additionalProperties": false,
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["none", "rabies", "plague", "leprosy"]
+                      },
+                      "tick": { "type": "number" }
+                    }
                   },
                   "tick": { 
                     "type": "number"

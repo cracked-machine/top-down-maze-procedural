@@ -14,7 +14,7 @@ public:
   //! @param despair
   //! @param infamy
   //! @param disease
-  PlayerStats( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Disease disease = Stats::Disease::NONE )
+  PlayerStats( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Disease disease = {} )
       : m_health( std::clamp( health.value, 0, 100 ) ),
         m_fear( std::clamp( fear.value, 0, 100 ) ),
         m_despair( std::clamp( despair.value, 0, 100 ) ),
@@ -40,7 +40,7 @@ public:
     m_fear = std::clamp( m_fear + action.fear(), 0, 100 );
     m_despair = std::clamp( m_despair + action.despair(), 0, 100 );
     m_infamy = std::clamp( m_infamy + action.infamy(), 0, 100 );
-    if ( m_disease != Stats::Disease::NONE ) { m_disease = action.disease(); }
+    if ( m_disease.type != Stats::DiseaseType::NONE ) { m_disease = action.disease(); }
   }
 
 private:
@@ -48,7 +48,7 @@ private:
   int m_fear{ 0 };
   int m_despair{ 0 };
   int m_infamy{ 0 };
-  Stats::Disease m_disease{ Stats::Disease::NONE };
+  Stats::Disease m_disease{};
 };
 
 } // namespace ProceduralMaze::Cmp

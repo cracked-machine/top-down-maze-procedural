@@ -5,15 +5,17 @@ namespace ProceduralMaze::Cmp
 {
 namespace Stats
 {
+
+enum class DiseaseType { NONE, RABIES, PLAGUE, LEPROSY };
+
 // clang-format off
 struct Health  { int value{ 0 }; };
 struct Fear    { int value{ 0 }; };
 struct Despair { int value{ 0 }; };
 struct Infamy  { int value{ 0 }; };
 struct Tick  { float value{ 0 }; };
+struct Disease { DiseaseType type{ DiseaseType::NONE }; float tick{0}; };
 // clang-format on
-
-enum class Disease { NONE, RABIES, PLAGUE, LEPROSY };
 
 } // namespace Stats
 
@@ -26,8 +28,7 @@ enum class Disease { NONE, RABIES, PLAGUE, LEPROSY };
 class BaseAction
 {
 public:
-  BaseAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Tick tick,
-              Stats::Disease disease = Stats::Disease::NONE )
+  BaseAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Tick tick, Stats::Disease disease = {} )
       : m_health( health.value ),
         m_fear( fear.value ),
         m_despair( despair.value ),
@@ -50,7 +51,7 @@ private:
   int m_fear{ 0 };
   int m_despair{ 0 };
   int m_infamy{ 0 };
-  Stats::Disease m_disease{ Stats::Disease::NONE };
+  Stats::Disease m_disease{};
   float m_tick{ 0 };
 };
 

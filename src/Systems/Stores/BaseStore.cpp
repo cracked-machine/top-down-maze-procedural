@@ -49,12 +49,16 @@ float BaseStore::tick( const nlohmann::json &item ) { return item.at( "tick" ).g
 
 Cmp::Stats::Disease BaseStore::disease( const nlohmann::json &item )
 {
-  std::string disease = item.at( "disease" ).get<std::string>();
-  if ( disease == "none" ) return Cmp::Stats::Disease::NONE;
-  if ( disease == "leprosy" ) return Cmp::Stats::Disease::LEPROSY;
-  if ( disease == "plague" ) return Cmp::Stats::Disease::PLAGUE;
-  if ( disease == "rabies" ) return Cmp::Stats::Disease::RABIES;
-  return Cmp::Stats::Disease::NONE;
+  const auto &disease = item.contains( "disease" ) ? item.at( "disease" ) : item;
+
+  std::string type = disease.at( "type" ).get<std::string>();
+  float tick = item.at( "tick" ).get<float>();
+
+  if ( type == "none" ) return { .type = Cmp::Stats::DiseaseType::NONE, .tick = tick };
+  if ( type == "leprosy" ) return { .type = Cmp::Stats::DiseaseType::LEPROSY, .tick = tick };
+  if ( type == "plague" ) return { .type = Cmp::Stats::DiseaseType::PLAGUE, .tick = tick };
+  if ( type == "rabies" ) return { .type = Cmp::Stats::DiseaseType::RABIES, .tick = tick };
+  return { .type = Cmp::Stats::DiseaseType::NONE, .tick = 0.f };
 }
 
 } // namespace ProceduralMaze::Sys

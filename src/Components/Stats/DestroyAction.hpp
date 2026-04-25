@@ -9,8 +9,7 @@ namespace ProceduralMaze::Cmp
 class DestroyAction : public BaseAction
 {
 public:
-  DestroyAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Tick tick,
-                 Stats::Disease disease = Stats::Disease::NONE )
+  DestroyAction( Stats::Health health, Stats::Fear fear, Stats::Despair despair, Stats::Infamy infamy, Stats::Tick tick, Stats::Disease disease = {} )
       : BaseAction( health, fear, despair, infamy, tick, disease )
   {
   }
