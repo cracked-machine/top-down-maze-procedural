@@ -31,7 +31,6 @@
 #include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Components/Persistent/MusicVolume.hpp>
 #include <Components/Persistent/NpcActivateScale.hpp>
-#include <Components/Persistent/NpcDamage.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
 #include <Components/Persistent/NpcGhostAnimFramerate.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
@@ -106,7 +105,6 @@ void PersistSystem::initialize_type_registry()
   register_type.operator()<MaxNumCrypts>("MaxNumCrypts");
   register_type.operator()<MusicVolume>("MusicVolume");
   register_type.operator()<NpcActivateScale>("NpcActivateScale");
-  register_type.operator()<NpcDamage>("NpcDamage");
   register_type.operator()<NpcDeathAnimFramerate>("NpcDeathAnimFramerate");
   register_type.operator()<NpcGhostAnimFramerate>("NpcGhostAnimFramerate");
   register_type.operator()<NpcLerpSpeedSkele>("NpcLerpSpeedSkele");

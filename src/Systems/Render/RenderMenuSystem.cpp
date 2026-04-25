@@ -21,7 +21,6 @@
 #include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Components/Persistent/MusicVolume.hpp>
 #include <Components/Persistent/NpcActivateScale.hpp>
-#include <Components/Persistent/NpcDamage.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
 #include <Components/Persistent/NpcGhostAnimFramerate.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
@@ -224,7 +223,6 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     Sys::PersistSystem::get<Cmp::Persist::NpcSkeleAnimFramerate>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcWitchAnimFramerate>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcGhostAnimFramerate>( reg() ).render_widget();
-    Sys::PersistSystem::get<Cmp::Persist::NpcDamage>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::CryptNpcSpawnCount>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveResolution>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveSpeed>( reg() ).render_widget();

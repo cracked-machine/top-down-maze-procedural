@@ -158,14 +158,6 @@
     "detail": "NPC Activation Bounding Box Scale Factor",
     "format": "%.1f pixels"
     },
-  "NpcDamage": {
-    "type": "int",
-    "value": 15,
-    "min_value": 1,
-    "max_value": 50,
-    "detail": "NPC Damage",
-    "format": "%d"
-  },  
   "NpcDeathAnimFramerate": {
     "type": "float",
     "value": 0.1,

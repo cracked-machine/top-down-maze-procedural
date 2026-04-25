@@ -11,7 +11,6 @@
 #include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/NpcActivateScale.hpp>
-#include <Components/Persistent/NpcDamage.hpp>
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
