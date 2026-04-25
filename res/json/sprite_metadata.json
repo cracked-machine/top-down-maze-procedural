@@ -1843,9 +1843,9 @@
         }
       }
     },
-    "RUIN.shadow_hand": {
+    "sprite.shadowhand": {
       "multisprite": {
-        "displayname": "RUIN.shadow_hand",
+        "displayname": "ShadowHand",
         "zorder": [1000],
         "texture_path": "res/textures/RUIN.shadow_hand.png",
         "sprite_indices": [

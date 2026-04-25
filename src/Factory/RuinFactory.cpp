@@ -14,11 +14,10 @@
 #include <Player/PlayerNoPath.hpp>
 #include <RectBounds.hpp>
 #include <ReservedPosition.hpp>
-#include <Ruin/RuinShadowHand.hpp>
 #include <Sprites/SpriteFactory.hpp>
+#include <Systems/Stores/NpcStore.hpp>
 #include <Utils/Random.hpp>
 #include <entt/entity/registry.hpp>
-#include <ranges>
 
 namespace ProceduralMaze::Factory
 {
@@ -52,25 +51,26 @@ void create_cobweb( entt::registry &reg, sf::Vector2f spawn_position, const Spri
   reg.emplace_or_replace<Cmp::RuinCobweb>( cobweb_entt, 100 );
 }
 
-void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, const Sprites::MultiSprite &ms, int sprite_index )
+void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, const Sprites::MultiSprite &hand_ms, int sprite_index )
 {
   bool exists = false;
-  for ( auto [hand_entt, hand_cmp] : reg.view<Cmp::RuinShadowHand>().each() )
+  for ( auto [hand_entt, hand_cmp] : reg.view<Cmp::NPC>().each() )
   {
-    if ( hand_cmp.active ) exists = true;
+    if ( hand_cmp.sprite_type_list.front() == "sprite.shadowhand" ) exists = true;
   }
 
   if ( not exists )
   {
-    const auto hand_ms_size = ms.getSpriteSizePixels();
-    sf::Vector2f starting_pos = { 0 - hand_ms_size.x, scene_dimensions.y / 2 - hand_ms_size.y / 2 };
+    auto npc_shadowhand_cmp = Sys::NpcStore::instance().get_item( "npc.shadowhand" );
+    const auto hand_ms_size = hand_ms.getSpriteSizePixels();
+    sf::Vector2f starting_pos = { 0 - hand_ms_size.x, ( scene_dimensions.y / 2 ) - ( hand_ms_size.y / 2 ) };
 
     auto shadowhand_entt = reg.create();
-    reg.emplace_or_replace<Cmp::Position>( shadowhand_entt, starting_pos, ms.getSpriteSizePixels() );
-    reg.emplace_or_replace<Cmp::SpriteAnimation>( shadowhand_entt, 0, 0, true, ms.get_sprite_type(), sprite_index );
-    reg.emplace_or_replace<Cmp::ZOrderValue>( shadowhand_entt, ms.get_zorder( 0 ) ); // above everythign
+    reg.emplace_or_replace<Cmp::Position>( shadowhand_entt, starting_pos, hand_ms.getSpriteSizePixels() );
+    reg.emplace_or_replace<Cmp::SpriteAnimation>( shadowhand_entt, 0, 0, true, hand_ms.get_sprite_type(), sprite_index );
+    reg.emplace_or_replace<Cmp::ZOrderValue>( shadowhand_entt, hand_ms.get_zorder( 0 ) ); // above everythign
     reg.emplace_or_replace<Cmp::AbsoluteAlpha>( shadowhand_entt, 200 );
-    reg.emplace_or_replace<Cmp::RuinShadowHand>( shadowhand_entt );
+    reg.emplace_or_replace<Cmp::NPC>( shadowhand_entt, npc_shadowhand_cmp );
   }
 }
 

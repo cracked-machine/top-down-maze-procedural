@@ -1,23 +1,17 @@
-#include <Persistent/NpcWitchAnimFramerate.hpp>
-#include <Ruin/RuinShadowHand.hpp>
+
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Components/Altar/AltarSacrifice.hpp>
+#include <Components/Altar/AltarSegment.hpp>
 #include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptPassageSpikeTrap.hpp>
 #include <Components/Crypt/CryptRoomLavaPitCell.hpp>
 #include <Components/Crypt/CryptRoomLavaPitCellEffect.hpp>
-#include <Components/HolyWell/HolyWellMultiBlock.hpp>
-#include <Components/LootContainer.hpp>
-#include <Systems/AnimSystem.hpp>
-
-#include <SFML/System/Time.hpp>
-#include <spdlog/spdlog.h>
-
-#include <Components/Altar/AltarSegment.hpp>
 #include <Components/DeathPosition.hpp>
 #include <Components/Grave/GraveSegment.hpp>
+#include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/LerpPosition.hpp>
+#include <Components/LootContainer.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
 #include <Components/Persistent/NpcGhostAnimFramerate.hpp>
@@ -31,11 +25,16 @@
 #include <Components/Wormhole/WormholeMultiBlock.hpp>
 #include <Components/Wormhole/WormholeSingularity.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Persistent/NpcWitchAnimFramerate.hpp>
 #include <Sprites/SpriteFactory.hpp>
+#include <Systems/AnimSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Optimizations.hpp>
+
+#include <SFML/System/Time.hpp>
+#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys
 {

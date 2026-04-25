@@ -1,8 +1,11 @@
 #include <Events/DropInventoryEvent.hpp>
 #include <Exit.hpp>
 #include <Stats/BaseAction.hpp>
+#include <Stats/CollisionAction.hpp>
 #include <System.hpp>
+#include <Systems/Stores/NpcStore.hpp>
 #include <Utils.hpp>
+#include <typeindex>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -21,7 +24,6 @@
 #include <Components/Ruin/RuinCobweb.hpp>
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/Ruin/RuinFloorAccess.hpp>
-#include <Components/Ruin/RuinShadowHand.hpp>
 #include <Components/Ruin/RuinStairsBalustradeMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsLowerMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsSegment.hpp>
@@ -351,6 +353,9 @@ bool RuinSystem::check_activate_player_curse( sf::Vector2f scene_dimensions )
 {
   Cmp::PlayerCurse &player_curse = Utils::Player::get_curse( reg() );
 
+  auto npc_shadowhand_cmp = Sys::NpcStore::instance().get_item( "npc.shadowhand" );
+  const auto &hand_ms = m_sprite_factory.get_multisprite_by_type( npc_shadowhand_cmp.sprite_type_list.front() );
+
   auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( m_reg );
   if ( not player_curse.active && inventory_type == "sprite.item.witchesjar" )
   {
@@ -365,7 +370,7 @@ bool RuinSystem::check_activate_player_curse( sf::Vector2f scene_dimensions )
         m_sound_bank.get_effect( "banging_smashing_sounds" ).play();
       }
       player_curse.active = true; // prevent the active curse from being re-activated
-      const auto &hand_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.shadow_hand" );
+
       Factory::create_shadow_hand( m_reg, scene_dimensions, hand_ms );
       m_curse_activation_future = std::async( std::launch::async, []() { std::this_thread::sleep_for( std::chrono::seconds( 5 ) ); } );
     }
@@ -383,15 +388,17 @@ bool RuinSystem::check_activate_player_curse( sf::Vector2f scene_dimensions )
 void RuinSystem::update_shadow_hand_pos( sf::Vector2f scene_dimensions )
 {
   if ( not Utils::Player::get_curse( reg() ).active ) return;
+  auto npc_shadowhand_cmp = Sys::NpcStore::instance().get_item( "npc.shadowhand" );
 
-  const auto &hand_ms = m_sprite_factory.get_multisprite_by_type( "RUIN.shadow_hand" );
+  const auto &hand_ms = m_sprite_factory.get_multisprite_by_type( npc_shadowhand_cmp.sprite_type_list.front() );
   const auto hand_ms_size = hand_ms.getSpriteSizePixels();
   float max_shadow_hand_xpos = scene_dimensions.x - hand_ms_size.x;
 
   float shadow_hand_speed = 0.45f;
 
-  for ( auto [hand_entt, hand_cmp, hand_pos] : reg().view<Cmp::RuinShadowHand, Cmp::Position>().each() )
+  for ( auto [hand_entt, hand_cmp, hand_pos] : reg().view<Cmp::NPC, Cmp::Position>().each() )
   {
+    if ( hand_cmp.sprite_type_list.front() != "sprite.shadowhand" ) continue;
     if ( hand_pos.position.x + shadow_hand_speed < max_shadow_hand_xpos ) { hand_pos.position.x += shadow_hand_speed; }
   }
 }
@@ -400,14 +407,17 @@ void RuinSystem::check_player_shadow_hand_collision()
 {
   if ( Utils::getSystemCmp( reg() ).collisions_disabled ) return;
 
+  auto npc_shadowhand_cmp = Sys::NpcStore::instance().get_item( "npc.shadowhand" );
+  auto npc_collision_action = npc_shadowhand_cmp.actions.at( std::type_index( typeid( Cmp::CollisionAction ) ) );
+
   // only trigger PlayerMortalityEvents if player is alive
   if ( Utils::Player::get_mortality( reg() ).state == Cmp::PlayerMortality::State::DEAD ) { return; }
 
   const auto player_pos = Utils::Player::get_position( reg() );
-  if ( Utils::Collision::check_cmp<Cmp::RuinShadowHand>( reg(), Cmp::RectBounds::scaled( player_pos.position, Constants::kGridSizePxF, 1.f ) ) )
+  if ( Utils::Collision::check_cmp<Cmp::NPC>( reg(), Cmp::RectBounds::scaled( player_pos.position, Constants::kGridSizePxF, 1.f ) ) )
   {
     // damage player
-    Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -1 }, {}, {}, {} } );
+    Utils::Player::get_player_stats( reg() ).apply_modifiers( npc_collision_action );
   }
   if ( Utils::Player::get_player_stats( reg() ).health() <= 0 )
   {

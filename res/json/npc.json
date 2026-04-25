@@ -51,6 +51,19 @@
       { "collision_action":   { "health": -15, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
     ]
   },
+  "npc.shadowhand": {
+    "sprites": ["sprite.shadowhand"],
+    "actions": [
+      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "projectile_action":  { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }},
+      { "collision_action":   { "health": -1, "fear": 0, "despair": 0, "infamy": 0, "disease": "none" }}
+    ]
+  },
   "npc.drknox": {
     "sprites": ["sprite.drknox"],
     "actions": [

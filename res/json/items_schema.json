@@ -3,7 +3,7 @@
   "title": "Inventory Items",
   "type": "object",
   "patternProperties": {
-    "^item\\..+$": {
+    "^(item\\..+|ERROR_SPRITE)$": {
       "type": "object",
       "required": ["sprite", "actions"],
       "additionalProperties": false,
