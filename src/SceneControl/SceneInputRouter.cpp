@@ -152,7 +152,12 @@ void SceneInputRouter::graveyard_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::QUIT_GAME ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
+      {
+        // Prevent skipping the death animation and leaving the game in a bad state
+        if ( Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::ALIVE ) continue;
+        enqueue( Events::SceneManagerEvent::Type::QUIT_GAME );
+      }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
@@ -202,7 +207,12 @@ void SceneInputRouter::crypt_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::EXIT_CRYPT ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
+      {
+        // Prevent skipping the death animation and leaving the game in a bad state
+        if ( Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::ALIVE ) continue;
+        enqueue( Events::SceneManagerEvent::Type::EXIT_CRYPT );
+      }
       else if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
       {
         get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
@@ -262,7 +272,12 @@ void SceneInputRouter::holywell_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::QUIT_GAME ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
+      {
+        // Prevent skipping the death animation and leaving the game in a bad state
+        if ( Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::ALIVE ) continue;
+        enqueue( Events::SceneManagerEvent::Type::QUIT_GAME );
+      }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
@@ -307,7 +322,12 @@ void SceneInputRouter::shop_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::QUIT_GAME ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
+      {
+        // Prevent skipping the death animation and leaving the game in a bad state
+        if ( Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::ALIVE ) continue;
+        enqueue( Events::SceneManagerEvent::Type::QUIT_GAME );
+      }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Num1 ) { queue_buy_item_event( 1 ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Num2 ) { queue_buy_item_event( 2 ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Num3 ) { queue_buy_item_event( 3 ); }
@@ -357,7 +377,12 @@ void SceneInputRouter::ruin_scene_state_handler()
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad3 ) { Utils::Player::get_wealth( reg() ).wealth += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad4 ) { Utils::Player::get_cadaver_count( reg() ).increment_count( 1 ); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape ) { enqueue( Events::SceneManagerEvent::Type::QUIT_GAME ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::Escape )
+      {
+        // Prevent skipping the death animation and leaving the game in a bad state
+        if ( Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::ALIVE ) continue;
+        enqueue( Events::SceneManagerEvent::Type::QUIT_GAME );
+      }
     }
     else if ( const auto *keyPressed = event->getIf<sf::Event::KeyPressed>() )
     {
