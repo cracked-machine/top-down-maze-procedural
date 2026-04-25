@@ -2,79 +2,79 @@
   "npc.skeleton": {
     "sprites": ["sprite.skeleton.walk.south", "sprite.skeleton.walk.north", "sprite.skeleton.walk.east", "sprite.skeleton.walk.west"],
     "actions": [
-      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "destroy_action":     { "health": 0, "fear": -2, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "exhume_action":      { "health": 0, "fear": 2, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "projectile_action":  { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "collision_action":   { "health": -15, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "slow" }}
+      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": -2, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "exhume_action":      { "health": 0, "fear": 2, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "projectile_action":  { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "collision_action":   { "health": -15, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }}
     ]
   },
   "npc.ghost": {
     "sprites": ["sprite.ghost.walk.south", "sprite.ghost.walk.north", "sprite.ghost.walk.east", "sprite.ghost.walk.west"],
     "actions": [
-      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "exhume_action":      { "health": 0, "fear": 2, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "projectile_action":  { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "collision_action":   { "health": -15, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }}      
+      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "exhume_action":      { "health": 0, "fear": 2, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "projectile_action":  { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "collision_action":   { "health": -1, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0.5 }}      
     ]
   },
   "npc.priest": {
     "sprites": ["sprite.priest"],
     "actions": [
-      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "exhume_action":      { "health": 0, "fear": 2, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "projectile_action":  { "health": -15, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "collision_action":   { "health": -15, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }}
+      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "exhume_action":      { "health": 0, "fear": 2, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "projectile_action":  { "health": -15, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "collision_action":   { "health": -15, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }}
     ]
   },
   "npc.witch": {
     "sprites": ["sprite.witch"],
     "actions": [
-      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "exhume_action":      { "health": -10, "fear": 10, "despair": 10, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "projectile_action":  { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "collision_action":   { "health": -15, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }}
+      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "exhume_action":      { "health": -1, "fear": 1, "despair": 1, "infamy": 0, "disease": "none", "tick": 1 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "projectile_action":  { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "collision_action":   { "health": -15, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }}
     ]
   },
   "npc.shadowhand": {
     "sprites": ["sprite.shadowhand"],
     "actions": [
-      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "projectile_action":  { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "collision_action":   { "health": -1, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "fast" }}
+      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "projectile_action":  { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "collision_action":   { "health": -1, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0.05 }}
     ]
   },
   "npc.drknox": {
     "sprites": ["sprite.drknox"],
     "actions": [
-      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "projectile_action":  { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }},
-      { "collision_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": "once" }}
+      { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "consume_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "destroy_action":     { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "exhume_action":      { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "sacrifice_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "projectile_action":  { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }},
+      { "collision_action":   { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": "none", "tick": 0 }}
     ]
   }
 }

@@ -43,8 +43,7 @@
                     "enum": ["none", "rabies", "plague", "leprosy"]
                   },
                   "tick": { 
-                    "type": "string",
-                    "enum": ["once", "slow", "fast"]
+                    "type": "number"
                   }
                 }
               }

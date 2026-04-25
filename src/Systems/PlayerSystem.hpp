@@ -88,12 +88,7 @@ private:
   //! @brief Update InventoryItem/NPC action effects on player for Tick::SLOW.
   //! @note Cmp::CollisionAction and Cmp::ProjectileAction are excluded. See NpcSystem.
   //! @param dt
-  void check_slow_tick_action_side_effects( sf::Time dt );
-
-  //! @brief Update InventoryItem/NPC action effects on player for Tick::FAST.
-  //! @note Cmp::CollisionAction and Cmp::ProjectileAction are excluded. See NpcSystem.
-  //! @param dt
-  void check_fast_tick_action_side_effects( sf::Time dt );
+  void check_timed_action_side_effects( sf::Time dt );
 
   void check_player_axe_npc_kill();
 
@@ -119,9 +114,6 @@ private:
   sf::Clock m_inventory_cooldown_timer;
 
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
-
-  sf::Time m_slow_tick_action_effects_time;
-  sf::Time m_fast_tick_action_effects_time;
 };
 
 } // namespace ProceduralMaze::Sys

@@ -25,8 +25,14 @@ public:
   //! @brief The associated sprite
   Sprites::SpriteMetaType sprite_type;
 
+  struct ActionTimePair
+  {
+    BaseAction action;
+    sf::Time time;
+  };
+
   //! @brief The action and its effects that can be applied to the player
-  std::unordered_map<std::type_index, BaseAction> actions;
+  std::unordered_map<std::type_index, ActionTimePair> actions;
 };
 
 // Represents a single slot in the player inventory. If we want multiple slots we would need a "slot id",

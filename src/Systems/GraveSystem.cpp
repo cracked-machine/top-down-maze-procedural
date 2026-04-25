@@ -143,7 +143,7 @@ void GraveSystem::check_player_grave_collision()
 
             // Apply the effects from exhuming this item to the player stats
             auto item = Sys::ItemStore::instance().get_item( relic_selection_list.at( selected_relic ) );
-            Utils::Player::get_player_stats( reg() ).apply_modifiers( item.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ) );
+            Utils::Player::get_player_stats( reg() ).apply_modifiers( item.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ).action );
 
             if ( relic_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
             break;
@@ -161,7 +161,7 @@ void GraveSystem::check_player_grave_collision()
 
             // Apply the effects from exhuming this item to the player stats
             auto item = Sys::ItemStore::instance().get_item( jewelry_selection_list.at( selected_jewelry ) );
-            Utils::Player::get_player_stats( reg() ).apply_modifiers( item.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ) );
+            Utils::Player::get_player_stats( reg() ).apply_modifiers( item.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ).action );
 
             if ( jewelry_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
             break;

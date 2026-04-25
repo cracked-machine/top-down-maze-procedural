@@ -164,7 +164,7 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
       else if constexpr ( Traits::sprite_type == "CORRUPTION" )
       {
         auto corruption_dmg = Sys::PersistSystem::get<Cmp::Persist::CorruptionDamage>( reg() ).get_value();
-        player_stats_cmp.apply_modifiers( { Cmp::Stats::Health{ -corruption_dmg }, {}, {}, {} } );
+        player_stats_cmp.apply_modifiers( { Cmp::Stats::Health{ -corruption_dmg }, {}, {}, {}, {}, {} } );
 
         // trigger death animation
         if ( player_stats_cmp.health() <= 0 )

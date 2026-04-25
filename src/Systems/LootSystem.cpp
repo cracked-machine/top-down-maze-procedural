@@ -83,7 +83,7 @@ void LootSystem::check_loot_collision()
       auto &health_bonus = Sys::PersistSystem::get<Cmp::Persist::HealthBonus>( reg() );
 
       // pc_health_cmp.health = std::min( pc_health_cmp.health + health_bonus.get_value(), 100 );
-      Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ health_bonus.get_value() }, {}, {}, {} } );
+      Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ health_bonus.get_value() }, {}, {}, {}, {} } );
       m_sound_bank.get_effect( "get_loot" ).play();
       Factory::destroy_loot_drop( reg(), effect.loot_entity );
     }

@@ -95,8 +95,7 @@ void NpcSystem::update( sf::Time dt )
   if ( not Utils::getSystemCmp( reg() ).collisions_disabled )
   {
     check_once_collision();
-    check_slow_collision( dt );
-    check_fast_collision( dt );
+    check_timed_collision( dt );
   }
 
   update_shockwaves();
@@ -293,14 +292,15 @@ void NpcSystem::check_once_collision()
       if ( player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < player_dmg_cooldown.get_value() ) continue;
 
       auto npc_collision_action = npc_cmp.actions.at( std::type_index( typeid( Cmp::CollisionAction ) ) );
-      if ( npc_collision_action.tick() != Cmp::Stats::Tick::ONCE ) continue;
+      auto &[action, timer] = npc_collision_action;
+      if ( action.interval() > 0.f ) continue;
 
       // relaxed bounds to allow player to sneak past during lerp transition
       auto npc_pos_cmp_bounds_current = Cmp::RectBounds::scaled( npc_pos_cmp.position, npc_pos_cmp.size, 0.1f );
       if ( not player_pos.findIntersection( npc_pos_cmp_bounds_current.getBounds() ) ) continue;
 
       SPDLOG_INFO( "Player collided with {}", npc_cmp.sprite_type_list.front() );
-      Utils::Player::get_player_stats( reg() ).apply_modifiers( npc_collision_action );
+      Utils::Player::get_player_stats( reg() ).apply_modifiers( action );
 
       m_sound_bank.get_effect( "damage_player" ).play();
 
@@ -319,95 +319,41 @@ void NpcSystem::check_once_collision()
   }
 }
 
-void NpcSystem::check_slow_collision( sf::Time dt )
+void NpcSystem::check_timed_collision( sf::Time dt )
 {
-  static constexpr float kActionEffectInterval = 60.f;
-  m_slow_tick_action_effects_time += dt;
-  if ( m_slow_tick_action_effects_time.asSeconds() < kActionEffectInterval ) { return; }
-
-  auto player_collision_view = reg().view<Cmp::PlayerCharacter>();
   auto npc_collision_view = reg().view<Cmp::NPC, Cmp::Position>( entt::exclude<Cmp::NpcFriendly> );
 
   auto &player_pos = Utils::Player::get_position( reg() );
   auto &player_mort = Utils::Player::get_mortality( reg() );
 
-  for ( auto [player_entity, player_cmp] : player_collision_view.each() )
+  if ( player_mort.state != Cmp::PlayerMortality::State::ALIVE ) return;
+  for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_collision_view.each() )
   {
-    if ( player_mort.state != Cmp::PlayerMortality::State::ALIVE ) return;
-    for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_collision_view.each() )
+    if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
+    auto &npc_collision_action = npc_cmp.actions.at( std::type_index( typeid( Cmp::CollisionAction ) ) );
+    SPDLOG_INFO( "NPC timed collision processing... tick is {}", npc_collision_action.action.interval() );
+
+    auto &[npc_action, npc_action_timer] = npc_collision_action;
+    if ( npc_action.interval() == 0.f ) continue;
+    npc_action_timer += dt;
+    if ( npc_action_timer.asSeconds() < npc_action.interval() ) continue;
+
+    SPDLOG_INFO( "NPC collisions are set to Tick::FAST " );
+    if ( not player_pos.findIntersection( npc_pos_cmp ) ) continue;
+
+    SPDLOG_INFO( "Player collided with {}", npc_cmp.sprite_type_list.front() );
+    Utils::Player::get_player_stats( reg() ).apply_modifiers( npc_action );
+    if ( m_sound_bank.get_effect( "damage_player" ).getStatus() != sf::Sound::Status::Playing ) { m_sound_bank.get_effect( "damage_player" ).play(); }
+
+    npc_action_timer = sf::Time::Zero;
+
+    if ( Utils::Player::get_player_stats( reg() ).health() <= 0 )
     {
-      if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
-      SPDLOG_INFO( "NPC collision processing... " );
-      auto npc_collision_action = npc_cmp.actions.at( std::type_index( typeid( Cmp::CollisionAction ) ) );
-      if ( npc_collision_action.tick() != Cmp::Stats::Tick::SLOW ) continue;
-      SPDLOG_INFO( "NPC collisions are set to Tick::SLOW " );
-      if ( not player_pos.findIntersection( npc_pos_cmp ) ) continue;
-
-      SPDLOG_INFO( "Player collided with {}", npc_cmp.sprite_type_list.front() );
-      Utils::Player::get_player_stats( reg() ).apply_modifiers( npc_collision_action );
-      if ( m_sound_bank.get_effect( "damage_player" ).getStatus() != sf::Sound::Status::Playing )
-      {
-        m_sound_bank.get_effect( "damage_player" ).play();
-      }
-
-      if ( Utils::Player::get_player_stats( reg() ).health() <= 0 )
-      {
-        player_mort.state = Cmp::PlayerMortality::State::HAUNTED;
-        get_systems_event_queue().enqueue(
-            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED, Utils::Player::get_position( reg() ) ) );
-        return;
-      }
-
-      player_cmp.m_damage_cooldown_timer.restart();
+      player_mort.state = Cmp::PlayerMortality::State::HAUNTED;
+      get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED, Utils::Player::get_position( reg() ) ) );
+      return;
     }
   }
-  m_slow_tick_action_effects_time = sf::Time::Zero;
-}
-
-void NpcSystem::check_fast_collision( sf::Time dt )
-{
-
-  static constexpr float kActionEffectInterval = 0.05f;
-  m_fast_tick_action_effects_time += dt;
-  if ( m_fast_tick_action_effects_time.asSeconds() < kActionEffectInterval ) { return; }
-
-  auto player_collision_view = reg().view<Cmp::PlayerCharacter>();
-  auto npc_collision_view = reg().view<Cmp::NPC, Cmp::Position>( entt::exclude<Cmp::NpcFriendly> );
-
-  auto &player_pos = Utils::Player::get_position( reg() );
-  auto &player_mort = Utils::Player::get_mortality( reg() );
-
-  for ( auto [player_entity, player_cmp] : player_collision_view.each() )
-  {
-    if ( player_mort.state != Cmp::PlayerMortality::State::ALIVE ) return;
-    for ( auto [npc_entity, npc_cmp, npc_pos_cmp] : npc_collision_view.each() )
-    {
-      if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
-      SPDLOG_INFO( "NPC collision processing... " );
-      auto npc_collision_action = npc_cmp.actions.at( std::type_index( typeid( Cmp::CollisionAction ) ) );
-      if ( npc_collision_action.tick() != Cmp::Stats::Tick::FAST ) continue;
-      SPDLOG_INFO( "NPC collisions are set to Tick::FAST " );
-      if ( not player_pos.findIntersection( npc_pos_cmp ) ) continue;
-
-      SPDLOG_INFO( "Player collided with {}", npc_cmp.sprite_type_list.front() );
-      Utils::Player::get_player_stats( reg() ).apply_modifiers( npc_collision_action );
-      if ( m_sound_bank.get_effect( "damage_player" ).getStatus() != sf::Sound::Status::Playing )
-      {
-        m_sound_bank.get_effect( "damage_player" ).play();
-      }
-
-      if ( Utils::Player::get_player_stats( reg() ).health() <= 0 )
-      {
-        player_mort.state = Cmp::PlayerMortality::State::HAUNTED;
-        get_systems_event_queue().enqueue(
-            Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::HAUNTED, Utils::Player::get_position( reg() ) ) );
-        return;
-      }
-
-      player_cmp.m_damage_cooldown_timer.restart();
-    }
-  }
-  m_fast_tick_action_effects_time = sf::Time::Zero;
 }
 
 void NpcSystem::find_pushback_position( const Cmp::Direction &npc_direction )

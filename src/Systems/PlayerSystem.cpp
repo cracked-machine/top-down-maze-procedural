@@ -104,8 +104,7 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
   // did player die?
   check_player_mortality();
 
-  check_slow_tick_action_side_effects( dt );
-  check_fast_tick_action_side_effects( dt );
+  check_timed_action_side_effects( dt );
 
   if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
   {
@@ -137,7 +136,7 @@ void PlayerSystem::localTransforms()
     else if ( mortality_cmp.state == Cmp::PlayerMortality::State::FALLING )
     {
       // TODO: falling effect
-      player_stats_cmp.apply_modifiers( { Cmp::Stats::Health{ -100 }, {}, {}, {} } );
+      player_stats_cmp.apply_modifiers( { Cmp::Stats::Health{ -100 }, {}, {}, {}, {} } );
       mortality_cmp.state = Cmp::PlayerMortality::State::DEAD;
       return;
     }
@@ -256,7 +255,7 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
     m_post_death_timer.restart();
     reg().remove<Cmp::SpriteAnimation>( Utils::Player::get_entity( reg() ) );
     stopFootstepsSound();
-    Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -100 }, {}, {}, {} } );
+    Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -100 }, {}, {}, {}, {} } );
     Utils::Player::get_mortality( reg() ).state = Cmp::PlayerMortality::State::DEAD;
     SPDLOG_INFO( "Player is dead" );
   };
@@ -416,65 +415,37 @@ void PlayerSystem::check_player_mortality()
   }
 }
 
-void PlayerSystem::check_slow_tick_action_side_effects( sf::Time dt )
+void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
 {
-  static constexpr float kActionEffectInterval = 60.f;
-  m_slow_tick_action_effects_time += dt;
-  if ( m_slow_tick_action_effects_time.asSeconds() < kActionEffectInterval ) { return; }
-
   Cmp::PlayerStats &stats_cmp = Utils::Player::get_player_stats( reg() );
   for ( auto [slot_entt, slot_cmp] : reg().view<Cmp::PlayerInventorySlot>().each() )
   {
-    for ( auto &[action_type, action] : slot_cmp.m_item.actions )
+    for ( auto &[action_type, item_action_pair] : slot_cmp.m_item.actions )
     {
       if ( action_type == std::type_index( typeid( Cmp::CollisionAction ) ) ) continue;
       if ( action_type == std::type_index( typeid( Cmp::ProjectileAction ) ) ) continue;
-      if ( action.tick() != Cmp::Stats::Tick::SLOW ) continue;
-      stats_cmp.apply_modifiers( action );
+      auto &[item_action, item_action_timer] = item_action_pair;
+      if ( item_action.interval() == 0.f ) continue;
+      item_action_timer += dt;
+      if ( item_action_timer.asSeconds() < item_action.interval() ) continue;
+      stats_cmp.apply_modifiers( item_action );
+      item_action_timer = sf::Time::Zero;
     }
   }
   for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
   {
-    for ( auto &[action_type, action] : npc_cmp.actions )
+    for ( auto &[action_type, npc_action_pair] : npc_cmp.actions )
     {
       if ( action_type == std::type_index( typeid( Cmp::CollisionAction ) ) ) continue;
       if ( action_type == std::type_index( typeid( Cmp::ProjectileAction ) ) ) continue;
-      if ( action.tick() != Cmp::Stats::Tick::SLOW ) continue;
-      stats_cmp.apply_modifiers( action );
+      auto &[npc_action, npc_action_timer] = npc_action_pair;
+      if ( npc_action.interval() == 0.f ) continue;
+      npc_action_timer += dt;
+      if ( npc_action_timer.asSeconds() < npc_action.interval() ) continue;
+      stats_cmp.apply_modifiers( npc_action );
+      npc_action_timer = sf::Time::Zero;
     }
   }
-  m_slow_tick_action_effects_time = sf::Time::Zero;
-}
-
-void PlayerSystem::check_fast_tick_action_side_effects( sf::Time dt )
-{
-  static constexpr float kActionEffectInterval = 0.05f;
-  m_fast_tick_action_effects_time += dt;
-  if ( m_fast_tick_action_effects_time.asSeconds() < kActionEffectInterval ) { return; }
-
-  Cmp::PlayerStats &stats_cmp = Utils::Player::get_player_stats( reg() );
-  for ( auto [slot_entt, slot_cmp] : reg().view<Cmp::PlayerInventorySlot>().each() )
-  {
-    for ( auto &[action_type, action] : slot_cmp.m_item.actions )
-    {
-      if ( action_type == std::type_index( typeid( Cmp::CollisionAction ) ) ) continue;
-      if ( action_type == std::type_index( typeid( Cmp::ProjectileAction ) ) ) continue;
-      if ( action.tick() != Cmp::Stats::Tick::FAST ) continue;
-      stats_cmp.apply_modifiers( action );
-    }
-  }
-  for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
-  {
-    for ( auto &[action_type, action] : npc_cmp.actions )
-    {
-      if ( action_type == std::type_index( typeid( Cmp::CollisionAction ) ) ) continue;
-      if ( action_type == std::type_index( typeid( Cmp::ProjectileAction ) ) ) continue;
-      if ( action.tick() != Cmp::Stats::Tick::FAST ) continue;
-      stats_cmp.apply_modifiers( action );
-    }
-  }
-
-  m_fast_tick_action_effects_time = sf::Time::Zero;
 }
 
 entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entity inventory_slot_entt )
