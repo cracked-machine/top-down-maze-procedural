@@ -151,21 +151,28 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
     auto player_hitbox_redux = Cmp::RectBounds::scaled( player_pos_cmp.position, player_pos_cmp.size, 0.1f );
     for ( auto [hazard_entt, hazard_cmp, hazard_pos_cmp] : hazard_view.each() )
     {
-      // reduce the hazaard hotbox so that you have to be almost centered over it to fall in
-      auto hazard_hitbox_redux = Cmp::RectBounds::scaled( hazard_pos_cmp.position, hazard_pos_cmp.size, 0.1f );
-      if ( not player_hitbox_redux.findIntersection( hazard_hitbox_redux.getBounds() ) ) continue;
 
       if constexpr ( Traits::sprite_type == "SINKHOLE" )
       {
-        // trigger death animation
-        get_systems_event_queue().trigger( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::FALLING, player_position ) );
-        return;
+        // reduce the hazaard hitbox so that you have to be almost centered over it to fall in
+        auto sinkhole_hitbox_redux = Cmp::RectBounds::scaled( hazard_pos_cmp.position, hazard_pos_cmp.size, 0.1f );
+        if ( player_hitbox_redux.findIntersection( sinkhole_hitbox_redux.getBounds() ) )
+        {
+          // trigger death animation
+          get_systems_event_queue().trigger( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::FALLING, player_position ) );
+          return;
+        }
       }
-      else if constexpr ( Traits::sprite_type == "CORRUPTION" )
+      if constexpr ( Traits::sprite_type == "CORRUPTION" )
       {
-        auto corruption_dmg = Sys::PersistSystem::get<Cmp::Persist::CorruptionDamage>( reg() ).get_value();
-        player_stats_cmp.apply_modifiers( { Cmp::Stats::Health{ -corruption_dmg }, {}, {}, {}, {}, {} } );
+        // normal size hitbox for corruption for full area
+        auto corruption_hitbox_redux = Cmp::RectBounds::scaled( hazard_pos_cmp.position, hazard_pos_cmp.size, 1.f );
+        if ( player_hitbox_redux.findIntersection( corruption_hitbox_redux.getBounds() ) )
+        {
 
+          auto corruption_dmg = Sys::PersistSystem::get<Cmp::Persist::CorruptionDamage>( reg() ).get_value();
+          player_stats_cmp.apply_modifiers( { Cmp::Stats::Health{ -corruption_dmg }, {}, {}, {}, {}, {} } );
+        }
         // trigger death animation
         if ( player_stats_cmp.health() <= 0 )
         {

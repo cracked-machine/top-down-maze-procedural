@@ -134,25 +134,23 @@ void NpcSystem::update_animation()
       anim_cmp.m_animation_active = false;
       continue;
     }
-    else
-    {
-      anim_cmp.m_animation_active = true;
-      if ( anim_cmp.m_sprite_type.contains( "sprite.skeleton" ) )
-      {
 
-        if ( npc_dir_cmp.x > 0 ) { anim_cmp.m_sprite_type = "sprite.skeleton.walk.east"; }
-        else if ( npc_dir_cmp.x < 0 ) { anim_cmp.m_sprite_type = "sprite.skeleton.walk.west"; }
-        else if ( npc_dir_cmp.y < 0 ) { anim_cmp.m_sprite_type = "sprite.skeleton.walk.north"; }
-        else if ( npc_dir_cmp.y > 0 ) { anim_cmp.m_sprite_type = "sprite.skeleton.walk.south"; }
-      }
-      else if ( anim_cmp.m_sprite_type.contains( "sprite.ghost" ) )
-      {
-        // Ghost NPCs face cardinal directions only
-        if ( npc_dir_cmp.x > 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.east"; }
-        else if ( npc_dir_cmp.x < 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.west"; }
-        else if ( npc_dir_cmp.y < 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.north"; }
-        else if ( npc_dir_cmp.y > 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.south"; }
-      }
+    anim_cmp.m_animation_active = true;
+    if ( anim_cmp.m_sprite_type.contains( "sprite.skeleton" ) )
+    {
+
+      if ( npc_dir_cmp.x > 0 ) { anim_cmp.m_sprite_type = "sprite.skeleton.walk.east"; }
+      else if ( npc_dir_cmp.x < 0 ) { anim_cmp.m_sprite_type = "sprite.skeleton.walk.west"; }
+      else if ( npc_dir_cmp.y < 0 ) { anim_cmp.m_sprite_type = "sprite.skeleton.walk.north"; }
+      else if ( npc_dir_cmp.y > 0 ) { anim_cmp.m_sprite_type = "sprite.skeleton.walk.south"; }
+    }
+    else if ( anim_cmp.m_sprite_type.contains( "sprite.ghost" ) )
+    {
+      // Ghost NPCs face cardinal directions only
+      if ( npc_dir_cmp.x > 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.east"; }
+      else if ( npc_dir_cmp.x < 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.west"; }
+      else if ( npc_dir_cmp.y < 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.north"; }
+      else if ( npc_dir_cmp.y > 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.south"; }
     }
   }
 }
@@ -220,7 +218,7 @@ void NpcSystem::update_movement( sf::Time dt )
   {
 
     // if there is an obstacle at this entity move onto the next entity
-    auto obst_cmp = reg().try_get<Cmp::Obstacle>( npc_entt );
+    auto *obst_cmp = reg().try_get<Cmp::Obstacle>( npc_entt );
     if ( obst_cmp ) continue;
 
     // If this is the first update, store the start position
@@ -299,7 +297,6 @@ void NpcSystem::check_once_collision()
       auto npc_pos_cmp_bounds_current = Cmp::RectBounds::scaled( npc_pos_cmp.position, npc_pos_cmp.size, 0.1f );
       if ( not player_pos.findIntersection( npc_pos_cmp_bounds_current.getBounds() ) ) continue;
 
-      SPDLOG_INFO( "Player collided with {}", npc_cmp.sprite_type_list.front() );
       Utils::Player::get_player_stats( reg() ).apply_modifiers( action );
 
       m_sound_bank.get_effect( "damage_player" ).play();
@@ -331,17 +328,14 @@ void NpcSystem::check_timed_collision( sf::Time dt )
   {
     if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
     auto &npc_collision_action = npc_cmp.actions.at( std::type_index( typeid( Cmp::CollisionAction ) ) );
-    SPDLOG_INFO( "NPC timed collision processing... tick is {}", npc_collision_action.action.interval() );
 
     auto &[npc_action, npc_action_timer] = npc_collision_action;
     if ( npc_action.interval() == 0.f ) continue;
     npc_action_timer += dt;
     if ( npc_action_timer.asSeconds() < npc_action.interval() ) continue;
 
-    SPDLOG_INFO( "NPC collisions are set to Tick::FAST " );
     if ( not player_pos.findIntersection( npc_pos_cmp ) ) continue;
 
-    SPDLOG_INFO( "Player collided with {}", npc_cmp.sprite_type_list.front() );
     Utils::Player::get_player_stats( reg() ).apply_modifiers( npc_action );
     if ( m_sound_bank.get_effect( "damage_player" ).getStatus() != sf::Sound::Status::Playing ) { m_sound_bank.get_effect( "damage_player" ).play(); }
 
@@ -381,7 +375,7 @@ void NpcSystem::update_shockwaves()
   // emit shockwaves from each NPC
   for ( auto npc_entt : reg().view<Cmp::NPC>() )
   {
-    auto npc_sprite_anim = reg().try_get<Cmp::SpriteAnimation>( npc_entt );
+    auto *npc_sprite_anim = reg().try_get<Cmp::SpriteAnimation>( npc_entt );
     if ( npc_sprite_anim && npc_sprite_anim->m_sprite_type == "sprite.priest" )
     {
       // cooldown is handled in Factory function via Cmp::NpcShockwaveTimer per NPC
@@ -407,7 +401,7 @@ void NpcSystem::update_shockwaves()
       // Exponential scaling - shockwave accelerates as it grows
       // This creates a natural acceleration that maintains the visual impression of constant speed as the circumference grows.
       float normalized_radius = current_radius / max_radius.get_value();
-      float speed_multiplier = 1.0f + normalized_radius * normalized_radius; // Quadratic acceleration
+      float speed_multiplier = 1.0f + ( normalized_radius * normalized_radius ); // Quadratic acceleration
 
       float new_radius = current_radius + ( shockwave_increments * speed_multiplier );
       sw_cmp.sprite.setRadius( new_radius );
@@ -448,10 +442,10 @@ void NpcSystem::checkShockwaveObstacleCollision( [[maybe_unused]] entt::entity s
 
       // Calculate distance from circle center to closest point
       sf::Vector2f diff = circle_center - closest_point;
-      float distance = std::sqrt( diff.x * diff.x + diff.y * diff.y );
+      float distance = std::sqrt( ( diff.x * diff.x ) + ( diff.y * diff.y ) );
 
       // Check if circle intersects with rectangle (accounting for outline thickness)
-      float effective_radius = circle_radius + shockwave.sprite.getOutlineThickness() / 2.0f;
+      float effective_radius = circle_radius + ( shockwave.sprite.getOutlineThickness() / 2.0f );
 
       if ( distance <= effective_radius )
       {

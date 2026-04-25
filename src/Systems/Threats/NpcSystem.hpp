@@ -47,7 +47,7 @@ public:
   //! for collisions with walls, boundaries, or other obstacles in the game world.
   //! @param player_position The target position to validate for Npc movement
   //! @return true if the movement is valid and allowed, false otherwise
-  bool is_valid_move( const sf::FloatRect &player_position );
+  bool is_valid_move( const sf::FloatRect &target_position );
 
   //! @brief event handlers for pausing system clocks
   void on_pause() override {}
@@ -56,7 +56,7 @@ public:
 
 private:
   // Updates lerp movement for NPCs
-  void update_movement( sf::Time globalDeltaTime );
+  void update_movement( sf::Time dt );
 
   // Check for player collision proximity with NPC containers
   void check_bones_reanimation();
