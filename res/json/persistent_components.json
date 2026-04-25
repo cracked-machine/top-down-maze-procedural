@@ -55,6 +55,14 @@
     "detail": "Corruption Damage",
     "format": "%d"
   },
+  "LightningDamage": {
+    "type": "int",
+    "value": 25,
+    "min_value": 0,
+    "max_value": 100,
+    "detail": "Lightning Damage",
+    "format": "%d"
+  },
   "CryptNpcSpawnCount": {
     "type": "int",
     "value": 5,

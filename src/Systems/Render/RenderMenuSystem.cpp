@@ -41,6 +41,7 @@
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
+#include <Persistent/LightningDamage.hpp>
 #include <Persistent/NpcLerpSpeedGhost.hpp>
 #include <Persistent/NpcLerpSpeedPriest.hpp>
 #include <Persistent/NpcLerpSpeedSkele.hpp>
@@ -206,6 +207,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     ImGui::SeparatorText( "Hazard Settings" );
 
     Sys::PersistSystem::get<Cmp::Persist::CorruptionDamage>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::LightningDamage>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::WormholeAnimFramerate>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::WormholeSeed>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::CorruptionSeed>( reg() ).render_widget();

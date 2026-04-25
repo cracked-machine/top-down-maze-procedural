@@ -27,6 +27,7 @@
 #include <Components/Persistent/FuseDelay.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
+#include <Components/Persistent/LightningDamage.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Components/Persistent/MusicVolume.hpp>
@@ -101,6 +102,7 @@ void PersistSystem::initialize_type_registry()
   register_type.operator()<FuseDelay>("FuseDelay");
   register_type.operator()<GraveNumMultiplier>("GraveNumMultiplier");
   register_type.operator()<HealthBonus>("HealthBonus");
+  register_type.operator()<LightningDamage>("LightningDamage");
   register_type.operator()<MaxNumAltars>("MaxNumAltars");
   register_type.operator()<MaxNumCrypts>("MaxNumCrypts");
   register_type.operator()<MusicVolume>("MusicVolume");

@@ -2,12 +2,14 @@
 #include <Events/LightningEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <LightningStrike.hpp>
+#include <Persistent/LightningDamage.hpp>
 #include <Player.hpp>
 #include <Player/PlayerMortality.hpp>
 #include <Position.hpp>
 #include <Random.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Vertex.hpp>
+#include <Stats/BaseAction.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -34,7 +36,9 @@ void LightningSystem::update( sf::Time dt )
     create_lightning_strike( dt );
     trigger_lightning = false;
 
-    Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -25 }, {}, {}, {} } );
+    int lightning_dmg = Sys::PersistSystem::get<Cmp::Persist::LightningDamage>( reg() ).get_value();
+    Cmp::BaseAction lightning_action( Cmp::Stats::Health{ -lightning_dmg }, {}, {}, {} );
+    Utils::Player::get_player_stats( reg() ).apply_modifiers( lightning_action );
 
     if ( Utils::Player::get_player_stats( reg() ).health() <= 0 )
     {
