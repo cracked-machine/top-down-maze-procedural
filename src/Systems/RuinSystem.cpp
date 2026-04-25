@@ -403,9 +403,13 @@ void RuinSystem::update_shadow_hand_pos( sf::Vector2f scene_dimensions )
   }
 }
 
-void RuinSystem::check_player_shadow_hand_collision()
+void RuinSystem::check_player_shadow_hand_collision( sf::Time dt )
 {
   if ( Utils::getSystemCmp( reg() ).collisions_disabled ) return;
+
+  static constexpr float kActionEffectInterval = 0.05f;
+  m_shadowhand_action_effects_time += dt;
+  if ( m_shadowhand_action_effects_time.asSeconds() < kActionEffectInterval ) { return; }
 
   auto npc_shadowhand_cmp = Sys::NpcStore::instance().get_item( "npc.shadowhand" );
   auto npc_collision_action = npc_shadowhand_cmp.actions.at( std::type_index( typeid( Cmp::CollisionAction ) ) );
@@ -423,6 +427,8 @@ void RuinSystem::check_player_shadow_hand_collision()
   {
     get_systems_event_queue().enqueue( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SHADOWCURSED, player_pos ) );
   }
+
+  m_shadowhand_action_effects_time = sf::Time::Zero;
 }
 
 void RuinSystem::reset_player_curse()

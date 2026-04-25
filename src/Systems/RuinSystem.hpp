@@ -71,7 +71,7 @@ public:
   bool check_activate_player_curse( sf::Vector2f scene_dimensions );
 
   void update_shadow_hand_pos( sf::Vector2f scene_dimensions );
-  void check_player_shadow_hand_collision();
+  void check_player_shadow_hand_collision( sf::Time dt );
 
   //! @brief event handlers for pausing system clocks
   void on_pause() override {}
@@ -93,6 +93,8 @@ private:
   std::future<void> m_curse_activation_future;
 
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
+
+  sf::Time m_shadowhand_action_effects_time;
 };
 } // namespace ProceduralMaze::Sys
 
