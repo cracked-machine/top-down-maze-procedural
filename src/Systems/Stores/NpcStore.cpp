@@ -1,8 +1,10 @@
 #include <Stats/BuryAction.hpp>
 #include <Stats/CarryAction.hpp>
+#include <Stats/CollisionAction.hpp>
 #include <Stats/ConsumeAction.hpp>
 #include <Stats/DestroyAction.hpp>
 #include <Stats/ExhumeAction.hpp>
+#include <Stats/ProjectileAction.hpp>
 #include <Stats/SacrificeAction.hpp>
 #include <Systems/Stores/NpcStore.hpp>
 
@@ -64,6 +66,16 @@ void NpcStore::init_store()
         else if ( action_key == "sacrifice_action" )
         {
           npc.actions.emplace( typeid( Cmp::SacrificeAction ), Cmp::SacrificeAction( { health( action_value ) }, { fear( action_value ) },
+                                                                                     { despair( action_value ) }, { infamy( action_value ) } ) );
+        }
+        else if ( action_key == "projectile_action" )
+        {
+          npc.actions.emplace( typeid( Cmp::ProjectileAction ), Cmp::ProjectileAction( { health( action_value ) }, { fear( action_value ) },
+                                                                                       { despair( action_value ) }, { infamy( action_value ) } ) );
+        }
+        else if ( action_key == "collision_action" )
+        {
+          npc.actions.emplace( typeid( Cmp::CollisionAction ), Cmp::CollisionAction( { health( action_value ) }, { fear( action_value ) },
                                                                                      { despair( action_value ) }, { infamy( action_value ) } ) );
         }
         else { SPDLOG_WARN( "Unknown action key: {}", action_key ); }

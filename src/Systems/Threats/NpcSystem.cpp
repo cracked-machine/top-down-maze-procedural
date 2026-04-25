@@ -34,6 +34,7 @@
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Ruin/RuinSegment.hpp>
 #include <Sprites/SpriteFactory.hpp>
+#include <Stats/CollisionAction.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -48,6 +49,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
 #include <spdlog/spdlog.h>
+#include <typeindex>
 
 namespace ProceduralMaze::Sys
 {
@@ -290,8 +292,8 @@ void NpcSystem::check_player_to_npc_collision()
 
       if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < player_dmg_cooldown.get_value() ) continue;
 
-      auto &npc_damage = Sys::PersistSystem::get<Cmp::Persist::NpcDamage>( reg() );
-      Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -npc_damage.get_value() }, {}, {}, {} } );
+      auto npc_collision_action = npc_cmp.actions.at( std::type_index( typeid( Cmp::CollisionAction ) ) );
+      Utils::Player::get_player_stats( reg() ).apply_modifiers( npc_collision_action );
 
       m_sound_bank.get_effect( "damage_player" ).play();
 

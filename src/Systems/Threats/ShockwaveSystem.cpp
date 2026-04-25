@@ -7,11 +7,15 @@
 #include <Components/Player/PlayerMortality.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Sprites/Shockwave.hpp>
+#include <Stats/CollisionAction.hpp>
+#include <Stats/ProjectileAction.hpp>
 #include <System.hpp>
 #include <Systems/PersistSystem.hpp>
+#include <Systems/Stores/NpcStore.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
+#include <typeindex>
 
 namespace ProceduralMaze::Sys
 {
@@ -177,6 +181,10 @@ void ShockwaveSystem::checkShockwavePlayerCollision()
 {
   if ( Utils::getSystemCmp( reg() ).collisions_disabled ) return;
 
+  // we need the projectile_action modifiers for this NPC type.
+  auto priest_npc_cmp = Sys::NpcStore::instance().get_item( "npc.priest" );
+  auto priest_projectile_action = priest_npc_cmp.actions.at( std::type_index( typeid( Cmp::ProjectileAction ) ) );
+
   for ( auto entt : reg().view<Cmp::NpcShockwave>() )
   {
     Cmp::NpcShockwave &shockwave = reg().get<Cmp::NpcShockwave>( entt );
@@ -190,7 +198,7 @@ void ShockwaveSystem::checkShockwavePlayerCollision()
       if ( player_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < pc_damage_cooldown.get_value() ) continue;
       if ( Sys::ShockwaveSystem::intersectsWithVisibleSegments( reg(), shockwave, player_pos ) )
       {
-        player_stats_cmp.apply_modifiers( { Cmp::Stats::Health{ -10 }, {}, {}, {} } );
+        player_stats_cmp.apply_modifiers( priest_projectile_action );
         m_sound_bank.get_effect( "damage_player" ).play();
         player_cmp.m_damage_cooldown_timer.restart();
         SPDLOG_INFO( "Player (health:{}) INTERSECTS with Shockwave (position: {},{} - effective_radius: {})", player_stats_cmp.health(),
