@@ -176,7 +176,6 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Store::Type::RuinSystem>().creaking_rope_update();
 
   m_sys.find<Store::Type::PlayerSystem>().update( dt, Sys::PlayerSystem::FootStepSfx::NONE );
-  m_sys.find<Store::Type::PlayerSystem>().disable_damage_cooldown();
 
   auto [_, map_size_pixel] = m_scene_map_data->map_size();
 

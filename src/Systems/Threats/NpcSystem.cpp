@@ -292,6 +292,7 @@ void NpcSystem::check_player_to_npc_collision()
 
       if ( pc_cmp.m_damage_cooldown_timer.getElapsedTime().asSeconds() < player_dmg_cooldown.get_value() ) continue;
 
+      SPDLOG_INFO( "Player collided with {}", npc_cmp.sprite_type_list.front() );
       auto npc_collision_action = npc_cmp.actions.at( std::type_index( typeid( Cmp::CollisionAction ) ) );
       Utils::Player::get_player_stats( reg() ).apply_modifiers( npc_collision_action );
 
