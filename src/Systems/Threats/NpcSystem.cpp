@@ -421,9 +421,8 @@ void NpcSystem::checkShockwaveObstacleCollision( [[maybe_unused]] entt::entity s
   for ( auto [obstacle_entity, obstacle_cmp, obstacle_pos, sprite_anim] : obstacle_view.each() )
   {
     // Check if this is the specific obstacle type and index we care about
-    if ( ( sprite_anim.m_sprite_type == "CRYPT.interior_sb" && sprite_anim.getFrameIndexOffset() == 3 ) or
-         ( sprite_anim.m_sprite_type == "CRYPT.interior_sb" && sprite_anim.getFrameIndexOffset() == 2 ) or
-         ( sprite_anim.m_sprite_type == "CRYPT.interior_sb" && sprite_anim.getFrameIndexOffset() == 0 ) )
+    if ( ( sprite_anim.m_sprite_type == "sprite.crypt.wall.int" && sprite_anim.getFrameIndexOffset() == 1 ) or
+         ( sprite_anim.m_sprite_type == "sprite.crypt.wall.int" && sprite_anim.getFrameIndexOffset() == 0 ) )
     {
       sf::FloatRect obstacle_rect( obstacle_pos.position, obstacle_pos.size );
 

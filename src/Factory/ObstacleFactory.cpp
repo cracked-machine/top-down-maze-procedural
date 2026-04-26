@@ -15,6 +15,7 @@
 #include <Sprites/MultiSprite.hpp>
 #include <VoidPosition.hpp>
 #include <entt/entity/fwd.hpp>
+#include <stdexcept>
 
 namespace ProceduralMaze::Factory
 {
@@ -36,7 +37,11 @@ entt::entity create_void_pos( entt::registry &registry, const Cmp::Position &pos
 void create_obstacle( entt::registry &registry, entt::entity entity, Cmp::Position pos_cmp, const Sprites::MultiSprite &ms,
                       std::size_t sprite_tile_idx )
 {
-
+  if ( sprite_tile_idx > ms.get_sprite_count() - 1 )
+  {
+    throw std::runtime_error( "Unable to get index " + std::to_string( sprite_tile_idx ) + " in " + ms.get_sprite_type() +
+                              " ( size: " + std::to_string( ms.get_sprite_count() ) + " )" );
+  }
   Cmp::ZOrderValue zorder( 0 );
   if ( ms.get_zorder( sprite_tile_idx ) != 0 ) { zorder.setZOrder( ms.get_zorder( sprite_tile_idx ) ); }
   else { zorder.setZOrder( pos_cmp.position.y ); }

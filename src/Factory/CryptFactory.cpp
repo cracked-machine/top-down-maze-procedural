@@ -34,7 +34,7 @@ entt::entity create_crypt_exit( entt::registry &reg, sf::Vector2f spawn_pos_px )
   auto entity = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entity, spawn_pos_px, Constants::kGridSizePxF );
   reg.emplace_or_replace<Cmp::Exit>( entity, false ); // unlocked at start
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "CRYPT.interior_sb", 1 );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.crypt.exit", 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.y );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
   reg.emplace_or_replace<Cmp::Exit>( entity );
@@ -106,7 +106,7 @@ void create_crypt_lava_pit( entt::registry &reg, const Cmp::CryptRoomOpen &room,
     reg.emplace_or_replace<Cmp::Position>( lava_cell_entt, pos_cmp.position, pos_cmp.size );
     reg.emplace_or_replace<Cmp::NpcNoPathFinding>( lava_cell_entt );
     reg.emplace_or_replace<Cmp::CryptRoomLavaPitCell>( lava_cell_entt, pos_cmp.position, pos_cmp.size );
-    reg.emplace_or_replace<Cmp::SpriteAnimation>( lava_cell_entt, 0, 0, true, "CRYPT.interior_lava", 0 );
+    reg.emplace_or_replace<Cmp::SpriteAnimation>( lava_cell_entt, 0, 0, true, "sprite.crypt.lava", 0 );
     if ( pathfinding_navmesh ) { pathfinding_navmesh->remove( pos_entt, pos_cmp ); }
     // reg.emplace<Cmp::ZOrderValue>( lava_cell_entt, pos_cmp.size.y );
   }
@@ -136,7 +136,7 @@ void add_spike_trap( entt::registry &reg, const entt::entity entt, const int pas
 
   auto spike_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( spike_entt, position, Constants::kGridSizePxF );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( spike_entt, 0, 0, false, "CRYPT.interior_spiketrap", 0, 0.2, Cmp::AnimType::ONESHOTRESET );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( spike_entt, 0, 0, false, "sprite.crypt.spikes", 0, 0.2, Cmp::AnimType::ONESHOTRESET );
   reg.emplace_or_replace<Cmp::ZOrderValue>( spike_entt, position.y - 16.f ); // always behind player
   reg.emplace_or_replace<Cmp::CryptPassageSpikeTrap>( spike_entt, position, passage_id );
 }

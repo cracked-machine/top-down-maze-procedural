@@ -36,7 +36,7 @@ void CellAutomataSystem::iterate( unsigned int iterations, RandomLevelGenerator:
         }
         else if ( scene_type == RandomLevelGenerator::SceneType::CRYPT_INTERIOR )
         {
-          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
+          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.crypt.wall.int" } );
           Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
         }
       }
@@ -55,7 +55,7 @@ void CellAutomataSystem::iterate( unsigned int iterations, RandomLevelGenerator:
         }
         else if ( scene_type == RandomLevelGenerator::SceneType::CRYPT_INTERIOR )
         {
-          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_sb" } );
+          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.crypt.wall.int" } );
           Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
         }
       }

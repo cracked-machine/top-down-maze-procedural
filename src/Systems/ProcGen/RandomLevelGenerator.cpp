@@ -270,22 +270,6 @@ void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::
   }
 }
 
-void RandomLevelGenerator::gen_crypt_interior_multiblocks()
-{
-  for ( int i = 0; i < 30; i++ )
-  {
-    auto [ms_type, ms_idx] = m_sprite_factory.get_random_type_and_texture_index( { "CRYPT.interior_mb1x3" } );
-    auto &ms = m_sprite_factory.get_multisprite_by_type( ms_type );
-    auto [random_entity, random_origin_position] = find_spawn_location( ms, 0 );
-    if ( random_entity == entt::null )
-    {
-      SPDLOG_ERROR( "Failed to find valid spawn position for {}.", ms.get_sprite_type() );
-      return;
-    }
-    Factory::add_multiblock_with_segments<Cmp::CryptInteriorMultiBlock, Cmp::CryptInteriorSegment>( reg(), random_origin_position.position, ms );
-  }
-}
-
 std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed )
 {
   constexpr int kMaxAttempts = 1000;

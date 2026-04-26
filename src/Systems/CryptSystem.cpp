@@ -270,7 +270,7 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
       {
         sf::FloatRect expanded_search( sf::Vector2f{ objective_cmp.position.x, objective_cmp.position.y + objective_cmp.size.y },
                                        sf::Vector2f{ objective_cmp.size.x, Constants::kGridSizePxF.y * 2.f } );
-        auto obst_entity = Factory::create_loot_drop( reg(), Cmp::SpriteAnimation{ 0, 0, true, "CADAVER_DROP", 0 }, expanded_search,
+        auto obst_entity = Factory::create_loot_drop( reg(), Cmp::SpriteAnimation{ 0, 0, true, "sprite.crypt.loot.cadaver", 0 }, expanded_search,
                                                       Factory::IncludePack<>{},
                                                       Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::CryptObjectiveSegment>{} );
         if ( obst_entity != entt::null )
@@ -306,7 +306,7 @@ void CryptSystem::check_lever_activation()
       m_enabled_levers++;
 
       // update the sprite
-      Sprites::SpriteMetaType lever_sprite_type = "CRYPT.interior_lever";
+      Sprites::SpriteMetaType lever_sprite_type = "sprite.crypt.switch";
       unsigned int enabled_lever_sprite_idx = 1;
       reg().emplace_or_replace<Cmp::SpriteAnimation>( lever_entt, 0, 0, true, lever_sprite_type, enabled_lever_sprite_idx );
 
@@ -349,7 +349,7 @@ void CryptSystem::check_chest_activation( Events::PlayerActionEvent::GameActions
       // clang-format off
       auto loot_entt = Factory::create_loot_drop( 
         reg(), 
-        Cmp::SpriteAnimation( 0, 0, true, "LOOT.goldcoin", 0 ),                                        
+        Cmp::SpriteAnimation( 0, 0, true, "sprite.crypt.loot.gold", 0 ),                                        
         Cmp::RectBounds::scaled( chest_pos_cmp, 3.f ).getBounds(), 
         Factory::IncludePack<>{},
         Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::CryptChest, Cmp::CryptRoomLavaPitCell, Cmp::CryptPassageBlock, Cmp::Wall, Cmp::Obstacle>{} ,
@@ -377,16 +377,10 @@ void CryptSystem::createRoomBorders()
   };
 
   for ( auto [closed_room_entt, closed_room_cmp] : reg().view<Cmp::CryptRoomClosed>().each() )
-    add_borders_for_room( closed_room_cmp, "CRYPT.interior_sb", 2 );
-
-  // for ( auto [end_room_entt, end_room_cmp] : getReg().view<Cmp::CryptRoomEnd>().each() )
-  //   add_borders_for_room( end_room_cmp, "CRYPT.interior_sb", 3 );
-
-  // for ( auto [start_room_entt, start_room_cmp] : getReg().view<Cmp::CryptRoomStart>().each() )
-  //   add_borders_for_room( start_room_cmp, "CRYPT.interior_sb", 3 );
+    add_borders_for_room( closed_room_cmp, "sprite.crypt.wall.int", 0 );
 
   for ( auto [open_room_entt, open_room_cmp] : reg().view<Cmp::CryptRoomOpen>().each() )
-    add_borders_for_room( open_room_cmp, "CRYPT.interior_sb", 3 );
+    add_borders_for_room( open_room_cmp, "sprite.crypt.wall.int", 1 );
 }
 
 void CryptSystem::shuffle_rooms_passages()
@@ -454,9 +448,9 @@ void CryptSystem::gen_crypt_initial_interior()
     if ( add_interior_wall )
     {
       // if non-zero use the sprites.json zorder value, else use the sprites y-xis pos
-      const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_sb" );
+      const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "sprite.crypt.wall.int" );
 
-      Factory::create_obstacle( reg(), entity, pos_cmp, ms, 2 );
+      Factory::create_obstacle( reg(), entity, pos_cmp, ms, 0 );
     }
   }
 }
@@ -723,8 +717,8 @@ void CryptSystem::fill_closed_rooms()
       if ( reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
       if ( reg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
 
-      const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_sb" );
-      Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, 2 );
+      const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "sprite.crypt.wall.int" );
+      Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, 0 );
 
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
       {
@@ -1020,7 +1014,7 @@ std::vector<entt::entity> CryptSystem::get_available_room_positions()
 
 void CryptSystem::add_chest_to_open_rooms()
 {
-  Sprites::SpriteMetaType chest_sprite_type = "CRYPT.interior_chest";
+  Sprites::SpriteMetaType chest_sprite_type = "sprite.crypt.chest";
   float zorder = m_sprite_factory.get_sprite_size_by_type( chest_sprite_type ).y;
 
   // iterate all open rooms
@@ -1038,7 +1032,7 @@ void CryptSystem::add_chest_to_open_rooms()
 void CryptSystem::add_lever_to_open_rooms()
 {
   auto internal_room_entts = get_available_room_positions();
-  Sprites::SpriteMetaType lever_sprite_type = "CRYPT.interior_lever";
+  Sprites::SpriteMetaType lever_sprite_type = "sprite.crypt.switch";
   unsigned int disabled_lever_sprite_idx = 0;
   float zorder = m_sprite_factory.get_sprite_size_by_type( lever_sprite_type ).y;
 

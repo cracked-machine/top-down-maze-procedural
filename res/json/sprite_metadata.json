@@ -126,6 +126,118 @@
         }
       }
     },
+    "sprite.crypt.exit": {
+      "multisprite": {
+        "displayname": "crypt.exit",
+        "zorder": [0],
+        "texture_path": "res/textures/crypt.png",
+        "sprite_indices": [1],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.crypt.wall.int": {
+      "multisprite": {
+        "displayname": "crypt.wall.int",
+        "zorder": [-5,-5],
+        "texture_path": "res/textures/crypt.png",
+        "sprite_indices": [2,3],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.crypt.lava": {
+      "multisprite": {
+        "displayname": "sprite.crypt.lava",
+        "zorder": [0],
+        "texture_path": "res/textures/crypt.png",
+        "sprite_indices": [4],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.crypt.spikes": {
+      "multisprite": {
+        "displayname": "sprite.crypt.spikes",
+        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "texture_path": "res/textures/crypt.png",
+        "sprite_indices": [30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+        "sprites_per_sequence": 10,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.crypt.chest": {
+      "multisprite": {
+        "displayname": "sprite.crypt.chest",
+        "zorder": [0, 0, 0],
+        "texture_path": "res/textures/crypt.png",
+        "sprite_indices": [20,21,22],
+        "sprites_per_sequence": 3,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.crypt.switch": {
+      "multisprite": {
+        "displayname": "sprite.crypt.switch",
+        "zorder": [0, 0],
+        "texture_path": "res/textures/crypt.png",
+        "sprite_indices": [40, 41],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.crypt.loot.cadaver": {
+      "multisprite": {
+        "displayname": "sprite.crypt.loot.cadaver",
+        "zorder": [0],
+        "texture_path": "res/textures/crypt.png",
+        "sprite_indices": [10],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.crypt.loot.gold": {
+      "multisprite": {
+        "displayname": "sprite.crypt.loot.gold",
+        "zorder": [0],
+        "texture_path": "res/textures/crypt.png",
+        "sprite_indices": [11],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
     "CRYPT.interior_sb": {
       "multisprite": {
         "displayname": "CRYPT.interior_sb",
@@ -166,94 +278,6 @@
           21, 22, 23, 
           24
         ],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "CRYPT.interior_lava": {
-      "multisprite": {
-        "displayname": "CRYPT.interior_lava",
-        "zorder": [0],
-        "texture_path": "res/textures/crypt_interior_lava.png",
-        "sprite_indices": [0],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "CRYPT.interior_spiketrap": {
-      "multisprite": {
-        "displayname": "CRYPT.interior_spiketrap",
-        "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "texture_path": "res/textures/crypt_interior.png",
-        "sprite_indices": [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41],
-        "sprites_per_sequence": 12,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "CRYPT.interior_chest": {
-      "multisprite": {
-        "displayname": "CRYPT.interior_chest",
-        "zorder": [0, 0, 0],
-        "texture_path": "res/textures/crypt_interior.png",
-        "sprite_indices": [24, 25, 26],
-        "sprites_per_sequence": 3,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "CRYPT.interior_mb1x3": {
-      "multisprite": {
-        "displayname": "CRYPT.interior_mb1x3",
-        "zorder": [0, 0, 0, 0, 0, 0],
-        "texture_path": "res/textures/crypt_interior.png",
-        "sprite_indices": [6, 7, 8, 9, 10, 11],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "solid_mask": [false, false, true],
-        "grid_size": {
-          "width": 1,
-          "height": 3
-        }
-      }
-    },
-    "CRYPT.interior_mb1x2": {
-      "multisprite": {
-        "displayname": "CRYPT.interior_mb1x2",
-        "zorder": [0, 0, 0, 0, 0, 0],
-        "texture_path": "res/textures/crypt_interior.png",
-        "sprite_indices": [24, 25, 26, 27, 28, 29],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "solid_mask": [false, false, true],
-        "grid_size": {
-          "width": 1,
-          "height": 3
-        }
-      }
-    },
-
-
-    "CRYPT.interior_lever": {
-      "multisprite": {
-        "displayname": "CRYPT.interior_lever",
-        "zorder": [0, 0],
-        "texture_path": "res/textures/CRYPT.interior_lever.png",
-        "sprite_indices": [0, 1],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1007,34 +1031,7 @@
 
 
 
-    "CADAVER_DROP": {
-      "multisprite": {
-        "displayname": "CADAVER_DROP",
-        "zorder": [0],
-        "texture_path": "res/textures/loot.png",
-        "sprite_indices": [9],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "LOOT.goldcoin": {
-      "multisprite": {
-        "displayname": "LOOT.goldcoin",
-        "zorder": [0],
-        "texture_path": "res/textures/loot.png",
-        "sprite_indices": [10],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
+
     "EXPLOSION": {
       "multisprite": {
         "displayname": "EXPLOSION",

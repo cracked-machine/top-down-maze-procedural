@@ -117,7 +117,7 @@ void LootSystem::check_loot_collision()
       auto flash_entt = reg().create();
       reg().emplace_or_replace<Cmp::FlashUIRadius>( flash_entt );
     }
-    else if ( effect.type == "CADAVER_DROP" )
+    else if ( effect.type == "sprite.crypt.loot.cadaver" )
     {
       auto &pc_cadaver_count = reg().get<Cmp::PlayerCadaverCount>( effect.player_entity );
       pc_cadaver_count.increment_count( 1 );
@@ -131,7 +131,7 @@ void LootSystem::check_loot_collision()
 
       get_systems_event_queue().trigger( Events::CryptRoomEvent( Events::CryptRoomEvent::Type::EXIT_ALL_PASSAGES ) );
     }
-    else if ( effect.type == "LOOT.goldcoin" )
+    else if ( effect.type == "sprite.crypt.loot.gold" )
     {
       auto &wealth_cmp = reg().get<Cmp::PlayerWealth>( effect.player_entity );
       wealth_cmp.wealth += 1;

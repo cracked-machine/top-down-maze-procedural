@@ -82,9 +82,6 @@ public:
   //! @param seed
   void do_gen_graveyard_exterior_multiblock( const Sprites::MultiSprite &ms, unsigned long seed );
 
-  //! @brief add multiblock sprites (pillars, etc...) to the Crypt
-  void gen_crypt_interior_multiblocks();
-
   // Find a valid spawn location for a large obstacle given a seed
   std::pair<entt::entity, Cmp::Position> find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed );
 

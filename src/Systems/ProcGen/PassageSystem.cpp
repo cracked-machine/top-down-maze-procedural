@@ -493,8 +493,8 @@ void PassageSystem::fill_all_passages()
       if ( not pblock_cmp_rect.findIntersection( pos_cmp ) ) continue;
       if ( reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
 
-      const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_sb" );
-      Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, 2 );
+      const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "sprite.crypt.wall.int" );
+      Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, 0 );
 
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
       {
