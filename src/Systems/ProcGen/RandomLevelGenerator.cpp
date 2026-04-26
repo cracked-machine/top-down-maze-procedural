@@ -207,7 +207,7 @@ void RandomLevelGenerator::gen_graveyard_exterior_multiblocks()
   }
 
   // ALTARS
-  const auto &altar_multisprite = m_sprite_factory.get_multisprite_by_type( "ALTAR.inactive" );
+  const auto &altar_multisprite = m_sprite_factory.get_multisprite_by_type( "sprite.graveyard.altar.inactive" );
   for ( std::size_t i = 0; i < max_num_altars.get_value(); ++i )
   {
     do_gen_graveyard_exterior_multiblock( altar_multisprite, 0 );
@@ -242,7 +242,7 @@ void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::
     return;
   }
 
-  if ( ms.get_sprite_type().contains( "ALTAR" ) )
+  if ( ms.get_sprite_type().contains( "altar" ) )
   {
     Factory::add_multiblock_with_segments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( reg(), random_origin_position.position, ms );
   }

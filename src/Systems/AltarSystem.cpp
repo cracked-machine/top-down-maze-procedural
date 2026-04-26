@@ -84,8 +84,8 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   auto common_activation = [&]( SacrificeAnimType sacrifice_anim_type )
   {
     Sprites::SpriteMetaType sprite_type;
-    if ( sacrifice_anim_type == SacrificeAnimType::RELIC ) { sprite_type = "ALTAR.sacrifice.anim.relic"; }
-    else if ( sacrifice_anim_type == SacrificeAnimType::KEY ) { sprite_type = "ALTAR.sacrifice.anim.key"; }
+    if ( sacrifice_anim_type == SacrificeAnimType::RELIC ) { sprite_type = "sprite.graveyard.altar.relic.anim"; }
+    else if ( sacrifice_anim_type == SacrificeAnimType::KEY ) { sprite_type = "sprite.graveyard.altar.key.anim"; }
 
     Factory::destroy_inventory( reg(), sacrifice_type );
 
@@ -109,7 +109,8 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       {
         case 0: {
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 1 ); } );
-          reg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.one"; } );
+          reg().patch<Cmp::SpriteAnimation>( altar_entity,
+                                             [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "sprite.graveyard.altar.active1"; } );
           SPDLOG_DEBUG( "Altar activated to state ONE." );
           // Apply the effects from exhuming this item to the player stats
           auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
@@ -123,7 +124,8 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
         }
         case 1: {
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 2 ); } );
-          reg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.two"; } );
+          reg().patch<Cmp::SpriteAnimation>( altar_entity,
+                                             [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "sprite.graveyard.altar.active2"; } );
           SPDLOG_DEBUG( "Altar activated to state TWO." );
           // Apply the effects from exhuming this item to the player stats
           auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
@@ -137,7 +139,8 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
         }
         case 2: {
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 3 ); } );
-          reg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.three"; } );
+          reg().patch<Cmp::SpriteAnimation>( altar_entity,
+                                             [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "sprite.graveyard.altar.active3"; } );
           SPDLOG_DEBUG( "Altar activated to state THREE." );
           // Apply the effects from exhuming this item to the player stats
           auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
@@ -151,7 +154,8 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
         }
         case 3: {
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 4 ); } );
-          reg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.four"; } );
+          reg().patch<Cmp::SpriteAnimation>( altar_entity,
+                                             [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "sprite.graveyard.altar.active4"; } );
           SPDLOG_DEBUG( "Altar activated to state FOUR." );
           // Apply the effects from exhuming this item to the player stats
           auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
@@ -175,7 +179,8 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       {
         case 4:
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 5 ); } );
-          reg().patch<Cmp::SpriteAnimation>( altar_entity, [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "ALTAR.five"; } );
+          reg().patch<Cmp::SpriteAnimation>( altar_entity,
+                                             [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "sprite.graveyard.altar.active5"; } );
           SPDLOG_DEBUG( "Altar activated to state FIVE." );
           common_activation( SacrificeAnimType::KEY );
         default:

@@ -1239,11 +1239,9 @@
         }
       }
     },
-
-
-    "ALTAR.inactive": {
+    "sprite.graveyard.altar.inactive": {
       "multisprite": {
-        "displayname": "ALTAR.inactive",
+        "displayname": "sprite.graveyard.altar.inactive",
         "zorder": [0],
         "texture_path": "res/textures/altar.png",
         "sprite_indices": [0],
@@ -1256,9 +1254,9 @@
         }
       }
     },
-    "ALTAR.one": {
+    "sprite.graveyard.altar.active1": {
       "multisprite": {
-        "displayname": "ALTAR.one",
+        "displayname": "sprite.graveyard.altar.active1",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/altar.png",
         "sprite_indices": [16, 18, 20, 22],
@@ -1271,9 +1269,9 @@
         }
       }
     },
-    "ALTAR.two": {
+    "sprite.graveyard.altar.active2": {
       "multisprite": {
-        "displayname": "ALTAR.two",
+        "displayname": "sprite.graveyard.altar.active2",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/altar.png",
         "sprite_indices": [32, 34, 36, 38],
@@ -1286,9 +1284,9 @@
         }
       }
     },
-    "ALTAR.three": {
+    "sprite.graveyard.altar.active3": {
       "multisprite": {
-        "displayname": "ALTAR.three",
+        "displayname": "sprite.graveyard.altar.active3",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/altar.png",
         "sprite_indices": [48, 50, 52, 54],
@@ -1301,9 +1299,9 @@
         }
       }
     },
-    "ALTAR.four": {
+    "sprite.graveyard.altar.active4": {
       "multisprite": {
-        "displayname": "ALTAR.four",
+        "displayname": "sprite.graveyard.altar.active4",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/altar.png",
         "sprite_indices": [64, 66, 68, 70],
@@ -1316,9 +1314,9 @@
         }
       }
     },
-    "ALTAR.five": {
+    "sprite.graveyard.altar.active5": {
       "multisprite": {
-        "displayname": "ALTAR.five",
+        "displayname": "sprite.graveyard.altar.active5",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/altar.png",
         "sprite_indices": [80, 82, 84, 86],
@@ -1331,9 +1329,9 @@
         }
       }
     },
-    "ALTAR.sacrifice.anim.relic": {
+    "sprite.graveyard.altar.relic.anim": {
       "multisprite": {
-        "displayname": "ALTAR.sacrifice.anim.relic",
+        "displayname": "sprite.graveyard.altar.relic.anim",
         "zorder": [0, 0, 0, 0, 0],
         "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
         "sprite_indices": [387, 386, 385, 384, 383],
@@ -1345,9 +1343,9 @@
         }
       }
     },
-    "ALTAR.sacrifice.anim.key": {
+    "sprite.graveyard.altar.key.anim": {
       "multisprite": {
-        "displayname": "ALTAR.sacrifice.anim.key",
+        "displayname": "sprite.graveyard.altar.key.anim",
         "zorder": [0, 0, 0, 0, 0],
         "texture_path": "res/textures/water_effect_and_bullet_16x16.png",
         "sprite_indices": [387, 386, 385, 384, 383],

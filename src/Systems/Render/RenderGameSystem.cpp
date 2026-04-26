@@ -460,8 +460,9 @@ void RenderGameSystem::render_arrow_compass()
   auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::Position>();
 
   auto [found_entt, found_carryitem_type] = Utils::Player::get_inventory_type( reg() );
+
   if ( not found_carryitem_type.contains( "exitkey" ) and not found_carryitem_type.contains( "cryptkey" ) and
-       not found_carryitem_type.contains( "sprite.item.relic" ) )
+       not found_carryitem_type.contains( "relic" ) )
     return;
 
   // if holding an exitkey then target the exit pos
@@ -493,7 +494,7 @@ void RenderGameSystem::render_arrow_compass()
   }
 
   // if holding a relic then target the nearest inactive altar
-  if ( found_carryitem_type.contains( "sprite.item.relic" ) )
+  if ( found_carryitem_type.contains( "relic" ) )
   {
     using AltarDistanceQueue = std::priority_queue<std::pair<float, Cmp::Position>, std::vector<std::pair<float, Cmp::Position>>,
                                                    Utils::Maths::DistancePositionComparator>;
