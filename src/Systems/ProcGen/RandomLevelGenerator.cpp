@@ -191,47 +191,49 @@ void RandomLevelGenerator::gen_graveyard_exterior_multiblocks()
   std::size_t max_number_ruins = 1;
 
   // GRAVES
-  auto grave_meta_types = m_sprite_factory.get_all_sprite_types_by_pattern( "^GRAVE\\d+\\.closed$" );
+  auto grave_meta_types = m_sprite_factory.get_all_sprite_types_by_pattern( R"(graves\.\w+\.closed$)" );
   if ( grave_meta_types.empty() ) { SPDLOG_WARN( "No GRAVE multisprites found in SpriteFactory" ); }
   else
   {
+    SPDLOG_DEBUG( "Found {}, {}", grave_meta_types[0], grave_meta_types[1] );
     uint8_t max_num_graves = max_num_altars.get_value() * grave_num_multiplier.get_value();
     for ( std::size_t i = 0; i < max_num_graves; ++i )
     {
       auto [sprite_metatype, unused_index] = m_sprite_factory.get_random_type_and_texture_index( grave_meta_types );
-      auto &multisprite = m_sprite_factory.get_multisprite_by_type( sprite_metatype );
-      do_gen_graveyard_exterior_multiblock( multisprite, 0 );
+      SPDLOG_DEBUG( "Selected {}, {}", sprite_metatype, unused_index );
+      const auto &multisprite = m_sprite_factory.get_multisprite_by_type( sprite_metatype );
+      do_gen_graveyard_exterior_multiblock( multisprite, unused_index );
     }
   }
 
   // ALTARS
-  auto &altar_multisprite = m_sprite_factory.get_multisprite_by_type( "ALTAR.inactive" );
+  const auto &altar_multisprite = m_sprite_factory.get_multisprite_by_type( "ALTAR.inactive" );
   for ( std::size_t i = 0; i < max_num_altars.get_value(); ++i )
   {
     do_gen_graveyard_exterior_multiblock( altar_multisprite, 0 );
   }
 
   // CRYPTS - note: we use keys from altars to open crypts so the number should be equal
-  auto &crypt_multisprite = m_sprite_factory.get_multisprite_by_type( "CRYPT.closed" );
+  const auto &crypt_multisprite = m_sprite_factory.get_multisprite_by_type( "CRYPT.closed" );
   for ( std::size_t i = 0; i < max_num_crypts.get_value(); ++i )
   {
     do_gen_graveyard_exterior_multiblock( crypt_multisprite, 0 );
   }
 
-  auto &holywell_multisprite = m_sprite_factory.get_multisprite_by_type( "HOLYWELL.exterior_building" );
+  const auto &holywell_multisprite = m_sprite_factory.get_multisprite_by_type( "HOLYWELL.exterior_building" );
   for ( std::size_t i = 0; i < max_number_holywells; ++i )
   {
     do_gen_graveyard_exterior_multiblock( holywell_multisprite, 0 );
   }
 
-  auto &ruin_multisprite = m_sprite_factory.get_multisprite_by_type( "RUIN.exterior_building" );
+  const auto &ruin_multisprite = m_sprite_factory.get_multisprite_by_type( "RUIN.exterior_building" );
   for ( std::size_t i = 0; i < max_number_ruins; ++i )
   {
     do_gen_graveyard_exterior_multiblock( ruin_multisprite, 0 );
   }
 }
 
-void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::MultiSprite &ms, unsigned long seed )
+void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::MultiSprite &ms, size_t ms_index, unsigned long seed )
 {
   auto [random_entity, random_origin_position] = find_spawn_location( ms, seed );
   if ( random_entity == entt::null )
@@ -244,9 +246,9 @@ void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::
   {
     Factory::add_multiblock_with_segments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( reg(), random_origin_position.position, ms );
   }
-  else if ( ms.get_sprite_type().contains( "GRAVE" ) )
+  else if ( ms.get_sprite_type().contains( "graves" ) )
   {
-    Factory::add_multiblock_with_segments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( reg(), random_origin_position.position, ms );
+    Factory::add_multiblock_with_segments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( reg(), random_origin_position.position, ms, ms_index );
   }
   else if ( ms.get_sprite_type() == "CRYPT.closed" )
   {

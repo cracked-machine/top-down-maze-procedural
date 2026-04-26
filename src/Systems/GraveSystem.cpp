@@ -109,7 +109,7 @@ void GraveSystem::check_player_grave_collision()
       else
       {
 
-        if ( std::string::size_type n = grave_anim_cmp.m_sprite_type.find( "." ); n != std::string::npos )
+        if ( std::string::size_type n = grave_anim_cmp.m_sprite_type.find( ".closed" ); n != std::string::npos )
         {
           grave_anim_cmp.m_sprite_type = grave_anim_cmp.m_sprite_type.substr( 0, n ) + ".opened";
           SPDLOG_DEBUG( "Grave Cmp::SpriteAnimation changed to opened type: {}", grave_anim_cmp.m_sprite_type );

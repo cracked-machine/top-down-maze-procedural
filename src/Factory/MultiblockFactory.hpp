@@ -48,7 +48,7 @@ namespace detail
 
 template <typename MULTIBLOCK>
   requires IsMB<MULTIBLOCK>
-void create_multiblock( entt::registry &registry, entt::entity entity, Cmp::Position pos, const Sprites::MultiSprite &ms, int ms_idx = 0 )
+void create_multiblock( entt::registry &registry, entt::entity entity, Cmp::Position pos, const Sprites::MultiSprite &ms, size_t ms_idx = 0 )
 {
 
   auto large_obst_grid_size = ms.get_grid_size();
@@ -172,12 +172,13 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
 
 template <typename MULTIBLOCK, typename MBSEGMENT>
   requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
-void add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position, const Sprites::MultiSprite &ms, [[maybe_unused]] float zorder = 0 )
+void add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position, const Sprites::MultiSprite &ms, size_t ms_index = 0,
+                                   [[maybe_unused]] float zorder = 0 )
 {
   auto entt = reg.create();
   Cmp::Position pos( position, ms.getSpriteSizePixels() );
   reg.emplace_or_replace<Cmp::Position>( entt, position, ms.getSpriteSizePixels() );
-  Factory::detail::create_multiblock<MULTIBLOCK>( reg, entt, pos, ms );
+  Factory::detail::create_multiblock<MULTIBLOCK>( reg, entt, pos, ms, ms_index );
   Factory::detail::create_multiblock_segments<MULTIBLOCK, MBSEGMENT>( reg, entt, pos, ms );
 
   for ( auto [view_entt, view_cmp, view_zorder] : reg.view<MULTIBLOCK, Cmp::ZOrderValue>().each() )

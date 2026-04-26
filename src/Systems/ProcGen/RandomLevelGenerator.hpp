@@ -80,7 +80,7 @@ public:
   //! @brief internal function for `gen_graveyard_exterior_multiblocks`
   //! @param ms
   //! @param seed
-  void do_gen_graveyard_exterior_multiblock( const Sprites::MultiSprite &ms, unsigned long seed );
+  void do_gen_graveyard_exterior_multiblock( const Sprites::MultiSprite &ms, size_t ms_index = 0, unsigned long seed = 0 );
 
   // Find a valid spawn location for a large obstacle given a seed
   std::pair<entt::entity, Cmp::Position> find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed );
