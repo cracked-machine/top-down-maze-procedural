@@ -28,6 +28,20 @@
         }
       }
     },
+    "sprite.graveyard.wall.ext": {
+      "multisprite": {
+        "displayname": "sprite.graveyard.wall.ext",
+        "zorder": [0],
+        "texture_path": "res/textures/graveyard.png",
+        "sprite_indices": [8],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
     "sprite.graveyard.bones": {
       "multisprite": {
         "displayname": "sprite.graveyard.bones",
@@ -118,6 +132,20 @@
         "zorder": [0],
         "texture_path": "res/textures/graveyard.png",
         "sprite_indices": [21],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.graveyard.arrow": {
+      "multisprite": {
+        "displayname": "sprite.graveyard.arrow",
+        "zorder": [0],
+        "texture_path": "res/textures/graveyard.png",
+        "sprite_indices": [22],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -230,20 +258,6 @@
         "zorder": [0],
         "texture_path": "res/textures/crypt.png",
         "sprite_indices": [11],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "CRYPT.interior_sb": {
-      "multisprite": {
-        "displayname": "CRYPT.interior_sb",
-        "zorder": [0, 0, -5, -5, 0],
-        "texture_path": "res/textures/crypt_interior.png",
-        "sprite_indices": [0, 1, 2, 3, 24],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1595,20 +1609,7 @@
         }
       }
     },
-    "ARROW": {
-      "multisprite": {
-        "displayname": "ARROW",
-        "zorder": [0],
-        "texture_path": "res/textures/arrow.png",
-        "sprite_indices": [0],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
+
     "CRYPT.closed": {
       "multisprite": {
         "displayname": "CRYPT.closed",

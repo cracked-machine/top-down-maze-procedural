@@ -568,7 +568,7 @@ void RenderGameSystem::render_arrow_compass()
     auto alpha = 255;
     auto origin = sf::Vector2f{ Constants::kGridSizePxF.x / 2.0f, Constants::kGridSizePxF.y / 2.0f };
 
-    safe_render_sprite_world( "ARROW", arrow_rect, sprite_index, scale, alpha, origin, angle_radians );
+    safe_render_sprite_world( "sprite.graveyard.arrow", arrow_rect, sprite_index, scale, alpha, origin, angle_radians );
   }
 }
 

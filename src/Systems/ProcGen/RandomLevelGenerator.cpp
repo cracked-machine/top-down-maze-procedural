@@ -103,7 +103,7 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
     }
     else if ( not added_wall_already and tile == scene_map.wall_tile_id() )
     {
-      const Sprites::MultiSprite &wall_ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_sb" );
+      const Sprites::MultiSprite &wall_ms = m_sprite_factory.get_multisprite_by_type( "sprite.graveyard.wall.ext" );
       Factory::add_wall_entity( reg(), new_pos, wall_ms, 0 );
     }
     else if ( tile == scene_map.open_tile_id() ) { Factory::create_world_pos( reg(), new_pos ); }
