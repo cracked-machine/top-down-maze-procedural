@@ -121,8 +121,6 @@ void ShopScene::do_update( [[maybe_unused]] sf::Time dt )
   }
   else { SPDLOG_WARN( "m_scene_map_data is not initialised" ); }
 
-  auto player_pos = Utils::Player::get_position( m_reg );
-  SPDLOG_INFO( "player_start_pos_px: {},{}", player_pos.position.x, player_pos.position.y );
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();

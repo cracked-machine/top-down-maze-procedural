@@ -159,7 +159,7 @@
                 {
                  "height":0,
                  "id":7,
-                 "name":"RUIN.interior_staircase_going_down",
+                 "name":"sprite.ruin.stairs.down",
                  "opacity":1,
                  "point":true,
                  "rotation":0,
@@ -172,7 +172,7 @@
                 {
                  "height":0,
                  "id":8,
-                 "name":"RUIN.interior_staircase_upper_balustrade",
+                 "name":"sprite.ruin.stairs.balustrade",
                  "opacity":1,
                  "point":true,
                  "rotation":0,
@@ -185,7 +185,7 @@
                 {
                  "height":0,
                  "id":10,
-                 "name":"RUIN.interior_hexagram3x3",
+                 "name":"sprite.ruin.hex",
                  "opacity":1,
                  "point":true,
                  "rotation":0,

@@ -242,7 +242,7 @@ void CryptSystem::unlock_crypt_door()
     for ( auto [crypt_entity, crypt_cmp, anim_cmp] : crypt_view.each() )
     {
       if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;
-      anim_cmp.m_sprite_type = "CRYPT.opened";
+      anim_cmp.m_sprite_type = "sprite.graveyard.crypt.opened";
 
       SPDLOG_DEBUG( "Updated crypt multi-block sprite to open state at ({}, {})", crypt_cmp.position.x, crypt_cmp.position.y );
       break;

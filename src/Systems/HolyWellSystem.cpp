@@ -32,7 +32,7 @@ namespace ProceduralMaze::Sys
 void HolyWellSystem::add_well_ms( sf::Vector2u spawn_position )
 {
 
-  const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "HOLYWELL.interior_well" );
+  const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "sprite.well.fountain" );
   const sf::Vector2f new_pos = { static_cast<float>( spawn_position.x ) * Constants::kGridSizePx.x,
                                  static_cast<float>( spawn_position.y ) * Constants::kGridSizePx.y };
   Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( reg(), new_pos, ms );

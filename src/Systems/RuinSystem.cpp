@@ -236,7 +236,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
         ++col;
         continue;
       }
-      bookshelf_row_candidate.push_back( { bc_left_coord, "RUIN.bookcase_leftsection" } );
+      bookshelf_row_candidate.push_back( { bc_left_coord, "sprite.ruin.bookcase.left" } );
 
       // bookcase middle pieces - advance N times from the left edge section coord
       Cmp::RectBounds bc_mid_coord = bc_left_coord;
@@ -252,7 +252,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
           valid_candidate = false;
           break;
         }
-        bookshelf_row_candidate.push_back( { bc_mid_coord, "RUIN.bookcase_midsection" } );
+        bookshelf_row_candidate.push_back( { bc_mid_coord, "sprite.ruin.bookcase.mid" } );
       }
 
       if ( not valid_candidate )
@@ -269,7 +269,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
         ++col;
         continue;
       }
-      bookshelf_row_candidate.push_back( { bc_right_coord, "RUIN.bookcase_rightsection" } );
+      bookshelf_row_candidate.push_back( { bc_right_coord, "sprite.ruin.bookcase.right" } );
 
       // add the line of bookshelf sprites
       SPDLOG_DEBUG( "bookcase candidate of length: {}", bookshelf_row_candidate.size() );
@@ -295,7 +295,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
       int colpick = column_pick.gen();
       auto point = Cmp::RectBounds::scaled( { colpick * gridsize.x, row * gridsize.y }, gridsize, 1 );
       if ( has_collision( point ) or used_cols.contains( colpick ) ) continue;
-      auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { "RUIN.bookcase_midsection" } );
+      auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.bookcase.mid" } );
       Factory::create_bookcase( reg(), point.position(), m_sprite_factory.get_multisprite_by_type( ms ), idx );
       used_cols.insert( colpick );
       break;
@@ -305,7 +305,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
   // always block this col on the bottom row
   int colpick = 8;
   auto point = Cmp::RectBounds::scaled( { colpick * gridsize.x, scene_dimensions.size.y - gridsize.y }, gridsize, 1 );
-  auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { "RUIN.bookcase_midsection" } );
+  auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.bookcase.mid" } );
   Factory::create_bookcase( reg(), point.position(), m_sprite_factory.get_multisprite_by_type( ms ), idx );
   used_cols.insert( colpick );
 }
@@ -333,7 +333,7 @@ void RuinSystem::add_lowerfloor_cobwebs( int max_attempts, sf::FloatRect scene_d
     if ( rnd_entt == entt::null ) continue;
 
     if ( has_collision( Cmp::RectBounds::scaled( { rnd_pos.position }, gridsize, 1 ) ) ) continue;
-    auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { "RUIN.cobweb" } );
+    auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.cobweb" } );
     Factory::create_cobweb( reg(), rnd_pos.position, m_sprite_factory.get_multisprite_by_type( ms ), idx );
   }
 }

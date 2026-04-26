@@ -119,7 +119,7 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
   for ( const auto &[ms_type, pos] : scene_map.multiblock_objectlayer() )
   {
     const auto &ms = m_sprite_factory.get_multisprite_by_type( ms_type );
-    if ( ms_type == "HOLYWELL.interior_well" )
+    if ( ms_type == "sprite.well.fountain" )
     {
       Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( reg(), pos, ms );
     }
@@ -133,19 +133,19 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
       reg().emplace_or_replace<Cmp::Position>( npc_entt, pos, Constants::kGridSizePxF );
       Factory::create_npc( m_reg, npc_entt, ms_type );
     }
-    else if ( ms_type == "RUIN.interior_staircase_going_up" )
+    else if ( ms_type == "sprite.ruin.stairs.up" )
     {
       Factory::add_multiblock_with_segments<Cmp::RuinStairsLowerMultiBlock, Cmp::RuinStairsSegment>( reg(), pos, ms );
     }
-    else if ( ms_type == "RUIN.interior_staircase_going_down" )
+    else if ( ms_type == "sprite.ruin.stairs.down" )
     {
       Factory::add_multiblock_with_segments<Cmp::RuinStairsUpperMultiBlock, Cmp::RuinStairsSegment>( reg(), pos, ms );
     }
-    else if ( ms_type == "RUIN.interior_staircase_upper_balustrade" )
+    else if ( ms_type == "sprite.ruin.stairs.balustrade" )
     {
       Factory::add_multiblock_with_segments<Cmp::RuinStairsBalustradeMultiBlock, Cmp::RuinStairsSegment>( reg(), pos, ms );
     }
-    else if ( ms_type == "RUIN.interior_hexagram3x3" )
+    else if ( ms_type == "sprite.ruin.hex" )
     {
       Factory::add_multiblock_with_segments<Cmp::RuinHexagramMultiBlock, Cmp::RuinHexagramSegment>( m_reg, pos, ms );
     }
@@ -214,19 +214,19 @@ void RandomLevelGenerator::gen_graveyard_exterior_multiblocks()
   }
 
   // CRYPTS - note: we use keys from altars to open crypts so the number should be equal
-  const auto &crypt_multisprite = m_sprite_factory.get_multisprite_by_type( "CRYPT.closed" );
+  const auto &crypt_multisprite = m_sprite_factory.get_multisprite_by_type( "sprite.graveyard.crypt.closed" );
   for ( std::size_t i = 0; i < max_num_crypts.get_value(); ++i )
   {
     do_gen_graveyard_exterior_multiblock( crypt_multisprite, 0 );
   }
 
-  const auto &holywell_multisprite = m_sprite_factory.get_multisprite_by_type( "HOLYWELL.exterior_building" );
+  const auto &holywell_multisprite = m_sprite_factory.get_multisprite_by_type( "sprite.graveyard.well" );
   for ( std::size_t i = 0; i < max_number_holywells; ++i )
   {
     do_gen_graveyard_exterior_multiblock( holywell_multisprite, 0 );
   }
 
-  const auto &ruin_multisprite = m_sprite_factory.get_multisprite_by_type( "RUIN.exterior_building" );
+  const auto &ruin_multisprite = m_sprite_factory.get_multisprite_by_type( "sprite.graveyard.ruin" );
   for ( std::size_t i = 0; i < max_number_ruins; ++i )
   {
     do_gen_graveyard_exterior_multiblock( ruin_multisprite, 0 );
@@ -250,17 +250,17 @@ void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::
   {
     Factory::add_multiblock_with_segments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( reg(), random_origin_position.position, ms, ms_index );
   }
-  else if ( ms.get_sprite_type() == "CRYPT.closed" )
+  else if ( ms.get_sprite_type() == "sprite.graveyard.crypt.closed" )
   {
     Factory::add_multiblock_with_segments<Cmp::CryptMultiBlock, Cmp::CryptSegment>( reg(), random_origin_position.position, ms );
     SPDLOG_INFO( "Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y );
   }
-  else if ( ms.get_sprite_type() == "HOLYWELL.exterior_building" )
+  else if ( ms.get_sprite_type() == "sprite.graveyard.well" )
   {
     Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( reg(), random_origin_position.position, ms );
     SPDLOG_INFO( "Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y );
   }
-  else if ( ms.get_sprite_type() == "RUIN.exterior_building" )
+  else if ( ms.get_sprite_type() == "sprite.graveyard.ruin" )
   {
     Factory::add_multiblock_with_segments<Cmp::RuinBuildingMultiBlock, Cmp::RuinSegment>( reg(), random_origin_position.position, ms );
     SPDLOG_INFO( "Added {} to {},{}", ms.get_sprite_type(), random_origin_position.position.x, random_origin_position.position.y );
