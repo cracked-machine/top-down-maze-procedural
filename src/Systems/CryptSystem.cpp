@@ -279,7 +279,7 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
           objective_cmp.increment_activation_count();
           SPDLOG_INFO( "Player activated crypt objective." );
 
-          const auto &ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_objective_opened" );
+          const auto &ms = m_sprite_factory.get_multisprite_by_type( "sprite.crypt.objective.opened" );
           reg().emplace_or_replace<Cmp::SpriteAnimation>( objective_entity, 0, 0, true, ms.get_sprite_type(), 0 );
         }
       }
@@ -624,7 +624,7 @@ void CryptSystem::create_end_room( sf::Vector2u map_grid_size )
                                       static_cast<float>( map_grid_size.y ) * Constants::kGridSizePxF.y );
   auto kGridSizePxF = Constants::kGridSizePxF;
   // target position for the objective: always center top of the map
-  const auto &ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_objective_closed" );
+  const auto &ms = m_sprite_factory.get_multisprite_by_type( "sprite.crypt.objective.closed" );
 
   float centered_x = ( map_grid_sizef.x / 2.f ) - ( ms.getSpriteSizePixels().x / 2.f );
   Cmp::Position objective_position( { centered_x, kGridSizePxF.y * 2.f }, ms.getSpriteSizePixels() );

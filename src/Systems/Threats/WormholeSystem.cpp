@@ -85,7 +85,7 @@ std::pair<entt::entity, Cmp::Position> WormholeSystem::find_spawn_location( unsi
         reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{},
         Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>{}, current_seed );
 
-    auto &wormhole_ms = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
+    auto &wormhole_ms = m_sprite_factory.get_multisprite_by_type( "sprite.graveyard.hazard.wormhole" );
     Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_grid_size().componentWiseMul( Constants::kGridSizePx ) );
 
     // Check collisions with walls, graves, shrines
@@ -159,7 +159,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
 
   // 3. set the entities obstacle component to "broken" so we have something for the shader effect
   // to mangle
-  auto &wormhole_ms = m_sprite_factory.get_multisprite_by_type( "WORMHOLE" );
+  auto &wormhole_ms = m_sprite_factory.get_multisprite_by_type( "sprite.graveyard.hazard.wormhole" );
   Cmp::WormholeMultiBlock wormhole_block( random_pos.position, wormhole_ms.get_grid_size().componentWiseMul( Constants::kGridSizePx ) );
 
   auto obstacle_view = reg().view<Cmp::Position>();
@@ -185,7 +185,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
   // getReg().emplace_or_replace<Cmp::WormholeSingularity>( random_entity );
   reg().emplace_or_replace<Cmp::WormholeMultiBlock>( random_entity, random_pos.position,
                                                      wormhole_ms.get_grid_size().componentWiseMul( Constants::kGridSizePx ) );
-  reg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, "WORMHOLE" );
+  reg().emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, "sprite.graveyard.hazard.wormhole" );
   reg().emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 16 );
 
   SPDLOG_INFO( "Wormhole spawned at position ({}, {}) with zorder: {}", random_pos.position.x, random_pos.position.y,
@@ -276,7 +276,7 @@ void WormholeSystem::check_player_wormhole_collision()
           reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{}, Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC>{}, 0 );
 
       Factory::remove_obstacle( reg(), new_spawn_entity );
-      reg().emplace_or_replace<Cmp::SpriteAnimation>( new_spawn_entity, 0, 0, true, "DETONATED", 0 );
+      reg().emplace_or_replace<Cmp::SpriteAnimation>( new_spawn_entity, 0, 0, true, "sprite.graveyard.detonated", 0 );
       reg().emplace_or_replace<Cmp::ZOrderValue>( new_spawn_entity, new_spawn_pos_cmp.position.y - 256.f );
 
       // update the teleported entity's components

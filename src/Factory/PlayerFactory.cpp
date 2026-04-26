@@ -84,7 +84,7 @@ void add_spawn_area( entt::registry &registry, entt::entity entity, float zorder
   registry.emplace_or_replace<Cmp::ReservedPosition>( entity );
   registry.emplace_or_replace<Cmp::SpawnArea>( entity, false );
   registry.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
-  registry.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYERSPAWN", 0 );
+  registry.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.graveyard.playerspawn", 0 );
   registry.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
 }
 

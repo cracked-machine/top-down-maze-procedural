@@ -66,7 +66,7 @@ public:
   //! @param horizOffset Vertical offset of the horizontal arm's center from the map center
   //!        in tiles (default: 10). Positive values shift the arm downward.
   //!
-  //! @note Wall sprites use "CRYPT.interior_wall" type. Interior positions are tracked
+  //! @note Wall sprites use "sprite.crypt.wall.ext" type. Interior positions are tracked
   //!       in m_data for later procedural generation operations.
   void gen_cross_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area, int vertArmHalfWidth = 10, int horizArmHalfWidth = 5,
                            int horizOffset = 10 );

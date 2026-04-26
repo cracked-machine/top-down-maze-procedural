@@ -277,7 +277,7 @@
                 {
                  "height":0,
                  "id":12,
-                 "name":"CRYPT.interior_objective_closed",
+                 "name":"sprite.crypt.objective.closed",
                  "opacity":1,
                  "point":true,
                  "rotation":0,

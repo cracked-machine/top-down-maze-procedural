@@ -74,7 +74,7 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
   auto w = map_size_grid.x;
 
   bool added_wall_already = false;
-  [[maybe_unused]] const Sprites::MultiSprite &wall_ms = m_sprite_factory.get_multisprite_by_type( "CRYPT.interior_wall" );
+  [[maybe_unused]] const Sprites::MultiSprite &wall_ms = m_sprite_factory.get_multisprite_by_type( "sprite.crypt.wall.ext" );
   for ( const auto [i, tile] : std::views::enumerate( scene_map.wall_tilelayer() ) )
   {
     added_wall_already = true;
@@ -123,7 +123,7 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
     {
       Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( reg(), pos, ms );
     }
-    else if ( ms_type == "CRYPT.interior_objective_closed" )
+    else if ( ms_type == "sprite.crypt.objective.closed" )
     {
       Factory::add_multiblock_with_segments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( reg(), pos, ms );
     }

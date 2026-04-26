@@ -67,7 +67,7 @@ void destroy_armed( entt::registry &reg, entt::entity armed_entity )
 
 void create_detonated( entt::registry &reg, entt::entity armed_entity, Cmp::Position &armed_pos_cmp )
 {
-  reg.emplace<Cmp::SpriteAnimation>( armed_entity, 0, 0, true, "DETONATED", 0 );
+  reg.emplace<Cmp::SpriteAnimation>( armed_entity, 0, 0, true, "sprite.graveyard.detonated", 0 );
   reg.emplace<Cmp::ZOrderValue>( armed_entity, armed_pos_cmp.position.y - 256.f );
   reg.emplace_or_replace<Cmp::DestroyedObstacle>( armed_entity );
 }
