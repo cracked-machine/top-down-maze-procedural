@@ -649,6 +649,22 @@
         }
       }
     },
+    "sprite.crypt.anim.lava": {
+      "multisprite": {
+        "displayname": "sprite.crypt.anim.lava",
+        "zorder": [0, 0, 0, 0, 0, 0],
+        "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
+        "sprite_indices": [24, 25, 26, 27, 28, 29],
+        "sprites_per_sequence": 6,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+
+
     "sprite.priest": {
       "multisprite": {
         "displayname": "sprite.priest",
@@ -803,6 +819,21 @@
         }
       }
     },
+
+    "sprite.player.footsteps": {
+      "multisprite": {
+        "displayname": "sprite.player.footsteps",
+        "zorder": [0, 0, 0, 0],
+        "texture_path": "res/textures/footsteps.png",
+        "sprite_indices": [0, 1, 2, 3],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
     "sprite.player.walk.south": {
       "multisprite": {
         "displayname": "sprite.player.walk.south",
@@ -859,9 +890,9 @@
         }
       }
     },
-    "ICONS": {
+    "sprite.ui.icons": {
       "multisprite": {
-        "displayname": "ICONS",
+        "displayname": "sprite.ui.icons",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/icons.png",
         "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7],
@@ -1367,9 +1398,9 @@
 
 
 
-    "EXPLOSION": {
+    "sprite.death.anim.explosion": {
       "multisprite": {
-        "displayname": "EXPLOSION",
+        "displayname": "sprite.death.anim.explosion",
         "zorder": [0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
         "sprite_indices": [66, 67, 68, 69, 70, 71],
@@ -1381,9 +1412,9 @@
         }
       }
     },
-    "PLAYERDEATH.bloodsplat": {
+    "sprite.death.anim.bloodsplat": {
       "multisprite": {
-        "displayname": "PLAYERDEATH.bloodsplat",
+        "displayname": "sprite.death.anim.bloodsplat",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/blood_splash_3.png",
         "sprite_indices": [0, 3, 6, 9, 36, 39, 42, 45, 72, 75, 78, 81, 108, 111, 114, 117],
@@ -1395,9 +1426,9 @@
         }
       }
     },
-    "PLAYERDEATH.lavaflames": {
+    "sprite.death.anim.flames": {
       "multisprite": {
-        "displayname": "PLAYERDEATH.lavaflames",
+        "displayname": "sprite.death.anim.flames",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
         "sprite_indices": [10, 11, 12, 13],
@@ -1409,34 +1440,8 @@
         }
       }
     },
-    "CRYPT.lava_anim": {
-      "multisprite": {
-        "displayname": "CRYPT.lava_anim",
-        "zorder": [0, 0, 0, 0, 0, 0],
-        "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
-        "sprite_indices": [24, 25, 26, 27, 28, 29],
-        "sprites_per_sequence": 6,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "FOOTSTEPS": {
-      "multisprite": {
-        "displayname": "FOOTSTEPS",
-        "zorder": [0, 0, 0, 0],
-        "texture_path": "res/textures/footsteps_tileset.png",
-        "sprite_indices": [0, 1, 2, 3],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
+
+
 
     "sprite.ruin.wall.int": {
       "multisprite": {

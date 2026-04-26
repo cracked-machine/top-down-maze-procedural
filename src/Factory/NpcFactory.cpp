@@ -228,7 +228,8 @@ entt::entity create_npc_explosion( entt::registry &registry, Cmp::Position npc_p
   auto npc_death_entity = registry.create();
   registry.emplace<Cmp::Position>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
   registry.emplace_or_replace<Cmp::DeathPosition>( npc_death_entity, npc_pos_cmp.position, npc_pos_cmp.size );
-  registry.emplace_or_replace<Cmp::SpriteAnimation>( npc_death_entity, 0, 0, true, "EXPLOSION", 0, 0.1, Cmp::AnimType::ONESHOTRESET );
+  registry.emplace_or_replace<Cmp::SpriteAnimation>( npc_death_entity, 0, 0, true, "sprite.death.anim.explosion", 0, 0.1,
+                                                     Cmp::AnimType::ONESHOTRESET );
   registry.emplace_or_replace<Cmp::ZOrderValue>( npc_death_entity, npc_pos_cmp.position.y );
   return npc_death_entity;
 }

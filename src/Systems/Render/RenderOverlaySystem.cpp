@@ -510,8 +510,8 @@ void RenderOverlaySystem::render_ui_zorder_list( std::vector<ZOrder> &zorder_que
   }
 
   std::set<Sprites::SpriteMetaType> exclusions = {
-      "sprite.graveyard.wall.int", "sprite.graveyard.playerspawn", "sprite.skeleton",      "sprite.ghost", "sprite.graveyard.detonated", "FOOTSTEPS",
-      "sprite.well.wall.int",      "sprite.ruin.wall.int",         "sprite.crypt.wall.ext" };
+      "sprite.graveyard.wall.int", "sprite.graveyard.playerspawn", "sprite.skeleton",      "sprite.ghost",         "sprite.graveyard.detonated",
+      "sprite.player.footsteps",   "sprite.well.wall.int",         "sprite.ruin.wall.int", "sprite.crypt.wall.ext" };
 
   for ( const auto &ui_label : m_dbg_ui_data->m_labels )
   {

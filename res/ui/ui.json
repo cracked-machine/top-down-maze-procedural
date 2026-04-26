@@ -107,7 +107,7 @@
                         {
                          "name":"sprite_type",
                          "type":"string",
-                         "value":"ICONS"
+                         "value":"sprite.ui.icons"
                         }],
                  "rotation":0,
                  "type":"ui_icon",
@@ -136,7 +136,7 @@
                         {
                          "name":"sprite_type",
                          "type":"string",
-                         "value":"ICONS"
+                         "value":"sprite.ui.icons"
                         }],
                  "rotation":0,
                  "type":"ui_icon",
@@ -165,7 +165,7 @@
                         {
                          "name":"sprite_type",
                          "type":"string",
-                         "value":"ICONS"
+                         "value":"sprite.ui.icons"
                         }],
                  "rotation":0,
                  "type":"ui_icon",

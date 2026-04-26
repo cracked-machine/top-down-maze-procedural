@@ -67,50 +67,50 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
     // We use absolute rotation component to rotate diagonal footsteps from the "right" sprite
     if ( direction == sf::Vector2f( 1.f, 0.f ) )
     { // moving right
-      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "FOOTSTEPS", 0 );
+      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.player.footsteps", 0 );
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       // getReg().emplace<Cmp::AbsoluteOffset>( entity, 0.f, -3.f );
     }
     else if ( direction == sf::Vector2f( -1.f, 0.f ) )
     { // moving left
-      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "FOOTSTEPS", 1 );
+      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.player.footsteps", 1 );
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       // getReg().emplace<Cmp::AbsoluteOffset>( entity, 0.f, -3.f );
     }
     else if ( direction == sf::Vector2f( 0.f, 1.f ) )
     { // moving down
-      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "FOOTSTEPS", 2 );
+      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.player.footsteps", 2 );
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
     }
     else if ( direction == sf::Vector2f( 0.f, -1.f ) )
     { // moving up
-      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "FOOTSTEPS", 3 );
+      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.player.footsteps", 3 );
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
     }
     else if ( direction == sf::Vector2f( 1.f, 1.f ) )
     { // moving down/right
-      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "FOOTSTEPS", 0 );
+      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.player.footsteps", 0 );
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       reg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
       reg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSizePx.x / 2.f, Constants::kGridSizePx.y / 2.f );
     }
     else if ( direction == sf::Vector2f( -1.f, 1.f ) )
     { // moving down/left
-      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "FOOTSTEPS", 2 );
+      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.player.footsteps", 2 );
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       reg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
       reg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSizePx.x / 2.f, Constants::kGridSizePx.y / 2.f );
     }
     else if ( direction == sf::Vector2f( -1.f, -1.f ) )
     { // moving up/left
-      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "FOOTSTEPS", 1 );
+      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.player.footsteps", 1 );
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       reg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
       reg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSizePx.x / 2.f, Constants::kGridSizePx.y / 2.f );
     }
     else if ( direction == sf::Vector2f( 1.f, -1.f ) )
     { // moving up/right
-      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "FOOTSTEPS", 3 );
+      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.player.footsteps", 3 );
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       reg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
       reg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSizePx.x / 2.f, Constants::kGridSizePx.y / 2.f );
