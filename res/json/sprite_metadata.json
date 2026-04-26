@@ -4,7 +4,7 @@
       "multisprite": {
         "displayname": "WALL",
         "zorder": [0, 0],
-        "texture_path": "res/textures/obstacles.png",
+        "texture_path": "res/textures/graveyard.png",
         "sprite_indices": [14, 15],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -18,7 +18,7 @@
       "multisprite": {
         "displayname": "ROCK",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0],
-        "texture_path": "res/textures/obstacles.png",
+        "texture_path": "res/textures/graveyard.png",
         "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -166,7 +166,7 @@
       "multisprite": {
         "displayname": "BONES",
         "zorder": [0, 0],
-        "texture_path": "res/textures/obstacles.png",
+        "texture_path": "res/textures/graveyard.png",
         "sprite_indices": [12, 13],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -946,34 +946,6 @@
         }
       }
     },
-    "EXTRA_BOMBS": {
-      "multisprite": {
-        "displayname": "EXTRA_BOMBS",
-        "zorder": [0],
-        "texture_path": "res/textures/loot.png",
-        "sprite_indices": [1],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "INFINI_BOMBS": {
-      "multisprite": {
-        "displayname": "INFINI_BOMBS",
-        "zorder": [0],
-        "texture_path": "res/textures/loot.png",
-        "sprite_indices": [4],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
     "CHAIN_BOMBS": {
       "multisprite": {
         "displayname": "CHAIN_BOMBS",
@@ -988,54 +960,12 @@
         }
       }
     },
-    "LOWER_WATER": {
-      "multisprite": {
-        "displayname": "LOWER_WATER",
-        "zorder": [0],
-        "texture_path": "res/textures/loot.png",
-        "sprite_indices": [5],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
     "WEAPON_BOOST": {
       "multisprite": {
         "displayname": "WEAPON_BOOST",
         "zorder": [0],
         "texture_path": "res/textures/loot.png",
         "sprite_indices": [2],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "CANDLE_DROP": {
-      "multisprite": {
-        "displayname": "CANDLE_DROP",
-        "zorder": [0],
-        "texture_path": "res/textures/loot.png",
-        "sprite_indices": [6],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "KEY_DROP": {
-      "multisprite": {
-        "displayname": "KEY_DROP",
-        "zorder": [0],
-        "texture_path": "res/textures/loot.png",
-        "sprite_indices": [7],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -1927,21 +1857,6 @@
         }
       }
     },
-    "BAPHOMET": {
-      "multisprite": {
-        "displayname": "BAPHOMET",
-        "zorder": [0],
-        "texture_path": "res/textures/baphomet.png",
-        "sprite_indices": [0],
-        "solid_mask": [false, false, false, false, false, false, true, true, true],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 3,
-          "height": 3
-        }
-      }
-    },
     "CRYPT.interior_objective_closed": {
       "multisprite": {
         "displayname": "CRYPT.interior_objective_closed",
@@ -1969,20 +1884,6 @@
         "grid_size": {
           "width": 18,
           "height": 8
-        }
-      }
-    },
-    "SHOP.overlay": {
-      "multisprite": {
-        "displayname": "SHOP.overlay",
-        "zorder": [0],
-        "texture_path": "res/textures/SHOP.overlay.png",
-        "sprite_indices": [0],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
         }
       }
     }
