@@ -66,7 +66,10 @@ public:
     std::vector<std::string> keys;
     keys.reserve( m_store.size() );
     for ( const auto &[k, _] : m_store )
+    {
+      if ( k == "ERROR_SPRITE" ) continue;
       keys.push_back( k );
+    }
     return keys;
   }
 

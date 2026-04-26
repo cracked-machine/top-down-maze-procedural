@@ -28,11 +28,11 @@ public:
 
   //! @brief Pick a random "sprite.item." sprite and price and insert in the inventory component
   //! @param shop_inventory_cmp The inventory component
-  void add_inventory_item( Cmp::ShopInventory &shop_inventory_cmp );
+  void add_shop_inventory_item( Cmp::ShopInventory &shop_inventory_cmp );
 
   //! @brief Create an inventory component in the registry.
   //! @param inventory_entt The entity that will own the component
-  void create_inventory( entt::entity inventory_entt );
+  void create_shop_inventory( entt::entity inventory_entt );
 
   //! @brief Check for collisions with the exit
   void check_exit_collision();

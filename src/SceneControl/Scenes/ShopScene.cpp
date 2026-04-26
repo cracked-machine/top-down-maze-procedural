@@ -42,7 +42,7 @@ void ShopScene::on_init()
   shop_sys.load_config( "res/json/shop_overlay_config.json" );
   auto shop_inventory_entt = m_reg.create();
   m_reg.emplace_or_replace<Cmp::ShopInventory>( shop_inventory_entt, shop_sys.get_inventory_config() );
-  shop_sys.create_inventory( shop_inventory_entt );
+  shop_sys.create_shop_inventory( shop_inventory_entt );
 
   auto sys_cmp_entt = m_reg.create();
   m_reg.emplace<Cmp::System>( sys_cmp_entt );
@@ -115,6 +115,7 @@ void ShopScene::do_update( [[maybe_unused]] sf::Time dt )
   {
     for ( const auto &[ms_type, pos] : m_scene_map_data->multiblock_objectlayer() )
     {
+      if ( ms_type != "npc.drknox" ) continue;
       if ( m_sys.find<Sys::Store::Type::ShopSystem>().check_shopkeeper_collision( pos ) and not is_overlay_open() ) { open_overlay(); }
       else if ( not m_sys.find<Sys::Store::Type::ShopSystem>().check_shopkeeper_collision( pos ) ) { close_overlay(); }
     }

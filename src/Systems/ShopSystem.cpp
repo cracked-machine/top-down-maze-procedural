@@ -138,7 +138,7 @@ void ShopSystem::load_config( const std::filesystem::path &config_path )
   }
 }
 
-void ShopSystem::add_inventory_item( Cmp::ShopInventory &shop_inventory_cmp )
+void ShopSystem::add_shop_inventory_item( Cmp::ShopInventory &shop_inventory_cmp )
 {
   // auto carryitem_types = m_sprite_factory.get_all_sprite_types_by_pattern( "sprite.item." );
   auto item_types = Sys::ItemStore::instance().get_all_item_keys();
@@ -150,14 +150,14 @@ void ShopSystem::add_inventory_item( Cmp::ShopInventory &shop_inventory_cmp )
   shop_inventory_cmp.m_slots.emplace_back( item_types.at( selected_item ), price );
 }
 
-void ShopSystem::create_inventory( entt::entity inventory_entt )
+void ShopSystem::create_shop_inventory( entt::entity inventory_entt )
 {
   auto *inventory_cmp = reg().try_get<Cmp::ShopInventory>( inventory_entt );
   if ( not inventory_cmp ) return;
 
   for ( auto _ : std::views::iota( 0, inventory_cmp->m_config.max_items ) )
   {
-    add_inventory_item( *inventory_cmp );
+    add_shop_inventory_item( *inventory_cmp );
   }
 }
 
@@ -228,14 +228,14 @@ void ShopSystem::buy_shop_item( uint8_t item_idx )
       slots.erase( it );
 
       // replace the shop stock
-      add_inventory_item( inventory_cmp );
+      add_shop_inventory_item( inventory_cmp );
       break;
     }
 
     // ensure that the shop is always fully stocked.
     while ( inventory_cmp.m_slots.size() < static_cast<size_t>( inventory_cmp.m_config.max_items ) )
     {
-      add_inventory_item( inventory_cmp );
+      add_shop_inventory_item( inventory_cmp );
     }
   }
 }
