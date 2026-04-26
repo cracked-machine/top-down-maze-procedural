@@ -446,7 +446,7 @@
       "multisprite": {
         "displayname": "Pickaxe",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [0],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -460,7 +460,7 @@
       "multisprite": {
         "displayname": "Axe",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [10],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -474,7 +474,7 @@
       "multisprite": {
         "displayname": "Shovel",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [20],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -488,7 +488,7 @@
       "multisprite": {
         "displayname": "Dynamite",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [30],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -502,7 +502,7 @@
       "multisprite": {
         "displayname": "Exit Key",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [40],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -516,7 +516,7 @@
       "multisprite": {
         "displayname": "Crypt Key",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [50],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -530,7 +530,7 @@
       "multisprite": {
         "displayname": "Plant1",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [60],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -544,7 +544,7 @@
       "multisprite": {
         "displayname": "Plant2",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [70],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -558,7 +558,7 @@
       "multisprite": {
         "displayname": "Plant3",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [80],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -572,7 +572,7 @@
       "multisprite": {
         "displayname": "Plant4",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [90],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -586,7 +586,7 @@
       "multisprite": {
         "displayname": "Plant5",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [100],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -600,7 +600,7 @@
       "multisprite": {
         "displayname": "Plant6",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [110],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -614,7 +614,7 @@
       "multisprite": {
         "displayname": "Plant7",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [120],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -628,7 +628,7 @@
       "multisprite": {
         "displayname": "Plant8",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [130],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -642,7 +642,7 @@
       "multisprite": {
         "displayname": "Plant9",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [140],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -656,7 +656,7 @@
       "multisprite": {
         "displayname": "Plant10",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [150],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -670,7 +670,7 @@
       "multisprite": {
         "displayname": "Plant11",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [160],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -684,7 +684,7 @@
       "multisprite": {
         "displayname": "Plant12",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [170],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -698,7 +698,7 @@
       "multisprite": {
         "displayname": "Relic: Saint's Blood",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [180],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -712,7 +712,7 @@
       "multisprite": {
         "displayname": "Relic: Saint's Eyeball",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [190],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -726,7 +726,7 @@
       "multisprite": {
         "displayname": "Relic: Saint's Bone",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [200],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -740,7 +740,7 @@
       "multisprite": {
         "displayname": "Relic: Saint's Hand",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [210],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -754,7 +754,7 @@
       "multisprite": {
         "displayname": "Seeing Stone",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [220],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -768,7 +768,7 @@
       "multisprite": {
         "displayname": "Curse Tablet",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [230],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -782,7 +782,7 @@
       "multisprite": {
         "displayname": "Dead Man's Boots",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [240],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -796,7 +796,7 @@
       "multisprite": {
         "displayname": "Witches Jar",
         "zorder": [0, 0, 0, 0, 0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [250, 251, 252, 253, 254],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -810,7 +810,7 @@
       "multisprite": {
         "displayname": "Preserved Cat",
         "zorder": [0, 0, 0, 0, 0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [260, 261, 262, 263, 264],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -824,7 +824,7 @@
       "multisprite": {
         "displayname": "Sapphire Necklace",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [270],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -838,7 +838,7 @@
       "multisprite": {
         "displayname": "Amephyst Ring",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [280],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -852,7 +852,7 @@
       "multisprite": {
         "displayname": "Ruby Ring",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [290],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -866,7 +866,7 @@
       "multisprite": {
         "displayname": "Emerald Necklace",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [300],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -880,7 +880,7 @@
       "multisprite": {
         "displayname": "Emerald Gemstone",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [310],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -894,7 +894,7 @@
       "multisprite": {
         "displayname": "Sapphire Gemstone",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [320],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -908,7 +908,7 @@
       "multisprite": {
         "displayname": "Diamond Gemstone",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [330],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -922,7 +922,7 @@
       "multisprite": {
         "displayname": "Amephyst Gemstone",
         "zorder": [0],
-        "texture_path": "res/textures/CARRYITEMS.png",
+        "texture_path": "res/textures/inventoryitems.png",
         "sprite_indices": [340],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
