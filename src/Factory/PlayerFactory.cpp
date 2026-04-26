@@ -65,7 +65,7 @@ void create_player( entt::registry &reg )
 
   reg.emplace_or_replace<Cmp::Direction>( entity, sf::Vector2f{ 0, 0 } );
 
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "PLAYER.walk.south" );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.player.walk.south" );
   reg.emplace_or_replace<Cmp::PlayerCadaverCount>( entity, 0 );
   reg.emplace_or_replace<Cmp::PlayerWealth>( entity, 0 );
   reg.emplace_or_replace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );

@@ -497,7 +497,7 @@
           -10, -10, 0, 
           0
         ],
-        "texture_path": "res/textures/CRYPT.interior_wall.png",
+        "texture_path": "res/textures/cryptwall.png",
         "sprite_indices": [
           0, 1, 2, 
           3, 4, 5, 
@@ -667,7 +667,7 @@
       "multisprite": {
         "displayname": "sprite.witch",
         "zorder": [0, 0, 0, 0],
-        "texture_path": "res/textures/NPC.grave_revenant.png",
+        "texture_path": "res/textures/npcwitch.png",
         "sprite_indices": [0, 1, 2, 3],
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,
@@ -681,7 +681,7 @@
       "multisprite": {
         "displayname": "sprite.drknox",
         "zorder": [0],
-        "texture_path": "res/textures/NPC.dr_knox.png",
+        "texture_path": "res/textures/npcdrknox.png",
         "sprite_indices": [0],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -803,11 +803,11 @@
         }
       }
     },
-    "PLAYER.walk.south": {
+    "sprite.player.walk.south": {
       "multisprite": {
-        "displayname": "PLAYER.walk.south",
+        "displayname": "sprite.player.walk.south",
         "zorder": [0, 0, 0],
-        "texture_path": "res/textures/conjurer1.png",
+        "texture_path": "res/textures/player.png",
         "sprite_indices": [0, 1, 2],
         "sprites_per_sequence": 3,
         "sprites_per_frame": 1,
@@ -817,11 +817,11 @@
         }
       }
     },
-    "PLAYER.walk.north": {
+    "sprite.player.walk.north": {
       "multisprite": {
-        "displayname": "PLAYER.walk.north",
+        "displayname": "sprite.player.walk.north",
         "zorder": [0, 0, 0],
-        "texture_path": "res/textures/conjurer1.png",
+        "texture_path": "res/textures/player.png",
         "sprite_indices": [3, 4, 5],
         "sprites_per_sequence": 3,
         "sprites_per_frame": 1,
@@ -831,11 +831,11 @@
         }
       }
     },
-    "PLAYER.walk.east": {
+    "sprite.player.walk.east": {
       "multisprite": {
-        "displayname": "PLAYER.walk.east",
+        "displayname": "sprite.player.walk.east",
         "zorder": [0, 0, 0],
-        "texture_path": "res/textures/conjurer1.png",
+        "texture_path": "res/textures/player.png",
         "sprite_indices": [6, 7, 8],
         "sprites_per_sequence": 3,
         "sprites_per_frame": 1,
@@ -845,11 +845,11 @@
         }
       }
     },
-    "PLAYER.walk.west": {
+    "sprite.player.walk.west": {
       "multisprite": {
-        "displayname": "PLAYER.walk.west",
+        "displayname": "sprite.player.walk.west",
         "zorder": [0, 0, 0],
-        "texture_path": "res/textures/conjurer1.png",
+        "texture_path": "res/textures/player.png",
         "sprite_indices": [9, 10, 11],
         "sprites_per_sequence": 3,
         "sprites_per_frame": 1,
@@ -1447,7 +1447,7 @@
           0, 0, 0, 
           -10, 0, -10          
         ],
-        "texture_path": "res/textures/RUIN.interior_wall.png",
+        "texture_path": "res/textures/ruinwall.png",
         "sprite_indices": [
           0, 1, 2, 
           3, 4, 5, 
@@ -1564,7 +1564,7 @@
       "multisprite": {
         "displayname": "ShadowHand",
         "zorder": [1000],
-        "texture_path": "res/textures/npc_shadowhand.png",
+        "texture_path": "res/textures/npcshadowhand.png",
         "sprite_indices": [
           0
         ],

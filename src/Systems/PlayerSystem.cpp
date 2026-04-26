@@ -233,10 +233,10 @@ void PlayerSystem::update_player_animation()
   else
   {
     anim_cmp.m_animation_active = true;
-    if ( direction_cmp.x == 1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.east"; }
-    else if ( direction_cmp.x == -1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.west"; }
-    else if ( direction_cmp.y == -1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.north"; }
-    else if ( direction_cmp.y == 1 ) { anim_cmp.m_sprite_type = "PLAYER.walk.south"; }
+    if ( direction_cmp.x == 1 ) { anim_cmp.m_sprite_type = "sprite.player.walk.east"; }
+    else if ( direction_cmp.x == -1 ) { anim_cmp.m_sprite_type = "sprite.player.walk.west"; }
+    else if ( direction_cmp.y == -1 ) { anim_cmp.m_sprite_type = "sprite.player.walk.north"; }
+    else if ( direction_cmp.y == 1 ) { anim_cmp.m_sprite_type = "sprite.player.walk.south"; }
   }
 }
 
