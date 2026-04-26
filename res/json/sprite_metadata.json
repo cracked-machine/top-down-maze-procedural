@@ -1466,7 +1466,7 @@
       "multisprite": {
         "displayname": "sprite.ruin.stairs.down",
         "zorder": [-10],
-        "texture_path": "res/textures/RUIN.interior.png",
+        "texture_path": "res/textures/ruin.png",
         "sprite_indices": [53],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -1480,7 +1480,7 @@
       "multisprite": {
         "displayname": "sprite.ruin.stairs.up",
         "zorder": [-10],
-        "texture_path": "res/textures/RUIN.interior.png",
+        "texture_path": "res/textures/ruin.png",
         "sprite_indices": [50],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -1494,7 +1494,7 @@
       "multisprite": {
         "displayname": "sprite.ruin.stairs.balustrade",
         "zorder": [-5],
-        "texture_path": "res/textures/RUIN.interior.png",
+        "texture_path": "res/textures/ruin.png",
         "sprite_indices": [56],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -1508,7 +1508,7 @@
       "multisprite": {
         "displayname": "sprite.ruin.cobweb",
         "zorder": [0, 0, 0, 0],
-        "texture_path": "res/textures/RUIN.interior.png",
+        "texture_path": "res/textures/ruin.png",
         "sprite_indices": [40, 41, 42, 43],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -1522,7 +1522,7 @@
       "multisprite": {
         "displayname": "sprite.ruin.bookcase.left",
         "zorder": [0, 0, 0, 0],
-        "texture_path": "res/textures/RUIN.interior.png",
+        "texture_path": "res/textures/ruin.png",
         "sprite_indices": [3, 4, 5, 6],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -1536,7 +1536,7 @@
       "multisprite": {
         "displayname": "sprite.ruin.bookcase.mid",
         "zorder": [0, 0, 0, 0],
-        "texture_path": "res/textures/RUIN.interior.png",
+        "texture_path": "res/textures/ruin.png",
         "sprite_indices": [13, 14, 15, 16],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -1550,7 +1550,7 @@
       "multisprite": {
         "displayname": "sprite.ruin.bookcase.right",
         "zorder": [0, 0, 0, 0],
-        "texture_path": "res/textures/RUIN.interior.png",
+        "texture_path": "res/textures/ruin.png",
         "sprite_indices": [23, 24, 25, 26],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
@@ -1580,7 +1580,7 @@
       "multisprite": {
         "displayname": "sprite.ruin.hex",
         "zorder": [0],
-        "texture_path": "res/textures/RUIN.interior.png",
+        "texture_path": "res/textures/ruin.png",
         "sprite_indices": [0],
         "solid_mask": [false, false, false, false, false, false, false, false, false],
         "sprites_per_sequence": 1,
