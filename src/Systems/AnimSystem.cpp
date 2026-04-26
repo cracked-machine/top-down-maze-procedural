@@ -81,7 +81,7 @@ void AnimSystem::update( sf::Time dt )
   //   for ( auto [loot_con_entt, loot_con_cmp, loot_con_anim_cmp, loot_con_pos_cmp] : loot_container_anim_view.each() )
   //   {
   //     if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), loot_con_pos_cmp ) ) continue;
-  //     if ( loot_con_anim_cmp.m_sprite_type == "POT" and loot_con_anim_cmp.m_animation_active == true )
+  //     if ( loot_con_anim_cmp.m_sprite_type == "sprite.graveyard.pots" and loot_con_anim_cmp.m_animation_active == true )
   //     {
   //       const auto &pot_sprite_metadata = m_sprite_factory.get_multisprite_by_type( loot_con_anim_cmp.m_sprite_type );
   //       auto frame_rate = sf::seconds( 0.2f );

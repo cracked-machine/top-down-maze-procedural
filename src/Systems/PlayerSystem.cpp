@@ -601,7 +601,7 @@ void PlayerSystem::check_player_axe_npc_kill()
       {
         // drop loot - 1 in 3 chance
         auto [sprite_type, sprite_index] = m_sprite_factory.get_random_type_and_texture_index(
-            std::vector<std::string>{ "EXTRA_HEALTH", "CHAIN_BOMBS", "WEAPON_BOOST" } );
+            std::vector<std::string>{ "sprite.graveyard.loot.health", "sprite.graveyard.loot.blast", "sprite.graveyard.loot.repair" } );
 
         Cmp::RandomInt do_drop( 0, 2 );
         if ( do_drop.gen() == 0 )

@@ -5,10 +5,10 @@
 #include <Components/RectBounds.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <Sprites/SpriteMetaType.hpp>
 #include <Utils/Constants.hpp>
 #include <entt/entity/fwd.hpp>
 #include <optional>
-#include <utility>
 
 // Forward declarations
 namespace sf
@@ -30,11 +30,6 @@ class ZOrderValue;
 class System;
 class LerpPosition;
 } // namespace ProceduralMaze::Cmp
-
-namespace ProceduralMaze::Sprites
-{
-using SpriteMetaType = std::string;
-} // namespace ProceduralMaze::Sprites
 
 namespace ProceduralMaze::Utils
 {

@@ -42,9 +42,10 @@ std::vector<entt::entity> gen_loot_containers( entt::registry &reg, Sprites::Spr
     auto [random_entity, random_origin_position] = Utils::Rnd::get_random_position(
         reg, {}, Utils::Rnd::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{}, 0 );
 
-    float zorder = sprite_factory.get_sprite_size_by_type( "POT" ).y;
+    float zorder = sprite_factory.get_sprite_size_by_type( "sprite.graveyard.pots" ).y;
 
-    Factory::create_loot_container( reg, random_entity, random_origin_position, "POT", 0, zorder );
+    Cmp::RandomInt pot_picker( 0, 2 );
+    Factory::create_loot_container( reg, random_entity, random_origin_position, "sprite.graveyard.pots", pot_picker.gen(), zorder );
     assigned_entts.push_back( random_entity );
   }
 

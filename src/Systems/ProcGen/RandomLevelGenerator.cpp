@@ -174,8 +174,8 @@ void RandomLevelGenerator::gen_graveyard_exterior_obstacles()
 
     if ( Cmp::RandomInt{ 0, 1 }.gen() == 1 )
     {
-      const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "ROCK" );
-      auto [_, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "ROCK" } );
+      const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "sprite.graveyard.wall.int" );
+      auto [_, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
       Factory::create_obstacle( reg(), entity, pos_cmp, ms, rand_obst_tex_idx );
       m_obstacle_sm->insert( entity, pos_cmp );
     }

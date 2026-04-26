@@ -257,7 +257,7 @@ std::vector<entt::entity> gen_npc_containers( entt::registry &reg, Sprites::Spri
     // clang-format off
     auto [npc_type, rand_npc_tex_idx] =
       sprite_factory.get_random_type_and_texture_index( {
-        "BONES"
+        "sprite.graveyard.bones"
       } );
     // clang-format on
 

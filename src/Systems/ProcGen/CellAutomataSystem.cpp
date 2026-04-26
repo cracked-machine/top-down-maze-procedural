@@ -14,7 +14,7 @@ namespace ProceduralMaze::Sys::ProcGen
 void CellAutomataSystem::iterate( unsigned int iterations, RandomLevelGenerator::SceneType scene_type,
                                   PathFinding::SpatialHashGrid &levelgen_spatialgrid )
 {
-  const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "ROCK" );
+  const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "sprite.graveyard.wall.int" );
 
   sf::Clock iteration_timer;
   for ( unsigned int i = 0; i < iterations; i++ )
@@ -31,7 +31,7 @@ void CellAutomataSystem::iterate( unsigned int iterations, RandomLevelGenerator:
       {
         if ( scene_type == RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
         {
-          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "ROCK" } );
+          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
           Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
         }
         else if ( scene_type == RandomLevelGenerator::SceneType::CRYPT_INTERIOR )
@@ -50,7 +50,7 @@ void CellAutomataSystem::iterate( unsigned int iterations, RandomLevelGenerator:
 
         if ( scene_type == RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR )
         {
-          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "ROCK" } );
+          auto [_, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
           Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, idx );
         }
         else if ( scene_type == RandomLevelGenerator::SceneType::CRYPT_INTERIOR )

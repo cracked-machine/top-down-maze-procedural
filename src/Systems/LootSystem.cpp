@@ -78,7 +78,7 @@ void LootSystem::check_loot_collision()
     auto blast_radius = reg().get<Cmp::PlayerBlastRadius>( effect.player_entity );
 
     // Apply the effect
-    if ( effect.type == "EXTRA_HEALTH" )
+    if ( effect.type == "sprite.graveyard.loot.health" )
     {
       auto &health_bonus = Sys::PersistSystem::get<Cmp::Persist::HealthBonus>( reg() );
 
@@ -87,7 +87,7 @@ void LootSystem::check_loot_collision()
       m_sound_bank.get_effect( "get_loot" ).play();
       Factory::destroy_loot_drop( reg(), effect.loot_entity );
     }
-    else if ( effect.type == "WEAPON_BOOST" )
+    else if ( effect.type == "sprite.graveyard.loot.repair" )
     {
       // update the wear level of the player inventory, if any
       auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
@@ -107,7 +107,7 @@ void LootSystem::check_loot_collision()
         }
       }
     }
-    else if ( effect.type == "CHAIN_BOMBS" )
+    else if ( effect.type == "sprite.graveyard.loot.blast" )
     {
       blast_radius.value = std::clamp( blast_radius.value + 1, 0, 5 );
       m_sound_bank.get_effect( "get_loot" ).play();

@@ -34,7 +34,7 @@ concept ValidHazard = requires {
   typename HazardTraits<T>::ExcludeHazard;
   { HazardTraits<T>::kills_instantly } -> std::convertible_to<bool>;
   { HazardTraits<T>::mortality_state } -> std::convertible_to<Cmp::PlayerMortality::State>;
-  { HazardTraits<T>::sprite_type } -> std::convertible_to<Sprites::SpriteMetaType>;
+  { HazardTraits<T>::sprite_type } -> std::convertible_to<std::string_view>;
 };
 
 /**

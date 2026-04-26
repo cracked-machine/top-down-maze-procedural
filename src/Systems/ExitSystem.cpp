@@ -60,7 +60,7 @@ void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
     auto entity = reg().create();
     reg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, Constants::kGridSizePxF );
     reg().emplace_or_replace<Cmp::Exit>( entity, true ); // locked at start
-    reg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", 1 );
+    reg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.graveyard.exit", 1 );
     reg().emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.position.y );
     reg().emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
 
@@ -76,7 +76,7 @@ void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
     if ( existing_obstacle_cmp ) { reg().remove<Cmp::Obstacle>( rand_entity ); }
 
     reg().emplace_or_replace<Cmp::Exit>( rand_entity, true ); // locked at start
-    reg().emplace_or_replace<Cmp::SpriteAnimation>( rand_entity, 0, 0, true, "WALL", 0 );
+    reg().emplace_or_replace<Cmp::SpriteAnimation>( rand_entity, 0, 0, true, "sprite.graveyard.exit", 0 );
     reg().emplace_or_replace<Cmp::ZOrderValue>( rand_entity, rand_pos_cmp.position.y );
     reg().emplace_or_replace<Cmp::NpcNoPathFinding>( rand_entity );
     SPDLOG_INFO( "Exit spawned at position ({}, {})", rand_pos_cmp.position.x, rand_pos_cmp.position.y );

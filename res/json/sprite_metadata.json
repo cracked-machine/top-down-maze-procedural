@@ -1,8 +1,8 @@
 {
   "sprites": {
-    "WALL": {
+    "sprite.graveyard.exit": {
       "multisprite": {
-        "displayname": "WALL",
+        "displayname": "exit",
         "zorder": [0, 0],
         "texture_path": "res/textures/graveyard.png",
         "sprite_indices": [14, 15],
@@ -14,12 +14,110 @@
         }
       }
     },
-    "ROCK": {
+    "sprite.graveyard.wall.int": {
       "multisprite": {
-        "displayname": "ROCK",
+        "displayname": "sprite.graveyard.wall.int",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/graveyard.png",
         "sprite_indices": [0, 1, 2, 3, 4, 5, 6, 7],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.graveyard.bones": {
+      "multisprite": {
+        "displayname": "sprite.graveyard.bones",
+        "zorder": [0, 0],
+        "texture_path": "res/textures/graveyard.png",
+        "sprite_indices": [13, 14],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.graveyard.pots": {
+      "multisprite": {
+        "displayname": "sprite.graveyard.pots",
+        "zorder": [0, 0, 0],
+        "texture_path": "res/textures/graveyard.png",
+        "sprite_indices": [10,11,12],
+        "sprites_per_sequence": 7,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.graveyard.loot.health": {
+      "multisprite": {
+        "displayname": "sprite.graveyard.loot.health",
+        "zorder": [0],
+        "texture_path": "res/textures/graveyard.png",
+        "sprite_indices": [15],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.graveyard.loot.blast": {
+      "multisprite": {
+        "displayname": "sprite.graveyard.loot.blast",
+        "zorder": [0],
+        "texture_path": "res/textures/graveyard.png",
+        "sprite_indices": [17],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.graveyard.loot.repair": {
+      "multisprite": {
+        "displayname": "sprite.graveyard.loot.repair",
+        "zorder": [0],
+        "texture_path": "res/textures/graveyard.png",
+        "sprite_indices": [16],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.graveyard.hazard.sinkhole": {
+      "multisprite": {
+        "displayname": "sprite.graveyard.hazard.sinkhole",
+        "zorder": [0],
+        "texture_path": "res/textures/graveyard.png",
+        "sprite_indices": [20],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.graveyard.hazard.corruption": {
+      "multisprite": {
+        "displayname": "sprite.graveyard.hazard.corruption",
+        "zorder": [0],
+        "texture_path": "res/textures/graveyard.png",
+        "sprite_indices": [21],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {
@@ -148,34 +246,8 @@
         }
       }
     },
-    "POT": {
-      "multisprite": {
-        "displayname": "POT",
-        "zorder": [0, 0, 0, 0, 0, 0, 0],
-        "texture_path": "res/textures/pot.png",
-        "sprite_indices": [0, 1, 2, 3, 4, 5, 6],
-        "sprites_per_sequence": 7,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "BONES": {
-      "multisprite": {
-        "displayname": "BONES",
-        "zorder": [0, 0],
-        "texture_path": "res/textures/graveyard.png",
-        "sprite_indices": [12, 13],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
+
+
     "CRYPT.interior_lever": {
       "multisprite": {
         "displayname": "CRYPT.interior_lever",
@@ -932,48 +1004,9 @@
         }
       }
     },
-    "EXTRA_HEALTH": {
-      "multisprite": {
-        "displayname": "EXTRA_HEALTH",
-        "zorder": [0],
-        "texture_path": "res/textures/loot.png",
-        "sprite_indices": [0],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "CHAIN_BOMBS": {
-      "multisprite": {
-        "displayname": "CHAIN_BOMBS",
-        "zorder": [0],
-        "texture_path": "res/textures/loot.png",
-        "sprite_indices": [3],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "WEAPON_BOOST": {
-      "multisprite": {
-        "displayname": "WEAPON_BOOST",
-        "zorder": [0],
-        "texture_path": "res/textures/loot.png",
-        "sprite_indices": [2],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
+
+
+
     "CADAVER_DROP": {
       "multisprite": {
         "displayname": "CADAVER_DROP",
@@ -1072,34 +1105,7 @@
         }
       }
     },
-    "SINKHOLE": {
-      "multisprite": {
-        "displayname": "SINKHOLE",
-        "zorder": [0],
-        "texture_path": "res/textures/sinkhole.png",
-        "sprite_indices": [0],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
-    "CORRUPTION": {
-      "multisprite": {
-        "displayname": "CORRUPTION",
-        "zorder": [0],
-        "texture_path": "res/textures/corruption.png",
-        "sprite_indices": [0],
-        "sprites_per_sequence": 1,
-        "sprites_per_frame": 1,
-        "grid_size": {
-          "width": 1,
-          "height": 1
-        }
-      }
-    },
+
     "WORMHOLE": {
       "multisprite": {
         "displayname": "WORMHOLE",

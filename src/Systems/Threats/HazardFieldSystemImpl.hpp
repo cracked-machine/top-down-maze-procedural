@@ -63,10 +63,10 @@ void HazardFieldSystem<HazardType>::init_hazard_field()
 
   Factory::remove_obstacle( reg(), random_entity );
   reg().template emplace<HazardType>( random_entity );
-  reg().template emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, Traits::sprite_type, 0 );
+  reg().template emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, std::string( Traits::sprite_type ), 0 );
   reg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 1.f );
   reg().template emplace_or_replace<Cmp::NpcNoPathFinding>( random_entity );
-  SPDLOG_INFO( "{} hazard spawned at position [{}, {}].", Traits::sprite_type, random_pos.position.x, random_pos.position.y );
+  SPDLOG_INFO( "{} hazard spawned at position [{}, {}].", std::string( Traits::sprite_type ), random_pos.position.x, random_pos.position.y );
 }
 
 template <ValidHazard HazardType>
@@ -109,7 +109,7 @@ void HazardFieldSystem<HazardType>::update_hazard_field()
       {
         Factory::remove_obstacle( reg(), obstacle_entity );
         reg().template emplace_or_replace<HazardType>( obstacle_entity );
-        reg().template emplace_or_replace<Cmp::SpriteAnimation>( obstacle_entity, 0, 0, true, Traits::sprite_type, 0 );
+        reg().template emplace_or_replace<Cmp::SpriteAnimation>( obstacle_entity, 0, 0, true, std::string( Traits::sprite_type ), 0 );
         reg().template emplace_or_replace<Cmp::ZOrderValue>( obstacle_entity, obst_pos_cmp.position.y - 1.f );
         reg().template emplace_or_replace<Cmp::NpcNoPathFinding>( obstacle_entity );
 
@@ -152,7 +152,7 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
     for ( auto [hazard_entt, hazard_cmp, hazard_pos_cmp] : hazard_view.each() )
     {
 
-      if constexpr ( Traits::sprite_type == "SINKHOLE" )
+      if constexpr ( Traits::sprite_type == "sprite.graveyard.hazard.sinkhole" )
       {
         // reduce the hazaard hitbox so that you have to be almost centered over it to fall in
         auto sinkhole_hitbox_redux = Cmp::RectBounds::scaled( hazard_pos_cmp.position, hazard_pos_cmp.size, 0.1f );
@@ -163,7 +163,7 @@ void HazardFieldSystem<HazardType>::check_player_hazard_field_collision()
           return;
         }
       }
-      if constexpr ( Traits::sprite_type == "CORRUPTION" )
+      if constexpr ( Traits::sprite_type == "sprite.graveyard.hazard.corruption" )
       {
         // normal size hitbox for corruption for full area
         auto corruption_hitbox_redux = Cmp::RectBounds::scaled( hazard_pos_cmp.position, hazard_pos_cmp.size, 1.f );
