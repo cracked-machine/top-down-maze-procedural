@@ -23,6 +23,7 @@ struct HazardTraits<Cmp::SinkholeCell>
   static constexpr bool kills_instantly = true;
   static constexpr Cmp::PlayerMortality::State mortality_state = Cmp::PlayerMortality::State::FALLING;
   static constexpr std::string_view sprite_type = "sprite.graveyard.hazard.sinkhole";
+  static constexpr int odds = 2;
 };
 
 // Traits for Corruption hazard field types
@@ -34,6 +35,7 @@ struct HazardTraits<Cmp::CorruptionCell>
   static constexpr bool kills_instantly = false;
   static constexpr Cmp::PlayerMortality::State mortality_state = Cmp::PlayerMortality::State::DECAYING;
   static constexpr std::string_view sprite_type = "sprite.graveyard.hazard.corruption";
+  static constexpr int odds = 7;
 };
 
 } // namespace ProceduralMaze::Sys

@@ -99,27 +99,71 @@ void TileMap::create( const PathFinding::SpatialHashGrid &void_sm, const Scene::
       const unsigned int tv = tile_number / tiles_per_row;
 
       // Cache position calculations
-      const float left = static_cast<float>( w * tile_size.x );
-      const float top = static_cast<float>( h * tile_size.y );
-      const float right = static_cast<float>( ( w + 1 ) * tile_size.x );
-      const float bottom = static_cast<float>( ( h + 1 ) * tile_size.y );
+      const auto left = static_cast<float>( w * tile_size.x );
+      const auto top = static_cast<float>( h * tile_size.y );
+      const auto right = static_cast<float>( ( w + 1 ) * tile_size.x );
+      const auto bottom = static_cast<float>( ( h + 1 ) * tile_size.y );
 
-      const float tex_left = static_cast<float>( tu * tile_size.x );
-      const float tex_top = static_cast<float>( tv * tile_size.y );
-      const float tex_right = static_cast<float>( ( tu + 1 ) * tile_size.x );
-      const float tex_bottom = static_cast<float>( ( tv + 1 ) * tile_size.y );
+      const auto tex_left = static_cast<float>( tu * tile_size.x );
+      const auto tex_top = static_cast<float>( tv * tile_size.y );
+      const auto tex_right = static_cast<float>( ( tu + 1 ) * tile_size.x );
+      const auto tex_bottom = static_cast<float>( ( tv + 1 ) * tile_size.y );
 
       // define the 6 corners of the two triangles (counter-clockwise)
-      m_vertices.append( { { left, top }, sf::Color::White, { tex_left, tex_top } } );
-      m_vertices.append( { { right, top }, sf::Color::White, { tex_right, tex_top } } );
-      m_vertices.append( { { left, bottom }, sf::Color::White, { tex_left, tex_bottom } } );
-      m_vertices.append( { { left, bottom }, sf::Color::White, { tex_left, tex_bottom } } );
-      m_vertices.append( { { right, top }, sf::Color::White, { tex_right, tex_top } } );
-      m_vertices.append( { { right, bottom }, sf::Color::White, { tex_right, tex_bottom } } );
+      m_vertices.append( { .position = { left, top }, .color = sf::Color::White, .texCoords = { tex_left, tex_top } } );
+      m_vertices.append( { .position = { right, top }, .color = sf::Color::White, .texCoords = { tex_right, tex_top } } );
+      m_vertices.append( { .position = { left, bottom }, .color = sf::Color::White, .texCoords = { tex_left, tex_bottom } } );
+      m_vertices.append( { .position = { left, bottom }, .color = sf::Color::White, .texCoords = { tex_left, tex_bottom } } );
+      m_vertices.append( { .position = { right, top }, .color = sf::Color::White, .texCoords = { tex_right, tex_top } } );
+      m_vertices.append( { .position = { right, bottom }, .color = sf::Color::White, .texCoords = { tex_right, tex_bottom } } );
     }
   }
 
   SPDLOG_INFO( "Created tilemap: {} vertices", m_vertices.getVertexCount() );
+}
+
+void TileMap::remove( sf::Vector2f pos )
+{
+  // determine the vertices to remove
+  const auto left = static_cast<float>( pos.x );
+  const auto top = static_cast<float>( pos.y );
+  const auto right = static_cast<float>( pos.x + Constants::kGridSizePxF.x );
+  const auto bottom = static_cast<float>( pos.y + Constants::kGridSizePxF.y );
+
+  // clang-format off
+  const std::array<sf::Vector2f, 4> tile_corners = {
+    sf::Vector2f{ left, top },
+    sf::Vector2f{ right, top },
+    sf::Vector2f{ left, bottom },
+    sf::Vector2f{ right, bottom }
+  };
+  // clang-format on
+
+  auto is_tile_vertex = [&]( const sf::Vertex &v )
+  {
+    for ( const auto &corner : tile_corners )
+    {
+      if ( v.position == corner ) return true;
+    }
+    return false;
+  };
+
+  // Tiles are stored as groups of 6 vertices; skip any group where the first vertex matches the tile
+  sf::VertexArray new_vertices( sf::PrimitiveType::Triangles );
+  const auto count = m_vertices.getVertexCount();
+  for ( size_t i = 0; i + 5 < count; i += 6 )
+  {
+    if ( is_tile_vertex( m_vertices[i] ) && is_tile_vertex( m_vertices[i + 1] ) && is_tile_vertex( m_vertices[i + 2] ) )
+    {
+      continue; // skip this tile's 6 vertices
+    }
+    for ( size_t j = i; j < i + 6; ++j )
+    {
+      new_vertices.append( m_vertices[j] );
+    }
+  }
+
+  m_vertices = std::move( new_vertices );
 }
 
 } // namespace ProceduralMaze::Sprites::Containers

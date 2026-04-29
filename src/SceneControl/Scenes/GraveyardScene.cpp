@@ -116,7 +116,9 @@ void GraveyardScene::on_init()
 
   m_sys.find<Sys::Store::Type::RenderGameSystem>().init_world_view();
 
-  m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().init_hazard_field();
+  auto new_sinkhole_pos = m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().init_hazard_field();
+  if ( new_sinkhole_pos != sf::Vector2f{ 0, 0 } ) { m_floormap.remove( new_sinkhole_pos ); }
+
   m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().init_hazard_field();
   m_sys.find<Sys::Store::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
@@ -185,7 +187,10 @@ void GraveyardScene::on_exit()
 void GraveyardScene::do_update( sf::Time dt )
 {
   m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
-  m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().update();
+
+  auto new_sinkhole_pos = m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().update();
+  if ( new_sinkhole_pos != sf::Vector2f{ 0, 0 } ) { m_floormap.remove( new_sinkhole_pos ); }
+
   m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().update();
   m_sys.find<Sys::Store::Type::BombSystem>().update();
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();

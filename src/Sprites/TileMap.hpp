@@ -28,6 +28,8 @@ public:
   // Create the tile map using a single large sf::VertexArray
   void create( const PathFinding::SpatialHashGrid &void_sm, const Scene::SceneMapSharedPtr &scene_map );
 
+  void remove( sf::Vector2f pos );
+
 private:
   sf::VertexArray m_vertices;
   sf::Texture m_tileset;

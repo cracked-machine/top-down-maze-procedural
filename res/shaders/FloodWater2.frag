@@ -38,11 +38,11 @@ void main()
 
   // Add highlight effect on wave crests
   float highlight = max( 0.0, sin( pos.x * 20.0 + time * 2.0 + waves * 30.0 ) * 0.15 );
-  color.rgb += vec3( highlight, highlight, highlight * 1.3 ) * edgeFalloff;
+  color.rgb += vec3( highlight * 1.3, highlight, highlight ) * edgeFalloff;
 
   // Add dark shadow areas in wave troughs
   float shadow = max( 0.0, -sin( pos.x * 20.0 + time * 2.0 + waves * 30.0 ) * 0.05 );
-  color.rgb -= vec3( shadow, shadow, shadow );
+  color.rgb -= vec3( shadow * 1.3, shadow, shadow );
 
   // Set transparency (50% as specified in original TODO)
   color.a = 0.5;

@@ -57,8 +57,8 @@ public:
   //! @param sprite_factory Reference to the sprite factory
   HazardFieldSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
-  void update();
-  void init_hazard_field();
+  sf::Vector2f update();
+  sf::Vector2f init_hazard_field();
   void on_pause() override;
   void on_resume() override;
 
@@ -71,7 +71,8 @@ private:
   //!   b. Use a random chance (1 in 8) to convert an adjacent obstacle into a new hazard cell.
   //!   c. Count adjacent hazard fields; if surrounded by 2 or more, mark as inactive to stop
   //!   further spreading.
-  void update_hazard_field();
+  sf::Vector2f update_hazard_field();
+
   //! @brief Check for player collision with hazard fields.
   //! If a collision is detected, apply damage or instant death based on hazard type.
   void check_player_hazard_field_collision();

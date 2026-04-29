@@ -38,28 +38,31 @@ HazardFieldSystem<HazardType>::HazardFieldSystem( entt::registry &reg, sf::Rende
 }
 
 template <ValidHazard HazardType>
-void HazardFieldSystem<HazardType>::update()
+sf::Vector2f HazardFieldSystem<HazardType>::update()
 {
-  update_hazard_field();
+  sf::Vector2f add_hazard_cell;
+  add_hazard_cell = update_hazard_field();
   check_npc_hazard_field_collision();
 
   for ( auto [_ent, _sys] : reg().template view<Cmp::System>().each() )
   {
     if ( not _sys.collisions_disabled ) { check_player_hazard_field_collision(); }
   }
+
+  return add_hazard_cell;
 }
 
 template <ValidHazard HazardType>
-void HazardFieldSystem<HazardType>::init_hazard_field()
+sf::Vector2f HazardFieldSystem<HazardType>::init_hazard_field()
 {
   auto hazard_field_view = reg().template view<HazardType>( entt::exclude<typename Traits::ExcludeHazard> );
-  if ( hazard_field_view.size_hint() > 0 ) { return; }
+  if ( hazard_field_view.size_hint() > 0 ) { return {}; }
 
   unsigned long seed = Sys::PersistSystem::get<typename Traits::SeedType>( reg() ).get_value();
   auto [random_entity, random_pos] = Utils::Rnd::get_random_position(
       reg(), Utils::Rnd::IncludePack<Cmp::Obstacle>{},
       Utils::Rnd::ExcludePack<Cmp::Wall, Cmp::Exit, Cmp::PlayerCharacter, Cmp::NPC, Cmp::ReservedPosition>(), seed );
-  if ( random_entity == entt::null ) { return; }
+  if ( random_entity == entt::null ) { return {}; }
 
   Factory::remove_obstacle( reg(), random_entity );
   reg().template emplace<HazardType>( random_entity );
@@ -67,6 +70,8 @@ void HazardFieldSystem<HazardType>::init_hazard_field()
   reg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 1.f );
   reg().template emplace_or_replace<Cmp::NpcNoPathFinding>( random_entity );
   SPDLOG_INFO( "{} hazard spawned at position [{}, {}].", std::string( Traits::sprite_type ), random_pos.position.x, random_pos.position.y );
+
+  return random_pos.position;
 }
 
 template <ValidHazard HazardType>
@@ -82,30 +87,37 @@ void HazardFieldSystem<HazardType>::on_resume()
 }
 
 template <ValidHazard HazardType>
-void HazardFieldSystem<HazardType>::update_hazard_field()
+sf::Vector2f HazardFieldSystem<HazardType>::update_hazard_field()
 {
-  if ( m_spread_update_clock.getElapsedTime() < m_update_period ) return;
+  if ( m_spread_update_clock.getElapsedTime() < m_update_period ) return {};
   m_spread_update_clock.restart();
 
   auto hazard_view = reg().template view<HazardType, Cmp::Position>();
   auto obstacle_view = reg().template view<Cmp::Obstacle, Cmp::Position>( entt::exclude<Cmp::ReservedPosition> );
 
-  Cmp::RandomInt hazard_spread_picker( 0, 7 ); // 1 in 8 chance for picking an adjacent obstacle
+  Cmp::RandomInt hazard_spread_picker( 0, Traits::odds ); // 1 in 8 chance for picking an adjacent obstacle
 
   for ( auto [hazard_entity, hazard_cmp, position_cmp] : hazard_view.each() )
   {
+    SPDLOG_DEBUG( "Hazard {} active: {}", static_cast<uint32_t>( hazard_entity ), hazard_cmp.active );
     if ( not hazard_cmp.active ) continue;
 
     // make the hazard field hitbox slightly larger to find adjacent obstacles
-    auto hazard_hitbox = sf::FloatRect( position_cmp.position, Constants::kGridSizePxF * 2.f );
+    auto hazard_hitbox = sf::FloatRect( position_cmp.position - Constants::kGridSizePxF, Constants::kGridSizePxF * 3.f );
     int adjacent_hazard_fields = 0;
 
     // add new hazard cell
     for ( auto [obstacle_entity, obstacle_cmp, obst_pos_cmp] : obstacle_view.each() )
     {
       if ( not hazard_hitbox.findIntersection( obst_pos_cmp ) ) continue;
+      SPDLOG_DEBUG( "Hazard intersected with object {}", static_cast<uint32_t>( obstacle_entity ) );
+
       if ( reg().template try_get<HazardType>( obstacle_entity ) ) continue;
-      if ( hazard_spread_picker.gen() == 0 )
+      SPDLOG_DEBUG( "Hazard not found at entity {}", static_cast<uint32_t>( obstacle_entity ) );
+
+      auto hazard_pick = hazard_spread_picker.gen();
+      SPDLOG_DEBUG( "hazard_pick:{}", hazard_pick );
+      if ( hazard_pick == 0 )
       {
         Factory::remove_obstacle( reg(), obstacle_entity );
         reg().template emplace_or_replace<HazardType>( obstacle_entity );
@@ -114,7 +126,7 @@ void HazardFieldSystem<HazardType>::update_hazard_field()
         reg().template emplace_or_replace<Cmp::NpcNoPathFinding>( obstacle_entity );
 
         SPDLOG_DEBUG( "New hazard field created at entity {}", static_cast<uint32_t>( obstacle_entity ) );
-        return; // only add one hazard cell per update period
+        return obst_pos_cmp.position; // only add one hazard cell per update period
       }
     }
 
@@ -127,8 +139,10 @@ void HazardFieldSystem<HazardType>::update_hazard_field()
 
     // if the hazard field is surrounded by hazard fields, then we can exclude it from future
     // searches
-    if ( adjacent_hazard_fields >= 2 ) { hazard_cmp.active = false; }
+    SPDLOG_DEBUG( "Hazard {} adjacent count: {}", static_cast<uint32_t>( hazard_entity ), adjacent_hazard_fields );
+    if ( adjacent_hazard_fields >= 4 ) { hazard_cmp.active = false; }
   }
+  return {};
 }
 
 template <ValidHazard HazardType>
@@ -202,7 +216,7 @@ void HazardFieldSystem<HazardType>::check_npc_hazard_field_collision()
       auto loot_entity = Factory::destroy_npc( reg(), npc_entt );
       if ( loot_entity != entt::null )
       {
-        SPDLOG_INFO( "Dropped RELIC_DROP loot at NPC death position." );
+        SPDLOG_DEBUG( "Dropped RELIC_DROP loot at NPC death position." );
         m_sound_bank.get_effect( "drop_relic" ).play();
       }
       SPDLOG_DEBUG( "NPC fell into a hazard field at position ({}, {})!", hazard_pos_cmp.x, hazard_pos_cmp.y );

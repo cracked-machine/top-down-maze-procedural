@@ -1,5 +1,5 @@
 {
-    "activeFile": "X:/cpp/games/top-down-maze-procedural/res/ui/shop.json",
+    "activeFile": "shop.json",
     "expandedProjectPaths": [
         ".",
         "X:/cpp/games/top-down-maze-procedural/res/ui"
@@ -176,11 +176,11 @@
                 3,
                 5
             ],
-            "scale": 4,
+            "scale": 3,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 120,
-                "y": 104.125
+                "x": 126.66666666666664,
+                "y": 61.16666666666666
             }
         },
         "shop.json#floor": {
@@ -238,8 +238,8 @@
         "crypt.json",
         "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json",
         "X:/cpp/games/top-down-maze-procedural/res/ui/dbg.json",
-        "shop.json",
         "X:/cpp/games/top-down-maze-procedural/res/ui/shop.json",
+        "shop.json",
         "X:/cpp/games/top-down-maze-procedural/res/ui/debug.json",
         "well.json",
         "Tilesets/main.json",
