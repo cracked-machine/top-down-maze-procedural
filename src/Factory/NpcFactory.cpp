@@ -133,8 +133,8 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
     // Remove the npc container component from the original entity
     reg.remove<Cmp::NpcContainer>( position_entity );
     reg.remove<Cmp::ZOrderValue>( position_entity );
-    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), npc_type, pos_cmp->position.x,
-                 pos_cmp->position.y );
+    SPDLOG_DEBUG( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), npc_type, pos_cmp->position.x,
+                  pos_cmp->position.y );
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }

@@ -1,51 +1,92 @@
 #version 330
 
-uniform sampler2D texture; // Base water texture
-uniform float time;        // For animation
-uniform vec2 resolution;   // Screen dimensions
-uniform float waterLevel;  // Current water height
+uniform sampler2D texture;
+uniform float time;
+uniform vec2 resolution;
+uniform float waterLevel;
+uniform vec2 viewTopLeft;
+uniform vec2 viewSize;
+uniform vec2 mapSize;
 
 out vec4 outColor;
 
+float rand( float a, float b )
+{
+  uvec2 p = uvec2( uint( a ) * 2654435761u, uint( b ) * 2246822519u );
+  p.x ^= p.y;
+  p.x *= 2654435761u;
+  p.x ^= p.x >> 16u;
+  return float( p.x ) / float( 0xFFFFFFFFu );
+}
+float driftNoise( float layerSeed, float t )
+{
+  float i = floor( t );
+  float f = fract( t );
+  f = f * f * ( 3.0 - 2.0 * f );
+  float a = fract( sin( dot( vec2( layerSeed, i ), vec2( 127.1, 311.7 ) ) ) * 43758.5453 );
+  float b = fract( sin( dot( vec2( layerSeed, i + 1.0 ), vec2( 127.1, 311.7 ) ) ) * 43758.5453 );
+  return mix( a, b, f ) * 2.0 - 1.0;
+}
+
+vec3 waveColor( int layer, int totalLayers )
+{
+  float t = float( layer ) / float( totalLayers - 1 );
+  vec3 dark = vec3( 0.05, 0.35, 0.55 );
+  vec3 mid = vec3( 0.18, 0.60, 0.78 );
+  vec3 light = vec3( 0.55, 0.82, 0.90 );
+  if ( t < 0.5 )
+    return mix( dark, mid, t * 2.0 );
+  else
+    return mix( mid, light, ( t - 0.5 ) * 2.0 );
+}
+
 void main()
 {
-  // Calculate position relative to screen
-  vec2 pos = gl_FragCoord.xy / resolution;
+  vec2 normalizedScreen = gl_FragCoord.xy / resolution;
+  normalizedScreen.y = 1.0 - normalizedScreen.y;
+  vec2 worldPos = viewTopLeft + normalizedScreen * viewSize;
 
-  // Create primary wave patterns with different frequencies and phases
-  float wave1 = sin( pos.x * 10.0 + time * 0.5 ) * 0.03;
-  float wave2 = cos( pos.x * 15.0 - time * 0.3 ) * 0.02;
+  float normX = worldPos.x / mapSize.x;
+  float normY = worldPos.y / mapSize.y;
 
-  // Add diagonal wave patterns for more natural water movement
-  float wave3 = sin( ( pos.x + pos.y ) * 8.0 + time * 0.7 ) * 0.015;
-  float wave4 = cos( ( pos.x - pos.y ) * 12.0 - time * 0.4 ) * 0.01;
+  const int NUM_LAYERS = 160;
+  float layerHeight = 1.0 / float( NUM_LAYERS );
 
-  // Combine waves with distance-based amplitude falloff
-  // (waves get smaller near the edges)
-  float distFromCenter = abs( pos.x - 0.5 ) * 2.0;
-  float edgeFalloff = 1.0 - ( distFromCenter * distFromCenter );
+  vec3 finalColor = vec3( 0.05, 0.35, 0.55 );
 
-  // Sum all wave components with edge falloff
-  float waves = ( wave1 + wave2 + wave3 + wave4 ) * edgeFalloff;
+  for ( int i = 0; i < NUM_LAYERS; i++ )
+  {
+    float fi = float( i ); // was missing!
 
-  // Create small ripples for surface detail
-  float ripples = sin( pos.x * 40.0 + pos.y * 30.0 + time * 3.0 ) * 0.005;
-  waves += ripples;
+    float staticBand = 1.0 - fi * layerHeight;
+    float driftSpeed = 0.02 + rand( fi, 8.0 ) * 0.08;
+    float driftPhase = rand( fi, 9.0 ) * 6.28318;
+    float driftFreq = 1.0 + rand( fi, 80.0 ) * 4.0; // 1..5 oscillations per drift cycle
+    float driftAmp = layerHeight;
+    float bandTop = staticBand + sin( time * driftSpeed * driftFreq + driftPhase ) * driftAmp;
 
-  // Sample texture with wave distortion
-  vec2 distortedPos = vec2( pos.x + waves * 0.2, pos.y + waves );
-  vec4 color = texture2D( texture, distortedPos );
+    float speed = ( rand( fi, 1.0 ) * 2.0 - 1.0 ) * 0.6;
+    float freq = 50.0 + rand( fi, 2.0 ) * 40.0;
+    float amp = 0.002 + rand( fi, 3.0 ) * 0.002;
+    float phase = rand( fi, 4.0 ) * 6.28318;
+    float phase2 = rand( fi, 5.0 ) * 6.28318;
+    float phase3 = rand( fi, 6.0 ) * 6.28318;
 
-  // Add highlight effect on wave crests
-  float highlight = max( 0.0, sin( pos.x * 20.0 + time * 2.0 + waves * 30.0 ) * 0.15 );
-  color.rgb += vec3( highlight * 1.3, highlight, highlight ) * edgeFalloff;
+    float crest = bandTop + sin( normX * freq * 6.28 + time * speed + phase ) * amp +
+                  sin( normX * freq * 4.71 - time * speed * 0.7 + phase2 ) * amp * 0.15 +
+                  sin( normX * freq * 9.42 + time * speed * 1.3 + phase3 ) * amp * 0.08;
 
-  // Add dark shadow areas in wave troughs
-  float shadow = max( 0.0, -sin( pos.x * 20.0 + time * 2.0 + waves * 30.0 ) * 0.05 );
-  color.rgb -= vec3( shadow * 1.3, shadow, shadow );
+    if ( normY < crest )
+    {
+      vec3 layerColor = waveColor( i, NUM_LAYERS );
+      float distToCrest = crest - normY;
+      float highlight = smoothstep( 0.01, 0.0, distToCrest );
+      layerColor += vec3( 0.35, 0.35, 0.35 ) * highlight;
 
-  // Set transparency (50% as specified in original TODO)
-  color.a = 0.5;
+      float layerAlpha = 0.4 + rand( fi, 5.7 ) * 0.3;
+      finalColor = mix( finalColor, layerColor, layerAlpha );
+    }
+  }
 
-  outColor = color;
+  outColor = vec4( finalColor, 0.85 );
 }

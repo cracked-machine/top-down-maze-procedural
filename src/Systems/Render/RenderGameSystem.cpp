@@ -121,7 +121,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   // render these things first
   if ( bg_mode == BackGroundMode::ON ) { render_water_shader(); }
 
-  render_floormap( floormap );
+  // render_floormap( floormap );
   render_seeingstone_doglegs();
 
   // render anything with a ZOrderValue component in lowest value first order
@@ -377,13 +377,24 @@ void RenderGameSystem::render_water_shader()
 {
 
   if ( not m_water_shader ) { throw std::runtime_error( "RenderGameSystem::render_water_shader - water shader is not initalised" ); }
+
+  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
+  sf::Vector2f view_center = s_world_view.getCenter();
+  sf::Vector2f view_size = s_world_view.getSize();
+  sf::Vector2f view_top_left = { view_center.x - view_size.x / 2.f, view_center.y - view_size.y / 2.f };
+  sf::Vector2f map_size = sf::Vector2f( m_water_shader->get_texture_size() );
+
   // clang-format off
   m_water_shader->Sprites::BaseShader::update( 
     Sprites::UniformBuilder{}
-      .set( "waterLevel", 0 )
+      .set( "waterLevel",  0 )
+      .set( "resolution",  sf::Vector2f{ display_size } )
+      .set( "viewTopLeft", view_top_left )
+      .set( "viewSize",    view_size )
+      .set( "mapSize",     map_size )
   );
   // clang-format on
-  m_water_shader->set_center_at_position( Utils::Player::get_position( reg() ).position );
+  m_water_shader->set_position( { 0, 0 } );
   draw_world( *m_water_shader );
 }
 
