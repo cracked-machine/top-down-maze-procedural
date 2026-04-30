@@ -121,7 +121,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   // render these things first
   if ( bg_mode == BackGroundMode::ON ) { render_water_shader(); }
 
-  // render_floormap( floormap );
+  render_floormap( floormap );
   render_seeingstone_doglegs();
 
   // render anything with a ZOrderValue component in lowest value first order
@@ -366,9 +366,11 @@ void RenderGameSystem::render_shockwaves( [[maybe_unused]] Sprites::Containers::
 
 void RenderGameSystem::init_world_shaders( const sf::Vector2u &map_size )
 {
-  m_water_shader = std::make_unique<Sprites::FloodWaterShader>( "res/shaders/Generic.vert", "res/shaders/FloodWater2.frag", map_size );
+  m_water_shader = std::make_unique<Sprites::FloodWaterShader>( "res/shaders/Generic.vert", "res/shaders/FloodWater2.frag",
+                                                                map_size.componentWiseMul( { 2, 2 } ) );
   m_pulsing_shader = std::make_unique<Sprites::PulsingShader>( "res/shaders/Generic.vert", "res/shaders/RedPulsingSand.frag", map_size );
-  m_mist_shader = std::make_unique<Sprites::MistShader>( "res/shaders/Generic.vert", "res/shaders/MistShader.frag", map_size );
+  m_mist_shader = std::make_unique<Sprites::MistShader>( "res/shaders/Generic.vert", "res/shaders/MistShader.frag",
+                                                         map_size.componentWiseMul( { 2, 2 } ) );
   m_dark_mode_shader = std::make_unique<Sprites::DarkModeShader>( "res/shaders/Generic.vert", "res/shaders/DarkMode.frag", map_size );
   m_cursed_mode_shader = std::make_unique<Sprites::DrippingBloodShader>( "res/shaders/Generic.vert", "res/shaders/Generic.frag", map_size );
 }
@@ -394,7 +396,7 @@ void RenderGameSystem::render_water_shader()
       .set( "mapSize",     map_size )
   );
   // clang-format on
-  m_water_shader->set_position( { 0, 0 } );
+  m_water_shader->set_position( { -100, -100 } );
   draw_world( *m_water_shader );
 }
 
@@ -415,7 +417,7 @@ void RenderGameSystem::render_mist()
       .set( "viewSize", view_size )
   );
   // clang-format on
-  m_mist_shader->set_position( { 0, 0 } );
+  m_mist_shader->set_position( { -100, -100 } );
   draw_world( *m_mist_shader );
 
   if ( not m_pulsing_shader ) { throw std::runtime_error( "RenderGameSystem::render_mist - pulsing shader is not initalised" ); }
