@@ -31,9 +31,9 @@ float driftNoise( float layerSeed, float t )
 vec3 waveColor( int layer, int totalLayers )
 {
   float t = float( layer ) / float( totalLayers - 1 );
-  vec3 dark = vec3( 0.05, 0.35, 0.55 );
-  vec3 mid = vec3( 0.18, 0.60, 0.78 );
-  vec3 light = vec3( 0.55, 0.82, 0.90 );
+  vec3 dark = vec3( 0.04, 0.12, 0.08 );  // dark murky green
+  vec3 mid = vec3( 0.10, 0.22, 0.15 );   // muddy green
+  vec3 light = vec3( 0.18, 0.28, 0.18 ); // dull olive green
   if ( t < 0.5 )
     return mix( dark, mid, t * 2.0 );
   else
@@ -56,35 +56,45 @@ void main()
 
   for ( int i = 0; i < NUM_LAYERS; i++ )
   {
-    float fi = float( i ); // was missing!
+    float fi = float( i );
 
+    // tide wave for each layer
     float staticBand = 1.0 - fi * layerHeight;
     float driftSpeed = 0.02 + rand( fi, 8.0 ) * 0.08;
     float driftPhase = rand( fi, 9.0 ) * 6.28318;
-    float driftFreq = 1.0 + rand( fi, 80.0 ) * 4.0; // 1..5 oscillations per drift cycle
-    float driftAmp = layerHeight;
+    float driftFreq = 1.0 + rand( fi, 80.0 ) * 4.0;
+    float driftAmp = layerHeight * 0.5;
     float bandTop = staticBand + sin( time * driftSpeed * driftFreq + driftPhase ) * driftAmp;
 
+    // individual wavelets within the layer
     float speed = ( rand( fi, 1.0 ) * 2.0 - 1.0 ) * 0.6;
     float freq = 50.0 + rand( fi, 2.0 ) * 40.0;
-    float amp = 0.002 + rand( fi, 3.0 ) * 0.002;
     float phase = rand( fi, 4.0 ) * 6.28318;
     float phase2 = rand( fi, 5.0 ) * 6.28318;
     float phase3 = rand( fi, 6.0 ) * 6.28318;
 
-    float crest = bandTop + sin( normX * freq * 6.28 + time * speed + phase ) * amp +
-                  sin( normX * freq * 4.71 - time * speed * 0.7 + phase2 ) * amp * 0.15 +
-                  sin( normX * freq * 9.42 + time * speed * 1.3 + phase3 ) * amp * 0.08;
+    // Vary the wavelet amp along the layer
+    float amp = 0.003 + rand( fi, 3.0 ) * 0.001;
+    float ampSpeed = 0.5 + rand( fi, 1.0 ) * 1.0;
+    float ampPhase = rand( fi, 12.0 ) * 6.28318;
+    float ampFreq = 5.0 + rand( fi, 13.0 ) * 10.0;
+    float ampMod = 0.7 + 0.3 * sin( normX * ampFreq * 6.28 + time * ampSpeed + ampPhase );
+    float finalAmp = amp * ampMod;
+
+    // harmonic content for natural gradient effect
+    float crest = bandTop + sin( normX * freq * 6.28 + time * speed + phase ) * finalAmp +
+                  sin( normX * freq * 4.71 - time * speed * 0.7 + phase2 ) * finalAmp * 0.15 +
+                  sin( normX * freq * 9.42 + time * speed * 1.3 + phase3 ) * finalAmp * 0.08;
 
     if ( normY < crest )
     {
       vec3 layerColor = waveColor( i, NUM_LAYERS );
       float distToCrest = crest - normY;
       float highlight = smoothstep( 0.01, 0.0, distToCrest );
-      layerColor += vec3( 0.35, 0.35, 0.35 ) * highlight;
+      layerColor += vec3( 0.14, 0.16, 0.12 ) * highlight; // dull olive highlight
 
       float layerAlpha = 0.4 + rand( fi, 5.7 ) * 0.3;
-      finalColor = mix( finalColor, layerColor, layerAlpha );
+      finalColor = mix( layerColor, finalColor, layerAlpha );
     }
   }
 
