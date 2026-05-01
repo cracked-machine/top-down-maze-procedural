@@ -3,7 +3,6 @@
 uniform sampler2D texture;
 uniform float time;
 uniform vec2 resolution;
-uniform float waterLevel;
 uniform vec2 viewTopLeft;
 uniform vec2 viewSize;
 uniform vec2 mapSize;
@@ -27,6 +26,9 @@ float driftNoise( float layerSeed, float t )
   float b = fract( sin( dot( vec2( layerSeed, i + 1.0 ), vec2( 127.1, 311.7 ) ) ) * 43758.5453 );
   return mix( a, b, f ) * 2.0 - 1.0;
 }
+
+float sine_wave( float x ) { return sin( x ); }
+float sawtooth_wave( float x ) { return fract( x / 6.28318 ) * 2.0 - 1.0; }
 
 vec3 waveColor( int layer, int totalLayers )
 {
@@ -58,7 +60,7 @@ void main()
   {
     float fi = float( i );
 
-    // tide wave for each layer
+    // Affect x/y drift of the overal wave layer
     float staticBand = 1.0 - fi * layerHeight;
     float driftSpeed = 0.02 + rand( fi, 8.0 ) * 0.08;
     float driftPhase = rand( fi, 9.0 ) * 6.28318;
@@ -66,25 +68,28 @@ void main()
     float driftAmp = layerHeight * 0.5;
     float bandTop = staticBand + sin( time * driftSpeed * driftFreq + driftPhase ) * driftAmp;
 
-    // individual wavelets within the layer
+    // layer min/max random ranges
     float speed = ( rand( fi, 1.0 ) * 2.0 - 1.0 ) * 0.6;
-    float freq = 50.0 + rand( fi, 2.0 ) * 40.0;
+    float freq = 75.0 + rand( fi, 2.0 ) * 40.0;
     float phase = rand( fi, 4.0 ) * 6.28318;
     float phase2 = rand( fi, 5.0 ) * 6.28318;
     float phase3 = rand( fi, 6.0 ) * 6.28318;
 
-    // Vary the wavelet amp along the layer
-    float amp = 0.003 + rand( fi, 3.0 ) * 0.001;
+    // Per-layer scale of the waves
+    float amp = 0.002 + rand( fi, 3.0 ) * 0.001;
+
+    // Wave swell throughout the layer
     float ampSpeed = 0.5 + rand( fi, 1.0 ) * 1.0;
     float ampPhase = rand( fi, 12.0 ) * 6.28318;
     float ampFreq = 5.0 + rand( fi, 13.0 ) * 10.0;
-    float ampMod = 0.7 + 0.3 * sin( normX * ampFreq * 6.28 + time * ampSpeed + ampPhase );
+    float ampMod = 0.5 + 0.2 * sin( normX * ampFreq * 6.28 + time * ampSpeed + ampPhase );
+
     float finalAmp = amp * ampMod;
 
     // harmonic content for natural gradient effect
-    float crest = bandTop + sin( normX * freq * 6.28 + time * speed + phase ) * finalAmp +
-                  sin( normX * freq * 4.71 - time * speed * 0.7 + phase2 ) * finalAmp * 0.15 +
-                  sin( normX * freq * 9.42 + time * speed * 1.3 + phase3 ) * finalAmp * 0.08;
+    float crest = bandTop + sine_wave( normX * freq * 6.28 + time * speed + phase ) * finalAmp +
+                  sawtooth_wave( normX * freq * 4.71 - time * speed * 0.7 + phase2 ) * finalAmp * 0.05 * driftPhase +
+                  sawtooth_wave( normX * freq * 9.42 + time * speed * 1.3 + phase3 ) * finalAmp * 0.03 * driftPhase;
 
     if ( normY < crest )
     {
