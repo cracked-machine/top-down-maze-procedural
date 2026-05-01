@@ -9,6 +9,7 @@
 #include <Factory/ParticleFactory.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Factory/ShaderFactory.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
 #include <Obstacle.hpp>
 #include <Optimizations.hpp>
@@ -19,6 +20,9 @@
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/GraveyardScene.hpp>
+#include <Shaders/FloodWaterShader.hpp>
+#include <Shaders/MistShader.hpp>
+#include <Shaders/PulsingShader.hpp>
 #include <Systems/AltarSystem.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -36,6 +40,7 @@
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Systems/ShaderSystem.hpp>
 #include <Systems/Stores/ItemStore.hpp>
 #include <Systems/Stores/NpcStore.hpp>
 #include <Systems/SystemStore.hpp>
@@ -46,6 +51,7 @@
 #include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
 
+#include <ZOrderValue.hpp>
 #include <memory>
 
 namespace ProceduralMaze::Scene
@@ -84,8 +90,9 @@ void GraveyardScene::on_init()
   auto [map_size_grid, map_size_pixel] = m_scene_map_data->map_size();
   SPDLOG_INFO( "m_scene_map_data {},{} {},{}", map_size_grid.x, map_size_grid.y, map_size_pixel.x, map_size_pixel.y );
 
-  // We only have access to DisplayResolution once the PersistSystem is initialized.
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().init_world_shaders( map_size_grid.componentWiseMul( Constants::kGridSizePx ) );
+  Factory::Shader::add_water( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
+  Factory::Shader::add_mist( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
+  Factory::Shader::add_pulse( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
 
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();
@@ -221,7 +228,7 @@ void GraveyardScene::do_update( sf::Time dt )
   }
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::OFF );
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap );
 }
 
 void GraveyardScene::reinit_navmesh()

@@ -1,8 +1,10 @@
 #include <Components/Position.hpp>
 #include <Persistent/DisplayResolution.hpp>
-#include <Shaders/PulsingShader.hpp>
+#include <Shaders/UniformBuilder.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Utils/Player.hpp>
+
+#include <Shaders/PulsingShader.hpp>
 
 namespace ProceduralMaze::Sprites
 {

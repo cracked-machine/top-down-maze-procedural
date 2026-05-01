@@ -1,6 +1,7 @@
 
 #include <Constants.hpp>
 #include <Persistent/DisplayResolution.hpp>
+#include <Shaders/UniformBuilder.hpp>
 #include <Systems/PersistSystem.hpp>
 
 #include <Shaders/TitleScreenShader.hpp>

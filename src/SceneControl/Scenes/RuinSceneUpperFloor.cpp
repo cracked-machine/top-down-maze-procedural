@@ -12,6 +12,7 @@
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
+#include <Factory/ShaderFactory.hpp>
 #include <Factory/WallFactory.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
@@ -137,14 +138,14 @@ void RuinSceneUpperFloor::do_update( sf::Time dt )
   m_sys.find<Store::Type::PlayerSystem>().disable_damage_cooldown();
 
   auto [_, map_size_pixel] = m_scene_map_data->map_size();
-  bool player_curse_active = m_sys.find<Store::Type::RuinSystem>().check_activate_player_curse( map_size_pixel );
+  // bool player_curse_active = m_sys.find<Store::Type::RuinSystem>().check_activate_player_curse( map_size_pixel );
+  // if ( player_curse_active ) { Factory::Shader::add_curse( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel ); }
 
   m_sys.find<Store::Type::RuinSystem>().update_shadow_hand_pos( map_size_pixel );
   // m_sys.find<Store::Type::RuinSystem>().check_player_shadow_hand_collision( dt );
 
   auto &overlay_sys = m_sys.find<Store::Type::RenderOverlaySystem>();
-  m_sys.find<Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, DarkMode::OFF, WeatherMode::OFF,
-                                                           ( player_curse_active ? CursedMode::ON : CursedMode::OFF ) );
+  m_sys.find<Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap );
 }
 
 entt::registry &RuinSceneUpperFloor::registry() { return m_reg; }

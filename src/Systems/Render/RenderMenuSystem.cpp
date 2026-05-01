@@ -54,6 +54,7 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
+#include <Systems/ShaderSystem.hpp>
 #include <Systems/Threats/BombSystem.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
@@ -68,11 +69,6 @@
 namespace ProceduralMaze::Sys
 {
 
-void RenderMenuSystem::init_title_shaders( const Cmp::Persist::DisplayResolution &display_res )
-{
-  m_title_screen_shader = std::make_unique<Sprites::TitleScreenShader>( "res/shaders/Generic.vert", "res/shaders/TitleScreen.frag", display_res );
-}
-
 RenderMenuSystem::~RenderMenuSystem() = default;
 
 void RenderMenuSystem::render_title()
@@ -83,9 +79,13 @@ void RenderMenuSystem::render_title()
     auto display_size = sf::Vector2f( Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() ) );
 
     // shaders
-    if ( not m_title_screen_shader ) { throw std::runtime_error( "RenderMenuSystem::render_title - title shader is not initalised" ); }
-    m_title_screen_shader->update( reg() );
-    m_window.draw( *m_title_screen_shader );
+    auto shader_view = reg().view<ShaderSpriteOwner>();
+    for ( auto [entt, shader] : shader_view.each() )
+    {
+      if ( not shader.sprite ) continue;
+      shader.sprite->update( reg() );
+      m_window.draw( *shader.sprite );
+    }
 
     // text
     sf::Color txt_color{ 64, 96, 184 };
@@ -166,11 +166,16 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
       m_window.create( sf::VideoMode( display_resolution ), "Your Game Title", sf::State::Fullscreen );
       m_window.setVerticalSyncEnabled( true );
 
-      // init_title_shaders( display_resolution );
-      if ( not m_title_screen_shader ) { throw std::runtime_error( "RenderMenuSystem::render_settings_widgets - title shader is not initalised" ); }
-      m_title_screen_shader->resize_texture( display_resolution );
-
-      SPDLOG_DEBUG( "Selected resolution: {}x{}", display_resolution.x, display_resolution.y );
+      auto shader_view = reg().view<ShaderSpriteOwner>();
+      for ( auto [entt, shader] : shader_view.each() )
+      {
+        if ( not shader.sprite ) continue;
+        if ( shader.sprite->get_tag() == "TitleShader" )
+        {
+          shader.sprite->resize_texture( display_resolution );
+          SPDLOG_DEBUG( "Selected resolution: {}x{}", display_resolution.x, display_resolution.y );
+        }
+      }
     }
 
     ImGui::SeparatorText( "Player Settings" );
@@ -253,7 +258,6 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
     Sys::PersistSystem::get<Cmp::Persist::GraveNumMultiplier>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::ExitKeyRequirement>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::MaxNumCrypts>( reg() ).render_widget();
-
   } catch ( const std::exception &e )
   {
     ImGui::TextColored( ImVec4( 1.0f, 0.0f, 0.0f, 1.0f ), "Error rendering settings: %s", e.what() );

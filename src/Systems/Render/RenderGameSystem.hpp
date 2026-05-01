@@ -49,11 +49,6 @@ namespace ProceduralMaze::Sys
 
 class RenderOverlaySystem;
 
-enum class BackGroundMode { OFF = 0, ON = 1 };
-enum class DarkMode { OFF = 0, ON = 1 };
-enum class WeatherMode { OFF, ON };
-enum class CursedMode { OFF = 0, ON = 1 };
-
 class RenderGameSystem : public RenderSystem
 {
 public:
@@ -66,9 +61,7 @@ public:
   //! info, etc..
   //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc..
   //! as well as death animations/effects
-  void render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap, DarkMode dark_mode = DarkMode::OFF,
-                    WeatherMode weather_mode = WeatherMode::ON, CursedMode cursed_mode = CursedMode::OFF,
-                    BackGroundMode bg_mode = BackGroundMode::ON );
+  void render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap );
 
   //! @brief Refreshes the Z-order rendering queue
   void refresh_z_order_queue();
@@ -78,18 +71,7 @@ public:
 
   void updateCamera( sf::Time deltaTime );
 
-  //! @brief Initializes the shaders.
-  //! @param display_res Dimensions for initializing internal shader textures
-  void init_world_shaders( const sf::Vector2u &map_size );
-
 private:
-  // Lazy initialize the shaders - RenderGameSystem::init_shaders() - once we know the screen resolution.
-  std::unique_ptr<Sprites::FloodWaterShader> m_water_shader;
-  std::unique_ptr<Sprites::PulsingShader> m_pulsing_shader;
-  std::unique_ptr<Sprites::MistShader> m_mist_shader;
-  std::unique_ptr<Sprites::DarkModeShader> m_dark_mode_shader;
-  std::unique_ptr<Sprites::DrippingBloodShader> m_cursed_mode_shader;
-
   sf::Vector2f m_camera_position{ 0.f, 0.f }; // Smoothed camera position
   bool m_camera_initialized{ false };
 
@@ -104,18 +86,6 @@ private:
   //! @param floormap
   void render_shockwaves( Sprites::Containers::TileMap &floormap );
 
-  //! @brief Used by GraveyardScene
-  void render_water_shader();
-
-  //! @brief Used by GraveyardScene
-  void render_mist();
-
-  //! @brief Used by CryptScene
-  void render_dark_mode_shader();
-
-  //! @brief Used by RuinScene
-  void render_cursed_mode_shader();
-
   //! @brief Used by GraveyardScene when player has key and relic carryitems
   void render_arrow_compass();
 
@@ -124,9 +94,6 @@ private:
 
   //! @brief Used by GraveyardScene when player is struck by lightning
   void render_lightning_strike();
-
-  //! @brief Render all particle system sprites
-  void render_particle_sprites();
 
   //! @brief Flashes the screen
   //! @param color

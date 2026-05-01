@@ -20,6 +20,7 @@
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
+#include <Systems/ShaderSystem.hpp>
 #include <Systems/ShopSystem.hpp>
 #include <Systems/Stores/BaseStore.hpp>
 #include <Systems/Stores/ItemStore.hpp>
@@ -64,8 +65,10 @@ Store::Store( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, 
     m_sysmap.emplace( Type::RenderGameSystem, std::make_unique<RenderGameSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::RenderMenuSystem, std::make_unique<RenderMenuSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::RenderOverlaySystem, std::make_unique<RenderOverlaySystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::ShaderSystem, std::make_unique<ShaderSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::SceneInputRouter, std::make_unique<SceneInputRouter>( m_initial_reg, window, sprite_factory, sound_bank, nav_event_dispatcher, scenemanager_event_dispatcher ) );
     m_sysmap.emplace( Type::ShockwaveSystem, std::make_unique<ShockwaveSystem>( m_initial_reg, window, sprite_factory, sound_bank) );
+    m_sysmap.emplace( Type::ShockwaveSystem, std::make_unique<ShaderSystem>( m_initial_reg, window, sprite_factory, sound_bank) );
     m_sysmap.emplace( Type::ShopSystem, std::make_unique<ShopSystem>(  m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
     m_sysmap.emplace( Type::SinkHoleHazardSystem, std::make_unique<SinkHoleHazardSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::WormholeSystem, std::make_unique<WormholeSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );

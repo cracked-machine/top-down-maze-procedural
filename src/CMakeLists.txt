@@ -56,6 +56,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Systems/Stores/ItemStore.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Stores/NpcStore.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ParticleSystem.cpp
+    ${CMAKE_SOURCE_DIR}/src/Systems/ShaderSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/Threats/ShockwaveSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/SceneInputRouter.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/SceneManager.cpp
@@ -83,6 +84,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Factory/RuinFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/PlantFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/MultiblockFactory.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/ShaderFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Utils/Utils.cpp
     ${CMAKE_SOURCE_DIR}/src/Utils/Maths.cpp
     ${CMAKE_SOURCE_DIR}/src/Utils/Player.cpp

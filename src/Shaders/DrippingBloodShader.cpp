@@ -2,6 +2,7 @@
 #include <Components/Player/PlayerCurse.hpp>
 #include <Components/Position.hpp>
 #include <Persistent/DisplayResolution.hpp>
+#include <Shaders/UniformBuilder.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Utils/Player.hpp>
 

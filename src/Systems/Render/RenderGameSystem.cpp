@@ -58,6 +58,7 @@
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Systems/ShaderSystem.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Maths.hpp>
@@ -90,8 +91,7 @@ RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &windo
 
 RenderGameSystem::~RenderGameSystem() = default;
 
-void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap, DarkMode dark_mode,
-                                    WeatherMode weather_mode, CursedMode cursed_mode, BackGroundMode bg_mode )
+void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap )
 {
   using namespace Sprites;
 
@@ -118,9 +118,6 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
 
   // main render begin
   m_window.clear();
-
-  // render these things first
-  if ( bg_mode == BackGroundMode::ON ) { render_water_shader(); }
 
   render_floormap( floormap );
   render_seeingstone_doglegs();
@@ -161,6 +158,13 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
       particle_sprite_owner.sprite->set_view_transform( m_window, s_world_view );
       draw_screen( *particle_sprite_owner.sprite );
     }
+    else if ( reg().all_of<ShaderSpriteOwner>( entity ) )
+    {
+      auto &shader_sprite_owner = reg().get<ShaderSpriteOwner>( entity );
+      if ( not shader_sprite_owner.sprite ) continue;
+      shader_sprite_owner.sprite->update( reg() );
+      draw_world( *shader_sprite_owner.sprite );
+    }
   }
 
   // finally render anything on top
@@ -171,13 +175,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   // lava pit outline
   render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 64, 64, 64 ), 0.5f );
 
-  // shader overlays
-  if ( weather_mode == WeatherMode::ON ) { render_mist(); }
-  if ( dark_mode == DarkMode::ON && m_render_dark_mode_enabled ) { render_dark_mode_shader(); }
-  if ( cursed_mode == CursedMode::ON ) { render_cursed_mode_shader(); }
-
   render_lightning_strike();
-  render_particle_sprites();
   render_overlay_sys.render_shop_inventory_overlay();
 
   // debug: show crypt component boundaries
@@ -270,7 +268,10 @@ void RenderGameSystem::refresh_z_order_queue()
   add_visible_entity_to_z_order_queue<Cmp::HolyWellMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::CryptInteriorMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::RuinBuildingMultiBlock>( m_zorder_queue_, view_bounds );
+
+  // add the wrapper types for all particle and shader sprites so they can be rendered with the other entities
   add_visible_entity_to_z_order_queue<ParticleSpriteOwner>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<ShaderSpriteOwner>( m_zorder_queue_, view_bounds );
 
   // add other components as normal
   add_visible_entity_to_z_order_queue<Cmp::Position>( m_zorder_queue_, view_bounds );
@@ -371,49 +372,6 @@ void RenderGameSystem::render_shockwaves( [[maybe_unused]] Sprites::Containers::
       }
     }
   }
-}
-
-void RenderGameSystem::init_world_shaders( const sf::Vector2u &map_size )
-{
-  m_water_shader = std::make_unique<Sprites::FloodWaterShader>( "res/shaders/Generic.vert", "res/shaders/FloodWater2.frag",
-                                                                map_size.componentWiseMul( { 2, 2 } ) );
-  m_pulsing_shader = std::make_unique<Sprites::PulsingShader>( "res/shaders/Generic.vert", "res/shaders/RedPulsingSand.frag", map_size );
-  m_mist_shader = std::make_unique<Sprites::MistShader>( "res/shaders/Generic.vert", "res/shaders/MistShader.frag",
-                                                         map_size.componentWiseMul( { 2, 2 } ) );
-  m_dark_mode_shader = std::make_unique<Sprites::DarkModeShader>( "res/shaders/Generic.vert", "res/shaders/DarkMode.frag", map_size );
-  m_cursed_mode_shader = std::make_unique<Sprites::DrippingBloodShader>( "res/shaders/Generic.vert", "res/shaders/Generic.frag", map_size );
-}
-
-void RenderGameSystem::render_water_shader()
-{
-  if ( not m_water_shader ) { throw std::runtime_error( "RenderGameSystem::render_water_shader - water shader is not initalised" ); }
-  m_water_shader->update( reg() );
-  draw_world( *m_water_shader );
-}
-
-void RenderGameSystem::render_mist()
-{
-  if ( not m_mist_shader ) { throw std::runtime_error( "RenderGameSystem::render_mist - mist shader is not initalised" ); }
-  m_mist_shader->update( reg() );
-  draw_world( *m_mist_shader );
-
-  if ( not m_pulsing_shader ) { throw std::runtime_error( "RenderGameSystem::render_mist - pulsing shader is not initalised" ); }
-  m_pulsing_shader->update( reg() );
-  draw_world( *m_pulsing_shader );
-}
-
-void RenderGameSystem::render_dark_mode_shader()
-{
-  if ( not m_dark_mode_shader ) { throw std::runtime_error( "RenderGameSystem::render_dark_mode_shader - darkmode shader is not initalised" ); }
-  m_dark_mode_shader->update( reg() );
-  draw_world( *m_dark_mode_shader );
-}
-
-void RenderGameSystem::render_cursed_mode_shader()
-{
-  if ( not m_cursed_mode_shader ) { throw std::runtime_error( "RenderGameSystem::render_cursed_mode_shader - cursed shader is not initalised" ); }
-  m_cursed_mode_shader->update( reg() );
-  draw_world( *m_cursed_mode_shader );
 }
 
 void RenderGameSystem::render_arrow_compass()
@@ -642,16 +600,6 @@ void RenderGameSystem::render_lightning_strike()
       }
     }
   }
-}
-
-void RenderGameSystem::render_particle_sprites()
-{
-  // for ( auto [entt, owner] : reg().view<ParticleSpriteOwner>().each() )
-  // {
-  //   // pass the world view so the sprite can map world coords to screen coords
-  //   owner.sprite->set_view_transform( m_window, s_world_view );
-  //   draw_screen( *owner.sprite );
-  // }
 }
 
 void RenderGameSystem::render_screen_flash( sf::Color color )

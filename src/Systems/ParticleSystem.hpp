@@ -14,7 +14,7 @@ namespace ProceduralMaze::Sys
 
 // 1. Emission Stage:   - IParticle::emit()
 // 2. Simulation Stage  - IParticleSprite::simulate()
-// 3. Rendering Stage   - RenderGameSystem::render_particle_sprites()
+// 3. Rendering Stage   - via RenderGameSystem using Cmp::ZorderValue
 
 // IParticle                            contract: emit(), vertex, velocity, lifetime
 // IParticleSprite                      contract: simulate(), set_emitter(), draw()

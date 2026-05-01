@@ -1,15 +1,7 @@
 #ifndef __SPRITES_BASEFRAGMENTSHADER_HPP__
 #define __SPRITES_BASEFRAGMENTSHADER_HPP__
 
-#include <SFML/Graphics/Drawable.hpp>
-#include <SFML/Graphics/RenderTexture.hpp>
-#include <SFML/Graphics/Shader.hpp>
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/System/Clock.hpp>
-#include <SFML/System/Vector2.hpp>
-
 #include <Shaders/IShaderSprite.hpp>
-#include <filesystem>
 
 namespace ProceduralMaze::Sprites
 {
@@ -39,7 +31,7 @@ namespace ProceduralMaze::Sprites
  * @note If you need to update with additional uniforms,
  *     create a new update function in your derived class
  */
-class BaseShaderSprite : public ISpriteShader
+class BaseShaderSprite : public IShaderSprite
 {
 public:
   BaseShaderSprite( std::filesystem::path vertex_shader_path, std::filesystem::path frag_shader_path, sf::Vector2u texture_size );
@@ -78,9 +70,12 @@ public:
   void draw( sf::RenderTarget &target, sf::RenderStates states ) const override;
 
   auto get_texture_size() const { return m_render_texture.getSize(); }
-  void resize_texture( sf::Vector2u new_size );
+  void resize_texture( sf::Vector2u new_size ) override;
 
   sf::Time elapsed() { return m_clock.getElapsedTime(); }
+
+  void set_tag( const std::string &tag ) override { m_tag = tag; }
+  std::string get_tag() const override { return m_tag; }
 
 protected:
   sf::Shader &get_shader() override { return m_shader; }
@@ -99,6 +94,8 @@ private:
   std::filesystem::path m_frag_shader_path;
 
   void load_shader_files();
+
+  std::string m_tag;
 };
 
 } // namespace ProceduralMaze::Sprites

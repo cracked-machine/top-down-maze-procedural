@@ -12,6 +12,7 @@
 #include <Factory/NpcFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
+#include <Factory/ShaderFactory.hpp>
 #include <Factory/WallFactory.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/Scenes/RuinSceneLowerFloor.hpp>
@@ -180,7 +181,11 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   auto [_, map_size_pixel] = m_scene_map_data->map_size();
 
   bool is_player_cursed = m_sys.find<Sys::Store::Type::RuinSystem>().check_activate_player_curse( map_size_pixel );
-  if ( is_player_cursed ) { m_sys.find<Store::Type::RuinSystem>().check_create_witch( m_reg, sf::FloatRect( { 0, 0 }, map_size_pixel ) ); }
+  if ( is_player_cursed )
+  {
+    m_sys.find<Store::Type::RuinSystem>().check_create_witch( m_reg, sf::FloatRect( { 0, 0 }, map_size_pixel ) );
+    // Factory::Shader::add_curse( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
+  }
 
   // `check_exit_collision()` may reset the player curse so it must be called after `check_activate_player_curse()`
   // or we incorrectly re-trigger the curse effects before we can leave this function and exit the scene.
@@ -188,8 +193,7 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   m_sys.find<Store::Type::RuinSystem>().check_exit_collision();
 
   auto &overlay_sys = m_sys.find<Store::Type::RenderOverlaySystem>();
-  m_sys.find<Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, DarkMode::OFF, WeatherMode::OFF,
-                                                           ( is_player_cursed ? CursedMode::ON : CursedMode::OFF ) );
+  m_sys.find<Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap );
 }
 
 entt::registry &RuinSceneLowerFloor::registry() { return m_reg; }

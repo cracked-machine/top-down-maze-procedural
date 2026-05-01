@@ -3,6 +3,7 @@
 #include <Constants.hpp>
 #include <Persistent/DisplayResolution.hpp>
 #include <Shaders/PulsingShader.hpp>
+#include <Shaders/UniformBuilder.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Player.hpp>

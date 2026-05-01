@@ -47,6 +47,7 @@ class RenderMenuSystem;
 class RenderOverlaySystem;
 class SceneInputRouter;
 class SinkHoleHazardSystem;
+class ShaderSystem;
 class ShockwaveSystem;
 class ShopSystem;
 class WormholeSystem;
@@ -81,6 +82,7 @@ public:
     RenderMenuSystem,
     RenderOverlaySystem,
     SceneInputRouter,
+    ShaderSystem,
     ShockwaveSystem,
     ShopSystem,
     SinkHoleHazardSystem,
@@ -145,6 +147,7 @@ template<> struct Store::SystemTraits<Store::Type::RenderGameSystem>       { usi
 template<> struct Store::SystemTraits<Store::Type::RenderOverlaySystem>    { using type = RenderOverlaySystem; };
 template<> struct Store::SystemTraits<Store::Type::RenderMenuSystem>       { using type = RenderMenuSystem; };
 template<> struct Store::SystemTraits<Store::Type::SceneInputRouter>       { using type = SceneInputRouter; };
+template<> struct Store::SystemTraits<Store::Type::ShaderSystem>           { using type = ShaderSystem; };
 template<> struct Store::SystemTraits<Store::Type::ShockwaveSystem>        { using type = ShockwaveSystem; };
 template<> struct Store::SystemTraits<Store::Type::ShopSystem>             { using type = ShopSystem; };
 template<> struct Store::SystemTraits<Store::Type::SinkHoleHazardSystem>   { using type = SinkHoleHazardSystem; };

@@ -1,4 +1,5 @@
 #include <Components/Persistent/EffectsVolume.hpp>
+#include <Factory/ShaderFactory.hpp>
 #include <SceneControl/Scenes/TitleScene.hpp>
 
 #include <Audio/SoundBank.hpp>
@@ -24,7 +25,7 @@ void TitleScene::on_init()
   SPDLOG_INFO( "Initializing TitleScene" );
 
   // We only have access to DisplayResolution once the PersistSystem is initialized.
-  m_sys.find<Sys::Store::Type::RenderMenuSystem>().init_title_shaders( Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( m_reg ) );
+  Factory::Shader::add_title( m_sys.find<Sys::Store::Type::ShaderSystem>(), Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( m_reg ) );
   SPDLOG_INFO( "Initializing TitleScene" );
 }
 

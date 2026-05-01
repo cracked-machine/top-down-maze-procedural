@@ -8,6 +8,7 @@
 #include <Factory/CryptFactory.hpp>
 #include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Factory/ShaderFactory.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/AnimSystem.hpp>
@@ -49,6 +50,8 @@ void CryptScene::on_init()
   Sys::PersistSystem::add<Cmp::Persist::PlayerStartPosition>( m_reg, player_start_pos_px );
 
   auto [map_size_grid, map_size_pixel] = m_scene_map_data->map_size();
+
+  Factory::Shader::add_dark( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
 
   // create the empty game area
   auto player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
@@ -126,7 +129,7 @@ void CryptScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::PassageSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap, Sys::DarkMode::ON );
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap );
 }
 
 entt::registry &CryptScene::registry() { return m_reg; }

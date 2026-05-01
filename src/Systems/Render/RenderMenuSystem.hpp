@@ -53,14 +53,6 @@ public:
   void render_paused( sf::Time globalDeltaTime );
   void render_defeat_screen();
   void render_victory_screen( bool allow_continue );
-
-  //! @brief Initializes the shaders.
-  //! @param display_res Dimensions for initializing internal shader textures
-  void init_title_shaders( const Cmp::Persist::DisplayResolution &display_res );
-
-private:
-  // Lazy initialize the shaders - RenderMenuSystem::init_shaders() - once we know the screen resolution.
-  std::unique_ptr<Sprites::TitleScreenShader> m_title_screen_shader;
 };
 
 } // namespace ProceduralMaze::Sys
