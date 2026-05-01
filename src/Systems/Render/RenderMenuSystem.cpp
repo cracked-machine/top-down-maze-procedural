@@ -50,7 +50,7 @@
 #include <Persistent/PlayerMovementSpeed.hpp>
 #include <Player/PlayerCadaverCount.hpp>
 #include <Player/PlayerWealth.hpp>
-#include <Shaders/BaseShader.hpp>
+#include <Shaders/BaseShaderSprite.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderMenuSystem.hpp>
@@ -85,11 +85,11 @@ void RenderMenuSystem::render_title()
 
     // shaders
     if ( not m_title_screen_shader ) { throw std::runtime_error( "RenderMenuSystem::render_title - title shader is not initalised" ); }
-    m_title_screen_shader->Sprites::BaseShader::update( Sprites::UniformBuilder{}
-                                                            .set( "time", m_title_screen_shader->elapsed().asSeconds() )
-                                                            .set( "pixel_threshold", ( mouse_pos.x + mouse_pos.y ) / 30 )
-                                                            .set( "mouse_cursor", mouse_pos )
-                                                            .set( "resolution", display_size ) );
+    m_title_screen_shader->Sprites::BaseShaderSprite::update( Sprites::UniformBuilder{}
+                                                                  .set( "time", m_title_screen_shader->elapsed().asSeconds() )
+                                                                  .set( "pixel_threshold", ( mouse_pos.x + mouse_pos.y ) / 30 )
+                                                                  .set( "mouse_cursor", mouse_pos )
+                                                                  .set( "resolution", display_size ) );
     m_title_screen_shader->set_position( { 0, 0 } );
     m_window.draw( *m_title_screen_shader );
 

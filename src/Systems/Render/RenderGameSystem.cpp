@@ -44,7 +44,7 @@
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Random.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
-#include <Shaders/BaseShader.hpp>
+#include <Shaders/BaseShaderSprite.hpp>
 #include <Shaders/DarkModeShader.hpp>
 #include <Shaders/DrippingBloodShader.hpp>
 #include <Shaders/FloodWaterShader.hpp>
@@ -396,7 +396,7 @@ void RenderGameSystem::render_water_shader()
   sf::Vector2f map_size = sf::Vector2f( m_water_shader->get_texture_size() );
 
   // clang-format off
-  m_water_shader->Sprites::BaseShader::update( 
+  m_water_shader->Sprites::BaseShaderSprite::update( 
     Sprites::UniformBuilder{}
       .set( "resolution",  sf::Vector2f{ display_size } )
       .set( "viewTopLeft", view_top_left )
@@ -417,7 +417,7 @@ void RenderGameSystem::render_mist()
 
   if ( not m_mist_shader ) { throw std::runtime_error( "RenderGameSystem::render_mist - mist shader is not initalised" ); }
   // clang-format off
-  m_mist_shader->Sprites::BaseShader::update( 
+  m_mist_shader->Sprites::BaseShaderSprite::update( 
     Sprites::UniformBuilder{}
       .set( "alpha", 0.75f )
       .set( "resolution", sf::Vector2f{ display_size } )
@@ -430,7 +430,7 @@ void RenderGameSystem::render_mist()
 
   if ( not m_pulsing_shader ) { throw std::runtime_error( "RenderGameSystem::render_mist - pulsing shader is not initalised" ); }
   // clang-format off
-  m_pulsing_shader->Sprites::BaseShader::update( 
+  m_pulsing_shader->Sprites::BaseShaderSprite::update( 
     Sprites::UniformBuilder{}
       .set( "alpha", 0.5f )
       .set( "resolution", sf::Vector2f{ display_size } ) 
@@ -447,7 +447,7 @@ void RenderGameSystem::render_dark_mode_shader()
 
   if ( not m_dark_mode_shader ) { throw std::runtime_error( "RenderGameSystem::render_dark_mode_shader - darkmode shader is not initalised" ); }
   // clang-format off
-  m_dark_mode_shader->Sprites::BaseShader::update(
+  m_dark_mode_shader->Sprites::BaseShaderSprite::update(
     Sprites::UniformBuilder{}
       .set( "local_resolution", get_world_view().getSize() )
       .set( "display_resolution", display_res )
@@ -466,7 +466,7 @@ void RenderGameSystem::render_cursed_mode_shader()
   if ( not m_cursed_mode_shader ) { throw std::runtime_error( "RenderGameSystem::render_cursed_mode_shader - cursed shader is not initalised" ); }
 
   // clang-format off
-  m_cursed_mode_shader->Sprites::BaseShader::update( 
+  m_cursed_mode_shader->Sprites::BaseShaderSprite::update( 
     Sprites::UniformBuilder{}
       .set( "alpha", player_curse.shader_alpha.add( 0.01f ) )
       .set( "resolution", display_res)

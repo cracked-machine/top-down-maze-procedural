@@ -3,17 +3,17 @@
 
 #include <SFML/System/Time.hpp>
 
-#include <Shaders/BaseShader.hpp>
+#include <Shaders/BaseShaderSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 
 namespace ProceduralMaze::Sprites
 {
 
-class TitleScreenShader : public BaseShader
+class TitleScreenShader : public BaseShaderSprite
 {
 public:
   TitleScreenShader( std::filesystem::path vert_shader_path, std::filesystem::path frag_shader_path, sf::Vector2u texture_size )
-      : BaseShader( vert_shader_path, frag_shader_path, texture_size )
+      : BaseShaderSprite( vert_shader_path, frag_shader_path, texture_size )
   {
     setup();
   }
