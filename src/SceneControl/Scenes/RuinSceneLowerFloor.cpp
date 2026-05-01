@@ -71,6 +71,9 @@ void RuinSceneLowerFloor::on_init()
   m_sys.find<SystemStoreType::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size, Cmp::RuinFloorAccess::Direction::TO_UPPER );
 
   m_floormap.create( random_level_sys.get_void_sm(), m_scene_map_data );
+  auto floor_entity = m_reg.create();
+  m_reg.emplace<Sprites::Containers::TileMap>( floor_entity, m_floormap );
+  m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
 
   sf::Vector2f bc_area_position( 0, 0 );
   sf::Vector2f bc_area_size( map_size_pixel.x - 48, map_size_pixel.y - 16 );

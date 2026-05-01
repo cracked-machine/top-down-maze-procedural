@@ -75,10 +75,6 @@ private:
   sf::Vector2f m_camera_position{ 0.f, 0.f }; // Smoothed camera position
   bool m_camera_initialized{ false };
 
-  //! @brief Renders the game world floor
-  //! @param offset The offset - in pixels - to apply to the floor rendering
-  void render_floormap( Sprites::Containers::TileMap &floormap );
-
   //! @brief Renders the armed obstacles in the game world
   void render_armed();
 

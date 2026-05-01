@@ -33,7 +33,7 @@ void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sp
     {
       reg.emplace_or_replace<Cmp::Position>( existing_entt, spawn_position, bookcase_ms.getSpriteSizePixels() );
       reg.emplace_or_replace<Cmp::SpriteAnimation>( existing_entt, 0, 0, true, bookcase_ms.get_sprite_type(), sprite_index );
-      reg.emplace_or_replace<Cmp::ZOrderValue>( existing_entt, -spawn_position.y * 10 );
+      reg.emplace_or_replace<Cmp::ZOrderValue>( existing_entt, -5.f );
       reg.emplace_or_replace<Cmp::RuinBookcase>( existing_entt );
       reg.emplace_or_replace<Cmp::NpcNoPathFinding>( existing_entt );
       reg.emplace_or_replace<Cmp::PlayerNoPath>( existing_entt );

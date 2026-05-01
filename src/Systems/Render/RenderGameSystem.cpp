@@ -119,7 +119,6 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   // main render begin
   m_window.clear();
 
-  render_floormap( floormap );
   render_seeingstone_doglegs();
 
   // render anything with a ZOrderValue component in lowest value first order
@@ -164,6 +163,14 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
       if ( not shader_sprite_owner.sprite ) continue;
       shader_sprite_owner.sprite->update( reg() );
       draw_world( *shader_sprite_owner.sprite );
+    }
+    else if ( reg().all_of<Sprites::Containers::TileMap>( entity ) )
+    {
+      auto &floor_tiles = reg().get<Sprites::Containers::TileMap>( entity );
+      sf::Vector2f adjusted{ static_cast<float>( floormap.world_grid_offset.x ) * Constants::kGridSizePxF.x,
+                             static_cast<float>( floormap.world_grid_offset.y ) * Constants::kGridSizePxF.y };
+      floor_tiles.setPosition( adjusted );
+      draw_world( floor_tiles );
     }
   }
 
@@ -269,6 +276,9 @@ void RenderGameSystem::refresh_z_order_queue()
   add_visible_entity_to_z_order_queue<Cmp::CryptInteriorMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::RuinBuildingMultiBlock>( m_zorder_queue_, view_bounds );
 
+  // add any floor tile sets
+  add_visible_entity_to_z_order_queue<Sprites::Containers::TileMap>( m_zorder_queue_, view_bounds );
+
   // add the wrapper types for all particle and shader sprites so they can be rendered with the other entities
   add_visible_entity_to_z_order_queue<ParticleSpriteOwner>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<ShaderSpriteOwner>( m_zorder_queue_, view_bounds );
@@ -324,14 +334,6 @@ void RenderGameSystem::updateCamera( sf::Time deltaTime )
     // Update the view center
     s_world_view.setCenter( m_camera_position + ( pos_cmp.size / 2.f ) ); // Center on sprite center
   }
-}
-
-void RenderGameSystem::render_floormap( Sprites::Containers::TileMap &floormap )
-{
-  sf::Vector2f adjusted{ static_cast<float>( floormap.world_grid_offset.x ) * Constants::kGridSizePxF.x,
-                         static_cast<float>( floormap.world_grid_offset.y ) * Constants::kGridSizePxF.y };
-  floormap.setPosition( adjusted );
-  draw_world( floormap );
 }
 
 void RenderGameSystem::render_armed()
