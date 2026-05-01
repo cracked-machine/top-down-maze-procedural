@@ -49,19 +49,19 @@
             "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 838,
-                "y": 164.99999999999997
+                "x": 960,
+                "y": 540.3333333333333
             }
         },
         "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json": {
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 2,
+            "scale": 0.33,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 960,
-                "y": 540.25
+                "x": 875.7575757575758,
+                "y": 1065.151515151515
             }
         },
         "crypt.json": {
@@ -85,8 +85,8 @@
         },
         "graveyard.json": {
             "expandedObjectLayers": [
-                7,
-                9
+                9,
+                7
             ],
             "scale": 0.33,
             "selectedLayer": 3,
@@ -119,8 +119,8 @@
         },
         "ruinlower.json": {
             "expandedObjectLayers": [
-                5,
-                4
+                4,
+                5
             ],
             "scale": 2.9499999999999997,
             "selectedLayer": 1,
@@ -137,8 +137,8 @@
         },
         "ruinupper.json": {
             "expandedObjectLayers": [
-                5,
-                4
+                4,
+                5
             ],
             "scale": 4,
             "selectedLayer": 4,

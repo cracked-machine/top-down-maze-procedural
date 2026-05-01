@@ -30,6 +30,7 @@
 #include <Shop/ShopInventory.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderOverlaySystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -520,23 +521,34 @@ void RenderOverlaySystem::render_ui_zorder_list( std::vector<ZOrder> &zorder_que
     float count = 0;
     for ( const auto &zorder_entry : zorder_queue )
     {
-      if ( reg().all_of<Cmp::SpriteAnimation>( zorder_entry.e ) )
+      std::string name;
+      auto *sprite_anim_cmp = reg().try_get<Cmp::SpriteAnimation>( zorder_entry.e );
+      if ( sprite_anim_cmp )
       {
-        auto &sprite_anim_cmp = reg().get<Cmp::SpriteAnimation>( zorder_entry.e );
-        if ( exclusions.find( sprite_anim_cmp.m_sprite_type ) != exclusions.end() ) { continue; }
-
-        std::stringstream ss;
-        ss << "z: " << std::fixed << std::setprecision( 1 ) << zorder_entry.z << " | ";
-        ss << "e: " << static_cast<uint32_t>( zorder_entry.e ) << " | ";
-        ss << sprite_anim_cmp.m_sprite_type << " | ";
-        sf::Text m_z_text( m_font, ss.str(), ui_label.font_size );
-        m_z_text.setFillColor( sf::Color::White );
-        m_z_text.setPosition( { ui_label.rect.position.x, ui_label.rect.position.y + count } );
-        m_z_text.setOutlineColor( sf::Color::Black );
-        m_z_text.setOutlineThickness( 0.5f );
-        draw_screen( m_z_text );
-        count += ui_label.font_size; // Move down for the next entry
+        if ( exclusions.find( sprite_anim_cmp->m_sprite_type ) != exclusions.end() ) { continue; }
+        name = sprite_anim_cmp->m_sprite_type;
       }
+
+      auto *particle_sprite_owner = reg().try_get<ParticleSpriteOwner>( zorder_entry.e );
+      if ( particle_sprite_owner )
+      {
+        if ( exclusions.find( particle_sprite_owner->sprite->get_tag() ) != exclusions.end() ) { continue; }
+        name = particle_sprite_owner->sprite->get_tag();
+      }
+
+      if ( name.empty() ) continue;
+
+      std::stringstream ss;
+      ss << "z: " << std::fixed << std::setprecision( 1 ) << zorder_entry.z << " | ";
+      ss << "e: " << static_cast<uint32_t>( zorder_entry.e ) << " | ";
+      ss << name << " | ";
+      sf::Text m_z_text( m_font, ss.str(), ui_label.font_size );
+      m_z_text.setFillColor( sf::Color::White );
+      m_z_text.setPosition( { ui_label.rect.position.x, ui_label.rect.position.y + count } );
+      m_z_text.setOutlineColor( sf::Color::Black );
+      m_z_text.setOutlineThickness( 0.5f );
+      draw_screen( m_z_text );
+      count += ui_label.font_size; // Move down for the next entry
     }
   }
 }

@@ -385,6 +385,8 @@ public:
     }
   }
 
+  sf::Vector2f get_emitter_position() { return m_emitter_position; }
+
   void set_lifetime_ms( std::uniform_int_distribution<int> lifetime_dist ) override
   {
     m_lifetime_dist = lifetime_dist;

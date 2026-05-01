@@ -7,6 +7,7 @@
 #include <Particle/Smoke.hpp>
 #include <Player.hpp>
 #include <Systems/SystemStore.hpp>
+#include <ZOrderValue.hpp>
 namespace ProceduralMaze::Factory::Particle
 {
 
@@ -18,7 +19,7 @@ void add_test( entt::registry &reg, Sys::ParticleSystem &psys, const std::string
   psprite.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( 3 ).asMilliseconds() ) );
   psprite.set_speed( std::uniform_real_distribution<float>( 1.f, 100.f ) );
   psprite.set_angle( std::uniform_real_distribution<float>( 1.f, 360.f ) );
-  psys.add( psprite );
+  psys.add( std::make_pair( psprite, Cmp::ZOrderValue( 1000.f ) ) );
 }
 
 void add_flame( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag )
@@ -31,7 +32,7 @@ void add_flame( entt::registry &reg, Sys::ParticleSystem &psys, const std::strin
   psprite.set_phase( std::uniform_real_distribution( 0.f, 2.f * std::numbers::pi_v<float> ) );
   psprite.set_freq( std::uniform_real_distribution( 0.3f, 0.8f ) );
 
-  psys.add( psprite );
+  psys.add( std::make_pair( psprite, Cmp::ZOrderValue( 1000.f ) ) );
 }
 
 void add_smoke( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag )
@@ -45,7 +46,7 @@ void add_smoke( entt::registry &reg, Sys::ParticleSystem &psys, const std::strin
   psprite.set_phase( std::uniform_real_distribution( 0.f, 2.f * std::numbers::pi_v<float> ) );
   psprite.set_freq( std::uniform_real_distribution( 0.3f, 0.8f ) );
 
-  psys.add( psprite );
+  psys.add( std::make_pair( psprite, Cmp::ZOrderValue( 1000.f ) ) );
 }
 
 void add_shockwave( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag )
@@ -57,7 +58,7 @@ void add_shockwave( entt::registry &reg, Sys::ParticleSystem &psys, const std::s
   psprite.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( 1 ).asMilliseconds() ) );
   psprite.set_speed( 100.f );
   psprite.set_angle( std::uniform_real_distribution<float>( 1.f, 360.f ) );
-  psys.add( psprite );
+  psys.add( std::make_pair( psprite, Cmp::ZOrderValue( 1000.f ) ) );
 }
 
 } // namespace ProceduralMaze::Factory::Particle

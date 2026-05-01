@@ -73,6 +73,7 @@
 #include <SFML/System/Angle.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <algorithm>
 #include <memory>
 #include <queue>
 #include <ranges>
@@ -152,6 +153,13 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
       {
         render_overlay_sys.render_wear_level( reg().get<Cmp::InventoryWearLevel>( entity ).m_level, pos_cmp );
       }
+    }
+    else if ( reg().all_of<ParticleSpriteOwner>( entity ) )
+    {
+      auto &particle_sprite_owner = reg().get<ParticleSpriteOwner>( entity );
+      // pass the world view so the sprite can map world coords to screen coords
+      particle_sprite_owner.sprite->set_view_transform( m_window, s_world_view );
+      draw_screen( *particle_sprite_owner.sprite );
     }
   }
 
@@ -262,11 +270,12 @@ void RenderGameSystem::refresh_z_order_queue()
   add_visible_entity_to_z_order_queue<Cmp::HolyWellMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::CryptInteriorMultiBlock>( m_zorder_queue_, view_bounds );
   add_visible_entity_to_z_order_queue<Cmp::RuinBuildingMultiBlock>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<ParticleSpriteOwner>( m_zorder_queue_, view_bounds );
 
   // add other components as normal
   add_visible_entity_to_z_order_queue<Cmp::Position>( m_zorder_queue_, view_bounds );
 
-  std::sort( m_zorder_queue_.begin(), m_zorder_queue_.end(), []( const ZOrder &a, const ZOrder &b ) { return a.z < b.z; } );
+  std::ranges::sort( m_zorder_queue_, []( const ZOrder &a, const ZOrder &b ) { return a.z < b.z; } );
 }
 
 void RenderGameSystem::init_world_view()
@@ -389,7 +398,6 @@ void RenderGameSystem::render_water_shader()
   // clang-format off
   m_water_shader->Sprites::BaseShader::update( 
     Sprites::UniformBuilder{}
-      .set( "waterLevel",  0 )
       .set( "resolution",  sf::Vector2f{ display_size } )
       .set( "viewTopLeft", view_top_left )
       .set( "viewSize",    view_size )
@@ -698,12 +706,12 @@ void RenderGameSystem::render_lightning_strike()
 
 void RenderGameSystem::render_particle_sprites()
 {
-  for ( auto [entt, owner] : reg().view<ParticleSpriteOwner>().each() )
-  {
-    // pass the world view so the sprite can map world coords to screen coords
-    owner.sprite->set_view_transform( m_window, s_world_view );
-    draw_screen( *owner.sprite );
-  }
+  // for ( auto [entt, owner] : reg().view<ParticleSpriteOwner>().each() )
+  // {
+  //   // pass the world view so the sprite can map world coords to screen coords
+  //   owner.sprite->set_view_transform( m_window, s_world_view );
+  //   draw_screen( *owner.sprite );
+  // }
 }
 
 void RenderGameSystem::render_screen_flash( sf::Color color )

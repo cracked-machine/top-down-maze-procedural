@@ -4,6 +4,7 @@
 #include <Events/ParticleEvents.hpp>
 #include <Particle/ParticleSpriteBase.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <ZOrderValue.hpp>
 #include <utility>
 
 #include <spdlog/spdlog.h>
@@ -43,13 +44,12 @@ public:
   ParticleSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   template <typename... PARTICLESPRITES>
-  void add( const PARTICLESPRITES &...sprites )
+  void add( const std::pair<PARTICLESPRITES, Cmp::ZOrderValue> &...sprites )
   {
-    auto add_one = [this]<typename T>( const T &ps )
+    auto add_one = [this]<typename PS>( const std::pair<PS, Cmp::ZOrderValue> &ps_pair )
     {
-      std::vector<Sys::ParticleSpriteOwner> owners;
-      owners.emplace_back( std::make_unique<T>( ps ) );
-      add_to_registry( std::move( owners ) );
+      const auto &[ps, zorder] = ps_pair;
+      add_to_registry( ParticleSpriteOwner( std::make_unique<PS>( ps ) ), zorder );
     };
 
     ( add_one( sprites ), ... );
@@ -70,20 +70,11 @@ public:
   void on_resume() override {};
 
 private:
-  // //! @brief Prepare registry insertion by wrapping with ParticleSpriteOwner
-  // //! @tparam PARTICLESPRITE
-  // //! @param ps
-  // template <typename PARTICLESPRITE>
-  // void add( const PARTICLESPRITE &ps )
-  // {
-  //   std::vector<Sys::ParticleSpriteOwner> owners;
-  //   owners.emplace_back( std::make_unique<PARTICLESPRITE>( ps ) );
-  //   add_to_registry( std::move( owners ) );
-  // }
-
-  //! @brief Add ParticleSpriteBase<IParticle> via a list of ParticleSpriteOwner objects
-  //! @param owners Contains a tag identifier and a unique_ptr to ParticleSpriteBase<IParticle>.
-  std::vector<entt::entity> add_to_registry( std::vector<ParticleSpriteOwner> owners );
+  //! @brief Add a wrapped particle sprite and zorder component to the registry
+  //! @param owner
+  //! @param zorder
+  //! @return std::vector<entt::entity>
+  std::vector<entt::entity> add_to_registry( ParticleSpriteOwner owner, Cmp::ZOrderValue zorder );
 };
 
 } // namespace ProceduralMaze::Sys

@@ -3,6 +3,7 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <ZOrderValue.hpp>
 #include <entt/entity/fwd.hpp>
 
 namespace ProceduralMaze::Sys
@@ -13,16 +14,16 @@ ParticleSystem::ParticleSystem( entt::registry &reg, sf::RenderWindow &window, S
 {
 }
 
-std::vector<entt::entity> ParticleSystem::add_to_registry( std::vector<ParticleSpriteOwner> owners )
+std::vector<entt::entity> ParticleSystem::add_to_registry( ParticleSpriteOwner owner, Cmp::ZOrderValue zorder )
 {
   std::vector<entt::entity> entt_list;
-  for ( auto &owner : owners )
-  {
-    auto entt = reg().create();
-    reg().emplace<ParticleSpriteOwner>( entt, std::move( owner ) );
-    entt_list.push_back( entt );
-    SPDLOG_INFO( "Created ParticleSprite {}", static_cast<uint32_t>( entt ) );
-  }
+
+  auto entt = reg().create();
+  reg().emplace<ParticleSpriteOwner>( entt, std::move( owner ) );
+  reg().emplace<Cmp::ZOrderValue>( entt, zorder );
+  entt_list.push_back( entt );
+  SPDLOG_INFO( "Created ParticleSprite {}", static_cast<uint32_t>( entt ) );
+
   return entt_list;
 }
 

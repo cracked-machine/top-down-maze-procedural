@@ -123,10 +123,10 @@ void GraveyardScene::on_init()
   m_sys.find<Sys::Store::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
   auto &particle_system = m_sys.find<Sys::Store::Type::ParticleSystem>();
-  // Factory::Particle::add_test( m_reg, particle_system, "ParticleSprite" );
-  Factory::Particle::add_flame( m_reg, particle_system, "ParticleSprite" );
-  // Factory::Particle::add_smoke( m_reg, particle_system, "ParticleSprite" );
-  // Factory::Particle::add_shockwave( m_reg, particle_system, "ParticleSprite" );
+  // Factory::Particle::add_test( m_reg, particle_system, "GraveyardParticleTest" );
+  Factory::Particle::add_flame( m_reg, particle_system, "GraveyardParticleTest" );
+  // Factory::Particle::add_smoke( m_reg, particle_system, "GraveyardParticleTest" );
+  // Factory::Particle::add_shockwave( m_reg, particle_system, "GraveyardParticleTest" );
 }
 
 void GraveyardScene::on_enter()
@@ -211,7 +211,7 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
   m_sys.find<Sys::Store::Type::LightningSystem>().update( dt );
 
-  auto *particle_test = Sys::ParticleSystem::find( m_reg, "ParticleSprite" );
+  auto *particle_test = Sys::ParticleSystem::find( m_reg, "GraveyardParticleTest" );
   if ( particle_test ) { particle_test->set_emitter_position( Utils::Player::get_position( m_reg ).getCenter() ); }
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
 

@@ -39,6 +39,11 @@ class ZOrderValue;
 class Position;
 } // namespace ProceduralMaze::Cmp
 
+namespace ProceduralMaze::Cmp::Particle
+{
+class IParticleSprite;
+}
+
 namespace ProceduralMaze::Sys
 {
 
@@ -140,18 +145,17 @@ private:
   {
     for ( auto [entity, component] : reg().view<Component>().each() )
     {
-      if ( Utils::is_visible_in_view( view_bounds, component ) )
+      if constexpr ( std::is_base_of_v<sf::FloatRect, Component> )
       {
-        // check the component entity has required components: Cmp::SpriteAnimation and Cmp::Position
-        auto sprite_cmp = reg().try_get<Cmp::SpriteAnimation>( entity );
-        auto pos_cmp = reg().try_get<Cmp::Position>( entity );
-
-        if ( sprite_cmp && pos_cmp )
-        {
-          auto z_order_cmp = reg().try_get<Cmp::ZOrderValue>( entity );
-          if ( z_order_cmp ) { zorder_queue.push_back( ZOrder{ z_order_cmp->getZOrder(), entity } ); }
-        }
+        if ( not Utils::is_visible_in_view( view_bounds, component ) ) continue;
       }
+      if constexpr ( std::is_base_of_v<Cmp::Particle::IParticleSprite, Component> )
+      {
+        if ( not Utils::is_visible_in_view( view_bounds, { component.get_emitter_position(), Constants::kGridSizePxF } ) ) continue;
+      }
+
+      auto z_order_cmp = reg().try_get<Cmp::ZOrderValue>( entity );
+      if ( z_order_cmp ) { zorder_queue.push_back( ZOrder{ z_order_cmp->getZOrder(), entity } ); }
     }
   }
 
