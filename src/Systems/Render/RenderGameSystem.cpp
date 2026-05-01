@@ -386,93 +386,33 @@ void RenderGameSystem::init_world_shaders( const sf::Vector2u &map_size )
 
 void RenderGameSystem::render_water_shader()
 {
-
   if ( not m_water_shader ) { throw std::runtime_error( "RenderGameSystem::render_water_shader - water shader is not initalised" ); }
-
-  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-  sf::Vector2f view_center = s_world_view.getCenter();
-  sf::Vector2f view_size = s_world_view.getSize();
-  sf::Vector2f view_top_left = { view_center.x - view_size.x / 2.f, view_center.y - view_size.y / 2.f };
-  sf::Vector2f map_size = sf::Vector2f( m_water_shader->get_texture_size() );
-
-  // clang-format off
-  m_water_shader->Sprites::BaseShaderSprite::update( 
-    Sprites::UniformBuilder{}
-      .set( "resolution",  sf::Vector2f{ display_size } )
-      .set( "viewTopLeft", view_top_left )
-      .set( "viewSize",    view_size )
-      .set( "mapSize",     map_size )
-  );
-  // clang-format on
-  m_water_shader->set_position( { -100, -100 } );
+  m_water_shader->update( reg() );
   draw_world( *m_water_shader );
 }
 
 void RenderGameSystem::render_mist()
 {
-  sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() );
-  sf::Vector2f view_center = s_world_view.getCenter();
-  sf::Vector2f view_size = s_world_view.getSize();
-  sf::Vector2f view_top_left = { view_center.x - view_size.x / 2.f, view_center.y - view_size.y / 2.f };
-
   if ( not m_mist_shader ) { throw std::runtime_error( "RenderGameSystem::render_mist - mist shader is not initalised" ); }
-  // clang-format off
-  m_mist_shader->Sprites::BaseShaderSprite::update( 
-    Sprites::UniformBuilder{}
-      .set( "alpha", 0.75f )
-      .set( "resolution", sf::Vector2f{ display_size } )
-      .set( "viewTopLeft", view_top_left )
-      .set( "viewSize", view_size )
-  );
-  // clang-format on
-  m_mist_shader->set_position( { -100, -100 } );
+  m_mist_shader->update( reg() );
   draw_world( *m_mist_shader );
 
   if ( not m_pulsing_shader ) { throw std::runtime_error( "RenderGameSystem::render_mist - pulsing shader is not initalised" ); }
-  // clang-format off
-  m_pulsing_shader->Sprites::BaseShaderSprite::update( 
-    Sprites::UniformBuilder{}
-      .set( "alpha", 0.5f )
-      .set( "resolution", sf::Vector2f{ display_size } ) 
-  );
-  // clang-format on
-  m_pulsing_shader->set_center_at_position( Utils::Player::get_position( reg() ).position );
+  m_pulsing_shader->update( reg() );
   draw_world( *m_pulsing_shader );
 }
 
 void RenderGameSystem::render_dark_mode_shader()
 {
-  auto display_res = sf::Vector2f( Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() ) );
-  sf::Vector2f aperture_half_size( Constants::kGridSizePxF * 4.f );
-
   if ( not m_dark_mode_shader ) { throw std::runtime_error( "RenderGameSystem::render_dark_mode_shader - darkmode shader is not initalised" ); }
-  // clang-format off
-  m_dark_mode_shader->Sprites::BaseShaderSprite::update(
-    Sprites::UniformBuilder{}
-      .set( "local_resolution", get_world_view().getSize() )
-      .set( "display_resolution", display_res )
-      .set( "aperture_half_size", aperture_half_size ) 
-  );
-  // clang-format on
-  m_dark_mode_shader->set_center_at_position( Utils::Player::get_position( reg() ).position );
+  m_dark_mode_shader->update( reg() );
   draw_world( *m_dark_mode_shader );
 }
 
 void RenderGameSystem::render_cursed_mode_shader()
 {
-  auto &player_curse = Utils::Player::get_curse( reg() );
-  auto display_res = sf::Vector2f( Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() ) );
-
   if ( not m_cursed_mode_shader ) { throw std::runtime_error( "RenderGameSystem::render_cursed_mode_shader - cursed shader is not initalised" ); }
-
-  // clang-format off
-  m_cursed_mode_shader->Sprites::BaseShaderSprite::update( 
-    Sprites::UniformBuilder{}
-      .set( "alpha", player_curse.shader_alpha.add( 0.01f ) )
-      .set( "resolution", display_res)
-  );
-  // clang-format on
-  m_cursed_mode_shader->set_center_at_position( Utils::Player::get_position( reg() ).position );
+  m_cursed_mode_shader->update( reg() );
   draw_world( *m_cursed_mode_shader );
 }
 

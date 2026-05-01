@@ -26,6 +26,7 @@ public:
   }
 
   void post_setup_shader() override { m_shader.setUniform( "texture", sf::Shader::CurrentTexture ); }
+  void update( entt::registry &reg ) override;
 };
 
 } // namespace ProceduralMaze::Sprites

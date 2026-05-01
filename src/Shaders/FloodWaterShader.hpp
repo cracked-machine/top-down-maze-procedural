@@ -22,6 +22,7 @@ public:
   void pre_setup_texture() override { m_render_texture.clear( sf::Color( 16, 32, 32 ) ); }
 
   void post_setup_shader() override { m_shader.setUniform( "resolution", sf::Vector2f{ m_render_texture.getSize() } ); }
+  void update( entt::registry &reg ) override;
 };
 
 } // namespace ProceduralMaze::Sprites

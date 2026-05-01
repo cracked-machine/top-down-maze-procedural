@@ -30,6 +30,8 @@ public:
   {
     // nothing special to do here
   }
+
+  void update( entt::registry &reg ) override;
 };
 
 } // namespace ProceduralMaze::Sprites

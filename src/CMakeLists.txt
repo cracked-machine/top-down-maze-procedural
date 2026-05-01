@@ -12,6 +12,12 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Components/Particle/Smoke.cpp
     ${CMAKE_SOURCE_DIR}/src/Debug/AssertHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/Shaders/BaseShaderSprite.cpp
+    ${CMAKE_SOURCE_DIR}/src/Shaders/TitleScreenShader.cpp
+    ${CMAKE_SOURCE_DIR}/src/Shaders/DarkModeShader.cpp
+    ${CMAKE_SOURCE_DIR}/src/Shaders/DrippingBloodShader.cpp
+    ${CMAKE_SOURCE_DIR}/src/Shaders/FloodWaterShader.cpp
+    ${CMAKE_SOURCE_DIR}/src/Shaders/PulsingShader.cpp
+    ${CMAKE_SOURCE_DIR}/src/Shaders/MistShader.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/MultiSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/SpriteFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/TileMap.cpp

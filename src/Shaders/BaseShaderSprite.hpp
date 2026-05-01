@@ -39,7 +39,7 @@ namespace ProceduralMaze::Sprites
  * @note If you need to update with additional uniforms,
  *     create a new update function in your derived class
  */
-class BaseShaderSprite : public sf::Drawable, public sf::Transformable, public ISpriteShader
+class BaseShaderSprite : public ISpriteShader
 {
 public:
   BaseShaderSprite( std::filesystem::path vertex_shader_path, std::filesystem::path frag_shader_path, sf::Vector2u texture_size );
@@ -64,8 +64,6 @@ public:
    */
   void setup();
 
-  void update( UniformBuilder builder ) override;
-
   // Use this to set the position of the renderable sprite
   void set_position( const sf::Vector2f &position );
   // override sf::Transformable::setPosition since that has no meaning in the context of this class
@@ -85,6 +83,8 @@ public:
   sf::Time elapsed() { return m_clock.getElapsedTime(); }
 
 protected:
+  sf::Shader &get_shader() override { return m_shader; }
+
   // this is the pallette texture that the shader will be applied to
   sf::RenderTexture m_render_texture;
   // the sprite that uses the texture

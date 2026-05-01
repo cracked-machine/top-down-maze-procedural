@@ -23,6 +23,8 @@ public:
   void pre_setup_texture() override { m_render_texture.clear( sf::Color( 16, 128, 32 ) ); }
 
   void post_setup_shader() override {}
+
+  void update( entt::registry &reg ) override;
 };
 
 } // namespace ProceduralMaze::Sprites

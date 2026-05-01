@@ -1,8 +1,13 @@
 #ifndef SRC_SHADERS_ISHADERSPRITE_HPP_
 #define SRC_SHADERS_ISHADERSPRITE_HPP_
 
+#include <SFML/Graphics.hpp>
+#include <entt/entity/fwd.hpp>
+
 namespace ProceduralMaze::Sprites
 {
+
+class ISpriteShader;
 
 /**
  * @class UniformBuilder
@@ -65,13 +70,17 @@ public:
     return *this;
   }
 
-  void apply( sf::Shader &shader )
+  // void apply( sf::Shader &shader )
+  // {
+  //   if ( m_chain ) m_chain( shader );
+  // }
+  void apply( sf::Shader *shader )
   {
-    if ( m_chain ) m_chain( shader );
+    if ( m_chain ) m_chain( *shader );
   }
 };
 
-class ISpriteShader
+class ISpriteShader : public sf::Drawable, public sf::Transformable
 {
 public:
   //! @brief polymorphic destructor for derived classes
@@ -103,7 +112,10 @@ public:
    */
   virtual void post_setup_shader() = 0;
 
-  virtual void update( UniformBuilder builder ) = 0;
+  virtual void update( entt::registry &reg ) = 0;
+
+protected:
+  virtual sf::Shader &get_shader() = 0;
 };
 
 } // namespace ProceduralMaze::Sprites

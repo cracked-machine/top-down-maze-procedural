@@ -81,16 +81,10 @@ void RenderMenuSystem::render_title()
   m_window.clear();
   {
     auto display_size = sf::Vector2f( Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg() ) );
-    const auto mouse_pos = sf::Vector2f( sf::Mouse::getPosition( m_window ) ).componentWiseDiv( sf::Vector2f( m_window.getSize() ) );
 
     // shaders
     if ( not m_title_screen_shader ) { throw std::runtime_error( "RenderMenuSystem::render_title - title shader is not initalised" ); }
-    m_title_screen_shader->Sprites::BaseShaderSprite::update( Sprites::UniformBuilder{}
-                                                                  .set( "time", m_title_screen_shader->elapsed().asSeconds() )
-                                                                  .set( "pixel_threshold", ( mouse_pos.x + mouse_pos.y ) / 30 )
-                                                                  .set( "mouse_cursor", mouse_pos )
-                                                                  .set( "resolution", display_size ) );
-    m_title_screen_shader->set_position( { 0, 0 } );
+    m_title_screen_shader->update( reg() );
     m_window.draw( *m_title_screen_shader );
 
     // text

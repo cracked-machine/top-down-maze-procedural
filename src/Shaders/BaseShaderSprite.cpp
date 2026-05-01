@@ -63,13 +63,6 @@ void BaseShaderSprite::draw( sf::RenderTarget &target, sf::RenderStates states )
   target.draw( m_sprite, states );
 }
 
-void BaseShaderSprite::update( UniformBuilder builder )
-{
-  // clang-format off
-  builder
-    .set( "time", elapsed().asSeconds() )
-    .apply( m_shader );
-  // clang-format on
-}
+//
 
 } // namespace ProceduralMaze::Sprites
