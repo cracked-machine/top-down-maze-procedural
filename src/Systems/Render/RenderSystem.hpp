@@ -94,7 +94,7 @@ protected:
   bool m_show_debug_stats{ false };
   bool m_show_npcnopath{ false };
   bool m_show_playernopath{ false };
-  bool m_render_dark_mode_enabled{ true };
+  bool m_shaders_enabled{ true };
 
   //! @brief Renders text to the screen with specified formatting and alignment options.
   //!

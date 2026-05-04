@@ -54,7 +54,7 @@ private:
   void toggle_show_pathfinding();
   void toggle_show_debug();
   void toggle_show_nopath();
-  void toggle_show_darkmode();
+  void toggle_shaders();
   void queue_suicide_event();
   void queue_buy_item_event( uint8_t item_idx );
   void queue_quit_game_event();

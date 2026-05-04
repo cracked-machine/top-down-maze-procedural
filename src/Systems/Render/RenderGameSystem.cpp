@@ -100,7 +100,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   {
     m_show_path_finding = sys_cmp.show_path_finding;
     m_show_debug_stats = sys_cmp.show_debug_stats;
-    m_render_dark_mode_enabled = sys_cmp.dark_mode_enabled;
+    m_shaders_enabled = sys_cmp.shaders_enabled;
     m_show_playernopath = sys_cmp.show_playernopath;
     m_show_npcnopath = sys_cmp.show_npcnopath;
   }
@@ -160,7 +160,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
       auto &shader_sprite_owner = reg().get<ShaderSpriteOwner>( entity );
       if ( not shader_sprite_owner.sprite ) continue;
       shader_sprite_owner.sprite->update( reg() );
-      draw_world( *shader_sprite_owner.sprite );
+      if ( m_shaders_enabled ) { draw_world( *shader_sprite_owner.sprite ); }
     }
     else if ( reg().all_of<Sprites::Containers::TileMap>( entity ) )
     {

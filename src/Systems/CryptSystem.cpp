@@ -657,7 +657,7 @@ void CryptSystem::unlock_objective_passage()
   // switch on the lights so we can see the objective in all its glory!
   for ( auto [entt, sys_cmp] : reg().view<Cmp::System>().each() )
   {
-    sys_cmp.dark_mode_enabled = false;
+    sys_cmp.shaders_enabled = false;
   }
 }
 

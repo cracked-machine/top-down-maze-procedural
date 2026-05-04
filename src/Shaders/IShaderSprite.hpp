@@ -16,6 +16,8 @@ public:
   virtual void set_tag( const std::string &tag ) = 0;
   [[nodiscard]] virtual std::string get_tag() const = 0;
   virtual void resize_texture( sf::Vector2u new_size ) = 0;
+  virtual void active( bool active ) = 0;
+  virtual bool active() const = 0;
 
 protected:
   virtual sf::Shader &get_shader() = 0;

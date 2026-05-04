@@ -77,6 +77,9 @@ public:
   void set_tag( const std::string &tag ) override { m_tag = tag; }
   std::string get_tag() const override { return m_tag; }
 
+  void active( bool active ) override { m_active = active; }
+  bool active() const override { return m_active; }
+
 protected:
   sf::Shader &get_shader() override { return m_shader; }
 
@@ -96,6 +99,7 @@ private:
   void load_shader_files();
 
   std::string m_tag;
+  bool m_active{ true };
 };
 
 } // namespace ProceduralMaze::Sprites

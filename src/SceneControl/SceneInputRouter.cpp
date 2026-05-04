@@ -141,6 +141,7 @@ void SceneInputRouter::graveyard_scene_state_handler()
         enqueue( Events::SceneManagerEvent::Type::ENTER_RUIN_LOWER );
       }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F8 ) { enqueue( Events::SceneManagerEvent::Type::ENTER_SHOP ); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F12 ) { get_systems_event_queue().trigger( Events::LightningEvent() ); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Home ) { toggle_particle_test( true ); }
@@ -198,7 +199,7 @@ void SceneInputRouter::crypt_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_show_darkmode(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
@@ -263,7 +264,7 @@ void SceneInputRouter::holywell_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_show_darkmode(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
@@ -313,7 +314,7 @@ void SceneInputRouter::shop_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_show_darkmode(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
@@ -368,7 +369,7 @@ void SceneInputRouter::ruin_scene_state_handler()
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F2 ) { toggle_show_pathfinding(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F3 ) { toggle_show_debug(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F4 ) { toggle_show_nopath(); }
-      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_show_darkmode(); }
+      else if ( keyReleased->scancode == sf::Keyboard::Scancode::F9 ) { toggle_shaders(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::F11 ) { queue_suicide_event(); }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad1 ) { Utils::Player::get_blast_radius( reg() ).value += 1; }
       else if ( keyReleased->scancode == sf::Keyboard::Scancode::Numpad2 )
@@ -528,12 +529,12 @@ void SceneInputRouter::toggle_show_nopath()
   }
 }
 
-void SceneInputRouter::toggle_show_darkmode()
+void SceneInputRouter::toggle_shaders()
 {
   for ( auto [_entt, _sys] : reg().view<Cmp::System>().each() )
   {
-    _sys.dark_mode_enabled = not _sys.dark_mode_enabled;
-    SPDLOG_INFO( "Dark mode is now {}", _sys.dark_mode_enabled ? "ENABLED" : "DISABLED" );
+    _sys.shaders_enabled = not _sys.shaders_enabled;
+    SPDLOG_INFO( "Dark mode is now {}", _sys.shaders_enabled ? "ENABLED" : "DISABLED" );
   }
 }
 
