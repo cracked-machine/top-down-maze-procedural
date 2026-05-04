@@ -17,7 +17,7 @@ class MultiSprite;
 class SpriteFactory;
 class FloodWaterShader;
 class ViewFragmentShader;
-class PulsingShader;
+class NightStaticShader;
 class MistShader;
 class DarkModeShader;
 class DrippingBloodShader;

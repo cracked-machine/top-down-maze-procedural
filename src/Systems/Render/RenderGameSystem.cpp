@@ -49,7 +49,7 @@
 #include <Shaders/DrippingBloodShader.hpp>
 #include <Shaders/FloodWaterShader.hpp>
 #include <Shaders/MistShader.hpp>
-#include <Shaders/PulsingShader.hpp>
+#include <Shaders/NightStaticShader.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/TileMap.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -119,8 +119,6 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   // main render begin
   m_window.clear();
 
-  render_seeingstone_doglegs();
-
   // render anything with a ZOrderValue component in lowest value first order
   for ( const auto &zorder_entry : m_zorder_queue_ )
   {
@@ -178,6 +176,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   render_armed();
   render_shockwaves( floormap );
   render_arrow_compass();
+  render_seeingstone_doglegs();
 
   // lava pit outline
   render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 64, 64, 64 ), 0.5f );

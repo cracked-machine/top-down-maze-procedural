@@ -31,12 +31,12 @@ void add_water( Sys::ShaderSystem &shader_sys, sf::Vector2f map_size_pixel )
   shader_sys.add( std::move( water_shader ), Cmp::ZOrderValue( -20000.f ) );
 }
 
-void add_pulse( Sys::ShaderSystem &shader_sys, sf::Vector2f map_size_pixel )
+void add_night_static( Sys::ShaderSystem &shader_sys, sf::Vector2f map_size_pixel )
 {
   sf::Vector2u map_size_pixel_2u( map_size_pixel );
-  auto pulsing_shader = std::make_unique<Sprites::PulsingShader>( "res/shaders/Generic.vert", "res/shaders/RedPulsingSand.frag", map_size_pixel_2u );
-  pulsing_shader->set_tag( "PulsingShader" );
-  shader_sys.add( std::move( pulsing_shader ), Cmp::ZOrderValue( 20000.f ) );
+  auto pulsing_shader = std::make_unique<Sprites::NightStaticShader>( "res/shaders/Generic.vert", "res/shaders/NightStatic.frag", map_size_pixel_2u );
+  pulsing_shader->set_tag( "NightStatic" );
+  shader_sys.add( std::move( pulsing_shader ), Cmp::ZOrderValue( 40000.f ) );
 }
 
 void add_dark( Sys::ShaderSystem &shader_sys, sf::Vector2f map_size_pixel )

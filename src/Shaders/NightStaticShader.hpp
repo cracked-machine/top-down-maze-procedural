@@ -9,15 +9,15 @@
 namespace ProceduralMaze::Sprites
 {
 
-class PulsingShader : public BaseShaderSprite
+class NightStaticShader : public BaseShaderSprite
 {
 public:
-  PulsingShader( std::filesystem::path vert_shader_path, std::filesystem::path frag_shader_path, sf::Vector2u texture_size )
+  NightStaticShader( std::filesystem::path vert_shader_path, std::filesystem::path frag_shader_path, sf::Vector2u texture_size )
       : BaseShaderSprite( vert_shader_path, frag_shader_path, texture_size )
   {
     setup();
   }
-  ~PulsingShader() override = default;
+  ~NightStaticShader() override = default;
 
   void pre_setup_texture() override
   {

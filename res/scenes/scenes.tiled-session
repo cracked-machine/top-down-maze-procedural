@@ -1,8 +1,8 @@
 {
-    "activeFile": "shop.json",
+    "activeFile": "X:/cpp/games/top-down-maze-procedural/res/ui/dbg.json",
     "expandedProjectPaths": [
-        ".",
-        "X:/cpp/games/top-down-maze-procedural/res/ui"
+        "X:/cpp/games/top-down-maze-procedural/res/ui",
+        "."
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -35,11 +35,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 1.5,
+            "scale": 1,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 960,
-                "y": 540.3333333333333
+                "x": 1381,
+                "y": 486.5
             }
         },
         "X:/cpp/games/top-down-maze-procedural/res/ui/shop.json": {
@@ -237,9 +237,9 @@
         "graveyard.json",
         "crypt.json",
         "X:/cpp/games/top-down-maze-procedural/res/ui/ui.json",
-        "X:/cpp/games/top-down-maze-procedural/res/ui/dbg.json",
-        "X:/cpp/games/top-down-maze-procedural/res/ui/shop.json",
         "shop.json",
+        "X:/cpp/games/top-down-maze-procedural/res/ui/shop.json",
+        "X:/cpp/games/top-down-maze-procedural/res/ui/dbg.json",
         "X:/cpp/games/top-down-maze-procedural/res/ui/debug.json",
         "well.json",
         "Tilesets/main.json",

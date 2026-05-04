@@ -22,7 +22,7 @@
 #include <SceneControl/Scenes/GraveyardScene.hpp>
 #include <Shaders/FloodWaterShader.hpp>
 #include <Shaders/MistShader.hpp>
-#include <Shaders/PulsingShader.hpp>
+#include <Shaders/NightStaticShader.hpp>
 #include <Systems/AltarSystem.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -92,7 +92,7 @@ void GraveyardScene::on_init()
 
   Factory::Shader::add_water( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
   Factory::Shader::add_mist( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
-  Factory::Shader::add_pulse( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
+  Factory::Shader::add_night_static( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
 
   auto &random_level_sys = m_sys.find<Sys::Store::Type::RandomLevelGenerator>();
   random_level_sys.reset();

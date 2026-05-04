@@ -16,7 +16,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Shaders/DarkModeShader.cpp
     ${CMAKE_SOURCE_DIR}/src/Shaders/DrippingBloodShader.cpp
     ${CMAKE_SOURCE_DIR}/src/Shaders/FloodWaterShader.cpp
-    ${CMAKE_SOURCE_DIR}/src/Shaders/PulsingShader.cpp
+    ${CMAKE_SOURCE_DIR}/src/Shaders/NightStaticShader.cpp
     ${CMAKE_SOURCE_DIR}/src/Shaders/MistShader.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/MultiSprite.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/SpriteFactory.cpp

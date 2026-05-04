@@ -4,7 +4,7 @@
 #include <Shaders/DrippingBloodShader.hpp>
 #include <Shaders/FloodWaterShader.hpp>
 #include <Shaders/MistShader.hpp>
-#include <Shaders/PulsingShader.hpp>
+#include <Shaders/NightStaticShader.hpp>
 #include <Shaders/TitleScreenShader.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderBuffer.hpp>
