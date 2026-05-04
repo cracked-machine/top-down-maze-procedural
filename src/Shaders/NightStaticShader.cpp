@@ -23,6 +23,8 @@ void NightStaticShader::update( entt::registry &reg )
       .set( "time", elapsed().asSeconds() )
       .set( "viewTopLeft", view_top_left )
       .set( "viewSize", view_size )
+      .set( "playerWorldPos", Utils::Player::get_position( reg ).getCenter() )
+      .set( "playerTorchRadius", 32.f )
       .apply( &get_shader() );
 
   // shader position at the top left of the world
