@@ -290,7 +290,7 @@ void RenderGameSystem::refresh_z_order_queue()
 
 void RenderGameSystem::init_world_view()
 {
-  // init local view dimensions
+  // init world view dimensions
   s_world_view = sf::View( { kWorldViewSizeF.x * 0.5f, kWorldViewSizeF.y * 0.5f }, kWorldViewSizeF );
   s_world_view.setViewport( sf::FloatRect( { 0.f, 0.f }, { 1.f, 1.f } ) );
 
