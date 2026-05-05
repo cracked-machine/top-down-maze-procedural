@@ -25,6 +25,7 @@ MultiSprite::MultiSprite( SpriteMetaType type, std::string display_name, const s
     SPDLOG_ERROR( "Unable to load tile map {}", tilemap_path.string() );
     throw std::runtime_error( "Unable to load tile map: " + tilemap_path.string() );
   }
+  m_tilemap_texture->setSmooth( false );
   SPDLOG_DEBUG( "Loaded tilemap texture: {}", tilemap_path.string() );
   if ( !add_sprite( tilemap_picks ) )
   {
@@ -46,6 +47,7 @@ MultiSprite::MultiSprite( SpriteMetaType type, std::string display_name, const s
 {
   SPDLOG_DEBUG( "Loaded tilemap texture" );
   m_tilemap_texture = std::make_shared<sf::Texture>( std::move( tilemap_texture ) );
+  m_tilemap_texture->setSmooth( false );
   if ( !add_sprite( tilemap_picks ) )
   {
     SPDLOG_CRITICAL( "Failed to load tilemap" );

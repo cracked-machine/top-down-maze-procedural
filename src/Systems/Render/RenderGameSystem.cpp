@@ -331,7 +331,15 @@ void RenderGameSystem::updateCamera( sf::Time deltaTime )
     }
 
     // Update the view center
-    s_world_view.setCenter( m_camera_position + ( pos_cmp.size / 2.f ) ); // Center on sprite center
+    // s_world_view.setCenter( m_camera_position + ( pos_cmp.size / 2.f ) ); // Center on sprite center
+    // Update the view center - only round to pixel when stationary to avoid jitter during lerp
+    sf::Vector2f view_center = m_camera_position + ( pos_cmp.size / 2.f );
+    if ( m_camera_position == target_position )
+    {
+      view_center.x = std::round( view_center.x );
+      view_center.y = std::round( view_center.y );
+    }
+    s_world_view.setCenter( view_center );
   }
 }
 

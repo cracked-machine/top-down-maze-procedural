@@ -110,7 +110,7 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
     else if ( tile == scene_map.spawn_tile_id() )
     {
       auto entity = Factory::create_world_pos( reg(), new_pos );
-      Factory::add_spawn_area( reg(), entity, new_pos.y - 16.0f );
+      Factory::add_spawn_area( reg(), entity, m_sprite_factory, new_pos.y - 16.0f );
     }
     else if ( tile == scene_map.exit_tile_id() ) { Factory::create_crypt_exit( reg(), new_pos ); }
     else if ( tile == scene_map.reserved_tile_id() ) { Factory::add_reservedposition( reg(), new_pos ); }

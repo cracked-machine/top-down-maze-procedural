@@ -75,7 +75,7 @@ private:
   const MultiSprite &get_random_spritedata( std::vector<SpriteMetaType> type_list );
 
   //! @brief Map of sprite types to their corresponding metadata
-  std::unordered_map<SpriteMetaType, MultiSprite> m_sprite_metadata_map{};
+  std::unordered_map<SpriteMetaType, MultiSprite> m_sprite_metadata_map;
 
   //! @brief Error texture for missing sprites
   sf::Texture m_error_texture;
