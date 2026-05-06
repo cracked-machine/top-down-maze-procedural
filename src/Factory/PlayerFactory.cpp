@@ -191,7 +191,8 @@ entt::entity pickup_world_item( entt::registry &reg, entt::entity world_item_ent
   auto *explosive_cmp = reg.try_get<Cmp::Explosive>( world_item_entt );
   if ( explosive_cmp ) { reg.emplace_or_replace<Cmp::Explosive>( inventory_entity, false ); }
 
-  // now destroy the carryitem entt
+  // now destroy the world item entt
+  SPDLOG_INFO( "Picked up world entt {}", static_cast<uint32_t>( world_item_entt ) );
   reg.destroy( world_item_entt );
 
   return inventory_entity;

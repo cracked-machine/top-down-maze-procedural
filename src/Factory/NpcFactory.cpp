@@ -1,3 +1,4 @@
+#include <Armed.hpp>
 #include <Components/Armable.hpp>
 #include <Components/DeathPosition.hpp>
 #include <Components/Direction.hpp>
@@ -49,6 +50,8 @@ void create_npc_container( entt::registry &registry, entt::entity entt, Cmp::Pos
 
 void destroy_npc_container( entt::registry &registry, entt::entity npc_container_entity )
 {
+  registry.remove<Cmp::ReservedPosition>( npc_container_entity );
+  registry.remove<Cmp::Armed>( npc_container_entity );
   registry.remove<Cmp::NpcContainer>( npc_container_entity );
   registry.remove<Cmp::SpriteAnimation>( npc_container_entity );
   registry.remove<Cmp::ZOrderValue>( npc_container_entity );
@@ -131,8 +134,7 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
 
     // Remove the npc container component from the original entity
-    reg.remove<Cmp::NpcContainer>( position_entity );
-    reg.remove<Cmp::ZOrderValue>( position_entity );
+    Factory::destroy_npc_container( reg, position_entity );
     SPDLOG_DEBUG( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), npc_type, pos_cmp->position.x,
                   pos_cmp->position.y );
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
@@ -155,7 +157,7 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
     reg.remove<Cmp::ZOrderValue>( position_entity );
 
     reg.emplace_or_replace<Cmp::NpcShockwaveTimer>( new_pos_entity );
-    Factory::create_shockwave( reg, position_entity );
+    Factory::create_shockwave( reg, new_pos_entity );
     SPDLOG_DEBUG( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
                   pos_cmp->position.y );
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );

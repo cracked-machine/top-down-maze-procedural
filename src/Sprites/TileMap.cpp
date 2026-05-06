@@ -160,7 +160,7 @@ void TileMap::remove( sf::Vector2f pos )
   {
     if ( is_tile_vertex( m_vertices[i] ) && is_tile_vertex( m_vertices[i + 1] ) && is_tile_vertex( m_vertices[i + 2] ) )
     {
-      SPDLOG_INFO( "sinkhole collided with tile at {},{}", pos.x, pos.y );
+      SPDLOG_DEBUG( "sinkhole collided with tile at {},{}", pos.x, pos.y );
       continue; // skip this tile's 6 vertices
     }
     for ( size_t j = i; j < i + 6; ++j )
@@ -169,9 +169,7 @@ void TileMap::remove( sf::Vector2f pos )
     }
   }
   // Move the vertices that dont collide into the new `m_vertices`
-  auto before = m_vertices.getVertexCount();
   m_vertices = std::move( new_vertices );
-  SPDLOG_INFO( "TileMap::remove - vertices before: {}, after: {}, instance: {}", before, m_vertices.getVertexCount(), (void *)this );
 }
 
 } // namespace ProceduralMaze::Sprites::Containers
