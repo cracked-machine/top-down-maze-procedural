@@ -2,6 +2,7 @@
 #define __SYS_RENDERGAMESYSTEM_HPP__
 
 #include <Components/SpriteAnimation.hpp>
+#include <Inventory/ScryingBall.hpp>
 #include <Persistent/DisplayResolution.hpp>
 
 #include <Systems/Render/RenderSystem.hpp>
@@ -86,7 +87,7 @@ private:
   void render_arrow_compass();
 
   //! @brief Used by GraveyardScene when player places a seeing stone
-  void render_seeingstone_doglegs();
+  void render_seeingstone_doglegs( const Cmp::SeeingStone &stone_cmp, const Cmp::Position &pos_cmp );
 
   //! @brief Used by GraveyardScene when player is struck by lightning
   void render_lightning_strike();

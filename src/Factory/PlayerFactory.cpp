@@ -107,14 +107,14 @@ void create_player_death_anim( entt::registry &registry, Cmp::Position player_po
 
 entt::entity create_seeing_stone( entt::registry &reg, Cmp::Position pos, const std::string &item, float zorder )
 {
-  // Check if we can create a scrying ball with a unique target BEFORE creating the entity
-  std::vector<Cmp::ScryingBall::Target> exclude_list;
-  for ( auto [scryingball_entt, scryingball_cmp] : reg.view<Cmp::ScryingBall>().each() )
+  // Check if we can create a component with a unique target BEFORE creating the entity
+  std::vector<Cmp::SeeingStone::Target> exclude_list;
+  for ( auto [scryingball_entt, scryingball_cmp] : reg.view<Cmp::SeeingStone>().each() )
   {
     exclude_list.push_back( scryingball_cmp.target );
   }
-  auto pick = Cmp::ScryingBall::random_pick( exclude_list );
-  if ( pick == Cmp::ScryingBall::Target::NONE )
+  auto pick = Cmp::SeeingStone::random_pick( exclude_list );
+  if ( pick == Cmp::SeeingStone::Target::NONE )
   {
     SPDLOG_WARN( "Cannot create scrying ball - all targets already assigned" );
     return entt::null;
@@ -128,7 +128,7 @@ entt::entity create_seeing_stone( entt::registry &reg, Cmp::Position pos, const 
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
   reg.emplace_or_replace<Cmp::InventoryItem>( world_carry_item_entt, Sys::ItemStore::instance().get_item( item ) );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
-  reg.emplace_or_replace<Cmp::ScryingBall>( world_carry_item_entt, false, pick );
+  reg.emplace_or_replace<Cmp::SeeingStone>( world_carry_item_entt, false, pick );
 
   SPDLOG_INFO( "Placed {} at {},{}", item, pos.position.x, pos.position.y );
   return world_carry_item_entt;
@@ -185,8 +185,8 @@ entt::entity pickup_world_item( entt::registry &reg, entt::entity world_item_ent
   auto *wear_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( world_item_entt );
   if ( wear_level_cmp ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, wear_level_cmp->m_level ); }
 
-  auto *scryingball_cmp = reg.try_get<Cmp::ScryingBall>( world_item_entt );
-  if ( scryingball_cmp ) { reg.emplace_or_replace<Cmp::ScryingBall>( inventory_entity, false, scryingball_cmp->target ); }
+  auto *scryingball_cmp = reg.try_get<Cmp::SeeingStone>( world_item_entt );
+  if ( scryingball_cmp ) { reg.emplace_or_replace<Cmp::SeeingStone>( inventory_entity, false, scryingball_cmp->target ); }
 
   auto *explosive_cmp = reg.try_get<Cmp::Explosive>( world_item_entt );
   if ( explosive_cmp ) { reg.emplace_or_replace<Cmp::Explosive>( inventory_entity, false ); }
@@ -205,9 +205,9 @@ void add_inventory( entt::registry &reg, const std::string &item )
   if ( item.contains( "axe" ) or item.contains( "shovel" ) ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, 100.f ); }
   if ( item.contains( "scryingball" ) )
   {
-    Cmp::ScryingBall sb;
-    sb.target = ProceduralMaze::Cmp::ScryingBall::random_pick( {} );
-    reg.emplace_or_replace<Cmp::ScryingBall>( inventory_entity, sb );
+    Cmp::SeeingStone sb;
+    sb.target = ProceduralMaze::Cmp::SeeingStone::random_pick( {} );
+    reg.emplace_or_replace<Cmp::SeeingStone>( inventory_entity, sb );
   }
   if ( item.contains( "explosive" ) ) { reg.emplace_or_replace<Cmp::Explosive>( inventory_entity, false ); }
   reg.emplace_or_replace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, true, Sys::ItemStore::instance().get_item( item ).sprite_type, 0 );

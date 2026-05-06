@@ -479,8 +479,8 @@ entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, ent
   auto *inventory_slot_level_cmp = reg().try_get<Cmp::InventoryWearLevel>( inventory_slot_entt );
   if ( inventory_slot_level_cmp ) { reg().emplace_or_replace<Cmp::InventoryWearLevel>( world_item_entt, inventory_slot_level_cmp->m_level ); }
 
-  auto *inventory_scryingball_cmp = reg().try_get<Cmp::ScryingBall>( inventory_slot_entt );
-  if ( inventory_scryingball_cmp ) { reg().emplace_or_replace<Cmp::ScryingBall>( world_item_entt, true, inventory_scryingball_cmp->target ); }
+  auto *inventory_scryingball_cmp = reg().try_get<Cmp::SeeingStone>( inventory_slot_entt );
+  if ( inventory_scryingball_cmp ) { reg().emplace_or_replace<Cmp::SeeingStone>( world_item_entt, true, inventory_scryingball_cmp->target ); }
 
   auto *inventory_explosive_cmp = reg().try_get<Cmp::Explosive>( inventory_slot_entt );
   if ( inventory_explosive_cmp ) { reg().emplace_or_replace<Cmp::Explosive>( world_item_entt, false ); }

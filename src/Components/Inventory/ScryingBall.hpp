@@ -6,7 +6,7 @@
 namespace ProceduralMaze::Cmp
 {
 
-struct ScryingBall
+struct SeeingStone
 {
   enum class Target { NONE, RED, YELLOW, GREEN };
   static Target random_pick( std::vector<Target> excludes )

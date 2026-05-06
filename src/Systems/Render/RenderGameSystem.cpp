@@ -145,6 +145,12 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
       safe_render_sprite_world( anim_cmp.m_sprite_type, pos_cmp, anim_cmp.getFrameIndexOffset() + anim_cmp.m_current_frame, { 1.f, 1.f }, alpha_value,
                                 new_origin_value, new_angle_value );
 
+      if ( reg().any_of<Cmp::SeeingStone>( entity ) )
+      {
+        const auto &stone_cmp = reg().get<Cmp::SeeingStone>( entity );
+        render_seeingstone_doglegs( stone_cmp, pos_cmp );
+      }
+
       if ( reg().any_of<Cmp::InventoryWearLevel>( entity ) )
       {
         render_overlay_sys.render_wear_level( reg().get<Cmp::InventoryWearLevel>( entity ).m_level, pos_cmp );
@@ -179,7 +185,6 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   render_armed();
   render_shockwaves();
   render_arrow_compass();
-  render_seeingstone_doglegs();
 
   // lava pit outline
   render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 64, 64, 64 ), 0.5f );
@@ -517,7 +522,7 @@ void RenderGameSystem::render_arrow_compass()
   }
 }
 
-void RenderGameSystem::render_seeingstone_doglegs()
+void RenderGameSystem::render_seeingstone_doglegs( const Cmp::SeeingStone &stone_cmp, const Cmp::Position &pos_cmp )
 {
   auto draw_dogleg = [this]( sf::Vector2f source_pos, sf::Vector2f target_pos, sf::Color color, float thickness )
   {
@@ -530,38 +535,38 @@ void RenderGameSystem::render_seeingstone_doglegs()
   };
 
   constexpr float kLineThickness = 3.f;
-  for ( auto [seeingstone_ent, seeingstone_cmp, seeingstone_pos_cmp] : reg().view<Cmp::ScryingBall, Cmp::Position>().each() )
+  // for ( auto [seeingstone_ent, stone_cmp, pos_cmp] : reg().view<Cmp::SeeingStone, Cmp::Position>().each() )
   {
-    if ( not seeingstone_cmp.active ) { continue; }
-    switch ( seeingstone_cmp.target )
+    if ( not stone_cmp.active ) { return; }
+    switch ( stone_cmp.target )
     {
-      case Cmp::ScryingBall::Target::YELLOW: {
+      case Cmp::SeeingStone::Target::YELLOW: {
         auto altar_view = reg().view<Cmp::AltarMultiBlock>();
         for ( auto [altar_entt, altar_cmp] : altar_view.each() )
         {
           // yellow for altar paths
-          draw_dogleg( seeingstone_pos_cmp.getCenter(), altar_cmp.getCenter(), sf::Color( 255, 255, 0, 128 ), kLineThickness );
+          draw_dogleg( pos_cmp.getCenter(), altar_cmp.getCenter(), sf::Color( 255, 255, 0, 128 ), kLineThickness );
         }
         break;
       }
-      case Cmp::ScryingBall::Target::RED: {
+      case Cmp::SeeingStone::Target::RED: {
         auto crypt_view = reg().view<Cmp::CryptEntrance, Cmp::Position>();
         for ( auto [crypt_entt, crypt_cmp, crypt_pos_cmp] : crypt_view.each() )
         {
           // red for crypt paths
-          draw_dogleg( seeingstone_pos_cmp.getCenter(), crypt_pos_cmp.getCenter(), sf::Color( 255, 0, 0, 128 ), kLineThickness );
+          draw_dogleg( pos_cmp.getCenter(), crypt_pos_cmp.getCenter(), sf::Color( 255, 0, 0, 128 ), kLineThickness );
         }
         break;
       }
-      case Cmp::ScryingBall::Target::GREEN: {
+      case Cmp::SeeingStone::Target::GREEN: {
         auto exit_view = reg().view<Cmp::Exit, Cmp::Position>();
         for ( auto [exit_entt, exit_cmp, exit_pos_cmp] : exit_view.each() )
         {
-          draw_dogleg( seeingstone_pos_cmp.getCenter(), exit_pos_cmp.getCenter(), sf::Color( 0, 255, 0, 128 ), kLineThickness );
+          draw_dogleg( pos_cmp.getCenter(), exit_pos_cmp.getCenter(), sf::Color( 0, 255, 0, 128 ), kLineThickness );
         }
         break;
       }
-      case Cmp::ScryingBall::Target::NONE: {
+      case Cmp::SeeingStone::Target::NONE: {
         break;
       }
     }

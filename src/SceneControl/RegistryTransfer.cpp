@@ -232,7 +232,7 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   registry.storage<Cmp::InventoryItem>();
   registry.storage<Cmp::InventoryWearLevel>();
   registry.storage<Cmp::ZOrderValue>();
-  registry.storage<Cmp::ScryingBall>();
+  registry.storage<Cmp::SeeingStone>();
   registry.storage<Cmp::Explosive>();
   registry.storage<Cmp::System>();
   registry.storage<Cmp::PlayerLastGraveyardPosition>();
