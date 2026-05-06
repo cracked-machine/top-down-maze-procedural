@@ -508,23 +508,33 @@ void SceneInputRouter::toggle_show_nopath()
 
   for ( auto [entt, sys_cmp] : reg().view<Cmp::System>().each() )
   {
-    if ( not sys_cmp.show_npcnopath and not sys_cmp.show_playernopath )
+    if ( not sys_cmp.show_npcnopath and not sys_cmp.show_playernopath and not sys_cmp.show_reserved )
     {
       sys_cmp.show_npcnopath = true;
       sys_cmp.show_playernopath = false;
+      sys_cmp.show_reserved = false;
       SPDLOG_INFO( "Show NpcNoPathFinding is now ENABLED" );
     }
     else if ( sys_cmp.show_npcnopath )
     {
       sys_cmp.show_npcnopath = false;
       sys_cmp.show_playernopath = true;
+      sys_cmp.show_reserved = false;
       SPDLOG_INFO( "Show PlayerNoPath is now ENABLED" );
+    }
+    else if ( sys_cmp.show_playernopath )
+    {
+      sys_cmp.show_npcnopath = false;
+      sys_cmp.show_playernopath = false;
+      sys_cmp.show_reserved = true;
+      SPDLOG_INFO( "Show reserved is now ENABLED" );
     }
     else
     {
       sys_cmp.show_npcnopath = false;
       sys_cmp.show_playernopath = false;
-      SPDLOG_INFO( "Show PlayerNoPath and NpcNoPathFinding are now DISABLED" );
+      sys_cmp.show_reserved = false;
+      SPDLOG_INFO( "Show PlayerNoPath, NpcNoPathFinding and reserved are now DISABLED" );
     }
   }
 }

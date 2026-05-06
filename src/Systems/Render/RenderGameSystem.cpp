@@ -43,6 +43,7 @@
 #include <LightningStrike.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Random.hpp>
+#include <ReservedPosition.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <Shaders/BaseShaderSprite.hpp>
 #include <Shaders/DarkModeShader.hpp>
@@ -102,6 +103,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
     m_show_debug_stats = sys_cmp.show_debug_stats;
     m_shaders_enabled = sys_cmp.shaders_enabled;
     m_show_playernopath = sys_cmp.show_playernopath;
+    m_show_reserved = sys_cmp.show_reserved;
     m_show_npcnopath = sys_cmp.show_npcnopath;
   }
 
@@ -188,32 +190,45 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   // debug: show crypt component boundaries
   if ( m_show_debug_stats )
   {
-    if ( debug_tick )
+
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
+    render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
+    render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Black, 1.f );
+  }
+  if ( m_show_npcnopath )
+  {
+    for ( auto [entt, npcnopath_cmp, pos_cmp] : reg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
     {
-      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPitCell>( sf::Color( 254, 128, 32 ), 0.5f );
-      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomOpen>( sf::Color::Green, 1.f );
-      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomStart>( sf::Color::Blue, 1.f );
-      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomEnd>( sf::Color::Yellow, 1.f );
-      render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomClosed>( sf::Color::Red, 1.f );
-      render_overlay_sys.render_square_for_vector2f_cmp<Cmp::CryptPassageBlock>( sf::Color::Black, 1.f );
+      auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
+      render_rectbounds( rectbounds, sf::Color::Red );
+    }
+  }
 
-      if ( m_show_npcnopath )
-      {
-        for ( auto [entt, npcnopath_cmp, pos_cmp] : reg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
-        {
-          auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
-          render_rectbounds( rectbounds, sf::Color::Red );
-        }
-      }
-
-      if ( m_show_playernopath )
-      {
-        for ( auto [entt, npcnopath_cmp, pos_cmp] : reg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
-        {
-          auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
-          render_rectbounds( rectbounds, sf::Color::Red );
-        }
-      }
+  if ( m_show_npcnopath )
+  {
+    for ( auto [entt, npcnopath_cmp, pos_cmp] : reg().view<Cmp::NpcNoPathFinding, Cmp::Position>().each() )
+    {
+      auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
+      render_rectbounds( rectbounds, sf::Color::Red );
+    }
+  }
+  if ( m_show_playernopath )
+  {
+    for ( auto [entt, playernopath_cmp, pos_cmp] : reg().view<Cmp::PlayerNoPath, Cmp::Position>().each() )
+    {
+      auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
+      render_rectbounds( rectbounds, sf::Color::Red );
+    }
+  }
+  if ( m_show_reserved )
+  {
+    for ( auto [entt, reserved_cmp, pos_cmp] : reg().view<Cmp::ReservedPosition, Cmp::Position>().each() )
+    {
+      auto rectbounds = Cmp::RectBounds::scaled( pos_cmp.position, pos_cmp.size, 1.f );
+      render_rectbounds( rectbounds, sf::Color::Red );
     }
   }
 

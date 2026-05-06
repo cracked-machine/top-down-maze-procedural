@@ -2,6 +2,7 @@
 #define __SYS_RENDEROVERSYSTEM_HPP__
 
 #include <Components/Position.hpp>
+#include <Optimizations.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Render/UiData.hpp>
@@ -102,6 +103,8 @@ public:
     {
       if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
       {
+        if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), sf::FloatRect( requested_cmp, Constants::kGridSizePxF ) ) ) continue;
+
         sf::RectangleShape rectangle;
         rectangle.setSize( Constants::kGridSizePxF );
         rectangle.setPosition( requested_cmp );
@@ -121,6 +124,7 @@ public:
     {
       if ( m_debug_update_timer.getElapsedTime() > m_debug_update_interval )
       {
+        if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), requested_cmp ) ) continue;
         sf::RectangleShape rectangle;
         rectangle.setSize( requested_cmp.size );
         rectangle.setPosition( requested_cmp.position );

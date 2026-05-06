@@ -1,5 +1,6 @@
 #include <Components/Persistent/DisplayResolution.hpp>
 #include <Components/RectBounds.hpp>
+#include <Optimizations.hpp>
 #include <Shaders/DarkModeShader.hpp>
 #include <Shaders/DrippingBloodShader.hpp>
 #include <Shaders/FloodWaterShader.hpp>
@@ -141,6 +142,7 @@ void RenderSystem::render_fallback_square_world( const sf::FloatRect &pos_cmp, c
 
 void RenderSystem::render_rectbounds( Cmp::RectBounds &bounds, sf::Color color )
 {
+  if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), bounds.getBounds() ) ) return;
   sf::RectangleShape rect;
   rect.setSize( bounds.size() );
   rect.setPosition( bounds.position() );
