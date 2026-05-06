@@ -46,7 +46,6 @@ private:
   Audio::SoundBank &m_sound_bank;
   Sys::Store &m_sys;
   Sprites::SpriteFactory &m_sprite_factory;
-  Sprites::Containers::TileMap m_floormap{};
 
   static sf::Clock s_maze_timer;
   constexpr static sf::Time s_maze_timer_cooldown{ sf::seconds( 10.f ) };

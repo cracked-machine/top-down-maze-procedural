@@ -117,17 +117,19 @@ void GraveyardScene::on_init()
   reinit_navmesh();
 
   // create floor background
-  m_floormap.create( random_level_sys.get_void_sm(), m_scene_map_data );
-  auto floor_entity = m_reg.create();
-  m_reg.emplace<Sprites::Containers::TileMap>( floor_entity, m_floormap );
-  m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
+  Sprites::Containers::TileMap floortiles;
+  floortiles.create( random_level_sys.get_void_sm(), m_scene_map_data );
 
   m_sys.find<Sys::Store::Type::ExitSystem>().spawn_exit();
 
   m_sys.find<Sys::Store::Type::RenderGameSystem>().init_world_view();
 
   auto new_sinkhole_pos = m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().init_hazard_field();
-  if ( new_sinkhole_pos != sf::Vector2f{ 0, 0 } ) { m_floormap.remove( new_sinkhole_pos ); }
+  if ( new_sinkhole_pos != sf::Vector2f{ 0, 0 } ) { floortiles.remove( new_sinkhole_pos ); }
+
+  auto floor_entity = m_reg.create();
+  m_reg.emplace<Sprites::Containers::TileMap>( floor_entity, floortiles );
+  m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
 
   m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().init_hazard_field();
   m_sys.find<Sys::Store::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
@@ -189,7 +191,10 @@ void GraveyardScene::on_exit()
   auto &m_player_sys = m_sys.find<Sys::Store::Type::PlayerSystem>();
   m_player_sys.stopFootstepsSound();
 
-  Factory::FloormapFactory::clear_floormap( m_floormap );
+  for ( auto [floor_entt, floor_cmp] : m_reg.view<Sprites::Containers::TileMap>().each() )
+  {
+    Factory::FloormapFactory::clear_floormap( floor_cmp );
+  }
 
   m_sound_bank.get_music( "game_music" ).stop();
 }
@@ -199,7 +204,13 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
 
   auto new_sinkhole_pos = m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().update();
-  if ( new_sinkhole_pos != sf::Vector2f{ 0, 0 } ) { m_floormap.remove( new_sinkhole_pos ); }
+  if ( new_sinkhole_pos != sf::Vector2f{ 0, 0 } )
+  {
+    for ( auto [floor_entt, floortiles] : m_reg.view<Sprites::Containers::TileMap>().each() )
+    {
+      floortiles.remove( new_sinkhole_pos );
+    }
+  }
 
   m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().update();
   m_sys.find<Sys::Store::Type::BombSystem>().update();
@@ -231,7 +242,8 @@ void GraveyardScene::do_update( sf::Time dt )
   }
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap );
+
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys );
 }
 
 void GraveyardScene::reinit_navmesh()

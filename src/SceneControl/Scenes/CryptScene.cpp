@@ -81,9 +81,10 @@ void CryptScene::on_init()
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
   m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
 
-  m_floormap.create( random_level_sys.get_void_sm(), m_scene_map_data );
+  Sprites::Containers::TileMap floortiles;
+  floortiles.create( random_level_sys.get_void_sm(), m_scene_map_data );
   auto floor_entity = m_reg.create();
-  m_reg.emplace<Sprites::Containers::TileMap>( floor_entity, m_floormap );
+  m_reg.emplace<Sprites::Containers::TileMap>( floor_entity, floortiles );
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
 }
 
@@ -132,7 +133,7 @@ void CryptScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::PassageSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
-  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap );
+  m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys );
 }
 
 entt::registry &CryptScene::registry() { return m_reg; }

@@ -61,7 +61,7 @@ public:
   //! info, etc..
   //! @param render_player_sys anything that walks about in the game world, i.e. player, NPCs, etc..
   //! as well as death animations/effects
-  void render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap );
+  void render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys );
 
   //! @brief Refreshes the Z-order rendering queue
   void refresh_z_order_queue();
@@ -80,7 +80,7 @@ private:
 
   //! @brief Used by CryptScene for Priest NPC weapon
   //! @param floormap
-  void render_shockwaves( Sprites::Containers::TileMap &floormap );
+  void render_shockwaves();
 
   //! @brief Used by GraveyardScene when player has key and relic carryitems
   void render_arrow_compass();

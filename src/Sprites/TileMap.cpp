@@ -5,6 +5,7 @@
 #include <Sprites/TileMap.hpp>
 
 #include <SFML/Graphics/Color.hpp>
+#include <Utils.hpp>
 #include <entt/entity/registry.hpp>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
@@ -16,6 +17,7 @@ namespace ProceduralMaze::Sprites::Containers
 
 void TileMap::draw( sf::RenderTarget &target, sf::RenderStates states ) const
 {
+  SPDLOG_DEBUG( "TileMap::draw - instance: {}, vertices: {}", (void *)this, m_vertices.getVertexCount() );
   if ( m_vertices.getVertexCount() == 0 )
   {
     SPDLOG_WARN( "Attempting to draw empty tilemap" );
@@ -124,6 +126,9 @@ void TileMap::create( const PathFinding::SpatialHashGrid &void_sm, const Scene::
 
 void TileMap::remove( sf::Vector2f pos )
 {
+  // Snap to grid to ensure position matches tilemap vertex positions
+  pos = Utils::snap_to_grid( pos );
+
   // determine the vertices to remove
   const auto left = static_cast<float>( pos.x );
   const auto top = static_cast<float>( pos.y );
@@ -155,6 +160,7 @@ void TileMap::remove( sf::Vector2f pos )
   {
     if ( is_tile_vertex( m_vertices[i] ) && is_tile_vertex( m_vertices[i + 1] ) && is_tile_vertex( m_vertices[i + 2] ) )
     {
+      SPDLOG_INFO( "sinkhole collided with tile at {},{}", pos.x, pos.y );
       continue; // skip this tile's 6 vertices
     }
     for ( size_t j = i; j < i + 6; ++j )
@@ -162,8 +168,10 @@ void TileMap::remove( sf::Vector2f pos )
       new_vertices.append( m_vertices[j] );
     }
   }
-
+  // Move the vertices that dont collide into the new `m_vertices`
+  auto before = m_vertices.getVertexCount();
   m_vertices = std::move( new_vertices );
+  SPDLOG_INFO( "TileMap::remove - vertices before: {}, after: {}, instance: {}", before, m_vertices.getVertexCount(), (void *)this );
 }
 
 } // namespace ProceduralMaze::Sprites::Containers

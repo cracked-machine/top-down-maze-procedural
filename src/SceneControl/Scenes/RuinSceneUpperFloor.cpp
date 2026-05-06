@@ -67,9 +67,10 @@ void RuinSceneUpperFloor::on_init()
   sf::Vector2f flooraccess_size( ( 2 * gridsize.x ), gridsize.y );
   m_sys.find<Store::Type::RuinSystem>().spawn_floor_access( flooraccess_position, flooraccess_size, Cmp::RuinFloorAccess::Direction::TO_LOWER );
 
-  m_floormap.create( random_level_sys.get_void_sm(), m_scene_map_data );
+  Sprites::Containers::TileMap floortiles;
+  floortiles.create( random_level_sys.get_void_sm(), m_scene_map_data );
   auto floor_entity = m_reg.create();
-  m_reg.emplace<Sprites::Containers::TileMap>( floor_entity, m_floormap );
+  m_reg.emplace<Sprites::Containers::TileMap>( floor_entity, floortiles );
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
 
   // create a navmesh for pathfinding in the scene
@@ -148,7 +149,7 @@ void RuinSceneUpperFloor::do_update( sf::Time dt )
   // m_sys.find<Store::Type::RuinSystem>().check_player_shadow_hand_collision( dt );
 
   auto &overlay_sys = m_sys.find<Store::Type::RenderOverlaySystem>();
-  m_sys.find<Store::Type::RenderGameSystem>().render_game( dt, overlay_sys, m_floormap );
+  m_sys.find<Store::Type::RenderGameSystem>().render_game( dt, overlay_sys );
 }
 
 entt::registry &RuinSceneUpperFloor::registry() { return m_reg; }

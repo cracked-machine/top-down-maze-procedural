@@ -44,7 +44,6 @@ private:
   Sys::Store &m_sys;
   Sprites::SpriteFactory &m_sprite_factory;
 
-  Sprites::Containers::TileMap m_floormap;
   sf::Clock m_scene_exit_cooldown{};
   sf::Time m_scene_exit_cooldown_time{ sf::seconds( 2 ) };
 

@@ -50,7 +50,6 @@ private:
   Audio::SoundBank &m_sound_bank;
   Sys::Store &m_sys;
   Sprites::SpriteFactory &m_sprite_factory;
-  Sprites::Containers::TileMap m_floormap{};
 
   EntryMode m_entry_mode;
 };

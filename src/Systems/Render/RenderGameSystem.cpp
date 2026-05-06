@@ -91,7 +91,7 @@ RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &windo
 
 RenderGameSystem::~RenderGameSystem() = default;
 
-void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys, Sprites::Containers::TileMap &floormap )
+void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_overlay_sys )
 {
   using namespace Sprites;
 
@@ -164,9 +164,10 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
     }
     else if ( reg().all_of<Sprites::Containers::TileMap>( entity ) )
     {
+
       auto &floor_tiles = reg().get<Sprites::Containers::TileMap>( entity );
-      sf::Vector2f adjusted{ static_cast<float>( floormap.world_grid_offset.x ) * Constants::kGridSizePxF.x,
-                             static_cast<float>( floormap.world_grid_offset.y ) * Constants::kGridSizePxF.y };
+      sf::Vector2f adjusted{ static_cast<float>( floor_tiles.world_grid_offset.x ) * Constants::kGridSizePxF.x,
+                             static_cast<float>( floor_tiles.world_grid_offset.y ) * Constants::kGridSizePxF.y };
       floor_tiles.setPosition( adjusted );
       draw_world( floor_tiles );
     }
@@ -174,7 +175,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
 
   // finally render anything on top
   render_armed();
-  render_shockwaves( floormap );
+  render_shockwaves();
   render_arrow_compass();
   render_seeingstone_doglegs();
 
@@ -365,7 +366,7 @@ void RenderGameSystem::render_armed()
   }
 }
 
-void RenderGameSystem::render_shockwaves( [[maybe_unused]] Sprites::Containers::TileMap &floormap )
+void RenderGameSystem::render_shockwaves()
 {
   for ( auto [npc_sh_entt, npc_sw_cmp] : reg().view<Cmp::NpcShockwave>().each() )
   {
