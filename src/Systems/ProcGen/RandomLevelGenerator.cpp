@@ -387,8 +387,6 @@ std::vector<entt::entity> RandomLevelGenerator::gen_random_plants( sf::Vector2u 
     auto world_pos_entt = Utils::get_world_pos_entt( reg(), random_pos );
     if ( world_pos_entt != entt::null )
     {
-      // make sure we mark the *world* entt as reserved
-      reg().emplace_or_replace<Cmp::ReservedPosition>( world_pos_entt );
 
       // now create the plant at a new entt
       Factory::create_plant_obstacle( reg(), random_pos, m_sprite_factory.get_multisprite_by_type( rand_plant_type ) );

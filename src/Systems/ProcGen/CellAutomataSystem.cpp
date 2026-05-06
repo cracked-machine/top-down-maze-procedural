@@ -21,7 +21,7 @@ void CellAutomataSystem::iterate( unsigned int iterations, RandomLevelGenerator:
   {
 
     SPDLOG_DEBUG( "NAVMESH: {}", levelgen_spatialgrid.size() );
-    for ( auto [pos_entt, pos_cmp] : reg().view<Cmp::Position>().each() )
+    for ( auto [pos_entt, pos_cmp] : reg().view<Cmp::Position>( entt::exclude<Cmp::ReservedPosition> ).each() )
     {
       if ( reg().any_of<Cmp::ReservedPosition>( pos_entt ) ) continue;
       std::vector<entt::entity> neighbour_list = levelgen_spatialgrid.neighbours( pos_cmp );

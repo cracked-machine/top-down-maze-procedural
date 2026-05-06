@@ -98,9 +98,14 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
 
   // create a new entity for the NPC using the existing position
   auto new_pos_entity = reg.create();
-  reg.emplace<Cmp::Position>( new_pos_entity, pos_cmp->position, Constants::kGridSizePxF );
-  reg.emplace<Cmp::Armable>( new_pos_entity );
+  reg.emplace_or_replace<Cmp::Position>( new_pos_entity, pos_cmp->position, Constants::kGridSizePxF );
+  reg.emplace_or_replace<Cmp::Armable>( new_pos_entity );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
   reg.emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 0, 0 } );
+
+  SPDLOG_DEBUG( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), npc_type, pos_cmp->position.x,
+                pos_cmp->position.y );
+
   if ( npc_type == "npc.ghost" )
   {
     auto npc_cmp = Sys::NpcStore::instance().get_item( npc_type );
@@ -109,13 +114,8 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
     auto framerate = Sys::PersistSystem::get<Cmp::Persist::NpcGhostAnimFramerate>( reg ).get_value();
     reg.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, npc_cmp.sprite_type_list.front(), framerate );
 
-    reg.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
-
     float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedGhost>( reg ).get_value();
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
-
-    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), npc_type, pos_cmp->position.x,
-                 pos_cmp->position.y );
 
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
@@ -128,17 +128,13 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
     auto framerate = Sys::PersistSystem::get<Cmp::Persist::NpcSkeleAnimFramerate>( reg ).get_value();
     reg.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, true, npc_cmp.sprite_type_list.front(), framerate );
 
-    reg.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
-
     float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedSkele>( reg ).get_value();
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
 
-    // Remove the npc container component from the original entity
-    Factory::destroy_npc_container( reg, position_entity );
-    SPDLOG_DEBUG( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), npc_type, pos_cmp->position.x,
-                  pos_cmp->position.y );
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
+
+    Factory::destroy_npc_container( reg, position_entity );
   }
   else if ( npc_type == "npc.priest" )
   {
@@ -147,19 +143,12 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
 
     reg.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, false, npc_cmp.sprite_type_list.front() );
 
-    reg.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
-
     float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedPriest>( reg ).get_value();
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
 
-    // Remove the npc container component from the original entity
-    reg.remove<Cmp::NpcContainer>( position_entity );
-    reg.remove<Cmp::ZOrderValue>( position_entity );
-
     reg.emplace_or_replace<Cmp::NpcShockwaveTimer>( new_pos_entity );
     Factory::create_shockwave( reg, new_pos_entity );
-    SPDLOG_DEBUG( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), type, pos_cmp->position.x,
-                  pos_cmp->position.y );
+
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
@@ -170,16 +159,10 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
 
     auto framerate = Sys::PersistSystem::get<Cmp::Persist::NpcWitchAnimFramerate>( reg ).get_value();
     reg.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, false, npc_cmp.sprite_type_list.front(), framerate );
-    reg.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
 
     float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedWitch>( reg ).get_value();
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
 
-    // Remove the npc container component from the original entity
-    reg.remove<Cmp::NpcContainer>( position_entity );
-    reg.remove<Cmp::ZOrderValue>( position_entity );
-    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), npc_type, pos_cmp->position.x,
-                 pos_cmp->position.y );
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
@@ -189,11 +172,8 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
     reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
 
     reg.emplace_or_replace<Cmp::SpriteAnimation>( new_pos_entity, 0, 0, false, npc_cmp.sprite_type_list.front() );
-    reg.emplace_or_replace<Cmp::ZOrderValue>( new_pos_entity, pos_cmp->position.y );
     reg.emplace_or_replace<Cmp::NpcFriendly>( new_pos_entity );
 
-    SPDLOG_INFO( "Spawned NPC entity {} of type {} at position ({}, {})", static_cast<int>( new_pos_entity ), npc_type, pos_cmp->position.x,
-                 pos_cmp->position.y );
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }

@@ -43,10 +43,16 @@ void create_obstacle( entt::registry &registry, entt::entity entity, Cmp::Positi
                               " ( size: " + std::to_string( ms.get_sprite_count() ) + " )" );
   }
   Cmp::ZOrderValue zorder( 0 );
+
+  for ( auto [plant_entt, plant_cmp, plant_pos_cmp] : registry.view<Cmp::PlantObstacle, Cmp::Position>().each() )
+  {
+    if ( pos_cmp.findIntersection( plant_pos_cmp ) ) return;
+  }
+
   if ( ms.get_zorder( sprite_tile_idx ) != 0 ) { zorder.setZOrder( ms.get_zorder( sprite_tile_idx ) ); }
   else { zorder.setZOrder( pos_cmp.position.y ); }
 
-  if ( registry.all_of<Cmp::PlayerCharacter>( entity ) ) { return; }
+  if ( registry.any_of<Cmp::PlayerCharacter, Cmp::ReservedPosition>( entity ) ) { return; }
   if ( registry.all_of<Cmp::DestroyedObstacle>( entity ) ) { registry.remove<Cmp::DestroyedObstacle>( entity ); }
   registry.emplace_or_replace<Cmp::Obstacle>( entity );
   registry.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
