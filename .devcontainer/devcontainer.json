@@ -12,7 +12,8 @@
                 "xaver.clang-format",
                 "ms-vscode.hexeditor",
                 "cschlosser.doxdocgen",
-                "slevesque.shader"
+                "slevesque.shader",
+                "dtoplak.vscode-glsllint"
 
             ],
             "settings": {
