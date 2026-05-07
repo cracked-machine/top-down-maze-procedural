@@ -70,7 +70,7 @@ public:
   //! @brief This should be called by scene "on enter" functions.
   void init_world_view();
 
-  void updateCamera( sf::Time deltaTime );
+  void update_camera( sf::Time deltaTime );
 
 private:
   sf::Vector2f m_camera_position{ 0.f, 0.f }; // Smoothed camera position

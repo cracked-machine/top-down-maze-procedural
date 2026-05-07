@@ -111,7 +111,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
 
   // make sure the local view is centered on the player mid-point and not at their top-left corner
   // (otherwise this makes views, shaders, etc look off-center)
-  updateCamera( dt );
+  update_camera( dt );
 
   // re-populate the z-order queue with the latest entity/component data
   refresh_z_order_queue();
@@ -319,7 +319,7 @@ void RenderGameSystem::init_world_view()
   s_world_view.setCenter( start_pos );
 }
 
-void RenderGameSystem::updateCamera( sf::Time deltaTime )
+void RenderGameSystem::update_camera( sf::Time deltaTime )
 {
 
   // Get the player's current position
@@ -344,7 +344,7 @@ void RenderGameSystem::updateCamera( sf::Time deltaTime )
     m_camera_position.y += ( target_position.y - m_camera_position.y ) * t;
 
     // Snap to target if very close (prevents endless micro-adjustments)
-    constexpr float kSnapThreshold = 0.5f;
+    constexpr float kSnapThreshold = 0.1f;
     if ( std::abs( target_position.x - m_camera_position.x ) < kSnapThreshold &&
          std::abs( target_position.y - m_camera_position.y ) < kSnapThreshold )
     {
@@ -352,14 +352,7 @@ void RenderGameSystem::updateCamera( sf::Time deltaTime )
     }
 
     // Update the view center
-    // s_world_view.setCenter( m_camera_position + ( pos_cmp.size / 2.f ) ); // Center on sprite center
-    // Update the view center - only round to pixel when stationary to avoid jitter during lerp
     sf::Vector2f view_center = m_camera_position + ( pos_cmp.size / 2.f );
-    if ( m_camera_position == target_position )
-    {
-      view_center.x = std::round( view_center.x );
-      view_center.y = std::round( view_center.y );
-    }
     s_world_view.setCenter( view_center );
   }
 }

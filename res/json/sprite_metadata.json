@@ -17,9 +17,9 @@
     "sprite.graveyard.wall.int": {
       "multisprite": {
         "displayname": "sprite.graveyard.wall.int",
-        "zorder": [0],
+        "zorder": [0,0,0,0,0,0,0,0,0],
         "texture_path": "res/textures/graveyard.png",
-        "sprite_indices": [0],
+        "sprite_indices": [0,1,2,3,4,5,6,7],
         "sprites_per_sequence": 1,
         "sprites_per_frame": 1,
         "grid_size": {

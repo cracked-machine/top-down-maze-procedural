@@ -4,8 +4,7 @@
 uniform sampler2D texture;
 // elapsed time
 uniform float time;
-// effect opacity
-uniform float alpha;
+
 // screen dimensions
 uniform vec2 resolution;
 
@@ -16,8 +15,6 @@ uniform vec2 viewSize;
 
 // player position in world space
 uniform vec2 playerWorldPos;
-// radius of torch ring
-uniform float playerTorchRadius;
 
 // // NPC lighting
 // uniform int npcCount;
@@ -40,18 +37,10 @@ float noise( float a, float b )
   return float( p.x ) / float( 0xFFFFFFFFu );
 }
 
-void main()
+float player_torch_pixel( vec2 worldPos )
 {
-  // Normalise screen coords to UV coords for the current pixel
-  vec2 normalizedScreen = gl_FragCoord.xy / resolution;
-  normalizedScreen.y = 1.0 - normalizedScreen.y;
-
-  vec2 worldPos = viewTopLeft + normalizedScreen * viewSize;
-
-  // Sample the base texture color at current pixel
-  vec4 color = texture2D( texture, worldPos );
-
-  // ── Torch / lighting ────────────────────────────────────────────────────────
+  // radius of torch ring
+  float playerTorchRadius = 32.0;
 
   // Player torch: soft circular ring
   float distToPlayer = length( worldPos - playerWorldPos );
@@ -62,7 +51,34 @@ void main()
                   noise_sin( time * flicker_speed * 0.7 ) * 0.2;
   float flickered_radius = playerTorchRadius * ( 1.0 + flicker * flicker_intensity );
   float blur_width = 10.0;
-  float inPlayerTorch = smoothstep( flickered_radius + blur_width, flickered_radius - blur_width, distToPlayer );
+  return smoothstep( flickered_radius + blur_width, flickered_radius - blur_width, distToPlayer );
+}
+
+void main()
+{
+  // effect opacity
+  float alpha = 0.75;
+
+  vec3 mainColor = vec3( 1, 1, 5 );
+
+  // torch tint
+  vec3 warm_yellow = vec3( 2.0, 1.85, 1.4 );
+  vec3 cool_white = vec3( 0.9, 0.9, 1.0 );
+  vec3 warm_orange = vec3( 1.0, 0.6, 0.2 );
+  vec3 eerie_green = vec3( 0.4, 1.0, 0.4 );
+  vec3 torchTint = warm_yellow;
+
+  // Normalise screen coords to UV coords for the current pixel
+  vec2 normalizedScreen = gl_FragCoord.xy / resolution;
+  normalizedScreen.y = 1.0 - normalizedScreen.y;
+
+  vec2 worldPos = viewTopLeft + normalizedScreen * viewSize;
+
+  // Sample the base texture color at current pixel
+  vec4 color = texture2D( texture, worldPos );
+
+  // ── Torch / lighting ────────────────────────────────────────────────────────
+  float inPlayerTorch = player_torch_pixel( worldPos );
 
   // // NPC cones: apex at NPC, spreads outward in facing direction
   // float inNpcLight = 0.0;
@@ -90,9 +106,7 @@ void main()
   // Bell curve: peaks at the edge of the torch ring, zero at centre and outside
   float edgeTint = litAmount * ( 1.0 - litAmount ) * 4.0;
 
-  // Midnight blue tint — strongest at edge, zero at centre
-  vec3 darkBlue = vec3( 0.02, 0.02, 0.08 );
-  color.rgb = mix( color.rgb * darkBlue, color.rgb, litAmount );
+  color.rgb = mix( color.rgb * mainColor, color.rgb, litAmount );
 
   float timeTick = floor( time * 30.0 );
   vec2 worldOffsetScreen = viewTopLeft * ( resolution / viewSize );
@@ -111,14 +125,6 @@ void main()
   float staticGrain = simpleNoise * 0.12 * ( 1.0 - litAmount );
   color.rgb += staticGrain;
 
-  // torch tint
-  vec3 warm_yellow = vec3( 1.0, 0.85, 0.4 );
-  vec3 cool_white = vec3( 0.9, 0.9, 1.0 );
-  vec3 warm_orange = vec3( 1.0, 0.6, 0.2 );
-  vec3 eerie_green = vec3( 0.4, 1.0, 0.4 );
-
-  // Torch tint — strongest at edge, zero at centre and outside
-  vec3 torchTint = warm_yellow;
   color.rgb = mix( color.rgb, color.rgb * torchTint, edgeTint * 0.6 );
 
   // ── Output ───────────────────────────────────────────────────────────────────

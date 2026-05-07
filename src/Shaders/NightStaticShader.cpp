@@ -18,13 +18,11 @@ void NightStaticShader::update( entt::registry &reg )
   sf::Vector2f view_top_left = { view_center.x - view_size.x / 2.f, view_center.y - view_size.y / 2.f };
 
   Sprites::UniformBuilder{}
-      .set( "alpha", 0.85f )
       .set( "resolution", sf::Vector2f{ display_size } )
       .set( "time", elapsed().asSeconds() )
       .set( "viewTopLeft", view_top_left )
       .set( "viewSize", view_size )
       .set( "playerWorldPos", Utils::Player::get_position( reg ).getCenter() )
-      .set( "playerTorchRadius", 32.f )
       .apply( &get_shader() );
 
   // shader position at the top left of the world

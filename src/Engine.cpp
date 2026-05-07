@@ -45,7 +45,7 @@ Engine::Engine()
   }
 
   m_window->setVerticalSyncEnabled( true );
-  // m_render_game_sys.window().setFramerateLimit( 144 );
+  // m_window->setFramerateLimit( 144 );
 
   // Set ImGui style
   ImGuiIO &io = ImGui::GetIO();
