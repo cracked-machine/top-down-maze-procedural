@@ -57,6 +57,7 @@ public:
 private:
   // Updates lerp movement for NPCs
   void update_movement( sf::Time dt );
+  void update_sfx();
 
   // Check for player collision proximity with NPC containers
   void check_bones_reanimation();

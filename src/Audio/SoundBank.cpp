@@ -19,7 +19,7 @@ void SoundBank::init()
   sounds.emplace( "secret", EffectsData{ "res/audio/secret.wav" } );
   sounds.emplace( "drop_relic", EffectsData{ "res/audio/drop_relic.wav" } );
   sounds.emplace( "spawn_ghost", EffectsData{ "res/audio/spawn_ghost.wav" } );
-  sounds.emplace( "spawn_skeleton", EffectsData{ "res/audio/spawn_skeleton.wav" } );
+  sounds.emplace( "skeleton_moving", EffectsData{ "res/audio/skeleton_moving.mp3" } );
   sounds.emplace( "damage_player", EffectsData{ "res/audio/damage_player.wav" } );
 
   sounds.emplace( "footsteps", EffectsData{ "res/audio/footsteps.wav" } );

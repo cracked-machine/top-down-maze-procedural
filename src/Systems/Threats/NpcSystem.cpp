@@ -32,6 +32,7 @@
 #include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Ruin/RuinSegment.hpp>
+#include <SFML/Audio/Sound.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Stats/BaseAction.hpp>
 #include <Stats/CollisionAction.hpp>
@@ -89,7 +90,7 @@ void NpcSystem::update( sf::Time dt )
     update_animation();
     m_animation_accumulator = sf::Time::Zero;
   }
-
+  update_sfx();
   update_movement( dt );
 
   if ( not Utils::getSystemCmp( reg() ).collisions_disabled )
@@ -116,11 +117,7 @@ void NpcSystem::check_bones_reanimation()
     // for this one comparison and it already contains the needed scaling logic
     auto npc_activate_bounds = Cmp::RectBounds::scaled( npccontainer_pos_cmp.position, Constants::kGridSizePxF, npc_activate_scale.get_value() );
 
-    if ( player_pos.findIntersection( npc_activate_bounds.getBounds() ) )
-    {
-      Factory::create_npc( reg(), npccontainer_entt, "npc.skeleton" );
-      m_sound_bank.get_effect( "spawn_skeleton" ).play();
-    }
+    if ( player_pos.findIntersection( npc_activate_bounds.getBounds() ) ) { Factory::create_npc( reg(), npccontainer_entt, "npc.skeleton" ); }
   }
 }
 
@@ -153,6 +150,30 @@ void NpcSystem::update_animation()
       else if ( npc_dir_cmp.y > 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.south"; }
     }
   }
+}
+
+void NpcSystem::update_sfx()
+{
+  bool any_skeleton_moving = false;
+
+  for ( auto [npc_entt, npc_cmp, npc_dir_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Direction, Cmp::SpriteAnimation>().each() )
+  {
+    if ( anim_cmp.m_sprite_type.contains( "sprite.skeleton" ) )
+    {
+      if ( npc_dir_cmp != sf::Vector2f{ 0.0f, 0.0f } )
+      {
+        any_skeleton_moving = true;
+        break;
+      }
+    }
+  }
+
+  auto &sfx = m_sound_bank.get_effect( "skeleton_moving" );
+  if ( any_skeleton_moving )
+  {
+    if ( sfx.getStatus() != sf::Sound::Status::Playing ) { sfx.play(); }
+  }
+  else { sfx.stop(); }
 }
 
 void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity )
@@ -205,6 +226,11 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
 
       reg().emplace_or_replace<Cmp::Direction>( npc_entity, std::move( norm_direction ) );
       reg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, std::move( candidate_lerp_pos ) );
+    }
+    else
+    {
+      auto no_direction = Cmp::Direction( { 0.0, 0.0 } );
+      reg().emplace_or_replace<Cmp::Direction>( npc_entity, no_direction );
     }
   }
 }
