@@ -51,7 +51,6 @@ public:
       const auto &[ps, zorder] = ps_pair;
       add_to_registry( ParticleSpriteOwner( std::make_unique<PS>( ps ) ), zorder );
     };
-
     ( add_one( sprites ), ... );
   }
 

@@ -14,7 +14,9 @@ uniform vec2 view_top_left;
 uniform vec2 view_size;
 
 // player position in world space
-uniform vec2 player_world_pos;
+const int MAX_TORCH_COUNT = 8;
+uniform int torch_count;
+uniform vec2 torch_world_pos[MAX_TORCH_COUNT];
 
 const float M_PI = 3.1415926535897932384626433832795;
 const float M_2PI = 6.28318;
@@ -64,7 +66,7 @@ float noise( float a, float b )
 float norm_sin( float t ) { return sin( t * M_2PI ) * 0.5 + 0.5; }
 
 // Determine if the current frag is within the player torch radius
-float player_torch_pixel( vec2 frag_coord )
+float player_torch_pixel( vec2 frag_coord, int torch_idx )
 {
 
   // Create a natural looking flicker on the radius. Multipliers are for
@@ -75,7 +77,7 @@ float player_torch_pixel( vec2 frag_coord )
   float flicker3 = norm_sin( time * TORCH_EDGE_FLICKER_FREQ * 0.7 ) * 0.2;
   float flickered_radius = PLAYER_TORCH_RADIUS * ( 1.0 + ( flicker1 + flicker2 + flicker3 ) * TORCH_EDGE_FLICKER_PERCENT );
 
-  float dist_to_player = length( frag_coord - player_world_pos );
+  float dist_to_player = length( frag_coord - torch_world_pos[torch_idx] );
 
   // return 0..1 between flickered_radius and 0
   // return smoothstep( flickered_radius, 0.0, dist_to_player );
@@ -121,14 +123,12 @@ void main()
   vec4 sampled_color = texture2D( texture, frag_coord );
 
   // ── Torch / lighting ────────────────────────────────────────────────────────
-
-  float in_player_torch = player_torch_pixel( frag_coord );
-  float in_npc_light = npc_light_pixel();
-
-  // Combined light amount (player or NPC, take strongest)
-  // float frag_coord_light_amount = max( in_player_torch, in_npc_light );
-  float frag_coord_light_amount = in_player_torch;
-
+  // Accumulate the strongest light contribution from all torches
+  float frag_coord_light_amount = 0.0;
+  for ( int i = 0; i < torch_count; i++ )
+  {
+    frag_coord_light_amount = max( frag_coord_light_amount, player_torch_pixel( frag_coord, i ) );
+  }
   // ── Static effect ────────────────────────────────────────────────────────────
 
   sampled_color.rgb = mix( sampled_color.rgb * NIGHT_COLOR, sampled_color.rgb, frag_coord_light_amount );
@@ -151,7 +151,7 @@ void main()
   sampled_color.rgb = mix( sampled_color.rgb * NIGHT_COLOR, sampled_color.rgb + TORCH_COLOR, frag_coord_light_amount );
 
   // ── Output ───────────────────────────────────────────────────────────────────
-
   sampled_color.a *= mix( NIGHT_ALPHA, TORCH_ALPHA, frag_coord_light_amount );
+
   out_color = sampled_color;
 }

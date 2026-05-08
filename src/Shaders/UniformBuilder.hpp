@@ -65,6 +65,19 @@ public:
     return *this;
   }
 
+  template <typename T>
+  UniformBuilder &set( const std::string &name, const std::vector<T> &values )
+  {
+    auto existing_chain = std::move( m_chain );
+
+    m_chain = [existing_chain, name, values]( sf::Shader &shader )
+    {
+      if ( existing_chain ) existing_chain( shader );
+      shader.setUniformArray( name, values.data(), values.size() );
+    };
+    return *this;
+  }
+
   // void apply( sf::Shader &shader )
   // {
   //   if ( m_chain ) m_chain( shader );
