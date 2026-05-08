@@ -9,24 +9,47 @@ uniform float time;
 uniform vec2 resolution;
 
 // world-space top-left of the current view
-uniform vec2 viewTopLeft;
+uniform vec2 view_top_left;
 // world-space size of the current view
-uniform vec2 viewSize;
+uniform vec2 view_size;
 
 // player position in world space
-uniform vec2 playerWorldPos;
+uniform vec2 player_world_pos;
+
+const float M_PI = 3.1415926535897932384626433832795;
+const float M_2PI = 6.28318;
+
+// Note these should be normalized not 8bit RGB.
+const vec3 WARM_YELLOW = vec3( 1.0, 0.92, 0.6 );
+const vec3 COOL_WHITE = vec3( 0.8, 0.85, 1.0 );
+const vec3 WARM_ORANGE = vec3( 1.0, 0.6, 0.2 );
+const vec3 EERIE_BLUE = vec3( 0.1, 0.15, 1.0 );
+const vec3 TORCH_COLOR = WARM_ORANGE;
+const vec3 NIGHT_COLOR = vec3( 0.1, 0.1, 0.44 );
+
+const float TORCH_ALPHA = 0.25;
+const float NIGHT_ALPHA = 0.90;
+
+// The overal size of the player torchlight radius
+const float PLAYER_TORCH_RADIUS = 32.0;
+// The max frequency of the torchlight flicker
+const float TORCH_EDGE_FLICKER_FREQ = 2.0;
+// The percentage of the radius that is flickering
+const float TORCH_EDGE_FLICKER_PERCENT = 0.1;
+// Transition band width inside/outside of radius
+
+// depth of night static color
+const float NIGHT_STATIC_CONTRAST = 10.0;
 
 // // NPC lighting
-// uniform int npcCount;
-// uniform vec2 npcPositions[8];
-// uniform vec2 npcDirections[8];
-// uniform float npcTorchLengths[8];
-// uniform float npcTorchAngle; // half-angle in radians e.g. 0.4
+// uniform int npc_count;
+// uniform vec2 npc_positions[8];
+// uniform vec2 npc_directions[8];
+// uniform float npc_torch_lengths[8];
+// uniform float npc_torch_angle; // half-angle in radians e.g. 0.4
 
-// final output pixel color
-out vec4 outColor;
-
-float noise_sin( float t ) { return sin( t * 6.28318 ) * 0.5 + 0.5; }
+// final output pixel sampled_color
+out vec4 out_color;
 
 float noise( float a, float b )
 {
@@ -37,98 +60,98 @@ float noise( float a, float b )
   return float( p.x ) / float( 0xFFFFFFFFu );
 }
 
-float player_torch_pixel( vec2 worldPos )
+// Create a normalised (0..1) sine wave position from t
+float norm_sin( float t ) { return sin( t * M_2PI ) * 0.5 + 0.5; }
+
+// Determine if the current frag is within the player torch radius
+float player_torch_pixel( vec2 frag_coord )
 {
-  // radius of torch ring
-  float playerTorchRadius = 32.0;
 
-  // Player torch: soft circular ring
-  float distToPlayer = length( worldPos - playerWorldPos );
+  // Create a natural looking flicker on the radius. Multipliers are for
+  // Speed/Dominance. Speed multiplers should have Relative Irrationality.
+  // Dominanace multiplers should have Relative Sum of 1.0
+  float flicker1 = norm_sin( time * TORCH_EDGE_FLICKER_FREQ * 1.0 ) * 0.5;
+  float flicker2 = norm_sin( time * TORCH_EDGE_FLICKER_FREQ * 2.3 ) * 0.3;
+  float flicker3 = norm_sin( time * TORCH_EDGE_FLICKER_FREQ * 0.7 ) * 0.2;
+  float flickered_radius = PLAYER_TORCH_RADIUS * ( 1.0 + ( flicker1 + flicker2 + flicker3 ) * TORCH_EDGE_FLICKER_PERCENT );
 
-  float flicker_speed = 3.0;
-  float flicker_intensity = 0.05;
-  float flicker = noise_sin( time * flicker_speed ) * 0.5 + noise_sin( time * flicker_speed * 2.3 ) * 0.3 +
-                  noise_sin( time * flicker_speed * 0.7 ) * 0.2;
-  float flickered_radius = playerTorchRadius * ( 1.0 + flicker * flicker_intensity );
-  float blur_width = 10.0;
-  return smoothstep( flickered_radius + blur_width, flickered_radius - blur_width, distToPlayer );
+  float dist_to_player = length( frag_coord - player_world_pos );
+
+  // return 0..1 between flickered_radius and 0
+  // return smoothstep( flickered_radius, 0.0, dist_to_player );
+  return clamp( 1.0 - ( dist_to_player / flickered_radius ), 0.0, 1.0 );
+}
+
+float npc_light_pixel()
+{
+  // NPC cones: apex at NPC, spreads outward in facing direction
+  float in_npc_light = 0.0;
+  // for ( int i = 0; i < npc_count; i++ )
+  // {
+  //   vec2 to_pixel = frag_coord - npc_positions[i];
+  //   float dist = length( to_pixel );
+  //   float cos_angle = dot( normalize( to_pixel ), npc_directions[i] );
+
+  //   if ( dist < npc_torch_lengths[i] && cos_angle > cos( npc_torch_angle ) )
+  //   {
+  //     // Fade toward edges of cone and toward tip
+  //     float angular_fade = smoothstep( cos( npc_torch_angle ), cos(
+  //     npc_torch_angle * 0.5 ), cos_angle ); float dist_fade = smoothstep(
+  //     npc_torch_lengths[i], npc_torch_lengths[i] * 0.2, dist ); in_npc_light
+  //     = max( in_npc_light, angular_fade * dist_fade );
+  //   }
+  // }
+  return in_npc_light;
+}
+
+vec2 convert_to_world_space( vec2 screen_coord )
+{
+  // Normalise screen coords to UV coords for the current pixel.
+  vec2 uv_coord = screen_coord.xy / resolution;
+  // Flip the y-axis for SFML/OpenGL.
+  uv_coord.y = 1.0 - uv_coord.y;
+  // Convert to world space so shader is anchored to the world, not the screen.
+  return view_top_left + uv_coord * view_size;
 }
 
 void main()
 {
-  // effect opacity
-  float alpha = 0.75;
 
-  vec3 mainColor = vec3( 1, 1, 5 );
-
-  // torch tint
-  vec3 warm_yellow = vec3( 2.0, 1.85, 1.4 );
-  vec3 cool_white = vec3( 0.9, 0.9, 1.0 );
-  vec3 warm_orange = vec3( 1.0, 0.6, 0.2 );
-  vec3 eerie_green = vec3( 0.4, 1.0, 0.4 );
-  vec3 torchTint = warm_yellow;
-
-  // Normalise screen coords to UV coords for the current pixel
-  vec2 normalizedScreen = gl_FragCoord.xy / resolution;
-  normalizedScreen.y = 1.0 - normalizedScreen.y;
-
-  vec2 worldPos = viewTopLeft + normalizedScreen * viewSize;
-
-  // Sample the base texture color at current pixel
-  vec4 color = texture2D( texture, worldPos );
+  vec2 frag_coord = convert_to_world_space( gl_FragCoord.xy );
+  vec4 sampled_color = texture2D( texture, frag_coord );
 
   // ── Torch / lighting ────────────────────────────────────────────────────────
-  float inPlayerTorch = player_torch_pixel( worldPos );
 
-  // // NPC cones: apex at NPC, spreads outward in facing direction
-  // float inNpcLight = 0.0;
-  // for ( int i = 0; i < npcCount; i++ )
-  // {
-  //   vec2 toPixel = worldPos - npcPositions[i];
-  //   float dist = length( toPixel );
-  //   float cosAngle = dot( normalize( toPixel ), npcDirections[i] );
+  float in_player_torch = player_torch_pixel( frag_coord );
+  float in_npc_light = npc_light_pixel();
 
-  //   if ( dist < npcTorchLengths[i] && cosAngle > cos( npcTorchAngle ) )
-  //   {
-  //     // Fade toward edges of cone and toward tip
-  //     float angularFade = smoothstep( cos( npcTorchAngle ), cos( npcTorchAngle * 0.5 ), cosAngle );
-  //     float distFade = smoothstep( npcTorchLengths[i], npcTorchLengths[i] * 0.2, dist );
-  //     inNpcLight = max( inNpcLight, angularFade * distFade );
-  //   }
-  // }
-
-  // Combined lit amount (player or NPC, take strongest)
-  // float litAmount = max( inPlayerTorch, inNpcLight );
-  float litAmount = inPlayerTorch;
+  // Combined light amount (player or NPC, take strongest)
+  // float frag_coord_light_amount = max( in_player_torch, in_npc_light );
+  float frag_coord_light_amount = in_player_torch;
 
   // ── Static effect ────────────────────────────────────────────────────────────
 
-  // Bell curve: peaks at the edge of the torch ring, zero at centre and outside
-  float edgeTint = litAmount * ( 1.0 - litAmount ) * 4.0;
+  sampled_color.rgb = mix( sampled_color.rgb * NIGHT_COLOR, sampled_color.rgb, frag_coord_light_amount );
 
-  color.rgb = mix( color.rgb * mainColor, color.rgb, litAmount );
+  // Sample the noise to create moving static.
+  // using large prime, cap the offset before it gets large enough to lose precision, while avoiding obvious periodicity
+  float static_noise_refresh_rate = mod( floor( time * 120.0 ), 997.0 );
 
-  float timeTick = floor( time * 30.0 );
-  vec2 worldOffsetScreen = viewTopLeft * ( resolution / viewSize );
+  // Sample the noise used for night static
+  float static_noise = noise( frag_coord.x + static_noise_refresh_rate * 7919.0, frag_coord.y + static_noise_refresh_rate * 6271.0 );
 
-  float frameOffsetX = noise( timeTick, 0.0 ) * 10000.0;
-  float frameOffsetY = noise( timeTick, 1.0 ) * 10000.0;
+  // Apply night static only outside the torch radius, fade out quickly at the edge
+  float noise_mask = 1.0 - smoothstep( 0.0, 0.2, frag_coord_light_amount );
+  float noise_factor = mix( 1.0, static_noise * NIGHT_STATIC_CONTRAST, noise_mask );
+  sampled_color.r *= noise_factor;
+  sampled_color.g *= noise_factor;
+  sampled_color.b *= noise_factor;
 
-  float simpleNoise = noise( gl_FragCoord.x + floor( worldOffsetScreen.x ) + frameOffsetX,
-                             gl_FragCoord.y + floor( worldOffsetScreen.y ) + frameOffsetY );
-
-  // Dark static — full effect outside, no effect at centre
-  float staticBrightness = mix( 0.02 + simpleNoise * 0.15, 1.0, litAmount );
-  color.rgb *= staticBrightness;
-
-  // Add static grain on top in dark areas — keeps background dark but grain is visible
-  float staticGrain = simpleNoise * 0.12 * ( 1.0 - litAmount );
-  color.rgb += staticGrain;
-
-  color.rgb = mix( color.rgb, color.rgb * torchTint, edgeTint * 0.6 );
+  // Apply the colors for inside/outside the torch radius
+  sampled_color.rgb = mix( sampled_color.rgb * NIGHT_COLOR, sampled_color.rgb + TORCH_COLOR, frag_coord_light_amount );
 
   // ── Output ───────────────────────────────────────────────────────────────────
 
-  color.a *= alpha;
-  outColor = color;
+  sampled_color.a *= mix( NIGHT_ALPHA, TORCH_ALPHA, frag_coord_light_amount );
+  out_color = sampled_color;
 }

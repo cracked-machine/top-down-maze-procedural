@@ -12,8 +12,8 @@
                 "xaver.clang-format",
                 "ms-vscode.hexeditor",
                 "cschlosser.doxdocgen",
-                "slevesque.shader",
-                "dtoplak.vscode-glsllint"
+                "remitafforeau.glsl-complete-support",
+                "mrjjot.vscode-glsl-linter"
 
             ],
             "settings": {

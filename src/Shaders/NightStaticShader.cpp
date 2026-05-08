@@ -20,9 +20,9 @@ void NightStaticShader::update( entt::registry &reg )
   Sprites::UniformBuilder{}
       .set( "resolution", sf::Vector2f{ display_size } )
       .set( "time", elapsed().asSeconds() )
-      .set( "viewTopLeft", view_top_left )
-      .set( "viewSize", view_size )
-      .set( "playerWorldPos", Utils::Player::get_position( reg ).getCenter() )
+      .set( "view_top_left", view_top_left )
+      .set( "view_size", view_size )
+      .set( "player_world_pos", Utils::Player::get_position( reg ).getCenter() )
       .apply( &get_shader() );
 
   // shader position at the top left of the world
