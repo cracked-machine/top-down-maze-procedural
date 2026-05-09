@@ -61,7 +61,7 @@ public:
   void check_collsion( const sf::FloatRect &target );
 
   //! @brief Find a ParticleSpriteOwner by tag and return a pointer to ParticleSpriteBase<IParticle>, or nullptr if not found
-  [[nodiscard]] static Cmp::Particle::IParticleSprite *find( entt::registry &reg, const std::string &tag );
+  [[nodiscard]] static std::vector<std::reference_wrapper<Cmp::Particle::IParticleSprite>> find( entt::registry &reg, const std::string &tag );
 
   //! @brief event handlers for pausing system clocks
   void on_pause() override {};

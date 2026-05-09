@@ -52,13 +52,14 @@ void ParticleSystem::check_collsion( const sf::FloatRect &target )
   }
 }
 
-[[nodiscard]] Cmp::Particle::IParticleSprite *ParticleSystem::find( entt::registry &reg, const std::string &tag )
+[[nodiscard]] std::vector<std::reference_wrapper<Cmp::Particle::IParticleSprite>> ParticleSystem::find( entt::registry &reg, const std::string &tag )
 {
+  std::vector<std::reference_wrapper<Cmp::Particle::IParticleSprite>> particle_sprites;
   for ( auto [entt, owner] : reg.view<ParticleSpriteOwner>().each() )
   {
-    if ( owner.sprite->get_tag() == tag ) return owner.sprite.get();
+    if ( owner.sprite->get_tag() == tag ) particle_sprites.emplace_back( *owner.sprite );
   }
-  return nullptr;
+  return particle_sprites;
 }
 
 } // namespace ProceduralMaze::Sys

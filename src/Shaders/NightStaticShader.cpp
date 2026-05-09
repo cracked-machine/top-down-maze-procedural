@@ -1,5 +1,6 @@
 #include <Components/Position.hpp>
 #include <Constants.hpp>
+#include <Inventory/InventoryItem.hpp>
 #include <Persistent/DisplayResolution.hpp>
 #include <Shaders/UniformBuilder.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -18,8 +19,18 @@ void NightStaticShader::update( entt::registry &reg )
   sf::Vector2f view_size = Sys::RenderSystem::get_world_view().getSize();
   sf::Vector2f view_top_left = { view_center.x - view_size.x / 2.f, view_center.y - view_size.y / 2.f };
 
-  // Check the src/Shaders/NightStaticShader.cpp::MAX_TORCH_COUNT before adding more to this container!
-  std::vector torch_positions{ Utils::Player::get_position( reg ).getCenter(), { 900.0, 900.0 } };
+  std::vector<sf::Vector2f> torch_positions;
+
+  auto [item_entt, item_type] = Utils::Player::get_inventory_type( reg );
+  if ( item_type.contains( "candle" ) ) { torch_positions.push_back( Utils::Player::get_position( reg ).getCenter() ); }
+  else
+  {
+    for ( auto [candle_entt, candle_cmp, candle_pos] : reg.view<Cmp::InventoryItem, Cmp::Position>().each() )
+    {
+      if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
+      torch_positions.push_back( candle_pos.getCenter() );
+    }
+  }
 
   Sprites::UniformBuilder{}
       .set( "resolution", sf::Vector2f{ display_size } )

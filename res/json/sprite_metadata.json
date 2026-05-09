@@ -1403,6 +1403,20 @@
         }
       }
     },
+    "sprite.item.candle": {
+      "multisprite": {
+        "displayname": "Candle",
+        "zorder": [0],
+        "texture_path": "res/textures/inventoryitems.png",
+        "sprite_indices": [350],
+        "sprites_per_sequence": 1,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
 
 
 

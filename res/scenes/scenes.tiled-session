@@ -49,7 +49,7 @@
             "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 960,
+                "x": 959.9999999999999,
                 "y": 540.3333333333333
             }
         },
@@ -60,14 +60,14 @@
             "scale": 0.33,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 875.7575757575758,
-                "y": 1065.151515151515
+                "x": 960.6060606060605,
+                "y": 540.909090909091
             }
         },
         "crypt.json": {
             "expandedObjectLayers": [
-                3,
-                5
+                5,
+                3
             ],
             "scale": 1,
             "selectedLayer": 3,
@@ -85,14 +85,14 @@
         },
         "graveyard.json": {
             "expandedObjectLayers": [
-                9,
-                7
+                7,
+                9
             ],
             "scale": 0.33,
             "selectedLayer": 3,
             "viewCenter": {
                 "x": 790.9090909090909,
-                "y": 792.4242424242423
+                "y": 792.4242424242425
             }
         },
         "graveyard.json#Dummy": {
@@ -119,14 +119,14 @@
         },
         "ruinlower.json": {
             "expandedObjectLayers": [
-                4,
-                5
+                5,
+                4
             ],
             "scale": 2.9499999999999997,
             "selectedLayer": 1,
             "viewCenter": {
                 "x": 151.86440677966104,
-                "y": 87.96610169491525
+                "y": 87.96610169491527
             }
         },
         "ruinlower.json#floor": {
@@ -137,8 +137,8 @@
         },
         "ruinupper.json": {
             "expandedObjectLayers": [
-                4,
-                5
+                5,
+                4
             ],
             "scale": 4,
             "selectedLayer": 4,
@@ -173,14 +173,14 @@
         },
         "shop.json": {
             "expandedObjectLayers": [
-                3,
-                5
+                5,
+                3
             ],
             "scale": 3,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 126.66666666666664,
-                "y": 61.16666666666666
+                "x": 119.99999999999999,
+                "y": 103.83333333333333
             }
         },
         "shop.json#floor": {

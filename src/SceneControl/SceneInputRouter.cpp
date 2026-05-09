@@ -566,17 +566,18 @@ void SceneInputRouter::enqueue( Events::SceneManagerEvent::Type type )
 
 void SceneInputRouter::toggle_particle_test( bool enable )
 {
-  auto *particle_sprite = Sys::ParticleSystem::find( m_reg, "ParticleSprite" );
-  if ( not particle_sprite ) return;
-  if ( enable )
+  for ( auto [entt, owner] : reg().view<ParticleSpriteOwner>().each() )
   {
-    particle_sprite->restart();
-    SPDLOG_INFO( "Particle test is now ENABLED" );
-  }
-  else
-  {
-    particle_sprite->stop();
-    SPDLOG_INFO( "Particle test is now DISABLED" );
+    if ( enable )
+    {
+      owner.sprite->restart();
+      SPDLOG_INFO( "Particle sprite {} is now ENABLED", owner.sprite->get_tag() );
+    }
+    else
+    {
+      owner.sprite->stop();
+      SPDLOG_INFO( "Particle sprite {} is now DISABLED", owner.sprite->get_tag() );
+    }
   }
 }
 

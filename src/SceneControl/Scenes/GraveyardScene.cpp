@@ -136,7 +136,7 @@ void GraveyardScene::on_init()
 
   auto &particle_system = m_sys.find<Sys::Store::Type::ParticleSystem>();
   // Factory::Particle::add_test( m_reg, particle_system, "GraveyardParticleTest" );
-  Factory::Particle::add_flame( m_reg, particle_system, "GraveyardParticleTest" );
+  Factory::Particle::add_flame( m_reg, particle_system, "StarterCandle" );
   // Factory::Particle::add_smoke( m_reg, particle_system, "GraveyardParticleTest" );
   // Factory::Particle::add_shockwave( m_reg, particle_system, "GraveyardParticleTest" );
 }
@@ -232,8 +232,27 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
   m_sys.find<Sys::Store::Type::LightningSystem>().update( dt );
 
-  auto *particle_test = Sys::ParticleSystem::find( m_reg, "GraveyardParticleTest" );
-  if ( particle_test ) { particle_test->set_emitter_position( Utils::Player::get_position( m_reg ).getCenter() ); }
+  auto [_, inventory_type] = Utils::Player::get_inventory_type( m_reg );
+  if ( inventory_type.contains( "candle" ) )
+  {
+    auto particle_sprite_list = Sys::ParticleSystem::find( m_reg, "StarterCandle" );
+    for ( auto &particle_sprite : particle_sprite_list )
+    {
+      particle_sprite.get().set_emitter_position( Utils::Player::get_position( m_reg ).getCenter() );
+    }
+  }
+  else
+  {
+    for ( auto [candle_entt, candle_cmp, candle_pos] : m_reg.view<Cmp::InventoryItem, Cmp::Position>().each() )
+    {
+      if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
+      auto particle_sprite_list = Sys::ParticleSystem::find( m_reg, "StarterCandle" );
+      for ( auto &particle_sprite : particle_sprite_list )
+      {
+        particle_sprite.get().set_emitter_position( candle_pos.getCenter() );
+      }
+    }
+  }
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
 
   for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::Obstacle, Cmp::Position>().each() )
