@@ -5,6 +5,7 @@
 #include <Inventory/ScryingBall.hpp>
 #include <Persistent/DisplayResolution.hpp>
 
+#include <Systems/ParticleSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Optimizations.hpp>
@@ -113,10 +114,11 @@ private:
       {
         if ( not Utils::is_visible_in_view( view_bounds, component ) ) continue;
       }
-      if constexpr ( std::is_base_of_v<Cmp::Particle::IParticleSprite, Component> )
-      {
-        if ( not Utils::is_visible_in_view( view_bounds, { component.get_emitter_position(), Constants::kGridSizePxF } ) ) continue;
-      }
+      // if constexpr ( std::is_same_v<Sys::ParticleSpriteOwner, Component> )
+      // {
+      //   if ( component.sprite && not Utils::is_visible_in_view( view_bounds, { component.sprite->get_emitter_position(), Constants::kGridSizePxF } ) )
+      //     continue;
+      // }
 
       auto z_order_cmp = reg().try_get<Cmp::ZOrderValue>( entity );
       if ( z_order_cmp ) { zorder_queue.push_back( ZOrder{ z_order_cmp->getZOrder(), entity } ); }

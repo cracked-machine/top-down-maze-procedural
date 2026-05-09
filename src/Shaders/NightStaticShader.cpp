@@ -23,13 +23,11 @@ void NightStaticShader::update( entt::registry &reg )
 
   auto [item_entt, item_type] = Utils::Player::get_inventory_type( reg );
   if ( item_type.contains( "candle" ) ) { torch_positions.push_back( Utils::Player::get_position( reg ).getCenter() ); }
-  else
+
+  for ( auto [candle_entt, candle_cmp, candle_pos] : reg.view<Cmp::InventoryItem, Cmp::Position>().each() )
   {
-    for ( auto [candle_entt, candle_cmp, candle_pos] : reg.view<Cmp::InventoryItem, Cmp::Position>().each() )
-    {
-      if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
-      torch_positions.push_back( candle_pos.getCenter() );
-    }
+    if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
+    torch_positions.push_back( candle_pos.getCenter() );
   }
 
   Sprites::UniformBuilder{}

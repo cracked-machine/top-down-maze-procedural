@@ -33,6 +33,7 @@
 #include <Systems/GraveSystem.hpp>
 #include <Systems/HolyWellSystem.hpp>
 #include <Systems/LootSystem.hpp>
+#include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/PlayerSystem.hpp>
@@ -47,6 +48,7 @@
 #include <Systems/Threats/BombSystem.hpp>
 #include <Systems/Threats/HazardFieldSystemImpl.hpp>
 #include <Systems/Threats/WormholeSystem.hpp>
+#include <UUID.hpp>
 #include <Utils.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
@@ -136,9 +138,17 @@ void GraveyardScene::on_init()
 
   auto &particle_system = m_sys.find<Sys::Store::Type::ParticleSystem>();
   // Factory::Particle::add_test( m_reg, particle_system, "GraveyardParticleTest" );
-  Factory::Particle::add_flame( m_reg, particle_system, "StarterCandle" );
+  // Factory::Particle::add_flame( m_reg, particle_system, "player.candle", Utils::Player::get_position( m_reg ).getCenter() );
+  // Factory::Particle::add_flame( m_reg, particle_system, "player.candle", sf::Vector2f{ 900.0, 900.0 } );
   // Factory::Particle::add_smoke( m_reg, particle_system, "GraveyardParticleTest" );
   // Factory::Particle::add_shockwave( m_reg, particle_system, "GraveyardParticleTest" );
+
+  // add flame particle sprites for any candle items in the new game world. Use the Candle item UUID to initialise the ParticleSprite.
+  for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::InventoryItem, Cmp::Position, Cmp::UUID>().each() )
+  {
+    if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
+    Factory::Particle::add_flame( m_reg, particle_system, "player.candle", uuid_cmp, candle_pos.getCenter() );
+  }
 }
 
 void GraveyardScene::on_enter()
@@ -232,25 +242,13 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
   m_sys.find<Sys::Store::Type::LightningSystem>().update( dt );
 
-  auto [_, inventory_type] = Utils::Player::get_inventory_type( m_reg );
-  if ( inventory_type.contains( "candle" ) )
+  // update flame particle sprite position for candle items
+  for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : m_reg.view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
   {
-    auto particle_sprite_list = Sys::ParticleSystem::find( m_reg, "StarterCandle" );
-    for ( auto &particle_sprite : particle_sprite_list )
-    {
-      particle_sprite.get().set_emitter_position( Utils::Player::get_position( m_reg ).getCenter() );
-    }
-  }
-  else
-  {
-    for ( auto [candle_entt, candle_cmp, candle_pos] : m_reg.view<Cmp::InventoryItem, Cmp::Position>().each() )
+    for ( auto [candle_entt, candle_cmp, candle_pos_cmp, candle_uuid_cmp] : m_reg.view<Cmp::InventoryItem, Cmp::Position, Cmp::UUID>().each() )
     {
       if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
-      auto particle_sprite_list = Sys::ParticleSystem::find( m_reg, "StarterCandle" );
-      for ( auto &particle_sprite : particle_sprite_list )
-      {
-        particle_sprite.get().set_emitter_position( candle_pos.getCenter() );
-      }
+      if ( ps_uuid_cmp == candle_uuid_cmp ) { ps_owner.sprite->set_emitter_position( candle_pos_cmp.getCenter() ); }
     }
   }
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );

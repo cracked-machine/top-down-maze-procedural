@@ -22,17 +22,17 @@ void add_test( entt::registry &reg, Sys::ParticleSystem &psys, const std::string
   psys.add( std::make_pair( psprite, Cmp::ZOrderValue( 10000.f ) ) );
 }
 
-void add_flame( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag )
+void add_flame( [[maybe_unused]] entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f pos )
 {
   auto psprite = Cmp::Particle::Flame( 100 );
   psprite.set_tag( tag );
-  psprite.set_emitter_position( Utils::Player::get_position( reg ).getCenter() );
+  psprite.set_emitter_position( pos );
   psprite.set_lifetime_ms( std::uniform_int_distribution<int>( 0, sf::seconds( 0.5 ).asMilliseconds() ) );
   psprite.set_speed( 40.f );
   psprite.set_phase( std::uniform_real_distribution( 0.f, 2.f * std::numbers::pi_v<float> ) );
   psprite.set_freq( std::uniform_real_distribution( 0.3f, 0.8f ) );
 
-  psys.add( std::make_pair( psprite, Cmp::ZOrderValue( 50000.f ) ) );
+  psys.add( uuid_cmp, psprite, Cmp::ZOrderValue( 50000.f ) );
 }
 
 void add_smoke( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag )

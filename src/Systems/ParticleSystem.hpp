@@ -4,6 +4,7 @@
 #include <Events/ParticleEvents.hpp>
 #include <Particle/ParticleSpriteBase.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <UUID.hpp>
 #include <ZOrderValue.hpp>
 #include <utility>
 
@@ -54,6 +55,12 @@ public:
     ( add_one( sprites ), ... );
   }
 
+  template <typename PARTICLESPRITE>
+  void add( Cmp::UUID &uuid_cmp, PARTICLESPRITE ps, Cmp::ZOrderValue zorder )
+  {
+    add_to_registry( uuid_cmp, ParticleSpriteOwner( std::make_unique<PARTICLESPRITE>( ps ) ), zorder );
+  }
+
   //! @brief Calls IParticle::update() function within all added ParticleSpriteBase<T>
   //! @param dt
   void update( sf::Time dt );
@@ -74,6 +81,7 @@ private:
   //! @param zorder
   //! @return std::vector<entt::entity>
   std::vector<entt::entity> add_to_registry( ParticleSpriteOwner owner, Cmp::ZOrderValue zorder );
+  void add_to_registry( Cmp::UUID &uuid_cmp, ParticleSpriteOwner owner, Cmp::ZOrderValue zorder );
 };
 
 } // namespace ProceduralMaze::Sys

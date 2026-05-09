@@ -11,6 +11,8 @@
 #include <Stats/ExhumeAction.hpp>
 #include <Stats/PlayerStats.hpp>
 #include <Stats/ProjectileAction.hpp>
+#include <Systems/ParticleSystem.hpp>
+#include <UUID.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
@@ -484,6 +486,17 @@ entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, ent
 
   auto *inventory_explosive_cmp = reg().try_get<Cmp::Explosive>( inventory_slot_entt );
   if ( inventory_explosive_cmp ) { reg().emplace_or_replace<Cmp::Explosive>( world_item_entt, false ); }
+
+  auto *uuid_cmp = reg().try_get<Cmp::UUID>( inventory_slot_entt );
+  if ( uuid_cmp )
+  {
+
+    for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+    {
+      if ( ps_uuid_cmp == *uuid_cmp ) ps_owner.sprite->restart();
+    }
+    reg().emplace_or_replace<Cmp::UUID>( world_item_entt, uuid_cmp->data );
+  }
 
   // now destroy the inventory slot
   reg().destroy( inventory_slot_entt );

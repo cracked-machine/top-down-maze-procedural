@@ -33,8 +33,10 @@
 #include <Sprites/SpriteMetaType.hpp>
 #include <Stats/PlayerStats.hpp>
 #include <Stats/SacrificeAction.hpp>
+#include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Stores/ItemStore.hpp>
+#include <UUID.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 
@@ -160,6 +162,7 @@ entt::entity create_world_item( entt::registry &reg, Cmp::Position pos, const st
   reg.emplace_or_replace<Cmp::SpriteAnimation>( world_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).sprite_type, 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_item_entt, pos.position.y - 1.f + zorder );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_item_entt );
+  reg.emplace_or_replace<Cmp::UUID>( world_item_entt, Cmp::UUID::generate() );
   if ( item == "item.axe" || item == "item.pickaxe" || item == "item.shovel" )
   {
     reg.emplace_or_replace<Cmp::InventoryWearLevel>( world_item_entt, 100.f );
@@ -182,6 +185,16 @@ entt::entity pickup_world_item( entt::registry &reg, entt::entity world_item_ent
   reg.emplace_or_replace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, false, world_item_cmp->sprite_type, 0 );
 
   // transfer any component properties from the world item that we want to retain before it is destroyed
+  auto *uuid_cmp = reg.try_get<Cmp::UUID>( world_item_entt );
+  if ( uuid_cmp )
+  {
+    for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg.view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+    {
+      if ( ps_uuid_cmp == *uuid_cmp ) ps_owner.sprite->stop();
+    }
+    reg.emplace_or_replace<Cmp::UUID>( inventory_entity, uuid_cmp->data );
+  }
+
   auto *wear_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( world_item_entt );
   if ( wear_level_cmp ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, wear_level_cmp->m_level ); }
 

@@ -132,6 +132,7 @@ public:
   virtual void set_freq( float freq ) = 0;
 
   virtual void set_emitter_position( sf::Vector2f emitter_position ) = 0;
+  virtual sf::Vector2f get_emitter_position() = 0;
 
   virtual void set_lifetime_ms( sf::Time lifetime ) = 0;
   virtual void set_lifetime_ms( std::uniform_int_distribution<int> life_dist ) = 0;
@@ -385,7 +386,7 @@ public:
     }
   }
 
-  sf::Vector2f get_emitter_position() { return m_emitter_position; }
+  sf::Vector2f get_emitter_position() override { return m_emitter_position; }
 
   void set_lifetime_ms( std::uniform_int_distribution<int> lifetime_dist ) override
   {

@@ -3,6 +3,7 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <UUID.hpp>
 #include <ZOrderValue.hpp>
 #include <entt/entity/fwd.hpp>
 
@@ -14,13 +15,23 @@ ParticleSystem::ParticleSystem( entt::registry &reg, sf::RenderWindow &window, S
 {
 }
 
+void ParticleSystem::add_to_registry( Cmp::UUID &uuid_cmp, ParticleSpriteOwner owner, Cmp::ZOrderValue zorder )
+{
+
+  auto entt = reg().create();
+  reg().emplace_or_replace<ParticleSpriteOwner>( entt, std::move( owner ) );
+  reg().emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
+  reg().emplace_or_replace<Cmp::UUID>( entt, uuid_cmp.data );
+  SPDLOG_INFO( "Created ParticleSprite {}", static_cast<uint32_t>( entt ) );
+}
+
 std::vector<entt::entity> ParticleSystem::add_to_registry( ParticleSpriteOwner owner, Cmp::ZOrderValue zorder )
 {
   std::vector<entt::entity> entt_list;
 
   auto entt = reg().create();
-  reg().emplace<ParticleSpriteOwner>( entt, std::move( owner ) );
-  reg().emplace<Cmp::ZOrderValue>( entt, zorder );
+  reg().emplace_or_replace<ParticleSpriteOwner>( entt, std::move( owner ) );
+  reg().emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   entt_list.push_back( entt );
   SPDLOG_INFO( "Created ParticleSprite {}", static_cast<uint32_t>( entt ) );
 
