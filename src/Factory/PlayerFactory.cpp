@@ -85,7 +85,7 @@ void add_spawn_area( entt::registry &registry, entt::entity entity, Sprites::Spr
   // We need to reserve these positions for the player start area
   registry.emplace_or_replace<Cmp::ReservedPosition>( entity );
   registry.emplace_or_replace<Cmp::SpawnArea>( entity, false );
-  registry.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
+  // registry.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
   auto [_, idx] = sfactory.get_random_type_and_texture_index( { "sprite.graveyard.playerspawn" } );
   registry.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.graveyard.playerspawn", idx );
   registry.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );

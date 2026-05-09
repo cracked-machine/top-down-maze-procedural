@@ -1,4 +1,5 @@
 #include <Components/Position.hpp>
+#include <Components/RectBounds.hpp>
 #include <Constants.hpp>
 #include <Npc/Npc.hpp>
 #include <PathFinding/AStar.hpp>
@@ -6,6 +7,7 @@
 #include <SpatialHashGrid.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Npc.hpp>
+#include <algorithm>
 #include <unordered_map>
 
 namespace ProceduralMaze::PathFinding
@@ -46,7 +48,8 @@ std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHash
       break;
     }
 
-    const std::vector<entt::entity> neighbours_list = spatial_grid.neighbours( current.pos, offset );
+    Cmp::Position center_hitbox( current.pos.getCenter(), { 1.f, 1.f } );
+    const std::vector<entt::entity> neighbours_list = spatial_grid.neighbours( center_hitbox, offset );
 
     for ( auto neighbour_entt : neighbours_list )
     {
@@ -63,9 +66,9 @@ std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHash
       // +1 since we only care about relative difference between steps, not the actual pixel distance.
       PathNode new_neighbor( *neighbour_pos, current.g + 1, heuristic, &closedList.at( current.pos ) );
 
-      auto it = std::find_if( openList.begin(), openList.end(),
-                              // existence check
-                              [&]( const PathNode &n ) { return n == new_neighbor; } );
+      auto it = std::ranges::find_if( openList,
+                                      // existence check
+                                      [&]( const PathNode &n ) { return n == new_neighbor; } );
 
       // either add the new neighbour or add duplicate one if this is nearer to the goal
       if ( it == openList.end() || new_neighbor.g < it->g )

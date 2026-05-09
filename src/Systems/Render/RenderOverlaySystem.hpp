@@ -67,6 +67,7 @@ public:
   void render_ui_npc_list();
 
   void render_lerp_positions();
+  void render_square( sf::Vector2f pos, sf::Vector2f size, sf::Color color );
 
   void render_crypt_maze_timer( sf::Vector2f pos, unsigned int size );
 

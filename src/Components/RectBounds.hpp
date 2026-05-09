@@ -122,6 +122,8 @@ public:
   //! @brief Retrieves the underlying FloatRect bounds.
   sf::FloatRect getBounds() const { return m_bounds; }
 
+  Cmp::Position get_pos_cmp() const { return { m_bounds.position, m_bounds.size }; }
+
 private:
   //! @brief The rectangular bounds of the component in world coordinates.
   sf::FloatRect m_bounds;

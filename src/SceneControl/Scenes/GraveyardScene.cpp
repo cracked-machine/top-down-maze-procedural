@@ -1,3 +1,4 @@
+#include <Altar/AltarMultiBlock.hpp>
 #include <Audio/SoundBank.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Inventory/InventoryItem.hpp>
@@ -10,6 +11,8 @@
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
+#include <Grave/GraveMultiBlock.hpp>
+#include <HolyWell/HolyWellMultiBlock.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
 #include <Obstacle.hpp>
 #include <Optimizations.hpp>
@@ -17,6 +20,7 @@
 #include <Player/PlayerCharacter.hpp>
 #include <Player/PlayerLevelDepth.hpp>
 #include <ReservedPosition.hpp>
+#include <Ruin/RuinBuildingMultiBlock.hpp>
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/GraveyardScene.hpp>
@@ -114,6 +118,8 @@ void GraveyardScene::on_init()
   m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
   for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> ).each() )
   {
+    // don't include these Cmp::Position components in the pathfinding navmesh
+    if ( m_reg.any_of<Cmp::RuinBuildingMultiBlock, Cmp::AltarMultiBlock, Cmp::GraveMultiBlock, Cmp::HolyWellMultiBlock>( pos_entt ) ) continue;
     m_pathfinding_navmesh->insert( pos_entt, pos_cmp );
   }
   reinit_navmesh();

@@ -49,6 +49,8 @@
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
+#include <algorithm>
+#include <ranges>
 #include <spdlog/spdlog.h>
 #include <typeindex>
 
@@ -189,7 +191,11 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
   for ( auto [npc_entity, npc_cmp, npc_pos_cmp, anim_cmp, lerp_speed_cmp] : npc_view.each() )
   {
 
-    if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
+    if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), npc_pos_cmp ) )
+    {
+      reg().emplace_or_replace<Cmp::Direction>( npc_entity, Cmp::Direction( { 0.0, 0.0 } ) );
+      continue;
+    }
 
     // don't intterupt NPC mid-lerp or it causes indecisive pathfinding
     auto *npc_lerp_pos_cmp = reg().try_get<Cmp::LerpPosition>( npc_entity );
@@ -202,19 +208,24 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
     // now get latest path vector for NPC -> player
     std::vector<PathFinding::PathNode> path = PathFinding::astar( reg(), *pathfinding_navmesh, npc_pos_cmp, player_pos_cmp, query_compass );
 
-    // dont let NPC follow player into spawn but keep pathfinding active up to penultimate path node
-    // if ( player_in_spawn and not path.empty() ) path.pop_back();
     if ( path.size() > 1 )
     {
-      // path[0] is the NPC current position, so go one forward
-      auto new_position_cmp = path[1].pos;
 
-      // If the player is in spawn, pathfind to them but not to final position
-      if ( player_in_spawn and player_pos_cmp == new_position_cmp ) continue;
+      SPDLOG_INFO( "{} pathsize: {}", static_cast<uint32_t>( npc_entity ), path.size() );
+
+      Cmp::Position next_npc_pos = path[1].pos;
+
+      // If player is in spawn, only stop when the very next step would cross into spawn.
+      // This lets the NPC walk the full path to the boundary before stopping.
+      if ( ( player_in_spawn and Utils::Player::is_in_spawn( reg(), next_npc_pos ) ) )
+      {
+        reg().emplace_or_replace<Cmp::Direction>( npc_entity, Cmp::Direction( { 0.0f, 0.0f } ) );
+        continue;
+      }
 
       // calculate the direction and update the NPC lerp
-      auto candidate_lerp_pos = Cmp::LerpPosition( new_position_cmp.position, lerp_speed_cmp.speed );
-      auto distance_to_target = new_position_cmp.position - npc_pos_cmp.position;
+      auto candidate_lerp_pos = Cmp::LerpPosition( next_npc_pos.position, lerp_speed_cmp.speed );
+      auto distance_to_target = next_npc_pos.position - npc_pos_cmp.position;
       if ( distance_to_target == sf::Vector2f( 0.0f, 0.0f ) ) continue;
 
       // prevent NPC warping via another NPCs pathfinding
@@ -224,14 +235,10 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
 
       auto norm_direction = Cmp::Direction( distance_to_target.normalized() );
 
-      reg().emplace_or_replace<Cmp::Direction>( npc_entity, std::move( norm_direction ) );
-      reg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, std::move( candidate_lerp_pos ) );
+      reg().emplace_or_replace<Cmp::Direction>( npc_entity, norm_direction );
+      reg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, candidate_lerp_pos );
     }
-    else
-    {
-      auto no_direction = Cmp::Direction( { 0.0, 0.0 } );
-      reg().emplace_or_replace<Cmp::Direction>( npc_entity, no_direction );
-    }
+    else { reg().emplace_or_replace<Cmp::Direction>( npc_entity, Cmp::Direction( { 0.0, 0.0 } ) ); }
   }
 }
 

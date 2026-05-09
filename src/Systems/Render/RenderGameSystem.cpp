@@ -239,14 +239,19 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
 
   if ( m_show_path_finding )
   {
+
+    Cmp::Position player_center_hitbox( player_pos_cmp.getCenter(), { 1.f, 1.f } );
+    render_overlay_sys.render_square( player_center_hitbox.position, player_center_hitbox.size, sf::Color::Blue );
     render_overlay_sys.render_lerp_positions();
-    render_overlay_sys.render_spatial_grid_neighbours( player_pos_cmp, sf::Color::Cyan, PathFinding::QueryCompass::CARDINAL );
+    render_overlay_sys.render_spatial_grid_neighbours( player_center_hitbox, sf::Color::Cyan, PathFinding::QueryCompass::CARDINAL );
 
     for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>().each() )
     {
       auto query_compass = PathFinding::QueryCompass::CARDINAL;
       if ( anim_cmp.m_sprite_type.contains( "sprite.ghost" ) ) query_compass = PathFinding::QueryCompass::BOTH;
-      render_overlay_sys.render_spatial_grid_neighbours( npc_pos_cmp, sf::Color::Magenta, query_compass );
+      Cmp::Position npc_center_hitbox( npc_pos_cmp.getCenter(), { 1.f, 1.f } );
+
+      render_overlay_sys.render_spatial_grid_neighbours( npc_center_hitbox, sf::Color::Magenta, query_compass );
       render_overlay_sys.render_pathfinding_vector( npc_pos_cmp, player_pos_cmp, sf::Color::White, query_compass );
     }
   }

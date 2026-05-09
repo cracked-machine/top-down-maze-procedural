@@ -626,6 +626,16 @@ void RenderOverlaySystem::render_lerp_positions()
   }
 }
 
+void RenderOverlaySystem::render_square( sf::Vector2f pos, sf::Vector2f size, sf::Color color )
+{
+  sf::RectangleShape rect( size );
+  rect.setPosition( pos );
+  rect.setFillColor( sf::Color::Transparent );
+  rect.setOutlineColor( color );
+  rect.setOutlineThickness( 1.f );
+  draw_world( rect );
+}
+
 void RenderOverlaySystem::render_spatial_grid_neighbours( const Cmp::Position &query_pos, sf::Color color, PathFinding::QueryCompass query_compass )
 {
   if ( PathFinding::SpatialHashGridSharedPtr spatialgrid_ptr = m_pathfinding_navmesh.lock() )
@@ -683,7 +693,7 @@ void RenderOverlaySystem::render_crypt_maze_timer( sf::Vector2f pos, unsigned in
       std::stringstream ss;
       ss << std::fixed << std::setprecision( 1 ) << 10.f - clock.getElapsedTime().asSeconds();
       clock_text.setString( ss.str() );
-      clock_text.setPosition( { pos.x - clock_text.getLocalBounds().size.x / 2, pos.y } );
+      clock_text.setPosition( { pos.x - ( clock_text.getLocalBounds().size.x / 2 ), pos.y } );
       clock_text.setFillColor( sf::Color::Red );
       clock_text.setOutlineColor( sf::Color::Black );
       clock_text.setOutlineThickness( 2.f );

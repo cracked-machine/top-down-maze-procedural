@@ -14,6 +14,7 @@
 #include <Direction.hpp>
 #include <Player/PlayerCadaverCount.hpp>
 #include <Player/PlayerLevelDepth.hpp>
+#include <RectBounds.hpp>
 #include <SpawnArea.hpp>
 #include <SpriteAnimation.hpp>
 #include <Sprites/SpriteMetaType.hpp>
@@ -204,7 +205,7 @@ bool is_in_spawn( entt::registry &reg, const Cmp::Position &player_pos_cmp )
   bool result = false;
   for ( auto [spawn_entt, spawn_cmp, spawn_pos_cmp] : reg.view<Cmp::SpawnArea, Cmp::Position>().each() )
   {
-    if ( spawn_pos_cmp.findIntersection( player_pos_cmp ) ) result = true;
+    if ( spawn_pos_cmp.findIntersection( Cmp::RectBounds::scaled( player_pos_cmp, 0.9f ).getBounds() ) ) result = true;
   }
   return result;
 }
