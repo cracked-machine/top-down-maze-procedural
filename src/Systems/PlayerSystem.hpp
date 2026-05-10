@@ -113,6 +113,7 @@ private:
   sf::Clock m_post_death_timer;
 
   sf::Time m_timed_action_sync_clock;
+  sf::Time m_darkness_fear_clock;
 
   sf::Clock m_inventory_cooldown_timer;
 

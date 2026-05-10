@@ -13,6 +13,7 @@
 #include <Stats/PlayerStats.hpp>
 #include <Stats/ProjectileAction.hpp>
 #include <Systems/ParticleSystem.hpp>
+#include <Systems/Stores/ItemStore.hpp>
 #include <UUID.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
@@ -259,8 +260,9 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
     reg().remove<Cmp::SpriteAnimation>( Utils::Player::get_entity( reg() ) );
     stopFootstepsSound();
     Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -100 }, {}, {}, {}, {} } );
+    SPDLOG_INFO( "Player death code: {}", static_cast<uint8_t>( ev.m_new_state ) );
     Utils::Player::get_mortality( reg() ).state = Cmp::PlayerMortality::State::DEAD;
-    SPDLOG_INFO( "Player is dead" );
+    SPDLOG_INFO( "Player died" );
   };
 
   switch ( ev.m_new_state )
@@ -434,7 +436,7 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
   Cmp::BaseAction net_modifier( {}, {}, {}, {}, {} );
   std::stringstream mod_log;
 
-  // accumulate PlayerInventorySlot/NPC dt every frame.
+  // update PlayerInventorySlot/NPC/DarknessFear clock every frame.
   for ( auto [slot_entt, slot_cmp] : reg().view<Cmp::PlayerInventorySlot>().each() )
   {
     for ( auto &[action_type, item_action_pair] : slot_cmp.m_item.actions )
@@ -459,29 +461,14 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
       SPDLOG_DEBUG( "NPC npc_action_timer {}", npc_action_timer.asSeconds() );
     }
   }
+  m_darkness_fear_clock += dt;
 
-  // Only sum/reset the PlayerInventorySlot/NPC modifier/clock in sync with the dark/light fear modifiers
-  // to prevent fighting +/- side-effect
+  // Now accumulate the PlayerInventorySlot/NPC/DarknessFear values if their clocks are expired.
   static constexpr float kTimedActionSyncClockMax = 1.0;
   m_timed_action_sync_clock += dt;
   if ( m_timed_action_sync_clock.asSeconds() >= kTimedActionSyncClockMax )
   {
-
-    for ( auto [slot_entt, slot_cmp] : reg().view<Cmp::PlayerInventorySlot>().each() )
-    {
-      mod_log << " " << slot_cmp.m_item.sprite_type << "(actions";
-      for ( auto &[action_type, item_action_pair] : slot_cmp.m_item.actions )
-      {
-        if ( action_type == std::type_index( typeid( Cmp::CollisionAction ) ) ) continue;
-        if ( action_type == std::type_index( typeid( Cmp::ProjectileAction ) ) ) continue;
-        auto &[item_action, item_action_timer] = item_action_pair;
-        if ( item_action_timer.asSeconds() < item_action.interval() ) continue;
-        net_modifier += item_action;
-        mod_log << "[" << item_action.health() << "," << item_action.fear() << "," << item_action.despair() << "," << item_action.infamy() << "]";
-        item_action_timer = sf::Time::Zero;
-      }
-      mod_log << ")";
-    }
+    // add the NPC modifiers to the `net_modifier` every kTimedActionSyncClockMax.
     for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
     {
       mod_log << " " << npc_cmp.sprite_type_list.front() << "(actions";
@@ -499,44 +486,70 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
       mod_log << ")";
     }
 
-    Cmp::BaseAction fear_of_the_dark( {}, { +1 }, {}, {}, {} );
-    net_modifier += fear_of_the_dark;
-    mod_log << " dark[" << fear_of_the_dark.fear() << "]";
-
-    auto torch_radius = Utils::Player::get_torch_radius( reg() );
-    for ( auto [candle_entt, candle_cmp, candle_pos] : reg().view<Cmp::InventoryItem, Cmp::Position>().each() )
+    // get the DarknessFear tick interval from the candle item in res/json/items.json
+    auto candle_item = Sys::ItemStore::instance().get_item( "item.candle" );
+    static float kDarknessFearClockMax = candle_item.actions.at( std::type_index( typeid( Cmp::CarryAction ) ) ).action.interval();
+    if ( m_darkness_fear_clock.asSeconds() >= kDarknessFearClockMax )
     {
-      if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), candle_pos ) ) continue;
-      if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
-      float player_distance = Utils::Maths::getEuclideanDistance( candle_pos.getCenter(), Utils::Player::get_position( reg() ).position );
-      if ( player_distance > torch_radius.value ) continue;
+      Cmp::BaseAction fear_of_the_dark( {}, { +1 }, {}, {}, {} );
+      net_modifier += fear_of_the_dark;
+      mod_log << " dark[" << fear_of_the_dark.fear() << "]";
 
-      for ( auto &[action_type, item_action_pair] : candle_cmp.actions )
+      auto torch_radius = Utils::Player::get_torch_radius( reg() );
+      for ( auto [candle_entt, candle_cmp, candle_pos] : reg().view<Cmp::InventoryItem, Cmp::Position>().each() )
       {
-        if ( action_type == std::type_index( typeid( Cmp::CarryAction ) ) )
+        if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), candle_pos ) ) continue;
+        if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
+        float player_distance = Utils::Maths::getEuclideanDistance( candle_pos.getCenter(), Utils::Player::get_position( reg() ).position );
+        if ( player_distance > torch_radius.value ) continue;
+
+        for ( auto &[action_type, item_action_pair] : candle_cmp.actions )
         {
+          if ( action_type == std::type_index( typeid( Cmp::CarryAction ) ) )
+          {
+            auto &[item_action, item_action_timer] = item_action_pair;
+            net_modifier += item_action;
+            mod_log << " light[" << item_action.fear() << "]";
+            item_action_timer = sf::Time::Zero;
+          }
+        }
+      }
+
+      // add the item modifiers to the `net_modifier` in sync with the `m_darkness_fear_clock` to prevent racing.
+      for ( auto [slot_entt, slot_cmp] : reg().view<Cmp::PlayerInventorySlot>().each() )
+      {
+        for ( auto &[action_type, item_action_pair] : slot_cmp.m_item.actions )
+        {
+          if ( action_type != std::type_index( typeid( Cmp::CarryAction ) ) ) continue;
           auto &[item_action, item_action_timer] = item_action_pair;
+          if ( item_action.fear() == 0 ) continue;
           net_modifier += item_action;
-          mod_log << " light[" << item_action.fear() << "]";
+          mod_log << " inv_light[" << item_action.fear() << "]";
           item_action_timer = sf::Time::Zero;
         }
       }
+      m_darkness_fear_clock = sf::Time::Zero;
     }
-
     m_timed_action_sync_clock = sf::Time::Zero;
-    SPDLOG_INFO( "Fear - mods: {}, total: {}", mod_log.str(), net_modifier.fear() );
+    SPDLOG_INFO( "modifiers: {}, total: {}", mod_log.str(), net_modifier.fear() );
+
+    // check if player should take health damage/die
+    if ( Utils::Player::get_player_stats( reg() ).fear() == 100 )
+    {
+      Utils::Player::get_player_stats( reg() ).apply_modifiers( Cmp::BaseAction( { -1 }, {}, {}, {}, {} ) );
+      if ( Utils::Player::get_player_stats( reg() ).health() == 0 and
+           Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::DEAD )
+      {
+        on_player_mortality_event( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::TERRIFIED, Utils::Player::get_position( reg() ) ) );
+      }
+    }
+    else if ( Utils::Player::get_player_stats( reg() ).despair() == 100 and
+              Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::DEAD )
+    {
+      on_player_mortality_event( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::Player::get_position( reg() ) ) );
+    }
   }
   Utils::Player::get_player_stats( reg() ).apply_modifiers( net_modifier );
-
-  if ( Utils::Player::get_player_stats( reg() ).fear() == 100 and Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::DEAD )
-  {
-    on_player_mortality_event( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::TERRIFIED, Utils::Player::get_position( reg() ) ) );
-  }
-  else if ( Utils::Player::get_player_stats( reg() ).despair() == 100 and
-            Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::DEAD )
-  {
-    on_player_mortality_event( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::Player::get_position( reg() ) ) );
-  }
 }
 
 entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entity inventory_slot_entt )
