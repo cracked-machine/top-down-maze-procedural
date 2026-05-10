@@ -160,8 +160,23 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
     {
       auto &particle_sprite_owner = reg().get<ParticleSpriteOwner>( entity );
       // pass the world view so the sprite can map world coords to screen coords
-      particle_sprite_owner.sprite->set_view_transform( m_window, s_world_view );
-      draw_screen( *particle_sprite_owner.sprite );
+      if ( particle_sprite_owner.sprite->get_view_type() == Cmp::Particle::ViewType::WORLD )
+      {
+        particle_sprite_owner.sprite->set_view_transform( m_window, s_world_view );
+        draw_screen( *particle_sprite_owner.sprite );
+      }
+      else
+      {
+        if ( not particle_sprite_owner.sprite->get_tag().contains( "candle" ) ) continue;
+        particle_sprite_owner.sprite->set_view_transform( m_window, m_window.getDefaultView() );
+        for ( auto &icon : render_overlay_sys.m_main_ui_data->m_icons )
+        {
+          if ( icon.name != "inventory_icon" ) continue;
+          particle_sprite_owner.sprite->set_emitter_position(
+              { icon.rect.position.x + ( icon.scale * 8.f ), icon.rect.position.y + ( icon.scale * 6.f ) } );
+        }
+        draw_screen( *particle_sprite_owner.sprite );
+      }
     }
     else if ( reg().all_of<ShaderSpriteOwner>( entity ) )
     {

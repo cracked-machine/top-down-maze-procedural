@@ -26,6 +26,7 @@
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Particle/ParticleSpriteBase.hpp>
 #include <Player/PlayerCurse.hpp>
 #include <Player/PlayerLevelDepth.hpp>
 #include <Player/TorchRadius.hpp>
@@ -193,7 +194,7 @@ entt::entity pickup_world_item( entt::registry &reg, entt::entity world_item_ent
   {
     for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg.view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
     {
-      if ( ps_uuid_cmp == *uuid_cmp ) ps_owner.sprite->stop();
+      if ( ps_uuid_cmp == *uuid_cmp ) { ps_owner.sprite->set_view_type( Cmp::Particle::ViewType::SCREEN ); }
     }
     reg.emplace_or_replace<Cmp::UUID>( inventory_entity, uuid_cmp->data );
   }

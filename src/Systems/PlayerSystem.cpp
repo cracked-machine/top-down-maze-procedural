@@ -595,7 +595,11 @@ entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, ent
 
     for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
     {
-      if ( ps_uuid_cmp == *uuid_cmp ) ps_owner.sprite->restart();
+      if ( ps_uuid_cmp == *uuid_cmp )
+      {
+        ps_owner.sprite->set_view_type( Cmp::Particle::ViewType::WORLD );
+        ps_owner.sprite->set_emitter_position( pos );
+      }
     }
     reg().emplace_or_replace<Cmp::UUID>( world_item_entt, uuid_cmp->data );
   }

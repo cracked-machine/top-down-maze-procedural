@@ -9,6 +9,8 @@
 namespace ProceduralMaze::Cmp::Particle
 {
 
+enum class ViewType { SCREEN, WORLD };
+
 // ============================================================
 // IParticle — individual particle contract
 // ============================================================
@@ -108,6 +110,7 @@ public:
 
   // Check ParticleSpriteBase for docstrings
   virtual void set_view_transform( const sf::RenderWindow &, const sf::View & ) = 0;
+  virtual void reset_view_transform() = 0;
   virtual void stop() = 0;
   virtual void restart() = 0;
   virtual void prune_inactive_expired_particles() = 0;
@@ -136,6 +139,9 @@ public:
 
   virtual void set_lifetime_ms( sf::Time lifetime ) = 0;
   virtual void set_lifetime_ms( std::uniform_int_distribution<int> life_dist ) = 0;
+
+  virtual void set_view_type( ViewType v ) = 0;
+  virtual ViewType get_view_type() = 0;
 };
 
 //! @brief Defines the particle sprite base class template. This renders a list of TParticle vertices.
@@ -169,6 +175,11 @@ public:
   {
     m_world_to_screen = [&window, world_view]( sf::Vector2f world_pos ) -> sf::Vector2f
     { return sf::Vector2f( window.mapCoordsToPixel( world_pos, world_view ) ); };
+  }
+
+  void reset_view_transform() override
+  {
+    m_world_to_screen = []( sf::Vector2f p ) { return p; };
   }
 
   //! @brief Disables the particles for this ParticleSprite (they will continue simulating until their lifetimes expire)
@@ -411,6 +422,9 @@ public:
     }
   }
 
+  void set_view_type( ViewType v ) override { m_view_type = v; };
+  ViewType get_view_type() override { return m_view_type; };
+
 protected:
   //! @brief Default translation function is a noop. See set_view_transform()
   std::function<sf::Vector2f( sf::Vector2f )> m_world_to_screen = []( sf::Vector2f p ) { return p; };
@@ -429,6 +443,7 @@ private:
   std::string m_tag;
   //! @brief The emitter position
   sf::Vector2f m_emitter_position{ 0, 0 };
+  ViewType m_view_type{ ViewType::WORLD };
 };
 } // namespace ProceduralMaze::Cmp::Particle
 

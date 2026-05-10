@@ -173,6 +173,10 @@ public:
   //! @brief event handlers for resuming system clocks
   void on_resume() override {}
 
+  std::unique_ptr<Render::UiData> m_main_ui_data;
+  std::unique_ptr<Render::UiData> m_dbg_ui_data;
+  std::unique_ptr<Render::UiData> m_shop_ui_data;
+
 private:
   // restrict the debug data update to every 1 second (optimization)
   const sf::Time m_debug_update_interval{ sf::milliseconds( 1000 ) };
@@ -191,10 +195,6 @@ private:
   sf::Time m_flash_radius_ui_interval;
 
   int m_ui_flash_factor{ 300 };
-
-  std::unique_ptr<Render::UiData> m_main_ui_data;
-  std::unique_ptr<Render::UiData> m_dbg_ui_data;
-  std::unique_ptr<Render::UiData> m_shop_ui_data;
 };
 
 } // namespace ProceduralMaze::Sys
