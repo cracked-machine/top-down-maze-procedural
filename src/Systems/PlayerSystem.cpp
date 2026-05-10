@@ -335,6 +335,13 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
       common_death_throes();
       break;
     }
+    case Cmp::PlayerMortality::State::TERRIFIED: {
+      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "sprite.death.anim.bloodsplat" );
+      Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
+      m_sound_bank.get_effect( "player_blood_splat" ).play();
+      common_death_throes();
+      break;
+    }
     case Cmp::PlayerMortality::State::DEAD: {
       break;
     }
@@ -520,6 +527,16 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
     SPDLOG_INFO( "Fear - mods: {}, total: {}", mod_log.str(), net_modifier.fear() );
   }
   Utils::Player::get_player_stats( reg() ).apply_modifiers( net_modifier );
+
+  if ( Utils::Player::get_player_stats( reg() ).fear() == 100 and Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::DEAD )
+  {
+    on_player_mortality_event( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::TERRIFIED, Utils::Player::get_position( reg() ) ) );
+  }
+  else if ( Utils::Player::get_player_stats( reg() ).despair() == 100 and
+            Utils::Player::get_mortality( reg() ).state != Cmp::PlayerMortality::State::DEAD )
+  {
+    on_player_mortality_event( Events::PlayerMortalityEvent( Cmp::PlayerMortality::State::SUICIDE, Utils::Player::get_position( reg() ) ) );
+  }
 }
 
 entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entity inventory_slot_entt )

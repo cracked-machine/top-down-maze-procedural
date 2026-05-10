@@ -16,18 +16,27 @@ public:
     FALLING = 1,
     //! @brief Death in process: Player is decaying
     DECAYING = 2,
-    //! @brief Death in process: Player is haunted
+    //! @brief Player kill by NPC collision or Fear
     HAUNTED = 3,
     //! @brief Death in process: Player is exploding
     EXPLODING = 4,
-    //! @brief Death in process: Player is drowning
-    DROWNING = 5, // unimplemented
-    SQUISHED = 6, // crypt walls closed on player
-    SUICIDE = 7,  // user-specified
-    IGNITED = 8,  // lava
-    SKEWERED = 9, // spike trap
+    //! @brief Death in process: Player is drowning.
+    DROWNING = 5,
+    //! @brief Killed by crypt walls closing on player
+    SQUISHED = 6,
+    //! @brief killed by Despair stat == 100
+    SUICIDE = 7,
+    //! @brief Killed by lava collision
+    IGNITED = 8,
+    //! @brief Killed by spike trap collision
+    SKEWERED = 9,
+    //! @brief killed by Lightning strike
     SHOCKED = 10,
+    //! @brief killed by Shadow Hand
     SHADOWCURSED = 11,
+    //! @brief When player Fear stat == 100
+    TERRIFIED = 12,
+
     //! @brief Player is dead. final state. end the game.
     DEAD = 255
   };
