@@ -23,7 +23,7 @@ public:
   }
   // bool active = true;
 
-  //! @brief The associated sprite
+  //! @brief The associated sprite. Supports multiple sprites for animation. See res/json/npc.json.
   std::vector<Sprites::SpriteMetaType> sprite_type_list;
 
   struct ActionTimePair

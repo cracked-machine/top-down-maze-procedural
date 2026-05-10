@@ -104,8 +104,6 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
     }
   }
 
-  // update_player_fear( dt );
-
   // did player die?
   check_player_mortality();
 
@@ -250,17 +248,6 @@ void PlayerSystem::update_player_zorder()
   Cmp::ZOrderValue &zorder_cmp = Utils::Player::get_zorder( reg() );
   const Cmp::Position player_pos = Utils::Player::get_position( reg() );
   zorder_cmp.setZOrder( player_pos.position.y );
-}
-
-void PlayerSystem::update_player_fear( sf::Time dt )
-{
-  static constexpr float kFearIncreaseTimeThreshold = 1.0;
-  m_fear_increase_accumulator += dt;
-  if ( m_fear_increase_accumulator.asSeconds() >= kFearIncreaseTimeThreshold )
-  {
-    Utils::Player::get_player_stats( reg() ).apply_modifiers( Cmp::BaseAction( {}, { +1 }, {}, {}, {} ) );
-    m_fear_increase_accumulator = sf::Time::Zero;
-  }
 }
 
 void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMortalityEvent ev )
@@ -433,9 +420,14 @@ void PlayerSystem::check_player_mortality()
 
 void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
 {
+  // To prevent the individual modifiers from fighting with each other, we need to sum them first, then apply that sum at the end of this function.
+  // Therefore the summing of each modifier should be done in sync with a 1 second tick (kTimedActionSyncThreshold).
+  // Because PlayerInventorySlot/NPC components have independent timers from the light/dark timer, we need to update their timers every frame.
 
   Cmp::BaseAction net_modifier( {}, {}, {}, {}, {} );
+  std::stringstream mod_log;
 
+  // accumulate PlayerInventorySlot/NPC dt every frame.
   for ( auto [slot_entt, slot_cmp] : reg().view<Cmp::PlayerInventorySlot>().each() )
   {
     for ( auto &[action_type, item_action_pair] : slot_cmp.m_item.actions )
@@ -445,9 +437,7 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
       auto &[item_action, item_action_timer] = item_action_pair;
       if ( item_action.interval() == 0.f ) continue;
       item_action_timer += dt;
-      if ( item_action_timer.asSeconds() < item_action.interval() ) continue;
-      net_modifier += item_action;
-      item_action_timer = sf::Time::Zero;
+      SPDLOG_DEBUG( "PlayerInventorySlot item_action_timer {}", item_action_timer.asSeconds() );
     }
   }
   for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
@@ -459,18 +449,52 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
       auto &[npc_action, npc_action_timer] = npc_action_pair;
       if ( npc_action.interval() == 0.f ) continue;
       npc_action_timer += dt;
-      if ( npc_action_timer.asSeconds() < npc_action.interval() ) continue;
-      net_modifier += npc_action;
-      npc_action_timer = sf::Time::Zero;
+      SPDLOG_DEBUG( "NPC npc_action_timer {}", npc_action_timer.asSeconds() );
     }
   }
 
-  static constexpr float kFearIncreaseTimeThreshold = 1.0;
-  m_fear_increase_accumulator += dt;
-  if ( m_fear_increase_accumulator.asSeconds() >= kFearIncreaseTimeThreshold )
+  // Only sum/reset the PlayerInventorySlot/NPC modifier/clock in sync with the dark/light fear modifiers
+  // to prevent fighting +/- side-effect
+  static constexpr float kTimedActionSyncClockMax = 1.0;
+  m_timed_action_sync_clock += dt;
+  if ( m_timed_action_sync_clock.asSeconds() >= kTimedActionSyncClockMax )
   {
+
+    for ( auto [slot_entt, slot_cmp] : reg().view<Cmp::PlayerInventorySlot>().each() )
+    {
+      mod_log << " " << slot_cmp.m_item.sprite_type << "(actions";
+      for ( auto &[action_type, item_action_pair] : slot_cmp.m_item.actions )
+      {
+        if ( action_type == std::type_index( typeid( Cmp::CollisionAction ) ) ) continue;
+        if ( action_type == std::type_index( typeid( Cmp::ProjectileAction ) ) ) continue;
+        auto &[item_action, item_action_timer] = item_action_pair;
+        if ( item_action_timer.asSeconds() < item_action.interval() ) continue;
+        net_modifier += item_action;
+        mod_log << "[" << item_action.health() << "," << item_action.fear() << "," << item_action.despair() << "," << item_action.infamy() << "]";
+        item_action_timer = sf::Time::Zero;
+      }
+      mod_log << ")";
+    }
+    for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
+    {
+      mod_log << " " << npc_cmp.sprite_type_list.front() << "(actions";
+      for ( auto &[action_type, npc_action_pair] : npc_cmp.actions )
+      {
+        if ( action_type == std::type_index( typeid( Cmp::CollisionAction ) ) ) continue;
+        if ( action_type == std::type_index( typeid( Cmp::ProjectileAction ) ) ) continue;
+        auto &[npc_action, npc_action_timer] = npc_action_pair;
+
+        if ( npc_action_timer.asSeconds() < npc_action.interval() ) continue;
+        net_modifier += npc_action;
+        mod_log << "[" << npc_action.health() << "," << npc_action.fear() << "," << npc_action.despair() << "," << npc_action.infamy() << "]";
+        npc_action_timer = sf::Time::Zero;
+      }
+      mod_log << ")";
+    }
+
     Cmp::BaseAction fear_of_the_dark( {}, { +1 }, {}, {}, {} );
     net_modifier += fear_of_the_dark;
+    mod_log << " dark[" << fear_of_the_dark.fear() << "]";
 
     auto torch_radius = Utils::Player::get_torch_radius( reg() );
     for ( auto [candle_entt, candle_cmp, candle_pos] : reg().view<Cmp::InventoryItem, Cmp::Position>().each() )
@@ -486,12 +510,14 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
         {
           auto &[item_action, item_action_timer] = item_action_pair;
           net_modifier += item_action;
+          mod_log << " light[" << item_action.fear() << "]";
           item_action_timer = sf::Time::Zero;
         }
       }
     }
 
-    m_fear_increase_accumulator = sf::Time::Zero;
+    m_timed_action_sync_clock = sf::Time::Zero;
+    SPDLOG_INFO( "Fear - mods: {}, total: {}", mod_log.str(), net_modifier.fear() );
   }
   Utils::Player::get_player_stats( reg() ).apply_modifiers( net_modifier );
 }

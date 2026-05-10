@@ -112,8 +112,7 @@ private:
 
   sf::Clock m_post_death_timer;
 
-  sf::Time m_fear_increase_accumulator;
-  int m_pending_fear{ 0 }; // accumulated this frame, applied once at end
+  sf::Time m_timed_action_sync_clock;
 
   sf::Clock m_inventory_cooldown_timer;
 

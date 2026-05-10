@@ -164,6 +164,7 @@ entt::entity create_world_item( entt::registry &reg, Cmp::Position pos, const st
   reg.emplace_or_replace<Cmp::SpriteAnimation>( world_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).sprite_type, 0 );
   reg.emplace_or_replace<Cmp::ZOrderValue>( world_item_entt, pos.position.y - 1.f + zorder );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( world_item_entt );
+  // Use a UUID to identify the InventoryItem/PlayerInventorySlot when the entity is destroyed.
   reg.emplace_or_replace<Cmp::UUID>( world_item_entt, Cmp::UUID::generate() );
   if ( item == "item.axe" || item == "item.pickaxe" || item == "item.shovel" )
   {
