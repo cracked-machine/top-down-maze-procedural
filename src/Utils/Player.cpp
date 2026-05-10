@@ -14,6 +14,7 @@
 #include <Direction.hpp>
 #include <Player/PlayerCadaverCount.hpp>
 #include <Player/PlayerLevelDepth.hpp>
+#include <Player/TorchRadius.hpp>
 #include <RectBounds.hpp>
 #include <SpawnArea.hpp>
 #include <SpriteAnimation.hpp>
@@ -75,9 +76,9 @@ Cmp::SpriteAnimation &get_sprite_anim( entt::registry &reg )
 
 int get_ruin_location( entt::registry &reg )
 {
-  auto player_location = reg.try_get<Cmp::PlayerRuinLocation>( get_entity( reg ) );
+  auto *player_location = reg.try_get<Cmp::PlayerRuinLocation>( get_entity( reg ) );
   if ( player_location ) { return static_cast<int>( player_location->m_floor ); }
-  else { return static_cast<int>( Cmp::PlayerRuinLocation::Floor::NONE ); }
+  return static_cast<int>( Cmp::PlayerRuinLocation::Floor::NONE );
 }
 
 //! @brief Get the player last graveyard position object. Return may be nullptr if non-existent.
@@ -119,7 +120,7 @@ Cmp::PlayerMortality &get_mortality( entt::registry &reg )
 
 Cmp::ZOrderValue &get_zorder( entt::registry &reg )
 {
-  auto zorder_cmp = reg.try_get<Cmp::ZOrderValue>( get_entity( reg ) );
+  auto *zorder_cmp = reg.try_get<Cmp::ZOrderValue>( get_entity( reg ) );
   if ( not zorder_cmp ) throw std::runtime_error( "Player entt has no component: Cmp::ZOrderValue" );
 
   auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::ZOrderValue>();
@@ -147,9 +148,9 @@ void reset_curse( entt::registry &reg )
 
 float get_speed_penalty( entt::registry &reg )
 {
-  auto penalty_cmp = reg.try_get<Cmp::PlayerSpeedPenalty>( get_entity( reg ) );
+  auto *penalty_cmp = reg.try_get<Cmp::PlayerSpeedPenalty>( get_entity( reg ) );
   if ( penalty_cmp ) { return penalty_cmp->m_penalty; }
-  else { return 1.f; }
+  return 1.f;
 }
 
 void remove_lerp_cmp( entt::registry &reg )
@@ -166,7 +167,7 @@ void remove_lerp_cmp( entt::registry &reg )
 std::pair<entt::entity, Sprites::SpriteMetaType> get_inventory_type( entt::registry &reg )
 {
   auto inv_view = reg.view<Cmp::PlayerInventorySlot>();
-  Sprites::SpriteMetaType found_type = "";
+  Sprites::SpriteMetaType found_type;
   entt::entity found_entt = entt::null;
   // this assumes there is only one slot in the inventory, so warn if there is a bug somewhere
   if ( inv_view.size() > 1 ) SPDLOG_WARN( "Found multiple slots in signle slot inventory" );
@@ -218,6 +219,16 @@ Cmp::PlayerCadaverCount &get_cadaver_count( entt::registry &reg )
   auto &curse = player_view.get<Cmp::PlayerCadaverCount>( get_entity( reg ) );
   SPDLOG_DEBUG( "Cmp::PlayerCadaverCount == {}", curse.active );
   return curse;
+}
+
+Cmp::TorchRadius &get_torch_radius( entt::registry &reg )
+{
+
+  auto player_view = reg.view<Cmp::TorchRadius>();
+  if ( player_view.empty() ) throw std::runtime_error( "Player entt has no component: Cmp::TorchRadius" );
+  auto &torch_radius = player_view.get<Cmp::TorchRadius>( get_entity( reg ) );
+  SPDLOG_DEBUG( "Cmp::TorchRadius == {}", torch_radius.value );
+  return torch_radius;
 }
 
 Cmp::PlayerStats &get_player_stats( entt::registry &reg )

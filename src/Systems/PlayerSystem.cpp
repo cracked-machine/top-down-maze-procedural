@@ -5,6 +5,7 @@
 #include <Inventory/Explosive.hpp>
 #include <Inventory/InventoryWearLevel.hpp>
 #include <Inventory/ScryingBall.hpp>
+#include <Player/TorchRadius.hpp>
 #include <Stats/BaseAction.hpp>
 #include <Stats/CarryAction.hpp>
 #include <Stats/CollisionAction.hpp>
@@ -102,6 +103,8 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
       else { playFootstepsSound( footstep_sfx ); }
     }
   }
+
+  // update_player_fear( dt );
 
   // did player die?
   check_player_mortality();
@@ -247,6 +250,17 @@ void PlayerSystem::update_player_zorder()
   Cmp::ZOrderValue &zorder_cmp = Utils::Player::get_zorder( reg() );
   const Cmp::Position player_pos = Utils::Player::get_position( reg() );
   zorder_cmp.setZOrder( player_pos.position.y );
+}
+
+void PlayerSystem::update_player_fear( sf::Time dt )
+{
+  static constexpr float kFearIncreaseTimeThreshold = 1.0;
+  m_fear_increase_accumulator += dt;
+  if ( m_fear_increase_accumulator.asSeconds() >= kFearIncreaseTimeThreshold )
+  {
+    Utils::Player::get_player_stats( reg() ).apply_modifiers( Cmp::BaseAction( {}, { +1 }, {}, {}, {} ) );
+    m_fear_increase_accumulator = sf::Time::Zero;
+  }
 }
 
 void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMortalityEvent ev )
@@ -419,7 +433,9 @@ void PlayerSystem::check_player_mortality()
 
 void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
 {
-  Cmp::PlayerStats &stats_cmp = Utils::Player::get_player_stats( reg() );
+
+  Cmp::BaseAction net_modifier( {}, {}, {}, {}, {} );
+
   for ( auto [slot_entt, slot_cmp] : reg().view<Cmp::PlayerInventorySlot>().each() )
   {
     for ( auto &[action_type, item_action_pair] : slot_cmp.m_item.actions )
@@ -430,7 +446,7 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
       if ( item_action.interval() == 0.f ) continue;
       item_action_timer += dt;
       if ( item_action_timer.asSeconds() < item_action.interval() ) continue;
-      stats_cmp.apply_modifiers( item_action );
+      net_modifier += item_action;
       item_action_timer = sf::Time::Zero;
     }
   }
@@ -444,10 +460,40 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
       if ( npc_action.interval() == 0.f ) continue;
       npc_action_timer += dt;
       if ( npc_action_timer.asSeconds() < npc_action.interval() ) continue;
-      stats_cmp.apply_modifiers( npc_action );
+      net_modifier += npc_action;
       npc_action_timer = sf::Time::Zero;
     }
   }
+
+  static constexpr float kFearIncreaseTimeThreshold = 1.0;
+  m_fear_increase_accumulator += dt;
+  if ( m_fear_increase_accumulator.asSeconds() >= kFearIncreaseTimeThreshold )
+  {
+    Cmp::BaseAction fear_of_the_dark( {}, { +1 }, {}, {}, {} );
+    net_modifier += fear_of_the_dark;
+
+    auto torch_radius = Utils::Player::get_torch_radius( reg() );
+    for ( auto [candle_entt, candle_cmp, candle_pos] : reg().view<Cmp::InventoryItem, Cmp::Position>().each() )
+    {
+      if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), candle_pos ) ) continue;
+      if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
+      float player_distance = Utils::Maths::getEuclideanDistance( candle_pos.getCenter(), Utils::Player::get_position( reg() ).position );
+      if ( player_distance > torch_radius.value ) continue;
+
+      for ( auto &[action_type, item_action_pair] : candle_cmp.actions )
+      {
+        if ( action_type == std::type_index( typeid( Cmp::CarryAction ) ) )
+        {
+          auto &[item_action, item_action_timer] = item_action_pair;
+          net_modifier += item_action;
+          item_action_timer = sf::Time::Zero;
+        }
+      }
+    }
+
+    m_fear_increase_accumulator = sf::Time::Zero;
+  }
+  Utils::Player::get_player_stats( reg() ).apply_modifiers( net_modifier );
 }
 
 entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entity inventory_slot_entt )

@@ -2,6 +2,7 @@
 #include <Constants.hpp>
 #include <Inventory/InventoryItem.hpp>
 #include <Persistent/DisplayResolution.hpp>
+#include <Player/TorchRadius.hpp>
 #include <Shaders/UniformBuilder.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -17,7 +18,7 @@ void NightStaticShader::update( entt::registry &reg )
   sf::Vector2u display_size = Sys::PersistSystem::get<Cmp::Persist::DisplayResolution>( reg );
   sf::Vector2f view_center = Sys::RenderSystem::get_world_view().getCenter();
   sf::Vector2f view_size = Sys::RenderSystem::get_world_view().getSize();
-  sf::Vector2f view_top_left = { view_center.x - view_size.x / 2.f, view_center.y - view_size.y / 2.f };
+  sf::Vector2f view_top_left = { view_center.x - ( view_size.x / 2.f ), view_center.y - ( view_size.y / 2.f ) };
 
   std::vector<sf::Vector2f> torch_positions;
 
@@ -37,6 +38,7 @@ void NightStaticShader::update( entt::registry &reg )
       .set( "view_size", view_size )
       .set( "torch_count", static_cast<int>( torch_positions.size() ) )
       .set( "torch_world_pos", torch_positions )
+      .set( "torch_radius", Utils::Player::get_torch_radius( reg ).value )
       .apply( &get_shader() );
 
   // shader position at the top left of the world

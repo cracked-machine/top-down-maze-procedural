@@ -20,7 +20,7 @@ struct UUID
     uuid.data[6] = ( uuid.data[6] & 0x0F ) | 0x40;
     // variant bits
     uuid.data[8] = ( uuid.data[8] & 0x3F ) | 0x80;
-    uuid.print();
+    // uuid.print();
     return uuid;
   }
 

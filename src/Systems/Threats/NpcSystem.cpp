@@ -50,7 +50,6 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
 #include <algorithm>
-#include <ranges>
 #include <spdlog/spdlog.h>
 #include <typeindex>
 
@@ -211,7 +210,7 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
     if ( path.size() > 1 )
     {
 
-      SPDLOG_INFO( "{} pathsize: {}", static_cast<uint32_t>( npc_entity ), path.size() );
+      SPDLOG_DEBUG( "{} pathsize: {}", static_cast<uint32_t>( npc_entity ), path.size() );
 
       Cmp::Position next_npc_pos = path[1].pos;
 

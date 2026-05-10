@@ -20,6 +20,7 @@ class Direction;
 class PlayerCadaverCount;
 class PlayerLevelDepth;
 class PlayerInventorySlot;
+class TorchRadius;
 } // namespace ProceduralMaze::Cmp
 
 namespace ProceduralMaze::Utils::Player
@@ -45,6 +46,7 @@ float get_inventory_wear_level( entt::registry &reg );
 void reduce_inventory_wear_level( entt::registry &reg, float amount );
 bool is_in_spawn( entt::registry &reg, const Cmp::Position &player_pos_cmp );
 Cmp::PlayerCadaverCount &get_cadaver_count( entt::registry &reg );
+Cmp::TorchRadius &get_torch_radius( entt::registry &reg );
 Cmp::PlayerStats &get_player_stats( entt::registry &reg );
 
 } // namespace ProceduralMaze::Utils::Player

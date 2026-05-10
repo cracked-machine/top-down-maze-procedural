@@ -46,6 +46,16 @@ public:
   [[nodiscard]] float interval() const { return m_tick; }
   [[nodiscard]] Stats::Disease disease() const { return m_disease; }
 
+  BaseAction &operator+=( const BaseAction &rhs )
+  {
+    m_health += rhs.m_health;
+    m_fear += rhs.m_fear;
+    m_despair += rhs.m_despair;
+    m_infamy += rhs.m_infamy;
+    m_tick += rhs.m_tick;
+    return *this;
+  }
+
 private:
   int m_health{ 0 };
   int m_fear{ 0 };

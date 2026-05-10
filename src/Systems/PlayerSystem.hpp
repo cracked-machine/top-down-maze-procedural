@@ -80,6 +80,7 @@ private:
   void update_player_position( sf::Time dt, bool collision_disabled );
   void update_player_animation();
   void update_player_zorder();
+  void update_player_fear( sf::Time dt );
 
   //! @brief Check if the player is dea
   //! @note This checks if the Cmp::PlayerMortality == State::DEAD, not check Cmp:PlayerStats (that is other system responsibility).
@@ -110,6 +111,9 @@ private:
   sf::Clock m_debug_info_timer;
 
   sf::Clock m_post_death_timer;
+
+  sf::Time m_fear_increase_accumulator;
+  int m_pending_fear{ 0 }; // accumulated this frame, applied once at end
 
   sf::Clock m_inventory_cooldown_timer;
 

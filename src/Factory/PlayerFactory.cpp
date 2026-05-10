@@ -28,6 +28,7 @@
 #include <Factory/PlayerFactory.hpp>
 #include <Player/PlayerCurse.hpp>
 #include <Player/PlayerLevelDepth.hpp>
+#include <Player/TorchRadius.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Sprites/SpriteFactory.hpp>
 #include <Sprites/SpriteMetaType.hpp>
@@ -73,6 +74,7 @@ void create_player( entt::registry &reg )
   reg.emplace_or_replace<Cmp::PlayerMortality>( entity, Cmp::PlayerMortality::State::ALIVE );
   reg.emplace_or_replace<Cmp::PlayerCurse>( entity, false );
   reg.emplace_or_replace<Cmp::PlayerLevelDepth>( entity, 1 );
+  reg.emplace_or_replace<Cmp::TorchRadius>( entity, 32.f );
 
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, start_pos.y ); // z-order based on y-position
   reg.emplace_or_replace<Cmp::AbsoluteAlpha>( entity, 255 );       // fully opaque
@@ -82,10 +84,10 @@ void create_player( entt::registry &reg )
 
 void add_spawn_area( entt::registry &registry, entt::entity entity, Sprites::SpriteFactory &sfactory, float zorder )
 {
-  // We need to reserve these positions for the player start area
+  // We need to reserve these positions for the player start area, dont add NpcNoPathFinding.
+  // We want NPCs to pathfind player within spawn. We block NPCs from entering spawn directly in NpcSystem::update_pathfinding.
   registry.emplace_or_replace<Cmp::ReservedPosition>( entity );
   registry.emplace_or_replace<Cmp::SpawnArea>( entity, false );
-  // registry.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
   auto [_, idx] = sfactory.get_random_type_and_texture_index( { "sprite.graveyard.playerspawn" } );
   registry.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.graveyard.playerspawn", idx );
   registry.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
@@ -205,7 +207,7 @@ entt::entity pickup_world_item( entt::registry &reg, entt::entity world_item_ent
   if ( explosive_cmp ) { reg.emplace_or_replace<Cmp::Explosive>( inventory_entity, false ); }
 
   // now destroy the world item entt
-  SPDLOG_INFO( "Picked up world entt {}", static_cast<uint32_t>( world_item_entt ) );
+  SPDLOG_DEBUG( "Picked up world entt {}", static_cast<uint32_t>( world_item_entt ) );
   reg.destroy( world_item_entt );
 
   return inventory_entity;

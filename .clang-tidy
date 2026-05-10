@@ -3,10 +3,12 @@ Checks: >
   performance-*,
   modernize-*,
   readability-*,
+  bugprone-*,
   -readability-identifier-length,
   -readability-uppercase-literal-suffix,
   -readability-magic-numbers,
-  -bugprone-easily-swappable-parameters
+  -bugprone-easily-swappable-parameters,
+  -readability-use-anyofallof,
   performance-unnecessary-copy-initialization,
   performance-unnecessary-value-param,
   cppcoreguidelines-avoid-const-or-ref-data-members,

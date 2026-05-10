@@ -13,6 +13,9 @@ uniform vec2 view_top_left;
 // world-space size of the current view
 uniform vec2 view_size;
 
+// The overal size of the torchlight radius
+uniform float torch_radius;
+
 // player position in world space
 const int MAX_TORCH_COUNT = 8;
 uniform int torch_count;
@@ -32,8 +35,6 @@ const vec3 NIGHT_COLOR = vec3( 0.1, 0.1, 0.44 );
 const float TORCH_ALPHA = 0.25;
 const float NIGHT_ALPHA = 0.90;
 
-// The overal size of the player torchlight radius
-const float PLAYER_TORCH_RADIUS = 32.0;
 // The max frequency of the torchlight flicker
 const float TORCH_EDGE_FLICKER_FREQ = 2.0;
 // The percentage of the radius that is flickering
@@ -75,7 +76,7 @@ float player_torch_pixel( vec2 frag_coord, int torch_idx )
   float flicker1 = norm_sin( time * TORCH_EDGE_FLICKER_FREQ * 1.0 ) * 0.5;
   float flicker2 = norm_sin( time * TORCH_EDGE_FLICKER_FREQ * 2.3 ) * 0.3;
   float flicker3 = norm_sin( time * TORCH_EDGE_FLICKER_FREQ * 0.7 ) * 0.2;
-  float flickered_radius = PLAYER_TORCH_RADIUS * ( 1.0 + ( flicker1 + flicker2 + flicker3 ) * TORCH_EDGE_FLICKER_PERCENT );
+  float flickered_radius = torch_radius * ( 1.0 + ( flicker1 + flicker2 + flicker3 ) * TORCH_EDGE_FLICKER_PERCENT );
 
   float dist_to_player = length( frag_coord - torch_world_pos[torch_idx] );
 
