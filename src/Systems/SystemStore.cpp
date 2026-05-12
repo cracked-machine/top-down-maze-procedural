@@ -11,6 +11,7 @@
 #include <Systems/FootstepSystem.hpp>
 #include <Systems/GraveSystem.hpp>
 #include <Systems/HolyWellSystem.hpp>
+#include <Systems/ItemSystem.hpp>
 #include <Systems/LootSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
@@ -52,6 +53,7 @@ Store::Store( sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, 
     m_sysmap.emplace( Type::GraveSystem, std::make_unique<GraveSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::HolyWellSystem, std::make_unique<HolyWellSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
     m_sysmap.emplace( Type::ItemStore, std::make_unique<ItemStore>( m_initial_reg, window, sprite_factory, sound_bank ) );
+    m_sysmap.emplace( Type::ItemSystem, std::make_unique<ItemSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::NpcStore, std::make_unique<NpcStore>( m_initial_reg, window, sprite_factory, sound_bank ) );
     m_sysmap.emplace( Type::RuinSystem, std::make_unique<RuinSystem>( m_initial_reg, window, sprite_factory, sound_bank, scenemanager_event_dispatcher ) );
     m_sysmap.emplace( Type::LightningSystem, std::make_unique<LightningSystem>( m_initial_reg, window, sprite_factory, sound_bank ) );

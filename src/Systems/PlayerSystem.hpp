@@ -99,7 +99,9 @@ private:
   //! @param sprite the multisprite object
   //! @param inventory_slot_cmp_entt the player inventory slot entt
   //! @return entt::entity
-  entt::entity drop_inventory_slot_into_world( sf::Vector2f pos, entt::entity inventory_slot_entt );
+  void drop_inventory_slot_into_world( sf::Vector2f pos, entt::entity inventory_slot_entt );
+
+  void pickup_world_item( entt::registry &reg, entt::entity world_item_entt );
 
   void on_player_mortality_event( ProceduralMaze::Events::PlayerMortalityEvent ev );
   void on_player_action_event( ProceduralMaze::Events::PlayerActionEvent ev );

@@ -1,4 +1,5 @@
 
+#include <Events/CreateItemEvent.hpp>
 #include <Stats/ExhumeAction.hpp>
 #include <Systems/Stores/ItemStore.hpp>
 #include <typeindex>
@@ -139,13 +140,13 @@ void GraveSystem::check_player_grave_collision()
             std::vector<Sprites::SpriteMetaType> relic_selection_list{ "item.relic1", "item.relic2", "item.relic3", "item.relic4" };
             Cmp::RandomInt relic_picker( 0, relic_selection_list.size() - 1 );
             auto selected_relic = relic_picker.gen();
-            auto relic_entt = Factory::create_world_item( reg(), Utils::Player::get_position( reg() ), relic_selection_list.at( selected_relic ) );
+
+            get_systems_event_queue().trigger(
+                Events::CreateItemEvent( Utils::Player::get_position( reg() ), relic_selection_list.at( selected_relic ), "drop_loot" ) );
 
             // Apply the effects from exhuming this item to the player stats
             auto item = Sys::ItemStore::instance().get_item( relic_selection_list.at( selected_relic ) );
             Utils::Player::get_player_stats( reg() ).apply_modifiers( item.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ).action );
-
-            if ( relic_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
             break;
           }
           case 4: {
@@ -156,14 +157,13 @@ void GraveSystem::check_player_grave_collision()
                                                                          "item.jewelry_diamond_gemstone",  "item.jewelry_amephyst_gemstone" };
             Cmp::RandomInt jewelry_picker( 0, jewelry_selection_list.size() - 1 );
             auto selected_jewelry = jewelry_picker.gen();
-            auto jewelry_entt = Factory::create_world_item( reg(), Utils::Player::get_position( reg() ),
-                                                            jewelry_selection_list.at( selected_jewelry ) );
+
+            get_systems_event_queue().trigger(
+                Events::CreateItemEvent( Utils::Player::get_position( reg() ), jewelry_selection_list.at( selected_jewelry ), "drop_loot" ) );
 
             // Apply the effects from exhuming this item to the player stats
             auto item = Sys::ItemStore::instance().get_item( jewelry_selection_list.at( selected_jewelry ) );
             Utils::Player::get_player_stats( reg() ).apply_modifiers( item.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) ).action );
-
-            if ( jewelry_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
             break;
           }
         }

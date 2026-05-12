@@ -1,3 +1,4 @@
+#include <Events/CreateItemEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Inventory/FlashUIInventory.hpp>
 #include <Sprites/SpriteMetaType.hpp>
@@ -194,12 +195,10 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   {
     if ( not altar_cmp.is_exitkey_lockout() )
     {
-      entt::entity key_entt = entt::null;
-
       if ( sacrifice_type.contains( "sprite.item.relic" ) )
       {
-        key_entt = Factory::create_world_item( reg(), Utils::Player::get_position( reg() ), "item.exitkey" );
-        if ( key_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
+        get_systems_event_queue().trigger( Events::CreateItemEvent( Utils::Player::get_position( reg() ), "item.exitkey", "drop_loot" ) );
+
         // signal UI to flash
         auto flash_entt = reg().create();
         reg().emplace_or_replace<Cmp::FlashUIInventory>( flash_entt );
@@ -217,7 +216,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
 
       if ( sacrifice_type.contains( "sprite.item.exitkey" ) )
       {
-        key_entt = Factory::create_world_item( reg(), Utils::Player::get_position( reg() ), "item.cryptkey" );
+        get_systems_event_queue().trigger( Events::CreateItemEvent( Utils::Player::get_position( reg() ), "item.cryptkey" ) );
         if ( key_entt != entt::null ) { m_sound_bank.get_effect( "drop_loot" ).play(); }
         // signal UI to flash
         auto flash_entt = reg().create();

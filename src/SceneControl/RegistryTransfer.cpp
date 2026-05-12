@@ -1,4 +1,5 @@
 #include <Player/PlayerLevelDepth.hpp>
+#include <Player/TorchRadius.hpp>
 #include <Stats/PlayerStats.hpp>
 #ifdef SPDLOG_ACTIVE_LEVEL
 #undef SPDLOG_ACTIVE_LEVEL
@@ -229,6 +230,7 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   registry.storage<Cmp::PlayerCadaverCount>();
   registry.storage<Cmp::SpriteAnimation>();
   registry.storage<Cmp::PlayerInventorySlot>();
+  registry.storage<Cmp::TorchRadius>();
   registry.storage<Cmp::InventoryItem>();
   registry.storage<Cmp::InventoryWearLevel>();
   registry.storage<Cmp::ZOrderValue>();

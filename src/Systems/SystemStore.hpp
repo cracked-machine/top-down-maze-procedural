@@ -35,6 +35,7 @@ class FootstepSystem;
 class GraveSystem;
 class HolyWellSystem;
 class ItemStore;
+class ItemSystem;
 class NpcStore;
 class LootSystem;
 class NpcSystem;
@@ -68,6 +69,7 @@ public:
     GraveSystem,
     HolyWellSystem,
     ItemStore,
+    ItemSystem,
     NpcStore,
     RuinSystem,
     LightningSystem,
@@ -133,6 +135,7 @@ template<> struct Store::SystemTraits<Store::Type::FootstepSystem>         { usi
 template<> struct Store::SystemTraits<Store::Type::GraveSystem>            { using type = GraveSystem; };
 template<> struct Store::SystemTraits<Store::Type::HolyWellSystem>         { using type = HolyWellSystem; };
 template<> struct Store::SystemTraits<Store::Type::ItemStore>              { using type = ItemStore; };
+template<> struct Store::SystemTraits<Store::Type::ItemSystem>             { using type = ItemSystem; };
 template<> struct Store::SystemTraits<Store::Type::NpcStore>               { using type = NpcStore; };
 template<> struct Store::SystemTraits<Store::Type::RuinSystem>             { using type = RuinSystem; };
 template<> struct Store::SystemTraits<Store::Type::LootSystem>             { using type = LootSystem; };

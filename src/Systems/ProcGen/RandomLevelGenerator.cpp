@@ -12,6 +12,7 @@
 #include <Components/Persistent/MaxNumCrypts.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
 #include <Constants.hpp>
+#include <Events/CreateItemEvent.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/NpcFactory.hpp>
@@ -160,7 +161,7 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
       if ( world_pos_entt != entt::null )
       {
         reg().emplace_or_replace<Cmp::ReservedPosition>( world_pos_entt );
-        Factory::create_world_item( reg(), Cmp::Position( pos, ms.getSpriteSizePixels() ), ms_type );
+        get_systems_event_queue().trigger( Events::CreateItemEvent( Cmp::Position( pos, ms.getSpriteSizePixels() ), ms_type ) );
       }
     }
   }

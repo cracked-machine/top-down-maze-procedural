@@ -371,12 +371,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
     for ( auto [inventory_entt, inventory_cmp] : inventory_view.each() )
     {
       existing_player_inventory_type = inventory_cmp.m_item.sprite_type;
-      auto dropped_entt = drop_inventory_slot_into_world( player_pos.position, inventory_entt );
-      if ( dropped_entt != entt::null )
-      {
-        if ( existing_player_inventory_type.contains( "plant" ) ) { m_sound_bank.get_effect( "digging_earth" ).play(); }
-        else { m_sound_bank.get_effect( "drop_relic" ).play(); }
-      }
+      drop_inventory_slot_into_world( player_pos.position, inventory_entt );
     }
 
     // pickup inventory if there is something at this position
@@ -388,7 +383,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
       if ( inventory_view.size() > 0 ) { break; }                                  // don't pickup another if we already have one
 
       // ok pick it up
-      if ( Factory::pickup_world_item( reg(), carryitem_entt ) != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
+      pickup_world_item( reg(), carryitem_entt );
     }
     m_inventory_cooldown_timer.restart();
     SPDLOG_DEBUG( "inventory_view: {} ", inventory_view.size() );
@@ -397,6 +392,10 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
   {
     // axe attack?!
     check_player_axe_npc_kill();
+  }
+  else if ( ev.action == ProceduralMaze::Events::PlayerActionEvent::GameActions::DIG )
+  {
+    if ( reg().valid( ev.m_entt ) ) pickup_world_item( reg(), ev.m_entt );
   }
 }
 
@@ -552,23 +551,23 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
   Utils::Player::get_player_stats( reg() ).apply_modifiers( net_modifier );
 }
 
-entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entity inventory_slot_entt )
+void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entity inventory_slot_entt )
 {
   auto *inventory_slot_cmp = reg().try_get<Cmp::PlayerInventorySlot>( inventory_slot_entt );
 
   if ( not inventory_slot_cmp )
   {
     SPDLOG_INFO( "Player has no inventory" );
-    return entt::null;
+    return;
   }
 
   // if plant then replant it in the ground - snap to nearest grid to prevent collision issues
   if ( inventory_slot_cmp->m_item.sprite_type.contains( "plant" ) )
   {
-    auto world_item_entt = Factory::create_plant_obstacle( reg(), Cmp::Position( Utils::snap_to_grid( pos ), Constants::kGridSizePxF ),
-                                                           m_sprite_factory.get_multisprite_by_type( inventory_slot_cmp->m_item.sprite_type ) );
+    Factory::create_plant_obstacle( reg(), Cmp::Position( Utils::snap_to_grid( pos ), Constants::kGridSizePxF ),
+                                    m_sprite_factory.get_multisprite_by_type( inventory_slot_cmp->m_item.sprite_type ) );
     reg().destroy( inventory_slot_entt );
-    return world_item_entt;
+    return;
   }
 
   // otherwise just drop it as a Re-pickupable item
@@ -606,13 +605,50 @@ entt::entity PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, ent
 
   // now destroy the inventory slot
   reg().destroy( inventory_slot_entt );
-  return world_item_entt;
+  if ( world_item_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
+}
+
+void PlayerSystem::pickup_world_item( entt::registry &reg, entt::entity world_item_entt )
+{
+  // does this entity own a world item that can be carried?
+  auto *world_item_cmp = reg.try_get<Cmp::InventoryItem>( world_item_entt );
+  if ( not world_item_cmp ) return;
+
+  // create the basic inventory slot entt
+  auto inventory_entity = reg.create();
+  reg.emplace_or_replace<Cmp::PlayerInventorySlot>( inventory_entity, *world_item_cmp );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, false, world_item_cmp->sprite_type, 0 );
+
+  // transfer any component properties from the world item that we want to retain before it is destroyed
+  auto *uuid_cmp = reg.try_get<Cmp::UUID>( world_item_entt );
+  if ( uuid_cmp )
+  {
+    for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg.view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+    {
+      if ( ps_uuid_cmp == *uuid_cmp ) { ps_owner.sprite->set_view_type( Cmp::Particle::ViewType::SCREEN ); }
+    }
+    reg.emplace_or_replace<Cmp::UUID>( inventory_entity, uuid_cmp->data );
+  }
+
+  auto *wear_level_cmp = reg.try_get<Cmp::InventoryWearLevel>( world_item_entt );
+  if ( wear_level_cmp ) { reg.emplace_or_replace<Cmp::InventoryWearLevel>( inventory_entity, wear_level_cmp->m_level ); }
+
+  auto *scryingball_cmp = reg.try_get<Cmp::SeeingStone>( world_item_entt );
+  if ( scryingball_cmp ) { reg.emplace_or_replace<Cmp::SeeingStone>( inventory_entity, false, scryingball_cmp->target ); }
+
+  auto *explosive_cmp = reg.try_get<Cmp::Explosive>( world_item_entt );
+  if ( explosive_cmp ) { reg.emplace_or_replace<Cmp::Explosive>( inventory_entity, false ); }
+
+  // now destroy the world item entt
+  SPDLOG_DEBUG( "Picked up world entt {}", static_cast<uint32_t>( world_item_entt ) );
+  reg.destroy( world_item_entt );
+
+  if ( inventory_entity != entt::null ) { m_sound_bank.get_effect( "get_loot" ).play(); }
 }
 
 void PlayerSystem::on_drop_inventory_event( ProceduralMaze::Events::DropInventoryEvent ev )
 {
-  auto dropped_entt = drop_inventory_slot_into_world( ev.drop_pos, ev.inventory_slot_entt );
-  if ( dropped_entt != entt::null ) { m_sound_bank.get_effect( "drop_relic" ).play(); }
+  drop_inventory_slot_into_world( ev.drop_pos, ev.inventory_slot_entt );
 }
 
 void PlayerSystem::playFootstepsSound( FootStepSfx type )

@@ -1,5 +1,5 @@
-#ifndef __EVENTS_PLAYER_ACTION_EVENT_HPP__
-#define __EVENTS_PLAYER_ACTION_EVENT_HPP__
+#ifndef SRC_EVENTS_PLAYERACTIONEVENT_HPP_
+#define SRC_EVENTS_PLAYERACTIONEVENT_HPP_
 
 namespace ProceduralMaze::Events
 {
@@ -8,13 +8,16 @@ struct PlayerActionEvent
 {
   enum class GameActions { DROP_BOMB, GRAVE_BOMB, ACTIVATE, DIG, ATTACK, DROP_CARRYITEM };
 
-  GameActions action;
-  explicit PlayerActionEvent( GameActions act )
-      : action( act )
+  explicit PlayerActionEvent( GameActions act, entt::entity entt = entt::null )
+      : action( act ),
+        m_entt( entt )
   {
   }
+
+  GameActions action;
+  entt::entity m_entt;
 };
 
 } // namespace ProceduralMaze::Events
 
-#endif // __EVENTS_PLAYER_ACTION_EVENT_HPP__
+#endif // SRC_EVENTS_PLAYERACTIONEVENT_HPP_

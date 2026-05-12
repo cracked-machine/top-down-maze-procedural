@@ -1,134 +1,104 @@
-#include <Components/Stats/BuryAction.hpp>
-#include <Components/Stats/CarryAction.hpp>
-#include <Components/Stats/ConsumeAction.hpp>
-#include <Components/Stats/DestroyAction.hpp>
-#include <Components/Stats/ExhumeAction.hpp>
-#include <Components/Stats/SacrificeAction.hpp>
 
-#include <Inventory/InventoryItem.hpp>
-#include <Random.hpp>
+#include <Audio/SoundBank.hpp>
+#include <Components/Inventory/ScryingBall.hpp>
+#include <Components/Position.hpp>
+#include <Events/CreateItemEvent.hpp>
+#include <Inventory/Explosive.hpp>
+#include <Inventory/InventoryWearLevel.hpp>
+#include <Npc/NpcNoPathFinding.hpp>
+#include <ReservedPosition.hpp>
+#include <SpriteAnimation.hpp>
 #include <Systems/ItemSystem.hpp>
-#include <fstream>
-#include <nlohmann/json.hpp>
+#include <Systems/Stores/ItemStore.hpp>
+#include <UUID.hpp>
+#include <ZOrderValue.hpp>
 
 namespace ProceduralMaze::Sys
 {
 
-ItemSystem *ItemSystem::s_instance = nullptr;
-
 ItemSystem::ItemSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
-  s_instance = this;
   SPDLOG_DEBUG( "ItemSystem initialized" );
+  std::ignore = get_systems_event_queue().sink<Events::CreateItemEvent>().connect<&ItemSystem::on_create_item_event>( this );
 }
 
-nlohmann::json ItemSystem::load_json_file( const std::filesystem::path &json_file )
+void ItemSystem::on_create_item_event( ProceduralMaze::Events::CreateItemEvent ev )
 {
-  if ( not std::filesystem::exists( json_file ) )
-  {
-    SPDLOG_ERROR( "JSON file does not exist: {}", json_file.string() );
-    throw std::runtime_error( "JSON file not found: " + json_file.string() );
-  }
-
-  std::ifstream fs( json_file );
-  if ( not fs.is_open() )
-  {
-    SPDLOG_ERROR( "Unable to open JSON file: {}", json_file.string() );
-    throw std::runtime_error( "Cannot open JSON file: " + json_file.string() );
-  }
-
-  nlohmann::json json;
-  fs >> json;
-  return json;
+  create_world_item( ev.m_pos, ev.m_item, ev.m_sfx, ev.m_zorder );
 }
 
-int ItemSystem::health( const nlohmann::json &item ) { return item.at( "health" ).get<int>(); }
-int ItemSystem::fear( const nlohmann::json &item ) { return item.at( "fear" ).get<int>(); }
-int ItemSystem::despair( const nlohmann::json &item ) { return item.at( "despair" ).get<int>(); }
-int ItemSystem::infamy( const nlohmann::json &item ) { return item.at( "infamy" ).get<int>(); }
-
-void ItemSystem::init_item_store()
+void ItemSystem::create_world_item( Cmp::Position pos, const std::string &item, std::string sfx, float zorder )
 {
-  nlohmann::json json = load_json_file( m_item_json_file_path );
-  for ( const auto &[item_key, item_value] : json.items() )
+  if ( item == "item.seeingstone" )
   {
-    Sprites::SpriteMetaType sprite_mtype = item_value.at( "sprite" ).get<std::string>();
-    Cmp::InventoryItem carryitem( sprite_mtype );
-    for ( const auto &action_entry : item_value.at( "actions" ) )
-    {
-      for ( const auto &[action_key, action_value] : action_entry.items() )
-      {
-        if ( action_key == "bury_action" )
-        {
-          carryitem.action_fx_map.emplace( typeid( Cmp::BuryAction ), Cmp::BuryAction( { health( action_value ) }, { fear( action_value ) },
-                                                                                       { despair( action_value ) }, { infamy( action_value ) } ) );
-        }
-        else if ( action_key == "carry_action" )
-        {
-          carryitem.action_fx_map.emplace( typeid( Cmp::CarryAction ), Cmp::CarryAction( { health( action_value ) }, { fear( action_value ) },
-                                                                                         { despair( action_value ) }, { infamy( action_value ) } ) );
-        }
-        else if ( action_key == "consume_action" )
-        {
-          carryitem.action_fx_map.emplace(
-              typeid( Cmp::ConsumeAction ),
-              Cmp::ConsumeAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) }, { infamy( action_value ) } ) );
-        }
-        else if ( action_key == "destroy_action" )
-        {
-          carryitem.action_fx_map.emplace(
-              typeid( Cmp::DestroyAction ),
-              Cmp::DestroyAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) }, { infamy( action_value ) } ) );
-        }
-        else if ( action_key == "exhume_action" )
-        {
-          carryitem.action_fx_map.emplace(
-              typeid( Cmp::ExhumeAction ),
-              Cmp::ExhumeAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) }, { infamy( action_value ) } ) );
-        }
-        else if ( action_key == "sacrifice_action" )
-        {
-          carryitem.action_fx_map.emplace(
-              typeid( Cmp::SacrificeAction ),
-              Cmp::SacrificeAction( { health( action_value ) }, { fear( action_value ) }, { despair( action_value ) }, { infamy( action_value ) } ) );
-        }
-        else { SPDLOG_WARN( "Unknown action key: {}", action_key ); }
-      }
-    }
-    m_item_store.emplace( item_key, std::move( carryitem ) );
-    SPDLOG_INFO( "Loaded item: {} ({})", item_key, sprite_mtype );
+    create_seeing_stone( pos, item, zorder );
+    return;
   }
-  SPDLOG_INFO( "Item store loaded with {} items", m_item_store.size() );
+  if ( item == "item.bomb" )
+  {
+    create_explosive( pos, item, zorder );
+    return;
+  }
+
+  auto world_item_entt = reg().create();
+  reg().emplace_or_replace<Cmp::Position>( world_item_entt, pos.position, pos.size );
+  reg().emplace_or_replace<Cmp::ReservedPosition>( world_item_entt );
+  reg().emplace_or_replace<Cmp::SpriteAnimation>( world_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).sprite_type, 0 );
+  reg().emplace_or_replace<Cmp::ZOrderValue>( world_item_entt, pos.position.y - 1.f + zorder );
+  reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_item_entt );
+  // Use a UUID to identify the InventoryItem/PlayerInventorySlot when the entity is destroyed.
+  reg().emplace_or_replace<Cmp::UUID>( world_item_entt, Cmp::UUID::generate() );
+  if ( item == "item.axe" || item == "item.pickaxe" || item == "item.shovel" )
+  {
+    reg().emplace_or_replace<Cmp::InventoryWearLevel>( world_item_entt, 100.f );
+  }
+  reg().emplace_or_replace<Cmp::InventoryItem>( world_item_entt, Sys::ItemStore::instance().get_item( item ) );
+
+  SPDLOG_INFO( "Placed {} at {},{}", item, pos.position.x, pos.position.y );
+  if ( world_item_entt != entt::null and not sfx.empty() ) { m_sound_bank.get_effect( sfx ).play(); }
 }
 
-[[nodiscard]] Cmp::InventoryItem ItemSystem::get_item( const std::string &item_key ) const
+void ItemSystem::create_seeing_stone( Cmp::Position pos, const std::string &item, float zorder )
 {
-  auto it = m_item_store.find( item_key );
-  if ( it == m_item_store.end() )
+  // Check if we can create a component with a unique target BEFORE creating the entity
+  std::vector<Cmp::SeeingStone::Target> exclude_list;
+  for ( auto [scryingball_entt, scryingball_cmp] : reg().view<Cmp::SeeingStone>().each() )
   {
-    SPDLOG_ERROR( "Item not found in store: {}", item_key );
-    throw std::runtime_error( "Unknown item key: " + item_key );
+    exclude_list.push_back( scryingball_cmp.target );
   }
-  return it->second; // returns a copy
+  auto pick = Cmp::SeeingStone::random_pick( exclude_list );
+  if ( pick == Cmp::SeeingStone::Target::NONE )
+  {
+    SPDLOG_WARN( "Cannot create scrying ball - all targets already assigned" );
+    return;
+  }
+
+  // Now create the entity with the valid target
+  auto world_carry_item_entt = reg().create();
+  reg().emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
+  reg().emplace_or_replace<Cmp::ReservedPosition>( world_carry_item_entt );
+  reg().emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).sprite_type, 0 );
+  reg().emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
+  reg().emplace_or_replace<Cmp::InventoryItem>( world_carry_item_entt, Sys::ItemStore::instance().get_item( item ) );
+  reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
+  reg().emplace_or_replace<Cmp::SeeingStone>( world_carry_item_entt, false, pick );
+
+  SPDLOG_INFO( "Placed {} at {},{}", item, pos.position.x, pos.position.y );
 }
 
-[[nodiscard]] std::vector<std::string> ItemSystem::get_all_item_keys() const
+void ItemSystem::create_explosive( Cmp::Position pos, const std::string &item, float zorder )
 {
-  std::vector<std::string> keys;
-  keys.reserve( m_item_store.size() );
-  for ( const auto &[key, _] : m_item_store )
-  {
-    keys.push_back( key );
-  }
-  return keys;
-}
+  // Now create the entity with the valid target
+  auto world_carry_item_entt = reg().create();
+  reg().emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
+  reg().emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).sprite_type, 0 );
+  reg().emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
+  reg().emplace_or_replace<Cmp::InventoryItem>( world_carry_item_entt, Sys::ItemStore::instance().get_item( item ) );
+  reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
+  reg().emplace_or_replace<Cmp::Explosive>( world_carry_item_entt, false );
 
-[[nodiscard]] std::string ItemSystem::get_random_item_from_list( std::vector<std::string> list ) const
-{
-  if ( list.empty() ) { throw std::runtime_error( "provided list is empty" ); }
-  Cmp::RandomInt picker( 0, static_cast<int>( list.size() ) - 1 );
-  return list.at( picker.gen() );
+  SPDLOG_INFO( "Placed {} at {},{}", item, pos.position.x, pos.position.y );
 }
 
 } // namespace ProceduralMaze::Sys

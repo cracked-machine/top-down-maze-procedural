@@ -1,4 +1,5 @@
 
+#include <Events/CreateItemEvent.hpp>
 #include <Events/DropInventoryEvent.hpp>
 #include <Player/PlayerNoPath.hpp>
 #include <Systems/Stores/ItemStore.hpp>
@@ -149,7 +150,8 @@ void DiggingSystem::check_player_smash_pot()
         const std::string selected_type = Sys::ItemStore::instance().get_random_item_from_list(
             { "item.bomb", "item.seeingstone", "item.cursetablet" } );
         SPDLOG_INFO( "Pot revealed {}", selected_type );
-        Factory::create_world_item( reg(), loot_pos_cmp, selected_type );
+
+        get_systems_event_queue().trigger( Events::CreateItemEvent( Utils::Player::get_position( reg() ), selected_type, "drop_loot" ) );
 
         m_sound_bank.get_effect( "break_pot" ).play();
         auto inventory_wear_view = reg().view<Cmp::PlayerInventorySlot, Cmp::InventoryWearLevel>();
@@ -341,7 +343,7 @@ void DiggingSystem::check_player_dig_plant_collision()
             if ( reg().valid( obst_entity ) ) reg().destroy( obst_entity );
           }
         }
-        if ( Factory::pickup_world_item( reg(), obst_entity ) == entt::null ) { SPDLOG_INFO( "Could not pick up item" ); }
+        get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DIG, obst_entity ) );
 
         SPDLOG_DEBUG( "Dug through obstacle at position ({}, {})!", obst_pos_cmp.position.x, obst_pos_cmp.position.y );
       }
