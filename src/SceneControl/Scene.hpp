@@ -3,8 +3,11 @@
 
 #include <PathFinding/SmartPointers.hpp>
 #include <SceneControl/IScene.hpp>
-#include <SceneControl/SceneData.hpp>
-#include <SpatialHashGrid.hpp>
+#include <SceneControl/SmartPointers.hpp>
+
+// clang-format off
+namespace PathFinding { class SpatialHashGrid; }
+// clang-format on
 
 namespace ProceduralMaze::Scene
 {

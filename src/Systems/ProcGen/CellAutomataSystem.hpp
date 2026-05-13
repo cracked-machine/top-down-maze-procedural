@@ -1,23 +1,17 @@
-#ifndef __SYSTEMS_PROCGEN_CELLAUTO_SYSTEM_HPP__
-#define __SYSTEMS_PROCGEN_CELLAUTO_SYSTEM_HPP__
-
-#include <SpatialHashGrid.hpp>
-#include <entt/entity/fwd.hpp>
-
-#include <SFML/System/Clock.hpp>
-#include <SFML/System/Vector2.hpp>
+#ifndef SRC_SYSTEMS_PROCGEN_CELLAUTOMATASYSTEM_HPP_
+#define SRC_SYSTEMS_PROCGEN_CELLAUTOMATASYSTEM_HPP_
 
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
 
-// fwd declarations
-namespace Components
-{
-class Neighbours;
-class Obstacle;
-class Position;
-class Random;
-} // namespace Components
+#include <SFML/System/Clock.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <entt/entity/fwd.hpp>
+
+// clang-format off
+namespace Components { class Neighbours; class Obstacle; class Position; class Random; }
+namespace PathFinding { class SpatialHashGrid; }
+// clang-format on
 
 namespace ProceduralMaze::Sys::ProcGen
 {
@@ -40,4 +34,4 @@ public:
 
 } // namespace ProceduralMaze::Sys::ProcGen
 
-#endif // __SYSTEMS_PROCGEN_CELLAUTO_SYSTEM_HPP__
+#endif // SRC_SYSTEMS_PROCGEN_CELLAUTOMATASYSTEM_HPP_

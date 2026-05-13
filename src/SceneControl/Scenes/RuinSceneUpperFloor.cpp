@@ -16,6 +16,7 @@
 #include <Factory/WallFactory.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
+#include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/RuinSceneUpperFloor.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/CryptSystem.hpp>

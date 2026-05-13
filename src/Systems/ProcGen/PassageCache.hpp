@@ -3,13 +3,9 @@
 
 #include <Crypt/CryptPassageBlock.hpp>
 #include <cstddef>
+
 namespace ProceduralMaze::Sys::ProcGen
 {
-
-// Requirements:
-// 1. push back new BlockRegion
-// 3. get BlockRegion
-//
 
 //! @brief Max number of regions to split the game area for optimization with final dynamic scene update
 const int kMaxCachedRegions{ 40 };

@@ -1,14 +1,14 @@
 
 #include <Components/Crypt/CryptRoomClosed.hpp>
+#include <Components/Crypt/CryptRoomEnd.hpp>
 #include <Components/Crypt/CryptRoomOpen.hpp>
 #include <Components/Random.hpp>
-#include <Crypt/CryptRoomEnd.hpp>
-#include <Player.hpp>
+#include <Components/Wall.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <Systems/ProcGen/PassageAlgorithms.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Maths.hpp>
-#include <Wall.hpp>
+#include <Utils/Player.hpp>
 
 namespace ProceduralMaze::Sys::ProcGen
 {

@@ -1,16 +1,30 @@
+#include <Components/Altar/AltarMultiBlock.hpp>
+#include <Components/Altar/AltarSegment.hpp>
 #include <Components/Crypt/CryptInteriorMultiBlock.hpp>
 #include <Components/Crypt/CryptInteriorSegment.hpp>
+#include <Components/Crypt/CryptMultiBlock.hpp>
 #include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
 #include <Components/Crypt/CryptObjectiveSegment.hpp>
 #include <Components/Crypt/CryptRoomClosed.hpp>
 #include <Components/Crypt/CryptRoomEnd.hpp>
 #include <Components/Crypt/CryptRoomOpen.hpp>
 #include <Components/Crypt/CryptRoomStart.hpp>
+#include <Components/Crypt/CryptSegment.hpp>
+#include <Components/Grave/GraveMultiBlock.hpp>
+#include <Components/Grave/GraveSegment.hpp>
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/HolyWell/HolyWellSegment.hpp>
 #include <Components/Inventory/InventoryItem.hpp>
+#include <Components/Persistent/GraveNumMultiplier.hpp>
+#include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>
+#include <Components/Player/PlayerCharacter.hpp>
+#include <Components/Position.hpp>
+#include <Components/RectBounds.hpp>
+#include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
+#include <Components/SpawnArea.hpp>
+#include <Components/Wall.hpp>
 #include <Constants.hpp>
 #include <Events/CreateItemEvent.hpp>
 #include <Factory/CryptFactory.hpp>
@@ -20,40 +34,26 @@
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/WallFactory.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
 #include <Ruin/RuinHexagramMultiBlock.hpp>
 #include <Ruin/RuinHexagramSegment.hpp>
 #include <Ruin/RuinStairsBalustradeMultiBlock.hpp>
 #include <Ruin/RuinStairsLowerMultiBlock.hpp>
 #include <Ruin/RuinStairsUpperMultiBlock.hpp>
-#include <SFML/System/Vector2.hpp>
-
-#include <Components/Altar/AltarMultiBlock.hpp>
-#include <Components/Altar/AltarSegment.hpp>
-#include <Components/Crypt/CryptMultiBlock.hpp>
-#include <Components/Crypt/CryptSegment.hpp>
-#include <Components/Grave/GraveMultiBlock.hpp>
-#include <Components/Grave/GraveSegment.hpp>
-#include <Components/Persistent/GraveNumMultiplier.hpp>
-#include <Components/Persistent/MaxNumAltars.hpp>
-#include <Components/Player/PlayerCharacter.hpp>
-#include <Components/Position.hpp>
-#include <Components/RectBounds.hpp>
-#include <Components/ReservedPosition.hpp>
-#include <Components/SpawnArea.hpp>
-#include <Components/Wall.hpp>
-
+#include <SceneControl/SceneData.hpp>
 #include <Sprites/MultiSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
-#include <Systems/ProcGen/RandomLevelGenerator.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
-#include <memory>
 
-#include <PathFinding/SpatialHashGrid.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <memory>
 #include <ranges>
 #include <spdlog/spdlog.h>
+
+#include <Systems/ProcGen/RandomLevelGenerator.hpp>
 
 namespace ProceduralMaze::Sys::ProcGen
 {
@@ -79,9 +79,9 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
   for ( const auto [i, tile] : std::views::enumerate( scene_map.wall_tilelayer() ) )
   {
     added_wall_already = true;
-    int row = i / w; // increments every 'w' tiles
-    int col = i % w; // wraps back to zero every 'w' tiles
-    [[maybe_unused]] sf::Vector2f new_pos( { col * Constants::kGridSizePxF.x, row * Constants::kGridSizePxF.y } );
+    auto row = i / w; // increments every 'w' tiles
+    auto col = i % w; // wraps back to zero every 'w' tiles
+    sf::Vector2f new_pos( static_cast<float>( col ) * Constants::kGridSizePxF.x, static_cast<float>( row ) * Constants::kGridSizePxF.y );
     if ( tile >= scene_map.wall_first_gid() ) { Factory::add_wall_entity( reg(), new_pos, wall_ms, tile - scene_map.wall_first_gid() ); }
   }
 
@@ -93,9 +93,9 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
 
   for ( const auto [i, tile] : std::views::enumerate( scene_map.levelgen_tilelayer() ) )
   {
-    int col = i % w; // wraps back to zero every 'w' tiles
-    int row = i / w; // increments every 'w' tiles
-    sf::Vector2f new_pos( col * Constants::kGridSizePxF.x, row * Constants::kGridSizePxF.y );
+    auto col = i % w; // wraps back to zero every 'w' tiles
+    auto row = i / w; // increments every 'w' tiles
+    sf::Vector2f new_pos( static_cast<float>( col ) * Constants::kGridSizePxF.x, static_cast<float>( row ) * Constants::kGridSizePxF.y );
     if ( tile == scene_map.void_tile_id() )
     {
       Cmp::Position new_pos_cmp( new_pos, Constants::kGridSizePxF );
@@ -396,6 +396,12 @@ std::vector<entt::entity> RandomLevelGenerator::gen_random_plants( sf::Vector2u 
     }
   }
   return assigned_entts;
+}
+
+void RandomLevelGenerator::reset()
+{
+  m_obstacle_sm = std::make_unique<PathFinding::SpatialHashGrid>();
+  m_void_sm = std::make_unique<PathFinding::SpatialHashGrid>();
 }
 
 } // namespace ProceduralMaze::Sys::ProcGen

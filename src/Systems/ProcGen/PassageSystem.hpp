@@ -1,46 +1,33 @@
-#ifndef SRC_SYSTEMS_PASSAGESYSTEM_HPP
-#define SRC_SYSTEMS_PASSAGESYSTEM_HPP
+#ifndef SRC_SYSTEMS_PASSAGESYSTEM_HPP_
+#define SRC_SYSTEMS_PASSAGESYSTEM_HPP_
 
-#include <Components/Crypt/CryptPassageDoor.hpp>
-#include <Components/Crypt/CryptRoomStart.hpp>
-#include <Components/Direction.hpp>
-#include <Components/Random.hpp>
-#include <Crypt/CryptPassageBlock.hpp>
-#include <Crypt/CryptRoomClosed.hpp>
-#include <Crypt/CryptRoomOpen.hpp>
-#include <SceneControl/SceneData.hpp>
-#include <SpatialHashGrid.hpp>
+#include <Components/Crypt/CryptRoomClosed.hpp>
+#include <Components/Crypt/CryptRoomOpen.hpp>
+#include <PathFinding/SmartPointers.hpp>
+#include <SceneControl/SmartPointers.hpp>
 #include <Systems/BaseSystem.hpp>
-#include <Systems/Events/PassageEvent.hpp>
 #include <Systems/ProcGen/PassageAlgorithms.hpp>
-#include <Systems/ProcGen/PassageCache.hpp>
-#include <Utils/Maths.hpp>
-#include <Wall.hpp>
-#include <cstddef>
+
+#include <entt/fwd.hpp>
+
+// clang-format off
+namespace ProceduralMaze::Crypt { class CryptPassageDoor; class CryptPassageBlock; class CryptRoomClosed; class CryptRoomOpen; }
+namespace ProceduralMaze::Events { class PassageEvent; }
+// clang-format on
 
 namespace ProceduralMaze::Sys
 {
 
 class PassageSystem : public ProceduralMaze::Sys::BaseSystem
 {
-
 public:
-  PassageSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-      : ProceduralMaze::Sys::BaseSystem( reg, window, sprite_factory, sound_bank )
-
-  {
-    std::ignore = get_systems_event_queue().sink<Events::PassageEvent>().connect<&PassageSystem::on_passage_event>( this );
-  }
+  PassageSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
 
   void init_scene_data( const Scene::SceneMapSharedPtr &crypt_scene_data ) { m_crypt_scene_data = crypt_scene_data; }
 
   //! @brief init the weak pointer for the spatial grid
   //! @param pathfinding_navmesh
-  void init_nav_mesh( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh )
-  {
-    m_pathfinding_navmesh = pathfinding_navmesh;
-    m_passage_algos.cache_wall_components( reg() );
-  }
+  void init_nav_mesh( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh );
 
   void on_passage_event( Events::PassageEvent &event );
 
@@ -67,8 +54,8 @@ public:
 
   void add_spike_traps();
 
-  virtual void on_pause() override {}
-  virtual void on_resume() override {}
+  void on_pause() override {}
+  void on_resume() override {}
 
 private:
   //! @brief Removes all Cmp::CryptPassageBlock entities
@@ -131,4 +118,4 @@ extern template ProcGen::MidPointDistanceQueue PassageSystem::find_room_distance
 
 } // namespace ProceduralMaze::Sys
 
-#endif // SRC_SYSTEMS_PASSAGESYSTEM_HPP
+#endif // SRC_SYSTEMS_PASSAGESYSTEM_HPP_

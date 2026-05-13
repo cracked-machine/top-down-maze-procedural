@@ -2,6 +2,7 @@
 #include <Components/Random.hpp>
 #include <Constants.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
+#include <SceneControl/SceneData.hpp>
 #include <Sprites/TileMap.hpp>
 
 #include <SFML/Graphics/Color.hpp>

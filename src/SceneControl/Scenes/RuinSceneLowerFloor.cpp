@@ -15,6 +15,7 @@
 #include <Factory/ShaderFactory.hpp>
 #include <Factory/WallFactory.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
+#include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/RuinSceneLowerFloor.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/CryptSystem.hpp>

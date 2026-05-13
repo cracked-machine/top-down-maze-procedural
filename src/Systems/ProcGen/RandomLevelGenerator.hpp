@@ -1,98 +1,64 @@
-#ifndef __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
-#define __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
+#ifndef SRC_SYSTEMS_PROCGEN_RANDOMLEVELGENERATOR_HPP_
+#define SRC_SYSTEMS_PROCGEN_RANDOMLEVELGENERATOR_HPP_
+
+#include <PathFinding/SmartPointers.hpp>
+#include <Sprites/SpriteMetaType.hpp>
+#include <Systems/BaseSystem.hpp>
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
 
-#include <SmartPointers.hpp>
-#include <SpatialHashGrid.hpp>
-#include <Systems/BaseSystem.hpp>
+// clang-format off
+namespace ProceduralMaze::Cmp { class Position; class RectBounds; }
+namespace sf { class RenderWindow; }
+namespace ProceduralMaze::PathFinding { class SpatialHashGrid; } 
+namespace ProceduralMaze::Sprites { class MultiSprite; class SpriteFactory; }
+namespace ProceduralMaze::Scene { class SceneData; }
+// clang-format on
 
-#include <SceneControl/SceneData.hpp>
-#include <Sprites/SpriteMetaType.hpp>
-
-// Forward declarations
-namespace ProceduralMaze::Cmp
-{
-class Position;
-class RectBounds;
-} // namespace ProceduralMaze::Cmp
-
-namespace sf
-{
-class RenderWindow;
-}
-
-namespace ProceduralMaze::Sprites
-{
-class MultiSprite;
-class SpriteFactory;
-} // namespace ProceduralMaze::Sprites
-
-// class definition
 namespace ProceduralMaze::Sys::ProcGen
 {
 
 class RandomLevelGenerator : public BaseSystem
 {
 public:
-  enum class AreaShape { RECTANGLE, CIRCLE, CROSS };
+  //! @brief Used by level gen / cell automata
   enum class SceneType { GRAVEYARD_EXTERIOR, CRYPT_INTERIOR, HOLYWELL_INTERIOR };
-  enum class SpawnArea { TRUE, FALSE };
 
   RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
   ~RandomLevelGenerator() = default;
 
-  PathFinding::SpatialHashGrid &get_obstacle_sm();
-  PathFinding::SpatialHashGrid &get_void_sm();
-
-  // Generate position components for the entire map grid and add player spawn
+  //! @brief Generate game area using data from the SceneData object.
+  //! @param scene_map
   void gen_game_area( const Scene::SceneData &scene_map );
 
-  //! @brief Generate a cross-shaped game area with walls and playable positions.
-  //!
-  //! Creates a cross-shaped level layout consisting of a vertical arm and a horizontal arm.
-  //! The vertical arm is centered on the map, while the horizontal arm can be offset vertically.
-  //! Border tiles are filled with wall entities, and interior tiles become world positions.
-  //! A CryptRoomStart component is created at the player_start_area location.
-  //!
-  //! @param map_grid_size The total size of the map grid in tiles (width x height).
-  //! @param player_start_area The rectangular bounds defining where the player starts.
-  //!        Positions within this area are marked as spawn areas.
-  //! @param vertArmHalfWidth Half-width of the vertical arm in tiles (default: 10).
-  //!        The full vertical arm width is 2 * vertArmHalfWidth + 1.
-  //! @param horizArmHalfWidth Half-width (height) of the horizontal arm in tiles (default: 5).
-  //!        The full horizontal arm height is 2 * horizArmHalfWidth + 1.
-  //! @param horizOffset Vertical offset of the horizontal arm's center from the map center
-  //!        in tiles (default: 10). Positive values shift the arm downward.
-  //!
-  //! @note Wall sprites use "sprite.crypt.wall.ext" type. Interior positions are tracked
-  //!       in m_data for later procedural generation operations.
-  void gen_cross_gamearea( sf::Vector2u map_grid_size, Cmp::RectBounds &player_start_area, int vertArmHalfWidth = 10, int horizArmHalfWidth = 5,
-                           int horizOffset = 10 );
-
-  //! @brief create common obstacles (i.e. rock) for the graeyard
+  //! @brief create "sprite.graveyard.wall.int" for the graveyard.
   void gen_graveyard_exterior_obstacles();
 
   //! @brief create multiblock sprites (i.e. graves, altars, crypts) for the graveyard scene.
   void gen_graveyard_exterior_multiblocks();
 
-  //! @brief internal function for `gen_graveyard_exterior_multiblocks`
+  //! @brief Find a valid spawn location for a large obstacle given a seed.
   //! @param ms
   //! @param seed
-  void do_gen_graveyard_exterior_multiblock( const Sprites::MultiSprite &ms, size_t ms_index = 0, unsigned long seed = 0 );
-
-  // Find a valid spawn location for a large obstacle given a seed
+  //! @return std::pair<entt::entity, Cmp::Position>
   std::pair<entt::entity, Cmp::Position> find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed );
 
+  //! @brief Generate a number of plant world items in the new game area.
+  //! @param map_grid_size
+  //! @return std::vector<entt::entity>
   std::vector<entt::entity> gen_random_plants( sf::Vector2u map_grid_size );
 
   //! @brief Call this to make sure the level data is reset before regenerating a new scene
-  void reset()
-  {
-    m_obstacle_sm = std::make_unique<PathFinding::SpatialHashGrid>();
-    m_void_sm = std::make_unique<PathFinding::SpatialHashGrid>();
-  }
+  void reset();
+
+  //! @brief Get the obstacle sm object
+  //! @return PathFinding::SpatialHashGrid&
+  PathFinding::SpatialHashGrid &get_obstacle_sm();
+
+  //! @brief Get the void sm object
+  //! @return PathFinding::SpatialHashGrid&
+  PathFinding::SpatialHashGrid &get_void_sm();
 
   //! @brief event handlers for pausing system clocks
   void on_pause() override {}
@@ -100,11 +66,18 @@ public:
   void on_resume() override {}
 
 private:
-  //! @brief The spatial map used for level generation.
+  //! @brief internal function for `gen_graveyard_exterior_multiblocks`.
+  //! @param ms
+  //! @param ms_index
+  //! @param seed
+  void do_gen_graveyard_exterior_multiblock( const Sprites::MultiSprite &ms, size_t ms_index = 0, unsigned long seed = 0 );
+
+  //! @brief Spatial map for finding obstacles during level gen / cell automata algorithm
   PathFinding::SpatialHashGridUniquePtr m_obstacle_sm;
+  //! @brief Spatial map for marking void areas that are not part of the game area.
   PathFinding::SpatialHashGridUniquePtr m_void_sm;
 };
 
 } // namespace ProceduralMaze::Sys::ProcGen
 
-#endif // __SYSTEMS_PROCGEN_RANDOM_OBSTACLE_GENERATOR_SYSTEM_HPP__
+#endif // SRC_SYSTEMS_PROCGEN_RANDOMLEVELGENERATOR_HPP_

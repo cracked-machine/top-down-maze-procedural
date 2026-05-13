@@ -1,8 +1,6 @@
-#include <Crypt/CryptChest.hpp>
-#include <Crypt/CryptPassageDoor.hpp>
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
-
+#include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptPassageBlock.hpp>
+#include <Components/Crypt/CryptPassageDoor.hpp>
 #include <Components/Crypt/CryptRoomClosed.hpp>
 #include <Components/Crypt/CryptRoomEnd.hpp>
 #include <Components/Crypt/CryptRoomOpen.hpp>
@@ -12,38 +10,45 @@
 #include <Components/Obstacle.hpp>
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/Random.hpp>
-#include <Components/RectBounds.hpp>
 #include <Components/System.hpp>
-#include <Components/Wall.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
-#include <SceneControl/Scenes/CryptScene.hpp>
+#include <SceneControl/SceneData.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Events/PassageEvent.hpp>
-#include <Systems/PersistSystemImpl.hpp>
 #include <Systems/ProcGen/PassageSystem.hpp>
-#include <Utils/Constants.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Player.hpp>
-#include <Utils/Utils.hpp>
 
 #include <spdlog/spdlog.h>
-
 #include <stdexcept>
 
 namespace ProceduralMaze::Sys
 {
+
+PassageSystem::PassageSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
+    : ProceduralMaze::Sys::BaseSystem( reg, window, sprite_factory, sound_bank )
+
+{
+  std::ignore = get_systems_event_queue().sink<Events::PassageEvent>().connect<&PassageSystem::on_passage_event>( this );
+}
 
 void PassageSystem::update( [[maybe_unused]] sf::Time dt )
 {
   if ( m_connect_all_rooms ) { create_cached_passages(); }
 }
 
+void PassageSystem::init_nav_mesh( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh )
+{
+  m_pathfinding_navmesh = pathfinding_navmesh;
+  m_passage_algos.cache_wall_components( reg() );
+}
+
 void PassageSystem::on_passage_event( Events::PassageEvent &event )
 {
   Scene::SceneMapSharedPtr crypt_scene_data = m_crypt_scene_data.lock();
-  if ( not crypt_scene_data ) std::runtime_error( "Unable to lock Scene::SceneConfigSharedPtr" );
+  if ( not crypt_scene_data ) throw std::runtime_error( "Unable to lock Scene::SceneConfigSharedPtr" );
   auto [map_size_grid, map_size_pixel] = crypt_scene_data->map_size();
 
   switch ( event.type )

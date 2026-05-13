@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <SceneControl/SceneData.hpp>
+#include <SceneControl/SmartPointers.hpp>
 #include <entt/entity/fwd.hpp>
 
 namespace ProceduralMaze::PathFinding

@@ -14,7 +14,8 @@ Checks: >
   cppcoreguidelines-avoid-const-or-ref-data-members,
   -modernize-use-trailing-return-type,
   -readability-braces-around-statements,
-  -readability-function-cognitive-complexity
+  -readability-function-cognitive-complexity,
+  -performance-enum-size
 WarningsAsErrors: ''
 HeaderFilterRegex: '.*'
 FormatStyle: file

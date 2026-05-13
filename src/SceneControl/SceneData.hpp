@@ -121,9 +121,6 @@ private:
   std::filesystem::path m_main_tileset_path{ "res/scenes/Tilesets/main.json" };
 };
 
-using SceneMapSharedPtr = std::shared_ptr<SceneData>;
-using SceneMapWeakPtr = std::weak_ptr<SceneData>;
-
 } // namespace ProceduralMaze::Scene
 
 #endif // SRC_SCENECONTROL_SCENEDATA_HPP_

@@ -1,17 +1,18 @@
 #ifndef SCENE_CRYPTSCENE_HPP_
 #define SCENE_CRYPTSCENE_HPP_
 
-#include <SFML/System/Clock.hpp>
-#include <SFML/System/Vector2.hpp>
 #include <SceneControl/Events/ProcessCryptSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
-#include <Sprites/SpriteFactory.hpp>
+
 #include <Sprites/TileMap.hpp>
-#include <Utils/Utils.hpp>
+
+#include <SFML/System/Clock.hpp>
+#include <SFML/System/Vector2.hpp>
 
 // clang-format off
 namespace ProceduralMaze::Sys { class Store; }
 namespace ProceduralMaze::Audio { class SoundBank; }
+namespace ProceduralMaze::Sprites { class SpriteFactory; }
 // clang-format on
 
 namespace ProceduralMaze::Scene

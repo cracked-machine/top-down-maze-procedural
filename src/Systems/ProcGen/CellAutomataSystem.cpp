@@ -1,11 +1,9 @@
-
-#include <Components/Npc/NpcNoPathFinding.hpp>
-#include <Components/Obstacle.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/Wall.hpp>
-#include <Components/ZOrderValue.hpp>
 #include <Factory/ObstacleFactory.hpp>
+#include <PathFinding/SpatialHashGrid.hpp>
+
 #include <Systems/ProcGen/CellAutomataSystem.hpp>
+
 #include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Sys::ProcGen

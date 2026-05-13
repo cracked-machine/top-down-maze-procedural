@@ -10,6 +10,7 @@
 #include <Npc/NpcNoPathFinding.hpp>
 #include <Player.hpp>
 #include <SceneControl/Events/ProcessShopSceneInputEvent.hpp>
+#include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/ShopScene.hpp>
 #include <Shop/ShopInventory.hpp>
 #include <Systems/AnimSystem.hpp>
