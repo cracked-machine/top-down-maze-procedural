@@ -6,7 +6,7 @@
 #include <Components/Persistent/CorruptionSeed.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
 #include <Components/Player/PlayerMortality.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 
 namespace ProceduralMaze::Sys
 {

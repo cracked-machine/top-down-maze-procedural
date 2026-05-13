@@ -12,7 +12,7 @@ namespace ProceduralMaze::Sys::ProcGen
 void CellAutomataSystem::iterate( unsigned int iterations, RandomLevelGenerator::SceneType scene_type,
                                   PathFinding::SpatialHashGrid &levelgen_spatialgrid )
 {
-  const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "sprite.graveyard.wall.int" );
+  const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.wall.int" );
 
   sf::Clock iteration_timer;
   for ( unsigned int i = 0; i < iterations; i++ )

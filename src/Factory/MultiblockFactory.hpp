@@ -48,7 +48,7 @@ namespace detail
 
 template <typename MULTIBLOCK>
   requires IsMB<MULTIBLOCK>
-void create_multiblock( entt::registry &registry, entt::entity entity, Cmp::Position pos, const Sprites::MultiSprite &ms, size_t ms_idx = 0 )
+void create_multiblock( entt::registry &registry, entt::entity entity, Cmp::Position pos, const Sprites::SpriteSheet &ms, size_t ms_idx = 0 )
 {
 
   auto large_obst_grid_size = ms.get_grid_size();
@@ -72,7 +72,7 @@ void create_multiblock( entt::registry &registry, entt::entity entity, Cmp::Posi
 template <typename MULTIBLOCK, typename MBSEGMENT>
   requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
 std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, entt::entity multiblock_entity, Cmp::Position mb_pos_cmp,
-                                                      const Sprites::MultiSprite &ms )
+                                                      const Sprites::SpriteSheet &ms )
 {
   std::vector<entt::entity> created_entts;
 
@@ -172,44 +172,21 @@ std::vector<entt::entity> create_multiblock_segments( entt::registry &registry, 
 
 template <typename MULTIBLOCK, typename MBSEGMENT>
   requires IsMB<MULTIBLOCK> && IsMBSegment<MBSEGMENT>
-void add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position, const Sprites::MultiSprite &ms, size_t ms_index = 0,
+void add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position, const Sprites::SpriteSheet &ms, size_t ms_index = 0,
                                    [[maybe_unused]] float zorder = 0 )
 {
   auto entt = reg.create();
-  Cmp::Position pos( position, ms.getSpriteSizePixels() );
-  reg.emplace_or_replace<Cmp::Position>( entt, position, ms.getSpriteSizePixels() );
+  Cmp::Position pos( position, ms.get_sprite_size() );
+  reg.emplace_or_replace<Cmp::Position>( entt, position, ms.get_sprite_size() );
   Factory::detail::create_multiblock<MULTIBLOCK>( reg, entt, pos, ms, ms_index );
   Factory::detail::create_multiblock_segments<MULTIBLOCK, MBSEGMENT>( reg, entt, pos, ms );
 
   for ( auto [view_entt, view_cmp, view_zorder] : reg.view<MULTIBLOCK, Cmp::ZOrderValue>().each() )
   {
     if ( ms.get_zorder( 0 ) != 0 ) { view_zorder.setZOrder( ms.get_zorder( 0 ) ); }
-    else { view_zorder.setZOrder( view_cmp.position.y + ms.getSpriteSizePixels().y ); }
+    else { view_zorder.setZOrder( view_cmp.position.y + ms.get_sprite_size().y ); }
   }
 }
-
-// // clang-format off
-// // Explicit instantiation declarations (extern = don't instantiate here)
-// extern template void createMultiblock<Cmp::AltarMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
-// extern template void createMultiblock<Cmp::CryptMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &, int );
-// extern template void createMultiblock<Cmp::CryptInteriorMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite &,
-// int ); extern template void createMultiblock<Cmp::CryptObjectiveMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const
-// Sprites::MultiSprite &, int ); extern template void createMultiblock<Cmp::GraveMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const
-// Sprites::MultiSprite &, int ); extern template void createMultiblock<Cmp::HolyWellMultiBlock>( entt::registry &, entt::entity, Cmp::Position, const
-// Sprites::MultiSprite &, int ); extern template void createMultiblock<Cmp::RuinBuildingMultiBlock>( entt::registry &, entt::entity, Cmp::Position,
-// const Sprites::MultiSprite &, int );
-
-// extern template void createMultiblockSegments<Cmp::AltarMultiBlock, Cmp::AltarSegment>( entt::registry &, entt::entity, Cmp::Position, const
-// Sprites::MultiSprite & ); extern template void createMultiblockSegments<Cmp::CryptMultiBlock, Cmp::CryptSegment>( entt::registry &, entt::entity,
-// Cmp::Position, const Sprites::MultiSprite & ); extern template void createMultiblockSegments<Cmp::CryptInteriorMultiBlock,
-// Cmp::CryptInteriorSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & ); extern template void
-// createMultiblockSegments<Cmp::CryptObjectiveMultiBlock, Cmp::CryptObjectiveSegment>( entt::registry &, entt::entity, Cmp::Position, const
-// Sprites::MultiSprite & ); extern template void createMultiblockSegments<Cmp::GraveMultiBlock, Cmp::GraveSegment>( entt::registry &, entt::entity,
-// Cmp::Position, const Sprites::MultiSprite & ); extern template void createMultiblockSegments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>(
-// entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite & ); extern template void
-// createMultiblockSegments<Cmp::RuinBuildingMultiBlock, Cmp::RuinSegment>( entt::registry &, entt::entity, Cmp::Position, const Sprites::MultiSprite
-// & );
-// // clang-format on
 
 } // namespace ProceduralMaze::Factory
 

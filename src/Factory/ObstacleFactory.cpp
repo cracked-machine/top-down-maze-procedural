@@ -12,7 +12,7 @@
 #include <Factory/ObstacleFactory.hpp>
 #include <Player/PlayerCharacter.hpp>
 #include <Player/PlayerNoPath.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <VoidPosition.hpp>
 #include <entt/entity/fwd.hpp>
 #include <stdexcept>
@@ -34,7 +34,7 @@ entt::entity create_void_pos( entt::registry &registry, const Cmp::Position &pos
   return entity;
 }
 
-void create_obstacle( entt::registry &registry, entt::entity entity, Cmp::Position pos_cmp, const Sprites::MultiSprite &ms,
+void create_obstacle( entt::registry &registry, entt::entity entity, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms,
                       std::size_t sprite_tile_idx )
 {
   if ( sprite_tile_idx > ms.get_sprite_count() - 1 )

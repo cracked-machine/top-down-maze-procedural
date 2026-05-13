@@ -24,7 +24,7 @@
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Wall.hpp>
-#include <Sprites/SpriteFactory.hpp>
+#include <Factory/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 

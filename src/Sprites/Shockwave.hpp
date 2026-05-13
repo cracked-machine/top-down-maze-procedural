@@ -1,11 +1,6 @@
-#ifndef SRC_SPRITES_SHOCKWAVESPRITE_
-#define SRC_SPRITES_SHOCKWAVESPRITE_
+#ifndef SRC_SPRITES_SHOCKWAVE_
+#define SRC_SPRITES_SHOCKWAVE_
 
-#include <SFML/Graphics/CircleShape.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/RenderStates.hpp>
-#include <SFML/Graphics/RenderTarget.hpp>
-#include <SFML/Graphics/VertexArray.hpp>
 #include <Sprites/CircleSegment.hpp>
 #include <Utils/Constants.hpp>
 
@@ -117,4 +112,4 @@ private:
 
 } // namespace ProceduralMaze::Sprites
 
-#endif // SRC_SPRITES_SHOCKWAVESPRITE_
+#endif // SRC_SPRITES_SHOCKWAVE_

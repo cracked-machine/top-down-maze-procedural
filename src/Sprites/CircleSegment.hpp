@@ -1,8 +1,6 @@
 #ifndef SRC_SPRITES_CIRCLESEGMENT_
 #define SRC_SPRITES_CIRCLESEGMENT_
 
-#include <SFML/Graphics/Shape.hpp>
-
 #include <vector>
 
 namespace ProceduralMaze::Sprites

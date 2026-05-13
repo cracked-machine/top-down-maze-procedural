@@ -36,7 +36,7 @@
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/RuinSystem.hpp>
 #include <Utils/Collision.hpp>
@@ -276,7 +276,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
       for ( auto [point, type] : bookshelf_row_candidate )
       {
         auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { type } );
-        Factory::create_bookcase( reg(), point.position(), m_sprite_factory.get_multisprite_by_type( ms ), idx );
+        Factory::create_bookcase( reg(), point.position(), m_sprite_factory.get_spritesheet_by_type( ms ), idx );
       }
 
       // ensure we have one horizontal gap inbetween bookcases
@@ -296,7 +296,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
       auto point = Cmp::RectBounds::scaled( { colpick * gridsize.x, row * gridsize.y }, gridsize, 1 );
       if ( has_collision( point ) or used_cols.contains( colpick ) ) continue;
       auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.bookcase.mid" } );
-      Factory::create_bookcase( reg(), point.position(), m_sprite_factory.get_multisprite_by_type( ms ), idx );
+      Factory::create_bookcase( reg(), point.position(), m_sprite_factory.get_spritesheet_by_type( ms ), idx );
       used_cols.insert( colpick );
       break;
     }
@@ -306,7 +306,7 @@ void RuinSystem::gen_lowerfloor_bookcases( sf::FloatRect scene_dimensions )
   int colpick = 8;
   auto point = Cmp::RectBounds::scaled( { colpick * gridsize.x, scene_dimensions.size.y - gridsize.y }, gridsize, 1 );
   auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.bookcase.mid" } );
-  Factory::create_bookcase( reg(), point.position(), m_sprite_factory.get_multisprite_by_type( ms ), idx );
+  Factory::create_bookcase( reg(), point.position(), m_sprite_factory.get_spritesheet_by_type( ms ), idx );
   used_cols.insert( colpick );
 }
 
@@ -334,7 +334,7 @@ void RuinSystem::add_lowerfloor_cobwebs( int max_attempts, sf::FloatRect scene_d
 
     if ( has_collision( Cmp::RectBounds::scaled( { rnd_pos.position }, gridsize, 1 ) ) ) continue;
     auto [ms, idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.ruin.cobweb" } );
-    Factory::create_cobweb( reg(), rnd_pos.position, m_sprite_factory.get_multisprite_by_type( ms ), idx );
+    Factory::create_cobweb( reg(), rnd_pos.position, m_sprite_factory.get_spritesheet_by_type( ms ), idx );
   }
 }
 
@@ -354,7 +354,7 @@ bool RuinSystem::check_activate_player_curse( sf::Vector2f scene_dimensions )
   Cmp::PlayerCurse &player_curse = Utils::Player::get_curse( reg() );
 
   auto npc_shadowhand_cmp = Sys::NpcStore::instance().get_item( "npc.shadowhand" );
-  const auto &hand_ms = m_sprite_factory.get_multisprite_by_type( npc_shadowhand_cmp.sprite_type_list.front() );
+  const auto &hand_ms = m_sprite_factory.get_spritesheet_by_type( npc_shadowhand_cmp.sprite_type_list.front() );
 
   auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( m_reg );
   if ( not player_curse.active && inventory_type == "sprite.item.witchesjar" )
@@ -390,8 +390,8 @@ void RuinSystem::update_shadow_hand_pos( sf::Vector2f scene_dimensions )
   if ( not Utils::Player::get_curse( reg() ).active ) return;
   auto npc_shadowhand_cmp = Sys::NpcStore::instance().get_item( "npc.shadowhand" );
 
-  const auto &hand_ms = m_sprite_factory.get_multisprite_by_type( npc_shadowhand_cmp.sprite_type_list.front() );
-  const auto hand_ms_size = hand_ms.getSpriteSizePixels();
+  const auto &hand_ms = m_sprite_factory.get_spritesheet_by_type( npc_shadowhand_cmp.sprite_type_list.front() );
+  const auto hand_ms_size = hand_ms.get_sprite_size();
   float max_shadow_hand_xpos = scene_dimensions.x - hand_ms_size.x;
 
   float shadow_hand_speed = 0.45f;

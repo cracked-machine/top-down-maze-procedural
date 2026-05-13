@@ -1,11 +1,9 @@
-#ifndef SRC_SPRITES_SPRITE_FACTORY_HPP_
-#define SRC_SPRITES_SPRITE_FACTORY_HPP_
+#ifndef SRC_SPRITES_SPRITEFACTORY_HPP_
+#define SRC_SPRITES_SPRITEFACTORY_HPP_
 
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 
-#include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Vector2.hpp>
-
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -14,9 +12,7 @@
 namespace ProceduralMaze::Sprites
 {
 
-// This class manages the creation MultiSprites objects in the game.
-// The MultiSprite objects are stored in `m_multisprite_list`.
-// TODO initialize `m_multisprite_list` from a JSON file
+// This class manages the creation of SpriteSheet objects in the game.
 class SpriteFactory
 {
 public:
@@ -46,12 +42,12 @@ public:
   //! @return std::vector<SpriteMetaType>
   std::vector<SpriteMetaType> get_all_sprite_types_by_pattern( const std::string &pattern );
 
-  //! @brief  Retrieves a MultiSprite object based on the specified sprite meta type.
-  //! This method searches for and returns a MultiSprite that corresponds to the given
+  //! @brief  Retrieves a SpriteSheet object based on the specified sprite meta type.
+  //! This method searches for and returns a SpriteSheet that corresponds to the given
   //! SpriteMetaType. If the type is not found, it returns the error sprite.
   //! @param type The SpriteMetaType to search for
-  //! @return Sprites::MultiSprite& const& The MultiSprite object if found, error sprite otherwise
-  const Sprites::MultiSprite &get_multisprite_by_type( const SpriteMetaType &type );
+  //! @return Sprites::SpriteSheet& const& The SpriteSheet object if found, error sprite otherwise
+  const Sprites::SpriteSheet &get_spritesheet_by_type( const SpriteMetaType &type );
 
   //! @brief Get a vector of all SpriteMetaType objects
   //! @return std::vector<SpriteMetaType>
@@ -59,7 +55,7 @@ public:
   std::unordered_set<SpriteMetaType> get_all_sprite_types_set();
 
   // Returns the pixel bounds of first sprite in array. Assumes that all sprites in the multi-sprite have the same size
-  sf::Vector2f get_sprite_size_by_type( const SpriteMetaType &type ) { return get_spritedata_by_type( type ).getSpriteSizePixels(); }
+  sf::Vector2f get_sprite_size_by_type( const SpriteMetaType &type ) { return get_spritedata_by_type( type ).get_sprite_size(); }
   std::string get_display_name_by_type( const SpriteMetaType &type ) { return get_spritedata_by_type( type ).get_display_name(); }
 
 private:
@@ -69,23 +65,23 @@ private:
   //! texture coordinates, dimensions, and other properties based on the sprite type.
   //! @param type The SpriteMetaType to search for
   //! @return SpriteMetaData&  The SpriteMetaData if found, m_error_metadata otherwise
-  const MultiSprite &get_spritedata_by_type( const SpriteMetaType &type );
+  const SpriteSheet &get_spritedata_by_type( const SpriteMetaType &type );
 
   // Internal use function used by get_random_type_and_texture_index()
-  const MultiSprite &get_random_spritedata( std::vector<SpriteMetaType> type_list );
+  const SpriteSheet &get_random_spritedata( std::vector<SpriteMetaType> type_list );
 
   //! @brief Map of sprite types to their corresponding metadata
-  std::unordered_map<SpriteMetaType, MultiSprite> m_sprite_metadata_map;
+  std::unordered_map<SpriteMetaType, SpriteSheet> m_sprite_metadata_map;
 
   //! @brief Error texture for missing sprites
   sf::Texture m_error_texture;
 
   //! @brief Metadata for the error texture
   //! This contains information about the error texture's properties
-  MultiSprite m_error_metadata;
+  SpriteSheet m_error_metadata;
 
 }; // namespace ProceduralMaze::Sprites
 
 } // namespace ProceduralMaze::Sprites
 
-#endif // SRC_SPRITES_SPRITE_FACTORY_HPP_
+#endif // SRC_SPRITES_SPRITEFACTORY_HPP_

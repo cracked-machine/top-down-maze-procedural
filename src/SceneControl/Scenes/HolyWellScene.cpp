@@ -3,7 +3,7 @@
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/System.hpp>
 #include <Constants.hpp>
-#include <Factory/FloormapFactory.hpp>
+
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
@@ -51,10 +51,10 @@ void HolyWellScene::on_init()
   random_level_sys.reset();
   random_level_sys.gen_game_area( *m_scene_map_data );
 
-  Sprites::Containers::TileMap floortiles;
+  Sprites::Containers::VertexFloor floortiles;
   floortiles.create( random_level_sys.get_void_sm(), m_scene_map_data );
   auto floor_entity = m_reg.create();
-  m_reg.emplace<Sprites::Containers::TileMap>( floor_entity, floortiles );
+  m_reg.emplace<Sprites::Containers::VertexFloor>( floor_entity, floortiles );
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
 
   // create a navmesh for pathfinding in the scene

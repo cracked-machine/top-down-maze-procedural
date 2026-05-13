@@ -5,7 +5,7 @@
 #include <Components/LerpPosition.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
-#include <Factory/FloormapFactory.hpp>
+
 #include <Factory/LootFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
 #include <Factory/PlantFactory.hpp>
@@ -58,6 +58,7 @@
 #include <Utils/Player.hpp>
 
 #include <ZOrderValue.hpp>
+#include <cmath>
 #include <memory>
 
 namespace ProceduralMaze::Scene
@@ -125,7 +126,7 @@ void GraveyardScene::on_init()
   reinit_navmesh();
 
   // create floor background
-  Sprites::Containers::TileMap floortiles;
+  Sprites::Containers::VertexFloor floortiles;
   floortiles.create( random_level_sys.get_void_sm(), m_scene_map_data );
 
   m_sys.find<Sys::Store::Type::ExitSystem>().spawn_exit();
@@ -136,7 +137,7 @@ void GraveyardScene::on_init()
   if ( new_sinkhole_pos != sf::Vector2f{ 0, 0 } ) { floortiles.remove( new_sinkhole_pos ); }
 
   auto floor_entity = m_reg.create();
-  m_reg.emplace<Sprites::Containers::TileMap>( floor_entity, floortiles );
+  m_reg.emplace<Sprites::Containers::VertexFloor>( floor_entity, floortiles );
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
 
   m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().init_hazard_field();
@@ -207,9 +208,9 @@ void GraveyardScene::on_exit()
   auto &m_player_sys = m_sys.find<Sys::Store::Type::PlayerSystem>();
   m_player_sys.stopFootstepsSound();
 
-  for ( auto [floor_entt, floor_cmp] : m_reg.view<Sprites::Containers::TileMap>().each() )
+  for ( auto [floor_entt, floor_cmp] : m_reg.view<Sprites::Containers::VertexFloor>().each() )
   {
-    Factory::FloormapFactory::clear_floormap( floor_cmp );
+    floor_cmp.clear();
   }
 
   m_sound_bank.get_music( "game_music" ).stop();
@@ -222,7 +223,7 @@ void GraveyardScene::do_update( sf::Time dt )
   auto new_sinkhole_pos = m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().update();
   if ( new_sinkhole_pos != sf::Vector2f{ 0, 0 } )
   {
-    for ( auto [floor_entt, floortiles] : m_reg.view<Sprites::Containers::TileMap>().each() )
+    for ( auto [floor_entt, floortiles] : m_reg.view<Sprites::Containers::VertexFloor>().each() )
     {
       floortiles.remove( new_sinkhole_pos );
     }

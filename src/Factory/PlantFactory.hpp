@@ -7,7 +7,7 @@
 
 namespace ProceduralMaze::Sprites
 {
-class MultiSprite;
+class SpriteSheet;
 class SpriteFactory;
 } // namespace ProceduralMaze::Sprites
 
@@ -19,7 +19,7 @@ class SpriteFactory;
 
 namespace ProceduralMaze::Factory
 {
-entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, const Sprites::MultiSprite &ms );
+entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms );
 
 } // namespace ProceduralMaze::Factory
 

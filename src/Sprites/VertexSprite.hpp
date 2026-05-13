@@ -5,15 +5,17 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 
-namespace ProceduralMaze::Sys {
+namespace ProceduralMaze::Sys
+{
 
-class RenderBuffer : public sf::Drawable, public sf::Transformable
+//! @brief Mutable sprite containing a vertex array / texture.
+class VertexSprite : public sf::Drawable, public sf::Transformable
 {
 public:
   //! @brief Construct a new Render Buffer object - used by RenderSystem::safe_render_sprite_to_target()
   //! @param vertices Pass by value to get a mutable copy
   //! @param texture  Reference to the texture to use. Avoid expensive copy.
-  RenderBuffer( sf::VertexArray vertices, const sf::Texture &texture )
+  VertexSprite( const sf::VertexArray &vertices, const sf::Texture &texture )
       : m_vertices{ vertices },
         m_texture{ texture } {};
 

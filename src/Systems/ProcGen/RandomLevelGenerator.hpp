@@ -12,7 +12,7 @@
 namespace ProceduralMaze::Cmp { class Position; class RectBounds; }
 namespace sf { class RenderWindow; }
 namespace ProceduralMaze::PathFinding { class SpatialHashGrid; } 
-namespace ProceduralMaze::Sprites { class MultiSprite; class SpriteFactory; }
+namespace ProceduralMaze::Sprites { class SpriteSheet; class SpriteFactory; }
 namespace ProceduralMaze::Scene { class SceneData; }
 // clang-format on
 
@@ -42,7 +42,7 @@ public:
   //! @param ms
   //! @param seed
   //! @return std::pair<entt::entity, Cmp::Position>
-  std::pair<entt::entity, Cmp::Position> find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed );
+  std::pair<entt::entity, Cmp::Position> find_spawn_location( const Sprites::SpriteSheet &ms, unsigned long seed );
 
   //! @brief Generate a number of plant world items in the new game area.
   //! @param map_grid_size
@@ -70,7 +70,7 @@ private:
   //! @param ms
   //! @param ms_index
   //! @param seed
-  void do_gen_graveyard_exterior_multiblock( const Sprites::MultiSprite &ms, size_t ms_index = 0, unsigned long seed = 0 );
+  void do_gen_graveyard_exterior_multiblock( const Sprites::SpriteSheet &ms, size_t ms_index = 0, unsigned long seed = 0 );
 
   //! @brief Spatial map for finding obstacles during level gen / cell automata algorithm
   PathFinding::SpatialHashGridUniquePtr m_obstacle_sm;

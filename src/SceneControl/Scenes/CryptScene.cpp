@@ -6,7 +6,6 @@
 #include <Components/System.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Factory/CryptFactory.hpp>
-#include <Factory/FloormapFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
 #include <SceneControl/SceneData.hpp>
@@ -81,10 +80,10 @@ void CryptScene::on_init()
   m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
   m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
 
-  Sprites::Containers::TileMap floortiles;
+  Sprites::Containers::VertexFloor floortiles;
   floortiles.create( random_level_sys.get_void_sm(), m_scene_map_data );
   auto floor_entity = m_reg.create();
-  m_reg.emplace<Sprites::Containers::TileMap>( floor_entity, floortiles );
+  m_reg.emplace<Sprites::Containers::VertexFloor>( floor_entity, floortiles );
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
 }
 

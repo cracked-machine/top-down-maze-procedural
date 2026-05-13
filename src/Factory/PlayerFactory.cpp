@@ -26,13 +26,13 @@
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Factory/SpriteFactory.hpp>
 #include <Particle/ParticleSpriteBase.hpp>
 #include <Player/PlayerCurse.hpp>
 #include <Player/PlayerLevelDepth.hpp>
 #include <Player/TorchRadius.hpp>
-#include <Sprites/MultiSprite.hpp>
-#include <Sprites/SpriteFactory.hpp>
 #include <Sprites/SpriteMetaType.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <Stats/PlayerStats.hpp>
 #include <Stats/SacrificeAction.hpp>
 #include <Systems/ParticleSystem.hpp>
@@ -94,15 +94,15 @@ void add_spawn_area( entt::registry &registry, entt::entity entity, Sprites::Spr
   registry.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
 }
 
-void create_player_death_anim( entt::registry &registry, Cmp::Position player_pos_cmp, const Sprites::MultiSprite &sprite )
+void create_player_death_anim( entt::registry &registry, Cmp::Position player_pos_cmp, const Sprites::SpriteSheet &sprite )
 {
   auto player_blood_splat_entity = registry.create();
   sf::Vector2f offset;
-  if ( ( sprite.getSpriteSizePixels().x == Constants::kGridSizePxF.x ) and ( sprite.getSpriteSizePixels().y == Constants::kGridSizePxF.y ) )
+  if ( ( sprite.get_sprite_size().x == Constants::kGridSizePxF.x ) and ( sprite.get_sprite_size().y == Constants::kGridSizePxF.y ) )
   {
     offset = sf::Vector2f{ 0, 0 };
   }
-  else { offset = sprite.getSpriteSizePixels() / 2.f; }
+  else { offset = sprite.get_sprite_size() / 2.f; }
   registry.emplace_or_replace<Cmp::Position>( player_blood_splat_entity, player_pos_cmp.position - offset, player_pos_cmp.size );
   registry.emplace_or_replace<Cmp::DeathPosition>( player_blood_splat_entity, player_pos_cmp.position - offset, player_pos_cmp.size );
   registry.emplace_or_replace<Cmp::SpriteAnimation>( player_blood_splat_entity, 0, 0, true, sprite.get_sprite_type(), 0, 0.1,

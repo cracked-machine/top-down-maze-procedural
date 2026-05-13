@@ -1,5 +1,5 @@
 #include <SFML/Graphics.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Utils/Constants.hpp>
 
@@ -8,7 +8,7 @@
 namespace ProceduralMaze::Sprites
 {
 
-MultiSprite::MultiSprite( SpriteMetaType type, std::string display_name, const std::vector<float> &zorder_list,
+SpriteSheet::SpriteSheet( SpriteMetaType type, std::string display_name, const std::vector<float> &zorder_list,
                           const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size,
                           unsigned int sprites_per_frame, unsigned int sprites_per_sequence, std::vector<bool> solid_mask )
     : m_sprite_type{ type },
@@ -34,7 +34,7 @@ MultiSprite::MultiSprite( SpriteMetaType type, std::string display_name, const s
   }
 }
 
-MultiSprite::MultiSprite( SpriteMetaType type, std::string display_name, const std::vector<float> &zorder_list, sf::Texture tilemap_texture,
+SpriteSheet::SpriteSheet( SpriteMetaType type, std::string display_name, const std::vector<float> &zorder_list, sf::Texture tilemap_texture,
                           const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size, unsigned int sprites_per_frame,
                           unsigned int sprites_per_sequence, std::vector<bool> solid_mask )
     : m_sprite_type{ type },
@@ -55,7 +55,7 @@ MultiSprite::MultiSprite( SpriteMetaType type, std::string display_name, const s
   }
 }
 
-bool MultiSprite::add_sprite( const std::vector<uint32_t> &tilemap_picks )
+bool SpriteSheet::add_sprite( const std::vector<uint32_t> &tilemap_picks )
 {
   if ( tilemap_picks.empty() )
   {
@@ -103,21 +103,4 @@ bool MultiSprite::add_sprite( const std::vector<uint32_t> &tilemap_picks )
   return true;
 }
 
-void MultiSprite::draw( sf::RenderTarget &target, sf::RenderStates states ) const
-{
-  if ( m_va_list.empty() || m_selected_vertices.getVertexCount() == 0 )
-  {
-    SPDLOG_WARN( "No sprites to draw" );
-    return; // Don't terminate, just skip drawing
-  }
-
-  // apply the transform
-  states.transform *= getTransform();
-
-  // apply the tileset texture
-  states.texture = m_tilemap_texture.get();
-
-  // draw the vertex array
-  target.draw( m_selected_vertices, states );
-}
 } // namespace ProceduralMaze::Sprites

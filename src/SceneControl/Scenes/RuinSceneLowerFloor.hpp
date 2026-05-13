@@ -2,18 +2,18 @@
 #define SRC_SCENECONTROL_SCENE_RUINSCENELOWER_HPP_
 
 #include <Audio/SoundBank.hpp>
+#include <Factory/SpriteFactory.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SceneControl/Events/ProcessRuinSceneLowerInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
-#include <Sprites/SpriteFactory.hpp>
-#include <Sprites/TileMap.hpp>
+#include <Sprites/VertexFloor.hpp>
 #include <Systems/SystemStore.hpp>
 #include <Utils/Utils.hpp>
 
 #include <Sprites/SpriteMetaType.hpp>
 namespace ProceduralMaze::Sprites
 {
-class MultiSprite;
+class SpriteSheet;
 class SpriteFactory;
 } // namespace ProceduralMaze::Sprites
 

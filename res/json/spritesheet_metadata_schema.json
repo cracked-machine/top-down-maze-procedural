@@ -23,7 +23,7 @@
       "type": "object",
       "description": "Metadata for a single sprite type",
       "properties": {
-        "multisprite": {
+        "spritesheet": {
           "type": "object",
           "description": "MultiSprite configuration",
           "properties": {
@@ -95,7 +95,7 @@
           "additionalProperties": false
         }
       },
-      "required": [ "multisprite"],
+      "required": [ "spritesheet"],
       "additionalProperties": false
     }
   }

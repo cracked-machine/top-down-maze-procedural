@@ -8,13 +8,13 @@
 #include <Constants.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/RuinFactory.hpp>
+#include <Factory/SpriteFactory.hpp>
 #include <Npc/Npc.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
 #include <Obstacle.hpp>
 #include <Player/PlayerNoPath.hpp>
 #include <RectBounds.hpp>
 #include <ReservedPosition.hpp>
-#include <Sprites/SpriteFactory.hpp>
 #include <Systems/Stores/NpcStore.hpp>
 #include <Utils/Random.hpp>
 #include <entt/entity/registry.hpp>
@@ -22,16 +22,16 @@
 namespace ProceduralMaze::Factory
 {
 
-void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::MultiSprite &bookcase_ms, int sprite_index )
+void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::SpriteSheet &bookcase_ms, int sprite_index )
 {
   // We must modify the **existing** Cmp::Position-owning entity so that we don't have
   // new entity with Cmp::NpcNoPathFinding and existing entity without. This screws up path finding
-  Cmp::Position search_pos( spawn_position, bookcase_ms.getSpriteSizePixels() );
+  Cmp::Position search_pos( spawn_position, bookcase_ms.get_sprite_size() );
   for ( auto [existing_entt, existing_pos_cmp] : reg.view<Cmp::Position>().each() )
   {
     if ( search_pos.findIntersection( existing_pos_cmp ) )
     {
-      reg.emplace_or_replace<Cmp::Position>( existing_entt, spawn_position, bookcase_ms.getSpriteSizePixels() );
+      reg.emplace_or_replace<Cmp::Position>( existing_entt, spawn_position, bookcase_ms.get_sprite_size() );
       reg.emplace_or_replace<Cmp::SpriteAnimation>( existing_entt, 0, 0, true, bookcase_ms.get_sprite_type(), sprite_index );
       reg.emplace_or_replace<Cmp::ZOrderValue>( existing_entt, -5.f );
       reg.emplace_or_replace<Cmp::RuinBookcase>( existing_entt );
@@ -42,16 +42,16 @@ void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sp
   }
 }
 
-void create_cobweb( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::MultiSprite &cobweb_ms, int sprite_index )
+void create_cobweb( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::SpriteSheet &cobweb_ms, int sprite_index )
 {
   auto cobweb_entt = reg.create();
-  reg.emplace_or_replace<Cmp::Position>( cobweb_entt, spawn_position, cobweb_ms.getSpriteSizePixels() );
+  reg.emplace_or_replace<Cmp::Position>( cobweb_entt, spawn_position, cobweb_ms.get_sprite_size() );
   reg.emplace_or_replace<Cmp::SpriteAnimation>( cobweb_entt, 0, 0, true, cobweb_ms.get_sprite_type(), sprite_index );
   reg.emplace_or_replace<Cmp::ZOrderValue>( cobweb_entt, spawn_position.y );
   reg.emplace_or_replace<Cmp::RuinCobweb>( cobweb_entt, 100 );
 }
 
-void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, const Sprites::MultiSprite &hand_ms, int sprite_index )
+void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, const Sprites::SpriteSheet &hand_ms, int sprite_index )
 {
   bool exists = false;
   for ( auto [hand_entt, hand_cmp] : reg.view<Cmp::NPC>().each() )
@@ -62,11 +62,11 @@ void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, con
   if ( not exists )
   {
     auto npc_shadowhand_cmp = Sys::NpcStore::instance().get_item( "npc.shadowhand" );
-    const auto hand_ms_size = hand_ms.getSpriteSizePixels();
+    const auto hand_ms_size = hand_ms.get_sprite_size();
     sf::Vector2f starting_pos = { 0 - hand_ms_size.x, ( scene_dimensions.y / 2 ) - ( hand_ms_size.y / 2 ) };
 
     auto shadowhand_entt = reg.create();
-    reg.emplace_or_replace<Cmp::Position>( shadowhand_entt, starting_pos, hand_ms.getSpriteSizePixels() );
+    reg.emplace_or_replace<Cmp::Position>( shadowhand_entt, starting_pos, hand_ms.get_sprite_size() );
     reg.emplace_or_replace<Cmp::SpriteAnimation>( shadowhand_entt, 0, 0, true, hand_ms.get_sprite_type(), sprite_index );
     reg.emplace_or_replace<Cmp::ZOrderValue>( shadowhand_entt, hand_ms.get_zorder( 0 ) ); // above everythign
     reg.emplace_or_replace<Cmp::AbsoluteAlpha>( shadowhand_entt, 200 );

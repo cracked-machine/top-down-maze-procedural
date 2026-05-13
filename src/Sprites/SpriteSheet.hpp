@@ -1,0 +1,160 @@
+#ifndef SRC_SPRITES_MULTISPRITE_HPP_
+#define SRC_SPRITES_MULTISPRITE_HPP_
+
+#include <Sprites/SpriteMetaType.hpp>
+
+#include <cstdint>
+#include <exception>
+#include <filesystem>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+namespace ProceduralMaze::Sprites
+{
+
+//! @brief Sprite dimensions with componentWiseMul support.
+using SpriteSize = struct SpriteSize
+{
+  unsigned int width{ 1 };
+  unsigned int height{ 1 };
+  [[nodiscard]] sf::Vector2f componentWiseMul( sf::Vector2u rhs ) const
+  {
+    return { static_cast<float>( width * rhs.x ), static_cast<float>( height * rhs.y ) };
+  }
+};
+
+//! @brief Non-mutable container for multiple sprites loaded from a single tile sheet.
+class SpriteSheet
+{
+public:
+  //! @brief Used by SpriteFactory::SpriteMetaData struct declaration
+  SpriteSheet() = default;
+
+  //! @brief Construct a new Multi Sprite object using path to texture file
+  //! @param type
+  //! @param display_name
+  //! @param zorder_list
+  //! @param tilemap_path
+  //! @param tilemap_picks
+  //! @param grid_size
+  //! @param sprites_per_frame
+  //! @param sprites_per_sequence
+  //! @param solid_mask
+  explicit SpriteSheet( SpriteMetaType type, std::string display_name, const std::vector<float> &zorder_list,
+                        const std::filesystem::path &tilemap_path, const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size = { 1, 1 },
+                        unsigned int sprites_per_frame = 1, unsigned int sprites_per_sequence = 1, std::vector<bool> solid_mask = {} );
+
+  //! @brief Construct a new Multi Sprite object using texture object
+  //! @param type
+  //! @param display_name
+  //! @param zorder_list
+  //! @param tilemap_texture
+  //! @param tilemap_picks
+  //! @param grid_size
+  //! @param sprites_per_frame
+  //! @param sprites_per_sequence
+  //! @param solid_mask
+  explicit SpriteSheet( SpriteMetaType type, std::string display_name, const std::vector<float> &zorder_list, sf::Texture tilemap_texture,
+                        const std::vector<uint32_t> &tilemap_picks, SpriteSize grid_size = { 1, 1 }, unsigned int sprites_per_frame = 1,
+                        unsigned int sprites_per_sequence = 1, std::vector<bool> solid_mask = {} );
+
+  SpriteSheet( SpriteSheet && ) = default;
+  SpriteSheet &operator=( SpriteSheet && ) = default;
+  ~SpriteSheet() = default;
+
+  //! @brief Get the grid size object
+  //! @return SpriteSize
+  SpriteSize get_grid_size() const { return m_grid_size; }
+
+  //! @brief Get the sprite count object
+  //! @return std::size_t
+  std::size_t get_sprite_count() const { return m_va_list.size(); }
+
+  //! @brief Get the sprites per frame object
+  //! @return unsigned int
+  unsigned int get_sprites_per_frame() const { return m_sprites_per_frame; }
+
+  //! @brief Get the sprites per sequence object
+  //! @return unsigned int
+  unsigned int get_sprites_per_sequence() const { return m_sprites_per_sequence; }
+
+  //! @brief Get the solid mask object
+  //! @return const std::vector<bool>&
+  const std::vector<bool> &get_solid_mask() const { return m_solid_mask; }
+
+  //! @brief Get the texture object
+  //! @return const sf::Texture&
+  const sf::Texture &get_texture() const { return *m_tilemap_texture; }
+
+  //! @brief Get the display name object
+  //! @return std::string
+  std::string get_display_name() const { return m_display_name; }
+
+  //! @brief Get the zorder object
+  //! @param idx
+  //! @return float
+  float get_zorder( size_t idx ) const
+  {
+    try
+    {
+      return m_zorder_list.at( idx );
+    } catch ( std::exception e )
+    {
+      throw std::runtime_error( std::string( m_sprite_type ) + " - " + e.what() );
+    }
+  }
+
+  //! @brief Get the Sprite Size Pixels object
+  //! @return sf::Vector2f
+  sf::Vector2f get_sprite_size() const { return m_va_list[0].getBounds().size; }
+
+  //! @brief Get the sprite type object
+  //! @return SpriteMetaType
+  SpriteMetaType get_sprite_type() const { return m_sprite_type; }
+
+  //! @brief Set the sprite type object
+  //! @param type
+  void set_sprite_type( const SpriteMetaType &type ) { m_sprite_type = type; }
+
+  //! @brief
+  // sf::VertexArray m_selected_vertices;
+
+  //! @brief
+  std::vector<sf::VertexArray> m_va_list;
+
+private:
+  //! @brief
+  std::shared_ptr<sf::Texture> m_tilemap_texture;
+
+  //! @brief
+  //! @param tilemap_picks
+  //! @return true
+  //! @return false
+  bool add_sprite( const std::vector<uint32_t> &tilemap_picks );
+
+  //! @brief
+  SpriteMetaType m_sprite_type;
+
+  //! @brief
+  std::string m_display_name;
+
+  //! @brief
+  std::vector<float> m_zorder_list;
+
+  //! @brief width and height grid size for the multi-sprite
+  SpriteSize m_grid_size{ 1, 1 };
+
+  //! @brief number of sprites per animation frame
+  unsigned int m_sprites_per_frame{ 1 };
+
+  //! @brief
+  unsigned int m_sprites_per_sequence{ 1 };
+
+  //! @brief Indicates which 'sprite_indices' the player cannot traverse. Array size must match sprite_indices size.
+  std::vector<bool> m_solid_mask;
+};
+
+} // namespace ProceduralMaze::Sprites
+
+#endif // SRC_SPRITES_MULTISPRITE_HPP_

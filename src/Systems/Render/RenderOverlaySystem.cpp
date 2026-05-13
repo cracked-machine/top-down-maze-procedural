@@ -28,7 +28,7 @@
 #include <Player/PlayerWealth.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Shop/ShopInventory.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -200,7 +200,7 @@ void RenderOverlaySystem::render_ui_labels( sf::Time dt )
     else if ( ui_label.name == "inventory_label" )
     {
       auto [entt, type] = Utils::Player::get_inventory_type( reg() );
-      text_str = m_sprite_factory.get_multisprite_by_type( type ).get_display_name();
+      text_str = m_sprite_factory.get_spritesheet_by_type( type ).get_display_name();
       if ( text_str == "Error Sprite" ) { text_str = ""; }
     }
 

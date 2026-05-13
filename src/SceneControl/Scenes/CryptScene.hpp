@@ -4,7 +4,7 @@
 #include <SceneControl/Events/ProcessCryptSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
 
-#include <Sprites/TileMap.hpp>
+#include <Sprites/VertexFloor.hpp>
 
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Vector2.hpp>

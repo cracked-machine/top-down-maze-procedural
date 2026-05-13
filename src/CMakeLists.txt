@@ -18,9 +18,8 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Shaders/FloodWaterShader.cpp
     ${CMAKE_SOURCE_DIR}/src/Shaders/NightStaticShader.cpp
     ${CMAKE_SOURCE_DIR}/src/Shaders/MistShader.cpp
-    ${CMAKE_SOURCE_DIR}/src/Sprites/MultiSprite.cpp
-    ${CMAKE_SOURCE_DIR}/src/Sprites/SpriteFactory.cpp
-    ${CMAKE_SOURCE_DIR}/src/Sprites/TileMap.cpp
+    ${CMAKE_SOURCE_DIR}/src/Sprites/SpriteSheet.cpp
+    ${CMAKE_SOURCE_DIR}/src/Sprites/VertexFloor.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/Shockwave.cpp
     ${CMAKE_SOURCE_DIR}/src/Sprites/CircleSegment.cpp
     ${CMAKE_SOURCE_DIR}/src/Systems/ProcGen/RandomLevelGenerator.cpp
@@ -74,6 +73,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/SceneControl/Scenes/ShopScene.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/SceneData.cpp
     ${CMAKE_SOURCE_DIR}/src/SceneControl/RegistryTransfer.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/SpriteFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/PlayerFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/NpcFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/LootFactory.cpp

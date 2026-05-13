@@ -15,7 +15,7 @@
 
 namespace ProceduralMaze::Sprites
 {
-class MultiSprite;
+class SpriteSheet;
 class SpriteFactory;
 class FloodWaterShader;
 class ViewFragmentShader;
@@ -27,7 +27,7 @@ class DrippingBloodShader;
 
 namespace ProceduralMaze::Sprites::Containers
 {
-class TileMap;
+class VertexFloor;
 } // namespace ProceduralMaze::Sprites::Containers
 
 namespace ProceduralMaze::PathFinding
@@ -116,7 +116,8 @@ private:
       }
       // if constexpr ( std::is_same_v<Sys::ParticleSpriteOwner, Component> )
       // {
-      //   if ( component.sprite && not Utils::is_visible_in_view( view_bounds, { component.sprite->get_emitter_position(), Constants::kGridSizePxF } ) )
+      //   if ( component.sprite && not Utils::is_visible_in_view( view_bounds, { component.sprite->get_emitter_position(), Constants::kGridSizePxF }
+      //   ) )
       //     continue;
       // }
 

@@ -5,7 +5,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SceneControl/Events/ProcessRuinSceneUpperInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
-#include <Sprites/TileMap.hpp>
+#include <Sprites/VertexFloor.hpp>
 #include <Systems/SystemStore.hpp>
 #include <Utils/Utils.hpp>
 

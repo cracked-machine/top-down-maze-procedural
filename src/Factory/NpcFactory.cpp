@@ -25,7 +25,7 @@
 #include <Player.hpp>
 #include <SpatialHashGrid.hpp>
 #include <SpriteAnimation.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <Stats/DestroyAction.hpp>
 #include <Stats/ExhumeAction.hpp>
 #include <Systems/BaseSystem.hpp>

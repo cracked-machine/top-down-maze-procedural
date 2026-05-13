@@ -3,6 +3,7 @@
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Ruin/RuinObjectiveType.hpp>
+#include <Factory/SpriteFactory.hpp>
 #include <SceneControl/IScene.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
 #include <SceneControl/Scene.hpp>
@@ -18,7 +19,6 @@
 #include <SceneControl/Scenes/SettingsMenuScene.hpp>
 #include <SceneControl/Scenes/ShopScene.hpp>
 #include <SceneControl/Scenes/TitleScene.hpp>
-#include <Sprites/SpriteFactory.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
 namespace ProceduralMaze::Scene

@@ -51,8 +51,8 @@
 #include <Shaders/FloodWaterShader.hpp>
 #include <Shaders/MistShader.hpp>
 #include <Shaders/NightStaticShader.hpp>
-#include <Sprites/MultiSprite.hpp>
-#include <Sprites/TileMap.hpp>
+#include <Sprites/SpriteSheet.hpp>
+#include <Sprites/VertexFloor.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -185,10 +185,10 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
       shader_sprite_owner.sprite->update( reg() );
       if ( m_shaders_enabled ) { draw_world( *shader_sprite_owner.sprite ); }
     }
-    else if ( reg().all_of<Sprites::Containers::TileMap>( entity ) )
+    else if ( reg().all_of<Sprites::Containers::VertexFloor>( entity ) )
     {
 
-      auto &floor_tiles = reg().get<Sprites::Containers::TileMap>( entity );
+      auto &floor_tiles = reg().get<Sprites::Containers::VertexFloor>( entity );
       sf::Vector2f adjusted{ static_cast<float>( floor_tiles.world_grid_offset.x ) * Constants::kGridSizePxF.x,
                              static_cast<float>( floor_tiles.world_grid_offset.y ) * Constants::kGridSizePxF.y };
       floor_tiles.setPosition( adjusted );
@@ -317,7 +317,7 @@ void RenderGameSystem::refresh_z_order_queue()
   add_visible_entity_to_z_order_queue<Cmp::RuinBuildingMultiBlock>( m_zorder_queue_, view_bounds );
 
   // add any floor tile sets
-  add_visible_entity_to_z_order_queue<Sprites::Containers::TileMap>( m_zorder_queue_, view_bounds );
+  add_visible_entity_to_z_order_queue<Sprites::Containers::VertexFloor>( m_zorder_queue_, view_bounds );
 
   // add the wrapper types for all particle and shader sprites so they can be rendered with the other entities
   add_visible_entity_to_z_order_queue<ParticleSpriteOwner>( m_zorder_queue_, view_bounds );

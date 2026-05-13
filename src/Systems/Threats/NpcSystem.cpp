@@ -26,6 +26,7 @@
 #include <Crypt/CryptObjectiveSegment.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/NpcFactory.hpp>
+#include <Factory/SpriteFactory.hpp>
 #include <Grave/GraveSegment.hpp>
 #include <Npc/NpcFriendly.hpp>
 #include <Npc/NpcLerpSpeed.hpp>
@@ -33,7 +34,6 @@
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Ruin/RuinSegment.hpp>
 #include <SFML/Audio/Sound.hpp>
-#include <Sprites/SpriteFactory.hpp>
 #include <Stats/BaseAction.hpp>
 #include <Stats/CollisionAction.hpp>
 #include <Systems/BaseSystem.hpp>

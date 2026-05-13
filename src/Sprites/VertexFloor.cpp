@@ -1,22 +1,21 @@
 #include <Components/Position.hpp>
 #include <Components/Random.hpp>
-#include <Constants.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <SceneControl/SceneData.hpp>
-#include <Sprites/TileMap.hpp>
+#include <Sprites/VertexFloor.hpp>
+#include <Utils/Constants.hpp>
+#include <Utils/Utils.hpp>
 
 #include <SFML/Graphics/Color.hpp>
-#include <Utils.hpp>
 #include <entt/entity/registry.hpp>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
-
 #include <stdexcept>
 
 namespace ProceduralMaze::Sprites::Containers
 {
 
-void TileMap::draw( sf::RenderTarget &target, sf::RenderStates states ) const
+void VertexFloor::draw( sf::RenderTarget &target, sf::RenderStates states ) const
 {
   SPDLOG_DEBUG( "TileMap::draw - instance: {}, vertices: {}", (void *)this, m_vertices.getVertexCount() );
   if ( m_vertices.getVertexCount() == 0 )
@@ -35,7 +34,7 @@ void TileMap::draw( sf::RenderTarget &target, sf::RenderStates states ) const
   target.draw( m_vertices, states );
 }
 
-void TileMap::create( const PathFinding::SpatialHashGrid &void_sm, const Scene::SceneMapSharedPtr &sc )
+void VertexFloor::create( const PathFinding::SpatialHashGrid &void_sm, const Scene::SceneMapSharedPtr &sc )
 {
   if ( not sc ) throw std::runtime_error( "Scene::SceneConfigSharedPtr is not initialised" );
 
@@ -125,7 +124,7 @@ void TileMap::create( const PathFinding::SpatialHashGrid &void_sm, const Scene::
   SPDLOG_INFO( "Created tilemap: {} vertices", m_vertices.getVertexCount() );
 }
 
-void TileMap::remove( sf::Vector2f pos )
+void VertexFloor::remove( sf::Vector2f pos )
 {
   // Snap to grid to ensure position matches tilemap vertex positions
   pos = Utils::snap_to_grid( pos );

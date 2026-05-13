@@ -1,12 +1,11 @@
 #include <Components/Random.hpp>
+#include <Factory/SpriteFactory.hpp>
+#include <Sprites/SpriteSheet.hpp>
+
 #include <SFML/Graphics/Image.hpp>
+#include <fstream>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
-
-#include <Sprites/MultiSprite.hpp>
-#include <Sprites/SpriteFactory.hpp>
-
-#include <fstream>
 #include <regex>
 #include <spdlog/spdlog.h>
 #include <string>
@@ -15,9 +14,9 @@ namespace nlohmann
 {
 //! @brief ADL hook used via nlohmann::basic_json::get (see SceneConfig::load below)
 template <>
-struct adl_serializer<ProceduralMaze::Sprites::MultiSprite>
+struct adl_serializer<ProceduralMaze::Sprites::SpriteSheet>
 {
-  static void from_json( const json &j, ProceduralMaze::Sprites::MultiSprite &ms )
+  static void from_json( const json &j, ProceduralMaze::Sprites::SpriteSheet &ms )
   {
 
     //! @brief lambda helper for error checking on JSON Single field types
@@ -85,7 +84,7 @@ struct adl_serializer<ProceduralMaze::Sprites::MultiSprite>
     ProceduralMaze::Sprites::SpriteSize grid_size;
     get_xy_field( "grid_size", grid_size );
 
-    ms = ProceduralMaze::Sprites::MultiSprite{ "",        display_name,      zorder_list,          texture_path, sprite_indices,
+    ms = ProceduralMaze::Sprites::SpriteSheet{ "",        display_name,      zorder_list,          texture_path, sprite_indices,
                                                grid_size, sprites_per_frame, sprites_per_sequence, solid_mask };
   }
 };
@@ -95,23 +94,20 @@ namespace ProceduralMaze::Sprites
 {
 void SpriteFactory::init()
 {
-  std::ifstream file( "res/json/sprite_metadata.json" );
-  if ( !file.is_open() )
-  {
-    SPDLOG_CRITICAL( "Could not open sprite_metadata.json." );
-    throw std::runtime_error( "Could not open sprite_metadata.json." );
-  }
+  std::filesystem::path json_path( "res/json/spritesheet_metadata.json" );
+  std::ifstream file( json_path );
+  if ( not file.is_open() ) { throw std::runtime_error( "Could not open {}." + json_path.string() ); }
 
   nlohmann::json j;
   file >> j;
 
-  if ( not j.contains( "sprites" ) ) throw std::runtime_error( "Missing 'sprites' from JSON scene config file" );
+  if ( not j.contains( "sprites" ) ) throw std::runtime_error( "Missing 'sprites' from {}." + json_path.string() );
   const auto &sprites = j.at( "sprites" );
   for ( const auto &[ms_type, ms_object] : sprites.items() )
   {
-    if ( not ms_object.contains( "multisprite" ) ) throw std::runtime_error( "Missing 'multisprite' from JSON scene config file" );
-    const auto &multisprite = ms_object.at( "multisprite" );
-    MultiSprite new_ms = multisprite.get<MultiSprite>();
+    if ( not ms_object.contains( "spritesheet" ) ) throw std::runtime_error( "Missing 'spritesheet' from {}." + json_path.string() );
+    const auto &spritesheet = ms_object.at( "spritesheet" );
+    SpriteSheet new_ms = spritesheet.get<SpriteSheet>();
     new_ms.set_sprite_type( ms_type );
     SPDLOG_INFO( "Loaded sprite metadata for type: {}, tiles: {}", new_ms.get_sprite_type(), new_ms.get_sprite_count() );
     m_sprite_metadata_map[ms_type] = std::move( new_ms );
@@ -138,14 +134,14 @@ void SpriteFactory::create_error_sprite()
   [[maybe_unused]] bool result = m_error_texture.loadFromImage( error_image );
 
   // Create error sprite using the procedural texture
-  m_error_metadata = MultiSprite{ "ERROR_SPRITE",  "Error Sprite", { 0.0 },
+  m_error_metadata = SpriteSheet{ "ERROR_SPRITE",  "Error Sprite", { 0.0 },
                                   m_error_texture, // Use the in-memory texture
                                   { 0 },           { 1, 1 },       1,       1, {} };
 }
 
 std::pair<SpriteMetaType, std::size_t> SpriteFactory::get_random_type_and_texture_index( std::vector<SpriteMetaType> type_list )
 {
-  const MultiSprite &selected_data = get_random_spritedata( type_list );
+  const SpriteSheet &selected_data = get_random_spritedata( type_list );
 
   // Find the type that corresponds to this data
   for ( const auto &[type, metadata] : m_sprite_metadata_map )
@@ -163,7 +159,7 @@ std::pair<SpriteMetaType, std::size_t> SpriteFactory::get_random_type_and_textur
 
 SpriteMetaType SpriteFactory::get_random_type( std::vector<SpriteMetaType> type_list )
 {
-  const MultiSprite &selected_data = get_random_spritedata( type_list );
+  const SpriteSheet &selected_data = get_random_spritedata( type_list );
 
   return selected_data.get_sprite_type();
 }
@@ -194,7 +190,7 @@ std::vector<SpriteMetaType> SpriteFactory::get_all_sprite_types_by_pattern( cons
   return types;
 }
 
-const Sprites::MultiSprite &SpriteFactory::get_multisprite_by_type( const SpriteMetaType &type ) { return get_spritedata_by_type( type ); }
+const Sprites::SpriteSheet &SpriteFactory::get_spritesheet_by_type( const SpriteMetaType &type ) { return get_spritedata_by_type( type ); }
 
 std::vector<SpriteMetaType> SpriteFactory::get_all_sprite_types()
 {
@@ -219,14 +215,14 @@ std::unordered_set<SpriteMetaType> SpriteFactory::get_all_sprite_types_set()
   return types;
 }
 
-const MultiSprite &SpriteFactory::get_spritedata_by_type( const SpriteMetaType &type )
+const SpriteSheet &SpriteFactory::get_spritedata_by_type( const SpriteMetaType &type )
 {
   auto it = m_sprite_metadata_map.find( type );
   if ( it != m_sprite_metadata_map.end() ) { return it->second; }
   return m_error_metadata;
 }
 
-const MultiSprite &SpriteFactory::get_random_spritedata( std::vector<SpriteMetaType> type_list )
+const SpriteSheet &SpriteFactory::get_random_spritedata( std::vector<SpriteMetaType> type_list )
 {
   if ( type_list.empty() )
   {

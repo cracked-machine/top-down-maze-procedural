@@ -8,7 +8,7 @@
 
 namespace ProceduralMaze::Sprites
 {
-class MultiSprite;
+class SpriteSheet;
 class SpriteFactory;
 } // namespace ProceduralMaze::Sprites
 
@@ -24,7 +24,7 @@ entt::entity create_void_pos( entt::registry &registry, const Cmp::Position &pos
 //! @param pos_cmp
 //! @param ms
 //! @param sprite_tile_idx
-void create_obstacle( entt::registry &registry, entt::entity entity, Cmp::Position pos_cmp, const Sprites::MultiSprite &ms,
+void create_obstacle( entt::registry &registry, entt::entity entity, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms,
                       std::size_t sprite_tile_idx );
 
 //! @brief Remove the obstacle component from the entity

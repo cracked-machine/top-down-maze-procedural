@@ -46,10 +46,10 @@
 #include <Events/PlayerActionEvent.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Factory/SpriteFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Persistent/PlayerMovementSpeed.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
-#include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -272,28 +272,28 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
 
     case Cmp::PlayerMortality::State::FALLING: {
       SPDLOG_INFO( "Player is falling" );
-      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "sprite.death.anim.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::DECAYING: {
-      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "sprite.death.anim.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::HAUNTED: {
-      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "sprite.death.anim.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::EXPLODING: {
-      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "sprite.death.anim.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
@@ -303,42 +303,42 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
       break;
     }
     case Cmp::PlayerMortality::State::SQUISHED: {
-      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "sprite.death.anim.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::SUICIDE: {
-      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "sprite.death.anim.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::IGNITED: {
-      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "sprite.death.anim.flames" );
+      const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.flames" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "shrine_lighting" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::SKEWERED: {
-      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "sprite.death.anim.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::SHOCKED: {
-      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "sprite.death.anim.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
       break;
     }
     case Cmp::PlayerMortality::State::TERRIFIED: {
-      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "sprite.death.anim.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
@@ -348,7 +348,7 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
       break;
     }
     case Cmp::PlayerMortality::State::SHADOWCURSED:
-      const auto &sprite = m_sprite_factory.get_multisprite_by_type( "sprite.death.anim.bloodsplat" );
+      const auto &sprite = m_sprite_factory.get_spritesheet_by_type( "sprite.death.anim.bloodsplat" );
       Factory::create_player_death_anim( reg(), ev.m_death_pos, sprite );
       m_sound_bank.get_effect( "player_blood_splat" ).play();
       common_death_throes();
@@ -565,7 +565,7 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
   if ( inventory_slot_cmp->m_item.sprite_type.contains( "plant" ) )
   {
     Factory::create_plant_obstacle( reg(), Cmp::Position( Utils::snap_to_grid( pos ), Constants::kGridSizePxF ),
-                                    m_sprite_factory.get_multisprite_by_type( inventory_slot_cmp->m_item.sprite_type ) );
+                                    m_sprite_factory.get_spritesheet_by_type( inventory_slot_cmp->m_item.sprite_type ) );
     reg().destroy( inventory_slot_entt );
     return;
   }

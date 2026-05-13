@@ -5,7 +5,7 @@
 #include <SceneControl/Events/ProcessGraveyardSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
 
-#include <Sprites/TileMap.hpp>
+#include <Sprites/VertexFloor.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Utils/Utils.hpp>
 

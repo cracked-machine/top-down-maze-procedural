@@ -25,8 +25,8 @@
 #include <Components/Wormhole/WormholeMultiBlock.hpp>
 #include <Components/Wormhole/WormholeSingularity.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Factory/SpriteFactory.hpp>
 #include <Persistent/NpcWitchAnimFramerate.hpp>
-#include <Sprites/SpriteFactory.hpp>
 #include <Systems/AnimSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
@@ -48,7 +48,7 @@ void AnimSystem::update( sf::Time dt )
     if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), pos_cmp ) ) continue;
     if ( anim_cmp.m_animation_active == true )
     {
-      const auto &ms = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
+      const auto &ms = m_sprite_factory.get_spritesheet_by_type( anim_cmp.m_sprite_type );
       update_single_sequence( anim_cmp, dt, ms, sf::seconds( anim_cmp.get_framerate() ) );
 
       // disable oneshot animations at the end of their sequence
@@ -119,13 +119,13 @@ void AnimSystem::update( sf::Time dt )
       {
         frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::NpcWitchAnimFramerate>( reg() ).get_value() );
       }
-      const auto &npc_walk_sequence = m_sprite_factory.get_multisprite_by_type( anim_cmp.m_sprite_type );
+      const auto &npc_walk_sequence = m_sprite_factory.get_spritesheet_by_type( anim_cmp.m_sprite_type );
       update_single_sequence( anim_cmp, dt, npc_walk_sequence, frame_rate );
     }
   }
 }
 
-void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const Sprites::MultiSprite &ms, sf::Time frame_rate,
+void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const Sprites::SpriteSheet &ms, sf::Time frame_rate,
                                          AnimType type )
 {
   anim.m_elapsed_time += globalDeltaTime;

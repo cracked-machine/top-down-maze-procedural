@@ -1,12 +1,12 @@
 #ifndef SRC_SCENECONTROL_SCENES_SHOPSCENE_HPP_
 #define SRC_SCENECONTROL_SCENES_SHOPSCENE_HPP_
 
+#include <Factory/SpriteFactory.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SceneControl/Events/ProcessShopSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
 #include <Shop/ShopInventory.hpp>
-#include <Sprites/SpriteFactory.hpp>
-#include <Sprites/TileMap.hpp>
+#include <Sprites/VertexFloor.hpp>
 #include <Utils/Utils.hpp>
 
 // clang-format off
@@ -46,7 +46,7 @@ private:
   Audio::SoundBank &m_sound_bank;
   Sys::Store &m_sys;
   Sprites::SpriteFactory &m_sprite_factory;
-  Sprites::Containers::TileMap m_floormap;
+  Sprites::Containers::VertexFloor m_floormap;
 
   bool m_overlay_open{ false };
 };

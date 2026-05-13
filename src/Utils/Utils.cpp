@@ -1,6 +1,6 @@
 // #include <Systems/BaseSystem.hpp>
 
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Utils.hpp>
 
@@ -22,7 +22,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <SFML/Window/Mouse.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <cmath>
 #include <entt/entity/registry.hpp>
 #include <spdlog/spdlog.h>

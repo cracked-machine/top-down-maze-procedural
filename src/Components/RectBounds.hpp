@@ -5,7 +5,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <Sprites/SpriteFactory.hpp>
+#include <Factory/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Utils/Constants.hpp>
 

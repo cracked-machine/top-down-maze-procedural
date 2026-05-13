@@ -13,8 +13,8 @@
 
 #include <Audio/SoundBank.hpp>
 #include <Components/Font.hpp>
+#include <Factory/SpriteFactory.hpp>
 #include <SceneControl/SceneManager.hpp>
-#include <Sprites/SpriteFactory.hpp>
 #include <Systems/SystemStore.hpp>
 
 #include <future>
@@ -101,7 +101,6 @@ private:
   std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( Constants::kFallbackDisplaySize ), "ProceduralMaze",
                                                                                    sf::State::Fullscreen );
 
-  // create MultiSprite resources
   std::unique_ptr<Sprites::SpriteFactory> m_sprite_factory;
   std::unique_ptr<Audio::SoundBank> m_sound_bank = std::make_unique<Audio::SoundBank>();
 

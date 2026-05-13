@@ -1,7 +1,7 @@
 #ifndef __COMPONENTS_LOOT_HPP__
 #define __COMPONENTS_LOOT_HPP__
 
-#include <Sprites/SpriteFactory.hpp>
+#include <Factory/SpriteFactory.hpp>
 
 namespace ProceduralMaze::Cmp
 {

@@ -4,7 +4,7 @@
 #include <Events/DropInventoryEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <SFML/Audio/Sound.hpp>
@@ -14,7 +14,7 @@
 // forward declarations
 namespace ProceduralMaze::Sprites
 {
-class MultiSprite;
+class SpriteSheet;
 }
 
 namespace ProceduralMaze::Cmp
@@ -96,7 +96,7 @@ private:
   //! @brief Remove the CarryItem from player inventory and place it into the world
   //! @param reg the ECS registry
   //! @param pos the postion to place the item
-  //! @param sprite the multisprite object
+  //! @param sprite the spritesheet object
   //! @param inventory_slot_cmp_entt the player inventory slot entt
   //! @return entt::entity
   void drop_inventory_slot_into_world( sf::Vector2f pos, entt::entity inventory_slot_entt );

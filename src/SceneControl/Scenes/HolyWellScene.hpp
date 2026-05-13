@@ -1,11 +1,11 @@
 #ifndef SCENE_HOLYWELLSCENE_HPP_
 #define SCENE_HOLYWELLSCENE_HPP_
 
+#include <Factory/SpriteFactory.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/Scene.hpp>
-#include <Sprites/SpriteFactory.hpp>
-#include <Sprites/TileMap.hpp>
+#include <Sprites/VertexFloor.hpp>
 #include <Utils/Utils.hpp>
 
 // clang-format off

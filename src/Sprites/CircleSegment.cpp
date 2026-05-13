@@ -11,8 +11,8 @@ namespace ProceduralMaze::Sprites
 sf::FloatRect CircleSegment::getBounds( sf::Vector2f center, float radius, float outline_thickness ) const
 {
   // Calculate the bounding box for this angular segment
-  float inner_radius = radius - outline_thickness / 2.0f;
-  float outer_radius = radius + outline_thickness / 2.0f;
+  float inner_radius = radius - ( outline_thickness / 2.0f );
+  float outer_radius = radius + ( outline_thickness / 2.0f );
 
   // Sample a few points along the arc to find min/max bounds
   constexpr int sample_points = 8;
@@ -26,7 +26,7 @@ sf::FloatRect CircleSegment::getBounds( sf::Vector2f center, float radius, float
   for ( int i = 0; i <= sample_points; ++i )
   {
     float t = static_cast<float>( i ) / sample_points;
-    float angle = start_angle + t * angle_range;
+    float angle = start_angle + ( t * angle_range );
 
     // Check both inner and outer radius points
     sf::Vector2f inner_point = center + sf::Vector2f( std::cos( angle ) * inner_radius, std::sin( angle ) * inner_radius );
@@ -78,16 +78,16 @@ void CircleSegment::generateVertices( sf::Vector2f center, float radius, float o
 
   int num_points = std::max( 2, static_cast<int>( points_per_segment * angle_range / ( 2 * std::numbers::pi ) ) );
 
-  float inner_radius = radius - outline_thickness / 2.0f;
-  float outer_radius = radius + outline_thickness / 2.0f;
+  float inner_radius = radius - ( outline_thickness / 2.0f );
+  float outer_radius = radius + ( outline_thickness / 2.0f );
 
   for ( int i = 0; i < num_points - 1; ++i )
   {
     float t1 = static_cast<float>( i ) / ( num_points - 1 );
     float t2 = static_cast<float>( i + 1 ) / ( num_points - 1 );
 
-    float angle1 = start_angle + t1 * angle_range;
-    float angle2 = start_angle + t2 * angle_range;
+    float angle1 = start_angle + ( t1 * angle_range );
+    float angle2 = start_angle + ( t2 * angle_range );
 
     // Calculate inner and outer points for both angles
     sf::Vector2f inner1 = center + sf::Vector2f( std::cos( angle1 ) * inner_radius, std::sin( angle1 ) * inner_radius );

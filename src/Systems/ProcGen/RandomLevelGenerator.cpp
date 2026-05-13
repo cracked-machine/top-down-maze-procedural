@@ -41,7 +41,7 @@
 #include <Ruin/RuinStairsLowerMultiBlock.hpp>
 #include <Ruin/RuinStairsUpperMultiBlock.hpp>
 #include <SceneControl/SceneData.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Utils/Player.hpp>
@@ -75,7 +75,7 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
   auto w = map_size_grid.x;
 
   bool added_wall_already = false;
-  [[maybe_unused]] const Sprites::MultiSprite &wall_ms = m_sprite_factory.get_multisprite_by_type( "sprite.crypt.wall.ext" );
+  [[maybe_unused]] const Sprites::SpriteSheet &wall_ms = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.ext" );
   for ( const auto [i, tile] : std::views::enumerate( scene_map.wall_tilelayer() ) )
   {
     added_wall_already = true;
@@ -104,7 +104,7 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
     }
     else if ( not added_wall_already and tile == scene_map.wall_tile_id() )
     {
-      const Sprites::MultiSprite &wall_ms = m_sprite_factory.get_multisprite_by_type( "sprite.graveyard.wall.ext" );
+      const Sprites::SpriteSheet &wall_ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.wall.ext" );
       Factory::add_wall_entity( reg(), new_pos, wall_ms, 0 );
     }
     else if ( tile == scene_map.open_tile_id() ) { Factory::create_world_pos( reg(), new_pos ); }
@@ -119,7 +119,7 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
 
   for ( const auto &[ms_type, pos] : scene_map.multiblock_objectlayer() )
   {
-    const auto &ms = m_sprite_factory.get_multisprite_by_type( ms_type );
+    const auto &ms = m_sprite_factory.get_spritesheet_by_type( ms_type );
     if ( ms_type == "sprite.well.fountain" )
     {
       Factory::add_multiblock_with_segments<Cmp::HolyWellMultiBlock, Cmp::HolyWellSegment>( reg(), pos, ms );
@@ -157,11 +157,11 @@ void RandomLevelGenerator::gen_game_area( const Scene::SceneData &scene_map )
       if ( inventory_type == "item.witchesjar" ) continue;
 
       // make sure we mark the *world* entt as reserved
-      auto world_pos_entt = Utils::get_world_pos_entt( m_reg, Cmp::Position( pos, ms.getSpriteSizePixels() ) );
+      auto world_pos_entt = Utils::get_world_pos_entt( m_reg, Cmp::Position( pos, ms.get_sprite_size() ) );
       if ( world_pos_entt != entt::null )
       {
         reg().emplace_or_replace<Cmp::ReservedPosition>( world_pos_entt );
-        get_systems_event_queue().trigger( Events::CreateItemEvent( Cmp::Position( pos, ms.getSpriteSizePixels() ), ms_type ) );
+        get_systems_event_queue().trigger( Events::CreateItemEvent( Cmp::Position( pos, ms.get_sprite_size() ), ms_type ) );
       }
     }
   }
@@ -175,7 +175,7 @@ void RandomLevelGenerator::gen_graveyard_exterior_obstacles()
 
     if ( Cmp::RandomInt{ 0, 1 }.gen() == 1 )
     {
-      const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "sprite.graveyard.wall.int" );
+      const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.wall.int" );
       auto [_, rand_obst_tex_idx] = m_sprite_factory.get_random_type_and_texture_index( { "sprite.graveyard.wall.int" } );
       Factory::create_obstacle( reg(), entity, pos_cmp, ms, rand_obst_tex_idx );
       m_obstacle_sm->insert( entity, pos_cmp );
@@ -193,7 +193,7 @@ void RandomLevelGenerator::gen_graveyard_exterior_multiblocks()
 
   // GRAVES
   auto grave_meta_types = m_sprite_factory.get_all_sprite_types_by_pattern( R"(graves\.\w+\.closed$)" );
-  if ( grave_meta_types.empty() ) { SPDLOG_WARN( "No GRAVE multisprites found in SpriteFactory" ); }
+  if ( grave_meta_types.empty() ) { SPDLOG_WARN( "No GRAVE spritesheets found in SpriteFactory" ); }
   else
   {
     SPDLOG_DEBUG( "Found {}, {}", grave_meta_types[0], grave_meta_types[1] );
@@ -202,39 +202,39 @@ void RandomLevelGenerator::gen_graveyard_exterior_multiblocks()
     {
       auto [sprite_metatype, unused_index] = m_sprite_factory.get_random_type_and_texture_index( grave_meta_types );
       SPDLOG_DEBUG( "Selected {}, {}", sprite_metatype, unused_index );
-      const auto &multisprite = m_sprite_factory.get_multisprite_by_type( sprite_metatype );
-      do_gen_graveyard_exterior_multiblock( multisprite, unused_index );
+      const auto &spritesheet = m_sprite_factory.get_spritesheet_by_type( sprite_metatype );
+      do_gen_graveyard_exterior_multiblock( spritesheet, unused_index );
     }
   }
 
   // ALTARS
-  const auto &altar_multisprite = m_sprite_factory.get_multisprite_by_type( "sprite.graveyard.altar.inactive" );
+  const auto &altar_spritesheet = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.altar.inactive" );
   for ( std::size_t i = 0; i < max_num_altars.get_value(); ++i )
   {
-    do_gen_graveyard_exterior_multiblock( altar_multisprite, 0 );
+    do_gen_graveyard_exterior_multiblock( altar_spritesheet, 0 );
   }
 
   // CRYPTS - note: we use keys from altars to open crypts so the number should be equal
-  const auto &crypt_multisprite = m_sprite_factory.get_multisprite_by_type( "sprite.graveyard.crypt.closed" );
+  const auto &crypt_spritesheet = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.crypt.closed" );
   for ( std::size_t i = 0; i < max_num_crypts.get_value(); ++i )
   {
-    do_gen_graveyard_exterior_multiblock( crypt_multisprite, 0 );
+    do_gen_graveyard_exterior_multiblock( crypt_spritesheet, 0 );
   }
 
-  const auto &holywell_multisprite = m_sprite_factory.get_multisprite_by_type( "sprite.graveyard.well" );
+  const auto &holywell_spritesheet = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.well" );
   for ( std::size_t i = 0; i < max_number_holywells; ++i )
   {
-    do_gen_graveyard_exterior_multiblock( holywell_multisprite, 0 );
+    do_gen_graveyard_exterior_multiblock( holywell_spritesheet, 0 );
   }
 
-  const auto &ruin_multisprite = m_sprite_factory.get_multisprite_by_type( "sprite.graveyard.ruin" );
+  const auto &ruin_spritesheet = m_sprite_factory.get_spritesheet_by_type( "sprite.graveyard.ruin" );
   for ( std::size_t i = 0; i < max_number_ruins; ++i )
   {
-    do_gen_graveyard_exterior_multiblock( ruin_multisprite, 0 );
+    do_gen_graveyard_exterior_multiblock( ruin_spritesheet, 0 );
   }
 }
 
-void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::MultiSprite &ms, size_t ms_index, unsigned long seed )
+void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::SpriteSheet &ms, size_t ms_index, unsigned long seed )
 {
   auto [random_entity, random_origin_position] = find_spawn_location( ms, seed );
   if ( random_entity == entt::null )
@@ -268,12 +268,12 @@ void RandomLevelGenerator::do_gen_graveyard_exterior_multiblock( const Sprites::
   }
   else
   {
-    SPDLOG_ERROR( "gen_large_obstacle called with unsupported multisprite type: {}", ms.get_sprite_type() );
+    SPDLOG_ERROR( "gen_large_obstacle called with unsupported spritesheet type: {}", ms.get_sprite_type() );
     return;
   }
 }
 
-std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location( const Sprites::MultiSprite &ms, unsigned long seed )
+std::pair<entt::entity, Cmp::Position> RandomLevelGenerator::find_spawn_location( const Sprites::SpriteSheet &ms, unsigned long seed )
 {
   constexpr int kMaxAttempts = 1000;
   int attempts = 0;
@@ -390,7 +390,7 @@ std::vector<entt::entity> RandomLevelGenerator::gen_random_plants( sf::Vector2u 
     {
 
       // now create the plant at a new entt
-      Factory::create_plant_obstacle( reg(), random_pos, m_sprite_factory.get_multisprite_by_type( rand_plant_type ) );
+      Factory::create_plant_obstacle( reg(), random_pos, m_sprite_factory.get_spritesheet_by_type( rand_plant_type ) );
       SPDLOG_DEBUG( "Created plant at {},{}", random_pos.position.x, random_pos.position.y );
       assigned_entts.push_back( random_entity );
     }

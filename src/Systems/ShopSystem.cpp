@@ -17,7 +17,7 @@
 #include <Random.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Shop/ShopInventory.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/ShopSystem.hpp>
 #include <Utils/Optimizations.hpp>

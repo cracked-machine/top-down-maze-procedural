@@ -1,7 +1,7 @@
 {
   "sprites": {
     "sprite.graveyard.exit": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "exit",
         "zorder": [0, 0],
         "texture_path": "res/textures/graveyard.png",
@@ -15,7 +15,7 @@
       }
     },
     "sprite.graveyard.wall.int": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.wall.int",
         "zorder": [0,0,0,0,0,0,0,0,0],
         "texture_path": "res/textures/graveyard.png",
@@ -29,7 +29,7 @@
       }
     },
     "sprite.graveyard.wall.ext": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.wall.ext",
         "zorder": [0],
         "texture_path": "res/textures/graveyard.png",
@@ -43,7 +43,7 @@
       }
     },
     "sprite.graveyard.bones": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.bones",
         "zorder": [0, 0],
         "texture_path": "res/textures/graveyard.png",
@@ -57,7 +57,7 @@
       }
     },
     "sprite.graveyard.pots": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.pots",
         "zorder": [0, 0, 0],
         "texture_path": "res/textures/graveyard.png",
@@ -71,7 +71,7 @@
       }
     },
     "sprite.graveyard.loot.health": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.loot.health",
         "zorder": [0],
         "texture_path": "res/textures/graveyard.png",
@@ -85,7 +85,7 @@
       }
     },
     "sprite.graveyard.loot.blast": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.loot.blast",
         "zorder": [0],
         "texture_path": "res/textures/graveyard.png",
@@ -99,7 +99,7 @@
       }
     },
     "sprite.graveyard.loot.repair": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.loot.repair",
         "zorder": [0],
         "texture_path": "res/textures/graveyard.png",
@@ -113,7 +113,7 @@
       }
     },
     "sprite.graveyard.hazard.sinkhole": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.hazard.sinkhole",
         "zorder": [0],
         "texture_path": "res/textures/graveyard.png",
@@ -127,7 +127,7 @@
       }
     },
     "sprite.graveyard.hazard.corruption": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.hazard.corruption",
         "zorder": [0],
         "texture_path": "res/textures/graveyard.png",
@@ -141,7 +141,7 @@
       }
     },
     "sprite.graveyard.hazard.wormhole": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.hazard.wormhole",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/wormhole-Sheet.png",
@@ -155,7 +155,7 @@
       }
     },
     "sprite.graveyard.arrow": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.arrow",
         "zorder": [0],
         "texture_path": "res/textures/graveyard.png",
@@ -169,7 +169,7 @@
       }
     },
     "sprite.graveyard.detonated": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.detonated",
         "zorder": [0],
         "texture_path": "res/textures/graveyardfloor.png",
@@ -183,7 +183,7 @@
       }
     },
     "sprite.graveyard.playerspawn": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.playerspawn",
         "zorder": [0],
         "texture_path": "res/textures/graveyard_runes.png",
@@ -206,7 +206,7 @@
       }
     },
     "sprite.graveyard.altar.inactive": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.altar.inactive",
         "zorder": [0],
         "texture_path": "res/textures/landmarks.png",
@@ -221,7 +221,7 @@
       }
     },
     "sprite.graveyard.altar.active1": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.altar.active1",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/landmarks.png",
@@ -236,7 +236,7 @@
       }
     },
     "sprite.graveyard.altar.active2": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.altar.active2",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/landmarks.png",
@@ -251,7 +251,7 @@
       }
     },
     "sprite.graveyard.altar.active3": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.altar.active3",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/landmarks.png",
@@ -266,7 +266,7 @@
       }
     },
     "sprite.graveyard.altar.active4": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.altar.active4",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/landmarks.png",
@@ -281,7 +281,7 @@
       }
     },
     "sprite.graveyard.altar.active5": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.altar.active5",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/landmarks.png",
@@ -296,7 +296,7 @@
       }
     },
     "sprite.graveyard.altar.relic.anim": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.altar.relic.anim",
         "zorder": [0, 0, 0, 0, 0],
         "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
@@ -310,7 +310,7 @@
       }
     },
     "sprite.graveyard.altar.key.anim": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.altar.key.anim",
         "zorder": [0, 0, 0, 0, 0],
         "texture_path": "res/textures/water_effect_and_bullet_16x16.png",
@@ -324,7 +324,7 @@
       }
     },
     "sprite.graveyard.crypt.closed": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.crypt.closed",
         "zorder": [0],
         "texture_path": "res/textures/landmarks.png",
@@ -339,7 +339,7 @@
       }
     },
     "sprite.graveyard.crypt.opened": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.crypt.opened",
         "zorder": [0],
         "texture_path": "res/textures/landmarks.png",
@@ -354,7 +354,7 @@
       }
     },
     "sprite.graveyard.well": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.well",
         "zorder": [0],
         "texture_path": "res/textures/landmarks.png",
@@ -369,7 +369,7 @@
       }
     },
     "sprite.graveyard.ruin": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.ruin",
         "zorder": [0],
         "texture_path": "res/textures/landmarks.png",
@@ -384,7 +384,7 @@
       }
     },
     "sprite.graveyard.graves.small.closed": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.graves.small.closed",
         "zorder": [0],
         "texture_path": "res/textures/landmarks.png",
@@ -404,7 +404,7 @@
       }
     }, 
     "sprite.graveyard.graves.small.opened": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.graves.small.opened",
         "zorder": [0],
         "texture_path": "res/textures/landmarks.png",
@@ -424,7 +424,7 @@
       }
     },    
     "sprite.graveyard.graves.large.closed": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.graves.large.closed",
         "zorder": [0],
         "texture_path": "res/textures/landmarks.png",
@@ -444,7 +444,7 @@
       }
     },
     "sprite.graveyard.graves.large.opened": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.graveyard.graves.large.opened",
         "zorder": [0],
         "texture_path": "res/textures/landmarks.png",
@@ -465,7 +465,7 @@
     },
 
     "sprite.crypt.exit": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "crypt.exit",
         "zorder": [0],
         "texture_path": "res/textures/crypt.png",
@@ -479,7 +479,7 @@
       }
     },
     "sprite.crypt.wall.int": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "crypt.wall.int",
         "zorder": [-5,-5],
         "texture_path": "res/textures/crypt.png",
@@ -493,7 +493,7 @@
       }
     },
     "sprite.crypt.wall.ext": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.crypt.wall.ext",
         "zorder": [
           0, 0, 0, 
@@ -527,7 +527,7 @@
       }
     },
     "sprite.crypt.lava": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.crypt.lava",
         "zorder": [0],
         "texture_path": "res/textures/crypt.png",
@@ -541,7 +541,7 @@
       }
     },
     "sprite.crypt.spikes": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.crypt.spikes",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/crypt.png",
@@ -555,7 +555,7 @@
       }
     },
     "sprite.crypt.chest": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.crypt.chest",
         "zorder": [0, 0, 0],
         "texture_path": "res/textures/crypt.png",
@@ -569,7 +569,7 @@
       }
     },
     "sprite.crypt.switch": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.crypt.switch",
         "zorder": [0, 0],
         "texture_path": "res/textures/crypt.png",
@@ -583,7 +583,7 @@
       }
     },
     "sprite.crypt.loot.cadaver": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.crypt.loot.cadaver",
         "zorder": [0],
         "texture_path": "res/textures/crypt.png",
@@ -597,7 +597,7 @@
       }
     },
     "sprite.crypt.loot.gold": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.crypt.loot.gold",
         "zorder": [0],
         "texture_path": "res/textures/crypt.png",
@@ -611,7 +611,7 @@
       }
     },
     "sprite.crypt.objective.closed": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.crypt.objective.closed",
         "zorder": [-10],
         "texture_path": "res/textures/crypt_objective.png",
@@ -635,7 +635,7 @@
       }
     },
     "sprite.crypt.objective.opened": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.crypt.objective.opened",
         "zorder": [-10],
         "texture_path": "res/textures/crypt_objective.png",
@@ -659,7 +659,7 @@
       }
     },
     "sprite.crypt.anim.lava": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.crypt.anim.lava",
         "zorder": [0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
@@ -675,7 +675,7 @@
 
 
     "sprite.priest": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.priest",
         "zorder": [0],
         "texture_path": "res/textures/npcpriest.png",
@@ -689,7 +689,7 @@
       }
     },
     "sprite.witch": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.witch",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/npcwitch.png",
@@ -703,7 +703,7 @@
       }
     },
     "sprite.drknox": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.drknox",
         "zorder": [0],
         "texture_path": "res/textures/npcdrknox.png",
@@ -717,7 +717,7 @@
       }
     },
     "sprite.ghost.walk.south": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.ghost.walk.south",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcghost.png",
@@ -731,7 +731,7 @@
       }
     },
     "sprite.ghost.walk.north": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.ghost.walk.north",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcghost.png",
@@ -745,7 +745,7 @@
       }
     },
     "sprite.ghost.walk.east": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.ghost.walk.east",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcghost.png",
@@ -759,7 +759,7 @@
       }
     },
     "sprite.ghost.walk.west": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.ghost.walk.west",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcghost.png",
@@ -773,7 +773,7 @@
       }
     },
     "sprite.skeleton.walk.south": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.skeleton.walk.south",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcskele.png",
@@ -787,7 +787,7 @@
       }
     },
     "sprite.skeleton.walk.north": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.skeleton.walk.north",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcskele.png",
@@ -801,7 +801,7 @@
       }
     },
     "sprite.skeleton.walk.east": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.skeleton.walk.east",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcskele.png",
@@ -815,7 +815,7 @@
       }
     },
     "sprite.skeleton.walk.west": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.skeleton.walk.west",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/npcskele.png",
@@ -830,7 +830,7 @@
     },
 
     "sprite.player.footsteps": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.player.footsteps",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/footsteps.png",
@@ -844,7 +844,7 @@
       }
     },
     "sprite.player.walk.south": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.player.walk.south",
         "zorder": [0, 0, 0],
         "texture_path": "res/textures/player.png",
@@ -858,7 +858,7 @@
       }
     },
     "sprite.player.walk.north": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.player.walk.north",
         "zorder": [0, 0, 0],
         "texture_path": "res/textures/player.png",
@@ -872,7 +872,7 @@
       }
     },
     "sprite.player.walk.east": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.player.walk.east",
         "zorder": [0, 0, 0],
         "texture_path": "res/textures/player.png",
@@ -886,7 +886,7 @@
       }
     },
     "sprite.player.walk.west": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.player.walk.west",
         "zorder": [0, 0, 0],
         "texture_path": "res/textures/player.png",
@@ -900,7 +900,7 @@
       }
     },
     "sprite.ui.icons": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.ui.icons",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/icons.png",
@@ -914,7 +914,7 @@
       }
     },
     "sprite.item.pickaxe": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Pickaxe",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -928,7 +928,7 @@
       }
     },
     "sprite.item.axe": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Axe",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -942,7 +942,7 @@
       }
     },
     "sprite.item.shovel": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Shovel",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -956,7 +956,7 @@
       }
     },
     "sprite.item.bomb": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Dynamite",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -970,7 +970,7 @@
       }
     },
     "sprite.item.exitkey": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Exit Key",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -984,7 +984,7 @@
       }
     },
     "sprite.item.cryptkey": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Crypt Key",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -998,7 +998,7 @@
       }
     },
     "sprite.item.plant1": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Plant1",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1012,7 +1012,7 @@
       }
     },
     "sprite.item.plant2": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Plant2",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1026,7 +1026,7 @@
       }
     },
     "sprite.item.plant3": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Plant3",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1040,7 +1040,7 @@
       }
     },
     "sprite.item.plant4": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Plant4",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1054,7 +1054,7 @@
       }
     },
     "sprite.item.plant5": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Plant5",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1068,7 +1068,7 @@
       }
     },
     "sprite.item.plant6": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Plant6",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1082,7 +1082,7 @@
       }
     },
     "sprite.item.plant7": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Plant7",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1096,7 +1096,7 @@
       }
     },
     "sprite.item.plant8": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Plant8",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1110,7 +1110,7 @@
       }
     },
     "sprite.item.plant9": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Plant9",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1124,7 +1124,7 @@
       }
     },
     "sprite.item.plant10": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Plant10",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1138,7 +1138,7 @@
       }
     },
     "sprite.item.plant11": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Plant11",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1152,7 +1152,7 @@
       }
     },
     "sprite.item.plant12": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Plant12",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1166,7 +1166,7 @@
       }
     },
     "sprite.item.relic1": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Relic: Saint's Blood",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1180,7 +1180,7 @@
       }
     },
     "sprite.item.relic2": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Relic: Saint's Eyeball",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1194,7 +1194,7 @@
       }
     },
     "sprite.item.relic3": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Relic: Saint's Bone",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1208,7 +1208,7 @@
       }
     },
     "sprite.item.relic4": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Relic: Saint's Hand",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1222,7 +1222,7 @@
       }
     },
     "sprite.item.seeingstone": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Seeing Stone",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1236,7 +1236,7 @@
       }
     },
     "sprite.item.cursetablet": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Curse Tablet",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1250,7 +1250,7 @@
       }
     },
     "sprite.item.boots": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Dead Man's Boots",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1264,7 +1264,7 @@
       }
     },
     "sprite.item.witchesjar": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Witches Jar",
         "zorder": [0, 0, 0, 0, 0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1278,7 +1278,7 @@
       }
     },
     "sprite.item.preservedcat": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Preserved Cat",
         "zorder": [0, 0, 0, 0, 0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1292,7 +1292,7 @@
       }
     },
     "sprite.item.jewelry_sapphire_necklace": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Sapphire Necklace",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1306,7 +1306,7 @@
       }
     },
     "sprite.item.jewelry_amephyst_ring": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Amephyst Ring",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1320,7 +1320,7 @@
       }
     },
     "sprite.item.jewelry_ruby_ring": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Ruby Ring",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1334,7 +1334,7 @@
       }
     },
     "sprite.item.jewelry_emerald_necklace": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Emerald Necklace",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1348,7 +1348,7 @@
       }
     },
     "sprite.item.jewelry_emerald_gemstone": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Emerald Gemstone",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1362,7 +1362,7 @@
       }
     },
     "sprite.item.jewelry_sapphire_gemstone": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Sapphire Gemstone",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1376,7 +1376,7 @@
       }
     },
     "sprite.item.jewelry_diamond_gemstone": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Diamond Gemstone",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1390,7 +1390,7 @@
       }
     },
     "sprite.item.jewelry_amephyst_gemstone": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Amephyst Gemstone",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1404,7 +1404,7 @@
       }
     },
     "sprite.item.candle": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "Candle",
         "zorder": [0],
         "texture_path": "res/textures/inventoryitems.png",
@@ -1422,7 +1422,7 @@
 
 
     "sprite.death.anim.explosion": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.death.anim.explosion",
         "zorder": [0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
@@ -1436,7 +1436,7 @@
       }
     },
     "sprite.death.anim.bloodsplat": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.death.anim.bloodsplat",
         "zorder": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "texture_path": "res/textures/blood_splash_3.png",
@@ -1450,7 +1450,7 @@
       }
     },
     "sprite.death.anim.flames": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.death.anim.flames",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/fire_effect_and_bullet_16x16.png",
@@ -1467,7 +1467,7 @@
 
 
     "sprite.ruin.wall.int": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.ruin.wall.int",
         "zorder": [
           0, 0, 0, 
@@ -1491,7 +1491,7 @@
       }
     },
     "sprite.ruin.stairs.down": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.ruin.stairs.down",
         "zorder": [-10],
         "texture_path": "res/textures/ruin.png",
@@ -1505,7 +1505,7 @@
       }
     },
     "sprite.ruin.stairs.up": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.ruin.stairs.up",
         "zorder": [-10],
         "texture_path": "res/textures/ruin.png",
@@ -1519,7 +1519,7 @@
       }
     },
     "sprite.ruin.stairs.balustrade": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.ruin.stairs.balustrade",
         "zorder": [-5],
         "texture_path": "res/textures/ruin.png",
@@ -1533,7 +1533,7 @@
       }
     },
     "sprite.ruin.cobweb": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.ruin.cobweb",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/ruin.png",
@@ -1547,7 +1547,7 @@
       }
     },
     "sprite.ruin.bookcase.left": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.ruin.bookcase.left",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/ruin.png",
@@ -1561,7 +1561,7 @@
       }
     },
     "sprite.ruin.bookcase.mid": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.ruin.bookcase.mid",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/ruin.png",
@@ -1575,7 +1575,7 @@
       }
     },
     "sprite.ruin.bookcase.right": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.ruin.bookcase.right",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/ruin.png",
@@ -1589,7 +1589,7 @@
       }
     },
     "sprite.shadowhand": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "ShadowHand",
         "zorder": [1000],
         "texture_path": "res/textures/npcshadowhand.png",
@@ -1605,7 +1605,7 @@
       }
     },
     "sprite.ruin.hex": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.ruin.hex",
         "zorder": [0],
         "texture_path": "res/textures/ruin.png",
@@ -1621,7 +1621,7 @@
     },
 
     "sprite.well.fountain": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.well.fountain",
         "zorder": [0, 0, 0, 0],
         "texture_path": "res/textures/wellfountain.png",
@@ -1636,7 +1636,7 @@
       }
     },
     "sprite.well.wall.int": {
-      "multisprite": {
+      "spritesheet": {
         "displayname": "sprite.well.wall.int",
         "zorder": [
           0, 0, 0, 

@@ -7,7 +7,7 @@
 
 #include <Components/Direction.hpp>
 #include <Components/SpriteAnimation.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <Systems/BaseSystem.hpp>
 
 namespace ProceduralMaze::Sys
@@ -40,7 +40,7 @@ private:
   //! @param anim
   //! @param globalDeltaTime
   //! @param frame_rate
-  void update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const Sprites::MultiSprite &ms, sf::Time frame_rate,
+  void update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const Sprites::SpriteSheet &ms, sf::Time frame_rate,
                                AnimType type = AnimType::LOOP );
 };
 

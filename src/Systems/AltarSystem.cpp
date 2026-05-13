@@ -90,7 +90,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
 
     Factory::destroy_inventory( reg(), sacrifice_type );
 
-    float altar_sacrifice_anim_height = m_sprite_factory.get_multisprite_by_type( sprite_type ).getSpriteSizePixels().y;
+    float altar_sacrifice_anim_height = m_sprite_factory.get_spritesheet_by_type( sprite_type ).get_sprite_size().y;
     // get the center (topleft coord), then adjust to center the altar_sacrifice_anim, then adjust for altar_sacrifice_anim height
     Cmp::Position new_pos( altar_cmp.getCenter() - sf::Vector2{ 8.f, 4.f } - sf::Vector2{ 0.f, altar_sacrifice_anim_height },
                            Constants::kGridSizePxF );

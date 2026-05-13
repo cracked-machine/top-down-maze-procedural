@@ -16,7 +16,7 @@
 
 #include <Components/Font.hpp>
 
-#include <Sprites/SpriteFactory.hpp>
+#include <Factory/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
 
 namespace ProceduralMaze::Cmp

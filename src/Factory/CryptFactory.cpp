@@ -22,7 +22,7 @@
 #include <Factory/MultiblockFactory.hpp>
 #include <Player.hpp>
 #include <Player/PlayerNoPath.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Random.hpp>
 

@@ -51,11 +51,11 @@
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Factory/SpriteFactory.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
-#include <Sprites/MultiSprite.hpp>
-#include <Sprites/SpriteFactory.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <Systems/CryptSystem.hpp>
 #include <Systems/Events/PassageEvent.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -279,7 +279,7 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
           objective_cmp.increment_activation_count();
           SPDLOG_INFO( "Player activated crypt objective." );
 
-          const auto &ms = m_sprite_factory.get_multisprite_by_type( "sprite.crypt.objective.opened" );
+          const auto &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.objective.opened" );
           reg().emplace_or_replace<Cmp::SpriteAnimation>( objective_entity, 0, 0, true, ms.get_sprite_type(), 0 );
         }
       }
@@ -366,7 +366,7 @@ void CryptSystem::createRoomBorders()
 {
   auto add_borders_for_room = [&]<typename Component>( Component &room_cmp, Sprites::SpriteMetaType sprite_type, size_t sprite_index )
   {
-    const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( sprite_type );
+    const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( sprite_type );
     for ( auto &[pos_entt, pos_cmp] : room_cmp.m_border_position_list )
     {
       if ( not reg().valid( pos_entt ) ) continue;
@@ -448,7 +448,7 @@ void CryptSystem::gen_crypt_initial_interior()
     if ( add_interior_wall )
     {
       // if non-zero use the sprites.json zorder value, else use the sprites y-xis pos
-      const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "sprite.crypt.wall.int" );
+      const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.int" );
 
       Factory::create_obstacle( reg(), entity, pos_cmp, ms, 0 );
     }
@@ -624,10 +624,10 @@ void CryptSystem::create_end_room( sf::Vector2u map_grid_size )
                                       static_cast<float>( map_grid_size.y ) * Constants::kGridSizePxF.y );
   auto kGridSizePxF = Constants::kGridSizePxF;
   // target position for the objective: always center top of the map
-  const auto &ms = m_sprite_factory.get_multisprite_by_type( "sprite.crypt.objective.closed" );
+  const auto &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.objective.closed" );
 
-  float centered_x = ( map_grid_sizef.x / 2.f ) - ( ms.getSpriteSizePixels().x / 2.f );
-  Cmp::Position objective_position( { centered_x, kGridSizePxF.y * 2.f }, ms.getSpriteSizePixels() );
+  float centered_x = ( map_grid_sizef.x / 2.f ) - ( ms.get_sprite_size().x / 2.f );
+  Cmp::Position objective_position( { centered_x, kGridSizePxF.y * 2.f }, ms.get_sprite_size() );
 
   auto end_room_entity = reg().create();
   reg().emplace_or_replace<Cmp::CryptRoomEnd>( end_room_entity,
@@ -717,7 +717,7 @@ void CryptSystem::fill_closed_rooms()
       if ( reg().all_of<Cmp::Obstacle>( pos_entt ) ) continue;
       if ( reg().any_of<Cmp::FootStepTimer, Cmp::FootStepAlpha, Cmp::Direction>( pos_entt ) ) continue;
 
-      const Sprites::MultiSprite &ms = m_sprite_factory.get_multisprite_by_type( "sprite.crypt.wall.int" );
+      const Sprites::SpriteSheet &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.wall.int" );
       Factory::create_obstacle( reg(), pos_entt, pos_cmp, ms, 0 );
 
       if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )

@@ -4,7 +4,7 @@
 #include <Components/ReservedPosition.hpp>
 #include <Factory/LootFactory.hpp>
 #include <SpatialHashGrid.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <Utils/Random.hpp>
 
 namespace ProceduralMaze::Factory

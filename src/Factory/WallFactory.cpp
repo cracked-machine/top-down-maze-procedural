@@ -7,14 +7,14 @@
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/WallFactory.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <Utils/Constants.hpp>
 #include <entt/entity/registry.hpp>
 
 namespace ProceduralMaze::Factory
 {
 
-void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprites::MultiSprite &ms, std::size_t sprite_index, SolidWall solid_wall )
+void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprites::SpriteSheet &ms, std::size_t sprite_index, SolidWall solid_wall )
 {
   auto entity = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
@@ -30,7 +30,7 @@ void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprite
 
   Cmp::ZOrderValue zorder_cmp( 0 );
   if ( ms.get_zorder( sprite_index ) != 0 ) { zorder_cmp.setZOrder( ms.get_zorder( sprite_index ) ); }
-  else { zorder_cmp.setZOrder( pos.y + ms.getSpriteSizePixels().y ); }
+  else { zorder_cmp.setZOrder( pos.y + ms.get_sprite_size().y ); }
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder_cmp );
 }
 

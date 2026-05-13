@@ -29,9 +29,9 @@
 #include <Factory/LootFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Factory/SpriteFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
-#include <Sprites/MultiSprite.hpp>
-#include <Sprites/SpriteFactory.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <Systems/DiggingSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>

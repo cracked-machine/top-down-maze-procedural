@@ -6,7 +6,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #include <Components/Position.hpp>
-#include <Sprites/SpriteFactory.hpp>
+#include <Factory/SpriteFactory.hpp>
 
 namespace ProceduralMaze::Cmp
 {

@@ -7,8 +7,8 @@
 #include <Shaders/MistShader.hpp>
 #include <Shaders/NightStaticShader.hpp>
 #include <Shaders/TitleScreenShader.hpp>
+#include <Sprites/VertexSprite.hpp>
 #include <Systems/PersistSystem.hpp>
-#include <Systems/Render/RenderBuffer.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Constants.hpp>
 
@@ -67,18 +67,12 @@ void RenderSystem::safe_render_sprite_to_target( sf::RenderTarget &target, const
 
   try
   {
-    auto &sprite = m_sprite_factory.get_multisprite_by_type( sprite_type );
+    const auto &sprite = m_sprite_factory.get_spritesheet_by_type( sprite_type );
 
     if ( sprite_index < sprite.get_sprite_count() )
     {
-      //! @brief Load the const& MultiSprite into a mutable RenderBuffer.
-      //! @note The vertex array (item from 'm_va_list') is a copy, this means we can modify the
-      //! geometry without affecting the global MultiSprite geometry. For performance reasons the
-      //! global MultiSprite texture must be copied by reference, but in order to protect the global
-      //! MultiSprite texture from accidental side effects it must also be a const reference, i.e.
-      //! read-only.
       const auto &readonly_texture = sprite.get_texture();
-      Sys::RenderBuffer sprite_buffer( sprite.m_va_list[sprite_index], readonly_texture );
+      Sys::VertexSprite sprite_buffer( sprite.m_va_list[sprite_index], readonly_texture );
 
       // Adjust position to compensate for origin offset when origin != (0,0)
       sf::Vector2f adjusted_position = pos_cmp.position;

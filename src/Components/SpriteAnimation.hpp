@@ -42,8 +42,8 @@ struct SpriteAnimation
 
   bool m_animation_active;
 
-  //! @brief The multisprite object type (string) that we are animating
-  Sprites::SpriteMetaType m_sprite_type = "";
+  //! @brief The SpriteSheet object type (string) that we are animating
+  Sprites::SpriteMetaType m_sprite_type;
 
   //! @brief Get the frame index offset for multi-block sprites
   //! @return unsigned int

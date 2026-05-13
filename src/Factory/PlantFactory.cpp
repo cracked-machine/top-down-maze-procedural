@@ -8,16 +8,16 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/PlantFactory.hpp>
+#include <Factory/SpriteFactory.hpp>
 #include <Player/PlayerNoPath.hpp>
 #include <SpatialHashGrid.hpp>
-#include <Sprites/SpriteFactory.hpp>
 #include <Utils.hpp>
 #include <Utils/Random.hpp>
 
 namespace ProceduralMaze::Factory
 {
 
-entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, const Sprites::MultiSprite &ms )
+entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms )
 {
   auto plant_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( plant_entt, pos_cmp.position, pos_cmp.size );

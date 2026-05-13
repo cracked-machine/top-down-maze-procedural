@@ -14,7 +14,7 @@
 
 namespace ProceduralMaze::Sprites
 {
-class MultiSprite;
+class SpriteSheet;
 class SpriteFactory;
 } // namespace ProceduralMaze::Sprites
 

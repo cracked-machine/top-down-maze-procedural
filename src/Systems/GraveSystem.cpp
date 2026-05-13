@@ -26,7 +26,7 @@
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <Systems/GraveSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>

@@ -13,7 +13,7 @@
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <SFML/System/Time.hpp>
-#include <Sprites/MultiSprite.hpp>
+#include <Sprites/SpriteSheet.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Utils/Constants.hpp>

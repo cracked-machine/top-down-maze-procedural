@@ -32,9 +32,9 @@
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
+#include <Factory/SpriteFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <SFML/Graphics/Rect.hpp>
-#include <Sprites/SpriteFactory.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Threats/BombSystem.hpp>
 #include <Utils/Maths.hpp>
