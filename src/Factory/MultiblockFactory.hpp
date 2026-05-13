@@ -28,6 +28,7 @@
 #include <Player/PlayerNoPath.hpp>
 #include <SpatialHashGrid.hpp>
 #include <Systems/BaseSystem.hpp>
+#include <UUID.hpp>
 #include <Utils/Constants.hpp>
 #include <entt/fwd.hpp>
 
@@ -48,23 +49,27 @@ namespace detail
 
 template <typename MULTIBLOCK>
   requires IsMB<MULTIBLOCK>
-void create_multiblock( entt::registry &registry, entt::entity entity, Cmp::Position pos, const Sprites::SpriteSheet &ms, size_t ms_idx = 0 )
+void create_multiblock( entt::registry &reg, entt::entity entity, Cmp::Position pos, const Sprites::SpriteSheet &ms, size_t ms_idx = 0 )
 {
 
   auto large_obst_grid_size = ms.get_grid_size();
-  registry.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, ms.get_sprite_type(), ms_idx );
-  registry.emplace_or_replace<MULTIBLOCK>( entity, pos.position, large_obst_grid_size.componentWiseMul( Constants::kGridSizePx ) );
-  registry.emplace_or_replace<Cmp::ZOrderValue>( entity, pos.position.y );
+  reg.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, ms.get_sprite_type(), ms_idx );
+  reg.emplace_or_replace<MULTIBLOCK>( entity, pos.position, large_obst_grid_size.componentWiseMul( Constants::kGridSizePx ) );
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entity, pos.position.y );
 
-  [[maybe_unused]] auto zorder_cmp = registry.get<Cmp::ZOrderValue>( entity );
+  auto uuid = Cmp::UUID::generate();
+  reg.emplace_or_replace<Cmp::UUID>( entity, uuid );
+
+  [[maybe_unused]] auto zorder_cmp = reg.get<Cmp::ZOrderValue>( entity );
   // clang-format off
-  SPDLOG_DEBUG( "Placed {} at position ({}, {}). Grid size: {}x{} at z-order {}", 
+  SPDLOG_DEBUG( "Placed {} at position ({}, {}). Grid size: {}x{} at z-order {} - {}", 
     ms.get_sprite_type(),
     pos.position.x,
     pos.position.y, 
     large_obst_grid_size.width, 
     large_obst_grid_size.height,
-    zorder_cmp.getZOrder()
+    zorder_cmp.getZOrder(),
+    uuid.str()
   );
   // clang-format on
 }
