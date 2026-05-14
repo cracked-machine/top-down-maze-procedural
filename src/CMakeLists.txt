@@ -86,6 +86,7 @@ add_executable(${TARGET}
     ${CMAKE_SOURCE_DIR}/src/Factory/PlantFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/MultiblockFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Factory/ShaderFactory.cpp
+    ${CMAKE_SOURCE_DIR}/src/Factory/ParticleFactory.cpp
     ${CMAKE_SOURCE_DIR}/src/Utils/Utils.cpp
     ${CMAKE_SOURCE_DIR}/src/Utils/Maths.cpp
     ${CMAKE_SOURCE_DIR}/src/Utils/Player.cpp

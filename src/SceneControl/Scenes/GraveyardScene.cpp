@@ -143,7 +143,7 @@ void GraveyardScene::on_init()
   m_sys.find<Sys::Store::Type::CorruptionHazardSystem>().init_hazard_field();
   m_sys.find<Sys::Store::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
-  auto &particle_system = m_sys.find<Sys::Store::Type::ParticleSystem>();
+  // auto &particle_system = m_sys.find<Sys::Store::Type::ParticleSystem>();
   // Factory::Particle::add_test( m_reg, particle_system, "GraveyardParticleTest" );
   // Factory::Particle::add_flame( m_reg, particle_system, "player.candle", Utils::Player::get_position( m_reg ).getCenter() );
   // Factory::Particle::add_flame( m_reg, particle_system, "player.candle", sf::Vector2f{ 900.0, 900.0 } );
@@ -154,7 +154,7 @@ void GraveyardScene::on_init()
   for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::InventoryItem, Cmp::Position, Cmp::UUID>().each() )
   {
     if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
-    Factory::Particle::add_flame( m_reg, particle_system, "player.candle", uuid_cmp, candle_pos.getCenter() );
+    Factory::Particle::add_flame( m_reg, "player.candle", uuid_cmp, candle_pos.getCenter(), 50000 );
   }
 }
 
@@ -206,7 +206,7 @@ void GraveyardScene::on_exit()
   m_sound_bank.get_music( "title_music" ).play();
 
   auto &m_player_sys = m_sys.find<Sys::Store::Type::PlayerSystem>();
-  m_player_sys.stopFootstepsSound();
+  m_player_sys.stop_footsteps_sound();
 
   for ( auto [floor_entt, floor_cmp] : m_reg.view<Sprites::Containers::VertexFloor>().each() )
   {

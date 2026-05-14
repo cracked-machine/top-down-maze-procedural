@@ -156,6 +156,13 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
         render_overlay_sys.render_wear_level( reg().get<Cmp::InventoryWearLevel>( entity ).m_level, pos_cmp );
       }
     }
+    else if ( reg().all_of<ShaderSpriteOwner>( entity ) )
+    {
+      auto &shader_sprite_owner = reg().get<ShaderSpriteOwner>( entity );
+      if ( not shader_sprite_owner.sprite ) continue;
+      shader_sprite_owner.sprite->update( reg() );
+      if ( m_shaders_enabled ) { draw_world( *shader_sprite_owner.sprite ); }
+    }
     else if ( reg().all_of<ParticleSpriteOwner>( entity ) )
     {
       auto &particle_sprite_owner = reg().get<ParticleSpriteOwner>( entity );
@@ -177,13 +184,6 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
         }
         draw_screen( *particle_sprite_owner.sprite );
       }
-    }
-    else if ( reg().all_of<ShaderSpriteOwner>( entity ) )
-    {
-      auto &shader_sprite_owner = reg().get<ShaderSpriteOwner>( entity );
-      if ( not shader_sprite_owner.sprite ) continue;
-      shader_sprite_owner.sprite->update( reg() );
-      if ( m_shaders_enabled ) { draw_world( *shader_sprite_owner.sprite ); }
     }
     else if ( reg().all_of<Sprites::Containers::VertexFloor>( entity ) )
     {

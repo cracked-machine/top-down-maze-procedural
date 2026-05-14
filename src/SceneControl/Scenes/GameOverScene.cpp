@@ -25,7 +25,7 @@ void GameOverScene::on_exit()
   m_reg.clear();
 
   auto &m_player_sys = m_sys.find<Sys::Store::Type::PlayerSystem>();
-  m_player_sys.stopFootstepsSound();
+  m_player_sys.stop_footsteps_sound();
 }
 
 void GameOverScene::do_update( [[maybe_unused]] sf::Time dt )

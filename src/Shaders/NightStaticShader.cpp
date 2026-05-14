@@ -1,9 +1,11 @@
 #include <Components/Position.hpp>
 #include <Constants.hpp>
 #include <Inventory/InventoryItem.hpp>
+#include <Optimizations.hpp>
 #include <Persistent/DisplayResolution.hpp>
 #include <Player/TorchRadius.hpp>
 #include <Shaders/UniformBuilder.hpp>
+#include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Player.hpp>
@@ -22,14 +24,16 @@ void NightStaticShader::update( entt::registry &reg )
 
   std::vector<sf::Vector2f> torch_positions;
 
+  // add the radius for each flame particle sprite so the shader can render a circle of light
+  for ( auto [candle_entt, particle_cmp] : reg.view<Sys::ParticleSpriteOwner>().each() )
+  {
+    if ( not particle_cmp.sprite->get_tag().contains( "candle" ) ) continue;
+    torch_positions.push_back( particle_cmp.sprite->get_emitter_position() );
+  }
+
+  // flame particle sprites are paused when candle is in inventory so we need to add the radius explicitly
   auto [item_entt, item_type] = Utils::Player::get_inventory_type( reg );
   if ( item_type.contains( "candle" ) ) { torch_positions.push_back( Utils::Player::get_position( reg ).getCenter() ); }
-
-  for ( auto [candle_entt, candle_cmp, candle_pos] : reg.view<Cmp::InventoryItem, Cmp::Position>().each() )
-  {
-    if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
-    torch_positions.push_back( candle_pos.getCenter() );
-  }
 
   Sprites::UniformBuilder{}
       .set( "resolution", sf::Vector2f{ display_size } )

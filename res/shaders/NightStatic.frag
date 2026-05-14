@@ -17,7 +17,7 @@ uniform vec2 view_size;
 uniform float torch_radius;
 
 // player position in world space
-const int MAX_TORCH_COUNT = 8;
+const int MAX_TORCH_COUNT = 40;
 uniform int torch_count;
 uniform vec2 torch_world_pos[MAX_TORCH_COUNT];
 

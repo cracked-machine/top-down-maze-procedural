@@ -1,3 +1,4 @@
+#include <AbsoluteAlpha.hpp>
 #include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/LerpPosition.hpp>
@@ -125,6 +126,15 @@ Cmp::ZOrderValue &get_zorder( entt::registry &reg )
 
   auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::ZOrderValue>();
   return player_view.get<Cmp::ZOrderValue>( get_entity( reg ) );
+}
+
+Cmp::AbsoluteAlpha &get_alpha( entt::registry &reg )
+{
+  auto *alpha_cmp = reg.try_get<Cmp::AbsoluteAlpha>( get_entity( reg ) );
+  if ( not alpha_cmp ) throw std::runtime_error( "Player entt has no component: Cmp::AbsoluteAlpha" );
+
+  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::AbsoluteAlpha>();
+  return player_view.get<Cmp::AbsoluteAlpha>( get_entity( reg ) );
 }
 
 Cmp::PlayerCurse &get_curse( entt::registry &reg )

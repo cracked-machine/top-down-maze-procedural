@@ -1,6 +1,7 @@
 #ifndef SRC_UTILS_PLAYER_HPP_
 #define SRC_UTILS_PLAYER_HPP_
 
+#include <AbsoluteAlpha.hpp>
 #include <SpriteAnimation.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Stats/PlayerStats.hpp>
@@ -37,6 +38,7 @@ Cmp::PlayerWealth &get_wealth( entt::registry &reg );
 Cmp::PlayerBlastRadius &get_blast_radius( entt::registry &reg );
 Cmp::PlayerMortality &get_mortality( entt::registry &reg );
 Cmp::ZOrderValue &get_zorder( entt::registry &reg );
+Cmp::AbsoluteAlpha &get_alpha( entt::registry &reg );
 Cmp::PlayerCurse &get_curse( entt::registry &reg );
 void reset_curse( entt::registry &reg );
 float get_speed_penalty( entt::registry &reg );

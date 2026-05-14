@@ -31,7 +31,7 @@ void LevelCompleteScene::on_exit()
   m_reg.clear();
 
   auto &player_sys = m_sys.find<Sys::Store::Type::PlayerSystem>();
-  player_sys.stopFootstepsSound();
+  player_sys.stop_footsteps_sound();
 }
 
 void LevelCompleteScene::do_update( sf::Time dt )
