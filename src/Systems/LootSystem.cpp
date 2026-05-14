@@ -5,8 +5,9 @@
 #include <Components/Armable.hpp>
 #include <Components/Inventory/FlashUICadaver.hpp>
 #include <Components/Inventory/FlashUIRadius.hpp>
-#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/PlayerInventorySlot.hpp>
+#include <Components/Inventory/WorldItem.hpp>
 #include <Components/Persistent/BombBonus.hpp>
 #include <Components/Persistent/HealthBonus.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>

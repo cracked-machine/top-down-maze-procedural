@@ -1,15 +1,4 @@
-#include <Events/DropInventoryEvent.hpp>
-#include <Exit.hpp>
-#include <Stats/BaseAction.hpp>
-#include <Stats/CollisionAction.hpp>
-#include <System.hpp>
-#include <Systems/Stores/NpcStore.hpp>
-#include <Utils.hpp>
-#include <typeindex>
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
-
 #include <Audio/SoundBank.hpp>
-#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
@@ -30,27 +19,34 @@
 #include <Components/Ruin/RuinStairsUpperMultiBlock.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Events/DropInventoryEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
+#include <Exit.hpp>
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <Sprites/SpriteSheet.hpp>
+#include <Stats/BaseAction.hpp>
+#include <Stats/CollisionAction.hpp>
+#include <System.hpp>
 #include <Systems/Render/RenderGameSystem.hpp>
 #include <Systems/RuinSystem.hpp>
+#include <Systems/Stores/NpcStore.hpp>
+#include <Utils.hpp>
 #include <Utils/Collision.hpp>
 #include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
 
-#include <numbers>
-#include <set>
-
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Sleep.hpp>
 #include <SFML/System/Time.hpp>
 #include <entt/entity/fwd.hpp>
+#include <numbers>
+#include <set>
+#include <typeindex>
 
 namespace ProceduralMaze::Sys
 {

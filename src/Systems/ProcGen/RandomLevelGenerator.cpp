@@ -14,7 +14,6 @@
 #include <Components/Grave/GraveSegment.hpp>
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
 #include <Components/HolyWell/HolyWellSegment.hpp>
-#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Persistent/GraveNumMultiplier.hpp>
 #include <Components/Persistent/MaxNumAltars.hpp>
 #include <Components/Persistent/MaxNumCrypts.hpp>

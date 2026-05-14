@@ -1,7 +1,6 @@
 #ifndef SRC_FACTORY_PLAYERFACTORY_HPP
 #define SRC_FACTORY_PLAYERFACTORY_HPP
 
-#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Factory/SpriteFactory.hpp>

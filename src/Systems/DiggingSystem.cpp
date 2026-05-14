@@ -1,15 +1,9 @@
 
-#include <Events/CreateItemEvent.hpp>
-#include <Events/DropInventoryEvent.hpp>
-#include <Player/PlayerNoPath.hpp>
-#include <Systems/Stores/ItemStore.hpp>
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
-
 #include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/DestroyedObstacle.hpp>
-#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
@@ -25,17 +19,21 @@
 #include <Components/SelectedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Events/CreateItemEvent.hpp>
+#include <Events/DropInventoryEvent.hpp>
 #include <Factory/BombFactory.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
+#include <Player/PlayerNoPath.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Systems/DiggingSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Systems/Stores/ItemStore.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>

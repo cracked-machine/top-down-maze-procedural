@@ -1,5 +1,4 @@
-
-#include <Components/Inventory/InventoryItem.hpp>
+#include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerKeysCount.hpp>
 #include <Components/Ruin/RuinObjectiveType.hpp>

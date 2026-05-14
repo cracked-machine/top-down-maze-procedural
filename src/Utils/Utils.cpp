@@ -5,8 +5,8 @@
 #include <Utils/Utils.hpp>
 
 #include <Components/Exit.hpp>
-#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/WorldItem.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>
 #include <Components/Player/PlayerCharacter.hpp>

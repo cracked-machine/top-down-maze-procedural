@@ -13,7 +13,7 @@ namespace ProceduralMaze::Sys
 {
 
 ItemStore::ItemStore( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : StoreSingleton<ItemStore, Cmp::InventoryItem>( reg, window, sprite_factory, sound_bank )
+    : StoreSingleton<ItemStore, Cmp::WorldItem>( reg, window, sprite_factory, sound_bank )
 {
   s_instance = this;
   m_json_file_path = "res/json/items.json";
@@ -27,7 +27,7 @@ void ItemStore::init_store()
   for ( const auto &[item_key, item_value] : json.items() )
   {
     Sprites::SpriteMetaType sprite_mtype = item_value.at( "sprite" ).get<std::string>();
-    Cmp::InventoryItem carryitem( sprite_mtype );
+    Cmp::WorldItem carryitem( sprite_mtype );
     for ( const auto &action_entry : item_value.at( "actions" ) )
     {
       for ( const auto &[action_key, action_value] : action_entry.items() )

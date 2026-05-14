@@ -6,9 +6,10 @@
 #include <Components/Exit.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Inventory/Explosive.hpp>
-#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
+#include <Components/Inventory/WorldItem.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
@@ -298,7 +299,7 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
       mod_log << " dark[" << fear_of_the_dark.fear() << "]";
 
       auto torch_radius = Utils::Player::get_torch_radius( reg() );
-      for ( auto [candle_entt, candle_cmp, candle_pos] : reg().view<Cmp::InventoryItem, Cmp::Position>().each() )
+      for ( auto [candle_entt, candle_cmp, candle_pos] : reg().view<Cmp::WorldItem, Cmp::Position>().each() )
       {
         if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), candle_pos ) ) continue;
         if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
@@ -550,7 +551,7 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
   reg().emplace_or_replace<Cmp::Position>( world_item_entt, pos, Constants::kGridSizePxF );
   reg().emplace_or_replace<Cmp::SpriteAnimation>( world_item_entt, 0, 0, false, inventory_slot_cmp->m_item.sprite_type, 0 );
   reg().emplace_or_replace<Cmp::ZOrderValue>( world_item_entt, pos.y - 1.f );
-  reg().emplace_or_replace<Cmp::InventoryItem>( world_item_entt, inventory_slot_cmp->m_item );
+  reg().emplace_or_replace<Cmp::WorldItem>( world_item_entt, inventory_slot_cmp->m_item );
   reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_item_entt );
 
   // try to copy any relevant components over to the new world carryitem entt
@@ -586,7 +587,7 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
 void PlayerSystem::pickup_world_item( entt::registry &reg, entt::entity world_item_entt )
 {
   // does this entity own a world item that can be carried?
-  auto *world_item_cmp = reg.try_get<Cmp::InventoryItem>( world_item_entt );
+  auto *world_item_cmp = reg.try_get<Cmp::WorldItem>( world_item_entt );
   if ( not world_item_cmp ) return;
 
   // create the basic inventory slot entt
@@ -660,7 +661,7 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
     }
 
     // pickup inventory if there is something at this position
-    auto world_carryitem_view = reg().view<Cmp::InventoryItem, Cmp::Position>();
+    auto world_carryitem_view = reg().view<Cmp::WorldItem, Cmp::Position>();
     for ( auto [carryitem_entt, carryitem_cmp, pos_cmp] : world_carryitem_view.each() )
     {
       if ( not player_pos.findIntersection( pos_cmp ) ) continue;                  // is there something to pick up?

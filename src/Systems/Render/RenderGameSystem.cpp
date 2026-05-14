@@ -19,7 +19,6 @@
 #include <Components/Exit.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
 #include <Components/HolyWell/HolyWellMultiBlock.hpp>
-#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>

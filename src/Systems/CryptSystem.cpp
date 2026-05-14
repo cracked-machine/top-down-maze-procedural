@@ -28,7 +28,6 @@
 #include <Components/Exit.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
-#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Persistent/CryptNpcSpawnCount.hpp>

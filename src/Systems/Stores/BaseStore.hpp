@@ -1,7 +1,7 @@
 #ifndef SRC_SYSTEMS_BASESTORE_HPP_
 #define SRC_SYSTEMS_BASESTORE_HPP_
 
-#include <Components/Inventory/InventoryItem.hpp>
+#include <Components/Inventory/WorldItem.hpp>
 #include <Components/Random.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Stats/BaseAction.hpp>

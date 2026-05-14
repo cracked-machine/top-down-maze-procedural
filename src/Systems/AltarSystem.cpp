@@ -1,26 +1,11 @@
-#include <Events/CreateItemEvent.hpp>
-#include <Events/PlayerActionEvent.hpp>
-#include <Inventory/FlashUIInventory.hpp>
-#include <Sprites/SpriteMetaType.hpp>
-#include <Stats/SacrificeAction.hpp>
-#include <Systems/ParticleSystem.hpp>
-#include <UUID.hpp>
-#include <stdexcept>
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
-
-#include <Components/Altar/AltarSacrifice.hpp>
-#include <Components/Inventory/InventoryItem.hpp>
-#include <Components/SpriteAnimation.hpp>
-#include <Factory/AltarFactory.hpp>
-#include <Factory/PlayerFactory.hpp>
-#include <Systems/AltarSystem.hpp>
-
 #include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/Altar/AltarMultiBlock.hpp>
+#include <Components/Altar/AltarSacrifice.hpp>
 #include <Components/Altar/AltarSegment.hpp>
 #include <Components/Armable.hpp>
 #include <Components/DestroyedObstacle.hpp>
+#include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
@@ -29,17 +14,30 @@
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
+#include <Components/SpriteAnimation.hpp>
+#include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Events/CreateItemEvent.hpp>
+#include <Events/PlayerActionEvent.hpp>
+#include <Factory/AltarFactory.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
+#include <Factory/PlayerFactory.hpp>
+#include <Inventory/FlashUIInventory.hpp>
+#include <Sprites/SpriteMetaType.hpp>
+#include <Stats/SacrificeAction.hpp>
+#include <Systems/AltarSystem.hpp>
+#include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 #include <Systems/Stores/ItemStore.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
+
+#include <stdexcept>
 
 namespace ProceduralMaze::Sys
 {

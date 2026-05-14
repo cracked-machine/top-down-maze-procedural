@@ -8,7 +8,7 @@
 namespace ProceduralMaze::Sys
 {
 
-class ItemStore : public StoreSingleton<ItemStore, Cmp::InventoryItem>
+class ItemStore : public StoreSingleton<ItemStore, Cmp::WorldItem>
 {
 public:
   ItemStore( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );

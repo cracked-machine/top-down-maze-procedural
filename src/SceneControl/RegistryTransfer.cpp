@@ -22,9 +22,9 @@
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Inventory/Explosive.hpp>
-#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
+#include <Components/Inventory/WorldItem.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Player/PlayerBlastRadius.hpp>
@@ -231,7 +231,7 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   registry.storage<Cmp::SpriteAnimation>();
   registry.storage<Cmp::PlayerInventorySlot>();
   registry.storage<Cmp::TorchRadius>();
-  registry.storage<Cmp::InventoryItem>();
+  registry.storage<Cmp::WorldItem>();
   registry.storage<Cmp::InventoryWearLevel>();
   registry.storage<Cmp::ZOrderValue>();
   registry.storage<Cmp::SeeingStone>();

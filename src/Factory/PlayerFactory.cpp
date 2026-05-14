@@ -4,8 +4,8 @@
 #include <Components/DeathPosition.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Inventory/Explosive.hpp>
-#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/BlastRadius.hpp>

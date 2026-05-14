@@ -3,7 +3,6 @@
 
 #include <Audio/SoundBank.hpp>
 #include <Components/Exit.hpp>
-#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/ExitKeyRequirement.hpp>

@@ -1,4 +1,4 @@
-#include <Components/Inventory/InventoryItem.hpp>
+#include <Components/Inventory/WorldItem.hpp>
 #include <Components/Random.hpp>
 #include <Components/Stats/BuryAction.hpp>
 #include <Components/Stats/CarryAction.hpp>

@@ -1,6 +1,5 @@
 #include <Components/Position.hpp>
 #include <Constants.hpp>
-#include <Inventory/InventoryItem.hpp>
 #include <Optimizations.hpp>
 #include <Persistent/DisplayResolution.hpp>
 #include <Player/TorchRadius.hpp>

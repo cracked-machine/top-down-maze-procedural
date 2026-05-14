@@ -8,7 +8,7 @@
 #include <Components/Exit.hpp>
 #include <Components/Grave/GraveSegment.hpp>
 #include <Components/Inventory/Explosive.hpp>
-#include <Components/Inventory/InventoryItem.hpp>
+#include <Components/Inventory/WorldItem.hpp>
 #include <Components/LootContainer.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcContainer.hpp>
@@ -261,7 +261,7 @@ void BombSystem::update()
     }
 
     // detonate nearby carryitems - cruel but fair
-    auto carryitem_view = reg().view<Cmp::InventoryItem, Cmp::Position>();
+    auto carryitem_view = reg().view<Cmp::WorldItem, Cmp::Position>();
     for ( auto [carryitem_entt, carryitem_cmp, carryitem_pos_cmp] : carryitem_view.each() )
     {
       if ( not carryitem_pos_cmp.findIntersection( armed_pos_cmp ) ) continue;

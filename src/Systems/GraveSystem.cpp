@@ -8,7 +8,6 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
 #include <Components/Grave/GraveSegment.hpp>
-#include <Components/Inventory/InventoryItem.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Persistent/DiggingCooldownThreshold.hpp>
 #include <Components/Persistent/DiggingDamagePerHit.hpp>

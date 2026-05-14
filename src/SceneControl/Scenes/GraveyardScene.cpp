@@ -1,7 +1,7 @@
 #include <Altar/AltarMultiBlock.hpp>
 #include <Audio/SoundBank.hpp>
 #include <Components/Direction.hpp>
-#include <Components/Inventory/InventoryItem.hpp>
+#include <Components/Inventory/WorldItem.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
@@ -151,7 +151,7 @@ void GraveyardScene::on_init()
   // Factory::Particle::add_shockwave( m_reg, particle_system, "GraveyardParticleTest" );
 
   // add flame particle sprites for any candle items in the new game world. Use the Candle item UUID to initialise the ParticleSprite.
-  for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::InventoryItem, Cmp::Position, Cmp::UUID>().each() )
+  for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
   {
     if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
     Factory::Particle::add_flame( m_reg, "player.candle", uuid_cmp, candle_pos.getCenter(), 50000 );
@@ -258,7 +258,7 @@ void GraveyardScene::do_update( sf::Time dt )
   // update flame particle sprite position for candle items
   for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : m_reg.view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
   {
-    for ( auto [candle_entt, candle_cmp, candle_pos_cmp, candle_uuid_cmp] : m_reg.view<Cmp::InventoryItem, Cmp::Position, Cmp::UUID>().each() )
+    for ( auto [candle_entt, candle_cmp, candle_pos_cmp, candle_uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
     {
       if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
       if ( ps_uuid_cmp != candle_uuid_cmp ) continue;

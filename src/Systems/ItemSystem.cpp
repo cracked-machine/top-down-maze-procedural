@@ -53,7 +53,7 @@ void ItemSystem::create_world_item( Cmp::Position pos, const std::string &item, 
   {
     reg().emplace_or_replace<Cmp::InventoryWearLevel>( world_item_entt, 100.f );
   }
-  reg().emplace_or_replace<Cmp::InventoryItem>( world_item_entt, Sys::ItemStore::instance().get_item( item ) );
+  reg().emplace_or_replace<Cmp::WorldItem>( world_item_entt, Sys::ItemStore::instance().get_item( item ) );
 
   SPDLOG_INFO( "Placed {} at {},{}", item, pos.position.x, pos.position.y );
   if ( world_item_entt != entt::null and not sfx.empty() ) { m_sound_bank.get_effect( sfx ).play(); }
@@ -80,7 +80,7 @@ void ItemSystem::create_seeing_stone( Cmp::Position pos, const std::string &item
   reg().emplace_or_replace<Cmp::ReservedPosition>( world_carry_item_entt );
   reg().emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).sprite_type, 0 );
   reg().emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
-  reg().emplace_or_replace<Cmp::InventoryItem>( world_carry_item_entt, Sys::ItemStore::instance().get_item( item ) );
+  reg().emplace_or_replace<Cmp::WorldItem>( world_carry_item_entt, Sys::ItemStore::instance().get_item( item ) );
   reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
   reg().emplace_or_replace<Cmp::SeeingStone>( world_carry_item_entt, false, pick );
 
@@ -94,7 +94,7 @@ void ItemSystem::create_explosive( Cmp::Position pos, const std::string &item, f
   reg().emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
   reg().emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).sprite_type, 0 );
   reg().emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
-  reg().emplace_or_replace<Cmp::InventoryItem>( world_carry_item_entt, Sys::ItemStore::instance().get_item( item ) );
+  reg().emplace_or_replace<Cmp::WorldItem>( world_carry_item_entt, Sys::ItemStore::instance().get_item( item ) );
   reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
   reg().emplace_or_replace<Cmp::Explosive>( world_carry_item_entt, false );
 
