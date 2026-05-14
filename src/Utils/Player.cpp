@@ -13,6 +13,7 @@
 #include <Components/Position.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Direction.hpp>
+#include <Inventory/PlayerInventorySlot.hpp>
 #include <Player/PlayerCadaverCount.hpp>
 #include <Player/PlayerLevelDepth.hpp>
 #include <Player/TorchRadius.hpp>

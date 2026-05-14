@@ -1,3 +1,4 @@
+#include <Inventory/PlayerInventorySlot.hpp>
 #include <Player/PlayerLevelDepth.hpp>
 #include <Player/TorchRadius.hpp>
 #include <Stats/PlayerStats.hpp>

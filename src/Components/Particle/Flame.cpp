@@ -31,7 +31,6 @@ void Flame::simulate( sf::Time dt )
   const float amplitude = 20.f;
 
   const sf::Color start_flame_color{ 255, 255, 255 }; // white
-  const sf::Color final_flame_color{ 255, 0, 0 };     // red
   const sf::Color smoke_color{ 0, 0, 0 };
 
   constexpr float k_flame_phase = 0.6f;   // first 50% of lifetime = flame
@@ -58,11 +57,11 @@ void Flame::simulate( sf::Time dt )
       // flame phase — lerp white -> red, ratio 1.0 = white, k_flame_phase = red
       const float t = 1.f - ( ( ratio - k_flame_phase ) / ( 1.f - k_flame_phase ) );
       p.m_vertex.color.r = static_cast<std::uint8_t>(
-          std::lerp( static_cast<float>( start_flame_color.r ), static_cast<float>( final_flame_color.r ), t ) );
+          std::lerp( static_cast<float>( start_flame_color.r ), static_cast<float>( m_final_flame_color.r ), t ) );
       p.m_vertex.color.g = static_cast<std::uint8_t>(
-          std::lerp( static_cast<float>( start_flame_color.g ), static_cast<float>( final_flame_color.g ), t ) );
+          std::lerp( static_cast<float>( start_flame_color.g ), static_cast<float>( m_final_flame_color.g ), t ) );
       p.m_vertex.color.b = static_cast<std::uint8_t>(
-          std::lerp( static_cast<float>( start_flame_color.b ), static_cast<float>( final_flame_color.b ), t ) );
+          std::lerp( static_cast<float>( start_flame_color.b ), static_cast<float>( m_final_flame_color.b ), t ) );
       p.m_vertex.color.a = static_cast<std::uint8_t>( ratio * 255 );
     }
     else

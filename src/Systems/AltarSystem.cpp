@@ -26,6 +26,7 @@
 #include <Factory/ParticleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Inventory/FlashUIInventory.hpp>
+#include <Particle/Flame.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Stats/SacrificeAction.hpp>
 #include <Systems/AltarSystem.hpp>
@@ -115,7 +116,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       {
         case 0: {
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 1 ); } );
-          Factory::Particle::add_flame( m_reg, "player.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[0], 5000 );
+          Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[0], 5000 );
           SPDLOG_DEBUG( "Altar activated to state ONE." );
           // Apply the effects from exhuming this item to the player stats
           auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
@@ -129,7 +130,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
         }
         case 1: {
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 2 ); } );
-          Factory::Particle::add_flame( m_reg, "player.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[1], 5000 );
+          Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[1], 5000 );
           SPDLOG_DEBUG( "Altar activated to state TWO." );
           // Apply the effects from exhuming this item to the player stats
           auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
@@ -143,7 +144,7 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
         }
         case 2: {
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 3 ); } );
-          Factory::Particle::add_flame( m_reg, "player.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[2], 5000 );
+          Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[2], 5000 );
           SPDLOG_DEBUG( "Altar activated to state THREE." );
           // Apply the effects from exhuming this item to the player stats
           auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
@@ -157,7 +158,8 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
         }
         case 3: {
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 4 ); } );
-          Factory::Particle::add_flame( m_reg, "player.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[3], 5000 );
+          Factory::Particle::add_flame( m_reg, "altar.candle", *altar_uuid_cmp, altar_cmp.position + altar_cmp.flame_offsets[3], 5000 );
+
           SPDLOG_DEBUG( "Altar activated to state FOUR." );
           // Apply the effects from exhuming this item to the player stats
           auto inventory_view = reg().view<Cmp::PlayerInventorySlot>();
@@ -181,8 +183,16 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
       {
         case 4:
           reg().patch<Cmp::AltarMultiBlock>( altar_entity, [&]( Cmp::AltarMultiBlock &altar_cmp ) { altar_cmp.set_sacrifice_count( 5 ); } );
-          reg().patch<Cmp::SpriteAnimation>( altar_entity,
-                                             [&]( Cmp::SpriteAnimation &anim_cmp ) { anim_cmp.m_sprite_type = "sprite.graveyard.altar.active5"; } );
+          for ( auto [altar_entt, altar_cmp, altar_uuid_cmp] : reg().view<Cmp::AltarMultiBlock, Cmp::UUID>().each() )
+          {
+            for ( auto [particle_entt, particle_cmp, particle_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+            {
+              if ( altar_uuid_cmp != particle_uuid_cmp ) continue;
+              if ( not particle_cmp.sprite->get_tag().contains( "candle" ) ) continue;
+              auto *flame_particle = dynamic_cast<Cmp::Particle::Flame *>( particle_cmp.sprite.get() );
+              if ( flame_particle ) { flame_particle->m_final_flame_color = { 0, 0, 255 }; }
+            }
+          }
           SPDLOG_DEBUG( "Altar activated to state FIVE." );
           common_activation( SacrificeAnimType::KEY );
         default:
