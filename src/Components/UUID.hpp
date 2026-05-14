@@ -37,7 +37,8 @@ struct UUID
                         data[15] );
   }
 
-  bool operator==( const UUID & ) const = default;
+  //! @brief spaceship operator overload automatically generates ==, !=, <, >, <=, and >=
+  bool operator<=>( const UUID & ) const = default;
 };
 
 } // namespace ProceduralMaze::Cmp

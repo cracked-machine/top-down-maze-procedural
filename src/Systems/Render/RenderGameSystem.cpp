@@ -181,8 +181,8 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
         for ( auto &icon : render_overlay_sys.m_main_ui_data->m_icons )
         {
           if ( icon.name != "inventory_icon" ) continue;
-          particle_sprite_owner.sprite->set_emitter_position(
-              { icon.rect.position.x + ( icon.scale * 8.f ), icon.rect.position.y + ( icon.scale * 6.f ) } );
+          sf::Vector2f new_emitter_pos = { icon.rect.position.x + ( icon.scale * 8.f ), icon.rect.position.y + ( icon.scale * 6.f ) };
+          particle_sprite_owner.sprite->set_emitter_position( new_emitter_pos );
         }
         particle_sprite_owner.sprite->restart();
         draw_screen( *particle_sprite_owner.sprite );

@@ -261,7 +261,8 @@ void GraveyardScene::do_update( sf::Time dt )
     for ( auto [candle_entt, candle_cmp, candle_pos_cmp, candle_uuid_cmp] : m_reg.view<Cmp::InventoryItem, Cmp::Position, Cmp::UUID>().each() )
     {
       if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
-      if ( ps_uuid_cmp == candle_uuid_cmp ) { ps_owner.sprite->set_emitter_position( candle_pos_cmp.getCenter() ); }
+      if ( ps_uuid_cmp != candle_uuid_cmp ) continue;
+      ps_owner.sprite->set_emitter_position( candle_pos_cmp.getCenter() );
     }
   }
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );

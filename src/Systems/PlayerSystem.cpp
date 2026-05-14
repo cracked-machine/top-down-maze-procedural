@@ -338,13 +338,12 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
         if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), altar_cmp ) ) continue;
         for ( auto [particle_entt, particle_cmp, particle_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
         {
-          if ( altar_uuid_cmp == particle_uuid_cmp )
-          {
-            float player_distance = Utils::Maths::getEuclideanDistance( particle_cmp.sprite->get_emitter_position(),
-                                                                        Utils::Player::get_position( reg() ).position );
-            if ( player_distance > torch_radius.value ) continue;
-            net_modifier += candle_action_modifiers;
-          }
+          if ( altar_uuid_cmp != particle_uuid_cmp ) continue;
+
+          float player_distance = Utils::Maths::getEuclideanDistance( particle_cmp.sprite->get_emitter_position(),
+                                                                      Utils::Player::get_position( reg() ).position );
+          if ( player_distance > torch_radius.value ) continue;
+          net_modifier += candle_action_modifiers;
         }
       }
       m_darkness_fear_clock = sf::Time::Zero;
