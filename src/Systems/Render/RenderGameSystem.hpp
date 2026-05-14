@@ -1,7 +1,7 @@
 #ifndef __SYS_RENDERGAMESYSTEM_HPP__
 #define __SYS_RENDERGAMESYSTEM_HPP__
 
-#include <Components/SpriteAnimation.hpp>
+#include <Components/AnimData.hpp>
 #include <Inventory/ScryingBall.hpp>
 #include <Persistent/DisplayResolution.hpp>
 

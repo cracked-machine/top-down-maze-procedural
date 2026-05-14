@@ -3,6 +3,7 @@
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/Altar/AltarSacrifice.hpp>
 #include <Components/Altar/AltarSegment.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
@@ -14,7 +15,6 @@
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/UUID.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/CreateItemEvent.hpp>
@@ -68,10 +68,10 @@ void AltarSystem::on_player_action( Events::PlayerActionEvent ev )
 void AltarSystem::check_player_collision()
 {
   // tidy up any dead altar sacrifice animations
-  auto altar_sacrifice_view = reg().view<Cmp::AltarSacrifice, Cmp::SpriteAnimation>();
+  auto altar_sacrifice_view = reg().view<Cmp::AltarSacrifice, Cmp::AnimData>();
   for ( auto [altar_sacrifice_entt, altar_sacrifice_cmp, altar_sacrifice_anim_cmp] : altar_sacrifice_view.each() )
   {
-    if ( not altar_sacrifice_anim_cmp.m_animation_active )
+    if ( not altar_sacrifice_anim_cmp.m_enabled )
     {
       if ( reg().valid( altar_sacrifice_entt ) ) { reg().destroy( altar_sacrifice_entt ); }
     }

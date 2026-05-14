@@ -1,4 +1,5 @@
 #include <AbsoluteAlpha.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/LerpPosition.hpp>
@@ -19,7 +20,6 @@
 #include <Player/TorchRadius.hpp>
 #include <RectBounds.hpp>
 #include <SpawnArea.hpp>
-#include <SpriteAnimation.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Utils/Player.hpp>
 #include <stdexcept>
@@ -66,9 +66,9 @@ Cmp::Direction &get_direction( entt::registry &reg )
 //! @throws runtime_error if player has no Cmp::SpriteAnimation
 //! @param reg
 //! @return Cmp::SpriteAnimation&
-Cmp::SpriteAnimation &get_sprite_anim( entt::registry &reg )
+Cmp::AnimData &get_sprite_anim( entt::registry &reg )
 {
-  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::SpriteAnimation>();
+  auto player_view = reg.view<Cmp::PlayerCharacter, Cmp::AnimData>();
   for ( auto [entt, player_cmp, anim_cmp] : player_view.each() )
   {
     return anim_cmp;

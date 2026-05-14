@@ -46,6 +46,7 @@
 #include <Persistent/NpcLerpSpeedPriest.hpp>
 #include <Persistent/NpcLerpSpeedSkele.hpp>
 #include <Persistent/NpcLerpSpeedWitch.hpp>
+#include <Persistent/NpcWispAnimFramerate.hpp>
 #include <Persistent/NpcWitchAnimFramerate.hpp>
 #include <Persistent/PlayerMovementSpeed.hpp>
 #include <Player/PlayerCadaverCount.hpp>
@@ -223,6 +224,7 @@ void RenderMenuSystem::render_settings_widgets( sf::Time globalDeltaTime, sf::Fl
 
     Sys::PersistSystem::get<Cmp::Persist::NpcSkeleAnimFramerate>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcWitchAnimFramerate>( reg() ).render_widget();
+    Sys::PersistSystem::get<Cmp::Persist::NpcWispAnimFramerate>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcGhostAnimFramerate>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::CryptNpcSpawnCount>( reg() ).render_widget();
     Sys::PersistSystem::get<Cmp::Persist::NpcShockwaveResolution>( reg() ).render_widget();

@@ -1,3 +1,4 @@
+#include <Components/AnimData.hpp>
 #include <Components/Armed.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
@@ -5,7 +6,6 @@
 #include <Components/Persistent/ArmedOnDelay.hpp>
 #include <Components/Persistent/FuseDelay.hpp>
 #include <Components/Position.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/BombFactory.hpp>
 #include <Systems/PersistSystem.hpp>
@@ -15,23 +15,23 @@
 namespace ProceduralMaze::Factory
 {
 
-entt::entity create_armed( entt::registry &registry, entt::entity entity, Cmp::Armed::EpiCenter epi_center, int sequence, int zorder )
+entt::entity create_armed( entt::registry &reg, entt::entity entity, Cmp::Armed::EpiCenter epi_center, int sequence, int zorder )
 {
 
   // get persistent settings
   // clang-format off
   sf::Color color = sf::Color( 255, 10 + ( sequence * 10 ) % 155, 255, 64 );
-  auto &fuse_delay = Sys::PersistSystem::get<Cmp::Persist::FuseDelay>( registry );
-  auto &armed_on_delay = Sys::PersistSystem::get<Cmp::Persist::ArmedOnDelay>( registry );
-  auto &armed_off_delay = Sys::PersistSystem::get<Cmp::Persist::ArmedOffDelay>( registry );
+  auto &fuse_delay = Sys::PersistSystem::get<Cmp::Persist::FuseDelay>( reg );
+  auto &armed_on_delay = Sys::PersistSystem::get<Cmp::Persist::ArmedOnDelay>( reg );
+  auto &armed_off_delay = Sys::PersistSystem::get<Cmp::Persist::ArmedOffDelay>( reg );
   auto new_fuse_delay = sf::seconds( fuse_delay.get_value() + ( sequence * armed_on_delay.get_value() ) );
   auto new_warning_delay = sf::seconds( armed_off_delay.get_value() + ( sequence * armed_off_delay.get_value() ) );
   // clang-format on
 
   // create the new armed entity
-  auto new_armed_entity = registry.create();
+  auto new_armed_entity = reg.create();
   // clang-format off
-    registry.emplace_or_replace<Cmp::Armed>(
+    reg.emplace_or_replace<Cmp::Armed>(
       new_armed_entity,
       new_fuse_delay,
       new_warning_delay,
@@ -42,17 +42,16 @@ entt::entity create_armed( entt::registry &registry, entt::entity entity, Cmp::A
     );
   // clang-format on
 
-  registry.emplace_or_replace<Cmp::Position>( new_armed_entity, registry.get<Cmp::Position>( entity ).position,
-                                              registry.get<Cmp::Position>( entity ).size );
+  reg.emplace_or_replace<Cmp::Position>( new_armed_entity, reg.get<Cmp::Position>( entity ).position, reg.get<Cmp::Position>( entity ).size );
 
   if ( epi_center == Cmp::Armed::EpiCenter::YES )
   {
-    registry.emplace_or_replace<Cmp::SpriteAnimation>( new_armed_entity, 0, 0, true, "sprite.item.bomb", 0 );
-    registry.emplace_or_replace<Cmp::ZOrderValue>( new_armed_entity, zorder );
-    registry.emplace_or_replace<Cmp::NpcNoPathFinding>( new_armed_entity );
+    reg.emplace_or_replace<Cmp::AnimData>( new_armed_entity, Cmp::AnimData::Config{ .sprite_type = "sprite.item.bomb" } );
+    reg.emplace_or_replace<Cmp::ZOrderValue>( new_armed_entity, zorder );
+    reg.emplace_or_replace<Cmp::NpcNoPathFinding>( new_armed_entity );
   }
 
-  registry.emplace_or_replace<Cmp::NpcNoPathFinding>( new_armed_entity );
+  reg.emplace_or_replace<Cmp::NpcNoPathFinding>( new_armed_entity );
 
   return new_armed_entity;
 }
@@ -60,14 +59,14 @@ entt::entity create_armed( entt::registry &registry, entt::entity entity, Cmp::A
 void destroy_armed( entt::registry &reg, entt::entity armed_entity )
 {
   reg.remove<Cmp::Armed>( armed_entity );
-  reg.remove<Cmp::SpriteAnimation>( armed_entity );
+  reg.remove<Cmp::AnimData>( armed_entity );
   reg.remove<Cmp::ZOrderValue>( armed_entity );
   if ( reg.all_of<Cmp::NpcNoPathFinding>( armed_entity ) ) { reg.remove<Cmp::NpcNoPathFinding>( armed_entity ); }
 }
 
 void create_detonated( entt::registry &reg, entt::entity armed_entity, Cmp::Position &armed_pos_cmp )
 {
-  reg.emplace<Cmp::SpriteAnimation>( armed_entity, 0, 0, true, "sprite.graveyard.detonated", 0 );
+  reg.emplace_or_replace<Cmp::AnimData>( armed_entity, Cmp::AnimData::Config{ .sprite_type = "sprite.graveyard.detonated" } );
   reg.emplace<Cmp::ZOrderValue>( armed_entity, armed_pos_cmp.position.y - 256.f );
   reg.emplace_or_replace<Cmp::DestroyedObstacle>( armed_entity );
 }

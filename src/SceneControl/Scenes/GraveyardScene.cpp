@@ -5,7 +5,6 @@
 #include <Components/LerpPosition.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
-
 #include <Factory/LootFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
 #include <Factory/PlantFactory.hpp>

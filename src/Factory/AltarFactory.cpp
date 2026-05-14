@@ -1,5 +1,5 @@
 #include <Components/Altar/AltarSacrifice.hpp>
-#include <Components/SpriteAnimation.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/AltarFactory.hpp>
 #include <Sprites/SpriteMetaType.hpp>
@@ -13,7 +13,14 @@ void create_altar_sacrifice_anim( entt::registry &reg, Cmp::Position pos, Sprite
   entt::entity entt = reg.create();
   reg.emplace_or_replace<Cmp::AltarSacrifice>( entt );
   reg.emplace_or_replace<Cmp::Position>( entt, pos.position, pos.size );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( entt, 0, 0, true, anim_type, 0, 0.2, Cmp::AnimType::ONESHOTRESET );
+  // clang-format off
+  reg.emplace_or_replace<Cmp::AnimData>( entt, Cmp::AnimData::Config{
+    .sprite_type        = anim_type,
+    .framerate          = 0.2,
+    .anim_type = Cmp::AnimType::ONESHOTRESET
+  });
+  // clang-format off
+
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, pos.position.y * 4.f );
 }
 

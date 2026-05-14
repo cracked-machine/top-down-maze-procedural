@@ -1,8 +1,3 @@
-#include <Persistent/NpcLerpSpeedGhost.hpp>
-#include <Persistent/NpcLerpSpeedPriest.hpp>
-#include <Persistent/NpcLerpSpeedSkele.hpp>
-#include <Persistent/NpcLerpSpeedWitch.hpp>
-#include <Persistent/NpcSkeleGraveyardSpawnCount.hpp>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #define JSON_NOEXCEPTION
@@ -34,18 +29,26 @@
 #include <Components/Persistent/NpcActivateScale.hpp>
 #include <Components/Persistent/NpcDeathAnimFramerate.hpp>
 #include <Components/Persistent/NpcGhostAnimFramerate.hpp>
+#include <Components/Persistent/NpcLerpSpeedGhost.hpp>
+#include <Components/Persistent/NpcLerpSpeedPriest.hpp>
+#include <Components/Persistent/NpcLerpSpeedSkele.hpp>
+#include <Components/Persistent/NpcLerpSpeedWitch.hpp>
 #include <Components/Persistent/NpcPushBack.hpp>
 #include <Components/Persistent/NpcShockwaveFreq.hpp>
 #include <Components/Persistent/NpcShockwaveMaxRadius.hpp>
 #include <Components/Persistent/NpcShockwaveResolution.hpp>
 #include <Components/Persistent/NpcShockwaveSpeed.hpp>
 #include <Components/Persistent/NpcSkeleAnimFramerate.hpp>
+#include <Components/Persistent/NpcSkeleGraveyardSpawnCount.hpp>
+#include <Components/Persistent/NpcWispAnimFramerate.hpp>
+#include <Components/Persistent/NpcWitchAnimFramerate.hpp>
 #include <Components/Persistent/PcDamageDelay.hpp>
 #include <Components/Persistent/PlayerAnimFramerate.hpp>
 #include <Components/Persistent/PlayerDiagonalLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
 #include <Components/Persistent/PlayerLerpInterruptThreshold.hpp>
+#include <Components/Persistent/PlayerMovementSpeed.hpp>
 #include <Components/Persistent/PlayerShortcutLerpSpeedModifier.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Persistent/SinkholeSeed.hpp>
@@ -53,8 +56,6 @@
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/Persistent/WormholeSeed.hpp>
 #include <Events/LoadSettingsEvent.hpp>
-#include <Persistent/NpcWitchAnimFramerate.hpp>
-#include <Persistent/PlayerMovementSpeed.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
@@ -121,6 +122,7 @@ void PersistSystem::initialize_type_registry()
   register_type.operator()<NpcSkeleAnimFramerate>("NpcSkeleAnimFramerate");
   register_type.operator()<NpcSkeleGraveyardSpawnCount>("NpcSkeleGraveyardSpawnCount");
   register_type.operator()<NpcWitchAnimFramerate>("NpcWitchAnimFramerate");
+  register_type.operator()<NpcWispAnimFramerate>("NpcWispAnimFramerate");
   register_type.operator()<PcDamageDelay>("PcDamageDelay");
   register_type.operator()<PlayerAnimFramerate>("PlayerAnimFramerate");
   register_type.operator()<PlayerDiagonalLerpSpeedModifier>("PlayerDiagonalLerpSpeedModifier");

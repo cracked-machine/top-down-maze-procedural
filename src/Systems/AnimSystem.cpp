@@ -3,6 +3,7 @@
 
 #include <Components/Altar/AltarSacrifice.hpp>
 #include <Components/Altar/AltarSegment.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptPassageSpikeTrap.hpp>
 #include <Components/Crypt/CryptRoomLavaPitCell.hpp>
@@ -21,7 +22,6 @@
 #include <Components/Persistent/WormholeAnimFramerate.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Position.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/Wormhole/WormholeMultiBlock.hpp>
 #include <Components/Wormhole/WormholeSingularity.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -42,11 +42,11 @@ namespace ProceduralMaze::Sys
 void AnimSystem::update( sf::Time dt )
 {
 
-  auto anim_view = reg().view<Cmp::SpriteAnimation, Cmp::Position>( entt::exclude<Cmp::NPC> );
+  auto anim_view = reg().view<Cmp::AnimData, Cmp::Position>( entt::exclude<Cmp::NPC> );
   for ( auto [anim_entt, anim_cmp, pos_cmp] : anim_view.each() )
   {
     if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), pos_cmp ) ) continue;
-    if ( anim_cmp.m_animation_active == true )
+    if ( anim_cmp.m_enabled )
     {
       const auto &ms = m_sprite_factory.get_spritesheet_by_type( anim_cmp.m_sprite_type );
       update_single_sequence( anim_cmp, dt, ms, sf::seconds( anim_cmp.get_framerate() ) );
@@ -56,7 +56,7 @@ void AnimSystem::update( sf::Time dt )
       if ( anim_cmp.m_current_frame == ms.get_sprites_per_sequence() - 1 )
       {
         SPDLOG_DEBUG( "Deactivating animation: {}", static_cast<int>( anim_entt ) );
-        anim_cmp.m_animation_active = false;
+        anim_cmp.m_enabled = false;
         if ( anim_cmp.m_anim_type == Cmp::AnimType::ONESHOTRESET ) { anim_cmp.m_current_frame = anim_cmp.m_base_frame; }
       }
     }
@@ -99,36 +99,21 @@ void AnimSystem::update( sf::Time dt )
   //   }
 
   // NPC Movement: only update animation for NPC that are actively pathfinding
-  auto pathfinding_npc_view = reg().view<Cmp::NPC, Cmp::LerpPosition, Cmp::SpriteAnimation, Cmp::Position>();
-  for ( [[maybe_unused]] auto [entity, npc_cmp, lerp_pos_cmp, anim_cmp, pos_cmp] : pathfinding_npc_view.each() )
+  auto pathfinding_npc_view = reg().view<Cmp::NPC, Cmp::Direction, Cmp::AnimData, Cmp::Position>();
+  for ( auto [entity, npc_cmp, direction_cmp, anim_cmp, pos_cmp] : pathfinding_npc_view.each() )
   {
     if ( !Utils::is_visible_in_view( RenderSystem::get_world_view(), pos_cmp ) ) continue;
-    if ( lerp_pos_cmp.m_lerp_factor > 0.f )
-    {
+    if ( direction_cmp == sf::Vector2f( 0.f, 0.f ) ) continue;
 
-      sf::Time frame_rate = sf::Time::Zero;
-      if ( anim_cmp.m_sprite_type.contains( "sprite.skeleton" ) )
-      {
-        frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::NpcSkeleAnimFramerate>( reg() ).get_value() );
-      }
-      else if ( anim_cmp.m_sprite_type.contains( "sprite.ghost" ) )
-      {
-        frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::NpcGhostAnimFramerate>( reg() ).get_value() );
-      }
-      else if ( anim_cmp.m_sprite_type.contains( "sprite.witch" ) )
-      {
-        frame_rate = sf::seconds( Sys::PersistSystem::get<Cmp::Persist::NpcWitchAnimFramerate>( reg() ).get_value() );
-      }
-      const auto &npc_walk_sequence = m_sprite_factory.get_spritesheet_by_type( anim_cmp.m_sprite_type );
-      update_single_sequence( anim_cmp, dt, npc_walk_sequence, frame_rate );
-    }
+    SPDLOG_INFO( "NPC {} framerate is {}", anim_cmp.m_sprite_type, anim_cmp.get_framerate() );
+    const auto &npc_walk_sequence = m_sprite_factory.get_spritesheet_by_type( anim_cmp.m_sprite_type );
+    update_single_sequence( anim_cmp, dt, npc_walk_sequence, sf::seconds( anim_cmp.get_framerate() ) );
   }
 }
 
-void AnimSystem::update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const Sprites::SpriteSheet &ms, sf::Time frame_rate,
-                                         AnimType type )
+void AnimSystem::update_single_sequence( Cmp::AnimData &anim, sf::Time dt, const Sprites::SpriteSheet &ms, sf::Time frame_rate, AnimType type )
 {
-  anim.m_elapsed_time += globalDeltaTime;
+  anim.m_elapsed_time += dt;
 
   if ( anim.m_elapsed_time >= frame_rate )
   {

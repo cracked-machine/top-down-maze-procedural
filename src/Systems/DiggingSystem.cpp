@@ -1,6 +1,7 @@
 
 #include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/DestroyedObstacle.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
 #include <Components/Inventory/PlayerInventorySlot.hpp>
@@ -17,7 +18,6 @@
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/CreateItemEvent.hpp>
 #include <Events/DropInventoryEvent.hpp>
@@ -107,7 +107,7 @@ void DiggingSystem::check_player_smash_pot()
   auto digging_cooldown_amount = Sys::PersistSystem::get<Cmp::Persist::DiggingCooldownThreshold>( reg() ).get_value();
   if ( m_dig_cooldown_clock.getElapsedTime() < sf::seconds( digging_cooldown_amount ) ) { return; }
 
-  auto loot_container_view = reg().view<Cmp::LootContainer, Cmp::Position, Cmp::SpriteAnimation>();
+  auto loot_container_view = reg().view<Cmp::LootContainer, Cmp::Position, Cmp::AnimData>();
   for ( auto [loot_entity, loot_cmp, loot_pos_cmp, loot_anim_cmp] : loot_container_view.each() )
   {
     auto mouse_position_bounds = Utils::get_mouse_bounds_in_gameview( m_window, RenderSystem::get_world_view() );
@@ -139,7 +139,7 @@ void DiggingSystem::check_player_smash_pot()
 
       if ( loot_cmp.hp > 0 )
       {
-        loot_anim_cmp.m_animation_active = true;
+        loot_anim_cmp.m_enabled = true;
 
         if ( m_sound_bank.get_effect( "hit_pot" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "hit_pot" ).play();
       }

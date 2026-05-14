@@ -1,9 +1,9 @@
 #include <AbsoluteAlpha.hpp>
 #include <Collision.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/Position.hpp>
 #include <Components/Ruin/RuinBookcase.hpp>
 #include <Components/Ruin/RuinCobweb.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Constants.hpp>
 #include <Factory/NpcFactory.hpp>
@@ -32,7 +32,13 @@ void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sp
     if ( search_pos.findIntersection( existing_pos_cmp ) )
     {
       reg.emplace_or_replace<Cmp::Position>( existing_entt, spawn_position, bookcase_ms.get_sprite_size() );
-      reg.emplace_or_replace<Cmp::SpriteAnimation>( existing_entt, 0, 0, true, bookcase_ms.get_sprite_type(), sprite_index );
+      // clang-format off
+      reg.emplace_or_replace<Cmp::AnimData>( existing_entt, Cmp::AnimData::Config{ 
+            .sprite_type = bookcase_ms.get_sprite_type(), 
+            .frame_index_offset = static_cast<size_t>(sprite_index),
+            .enabled = true
+      });
+      //clang-format on  
       reg.emplace_or_replace<Cmp::ZOrderValue>( existing_entt, -5.f );
       reg.emplace_or_replace<Cmp::RuinBookcase>( existing_entt );
       reg.emplace_or_replace<Cmp::NpcNoPathFinding>( existing_entt );
@@ -46,7 +52,13 @@ void create_cobweb( entt::registry &reg, sf::Vector2f spawn_position, const Spri
 {
   auto cobweb_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( cobweb_entt, spawn_position, cobweb_ms.get_sprite_size() );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( cobweb_entt, 0, 0, true, cobweb_ms.get_sprite_type(), sprite_index );
+  // clang-format off
+  reg.emplace_or_replace<Cmp::AnimData>( cobweb_entt, Cmp::AnimData::Config{ 
+        .sprite_type = cobweb_ms.get_sprite_type(), 
+        .frame_index_offset = static_cast<size_t>(sprite_index),
+        .enabled = true
+  });
+  //clang-format on  
   reg.emplace_or_replace<Cmp::ZOrderValue>( cobweb_entt, spawn_position.y );
   reg.emplace_or_replace<Cmp::RuinCobweb>( cobweb_entt, 100 );
 }
@@ -67,7 +79,13 @@ void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, con
 
     auto shadowhand_entt = reg.create();
     reg.emplace_or_replace<Cmp::Position>( shadowhand_entt, starting_pos, hand_ms.get_sprite_size() );
-    reg.emplace_or_replace<Cmp::SpriteAnimation>( shadowhand_entt, 0, 0, true, hand_ms.get_sprite_type(), sprite_index );
+    // clang-format off
+    reg.emplace_or_replace<Cmp::AnimData>( shadowhand_entt, Cmp::AnimData::Config{ 
+          .sprite_type = hand_ms.get_sprite_type(), 
+          .frame_index_offset = static_cast<size_t>(sprite_index),
+          .enabled = true
+    });
+    //clang-format on  
     reg.emplace_or_replace<Cmp::ZOrderValue>( shadowhand_entt, hand_ms.get_zorder( 0 ) ); // above everythign
     reg.emplace_or_replace<Cmp::AbsoluteAlpha>( shadowhand_entt, 200 );
     reg.emplace_or_replace<Cmp::NPC>( shadowhand_entt, npc_shadowhand_cmp );

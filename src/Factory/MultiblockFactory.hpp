@@ -3,6 +3,7 @@
 
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/Altar/AltarSegment.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
 #include <Components/Crypt/CryptEntrance.hpp>
 #include <Components/Crypt/CryptInteriorMultiBlock.hpp>
@@ -23,7 +24,6 @@
 #include <Components/Ruin/RuinEntrance.hpp>
 #include <Components/Ruin/RuinSegment.hpp>
 #include <Components/Ruin/RuinStairsSegment.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Player/PlayerNoPath.hpp>
 #include <SpatialHashGrid.hpp>
@@ -53,7 +53,13 @@ void create_multiblock( entt::registry &reg, entt::entity entity, Cmp::Position 
 {
 
   auto large_obst_grid_size = ms.get_grid_size();
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, ms.get_sprite_type(), ms_idx );
+  // clang-format off
+  reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
+        .sprite_type = ms.get_sprite_type(), 
+        .frame_index_offset = ms_idx,
+        .enabled = true
+  });
+  //clang-format on  
   reg.emplace_or_replace<MULTIBLOCK>( entity, pos.position, large_obst_grid_size.componentWiseMul( Constants::kGridSizePx ) );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, pos.position.y );
 

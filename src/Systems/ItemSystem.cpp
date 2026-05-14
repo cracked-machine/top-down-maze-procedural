@@ -1,5 +1,6 @@
 
 #include <Audio/SoundBank.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Position.hpp>
 #include <Events/CreateItemEvent.hpp>
@@ -7,7 +8,6 @@
 #include <Inventory/InventoryWearLevel.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
 #include <ReservedPosition.hpp>
-#include <SpriteAnimation.hpp>
 #include <Systems/ItemSystem.hpp>
 #include <Systems/Stores/ItemStore.hpp>
 #include <UUID.hpp>
@@ -44,7 +44,12 @@ void ItemSystem::create_world_item( Cmp::Position pos, const std::string &item, 
   auto world_item_entt = reg().create();
   reg().emplace_or_replace<Cmp::Position>( world_item_entt, pos.position, pos.size );
   reg().emplace_or_replace<Cmp::ReservedPosition>( world_item_entt );
-  reg().emplace_or_replace<Cmp::SpriteAnimation>( world_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).sprite_type, 0 );
+  // clang-format off
+  reg().emplace_or_replace<Cmp::AnimData>( world_item_entt, Cmp::AnimData::Config{ 
+        .sprite_type =  Sys::ItemStore::instance().get_item( item ).sprite_type, 
+        .enabled = true
+  });
+  //clang-format on 
   reg().emplace_or_replace<Cmp::ZOrderValue>( world_item_entt, pos.position.y - 1.f + zorder );
   reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_item_entt );
   // Use a UUID to identify the InventoryItem/PlayerInventorySlot when the entity is destroyed.
@@ -78,7 +83,11 @@ void ItemSystem::create_seeing_stone( Cmp::Position pos, const std::string &item
   auto world_carry_item_entt = reg().create();
   reg().emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
   reg().emplace_or_replace<Cmp::ReservedPosition>( world_carry_item_entt );
-  reg().emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).sprite_type, 0 );
+  // clang-format off
+  reg().emplace_or_replace<Cmp::AnimData>( world_carry_item_entt, Cmp::AnimData::Config{  
+        .sprite_type =  Sys::ItemStore::instance().get_item( item ).sprite_type
+  });
+  //clang-format on 
   reg().emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
   reg().emplace_or_replace<Cmp::WorldItem>( world_carry_item_entt, Sys::ItemStore::instance().get_item( item ) );
   reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );
@@ -92,7 +101,11 @@ void ItemSystem::create_explosive( Cmp::Position pos, const std::string &item, f
   // Now create the entity with the valid target
   auto world_carry_item_entt = reg().create();
   reg().emplace_or_replace<Cmp::Position>( world_carry_item_entt, pos.position, pos.size );
-  reg().emplace_or_replace<Cmp::SpriteAnimation>( world_carry_item_entt, 0, 0, true, Sys::ItemStore::instance().get_item( item ).sprite_type, 0 );
+  // clang-format off
+  reg().emplace_or_replace<Cmp::AnimData>( world_carry_item_entt, Cmp::AnimData::Config{  
+        .sprite_type =  Sys::ItemStore::instance().get_item( item ).sprite_type
+  });
+  //clang-format on
   reg().emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
   reg().emplace_or_replace<Cmp::WorldItem>( world_carry_item_entt, Sys::ItemStore::instance().get_item( item ) );
   reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );

@@ -3,6 +3,7 @@
 #include <Components/AbsoluteOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Altar/AltarMultiBlock.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/Armed.hpp>
 #include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptEntrance.hpp>
@@ -34,7 +35,6 @@
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/Ruin/RuinBuildingMultiBlock.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Components/Wormhole/WormholeMultiBlock.hpp>
@@ -124,10 +124,10 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   for ( const auto &zorder_entry : m_zorder_queue_ )
   {
     auto entity = zorder_entry.e;
-    if ( reg().all_of<Cmp::Position, Cmp::SpriteAnimation>( entity ) )
+    if ( reg().all_of<Cmp::Position, Cmp::AnimData>( entity ) )
     {
       const auto &pos_cmp = reg().get<Cmp::Position>( entity );
-      const auto &anim_cmp = reg().get<Cmp::SpriteAnimation>( entity );
+      const auto &anim_cmp = reg().get<Cmp::AnimData>( entity );
 
       uint8_t alpha_value = 255;
       auto *obst_cmp = reg().try_get<Cmp::AbsoluteAlpha>( entity );
@@ -262,7 +262,7 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
     render_overlay_sys.render_lerp_positions();
     render_overlay_sys.render_spatial_grid_neighbours( player_center_hitbox, sf::Color::Cyan, PathFinding::QueryCompass::CARDINAL );
 
-    for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>().each() )
+    for ( auto [npc_entt, npc_cmp, npc_pos_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Position, Cmp::AnimData>().each() )
     {
       auto query_compass = PathFinding::QueryCompass::CARDINAL;
       if ( anim_cmp.m_sprite_type.contains( "sprite.ghost" ) ) query_compass = PathFinding::QueryCompass::BOTH;

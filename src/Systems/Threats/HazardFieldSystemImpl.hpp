@@ -2,13 +2,13 @@
 #define SRC_SYSTEMS_HAZARDFIELDSYSTEMIMPL_HPP__
 
 #include <Audio/SoundBank.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -66,7 +66,12 @@ sf::Vector2f HazardFieldSystem<HazardType>::init_hazard_field()
 
   Factory::remove_obstacle( reg(), random_entity );
   reg().template emplace<HazardType>( random_entity );
-  reg().template emplace_or_replace<Cmp::SpriteAnimation>( random_entity, 0, 0, true, std::string( Traits::sprite_type ), 0 );
+  // clang-format off
+  reg().template emplace_or_replace<Cmp::AnimData>( random_entity, Cmp::AnimData::Config{  
+        .sprite_type =  std::string( Traits::sprite_type ),
+        .enabled = true
+  });
+  //clang-format on 
   reg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 1.f );
   reg().template emplace_or_replace<Cmp::NpcNoPathFinding>( random_entity );
   SPDLOG_INFO( "{} hazard spawned at position [{}, {}].", std::string( Traits::sprite_type ), random_pos.position.x, random_pos.position.y );
@@ -121,7 +126,12 @@ sf::Vector2f HazardFieldSystem<HazardType>::update_hazard_field()
       {
         Factory::remove_obstacle( reg(), obstacle_entity );
         reg().template emplace_or_replace<HazardType>( obstacle_entity );
-        reg().template emplace_or_replace<Cmp::SpriteAnimation>( obstacle_entity, 0, 0, true, std::string( Traits::sprite_type ), 0 );
+        // clang-format off
+        reg().template emplace_or_replace<Cmp::AnimData>( obstacle_entity, Cmp::AnimData::Config{  
+              .sprite_type =  std::string( Traits::sprite_type ),
+              .enabled = true
+        });
+        //clang-format on 
         reg().template emplace_or_replace<Cmp::ZOrderValue>( obstacle_entity, obst_pos_cmp.position.y - 1.f );
         reg().template emplace_or_replace<Cmp::NpcNoPathFinding>( obstacle_entity );
 

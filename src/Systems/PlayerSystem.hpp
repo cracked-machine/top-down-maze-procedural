@@ -11,7 +11,7 @@
 // clang-format off
 namespace ProceduralMaze::Events { class DropInventoryEvent; class PlayerActionEvent; class PlayerMortalityEvent; }
 namespace ProceduralMaze::Sprites { class SpriteSheet; }
-namespace ProceduralMaze::Cmp { class Direction; class LerpPosition; class NpcShockwave; class Position; class PlayerMortality; class SpriteAnimation; }
+namespace ProceduralMaze::Cmp { class Direction; class LerpPosition; class NpcShockwave; class Position; class PlayerMortality; class AnimData; }
 namespace ProceduralMaze::Cmp::Peristent { class EffectsVolume; } 
 namespace ProceduralMaze::PathFinding { class SpatialHashGrid; }
 // clang-format on

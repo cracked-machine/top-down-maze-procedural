@@ -1,3 +1,4 @@
+#include <Components/AnimData.hpp>
 #include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptInteriorMultiBlock.hpp>
 #include <Components/Crypt/CryptInteriorSegment.hpp>
@@ -15,7 +16,6 @@
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Exit.hpp>
 #include <Factory/CryptFactory.hpp>
@@ -34,7 +34,7 @@ entt::entity create_crypt_exit( entt::registry &reg, sf::Vector2f spawn_pos_px )
   auto entity = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entity, spawn_pos_px, Constants::kGridSizePxF );
   reg.emplace_or_replace<Cmp::Exit>( entity, false ); // unlocked at start
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.crypt.exit", 0 );
+  reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ .sprite_type = "sprite.crypt.exit" } );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.y );
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
   reg.emplace_or_replace<Cmp::Exit>( entity );
@@ -46,7 +46,7 @@ entt::entity create_crypt_lever( entt::registry &reg, sf::Vector2f pos, Sprites:
   auto entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entt, pos, Constants::kGridSizePxF );
   reg.emplace_or_replace<Cmp::CryptLever>( entt );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( entt, 0, 0, true, sprite_type, sprite_idx );
+  reg.emplace_or_replace<Cmp::AnimData>( entt, Cmp::AnimData::Config{ .sprite_type = sprite_type, .frame_index_offset = sprite_idx } );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   return entt;
 }
@@ -55,7 +55,7 @@ void destroy_crypt_lever( entt::registry &reg, entt::entity entt )
 {
   if ( reg.all_of<Cmp::CryptLever>( entt ) ) reg.remove<Cmp::CryptLever>( entt );
   if ( reg.all_of<Cmp::Position>( entt ) ) reg.remove<Cmp::Position>( entt );
-  if ( reg.all_of<Cmp::SpriteAnimation>( entt ) ) reg.remove<Cmp::SpriteAnimation>( entt );
+  if ( reg.all_of<Cmp::AnimData>( entt ) ) reg.remove<Cmp::AnimData>( entt );
   if ( reg.all_of<Cmp::ZOrderValue>( entt ) ) reg.remove<Cmp::ZOrderValue>( entt );
   if ( reg.valid( entt ) ) { reg.destroy( entt ); }
 }
@@ -65,7 +65,15 @@ entt::entity create_crypt_chest( entt::registry &reg, sf::Vector2f pos, Sprites:
   auto entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( entt, pos, Constants::kGridSizePxF );
   reg.emplace_or_replace<Cmp::CryptChest>( entt );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( entt, 0, 0, false, sprite_type, sprite_idx, 0.4, Cmp::AnimType::ONESHOTHOLD );
+  // clang-format off
+  reg.emplace_or_replace<Cmp::AnimData>( entt, Cmp::AnimData::Config{ 
+        .sprite_type = sprite_type, 
+        .frame_index_offset = sprite_idx,
+        .framerate = 0.4, 
+        .enabled = false, 
+        .anim_type = Cmp::AnimType::ONESHOTHOLD 
+  });
+  //clang-format on
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, zorder );
   reg.emplace_or_replace<Cmp::PlayerNoPath>( entt );
   return entt;
@@ -75,7 +83,7 @@ void destroy_crypt_chest( entt::registry &reg, entt::entity entt )
 {
   if ( reg.all_of<Cmp::CryptChest>( entt ) ) reg.remove<Cmp::CryptLever>( entt );
   if ( reg.all_of<Cmp::Position>( entt ) ) reg.remove<Cmp::Position>( entt );
-  if ( reg.all_of<Cmp::SpriteAnimation>( entt ) ) reg.remove<Cmp::SpriteAnimation>( entt );
+  if ( reg.all_of<Cmp::AnimData>( entt ) ) reg.remove<Cmp::AnimData>( entt );
   if ( reg.all_of<Cmp::ZOrderValue>( entt ) ) reg.remove<Cmp::ZOrderValue>( entt );
   if ( reg.all_of<Cmp::PlayerNoPath>( entt ) ) { reg.remove<Cmp::PlayerNoPath>( entt ); }
   if ( reg.valid( entt ) ) { reg.destroy( entt ); }
@@ -106,7 +114,12 @@ void create_crypt_lava_pit( entt::registry &reg, const Cmp::CryptRoomOpen &room,
     reg.emplace_or_replace<Cmp::Position>( lava_cell_entt, pos_cmp.position, pos_cmp.size );
     reg.emplace_or_replace<Cmp::NpcNoPathFinding>( lava_cell_entt );
     reg.emplace_or_replace<Cmp::CryptRoomLavaPitCell>( lava_cell_entt, pos_cmp.position, pos_cmp.size );
-    reg.emplace_or_replace<Cmp::SpriteAnimation>( lava_cell_entt, 0, 0, true, "sprite.crypt.lava", 0 );
+    // clang-format off
+    reg.emplace_or_replace<Cmp::AnimData>( lava_cell_entt, Cmp::AnimData::Config{ 
+          .sprite_type = "sprite.crypt.lava", 
+          .enabled = true, 
+    });
+    //clang-format on
     if ( pathfinding_navmesh ) { pathfinding_navmesh->remove( pos_entt, pos_cmp ); }
     // reg.emplace<Cmp::ZOrderValue>( lava_cell_entt, pos_cmp.size.y );
   }
@@ -136,7 +149,15 @@ void add_spike_trap( entt::registry &reg, const entt::entity entt, const int pas
 
   auto spike_entt = reg.create();
   reg.emplace_or_replace<Cmp::Position>( spike_entt, position, Constants::kGridSizePxF );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( spike_entt, 0, 0, false, "sprite.crypt.spikes", 0, 0.2, Cmp::AnimType::ONESHOTRESET );
+  // reg.emplace_or_replace<Cmp::SpriteAnimation>( spike_entt, 0, 0, false, "sprite.crypt.spikes", 0, 0.2, Cmp::AnimType::ONESHOTRESET );
+  // clang-format off
+  reg.emplace_or_replace<Cmp::AnimData>( spike_entt, Cmp::AnimData::Config{ 
+        .sprite_type = "sprite.crypt.spikes", 
+        .framerate = 0.2,
+        .enabled = false,
+        .anim_type =   Cmp::AnimType::ONESHOTRESET
+  });
+  //clang-format on
   reg.emplace_or_replace<Cmp::ZOrderValue>( spike_entt, position.y - 16.f ); // always behind player
   reg.emplace_or_replace<Cmp::CryptPassageSpikeTrap>( spike_entt, position, passage_id );
 }

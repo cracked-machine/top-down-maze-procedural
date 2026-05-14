@@ -62,6 +62,8 @@ private:
   // Check for player collision proximity with NPC containers
   void check_bones_reanimation();
 
+  void spawn_wisp();
+
   //! @brief Check Player/NPC collision for Cmp::CollisionActions::Tick::ONCE
   //! @note Player cooldown and knockback are ENABLED.
   void check_once_collision();

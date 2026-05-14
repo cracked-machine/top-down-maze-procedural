@@ -2,6 +2,7 @@
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/Exit.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
@@ -13,7 +14,6 @@
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -59,7 +59,13 @@ void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
     auto entity = reg().create();
     reg().emplace_or_replace<Cmp::Position>( entity, spawn_pos_px.position, Constants::kGridSizePxF );
     reg().emplace_or_replace<Cmp::Exit>( entity, true ); // locked at start
-    reg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.graveyard.exit", 1 );
+                                                         // clang-format off
+    reg().emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
+          .sprite_type = "sprite.graveyard.exit", 
+          .frame_index_offset = 1,
+          .enabled = true
+    });
+    //clang-format on       
     reg().emplace_or_replace<Cmp::ZOrderValue>( entity, spawn_pos_px.position.y );
     reg().emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
 
@@ -75,7 +81,13 @@ void ExitSystem::spawn_exit( std::optional<sf::Vector2u> spawn_position )
     if ( existing_obstacle_cmp ) { reg().remove<Cmp::Obstacle>( rand_entity ); }
 
     reg().emplace_or_replace<Cmp::Exit>( rand_entity, true ); // locked at start
-    reg().emplace_or_replace<Cmp::SpriteAnimation>( rand_entity, 0, 0, true, "sprite.graveyard.exit", 0 );
+    // clang-format off
+    reg().emplace_or_replace<Cmp::AnimData>( rand_entity, Cmp::AnimData::Config{ 
+          .sprite_type = "sprite.graveyard.exit", 
+          .frame_index_offset = 0,
+          .enabled = true
+    });
+    //clang-format on       
     reg().emplace_or_replace<Cmp::ZOrderValue>( rand_entity, rand_pos_cmp.position.y );
     reg().emplace_or_replace<Cmp::NpcNoPathFinding>( rand_entity );
     SPDLOG_INFO( "Exit spawned at position ({}, {})", rand_pos_cmp.position.x, rand_pos_cmp.position.y );
@@ -104,7 +116,13 @@ void ExitSystem::check_player_can_unlock_exit()
       for ( auto [entity, exit_cmp, pos_cmp] : exit_view.each() )
       {
         exit_cmp.m_locked = false;
-        reg().emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, "WALL", 1 );
+        // clang-format off
+        reg().emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
+              .sprite_type = "WALL", 
+              .frame_index_offset = 1,
+              .enabled = true
+        });
+        //clang-format on       
         reg().emplace_or_replace<Cmp::ZOrderValue>( entity, pos_cmp.position.y - 16.f );
         reg().remove<Cmp::PlayerNoPath>( entity );
         if ( m_sound_bank.get_effect( "secret" ).getStatus() == sf::Sound::Status::Stopped ) m_sound_bank.get_effect( "secret" ).play();

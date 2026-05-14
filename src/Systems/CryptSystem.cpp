@@ -7,6 +7,7 @@
 
 #include <Audio/SoundBank.hpp>
 #include <Components/Altar/AltarMultiBlock.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/Crypt/CryptChest.hpp>
 #include <Components/Crypt/CryptEntrance.hpp>
 #include <Components/Crypt/CryptLever.hpp>
@@ -39,7 +40,6 @@
 #include <Components/Random.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -237,7 +237,7 @@ void CryptSystem::unlock_crypt_door()
     reg().emplace_or_replace<Cmp::CryptSegment>( door_entity, Cmp::CryptSegment( false ) );
 
     // find the crypt multi-block this door belongs to and update the sprite
-    auto crypt_view = reg().view<Cmp::CryptMultiBlock, Cmp::SpriteAnimation>();
+    auto crypt_view = reg().view<Cmp::CryptMultiBlock, Cmp::AnimData>();
     for ( auto [crypt_entity, crypt_cmp, anim_cmp] : crypt_view.each() )
     {
       if ( not door_pos_cmp.findIntersection( crypt_cmp ) ) continue;
@@ -269,9 +269,9 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
       {
         sf::FloatRect expanded_search( sf::Vector2f{ objective_cmp.position.x, objective_cmp.position.y + objective_cmp.size.y },
                                        sf::Vector2f{ objective_cmp.size.x, Constants::kGridSizePxF.y * 2.f } );
-        auto obst_entity = Factory::create_loot_drop( reg(), Cmp::SpriteAnimation{ 0, 0, true, "sprite.crypt.loot.cadaver", 0 }, expanded_search,
-                                                      Factory::IncludePack<>{},
-                                                      Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::CryptObjectiveSegment>{} );
+        auto obst_entity = Factory::create_loot_drop(
+            reg(), Cmp::AnimData( Cmp::AnimData::Config{ .sprite_type = "sprite.crypt.loot.cadaver", .enabled = true } ), expanded_search,
+            Factory::IncludePack<>{}, Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::CryptObjectiveSegment>{} );
         if ( obst_entity != entt::null )
         {
           m_sound_bank.get_effect( "drop_loot" ).play();
@@ -279,7 +279,12 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
           SPDLOG_INFO( "Player activated crypt objective." );
 
           const auto &ms = m_sprite_factory.get_spritesheet_by_type( "sprite.crypt.objective.opened" );
-          reg().emplace_or_replace<Cmp::SpriteAnimation>( objective_entity, 0, 0, true, ms.get_sprite_type(), 0 );
+          // clang-format off
+          reg().emplace_or_replace<Cmp::AnimData>( objective_entity, Cmp::AnimData::Config{ 
+                .sprite_type = ms.get_sprite_type(),
+                .enabled = true
+          });
+          //clang-format on  
         }
       }
     }
@@ -307,7 +312,13 @@ void CryptSystem::check_lever_activation()
       // update the sprite
       Sprites::SpriteMetaType lever_sprite_type = "sprite.crypt.switch";
       unsigned int enabled_lever_sprite_idx = 1;
-      reg().emplace_or_replace<Cmp::SpriteAnimation>( lever_entt, 0, 0, true, lever_sprite_type, enabled_lever_sprite_idx );
+      // clang-format off
+      reg().emplace_or_replace<Cmp::AnimData>( lever_entt, Cmp::AnimData::Config{ 
+            .sprite_type = lever_sprite_type, 
+            .frame_index_offset = static_cast<size_t>(enabled_lever_sprite_idx),
+            .enabled = true
+      });
+      //clang-format on  
 
       m_sound_bank.get_effect( "crypt_lever_open" ).play();
       SPDLOG_DEBUG( "Lever enabled at {},{} - Count:{}", lever_pos_cmp.position.x, lever_pos_cmp.position.y, m_enabled_levers );
@@ -330,7 +341,7 @@ void CryptSystem::check_chest_activation( Events::PlayerActionEvent::GameActions
   if ( action != Events::PlayerActionEvent::GameActions::ACTIVATE ) return;
 
   auto player_view = reg().view<Cmp::PlayerCharacter, Cmp::Position>();
-  auto chest_view = reg().view<Cmp::CryptChest, Cmp::Position, Cmp::SpriteAnimation>();
+  auto chest_view = reg().view<Cmp::CryptChest, Cmp::Position, Cmp::AnimData>();
 
   for ( auto [pc_entity, pc_cmp, pc_pos_cmp] : player_view.each() )
   {
@@ -342,13 +353,13 @@ void CryptSystem::check_chest_activation( Events::PlayerActionEvent::GameActions
       if ( not player_hitbox.findIntersection( chest_pos_cmp ) ) continue;
 
       chest_cmp.open = true;
-      chest_anim_cmp.m_animation_active = true;
+      chest_anim_cmp.m_enabled = true;
       m_sound_bank.get_effect( "crypt_chest_open" ).play();
 
       // clang-format off
       auto loot_entt = Factory::create_loot_drop( 
         reg(), 
-        Cmp::SpriteAnimation( 0, 0, true, "sprite.crypt.loot.gold", 0 ),                                        
+        Cmp::AnimData( Cmp::AnimData::Config{ .sprite_type = "sprite.crypt.loot.gold", .enabled = true}),    
         Cmp::RectBounds::scaled( chest_pos_cmp, 3.f ).getBounds(), 
         Factory::IncludePack<>{},
         Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::CryptChest, Cmp::CryptRoomLavaPitCell, Cmp::CryptPassageBlock, Cmp::Wall, Cmp::Obstacle>{} ,
@@ -796,11 +807,11 @@ void CryptSystem::add_lava_pit_open_rooms()
 void CryptSystem::do_lava_pit_animation()
 {
   // remove any pre-existing lava anim entities
-  auto lava_anim_view = reg().view<Cmp::CryptRoomLavaPitCellEffect, Cmp::SpriteAnimation>();
+  auto lava_anim_view = reg().view<Cmp::CryptRoomLavaPitCellEffect, Cmp::AnimData>();
   for ( auto [lava_anim_entt, lava_cell_anim_cmp, lava_anim_cmp] : lava_anim_view.each() )
   {
     // only delete the entity if it has finished its animation sequence
-    if ( lava_anim_cmp.m_animation_active == true ) continue;
+    if ( lava_anim_cmp.m_enabled == true ) continue;
     if ( reg().valid( lava_anim_entt ) ) reg().destroy( lava_anim_entt );
   }
 
@@ -822,7 +833,14 @@ void CryptSystem::do_lava_pit_animation()
 
       reg().emplace_or_replace<Cmp::CryptRoomLavaPitCellEffect>( lava_anim_entt );
       reg().emplace_or_replace<Cmp::Position>( lava_anim_entt, lava_cell_cmp->position, lava_cell_cmp->size );
-      reg().emplace_or_replace<Cmp::SpriteAnimation>( lava_anim_entt, 0, 0, true, "sprite.crypt.anim.lava", 0, 0.2, Cmp::AnimType::ONESHOTRESET );
+      // clang-format off
+      reg().emplace_or_replace<Cmp::AnimData>( lava_anim_entt, Cmp::AnimData::Config{ 
+            .sprite_type = "sprite.crypt.anim.lava", 
+            .framerate = 0.2,
+            .enabled = true,
+            .anim_type = Cmp::AnimType::ONESHOTRESET
+      });
+      //clang-format on       
       reg().emplace_or_replace<Cmp::ZOrderValue>( lava_anim_entt, lava_cell_cmp->position.y + 64.f );
     }
     m_lava_effect_cooldown_timer.restart();
@@ -906,9 +924,9 @@ void CryptSystem::check_spike_trap_collision()
 
   Cmp::Position player_pos = Utils::Player::get_position( reg() );
   auto player_hitbox = Cmp::RectBounds::scaled( player_pos.position, player_pos.size, 0.5f );
-  for ( auto [spike_trap_entt, spike_trap_cmp, spike_trap_anim_cmp] : reg().view<Cmp::CryptPassageSpikeTrap, Cmp::SpriteAnimation>().each() )
+  for ( auto [spike_trap_entt, spike_trap_cmp, spike_trap_anim_cmp] : reg().view<Cmp::CryptPassageSpikeTrap, Cmp::AnimData>().each() )
   {
-    if ( not spike_trap_anim_cmp.m_animation_active ) continue;
+    if ( not spike_trap_anim_cmp.m_enabled ) continue;
 
     Cmp::Position spike_trap_hitbox( spike_trap_cmp, Constants::kGridSizePxF );
     if ( not player_hitbox.findIntersection( spike_trap_hitbox ) ) continue;
@@ -922,7 +940,7 @@ void CryptSystem::check_spike_trap_activation_by_proximity()
   auto player_pos_cmp = Utils::Player::get_position( reg() );
   auto player_hitbox_enable = Cmp::RectBounds::scaled( player_pos_cmp.position, player_pos_cmp.size, 2.f );
   auto player_hitbox_disable = Cmp::RectBounds::scaled( player_pos_cmp.position, player_pos_cmp.size, 5.f );
-  for ( auto [spike_trap_entt, spike_trap_cmp, spike_trap_anim_cmp] : reg().view<Cmp::CryptPassageSpikeTrap, Cmp::SpriteAnimation>().each() )
+  for ( auto [spike_trap_entt, spike_trap_cmp, spike_trap_anim_cmp] : reg().view<Cmp::CryptPassageSpikeTrap, Cmp::AnimData>().each() )
   {
     auto spike_trap_hitbox = sf::FloatRect( spike_trap_cmp, Constants::kGridSizePxF );
     if ( player_hitbox_enable.findIntersection( spike_trap_hitbox ) and
@@ -930,7 +948,7 @@ void CryptSystem::check_spike_trap_activation_by_proximity()
     {
       // re-activate the threat
       SPDLOG_DEBUG( "Reactivating spike: {}", static_cast<int>( spike_trap_entt ) );
-      spike_trap_anim_cmp.m_animation_active = true;
+      spike_trap_anim_cmp.m_enabled = true;
       spike_trap_cmp.m_cooldown_timer.reset();
 
       auto sfx_status = m_sound_bank.get_effect( "spike_trap" ).getStatus();
@@ -939,7 +957,7 @@ void CryptSystem::check_spike_trap_activation_by_proximity()
     else if ( not player_hitbox_disable.findIntersection( spike_trap_hitbox ) )
     {
       // de-activate the threat
-      spike_trap_anim_cmp.m_animation_active = false;
+      spike_trap_anim_cmp.m_enabled = false;
       spike_trap_anim_cmp.m_current_frame = spike_trap_anim_cmp.m_base_frame;
       spike_trap_cmp.m_cooldown_timer.restart();
     }

@@ -5,8 +5,8 @@
 #include <Events/ResumeClocksEvent.hpp>
 #include <SFML/System/Time.hpp>
 
+#include <Components/AnimData.hpp>
 #include <Components/Direction.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -33,14 +33,14 @@ public:
   void on_resume() override {}
 
   // update frames on all SpriteAnimation components
-  void update( sf::Time globalDeltaTime );
+  void update( sf::Time dt );
 
 private:
   //! @brief Update a single animation sequence. Used for tilesets that consist of a single animation sequence.
   //! @param anim
   //! @param globalDeltaTime
   //! @param frame_rate
-  void update_single_sequence( Cmp::SpriteAnimation &anim, sf::Time globalDeltaTime, const Sprites::SpriteSheet &ms, sf::Time frame_rate,
+  void update_single_sequence( Cmp::AnimData &anim, sf::Time globalDeltaTime, const Sprites::SpriteSheet &ms, sf::Time frame_rate,
                                AnimType type = AnimType::LOOP );
 };
 

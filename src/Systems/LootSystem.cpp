@@ -2,6 +2,7 @@
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 
 #include <Audio/SoundBank.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
 #include <Components/Inventory/FlashUICadaver.hpp>
 #include <Components/Inventory/FlashUIRadius.hpp>
@@ -17,7 +18,6 @@
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Events/UnlockDoorEvent.hpp>
@@ -52,7 +52,7 @@ void LootSystem::check_loot_collision()
   // First pass: detect collisions and gather effects to apply
   // clang-format off
   auto player_collision_view = reg().view<Cmp::PlayerCharacter, Cmp::Position>();
-  auto loot_collision_view = reg().view<Cmp::Loot, Cmp::Position, Cmp::SpriteAnimation>();
+  auto loot_collision_view = reg().view<Cmp::Loot, Cmp::Position, Cmp::AnimData>();
   // clang-format on
 
   for ( auto [pc_entt, pc_cmp, pc_pos_cmp] : player_collision_view.each() )

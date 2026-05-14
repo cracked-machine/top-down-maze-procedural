@@ -1,9 +1,9 @@
+#include <Components/AnimData.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Player/PlayerNoPath.hpp>
 #include <Components/Position.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/WallFactory.hpp>
@@ -20,13 +20,13 @@ void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprite
   reg.emplace_or_replace<Cmp::Position>( entity, pos, Constants::kGridSizePxF );
   reg.emplace_or_replace<Cmp::Wall>( entity, static_cast<bool>( solid_wall ) );
   reg.emplace_or_replace<Cmp::ReservedPosition>( entity );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( entity, 0, 0, true, ms.get_sprite_type(), sprite_index );
-
-  // if ( solid_wall == SolidWall::TRUE )
-  // {
-  //   reg.emplace_or_replace<Cmp::PlayerNoPath>( entity );
-  //   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( entity );
-  // }
+  // clang-format off
+  reg.emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
+      .sprite_type = ms.get_sprite_type(), 
+      .frame_index_offset = static_cast<size_t>(sprite_index),
+      .enabled = true
+  });
+  //clang-format on  
 
   Cmp::ZOrderValue zorder_cmp( 0 );
   if ( ms.get_zorder( sprite_index ) != 0 ) { zorder_cmp.setZOrder( ms.get_zorder( sprite_index ) ); }

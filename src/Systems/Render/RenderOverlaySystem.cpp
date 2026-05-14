@@ -1,3 +1,4 @@
+#include <Components/AnimData.hpp>
 #include <Components/Crypt/CryptPassageBlock.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Hazard/CorruptionCell.hpp>
@@ -17,7 +18,6 @@
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/Shop/ShopInventory.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Inventory/FlashUICadaver.hpp>
 #include <Inventory/FlashUIInventory.hpp>
@@ -96,7 +96,7 @@ void RenderOverlaySystem::render_ui_inventory_icon()
 
     if ( icon.name != "inventory_icon" ) continue;
 
-    auto inventory_view = reg().view<Cmp::PlayerInventorySlot, Cmp::SpriteAnimation>();
+    auto inventory_view = reg().view<Cmp::PlayerInventorySlot, Cmp::AnimData>();
     for ( auto [inventory_entt, inventory_cmp, anim_cmp] : inventory_view.each() )
     {
       RenderSystem::safe_render_sprite_screen( anim_cmp.m_sprite_type, { icon.rect.position, Constants::kGridSizePxF }, 0,
@@ -521,7 +521,7 @@ void RenderOverlaySystem::render_ui_zorder_list( std::vector<ZOrder> &zorder_que
     for ( const auto &zorder_entry : zorder_queue )
     {
       std::string name;
-      auto *sprite_anim_cmp = reg().try_get<Cmp::SpriteAnimation>( zorder_entry.e );
+      auto *sprite_anim_cmp = reg().try_get<Cmp::AnimData>( zorder_entry.e );
       if ( sprite_anim_cmp )
       {
         if ( exclusions.find( sprite_anim_cmp->m_sprite_type ) != exclusions.end() ) { continue; }
@@ -563,7 +563,7 @@ void RenderOverlaySystem::render_ui_npc_list()
   {
     if ( ui_label.name != "npc_list" ) { continue; }
 
-    auto npc_view = reg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>();
+    auto npc_view = reg().view<Cmp::NPC, Cmp::Position, Cmp::AnimData>();
     m_npc_list_text.clear();
     for ( auto [npc_entity, npc_cmp, npc_pos_cmp, npc_anim_cmp] : npc_view.each() )
     {

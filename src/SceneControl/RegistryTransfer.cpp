@@ -11,6 +11,7 @@
 
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteRotation.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
 #include <Components/Crypt/CryptLever.hpp>
 #include <Components/Crypt/CryptObjectiveMultiBlock.hpp>
@@ -39,7 +40,6 @@
 #include <Components/Player/PlayerWealth.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinObjectiveType.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>
 #include <Components/VoidPosition.hpp>
 #include <Components/ZOrderValue.hpp>
@@ -229,7 +229,7 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   registry.storage<Cmp::PlayerBlastRadius>();
   registry.storage<Cmp::PlayerMortality>();
   registry.storage<Cmp::PlayerCadaverCount>();
-  registry.storage<Cmp::SpriteAnimation>();
+  registry.storage<Cmp::AnimData>();
   registry.storage<Cmp::PlayerInventorySlot>();
   registry.storage<Cmp::TorchRadius>();
   registry.storage<Cmp::WorldItem>();

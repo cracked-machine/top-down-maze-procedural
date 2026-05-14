@@ -10,22 +10,30 @@
 namespace ProceduralMaze::Factory
 {
 
-void create_loot_container( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
+void create_loot_container( entt::registry &reg, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
                             std::size_t sprite_tile_idx, float zorder )
 {
 
-  registry.emplace_or_replace<Cmp::ReservedPosition>( entt );
-  registry.emplace_or_replace<Cmp::Armable>( entt );
-  registry.emplace_or_replace<Cmp::LootContainer>( entt );
-  registry.emplace_or_replace<Cmp::SpriteAnimation>( entt, 0, 0, false, sprite_type, sprite_tile_idx );
-  registry.emplace_or_replace<Cmp::ZOrderValue>( entt, pos_cmp.position.y - zorder );
+  reg.emplace_or_replace<Cmp::ReservedPosition>( entt );
+  reg.emplace_or_replace<Cmp::Armable>( entt );
+  reg.emplace_or_replace<Cmp::LootContainer>( entt );
+  // clang-format off
+  reg.emplace_or_replace<Cmp::AnimData>( entt, Cmp::AnimData::Config{ 
+        .sprite_type = sprite_type, 
+        .frame_index_offset = sprite_tile_idx,
+        .framerate = 0.2,
+        .enabled = false,
+        .anim_type =   Cmp::AnimType::ONESHOTRESET
+  });
+  //clang-format on  
+  reg.emplace_or_replace<Cmp::ZOrderValue>( entt, pos_cmp.position.y - zorder );
 }
 
 void destroy_loot_container( entt::registry &registry, entt::entity loot_container_entity )
 {
   registry.remove<Cmp::LootContainer>( loot_container_entity );
   registry.remove<Cmp::ReservedPosition>( loot_container_entity );
-  registry.remove<Cmp::SpriteAnimation>( loot_container_entity );
+  registry.remove<Cmp::AnimData>( loot_container_entity );
   registry.remove<Cmp::ZOrderValue>( loot_container_entity );
 }
 

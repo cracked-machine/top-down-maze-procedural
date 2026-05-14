@@ -2,6 +2,7 @@
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/Altar/AltarMultiBlock.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepTimer.hpp>
@@ -25,7 +26,6 @@
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/Stats/BaseAction.hpp>
 #include <Components/Stats/CarryAction.hpp>
 #include <Components/Stats/CollisionAction.hpp>
@@ -223,13 +223,13 @@ void PlayerSystem::update_player_position( sf::Time dt, bool collision_disabled 
 void PlayerSystem::update_player_animation()
 {
   const Cmp::Direction direction_cmp = Utils::Player::get_direction( reg() );
-  Cmp::SpriteAnimation &anim_cmp = Utils::Player::get_sprite_anim( reg() );
+  Cmp::AnimData &anim_cmp = Utils::Player::get_sprite_anim( reg() );
 
   // update the animation state based on movement direction
-  if ( direction_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { anim_cmp.m_animation_active = false; }
+  if ( direction_cmp == sf::Vector2f( 0.0f, 0.0f ) ) { anim_cmp.m_enabled = false; }
   else
   {
-    anim_cmp.m_animation_active = true;
+    anim_cmp.m_enabled = true;
     if ( direction_cmp.x == 1 ) { anim_cmp.m_sprite_type = "sprite.player.walk.east"; }
     else if ( direction_cmp.x == -1 ) { anim_cmp.m_sprite_type = "sprite.player.walk.west"; }
     else if ( direction_cmp.y == -1 ) { anim_cmp.m_sprite_type = "sprite.player.walk.north"; }
@@ -424,7 +424,7 @@ void PlayerSystem::check_player_axe_npc_kill()
   }
 
   // Iterate through all entities with Position and Obstacle components
-  auto position_view = reg().view<Cmp::Position, Cmp::NPC, Cmp::SpriteAnimation>( entt::exclude<Cmp::SelectedPosition> );
+  auto position_view = reg().view<Cmp::Position, Cmp::NPC, Cmp::AnimData>( entt::exclude<Cmp::SelectedPosition> );
   SPDLOG_DEBUG( "position_view size: {}", position_view.size_hint() );
   for ( auto [npc_entity, npc_pos_cmp, npc_cmp, anim_cmp] : position_view.each() )
   {
@@ -471,11 +471,11 @@ void PlayerSystem::check_player_axe_npc_kill()
         Cmp::RandomInt do_drop( 0, 2 );
         if ( do_drop.gen() == 0 )
         {
-          auto dropped_loot_entt = Factory::create_loot_drop( reg(), Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),
-                                                              Cmp::RectBounds::scaled( npc_pos_cmp.position, npc_pos_cmp.size, 2.f ).getBounds(),
-                                                              Factory::IncludePack<>{},
-                                                              Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{},
-                                                              Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{} );
+          auto dropped_loot_entt = Factory::create_loot_drop(
+              reg(), Cmp::AnimData( Cmp::AnimData::Config{ .sprite_type = sprite_type, .enabled = false } ),
+              Cmp::RectBounds::scaled( npc_pos_cmp.position, npc_pos_cmp.size, 2.f ).getBounds(), Factory::IncludePack<>{},
+              Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{},
+              Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition, Cmp::Obstacle>{} );
 
           if ( dropped_loot_entt != entt::null )
           {
@@ -549,7 +549,12 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
   // otherwise just drop it as a Re-pickupable item
   auto world_item_entt = reg().create();
   reg().emplace_or_replace<Cmp::Position>( world_item_entt, pos, Constants::kGridSizePxF );
-  reg().emplace_or_replace<Cmp::SpriteAnimation>( world_item_entt, 0, 0, false, inventory_slot_cmp->m_item.sprite_type, 0 );
+  // clang-format off
+  reg().emplace_or_replace<Cmp::AnimData>( world_item_entt, Cmp::AnimData::Config{  
+        .sprite_type =  inventory_slot_cmp->m_item.sprite_type,
+        .enabled = false
+  });
+  //clang-format on
   reg().emplace_or_replace<Cmp::ZOrderValue>( world_item_entt, pos.y - 1.f );
   reg().emplace_or_replace<Cmp::WorldItem>( world_item_entt, inventory_slot_cmp->m_item );
   reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_item_entt );
@@ -593,7 +598,12 @@ void PlayerSystem::pickup_world_item( entt::registry &reg, entt::entity world_it
   // create the basic inventory slot entt
   auto inventory_entity = reg.create();
   reg.emplace_or_replace<Cmp::PlayerInventorySlot>( inventory_entity, *world_item_cmp );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( inventory_entity, 0, 0, false, world_item_cmp->sprite_type, 0 );
+  // clang-format off
+  reg.emplace_or_replace<Cmp::AnimData>( inventory_entity, Cmp::AnimData::Config{  
+        .sprite_type =  world_item_cmp->sprite_type,
+        .enabled = false
+  });
+  //clang-format on  
 
   // transfer any component properties from the world item that we want to retain before it is destroyed
   auto *uuid_cmp = reg.try_get<Cmp::UUID>( world_item_entt );
@@ -691,7 +701,7 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
   auto common_death_throes = [&]()
   {
     m_post_death_timer.restart();
-    reg().remove<Cmp::SpriteAnimation>( Utils::Player::get_entity( reg() ) );
+    reg().remove<Cmp::AnimData>( Utils::Player::get_entity( reg() ) );
     stop_footsteps_sound();
     Utils::Player::get_player_stats( reg() ).apply_modifiers( { Cmp::Stats::Health{ -100 }, {}, {}, {}, {} } );
     SPDLOG_INFO( "Player death code: {}", static_cast<uint8_t>( ev.m_new_state ) );

@@ -1,11 +1,11 @@
 #include <Components/AbsoluteAlpha.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/PlantObstacle.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
@@ -27,7 +27,12 @@ entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, 
   reg.emplace_or_replace<Cmp::NpcNoPathFinding>( plant_entt );
   reg.emplace_or_replace<Cmp::PlayerNoPath>( plant_entt, false );
   reg.emplace_or_replace<Cmp::AbsoluteAlpha>( plant_entt, 255 );
-  reg.emplace_or_replace<Cmp::SpriteAnimation>( plant_entt, 0, 0, true, ms.get_sprite_type(), 0 );
+  // clang-format off
+  reg.emplace_or_replace<Cmp::AnimData>( plant_entt, Cmp::AnimData::Config{ 
+        .sprite_type = ms.get_sprite_type(), 
+        .enabled = true
+  });
+  //clang-format on  
   reg.emplace_or_replace<Cmp::Armable>( plant_entt );
 
   Cmp::ZOrderValue zorder( 0 );

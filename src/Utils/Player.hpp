@@ -2,7 +2,7 @@
 #define SRC_UTILS_PLAYER_HPP_
 
 #include <AbsoluteAlpha.hpp>
-#include <SpriteAnimation.hpp>
+#include <Components/AnimData.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 #include <Stats/PlayerStats.hpp>
 
@@ -30,7 +30,7 @@ namespace ProceduralMaze::Utils::Player
 entt::entity get_entity( entt::registry &reg );
 Cmp::Position &get_position( entt::registry &reg );
 Cmp::Direction &get_direction( entt::registry &reg );
-Cmp::SpriteAnimation &get_sprite_anim( entt::registry &reg );
+Cmp::AnimData &get_sprite_anim( entt::registry &reg );
 int get_ruin_location( entt::registry &reg ); // Returns enum as int to avoid include
 Cmp::PlayerLastGraveyardPosition *get_last_graveyard_pos( entt::registry &reg );
 Cmp::PlayerLevelDepth &get_level_depth( entt::registry &reg );

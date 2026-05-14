@@ -6,6 +6,7 @@
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 #include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/Grave/GraveMultiBlock.hpp>
 #include <Components/Grave/GraveSegment.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
@@ -18,7 +19,6 @@
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Events/PlayerActionEvent.hpp>
 #include <Factory/BombFactory.hpp>
 #include <Factory/LootFactory.hpp>
@@ -65,7 +65,7 @@ void GraveSystem::check_player_grave_collision()
   }
 
   // Iterate through all closed grave entities
-  auto position_view = reg().view<Cmp::Position, Cmp::GraveMultiBlock, Cmp::SpriteAnimation>( entt::exclude<Cmp::SelectedPosition> );
+  auto position_view = reg().view<Cmp::Position, Cmp::GraveMultiBlock, Cmp::AnimData>( entt::exclude<Cmp::SelectedPosition> );
   for ( auto [grave_entity, grave_pos_cmp, grave_cmp, grave_anim_cmp] : position_view.each() )
   {
     if ( grave_anim_cmp.m_sprite_type.contains( ".opened" ) ) continue;

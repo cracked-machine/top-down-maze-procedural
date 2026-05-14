@@ -1,5 +1,5 @@
-#ifndef INC_COMPONENTS_SPRITEANIMATION_HPP
-#define INC_COMPONENTS_SPRITEANIMATION_HPP
+#ifndef SRC_CMPS_ANIMDATA_HPP_
+#define SRC_CMPS_ANIMDATA_HPP_
 
 #include <SFML/System/Time.hpp>
 #include <Sprites/SpriteMetaType.hpp>
@@ -9,18 +9,27 @@ namespace ProceduralMaze::Cmp
 
 enum class AnimType { LOOP, ONESHOTRESET, ONESHOTHOLD };
 
-struct SpriteAnimation
+struct AnimData
 {
-  SpriteAnimation( unsigned int current_frame = 0, unsigned int base_frame = 0, bool activate_animation = true,
-                   Sprites::SpriteMetaType sprite_type = "", unsigned int frame_index_offset = 0, float framerate = 0.1,
-                   AnimType anim_type = AnimType::LOOP )
-      : m_current_frame( current_frame ),
-        m_base_frame( base_frame ),
-        m_animation_active( activate_animation ),
-        m_sprite_type( sprite_type ),
-        m_anim_type( anim_type ),
-        m_framerate( framerate ),
-        m_frame_index_offset( frame_index_offset )
+  struct Config
+  {
+    Sprites::SpriteMetaType sprite_type;
+    unsigned int current_frame = 0;
+    unsigned int base_frame = 0;
+    size_t frame_index_offset = 0;
+    float framerate = 0.1f;
+    bool enabled = true;
+    AnimType anim_type = AnimType::LOOP;
+  };
+
+  explicit AnimData( const Config &cfg )
+      : m_current_frame( cfg.current_frame ),
+        m_base_frame( cfg.base_frame ),
+        m_enabled( cfg.enabled ),
+        m_sprite_type( cfg.sprite_type ),
+        m_anim_type( cfg.anim_type ),
+        m_framerate( cfg.framerate ),
+        m_frame_index_offset( cfg.frame_index_offset )
   {
   }
 
@@ -40,7 +49,7 @@ struct SpriteAnimation
   // elapsed time since the last frame change
   sf::Time m_elapsed_time{ sf::Time::Zero };
 
-  bool m_animation_active;
+  bool m_enabled;
 
   //! @brief The SpriteSheet object type (string) that we are animating
   Sprites::SpriteMetaType m_sprite_type;
@@ -58,9 +67,9 @@ private:
   //! @brief Get the relative frame index offset within multi-block sprites
   //! This should be immutable for the lifetime of the component
   //! @return unsigned int
-  unsigned int m_frame_index_offset;
+  size_t m_frame_index_offset;
 };
 
 } // namespace ProceduralMaze::Cmp
 
-#endif // INC_COMPONENTS_SPRITEANIMATION_HPP
+#endif // SRC_CMPS_ANIMDATA_HPP_

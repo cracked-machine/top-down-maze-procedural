@@ -4,13 +4,13 @@
 
 #include <Components/AbsoluteOffset.hpp>
 #include <Components/AbsoluteRotation.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/FootStepAlpha.hpp>
 #include <Components/FootStepTimer.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/PlayerFootstepAddDelay.hpp>
 #include <Components/Persistent/PlayerFootstepFadeDelay.hpp>
 #include <Components/Player/PlayerCharacter.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <SFML/System/Time.hpp>
 #include <Sprites/SpriteSheet.hpp>
@@ -67,50 +67,98 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
     // We use absolute rotation component to rotate diagonal footsteps from the "right" sprite
     if ( direction == sf::Vector2f( 1.f, 0.f ) )
     { // moving right
-      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.player.footsteps", 0 );
+      // clang-format off
+      reg().emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
+            .sprite_type = "sprite.player.footsteps", 
+            .frame_index_offset = 0,
+            .enabled = true
+      });
+      //clang-format on       
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       // getReg().emplace<Cmp::AbsoluteOffset>( entity, 0.f, -3.f );
     }
     else if ( direction == sf::Vector2f( -1.f, 0.f ) )
     { // moving left
-      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.player.footsteps", 1 );
+      // clang-format off
+      reg().emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
+            .sprite_type = "sprite.player.footsteps", 
+            .frame_index_offset = 1,
+            .enabled = true
+      });
+      //clang-format on 
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       // getReg().emplace<Cmp::AbsoluteOffset>( entity, 0.f, -3.f );
     }
     else if ( direction == sf::Vector2f( 0.f, 1.f ) )
     { // moving down
-      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.player.footsteps", 2 );
+      // clang-format off
+      reg().emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
+            .sprite_type = "sprite.player.footsteps", 
+            .frame_index_offset = 2,
+            .enabled = true
+      });
+      //clang-format on 
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
     }
     else if ( direction == sf::Vector2f( 0.f, -1.f ) )
     { // moving up
-      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.player.footsteps", 3 );
+      // clang-format off
+      reg().emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
+            .sprite_type = "sprite.player.footsteps", 
+            .frame_index_offset = 3,
+            .enabled = true
+      });
+      //clang-format on 
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
     }
     else if ( direction == sf::Vector2f( 1.f, 1.f ) )
     { // moving down/right
-      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.player.footsteps", 0 );
+      // clang-format off
+      reg().emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
+            .sprite_type = "sprite.player.footsteps", 
+            .frame_index_offset = 0,
+            .enabled = true
+      });
+      //clang-format on 
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       reg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
       reg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSizePx.x / 2.f, Constants::kGridSizePx.y / 2.f );
     }
     else if ( direction == sf::Vector2f( -1.f, 1.f ) )
     { // moving down/left
-      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.player.footsteps", 2 );
+      // clang-format off
+      reg().emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
+            .sprite_type = "sprite.player.footsteps", 
+            .frame_index_offset = 2,
+            .enabled = true
+      });
+      //clang-format on 
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       reg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
       reg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSizePx.x / 2.f, Constants::kGridSizePx.y / 2.f );
     }
     else if ( direction == sf::Vector2f( -1.f, -1.f ) )
     { // moving up/left
-      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.player.footsteps", 1 );
+      // clang-format off
+      reg().emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
+            .sprite_type = "sprite.player.footsteps", 
+            .frame_index_offset = 1,
+            .enabled = true
+      });
+      //clang-format on 
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       reg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
       reg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSizePx.x / 2.f, Constants::kGridSizePx.y / 2.f );
     }
     else if ( direction == sf::Vector2f( 1.f, -1.f ) )
     { // moving up/right
-      reg().emplace<Cmp::SpriteAnimation>( entity, 0, 0, true, "sprite.player.footsteps", 3 );
+      // clang-format off
+      reg().emplace_or_replace<Cmp::AnimData>( entity, Cmp::AnimData::Config{ 
+            .sprite_type = "sprite.player.footsteps", 
+            .frame_index_offset = 3,
+            .enabled = true
+      });
+      //clang-format on 
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       reg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
       reg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSizePx.x / 2.f, Constants::kGridSizePx.y / 2.f );

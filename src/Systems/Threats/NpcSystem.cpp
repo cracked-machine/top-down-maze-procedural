@@ -1,6 +1,7 @@
 #include <Audio/SoundBank.hpp>
 #include <Collision.hpp>
 #include <Components/Altar/AltarSegment.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/Crypt/CryptSegment.hpp>
 #include <Components/Direction.hpp>
 #include <Components/FootStepTimer.hpp>
@@ -18,7 +19,6 @@
 #include <Components/Player/PlayerMortality.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/SpawnArea.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Components/Wormhole/WormholeJump.hpp>
@@ -101,6 +101,7 @@ void NpcSystem::update( sf::Time dt )
   }
 
   update_shockwaves();
+  spawn_wisp();
 }
 
 void NpcSystem::check_bones_reanimation()
@@ -122,18 +123,34 @@ void NpcSystem::check_bones_reanimation()
   }
 }
 
+void NpcSystem::spawn_wisp()
+{
+  const static int MAX_WISP_COUNT = 1;
+  int wisp_count = 0;
+  for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
+  {
+    if ( npc_cmp.sprite_type_list.front().contains( "wisp" ) ) wisp_count++;
+  }
+  if ( wisp_count >= MAX_WISP_COUNT ) return;
+
+  Cmp::Position spawn_pos( { 800.f, 800.f }, Constants::kGridSizePxF );
+  auto npc_entt = reg().create();
+  reg().emplace_or_replace<Cmp::Position>( npc_entt, spawn_pos );
+  Factory::create_npc( reg(), npc_entt, "npc.wisp" );
+}
+
 void NpcSystem::update_animation()
 {
-  for ( auto [npc_entt, npc_cmp, npc_dir_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Direction, Cmp::SpriteAnimation>().each() )
+  for ( auto [npc_entt, npc_cmp, npc_dir_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Direction, Cmp::AnimData>().each() )
   {
 
     if ( npc_dir_cmp == sf::Vector2f( 0.0f, 0.0f ) )
     {
-      anim_cmp.m_animation_active = false;
+      anim_cmp.m_enabled = false;
       continue;
     }
 
-    anim_cmp.m_animation_active = true;
+    anim_cmp.m_enabled = true;
     if ( anim_cmp.m_sprite_type.contains( "sprite.skeleton" ) )
     {
 
@@ -157,7 +174,7 @@ void NpcSystem::update_sfx()
 {
   bool any_skeleton_moving = false;
 
-  for ( auto [npc_entt, npc_cmp, npc_dir_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Direction, Cmp::SpriteAnimation>().each() )
+  for ( auto [npc_entt, npc_cmp, npc_dir_cmp, anim_cmp] : reg().view<Cmp::NPC, Cmp::Direction, Cmp::AnimData>().each() )
   {
     if ( anim_cmp.m_sprite_type.contains( "sprite.skeleton" ) )
     {
@@ -186,7 +203,7 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
   auto player_pos_cmp = Utils::Player::get_position( reg() );
   auto player_in_spawn = Utils::Player::is_in_spawn( reg(), player_pos_cmp );
 
-  auto npc_view = reg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation, Cmp::NpcLerpSpeed>( entt::exclude<Cmp::NpcFriendly> );
+  auto npc_view = reg().view<Cmp::NPC, Cmp::Position, Cmp::AnimData, Cmp::NpcLerpSpeed>( entt::exclude<Cmp::NpcFriendly> );
   for ( auto [npc_entity, npc_cmp, npc_pos_cmp, anim_cmp, lerp_speed_cmp] : npc_view.each() )
   {
 
@@ -407,7 +424,7 @@ void NpcSystem::update_shockwaves()
   // emit shockwaves from each NPC
   for ( auto npc_entt : reg().view<Cmp::NPC>() )
   {
-    auto *npc_sprite_anim = reg().try_get<Cmp::SpriteAnimation>( npc_entt );
+    auto *npc_sprite_anim = reg().try_get<Cmp::AnimData>( npc_entt );
     if ( npc_sprite_anim && npc_sprite_anim->m_sprite_type == "sprite.priest" )
     {
       // cooldown is handled in Factory function via Cmp::NpcShockwaveTimer per NPC
@@ -448,7 +465,7 @@ void NpcSystem::update_shockwaves()
 
 void NpcSystem::checkShockwaveObstacleCollision( [[maybe_unused]] entt::entity shockwave_entity, Cmp::NpcShockwave &shockwave )
 {
-  auto obstacle_view = reg().view<Cmp::Obstacle, Cmp::Position, Cmp::SpriteAnimation>();
+  auto obstacle_view = reg().view<Cmp::Obstacle, Cmp::Position, Cmp::AnimData>();
 
   for ( auto [obstacle_entity, obstacle_cmp, obstacle_pos, sprite_anim] : obstacle_view.each() )
   {

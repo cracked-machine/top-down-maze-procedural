@@ -1,5 +1,6 @@
 #include <Audio/SoundBank.hpp>
 #include <Components/Altar/AltarSegment.hpp>
+#include <Components/AnimData.hpp>
 #include <Components/Armable.hpp>
 #include <Components/Armed.hpp>
 #include <Components/Crypt/CryptSegment.hpp>
@@ -22,7 +23,6 @@
 #include <Components/Position.hpp>
 #include <Components/RectBounds.hpp>
 #include <Components/ReservedPosition.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Events/PauseClocksEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
@@ -216,9 +216,9 @@ void BombSystem::update()
 {
 
   // remove any finished explosions
-  for ( auto [death_entt, death_cmp, anim_cmp] : reg().view<Cmp::DeathPosition, Cmp::SpriteAnimation>().each() )
+  for ( auto [death_entt, death_cmp, anim_cmp] : reg().view<Cmp::DeathPosition, Cmp::AnimData>().each() )
   {
-    if ( not anim_cmp.m_animation_active ) { Factory::remove_npc_explosion( reg(), death_entt ); }
+    if ( not anim_cmp.m_enabled ) { Factory::remove_npc_explosion( reg(), death_entt ); }
   }
 
   PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
@@ -318,7 +318,7 @@ void BombSystem::update()
     }
 
     // Check if NPC was killed by explosion
-    for ( auto [npc_entt, npc_cmp, npc_pos_cmp, npc_anim_cmp] : reg().view<Cmp::NPC, Cmp::Position, Cmp::SpriteAnimation>().each() )
+    for ( auto [npc_entt, npc_cmp, npc_pos_cmp, npc_anim_cmp] : reg().view<Cmp::NPC, Cmp::Position, Cmp::AnimData>().each() )
     {
       if ( npc_anim_cmp.m_sprite_type.contains( "sprite.ghost" ) ) continue;
       // notify npc system of death
@@ -338,7 +338,7 @@ void BombSystem::update()
           // clang-format off
           auto dropped_loot_entt = Factory::create_loot_drop( 
             reg(), 
-            Cmp::SpriteAnimation( 0, 0, true, sprite_type, sprite_index ),                                        
+            Cmp::AnimData( Cmp::AnimData::Config{ .sprite_type = sprite_type, .frame_index_offset = sprite_index} ),                                        
             sf::FloatRect{ npc_pos_cmp.position, npc_pos_cmp.size }, 
             Factory::IncludePack<>{},
             Factory::ExcludePack<Cmp::PlayerCharacter, Cmp::ReservedPosition>{} );

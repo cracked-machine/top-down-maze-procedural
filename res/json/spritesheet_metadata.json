@@ -673,7 +673,20 @@
       }
     },
 
-
+    "sprite.wisp": {
+      "spritesheet": {
+        "displayname": "sprite.wisp",
+        "zorder": [0],
+        "texture_path": "res/textures/npcwisp.png",
+        "sprite_indices": [0,1,2,3],
+        "sprites_per_sequence": 4,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
     "sprite.priest": {
       "spritesheet": {
         "displayname": "sprite.priest",

@@ -448,7 +448,7 @@ void RuinSystem::check_create_witch( entt::registry &reg, sf::FloatRect scene_di
   };
 
   bool witch_exists = false;
-  for ( auto [npc_entt, npc_cmp, npc_sprite_cmp] : reg.view<Cmp::NPC, Cmp::SpriteAnimation>().each() )
+  for ( auto [npc_entt, npc_cmp, npc_sprite_cmp] : reg.view<Cmp::NPC, Cmp::AnimData>().each() )
   {
     if ( npc_sprite_cmp.m_sprite_type == "sprite.witch" ) { witch_exists = true; }
   }

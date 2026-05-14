@@ -1,10 +1,10 @@
 #ifndef SRC_FACTORY_LOOTFACTORY_HPP__
 #define SRC_FACTORY_LOOTFACTORY_HPP__
 
+#include <Components/AnimData.hpp>
 #include <Components/Loot.hpp>
 #include <Components/Obstacle.hpp>
 #include <Components/Position.hpp>
-#include <Components/SpriteAnimation.hpp>
 #include <Components/ZOrderValue.hpp>
 #include <Factory/Factory.hpp>
 #include <Systems/BaseSystem.hpp>
@@ -57,7 +57,7 @@ bool has_any_spatial_excluded_at_pos( entt::registry &registry, const Cmp::Posit
  * @return The newly created loot entity, or entt::null if no suitable location was found.
  */
 template <typename... Include, typename... Exclude, typename... SpatialExclude>
-inline entt::entity create_loot_drop( entt::registry &registry, Cmp::SpriteAnimation &&loot_anim_cmp, sf::FloatRect search, IncludePack<Include...>,
+inline entt::entity create_loot_drop( entt::registry &registry, Cmp::AnimData &&loot_anim_cmp, sf::FloatRect search, IncludePack<Include...>,
                                       ExcludePack<Exclude...>, ExcludePack<SpatialExclude...> spatial_exclude = ExcludePack<>{},
                                       float zorder_offset = -8.f )
 {
@@ -75,7 +75,7 @@ inline entt::entity create_loot_drop( entt::registry &registry, Cmp::SpriteAnima
 
     auto new_loot_entity = registry.create();
     registry.emplace<Cmp::Position>( new_loot_entity, pos_cmp.position, pos_cmp.size );
-    registry.emplace<Cmp::SpriteAnimation>( new_loot_entity, loot_anim_cmp );
+    registry.emplace<Cmp::AnimData>( new_loot_entity, loot_anim_cmp );
     registry.emplace<Cmp::ZOrderValue>( new_loot_entity, pos_cmp.position.y + zorder_offset );
     registry.emplace<Cmp::Loot>( new_loot_entity );
     SPDLOG_INFO( "Created loot entity {} of type {} at position ({}, {})", static_cast<int>( new_loot_entity ), loot_anim_cmp.m_sprite_type,
