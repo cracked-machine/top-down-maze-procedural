@@ -112,6 +112,7 @@ public:
   virtual void set_view_transform( const sf::RenderWindow &, const sf::View & ) = 0;
   virtual void reset_view_transform() = 0;
   virtual void stop() = 0;
+  virtual void clear() = 0;
   virtual void restart() = 0;
   virtual void prune_inactive_expired_particles() = 0;
   virtual void check_particle_collision( const sf::FloatRect &target ) = 0;
@@ -185,30 +186,38 @@ public:
   //! @brief Disables the particles for this ParticleSprite (they will continue simulating until their lifetimes expire)
   void stop() override
   {
-    SPDLOG_INFO( "ParticleSprite Stop Signal Received" );
+    SPDLOG_DEBUG( "ParticleSprite Stop Signal Received" );
 
     for ( auto &p : m_particles_list )
     {
       // prevent emit() reseting the particle lifetime
       p.m_particle_active = false;
     }
-    SPDLOG_INFO( "Particles have been disabled" );
+    SPDLOG_DEBUG( "Particles have been disabled" );
+  }
+
+  void clear() override
+  {
+    for ( auto &p : m_particles_list )
+    {
+      p.m_particle_active = false;
+      p.m_lifetime = sf::Time::Zero;
+    }
+    prune_inactive_expired_particles();
   }
 
   //! @brief Remove inactive and dead particles for this ParticleSprite
   void prune_inactive_expired_particles() override
   {
-    for ( auto &p : m_particles_list )
-    {
-      std::erase_if( m_particles_list, []( const TParticle &p ) { return p.m_particle_active == false and p.m_lifetime <= sf::Time::Zero; } );
 
-      if ( m_particles_list.empty() )
-      {
-        SPDLOG_INFO( "Particles have been deleted" );
-        // prevent ParticleSystem from calling this->simulate()
-        m_sprite_active = false;
-        SPDLOG_INFO( "ParticleSprite has stopped" );
-      }
+    std::erase_if( m_particles_list, []( const TParticle &p ) { return not p.m_particle_active and p.m_lifetime <= sf::Time::Zero; } );
+
+    if ( m_particles_list.empty() )
+    {
+      SPDLOG_INFO( "Particles have been deleted" );
+      // prevent ParticleSystem from calling this->simulate()
+      m_sprite_active = false;
+      SPDLOG_INFO( "ParticleSprite has stopped" );
     }
   }
 
@@ -216,6 +225,7 @@ public:
   void restart() override
   {
     if ( m_sprite_active ) return;
+    SPDLOG_INFO( "Restarting ParticleSprite" );
 
     m_particles_list = std::vector<TParticle>( m_max_particles );
     for ( auto &p : m_particles_list )
@@ -229,8 +239,8 @@ public:
       p.m_particle_active = true;
     }
     m_sprite_active = true;
+    SPDLOG_INFO( "ParticleSprite is running." );
 
-    SPDLOG_INFO( "Restarting ParticleSprite" );
   }
 
   //! @brief Check if the Particles from this ParticleSprite colide with the target

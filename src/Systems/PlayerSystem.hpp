@@ -1,9 +1,6 @@
 #ifndef SRC_SYSTEMS_PLAYERSYSTEM_HPP__
 #define SRC_SYSTEMS_PLAYERSYSTEM_HPP__
 
-#include <Events/DropInventoryEvent.hpp>
-#include <Events/PlayerActionEvent.hpp>
-#include <Events/PlayerMortalityEvent.hpp>
 #include <Sprites/SpriteSheet.hpp>
 #include <Systems/BaseSystem.hpp>
 
@@ -11,33 +8,14 @@
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <entt/entity/fwd.hpp>
 
-// forward declarations
-namespace ProceduralMaze::Sprites
-{
-class SpriteSheet;
-}
+// clang-format off
+namespace ProceduralMaze::Events { class DropInventoryEvent; class PlayerActionEvent; class PlayerMortalityEvent; }
+namespace ProceduralMaze::Sprites { class SpriteSheet; }
+namespace ProceduralMaze::Cmp { class Direction; class LerpPosition; class NpcShockwave; class Position; class PlayerMortality; class SpriteAnimation; }
+namespace ProceduralMaze::Cmp::Peristent { class EffectsVolume; } 
+namespace ProceduralMaze::PathFinding { class SpatialHashGrid; }
+// clang-format on
 
-namespace ProceduralMaze::Cmp
-{
-class Direction;
-class LerpPosition;
-class NpcShockwave;
-class Position;
-class PlayerMortality;
-class SpriteAnimation;
-} // namespace ProceduralMaze::Cmp
-
-namespace ProceduralMaze::Cmp::Peristent
-{
-class EffectsVolume;
-} // namespace ProceduralMaze::Cmp::Peristent
-
-namespace ProceduralMaze::PathFinding
-{
-class SpatialHashGrid;
-}
-
-// PlayerSystem
 namespace ProceduralMaze::Sys
 {
 

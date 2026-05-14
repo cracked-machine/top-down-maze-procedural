@@ -1,30 +1,14 @@
-#include <Altar/AltarMultiBlock.hpp>
-#include <Constants.hpp>
-#include <Events/DropInventoryEvent.hpp>
-#include <Factory/NpcFactory.hpp>
-#include <Factory/PlantFactory.hpp>
-#include <Inventory/Explosive.hpp>
-#include <Inventory/InventoryWearLevel.hpp>
-#include <Inventory/ScryingBall.hpp>
-#include <Player/TorchRadius.hpp>
-#include <Stats/BaseAction.hpp>
-#include <Stats/CarryAction.hpp>
-#include <Stats/CollisionAction.hpp>
-#include <Stats/ExhumeAction.hpp>
-#include <Stats/PlayerStats.hpp>
-#include <Stats/ProjectileAction.hpp>
-#include <Systems/ParticleSystem.hpp>
-#include <Systems/Stores/ItemStore.hpp>
-#include <UUID.hpp>
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
-
 #include <Audio/SoundBank.hpp>
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteRotation.hpp>
+#include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/Direction.hpp>
 #include <Components/Exit.hpp>
 #include <Components/FootStepTimer.hpp>
+#include <Components/Inventory/Explosive.hpp>
 #include <Components/Inventory/InventoryItem.hpp>
+#include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/ScryingBall.hpp>
 #include <Components/LerpPosition.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
@@ -41,20 +25,35 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/SelectedPosition.hpp>
 #include <Components/SpriteAnimation.hpp>
+#include <Components/Stats/BaseAction.hpp>
+#include <Components/Stats/CarryAction.hpp>
+#include <Components/Stats/CollisionAction.hpp>
+#include <Components/Stats/ExhumeAction.hpp>
+#include <Components/Stats/PlayerStats.hpp>
+#include <Components/Stats/ProjectileAction.hpp>
 #include <Components/System.hpp>
+#include <Components/UUID.hpp>
 #include <Components/Wormhole/WormholeJump.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Events/DropInventoryEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
+#include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/LootFactory.hpp>
+#include <Factory/NpcFactory.hpp>
+#include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
 #include <Persistent/PlayerMovementSpeed.hpp>
+#include <Player/TorchRadius.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
+#include <Systems/ParticleSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PlayerSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
+#include <Systems/Stores/ItemStore.hpp>
 #include <Utils/Collision.hpp>
+#include <Utils/Constants.hpp>
 #include <Utils/Maths.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
@@ -574,7 +573,7 @@ void PlayerSystem::drop_inventory_slot_into_world( sf::Vector2f pos, entt::entit
       if ( ps_uuid_cmp == *uuid_cmp )
       {
         ps_owner.sprite->set_view_type( Cmp::Particle::ViewType::WORLD );
-        ps_owner.sprite->set_emitter_position( pos );
+        // ps_owner.sprite->clear();
       }
     }
     reg().emplace_or_replace<Cmp::UUID>( world_item_entt, uuid_cmp->data );
@@ -602,7 +601,13 @@ void PlayerSystem::pickup_world_item( entt::registry &reg, entt::entity world_it
   {
     for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg.view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
     {
-      if ( ps_uuid_cmp == *uuid_cmp ) { ps_owner.sprite->set_view_type( Cmp::Particle::ViewType::SCREEN ); }
+      if ( ps_uuid_cmp == *uuid_cmp )
+      {
+        // Move the ParticleSprite to the UI view. Any particle sprites should be fully cleared
+        // otherwise we get particle effects in strange places during the transition frame.
+        ps_owner.sprite->clear();
+        ps_owner.sprite->set_view_type( Cmp::Particle::ViewType::SCREEN );
+      }
     }
     reg.emplace_or_replace<Cmp::UUID>( inventory_entity, uuid_cmp->data );
   }

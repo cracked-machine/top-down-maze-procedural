@@ -241,6 +241,7 @@ void GraveyardScene::do_update( sf::Time dt )
   {
     m_sys.find<Sys::Store::Type::CryptSystem>().check_entrance_collision();
   }
+
   m_sys.find<Sys::Store::Type::CryptSystem>().unlock_crypt_door();
   m_sys.find<Sys::Store::Type::AltarSystem>().check_player_collision();
   m_sys.find<Sys::Store::Type::HolyWellSystem>().check_entrance_collision();
@@ -248,6 +249,11 @@ void GraveyardScene::do_update( sf::Time dt )
 
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
   m_sys.find<Sys::Store::Type::LightningSystem>().update( dt );
+
+  for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::Obstacle, Cmp::Position>().each() )
+  {
+    m_sys.find<Sys::Store::Type::ParticleSystem>().check_collsion( pos_cmp );
+  }
 
   // update flame particle sprite position for candle items
   for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : m_reg.view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
@@ -260,13 +266,7 @@ void GraveyardScene::do_update( sf::Time dt )
   }
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
 
-  for ( auto [ob_entt, ob_cmp, pos_cmp] : m_reg.view<Cmp::Obstacle, Cmp::Position>().each() )
-  {
-    m_sys.find<Sys::Store::Type::ParticleSystem>().check_collsion( pos_cmp );
-  }
-
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
-
   m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys );
 }
 
