@@ -93,9 +93,13 @@ void RuinSceneLowerFloor::on_init()
   {
     m_pathfinding_navmesh->insert( pos_entt, pos_cmp );
   }
-  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
+  // create a navmesh for uninhibited pathfinding
+  m_open_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
+  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>().each() )
+  {
+    m_open_navmesh->insert( pos_entt, pos_cmp );
+  }
+  reinit_navmesh();
 
   // Hide the sudden position update/camera pan behind a forced loading screen.
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
@@ -153,9 +157,7 @@ void RuinSceneLowerFloor::on_enter()
   m_sys.find<Sys::Store::Type::RuinSystem>().reset_floor_access_cooldown();
 
   // re-initialise the spatial grid weak_ptr for when we return from upper floor scene
-  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
+  reinit_navmesh();
 }
 
 void RuinSceneLowerFloor::on_exit()
@@ -199,6 +201,13 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
 
   auto &overlay_sys = m_sys.find<Store::Type::RenderOverlaySystem>();
   m_sys.find<Store::Type::RenderGameSystem>().render_game( dt, overlay_sys );
+}
+
+void RuinSceneLowerFloor::reinit_navmesh()
+{
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh, m_open_navmesh );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh, m_open_navmesh );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
 }
 
 entt::registry &RuinSceneLowerFloor::registry() { return m_reg; }

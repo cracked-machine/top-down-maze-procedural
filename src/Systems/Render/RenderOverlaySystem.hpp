@@ -12,25 +12,12 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::PathFinding
-{
-class SpatialHashGrid;
-enum class QueryCompass;
-} // namespace ProceduralMaze::PathFinding
-namespace ProceduralMaze::Cmp
-{
-class InventoryWearLevel;
-class ZOrderValue;
-} // namespace ProceduralMaze::Cmp
-namespace ProceduralMaze::Sprites
-{
-class SpriteSheet;
-class SpriteFactory;
-} // namespace ProceduralMaze::Sprites
-namespace ProceduralMaze::PathFinding
-{
-class SpatialHashGrid;
-}
+// clang-format off
+namespace ProceduralMaze::PathFinding { class SpatialHashGrid; enum class QueryCompass; } 
+namespace ProceduralMaze::Cmp { class InventoryWearLevel; class ZOrderValue; } 
+namespace ProceduralMaze::Sprites { class SpriteSheet; class SpriteFactory; } 
+namespace ProceduralMaze::PathFinding { class SpatialHashGrid; }
+// clang-format on
 
 namespace ProceduralMaze::Sys
 {

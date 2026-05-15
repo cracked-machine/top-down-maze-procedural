@@ -107,6 +107,10 @@ void PlayerSystem::update( sf::Time dt, FootStepSfx footstep_sfx )
   {
     pathfinding_navmesh->update( Utils::Player::get_entity( reg() ), old_player_pos, Utils::Player::get_position( reg() ) );
   }
+  if ( PathFinding::SpatialHashGridSharedPtr open_navmesh = m_open_navmesh.lock() )
+  {
+    open_navmesh->update( Utils::Player::get_entity( reg() ), old_player_pos, Utils::Player::get_position( reg() ) );
+  }
 }
 
 void PlayerSystem::play_footsteps_sound( FootStepSfx type )
@@ -347,6 +351,18 @@ void PlayerSystem::check_timed_action_side_effects( sf::Time dt )
           net_modifier += candle_action_modifiers;
         }
       }
+
+      // apply candle item modifiers to the player when standing inside radius of wisp NPC
+      for ( auto [altar_entt, npc_cmp, npc_pos_cmp] : reg().view<Cmp::NPC, Cmp::Position>().each() )
+      {
+        if ( not Utils::is_visible_in_view( Sys::RenderSystem::get_world_view(), npc_pos_cmp ) ) continue;
+        if ( not npc_cmp.sprite_type_list.front().contains( "wisp" ) ) continue;
+
+        float player_distance = Utils::Maths::getEuclideanDistance( npc_pos_cmp.getCenter(), Utils::Player::get_position( reg() ).position );
+        if ( player_distance > torch_radius.value ) continue;
+        net_modifier += candle_action_modifiers;
+      }
+
       m_darkness_fear_clock = sf::Time::Zero;
     }
     m_timed_action_sync_clock = sf::Time::Zero;

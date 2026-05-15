@@ -12,6 +12,8 @@
 namespace ProceduralMaze::Sprites { class SpriteFactory; }
 namespace ProceduralMaze::Sys { class Store; }
 namespace ProceduralMaze::Audio { class SoundBank; }
+namespace ProceduralMaze::Cmp { class Position; }
+
 // clang-format on
 namespace ProceduralMaze::Cmp
 {
@@ -36,7 +38,12 @@ public:
 
   //! @brief init the weak pointer for the pathfinding navmesh
   //! @param pathfinding_navmesh
-  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh ) { m_pathfinding_navmesh = pathfinding_navmesh; }
+  //! @param open_navmesh
+  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh, const PathFinding::SpatialHashGridSharedPtr &open_navmesh )
+  {
+    m_pathfinding_navmesh = pathfinding_navmesh;
+    m_open_navmesh = open_navmesh;
+  }
 
   //! @brief Update the NpcSystem
   //! @param dt Delta time since last update call
@@ -57,12 +64,15 @@ public:
 private:
   // Updates lerp movement for NPCs
   void update_movement( sf::Time dt );
+  void update_movement_for( PathFinding::SpatialHashGrid &navmesh, entt::entity npc_entity, sf::Time dt );
+
   void update_sfx();
 
   // Check for player collision proximity with NPC containers
   void check_bones_reanimation();
 
   void spawn_wisp();
+  void reset_wisp_target( entt::entity wisp_entt );
 
   //! @brief Check Player/NPC collision for Cmp::CollisionActions::Tick::ONCE
   //! @note Player cooldown and knockback are ENABLED.
@@ -74,7 +84,8 @@ private:
 
   void find_pushback_position( const Cmp::Direction &npc_direction );
 
-  void update_pathfinding( entt::entity player_entity );
+  void update_pathfinding( sf::Time dt );
+  void update_pathfinding_for( PathFinding::SpatialHashGrid &navmesh, const Cmp::Position &target_pos, entt::entity npc_entity );
 
   void update_animation();
 
@@ -87,7 +98,11 @@ private:
   sf::Time m_animation_accumulator;
   sf::Time m_bones_accumulator;
 
+  //! @brief Delay the target reset once the pathfinding has comepleted.
+  sf::Clock m_wisp_target_reset_clock;
+
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
+  PathFinding::SpatialHashGridWeakPtr m_open_navmesh;
 };
 
 } // namespace ProceduralMaze::Sys

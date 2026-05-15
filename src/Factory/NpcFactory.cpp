@@ -16,6 +16,7 @@
 #include <Factory/Factory.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/NpcFactory.hpp>
+#include <Factory/ParticleFactory.hpp>
 #include <LerpPosition.hpp>
 #include <Persistent/NpcGhostAnimFramerate.hpp>
 #include <Persistent/NpcLerpSpeedGhost.hpp>
@@ -33,6 +34,7 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/PersistSystem.hpp>
 #include <Systems/Stores/NpcStore.hpp>
+#include <UUID.hpp>
 #include <Utils/Random.hpp>
 #include <entt/entity/entity.hpp>
 #include <spdlog/spdlog.h>
@@ -94,14 +96,14 @@ void create_shockwave( entt::registry &registry, entt::entity npc_entt )
   }
 }
 
-void create_npc( entt::registry &reg, entt::entity position_entity, const std::string &npc_type )
+entt::entity create_npc( entt::registry &reg, entt::entity position_entity, const std::string &npc_type )
 {
 
   auto *pos_cmp = reg.try_get<Cmp::Position>( position_entity );
   if ( not pos_cmp )
   {
     SPDLOG_ERROR( "Cannot add NPC entity {} without a Position component", static_cast<int>( position_entity ) );
-    return;
+    return entt::null;
   }
 
   // create a new entity for the NPC using the existing position
@@ -203,7 +205,6 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
     reg.emplace_or_replace<Cmp::NPC>( new_pos_entity, npc_cmp );
 
     auto framerate = Sys::PersistSystem::get<Cmp::Persist::NpcWispAnimFramerate>( reg ).get_value();
-    SPDLOG_INFO( "Creating wisp with {}", framerate );
   
     // clang-format off
     reg.emplace_or_replace<Cmp::AnimData>( new_pos_entity, Cmp::AnimData::Config{ 
@@ -211,12 +212,13 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
           .framerate = framerate,
           .enabled = true
     });
-    //clang-format on  
+    // clang-format on  
 
     float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedWitch>( reg ).get_value();
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
     reg.emplace_or_replace<Cmp::Direction>( new_pos_entity, sf::Vector2f{ 1, 1 } );
     reg.emplace_or_replace<Cmp::NpcFriendly>( new_pos_entity );
+
   }
   else if ( npc_type == "npc.drknox" )
   {
@@ -235,6 +237,8 @@ void create_npc( entt::registry &reg, entt::entity position_entity, const std::s
     auto action_timer_pair = npc_cmp.actions.at( std::type_index( typeid( Cmp::ExhumeAction ) ) );
     Utils::Player::get_player_stats( reg ).apply_modifiers( action_timer_pair.action );
   }
+
+  return new_pos_entity;
 }
 
 entt::entity destroy_npc( entt::registry &reg, entt::entity npc_entity )

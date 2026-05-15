@@ -1,5 +1,6 @@
 #include <Components/Position.hpp>
 #include <Constants.hpp>
+#include <Npc/Npc.hpp>
 #include <Optimizations.hpp>
 #include <Persistent/DisplayResolution.hpp>
 #include <Player/TorchRadius.hpp>
@@ -33,6 +34,11 @@ void NightStaticShader::update( entt::registry &reg )
   // flame particle sprites are paused when candle is in inventory so we need to add the radius explicitly
   auto [item_entt, item_type] = Utils::Player::get_inventory_type( reg );
   if ( item_type.contains( "candle" ) ) { torch_positions.push_back( Utils::Player::get_position( reg ).getCenter() ); }
+
+  for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : reg.view<Cmp::NPC, Cmp::Position>().each() )
+  {
+    if ( npc_cmp.sprite_type_list.front().contains( "wisp" ) ) { torch_positions.push_back( npc_pos_cmp.getCenter() ); }
+  }
 
   Sprites::UniformBuilder{}
       .set( "resolution", sf::Vector2f{ display_size } )

@@ -122,6 +122,12 @@ void GraveyardScene::on_init()
     if ( m_reg.any_of<Cmp::RuinBuildingMultiBlock, Cmp::AltarMultiBlock, Cmp::GraveMultiBlock, Cmp::HolyWellMultiBlock>( pos_entt ) ) continue;
     m_pathfinding_navmesh->insert( pos_entt, pos_cmp );
   }
+  // create a navmesh for uninhibited pathfinding
+  m_open_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
+  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>().each() )
+  {
+    m_open_navmesh->insert( pos_entt, pos_cmp );
+  }
   reinit_navmesh();
 
   // create floor background
@@ -272,10 +278,10 @@ void GraveyardScene::do_update( sf::Time dt )
 
 void GraveyardScene::reinit_navmesh()
 {
-  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh, m_open_navmesh );
   m_sys.find<Sys::Store::Type::BombSystem>().init( m_pathfinding_navmesh );
   m_sys.find<Sys::Store::Type::DiggingSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh, m_open_navmesh );
   m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
 }
 

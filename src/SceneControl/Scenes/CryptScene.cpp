@@ -74,11 +74,13 @@ void CryptScene::on_init()
   {
     m_pathfinding_navmesh->insert( pos_entt, pos_cmp );
   }
-  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::PassageSystem>().init_nav_mesh( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::CryptSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
+  // create a navmesh for uninhibited pathfinding
+  m_open_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
+  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>().each() )
+  {
+    m_open_navmesh->insert( pos_entt, pos_cmp );
+  }
+  reinit_navmesh();
 
   Sprites::Containers::VertexFloor floortiles;
   floortiles.create( random_level_sys.get_void_sm(), m_scene_map_data );
@@ -133,6 +135,15 @@ void CryptScene::do_update( sf::Time dt )
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
   m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys );
+}
+
+void CryptScene::reinit_navmesh()
+{
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh, m_open_navmesh );
+  m_sys.find<Sys::Store::Type::PassageSystem>().init_nav_mesh( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::CryptSystem>().init( m_pathfinding_navmesh );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh, m_open_navmesh );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
 }
 
 entt::registry &CryptScene::registry() { return m_reg; }

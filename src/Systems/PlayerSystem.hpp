@@ -28,7 +28,12 @@ public:
 
   //! @brief init the weak pointer for the pathfinding navmesh
   //! @param pathfinding_navmesh
-  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh ) { m_pathfinding_navmesh = pathfinding_navmesh; }
+  //! @param open_navmesh
+  void init( const PathFinding::SpatialHashGridSharedPtr &pathfinding_navmesh, const PathFinding::SpatialHashGridSharedPtr &open_navmesh )
+  {
+    m_pathfinding_navmesh = pathfinding_navmesh;
+    m_open_navmesh = open_navmesh;
+  }
 
   //! @brief Update the player system.
   void update( sf::Time dt, FootStepSfx footstep_sfx = FootStepSfx::GRAVEL );
@@ -135,6 +140,7 @@ private:
 
   //! @brief Weak pointer to the pathfinding navmesh.
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
+  PathFinding::SpatialHashGridWeakPtr m_open_navmesh;
 };
 
 } // namespace ProceduralMaze::Sys

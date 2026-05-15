@@ -78,7 +78,7 @@
     ]
   },
   "npc.wisp": {
-    "sprites": ["sprite.wisp"],
+    "sprites": [ "sprite.wisp.east",  "sprite.wisp.west"],
     "actions": [
       { "bury_action":        { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},
       { "carry_action":       { "health": 0, "fear": 0, "despair": 0, "infamy": 0, "disease": { "type": "none", "tick": 0 }, "tick": 0 }},

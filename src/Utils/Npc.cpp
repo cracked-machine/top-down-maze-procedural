@@ -3,7 +3,10 @@
 #include <Npc/Npc.hpp>
 #include <Player/PlayerCharacter.hpp>
 #include <Position.hpp>
+#include <Sprites/SpriteMetaType.hpp>
 #include <entt/entity/fwd.hpp>
+#include <source_location>
+#include <stdexcept>
 
 namespace ProceduralMaze::Utils::Npc
 {
@@ -30,6 +33,14 @@ entt::entity get_world_pos_entt( entt::registry &reg, entt::entity npc_entt )
     if ( npc_pos->findIntersection( world_pos_cmp ) ) return world_entt;
   }
   return entt::null;
+}
+
+Sprites::SpriteMetaType get_sprite_type( entt::registry &reg, entt::entity npc_entt, std::source_location loc )
+{
+  auto loc_data = std::string( loc.file_name() ) + ":" + std::to_string( loc.line() ) + " - ";
+  auto *npc_cmp = reg.try_get<Cmp::NPC>( npc_entt );
+  if ( not npc_cmp ) throw std::runtime_error( loc_data + "Could not get NPC component from " + std::to_string( static_cast<uint32_t>( npc_entt ) ) );
+  return npc_cmp->sprite_type_list.front();
 }
 
 } // namespace ProceduralMaze::Utils::Npc

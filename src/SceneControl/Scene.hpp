@@ -43,6 +43,7 @@ public:
 
 protected:
   PathFinding::SpatialHashGridSharedPtr m_pathfinding_navmesh;
+  PathFinding::SpatialHashGridSharedPtr m_open_navmesh;
   SceneMapSharedPtr m_scene_map_data;
 
 private:

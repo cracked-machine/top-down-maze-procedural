@@ -105,7 +105,7 @@ void AnimSystem::update( sf::Time dt )
     if ( !Utils::is_visible_in_view( RenderSystem::get_world_view(), pos_cmp ) ) continue;
     if ( direction_cmp == sf::Vector2f( 0.f, 0.f ) ) continue;
 
-    SPDLOG_INFO( "NPC {} framerate is {}", anim_cmp.m_sprite_type, anim_cmp.get_framerate() );
+    SPDLOG_DEBUG( "NPC {} framerate is {}", anim_cmp.m_sprite_type, anim_cmp.get_framerate() );
     const auto &npc_walk_sequence = m_sprite_factory.get_spritesheet_by_type( anim_cmp.m_sprite_type );
     update_single_sequence( anim_cmp, dt, npc_walk_sequence, sf::seconds( anim_cmp.get_framerate() ) );
   }

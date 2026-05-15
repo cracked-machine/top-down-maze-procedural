@@ -30,8 +30,12 @@
 #include <Grave/GraveSegment.hpp>
 #include <Npc/NpcFriendly.hpp>
 #include <Npc/NpcLerpSpeed.hpp>
+#include <Npc/NpcTarget.hpp>
 #include <PathFinding/AStar.hpp>
 #include <PathFinding/SpatialHashGrid.hpp>
+#include <Persistent/DisplayResolution.hpp>
+#include <Position.hpp>
+#include <Random.hpp>
 #include <Ruin/RuinSegment.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <Stats/BaseAction.hpp>
@@ -42,9 +46,11 @@
 #include <Systems/Threats/NpcSystem.hpp>
 #include <Systems/Threats/ShockwaveSystem.hpp>
 #include <Utils/Constants.hpp>
+#include <Utils/Maths.hpp>
 #include <Utils/Npc.hpp>
 #include <Utils/Optimizations.hpp>
 #include <Utils/Player.hpp>
+#include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
 
 #include <SFML/Graphics/Rect.hpp>
@@ -60,6 +66,7 @@ NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::Sp
     : BaseSystem( reg, window, sprite_factory, sound_bank )
 {
   SPDLOG_DEBUG( "NpcSystem initialized" );
+  m_wisp_target_reset_clock.reset();
 }
 
 void NpcSystem::update( sf::Time dt )
@@ -74,14 +81,7 @@ void NpcSystem::update( sf::Time dt )
     m_bones_accumulator = sf::Time::Zero;
   }
 
-  // run pathfinding at 10Hz
-  static constexpr float kScanInterval = 0.10f;
-  m_scan_accumulator += dt;
-  if ( m_scan_accumulator.asSeconds() >= kScanInterval )
-  {
-    update_pathfinding( Utils::Player::get_entity( reg() ) );
-    m_scan_accumulator = sf::Time::Zero;
-  }
+  update_pathfinding( dt );
 
   // run animation checks at 20Hz
   static constexpr float kAnimationInterval = 0.05f;
@@ -125,6 +125,7 @@ void NpcSystem::check_bones_reanimation()
 
 void NpcSystem::spawn_wisp()
 {
+  // allow only max number of wisp
   const static int MAX_WISP_COUNT = 1;
   int wisp_count = 0;
   for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
@@ -133,10 +134,59 @@ void NpcSystem::spawn_wisp()
   }
   if ( wisp_count >= MAX_WISP_COUNT ) return;
 
-  Cmp::Position spawn_pos( { 800.f, 800.f }, Constants::kGridSizePxF );
-  auto npc_entt = reg().create();
-  reg().emplace_or_replace<Cmp::Position>( npc_entt, spawn_pos );
-  Factory::create_npc( reg(), npc_entt, "npc.wisp" );
+  // find a random start position in the game area and create a new npc at that position
+  auto [spawn_entt, spawn_pos] = Utils::Rnd::get_random_position( reg(), {}, {} );
+  auto npc_entt = Factory::create_npc( reg(), spawn_entt, "npc.wisp" );
+  SPDLOG_INFO( "Created wisp npc {}", static_cast<uint32_t>( npc_entt ) );
+
+  // find a random target position in the game area that is distant from the spawn_pos
+  static constexpr float kMinTargetDistance = 100.f;
+  auto [target_entt, target_pos] = Utils::Rnd::get_random_position( reg(), {}, {} );
+  while ( Utils::Maths::getEuclideanDistance( target_pos.position, spawn_pos.position ) < kMinTargetDistance )
+  {
+    auto [new_target_entt, new_target_pos] = Utils::Rnd::get_random_position( reg(), {}, {} );
+    target_entt = new_target_entt;
+    target_pos = new_target_pos;
+  }
+  reg().emplace_or_replace<Cmp::NpcTarget>( target_entt, npc_entt );
+
+  // register the wisp in the open navmesh so A* can find a valid start cell
+  if ( auto open_navmesh = m_open_navmesh.lock() )
+  {
+    open_navmesh->insert( npc_entt, spawn_pos );
+    open_navmesh->insert( target_entt, target_pos );
+  }
+
+  SPDLOG_INFO( "Spawned wisp {} at {},{}. Target is {},{}", static_cast<uint32_t>( npc_entt ), spawn_pos.x(), spawn_pos.y(), target_pos.x(),
+               target_pos.y() );
+}
+
+void NpcSystem::reset_wisp_target( entt::entity wisp_entt )
+{
+
+  const static float kWispTargetResetTimeout = 10.f;
+  if ( m_wisp_target_reset_clock.getElapsedTime().asSeconds() < kWispTargetResetTimeout ) return;
+
+  for ( auto [old_target_entt, old_npc_target_cmp, old_npc_target_pos_cmp] : reg().view<Cmp::NpcTarget, Cmp::Position>().each() )
+  {
+    if ( old_npc_target_cmp.id != wisp_entt ) continue;
+
+    // find a random target position in the game area that is distant from the spawn_pos
+    static constexpr float kMinTargetDistance = 100.f;
+    auto [new_target_entt, new_target_pos] = Utils::Rnd::get_random_position( reg(), {}, {} );
+    while ( Utils::Maths::getEuclideanDistance( new_target_pos.position, old_npc_target_pos_cmp.position ) < kMinTargetDistance )
+    {
+      auto [retry_target_entt, retry_target_pos] = Utils::Rnd::get_random_position( reg(), {}, {} );
+      new_target_entt = retry_target_entt;
+      new_target_pos = retry_target_pos;
+    }
+    reg().remove<Cmp::NpcTarget>( old_target_entt ); // remove from old target first
+    reg().emplace_or_replace<Cmp::NpcTarget>( new_target_entt, wisp_entt );
+
+    SPDLOG_INFO( "Reset wisp {} target to {},{}", static_cast<uint32_t>( wisp_entt ), new_target_pos.x(), new_target_pos.y() );
+    m_wisp_target_reset_clock.reset();
+    break; // only one target per wisp
+  }
 }
 
 void NpcSystem::update_animation()
@@ -167,6 +217,11 @@ void NpcSystem::update_animation()
       else if ( npc_dir_cmp.y < 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.north"; }
       else if ( npc_dir_cmp.y > 0 ) { anim_cmp.m_sprite_type = "sprite.ghost.walk.south"; }
     }
+    else if ( anim_cmp.m_sprite_type.contains( "sprite.wisp" ) )
+    {
+      if ( npc_dir_cmp.x > 0 ) { anim_cmp.m_sprite_type = "sprite.wisp.east"; }
+      else if ( npc_dir_cmp.x < 0 ) { anim_cmp.m_sprite_type = "sprite.wisp.west"; }
+    }
   }
 }
 
@@ -194,65 +249,104 @@ void NpcSystem::update_sfx()
   else { sfx.stop(); }
 }
 
-void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity )
+void NpcSystem::update_pathfinding( sf::Time dt )
 {
-
-  PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock();
-  if ( not pathfinding_navmesh ) return;
-
-  auto player_pos_cmp = Utils::Player::get_position( reg() );
-  auto player_in_spawn = Utils::Player::is_in_spawn( reg(), player_pos_cmp );
-
-  auto npc_view = reg().view<Cmp::NPC, Cmp::Position, Cmp::AnimData, Cmp::NpcLerpSpeed>( entt::exclude<Cmp::NpcFriendly> );
-  for ( auto [npc_entity, npc_cmp, npc_pos_cmp, anim_cmp, lerp_speed_cmp] : npc_view.each() )
+  static constexpr float kScanInterval = 0.10f;
+  m_scan_accumulator += dt;
+  if ( m_scan_accumulator.asSeconds() >= kScanInterval )
   {
-
-    if ( not Utils::is_visible_in_view( RenderSystem::get_world_view(), npc_pos_cmp ) )
+    // Wisp NPCs — driven from NpcTarget view, no inner loop needed
+    if ( auto navmesh = m_open_navmesh.lock() )
     {
-      reg().emplace_or_replace<Cmp::Direction>( npc_entity, Cmp::Direction( { 0.0, 0.0 } ) );
-      continue;
+      for ( auto [target_entt, npc_target_cmp, npc_target_pos_cmp] : reg().view<Cmp::NpcTarget, Cmp::Position>().each() )
+      {
+        if ( not reg().valid( npc_target_cmp.id ) ) continue;
+        update_pathfinding_for( *navmesh, npc_target_pos_cmp, npc_target_cmp.id );
+      }
     }
 
-    // don't intterupt NPC mid-lerp or it causes indecisive pathfinding
-    auto *npc_lerp_pos_cmp = reg().try_get<Cmp::LerpPosition>( npc_entity );
-    if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) continue;
-
-    // allow ghosts to sneak through gaps
-    auto query_compass = PathFinding::QueryCompass::CARDINAL;
-    if ( anim_cmp.m_sprite_type.contains( "sprite.ghost" ) ) query_compass = PathFinding::QueryCompass::BOTH;
-
-    // now get latest path vector for NPC -> player
-    std::vector<PathFinding::PathNode> path = PathFinding::astar( reg(), *pathfinding_navmesh, npc_pos_cmp, player_pos_cmp, query_compass );
-
-    if ( path.size() > 1 )
+    // Other NPCs — target is always the player
+    const Cmp::Position player_pos = Utils::Player::get_position( reg() );
+    if ( auto navmesh = m_pathfinding_navmesh.lock() )
     {
-
-      SPDLOG_DEBUG( "{} pathsize: {}", static_cast<uint32_t>( npc_entity ), path.size() );
-
-      Cmp::Position next_npc_pos = path[1].pos;
-
-      // If player is in spawn, only stop when the very next step would cross into spawn.
-      // This lets the NPC walk the full path to the boundary before stopping.
-      if ( ( player_in_spawn and Utils::Player::is_in_spawn( reg(), next_npc_pos ) ) )
+      for ( auto [npc_entt, npc_cmp] : reg().view<Cmp::NPC>().each() )
       {
-        reg().emplace_or_replace<Cmp::Direction>( npc_entity, Cmp::Direction( { 0.0f, 0.0f } ) );
-        continue;
+        if ( npc_cmp.sprite_type_list.front().contains( "wisp" ) ) continue;
+        update_pathfinding_for( *navmesh, player_pos, npc_entt );
       }
+    }
 
-      // calculate the direction and update the NPC lerp
-      auto candidate_lerp_pos = Cmp::LerpPosition( next_npc_pos.position, lerp_speed_cmp.speed );
-      auto distance_to_target = next_npc_pos.position - npc_pos_cmp.position;
-      if ( distance_to_target == sf::Vector2f( 0.0f, 0.0f ) ) continue;
+    m_scan_accumulator = sf::Time::Zero;
+  }
+}
+void NpcSystem::update_pathfinding_for( PathFinding::SpatialHashGrid &navmesh, const Cmp::Position &target_pos, entt::entity npc_entity )
+{
 
-      // prevent NPC warping via another NPCs pathfinding
-      const bool too_far = std::abs( distance_to_target.x ) >= Constants::kGridSizePxF.x * 1.5f ||
-                           std::abs( distance_to_target.y ) >= Constants::kGridSizePxF.y * 1.5f;
-      if ( too_far ) continue;
+  auto target_is_in_spawn = Utils::Player::is_in_spawn( reg(), target_pos );
 
-      auto norm_direction = Cmp::Direction( distance_to_target.normalized() );
+  auto *npc_anim_cmp = reg().try_get<Cmp::AnimData>( npc_entity );
+  if ( not npc_anim_cmp ) return;
+  auto npc_type = npc_anim_cmp->m_sprite_type;
 
-      reg().emplace_or_replace<Cmp::Direction>( npc_entity, norm_direction );
-      reg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, candidate_lerp_pos );
+  auto *npc_pos_cmp = reg().try_get<Cmp::Position>( npc_entity );
+  if ( not npc_pos_cmp ) return;
+
+  // only pathfind when in the current view/screen - except wisps - they need to pathfind at all times.
+  if ( not npc_type.contains( "wisp" ) and not Utils::is_visible_in_view( RenderSystem::get_world_view(), *npc_pos_cmp ) )
+  {
+    reg().emplace_or_replace<Cmp::Direction>( npc_entity, Cmp::Direction( { 0.0, 0.0 } ) );
+    return;
+  }
+
+  // don't intterupt NPC mid-lerp or it causes indecisive pathfinding
+  auto *npc_lerp_pos_cmp = reg().try_get<Cmp::LerpPosition>( npc_entity );
+  if ( npc_lerp_pos_cmp && npc_lerp_pos_cmp->m_lerp_factor < 1.0f ) return;
+
+  // allow ghosts to sneak through gaps
+  auto query_compass = PathFinding::QueryCompass::CARDINAL;
+
+  if ( npc_type.contains( "sprite.ghost" ) ) query_compass = PathFinding::QueryCompass::BOTH;
+
+  std::vector<PathFinding::PathNode> path;
+  path = PathFinding::astar( reg(), navmesh, *npc_pos_cmp, target_pos, query_compass );
+
+  SPDLOG_DEBUG( "{} pathsize: {}", static_cast<uint32_t>( npc_entity ), path.size() );
+  if ( path.size() > 1 )
+  {
+
+    Cmp::Position next_npc_pos = path[1].pos;
+
+    // If player is in spawn, only stop when the very next step would cross into spawn.
+    // This lets the NPC walk the full path to the boundary before stopping.
+    if ( ( target_is_in_spawn and Utils::Player::is_in_spawn( reg(), next_npc_pos ) ) )
+    {
+      reg().emplace_or_replace<Cmp::Direction>( npc_entity, Cmp::Direction( { 0.0f, 0.0f } ) );
+      return;
+    }
+
+    // calculate the direction and update the NPC lerp
+    auto *npc_lerp_speed_cmp = reg().try_get<Cmp::NpcLerpSpeed>( npc_entity );
+    if ( not npc_lerp_speed_cmp ) return;
+    auto candidate_lerp_pos = Cmp::LerpPosition( next_npc_pos.position, npc_lerp_speed_cmp->speed );
+    auto distance_to_target = next_npc_pos.position - npc_pos_cmp->position;
+    if ( distance_to_target == sf::Vector2f( 0.0f, 0.0f ) ) return;
+
+    // prevent NPC warping via another NPCs pathfinding
+    const bool too_far = std::abs( distance_to_target.x ) >= Constants::kGridSizePxF.x * 1.5f ||
+                         std::abs( distance_to_target.y ) >= Constants::kGridSizePxF.y * 1.5f;
+    if ( too_far ) return;
+
+    auto norm_direction = Cmp::Direction( distance_to_target.normalized() );
+
+    reg().emplace_or_replace<Cmp::Direction>( npc_entity, norm_direction );
+    reg().emplace_or_replace<Cmp::LerpPosition>( npc_entity, candidate_lerp_pos );
+  }
+  else
+  {
+    if ( npc_type.contains( "wisp" ) )
+    {
+      if ( not m_wisp_target_reset_clock.isRunning() ) { m_wisp_target_reset_clock.restart(); }
+      reset_wisp_target( npc_entity );
     }
     else { reg().emplace_or_replace<Cmp::Direction>( npc_entity, Cmp::Direction( { 0.0, 0.0 } ) ); }
   }
@@ -260,48 +354,73 @@ void NpcSystem::update_pathfinding( [[maybe_unused]] entt::entity player_entity 
 
 void NpcSystem::update_movement( sf::Time dt )
 {
-  auto exclusions = entt::exclude<Cmp::AltarSegment, Cmp::CryptSegment, Cmp::SpawnArea, Cmp::PlayerCharacter>;
-  auto view = reg().view<Cmp::Position, Cmp::LerpPosition, Cmp::Direction>( exclusions );
 
-  for ( auto [npc_entt, pos_cmp, lerp_pos_cmp, dir_cmp] : view.each() )
+  for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : reg().view<Cmp::NPC, Cmp::Position>().each() )
   {
-
-    // if there is an obstacle at this entity move onto the next entity
-    auto *obst_cmp = reg().try_get<Cmp::Obstacle>( npc_entt );
-    if ( obst_cmp ) continue;
-
-    // If this is the first update, store the start position
-    if ( lerp_pos_cmp.m_lerp_factor == 0.0f )
+    PathFinding::SpatialHashGridSharedPtr navmesh;
+    if ( npc_cmp.sprite_type_list.front().contains( "wisp" ) )
     {
-      // Allow NPCs to escape wormholes if they're mid-lerp.
-      if ( reg().try_get<Cmp::WormholeJump>( npc_entt ) ) continue;
 
-      lerp_pos_cmp.m_start = pos_cmp.position;
-    }
-
-    lerp_pos_cmp.m_lerp_factor += lerp_pos_cmp.m_lerp_speed * dt.asSeconds();
-
-    // lerp has completed
-    if ( lerp_pos_cmp.m_lerp_factor >= 1.0f )
-    {
-      auto old_position = pos_cmp;
-      pos_cmp.position = lerp_pos_cmp.m_target;
-      reg().remove<Cmp::LerpPosition>( npc_entt );
-      if ( PathFinding::SpatialHashGridSharedPtr pathfinding_navmesh = m_pathfinding_navmesh.lock() )
-        pathfinding_navmesh->update( npc_entt, old_position, pos_cmp );
+      SPDLOG_DEBUG( "Update wisp position at {},{}", npc_pos_cmp.x(), npc_pos_cmp.y() );
+      navmesh = m_open_navmesh.lock();
+      if ( not navmesh ) continue;
     }
     else
     {
-      // Lerp from start to target directly
-      // Simple manual lerp - 33 lines of assembly vs 134 for std::lerp vs 54 for std::fma - https://godbolt.org/z/YdeKco5d6
-      const float t = lerp_pos_cmp.m_lerp_factor;
-      const float one_minus_t = 1.0f - t;
-      pos_cmp.position.x = one_minus_t * lerp_pos_cmp.m_start.x + t * lerp_pos_cmp.m_target.x;
-      pos_cmp.position.y = one_minus_t * lerp_pos_cmp.m_start.y + t * lerp_pos_cmp.m_target.y;
+      navmesh = m_pathfinding_navmesh.lock();
+      if ( not navmesh ) continue;
     }
-
-    reg().patch<Cmp::ZOrderValue>( npc_entt, [&]( auto &zorder_cmp ) { zorder_cmp.setZOrder( pos_cmp.position.y ); } );
+    update_movement_for( *navmesh, npc_entt, dt );
   }
+}
+
+void NpcSystem::update_movement_for( PathFinding::SpatialHashGrid &navmesh, entt::entity npc_entity, sf::Time dt )
+{
+
+  // if there is an obstacle at this entity move onto the next entity
+  auto *obst_cmp = reg().try_get<Cmp::Obstacle>( npc_entity );
+  if ( obst_cmp ) return;
+
+  // If this is the first update, store the start position
+  auto *lerp_pos_cmp = reg().try_get<Cmp::LerpPosition>( npc_entity );
+  auto *pos_cmp = reg().try_get<Cmp::Position>( npc_entity );
+  if ( not pos_cmp or not lerp_pos_cmp ) return;
+  if ( lerp_pos_cmp->m_lerp_factor == 0.0f )
+  {
+    // Allow NPCs to escape wormholes if they're mid-lerp.
+    if ( reg().try_get<Cmp::WormholeJump>( npc_entity ) ) return;
+
+    lerp_pos_cmp->m_start = pos_cmp->position;
+  }
+
+  lerp_pos_cmp->m_lerp_factor += lerp_pos_cmp->m_lerp_speed * dt.asSeconds();
+
+  // lerp has completed
+  if ( lerp_pos_cmp->m_lerp_factor >= 1.0f )
+  {
+    auto old_position = *pos_cmp;
+    pos_cmp->position = lerp_pos_cmp->m_target;
+    reg().remove<Cmp::LerpPosition>( npc_entity );
+    navmesh.update( npc_entity, old_position, *pos_cmp );
+  }
+  else
+  {
+    // Lerp from start to target directly
+    // Simple manual lerp - 33 lines of assembly vs 134 for std::lerp vs 54 for std::fma - https://godbolt.org/z/YdeKco5d6
+    const float t = lerp_pos_cmp->m_lerp_factor;
+    const float one_minus_t = 1.0f - t;
+    pos_cmp->position.x = one_minus_t * lerp_pos_cmp->m_start.x + t * lerp_pos_cmp->m_target.x;
+    pos_cmp->position.y = one_minus_t * lerp_pos_cmp->m_start.y + t * lerp_pos_cmp->m_target.y;
+  }
+
+  // add additional zorder for Wisp NPCs (read from JSON)
+  float zorder_augment = 0.f;
+  if ( Utils::Npc::get_sprite_type( reg(), npc_entity ).contains( "wisp" ) )
+  {
+    const auto &spritesheet = m_sprite_factory.get_spritesheet_by_type( "sprite.wisp.east" );
+    zorder_augment = spritesheet.get_zorder( 0 );
+  }
+  reg().patch<Cmp::ZOrderValue>( npc_entity, [&]( auto &zorder_cmp ) { zorder_cmp.setZOrder( pos_cmp->position.y + zorder_augment ); } );
 }
 
 bool NpcSystem::is_valid_move( const sf::FloatRect &target_position )

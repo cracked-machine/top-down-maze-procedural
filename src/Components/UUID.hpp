@@ -5,6 +5,7 @@
 namespace ProceduralMaze::Cmp
 {
 
+//! @brief Use this component to associate two entities where persistance cannot be guaranteed with the entity id itself
 struct UUID
 {
   std::array<uint8_t, 16> data{};

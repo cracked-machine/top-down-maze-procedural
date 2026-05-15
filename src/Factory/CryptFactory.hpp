@@ -25,11 +25,12 @@ namespace ProceduralMaze::Factory
 
 entt::entity create_crypt_exit( entt::registry &reg, sf::Vector2f spawn_pos_px );
 entt::entity create_crypt_lever( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder );
-void destroy_crypt_lever( entt::registry &reg, entt::entity entity );
+void destroy_crypt_lever( entt::registry &reg, entt::entity entt );
 
 void create_crypt_lava_pit( entt::registry &reg, const Cmp::CryptRoomOpen &room,
-                            std::shared_ptr<ProceduralMaze::PathFinding::SpatialHashGrid> spatial_grid );
-void destroy_crypt_lava_pit( entt::registry &reg, entt::entity entt, std::shared_ptr<ProceduralMaze::PathFinding::SpatialHashGrid> spatial_grid );
+                            std::shared_ptr<ProceduralMaze::PathFinding::SpatialHashGrid> pathfinding_navmesh );
+void destroy_crypt_lava_pit( entt::registry &reg, entt::entity entt,
+                             std::shared_ptr<ProceduralMaze::PathFinding::SpatialHashGrid> pathfinding_navmesh );
 
 void add_spike_trap( entt::registry &reg, const entt::entity entt, const int passage_id );
 

@@ -43,6 +43,8 @@ protected:
   void do_update( [[maybe_unused]] sf::Time dt ) override;
 
 private:
+  void reinit_navmesh();
+
   Audio::SoundBank &m_sound_bank;
   Sys::Store &m_sys;
   Sprites::SpriteFactory &m_sprite_factory;

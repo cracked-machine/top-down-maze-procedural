@@ -673,11 +673,25 @@
       }
     },
 
-    "sprite.wisp": {
+    "sprite.wisp.east": {
       "spritesheet": {
-        "displayname": "sprite.wisp",
-        "zorder": [0],
-        "texture_path": "res/textures/npcwisp.png",
+        "displayname": "sprite.wisp.east",
+        "zorder": [100000],
+        "texture_path": "res/textures/npcwisp_east.png",
+        "sprite_indices": [0,1,2,3],
+        "sprites_per_sequence": 4,
+        "sprites_per_frame": 1,
+        "grid_size": {
+          "width": 1,
+          "height": 1
+        }
+      }
+    },
+    "sprite.wisp.west": {
+      "spritesheet": {
+        "displayname": "sprite.wisp.west",
+        "zorder": [100000],
+        "texture_path": "res/textures/npcwisp_west.png",
         "sprite_indices": [0,1,2,3],
         "sprites_per_sequence": 4,
         "sprites_per_frame": 1,

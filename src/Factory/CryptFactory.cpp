@@ -128,7 +128,7 @@ void create_crypt_lava_pit( entt::registry &reg, const Cmp::CryptRoomOpen &room,
 void destroy_crypt_lava_pit( entt::registry &reg, entt::entity entt,
                              std::shared_ptr<ProceduralMaze::PathFinding::SpatialHashGrid> pathfinding_navmesh )
 {
-  auto lava_pit_cmp = reg.try_get<Cmp::CryptRoomLavaPit>( entt );
+  auto *lava_pit_cmp = reg.try_get<Cmp::CryptRoomLavaPit>( entt );
   if ( lava_pit_cmp )
   {
     for ( auto [lava_cell_entt, lava_cell_cmp] : reg.view<Cmp::CryptRoomLavaPitCell>().each() )
@@ -143,7 +143,7 @@ void destroy_crypt_lava_pit( entt::registry &reg, entt::entity entt,
 
 void add_spike_trap( entt::registry &reg, const entt::entity entt, const int passage_id )
 {
-  auto pblock_cmp = reg.try_get<Cmp::CryptPassageBlock>( entt );
+  auto *pblock_cmp = reg.try_get<Cmp::CryptPassageBlock>( entt );
   if ( not pblock_cmp ) return;
   sf::Vector2f position = *pblock_cmp;
 

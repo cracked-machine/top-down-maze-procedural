@@ -71,9 +71,13 @@ void ShopScene::on_init()
   {
     m_pathfinding_navmesh->insert( pos_entt, pos_cmp );
   }
-  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh );
-  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
+  // create a navmesh for uninhibited pathfinding
+  m_open_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
+  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>().each() )
+  {
+    m_open_navmesh->insert( pos_entt, pos_cmp );
+  }
+  reinit_navmesh();
 
   // prevent the player from wandering off before the scene has loaded
   auto &player_dir = Utils::Player::get_direction( m_reg );
@@ -150,6 +154,13 @@ void ShopScene::close_overlay()
     inventory_cmp.is_enabled = false;
   }
   m_overlay_open = false;
+}
+
+void ShopScene::reinit_navmesh()
+{
+  m_sys.find<Sys::Store::Type::NpcSystem>().init( m_pathfinding_navmesh, m_open_navmesh );
+  m_sys.find<Sys::Store::Type::PlayerSystem>().init( m_pathfinding_navmesh, m_open_navmesh );
+  m_sys.find<Sys::Store::Type::RenderOverlaySystem>().init( m_pathfinding_navmesh );
 }
 
 entt::registry &ShopScene::registry() { return m_reg; }
