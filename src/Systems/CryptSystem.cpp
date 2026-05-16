@@ -1,10 +1,3 @@
-#include <Constants.hpp>
-#include <Events/DropInventoryEvent.hpp>
-#include <Factory/MultiblockFactory.hpp>
-#include <Player/PlayerNoPath.hpp>
-#include <VoidPosition.hpp>
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
-
 #include <Audio/SoundBank.hpp>
 #include <Components/Altar/AltarMultiBlock.hpp>
 #include <Components/AnimData.hpp>
@@ -43,14 +36,18 @@
 #include <Components/System.hpp>
 #include <Components/Wall.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Constants.hpp>
 #include <Events/CryptRoomEvent.hpp>
+#include <Events/DropInventoryEvent.hpp>
 #include <Events/PlayerMortalityEvent.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/LootFactory.hpp>
+#include <Factory/MultiblockFactory.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ObstacleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/SpriteFactory.hpp>
+#include <Player/PlayerNoPath.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SceneControl/Events/SceneManagerEvent.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
@@ -65,6 +62,7 @@
 #include <Utils/Player.hpp>
 #include <Utils/Random.hpp>
 #include <Utils/Utils.hpp>
+#include <VoidPosition.hpp>
 #include <entt/entity/fwd.hpp>
 
 #include <SFML/Graphics/Rect.hpp>

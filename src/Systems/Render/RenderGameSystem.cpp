@@ -203,11 +203,11 @@ void RenderGameSystem::render_game( sf::Time dt, RenderOverlaySystem &render_ove
   render_shockwaves();
   render_arrow_compass();
 
-  // lava pit outline
-  render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 64, 64, 64 ), 0.5f );
-
   render_lightning_strike();
   render_overlay_sys.render_shop_inventory_overlay();
+
+  // lava pit outline
+  render_overlay_sys.render_square_for_floatrect_cmp<Cmp::CryptRoomLavaPit>( sf::Color( 16, 16, 16 ), 0.5f );
 
   // debug: show crypt component boundaries
   if ( m_show_debug_stats )

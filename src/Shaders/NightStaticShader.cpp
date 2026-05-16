@@ -1,5 +1,7 @@
 #include <Components/Position.hpp>
 #include <Constants.hpp>
+#include <Crypt/CryptRoomLavaPit.hpp>
+#include <Crypt/CryptRoomLavaPitCell.hpp>
 #include <Npc/Npc.hpp>
 #include <Optimizations.hpp>
 #include <Persistent/DisplayResolution.hpp>
@@ -38,6 +40,12 @@ void NightStaticShader::update( entt::registry &reg )
   for ( auto [npc_entt, npc_cmp, npc_pos_cmp] : reg.view<Cmp::NPC, Cmp::Position>().each() )
   {
     if ( npc_cmp.sprite_type_list.front().contains( "wisp" ) ) { torch_positions.push_back( npc_pos_cmp.getCenter() ); }
+  }
+
+  // add light for lavapit cells
+  for ( auto [lava_entt, lava_cmp, zorder_cmp] : reg.view<Cmp::CryptRoomLavaPitCell, Cmp::ZOrderValue>().each() )
+  {
+    torch_positions.push_back( lava_cmp.getCenter() );
   }
 
   Sprites::UniformBuilder{}

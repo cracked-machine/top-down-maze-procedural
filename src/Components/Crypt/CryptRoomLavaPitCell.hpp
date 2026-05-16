@@ -8,6 +8,7 @@
 namespace ProceduralMaze::Cmp
 {
 
+//! @brief Individual cells of the Cmp::CryptRoomLavaPit. Note render is acitvated by presence of Cmp::ZorderValue
 class CryptRoomLavaPitCell : public Cmp::Position
 {
 public:
