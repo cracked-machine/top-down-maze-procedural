@@ -59,7 +59,7 @@ void create_multiblock( entt::registry &reg, entt::entity entity, Cmp::Position 
         .frame_index_offset = ms_idx,
         .enabled = true
   });
-  //clang-format on  
+  // clang-format on 
   reg.emplace_or_replace<MULTIBLOCK>( entity, pos.position, large_obst_grid_size.componentWiseMul( Constants::kGridSizePx ) );
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, pos.position.y );
 

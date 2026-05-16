@@ -1,16 +1,19 @@
 #ifndef SRC_SYSTEMS_CRYPTSYSTEM_HPP__
 #define SRC_SYSTEMS_CRYPTSYSTEM_HPP__
 
-#include <Components/Crypt/CryptRoomEnd.hpp>
-#include <Components/Crypt/CryptRoomStart.hpp>
-
 #include <Events/CryptRoomEvent.hpp>
 #include <Events/PlayerActionEvent.hpp>
 
-#include <SpatialHashGrid.hpp>
+#include <PathFinding/SmartPointers.hpp>
 #include <Systems/BaseSystem.hpp>
 
 #include <set>
+
+namespace ProceduralMaze::Cmp
+{
+class CryptRoomEnd;
+class CryptRoomStart;
+} // namespace ProceduralMaze::Cmp
 
 namespace ProceduralMaze::Sys
 {
@@ -157,21 +160,11 @@ private:
 
   //! @brief Get the single Cmp::CryptRoomStart component
   //! @return Pair of entt::entity and Cmp::CryptRoomStart&
-  std::pair<entt::entity, Cmp::CryptRoomStart &> get_crypt_room_start()
-  {
-    auto start_room_view = reg().view<Cmp::CryptRoomStart>();
-    if ( start_room_view.front() == entt::null ) throw std::runtime_error( "CryptSystem::get_crypt_room_start - Unable to get Cmp::CryptRoomStart" );
-    return { start_room_view.front(), reg().get<Cmp::CryptRoomStart>( start_room_view.front() ) };
-  }
+  std::pair<entt::entity, Cmp::CryptRoomStart &> get_crypt_room_start();
 
   //! @brief Get the single Cmp::CryptRoomEnd component
   //! @return Pair of entt::entity and Cmp::CryptRoomEnd&
-  std::pair<entt::entity, Cmp::CryptRoomEnd &> get_crypt_room_end()
-  {
-    auto end_room_view = reg().view<Cmp::CryptRoomEnd>();
-    if ( end_room_view.front() == entt::null ) throw std::runtime_error( "CryptSystem::get_crypt_room_end - Unable to get Cmp::CryptRoomEnd" );
-    return { end_room_view.front(), reg().get<Cmp::CryptRoomEnd>( end_room_view.front() ) };
-  }
+  std::pair<entt::entity, Cmp::CryptRoomEnd &> get_crypt_room_end();
 
   //! @brief Dispatcher reference for scene management events
   entt::dispatcher &m_scenemanager_event_dispatcher;
@@ -190,7 +183,6 @@ private:
   sf::Time m_lava_effect_cooldown_threshold{ sf::seconds( 1.f ) };
 
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
-  PathFinding::SpatialHashGrid m_open_room_map;
 };
 
 } // namespace ProceduralMaze::Sys

@@ -101,7 +101,8 @@ void CryptSystem::update()
     check_lava_pit_collision();
     check_spike_trap_collision();
   }
-  check_lever_activation(); // useful for debugging
+
+  check_lever_activation();
   check_lava_pit_activation_by_proximity();
   do_lava_pit_animation();
   check_spike_trap_activation_by_proximity();
@@ -282,7 +283,7 @@ void CryptSystem::check_objective_activation( Events::PlayerActionEvent::GameAct
                 .sprite_type = ms.get_sprite_type(),
                 .enabled = true
           });
-          //clang-format on  
+          // clang-format on 
         }
       }
     }
@@ -316,7 +317,7 @@ void CryptSystem::check_lever_activation()
             .frame_index_offset = static_cast<size_t>(enabled_lever_sprite_idx),
             .enabled = true
       });
-      //clang-format on  
+      // clang-format on 
 
       m_sound_bank.get_effect( "crypt_lever_open" ).play();
       SPDLOG_DEBUG( "Lever enabled at {},{} - Count:{}", lever_pos_cmp.position.x, lever_pos_cmp.position.y, m_enabled_levers );
@@ -661,12 +662,6 @@ void CryptSystem::unlock_objective_passage()
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::CONNECT_OCCUPIED_TO_ENDROOM, get_crypt_room_end().first ) );
   get_systems_event_queue().trigger( Events::PassageEvent( Events::PassageEvent::Type::OPEN_PASSAGES ) );
   m_sound_bank.get_effect( "crypt_room_shuffle" ).play();
-
-  // switch on the lights so we can see the objective in all its glory!
-  for ( auto [entt, sys_cmp] : reg().view<Cmp::System>().each() )
-  {
-    sys_cmp.shaders_enabled = false;
-  }
 }
 
 void CryptSystem::unlock_exit_passage()
@@ -838,7 +833,7 @@ void CryptSystem::do_lava_pit_animation()
             .enabled = true,
             .anim_type = Cmp::AnimType::ONESHOTRESET
       });
-      //clang-format on       
+      // clang-format on       
       reg().emplace_or_replace<Cmp::ZOrderValue>( lava_anim_entt, lava_cell_cmp->position.y + 64.f );
     }
     m_lava_effect_cooldown_timer.restart();
@@ -1119,7 +1114,7 @@ void CryptSystem::remove_all_chests()
   }
 }
 
-void CryptSystem::spawn_npc_in_open_rooms()
+void CryptSystem::spawn_npc_in_open_rooms( )
 {
   auto open_room_view = reg().view<Cmp::CryptRoomOpen>();
   std::vector<Cmp::CryptRoomOpen> open_room_list;
@@ -1167,5 +1162,19 @@ void CryptSystem::spawn_npc_in_open_rooms()
     SPDLOG_DEBUG( "Spawned NPC {} at position ({}, {})", r + 1, spawn_position.x, spawn_position.y );
   }
 }
+
+  std::pair<entt::entity, Cmp::CryptRoomStart &> CryptSystem::get_crypt_room_start()
+  {
+    auto start_room_view = reg().view<Cmp::CryptRoomStart>();
+    if ( start_room_view.front() == entt::null ) throw std::runtime_error( "CryptSystem::get_crypt_room_start - Unable to get Cmp::CryptRoomStart" );
+    return { start_room_view.front(), reg().get<Cmp::CryptRoomStart>( start_room_view.front() ) };
+  }
+
+  std::pair<entt::entity, Cmp::CryptRoomEnd &> CryptSystem::get_crypt_room_end()
+  {
+    auto end_room_view = reg().view<Cmp::CryptRoomEnd>();
+    if ( end_room_view.front() == entt::null ) throw std::runtime_error( "CryptSystem::get_crypt_room_end - Unable to get Cmp::CryptRoomEnd" );
+    return { end_room_view.front(), reg().get<Cmp::CryptRoomEnd>( end_room_view.front() )};
+  }
 
 } // namespace ProceduralMaze::Sys

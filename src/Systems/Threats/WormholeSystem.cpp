@@ -190,7 +190,7 @@ void WormholeSystem::spawn_wormhole( SpawnPhase phase )
         .sprite_type = "sprite.graveyard.hazard.wormhole",
         .enabled = true
   });
-  //clang-format on 
+  // clang-format on
   reg().emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 16 );
 
   SPDLOG_INFO( "Wormhole spawned at position ({}, {}) with zorder: {}", random_pos.position.x, random_pos.position.y,
@@ -286,7 +286,7 @@ void WormholeSystem::check_player_wormhole_collision()
             .sprite_type = "sprite.graveyard.detonated",
             .enabled = true
       });
-      //clang-format on 
+      // clang-format on
       reg().emplace_or_replace<Cmp::ZOrderValue>( new_spawn_entity, new_spawn_pos_cmp.position.y - 256.f );
 
       // update the teleported entity's components

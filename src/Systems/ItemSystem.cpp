@@ -49,7 +49,7 @@ void ItemSystem::create_world_item( Cmp::Position pos, const std::string &item, 
         .sprite_type =  Sys::ItemStore::instance().get_item( item ).sprite_type, 
         .enabled = true
   });
-  //clang-format on 
+  // clang-format on
   reg().emplace_or_replace<Cmp::ZOrderValue>( world_item_entt, pos.position.y - 1.f + zorder );
   reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_item_entt );
   // Use a UUID to identify the InventoryItem/PlayerInventorySlot when the entity is destroyed.
@@ -87,7 +87,7 @@ void ItemSystem::create_seeing_stone( Cmp::Position pos, const std::string &item
   reg().emplace_or_replace<Cmp::AnimData>( world_carry_item_entt, Cmp::AnimData::Config{  
         .sprite_type =  Sys::ItemStore::instance().get_item( item ).sprite_type
   });
-  //clang-format on 
+  // clang-format on
   reg().emplace_or_replace<Cmp::ZOrderValue>( world_carry_item_entt, pos.position.y - 1.f + zorder );
   reg().emplace_or_replace<Cmp::WorldItem>( world_carry_item_entt, Sys::ItemStore::instance().get_item( item ) );
   reg().emplace_or_replace<Cmp::NpcNoPathFinding>( world_carry_item_entt );

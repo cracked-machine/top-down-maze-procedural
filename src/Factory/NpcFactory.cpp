@@ -54,7 +54,7 @@ void create_npc_container( entt::registry &reg, entt::entity entt, Cmp::Position
         .frame_index_offset = sprite_tile_idx,
         .enabled = true
   });
-  //clang-format on  
+  // clang-format on 
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, pos_cmp.position.y - zorder );
 }
 
@@ -128,7 +128,7 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
           .framerate = framerate,
           .enabled = true
     });
-    //clang-format on  
+    // clang-format on 
 
     float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedGhost>( reg ).get_value();
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
@@ -148,7 +148,7 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
           .framerate = framerate,
           .enabled = true
     });
-    //clang-format on  
+    // clang-format on 
 
     float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedSkele>( reg ).get_value();
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
@@ -168,7 +168,7 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
           .sprite_type = npc_cmp.sprite_type_list.front(), 
           .enabled = true
     });
-    //clang-format on  
+    // clang-format on 
 
     float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedPriest>( reg ).get_value();
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
@@ -191,7 +191,7 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
           .framerate = framerate,
           .enabled = true
     });
-    //clang-format on  
+    // clang-format on 
 
     float lerpspeed = Sys::PersistSystem::get<Cmp::Persist::NpcLerpSpeedWitch>( reg ).get_value();
     reg.emplace_or_replace<Cmp::NpcLerpSpeed>( new_pos_entity, lerpspeed );
@@ -230,7 +230,7 @@ entt::entity create_npc( entt::registry &reg, entt::entity position_entity, cons
           .sprite_type = npc_cmp.sprite_type_list.front(), 
           .enabled = false
     });
-    //clang-format on  
+    // clang-format on 
 
     reg.emplace_or_replace<Cmp::NpcFriendly>( new_pos_entity );
 
@@ -279,7 +279,7 @@ entt::entity create_npc_explosion( entt::registry &reg, Cmp::Position npc_pos_cm
         .enabled = true,
         .anim_type =  Cmp::AnimType::ONESHOTRESET
   });
-  //clang-format on  
+  // clang-format on 
   reg.emplace_or_replace<Cmp::ZOrderValue>( npc_death_entity, npc_pos_cmp.position.y );
   return npc_death_entity;
 }

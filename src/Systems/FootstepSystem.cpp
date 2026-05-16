@@ -73,7 +73,7 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
             .frame_index_offset = 0,
             .enabled = true
       });
-      //clang-format on       
+      // clang-format on    
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       // getReg().emplace<Cmp::AbsoluteOffset>( entity, 0.f, -3.f );
     }
@@ -85,7 +85,7 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
             .frame_index_offset = 1,
             .enabled = true
       });
-      //clang-format on 
+      // clang-format on
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       // getReg().emplace<Cmp::AbsoluteOffset>( entity, 0.f, -3.f );
     }
@@ -97,7 +97,7 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
             .frame_index_offset = 2,
             .enabled = true
       });
-      //clang-format on 
+      // clang-format on
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
     }
     else if ( direction == sf::Vector2f( 0.f, -1.f ) )
@@ -108,7 +108,7 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
             .frame_index_offset = 3,
             .enabled = true
       });
-      //clang-format on 
+      // clang-format on
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
     }
     else if ( direction == sf::Vector2f( 1.f, 1.f ) )
@@ -119,7 +119,7 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
             .frame_index_offset = 0,
             .enabled = true
       });
-      //clang-format on 
+      // clang-format on
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       reg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
       reg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSizePx.x / 2.f, Constants::kGridSizePx.y / 2.f );
@@ -132,7 +132,7 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
             .frame_index_offset = 2,
             .enabled = true
       });
-      //clang-format on 
+      // clang-format on
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       reg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
       reg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSizePx.x / 2.f, Constants::kGridSizePx.y / 2.f );
@@ -145,7 +145,7 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
             .frame_index_offset = 1,
             .enabled = true
       });
-      //clang-format on 
+      // clang-format on
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       reg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
       reg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSizePx.x / 2.f, Constants::kGridSizePx.y / 2.f );
@@ -158,7 +158,7 @@ void FootstepSystem::add_footstep( const Cmp::Position &pos_cmp, const Cmp::Dire
             .frame_index_offset = 3,
             .enabled = true
       });
-      //clang-format on 
+      // clang-format on
       reg().emplace<Cmp::Position>( entity, sf::Vector2f{ pos_cmp.position.x, pos_cmp.position.y }, pos_cmp.size );
       reg().emplace<Cmp::AbsoluteRotation>( entity, 45.f );
       reg().emplace<Cmp::AbsoluteOffset>( entity, Constants::kGridSizePx.x / 2.f, Constants::kGridSizePx.y / 2.f );

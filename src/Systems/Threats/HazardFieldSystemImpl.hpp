@@ -71,7 +71,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::init_hazard_field()
         .sprite_type =  std::string( Traits::sprite_type ),
         .enabled = true
   });
-  //clang-format on 
+  // clang-format on
   reg().template emplace_or_replace<Cmp::ZOrderValue>( random_entity, random_pos.position.y - 1.f );
   reg().template emplace_or_replace<Cmp::NpcNoPathFinding>( random_entity );
   SPDLOG_INFO( "{} hazard spawned at position [{}, {}].", std::string( Traits::sprite_type ), random_pos.position.x, random_pos.position.y );
@@ -131,7 +131,7 @@ sf::Vector2f HazardFieldSystem<HazardType>::update_hazard_field()
               .sprite_type =  std::string( Traits::sprite_type ),
               .enabled = true
         });
-        //clang-format on 
+        // clang-format on
         reg().template emplace_or_replace<Cmp::ZOrderValue>( obstacle_entity, obst_pos_cmp.position.y - 1.f );
         reg().template emplace_or_replace<Cmp::NpcNoPathFinding>( obstacle_entity );
 

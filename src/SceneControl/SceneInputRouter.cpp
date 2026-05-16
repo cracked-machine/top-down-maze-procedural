@@ -242,7 +242,12 @@ void SceneInputRouter::crypt_scene_state_handler()
   if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Key::E ) )
   {
     get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::ACTIVATE ) );
-    get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_CARRYITEM ) );
+    // only pickup, dont drop
+    auto [inventory_entt, inventory_type] = Utils::Player::get_inventory_type( reg() );
+    if ( inventory_entt == entt::null and inventory_type.empty() )
+    {
+      get_systems_event_queue().trigger( Events::PlayerActionEvent( Events::PlayerActionEvent::GameActions::DROP_CARRYITEM ) );
+    }
   }
   if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
   {

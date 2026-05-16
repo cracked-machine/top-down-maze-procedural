@@ -25,7 +25,7 @@ void create_loot_container( entt::registry &reg, entt::entity entt, Cmp::Positio
         .enabled = false,
         .anim_type =   Cmp::AnimType::ONESHOTRESET
   });
-  //clang-format on  
+  // clang-format on 
   reg.emplace_or_replace<Cmp::ZOrderValue>( entt, pos_cmp.position.y - zorder );
 }
 

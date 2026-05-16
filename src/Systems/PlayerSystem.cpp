@@ -619,7 +619,7 @@ void PlayerSystem::pickup_world_item( entt::registry &reg, entt::entity world_it
         .sprite_type =  world_item_cmp->sprite_type,
         .enabled = false
   });
-  //clang-format on  
+  // clang-format on 
 
   // transfer any component properties from the world item that we want to retain before it is destroyed
   auto *uuid_cmp = reg.try_get<Cmp::UUID>( world_item_entt );

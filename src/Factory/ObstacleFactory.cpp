@@ -63,7 +63,7 @@ void create_obstacle( entt::registry &reg, entt::entity entity, Cmp::Position po
         .frame_index_offset = sprite_tile_idx,
         .enabled = true
   });
-  //clang-format on  
+  // clang-format on 
   reg.emplace_or_replace<Cmp::Armable>( entity );
 }
 

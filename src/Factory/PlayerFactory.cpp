@@ -74,7 +74,7 @@ void create_player( entt::registry &reg )
         .sprite_type = "sprite.player.walk.south", 
         .enabled = true
   });
-  //clang-format on  
+  // clang-format on 
 
   reg.emplace_or_replace<Cmp::PlayerCadaverCount>( entity, 0 );
   reg.emplace_or_replace<Cmp::PlayerWealth>( entity, 0 );
@@ -102,7 +102,7 @@ void add_spawn_area( entt::registry &reg, entt::entity entity, Sprites::SpriteFa
         .frame_index_offset = idx,
         .enabled = true
   });
-  //clang-format on  
+  // clang-format on 
 
   reg.emplace_or_replace<Cmp::ZOrderValue>( entity, zorder );
 }
@@ -125,7 +125,7 @@ void create_player_death_anim( entt::registry &reg, Cmp::Position player_pos_cmp
         .enabled = true,
         .anim_type = Cmp::AnimType::ONESHOTHOLD
   });
-  //clang-format on  
+  // clang-format on 
   reg.emplace_or_replace<Cmp::ZOrderValue>( player_blood_splat_entity, player_pos_cmp.position.y * 3 ); // always infront
 }
 
@@ -148,7 +148,7 @@ void add_inventory( entt::registry &reg, const std::string &item )
         .sprite_type = Sys::ItemStore::instance().get_item( item ).sprite_type, 
         .enabled = true
   });
-  //clang-format on  
+  // clang-format on 
 }
 
 void destroy_inventory( entt::registry &reg, const Sprites::SpriteMetaType &type )
