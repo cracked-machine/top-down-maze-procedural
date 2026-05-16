@@ -101,7 +101,6 @@ void NpcSystem::update( sf::Time dt )
   }
 
   update_shockwaves();
-  spawn_wisp();
 }
 
 void NpcSystem::check_bones_reanimation()

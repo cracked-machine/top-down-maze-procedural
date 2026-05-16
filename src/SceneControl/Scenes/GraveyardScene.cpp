@@ -238,6 +238,7 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::BombSystem>().update();
   m_sys.find<Sys::Store::Type::LootSystem>().check_loot_collision();
   m_sys.find<Sys::Store::Type::NpcSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::NpcSystem>().spawn_wisp();
   m_sys.find<Sys::Store::Type::WormholeSystem>().check_player_wormhole_collision();
   m_sys.find<Sys::Store::Type::DiggingSystem>().update( dt );
   m_sys.find<Sys::Store::Type::FootstepSystem>().update();
@@ -260,16 +261,6 @@ void GraveyardScene::do_update( sf::Time dt )
     m_sys.find<Sys::Store::Type::ParticleSystem>().check_collsion( pos_cmp );
   }
 
-  // update flame particle sprite position for candle items
-  for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : m_reg.view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
-  {
-    for ( auto [candle_entt, candle_cmp, candle_pos_cmp, candle_uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
-    {
-      if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
-      if ( ps_uuid_cmp != candle_uuid_cmp ) continue;
-      ps_owner.sprite->set_emitter_position( candle_pos_cmp.getCenter() );
-    }
-  }
   m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();

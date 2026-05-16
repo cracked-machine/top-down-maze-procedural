@@ -56,6 +56,8 @@ public:
   //! @return true if the movement is valid and allowed, false otherwise
   bool is_valid_move( const sf::FloatRect &target_position );
 
+  void spawn_wisp();
+
   //! @brief event handlers for pausing system clocks
   void on_pause() override {}
   //! @brief event handlers for resuming system clocks
@@ -71,7 +73,6 @@ private:
   // Check for player collision proximity with NPC containers
   void check_bones_reanimation();
 
-  void spawn_wisp();
   void reset_wisp_target( entt::entity wisp_entt );
 
   //! @brief Check Player/NPC collision for Cmp::CollisionActions::Tick::ONCE

@@ -1,5 +1,7 @@
 
+#include <Inventory/WorldItem.hpp>
 #include <Optimizations.hpp>
+#include <Position.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <Systems/ParticleSystem.hpp>
 #include <Systems/Render/RenderSystem.hpp>
@@ -40,6 +42,16 @@ std::vector<entt::entity> ParticleSystem::add_to_registry( ParticleSpriteOwner o
 
 void ParticleSystem::update( sf::Time dt )
 {
+  for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+  {
+    for ( auto [candle_entt, candle_cmp, candle_pos_cmp, candle_uuid_cmp] : reg().view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
+    {
+      if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
+      if ( ps_uuid_cmp != candle_uuid_cmp ) continue;
+      ps_owner.sprite->set_emitter_position( candle_pos_cmp.getCenter() );
+    }
+  }
+
   for ( auto [entt, owner] : reg().view<ParticleSpriteOwner>().each() )
   {
     if ( not owner.sprite->is_active() ) continue;
