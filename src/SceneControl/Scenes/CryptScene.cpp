@@ -6,8 +6,10 @@
 #include <Components/System.hpp>
 #include <Events/CryptRoomEvent.hpp>
 #include <Factory/CryptFactory.hpp>
+#include <Factory/ParticleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
+#include <Inventory/WorldItem.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
 #include <Systems/AnimSystem.hpp>
@@ -50,7 +52,7 @@ void CryptScene::on_init()
 
   auto [map_size_grid, map_size_pixel] = m_scene_map_data->map_size();
 
-  Factory::Shader::add_dark( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
+  Factory::Shader::add_night_static( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
 
   // create the empty game area
   auto player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
@@ -87,6 +89,13 @@ void CryptScene::on_init()
   auto floor_entity = m_reg.create();
   m_reg.emplace<Sprites::Containers::VertexFloor>( floor_entity, floortiles );
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
+
+  // add flame particle sprites for any candle items in the new game world. Use the Candle item UUID to initialise the ParticleSprite.
+  for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
+  {
+    if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
+    Factory::Particle::add_flame( m_reg, "player.candle", uuid_cmp, candle_pos.getCenter(), 50000 );
+  }
 }
 
 void CryptScene::on_enter()
@@ -132,6 +141,7 @@ void CryptScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::ShockwaveSystem>().checkShockwavePlayerCollision();
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
   m_sys.find<Sys::Store::Type::PassageSystem>().update( dt );
+  m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
 
   auto &overlay_sys = m_sys.find<Sys::Store::Type::RenderOverlaySystem>();
   m_sys.find<Sys::Store::Type::RenderGameSystem>().render_game( dt, overlay_sys );

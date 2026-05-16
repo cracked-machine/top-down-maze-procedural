@@ -141,6 +141,8 @@ void add_inventory( entt::registry &reg, const std::string &item )
     reg.emplace_or_replace<Cmp::SeeingStone>( inventory_entity, sb );
   }
   if ( item.contains( "explosive" ) ) { reg.emplace_or_replace<Cmp::Explosive>( inventory_entity, false ); }
+  if ( item.contains( "candle" ) ) { reg.emplace_or_replace<Cmp::UUID>( inventory_entity, Cmp::UUID::generate() ); }
+
   // clang-format off
   reg.emplace_or_replace<Cmp::AnimData>( inventory_entity, Cmp::AnimData::Config{ 
         .sprite_type = Sys::ItemStore::instance().get_item( item ).sprite_type, 

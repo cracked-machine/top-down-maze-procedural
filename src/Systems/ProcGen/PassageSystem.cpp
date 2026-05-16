@@ -239,19 +239,19 @@ void PassageSystem::cache_all_room_connections()
   const auto world_area = sf::FloatRect( { 0, 0 }, map_size_pixel );
 
   auto closed_room_view = reg().view<Cmp::CryptRoomClosed>();
-  SPDLOG_INFO( "CryptRoomClosed count {}", closed_room_view.size() );
+  SPDLOG_DEBUG( "CryptRoomClosed count {}", closed_room_view.size() );
 
   std::vector<Cmp::CryptPassageDirection> directions = { Cmp::CryptPassageDirection::WEST, Cmp::CryptPassageDirection::EAST,
                                                          Cmp::CryptPassageDirection::NORTH, Cmp::CryptPassageDirection::SOUTH };
 
   float region_height = world_area.size.y / m_cached_passage_list.size();
   float region_width = world_area.size.x;
-  SPDLOG_INFO( "World height: {}, Region Height: {}", world_area.size.y, region_height );
+  SPDLOG_DEBUG( "World height: {}, Region Height: {}", world_area.size.y, region_height );
   for ( auto [idx, it] : std::views::enumerate( m_cached_passage_list ) )
   {
     auto new_region = sf::FloatRect( { 0.f, idx * region_height }, { region_width, region_height } );
     it = ProcGen::PassageCachedRegions<40>::BlockRegion{ new_region, {} };
-    SPDLOG_INFO( "Created cached region {},{} {},{}", new_region.position.x, new_region.position.y, new_region.size.x, new_region.size.y );
+    SPDLOG_DEBUG( "Created cached region {},{} {},{}", new_region.position.x, new_region.position.y, new_region.size.x, new_region.size.y );
   }
 
   // Do this first to guarantee success otherwise player cannot leave
@@ -279,7 +279,7 @@ void PassageSystem::cache_all_room_connections()
     }
   }
 
-  SPDLOG_INFO( "BlockRegion count {}", m_cached_passage_list.size() );
+  SPDLOG_DEBUG( "BlockRegion count {}", m_cached_passage_list.size() );
 
   // tidyPassageBlocks();
 }
