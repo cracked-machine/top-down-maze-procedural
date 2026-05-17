@@ -172,6 +172,10 @@ void CryptSystem::check_exit_collision()
                                                               Cmp::RectBounds::ScaleAxis::XY ); // shrink entrance bounds slightly for better UX
 
     if ( not player_pos.findIntersection( decreased_entrance_bounds.getBounds() ) ) continue;
+
+    auto [inventory_entt, inventory_slot_type] = Utils::Player::get_inventory_type( reg() );
+    get_systems_event_queue().trigger( Events::DropInventoryEvent( inventory_entt, player_pos.position ) );
+
     m_scenemanager_event_dispatcher.enqueue<Events::SceneManagerEvent>( Events::SceneManagerEvent::Type::EXIT_CRYPT );
   }
 }

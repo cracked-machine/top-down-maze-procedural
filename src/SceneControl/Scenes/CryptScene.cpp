@@ -10,6 +10,7 @@
 #include <Factory/PathfindingFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
+#include <Inventory/PlayerInventorySlot.hpp>
 #include <Inventory/WorldItem.hpp>
 #include <SceneControl/SceneData.hpp>
 #include <SceneControl/Scenes/CryptScene.hpp>
@@ -82,12 +83,8 @@ void CryptScene::on_init()
   m_reg.emplace<Sprites::Containers::VertexFloor>( floor_entity, floortiles );
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
 
-  // add flame particle sprites for any candle items in the new game world. Use the Candle item UUID to initialise the ParticleSprite.
-  for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
-  {
-    if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
-    Particle::Factory::add_flame( m_reg, "particle.candle", uuid_cmp, candle_pos.getCenter(), 50000 );
-  }
+  Factory::add_inventory( m_reg, "item.candle" );
+  Particle::Factory::add_flame_for_player_inventory_slot( m_reg );
 }
 
 void CryptScene::on_enter()

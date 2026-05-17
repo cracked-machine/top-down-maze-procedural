@@ -96,12 +96,8 @@ void RuinSceneLowerFloor::on_init()
   m_open_navmesh = Pathfinding::Factory::create_open_navmesh( m_reg );
   reinit_navmesh();
 
-  // add flame particle sprites for any candle items in the new game world. Use the Candle item UUID to initialise the ParticleSprite.
-  for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
-  {
-    if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
-    Particle::Factory::add_flame( m_reg, "particle.candle", uuid_cmp, candle_pos.getCenter(), 50000 );
-  }
+  Factory::add_inventory( m_reg, "item.candle" );
+  Particle::Factory::add_flame_for_player_inventory_slot( m_reg );
 
   // Hide the sudden position update/camera pan behind a forced loading screen.
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
