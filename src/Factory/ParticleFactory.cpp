@@ -1,6 +1,7 @@
 #include <Factory/ParticleFactory.hpp>
+#include <Inventory/PlayerInventorySlot.hpp>
 
-namespace ProceduralMaze::Factory::Particle
+namespace ProceduralMaze::Particle::Factory
 {
 
 void add_test( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag )
@@ -25,6 +26,26 @@ void add_flame( [[maybe_unused]] entt::registry &reg, Sys::ParticleSystem &psys,
   psprite.set_freq( std::uniform_real_distribution( 0.3f, 0.8f ) );
 
   psys.add( uuid_cmp, psprite, Cmp::ZOrderValue( 50000.f ) );
+}
+
+void add_flame_for_player_inventory_slot( entt::registry &reg )
+{
+  // Add a flame ParticleSprite for a candle in the player inventory
+  for ( auto [inventory_entt, inventory_cmp, inventory_uuid_cmp] : reg.view<Cmp::PlayerInventorySlot, Cmp::UUID>().each() )
+  {
+    if ( not inventory_cmp.m_item.sprite_type.contains( "candle" ) ) continue;
+    Particle::Factory::add_flame( reg, "particle.candle", inventory_uuid_cmp, Utils::Player::get_position( reg ).getCenter(), 50000 );
+    for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg.view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+    {
+      if ( ps_uuid_cmp != inventory_uuid_cmp ) continue;
+
+      // Move the ParticleSprite to the UI view. Any particle sprites should be fully cleared
+      // otherwise we get particle effects in strange places during the transition frame.
+      // The emitter position is set by RenderGameSystem using the UiData object.
+      ps_owner.sprite->clear();
+      ps_owner.sprite->set_view_type( Cmp::Particle::ViewType::SCREEN );
+    }
+  }
 }
 
 void add_flame( entt::registry &reg, const std::string &tag, Cmp::UUID &uuid_cmp, sf::Vector2f pos, float zorder )
@@ -71,4 +92,4 @@ void add_shockwave( entt::registry &reg, Sys::ParticleSystem &psys, const std::s
   psys.add( std::make_pair( psprite, Cmp::ZOrderValue( 10000.f ) ) );
 }
 
-} // namespace ProceduralMaze::Factory::Particle
+} // namespace ProceduralMaze::Particle::Factory

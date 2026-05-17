@@ -139,17 +139,17 @@ void GraveyardScene::on_init()
   m_sys.find<Sys::Store::Type::WormholeSystem>().spawn_wormhole( Sys::WormholeSystem::SpawnPhase::InitialSpawn );
 
   // auto &particle_system = m_sys.find<Sys::Store::Type::ParticleSystem>();
-  // Factory::Particle::add_test( m_reg, particle_system, "GraveyardParticleTest" );
-  // Factory::Particle::add_flame( m_reg, particle_system, "player.candle", Utils::Player::get_position( m_reg ).getCenter() );
-  // Factory::Particle::add_flame( m_reg, particle_system, "player.candle", sf::Vector2f{ 900.0, 900.0 } );
-  // Factory::Particle::add_smoke( m_reg, particle_system, "GraveyardParticleTest" );
-  // Factory::Particle::add_shockwave( m_reg, particle_system, "GraveyardParticleTest" );
+  // Particle::Factory::add_test( m_reg, particle_system, "GraveyardParticleTest" );
+  // Particle::Factory::add_flame( m_reg, particle_system, "player.candle", Utils::Player::get_position( m_reg ).getCenter() );
+  // Particle::Factory::add_flame( m_reg, particle_system, "player.candle", sf::Vector2f{ 900.0, 900.0 } );
+  // Particle::Factory::add_smoke( m_reg, particle_system, "GraveyardParticleTest" );
+  // Particle::Factory::add_shockwave( m_reg, particle_system, "GraveyardParticleTest" );
 
   // add flame particle sprites for any candle items in the new game world. Use the Candle item UUID to initialise the ParticleSprite.
   for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
   {
     if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
-    Factory::Particle::add_flame( m_reg, "particle.candle", uuid_cmp, candle_pos.getCenter(), 50000 );
+    Particle::Factory::add_flame( m_reg, "particle.candle", uuid_cmp, candle_pos.getCenter(), 50000 );
   }
 }
 
@@ -215,12 +215,11 @@ void GraveyardScene::do_update( sf::Time dt )
 {
   m_sys.find<Sys::Store::Type::AnimSystem>().update( dt );
 
-  auto new_sinkhole_pos = m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().update();
-  if ( new_sinkhole_pos != sf::Vector2f{ 0, 0 } )
+  if ( auto pos = m_sys.find<Sys::Store::Type::SinkHoleHazardSystem>().update(); pos != sf::Vector2f{ 0, 0 } )
   {
     for ( auto [floor_entt, floortiles] : m_reg.view<Sprites::Containers::VertexFloor>().each() )
     {
-      floortiles.remove( new_sinkhole_pos );
+      floortiles.remove( pos );
     }
   }
 
@@ -242,7 +241,6 @@ void GraveyardScene::do_update( sf::Time dt )
   m_sys.find<Sys::Store::Type::AltarSystem>().check_player_collision();
   m_sys.find<Sys::Store::Type::HolyWellSystem>().check_entrance_collision();
   m_sys.find<Sys::Store::Type::RuinSystem>().check_entrance_collision();
-
   m_sys.find<Sys::Store::Type::PlayerSystem>().update( dt );
   m_sys.find<Sys::Store::Type::LightningSystem>().update( dt );
 

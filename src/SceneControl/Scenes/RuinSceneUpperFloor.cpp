@@ -84,28 +84,8 @@ void RuinSceneUpperFloor::on_init()
   m_open_navmesh = Pathfinding::Factory::create_open_navmesh( m_reg );
   reinit_navmesh();
 
-  SPDLOG_INFO( "Making particles1" );
   // Add a flame ParticleSprite for a candle in the player inventory
-  for ( auto [inventory_entt, inventory_cmp, inventory_uuid_cmp] : m_reg.view<Cmp::PlayerInventorySlot, Cmp::UUID>().each() )
-  {
-    SPDLOG_INFO( "Making particles2" );
-    if ( not inventory_cmp.m_item.sprite_type.contains( "candle" ) ) continue;
-    Factory::Particle::add_flame( m_reg, "particle.candle", inventory_uuid_cmp, Utils::Player::get_position( m_reg ).getCenter(), 50000 );
-    SPDLOG_INFO( "Making particles3" );
-    for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : m_reg.view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
-    {
-      SPDLOG_INFO( "Making particles4" );
-      if ( ps_uuid_cmp == inventory_uuid_cmp )
-      {
-        // Move the ParticleSprite to the UI view. Any particle sprites should be fully cleared
-        // otherwise we get particle effects in strange places during the transition frame.
-        // The emitter position is set by RenderGameSystem using the UiData object.
-        ps_owner.sprite->clear();
-        ps_owner.sprite->set_view_type( Cmp::Particle::ViewType::SCREEN );
-        SPDLOG_INFO( "Making particles5" );
-      }
-    }
-  }
+  Particle::Factory::add_flame_for_player_inventory_slot( m_reg );
 }
 
 void RuinSceneUpperFloor::on_enter()
