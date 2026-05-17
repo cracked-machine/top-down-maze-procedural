@@ -11,6 +11,7 @@
 #include <Components/System.hpp>
 #include <Factory/NpcFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
+#include <Factory/PathfindingFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
@@ -90,18 +91,9 @@ void RuinSceneLowerFloor::on_init()
 
   m_sys.find<Sys::Store::Type::RuinSystem>().reset_player_curse();
 
-  // create a navmesh for pathfinding in the scene
-  m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> ).each() )
-  {
-    m_pathfinding_navmesh->insert( pos_entt, pos_cmp );
-  }
-  // create a navmesh for uninhibited pathfinding
-  m_open_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>().each() )
-  {
-    m_open_navmesh->insert( pos_entt, pos_cmp );
-  }
+  // create navmeshes for pathfinding
+  m_pathfinding_navmesh = Pathfinding::Factory::create_restricted_navmesh( m_reg );
+  m_open_navmesh = Pathfinding::Factory::create_open_navmesh( m_reg );
   reinit_navmesh();
 
   // add flame particle sprites for any candle items in the new game world. Use the Candle item UUID to initialise the ParticleSprite.

@@ -6,6 +6,7 @@
 
 #include <Factory/MultiblockFactory.hpp>
 #include <Factory/NpcFactory.hpp>
+#include <Factory/PathfindingFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Npc/NpcNoPathFinding.hpp>
 #include <Player.hpp>
@@ -65,18 +66,9 @@ void ShopScene::on_init()
   m_reg.emplace<Sprites::Containers::VertexFloor>( floor_entity, m_floormap );
   m_reg.emplace<Cmp::ZOrderValue>( floor_entity, -16.f );
 
-  // create a navmesh for pathfinding in the scene
-  m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> ).each() )
-  {
-    m_pathfinding_navmesh->insert( pos_entt, pos_cmp );
-  }
-  // create a navmesh for uninhibited pathfinding
-  m_open_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>().each() )
-  {
-    m_open_navmesh->insert( pos_entt, pos_cmp );
-  }
+  // create navmeshes for pathfinding
+  m_pathfinding_navmesh = Pathfinding::Factory::create_restricted_navmesh( m_reg );
+  m_open_navmesh = Pathfinding::Factory::create_open_navmesh( m_reg );
   reinit_navmesh();
 
   // prevent the player from wandering off before the scene has loaded

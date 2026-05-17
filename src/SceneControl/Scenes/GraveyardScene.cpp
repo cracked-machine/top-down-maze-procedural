@@ -7,6 +7,7 @@
 #include <Components/Player/PlayerLastGraveyardPosition.hpp>
 #include <Factory/LootFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
+#include <Factory/PathfindingFactory.hpp>
 #include <Factory/PlantFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
@@ -114,20 +115,9 @@ void GraveyardScene::on_init()
   auto &cellauto_parser = m_sys.find<Sys::Store::Type::CellAutomataSystem>();
   cellauto_parser.iterate( 5, Sys::ProcGen::RandomLevelGenerator::SceneType::GRAVEYARD_EXTERIOR, random_level_sys.get_obstacle_sm() );
 
-  // create a navmesh for pathfinding in the scene
-  m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> ).each() )
-  {
-    // don't include these Cmp::Position components in the pathfinding navmesh
-    if ( m_reg.any_of<Cmp::RuinBuildingMultiBlock, Cmp::AltarMultiBlock, Cmp::GraveMultiBlock, Cmp::HolyWellMultiBlock>( pos_entt ) ) continue;
-    m_pathfinding_navmesh->insert( pos_entt, pos_cmp );
-  }
-  // create a navmesh for uninhibited pathfinding
-  m_open_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>().each() )
-  {
-    m_open_navmesh->insert( pos_entt, pos_cmp );
-  }
+  // create navmeshes for pathfinding
+  m_pathfinding_navmesh = Pathfinding::Factory::create_restricted_navmesh( m_reg );
+  m_open_navmesh = Pathfinding::Factory::create_open_navmesh( m_reg );
   reinit_navmesh();
 
   // create floor background

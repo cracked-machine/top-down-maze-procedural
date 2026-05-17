@@ -7,6 +7,7 @@
 #include <Events/CryptRoomEvent.hpp>
 #include <Factory/CryptFactory.hpp>
 #include <Factory/ParticleFactory.hpp>
+#include <Factory/PathfindingFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
 #include <Inventory/WorldItem.hpp>
@@ -70,18 +71,9 @@ void CryptScene::on_init()
   m_sys.find<Sys::Store::Type::CryptSystem>().cache_all_room_connections();
   m_sys.find<Sys::Store::Type::CryptSystem>().gen_crypt_initial_interior();
 
-  // create a navmesh for pathfinding in the scene
-  m_pathfinding_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>( entt::exclude<Cmp::NpcNoPathFinding> ).each() )
-  {
-    m_pathfinding_navmesh->insert( pos_entt, pos_cmp );
-  }
-  // create a navmesh for uninhibited pathfinding
-  m_open_navmesh = std::make_shared<PathFinding::SpatialHashGrid>();
-  for ( auto [pos_entt, pos_cmp] : m_reg.view<Cmp::Position>().each() )
-  {
-    m_open_navmesh->insert( pos_entt, pos_cmp );
-  }
+  // create navmeshes for pathfinding
+  m_pathfinding_navmesh = Pathfinding::Factory::create_restricted_navmesh( m_reg );
+  m_open_navmesh = Pathfinding::Factory::create_open_navmesh( m_reg );
   reinit_navmesh();
 
   Sprites::Containers::VertexFloor floortiles;
