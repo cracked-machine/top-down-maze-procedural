@@ -42,6 +42,7 @@ std::vector<entt::entity> ParticleSystem::add_to_registry( ParticleSpriteOwner o
 
 void ParticleSystem::update( sf::Time dt )
 {
+  // update the ParticleSprite position for Candle items in the world
   for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : reg().view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
   {
     for ( auto [candle_entt, candle_cmp, candle_pos_cmp, candle_uuid_cmp] : reg().view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
@@ -52,6 +53,7 @@ void ParticleSystem::update( sf::Time dt )
     }
   }
 
+  // update all particlesprite simulations
   for ( auto [entt, owner] : reg().view<ParticleSpriteOwner>().each() )
   {
     if ( not owner.sprite->is_active() ) continue;

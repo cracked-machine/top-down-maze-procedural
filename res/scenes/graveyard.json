@@ -1839,19 +1839,6 @@
                  "width":0,
                  "x":784,
                  "y":784
-                }, 
-                {
-                 "height":0,
-                 "id":270,
-                 "name":"item.candle",
-                 "opacity":1,
-                 "point":true,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":896,
-                 "y":896
                 }],
          "opacity":1,
          "type":"objectgroup",

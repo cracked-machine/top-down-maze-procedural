@@ -69,11 +69,11 @@
                 3,
                 5
             ],
-            "scale": 8,
+            "scale": 2,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 347.875,
-                "y": 906.0625
+                "x": 360,
+                "y": 793.75
             }
         },
         "crypt.json#floor": {
@@ -122,11 +122,11 @@
                 4,
                 5
             ],
-            "scale": 2.9499999999999997,
+            "scale": 8,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 151.86440677966104,
-                "y": 87.96610169491527
+                "x": 54.375,
+                "y": 88.5625
             }
         },
         "ruinlower.json#floor": {

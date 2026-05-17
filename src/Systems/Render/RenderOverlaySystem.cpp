@@ -509,9 +509,23 @@ void RenderOverlaySystem::render_ui_zorder_list( std::vector<ZOrder> &zorder_que
     return;
   }
 
+  // clang-format off
   std::set<Sprites::SpriteMetaType> exclusions = {
-      "sprite.graveyard.wall.int", "sprite.graveyard.playerspawn", "sprite.skeleton",      "sprite.ghost",         "sprite.graveyard.detonated",
-      "sprite.player.footsteps",   "sprite.well.wall.int",         "sprite.ruin.wall.int", "sprite.crypt.wall.ext" };
+      "sprite.graveyard.wall.int", 
+      "sprite.graveyard.playerspawn", 
+      "sprite.skeleton",      
+      "sprite.ghost",         
+      "sprite.graveyard.detonated",
+      "sprite.player.footsteps",
+      "sprite.well.wall.int",
+      "sprite.ruin.wall.int", 
+      "sprite.crypt.wall.ext",
+      "sprite.ruin.cobweb",
+      "sprite.ruin.bookcase.left",
+      "sprite.ruin.bookcase.mid",
+      "sprite.ruin.bookcase.right"
+  };
+  // clang-format on
 
   for ( const auto &ui_label : m_dbg_ui_data->m_labels )
   {

@@ -1,4 +1,5 @@
 #include <Audio/SoundBank.hpp>
+#include <Components/Inventory/WorldItem.hpp>
 #include <Components/Npc/Npc.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
@@ -8,8 +9,8 @@
 #include <Components/Ruin/RuinObjectiveType.hpp>
 #include <Components/Ruin/RuinStairsLowerMultiBlock.hpp>
 #include <Components/System.hpp>
-
 #include <Factory/NpcFactory.hpp>
+#include <Factory/ParticleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
@@ -59,6 +60,8 @@ void RuinSceneLowerFloor::on_init()
 
   auto [map_size_grid, map_size_pixel] = m_scene_map_data->map_size();
 
+  Factory::Shader::add_night_static( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
+
   // generate the empty game area
   sf::Vector2f player_start_position = Sys::PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds::scaled( player_start_position, gridsize, 1.f, Cmp::RectBounds::ScaleAxis::XY );
@@ -100,6 +103,13 @@ void RuinSceneLowerFloor::on_init()
     m_open_navmesh->insert( pos_entt, pos_cmp );
   }
   reinit_navmesh();
+
+  // add flame particle sprites for any candle items in the new game world. Use the Candle item UUID to initialise the ParticleSprite.
+  for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
+  {
+    if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
+    Factory::Particle::add_flame( m_reg, "particle.candle", uuid_cmp, candle_pos.getCenter(), 50000 );
+  }
 
   // Hide the sudden position update/camera pan behind a forced loading screen.
   std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
@@ -199,6 +209,7 @@ void RuinSceneLowerFloor::do_update( [[maybe_unused]] sf::Time dt )
   // i.e. the witch scream triggers again as we leave the scene
   m_sys.find<Store::Type::RuinSystem>().check_exit_collision();
 
+  m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
   auto &overlay_sys = m_sys.find<Store::Type::RenderOverlaySystem>();
   m_sys.find<Store::Type::RenderGameSystem>().render_game( dt, overlay_sys );
 }

@@ -1,14 +1,3 @@
-#include <Inventory/PlayerInventorySlot.hpp>
-#include <Player/PlayerLevelDepth.hpp>
-#include <Player/TorchRadius.hpp>
-#include <Stats/PlayerStats.hpp>
-#ifdef SPDLOG_ACTIVE_LEVEL
-#undef SPDLOG_ACTIVE_LEVEL
-#endif
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
-
-#include <spdlog/spdlog.h>
-
 #include <Components/AbsoluteAlpha.hpp>
 #include <Components/AbsoluteRotation.hpp>
 #include <Components/AnimData.hpp>
@@ -25,6 +14,7 @@
 #include <Components/FootStepTimer.hpp>
 #include <Components/Inventory/Explosive.hpp>
 #include <Components/Inventory/InventoryWearLevel.hpp>
+#include <Components/Inventory/PlayerInventorySlot.hpp>
 #include <Components/Inventory/ScryingBall.hpp>
 #include <Components/Inventory/WorldItem.hpp>
 #include <Components/Npc/NpcNoPathFinding.hpp>
@@ -41,9 +31,15 @@
 #include <Components/ReservedPosition.hpp>
 #include <Components/Ruin/RuinObjectiveType.hpp>
 #include <Components/System.hpp>
+#include <Components/UUID.hpp>
 #include <Components/VoidPosition.hpp>
 #include <Components/ZOrderValue.hpp>
+#include <Player/PlayerLevelDepth.hpp>
+#include <Player/TorchRadius.hpp>
 #include <SceneControl/RegistryTransfer.hpp>
+#include <Stats/PlayerStats.hpp>
+
+#include <spdlog/spdlog.h>
 
 namespace ProceduralMaze::Scene
 {
@@ -241,6 +237,7 @@ void RegistryTransfer::init_missing_cmp_storages( entt::registry &registry )
   registry.storage<Cmp::PlayerLastGraveyardPosition>();
   registry.storage<Cmp::PlayerRuinLocation>();
   registry.storage<Cmp::RuinObjectiveType>();
+  registry.storage<Cmp::UUID>();
   // Add other player-related components as needed
 }
 

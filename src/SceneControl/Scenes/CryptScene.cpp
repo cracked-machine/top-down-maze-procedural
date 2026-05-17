@@ -94,7 +94,7 @@ void CryptScene::on_init()
   for ( auto [candle_entt, candle_cmp, candle_pos, uuid_cmp] : m_reg.view<Cmp::WorldItem, Cmp::Position, Cmp::UUID>().each() )
   {
     if ( not candle_cmp.sprite_type.contains( "candle" ) ) continue;
-    Factory::Particle::add_flame( m_reg, "player.candle", uuid_cmp, candle_pos.getCenter(), 50000 );
+    Factory::Particle::add_flame( m_reg, "particle.candle", uuid_cmp, candle_pos.getCenter(), 50000 );
   }
 }
 

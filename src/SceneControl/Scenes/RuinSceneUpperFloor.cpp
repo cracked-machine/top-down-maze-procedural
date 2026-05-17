@@ -1,4 +1,5 @@
 #include <Audio/SoundBank.hpp>
+#include <Components/Inventory/WorldItem.hpp>
 #include <Components/Persistent/PlayerStartPosition.hpp>
 #include <Components/Player/PlayerCurse.hpp>
 #include <Components/Player/PlayerRuinLocation.hpp>
@@ -8,12 +9,13 @@
 #include <Components/Ruin/RuinStairsBalustradeMultiBlock.hpp>
 #include <Components/Ruin/RuinStairsUpperMultiBlock.hpp>
 #include <Components/System.hpp>
-
 #include <Factory/MultiblockFactory.hpp>
+#include <Factory/ParticleFactory.hpp>
 #include <Factory/PlayerFactory.hpp>
 #include <Factory/RuinFactory.hpp>
 #include <Factory/ShaderFactory.hpp>
 #include <Factory/WallFactory.hpp>
+#include <Inventory/PlayerInventorySlot.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SceneControl/Events/ProcessHolyWellSceneInputEvent.hpp>
 #include <SceneControl/SceneData.hpp>
@@ -56,6 +58,8 @@ void RuinSceneUpperFloor::on_init()
 
   auto [map_size_grid, map_size_pixel] = m_scene_map_data->map_size();
 
+  Factory::Shader::add_night_static( m_sys.find<Sys::Store::Type::ShaderSystem>(), map_size_pixel );
+
   // generate the empty game area
   sf::Vector2f player_start_pos = PersistSystem::get<Cmp::Persist::PlayerStartPosition>( m_reg );
   auto player_start_area = Cmp::RectBounds::scaled( player_start_pos, gridsize, 1.f, Cmp::RectBounds::ScaleAxis::XY );
@@ -87,6 +91,29 @@ void RuinSceneUpperFloor::on_init()
     m_open_navmesh->insert( pos_entt, pos_cmp );
   }
   reinit_navmesh();
+
+  SPDLOG_INFO( "Making particles1" );
+  // Add a flame ParticleSprite for a candle in the player inventory
+  for ( auto [inventory_entt, inventory_cmp, inventory_uuid_cmp] : m_reg.view<Cmp::PlayerInventorySlot, Cmp::UUID>().each() )
+  {
+    SPDLOG_INFO( "Making particles2" );
+    if ( not inventory_cmp.m_item.sprite_type.contains( "candle" ) ) continue;
+    Factory::Particle::add_flame( m_reg, "particle.candle", inventory_uuid_cmp, Utils::Player::get_position( m_reg ).getCenter(), 50000 );
+    SPDLOG_INFO( "Making particles3" );
+    for ( auto [ps_entt, ps_owner, ps_uuid_cmp] : m_reg.view<Sys::ParticleSpriteOwner, Cmp::UUID>().each() )
+    {
+      SPDLOG_INFO( "Making particles4" );
+      if ( ps_uuid_cmp == inventory_uuid_cmp )
+      {
+        // Move the ParticleSprite to the UI view. Any particle sprites should be fully cleared
+        // otherwise we get particle effects in strange places during the transition frame.
+        // The emitter position is set by RenderGameSystem using the UiData object.
+        ps_owner.sprite->clear();
+        ps_owner.sprite->set_view_type( Cmp::Particle::ViewType::SCREEN );
+        SPDLOG_INFO( "Making particles5" );
+      }
+    }
+  }
 }
 
 void RuinSceneUpperFloor::on_enter()
@@ -153,6 +180,7 @@ void RuinSceneUpperFloor::do_update( sf::Time dt )
   m_sys.find<Store::Type::RuinSystem>().update_shadow_hand_pos( map_size_pixel );
   // m_sys.find<Store::Type::RuinSystem>().check_player_shadow_hand_collision( dt );
 
+  m_sys.find<Sys::Store::Type::ParticleSystem>().update( dt );
   auto &overlay_sys = m_sys.find<Store::Type::RenderOverlaySystem>();
   m_sys.find<Store::Type::RenderGameSystem>().render_game( dt, overlay_sys );
 }
