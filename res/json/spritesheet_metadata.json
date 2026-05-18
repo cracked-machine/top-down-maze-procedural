@@ -874,7 +874,7 @@
       "spritesheet": {
         "displayname": "sprite.player.walk.south",
         "zorder": [0, 0, 0],
-        "texture_path": "res/textures/player.png",
+        "texture_path": "res/textures/player2.png",
         "sprite_indices": [0, 1, 2],
         "sprites_per_sequence": 3,
         "sprites_per_frame": 1,
@@ -888,7 +888,7 @@
       "spritesheet": {
         "displayname": "sprite.player.walk.north",
         "zorder": [0, 0, 0],
-        "texture_path": "res/textures/player.png",
+        "texture_path": "res/textures/player2.png",
         "sprite_indices": [3, 4, 5],
         "sprites_per_sequence": 3,
         "sprites_per_frame": 1,
@@ -902,7 +902,7 @@
       "spritesheet": {
         "displayname": "sprite.player.walk.east",
         "zorder": [0, 0, 0],
-        "texture_path": "res/textures/player.png",
+        "texture_path": "res/textures/player2.png",
         "sprite_indices": [6, 7, 8],
         "sprites_per_sequence": 3,
         "sprites_per_frame": 1,
@@ -916,7 +916,7 @@
       "spritesheet": {
         "displayname": "sprite.player.walk.west",
         "zorder": [0, 0, 0],
-        "texture_path": "res/textures/player.png",
+        "texture_path": "res/textures/player2.png",
         "sprite_indices": [9, 10, 11],
         "sprites_per_sequence": 3,
         "sprites_per_frame": 1,
