@@ -10,7 +10,7 @@
 #include <filesystem>
 #include <nlohmann/json_fwd.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class BaseStore : public BaseSystem
@@ -88,6 +88,6 @@ protected:
 template <typename Derived, typename StoreValue>
 Derived *StoreSingleton<Derived, StoreValue>::s_instance = nullptr;
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_BASESTORE_HPP_

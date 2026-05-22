@@ -7,7 +7,7 @@
 #include <Sprites/SpriteSheet.hpp>
 #include <Utils/Random.hpp>
 
-namespace ProceduralMaze::Factory
+namespace Game::Factory
 {
 
 void create_loot_container( entt::registry &reg, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
@@ -60,4 +60,4 @@ std::vector<entt::entity> gen_loot_containers( entt::registry &reg, Sprites::Spr
   return assigned_entts;
 }
 
-} // namespace ProceduralMaze::Factory
+} // namespace Game::Factory

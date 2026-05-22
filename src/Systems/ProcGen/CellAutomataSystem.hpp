@@ -13,7 +13,7 @@ namespace Components { class Neighbours; class Obstacle; class Position; class R
 namespace PathFinding { class SpatialHashGrid; }
 // clang-format on
 
-namespace ProceduralMaze::Sys::ProcGen
+namespace Game::Sys::ProcGen
 {
 
 class CellAutomataSystem : public BaseSystem
@@ -32,6 +32,6 @@ public:
   void iterate( unsigned int iterations, RandomLevelGenerator::SceneType scene_type, PathFinding::SpatialHashGrid &levelgen_spatialgrid );
 };
 
-} // namespace ProceduralMaze::Sys::ProcGen
+} // namespace Game::Sys::ProcGen
 
 #endif // SRC_SYSTEMS_PROCGEN_CELLAUTOMATASYSTEM_HPP_

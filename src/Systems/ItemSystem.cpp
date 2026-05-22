@@ -13,7 +13,7 @@
 #include <UUID.hpp>
 #include <ZOrderValue.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 ItemSystem::ItemSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -23,10 +23,7 @@ ItemSystem::ItemSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
   std::ignore = get_systems_event_queue().sink<Events::CreateItemEvent>().connect<&ItemSystem::on_create_item_event>( this );
 }
 
-void ItemSystem::on_create_item_event( ProceduralMaze::Events::CreateItemEvent ev )
-{
-  create_world_item( ev.m_pos, ev.m_item, ev.m_sfx, ev.m_zorder );
-}
+void ItemSystem::on_create_item_event( Game::Events::CreateItemEvent ev ) { create_world_item( ev.m_pos, ev.m_item, ev.m_sfx, ev.m_zorder ); }
 
 void ItemSystem::create_world_item( Cmp::Position pos, const std::string &item, std::string sfx, float zorder )
 {
@@ -114,4 +111,4 @@ void ItemSystem::create_explosive( Cmp::Position pos, const std::string &item, f
   SPDLOG_INFO( "Placed {} at {},{}", item, pos.position.x, pos.position.y );
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

@@ -3,7 +3,7 @@
 
 #include <Crypt/CryptRoomBase.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class CryptRoomStart : public CryptRoomBase
@@ -21,6 +21,6 @@ public:
   };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_CRYPTROOMSTART_HPP

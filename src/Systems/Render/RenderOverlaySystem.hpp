@@ -13,13 +13,13 @@
 #include <SFML/System/Vector2.hpp>
 
 // clang-format off
-namespace ProceduralMaze::PathFinding { class SpatialHashGrid; enum class QueryCompass; } 
-namespace ProceduralMaze::Cmp { class InventoryWearLevel; class ZOrderValue; } 
-namespace ProceduralMaze::Sprites { class SpriteSheet; class SpriteFactory; } 
-namespace ProceduralMaze::PathFinding { class SpatialHashGrid; }
+namespace Game::PathFinding { class SpatialHashGrid; enum class QueryCompass; } 
+namespace Game::Cmp { class InventoryWearLevel; class ZOrderValue; } 
+namespace Game::Sprites { class SpriteSheet; class SpriteFactory; } 
+namespace Game::PathFinding { class SpatialHashGrid; }
 // clang-format on
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class RenderOverlaySystem : public RenderSystem
@@ -184,6 +184,6 @@ private:
   int m_ui_flash_factor{ 300 };
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // __SYS_RENDEROVERSYSTEM_HPP__

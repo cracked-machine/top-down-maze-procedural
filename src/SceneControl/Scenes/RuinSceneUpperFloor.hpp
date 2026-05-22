@@ -9,7 +9,7 @@
 #include <Systems/SystemStore.hpp>
 #include <Utils/Utils.hpp>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 class RuinSceneUpperFloor : public Scene<Events::ProcessRuinSceneUpperInputEvent>
@@ -42,6 +42,6 @@ private:
   Sprites::SpriteFactory &m_sprite_factory;
 };
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene
 
 #endif // SRC_SCENECONTROL_SCENE_RUINSCENEUPPER_HPP_

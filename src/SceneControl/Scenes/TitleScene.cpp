@@ -10,7 +10,7 @@
 #include <Systems/Render/RenderMenuSystem.hpp>
 #include <Systems/SystemStore.hpp>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 void TitleScene::on_init()
@@ -65,4 +65,4 @@ void TitleScene::do_update( [[maybe_unused]] sf::Time dt )
 
 entt::registry &TitleScene::registry() { return m_reg; }
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene

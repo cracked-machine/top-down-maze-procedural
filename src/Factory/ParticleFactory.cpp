@@ -1,7 +1,7 @@
 #include <Factory/ParticleFactory.hpp>
 #include <Inventory/PlayerInventorySlot.hpp>
 
-namespace ProceduralMaze::Particle::Factory
+namespace Game::Particle::Factory
 {
 
 void add_test( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag )
@@ -92,4 +92,4 @@ void add_shockwave( entt::registry &reg, Sys::ParticleSystem &psys, const std::s
   psys.add( std::make_pair( psprite, Cmp::ZOrderValue( 10000.f ) ) );
 }
 
-} // namespace ProceduralMaze::Particle::Factory
+} // namespace Game::Particle::Factory

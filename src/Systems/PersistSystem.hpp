@@ -12,7 +12,7 @@
 #include <functional>
 #include <unordered_map>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class PersistSystem : public BaseSystem
@@ -123,6 +123,6 @@ private:
   std::vector<Cmp::Persist::IBasePersistent *> m_registered_components;
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_PERSISTENT_SYSTEM_HPP

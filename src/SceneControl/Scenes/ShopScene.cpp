@@ -29,7 +29,7 @@
 #include <Systems/SystemStore.hpp>
 #include <Systems/Threats/NpcSystem.hpp>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 void ShopScene::on_init()
@@ -157,4 +157,4 @@ void ShopScene::reinit_navmesh()
 
 entt::registry &ShopScene::registry() { return m_reg; }
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene

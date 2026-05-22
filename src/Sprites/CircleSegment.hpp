@@ -3,7 +3,7 @@
 
 #include <vector>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 class CircleSegment
@@ -70,6 +70,6 @@ private:
   void generateVertices( sf::Vector2f center, float radius, float outline_thickness, sf::Color color, int points_per_segment ) const;
 };
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
 #endif // SRC_SPRITES_CIRCLESEGMENT_

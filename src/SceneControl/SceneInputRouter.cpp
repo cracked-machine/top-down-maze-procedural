@@ -43,7 +43,7 @@
 
 #include <imgui-SFML.h>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 SceneInputRouter::SceneInputRouter( entt::registry &reg, sf::RenderWindow &m_window, Sprites::SpriteFactory &sprite_factory,
@@ -587,4 +587,4 @@ void SceneInputRouter::toggle_particle_test( bool enable )
   }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

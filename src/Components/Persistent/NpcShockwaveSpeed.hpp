@@ -5,7 +5,7 @@
 #include <Components/Persistent/BasePersistent.hpp>
 #include <cstdint>
 
-namespace ProceduralMaze::Cmp::Persist
+namespace Game::Cmp::Persist
 {
 
 class NpcShockwaveSpeed : public BasePersistent<uint16_t>
@@ -19,6 +19,6 @@ public:
   const std::string get_detail() const override { return ""; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persist
+} // namespace Game::Cmp::Persist
 
 #endif // SRC_CMPS_PERSISTENT_NPCSHOCKWAVESPEED_

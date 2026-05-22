@@ -18,7 +18,7 @@
 #include <future>
 #include <memory>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 class SceneManager
@@ -130,6 +130,6 @@ private:
   Sprites::SpriteFactory &m_sprite_factory;
 };
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene
 
 #endif // SCENE_SCENEMANAGER_HPP_

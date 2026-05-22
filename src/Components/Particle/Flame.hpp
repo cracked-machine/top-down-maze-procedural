@@ -3,7 +3,7 @@
 
 #include <Particle/ParticleSpriteBase.hpp>
 
-namespace ProceduralMaze::Cmp::Particle
+namespace Game::Cmp::Particle
 {
 
 //! @brief Implementation detail — do not use externally
@@ -33,6 +33,6 @@ public:
   sf::Color m_final_flame_color{ 255, 0, 0 }; // red
 };
 
-} // namespace ProceduralMaze::Cmp::Particle
+} // namespace Game::Cmp::Particle
 
 #endif // SRC_CMP_PARTICLE_FLAME_HPP_

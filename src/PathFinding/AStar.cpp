@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <unordered_map>
 
-namespace ProceduralMaze::PathFinding
+namespace Game::PathFinding
 {
 
 using ClosedList = std::unordered_map<Cmp::Position, PathNode, PathNode::PosHash>;
@@ -93,4 +93,4 @@ std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHash
   return path;
 }
 
-} // namespace ProceduralMaze::PathFinding
+} // namespace Game::PathFinding

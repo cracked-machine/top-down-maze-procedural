@@ -10,7 +10,7 @@
 #include <Utils/Maths.hpp>
 #include <Utils/Player.hpp>
 
-namespace ProceduralMaze::Sys::ProcGen
+namespace Game::Sys::ProcGen
 {
 
 std::optional<Cmp::CryptPassageBlock> PassageAlogirthms::place_passage_block( entt::registry &reg, float x, float y,
@@ -385,4 +385,4 @@ void PassageAlogirthms::cache_wall_components( entt::registry &reg )
   }
 }
 
-} // namespace ProceduralMaze::Sys::ProcGen
+} // namespace Game::Sys::ProcGen

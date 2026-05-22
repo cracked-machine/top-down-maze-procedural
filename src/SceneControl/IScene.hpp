@@ -6,7 +6,7 @@
 #include <entt/signal/dispatcher.hpp>
 #include <string>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 //! @brief Abstract interface for a scene
@@ -37,6 +37,6 @@ protected:
   entt::registry m_reg;
 };
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene
 
 #endif // SCENE_ISCENE_HPP_

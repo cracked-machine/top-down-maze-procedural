@@ -6,7 +6,7 @@
 #include <Systems/Render/RenderSystem.hpp>
 #include <entt/entity/registry.hpp>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 void FloodWaterShader::update( entt::registry &reg )
@@ -29,4 +29,4 @@ void FloodWaterShader::update( entt::registry &reg )
   set_position( { -100, -100 } );
 }
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites

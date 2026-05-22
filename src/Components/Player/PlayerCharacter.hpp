@@ -3,7 +3,7 @@
 
 #include <SFML/System/Clock.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 // See PlayerSystem.hpp for initilization values
@@ -41,6 +41,6 @@ public:
   PlayerCharacter() = default;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMPS_PLAYER_PLAYERCHARACTER_HPP_

@@ -1,7 +1,7 @@
 #ifndef SRC_CMPS_PLAYER_PLAYERRUINFLOOR_HPP_
 #define SRC_CMPS_PLAYER_PLAYERRUINFLOOR_HPP_
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class PlayerRuinLocation
@@ -15,6 +15,6 @@ public:
   Floor m_floor;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMPS_PLAYER_PLAYERRUINFLOOR_HPP_

@@ -7,7 +7,7 @@
 #include <Systems/Render/RenderMenuSystem.hpp>
 #include <Systems/SystemStore.hpp>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 void GameOverScene::on_init() { SPDLOG_INFO( "Initializing GameOverScene" ); }
@@ -38,4 +38,4 @@ void GameOverScene::do_update( [[maybe_unused]] sf::Time dt )
 
 entt::registry &GameOverScene::registry() { return m_reg; }
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene

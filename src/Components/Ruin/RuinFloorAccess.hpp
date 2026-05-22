@@ -2,7 +2,7 @@
 #define SRC_CMPS_RUIN_RUINFLOORACCESS_HPP_
 
 #include <Components/Position.hpp>
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class RuinFloorAccess : public Cmp::Position
@@ -18,6 +18,6 @@ public:
   Direction m_direction;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMPS_RUIN_RUINFLOORACCESS_HPP_

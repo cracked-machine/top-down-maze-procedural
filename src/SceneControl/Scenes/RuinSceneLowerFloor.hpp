@@ -11,13 +11,13 @@
 #include <Utils/Utils.hpp>
 
 #include <Sprites/SpriteMetaType.hpp>
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 class SpriteSheet;
 class SpriteFactory;
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 class RuinSceneLowerFloor : public Scene<Events::ProcessRuinSceneLowerInputEvent>
@@ -56,6 +56,6 @@ private:
   EntryMode m_entry_mode;
 };
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene
 
 #endif // SRC_SCENECONTROL_SCENE_RUINSCENELOWER_HPP_

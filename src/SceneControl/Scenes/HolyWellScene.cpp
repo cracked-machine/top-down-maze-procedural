@@ -25,7 +25,7 @@
 #include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 void HolyWellScene::on_init()
@@ -118,4 +118,4 @@ void HolyWellScene::reinit_navmesh()
 
 entt::registry &HolyWellScene::registry() { return m_reg; }
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene

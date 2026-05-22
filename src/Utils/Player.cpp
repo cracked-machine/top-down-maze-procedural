@@ -24,7 +24,7 @@
 #include <Utils/Player.hpp>
 #include <stdexcept>
 
-namespace ProceduralMaze::Utils::Player
+namespace Game::Utils::Player
 {
 
 entt::entity get_entity( entt::registry &reg )
@@ -252,4 +252,4 @@ Cmp::PlayerStats &get_player_stats( entt::registry &reg )
   throw std::runtime_error( "Player entt has no component: Cmp::PlayerStats" );
 }
 
-} // namespace ProceduralMaze::Utils::Player
+} // namespace Game::Utils::Player

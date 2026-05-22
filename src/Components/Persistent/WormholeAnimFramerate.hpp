@@ -4,7 +4,7 @@
 #include <Components/Persistent/BasePersistent.hpp>
 #include <SFML/System/Time.hpp>
 
-namespace ProceduralMaze::Cmp::Persist
+namespace Game::Cmp::Persist
 {
 
 class WormholeAnimFramerate : public BasePersistent<float>
@@ -19,6 +19,6 @@ public:
   const std::string get_detail() const override { return ""; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persist
+} // namespace Game::Cmp::Persist
 
 #endif // __CMP_WORMHOLE_ANIM_FRAMERATE_HPP__

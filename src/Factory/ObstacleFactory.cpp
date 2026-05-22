@@ -16,7 +16,7 @@
 #include <entt/entity/fwd.hpp>
 #include <stdexcept>
 
-namespace ProceduralMaze::Factory
+namespace Game::Factory
 {
 
 entt::entity create_world_pos( entt::registry &registry, const sf::Vector2f &pos )
@@ -79,4 +79,4 @@ void remove_obstacle( entt::registry &reg, entt::entity entt )
   reg.emplace_or_replace<Cmp::Armable>( entt );
 }
 
-} // namespace ProceduralMaze::Factory
+} // namespace Game::Factory

@@ -5,7 +5,7 @@
 
 #include <Components/Obstacle.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 // GraveMultiBlock component represents a multi-block sprite defined geometrically as a rectangle
@@ -43,6 +43,6 @@ private:
   bool m_powers_active{ false };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_GRAVEMULTIBLOCK_HPP__

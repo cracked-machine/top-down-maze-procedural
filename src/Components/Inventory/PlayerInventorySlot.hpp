@@ -3,7 +3,7 @@
 
 #include <Components/Inventory/WorldItem.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 // Represents a single slot in the player inventory. If we want multiple slots we would need a "slot id",
@@ -13,6 +13,6 @@ struct PlayerInventorySlot
   WorldItem m_item;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMPS_INVENTORY_PLAYERINVENTORYSLOT_HPP_

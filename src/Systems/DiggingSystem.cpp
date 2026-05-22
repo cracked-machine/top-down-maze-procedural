@@ -42,7 +42,7 @@
 #include <SFML/System/Time.hpp>
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 DiggingSystem::DiggingSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -365,4 +365,4 @@ void DiggingSystem::on_player_action( const Events::PlayerActionEvent &event )
   }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

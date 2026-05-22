@@ -3,7 +3,7 @@
 
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Constants
+namespace Game::Constants
 {
 
 inline constexpr sf::Vector2u kGridSizePx{ 16u, 16u };
@@ -13,6 +13,6 @@ inline static constexpr sf::Vector2u kFallbackDisplaySize{ 1920, 1080 };
 //! @brief the directory containing the game resources files
 inline static std::filesystem::path res_dir( "res" );
 
-} // namespace ProceduralMaze::Constants
+} // namespace Game::Constants
 
 #endif //  SRC_UTILS_CONSTANTS_HPP_

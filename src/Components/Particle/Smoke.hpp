@@ -3,7 +3,7 @@
 
 #include <Particle/ParticleSpriteBase.hpp>
 
-namespace ProceduralMaze::Cmp::Particle
+namespace Game::Cmp::Particle
 {
 
 //! @brief Implementation detail — do not use externally
@@ -34,6 +34,6 @@ public:
   float m_rise_speed{ 20.f }; // pixels per second upward
 };
 
-} // namespace ProceduralMaze::Cmp::Particle
+} // namespace Game::Cmp::Particle
 
 #endif // SRC_CMP_PARTICLE_SMOKEWISP_HPP_

@@ -24,11 +24,11 @@
 #include <spdlog/spdlog.h>
 #include <stdexcept>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 PassageSystem::PassageSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
-    : ProceduralMaze::Sys::BaseSystem( reg, window, sprite_factory, sound_bank )
+    : Game::Sys::BaseSystem( reg, window, sprite_factory, sound_bank )
 
 {
   std::ignore = get_systems_event_queue().sink<Events::PassageEvent>().connect<&PassageSystem::on_passage_event>( this );
@@ -554,4 +554,4 @@ void PassageSystem::tidy_passage_blocks( bool include_closed_rooms )
   }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

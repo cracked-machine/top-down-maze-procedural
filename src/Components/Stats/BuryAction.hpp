@@ -3,7 +3,7 @@
 
 #include <Stats/BaseAction.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class BuryAction : public BaseAction
@@ -18,6 +18,6 @@ public:
 private:
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMPS_STATS_BURYACTION_HPP_

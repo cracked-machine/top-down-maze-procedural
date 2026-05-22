@@ -2,7 +2,7 @@
 #define __CMP_PLAYERMORTALITY_HPP__
 
 #include <cstdint>
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class PlayerMortality
@@ -55,6 +55,6 @@ public:
   float death_progress{ 0.0f };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __CMP_PLAYERMORTALITY_HPP__

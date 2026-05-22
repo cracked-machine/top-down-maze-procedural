@@ -48,7 +48,7 @@
 #include <set>
 #include <typeindex>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 RuinSystem::RuinSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
@@ -475,4 +475,4 @@ void RuinSystem::check_create_witch( entt::registry &reg, sf::FloatRect scene_di
   }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

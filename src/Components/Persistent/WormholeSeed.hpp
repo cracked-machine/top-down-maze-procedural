@@ -3,7 +3,7 @@
 
 #include <Components/Persistent/BasePersistent.hpp>
 
-namespace ProceduralMaze::Cmp::Persist
+namespace Game::Cmp::Persist
 {
 
 // This component does not use JSON serialization as it is managed internally by the game engine.
@@ -18,6 +18,6 @@ public:
   const std::string get_detail() const override { return ""; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persist
+} // namespace Game::Cmp::Persist
 
 #endif // __CMP_WORMHOLESEED_HPP__

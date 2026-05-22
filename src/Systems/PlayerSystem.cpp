@@ -67,7 +67,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 PlayerSystem::PlayerSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
@@ -664,12 +664,12 @@ bool PlayerSystem::is_valid_move( const sf::FloatRect &target_position )
   return not check_cmp<Cmp::PlayerNoPath>( reg(), search_bounds, is_active );
 }
 
-void PlayerSystem::on_drop_inventory_event( ProceduralMaze::Events::DropInventoryEvent ev )
+void PlayerSystem::on_drop_inventory_event( Game::Events::DropInventoryEvent ev )
 {
   drop_inventory_slot_into_world( ev.drop_pos, ev.inventory_slot_entt );
 }
 
-void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionEvent ev )
+void PlayerSystem::on_player_action_event( Game::Events::PlayerActionEvent ev )
 {
 
   if ( ev.action == Events::PlayerActionEvent::GameActions::DROP_CARRYITEM )
@@ -701,18 +701,18 @@ void PlayerSystem::on_player_action_event( ProceduralMaze::Events::PlayerActionE
     m_inventory_cooldown_timer.restart();
     SPDLOG_DEBUG( "inventory_view: {} ", inventory_view.size() );
   }
-  else if ( ev.action == ProceduralMaze::Events::PlayerActionEvent::GameActions::ATTACK )
+  else if ( ev.action == Game::Events::PlayerActionEvent::GameActions::ATTACK )
   {
     // axe attack?!
     check_player_axe_npc_kill();
   }
-  else if ( ev.action == ProceduralMaze::Events::PlayerActionEvent::GameActions::DIG )
+  else if ( ev.action == Game::Events::PlayerActionEvent::GameActions::DIG )
   {
     if ( reg().valid( ev.m_entt ) ) pickup_world_item( reg(), ev.m_entt );
   }
 }
 
-void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMortalityEvent ev )
+void PlayerSystem::on_player_mortality_event( Game::Events::PlayerMortalityEvent ev )
 {
 
   auto common_death_throes = [&]()
@@ -817,4 +817,4 @@ void PlayerSystem::on_player_mortality_event( ProceduralMaze::Events::PlayerMort
   }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

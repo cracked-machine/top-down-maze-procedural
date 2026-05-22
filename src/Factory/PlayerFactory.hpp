@@ -7,7 +7,7 @@
 #include <entt/entity/fwd.hpp>
 #include <entt/fwd.hpp>
 
-namespace ProceduralMaze::Factory
+namespace Game::Factory
 {
 
 void create_player( entt::registry &registry );
@@ -25,6 +25,6 @@ Cmp::Position add_player_last_graveyard_pos( entt::registry &reg, Cmp::Position 
                                              sf::Vector2f offset = { 0.f, Constants::kGridSizePxF.y } );
 void remove_player_last_graveyard_pos( entt::registry &reg );
 
-} // namespace ProceduralMaze::Factory
+} // namespace Game::Factory
 
 #endif // SRC_FACTORY_PLAYERFACTORY_HPP

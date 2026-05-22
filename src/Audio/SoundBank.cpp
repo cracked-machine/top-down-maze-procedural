@@ -4,7 +4,7 @@
 #include <SFML/Audio/SoundChannel.hpp>
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Audio
+namespace Game::Audio
 {
 
 SoundBank::SoundBank() { sounds.emplace( "fallback", EffectsData{ "res/audio/fallback.wav" } ); }
@@ -117,4 +117,4 @@ sf::SoundBuffer SoundBank::generate_tone( float frequency, float duration, unsig
   throw std::runtime_error( "Failed to generate tone" );
 }
 
-} // namespace ProceduralMaze::Audio
+} // namespace Game::Audio

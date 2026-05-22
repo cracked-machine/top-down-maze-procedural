@@ -10,7 +10,7 @@
 
 #include <nlohmann/json.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 NpcStore::NpcStore( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -95,4 +95,4 @@ void NpcStore::init_store()
   SPDLOG_INFO( "Item store loaded with {} items", m_store.size() );
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

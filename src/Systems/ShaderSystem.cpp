@@ -1,7 +1,7 @@
 #include <Shaders/IShaderSprite.hpp>
 #include <Systems/ShaderSystem.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 ShaderSystem::ShaderSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -39,4 +39,4 @@ void ShaderSystem::update()
   return nullptr;
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

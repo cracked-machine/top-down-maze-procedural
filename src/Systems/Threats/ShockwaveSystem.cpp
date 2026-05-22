@@ -17,7 +17,7 @@
 #include <Utils/Utils.hpp>
 #include <typeindex>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 ShockwaveSystem::ShockwaveSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
@@ -215,4 +215,4 @@ void ShockwaveSystem::checkShockwavePlayerCollision()
   }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

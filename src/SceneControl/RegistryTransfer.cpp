@@ -41,7 +41,7 @@
 
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 //! @brief Creates a deep copy of selected entities from a scene's ECS registry into a new standalone registry. The function supports different copy
@@ -258,4 +258,4 @@ void RegistryTransfer::pretty_print( const std::vector<std::string> &components 
   SPDLOG_INFO( "{}", ss.str() );
 }
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene

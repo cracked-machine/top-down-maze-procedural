@@ -6,7 +6,7 @@
 #include <Sprites/SpriteMetaType.hpp>
 #include <Stats/PlayerStats.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 class Position;
 class RectBounds;
@@ -22,9 +22,9 @@ class PlayerCadaverCount;
 class PlayerLevelDepth;
 class PlayerInventorySlot;
 class TorchRadius;
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
-namespace ProceduralMaze::Utils::Player
+namespace Game::Utils::Player
 {
 
 entt::entity get_entity( entt::registry &reg );
@@ -51,6 +51,6 @@ Cmp::PlayerCadaverCount &get_cadaver_count( entt::registry &reg );
 Cmp::TorchRadius &get_torch_radius( entt::registry &reg );
 Cmp::PlayerStats &get_player_stats( entt::registry &reg );
 
-} // namespace ProceduralMaze::Utils::Player
+} // namespace Game::Utils::Player
 
 #endif // SRC_UTILS_PLAYER_HPP_

@@ -14,9 +14,9 @@ namespace nlohmann
 {
 //! @brief ADL hook used via nlohmann::basic_json::get (see SceneConfig::load below)
 template <>
-struct adl_serializer<ProceduralMaze::Sprites::SpriteSheet>
+struct adl_serializer<Game::Sprites::SpriteSheet>
 {
-  static void from_json( const json &j, ProceduralMaze::Sprites::SpriteSheet &ms )
+  static void from_json( const json &j, Game::Sprites::SpriteSheet &ms )
   {
 
     //! @brief lambda helper for error checking on JSON Single field types
@@ -81,16 +81,16 @@ struct adl_serializer<ProceduralMaze::Sprites::SpriteSheet>
     std::vector<bool> solid_mask{};
     get_optional_list( "solid_mask", solid_mask );
 
-    ProceduralMaze::Sprites::SpriteSize grid_size;
+    Game::Sprites::SpriteSize grid_size;
     get_xy_field( "grid_size", grid_size );
 
-    ms = ProceduralMaze::Sprites::SpriteSheet{ "",        display_name,      zorder_list,          texture_path, sprite_indices,
-                                               grid_size, sprites_per_frame, sprites_per_sequence, solid_mask };
+    ms = Game::Sprites::SpriteSheet{ "",        display_name,      zorder_list,          texture_path, sprite_indices,
+                                     grid_size, sprites_per_frame, sprites_per_sequence, solid_mask };
   }
 };
 } // namespace nlohmann
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 void SpriteFactory::init()
 {
@@ -242,4 +242,4 @@ const SpriteSheet &SpriteFactory::get_random_spritedata( std::vector<SpriteMetaT
   }
 }
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites

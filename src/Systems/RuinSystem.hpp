@@ -9,20 +9,20 @@
 
 #include <Sprites/SpriteMetaType.hpp>
 #include <future>
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 class SpriteSheet;
 class SpriteFactory;
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 class RuinStairsLowerMultiBlock;
 class RuinStairsUpperMultiBlock;
 class RuinStairsBalustradeMultiBlock;
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class RuinSystem : public BaseSystem
@@ -96,6 +96,6 @@ private:
 
   sf::Time m_shadowhand_action_effects_time;
 };
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_RUINSYSTEM_HPP_

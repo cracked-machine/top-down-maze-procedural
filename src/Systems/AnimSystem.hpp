@@ -10,7 +10,7 @@
 #include <Sprites/SpriteSheet.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class AnimSystem : public BaseSystem
@@ -44,6 +44,6 @@ private:
                                AnimType type = AnimType::LOOP );
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_ANIMSYSTEM_HPP

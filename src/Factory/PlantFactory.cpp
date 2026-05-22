@@ -14,7 +14,7 @@
 #include <Utils.hpp>
 #include <Utils/Random.hpp>
 
-namespace ProceduralMaze::Factory
+namespace Game::Factory
 {
 
 entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms )
@@ -42,4 +42,4 @@ entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, 
   return plant_entt;
 }
 
-} // namespace ProceduralMaze::Factory
+} // namespace Game::Factory

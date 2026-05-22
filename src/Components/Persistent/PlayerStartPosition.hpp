@@ -5,7 +5,7 @@
 #include <nlohmann/json_fwd.hpp>
 #include <string>
 
-namespace ProceduralMaze::Cmp::Persist
+namespace Game::Cmp::Persist
 {
 
 class PlayerStartPosition : public sf::Vector2f
@@ -20,6 +20,6 @@ public:
   const std::string get_detail() const { return ""; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persist
+} // namespace Game::Cmp::Persist
 
 #endif // __COMPONENTS_PLAYERSTARTPOSITION_HPP__

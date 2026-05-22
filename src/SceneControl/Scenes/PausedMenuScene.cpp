@@ -11,7 +11,7 @@
 #include <Systems/Render/RenderMenuSystem.hpp>
 #include <Systems/SystemStore.hpp>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 void PausedMenuScene::on_init() { SPDLOG_INFO( "Initializing PausedMenuScene" ); }
@@ -61,4 +61,4 @@ void PausedMenuScene::do_update( [[maybe_unused]] sf::Time dt )
 
 entt::registry &PausedMenuScene::registry() { return m_reg; }
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene

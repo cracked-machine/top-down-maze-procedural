@@ -21,7 +21,7 @@
 #include <memory>
 #include <string>
 
-namespace ProceduralMaze
+namespace Game
 {
 
 class Engine
@@ -98,7 +98,7 @@ private:
 
   // Create the opengl window
   // use fallback resolution for loading screen position since we dont have registry access at this point
-  std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( Constants::kFallbackDisplaySize ), "ProceduralMaze",
+  std::unique_ptr<sf::RenderWindow> m_window = std::make_unique<sf::RenderWindow>( sf::VideoMode( Constants::kFallbackDisplaySize ), "TheShadesBelow",
                                                                                    sf::State::Fullscreen );
 
   std::unique_ptr<Sprites::SpriteFactory> m_sprite_factory;
@@ -111,6 +111,6 @@ private:
   entt::dispatcher m_scenemanager_event_queue;
 };
 
-} // namespace ProceduralMaze
+} // namespace Game
 
 #endif // __ENGINE_HPP__

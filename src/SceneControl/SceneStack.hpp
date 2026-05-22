@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 class SceneStack
@@ -74,6 +74,6 @@ private:
   std::vector<std::unique_ptr<IScene>> m_stack;
 };
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene
 
 #endif // SRC_SCENE_SCENESTACK_HPP_

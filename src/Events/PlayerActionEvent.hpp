@@ -1,7 +1,7 @@
 #ifndef SRC_EVENTS_PLAYERACTIONEVENT_HPP_
 #define SRC_EVENTS_PLAYERACTIONEVENT_HPP_
 
-namespace ProceduralMaze::Events
+namespace Game::Events
 {
 
 struct PlayerActionEvent
@@ -18,6 +18,6 @@ struct PlayerActionEvent
   entt::entity m_entt;
 };
 
-} // namespace ProceduralMaze::Events
+} // namespace Game::Events
 
 #endif // SRC_EVENTS_PLAYERACTIONEVENT_HPP_

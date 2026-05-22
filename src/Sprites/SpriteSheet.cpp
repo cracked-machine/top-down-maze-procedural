@@ -5,7 +5,7 @@
 
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 SpriteSheet::SpriteSheet( SpriteMetaType type, std::string display_name, const std::vector<float> &zorder_list,
@@ -103,4 +103,4 @@ bool SpriteSheet::add_sprite( const std::vector<uint32_t> &tilemap_picks )
   return true;
 }
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites

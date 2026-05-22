@@ -5,11 +5,11 @@
 #include <SceneControl/Scene.hpp>
 
 // clang-format off
-namespace ProceduralMaze::Sys { class Store; }
-namespace ProceduralMaze::Audio { class SoundBank; }
+namespace Game::Sys { class Store; }
+namespace Game::Audio { class SoundBank; }
 // clang-format on
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 class LevelCompleteScene : public Scene<Events::ProcessLevelCompleteSceneInputEvent>
@@ -38,6 +38,6 @@ private:
   sf::Time m_scorecheck_accumulator;
 };
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene
 
 #endif // SCENE_LEVELCOMPLETE_SCENE_HPP_

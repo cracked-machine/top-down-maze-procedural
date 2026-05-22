@@ -8,7 +8,7 @@
 #include <Components/Position.hpp>
 #include <Factory/SpriteFactory.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 //! @brief Empty Space for level gen
@@ -26,6 +26,6 @@ public:
   }
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMPS_VOIDPOSITION_HPP_

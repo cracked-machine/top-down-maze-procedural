@@ -2,7 +2,7 @@
 #define SRC_CMP_PERSISTENT_MAXNUMCRYPTS_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
-namespace ProceduralMaze::Cmp::Persist
+namespace Game::Cmp::Persist
 {
 
 class MaxNumCrypts : public BasePersistent<uint8_t>
@@ -16,6 +16,6 @@ public:
   const std::string get_detail() const override { return ""; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persist
+} // namespace Game::Cmp::Persist
 
 #endif // SRC_CMP_PERSISTENT_MAXNUMCRYPTS_HPP__

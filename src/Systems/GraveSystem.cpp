@@ -34,7 +34,7 @@
 #include <Utils/Player.hpp>
 #include <Utils/Utils.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 GraveSystem::GraveSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -180,4 +180,4 @@ void GraveSystem::on_player_action( const Events::PlayerActionEvent &event )
   }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

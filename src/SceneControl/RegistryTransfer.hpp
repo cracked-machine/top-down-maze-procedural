@@ -5,7 +5,7 @@
 #include <entt/entity/fwd.hpp>
 #include <memory>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 //! @brief Enumeration for registry copy modes
@@ -128,6 +128,6 @@ private:
   void pretty_print( const std::vector<std::string> &components );
 };
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene
 
 #endif // SRC_SCENECONTROL_COMPONENTTRANSFER_HPP_

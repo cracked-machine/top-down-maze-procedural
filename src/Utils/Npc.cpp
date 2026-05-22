@@ -8,7 +8,7 @@
 #include <source_location>
 #include <stdexcept>
 
-namespace ProceduralMaze::Utils::Npc
+namespace Game::Utils::Npc
 {
 
 entt::entity get_world_pos_entt( entt::registry &reg, Cmp::Position npc_pos )
@@ -43,4 +43,4 @@ Sprites::SpriteMetaType get_sprite_type( entt::registry &reg, entt::entity npc_e
   return npc_cmp->sprite_type_list.front();
 }
 
-} // namespace ProceduralMaze::Utils::Npc
+} // namespace Game::Utils::Npc

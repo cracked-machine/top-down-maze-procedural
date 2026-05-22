@@ -5,7 +5,7 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 //! @brief Mutable sprite containing a vertex array / texture.
@@ -52,6 +52,6 @@ private:
   const sf::Texture &m_texture;
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_RENDER_RENDERBUFFER_HPP_

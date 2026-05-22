@@ -30,7 +30,7 @@
 
 #include <entt/entity/registry.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 BaseSystem::BaseSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -45,4 +45,4 @@ BaseSystem::BaseSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::
 // initialised by first call to getEventDispatcher()
 std::unique_ptr<entt::dispatcher> BaseSystem::m_systems_event_queue = nullptr;
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

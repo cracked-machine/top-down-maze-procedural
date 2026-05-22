@@ -21,7 +21,7 @@
 #include <memory>
 #include <stacktrace>
 
-namespace ProceduralMaze
+namespace Game
 {
 
 Engine::Engine()
@@ -158,4 +158,4 @@ void Engine::show_error_screen( const std::string &error_msg )
   }
 }
 
-} // namespace ProceduralMaze
+} // namespace Game

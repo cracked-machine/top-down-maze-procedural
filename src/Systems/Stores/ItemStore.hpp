@@ -5,7 +5,7 @@
 #include <Systems/BaseSystem.hpp>
 #include <Systems/Stores/BaseStore.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class ItemStore : public StoreSingleton<ItemStore, Cmp::WorldItem>
@@ -18,6 +18,6 @@ public:
   void init_store();
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_ITEMSTORE_HPP_

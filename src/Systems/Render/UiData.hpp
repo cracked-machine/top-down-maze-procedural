@@ -5,7 +5,7 @@
 #include <nlohmann/json_fwd.hpp>
 #include <source_location>
 
-namespace ProceduralMaze::Render
+namespace Game::Render
 {
 
 class UiData
@@ -73,6 +73,6 @@ public:
   std::vector<Icon> m_icons;
 };
 
-} // namespace ProceduralMaze::Render
+} // namespace Game::Render
 
 #endif // SRC_SYSTEM_RENDER_UIDATA_HPP_

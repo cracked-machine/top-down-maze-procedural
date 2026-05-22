@@ -7,7 +7,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <cmath>
 
-namespace ProceduralMaze::Utils::Maths
+namespace Game::Utils::Maths
 {
 
 struct DistanceVector2fComparator
@@ -123,6 +123,6 @@ std::array<sf::Vertex, 4> thick_line_quad( sf::Vector2f start, sf::Vector2f end,
 //! @return uint8_t
 uint8_t to_percent( float max_value, uint8_t convert );
 
-} // namespace ProceduralMaze::Utils::Maths
+} // namespace Game::Utils::Maths
 
 #endif // SRC_UTILS_MATHS_HPP__

@@ -2,7 +2,7 @@
 #define SRC_CMPS_PERSISTENT_NPCSKELEGRAVEYARDSPAWNCOUNT_HPP_
 
 #include <Components/Persistent/BasePersistent.hpp>
-namespace ProceduralMaze::Cmp::Persist
+namespace Game::Cmp::Persist
 {
 
 class NpcSkeleGraveyardSpawnCount : public BasePersistent<uint8_t>
@@ -16,6 +16,6 @@ public:
   const std::string get_detail() const override { return detail; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persist
+} // namespace Game::Cmp::Persist
 
 #endif // SRC_CMPS_PERSISTENT_NPCSKELEGRAVEYARDSPAWNCOUNT_HPP_

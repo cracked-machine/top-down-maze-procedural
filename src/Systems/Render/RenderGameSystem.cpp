@@ -79,7 +79,7 @@
 #include <queue>
 #include <ranges>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 RenderGameSystem::RenderGameSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
@@ -658,4 +658,4 @@ void RenderGameSystem::render_screen_flash( sf::Color color )
   draw_screen( flash );
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

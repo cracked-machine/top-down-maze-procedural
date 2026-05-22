@@ -3,13 +3,13 @@
 
 #include <Components/Hazard/HazardFieldCell.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 struct CorruptionCell : public HazardFieldCell
 {
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __COMPONENTS_CORRUPTION_CELL_HPP__

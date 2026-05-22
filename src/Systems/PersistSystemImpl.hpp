@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <typeinfo>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 template <typename T>
@@ -51,6 +51,6 @@ void PersistSystem::register_types( const std::string &name )
   if constexpr ( std::is_base_of_v<Cmp::Persist::IBasePersistent, T> ) { m_registered_components.push_back( &Sys::PersistSystem::get<T>( reg() ) ); }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_PERSISTENT_SYSTEM_IMPL_HPP

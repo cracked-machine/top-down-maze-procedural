@@ -1,7 +1,7 @@
 #ifndef __COMPONENTS_PLAYER_CADAVER_COUNT_HPP__
 #define __COMPONENTS_PLAYER_CADAVER_COUNT_HPP__
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class PlayerCadaverCount
@@ -24,6 +24,6 @@ private:
   unsigned int m_count;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __COMPONENTS_PLAYER_CADAVER_COUNT_HPP__

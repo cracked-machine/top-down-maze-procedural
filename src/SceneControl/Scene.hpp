@@ -9,7 +9,7 @@
 namespace PathFinding { class SpatialHashGrid; }
 // clang-format on
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 //! @brief Base class for all scenes that process input events of a specific type
@@ -50,6 +50,6 @@ private:
   entt::dispatcher &m_nav_event_dispatcher;
 };
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene
 
 #endif // SRC_SCENECONTROL_SCENE_HPP_

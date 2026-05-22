@@ -7,7 +7,7 @@
 #include <nlohmann/json.hpp>
 #include <source_location>
 
-namespace ProceduralMaze::Render
+namespace Game::Render
 {
 
 UiData::UiData( const std::filesystem::path &map_file ) { deserialize( map_file ); }
@@ -190,4 +190,4 @@ void UiData::deserialize( const std::filesystem::path &scene_tiledata_path )
   }
 }
 
-} // namespace ProceduralMaze::Render
+} // namespace Game::Render

@@ -6,7 +6,7 @@
 #include <nlohmann/json_fwd.hpp>
 #include <source_location>
 
-namespace ProceduralMaze::Cmp::Persist
+namespace Game::Cmp::Persist
 {
 
 // Logging helpers - defined in BasePersistent.cpp
@@ -60,6 +60,6 @@ protected:
   std::string format{ "" };
 };
 
-} // namespace ProceduralMaze::Cmp::Persist
+} // namespace Game::Cmp::Persist
 
 #endif // __CMP_BASEPERSISTENT_HPP__

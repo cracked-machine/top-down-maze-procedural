@@ -4,7 +4,7 @@
 #include <Crypt/CryptPassageBlock.hpp>
 #include <cstddef>
 
-namespace ProceduralMaze::Sys::ProcGen
+namespace Game::Sys::ProcGen
 {
 
 //! @brief Max number of regions to split the game area for optimization with final dynamic scene update
@@ -39,6 +39,6 @@ private:
   std::array<BlockRegion, MAXREGIONS> m_list;
 };
 
-} // namespace ProceduralMaze::Sys::ProcGen
+} // namespace Game::Sys::ProcGen
 
 #endif // SRC_SYSTEMS_PROCGEN_PASSAGECACHE_HPP_

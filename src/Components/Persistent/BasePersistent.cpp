@@ -3,7 +3,7 @@
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Cmp::Persist
+namespace Game::Cmp::Persist
 {
 
 void log_msg( const std::string &msg, const std::source_location &loc )
@@ -128,4 +128,4 @@ template class BasePersistent<uint16_t>;
 template class BasePersistent<uint32_t>;
 template class BasePersistent<uint64_t>;
 
-} // namespace ProceduralMaze::Cmp::Persist
+} // namespace Game::Cmp::Persist

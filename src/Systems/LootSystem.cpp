@@ -28,7 +28,7 @@
 #include <Systems/Render/RenderSystem.hpp>
 #include <Utils/Optimizations.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 LootSystem::LootSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -147,4 +147,4 @@ void LootSystem::check_loot_collision()
   }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

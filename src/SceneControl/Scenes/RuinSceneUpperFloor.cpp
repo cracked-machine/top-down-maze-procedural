@@ -36,7 +36,7 @@
 #include <Utils/Constants.hpp>
 #include <Utils/Player.hpp>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 void RuinSceneUpperFloor::on_init()
@@ -166,4 +166,4 @@ void RuinSceneUpperFloor::reinit_navmesh()
 
 entt::registry &RuinSceneUpperFloor::registry() { return m_reg; }
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene

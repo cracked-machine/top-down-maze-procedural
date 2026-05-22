@@ -9,14 +9,14 @@
 #include <SFML/Window/Window.hpp>
 
 // clang-format off
-namespace ProceduralMaze::Cmp { class Position; class RectBounds; }
+namespace Game::Cmp { class Position; class RectBounds; }
 namespace sf { class RenderWindow; }
-namespace ProceduralMaze::PathFinding { class SpatialHashGrid; } 
-namespace ProceduralMaze::Sprites { class SpriteSheet; class SpriteFactory; }
-namespace ProceduralMaze::Scene { class SceneData; }
+namespace Game::PathFinding { class SpatialHashGrid; } 
+namespace Game::Sprites { class SpriteSheet; class SpriteFactory; }
+namespace Game::Scene { class SceneData; }
 // clang-format on
 
-namespace ProceduralMaze::Sys::ProcGen
+namespace Game::Sys::ProcGen
 {
 
 class RandomLevelGenerator : public BaseSystem
@@ -78,6 +78,6 @@ private:
   PathFinding::SpatialHashGridUniquePtr m_void_sm;
 };
 
-} // namespace ProceduralMaze::Sys::ProcGen
+} // namespace Game::Sys::ProcGen
 
 #endif // SRC_SYSTEMS_PROCGEN_RANDOMLEVELGENERATOR_HPP_

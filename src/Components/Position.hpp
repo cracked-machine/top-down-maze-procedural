@@ -4,7 +4,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 //! @brief Component used to contain a grid position (in pixels). Also contains the size of the grid square (usually 16x16px)
@@ -19,6 +19,6 @@ public:
   float y() { return position.y; }
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __COMPONENTS_POSITION_HPP__

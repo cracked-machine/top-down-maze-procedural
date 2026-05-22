@@ -10,12 +10,12 @@
 #include <Systems/BaseSystem.hpp>
 
 // clang-format off
-namespace ProceduralMaze::Sprites { class SpriteFactory; }
-namespace ProceduralMaze::Sys { class Store; }
-namespace ProceduralMaze::Audio { class SoundBank; }
+namespace Game::Sprites { class SpriteFactory; }
+namespace Game::Sys { class Store; }
+namespace Game::Audio { class SoundBank; }
 // clang-format on
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class SceneInputRouter : public Sys::BaseSystem
@@ -62,6 +62,6 @@ private:
   void toggle_particle_test( bool enable );
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // __INPUT_EVENT_HANDLER_HPP__

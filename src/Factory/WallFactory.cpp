@@ -11,7 +11,7 @@
 #include <Utils/Constants.hpp>
 #include <entt/entity/registry.hpp>
 
-namespace ProceduralMaze::Factory
+namespace Game::Factory
 {
 
 void add_wall_entity( entt::registry &reg, const sf::Vector2f &pos, const Sprites::SpriteSheet &ms, std::size_t sprite_index, SolidWall solid_wall )
@@ -73,4 +73,4 @@ entt::entity add_solid_npc( entt::registry &reg, sf::FloatRect rect )
   return entt;
 }
 
-} // namespace ProceduralMaze::Factory
+} // namespace Game::Factory

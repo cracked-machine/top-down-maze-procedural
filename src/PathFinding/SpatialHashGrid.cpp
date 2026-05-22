@@ -2,7 +2,7 @@
 
 #include <Components/Position.hpp>
 
-namespace ProceduralMaze::PathFinding
+namespace Game::PathFinding
 {
 
 void SpatialHashGrid::insert( entt::entity e, const Cmp::Position &pos )
@@ -87,4 +87,4 @@ long long SpatialHashGrid::encode( int x, int y ) const
   return ( static_cast<long long>( x ) << 32 ) | static_cast<unsigned int>( y );
 }
 
-} // namespace ProceduralMaze::PathFinding
+} // namespace Game::PathFinding

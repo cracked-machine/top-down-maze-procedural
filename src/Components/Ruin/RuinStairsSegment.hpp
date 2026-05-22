@@ -1,7 +1,7 @@
 #ifndef SRC_COMPONENTS_RUINSTAIRSSEGMENT_HPP_
 #define SRC_COMPONENTS_RUINSTAIRSSEGMENT_HPP_
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 // Mainly used to distinguish between 16x16 block Ruin Stairs segments for the purpose of collision detection
@@ -21,6 +21,6 @@ private:
   bool m_solid_mask{ true };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_RUINSTAIRSSEGMENT_HPP_

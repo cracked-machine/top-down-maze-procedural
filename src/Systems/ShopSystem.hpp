@@ -7,7 +7,7 @@
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class ShopSystem : public BaseSystem
@@ -15,7 +15,7 @@ class ShopSystem : public BaseSystem
 public:
   ShopSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
               entt::dispatcher &scenemanager_event_dispatcher )
-      : ProceduralMaze::Sys::BaseSystem( reg, window, sprite_factory, sound_bank ),
+      : Game::Sys::BaseSystem( reg, window, sprite_factory, sound_bank ),
         m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
   {
     get_systems_event_queue().sink<Events::BuyShopItemEvent>().connect<&ShopSystem::on_buy_shop_item>( this );
@@ -62,6 +62,6 @@ private:
   Cmp::ShopInventory::Config m_shop_inventory_config;
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_SHOPSYSTEM_HPP_

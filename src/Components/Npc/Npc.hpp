@@ -6,7 +6,7 @@
 
 #include <typeindex>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class NPC
@@ -35,6 +35,6 @@ public:
   //! @brief The action and its effects that can be applied to the player
   std::unordered_map<std::type_index, ActionTimePair> actions;
 };
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __COMPONENTS_NPC_HPP__

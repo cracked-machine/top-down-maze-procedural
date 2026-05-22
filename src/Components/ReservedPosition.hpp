@@ -8,7 +8,7 @@
 #include <Components/Position.hpp>
 #include <Factory/SpriteFactory.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 //! @brief Used to prevent algorithmic changes to this entities components.
@@ -20,6 +20,6 @@ public:
   bool reserved{ true };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __CMP_RESERVED_POSITION_HPP__

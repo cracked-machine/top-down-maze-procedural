@@ -6,7 +6,7 @@
 
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Sys::ProcGen
+namespace Game::Sys::ProcGen
 {
 
 void CellAutomataSystem::iterate( unsigned int iterations, RandomLevelGenerator::SceneType scene_type,
@@ -64,4 +64,4 @@ void CellAutomataSystem::iterate( unsigned int iterations, RandomLevelGenerator:
   SPDLOG_DEBUG( "Total Iterations: {}", iterations );
 }
 
-} // namespace ProceduralMaze::Sys::ProcGen
+} // namespace Game::Sys::ProcGen

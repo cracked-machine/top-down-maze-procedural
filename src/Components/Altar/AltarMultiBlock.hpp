@@ -5,7 +5,7 @@
 
 #include <Components/Obstacle.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 // AltarMultiBlock component represents a multi-block sprite defined geometrically as a rectangle
@@ -48,6 +48,6 @@ private:
   bool m_cryptkey_drop_lockout{ false };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_ALTARMULTIBLOCK_HPP__

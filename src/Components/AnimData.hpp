@@ -4,7 +4,7 @@
 #include <SFML/System/Time.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 enum class AnimType { LOOP, ONESHOTRESET, ONESHOTHOLD };
@@ -70,6 +70,6 @@ private:
   size_t m_frame_index_offset;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMPS_ANIMDATA_HPP_

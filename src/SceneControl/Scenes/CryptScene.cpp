@@ -30,7 +30,7 @@
 #include <Systems/Threats/ShockwaveSystem.hpp>
 #include <Utils/Player.hpp>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 void CryptScene::on_init()
@@ -149,4 +149,4 @@ entt::registry &CryptScene::registry() { return m_reg; }
 
 sf::Clock CryptScene::s_maze_timer;
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene

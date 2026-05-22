@@ -11,13 +11,13 @@
 
 #include <entt/entity/registry.hpp>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 class SpriteFactory;
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
-namespace ProceduralMaze::Factory
+namespace Game::Factory
 {
 
 void create_loot_container( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
@@ -92,6 +92,6 @@ void destroy_loot_drop( entt::registry &registry, entt::entity loot_entity );
 // Iterate and generate loot containers
 std::vector<entt::entity> gen_loot_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size );
 
-} // namespace ProceduralMaze::Factory
+} // namespace Game::Factory
 
 #endif // SRC_FACTORY_LOOTFACTORY_HPP__

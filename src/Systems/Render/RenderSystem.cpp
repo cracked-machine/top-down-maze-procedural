@@ -17,7 +17,7 @@
 #include <entt/entity/fwd.hpp>
 #include <imgui-SFML.h>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 RenderSystem::RenderSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -164,4 +164,4 @@ void RenderSystem::draw_world( const sf::Drawable &drawable )
 
 sf::View RenderSystem::s_world_view{};
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

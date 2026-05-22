@@ -3,7 +3,7 @@
 
 #include <Components/Persistent/BasePersistent.hpp>
 
-namespace ProceduralMaze::Cmp::Persist
+namespace Game::Cmp::Persist
 {
 
 //! @brief A percentage of damage that should be done to an item that is hit by player with tools
@@ -17,6 +17,6 @@ struct DiggingDamagePerHit : public BasePersistent<uint8_t>
   const std::string get_detail() const override { return ""; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persist
+} // namespace Game::Cmp::Persist
 
 #endif // _PERSISTENT_DIGGING_DAMAGE_PER_HIT_HPP__

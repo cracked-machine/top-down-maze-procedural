@@ -6,12 +6,12 @@
 #include <SFML/System/Vector2.hpp>
 #include <entt/entity/fwd.hpp>
 
-namespace ProceduralMaze::PathFinding
+namespace Game::PathFinding
 {
 class SpatialHashGrid;
 }
 
-namespace ProceduralMaze::Sprites::Containers
+namespace Game::Sprites::Containers
 {
 
 class VertexFloor : public sf::Drawable, public sf::Transformable
@@ -36,6 +36,6 @@ private:
   sf::Clock m_clock{};
 };
 
-} // namespace ProceduralMaze::Sprites::Containers
+} // namespace Game::Sprites::Containers
 
 #endif // SRC_SPRITES_TILEMAP_HPP_

@@ -5,7 +5,7 @@
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class AltarSystem : public BaseSystem
@@ -30,6 +30,6 @@ private:
   const sf::Time kActivationCooldownSeconds{ sf::seconds( 3.f ) };
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_ALTARSYSTEM_HPP__

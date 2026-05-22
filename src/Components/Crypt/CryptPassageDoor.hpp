@@ -4,7 +4,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 enum class CryptPassageDirection { NORTH, EAST, WEST, SOUTH };
@@ -31,6 +31,6 @@ public:
   CryptPassageDirection m_direction;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_CRYPTPASSAGEDOOR_HPP

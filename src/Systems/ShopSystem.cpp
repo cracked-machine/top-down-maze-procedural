@@ -34,9 +34,9 @@ namespace nlohmann
 {
 //! @brief ADL hook used via nlohmann::basic_json::get (see ShopSystem::load_config below)
 template <>
-struct adl_serializer<ProceduralMaze::Cmp::ShopInventory::Config>
+struct adl_serializer<Game::Cmp::ShopInventory::Config>
 {
-  static void from_json( const json &j, ProceduralMaze::Cmp::ShopInventory::Config &c )
+  static void from_json( const json &j, Game::Cmp::ShopInventory::Config &c )
   {
     // get the json object for "inventory_config"
     if ( not j.contains( "inventory_config" ) ) throw std::runtime_error( "Missing 'inventory_config' from JSON scene config file" );
@@ -107,7 +107,7 @@ struct adl_serializer<ProceduralMaze::Cmp::ShopInventory::Config>
 };
 } // namespace nlohmann
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 void ShopSystem::load_config( const std::filesystem::path &config_path )
@@ -240,4 +240,4 @@ void ShopSystem::buy_shop_item( uint8_t item_idx )
   }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

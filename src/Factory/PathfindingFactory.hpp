@@ -3,12 +3,12 @@
 
 #include <PathFinding/SmartPointers.hpp>
 
-namespace ProceduralMaze::Pathfinding::Factory
+namespace Game::Pathfinding::Factory
 {
 
 PathFinding::SpatialHashGridSharedPtr create_restricted_navmesh( entt::registry &reg );
 PathFinding::SpatialHashGridSharedPtr create_open_navmesh( entt::registry &reg );
 
-} // namespace ProceduralMaze::Pathfinding::Factory
+} // namespace Game::Pathfinding::Factory
 
 #endif // SRC_FACTORY_PATHFINDINGFACTORY_HPP_

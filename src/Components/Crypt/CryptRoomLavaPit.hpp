@@ -4,7 +4,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class CryptRoomLavaPit : public sf::FloatRect
@@ -25,6 +25,6 @@ private:
   sf::FloatRect m_bounds;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_CRYPTROOMLAVAPIT_HPP

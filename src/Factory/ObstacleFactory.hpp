@@ -5,13 +5,13 @@
 #include <Sprites/SpriteMetaType.hpp>
 #include <entt/fwd.hpp>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 class SpriteSheet;
 class SpriteFactory;
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
-namespace ProceduralMaze::Factory
+namespace Game::Factory
 {
 
 entt::entity create_world_pos( entt::registry &registry, const sf::Vector2f &pos );
@@ -31,6 +31,6 @@ void create_obstacle( entt::registry &registry, entt::entity entity, Cmp::Positi
 //! @param obstacle_entity
 void remove_obstacle( entt::registry &registry, entt::entity obstacle_entity );
 
-} // namespace ProceduralMaze::Factory
+} // namespace Game::Factory
 
 #endif // SRC_FACTORY_OBSTACLEFACTORY_HPP

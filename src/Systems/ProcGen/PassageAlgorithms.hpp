@@ -8,7 +8,7 @@
 #include <Systems/ProcGen/PassageCache.hpp>
 #include <optional>
 
-namespace ProceduralMaze::Sys::ProcGen
+namespace Game::Sys::ProcGen
 {
 enum class AllowDuplicatePassages { YES, NO };
 enum class OnePassagePerTargetRoom { YES, NO };
@@ -68,6 +68,6 @@ private:
   std::vector<sf::FloatRect> m_cached_wall_components;
 };
 
-} // namespace ProceduralMaze::Sys::ProcGen
+} // namespace Game::Sys::ProcGen
 
 #endif // SRC_SYSTEMS_PROCGEN_PASSAGEALGO_HPP_

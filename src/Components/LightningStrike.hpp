@@ -4,7 +4,7 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/System/Time.hpp>
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 struct LightningStrike
@@ -32,6 +32,6 @@ struct LightningStrike
   sf::Clock timer;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMPS_LIGHTNINGSTRIKE_HPP_

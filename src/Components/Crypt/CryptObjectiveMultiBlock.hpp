@@ -5,7 +5,7 @@
 
 #include <Components/Obstacle.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 // CryptObjectiveMultiBlock component represents a multi-block sprite defined geometrically as a rectangle
@@ -32,6 +32,6 @@ private:
   uint8_t m_activation_count{ 0 };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_CRYPTOBJECTIVEMULTIBLOCK_HPP__

@@ -2,7 +2,7 @@
 #include <cmath>
 #include <numbers>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 Shockwave::Shockwave( sf::Vector2f pos, int points_per_segment )
@@ -73,4 +73,4 @@ void Shockwave::invalidateAllSegments()
   }
 }
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites

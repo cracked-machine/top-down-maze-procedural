@@ -59,7 +59,7 @@
 #include <spdlog/spdlog.h>
 #include <typeindex>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 NpcSystem::NpcSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -623,4 +623,4 @@ void NpcSystem::checkShockwaveObstacleCollision( [[maybe_unused]] entt::entity s
   }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

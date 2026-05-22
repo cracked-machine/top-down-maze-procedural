@@ -38,7 +38,7 @@
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 void RuinSceneLowerFloor::on_init()
@@ -211,4 +211,4 @@ void RuinSceneLowerFloor::reinit_navmesh()
 
 entt::registry &RuinSceneLowerFloor::registry() { return m_reg; }
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene

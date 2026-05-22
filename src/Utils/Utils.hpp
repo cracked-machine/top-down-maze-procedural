@@ -17,7 +17,7 @@ class RenderWindow;
 class View;
 } // namespace sf
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 class RectBounds;
 class PlayerHealth;
@@ -29,9 +29,9 @@ class PlayerRuinLocation;
 class ZOrderValue;
 class System;
 class LerpPosition;
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
-namespace ProceduralMaze::Utils
+namespace Game::Utils
 {
 
 enum class Rounding { TOWARDS_ZERO, AWAY_ZERO, NEAREST };
@@ -60,6 +60,6 @@ std::optional<sf::Vector2<Signedness>> getGridPosition( entt::registry &registry
 extern template std::optional<sf::Vector2<int>> getGridPosition( entt::registry &, entt::entity );
 extern template std::optional<sf::Vector2<unsigned int>> getGridPosition( entt::registry &, entt::entity );
 
-} // namespace ProceduralMaze::Utils
+} // namespace Game::Utils
 
 #endif // SRC_UTILS_UTILS_HPP__

@@ -12,7 +12,7 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 BaseStore::BaseStore( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -61,4 +61,4 @@ Cmp::Stats::Disease BaseStore::disease( const nlohmann::json &item )
   return { .type = Cmp::Stats::DiseaseType::NONE, .tick = 0.f };
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

@@ -1,7 +1,7 @@
 #ifndef SRC_COMPONENTS_SPAWNAREA_HPP__
 #define SRC_COMPONENTS_SPAWNAREA_HPP__
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class SpawnArea
@@ -19,6 +19,6 @@ private:
   bool m_solid_mask{ true };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_SPAWNAREA_HPP__

@@ -5,7 +5,7 @@
 
 #include <Components/Obstacle.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 // HolyWellMultiBlock component represents a multi-block sprite defined geometrically as a rectangle
@@ -20,6 +20,6 @@ public:
   }
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_HOLYWELLMULTIBLOCK_HPP__

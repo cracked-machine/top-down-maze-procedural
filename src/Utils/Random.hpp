@@ -13,7 +13,7 @@
 #include <spdlog/spdlog.h>
 #include <sstream>
 
-namespace ProceduralMaze::Utils::Rnd
+namespace Game::Utils::Rnd
 {
 
 // Helper structs for variadic template parameter packs
@@ -191,6 +191,6 @@ entt::entity get_random_nearby_disabled_obstacle( entt::registry &reg, sf::Float
   SPDLOG_WARN( "Failed to find nearby disabled obstacle for [{},{}].", search_area.position.x, search_area.position.y );
   return entt::null;
 }
-} // namespace ProceduralMaze::Utils::Rnd
+} // namespace Game::Utils::Rnd
 
 #endif // SRC_UTILS_RANDOM_HPP__

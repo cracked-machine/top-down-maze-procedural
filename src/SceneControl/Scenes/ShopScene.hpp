@@ -10,11 +10,11 @@
 #include <Utils/Utils.hpp>
 
 // clang-format off
-namespace ProceduralMaze::Sys { class Store; }
-namespace ProceduralMaze::Audio { class SoundBank; }
+namespace Game::Sys { class Store; }
+namespace Game::Audio { class SoundBank; }
 // clang-format on
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 class ShopScene : public Scene<Events::ProcessShopSceneInputEvent>
@@ -53,6 +53,6 @@ private:
   bool m_overlay_open{ false };
 };
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene
 
 #endif // SRC_SCENECONTROL_SCENES_SHOPSCENE_HPP_

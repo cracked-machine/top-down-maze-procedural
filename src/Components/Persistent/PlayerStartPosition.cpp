@@ -2,7 +2,7 @@
 #include <nlohmann/json.hpp>
 #include <sstream>
 
-namespace ProceduralMaze::Cmp::Persist
+namespace Game::Cmp::Persist
 {
 
 PlayerStartPosition::PlayerStartPosition( sf::Vector2f pos )
@@ -42,4 +42,4 @@ nlohmann::json PlayerStartPosition::serialize() const
   return json_data;
 }
 
-} // namespace ProceduralMaze::Cmp::Persist
+} // namespace Game::Cmp::Persist

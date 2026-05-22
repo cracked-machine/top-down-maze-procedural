@@ -3,7 +3,7 @@
 
 #include <SFML/System/Time.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class PlayerLevelDepth
@@ -29,6 +29,6 @@ private:
   unsigned int m_level;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMPS_PLAYER_PLAYERLEVELDEPTH_HPP_

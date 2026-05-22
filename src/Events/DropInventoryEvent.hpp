@@ -1,7 +1,7 @@
 #ifndef SRC_EVENTS_DROPINVENTORYEVENT_
 #define SRC_EVENTS_DROPINVENTORYEVENT_
 
-namespace ProceduralMaze::Events
+namespace Game::Events
 {
 
 struct DropInventoryEvent
@@ -10,6 +10,6 @@ struct DropInventoryEvent
   sf::Vector2f drop_pos;
 };
 
-} // namespace ProceduralMaze::Events
+} // namespace Game::Events
 
 #endif // SRC_EVENTS_DROPINVENTORYEVENT_

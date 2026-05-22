@@ -5,7 +5,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <Utils.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class CryptRoomBase : public sf::FloatRect
@@ -83,6 +83,6 @@ public:
   std::unordered_map<CryptPassageDirection, CryptPassageDoor> m_connectors;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMP_CRYPT_CRYPTROOMBASE_

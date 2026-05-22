@@ -4,7 +4,7 @@
 #include <nlohmann/json_fwd.hpp>
 #include <string>
 
-namespace ProceduralMaze::Cmp::Persist
+namespace Game::Cmp::Persist
 {
 
 /**
@@ -77,6 +77,6 @@ public:
   virtual const std::string get_detail() const = 0;
 };
 
-} // namespace ProceduralMaze::Cmp::Persist
+} // namespace Game::Cmp::Persist
 
 #endif // __CMP_IBASEPERSISTENT_HPP__

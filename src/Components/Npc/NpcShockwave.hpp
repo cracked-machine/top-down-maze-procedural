@@ -3,7 +3,7 @@
 
 #include <Sprites/Shockwave.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class NpcShockwave
@@ -17,6 +17,6 @@ public:
   Sprites::Shockwave sprite;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMPS_NPCSHOCKWAVE_

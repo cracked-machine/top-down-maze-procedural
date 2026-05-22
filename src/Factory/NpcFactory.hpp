@@ -6,19 +6,19 @@
 #include <Sprites/SpriteMetaType.hpp>
 #include <entt/fwd.hpp>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 class SpriteSheet;
 class SpriteFactory;
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 class SpriteFactory;
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
-namespace ProceduralMaze::Factory
+namespace Game::Factory
 {
 
 void create_npc_container( entt::registry &registry, entt::entity entt, Cmp::Position pos_cmp, Sprites::SpriteMetaType sprite_type,
@@ -41,6 +41,6 @@ void create_shockwave( entt::registry &registry, entt::entity npc_entt );
 // Iterate and generate npc containers
 std::vector<entt::entity> gen_npc_containers( entt::registry &reg, Sprites::SpriteFactory &sprite_factory, sf::Vector2u map_grid_size );
 
-} // namespace ProceduralMaze::Factory
+} // namespace Game::Factory
 
 #endif // SRC_FACTORY_NPCFACTORY_HPP

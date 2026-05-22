@@ -3,13 +3,13 @@
 
 #include <SFML/System/Clock.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 struct NpcShockwaveTimer : sf::Clock
 {
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_SHOCKWAVETIMER_

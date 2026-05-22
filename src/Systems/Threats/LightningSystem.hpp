@@ -5,12 +5,12 @@
 #include <LightningStrike.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 class LightningStrike;
 }
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class LightningSystem : public BaseSystem
@@ -36,6 +36,6 @@ private:
   bool trigger_lightning{ false };
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEM_THREATS_LIGHTNINGSYSTEM_HPP_

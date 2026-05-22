@@ -4,7 +4,7 @@
 #include <Sprites/CircleSegment.hpp>
 #include <Utils/Constants.hpp>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 class Shockwave
@@ -110,6 +110,6 @@ private:
   void invalidateAllSegments();
 };
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
 #endif // SRC_SPRITES_SHOCKWAVE_

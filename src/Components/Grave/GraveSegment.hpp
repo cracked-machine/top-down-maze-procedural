@@ -1,7 +1,7 @@
 #ifndef __CMP__GRAVE_SEGMENT_HPP__
 #define __CMP__GRAVE_SEGMENT_HPP__
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 // Mainly used to distinguish between 16x16 block grave segments for the purpose of collision detection
@@ -21,6 +21,6 @@ private:
   bool m_solid_mask{ true };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __CMP__GRAVE_SEGMENT_HPP__

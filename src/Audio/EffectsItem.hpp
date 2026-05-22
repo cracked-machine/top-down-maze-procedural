@@ -5,7 +5,7 @@
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <memory>
 
-namespace ProceduralMaze::Audio
+namespace Game::Audio
 {
 
 struct EffectsData
@@ -35,6 +35,6 @@ struct EffectsData
   auto operator=( const EffectsData & ) -> EffectsData & = delete;
 };
 
-} // namespace ProceduralMaze::Audio
+} // namespace Game::Audio
 
 #endif // EFFECTS_ITEM_HPP

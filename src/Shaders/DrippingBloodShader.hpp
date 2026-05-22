@@ -6,7 +6,7 @@
 #include <Shaders/BaseShaderSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 class DrippingBloodShader : public BaseShaderSprite
@@ -30,6 +30,6 @@ public:
   void update( entt::registry &reg ) override;
 };
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
 #endif // SRC_SHADERSS_DRIPPINGBLOODSHADER_HPP_

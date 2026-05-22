@@ -5,7 +5,7 @@
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class HolyWellSystem : public BaseSystem
@@ -13,7 +13,7 @@ class HolyWellSystem : public BaseSystem
 public:
   HolyWellSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
                   entt::dispatcher &scenemanager_event_dispatcher )
-      : ProceduralMaze::Sys::BaseSystem( reg, window, sprite_factory, sound_bank ),
+      : Game::Sys::BaseSystem( reg, window, sprite_factory, sound_bank ),
         m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
   {
     std::ignore = get_systems_event_queue().sink<Events::PlayerActionEvent>().connect<&HolyWellSystem::on_player_action>( this );
@@ -40,6 +40,6 @@ private:
   sf::Time m_inventory_deposit_interval{};
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_HOLYWELLSYSTEM_HPP__

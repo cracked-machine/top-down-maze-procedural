@@ -6,7 +6,7 @@
 #include <Shaders/BaseShaderSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 class FloodWaterShader : public BaseShaderSprite
@@ -25,6 +25,6 @@ public:
   void update( entt::registry &reg ) override;
 };
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
 #endif // __SPRITES_FLOODERWATERSHADER_HPP__

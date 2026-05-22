@@ -4,7 +4,7 @@
 #include <Position.hpp>
 #include <utility>
 
-namespace ProceduralMaze::Events
+namespace Game::Events
 {
 
 struct CreateItemEvent
@@ -24,6 +24,6 @@ struct CreateItemEvent
   float m_zorder;
 };
 
-} // namespace ProceduralMaze::Events
+} // namespace Game::Events
 
 #endif // SRC_EVENTS_CREATEITEMEVENT_HPP_

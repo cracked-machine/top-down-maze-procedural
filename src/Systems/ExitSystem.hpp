@@ -9,7 +9,7 @@
 #include <Events/UnlockDoorEvent.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <Systems/BaseSystem.hpp>
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class ExitSystem : public BaseSystem
@@ -43,6 +43,6 @@ private:
   entt::dispatcher &m_scenemanager_event_dispatcher;
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_EXITSYSTEM_HPP__

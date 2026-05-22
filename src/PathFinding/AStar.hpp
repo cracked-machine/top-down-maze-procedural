@@ -6,7 +6,7 @@
 #include <entt/entity/entity.hpp>
 
 /// Main class
-namespace ProceduralMaze::PathFinding
+namespace Game::PathFinding
 {
 
 class SpatialHashGrid;
@@ -65,6 +65,6 @@ struct PathNode
 std::vector<PathNode> astar( entt::registry &reg, const PathFinding::SpatialHashGrid &grid, Cmp::Position start, Cmp::Position goal,
                              PathFinding::QueryCompass query_compass = PathFinding::QueryCompass::CARDINAL );
 
-} // namespace ProceduralMaze::PathFinding
+} // namespace Game::PathFinding
 
 #endif // SRC_PATHFINDING_ASTAR_HPP_

@@ -5,7 +5,7 @@
 #include <SFML/Graphics/BlendMode.hpp>
 #include <Systems/ParticleSystem.hpp>
 
-namespace ProceduralMaze::Cmp::Particle
+namespace Game::Cmp::Particle
 {
 
 //! @brief Implementation detail — do not use externally
@@ -29,6 +29,6 @@ public:
   void simulate( sf::Time dt ) override;
 };
 
-} // namespace ProceduralMaze::Cmp::Particle
+} // namespace Game::Cmp::Particle
 
 #endif // SRC_CMP_PARTICLE_SHOCKWAVE_HPP_

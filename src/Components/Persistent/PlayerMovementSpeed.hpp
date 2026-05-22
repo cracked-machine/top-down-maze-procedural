@@ -3,7 +3,7 @@
 
 #include <Components/Persistent/BasePersistent.hpp>
 
-namespace ProceduralMaze::Cmp::Persist
+namespace Game::Cmp::Persist
 {
 
 class PlayerMovementSpeed : public BasePersistent<float>
@@ -17,6 +17,6 @@ public:
   const std::string get_detail() const override { return detail; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persist
+} // namespace Game::Cmp::Persist
 
 #endif // SRC_CMPS_PERSISTENT_PLAYERMVOVEMENTSPEED_HPP_

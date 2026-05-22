@@ -1,12 +1,13 @@
 #ifndef INC_EVENTS_UNLOCKDOOREVENT_HPP__
 #define INC_EVENTS_UNLOCKDOOREVENT_HPP__
 
-namespace ProceduralMaze::Events {
+namespace Game::Events
+{
 
 struct UnlockDoorEvent
 {
 };
 
-} // namespace ProceduralMaze::Events
+} // namespace Game::Events
 
 #endif // INC_EVENTS_UNLOCKDOOREVENT_HPP__

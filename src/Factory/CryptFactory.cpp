@@ -26,7 +26,7 @@
 #include <Utils/Constants.hpp>
 #include <Utils/Random.hpp>
 
-namespace ProceduralMaze::Factory
+namespace Game::Factory
 {
 
 entt::entity create_crypt_exit( entt::registry &reg, sf::Vector2f spawn_pos_px )
@@ -90,7 +90,7 @@ void destroy_crypt_chest( entt::registry &reg, entt::entity entt )
 }
 
 void create_crypt_lava_pit( entt::registry &reg, const Cmp::CryptRoomOpen &room,
-                            std::shared_ptr<ProceduralMaze::PathFinding::SpatialHashGrid> pathfinding_navmesh )
+                            std::shared_ptr<Game::PathFinding::SpatialHashGrid> pathfinding_navmesh )
 {
   // add the lava pit area
   sf::Vector2f adjusted_position = { room.position.x + Constants::kGridSizePxF.x, room.position.y + Constants::kGridSizePxF.y };
@@ -126,7 +126,7 @@ void create_crypt_lava_pit( entt::registry &reg, const Cmp::CryptRoomOpen &room,
 }
 
 void destroy_crypt_lava_pit( entt::registry &reg, entt::entity entt,
-                             std::shared_ptr<ProceduralMaze::PathFinding::SpatialHashGrid> pathfinding_navmesh )
+                             std::shared_ptr<Game::PathFinding::SpatialHashGrid> pathfinding_navmesh )
 {
   auto *lava_pit_cmp = reg.try_get<Cmp::CryptRoomLavaPit>( entt );
   if ( lava_pit_cmp )
@@ -162,4 +162,4 @@ void add_spike_trap( entt::registry &reg, const entt::entity entt, const int pas
   reg.emplace_or_replace<Cmp::CryptPassageSpikeTrap>( spike_entt, position, passage_id );
 }
 
-} // namespace ProceduralMaze::Factory
+} // namespace Game::Factory

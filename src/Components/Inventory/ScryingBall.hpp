@@ -3,7 +3,7 @@
 
 #include <Components/Random.hpp>
 #include <vector>
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 struct SeeingStone
@@ -21,6 +21,6 @@ struct SeeingStone
   Target target{ Target::NONE };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMP_INVENTORY_SCRYINGBALL_HPP_

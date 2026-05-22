@@ -9,21 +9,21 @@
 
 #include <set>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 class CryptRoomEnd;
 class CryptRoomStart;
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
-class CryptSystem : public ProceduralMaze::Sys::BaseSystem
+class CryptSystem : public Game::Sys::BaseSystem
 {
 public:
   CryptSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
                entt::dispatcher &scenemanager_event_dispatcher )
-      : ProceduralMaze::Sys::BaseSystem( reg, window, sprite_factory, sound_bank ),
+      : Game::Sys::BaseSystem( reg, window, sprite_factory, sound_bank ),
         m_scenemanager_event_dispatcher( scenemanager_event_dispatcher )
   {
     // The entt::dispatcher is independent of the registry, so it is safe to bind event handlers in the constructor
@@ -185,5 +185,5 @@ private:
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 #endif // SRC_SYSTEMS_CRYPTSYSTEM_HPP__

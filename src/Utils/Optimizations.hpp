@@ -4,7 +4,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/View.hpp>
 
-namespace ProceduralMaze::Utils
+namespace Game::Utils
 {
 
 /**
@@ -49,6 +49,6 @@ constexpr inline bool is_visible_in_view( const sf::View &view, const sf::FloatR
   return viewBounds.findIntersection( position ).has_value();
 }
 
-} // namespace ProceduralMaze::Utils
+} // namespace Game::Utils
 
 #endif // SRC_UTILS_OPT_HPP__

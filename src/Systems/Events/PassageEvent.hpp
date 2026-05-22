@@ -3,7 +3,7 @@
 
 #include <entt/entity/entity.hpp>
 
-namespace ProceduralMaze::Events
+namespace Game::Events
 {
 
 // Event to lock a passage in the system
@@ -36,6 +36,6 @@ public:
   entt::entity entity;
 };
 
-} // namespace ProceduralMaze::Events
+} // namespace Game::Events
 
 #endif // SRC_SYSTEMS_EVENTS_PASSAGEEVENT_HPP_

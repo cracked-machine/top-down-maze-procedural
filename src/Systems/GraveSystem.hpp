@@ -5,12 +5,12 @@
 #include <Events/PlayerActionEvent.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 class PlayerCharacter;
 }
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class GraveSystem : public BaseSystem
@@ -30,6 +30,6 @@ public:
   sf::Clock m_dig_cooldown_clock;
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_GRAVESYSTEM_HPP__

@@ -3,7 +3,7 @@
 
 #include <Crypt/CryptRoomBase.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class CryptRoomClosed : public CryptRoomBase
@@ -15,6 +15,6 @@ public:
       : CryptRoomBase( position, size ) {};
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_CRYPTROOMCLOSED_HPP

@@ -1,7 +1,7 @@
 #ifndef SRC_CMPS_PLAYER_TORCHRADIUS_HPP_
 #define SRC_CMPS_PLAYER_TORCHRADIUS_HPP_
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 struct TorchRadius
@@ -9,6 +9,6 @@ struct TorchRadius
   float value;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMPS_PLAYER_TORCHRADIUS_HPP_

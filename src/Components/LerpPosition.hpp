@@ -3,7 +3,7 @@
 
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 //! @brief Holds in-motion lerp data for a given entity (player, npc, etc..)
@@ -23,6 +23,6 @@ struct LerpPosition
   sf::Vector2f m_start;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __CMP_LERPPOSITION_HPP__

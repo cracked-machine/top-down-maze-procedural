@@ -3,7 +3,7 @@
 #include <Shaders/DrippingBloodShader.hpp>
 #include <Shaders/TitleScreenShader.hpp>
 
-namespace ProceduralMaze::Factory::Shader
+namespace Game::Factory::Shader
 {
 
 void add_title( Sys::ShaderSystem &shader_sys, const Cmp::Persist::DisplayResolution &display_res )
@@ -54,4 +54,4 @@ void add_curse( Sys::ShaderSystem &shader_sys, sf::Vector2f map_size_pixel )
                                                                             map_size_pixel_2u );
   shader_sys.add( std::move( cursed_mode_shader ), Cmp::ZOrderValue( 20000.f ) );
 }
-} // namespace ProceduralMaze::Factory::Shader
+} // namespace Game::Factory::Shader

@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics/Font.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class Font : public sf::Font
@@ -12,6 +12,6 @@ public:
   Font( std::string font_path );
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __COMPONENTS_FONT_HPP__

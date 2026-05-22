@@ -9,26 +9,26 @@
 #include <entt/entity/fwd.hpp>
 
 // clang-format off
-namespace ProceduralMaze::Sprites { class SpriteFactory; }
-namespace ProceduralMaze::Sys { class Store; }
-namespace ProceduralMaze::Audio { class SoundBank; }
-namespace ProceduralMaze::Cmp { class Position; }
+namespace Game::Sprites { class SpriteFactory; }
+namespace Game::Sys { class Store; }
+namespace Game::Audio { class SoundBank; }
+namespace Game::Cmp { class Position; }
 
 // clang-format on
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 class Direction;
 class LerpPosition;
 class NpcShockwave;
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
-namespace ProceduralMaze::PathFinding
+namespace Game::PathFinding
 {
 class SpatialHashGrid;
 }
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class NpcSystem : public BaseSystem
@@ -106,6 +106,6 @@ private:
   PathFinding::SpatialHashGridWeakPtr m_open_navmesh;
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_NPCSYSTEM_HPP__

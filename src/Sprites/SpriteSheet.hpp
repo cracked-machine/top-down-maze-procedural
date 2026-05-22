@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 //! @brief Sprite dimensions with componentWiseMul support.
@@ -155,6 +155,6 @@ private:
   std::vector<bool> m_solid_mask;
 };
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
 #endif // SRC_SPRITES_MULTISPRITE_HPP_

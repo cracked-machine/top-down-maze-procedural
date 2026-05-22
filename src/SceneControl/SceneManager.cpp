@@ -20,7 +20,7 @@
 #include <SceneControl/Scenes/TitleScene.hpp>
 #include <Systems/Render/RenderSystem.hpp>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 SceneManager::SceneManager( sf::RenderWindow &w, Audio::SoundBank &sound_bank, Sys::Store &system_store, entt::dispatcher &nav_event_dispatcher,
@@ -341,4 +341,4 @@ void SceneManager::inject_current_scene_registry_into_systems()
   SPDLOG_INFO( "Injected registry into {} systems for {}", m_system_store.size(), m_scene_stack.current().get_name() );
 }
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene

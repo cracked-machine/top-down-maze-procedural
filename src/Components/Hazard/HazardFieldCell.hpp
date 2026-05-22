@@ -1,7 +1,8 @@
 #ifndef __CMP_HAZARDFIELDCELL_HPP__
 #define __CMP_HAZARDFIELDCELL_HPP__
 
-namespace ProceduralMaze::Cmp {
+namespace Game::Cmp
+{
 
 struct HazardFieldCell
 {
@@ -13,6 +14,6 @@ struct HazardFieldCell
   bool active{ true };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __CMP_HAZARDFIELDCELL_HPP__

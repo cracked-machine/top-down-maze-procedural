@@ -4,7 +4,7 @@
 #include <Components/Npc/NpcShockwave.hpp>
 #include <Components/Persistent/BasePersistent.hpp>
 
-namespace ProceduralMaze::Cmp::Persist
+namespace Game::Cmp::Persist
 {
 
 class NpcShockwaveMaxRadius : public BasePersistent<float>
@@ -18,6 +18,6 @@ public:
   const std::string get_detail() const override { return ""; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persist
+} // namespace Game::Cmp::Persist
 
 #endif // SRC_CMPS_PERSISTENT_NPCSHOCKWAVEMAXRADIUS_

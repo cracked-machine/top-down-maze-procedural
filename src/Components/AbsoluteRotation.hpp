@@ -3,7 +3,7 @@
 
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 //! @brief Component to store absolute rotation angle in degrees
@@ -23,6 +23,6 @@ private:
   float m_angle;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // INC_COMPONENTS_ABSOLUTEROTATION_HPP

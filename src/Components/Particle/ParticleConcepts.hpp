@@ -7,7 +7,7 @@
 #include <concepts>
 #include <type_traits>
 
-namespace ProceduralMaze::Cmp::Particle
+namespace Game::Cmp::Particle
 {
 
 class IParticle; // forward declare — avoid circular include
@@ -28,6 +28,6 @@ concept HasPrivateEmit = !requires( TParticle p, sf::Vector2f v, sf::Time t ) {
 template <typename TParticle>
 concept ParticleConcept = std::derived_from<TParticle, IParticle> && HasParticleMembers<TParticle> && HasPrivateEmit<TParticle>;
 
-} // namespace ProceduralMaze::Cmp::Particle
+} // namespace Game::Cmp::Particle
 
 #endif // SRC_CMPS_PARTICLE_PARTICLECONCEPTS_HPP_

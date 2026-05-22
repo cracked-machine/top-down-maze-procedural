@@ -13,7 +13,7 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 class SpriteSheet;
 class SpriteFactory;
@@ -23,30 +23,30 @@ class NightStaticShader;
 class MistShader;
 class DarkModeShader;
 class DrippingBloodShader;
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
-namespace ProceduralMaze::Sprites::Containers
+namespace Game::Sprites::Containers
 {
 class VertexFloor;
-} // namespace ProceduralMaze::Sprites::Containers
+} // namespace Game::Sprites::Containers
 
-namespace ProceduralMaze::PathFinding
+namespace Game::PathFinding
 {
 class SpatialHashGrid;
-} // namespace ProceduralMaze::PathFinding
+} // namespace Game::PathFinding
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 class ZOrderValue;
 class Position;
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
-namespace ProceduralMaze::Cmp::Particle
+namespace Game::Cmp::Particle
 {
 class IParticleSprite;
 }
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class RenderOverlaySystem;
@@ -147,6 +147,6 @@ private:
   std::vector<ZOrder> m_zorder_queue_;
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // __SYS_RENDERGAMESYSTEM_HPP__

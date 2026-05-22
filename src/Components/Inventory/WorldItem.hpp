@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <utility>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 //! @brief An item found in the world or placed in a players inventory slot.
@@ -35,6 +35,6 @@ public:
   std::unordered_map<std::type_index, ActionTimePair> actions;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_INVENTORY_CARRYITEM_HPP_

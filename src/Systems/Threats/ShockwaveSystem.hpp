@@ -7,7 +7,7 @@
 #include <Sprites/Shockwave.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class ShockwaveSystem : public BaseSystem
@@ -31,6 +31,6 @@ public:
   void on_resume() override {};
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_THREATS_SHOCKWAVESYSTEM_HPP_

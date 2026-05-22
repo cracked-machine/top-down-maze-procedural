@@ -3,7 +3,7 @@
 
 #include <Sprites/SpriteMetaType.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class RuinObjectiveType
@@ -16,6 +16,6 @@ public:
   Sprites::SpriteMetaType m_type;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMP_RUIN_RUINOBJECTIVETYPE_HPP_

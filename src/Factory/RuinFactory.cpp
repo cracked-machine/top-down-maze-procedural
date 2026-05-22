@@ -19,7 +19,7 @@
 #include <Utils/Random.hpp>
 #include <entt/entity/registry.hpp>
 
-namespace ProceduralMaze::Factory
+namespace Game::Factory
 {
 
 void create_bookcase( entt::registry &reg, sf::Vector2f spawn_position, const Sprites::SpriteSheet &bookcase_ms, int sprite_index )
@@ -92,4 +92,4 @@ void create_shadow_hand( entt::registry &reg, sf::Vector2f scene_dimensions, con
   }
 }
 
-} // namespace ProceduralMaze::Factory
+} // namespace Game::Factory

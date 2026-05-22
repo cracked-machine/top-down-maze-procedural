@@ -11,7 +11,7 @@
 
 #include <entt/entity/fwd.hpp>
 
-namespace ProceduralMaze::Particle::Factory
+namespace Game::Particle::Factory
 {
 
 void add_test( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag );
@@ -21,6 +21,6 @@ void add_flame_for_player_inventory_slot( entt::registry &reg );
 void add_smoke( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag );
 void add_shockwave( entt::registry &reg, Sys::ParticleSystem &psys, const std::string &tag );
 
-} // namespace ProceduralMaze::Particle::Factory
+} // namespace Game::Particle::Factory
 
 #endif // SRC_FACTORY_PARTICLEFACTORY_HPP_

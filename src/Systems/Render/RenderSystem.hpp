@@ -19,12 +19,12 @@
 #include <Factory/SpriteFactory.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 class RectBounds;
 }
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class RenderSystem : public BaseSystem
@@ -137,6 +137,6 @@ protected:
   const int kImGuiWindowOptions = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // __SYSTEMS_RENDER_SYSTEM_HPP__

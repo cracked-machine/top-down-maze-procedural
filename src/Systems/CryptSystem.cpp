@@ -68,7 +68,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 void CryptSystem::setup()
@@ -1181,4 +1181,4 @@ void CryptSystem::spawn_npc_in_open_rooms( )
     return { end_room_view.front(), reg().get<Cmp::CryptRoomEnd>( end_room_view.front() )};
   }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

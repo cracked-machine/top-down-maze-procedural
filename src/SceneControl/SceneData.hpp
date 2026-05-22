@@ -5,7 +5,7 @@
 #include <Sprites/SpriteMetaType.hpp>
 #include <nlohmann/json_fwd.hpp>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 class SceneData
@@ -121,6 +121,6 @@ private:
   std::filesystem::path m_main_tileset_path{ "res/scenes/Tilesets/main.json" };
 };
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene
 
 #endif // SRC_SCENECONTROL_SCENEDATA_HPP_

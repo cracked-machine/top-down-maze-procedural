@@ -4,7 +4,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class CryptPassageBlock : public sf::Vector2f
@@ -20,6 +20,6 @@ public:
   unsigned int m_passage_id = 0;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_CRYPTPASSAGEBLOCK_HPP

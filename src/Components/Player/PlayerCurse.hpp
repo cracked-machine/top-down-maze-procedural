@@ -2,7 +2,7 @@
 #define SRC_CMPS_PLAYER_PLAYERCURSE_HPP_
 
 #include <Random.hpp>
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 struct PlayerCurse
@@ -33,6 +33,6 @@ struct PlayerCurse
 
   ShaderAlpha shader_alpha;
 };
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMPS_PLAYER_PLAYERCURSE_HPP_

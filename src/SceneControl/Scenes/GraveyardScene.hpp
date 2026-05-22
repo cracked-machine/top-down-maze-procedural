@@ -10,11 +10,11 @@
 #include <Utils/Utils.hpp>
 
 // clang-format off
-namespace ProceduralMaze::Sys { class Store; }
-namespace ProceduralMaze::Audio { class SoundBank; }
+namespace Game::Sys { class Store; }
+namespace Game::Audio { class SoundBank; }
 // clang-format on
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 class GraveyardScene : public Scene<Events::ProcessGraveyardSceneInputEvent>
@@ -50,6 +50,6 @@ private:
   void reinit_navmesh();
 };
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene
 
 #endif // SCENE_GRAVEYARDSCENE_HPP_

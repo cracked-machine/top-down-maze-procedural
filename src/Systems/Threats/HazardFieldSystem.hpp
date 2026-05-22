@@ -21,7 +21,7 @@
 //! Cmp::SinkholeCell) that instantly kill any entity that falls into them, and corruption fields
 //! (composed of many Cmp::CorruptionCell) that gradually drain health over time.
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 template <typename T>
@@ -89,6 +89,6 @@ private:
   const sf::Time m_update_period{ sf::seconds( 5.0f ) }; // seconds between adding new hazard fields
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_HAZARDFIELDSYSTEM_HPP__

@@ -16,7 +16,7 @@
 #include <Systems/Threats/LightningSystem.hpp>
 #include <Utils/Maths.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 LightningSystem::LightningSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
@@ -156,4 +156,4 @@ void LightningSystem::divide_lightning_segments( std::vector<std::vector<sf::Ver
   ls_seq = std::move( result );
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

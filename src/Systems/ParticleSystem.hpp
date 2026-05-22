@@ -10,7 +10,7 @@
 
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 // 1. Emission Stage:   - IParticle::emit()
@@ -84,6 +84,6 @@ private:
   void add_to_registry( Cmp::UUID &uuid_cmp, ParticleSpriteOwner owner, Cmp::ZOrderValue zorder );
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_PARTICLESYSTEM_HPP_

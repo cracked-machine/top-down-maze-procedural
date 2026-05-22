@@ -1,7 +1,7 @@
 #ifndef SRC_COMPONENTS_DESTROYEDOBSTACLE_HPP__
 #define SRC_COMPONENTS_DESTROYEDOBSTACLE_HPP__
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 struct DestroyedObstacle
@@ -9,6 +9,6 @@ struct DestroyedObstacle
   bool active{ true };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_DESTROYEDOBSTACLE_HPP__

@@ -3,7 +3,7 @@
 
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 // {1,0} right, {-1,0} left, {0,-1} up, {0,1} down
@@ -25,6 +25,6 @@ public:
   float x_offset = 0.f;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __COMPONENTS_DIRECTION_HPP__

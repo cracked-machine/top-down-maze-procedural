@@ -1,7 +1,7 @@
 #ifndef __CMP_NPC_LERP_SPEED_HPP__
 #define __CMP_NPC_LERP_SPEED_HPP__
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 struct NpcLerpSpeed
@@ -9,6 +9,6 @@ struct NpcLerpSpeed
   float speed;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __CMP_NPC_LERP_SPEED_HPP__

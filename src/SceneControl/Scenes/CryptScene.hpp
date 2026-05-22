@@ -10,12 +10,12 @@
 #include <SFML/System/Vector2.hpp>
 
 // clang-format off
-namespace ProceduralMaze::Sys { class Store; }
-namespace ProceduralMaze::Audio { class SoundBank; }
-namespace ProceduralMaze::Sprites { class SpriteFactory; }
+namespace Game::Sys { class Store; }
+namespace Game::Audio { class SoundBank; }
+namespace Game::Sprites { class SpriteFactory; }
 // clang-format on
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 class CryptScene : public Scene<Events::ProcessCryptSceneInputEvent>
@@ -54,6 +54,6 @@ private:
   constexpr static sf::Time s_maze_timer_cooldown{ sf::seconds( 10.f ) };
 };
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene
 
 #endif // SCENE_CRYPTSCENE_HPP_

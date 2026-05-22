@@ -1,6 +1,6 @@
 #ifndef SRC_SCENECONTROL_EVENTS_SCENEMANAGER_EVENT_HPP_
 #define SRC_SCENECONTROL_EVENTS_SCENEMANAGER_EVENT_HPP_
-namespace ProceduralMaze::Events
+namespace Game::Events
 {
 
 struct SceneManagerEvent
@@ -35,5 +35,5 @@ struct SceneManagerEvent
   }
 };
 
-} // namespace ProceduralMaze::Events
+} // namespace Game::Events
 #endif // SRC_SCENECONTROL_EVENTS_SCENEMANAGER_EVENT_HPP_

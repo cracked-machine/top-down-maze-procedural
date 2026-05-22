@@ -32,7 +32,7 @@
 #include <Utils/Constants.hpp>
 #include <entt/fwd.hpp>
 
-namespace ProceduralMaze::Factory
+namespace Game::Factory
 {
 
 template <typename T>
@@ -199,6 +199,6 @@ void add_multiblock_with_segments( entt::registry &reg, sf::Vector2f position, c
   }
 }
 
-} // namespace ProceduralMaze::Factory
+} // namespace Game::Factory
 
 #endif // SRC_FACTORY_MULTIBLOCKFACTORY_HPP

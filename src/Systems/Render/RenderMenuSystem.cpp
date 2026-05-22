@@ -67,7 +67,7 @@
 #include <imgui.h>
 #include <stdexcept>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 RenderMenuSystem::~RenderMenuSystem() = default;
@@ -362,4 +362,4 @@ void RenderMenuSystem::render_victory_screen( bool allow_continue )
   // main render end
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

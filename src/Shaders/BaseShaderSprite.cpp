@@ -1,7 +1,7 @@
 #include <Shaders/BaseShaderSprite.hpp>
 #include <utility>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 BaseShaderSprite::BaseShaderSprite( std::filesystem::path vertex_shader_path, std::filesystem::path frag_shader_path, sf::Vector2u texture_size )
@@ -65,4 +65,4 @@ void BaseShaderSprite::draw( sf::RenderTarget &target, sf::RenderStates states )
 
 //
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites

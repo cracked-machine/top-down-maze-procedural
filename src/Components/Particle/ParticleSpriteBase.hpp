@@ -6,7 +6,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <random>
 
-namespace ProceduralMaze::Cmp::Particle
+namespace Game::Cmp::Particle
 {
 
 enum class ViewType { SCREEN, WORLD };
@@ -240,7 +240,6 @@ public:
     }
     m_sprite_active = true;
     SPDLOG_INFO( "ParticleSprite is running." );
-
   }
 
   //! @brief Check if the Particles from this ParticleSprite colide with the target
@@ -455,6 +454,6 @@ private:
   sf::Vector2f m_emitter_position{ 0, 0 };
   ViewType m_view_type{ ViewType::WORLD };
 };
-} // namespace ProceduralMaze::Cmp::Particle
+} // namespace Game::Cmp::Particle
 
 #endif // SRC_SYSTEM_PARTICLESPRITEBASE_HPP_

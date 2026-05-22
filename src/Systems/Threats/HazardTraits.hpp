@@ -8,7 +8,7 @@
 #include <Components/Player/PlayerMortality.hpp>
 #include <Sprites/SpriteSheet.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 template <typename T>
@@ -38,6 +38,6 @@ struct HazardTraits<Cmp::CorruptionCell>
   static constexpr int odds = 7;
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_HAZARDTRAITS_HPP__

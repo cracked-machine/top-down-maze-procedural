@@ -6,7 +6,7 @@
 
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 // 1. Wormhole spawns at random location
@@ -46,6 +46,6 @@ public:
   void despawn_wormhole();
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_WORMHOLESYSTEM_HPP__

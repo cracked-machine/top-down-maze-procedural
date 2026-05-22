@@ -9,7 +9,7 @@
 #include <Systems/BaseSystem.hpp>
 #include <Utils/Constants.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 //! @brief  A wrapper class for sf::FloatRect that provides scaled bounds with position offset calculations.
@@ -138,6 +138,6 @@ private:
   ScaleAxis m_scale_scale_axis;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __CMP_RECTBOUNDS_HPP__

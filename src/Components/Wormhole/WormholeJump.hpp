@@ -3,7 +3,8 @@
 
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
-namespace ProceduralMaze::Cmp {
+namespace Game::Cmp
+{
 
 class WormholeJump
 {
@@ -13,6 +14,6 @@ public:
   bool active{ true };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __CMP_WORMHOLEJUMP_HPP__

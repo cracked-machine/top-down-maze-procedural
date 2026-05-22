@@ -6,7 +6,7 @@
 
 #include <Shaders/TitleScreenShader.hpp>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 void TitleScreenShader::update( entt::registry &reg )
@@ -24,4 +24,4 @@ void TitleScreenShader::update( entt::registry &reg )
   set_position( { 0, 0 } );
 }
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites

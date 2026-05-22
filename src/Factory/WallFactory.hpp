@@ -5,13 +5,13 @@
 #include <SFML/System/Vector2.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 class SpriteSheet;
 class SpriteFactory;
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
-namespace ProceduralMaze::Factory
+namespace Game::Factory
 {
 
 enum class SolidWall { FALSE = false, TRUE = true };
@@ -22,6 +22,6 @@ void add_nonpcpathfinding( entt::registry &reg, const sf::Vector2f &pos );
 void add_reservedposition( entt::registry &reg, const sf::Vector2f &pos );
 entt::entity add_solid_player( entt::registry &reg, sf::FloatRect rect );
 entt::entity add_solid_npc( entt::registry &reg, sf::FloatRect rect );
-} // namespace ProceduralMaze::Factory
+} // namespace Game::Factory
 
 #endif // SRC_FACTORY_WALLFACTORY_HPP_

@@ -1,7 +1,7 @@
 #ifndef SRC_CMP_PLAYER_PLAYER_SPEEDPENALTY_HPP_
 #define SRC_CMP_PLAYER_PLAYER_SPEEDPENALTY_HPP_
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 //! @brief  A percentage multipler is applied to the Player/Npc Lerp speed.
@@ -17,6 +17,6 @@ public:
   float m_penalty;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMP_PLAYER_PLAYER_SPEEDPENALTY_HPP_

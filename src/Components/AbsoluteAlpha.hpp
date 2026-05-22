@@ -4,7 +4,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <cstdint>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 //! @brief Component to store absolute alpha value
@@ -24,6 +24,6 @@ private:
   uint8_t m_alpha;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // INC_COMPONENTS_ABSOLUTEALPHA_HPP

@@ -5,7 +5,7 @@
 #include <Position.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class ShopInventory
@@ -69,6 +69,6 @@ public:
   bool is_enabled{ false };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMPS_SHOP_SHOPINVENTORY_HPP__

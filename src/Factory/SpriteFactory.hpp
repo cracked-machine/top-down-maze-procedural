@@ -9,7 +9,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 // This class manages the creation of SpriteSheet objects in the game.
@@ -80,8 +80,8 @@ private:
   //! This contains information about the error texture's properties
   SpriteSheet m_error_metadata;
 
-}; // namespace ProceduralMaze::Sprites
+}; // namespace Game::Sprites
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
 #endif // SRC_SPRITES_SPRITEFACTORY_HPP_

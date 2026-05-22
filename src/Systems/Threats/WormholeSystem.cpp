@@ -36,7 +36,7 @@
 
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 WormholeSystem::WormholeSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -325,4 +325,4 @@ void WormholeSystem::despawn_wormhole()
   }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

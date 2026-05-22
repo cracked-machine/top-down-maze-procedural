@@ -1,7 +1,7 @@
 #ifndef __COMPONENTS_SYSTEM_HPP__
 #define __COMPONENTS_SYSTEM_HPP__
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class System
@@ -18,6 +18,6 @@ public:
   bool particle_test_enabled = true;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __COMPONENTS_SYSTEM_HPP__

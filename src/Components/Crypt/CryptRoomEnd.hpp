@@ -7,7 +7,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <Utils.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class CryptRoomEnd : public CryptRoomBase
@@ -25,6 +25,6 @@ public:
   };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_CRYPTROOMEND_HPP

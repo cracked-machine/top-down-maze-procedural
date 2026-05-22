@@ -8,7 +8,7 @@
 
 #include <Shaders/DrippingBloodShader.hpp>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 void DrippingBloodShader::update( entt::registry &reg )
@@ -25,4 +25,4 @@ void DrippingBloodShader::update( entt::registry &reg )
   set_center_at_position( Utils::Player::get_position( reg ).position );
 }
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites

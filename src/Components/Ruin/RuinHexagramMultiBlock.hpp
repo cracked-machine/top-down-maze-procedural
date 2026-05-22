@@ -5,7 +5,7 @@
 
 #include <Components/Obstacle.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 // RuinMultiBlock component represents a multi-block sprite defined geometrically as a rectangle
@@ -19,6 +19,6 @@ public:
   }
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_RUINHEXAGRAMMULTIBLOCK_HPP_

@@ -3,7 +3,7 @@
 
 #include <Shaders/IShaderSprite.hpp>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 /**
@@ -102,6 +102,6 @@ private:
   bool m_active{ true };
 };
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
 #endif // __SPRITES_BASEFRAGMENTSHADER_HPP__

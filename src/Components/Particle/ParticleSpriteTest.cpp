@@ -2,7 +2,7 @@
 
 #include <random>
 
-namespace ProceduralMaze::Cmp::Particle
+namespace Game::Cmp::Particle
 {
 
 //! @brief Implementation detail — do not use externally
@@ -43,4 +43,4 @@ void ParticleSpriteTest::simulate( sf::Time dt )
   }
 }
 
-} // namespace ProceduralMaze::Cmp::Particle
+} // namespace Game::Cmp::Particle

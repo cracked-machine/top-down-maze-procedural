@@ -5,7 +5,7 @@
 #include <Components/Position.hpp>
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Events
+namespace Game::Events
 {
 
 class PlayerMortalityEvent
@@ -20,6 +20,6 @@ public:
   Cmp::Position m_death_pos;
 };
 
-} // namespace ProceduralMaze::Events
+} // namespace Game::Events
 
 #endif // SRC_EVENTS_PLAYERMORTALITYEVENT_

@@ -9,7 +9,7 @@
 #include <Systems/ShaderSystem.hpp>
 #include <ZOrderValue.hpp>
 
-namespace ProceduralMaze::Factory::Shader
+namespace Game::Factory::Shader
 {
 
 void add_title( Sys::ShaderSystem &shader_sys, const Cmp::Persist::DisplayResolution &display_res );
@@ -19,6 +19,6 @@ void add_night_static( Sys::ShaderSystem &shader_sys, sf::Vector2f map_size_pixe
 void add_dark( Sys::ShaderSystem &shader_sys, sf::Vector2f map_size_pixel );
 void add_curse( Sys::ShaderSystem &shader_sys, sf::Vector2f map_size_pixel );
 
-} // namespace ProceduralMaze::Factory::Shader
+} // namespace Game::Factory::Shader
 
 #endif // SRC_FACTORY_SHADERFACTORY_HPP_

@@ -2,7 +2,7 @@
 #define SRC_CMPS_STATS_PLAYERSTATS_HPP_
 
 #include <Stats/BaseAction.hpp>
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class PlayerStats
@@ -51,6 +51,6 @@ private:
   Stats::Disease m_disease{};
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMPS_STATS_PLAYERSTATS_HPP_

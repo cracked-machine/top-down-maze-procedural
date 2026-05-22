@@ -11,14 +11,14 @@
 #include <entt/fwd.hpp>
 
 // clang-format off
-namespace ProceduralMaze::Crypt { class CryptPassageDoor; class CryptPassageBlock; class CryptRoomClosed; class CryptRoomOpen; }
-namespace ProceduralMaze::Events { class PassageEvent; }
+namespace Game::Crypt { class CryptPassageDoor; class CryptPassageBlock; class CryptRoomClosed; class CryptRoomOpen; }
+namespace Game::Events { class PassageEvent; }
 // clang-format on
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
-class PassageSystem : public ProceduralMaze::Sys::BaseSystem
+class PassageSystem : public Game::Sys::BaseSystem
 {
 public:
   PassageSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank );
@@ -116,6 +116,6 @@ extern template ProcGen::MidPointDistanceQueue PassageSystem::find_room_distance
 extern template ProcGen::MidPointDistanceQueue PassageSystem::find_room_distances<Cmp::CryptRoomClosed>( Cmp::CryptPassageDoor &, const sf::FloatRect,
                                                                                                          std::set<entt::entity> );
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_PASSAGESYSTEM_HPP_

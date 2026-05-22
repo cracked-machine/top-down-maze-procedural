@@ -1,6 +1,6 @@
 #include <Audio/EffectsItem.hpp>
 #include <spdlog/spdlog.h>
-namespace ProceduralMaze::Audio
+namespace Game::Audio
 {
 
 EffectsData::EffectsData( const std::filesystem::path &filepath )
@@ -34,4 +34,4 @@ auto EffectsData::operator=( EffectsData &&other ) noexcept -> EffectsData &
   return *this;
 }
 
-} // namespace ProceduralMaze::Audio
+} // namespace Game::Audio

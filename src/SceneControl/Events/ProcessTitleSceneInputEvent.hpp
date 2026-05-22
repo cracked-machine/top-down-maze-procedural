@@ -1,13 +1,13 @@
 #ifndef _SRC_SCENECONTROL_EVENTS_PROCESSTITLESCENEINPUTEVENT_HPP_
 #define _SRC_SCENECONTROL_EVENTS_PROCESSTITLESCENEINPUTEVENT_HPP_
 
-namespace ProceduralMaze::Events
+namespace Game::Events
 {
 
 struct ProcessTitleSceneInputEvent
 {
 };
 
-} // namespace ProceduralMaze::Events
+} // namespace Game::Events
 
 #endif // _SRC_SCENECONTROL_EVENTS_PROCESSTITLESCENEINPUTEVENT_HPP_

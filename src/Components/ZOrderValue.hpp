@@ -1,7 +1,7 @@
 #ifndef SRC_COMPONENTS_ZORDERVALUE_HPP_
 #define SRC_COMPONENTS_ZORDERVALUE_HPP_
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class ZOrderValue
@@ -17,5 +17,5 @@ private:
   float zOrder;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 #endif // SRC_COMPONENTS_ZORDERVALUE_HPP_

@@ -5,7 +5,7 @@
 #include <Audio/MusicItem.hpp>
 #include <unordered_map>
 
-namespace ProceduralMaze::Audio
+namespace Game::Audio
 {
 
 class SoundBank
@@ -25,6 +25,6 @@ private:
   std::unordered_map<std::string, MusicData> music;
 };
 
-} // namespace ProceduralMaze::Audio
+} // namespace Game::Audio
 
 #endif // __SYS__FXSYSTEM_HPP__

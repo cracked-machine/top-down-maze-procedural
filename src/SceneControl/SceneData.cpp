@@ -10,9 +10,9 @@ namespace nlohmann
 {
 //! @brief Deserialize MainTileSet
 template <>
-struct adl_serializer<ProceduralMaze::Scene::SceneData::MainTileSet>
+struct adl_serializer<Game::Scene::SceneData::MainTileSet>
 {
-  static void from_json( const json &j, ProceduralMaze::Scene::SceneData::MainTileSet &ts )
+  static void from_json( const json &j, Game::Scene::SceneData::MainTileSet &ts )
   {
     if ( not j.contains( "tiles" ) ) throw std::runtime_error( "Missing JSON property 'tiles' in main tileset." );
     for ( const auto &tile : j.at( "tiles" ) )
@@ -47,9 +47,9 @@ struct adl_serializer<ProceduralMaze::Scene::SceneData::MainTileSet>
 
 //! @brief Deserialize FloorTileSet
 template <>
-struct adl_serializer<ProceduralMaze::Scene::SceneData::FloorTileSet>
+struct adl_serializer<Game::Scene::SceneData::FloorTileSet>
 {
-  static void from_json( const json &j, ProceduralMaze::Scene::SceneData::FloorTileSet &ts )
+  static void from_json( const json &j, Game::Scene::SceneData::FloorTileSet &ts )
   {
     if ( not j.contains( "image" ) ) throw std::runtime_error( "Missing JSON property: 'image' in floor tileset" );
     std::string image = j.at( "image" ).get<std::string>();
@@ -61,7 +61,7 @@ struct adl_serializer<ProceduralMaze::Scene::SceneData::FloorTileSet>
       if ( part == ".." || part == "." ) continue;
       result /= part;
     }
-    ts.tileset_image = ProceduralMaze::Constants::res_dir / result;
+    ts.tileset_image = Game::Constants::res_dir / result;
     if ( not j.contains( "properties" ) ) throw std::runtime_error( "Missing JSON property 'properties' in floor tileset" );
     for ( const auto &property : j.at( "properties" ) )
     {
@@ -86,9 +86,9 @@ struct adl_serializer<ProceduralMaze::Scene::SceneData::FloorTileSet>
 
 //! @brief Deserialize Tilemaps
 template <>
-struct adl_serializer<ProceduralMaze::Scene::SceneData::Data>
+struct adl_serializer<Game::Scene::SceneData::Data>
 {
-  static void from_json( const json &j, ProceduralMaze::Scene::SceneData::Data &md )
+  static void from_json( const json &j, Game::Scene::SceneData::Data &md )
   {
 
     //! @brief Misc layers
@@ -128,7 +128,7 @@ struct adl_serializer<ProceduralMaze::Scene::SceneData::Data>
     };
 
     //! @brief Multiblock layer
-    auto get_multiblock_list = [&]( const json &j, std::multimap<ProceduralMaze::Sprites::SpriteMetaType, sf::Vector2f> &out )
+    auto get_multiblock_list = [&]( const json &j, std::multimap<Game::Sprites::SpriteMetaType, sf::Vector2f> &out )
     {
       if ( not j.contains( "objects" ) ) throw std::runtime_error( "Missing JSON property 'objects' in multiblock layer" );
       try
@@ -138,7 +138,7 @@ struct adl_serializer<ProceduralMaze::Scene::SceneData::Data>
           if ( not object.contains( "name" ) ) throw std::runtime_error( "Missing JSON property 'name' in multiblock object layer" );
           if ( not object.contains( "x" ) ) throw std::runtime_error( "Missing JSON property 'x' in multiblock object layer" );
           if ( not object.contains( "y" ) ) throw std::runtime_error( "Missing JSON property 'y' in multiblock object layer" );
-          ProceduralMaze::Sprites::SpriteMetaType type( object.at( "name" ).get<std::string>() );
+          Game::Sprites::SpriteMetaType type( object.at( "name" ).get<std::string>() );
           sf::Vector2f pos( object.at( "x" ).get<float>(), object.at( "y" ).get<float>() );
           out.insert( { type, pos } );
         }
@@ -169,7 +169,7 @@ struct adl_serializer<ProceduralMaze::Scene::SceneData::Data>
 };
 } // namespace nlohmann
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 SceneData::SceneData( std::filesystem::path map_file ) { deserialize( map_file ); }
@@ -362,4 +362,4 @@ std::pair<sf::Vector2u, sf::Vector2f> SceneData::map_size() const
   // clang-format on
 }
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene

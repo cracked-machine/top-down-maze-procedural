@@ -3,7 +3,7 @@
 
 #include <Components/Persistent/BasePersistent.hpp>
 
-namespace ProceduralMaze::Cmp::Persist
+namespace Game::Cmp::Persist
 {
 
 //! @brief Controls the smoothing effect on the camera pan. Lower: smoother, Higher: snappier
@@ -18,6 +18,6 @@ struct CameraSmoothSpeed : BasePersistent<float>
   const std::string get_detail() const override { return ""; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persist
+} // namespace Game::Cmp::Persist
 
 #endif

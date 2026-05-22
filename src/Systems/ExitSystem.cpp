@@ -30,7 +30,7 @@
 
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 
 {
 ExitSystem::ExitSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank,
@@ -154,4 +154,4 @@ void ExitSystem::check_exit_collision()
   }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

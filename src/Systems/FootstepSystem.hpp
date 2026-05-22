@@ -9,7 +9,7 @@
 #include <Components/Position.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class FootstepSystem : public BaseSystem
@@ -39,6 +39,6 @@ private:
   sf::Clock update_clock{};
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_FOOTSTEPSYSTEM_HPP__

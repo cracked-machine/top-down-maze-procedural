@@ -12,7 +12,7 @@
 #include <spdlog/spdlog.h>
 #include <stdexcept>
 
-namespace ProceduralMaze::Sprites::Containers
+namespace Game::Sprites::Containers
 {
 
 void VertexFloor::draw( sf::RenderTarget &target, sf::RenderStates states ) const
@@ -172,4 +172,4 @@ void VertexFloor::remove( sf::Vector2f pos )
   m_vertices = std::move( new_vertices );
 }
 
-} // namespace ProceduralMaze::Sprites::Containers
+} // namespace Game::Sprites::Containers

@@ -3,7 +3,7 @@
 
 #include <Components/Persistent/BasePersistent.hpp>
 
-namespace ProceduralMaze::Cmp::Persist
+namespace Game::Cmp::Persist
 {
 
 //! @brief Controls how far into a lerp the player can still change direction
@@ -21,6 +21,6 @@ struct PlayerLerpInterruptThreshold : BasePersistent<float>
   const std::string get_detail() const override { return ""; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persist
+} // namespace Game::Cmp::Persist
 
 #endif // __CMP_PERSIST_PLAYERLERPINTERRUPTTHRESHOLD_HPP__

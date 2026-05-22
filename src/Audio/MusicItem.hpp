@@ -3,7 +3,8 @@
 
 #include <SFML/Audio/Music.hpp>
 
-namespace ProceduralMaze::Audio {
+namespace Game::Audio
+{
 
 struct MusicData
 {
@@ -13,6 +14,6 @@ struct MusicData
   MusicData( const std::filesystem::path &filepath );
 };
 
-} // namespace ProceduralMaze::Audio
+} // namespace Game::Audio
 
 #endif // MUSIC_ITEM_HPP

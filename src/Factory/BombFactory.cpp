@@ -12,7 +12,7 @@
 
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Factory
+namespace Game::Factory
 {
 
 entt::entity create_armed( entt::registry &reg, entt::entity entity, Cmp::Armed::EpiCenter epi_center, int sequence, int zorder )
@@ -71,4 +71,4 @@ void create_detonated( entt::registry &reg, entt::entity armed_entity, Cmp::Posi
   reg.emplace_or_replace<Cmp::DestroyedObstacle>( armed_entity );
 }
 
-} // namespace ProceduralMaze::Factory
+} // namespace Game::Factory

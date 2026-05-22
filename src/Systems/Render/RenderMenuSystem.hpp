@@ -7,12 +7,12 @@
 
 #include <SFML/System/Time.hpp>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 class TitleScreenShader;
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class RenderMenuSystem : public RenderSystem
@@ -55,6 +55,6 @@ public:
   void render_victory_screen( bool allow_continue );
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // __SYS_RENDERMENUSYSTEM_HPP__

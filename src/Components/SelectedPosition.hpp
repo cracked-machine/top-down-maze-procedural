@@ -3,7 +3,7 @@
 
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 //! @brief Used for marking an entity as selected by mouse pointer, e.g. when digging, etc...
@@ -16,6 +16,6 @@ public:
   }
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __COMPONENTS_SELECTED_POSITION_HPP__

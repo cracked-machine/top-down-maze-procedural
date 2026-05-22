@@ -13,7 +13,7 @@
 //      std::make_unique<Test::Logging::BasicLogController>("logger", "log.txt")
 // };
 
-namespace ProceduralMaze::Logging
+namespace Game::Logging
 {
 
 //! @brief A non-synchronous log controller using SPDLog
@@ -70,6 +70,6 @@ private:
                                                                                                           } ) ) };
 };
 
-} // namespace ProceduralMaze::Logging
+} // namespace Game::Logging
 
 #endif // __LOGGING_BASICLOGGER_HPP__

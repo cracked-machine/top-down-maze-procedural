@@ -1,7 +1,7 @@
 #ifndef SRC_COMPONENTS_HOLYWELLENTRANCE_HPP__
 #define SRC_COMPONENTS_HOLYWELLENTRANCE_HPP__
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 // Used for collision detection on crypt doors
@@ -21,6 +21,6 @@ private:
   bool m_is_open{ true };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_HOLYWELLENTRANCE_HPP__

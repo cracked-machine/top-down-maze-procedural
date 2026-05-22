@@ -1,7 +1,7 @@
 #ifndef SRC_COMPONENTS_CRYPTCHEST_HPP_
 #define SRC_COMPONENTS_CRYPTCHEST_HPP_
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 struct CryptChest
@@ -9,6 +9,6 @@ struct CryptChest
   bool open{ false };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif //  SRC_COMPONENTS_CRYPTCHEST_HPP_

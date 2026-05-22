@@ -61,7 +61,7 @@
 #include <cmath>
 #include <memory>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 void GraveyardScene::on_init()
@@ -266,4 +266,4 @@ void GraveyardScene::reinit_navmesh()
 
 entt::registry &GraveyardScene::registry() { return m_reg; }
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene

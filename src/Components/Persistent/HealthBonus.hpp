@@ -2,7 +2,7 @@
 #define __CMP_HEALTHBONUS_HPP__
 
 #include <Components/Persistent/BasePersistent.hpp>
-namespace ProceduralMaze::Cmp::Persist
+namespace Game::Cmp::Persist
 {
 
 class HealthBonus : public BasePersistent<uint8_t>
@@ -16,6 +16,6 @@ public:
   const std::string get_detail() const override { return ""; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persist
+} // namespace Game::Cmp::Persist
 
 #endif // __CMP_HEALTHBONUS_HPP__

@@ -3,13 +3,14 @@
 
 #include <SFML/System/Clock.hpp>
 
-namespace ProceduralMaze::Cmp {
+namespace Game::Cmp
+{
 
 struct FootStepTimer
 {
   sf::Clock m_clock;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __CMP_FOOTSTEPTIMER_HPP__

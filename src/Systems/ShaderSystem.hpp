@@ -4,7 +4,7 @@
 #include <Shaders/IShaderSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 #include <ZOrderValue.hpp>
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 //! @brief  This wraps ParticleSpriteBase<IParticle> so it can be emplaced/retrieved with the Entt registry as a single type.
@@ -48,6 +48,6 @@ private:
   std::vector<entt::entity> add_to_registry( ShaderSpriteOwner owner, Cmp::ZOrderValue zorder );
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_SHADERSYSTEM_HPP_

@@ -4,7 +4,7 @@
 #include <Factory/SpriteFactory.hpp>
 #include <Systems/Threats/HazardFieldSystem.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

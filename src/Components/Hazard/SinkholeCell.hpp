@@ -3,13 +3,13 @@
 
 #include <Components/Hazard/HazardFieldCell.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 struct SinkholeCell : public HazardFieldCell
 {
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __COMPONENTS_SINKHOLE_CELL_HPP__

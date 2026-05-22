@@ -2,7 +2,7 @@
 #define SRC_CMPS_UUID_HPP_
 
 #include <random>
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 //! @brief Use this component to associate two entities where persistance cannot be guaranteed with the entity id itself
@@ -42,5 +42,5 @@ struct UUID
   bool operator<=>( const UUID & ) const = default;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 #endif // SRC_CMPS_UUID_HPP_

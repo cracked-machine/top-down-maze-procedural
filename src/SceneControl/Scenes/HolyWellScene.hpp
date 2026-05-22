@@ -9,11 +9,11 @@
 #include <Utils/Utils.hpp>
 
 // clang-format off
-namespace ProceduralMaze::Sys { class Store; }
-namespace ProceduralMaze::Audio { class SoundBank; }
+namespace Game::Sys { class Store; }
+namespace Game::Audio { class SoundBank; }
 // clang-format on
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 class HolyWellScene : public Scene<Events::ProcessHolyWellSceneInputEvent>
@@ -46,6 +46,6 @@ private:
   Sprites::SpriteFactory &m_sprite_factory;
 };
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene
 
 #endif // SCENE_HOLYWELLSCENE_HPP_

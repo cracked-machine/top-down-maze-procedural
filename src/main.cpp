@@ -9,12 +9,12 @@ int main()
   // Logging: make sure errors - exceptions and failed asserts - go to log file
   fclose( stderr );
 
-  using Logger = ProceduralMaze::Logging::BasicLogController;
+  using Logger = Game::Logging::BasicLogController;
   std::unique_ptr<Logger> logger{ std::make_unique<Logger>( "logger", "log.txt" ) };
   spdlog::set_level( spdlog::level::trace );
 
   SPDLOG_DEBUG( "Entering Engine" );
 
-  ProceduralMaze::Engine engine;
+  Game::Engine engine;
   engine.run();
 }

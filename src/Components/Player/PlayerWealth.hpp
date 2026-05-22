@@ -2,7 +2,7 @@
 #define __CMP_PLAYERWEALTH_HPP__
 
 #include <cstdint>
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class PlayerWealth
@@ -17,6 +17,6 @@ public:
   int32_t wealth{ 0 };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __CMP_PLAYERWEALTH_HPP__

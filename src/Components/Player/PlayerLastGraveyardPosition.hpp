@@ -3,7 +3,7 @@
 
 #include <Components/Position.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class PlayerLastGraveyardPosition : public Cmp::Position
@@ -15,6 +15,6 @@ public:
   }
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_PLAYER_PLAYERLASTGRAVEYARDPOSITION_HPP_

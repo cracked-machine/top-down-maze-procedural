@@ -13,13 +13,13 @@
 
 // Forward declarations only
 // clang-format off
-namespace ProceduralMaze::Sprites { class SpriteFactory; }
-namespace ProceduralMaze::Audio { class SoundBank; }
+namespace Game::Sprites { class SpriteFactory; }
+namespace Game::Audio { class SoundBank; }
 namespace sf { class RenderWindow; }
-namespace ProceduralMaze::Sys::ProcGen { class CellAutomataSystem; class RandomLevelGenerator; }
+namespace Game::Sys::ProcGen { class CellAutomataSystem; class RandomLevelGenerator; }
 // clang-format on
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 // Forward declare all system classes
@@ -128,7 +128,7 @@ template<> struct Store::SystemTraits<Store::Type::AnimSystem>             { usi
 template<> struct Store::SystemTraits<Store::Type::BombSystem>             { using type = BombSystem; };
 template<> struct Store::SystemTraits<Store::Type::CellAutomataSystem>     { using type = ProcGen::CellAutomataSystem; };
 template<> struct Store::SystemTraits<Store::Type::CorruptionHazardSystem> { using type = CorruptionHazardSystem; };
-template<> struct Store::SystemTraits<Store::Type::CryptSystem>            { using type = ProceduralMaze::Sys::CryptSystem; };
+template<> struct Store::SystemTraits<Store::Type::CryptSystem>            { using type = Game::Sys::CryptSystem; };
 template<> struct Store::SystemTraits<Store::Type::DiggingSystem>          { using type = DiggingSystem; };
 template<> struct Store::SystemTraits<Store::Type::ExitSystem>             { using type = ExitSystem; };
 template<> struct Store::SystemTraits<Store::Type::FootstepSystem>         { using type = FootstepSystem; };
@@ -142,7 +142,7 @@ template<> struct Store::SystemTraits<Store::Type::LootSystem>             { usi
 template<> struct Store::SystemTraits<Store::Type::LightningSystem>        { using type = LightningSystem; };
 template<> struct Store::SystemTraits<Store::Type::NpcSystem>              { using type = NpcSystem; };
 template<> struct Store::SystemTraits<Store::Type::ParticleSystem>         { using type = ParticleSystem; };
-template<> struct Store::SystemTraits<Store::Type::PassageSystem>          { using type = ProceduralMaze::Sys::PassageSystem; };
+template<> struct Store::SystemTraits<Store::Type::PassageSystem>          { using type = Game::Sys::PassageSystem; };
 template<> struct Store::SystemTraits<Store::Type::PersistSystem>          { using type = PersistSystem; };
 template<> struct Store::SystemTraits<Store::Type::PlayerSystem>           { using type = PlayerSystem; };
 template<> struct Store::SystemTraits<Store::Type::RandomLevelGenerator>   { using type = ProcGen::RandomLevelGenerator; };
@@ -157,6 +157,6 @@ template<> struct Store::SystemTraits<Store::Type::SinkHoleHazardSystem>   { usi
 template<> struct Store::SystemTraits<Store::Type::WormholeSystem>         { using type = WormholeSystem; };
 // clang-format on
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_SYSTEMSTORE_HPP_

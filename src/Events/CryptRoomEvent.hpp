@@ -1,7 +1,7 @@
 #ifndef SRC_EVENTS_CRYPTROOMEVENT_HPP_
 #define SRC_EVENTS_CRYPTROOMEVENT_HPP_
 
-namespace ProceduralMaze::Events
+namespace Game::Events
 {
 
 // Event to lock a crypt room in the system
@@ -16,6 +16,6 @@ public:
   }
 };
 
-} // namespace ProceduralMaze::Events
+} // namespace Game::Events
 
 #endif // SRC_EVENTS_CRYPTROOMEVENT_HPP_

@@ -6,7 +6,7 @@
 #include <Systems/Render/RenderMenuSystem.hpp>
 #include <Systems/SystemStore.hpp>
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 void SettingsMenuScene::on_init() { SPDLOG_INFO( "Initializing SettingsMenuScene" ); }
@@ -32,4 +32,4 @@ void SettingsMenuScene::do_update( [[maybe_unused]] sf::Time dt )
 
 entt::registry &SettingsMenuScene::registry() { return m_reg; }
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene

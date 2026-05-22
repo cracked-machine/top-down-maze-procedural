@@ -1,7 +1,7 @@
 #ifndef SRC_COMPONENTS_CRYPTSEGMENT_HPP__
 #define SRC_COMPONENTS_CRYPTSEGMENT_HPP__
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 // Mainly used to distinguish between 16x16 block crypt segments for the purpose of collision detection
@@ -21,6 +21,6 @@ private:
   bool m_solid_mask{ true };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_COMPONENTS_CRYPTSEGMENT_HPP__

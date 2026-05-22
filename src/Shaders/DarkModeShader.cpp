@@ -10,7 +10,7 @@
 
 #include <Shaders/DarkModeShader.hpp>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 void DarkModeShader::update( entt::registry &reg )
@@ -28,4 +28,4 @@ void DarkModeShader::update( entt::registry &reg )
   set_center_at_position( Utils::Player::get_position( reg ).position );
 }
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites

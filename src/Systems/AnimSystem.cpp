@@ -36,7 +36,7 @@
 #include <SFML/System/Time.hpp>
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 void AnimSystem::update( sf::Time dt )
@@ -135,4 +135,4 @@ void AnimSystem::update_single_sequence( Cmp::AnimData &anim, sf::Time dt, const
   }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

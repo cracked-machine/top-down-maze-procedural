@@ -1,7 +1,7 @@
 #ifndef SRC_CMP_PLAYERBLASTRADIUS_HPP_
 #define SRC_CMP_PLAYERBLASTRADIUS_HPP_
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 struct PlayerBlastRadius
@@ -9,6 +9,6 @@ struct PlayerBlastRadius
   int value{};
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMP_PLAYERBLASTRADIUS_HPP_

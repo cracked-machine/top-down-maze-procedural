@@ -3,7 +3,7 @@
 
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 class AbsoluteOffset
@@ -28,6 +28,6 @@ private:
   sf::Vector2f m_offset;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // INC_COMPONENTS_ABSOLUTEOFFSET_HPP

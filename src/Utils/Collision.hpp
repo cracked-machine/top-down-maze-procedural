@@ -5,7 +5,7 @@
 #include <Components/RectBounds.hpp>
 #include <entt/entity/registry.hpp>
 
-namespace ProceduralMaze::Utils::Collision
+namespace Game::Utils::Collision
 {
 
 //! @brief Check if `Component` position collides with another component
@@ -47,6 +47,6 @@ bool check_pos( entt::registry &reg, Cmp::RectBounds pos, std::function<bool( co
   return false;
 }
 
-} // namespace ProceduralMaze::Utils::Collision
+} // namespace Game::Utils::Collision
 
 #endif // SRC_UTILS_REGISTRY_HPP_

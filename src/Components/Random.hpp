@@ -3,7 +3,7 @@
 
 #include <random>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 // Non-template base class holds shared static state
@@ -78,6 +78,6 @@ private:
 using RandomInt = Random<int>;
 using RandomFloat = Random<float>;
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __COMPONENTS_RANDOM_HPP__

@@ -19,17 +19,17 @@
 #include <spdlog/spdlog.h>
 
 // clang-format off
-namespace ProceduralMaze::Sprites { class SpriteFactory; }
-namespace ProceduralMaze::Sys { class Store; }
-namespace ProceduralMaze::Audio { class SoundBank; }
+namespace Game::Sprites { class SpriteFactory; }
+namespace Game::Sys { class Store; }
+namespace Game::Audio { class SoundBank; }
 // clang-format on
 
-namespace ProceduralMaze::PathFinding
+namespace Game::PathFinding
 {
 class SpatialHashGrid;
 }
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 // this currently only supports one bomb at a time
@@ -63,6 +63,6 @@ private:
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_BOMBSYSTEM_HPP__

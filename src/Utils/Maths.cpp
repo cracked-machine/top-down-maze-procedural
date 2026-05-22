@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace ProceduralMaze::Utils::Maths
+namespace Game::Utils::Maths
 {
 
 //! @brief Get the Manhattan Distance between two positions.
@@ -144,4 +144,4 @@ uint8_t to_percent( float max_value, uint8_t convert )
   return static_cast<uint8_t>( converted );
 }
 
-} // namespace ProceduralMaze::Utils::Maths
+} // namespace Game::Utils::Maths

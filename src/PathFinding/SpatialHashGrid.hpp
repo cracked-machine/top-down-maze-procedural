@@ -7,12 +7,12 @@
 #include <unordered_map>
 #include <vector>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 class Position;
 }
 
-namespace ProceduralMaze::PathFinding
+namespace Game::PathFinding
 {
 
 //! @brief Select Cardinal or All offsets for query function
@@ -73,6 +73,6 @@ private:
   long long encode( int x, int y ) const;
 };
 
-} // namespace ProceduralMaze::PathFinding
+} // namespace Game::PathFinding
 
 #endif // SRC_PATHFINDING_SPATIALHASHGRID_HPP_

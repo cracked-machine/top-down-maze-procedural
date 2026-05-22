@@ -45,7 +45,7 @@
 #include <optional>
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 using entt::exclude;
 
@@ -377,4 +377,4 @@ void BombSystem::update()
   }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

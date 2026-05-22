@@ -5,7 +5,7 @@
 #include <cmath>
 #include <numbers>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 sf::FloatRect CircleSegment::getBounds( sf::Vector2f center, float radius, float outline_thickness ) const
@@ -115,4 +115,4 @@ void CircleSegment::generateVertices( sf::Vector2f center, float radius, float o
   cached_color = color;
 }
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites

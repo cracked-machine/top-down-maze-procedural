@@ -28,7 +28,7 @@
 #include <spdlog/spdlog.h>
 #include <stdexcept>
 
-namespace ProceduralMaze::Utils
+namespace Game::Utils
 {
 
 bool isInBounds( const sf::Vector2f &position, const sf::Vector2f &size, const sf::Vector2u &map_grid_size )
@@ -218,4 +218,4 @@ entt::entity get_world_pos_entt( entt::registry &reg, Cmp::Position match )
   return entt::null;
 }
 
-} // namespace ProceduralMaze::Utils
+} // namespace Game::Utils

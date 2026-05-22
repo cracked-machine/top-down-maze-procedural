@@ -5,11 +5,11 @@
 #include <SceneControl/Scene.hpp>
 
 // clang-format off
-namespace ProceduralMaze::Sys { class Store; }
-namespace ProceduralMaze::Audio { class SoundBank; }
+namespace Game::Sys { class Store; }
+namespace Game::Audio { class SoundBank; }
 // clang-format on
 
-namespace ProceduralMaze::Scene
+namespace Game::Scene
 {
 
 class PausedMenuScene : public Scene<Events::ProcessPausedMenuSceneInputEvent>
@@ -37,6 +37,6 @@ private:
   Sys::Store &m_sys;
 };
 
-} // namespace ProceduralMaze::Scene
+} // namespace Game::Scene
 
 #endif // SCENE_PAUSEDMENUSCENE_HPP_

@@ -25,7 +25,7 @@
 
 #include <Systems/Threats/HazardTraits.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 template <ValidHazard HazardType>
@@ -251,6 +251,6 @@ public:
   // Add corruption-specific methods here if needed
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_HAZARDFIELDSYSTEMIMPL_HPP__

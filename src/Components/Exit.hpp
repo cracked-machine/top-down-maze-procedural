@@ -1,7 +1,8 @@
 #ifndef __COMPONENTS_EXIT_HPP__
 #define __COMPONENTS_EXIT_HPP__
 
-namespace ProceduralMaze::Cmp {
+namespace Game::Cmp
+{
 
 class Exit
 {
@@ -10,6 +11,6 @@ public:
   bool m_locked{ true };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __COMPONENTS_EXIT_HPP__

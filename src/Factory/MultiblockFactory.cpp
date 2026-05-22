@@ -21,7 +21,7 @@
 #include <Components/Ruin/RuinStairsSegment.hpp>
 #include <Sprites/SpriteSheet.hpp>
 
-namespace ProceduralMaze::Factory
+namespace Game::Factory
 {
 
-} // namespace ProceduralMaze::Factory
+} // namespace Game::Factory

@@ -3,13 +3,14 @@
 
 #include <SFML/System/Vector2.hpp>
 
-namespace ProceduralMaze::Cmp {
+namespace Game::Cmp
+{
 
 struct DisplaySize
 {
   sf::Vector2u m_size;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __COMPONENTS_DISPLAY_SIZE_HPP__

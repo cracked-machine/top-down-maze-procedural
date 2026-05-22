@@ -12,15 +12,15 @@
 #include <SpatialHashGrid.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 class SpriteSheet;
 class SpriteFactory;
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
 #include <entt/entity/fwd.hpp>
 
-namespace ProceduralMaze::Factory
+namespace Game::Factory
 {
 
 entt::entity create_crypt_exit( entt::registry &reg, sf::Vector2f spawn_pos_px );
@@ -28,15 +28,14 @@ entt::entity create_crypt_lever( entt::registry &reg, sf::Vector2f pos, Sprites:
 void destroy_crypt_lever( entt::registry &reg, entt::entity entt );
 
 void create_crypt_lava_pit( entt::registry &reg, const Cmp::CryptRoomOpen &room,
-                            std::shared_ptr<ProceduralMaze::PathFinding::SpatialHashGrid> pathfinding_navmesh );
-void destroy_crypt_lava_pit( entt::registry &reg, entt::entity entt,
-                             std::shared_ptr<ProceduralMaze::PathFinding::SpatialHashGrid> pathfinding_navmesh );
+                            std::shared_ptr<Game::PathFinding::SpatialHashGrid> pathfinding_navmesh );
+void destroy_crypt_lava_pit( entt::registry &reg, entt::entity entt, std::shared_ptr<Game::PathFinding::SpatialHashGrid> pathfinding_navmesh );
 
 void add_spike_trap( entt::registry &reg, const entt::entity entt, const int passage_id );
 
 entt::entity create_crypt_chest( entt::registry &reg, sf::Vector2f pos, Sprites::SpriteMetaType sprite_type, unsigned int sprite_idx, float zorder );
 void destroy_crypt_chest( entt::registry &reg, entt::entity entt );
 
-} // namespace ProceduralMaze::Factory
+} // namespace Game::Factory
 
 #endif // SRC_FACTORY_CRYPTFACTORY_HPP__

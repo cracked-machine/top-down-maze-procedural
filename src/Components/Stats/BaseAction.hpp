@@ -1,7 +1,7 @@
 #ifndef SRC_CMPS_STATS_BASEACTION_HPP_
 #define SRC_CMPS_STATS_BASEACTION_HPP_
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 namespace Stats
 {
@@ -65,6 +65,6 @@ private:
   float m_tick{ 0 };
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMPS_STATS_BASEACTION_HPP_

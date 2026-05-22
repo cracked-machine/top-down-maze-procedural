@@ -1,7 +1,8 @@
 #ifndef __COMPONENTS_PLAYER_KEYS_COUNT_HPP__
 #define __COMPONENTS_PLAYER_KEYS_COUNT_HPP__
 
-namespace ProceduralMaze::Cmp {
+namespace Game::Cmp
+{
 
 class PlayerKeysCount
 {
@@ -23,6 +24,6 @@ private:
   unsigned int m_count;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // __COMPONENTS_PLAYER_KEYS_COUNT_HPP__

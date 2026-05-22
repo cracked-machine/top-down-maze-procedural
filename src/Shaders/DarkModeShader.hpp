@@ -6,7 +6,7 @@
 #include <Shaders/BaseShaderSprite.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 class DarkModeShader : public BaseShaderSprite
@@ -34,6 +34,6 @@ public:
   void update( entt::registry &reg ) override;
 };
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
 #endif // __SPRITES_DARKMODESHADER_HPP__

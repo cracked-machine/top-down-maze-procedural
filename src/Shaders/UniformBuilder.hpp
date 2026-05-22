@@ -1,7 +1,7 @@
 #ifndef SRC_SHADERS_UNIFORMBUILDER_HPP_
 #define SRC_SHADERS_UNIFORMBUILDER_HPP_
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 /**
@@ -88,6 +88,6 @@ public:
   }
 };
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
 #endif // SRC_SHADERS_UNIFORMBUILDER_HPP_

@@ -40,7 +40,7 @@
 
 #include <stdexcept>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 AltarSystem::AltarSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -239,4 +239,4 @@ void AltarSystem::check_player_altar_activation( entt::entity altar_entity, Cmp:
   }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

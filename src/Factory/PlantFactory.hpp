@@ -5,22 +5,22 @@
 #include <SpatialHashGrid.hpp>
 #include <Sprites/SpriteMetaType.hpp>
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 class SpriteSheet;
 class SpriteFactory;
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 class SpriteFactory;
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
-namespace ProceduralMaze::Factory
+namespace Game::Factory
 {
 entt::entity create_plant_obstacle( entt::registry &reg, Cmp::Position pos_cmp, const Sprites::SpriteSheet &ms );
 
-} // namespace ProceduralMaze::Factory
+} // namespace Game::Factory
 
 #endif // SRC_FACTORY_PLANTFACTORY_HPP_

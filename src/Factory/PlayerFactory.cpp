@@ -46,7 +46,7 @@
 #include <entt/entity/fwd.hpp>
 #include <spdlog/spdlog.h>
 
-namespace ProceduralMaze::Factory
+namespace Game::Factory
 {
 
 void create_player( entt::registry &reg )
@@ -137,7 +137,7 @@ void add_inventory( entt::registry &reg, const std::string &item )
   if ( item.contains( "scryingball" ) )
   {
     Cmp::SeeingStone sb;
-    sb.target = ProceduralMaze::Cmp::SeeingStone::random_pick( {} );
+    sb.target = Game::Cmp::SeeingStone::random_pick( {} );
     reg.emplace_or_replace<Cmp::SeeingStone>( inventory_entity, sb );
   }
   if ( item.contains( "explosive" ) ) { reg.emplace_or_replace<Cmp::Explosive>( inventory_entity, false ); }
@@ -174,4 +174,4 @@ void remove_player_last_graveyard_pos( entt::registry &reg )
   reg.remove<Cmp::PlayerLastGraveyardPosition>( player_entt );
 }
 
-} // namespace ProceduralMaze::Factory
+} // namespace Game::Factory

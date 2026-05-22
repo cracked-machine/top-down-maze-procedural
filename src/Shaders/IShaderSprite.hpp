@@ -1,7 +1,7 @@
 #ifndef SRC_SHADERS_ISHADERSPRITE_HPP_
 #define SRC_SHADERS_ISHADERSPRITE_HPP_
 
-namespace ProceduralMaze::Sprites
+namespace Game::Sprites
 {
 
 class IShaderSprite;
@@ -23,6 +23,6 @@ protected:
   virtual sf::Shader &get_shader() = 0;
 };
 
-} // namespace ProceduralMaze::Sprites
+} // namespace Game::Sprites
 
 #endif // SRC_SHADERS_ISHADERSPRITE_HPP_

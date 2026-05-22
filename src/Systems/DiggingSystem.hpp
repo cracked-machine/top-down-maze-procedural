@@ -12,12 +12,12 @@
 #include <SFML/System/Clock.hpp>
 #include <filesystem>
 
-namespace ProceduralMaze::PathFinding
+namespace Game::PathFinding
 {
 class SpatialHashGrid;
 }
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 // DiggingSystem handles player digging actions within the maze.
@@ -75,6 +75,6 @@ private:
 
   PathFinding::SpatialHashGridWeakPtr m_pathfinding_navmesh;
 };
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_DIGGINGSYSTEM_HPP__

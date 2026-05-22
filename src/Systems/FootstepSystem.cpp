@@ -18,7 +18,7 @@
 #include <Systems/PersistSystemImpl.hpp>
 #include <Utils/Constants.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 void FootstepSystem::on_pause()
@@ -195,4 +195,4 @@ void FootstepSystem::update()
   }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

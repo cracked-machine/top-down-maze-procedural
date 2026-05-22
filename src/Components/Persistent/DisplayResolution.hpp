@@ -4,7 +4,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <nlohmann/json.hpp>
 #include <string>
-namespace ProceduralMaze::Cmp::Persist
+namespace Game::Cmp::Persist
 {
 
 class DisplayResolution : public sf::Vector2u
@@ -60,6 +60,6 @@ public:
   const std::string get_detail() const { return ""; }
 };
 
-} // namespace ProceduralMaze::Cmp::Persist
+} // namespace Game::Cmp::Persist
 
 #endif // SRC_COMPONENTS_PERSISTENT_DISPLAYRESOLUTION_HPP__

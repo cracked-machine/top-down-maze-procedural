@@ -60,7 +60,7 @@
 #include <Systems/PersistSystem.hpp>
 #include <Systems/PersistSystemImpl.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 PersistSystem::PersistSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -214,4 +214,4 @@ void PersistSystem::save_state()
   else { SPDLOG_ERROR( "Failed to open file for saving persistent state" ); }
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

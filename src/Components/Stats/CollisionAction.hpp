@@ -3,7 +3,7 @@
 
 #include <Stats/BaseAction.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 //! @brief Construct a new Sacrifice Action object
 //! @param health
@@ -23,6 +23,6 @@ public:
 private:
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 
 #endif // SRC_CMPS_STATS_COLLISIONACTION_HPP_

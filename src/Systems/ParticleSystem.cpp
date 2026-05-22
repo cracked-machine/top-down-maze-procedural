@@ -9,7 +9,7 @@
 #include <ZOrderValue.hpp>
 #include <entt/entity/fwd.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 ParticleSystem::ParticleSystem( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory, Audio::SoundBank &sound_bank )
@@ -87,4 +87,4 @@ void ParticleSystem::check_collsion( const sf::FloatRect &target )
   return particle_sprites;
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

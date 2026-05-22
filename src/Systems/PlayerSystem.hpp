@@ -9,14 +9,14 @@
 #include <entt/entity/fwd.hpp>
 
 // clang-format off
-namespace ProceduralMaze::Events { class DropInventoryEvent; class PlayerActionEvent; class PlayerMortalityEvent; }
-namespace ProceduralMaze::Sprites { class SpriteSheet; }
-namespace ProceduralMaze::Cmp { class Direction; class LerpPosition; class NpcShockwave; class Position; class PlayerMortality; class AnimData; }
-namespace ProceduralMaze::Cmp::Peristent { class EffectsVolume; } 
-namespace ProceduralMaze::PathFinding { class SpatialHashGrid; }
+namespace Game::Events { class DropInventoryEvent; class PlayerActionEvent; class PlayerMortalityEvent; }
+namespace Game::Sprites { class SpriteSheet; }
+namespace Game::Cmp { class Direction; class LerpPosition; class NpcShockwave; class Position; class PlayerMortality; class AnimData; }
+namespace Game::Cmp::Peristent { class EffectsVolume; } 
+namespace Game::PathFinding { class SpatialHashGrid; }
 // clang-format on
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class PlayerSystem : public BaseSystem
@@ -112,15 +112,15 @@ private:
 
   //! @brief Single drop, no pickup
   //! @param ev
-  void on_drop_inventory_event( ProceduralMaze::Events::DropInventoryEvent ev );
+  void on_drop_inventory_event( Game::Events::DropInventoryEvent ev );
 
   //! @brief Attack, Dig and Drop/Pickup events
   //! @param ev
-  void on_player_action_event( ProceduralMaze::Events::PlayerActionEvent ev );
+  void on_player_action_event( Game::Events::PlayerActionEvent ev );
 
   //! @brief Various ways in which the player can die. Starts the death animation loop.
   //! @param ev
-  void on_player_mortality_event( ProceduralMaze::Events::PlayerMortalityEvent ev );
+  void on_player_mortality_event( Game::Events::PlayerMortalityEvent ev );
 
   //! @brief Use this to send events to the scene manager
   entt::dispatcher &m_scenemanager_event_dispatcher;
@@ -143,6 +143,6 @@ private:
   PathFinding::SpatialHashGridWeakPtr m_open_navmesh;
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_PLAYERSYSTEM_HPP__

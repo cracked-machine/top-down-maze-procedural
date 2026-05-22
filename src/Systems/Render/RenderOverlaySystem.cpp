@@ -47,7 +47,7 @@
 #include <sstream>
 #include <string>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 void RenderOverlaySystem::render_ui_outlines()
@@ -734,4 +734,4 @@ void RenderOverlaySystem::render_wear_level( float wearlevel, const Cmp::Positio
   draw_world( icon );
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

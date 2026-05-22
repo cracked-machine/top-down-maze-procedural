@@ -8,7 +8,7 @@
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <Systems/BaseSystem.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class LootSystem : public BaseSystem
@@ -27,6 +27,6 @@ public:
 private:
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_LOOTSYSTEM_HPP__

@@ -3,7 +3,7 @@
 
 #include <Factory/SpriteFactory.hpp>
 
-namespace ProceduralMaze::Cmp
+namespace Game::Cmp
 {
 
 //! @brief Mark an entity as a dropped loot item
@@ -12,5 +12,5 @@ struct Loot
   [[maybe_unused]] bool active = true;
 };
 
-} // namespace ProceduralMaze::Cmp
+} // namespace Game::Cmp
 #endif // __COMPONENTS_LOOT_HPP__

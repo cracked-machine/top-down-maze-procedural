@@ -26,7 +26,7 @@
 
 #include <SFML/System/Time.hpp>
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 void HolyWellSystem::add_well_ms( sf::Vector2u spawn_position )
@@ -115,4 +115,4 @@ void HolyWellSystem::check_inventory_deposit()
   m_inventory_deposit_interval = sf::Time::Zero;
 }
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys

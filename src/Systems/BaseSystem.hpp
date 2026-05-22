@@ -9,13 +9,13 @@
 #include <spdlog/fwd.h>
 
 // clang-format off
-namespace ProceduralMaze::Sprites { class SpriteFactory; }
-namespace ProceduralMaze::Sys { class Store; }
-namespace ProceduralMaze::Audio { class SoundBank; }
-namespace ProceduralMaze::PathFinding{ class SpatialHashGrid; }
+namespace Game::Sprites { class SpriteFactory; }
+namespace Game::Sys { class Store; }
+namespace Game::Audio { class SoundBank; }
+namespace Game::PathFinding{ class SpatialHashGrid; }
 // clang-format on
 
-namespace ProceduralMaze::Sys
+namespace Game::Sys
 {
 
 class BaseSystem
@@ -79,6 +79,6 @@ private:
   static std::unique_ptr<entt::dispatcher> m_systems_event_queue;
 };
 
-} // namespace ProceduralMaze::Sys
+} // namespace Game::Sys
 
 #endif // SRC_SYSTEMS_BASESYSTEM_HPP__

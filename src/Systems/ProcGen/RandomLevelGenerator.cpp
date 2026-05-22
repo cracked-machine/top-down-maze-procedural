@@ -54,7 +54,7 @@
 
 #include <Systems/ProcGen/RandomLevelGenerator.hpp>
 
-namespace ProceduralMaze::Sys::ProcGen
+namespace Game::Sys::ProcGen
 {
 
 RandomLevelGenerator::RandomLevelGenerator( entt::registry &reg, sf::RenderWindow &window, Sprites::SpriteFactory &sprite_factory,
@@ -403,4 +403,4 @@ void RandomLevelGenerator::reset()
   m_void_sm = std::make_unique<PathFinding::SpatialHashGrid>();
 }
 
-} // namespace ProceduralMaze::Sys::ProcGen
+} // namespace Game::Sys::ProcGen
